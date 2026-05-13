@@ -1,143 +1,227 @@
 <p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
+
 <div align="center">
-  Traducciones también disponibles en:
-  <a href="../../README.md">EN</a>
-  <a href="README-zh_cn.md">CN</a>
-  <a href="README-zh_tw.md">TW</a>
-  <a href="README-de.md">DE</a>
-  <a href="README-fr.md">FR</a>
-  <a href="README-jp.md">JP</a>
-  <a href="README-kr.md">KR</a>
-  <a href="README-pt.md">PT</a>
+  <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
+    <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
+  </a>
+</div>
+<div align="center">
+  <strong>:high_brightness: Editor Markdown de nueva generación :crescent_moon:</strong><br>
+  Un editor Markdown de código abierto, simple y elegante, enfocado en velocidad y usabilidad.<br>
+  <sub>Disponible para Linux, macOS y Windows.</sub>
 </div>
 
----
+<br>
 
 <div align="center">
-  <strong>🔆 Editor Markdown de nueva generación 🌙</strong><br>
-  Un editor Markdown de código abierto, simple y elegante, centrado en la velocidad y la usabilidad.<br>
-</div>
-
-<div align="center">
-  <!-- Latest Release Version -->
-  <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/marktext/marktext">
+  <!-- License -->
+  <a href="../../LICENSE">
+    <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Downloads total -->
   <a href="https://github.com/marktext/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/marktext/marktext/total">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/marktext/marktext/latest/total">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.17.1/total.svg" alt="latest download">
+  </a>
+  <!-- sponsors -->
+  <a href="https://opencollective.com/marktext">
+    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=SilverSponsors&color=brightgreen" alt="sponsors">
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) es un editor Markdown gratuito y de código abierto escrito por [Jocs](https://github.com/Jocs) y [colaboradores](https://github.com/marktext/marktext/graphs/contributors).
+<div align="center">
+  <h3>
+    <a href="https://github.com/marktext/marktext">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#features">
+      Características
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#download-and-installation">
+      Descarga e Instalación
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#development">
+      Desarrollo
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#contribution">
+      Contribución
+    </a>
+  </h3>
+</div>
 
-# 1. Instalación
+<div align="center">
+  <sub>Traducciones:</sub>
+  <a href="../../README.md">
+    <span>:uk:</span>
+  </a>
+  <a href="README-zh_cn.md#readme">
+    <span>:cn:</span>
+  </a>
+  <a href="README-zh_tw.md#readme">
+    <span>:taiwan:</span>
+  </a>
+  <a href="README-de.md#readme">
+    <span>:de:</span>
+  </a>
+  <a href="README-jp.md#readme">
+    <span>:jp:</span>
+  </a>
+  <a href="README-fr.md#readme">
+    <span>:fr:</span>
+  </a>
+  <a href="README-tr.md#readme">
+    <span>:tr:</span>
+  </a>
+  <a href="README-pt.md#readme">
+    <span>:portugal:</span>
+  </a>
+  <a href="README-kr.md#readme">
+    <span>:kr:</span>
+  </a>
+  <a href="README-ar.md#readme">
+    <span>:saudi_arabia:</span>
+  </a>
+</div>
 
-> ⚠️ Estas versiones aún están en **beta** (no sé cuántas cosas pude haber roto durante la migración). Por favor, informe cualquier error en el [issue tracker](https://github.com/marktext/marktext/issues)
+<div align="center">
+  <sub>Este editor Markdown fue creado con ❤︎ por
+    <a href="https://github.com/Jocs">Jocs</a> y
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      colaboradores
+    </a>.</sub>
+</div>
 
-## Windows
+<br />
 
-- ¡Solo consulte la [página de releases](https://github.com/marktext/marktext/releases)!
+<h2 align="center">Apoyando a MarkText</h2>
 
-- Probado en:
-  - `Windows 11`
+MarkText es un proyecto de código abierto con licencia MIT, y la última versión siempre se puede descargar gratis desde la página de releases de GitHub. MarkText todavía está en desarrollo y su desarrollo es inseparable de todos los patrocinadores. Espero que te unas a ellos:
 
-## Linux
+- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
+- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
-- Solo consulte la [página de releases](https://github.com/marktext/marktext/releases)
-- Probado en: `Ubuntu 24.0.2`, `Ubuntu 22.04.5`
-  - _¡Cualquier ayuda para probar otros paquetes de Linux es bienvenida!_
+##### ¿Cuál es la diferencia entre Patreon y Open Collective?
 
-### Gestores de paquetes de Linux
+Patreon: Los fondos serán patrocinados directamente a Luo Ran (@jocs), quien creó MarkText y continúa manteniéndolo.
+Open Collective: Todos los gastos son transparentes. Los fondos se utilizarán para el desarrollo y mantenimiento de MarkText, financiar actividades en línea y fuera de línea, y adquirir otros recursos necesarios.
+Los nombres y logotipos de todos los patrocinadores (tanto de Patreon como de Open Collective) aparecerán en el sitio web oficial de MarkText y en su archivo README.md.
 
-##### 1. Arch Linux [![AUR Version](https://img.shields.io/aur/version/marktext-bin)](https://aur.archlinux.org/packages/marktext-bin)
+**Patrocinadores Platino**
 
-- Disponible en el [AUR](https://aur.archlinux.org/packages/marktext-bin) gracias a [@kromsam](https://github.com/kromsam)
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+ <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
+</a>
 
-## MacOS
+**Patrocinadores Oro**
 
-> ⚠️ Las versiones de MacOS mostrarán "`MarkText is damaged and can't be opened`" debido a **la falta de notarización**.
-> Consulte [esta solución aquí](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) (que también se aplica a cualquier otra aplicación que no tenga firma de cuenta de desarrollador)
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
+</a>
 
-- Disponible en la [página de releases](https://github.com/marktext/marktext/releases)
+**Patrocinadores Plata**
 
-# 2. Capturas de pantalla
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Patrocinadores Bronce**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**Colaboradores**
+
+<a href="https://opencollective.com/marktext#backers">
+  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
+</a>
+
+## Capturas de pantalla
 
 ![](../assets/marktext.png?raw=true)
 
-# 3. ✨Características ⭐
+## Características
 
-- 🆕 Ahora disponible en **9 idiomas** desde el editor de `Preferencias` (Agradecimientos especiales a [@hubo1989](https://github.com/hubo1989))
-  - `English` 🇺🇸
-  - `简体中文` 🇨🇳
-  - `繁體中文` 🇹🇼
-  - `Deutsch` 🇩🇪
-  - `Español` 🇪🇸
-  - `Français` 🇫🇷
-  - `日本語` 🇯🇵
-  - `한국어` 🇰🇷
-  - `Português` 🇵🇹
-
-- Vista previa en tiempo real (WYSIWYG) y una interfaz limpia y simple para una experiencia de escritura sin distracciones.
-
+- Vista previa en tiempo real (WYSIWYG) e interfaz limpia y simple para una experiencia de escritura sin distracciones.
 - Compatible con [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) y soporte selectivo de [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
-
 - Extensiones Markdown como expresiones matemáticas (KaTeX), front matter y emojis.
-
-- Soporte para atajos de párrafo y estilo en línea para mejorar su eficiencia de escritura.
-
+- Soporte para atajos de párrafo y estilo en línea para mejorar tu eficiencia de escritura.
 - Exportación de archivos **HTML** y **PDF**.
-
-- **33 temas integrados** incluyendo esquemas populares como **Dracula**, **Nord**, **Catppuccin**, **Tokyo Night**, **Gruvbox** y más.
-
+- Varios [temas](../end-user/THEMES.md): **Cadmium Light**, **Material Dark**, etc.
 - Varios modos de edición: **Modo Código Fuente**, **Modo Máquina de Escribir**, **Modo Enfoque**.
-
 - Pegado de imágenes directamente desde el portapapeles.
 
-## 3.1 🌙 Temas🔆
+## Descarga e Instalación
 
-MarkText incluye **33 temas integrados** - 10 claros y 23 oscuros:
+![Plataforma](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-**Claros**: Ayu Light, Cadmium Light, Catppuccin Latte, Everforest Light, Graphite Light, Gruvbox Light, Rosé Pine Dawn, Solarized Light, Tokyo Night Light, Ulysses Light
+| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-**Oscuros**: Ayu Dark, Ayu Mirage, Cadmium Dark, Catppuccin Mocha, cyberdream, Dracula, Everforest Dark, Gruvbox Dark, Horizon Dark, Kanagawa, Material Dark, Monokai Pro, Nightfox, Nord, One Dark, Oxocarbon Dark, Palenight, Rosé Pine, Rosé Pine Moon, Solarized Dark, Synthwave '84, Tokyo Night, Tokyo Night Storm
+¿Quieres ver las nuevas funciones de la última versión? Consulta el [CHANGELOG](../CHANGELOG.md).
 
-| Cadmium Light                                   | Dark                                          |
-| ----------------------------------------------- | --------------------------------------------- |
-| ![](../themeImages/cadmium-light.png?raw=true)  | ![](../themeImages/dark.png?raw=true)         |
-| Graphite Light                                  | Material Dark                                 |
-| ![](../themeImages/graphite-light.png?raw=true) | ![](../themeImages/materal-dark.png?raw=true) |
-| Ulysses Light                                   | One Dark                                      |
-| ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
+#### macOS
 
-> 📖 Consulta [docs/THEMES.md](../end-user/THEMES.md) para ver la lista completa de temas con descripciones y capturas de pantalla.
+Puedes descargar el último `marktext-%version%.dmg` desde la [página de releases](https://github.com/marktext/marktext/releases/latest) o instalar MarkText usando [**homebrew cask**](https://github.com/caskroom/homebrew-cask). Para usar Homebrew-Cask solo necesitas tener [Homebrew](https://brew.sh/) instalado.
 
-## 3.2 😸Modos de edición🐶
+```bash
+brew install --cask mark-text
+```
 
-|    Código fuente   |    Máquina de escribir   |       Enfoque       |
-| :----------------: | :----------------------: | :-----------------: |
-| ![](../assets/source.gif) | ![](../assets/typewriter.gif)   | ![](../assets/focus.gif)   |
+#### Windows
 
-# 4. Colaboradores
+Simplemente descarga e instala MarkText mediante el asistente de configuración (`marktext-setup-%version%.exe`) y elige si instalarlo por usuario o para todo el sistema. Alternativamente, instala MarkText usando un gestor de paquetes como [Chocolatey](https://chocolatey.org/) o [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/).
 
-<a href="https://github.com/marktext/marktext/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=marktext/marktext" />
-</a>
+Para usar Chocolatey, necesitas tener [Chocolatey](https://chocolatey.org/install) instalado:
 
-## 5. ¡Genial! ¿Cómo puedo ayudar?
+```bash
+choco install marktext
+```
 
-- Cualquier forma de:
-  1. Pruebas para detectar errores (Bug-Reports)
-  2. Pull Requests
+Para usar Winget, necesitas tener [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) instalado:
 
-  ¡Son más que bienvenidos!
+```bash
+winget install marktext
+```
 
-## 6. Configuración del proyecto
+#### Linux
 
-- Consulta la [Documentación para Desarrolladores](../dev/README.md)
+Por favor sigue las [instrucciones de instalación de Linux](../end-user/LINUX.md).
+
+#### Otros
+
+Todos los binarios para Linux, macOS y Windows se pueden descargar desde la [página de releases](https://github.com/marktext/marktext/releases/latest). Si no hay una versión disponible para tu sistema, por favor abre un [issue](https://github.com/marktext/marktext/issues).
+
+## Desarrollo
+
+Si deseas compilar MarkText tú mismo, consulta nuestras [instrucciones de compilación](../dev/BUILD.md).
+
+- [Documentación de usuario](../README.md)
+- [Documentación de desarrollador](../dev/README.md)
+
+Si tienes preguntas sobre MarkText, puedes abrir un issue. Por favor usa el formato predeterminado al hacerlo. Por supuesto, si envías un PR directamente, será muy apreciado.
+
+## Contribución
+
+MarkText está en desarrollo. Por favor lee la [Guía de Contribución](../../.github/CONTRIBUTING.md) antes de hacer un pull request. ¿Quieres añadir funciones a MarkText? Consulta nuestra [hoja de ruta](https://github.com/marktext/marktext/projects) e issues abiertos.
+
+
+## Colaboradores
+
+Gracias a todas las personas que ya han contribuido a MarkText[[colaboradores](https://github.com/marktext/marktext/graphs/contributors)].
+
+<a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
+
+## Licencia
+
+[**MIT**](../../LICENSE).

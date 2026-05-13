@@ -1,143 +1,228 @@
 <p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
+
 <div align="center">
-  也提供以下语言翻译：
-  <a href="../../README.md">EN</a>
-  <a href="README-zh_tw.md">TW</a>
-  <a href="README-de.md">DE</a>
-  <a href="README-es.md">ES</a>
-  <a href="README-fr.md">FR</a>
-  <a href="README-jp.md">JP</a>
-  <a href="README-kr.md">KR</a>
-  <a href="README-pt.md">PT</a>
+  <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
+    <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
+  </a>
+</div>
+<div align="center">
+  <strong>:high_brightness: 下一代 Markdown 编辑器 :crescent_moon:</strong><br>
+  一款专注于速度和易用性的简洁优雅的开源 Markdown 编辑器。<br>
+  <sub>支持 Linux、macOS 和 Windows。</sub>
 </div>
 
----
+<br>
 
 <div align="center">
-  <strong>🔆 下一代 Markdown 编辑器 🌙</strong><br>
-  一款专注于速度与易用性的简洁优雅的开源 Markdown 编辑器。<br>
-</div>
-
-<div align="center">
-  <!-- Latest Release Version -->
-  <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/marktext/marktext">
+  <!-- License -->
+  <a href="../../LICENSE">
+    <img src="https://img.shields.io/github/license/marktext/marktext.svg" alt="LICENSE">
   </a>
   <!-- Downloads total -->
   <a href="https://github.com/marktext/marktext/releases">
-    <img alt="GitHub Downloads (all assets, all releases)" src="https://img.shields.io/github/downloads/marktext/marktext/total">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/total.svg" alt="total download">
   </a>
   <!-- Downloads latest release -->
   <a href="https://github.com/marktext/marktext/releases/latest">
-    <img alt="GitHub Downloads (all assets, latest release)" src="https://img.shields.io/github/downloads/marktext/marktext/latest/total">
+    <img src="https://img.shields.io/github/downloads/marktext/marktext/v0.17.1/total.svg" alt="latest download">
+  </a>
+  <!-- sponsors -->
+  <a href="https://opencollective.com/marktext">
+    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=SilverSponsors&color=brightgreen" alt="sponsors">
   </a>
 </div>
 
-- [MarkText](https://github.com/marktext/marktext) 是由 [Jocs](https://github.com/Jocs) 与[贡献者们](https://github.com/marktext/marktext/graphs/contributors)编写的免费开源 Markdown 编辑器。
+<div align="center">
+  <h3>
+    <a href="https://github.com/marktext/marktext">
+      Website
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#features">
+      功能
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#download-and-installation">
+      下载与安装
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#development">
+      开发
+    </a>
+    <span> | </span>
+    <a href="https://github.com/marktext/marktext#contribution">
+      贡献
+    </a>
+  </h3>
+</div>
 
-# 1. 安装
+<div align="center">
+  <sub>其他语言翻译：</sub>
+  <a href="../../README.md">
+    <span>:uk:</span>
+  </a>
+  <a href="README-zh_tw.md#readme">
+    <span>:taiwan:</span>
+  </a>
+  <a href="README-de.md#readme">
+    <span>:de:</span>
+  </a>
+  <a href="README-jp.md#readme">
+    <span>:jp:</span>
+  </a>
+  <a href="README-fr.md#readme">
+    <span>:fr:</span>
+  </a>
+  <a href="README-tr.md#readme">
+    <span>:tr:</span>
+  </a>
+  <a href="README-es.md#readme">
+    <span>:es:</span>
+  </a>
+  <a href="README-pt.md#readme">
+    <span>:portugal:</span>
+  </a>
+  <a href="README-kr.md#readme">
+    <span>:kr:</span>
+  </a>
+  <a href="README-ar.md#readme">
+    <span>:saudi_arabia:</span>
+  </a>
+</div>
 
-> ⚠️ 这些版本仍处于 **测试阶段**（因为我不清楚迁移过程中破坏了多少内容）。请在 [问题追踪器](https://github.com/marktext/marktext/issues) 中报告任何错误
+<div align="center">
+  <sub>这款 Markdown 编辑器由
+    <a href="https://github.com/Jocs">Jocs</a> 和
+    <a href="https://github.com/marktext/marktext/graphs/contributors">
+      贡献者们
+    </a>
+    用 ❤︎ 构建。</sub>
+</div>
 
-## Windows
+<br />
 
-- 直接查看 [发布页](https://github.com/marktext/marktext/releases)！
+<h2 align="center">支持 MarkText</h2>
 
-- 已在以下系统测试：
-  - `Windows 11`
+MarkText 是一个 MIT 许可的开源项目，最新版本始终可以从 GitHub 发布页面免费下载。MarkText 仍在开发中，其发展离不开所有赞助商。希望你能加入他们：
 
-## Linux
+- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
+- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
 
-- 直接查看 [发布页](https://github.com/marktext/marktext/releases)
-- 已在以下系统测试： `Ubuntu 24.0.2`、`Ubuntu 22.04.5`
-  - _欢迎帮助测试其他 Linux 软件包！_
+##### Patreon 和 Open Collective 的区别是什么？
 
-### Linux 包管理器
+Patreon：资金将直接赞助给创建并持续维护 MarkText 的 Luo Ran（@jocs）。
+Open Collective：所有费用均透明。资金将用于 MarkText 的开发和维护、资助线上和线下活动以及获取其他必要资源。
+所有赞助商（来自 Patreon 和 Open Collective）的姓名和公司徽标将出现在 MarkText 官方网站及其 README.md 文件中。
 
-##### 1. Arch Linux [![AUR Version](https://img.shields.io/aur/version/marktext-bin)](https://aur.archlinux.org/packages/marktext-bin)
+**白金赞助商**
 
-- 感谢 [@kromsam](https://github.com/kromsam)，可在 [AUR](https://aur.archlinux.org/packages/marktext-bin) 获取
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+ <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
+</a>
 
-## MacOS
+**金牌赞助商**
 
-> ⚠️ 由于**缺少公证**，MacOS 版本会显示"`MarkText is damaged and can't be opened`"。
-> 请参考[此处的修复方法](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300)（同样适用于任何缺少开发者账号签名的应用）
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
+</a>
 
-- 可在[发布页](https://github.com/marktext/marktext/releases)获取
+**银牌赞助商**
 
-# 2. 截图
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**铜牌赞助商**
+
+<a href="https://opencollective.com/marktext#platinum-sponsors">
+  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
+</a>
+
+**支持者**
+
+<a href="https://opencollective.com/marktext#backers">
+  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
+</a>
+
+## 截图
 
 ![](../assets/marktext.png?raw=true)
 
-# 3. ✨功能 ⭐
+## 功能
 
-- 🆕 现已支持从 `偏好设置` 编辑器中切换 **9 种语言**（特别感谢 [@hubo1989](https://github.com/hubo1989))
-  - `English` 🇺🇸
-  - `简体中文` 🇨🇳
-  - `繁體中文` 🇹🇼
-  - `Deutsch` 🇩🇪
-  - `Español` 🇪🇸
-  - `Français` 🇫🇷
-  - `日本語` 🇯🇵
-  - `한국어` 🇰🇷
-  - `Português` 🇵🇹
-
-- 实时预览（所见即所得），界面干净简洁，带来无干扰写作体验。
-
-- 支持 [CommonMark 规范](https://spec.commonmark.org/0.29/)、[GitHub 扩展 Markdown 规范](https://github.github.com/gfm/)，并选择性支持 [Pandoc Markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)。
-
-- 提供 Markdown 扩展，例如数学公式（KaTeX）、Front Matter 与表情符号。
-
-- 支持段落与行内样式的快捷方式，提升你的写作效率。
-
-- 可导出 **HTML** 与 **PDF** 文件。
-
-- **33 款内置主题**，包含 **Dracula**、**Nord**、**Catppuccin**、**Tokyo Night**、**Gruvbox** 等热门方案。
-
+- 实时预览（所见即所得）及简洁清爽的界面，带来无干扰的写作体验。
+- 支持 [CommonMark 规范](https://spec.commonmark.org/0.29/)、[GitHub Flavored Markdown 规范](https://github.github.com/gfm/)，并选择性支持 [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)。
+- 支持数学表达式（KaTeX）、Front Matter 和表情符号等 Markdown 扩展。
+- 支持段落和内联样式快捷方式，提升写作效率。
+- 可导出 **HTML** 和 **PDF** 文件。
+- 多种[主题](../end-user/THEMES.md)：**Cadmium Light**、**Material Dark** 等。
 - 多种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
+- 支持直接从剪贴板粘贴图片。
 
-- 可直接从剪贴板粘贴图片。
+## 下载与安装
 
-## 3.1 🌙 主题🔆
+![平台](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-MarkText 内置 **33 款主题** —— 10 款浅色与 23 款深色：
+| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
+|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-**浅色**：Ayu Light、Cadmium Light、Catppuccin Latte、Everforest Light、Graphite Light、Gruvbox Light、Rosé Pine Dawn、Solarized Light、Tokyo Night Light、Ulysses Light
+想了解最新版本的新功能？请参阅 [CHANGELOG](../CHANGELOG.md)。
 
-**深色**：Ayu Dark、Ayu Mirage、Cadmium Dark、Catppuccin Mocha、cyberdream、Dracula、Everforest Dark、Gruvbox Dark、Horizon Dark、Kanagawa、Material Dark、Monokai Pro、Nightfox、Nord、One Dark、Oxocarbon Dark、Palenight、Rosé Pine、Rosé Pine Moon、Solarized Dark、Synthwave '84、Tokyo Night、Tokyo Night Storm
+#### macOS
 
-| Cadmium Light                                   | Dark                                          |
-| ----------------------------------------------- | --------------------------------------------- |
-| ![](../themeImages/cadmium-light.png?raw=true)  | ![](../themeImages/dark.png?raw=true)         |
-| Graphite Light                                  | Material Dark                                 |
-| ![](../themeImages/graphite-light.png?raw=true) | ![](../themeImages/materal-dark.png?raw=true) |
-| Ulysses Light                                   | One Dark                                      |
-| ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
+你可以从[发布页](https://github.com/marktext/marktext/releases/latest)下载最新的 `marktext-%version%.dmg`，或通过 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安装 MarkText。使用 Homebrew-Cask 只需先安装 [Homebrew](https://brew.sh/)。
 
-> 📖 完整主题列表（含描述与截图）请参见 [docs/THEMES.md](../end-user/THEMES.md)。
+```bash
+brew install --cask mark-text
+```
 
-## 3.2 😸编辑模式🐶
+#### Windows
 
-|       源代码       |         打字机         |       专注        |
-| :----------------: | :--------------------: | :---------------: |
-| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
+只需下载并通过安装向导（`marktext-setup-%version%.exe`）安装 MarkText，并选择用户级或系统级安装。或者，使用包管理器 [Chocolatey](https://chocolatey.org/) 或 [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/) 安装 MarkText。
 
-# 4. 贡献者
+使用 Chocolatey，需先安装 [Chocolatey](https://chocolatey.org/install)：
 
-<a href="https://github.com/marktext/marktext/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=marktext/marktext" />
-</a>
+```bash
+choco install marktext
+```
 
-## 5. 太棒了！我能如何贡献？
+使用 Winget，需先安装 [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget)：
 
-- 任何形式的：
-  1. 错误测试（Bug-Reports）
-  2. Pull Request
+```bash
+winget install marktext
+```
 
-  都非常欢迎！
+#### Linux
 
-## 6. 项目设置
+请参阅 [Linux 安装说明](../end-user/LINUX.md)。
 
-- 参见[开发者文档](../dev/README.md)
+#### 其他
+
+所有 Linux、macOS 和 Windows 的二进制文件均可从[发布页](https://github.com/marktext/marktext/releases/latest)下载。如果你的系统没有对应版本，请提交 [issue](https://github.com/marktext/marktext/issues)。
+
+## 开发
+
+如果你希望自行构建 MarkText，请参阅我们的[构建说明](../dev/BUILD.md)。
+
+- [用户文档](../README.md)
+- [开发者文档](../dev/README.md)
+
+如果你对 MarkText 有任何疑问，欢迎提交 issue。提交时请使用打开 issue 时的默认格式。当然，如果你直接提交 PR，将不胜感激。
+
+## 贡献
+
+MarkText 正在开发中，请在提交 pull request 之前确保阅读[贡献指南](../../.github/CONTRIBUTING.md)。想为 MarkText 添加新功能？请参阅我们的[路线图](https://github.com/marktext/marktext/projects)和开放 issue。
+
+
+## 贡献者
+
+感谢所有已经为 MarkText 做出贡献的人[[贡献者](https://github.com/marktext/marktext/graphs/contributors)]。
+
+<a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
+
+## 许可证
+
+[**MIT**](../../LICENSE).
