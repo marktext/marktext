@@ -18,6 +18,7 @@ import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
+import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 
 class App {
   /**
@@ -251,12 +252,10 @@ class App {
       }
     }
 
-    // Configure native theme to follow system preferences
-    // Setting themeSource to 'system' allows Electron to track system theme changes
-    nativeTheme.themeSource = 'system'
+    nativeTheme.themeSource = getNativeThemeSource({ followSystemTheme, theme })
 
     // Apply theme at startup if "Follow system theme" is enabled
-    const isDarkTheme = /dark/i.test(theme)
+    const isDarkTheme = isDarkApplicationTheme(theme)
     const systemIsDark = nativeTheme.shouldUseDarkColors
 
     if (followSystemTheme && isDarkTheme !== systemIsDark) {
@@ -268,6 +267,12 @@ class App {
     }
 
     ipcMain.on('broadcast-preferences-changed', (change) => {
+      const nextPreferences = {
+        ...preferences.getAll(),
+        ...change
+      }
+      nativeTheme.themeSource = getNativeThemeSource(nextPreferences)
+
       // When followSystemTheme is enabled, immediately switch to match system
       if (change.followSystemTheme === true) {
         const systemIsDark = nativeTheme.shouldUseDarkColors
