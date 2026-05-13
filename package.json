@@ -103,6 +103,7 @@
     "@babel/eslint-parser": "^7.28.5",
     "@electron-toolkit/eslint-config": "^2.1.0",
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
+    "@playwright/test": "^1.60.0",
     "@vitejs/plugin-vue": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.6",
     "cross-env": "^10.1.0",
