@@ -8,7 +8,6 @@
 - `dist/`: Packaged binaries and installers for distribution
 - `resources/`: Application assets (themes, icons, etc) included in builds
 - `docs/`: Documentation and assets
-- `resources/`: Application assets using at build time
 - `node_modules/`: Dependencies
 - `src`: MarkText source code
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.

@@ -834,6 +834,10 @@ class ContentState {
       clearTimeout(this.historyTimer)
       this.historyTimer = null
     }
+    if (this.renderCodeBlockTimer) {
+      clearTimeout(this.renderCodeBlockTimer)
+      this.renderCodeBlockTimer = null
+    }
     this.history.clearHistory()
   }
 }
