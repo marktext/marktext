@@ -30,7 +30,7 @@ export const removeFromDictionary = (win, word) => {
  * @param {BrowserWindow} win The browser window.
  * @returns {Promise<string[]>} List of custom dictionary words.
  */
-export const getCustomDictionaryWords = async (win) => {
+export const getCustomDictionaryWords = async(win) => {
   return win.webContents.session.listWordsInSpellCheckerDictionary()
 }
 
@@ -76,21 +76,21 @@ export const getAvailableDictionaries = (win) => {
 }
 
 export default () => {
-  ipcMain.handle('mt::spellchecker-remove-word', async (e, word) => {
+  ipcMain.handle('mt::spellchecker-remove-word', async(e, word) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return removeFromDictionary(win, word)
   })
-  ipcMain.handle('mt::spellchecker-switch-language', async (e, lang) => {
+  ipcMain.handle('mt::spellchecker-switch-language', async(e, lang) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     switchLanguage(win, lang)
     return null
   })
-  ipcMain.handle('mt::spellchecker-get-available-dictionaries', async (e) => {
+  ipcMain.handle('mt::spellchecker-get-available-dictionaries', async(e) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return getAvailableDictionaries(win)
   })
   // NOTE: We have to set a language or call `switchLanguage` on Linux and Windows.
-  ipcMain.handle('mt::spellchecker-set-enabled', async (e, enabled) => {
+  ipcMain.handle('mt::spellchecker-set-enabled', async(e, enabled) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!setSpellCheckerEnabled(win, enabled)) {
       log.warn(`Failed to (de-)activate spell checking on editor (id=${win.id}).`)
@@ -98,7 +98,7 @@ export default () => {
     }
     return true
   })
-  ipcMain.handle('mt::spellchecker-get-custom-dictionary-words', async (e) => {
+  ipcMain.handle('mt::spellchecker-get-custom-dictionary-words', async(e) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     return getCustomDictionaryWords(win)
   })

@@ -13,31 +13,58 @@
           aria-hidden="true"
           @click.stop="toggleOpenedFiles()"
         >
-          <use xlink:href="#icon-arrow"></use>
+          <use xlink:href="#icon-arrow" />
         </svg>
-        <span class="default-cursor text-overflow" @click.stop="toggleOpenedFiles()">{{
+        <span
+          class="default-cursor text-overflow"
+          @click.stop="toggleOpenedFiles()"
+        >{{
           t('sideBar.tree.openedFiles')
         }}</span>
-        <a href="javascript:;" :title="t('sideBar.tree.saveAll')" @click.stop="saveAll(false)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-save-all"></use>
+        <a
+          href="javascript:;"
+          :title="t('sideBar.tree.saveAll')"
+          @click.stop="saveAll(false)"
+        >
+          <svg
+            class="icon"
+            aria-hidden="true"
+          >
+            <use xlink:href="#icon-save-all" />
           </svg>
         </a>
-        <a href="javascript:;" :title="t('sideBar.tree.closeAll')" @click.stop="saveAll(true)">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-close-all"></use>
+        <a
+          href="javascript:;"
+          :title="t('sideBar.tree.closeAll')"
+          @click.stop="saveAll(true)"
+        >
+          <svg
+            class="icon"
+            aria-hidden="true"
+          >
+            <use xlink:href="#icon-close-all" />
           </svg>
         </a>
       </div>
-      <div v-show="showOpenedFiles" class="opened-files-list">
+      <div
+        v-show="showOpenedFiles"
+        class="opened-files-list"
+      >
         <transition-group name="list">
-          <opened-file v-for="tab of tabs" :key="tab.id" :file="tab"></opened-file>
+          <opened-file
+            v-for="tab of tabs"
+            :key="tab.id"
+            :file="tab"
+          />
         </transition-group>
       </div>
     </div>
 
     <!-- Project tree view -->
-    <div v-if="projectTree" class="project-tree">
+    <div
+      v-if="projectTree"
+      class="project-tree"
+    >
       <div class="title">
         <svg
           class="icon icon-arrow"
@@ -45,19 +72,25 @@
           aria-hidden="true"
           @click.stop="toggleDirectories()"
         >
-          <use xlink:href="#icon-arrow"></use>
+          <use xlink:href="#icon-arrow" />
         </svg>
-        <span class="default-cursor text-overflow" @click.stop="toggleDirectories()">{{
+        <span
+          class="default-cursor text-overflow"
+          @click.stop="toggleDirectories()"
+        >{{
           projectTree.name
         }}</span>
       </div>
-      <div v-show="showDirectories" class="tree-wrapper">
+      <div
+        v-show="showDirectories"
+        class="tree-wrapper"
+      >
         <folder
           v-for="folder of projectTree.folders"
           :key="folder.id"
           :folder="folder"
           :depth="depth"
-        ></folder>
+        />
         <input
           v-show="createCache.dirname === projectTree.pathname"
           ref="input"
@@ -67,33 +100,42 @@
           class="new-input"
           :style="{ 'margin-left': `${depth * 5 + 15}px` }"
           @keypress.enter="handleInputEnter"
-        />
+        >
         <file
           v-for="file of projectTree.files"
           :key="file.id"
           :file="file"
           :depth="depth"
-        ></file>
+        />
         <div
           v-if="
             projectTree.files.length === 0 &&
-            projectTree.folders.length === 0 &&
-            createCache.dirname !== projectTree.pathname
+              projectTree.folders.length === 0 &&
+              createCache.dirname !== projectTree.pathname
           "
           class="empty-project"
         >
           <span>{{ t('sideBar.tree.emptyProject') }}</span>
           <div class="centered-group">
-            <button class="button-primary" @click="createFile">
+            <button
+              class="button-primary"
+              @click="createFile"
+            >
               {{ t('sideBar.tree.createFile') }}
             </button>
           </div>
         </div>
       </div>
     </div>
-    <div v-else class="open-project">
+    <div
+      v-else
+      class="open-project"
+    >
       <div class="centered-group">
-        <button class="button-primary" @click="openFolder">
+        <button
+          class="button-primary"
+          @click="openFolder"
+        >
           {{ t('sideBar.tree.openFolder') }}
         </button>
       </div>

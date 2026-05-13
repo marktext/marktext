@@ -17,7 +17,7 @@ class FileEncodingCommand {
     this._editorState = editorState
   }
 
-  run = async () => {
+  run = async() => {
     this.subcommands = []
     this.subcommandSelectedIndex = -1
 
@@ -52,13 +52,13 @@ class FileEncodingCommand {
     }
   }
 
-  execute = async () => {
+  execute = async() => {
     // Timeout to hide the command palette and then show again to prevent issues.
     await delay(100)
     bus.emit('show-command-palette', this)
   }
 
-  executeSubcommand = async (id) => {
+  executeSubcommand = async(id) => {
     // NOTE: We support UTF-BOM encodings but don't allow to set them.
     if (!id.endsWith('-bom')) {
       bus.emit('mt::set-file-encoding', id)

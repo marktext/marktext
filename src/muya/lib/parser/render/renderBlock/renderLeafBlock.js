@@ -67,7 +67,7 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (parent, block, activeBlocks, matches, useCache = false, t) {
+export default function renderLeafBlock(parent, block, activeBlocks, matches, useCache = false, t) {
   const { loadMathMap } = this
   const { cursor } = this.muya.contentState
   let selector = this.getSelector(block, activeBlocks)
@@ -238,7 +238,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${transformedLang}`)
       wrapper.innerHTML = code
-      prism.highlightElement(wrapper, false, function () {
+      prism.highlightElement(wrapper, false, function() {
         const highlightedCode = this.innerHTML
         selector += `.language-${transformedLang}`
         children = htmlToVNode(highlightedCode)

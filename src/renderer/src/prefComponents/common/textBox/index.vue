@@ -1,8 +1,19 @@
 <template>
-  <section class="pref-text-box-item" :class="{ 'ag-underdevelop': disable }">
-    <div class="description" style="display: flex; align-items: center">
+  <section
+    class="pref-text-box-item"
+    :class="{ 'ag-underdevelop': disable }"
+  >
+    <div
+      class="description"
+      style="display: flex; align-items: center"
+    >
       <span>{{ description }}:</span>
-      <InfoFilled v-if="more" width="16" height="16" @click="handleMoreClick" />
+      <InfoFilled
+        v-if="more"
+        width="16"
+        height="16"
+        @click="handleMoreClick"
+      />
     </div>
     <el-input
       v-model="inputText"
@@ -12,9 +23,11 @@
       size="small"
       clearable
       @input="handleInput"
+    />
+    <div
+      v-if="notes"
+      class="notes"
     >
-    </el-input>
-    <div v-if="notes" class="notes">
       {{ notes }}
     </div>
   </section>

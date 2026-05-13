@@ -1,10 +1,16 @@
 <template>
   <div class="pref-container">
-    <title-bar v-if="showCustomTitleBar"></title-bar>
-    <side-bar></side-bar>
-    <div class="pref-content" :class="{ frameless: titleBarStyle === 'custom' || isOsx }">
-      <div v-if="!showCustomTitleBar" class="title-bar"></div>
-      <router-view class="pref-setting"></router-view>
+    <title-bar v-if="showCustomTitleBar" />
+    <side-bar />
+    <div
+      class="pref-content"
+      :class="{ frameless: titleBarStyle === 'custom' || isOsx }"
+    >
+      <div
+        v-if="!showCustomTitleBar"
+        class="title-bar"
+      />
+      <router-view class="pref-setting" />
     </div>
   </div>
 </template>

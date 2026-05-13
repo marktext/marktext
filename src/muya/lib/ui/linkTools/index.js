@@ -17,7 +17,7 @@ const defaultOptions = {
 class LinkTools extends BaseFloat {
   static pluginName = 'linkTools'
 
-  constructor (muya, options = {}) {
+  constructor(muya, options = {}) {
     const name = 'ag-link-tools'
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
@@ -31,7 +31,7 @@ class LinkTools extends BaseFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-link-tools', ({ reference, linkInfo }) => {
@@ -65,7 +65,7 @@ class LinkTools extends BaseFloat {
     eventCenter.attachDOMEvent(this.container, 'mouseleave', mouseOutHandler)
   }
 
-  render () {
+  render() {
     const { icons, oldVnode, linkContainer } = this
     const children = icons.map(i => {
       let icon
@@ -102,7 +102,7 @@ class LinkTools extends BaseFloat {
     this.oldVnode = vnode
   }
 
-  selectItem (event, item) {
+  selectItem(event, item) {
     event.preventDefault()
     event.stopPropagation()
     const { contentState } = this.muya

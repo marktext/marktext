@@ -73,7 +73,7 @@ const importRegister = (ContentState) => {
    * @param {*} checkCursorSignature Tells the lexer on whether to look out for the inserted cursorSignature and handle accordingly. Enable to prevent invalid markdown parsing when a cursorSignature is inserted.
    * @returns
    */
-  ContentState.prototype.markdownToState = function (markdown, checkCursorSignature = false) {
+  ContentState.prototype.markdownToState = function(markdown, checkCursorSignature = false) {
     // mock a root block...
     const rootState = {
       key: null,
@@ -430,7 +430,7 @@ const importRegister = (ContentState) => {
     return rootState.children.length ? rootState.children : [this.createBlockP()]
   }
 
-  ContentState.prototype.htmlToMarkdown = function (html, keeps = []) {
+  ContentState.prototype.htmlToMarkdown = function(html, keeps = []) {
     // turn html to markdown
     const { turndownConfig } = this
     const turndownService = new TurndownService(turndownConfig)
@@ -446,7 +446,7 @@ const importRegister = (ContentState) => {
   }
 
   // turn html to blocks
-  ContentState.prototype.html2State = function (html) {
+  ContentState.prototype.html2State = function(html) {
     const markdown = this.htmlToMarkdown(html, ['ruby', 'rt', 'u', 'br'])
     return this.markdownToState(markdown)
   }
@@ -456,7 +456,7 @@ const importRegister = (ContentState) => {
    * @returns { anchor: { line: 0, ch: 0 }, focus: { line: 0, ch: 0 } }
    * Get the cursor position in muya index.
    */
-  ContentState.prototype.getMuyaIndexCursor = function () {
+  ContentState.prototype.getMuyaIndexCursor = function() {
     const blocks = this.getBlocks()
     const { anchor, focus } = this.cursor
     const anchorBlock = this.getBlock(anchor.key)
@@ -530,7 +530,7 @@ const importRegister = (ContentState) => {
     return cursor
   }
 
-  ContentState.prototype.addCursorToMarkdown = function (markdown, cursor) {
+  ContentState.prototype.addCursorToMarkdown = function(markdown, cursor) {
     const { anchor, focus } = cursor
     if (!anchor || !focus) {
       return
@@ -585,7 +585,7 @@ const importRegister = (ContentState) => {
     }
   }
 
-  ContentState.prototype.convertMuyaIndexCursortoCursor = function (muyaIndexCursor) {
+  ContentState.prototype.convertMuyaIndexCursortoCursor = function(muyaIndexCursor) {
     if (!muyaIndexCursor || !muyaIndexCursor.anchor || !muyaIndexCursor.focus) {
       return null
     }
@@ -648,7 +648,7 @@ const importRegister = (ContentState) => {
     return cursor
   }
 
-  ContentState.prototype.importCursor = function (cursor) {
+  ContentState.prototype.importCursor = function(cursor) {
     // set cursor
 
     if (!cursor || !cursor.anchor || !cursor.focus) {
@@ -673,11 +673,11 @@ const importRegister = (ContentState) => {
    * @param {*} markdown
    * @param {*} checkCursorSignature Tells the lexer on whether to look out for the inserted cursorSignature and handle accordingly. Enable to prevent invalid markdown parsing when a cursorSignature is inserted.
    */
-  ContentState.prototype.importMarkdown = function (markdown, checkCursorSignature = false) {
+  ContentState.prototype.importMarkdown = function(markdown, checkCursorSignature = false) {
     this.blocks = this.markdownToState(markdown, checkCursorSignature)
   }
 
-  ContentState.prototype.extractImages = function (markdown) {
+  ContentState.prototype.extractImages = function(markdown) {
     const results = new Set()
     const blocks = this.markdownToState(markdown)
     const render = new StateRender(this.muya)

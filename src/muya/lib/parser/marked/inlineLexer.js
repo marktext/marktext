@@ -8,7 +8,7 @@ import { validateEmphasize, lowerPriority } from '../utils'
  * Inline Lexer & Compiler
  */
 
-function InlineLexer (links, footnotes, options) {
+function InlineLexer(links, footnotes, options) {
   this.options = options || defaultOptions
   this.links = links
   this.footnotes = footnotes
@@ -47,7 +47,7 @@ function InlineLexer (links, footnotes, options) {
  * Lexing/Compiling
  */
 
-InlineLexer.prototype.output = function (src) {
+InlineLexer.prototype.output = function(src) {
   // src = src
   // .replace(/\u00a0/g, ' ')
   const { disableInline, emoji, math, superSubScript, footnote } = this.options
@@ -349,7 +349,7 @@ InlineLexer.prototype.output = function (src) {
   return out
 }
 
-InlineLexer.prototype.escapes = function (text) {
+InlineLexer.prototype.escapes = function(text) {
   return text ? text.replace(this.rules._escapes, '$1') : text
 }
 
@@ -357,7 +357,7 @@ InlineLexer.prototype.escapes = function (text) {
  * Compile Link
  */
 
-InlineLexer.prototype.outputLink = function (cap, link) {
+InlineLexer.prototype.outputLink = function(cap, link) {
   const href = link.href
   const title = link.title ? escape(link.title) : null
   const text = cap[1].replace(/\\([\[\]])/g, '$1') // eslint-disable-line no-useless-escape
@@ -371,7 +371,7 @@ InlineLexer.prototype.outputLink = function (cap, link) {
  * Smartypants Transformations
  */
 
-InlineLexer.prototype.smartypants = function (text) {
+InlineLexer.prototype.smartypants = function(text) {
   /* eslint-disable no-useless-escape */
   if (!this.options.smartypants) return text
   return text
@@ -396,7 +396,7 @@ InlineLexer.prototype.smartypants = function (text) {
  * Mangle Links
  */
 
-InlineLexer.prototype.mangle = function (text) {
+InlineLexer.prototype.mangle = function(text) {
   if (!this.options.mangle) return text
   const l = text.length
   let out = ''

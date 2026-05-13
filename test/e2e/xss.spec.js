@@ -3,9 +3,10 @@ const { launchElectron } = require('./helpers')
 
 test.describe('Test XSS Vulnerabilities', () => {
   let app = null
+  // eslint-disable-next-line no-unused-vars
   let page = null
 
-  test.beforeAll(async () => {
+  test.beforeAll(async() => {
     const { app: electronApp, page: firstPage } = await launchElectron(['test/e2e/data/xss.md'])
     app = electronApp
     page = firstPage
@@ -14,11 +15,11 @@ test.describe('Test XSS Vulnerabilities', () => {
     await new Promise((resolve) => setTimeout(resolve, 3000))
   })
 
-  test.afterAll(async () => {
+  test.afterAll(async() => {
     await app.close()
   })
 
-  test('Load malicious document', async () => {
+  test('Load malicious document', async() => {
     const { isVisible, isCrashed } = await app.evaluate(async process => {
       const mainWindow = process.BrowserWindow.getAllWindows()[0]
       return {

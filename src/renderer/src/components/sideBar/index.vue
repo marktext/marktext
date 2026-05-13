@@ -26,22 +26,29 @@
         </li>
       </ul>
     </div>
-    <div v-show="rightColumn" class="right-column">
+    <div
+      v-show="rightColumn"
+      class="right-column"
+    >
       <tree
         v-if="rightColumn === 'files'"
-        :projectTree="projectTree"
-        :openedFiles="openedFiles"
+        :project-tree="projectTree"
+        :opened-files="openedFiles"
         :tabs="tabs"
-      ></tree>
-      <side-bar-search v-else-if="rightColumn === 'search'"></side-bar-search>
-      <toc v-else-if="rightColumn === 'toc'"></toc>
+      />
+      <side-bar-search v-else-if="rightColumn === 'search'" />
+      <toc v-else-if="rightColumn === 'toc'" />
     </div>
-    <div v-show="rightColumn" ref="dragBar" class="drag-bar"></div>
+    <div
+      v-show="rightColumn"
+      ref="dragBar"
+      class="drag-bar"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'

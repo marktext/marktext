@@ -3,7 +3,7 @@ import * as actions from '../actions/file'
 
 const dockMenu = Menu.buildFromTemplate([{
   label: 'Open...',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     if (browserWindow) {
       actions.openFile(browserWindow)
     } else {
@@ -12,7 +12,7 @@ const dockMenu = Menu.buildFromTemplate([{
   }
 }, {
   label: 'Clear Recent',
-  click () {
+  click() {
     app.clearRecentDocuments()
   }
 }])

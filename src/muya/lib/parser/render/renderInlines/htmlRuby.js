@@ -1,7 +1,7 @@
 import { CLASS_OR_ID } from '../../../config'
 import { htmlToVNode } from '../snabbdom'
 
-export default function htmlRuby (h, cursor, block, token, outerClass) {
+export default function htmlRuby(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const { children } = token
   const { start, end } = token.range

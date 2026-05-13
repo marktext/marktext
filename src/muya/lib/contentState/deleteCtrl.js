@@ -2,7 +2,7 @@ import selection from '../selection'
 
 const deleteCtrl = (ContentState) => {
   // Handle `delete` keydown event on document.
-  ContentState.prototype.docDeleteHandler = function (event) {
+  ContentState.prototype.docDeleteHandler = function(event) {
     // handle delete selected image
     const { selectedImage } = this
     if (selectedImage) {
@@ -16,7 +16,7 @@ const deleteCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.deleteHandler = function (event) {
+  ContentState.prototype.deleteHandler = function(event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return

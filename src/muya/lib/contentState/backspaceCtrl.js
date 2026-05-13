@@ -4,7 +4,7 @@ import { tokenizer, generator } from '../parser/'
 import { getImageInfo } from '../utils/getImageInfo'
 
 const backspaceCtrl = (ContentState) => {
-  ContentState.prototype.checkBackspaceCase = function () {
+  ContentState.prototype.checkBackspaceCase = function() {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const outMostParagraph = findOutMostParagraph(node)
@@ -104,7 +104,7 @@ const backspaceCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.docBackspaceHandler = function (event) {
+  ContentState.prototype.docBackspaceHandler = function(event) {
     // handle delete selected image
     if (this.selectedImage) {
       event.preventDefault()
@@ -116,7 +116,7 @@ const backspaceCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.backspaceHandler = function (event) {
+  ContentState.prototype.backspaceHandler = function(event) {
     const { start, end } = selection.getCursorRange()
 
     if (!start || !end) {
@@ -549,11 +549,11 @@ const backspaceCtrl = (ContentState) => {
               const newULBlock =
                 parent.type === 'ul'
                   ? this.createBlock('ul', {
-                      listType: 'bullet'
-                    })
+                    listType: 'bullet'
+                  })
                   : this.createBlock('ol', {
-                      listType: 'order'
-                    })
+                    listType: 'order'
+                  })
 
               let probe = this.getBlock(block.nextSibling)
               const addedChildKeys = []
@@ -597,11 +597,11 @@ const backspaceCtrl = (ContentState) => {
               const newULBlock =
                 parent.type === 'ul'
                   ? this.createBlock('ul', {
-                      listType: 'bullet'
-                    })
+                    listType: 'bullet'
+                  })
                   : this.createBlock('ol', {
-                      listType: 'order'
-                    })
+                    listType: 'order'
+                  })
               let probe = this.getBlock(block.nextSibling)
               const addedChildKeys = []
               while (probe && probe.parent && probe.parent === parent.key) {

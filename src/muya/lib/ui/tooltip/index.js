@@ -11,7 +11,7 @@ const position = (source, ele) => {
 }
 
 class Tooltip {
-  constructor (muya) {
+  constructor(muya) {
     this.muya = muya
     this.cache = new WeakMap()
     const { container, eventCenter } = this.muya
@@ -19,7 +19,7 @@ class Tooltip {
     eventCenter.attachDOMEvent(container, 'mouseover', this.mouseOver.bind(this))
   }
 
-  mouseOver (event) {
+  mouseOver(event) {
     const { target } = event
     const toolTipTarget = target.closest('[data-tooltip]')
     const { eventCenter } = this.muya
@@ -48,7 +48,7 @@ class Tooltip {
     }
   }
 
-  mouseLeave (event) {
+  mouseLeave(event) {
     const { target } = event
     if (this.cache.has(target)) {
       const tooltipEle = this.cache.get(target)

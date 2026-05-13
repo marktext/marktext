@@ -1,6 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 
-export default function footnoteIdentifier (h, cursor, block, token, outerClass) {
+export default function footnoteIdentifier(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const { marker } = token
   const { start, end } = token.range

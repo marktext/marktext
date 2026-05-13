@@ -9,7 +9,7 @@ const codeBlockCtrl = (ContentState) => {
   /**
    * check edit language
    */
-  ContentState.prototype.checkEditLanguage = function () {
+  ContentState.prototype.checkEditLanguage = function() {
     const { start } = selection.getCursorRange()
     if (!start) {
       return { lang: '', paragraph: null }
@@ -34,7 +34,7 @@ const codeBlockCtrl = (ContentState) => {
     return { lang, paragraph }
   }
 
-  ContentState.prototype.selectLanguage = function (paragraph, lang) {
+  ContentState.prototype.selectLanguage = function(paragraph, lang) {
     const block = this.getBlock(paragraph.id)
     if (lang === 'math' && this.isGitlabCompatibilityEnabled && this.updateMathBlock(block)) {
       return
@@ -48,7 +48,7 @@ const codeBlockCtrl = (ContentState) => {
    * @param block Language-input block or paragraph
    * @param lang Language identifier
    */
-  ContentState.prototype.updateCodeLanguage = function (block, lang) {
+  ContentState.prototype.updateCodeLanguage = function(block, lang) {
     if (!lang || typeof lang !== 'string') {
       console.error('Invalid code block language string:', lang)
 
@@ -93,7 +93,7 @@ const codeBlockCtrl = (ContentState) => {
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
-  ContentState.prototype.codeBlockUpdate = function (block, code = '', lang) {
+  ContentState.prototype.codeBlockUpdate = function(block, code = '', lang) {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
@@ -148,7 +148,7 @@ const codeBlockCtrl = (ContentState) => {
   /**
    * Copy the code block by click right-top copy icon in code block.
    */
-  ContentState.prototype.copyCodeBlock = function (event) {
+  ContentState.prototype.copyCodeBlock = function(event) {
     const { target } = event
     const preEle = target.closest('pre')
     const preBlock = this.getBlock(preEle.id)
@@ -157,7 +157,7 @@ const codeBlockCtrl = (ContentState) => {
     this.muya.clipboard.copy('copyCodeContent', codeContent)
   }
 
-  ContentState.prototype.resizeLineNumber = function () {
+  ContentState.prototype.resizeLineNumber = function() {
     // FIXME: Disabled due to #1648.
     // const { codeBlockLineNumbers } = this.muya.options
     // if (!codeBlockLineNumbers) {

@@ -113,7 +113,7 @@ export const extractWord = (text, offset) => {
   }
   return {
     left,
-    right: right,
+    right,
     word: text.slice(left, right)
   }
 }

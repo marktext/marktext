@@ -1,7 +1,7 @@
 import { union, isEven } from '../../../utils'
 import { CLASS_OR_ID } from '../../../config'
 // TODO HIGHLIGHT
-export default function backlashInToken (h, backlashes, outerClass, start, token) {
+export default function backlashInToken(h, backlashes, outerClass, start, token) {
   const { highlights = [] } = token
   const chunks = backlashes.split('')
   const len = chunks.length

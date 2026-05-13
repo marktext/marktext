@@ -28,7 +28,7 @@ const isUpdatable = () => {
   return false
 }
 
-export default function () {
+export default function() {
   const helpMenu = {
     label: t('menu.help.help'),
     role: 'help',

@@ -641,11 +641,11 @@ class App {
       this._createEditorWindow()
     })
 
-    ipcMain.on('screen-capture', async (win) => {
+    ipcMain.on('screen-capture', async(win) => {
       if (isOsx) {
         // Use macOs `screencapture` command line when in macOs system.
         const screenshotFileName = await this.getScreenshotFileName()
-        exec('screencapture -i -c', async (err) => {
+        exec('screencapture -i -c', async(err) => {
           if (err) {
             log.error(err)
             return
@@ -744,7 +744,7 @@ class App {
       }
     })
 
-    ipcMain.on('mt::select-default-directory-to-open', async (e) => {
+    ipcMain.on('mt::select-default-directory-to-open', async(e) => {
       const { preferences } = this._accessor
       const { defaultDirectoryToOpen } = preferences.getAll()
       const win = BrowserWindow.fromWebContents(e.sender)
@@ -786,12 +786,12 @@ class App {
       return { defaultKeybindings, userKeybindings }
     })
 
-    ipcMain.handle('mt::keybinding-save-user-keybindings', async (event, userKeybindings) => {
+    ipcMain.handle('mt::keybinding-save-user-keybindings', async(event, userKeybindings) => {
       const { keybindings } = this._accessor
       return keybindings.setUserKeybindings(userKeybindings)
     })
 
-    ipcMain.handle('mt::fs-trash-item', async (event, fullPath) => {
+    ipcMain.handle('mt::fs-trash-item', async(event, fullPath) => {
       return shell.trashItem(fullPath)
     })
   }

@@ -1,7 +1,7 @@
 import * as actions from '../actions/theme'
 import { t } from '../../i18n'
 
-export default function (userPreference) {
+export default function(userPreference) {
   const { theme, followSystemTheme } = userPreference.getAll()
   const isThemeSelectionEnabled = !followSystemTheme
 

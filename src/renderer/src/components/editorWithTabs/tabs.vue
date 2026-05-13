@@ -1,7 +1,13 @@
 <template>
   <div class="editor-tabs">
-    <div ref="tabContainer" class="scrollable-tabs">
-      <ul ref="tabDropContainer" class="tabs-container">
+    <div
+      ref="tabContainer"
+      class="scrollable-tabs"
+    >
+      <ul
+        ref="tabDropContainer"
+        class="tabs-container"
+      >
         <li
           v-for="file of tabs"
           :key="file.id"
@@ -13,16 +19,34 @@
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
-          <svg class="close-icon icon" aria-hidden="true" @click.stop="removeFileInTab(file)">
-            <circle id="unsaved-circle-icon" cx="6" cy="6" r="3"></circle>
-            <use id="default-close-icon" xlink:href="#icon-close-small"></use>
+          <svg
+            class="close-icon icon"
+            aria-hidden="true"
+            @click.stop="removeFileInTab(file)"
+          >
+            <circle
+              id="unsaved-circle-icon"
+              cx="6"
+              cy="6"
+              r="3"
+            />
+            <use
+              id="default-close-icon"
+              xlink:href="#icon-close-small"
+            />
           </svg>
         </li>
       </ul>
     </div>
-    <div class="new-file" @click.stop="newFile()">
-      <svg class="icon" aria-hidden="true">
-        <use xlink:href="#icon-plus"></use>
+    <div
+      class="new-file"
+      @click.stop="newFile()"
+    >
+      <svg
+        class="icon"
+        aria-hidden="true"
+      >
+        <use xlink:href="#icon-plus" />
       </svg>
     </div>
   </div>

@@ -1,7 +1,7 @@
 import { CLASS_OR_ID } from '../../../config'
 import escapeCharactersMap from '../../escapeCharacter'
 
-export default function htmlEscape (h, cursor, block, token, outerClass) {
+export default function htmlEscape(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const { escapeCharacter } = token
   const { start, end } = token.range

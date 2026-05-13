@@ -178,7 +178,7 @@ class ImageSelector extends BaseFloat {
     return this.replaceImageAsync(this.state)
   }
 
-  replaceImageAsync = async ({ alt, src, title }) => {
+  replaceImageAsync = async({ alt, src, title }) => {
     if (!this.muya.options.imageAction || URL_REG.test(src)) {
       const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token.attrs
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {

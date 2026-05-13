@@ -25,7 +25,7 @@ class QuickOpenCommand {
     this._cancelFn = null
   }
 
-  search = async (query) => {
+  search = async(query) => {
     // Show opened files when no query given.
     if (!query) {
       return this.subcommands
@@ -47,7 +47,7 @@ class QuickOpenCommand {
     return this._doSearch(query)
   }
 
-  run = async () => {
+  run = async() => {
     const { _editorState, _folderState } = this
     if (!_folderState.projectTree && _editorState.tabs.length === 0) {
       throw new Error(null)
@@ -64,13 +64,13 @@ class QuickOpenCommand {
       })
   }
 
-  execute = async () => {
+  execute = async() => {
     // Timeout to hide the command palette and then show again to prevent issues.
     await delay(100)
     bus.emit('show-command-palette', this)
   }
 
-  executeSubcommand = async (id) => {
+  executeSubcommand = async(id) => {
     const { windowId } = global.marktext.env
     window.electron.ipcRenderer.send('mt::open-file-by-window-id', windowId, id)
   }

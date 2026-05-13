@@ -15,7 +15,7 @@ const marktextApi = ContentState => {
    * @param {string} replacement The word to replace the selecte one.
    * @returns {boolean} True on success.
    */
-  ContentState.prototype._replaceCurrentWordInlineUnsafe = function (word, replacement) {
+  ContentState.prototype._replaceCurrentWordInlineUnsafe = function(word, replacement) {
     // Right clicking on a misspelled word select the whole word by Chromium.
     const { start, end } = selection.getCursorRange()
     const cursor = Object.assign({}, { start, end })

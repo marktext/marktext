@@ -10,7 +10,7 @@ const patchEnvPath = () => {
 }
 
 export class AppEnvironment {
-  constructor (options) {
+  constructor(options) {
     this._id = envId++
     this._appPaths = new AppPaths(options.userDataPath)
     this._debug = !!options.debug
@@ -25,49 +25,49 @@ export class AppEnvironment {
    *
    * @returns {number} Returns an unique identifier.
    */
-  get id () {
+  get id() {
     return this._id
   }
 
   /**
    * @returns {AppPaths}
    */
-  get paths () {
+  get paths() {
     return this._appPaths
   }
 
   /**
    * @returns {boolean}
    */
-  get debug () {
+  get debug() {
     return this._debug
   }
 
   /**
    * @returns {boolean}
    */
-  get isDevMode () {
+  get isDevMode() {
     return this._isDevMode
   }
 
   /**
    * @returns {boolean}
    */
-  get verbose () {
+  get verbose() {
     return this._verbose
   }
 
   /**
    * @returns {boolean}
    */
-  get safeMode () {
+  get safeMode() {
     return this._safeMode
   }
 
   /**
    * @returns {boolean}
    */
-  get disableSpellcheck () {
+  get disableSpellcheck() {
     return this._disableSpellcheck
   }
 }

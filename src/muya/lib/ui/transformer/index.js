@@ -11,7 +11,7 @@ const CIRCLE_RADIO = 6
 
 class Transformer {
   static pluginName = 'transformer'
-  constructor (muya, options) {
+  constructor(muya, options) {
     this.muya = muya
     this.options = options
     this.reference = null
@@ -28,7 +28,7 @@ class Transformer {
     this.listen()
   }
 
-  listen () {
+  listen() {
     const { eventCenter, container } = this.muya
     const scrollHandler = event => {
       if (typeof this.lastScrollTop !== 'number') {
@@ -58,7 +58,7 @@ class Transformer {
     eventCenter.attachDOMEvent(document.body, 'mousedown', this.mouseDown)
   }
 
-  render () {
+  render() {
     const { eventCenter } = this.muya
     if (this.status) {
       this.hide()
@@ -70,7 +70,7 @@ class Transformer {
     eventCenter.dispatch('muya-float', this, true)
   }
 
-  createElements () {
+  createElements() {
     CIRCLES.forEach(c => {
       const circle = document.createElement('div')
       circle.classList.add('circle')
@@ -80,7 +80,7 @@ class Transformer {
     })
   }
 
-  update () {
+  update() {
     const rect = this.reference.getBoundingClientRect()
     CIRCLES.forEach(c => {
       const circle = this.container.querySelector(`.${c}`)
@@ -164,7 +164,7 @@ class Transformer {
     this.movingAnchor = null
   }
 
-  hide () {
+  hide() {
     const { eventCenter } = this.muya
     const circles = this.container.querySelectorAll('.circle')
     Array.from(circles).forEach(c => c.remove())

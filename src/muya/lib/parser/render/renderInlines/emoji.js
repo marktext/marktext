@@ -2,7 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { validEmoji } from '../../../ui/emojis'
 
 // render token of emoji to vdom
-export default function emoji (h, cursor, block, token, outerClass) {
+export default function emoji(h, cursor, block, token, outerClass) {
   const { start: rStart, end: rEnd } = token.range
   const className = this.getClassName(outerClass, block, token, cursor)
   const validation = validEmoji(token.content)

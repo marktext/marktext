@@ -17,7 +17,7 @@ const defaultOptions = {
 class FormatPicker extends BaseFloat {
   static pluginName = 'formatPicker'
 
-  constructor (muya, options = {}) {
+  constructor(muya, options = {}) {
     const name = 'ag-format-picker'
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
@@ -31,7 +31,7 @@ class FormatPicker extends BaseFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-format-picker', ({ reference, formats }) => {
@@ -47,7 +47,7 @@ class FormatPicker extends BaseFloat {
     })
   }
 
-  render () {
+  render() {
     const { icons, oldVnode, formatContainer, formats } = this
     const children = icons.map(i => {
       let icon
@@ -90,7 +90,7 @@ class FormatPicker extends BaseFloat {
     this.oldVnode = vnode
   }
 
-  selectItem (event, item) {
+  selectItem(event, item) {
     event.preventDefault()
     event.stopPropagation()
     const { contentState } = this.muya

@@ -37,7 +37,7 @@ const defaultOptions = {
 class LinkTools extends BaseFloat {
   static pluginName = 'footnoteTool'
 
-  constructor (muya, options = {}) {
+  constructor(muya, options = {}) {
     const name = 'ag-footnote-tool'
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
@@ -52,7 +52,7 @@ class LinkTools extends BaseFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     const { eventCenter } = this.muya
     super.listen()
     eventCenter.subscribe('muya-footnote-tool', ({ reference, identifier, footnotes }) => {
@@ -87,7 +87,7 @@ class LinkTools extends BaseFloat {
     eventCenter.attachDOMEvent(this.container, 'mouseleave', mouseOutHandler)
   }
 
-  render () {
+  render() {
     const { oldVnode, toolContainer, identifier, footnotes } = this
     const hasFootnote = footnotes.has(identifier)
     const iconWrapperSelector = 'div.icon-wrapper'
@@ -129,7 +129,7 @@ class LinkTools extends BaseFloat {
     this.oldVnode = vnode
   }
 
-  buttonClick (event, hasFootnote) {
+  buttonClick(event, hasFootnote) {
     event.preventDefault()
     event.stopPropagation()
     const { identifier, footnotes } = this

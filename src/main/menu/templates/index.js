@@ -30,7 +30,7 @@ export const configSettingMenu = (keybindings) => {
  * @param {Preference} preferences The preference instance.
  * @param {string[]} recentlyUsedFiles The recently used files.
  */
-export default function (keybindings, preferences, recentlyUsedFiles) {
+export default function(keybindings, preferences, recentlyUsedFiles) {
   return [
     ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
     file(keybindings, preferences, recentlyUsedFiles),

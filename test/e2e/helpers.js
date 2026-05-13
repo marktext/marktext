@@ -42,4 +42,4 @@ const launchElectron = async userArgs => {
   return { app, page }
 }
 
-module.exports = { getElectronPath, launchElectron}
+module.exports = { getElectronPath, launchElectron }

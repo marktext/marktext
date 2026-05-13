@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { app, BrowserWindow, Menu, ipcMain } from 'electron'
+import { app, Menu, ipcMain } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
@@ -441,7 +441,7 @@ class AppMenu {
       this.clearRecentlyUsedDocuments()
     })
 
-    ipcMain.on('broadcast-preferences-changed', async (prefs) => {
+    ipcMain.on('broadcast-preferences-changed', async(prefs) => {
       if (prefs.theme !== undefined || prefs.followSystemTheme !== undefined) {
         this.updateAppMenu()
       }

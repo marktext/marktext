@@ -19,11 +19,17 @@
               :placeholder="placeholderText"
               @keydown="handleBeforeInput"
               @keyup="handleInput"
-            />
+            >
           </div>
-          <loading v-if="searcherBusy"></loading>
-          <transition v-else name="fade">
-            <ul v-if="availableCommands.length" class="commands">
+          <loading v-if="searcherBusy" />
+          <transition
+            v-else
+            name="fade"
+          >
+            <ul
+              v-if="availableCommands.length"
+              class="commands"
+            >
               <li
                 v-for="(item, index) of availableCommands"
                 :key="index"
@@ -35,9 +41,16 @@
                 :class="{ active: index === selectedCommandIndex }"
                 @click="search(item.id)"
               >
-                <span class="title" :title="item.title">{{ item.description }}</span>
+                <span
+                  class="title"
+                  :title="item.title"
+                >{{ item.description }}</span>
                 <span class="shortcut">
-                  <span v-for="(accelerator, index) of item.shortcut" :key="index" class="shortcut">
+                  <span
+                    v-for="(accelerator, idx) of item.shortcut"
+                    :key="idx"
+                    class="shortcut"
+                  >
                     <kbd>{{ accelerator }}</kbd>
                   </span>
                 </span>

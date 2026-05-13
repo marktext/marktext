@@ -1,14 +1,18 @@
 <template>
-  <section class="pref-range-item" :class="{ 'ag-underdevelop': disable }">
+  <section
+    class="pref-range-item"
+    :class="{ 'ag-underdevelop': disable }"
+  >
     <div
       class="description"
       style="display: flex; align-items: center; justify-content: space-between"
     >
       <span>{{ description }}:</span>
       <div style="display: flex; align-items: center">
-        <span v-if="selectValue" class="value"
-          >{{ selectValue }} <span v-if="unit">{{ unit }}</span></span
-        >
+        <span
+          v-if="selectValue"
+          class="value"
+        >{{ selectValue }} <span v-if="unit">{{ unit }}</span></span>
         <InfoFilled
           v-if="more"
           width="16"
@@ -25,8 +29,7 @@
       :format-tooltip="(value) => value + (unit ? unit : '')"
       :step="step"
       @change="select"
-    >
-    </el-slider>
+    />
   </section>
 </template>
 

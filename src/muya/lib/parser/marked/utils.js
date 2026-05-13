@@ -9,13 +9,13 @@ export const getUniqueId = () => ++uniqueIdCounter
 export const escape = function escape(html, encode) {
   if (encode) {
     if (escape.escapeTest.test(html)) {
-      return html.replace(escape.escapeReplace, function (ch) {
+      return html.replace(escape.escapeReplace, function(ch) {
         return escape.replacements[ch]
       })
     }
   } else {
     if (escape.escapeTestNoEncode.test(html)) {
-      return html.replace(escape.escapeReplaceNoEncode, function (ch) {
+      return html.replace(escape.escapeReplaceNoEncode, function(ch) {
         return escape.replacements[ch]
       })
     }
@@ -39,7 +39,7 @@ escape.escapeReplaceNoEncode = /[<>"']|&(?!#?\w+;)/g
 
 export const unescape = function unescape(html) {
   // explicitly match decimal, hex, and named HTML entities
-  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi, function (_, n) {
+  return html.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/gi, function(_, n) {
     n = n.toLowerCase()
     if (n === 'colon') return ':'
     if (n.charAt(0) === '#') {
@@ -55,13 +55,13 @@ export const edit = function edit(regex, opt) {
   regex = regex.source || regex
   opt = opt || ''
   return {
-    replace: function (name, val) {
+    replace: function(name, val) {
       val = val.source || val
       val = val.replace(/(^|[^\[])\^/g, '$1') // eslint-disable-line no-useless-escape
       regex = regex.replace(name, val)
       return this
     },
-    getRegex: function () {
+    getRegex: function() {
       return new RegExp(regex, opt)
     }
   }
@@ -133,7 +133,7 @@ noop.exec = noop
 export const splitCells = function splitCells(tableRow, count) {
   // ensure that every cell-delimiting pipe has a space
   // before it to distinguish it from an escaped pipe
-  const row = tableRow.replace(/\|/g, function (match, offset, str) {
+  const row = tableRow.replace(/\|/g, function(match, offset, str) {
     let escaped = false
     let curr = offset
     while (--curr >= 0 && str[curr] === '\\') escaped = !escaped

@@ -35,7 +35,7 @@ const exceptionToString = (error, type) => {
   )
 }
 
-const handleError = async (title, error, type) => {
+const handleError = async(title, error, type) => {
   const { message, stack } = error
 
   // Write error into file

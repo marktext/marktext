@@ -2,12 +2,12 @@
 // import { throttle } from '../utils'
 
 class Resize {
-  constructor (muya) {
+  constructor(muya) {
     this.muya = muya
     this.listen()
   }
 
-  listen () {
+  listen() {
     // FIXME: Disabled due to #1648.
     // const { codeBlockLineNumbers } = this.muya.options
     // if (!codeBlockLineNumbers) {

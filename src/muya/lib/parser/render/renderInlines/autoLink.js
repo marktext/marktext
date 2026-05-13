@@ -2,7 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { sanitizeHyperlink } from '../../../utils/url'
 
 // render auto_link to vdom
-export default function autoLink (h, cursor, block, token, outerClass) {
+export default function autoLink(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const { isLink, marker, href, email } = token
   const { start, end } = token.range

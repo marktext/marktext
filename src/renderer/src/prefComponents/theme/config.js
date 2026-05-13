@@ -1,5 +1,3 @@
-import { t } from '../../i18n'
-
 export const themes = [
   // Light Themes (alphabetical)
   { name: 'ayu-light' },

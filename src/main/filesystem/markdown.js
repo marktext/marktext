@@ -77,7 +77,7 @@ export const writeMarkdownFile = (pathname, content, options) => {
  * @param {boolean} autoNormalizeLineEndings Whether to automatically normalize line endings
  * @returns {IMarkdownDocumentRaw} Returns a raw markdown document.
  */
-export const loadMarkdownFile = async (
+export const loadMarkdownFile = async(
   pathname,
   preferredEol,
   autoGuessEncoding = true,

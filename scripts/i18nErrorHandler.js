@@ -64,7 +64,6 @@ function validateTranslationFile(filePath, language) {
       }
       log.error(`[i18n] JSON parse error in ${language}:`, parseError)
     }
-
   } catch (error) {
     log.error(`[i18n] Unexpected error validating ${language}:`, error)
     result.parseError = {
@@ -144,8 +143,9 @@ function validateAllTranslationFiles() {
     report.details[language] = validationResult
 
     // Add to summary
-    const status = validationResult.validJson ? '✅ VALID' :
-                  validationResult.exists ? '❌ INVALID' : '❓ MISSING'
+    const status = validationResult.validJson
+      ? '✅ VALID'
+      : validationResult.exists ? '❌ INVALID' : '❓ MISSING'
     report.summary.push(`${language}: ${status} (${validationResult.keyCount} keys)`)
   }
 
@@ -222,7 +222,6 @@ function testTranslationKey(key, language = 'en') {
       result.found = true
       result.value = value
     }
-
   } catch (error) {
     result.error = error.message
   }

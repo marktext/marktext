@@ -26,7 +26,7 @@ function Lexer(opts) {
  * Preprocessing
  */
 
-Lexer.prototype.lex = function (src, checkCursorSignature = false) {
+Lexer.prototype.lex = function(src, checkCursorSignature = false) {
   src = src.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ')
   this.checkFrontmatter = true
   this.footnoteOrder = 0
@@ -64,7 +64,7 @@ Lexer.prototype.lex = function (src, checkCursorSignature = false) {
  * checkCursorSignature: Tells the lexer on whether to look out for the inserted cursorSignature and handle accordingly. Enable to prevent invalid markdown parsing when a cursorSignature is inserted.
  */
 
-Lexer.prototype.token = function (
+Lexer.prototype.token = function(
   src,
   top,
   prevListIsOrdered = null,
@@ -390,7 +390,7 @@ Lexer.prototype.token = function (
         // Remove the list item's bullet so it is seen as the next token.
         space = item.length
         let newBull
-        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function (m, p1) {
+        item = item.replace(/^ *([*+-]|\d+(?:\.|\))) {0,4}/, function(m, p1) {
           // Get and remove list item bullet
           newBull = p1 || bull
           return ''

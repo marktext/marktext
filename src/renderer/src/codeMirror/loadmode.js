@@ -11,7 +11,7 @@ const loadMore = (CodeMirror) => {
   const loading = {}
   function splitCallback(cont, n) {
     let countDown = n
-    return function () {
+    return function() {
       if (--countDown === 0) cont()
     }
   }
@@ -31,7 +31,7 @@ const loadMore = (CodeMirror) => {
     }
   }
 
-  CodeMirror.requireMode = function (mode, cont) {
+  CodeMirror.requireMode = function(mode, cont) {
     if (typeof mode !== 'string') {
       mode = mode.name
     }
@@ -57,7 +57,7 @@ const loadMore = (CodeMirror) => {
 
     loader()
       .then(() => {
-        ensureDeps(mode, function () {
+        ensureDeps(mode, function() {
           for (let i = 0; i < list.length; ++i) {
             list[i]()
           }
@@ -68,9 +68,9 @@ const loadMore = (CodeMirror) => {
       })
   }
 
-  CodeMirror.autoLoadMode = function (instance, mode) {
+  CodeMirror.autoLoadMode = function(instance, mode) {
     if (!Object.prototype.hasOwnProperty.call(CodeMirror.modes, mode)) {
-      CodeMirror.requireMode(mode, function () {
+      CodeMirror.requireMode(mode, function() {
         instance.setOption('mode', instance.getOption('mode'))
       })
     }

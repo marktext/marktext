@@ -1,5 +1,8 @@
 <template>
-  <div ref="sourceCodeContainer" class="source-code"></div>
+  <div
+    ref="sourceCodeContainer"
+    class="source-code"
+  />
 </template>
 
 <script setup>
@@ -236,7 +239,7 @@ onMounted(() => {
     styleActiveLine: true,
     direction: textDirection,
     viewportMargin: Infinity,
-    lineNumberFormatter(line) {
+    lineNumberFormatter (line) {
       if (line % 10 === 0 || line === 1) {
         return line
       } else {

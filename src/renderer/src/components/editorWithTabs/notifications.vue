@@ -17,9 +17,18 @@
         >
           {{ t('common.ok') }}
         </span>
-        <span class="inline-button" @click.stop="handleClick(false)">
-          <svg class="close-icon icon" aria-hidden="true">
-            <use id="default-close-icon" xlink:href="#icon-close-small"></use>
+        <span
+          class="inline-button"
+          @click.stop="handleClick(false)"
+        >
+          <svg
+            class="close-icon icon"
+            aria-hidden="true"
+          >
+            <use
+              id="default-close-icon"
+              xlink:href="#icon-close-small"
+            />
           </svg>
         </span>
       </div>

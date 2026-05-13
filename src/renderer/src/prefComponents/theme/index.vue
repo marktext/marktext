@@ -3,22 +3,23 @@
     <h4>{{ t('preferences.theme.title') }}</h4>
     <section class="offcial-themes">
       <div
-        v-for="t of themes"
-        :key="t.name"
+        v-for="themeItem of themes"
+        :key="themeItem.name"
         class="theme"
         :class="[
-          t.name,
+          themeItem.name,
           {
-            active: t.name === theme,
+            active: themeItem.name === theme,
             disabled: followSystemTheme
           }
         ]"
-        @click="!followSystemTheme && onSelectChange('theme', t.name)"
+        @click="!followSystemTheme && onSelectChange('theme', themeItem.name)"
       >
-        <div v-html="t.html"></div>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="themeItem.html" />
       </div>
     </section>
-    <separator></separator>
+    <separator />
 
     <Bool
       :description="t('preferences.theme.followSystemTheme')"
@@ -28,7 +29,9 @@
 
     <compound v-if="followSystemTheme">
       <template #head>
-        <h6 class="title">{{ t('preferences.theme.modeThemes') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.theme.modeThemes') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -36,19 +39,21 @@
           :value="lightModeTheme"
           :options="themeOptions"
           :on-change="(value) => onSelectChange('lightModeTheme', value)"
-        ></cur-select>
+        />
 
         <cur-select
           :description="t('preferences.theme.darkModeTheme')"
           :value="darkModeTheme"
           :options="themeOptions"
           :on-change="(value) => onSelectChange('darkModeTheme', value)"
-        ></cur-select>
+        />
       </template>
     </compound>
 
     <div>
-      <div style="font-size: smaller; color: var(--editorColor)">{{ t('preferences.theme.customCss') }}</div>
+      <div style="font-size: smaller; color: var(--editorColor)">
+        {{ t('preferences.theme.customCss') }}
+      </div>
       <textarea
         style="
           width: 100%;
@@ -59,18 +64,25 @@
         rows="10"
         :value="customCss"
         @change="(event) => onSelectChange('customCss', event.target.value)"
-      ></textarea>
+      />
     </div>
-    <separator v-show="false"></separator>
-    <section v-show="false" class="import-themes ag-underdevelop">
+    <separator v-show="false" />
+    <section
+      v-show="false"
+      class="import-themes ag-underdevelop"
+    >
       <div>
         <span>{{ t('preferences.theme.openThemesFolder') }}</span>
-        <el-button size="small">{{ t('preferences.theme.openFolder') }}</el-button>
+        <el-button size="small">
+          {{ t('preferences.theme.openFolder') }}
+        </el-button>
       </div>
 
       <div>
         <span>{{ t('preferences.theme.importCustomThemes') }}</span>
-        <el-button size="small">{{ t('preferences.theme.importTheme') }}</el-button>
+        <el-button size="small">
+          {{ t('preferences.theme.importTheme') }}
+        </el-button>
       </div>
     </section>
   </div>

@@ -1,14 +1,14 @@
 import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   SEPARATOR,
-  getNEW_FILE,
-  getNEW_DIRECTORY,
+  getNewFile,
+  getNewDirectory,
   getCOPY,
   getCUT,
   getPASTE,
   getRENAME,
   getDELETE,
-  getSHOW_IN_FOLDER
+  getShowInFolder
 } from './menuItems'
 
 export const showContextMenu = (event, hasPathCache) => {
@@ -16,8 +16,8 @@ export const showContextMenu = (event, hasPathCache) => {
   const win = getCurrentWindow()
   // Dynamically fetch menu items to ensure correct translation
   const contextItems = [
-    getNEW_FILE(),
-    getNEW_DIRECTORY(),
+    getNewFile(),
+    getNewDirectory(),
     SEPARATOR,
     getCOPY(),
     getCUT(),
@@ -26,7 +26,7 @@ export const showContextMenu = (event, hasPathCache) => {
     getRENAME(),
     getDELETE(),
     SEPARATOR,
-    getSHOW_IN_FOLDER()
+    getShowInFolder()
   ]
 
   contextItems[5].enabled = hasPathCache // PASTE item

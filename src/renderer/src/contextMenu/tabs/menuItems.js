@@ -8,34 +8,34 @@ export const SEPARATOR = {
 }
 
 // Use function form to avoid calling the translation function during module load
-export const getCLOSE_THIS = () => ({
+export const getCloseThis = () => ({
   label: t('contextMenu.tabs.close'),
   id: 'closeThisTab',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.closeThis(menuItem._tabId)
   }
 })
 
-export const getCLOSE_OTHERS = () => ({
+export const getCloseOthers = () => ({
   label: t('contextMenu.tabs.closeOthers'),
   id: 'closeOtherTabs',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.closeOthers(menuItem._tabId)
   }
 })
 
-export const getCLOSE_SAVED = () => ({
+export const getCloseSaved = () => ({
   label: t('contextMenu.tabs.closeSavedTabs'),
   id: 'closeSavedTabs',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.closeSaved()
   }
 })
 
-export const getCLOSE_ALL = () => ({
+export const getCloseAll = () => ({
   label: t('contextMenu.tabs.closeAllTabs'),
   id: 'closeAllTabs',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.closeAll()
   }
 })
@@ -43,32 +43,32 @@ export const getCLOSE_ALL = () => ({
 export const getRENAME = () => ({
   label: t('contextMenu.tabs.rename'),
   id: 'renameFile',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.rename(menuItem._tabId)
   }
 })
 
-export const getCOPY_PATH = () => ({
+export const getCopyPath = () => ({
   label: t('contextMenu.tabs.copyPath'),
   id: 'copyPath',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.copyPath(menuItem._tabId)
   }
 })
 
-export const getSHOW_IN_FOLDER = () => ({
+export const getShowInFolder = () => ({
   label: t('contextMenu.tabs.showInFolder'),
   id: 'showInFolder',
-  click (menuItem, browserWindow) {
+  click(menuItem, browserWindow) {
     contextMenu.showInFolder(menuItem._tabId)
   }
 })
 
 // Retained for backward compatibility
-export const CLOSE_THIS = getCLOSE_THIS()
-export const CLOSE_OTHERS = getCLOSE_OTHERS()
-export const CLOSE_SAVED = getCLOSE_SAVED()
-export const CLOSE_ALL = getCLOSE_ALL()
+export const CLOSE_THIS = getCloseThis()
+export const CLOSE_OTHERS = getCloseOthers()
+export const CLOSE_SAVED = getCloseSaved()
+export const CLOSE_ALL = getCloseAll()
 export const RENAME = getRENAME()
-export const COPY_PATH = getCOPY_PATH()
-export const SHOW_IN_FOLDER = getSHOW_IN_FOLDER()
+export const COPY_PATH = getCopyPath()
+export const SHOW_IN_FOLDER = getShowInFolder()

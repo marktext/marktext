@@ -4,7 +4,7 @@ import { userSetting } from '../actions/marktext'
 import { isOsx } from '../../config'
 import { t } from '../../i18n'
 
-export default function (keybindings, userPreference, recentlyUsedFiles) {
+export default function(keybindings, userPreference, recentlyUsedFiles) {
   const { autoSave } = userPreference.getAll()
   const fileMenu = {
     label: t('menu.file.file'),

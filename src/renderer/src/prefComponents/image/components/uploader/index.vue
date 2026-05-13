@@ -5,51 +5,100 @@
       <div v-if="isValidUploaderService(currentUploader)">
         {{ t('preferences.image.uploader.currentUploader', { name: getServiceNameById(currentUploader) }) }}
       </div>
-      <span v-else
-        >{{ t('preferences.image.uploader.noUploaderSelected') }}</span
-      >
+      <span v-else>{{ t('preferences.image.uploader.noUploaderSelected') }}</span>
     </section>
     <section class="configration">
       <cur-select
         :value="currentUploader"
         :options="uploaderOptions"
         :on-change="(value) => setCurrentUploader(value)"
-      ></cur-select>
-      <div v-if="currentUploader === 'picgo'" class="picgo">
+      />
+      <div
+        v-if="currentUploader === 'picgo'"
+        class="picgo"
+      >
         <div class="detection-status">
           <div class="detection-header">
             <h6>{{ t('preferences.image.uploader.picgoDetection') }}</h6>
             <div class="detection-controls">
               <!-- Standalone refresh button -->
-              <button v-if="showStandaloneRefreshButton" class="standalone-refresh-button" @click="manualDetection" :disabled="isDetecting" :title="t('preferences.image.uploader.retestPicgo')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="23 4 23 10 17 10"></polyline>
-                  <polyline points="1 20 1 14 7 14"></polyline>
-                  <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              <button
+                v-if="showStandaloneRefreshButton"
+                class="standalone-refresh-button"
+                :disabled="isDetecting"
+                :title="t('preferences.image.uploader.retestPicgo')"
+                @click="manualDetection"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
+                  <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                 </svg>
               </button>
               <div class="detection-status-indicator">
                 <!-- Loading animation and status indicator -->
                 <div class="detection-animation-container">
                   <!-- Initial button (becomes animation after 0.5 seconds) -->
-                  <button v-if="showInitialButton" class="initial-button">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <path d="m9 12 2 2 4-4"></path>
+                  <button
+                    v-if="showInitialButton"
+                    class="initial-button"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                      />
+                      <path d="m9 12 2 2 4-4" />
                     </svg>
                   </button>
                   <!-- Loading animation -->
-                  <div v-if="showLoadingAnimation" class="loading-dot" :class="{ 'animate': animationActive }"></div>
+                  <div
+                    v-if="showLoadingAnimation"
+                    class="loading-dot"
+                    :class="{ 'animate': animationActive }"
+                  />
                   <!-- Status indicator button (icon removed) -->
-                  <button v-if="showStatusIndicator" class="status-indicator" :class="getStatusIndicatorClass()" @click="manualDetection">
+                  <button
+                    v-if="showStatusIndicator"
+                    class="status-indicator"
+                    :class="getStatusIndicatorClass()"
+                    @click="manualDetection"
+                  >
                     <!-- All SVG icons removed -->
                   </button>
                   <!-- Refresh button -->
-                  <button v-if="showRefreshButton" class="refresh-button" @click="manualDetection" :disabled="isDetecting">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="23 4 23 10 17 10"></polyline>
-                      <polyline points="1 20 1 14 7 14"></polyline>
-                      <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  <button
+                    v-if="showRefreshButton"
+                    class="refresh-button"
+                    :disabled="isDetecting"
+                    @click="manualDetection"
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="23 4 23 10 17 10" />
+                      <polyline points="1 20 1 14 7 14" />
+                      <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                     </svg>
                   </button>
                 </div>
@@ -60,15 +109,26 @@
             <div class="status-text">
               {{ picgoDetectionStatus || t('preferences.image.uploader.picgoNotInstalled') }}
             </div>
-            <div v-if="lastDetectionTime" class="detection-time">
+            <div
+              v-if="lastDetectionTime"
+              class="detection-time"
+            >
               {{ t('preferences.image.uploader.lastDetectionTime') }}: {{ formatDetectionTime(lastDetectionTime) }}
             </div>
-            <div v-if="lastSuccessTime" class="success-time">
+            <div
+              v-if="lastSuccessTime"
+              class="success-time"
+            >
               {{ t('preferences.image.uploader.lastSuccessTime') }}: {{ getLastSuccessTime() }}
             </div>
           </div>
-          <div v-if="!picgoExists" class="install-commands">
-            <div class="install-title">{{ t('preferences.image.uploader.chooseInstallMethod') }}</div>
+          <div
+            v-if="!picgoExists"
+            class="install-commands"
+          >
+            <div class="install-title">
+              {{ t('preferences.image.uploader.chooseInstallMethod') }}
+            </div>
             <div class="install-options">
               <div class="install-option">
                 <strong>npm:</strong>
@@ -84,44 +144,66 @@
               </div>
             </div>
             <div class="install-link">
-              <span class="link" @click="open('https://github.com/PicGo/PicGo-Core')">picgo</span>
+              <span
+                class="link"
+                @click="open('https://github.com/PicGo/PicGo-Core')"
+              >picgo</span>
               {{ t('preferences.image.uploader.pleaseInstall') }}
             </div>
           </div>
 
           <!-- PicGo basic usage guide -->
           <div class="usage-guide">
-            <div class="usage-title">{{ t('preferences.image.uploader.usageGuide.title') }}</div>
+            <div class="usage-title">
+              {{ t('preferences.image.uploader.usageGuide.title') }}
+            </div>
             <div class="usage-content">
               <div class="usage-step">
                 <strong>1. {{ t('preferences.image.uploader.usageGuide.step1') }}</strong>
-                <div class="usage-description">{{ t('preferences.image.uploader.usageGuide.step1Description') }}</div>
+                <div class="usage-description">
+                  {{ t('preferences.image.uploader.usageGuide.step1Description') }}
+                </div>
                 <code class="usage-command">picgo set uploader</code>
               </div>
               <div class="usage-step">
                 <strong>2. {{ t('preferences.image.uploader.usageGuide.step2') }}</strong>
-                <div class="usage-description">{{ t('preferences.image.uploader.usageGuide.step2Description') }}</div>
+                <div class="usage-description">
+                  {{ t('preferences.image.uploader.usageGuide.step2Description') }}
+                </div>
                 <code class="usage-command">picgo upload /path/to/image.png</code>
               </div>
               <div class="usage-step">
                 <strong>3. {{ t('preferences.image.uploader.usageGuide.step3') }}</strong>
-                <div class="usage-description">{{ t('preferences.image.uploader.usageGuide.step3Description') }}</div>
+                <div class="usage-description">
+                  {{ t('preferences.image.uploader.usageGuide.step3Description') }}
+                </div>
                 <code class="usage-command">picgo config</code>
               </div>
             </div>
             <div class="usage-link">
-              <span class="link" @click="open('https://picgo.github.io/PicGo-Core-Doc/')">{{ t('preferences.image.uploader.usageGuide.documentation') }}</span>
+              <span
+                class="link"
+                @click="open('https://picgo.github.io/PicGo-Core-Doc/')"
+              >{{ t('preferences.image.uploader.usageGuide.documentation') }}</span>
             </div>
           </div>
 
-          <details v-if="picgoDetectionFailed && picgoDebugInfo" class="debug-info">
+          <details
+            v-if="picgoDetectionFailed && picgoDebugInfo"
+            class="debug-info"
+          >
             <summary>{{ t('preferences.image.uploader.debugInfo') }}</summary>
             <pre>{{ picgoDebugInfo || '暂无调试信息' }}</pre>
           </details>
         </div>
       </div>
-      <div v-if="currentUploader === 'github'" class="github">
-        <div class="warning">{{ t('preferences.image.uploader.githubDeprecated') }}</div>
+      <div
+        v-if="currentUploader === 'github'"
+        class="github"
+      >
+        <div class="warning">
+          {{ t('preferences.image.uploader.githubDeprecated') }}
+        </div>
         <div class="form-group">
           <div class="label">
             {{ t('preferences.image.uploader.githubToken') }}:
@@ -131,43 +213,87 @@
               :content="t('preferences.image.uploader.tokenTooltip')"
               placement="top-start"
             >
-              <InfoFilled width="16" height="16" />
+              <InfoFilled
+                width="16"
+                height="16"
+              />
             </el-tooltip>
           </div>
-          <el-input v-model="githubToken" :placeholder="t('preferences.image.uploader.inputToken')" size="mini"></el-input>
+          <el-input
+            v-model="githubToken"
+            :placeholder="t('preferences.image.uploader.inputToken')"
+            size="mini"
+          />
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.ownerName') }}:</div>
-          <el-input v-model="github.owner" :placeholder="t('preferences.image.uploader.owner')" size="mini"></el-input>
+          <div class="label">
+            {{ t('preferences.image.uploader.ownerName') }}:
+          </div>
+          <el-input
+            v-model="github.owner"
+            :placeholder="t('preferences.image.uploader.owner')"
+            size="mini"
+          />
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.repoName') }}:</div>
-          <el-input v-model="github.repo" :placeholder="t('preferences.image.uploader.repo')" size="mini"></el-input>
+          <div class="label">
+            {{ t('preferences.image.uploader.repoName') }}:
+          </div>
+          <el-input
+            v-model="github.repo"
+            :placeholder="t('preferences.image.uploader.repo')"
+            size="mini"
+          />
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.branchName') }}:</div>
-          <el-input v-model="github.branch" :placeholder="t('preferences.image.uploader.branch')" size="mini"></el-input>
+          <div class="label">
+            {{ t('preferences.image.uploader.branchName') }}:
+          </div>
+          <el-input
+            v-model="github.branch"
+            :placeholder="t('preferences.image.uploader.branch')"
+            size="mini"
+          />
         </div>
         <legal-notices-checkbox
           class="github"
           :class="[{ error: legalNoticesErrorStates.github }]"
           :uploader-service="uploadServices.github"
-        ></legal-notices-checkbox>
+        />
         <div class="form-group">
-          <el-button size="mini" :disabled="githubDisable" @click="save('github')">{{ t('preferences.image.uploader.save') }}</el-button>
+          <el-button
+            size="mini"
+            :disabled="githubDisable"
+            @click="save('github')"
+          >
+            {{ t('preferences.image.uploader.save') }}
+          </el-button>
         </div>
       </div>
-      <div v-else-if="currentUploader === 'cliScript'" class="script">
+      <div
+        v-else-if="currentUploader === 'cliScript'"
+        class="script"
+      >
         <div class="description">
           {{ t('preferences.image.uploader.scriptDescription') }}
         </div>
         <div class="form-group">
-          <div class="label">{{ t('preferences.image.uploader.scriptLocation') }}:</div>
-          <el-input v-model="cliScript" :placeholder="t('preferences.image.uploader.scriptPath')" size="mini"></el-input>
+          <div class="label">
+            {{ t('preferences.image.uploader.scriptLocation') }}:
+          </div>
+          <el-input
+            v-model="cliScript"
+            :placeholder="t('preferences.image.uploader.scriptPath')"
+            size="mini"
+          />
         </div>
         <div class="form-group">
-          <el-button size="mini" :disabled="cliScriptDisable" @click="save('cliScript')"
-            >{{ t('preferences.image.uploader.save') }}
+          <el-button
+            size="mini"
+            :disabled="cliScriptDisable"
+            @click="save('cliScript')"
+          >
+            {{ t('preferences.image.uploader.save') }}
           </el-button>
         </div>
       </div>
@@ -194,7 +320,7 @@ const preferenceStore = usePreferencesStore()
 
 // data
 const uploaderOptions = Object.keys(getServices()).map((name) => {
-    const { name: label } = getServices()[name]
+  const { name: label } = getServices()[name]
   return {
     label,
     value: name
@@ -688,12 +814,12 @@ const testPicgo = () => {
     // Record detection start time
     lastDetectionTime.value = new Date().toISOString()
 
-    let debugMessages = []
+    const debugMessages = []
     debugMessages.push(`检测时间: ${new Date().toLocaleString()}`)
 
     // Add environment information
     debugMessages.push(`平台: ${window.electron?.process?.platform || 'unknown'}`)
-    debugMessages.push(`进程类型: renderer`)
+    debugMessages.push('进程类型: renderer')
 
     if (typeof window.commandExists === 'undefined') {
       const errorMsg = 'commandExists 未暴露到 window 对象'
@@ -1199,4 +1325,3 @@ const validate = (value) => {
   border: 1px solid var(--deleteColor);
 }
 </style>
-

@@ -5,8 +5,12 @@
     :class="[{ active: currentFile.id === file.id, unsaved: !file.isSaved }]"
     @click="selectFile(file)"
   >
-    <svg class="icon" aria-hidden="true" @click.stop="removeFileInTab(file)">
-      <use xlink:href="#icon-close-small"></use>
+    <svg
+      class="icon"
+      aria-hidden="true"
+      @click.stop="removeFileInTab(file)"
+    >
+      <use xlink:href="#icon-close-small" />
     </svg>
     <span class="name">{{ file.filename }}</span>
   </div>
@@ -16,7 +20,7 @@
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/store/editor'
 
-const props = defineProps({
+defineProps({
   file: {
     type: Object,
     required: true

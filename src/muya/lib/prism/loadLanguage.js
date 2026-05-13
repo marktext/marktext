@@ -60,7 +60,7 @@ function initLoadLanguage(Prism) {
     // We don't need to validate the ids because `getLoader` will ignore invalid ones
     const loaded = [...loadedLanguages, ...Object.keys(Prism.languages)]
 
-    getLoader(components, langs, loaded).load(async (lang) => {
+    getLoader(components, langs, loaded).load(async(lang) => {
       const defer = getDefer()
       promises.push(defer.promise)
       if (!(lang in components.languages)) {

@@ -1,13 +1,13 @@
 import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   SEPARATOR,
-  getCLOSE_THIS,
-  getCLOSE_OTHERS,
-  getCLOSE_SAVED,
-  getCLOSE_ALL,
+  getCloseThis,
+  getCloseOthers,
+  getCloseSaved,
+  getCloseAll,
   getRENAME,
-  getCOPY_PATH,
-  getSHOW_IN_FOLDER
+  getCopyPath,
+  getShowInFolder
 } from './menuItems'
 
 export const showContextMenu = (event, tab) => {
@@ -15,13 +15,13 @@ export const showContextMenu = (event, tab) => {
   const win = getCurrentWindow()
   const { pathname } = tab
   // Dynamically fetch menu items to ensure correct translation
-  const closeThis = getCLOSE_THIS()
-  const closeOthers = getCLOSE_OTHERS()
-  const closeSaved = getCLOSE_SAVED()
-  const closeAll = getCLOSE_ALL()
+  const closeThis = getCloseThis()
+  const closeOthers = getCloseOthers()
+  const closeSaved = getCloseSaved()
+  const closeAll = getCloseAll()
   const rename = getRENAME()
-  const copyPath = getCOPY_PATH()
-  const showInFolder = getSHOW_IN_FOLDER()
+  const copyPath = getCopyPath()
+  const showInFolder = getShowInFolder()
 
   const CONTEXT_ITEMS = [closeThis, closeOthers, closeSaved, closeAll, SEPARATOR, rename, copyPath, showInFolder]
   const FILE_CONTEXT_ITEMS = [rename, copyPath, showInFolder]

@@ -3,7 +3,9 @@
     <h4>{{ t('preferences.markdown.title') }}</h4>
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.markdown.lists.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.markdown.lists.title') }}
+        </h6>
       </template>
       <template #children>
         <bool
@@ -11,33 +13,35 @@
           :bool="preferLooseListItem"
           :on-change="(value) => onSelectChange('preferLooseListItem', value)"
           more="https://spec.commonmark.org/0.29/#loose"
-        ></bool>
+        />
         <cur-select
           :description="t('preferences.markdown.lists.bulletListMarker')"
           :value="bulletListMarker"
           :options="bulletListMarkerOptions"
           :on-change="(value) => onSelectChange('bulletListMarker', value)"
           more="https://spec.commonmark.org/0.29/#bullet-list-marker"
-        ></cur-select>
+        />
         <cur-select
           :description="t('preferences.markdown.lists.orderListDelimiter')"
           :value="orderListDelimiter"
           :options="orderListDelimiterOptions"
           :on-change="(value) => onSelectChange('orderListDelimiter', value)"
           more="https://spec.commonmark.org/0.29/#ordered-list"
-        ></cur-select>
+        />
         <cur-select
           :description="t('preferences.markdown.lists.listIndentation.title')"
           :value="listIndentation"
           :options="getListIndentationOptions()"
           :on-change="(value) => onSelectChange('listIndentation', value)"
-        ></cur-select>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.markdown.extensions.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.markdown.extensions.title') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -45,44 +49,48 @@
           :value="frontmatterType"
           :options="getFrontmatterTypeOptions()"
           :on-change="(value) => onSelectChange('frontmatterType', value)"
-        ></cur-select>
+        />
         <bool
           :description="t('preferences.markdown.extensions.superSubScript')"
           :bool="superSubScript"
           :on-change="(value) => onSelectChange('superSubScript', value)"
           more="https://pandoc.org/MANUAL.html#superscripts-and-subscripts"
-        ></bool>
+        />
         <bool
           :description="t('preferences.markdown.extensions.footnote')"
           :notes="t('preferences.markdown.extensions.footnoteNotes')"
           :bool="footnote"
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
-        ></bool>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.markdown.compatibility.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.markdown.compatibility.title') }}
+        </h6>
       </template>
       <template #children>
         <bool
           :description="t('preferences.markdown.compatibility.enableHtml')"
           :bool="isHtmlEnabled"
           :on-change="(value) => onSelectChange('isHtmlEnabled', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.markdown.compatibility.enableGitlab')"
           :bool="isGitlabCompatibilityEnabled"
           :on-change="(value) => onSelectChange('isGitlabCompatibilityEnabled', value)"
-        ></bool>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.markdown.diagrams.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.markdown.diagrams.title') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -91,13 +99,15 @@
           :options="getSequenceThemeOptions()"
           :on-change="(value) => onSelectChange('sequenceTheme', value)"
           more="https://bramp.github.io/js-sequence-diagrams/"
-        ></cur-select>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.markdown.misc.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.markdown.misc.title') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -106,7 +116,7 @@
           :options="getPreferHeadingStyleOptions()"
           :on-change="(value) => onSelectChange('preferHeadingStyle', value)"
           :disable="true"
-        ></cur-select>
+        />
       </template>
     </compound>
   </div>

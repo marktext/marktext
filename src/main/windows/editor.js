@@ -159,7 +159,7 @@ class EditorWindow extends BaseWindow {
       )
     })
 
-    win.webContents.once('render-process-gone', async (event, { reason }) => {
+    win.webContents.once('render-process-gone', async(event, { reason }) => {
       if (reason === 'clean-exit') {
         return
       }
@@ -555,7 +555,6 @@ class EditorWindow extends BaseWindow {
         preferences.getAll()
 
       const fileOpenRequests = []
-      const tabsToRestore = []
       for (const tab of bufferState.tabs) {
         if (!tab.pathname) {
           continue

@@ -18,7 +18,7 @@ const adjustOffset = (offset, block, event) => {
 }
 
 const arrowCtrl = (ContentState) => {
-  ContentState.prototype.findNextRowCell = function (cell) {
+  ContentState.prototype.findNextRowCell = function(cell) {
     if (cell.functionType !== 'cellContent') {
       throw new Error(`block with type ${cell && cell.type} is not a table cell`)
     }
@@ -40,7 +40,7 @@ const arrowCtrl = (ContentState) => {
     return null
   }
 
-  ContentState.prototype.findPrevRowCell = function (cell) {
+  ContentState.prototype.findPrevRowCell = function(cell) {
     if (cell.functionType !== 'cellContent') {
       throw new Error(`block with type ${cell && cell.type} is not a table cell`)
     }
@@ -61,7 +61,7 @@ const arrowCtrl = (ContentState) => {
     return null
   }
 
-  ContentState.prototype.docArrowHandler = function (event) {
+  ContentState.prototype.docArrowHandler = function(event) {
     const { selectedImage } = this
     if (selectedImage) {
       const { key, token } = selectedImage
@@ -94,7 +94,7 @@ const arrowCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.arrowHandler = function (event) {
+  ContentState.prototype.arrowHandler = function(event) {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const id = paragraph.id

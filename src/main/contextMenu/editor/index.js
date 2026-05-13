@@ -3,28 +3,28 @@ import {
   getCUT,
   getCOPY,
   getPASTE,
-  getCOPY_AS_RICH,
-  getCOPY_AS_HTML,
-  getPASTE_AS_PLAIN_TEXT,
+  getCopyAsRich,
+  getCopyAsHtml,
+  getPasteAsPlainText,
   SEPARATOR,
-  getINSERT_BEFORE,
-  getINSERT_AFTER
+  getInsertBefore,
+  getInsertAfter
 } from './menuItems'
 import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
 
 // Dynamically fetch menu items to ensure correct translation
 const getContextItems = () => [
-  getINSERT_BEFORE(),
-  getINSERT_AFTER(),
+  getInsertBefore(),
+  getInsertAfter(),
   SEPARATOR,
   getCUT(),
   getCOPY(),
   getPASTE(),
   SEPARATOR,
-  getCOPY_AS_RICH(),
-  getCOPY_AS_HTML(),
-  getPASTE_AS_PLAIN_TEXT()
+  getCopyAsRich(),
+  getCopyAsHtml(),
+  getPasteAsPlainText()
 ]
 
 const isInsideEditor = (params) => {

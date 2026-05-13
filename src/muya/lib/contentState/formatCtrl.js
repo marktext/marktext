@@ -156,7 +156,7 @@ const checkTokenIsInlineFormat = (token) => {
 }
 
 const formatCtrl = (ContentState) => {
-  ContentState.prototype.selectionFormats = function ({ start, end } = selection.getCursorRange()) {
+  ContentState.prototype.selectionFormats = function({ start, end } = selection.getCursorRange()) {
     if (!start || !end) {
       return { formats: [], tokens: [], neighbors: [] }
     }
@@ -197,7 +197,7 @@ const formatCtrl = (ContentState) => {
     return { formats, tokens, neighbors }
   }
 
-  ContentState.prototype.clearBlockFormat = function (
+  ContentState.prototype.clearBlockFormat = function(
     block,
     { start, end } = selection.getCursorRange(),
     type
@@ -239,8 +239,8 @@ const formatCtrl = (ContentState) => {
 
     neighbors = type
       ? neighbors.filter((n) => {
-          return n.type === type || (n.type === 'html_tag' && n.tag === type)
-        })
+        return n.type === type || (n.type === 'html_tag' && n.tag === type)
+      })
       : neighbors
 
     for (const neighbor of neighbors) {
@@ -251,7 +251,7 @@ const formatCtrl = (ContentState) => {
     block.text = generator(tokens)
   }
 
-  ContentState.prototype.format = function (type) {
+  ContentState.prototype.format = function(type) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return

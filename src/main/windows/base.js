@@ -1,5 +1,4 @@
 import EventEmitter from 'events'
-import { isLinux } from '../config'
 import path from 'path'
 
 /**

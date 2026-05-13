@@ -19,7 +19,7 @@ export const useNotificationStore = defineStore('notification', {
         notice.notify(options)
       })
 
-      window.electron.ipcRenderer.on('mt::pandoc-not-exists', async (e, opts) => {
+      window.electron.ipcRenderer.on('mt::pandoc-not-exists', async(e, opts) => {
         const options = Object.assign(DEFAULT_OPTS, opts)
         options.showConfirm = true
         await notice.notify(options)

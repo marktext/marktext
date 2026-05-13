@@ -16,8 +16,12 @@
               type="text"
               class="search"
               @keyup.enter="confirm"
-            />
-            <svg class="icon" aria-hidden="true" @click="confirm">
+            >
+            <svg
+              class="icon"
+              aria-hidden="true"
+              @click="confirm"
+            >
               <use xlink:href="#icon-markdown" />
             </svg>
           </div>

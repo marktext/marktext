@@ -51,7 +51,7 @@ const BOTH_SIDES_FORMATS = [
 ]
 
 const tabCtrl = (ContentState) => {
-  ContentState.prototype.findNextCell = function (block) {
+  ContentState.prototype.findNextCell = function(block) {
     if (block.functionType !== 'cellContent') {
       throw new Error('only th and td can have next cell')
     }
@@ -76,7 +76,7 @@ const tabCtrl = (ContentState) => {
     return false
   }
 
-  ContentState.prototype.findPreviousCell = function (block) {
+  ContentState.prototype.findPreviousCell = function(block) {
     if (block.functionType !== 'cellContent') {
       throw new Error('only th and td can have previous cell')
     }
@@ -100,7 +100,7 @@ const tabCtrl = (ContentState) => {
     return block
   }
 
-  ContentState.prototype.isUnindentableListItem = function (block) {
+  ContentState.prototype.isUnindentableListItem = function(block) {
     const parent = this.getParent(block)
     const listItem = this.getParent(parent)
     const list = this.getParent(listItem)
@@ -112,7 +112,7 @@ const tabCtrl = (ContentState) => {
     return false
   }
 
-  ContentState.prototype.isIndentableListItem = function () {
+  ContentState.prototype.isIndentableListItem = function() {
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const parent = this.getParent(startBlock)
@@ -130,7 +130,7 @@ const tabCtrl = (ContentState) => {
     return list && /ol|ul/.test(list.type) && listItem.preSibling
   }
 
-  ContentState.prototype.unindentListItem = function (block, type) {
+  ContentState.prototype.unindentListItem = function(block, type) {
     const pBlock = this.getParent(block)
     const listItem = this.getParent(pBlock)
     const list = this.getParent(listItem)
@@ -173,7 +173,7 @@ const tabCtrl = (ContentState) => {
     return this.partialRender()
   }
 
-  ContentState.prototype.indentListItem = function () {
+  ContentState.prototype.indentListItem = function() {
     const { start } = this.cursor
     const startBlock = this.getBlock(start.key)
     const parent = this.getParent(startBlock)
@@ -199,7 +199,7 @@ const tabCtrl = (ContentState) => {
     return this.partialRender()
   }
 
-  ContentState.prototype.insertTab = function (event) {
+  ContentState.prototype.insertTab = function(event) {
     const tabSize = this.tabSize
     const tabCharacter = String.fromCharCode(32).repeat(tabSize)
     const { start, end } = this.cursor
@@ -278,7 +278,7 @@ const tabCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.checkCursorAtEndFormat = function (text, offset) {
+  ContentState.prototype.checkCursorAtEndFormat = function(text, offset) {
     const { labels } = this.stateRender
     const tokens = tokenizer(text, {
       hasBeginRules: false,
@@ -381,7 +381,7 @@ const tabCtrl = (ContentState) => {
     return result
   }
 
-  ContentState.prototype.tabHandler = function (event) {
+  ContentState.prototype.tabHandler = function(event) {
     // disable tab focus
     event.preventDefault()
 

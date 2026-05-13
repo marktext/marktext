@@ -10,11 +10,11 @@ function Renderer(options = {}) {
   this.options = options || defaultOptions
 }
 
-Renderer.prototype.frontmatter = function (text) {
+Renderer.prototype.frontmatter = function(text) {
   return `<pre class="front-matter">\n${text}</pre>\n`
 }
 
-Renderer.prototype.multiplemath = function (text) {
+Renderer.prototype.multiplemath = function(text) {
   let output = ''
   if (this.options.mathRenderer) {
     const displayMode = true
@@ -23,7 +23,7 @@ Renderer.prototype.multiplemath = function (text) {
   return output || `<pre class="multiple-math">\n${text}</pre>\n`
 }
 
-Renderer.prototype.inlineMath = function (math) {
+Renderer.prototype.inlineMath = function(math) {
   let output = ''
   if (this.options.mathRenderer) {
     const displayMode = false
@@ -32,7 +32,7 @@ Renderer.prototype.inlineMath = function (math) {
   return output || math
 }
 
-Renderer.prototype.emoji = function (text, emoji) {
+Renderer.prototype.emoji = function(text, emoji) {
   if (this.options.emojiRenderer) {
     return this.options.emojiRenderer(emoji)
   } else {
@@ -40,19 +40,19 @@ Renderer.prototype.emoji = function (text, emoji) {
   }
 }
 
-Renderer.prototype.script = function (content, marker) {
+Renderer.prototype.script = function(content, marker) {
   const tagName = marker === '^' ? 'sup' : 'sub'
   return `<${tagName}>${content}</${tagName}>`
 }
 
-Renderer.prototype.footnoteIdentifier = function (
+Renderer.prototype.footnoteIdentifier = function(
   identifier,
   { footnoteId, footnoteIdentifierId, order }
 ) {
   return `<a href="#${footnoteId ? `fn${footnoteId}` : ''}" class="footnote-ref" id="fnref${footnoteIdentifierId}" role="doc-noteref"><sup>${order || identifier}</sup></a>`
 }
 
-Renderer.prototype.footnote = function (footnote) {
+Renderer.prototype.footnote = function(footnote) {
   return (
     '<section class="footnotes" role="doc-endnotes">\n<hr />\n<ol>\n' +
     footnote +
@@ -60,11 +60,11 @@ Renderer.prototype.footnote = function (footnote) {
   )
 }
 
-Renderer.prototype.footnoteItem = function (content, { footnoteId, footnoteIdentifierId }) {
+Renderer.prototype.footnoteItem = function(content, { footnoteId, footnoteIdentifierId }) {
   return `<li id="fn${footnoteId}" role="doc-endnote">${content}<a href="#${footnoteIdentifierId ? `fnref${footnoteIdentifierId}` : ''}" class="footnote-back" role="doc-backlink">↩︎</a></li>`
 }
 
-Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
+Renderer.prototype.code = function(code, infostring, escaped, codeBlockStyle) {
   const lang = (infostring || '').match(/\S*/)[0]
   if (this.options.highlight) {
     const out = this.options.highlight(code, lang)
@@ -86,15 +86,15 @@ Renderer.prototype.code = function (code, infostring, escaped, codeBlockStyle) {
   )
 }
 
-Renderer.prototype.blockquote = function (quote) {
+Renderer.prototype.blockquote = function(quote) {
   return '<blockquote>\n' + quote + '</blockquote>\n'
 }
 
-Renderer.prototype.html = function (html) {
+Renderer.prototype.html = function(html) {
   return html
 }
 
-Renderer.prototype.heading = function (text, level, raw, slugger, headingStyle) {
+Renderer.prototype.heading = function(text, level, raw, slugger, headingStyle) {
   if (this.options.headerIds) {
     return (
       '<h' +
@@ -115,17 +115,17 @@ Renderer.prototype.heading = function (text, level, raw, slugger, headingStyle) 
   return '<h' + level + '>' + text + '</h' + level + '>\n'
 }
 
-Renderer.prototype.hr = function () {
+Renderer.prototype.hr = function() {
   return this.options.xhtml ? '<hr/>\n' : '<hr>\n'
 }
 
-Renderer.prototype.list = function (body, ordered, start, taskList) {
+Renderer.prototype.list = function(body, ordered, start, taskList) {
   const type = ordered ? 'ol' : 'ul'
   const startatt = ordered && start !== 1 ? ' start="' + start + '"' : ''
   return '<' + type + startatt + '>\n' + body + '</' + type + '>\n'
 }
 
-Renderer.prototype.listitem = function (text, checked) {
+Renderer.prototype.listitem = function(text, checked) {
   // normal list
   if (checked === undefined) {
     return '<li>' + text + '</li>\n'
@@ -143,48 +143,48 @@ Renderer.prototype.listitem = function (text, checked) {
   )
 }
 
-Renderer.prototype.paragraph = function (text) {
+Renderer.prototype.paragraph = function(text) {
   return '<p>' + text + '</p>\n'
 }
 
-Renderer.prototype.table = function (header, body) {
+Renderer.prototype.table = function(header, body) {
   if (body) body = '<tbody>' + body + '</tbody>'
 
   return '<table>\n' + '<thead>\n' + header + '</thead>\n' + body + '</table>\n'
 }
 
-Renderer.prototype.tablerow = function (content) {
+Renderer.prototype.tablerow = function(content) {
   return '<tr>\n' + content + '</tr>\n'
 }
 
-Renderer.prototype.tablecell = function (content, flags) {
+Renderer.prototype.tablecell = function(content, flags) {
   const type = flags.header ? 'th' : 'td'
   const tag = flags.align ? '<' + type + ' align="' + flags.align + '">' : '<' + type + '>'
   return tag + content + '</' + type + '>\n'
 }
 
 // span level renderer
-Renderer.prototype.strong = function (text) {
+Renderer.prototype.strong = function(text) {
   return '<strong>' + text + '</strong>'
 }
 
-Renderer.prototype.em = function (text) {
+Renderer.prototype.em = function(text) {
   return '<em>' + text + '</em>'
 }
 
-Renderer.prototype.codespan = function (text) {
+Renderer.prototype.codespan = function(text) {
   return '<code>' + text + '</code>'
 }
 
-Renderer.prototype.br = function () {
+Renderer.prototype.br = function() {
   return this.options.xhtml ? '<br/>' : '<br>'
 }
 
-Renderer.prototype.del = function (text) {
+Renderer.prototype.del = function(text) {
   return '<del>' + text + '</del>'
 }
 
-Renderer.prototype.link = function (href, title, text) {
+Renderer.prototype.link = function(href, title, text) {
   href = cleanUrl(this.options.sanitize, this.options.baseUrl, href)
   if (href === null) {
     return text
@@ -197,7 +197,7 @@ Renderer.prototype.link = function (href, title, text) {
   return out
 }
 
-Renderer.prototype.image = function (href, title, text) {
+Renderer.prototype.image = function(href, title, text) {
   if (!href) {
     return text
   }
@@ -218,11 +218,11 @@ Renderer.prototype.image = function (href, title, text) {
   return out
 }
 
-Renderer.prototype.text = function (text) {
+Renderer.prototype.text = function(text) {
   return text
 }
 
-Renderer.prototype.toc = function () {
+Renderer.prototype.toc = function() {
   if (this.options.tocRenderer) {
     return this.options.tocRenderer()
   }

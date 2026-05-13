@@ -1,8 +1,19 @@
 <template>
-  <section class="pref-switch-item" :class="{ 'ag-underdevelop': disable }">
-    <div class="description" style="display: flex; align-items: center">
+  <section
+    class="pref-switch-item"
+    :class="{ 'ag-underdevelop': disable }"
+  >
+    <div
+      class="description"
+      style="display: flex; align-items: center"
+    >
       <span>{{ description }}:</span>
-      <InfoFilled v-if="more" width="16" height="16" @click="handleMoreClick" />
+      <InfoFilled
+        v-if="more"
+        width="16"
+        height="16"
+        @click="handleMoreClick"
+      />
       <el-tooltip
         v-else-if="detailedDescription"
         :content="detailedDescription"
@@ -10,13 +21,22 @@
         effect="dark"
         placement="top-start"
       >
-        <InfoFilled width="16" height="16" />
+        <InfoFilled
+          width="16"
+          height="16"
+        />
       </el-tooltip>
-      <span v-if="notes" class="notes">
+      <span
+        v-if="notes"
+        class="notes"
+      >
         {{ notes }}
       </span>
     </div>
-    <el-switch v-model="status" @change="handleSwitchChange"> </el-switch>
+    <el-switch
+      v-model="status"
+      @change="handleSwitchChange"
+    />
   </section>
 </template>
 

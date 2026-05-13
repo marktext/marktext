@@ -1,6 +1,6 @@
 <template>
   <div class="editor-container">
-    <side-bar v-if="init"></side-bar>
+    <side-bar v-if="init" />
 
     <div class="editor-middle">
       <title-bar
@@ -11,26 +11,29 @@
         :word-count="wordCount"
         :platform="platform"
         :is-saved="isSaved"
-      ></title-bar>
+      />
 
-      <div v-if="!init" class="editor-placeholder"></div>
-      <recent v-if="!hasCurrentFile && init"></recent>
+      <div
+        v-if="!init"
+        class="editor-placeholder"
+      />
+      <recent v-if="!hasCurrentFile && init" />
       <editor-with-tabs
         v-if="hasCurrentFile && init"
         :markdown="markdown"
         :cursor="cursor"
-        :muyaIndexCursor="muyaIndexCursor"
+        :muya-index-cursor="muyaIndexCursor"
         :source-code="sourceCode"
         :show-tab-bar="showTabBar"
         :text-direction="textDirection"
         :platform="platform"
-      ></editor-with-tabs>
-      <command-palette></command-palette>
-      <about-dialog></about-dialog>
-      <export-setting-dialog></export-setting-dialog>
-      <rename></rename>
-      <tweet></tweet>
-      <import-modal></import-modal>
+      />
+      <command-palette />
+      <about-dialog />
+      <export-setting-dialog />
+      <rename />
+      <tweet />
+      <import-modal />
     </div>
   </div>
 </template>

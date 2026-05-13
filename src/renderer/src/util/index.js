@@ -22,17 +22,17 @@ export const delay = (time) => {
 const ID_PREFEX = 'mt-'
 let id = 0
 
-export const serialize = function (params) {
+export const serialize = function(params) {
   return Object.keys(params)
     .map((key) => `${key}=${encodeURI(params[key])}`)
     .join('&')
 }
 
-export const merge = function (...args) {
+export const merge = function(...args) {
   return Object.assign({}, ...args)
 }
 
-export const dataURItoBlob = function (dataURI) {
+export const dataURItoBlob = function(dataURI) {
   const data = dataURI.split(';base64,')
   const byte = window.atob(data[1])
   const mime = data[0].split(':')[1]
@@ -137,7 +137,7 @@ export const adjustCursor = (cursor, preline, line, nextline, getLine, lineCount
   return newCursor
 }
 
-export const animatedScrollTo = function (element, to, duration, callback) {
+export const animatedScrollTo = function(element, to, duration, callback) {
   const start = element.scrollTop
   const change = to - start
   const animationStart = +new Date()
@@ -148,14 +148,14 @@ export const animatedScrollTo = function (element, to, duration, callback) {
     return
   }
 
-  const easeInOutQuad = function (t, b, c, d) {
+  const easeInOutQuad = function(t, b, c, d) {
     t /= d / 2
     if (t < 1) return (c / 2) * t * t + b
     t--
     return (-c / 2) * (t * (t - 2) - 1) + b
   }
 
-  const animateScroll = function () {
+  const animateScroll = function() {
     const now = +new Date()
     const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
 

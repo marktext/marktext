@@ -21,7 +21,7 @@ export const getPASTE = () => ({
   role: 'paste'
 })
 
-export const getCOPY_AS_RICH = () => ({
+export const getCopyAsRich = () => ({
   label: t('contextMenu.copyAsRich'),
   id: 'copyAsRichMenuItem',
   click(menuItem, targetWindow) {
@@ -29,7 +29,7 @@ export const getCOPY_AS_RICH = () => ({
   }
 })
 
-export const getCOPY_AS_HTML = () => ({
+export const getCopyAsHtml = () => ({
   label: t('contextMenu.copyAsHtml'),
   id: 'copyAsHtmlMenuItem',
   click(menuItem, targetWindow) {
@@ -37,7 +37,7 @@ export const getCOPY_AS_HTML = () => ({
   }
 })
 
-export const getPASTE_AS_PLAIN_TEXT = () => ({
+export const getPasteAsPlainText = () => ({
   label: t('contextMenu.pasteAsPlainText'),
   id: 'pasteAsPlainTextMenuItem',
   click(menuItem, targetWindow) {
@@ -45,7 +45,7 @@ export const getPASTE_AS_PLAIN_TEXT = () => ({
   }
 })
 
-export const getINSERT_BEFORE = () => ({
+export const getInsertBefore = () => ({
   label: t('contextMenu.insertParagraphBefore'),
   id: 'insertParagraphBeforeMenuItem',
   click(menuItem, targetWindow) {
@@ -53,7 +53,7 @@ export const getINSERT_BEFORE = () => ({
   }
 })
 
-export const getINSERT_AFTER = () => ({
+export const getInsertAfter = () => ({
   label: t('contextMenu.insertParagraphAfter'),
   id: 'insertParagraphAfterMenuItem',
   click(menuItem, targetWindow) {
@@ -65,11 +65,11 @@ export const getINSERT_AFTER = () => ({
 export const CUT = getCUT()
 export const COPY = getCOPY()
 export const PASTE = getPASTE()
-export const COPY_AS_RICH = getCOPY_AS_RICH()
-export const COPY_AS_HTML = getCOPY_AS_HTML()
-export const PASTE_AS_PLAIN_TEXT = getPASTE_AS_PLAIN_TEXT()
-export const INSERT_BEFORE = getINSERT_BEFORE()
-export const INSERT_AFTER = getINSERT_AFTER()
+export const COPY_AS_RICH = getCopyAsRich()
+export const COPY_AS_HTML = getCopyAsHtml()
+export const PASTE_AS_PLAIN_TEXT = getPasteAsPlainText()
+export const INSERT_BEFORE = getInsertBefore()
+export const INSERT_AFTER = getInsertAfter()
 
 export const SEPARATOR = {
   type: 'separator'

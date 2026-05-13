@@ -11,9 +11,9 @@
 // combined.
 
 const overlayMode = CodeMirror => {
-  CodeMirror.overlayMode = function (base, overlay, combine) {
+  CodeMirror.overlayMode = function(base, overlay, combine) {
     return {
-      startState () {
+      startState() {
         return {
           base: CodeMirror.startState(base),
           overlay: CodeMirror.startState(overlay),
@@ -25,7 +25,7 @@ const overlayMode = CodeMirror => {
         }
       },
 
-      copyState (state) {
+      copyState(state) {
         return {
           base: CodeMirror.copyState(base, state.base),
           overlay: CodeMirror.copyState(overlay, state.overlay),
@@ -36,7 +36,7 @@ const overlayMode = CodeMirror => {
         }
       },
 
-      token (stream, state) {
+      token(stream, state) {
         if (stream !== state.streamSeen ||
           Math.min(state.basePos, state.overlayPos) < stream.start) {
           state.streamSeen = stream
@@ -69,20 +69,20 @@ const overlayMode = CodeMirror => {
         } else return state.overlayCur
       },
 
-      indent: base.indent && function (state, textAfter) {
+      indent: base.indent && function(state, textAfter) {
         return base.indent(state.base, textAfter)
       },
 
       electricChars: base.electricChars,
 
-      innerMode (state) {
+      innerMode(state) {
         return {
           state: state.base,
           mode: base
         }
       },
 
-      blankLine (state) {
+      blankLine(state) {
         let baseToken
         let overlayToken
         if (base.blankLine) baseToken = base.blankLine(state.base)

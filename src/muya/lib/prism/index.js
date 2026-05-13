@@ -5,9 +5,9 @@ import { languages } from 'prismjs/components.js'
 
 const prism = Prism
 window.Prism = Prism
-/* eslint-disable */
+
 import('prismjs/plugins/keep-markup/prism-keep-markup')
-/* eslint-enable */
+
 const langs = []
 
 for (const name of Object.keys(languages)) {

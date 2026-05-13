@@ -161,13 +161,13 @@ class DataCenter extends EventEmitter {
     })
 
     // events from renderer process
-    ipcMain.on('mt::ask-for-user-data', async (e) => {
+    ipcMain.on('mt::ask-for-user-data', async(e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const userData = await this.getAll()
       win.webContents.send('mt::user-preference', userData)
     })
 
-    ipcMain.on('mt::ask-for-modify-image-folder-path', async (e, imagePath) => {
+    ipcMain.on('mt::ask-for-modify-image-folder-path', async(e, imagePath) => {
       if (!imagePath) {
         const win = BrowserWindow.fromWebContents(e.sender)
         const { filePaths } = await dialog.showOpenDialog(win, {
@@ -187,7 +187,7 @@ class DataCenter extends EventEmitter {
     })
 
     // TODO: Replace sync. call.
-    ipcMain.on('mt::ask-for-image-path', async (e) => {
+    ipcMain.on('mt::ask-for-image-path', async(e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       const { filePaths } = await dialog.showOpenDialog(win, {
         properties: ['openFile'],

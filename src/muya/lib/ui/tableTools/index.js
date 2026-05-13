@@ -17,7 +17,7 @@ const defaultOptions = {
 class TableBarTools extends BaseFloat {
   static pluginName = 'tableBarTools'
 
-  constructor (muya, options = {}) {
+  constructor(muya, options = {}) {
     const name = 'ag-table-bar-tools'
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
@@ -30,7 +30,7 @@ class TableBarTools extends BaseFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-table-bar', ({ reference, tableInfo }) => {
@@ -44,7 +44,7 @@ class TableBarTools extends BaseFloat {
     })
   }
 
-  render () {
+  render() {
     const { tableInfo, oldVnode, tableBarContainer } = this
     const { muya } = this
     const t = muya.options.t || (key => key)
@@ -76,7 +76,7 @@ class TableBarTools extends BaseFloat {
     this.oldVnode = vnode
   }
 
-  selectItem (event, item) {
+  selectItem(event, item) {
     event.preventDefault()
     event.stopPropagation()
 

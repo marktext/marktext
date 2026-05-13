@@ -1,7 +1,7 @@
 import { generateGithubSlug } from '../utils/url'
 
 const tocCtrl = (ContentState) => {
-  ContentState.prototype.getTOC = function () {
+  ContentState.prototype.getTOC = function() {
     const { blocks } = this
     const toc = []
 

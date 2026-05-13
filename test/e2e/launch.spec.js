@@ -5,17 +5,17 @@ test.describe('Check Launch MarkText', () => {
   let app = null
   let page = null
 
-  test.beforeAll(async () => {
+  test.beforeAll(async() => {
     const { app: electronApp, page: firstPage } = await launchElectron()
     app = electronApp
     page = firstPage
   })
 
-  test.afterAll(async () => {
+  test.afterAll(async() => {
     await app.close()
   })
 
-  test('Empty MarkText', async () => {
+  test('Empty MarkText', async() => {
     const title = await page.title()
     expect(/^MarkText|Untitled-1 - MarkText$/.test(title)).toBeTruthy()
   })

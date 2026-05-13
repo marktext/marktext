@@ -4,12 +4,28 @@
     <section class="keybindings">
       <div class="text">
         {{ t('preferences.keybindings.description') }}
-        <a class="link" @click="openKeybindingWiki">{{ t('preferences.keybindings.online') }}</a>.
+        <a
+          class="link"
+          @click="openKeybindingWiki"
+        >{{ t('preferences.keybindings.online') }}</a>.
       </div>
-      <el-table :data="keybindingList" style="width: 100%">
-        <el-table-column prop="description" :label="t('preferences.keybindings.table.description')"> </el-table-column>
-        <el-table-column prop="accelerator" :label="t('preferences.keybindings.table.keyCombination')" width="220"> </el-table-column>
-        <el-table-column :label="t('preferences.keybindings.table.options')" width="90">
+      <el-table
+        :data="keybindingList"
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="description"
+          :label="t('preferences.keybindings.table.description')"
+        />
+        <el-table-column
+          prop="accelerator"
+          :label="t('preferences.keybindings.table.keyCombination')"
+          width="220"
+        />
+        <el-table-column
+          :label="t('preferences.keybindings.table.options')"
+          width="90"
+        >
           <template #default="scope">
             <el-button
               type="text"
@@ -17,7 +33,10 @@
               :title="t('preferences.keybindings.table.edit')"
               @click="handleEditClick(scope.$index, scope.row)"
             >
-              <Edit width="14" height="14" />
+              <Edit
+                width="14"
+                height="14"
+              />
             </el-button>
             <el-button
               type="text"
@@ -25,7 +44,10 @@
               :title="t('preferences.keybindings.table.reset')"
               @click="handleResetClick(scope.$index, scope.row)"
             >
-              <RefreshRight width="14" height="14" />
+              <RefreshRight
+                width="14"
+                height="14"
+              />
             </el-button>
             <el-button
               type="text"
@@ -33,28 +55,47 @@
               :title="t('preferences.keybindings.table.unbind')"
               @click="handleUnbindClick(scope.$index, scope.row)"
             >
-              <Delete width="14" height="14" />
+              <Delete
+                width="14"
+                height="14"
+              />
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </section>
     <section class="footer">
-      <separator></separator>
-      <el-button size="medium" @click="saveKeybindings">{{ t('preferences.keybindings.save') }}</el-button>
-      <el-button size="medium" @click="restoreDefaults">{{ t('preferences.keybindings.restoreDefaults') }}</el-button>
-    </section>
-    <section v-if="showDebugTools" class="keyboard-debug">
-      <separator></separator>
-      <div><strong>{{ t('preferences.keybindings.debugOptions') }}:</strong></div>
-      <el-button size="medium" @click="dumpKeyboardInformation"
-        >{{ t('preferences.keybindings.dumpKeyboardInfo') }}</el-button
+      <separator />
+      <el-button
+        size="medium"
+        @click="saveKeybindings"
       >
+        {{ t('preferences.keybindings.save') }}
+      </el-button>
+      <el-button
+        size="medium"
+        @click="restoreDefaults"
+      >
+        {{ t('preferences.keybindings.restoreDefaults') }}
+      </el-button>
+    </section>
+    <section
+      v-if="showDebugTools"
+      class="keyboard-debug"
+    >
+      <separator />
+      <div><strong>{{ t('preferences.keybindings.debugOptions') }}:</strong></div>
+      <el-button
+        size="medium"
+        @click="dumpKeyboardInformation"
+      >
+        {{ t('preferences.keybindings.dumpKeyboardInfo') }}
+      </el-button>
     </section>
     <key-input-dialog
       :show-with-id="selectedShortcutId"
       :on-commit="onKeybinding"
-    ></key-input-dialog>
+    />
   </div>
 </template>
 

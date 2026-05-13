@@ -6,7 +6,7 @@ import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
 
 const copyCutCtrl = (ContentState) => {
-  ContentState.prototype.docCutHandler = function (event) {
+  ContentState.prototype.docCutHandler = function(event) {
     const { selectedTableCells } = this
     if (selectedTableCells) {
       event.preventDefault()
@@ -14,7 +14,7 @@ const copyCutCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.cutHandler = function () {
+  ContentState.prototype.cutHandler = function() {
     if (this.selectedTableCells) {
       return
     }
@@ -49,7 +49,7 @@ const copyCutCtrl = (ContentState) => {
     this.muya.dispatchChange()
   }
 
-  ContentState.prototype.getClipBoardData = function () {
+  ContentState.prototype.getClipBoardData = function() {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return { html: '', text: '' }
@@ -248,7 +248,7 @@ const copyCutCtrl = (ContentState) => {
     return { html: htmlData, text: textData }
   }
 
-  ContentState.prototype.docCopyHandler = function (event) {
+  ContentState.prototype.docCopyHandler = function(event) {
     const { selectedTableCells } = this
     if (selectedTableCells) {
       event.preventDefault()
@@ -296,7 +296,7 @@ const copyCutCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
+  ContentState.prototype.copyHandler = function(event, type, copyInfo = null) {
     if (this.selectedTableCells) {
       // Hand over to docCopyHandler
       return

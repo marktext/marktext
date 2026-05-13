@@ -6,7 +6,7 @@ const imageCtrl = (ContentState) => {
   /**
    * insert inline image at the cursor position.
    */
-  ContentState.prototype.insertImage = function ({ alt = '', src = '', title = '' }) {
+  ContentState.prototype.insertImage = function({ alt = '', src = '', title = '' }) {
     const match = /(?:\/|\\)?([^./\\]+)\.[a-z]+$/.exec(src)
     if (!alt) {
       alt = match && match[1] ? match[1] : ''
@@ -101,7 +101,7 @@ const imageCtrl = (ContentState) => {
     this.muya.dispatchChange()
   }
 
-  ContentState.prototype.updateImage = function ({ imageId, key, token }, attrName, attrValue) {
+  ContentState.prototype.updateImage = function({ imageId, key, token }, attrName, attrValue) {
     // inline/left/center/right
     const block = this.getBlock(key)
     const { range } = token
@@ -132,7 +132,7 @@ const imageCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.replaceImage = function (
+  ContentState.prototype.replaceImage = function(
     { key, token },
     { alt = '', src = '', title = '' }
   ) {
@@ -176,7 +176,7 @@ const imageCtrl = (ContentState) => {
     return this.muya.dispatchChange()
   }
 
-  ContentState.prototype.deleteImage = function ({ key, token }) {
+  ContentState.prototype.deleteImage = function({ key, token }) {
     const block = this.getBlock(key)
     const oldText = block.text
     const { start, end } = token.range
@@ -195,7 +195,7 @@ const imageCtrl = (ContentState) => {
     return this.muya.dispatchChange()
   }
 
-  ContentState.prototype.selectImage = function (imageInfo) {
+  ContentState.prototype.selectImage = function(imageInfo) {
     this.selectedImage = imageInfo
     const { key } = imageInfo
     const block = this.getBlock(key)
@@ -215,7 +215,7 @@ const imageCtrl = (ContentState) => {
     return this.singleRender(outMostBlock, true)
   }
 
-  ContentState.prototype.openImage = function ({ key, absoluteImagePath }) {
+  ContentState.prototype.openImage = function({ key, absoluteImagePath }) {
     if (!absoluteImagePath) return
     const block = this.getBlock(key)
     const { eventCenter } = this.muya

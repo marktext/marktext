@@ -140,15 +140,15 @@ export default function image(h, cursor, block, token, outerClass) {
 
     return isSuccess
       ? [
-          h(wrapperSelector, data, [
-            ...imageIcons,
-            renderImageContainer(
+        h(wrapperSelector, data, [
+          ...imageIcons,
+          renderImageContainer(
               // An image description has inline elements as its contents.
               // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
-              renderImage()
-            )
-          ])
-        ]
+            renderImage()
+          )
+        ])
+      ]
       : [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])]
   } else {
     wrapperSelector += `.${CLASS_OR_ID.AG_EMPTY_IMAGE}`

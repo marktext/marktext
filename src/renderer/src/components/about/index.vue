@@ -7,19 +7,33 @@
       custom-class="ag-dialog-table"
       width="400px"
     >
-      <img class="logo" :src="MarkTextLogo" />
+      <img
+        class="logo"
+        :src="MarkTextLogo"
+      >
       <el-row>
         <el-col :span="24">
-          <h3 class="title">{{ name }}</h3>
+          <h3 class="title">
+            {{ name }}
+          </h3>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ store.appVersion }}</div>
+          <div class="text">
+            {{ store.appVersion }}
+          </div>
         </el-col>
         <el-col :span="24">
-          <div class="text" style="min-height: auto">{{ copyright }}</div>
+          <div
+            class="text"
+            style="min-height: auto"
+          >
+            {{ copyright }}
+          </div>
         </el-col>
         <el-col :span="24">
-          <div class="text">{{ copyrightContributors }}</div>
+          <div class="text">
+            {{ copyrightContributors }}
+          </div>
         </el-col>
       </el-row>
     </el-dialog>

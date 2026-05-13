@@ -16,26 +16,50 @@
         <div class="feeling">
           <div>{{ t('tweet.feelingsQuestion') }}</div>
           <ul>
-            <li :class="{ active: selectedFace === 'smile' }" @click="faceClick('smile')">
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-smile"></use>
+            <li
+              :class="{ active: selectedFace === 'smile' }"
+              @click="faceClick('smile')"
+            >
+              <svg
+                class="icon"
+                aria-hidden="true"
+              >
+                <use xlink:href="#icon-smile" />
               </svg>
             </li>
-            <li :class="{ active: selectedFace === 'sad' }" @click="faceClick('sad')">
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-sad"></use>
+            <li
+              :class="{ active: selectedFace === 'sad' }"
+              @click="faceClick('sad')"
+            >
+              <svg
+                class="icon"
+                aria-hidden="true"
+              >
+                <use xlink:href="#icon-sad" />
               </svg>
             </li>
           </ul>
         </div>
         <div class="feedback">
           <div>{{ t('tweet.feedbackQuestion') }}</div>
-          <textarea ref="textarea" v-model="value" cols="30" rows="10"></textarea>
+          <textarea
+            ref="textarea"
+            v-model="value"
+            cols="30"
+            rows="10"
+          />
         </div>
         <div class="buttons">
-          <a href="javascript:;" class="github" @click="reportViaGithub">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-github"></use>
+          <a
+            href="javascript:;"
+            class="github"
+            @click="reportViaGithub"
+          >
+            <svg
+              class="icon"
+              aria-hidden="true"
+            >
+              <use xlink:href="#icon-github" />
             </svg>
             {{ t('tweet.reportViaGithub') }}
           </a>
@@ -45,8 +69,11 @@
             :class="{ active: value }"
             @click="reportViaTwitter"
           >
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-twitter"></use>
+            <svg
+              class="icon"
+              aria-hidden="true"
+            >
+              <use xlink:href="#icon-twitter" />
             </svg>
             {{ t('tweet.tweet') }}
           </a>

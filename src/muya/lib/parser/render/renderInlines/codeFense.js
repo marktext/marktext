@@ -1,6 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 
-export default function codeFense (h, cursor, block, token, outerClass) {
+export default function codeFense(h, cursor, block, token, outerClass) {
   const { start, end } = token.range
   const { marker } = token
 

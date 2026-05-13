@@ -11,7 +11,7 @@ export const usePluginAddRules = (turndownService, keeps) => {
   // We need a extra strikethrough rule because the strikethrough rule in gfm is single `~`.
   turndownService.addRule('strikethrough', {
     filter: ['del', 's', 'strike'],
-    replacement (content) {
+    replacement(content) {
       return '~~' + content + '~~'
     }
   })
@@ -19,7 +19,7 @@ export const usePluginAddRules = (turndownService, keeps) => {
   turndownService.addRule('paragraph', {
     filter: 'p',
 
-    replacement: function (content, node) {
+    replacement: function(content, node) {
       const isTaskListItemParagraph = node.previousElementSibling && node.previousElementSibling.tagName === 'INPUT'
 
       return isTaskListItemParagraph ? content + '\n\n' : '\n\n' + content + '\n\n'
@@ -29,7 +29,7 @@ export const usePluginAddRules = (turndownService, keeps) => {
   turndownService.addRule('listItem', {
     filter: 'li',
 
-    replacement: function (content, node, options) {
+    replacement: function(content, node, options) {
       content = content
         .replace(/^\n+/, '') // remove leading newlines
         .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
@@ -50,10 +50,10 @@ export const usePluginAddRules = (turndownService, keeps) => {
 
   // Handle multiple math lines
   turndownService.addRule('multiplemath', {
-    filter (node, options) {
+    filter(node, options) {
       return node.nodeName === 'PRE' && node.classList.contains('multiple-math')
     },
-    replacement (content, node, options) {
+    replacement(content, node, options) {
       return `$$\n${content}\n$$`
     }
   })

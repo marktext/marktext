@@ -4,7 +4,7 @@ import { downcode } from './urlify'
  * Slugger generates header id
  */
 
-function Slugger () {
+function Slugger() {
   this.seen = {}
   this.downcodeUnicode = true
 }
@@ -13,7 +13,7 @@ function Slugger () {
  * Convert string to unique id
  */
 
-Slugger.prototype.slug = function (value) {
+Slugger.prototype.slug = function(value) {
   // Strip HTML tags and LATIN_SYMBOLS_MAP chars ($%&|<>|'") before downcoding,
   // otherwise downcode() converts them to English words (e.g. '$' \u2192 'dollar',
   // '|' \u2192 'or') which then survive the special-char removal regex below.

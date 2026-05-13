@@ -34,11 +34,11 @@ export const checkEditEmoji = node => {
 }
 
 class Emoji {
-  constructor () {
+  constructor() {
     this.cache = new Map()
   }
 
-  search (text) {
+  search(text) {
     const { cache } = this
     if (cache.has(text)) return cache.get(text)
     const result = {}
@@ -53,7 +53,7 @@ class Emoji {
     return result
   }
 
-  destroy () {
+  destroy() {
     return this.cache.clear()
   }
 }

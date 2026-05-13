@@ -1,6 +1,6 @@
 import { t } from '../../i18n'
 
-export default function (keybindings) {
+export default function(keybindings) {
   return {
     label: t('menu.edit.edit'),
     submenu: [{

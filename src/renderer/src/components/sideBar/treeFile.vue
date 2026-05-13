@@ -9,7 +9,7 @@
     ]"
     @click="handleFileClick"
   >
-    <file-icon :name="file.name"></file-icon>
+    <file-icon :name="file.name" />
     <input
       v-if="renameCache === file.pathname"
       ref="renameInput"
@@ -18,7 +18,7 @@
       class="rename"
       @click.stop="noop"
       @keypress.enter="rename"
-    />
+    >
     <span v-else>{{ file.name }}</span>
   </div>
 </template>

@@ -184,7 +184,7 @@ class Selection {
 
   // Utility method called from importSelection only
   importSelectionMoveCursorPastAnchor(selectionState, range) {
-    const nodeInsideAnchorTagFunction = function (node) {
+    const nodeInsideAnchorTagFunction = function(node) {
       return node.nodeName.toLowerCase() === 'a'
     }
     if (

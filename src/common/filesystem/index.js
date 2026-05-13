@@ -9,7 +9,7 @@ import { ensureDirSync as fsExtraEnsureDirSync, pathExistsSync } from 'fs-extra'
  * @param {string} p The path to the file or directory.
  * @returns {boolean}
  */
-export const exists = async (p) => {
+export const exists = async(p) => {
   try {
     await access(p)
     return true

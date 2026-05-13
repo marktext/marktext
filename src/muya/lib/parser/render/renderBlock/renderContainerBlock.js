@@ -20,7 +20,7 @@ const PRE_BLOCK_HASH = {
   'vega-lite': `.${CLASS_OR_ID.AG_VEGA_LITE}`
 }
 
-export default function renderContainerBlock (parent, block, activeBlocks, matches, useCache = false, t) {
+export default function renderContainerBlock(parent, block, activeBlocks, matches, useCache = false, t) {
   let selector = this.getSelector(block, activeBlocks)
   const {
     key,

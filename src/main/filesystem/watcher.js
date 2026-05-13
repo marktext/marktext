@@ -18,7 +18,7 @@ const EVENT_NAME = {
   file: 'mt::update-file'
 }
 
-const add = async (
+const add = async(
   win,
   pathname,
   type,
@@ -75,7 +75,7 @@ const unlink = (win, pathname, type) => {
   })
 }
 
-const change = async (
+const change = async(
   win,
   pathname,
   type,
@@ -211,7 +211,7 @@ class Watcher {
     let renameTimer = null
 
     watcher
-      .on('add', async (pathname) => {
+      .on('add', async(pathname) => {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol()
@@ -228,7 +228,7 @@ class Watcher {
           )
         }
       })
-      .on('change', async (pathname) => {
+      .on('change', async(pathname) => {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol()
@@ -260,7 +260,7 @@ class Watcher {
           if (renameTimer) {
             clearTimeout(renameTimer)
           }
-          renameTimer = setTimeout(async () => {
+          renameTimer = setTimeout(async() => {
             renameTimer = null
             if (disposed) {
               return

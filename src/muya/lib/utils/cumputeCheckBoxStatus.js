@@ -1,4 +1,4 @@
-export const cumputeCheckboxStatus = function (parentCheckbox) {
+export const cumputeCheckboxStatus = function(parentCheckbox) {
   const children = parentCheckbox.parentElement.lastElementChild.children
   const len = children.length
   for (let i = 0; i < len; i++) {

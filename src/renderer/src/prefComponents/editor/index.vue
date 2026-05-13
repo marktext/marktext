@@ -3,7 +3,9 @@
     <h4>{{ t('preferences.editor.title') }}</h4>
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.editor.textEditor.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.editor.textEditor.title') }}
+        </h6>
       </template>
       <template #children>
         <range
@@ -14,7 +16,7 @@
           unit="px"
           :step="1"
           :on-change="(value) => onSelectChange('fontSize', value)"
-        ></range>
+        />
         <range
           :description="t('preferences.editor.textEditor.lineHeight')"
           :value="lineHeight"
@@ -22,25 +24,27 @@
           :max="2.0"
           :step="0.1"
           :on-change="(value) => onSelectChange('lineHeight', value)"
-        ></range>
+        />
         <font-text-box
           :description="t('preferences.editor.textEditor.fontFamily')"
           :value="editorFontFamily"
           :on-change="(value) => onSelectChange('editorFontFamily', value)"
-        ></font-text-box>
+        />
         <text-box
           :description="t('preferences.editor.textEditor.maxWidth')"
           :notes="t('preferences.editor.textEditor.maxWidthNotes')"
           :input="editorLineWidth"
           :regex-validator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
           :on-change="(value) => onSelectChange('editorLineWidth', value)"
-        ></text-box>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.editor.codeBlock.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.editor.codeBlock.title') }}
+        </h6>
       </template>
       <template #children>
         <range
@@ -51,54 +55,58 @@
           unit="px"
           :step="1"
           :on-change="(value) => onSelectChange('codeFontSize', value)"
-        ></range>
+        />
         <font-text-box
           :description="t('preferences.editor.codeBlock.fontFamily')"
           :only-monospace="true"
           :value="codeFontFamily"
           :on-change="(value) => onSelectChange('codeFontFamily', value)"
-        ></font-text-box>
+        />
         <!-- FIXME: Disabled due to #1648. -->
         <bool
           v-show="false"
           :description="t('preferences.editor.codeBlock.showLineNumbers')"
           :bool="codeBlockLineNumbers"
           :on-change="(value) => onSelectChange('codeBlockLineNumbers', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.codeBlock.removeEmptyLines')"
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
-        ></bool>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.editor.writingBehavior.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.editor.writingBehavior.title') }}
+        </h6>
       </template>
       <template #children>
         <bool
           :description="t('preferences.editor.writingBehavior.autoCloseBrackets')"
           :bool="autoPairBracket"
           :on-change="(value) => onSelectChange('autoPairBracket', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.writingBehavior.autoCompleteMarkdown')"
           :bool="autoPairMarkdownSyntax"
           :on-change="(value) => onSelectChange('autoPairMarkdownSyntax', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.writingBehavior.autoCloseQuotes')"
           :bool="autoPairQuote"
           :on-change="(value) => onSelectChange('autoPairQuote', value)"
-        ></bool>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.editor.fileRepresentation.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.editor.fileRepresentation.title') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -106,41 +114,43 @@
           :value="tabSize"
           :options="tabSizeOptions"
           :on-change="(value) => onSelectChange('tabSize', value)"
-        ></cur-select>
+        />
         <cur-select
           :description="t('preferences.editor.fileRepresentation.lineSeparator')"
           :value="endOfLine"
           :options="getEndOfLineOptions()"
           :on-change="(value) => onSelectChange('endOfLine', value)"
-        ></cur-select>
+        />
         <cur-select
           :description="t('preferences.editor.fileRepresentation.defaultEncoding')"
           :value="defaultEncoding"
           :options="defaultEncodingOptions"
           :on-change="(value) => onSelectChange('defaultEncoding', value)"
-        ></cur-select>
+        />
         <bool
           :description="t('preferences.editor.fileRepresentation.autoDetectEncoding')"
           :bool="autoGuessEncoding"
           :on-change="(value) => onSelectChange('autoGuessEncoding', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.misc.autoNormalizeLineEndings')"
           :bool="autoNormalizeLineEndings"
           :on-change="(value) => onSelectChange('autoNormalizeLineEndings', value)"
-        ></bool>
+        />
         <cur-select
           :description="t('preferences.editor.fileRepresentation.trailingNewlines.title')"
           :value="trimTrailingNewline"
           :options="getTrimTrailingNewlineOptions()"
           :on-change="(value) => onSelectChange('trimTrailingNewline', value)"
-        ></cur-select>
+        />
       </template>
     </compound>
 
     <compound>
       <template #head>
-        <h6 class="title">{{ t('preferences.editor.misc.title') }}</h6>
+        <h6 class="title">
+          {{ t('preferences.editor.misc.title') }}
+        </h6>
       </template>
       <template #children>
         <cur-select
@@ -148,27 +158,27 @@
           :value="textDirection"
           :options="getTextDirectionOptions()"
           :on-change="(value) => onSelectChange('textDirection', value)"
-        ></cur-select>
+        />
         <bool
           :description="t('preferences.editor.misc.hideQuickInsertHint')"
           :bool="hideQuickInsertHint"
           :on-change="(value) => onSelectChange('hideQuickInsertHint', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.misc.hideLinkPopup')"
           :bool="hideLinkPopup"
           :on-change="(value) => onSelectChange('hideLinkPopup', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.misc.autoCheck')"
           :bool="autoCheck"
           :on-change="(value) => onSelectChange('autoCheck', value)"
-        ></bool>
+        />
         <bool
           :description="t('preferences.editor.misc.wrapCodeBlocks')"
           :bool="wrapCodeBlocks"
           :on-change="(value) => onSelectChange('wrapCodeBlocks', value)"
-        ></bool>
+        />
       </template>
     </compound>
   </div>

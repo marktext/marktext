@@ -34,7 +34,7 @@ const matchString = (text, value, options) => {
 }
 
 const searchCtrl = (ContentState) => {
-  ContentState.prototype.buildRegexValue = function (match, value) {
+  ContentState.prototype.buildRegexValue = function(match, value) {
     const groups = value.match(/(?<!\\)\$\d/g)
 
     if (Array.isArray(groups) && groups.length) {
@@ -51,14 +51,14 @@ const searchCtrl = (ContentState) => {
     return value
   }
 
-  ContentState.prototype.replaceOne = function (match, value) {
+  ContentState.prototype.replaceOne = function(match, value) {
     const { start, end, key } = match
     const block = this.getBlock(key)
     const { text } = block
     block.text = text.substring(0, start) + value + text.substring(end)
   }
 
-  ContentState.prototype.replace = function (replaceValue, opt = { isSingle: true }) {
+  ContentState.prototype.replace = function(replaceValue, opt = { isSingle: true }) {
     const { isSingle, isRegexp } = opt
     delete opt.isSingle
     const searchOptions = Object.assign({}, defaultSearchOption, opt)
@@ -81,7 +81,7 @@ const searchCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.setCursorToHighlight = function () {
+  ContentState.prototype.setCursorToHighlight = function() {
     const { matches, index } = this.searchMatches
     const match = matches[index]
 
@@ -102,7 +102,7 @@ const searchCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.find = function (action /* prev next */) {
+  ContentState.prototype.find = function(action /* prev next */) {
     let { matches, index } = this.searchMatches
     const len = matches.length
     if (!len) return
@@ -114,7 +114,7 @@ const searchCtrl = (ContentState) => {
     this.setCursorToHighlight()
   }
 
-  ContentState.prototype.search = function (value, opt = {}) {
+  ContentState.prototype.search = function(value, opt = {}) {
     const matches = []
     const options = Object.assign({}, defaultSearchOption, opt)
     const { highlightIndex } = options

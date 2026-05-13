@@ -5,8 +5,7 @@ import fileIcons from 'muya/lib/ui/fileIcons'
 const props = defineProps({
   name: {
     type: String,
-    required: true,
-    default: 'mock.md'
+    required: true
   }
 })
 
@@ -22,7 +21,10 @@ const className = computed(() => {
 </script>
 
 <template>
-  <span :class="className" class="file-icon"></span>
+  <span
+    :class="className"
+    class="file-icon"
+  />
 </template>
 
 <style scoped>

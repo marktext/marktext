@@ -3,7 +3,9 @@
     class="side-bar-toc"
     :class="[{ 'side-bar-toc-overflow': !wordWrapInToc, 'side-bar-toc-wordwrap': wordWrapInToc }]"
   >
-    <div class="title">{{ t('sideBar.toc.title') }}</div>
+    <div class="title">
+      {{ t('sideBar.toc.title') }}
+    </div>
     <el-tree
       v-if="toc.length"
       :data="toc"
@@ -12,7 +14,7 @@
       :expand-on-click-node="false"
       :indent="10"
       @node-click="handleClick"
-    ></el-tree>
+    />
   </div>
 </template>
 

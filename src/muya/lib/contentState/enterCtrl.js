@@ -236,7 +236,7 @@ const enterCtrl = (ContentState) => {
       const imageWrapper = document.querySelector(`#${imageId}`)
       const rect = imageWrapper.getBoundingClientRect()
       const reference = {
-        getBoundingClientRect () {
+        getBoundingClientRect() {
           rect.height = 0 // Put image selector below the top border of image.
           return rect
         }

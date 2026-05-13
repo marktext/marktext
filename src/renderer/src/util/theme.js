@@ -43,7 +43,9 @@ import {
 } from './themeColor'
 import { isLinux } from './index'
 
+// eslint-disable-next-line no-unused-vars
 const ORIGINAL_THEME = '#409EFF'
+
 const patchTheme = (css) => {
   return `@media not print {\n${css}\n}`
 }
@@ -54,6 +56,7 @@ const getEmojiPickerPatch = () => {
     : ''
 }
 
+// eslint-disable-next-line no-unused-vars
 const getThemeCluster = (themeColor) => {
   const tintColor = (color, tint) => {
     let red = parseInt(color.slice(1, 3), 16)

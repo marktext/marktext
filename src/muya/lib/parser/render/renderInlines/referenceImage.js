@@ -38,8 +38,8 @@ export default function referenceImage(h, cursor, block, token, outerClass) {
 
   return isSuccess
     ? [
-        h(selector, tag),
-        h(`img.${CLASS_OR_ID.AG_COPY_REMOVE}`, { props: { alt, src: domsrc, title } })
-      ]
+      h(selector, tag),
+      h(`img.${CLASS_OR_ID.AG_COPY_REMOVE}`, { props: { alt, src: domsrc, title } })
+    ]
     : [h(selector, tag)]
 }

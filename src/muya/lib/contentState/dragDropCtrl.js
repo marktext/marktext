@@ -12,7 +12,7 @@ const GHOST_ID = 'mu-dragover-ghost'
 const GHOST_HEIGHT = 3
 
 const dragDropCtrl = (ContentState) => {
-  ContentState.prototype.hideGhost = function () {
+  ContentState.prototype.hideGhost = function() {
     this.dropAnchor = null
     const ghost = document.querySelector(`#${GHOST_ID}`)
     ghost && ghost.remove()
@@ -20,7 +20,7 @@ const dragDropCtrl = (ContentState) => {
   /**
    * create the ghost element.
    */
-  ContentState.prototype.createGhost = function (event) {
+  ContentState.prototype.createGhost = function(event) {
     const target = event.target
     let ghost = null
     const nearestParagraph = findNearestParagraph(target)
@@ -62,7 +62,7 @@ const dragDropCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.dragoverHandler = function (event) {
+  ContentState.prototype.dragoverHandler = function(event) {
     // Cancel to allow tab drag&drop.
     if (!event.dataTransfer.types.length) {
       event.dataTransfer.dropEffect = 'none'
@@ -95,11 +95,11 @@ const dragDropCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.dragleaveHandler = function (event) {
+  ContentState.prototype.dragleaveHandler = function(event) {
     return this.hideGhost()
   }
 
-  ContentState.prototype.dropHandler = async function (event) {
+  ContentState.prototype.dropHandler = async function(event) {
     event.preventDefault()
     const { dropAnchor } = this
     this.hideGhost()
@@ -107,7 +107,7 @@ const dragDropCtrl = (ContentState) => {
     if (event.dataTransfer.items.length) {
       for (const item of event.dataTransfer.items) {
         if (item.kind === 'string' && item.type === 'text/uri-list') {
-          item.getAsString(async (str) => {
+          item.getAsString(async(str) => {
             if (URL_REG.test(str) && dropAnchor) {
               let isImage = false
               if (IMAGE_EXT_REG.test(str)) {

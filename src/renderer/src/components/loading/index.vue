@@ -1,7 +1,11 @@
 <template>
   <div class="cpt-loading">
     <div class="loader">
-      <span v-for="i in 3" :key="i" :style="dotSize"></span>
+      <span
+        v-for="i in 3"
+        :key="i"
+        :style="dotSize"
+      />
     </div>
   </div>
 </template>

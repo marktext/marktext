@@ -1,6 +1,8 @@
 <template>
   <div class="pref-sidebar">
-    <h3 class="title">{{ t('preferences.title') }}</h3>
+    <h3 class="title">
+      {{ t('preferences.title') }}
+    </h3>
     <section class="search-wrapper">
       <el-autocomplete
         v-model="state"
@@ -11,10 +13,15 @@
         @select="handleSelect"
       >
         <template #suffix>
-          <Search width="16" height="16" />
+          <Search
+            width="16"
+            height="16"
+          />
         </template>
         <template #default="{ item }">
-          <div class="name">{{ item.category }}</div>
+          <div class="name">
+            {{ item.category }}
+          </div>
           <span class="addr">{{ item.preference }}</span>
         </template>
       </el-autocomplete>

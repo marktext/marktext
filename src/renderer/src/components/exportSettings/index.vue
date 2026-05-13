@@ -9,10 +9,16 @@
     >
       <h3>{{ t('exportSettings.title') }}</h3>
       <el-tabs v-model="activeName">
-        <el-tab-pane :label="t('exportSettings.info.label')" name="info">
+        <el-tab-pane
+          :label="t('exportSettings.info.label')"
+          name="info"
+        >
           <span class="text">{{ t('exportSettings.info.description') }}</span>
         </el-tab-pane>
-        <el-tab-pane :label="t('exportSettings.page.label')" name="page">
+        <el-tab-pane
+          :label="t('exportSettings.page.label')"
+          name="page"
+        >
           <!-- HTML -->
           <div v-if="!isPrintable">
             <text-box
@@ -20,7 +26,7 @@
               :input="htmlTitle"
               :emit-time="0"
               :on-change="(value) => onSelectChange('htmlTitle', value)"
-            ></text-box>
+            />
           </div>
 
           <!-- PDF/Print -->
@@ -32,81 +38,93 @@
                 :value="pageSize"
                 :options="pageSizeList"
                 :on-change="(value) => onSelectChange('pageSize', value)"
-              ></cur-select>
-              <div v-if="pageSize === 'custom'" class="row">
+              />
+              <div
+                v-if="pageSize === 'custom'"
+                class="row"
+              >
                 <div>{{ t('exportSettings.page.widthHeight') }}</div>
                 <el-input-number
                   v-model="pageSizeWidth"
                   size="mini"
                   controls-position="right"
                   :min="100"
-                ></el-input-number>
+                />
                 <el-input-number
                   v-model="pageSizeHeight"
                   size="mini"
                   controls-position="right"
                   :min="100"
-                ></el-input-number>
+                />
               </div>
 
               <bool
                 :description="t('exportSettings.page.landscapeOrientation')"
                 :bool="isLandscape"
                 :on-change="(value) => onSelectChange('isLandscape', value)"
-              ></bool>
+              />
             </div>
 
             <div class="row">
-              <div class="description">{{ t('exportSettings.page.pageMargin') }}</div>
+              <div class="description">
+                {{ t('exportSettings.page.pageMargin') }}
+              </div>
               <div>
-                <div class="label">{{ t('exportSettings.page.topBottom') }}</div>
+                <div class="label">
+                  {{ t('exportSettings.page.topBottom') }}
+                </div>
                 <el-input-number
                   v-model="pageMarginTop"
                   size="mini"
                   controls-position="right"
                   :min="0"
                   :max="100"
-                ></el-input-number>
+                />
                 <el-input-number
                   v-model="pageMarginBottom"
                   size="mini"
                   controls-position="right"
                   :min="0"
                   :max="100"
-                ></el-input-number>
+                />
               </div>
               <div>
-                <div class="label">{{ t('exportSettings.page.leftRight') }}</div>
+                <div class="label">
+                  {{ t('exportSettings.page.leftRight') }}
+                </div>
                 <el-input-number
                   v-model="pageMarginLeft"
                   size="mini"
                   controls-position="right"
                   :min="0"
                   :max="100"
-                ></el-input-number>
+                />
                 <el-input-number
                   v-model="pageMarginRight"
                   size="mini"
                   controls-position="right"
                   :min="0"
                   :max="100"
-                ></el-input-number>
+                />
               </div>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane :label="t('exportSettings.style.label')" name="style">
+        <el-tab-pane
+          :label="t('exportSettings.style.label')"
+          name="style"
+        >
           <bool
             :description="t('exportSettings.style.overwriteThemeFont')"
             :bool="fontSettingsOverwrite"
             :on-change="(value) => onSelectChange('fontSettingsOverwrite', value)"
-          ></bool>
+          />
           <div v-if="fontSettingsOverwrite">
             <font-text-box
               :description="t('exportSettings.style.fontFamily')"
               :value="fontFamily"
               :on-change="(value) => onSelectChange('fontFamily', value)"
-            ></font-text-box>
+            />
             <range
               :description="t('exportSettings.style.fontSize')"
               :value="fontSize"
@@ -115,7 +133,7 @@
               unit="px"
               :step="1"
               :on-change="(value) => onSelectChange('fontSize', value)"
-            ></range>
+            />
             <range
               :description="t('exportSettings.style.lineHeight')"
               :value="lineHeight"
@@ -123,20 +141,23 @@
               :max="2.0"
               :step="0.1"
               :on-change="(value) => onSelectChange('lineHeight', value)"
-            ></range>
+            />
           </div>
           <bool
             :description="t('exportSettings.autoNumberingHeadings')"
             :bool="autoNumberingHeadings"
             :on-change="(value) => onSelectChange('autoNumberingHeadings', value)"
-          ></bool>
+          />
           <bool
             :description="t('exportSettings.showFrontMatter')"
             :bool="showFrontMatter"
             :on-change="(value) => onSelectChange('showFrontMatter', value)"
-          ></bool>
+          />
         </el-tab-pane>
-        <el-tab-pane :label="t('exportSettings.theme.label')" name="theme">
+        <el-tab-pane
+          :label="t('exportSettings.theme.label')"
+          name="theme"
+        >
           <div class="text">
             {{ t('exportSettings.theme.description') }}
           </div>
@@ -146,82 +167,84 @@
             :value="theme"
             :options="themeList"
             :on-change="(value) => onSelectChange('theme', value)"
-          ></cur-select>
+          />
         </el-tab-pane>
         <el-tab-pane
           v-if="isPrintable"
           :label="t('exportSettings.headerFooter.label')"
           name="header"
         >
-          <div class="text">{{ t('exportSettings.headerFooter.description') }}</div>
+          <div class="text">
+            {{ t('exportSettings.headerFooter.description') }}
+          </div>
           <cur-select
             :description="t('exportSettings.headerFooter.headerType')"
             :value="headerType"
             :options="headerFooterTypes"
             :on-change="(value) => onSelectChange('headerType', value)"
-          ></cur-select>
+          />
           <text-box
             v-if="headerType === 2"
             :description="t('exportSettings.headerFooter.leftHeaderText')"
             :input="headerTextLeft"
             :emit-time="0"
             :on-change="(value) => onSelectChange('headerTextLeft', value)"
-          ></text-box>
+          />
           <text-box
             v-if="headerType !== 0"
             :description="t('exportSettings.headerFooter.mainHeaderText')"
             :input="headerTextCenter"
             :emit-time="0"
             :on-change="(value) => onSelectChange('headerTextCenter', value)"
-          ></text-box>
+          />
           <text-box
             v-if="headerType === 2"
             :description="t('exportSettings.headerFooter.rightHeaderText')"
             :input="headerTextRight"
             :emit-time="0"
             :on-change="(value) => onSelectChange('headerTextRight', value)"
-          ></text-box>
+          />
 
           <cur-select
             :description="t('exportSettings.headerFooter.footerType')"
             :value="footerType"
             :options="headerFooterTypes"
             :on-change="(value) => onSelectChange('footerType', value)"
-          ></cur-select>
+          />
           <text-box
             v-if="footerType === 2"
             :description="t('exportSettings.headerFooter.leftFooterText')"
             :input="footerTextLeft"
             :emit-time="0"
             :on-change="(value) => onSelectChange('footerTextLeft', value)"
-          ></text-box>
+          />
           <text-box
             v-if="footerType !== 0"
             :description="t('exportSettings.headerFooter.mainFooterText')"
             :input="footerTextCenter"
             :emit-time="0"
             :on-change="(value) => onSelectChange('footerTextCenter', value)"
-          ></text-box>
+          />
           <text-box
             v-if="footerType === 2"
             :description="t('exportSettings.headerFooter.rightFooterText')"
             :input="footerTextRight"
             :emit-time="0"
             :on-change="(value) => onSelectChange('footerTextRight', value)"
-          ></text-box>
+          />
 
           <bool
             :description="t('exportSettings.headerFooter.customizeStyle')"
             :bool="headerFooterCustomize"
             :on-change="(value) => onSelectChange('headerFooterCustomize', value)"
-          ></bool>
+          />
 
           <div v-if="headerFooterCustomize">
             <bool
               :description="t('exportSettings.headerFooter.allowStyled')"
               :bool="headerFooterStyled"
               :on-change="(value) => onSelectChange('headerFooterStyled', value)"
-            ></bool>
+            />
             <range
               :description="t('exportSettings.headerFooter.fontSize')"
               :value="headerFooterFontSize"
@@ -230,27 +253,33 @@
               unit="px"
               :step="1"
               :on-change="(value) => onSelectChange('headerFooterFontSize', value)"
-            ></range>
+            />
           </div>
         </el-tab-pane>
 
-        <el-tab-pane :label="t('exportSettings.toc.label')" name="toc">
+        <el-tab-pane
+          :label="t('exportSettings.toc.label')"
+          name="toc"
+        >
           <bool
             :description="t('exportSettings.toc.includeTopHeading')"
             :detailed-description="t('exportSettings.toc.includeTopHeadingDetail')"
             :bool="tocIncludeTopHeading"
             :on-change="(value) => onSelectChange('tocIncludeTopHeading', value)"
-          ></bool>
+          />
           <text-box
             :description="t('exportSettings.toc.title')"
             :input="tocTitle"
             :emit-time="0"
             :on-change="(value) => onSelectChange('tocTitle', value)"
-          ></text-box>
+          />
         </el-tab-pane>
       </el-tabs>
       <div class="button-controlls">
-        <button class="button-primary" @click="handleClicked">
+        <button
+          class="button-primary"
+          @click="handleClicked"
+        >
           {{ t('exportSettings.export') }}
         </button>
       </div>

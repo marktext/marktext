@@ -1,19 +1,24 @@
 <template>
   <div class="search-result-item">
-    <div class="search-result" :title="searchResult.filePath">
+    <div
+      class="search-result"
+      :title="searchResult.filePath"
+    >
       <svg
         class="icon icon-arrow"
         :class="{ fold: !showSearchMatches }"
         aria-hidden="true"
         @click.stop="toggleSearchMatches()"
       >
-        <use xlink:href="#icon-arrow"></use>
+        <use xlink:href="#icon-arrow" />
       </svg>
-      <div class="file-info" @click.stop="toggleSearchMatches()">
+      <div
+        class="file-info"
+        @click.stop="toggleSearchMatches()"
+      >
         <div class="title">
           <span class="filename">
-            <span class="name">{{ filename }}</span
-            ><span class="extension">{{ extension }}</span>
+            <span class="name">{{ filename }}</span><span class="extension">{{ extension }}</span>
           </span>
           <span class="match-count">{{ matchCount }}</span>
         </div>
@@ -22,7 +27,10 @@
           </div> -->
       </div>
     </div>
-    <div v-if="showSearchMatches" class="matches">
+    <div
+      v-if="showSearchMatches"
+      class="matches"
+    >
       <ul>
         <li
           v-for="(searchMatch, index) of getMatches"
@@ -42,7 +50,10 @@
         </li>
       </ul>
       <div v-if="!allMatchesShown">
-        <div class="button tiny" @click="handleShowMoreMatches">
+        <div
+          class="button tiny"
+          @click="handleShowMoreMatches"
+        >
           {{ t('sideBar.search.showMoreMatches') }}
         </div>
       </div>

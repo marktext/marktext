@@ -16,12 +16,12 @@ const INLINE_UPDATE_FRAGMENTS = [
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
 const updateCtrl = (ContentState) => {
-  ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
+  ContentState.prototype.checkSameMarkerOrDelimiter = function(list, markerOrDelimiter) {
     if (!/ol|ul/.test(list.type)) return false
     return list.children[0].bulletMarkerOrDelimiter === markerOrDelimiter
   }
 
-  ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+  ContentState.prototype.checkNeedRender = function(cursor = this.cursor) {
     const { labels } = this.stateRender
     const { start: cStart, end: cEnd, anchor, focus } = cursor
     const startBlock = this.getBlock(cStart ? cStart.key : anchor.key)
@@ -61,7 +61,7 @@ const updateCtrl = (ContentState) => {
   /**
    * block must be span block.
    */
-  ContentState.prototype.checkInlineUpdate = function (block) {
+  ContentState.prototype.checkInlineUpdate = function(block) {
     // table cell can not have blocks in it
     if (/figure/.test(block.type)) {
       return false
@@ -129,7 +129,7 @@ const updateCtrl = (ContentState) => {
   }
 
   // Thematic break
-  ContentState.prototype.updateThematicBreak = function (block, marker, line) {
+  ContentState.prototype.updateThematicBreak = function(block, marker, line) {
     // If the block is already thematic break, no need to update.
     if (block.type === 'hr') return null
     const text = line.text
@@ -181,7 +181,7 @@ const updateCtrl = (ContentState) => {
     return thematicBlock
   }
 
-  ContentState.prototype.updateList = function (block, type, marker = '', line) {
+  ContentState.prototype.updateList = function(block, type, marker = '', line) {
     const cleanMarker = marker ? marker.trim() : null
     const { preferLooseListItem } = this.muya.options
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
@@ -308,7 +308,7 @@ const updateCtrl = (ContentState) => {
     }
   }
 
-  ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
+  ContentState.prototype.updateTaskListItem = function(block, type, marker = '') {
     const { preferLooseListItem } = this.muya.options
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
@@ -378,7 +378,7 @@ const updateCtrl = (ContentState) => {
   }
 
   // ATX heading doesn't support soft line break and hard line break.
-  ContentState.prototype.updateAtxHeader = function (block, header, line) {
+  ContentState.prototype.updateAtxHeader = function(block, header, line) {
     const newType = `h${header.length}`
     const headingStyle = 'atx'
     if (block.type === newType && block.headingStyle === headingStyle) {
@@ -446,7 +446,7 @@ const updateCtrl = (ContentState) => {
     return atxBlock
   }
 
-  ContentState.prototype.updateSetextHeader = function (block, marker, line) {
+  ContentState.prototype.updateSetextHeader = function(block, marker, line) {
     const newType = /=/.test(marker) ? 'h1' : 'h2'
     const headingStyle = 'setext'
     if (block.type === newType && block.headingStyle === headingStyle) {
@@ -499,7 +499,7 @@ const updateCtrl = (ContentState) => {
     return setextBlock
   }
 
-  ContentState.prototype.updateBlockQuote = function (block, line) {
+  ContentState.prototype.updateBlockQuote = function(block, line) {
     const text = line.text
     const lines = text.split('\n')
     const preParagraphLines = []
@@ -555,7 +555,7 @@ const updateCtrl = (ContentState) => {
     return quoteBlock
   }
 
-  ContentState.prototype.updateIndentCode = function (block, line) {
+  ContentState.prototype.updateIndentCode = function(block, line) {
     const lang = ''
     const codeBlock = this.createBlock('code', {
       lang
@@ -614,7 +614,7 @@ const updateCtrl = (ContentState) => {
     return preBlock
   }
 
-  ContentState.prototype.updateToParagraph = function (block, line) {
+  ContentState.prototype.updateToParagraph = function(block, line) {
     if (/^h\d$/.test(block.type) && block.headingStyle === 'setext') {
       return null
     }

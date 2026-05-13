@@ -3,7 +3,7 @@ import RipgrepDirectorySearcher from './ripgrepSearcher'
 
 // Use ripgrep searcher to search for files on disk only.
 class FileSearcher extends RipgrepDirectorySearcher {
-  searchInDirectory (directoryPath, pattern, options, numPathsFound) {
+  searchInDirectory(directoryPath, pattern, options, numPathsFound) {
     const args = ['--files']
 
     if (options.followSymlinks) {

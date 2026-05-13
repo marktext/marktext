@@ -2,7 +2,7 @@
 const FOOTNOTE_REG = /^\[\^([^\^\[\]\s]+?)(?<!\\)\]: /
 /* eslint-enable no-useless-escape */
 const footnoteCtrl = (ContentState) => {
-  ContentState.prototype.updateFootnote = function (block, line) {
+  ContentState.prototype.updateFootnote = function(block, line) {
     const { start, end } = this.cursor
     const { text } = line
     const match = FOOTNOTE_REG.exec(text)
@@ -41,7 +41,7 @@ const footnoteCtrl = (ContentState) => {
     return sectionWrapper
   }
 
-  ContentState.prototype.createFootnote = function (identifier) {
+  ContentState.prototype.createFootnote = function(identifier) {
     const { blocks } = this
     const lastBlock = blocks[blocks.length - 1]
     const newBlock = this.createBlockP(`[^${identifier}]: `)

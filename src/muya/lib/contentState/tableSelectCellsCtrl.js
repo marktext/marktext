@@ -1,7 +1,7 @@
 import { getAllTableCells, getIndex } from './tableDragBarCtrl'
 
 const tableSelectCellsCtrl = ContentState => {
-  ContentState.prototype.handleCellMouseDown = function (event) {
+  ContentState.prototype.handleCellMouseDown = function(event) {
     if (event.buttons === 2) {
       // the contextmenu is emit.
       return
@@ -30,7 +30,7 @@ const tableSelectCellsCtrl = ContentState => {
     this.cellSelectEventIds.push(mouseMoveId, mouseUpId)
   }
 
-  ContentState.prototype.handleCellMouseMove = function (event) {
+  ContentState.prototype.handleCellMouseMove = function(event) {
     const { target } = event
     const cell = target.closest('th') || target.closest('td')
     const table = target.closest('table')
@@ -55,7 +55,7 @@ const tableSelectCellsCtrl = ContentState => {
     this.setSelectedCellsStyle()
   }
 
-  ContentState.prototype.handleCellMouseUp = function (event) {
+  ContentState.prototype.handleCellMouseUp = function(event) {
     const { eventCenter } = this.muya
     for (const id of this.cellSelectEventIds) {
       eventCenter.detachDOMEvent(id)
@@ -87,7 +87,7 @@ const tableSelectCellsCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.calculateSelectedCells = function () {
+  ContentState.prototype.calculateSelectedCells = function() {
     const { anchor, focus, cells } = this.cellSelectInfo
     this.cellSelectInfo.selectedCells = []
     if (focus) {
@@ -117,7 +117,7 @@ const tableSelectCellsCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.setSelectedCellsStyle = function () {
+  ContentState.prototype.setSelectedCellsStyle = function() {
     const { selectedCells, cells } = this.cellSelectInfo
     for (const row of cells) {
       for (const cell of row) {
@@ -149,7 +149,7 @@ const tableSelectCellsCtrl = ContentState => {
 
   // Remove the content of selected table cell, delete the row/column if selected one row/column without content.
   // Delete the table if the selected whole table is empty.
-  ContentState.prototype.deleteSelectedTableCells = function (isCut = false) {
+  ContentState.prototype.deleteSelectedTableCells = function(isCut = false) {
     const { tableId, cells } = this.selectedTableCells
     const tableBlock = this.getBlock(tableId)
     const { row, column } = tableBlock
@@ -212,7 +212,7 @@ const tableSelectCellsCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.selectTable = function (table) {
+  ContentState.prototype.selectTable = function(table) {
     // For calculateSelectedCells
     this.cellSelectInfo = {
       anchor: {
@@ -242,7 +242,7 @@ const tableSelectCellsCtrl = ContentState => {
   }
 
   // Return the cell block if yes, else return null.
-  ContentState.prototype.isSingleCellSelected = function () {
+  ContentState.prototype.isSingleCellSelected = function() {
     const { selectedTableCells } = this
     if (selectedTableCells && selectedTableCells.cells.length === 1) {
       const key = selectedTableCells.cells[0].key
@@ -253,7 +253,7 @@ const tableSelectCellsCtrl = ContentState => {
   }
 
   // Return the cell block if yes, else return null.
-  ContentState.prototype.isWholeTableSelected = function () {
+  ContentState.prototype.isWholeTableSelected = function() {
     const { selectedTableCells } = this
     const table = selectedTableCells ? this.getBlock(selectedTableCells.tableId) : {}
     const { row, column } = table
