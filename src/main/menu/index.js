@@ -230,7 +230,7 @@ class AppMenu {
    *
    * @param {[string[]]} recentUsedDocuments
    */
-  updateAppMenu (recentUsedDocuments) {
+  updateAppMenu (recentUsedDocuments, language = null) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
@@ -244,7 +244,7 @@ class AppMenu {
       const { menu: oldMenu, type } = value
       if (type !== MenuType.EDITOR) return
 
-      const { menu: newMenu } = this._buildEditorMenu(recentUsedDocuments)
+      const { menu: newMenu } = this._buildEditorMenu(recentUsedDocuments, language)
 
       // all other menu items are set automatically
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
@@ -336,19 +336,34 @@ class AppMenu {
     })
   }
 
-  _buildEditorMenu (recentUsedDocuments = null) {
+  updateLanguageMenu = language => {
+    this.updateAppMenu(null, language)
+
+    this.windowMenus.forEach((value, key) => {
+      if (value.type !== MenuType.SETTINGS) return
+
+      const { menu } = this._buildSettingMenu(language)
+      value.menu = menu
+
+      if (this.activeWindowId === key) {
+        this._setApplicationMenu(menu)
+      }
+    })
+  }
+
+  _buildEditorMenu (recentUsedDocuments = null, language = null) {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
     }
 
-    const menuTemplate = configureMenu(this._keybindings, this._preferences, recentUsedDocuments)
+    const menuTemplate = configureMenu(this._keybindings, this._preferences, recentUsedDocuments, language)
     const menu = Menu.buildFromTemplate(menuTemplate)
     return { menu, type: MenuType.EDITOR }
   }
 
-  _buildSettingMenu () {
+  _buildSettingMenu (language = null) {
     if (isOsx) {
-      const menuTemplate = configSettingMenu(this._keybindings)
+      const menuTemplate = configSettingMenu(this._keybindings, this._preferences, language)
       const menu = Menu.buildFromTemplate(menuTemplate)
       return { menu, type: MenuType.SETTINGS }
     }
@@ -414,6 +429,9 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.language !== undefined) {
+        this.updateLanguageMenu(prefs.language)
       }
     })
   }

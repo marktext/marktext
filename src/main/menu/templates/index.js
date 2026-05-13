@@ -8,6 +8,7 @@ import window from './window'
 import paragraph from './paragraph'
 import format from './format'
 import theme from './theme'
+import { translateMenuTemplate } from '../../i18n'
 
 export dockMenu from './dock'
 
@@ -16,12 +17,13 @@ export dockMenu from './dock'
  *
  * @param {Keybindings} keybindings The keybindings instance
  */
-export const configSettingMenu = (keybindings) => {
-  return [
+export const configSettingMenu = (keybindings, preferences = null, language = null) => {
+  const menuTemplate = [
     ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
     prefEdit(keybindings),
     help()
   ]
+  return translateMenuTemplate(menuTemplate, language || (preferences && preferences.getItem('language')))
 }
 
 /**
@@ -31,8 +33,8 @@ export const configSettingMenu = (keybindings) => {
  * @param {Preference} preferences The preference instance.
  * @param {string[]} recentlyUsedFiles The recently used files.
  */
-export default function (keybindings, preferences, recentlyUsedFiles) {
-  return [
+export default function (keybindings, preferences, recentlyUsedFiles, language = null) {
+  const menuTemplate = [
     ...(process.platform === 'darwin' ? [marktext(keybindings)] : []),
     file(keybindings, preferences, recentlyUsedFiles),
     edit(keybindings),
@@ -43,4 +45,5 @@ export default function (keybindings, preferences, recentlyUsedFiles) {
     view(keybindings),
     help()
   ]
+  return translateMenuTemplate(menuTemplate, language || preferences.getItem('language'))
 }

@@ -111,7 +111,6 @@
           :value="language"
           :options="languageOptions"
           :onChange="value => onSelectChange('language', value)"
-          :disable="true"
         ></cur-select>
       </template>
     </compound>
