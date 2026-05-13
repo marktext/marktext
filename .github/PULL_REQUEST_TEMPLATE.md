@@ -1,16 +1,26 @@
-<!-- Please change the Answers in the table below
-     to reflect the contents of your pull request. -->
+<!-- Link the issue(s) this PR addresses. "Closes #NNN" auto-closes on merge. -->
 
-| Q                 | A
-| ----------------- | ---
-| Bug fix?          | yes/no
-| New feature?      | yes/no
-| Breaking changes? | yes/no
-| Deprecations?     | yes/no
-| New tests added?  | yes/not needed
-| Fixed tickets     | Fixes #ticket number (set to none if no tickets are fixed, repeat template for each ticket fixed)
-| License           | MIT
+Closes #
 
-### Description
+## Summary
 
-[Description of the bug or feature]
+<!-- A concise description of what this PR does and why -->
+
+## Type of change
+
+- [ ] Bug fix (non-breaking, fixes an issue)
+- [ ] New feature (non-breaking, adds functionality)
+- [ ] Breaking change (causes existing functionality to change)
+- [ ] Documentation update
+
+## Test plan
+
+- [ ] New tests added (or explain why not needed)
+- [ ] Manually tested on: <!-- macOS / Windows / Linux -->
+
+## Notes for reviewers [optional]
+
+<!-- Design decisions, known limitations, or anything else reviewers should know -->
+
+---
+By submitting this pull request, I confirm that my contribution is made under the terms of the [MIT license](LICENSE).
