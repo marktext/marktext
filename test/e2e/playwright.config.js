@@ -1,7 +1,7 @@
 const config = {
   workers: 1,
   use: {
-    headless: false,
+    headless: true,
     viewport: { width: 1280, height: 720 },
     timeout: 30000
   }

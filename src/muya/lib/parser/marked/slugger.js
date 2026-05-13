@@ -14,12 +14,12 @@ function Slugger () {
  */
 
 Slugger.prototype.slug = function (value) {
-  // Strip HTML tags and LATIN_SYMBOLS_MAP chars ($%&<>|'") before downcoding,
-  // otherwise downcode() converts them to English words (e.g. '$' \u2192 'dollar')
-  // which then survive the special-char removal regex below.
+  // Strip HTML tags and LATIN_SYMBOLS_MAP chars ($%&|<>|'") before downcoding,
+  // otherwise downcode() converts them to English words (e.g. '$' \u2192 'dollar',
+  // '|' \u2192 'or') which then survive the special-char removal regex below.
   let slug = value
     .replace(/<[!\/a-z].*?>/ig, '') // eslint-disable-line no-useless-escape
-    .replace(/[$%&<>|'"]/g, '')
+    .replace(/[$%&|<>'"]/g, '')
   slug = this.downcodeUnicode ? downcode(slug) : slug
   slug = slug
     .toLowerCase()

@@ -359,7 +359,7 @@ At vero eos et accusam [^foo1]: et justo duo dolores et ea rebum!`
     expect(convertTokens(tokens)).to.deep.equal(expected)
   })
 
-  it('Invalid footenote token', () => {
+  it('Invalid footnote token', () => {
     const expected = [
       { type: 'paragraph', text: 'foo[^1]' },
       { type: 'space' },

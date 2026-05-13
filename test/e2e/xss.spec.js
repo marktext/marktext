@@ -1,7 +1,7 @@
 const { expect, test } = require('@playwright/test')
 const { launchElectron } = require('./helpers')
 
-test.describe('Test XSS Vulnerabilities', async () => {
+test.describe('Test XSS Vulnerabilities', () => {
   let app = null
   let page = null
 

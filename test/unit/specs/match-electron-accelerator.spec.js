@@ -61,7 +61,7 @@ const modifiers = [
   'Shift'
 ]
 
-describe('Test equal with non characte key', () => {
+describe('Test equal with non-character key', () => {
   it('Match F2', () => {
     expect(isEqualAccelerator('F2', 'F2')).to.equal(true)
   })
@@ -126,10 +126,10 @@ describe('Test invalid accelerator', () => {
   it('Ctrl++', () => {
     expect(isEqualAccelerator('Ctrl++', 'Ctrl+Plus')).to.equal(false)
   })
-  it('Emtpy accelerator 1', () => {
+  it('Empty accelerator 1', () => {
     expect(isEqualAccelerator('', 'Ctrl+A')).to.equal(false)
   })
-  it('Emtpy accelerator 2', () => {
+  it('Empty accelerator 2', () => {
     expect(isEqualAccelerator('ctrl+Shift+b', '')).to.equal(false)
   })
 })

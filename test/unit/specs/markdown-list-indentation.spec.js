@@ -3,9 +3,9 @@ import EventCenter from '../../../src/muya/lib/eventHandler/event'
 import ExportMarkdown from '../../../src/muya/lib/utils/exportMarkdown'
 import { MUYA_DEFAULT_OPTION } from '../../../src/muya/lib/config'
 
-const createMuyaContext = listIdentation => {
+const createMuyaContext = listIndentation => {
   const ctx = {}
-  ctx.options = Object.assign({}, MUYA_DEFAULT_OPTION, { listIdentation })
+  ctx.options = Object.assign({}, MUYA_DEFAULT_OPTION, { listIndentation })
   ctx.eventCenter = new EventCenter()
   ctx.contentState = new ContentState(ctx, ctx.options)
   return ctx
@@ -15,7 +15,7 @@ const createMuyaContext = listIdentation => {
 // Muya parser (Markdown to HTML to Markdown)
 //
 
-const verifyMarkdown = (expectedMarkdown, listIdentation, markdown = '') => {
+const verifyMarkdown = (expectedMarkdown, listIndentation, markdown = '') => {
   if (!markdown) {
     markdown = `start
 
@@ -44,15 +44,15 @@ sep
 `
   }
 
-  const ctx = createMuyaContext(listIdentation)
+  const ctx = createMuyaContext(listIndentation)
   ctx.contentState.importMarkdown(markdown)
 
   const blocks = ctx.contentState.getBlocks()
-  const exportedMarkdown = new ExportMarkdown(blocks, listIdentation).generate()
+  const exportedMarkdown = new ExportMarkdown(blocks, listIndentation).generate()
   expect(exportedMarkdown).to.equal(expectedMarkdown)
 }
 
-describe('Muya list identation', () => {
+describe('Muya list indentation', () => {
   it('Indent by 1 space', () => {
     const md = `start
 

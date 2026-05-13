@@ -1,7 +1,7 @@
 const { expect, test } = require('@playwright/test')
 const { launchElectron } = require('./helpers')
 
-test.describe('Check Launch MarkText', async () => {
+test.describe('Check Launch MarkText', () => {
   let app = null
   let page = null
 

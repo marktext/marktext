@@ -11,13 +11,10 @@ const buildResult = (left, right, word) => {
 
 const test = (text, offset, expectedWord) => {
   const wordInfo = extractWord(text, offset)
-  if (expectedWord !== wordInfo && (
-    expectedWord.left !== wordInfo.left ||
-    expectedWord.right !== wordInfo.right ||
-    expectedWord.word !== wordInfo.word
-  )) {
-    // NOTE: Always invalid.
-    expect(expectedWord).to.equal(wordInfo)
+  if (expectedWord === null) {
+    expect(wordInfo).to.equal(null)
+  } else {
+    expect(wordInfo).to.deep.equal(expectedWord)
   }
 }
 
@@ -54,7 +51,6 @@ describe('Test extractWord', () => {
     test(basicText, 79, buildResult(79, 81, 'in'))
   })
   it('Get custom index (2)', () => {
-    console.log(basicText[104], basicText[105], basicText[106])
     test(basicText, 106, buildResult(105, 112, 'euismod'))
   })
 

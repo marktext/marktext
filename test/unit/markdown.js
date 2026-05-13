@@ -10,7 +10,7 @@ export const BasicTextFormattingTemplate = () => {
   return loadMarkdownContent('common/BasicTextFormatting.md')
 }
 
-export const BlockquotesTemplate= () => {
+export const BlockquotesTemplate = () => {
   return loadMarkdownContent('common/Blockquotes.md')
 }
 
