@@ -14,13 +14,16 @@ function Slugger () {
  */
 
 Slugger.prototype.slug = function (value) {
-  let slug = this.downcodeUnicode ? downcode(value) : value
+  // Strip HTML tags and LATIN_SYMBOLS_MAP chars ($%&<>|'") before downcoding,
+  // otherwise downcode() converts them to English words (e.g. '$' \u2192 'dollar')
+  // which then survive the special-char removal regex below.
+  let slug = value
+    .replace(/<[!\/a-z].*?>/ig, '') // eslint-disable-line no-useless-escape
+    .replace(/[$%&<>|'"]/g, '')
+  slug = this.downcodeUnicode ? downcode(slug) : slug
   slug = slug
     .toLowerCase()
     .trim()
-    // remove html tags
-    .replace(/<[!\/a-z].*?>/ig, '') // eslint-disable-line no-useless-escape
-    // remove unwanted chars
     .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, '')
     .replace(/\s/g, '-')
 
