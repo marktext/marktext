@@ -409,7 +409,7 @@ const handleComponentActivated = () => {
         console.log('强制启动检测流程')
         startRealtimeDetection()
       }
-}, 50) // Very short delay to ensure state cleanup is complete
+    }, 50) // Very short delay to ensure state cleanup is complete
   }
 }
 
