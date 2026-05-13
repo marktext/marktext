@@ -26,6 +26,9 @@
     }
   ],
   "homepage": "https://github.com/marktext/marktext",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
