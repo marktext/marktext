@@ -69,7 +69,7 @@
 
 # 2. Capturas de pantalla
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 # 3. ✨Características ⭐
 
@@ -122,7 +122,7 @@ MarkText incluye **33 temas integrados** - 10 claros y 23 oscuros:
 
 |    Código fuente   |    Máquina de escribir   |       Enfoque       |
 | :----------------: | :----------------------: | :-----------------: |
-| ![](../source.gif) | ![](../typewriter.gif)   | ![](../focus.gif)   |
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif)   | ![](../assets/focus.gif)   |
 
 # 4. Colaboradores
 

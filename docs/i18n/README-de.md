@@ -69,7 +69,7 @@
 
 # 2. Bildschirmfotos
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 # 3. ✨Funktionen ⭐
 
@@ -122,7 +122,7 @@ MarkText enthält **33 integrierte Themes** – 10 helle und 23 dunkle Themes:
 
 |     Quellcode      |    Schreibmaschine     |       Fokus       |
 | :----------------: | :--------------------: | :---------------: |
-| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif) |
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
 
 # 4. Mitwirkende
 

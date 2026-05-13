@@ -69,7 +69,7 @@
 
 # 2. 截圖
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 # 3. ✨功能 ⭐
 
@@ -122,7 +122,7 @@ MarkText 內建 **33 款主題** —— 10 款淺色與 23 款深色：
 
 |       原始碼       |         打字機         |       專注        |
 | :----------------: | :--------------------: | :---------------: |
-| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif) |
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
 
 # 4. 貢獻者
 

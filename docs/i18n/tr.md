@@ -162,7 +162,7 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 
 ## Ekran görüntüsü
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 ## Özellikler
 
@@ -189,7 +189,7 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 
 | Kaynak düzenleme modu | Daktilo modu             | Odak modu           |
 |:---------------------:|:------------------------:|:-------------------:|
-| ![](../source.gif)  | ![](../typewriter.gif) | ![](../focus.gif) |
+| ![](../assets/source.gif)  | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
 
 ## Neden başka bir editör?
 
@@ -205,7 +205,7 @@ Tüm sponsorlarımızın (hem Patreon hem Open Collective) isimleri ve logoları
 |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![son sürüm](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![son sürüm](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![son sürüm](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-Son sürümde gelen değişiklikler için [CHANGELOG](.github/CHANGELOG.md)'a bakınız.
+Son sürümde gelen değişiklikler için [CHANGELOG](../CHANGELOG.md)'a bakınız.
 
 #### macOS
 

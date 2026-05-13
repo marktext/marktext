@@ -69,7 +69,7 @@
 
 # 2. 스크린샷
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 # 3. ✨기능 ⭐
 
@@ -122,7 +122,7 @@ MarkText에는 **33개의 내장 테마** 가 포함되어 있습니다 — 라�
 
 |     소스 코드      |        타자기          |       포커스      |
 | :----------------: | :--------------------: | :---------------: |
-| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif) |
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
 
 # 4. 기여자
 

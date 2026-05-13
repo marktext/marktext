@@ -136,7 +136,7 @@ Open Collective: جميع النفقات شفافة. سيتم استخدام ا�
 
 ## لقطة شاشة
 
-<img src="../../docs/marktext.png?raw=true" alt="لقطة شاشة MarkText">
+<img src="../../docs/assets/marktext.png?raw=true" alt="لقطة شاشة MarkText">
 
 ## الميزات
 
@@ -192,9 +192,9 @@ Open Collective: جميع النفقات شفافة. سيتم استخدام ا�
   <td align="center"><strong>Focus</strong></td>
 </tr>
 <tr>
-  <td align="center"><img src="../../docs/source.gif" alt="Source Code"></td>
-  <td align="center"><img src="../../docs/typewriter.gif" alt="Typewriter"></td>
-  <td align="center"><img src="../../docs/focus.gif" alt="Focus"></td>
+  <td align="center"><img src="../../docs/assets/source.gif" alt="Source Code"></td>
+  <td align="center"><img src="../../docs/assets/typewriter.gif" alt="Typewriter"></td>
+  <td align="center"><img src="../../docs/assets/focus.gif" alt="Focus"></td>
 </tr>
 </table>
 
@@ -225,7 +225,7 @@ Open Collective: جميع النفقات شفافة. سيتم استخدام ا�
 </tr>
 </table>
 
-هل تريد الاطلاع على الميزات الجديدة لأحدث إصدار؟ يرجى الرجوع إلى <a href="../../.github/CHANGELOG.md">سجل التغييرات</a>.
+هل تريد الاطلاع على الميزات الجديدة لأحدث إصدار؟ يرجى الرجوع إلى <a href="../CHANGELOG.md">سجل التغييرات</a>.
 
 ### macOS
 

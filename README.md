@@ -69,7 +69,7 @@
 
 # 2. Screenshots
 
-![](docs/marktext.png?raw=true)
+![](docs/assets/marktext.png?raw=true)
 
 # 3. ✨Features ⭐
 
@@ -122,7 +122,7 @@ MarkText includes **33 built-in themes** - 10 light and 23 dark themes:
 
 |     Source Code      |        Typewriter        |        Focus        |
 | :------------------: | :----------------------: | :-----------------: |
-| ![](docs/source.gif) | ![](docs/typewriter.gif) | ![](docs/focus.gif) |
+| ![](docs/assets/source.gif) | ![](docs/assets/typewriter.gif) | ![](docs/assets/focus.gif) |
 
 # 4. Contributors
 

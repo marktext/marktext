@@ -69,7 +69,7 @@
 
 # 2. スクリーンショット
 
-![](../marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 # 3. ✨機能 ⭐
 
@@ -122,7 +122,7 @@ MarkText には **33 種類の組み込みテーマ** が含まれています �
 
 |    ソースコード    |     タイプライター     |     フォーカス     |
 | :----------------: | :--------------------: | :----------------: |
-| ![](../source.gif) | ![](../typewriter.gif) | ![](../focus.gif)  |
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif)  |
 
 # 4. コントリビューター
 
