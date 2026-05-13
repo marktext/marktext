@@ -4,7 +4,7 @@
 
 MarkText is a realtime preview editor for markdown with various markdown extensions. You can simply write and edit text and MarkText hides all unnecessary syntax elements. When you first start MarkText an empty editor window is shown. You can see [key bindings](KEYBINDINGS.md) or command palette (<kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) for all available commands or just type `@` to get an overlay with available text elements. MarkText provides a minimal and simple interface and in the next sections you can learn more about the interface and features.
 
-![](assets/marktext-default.png)
+![](../assets/marktext-default.png)
 
 ### Interface
 
@@ -24,7 +24,7 @@ MarkText can be used as a single editor but opens all files in a separate tab. T
 
 You can hide tabs and use key bindings such as <kbd>CmdOrCtrl</kbd>+<kbd>Tab</kbd> to cycle through tabs or the sidebar *opened files* panel.
 
-![](assets/marktext-interface-1.png)
+![](../assets/marktext-interface-1.png)
 
 #### Switch between editor modes
 
@@ -48,7 +48,7 @@ After some modifications you can save your file via <kbd>CmdOrCtrl</kbd>+<kbd>S<
 
 MarkText also has support to open a directory via <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or the sidebar button *Open Folder*. After opening a directory all files and directories are shown in the sidebar tree view. The tree view allows you to open further files, browse and modify files or directories inside the opened root directory. Above the tree view are all opened files located. You can also use quick open (<kbd>CmdOrCtrl</kbd>+<kbd>P</kbd>) to quickly open a file from the opened root directory or editor and navigate via arrow keys or select a file via mouse. To view another sidebar panel like find in files click on the left sidebar icons.
 
-![](assets/marktext-interface-2.png)
+![](../assets/marktext-interface-2.png)
 
 ## Themes
 
@@ -64,4 +64,4 @@ You can control and modify all preferences in the settings window or edit `prefe
 - The application theme
 - Options how images are handled
 
-![](assets/marktext-settings.png)
+![](../assets/marktext-settings.png)

@@ -116,7 +116,7 @@ MarkText には **33 種類の組み込みテーマ** が含まれています �
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
-> 📖 全テーマの説明とスクリーンショットは [docs/THEMES.md](../THEMES.md) を参照してください。
+> 📖 全テーマの説明とスクリーンショットは [docs/THEMES.md](../end-user/THEMES.md) を参照してください。
 
 ## 3.2 😸編集モード🐶
 

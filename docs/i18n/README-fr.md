@@ -116,7 +116,7 @@ MarkText comprend **33 thèmes intégrés** - 10 clairs et 23 sombres :
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
-> 📖 Voir [docs/THEMES.md](../THEMES.md) pour la liste complète des thèmes avec descriptions et captures d'écran.
+> 📖 Voir [docs/THEMES.md](../end-user/THEMES.md) pour la liste complète des thèmes avec descriptions et captures d'écran.
 
 ## 3.2 😸Modes d'édition🐶
 

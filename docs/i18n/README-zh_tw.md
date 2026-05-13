@@ -116,7 +116,7 @@ MarkText 內建 **33 款主題** —— 10 款淺色與 23 款深色：
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
-> 📖 完整主題列表（含描述與截圖）請參見 [docs/THEMES.md](../THEMES.md)。
+> 📖 完整主題列表（含描述與截圖）請參見 [docs/THEMES.md](../end-user/THEMES.md)。
 
 ## 3.2 😸編輯模式🐶
 

@@ -227,7 +227,7 @@ choco install marktext
 
 #### Linux
 
-bkz. [Linux kurulumu](../LINUX.md).
+bkz. [Linux kurulumu](../end-user/LINUX.md).
 
 #### Diğer platformlar
 

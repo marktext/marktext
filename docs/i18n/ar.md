@@ -247,7 +247,7 @@ Open Collective: جميع النفقات شفافة. سيتم استخدام ا�
 
 ### Linux
 
-يرجى اتباع <a href="../../docs/LINUX.md">تعليمات تثبيت Linux</a>.
+يرجى اتباع <a href="../../docs/end-user/LINUX.md">تعليمات تثبيت Linux</a>.
 
 ### أنظمة أخرى
 

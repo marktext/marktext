@@ -59,25 +59,25 @@ You can switch themes in several ways:
 
 | Cadmium Light | Graphite Light |
 |---------------|----------------|
-| ![Cadmium Light](themeImages/cadmium-light.png) | ![Graphite Light](themeImages/graphite-light.png) |
+| ![Cadmium Light](../themeImages/cadmium-light.png) | ![Graphite Light](../themeImages/graphite-light.png) |
 
 | Ulysses Light | Catppuccin Latte |
 |---------------|------------------|
-| ![Ulysses Light](themeImages/ulysses-light.png) | ![Catppuccin Latte](themeImages/catppuccin-latte.png) |
+| ![Ulysses Light](../themeImages/ulysses-light.png) | ![Catppuccin Latte](../themeImages/catppuccin-latte.png) |
 
 ### Dark Themes
 
 | Dark | Material Dark |
 |------|---------------|
-| ![Dark](themeImages/dark.png) | ![Material Dark](themeImages/materal-dark.png) |
+| ![Dark](../themeImages/dark.png) | ![Material Dark](../themeImages/materal-dark.png) |
 
 | One Dark | Dracula |
 |----------|---------|
-| ![One Dark](themeImages/one-dark.png) | ![Dracula](themeImages/dracula.png) |
+| ![One Dark](../themeImages/one-dark.png) | ![Dracula](../themeImages/dracula.png) |
 
 | Nord | Tokyo Night |
 |------|-------------|
-| ![Nord](themeImages/nord.png) | ![Tokyo Night](themeImages/tokyo-night.png) |
+| ![Nord](../themeImages/nord.png) | ![Tokyo Night](../themeImages/tokyo-night.png) |
 
 ## Custom Themes
 

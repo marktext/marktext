@@ -116,7 +116,7 @@ MarkText에는 **33개의 내장 테마** 가 포함되어 있습니다 — 라�
 | Ulysses Light                                   | One Dark                                      |
 | ![](../themeImages/ulysses-light.png?raw=true)  | ![](../themeImages/one-dark.png?raw=true)     |
 
-> 📖 전체 테마 목록과 설명, 스크린샷은 [docs/THEMES.md](../THEMES.md) 를 참조하세요.
+> 📖 전체 테마 목록과 설명, 스크린샷은 [docs/THEMES.md](../end-user/THEMES.md) 를 참조하세요.
 
 ## 3.2 😸편집 모드🐶
 
