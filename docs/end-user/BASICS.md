@@ -34,6 +34,12 @@ You can use <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>S</kbd> to switch between t
 
 Use <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> to enter distraction free focus mode or <kbd>CmdOrCtrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> for typewriter.
 
+<h4 align="center">:smile_cat:Edit modes:dog:</h4>
+
+| Source Code          | Typewriter               | Focus               |
+|:--------------------:|:------------------------:|:-------------------:|
+| ![](../assets/source.gif) | ![](../assets/typewriter.gif) | ![](../assets/focus.gif) |
+
 ## Open and modify markdown files
 
 ### Open your first file

@@ -56,7 +56,7 @@ You can download the latest `marktext-%version%.tar.gz` package from the [releas
 
 ## Arch User Repository
 
-Marktext is available on the AUR as `marktext-bin` and will automatically install the dependencies: `glibc`, `gtk3`, `nss`, `alsa-lib`, `libxss`, `cups`, `libxkbcommon`, `libxkbfile`, `mesa`, and `hicolor-icon-theme`.
+MarkText is available on the AUR as `marktext-bin` and will automatically install the dependencies: `glibc`, `gtk3`, `nss`, `alsa-lib`, `libxss`, `cups`, `libxkbcommon`, `libxkbfile`, `mesa`, and `hicolor-icon-theme`.
 
 Install it via an AUR helper like `yay -S marktext-bin` or with
 
