@@ -46,7 +46,7 @@ TBD
 
 ### Main- and renderer process communication
 
-Main- and renderer process communicate asynchronously via [inter-process communication (IPC)](code/IPC.md) and it's mainly used for IO and user interaction with native dialogs.
+Main- and renderer process communicate asynchronously via [inter-process communication (IPC)](IPC.md) and it's mainly used for IO and user interaction with native dialogs.
 
 ### Editor window (renderer process)
 

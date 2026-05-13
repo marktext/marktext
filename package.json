@@ -3,7 +3,28 @@
   "version": "0.18.9",
   "description": "MarkText",
   "main": "./out/main/index.js",
-  "author": "Marktext Contributors",
+  "author": {
+    "name": "Jocs",
+    "email": "ransixi@gmail.com",
+    "url": "https://github.com/Jocs"
+  },
+  "maintainer": [
+    {
+      "name": "Jocs",
+      "email": "ransixi@gmail.com",
+      "url": "https://github.com/Jocs"
+    },
+    {
+      "name": "Felix Häusler",
+      "email": "hfelix@protonmail.ch",
+      "url": "https://github.com/fxha"
+    },
+    {
+      "name": "Tkaixiang",
+      "email": "tkaixiang@gmail.com",
+      "url": "https://github.com/Tkaixiang"
+    }
+  ],
   "homepage": "https://github.com/marktext/marktext",
   "scripts": {
     "format": "prettier --write .",
