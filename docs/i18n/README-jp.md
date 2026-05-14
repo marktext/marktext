@@ -105,46 +105,11 @@
 
 <h2 align="center">MarkText を支援する</h2>
 
-MarkText は MIT ライセンスのオープンソースプロジェクトであり、最新バージョンは常に GitHub のリリースページから無料でダウンロードできます。MarkText はまだ開発中であり、その開発はすべてのスポンサーなしには成り立ちません。ぜひ仲間に加わってください：
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### Patreon と Open Collective の違いは何ですか？
-
-Patreon：資金は MarkText を作成し続けてメンテナンスしている Luo Ran（@jocs）に直接提供されます。
-Open Collective：すべての支出は透明です。資金は MarkText の開発・保守、オンラインおよびオフラインのイベント開催、その他必要なリソースの取得に使用されます。
-すべてのスポンサー（Patreon と Open Collective 両方）の名前と会社ロゴは、MarkText の公式ウェブサイトと README.md ファイルに掲載されます。
-
-**プラチナスポンサー**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**ゴールドスポンサー**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**シルバースポンサー**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**ブロンズスポンサー**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**バッカー**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## スクリーンショット
 

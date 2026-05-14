@@ -105,46 +105,11 @@
 
 <h2 align="center">MarkText 지원</h2>
 
-MarkText는 MIT 라이선스의 오픈 소스 프로젝트이며, 최신 버전은 항상 GitHub 릴리스 페이지에서 무료로 다운로드할 수 있습니다. MarkText는 아직 개발 중이며 모든 스폰서 없이는 개발이 불가능합니다. 함께해 주시길 바랍니다:
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### Patreon과 Open Collective의 차이점은 무엇인가요?
-
-Patreon: 자금은 MarkText를 만들고 계속 유지 관리하는 Luo Ran(@jocs)에게 직접 후원됩니다.
-Open Collective: 모든 지출은 투명합니다. 자금은 MarkText의 개발 및 유지 관리, 온라인 및 오프라인 활동 지원, 기타 필요한 리소스 확보에 사용됩니다.
-모든 스폰서(Patreon 및 Open Collective 모두)의 이름과 회사 로고는 MarkText 공식 웹사이트와 README.md 파일에 표시됩니다.
-
-**플래티넘 스폰서**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**골드 스폰서**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**실버 스폰서**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**브론즈 스폰서**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**후원자**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## 스크린샷
 

@@ -104,46 +104,11 @@
 
 <h2 align="center">Soutenir MarkText</h2>
 
-MarkText est un projet open source sous licence MIT, et la dernière version est toujours disponible gratuitement sur la page de releases GitHub. MarkText est encore en développement et son développement est indissociable de tous ses sponsors. J'espère que vous les rejoindrez :
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### Quelle est la différence entre Patreon et Open Collective ?
-
-Patreon : Les fonds seront directement versés à Luo Ran (@jocs), qui a créé MarkText et continue à le maintenir.
-Open Collective : Toutes les dépenses sont transparentes. Les fonds seront utilisés pour le développement et la maintenance de MarkText, le financement d'activités en ligne et hors ligne, ainsi que l'acquisition d'autres ressources nécessaires.
-Les noms et logos de tous les sponsors (de Patreon et Open Collective) apparaîtront sur le site officiel de MarkText et dans son fichier README.md.
-
-**Sponsors Platine**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Sponsors Or**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Sponsors Argent**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Sponsors Bronze**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Contributeurs**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## Captures d'écran
 

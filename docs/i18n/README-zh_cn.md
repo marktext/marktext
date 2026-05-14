@@ -105,46 +105,11 @@
 
 <h2 align="center">支持 MarkText</h2>
 
-MarkText 是一个 MIT 许可的开源项目，最新版本始终可以从 GitHub 发布页面免费下载。MarkText 仍在开发中，其发展离不开所有赞助商。希望你能加入他们：
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### Patreon 和 Open Collective 的区别是什么？
-
-Patreon：资金将直接赞助给创建并持续维护 MarkText 的 Luo Ran（@jocs）。
-Open Collective：所有费用均透明。资金将用于 MarkText 的开发和维护、资助线上和线下活动以及获取其他必要资源。
-所有赞助商（来自 Patreon 和 Open Collective）的姓名和公司徽标将出现在 MarkText 官方网站及其 README.md 文件中。
-
-**白金赞助商**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**金牌赞助商**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**银牌赞助商**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**铜牌赞助商**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**支持者**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## 截图
 

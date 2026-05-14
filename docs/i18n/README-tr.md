@@ -105,46 +105,11 @@
 
 <h2 align="center">MarkText'e Destek Olun</h2>
 
-MarkText, MIT lisanslı açık kaynaklı bir projedir ve en yeni sürüm her zaman GitHub sürüm sayfasından ücretsiz olarak indirilebilir. MarkText hâlâ geliştirme aşamasındadır ve gelişimi tüm sponsorlardan ayrı düşünülemez. Umarım onlara katılırsınız:
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### Patreon ve Open Collective arasındaki fark nedir?
-
-Patreon: Fonlar doğrudan MarkText'i yaratan ve geliştirmeye devam eden Luo Ran'a (@jocs) aktarılacaktır.
-Open Collective: Tüm harcamalar şeffaftır. Fonlar MarkText'in geliştirilmesi ve bakımı, çevrimiçi ve çevrimdışı etkinliklerin finansmanı ve diğer gerekli kaynakların edinilmesi için kullanılacaktır.
-Tüm sponsorların (hem Patreon hem de Open Collective'den) isimleri ve şirket logoları MarkText'in resmi web sitesinde ve README.md dosyasında yer alacaktır.
-
-**Platin Sponsorlar**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Altın Sponsorlar**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Gümüş Sponsorlar**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Bronz Sponsorlar**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**Destekçiler**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## Ekran Görüntüsü
 

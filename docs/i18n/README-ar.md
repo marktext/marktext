@@ -104,46 +104,11 @@
 
 <h2 dir="rtl" align="center">دعم MarkText</h2>
 
-MarkText هو مشروع مفتوح المصدر مرخص بترخيص MIT، وسيكون أحدث إصدار دائمًا متاحًا للتنزيل مجانًا من صفحة الإصدارات على GitHub. MarkText لا يزال قيد التطوير، وتطوره لا ينفصل عن جميع الرعاة. أتمنى أن تنضم إليهم:
+MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
 
-- [Become a backer or sponsor on Patreon](https://www.patreon.com/ranluo) or [One time donation](https://github.com/Jocs/sponsor.me)
-- [Become a backer or sponsor on Open Collective](https://opencollective.com/marktext)
+**Special Sponsor**
 
-##### ما الفرق بين Patreon وOpen Collective؟
-
-Patreon: سيتم رعاية الأموال مباشرة إلى Luo Ran (@jocs) الذي أنشأ MarkText ويستمر في صيانته.
-Open Collective: جميع النفقات شفافة. سيتم استخدام الأموال لتطوير وصيانة MarkText، وتمويل الأنشطة عبر الإنترنت وخارجها، والحصول على الموارد الضرورية الأخرى.
-ستظهر أسماء وشعارات الشركات لجميع الرعاة (من كل من Patreon وOpen Collective) على الموقع الرسمي لـ MarkText وفي ملف README.md الخاص به.
-
-**الرعاة البلاتينيون**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
- <img src="https://opencollective.com/marktext/tiers/platinum-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**الرعاة الذهبيون**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/gold-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**الرعاة الفضيون**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/silver-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**الرعاة البرونزيون**
-
-<a href="https://opencollective.com/marktext#platinum-sponsors">
-  <img src="https://opencollective.com/marktext/tiers/bronze-sponsors.svg?avatarHeight=36&width=600">
-</a>
-
-**الداعمون**
-
-<a href="https://opencollective.com/marktext#backers">
-  <img src="https://opencollective.com/marktext/tiers/backer.svg?avatarHeight=36&width=600">
-</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
 
 ## لقطة شاشة
 
