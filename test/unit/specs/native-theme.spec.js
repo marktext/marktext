@@ -1,4 +1,5 @@
 import { getNativeThemeSource, isDarkApplicationTheme } from 'main_renderer/app/nativeTheme'
+import { oneDarkThemes, railscastsThemes } from 'common/theme'
 
 describe('Native theme source', () => {
   it('follows the system when configured to do so', () => {
@@ -8,6 +9,13 @@ describe('Native theme source', () => {
 
   it('uses dark native menus for dark MarkText themes', () => {
     for (const theme of ['dark', 'dracula', 'nord', 'rose-pine', 'kanagawa', 'cyberdream']) {
+      expect(isDarkApplicationTheme(theme)).to.equal(true)
+      expect(getNativeThemeSource({ followSystemTheme: false, theme })).to.equal('dark')
+    }
+  })
+
+  it('uses the shared MarkText dark theme classification', () => {
+    for (const theme of [...railscastsThemes, ...oneDarkThemes]) {
       expect(isDarkApplicationTheme(theme)).to.equal(true)
       expect(getNativeThemeSource({ followSystemTheme: false, theme })).to.equal('dark')
     }
