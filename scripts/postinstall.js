@@ -21,13 +21,27 @@ function run(cmd, env = {}) {
   execSync(cmd, { stdio: 'inherit', cwd: root, env: { ...process.env, ...env } })
 }
 
-// ── 1. Ensure native-keymap source is present (pnpm removes it on optional failure) ──
+// Detect which package manager invoked this postinstall so commands work
+// regardless of whether the caller is pnpm (primary) or npm (fallback).
+const userAgent = process.env.npm_config_user_agent || ''
+const isPnpm = userAgent.startsWith('pnpm')
+// patch-package and electron-rebuild are locally installed; call their
+// node_modules/.bin entries directly to avoid any package-manager dependency.
+const ext = process.platform === 'win32' ? '.cmd' : ''
+const patchPackageBin = path.join(root, 'node_modules', '.bin', `patch-package${ext}`)
+const electronRebuildBin = path.join(root, 'node_modules', '.bin', `electron-rebuild${ext}`)
+
+// ── 1. Ensure native-keymap source is present (pm removes it on optional failure) ──
 const nativeKeymapDir = path.join(root, 'node_modules', 'native-keymap')
 if (!fs.existsSync(nativeKeymapDir)) {
   console.log('Installing native-keymap source (skipping compilation)...')
-  // native-keymap is already in optionalDependencies so pnpm add won't change
-  // the version range in package.json; it restores from the content-addressable store.
-  run('pnpm add native-keymap --ignore-scripts')
+  // native-keymap is already in optionalDependencies so neither command changes
+  // the version range in package.json.
+  if (isPnpm) {
+    run('pnpm add native-keymap --ignore-scripts')
+  } else {
+    run('npm install native-keymap --ignore-scripts --no-save')
+  }
 }
 
 // ── 2. Download + extract Electron binary ────────────────────────────────────
@@ -115,12 +129,12 @@ if (!fs.existsSync(electronInstall)) {
 
 // ── 3. Apply C++20 patch to native-keymap ───────────────────────────────────
 console.log('Applying patches...')
-run('pnpm exec patch-package')
+run(`"${patchPackageBin}"`)
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
 console.log('Rebuilding native modules for Electron...')
-run('pnpm exec electron-rebuild -f')
+run(`"${electronRebuildBin}" -f`)
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')
-run('pnpm run minify-locales')
+run('node scripts/minify-locales.mjs')
