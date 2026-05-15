@@ -26,22 +26,24 @@
     }
   ],
   "homepage": "https://github.com/marktext/marktext",
+  "packageManager": "pnpm@10.33.4",
   "engines": {
-    "node": ">=20.19.0"
+    "node": ">=20.19.0",
+    "pnpm": ">=10"
   },
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "minify-locales": "node scripts/minify-locales.mjs",
-    "rebuild-native": "npx @electron/rebuild -f",
+    "rebuild-native": "pnpm exec electron-rebuild -f",
     "start": "cross-env PERF_TESTING=true electron-vite preview",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "build:unpack": "npm run minify-locales && npm run build",
-    "build:win": "npm run minify-locales && npx @electron/rebuild && npm run build && electron-builder --win --publish never",
-    "build:mac": "npm run minify-locales && npx @electron/rebuild && npm run build && electron-builder --mac --publish never",
-    "build:linux": "npm run minify-locales && npx @electron/rebuild && npm run build && electron-builder --linux --publish never",
+    "build:unpack": "pnpm run minify-locales && pnpm run build",
+    "build:win": "pnpm run minify-locales && pnpm exec electron-rebuild && pnpm run build && electron-builder --win --publish never",
+    "build:mac": "pnpm run minify-locales && pnpm exec electron-rebuild && pnpm run build && electron-builder --mac --publish never",
+    "build:linux": "pnpm run minify-locales && pnpm exec electron-rebuild && pnpm run build && electron-builder --linux --publish never",
     "perf:inspect": "cross-env PERF_TESTING=true electron-vite preview -- --inspect=5858",
     "perf:inspect-brk": "cross-env PERF_TESTING=true electron-vite preview -- --inspect-brk=5858",
     "test": "vitest run",

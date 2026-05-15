@@ -41,31 +41,37 @@ jobs:
           git fetch origin +refs/pull/${{ inputs.pr }}/head:refs/remotes/origin/pr/${{ inputs.pr }}
           git checkout -qf refs/remotes/origin/pr/${{ inputs.pr }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.21.1
+          cache: 'pnpm'
 
       - name: Install Linux Build Dependencies
         if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: npm run build:linux
+        run: pnpm run build:linux
 
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: npm run build:mac -- --${{ matrix.arch }}
+        run: pnpm run build:mac -- --${{ matrix.arch }}
 
       - name: build-win
         if: matrix.platform == 'windows'
-        run: npm run build:win
+        run: pnpm run build:win
 
       # Adjust the path to your build outputs per OS
       - name: Upload artifact

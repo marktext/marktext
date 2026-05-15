@@ -32,18 +32,15 @@ sudo dnf install -y xorg-x11-server-devel libxkbfile-devel
 
 ## Common Issues & Solutions
 
-### Issue: npm install fails with native-keymap error
+### Issue: pnpm install fails with native-keymap error
 
 **Error message:**
 
 ```bash
-npm error code 1
-npm error path ~/marktext/node_modules/native-keymap
-npm error command failed
-npm error command sh -c node-gyp rebuild
-npm error gyp info it worked if it ends with ok
-npm error gyp info using node-gyp@11.2.0
-npm error gyp info using node@22.18.0 | linux | x64
+ ERR_PNPM_OPTIONAL_DEPS_REQUIRER  optional dep native-keymap failed
+ ...
+ node-gyp ERR! build error
+ node-gyp ERR! gyp ERR! rebuild
 ```
 
 **Solution:**
@@ -56,7 +53,7 @@ sudo apt install xorg-dev
 Then retry:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Issue: Electron fails to start with libglib error
@@ -81,15 +78,12 @@ If the issue persists, you may need the full X11 environment:
 sudo apt install xorg
 ```
 
-### Issue: Permission errors during npm install
+### Issue: Permission errors during pnpm install
 
 **Solution:**
-Make sure you're not running `npm` commands with `sudo`. If you have permission issues:
+Make sure you're not running `pnpm` commands with `sudo`. pnpm stores packages in a global content-addressable store (default: `~/.local/share/pnpm/store`). If you encounter permission errors, ensure the store directory is owned by your user:
 
 ```bash
-# Fix npm permissions (if needed)
-mkdir ~/.npm-global
-npm config set prefix '~/.npm-global'
-echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-source ~/.bashrc
+# Check and fix store ownership if needed
+sudo chown -R $(whoami) ~/.local/share/pnpm
 ```

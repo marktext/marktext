@@ -36,19 +36,24 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 24.14.1
+          cache: 'pnpm'
 
       - name: Install Linux Build Dependencies
         if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
         # --ignore-scripts first to prevent postinstall scripts from running (we will run electron-rebuild manually later)
-        # --no-audit and --no-fund to reduce noise
       - name: Install Dependencies
-        run: npm ci --no-audit --no-fund --ignore-scripts --loglevel verbose
+        run: pnpm install --frozen-lockfile --ignore-scripts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -60,20 +65,20 @@ jobs:
 
       - name: Rebuild native modules for Electron (MacOS + Windows)
         if: matrix.platform != 'linux'
-        run: npx @electron/rebuild -f
+        run: pnpm exec electron-rebuild -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Enforce using gcc/g++ on Linux for electron-rebuild instead of clang (.npmrc covers some settings too)
       - name: Rebuild native modules for Electron (Ubuntu)
         if: matrix.platform == 'linux'
-        run: USE_ELECTRON_CLANG=0 npx @electron/rebuild -f
+        run: USE_ELECTRON_CLANG=0 pnpm exec electron-rebuild -f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-linux
         if: matrix.platform == 'linux'
-        run: npm run build:linux
+        run: pnpm run build:linux
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -81,13 +86,13 @@ jobs:
       # All builds by default will give a "this app is damaged and can't be opened" error
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: npm run build:mac -- --${{ matrix.arch }}
+        run: pnpm run build:mac -- --${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-win
         if: matrix.platform == 'windows'
-        run: npm run build:win
+        run: pnpm run build:win
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

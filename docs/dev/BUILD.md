@@ -24,8 +24,8 @@ apt update
 apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
 
 cd /mnt
-npm install
-npm run build
+pnpm install
+pnpm run build
 
 exit
 # container should now be terminated
@@ -39,7 +39,7 @@ Below are the complete build instructions, which may help you troubleshoot the a
 
 Before you can get started developing, you need set up your build environment:
 
-- Node.js `>=20.19.0` and npm
+- Node.js `>=20.19.0` and pnpm `>=10`
 - Python `>=v3.6` for node-gyp
 - C++ compiler and development tools
 - Build is supported on Linux, macOS and Windows
@@ -66,8 +66,8 @@ On Arch Linux: `sudo pacman -S libx11 libxkbfile libsecret fontconfig`
 ### Let's build
 
 1. Go to `marktext` folder
-2. Install dependencies: `npm install`
-3. Build MarkText binaries and packages: `npm run build`
+2. Install dependencies: `pnpm install`
+3. Build MarkText binaries and packages: `pnpm run build`
 4. MarkText binary is located under `dist` folder (electron-builder output)
 
 Copy the build app to applications folder, or if on Windows run the executable installer.
@@ -75,7 +75,7 @@ Copy the build app to applications folder, or if on Windows run the executable i
 ### Important scripts
 
 ```
-$ npm run <script>
+$ pnpm run <script>
 ```
 
 | Script  | Description                                      |
@@ -89,7 +89,7 @@ For more scripts please see `package.json`.
 
 >[!TIP]
 >To improve efficiency during development:
-> 1. Use `npm run dev` for development mode. This will automatically reload the window when source code is modified.
+> 1. Use `pnpm run dev` for development mode. This will automatically reload the window when source code is modified.
 > 2. Use `Ctrl+R` to manually reload the application in development mode if needed.
 > 
 > This approach bypasses unnecessary rebuilds and optimizes the developer workflow. However, for CI or release builds, a full rebuild may still be necessary.
