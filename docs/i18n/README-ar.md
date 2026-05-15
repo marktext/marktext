@@ -108,7 +108,8 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 
 **الراعي المميز**
 
-<a dir="rtl" href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.</a>
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.](https://serpapi.com/?utm_source=marktext) |
+| ------------- |:-------------|
 
 ## لقطة شاشة
 

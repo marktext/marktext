@@ -109,7 +109,8 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 
 **Özel Destekçi**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.</a>
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.](https://serpapi.com/?utm_source=marktext) |
+| ------------- |:-------------|
 
 ## Ekran Görüntüsü
 

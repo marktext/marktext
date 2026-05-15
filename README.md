@@ -104,7 +104,8 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 **Special Sponsor**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="./docs/assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext) |
+| ------------- |:-------------|
 
 ## Screenshot
 

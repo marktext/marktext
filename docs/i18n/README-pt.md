@@ -108,7 +108,8 @@ MarkText é um editor Markdown de código aberto impulsionado pelo apoio de sua 
 
 **Patrocinador Especial**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Extraia dados do Google e de outros mecanismos de busca com nossa API rápida, fácil e completa.</a>
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Extraia dados do Google e de outros mecanismos de busca com nossa API rápida, fácil e completa.](https://serpapi.com/?utm_source=marktext) |
+| ------------- |:-------------|
 
 ## Capturas de tela
 

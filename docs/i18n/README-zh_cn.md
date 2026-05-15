@@ -109,7 +109,8 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 
 **特别赞助商**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。</a>
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。](https://serpapi.com/?utm_source=marktext) |
+| ------------- |:-------------|
 
 ## 截图
 
