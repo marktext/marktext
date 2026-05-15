@@ -71,14 +71,19 @@ jobs:
         if: matrix.platform == 'windows'
         run: pnpm run build:win
 
-      # Adjust the path to your build outputs per OS
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: marktext-${{ matrix.name }}
-          # Replace with your actual dist paths or globs
           path: |
-            dist/**
+            dist/*.exe
+            dist/*.zip
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.snap
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
           if-no-files-found: error
 
   comment-on-pr:
