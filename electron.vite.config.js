@@ -18,7 +18,8 @@ export default defineConfig({
     // hence, we need to "exclude" (in order to NOT externalise) ESonly modules so that they can be converted to commonJS and can be required() afterwards correctly
     build: {
       externalizeDeps: {
-        exclude: ['electron-store']
+        exclude: ['electron-store'],
+        include: ['native-keymap']
       }
     },
     define: {

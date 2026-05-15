@@ -30,7 +30,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "postinstall": "node node_modules/electron/install.js && patch-package && npx @electron/rebuild -f && npm run minify-locales",
+    "postinstall": "node scripts/postinstall.js",
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "minify-locales": "node scripts/minify-locales.mjs",
@@ -89,7 +89,6 @@
     "lodash": "^4.18.1",
     "mermaid": "^11.15.0",
     "mitt": "^3.0.1",
-    "native-keymap": "^3.3.9",
     "pinia": "^3.0.4",
     "prismjs": "^1.30.0",
     "snabbdom": "^3.6.3",
@@ -102,6 +101,9 @@
     "vue-i18n": "^11.4.2",
     "vue-router": "^4.6.4",
     "webfontloader": "^1.6.28"
+  },
+  "optionalDependencies": {
+    "native-keymap": "^3.3.9"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.28.6",
