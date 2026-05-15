@@ -104,11 +104,15 @@
 
 <h2 dir="rtl" align="center">دعم MarkText</h2>
 
+<div dir="rtl">
+
 MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم مجتمعه. إذا كان MarkText يُحسّن سير عملك، يُرجى التفكير في [دعم المشروع](https://github.com/sponsors/marktext). شكراً لجميع الداعمين ❤️
 
 **الراعي المميز**
 
 <a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.</a>
+
+</div>
 
 ## لقطة شاشة
 
