@@ -82,7 +82,7 @@ jobs:
 
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: node scripts/minify-locales.mjs && electron-vite build && electron-builder --mac --${{ matrix.arch }} --publish never
+        run: node scripts/minify-locales.mjs && pnpm exec electron-vite build && pnpm exec electron-builder --mac --${{ matrix.arch }} --publish never
 
       - name: build-win
         if: matrix.platform == 'windows'
