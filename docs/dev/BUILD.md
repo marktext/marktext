@@ -24,6 +24,7 @@ apt update
 apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
 
 cd /mnt
+corepack enable
 pnpm install
 pnpm run build
 

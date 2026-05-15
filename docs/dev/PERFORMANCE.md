@@ -7,7 +7,7 @@
 ## 1. Testing `main` process
 
 ```
-npm run perf:inspect-brk
+pnpm run perf:inspect-brk
 ```
 
 - This launches a **production build** of Marktext that has a break-point **before** the first line of Javascript is ran
@@ -33,13 +33,13 @@ npm run perf:inspect-brk
 - If you do not need the breakpoint to test start-up performance, simply run:
 
 ```
-npm run perf:inspect
+pnpm run perf:inspect
 ```
 
 # 2. Testing `renderer`
 
 ```
-npm run start
+pnpm run start
 ```
 
 - This launches a production build of MarkText as well

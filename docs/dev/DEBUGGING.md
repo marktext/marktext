@@ -10,7 +10,7 @@ The most simplest way is to debug using the `Debug MarkText` configuration. You 
 
 ## Use Chrome Developer Tools
 
-You can use the built-in developer tools via `View -> Toggle Developer Tools` in debug mode or connect via `chrome://inspect` using port `5858` for the main process and `8315` for the renderer process when launched via `yarn run dev`.
+You can use the built-in developer tools via `View -> Toggle Developer Tools` in debug mode or connect via `chrome://inspect` using port `5858` for the main process and `8315` for the renderer process when launched via `pnpm run dev`.
 
 ### Debug built application
 
