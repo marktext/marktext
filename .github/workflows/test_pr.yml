@@ -54,30 +54,25 @@ jobs:
         if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
-      # --ignore-scripts prevents postinstall from running; we replicate its
-      # steps explicitly below so the environment is fully prepared first.
+      # --ignore-scripts so we can set env vars before postinstall runs electron-rebuild
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Apply patches
-        run: pnpm exec patch-package
-
-      # Electron requires C++20 for native modules after Electron 33
+      # Must be set before postinstall runs electron-rebuild
       - name: Set C++20 for MacOS
         if: matrix.platform == 'macos'
         run: |
           echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
 
-      - name: Rebuild native modules for Electron (MacOS + Windows)
-        if: matrix.platform != 'linux'
-        run: pnpm exec electron-rebuild -f
-
-      # Enforce using gcc/g++ on Linux for electron-rebuild instead of clang
-      - name: Rebuild native modules for Electron (Ubuntu)
-        if: matrix.platform == 'linux'
-        run: USE_ELECTRON_CLANG=0 pnpm exec electron-rebuild -f
+      # Run the full postinstall: Electron binary download, patch-package,
+      # electron-rebuild, and minify-locales.
+      - name: Run postinstall
+        run: node scripts/postinstall.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USE_ELECTRON_CLANG: '0'
 
       - name: build-linux
         if: matrix.platform == 'linux'
