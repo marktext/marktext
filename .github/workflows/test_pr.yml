@@ -146,11 +146,19 @@ jobs:
               core.setOutput('body', body);
             }
 
+      - name: Find existing artifact comment
+        id: find-comment
+        uses: peter-evans/find-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ inputs.pr }}
+          body-includes: 'Build artifacts for PR'
+
       - name: Post or update PR comment
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ inputs.pr }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
           body: ${{ steps.build.outputs.body }}
           edit-mode: replace
-          comment-tag: artifact-links

@@ -94,7 +94,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: false
-          preRelease: true
+          prerelease: true
           generate_release_notes: true
           name: 'Pre-release ${{ github.ref_name }}'
           body: |
