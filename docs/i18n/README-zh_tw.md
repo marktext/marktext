@@ -105,11 +105,11 @@
 
 <h2 align="center">支持 MarkText</h2>
 
-MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
+MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 MarkText 改善了您的工作流程，請考慮[贊助本專案](https://github.com/sponsors/marktext)。感謝所有贊助者 ❤️
 
-**Special Sponsor**
+**特別贊助商**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">透過我們快速、便捷且完整的 API 抓取 Google 及其他搜尋引擎的資料。</a>
 
 ## 截圖
 

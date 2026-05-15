@@ -104,11 +104,11 @@
 
 <h2 align="center">Soutenir MarkText</h2>
 
-MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
+MarkText est un éditeur Markdown open-source soutenu par sa communauté. Si MarkText améliore votre flux de travail, pensez à [soutenir le projet](https://github.com/sponsors/marktext). Merci à tous les sponsors ❤️
 
-**Special Sponsor**
+**Sponsor Spécial**
 
-<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Scrape Google and other search engines from our fast, easy, and complete API.</a>
+<a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150">Extrayez les résultats de Google et d'autres moteurs de recherche grâce à notre API rapide, facile et complète.</a>
 
 ## Captures d'écran
 
