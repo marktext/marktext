@@ -55,6 +55,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Apply patches to node_modules (skipped by --ignore-scripts above)
+      - name: Apply patches
+        run: pnpm exec patch-package
+
       # Electron seems to require C++20 support for native modules now after Electron 33
       - name: Set C++20 for MacOS
         if: matrix.platform == 'macos'

@@ -1,5 +1,5 @@
 diff --git a/node_modules/native-keymap/binding.gyp b/node_modules/native-keymap/binding.gyp
-index c8b244b..2c8eb2f 100644
+index c8b244b..0000000 100644
 --- a/node_modules/native-keymap/binding.gyp
 +++ b/node_modules/native-keymap/binding.gyp
 @@ -14,6 +14,7 @@
@@ -31,3 +31,19 @@ index c8b244b..2c8eb2f 100644
            'link_settings' : {
              'libraries' : [
                '-framework Cocoa'
+diff --git a/node_modules/native-keymap/src/keymapping.cc b/node_modules/native-keymap/src/keymapping.cc
+index 0000000..0000000 100644
+--- a/node_modules/native-keymap/src/keymapping.cc
++++ b/node_modules/native-keymap/src/keymapping.cc
+@@ -4,7 +4,11 @@
+  *--------------------------------------------------------------------------------------------*/
+
+ #define NODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT
++#ifdef _MSC_VER
++#include <intrin.h>
++#define __builtin_frame_address(x) (_AddressOfReturnAddress())
++#endif
+ #include <node.h>
+ #include <map>
+
+ #include "keymapping.h"
