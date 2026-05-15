@@ -39,9 +39,11 @@ if (!fs.existsSync(electronInstall)) {
   const os = require('os')
   const plat = process.env.ELECTRON_INSTALL_PLATFORM || process.env.npm_config_platform || os.platform()
   const platformBinary =
-    plat === 'win32' ? 'electron.exe' :
-    plat === 'darwin' || plat === 'mas' ? 'Electron.app/Contents/MacOS/Electron' :
-    'electron'
+    plat === 'win32'
+      ? 'electron.exe'
+      : plat === 'darwin' || plat === 'mas'
+        ? 'Electron.app/Contents/MacOS/Electron'
+        : 'electron'
 
   const pathTxt = path.join(root, 'node_modules', 'electron', 'path.txt')
   const distDir = path.join(root, 'node_modules', 'electron', 'dist')
@@ -92,8 +94,8 @@ if (!fs.existsSync(electronInstall)) {
 
       if (!zipPath) {
         throw new Error(
-          `Electron zip not in cache after download. ` +
-          `Try: ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install`
+          'Electron zip not in cache after download. ' +
+          'Try: ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ npm install'
         )
       }
 
