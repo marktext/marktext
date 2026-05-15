@@ -74,6 +74,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_user_agent: 'pnpm'
           USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
+          npm_config_arch: ${{ matrix.arch }}
 
       - name: build-linux
         if: matrix.platform == 'linux'

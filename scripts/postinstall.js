@@ -133,7 +133,9 @@ run(`"${patchPackageBin}"`)
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
 console.log('Rebuilding native modules for Electron...')
-run(`"${electronRebuildBin}" -f`)
+const targetArch = process.env.npm_config_arch
+const archFlag = targetArch ? ` --arch ${targetArch}` : ''
+run(`"${electronRebuildBin}" -f${archFlag}`)
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')

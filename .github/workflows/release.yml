@@ -63,12 +63,15 @@ jobs:
 
       # Run the full postinstall: Electron binary download, patch-package,
       # electron-rebuild, and minify-locales.
+      # npm_config_arch ensures electron-rebuild compiles native modules for the
+      # correct target architecture (critical for macOS arm64 cross-builds).
       - name: Run postinstall
         run: node scripts/postinstall.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_user_agent: 'pnpm'
           USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
+          npm_config_arch: ${{ matrix.arch }}
 
       - name: build-linux
         if: matrix.platform == 'linux'
