@@ -72,7 +72,8 @@ jobs:
         run: node scripts/postinstall.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USE_ELECTRON_CLANG: '0'
+          npm_config_user_agent: 'pnpm'
+          USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
 
       - name: build-linux
         if: matrix.platform == 'linux'
