@@ -1,4 +1,3 @@
-import fs from 'fs'
 import Slugger from 'muya/lib/parser/marked/slugger'
 import { escapeHTML, unescapeHTML } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
@@ -6,7 +5,7 @@ import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
 import { cloneObj } from '../util'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
 
-export const getCssForOptions = (options) => {
+export const getCssForOptions = async (options) => {
   const {
     type,
     pageMarginTop,
@@ -60,12 +59,12 @@ export const getCssForOptions = (options) => {
       output += liberTheme
     } else {
       // Read theme from disk
-      const { userDataPath } = global.marktext.paths
+      const { userDataPath } = window.marktext.paths
       const themePath = window.path.join(userDataPath, 'themes/export', theme)
       if (window.fileUtils.isFile(themePath)) {
         try {
-          const themeCSS = fs.readFileSync(themePath, 'utf8')
-          output += themeCSS
+          const themeCSS = await window.execAPI.readFileText(themePath, 'utf8')
+          if (themeCSS) output += themeCSS
         } catch (_) {
           // No-op
         }

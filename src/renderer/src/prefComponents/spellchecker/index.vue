@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import log from 'electron-log'
+import log from 'electron-log/renderer'
 import { usePreferencesStore } from '@/store/preferences'
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'

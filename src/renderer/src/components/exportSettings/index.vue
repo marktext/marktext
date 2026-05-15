@@ -289,8 +289,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import fs from 'fs'
-import fsPromises from 'fs/promises'
 import bus from '../../bus'
 import Bool from '@/prefComponents/common/bool'
 import CurSelect from '@/prefComponents/common/select'
@@ -466,17 +464,18 @@ const onSelectChange = (key, value) => {
   }
 }
 
-const loadThemesFromDisk = () => {
-  const { userDataPath } = global.marktext.paths
+const loadThemesFromDisk = async () => {
+  const { userDataPath } = window.marktext.paths
   const themeDir = window.path.join(userDataPath, 'themes/export')
 
   // Search for dictionaries on filesystem.
   if (window.fileUtils.isDirectory(themeDir)) {
-    fs.readdirSync(themeDir).forEach(async (filename) => {
+    const dirFiles = await window.execAPI.readDirSync(themeDir)
+    for (const filename of dirFiles) {
       const fullname = window.path.join(themeDir, filename)
       if (/.+\.css$/i.test(filename) && window.fileUtils.isFile(fullname)) {
         try {
-          const content = await fsPromises.readFile(fullname, 'utf8')
+          const content = await window.execAPI.readFileText(fullname, 'utf8')
 
           // Match comment with theme name in first line only.
           const match = content.match(/^(?:\/\*+[ \t]*([A-z0-9 -]+)[ \t]*(?:\*+\/|[\n\r])?)/)
@@ -496,7 +495,7 @@ const loadThemesFromDisk = () => {
           console.error('loadThemesFromDisk failed:', e)
         }
       }
-    })
+    }
   }
 }
 </script>

@@ -1,6 +1,5 @@
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
-import { enable as remoteEnable } from '@electron/remote/main'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
@@ -91,7 +90,6 @@ class EditorWindow extends BaseWindow {
 
     let win = (this.browserWindow = new BrowserWindow(winOptions))
 
-    remoteEnable(win.webContents)
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows
     this.bufferStoreInfo = {

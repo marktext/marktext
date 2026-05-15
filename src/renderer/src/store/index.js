@@ -5,8 +5,8 @@ const pinia = createPinia()
 // Main store for global states
 export const useMainStore = defineStore('main', {
   state: () => ({
-    platform: window.electron.process.platform, // platform of system `darwin` | `win32` | `linux`
-    appVersion: window.electron.process.env.MARKTEXT_VERSION_STRING, // MarkText version string
+    platform: window.nodeAPI.platform, // platform of system `darwin` | `win32` | `linux`
+    appVersion: window.nodeAPI.env.MARKTEXT_VERSION_STRING || '', // MarkText version string
     windowActive: true, // whether current window is active or focused
     init: false // whether MarkText is initialized
   }),

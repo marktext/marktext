@@ -1,38 +1,35 @@
-import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
-import {
-  SEPARATOR,
-  getNewFile,
-  getNewDirectory,
-  getCOPY,
-  getCUT,
-  getPASTE,
-  getRENAME,
-  getDELETE,
-  getShowInFolder
-} from './menuItems'
+import * as contextMenu from './actions'
+import { t } from '../../i18n'
 
-export const showContextMenu = (event, hasPathCache) => {
-  const menu = new RemoteMenu()
-  const win = getCurrentWindow()
-  // Dynamically fetch menu items to ensure correct translation
-  const contextItems = [
-    getNewFile(),
-    getNewDirectory(),
-    SEPARATOR,
-    getCOPY(),
-    getCUT(),
-    getPASTE(),
-    SEPARATOR,
-    getRENAME(),
-    getDELETE(),
-    SEPARATOR,
-    getShowInFolder()
+export const showContextMenu = async (event, hasPathCache) => {
+  const menuTemplate = [
+    { label: t('contextMenu.sideBar.newFile'), id: 'newFileMenuItem', type: 'normal' },
+    { label: t('contextMenu.sideBar.newDirectory'), id: 'newDirectoryMenuItem', type: 'normal' },
+    { type: 'separator', id: 'sep1' },
+    { label: t('contextMenu.sideBar.copy'), id: 'copyMenuItem', type: 'normal' },
+    { label: t('contextMenu.sideBar.cut'), id: 'cutMenuItem', type: 'normal' },
+    { label: t('contextMenu.sideBar.paste'), id: 'pasteMenuItem', type: 'normal', enabled: hasPathCache },
+    { type: 'separator', id: 'sep2' },
+    { label: t('contextMenu.sideBar.rename'), id: 'renameMenuItem', type: 'normal' },
+    { label: t('contextMenu.sideBar.moveToTrash'), id: 'deleteMenuItem', type: 'normal' },
+    { type: 'separator', id: 'sep3' },
+    { label: t('contextMenu.sideBar.showInFolder'), id: 'showInFolderMenuItem', type: 'normal' }
   ]
 
-  contextItems[5].enabled = hasPathCache // PASTE item
+  const clickedId = await window.contextMenuAPI.show(menuTemplate)
 
-  contextItems.forEach(item => {
-    menu.append(new RemoteMenuItem(item))
-  })
-  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+  const actions = {
+    newFileMenuItem: contextMenu.newFile,
+    newDirectoryMenuItem: contextMenu.newDirectory,
+    copyMenuItem: contextMenu.copy,
+    cutMenuItem: contextMenu.cut,
+    pasteMenuItem: contextMenu.paste,
+    renameMenuItem: contextMenu.rename,
+    deleteMenuItem: contextMenu.remove,
+    showInFolderMenuItem: contextMenu.showInFolder
+  }
+
+  if (clickedId && actions[clickedId]) {
+    actions[clickedId]()
+  }
 }

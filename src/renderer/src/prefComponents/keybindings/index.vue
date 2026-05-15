@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import log from 'electron-log'
+import log from 'electron-log/renderer'
 import { setKeyboardLayout } from '@hfelix/electron-localshortcut'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import Separator from '../common/separator'
@@ -148,7 +148,7 @@ onMounted(() => {
 
   // Show keyboard debugging tools which has been moved from CLI because we
   // need an active window on Windows.
-  showDebugTools.value = global.marktext.env.debug
+  showDebugTools.value = window.marktext.env.debug
 })
 
 onUnmounted(() => {

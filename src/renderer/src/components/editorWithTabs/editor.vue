@@ -87,7 +87,7 @@
 
 <script setup>
 import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import log from 'electron-log'
+import log from 'electron-log/renderer'
 import Muya from 'muya/lib'
 import TablePicker from 'muya/lib/ui/tablePicker'
 import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -854,7 +854,7 @@ const handleExport = async (options) => {
     throw new Error(`Invalid type to export: "${type}".`)
   }
 
-  const extraCss = getCssForOptions(options)
+  const extraCss = await getCssForOptions(options)
   const htmlToc = getHtmlToc(editor.value.getTOC(), options)
 
   switch (type) {
@@ -1085,7 +1085,7 @@ onMounted(() => {
   Muya.use(EmojiPicker)
   Muya.use(ImagePathPicker)
   Muya.use(ImageSelector, {
-    unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
+    unsplashAccessKey: window.nodeAPI.env.UNSPLASH_ACCESS_KEY,
     photoCreatorClick
   })
   Muya.use(Transformer)

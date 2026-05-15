@@ -140,7 +140,7 @@ export const useProjectStore = defineStore('project', {
         case 'change':
           break
         default:
-          if (process.env.NODE_ENV === 'development') {
+          if (window.nodeAPI.env.NODE_ENV === 'development') {
             console.log(`Unknown directory watch type: "${type}"`)
           }
           break

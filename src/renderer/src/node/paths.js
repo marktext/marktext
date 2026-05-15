@@ -18,9 +18,9 @@ class RendererPaths extends EnvPaths {
     super(userDataPath)
 
     // Allow to use a local ripgrep binary (e.g. an optimized version).
-    if (process.env.MARKTEXT_RIPGREP_PATH) {
+    if (window.nodeAPI.env.MARKTEXT_RIPGREP_PATH) {
       // NOTE: Binary must be a compatible version, otherwise the searcher may fail.
-      this._ripgrepBinaryPath = process.env.MARKTEXT_RIPGREP_PATH
+      this._ripgrepBinaryPath = window.nodeAPI.env.MARKTEXT_RIPGREP_PATH
     } else {
       this._ripgrepBinaryPath = rgDiskPath
     }

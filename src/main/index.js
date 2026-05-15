@@ -3,7 +3,7 @@ import path from 'path'
 import { app, dialog, crashReporter } from 'electron'
 import log from 'electron-log'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { initialize as remoteInitializeServer } from '@electron/remote/main'
+import { registerNodeServiceHandlers } from './ipc/nodeServices'
 
 import cli from './cli'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
@@ -74,8 +74,8 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
   }
 }
 
-// Enable remote module for windows
-remoteInitializeServer()
+// Register IPC handlers for renderer process isolation
+registerNodeServiceHandlers()
 
 // Windows-specific AppUserModelID
 electronApp.setAppUserModelId('com.electron.marktext')

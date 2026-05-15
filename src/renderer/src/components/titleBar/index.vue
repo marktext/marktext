@@ -135,7 +135,6 @@
 </template>
 
 <script setup>
-import { getCurrentWindow, Menu as RemoteMenu } from '@electron/remote'
 import { usePreferencesStore } from '@/store/preferences.js'
 import { useLayoutStore } from '@/store/layout.js'
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
@@ -185,8 +184,12 @@ const windowIconRestore = restorePath
 const windowIconMaximize = maximizePath
 const windowIconClose = closePath
 
-const isFullScreen = ref(getCurrentWindow().isFullScreen())
-const isMaximized = ref(getCurrentWindow().isMaximized())
+const isFullScreen = ref(false)
+const isMaximized = ref(false)
+
+// Initialize window state asynchronously
+window.windowControls.isFullScreen().then(v => { isFullScreen.value = v })
+window.windowControls.isMaximized().then(v => { isMaximized.value = v })
 const show = ref('word')
 
 const { titleBarStyle } = storeToRefs(preferencesStore)
@@ -228,18 +231,13 @@ const handleWordClick = () => {
 }
 
 const handleCloseClick = () => {
-  getCurrentWindow().close()
+  window.windowControls.close()
 }
 
 const handleMaximizeClick = () => {
-  const win = getCurrentWindow()
-  if (win.isFullScreen()) {
-    win.setFullScreen(false)
-  } else if (win.isMaximized()) {
-    win.unmaximize()
-  } else {
-    win.maximize()
-  }
+  window.windowControls.maximize()
+  window.windowControls.isMaximized().then(v => { isMaximized.value = v })
+  window.windowControls.isFullScreen().then(v => { isFullScreen.value = v })
 }
 
 const toggleMaxmizeOnMacOS = () => {
@@ -249,12 +247,11 @@ const toggleMaxmizeOnMacOS = () => {
 }
 
 const handleMinimizeClick = () => {
-  getCurrentWindow().minimize()
+  window.windowControls.minimize()
 }
 
 const handleMenuClick = () => {
-  const win = getCurrentWindow()
-  RemoteMenu.getApplicationMenu().popup({ window: win, x: 23, y: 20 })
+  window.contextMenuAPI.showAppMenu(23, 20)
 }
 
 const rename = () => {

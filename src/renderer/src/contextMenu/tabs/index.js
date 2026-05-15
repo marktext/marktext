@@ -1,39 +1,34 @@
-import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
-import {
-  SEPARATOR,
-  getCloseThis,
-  getCloseOthers,
-  getCloseSaved,
-  getCloseAll,
-  getRENAME,
-  getCopyPath,
-  getShowInFolder
-} from './menuItems'
+import * as contextMenu from './actions'
+import { t } from '../../i18n'
 
-export const showContextMenu = (event, tab) => {
-  const menu = new RemoteMenu()
-  const win = getCurrentWindow()
+export const showContextMenu = async (event, tab) => {
   const { pathname } = tab
-  // Dynamically fetch menu items to ensure correct translation
-  const closeThis = getCloseThis()
-  const closeOthers = getCloseOthers()
-  const closeSaved = getCloseSaved()
-  const closeAll = getCloseAll()
-  const rename = getRENAME()
-  const copyPath = getCopyPath()
-  const showInFolder = getShowInFolder()
+  const hasPathname = !!pathname
 
-  const CONTEXT_ITEMS = [closeThis, closeOthers, closeSaved, closeAll, SEPARATOR, rename, copyPath, showInFolder]
-  const FILE_CONTEXT_ITEMS = [rename, copyPath, showInFolder]
+  const menuTemplate = [
+    { label: t('contextMenu.tabs.close'), id: 'closeThisTab', type: 'normal' },
+    { label: t('contextMenu.tabs.closeOthers'), id: 'closeOtherTabs', type: 'normal' },
+    { label: t('contextMenu.tabs.closeSavedTabs'), id: 'closeSavedTabs', type: 'normal' },
+    { label: t('contextMenu.tabs.closeAllTabs'), id: 'closeAllTabs', type: 'normal' },
+    { type: 'separator', id: 'sep1' },
+    { label: t('contextMenu.tabs.rename'), id: 'renameFile', type: 'normal', enabled: hasPathname },
+    { label: t('contextMenu.tabs.copyPath'), id: 'copyPath', type: 'normal', enabled: hasPathname },
+    { label: t('contextMenu.tabs.showInFolder'), id: 'showInFolder', type: 'normal', enabled: hasPathname }
+  ]
 
-  FILE_CONTEXT_ITEMS.forEach(item => {
-    item.enabled = !!pathname
-  })
+  const clickedId = await window.contextMenuAPI.show(menuTemplate)
 
-  CONTEXT_ITEMS.forEach(item => {
-    const menuItem = new RemoteMenuItem(item)
-    menuItem._tabId = tab.id
-    menu.append(menuItem)
-  })
-  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+  const actions = {
+    closeThisTab: () => contextMenu.closeThis(tab.id),
+    closeOtherTabs: () => contextMenu.closeOthers(tab.id),
+    closeSavedTabs: () => contextMenu.closeSaved(),
+    closeAllTabs: () => contextMenu.closeAll(),
+    renameFile: () => contextMenu.rename(tab.id),
+    copyPath: () => contextMenu.copyPath(tab.id),
+    showInFolder: () => contextMenu.showInFolder(tab.id)
+  }
+
+  if (clickedId && actions[clickedId]) {
+    actions[clickedId]()
+  }
 }

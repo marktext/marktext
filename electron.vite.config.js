@@ -1,7 +1,6 @@
 import { resolve, dirname } from 'path'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
-import renderer from 'vite-plugin-electron-renderer'
 import svgLoader from 'vite-svg-loader'
 import postcssPresetEnv from 'postcss-preset-env'
 import packageJson from './package.json' with { type: 'json' }
@@ -57,7 +56,7 @@ export default defineConfig({
       },
       extensions: ['.mjs', '.js', '.json', '.vue']
     },
-    plugins: [vue(), svgLoader(), renderer()],
+    plugins: [vue(), svgLoader()],
     css: {
       postcss: {
         plugins: [
