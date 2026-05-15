@@ -30,6 +30,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
+    "postinstall": "node node_modules/electron/install.js && patch-package && npx @electron/rebuild -f && npm run minify-locales",
     "format": "prettier --write .",
     "lint": "eslint --cache .",
     "minify-locales": "node scripts/minify-locales.mjs",
@@ -110,7 +111,7 @@
     "@vitejs/plugin-vue": "^6.0.6",
     "@vitest/coverage-v8": "^4.1.6",
     "cross-env": "^10.1.0",
-    "electron": "^42.0.1",
+    "electron": "^42.1.0",
     "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
     "eslint": "^9.39.4",
@@ -123,6 +124,7 @@
     "eslint-plugin-vue": "^10.9.1",
     "jsdom": "^29.1.1",
     "neostandard": "^0.13.0",
+    "patch-package": "^8.0.1",
     "postcss-preset-env": "^11.2.1",
     "prettier": "^3.8.3",
     "vite": "^7.3.3",
