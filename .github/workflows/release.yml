@@ -83,7 +83,7 @@ jobs:
       # All builds by default will give a "this app is damaged and can't be opened" error
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: pnpm run build:mac -- --${{ matrix.arch }}
+        run: node scripts/minify-locales.mjs && electron-vite build && electron-builder --mac --${{ matrix.arch }} --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
