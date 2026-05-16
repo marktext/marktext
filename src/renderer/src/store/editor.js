@@ -212,6 +212,8 @@ export const useEditorStore = defineStore('editor', {
       // Backup few entries that we need to restore later.
       const oldId = tab.id
       const oldNotifications = tab.notifications
+      // Preserve scroll across external reload so the editor stays put.
+      const oldScrollTop = tab.scrollTop
       let oldHistory = null
       if (tab.history.index >= 0 && tab.history.stack.length >= 1) {
         // Allow to restore the old document.
@@ -229,6 +231,7 @@ export const useEditorStore = defineStore('editor', {
       Object.assign(tab, newFileState)
       tab.id = oldId
       tab.notifications = oldNotifications
+      tab.scrollTop = oldScrollTop
       if (oldHistory) {
         tab.history = oldHistory
       }

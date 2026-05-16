@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
@@ -105,7 +105,40 @@ const prepareTabSwitch = () => {
 const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor }) => {
   if (!editor.value) return
 
-  prepareTabSwitch()
+  // On same-tab reload (external file change), preserve scroll across
+  // setValue. Snapshot every plausible scroll element (the outer
+  // .source-code div, CodeMirror's own scroller, and the nearest scrollable
+  // ancestor) and restore each, since which one is actually active depends
+  // on CodeMirror's height:auto + outer overflow:auto interplay. Re-apply
+  // on nextTick and the next animation frame to outlast layout side-effects
+  // from sibling handlers: muya editor.vue also listens for file-changed.
+  // A cross-tab switch must instead commit the outgoing tab's state; the
+  // fresh markdown from disk would otherwise overwrite uncommitted edits.
+  const isSameTabReload = tabId.value && tabId.value === id
+  const scrollTargets = []
+  if (isSameTabReload) {
+    const seen = new Set()
+    const consider = (el) => {
+      if (el && !seen.has(el)) {
+        seen.add(el)
+        scrollTargets.push({ el, top: el.scrollTop })
+      }
+    }
+    consider(sourceCodeContainer.value)
+    consider(editor.value.getScrollerElement?.())
+    let node = sourceCodeContainer.value?.parentElement
+    while (node && node !== document.body) {
+      const overflowY = window.getComputedStyle(node).overflowY
+      if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+        consider(node)
+        break
+      }
+      node = node.parentElement
+    }
+  } else {
+    prepareTabSwitch()
+    tabId.value = id
+  }
 
   if (typeof newMarkdown === 'string') {
     editor.value.setValue(newMarkdown)
@@ -116,6 +149,13 @@ const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor }) => {
     const { anchor, focus } = muyaIndexCursor
 
     editor.value.setSelection(anchor, focus, { scroll: true }) // Scroll the focus into view.
+  } else if (scrollTargets.length) {
+    const restoreScroll = () => {
+      for (const { el, top } of scrollTargets) el.scrollTop = top
+    }
+    restoreScroll()
+    nextTick(restoreScroll)
+    requestAnimationFrame(restoreScroll)
   } else {
     setCursorAtFirstLine(editor.value)
   }
