@@ -88,7 +88,6 @@
 <script setup>
 import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import log from 'electron-log'
-// import ViewImage from 'view-image'
 import Muya from 'muya/lib'
 import TablePicker from 'muya/lib/ui/tablePicker'
 import QuickInsert from 'muya/lib/ui/quickInsert'
@@ -123,7 +122,6 @@ import { useI18n } from 'vue-i18n'
 
 import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
-// import 'view-image/lib/imgViewer.css'
 import CloseIcon from '@/assets/icons/close.svg'
 
 const { t } = useI18n()
@@ -217,7 +215,74 @@ const rowInput = ref(null)
 let printer = null
 let spellchecker = null
 let switchLanguageCommand = null
-const imageViewer = null
+let imageViewer = null
+
+class SimpleImageViewer {
+  constructor(container, { url }) {
+    this.container = container
+    this.scale = 1
+    this.translateX = 0
+    this.translateY = 0
+    this.isDragging = false
+    this.startX = 0
+    this.startY = 0
+    this._init(url)
+  }
+
+  _init(url) {
+    this.container.innerHTML = ''
+    this.img = document.createElement('img')
+    this.img.src = url
+    this.img.style.cssText =
+      'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;'
+    this.img.draggable = false
+    this.container.appendChild(this.img)
+    this._bindEvents()
+  }
+
+  _updateTransform() {
+    this.img.style.transform = `translate(${this.translateX}px,${this.translateY}px) scale(${this.scale})`
+  }
+
+  _bindEvents() {
+    this._onWheel = (e) => {
+      e.preventDefault()
+      const factor = e.deltaY < 0 ? 1.1 : 0.9
+      this.scale = Math.max(0.1, Math.min(10, this.scale * factor))
+      this._updateTransform()
+    }
+    this._onMousedown = (e) => {
+      if (e.button !== 0) return
+      this.isDragging = true
+      this.startX = e.clientX - this.translateX
+      this.startY = e.clientY - this.translateY
+      this.container.style.cursor = 'grabbing'
+      e.preventDefault()
+    }
+    this._onMousemove = (e) => {
+      if (!this.isDragging) return
+      this.translateX = e.clientX - this.startX
+      this.translateY = e.clientY - this.startY
+      this._updateTransform()
+    }
+    this._onMouseup = () => {
+      this.isDragging = false
+      this.container.style.cursor = 'grab'
+    }
+    this.container.addEventListener('wheel', this._onWheel, { passive: false })
+    this.container.addEventListener('mousedown', this._onMousedown)
+    document.addEventListener('mousemove', this._onMousemove)
+    document.addEventListener('mouseup', this._onMouseup)
+  }
+
+  destroy() {
+    this.container.removeEventListener('wheel', this._onWheel)
+    this.container.removeEventListener('mousedown', this._onMousedown)
+    document.removeEventListener('mousemove', this._onMousemove)
+    document.removeEventListener('mouseup', this._onMouseup)
+    this.container.innerHTML = ''
+  }
+}
 
 // Watchers
 watch(typewriter, (value) => {
@@ -611,6 +676,10 @@ const keyup = (event) => {
 
 const setImageViewerVisible = (status) => {
   imageViewerVisible.value = status
+  if (!status && imageViewer) {
+    imageViewer.destroy()
+    imageViewer = null
+  }
 }
 
 const switchSpellcheckLanguage = (languageCode) => {
@@ -1149,30 +1218,18 @@ onMounted(() => {
       if (imageViewer) {
         imageViewer.destroy()
       }
-
-      // Disabled due to #2120.
-      // imageViewer = new ViewImage(imageViewerRef.value, {
-      //   url: data,
-      //   snapView: true
-      // })
-
+      imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
       setImageViewerVisible(true)
     }
   })
 
-  // Disabled due to #2120.
-  // editor.value.on('preview-image', ({ data }) => {
-  //   if (imageViewer) {
-  //     imageViewer.destroy()
-  //   }
-  //
-  //   imageViewer = new ViewImage(imageViewerRef.value, {
-  //     url: data,
-  //     snapView: true
-  //   })
-  //
-  //   setImageViewerVisible(true)
-  // })
+  editor.value.on('preview-image', ({ data }) => {
+    if (imageViewer) {
+      imageViewer.destroy()
+    }
+    imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
+    setImageViewerVisible(true)
+  })
 
   editor.value.on('selectionChange', (changes) => {
     const { y } = changes.cursorCoords
@@ -1317,16 +1374,13 @@ onBeforeUnmount(() => {
   }
 }
 
-.iv-container {
+.image-viewer > div {
   width: 100%;
   height: 100%;
-}
-
-.iv-snap-view {
-  opacity: 1;
-  bottom: 20px;
-  right: 20px;
-  top: auto;
-  left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  overflow: hidden;
 }
 </style>
