@@ -6,7 +6,7 @@
 
 - Python (`>= 3.12`)
 
-- Node.JS (`>=20.19.0`) — CI uses Node 22.21.1; any version meeting the minimum should work
+- Node.js (`>=20.19.0`) — the PR build CI uses Node 22.21.1, the release CI uses Node 24.14.1; any version meeting the minimum should work
   - Using versions significantly newer than the Electron-bundled Node may cause issues compiling native add-ons
 
 - A lot of patience

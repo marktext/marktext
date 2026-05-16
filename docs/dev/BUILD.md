@@ -16,12 +16,14 @@ Here are the steps for doing so:
 # cd to marktext repository
 
 # run container (you can use docker instead of podman if you like)
-podman run -it -v ./:/mnt:Z node:20-bookworm /bin/bash
+podman run -it -v ./:/mnt:Z node:22-bookworm /bin/bash
 # you should now be interacting with the container
 
-# install dependency xkbfile
+# add bookworm-backports for Python 3.12 and install build dependencies
+echo "deb http://deb.debian.org/debian bookworm-backports main" >> /etc/apt/sources.list
 apt update
-apt-get install libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
+apt-get install -y -t bookworm-backports python3.12
+apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev libfontconfig-dev rpm
 
 cd /mnt
 corepack enable
