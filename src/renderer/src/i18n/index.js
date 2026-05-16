@@ -54,7 +54,7 @@ export const t = (key, ...args) => {
 // Export language setter function
 export const setLanguage = (locale) => {
   if (!locale) return
-  if (!i18n.global.availableLocales.includes[locale]) {
+  if (!i18n.global.availableLocales.includes(locale)) {
     // Locale not yet available, need to get it from the main process
     const translation = window.i18nUtils.loadTranslations(locale)
     if (!translation) return // Failed to load locale file, error msg should be in the loadTranslations function
