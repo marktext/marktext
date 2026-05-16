@@ -1306,6 +1306,11 @@ onBeforeUnmount(() => {
 
   resizeObserverForEditor.disconnect()
 
+  if (imageViewer) {
+    imageViewer.destroy()
+    imageViewer = null
+  }
+
   if (editor.value) {
     editor.value.destroy()
     editor.value = null
