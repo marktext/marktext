@@ -319,7 +319,7 @@ class ExportMarkdown {
     let j
 
     for (i = 0; i < tableData.length; i++) {
-      for (j = 0; j < tableData[i].length; j++) {
+      for (j = 0; j < Math.min(tableData[i].length, columnWidth.length); j++) {
         columnWidth[j].width = Math.max(columnWidth[j].width, tableData[i][j].length + 2) // add 2, because have two space around text
       }
     }
@@ -328,6 +328,7 @@ class ExportMarkdown {
         indent +
         '|' +
         r
+          .slice(0, columnWidth.length)
           .map((cell, j) => {
             const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`
             return raw.substring(0, columnWidth[j].width)
