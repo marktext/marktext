@@ -22,7 +22,7 @@
 }
 
 html {
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: auto;
 }
 
 pre {
