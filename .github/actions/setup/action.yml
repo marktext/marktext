@@ -1,0 +1,20 @@
+name: Setup pnpm and Node.js
+description: Install pnpm, Node.js, and project dependencies (skips postinstall scripts)
+
+runs:
+  using: composite
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.21.1'
+        cache: 'pnpm'
+
+    - name: Install Dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile --ignore-scripts
+      env:
+        GITHUB_TOKEN: ${{ github.token }}

@@ -37,24 +37,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.21.1
-          cache: 'pnpm'
-
       - name: Install Linux Build Dependencies
         if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
-      # --ignore-scripts so we can set env vars before postinstall runs electron-rebuild
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ./.github/actions/setup
 
       # Must be set before postinstall runs electron-rebuild
       - name: Set C++20 for MacOS

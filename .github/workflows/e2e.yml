@@ -10,18 +10,9 @@ concurrency:
 
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.21.1
-          cache: 'pnpm'
 
       - name: Install System Dependencies
         run: |
@@ -31,11 +22,7 @@ jobs:
             xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
             libdrm2 libgtk-3-0 libgbm1 libasound2t64
 
-      # --ignore-scripts so we can set env vars before postinstall runs electron-rebuild
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ./.github/actions/setup
 
       # Run the full postinstall: Electron binary download, patch-package,
       # electron-rebuild, and minify-locales.
@@ -48,9 +35,6 @@ jobs:
 
       - name: Build app
         run: pnpm build
-
-      - name: Install Playwright dependencies
-        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E Tests
         run: xvfb-run --auto-servernum pnpm test:e2e
