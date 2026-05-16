@@ -13,7 +13,7 @@ on:
 jobs:
   claude:
     if: |
-      github.event.comment.author_association == 'OWNER' &&
+      github.actor == 'Jocs' &&
       (
         (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
         (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
