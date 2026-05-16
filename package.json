@@ -48,7 +48,9 @@
     "perf:inspect-brk": "cross-env PERF_TESTING=true electron-vite preview -- --inspect-brk=5858",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
-    "test:e2e": "playwright test test/e2e"
+    "test:e2e": "playwright test test/e2e",
+    "gen-third-party": "node scripts/generateThirdPartyLicense.js",
+    "validate-licenses": "node scripts/validateLicenses.js"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -137,6 +139,7 @@
     "vite-svg-loader": "^5.1.1",
     "vitest": "^4.1.6",
     "vue": "^3.5.34",
-    "vue-eslint-parser": "^10.4.0"
+    "vue-eslint-parser": "^10.4.0",
+    "license-checker": "^25.0.1"
   }
 }
