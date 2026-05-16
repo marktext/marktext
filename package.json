@@ -101,7 +101,7 @@
     "underscore": "^1.13.8",
     "vega-embed": "^7.1.0",
     "vue-i18n": "^11.4.2",
-    "vue-router": "^5.0.7",
+    "vue-router": "^4.6.4",
     "webfontloader": "^1.6.28"
   },
   "optionalDependencies": {
