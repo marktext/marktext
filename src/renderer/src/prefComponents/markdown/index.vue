@@ -63,6 +63,11 @@
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.inlineMath')"
+          :bool="inlineMath"
+          :on-change="(value) => onSelectChange('inlineMath', value)"
+        />
       </template>
     </compound>
 
@@ -151,6 +156,7 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  inlineMath,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
   sequenceTheme

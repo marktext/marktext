@@ -261,6 +261,11 @@
     "type": "boolean",
     "default": false
   },
+  "inlineMath": {
+    "description": "Markdown-Enable inline math ($...$) parsing.",
+    "type": "boolean",
+    "default": true
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

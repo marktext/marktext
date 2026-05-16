@@ -50,7 +50,7 @@ function InlineLexer(links, footnotes, options) {
 InlineLexer.prototype.output = function(src) {
   // src = src
   // .replace(/\u00a0/g, ' ')
-  const { disableInline, emoji, math, superSubScript, footnote } = this.options
+  const { disableInline, emoji, math, inlineMath, superSubScript, footnote } = this.options
   if (disableInline) {
     return escape(src)
   }
@@ -193,7 +193,7 @@ InlineLexer.prototype.output = function(src) {
     }
 
     // math
-    if (math) {
+    if (math && inlineMath !== false) {
       cap = this.rules.math.exec(src)
       if (cap) {
         src = src.substring(cap[0].length)

@@ -28,6 +28,7 @@ export default {
   // User need to enable them in the user setting.
   emoji: true,
   math: true,
+  inlineMath: true,
   frontMatter: true,
   superSubScript: false,
   footnote: false,
