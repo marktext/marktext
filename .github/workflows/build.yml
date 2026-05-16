@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   run-on-pr-head:
     permissions:
@@ -98,6 +102,7 @@ jobs:
   comment-on-pr:
     name: Comment artifact links on PR
     needs: run-on-pr-head
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
