@@ -89,7 +89,6 @@
     "joplin-turndown-plugin-gfm": "^1.0.12",
     "katex": "^0.16.45",
     "keytar": "^7.9.0",
-    "languine": "^3.1.4",
     "lodash": "^4.18.1",
     "mermaid": "^11.15.0",
     "mitt": "^3.0.1",
