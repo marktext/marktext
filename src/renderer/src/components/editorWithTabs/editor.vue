@@ -218,7 +218,7 @@ let switchLanguageCommand = null
 let imageViewer = null
 
 class SimpleImageViewer {
-  constructor(container, { url }) {
+  constructor (container, { url }) {
     this.container = container
     this.scale = 1
     this.translateX = 0
@@ -229,7 +229,7 @@ class SimpleImageViewer {
     this._init(url)
   }
 
-  _init(url) {
+  _init (url) {
     this.container.innerHTML = ''
     this.img = document.createElement('img')
     this.img.src = url
@@ -240,11 +240,11 @@ class SimpleImageViewer {
     this._bindEvents()
   }
 
-  _updateTransform() {
+  _updateTransform () {
     this.img.style.transform = `translate(${this.translateX}px,${this.translateY}px) scale(${this.scale})`
   }
 
-  _bindEvents() {
+  _bindEvents () {
     this._onWheel = (e) => {
       e.preventDefault()
       const factor = e.deltaY < 0 ? 1.1 : 0.9
@@ -275,7 +275,7 @@ class SimpleImageViewer {
     document.addEventListener('mouseup', this._onMouseup)
   }
 
-  destroy() {
+  destroy () {
     this.container.removeEventListener('wheel', this._onWheel)
     this.container.removeEventListener('mousedown', this._onMousedown)
     document.removeEventListener('mousemove', this._onMousemove)
