@@ -17,10 +17,6 @@ thirdPartyChecker.getLicenses(rootDir, (err, packages) => {
   const addedKeys = {}
 
   Object.keys(packages).forEach((key) => {
-    if (/^marktext/.test(key)) {
-      return
-    }
-
     let packageName = key
     const nameRegex = /(^.+)(?:@)/.exec(key)
     if (nameRegex && nameRegex[1]) {

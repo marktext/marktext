@@ -139,7 +139,7 @@
     "vite-svg-loader": "^5.1.1",
     "vitest": "^4.1.6",
     "vue": "^3.5.34",
-    "vue-eslint-parser": "^10.4.0",
-    "license-checker": "^25.0.1"
+    "license-checker": "^25.0.1",
+    "vue-eslint-parser": "^10.4.0"
   }
 }
