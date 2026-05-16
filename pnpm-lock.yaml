@@ -125,6 +125,9 @@ importers:
       mitt:
         specifier: ^3.0.1
         version: 3.0.1
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       pinia:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))
