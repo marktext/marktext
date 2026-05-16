@@ -72,7 +72,6 @@
           <div
             v-if="wordCount"
             class="word-count"
-            :class="[{ 'title-no-drag': platform !== 'darwin' }]"
             @click.stop="handleWordClick"
           >
             <span class="text-center-vertical">{{ `${HASH[show].short} ${wordCount[show]}` }}</span>
@@ -397,6 +396,7 @@ div.title > span {
 }
 
 .word-count {
+  -webkit-app-region: no-drag;
   cursor: pointer;
   font-size: 14px;
   color: var(--editorColor30);
