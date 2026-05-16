@@ -6,7 +6,7 @@ The most simplest way is to debug using the `Debug MarkText` configuration. You 
 
 **Prerequisites:**
 
-- [Debugger for Chrome](https://marketplace.visualstudio.com/itemdetails?itemName=msjsdiag.debugger-for-chrome)
+- VS Code's built-in JavaScript debugger (no extension needed — available since VS Code 1.47)
 
 ## Use Chrome Developer Tools
 

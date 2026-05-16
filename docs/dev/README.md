@@ -6,8 +6,8 @@
 
 - Python (`>= 3.12`)
 
-- Node.JS (`24.14.1`) [Same version as the current Electron release]
-  - Using other versions _may_ work, but you might run into errors while compiling native add-ons
+- Node.JS (`>=20.19.0`) — CI uses Node 22.21.1; any version meeting the minimum should work
+  - Using versions significantly newer than the Electron-bundled Node may cause issues compiling native add-ons
 
 - A lot of patience
 
@@ -74,4 +74,3 @@ $ pnpm run build:linux
 - [Interface](INTERFACE.md)
 - [Steps to release MarkText](RELEASE.md)
 - [Prepare a hotfix](RELEASE_HOTFIX.md)
-- [Internal documentation](code/README.md)
