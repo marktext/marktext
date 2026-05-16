@@ -1,11 +1,8 @@
-name: Manual PR Build
+name: PR Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr:
-        description: 'PR number to test'
-        required: true
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   run-on-pr-head:
@@ -35,11 +32,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Fetch PR head
-        run: |
-          git fetch origin +refs/pull/${{ inputs.pr }}/head:refs/remotes/origin/pr/${{ inputs.pr }}
-          git checkout -qf refs/remotes/origin/pr/${{ inputs.pr }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -91,6 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: marktext-${{ matrix.name }}
+          retention-days: 30
           path: |
             dist/*.exe
             dist/*.zip
@@ -117,6 +110,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const run_id = context.runId;
+            const pr_number = context.payload.pull_request.number;
             const { data } = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -134,7 +128,7 @@ jobs:
               }).join('\n');
 
               const body = [
-                `Build artifacts for PR #${{ inputs.pr }}:`,
+                `Build artifacts for PR #${pr_number}:`,
                 '',
                 `Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${run_id}`,
                 '',
@@ -151,14 +145,14 @@ jobs:
         uses: peter-evans/find-comment@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ inputs.pr }}
+          issue-number: ${{ github.event.pull_request.number }}
           body-includes: 'Build artifacts for PR'
 
       - name: Post or update PR comment
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ inputs.pr }}
+          issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           body: ${{ steps.build.outputs.body }}
           edit-mode: replace
