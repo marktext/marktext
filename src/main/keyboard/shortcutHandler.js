@@ -195,21 +195,25 @@ class Keybindings {
 
     // Check for duplicate shortcuts
     for (const [userKey, userValue] of userAccelerators) {
-      for (const [key, value] of accelerators) {
-        // This is a workaround to unset key bindings that the user used in `keybindings.json` before
-        // proper settings. Keep this for now, but add the ID to the users key binding that we show the
-        // right bindings in settings.
-        if (isEqualAccelerator(value, userValue)) {
-          // Unset default key
-          accelerators.set(key, '')
+      // Only search for conflicts when the user actually bound a key. Empty means "unbound"
+      // and would incorrectly match any other default-empty entry via isEqualAccelerator.
+      if (userValue) {
+        for (const [key, value] of accelerators) {
+          // This is a workaround to unset key bindings that the user used in `keybindings.json` before
+          // proper settings. Keep this for now, but add the ID to the users key binding that we show the
+          // right bindings in settings.
+          if (isEqualAccelerator(value, userValue)) {
+            // Unset default key
+            accelerators.set(key, '')
 
-          // This entry is actually unset because the user used the accelerator.
-          if (userAccelerators.get(key) == null) {
-            userAccelerators.set(key, '')
+            // This entry is actually unset because the user used the accelerator.
+            if (userAccelerators.get(key) == null) {
+              userAccelerators.set(key, '')
+            }
+
+            // A accelerator should only exist once in the default map.
+            break
           }
-
-          // A accelerator should only exist once in the default map.
-          break
         }
       }
       accelerators.set(userKey, userValue)
