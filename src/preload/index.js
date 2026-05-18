@@ -10,7 +10,6 @@ import {
   isSamePathSync,
   isImageFile
 } from 'common/filesystem/paths'
-import { rgPath } from '@vscode/ripgrep'
 import path from 'path'
 import os from 'os'
 import commandExists from 'command-exists'
@@ -111,6 +110,7 @@ const windowControls = {
   maximize: () => ipcRenderer.send('mt::window-maximize'),
   close: () => ipcRenderer.send('mt::window-close'),
   toggleFullScreen: () => ipcRenderer.send('mt::window-toggle-fullscreen'),
+  setFullScreen: (flag) => ipcRenderer.send('mt::window-set-fullscreen', flag),
   isFullScreen: () => ipcRenderer.invoke('mt::window-is-fullscreen'),
   isMaximized: () => ipcRenderer.invoke('mt::window-is-maximized')
 }
@@ -135,6 +135,7 @@ const execAPI = {
   isFileExecutable: (filepath) => ipcRenderer.invoke('mt::is-file-executable', filepath),
   ripgrepSearch: (opts) => ipcRenderer.invoke('mt::ripgrep-search', opts),
   ripgrepFileSearch: (opts) => ipcRenderer.invoke('mt::ripgrep-file-search', opts),
+  cancelRipgrep: (searchId) => ipcRenderer.send('mt::ripgrep-cancel', searchId),
   onRipgrepData: (callback) => ipcRenderer.on('mt::ripgrep-search-data', (event, data) => callback(data)),
   onRipgrepDone: (callback) => ipcRenderer.on('mt::ripgrep-search-done', (event, data) => callback(data)),
   removeRipgrepListeners: () => {
@@ -152,7 +153,6 @@ if (process.contextIsolated) {
       ...electronAPI,
       ...customElectronAPI
     })
-    contextBridge.exposeInMainWorld('rgPath', rgPath)
     contextBridge.exposeInMainWorld('fileUtils', fileUtilsAPI)
     contextBridge.exposeInMainWorld('path', path)
     contextBridge.exposeInMainWorld('commandExists', commandAPI)
@@ -168,7 +168,6 @@ if (process.contextIsolated) {
   }
 } else {
   window.electron = { ...electronAPI, ...customElectronAPI }
-  window.rgPath = rgPath
   window.fileUtils = fileUtilsAPI
   window.path = path
   window.commandExists = commandAPI

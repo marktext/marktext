@@ -1,27 +1,25 @@
 class FileSearcher {
-  constructor () {
-    this.rgPath = window.marktext.paths.ripgrepBinaryPath
-  }
-
   search (directories, pattern, options) {
     const numPathsFound = { num: 0 }
+    const searchIds = []
 
     const allPromises = directories.map((directory) =>
-      this.searchInDirectory(directory, pattern, options, numPathsFound)
+      this.searchInDirectory(directory, pattern, options, numPathsFound, searchIds)
     )
 
     const promise = Promise.all(allPromises)
     promise.cancel = () => {
-      // File search via IPC is not cancellable after dispatch
+      for (const id of searchIds) {
+        window.execAPI.cancelRipgrep(id)
+      }
     }
     return promise
   }
 
-  async searchInDirectory (directoryPath, pattern, options, numPathsFound) {
+  async searchInDirectory (directoryPath, pattern, options, numPathsFound, searchIds) {
     const didMatch = options.didMatch || (() => {})
 
-    const results = await window.execAPI.ripgrepFileSearch({
-      rgPath: this.rgPath,
+    const { results, searchId } = await window.execAPI.ripgrepFileSearch({
       directoryPath,
       options: {
         followSymlinks: options.followSymlinks,
@@ -30,6 +28,8 @@ class FileSearcher {
         inclusions: options.inclusions || []
       }
     })
+
+    searchIds.push(searchId)
 
     for (const line of results) {
       options.didSearchPaths(++numPathsFound.num)

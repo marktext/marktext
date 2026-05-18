@@ -98,20 +98,20 @@ function getText (input) {
 }
 
 class RipgrepDirectorySearcher {
-  constructor () {
-    this.rgPath = window.marktext.paths.ripgrepBinaryPath
-  }
-
   search (directories, pattern, options) {
     const didMatch = options.didMatch || (() => {})
     const numPathsFound = { num: 0 }
     let cancelled = false
+    let searchId = null
 
     const promise = new Promise((resolve, reject) => {
       let pendingEvent = null
+      let contextBuffer = []
 
-      const handleData = ({ line }) => {
+      const handleData = (data) => {
         if (cancelled) return
+        if (searchId !== null && data.searchId !== searchId) return
+        const { line } = data
         try {
           const message = JSON.parse(line)
           if (message.type === 'begin') {
@@ -119,7 +119,18 @@ class RipgrepDirectorySearcher {
               filePath: getText(message.data.path),
               matches: []
             }
+            contextBuffer = []
+          } else if (message.type === 'context') {
+            const contextText = getText(message.data.lines).replace(/\n$/, '')
+            contextBuffer.push(contextText)
           } else if (message.type === 'match') {
+            const leadingContextLines = contextBuffer.splice(0)
+            if (pendingEvent.matches.length > 0) {
+              const prevMatch = pendingEvent.matches[pendingEvent.matches.length - 1]
+              prevMatch.trailingContextLines = leadingContextLines.splice(
+                0, options.trailingContextLineCount || 0
+              )
+            }
             processUnicodeMatch(message.data)
             for (const submatch of message.data.submatches) {
               const { lineText, range } = processSubmatch(
@@ -131,21 +142,27 @@ class RipgrepDirectorySearcher {
                 matchText: getText(submatch.match),
                 lineText,
                 range,
-                leadingContextLines: [],
+                leadingContextLines,
                 trailingContextLines: []
               })
             }
           } else if (message.type === 'end') {
+            if (pendingEvent.matches.length > 0 && contextBuffer.length > 0) {
+              const lastMatch = pendingEvent.matches[pendingEvent.matches.length - 1]
+              lastMatch.trailingContextLines = contextBuffer.splice(0)
+            }
             options.didSearchPaths(++numPathsFound.num)
             didMatch(pendingEvent)
             pendingEvent = null
+            contextBuffer = []
           }
         } catch (err) {
           log.warn('Failed to parse ripgrep output line:', line, err)
         }
       }
 
-      const handleDone = () => {
+      const handleDone = (data) => {
+        if (searchId !== null && data.searchId !== searchId) return
         window.execAPI.removeRipgrepListeners()
         resolve()
       }
@@ -154,7 +171,6 @@ class RipgrepDirectorySearcher {
       window.execAPI.onRipgrepDone(handleDone)
 
       window.execAPI.ripgrepSearch({
-        rgPath: this.rgPath,
         directories,
         pattern,
         options: {
@@ -170,11 +186,14 @@ class RipgrepDirectorySearcher {
           inclusions: options.inclusions || [],
           exclusions: options.exclusions || []
         }
+      }).then((id) => {
+        searchId = id
       }).catch(reject)
     })
 
     promise.cancel = () => {
       cancelled = true
+      if (searchId) window.execAPI.cancelRipgrep(searchId)
       window.execAPI.removeRipgrepListeners()
     }
 

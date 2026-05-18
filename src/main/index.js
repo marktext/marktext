@@ -74,8 +74,7 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
   }
 }
 
-// Register IPC handlers for renderer process isolation
-registerNodeServiceHandlers()
+// IPC handlers registered after accessor creation (below)
 
 // Windows-specific AppUserModelID
 electronApp.setAppUserModelId('com.electron.marktext')
@@ -102,6 +101,9 @@ try {
   }
   process.exit(1)
 }
+// Register IPC handlers for renderer process isolation (after accessor is available)
+registerNodeServiceHandlers(accessor)
+
 const appController = new App(accessor, args)
 appController.init()
 

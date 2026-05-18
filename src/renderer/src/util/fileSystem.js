@@ -98,48 +98,6 @@ export const uploadImage = async (pathname, image, preferences) => {
       .catch(() => rejectPromise('Upload failed, the image will be copied to the image folder'))
   }
 
-  const getPreferredPathEnv = () => {
-    const platform = window.nodeAPI.platform
-    const extras =
-      platform === 'darwin'
-        ? ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin']
-        : platform === 'linux'
-          ? ['/usr/local/bin', '/usr/bin', '/bin']
-          : []
-    const cur = (window.nodeAPI.env.PATH || '').split(':')
-    const merged = [...cur]
-    for (const p of extras) if (p && !merged.includes(p)) merged.push(p)
-    return merged.filter(Boolean).join(':')
-  }
-
-  const resolvePicgoBinary = () => {
-    const candidates =
-      window.nodeAPI.platform === 'win32'
-        ? ['picgo', 'picgo.exe']
-        : [
-            'picgo',
-            '/opt/homebrew/bin/picgo',
-            '/usr/local/bin/picgo',
-            '/usr/bin/picgo',
-            `${window.nodeAPI.env.HOME}/.npm-global/bin/picgo`,
-            `${window.nodeAPI.env.HOME}/.npm/bin/picgo`,
-            '/usr/local/lib/node_modules/.bin/picgo'
-          ]
-    for (const c of candidates) {
-      try {
-        if (window.commandExists?.exists && window.commandExists.exists(c)) return c
-        if (
-          c.startsWith('/') &&
-          window.fileUtils?.pathExistsSync &&
-          window.fileUtils.pathExistsSync(c)
-        ) {
-          return c
-        }
-      } catch {}
-    }
-    return null
-  }
-
   const parsePicgoOutput = (text) => {
     const raw = String(text || '')
     // eslint-disable-next-line no-control-regex
@@ -178,30 +136,19 @@ export const uploadImage = async (pathname, image, preferences) => {
   }
 
   const uploadByCommand = async (uploader, filepath, suffix = '') => {
-    let localIsPath = true
     let localPath = filepath
     if (typeof filepath !== 'string') {
-      localIsPath = false
       const data = new Uint8Array(filepath)
       localPath = window.path.join(window.nodeAPI.tmpdir(), `${Date.now()}${suffix}`)
       await window.fileUtils.writeFile(localPath, data)
     }
 
-    const env = { PATH: getPreferredPathEnv() }
-
     try {
-      let result
-      if (uploader === 'picgo') {
-        const cmd = resolvePicgoBinary()
-        if (!cmd) return rejectPromise('PicGo command not found in PATH')
-        result = await window.execAPI.upload({ command: `${cmd} u "${localPath}"`, args: null, env })
-      } else {
-        result = await window.execAPI.upload({ command: cliScript, args: [localPath], env })
-      }
-
-      if (!localIsPath) {
-        try { /* temp file cleanup handled by OS */ } catch {}
-      }
+      const result = await window.execAPI.upload({
+        uploader,
+        imagePath: localPath,
+        cliScript
+      })
 
       const text = String(result.stdout || '') + (result.stderr ? `\n${String(result.stderr)}` : '')
       if (uploader === 'picgo') {
@@ -265,6 +212,6 @@ export const uploadImage = async (pathname, image, preferences) => {
   return promise
 }
 
-export const isFileExecutableSync = (filepath) => {
+export const isFileExecutable = (filepath) => {
   return window.execAPI.isFileExecutable(filepath)
 }

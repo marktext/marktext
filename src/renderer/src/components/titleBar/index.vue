@@ -234,10 +234,13 @@ const handleCloseClick = () => {
   window.windowControls.close()
 }
 
-const handleMaximizeClick = () => {
-  window.windowControls.maximize()
-  window.windowControls.isMaximized().then(v => { isMaximized.value = v })
-  window.windowControls.isFullScreen().then(v => { isFullScreen.value = v })
+const handleMaximizeClick = async () => {
+  const fullScreen = await window.windowControls.isFullScreen()
+  if (fullScreen) {
+    window.windowControls.setFullScreen(false)
+  } else {
+    window.windowControls.maximize()
+  }
 }
 
 const toggleMaxmizeOnMacOS = () => {
