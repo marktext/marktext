@@ -49,7 +49,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | preferLooseListItem | Boolean | true    | The preferred list type.                                                                                                             |
 | bulletListMarker    | String  | `-`     | The preferred marker used in bullet list, optional value: `-`, `*` `+`                                                               |
 | orderListDelimiter  | String  | `.`     | The preferred delimiter used in order list, optional value: `.` `)`                                                                  |
-| preferHeadingStyle  | String  | `atx`   | The preferred heading style in MarkText, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.29/#atx-headings) |
+| preferHeadingStyle  | String  | `atx`   | The preferred heading style in MarkText, optional value `atx` `setext`, [more info](https://spec.commonmark.org/0.31.2/#atx-headings) |
 | tabSize             | Number  | 4       | The number of spaces a tab is equal to                                                                                               |
 | listIndentation     | String  | 1       | The list indentation of sub list items or paragraphs, optional value `dfm`, `tab` or number 1~4                                      |
 | frontmatterType     | String  | `-`     | The frontmatter type: `-` (YAML), `+` (TOML), `;` (JSON) or `{` (JSON)                                                               |

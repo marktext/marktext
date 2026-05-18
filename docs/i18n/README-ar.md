@@ -118,7 +118,7 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 ## الميزات
 
 - معاينة فورية (WYSIWYG) وواجهة نظيفة وبسيطة للحصول على تجربة كتابة خالية من الإلهاء.
-- دعم [مواصفات CommonMark](https://spec.commonmark.org/0.29/)، [مواصفات GitHub Flavored Markdown](https://github.github.com/gfm/) ودعم انتقائي لـ [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
+- دعم [مواصفات CommonMark](https://spec.commonmark.org)، [مواصفات GitHub Flavored Markdown](https://github.github.com/gfm/) ودعم انتقائي لـ [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 - امتدادات ماركداون مثل التعبيرات الرياضية (KaTeX) وfront matter والرموز التعبيرية.
 - دعم اختصارات الفقرات والأساليب المضمنة لتحسين كفاءة الكتابة.
 - إخراج ملفات **HTML** و**PDF**.

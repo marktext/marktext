@@ -119,7 +119,7 @@ MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 Mar
 ## 功能
 
 - 即時預覽（所見即所得）及簡潔清爽的界面，帶來無干擾的寫作體驗。
-- 支援 [CommonMark 規範](https://spec.commonmark.org/0.29/)、[GitHub Flavored Markdown 規範](https://github.github.com/gfm/)，並選擇性支援 [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)。
+- 支援 [CommonMark 規範](https://spec.commonmark.org)、[GitHub Flavored Markdown 規範](https://github.github.com/gfm/)，並選擇性支援 [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)。
 - 支援數學表達式（KaTeX）、Front Matter 和表情符號等 Markdown 擴展。
 - 支援段落和內聯樣式快捷方式，提升寫作效率。
 - 可匯出 **HTML** 和 **PDF** 文件。

@@ -119,7 +119,7 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 ## Özellikler
 
 - Gerçek zamanlı önizleme (WYSIWYG) ve temiz, basit arayüz ile odaklanmış yazma deneyimi.
-- [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) desteği ve seçici [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown) desteği.
+- [CommonMark Spec](https://spec.commonmark.org), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) desteği ve seçici [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown) desteği.
 - Matematiksel ifadeler (KaTeX), front matter ve emoji gibi Markdown uzantıları.
 - Yazma verimliliğinizi artırmak için paragraf ve satır içi stil kısayolları.
 - **HTML** ve **PDF** dosyası çıktısı.

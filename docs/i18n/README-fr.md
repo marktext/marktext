@@ -118,7 +118,7 @@ MarkText est un éditeur Markdown open-source soutenu par sa communauté. Si Mar
 ## Fonctionnalités
 
 - Aperçu en temps réel (WYSIWYG) et interface propre et simple pour une expérience d'écriture sans distraction.
-- Prise en charge de [CommonMark Spec](https://spec.commonmark.org/0.29/), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) et prise en charge sélective de [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
+- Prise en charge de [CommonMark Spec](https://spec.commonmark.org), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) et prise en charge sélective de [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
 - Extensions Markdown telles que les expressions mathématiques (KaTeX), le front matter et les emojis.
 - Raccourcis de paragraphe et de style en ligne pour améliorer votre efficacité d'écriture.
 - Export de fichiers **HTML** et **PDF**.
