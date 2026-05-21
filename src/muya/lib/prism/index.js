@@ -40,8 +40,12 @@ const search = (text) => {
 }
 
 // pre load latex and yaml and html for `math block` \ `front matter` and `html block`
-loadLanguage('latex').catch(() => {})
-loadLanguage('yaml').catch(() => {})
+loadLanguage('latex').catch((err) => {
+  console.warn('Failed to preload prism language "latex":', err)
+})
+loadLanguage('yaml').catch((err) => {
+  console.warn('Failed to preload prism language "yaml":', err)
+})
 
 export { search, loadLanguage, loadedLanguages, transformAliasToOrigin }
 

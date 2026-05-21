@@ -79,16 +79,23 @@ function initLoadLanguage(Prism) {
           status: 'cached'
         })
       } else {
-        delete Prism.languages[lang]
-
         const loaderName = `../../../../node_modules/prismjs/components/prism-${lang}.js`
         const loader = prismJsComponents[loaderName]
-        if (loader) {
-          await loader()
+        if (!loader) {
+          // No loader available (e.g. eager glob disabled under Vitest, or the
+          // matched file is missing). Don't mutate Prism state or mark the
+          // language as loaded — leave it for a future, working attempt.
+          defer.resolve({
+            lang,
+            status: 'noexist'
+          })
+          return
         }
+        delete Prism.languages[lang]
+        await loader()
         defer.resolve({
           lang,
-          status: loader ? 'loaded' : 'noexist'
+          status: 'loaded'
         })
         loadedLanguages.add(lang)
       }
