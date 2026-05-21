@@ -1,4 +1,8 @@
-# MarkText — CLAUDE.md
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+# MarkText
 
 ## Project Overview
 
@@ -61,15 +65,28 @@ dist/          Packaged installers from electron-builder (git-ignored)
 ## Development Workflow
 
 ```bash
-# Install dependencies
+# Install dependencies (runs scripts/postinstall.js automatically)
 pnpm install
 
 # Run in development mode
 # Renderer hot-reloads automatically; press Ctrl+R to reload main/preload after edits
 pnpm run dev
 
+# Preview the last electron-vite build (no rebuild). PERF_TESTING=true is set automatically.
+pnpm run start
+
+# Build without packaging — fast path for verifying the renderer/main compile
+pnpm run build:unpack
+
+# Auto-format the repo with Prettier (separate from `lint`, which only checks)
+pnpm run format
+
 # Minify locale files (required for production builds, skip during dev)
 pnpm run minify-locales
+
+# Performance debugging — exposes a Node inspector on :5858 against the previewed build
+pnpm run perf:inspect       # attach when ready
+pnpm run perf:inspect-brk   # break on first line
 ```
 
 ## Build Commands
@@ -89,6 +106,14 @@ pnpm run test          # All unit tests (Vitest)
 pnpm run test:unit     # Unit tests only
 pnpm run test:e2e      # End-to-end tests (Playwright)
 pnpm run lint          # ESLint (run before committing; not currently enforced by CI)
+
+# Run a single Vitest file or test name
+pnpm exec vitest run test/unit/path/to/file.spec.js
+pnpm exec vitest run -t 'partial test name'
+
+# Run a single Playwright spec or a named test
+pnpm exec playwright test test/e2e/path/to/file.spec.js
+pnpm exec playwright test -g 'partial test name'
 ```
 
 ## Code Style
@@ -133,6 +158,19 @@ Muya  (src/muya/)
 Most IPC channels between main and renderer use the `mt::` prefix (e.g. `mt::open-new-tab`, `mt::file-saved`). Some internal channels do not follow this convention (e.g. `language-changed`).
 
 See `docs/dev/IPC.md` for conventions and examples.
+
+## Further Reading
+
+`docs/dev/` contains the deeper developer documentation referenced by this guide:
+
+- `ARCHITECTURE.md` — process/module layering beyond the summary above
+- `BUILD.md` — full platform build prerequisites (including the Arch Linux deps added recently)
+- `DEBUGGING.md` — attaching debuggers to main/renderer processes
+- `INTERFACE.md` — Muya and renderer public interfaces
+- `IPC.md` — full IPC channel catalog and `mt::` conventions
+- `LINUX_DEV.md` — Linux-specific dev environment setup
+- `PERFORMANCE.md` — perf measurement workflow (pairs with `pnpm run perf:inspect`)
+- `RELEASE.md` / `RELEASE_HOTFIX.md` — release process
 
 ## Important Build Notes
 
