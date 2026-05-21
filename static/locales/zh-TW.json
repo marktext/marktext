@@ -103,6 +103,8 @@
       "askQuestion": "提問",
       "reportBug": "回報錯誤",
       "viewSource": "檢視原始碼",
+      "followUs": "關注我們",
+      "support": "支持 MarkText",
       "license": "授權條款",
       "checkForUpdates": "檢查更新",
       "aboutMarkText": "關於 MarkText",
@@ -388,13 +390,6 @@
   "import": {
     "title": "匯入或開啟",
     "description": "拖放到這裡將您的內容匯入 MarkText"
-  },
-  "tweet": {
-    "title": "透過推文向我們傳送回饋",
-    "feelingsQuestion": "您的體驗感受如何？",
-    "feedbackQuestion": "告訴我們您的回饋？",
-    "reportViaGithub": "透過 GitHub 回報錯誤或功能請求",
-    "tweet": "推文"
   },
   "preferences": {
     "title": "偏好設定",

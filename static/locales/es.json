@@ -103,6 +103,8 @@
       "askQuestion": "Hacer Pregunta",
       "reportBug": "Reportar Error",
       "viewSource": "Ver Código Fuente",
+      "followUs": "Síguenos",
+      "support": "Apoyar MarkText",
       "license": "Licencia",
       "checkForUpdates": "Buscar Actualizaciones",
       "aboutMarkText": "Acerca de MarkText",
@@ -387,13 +389,6 @@
   "import": {
     "title": "Importar o Abrir",
     "description": "Arrastra aquí para obtener tu contenido en MarkText"
-  },
-  "tweet": {
-    "title": "Envíanos comentarios vía tweet",
-    "feelingsQuestion": "¿Cuáles son tus sentimientos sobre la experiencia?",
-    "feedbackQuestion": "¿Cuéntanos tus comentarios?",
-    "reportViaGithub": "Reportar error o solicitud de función vía github",
-    "tweet": "Tweet"
   },
   "preferences": {
     "title": "Preferencias",

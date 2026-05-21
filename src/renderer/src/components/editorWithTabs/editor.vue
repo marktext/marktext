@@ -31,7 +31,7 @@
       v-model="dialogTableVisible"
       :show-close="isShowClose"
       :modal="true"
-      custom-class="ag-dialog-table"
+      class="ag-dialog-table"
       width="454px"
       center
       dir="ltr"
@@ -1330,6 +1330,22 @@ onBeforeUnmount(() => {
       font-size: 13px;
       width: 70px;
     }
+  }
+}
+
+.ag-dialog-table {
+  & .el-form--inline {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  & .el-form--inline .el-form-item {
+    margin-right: 0;
+  }
+  & .el-input-number {
+    width: 100px;
+    min-width: 0;
   }
 }
 

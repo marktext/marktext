@@ -37,7 +37,7 @@ export default function() {
         label: t('menu.help.markdownReference'),
         click() {
           shell.openExternal(
-            'https://github.com/marktext/marktext/blob/trunk/docs/MARKDOWN_SYNTAX.md'
+            'https://github.com/marktext/marktext/blob/develop/docs/end-user/MARKDOWN_SYNTAX.md'
           )
         }
       },
@@ -45,6 +45,21 @@ export default function() {
         label: t('menu.help.changelog'),
         click() {
           shell.openExternal('https://github.com/marktext/marktext/releases')
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        label: t('menu.help.followUs'),
+        click() {
+          shell.openExternal('https://twitter.com/marktextapp')
+        }
+      },
+      {
+        label: t('menu.help.support'),
+        click() {
+          shell.openExternal('https://github.com/sponsors/marktext')
         }
       },
       {
@@ -74,7 +89,7 @@ export default function() {
       {
         label: t('menu.help.license'),
         click() {
-          shell.openExternal('https://github.com/marktext/marktext/blob/trunk/LICENSE')
+          shell.openExternal('https://github.com/marktext/marktext/blob/develop/LICENSE')
         }
       }
     ]

@@ -103,6 +103,8 @@
       "askQuestion": "Ask Question",
       "reportBug": "Report Bug",
       "viewSource": "View Source",
+      "followUs": "Follow Us",
+      "support": "Support MarkText",
       "license": "License",
       "checkForUpdates": "Check for Updates",
       "aboutMarkText": "About MarkText",
@@ -387,13 +389,6 @@
   "import": {
     "title": "Import or Open",
     "description": "Drop here to get your stuff into MarkText"
-  },
-  "tweet": {
-    "title": "Send us feedback via tweet",
-    "feelingsQuestion": "What's your experience feelings?",
-    "feedbackQuestion": "Tell us your feedback?",
-    "reportViaGithub": "Report bug or feature request via GitHub",
-    "tweet": "Tweet"
   },
   "preferences": {
     "title": "Preferences",

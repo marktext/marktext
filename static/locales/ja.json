@@ -103,6 +103,8 @@
       "askQuestion": "質問する",
       "reportBug": "バグを報告",
       "viewSource": "ソースコードを表示",
+      "followUs": "フォローする",
+      "support": "MarkTextを支援",
       "license": "ライセンス",
       "checkForUpdates": "アップデートを確認",
       "aboutMarkText": "MarkTextについて",
@@ -388,13 +390,6 @@
   "import": {
     "title": "インポートまたは開く",
     "description": "ここにドラッグしてMarkTextにコンテンツをインポート"
-  },
-  "tweet": {
-    "title": "ツイートでフィードバックを送信",
-    "feelingsQuestion": "いかがですか？",
-    "feedbackQuestion": "フィードバックを共有しませんか？",
-    "reportViaGithub": "GitHubでバグや機能リクエストを報告",
-    "tweet": "ツイート"
   },
   "preferences": {
     "title": "環境設定",

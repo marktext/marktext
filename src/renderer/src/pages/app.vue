@@ -32,7 +32,6 @@
       <about-dialog />
       <export-setting-dialog />
       <rename />
-      <tweet />
       <import-modal />
     </div>
   </div>
@@ -51,11 +50,9 @@ import AboutDialog from '@/components/about'
 import CommandPalette from '@/components/commandPalette'
 import ExportSettingDialog from '@/components/exportSettings'
 import Rename from '@/components/rename'
-import Tweet from '@/components/tweet'
 import ImportModal from '@/components/import'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
-import { useTweetStore } from '@/store/tweet'
 import { useLayoutStore } from '@/store/layout'
 import { useListenForMainStore } from '@/store/listenForMain'
 import { usePreferencesStore } from '@/store/preferences'
@@ -70,7 +67,6 @@ const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
-const tweetStore = useTweetStore()
 const listenForMainStore = useListenForMainStore()
 const autoUpdateStore = useAutoUpdatesStore()
 const commandCenterStore = useCommandCenterStore()
@@ -154,7 +150,6 @@ onMounted(async () => {
 
   mainStore.LISTEN_WIN_STATUS()
   await commandCenterStore.LISTEN_COMMAND_CENTER_BUS()
-  tweetStore.LISTEN_FOR_TWEET()
   layoutStore.LISTEN_FOR_LAYOUT()
   listenForMainStore.LISTEN_FOR_EDIT()
   preferencesStore.LISTEN_FOR_VIEW()

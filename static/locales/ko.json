@@ -103,6 +103,8 @@
       "askQuestion": "질문하기",
       "reportBug": "버그 신고",
       "viewSource": "소스 보기",
+      "followUs": "팔로우하기",
+      "support": "MarkText 후원",
       "license": "라이선스",
       "checkForUpdates": "업데이트 확인",
       "aboutMarkText": "MarkText 정보",
@@ -388,13 +390,6 @@
   "import": {
     "title": "가져오기 또는 열기",
     "description": "여기에 드롭하여 MarkText로 가져오세요"
-  },
-  "tweet": {
-    "title": "트윗으로 피드백 보내기",
-    "feelingsQuestion": "경험은 어떠셨나요?",
-    "feedbackQuestion": "피드백을 알려주세요?",
-    "reportViaGithub": "GitHub를 통해 버그 또는 기능 요청 신고",
-    "tweet": "트윗"
   },
   "preferences": {
     "title": "환경설정",

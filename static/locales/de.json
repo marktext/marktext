@@ -103,6 +103,8 @@
       "askQuestion": "Frage stellen",
       "reportBug": "Fehler melden",
       "viewSource": "Quellcode anzeigen",
+      "followUs": "Folgen Sie uns",
+      "support": "MarkText unterstützen",
       "license": "Lizenz",
       "checkForUpdates": "Nach Updates suchen",
       "aboutMarkText": "Über MarkText",
@@ -387,13 +389,6 @@
   "import": {
     "title": "Importieren oder öffnen",
     "description": "Hier hineinziehen, um Ihren Inhalt in MarkText zu importieren"
-  },
-  "tweet": {
-    "title": "Senden Sie uns Ihr Feedback per Tweet",
-    "feelingsQuestion": "Wie fühlen Sie sich?",
-    "feedbackQuestion": "Teilen Sie uns Ihr Feedback mit?",
-    "reportViaGithub": "Fehler oder Feature-Anfrage über GitHub melden",
-    "tweet": "Tweet"
   },
   "preferences": {
     "title": "Einstellungen",
