@@ -658,18 +658,15 @@ const commands = [
 // --------------------------------------------------------------------------
 // etc
 
-// isUpdatable returns a Promise; resolve in the background and conditionally
-// register the command once we know.
-isUpdatable().then((updatable) => {
-  if (updatable) {
-    commands.push({
-      id: 'file.check-update',
-      execute: async() => {
-        window.electron.ipcRenderer.send('mt::check-for-update')
-      }
-    })
-  }
-}).catch(() => {})
+if (isUpdatable()) {
+  commands.push({
+    id: 'file.check-update',
+    description: getCommandDescriptionById('file.check-update'),
+    execute: async() => {
+      window.electron.ipcRenderer.send('mt::check-for-update')
+    }
+  })
+}
 
 if (isOsx) {
   commands.push({

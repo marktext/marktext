@@ -76,9 +76,13 @@ export const registerWindowHandlers = () => {
   ipcMain.on('mt::menu::popup', (event, template, position) => {
     const win = windowFromEvent(event)
     if (!win) return
+    // Stash the sender BEFORE calling menu.popup so the buildMenu click
+    // handlers can resolve it, but make sure we still clean up the map entry
+    // if menu.popup throws — otherwise the entry leaks and a later popup
+    // for the same window could route clicks to a dead sender.
+    popups.set(win.id, { sender: event.sender })
     try {
       const menu = buildMenu(template, win.id)
-      popups.set(win.id, { sender: event.sender })
       menu.popup({
         window: win,
         x: position?.x,
@@ -89,6 +93,7 @@ export const registerWindowHandlers = () => {
         }
       })
     } catch (err) {
+      popups.delete(win.id)
       log.error('menu popup failed:', err)
     }
   })

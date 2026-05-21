@@ -68,6 +68,43 @@ const windowControlAPI = {
   popupApplicationMenu: (position) => send('mt::menu::popup-application', position)
 }
 
+// These three predicates are pure path-string operations: implementing them
+// in the preload keeps them synchronous so existing call sites like
+// `tabs.find(t => isSamePathSync(t.pathname, ...))` keep returning the right
+// item instead of a truthy Promise.
+const MARKDOWN_EXTENSIONS = [
+  'markdown', 'mdown', 'mkdn', 'md', 'mkd', 'mdwn', 'mdtxt', 'mdtext', 'mdx', 'text', 'txt'
+]
+
+const hasMarkdownExtension = (filename) => {
+  if (!filename || typeof filename !== 'string') return false
+  return MARKDOWN_EXTENSIONS.some((ext) => filename.toLowerCase().endsWith(`.${ext}`))
+}
+
+const isChildOfDirectory = (dir, child) => {
+  if (!dir || !child) return false
+  const relative = pathBrowserify.relative(dir, child)
+  return !!relative && !relative.startsWith('..') && !pathBrowserify.isAbsolute(relative)
+}
+
+const isSamePathSync = (pathA, pathB, isNormalized = false) => {
+  if (!pathA || !pathB) return false
+  const a = isNormalized ? pathA : pathBrowserify.normalize(pathA)
+  const b = isNormalized ? pathB : pathBrowserify.normalize(pathB)
+  if (a.length !== b.length) return false
+  if (a === b) return true
+  if (a.toLowerCase() === b.toLowerCase()) {
+    // Case-insensitive filesystem fallback — block briefly on a sync IPC
+    // because callers (tab matching) need a boolean answer right now.
+    try {
+      return ipcRenderer.sendSync('mt::paths::is-same-sync', a, b)
+    } catch {
+      return false
+    }
+  }
+  return false
+}
+
 const fileUtilsAPI = {
   isFile: (p) => invoke('mt::fs::is-file', p),
   isDirectory: (p) => invoke('mt::fs::is-directory', p),
@@ -79,14 +116,15 @@ const fileUtilsAPI = {
   stat: (p) => invoke('mt::fs::stat', p),
   writeFile: (p, data) => invoke('mt::fs::write-file', p, data),
   readFile: (p, encoding) => invoke('mt::fs::read-file', p, encoding),
-  ensureDirSync: (p) => invoke('mt::fs::ensure-dir', p),
-  pathExistsSync: (p) => invoke('mt::fs::path-exists', p),
+  pathExists: (p) => invoke('mt::fs::path-exists', p),
   unlink: (p) => invoke('mt::fs::unlink', p),
   readdir: (p) => invoke('mt::fs::readdir', p),
   isExecutable: (p) => invoke('mt::fs::is-executable', p),
-  isChildOfDirectory: (dir, child) => invoke('mt::paths::is-child-of', dir, child),
-  hasMarkdownExtension: (filename) => invoke('mt::paths::has-md-ext', filename),
-  isSamePathSync: (a, b) => invoke('mt::paths::is-same', a, b),
+  // Pure-string predicates — synchronous, no IPC for the common case.
+  isChildOfDirectory,
+  hasMarkdownExtension,
+  isSamePathSync,
+  // isImageFile needs an fs.statSync; keep it async via IPC.
   isImageFile: (p) => invoke('mt::paths::is-image', p),
   MARKDOWN_INCLUSIONS: bootInfo?.MARKDOWN_INCLUSIONS || []
 }
@@ -152,6 +190,7 @@ const electronAPI = {
     cwd: bootInfo?.paths?.cwd
   },
   paths: bootInfo?.paths || {},
+  isUpdatable: !!bootInfo?.isUpdatable,
   windowControl: windowControlAPI
 }
 
@@ -174,8 +213,24 @@ const pathAPI = {
   win32: pathBrowserify.win32
 }
 
+// Bundled third-party packages occasionally read `process.platform` at module
+// load time (e.g. @hfelix/electron-localshortcut/src/utils.js). Expose a
+// minimal browser-safe `process` global so those imports don't throw before
+// the Vue app can mount.
+const processShim = {
+  platform: bootInfo?.platform || process.platform,
+  arch: bootInfo?.arch,
+  versions: bootInfo?.versions || {},
+  env: bootInfo?.env || {},
+  resourcesPath: bootInfo?.paths?.resources,
+  cwd: () => bootInfo?.paths?.cwd,
+  // Some libraries call `process.nextTick`; map it to the microtask queue.
+  nextTick: (fn, ...args) => Promise.resolve().then(() => fn(...args))
+}
+
 try {
   contextBridge.exposeInMainWorld('electron', electronAPI)
+  contextBridge.exposeInMainWorld('process', processShim)
   contextBridge.exposeInMainWorld('rgPath', bootInfo?.paths?.ripgrepBinary || '')
   contextBridge.exposeInMainWorld('fileUtils', fileUtilsAPI)
   contextBridge.exposeInMainWorld('path', pathAPI)

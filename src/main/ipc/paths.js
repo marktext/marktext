@@ -1,14 +1,12 @@
 import { ipcMain } from 'electron'
-import {
-  isChildOfDirectory,
-  hasMarkdownExtension,
-  isSamePathSync,
-  isImageFile
-} from 'common/filesystem/paths'
+import { isSamePathSync, isImageFile } from 'common/filesystem/paths'
 
 export const registerPathHandlers = () => {
-  ipcMain.handle('mt::paths::is-child-of', (_e, dir, child) => isChildOfDirectory(dir, child))
-  ipcMain.handle('mt::paths::has-md-ext', (_e, filename) => hasMarkdownExtension(filename))
-  ipcMain.handle('mt::paths::is-same', (_e, a, b) => isSamePathSync(a, b))
+  // The renderer's preload computes isChildOfDirectory / hasMarkdownExtension
+  // locally (pure string ops, no IPC). Only `is-same-sync` and `is-image`
+  // require fs in the rare case-insensitive / image-file path checks.
+  ipcMain.on('mt::paths::is-same-sync', (event, a, b) => {
+    event.returnValue = isSamePathSync(a, b, true)
+  })
   ipcMain.handle('mt::paths::is-image', (_e, p) => isImageFile(p))
 }

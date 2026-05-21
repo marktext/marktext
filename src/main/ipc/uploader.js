@@ -43,10 +43,13 @@ const resolvePicgoBinary = () => {
   return null
 }
 
+// Strip ANSI SGR color codes (CSI parameter ... 'm') from picgo output before
+// trying to parse it. \x1b is the ESC byte.
+const ANSI_SGR_RE = /\x1b\[[0-9;]*m/g // eslint-disable-line no-control-regex
+
 const parsePicgoOutput = (text) => {
   const raw = String(text || '')
-  // eslint-disable-next-line no-control-regex
-  const cleaned = raw.replace(/\[[0-9;]*m/g, '')
+  const cleaned = raw.replace(ANSI_SGR_RE, '')
   try {
     const lines = cleaned.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
     for (const line of lines) {
