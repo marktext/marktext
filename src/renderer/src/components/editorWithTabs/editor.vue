@@ -31,7 +31,7 @@
       v-model="dialogTableVisible"
       :show-close="isShowClose"
       :modal="true"
-      class="ag-dialog-table"
+      class="ag-insert-table-dialog"
       width="454px"
       center
       dir="ltr"
@@ -1325,15 +1325,9 @@ onBeforeUnmount(() => {
   position: relative;
   flex: 1;
   color: var(--editorColor);
-  & .ag-dialog-table {
-    & .el-button {
-      font-size: 13px;
-      width: 70px;
-    }
-  }
 }
 
-.ag-dialog-table {
+.ag-insert-table-dialog {
   & .el-form--inline {
     display: flex;
     flex-wrap: nowrap;
@@ -1346,6 +1340,10 @@ onBeforeUnmount(() => {
   & .el-input-number {
     width: 100px;
     min-width: 0;
+  }
+  & .el-button {
+    font-size: 13px;
+    width: 70px;
   }
 }
 
