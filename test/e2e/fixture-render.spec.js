@@ -1,0 +1,94 @@
+const { expect, test } = require('@playwright/test')
+const { launchWithDoc } = require('./helpers')
+
+const runFixture = (name, relativePath, assertion) => {
+  test.describe(`Fixture: ${name}`, () => {
+    let app = null
+    let page = null
+
+    test.beforeAll(async() => {
+      const launched = await launchWithDoc(relativePath)
+      app = launched.app
+      page = launched.page
+      // Allow Muya to finish rendering blocks.
+      await page.waitForTimeout(800)
+    })
+
+    test.afterAll(async() => {
+      if (app) await app.close()
+    })
+
+    test(`${name} renders expected DOM`, async() => {
+      await assertion({ page })
+    })
+  })
+}
+
+runFixture('table', 'test/e2e/data/table.md', async({ page }) => {
+  await page.waitForSelector('.editor-component table', { state: 'attached', timeout: 10000 })
+  const cellCount = await page.locator('.editor-component table tbody td').count()
+  expect(cellCount).toBeGreaterThanOrEqual(6)
+})
+
+runFixture('lists', 'test/e2e/data/lists.md', async({ page }) => {
+  await page.waitForSelector('.editor-component ul li', { state: 'attached', timeout: 10000 })
+  await page.waitForSelector('.editor-component ol li', { state: 'attached', timeout: 10000 })
+  const checkboxes = await page.locator('.editor-component input[type="checkbox"]').count()
+  expect(checkboxes).toBeGreaterThanOrEqual(2)
+})
+
+runFixture('code', 'test/e2e/data/code.md', async({ page }) => {
+  const codeBlocks = await page
+    .locator('.editor-component pre, .editor-component .ag-code-block, .editor-component code')
+    .count()
+  expect(codeBlocks).toBeGreaterThan(0)
+})
+
+runFixture('blockquote', 'test/e2e/data/blockquote.md', async({ page }) => {
+  await page.waitForSelector('.editor-component blockquote', { state: 'attached', timeout: 10000 })
+  const count = await page.locator('.editor-component blockquote').count()
+  expect(count).toBeGreaterThanOrEqual(1)
+})
+
+runFixture('link-image', 'test/e2e/data/link-image.md', async({ page }) => {
+  await page.waitForSelector('.editor-component a[href]', { state: 'attached', timeout: 10000 })
+  const linkCount = await page.locator('.editor-component a[href]').count()
+  expect(linkCount).toBeGreaterThanOrEqual(1)
+})
+
+runFixture('gfm', 'test/e2e/data/gfm.md', async({ page }) => {
+  const strike = await page.locator('.editor-component del, .editor-component s').count()
+  const checkboxes = await page.locator('.editor-component input[type="checkbox"]').count()
+  expect(strike + checkboxes).toBeGreaterThan(0)
+})
+
+runFixture('frontmatter', 'test/e2e/data/frontmatter.md', async({ page }) => {
+  const hasFront = await page
+    .locator('.editor-component .ag-front-matter, .editor-component pre[data-role="FRONT_MATTER"], .editor-component pre.ag-front-matter')
+    .first()
+    .waitFor({ state: 'attached', timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
+  const h1 = await page.locator('.editor-component h1').count()
+  expect(hasFront || h1 > 0).toBe(true)
+})
+
+runFixture('math', 'test/e2e/data/math.md', async({ page }) => {
+  // KaTeX renders to .katex; fall back to muya math container if KaTeX has not run yet.
+  const ok = await page
+    .locator('.editor-component .katex, .editor-component .ag-multiple-math, .editor-component figure[data-role="MATH"]')
+    .first()
+    .waitFor({ state: 'attached', timeout: 15000 })
+    .then(() => true)
+    .catch(() => false)
+  expect(ok).toBe(true)
+})
+
+runFixture('formatted', 'test/e2e/data/formatted.md', async({ page }) => {
+  const strong = await page.locator('.editor-component strong').count()
+  const em = await page.locator('.editor-component em').count()
+  const code = await page.locator('.editor-component code').count()
+  expect(strong).toBeGreaterThan(0)
+  expect(em).toBeGreaterThan(0)
+  expect(code).toBeGreaterThan(0)
+})
