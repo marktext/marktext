@@ -69,7 +69,9 @@ dist/          Packaged installers from electron-builder (git-ignored)
 pnpm install
 
 # Run in development mode
-# Renderer hot-reloads automatically; press Ctrl+R to reload main/preload after edits
+# Renderer hot-reloads automatically. Pressing Ctrl+R in the dev window reloads
+# the renderer (which re-runs the preload script); changes to the main process
+# require restarting `pnpm run dev`.
 pnpm run dev
 
 # Preview the last electron-vite build (no rebuild). PERF_TESTING=true is set automatically.
@@ -107,12 +109,12 @@ pnpm run test:unit     # Unit tests only
 pnpm run test:e2e      # End-to-end tests (Playwright)
 pnpm run lint          # ESLint (run before committing; not currently enforced by CI)
 
-# Run a single Vitest file or test name
-pnpm exec vitest run test/unit/path/to/file.spec.js
+# Run a single Vitest file or test name (specs live under test/unit/specs/)
+pnpm exec vitest run test/unit/specs/markdown-basic.spec.js
 pnpm exec vitest run -t 'partial test name'
 
-# Run a single Playwright spec or a named test
-pnpm exec playwright test test/e2e/path/to/file.spec.js
+# Run a single Playwright spec or a named test (specs live directly under test/e2e/)
+pnpm exec playwright test test/e2e/launch.spec.js
 pnpm exec playwright test -g 'partial test name'
 ```
 
@@ -177,7 +179,7 @@ See `docs/dev/IPC.md` for conventions and examples.
 - **CommonJS vs ESM**: `main` and `preload` compile to CommonJS; `renderer` is ESM-only. Do not use `require()` in renderer code.
 - **Minify locales**: `pnpm run minify-locales` must run before production builds. It is included in `build:win/mac/linux` but not in `dev`.
 - **Native modules**: After changing Electron version, run `pnpm run rebuild-native` (`electron-rebuild -f`).
-- **Hot reload**: Only the renderer process hot-reloads in dev mode. After editing `main/` or `preload/` source, press `Ctrl+R` in the development window.
+- **Hot reload**: The renderer hot-reloads via Vite HMR. `Ctrl+R` in the dev window reloads the renderer and re-runs the preload script. Changes to `main/` source are NOT picked up by a window reload — restart `pnpm run dev` to pick them up.
 - **Path aliases** (defined in `electron.vite.config.js`): `@` → `src/renderer/src`, `common` → `src/common`, `muya` → `src/muya`. Imports from muya therefore look like `muya/lib/...`.
 
 ## Contribution
