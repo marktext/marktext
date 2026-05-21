@@ -10,7 +10,12 @@ export const loadedLanguages = new Set(['markup', 'css', 'clike', 'javascript'])
 
 const { languages } = components
 
-const prismJsComponents = import.meta.glob('../../../../node_modules/prismjs/components/*.js')
+// Skip eager glob discovery under Vitest: the test runner resolves all matched
+// files synchronously, which causes prism component files (e.g. prism-cpp.js)
+// to load before their `require` dependencies (e.g. prism-c.js) are registered.
+const prismJsComponents = (typeof process !== 'undefined' && process.env.VITEST)
+  ? {}
+  : import.meta.glob('../../../../node_modules/prismjs/components/*.js')
 // Look for the origin languge by alias
 export const transformAliasToOrigin = (langs) => {
   const result = []
@@ -78,10 +83,12 @@ function initLoadLanguage(Prism) {
 
         const loaderName = `../../../../node_modules/prismjs/components/prism-${lang}.js`
         const loader = prismJsComponents[loaderName]
-        await loader()
+        if (loader) {
+          await loader()
+        }
         defer.resolve({
           lang,
-          status: 'loaded'
+          status: loader ? 'loaded' : 'noexist'
         })
         loadedLanguages.add(lang)
       }

@@ -40,8 +40,8 @@ const search = (text) => {
 }
 
 // pre load latex and yaml and html for `math block` \ `front matter` and `html block`
-loadLanguage('latex')
-loadLanguage('yaml')
+loadLanguage('latex').catch(() => {})
+loadLanguage('yaml').catch(() => {})
 
 export { search, loadLanguage, loadedLanguages, transformAliasToOrigin }
 
