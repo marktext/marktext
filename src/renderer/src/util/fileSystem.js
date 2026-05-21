@@ -71,7 +71,7 @@ export const moveImageToFolder = async (
  * @jocs todo, rewrite it use class
  */
 export const uploadImage = async (pathname, image, preferences) => {
-  const { currentUploader, imageBed, githubToken: auth, cliScript } = preferences
+  const { currentUploader, imageBed, githubToken: auth } = preferences
   const { owner, repo, branch } = imageBed.github
   const isPath = typeof image === 'string'
   const MAX_SIZE = 5 * 1024 * 1024
@@ -146,8 +146,7 @@ export const uploadImage = async (pathname, image, preferences) => {
     try {
       const result = await window.execAPI.upload({
         uploader,
-        imagePath: localPath,
-        cliScript
+        imagePath: localPath
       })
 
       const text = String(result.stdout || '') + (result.stderr ? `\n${String(result.stderr)}` : '')

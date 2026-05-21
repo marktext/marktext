@@ -13,8 +13,12 @@ export const editorWinOptions = Object.freeze({
     // enable it always and set the HTML spelling attribute to false.
     spellcheck: true,
     nodeIntegration: false,
+    // Preload uses Node.js modules (path, crypto, os); enable sandbox after
+    // remaining Node.js usage moves to main-process IPC.
     sandbox: false,
-    webSecurity: true,
+    // Production loads from file:// so same-origin allows local images.
+    // Dev uses http://localhost which blocks file:// cross-origin requests.
+    webSecurity: process.env.NODE_ENV !== 'development',
     preload: path.join(__dirname, '../preload/index.js')
   },
   useContentSize: true,
@@ -35,7 +39,7 @@ export const preferencesWinOptions = Object.freeze({
     spellcheck: true,
     nodeIntegration: false,
     sandbox: false,
-    webSecurity: true,
+    webSecurity: process.env.NODE_ENV !== 'development',
     preload: path.join(__dirname, '../preload/index.js')
   },
   fullscreenable: false,

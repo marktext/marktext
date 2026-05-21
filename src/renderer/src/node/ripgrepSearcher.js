@@ -93,8 +93,12 @@ function processSubmatch (submatch, lineText, offsetRow) {
 
 function getText (input) {
   if ('text' in input) return input.text
-  const bytes = Uint8Array.from(atob(input.bytes), c => c.charCodeAt(0))
-  return new TextDecoder().decode(bytes)
+  try {
+    const bytes = Uint8Array.from(atob(input.bytes), c => c.charCodeAt(0))
+    return new TextDecoder().decode(bytes)
+  } catch {
+    return ''
+  }
 }
 
 class RipgrepDirectorySearcher {
@@ -102,7 +106,20 @@ class RipgrepDirectorySearcher {
     const didMatch = options.didMatch || (() => {})
     const numPathsFound = { num: 0 }
     let cancelled = false
-    let searchId = null
+    const searchId = Date.now().toString(36) + Math.random().toString(36).slice(2)
+    let dataHandler = null
+    let doneHandler = null
+
+    const removeListeners = () => {
+      if (dataHandler) {
+        window.execAPI.removeRipgrepListener('mt::ripgrep-search-data', dataHandler)
+        dataHandler = null
+      }
+      if (doneHandler) {
+        window.execAPI.removeRipgrepListener('mt::ripgrep-search-done', doneHandler)
+        doneHandler = null
+      }
+    }
 
     const promise = new Promise((resolve, reject) => {
       let pendingEvent = null
@@ -110,7 +127,7 @@ class RipgrepDirectorySearcher {
 
       const handleData = (data) => {
         if (cancelled) return
-        if (searchId !== null && data.searchId !== searchId) return
+        if (data.searchId !== searchId) return
         const { line } = data
         try {
           const message = JSON.parse(line)
@@ -162,17 +179,18 @@ class RipgrepDirectorySearcher {
       }
 
       const handleDone = (data) => {
-        if (searchId !== null && data.searchId !== searchId) return
-        window.execAPI.removeRipgrepListeners()
+        if (data.searchId !== searchId) return
+        removeListeners()
         resolve()
       }
 
-      window.execAPI.onRipgrepData(handleData)
-      window.execAPI.onRipgrepDone(handleDone)
+      dataHandler = window.execAPI.onRipgrepData(handleData)
+      doneHandler = window.execAPI.onRipgrepDone(handleDone)
 
       window.execAPI.ripgrepSearch({
         directories,
         pattern,
+        searchId,
         options: {
           isRegexp: options.isRegexp,
           isCaseSensitive: options.isCaseSensitive,
@@ -186,15 +204,13 @@ class RipgrepDirectorySearcher {
           inclusions: options.inclusions || [],
           exclusions: options.exclusions || []
         }
-      }).then((id) => {
-        searchId = id
       }).catch(reject)
     })
 
     promise.cancel = () => {
       cancelled = true
-      if (searchId) window.execAPI.cancelRipgrep(searchId)
-      window.execAPI.removeRipgrepListeners()
+      window.execAPI.cancelRipgrep(searchId)
+      removeListeners()
     }
 
     return promise

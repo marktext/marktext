@@ -14,9 +14,6 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@42.1.0)
-      '@electron/remote':
-        specifier: ^2.1.3
-        version: 2.1.3(electron@42.1.0)
       '@element-plus/icons-vue':
         specifier: ^2.3.2
         version: 2.3.2(vue@3.5.34(typescript@6.0.3))
@@ -225,9 +222,6 @@ importers:
       vite:
         specifier: ^7.3.3
         version: 7.3.3(@types/node@25.8.0)(jiti@2.7.0)(yaml@2.9.0)
-      vite-plugin-electron-renderer:
-        specifier: ^0.14.7
-        version: 0.14.7
       vite-svg-loader:
         specifier: ^5.1.1
         version: 5.1.1(vue@3.5.34(typescript@6.0.3))
@@ -746,11 +740,6 @@ packages:
     resolution: {integrity: sha512-Rzc39XPdk/+/wBG8MfwAHohXflep0ITUfulb6Rgz3R0NeSB1noE+E9/M/cb8ftCAiyDD9PPhLuuWgE1GaInbKg==}
     engines: {node: '>=22.12.0'}
     hasBin: true
-
-  '@electron/remote@2.1.3':
-    resolution: {integrity: sha512-XlpxC8S4ttj/v2d+PKp9na/3Ev8bV7YWNL7Cw5b9MAWgTphEml7iYgbc7V0r9D6yDOfOkj06bchZgOZdlWJGNA==}
-    peerDependencies:
-      electron: '>= 13.0.0'
 
   '@electron/universal@2.0.3':
     resolution: {integrity: sha512-Wn9sPYIVFRFl5HmwMJkARCCf7rqK/EurkfQ/rJZ14mHP3iYTjZSIOSVonEAnhWeAXwtw7zOekGRlc6yTtZ0t+g==}
@@ -3084,7 +3073,7 @@ packages:
     engines: {node: '>=16.0.0'}
 
   file-icons@https://codeload.github.com/file-icons/atom/tar.gz/28520868aee66e576145a0b18aa2cde5444a897a:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/file-icons/atom/tar.gz/28520868aee66e576145a0b18aa2cde5444a897a}
+    resolution: {gitHosted: true, integrity: sha512-QHwNw61FyGcI32/sdPQ8N9XDLU2yuYE2JjU/WrLRJFpe1/d0xj4S7tXZd3mx9m5FUVYt+OG/jfOGxnpdspevIw==, tarball: https://codeload.github.com/file-icons/atom/tar.gz/28520868aee66e576145a0b18aa2cde5444a897a}
     version: 2.1.47
     engines: {atom: '>=1.25.0'}
 
@@ -5116,9 +5105,6 @@ packages:
     resolution: {integrity: sha512-veufcmxri4e3XSrT0xwfUR7kguIkaxBeosDg00yDWhk49wdwkSUrvvsm7nc75e1PUyvIeZj6nS8VQRYz2/S4Xg==}
     engines: {node: '>=0.6.0'}
 
-  vite-plugin-electron-renderer@0.14.7:
-    resolution: {integrity: sha512-hHBMKuZ24MB2SIxG7U7ix+DDEnvxou7Bgy/TdhYxNz3S5N3Yh7Hjvj9blfMeGEJ0oaZJn7y5z0V/RyDmJ5OuCA==}
-
   vite-svg-loader@5.1.1:
     resolution: {integrity: sha512-RPzcXA/EpKJA0585x58DBgs7my2VfeJ+j2j1EoHY4Zh82Y7hV4cR1fElgy2aZi85+QSrcLLoTStQ5uZjD68u+Q==}
     peerDependencies:
@@ -5942,10 +5928,6 @@ snapshots:
       read-binary-file-arch: 1.0.6
     transitivePeerDependencies:
       - supports-color
-
-  '@electron/remote@2.1.3(electron@42.1.0)':
-    dependencies:
-      electron: 42.1.0
 
   '@electron/universal@2.0.3':
     dependencies:
@@ -10956,8 +10938,6 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.4.1
     optional: true
-
-  vite-plugin-electron-renderer@0.14.7: {}
 
   vite-svg-loader@5.1.1(vue@3.5.34(typescript@6.0.3)):
     dependencies:

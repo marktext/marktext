@@ -239,7 +239,7 @@ const handleMaximizeClick = async () => {
   if (fullScreen) {
     window.windowControls.setFullScreen(false)
   } else {
-    window.windowControls.maximize()
+    window.windowControls.toggleMaximize()
   }
 }
 

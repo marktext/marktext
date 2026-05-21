@@ -81,11 +81,7 @@ const nodeAPI = {
   arch: process.arch,
   env: {
     NODE_ENV: process.env.NODE_ENV,
-    HOME: process.env.HOME,
-    PATH: process.env.PATH,
     APPIMAGE: process.env.APPIMAGE,
-    UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
-    MARKTEXT_RIPGREP_PATH: process.env.MARKTEXT_RIPGREP_PATH,
     MARKTEXT_VERSION_STRING: process.env.MARKTEXT_VERSION_STRING
   },
   resourcesPath: process.resourcesPath,
@@ -107,7 +103,7 @@ const nodeAPI = {
 
 const windowControls = {
   minimize: () => ipcRenderer.send('mt::window-minimize'),
-  maximize: () => ipcRenderer.send('mt::window-maximize'),
+  toggleMaximize: () => ipcRenderer.send('mt::window-maximize'),
   close: () => ipcRenderer.send('mt::window-close'),
   toggleFullScreen: () => ipcRenderer.send('mt::window-toggle-fullscreen'),
   setFullScreen: (flag) => ipcRenderer.send('mt::window-set-fullscreen', flag),
@@ -136,46 +132,36 @@ const execAPI = {
   ripgrepSearch: (opts) => ipcRenderer.invoke('mt::ripgrep-search', opts),
   ripgrepFileSearch: (opts) => ipcRenderer.invoke('mt::ripgrep-file-search', opts),
   cancelRipgrep: (searchId) => ipcRenderer.send('mt::ripgrep-cancel', searchId),
-  onRipgrepData: (callback) => ipcRenderer.on('mt::ripgrep-search-data', (event, data) => callback(data)),
-  onRipgrepDone: (callback) => ipcRenderer.on('mt::ripgrep-search-done', (event, data) => callback(data)),
-  removeRipgrepListeners: () => {
-    ipcRenderer.removeAllListeners('mt::ripgrep-search-data')
-    ipcRenderer.removeAllListeners('mt::ripgrep-search-done')
+  onRipgrepData: (callback) => {
+    const handler = (event, data) => callback(data)
+    ipcRenderer.on('mt::ripgrep-search-data', handler)
+    return handler
+  },
+  onRipgrepDone: (callback) => {
+    const handler = (event, data) => callback(data)
+    ipcRenderer.on('mt::ripgrep-search-done', handler)
+    return handler
+  },
+  removeRipgrepListener: (channel, handler) => {
+    ipcRenderer.removeListener(channel, handler)
   }
 }
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', {
-      ...electronAPI,
-      ...customElectronAPI
-    })
-    contextBridge.exposeInMainWorld('fileUtils', fileUtilsAPI)
-    contextBridge.exposeInMainWorld('path', path)
-    contextBridge.exposeInMainWorld('commandExists', commandAPI)
-    contextBridge.exposeInMainWorld('i18nUtils', i18nUtils)
-    contextBridge.exposeInMainWorld('nodeAPI', nodeAPI)
-    contextBridge.exposeInMainWorld('windowControls', windowControls)
-    contextBridge.exposeInMainWorld('contextMenuAPI', contextMenuAPI)
-    contextBridge.exposeInMainWorld('clipboardAPI', clipboardAPI)
-    contextBridge.exposeInMainWorld('fontAPI', fontAPI)
-    contextBridge.exposeInMainWorld('execAPI', execAPI)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  window.electron = { ...electronAPI, ...customElectronAPI }
-  window.fileUtils = fileUtilsAPI
-  window.path = path
-  window.commandExists = commandAPI
-  window.i18nUtils = i18nUtils
-  window.nodeAPI = nodeAPI
-  window.windowControls = windowControls
-  window.contextMenuAPI = contextMenuAPI
-  window.clipboardAPI = clipboardAPI
-  window.fontAPI = fontAPI
-  window.execAPI = execAPI
+try {
+  contextBridge.exposeInMainWorld('electron', {
+    ...electronAPI,
+    ...customElectronAPI
+  })
+  contextBridge.exposeInMainWorld('fileUtils', fileUtilsAPI)
+  contextBridge.exposeInMainWorld('path', path)
+  contextBridge.exposeInMainWorld('commandExists', commandAPI)
+  contextBridge.exposeInMainWorld('i18nUtils', i18nUtils)
+  contextBridge.exposeInMainWorld('nodeAPI', nodeAPI)
+  contextBridge.exposeInMainWorld('windowControls', windowControls)
+  contextBridge.exposeInMainWorld('contextMenuAPI', contextMenuAPI)
+  contextBridge.exposeInMainWorld('clipboardAPI', clipboardAPI)
+  contextBridge.exposeInMainWorld('fontAPI', fontAPI)
+  contextBridge.exposeInMainWorld('execAPI', execAPI)
+} catch (error) {
+  console.error(error)
 }

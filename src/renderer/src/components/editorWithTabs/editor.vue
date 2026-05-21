@@ -1085,7 +1085,6 @@ onMounted(() => {
   Muya.use(EmojiPicker)
   Muya.use(ImagePathPicker)
   Muya.use(ImageSelector, {
-    unsplashAccessKey: window.nodeAPI.env.UNSPLASH_ACCESS_KEY,
     photoCreatorClick
   })
   Muya.use(Transformer)
