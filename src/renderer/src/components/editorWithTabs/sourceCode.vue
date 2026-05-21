@@ -10,7 +10,7 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
-import codeMirror, { setMode, setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
+import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from 'muya/lib/utils'
 import { adjustCursor } from '../../util'
 import bus from '../../bus'
@@ -304,7 +304,10 @@ onMounted(() => {
   // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
   const codeMirrorInstance = codeMirror(container, codeMirrorConfig)
 
-  setMode(codeMirrorInstance, 'markdown')
+  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
+  // `$$...$$` spans to stex so subscript underscores in math do not flip the
+  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
+  codeMirrorInstance.setOption('mode', 'markdown-math')
 
   codeMirrorInstance.on('contextmenu', (cm, event) => {
     event.preventDefault()

@@ -8,6 +8,7 @@ import codeMirror from 'codemirror/lib/codemirror'
 import loadmode from './loadmode'
 import overlayMode from './overlayMode'
 import multiplexMode from './mltiplexMode'
+import registerMarkdownMathMode from './markdownMathMode'
 import languages from './modes'
 import 'codemirror/lib/codemirror.css'
 import './index.css'
@@ -16,6 +17,7 @@ import 'codemirror/theme/railscasts.css'
 loadmode(codeMirror)
 overlayMode(codeMirror)
 multiplexMode(codeMirror)
+registerMarkdownMathMode(codeMirror)
 window.CodeMirror = codeMirror
 
 const modes = codeMirror.modeInfo
