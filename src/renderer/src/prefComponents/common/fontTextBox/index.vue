@@ -95,11 +95,9 @@ const handleMoreClick = () => {
 }
 
 onMounted(async () => {
-  // Delay load native library because it's not needed for the editor and causes a delay.
-  const { getFonts } = require('font-list')
-
-  const fonts = await getFonts()
-  fontFamilies.value = fonts.map((f) => f.replace(/"/g, '').trim())
+  // font-list is a native module; it runs in the main process and is reached via IPC.
+  const fonts = await window.fonts.list()
+  fontFamilies.value = (fonts || []).map((f) => f.replace(/"/g, '').trim())
 })
 </script>
 

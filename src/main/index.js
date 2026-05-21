@@ -3,7 +3,6 @@ import path from 'path'
 import { app, dialog, crashReporter } from 'electron'
 import log from 'electron-log'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { initialize as remoteInitializeServer } from '@electron/remote/main'
 
 import cli from './cli'
 import setupExceptionHandler, { initExceptionLogger } from './exceptionHandler'
@@ -12,6 +11,7 @@ import { getLogLevel } from './utils'
 import Accessor from './app/accessor'
 import App from './app'
 import { t } from './i18n'
+import { registerSandboxIpcHandlers } from './ipc'
 
 // Set version strings into global and process.versions
 process.env.MARKTEXT_VERSION = MARKTEXT_VERSION
@@ -74,8 +74,8 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
   }
 }
 
-// Enable remote module for windows
-remoteInitializeServer()
+// Register sandbox-safe IPC handlers used by the contextBridge preload
+registerSandboxIpcHandlers()
 
 // Windows-specific AppUserModelID
 electronApp.setAppUserModelId('com.electron.marktext')

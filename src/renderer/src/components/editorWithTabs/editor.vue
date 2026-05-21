@@ -854,7 +854,7 @@ const handleExport = async (options) => {
     throw new Error(`Invalid type to export: "${type}".`)
   }
 
-  const extraCss = getCssForOptions(options)
+  const extraCss = await getCssForOptions(options)
   const htmlToc = getHtmlToc(editor.value.getTOC(), options)
 
   switch (type) {
@@ -1085,7 +1085,7 @@ onMounted(() => {
   Muya.use(EmojiPicker)
   Muya.use(ImagePathPicker)
   Muya.use(ImageSelector, {
-    unsplashAccessKey: process.env.UNSPLASH_ACCESS_KEY,
+    unsplashAccessKey: window.electron?.process?.env?.UNSPLASH_ACCESS_KEY,
     photoCreatorClick
   })
   Muya.use(Transformer)

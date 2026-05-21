@@ -51,17 +51,27 @@ export const t = (key, ...args) => {
   }
 }
 
+// Cache in-flight translation loads so that concurrent setLanguage() calls
+// don't fire duplicate IPCs for the same locale.
+const inflightLoads = new Map()
+
 // Export language setter function
-export const setLanguage = (locale) => {
+export const setLanguage = async(locale) => {
   if (!locale) return
   if (!i18n.global.availableLocales.includes(locale)) {
-    // Locale not yet available, need to get it from the main process
-    const translation = window.i18nUtils.loadTranslations(locale)
-    if (!translation) return // Failed to load locale file, error msg should be in the loadTranslations function
+    let pending = inflightLoads.get(locale)
+    if (!pending) {
+      pending = Promise.resolve(window.i18nUtils.loadTranslations(locale))
+        .finally(() => inflightLoads.delete(locale))
+      inflightLoads.set(locale, pending)
+    }
+    const translation = await pending
+    if (!translation) return // Failed to load locale file
 
-    // Add the loaded locale to i18n instance
-    i18n.global.setLocaleMessage(locale, translation)
-    console.log(`🌐 Loaded and set new locale: ${locale}`)
+    if (!i18n.global.availableLocales.includes(locale)) {
+      i18n.global.setLocaleMessage(locale, translation)
+      console.log(`🌐 Loaded and set new locale: ${locale}`)
+    }
   }
   i18n.global.locale.value = locale
 }

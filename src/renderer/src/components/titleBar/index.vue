@@ -135,10 +135,9 @@
 </template>
 
 <script setup>
-import { getCurrentWindow, Menu as RemoteMenu } from '@electron/remote'
 import { usePreferencesStore } from '@/store/preferences.js'
 import { useLayoutStore } from '@/store/layout.js'
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { storeToRefs } from 'pinia'
 import { minimizePath, restorePath, maximizePath, closePath } from '../../assets/window-controls.js'
 import { PATH_SEPARATOR } from '../../config'
@@ -185,9 +184,20 @@ const windowIconRestore = restorePath
 const windowIconMaximize = maximizePath
 const windowIconClose = closePath
 
-const isFullScreen = ref(getCurrentWindow().isFullScreen())
-const isMaximized = ref(getCurrentWindow().isMaximized())
+const isFullScreen = ref(false)
+const isMaximized = ref(false)
 const show = ref('word')
+
+onMounted(async () => {
+  try {
+    const [fs, max] = await Promise.all([
+      window.electron.windowControl.isFullScreen(),
+      window.electron.windowControl.isMaximized()
+    ])
+    isFullScreen.value = !!fs
+    isMaximized.value = !!max
+  } catch {}
+})
 
 const { titleBarStyle } = storeToRefs(preferencesStore)
 const { showTabBar } = storeToRefs(layoutStore)
@@ -228,18 +238,16 @@ const handleWordClick = () => {
 }
 
 const handleCloseClick = () => {
-  getCurrentWindow().close()
+  window.electron.windowControl.close()
 }
 
-const handleMaximizeClick = () => {
-  const win = getCurrentWindow()
-  if (win.isFullScreen()) {
-    win.setFullScreen(false)
-  } else if (win.isMaximized()) {
-    win.unmaximize()
-  } else {
-    win.maximize()
+const handleMaximizeClick = async () => {
+  if (isFullScreen.value) {
+    window.electron.windowControl.setFullScreen(false)
+    return
   }
+  if (isMaximized.value) window.electron.windowControl.unmaximize()
+  else window.electron.windowControl.maximize()
 }
 
 const toggleMaxmizeOnMacOS = () => {
@@ -249,12 +257,11 @@ const toggleMaxmizeOnMacOS = () => {
 }
 
 const handleMinimizeClick = () => {
-  getCurrentWindow().minimize()
+  window.electron.windowControl.minimize()
 }
 
 const handleMenuClick = () => {
-  const win = getCurrentWindow()
-  RemoteMenu.getApplicationMenu().popup({ window: win, x: 23, y: 20 })
+  window.electron.windowControl.popupApplicationMenu({ x: 23, y: 20 })
 }
 
 const rename = () => {
@@ -276,16 +283,16 @@ const onLeaveFullScreen = () => {
   isFullScreen.value = false
 }
 
-window.electron.ipcRenderer.on('mt::window-maximize', onMaximize)
-window.electron.ipcRenderer.on('mt::window-unmaximize', onUnmaximize)
-window.electron.ipcRenderer.on('mt::window-enter-full-screen', onEnterFullScreen)
-window.electron.ipcRenderer.on('mt::window-leave-full-screen', onLeaveFullScreen)
+const offMaximize = window.electron.ipcRenderer.on('mt::window-maximize', onMaximize)
+const offUnmaximize = window.electron.ipcRenderer.on('mt::window-unmaximize', onUnmaximize)
+const offEnterFullScreen = window.electron.ipcRenderer.on('mt::window-enter-full-screen', onEnterFullScreen)
+const offLeaveFullScreen = window.electron.ipcRenderer.on('mt::window-leave-full-screen', onLeaveFullScreen)
 
 onBeforeUnmount(() => {
-  window.electron.ipcRenderer.removeListener('mt::window-maximize', onMaximize)
-  window.electron.ipcRenderer.removeListener('mt::window-unmaximize', onUnmaximize)
-  window.electron.ipcRenderer.removeListener('mt::window-enter-full-screen', onEnterFullScreen)
-  window.electron.ipcRenderer.removeListener('mt::window-leave-full-screen', onLeaveFullScreen)
+  offMaximize()
+  offUnmaximize()
+  offEnterFullScreen()
+  offLeaveFullScreen()
 })
 </script>
 

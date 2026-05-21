@@ -32,7 +32,7 @@ export const useLayoutStore = defineStore('layout', {
   actions: {
     SET_LAYOUT(layout, { scheduleBufferUpdate = true } = {}) {
       if (layout.showSideBar !== undefined) {
-        const { windowId } = global.marktext.env
+        const { windowId } = window.marktext.env
         window.electron.ipcRenderer.send('mt::update-sidebar-menu', windowId, !!layout.showSideBar)
         const preferencesStore = usePreferencesStore()
         preferencesStore.SET_SINGLE_PREFERENCE({
@@ -103,7 +103,7 @@ export const useLayoutStore = defineStore('layout', {
 
       bus.on('view:toggle-layout-entry', (entryName) => {
         this.TOGGLE_LAYOUT_ENTRY(entryName)
-        const { windowId } = global.marktext.env
+        const { windowId } = window.marktext.env
         window.electron.ipcRenderer.send('mt::view-layout-changed', windowId, {
           [entryName]: this[entryName]
         })
@@ -111,7 +111,7 @@ export const useLayoutStore = defineStore('layout', {
     },
 
     DISPATCH_LAYOUT_MENU_ITEMS() {
-      const { windowId } = global.marktext.env
+      const { windowId } = window.marktext.env
       const { showTabBar, showSideBar } = this
       window.electron.ipcRenderer.send('mt::view-layout-changed', windowId, {
         showTabBar,

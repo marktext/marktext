@@ -1,4 +1,3 @@
-import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   SEPARATOR,
   getCloseThis,
@@ -9,12 +8,19 @@ import {
   getCopyPath,
   getShowInFolder
 } from './menuItems'
+import { popupContextMenu } from '../popupMenu'
+
+const wrapClick = (item, tabId) => {
+  if (!item || item.type === 'separator') return item
+  const click = item.click
+  return {
+    ...item,
+    click: click ? () => click({ _tabId: tabId }, null) : undefined
+  }
+}
 
 export const showContextMenu = (event, tab) => {
-  const menu = new RemoteMenu()
-  const win = getCurrentWindow()
   const { pathname } = tab
-  // Dynamically fetch menu items to ensure correct translation
   const closeThis = getCloseThis()
   const closeOthers = getCloseOthers()
   const closeSaved = getCloseSaved()
@@ -23,17 +29,12 @@ export const showContextMenu = (event, tab) => {
   const copyPath = getCopyPath()
   const showInFolder = getShowInFolder()
 
-  const CONTEXT_ITEMS = [closeThis, closeOthers, closeSaved, closeAll, SEPARATOR, rename, copyPath, showInFolder]
-  const FILE_CONTEXT_ITEMS = [rename, copyPath, showInFolder]
-
-  FILE_CONTEXT_ITEMS.forEach(item => {
+  ;[rename, copyPath, showInFolder].forEach((item) => {
     item.enabled = !!pathname
   })
 
-  CONTEXT_ITEMS.forEach(item => {
-    const menuItem = new RemoteMenuItem(item)
-    menuItem._tabId = tab.id
-    menu.append(menuItem)
-  })
-  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+  const items = [closeThis, closeOthers, closeSaved, closeAll, SEPARATOR, rename, copyPath, showInFolder]
+    .map((item) => wrapClick(item, tab.id))
+
+  popupContextMenu(items, { x: event.clientX, y: event.clientY })
 }

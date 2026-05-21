@@ -1,10 +1,4 @@
-import crypto from 'crypto'
-
-import { statSync, constants } from 'fs'
-import { exec, execFile } from 'child_process'
-import { tmpdir } from 'os'
 import dayjs from 'dayjs'
-import { Octokit } from '@octokit/rest'
 
 export const create = async(pathname, type) => {
   return type === 'directory'
@@ -20,13 +14,34 @@ export const rename = async(src, dest) => {
   return window.fileUtils.move(src, dest)
 }
 
-export const getHash = (content, encoding, type) => {
-  return crypto.createHash(type).update(content, encoding).digest('hex')
+const toHex = (buf) => {
+  const bytes = new Uint8Array(buf)
+  let out = ''
+  for (let i = 0; i < bytes.length; i++) out += bytes[i].toString(16).padStart(2, '0')
+  return out
 }
 
-export const getContentHash = (content) => {
-  return getHash(content, 'utf8', 'sha1')
+// Replacement for crypto.createHash that uses the Web Crypto API. Only SHA-1 is
+// used by callers in this file.
+export const getHash = async(content, encoding, type) => {
+  const algo = type === 'sha1' ? 'SHA-1' : type === 'sha256' ? 'SHA-256' : 'SHA-512'
+  let data
+  if (encoding === 'utf8' || encoding == null) {
+    data = new TextEncoder().encode(typeof content === 'string' ? content : String(content))
+  } else if (content instanceof Uint8Array) {
+    data = content
+  } else if (content instanceof ArrayBuffer) {
+    data = new Uint8Array(content)
+  } else if (typeof content === 'string') {
+    data = new TextEncoder().encode(content)
+  } else {
+    data = new TextEncoder().encode(String(content))
+  }
+  const digest = await window.crypto.subtle.digest(algo, data)
+  return toHex(digest)
 }
+
+export const getContentHash = (content) => getHash(content, 'utf8', 'sha1')
 
 export const moveImageToFolder = async(
   pathname,
@@ -40,7 +55,7 @@ export const moveImageToFolder = async(
   if (isPath) {
     const dir = window.path.dirname(pathname)
     const imagePath = window.path.resolve(dir, image)
-    const isImage = window.fileUtils.isImageFile(imagePath)
+    const isImage = await window.fileUtils.isImageFile(imagePath)
     if (isImage) {
       const filename = window.path.basename(imagePath)
       const ext = window.path.extname(imagePath)
@@ -48,7 +63,7 @@ export const moveImageToFolder = async(
       if (noHashPath === imagePath) {
         return imagePath
       }
-      const hash = getContentHash(imagePath)
+      const hash = await getContentHash(imagePath)
       const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
       await window.fileUtils.copy(imagePath, hashFilePath)
       return hashFilePath
@@ -61,8 +76,8 @@ export const moveImageToFolder = async(
       `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${image.name}`
     )
 
-    const buffer = Buffer.from(await image.arrayBuffer())
-    await window.fileUtils.writeFile(imagePath, buffer, 'binary')
+    const buffer = new Uint8Array(await image.arrayBuffer())
+    await window.fileUtils.writeFile(imagePath, buffer)
 
     if (isRelative && currentPathname) {
       return window.path.relative(window.path.dirname(currentPathname), imagePath)
@@ -72,225 +87,26 @@ export const moveImageToFolder = async(
   }
 }
 
-/**
- * @jocs todo, rewrite it use class
- */
 export const uploadImage = async(pathname, image, preferences) => {
-  const { currentUploader, imageBed, githubToken: auth, cliScript } = preferences
-  const { owner, repo, branch } = imageBed.github
+  if (preferences.currentUploader === 'none') {
+    throw new Error('No image uploader provided.')
+  }
   const isPath = typeof image === 'string'
-  const MAX_SIZE = 5 * 1024 * 1024
-  let resolvePromise, rejectPromise
-  // eslint-disable-next-line promise/param-names
-  const promise = new Promise((res, rej) => {
-    resolvePromise = res
-    rejectPromise = rej
-  })
-
-  if (currentUploader === 'none') {
-    rejectPromise('No image uploader provided.')
-  }
-
-  const uploadByGithub = (content, filename) => {
-    const octokit = new Octokit({ auth })
-    const filePath = `${dayjs().format('YYYY/MM')}/${dayjs().format('DD-HH-mm-ss')}-${filename}`
-    const message = `Upload by MarkText at ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`
-    const payload = { owner, repo, path: filePath, branch, message, content }
-    if (!branch) delete payload.branch
-    octokit.repos
-      .createOrUpdateFileContents(payload)
-      .then((result) => resolvePromise(result.data.content.download_url))
-      .catch(() => rejectPromise('Upload failed, the image will be copied to the image folder'))
-  }
-
-  // Build a robust PATH for spawned processes (Electron packaged apps often miss Homebrew paths)
-  const getPreferredPathEnv = () => {
-    const extras =
-      process.platform === 'darwin'
-        ? ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin']
-        : process.platform === 'linux'
-          ? ['/usr/local/bin', '/usr/bin', '/bin']
-          : []
-    const cur = (process.env.PATH || '').split(':')
-    const merged = [...cur]
-    for (const p of extras) if (p && !merged.includes(p)) merged.push(p)
-    return merged.filter(Boolean).join(':')
-  }
-
-  const resolvePicgoBinary = () => {
-    const candidates =
-      process.platform === 'win32'
-        ? ['picgo', 'picgo.exe']
-        : [
-          'picgo',
-          '/opt/homebrew/bin/picgo',
-          '/usr/local/bin/picgo',
-          '/usr/bin/picgo',
-          `${process.env.HOME}/.npm-global/bin/picgo`,
-          `${process.env.HOME}/.npm/bin/picgo`,
-          '/usr/local/lib/node_modules/.bin/picgo'
-        ]
-    for (const c of candidates) {
-      try {
-        if (window.commandExists?.exists && window.commandExists.exists(c)) return c
-        if (
-          c.startsWith('/') &&
-          window.fileUtils?.pathExistsSync &&
-          window.fileUtils.pathExistsSync(c)
-        ) {
-          return c
-        }
-      } catch {}
-    }
-    return null
-  }
-
-  const parsePicgoOutput = (text) => {
-    const raw = String(text || '')
-    // eslint-disable-next-line no-control-regex
-    const cleaned = raw.replace(/\u001b\[[0-9;]*m/g, '') // strip ANSI colors
-    try {
-      const lines = cleaned
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter(Boolean)
-      for (const line of lines) {
-        if (
-          (line.startsWith('{') && line.endsWith('}')) ||
-          (line.startsWith('[') && line.endsWith(']'))
-        ) {
-          try {
-            const obj = JSON.parse(line)
-            if (obj) {
-              // Only return URL on explicit success
-              if (obj.success === true && typeof obj.imgUrl === 'string') return obj.imgUrl
-              if (obj.success === true && Array.isArray(obj.result) && obj.result.length > 0) {
-                return String(obj.result[obj.result.length - 1])
-              }
-              if (obj.success === true && typeof obj.url === 'string') return obj.url
-            }
-          } catch {}
-        }
-        // Only accept URL when 'success' keyword is present
-        const kv = line.match(/(?:success|succeeded|uploaded)\s*:?\s*(https?:\/\/\S+)/i)
-        if (kv && kv[1]) return kv[1]
-      }
-      // last non-empty line may be the URL itself
-      // No longer use the last line URL as a fallback to avoid false positives
-    } catch {}
-    const marker = cleaned.split('[PicGo SUCCESS]:')
-    if (marker.length >= 2) {
-      const candidate = marker[marker.length - 1].trim()
-      if (/^https?:\/\//i.test(candidate)) return candidate
-    }
-    // No longer use arbitrary URL as a fallback
-    return null
-  }
-
-  const uploadByCommand = async(uploader, filepath, suffix = '') => {
-    let localIsPath = true
-    let localPath = filepath
-    if (typeof filepath !== 'string') {
-      localIsPath = false
-      const data = new Uint8Array(filepath)
-      localPath = window.path.join(tmpdir(), `${Date.now()}${suffix}`)
-      await window.fileUtils.writeFile(localPath, data)
-    }
-    const handleExec = (err, data, stderr) => {
-      try {
-        if (!localIsPath) window.fileUtils?.unlink && window.fileUtils.unlink(localPath)
-      } catch {}
-      if (err) return rejectPromise(err)
-      const text = String(data || '') + (stderr ? `\n${String(stderr)}` : '')
-      const url = parsePicgoOutput(text)
-      if (url) resolvePromise(url)
-      else rejectPromise(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`)
-    }
-    if (uploader === 'picgo') {
-      const cmd = resolvePicgoBinary()
-      if (!cmd) return rejectPromise('PicGo command not found in PATH')
-      exec(
-        `${cmd} u "${localPath}"`,
-        { env: { ...process.env, PATH: getPreferredPathEnv() } },
-        handleExec
-      )
-    } else {
-      execFile(
-        cliScript,
-        [localPath],
-        { env: { ...process.env, PATH: getPreferredPathEnv() } },
-        (err, data) => {
-          try {
-            if (!localIsPath) window.fileUtils?.unlink && window.fileUtils.unlink(localPath)
-          } catch {}
-          if (err) return rejectPromise(err)
-          resolvePromise(String(data || '').trim())
-        }
-      )
-    }
-  }
-
-  const notification = () => {
-    rejectPromise('Cannot upload more than 5M image, the image will be copied to the image folder')
-  }
-
   if (isPath) {
-    const dir = window.path.dirname(pathname)
-    const imagePath = window.path.resolve(dir, image)
-    const isImg = window.fileUtils.isImageFile(imagePath)
-    if (isImg) {
-      const { size } = await window.fileUtils.stat(imagePath)
-      if (size > MAX_SIZE) notification()
-      else {
-        switch (currentUploader) {
-          case 'cliScript':
-          case 'picgo':
-            uploadByCommand(currentUploader, imagePath)
-            break
-          case 'github': {
-            const fileBuffer = await window.fileUtils.readFile(imagePath)
-            const base64 = Buffer.from(fileBuffer).toString('base64')
-            uploadByGithub(base64, window.path.basename(imagePath))
-            break
-          }
-        }
-      }
-    } else {
-      resolvePromise(image)
-    }
-  } else {
-    const { size } = image
-    if (size > MAX_SIZE) notification()
-    else {
-      const reader = new FileReader()
-      reader.onload = () => {
-        switch (currentUploader) {
-          case 'picgo':
-          case 'cliScript':
-            uploadByCommand(currentUploader, reader.result, window.path.extname(image.name))
-            break
-          default:
-            uploadByGithub(Buffer.from(reader.result).toString('base64'), image.name)
-        }
-      }
-      reader.readAsArrayBuffer(image)
-    }
+    return window.uploader.uploadImage({ pathname, image, isPath: true, preferences })
   }
-  return promise
+  const arrayBuffer = await image.arrayBuffer()
+  const payload = {
+    pathname,
+    image: {
+      data: new Uint8Array(arrayBuffer),
+      name: image.name,
+      byteLength: arrayBuffer.byteLength
+    },
+    isPath: false,
+    preferences
+  }
+  return window.uploader.uploadImage(payload)
 }
 
-export const isFileExecutableSync = (filepath) => {
-  try {
-    const stat = statSync(filepath)
-    if (process.platform === 'win32') {
-      return stat.isFile()
-    } else {
-      return (
-        stat.isFile() &&
-        (stat.mode & (constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH)) !== 0
-      )
-    }
-  } catch {
-    return false
-  }
-}
+export const isFileExecutable = (filepath) => window.fileUtils.isExecutable(filepath)

@@ -1,4 +1,4 @@
-import zlib from 'zlib'
+import { deflate } from 'pako'
 import { toHTML, h } from './snabbdom'
 
 const PLANTUML_URL = 'https://www.plantuml.com/plantuml'
@@ -12,26 +12,25 @@ function maketrans(tableIn, tableOut, value) {
   return [...value].map(i => replaceChar(tableIn, tableOut, i)).join('')
 }
 
+// Encode a Uint8Array as a base64 string without leaning on Node's Buffer.
+function uint8ArrayToBase64(bytes) {
+  let binary = ''
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk))
+  }
+  return btoa(binary)
+}
+
 export default class Diagram {
   encodedInput = ''
 
-  /**
-   * Builds a Diagram object storing the encoded input value
-   */
   static parse(input) {
     const diagram = new Diagram()
     diagram.encodedInput = Diagram.encode(input)
     return diagram
   }
 
-  /**
-   * Encodes a diagram following PlantUML specs
-   *
-   * From https://plantuml.com/text-encoding
-   * 1. Encoded in UTF-8
-   * 2. Compressed using Deflate or Brotli algorithm
-   * 3. Reencoded in ASCII using a transformation close to base64
-   */
   static encode(value) {
     const tableIn =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -39,8 +38,9 @@ export default class Diagram {
       '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'
 
     const utf8Value = decodeURIComponent(encodeURIComponent(value))
-    const compressedValue = zlib.deflateSync(utf8Value, { level: 3 })
-    const base64Value = compressedValue.toString('base64')
+    const bytes = new TextEncoder().encode(utf8Value)
+    const compressed = deflate(bytes, { level: 3 })
+    const base64Value = uint8ArrayToBase64(compressed)
     return maketrans(tableIn, tableOut, base64Value)
   }
 

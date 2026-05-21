@@ -1,6 +1,22 @@
 import { URL_REG, DATA_URL_REG } from '../config'
 import { correctImageSrc } from '../utils/getImageInfo'
-import { fileURLToPath } from 'url'
+
+// Browser-friendly replacement for Node's `url.fileURLToPath`. Renderer is
+// sandboxed so we can't reach Node's `url` module.
+const fileURLToPath = (input) => {
+  if (!input) return ''
+  let url
+  try {
+    url = typeof input === 'string' ? new URL(input) : input
+  } catch {
+    return String(input)
+  }
+  if (url.protocol !== 'file:') return String(input)
+  let pathname = decodeURIComponent(url.pathname || '')
+  // On Windows, file:///C:/foo → "/C:/foo"; strip the leading slash.
+  if (/^\/[a-zA-Z]:/.test(pathname)) pathname = pathname.slice(1)
+  return pathname
+}
 
 const imageCtrl = (ContentState) => {
   /**

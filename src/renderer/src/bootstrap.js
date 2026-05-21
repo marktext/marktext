@@ -4,7 +4,8 @@ import RendererPaths from './node/paths'
 let exceptionLogger = (s) => console.error(s)
 
 const configureLogger = () => {
-  log.transports.console.level = process.env.NODE_ENV === 'development' ? 'info' : false // mirror to window console
+  const isDev = window.electron?.process?.env?.NODE_ENV === 'development'
+  log.transports.console.level = isDev ? 'info' : false // mirror to window console
   exceptionLogger = log.error
 }
 
@@ -103,7 +104,8 @@ const bootstrapRenderer = () => {
     },
     paths
   }
-  global.marktext = marktext
+  // `global` is not available in a sandboxed renderer — attach to window.
+  window.marktext = marktext
 
   configureLogger()
 }

@@ -1,7 +1,6 @@
 import { resolve, dirname } from 'path'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
-import renderer from 'vite-plugin-electron-renderer'
 import svgLoader from 'vite-svg-loader'
 import postcssPresetEnv from 'postcss-preset-env'
 import packageJson from './package.json' with { type: 'json' }
@@ -37,6 +36,14 @@ export default defineConfig({
   },
   preload: {
     // --> Bundled as CommonJS
+    // With sandbox: true the renderer's preload can only `require('electron')`
+    // (plus a few built-ins). Inline path-browserify so the bundled preload
+    // doesn't try to require it from node_modules at runtime.
+    build: {
+      externalizeDeps: {
+        exclude: ['path-browserify']
+      }
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer/src'),
@@ -48,16 +55,25 @@ export default defineConfig({
   },
   renderer: {
     // --> Bundled as ES Modules
+    // The renderer runs in a sandboxed Chromium context (contextIsolation: true,
+    // nodeIntegration: false, sandbox: true). All Node access must go through
+    // the preload → IPC bridge. Aliasing `path` → `path-browserify` lets the
+    // shared `common/*` helpers and muya keep their `import path from 'path'`
+    // statements without pulling in Node's path module.
     assetsInclude: ['**/*.md'],
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer/src'),
         common: resolve(__dirname, 'src/common'),
-        muya: resolve(__dirname, 'src/muya')
+        muya: resolve(__dirname, 'src/muya'),
+        path: 'path-browserify'
       },
       extensions: ['.mjs', '.js', '.json', '.vue']
     },
-    plugins: [vue(), svgLoader(), renderer()],
+    optimizeDeps: {
+      include: ['pako', 'path-browserify']
+    },
+    plugins: [vue(), svgLoader()],
     css: {
       postcss: {
         plugins: [

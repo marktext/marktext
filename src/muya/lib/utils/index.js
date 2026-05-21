@@ -1,6 +1,6 @@
 import runSanitize from './dompurify'
 import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
-import path from 'path'
+import path from 'path-browserify'
 export { getUniqueId, getLongUniqueId } from './random'
 
 const TIMEOUT = 1500

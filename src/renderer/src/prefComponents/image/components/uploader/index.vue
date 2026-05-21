@@ -307,7 +307,7 @@ import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
 import getServices, { isValidService } from './services.js'
 import legalNoticesCheckbox from './legalNoticesCheckbox.vue'
-import { isFileExecutableSync } from '@/util/fileSystem'
+import { isFileExecutable } from '@/util/fileSystem'
 import CurSelect from '@/prefComponents/common/select'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
@@ -362,12 +362,25 @@ const legalNoticesErrorStates = reactive({
 const { currentUploader, imageBed, githubToken: prefGithubToken, cliScript: prefCliScript } = storeToRefs(preferenceStore)
 
 const githubDisable = computed(() => !githubToken.value || !github.owner || !github.repo)
-const cliScriptDisable = computed(() => {
-  if (!cliScript.value) {
-    return true
-  }
-  return !isFileExecutableSync(cliScript.value)
-})
+// `isFileExecutable` is async via IPC; track the result in a ref so the
+// disabled state still updates reactively.
+const cliScriptExecutable = ref(false)
+watch(
+  cliScript,
+  async (value) => {
+    if (!value) {
+      cliScriptExecutable.value = false
+      return
+    }
+    try {
+      cliScriptExecutable.value = await isFileExecutable(value)
+    } catch {
+      cliScriptExecutable.value = false
+    }
+  },
+  { immediate: true }
+)
+const cliScriptDisable = computed(() => !cliScript.value || !cliScriptExecutable.value)
 
 // watch
 watch(imageBed, (value, oldValue) => {

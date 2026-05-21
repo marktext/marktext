@@ -210,6 +210,7 @@ export const deepClone = (obj) => {
   return JSON.parse(JSON.stringify(obj))
 }
 
-export const isOsx = process.platform === 'darwin'
-export const isWindows = process.platform === 'win32'
-export const isLinux = process.platform === 'linux'
+const platform = (typeof window !== 'undefined' && window.electron && window.electron.process && window.electron.process.platform) || ''
+export const isOsx = platform === 'darwin'
+export const isWindows = platform === 'win32'
+export const isLinux = platform === 'linux'

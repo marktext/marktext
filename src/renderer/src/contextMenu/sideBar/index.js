@@ -1,4 +1,3 @@
-import { getCurrentWindow, Menu as RemoteMenu, MenuItem as RemoteMenuItem } from '@electron/remote'
 import {
   SEPARATOR,
   getNewFile,
@@ -10,11 +9,9 @@ import {
   getDELETE,
   getShowInFolder
 } from './menuItems'
+import { popupContextMenu } from '../popupMenu'
 
 export const showContextMenu = (event, hasPathCache) => {
-  const menu = new RemoteMenu()
-  const win = getCurrentWindow()
-  // Dynamically fetch menu items to ensure correct translation
   const contextItems = [
     getNewFile(),
     getNewDirectory(),
@@ -29,10 +26,17 @@ export const showContextMenu = (event, hasPathCache) => {
     getShowInFolder()
   ]
 
-  contextItems[5].enabled = hasPathCache // PASTE item
+  // PASTE entry (index 5) toggles based on the cached source path
+  contextItems[5].enabled = hasPathCache
 
-  contextItems.forEach(item => {
-    menu.append(new RemoteMenuItem(item))
+  const items = contextItems.map((item) => {
+    if (!item || item.type === 'separator') return item
+    const click = item.click
+    return {
+      ...item,
+      click: click ? () => click(null, null) : undefined
+    }
   })
-  menu.popup([{ window: win, x: event.clientX, y: event.clientY }])
+
+  popupContextMenu(items, { x: event.clientX, y: event.clientY })
 }
