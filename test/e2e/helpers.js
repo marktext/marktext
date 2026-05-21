@@ -24,12 +24,26 @@ const getElectronPath = () => {
   return path.join(projectRoot, 'node_modules/electron/dist', relPath)
 }
 
+// Track every temp directory we create so we can sweep them on process exit
+// (Playwright workers persist across specs but die when the run ends).
+const createdTempDirs = new Set()
+const trackTempDir = (dir) => {
+  createdTempDirs.add(dir)
+  return dir
+}
+process.on('exit', () => {
+  for (const dir of createdTempDirs) {
+    try { fs.rmSync(dir, { recursive: true, force: true }) } catch { /* ignore */ }
+  }
+})
+
 const launchElectron = async userArgs => {
   userArgs = userArgs || []
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const args = [projectRoot, '--user-data-dir', getTempPath()].concat(userArgs)
+  const userDataDir = trackTempDir(getTempPath())
+  const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const app = await _electron.launch({
     executablePath,
     args,
@@ -60,7 +74,17 @@ const clickMenuById = async(app, id) => {
     const item = menu.getMenuItemById(menuId)
     if (!item) throw new Error('Menu id not found: ' + menuId)
     const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
+    // Electron auto-toggles `checked` for checkbox/radio items on a real
+    // click. Replicate that here so handlers that read `menuItem.checked`
+    // (e.g. theme `follow-system-theme`) behave the same under tests.
+    if (item.type === 'checkbox') {
+      item.checked = !item.checked
+    } else if (item.type === 'radio') {
+      item.checked = true
+    }
     // MenuItem.click signature: (event, focusedWindow, focusedWebContents).
+    // Electron synthesizes the menuItem argument for template handlers via
+    // _executeCommand, so we only need to forward window/webContents.
     // Do not call win.focus() — on xvfb that can collapse the renderer's
     // current DOM selection, breaking format/selection-driven menu actions.
     item.click(undefined, win, win ? win.webContents : undefined)
@@ -175,7 +199,7 @@ const setSourceMarkdown = async(page, app, markdown) => {
 }
 
 const writeTempMarkdown = (content) => {
-  const dir = getTempPath('-doc')
+  const dir = trackTempDir(getTempPath('-doc'))
   fs.mkdirSync(dir, { recursive: true })
   const filePath = path.join(dir, 'note.md')
   fs.writeFileSync(filePath, content, 'utf-8')
