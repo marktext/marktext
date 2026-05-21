@@ -52,7 +52,10 @@ export default defineConfig({
       alias: {
         '@': resolve(__dirname, 'src/renderer/src'),
         common: resolve(__dirname, 'src/common'),
-        muya: resolve(__dirname, 'src/muya')
+        muya: resolve(__dirname, 'src/muya'),
+        path: resolve(__dirname, 'src/renderer/src/shims/path.js'),
+        url: resolve(__dirname, 'src/renderer/src/shims/url.js'),
+        zlib: resolve(__dirname, 'src/renderer/src/shims/zlib.js')
       },
       extensions: ['.mjs', '.js', '.json', '.vue']
     },

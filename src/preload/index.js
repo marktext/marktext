@@ -1,5 +1,6 @@
 import { contextBridge, shell, clipboard, webUtils, ipcRenderer } from 'electron'
 import crypto from 'crypto'
+import zlib from 'zlib'
 import fs from 'fs-extra'
 import { isFile, isDirectory, ensureDirSync } from 'common/filesystem'
 import { electronAPI } from '@electron-toolkit/preload'
@@ -98,6 +99,10 @@ const nodeAPI = {
   },
   bufferToString: (data, encoding) => {
     return Buffer.from(data).toString(encoding)
+  },
+  deflateSync: (input, options) => {
+    const buf = zlib.deflateSync(input, options)
+    return buf.toString('base64')
   }
 }
 
