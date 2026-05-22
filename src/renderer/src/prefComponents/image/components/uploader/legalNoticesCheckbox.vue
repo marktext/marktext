@@ -25,16 +25,16 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { useI18n } from 'vue-i18n'
+import type { UploaderService } from './services'
 
 const { t } = useI18n()
 
-defineProps({
-  uploaderService: Object
-})
+defineProps<{
+  uploaderService: UploaderService
+}>()
 
-const openUrl = (link) => {
+const openUrl = (link: string): void => {
   if (link) {
     window.electron.shell.openExternal(link)
   }

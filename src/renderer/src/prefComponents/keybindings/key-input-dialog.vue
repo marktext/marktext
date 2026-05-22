@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import {
   isCompositionEvent,
   isValidElectronAccelerator,
@@ -54,25 +53,33 @@ import {
 import { ref, watch, useTemplateRef, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+// Shape returned by `getAcceleratorFromKeyboardEvent`. The `@hfelix`
+// package ships untyped, so describe just the fields we consume here.
+interface AcceleratorResult {
+  accelerator: string
+  isValid: boolean
+}
+
+interface KeyInputDialogProps {
+  onCommit: (value: string | null) => void
+  showWithId?: string | null
+}
+
 const { t } = useI18n()
 
-const props = defineProps({
-  onCommit: Function,
-  showWithId: {
-    type: String,
-    default: null
-  }
+const props = withDefaults(defineProps<KeyInputDialogProps>(), {
+  showWithId: null
 })
 
 let needCommitOnClose = true
-let currentKeybinding = null
+let currentKeybinding: AcceleratorResult | null = null
 const defaultPlaceholderText = t('preferences.keybindings.keyInputDialog.placeholder')
 
-const showKeyInputDialog = ref(false)
-const placeholderText = ref(defaultPlaceholderText)
-const isKeybindingValid = ref(true)
-const keybindingInputValue = ref('')
-const inputTextbox = useTemplateRef('inputTextbox')
+const showKeyInputDialog = ref<boolean>(false)
+const placeholderText = ref<string>(defaultPlaceholderText)
+const isKeybindingValid = ref<boolean>(true)
+const keybindingInputValue = ref<string>('')
+const inputTextbox = useTemplateRef<HTMLInputElement>('inputTextbox')
 
 watch(
   () => props.showWithId,
@@ -87,26 +94,26 @@ watch(
   }
 )
 
-const handleShow = () => {
+const handleShow = (): void => {
   needCommitOnClose = true
   showKeyInputDialog.value = true
 }
 
-const handleFocusOnShow = () => {
+const handleFocusOnShow = (): void => {
   if (!inputTextbox.value) return
   nextTick(() => {
-    inputTextbox.value.focus()
+    inputTextbox.value?.focus()
   })
 }
 
-const handleDialogClose = () => {
+const handleDialogClose = (): void => {
   currentKeybinding = null
   isKeybindingValid.value = true
   keybindingInputValue.value = ''
   showKeyInputDialog.value = false
 }
 
-const handleKeyDown = (event) => {
+const handleKeyDown = (event: KeyboardEvent): void => {
   event.preventDefault()
   event.stopPropagation()
   if (isCompositionEvent(event)) {
@@ -120,19 +127,19 @@ const handleKeyDown = (event) => {
     return
   }
 
-  const keybinding = getAcceleratorFromKeyboardEvent(event)
+  const keybinding = getAcceleratorFromKeyboardEvent(event) as AcceleratorResult
   currentKeybinding = keybinding
   // Verify whether the given key binding is valid for Electron.
   isKeybindingValid.value = keybinding.isValid && isValidElectronAccelerator(keybinding.accelerator)
   keybindingInputValue.value = keybinding.accelerator
 }
 
-const handleKeyUp = (event) => {
+const handleKeyUp = (event: KeyboardEvent): void => {
   event.preventDefault()
   event.stopPropagation()
 }
 
-const cancelKeybinding = () => {
+const cancelKeybinding = (): void => {
   // Don't commit twice if the user clicks on the background.
   if (needCommitOnClose) {
     needCommitOnClose = false
@@ -141,7 +148,7 @@ const cancelKeybinding = () => {
   }
 }
 
-const saveKeybinding = () => {
+const saveKeybinding = (): void => {
   if (!currentKeybinding) {
     cancelKeybinding()
     return
@@ -158,9 +165,9 @@ const saveKeybinding = () => {
   handleDialogClose()
 }
 
-const isRawKeyCode = (event, keyCode) => {
+const isRawKeyCode = (event: KeyboardEvent, keyCode: string): boolean => {
   const { code, ctrlKey, altKey, shiftKey, metaKey } = event
-  return event && code === keyCode && !ctrlKey && !altKey && !shiftKey && !metaKey
+  return Boolean(event) && code === keyCode && !ctrlKey && !altKey && !shiftKey && !metaKey
 }
 </script>
 

@@ -63,7 +63,10 @@
         "
         rows="10"
         :value="customCss"
-        @change="(event) => onSelectChange('customCss', event.target.value)"
+        @change="
+          (event: Event) =>
+            onSelectChange('customCss', (event.target as HTMLTextAreaElement).value)
+        "
       />
     </div>
     <separator v-show="false" />
@@ -89,20 +92,26 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import themeMd from './theme.md?raw'
 import { themes as configThemes } from './config'
 import markdownToHtml from '@/util/markdownToHtml'
-import Bool from '../common/bool'
-import CurSelect from '../common/select'
-import Separator from '../common/separator'
-import Compound from '../common/compound'
+import Bool from '../common/bool/index.vue'
+import CurSelect from '../common/select/index.vue'
+import Separator from '../common/separator/index.vue'
+import Compound from '../common/compound/index.vue'
+import type { PrefSelectOption } from '../common/types'
 
-const themes = ref([])
+interface ThemePreview {
+  name: string
+  html: string
+}
+
+const themes = ref<ThemePreview[]>([])
 
 const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
@@ -111,7 +120,7 @@ const { followSystemTheme, lightModeTheme, darkModeTheme, theme, customCss } =
   storeToRefs(preferenceStore)
 
 // Generate dropdown options from configThemes
-const themeOptions = configThemes.map((theme) => ({
+const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
   label: theme.name
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -120,7 +129,7 @@ const themeOptions = configThemes.map((theme) => ({
 }))
 
 onMounted(async () => {
-  const newThemes = []
+  const newThemes: ThemePreview[] = []
   for (const theme of configThemes) {
     const html = await markdownToHtml(themeMd.replace(/{theme}/, theme.name))
     newThemes.push({
@@ -131,7 +140,7 @@ onMounted(async () => {
   themes.value = newThemes
 })
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>

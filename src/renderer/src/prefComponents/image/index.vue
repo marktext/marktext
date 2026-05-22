@@ -29,10 +29,10 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import Separator from '../common/separator/index.vue'
 import Uploader from './components/uploader/index.vue'
 import CurSelect from '../common/select/index.vue'
@@ -48,7 +48,7 @@ const { imageInsertAction } = storeToRefs(preferenceStore)
 
 const imageActions = getImageActions()
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>

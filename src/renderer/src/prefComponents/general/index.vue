@@ -174,11 +174,11 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import Compound from '../common/compound/index.vue'
 import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
@@ -211,27 +211,27 @@ const {
   language
 } = storeToRefs(preferenceStore)
 
-const startUpAction = computed({
+const startUpAction = computed<string>({
   get: () => preferenceStore.startUpAction,
-  set: (value) => {
+  set: (value: string) => {
     const type = 'startUpAction'
     preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
   }
 })
 
-const restoreLayoutState = computed({
+const restoreLayoutState = computed<boolean>({
   get: () => preferenceStore.restoreLayoutState,
-  set: (value) => {
+  set: (value: boolean) => {
     const type = 'restoreLayoutState'
     preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
   }
 })
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
-const selectDefaultDirectoryToOpen = () => {
+const selectDefaultDirectoryToOpen = (): void => {
   preferenceStore.SELECT_DEFAULT_DIRECTORY_TO_OPEN()
 }
 </script>

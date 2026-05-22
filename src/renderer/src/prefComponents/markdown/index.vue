@@ -123,12 +123,12 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { useI18n } from 'vue-i18n'
-import Compound from '../common/compound'
+import Compound from '../common/compound/index.vue'
 import { usePreferencesStore } from '@/store/preferences'
-import Bool from '../common/bool'
-import CurSelect from '../common/select'
+import type { PreferencesState } from '@/store/preferences'
+import Bool from '../common/bool/index.vue'
+import CurSelect from '../common/select/index.vue'
 import {
   bulletListMarkerOptions,
   orderListDelimiterOptions,
@@ -157,13 +157,12 @@ const {
   sequenceTheme
 } = storeToRefs(preferenceStore)
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>
 
 <script lang="ts">
-// @ts-nocheck
 export default {
   name: 'Markdown'
 }

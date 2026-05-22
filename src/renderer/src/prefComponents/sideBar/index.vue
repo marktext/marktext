@@ -41,41 +41,56 @@
   </div>
 </template>
 <script setup lang="ts">
-// @ts-nocheck
 import { getCategory, getTranslatedSearchContent } from './config'
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
+interface SearchEntry {
+  key: string
+  category: string
+  categoryEn: string
+  preference: string
+  preferenceEn: string
+  routeCategory: string
+  description: string
+  enum: unknown[] | undefined
+}
+
+interface CategoryItem {
+  name: string
+  path: string
+}
+
 const { t } = useI18n()
 
 const router = useRouter()
 const route = useRoute()
 
-const currentCategory = ref('general')
-const restaurants = ref([])
-const state = ref('')
+const currentCategory = ref<string>('general')
+const restaurants = ref<SearchEntry[]>([])
+const state = ref<string>('')
 
 watch(
   () => route.name,
   (newRouteName) => {
     if (newRouteName) {
-      currentCategory.value = newRouteName
+      currentCategory.value = String(newRouteName)
     }
   }
 )
 
-const querySearch = (queryString, cb) => {
+const querySearch = (queryString: string, cb: (results: SearchEntry[]) => void): void => {
   const results = queryString
     ? restaurants.value.filter(createFilter(queryString))
     : restaurants.value
   cb(results)
 }
 
-const createFilter = (queryString) => {
+const createFilter = (queryString: string): ((restaurant: SearchEntry) => boolean) => {
   const q = queryString.toLowerCase()
-  return (restaurant) => {
+  return (restaurant: SearchEntry): boolean => {
     // Support both the current language and English keywords
     const fields = [
       restaurant.preference,
@@ -89,16 +104,16 @@ const createFilter = (queryString) => {
   }
 }
 
-const loadAll = () => getTranslatedSearchContent()
+const loadAll = (): SearchEntry[] => getTranslatedSearchContent()
 
-const handleSelect = (item) => {
+const handleSelect = (item: SearchEntry | null | undefined): void => {
   // Use a safe routeCategory to avoid a blank screen caused by invalid categories
   const target =
     item && item.routeCategory ? item.routeCategory : (item?.category || 'general').toLowerCase()
   router.push({ path: `/preference/${target}` }).catch(() => {})
 }
 
-const handleCategoryItemClick = (item) => {
+const handleCategoryItemClick = (item: CategoryItem): void => {
   if (item.name.toLowerCase() !== currentCategory.value) {
     router.push({
       path: item.path
@@ -106,12 +121,14 @@ const handleCategoryItemClick = (item) => {
   }
 }
 
-const onIpcCategoryChange = (event, category) => {
+const onIpcCategoryChange = (_event: unknown, category: unknown): void => {
+  const categoryName = typeof category === 'string' ? category : ''
   const validRoute =
-    category && router.getRoutes().findIndex((route) => route.path.endsWith(`/${category}`)) !== -1
+    categoryName &&
+    router.getRoutes().findIndex((r) => r.path.endsWith(`/${categoryName}`)) !== -1
   if (validRoute) {
     router.push({
-      path: `/preference/${category}`
+      path: `/preference/${categoryName}`
     })
   }
 }
@@ -119,11 +136,11 @@ const onIpcCategoryChange = (event, category) => {
 onMounted(() => {
   restaurants.value = loadAll()
   if (route.name) {
-    currentCategory.value = route.name
+    currentCategory.value = String(route.name)
   }
   window.electron.ipcRenderer.on('settings::change-tab', onIpcCategoryChange)
   // Listen for language changes and refresh the search index
-  const languageChanged = () => {
+  const languageChanged = (): void => {
     restaurants.value = loadAll()
   }
   window.addEventListener('languageChanged', languageChanged)
@@ -132,7 +149,11 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.electron.ipcRenderer.removeAllListeners('settings::change-tab', onIpcCategoryChange)
+  // removeAllListeners takes a single channel argument. The handler ref was
+  // passed historically but ignored by the typed bridge; removing only the
+  // handler we registered would require holding the unsubscribe callback
+  // returned by `.on`, which is not yet plumbed through here.
+  window.electron.ipcRenderer.removeAllListeners('settings::change-tab')
 })
 </script>
 

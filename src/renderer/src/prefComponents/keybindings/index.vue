@@ -102,26 +102,40 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import log from 'electron-log'
 import { setKeyboardLayout } from '@hfelix/electron-localshortcut'
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import Separator from '../common/separator'
+import Separator from '../common/separator/index.vue'
 import KeyInputDialog from './key-input-dialog.vue'
 import KeybindingConfigurator from './KeybindingConfigurator'
+import type { UiKeybinding } from './KeybindingConfigurator'
 import notice from '@/services/notification'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
+// Shape returned by `mt::keybinding-get-keyboard-info`. The IPC contract
+// types `ret: unknown`, but the main-process handler returns the keyboard
+// layout descriptor expected by `@hfelix/electron-localshortcut`.
+interface KeyboardInfo {
+  layout: unknown
+  keymap: unknown
+}
+
+// Shape returned by `mt::keybinding-get-pref-keybindings` (same caveat).
+interface PrefKeybindings {
+  defaultKeybindings: Map<string, string>
+  userKeybindings: Map<string, string>
+}
+
 const { t, locale } = useI18n()
 
-const showDebugTools = ref(false)
-const keybindingConfigurator = ref(null)
-const selectedShortcutId = ref(null)
-const keybindingList = ref([])
+const showDebugTools = ref<boolean>(false)
+const keybindingConfigurator = ref<KeybindingConfigurator | null>(null)
+const selectedShortcutId = ref<string | null>(null)
+const keybindingList = ref<UiKeybinding[]>([])
 
 // Function to rebuild the keybinding list
-const rebuildKeybindingList = () => {
+const rebuildKeybindingList = (): void => {
   if (keybindingConfigurator.value) {
     keybindingList.value = keybindingConfigurator.value.rebuildKeybindingList()
   }
@@ -135,7 +149,8 @@ watch(locale, () => {
 onMounted(() => {
   window.electron.ipcRenderer
     .invoke('mt::keybinding-get-keyboard-info')
-    .then(({ layout, keymap }) => {
+    .then((info) => {
+      const { layout, keymap } = info as KeyboardInfo
       // Update the key mapper to prevent problems on non-US keyboards.
       setKeyboardLayout(layout, keymap)
     })
@@ -143,15 +158,17 @@ onMounted(() => {
 
   window.electron.ipcRenderer
     .invoke('mt::keybinding-get-pref-keybindings')
-    .then(({ defaultKeybindings, userKeybindings }) => {
-      keybindingConfigurator.value = new KeybindingConfigurator(defaultKeybindings, userKeybindings)
-      keybindingList.value = keybindingConfigurator.value.getKeybindings()
+    .then((bindings) => {
+      const { defaultKeybindings, userKeybindings } = bindings as PrefKeybindings
+      const configurator = new KeybindingConfigurator(defaultKeybindings, userKeybindings)
+      keybindingConfigurator.value = configurator
+      keybindingList.value = configurator.getKeybindings()
     })
     .catch((error) => log.error('Error while loading keyboard information for settings:', error))
 
   // Show keyboard debugging tools which has been moved from CLI because we
   // need an active window on Windows.
-  showDebugTools.value = window.marktext.env.debug
+  showDebugTools.value = Boolean(window.marktext?.env?.debug)
 })
 
 onUnmounted(() => {
@@ -159,13 +176,13 @@ onUnmounted(() => {
   keybindingConfigurator.value = null
 })
 
-const openKeybindingWiki = () => {
+const openKeybindingWiki = (): void => {
   window.electron.shell.openExternal(
     'https://github.com/marktext/marktext/blob/master/docs/KEYBINDINGS.md'
   )
 }
 
-const saveKeybindings = () => {
+const saveKeybindings = (): void => {
   if (keybindingConfigurator.value && keybindingList.value.length > 0) {
     keybindingConfigurator.value
       .save()
@@ -182,7 +199,8 @@ const saveKeybindings = () => {
   }
 }
 
-const restoreDefaults = () => {
+const restoreDefaults = (): void => {
+  if (!keybindingConfigurator.value) return
   keybindingConfigurator.value
     .resetAll()
     .then((success) => {
@@ -197,27 +215,28 @@ const restoreDefaults = () => {
     .catch((error) => log.error(error))
 }
 
-const handleEditClick = (index, entry) => {
+const handleEditClick = (index: number, entry: UiKeybinding | undefined): void => {
   if (index >= 0 && entry) {
     selectedShortcutId.value = entry.id
   }
 }
 
-const handleResetClick = (index, entry) => {
+const handleResetClick = (_index: number, entry: UiKeybinding): void => {
+  if (!keybindingConfigurator.value) return
   const { id } = entry
   const success = keybindingConfigurator.value.resetToDefault(id)
   if (!success) {
-    handleDuplicateShortcut(id, keybindingConfigurator.value.getDefaultAccelerator(id))
+    handleDuplicateShortcut(id, keybindingConfigurator.value.getDefaultAccelerator(id) ?? '')
   }
 }
 
-const handleUnbindClick = (index, entry) => {
-  keybindingConfigurator.value.unbind(entry.id)
+const handleUnbindClick = (_index: number, entry: UiKeybinding): void => {
+  keybindingConfigurator.value?.unbind(entry.id)
 }
 
-const onKeybinding = (value) => {
+const onKeybinding = (value: string | null): void => {
   const selectedId = selectedShortcutId.value
-  if (value && selectedId) {
+  if (value && selectedId && keybindingConfigurator.value) {
     const success = keybindingConfigurator.value.change(selectedId, value)
     if (!success) {
       handleDuplicateShortcut(selectedId, value)
@@ -226,7 +245,7 @@ const onKeybinding = (value) => {
   selectedShortcutId.value = null
 }
 
-const handleDuplicateShortcut = (id, accelerator) => {
+const handleDuplicateShortcut = (_id: string, accelerator: string): void => {
   notice.notify({
     title: t('preferences.keybindings.shortcutInUse'),
     type: 'warning',
@@ -234,7 +253,7 @@ const handleDuplicateShortcut = (id, accelerator) => {
   })
 }
 
-const dumpKeyboardInformation = () => {
+const dumpKeyboardInformation = (): void => {
   window.electron.ipcRenderer.send('mt::keybinding-debug-dump-keyboard-info')
 }
 </script>
