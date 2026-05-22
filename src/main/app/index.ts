@@ -549,7 +549,7 @@ class App {
     // Discard all directories except first one and add files.
     if (openFilesInSameWindow) {
       if (directoriesToOpen.length) {
-        directoriesToOpen[0].fileList.push(...filesToOpen)
+        directoriesToOpen[0]!.fileList.push(...filesToOpen)
         directoriesToOpen.length = 1
       } else {
         directoriesToOpen.push({ rootDirectory: null, fileList: [...filesToOpen] })
@@ -563,11 +563,11 @@ class App {
 
       // Prefer new directories
       for (let i = 0; i < directoriesToOpen.length; ++i) {
-        const { fileList, rootDirectory } = directoriesToOpen[i]
+        const { fileList, rootDirectory } = directoriesToOpen[i]!
 
         let breakOuterLoop = false
         for (let j = 0; j < filesToOpen.length; ++j) {
-          const pathname = filesToOpen[j]
+          const pathname = filesToOpen[j]!
           if (isChildOfDirectory(rootDirectory ?? '', pathname)) {
             if (isFirstWindow) {
               fileList.push(...filesToOpen)
@@ -588,7 +588,7 @@ class App {
 
       // Find for the remaining files the best window to open the files in.
       if (isFirstWindow && directoriesToOpen.length && filesToOpen.length) {
-        const { fileList } = directoriesToOpen[0]
+        const { fileList } = directoriesToOpen[0]!
         fileList.push(...filesToOpen)
         filesToOpen.length = 0
       } else {

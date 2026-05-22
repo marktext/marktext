@@ -62,7 +62,7 @@ const getPositionFromColumn = (lines: string[], column: number): [number, number
   let previousLength = 0
   while (column >= currentLength) {
     previousLength = currentLength
-    currentLength += lines[currentLine].length + 1
+    currentLength += lines[currentLine]!.length + 1
     currentLine++
   }
   return [currentLine - 1, column - previousLength]

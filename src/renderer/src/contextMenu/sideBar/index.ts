@@ -30,7 +30,7 @@ export const showContextMenu = (
   ]
 
   // PASTE entry (index 5) toggles based on the cached source path.
-  contextItems[5].enabled = hasPathCache
+  contextItems[5]!.enabled = hasPathCache
 
   const items: ContextMenuItem[] = contextItems.map((item) => {
     if (!item || item.type === 'separator') return item

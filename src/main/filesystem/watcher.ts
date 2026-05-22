@@ -330,7 +330,7 @@ class Watcher {
   unwatch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): void {
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
-      if (w.win === win && w.pathname === watchPath && w.type === type) {
+      if (w && w.win === win && w.pathname === watchPath && w.type === type) {
         w.watcher.close()
         delete this.watchers[id]
         break
@@ -343,7 +343,7 @@ class Watcher {
     const watchIds: string[] = []
     for (const id of Object.keys(this.watchers)) {
       const w = this.watchers[id]
-      if (w.win.id === windowId) {
+      if (w && w.win.id === windowId) {
         watchers.push(w.watcher)
         watchIds.push(id)
       }
@@ -355,7 +355,7 @@ class Watcher {
   }
 
   close(): void {
-    Object.keys(this.watchers).forEach((id) => this.watchers[id].close())
+    Object.keys(this.watchers).forEach((id) => this.watchers[id]?.close())
     this.watchers = {}
     this._ignoreChangeEvents = []
   }
@@ -386,7 +386,7 @@ class Watcher {
       const { _ignoreChangeEvents } = this
       const currentTime = new Date()
       for (let i = 0; i < _ignoreChangeEvents.length; ++i) {
-        const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]
+        const { windowId, pathname: pathToIgnore, start, duration } = _ignoreChangeEvents[i]!
         if (windowId === winId && pathToIgnore === pathname) {
           _ignoreChangeEvents.splice(i, 1)
           --i

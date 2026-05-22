@@ -296,7 +296,7 @@ class EditorWindow extends BaseWindow {
     if (!filePaths || filePaths.length === 0) return
 
     const fileList = filePaths.map((p) => ({ filePath: p, options: {}, selected: false }))
-    fileList[0].selected = true
+    fileList[0]!.selected = true
     this.openTabs(fileList)
   }
 

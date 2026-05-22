@@ -27,7 +27,7 @@ export const rename = async(src: string, dest: string): Promise<void> => {
 const toHex = (buf: ArrayBuffer | Uint8Array): string => {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf)
   let out = ''
-  for (let i = 0; i < bytes.length; i++) out += bytes[i].toString(16).padStart(2, '0')
+  for (let i = 0; i < bytes.length; i++) out += bytes[i]!.toString(16).padStart(2, '0')
   return out
 }
 

@@ -27,14 +27,15 @@ const loadMore = (CodeMirror: CodeMirrorLike): void => {
     if (!deps) return cont()
     const missing: string[] = []
     for (let i = 0; i < deps.length; ++i) {
-      if (!Object.prototype.hasOwnProperty.call(CodeMirror.modes, deps[i])) {
-        missing.push(deps[i])
+      const dep = deps[i]!
+      if (!Object.prototype.hasOwnProperty.call(CodeMirror.modes, dep)) {
+        missing.push(dep)
       }
     }
     if (!missing.length) return cont()
     const split = splitCallback(cont, missing.length)
     for (let i = 0; i < missing.length; ++i) {
-      CodeMirror.requireMode(missing[i], split)
+      CodeMirror.requireMode(missing[i]!, split)
     }
   }
 
@@ -44,7 +45,7 @@ const loadMore = (CodeMirror: CodeMirrorLike): void => {
     }
     if (Object.prototype.hasOwnProperty.call(CodeMirror.modes, mode)) return ensureDeps(mode, cont)
     if (Object.prototype.hasOwnProperty.call(loading, mode)) {
-      loading[mode].push(cont)
+      loading[mode]!.push(cont)
       return
     }
 
@@ -69,7 +70,7 @@ const loadMore = (CodeMirror: CodeMirrorLike): void => {
       .then(() => {
         ensureDeps(mode as string, function() {
           for (let i = 0; i < list.length; ++i) {
-            list[i]()
+            list[i]!()
           }
         })
       })

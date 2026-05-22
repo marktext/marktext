@@ -241,7 +241,7 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      const tab = this.tabs[this.tabIdToIndex[id]]
+      const tab = this.tabs[this.tabIdToIndex[id]!]
       if (tab) {
         tab.scrollTop = scrollTop
       }

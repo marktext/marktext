@@ -49,7 +49,7 @@ const notification: NotificationService = {
   noticeCache: {} as Record<string, NoticeCacheEntry>,
   clear() {
     Object.keys(this.noticeCache).forEach((key) => {
-      this.noticeCache[key].remove()
+      this.noticeCache[key]!.remove()
     })
   },
   notify({

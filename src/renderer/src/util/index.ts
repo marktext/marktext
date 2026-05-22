@@ -38,8 +38,8 @@ export const merge = function <T extends object>(...args: Array<Partial<T>>): T 
 
 export const dataURItoBlob = function(dataURI: string): Blob {
   const data = dataURI.split(';base64,')
-  const byte = window.atob(data[1])
-  const mime = data[0].split(':')[1]
+  const byte = window.atob(data[1]!)
+  const mime = data[0]!.split(':')[1]!
   const ab = new ArrayBuffer(byte.length)
   const ia = new Uint8Array(ab)
   const len = byte.length

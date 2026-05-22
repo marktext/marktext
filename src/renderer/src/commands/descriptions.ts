@@ -225,5 +225,5 @@ const COMMAND_KEY_MAP: Record<string, string> = {
  */
 export default (id: string): string => {
   // Re-fetch the command description on each call to support dynamic language switching
-  return id in COMMAND_KEY_MAP ? t(COMMAND_KEY_MAP[id]) : id
+  return id in COMMAND_KEY_MAP ? t(COMMAND_KEY_MAP[id]!) : id
 }

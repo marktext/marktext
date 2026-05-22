@@ -181,7 +181,7 @@ const handleBeforeInput = (event: KeyboardEvent) => {
       }
 
       if (items && items.length > 0 && items[selectedCommandIndex.value]) {
-        items[selectedCommandIndex.value].scrollIntoView({ block: 'end' })
+        items[selectedCommandIndex.value]!.scrollIntoView({ block: 'end' })
       }
       break
     }
@@ -195,7 +195,7 @@ const handleBeforeInput = (event: KeyboardEvent) => {
       }
 
       if (items && items.length > 0 && items[selectedCommandIndex.value]) {
-        items[selectedCommandIndex.value].scrollIntoView({ block: 'end' })
+        items[selectedCommandIndex.value]!.scrollIntoView({ block: 'end' })
       }
       break
     }

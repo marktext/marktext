@@ -50,8 +50,9 @@ export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encod
   // Auto guess encoding, otherwise use UTF-8.
   if (autoGuessEncoding) {
     encoding = ced(buffer)
-    if (CED_ICONV_ENCODINGS[encoding]) {
-      encoding = CED_ICONV_ENCODINGS[encoding]
+    const mapped = CED_ICONV_ENCODINGS[encoding]
+    if (mapped) {
+      encoding = mapped
     } else {
       encoding = encoding.toLowerCase().replace(/-_/g, '')
     }

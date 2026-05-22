@@ -130,7 +130,7 @@ const generateHtmlToc = (
     return ''
   }
 
-  const topLevel = tocList[0].lvl
+  const topLevel = tocList[0]!.lvl
   if (!options.tocIncludeTopHeading && topLevel <= 1) {
     tocList.shift()
     return generateHtmlToc(tocList, slugger, currentLevel, options)
@@ -145,7 +145,7 @@ const generateHtmlToc = (
   let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${content}</a><span class="dots"></span></span>`
 
   // Generate sub-items
-  if (tocList.length !== 0 && tocList[0].lvl > lvl) {
+  if (tocList.length !== 0 && tocList[0]!.lvl > lvl) {
     html += '<ul>' + generateHtmlToc(tocList, slugger, lvl, options) + '</ul>'
   }
 

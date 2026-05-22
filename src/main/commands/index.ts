@@ -50,7 +50,7 @@ class CommandManagerClass {
   __verifyDefaultCommands(): void {
     const { _commands } = this
     Object.keys(COMMANDS).forEach((propertyName) => {
-      const id = (COMMANDS as Record<string, CommandId>)[propertyName]
+      const id = (COMMANDS as Record<string, CommandId>)[propertyName]!
       if (!_commands.has(id)) {
         console.error(`[DEBUG] Default command with id="${id}" isn't available!`)
       }

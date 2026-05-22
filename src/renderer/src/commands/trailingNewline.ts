@@ -3,7 +3,7 @@ import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
 
-const descriptions = ['Trim all trailing newlines', 'Ensure single newline', 'Disabled']
+const descriptions = ['Trim all trailing newlines', 'Ensure single newline', 'Disabled'] as const
 
 interface TrailingNewlineSubcommand {
   id: string
@@ -58,7 +58,7 @@ class TrailingNewlineCommand {
         value: 3
       }
     ]
-    this.subcommands[index].description = `${descriptions[index]} - current`
+    this.subcommands[index]!.description = `${descriptions[index]} - current`
     this.subcommandSelectedIndex = index
   }
 

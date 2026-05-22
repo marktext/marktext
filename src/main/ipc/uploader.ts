@@ -83,7 +83,7 @@ const parsePicgoOutput = (text: unknown): string | null => {
   }
   const marker = cleaned.split('[PicGo SUCCESS]:')
   if (marker.length >= 2) {
-    const candidate = marker[marker.length - 1].trim()
+    const candidate = marker[marker.length - 1]!.trim()
     if (/^https?:\/\//i.test(candidate)) return candidate
   }
   return null

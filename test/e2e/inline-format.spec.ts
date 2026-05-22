@@ -40,7 +40,7 @@ test.describe('Inline format menu wiring', () => {
     test(`Menu ${id} invokes without crash`, async() => {
       await clickMenuById(app, id)
       const crashed = await app.evaluate(({ BrowserWindow }) =>
-        BrowserWindow.getAllWindows()[0].webContents.isCrashed()
+        BrowserWindow.getAllWindows()[0]!.webContents.isCrashed()
       )
       expect(crashed).toBe(false)
       const editorVisible = await page.locator('.editor-component').isVisible()

@@ -276,7 +276,7 @@ export const sendIpcToRenderer = async(
 ): Promise<void> => {
   await app.evaluate(
     ({ BrowserWindow }, payload) => {
-      const win = BrowserWindow.getAllWindows()[0]
+      const win = BrowserWindow.getAllWindows()[0]!
       win.webContents.send(payload.channel, ...payload.args)
     },
     { channel, args }

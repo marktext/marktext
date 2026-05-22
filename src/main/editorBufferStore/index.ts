@@ -74,11 +74,11 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
 
     for (const id in this.bufferStores) {
       try {
-        const buffer = this.readBufferStoreFile(this.bufferStores[id].filePath)
+        const buffer = this.readBufferStoreFile(this.bufferStores[id]!.filePath)
         const allSaved = buffer.tabs.every((file) => file.isSaved)
         if (buffer.tabs.length === 0 || allSaved) {
           try {
-            fs.unlinkSync(this.bufferStores[id].filePath)
+            fs.unlinkSync(this.bufferStores[id]!.filePath)
           } catch (e) {
             console.error('Failed to delete buffer store file during clear', e)
           }
@@ -108,14 +108,14 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     }
 
     if (editorWindows.length > 1) {
-      if (!fs.existsSync(this.bufferStores[restoreBufferId].filePath)) {
+      if (!fs.existsSync(this.bufferStores[restoreBufferId]!.filePath)) {
         return
       }
       try {
-        const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
+        const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId]!.filePath)
         const allSaved = buffer.tabs.every((file) => file.isSaved)
         if (buffer.tabs.length === 0 || allSaved) {
-          fs.unlinkSync(this.bufferStores[restoreBufferId].filePath)
+          fs.unlinkSync(this.bufferStores[restoreBufferId]!.filePath)
           delete this.bufferStores[restoreBufferId]
         }
       } catch (e) {

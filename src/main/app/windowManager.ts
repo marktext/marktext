@@ -18,7 +18,7 @@ class WindowActivityList {
   getNewest(): number | null {
     const { _buf } = this
     if (_buf.length) {
-      return _buf[_buf.length - 1]
+      return _buf[_buf.length - 1]!
     }
     return null
   }
@@ -26,7 +26,7 @@ class WindowActivityList {
   getSecondNewest(): number | null {
     const { _buf } = this
     if (_buf.length >= 2) {
-      return _buf[_buf.length - 2]
+      return _buf[_buf.length - 2]!
     }
     return null
   }
@@ -274,7 +274,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
           const len = filePathScores.length
           for (let i = 0; i < len; ++i) {
             // Update score only if the file is not already opened.
-            if (filePathScores[i].score !== -1 && filePathScores[i].score < scores[i].score) {
+            if (filePathScores[i]!.score !== -1 && filePathScores[i]!.score < scores[i].score) {
               filePathScores[i] = scores[i]
             }
           }
@@ -285,7 +285,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     const buf: { windowId: number | null; fileList: string[] }[] = []
     const len = filePathScores!.length
     for (let i = 0; i < len; ++i) {
-      let { id: windowId, score } = filePathScores![i]
+      let { id: windowId, score } = filePathScores![i]!
 
       if (score === -1) {
         // Skip files that already opened.
@@ -300,7 +300,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
         item = { windowId, fileList: [] }
         buf.push(item)
       }
-      item.fileList.push(fileList[i])
+      item.fileList.push(fileList[i]!)
     }
     return buf
   }

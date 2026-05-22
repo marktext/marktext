@@ -219,7 +219,7 @@ const handleImageAction = (payload: unknown) => {
   const index = lines.findIndex((line: string) => line.indexOf(id) > 0)
 
   if (index > -1) {
-    const oldLine = lines[index]
+    const oldLine = lines[index]!
     lines[index] = oldLine.replace(new RegExp(`!\\[${id}\\]\\(.*\\)`), `![${alt}](${result})`)
     const newValue = lines.join('\n')
     editor.value.setValue(newValue)
@@ -230,9 +230,9 @@ const handleImageAction = (payload: unknown) => {
     }
     const range = {
       start: match.index,
-      end: match.index + match[1].length
+      end: match.index + match[1]!.length
     }
-    const delta = alt.length + result.length + 5 - match[1].length
+    const delta = alt.length + result.length + 5 - match[1]!.length
 
     const adjustPointer = (pointer: CMCursor) => {
       if (!pointer) {
