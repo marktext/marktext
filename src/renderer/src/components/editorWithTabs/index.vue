@@ -32,7 +32,7 @@ import TabNotifications from './notifications.vue'
 
 defineProps<{
   markdown: string
-  cursor: object
+  cursor: unknown
   muyaIndexCursor?: object
   sourceCode: boolean
   showTabBar: boolean

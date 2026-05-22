@@ -134,7 +134,7 @@ type ElInputNumberInstance = any
 
 const props = defineProps<{
   markdown?: string
-  cursor?: object | null
+  cursor?: unknown
   textDirection: string
   platform?: string
 }>()
