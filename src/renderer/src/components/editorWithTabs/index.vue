@@ -32,8 +32,11 @@ import TabNotifications from './notifications.vue'
 
 defineProps<{
   markdown: string
+  // `cursor` originates as `IFileState.cursor` which is `unknown`
+  // (see src/shared/types/files.ts); align here instead of forcing every
+  // caller to widen.
   cursor: unknown
-  muyaIndexCursor?: object
+  muyaIndexCursor?: unknown
   sourceCode: boolean
   showTabBar: boolean
   textDirection: string

@@ -28,7 +28,7 @@ interface MuyaIndexCursorLike {
 
 const props = defineProps<{
   markdown?: string
-  muyaIndexCursor?: object | null
+  muyaIndexCursor?: unknown
   textDirection: string
 }>()
 
