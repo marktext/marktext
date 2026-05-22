@@ -288,10 +288,7 @@ export const useProjectStore = defineStore('project', () => {
     const dirname = window.path.dirname(src)
     const dest = dirname + PATH_SEPARATOR + name
     rename(src, dest).then(() => {
-      // editor store is @ts-nocheck so its action set isn't visible to TS;
-      // cast to call through to the runtime method.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(editorStore as any).RENAME_IF_NEEDED({ src, dest })
+      editorStore.RENAME_IF_NEEDED({ src, dest })
     })
   }
 

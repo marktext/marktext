@@ -30,9 +30,9 @@ Relevant settings (`tsconfig.base.json`):
 - `strict: true` (every strict flag on)
 - `noUncheckedIndexedAccess: false` — too disruptive given existing
   index-access patterns (tabs, listToc)
-- `exactOptionalPropertyTypes: false` — incompatible with the
-  `currentFile: {}` sentinel in `editor.ts`; revisit when that store
-  rewrites to `IFileState | null`
+- `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
+  restore path (which carries optional fields through JSON serialization)
+  tolerant of `undefined` ≡ "key not present"
 - `allowJs: true, checkJs: false` — for `src/muya/` only (every other
   directory is now `.ts`)
 - `noEmit: true` — vue-tsc only type-checks; electron-vite handles the
@@ -126,16 +126,16 @@ Wrong event names or mismatched listener arities fail at compile time.
 
 ## Pinia stores
 
-All 9 active Pinia stores (`src/renderer/src/store/`) are Setup Stores
-(`defineStore('id', () => { ... return { ...refs, ...computeds, ...actions } })`).
+All 9 active Pinia stores (`src/renderer/src/store/`) are typed. Seven are
+Setup Stores (`defineStore('id', () => { ... return { ...refs, ...computeds,
+...actions } })`); `editor.ts` and `preferences.ts` remain Options Stores
+because Pinia's Options-Store typing is fully inferrable from a typed
+`state: () => State` factory, and converting their ~80 cross-store call
+sites buys no expressiveness over a typed Options Store.
 
-Exceptions:
-- `editor.ts` keeps its Options Store shape with file-local
-  `// @ts-nocheck`. A follow-up PR converts it to Setup Store and
-  refactors `currentFile: {}` → `IFileState | null`. The store is the
-  most cross-coupled file in the renderer (~80 call sites key off the
-  empty-object sentinel); doing the refactor in isolation reduces blame
-  radius.
+The editor store's `currentFile` sentinel is now `IFileState | null`
+instead of the legacy empty-object placeholder, and consumers do explicit
+null narrowing where they previously checked `!currentFile.id`.
 
 ## Strict-mode landmines
 
@@ -155,14 +155,12 @@ Exceptions:
 
 These items are tracked as follow-up PRs:
 
-1. **`src/renderer/src/store/editor.ts`** — remove `// @ts-nocheck`,
-   rewrite as Setup Store, refactor `currentFile` to nullable.
-2. **All `.vue` SFCs** — remove `// @ts-nocheck` from `<script setup
+1. **All `.vue` SFCs** — remove `// @ts-nocheck` from `<script setup
    lang="ts">` blocks, type `defineProps`/`defineEmits`, fix
    ~20 errors per file.
-3. **Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
+2. **Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
    and `test/e2e/*.spec.ts`, convert CommonJS `require()` to ESM `import`.
-4. **`@typescript-eslint/no-explicit-any`** — currently `warn` in
+3. **`@typescript-eslint/no-explicit-any`** — currently `warn` in
    `eslint.config.js`. Tighten to `error` after the per-file
    `// @ts-nocheck` opt-outs above have been removed and the remaining
    `any` sites either gain a real type or carry a targeted
