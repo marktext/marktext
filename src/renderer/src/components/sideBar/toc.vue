@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import bus from '../../bus'
@@ -39,8 +38,12 @@ const defaultProps = {
 const { toc } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
 
-const handleClick = ({ slug }) => {
-  bus.emit('scroll-to-header', slug)
+const handleClick = (data: { slug?: unknown }): void => {
+  // editor.vue builds a CSS selector with `#${slug}` — bail out if the
+  // node has no slug (e.g. unsluggable headings) to avoid emitting
+  // `undefined` / non-string payloads and producing `#undefined` selectors.
+  if (typeof data.slug !== 'string' || data.slug.length === 0) return
+  bus.emit('scroll-to-header', data.slug)
 }
 </script>
 

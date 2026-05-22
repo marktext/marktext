@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { computed } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
@@ -51,22 +50,22 @@ const { currentFile } = storeToRefs(editorStore)
 const { showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 
 const currentNotification = computed(() => {
-  const notifications = currentFile.value.notifications
+  const notifications = currentFile.value?.notifications
   if (!notifications || notifications.length === 0) {
     return null
   }
   return notifications[0]
 })
 
-const handleClick = (status) => {
-  const notifications = currentFile.value.notifications
+const handleClick = (status: boolean) => {
+  const notifications = currentFile.value?.notifications
   if (!notifications || notifications.length === 0) {
     console.error(t('editor.notifications.notificationNotFound'))
     return
   }
 
   const item = notifications.shift()
-  const action = item.action
+  const action = item?.action
   if (action) {
     action(status)
   }

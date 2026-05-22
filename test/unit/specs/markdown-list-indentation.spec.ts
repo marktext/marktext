@@ -1,12 +1,20 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import ContentState from '../../../src/muya/lib/contentState'
-import EventCenter from '../../../src/muya/lib/eventHandler/event'
-import ExportMarkdown from '../../../src/muya/lib/utils/exportMarkdown'
-import { MUYA_DEFAULT_OPTION } from '../../../src/muya/lib/config'
+import { describe, it, expect } from 'vitest'
+import ContentState from 'muya/lib/contentState'
+import EventCenter from 'muya/lib/eventHandler/event'
+import ExportMarkdown from 'muya/lib/utils/exportMarkdown'
+import { MUYA_DEFAULT_OPTION } from 'muya/lib/config'
 
-const createMuyaContext = (listIndentation) => {
-  const ctx = {}
+interface MuyaCtx {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  options: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventCenter: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  contentState: any
+}
+
+const createMuyaContext = (listIndentation: number | string): MuyaCtx => {
+  const ctx = {} as MuyaCtx
   ctx.options = Object.assign({}, MUYA_DEFAULT_OPTION, { listIndentation })
   ctx.eventCenter = new EventCenter()
   ctx.contentState = new ContentState(ctx, ctx.options)
@@ -17,7 +25,11 @@ const createMuyaContext = (listIndentation) => {
 // Muya parser (Markdown to HTML to Markdown)
 //
 
-const verifyMarkdown = (expectedMarkdown, listIndentation, markdown = '') => {
+const verifyMarkdown = (
+  expectedMarkdown: string,
+  listIndentation: number | string,
+  markdown = ''
+): void => {
   if (!markdown) {
     markdown = `start
 

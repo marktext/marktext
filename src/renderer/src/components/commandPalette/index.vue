@@ -35,7 +35,7 @@
                 :key="index"
                 :ref="
                   (el) => {
-                    if (el) commandItems[index] = el
+                    if (el) commandItems[index] = el as HTMLElement
                   }
                 "
                 :class="{ active: index === selectedCommandIndex }"
@@ -64,18 +64,38 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted, onBeforeUnmount, nextTick, onBeforeUpdate, computed } from 'vue'
 import { useCommandCenterStore } from '@/store/commandCenter'
 import log from 'electron-log'
 import bus from '../../bus'
-import loading from '../loading'
+import loading from '../loading/index.vue'
 import { useI18n } from 'vue-i18n'
-const searchInput = ref(null)
-let commandItems = []
+
+// Loose typing for command descriptors — they originate from heterogeneous
+// sources (static, runtime, quickOpen search results) and have legacy duck-
+// typed shapes we don't want to rewrite as part of the @ts-nocheck removal.
+interface CommandItem {
+  id: string
+  description?: string
+  title?: string
+  shortcut?: string[]
+  execute?: () => void
+  run?: () => Promise<void>
+  search?: (q: string) => Promise<CommandItem[]>
+  unload?: () => void
+  subcommands?: CommandItem[]
+  subcommandSelectedIndex?: number
+  executeSubcommand?: (commandId: string, value?: unknown) => void
+  placeholder?: string
+  value?: unknown
+  [key: string]: unknown
+}
+
+const searchInput = ref<HTMLInputElement | null>(null)
+let commandItems: HTMLElement[] = []
 
 const { t } = useI18n()
-const currentCommand = ref(null)
+const currentCommand = ref<CommandItem | null>(null)
 const defaultPlaceholderText = computed(() => {
   try {
     return t('commandPalette.placeholder')
@@ -89,7 +109,7 @@ const showCommandPalette = ref(false)
 const placeholderText = ref('')
 const query = ref('')
 const selectedCommandIndex = ref(-1)
-const availableCommands = ref([])
+const availableCommands = ref<CommandItem[]>([])
 const searcherBusy = ref(false)
 
 const commandCenterStore = useCommandCenterStore()
@@ -98,14 +118,18 @@ onBeforeUpdate(() => {
   commandItems = []
 })
 
-const handleShow = (command) => {
-  currentCommand.value = command || commandCenterStore.rootCommand
-  currentCommand.value
-    .run()
+const handleShow = (command?: unknown) => {
+  const next = ((command as CommandItem | undefined) ??
+    (commandCenterStore.rootCommand as unknown as CommandItem)) as CommandItem
+  currentCommand.value = next
+  const runPromise = next.run ? next.run() : Promise.resolve()
+  runPromise
     .then(() => {
-      availableCommands.value = currentCommand.value.subcommands
-      selectedCommandIndex.value = currentCommand.value.subcommandSelectedIndex
-      placeholderText.value = currentCommand.value.placeholder || defaultPlaceholderText.value
+      const cmd = currentCommand.value
+      if (!cmd) return
+      availableCommands.value = cmd.subcommands ?? []
+      selectedCommandIndex.value = cmd.subcommandSelectedIndex ?? -1
+      placeholderText.value = cmd.placeholder || defaultPlaceholderText.value
       query.value = ''
       showCommandPalette.value = true
       bus.emit('editor-blur')
@@ -119,15 +143,16 @@ const handleShow = (command) => {
 
         if (searchInput.value) {
           setTimeout(() => {
-            searchInput.value.focus()
+            searchInput.value?.focus()
           }, 50)
         }
       })
     })
-    .catch((error) => {
+    .catch((error: unknown) => {
       // Allow to throw new Error(null) to indicate an invalid state.
-      if (error && error.message) {
-        log.error('Unable to initialize command:', error)
+      const err = error as { message?: string } | null | undefined
+      if (err && err.message) {
+        log.error('Unable to initialize command:', err)
       }
     })
 }
@@ -137,13 +162,13 @@ const handleDialogClose = () => {
   selectedCommandIndex.value = -1
   query.value = ''
   availableCommands.value = []
-  if (currentCommand.value.unload) {
+  if (currentCommand.value?.unload) {
     currentCommand.value.unload()
   }
   currentCommand.value = null
 }
 
-const handleBeforeInput = (event) => {
+const handleBeforeInput = (event: KeyboardEvent) => {
   const items = commandItems
   switch (event.key) {
     case 'ArrowUp': {
@@ -177,7 +202,7 @@ const handleBeforeInput = (event) => {
   }
 }
 
-const handleInput = (event) => {
+const handleInput = (event: KeyboardEvent) => {
   if (event.isComposing) {
     return
   }
@@ -208,7 +233,7 @@ const handleInput = (event) => {
   }
 }
 
-const search = (commandId = null) => {
+const search = (commandId: string | null = null) => {
   if (commandId) {
     // Command selected from dropdown.
     executeCommand(commandId)
@@ -218,7 +243,10 @@ const search = (commandId = null) => {
     selectedCommandIndex.value < availableCommands.value.length
   ) {
     // Pressed enter on selected command.
-    executeCommand(availableCommands.value[selectedCommandIndex.value].id)
+    const item = availableCommands.value[selectedCommandIndex.value]
+    if (item) {
+      executeCommand(item.id)
+    }
     return
   }
 
@@ -228,24 +256,26 @@ const search = (commandId = null) => {
 
 const updateCommands = () => {
   const queryString = query.value.trim()
+  const cmd = currentCommand.value
+  if (!cmd) return
 
   // Allow to handle search result by command (e.g. quick search).
-  if (currentCommand.value.search) {
+  if (cmd.search) {
     searcherBusy.value = true
-    currentCommand.value
-      .search(queryString)
+    cmd.search(queryString)
       .then((result) => {
         searcherBusy.value = false
         availableCommands.value = result || []
         selectedCommandIndex.value = availableCommands.value.length ? 0 : -1
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         // The query was cancel or restarted if `message` is null.
-        if (error && error.message) {
+        const err = error as { message?: string } | null | undefined
+        if (err && err.message) {
           searcherBusy.value = false
           availableCommands.value = []
           selectedCommandIndex.value = -1
-          log.error(error)
+          log.error(err)
         }
       })
     return
@@ -253,23 +283,25 @@ const updateCommands = () => {
 
   // Default handler
   if (!queryString) {
-    availableCommands.value = currentCommand.value.subcommands
+    availableCommands.value = cmd.subcommands ?? []
   } else {
-    availableCommands.value = currentCommand.value.subcommands.filter(
-      (c) => c.description.toLowerCase().indexOf(queryString.toLowerCase()) !== -1
+    availableCommands.value = (cmd.subcommands ?? []).filter(
+      (c) => (c.description ?? '').toLowerCase().indexOf(queryString.toLowerCase()) !== -1
     )
   }
   selectedCommandIndex.value = availableCommands.value.length ? 0 : -1
 }
 
-const executeCommand = (commandId) => {
+const executeCommand = (commandId: string) => {
   const command = availableCommands.value.find((c) => c.id === commandId)
   if (!command) {
     log.error(`Command not found: ${commandId}`)
     return
   }
 
-  const { executeSubcommand } = currentCommand.value
+  const cmd = currentCommand.value
+  if (!cmd) return
+  const { executeSubcommand } = cmd
   if (executeSubcommand) {
     showCommandPalette.value = false
     executeSubcommand(commandId, command.value)
@@ -286,7 +318,7 @@ const executeCommand = (commandId) => {
       updateCommands()
     } else {
       showCommandPalette.value = false
-      execute()
+      execute?.()
     }
   }
 }
@@ -294,8 +326,9 @@ const executeCommand = (commandId) => {
 const handleLanguageChanged = () => {
   // If the command palette is currently open, reload commands
   if (showCommandPalette.value && currentCommand.value) {
-    currentCommand.value.run().then(() => {
-      availableCommands.value = currentCommand.value.subcommands
+    const cmd = currentCommand.value
+    cmd.run?.().then(() => {
+      availableCommands.value = cmd.subcommands ?? []
       updateCommands()
     })
   }

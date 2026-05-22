@@ -48,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
@@ -59,15 +58,16 @@ import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
 import { storeToRefs } from 'pinia'
+import type { TabDescriptor } from './types'
 
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 
-const sideBar = ref(null)
-const dragBar = ref(null)
+const sideBar = ref<HTMLDivElement | null>(null)
+const dragBar = ref<HTMLDivElement | null>(null)
 
-const openedFiles = ref([])
+const openedFiles = ref<TabDescriptor[]>([])
 const sideBarViewWidth = ref(280)
 
 const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
@@ -75,7 +75,7 @@ const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
 
-const finalSideBarWidth = computed(() => {
+const finalSideBarWidth = computed<number>(() => {
   if (!showSideBar.value) return 0
   if (rightColumn.value === '') return 45
   return sideBarViewWidth.value < 220 ? 220 : sideBarViewWidth.value
@@ -84,25 +84,26 @@ const finalSideBarWidth = computed(() => {
 onMounted(() => {
   nextTick(() => {
     const dragBarEl = dragBar.value
+    if (!dragBarEl) return
     let startX = 0
     let currentSideBarWidth = +sideBarWidth.value
     let startWidth = currentSideBarWidth
 
     sideBarViewWidth.value = currentSideBarWidth
 
-    const mouseUpHandler = () => {
+    const mouseUpHandler = (): void => {
       document.removeEventListener('mousemove', mouseMoveHandler, false)
       document.removeEventListener('mouseup', mouseUpHandler, false)
       layoutStore.CHANGE_SIDE_BAR_WIDTH(currentSideBarWidth < 220 ? 220 : currentSideBarWidth)
     }
 
-    const mouseMoveHandler = (event) => {
+    const mouseMoveHandler = (event: MouseEvent): void => {
       const offset = event.clientX - startX
       currentSideBarWidth = startWidth + offset
       sideBarViewWidth.value = currentSideBarWidth
     }
 
-    const mouseDownHandler = (event) => {
+    const mouseDownHandler = (event: MouseEvent): void => {
       startX = event.clientX
       startWidth = +sideBarWidth.value
       document.addEventListener('mousemove', mouseMoveHandler, false)
@@ -113,7 +114,7 @@ onMounted(() => {
   })
 })
 
-const handleLeftIconClick = (name) => {
+const handleLeftIconClick = (name: string): void => {
   if (rightColumn.value === name) {
     layoutStore.SET_LAYOUT({ rightColumn: '' })
     layoutStore.CHANGE_SIDE_BAR_WIDTH(finalSideBarWidth.value)
@@ -127,7 +128,7 @@ const handleLeftIconClick = (name) => {
   }
 }
 
-const handleLeftBottomClick = (name) => {
+const handleLeftBottomClick = (name: string): void => {
   if (name === 'settings') {
     projectStore.OPEN_SETTING_WINDOW()
   }

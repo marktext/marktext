@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import Tabs from './tabs.vue'
@@ -31,37 +30,18 @@ import Editor from './editor.vue'
 import SourceCode from './sourceCode.vue'
 import TabNotifications from './notifications.vue'
 
-defineProps({
-  markdown: {
-    type: String,
-    required: true
-  },
-  cursor: {
-    validator (value) {
-      return typeof value === 'object'
-    },
-    required: true
-  },
-  muyaIndexCursor: {
-    type: Object
-  },
-  sourceCode: {
-    type: Boolean,
-    required: true
-  },
-  showTabBar: {
-    type: Boolean,
-    required: true
-  },
-  textDirection: {
-    type: String,
-    required: true
-  },
-  platform: {
-    type: String,
-    required: true
-  }
-})
+defineProps<{
+  markdown: string
+  // `cursor` originates as `IFileState.cursor` which is `unknown`
+  // (see src/shared/types/files.ts); align here instead of forcing every
+  // caller to widen.
+  cursor: unknown
+  muyaIndexCursor?: unknown
+  sourceCode: boolean
+  showTabBar: boolean
+  textDirection: string
+  platform: string
+}>()
 
 const layoutStore = useLayoutStore()
 

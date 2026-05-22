@@ -92,7 +92,7 @@
           :depth="depth"
         />
         <input
-          v-show="createCache.dirname === projectTree.pathname"
+          v-show="createCacheDirname === projectTree.pathname"
           ref="input"
           v-model="createName"
           placeholder="Enter .md file name"
@@ -111,7 +111,7 @@
           v-if="
             projectTree.files.length === 0 &&
               projectTree.folders.length === 0 &&
-              createCache.dirname !== projectTree.pathname
+              createCacheDirname !== projectTree.pathname
           "
           class="empty-project"
         >
@@ -144,8 +144,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -154,25 +153,25 @@ import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
+import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
 
-const props = defineProps({
-  projectTree: {
-    validator: function (value) {
-      return typeof value === 'object'
-    },
-    required: true
-  },
-  openedFiles: Array,
-  tabs: Array
-})
+const props = defineProps<{
+  // The project store seeds `projectTree` as `null` until a folder is
+  // opened; the template renders the "open project" empty-state behind
+  // `v-if="projectTree"`. Type the prop nullable to match runtime + the
+  // template guard.
+  projectTree: TreeNode | null
+  openedFiles?: TabDescriptor[]
+  tabs?: TabDescriptor[]
+}>()
 
 const depth = 0
 const showDirectories = ref(true)
 const showOpenedFiles = ref(true)
 const createName = ref('')
-const input = ref(null)
+const input = ref<HTMLInputElement | null>(null)
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -180,30 +179,38 @@ const editorStore = useEditorStore()
 // Computed properties
 const { createCache } = storeToRefs(projectStore)
 
+// The createCache state is `{ dirname, type }` while an input is shown, and
+// `{}` otherwise. Expose a typed accessor for the template so we don't have
+// to thread `as any` through every comparison.
+const createCacheDirname = computed<string | undefined>(() => {
+  const cache = createCache.value as { dirname?: string }
+  return cache.dirname
+})
+
 // Methods
-const openFolder = () => {
+const openFolder = (): void => {
   projectStore.ASK_FOR_OPEN_PROJECT()
 }
 
-const saveAll = (isClose) => {
+const saveAll = (isClose: boolean): void => {
   editorStore.ASK_FOR_SAVE_ALL(isClose)
 }
 
-const createFile = () => {
+const createFile = (): void => {
   projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
   bus.emit('SIDEBAR::new', 'file')
 }
 
-const toggleOpenedFiles = () => {
+const toggleOpenedFiles = (): void => {
   showOpenedFiles.value = !showOpenedFiles.value
 }
 
-const toggleDirectories = () => {
+const toggleDirectories = (): void => {
   showDirectories.value = !showDirectories.value
 }
 
 // From createFileOrDirectoryMixins
-const handleInputFocus = () => {
+const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {
       input.value.focus()
@@ -212,7 +219,7 @@ const handleInputFocus = () => {
   })
 }
 
-const handleInputEnter = () => {
+const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
@@ -221,8 +228,8 @@ onMounted(() => {
 
   // hide rename or create input if needed
   document.addEventListener('click', (event) => {
-    const target = event.target
-    if (target.tagName !== 'INPUT' && target.textContent !== 'Create File') {
+    const target = event.target as HTMLElement | null
+    if (target && target.tagName !== 'INPUT' && target.textContent !== 'Create File') {
       projectStore.CHANGE_ACTIVE_ITEM({})
       projectStore.createCache = {}
       projectStore.renameCache = null
@@ -230,8 +237,8 @@ onMounted(() => {
   })
 
   document.addEventListener('contextmenu', (event) => {
-    const target = event.target
-    if (target.tagName !== 'INPUT') {
+    const target = event.target as HTMLElement | null
+    if (target && target.tagName !== 'INPUT') {
       projectStore.createCache = {}
       projectStore.renameCache = null
     }

@@ -2,7 +2,7 @@
   <div
     class="opened-file"
     :title="file.pathname"
-    :class="[{ active: currentFile.id === file.id, unsaved: !file.isSaved }]"
+    :class="[{ active: currentFile?.id === file.id, unsaved: !file.isSaved }]"
     @click="selectFile(file)"
   >
     <svg
@@ -17,28 +17,25 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/store/editor'
+import type { TabDescriptor } from './types'
 
-defineProps({
-  file: {
-    type: Object,
-    required: true
-  }
-})
+defineProps<{
+  file: TabDescriptor
+}>()
 
 const editorStore = useEditorStore()
 
 const { currentFile } = storeToRefs(editorStore)
 
-const selectFile = (file) => {
-  if (file.id !== currentFile.value.id) {
+const selectFile = (file: TabDescriptor): void => {
+  if (file.id !== currentFile.value?.id) {
     editorStore.UPDATE_CURRENT_FILE(file)
   }
 }
 
-const removeFileInTab = (file) => {
+const removeFileInTab = (file: TabDescriptor): void => {
   const { isSaved } = file
   if (isSaved) {
     editorStore.FORCE_CLOSE_TAB(file)

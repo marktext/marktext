@@ -1,8 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { Lexer } from '../../../src/muya/lib/parser/marked'
+import { describe, it, expect } from 'vitest'
+import { Lexer } from 'muya/lib/parser/marked'
 
-const parseMarkdown = (markdown) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Token = Record<string, any>
+
+const parseMarkdown = (markdown: string): Token[] => {
   const lexer = new Lexer({
     disableInline: true,
     footnote: true
@@ -10,16 +12,16 @@ const parseMarkdown = (markdown) => {
   return lexer.lex(markdown)
 }
 
-const convertToken = (token) => {
-  const obj = {}
+const convertToken = (token: Token): Token => {
+  const obj: Token = {}
   for (const key of Object.keys(token)) {
     obj[key] = token[key]
   }
   return obj
 }
 
-const convertTokens = (tokenList) => {
-  const tokens = []
+const convertTokens = (tokenList: Token[]): Token[] => {
+  const tokens: Token[] = []
   for (const token of tokenList) {
     tokens.push(convertToken(token))
   }

@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchWithMarkdown, focusEditor } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithMarkdown, focusEditor } from './helpers'
 
 // Validates the pako-based encoder that replaced Node zlib in
 // src/muya/lib/parser/render/plantuml.js. The encoded payload is what shows
@@ -11,8 +10,8 @@ const { launchWithMarkdown, focusEditor } = require('./helpers')
 const PLANTUML_DOC = '# plantuml smoke\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```\n'
 
 test.describe('PlantUML render via pako', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown(PLANTUML_DOC)

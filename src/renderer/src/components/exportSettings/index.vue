@@ -25,7 +25,7 @@
               :description="t('exportSettings.page.pageTitle')"
               :input="htmlTitle"
               :emit-time="0"
-              :on-change="(value) => onSelectChange('htmlTitle', value)"
+              :on-change="(value: unknown) => onSelectChange('htmlTitle', value)"
             />
           </div>
 
@@ -37,7 +37,7 @@
                 :description="t('exportSettings.page.pageSize')"
                 :value="pageSize"
                 :options="pageSizeList"
-                :on-change="(value) => onSelectChange('pageSize', value)"
+                :on-change="(value: unknown) => onSelectChange('pageSize', value)"
               />
               <div
                 v-if="pageSize === 'custom'"
@@ -61,7 +61,7 @@
               <bool
                 :description="t('exportSettings.page.landscapeOrientation')"
                 :bool="isLandscape"
-                :on-change="(value) => onSelectChange('isLandscape', value)"
+                :on-change="(value: unknown) => onSelectChange('isLandscape', value)"
               />
             </div>
 
@@ -117,13 +117,13 @@
           <bool
             :description="t('exportSettings.style.overwriteThemeFont')"
             :bool="fontSettingsOverwrite"
-            :on-change="(value) => onSelectChange('fontSettingsOverwrite', value)"
+            :on-change="(value: unknown) => onSelectChange('fontSettingsOverwrite', value)"
           />
           <div v-if="fontSettingsOverwrite">
             <font-text-box
               :description="t('exportSettings.style.fontFamily')"
               :value="fontFamily"
-              :on-change="(value) => onSelectChange('fontFamily', value)"
+              :on-change="(value: unknown) => onSelectChange('fontFamily', value)"
             />
             <range
               :description="t('exportSettings.style.fontSize')"
@@ -132,7 +132,7 @@
               :max="32"
               unit="px"
               :step="1"
-              :on-change="(value) => onSelectChange('fontSize', value)"
+              :on-change="(value: unknown) => onSelectChange('fontSize', value)"
             />
             <range
               :description="t('exportSettings.style.lineHeight')"
@@ -140,18 +140,18 @@
               :min="1.0"
               :max="2.0"
               :step="0.1"
-              :on-change="(value) => onSelectChange('lineHeight', value)"
+              :on-change="(value: unknown) => onSelectChange('lineHeight', value)"
             />
           </div>
           <bool
             :description="t('exportSettings.autoNumberingHeadings')"
             :bool="autoNumberingHeadings"
-            :on-change="(value) => onSelectChange('autoNumberingHeadings', value)"
+            :on-change="(value: unknown) => onSelectChange('autoNumberingHeadings', value)"
           />
           <bool
             :description="t('exportSettings.showFrontMatter')"
             :bool="showFrontMatter"
-            :on-change="(value) => onSelectChange('showFrontMatter', value)"
+            :on-change="(value: unknown) => onSelectChange('showFrontMatter', value)"
           />
         </el-tab-pane>
         <el-tab-pane
@@ -166,7 +166,7 @@
             more="https://github.com/marktext/marktext/blob/develop/docs/EXPORT_THEMES.md"
             :value="theme"
             :options="themeList"
-            :on-change="(value) => onSelectChange('theme', value)"
+            :on-change="(value: unknown) => onSelectChange('theme', value)"
           />
         </el-tab-pane>
         <el-tab-pane
@@ -181,69 +181,69 @@
             :description="t('exportSettings.headerFooter.headerType')"
             :value="headerType"
             :options="headerFooterTypes"
-            :on-change="(value) => onSelectChange('headerType', value)"
+            :on-change="(value: unknown) => onSelectChange('headerType', value)"
           />
           <text-box
             v-if="headerType === 2"
             :description="t('exportSettings.headerFooter.leftHeaderText')"
             :input="headerTextLeft"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('headerTextLeft', value)"
+            :on-change="(value: unknown) => onSelectChange('headerTextLeft', value)"
           />
           <text-box
             v-if="headerType !== 0"
             :description="t('exportSettings.headerFooter.mainHeaderText')"
             :input="headerTextCenter"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('headerTextCenter', value)"
+            :on-change="(value: unknown) => onSelectChange('headerTextCenter', value)"
           />
           <text-box
             v-if="headerType === 2"
             :description="t('exportSettings.headerFooter.rightHeaderText')"
             :input="headerTextRight"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('headerTextRight', value)"
+            :on-change="(value: unknown) => onSelectChange('headerTextRight', value)"
           />
 
           <cur-select
             :description="t('exportSettings.headerFooter.footerType')"
             :value="footerType"
             :options="headerFooterTypes"
-            :on-change="(value) => onSelectChange('footerType', value)"
+            :on-change="(value: unknown) => onSelectChange('footerType', value)"
           />
           <text-box
             v-if="footerType === 2"
             :description="t('exportSettings.headerFooter.leftFooterText')"
             :input="footerTextLeft"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('footerTextLeft', value)"
+            :on-change="(value: unknown) => onSelectChange('footerTextLeft', value)"
           />
           <text-box
             v-if="footerType !== 0"
             :description="t('exportSettings.headerFooter.mainFooterText')"
             :input="footerTextCenter"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('footerTextCenter', value)"
+            :on-change="(value: unknown) => onSelectChange('footerTextCenter', value)"
           />
           <text-box
             v-if="footerType === 2"
             :description="t('exportSettings.headerFooter.rightFooterText')"
             :input="footerTextRight"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('footerTextRight', value)"
+            :on-change="(value: unknown) => onSelectChange('footerTextRight', value)"
           />
 
           <bool
             :description="t('exportSettings.headerFooter.customizeStyle')"
             :bool="headerFooterCustomize"
-            :on-change="(value) => onSelectChange('headerFooterCustomize', value)"
+            :on-change="(value: unknown) => onSelectChange('headerFooterCustomize', value)"
           />
 
           <div v-if="headerFooterCustomize">
             <bool
               :description="t('exportSettings.headerFooter.allowStyled')"
               :bool="headerFooterStyled"
-              :on-change="(value) => onSelectChange('headerFooterStyled', value)"
+              :on-change="(value: unknown) => onSelectChange('headerFooterStyled', value)"
             />
             <range
               :description="t('exportSettings.headerFooter.fontSize')"
@@ -252,7 +252,7 @@
               :max="20"
               unit="px"
               :step="1"
-              :on-change="(value) => onSelectChange('headerFooterFontSize', value)"
+              :on-change="(value: unknown) => onSelectChange('headerFooterFontSize', value)"
             />
           </div>
         </el-tab-pane>
@@ -265,13 +265,13 @@
             :description="t('exportSettings.toc.includeTopHeading')"
             :detailed-description="t('exportSettings.toc.includeTopHeadingDetail')"
             :bool="tocIncludeTopHeading"
-            :on-change="(value) => onSelectChange('tocIncludeTopHeading', value)"
+            :on-change="(value: unknown) => onSelectChange('tocIncludeTopHeading', value)"
           />
           <text-box
             :description="t('exportSettings.toc.title')"
             :input="tocTitle"
             :emit-time="0"
-            :on-change="(value) => onSelectChange('tocTitle', value)"
+            :on-change="(value: unknown) => onSelectChange('tocTitle', value)"
           />
         </el-tab-pane>
       </el-tabs>
@@ -288,14 +288,13 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, type Ref } from 'vue'
 import bus from '../../bus'
-import Bool from '@/prefComponents/common/bool'
-import CurSelect from '@/prefComponents/common/select'
-import FontTextBox from '@/prefComponents/common/fontTextBox'
-import Range from '@/prefComponents/common/range'
-import TextBox from '@/prefComponents/common/textBox'
+import Bool from '@/prefComponents/common/bool/index.vue'
+import CurSelect from '@/prefComponents/common/select/index.vue'
+import FontTextBox from '@/prefComponents/common/fontTextBox/index.vue'
+import Range from '@/prefComponents/common/range/index.vue'
+import TextBox from '@/prefComponents/common/textBox/index.vue'
 import { getPageSizeList, getHeaderFooterTypes, getExportThemeList } from './exportOptions'
 import { useI18n } from 'vue-i18n'
 
@@ -355,9 +354,10 @@ const updateTranslations = () => {
   headerFooterTypes.value = getHeaderFooterTypes()
 }
 
-const showDialog = (type) => {
-  exportType.value = type
-  isPrintable.value = type !== 'styledHtml'
+const showDialog = (type: unknown) => {
+  const exportTypeValue = String(type ?? '')
+  exportType.value = exportTypeValue
+  isPrintable.value = exportTypeValue !== 'styledHtml'
   if (!isPrintable.value && (activeName.value === 'header' || activeName.value === 'page')) {
     activeName.value = 'info'
   }
@@ -372,7 +372,7 @@ const showDialog = (type) => {
 }
 
 const handleClicked = () => {
-  const options = {
+  const options: Record<string, unknown> = {
     type: exportType.value,
     pageSize: pageSize.value,
     pageSizeWidth: pageSizeWidth.value,
@@ -434,8 +434,8 @@ const handleClicked = () => {
   bus.emit('export', options)
 }
 
-const onSelectChange = (key, value) => {
-  const state = {
+const onSelectChange = (key: string, value: unknown) => {
+  const state: Record<string, Ref<unknown>> = {
     htmlTitle,
     pageSize,
     isLandscape,
@@ -461,12 +461,17 @@ const onSelectChange = (key, value) => {
     tocTitle
   }
   if (key in state) {
-    state[key].value = value
+    state[key]!.value = value
   }
 }
 
 const loadThemesFromDisk = async () => {
-  const { userDataPath } = window.marktext.paths
+  // marktext.paths is attached to `window` at runtime by bootstrap.ts but
+  // isn't part of the typed contextBridge surface. Cast through `unknown`.
+  const marktext = (window as unknown as { marktext?: { paths?: { userDataPath?: string } } })
+    .marktext
+  const userDataPath = marktext?.paths?.userDataPath
+  if (!userDataPath) return
   const themeDir = window.path.join(userDataPath, 'themes/export')
 
   if (!(await window.fileUtils.isDirectory(themeDir))) return

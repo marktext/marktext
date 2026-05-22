@@ -1,16 +1,28 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import ContentState from '../../../src/muya/lib/contentState'
-import EventCenter from '../../../src/muya/lib/eventHandler/event'
-import ExportMarkdown from '../../../src/muya/lib/utils/exportMarkdown'
-import { MUYA_DEFAULT_OPTION } from '../../../src/muya/lib/config'
+import { describe, it, expect } from 'vitest'
+import ContentState from 'muya/lib/contentState'
+import EventCenter from 'muya/lib/eventHandler/event'
+import ExportMarkdown from 'muya/lib/utils/exportMarkdown'
+import { MUYA_DEFAULT_OPTION } from 'muya/lib/config'
 import * as templates from '../markdown'
 
-const defaultOptions = { endOfLine: 'lf' }
-const defaultOptionsCrlf = Object.assign({}, defaultOptions, { endOfLine: 'crlf' })
+interface MuyaOptions {
+  endOfLine?: string
+  [key: string]: unknown
+}
 
-const createMuyaContext = (options) => {
-  const ctx = {}
+const defaultOptions: MuyaOptions = { endOfLine: 'lf' }
+const defaultOptionsCrlf: MuyaOptions = Object.assign({}, defaultOptions, { endOfLine: 'crlf' })
+
+interface MuyaCtx {
+  options: MuyaOptions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  eventCenter: any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  contentState: any
+}
+
+const createMuyaContext = (options: MuyaOptions): MuyaCtx => {
+  const ctx = {} as MuyaCtx
   ctx.options = Object.assign({}, MUYA_DEFAULT_OPTION, options)
   ctx.eventCenter = new EventCenter()
   ctx.contentState = new ContentState(ctx, ctx.options)
@@ -21,7 +33,7 @@ const createMuyaContext = (options) => {
 // Muya parser (Markdown to HTML to Markdown)
 //
 
-const verifyMarkdown = (markdown, options) => {
+const verifyMarkdown = (markdown: string, options: MuyaOptions): void => {
   const ctx = createMuyaContext(options)
   ctx.contentState.importMarkdown(markdown)
 

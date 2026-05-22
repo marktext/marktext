@@ -6,7 +6,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
@@ -17,30 +16,38 @@ import { adjustCursor } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
-const props = defineProps({
-  markdown: String,
-  muyaIndexCursor: Object,
-  textDirection: {
-    type: String,
-    required: true
-  }
-})
+// CodeMirror 5 ships no first-party types; the wrapper in src/renderer/src/
+// codeMirror/index.ts also keeps the surface intentionally loose.
+type CMInstance = any
+type CMCursor = any
+
+interface MuyaIndexCursorLike {
+  anchor: CMCursor
+  focus: CMCursor
+}
+
+const props = defineProps<{
+  markdown?: string
+  muyaIndexCursor?: unknown
+  textDirection: string
+}>()
 
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
 
-const sourceCodeContainer = ref(null)
+const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
-const editor = ref(null)
-const commitTimer = ref(null)
+const editor = ref<CMInstance>(null)
+const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
-const tabId = ref(null)
+const tabId = ref<string | null>(null)
 
 const { theme, sourceCode } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
-const isValidMuyaIndexCursor = (cursor) => {
-  return !!(cursor && cursor.anchor && cursor.focus)
+const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
+  const c = cursor as MuyaIndexCursorLike | null | undefined
+  return !!(c && c.anchor && c.focus)
 }
 
 watch(
@@ -52,12 +59,12 @@ watch(
   }
 )
 
-const getMarkdownAndCursor = (cm) => {
+const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
   let anchor = cm.getCursor('anchor')
 
-  const markdown = cm.getValue()
-  const convertToMuyaCursor = (cursor) => {
+  const markdown: string = cm.getValue()
+  const convertToMuyaCursor = (cursor: CMCursor) => {
     const line = cm.getLine(cursor.line)
     const preLine = cm.getLine(cursor.line - 1)
     const nextLine = cm.getLine(cursor.line + 1)
@@ -103,7 +110,14 @@ const prepareTabSwitch = () => {
   }
 }
 
-const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor }) => {
+interface FileChangePayloadLike {
+  id: string
+  markdown?: string
+  muyaIndexCursor?: unknown
+}
+
+const handleFileChange = (payload: unknown) => {
+  const { id, markdown: newMarkdown, muyaIndexCursor } = payload as FileChangePayloadLike
   if (!editor.value) return
 
   // On same-tab reload (external file change), preserve scroll across
@@ -116,18 +130,18 @@ const handleFileChange = ({ id, markdown: newMarkdown, muyaIndexCursor }) => {
   // A cross-tab switch must instead commit the outgoing tab's state; the
   // fresh markdown from disk would otherwise overwrite uncommitted edits.
   const isSameTabReload = tabId.value && tabId.value === id
-  const scrollTargets = []
+  const scrollTargets: Array<{ el: HTMLElement; top: number }> = []
   if (isSameTabReload) {
-    const seen = new Set()
-    const consider = (el) => {
+    const seen = new Set<HTMLElement>()
+    const consider = (el: HTMLElement | null | undefined) => {
       if (el && !seen.has(el)) {
         seen.add(el)
         scrollTargets.push({ el, top: el.scrollTop })
       }
     }
     consider(sourceCodeContainer.value)
-    consider(editor.value.getScrollerElement?.())
-    let node = sourceCodeContainer.value?.parentElement
+    consider(editor.value.getScrollerElement?.() as HTMLElement | null | undefined)
+    let node: HTMLElement | null = sourceCodeContainer.value?.parentElement ?? null
     while (node && node !== document.body) {
       const overflowY = window.getComputedStyle(node).overflowY
       if (
@@ -179,22 +193,30 @@ const handleSelectAll = () => {
   if (editor.value && editor.value.hasFocus()) {
     editor.value.execCommand('selectAll')
   } else {
-    const activeElement = document.activeElement
-    const nodeName = activeElement.nodeName
+    const activeElement = document.activeElement as HTMLElement | null
+    const nodeName = activeElement?.nodeName
     if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
-      if (typeof activeElement.select === 'function') {
-        activeElement.select()
+      const selectable = activeElement as HTMLInputElement | HTMLTextAreaElement | null
+      if (selectable && typeof selectable.select === 'function') {
+        selectable.select()
       }
     }
   }
 }
 
-const handleImageAction = ({ id, result, alt }) => {
-  const value = editor.value.getValue()
+interface ImageActionPayload {
+  id: string
+  result: string
+  alt: string
+}
+
+const handleImageAction = (payload: unknown) => {
+  const { id, result, alt } = payload as ImageActionPayload
+  const value: string = editor.value.getValue()
   const focus = editor.value.getCursor('focus')
   const anchor = editor.value.getCursor('anchor')
-  const lines = value.split('\n')
-  const index = lines.findIndex((line) => line.indexOf(id) > 0)
+  const lines: string[] = value.split('\n')
+  const index = lines.findIndex((line: string) => line.indexOf(id) > 0)
 
   if (index > -1) {
     const oldLine = lines[index]
@@ -212,7 +234,7 @@ const handleImageAction = ({ id, result, alt }) => {
     }
     const delta = alt.length + result.length + 5 - match[1].length
 
-    const adjustPointer = (pointer) => {
+    const adjustPointer = (pointer: CMCursor) => {
       if (!pointer) {
         return
       }
@@ -233,12 +255,12 @@ const handleImageAction = ({ id, result, alt }) => {
     if (focus && anchor) {
       editor.value.setSelection(anchor, focus, { scroll: true })
     } else {
-      setCursorAtFirstLine()
+      setCursorAtFirstLine(editor.value)
     }
   }
 }
 
-const saveContent = (cm) => {
+const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
   const wordCount = getWordCount(newMarkdown)
@@ -259,23 +281,24 @@ const saveContent = (cm) => {
 }
 
 const listenChange = () => {
-  editor.value.on('cursorActivity', (cm) => {
+  editor.value.on('cursorActivity', (cm: CMInstance) => {
     saveContent(cm)
   })
 }
 
 onMounted(() => {
+  if (!currentTab.value) return
   const { id } = currentTab.value
   // reset currentTab scrollTop position because the codeMirror scroll position is completely different from the muya scroll position
   // reset blocks as well because the blocks are only valid in muya
   // reset cursor because this is a direct "key-cursor", not a muyaIndexCursor, which is {focus: number, anchor: number}
-  currentTab.value.scrollTop = undefined
+  currentTab.value.scrollTop = 0
   currentTab.value.blocks = undefined
   currentTab.value.cursor = undefined
 
   const { markdown, muyaIndexCursor, textDirection } = props
   const container = sourceCodeContainer.value
-  const codeMirrorConfig = {
+  const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
     lineNumbers: true,
     autofocus: true,
@@ -283,7 +306,7 @@ onMounted(() => {
     styleActiveLine: true,
     direction: textDirection,
     viewportMargin: Infinity,
-    lineNumberFormatter (line) {
+    lineNumberFormatter (line: number) {
       if (line % 10 === 0 || line === 1) {
         return line
       } else {
@@ -313,7 +336,7 @@ onMounted(() => {
   // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
   codeMirrorInstance.setOption('mode', 'markdown-math')
 
-  codeMirrorInstance.on('contextmenu', (cm, event) => {
+  codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
     event.preventDefault()
     event.stopPropagation()
   })
