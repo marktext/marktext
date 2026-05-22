@@ -244,11 +244,11 @@ onUnmounted(() => {
     & > svg {
       width: 18px;
       height: 18px;
-      fill: var(--sideBarColor);
+      color: var(--sideBarColor);
       margin-right: 12px;
     }
     &.active > svg {
-      fill: var(--sideBarTitleColor);
+      color: var(--sideBarTitleColor);
     }
     &:hover {
       background: var(--sideBarItemHoverBgColor);

@@ -8,12 +8,13 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <InfoFilled
+      <el-icon
         v-if="more"
-        width="16"
-        height="16"
+        :size="18"
         @click="handleMoreClick"
-      />
+      >
+        <Link />
+      </el-icon>
     </div>
     <el-input
       v-model="inputText"
@@ -35,7 +36,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { Link } from '@element-plus/icons-vue'
 import type { PrefControlBaseProps } from '../types'
 
 interface TextBoxProps extends PrefControlBaseProps {
@@ -102,7 +103,7 @@ const handleInput = (value: string) => {
 .pref-text-box-item {
   font-size: 14px;
   user-select: none;
-  margin: 20px 0;
+  margin: 12px 0;
   color: var(--editorColor);
   width: 100%;
   & div {

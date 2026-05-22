@@ -605,8 +605,6 @@
     },
     "image": {
       "title": "图片",
-      "defaultAction": "插入图片时的默认操作",
-      "clipboardTooltip": "粘贴或拖拽图片到 MarkText 后的默认行为",
       "actions": {
         "upload": "上传到云端",
         "folder": "复制到文件夹",
@@ -734,7 +732,8 @@
         "repo": "仓库",
         "scriptPath": "脚本路径",
         "tokenTooltip": "用于身份验证的访问令牌"
-      }
+      },
+      "defaultBehavior": "粘贴或拖拽图片到 MarkText 后的默认行为"
     },
     "markdown": {
       "title": "Markdown",

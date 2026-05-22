@@ -605,8 +605,6 @@
     },
     "image": {
       "title": "Imagem",
-      "defaultAction": "Ação padrão ao inserir imagem",
-      "clipboardTooltip": "O comportamento padrão após colar ou arrastar a imagem para o MarkText",
       "actions": {
         "upload": "Enviar para nuvem",
         "folder": "Copiar para pasta",
@@ -735,7 +733,8 @@
         "lastSuccessTime": "Última vez bem-sucedida",
         "neverDetected": "Nunca detectado",
         "neverSuccessful": "Nunca bem-sucedido"
-      }
+      },
+      "defaultBehavior": "O comportamento padrão após colar ou arrastar a imagem para o MarkText"
     },
     "markdown": {
       "title": "Markdown",

@@ -5,13 +5,13 @@
     :class="[{ active: currentFile?.id === file.id, unsaved: !file.isSaved }]"
     @click="selectFile(file)"
   >
-    <svg
-      class="icon"
-      aria-hidden="true"
+    <el-icon
+      class="close-icon"
+      :size="10"
       @click.stop="removeFileInTab(file)"
     >
-      <use xlink:href="#icon-close-small" />
-    </svg>
+      <Close />
+    </el-icon>
     <span class="name">{{ file.filename }}</span>
   </div>
 </template>
@@ -19,6 +19,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useEditorStore } from '@/store/editor'
+import { Close } from '@element-plus/icons-vue'
 import type { TabDescriptor } from './types'
 
 defineProps<{
@@ -54,16 +55,15 @@ const removeFileInTab = (file: TabDescriptor): void => {
   padding-left: 35px;
   position: relative;
   color: var(--sideBarColor);
-  & > svg {
+  & > .close-icon {
     display: none;
-    width: 10px;
-    height: 10px;
     position: absolute;
     top: 9px;
     left: 10px;
+    cursor: pointer;
   }
-  &:hover > svg {
-    display: inline-block;
+  &:hover > .close-icon {
+    display: inline-flex;
   }
   &:hover {
     background: var(--sideBarItemHoverBgColor);

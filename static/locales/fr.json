@@ -605,8 +605,6 @@
     },
     "image": {
       "title": "Image",
-      "defaultAction": "Action par défaut lors de l'insertion d'image",
-      "clipboardTooltip": "Comportement par défaut après avoir collé ou glissé une image dans MarkText",
       "actions": {
         "upload": "Télécharger vers le cloud",
         "folder": "Copier vers le dossier",
@@ -735,7 +733,8 @@
         "lastSuccessTime": "Dernière heure de succès",
         "neverDetected": "Jamais détecté",
         "neverSuccessful": "Jamais réussi"
-      }
+      },
+      "defaultBehavior": "Comportement par défaut après avoir collé ou glissé une image dans MarkText"
     },
     "markdown": {
       "title": "Markdown",

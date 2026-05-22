@@ -605,8 +605,6 @@
     },
     "image": {
       "title": "이미지",
-      "defaultAction": "이미지 삽입 시 기본 동작",
-      "clipboardTooltip": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작",
       "actions": {
         "upload": "클라우드에 업로드",
         "folder": "폴더에 복사",
@@ -735,7 +733,8 @@
         "lastSuccessTime": "마지막 성공 시간",
         "neverDetected": "감지된 적 없음",
         "neverSuccessful": "성공한 적 없음"
-      }
+      },
+      "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
     },
     "markdown": {
       "title": "마크다운",

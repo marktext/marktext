@@ -89,13 +89,15 @@
       class="empty"
     >
       <div class="no-data">
-        <button
+        <el-button
           v-if="showNoFolderOpenedMessage"
-          class="button-primary"
+          text
+          bg
+          type="primary"
           @click="openFolder"
         >
           {{ t('sideBar.search.openFolder') }}
-        </button>
+        </el-button>
       </div>
     </div>
   </div>
@@ -338,9 +340,9 @@ onMounted(() => {
 }
 .search-wrapper {
   display: flex;
-  margin: 37px 15px 10px 15px;
+  margin: 37px 8px 10px 8px;
   padding: 0 6px;
-  border-radius: 14px;
+  border-radius: 4px;
   height: 28px;
   border: 1px solid var(--floatBorderColor);
   background: var(--inputBgColor);
@@ -353,24 +355,29 @@ onMounted(() => {
     flex: 1;
     border: none;
     outline: none;
-    padding: 0 8px;
+    padding: 0;
     font-size: 13px;
     width: 50%;
   }
   & > .controls {
     display: flex;
     flex-shrink: 0;
-    margin-top: 3px;
+    margin-top: 0;
     & > span {
       cursor: pointer;
-      width: 20px;
-      height: 20px;
-      margin-left: 2px;
-      margin-right: 2px;
+      width: 18px;
+      height: 18px;
+      margin-left: 0;
+      margin-right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       &:hover {
         color: var(--sideBarIconColor);
       }
       & > svg {
+        width: 14px;
+        height: 14px;
         fill: var(--sideBarIconColor);
         &:hover {
           fill: var(--highlightThemeColor);
@@ -428,9 +435,18 @@ onMounted(() => {
     align-items: center;
     flex-direction: column;
   }
-  & .no-data .button-primary {
-    display: block;
+  & .no-data .el-button {
     margin-top: 20px;
+  }
+  & .no-data .el-button.is-text.is-has-bg {
+    background-color: var(--itemBgColor);
+    color: var(--themeColor);
+    border-color: transparent;
+  }
+  & .no-data .el-button.is-text.is-has-bg:hover,
+  & .no-data .el-button.is-text.is-has-bg:focus {
+    background-color: var(--floatHoverColor);
+    color: var(--themeColor);
   }
 }
 </style>

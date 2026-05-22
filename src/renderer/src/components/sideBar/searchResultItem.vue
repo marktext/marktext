@@ -4,14 +4,14 @@
       class="search-result"
       :title="searchResult.filePath"
     >
-      <svg
-        class="icon icon-arrow"
+      <el-icon
+        class="icon-arrow"
         :class="{ fold: !showSearchMatches }"
-        aria-hidden="true"
+        :size="14"
         @click.stop="toggleSearchMatches()"
       >
-        <use xlink:href="#icon-arrow" />
-      </svg>
+        <CaretRight />
+      </el-icon>
       <div
         class="file-info"
         @click.stop="toggleSearchMatches()"
@@ -67,6 +67,7 @@ import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
+import { CaretRight } from '@element-plus/icons-vue'
 import type { SearchResult, SearchMatch } from './types'
 
 const { t } = useI18n()
@@ -272,9 +273,10 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
 }
 
 .icon-arrow {
-  transition: all 0.25s ease-out;
+  transition: transform 0.25s ease-out;
   transform: rotate(90deg);
-  fill: var(--sideBarTextColor);
+  color: var(--sideBarTextColor);
+  cursor: pointer;
 }
 .icon-arrow.fold {
   transform: rotate(0);

@@ -7,7 +7,10 @@
         <a
           class="link"
           @click="openKeybindingWiki"
-        >{{ t('preferences.keybindings.online') }}</a>.
+        ><el-icon
+          :size="16"
+          class="link-icon"
+        ><Link /></el-icon></a>.
       </div>
       <el-table
         :data="keybindingList"
@@ -16,15 +19,16 @@
         <el-table-column
           prop="description"
           :label="t('preferences.keybindings.table.description')"
+          min-width="220"
         />
         <el-table-column
           prop="accelerator"
           :label="t('preferences.keybindings.table.keyCombination')"
-          width="220"
+          min-width="160"
         />
         <el-table-column
           :label="t('preferences.keybindings.table.options')"
-          width="90"
+          min-width="90"
         >
           <template #default="scope">
             <el-button
@@ -110,7 +114,7 @@ import KeyInputDialog from './key-input-dialog.vue'
 import KeybindingConfigurator from './KeybindingConfigurator'
 import type { UiKeybinding } from './KeybindingConfigurator'
 import notice from '@/services/notification'
-import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
+import { Edit, RefreshRight, Delete, Link } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
@@ -259,6 +263,10 @@ const dumpKeyboardInformation = (): void => {
   & .link {
     color: var(--themeColor);
     cursor: pointer;
+    & .link-icon {
+      margin-left: 2px;
+      vertical-align: -2px;
+    }
   }
   & button.el-button {
     font-size: 13px;

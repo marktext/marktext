@@ -17,13 +17,13 @@
               class="search"
               @keyup.enter="confirm"
             >
-            <svg
-              class="icon"
-              aria-hidden="true"
+            <el-icon
+              :size="16"
+              class="confirm-icon"
               @click="confirm"
             >
-              <use xlink:href="#icon-markdown" />
-            </svg>
+              <Check />
+            </el-icon>
           </div>
         </div>
       </template>
@@ -35,6 +35,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import bus from '../../bus'
 import { useEditorStore } from '@/store/editor'
+import { Check } from '@element-plus/icons-vue'
 
 const showRename = ref(false)
 const tempName = ref('')

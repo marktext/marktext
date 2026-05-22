@@ -25,7 +25,7 @@ defineProps<{
 .pref-compound-item {
   font-size: 14px;
   user-select: none;
-  margin: 20px 0;
+  margin: 32px 0;
   color: var(--editorColor);
 
   & .pref-compound-head h6.title {

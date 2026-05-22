@@ -2,20 +2,7 @@
   <div class="pref-image">
     <h4>{{ t('preferences.image.title') }}</h4>
     <section class="image-ctrl">
-      <div>
-        {{ t('preferences.image.defaultAction') }}
-        <el-tooltip
-          class="item"
-          effect="dark"
-          :content="t('preferences.image.clipboardTooltip')"
-          placement="top-start"
-        >
-          <InfoFilled
-            width="16"
-            height="16"
-          />
-        </el-tooltip>
-      </div>
+      <div>{{ t('preferences.image.defaultBehavior') }}</div>
       <CurSelect
         :value="imageInsertAction"
         :options="imageActions"
@@ -38,7 +25,6 @@ import Uploader from './components/uploader/index.vue'
 import CurSelect from '../common/select/index.vue'
 import FolderSetting from './components/folderSetting/index.vue'
 import { getImageActions } from './config'
-import { InfoFilled } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 

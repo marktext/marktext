@@ -118,7 +118,7 @@ onMounted(() => {
       -webkit-app-region: drag;
     }
     & .pref-setting {
-      padding: 50px 20px;
+      padding: 50px 40px;
       padding-top: var(--titleBarHeight);
       flex: 1;
       height: calc(100vh - var(--titleBarHeight));

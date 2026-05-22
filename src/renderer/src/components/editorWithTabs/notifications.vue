@@ -21,15 +21,12 @@
           class="inline-button"
           @click.stop="handleClick(false)"
         >
-          <svg
-            class="close-icon icon"
-            aria-hidden="true"
+          <el-icon
+            class="close-icon"
+            :size="12"
           >
-            <use
-              id="default-close-icon"
-              xlink:href="#icon-close-small"
-            />
-          </svg>
+            <Close />
+          </el-icon>
         </span>
       </div>
     </div>
@@ -41,6 +38,7 @@ import { computed } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
+import { Close } from '@element-plus/icons-vue'
 import { t } from '../../i18n'
 
 const editorStore = useEditorStore()

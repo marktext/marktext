@@ -1,7 +1,9 @@
-import FilesIcon from '@/assets/icons/files.svg'
-import SearchIcon from '@/assets/icons/search.svg'
-import TocIcon from '@/assets/icons/toc.svg'
-import SettingIcon from '@/assets/icons/setting.svg'
+import {
+  Folder as FilesIcon,
+  Search as SearchIcon,
+  Memo as TocIcon,
+  Setting as SettingIcon
+} from '@element-plus/icons-vue'
 import { t } from '@/i18n'
 
 export interface SideBarIconEntry {

@@ -19,22 +19,14 @@
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
-          <svg
-            class="close-icon icon"
-            aria-hidden="true"
+          <span class="unsaved-dot" />
+          <el-icon
+            class="close-icon"
+            :size="12"
             @click.stop="removeFileInTab(file)"
           >
-            <circle
-              id="unsaved-circle-icon"
-              cx="6"
-              cy="6"
-              r="3"
-            />
-            <use
-              id="default-close-icon"
-              xlink:href="#icon-close-small"
-            />
-          </svg>
+            <Close />
+          </el-icon>
         </li>
       </ul>
     </div>
@@ -42,12 +34,9 @@
       class="new-file"
       @click.stop="newFile()"
     >
-      <svg
-        class="icon"
-        aria-hidden="true"
-      >
-        <use xlink:href="#icon-plus" />
-      </svg>
+      <el-icon :size="16">
+        <Plus />
+      </el-icon>
     </div>
   </div>
 </template>
@@ -59,6 +48,7 @@ import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
+import { Plus, Close } from '@element-plus/icons-vue'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
 import type { IFileState } from '@shared/types/files'
@@ -242,21 +232,20 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-svg.close-icon #unsaved-circle-icon {
-  transition: all 0.15s ease-in-out;
-  fill: var(--themeColor);
+.close-icon {
+  cursor: pointer;
+  transition: opacity 0.15s ease-in-out;
 }
 
-svg.close-icon:hover {
-  cursor: pointer;
-  fill: var(--focusColor);
+.close-icon:hover {
+  color: var(--focusColor);
 }
 
 .editor-tabs {
   position: relative;
   display: flex;
   flex-direction: row;
-  height: 35px;
+  height: 28px;
   user-select: none;
   box-shadow: 0px 0px 9px 2px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -266,7 +255,7 @@ svg.close-icon:hover {
 }
 .scrollable-tabs {
   flex: 0 1 auto;
-  height: 35px;
+  height: 28px;
   overflow: hidden;
 }
 .tabs-container {
@@ -274,7 +263,7 @@ svg.close-icon:hover {
   list-style: none;
   margin: 0;
   padding: 0;
-  height: 35px;
+  height: 28px;
   position: relative;
   display: flex;
   flex-direction: row;
@@ -289,17 +278,15 @@ svg.close-icon:hover {
     padding: 0 8px;
     color: var(--editorColor50);
     font-size: 12px;
-    line-height: 35px;
-    height: 35px;
+    line-height: 28px;
+    height: 28px;
     max-width: 280px;
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
     display: flex;
     align-items: center;
     &[aria-grabbed='true'] {
       color: var(--editorColor30) !important;
     }
-    & > svg {
+    & > .close-icon {
       opacity: 0;
     }
     &:focus {
@@ -308,14 +295,11 @@ svg.close-icon:hover {
     &:hover {
       background: var(--floatBgColor) !important;
     }
-    &:hover > svg {
+    &:hover > .close-icon {
       opacity: 1;
     }
-    &:hover > svg.close-icon #default-close-icon {
-      display: block !important;
-    }
-    &:hover > svg.close-icon #unsaved-circle-icon {
-      display: none !important;
+    &:hover > .unsaved-dot {
+      display: none;
     }
     & > span {
       overflow: hidden;
@@ -323,15 +307,26 @@ svg.close-icon:hover {
       white-space: nowrap;
       margin-right: 3px;
     }
+    & > .unsaved-dot {
+      display: none;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--themeColor);
+      flex-shrink: 0;
+    }
   }
   & > li.unsaved:not(.active) {
-    & > svg.close-icon {
-      opacity: 1;
+    & > .close-icon {
+      opacity: 0;
     }
-    & > svg.close-icon #unsaved-circle-icon {
+    & > .unsaved-dot {
       display: block;
     }
-    & > svg.close-icon #default-close-icon {
+    &:hover > .close-icon {
+      opacity: 1;
+    }
+    &:hover > .unsaved-dot {
       display: none;
     }
   }
@@ -347,18 +342,18 @@ svg.close-icon:hover {
       height: 2px;
       background: var(--themeColor);
     }
-    & > svg {
+    & > .close-icon {
       opacity: 1;
     }
-    & > svg.close-icon #unsaved-circle-icon {
+    & > .unsaved-dot {
       display: none;
     }
   }
 }
 .editor-tabs > .new-file {
-  flex: 0 0 35px;
-  width: 35px;
-  height: 35px;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
   border-right: none;
   background: transparent;
   display: flex;

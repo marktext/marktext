@@ -24,12 +24,12 @@
             :key="index"
           >
             {{ path }}
-            <svg
-              class="icon"
-              aria-hidden="true"
+            <el-icon
+              class="path-arrow"
+              :size="12"
             >
-              <use xlink:href="#icon-arrow-right" />
-            </svg>
+              <ArrowRight />
+            </el-icon>
           </span>
           <span
             class="filename"
@@ -144,6 +144,7 @@ import { PATH_SEPARATOR } from '../../config'
 import { isOsx as isOsxPlatform } from '@/util'
 import { useEditorStore } from '@/store/editor'
 import { useI18n } from 'vue-i18n'
+import { ArrowRight } from '@element-plus/icons-vue'
 import type { FileWordCount } from '@shared/types/files'
 
 interface ProjectInfo {

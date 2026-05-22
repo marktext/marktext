@@ -605,8 +605,6 @@
     },
     "image": {
       "title": "圖片",
-      "defaultAction": "插入圖片時的預設動作",
-      "clipboardTooltip": "貼上或拖曳圖片到 MarkText 後的預設行為",
       "actions": {
         "upload": "上傳到雲端",
         "folder": "複製到資料夾",
@@ -735,7 +733,8 @@
         "lastSuccessTime": "上次成功時間",
         "neverDetected": "從未偵測",
         "neverSuccessful": "從未成功"
-      }
+      },
+      "defaultBehavior": "貼上或拖曳圖片到 MarkText 後的預設行為"
     },
     "markdown": {
       "title": "PicGo 設定",

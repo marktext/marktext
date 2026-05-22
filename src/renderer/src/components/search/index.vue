@@ -8,13 +8,12 @@
       class="left-arrow"
       @click="toggleSearchType"
     >
-      <svg
-        class="icon"
-        aria-hidden="true"
+      <el-icon
+        :size="14"
         :class="{ 'arrow-right': type === 'search' }"
       >
-        <use xlink:href="#icon-arrowdown" />
-      </svg>
+        <ArrowDown />
+      </el-icon>
     </div>
     <div class="right-controls">
       <section class="search">
@@ -70,23 +69,17 @@
             class="button right"
             @click="find('prev')"
           >
-            <svg
-              class="icon"
-              aria-hidden="true"
-            >
-              <use xlink:href="#icon-arrow-up" />
-            </svg>
+            <el-icon :size="14">
+              <ArrowUp />
+            </el-icon>
           </button>
           <button
             class="button"
             @click="find('next')"
           >
-            <svg
-              class="icon"
-              aria-hidden="true"
-            >
-              <use xlink:href="#icon-arrowdown" />
-            </svg>
+            <el-icon :size="14">
+              <ArrowDown />
+            </el-icon>
           </button>
         </div>
       </section>
@@ -114,12 +107,9 @@
               class="button right"
               @click="replace(false)"
             >
-              <svg
-                class="icon"
-                aria-hidden="true"
-              >
-                <use xlink:href="#icon-all-inclusive" />
-              </svg>
+              <el-icon :size="14">
+                <RefreshRight />
+              </el-icon>
             </button>
           </el-tooltip>
           <el-tooltip
@@ -134,12 +124,9 @@
               class="button"
               @click="replace(true)"
             >
-              <svg
-                class="icon"
-                aria-hidden="true"
-              >
-                <use xlink:href="#icon-replace" />
-              </svg>
+              <el-icon :size="14">
+                <Switch />
+              </el-icon>
             </button>
           </el-tooltip>
         </div>
@@ -158,6 +145,7 @@ import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { debounce } from 'underscore'
+import { ArrowDown, ArrowUp, RefreshRight, Switch } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 

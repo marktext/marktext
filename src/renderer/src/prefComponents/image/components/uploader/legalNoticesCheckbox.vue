@@ -9,14 +9,20 @@
         @click="openUrl(uploaderService.privacyUrl)"
       >{{
         t('preferences.image.uploader.legalNotices.privacyStatement')
-      }}</span>
+      }}<el-icon
+        :size="14"
+        class="link-icon"
+      ><Link /></el-icon></span>
       {{ t('preferences.image.uploader.legalNotices.and') }}
       <span
         class="link"
         @click="openUrl(uploaderService.tosUrl)"
       >{{
         t('preferences.image.uploader.legalNotices.termsOfService')
-      }}</span>.
+      }}<el-icon
+        :size="14"
+        class="link-icon"
+      ><Link /></el-icon></span>.
       <span v-if="!uploaderService.isGdprCompliant">{{
         t('preferences.image.uploader.legalNotices.gdprWarning')
       }}</span>
@@ -26,6 +32,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { Link } from '@element-plus/icons-vue'
 import type { UploaderService } from './services'
 
 const { t } = useI18n()
@@ -47,6 +54,10 @@ const openUrl = (link: string): void => {
   padding: 3px 5px;
   & .el-checkbox {
     margin-right: 0;
+  }
+  & .link .link-icon {
+    margin-left: 2px;
+    vertical-align: -2px;
   }
 }
 </style>

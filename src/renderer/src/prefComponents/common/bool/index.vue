@@ -8,12 +8,13 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <InfoFilled
+      <el-icon
         v-if="more"
-        width="16"
-        height="16"
+        :size="18"
         @click="handleMoreClick"
-      />
+      >
+        <Link />
+      </el-icon>
       <el-tooltip
         v-else-if="detailedDescription"
         :content="detailedDescription"
@@ -42,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { InfoFilled } from '@element-plus/icons-vue'
+import { InfoFilled, Link } from '@element-plus/icons-vue'
 import type { PrefControlBaseProps } from '../types'
 
 interface BoolProps extends PrefControlBaseProps {
@@ -86,7 +87,7 @@ const handleSwitchChange = (value: boolean | string | number) => {
 .pref-switch-item {
   font-size: 14px;
   user-select: none;
-  margin: 20px 0;
+  margin: 12px 0;
   color: var(--editorColor);
   display: flex;
   align-items: center;

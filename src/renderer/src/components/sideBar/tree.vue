@@ -7,14 +7,14 @@
     <!-- Opened tabs -->
     <div class="opened-files">
       <div class="title">
-        <svg
-          class="icon icon-arrow"
+        <el-icon
+          class="icon-arrow"
           :class="{ fold: !showOpenedFiles }"
-          aria-hidden="true"
+          :size="12"
           @click.stop="toggleOpenedFiles()"
         >
-          <use xlink:href="#icon-arrow" />
-        </svg>
+          <CaretRight />
+        </el-icon>
         <span
           class="default-cursor text-overflow"
           @click.stop="toggleOpenedFiles()"
@@ -66,14 +66,14 @@
       class="project-tree"
     >
       <div class="title">
-        <svg
-          class="icon icon-arrow"
+        <el-icon
+          class="icon-arrow"
           :class="{ fold: !showDirectories }"
-          aria-hidden="true"
+          :size="12"
           @click.stop="toggleDirectories()"
         >
-          <use xlink:href="#icon-arrow" />
-        </svg>
+          <CaretRight />
+        </el-icon>
         <span
           class="default-cursor text-overflow"
           @click.stop="toggleDirectories()"
@@ -132,12 +132,14 @@
       class="open-project"
     >
       <div class="centered-group">
-        <button
-          class="button-primary"
+        <el-button
+          text
+          bg
+          type="primary"
           @click="openFolder"
         >
           {{ t('sideBar.tree.openFolder') }}
-        </button>
+        </el-button>
       </div>
     </div>
   </div>
@@ -153,6 +155,7 @@ import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
+import { CaretRight } from '@element-plus/icons-vue'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -286,9 +289,10 @@ onMounted(() => {
 
 .icon-arrow {
   margin-right: 5px;
-  transition: all 0.25s ease-out;
+  transition: transform 0.25s ease-out;
   transform: rotate(90deg);
-  fill: var(--sideBarTextColor);
+  color: var(--sideBarTextColor);
+  cursor: pointer;
 }
 
 .icon-arrow.fold {
@@ -404,9 +408,21 @@ onMounted(() => {
   align-items: center;
 }
 
-.open-project button.button-primary {
-  display: block;
+.open-project .el-button {
   margin-top: 20px;
+}
+.open-project .el-button.is-text.is-has-bg,
+.empty-project .el-button.is-text.is-has-bg {
+  background-color: var(--itemBgColor);
+  color: var(--themeColor);
+  border-color: transparent;
+}
+.open-project .el-button.is-text.is-has-bg:hover,
+.open-project .el-button.is-text.is-has-bg:focus,
+.empty-project .el-button.is-text.is-has-bg:hover,
+.empty-project .el-button.is-text.is-has-bg:focus {
+  background-color: var(--floatHoverColor);
+  color: var(--themeColor);
 }
 .new-input {
   outline: none;

@@ -71,11 +71,11 @@
   --emColor: #5f9ea0;
   --listMarkerColor: #6886aa;
 
-  --sideBarColor: rgba(188, 193, 197, 0.8);
-  --sideBarIconColor: rgba(175, 175, 175, 0.8);
-  --sideBarTitleColor: rgba(255, 255, 255, 1);
-  --sideBarTextColor: rgba(188, 193, 197, 0.4);
-  --sideBarBgColor: rgba(69, 75, 80, 1);
+  --sideBarColor: rgba(43, 48, 50, 0.8);
+  --sideBarIconColor: rgba(43, 48, 50, 0.6);
+  --sideBarTitleColor: rgba(43, 48, 50, 1);
+  --sideBarTextColor: rgba(43, 48, 50, 0.6);
+  --sideBarBgColor: #ececec;
   --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
   --itemBgColor: rgba(43, 48, 50, 0.5);
 

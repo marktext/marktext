@@ -120,7 +120,7 @@ import { useI18n } from 'vue-i18n'
 
 import 'muya/themes/default.css'
 import '@/assets/themes/codemirror/one-dark.css'
-import CloseIcon from '@/assets/icons/close.svg'
+import { Close as CloseIcon } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 const STANDAR_Y = 320

@@ -2,12 +2,14 @@
   <div class="recent-files-projects">
     <div class="centered-group">
       {{ t('recent.noTabsOpen') }}
-      <button
-        class="button-primary"
+      <el-button
+        text
+        bg
+        type="primary"
         @click="newFile"
       >
         {{ t('recent.newFile') }}
-      </button>
+      </el-button>
     </div>
   </div>
 </template>
@@ -35,9 +37,18 @@ const newFile = () => {
     flex-direction: column;
     align-items: center;
     color: var(--editorColor);
-    & button.button-primary {
-      display: block;
+    & .el-button {
       margin-top: 20px;
+    }
+    & .el-button.is-text.is-has-bg {
+      background-color: var(--itemBgColor);
+      color: var(--themeColor);
+      border-color: transparent;
+    }
+    & .el-button.is-text.is-has-bg:hover,
+    & .el-button.is-text.is-has-bg:focus {
+      background-color: var(--floatHoverColor);
+      color: var(--themeColor);
     }
   }
 }

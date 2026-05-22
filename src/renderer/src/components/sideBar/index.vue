@@ -151,7 +151,7 @@ const handleLeftBottomClick = (name: string): void => {
 }
 
 .side-bar .left-column svg {
-  fill: var(--iconColor);
+  color: var(--iconColor);
 }
 
 .left-column {
@@ -160,7 +160,7 @@ const handleLeftBottomClick = (name: string): void => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-top: 40px;
+  padding-top: 28px;
   box-sizing: border-box;
 }
 
@@ -190,13 +190,13 @@ const handleLeftBottomClick = (name: string): void => {
 .left-column ul > li > svg {
   width: 18px;
   height: 18px;
-  fill: var(--sideBarIconColor);
+  color: var(--sideBarIconColor);
   opacity: 1;
   transition: transform 0.25s ease-in-out;
 }
 
 .left-column ul > li.active > svg {
-  fill: var(--themeColor);
+  color: var(--themeColor);
 }
 
 .side-bar:hover .left-column ul li svg {
