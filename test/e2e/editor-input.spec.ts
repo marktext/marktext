@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const {
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import {
   launchWithMarkdown,
   getMarkdownContent,
   enterSourceMode,
   exitSourceMode,
   typeIntoEditor
-} = require('./helpers')
+} from './helpers'
 
 test.describe('Editor input and source-mode roundtrip', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown('# Hello\n\nStarting paragraph.\n')
@@ -31,9 +30,12 @@ test.describe('Editor input and source-mode roundtrip', () => {
 
   test('Toggling source mode preserves content', async() => {
     await enterSourceMode(page, app)
-    const md = await page.evaluate(() =>
-      document.querySelector('.source-code .CodeMirror').CodeMirror.getValue()
-    )
+    const md = await page.evaluate(() => {
+      const cm = document.querySelector('.source-code .CodeMirror') as
+        | (Element & { CodeMirror: { getValue(): string } })
+        | null
+      return cm ? cm.CodeMirror.getValue() : ''
+    })
     expect(md).toContain('# Hello')
     await exitSourceMode(page, app)
     const stillThere = await page.locator('.editor-component').isVisible()

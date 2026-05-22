@@ -1,6 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { extractWord } from '../../../src/muya/lib/marktext/spellchecker.js'
+import { describe, it, expect } from 'vitest'
+import { extractWord } from 'muya/lib/marktext/spellchecker.js'
+
+interface WordResult {
+  left: number
+  right: number
+  word: string
+}
 
 const basicCheck = 'Lorem ipsum dolor'
 const basicText =
@@ -10,11 +15,15 @@ const basicMdText =
 const nonAscii =
   '虥諰 鯦鯢鯡 媓幁惁 墏, 邆錉霋 鱐鱍鱕 銪 鈌鈅, 韎餀 骱 噮噦噞 虥諰諨 樆樦潏 蝺 嬔嬚嬞 脬舑莕 騩鰒...'
 
-const buildResult = (left, right, word) => {
+const buildResult = (left: number, right: number, word: string): WordResult => {
   return { left, right, word }
 }
 
-const test = (text, offset, expectedWord) => {
+const test = (
+  text: string | null,
+  offset: number | undefined,
+  expectedWord: WordResult | null
+): void => {
   const wordInfo = extractWord(text, offset)
   if (expectedWord === null) {
     expect(wordInfo).to.equal(null)

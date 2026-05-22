@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
+import { describe, it, expect } from 'vitest'
 import { getNativeThemeSource, isDarkApplicationTheme } from 'main_renderer/app/nativeTheme'
 import { oneDarkThemes, railscastsThemes } from 'common/theme'
 

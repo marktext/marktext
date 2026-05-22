@@ -1,21 +1,20 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const {
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import {
   launchWithMarkdown,
   clickMenuById,
   setSourceMarkdown,
   placeCaretInEditor
-} = require('./helpers')
+} from './helpers'
 
-const resetTo = async(page, app, text) => {
+const resetTo = async(page: Page, app: ElectronApplication, text: string) => {
   await setSourceMarkdown(page, app, text + '\n')
   await placeCaretInEditor(page)
 }
 
 test.describe('Paragraph block transforms', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown('seed paragraph\n')

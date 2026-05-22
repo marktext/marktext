@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchWithMarkdown, clickMenuById } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithMarkdown, clickMenuById } from './helpers'
 
 test.describe('View modes', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown('# View modes\n\nBody.\n')
@@ -22,7 +21,10 @@ test.describe('View modes', () => {
     await expect(page.locator('.editor-wrapper')).toHaveClass(/(^|\s)focus(\s|$)/)
     await clickMenuById(app, 'focusModeMenuItem')
     await page.waitForFunction(
-      () => !document.querySelector('.editor-wrapper').classList.contains('focus'),
+      () => {
+        const el = document.querySelector('.editor-wrapper')
+        return !el || !el.classList.contains('focus')
+      },
       null,
       { timeout: 5000 }
     )
@@ -33,7 +35,10 @@ test.describe('View modes', () => {
     await expect(page.locator('.editor-wrapper')).toHaveClass(/(^|\s)typewriter(\s|$)/)
     await clickMenuById(app, 'typewriterModeMenuItem')
     await page.waitForFunction(
-      () => !document.querySelector('.editor-wrapper').classList.contains('typewriter'),
+      () => {
+        const el = document.querySelector('.editor-wrapper')
+        return !el || !el.classList.contains('typewriter')
+      },
       null,
       { timeout: 5000 }
     )
