@@ -3,7 +3,7 @@
     v-if="currentNotification"
     class="editor-notifications"
     :class="currentNotification.style"
-    :style="{ 'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
+    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth}px)` }"
   >
     <div class="msg">
       {{ currentNotification.msg }}
@@ -47,7 +47,14 @@ const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 
 const { currentFile } = storeToRefs(editorStore)
-const { showSideBar, sideBarWidth } = storeToRefs(layoutStore)
+const { showSideBar, rightColumn, sideBarWidth } = storeToRefs(layoutStore)
+
+// Same effective width as editor-with-tabs — see comment there.
+const effectiveSideBarWidth = computed<number>(() => {
+  if (!showSideBar.value) return 0
+  if (!rightColumn.value) return 45
+  return Number(sideBarWidth.value)
+})
 
 const currentNotification = computed(() => {
   const notifications = currentFile.value?.notifications

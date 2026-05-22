@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-with-tabs"
-    :style="{ 'max-width': showSideBar ? `calc(100vw - ${sideBarWidth}px` : '100vw' }"
+    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth}px)` }"
   >
     <tabs v-show="showTabBar" />
     <div class="container">
@@ -23,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import Tabs from './tabs.vue'
@@ -45,7 +46,18 @@ defineProps<{
 
 const layoutStore = useLayoutStore()
 
-const { showSideBar, sideBarWidth } = storeToRefs(layoutStore)
+const { showSideBar, rightColumn, sideBarWidth } = storeToRefs(layoutStore)
+
+// Mirror the sidebar's `finalSideBarWidth` (see sideBar/index.vue): the store's
+// `sideBarWidth` is clamped to ≥220 and only reflects the right-column width,
+// but the actual sidebar collapses to a 45px icon strip when `rightColumn` is
+// empty. Without this, max-width subtracts the larger value and leaves a blank
+// gap to the right of the editor.
+const effectiveSideBarWidth = computed<number>(() => {
+  if (!showSideBar.value) return 0
+  if (!rightColumn.value) return 45
+  return Number(sideBarWidth.value)
+})
 </script>
 
 <style scoped>
