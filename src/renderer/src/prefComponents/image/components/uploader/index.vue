@@ -1033,7 +1033,7 @@ const validate = (value: string): boolean => {
 .pref-image-uploader .detection-status h6 {
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--editorColor);
 }
 
@@ -1245,15 +1245,15 @@ const validate = (value: string): boolean => {
 .pref-image-uploader .install-commands {
   margin-top: 12px;
   padding: 12px;
-  background-color: #f8f9fa;
+  background-color: var(--floatBgColor);
   border-radius: 6px;
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--warningColor, #ffc107);
 }
 
 .pref-image-uploader .install-title {
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--editorColor);
   font-size: 13px;
 }
 
@@ -1271,17 +1271,17 @@ const validate = (value: string): boolean => {
 .pref-image-uploader .install-option strong {
   min-width: 50px;
   font-size: 12px;
-  color: #666;
+  color: var(--editorColor70);
 }
 
 .pref-image-uploader .install-command {
-  background-color: #e9ecef;
+  background-color: var(--editorColor10);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 11px;
-  color: #495057;
-  border: 1px solid #dee2e6;
+  color: var(--editorColor);
+  border: 1px solid var(--editorColor20);
   user-select: all;
 }
 
@@ -1293,15 +1293,15 @@ const validate = (value: string): boolean => {
 .pref-image-uploader .usage-guide {
   margin-top: 15px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background-color: var(--floatBgColor);
   border-radius: 6px;
-  border-left: 4px solid #17a2b8;
+  border-left: 4px solid var(--themeColor);
 }
 
 .pref-image-uploader .usage-title {
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 12px;
-  color: #333;
+  color: var(--editorColor);
   font-size: 14px;
 }
 
@@ -1315,7 +1315,7 @@ const validate = (value: string): boolean => {
 }
 
 .pref-image-uploader .usage-step strong {
-  color: #495057;
+  color: var(--editorColor);
   font-size: 13px;
   display: block;
   margin-bottom: 4px;
@@ -1323,19 +1323,19 @@ const validate = (value: string): boolean => {
 
 .pref-image-uploader .usage-description {
   font-size: 12px;
-  color: #6c757d;
+  color: var(--editorColor70);
   margin-bottom: 6px;
   line-height: 1.4;
 }
 
 .pref-image-uploader .usage-command {
-  background-color: #e9ecef;
+  background-color: var(--editorColor10);
   padding: 4px 8px;
   border-radius: 3px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 11px;
-  color: #495057;
-  border: 1px solid #dee2e6;
+  color: var(--editorColor);
+  border: 1px solid var(--editorColor20);
   user-select: all;
   display: inline-block;
 }

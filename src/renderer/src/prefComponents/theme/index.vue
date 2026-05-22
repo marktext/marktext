@@ -50,17 +50,12 @@
       </template>
     </compound>
 
-    <div>
-      <div style="font-size: smaller; color: var(--editorColor)">
+    <div class="custom-css">
+      <div class="description">
         {{ t('preferences.theme.customCss') }}
       </div>
       <textarea
-        style="
-          width: 100%;
-          background: transparent;
-          color: var(--editorColor);
-          border: 1px solid var(--editorColor10);
-        "
+        class="custom-css-input"
         rows="10"
         :value="customCss"
         @change="
@@ -148,15 +143,16 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
 <style>
 .offcial-themes {
   margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
   & .theme {
     cursor: pointer;
-    width: 248px;
-    height: 100px;
-    margin: 0px 20px 10px 20px;
-    padding-left: 30px;
-    padding-top: 20px;
+    width: 100%;
+    height: 110px;
+    margin: 0;
+    padding: 16px 18px 16px 32px;
     overflow: hidden;
-    display: inline-block;
     background: var(--editorBgColor);
     color: var(--editorColor);
     box-sizing: border-box;
@@ -436,7 +432,40 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
     }
   }
   & p {
+    margin: 6px 0 0;
     font-size: 12px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.custom-css {
+  margin: 20px 0;
+  font-size: 14px;
+  color: var(--editorColor);
+  & .description {
+    margin-bottom: 10px;
+  }
+  & .custom-css-input {
+    width: 100%;
+    background: transparent;
+    color: var(--editorColor);
+    border: 1px solid var(--editorColor10);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+  & .custom-css-input:focus {
+    outline: none;
+    border-color: var(--themeColor);
   }
 }
 

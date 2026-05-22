@@ -59,7 +59,7 @@ onMounted(() => {
 
 <style>
 .pref-container {
-  --prefSideBarWidth: 280px;
+  --prefSideBarWidth: 220px;
 
   width: 100vw;
   height: 100vh;
@@ -71,13 +71,36 @@ onMounted(() => {
   display: flex;
   background: var(--editorBgColor);
 
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
+    color: var(--editorColor);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
   & h4 {
     margin: 0;
-    font-weight: normal;
+    font-size: 18px;
   }
 
   & h5 {
-    font-weight: normal;
+    font-size: 15px;
+  }
+
+  & h6 {
+    font-size: 15px;
+  }
+
+  & .notes {
+    display: block;
+    margin: 8px 0 0;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--editorColor80);
   }
 
   & .pref-content {

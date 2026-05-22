@@ -165,10 +165,11 @@ onUnmounted(() => {
   background: var(--sideBarBgColor);
   width: var(--prefSideBarWidth);
   height: 100vh;
-  padding-top: 30px;
+  padding-top: 24px;
   box-sizing: border-box;
   & h3 {
     margin: 0;
+    font-size: 20px;
     font-weight: normal;
     text-align: center;
     color: var(--sideBarColor);
@@ -176,8 +177,8 @@ onUnmounted(() => {
 }
 .search-wrapper {
   -webkit-app-region: no-drag;
-  padding: 0 20px;
-  margin: 30px 0;
+  padding: 0 16px;
+  margin: 18px 0;
 }
 .el-autocomplete {
   width: 100%;
@@ -189,8 +190,9 @@ onUnmounted(() => {
   & .el-input__inner {
     border: none;
     background: transparent;
-    height: 35px;
-    line-height: 35px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 13px;
   }
 }
 .pref-autocomplete {
@@ -228,10 +230,10 @@ onUnmounted(() => {
   overflow-y: auto;
   & .item {
     width: 100%;
-    height: 50px;
-    font-size: 18px;
+    height: 38px;
+    font-size: 16px;
     color: var(--sideBarColor);
-    padding-left: 20px;
+    padding-left: 16px;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
@@ -240,10 +242,13 @@ onUnmounted(() => {
     position: relative;
     user-select: none;
     & > svg {
-      width: 28px;
-      height: 28px;
-      fill: var(--iconColor);
-      margin-right: 15px;
+      width: 18px;
+      height: 18px;
+      fill: var(--sideBarColor);
+      margin-right: 12px;
+    }
+    &.active > svg {
+      fill: var(--sideBarTitleColor);
     }
     &:hover {
       background: var(--sideBarItemHoverBgColor);

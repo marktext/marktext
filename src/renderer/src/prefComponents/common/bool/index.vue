@@ -104,10 +104,6 @@ const handleSwitchChange = (value: boolean | string | number) => {
     }
   }
 
-  & .notes {
-    font-style: italic;
-    font-size: 12px;
-  }
 }
 
 span.el-switch__core::after {

@@ -29,16 +29,12 @@ defineProps<{
   color: var(--editorColor);
 
   & .pref-compound-head h6.title {
-    font-weight: 400;
-    font-size: 1.1em;
     padding-bottom: 6px;
   }
 
   & .pref-compound-body {
-    padding: 8px 16px 8px 16px;
-    margin-top: -12px;
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 0;
+    margin-top: -4px;
   }
 
   & .description {
@@ -51,12 +47,6 @@ defineProps<{
     & i:hover {
       color: var(--themeColor);
     }
-  }
-
-  & .notes {
-    margin-left: 10px;
-    font-style: italic;
-    font-size: 12px;
   }
 }
 </style>

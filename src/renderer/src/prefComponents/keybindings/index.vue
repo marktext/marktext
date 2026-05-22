@@ -336,4 +336,19 @@ const dumpKeyboardInformation = (): void => {
   padding: 2px 0;
   margin: 0;
 }
+.pref-keybindings .el-table,
+.pref-keybindings .el-table .el-table__inner-wrapper,
+.pref-keybindings .el-table .el-table__body-wrapper,
+.pref-keybindings .el-table .el-scrollbar,
+.pref-keybindings .el-table .el-scrollbar__wrap,
+.pref-keybindings .el-table .el-scrollbar__view {
+  height: auto !important;
+  max-height: none !important;
+}
+.pref-keybindings .el-table .el-scrollbar__wrap {
+  overflow: visible !important;
+}
+.pref-keybindings .el-table .el-scrollbar__bar {
+  display: none !important;
+}
 </style>

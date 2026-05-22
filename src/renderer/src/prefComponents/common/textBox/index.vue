@@ -119,11 +119,6 @@ const handleInput = (value: string) => {
       color: var(--editorColor30);
     }
   }
-  & .notes {
-    margin-top: 10px;
-    font-style: italic;
-    font-size: 12px;
-  }
   & .input {
     width: 100%;
   }

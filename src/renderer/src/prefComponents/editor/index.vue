@@ -74,6 +74,11 @@
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
         />
+        <bool
+          :description="t('preferences.editor.misc.wrapCodeBlocks')"
+          :bool="wrapCodeBlocks"
+          :on-change="(value) => onSelectChange('wrapCodeBlocks', value)"
+        />
       </template>
     </compound>
 
@@ -173,11 +178,6 @@
           :description="t('preferences.editor.misc.autoCheck')"
           :bool="autoCheck"
           :on-change="(value) => onSelectChange('autoCheck', value)"
-        />
-        <bool
-          :description="t('preferences.editor.misc.wrapCodeBlocks')"
-          :bool="wrapCodeBlocks"
-          :on-change="(value) => onSelectChange('wrapCodeBlocks', value)"
         />
       </template>
     </compound>

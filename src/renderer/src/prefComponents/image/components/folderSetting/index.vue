@@ -1,6 +1,6 @@
 <template>
   <section class="image-folder">
-    <h5>{{ t('preferences.image.folderSetting.title') }}</h5>
+    <h6 class="title">{{ t('preferences.image.folderSetting.title') }}</h6>
     <text-box
       :description="t('preferences.image.folderSetting.globalFolder')"
       :input="imageFolderPath"

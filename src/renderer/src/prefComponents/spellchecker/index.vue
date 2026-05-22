@@ -192,13 +192,8 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
   & div.description {
     margin-top: 10px;
     margin-bottom: 2px;
-    color: var(--iconColor);
+    color: var(--editorColor);
     font-size: 14px;
-  }
-  & h6.title {
-    font-weight: 400;
-    font-size: 1.1em;
-    margin-bottom: 0;
   }
 }
 .el-table,

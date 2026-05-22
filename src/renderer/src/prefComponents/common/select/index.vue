@@ -85,11 +85,6 @@ const select = (value: SelectValue) => {
   margin: 20px 0;
   font-size: 14px;
   color: var(--editorColor);
-  & .notes {
-    margin-top: 10px;
-    font-style: italic;
-    font-size: 12px;
-  }
   & .el-select {
     width: 100%;
   }
