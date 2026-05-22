@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchElectron } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchElectron } from './helpers'
 
 test.describe('Check Launch MarkText', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const { app: electronApp, page: firstPage } = await launchElectron()

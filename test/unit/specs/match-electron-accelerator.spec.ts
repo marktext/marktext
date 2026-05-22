@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
+import { describe, it, expect } from 'vitest'
 import { isEqualAccelerator } from 'common/keybinding'
 
 const characterKeys = ['0', '1', '9', 'A', 'b', 'G', 'Z', '~', '!', '@', '#']

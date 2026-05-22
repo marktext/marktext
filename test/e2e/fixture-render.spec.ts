@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchWithDoc } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithDoc } from './helpers'
 
-const runFixture = (name, relativePath, assertion) => {
+type FixtureAssertion = (ctx: { page: Page }) => Promise<void>
+
+const runFixture = (name: string, relativePath: string, assertion: FixtureAssertion): void => {
   test.describe(`Fixture: ${name}`, () => {
-    let app = null
-    let page = null
+    let app: ElectronApplication | null = null
+    let page: Page
 
     test.beforeAll(async() => {
       const launched = await launchWithDoc(relativePath)

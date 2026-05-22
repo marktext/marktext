@@ -27,7 +27,8 @@
       "@/*": ["./src/renderer/src/*"],
       "common/*": ["./src/common/*"],
       "muya/*": ["./src/muya/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "main_renderer/*": ["./src/main/*"]
     }
   }
 }

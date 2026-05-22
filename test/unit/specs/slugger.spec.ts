@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
+import { describe, it, expect, beforeEach } from 'vitest'
 import Slugger from 'muya/lib/parser/marked/slugger'
 
 describe('Slugger', () => {
-  let slugger
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let slugger: any
 
   beforeEach(() => {
     slugger = new Slugger()
