@@ -135,7 +135,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { usePreferencesStore } from '@/store/preferences.js'
 import { useLayoutStore } from '@/store/layout.js'
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
@@ -145,16 +144,22 @@ import { PATH_SEPARATOR } from '../../config'
 import { isOsx as isOsxPlatform } from '@/util'
 import { useEditorStore } from '@/store/editor'
 import { useI18n } from 'vue-i18n'
+import type { FileWordCount } from '@shared/types/files'
 
-const props = defineProps({
-  project: Object,
-  filename: String,
-  pathname: String,
-  active: Boolean,
-  wordCount: Object,
-  platform: String,
-  isSaved: Boolean
-})
+interface ProjectInfo {
+  name?: string
+  [key: string]: unknown
+}
+
+const props = defineProps<{
+  project?: ProjectInfo | null
+  filename?: string
+  pathname?: string
+  active?: boolean
+  wordCount?: FileWordCount | null
+  platform?: string
+  isSaved?: boolean
+}>()
 
 const preferencesStore = usePreferencesStore()
 const layoutStore = useLayoutStore()
@@ -187,7 +192,7 @@ const windowIconClose = closePath
 
 const isFullScreen = ref(false)
 const isMaximized = ref(false)
-const show = ref('word')
+const show = ref<'word' | 'paragraph' | 'character' | 'all'>('word')
 
 onMounted(async () => {
   try {
@@ -217,12 +222,13 @@ watch(
   () => props.filename,
   (value) => {
     // Set filename when hover on dock
-    const hasOpenFolder = props.project && props.project.name
+    const hasOpenFolder = !!(props.project && props.project.name)
+    const projectName = props.project?.name ?? ''
     let title = ''
     if (value) {
-      title = hasOpenFolder ? `${value} - ${props.project.name}` : `${value}`
+      title = hasOpenFolder ? `${value} - ${projectName}` : `${value}`
     } else {
-      title = hasOpenFolder ? props.project.name : ''
+      title = hasOpenFolder ? projectName : ''
     }
 
     document.title = title
@@ -230,12 +236,12 @@ watch(
 )
 
 const handleWordClick = () => {
-  const ITEMS = ['word', 'paragraph', 'character', 'all']
+  const ITEMS = ['word', 'paragraph', 'character', 'all'] as const
   const len = ITEMS.length
   let index = ITEMS.indexOf(show.value)
   index += 1
   if (index >= len) index = 0
-  show.value = ITEMS[index]
+  show.value = ITEMS[index]!
 }
 
 const handleCloseClick = () => {

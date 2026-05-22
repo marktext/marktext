@@ -9,6 +9,13 @@ declare module '@hfelix/electron-localshortcut'
 declare module 'execall'
 declare module 'iso-639-1'
 declare module 'fuzzaldrin'
+declare module 'underscore' {
+  export function debounce<T extends (...args: never[]) => unknown>(
+    fn: T,
+    wait?: number,
+    immediate?: boolean
+  ): T & { cancel: () => void }
+}
 declare module 'ced'
 declare module 'font-list'
 declare module 'command-exists'

@@ -12,7 +12,7 @@
           v-for="file of tabs"
           :key="file.id"
           :title="file.pathname"
-          :class="{ active: currentFile.id === file.id, unsaved: !file.isSaved }"
+          :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
@@ -53,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
@@ -62,27 +61,30 @@ import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
+import type { IFileState } from '@shared/types/files'
 
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
 
-const tabContainer = ref(null)
-const tabDropContainer = ref(null)
-let autoScroller = null
-let drake = null
+const tabContainer = ref<HTMLElement | null>(null)
+const tabDropContainer = ref<HTMLElement | null>(null)
+// dom-autoscroller / dragula carry runtime APIs we don't yet model. Keep them
+// loose at the top of the file rather than retyping the libraries.
+let autoScroller: any = null
+let drake: dragula.Drake | null = null
 
 // Computed properties
 
 // Methods incorporated from tabsMixins
-const selectFile = (file) => {
-  if (file.id !== currentFile.value.id) {
+const selectFile = (file: IFileState) => {
+  if (file.id !== currentFile.value?.id) {
     editorStore.UPDATE_CURRENT_FILE(file)
   }
 }
 
-const removeFileInTab = (file) => {
+const removeFileInTab = (file: IFileState) => {
   const { isSaved } = file
   if (isSaved) {
     editorStore.FORCE_CLOSE_TAB(file)
@@ -96,26 +98,27 @@ const newFile = () => {
   editorStore.NEW_UNTITLED_TAB({})
 }
 
-const handleTabScroll = (event) => {
+const handleTabScroll = (event: WheelEvent) => {
   // Use mouse wheel value first but prioritize X value more (e.g. touchpad input).
   let delta = event.deltaY
   if (event.deltaX !== 0) {
     delta = event.deltaX
   }
 
-  const tabs = tabContainer.value
-  const newLeft = Math.max(0, Math.min(tabs.scrollLeft + delta, tabs.scrollWidth))
-  tabs.scrollLeft = newLeft
+  const tabsEl = tabContainer.value
+  if (!tabsEl) return
+  const newLeft = Math.max(0, Math.min(tabsEl.scrollLeft + delta, tabsEl.scrollWidth))
+  tabsEl.scrollLeft = newLeft
 }
 
-const closeTab = (tabId) => {
+const closeTab = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab) {
     editorStore.CLOSE_TAB(tab)
   }
 }
 
-const closeOthers = (tabId) => {
+const closeOthers = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab) {
     editorStore.CLOSE_OTHER_TABS(tab)
@@ -130,32 +133,32 @@ const closeAll = () => {
   editorStore.CLOSE_ALL_TABS()
 }
 
-const changeMaxWidth = (width) => {
-  layoutStore.CHANGE_SIDE_BAR_WIDTH(width)
+const changeMaxWidth = (width: unknown) => {
+  layoutStore.CHANGE_SIDE_BAR_WIDTH(width as number)
 }
 
-const rename = (tabId) => {
+const rename = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab && tab.pathname) {
     editorStore.RENAME_FILE(tab)
   }
 }
 
-const copyPath = (tabId) => {
+const copyPath = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab && tab.pathname) {
     window.electron.clipboard.writeText(tab.pathname)
   }
 }
 
-const showInFolder = (tabId) => {
+const showInFolder = (tabId: unknown) => {
   const tab = tabs.value.find((f) => f.id === tabId)
   if (tab && tab.pathname) {
     window.electron.shell.showItemInFolder(tab.pathname)
   }
 }
 
-const handleContextMenu = (event, tab) => {
+const handleContextMenu = (event: MouseEvent, tab: IFileState) => {
   if (tab.id) {
     showContextMenu(event, tab)
   }
@@ -171,10 +174,11 @@ onMounted(() => {
   bus.on('TABS::show-in-folder', showInFolder)
   bus.on('EDITOR_TABS::change-max-width', changeMaxWidth)
 
-  const tabs = tabContainer.value
+  const tabsEl = tabContainer.value
+  if (!tabsEl || !tabDropContainer.value) return
 
   // Allow to scroll through the tabs by mouse wheel or touchpad.
-  tabs.addEventListener('wheel', handleTabScroll)
+  tabsEl.addEventListener('wheel', handleTabScroll)
 
   // Allow tab drag and drop to reorder tabs.
   drake = dragula([tabDropContainer.value], {
@@ -182,12 +186,12 @@ onMounted(() => {
     revertOnSpill: true,
     mirrorContainer: tabDropContainer.value,
     ignoreInputTextSelection: false
-  }).on('drop', (el, target, source, sibling) => {
+  }).on('drop', (el, _target, _source, sibling) => {
     // Current tab that was dropped and need to be reordered.
-    const droppedId = el.getAttribute('data-id')
+    const droppedId = el?.getAttribute('data-id')
     // This should be the next tab (tab | ... | el | sibling | tab | ...) but may be
     // the mirror image or null (tab | ... | el | sibling or null) if last tab.
-    const nextTabId = sibling && sibling.getAttribute('data-id')
+    const nextTabId = sibling ? sibling.getAttribute('data-id') : null
     const isLastTab = !sibling || sibling.classList.contains('gu-mirror')
     if (!droppedId || (sibling && !nextTabId)) {
       console.error('Tab reorder error: invalid tab IDs')
@@ -201,20 +205,20 @@ onMounted(() => {
   })
 
   // Scroll when dragging a tab to the beginning or end of the tab container.
-  autoScroller = autoScroll([tabs], {
+  autoScroller = autoScroll([tabsEl], {
     margin: 20,
     maxSpeed: 6,
     scrollWhenOutside: false,
     autoScroll: () => {
-      return autoScroller.down && drake.dragging
+      return autoScroller.down && drake?.dragging
     }
   })
 })
 
 onBeforeUnmount(() => {
-  const tabs = tabContainer.value
-  if (tabs) {
-    tabs.removeEventListener('wheel', handleTabScroll)
+  const tabsEl = tabContainer.value
+  if (tabsEl) {
+    tabsEl.removeEventListener('wheel', handleTabScroll)
   }
 
   if (autoScroller) {
