@@ -56,15 +56,16 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import Bool from '@/prefComponents/common/bool/index.vue'
 import Compound from '@/prefComponents/common/compound/index.vue'
-import CurSelect from '@/prefComponents/common/select'
-import TextBox from '@/prefComponents/common/textBox'
+import CurSelect from '@/prefComponents/common/select/index.vue'
+import TextBox from '@/prefComponents/common/textBox/index.vue'
+import type { PrefSelectOption } from '@/prefComponents/common/types'
 
 const { t } = useI18n()
 
@@ -77,8 +78,8 @@ const {
   imageRelativeDirectoryBase,
   imageRelativeDirectoryName
 } = storeToRefs(preferenceStore)
-const folderPathPlaceholder = computed(() => preferenceStore.imageFolderPath || '')
-const imageRelativeDirectoryBaseOptions = computed(() => [
+const folderPathPlaceholder = computed<string>(() => preferenceStore.imageFolderPath || '')
+const imageRelativeDirectoryBaseOptions = computed<PrefSelectOption<string>[]>(() => [
   {
     label: t('preferences.image.folderSetting.copyRelativeToFile'),
     value: 'file'
@@ -88,20 +89,23 @@ const imageRelativeDirectoryBaseOptions = computed(() => [
     value: 'folder'
   }
 ])
-const relativeDirectoryNamePlaceholder = computed(
+const relativeDirectoryNamePlaceholder = computed<string>(
   () => preferenceStore.imageRelativeDirectoryName || 'assets'
 )
 
 // methods
-const openImageFolder = () => {
+const openImageFolder = (): void => {
   window.electron.shell.openPath(imageFolderPath.value)
 }
 
-const modifyImageFolderPath = (value) => {
-  return preferenceStore.SET_IMAGE_FOLDER_PATH(value)
+const modifyImageFolderPath = (value: string | undefined): void => {
+  // The store action's parameter is typed `string` but the IPC channel and
+  // runtime handler both accept `undefined` (the main process responds by
+  // opening a folder picker). Cast through to preserve that behavior.
+  preferenceStore.SET_IMAGE_FOLDER_PATH(value as string)
 }
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>

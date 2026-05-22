@@ -185,10 +185,10 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import Compound from '../common/compound/index.vue'
 import FontTextBox from '../common/fontTextBox/index.vue'
 import Range from '../common/range/index.vue'
@@ -233,7 +233,7 @@ const {
   trimTrailingNewline
 } = storeToRefs(preferenceStore)
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 </script>

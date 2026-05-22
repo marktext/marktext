@@ -317,7 +317,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import {
   ref,
   reactive,
@@ -331,13 +330,15 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
-import getServices, { isValidService } from './services.js'
+import getServices, { isValidService } from './services'
+import type { UploaderService, UploaderServiceId } from './services'
 import legalNoticesCheckbox from './legalNoticesCheckbox.vue'
 import { isFileExecutable } from '@/util/fileSystem'
-import CurSelect from '@/prefComponents/common/select'
+import CurSelect from '@/prefComponents/common/select/index.vue'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { PrefSelectOption } from '@/prefComponents/common/types'
 
 const { t } = useI18n()
 
@@ -345,42 +346,43 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 // data
-const uploaderOptions = Object.keys(getServices()).map((name) => {
-  const { name: label } = getServices()[name]
+const uploaderOptions: PrefSelectOption<string>[] = Object.keys(getServices()).map((name) => {
+  const services = getServices()
+  const { name: label } = services[name as UploaderServiceId]
   return {
     label,
     value: name
   }
 })
-const githubToken = ref('')
+const githubToken = ref<string>('')
 const github = reactive({
   owner: '',
   repo: '',
   branch: ''
 })
-const cliScript = ref('')
-const picgoExists = ref(false)
-const picgoDetectionFailed = ref(false) // Whether detection failed
-const picgoDetectionStatus = ref('') // Detection status text
-const picgoDebugInfo = ref('') // Debug information
-const isDetecting = ref(false) // Whether detection is in progress
-const lastDetectionTime = ref(null) // Last detection time
-const lastSuccessTime = ref(null) // Last successful detection time
-const detectionTimer = ref(null) // Detection interval constant moved into scheduleNextDetection function
-const consecutiveFailures = ref(0) // Number of consecutive failures
-const isPageVisible = ref(true) // Whether the page is visible
+const cliScript = ref<string>('')
+const picgoExists = ref<boolean>(false)
+const picgoDetectionFailed = ref<boolean>(false) // Whether detection failed
+const picgoDetectionStatus = ref<string>('') // Detection status text
+const picgoDebugInfo = ref<string>('') // Debug information
+const isDetecting = ref<boolean>(false) // Whether detection is in progress
+const lastDetectionTime = ref<string | null>(null) // Last detection time
+const lastSuccessTime = ref<string | null>(null) // Last successful detection time
+const detectionTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Detection interval constant moved into scheduleNextDetection function
+const consecutiveFailures = ref<number>(0) // Number of consecutive failures
+const isPageVisible = ref<boolean>(true) // Whether the page is visible
 // Animation and button control state
-const showLoadingAnimation = ref(false) // Whether to show the loading animation
-const showRefreshButton = ref(false) // Whether to show the refresh button
-const showInitialButton = ref(false) // Whether to show the initial button (becomes animation after 0.5 seconds)
-const showStatusIndicator = ref(false) // Whether to show the status indicator
-const animationActive = ref(false) // Whether the animation is active
-const animationTimer = ref(null) // Animation timer
-const buttonTimer = ref(null) // Button display timer
-const initialButtonTimer = ref(null) // Initial button timer
-const showStandaloneRefreshButton = ref(true) // Whether to show the standalone refresh button
-const uploadServices = getServices()
-const legalNoticesErrorStates = reactive({
+const showLoadingAnimation = ref<boolean>(false) // Whether to show the loading animation
+const showRefreshButton = ref<boolean>(false) // Whether to show the refresh button
+const showInitialButton = ref<boolean>(false) // Whether to show the initial button (becomes animation after 0.5 seconds)
+const showStatusIndicator = ref<boolean>(false) // Whether to show the status indicator
+const animationActive = ref<boolean>(false) // Whether the animation is active
+const animationTimer = ref<ReturnType<typeof setInterval> | null>(null) // Animation timer
+const buttonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Button display timer
+const initialButtonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Initial button timer
+const showStandaloneRefreshButton = ref<boolean>(true) // Whether to show the standalone refresh button
+const uploadServices: Record<UploaderServiceId, UploaderService> = getServices()
+const legalNoticesErrorStates = reactive<Record<string, boolean>>({
   github: false
 })
 
@@ -623,7 +625,7 @@ onMounted(() => {
     }
 
     if (Object.prototype.hasOwnProperty.call(getServices(), currentUploader.value)) {
-      getServices()[currentUploader.value].agreedToLegalNotices = true
+      getServices()[currentUploader.value as UploaderServiceId].agreedToLegalNotices = true
     }
 
     // Extra safety mechanism: check again whether detection needs to start
@@ -683,25 +685,28 @@ onUnmounted(() => {
 })
 
 // methods
-const isValidUploaderService = (name) => {
+const isValidUploaderService = (name: string): boolean => {
   return isValidService(name)
 }
 
-const getServiceNameById = (id) => {
-  const service = getServices()[id]
-  return service ? service.name : id
+const getServiceNameById = (id: string): string => {
+  const services = getServices()
+  if (Object.prototype.hasOwnProperty.call(services, id)) {
+    return services[id as UploaderServiceId].name
+  }
+  return id
 }
 
-const open = (link) => {
+const open = (link: string): void => {
   window.electron.shell.openExternal(link)
 }
 
-const save = (type) => {
+const save = (type: string): void => {
   if (!validate(type)) {
     return
   }
 
-  const newImageBedConfig = JSON.parse(JSON.stringify(imageBed.value))
+  const newImageBedConfig = JSON.parse(JSON.stringify(imageBed.value)) as Record<string, unknown>
   if (type === 'github') {
     newImageBedConfig.github = { ...github }
   } else if (type === 'cliScript') {
@@ -734,13 +739,13 @@ const save = (type) => {
   })
 }
 
-const setCurrentUploader = (value) => {
+const setCurrentUploader = (value: string | number | boolean): void => {
   const type = 'currentUploader'
   preferenceStore.SET_USER_DATA({ type, value })
 }
 
 // Manually trigger detection (retained for debugging)
-const manualDetection = async () => {
+const manualDetection = async (): Promise<void> => {
   if (isDetecting.value) return
 
   // Hide the standalone refresh button for 0.5 seconds
@@ -760,7 +765,7 @@ const manualDetection = async () => {
   }, 500)
 }
 
-const formatDetectionTime = (time) => {
+const formatDetectionTime = (time: string | null | undefined): string => {
   if (!time) return t('preferences.image.uploader.neverDetected')
   const date = new Date(time)
   return date.toLocaleString('zh-CN', {
@@ -773,14 +778,14 @@ const formatDetectionTime = (time) => {
   })
 }
 
-const getLastSuccessTime = () => {
+const getLastSuccessTime = (): string => {
   return lastSuccessTime.value
     ? formatDetectionTime(lastSuccessTime.value)
     : t('preferences.image.uploader.neverSuccessful')
 }
 
 // Get status indicator CSS class
-const getStatusIndicatorClass = () => {
+const getStatusIndicatorClass = (): string => {
   if (picgoDetectionFailed.value) {
     return 'status-error'
   } else if (picgoExists.value) {
@@ -870,110 +875,111 @@ const stopAnimationAndButton = () => {
   }
 }
 
-const testPicgo = () => {
-  return new Promise((resolve) => {
-    console.log('=== PicGo 检测开始 ===')
+const testPicgo = async (): Promise<void> => {
+  console.log('=== PicGo 检测开始 ===')
 
-    console.log('window.commandExists:', window.commandExists)
+  console.log('window.commandExists:', window.commandExists)
 
-    // Record detection start time
-    lastDetectionTime.value = new Date().toISOString()
+  // Record detection start time
+  lastDetectionTime.value = new Date().toISOString()
 
-    const debugMessages = []
-    debugMessages.push(`检测时间: ${new Date().toLocaleString()}`)
+  const debugMessages: string[] = []
+  debugMessages.push(`检测时间: ${new Date().toLocaleString()}`)
 
-    // Add environment information
-    debugMessages.push(`平台: ${window.electron?.process?.platform || 'unknown'}`)
-    debugMessages.push('进程类型: renderer')
+  // Add environment information
+  debugMessages.push(`平台: ${window.process?.platform || 'unknown'}`)
+  debugMessages.push('进程类型: renderer')
 
-    if (typeof window.commandExists === 'undefined') {
-      const errorMsg = 'commandExists 未暴露到 window 对象'
-      console.error('✗', errorMsg)
-      debugMessages.push(`✗ ${errorMsg}`)
-      debugMessages.push('检查 preload 脚本是否正确加载')
-      picgoExists.value = false
-      picgoDetectionFailed.value = true
-      picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
-      picgoDebugInfo.value = debugMessages.join('\n')
-      resolve()
-      return
-    }
-
-    debugMessages.push('✓ commandExists 已暴露到 window 对象')
-
-    if (typeof window.commandExists.exists !== 'function') {
-      const errorMsg = 'commandExists.exists 方法不可用'
-      const availableKeys = Object.keys(window.commandExists).join(', ')
-      console.error('✗', errorMsg)
-      console.log('commandExists 对象内容:', availableKeys)
-      debugMessages.push(`✗ ${errorMsg}`)
-      debugMessages.push(`可用方法: ${availableKeys}`)
-      picgoExists.value = false
-      picgoDetectionFailed.value = true
-      picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
-      picgoDebugInfo.value = debugMessages.join('\n')
-      resolve()
-      return
-    }
-
-    debugMessages.push('✓ commandExists.exists 方法可用')
-
-    try {
-      console.log('正在检测 PicGo...')
-      debugMessages.push('正在检测 PicGo 命令...')
-
-      // First test some basic commands
-      const nodeExists = window.commandExists.exists('node')
-      const npmExists = window.commandExists.exists('npm')
-      debugMessages.push(`Node.js 检测: ${nodeExists ? '✓' : '✗'}`)
-      debugMessages.push(`npm 检测: ${npmExists ? '✓' : '✗'}`)
-
-      const result = window.commandExists.exists('picgo')
-      console.log('PicGo 检测结果:', result)
-      debugMessages.push(`PicGo 检测结果: ${result}`)
-
-      picgoExists.value = result
-
-      if (result) {
-        debugMessages.push('✓ PicGo 命令检测成功')
-        picgoDetectionFailed.value = false
-        picgoDetectionStatus.value = t('preferences.image.uploader.picgoInstalled')
-        // Record the successful detection time
-        lastSuccessTime.value = new Date().toISOString()
-        consecutiveFailures.value = 0 // Reset failure count
-      } else {
-        debugMessages.push('✗ PicGo 命令未找到')
-        debugMessages.push('可能原因:')
-        debugMessages.push('1. PicGo 未安装')
-        debugMessages.push('2. PATH 环境变量问题')
-        debugMessages.push('3. Electron 环境限制')
-        picgoDetectionFailed.value = false // Detection succeeded; PicGo is simply not installed
-        picgoDetectionStatus.value = t('preferences.image.uploader.picgoNotInstalled')
-      }
-    } catch (error) {
-      console.error('PicGo 检测失败:', error)
-      debugMessages.push(`✗ 检测异常: ${error.message}`)
-      debugMessages.push(`错误堆栈: ${error.stack}`)
-      picgoExists.value = false
-      picgoDetectionFailed.value = true
-      picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
-      consecutiveFailures.value++ // Increment failure count
-    }
-
+  if (typeof window.commandExists === 'undefined') {
+    const errorMsg = 'commandExists 未暴露到 window 对象'
+    console.error('✗', errorMsg)
+    debugMessages.push(`✗ ${errorMsg}`)
+    debugMessages.push('检查 preload 脚本是否正确加载')
+    picgoExists.value = false
+    picgoDetectionFailed.value = true
+    picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
     picgoDebugInfo.value = debugMessages.join('\n')
-    console.log('=== PicGo 检测结束 ===')
-    console.log('调试信息:', debugMessages.join('\n'))
-
-    // Stop animation after detection completes
     stopAnimationAndButton()
+    return
+  }
 
-    resolve()
-  })
+  debugMessages.push('✓ commandExists 已暴露到 window 对象')
+
+  if (typeof window.commandExists.exists !== 'function') {
+    const errorMsg = 'commandExists.exists 方法不可用'
+    const availableKeys = Object.keys(window.commandExists).join(', ')
+    console.error('✗', errorMsg)
+    console.log('commandExists 对象内容:', availableKeys)
+    debugMessages.push(`✗ ${errorMsg}`)
+    debugMessages.push(`可用方法: ${availableKeys}`)
+    picgoExists.value = false
+    picgoDetectionFailed.value = true
+    picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
+    picgoDebugInfo.value = debugMessages.join('\n')
+    stopAnimationAndButton()
+    return
+  }
+
+  debugMessages.push('✓ commandExists.exists 方法可用')
+
+  try {
+    console.log('正在检测 PicGo...')
+    debugMessages.push('正在检测 PicGo 命令...')
+
+    // First test some basic commands
+    const nodeExists = await window.commandExists.exists('node')
+    const npmExists = await window.commandExists.exists('npm')
+    debugMessages.push(`Node.js 检测: ${nodeExists ? '✓' : '✗'}`)
+    debugMessages.push(`npm 检测: ${npmExists ? '✓' : '✗'}`)
+
+    const result = await window.commandExists.exists('picgo')
+    console.log('PicGo 检测结果:', result)
+    debugMessages.push(`PicGo 检测结果: ${result}`)
+
+    picgoExists.value = result
+
+    if (result) {
+      debugMessages.push('✓ PicGo 命令检测成功')
+      picgoDetectionFailed.value = false
+      picgoDetectionStatus.value = t('preferences.image.uploader.picgoInstalled')
+      // Record the successful detection time
+      lastSuccessTime.value = new Date().toISOString()
+      consecutiveFailures.value = 0 // Reset failure count
+    } else {
+      debugMessages.push('✗ PicGo 命令未找到')
+      debugMessages.push('可能原因:')
+      debugMessages.push('1. PicGo 未安装')
+      debugMessages.push('2. PATH 环境变量问题')
+      debugMessages.push('3. Electron 环境限制')
+      picgoDetectionFailed.value = false // Detection succeeded; PicGo is simply not installed
+      picgoDetectionStatus.value = t('preferences.image.uploader.picgoNotInstalled')
+    }
+  } catch (error) {
+    console.error('PicGo 检测失败:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    const stack = error instanceof Error ? error.stack : undefined
+    debugMessages.push(`✗ 检测异常: ${message}`)
+    if (stack) {
+      debugMessages.push(`错误堆栈: ${stack}`)
+    }
+    picgoExists.value = false
+    picgoDetectionFailed.value = true
+    picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
+    consecutiveFailures.value++ // Increment failure count
+  }
+
+  picgoDebugInfo.value = debugMessages.join('\n')
+  console.log('=== PicGo 检测结束 ===')
+  console.log('调试信息:', debugMessages.join('\n'))
+
+  // Stop animation after detection completes
+  stopAnimationAndButton()
 }
 
-const validate = (value) => {
-  const service = getServices()[value]
-  if (!service) return true
+const validate = (value: string): boolean => {
+  const services = getServices()
+  if (!Object.prototype.hasOwnProperty.call(services, value)) return true
+  const service = services[value as UploaderServiceId]
   const { agreedToLegalNotices } = service
   if (agreedToLegalNotices === false) {
     legalNoticesErrorStates[value] = true

@@ -21,6 +21,7 @@
           :description="t('preferences.spellchecker.autoDetectLanguage')"
           :bool="true"
           :disable="true"
+          :on-change="noop"
         />
         <cur-select
           v-show="!isOsx"
@@ -82,25 +83,30 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import log from 'electron-log'
 import { usePreferencesStore } from '@/store/preferences'
+import type { PreferencesState } from '@/store/preferences'
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import Compound from '../common/compound'
-import CurSelect from '../common/select'
-import Bool from '../common/bool'
+import Compound from '../common/compound/index.vue'
+import CurSelect from '../common/select/index.vue'
+import Bool from '../common/bool/index.vue'
 import { isOsx as checkIsOsx } from '@/util'
 import { SpellChecker } from '@/spellchecker'
 import { getLanguageName } from '@/spellchecker/languageMap'
 import notice from '@/services/notification'
 import { useI18n } from 'vue-i18n'
 import { Delete } from '@element-plus/icons-vue'
+import type { PrefSelectOption } from '../common/types'
+
+interface CustomDictionaryWord {
+  word: string
+}
 
 const { t } = useI18n()
 const isOsx = checkIsOsx
-const availableDictionaries = ref([])
-const wordsInCustomDictionary = ref([])
+const availableDictionaries = ref<PrefSelectOption<string>[]>([])
+const wordsInCustomDictionary = ref<CustomDictionaryWord[]>([])
 
 const preferenceStore = usePreferencesStore()
 
@@ -123,36 +129,47 @@ onMounted(async () => {
     })
 })
 
-const getAvailableDictionaries = async () => {
+const getAvailableDictionaries = async (): Promise<PrefSelectOption<string>[]> => {
   const dictionaries = await SpellChecker.getAvailableDictionaries()
 
   return dictionaries.map((selectedItem) => {
     return {
       value: selectedItem,
-      label: getLanguageName(selectedItem)
+      label: getLanguageName(selectedItem) ?? selectedItem
     }
   })
 }
 
-const handleSpellcheckerLanguage = async (languageCode) => {
+const handleSpellcheckerLanguage = async (languageCode: string | number | boolean): Promise<void> => {
   onSelectChange('spellcheckerLanguage', languageCode)
 
-  await window.electron.ipcRenderer.invoke('mt::spellchecker-switch-language', languageCode)
+  await window.electron.ipcRenderer.invoke(
+    'mt::spellchecker-switch-language',
+    String(languageCode)
+  )
 }
 
-const handleSpellcheckerEnabled = (isEnabled) => {
+const handleSpellcheckerEnabled = (isEnabled: boolean): void => {
   onSelectChange('spellcheckerEnabled', isEnabled)
 }
 
-const onSelectChange = (type, value) => {
+const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
   preferenceStore.SET_SINGLE_PREFERENCE({ type, value })
 }
 
-const handleDeleteClick = (selectedItem) => {
+// No-op handler for the disabled "auto-detect language" toggle. The control
+// is permanently disabled, so the callback is never invoked, but the typed
+// bool component requires `onChange` to be present.
+const noop = (): void => {}
+
+const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
   if (selectedItem && typeof selectedItem.word === 'string') {
     window.electron.ipcRenderer
       .invoke('mt::spellchecker-remove-word', selectedItem.word)
-      .then((success) => {
+      .then((result) => {
+        // The IPC contract types `ret` as void, but the main handler returns
+        // a boolean indicating success. Coerce to boolean for the branch.
+        const success = result as unknown as boolean
         if (success) {
           wordsInCustomDictionary.value = wordsInCustomDictionary.value.filter(
             (item) => item.word !== selectedItem.word
