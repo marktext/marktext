@@ -14,6 +14,7 @@ export default [
   // 0. Global ignores (must be first)
   {
     ignores: [
+      '.claude/**',
       'out/**',
       'dist/**',
       'src/muya/lib/assets/libs/**',
