@@ -26,7 +26,8 @@ import type {
   SaveOptions,
   SerializedStat,
   LineEnding,
-  FileChangeDetail
+  FileChangeDetail,
+  UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
@@ -62,7 +63,7 @@ export interface IpcInvokeChannels {
   'mt::i18n::supported': { args: []; ret: string[] }
   'mt::keybinding-get-keyboard-info': { args: []; ret: unknown }
   'mt::keybinding-get-pref-keybindings': { args: []; ret: unknown }
-  'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: void }
+  'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }
@@ -106,7 +107,7 @@ export interface IpcSendChannels {
   'mt::check-for-update': []
   'mt::clipboard::write-text': [text: string]
   'mt::close-window': []
-  'mt::close-window-confirm': [unsavedFiles?: unknown[]]
+  'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []
   'mt::cmd-import-file': []
   'mt::cmd-new-editor-window': []

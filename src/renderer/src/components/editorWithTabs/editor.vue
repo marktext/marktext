@@ -636,8 +636,11 @@ const imageAction = async (
     }
     case 'folder': {
       if (isTabSavedOnDisk && imagePreferRelativeDirectory.value) {
+        // `image` may be a path string (paste/drag/image-selector) — pass
+        // `currentPathname` so moveImageToFolder can resolve relative paths
+        // via `path.dirname(pathname)` instead of crashing on `dirname(null)`.
         destImagePath = (await moveImageToFolder(
-          null as unknown as string,
+          currentPathname,
           image,
           resolvedImageRelativeFullDirectoryPath as string,
           true,

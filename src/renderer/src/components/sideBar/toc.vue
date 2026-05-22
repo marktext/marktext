@@ -39,6 +39,10 @@ const { toc } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
 
 const handleClick = (data: { slug?: unknown }): void => {
+  // editor.vue builds a CSS selector with `#${slug}` — bail out if the
+  // node has no slug (e.g. unsluggable headings) to avoid emitting
+  // `undefined` / non-string payloads and producing `#undefined` selectors.
+  if (typeof data.slug !== 'string' || data.slug.length === 0) return
   bus.emit('scroll-to-header', data.slug)
 }
 </script>

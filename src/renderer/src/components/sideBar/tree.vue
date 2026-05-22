@@ -158,7 +158,11 @@ import type { TreeNode, TabDescriptor } from './types'
 const { t } = useI18n()
 
 const props = defineProps<{
-  projectTree: TreeNode
+  // The project store seeds `projectTree` as `null` until a folder is
+  // opened; the template renders the "open project" empty-state behind
+  // `v-if="projectTree"`. Type the prop nullable to match runtime + the
+  // template guard.
+  projectTree: TreeNode | null
   openedFiles?: TabDescriptor[]
   tabs?: TabDescriptor[]
 }>()
