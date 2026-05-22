@@ -16,12 +16,11 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { computed, watch, onMounted, nextTick } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
-import TitleBar from '@/prefComponents/common/titlebar'
-import SideBar from '@/prefComponents/sideBar'
+import TitleBar from '@/prefComponents/common/titlebar.vue'
+import SideBar from '@/prefComponents/sideBar/index.vue'
 import { addThemeStyle } from '@/util/theme'
 import { DEFAULT_STYLE } from '@/config'
 import { isOsx } from '@/util'
@@ -32,7 +31,7 @@ const preferencesStore = usePreferencesStore()
 // Computed properties
 const { theme, titleBarStyle } = storeToRefs(preferencesStore)
 
-const showCustomTitleBar = computed(() => {
+const showCustomTitleBar = computed<boolean>(() => {
   // Always show the custom title bar on macOS to provide a close button
   if (isOsx) {
     return true
@@ -50,8 +49,8 @@ watch(theme, (newValue, oldValue) => {
 // Lifecycle
 onMounted(() => {
   nextTick(() => {
-    const state = window.marktext.initialState || DEFAULT_STYLE
-    addThemeStyle(state.theme)
+    const state = window.marktext?.initialState ?? DEFAULT_STYLE
+    addThemeStyle(state.theme ?? DEFAULT_STYLE.theme)
 
     preferencesStore.ASK_FOR_USER_PREFERENCE()
   })

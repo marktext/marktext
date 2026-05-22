@@ -190,7 +190,19 @@ declare global {
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.
     DIRNAME: string
-    marktext?: { env?: { windowId: number; [key: string]: unknown } }
+    marktext?: {
+      env?: { windowId: number; [key: string]: unknown }
+      initialState?: {
+        codeFontFamily?: string | null
+        codeFontSize?: string | null
+        hideScrollbar?: boolean
+        theme?: string | null
+        titleBarStyle?: string | null
+        [key: string]: unknown
+      }
+      paths?: { ripgrepBinaryPath?: string; [key: string]: unknown }
+      [key: string]: unknown
+    }
   }
 }
 

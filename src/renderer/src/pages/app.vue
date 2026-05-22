@@ -38,20 +38,19 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { computed, watch, nextTick, onMounted, ref } from 'vue'
 import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
-import { addStyles, addThemeStyle, addCustomStyle } from '@/util/theme'
-import Recent from '@/components/recent'
-import EditorWithTabs from '@/components/editorWithTabs'
-import TitleBar from '@/components/titleBar'
-import SideBar from '@/components/sideBar'
-import AboutDialog from '@/components/about'
-import CommandPalette from '@/components/commandPalette'
-import ExportSettingDialog from '@/components/exportSettings'
-import Rename from '@/components/rename'
-import ImportModal from '@/components/import'
+import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from '@/util/theme'
+import Recent from '@/components/recent/index.vue'
+import EditorWithTabs from '@/components/editorWithTabs/index.vue'
+import TitleBar from '@/components/titleBar/index.vue'
+import SideBar from '@/components/sideBar/index.vue'
+import AboutDialog from '@/components/about/index.vue'
+import CommandPalette from '@/components/commandPalette/index.vue'
+import ExportSettingDialog from '@/components/exportSettings/index.vue'
+import Rename from '@/components/rename/index.vue'
+import ImportModal from '@/components/import/index.vue'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
 import { useLayoutStore } from '@/store/layout'
@@ -73,9 +72,9 @@ const autoUpdateStore = useAutoUpdatesStore()
 const commandCenterStore = useCommandCenterStore()
 const notificationStore = useNotificationStore()
 
-const timer = ref(null)
+const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 
-// States from Pini
+// States from Pinia
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar } = storeToRefs(layoutStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
@@ -85,13 +84,21 @@ const { currentFile } = storeToRefs(editorStore)
 const pathname = computed(() => currentFile.value?.pathname)
 const filename = computed(() => currentFile.value?.filename)
 const isSaved = computed(() => currentFile.value?.isSaved)
-const markdown = computed(() => currentFile.value?.markdown)
+// `markdown` is read by `<editor-with-tabs>` whose prop is `required: true`.
+// In template space we render that subtree only when `hasCurrentFile` is set,
+// but vue-tsc can't see through the v-if guard — coalesce to '' so the prop
+// type is `string`. The `<editor-with-tabs>` mount is still gated.
+const markdown = computed<string>(() => currentFile.value?.markdown ?? '')
 const cursor = computed(() => currentFile.value?.cursor)
 const wordCount = computed(() => currentFile.value?.wordCount)
-const muyaIndexCursor = computed(() => currentFile.value?.muyaIndexCursor)
+// `muyaIndexCursor` is loosely typed as `unknown` on the editor store; the
+// downstream prop expects `Object | undefined`. Cast at the boundary.
+const muyaIndexCursor = computed<Record<string, unknown> | undefined>(
+  () => currentFile.value?.muyaIndexCursor as Record<string, unknown> | undefined
+)
 
-const hasCurrentFile = computed(() => {
-  return markdown.value !== undefined
+const hasCurrentFile = computed<boolean>(() => {
+  return currentFile.value?.markdown !== undefined
 })
 
 // Watchers
@@ -113,16 +120,16 @@ watch(zoom, (zoomValue) => {
   bus.emit('mt::window-zoom', zoomValue)
 })
 
-const setupDragDropHandler = () => {
+const setupDragDropHandler = (): void => {
   window.addEventListener(
     'dragover',
-    (e) => {
-      if (!e.dataTransfer.types.length) return
+    (e: DragEvent) => {
+      if (!e.dataTransfer || !e.dataTransfer.types.length) return
 
       if (e.dataTransfer.types.indexOf('Files') >= 0) {
         if (
           e.dataTransfer.items.length === 1 &&
-          e.dataTransfer.items[0].type.indexOf('image') > -1
+          e.dataTransfer.items[0]!.type.indexOf('image') > -1
         ) {
           // Do nothing
         } else {
@@ -145,7 +152,7 @@ const setupDragDropHandler = () => {
   )
 }
 onMounted(async () => {
-  if (window.marktext.initialState) {
+  if (window.marktext?.initialState) {
     preferencesStore.SET_USER_PREFERENCE(window.marktext.initialState)
   }
 
@@ -192,7 +199,16 @@ onMounted(async () => {
   setupDragDropHandler()
 
   nextTick(() => {
-    const style = window.marktext.initialState || DEFAULT_STYLE
+    // `initialState` from bootstrap carries nullable URL params (string|null);
+    // `addStyles` requires non-null `theme` / `codeFontFamily` strings.
+    // Coalesce against DEFAULT_STYLE for every nullable field.
+    const init = window.marktext?.initialState
+    const style: AddStylesOptions = {
+      theme: init?.theme ?? DEFAULT_STYLE.theme,
+      codeFontFamily: init?.codeFontFamily ?? DEFAULT_STYLE.codeFontFamily,
+      codeFontSize: init?.codeFontSize ?? DEFAULT_STYLE.codeFontSize,
+      hideScrollbar: init?.hideScrollbar ?? DEFAULT_STYLE.hideScrollbar
+    }
     addStyles(style)
   })
 })

@@ -58,43 +58,37 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
 import File from './treeFile.vue'
+import type { TreeFolderNode } from './types'
 
-const props = defineProps({
-  folder: {
-    type: Object,
-    required: true
-  },
-  depth: {
-    type: Number,
-    required: true
-  }
-})
+const props = defineProps<{
+  folder: TreeFolderNode
+  depth: number
+}>()
 
 const projectStore = useProjectStore()
 
 const createName = ref('')
 const newName = ref('')
 
-const folderEl = ref(null)
-const renameInput = ref(null)
-const input = ref(null)
+const folderEl = ref<HTMLDivElement | null>(null)
+const renameInput = ref<HTMLInputElement | null>(null)
+const input = ref<HTMLInputElement | null>(null)
 
 // Use a local reactive state for isCollapsed that syncs with the prop
-const isCollapsed = ref(props.folder.isCollapsed)
+const isCollapsed = ref<boolean>(!!props.folder.isCollapsed)
 
 const { renameCache } = storeToRefs(projectStore)
 const { createCache } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 
-const handleInputFocus = () => {
+const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {
       input.value.focus()
@@ -106,17 +100,17 @@ const handleInputFocus = () => {
   })
 }
 
-const handleInputEnter = () => {
+const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
-const folderNameClick = () => {
+const folderNameClick = (): void => {
   isCollapsed.value = !isCollapsed.value
 }
 
-const noop = () => {}
+const noop = (): void => {}
 
-const focusRenameInput = () => {
+const focusRenameInput = (): void => {
   nextTick(() => {
     if (renameInput.value) {
       renameInput.value.focus()
@@ -125,7 +119,7 @@ const focusRenameInput = () => {
   })
 }
 
-const rename = () => {
+const rename = (): void => {
   if (newName.value) {
     projectStore.RENAME_IN_SIDEBAR(newName.value)
   }

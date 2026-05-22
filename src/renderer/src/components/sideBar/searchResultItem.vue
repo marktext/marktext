@@ -62,21 +62,18 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
+import type { SearchResult, SearchMatch } from './types'
 
 const { t } = useI18n()
 
-const props = defineProps({
-  searchResult: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps<{
+  searchResult: SearchResult
+}>()
 
 const editorStore = useEditorStore()
 
@@ -86,46 +83,46 @@ const shownMatches = ref(10)
 
 const { tabs, currentFile } = storeToRefs(editorStore)
 
-const getMatches = computed(() => {
+const getMatches = computed<SearchMatch[]>(() => {
   if (props.searchResult.matches.length === 0 || allMatchesShown.value) {
     return props.searchResult.matches
   }
   return props.searchResult.matches.slice(0, shownMatches.value)
 })
 
-const filename = computed(() => {
+const filename = computed<string>(() => {
   return window.path.basename(
     props.searchResult.filePath,
     window.path.extname(props.searchResult.filePath)
   )
 })
 
-const matchCount = computed(() => {
+const matchCount = computed<number>(() => {
   return props.searchResult.matches.length
 })
 
-const extension = computed(() => {
+const extension = computed<string>(() => {
   return window.path.extname(props.searchResult.filePath)
 })
 
-const toggleSearchMatches = () => {
+const toggleSearchMatches = (): void => {
   showSearchMatches.value = !showSearchMatches.value
 }
 
-const handleShowMoreMatches = (event) => {
+const handleShowMoreMatches = (event: MouseEvent): void => {
   shownMatches.value += 15
   if (event.ctrlKey || event.metaKey || shownMatches.value >= props.searchResult.matches.length) {
     allMatchesShown.value = true
   }
 }
 
-const ellipsisText = (text) => {
+const ellipsisText = (text: string): string => {
   const len = text.length
   const MAX_PRETEXT_LEN = 6
   return len > MAX_PRETEXT_LEN ? `...${text.substring(len - MAX_PRETEXT_LEN)}` : text
 }
 
-const handleSearchResultClick = (searchMatch) => {
+const handleSearchResultClick = (searchMatch: SearchMatch): void => {
   const { range } = searchMatch
   const { filePath } = props.searchResult
 
