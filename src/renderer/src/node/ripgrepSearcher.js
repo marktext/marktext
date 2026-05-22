@@ -53,9 +53,26 @@ const startSearch = ({ mode, directories, pattern, options }) => {
     })
 
     // Strip non-serializable callbacks before shipping options across IPC.
-    const { didMatch: _a, didSearchPaths: _b, ...serializable } = options
+    // Pinia/Vue can hand us reactive Proxies that fail structured clone, so
+    // do a JSON round-trip on the remaining options to get plain values.
+    const { didMatch: _a, didSearchPaths: _b, ...rest } = options
+    let serializable
+    try {
+      serializable = JSON.parse(JSON.stringify(rest))
+    } catch {
+      serializable = rest
+    }
+    const plainDirectories = Array.isArray(directories)
+      ? directories.map((d) => String(d))
+      : []
     window.ripgrep
-      .start({ searchId, mode, directories, pattern, options: serializable })
+      .start({
+        searchId,
+        mode,
+        directories: plainDirectories,
+        pattern: typeof pattern === 'string' ? pattern : String(pattern || ''),
+        options: serializable
+      })
       .catch((err) => {
         cleanup()
         reject(err)

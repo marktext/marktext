@@ -17,7 +17,12 @@ export default defineConfig({
     // hence, we need to "exclude" (in order to NOT externalise) ESonly modules so that they can be converted to commonJS and can be required() afterwards correctly
     build: {
       externalizeDeps: {
-        exclude: ['electron-store'],
+        // Bundle electron-store inline. Bundle @octokit/rest inline too —
+        // it's imported by the main process now (post-sandbox-migration),
+        // and pnpm's flattened layout drops transitive deps like
+        // @octokit/endpoint when electron-builder packs node_modules into
+        // app.asar.
+        exclude: ['electron-store', '@octokit/rest'],
         include: ['native-keymap']
       }
     },
@@ -61,6 +66,13 @@ export default defineConfig({
     // shared `common/*` helpers and muya keep their `import path from 'path'`
     // statements without pulling in Node's path module.
     assetsInclude: ['**/*.md'],
+    // Some bundled deps (e.g. `custom-event` via `dragula`) reference the
+    // Node-only `global` at module load — undefined in a sandboxed renderer.
+    // Substitute it with `globalThis` at build time so the imports don't
+    // throw before Vue mounts.
+    define: {
+      global: 'globalThis'
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer/src'),
@@ -71,7 +83,12 @@ export default defineConfig({
       extensions: ['.mjs', '.js', '.json', '.vue']
     },
     optimizeDeps: {
-      include: ['pako', 'path-browserify']
+      include: ['pako', 'path-browserify'],
+      esbuildOptions: {
+        define: {
+          global: 'globalThis'
+        }
+      }
     },
     plugins: [vue(), svgLoader()],
     css: {
