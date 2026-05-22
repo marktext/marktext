@@ -310,7 +310,7 @@ export const usePreferencesStore = defineStore('preferences', {
       window.electron.ipcRenderer.send('mt::set-user-data', { [type]: value })
     },
 
-    SET_IMAGE_FOLDER_PATH(value: string): void {
+    SET_IMAGE_FOLDER_PATH(value?: string): void {
       window.electron.ipcRenderer.send('mt::ask-for-modify-image-folder-path', value)
     },
 

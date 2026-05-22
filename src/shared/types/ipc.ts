@@ -17,6 +17,7 @@
  *   3. Wire the caller via the typed preload bridge in src/preload/index.ts.
  */
 
+import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
 import type {
   MarkdownDocument,
   TabOptions,
@@ -61,8 +62,11 @@ export interface IpcInvokeChannels {
   'mt::i18n::is-supported': { args: [lang: string]; ret: boolean }
   'mt::i18n::load': { args: [language: string]; ret: Record<string, unknown> }
   'mt::i18n::supported': { args: []; ret: string[] }
-  'mt::keybinding-get-keyboard-info': { args: []; ret: unknown }
-  'mt::keybinding-get-pref-keybindings': { args: []; ret: unknown }
+  'mt::keybinding-get-keyboard-info': { args: []; ret: KeyboardInfo }
+  'mt::keybinding-get-pref-keybindings': {
+    args: []
+    ret: { defaultKeybindings: Map<string, string>; userKeybindings: Map<string, string> }
+  }
   'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
@@ -70,7 +74,7 @@ export interface IpcInvokeChannels {
   'mt::shell::open-path': { args: [fullPath: string]; ret: string }
   'mt::spellchecker-get-available-dictionaries': { args: []; ret: string[] }
   'mt::spellchecker-get-custom-dictionary-words': { args: []; ret: string[] }
-  'mt::spellchecker-remove-word': { args: [word: string]; ret: void }
+  'mt::spellchecker-remove-word': { args: [word: string]; ret: boolean }
   'mt::spellchecker-set-enabled': { args: [enabled: boolean]; ret: void }
   'mt::spellchecker-switch-language': { args: [language: string]; ret: void }
   'mt::uploader::upload': { args: [req: unknown]; ret: unknown }
@@ -286,6 +290,16 @@ export interface IpcMainEventChannels {
 // =================================================================
 // Auxiliary types
 // =================================================================
+
+/**
+ * Snapshot of the active OS keyboard layout, returned by
+ * `mt::keybinding-get-keyboard-info`. Mirrors the runtime shape produced
+ * by `native-keymap` (see `src/main/keyboard/index.ts#getKeyboardInfo`).
+ */
+export interface KeyboardInfo {
+  layout: IKeyboardLayoutInfo
+  keymap: IKeyboardMapping
+}
 
 export interface BootInfo {
   platform: NodeJS.Platform

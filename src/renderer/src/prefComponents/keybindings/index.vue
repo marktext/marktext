@@ -113,20 +113,6 @@ import notice from '@/services/notification'
 import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
-// Shape returned by `mt::keybinding-get-keyboard-info`. The IPC contract
-// types `ret: unknown`, but the main-process handler returns the keyboard
-// layout descriptor expected by `@hfelix/electron-localshortcut`.
-interface KeyboardInfo {
-  layout: unknown
-  keymap: unknown
-}
-
-// Shape returned by `mt::keybinding-get-pref-keybindings` (same caveat).
-interface PrefKeybindings {
-  defaultKeybindings: Map<string, string>
-  userKeybindings: Map<string, string>
-}
-
 const { t, locale } = useI18n()
 
 const showDebugTools = ref<boolean>(false)
@@ -149,8 +135,7 @@ watch(locale, () => {
 onMounted(() => {
   window.electron.ipcRenderer
     .invoke('mt::keybinding-get-keyboard-info')
-    .then((info) => {
-      const { layout, keymap } = info as KeyboardInfo
+    .then(({ layout, keymap }) => {
       // Update the key mapper to prevent problems on non-US keyboards.
       setKeyboardLayout(layout, keymap)
     })
@@ -158,8 +143,7 @@ onMounted(() => {
 
   window.electron.ipcRenderer
     .invoke('mt::keybinding-get-pref-keybindings')
-    .then((bindings) => {
-      const { defaultKeybindings, userKeybindings } = bindings as PrefKeybindings
+    .then(({ defaultKeybindings, userKeybindings }) => {
       const configurator = new KeybindingConfigurator(defaultKeybindings, userKeybindings)
       keybindingConfigurator.value = configurator
       keybindingList.value = configurator.getKeybindings()

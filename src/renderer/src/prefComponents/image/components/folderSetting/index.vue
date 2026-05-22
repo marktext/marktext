@@ -99,10 +99,9 @@ const openImageFolder = (): void => {
 }
 
 const modifyImageFolderPath = (value: string | undefined): void => {
-  // The store action's parameter is typed `string` but the IPC channel and
-  // runtime handler both accept `undefined` (the main process responds by
-  // opening a folder picker). Cast through to preserve that behavior.
-  preferenceStore.SET_IMAGE_FOLDER_PATH(value as string)
+  // Passing `undefined` is the documented way to ask the main process to
+  // open a folder picker (see `mt::ask-for-modify-image-folder-path`).
+  preferenceStore.SET_IMAGE_FOLDER_PATH(value)
 }
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
