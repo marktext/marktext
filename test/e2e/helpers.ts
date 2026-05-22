@@ -1,18 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const { _electron } = require('playwright')
+import { _electron, type ElectronApplication, type Page } from 'playwright'
+import * as fs from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 const projectRoot = path.resolve(__dirname, '../..')
 
-const getDateAsFilename = () => {
+const getDateAsFilename = (): string => {
   const date = new Date()
-  return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDay()
+  return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate()
 }
 
-const getTempPath = (suffix = '') => {
+const getTempPath = (suffix = ''): string => {
   const name =
     'marktext-e2etest-' +
     getDateAsFilename() +
@@ -22,7 +20,7 @@ const getTempPath = (suffix = '') => {
   return path.join(os.tmpdir(), name)
 }
 
-const getElectronPath = () => {
+export const getElectronPath = (): string => {
   if (process.platform === 'win32') {
     return path.resolve(path.join('node_modules', '.bin', 'electron.cmd'))
   }
@@ -33,8 +31,8 @@ const getElectronPath = () => {
 
 // Track every temp directory we create so we can sweep them on process exit
 // (Playwright workers persist across specs but die when the run ends).
-const createdTempDirs = new Set()
-const trackTempDir = (dir) => {
+const createdTempDirs = new Set<string>()
+const trackTempDir = (dir: string): string => {
   createdTempDirs.add(dir)
   return dir
 }
@@ -48,7 +46,12 @@ process.on('exit', () => {
   }
 })
 
-const launchElectron = async(userArgs) => {
+export interface LaunchResult {
+  app: ElectronApplication
+  page: Page
+}
+
+export const launchElectron = async(userArgs?: string[]): Promise<LaunchResult> => {
   userArgs = userArgs || []
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
@@ -68,7 +71,10 @@ const launchElectron = async(userArgs) => {
   return { app, page }
 }
 
-const waitForMenuReady = async(app, timeout = 10000) => {
+export const waitForMenuReady = async(
+  app: ElectronApplication,
+  timeout = 10000
+): Promise<void> => {
   const deadline = Date.now() + timeout
   while (Date.now() < deadline) {
     const ready = await app.evaluate(({ Menu }) => !!Menu.getApplicationMenu())
@@ -78,7 +84,7 @@ const waitForMenuReady = async(app, timeout = 10000) => {
   throw new Error('Application menu was not built within timeout')
 }
 
-const clickMenuById = async(app, id) => {
+export const clickMenuById = async(app: ElectronApplication, id: string): Promise<void> => {
   await app.evaluate(({ Menu, BrowserWindow }, menuId) => {
     const menu = Menu.getApplicationMenu()
     if (!menu) throw new Error('Application menu is not built yet')
@@ -102,7 +108,7 @@ const clickMenuById = async(app, id) => {
   }, id)
 }
 
-const waitForEditor = async(page, timeout = 15000) => {
+export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> => {
   await page.waitForSelector('.editor-component', { state: 'attached', timeout })
   await page.waitForFunction(
     () => {
@@ -114,14 +120,16 @@ const waitForEditor = async(page, timeout = 15000) => {
   )
 }
 
-const enterSourceMode = async(page, app) => {
+export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {
   const already = await page.evaluate(() => !!document.querySelector('.source-code .CodeMirror'))
   if (already) return
   await clickMenuById(app, 'sourceCodeModeMenuItem')
   await page.waitForSelector('.source-code .CodeMirror', { state: 'attached', timeout: 10000 })
   await page.waitForFunction(
     () => {
-      const cm = document.querySelector('.source-code .CodeMirror')
+      const cm = document.querySelector('.source-code .CodeMirror') as
+        | (Element & { CodeMirror?: unknown })
+        | null
       return cm && cm.CodeMirror
     },
     null,
@@ -129,7 +137,7 @@ const enterSourceMode = async(page, app) => {
   )
 }
 
-const exitSourceMode = async(page, app) => {
+export const exitSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {
   const inSource = await page.evaluate(() => !!document.querySelector('.source-code .CodeMirror'))
   if (!inSource) return
   await clickMenuById(app, 'sourceCodeModeMenuItem')
@@ -138,20 +146,25 @@ const exitSourceMode = async(page, app) => {
   })
 }
 
-const getMarkdownContent = async(page, app) => {
+export const getMarkdownContent = async(
+  page: Page,
+  app: ElectronApplication
+): Promise<string> => {
   const wasInSource = await page.evaluate(
     () => !!document.querySelector('.source-code .CodeMirror')
   )
   if (!wasInSource) await enterSourceMode(page, app)
   const value = await page.evaluate(() => {
-    const cm = document.querySelector('.source-code .CodeMirror')
+    const cm = document.querySelector('.source-code .CodeMirror') as
+      | (Element & { CodeMirror?: { getValue(): string } })
+      | null
     return cm && cm.CodeMirror ? cm.CodeMirror.getValue() : ''
   })
   if (!wasInSource) await exitSourceMode(page, app)
   return value
 }
 
-const typeIntoEditor = async(page, text) => {
+export const typeIntoEditor = async(page: Page, text: string): Promise<void> => {
   await page.click('.editor-component', { timeout: 5000 })
   await page.keyboard.type(text, { delay: 0 })
 }
@@ -159,24 +172,25 @@ const typeIntoEditor = async(page, text) => {
 // Muya validates selections via `node.closest('span.ag-paragraph')` — the inner
 // span that wraps editable text. Selecting the outer <p class="ag-paragraph">
 // or its contents fails validation, so we always target the inner span.
-const focusEditor = async(page) => {
+export const focusEditor = async(page: Page): Promise<void> => {
   await page.evaluate(() => {
-    const root = document.querySelector('.editor-component')
+    const root = document.querySelector('.editor-component') as HTMLElement | null
     if (!root) return false
     root.focus()
     const spans = root.querySelectorAll('span.ag-paragraph')
-    let target = null
+    let target: Element | null = null
     for (const span of spans) {
       if (span.textContent && span.textContent.trim().length > 0) {
         target = span
         break
       }
     }
-    target = target || spans[0]
+    target = target || spans[0] || null
     if (!target) return false
     const range = document.createRange()
     range.selectNodeContents(target)
     const sel = window.getSelection()
+    if (!sel) return false
     sel.removeAllRanges()
     sel.addRange(range)
     document.dispatchEvent(new Event('selectionchange'))
@@ -186,25 +200,26 @@ const focusEditor = async(page) => {
   await page.waitForTimeout(150)
 }
 
-const placeCaretInEditor = async(page) => {
+export const placeCaretInEditor = async(page: Page): Promise<void> => {
   await page.evaluate(() => {
-    const root = document.querySelector('.editor-component')
+    const root = document.querySelector('.editor-component') as HTMLElement | null
     if (!root) return
     root.focus()
     const spans = root.querySelectorAll('span.ag-paragraph')
-    let target = null
+    let target: Element | null = null
     for (const span of spans) {
       if (span.textContent && span.textContent.trim().length > 0) {
         target = span
         break
       }
     }
-    target = target || spans[0]
+    target = target || spans[0] || null
     if (!target) return
     const range = document.createRange()
     range.selectNodeContents(target)
     range.collapse(false)
     const sel = window.getSelection()
+    if (!sel) return
     sel.removeAllRanges()
     sel.addRange(range)
     document.dispatchEvent(new Event('selectionchange'))
@@ -212,16 +227,22 @@ const placeCaretInEditor = async(page) => {
   await page.waitForTimeout(150)
 }
 
-const setSourceMarkdown = async(page, app, markdown) => {
+export const setSourceMarkdown = async(
+  page: Page,
+  app: ElectronApplication,
+  markdown: string
+): Promise<void> => {
   await enterSourceMode(page, app)
   await page.evaluate((value) => {
-    const cm = document.querySelector('.source-code .CodeMirror')
+    const cm = document.querySelector('.source-code .CodeMirror') as
+      | (Element & { CodeMirror?: { setValue(v: string): void } })
+      | null
     if (cm && cm.CodeMirror) cm.CodeMirror.setValue(value)
   }, markdown)
   await exitSourceMode(page, app)
 }
 
-const writeTempMarkdown = (content) => {
+const writeTempMarkdown = (content: string): string => {
   const dir = trackTempDir(getTempPath('-doc'))
   fs.mkdirSync(dir, { recursive: true })
   const filePath = path.join(dir, 'note.md')
@@ -229,14 +250,18 @@ const writeTempMarkdown = (content) => {
   return filePath
 }
 
-const launchWithDoc = async(relativeFixture) => {
+export const launchWithDoc = async(relativeFixture: string): Promise<LaunchResult> => {
   const { app, page } = await launchElectron([relativeFixture])
   await waitForEditor(page)
   await waitForMenuReady(app)
   return { app, page }
 }
 
-const launchWithMarkdown = async(markdown = '') => {
+export interface LaunchWithMarkdownResult extends LaunchResult {
+  filePath: string
+}
+
+export const launchWithMarkdown = async(markdown = ''): Promise<LaunchWithMarkdownResult> => {
   const filePath = writeTempMarkdown(markdown)
   const { app, page } = await launchElectron([filePath])
   await waitForEditor(page)
@@ -244,7 +269,11 @@ const launchWithMarkdown = async(markdown = '') => {
   return { app, page, filePath }
 }
 
-const sendIpcToRenderer = async(app, channel, ...args) => {
+export const sendIpcToRenderer = async(
+  app: ElectronApplication,
+  channel: string,
+  ...args: unknown[]
+): Promise<void> => {
   await app.evaluate(
     ({ BrowserWindow }, payload) => {
       const win = BrowserWindow.getAllWindows()[0]
@@ -252,22 +281,4 @@ const sendIpcToRenderer = async(app, channel, ...args) => {
     },
     { channel, args }
   )
-}
-
-module.exports = {
-  getElectronPath,
-  launchElectron,
-  launchWithDoc,
-  launchWithMarkdown,
-  waitForEditor,
-  waitForMenuReady,
-  clickMenuById,
-  enterSourceMode,
-  exitSourceMode,
-  getMarkdownContent,
-  typeIntoEditor,
-  focusEditor,
-  placeCaretInEditor,
-  setSourceMarkdown,
-  sendIpcToRenderer
 }

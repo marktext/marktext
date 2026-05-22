@@ -17,8 +17,7 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
-import { closePath as windowIconClose } from '../../assets/window-controls.js'
+import { closePath as windowIconClose } from '../../assets/window-controls'
 
 const handleCloseClick = () => {
   window.electron.windowControl.close()

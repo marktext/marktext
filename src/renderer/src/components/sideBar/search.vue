@@ -102,7 +102,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
@@ -118,6 +117,7 @@ import FindWordIcon from '@/assets/icons/searchIcons/iconWord.svg'
 import FindRegexIcon from '@/assets/icons/searchIcons/iconRegex.svg'
 import { VideoPause } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import type { SearchResult } from './types'
 
 const { t } = useI18n()
 const layoutStore = useLayoutStore()
@@ -125,18 +125,18 @@ const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
 
-let searcherCancelCallback = null
+let searcherCancelCallback: (() => void) | null = null
 const ripgrepDirectorySearcher = new RipgrepDirectorySearcher()
 
 const keyword = ref('')
-const searchResult = ref([])
+const searchResult = ref<SearchResult[]>([])
 const searcherRunning = ref(false)
 const showSearchCancelArea = ref(false)
 const searchErrorString = ref('')
 const isCaseSensitive = ref(false)
 const isWholeWord = ref(false)
 const isRegexp = ref(false)
-const searchEl = ref(null)
+const searchEl = ref<HTMLInputElement | null>(null)
 
 const { rightColumn, showSideBar } = storeToRefs(layoutStore)
 const { currentFile } = storeToRefs(editorStore)
@@ -170,9 +170,9 @@ const showNoResultFoundMessage = computed(() => {
   )
 })
 
-const search = () => {
+const search = (): void => {
   // No root directory is opened.
-  if (showNoFolderOpenedMessage.value) {
+  if (showNoFolderOpenedMessage.value || !projectTree.value) {
     return
   }
 
@@ -195,39 +195,40 @@ const search = () => {
   searcherRunning.value = true
   startShowSearchCancelAreaTimer()
 
-  const newSearchResult = []
-  const promises = ripgrepDirectorySearcher
-    .search([rootDirectoryPath], keyword.value, {
-      didMatch: (res) => {
-        if (canceled) return
-        newSearchResult.push(res)
-      },
-      didSearchPaths: (numPathsFound) => {
-        // More than 100 files with (multiple) matches were found.
-        if (!canceled && numPathsFound > 100) {
-          canceled = true
-          if (promises.cancel) {
-            promises.cancel()
-          }
-          searchErrorString.value = t('search.searchLimited', { count: 100 })
-        }
-      },
+  const newSearchResult: SearchResult[] = []
+  // Keep a handle on the cancellable thenable separately from the chained
+  // `.then().catch()` (which is a plain `Promise<void>` and loses `cancel`).
+  const cancellable = ripgrepDirectorySearcher.search([rootDirectoryPath], keyword.value, {
+    didMatch: (res: unknown) => {
+      if (canceled) return
+      newSearchResult.push(res as SearchResult)
+    },
+    didSearchPaths: (numPathsFound: unknown) => {
+      // More than 100 files with (multiple) matches were found.
+      if (!canceled && typeof numPathsFound === 'number' && numPathsFound > 100) {
+        canceled = true
+        cancellable.cancel()
+        searchErrorString.value = t('search.searchLimited', { count: 100 })
+      }
+    },
 
-      // UI options
-      isCaseSensitive: isCaseSensitive.value,
-      isWholeWord: isWholeWord.value,
-      isRegexp: isRegexp.value,
+    // UI options
+    isCaseSensitive: isCaseSensitive.value,
+    isWholeWord: isWholeWord.value,
+    isRegexp: isRegexp.value,
 
-      // Options loaded from settings
-      exclusions: searchExclusions.value,
-      maxFileSize: searchMaxFileSize.value || null,
-      includeHidden: searchIncludeHidden.value,
-      noIgnore: searchNoIgnore.value,
-      followSymlinks: searchFollowSymlinks.value,
+    // Options loaded from settings
+    exclusions: searchExclusions.value,
+    maxFileSize: searchMaxFileSize.value || null,
+    includeHidden: searchIncludeHidden.value,
+    noIgnore: searchNoIgnore.value,
+    followSymlinks: searchFollowSymlinks.value,
 
-      // Only search markdown files
-      inclusions: window.fileUtils.MARKDOWN_INCLUSIONS
-    })
+    // Only search markdown files
+    inclusions: window.fileUtils.MARKDOWN_INCLUSIONS
+  })
+
+  cancellable
     .then(() => {
       searchResult.value = newSearchResult
       searcherRunning.value = false
@@ -236,9 +237,7 @@ const search = () => {
     })
     .catch((err) => {
       canceled = true
-      if (promises.cancel) {
-        promises.cancel()
-      }
+      cancellable.cancel()
       log.error('Error while searching in directory:', err)
       searchResult.value = []
       searcherRunning.value = false
@@ -246,16 +245,17 @@ const search = () => {
       stopShowSearchCancelAreaTimer()
     })
 
-  if (promises.cancel) {
-    searcherCancelCallback = promises.cancel
-  }
+  searcherCancelCallback = cancellable.cancel.bind(cancellable)
 }
 
-const handleFindInFolder = (executeSearch = true) => {
+const handleFindInFolder = (executeSearch: boolean | unknown = true): void => {
   nextTick(() => {
     if (searchEl.value) {
       searchEl.value.focus()
-      const selectedText = searchMatches.value?.selectedText
+      // `searchMatches.value` may carry a `selectedText` populated elsewhere
+      // (legacy contract from CodeMirror / find-in-page). Narrow defensively.
+      const selectedText = (searchMatches.value as { selectedText?: string } | undefined)
+        ?.selectedText
       if (selectedText) {
         keyword.value = selectedText
         if (executeSearch) {
@@ -266,27 +266,27 @@ const handleFindInFolder = (executeSearch = true) => {
   })
 }
 
-const openFolder = () => {
+const openFolder = (): void => {
   projectStore.ASK_FOR_OPEN_PROJECT()
 }
 
-const caseSensitiveClicked = () => {
+const caseSensitiveClicked = (): void => {
   isCaseSensitive.value = !isCaseSensitive.value
   search()
 }
 
-const wholeWordClicked = () => {
+const wholeWordClicked = (): void => {
   isWholeWord.value = !isWholeWord.value
   search()
 }
 
-const regexpClicked = () => {
+const regexpClicked = (): void => {
   isRegexp.value = !isRegexp.value
   search()
 }
 
-let searchCancelTimer = null
-const startShowSearchCancelAreaTimer = () => {
+let searchCancelTimer: ReturnType<typeof setTimeout> | null = null
+const startShowSearchCancelAreaTimer = (): void => {
   if (searchCancelTimer) {
     clearTimeout(searchCancelTimer)
     searchCancelTimer = null
@@ -296,7 +296,7 @@ const startShowSearchCancelAreaTimer = () => {
   }, 500)
 }
 
-const stopShowSearchCancelAreaTimer = () => {
+const stopShowSearchCancelAreaTimer = (): void => {
   if (searchCancelTimer) {
     clearTimeout(searchCancelTimer)
     searchCancelTimer = null
@@ -304,7 +304,7 @@ const stopShowSearchCancelAreaTimer = () => {
   showSearchCancelArea.value = false
 }
 
-const cancelSearcher = () => {
+const cancelSearcher = (): void => {
   if (searcherRunning.value && searcherCancelCallback) {
     searcherCancelCallback()
   }

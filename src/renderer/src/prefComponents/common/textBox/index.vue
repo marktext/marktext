@@ -34,35 +34,30 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { PrefControlBaseProps } from '../types'
 
-const props = defineProps({
-  description: String,
-  notes: String,
-  input: String,
-  onChange: Function,
-  more: String,
-  disable: {
-    type: Boolean,
-    default: false
-  },
-  defaultValue: {
-    type: String,
-    default: ''
-  },
-  emitTime: {
-    type: Number,
-    default: 800
-  },
-  regexValidator: {
-    type: RegExp,
-    default: () => /(.*?)/
-  }
+interface TextBoxProps extends PrefControlBaseProps {
+  notes?: string
+  input: string
+  onChange: (value: string) => void
+  defaultValue?: string
+  emitTime?: number
+  regexValidator?: RegExp
+}
+
+const props = withDefaults(defineProps<TextBoxProps>(), {
+  description: '',
+  notes: '',
+  more: '',
+  disable: false,
+  defaultValue: '',
+  emitTime: 800,
+  regexValidator: () => /(.*?)/
 })
 
-let inputTimer = null
+let inputTimer: ReturnType<typeof setTimeout> | null = null
 const inputText = ref(props.input)
 const invalidInput = ref(false)
 
@@ -81,7 +76,7 @@ const handleMoreClick = () => {
   }
 }
 
-const handleInput = (value) => {
+const handleInput = (value: string) => {
   const result = props.regexValidator.test(value)
   invalidInput.value = !result
 

@@ -1,10 +1,12 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import ExportMarkdown from '../../../src/muya/lib/utils/exportMarkdown'
+import { describe, it, expect, beforeEach } from 'vitest'
+import ExportMarkdown from 'muya/lib/utils/exportMarkdown'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TableBlock = Record<string, any>
 
 // Build a minimal table block structure that ExportMarkdown.normalizeTable expects.
-const makeTableBlock = (headerCells, bodyRows) => {
-  const makeCell = (text, type = 'td', align = '') => ({
+const makeTableBlock = (headerCells: string[], bodyRows: string[][]): TableBlock => {
+  const makeCell = (text: string, type = 'td', align = ''): TableBlock => ({
     type,
     align,
     children: [{ text }]
@@ -34,7 +36,8 @@ const makeTableBlock = (headerCells, bodyRows) => {
 }
 
 describe('ExportMarkdown.normalizeTable', () => {
-  let exporter
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let exporter: any
 
   beforeEach(() => {
     exporter = new ExportMarkdown([])

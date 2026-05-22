@@ -1,8 +1,7 @@
-/* eslint-disable */
-// @ts-nocheck
 import { t } from '../../i18n'
+import type { PrefSelectOption } from '../common/types'
 
-export const bulletListMarkerOptions = [
+export const bulletListMarkerOptions: PrefSelectOption<string>[] = [
   {
     label: '*',
     value: '*'
@@ -17,7 +16,7 @@ export const bulletListMarkerOptions = [
   }
 ]
 
-export const orderListDelimiterOptions = [
+export const orderListDelimiterOptions: PrefSelectOption<string>[] = [
   {
     label: '.',
     value: '.'
@@ -28,7 +27,7 @@ export const orderListDelimiterOptions = [
   }
 ]
 
-export const getPreferHeadingStyleOptions = () => [
+export const getPreferHeadingStyleOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.markdown.misc.preferHeadingStyle.atx'),
     value: 'atx'
@@ -39,7 +38,7 @@ export const getPreferHeadingStyleOptions = () => [
   }
 ]
 
-export const getListIndentationOptions = () => [
+export const getListIndentationOptions = (): PrefSelectOption<string | number>[] => [
   {
     label: t('preferences.markdown.lists.listIndentation.dfm'),
     value: 'dfm'
@@ -66,7 +65,7 @@ export const getListIndentationOptions = () => [
   }
 ]
 
-export const getFrontmatterTypeOptions = () => [
+export const getFrontmatterTypeOptions = (): PrefSelectOption<string>[] => [
   {
     label: 'YAML',
     value: '-'
@@ -85,7 +84,7 @@ export const getFrontmatterTypeOptions = () => [
   }
 ]
 
-export const getSequenceThemeOptions = () => [
+export const getSequenceThemeOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.markdown.diagrams.sequenceTheme.handDrawn'),
     value: 'hand'
