@@ -1,6 +1,8 @@
-/* eslint-disable */
-// @ts-nocheck
-export const themes = [
+export interface ThemeDescriptor {
+  name: string
+}
+
+export const themes: ReadonlyArray<ThemeDescriptor> = [
   // Light Themes (alphabetical)
   { name: 'ayu-light' },
   { name: 'light' },

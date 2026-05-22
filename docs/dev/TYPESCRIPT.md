@@ -159,7 +159,12 @@ These items are tracked as follow-up PRs:
    rewrite as Setup Store, refactor `currentFile` to nullable.
 2. **All `.vue` SFCs** — remove `// @ts-nocheck` from `<script setup
    lang="ts">` blocks, type `defineProps`/`defineEmits`, fix
-   ~20 errors per file.
+   ~20 errors per file. The leaf preference controls in
+   `src/renderer/src/prefComponents/common/` and their static schema
+   `config.ts` siblings are already typed (see
+   `prefComponents/common/types.ts` for the shared `PrefControlProps<T>`
+   / `PrefSelectOption<T>` helpers). The remaining `prefComponents/*/index.vue`
+   pages and the editor SFCs still carry `// @ts-nocheck`.
 3. **Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
    and `test/e2e/*.spec.ts`, convert CommonJS `require()` to ESM `import`.
 4. **`@typescript-eslint/no-explicit-any`** — currently `warn` in

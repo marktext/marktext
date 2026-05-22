@@ -1,13 +1,21 @@
-/* eslint-disable */
-// @ts-nocheck
 // TODO: Remove information from other vue source files into this file.
 import { t } from '../../../../i18n'
 
-export const isValidService = (name) => {
-  return name !== 'none' && getServices().hasOwnProperty(name)
+export interface UploaderService {
+  name: string
+  isGdprCompliant: boolean
+  privacyUrl: string
+  tosUrl: string
+  agreedToLegalNotices: boolean
 }
 
-const getServices = () => ({
+export type UploaderServiceId = 'none' | 'picgo' | 'github' | 'cliScript'
+
+export const isValidService = (name: string): boolean => {
+  return name !== 'none' && Object.prototype.hasOwnProperty.call(getServices(), name)
+}
+
+const getServices = (): Record<UploaderServiceId, UploaderService> => ({
   // Dummy service used to opt-in real services.
   none: {
     name: t('preferences.image.uploader.services.none'),
