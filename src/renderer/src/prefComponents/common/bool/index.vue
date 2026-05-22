@@ -102,8 +102,11 @@ const handleSwitchChange = (value: boolean | string | number) => {
     & svg:hover {
       color: var(--themeColor);
     }
+    & > .notes {
+      display: inline;
+      margin: 0 0 0 8px;
+    }
   }
-
 }
 
 span.el-switch__core::after {

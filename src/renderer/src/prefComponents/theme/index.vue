@@ -144,7 +144,7 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
 .offcial-themes {
   margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
   & .theme {
     cursor: pointer;
