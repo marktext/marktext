@@ -14,7 +14,7 @@ const patchEnvPath = (): void => {
 }
 
 export interface AppEnvironmentOptions {
-  userDataPath?: string
+  userDataPath?: string | undefined
   debug?: boolean
   isDevMode?: boolean
   verbose?: number | boolean

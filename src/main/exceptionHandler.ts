@@ -68,7 +68,7 @@ const handleError = async(title: string, error: Error, type: ErrorType): Promise
       defaultId: 0,
       noLink: true,
       message: title,
-      detail: stack
+      ...(stack !== undefined && { detail: stack })
     })
 
     switch (response) {

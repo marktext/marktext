@@ -7,7 +7,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.view.commandPalette'),
-      accelerator: keybindings.getAccelerator('view.command-palette') ?? undefined,
+      ...keybindings.acceleratorFor('view.command-palette'),
       click(_menuItem, focusedWindow) {
         actions.showCommandPalette(focusedWindow as BrowserWindow | undefined)
       }
@@ -18,7 +18,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       id: 'sourceCodeModeMenuItem',
       label: t('menu.view.sourceCodeMode'),
-      accelerator: keybindings.getAccelerator('view.source-code-mode') ?? undefined,
+      ...keybindings.acceleratorFor('view.source-code-mode'),
       type: 'checkbox',
       checked: false,
       click(_item, focusedWindow) {
@@ -28,7 +28,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       id: 'typewriterModeMenuItem',
       label: t('menu.view.typewriterMode'),
-      accelerator: keybindings.getAccelerator('view.typewriter-mode') ?? undefined,
+      ...keybindings.acceleratorFor('view.typewriter-mode'),
       type: 'checkbox',
       checked: false,
       click(_item, focusedWindow) {
@@ -38,7 +38,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       id: 'focusModeMenuItem',
       label: t('menu.view.focusMode'),
-      accelerator: keybindings.getAccelerator('view.focus-mode') ?? undefined,
+      ...keybindings.acceleratorFor('view.focus-mode'),
       type: 'checkbox',
       checked: false,
       click(_item, focusedWindow) {
@@ -51,7 +51,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       label: t('menu.view.toggleSidebar'),
       id: 'sideBarMenuItem',
-      accelerator: keybindings.getAccelerator('view.toggle-sidebar') ?? undefined,
+      ...keybindings.acceleratorFor('view.toggle-sidebar'),
       type: 'checkbox',
       checked: false,
       click(_item, focusedWindow) {
@@ -61,7 +61,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       label: t('menu.view.toggleTabbar'),
       id: 'tabBarMenuItem',
-      accelerator: keybindings.getAccelerator('view.toggle-tabbar') ?? undefined,
+      ...keybindings.acceleratorFor('view.toggle-tabbar'),
       type: 'checkbox',
       checked: false,
       click(_item, focusedWindow) {
@@ -71,14 +71,14 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     {
       label: t('menu.view.toggleTableOfContents'),
       id: 'tocMenuItem',
-      accelerator: keybindings.getAccelerator('view.toggle-toc') ?? undefined,
+      ...keybindings.acceleratorFor('view.toggle-toc'),
       click(_, focusedWindow) {
         actions.showTableOfContents(focusedWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.view.reloadImages'),
-      accelerator: keybindings.getAccelerator('view.reload-images') ?? undefined,
+      ...keybindings.acceleratorFor('view.reload-images'),
       click(_item, focusedWindow) {
         actions.reloadImageCache(focusedWindow as BrowserWindow | undefined)
       }
@@ -96,14 +96,14 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     })
     submenu.push({
       label: t('menu.view.showDeveloperTools'),
-      accelerator: keybindings.getAccelerator('view.toggle-dev-tools') ?? undefined,
+      ...keybindings.acceleratorFor('view.toggle-dev-tools'),
       click(_item, win) {
         actions.debugToggleDevTools(win as BrowserWindow | undefined)
       }
     })
     submenu.push({
       label: t('menu.view.reloadWindow'),
-      accelerator: keybindings.getAccelerator('view.dev-reload') ?? undefined,
+      ...keybindings.acceleratorFor('view.dev-reload'),
       click(_item, focusedWindow) {
         actions.debugReloadWindow(focusedWindow as BrowserWindow | undefined)
       }

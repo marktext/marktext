@@ -60,6 +60,20 @@ class Keybindings {
     return name
   }
 
+  /**
+   * Return a partial menu-item fragment with the `accelerator` key set
+   * when an accelerator is bound for `id`, or an empty object otherwise.
+   *
+   * Centralises the conditional spread required by
+   * `exactOptionalPropertyTypes: true` — Electron's
+   * `MenuItemConstructorOptions.accelerator` is `?: string`, which under
+   * that flag does not accept `undefined` as a value.
+   */
+  acceleratorFor(id: string): { accelerator: string } | Record<string, never> {
+    const name = this.keys.get(id)
+    return name ? { accelerator: name } : {}
+  }
+
   registerAccelerator(win: BrowserWindow, accelerator: string, callback: ShortcutCallback): void {
     if (!win || !accelerator || !callback) {
       throw new Error(`addKeyHandler: invalid arguments (accelerator="${accelerator}").`)

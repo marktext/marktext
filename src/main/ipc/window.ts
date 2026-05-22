@@ -27,9 +27,11 @@ const buildMenu = (template: MenuTemplate | undefined, windowId: number): Menu =
     const id = item.id
     menu.append(
       new MenuItem({
-        label: item.label,
-        type: item.type as 'normal' | 'submenu' | 'checkbox' | 'radio' | undefined,
-        accelerator: item.accelerator,
+        ...(item.label !== undefined && { label: item.label }),
+        ...(item.type !== undefined && {
+          type: item.type as 'normal' | 'submenu' | 'checkbox' | 'radio'
+        }),
+        ...(item.accelerator !== undefined && { accelerator: item.accelerator }),
         enabled: item.enabled !== false,
         checked: !!item.checked,
         click: () => {
@@ -40,7 +42,9 @@ const buildMenu = (template: MenuTemplate | undefined, windowId: number): Menu =
             /* sender destroyed */
           }
         },
-        submenu: item.submenu ? buildMenu(item.submenu as MenuTemplateItem[], windowId) : undefined
+        ...(item.submenu
+          ? { submenu: buildMenu(item.submenu as MenuTemplateItem[], windowId) }
+          : {})
       })
     )
   }
@@ -99,8 +103,8 @@ export const registerWindowHandlers = (): void => {
       const menu = buildMenu(template, win.id)
       menu.popup({
         window: win,
-        x: position?.x,
-        y: position?.y,
+        ...(position?.x !== undefined && { x: position.x }),
+        ...(position?.y !== undefined && { y: position.y }),
         callback: () => {
           popups.delete(win.id)
           try {
@@ -122,7 +126,11 @@ export const registerWindowHandlers = (): void => {
     try {
       const appMenu = Menu.getApplicationMenu()
       if (!appMenu) return
-      appMenu.popup({ window: win, x: position?.x, y: position?.y })
+      appMenu.popup({
+        window: win,
+        ...(position?.x !== undefined && { x: position.x }),
+        ...(position?.y !== undefined && { y: position.y })
+      })
     } catch (err) {
       log.error('application menu popup failed:', err)
     }

@@ -8,17 +8,17 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     submenu: [
       {
         label: t('menu.edit.cut'),
-        accelerator: keybindings.getAccelerator('edit.cut') ?? undefined,
+        ...keybindings.acceleratorFor('edit.cut'),
         role: 'cut'
       },
       {
         label: t('menu.edit.copy'),
-        accelerator: keybindings.getAccelerator('edit.copy') ?? undefined,
+        ...keybindings.acceleratorFor('edit.copy'),
         role: 'copy'
       },
       {
         label: t('menu.edit.paste'),
-        accelerator: keybindings.getAccelerator('edit.paste') ?? undefined,
+        ...keybindings.acceleratorFor('edit.paste'),
         role: 'paste'
       },
       {
@@ -26,7 +26,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.selectAll'),
-        accelerator: keybindings.getAccelerator('edit.select-all') ?? undefined,
+        ...keybindings.acceleratorFor('edit.select-all'),
         role: 'selectAll'
       }
     ]

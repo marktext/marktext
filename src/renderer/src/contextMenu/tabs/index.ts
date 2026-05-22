@@ -11,9 +11,9 @@ import {
 import { popupContextMenu } from '../popupMenu'
 
 type MenuItemShape = {
-  type?: string
-  click?: (...args: unknown[]) => void
-  enabled?: boolean
+  type?: string | undefined
+  click?: ((...args: unknown[]) => void) | undefined
+  enabled?: boolean | undefined
   [key: string]: unknown
 }
 

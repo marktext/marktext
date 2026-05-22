@@ -24,7 +24,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.marktext.preferences'),
-        accelerator: keybindings.getAccelerator('file.preferences') ?? undefined,
+        ...keybindings.acceleratorFor('file.preferences'),
         click() {
           actions.userSetting()
         }
@@ -42,14 +42,14 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.marktext.hide'),
-        accelerator: keybindings.getAccelerator('mt.hide') ?? undefined,
+        ...keybindings.acceleratorFor('mt.hide'),
         click() {
           actions.osxHide()
         }
       },
       {
         label: t('menu.marktext.hideOthers'),
-        accelerator: keybindings.getAccelerator('mt.hide-others') ?? undefined,
+        ...keybindings.acceleratorFor('mt.hide-others'),
         click() {
           actions.osxHideAll()
         }
@@ -65,7 +65,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.marktext.quit'),
-        accelerator: keybindings.getAccelerator('file.quit') ?? undefined,
+        ...keybindings.acceleratorFor('file.quit'),
         click: app.quit
       }
     ]

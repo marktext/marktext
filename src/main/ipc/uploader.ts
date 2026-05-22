@@ -121,11 +121,10 @@ const uploadByGithub = ({
       owner,
       repo,
       path: filePath,
-      branch,
+      ...(branch ? { branch } : {}),
       message,
       content
     }
-    if (!branch) delete payload.branch
     octokit.repos
       .createOrUpdateFileContents(payload)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

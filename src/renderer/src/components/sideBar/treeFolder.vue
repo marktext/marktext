@@ -34,7 +34,7 @@
     >
       <tree-folder
         v-for="childFolder of folder.folders"
-        :key="childFolder.id"
+        :key="childFolder.id ?? childFolder.pathname"
         :folder="childFolder"
         :depth="depth + 1"
       />
@@ -49,7 +49,7 @@
       >
       <File
         v-for="file of folder.files"
-        :key="file.id"
+        :key="file.id ?? file.pathname"
         :file="file"
         :depth="depth + 1"
       />

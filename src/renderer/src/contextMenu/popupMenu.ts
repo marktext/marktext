@@ -9,17 +9,17 @@ import type { MenuTemplate, MenuTemplateItem, MenuPopupPosition } from '@shared/
 export type MenuClickHandler = (payload: unknown) => void
 
 export interface ContextMenuItem {
-  id?: string
-  label?: string
+  id?: string | undefined
+  label?: string | undefined
   // Loose `string` here lets the menu factories emit plain `'separator'`
   // literals without `as const`. The serializer only special-cases 'separator'.
-  type?: string
-  accelerator?: string
-  enabled?: boolean
-  checked?: boolean
-  submenu?: ContextMenuItem[]
+  type?: string | undefined
+  accelerator?: string | undefined
+  enabled?: boolean | undefined
+  checked?: boolean | undefined
+  submenu?: ContextMenuItem[] | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  click?: (...args: any[]) => void
+  click?: ((...args: any[]) => void) | undefined
 }
 
 let nextId = 1

@@ -3,16 +3,16 @@
 // pulling Electron types into renderer-only consumers.
 
 export interface MenuTemplateItem {
-  id?: string
-  label?: string
-  type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio'
-  accelerator?: string
-  enabled?: boolean
-  visible?: boolean
-  checked?: boolean
-  role?: string
-  click?: string
-  submenu?: MenuTemplateItem[]
+  id?: string | undefined
+  label?: string | undefined
+  type?: 'normal' | 'separator' | 'submenu' | 'checkbox' | 'radio' | undefined
+  accelerator?: string | undefined
+  enabled?: boolean | undefined
+  visible?: boolean | undefined
+  checked?: boolean | undefined
+  role?: string | undefined
+  click?: string | undefined
+  submenu?: MenuTemplateItem[] | undefined
   // Open shape — main-side menu builder occasionally tucks extra metadata in.
   [key: string]: unknown
 }

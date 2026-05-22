@@ -153,12 +153,12 @@ interface ProjectInfo {
 
 const props = defineProps<{
   project?: ProjectInfo | null
-  filename?: string
-  pathname?: string
+  filename?: string | undefined
+  pathname?: string | undefined
   active?: boolean
-  wordCount?: FileWordCount | null
+  wordCount?: FileWordCount | null | undefined
   platform?: string
-  isSaved?: boolean
+  isSaved?: boolean | undefined
 }>()
 
 const preferencesStore = usePreferencesStore()

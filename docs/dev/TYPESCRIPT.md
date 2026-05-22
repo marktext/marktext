@@ -30,9 +30,6 @@ Relevant settings (`tsconfig.base.json`):
 - `strict: true` (every strict flag on)
 - `noUncheckedIndexedAccess: false` — too disruptive given existing
   index-access patterns (tabs, listToc)
-- `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
-  restore path (which carries optional fields through JSON serialization)
-  tolerant of `undefined` ≡ "key not present"
 - `allowJs: true, checkJs: false` — for `src/muya/` only (every other
   directory is now `.ts`)
 - `noEmit: true` — vue-tsc only type-checks; electron-vite handles the

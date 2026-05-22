@@ -15,14 +15,14 @@ export default function(
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.file.newTab'),
-      accelerator: keybindings.getAccelerator('file.new-tab') ?? undefined,
+      ...keybindings.acceleratorFor('file.new-tab'),
       click(_menuItem, browserWindow) {
         actions.newBlankTab(browserWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.file.newWindow'),
-      accelerator: keybindings.getAccelerator('file.new-window') ?? undefined,
+      ...keybindings.acceleratorFor('file.new-window'),
       click() {
         actions.newEditorWindow()
       }
@@ -32,14 +32,14 @@ export default function(
     },
     {
       label: t('menu.file.openFile'),
-      accelerator: keybindings.getAccelerator('file.open-file') ?? undefined,
+      ...keybindings.acceleratorFor('file.open-file'),
       click(_menuItem, browserWindow) {
         actions.openFile((browserWindow as BrowserWindow | undefined) ?? null)
       }
     },
     {
       label: t('menu.file.openFolder'),
-      accelerator: keybindings.getAccelerator('file.open-folder') ?? undefined,
+      ...keybindings.acceleratorFor('file.open-folder'),
       click(_menuItem, browserWindow) {
         actions.openFolder((browserWindow as BrowserWindow | undefined) ?? null)
       }
@@ -89,10 +89,10 @@ export default function(
       // ('recentDocuments' / 'clearRecentDocuments') in recent versions; the JS
       // original used lowercase. Cast to satisfy strict role typing while
       // preserving the original runtime string.
-      role: 'recentdocuments' as unknown as MenuItemConstructorOptions['role'],
+      role: 'recentdocuments' as unknown as NonNullable<MenuItemConstructorOptions['role']>,
       submenu: [
         {
-          role: 'clearrecentdocuments' as unknown as MenuItemConstructorOptions['role']
+          role: 'clearrecentdocuments' as unknown as NonNullable<MenuItemConstructorOptions['role']>
         }
       ]
     })
@@ -104,14 +104,14 @@ export default function(
     },
     {
       label: t('menu.file.save'),
-      accelerator: keybindings.getAccelerator('file.save') ?? undefined,
+      ...keybindings.acceleratorFor('file.save'),
       click(_menuItem, browserWindow) {
         actions.save(browserWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.file.saveAs'),
-      accelerator: keybindings.getAccelerator('file.save-as') ?? undefined,
+      ...keybindings.acceleratorFor('file.save-as'),
       click(_menuItem, browserWindow) {
         actions.saveAs(browserWindow as BrowserWindow | undefined)
       }
@@ -130,14 +130,14 @@ export default function(
     },
     {
       label: t('menu.file.moveTo'),
-      accelerator: keybindings.getAccelerator('file.move-file') ?? undefined,
+      ...keybindings.acceleratorFor('file.move-file'),
       click(_menuItem, browserWindow) {
         actions.moveTo(browserWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.file.rename'),
-      accelerator: keybindings.getAccelerator('file.rename-file') ?? undefined,
+      ...keybindings.acceleratorFor('file.rename-file'),
       click(_menuItem, browserWindow) {
         actions.rename(browserWindow as BrowserWindow | undefined)
       }
@@ -162,7 +162,7 @@ export default function(
         },
         {
           label: t('menu.file.exportPdf'),
-          accelerator: keybindings.getAccelerator('file.export-file.pdf') ?? undefined,
+          ...keybindings.acceleratorFor('file.export-file.pdf'),
           click(_menuItem, browserWindow) {
             actions.exportFile(browserWindow as BrowserWindow | undefined, 'pdf')
           }
@@ -171,7 +171,7 @@ export default function(
     },
     {
       label: t('menu.file.print'),
-      accelerator: keybindings.getAccelerator('file.print') ?? undefined,
+      ...keybindings.acceleratorFor('file.print'),
       click(_menuItem, browserWindow) {
         actions.printDocument(browserWindow as BrowserWindow | undefined)
       }
@@ -182,7 +182,7 @@ export default function(
     },
     {
       label: t('menu.file.preferences'),
-      accelerator: keybindings.getAccelerator('file.preferences') ?? undefined,
+      ...keybindings.acceleratorFor('file.preferences'),
       visible: !isOsx,
       click() {
         userSetting()
@@ -193,14 +193,14 @@ export default function(
     },
     {
       label: t('menu.file.closeTab'),
-      accelerator: keybindings.getAccelerator('file.close-tab') ?? undefined,
+      ...keybindings.acceleratorFor('file.close-tab'),
       click(_menuItem, browserWindow) {
         actions.closeTab(browserWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.file.closeWindow'),
-      accelerator: keybindings.getAccelerator('file.close-window') ?? undefined,
+      ...keybindings.acceleratorFor('file.close-window'),
       click(_menuItem, browserWindow) {
         actions.closeWindow(browserWindow as BrowserWindow | undefined)
       }
@@ -211,7 +211,7 @@ export default function(
     },
     {
       label: t('menu.file.quit'),
-      accelerator: keybindings.getAccelerator('file.quit') ?? undefined,
+      ...keybindings.acceleratorFor('file.quit'),
       visible: !isOsx,
       click: app.quit
     }

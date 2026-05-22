@@ -5,7 +5,7 @@ import { usePreferencesStore } from './preferences'
 import { debouncedSendBufferedState } from './bufferedState'
 
 interface LayoutPartial {
-  rightColumn?: string
+  rightColumn?: string | undefined
   showSideBar?: boolean
   showTabBar?: boolean
   sideBarWidth?: number | string

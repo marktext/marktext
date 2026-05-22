@@ -33,10 +33,13 @@ bootstrapRenderer()
 // Create Vue app
 const app: App<Element> = createApp(Main)
 
-// Configure Element Plus with locale
-app.use(ElementPlus, {
-  locale: en
-})
+// Configure Element Plus with locale. Cast to `unknown` then the param type
+// because Element Plus's exported `Partial<ConfigProviderProps>` collapses
+// each prop to its full descriptor (with required `type` / `__epPropKey`)
+// under `exactOptionalPropertyTypes: true`, which doesn't match the runtime
+// value-shaped options bag.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+app.use(ElementPlus, { locale: en } as any)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const envType = (window as any).marktext?.env?.type as string | undefined

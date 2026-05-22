@@ -79,7 +79,7 @@ export const writeMarkdownFile = (
     content = convertLineEndings(content, lineEnding)
   }
 
-  const buffer = iconv.encode(content, encoding, { addBOM: isBom })
+  const buffer = iconv.encode(content, encoding, isBom !== undefined ? { addBOM: isBom } : {})
 
   // TODO(@fxha): "safeSaveDocuments" using temporary file and rename syscall.
   return writeFile(pathname, buffer, extension, undefined)

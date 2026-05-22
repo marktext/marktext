@@ -11,14 +11,14 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     submenu: [
       {
         label: t('menu.edit.undo'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_UNDO) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_UNDO),
         click: (_menuItem, browserWindow) => {
           actions.editorUndo(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.redo'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_REDO) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_REDO),
         click: (_menuItem, browserWindow) => {
           actions.editorRedo(browserWindow as BrowserWindow | undefined)
         }
@@ -28,21 +28,21 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.cut'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_CUT) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_CUT),
         click(_menuItem, browserWindow) {
           actions.nativeCut(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.copy'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_COPY),
         click(_menuItem, browserWindow) {
           actions.nativeCopy(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.paste'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_PASTE),
         click(_menuItem, browserWindow) {
           actions.nativePaste(browserWindow as BrowserWindow | undefined)
         }
@@ -52,21 +52,21 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.copyAsRich'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY_AS_RICH) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_COPY_AS_RICH),
         click(_menuItem, browserWindow) {
           actions.editorCopyAsRich(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.copyAsHtml'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY_AS_HTML) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_COPY_AS_HTML),
         click(_menuItem, browserWindow) {
           actions.editorCopyAsHtml(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.pasteAsPlainText'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE_AS_PLAINTEXT) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_PASTE_AS_PLAINTEXT),
         click(_menuItem, browserWindow) {
           actions.editorPasteAsPlainText(browserWindow as BrowserWindow | undefined)
         }
@@ -76,7 +76,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.selectAll'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_SELECT_ALL) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_SELECT_ALL),
         click(_menuItem, browserWindow) {
           actions.editorSelectAll(browserWindow as BrowserWindow | undefined)
         }
@@ -86,21 +86,21 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.duplicate'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_DUPLICATE) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_DUPLICATE),
         click(_menuItem, browserWindow) {
           actions.editorDuplicate(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.createParagraph'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_CREATE_PARAGRAPH) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_CREATE_PARAGRAPH),
         click(_menuItem, browserWindow) {
           actions.editorCreateParagraph(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.deleteParagraph'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_DELETE_PARAGRAPH) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_DELETE_PARAGRAPH),
         click(_menuItem, browserWindow) {
           actions.editorDeleteParagraph(browserWindow as BrowserWindow | undefined)
         }
@@ -110,28 +110,28 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.find'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_FIND),
         click(_menuItem, browserWindow) {
           actions.editorFind(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.findNext'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND_NEXT) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_FIND_NEXT),
         click(_menuItem, browserWindow) {
           actions.editorFindNext(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.findPrevious'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND_PREVIOUS) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_FIND_PREVIOUS),
         click(_menuItem, browserWindow) {
           actions.editorFindPrevious(browserWindow as BrowserWindow | undefined)
         }
       },
       {
         label: t('menu.edit.replace'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_REPLACE) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_REPLACE),
         click(_menuItem, browserWindow) {
           actions.editorReplace(browserWindow as BrowserWindow | undefined)
         }
@@ -141,7 +141,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       },
       {
         label: t('menu.edit.findInFolder'),
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_FIND_IN_FOLDER) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_FIND_IN_FOLDER),
         click(_menuItem, browserWindow) {
           actions.findInFolder(browserWindow as BrowserWindow | undefined)
         }
@@ -153,7 +153,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         label: t('menu.edit.screenshot'),
         id: 'screenshot',
         visible: isOsx,
-        accelerator: keybindings.getAccelerator(COMMANDS.EDIT_SCREENSHOT) ?? undefined,
+        ...keybindings.acceleratorFor(COMMANDS.EDIT_SCREENSHOT),
         click(_menuItem, browserWindow) {
           actions.screenshot(browserWindow as BrowserWindow | undefined)
         }

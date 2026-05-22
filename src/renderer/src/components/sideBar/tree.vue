@@ -87,7 +87,7 @@
       >
         <folder
           v-for="folder of projectTree.folders"
-          :key="folder.id"
+          :key="folder.id ?? folder.pathname"
           :folder="folder"
           :depth="depth"
         />
@@ -103,7 +103,7 @@
         >
         <file
           v-for="file of projectTree.files"
-          :key="file.id"
+          :key="file.id ?? file.pathname"
           :file="file"
           :depth="depth"
         />

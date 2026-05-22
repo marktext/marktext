@@ -9,7 +9,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.window.minimize'),
-      accelerator: keybindings.getAccelerator('window.minimize') ?? undefined,
+      ...keybindings.acceleratorFor('window.minimize'),
       click(_menuItem, browserWindow) {
         minimizeWindow(browserWindow as BrowserWindow | undefined)
       }
@@ -18,7 +18,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       id: 'alwaysOnTopMenuItem',
       label: t('menu.window.alwaysOnTop'),
       type: 'checkbox',
-      accelerator: keybindings.getAccelerator('window.toggle-always-on-top') ?? undefined,
+      ...keybindings.acceleratorFor('window.toggle-always-on-top'),
       click(_menuItem, browserWindow) {
         toggleAlwaysOnTop(browserWindow as BrowserWindow | undefined)
       }
@@ -28,14 +28,14 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     },
     {
       label: t('menu.window.zoomIn'),
-      accelerator: keybindings.getAccelerator('window.zoomIn') ?? undefined,
+      ...keybindings.acceleratorFor('window.zoomIn'),
       click(_menuItem, browserWindow) {
         zoomIn(browserWindow as BrowserWindow | undefined)
       }
     },
     {
       label: t('menu.window.zoomOut'),
-      accelerator: keybindings.getAccelerator('window.zoomOut') ?? undefined,
+      ...keybindings.acceleratorFor('window.zoomOut'),
       click(_menuItem, browserWindow) {
         zoomOut(browserWindow as BrowserWindow | undefined)
       }
@@ -45,7 +45,7 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
     },
     {
       label: t('menu.window.fullScreen'),
-      accelerator: keybindings.getAccelerator('window.toggle-full-screen') ?? undefined,
+      ...keybindings.acceleratorFor('window.toggle-full-screen'),
       click(_item, browserWindow) {
         if (browserWindow) {
           toggleFullScreen(browserWindow as BrowserWindow)

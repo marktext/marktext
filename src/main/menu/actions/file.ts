@@ -98,9 +98,10 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   }
 
   const defaultPath = path.join(dirname, `${nakedFilename}${extension}`)
+  const filters = getExportExtensionFilter(type)
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
     defaultPath,
-    filters: getExportExtensionFilter(type)
+    ...(filters !== undefined && { filters })
   })
 
   if (filePath && !canceled) {
