@@ -1,57 +1,21 @@
+import type { IFileState } from '@shared/types/files'
 import { getUniqueId, deepClone } from '../util'
 
 // Helper module (NOT a Pinia store): defaults and factories for the editor
 // document state objects.
 
-export interface DocumentEncoding {
-  encoding: string
-  isBom: boolean
-}
-
-export interface DocumentSearchMatches {
-  index: number
-  matches: unknown[]
-  value: string
-}
-
-export interface DocumentHistory {
-  stack: unknown[]
-  index: number
-}
-
-export interface DocumentWordCount {
-  paragraph: number
-  word: number
-  character: number
-  all: number
-}
-
-export interface IDocumentState {
-  id?: string
-  isSaved: boolean
-  pathname: string
-  filename: string
-  markdown: string
-  encoding: DocumentEncoding
-  lineEnding: 'lf' | 'crlf' | string
-  trimTrailingNewline: number
-  adjustLineEndingOnSave: boolean
-  history: DocumentHistory
-  cursor: unknown
-  wordCount: DocumentWordCount
-  searchMatches: DocumentSearchMatches
-  scrollTop: number
-  muyaIndexCursor: unknown
-  notifications: unknown[]
-  lastSavedHistoryId?: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
-}
-
 /**
- * Default internal markdown document with editor options.
+ * Canonical document state shape used by the editor store. Re-exported as a
+ * structural alias of `IFileState` from `@shared/types/files` so consumers
+ * that historically imported `IDocumentState` keep compiling.
  */
-export const defaultFileState: IDocumentState = {
+export type IDocumentState = IFileState
+
+// Re-export the cross-process shape for convenience so renderer code can
+// continue to import these from `./help`.
+export type { IFileState }
+
+const defaultFileStateWithoutId = {
   isSaved: true,
   pathname: '',
   filename: 'Untitled-1',
@@ -82,14 +46,29 @@ export const defaultFileState: IDocumentState = {
   scrollTop: 0,
   muyaIndexCursor: null,
   notifications: []
-}
+} satisfies Omit<IFileState, 'id'>
 
-export const getOptionsFromState = (file: IDocumentState) => {
+/**
+ * Default internal markdown document with editor options. Acts as the
+ * template for cloning into per-tab state. Note: `id` is intentionally
+ * omitted — every actual file state must allocate a unique id via
+ * `getBlankFileState` / `createDocumentState`.
+ */
+export const defaultFileState: Omit<IFileState, 'id'> = defaultFileStateWithoutId
+
+export const getOptionsFromState = (
+  file: IFileState
+): {
+  encoding: IFileState['encoding']
+  lineEnding: IFileState['lineEnding']
+  adjustLineEndingOnSave: boolean
+  trimTrailingNewline: number
+} => {
   const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = file
   return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
 }
 
-const documentStateKeys: ReadonlyArray<keyof IDocumentState> = [
+const documentStateKeys = [
   'isSaved',
   'pathname',
   'filename',
@@ -105,16 +84,16 @@ const documentStateKeys: ReadonlyArray<keyof IDocumentState> = [
   'scrollTop',
   'muyaIndexCursor',
   'notifications'
-]
+] as const satisfies ReadonlyArray<keyof IFileState>
 
 export const getBlankFileState = (
   tabs: Array<{ pathname: string; filename: string }>,
-  defaultEncoding: string = defaultFileState.encoding.encoding,
-  lineEnding: string = defaultFileState.lineEnding,
-  markdown: string | null = defaultFileState.markdown
-): IDocumentState => {
-  const fileState = deepClone(defaultFileState) as IDocumentState
-  const defaultFilenamePrefix = defaultFileState.filename.split('-')[0]
+  defaultEncoding: string = defaultFileStateWithoutId.encoding.encoding,
+  lineEnding: string = defaultFileStateWithoutId.lineEnding,
+  markdown: string | null = defaultFileStateWithoutId.markdown
+): IFileState => {
+  const fileState = deepClone(defaultFileStateWithoutId) as Omit<IFileState, 'id'>
+  const defaultFilenamePrefix = defaultFileStateWithoutId.filename.split('-')[0]
   let untitleId = Math.max(
     ...tabs.map((f) => {
       if (f.pathname === '') {
@@ -130,7 +109,7 @@ export const getBlankFileState = (
 
   // We may pass markdown=null as a parameter.
   if (markdown == null) {
-    markdown = defaultFileState.markdown
+    markdown = defaultFileStateWithoutId.markdown
   }
 
   fileState.encoding.encoding = defaultEncoding
@@ -141,31 +120,33 @@ export const getBlankFileState = (
     filename: `${defaultFilenamePrefix}-${++untitleId}`,
     markdown,
     lastSavedHistoryId: -1
-  })
+  }) as IFileState
 }
 
 /**
- * Creates an internal document from the given document.
+ * Creates an internal document from the given document. Accepts loosely
+ * typed input (IPC payloads, partial states) and copies through the keys
+ * documented by `documentStateKeys`.
  */
 export const createDocumentState = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  markdownDocument: any = {},
+  markdownDocument: Partial<IFileState> | Record<string, unknown> | null | undefined = {},
   id: string = getUniqueId()
-): IDocumentState => {
-  markdownDocument = markdownDocument || {}
-  const docState = deepClone(defaultFileState) as IDocumentState
+): IFileState => {
+  const src = (markdownDocument || {}) as Record<string, unknown>
+  const docState = deepClone(defaultFileStateWithoutId) as Omit<IFileState, 'id'>
 
   for (const key of documentStateKeys) {
-    if (markdownDocument[key] !== undefined) {
-      docState[key] = markdownDocument[key]
+    if (src[key] !== undefined) {
+      ;(docState as Record<string, unknown>)[key] = src[key]
     }
   }
 
   return Object.assign(docState, {
     id,
     lastSavedHistoryId: -1
-  })
+  }) as IFileState
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const getFileStateFromData = (data: any): IDocumentState => createDocumentState(data)
+export const getFileStateFromData = (
+  data: Partial<IFileState> | Record<string, unknown> | null | undefined
+): IFileState => createDocumentState(data)

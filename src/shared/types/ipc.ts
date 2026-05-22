@@ -26,7 +26,8 @@ import type {
   SaveOptions,
   SerializedStat,
   LineEnding,
-  FileChangeDetail
+  FileChangeDetail,
+  UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
@@ -106,7 +107,7 @@ export interface IpcSendChannels {
   'mt::check-for-update': []
   'mt::clipboard::write-text': [text: string]
   'mt::close-window': []
-  'mt::close-window-confirm': []
+  'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []
   'mt::cmd-import-file': []
   'mt::cmd-new-editor-window': []
@@ -125,7 +126,7 @@ export interface IpcSendChannels {
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
-  'mt::rename': [oldPath: string, newPath: string]
+  'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
   'mt::request-keybindings': []
   'mt::response-export': [
     payload: {
@@ -137,7 +138,7 @@ export interface IpcSendChannels {
       pageOptions: PageOptions
     }
   ]
-  'mt::response-file-move-to': [tabId: string, newPath: string]
+  'mt::response-file-move-to': [payload: { id: string; pathname: string }]
   'mt::response-file-save': [
     id: string,
     filename: string,
@@ -146,7 +147,15 @@ export interface IpcSendChannels {
     options: SaveOptions,
     defaultPath: string
   ]
-  'mt::response-print': [payload: unknown]
+  'mt::response-file-save-as': [
+    id: string,
+    filename: string,
+    pathname: string,
+    markdown: string,
+    options: SaveOptions,
+    defaultPath: string
+  ]
+  'mt::response-print': []
   'mt::rg::cancel': [searchId: string]
   'mt::save-and-close-tabs': [tabs: unknown[]]
   'mt::save-tabs': [tabs: unknown[]]
@@ -155,7 +164,7 @@ export interface IpcSendChannels {
   'mt::set-user-preference': [partial: unknown]
   'mt::shell::open-external': [url: string]
   'mt::shell::show-item': [fullPath: string]
-  'mt::update-format-menu': [state: unknown]
+  'mt::update-format-menu': [windowId: number, state: Record<string, boolean>]
   'mt::update-line-ending-menu': [windowId: number, lineEnding: LineEnding]
   'mt::update-sidebar-menu': [windowId: number, visible: boolean]
   'mt::view-layout-changed': [windowId: number, layout: unknown]
@@ -168,7 +177,7 @@ export interface IpcSendChannels {
   'mt::win::unmaximize': []
   'mt::window-add-file-path': [windowId: number, filePath: string]
   'mt::window-initialized': []
-  'mt::window-tab-closed': [tabId: string]
+  'mt::window-tab-closed': [pathname: string]
   'mt::window-toggle-always-on-top': []
   'mt::window::drop': [payload: unknown]
   'screen-capture': [payload: unknown]
@@ -223,7 +232,7 @@ export interface IpcMainEventChannels {
   'mt::editor-paragraph-action': [payload: { type: string }]
   'mt::editor-rename-file': []
   'mt::execute-command-by-id': [commandId: string]
-  'mt::export-success': [type: string]
+  'mt::export-success': [payload: { type: string; filePath: string }]
   'mt::file-saved': [tabId: string]
   'mt::force-close-tabs-by-id': [tabIds: string[]]
   'mt::invalidate-image-cache': []
