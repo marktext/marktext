@@ -1,8 +1,7 @@
-/* eslint-disable */
-// @ts-nocheck
 import { t } from '@/i18n'
+import type { PrefSelectOption } from '@/prefComponents/common/types'
 
-export const getPageSizeList = () => [
+export const getPageSizeList = (): PrefSelectOption<string>[] => [
   {
     label: t('exportSettings.options.pageSizes.a3'),
     value: 'A3'
@@ -33,7 +32,7 @@ export const getPageSizeList = () => [
   }
 ]
 
-export const getHeaderFooterTypes = () => [
+export const getHeaderFooterTypes = (): PrefSelectOption<number>[] => [
   {
     label: t('exportSettings.options.headerFooterTypes.none'),
     value: 0
@@ -48,7 +47,7 @@ export const getHeaderFooterTypes = () => [
   }
 ]
 
-export const getHeaderFooterStyles = () => [
+export const getHeaderFooterStyles = (): PrefSelectOption<number>[] => [
   {
     label: t('exportSettings.options.headerFooterStyles.default'),
     value: 0
@@ -63,7 +62,7 @@ export const getHeaderFooterStyles = () => [
   }
 ]
 
-export const getExportThemeList = () => [
+export const getExportThemeList = (): PrefSelectOption<string>[] => [
   {
     label: t('exportSettings.options.themes.academic'),
     value: 'academic'

@@ -1,8 +1,7 @@
-/* eslint-disable */
-// @ts-nocheck
 import { t } from '../../i18n'
+import type { PrefSelectOption } from '../common/types'
 
-export const getTitleBarStyleOptions = () => [
+export const getTitleBarStyleOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.general.window.titleBarStyle.custom'),
     value: 'custom'
@@ -13,7 +12,7 @@ export const getTitleBarStyleOptions = () => [
   }
 ]
 
-export const zoomOptions = [
+export const zoomOptions: PrefSelectOption<number>[] = [
   {
     label: '50.0%',
     value: 0.5
@@ -68,7 +67,7 @@ export const zoomOptions = [
   }
 ]
 
-export const getFileSortByOptions = () => [
+export const getFileSortByOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.general.sidebar.fileSortBy.creationTime'),
     value: 'created'
@@ -83,7 +82,7 @@ export const getFileSortByOptions = () => [
   }
 ]
 
-export const getLanguageOptions = () => [
+export const getLanguageOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.general.misc.language.english'),
     value: 'en'

@@ -38,30 +38,26 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch, onMounted } from 'vue'
 import { InfoFilled, ArrowDown } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
+import type { PrefControlProps } from '../types'
 
 const { t } = useI18n()
 
-const props = defineProps({
-  description: String,
-  value: String,
-  onChange: Function,
-  more: String,
-  disable: {
-    type: Boolean,
-    default: false
-  },
-  onlyMonospace: {
-    type: Boolean,
-    default: false
-  }
+interface FontTextBoxProps extends PrefControlProps<string> {
+  onlyMonospace?: boolean
+}
+
+const props = withDefaults(defineProps<FontTextBoxProps>(), {
+  description: '',
+  more: '',
+  disable: false,
+  onlyMonospace: false
 })
 
 let defaultValue = props.value
-const fontFamilies = ref([])
+const fontFamilies = ref<string[]>([])
 const selectValue = ref(props.value)
 
 watch(
@@ -74,7 +70,7 @@ watch(
   }
 )
 
-const querySearch = (queryString, callback) => {
+const querySearch = (queryString: string, callback: (items: string[]) => void) => {
   const results =
     queryString && defaultValue !== queryString
       ? fontFamilies.value.filter((f) => f.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
@@ -82,7 +78,8 @@ const querySearch = (queryString, callback) => {
   callback(results)
 }
 
-const handleSelect = (value) => {
+const handleSelect = (selection: { value?: string } | string) => {
+  const value = typeof selection === 'string' ? selection : (selection?.value ?? '')
   if (/^[^\s]+((-|\s)*[^\s])*$/.test(value)) {
     selectValue.value = value
     props.onChange(value)

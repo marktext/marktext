@@ -1,15 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-// FOLLOWUP: This 1729-line Pinia store is the heart of the editor — converting
-// it to typed Setup Store carries cross-call-site risk too high for the
-// migration PR. Disabled per-file type checking here so the migration lands
-// with editor.js semantics byte-identical; a follow-up PR types this file +
-// rewrites as Setup Store and refactors `currentFile: {}` → `IFileState | null`
-// (see docs/dev/TYPESCRIPT.md once it lands).
 import equal from 'deep-equal'
 import bus from '../bus'
-import { hasKeys, getUniqueId, deepClone } from '../util'
-import listToTree from '../util/listToTree'
+import { getUniqueId, deepClone } from '../util'
+import listToTree, { type ListItem, type TreeNode } from '../util/listToTree'
 import {
   createDocumentState,
   getOptionsFromState,
@@ -28,14 +20,122 @@ import { usePreferencesStore } from './preferences'
 import { useProjectStore } from './project'
 import { useLayoutStore } from './layout'
 import { useMainStore } from '.'
-import { i18n } from '../i18n'
+import { t } from '../i18n'
 import { debouncedSendBufferedState, sendBufferedState } from './bufferedState'
+import type {
+  IFileState,
+  FileNotification,
+  LineEnding,
+  MarkdownDocument,
+  TabOptions
+} from '@shared/types/files'
 
-const autoSaveTimers = new Map()
+// ----------------------------------------------------------------------------
+// Local helper types
+// ----------------------------------------------------------------------------
+
+interface TocItem extends ListItem {
+  slug?: string
+  githubSlug?: string
+  content?: string
+  lvl: number | null
+}
+
+type TocTreeNode = TreeNode<TocItem>
+
+interface RestoreWarning {
+  tabId?: string | null
+  pathname?: string
+  msg: string
+  showConfirm?: boolean
+  style?: string
+  exclusiveType?: string
+}
+
+interface PushTabNotificationPayload {
+  tabId: string
+  msg: string
+  showConfirm?: boolean
+  style?: string
+  exclusiveType?: string
+  action?: FileNotification['action']
+}
+
+interface FileChangePayload {
+  pathname: string
+  data: {
+    isMixedLineEndings?: boolean
+    lineEnding?: LineEnding | string
+    adjustLineEndingOnSave?: boolean
+    trimTrailingNewline?: number
+    encoding?: IFileState['encoding']
+    markdown: string
+    filename: string
+  }
+}
+
+interface FormatLinkClickPayload {
+  data: { href: string; [key: string]: unknown }
+  dirname: string
+}
+
+interface ExportPayload {
+  type: string
+  content?: string
+  pageOptions?: unknown
+}
+
+interface AutoSavePayload {
+  id: string
+  filename: string
+  pathname: string
+  markdown: string
+  options: ReturnType<typeof getOptionsFromState>
+}
+
+interface ContentChangePayload {
+  id: string
+  markdown: string
+  wordCount?: IFileState['wordCount']
+  cursor?: unknown
+  muyaIndexCursor?: unknown
+  history?: IFileState['history']
+  toc?: TocItem[]
+  blocks?: unknown
+}
+
+interface SelectionChange {
+  start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
+  end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
+  affiliation?: Array<{ type: string; functionType?: string; [key: string]: unknown }>
+}
+
+interface SelectionFormat {
+  type: string
+  [key: string]: unknown
+}
+
+interface ProjectStoreLike {
+  projectTree: { pathname?: string } | null
+}
+
+// ----------------------------------------------------------------------------
+// State shape
+// ----------------------------------------------------------------------------
+
+export interface EditorState {
+  currentFile: IFileState | null
+  tabs: IFileState[]
+  tabIdToIndex: Record<string, number>
+  listToc: TocItem[]
+  toc: TocTreeNode[]
+}
+
+const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 export const useEditorStore = defineStore('editor', {
-  state: () => ({
-    currentFile: {},
+  state: (): EditorState => ({
+    currentFile: null,
     tabs: [],
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
@@ -43,58 +143,62 @@ export const useEditorStore = defineStore('editor', {
   }),
 
   actions: {
-    updateTabIdToIndex() {
-      this.tabIdToIndex = this.tabs.reduce((map, tab, index) => {
+    updateTabIdToIndex(): void {
+      this.tabIdToIndex = this.tabs.reduce<Record<string, number>>((map, tab, index) => {
         map[tab.id] = index
         return map
       }, {})
     },
 
-    CREATE_BUFFERED_STATE() {
+    CREATE_BUFFERED_STATE(): ReturnType<typeof createBufferedEditorState> {
       return createBufferedEditorState(this.$state)
     },
 
-    RESTORE_BUFFERED_STATE(state) {
-      const bufferedEditorState = createBufferedEditorState(state?.editor || state)
+    RESTORE_BUFFERED_STATE(state: unknown): void {
+      const rawState = state as { editor?: unknown; project?: unknown; layout?: unknown } | null
+      const editorInput = rawState?.editor ?? state
+      const bufferedEditorState = createBufferedEditorState(editorInput)
       if (!bufferedEditorState) {
         console.error('RESTORE_BUFFERED_STATE: Invalid editor buffer state.')
         return
       }
 
-      const oldIdToNewId = {}
-      const tabs = bufferedEditorState.tabs.map((tab) => {
-        const fileState = createDocumentState(tab)
-
+      const oldIdToNewId: Record<string, string> = {}
+      const tabs: IFileState[] = bufferedEditorState.tabs.map((tab) => {
+        const fileState = createDocumentState(tab as unknown as Record<string, unknown>)
         oldIdToNewId[tab.id] = fileState.id
-
         return fileState
       })
 
-      const currentFileId = oldIdToNewId[bufferedEditorState.currentFileId]
-      const currentFile = tabs.find((tab) => tab.id === currentFileId) ?? {}
+      const currentFileId = bufferedEditorState.currentFileId
+        ? oldIdToNewId[bufferedEditorState.currentFileId]
+        : undefined
+      const currentFile: IFileState | null = tabs.find((tab) => tab.id === currentFileId) ?? null
 
       const projectStore = useProjectStore()
       const layoutStore = useLayoutStore()
 
-      projectStore.RESTORE_BUFFERED_STATE(state?.project)
-      layoutStore.RESTORE_BUFFERED_STATE(state?.layout)
-      this.$patch((state) => {
-        state.tabs = tabs
-        state.currentFile = currentFile
-        state.tabIdToIndex = {}
-        state.listToc = []
-        state.toc = []
+      projectStore.RESTORE_BUFFERED_STATE(rawState?.project)
+      layoutStore.RESTORE_BUFFERED_STATE(rawState?.layout)
+      this.$patch((s) => {
+        s.tabs = tabs
+        s.currentFile = currentFile
+        s.tabIdToIndex = {}
+        s.listToc = []
+        s.toc = []
       })
 
       this.updateTabIdToIndex()
-      window.DIRNAME = currentFile.pathname ? window.path.dirname(currentFile.pathname) : ''
+      window.DIRNAME = currentFile?.pathname ? window.path.dirname(currentFile.pathname) : ''
       this.UPDATE_LINE_ENDING_MENU()
 
       for (const warning of bufferedEditorState.restoreWarnings) {
         const restoredTabId = warning.tabId ? oldIdToNewId[warning.tabId] : null
         const tab = restoredTabId
           ? this.tabs.find((t) => t.id === restoredTabId)
-          : this.tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, warning.pathname))
+          : this.tabs.find((t) =>
+            window.fileUtils.isSamePathSync(t.pathname, warning.pathname ?? '')
+          )
 
         if (!tab) continue
 
@@ -110,42 +214,45 @@ export const useEditorStore = defineStore('editor', {
 
     /**
      * Copies the specified heading's github-slug to the clipboard.
-     * @param {string} id The heading-id to copy.
+     * @param key The heading-id to copy.
      */
-    copyGithubSlug(key) {
+    copyGithubSlug(key: string): void {
       const item = this.listToc.find((i) => i.slug === key)
 
       if (item) {
         window.electron.clipboard.writeText(`#${item.githubSlug}`)
         notice.notify({
-          title: i18n.global.t('store.editor.anchorLinkCopied'),
+          title: t('store.editor.anchorLinkCopied'),
           type: 'primary',
           time: 2000,
           showConfirm: false
         })
       } else {
-        console.warn(i18n.global.t('store.editor.tocItemNotFound', { key }))
+        console.warn(t('store.editor.tocItemNotFound', { key }))
       }
     },
 
     /**
      * Update scroll position for the currentFile
      */
-    updateScrollPosition(id, scrollTop) {
+    updateScrollPosition(id: string, scrollTop: number): void {
       if (!(id in this.tabIdToIndex)) {
         console.warn('updateScrollPosition: Cannot find tab index for id:', id)
         return
       }
 
-      this.tabs[this.tabIdToIndex[id]].scrollTop = scrollTop
+      const tab = this.tabs[this.tabIdToIndex[id]]
+      if (tab) {
+        tab.scrollTop = scrollTop
+      }
       debouncedSendBufferedState()
     },
 
     /**
      * Push a tab specific notification on stack that never disappears.
      */
-    pushTabNotification(data) {
-      const defaultAction = () => {}
+    pushTabNotification(data: PushTabNotificationPayload): void {
+      const defaultAction: FileNotification['action'] = () => {}
       const { tabId, msg } = data
       const action = data.action || defaultAction
       const showConfirm = data.showConfirm || false
@@ -155,7 +262,7 @@ export const useEditorStore = defineStore('editor', {
 
       const tab = this.tabs.find((t) => t.id === tabId)
       if (!tab) {
-        console.error(i18n.global.t('store.editor.tabNotFound'))
+        console.error(t('store.editor.tabNotFound'))
         return
       }
 
@@ -180,7 +287,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    loadChange(change) {
+    loadChange(change: FileChangePayload): void {
       const { tabs, currentFile } = this
       const { data, pathname } = change
       const {
@@ -208,8 +315,8 @@ export const useEditorStore = defineStore('editor', {
         // The tab may be closed in the meanwhile.
         console.error('loadChange: Cannot find tab in tab list.')
         notice.notify({
-          title: i18n.global.t('store.editor.errorLoadingTabTitle'),
-          message: i18n.global.t('store.editor.errorLoadingTabMessage'),
+          title: t('store.editor.errorLoadingTabTitle'),
+          message: t('store.editor.errorLoadingTabMessage'),
           type: 'error',
           time: 20000,
           showConfirm: false
@@ -222,12 +329,16 @@ export const useEditorStore = defineStore('editor', {
       const oldNotifications = tab.notifications
       // Preserve scroll across external reload so the editor stays put.
       const oldScrollTop = tab.scrollTop
-      let oldHistory = null
-      if (tab.history.index >= 0 && tab.history.stack.length >= 1) {
-        // Allow to restore the old document.
-        oldHistory = {
-          stack: [tab.history.stack[tab.history.index]],
-          index: 0
+      let oldHistory: IFileState['history'] | null = null
+      const histIndex = tab.history.index
+      if (histIndex >= 0 && tab.history.stack.length >= 1) {
+        const entry = tab.history.stack[histIndex]
+        if (entry) {
+          // Allow to restore the old document.
+          oldHistory = {
+            stack: [entry],
+            index: 0
+          }
         }
 
         // Free reference from array
@@ -244,10 +355,10 @@ export const useEditorStore = defineStore('editor', {
         tab.history = oldHistory
       }
 
-      if (isMixedLineEndings) {
+      if (isMixedLineEndings && typeof lineEnding === 'string') {
         this.pushTabNotification({
           tabId: tab.id,
-          msg: i18n.global.t('store.editor.mixedLineEndingsNormalized', {
+          msg: t('store.editor.mixedLineEndingsNormalized', {
             name: filename,
             lineEnding: lineEnding.toUpperCase()
           }),
@@ -258,7 +369,7 @@ export const useEditorStore = defineStore('editor', {
       }
 
       // Reload the editor if the tab is currently opened.
-      if (pathname === currentFile.pathname) {
+      if (currentFile && pathname === currentFile.pathname) {
         // save current state first
         this.currentFile = tab
         const { id, cursor, history, scrollTop, muyaIndexCursor } = tab // Should not use blocks history as this is loaded from disk
@@ -275,7 +386,7 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    FORMAT_LINK_CLICK({ data, dirname }) {
+    FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
 
       if (data.href.length > 0 && data.href[0] === '#') {
@@ -297,24 +408,30 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.send('mt::format-link-click', { data, dirname })
     },
 
-    LISTEN_SCREEN_SHOT() {
+    LISTEN_SCREEN_SHOT(): void {
       window.electron.ipcRenderer.on('mt::screenshot-captured', () => {
         bus.emit('screenshot-captured')
       })
     },
 
     // image path auto complement
-    ASK_FOR_IMAGE_AUTO_PATH(src) {
+    ASK_FOR_IMAGE_AUTO_PATH(src: string): Promise<string[]> {
+      if (!this.currentFile) return Promise.resolve([])
       const { pathname } = this.currentFile
       if (pathname) {
-        let rs
-        const promise = new Promise((resolve) => {
+        let rs: (value: string[]) => void = () => {}
+        const promise = new Promise<string[]>((resolve) => {
           rs = resolve
         })
         const id = getUniqueId()
-        window.electron.ipcRenderer.once(`mt::response-of-image-path-${id}`, (_, files) => {
-          rs(files)
-        })
+        // Dynamic IPC channel — not part of the static IpcMainEventChannels contract.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window.electron.ipcRenderer.once as any)(
+          `mt::response-of-image-path-${id}`,
+          (_: unknown, files: string[]) => {
+            rs(files)
+          }
+        )
         window.electron.ipcRenderer.send('mt::ask-for-image-auto-path', {
           pathname,
           src,
@@ -327,15 +444,16 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    SEARCH(value) {
+    SEARCH(value: IFileState['searchMatches']): void {
+      if (!this.currentFile) return
       this.currentFile.searchMatches = JSON.parse(JSON.stringify(value)) // deep clone to trigger state changes
     },
 
-    SHOW_IMAGE_DELETION_URL(deletionUrl) {
+    SHOW_IMAGE_DELETION_URL(deletionUrl: string): void {
       notice
         .notify({
-          title: i18n.global.t('store.editor.imageDeletionUrlTitle'),
-          message: i18n.global.t('store.editor.imageDeletionUrlMessage', { url: deletionUrl }),
+          title: t('store.editor.imageDeletionUrlTitle'),
+          message: t('store.editor.imageDeletionUrlMessage', { url: deletionUrl }),
           showConfirm: true,
           time: 20000
         })
@@ -345,15 +463,21 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // We need to update line endings menu when changing tabs.
-    UPDATE_LINE_ENDING_MENU() {
+    UPDATE_LINE_ENDING_MENU(): void {
+      if (!this.currentFile) return
       const { lineEnding } = this.currentFile
       if (lineEnding) {
-        const { windowId } = window.marktext.env
-        window.electron.ipcRenderer.send('mt::update-line-ending-menu', windowId, lineEnding)
+        const { windowId } = window.marktext?.env ?? { windowId: -1 }
+        window.electron.ipcRenderer.send(
+          'mt::update-line-ending-menu',
+          windowId,
+          lineEnding as LineEnding
+        )
       }
     },
 
-    FILE_SAVE() {
+    FILE_SAVE(): void {
+      if (!this.currentFile) return
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -372,7 +496,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // need pass some data to main process when `save` menu item clicked
-    LISTEN_FOR_SAVE() {
+    LISTEN_FOR_SAVE(): void {
       window.electron.ipcRenderer.on('mt::editor-ask-file-save', () => {
         this.FILE_SAVE()
       })
@@ -381,7 +505,8 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    FILE_SAVE_AS() {
+    FILE_SAVE_AS(): void {
+      if (!this.currentFile) return
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -401,7 +526,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // need pass some data to main process when `save as` menu item clicked
-    LISTEN_FOR_SAVE_AS() {
+    LISTEN_FOR_SAVE_AS(): void {
       window.electron.ipcRenderer.on('mt::editor-ask-file-save-as', () => {
         this.FILE_SAVE_AS()
       })
@@ -410,7 +535,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_SET_PATHNAME() {
+    LISTEN_FOR_SET_PATHNAME(): void {
       window.electron.ipcRenderer.on('mt::set-pathname', (_, fileInfo) => {
         const { tabs } = this
         const { pathname, id } = fileInfo
@@ -431,7 +556,7 @@ export const useEditorStore = defineStore('editor', {
 
         // SET_PATHNAME
         const { filename } = fileInfo
-        if (id === this.currentFile.id && pathname) {
+        if (id === this.currentFile?.id && pathname) {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
@@ -443,11 +568,16 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.on('mt::tab-saved', (_, tabId) => {
         const tab = this.tabs.find((f) => f.id === tabId)
         if (tab) {
+          const lastEditIndex = tab.history.lastEditIndex
           if (
-            tab.history.lastEditIndex >= 0 &&
-            tab.history.lastEditIndex < tab.history.stack.length
+            typeof lastEditIndex === 'number' &&
+            lastEditIndex >= 0 &&
+            lastEditIndex < tab.history.stack.length
           ) {
-            tab.lastSavedHistoryId = tab.history.stack[tab.history.lastEditIndex].id
+            const entry = tab.history.stack[lastEditIndex]
+            if (entry && typeof entry.id === 'number') {
+              tab.lastSavedHistoryId = entry.id
+            }
           }
           tab.isSaved = true
           debouncedSendBufferedState()
@@ -458,7 +588,7 @@ export const useEditorStore = defineStore('editor', {
         const tab = this.tabs.find((t) => t.id === tabId)
         if (!tab) {
           notice.notify({
-            title: i18n.global.t('dialog.saveFailure'),
+            title: t('dialog.saveFailure'),
             message: msg,
             type: 'error',
             time: 20000,
@@ -470,14 +600,14 @@ export const useEditorStore = defineStore('editor', {
         tab.isSaved = false
         this.pushTabNotification({
           tabId,
-          msg: i18n.global.t('store.editor.errorWhileSaving', { msg }),
+          msg: t('store.editor.errorWhileSaving', { msg }),
           style: 'crit'
         })
         debouncedSendBufferedState()
       })
     },
 
-    LISTEN_FOR_CLOSE() {
+    LISTEN_FOR_CLOSE(): void {
       const projectStore = useProjectStore()
       const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::ask-for-close', () => {
@@ -511,7 +641,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_SAVE_CLOSE() {
+    LISTEN_FOR_SAVE_CLOSE(): void {
       window.electron.ipcRenderer.on('mt::force-close-tabs-by-id', (_, tabIdList) => {
         if (Array.isArray(tabIdList) && tabIdList.length) {
           this.CLOSE_TABS(tabIdList)
@@ -519,7 +649,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    ASK_FOR_SAVE_ALL(closeTabs) {
+    ASK_FOR_SAVE_ALL(closeTabs: boolean): void {
       const { tabs } = this
       const projectStore = useProjectStore()
       const unsavedFiles = tabs
@@ -549,7 +679,8 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    MOVE_FILE_TO() {
+    MOVE_FILE_TO(): void {
+      if (!this.currentFile) return
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -572,7 +703,7 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    LISTEN_FOR_MOVE_TO() {
+    LISTEN_FOR_MOVE_TO(): void {
       window.electron.ipcRenderer.on('mt::editor-move-file', () => {
         this.MOVE_FILE_TO()
       })
@@ -581,7 +712,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_RENAME() {
+    LISTEN_FOR_RENAME(): void {
       window.electron.ipcRenderer.on('mt::editor-rename-file', () => {
         this.RESPONSE_FOR_RENAME()
       })
@@ -590,7 +721,8 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    RESPONSE_FOR_RENAME() {
+    RESPONSE_FOR_RENAME(): void {
+      if (!this.currentFile) return
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -613,7 +745,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // ask for main process to rename this file to a new name `newFilename`
-    RENAME(newFilename) {
+    RENAME(newFilename: string): void {
+      if (!this.currentFile) return
       const { id, pathname, filename } = this.currentFile
       if (typeof filename === 'string' && filename !== newFilename) {
         const newPathname = window.path.join(window.path.dirname(pathname), newFilename)
@@ -626,10 +759,30 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    UPDATE_CURRENT_FILE(currentFile) {
+    /**
+     * Update the pathname/filename of any tab whose pathname matches `src`.
+     * Invoked from the sidebar rename flow (project.ts:RENAME_IN_SIDEBAR).
+     */
+    RENAME_IF_NEEDED({ src, dest }: { src: string; dest: string }): void {
+      this.tabs.forEach((tab) => {
+        if (tab.pathname === src) {
+          tab.pathname = dest
+          tab.filename = window.path.basename(dest)
+        }
+      })
+      // Keep DIRNAME in sync when the active tab is the one being renamed,
+      // so link resolution / dirname-based lookups don't keep using the old
+      // folder until the user switches tabs.
+      if (this.currentFile != null && this.currentFile.pathname === dest) {
+        window.DIRNAME = window.path.dirname(dest)
+      }
+      debouncedSendBufferedState()
+    },
+
+    UPDATE_CURRENT_FILE(currentFile: IFileState): void {
       const oldCurrentFile = this.currentFile
       let didUpdateCurrentFile = false
-      if (!oldCurrentFile.id || oldCurrentFile.id !== currentFile.id) {
+      if (oldCurrentFile == null || oldCurrentFile.id !== currentFile.id) {
         const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
           currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
@@ -660,7 +813,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // This events are only used during window creation.
-    LISTEN_FOR_BOOTSTRAP_WINDOW() {
+    LISTEN_FOR_BOOTSTRAP_WINDOW(): void {
       const preferencesStore = usePreferencesStore()
       const layoutStore = useLayoutStore()
       const projectStore = useProjectStore()
@@ -714,8 +867,11 @@ export const useEditorStore = defineStore('editor', {
           this.NEW_UNTITLED_TAB({ selected: true })
         } else if (markdownList.length) {
           let isFirst = true
-          for (const markdown of markdownList) {
-            this.NEW_UNTITLED_TAB({ markdown, selected: isFirst })
+          for (const md of markdownList) {
+            this.NEW_UNTITLED_TAB({
+              markdown: md,
+              selected: isFirst
+            })
             isFirst = false
           }
         }
@@ -723,7 +879,7 @@ export const useEditorStore = defineStore('editor', {
     },
 
     // Open a new tab, optionally with content.
-    LISTEN_FOR_NEW_TAB() {
+    LISTEN_FOR_NEW_TAB(): void {
       window.electron.ipcRenderer.on(
         'mt::open-new-tab',
         (_, markdownDocument, options = {}, selected = true) => {
@@ -744,25 +900,25 @@ export const useEditorStore = defineStore('editor', {
           this.NEW_UNTITLED_TAB({ markdown, selected })
         }
       )
-      bus.on('mt::new-untitled-tab', ({ selected = true, markdown = '' }) => {
+      bus.on('mt::new-untitled-tab', (payload) => {
+        const { selected = true, markdown = '' } =
+          (payload as { selected?: boolean; markdown?: string } | undefined) ?? {}
         this.NEW_UNTITLED_TAB({ markdown, selected })
       })
     },
 
-    CLOSE_TAB(file = null) {
-      if (!file) {
-        file = this.currentFile
-      }
-      if (!hasKeys(file)) return
+    CLOSE_TAB(file: IFileState | null = null): void {
+      const target = file ?? this.currentFile
+      if (target === null) return
 
-      if (file.isSaved) {
-        this.FORCE_CLOSE_TAB(file)
+      if (target.isSaved) {
+        this.FORCE_CLOSE_TAB(target)
       } else {
-        this.CLOSE_UNSAVED_TAB(file)
+        this.CLOSE_UNSAVED_TAB(target)
       }
     },
 
-    LISTEN_FOR_CLOSE_TAB() {
+    LISTEN_FOR_CLOSE_TAB(): void {
       window.electron.ipcRenderer.on('mt::editor-close-tab', () => {
         this.CLOSE_TAB()
       })
@@ -771,7 +927,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_TAB_CYCLE() {
+    LISTEN_FOR_TAB_CYCLE(): void {
       window.electron.ipcRenderer.on('mt::tabs-cycle-left', () => {
         this.CYCLE_TABS(false)
       })
@@ -786,7 +942,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_SWITCH_TABS() {
+    LISTEN_FOR_SWITCH_TABS(): void {
       window.electron.ipcRenderer.on('mt::switch-tab-by-index', (_, index) => {
         this.SWITCH_TAB_BY_INDEX(index)
       })
@@ -795,7 +951,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    FORCE_CLOSE_TAB(file) {
+    FORCE_CLOSE_TAB(file: IFileState): void {
       const { tabs, currentFile } = this
       const index = tabs.findIndex((t) => t.id === file.id)
       if (index > -1) {
@@ -805,16 +961,17 @@ export const useEditorStore = defineStore('editor', {
 
       if (file.id && autoSaveTimers.has(file.id)) {
         const timer = autoSaveTimers.get(file.id)
-        clearTimeout(timer)
+        if (timer) clearTimeout(timer)
         autoSaveTimers.delete(file.id)
       }
 
       this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
 
-      if (file.id === currentFile.id) {
-        const fileState = this.tabs[index] || this.tabs[index - 1] || this.tabs[0] || {}
+      if (currentFile && file.id === currentFile.id) {
+        const fileState: IFileState | null =
+          this.tabs[index] ?? this.tabs[index - 1] ?? this.tabs[0] ?? null
         this.currentFile = fileState
-        if (typeof fileState.markdown === 'string') {
+        if (fileState && typeof fileState.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
             fileState
           window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
@@ -845,7 +1002,7 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    CLOSE_UNSAVED_TAB(file) {
+    CLOSE_UNSAVED_TAB(file: IFileState): void {
       const { id, pathname, filename, markdown } = file
       const options = getOptionsFromState(file)
       window.electron.ipcRenderer.send('mt::save-and-close-tabs', [
@@ -853,7 +1010,7 @@ export const useEditorStore = defineStore('editor', {
       ])
     },
 
-    CLOSE_OTHER_TABS(file) {
+    CLOSE_OTHER_TABS(file: IFileState): void {
       this.tabs
         .filter((f) => f.id !== file.id)
         .forEach((tab) => {
@@ -861,7 +1018,7 @@ export const useEditorStore = defineStore('editor', {
         })
     },
 
-    CLOSE_SAVED_TABS() {
+    CLOSE_SAVED_TABS(): void {
       this.tabs
         .filter((f) => f.isSaved)
         .forEach((tab) => {
@@ -869,13 +1026,13 @@ export const useEditorStore = defineStore('editor', {
         })
     },
 
-    CLOSE_ALL_TABS() {
+    CLOSE_ALL_TABS(): void {
       this.tabs.slice().forEach((tab) => {
         this.CLOSE_TAB(tab)
       })
     },
 
-    CLOSE_TABS(tabIdList) {
+    CLOSE_TABS(tabIdList: string[]): void {
       if (!tabIdList || tabIdList.length === 0) return
 
       let tabIndex = 0
@@ -883,15 +1040,16 @@ export const useEditorStore = defineStore('editor', {
         const index = this.tabs.findIndex((f) => f.id === id)
         if (index === -1) return
 
-        const { pathname } = this.tabs[index]
+        const closed = this.tabs[index]
+        const { pathname } = closed ?? { pathname: '' }
 
         if (pathname) {
           window.electron.ipcRenderer.send('mt::window-tab-closed', pathname)
         }
 
         this.tabs.splice(index, 1)
-        if (this.currentFile.id === id) {
-          this.currentFile = {}
+        if (this.currentFile?.id === id) {
+          this.currentFile = null
           window.DIRNAME = ''
           if (tabIdList.length === 1) {
             tabIndex = index
@@ -901,9 +1059,10 @@ export const useEditorStore = defineStore('editor', {
 
       this.updateTabIdToIndex() // Update before sending it out to prevent stale mappings.
 
-      if (!this.currentFile.id && this.tabs.length > 0) {
-        this.currentFile = this.tabs[tabIndex] || this.tabs[tabIndex - 1] || this.tabs[0] || {}
-        if (typeof this.currentFile.markdown === 'string') {
+      if (this.currentFile == null && this.tabs.length > 0) {
+        this.currentFile =
+          this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
+        if (this.currentFile && typeof this.currentFile.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
             this.currentFile
           window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
@@ -927,16 +1086,16 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    EXCHANGE_TABS_BY_ID(tabIDs) {
+    EXCHANGE_TABS_BY_ID(tabIDs: { fromId: string; toId: string | null }): void {
       const { fromId, toId } = tabIDs
       const { tabs } = this
-      const moveItem = (arr, from, to) => {
+      const moveItem = <T>(arr: T[], from: number, to: number): boolean => {
         if (from === to) return true
         const len = arr.length
         const item = arr.splice(from, 1)
         if (item.length === 0) return false
 
-        arr.splice(to, 0, item[0])
+        arr.splice(to, 0, item[0]!)
         return arr.length === len
       }
 
@@ -955,19 +1114,19 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    RENAME_FILE(file) {
+    RENAME_FILE(file: IFileState): void {
       this.UPDATE_CURRENT_FILE(file)
       bus.emit('rename')
     },
 
     // Direction is a boolean where false is left and true right.
-    CYCLE_TABS(direction) {
+    CYCLE_TABS(direction: boolean): void {
       const { tabs, currentFile } = this
       if (tabs.length <= 1) {
         return
       }
 
-      const currentIndex = tabs.findIndex((t) => t.id === currentFile.id)
+      const currentIndex = tabs.findIndex((t) => t.id === currentFile?.id)
       if (currentIndex === -1) {
         console.error('CYCLE_TABS: Cannot find current tab index.')
         return
@@ -991,7 +1150,7 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
-    SWITCH_TAB_BY_FILEPATH(filePath) {
+    SWITCH_TAB_BY_FILEPATH(filePath: string): void {
       const { tabs } = this
 
       if (!filePath) {
@@ -1004,17 +1163,18 @@ export const useEditorStore = defineStore('editor', {
         console.error('Cannot find tab with pathname:', filePath)
         return
       }
-      this.UPDATE_CURRENT_FILE(tabs[nextTabIndex])
+      const next = tabs[nextTabIndex]
+      if (next) this.UPDATE_CURRENT_FILE(next)
     },
 
-    SWITCH_TAB_BY_INDEX(nextTabIndex) {
+    SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
       const { tabs, currentFile } = this
       if (nextTabIndex < 0 || nextTabIndex >= tabs.length) {
         console.warn('Invalid tab index:', nextTabIndex)
         return
       }
 
-      const currentIndex = tabs.findIndex((t) => t.id === currentFile.id)
+      const currentIndex = tabs.findIndex((t) => t.id === currentFile?.id)
       if (currentIndex === -1) {
         console.error('Cannot find current tab index.')
         return
@@ -1029,13 +1189,12 @@ export const useEditorStore = defineStore('editor', {
     },
 
     /**
-     * Create a new untitled tab optional from a markdown string.
-     *
-     * @param {*} _ The store context - not used.
-     * @param {{markdown?: string, selected?: boolean}} obj Optional markdown string
-     * and whether the tab should become the selected tab (true if not set).
+     * Create a new untitled tab, optionally seeded with markdown content.
      */
-    NEW_UNTITLED_TAB({ markdown: markdownString, selected }) {
+    NEW_UNTITLED_TAB({
+      markdown: markdownString,
+      selected
+    }: { markdown?: string; selected?: boolean }): void {
       if (selected == null) {
         selected = true
       }
@@ -1044,7 +1203,12 @@ export const useEditorStore = defineStore('editor', {
 
       const preferencesStore = usePreferencesStore()
       const { defaultEncoding, endOfLine } = preferencesStore
-      const fileState = getBlankFileState(this.tabs, defaultEncoding, endOfLine, markdownString)
+      const fileState = getBlankFileState(
+        this.tabs,
+        defaultEncoding,
+        endOfLine,
+        markdownString ?? null
+      )
 
       if (selected) {
         const { id, markdown } = fileState
@@ -1059,12 +1223,16 @@ export const useEditorStore = defineStore('editor', {
 
     /**
      * Create a new tab from the given markdown document.
-     *
-     * @param {*} _ The store context - not used.
-     * @param {{markdownDocument: IMarkdownDocumentRaw, selected?: boolean}} obj The markdown document
-     * and optional whether the tab should become the selected tab (true if not set).
      */
-    NEW_TAB_WITH_CONTENT({ markdownDocument, options = {}, selected }) {
+    NEW_TAB_WITH_CONTENT({
+      markdownDocument,
+      options = {},
+      selected
+    }: {
+      markdownDocument: MarkdownDocument | null | undefined
+      options?: TabOptions
+      selected?: boolean
+    }): void {
       if (!markdownDocument) {
         console.warn('Cannot create a file tab without a markdown document!')
         this.NEW_UNTITLED_TAB({})
@@ -1077,7 +1245,9 @@ export const useEditorStore = defineStore('editor', {
 
       const { currentFile, tabs } = this
       const { pathname } = markdownDocument
-      const existingTab = tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
+      const existingTab = tabs.find((t) =>
+        window.fileUtils.isSamePathSync(t.pathname, pathname ?? '')
+      )
       if (existingTab) {
         this.UPDATE_CURRENT_FILE(existingTab)
         return
@@ -1085,8 +1255,8 @@ export const useEditorStore = defineStore('editor', {
 
       let keepTabBarState = false
       if (currentFile) {
-        const { isSaved, pathname } = currentFile
-        if (isSaved && !pathname) {
+        const { isSaved, pathname: cfPath } = currentFile
+        if (isSaved && !cfPath) {
           keepTabBarState = true
           this.FORCE_CLOSE_TAB(currentFile)
         }
@@ -1097,7 +1267,13 @@ export const useEditorStore = defineStore('editor', {
       }
 
       const { markdown, isMixedLineEndings } = markdownDocument
-      const docState = createDocumentState(Object.assign(markdownDocument, options))
+      const docState = createDocumentState(
+        Object.assign(
+          {},
+          markdownDocument as unknown as Record<string, unknown>,
+          options as Record<string, unknown>
+        )
+      )
       const { id, cursor } = docState
 
       if (selected) {
@@ -1111,17 +1287,19 @@ export const useEditorStore = defineStore('editor', {
 
       if (isMixedLineEndings) {
         const { filename, lineEnding } = markdownDocument
-        this.pushTabNotification({
-          tabId: id,
-          msg: i18n.global.t('store.editor.mixedLineEndingsNormalized', {
-            name: filename,
-            lineEnding: lineEnding.toUpperCase()
+        if (typeof lineEnding === 'string') {
+          this.pushTabNotification({
+            tabId: id,
+            msg: t('store.editor.mixedLineEndingsNormalized', {
+              name: filename,
+              lineEnding: lineEnding.toUpperCase()
+            })
           })
-        })
+        }
       }
     },
 
-    SHOW_TAB_VIEW(always) {
+    SHOW_TAB_VIEW(always: boolean): void {
       const { tabs } = this
       const layoutStore = useLayoutStore()
       if (always || tabs.length === 1) {
@@ -1130,7 +1308,7 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    SET_SAVE_STATUS_WHEN_REMOVE({ pathname }) {
+    SET_SAVE_STATUS_WHEN_REMOVE({ pathname }: { pathname: string }): void {
       let didUpdateSaveStatus = false
       this.tabs.forEach((f) => {
         if (f.pathname === pathname) {
@@ -1154,7 +1332,7 @@ export const useEditorStore = defineStore('editor', {
       history,
       toc,
       blocks
-    }) {
+    }: ContentChangePayload): void {
       const preferencesStore = usePreferencesStore()
       const { autoSave } = preferencesStore
       if (!id) {
@@ -1167,7 +1345,8 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      const tab = this.tabs[this.tabIdToIndex[id]]
+      const tab = this.tabs[this.tabIdToIndex[id]!]
+      if (!tab) return
 
       const { filename, pathname, markdown: oldMarkdown, trimTrailingNewline } = tab
 
@@ -1186,15 +1365,22 @@ export const useEditorStore = defineStore('editor', {
       if (blocks) tab.blocks = blocks
 
       // Only update TOC if it's the current file
-      if (id === this.currentFile.id && toc && !equal(toc, this.listToc)) {
+      if (id === this.currentFile?.id && toc && !equal(toc, this.listToc)) {
         this.listToc = toc
-        this.toc = listToTree(toc)
+        this.toc = listToTree<TocItem>(toc)
       }
 
+      const lastEditIndex = tab.history.lastEditIndex
+      const editEntry =
+        typeof lastEditIndex === 'number' && lastEditIndex >= 0
+          ? tab.history.stack[lastEditIndex]
+          : undefined
       if (
-        (tab.history.lastEditIndex >= 0 &&
-          tab.history.stack[tab.history.lastEditIndex].id !== tab.lastSavedHistoryId) ||
-        (tab.history.lastEditIndex === -1 &&
+        (typeof lastEditIndex === 'number' &&
+          lastEditIndex >= 0 &&
+          editEntry !== undefined &&
+          editEntry.id !== tab.lastSavedHistoryId) ||
+        (lastEditIndex === -1 &&
           tab.lastSavedHistoryId !== -1 &&
           tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
       ) {
@@ -1216,7 +1402,7 @@ export const useEditorStore = defineStore('editor', {
       debouncedSendBufferedState()
     },
 
-    HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }) {
+    HANDLE_AUTO_SAVE({ id, filename, pathname, markdown, options }: AutoSavePayload): void {
       if (!id || !pathname) {
         throw new Error('HANDLE_AUTO_SAVE: Invalid tab.')
       }
@@ -1251,9 +1437,9 @@ export const useEditorStore = defineStore('editor', {
       autoSaveTimers.set(id, timer)
     },
 
-    SELECTION_CHANGE(changes) {
+    SELECTION_CHANGE(changes: SelectionChange): void {
       const { start, end } = changes
-      if (start.key === end.key && start.block.text) {
+      if (this.currentFile && start.key === end.key && start.block?.text) {
         const value = start.block.text.substring(start.offset, end.offset)
         this.currentFile.searchMatches = {
           matches: [],
@@ -1262,7 +1448,7 @@ export const useEditorStore = defineStore('editor', {
         }
       }
 
-      const { windowId } = window.marktext.env
+      const { windowId } = window.marktext?.env ?? { windowId: -1 }
       window.electron.ipcRenderer.send(
         'mt::editor-selection-changed',
         windowId,
@@ -1270,8 +1456,8 @@ export const useEditorStore = defineStore('editor', {
       )
     },
 
-    SELECTION_FORMATS(formats) {
-      const { windowId } = window.marktext.env
+    SELECTION_FORMATS(formats: SelectionFormat[]): void {
+      const { windowId } = window.marktext?.env ?? { windowId: -1 }
       window.electron.ipcRenderer.send(
         'mt::update-format-menu',
         windowId,
@@ -1279,41 +1465,43 @@ export const useEditorStore = defineStore('editor', {
       )
     },
 
-    EXPORT({ type, content, pageOptions }) {
-      if (!hasKeys(this.currentFile)) return
+    EXPORT({ type, content, pageOptions }: ExportPayload): void {
+      if (this.currentFile === null) return
 
       let title = ''
       const { listToc } = this
       if (listToc && listToc.length > 0) {
-        let headerRef = listToc[0]
+        let headerRef: TocItem | undefined = listToc[0]
         const len = Math.min(listToc.length, 6)
         for (let i = 1; i < len; ++i) {
-          if (headerRef.lvl === 1) break
+          if (headerRef?.lvl === 1) break
           const header = listToc[i]
-          if (headerRef.lvl > header.lvl) {
+          if (header && headerRef && (headerRef.lvl ?? 0) > (header.lvl ?? 0)) {
             headerRef = header
           }
         }
-        title = headerRef.content
+        title = headerRef?.content ?? ''
       }
 
       const { filename, pathname } = this.currentFile
       window.electron.ipcRenderer.send('mt::response-export', {
-        type,
+        type: type as ExportPayload['type'] as never,
         title,
-        content,
+        content: content ?? '',
         filename,
         pathname,
-        pageOptions
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pageOptions: (pageOptions ?? {}) as any
       })
     },
 
-    LINTEN_FOR_EXPORT_SUCCESS() {
-      window.electron.ipcRenderer.on('mt::export-success', (_, { filePath }) => {
+    LINTEN_FOR_EXPORT_SUCCESS(): void {
+      window.electron.ipcRenderer.on('mt::export-success', (_, payload) => {
+        const filePath = payload?.filePath ?? ''
         notice
           .notify({
-            title: i18n.global.t('store.editor.exportSuccessTitle'),
-            message: i18n.global.t('store.editor.exportSuccessMessage', {
+            title: t('store.editor.exportSuccessTitle'),
+            message: t('store.editor.exportSuccessMessage', {
               name: window.path.basename(filePath)
             }),
             showConfirm: true
@@ -1324,17 +1512,18 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    PRINT_RESPONSE() {
+    PRINT_RESPONSE(): void {
       window.electron.ipcRenderer.send('mt::response-print')
     },
 
-    LINTEN_FOR_PRINT_SERVICE_CLEARUP() {
+    LINTEN_FOR_PRINT_SERVICE_CLEARUP(): void {
       window.electron.ipcRenderer.on('mt::print-service-clearup', () => {
         bus.emit('print-service-clearup')
       })
     },
 
-    SET_LINE_ENDING(lineEnding) {
+    SET_LINE_ENDING(lineEnding: LineEnding | string): void {
+      if (!this.currentFile) return
       const { lineEnding: oldLineEnding } = this.currentFile
       if (lineEnding !== oldLineEnding) {
         this.currentFile.lineEnding = lineEnding
@@ -1345,20 +1534,21 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    LINTEN_FOR_SET_LINE_ENDING() {
+    LINTEN_FOR_SET_LINE_ENDING(): void {
       window.electron.ipcRenderer.on('mt::set-line-ending', (_, lineEnding) => {
         this.SET_LINE_ENDING(lineEnding)
       })
       bus.on('mt::set-line-ending', (lineEnding) => {
-        this.SET_LINE_ENDING(lineEnding)
+        this.SET_LINE_ENDING(lineEnding as LineEnding)
       })
     },
 
-    LINTEN_FOR_SET_ENCODING() {
+    LINTEN_FOR_SET_ENCODING(): void {
       bus.on('mt::set-file-encoding', (encodingName) => {
+        if (!this.currentFile) return
         const { encoding } = this.currentFile.encoding
         if (encoding !== encodingName) {
-          this.currentFile.encoding.encoding = encodingName
+          this.currentFile.encoding.encoding = encodingName as string
           this.currentFile.encoding.isBom = false
           this.currentFile.isSaved = true
           debouncedSendBufferedState()
@@ -1366,20 +1556,22 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_SET_FINAL_NEWLINE() {
+    LINTEN_FOR_SET_FINAL_NEWLINE(): void {
       bus.on('mt::set-final-newline', (value) => {
+        if (!this.currentFile) return
         const { trimTrailingNewline } = this.currentFile
         if (trimTrailingNewline !== value) {
-          this.currentFile.trimTrailingNewline = value
+          this.currentFile.trimTrailingNewline = value as number
           this.currentFile.isSaved = true
           debouncedSendBufferedState()
         }
       })
     },
 
-    LISTEN_FOR_FILE_CHANGE() {
+    LISTEN_FOR_FILE_CHANGE(): void {
       const preferencesStore = usePreferencesStore()
-      window.electron.ipcRenderer.on('mt::update-file', (_, { type, change }) => {
+      window.electron.ipcRenderer.on('mt::update-file', (_, payload) => {
+        const { type, change } = payload
         const { tabs } = this
         const { pathname } = change
         const tab = tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
@@ -1390,7 +1582,7 @@ export const useEditorStore = defineStore('editor', {
               tab.isSaved = false
               this.pushTabNotification({
                 tabId: id,
-                msg: i18n.global.t('store.editor.fileRemovedOnDisk', { name: filename }),
+                msg: t('store.editor.fileRemovedOnDisk', { name: filename }),
                 style: 'warn',
                 showConfirm: false,
                 exclusiveType: 'file_changed'
@@ -1404,12 +1596,12 @@ export const useEditorStore = defineStore('editor', {
               if (autoSave) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
-                  clearTimeout(timer)
+                  if (timer) clearTimeout(timer)
                   autoSaveTimers.delete(id)
                 }
 
                 if (isSaved) {
-                  this.loadChange(change)
+                  this.loadChange(change as unknown as FileChangePayload)
                   return
                 }
               }
@@ -1417,12 +1609,12 @@ export const useEditorStore = defineStore('editor', {
               tab.isSaved = false
               this.pushTabNotification({
                 tabId: id,
-                msg: i18n.global.t('store.editor.fileChangedOnDisk', { name: filename }),
+                msg: t('store.editor.fileChangedOnDisk', { name: filename }),
                 showConfirm: true,
                 exclusiveType: 'file_changed',
                 action: (status) => {
                   if (status) {
-                    this.loadChange(change)
+                    this.loadChange(change as unknown as FileChangePayload)
                   }
                 }
               })
@@ -1438,11 +1630,11 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    ASK_FOR_IMAGE_PATH() {
+    ASK_FOR_IMAGE_PATH(): Promise<string[]> {
       return window.electron.ipcRenderer.invoke('mt::ask-for-image-path')
     },
 
-    EDIT_ZOOM(zoomFactor) {
+    EDIT_ZOOM(zoomFactor: number): void {
       const preferencesStore = usePreferencesStore()
       zoomFactor = Number.parseFloat(zoomFactor.toFixed(3))
       const { zoom } = preferencesStore
@@ -1452,22 +1644,22 @@ export const useEditorStore = defineStore('editor', {
       window.electron.webFrame.setZoomFactor(zoomFactor)
     },
 
-    LISTEN_WINDOW_ZOOM() {
+    LISTEN_WINDOW_ZOOM(): void {
       window.electron.ipcRenderer.on('mt::window-zoom', (_, zoomFactor) => {
         this.EDIT_ZOOM(zoomFactor)
       })
       bus.on('mt::window-zoom', (zoomFactor) => {
-        this.EDIT_ZOOM(zoomFactor)
+        this.EDIT_ZOOM(zoomFactor as number)
       })
     },
 
-    LISTEN_FOR_RELOAD_IMAGES() {
+    LISTEN_FOR_RELOAD_IMAGES(): void {
       window.electron.ipcRenderer.on('mt::invalidate-image-cache', () => {
         bus.emit('invalidate-image-cache')
       })
     },
 
-    LISTEN_FOR_CONTEXT_MENU() {
+    LISTEN_FOR_CONTEXT_MENU(): void {
       // General context menu
       window.electron.ipcRenderer.on('mt::cm-copy-as-rich', () => {
         bus.emit('copyAsRich', 'copyAsRich')
@@ -1491,7 +1683,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LISTEN_FOR_STATE_REPLACE() {
+    LISTEN_FOR_STATE_REPLACE(): void {
       window.electron.ipcRenderer.on('mt::load-state', (_, state) => {
         this.RESTORE_BUFFERED_STATE(state)
       })
@@ -1506,10 +1698,10 @@ export const useEditorStore = defineStore('editor', {
  *
  * @param {object} projectStore The project store instance.
  */
-const getRootFolderFromState = (projectStore) => {
+const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
   const openedFolder = projectStore.projectTree
   if (openedFolder) {
-    return openedFolder.pathname
+    return openedFolder.pathname ?? ''
   }
   return ''
 }
@@ -1517,10 +1709,13 @@ const getRootFolderFromState = (projectStore) => {
 /**
  * Trim the final newlines according `trimTrailingNewlineOption`.
  *
- * @param {string} markdown The text to trim.
- * @param {*} trimTrailingNewlineOption The option how we should trim the final newlines.
+ * @param markdown The text to trim.
+ * @param trimTrailingNewlineOption The option how we should trim the final newlines.
  */
-const adjustTrailingNewlines = (markdown, trimTrailingNewlineOption) => {
+const adjustTrailingNewlines = (
+  markdown: string,
+  trimTrailingNewlineOption: number
+): string => {
   if (!markdown) {
     return ''
   }
@@ -1563,8 +1758,19 @@ const adjustTrailingNewlines = (markdown, trimTrailingNewlineOption) => {
  *
  * @param {string} text The text to trim.
  */
-const trimTrailingNewlines = (text) => {
+const trimTrailingNewlines = (text: string): string => {
   return text.replace(/[\r?\n]+$/, '')
+}
+
+interface ApplicationMenuState {
+  isDisabled: boolean
+  isMultiline: boolean
+  isLooseListItem: boolean
+  isTaskList: boolean
+  isCodeFences: boolean
+  isCodeContent: boolean
+  isTable: boolean
+  affiliation: Record<string, boolean>
 }
 
 /**
@@ -1573,8 +1779,18 @@ const trimTrailingNewlines = (text) => {
  * @param {*} selection The selection.
  * @returns A object that represents the application menu state.
  */
-const createApplicationMenuState = ({ start, end, affiliation }) => {
-  const state = {
+// Loose shapes for the application-menu selection helpers. The legacy code
+// indexes through Muya block trees that aren't typed yet; use `any` locally to
+// keep the conversion focused on the store surface.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LooseAffiliation = any
+
+const createApplicationMenuState = ({
+  start,
+  end,
+  affiliation
+}: SelectionChange): ApplicationMenuState => {
+  const state: ApplicationMenuState = {
     isDisabled: false,
     // Whether multiple lines are selected.
     isMultiline: start.key !== end.key,
@@ -1591,38 +1807,41 @@ const createApplicationMenuState = ({ start, end, affiliation }) => {
     affiliation: {}
   }
   const { isMultiline } = state
+  const aff = (affiliation ?? []) as LooseAffiliation[]
+  const startBlock = (start.block ?? {}) as LooseAffiliation
+  const endBlock = (end.block ?? {}) as LooseAffiliation
 
   // Get code block information from selection.
   if (
-    (start.block.functionType === 'cellContent' && end.block.functionType === 'cellContent') ||
-    (start.type === 'span' && start.block.functionType === 'codeContent') ||
-    (end.type === 'span' && end.block.functionType === 'codeContent')
+    (startBlock.functionType === 'cellContent' && endBlock.functionType === 'cellContent') ||
+    (start.type === 'span' && startBlock.functionType === 'codeContent') ||
+    (end.type === 'span' && endBlock.functionType === 'codeContent')
   ) {
     // A code block like block is selected (code, math, ...).
     state.isCodeFences = true
 
     // A code block line is selected.
-    if (start.block.functionType === 'codeContent' || end.block.functionType === 'codeContent') {
+    if (startBlock.functionType === 'codeContent' || endBlock.functionType === 'codeContent') {
       state.isCodeContent = true
     }
   }
 
   // Query list information.
-  if (affiliation.length >= 1 && /ul|ol/.test(affiliation[0].type)) {
-    const listBlock = affiliation[0]
+  if (aff.length >= 1 && /ul|ol/.test(aff[0].type)) {
+    const listBlock = aff[0]
     state.affiliation[listBlock.type] = true
-    state.isLooseListItem = listBlock.children[0].isLooseListItem
+    state.isLooseListItem = !!listBlock.children?.[0]?.isLooseListItem
     state.isTaskList = listBlock.listType === 'task'
-  } else if (affiliation.length >= 3 && affiliation[1].type === 'li') {
-    const listItem = affiliation[1]
+  } else if (aff.length >= 3 && aff[1].type === 'li') {
+    const listItem = aff[1]
     const listType = listItem.listItemType === 'order' ? 'ol' : 'ul'
     state.affiliation[listType] = true
-    state.isLooseListItem = listItem.isLooseListItem
+    state.isLooseListItem = !!listItem.isLooseListItem
     state.isTaskList = listItem.listItemType === 'task'
   }
 
   // Search with block depth 3 (e.g. "ul -> li -> p" where p is the actually paragraph inside the list (item)).
-  for (const b of affiliation.slice(0, 3)) {
+  for (const b of aff.slice(0, 3)) {
     if (b.type === 'pre' && b.functionType) {
       if (/frontmatter|html|multiplemath|code$/.test(b.functionType)) {
         state.isCodeFences = true
@@ -1658,12 +1877,9 @@ const createApplicationMenuState = ({ start, end, affiliation }) => {
 
 /**
  * Creates a object that contains the formats selection state.
- *
- * @param {*} formats The selection formats.
- * @returns A object that represents the formats menu state.
  */
-const createSelectionFormatState = (formats) => {
-  const state = {}
+const createSelectionFormatState = (formats: SelectionFormat[]): Record<string, boolean> => {
+  const state: Record<string, boolean> = {}
   for (const item of formats) {
     state[item.type] = true
   }
@@ -1673,18 +1889,36 @@ const createSelectionFormatState = (formats) => {
 /*
  * Convert a Pinia Proxy Object to a serializable value by applying JSON stringify and parse.
  */
-const toSerializableValue = (value, fallback = null) => {
+function toSerializableValue<T>(value: T | null | undefined, fallback: T): T
+function toSerializableValue<T>(value: T | null | undefined, fallback: null): T | null
+function toSerializableValue<T>(value: T | null | undefined, fallback: T | null = null): T | null {
   if (value == null) return fallback
 
   try {
-    return JSON.parse(JSON.stringify(value))
+    return JSON.parse(JSON.stringify(value)) as T
   } catch (err) {
     console.warn('Unable to serialize editor buffer value:', err)
     return fallback
   }
 }
 
-const createBufferedTabState = (tab) => {
+interface BufferedTabState {
+  id: string
+  pathname: string
+  filename: string
+  markdown: string
+  isSaved: boolean
+  encoding: IFileState['encoding']
+  lineEnding: IFileState['lineEnding']
+  trimTrailingNewline: number
+  adjustLineEndingOnSave: boolean
+  cursor: unknown
+  wordCount: IFileState['wordCount']
+  muyaIndexCursor: unknown
+  scrollTop: number
+}
+
+const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): BufferedTabState => {
   return {
     id: tab.id,
     pathname: tab.pathname ?? defaultFileState.pathname,
@@ -1705,7 +1939,18 @@ const createBufferedTabState = (tab) => {
   }
 }
 
-const createBufferedRestoreWarning = (warning) => {
+interface BufferedRestoreWarning {
+  tabId: string | null
+  pathname: string
+  msg: string
+  showConfirm: boolean
+  style: string
+  exclusiveType: string
+}
+
+const createBufferedRestoreWarning = (
+  warning: RestoreWarning | null | undefined
+): BufferedRestoreWarning | null => {
   if (!warning) return null
 
   const { tabId, pathname, msg, showConfirm, style, exclusiveType } = warning
@@ -1722,16 +1967,33 @@ const createBufferedRestoreWarning = (warning) => {
   }
 }
 
-const createBufferedEditorState = (state) => {
-  if (!state || !Array.isArray(state.tabs)) {
+interface BufferedEditorState {
+  currentFileId: string | null
+  tabs: BufferedTabState[]
+  restoreWarnings: BufferedRestoreWarning[]
+}
+
+const createBufferedEditorState = (state: unknown): BufferedEditorState | null => {
+  const s = state as
+    | {
+      tabs?: unknown
+      currentFileId?: string
+      currentFile?: { id?: string } | null
+      restoreWarnings?: unknown
+    }
+    | null
+    | undefined
+  if (!s || !Array.isArray(s.tabs)) {
     return null
   }
 
   return {
-    currentFileId: state.currentFileId || state.currentFile?.id || null,
-    tabs: state.tabs.map(createBufferedTabState),
-    restoreWarnings: Array.isArray(state.restoreWarnings)
-      ? state.restoreWarnings.map(createBufferedRestoreWarning).filter(Boolean)
+    currentFileId: s.currentFileId || s.currentFile?.id || null,
+    tabs: (s.tabs as Array<Partial<IFileState> & { id: string }>).map(createBufferedTabState),
+    restoreWarnings: Array.isArray(s.restoreWarnings)
+      ? (s.restoreWarnings as RestoreWarning[])
+        .map(createBufferedRestoreWarning)
+        .filter((w): w is BufferedRestoreWarning => w !== null)
       : []
   }
 }

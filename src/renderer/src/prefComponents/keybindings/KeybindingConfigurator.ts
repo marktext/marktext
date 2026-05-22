@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 import { isEqualAccelerator } from 'common/keybinding'
 import getCommandDescriptionById from '@/commands/descriptions'
 import { isOsx } from '@/util'
@@ -7,7 +5,16 @@ import { isOsx } from '@/util'
 const SHORTCUT_TYPE_DEFAULT = 0
 const SHORTCUT_TYPE_USER = 1
 
-const getShortcutDescriptionById = (id) => {
+type ShortcutType = typeof SHORTCUT_TYPE_DEFAULT | typeof SHORTCUT_TYPE_USER
+
+export interface UiKeybinding {
+  id: string
+  description: string
+  accelerator: string
+  type: ShortcutType
+}
+
+const getShortcutDescriptionById = (id: string): string => {
   const description = getCommandDescriptionById(id)
   if (!description) {
     return id
@@ -16,20 +23,24 @@ const getShortcutDescriptionById = (id) => {
 }
 
 export default class KeybindingConfigurator {
+  defaultKeybindings: Map<string, string>
+  keybindingList: UiKeybinding[]
+  isDirty: boolean
+
   /**
    * ctor
-   *
-   * @param {Map<String, String>} defaultKeybindings
-   * @param {Map<String, String>} userKeybindings
    */
-  constructor(defaultKeybindings, userKeybindings) {
+  constructor(defaultKeybindings: Map<string, string>, userKeybindings: Map<string, string>) {
     this.defaultKeybindings = defaultKeybindings
     this.keybindingList = this._buildUiKeybindingList(defaultKeybindings, userKeybindings)
     this.isDirty = false
   }
 
-  _buildUiKeybindingList(defaultKeybindings, userKeybindings) {
-    const uiKeybindings = []
+  _buildUiKeybindingList(
+    defaultKeybindings: Map<string, string>,
+    userKeybindings: Map<string, string>
+  ): UiKeybinding[] {
+    const uiKeybindings: UiKeybinding[] = []
     for (const [id] of defaultKeybindings) {
       if (!isOsx && id.startsWith('mt.')) {
         // Skip MarkText menu that is only available on macOS.
@@ -41,28 +52,32 @@ export default class KeybindingConfigurator {
     return uiKeybindings
   }
 
-  _toUiKeybinding(id, defaultKeybindings, userKeybindings) {
+  _toUiKeybinding(
+    id: string,
+    defaultKeybindings: Map<string, string>,
+    userKeybindings: Map<string, string>
+  ): UiKeybinding {
     const description = getShortcutDescriptionById(id)
     const userAccelerator = userKeybindings.get(id)
-    let type = SHORTCUT_TYPE_DEFAULT
+    let type: ShortcutType = SHORTCUT_TYPE_DEFAULT
 
     // Overwrite accelerator if key is present (empty string unset old binding).
-    let accelerator
+    let accelerator: string
     if (userAccelerator != null) {
       type = SHORTCUT_TYPE_USER
       accelerator = userAccelerator
     } else {
-      accelerator = defaultKeybindings.get(id)
+      accelerator = defaultKeybindings.get(id) ?? ''
     }
     return { id, description, accelerator, type }
   }
 
-  getKeybindings() {
+  getKeybindings(): UiKeybinding[] {
     return this.keybindingList
   }
 
   // Rebuild the keybinding list to update descriptions on language switch
-  rebuildKeybindingList() {
+  rebuildKeybindingList(): UiKeybinding[] {
     // Save the current user settings
     const userKeybindings = this._getUserKeybindingMap()
     // Rebuild the list
@@ -70,7 +85,7 @@ export default class KeybindingConfigurator {
     return this.keybindingList
   }
 
-  async save() {
+  async save(): Promise<boolean> {
     if (!this.isDirty) {
       return true
     }
@@ -87,8 +102,8 @@ export default class KeybindingConfigurator {
     return false
   }
 
-  _getUserKeybindingMap() {
-    const userKeybindings = new Map()
+  _getUserKeybindingMap(): Map<string, string> {
+    const userKeybindings = new Map<string, string>()
     for (const entry of this.keybindingList) {
       const { id, accelerator, type } = entry
       if (type !== SHORTCUT_TYPE_DEFAULT) {
@@ -98,7 +113,7 @@ export default class KeybindingConfigurator {
     return userKeybindings
   }
 
-  change(id, accelerator) {
+  change(id: string, accelerator: string): boolean {
     const entry = this.keybindingList.find((entry) => entry.id === id)
     if (!entry) {
       return false
@@ -116,11 +131,11 @@ export default class KeybindingConfigurator {
     return true
   }
 
-  unbind(id) {
+  unbind(id: string): boolean {
     return this.change(id, '')
   }
 
-  resetToDefault(id) {
+  resetToDefault(id: string): boolean {
     const accelerator = this.defaultKeybindings.get(id)
     if (accelerator == null) {
       // allow empty string
@@ -129,7 +144,7 @@ export default class KeybindingConfigurator {
     return this.change(id, accelerator)
   }
 
-  async resetAll() {
+  async resetAll(): Promise<boolean> {
     const { defaultKeybindings, keybindingList } = this
     for (const entry of keybindingList) {
       const defaultAccelerator = defaultKeybindings.get(entry.id)
@@ -144,11 +159,11 @@ export default class KeybindingConfigurator {
     return this.save()
   }
 
-  getDefaultAccelerator(id) {
+  getDefaultAccelerator(id: string): string | undefined {
     return this.defaultKeybindings.get(id)
   }
 
-  _isDuplicate(accelerator) {
+  _isDuplicate(accelerator: string): boolean {
     return (
       accelerator !== '' &&
       this.keybindingList.findIndex((entry) =>
@@ -157,7 +172,7 @@ export default class KeybindingConfigurator {
     )
   }
 
-  _isDefaultBinding(id, accelerator) {
+  _isDefaultBinding(id: string, accelerator: string): boolean {
     return this.defaultKeybindings.get(id) === accelerator
   }
 }

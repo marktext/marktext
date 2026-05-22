@@ -26,32 +26,80 @@ export interface MarkdownDocument {
 }
 
 export interface FileHistory {
-  stack: unknown[]
+  stack: HistoryStackEntry[]
   index: number
+  // Tracked by Muya to know which history frame represents the last edit
+  // and the initial document. -1 when undefined.
+  lastEditIndex?: number
+  lastInitIndex?: number
+}
+
+// Individual frames pushed by Muya's history. Shape is opaque to the
+// renderer store; we only key off the id for the saved-snapshot check.
+export interface HistoryStackEntry {
+  id: number | string
+  [key: string]: unknown
+}
+
+export interface FileEncoding {
+  encoding: string
+  isBom: boolean
+}
+
+export interface FileWordCount {
+  paragraph: number
+  word: number
+  character: number
+  all: number
+}
+
+export interface FileSearchMatches {
+  index: number
+  matches: unknown[]
+  value: string
 }
 
 /**
- * Per-tab editor state. Refined as Commit 7 rewrites the editor store and
- * Commit 8 converts component consumers. The {} sentinel used by the
- * pre-migration code (for "no tab selected") is replaced by `null` in the
- * Setup-Store rewrite — see plan section D.3.
+ * Per-tab editor state — the canonical document state shape shared between
+ * the renderer Pinia store, the buffered-state persistence layer, and
+ * cross-process IPC payloads. Mirrors `defaultFileState` in
+ * `src/renderer/src/store/help.ts`.
  */
 export interface IFileState {
   id: string
   filename: string
-  pathname: string | null
+  // Falsy (`''`) for untitled buffers; pre-migration this was sometimes
+  // missing entirely. Always a string at runtime now.
+  pathname: string
   markdown: string
-  history?: FileHistory
-  cursor?: unknown
-  wordCount?: { word: number; character: number; paragraph: number; all: number }
-  encoding?: string
-  lineEnding?: LineEnding
-  adjustLineEndingOnSave?: boolean
-  trimTrailingNewline?: number
-  isSaved?: boolean
+  isSaved: boolean
+  encoding: FileEncoding
+  lineEnding: LineEnding | string
+  adjustLineEndingOnSave: boolean
+  trimTrailingNewline: number
+  history: FileHistory
+  cursor: unknown
+  wordCount: FileWordCount
+  searchMatches: FileSearchMatches
+  scrollTop: number
+  muyaIndexCursor: unknown
+  notifications: FileNotification[]
+  lastSavedHistoryId?: number
+  // Muya block tree; only populated for the actively edited tab.
+  blocks?: unknown
   isMixedLineEndings?: boolean
-  notifications?: unknown[]
-  [key: string]: unknown
+}
+
+/**
+ * Per-tab notification banner. Pushed via the editor store's
+ * `pushTabNotification` action; consumed by `notifications.vue`.
+ */
+export interface FileNotification {
+  msg: string
+  showConfirm: boolean
+  style: string
+  exclusiveType: string
+  action: (status?: unknown) => void
 }
 
 export type ITab = IFileState
@@ -68,23 +116,46 @@ export interface TabOptions {
 }
 
 export interface SaveOptions {
-  encoding?: string
-  lineEnding?: LineEnding
+  // Encoding is the `FileEncoding` object at runtime (`{ encoding, isBom }`).
+  // String form is accepted for legacy callers that haven't been updated.
+  encoding?: FileEncoding | string
+  lineEnding?: LineEnding | string
   adjustLineEndingOnSave?: boolean
   trimTrailingNewline?: number
 }
 
+/**
+ * Per-tab payload sent with `mt::close-window-confirm` / `mt::save-tabs` /
+ * `mt::save-and-close-tabs` when the renderer asks main to surface a
+ * "save unsaved changes?" dialog. Mirrors the runtime shape consumed by
+ * `showUnsavedFilesMessage` in `src/main/menu/actions/file.ts`.
+ */
+export interface UnsavedFile {
+  id: string
+  filename: string
+  pathname?: string
+  markdown: string
+  options: SaveOptions
+  defaultPath?: string
+}
+
 export interface BootstrapEditorConfig {
-  isNewWindow: boolean
-  markdownList: MarkdownDocument[]
+  isNewWindow?: boolean
+  addBlankTab?: boolean
+  /**
+   * Raw markdown contents used to seed new untitled tabs. Main fills this
+   * from `_markdownToOpen` (e.g. stdin-piped launches and
+   * `mt::new-tab-with-content`); empty when no seed content was supplied.
+   */
+  markdownList: string[]
   lineEnding: LineEnding
   sideBarVisibility: boolean
   tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
-  preferences: unknown
-  userKeybindings: unknown
-  recentlyUsedFiles: string[]
-  windowId: number
+  preferences?: unknown
+  userKeybindings?: unknown
+  recentlyUsedFiles?: string[]
+  windowId?: number
   [key: string]: unknown
 }
 
