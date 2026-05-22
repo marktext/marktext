@@ -26,7 +26,7 @@
       v-model="selectValue"
       :min="min"
       :max="max"
-      :format-tooltip="(value) => value + (unit ? unit : '')"
+      :format-tooltip="(value: number) => value + (unit ? unit : '')"
       :step="step"
       @change="select"
     />
@@ -34,23 +34,24 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { PrefControlBaseProps } from '../types'
 
-const props = defineProps({
-  description: String,
-  value: [String, Number],
-  min: Number,
-  max: Number,
-  onChange: Function,
-  unit: String,
-  step: Number,
-  more: String,
-  disable: {
-    type: Boolean,
-    default: false
-  }
+interface RangeProps extends PrefControlBaseProps {
+  value: number
+  min?: number
+  max?: number
+  onChange: (value: number) => void
+  unit?: string
+  step?: number
+}
+
+const props = withDefaults(defineProps<RangeProps>(), {
+  description: '',
+  more: '',
+  unit: '',
+  disable: false
 })
 
 const selectValue = ref(props.value)
@@ -70,8 +71,11 @@ const handleMoreClick = () => {
   }
 }
 
-const select = (value) => {
-  props.onChange(value)
+const select = (value: number | number[]) => {
+  // el-slider may emit number[] in range mode; this control is single-value only.
+  if (typeof value === 'number') {
+    props.onChange(value)
+  }
 }
 </script>
 

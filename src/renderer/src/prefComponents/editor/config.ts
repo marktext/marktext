@@ -1,9 +1,8 @@
-/* eslint-disable */
-// @ts-nocheck
 import { ENCODING_NAME_MAP } from 'common/encoding'
 import { t } from '../../i18n'
+import type { PrefSelectOption } from '../common/types'
 
-export const tabSizeOptions = [
+export const tabSizeOptions: PrefSelectOption<number>[] = [
   {
     label: '1',
     value: 1
@@ -22,7 +21,7 @@ export const tabSizeOptions = [
   }
 ]
 
-export const getEndOfLineOptions = () => [
+export const getEndOfLineOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.fileRepresentation.endOfLine.default'),
     value: 'default'
@@ -37,7 +36,7 @@ export const getEndOfLineOptions = () => [
   }
 ]
 
-export const getTrimTrailingNewlineOptions = () => [
+export const getTrimTrailingNewlineOptions = (): PrefSelectOption<number>[] => [
   {
     label: t('preferences.editor.fileRepresentation.trailingNewlines.trimAll'),
     value: 0
@@ -56,7 +55,7 @@ export const getTrimTrailingNewlineOptions = () => [
   }
 ]
 
-export const getTextDirectionOptions = () => [
+export const getTextDirectionOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.misc.textDirection.ltr'),
     value: 'ltr'
@@ -67,15 +66,16 @@ export const getTextDirectionOptions = () => [
   }
 ]
 
-let defaultEncodingOptions = null
-export const getDefaultEncodingOptions = () => {
+let defaultEncodingOptions: PrefSelectOption<string>[] | null = null
+export const getDefaultEncodingOptions = (): PrefSelectOption<string>[] => {
   if (defaultEncodingOptions) {
     return defaultEncodingOptions
   }
 
-  defaultEncodingOptions = []
+  const options: PrefSelectOption<string>[] = []
   for (const [value, label] of Object.entries(ENCODING_NAME_MAP)) {
-    defaultEncodingOptions.push({ label, value })
+    options.push({ label, value })
   }
+  defaultEncodingOptions = options
   return defaultEncodingOptions
 }
