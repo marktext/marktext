@@ -67,7 +67,7 @@ export default [
         'error',
         { prefer: 'type-imports', fixStyle: 'inline-type-imports' }
       ],
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'error',
       // Disable JS-only rules that double-trigger or fight TS:
       'no-unused-vars': 'off',
       'no-undef': 'off',
