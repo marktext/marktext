@@ -370,7 +370,7 @@ const noop = () => {}
   height: 12px;
   width: 12px;
 }
-.search-bar .left-arrow svg.arrow-right {
+.search-bar .left-arrow .arrow-right {
   transform: rotate(-90deg);
 }
 

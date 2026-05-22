@@ -731,7 +731,7 @@
         "scriptPath": "Script path",
         "tokenTooltip": "Access token for authentication"
       },
-      "defaultBehavior": "The default behavior after paste or drag the image to MarkText"
+      "defaultBehavior": "The default behavior after pasting or dragging the image to MarkText"
     },
     "markdown": {
       "title": "Markdown",

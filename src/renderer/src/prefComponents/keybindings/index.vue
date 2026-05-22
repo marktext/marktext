@@ -6,6 +6,8 @@
         {{ t('preferences.keybindings.description') }}
         <a
           class="link"
+          :title="t('preferences.keybindings.online')"
+          :aria-label="t('preferences.keybindings.online')"
           @click="openKeybindingWiki"
         ><el-icon
           :size="16"

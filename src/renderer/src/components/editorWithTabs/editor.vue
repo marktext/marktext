@@ -1475,8 +1475,8 @@ onBeforeUnmount(() => {
     top: 50px;
     left: 50px;
     display: block;
+    color: #efefef;
     & svg {
-      fill: #efefef;
       width: 100%;
       height: 100%;
     }
