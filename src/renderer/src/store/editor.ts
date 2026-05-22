@@ -1092,10 +1092,12 @@ export const useEditorStore = defineStore('editor', {
       const moveItem = <T>(arr: T[], from: number, to: number): boolean => {
         if (from === to) return true
         const len = arr.length
-        const item = arr.splice(from, 1)
-        if (item.length === 0) return false
+        const removed = arr.splice(from, 1)
+        if (removed.length === 0) return false
 
-        arr.splice(to, 0, item[0]!)
+        // `splice(from, 1)` returned exactly one element when removed.length
+        // is non-zero.
+        arr.splice(to, 0, removed[0] as T)
         return arr.length === len
       }
 
@@ -1345,7 +1347,9 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      const tab = this.tabs[this.tabIdToIndex[id]!]
+      // The `id in this.tabIdToIndex` guard above ensures the lookup is set.
+      const tabIndex = this.tabIdToIndex[id] as number
+      const tab = this.tabs[tabIndex]
       if (!tab) return
 
       const { filename, pathname, markdown: oldMarkdown, trimTrailingNewline } = tab

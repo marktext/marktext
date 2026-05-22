@@ -32,7 +32,7 @@ describe('renderer i18n language loading', () => {
 
     setLanguage('en')
 
-    expect(win.i18nUtils!.loadTranslations).not.toHaveBeenCalled()
+    expect(win.i18nUtils?.loadTranslations).not.toHaveBeenCalled()
     expect(getCurrentLanguage()).to.equal('en')
   })
 
@@ -42,7 +42,7 @@ describe('renderer i18n language loading', () => {
     setLanguage('zh-CN')
     setLanguage('zh-CN')
 
-    expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledTimes(1)
-    expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledWith('zh-CN')
+    expect(win.i18nUtils?.loadTranslations).toHaveBeenCalledTimes(1)
+    expect(win.i18nUtils?.loadTranslations).toHaveBeenCalledWith('zh-CN')
   })
 })
