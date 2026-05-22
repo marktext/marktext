@@ -105,17 +105,20 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
 
   if (filePath && !canceled) {
     try {
+      // `extension` is sourced from `EXTENSION_HASN[type]`; only registered
+      // export types reach this branch, so the lookup is always defined.
+      const ext = extension as string
       if (type === 'pdf') {
         const options: Electron.PrintToPDFOptions = { printBackground: true }
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
-        await writeFile(filePath, data, extension!, 'binary')
+        await writeFile(filePath, data, ext, 'binary')
       } else {
         if (!content) {
           throw new Error('No HTML content found.')
         }
-        await writeFile(filePath, content, extension!, 'utf8')
+        await writeFile(filePath, content, ext, 'utf8')
       }
       win.webContents.send('mt::export-success', { type, filePath })
     } catch (err) {
@@ -201,7 +204,9 @@ const handleResponseForSave = async(
         ipcMain.emit('window-add-file-path', win.id, filePath)
         ipcMain.emit('menu-add-recently-used', filePath)
 
-        const newFilename = path.basename(filePath!)
+        // `filePath` was assigned above and the function returned early
+        // when it was falsy, so it's non-null here.
+        const newFilename = path.basename(filePath as string)
         win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename: newFilename })
       } else {
         ipcMain.emit('window-file-saved', win.id, filePath)
@@ -359,31 +364,38 @@ ipcMain.on(
     })
 
     if (filePath && !canceled) {
-      filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
+      // Narrow `filePath` to `string` for the closures below; the dialog
+      // guard above ensures it is non-null when we reach this branch.
+      const resolvedFilePath: string = path.resolve(filePath)
+      filePath = resolvedFilePath
+      writeMarkdownFile(
+        resolvedFilePath,
+        markdown,
+        options as Parameters<typeof writeMarkdownFile>[2]
+      )
         .then(() => {
           if (!alreadyExistOnDisk) {
-            ipcMain.emit('window-add-file-path', win.id, filePath)
-            ipcMain.emit('menu-add-recently-used', filePath)
+            ipcMain.emit('window-add-file-path', win.id, resolvedFilePath)
+            ipcMain.emit('menu-add-recently-used', resolvedFilePath)
 
-            const newFilename = path.basename(filePath!)
+            const newFilename = path.basename(resolvedFilePath)
             win.webContents.send('mt::set-pathname', {
               id,
-              pathname: filePath,
+              pathname: resolvedFilePath,
               filename: newFilename
             })
-          } else if (pathname !== filePath) {
+          } else if (pathname !== resolvedFilePath) {
             // Update window file list and watcher.
-            ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+            ipcMain.emit('window-change-file-path', win.id, resolvedFilePath, pathname)
 
-            const newFilename = path.basename(filePath!)
+            const newFilename = path.basename(resolvedFilePath)
             win.webContents.send('mt::set-pathname', {
               id,
-              pathname: filePath,
+              pathname: resolvedFilePath,
               filename: newFilename
             })
           } else {
-            ipcMain.emit('window-file-saved', win.id, filePath)
+            ipcMain.emit('window-file-saved', win.id, resolvedFilePath)
             win.webContents.send('mt::tab-saved', id)
           }
         })
@@ -584,7 +596,8 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) =>
     return
   }
 
-  const rawUrl = data.href || data.text!
+  // The guard above ensures at least one of `href`/`text` is set.
+  const rawUrl = data.href || (data.text ?? '')
   const urlCandidate = rawUrl.replace(/^<(.+)>$/, '$1') // Replace any <> CommonMark #489
   if (urlCandidate === rawUrl) {
     // No <> found, no spaces should be allowed

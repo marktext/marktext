@@ -188,10 +188,13 @@ class AppMenu {
   addEditorMenu(window: BrowserWindow, options: AddEditorMenuOptions = {}): void {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
-    windowMenus.set(window.id, this._buildEditorMenu())
+    const entry = this._buildEditorMenu()
+    windowMenus.set(window.id, entry)
 
-    const entry = windowMenus.get(window.id)!
-    const menu = entry.menu!
+    // `_buildEditorMenu` always returns a freshly-built `Menu`; the `null` in
+    // the type union covers later teardown paths (see `removeWindowMenu`).
+    const { menu } = entry
+    if (!menu) return
 
     // Set source-code editor if preferred.
     const sourceCodeModeMenuItem = menu.getMenuItemById('sourceCodeModeMenuItem')

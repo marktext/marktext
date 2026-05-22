@@ -103,7 +103,7 @@ export const updateFormatMenu = (applicationMenu: any, formats: Record<string, b
   formatMenuItem.submenu.items.forEach((item: any) => (item.checked = false))
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formatMenuItem.submenu.items.forEach((item: any) => {
-    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]!]) {
+    if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]]) {
       item.checked = true
     }
   })

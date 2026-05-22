@@ -14,14 +14,18 @@ export const getRecommendTitleFromMarkdownString = (markdown: string): string =>
   // code blocks too.
   const tokens = markdown.match(/#{1,6} {1,}(.*\S.*)(?:\n|$)/g)
   if (!tokens) return ''
-  const headers = tokens.map((t) => {
-    const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)!
-    return {
-      level: matches[1]!.length,
-      content: matches[2]!.trim()
-    }
-  })
-  return headers.sort((a, b) => a.level - b.level)[0]!.content
+  const headers: { level: number; content: string }[] = []
+  for (const t of tokens) {
+    // The outer regex matched, so this inner regex is guaranteed to match too
+    // (same shape, just captured). Guard defensively to keep TS happy.
+    const matches = t.trim().match(/(#{1,6}) {1,}(.+)/)
+    const hashes = matches?.[1]
+    const content = matches?.[2]
+    if (hashes === undefined || content === undefined) continue
+    headers.push({ level: hashes.length, content: content.trim() })
+  }
+  const top = headers.sort((a, b) => a.level - b.level)[0]
+  return top?.content ?? ''
 }
 
 /**

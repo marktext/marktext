@@ -55,7 +55,11 @@ class SettingWindow extends BaseWindow {
     }
 
     winOptions.backgroundColor = this._getPreferredBackgroundColor(theme)
-    let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
+    // Keep a non-nullable local reference for use inside event handlers.
+    // The `browserWindow` field on the base class remains nullable for the
+    // post-destroy lifecycle, but every callback we register here happens
+    // before the `closed` event fires.
+    const win: BrowserWindow = (this.browserWindow = new BrowserWindow(winOptions))
 
     win.webContents.on('did-fail-load', (_event, code, desc, url) => {
       log.error(`did-fail-load ${code} ${desc} @ ${url}`)
@@ -76,28 +80,26 @@ class SettingWindow extends BaseWindow {
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win!.webContents.send('mt::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win!.webContents.send('mt::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
 
     win.on('close', (event) => {
       this.emit('window-close')
 
       event.preventDefault()
-      ipcMain.emit('window-close-by-id', win!.id)
+      ipcMain.emit('window-close-by-id', win.id)
     })
 
-    // The window is now destroyed.
+    // The window is now destroyed. Renderer cleanup happens via the base
+    // class; we just emit our own event here.
     win.on('closed', () => {
       this.emit('window-closed')
-
-      // Free window reference
-      win = null
     })
 
     this.lifecycle = WindowLifecycle.LOADING
@@ -107,7 +109,7 @@ class SettingWindow extends BaseWindow {
     const devToolsAccelerator = keybindings.getAccelerator('view.toggle-dev-tools')
     if (env.debug && devToolsAccelerator) {
       electronLocalshortcut.register(win, devToolsAccelerator, () => {
-        win!.webContents.toggleDevTools()
+        win.webContents.toggleDevTools()
       })
     }
     return win

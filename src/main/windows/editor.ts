@@ -120,7 +120,12 @@ class EditorWindow extends BaseWindow {
       ;(winOptions.webPreferences as { spellcheck: boolean }).spellcheck = false
     }
 
-    let win: BrowserWindow | null = (this.browserWindow = new BrowserWindow(winOptions))
+    // Keep a non-nullable local reference for use inside event handlers.
+    // The `browserWindow` field on the base class is nullable for the
+    // post-destroy lifecycle, but every callback we register here is bound
+    // to the window's own lifetime, so the captured reference is valid for
+    // as long as the callbacks can fire.
+    const win: BrowserWindow = (this.browserWindow = new BrowserWindow(winOptions))
 
     // Give every editor window a stable id for session buffer persistence.
     // We cant use win.id as it might collide with same IDs from closed windows
@@ -144,7 +149,7 @@ class EditorWindow extends BaseWindow {
     appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
 
     win.webContents.on('context-menu', (event, params) => {
-      showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
+      showEditorContextMenu(win, event, params, preferences.getItem('spellcheckerEnabled'))
     })
 
     win.webContents.once('did-finish-load', () => {
@@ -157,28 +162,33 @@ class EditorWindow extends BaseWindow {
       const lineEnding = preferences.getPreferredEol()
       appMenu.updateLineEndingMenu(this.id, lineEnding)
 
-      win!.webContents.send('mt::bootstrap-editor', {
+      // The bufferStoreInfo is assigned a few lines above, before any
+      // `webContents` event can fire on this window.
+      const bufferStoreInfo = this.bufferStoreInfo as NonNullable<typeof this.bufferStoreInfo>
+      win.webContents.send('mt::bootstrap-editor', {
         addBlankTab,
-        markdownList: this.bufferStoreInfo!.filePath ? [] : this._markdownToOpen,
+        markdownList: bufferStoreInfo.filePath ? [] : this._markdownToOpen,
         lineEnding,
         sideBarVisibility: resolvedSideBarVisibility,
         tabBarVisibility,
         sourceCodeModeEnabled
       })
 
-      if (this.bufferStoreInfo!.filePath) {
+      if (bufferStoreInfo.filePath) {
         this._restoreAllState()
       } else {
         this._doOpenFilesToOpen()
-        this._markdownToOpen!.length = 0
+        // _markdownToOpen is initialized in the constructor and only cleared
+        // by destroy(), which won't have run by the time this callback fires.
+        ;(this._markdownToOpen as string[]).length = 0
       }
 
       // Listen on default system mouse zoom event (e.g. Ctrl+MouseWheel on Linux/Windows).
-      win!.webContents.on('zoom-changed', (_event, zoomDirection) => {
+      win.webContents.on('zoom-changed', (_event, zoomDirection) => {
         if (zoomDirection === 'in') {
-          zoomIn(win!)
+          zoomIn(win)
         } else if (zoomDirection === 'out') {
-          zoomOut(win!)
+          zoomOut(win)
         }
       })
     })
@@ -201,14 +211,14 @@ class EditorWindow extends BaseWindow {
         return
       }
 
-      const { response } = await dialog.showMessageBox(win!, {
+      const { response } = await dialog.showMessageBox(win, {
         type: 'warning',
         buttons: ['Close', 'Reload', 'Keep It Open'],
         message: 'MarkText has crashed',
         detail: msg
       })
 
-      if (win!.id) {
+      if (win.id) {
         switch (response) {
           case 0:
             return this.destroy()
@@ -220,21 +230,21 @@ class EditorWindow extends BaseWindow {
 
     win.on('focus', () => {
       this.emit('window-focus')
-      win!.webContents.send('mt::window-active-status', { status: true })
+      win.webContents.send('mt::window-active-status', { status: true })
     })
 
     // Lost focus
     win.on('blur', () => {
       this.emit('window-blur')
-      win!.webContents.send('mt::window-active-status', { status: false })
+      win.webContents.send('mt::window-active-status', { status: false })
     })
     ;(['maximize', 'unmaximize', 'enter-full-screen', 'leave-full-screen'] as const).forEach(
       (channel) => {
         // Electron's BrowserWindow.on() is heavily overloaded — the union of
         // event names can't be satisfied by a single overload, so we widen.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(win as any)!.on(channel, () => {
-          win!.webContents.send(`mt::window-${channel}`)
+        ;(win as any).on(channel, () => {
+          win.webContents.send(`mt::window-${channel}`)
         })
       }
     )
@@ -244,7 +254,7 @@ class EditorWindow extends BaseWindow {
       this.emit('window-close')
 
       event.preventDefault()
-      win!.webContents.send('mt::ask-for-close')
+      win.webContents.send('mt::ask-for-close')
 
       // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
     })
@@ -254,8 +264,8 @@ class EditorWindow extends BaseWindow {
       this.lifecycle = WindowLifecycle.QUITTED
       this.emit('window-closed')
 
-      // Free window reference
-      win = null
+      // Renderer cleanup happens via the base class; the captured `win` is
+      // already disposed at this point, so nothing further is needed here.
     })
 
     this.lifecycle = WindowLifecycle.LOADING
@@ -316,10 +326,14 @@ class EditorWindow extends BaseWindow {
     const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
       preferences.getAll()
 
+    // These per-window collections are nullified in `destroy()`. We've
+    // already returned above if the lifecycle is QUITTED, so they're live.
+    const openedFiles = this._openedFiles as string[]
+    const win = browserWindow as BrowserWindow
     for (const { filePath, options, selected } of fileList) {
-      if (this._openedFiles!.includes(filePath)) {
+      if (openedFiles.includes(filePath)) {
         // File is already opened - avoid opening it again so we dont have duplicate watchers
-        browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath)
+        win.webContents.send('mt::switch-tab-by-file_path', filePath)
         continue
       }
       loadMarkdownFile(
@@ -334,13 +348,13 @@ class EditorWindow extends BaseWindow {
           if (this.lifecycle === WindowLifecycle.READY) {
             this._doOpenTab(rawDocument, options, selected)
           } else {
-            this._filesToOpen!.push({ doc: rawDocument, options, selected })
+            ;(this._filesToOpen as PendingFile[]).push({ doc: rawDocument, options, selected })
           }
         })
         .catch((err: Error) => {
           const { message, stack } = err
           log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
-          browserWindow!.webContents.send('mt::show-notification', {
+          win.webContents.send('mt::show-notification', {
             title: 'Cannot open tab',
             type: 'error',
             message: err.message
@@ -357,10 +371,10 @@ class EditorWindow extends BaseWindow {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
-      browserWindow!.webContents.send('mt::new-untitled-tab', selected, markdown)
+      const win = this.browserWindow as BrowserWindow
+      win.webContents.send('mt::new-untitled-tab', selected, markdown)
     } else {
-      this._markdownToOpen!.push(markdown)
+      ;(this._markdownToOpen as string[]).push(markdown)
     }
   }
 
@@ -378,20 +392,20 @@ class EditorWindow extends BaseWindow {
     }
 
     if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
+      const win = this.browserWindow as BrowserWindow
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const _accessor = this._accessor as any
       const { menu: appMenu, preferences } = _accessor
 
       if (this._openedRootDirectory) {
-        ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
+        ipcMain.emit('watcher-unwatch-directory', win, this._openedRootDirectory)
       }
 
       preferences.setItems({ lastOpenedFolder: pathname })
       appMenu.addRecentlyUsedDocument(pathname)
       this._openedRootDirectory = pathname
-      ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
-      browserWindow!.webContents.send('mt::open-directory', pathname)
+      ipcMain.emit('watcher-watch-directory', win, pathname)
+      win.webContents.send('mt::open-directory', pathname)
     } else {
       this._directoryToOpen = pathname
     }
@@ -401,8 +415,9 @@ class EditorWindow extends BaseWindow {
    * Add a new path to the file list and watch the given path.
    */
   addToOpenedFiles(filePath: string): void {
-    const { _openedFiles, browserWindow } = this
-    _openedFiles!.push(filePath)
+    const { browserWindow } = this
+    const openedFiles = this._openedFiles as string[]
+    openedFiles.push(filePath)
     ipcMain.emit('watcher-watch-file', browserWindow, filePath)
   }
 
@@ -410,13 +425,14 @@ class EditorWindow extends BaseWindow {
    * Change a path in the opened file list and update the watcher.
    */
   changeOpenedFilePath(pathname: string, oldPathname: string): void {
-    const { _openedFiles, browserWindow } = this
-    const index = _openedFiles!.findIndex((p) => p === oldPathname)
+    const { browserWindow } = this
+    const openedFiles = this._openedFiles as string[]
+    const index = openedFiles.findIndex((p) => p === oldPathname)
     if (index === -1) {
       // The old path was not found but add the new one.
-      _openedFiles!.push(pathname)
+      openedFiles.push(pathname)
     } else {
-      _openedFiles![index] = pathname
+      openedFiles[index] = pathname
     }
     ipcMain.emit('watcher-unwatch-file', browserWindow, oldPathname)
     ipcMain.emit('watcher-watch-file', browserWindow, pathname)
@@ -426,10 +442,11 @@ class EditorWindow extends BaseWindow {
    * Remove a path from the opened file list and stop watching the path.
    */
   removeFromOpenedFiles(pathname: string): void {
-    const { _openedFiles, browserWindow } = this
-    const index = _openedFiles!.findIndex((p) => p === pathname)
+    const { browserWindow } = this
+    const openedFiles = this._openedFiles as string[]
+    const index = openedFiles.findIndex((p) => p === pathname)
     if (index !== -1) {
-      _openedFiles!.splice(index, 1)
+      openedFiles.splice(index, 1)
     }
     ipcMain.emit('watcher-unwatch-file', browserWindow, pathname)
   }
@@ -438,17 +455,18 @@ class EditorWindow extends BaseWindow {
    * Returns a score list for a given file list.
    */
   getCandidateScores(fileList: string[]): CandidateScore[] {
-    const { _openedFiles, _openedRootDirectory, id } = this
+    const { _openedRootDirectory, id } = this
+    const openedFiles = this._openedFiles as string[]
     const buf: CandidateScore[] = []
     for (const pathname of fileList) {
       let score = 0
-      if (_openedFiles!.some((p) => p === pathname)) {
+      if (openedFiles.some((p) => p === pathname)) {
         score = -1
       } else {
         if (isChildOfDirectory(_openedRootDirectory ?? '', pathname)) {
           score += 5
         }
-        for (const item of _openedFiles!) {
+        for (const item of openedFiles) {
           if (isChildOfDirectory(path.dirname(item), pathname)) {
             score += 1
           }
@@ -460,7 +478,8 @@ class EditorWindow extends BaseWindow {
   }
 
   override reload(): void {
-    const { id, browserWindow } = this
+    const { id } = this
+    const win = this.browserWindow as BrowserWindow
 
     // Close watchers
     ipcMain.emit('watcher-unwatch-all-by-id', id)
@@ -472,7 +491,7 @@ class EditorWindow extends BaseWindow {
     this._openedRootDirectory = ''
     this._openedFiles = []
 
-    browserWindow!.webContents.once('did-finish-load', () => {
+    win.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { preferences } = this._accessor as any
@@ -480,7 +499,7 @@ class EditorWindow extends BaseWindow {
         preferences.getAll()
       const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
       const lineEnding = preferences.getPreferredEol()
-      browserWindow!.webContents.send('mt::bootstrap-editor', {
+      win.webContents.send('mt::bootstrap-editor', {
         addBlankTab: true,
         markdownList: [],
         lineEnding,
@@ -522,7 +541,7 @@ class EditorWindow extends BaseWindow {
     options: any,
     selected: boolean
   ): void {
-    const { _accessor, _openedFiles, browserWindow } = this
+    const { _accessor, browserWindow } = this
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { menu: appMenu } = _accessor as any
     const { pathname } = rawDocument
@@ -531,8 +550,13 @@ class EditorWindow extends BaseWindow {
     ipcMain.emit('watcher-watch-file', browserWindow, pathname)
 
     appMenu.addRecentlyUsedDocument(pathname)
-    _openedFiles!.push(pathname)
-    browserWindow!.webContents.send('mt::open-new-tab', rawDocument, options, selected)
+    ;(this._openedFiles as string[]).push(pathname)
+    ;(browserWindow as BrowserWindow).webContents.send(
+      'mt::open-new-tab',
+      rawDocument,
+      options,
+      selected
+    )
   }
 
   private _doOpenFilesToOpen(): void {
@@ -545,23 +569,29 @@ class EditorWindow extends BaseWindow {
     }
     this._directoryToOpen = null
 
-    for (const { doc, options, selected } of this._filesToOpen!) {
+    const filesToOpen = this._filesToOpen as PendingFile[]
+    for (const { doc, options, selected } of filesToOpen) {
       this._doOpenTab(doc, options, selected)
     }
-    this._filesToOpen!.length = 0
+    filesToOpen.length = 0
   }
 
   private _restoreAllState(): void {
     if (this.lifecycle !== WindowLifecycle.READY) {
       throw new Error('Invalid state.')
     }
-    const { browserWindow, bufferStoreInfo, _accessor } = this
+    const { _accessor } = this
+    const win = this.browserWindow as BrowserWindow
+    const bufferStoreInfo = this.bufferStoreInfo as NonNullable<typeof this.bufferStoreInfo>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { menu: appMenu, preferences } = _accessor as any
 
     try {
+      // _restoreAllState is only called when bufferStoreInfo.filePath is set
+      // (see the caller in `did-finish-load`).
+      const bufferStateFilePath = bufferStoreInfo.filePath as string
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const bufferState: any = JSON.parse(fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8'))
+      const bufferState: any = JSON.parse(fs.readFileSync(bufferStateFilePath, 'utf-8'))
       if (!bufferState || !Array.isArray(bufferState.tabs)) {
         throw new Error('Invalid editor buffer state.')
       }
@@ -612,7 +642,7 @@ class EditorWindow extends BaseWindow {
                 }
               }
 
-              if (!this._openedFiles!.includes(tab.pathname)) {
+              if (!(this._openedFiles as string[]).includes(tab.pathname)) {
                 this.addToOpenedFiles(tab.pathname)
                 appMenu.addRecentlyUsedDocument(tab.pathname)
               }
@@ -621,7 +651,7 @@ class EditorWindow extends BaseWindow {
               const { message, stack } = err
               tab.isSaved = false // Set to false as base file could not be found, needs saving
               log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)
-              browserWindow!.webContents.send('mt::show-notification', {
+              win.webContents.send('mt::show-notification', {
                 title: `Could not find file ${tab.filename} on disk, please save your work.`,
                 type: 'error',
                 message: err.message
@@ -633,11 +663,11 @@ class EditorWindow extends BaseWindow {
       Promise.all(fileOpenRequests)
         .then(() => {
           // After all files are loaded, we can send the state to the renderer and open the tabs
-          browserWindow!.webContents.send('mt::load-state', bufferState)
+          win.webContents.send('mt::load-state', bufferState)
         })
         .catch((err: Error) => {
           log.error('Failed to load files for restoring editor state:', err)
-          browserWindow!.webContents.send('mt::show-notification', {
+          win.webContents.send('mt::show-notification', {
             title: 'Failed to restore buffered state',
             type: 'error',
             message: err.message
