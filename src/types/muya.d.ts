@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any --
+ * Bridge to the legacy JavaScript muya/ tree. Every member is intentionally
+ * `any` because the underlying src/muya/ source is .js and won't be re-typed
+ * before the upstream TS muya (https://github.com/marktext/muya) replaces it.
+ * Delete this file the day upstream lands; see docs/dev/TYPESCRIPT.md.
+ */
+
 // Ambient bridge to the JavaScript muya/ tree. Delete this file the day
 // upstream TS muya (https://github.com/marktext/muya) lands.
 //

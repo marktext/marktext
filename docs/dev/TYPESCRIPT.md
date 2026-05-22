@@ -153,27 +153,31 @@ null narrowing where they previously checked `!currentFile.id`.
 
 ## Deferred work
 
-These items are tracked as follow-up PRs:
+All four items from the original deferred-work list landed across
+PRs #4249–#4255:
 
-1. **All `.vue` SFCs** — remove `// @ts-nocheck` from `<script setup
-   lang="ts">` blocks, type `defineProps`/`defineEmits`, fix
-   ~20 errors per file. The leaf preference controls in
-   `src/renderer/src/prefComponents/common/` and their static schema
-   `config.ts` siblings are already typed (see
-   `prefComponents/common/types.ts` for the shared `PrefControlProps<T>`
-   / `PrefSelectOption<T>` helpers). The remaining `prefComponents/*/index.vue`
-   pages and the editor SFCs still carry `// @ts-nocheck`.
-2. ~~**Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
-   and `test/e2e/*.spec.ts`, convert CommonJS `require()` to ESM `import`.~~
-   **Done.** Every spec uses ESM `import { test, expect } from
-   '@playwright/test'` / `import { describe, it, expect } from 'vitest'`
-   and is type-checked. `test/e2e/helpers.ts` is fully typed; vitest specs
-   import their globals explicitly.
-3. **`@typescript-eslint/no-explicit-any`** — currently `warn` in
-   `eslint.config.js`. Tighten to `error` after the per-file
-   `// @ts-nocheck` opt-outs above have been removed and the remaining
-   `any` sites either gain a real type or carry a targeted
-   `// eslint-disable-next-line` with a comment explaining why.
+- editor.ts + preferences.ts Pinia stores (#4249)
+- prefComponents schemas + leaf SFC controls (#4250)
+- Test specs ESM + strict TS (#4251)
+- Sidebar + top-level page SFCs (#4252)
+- Editor + components SFCs (#4253)
+- Preference page SFCs (#4254)
+- `@typescript-eslint/no-explicit-any` flipped from `warn` to `error` (#4255)
+
+The only remaining `any` is the file-level disable in
+`src/types/muya.d.ts` (intentional — bridge to the legacy JS muya tree,
+deleted when upstream TS muya lands) and a single targeted
+`eslint-disable-next-line` in `src/main/filesystem/watcher.ts` for
+chokidar's `ignored` callback options bag whose typed signature varies
+between chokidar versions.
+
+A small number of `: any` annotations remain inside `.vue` `<script
+setup lang="ts">` blocks — mostly for muya / CodeMirror handles
+(`MuyaInstance`, `CMInstance`, etc.) kept as file-local aliases on
+purpose, parallel to `src/types/muya.d.ts`. The rule is currently
+configured on `.ts` files only; extending it to the `.vue` scope is a
+separate cleanup once the upstream TS muya replaces those handles with
+real types.
 
 ## Type-checking
 

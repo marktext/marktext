@@ -215,6 +215,7 @@ class Watcher {
       },
 
       usePolling
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- chokidar's `ignored` callback signature varies between versions; this options bag works at runtime but defies the bundled type
     } as any)
 
     let disposed = false
