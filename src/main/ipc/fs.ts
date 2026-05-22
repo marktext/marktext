@@ -45,7 +45,7 @@ export const registerFsHandlers = (): void => {
   ipcMain.handle('mt::fs::ensure-dir', (_e, p: string) => fs.ensureDir(p))
 
   ipcMain.handle('mt::fs::output-file', (_e, p: string, data: unknown) =>
-    fs.outputFile(p, toBuffer(data) as any)
+    fs.outputFile(p, toBuffer(data) as string | NodeJS.ArrayBufferView)
   )
   ipcMain.handle('mt::fs::move', (_e, src: string, dest: string) =>
     fs.move(src, dest, { overwrite: false })
@@ -53,7 +53,7 @@ export const registerFsHandlers = (): void => {
   ipcMain.handle('mt::fs::stat', async(_e, p: string) => serializeStat(await fs.stat(p)))
 
   ipcMain.handle('mt::fs::write-file', (_e, p: string, data: unknown) =>
-    fs.writeFile(p, toBuffer(data) as any)
+    fs.writeFile(p, toBuffer(data) as string | NodeJS.ArrayBufferView)
   )
   ipcMain.handle('mt::fs::read-file', async(_e, p: string, encoding?: BufferEncoding) => {
     const buf = await fs.readFile(p, encoding)

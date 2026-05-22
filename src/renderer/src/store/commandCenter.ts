@@ -3,21 +3,19 @@ import { defineStore } from 'pinia'
 import log from 'electron-log'
 import bus from '../bus'
 
-import staticCommands, { RootCommand, getCommandsWithDescriptions } from '../commands'
+import staticCommands, {
+  RootCommand,
+  getCommandsWithDescriptions,
+  type CommandDescriptor
+} from '../commands'
 
-type Command = {
-  id: string
-  description?: string
-  shortcut?: unknown
-  execute?: (...args: any[]) => void
-  [key: string]: any
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Root = { subcommands: Command[]; [key: string]: any }
+type Command = CommandDescriptor
+type Root = { subcommands: Command[] }
 
 export const useCommandCenterStore = defineStore('commandCenter', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rootCommand = ref<Root>(new (RootCommand as any)(staticCommands))
+  const rootCommand = ref<Root>(
+    new RootCommand(staticCommands as unknown as CommandDescriptor[]) as Root
+  )
 
   function REGISTER_COMMAND(command: Command): void {
     rootCommand.value.subcommands.push(command)
@@ -44,8 +42,7 @@ export const useCommandCenterStore = defineStore('commandCenter', () => {
     })
 
     window.electron.ipcRenderer.on('mt::keybindings-response', (_e, keybindingMap) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const map = keybindingMap as Record<string, any>
+      const map = keybindingMap as Record<string, string>
       const { subcommands } = rootCommand.value
       for (const entry of subcommands) {
         const value = map[entry.id]
@@ -88,7 +85,7 @@ const executeCommand = (root: Root, commandId: string): void => {
   command.execute?.()
 }
 
-const normalizeAccelerator = (acc: string): string | string[] => {
+const normalizeAccelerator = (acc: string): string[] => {
   try {
     return acc
       .replace(/cmdorctrl|cmd/i, 'Cmd')

@@ -24,31 +24,31 @@ import { EventEmitter } from 'node:events'
 export class TypedEmitter<Events> extends EventEmitter {
   declare on: <K extends keyof Events & string>(
     event: K,
-    listener: (...args: Events[K] extends unknown[] ? Events[K] : any[]) => void
+    listener: (...args: Events[K] extends unknown[] ? Events[K] : unknown[]) => void
   ) => this
 
   declare once: <K extends keyof Events & string>(
     event: K,
-    listener: (...args: Events[K] extends unknown[] ? Events[K] : any[]) => void
+    listener: (...args: Events[K] extends unknown[] ? Events[K] : unknown[]) => void
   ) => this
 
   declare off: <K extends keyof Events & string>(
     event: K,
-    listener: (...args: Events[K] extends unknown[] ? Events[K] : any[]) => void
+    listener: (...args: Events[K] extends unknown[] ? Events[K] : unknown[]) => void
   ) => this
 
   declare emit: <K extends keyof Events & string>(
     event: K,
-    ...args: Events[K] extends unknown[] ? Events[K] : any[]
+    ...args: Events[K] extends unknown[] ? Events[K] : unknown[]
   ) => boolean
 
   declare removeListener: <K extends keyof Events & string>(
     event: K,
-    listener: (...args: Events[K] extends unknown[] ? Events[K] : any[]) => void
+    listener: (...args: Events[K] extends unknown[] ? Events[K] : unknown[]) => void
   ) => this
 
   declare addListener: <K extends keyof Events & string>(
     event: K,
-    listener: (...args: Events[K] extends unknown[] ? Events[K] : any[]) => void
+    listener: (...args: Events[K] extends unknown[] ? Events[K] : unknown[]) => void
   ) => this
 }

@@ -12,9 +12,9 @@ import { popupContextMenu } from '../popupMenu'
 
 type MenuItemShape = {
   type?: string
-  click?: (...args: any[]) => void
+  click?: (...args: unknown[]) => void
   enabled?: boolean
-  [key: string]: any
+  [key: string]: unknown
 }
 
 const wrapClick = (item: MenuItemShape, tabId: string): MenuItemShape => {
