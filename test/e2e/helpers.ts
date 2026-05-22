@@ -7,7 +7,7 @@ const projectRoot = path.resolve(__dirname, '../..')
 
 const getDateAsFilename = (): string => {
   const date = new Date()
-  return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDay()
+  return '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate()
 }
 
 const getTempPath = (suffix = ''): string => {
