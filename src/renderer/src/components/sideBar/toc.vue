@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import bus from '../../bus'
@@ -39,8 +38,8 @@ const defaultProps = {
 const { toc } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
 
-const handleClick = ({ slug }) => {
-  bus.emit('scroll-to-header', slug)
+const handleClick = (data: { slug?: unknown }): void => {
+  bus.emit('scroll-to-header', data.slug)
 }
 </script>
 
