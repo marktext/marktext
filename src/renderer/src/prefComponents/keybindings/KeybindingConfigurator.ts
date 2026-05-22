@@ -91,12 +91,10 @@ export default class KeybindingConfigurator {
     }
 
     const userKeybindings = this._getUserKeybindingMap()
-    // The main-process handler returns Promise<boolean>, but the IPC contract
-    // currently types `ret` as void; rely on the runtime value.
-    const result = (await window.electron.ipcRenderer.invoke(
+    const result = await window.electron.ipcRenderer.invoke(
       'mt::keybinding-save-user-keybindings',
       userKeybindings
-    )) as unknown as boolean
+    )
     if (result) {
       this.isDirty = false
       return true

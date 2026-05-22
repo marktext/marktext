@@ -62,7 +62,7 @@ export interface IpcInvokeChannels {
   'mt::i18n::supported': { args: []; ret: string[] }
   'mt::keybinding-get-keyboard-info': { args: []; ret: unknown }
   'mt::keybinding-get-pref-keybindings': { args: []; ret: unknown }
-  'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: void }
+  'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }
