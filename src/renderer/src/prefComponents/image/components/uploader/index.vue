@@ -624,8 +624,11 @@ onMounted(() => {
       }, 200) // Slightly longer delay to ensure state is fully initialized
     }
 
-    if (Object.prototype.hasOwnProperty.call(getServices(), currentUploader.value)) {
-      getServices()[currentUploader.value as UploaderServiceId].agreedToLegalNotices = true
+    if (Object.prototype.hasOwnProperty.call(uploadServices, currentUploader.value)) {
+      // `getServices()` returns a new object each call (see services.ts), so
+      // mutating its result would only update a throwaway instance. Use the
+      // cached `uploadServices` singleton that the checkbox is bound to.
+      uploadServices[currentUploader.value as UploaderServiceId].agreedToLegalNotices = true
     }
 
     // Extra safety mechanism: check again whether detection needs to start
