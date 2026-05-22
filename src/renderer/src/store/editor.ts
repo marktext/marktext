@@ -770,6 +770,12 @@ export const useEditorStore = defineStore('editor', {
           tab.filename = window.path.basename(dest)
         }
       })
+      // Keep DIRNAME in sync when the active tab is the one being renamed,
+      // so link resolution / dirname-based lookups don't keep using the old
+      // folder until the user switches tabs.
+      if (this.currentFile != null && this.currentFile.pathname === dest) {
+        window.DIRNAME = window.path.dirname(dest)
+      }
       debouncedSendBufferedState()
     },
 
@@ -862,12 +868,8 @@ export const useEditorStore = defineStore('editor', {
         } else if (markdownList.length) {
           let isFirst = true
           for (const md of markdownList) {
-            // Preserve legacy semantics: the pre-migration code passed the
-            // MarkdownDocument straight in. `NEW_UNTITLED_TAB` only consumes
-            // .markdown via `getBlankFileState`, but the legacy contract
-            // permitted the full object.
             this.NEW_UNTITLED_TAB({
-              markdown: md as unknown as string,
+              markdown: md,
               selected: isFirst
             })
             isFirst = false

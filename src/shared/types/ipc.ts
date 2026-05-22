@@ -26,7 +26,8 @@ import type {
   SaveOptions,
   SerializedStat,
   LineEnding,
-  FileChangeDetail
+  FileChangeDetail,
+  UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
@@ -106,7 +107,7 @@ export interface IpcSendChannels {
   'mt::check-for-update': []
   'mt::clipboard::write-text': [text: string]
   'mt::close-window': []
-  'mt::close-window-confirm': [unsavedFiles?: unknown[]]
+  'mt::close-window-confirm': [unsavedFiles: UnsavedFile[]]
   'mt::cmd-close-window': []
   'mt::cmd-import-file': []
   'mt::cmd-new-editor-window': []

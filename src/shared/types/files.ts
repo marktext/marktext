@@ -124,10 +124,30 @@ export interface SaveOptions {
   trimTrailingNewline?: number
 }
 
+/**
+ * Per-tab payload sent with `mt::close-window-confirm` / `mt::save-tabs` /
+ * `mt::save-and-close-tabs` when the renderer asks main to surface a
+ * "save unsaved changes?" dialog. Mirrors the runtime shape consumed by
+ * `showUnsavedFilesMessage` in `src/main/menu/actions/file.ts`.
+ */
+export interface UnsavedFile {
+  id: string
+  filename: string
+  pathname?: string
+  markdown: string
+  options: SaveOptions
+  defaultPath?: string
+}
+
 export interface BootstrapEditorConfig {
   isNewWindow?: boolean
   addBlankTab?: boolean
-  markdownList: MarkdownDocument[]
+  /**
+   * Raw markdown contents used to seed new untitled tabs. Main fills this
+   * from `_markdownToOpen` (e.g. stdin-piped launches and
+   * `mt::new-tab-with-content`); empty when no seed content was supplied.
+   */
+  markdownList: string[]
   lineEnding: LineEnding
   sideBarVisibility: boolean
   tabBarVisibility: boolean
