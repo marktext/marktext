@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import Tabs from './tabs.vue'
@@ -44,20 +43,7 @@ defineProps<{
   platform: string
 }>()
 
-const layoutStore = useLayoutStore()
-
-const { showSideBar, rightColumn, sideBarWidth } = storeToRefs(layoutStore)
-
-// Mirror the sidebar's `finalSideBarWidth` (see sideBar/index.vue): the store's
-// `sideBarWidth` is clamped to ≥220 and only reflects the right-column width,
-// but the actual sidebar collapses to a 45px icon strip when `rightColumn` is
-// empty. Without this, max-width subtracts the larger value and leaves a blank
-// gap to the right of the editor.
-const effectiveSideBarWidth = computed<number>(() => {
-  if (!showSideBar.value) return 0
-  if (!rightColumn.value) return 45
-  return Number(sideBarWidth.value)
-})
+const { effectiveSideBarWidth } = storeToRefs(useLayoutStore())
 </script>
 
 <style scoped>

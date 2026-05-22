@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { usePreferencesStore } from './preferences'
@@ -50,6 +50,16 @@ export const useLayoutStore = defineStore('layout', () => {
   const showSideBar = ref(false)
   const showTabBar = ref(false)
   const sideBarWidth = ref<number>(initialSideBarWidth)
+
+  // Actual rendered sidebar width. `sideBarWidth` is the right-column width
+  // (clamped to ≥220 by `normalizeSideBarWidth`); when `rightColumn` is empty
+  // the sidebar collapses to its 45px icon strip. Consumers that need to
+  // subtract the sidebar from viewport space must use this, not the raw ref.
+  const effectiveSideBarWidth = computed<number>(() => {
+    if (!showSideBar.value) return 0
+    if (!rightColumn.value) return 45
+    return Number(sideBarWidth.value)
+  })
 
   function SET_LAYOUT(
     layout: LayoutPartial,
@@ -178,6 +188,7 @@ export const useLayoutStore = defineStore('layout', () => {
     showSideBar,
     showTabBar,
     sideBarWidth,
+    effectiveSideBarWidth,
     SET_LAYOUT,
     CREATE_BUFFERED_STATE,
     RESTORE_BUFFERED_STATE,

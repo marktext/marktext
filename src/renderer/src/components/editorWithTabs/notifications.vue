@@ -47,14 +47,7 @@ const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 
 const { currentFile } = storeToRefs(editorStore)
-const { showSideBar, rightColumn, sideBarWidth } = storeToRefs(layoutStore)
-
-// Same effective width as editor-with-tabs — see comment there.
-const effectiveSideBarWidth = computed<number>(() => {
-  if (!showSideBar.value) return 0
-  if (!rightColumn.value) return 45
-  return Number(sideBarWidth.value)
-})
+const { effectiveSideBarWidth } = storeToRefs(layoutStore)
 
 const currentNotification = computed(() => {
   const notifications = currentFile.value?.notifications

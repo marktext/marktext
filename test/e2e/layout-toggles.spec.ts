@@ -95,15 +95,16 @@ test.describe('Layout panel toggles', () => {
     // .click()) so Playwright handles focus/activation correctly.
     const searchIcon = page.locator('.side-bar .left-column > ul').first().locator('li').nth(1)
 
-    // Step 1: ensure rightColumn='search' (sidebar width ≥ 220)
+    // Step 1: ensure rightColumn='search' (sidebar width ≥ 220 with the
+    // search panel mounted at `.side-bar-search`).
     for (let i = 0; i < 3; i++) {
-      const width = await page.evaluate(() => {
+      const { width, hasSearch } = await page.evaluate(() => {
         const sb = document.querySelector('.side-bar') as HTMLElement | null
-        return sb ? Math.round(sb.getBoundingClientRect().width) : 0
+        return {
+          width: sb ? Math.round(sb.getBoundingClientRect().width) : 0,
+          hasSearch: !!document.querySelector('.side-bar .right-column .side-bar-search')
+        }
       })
-      const hasSearch = await page.evaluate(
-        () => !!document.querySelector('.side-bar .right-column .search')
-      )
       if (width >= 220 && hasSearch) break
       await searchIcon.click()
       await page.waitForTimeout(250)
