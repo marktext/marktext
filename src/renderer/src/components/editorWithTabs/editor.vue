@@ -84,7 +84,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import log from 'electron-log'
 import Muya from 'muya/lib'
@@ -101,7 +100,7 @@ import LinkTools from 'muya/lib/ui/linkTools'
 import FootnoteTool from 'muya/lib/ui/footnoteTool'
 import TableBarTools from 'muya/lib/ui/tableTools'
 import FrontMenu from 'muya/lib/ui/frontMenu'
-import EditorSearch from '../search'
+import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
@@ -111,7 +110,7 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
-import { getCssForOptions, getHtmlToc } from '@/util/pdf'
+import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -126,15 +125,19 @@ import CloseIcon from '@/assets/icons/close.svg'
 const { t } = useI18n()
 const STANDAR_Y = 320
 
-const props = defineProps({
-  markdown: String,
-  cursor: Object,
-  textDirection: {
-    type: String,
-    required: true
-  },
-  platform: String
-})
+// Muya remains untyped; everything that crosses the editor boundary is `any`
+// for now. We keep the spelling near the top of the file so future muya-side
+// typings can replace these in one place.
+type MuyaInstance = any
+type MuyaChange = any
+type ElInputNumberInstance = any
+
+const props = defineProps<{
+  markdown?: string
+  cursor?: object | null
+  textDirection: string
+  platform?: string
+}>()
 
 // Get stores
 const preferencesStore = usePreferencesStore()
@@ -195,29 +198,42 @@ const { projectTree } = storeToRefs(projectStore)
 
 // Component state
 const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
-const selectionChange = ref(null)
-const editor = ref(null)
+const selectionChange = ref<unknown>(null)
+const editor = ref<MuyaInstance>(null)
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
-const imageViewerVisible = ref(null)
+const imageViewerVisible = ref<boolean | null>(null)
 const tableChecker = reactive({
   rows: 4,
   columns: 3
 })
 
 // Template refs
-const editorRef = ref(null)
-const imageViewerRef = ref(null)
-const rowInput = ref(null)
+const editorRef = ref<HTMLDivElement | null>(null)
+const imageViewerRef = ref<HTMLDivElement | null>(null)
+const rowInput = ref<ElInputNumberInstance>(null)
 
 // Non-reactive variables
-let printer = null
-let spellchecker = null
-let switchLanguageCommand = null
-let imageViewer = null
+let printer: any = null
+let spellchecker: any = null
+let switchLanguageCommand: any = null
+let imageViewer: SimpleImageViewer | null = null
 
 class SimpleImageViewer {
-  constructor (container, { url }) {
+  container: HTMLElement
+  scale: number
+  translateX: number
+  translateY: number
+  isDragging: boolean
+  startX: number
+  startY: number
+  img!: HTMLImageElement
+  _onWheel!: (e: WheelEvent) => void
+  _onMousedown!: (e: MouseEvent) => void
+  _onMousemove!: (e: MouseEvent) => void
+  _onMouseup!: () => void
+
+  constructor (container: HTMLElement, { url }: { url: string }) {
     this.container = container
     this.scale = 1
     this.translateX = 0
@@ -228,7 +244,7 @@ class SimpleImageViewer {
     this._init(url)
   }
 
-  _init (url) {
+  _init (url: string) {
     this.container.innerHTML = ''
     this.img = document.createElement('img')
     this.img.src = url
@@ -244,13 +260,13 @@ class SimpleImageViewer {
   }
 
   _bindEvents () {
-    this._onWheel = (e) => {
+    this._onWheel = (e: WheelEvent) => {
       e.preventDefault()
       const factor = e.deltaY < 0 ? 1.1 : 0.9
       this.scale = Math.max(0.1, Math.min(10, this.scale * factor))
       this._updateTransform()
     }
-    this._onMousedown = (e) => {
+    this._onMousedown = (e: MouseEvent) => {
       if (e.button !== 0) return
       this.isDragging = true
       this.startX = e.clientX - this.translateX
@@ -258,7 +274,7 @@ class SimpleImageViewer {
       this.container.style.cursor = 'grabbing'
       e.preventDefault()
     }
-    this._onMousemove = (e) => {
+    this._onMousemove = (e: MouseEvent) => {
       if (!this.isDragging) return
       this.translateX = e.clientX - this.startX
       this.translateY = e.clientY - this.startY
@@ -535,41 +551,54 @@ watch(sourceCode, (value, oldValue) => {
 })
 
 // Methods
-const photoCreatorClick = (url) => {
+const photoCreatorClick = (url: string) => {
   window.electron.shell.openExternal(url)
 }
 
-const jumpClick = (linkInfo) => {
+const jumpClick = (linkInfo: { href: string }) => {
   const { href } = linkInfo
   editorStore.FORMAT_LINK_CLICK({ data: { href }, dirname: window.DIRNAME })
 }
 
-const imagePathAutoComplete = async (src) => {
-  const files = await editorStore.ASK_FOR_IMAGE_AUTO_PATH(src)
+interface ImagePathSuggestion {
+  type: 'directory' | 'file' | string
+  file: string
+  [key: string]: unknown
+}
+
+const imagePathAutoComplete = async (src: string) => {
+  const files = (await editorStore.ASK_FOR_IMAGE_AUTO_PATH(src)) as unknown as ImagePathSuggestion[]
   return files.map((f) => {
     const iconClass = f.type === 'directory' ? 'icon-folder' : 'icon-image'
     return Object.assign(f, { iconClass, text: f.file + (f.type === 'directory' ? '/' : '') })
   })
 }
 
-const imageAction = async (image, id, alt = '') => {
+const imageAction = async (
+  image: string | File,
+  id: string | null,
+  alt: string = ''
+): Promise<string> => {
   // TODO(Refactor): Refactor this method.
+  if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
   const isTabSavedOnDisk = !!currentPathname
   console.log('isTabSavedOnDisk', isTabSavedOnDisk, 'currentPathname', currentPathname)
-  let relativeBasePath = isTabSavedOnDisk ? window.path.dirname(currentPathname) : null
+  let relativeBasePath: string | null = isTabSavedOnDisk
+    ? window.path.dirname(currentPathname)
+    : null
   if (isTabSavedOnDisk && imageRelativeDirectoryBase.value !== 'file' && projectTree.value) {
-    const { pathname: rootPath } = projectTree.value
+    const { pathname: rootPath } = projectTree.value as { pathname?: string }
     if (rootPath && window.fileUtils.isChildOfDirectory(rootPath, currentPathname)) {
       // Save assets relative to root directory.
       relativeBasePath = rootPath
     }
   }
 
-  const getResolvedImagePath = (imagePath) => {
+  const getResolvedImagePath = (imagePath: string) => {
     const replacement = isTabSavedOnDisk
       ? filename.replace(/\.[^/.]+$/, '') // Filename w/o extension
       : ''
@@ -586,36 +615,40 @@ const imageAction = async (image, id, alt = '') => {
     case 'upload': {
       try {
         // Pass the full preferences state object to avoid dereferencing non-existent .value
-        destImagePath = await uploadImage(currentPathname, image, preferencesStore.$state)
+        destImagePath = (await uploadImage(
+          currentPathname,
+          image,
+          preferencesStore.$state as unknown as import('@/util/fileSystem').UploadImagePreferences
+        )) as string
       } catch (err) {
         notice.notify({
           title: 'Upload Image',
           type: 'warning',
-          message: err
+          message: err as string
         })
-        destImagePath = await moveImageToFolder(
+        destImagePath = (await moveImageToFolder(
           currentPathname,
           image,
           resolvedGlobalImageFolderPath
-        )
+        )) as string
       }
       break
     }
     case 'folder': {
       if (isTabSavedOnDisk && imagePreferRelativeDirectory.value) {
-        destImagePath = await moveImageToFolder(
-          null,
+        destImagePath = (await moveImageToFolder(
+          null as unknown as string,
           image,
-          resolvedImageRelativeFullDirectoryPath,
+          resolvedImageRelativeFullDirectoryPath as string,
           true,
           currentPathname
-        )
+        )) as string
       } else {
-        destImagePath = await moveImageToFolder(
+        destImagePath = (await moveImageToFolder(
           currentPathname,
           image,
           resolvedGlobalImageFolderPath
-        )
+        )) as string
       }
       break
     }
@@ -632,20 +665,20 @@ const imageAction = async (image, id, alt = '') => {
 
         // Respect user preferences if tab exists on disk.
         if (isTabSavedOnDisk && imagePreferRelativeDirectory.value) {
-          destImagePath = await moveImageToFolder(
-            null,
+          destImagePath = (await moveImageToFolder(
+            null as unknown as string,
             image,
-            resolvedImageRelativeFullDirectoryPath,
+            resolvedImageRelativeFullDirectoryPath as string,
             true,
             currentPathname
-          )
+          )) as string
           console.log('moved image to relative directory', { destImagePath })
         } else {
-          destImagePath = await moveImageToFolder(
+          destImagePath = (await moveImageToFolder(
             currentPathname,
             image,
             resolvedGlobalImageFolderPath
-          )
+          )) as string
         }
       }
       break
@@ -666,13 +699,13 @@ const imagePathPicker = () => {
   return editorStore.ASK_FOR_IMAGE_PATH()
 }
 
-const keyup = (event) => {
+const keyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     setImageViewerVisible(false)
   }
 }
 
-const setImageViewerVisible = (status) => {
+const setImageViewerVisible = (status: boolean) => {
   imageViewerVisible.value = status
   if (!status && imageViewer) {
     imageViewer.destroy()
@@ -680,7 +713,7 @@ const setImageViewerVisible = (status) => {
   }
 }
 
-const switchSpellcheckLanguage = (languageCode) => {
+const switchSpellcheckLanguage = (languageCode: unknown) => {
   const { isEnabled } = spellchecker
 
   // This method is also called from bus, so validate state before continuing.
@@ -690,24 +723,28 @@ const switchSpellcheckLanguage = (languageCode) => {
 
   spellchecker
     .switchLanguage(languageCode)
-    .then((langCode) => {
+    .then((langCode: string | null | undefined) => {
       if (!langCode) {
         // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
         notice.notify({
           title: t('editor.spellcheck.title'),
           type: 'warning',
-          message: t('editor.spellcheck.languageMissing', { languageCode })
+          message: t('editor.spellcheck.languageMissing', { languageCode: languageCode as string })
         })
       }
     })
-    .catch((error) => {
-      log.error(t('editor.spellcheck.errorSwitchingLanguage', { languageCode }))
+    .catch((error: unknown) => {
+      log.error(t('editor.spellcheck.errorSwitchingLanguage', { languageCode: languageCode as string }))
       log.error(error)
 
+      const errMsg = (error as { message?: string } | null | undefined)?.message ?? String(error)
       notice.notify({
         title: t('editor.spellcheck.title'),
         type: 'error',
-        message: t('editor.spellcheck.switchError', { languageCode, error: error.message })
+        message: t('editor.spellcheck.switchError', {
+          languageCode: languageCode as string,
+          error: errMsg
+        })
       })
     })
 }
@@ -724,7 +761,8 @@ const openSpellcheckerLanguageCommand = () => {
   }
 }
 
-const replaceMisspelling = ({ word, replacement }) => {
+const replaceMisspelling = (payload: unknown) => {
+  const { word, replacement } = payload as { word: string; replacement: string }
   if (editor.value) {
     editor.value._replaceCurrentWordInlineUnsafe(word, replacement)
   }
@@ -750,43 +788,46 @@ const handleSelectAll = () => {
   if (editor.value && (editor.value.hasFocus() || editor.value.contentState.selectedTableCells)) {
     editor.value.selectAll()
   } else {
-    const activeElement = document.activeElement
-    const nodeName = activeElement.nodeName
+    const activeElement = document.activeElement as HTMLElement | null
+    const nodeName = activeElement?.nodeName
     if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
-      if (typeof activeElement.select === 'function') {
-        activeElement.select()
+      const selectable = activeElement as HTMLInputElement | HTMLTextAreaElement | null
+      if (selectable && typeof selectable.select === 'function') {
+        selectable.select()
       }
     }
   }
 }
 
 // Custom copyAsRich copyAsHtml pasteAsPlainText
-const handleCopyPaste = (type) => {
+const handleCopyPaste = (type: unknown) => {
   if (editor.value) {
-    editor.value[type]()
+    editor.value[type as string]()
   }
 }
 
-const insertImage = (src) => {
+const insertImage = (src: unknown) => {
   if (!sourceCode.value) {
     editor.value && editor.value.insertImage({ src })
   }
 }
 
-const handleSearch = ({ value, opt }) => {
+const handleSearch = (payload: unknown) => {
+  const { value, opt } = payload as { value: string; opt: unknown }
   const searchMatches = editor.value.search(value, opt)
   editorStore.SEARCH(searchMatches)
   scrollToHighlight()
 }
 
-const handReplace = ({ value, opt }) => {
+const handReplace = (payload: unknown) => {
+  const { value, opt } = payload as { value: string; opt: unknown }
   const searchMatches = editor.value.replace(value, opt)
   editorStore.SEARCH(searchMatches)
 }
 
-const handleUploadedImage = (url, deletionUrl) => {
+const handleUploadedImage = (url: unknown, deletionUrl?: unknown) => {
   insertImage(url)
-  editorStore.SHOW_IMAGE_DELETION_URL(deletionUrl)
+  editorStore.SHOW_IMAGE_DELETION_URL(deletionUrl as string)
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -798,7 +839,7 @@ const scrollToCursor = (duration = 300) => {
   })
 }
 
-const scrollToCords = (y) => {
+const scrollToCords = (y: number) => {
   const { container } = editor.value
   // Depending on how much the user previously scrolled, sometimes the container has not fully rendered all elements.
   // Hence, container.scrollHeight < [saved scrollTop]
@@ -824,11 +865,11 @@ const scrollToHighlight = () => {
   return scrollToElement('.ag-highlight')
 }
 
-const scrollToHeader = (slug) => {
+const scrollToHeader = (slug: unknown) => {
   return scrollToElement(`#${slug}`)
 }
 
-const scrollToElement = (selector) => {
+const scrollToElement = (selector: string) => {
   // Scroll to search highlight word
   const { container } = editor.value
   const anchor = document.querySelector(selector)
@@ -839,21 +880,35 @@ const scrollToElement = (selector) => {
   }
 }
 
-const handleFindAction = (action) => {
+const handleFindAction = (action: unknown) => {
   const searchMatches = editor.value.find(action)
   editorStore.SEARCH(searchMatches)
   scrollToHighlight()
 }
 
-const handleExport = async (options) => {
-  const { type, header, footer, headerFooterStyled, htmlTitle } = options
+interface ExportOptions {
+  type: string
+  header?: unknown
+  footer?: unknown
+  headerFooterStyled?: unknown
+  htmlTitle?: string
+  pageSize?: unknown
+  pageSizeWidth?: unknown
+  pageSizeHeight?: unknown
+  isLandscape?: unknown
+  [key: string]: unknown
+}
+
+const handleExport = async (options: unknown) => {
+  const opts = options as ExportOptions
+  const { type, header, footer, headerFooterStyled, htmlTitle } = opts
 
   if (!/^pdf|print|styledHtml$/.test(type)) {
     throw new Error(`Invalid type to export: "${type}".`)
   }
 
-  const extraCss = await getCssForOptions(options)
-  const htmlToc = getHtmlToc(editor.value.getTOC(), options)
+  const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
+  const htmlToc = getHtmlToc(editor.value.getTOC(), opts as unknown as HtmlTocOptions)
 
   switch (type) {
     case 'styledHtml': {
@@ -870,7 +925,7 @@ const handleExport = async (options) => {
         notice.notify({
           title: t('editor.export.failed', { type: htmlTitle || 'html' }),
           type: 'error',
-          message: err.message || t('editor.export.error')
+          message: (err as { message?: string } | null | undefined)?.message ?? t('editor.export.error')
         })
       }
       break
@@ -878,7 +933,7 @@ const handleExport = async (options) => {
     case 'pdf': {
       // NOTE: We need to set page size via Electron.
       try {
-        const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = options
+        const { pageSize, pageSizeWidth, pageSizeHeight, isLandscape } = opts
         const pageOptions = {
           pageSize,
           pageSizeWidth,
@@ -940,13 +995,13 @@ const handlePrintServiceClearup = () => {
   printer.clearup()
 }
 
-const handleEditParagraph = (type) => {
+const handleEditParagraph = (type: unknown) => {
   if (type === 'table') {
     tableChecker.rows = 4
     tableChecker.columns = 3
     dialogTableVisible.value = true
     nextTick(() => {
-      rowInput.value.focus()
+      rowInput.value?.focus()
     })
   } else if (editor.value) {
     editor.value.updateParagraph(type)
@@ -954,7 +1009,7 @@ const handleEditParagraph = (type) => {
 }
 
 // handle `duplicate`, `delete`, `create paragraph below`
-const handleParagraph = (type) => {
+const handleParagraph = (type: unknown) => {
   if (editor.value) {
     switch (type) {
       case 'duplicate': {
@@ -972,7 +1027,7 @@ const handleParagraph = (type) => {
   }
 }
 
-const handleInlineFormat = (type) => {
+const handleInlineFormat = (type: unknown) => {
   editor.value && editor.value.format(type)
 }
 
@@ -981,8 +1036,14 @@ const handleDialogTableConfirm = () => {
   editor.value && editor.value.createTable(tableChecker)
 }
 
+interface FileLoadedPayload {
+  markdown?: string
+  cursor?: unknown
+}
+
 // listen for `open-single-file` event, it will call this method only when open a new file.
-const setMarkdownToEditor = ({ markdown: newMarkdown, cursor: newCursor }) => {
+const setMarkdownToEditor = (payload: unknown) => {
+  const { markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
     editor.value.clearHistory()
     if (newCursor) {
@@ -993,16 +1054,27 @@ const setMarkdownToEditor = ({ markdown: newMarkdown, cursor: newCursor }) => {
   }
 }
 
+interface FileChangePayload {
+  markdown?: string
+  cursor?: unknown
+  renderCursor?: boolean
+  history?: unknown
+  scrollTop?: number
+  muyaIndexCursor?: unknown
+  blocks?: unknown
+}
+
 // listen for markdown change form source mode or change tabs etc
-const handleFileChange = ({
-  markdown: newMarkdown,
-  cursor: newCursor,
-  renderCursor,
-  history,
-  scrollTop,
-  muyaIndexCursor,
-  blocks = undefined
-}) => {
+const handleFileChange = (payload: unknown) => {
+  const {
+    markdown: newMarkdown,
+    cursor: newCursor,
+    renderCursor,
+    history,
+    scrollTop,
+    muyaIndexCursor,
+    blocks = undefined
+  } = (payload ?? {}) as FileChangePayload
   const { container } = editor.value
 
   if (editor.value) {
@@ -1034,16 +1106,16 @@ const handleFileChange = ({
   }
 }
 
-const handleInsertParagraph = (location) => {
+const handleInsertParagraph = (location: unknown) => {
   editor.value && editor.value.insertParagraph(location)
 }
 
 const blurEditor = () => {
-  editor.value.blur(false, true)
+  editor.value?.blur(false, true)
 }
 
 const focusEditor = () => {
-  editor.value.focus()
+  editor.value?.focus()
 }
 
 const handleScreenShot = () => {
@@ -1054,14 +1126,16 @@ const handleScreenShot = () => {
 
 const handleResetPaddingBottom = () => {
   const { container } = editor.value
+  const firstChild = container.firstElementChild as HTMLElement | null
+  if (!firstChild) return
   const newScollableHeightWithoutPadding =
     container.scrollHeight -
     container.clientHeight -
-    parseFloat(container.firstElementChild.style.paddingBottom)
+    parseFloat(firstChild.style.paddingBottom)
 
-  if (newScollableHeightWithoutPadding > currentFile.value.scrollTop) {
+  if (currentFile.value && newScollableHeightWithoutPadding > currentFile.value.scrollTop) {
     container.style.paddingBottom = ''
-    resizeObserverForEditor.unobserve(container.firstElementChild) // unobserve #ag-editor-id since we have removed the padding
+    resizeObserverForEditor.unobserve(firstChild) // unobserve #ag-editor-id since we have removed the padding
   }
 }
 
@@ -1096,7 +1170,7 @@ onMounted(() => {
   Muya.use(FootnoteTool)
   Muya.use(TableBarTools)
 
-  const options = {
+  const options: Record<string, unknown> = {
     focusMode: focus.value,
     markdown: props.markdown,
     preferLooseListItem: preferLooseListItem.value,
@@ -1189,9 +1263,10 @@ onMounted(() => {
   bus.on('open-command-spellchecker-switch-language', openSpellcheckerLanguageCommand)
   bus.on('replace-misspelling', replaceMisspelling)
 
-  editor.value.on('change', (changes) => {
+  editor.value.on('change', (changes: MuyaChange) => {
     // There is a chance that this event is fired AFTER the tab is switched. If we purely rely on this.currentFile later on
     // it can cause invalid updates. Hence, we need the id to identify changes as part of each tab
+    if (!currentFile.value) return
     const { id } = currentFile.value
     if (id) {
       editorStore.LISTEN_FOR_CONTENT_CHANGE(
@@ -1200,37 +1275,49 @@ onMounted(() => {
     }
   })
 
-  editor.value.on('scroll', (scrollEvent) => {
-    editorStore.updateScrollPosition(currentFile.value.id, scrollEvent.scrollTop)
+  editor.value.on('scroll', (scrollEvent: { scrollTop: number }) => {
+    if (currentFile.value) {
+      editorStore.updateScrollPosition(currentFile.value.id, scrollEvent.scrollTop)
+    }
   })
 
-  editor.value.on('heading-copy-link', ({ key }) => {
+  editor.value.on('heading-copy-link', ({ key }: { key: string }) => {
     editorStore.copyGithubSlug(key)
   })
 
-  editor.value.on('format-click', ({ event, formatType, data }) => {
-    const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
-    if (formatType === 'link' && ctrlOrMeta) {
-      editorStore.FORMAT_LINK_CLICK({ data, dirname: window.DIRNAME })
-    } else if (formatType === 'image' && ctrlOrMeta) {
-      if (imageViewer) {
-        imageViewer.destroy()
+  editor.value.on(
+    'format-click',
+    ({ event, formatType, data }: { event: MouseEvent; formatType: string; data: unknown }) => {
+      const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
+      if (formatType === 'link' && ctrlOrMeta) {
+        editorStore.FORMAT_LINK_CLICK({
+          data: data as { href: string; [key: string]: unknown },
+          dirname: window.DIRNAME
+        })
+      } else if (formatType === 'image' && ctrlOrMeta) {
+        if (imageViewer) {
+          imageViewer.destroy()
+        }
+        if (imageViewerRef.value) {
+          imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data as string })
+          setImageViewerVisible(true)
+        }
       }
+    }
+  )
+
+  editor.value.on('preview-image', ({ data }: { data: string }) => {
+    if (imageViewer) {
+      imageViewer.destroy()
+    }
+    if (imageViewerRef.value) {
       imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
       setImageViewerVisible(true)
     }
   })
 
-  editor.value.on('preview-image', ({ data }) => {
-    if (imageViewer) {
-      imageViewer.destroy()
-    }
-    imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
-    setImageViewerVisible(true)
-  })
-
-  editor.value.on('selectionChange', (changes) => {
-    const { y } = changes.cursorCoords
+  editor.value.on('selectionChange', (changes: MuyaChange) => {
+    const { y } = changes.cursorCoords as { y: number }
     if (typewriter.value) {
       const startPosition = container.scrollTop
       const toPosition = startPosition + y - STANDAR_Y
@@ -1252,7 +1339,7 @@ onMounted(() => {
     editorStore.SELECTION_CHANGE(changes)
   })
 
-  editor.value.on('selectionFormats', (formats) => {
+  editor.value.on('selectionFormats', (formats: MuyaChange) => {
     editorStore.SELECTION_FORMATS(formats)
   })
 
@@ -1295,12 +1382,14 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
-  editor.value.off('change')
-  editor.value.off('scroll')
-  editor.value.off('heading-copy-link')
-  editor.value.off('format-click')
-  editor.value.off('selectionChange')
-  editor.value.off('selectionFormats')
+  if (editor.value) {
+    editor.value.off('change')
+    editor.value.off('scroll')
+    editor.value.off('heading-copy-link')
+    editor.value.off('format-click')
+    editor.value.off('selectionChange')
+    editor.value.off('selectionFormats')
+  }
 
   resizeObserverForEditor.disconnect()
 

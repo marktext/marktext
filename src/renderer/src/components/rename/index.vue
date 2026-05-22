@@ -32,18 +32,17 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import bus from '../../bus'
 import { useEditorStore } from '@/store/editor'
 
 const showRename = ref(false)
 const tempName = ref('')
-const search = ref(null)
+const search = ref<HTMLInputElement | null>(null)
 
 const editorStore = useEditorStore()
 
-const filename = computed(() => editorStore.currentFile.filename)
+const filename = computed(() => editorStore.currentFile?.filename ?? '')
 
 const handleRename = () => {
   showRename.value = true
@@ -56,7 +55,7 @@ const handleRename = () => {
 }
 
 const confirm = () => {
-  editorStore.rename(tempName.value)
+  editorStore.RENAME(tempName.value)
   showRename.value = false
 }
 

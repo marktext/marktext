@@ -149,7 +149,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import bus from '../../bus'
 import FindCaseIcon from '@/assets/icons/searchIcons/iconCase.svg'
@@ -172,7 +171,7 @@ const type = ref('search')
 const searchValue = ref('')
 const replaceValue = ref('')
 const searchErrorMsg = ref('')
-const search = ref(null)
+const search = ref<HTMLInputElement | null>(null)
 
 const { currentFile } = storeToRefs(editorStore)
 const searchMatches = computed(() => currentFile.value?.searchMatches)
@@ -226,7 +225,7 @@ onBeforeUnmount(() => {
   bus.off('search-blur', blurSearch)
 })
 
-const toggleCtrl = (ctrl) => {
+const toggleCtrl = (ctrl: 'isCaseSensitive' | 'isWholeWord' | 'isRegexp') => {
   switch (ctrl) {
     case 'isCaseSensitive':
       isCaseSensitive.value = !isCaseSensitive.value
@@ -245,7 +244,7 @@ const listenFind = () => {
   showSearch.value = true
   type.value = 'search'
   nextTick(() => {
-    search.value.focus()
+    search.value?.focus()
     if (searchValue.value) {
       searchFn()
     }
@@ -265,7 +264,7 @@ const listenFindPrev = () => {
   find('prev')
 }
 
-const docKeyup = (event) => {
+const docKeyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     emptySearch(true)
   }
@@ -295,17 +294,17 @@ const toggleSearchType = () => {
  * Find the previous or next search result.
  * action: prev or next
  */
-const find = (action) => {
+const find = (action: 'prev' | 'next') => {
   bus.emit('find-action', action)
 }
 
-const handleEnterKey = (event) => {
+const handleEnterKey = (event: KeyboardEvent) => {
   if (event.key === 'Enter') {
     find('next')
   }
 }
 
-const searchFn = (event = null) => {
+const searchFn = () => {
   if (isRegexp.value) {
     // Handle invalid regexp.
     try {

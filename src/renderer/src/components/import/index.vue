@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import bus from '@/bus'
 import importIconUrl from '@/assets/icons/import_file.svg?url'
@@ -49,7 +48,8 @@ const importIcon = ref({ url: importIconUrl })
 const showImport = ref(false)
 const isOver = ref(false)
 
-const showDialog = (boolean) => {
+const showDialog = (value: unknown) => {
+  const boolean = Boolean(value)
   if (boolean !== showImport.value) {
     showImport.value = boolean
   }
@@ -63,17 +63,21 @@ const dragLeaveHandler = () => {
   isOver.value = false
 }
 
-const dropHandler = (e) => {
-  const fileList = []
+const dropHandler = (e: DragEvent) => {
+  const fileList: string[] = []
   e.preventDefault()
+  if (!e.dataTransfer) return
   if (e.dataTransfer.files.length > 0) {
-    for (const file of e.dataTransfer.files) {
+    for (const file of Array.from(e.dataTransfer.files)) {
       fileList.push(window.electron.webUtils.getPathForFile(file))
     }
   } else {
-    for (const file of e.dataTransfer.items) {
+    for (const file of Array.from(e.dataTransfer.items)) {
       if (file.kind === 'file') {
-        fileList.push(window.electron.webUtils.getPathForFile(file.getAsFile()))
+        const asFile = file.getAsFile()
+        if (asFile) {
+          fileList.push(window.electron.webUtils.getPathForFile(asFile))
+        }
       }
     }
   }
