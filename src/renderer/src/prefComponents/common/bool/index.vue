@@ -41,21 +41,23 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { PrefControlBaseProps } from '../types'
 
-const props = defineProps({
-  description: String,
-  notes: String,
-  bool: Boolean,
-  onChange: Function,
-  more: String,
-  detailedDescription: String,
-  disable: {
-    type: Boolean,
-    default: false
-  }
+interface BoolProps extends PrefControlBaseProps {
+  notes?: string
+  bool: boolean
+  onChange: (value: boolean) => void
+  detailedDescription?: string
+}
+
+const props = withDefaults(defineProps<BoolProps>(), {
+  description: '',
+  notes: '',
+  more: '',
+  detailedDescription: '',
+  disable: false
 })
 
 const status = ref(props.bool)
@@ -75,8 +77,8 @@ const handleMoreClick = () => {
   }
 }
 
-const handleSwitchChange = (value) => {
-  props.onChange(value)
+const handleSwitchChange = (value: boolean | string | number) => {
+  props.onChange(Boolean(value))
 }
 </script>
 

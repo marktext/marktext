@@ -157,9 +157,18 @@ These items are tracked as follow-up PRs:
 
 1. **All `.vue` SFCs** — remove `// @ts-nocheck` from `<script setup
    lang="ts">` blocks, type `defineProps`/`defineEmits`, fix
-   ~20 errors per file.
-2. **Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
-   and `test/e2e/*.spec.ts`, convert CommonJS `require()` to ESM `import`.
+   ~20 errors per file. The leaf preference controls in
+   `src/renderer/src/prefComponents/common/` and their static schema
+   `config.ts` siblings are already typed (see
+   `prefComponents/common/types.ts` for the shared `PrefControlProps<T>`
+   / `PrefSelectOption<T>` helpers). The remaining `prefComponents/*/index.vue`
+   pages and the editor SFCs still carry `// @ts-nocheck`.
+2. ~~**Test specs** — remove `// @ts-nocheck` from `test/unit/specs/*.spec.ts`
+   and `test/e2e/*.spec.ts`, convert CommonJS `require()` to ESM `import`.~~
+   **Done.** Every spec uses ESM `import { test, expect } from
+   '@playwright/test'` / `import { describe, it, expect } from 'vitest'`
+   and is type-checked. `test/e2e/helpers.ts` is fully typed; vitest specs
+   import their globals explicitly.
 3. **`@typescript-eslint/no-explicit-any`** — currently `warn` in
    `eslint.config.js`. Tighten to `error` after the per-file
    `// @ts-nocheck` opt-outs above have been removed and the remaining

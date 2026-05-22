@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 import GeneralIcon from '@/assets/icons/pref_general.svg'
 import EditorIcon from '@/assets/icons/pref_editor.svg'
 import MarkdownIcon from '@/assets/icons/pref_markdown.svg'
@@ -11,7 +9,61 @@ import KeyBindingIcon from '@/assets/icons/pref_key_binding.svg'
 import preferences from '../../../../main/preferences/schema.json'
 import { t } from '../../i18n'
 
-export const getCategory = () => [
+interface PrefCategory {
+  name: string
+  label: string
+  icon: unknown
+  path: string
+}
+
+interface PreferenceSchemaEntry {
+  description: string
+  enum?: unknown[]
+  [key: string]: unknown
+}
+
+interface TranslatedSearchEntry {
+  key: string
+  category: string
+  categoryEn: string
+  preference: string
+  preferenceEn: string
+  routeCategory: string
+  description: string
+  enum: unknown[] | undefined
+}
+
+interface VueI18nLocale {
+  value?: string
+}
+
+interface VueI18nGlobal {
+  locale?: VueI18nLocale | string
+  t?: (key: string) => string
+}
+
+interface VueI18nGlobalContainer {
+  global?: VueI18nGlobal | (() => VueI18nGlobal)
+  t?: (key: string) => string
+  $i18n?: VueI18nGlobal
+}
+
+declare global {
+  interface Window {
+    __VUE_I18N__?: VueI18nGlobalContainer
+  }
+}
+
+// Function-attached cache shared between getTranslatedSearchContent and
+// setupLanguageChangeListener.
+interface CachedTranslator {
+  (): TranslatedSearchEntry[]
+  lastLanguage?: string
+}
+
+const preferencesSchema = preferences as unknown as Record<string, PreferenceSchemaEntry>
+
+export const getCategory = (): PrefCategory[] => [
   {
     name: t('preferences.categories.general'),
     label: 'general',
@@ -56,111 +108,127 @@ export const getCategory = () => [
   }
 ]
 
-// Creates a reactive translated mapping function
-export const getTranslatedSearchContent = () => {
-  // Generate keys by iterating through each language
-  const result = []
-  Object.keys(preferences).forEach((k) => {
-    const { description, enum: emums } = preferences[k]
+const errMessage = (e: unknown): string => (e instanceof Error ? e.message : String(e))
 
-    if (description.endsWith('--internal')) return
-
-    let [category] = description.split('--')
-
-    // Map category names
-    let mappedCategory = category.toLowerCase()
-    if (category === 'General') mappedCategory = 'general'
-    else if (category === 'Editor') mappedCategory = 'editor'
-    else if (category === 'Markdown') mappedCategory = 'markdown'
-    else if (category === 'Theme') mappedCategory = 'theme'
-    else if (category === 'Image') mappedCategory = 'image'
-    else if (category === 'View') mappedCategory = 'view'
-    else if (category === 'Searcher') mappedCategory = 'searcher'
-    else if (category === 'Watcher') mappedCategory = 'watcher'
-    else if (category === 'Spelling') mappedCategory = 'spelling'
-    else if (category === 'Custom CSS') mappedCategory = 'custom css'
-    else {
-      // Handle special category names
-      mappedCategory = category.toLowerCase().replace(/\s+/g, '-')
-    }
-
-    // Compute the category for route navigation (only allow existing routes, otherwise fall back to general)
-    let routeCategory = mappedCategory
-    const validRoutes = [
-      'general',
-      'editor',
-      'markdown',
-      'spelling',
-      'theme',
-      'image',
-      'keybindings'
-    ]
-    if (!validRoutes.includes(routeCategory)) routeCategory = 'general'
-
-    // Try to translate the category and item
-    const categoryKey = `preferences.search.categories.${mappedCategory}`
-    const itemKey = `preferences.search.items.${k}`
-
-    // Translate the category name
-    let translatedCategory = category
-    const englishCategory = category
-    try {
-      translatedCategory = t(categoryKey)
-    } catch (e) {
-      console.warn(`   ⚠️ 搜索分类翻译失败: ${e.message}`)
-      // Try fallback to preferences.categories
-      try {
-        const fallbackKey = `preferences.categories.${mappedCategory}`
-        translatedCategory = t(fallbackKey)
-      } catch (e2) {
-        console.warn(`   ❌ 搜索分类fallback也失败: ${e2.message}`)
-        translatedCategory = category
-      }
-    }
-
-    // Translate preference description
-    let translatedPreference = description.split('--')[1] || description
-    const englishPreference = description.split('--')[1] || description
-    try {
-      translatedPreference = t(itemKey)
-    } catch (e) {
-      console.warn(`   ⚠️ 搜索项目翻译失败: ${e.message}`)
-      // Try fallback to preferences.items
-      try {
-        const fallbackKey = `preferences.items.${k}`
-        translatedPreference = t(fallbackKey)
-      } catch (e2) {
-        console.warn(`   ❌ 搜索项目fallback也失败: ${e2.message}`)
-        translatedPreference = description.split('--')[1] || description
-      }
-    }
-
-    result.push({
-      key: k,
-      category: translatedCategory,
-      categoryEn: englishCategory,
-      preference: translatedPreference,
-      preferenceEn: englishPreference,
-      routeCategory,
-      description,
-      enum: emums
-    })
-  })
-  return result
+const resolveGlobal = (container: VueI18nGlobalContainer | undefined): VueI18nGlobal | undefined => {
+  if (!container) return undefined
+  return typeof container.global === 'function' ? container.global() : container.global
 }
 
+const resolveLocale = (g: VueI18nGlobal | undefined): string => {
+  if (!g || !g.locale) return 'en'
+  if (typeof g.locale === 'string') return g.locale
+  return g.locale.value ?? 'en'
+}
+
+// Creates a reactive translated mapping function
+export const getTranslatedSearchContent: CachedTranslator = (() => {
+  const fn = (() => {
+    // Generate keys by iterating through each language
+    const result: TranslatedSearchEntry[] = []
+    Object.keys(preferencesSchema).forEach((k) => {
+      const entry = preferencesSchema[k]
+      if (!entry) return
+      const { description, enum: emums } = entry
+
+      if (description.endsWith('--internal')) return
+
+      const [category] = description.split('--')
+      const categoryName = category ?? ''
+
+      // Map category names
+      let mappedCategory = categoryName.toLowerCase()
+      if (categoryName === 'General') mappedCategory = 'general'
+      else if (categoryName === 'Editor') mappedCategory = 'editor'
+      else if (categoryName === 'Markdown') mappedCategory = 'markdown'
+      else if (categoryName === 'Theme') mappedCategory = 'theme'
+      else if (categoryName === 'Image') mappedCategory = 'image'
+      else if (categoryName === 'View') mappedCategory = 'view'
+      else if (categoryName === 'Searcher') mappedCategory = 'searcher'
+      else if (categoryName === 'Watcher') mappedCategory = 'watcher'
+      else if (categoryName === 'Spelling') mappedCategory = 'spelling'
+      else if (categoryName === 'Custom CSS') mappedCategory = 'custom css'
+      else {
+        // Handle special category names
+        mappedCategory = categoryName.toLowerCase().replace(/\s+/g, '-')
+      }
+
+      // Compute the category for route navigation (only allow existing routes, otherwise fall back to general)
+      let routeCategory = mappedCategory
+      const validRoutes = [
+        'general',
+        'editor',
+        'markdown',
+        'spelling',
+        'theme',
+        'image',
+        'keybindings'
+      ]
+      if (!validRoutes.includes(routeCategory)) routeCategory = 'general'
+
+      // Try to translate the category and item
+      const categoryKey = `preferences.search.categories.${mappedCategory}`
+      const itemKey = `preferences.search.items.${k}`
+
+      // Translate the category name
+      let translatedCategory = categoryName
+      const englishCategory = categoryName
+      try {
+        translatedCategory = t(categoryKey)
+      } catch (e) {
+        console.warn(`   ⚠️ 搜索分类翻译失败: ${errMessage(e)}`)
+        // Try fallback to preferences.categories
+        try {
+          const fallbackKey = `preferences.categories.${mappedCategory}`
+          translatedCategory = t(fallbackKey)
+        } catch (e2) {
+          console.warn(`   ❌ 搜索分类fallback也失败: ${errMessage(e2)}`)
+          translatedCategory = categoryName
+        }
+      }
+
+      // Translate preference description
+      let translatedPreference = description.split('--')[1] || description
+      const englishPreference = description.split('--')[1] || description
+      try {
+        translatedPreference = t(itemKey)
+      } catch (e) {
+        console.warn(`   ⚠️ 搜索项目翻译失败: ${errMessage(e)}`)
+        // Try fallback to preferences.items
+        try {
+          const fallbackKey = `preferences.items.${k}`
+          translatedPreference = t(fallbackKey)
+        } catch (e2) {
+          console.warn(`   ❌ 搜索项目fallback也失败: ${errMessage(e2)}`)
+          translatedPreference = description.split('--')[1] || description
+        }
+      }
+
+      result.push({
+        key: k,
+        category: translatedCategory,
+        categoryEn: englishCategory,
+        preference: translatedPreference,
+        preferenceEn: englishPreference,
+        routeCategory,
+        description,
+        enum: emums
+      })
+    })
+    return result
+  }) as CachedTranslator
+  return fn
+})()
+
 // Add language change listener
-export const setupLanguageChangeListener = () => {
+export const setupLanguageChangeListener = (): void => {
   // Listen for language change events
   const handleLanguageChange = () => {
     // Trigger search content refresh
     if (window.__VUE_I18N__) {
       try {
-        const g =
-          typeof window.__VUE_I18N__.global === 'function'
-            ? window.__VUE_I18N__.global()
-            : window.__VUE_I18N__.global
-        const currentLanguage = g && g.locale ? g.locale.value || g.locale : 'en'
+        const g = resolveGlobal(window.__VUE_I18N__)
+        const currentLanguage = resolveLocale(g)
 
         // Here we can dispatch a custom event to notify the search component to refresh
         window.dispatchEvent(
@@ -177,10 +245,8 @@ export const setupLanguageChangeListener = () => {
   // Listen for locale changes in the i18n instance
   if (window.__VUE_I18N__) {
     try {
-      const i18n = window.__VUE_I18N__
-      // Listen for locale changes
-      const g = typeof i18n.global === 'function' ? i18n.global() : i18n.global
-      if (g && g.locale && g.locale.value !== undefined) {
+      const g = resolveGlobal(window.__VUE_I18N__)
+      if (g && g.locale && typeof g.locale !== 'string' && g.locale.value !== undefined) {
         // Use Vue's reactive system to listen for language changes
       }
     } catch (e) {
@@ -192,17 +258,14 @@ export const setupLanguageChangeListener = () => {
   setInterval(() => {
     try {
       if (window.__VUE_I18N__) {
-        const g =
-          typeof window.__VUE_I18N__.global === 'function'
-            ? window.__VUE_I18N__.global()
-            : window.__VUE_I18N__.global
-        const currentLanguage = g && g.locale ? g.locale.value || g.locale : 'en'
+        const g = resolveGlobal(window.__VUE_I18N__)
+        const currentLanguage = resolveLocale(g)
         if (currentLanguage !== getTranslatedSearchContent.lastLanguage) {
           getTranslatedSearchContent.lastLanguage = currentLanguage
           handleLanguageChange()
         }
       }
-    } catch (e) {
+    } catch {
       // Ignore errors and continue checking
     }
   }, 1000) // Check once per second
@@ -210,13 +273,10 @@ export const setupLanguageChangeListener = () => {
   // Record the initial language
   try {
     if (window.__VUE_I18N__) {
-      const g =
-        typeof window.__VUE_I18N__.global === 'function'
-          ? window.__VUE_I18N__.global()
-          : window.__VUE_I18N__.global
-      getTranslatedSearchContent.lastLanguage = g && g.locale ? g.locale.value || g.locale : 'en'
+      const g = resolveGlobal(window.__VUE_I18N__)
+      getTranslatedSearchContent.lastLanguage = resolveLocale(g)
     }
-  } catch (e) {
+  } catch {
     getTranslatedSearchContent.lastLanguage = 'en'
   }
 }
@@ -225,7 +285,7 @@ export const setupLanguageChangeListener = () => {
 setupLanguageChangeListener()
 
 // Add manual refresh function
-export const refreshSearchContent = () => {
+export const refreshSearchContent = (): TranslatedSearchEntry[] => {
   // Clear the language cache to force re-fetch
   if (getTranslatedSearchContent.lastLanguage) {
     delete getTranslatedSearchContent.lastLanguage
@@ -242,11 +302,11 @@ export const refreshSearchContent = () => {
 }
 
 // Creates the debug popup (ensures the close button is visible)
-function createDebugPopup() {
+function createDebugPopup(): HTMLDivElement {
   // Remove any existing popup
   const existingPopup = document.getElementById('debugPopup')
-  if (existingPopup) {
-    document.body.removeChild(existingPopup)
+  if (existingPopup && existingPopup.parentNode) {
+    existingPopup.parentNode.removeChild(existingPopup)
   }
 
   // Create new popup
@@ -317,7 +377,7 @@ function createDebugPopup() {
 }
 
 // General method to get the i18n instance (fixes API access issues)
-function getI18nInstance() {
+function getI18nInstance(): VueI18nGlobal | VueI18nGlobalContainer | null {
   if (!window.__VUE_I18N__) {
     return null
   }
@@ -339,27 +399,29 @@ function getI18nInstance() {
 }
 
 // Enhanced debug function (fixes API access issues)
-export const debugLanguageState = () => {
+export const debugLanguageState = (): void => {
   // Ensure the popup exists and is visible
-  let popup = document.getElementById('debugPopup')
+  let popup = document.getElementById('debugPopup') as HTMLDivElement | null
   if (!popup) {
     popup = createDebugPopup()
     popup.style.zIndex = '10000'
   }
 
   // Ensure the content area exists
-  const debugContent = popup.querySelector('#debugContent')
+  let debugContent = popup.querySelector('#debugContent') as HTMLDivElement | null
   if (!debugContent) {
     const newContent = document.createElement('div')
     newContent.id = 'debugContent'
     popup.appendChild(newContent)
+    debugContent = newContent
   }
 
   // Clear and populate debug information
   debugContent.innerHTML = '<div id="debugDetails">正在加载调试信息...</div>'
 
   // Populate debug details
-  const details = debugContent.querySelector('#debugDetails')
+  const details = debugContent.querySelector('#debugDetails') as HTMLDivElement | null
+  if (!details) return
 
   // Simulate delayed loading
   setTimeout(() => {
@@ -384,14 +446,14 @@ export const debugLanguageState = () => {
             debugInfo += `<p><strong>global 键:</strong> ${globalKeys.join(', ')}</p>`
 
             // Check if translation function is available
-            if (typeof i18n.global.t === 'function') {
+            if (typeof (i18n.global as VueI18nGlobal).t === 'function') {
               debugInfo += '<p style="color:green;">✅ global.t 函数可用</p>'
             } else {
               debugInfo += '<p style="color:orange;">⚠️ global.t 函数不可用</p>'
             }
           }
         } catch (e) {
-          debugInfo += `<p style="color:red;">❌ 检查global时出错: ${e.message}</p>`
+          debugInfo += `<p style="color:red;">❌ 检查global时出错: ${errMessage(e)}</p>`
         }
 
         // Try to get the i18n instance
@@ -401,22 +463,24 @@ export const debugLanguageState = () => {
 
           // Get the current language
           let currentLanguage = 'unknown'
-          if (i18nInstance.locale && i18nInstance.locale.value) {
-            currentLanguage = i18nInstance.locale.value
-          } else if (i18nInstance.locale) {
-            currentLanguage = i18nInstance.locale
+          const inst = i18nInstance as VueI18nGlobal
+          if (inst.locale && typeof inst.locale !== 'string' && inst.locale.value) {
+            currentLanguage = inst.locale.value
+          } else if (typeof inst.locale === 'string') {
+            currentLanguage = inst.locale
           }
 
           debugInfo += `<p><strong>🌍 当前语言:</strong> ${currentLanguage}</p>`
 
           // Test translation
           try {
-            const testTranslation = i18nInstance.t(
-              'preferences.general.window.titleBarStyle.custom'
-            )
+            const tFn = (i18nInstance as VueI18nGlobal).t
+            const testTranslation = tFn
+              ? tFn('preferences.general.window.titleBarStyle.custom')
+              : ''
             debugInfo += `<p><strong>🔄 测试翻译:</strong> ${testTranslation}</p>`
           } catch (e) {
-            debugInfo += `<p style="color:red;"><strong>🔄 测试翻译失败:</strong> ${e.message}</p>`
+            debugInfo += `<p style="color:red;"><strong>🔄 测试翻译失败:</strong> ${errMessage(e)}</p>`
           }
         } else {
           debugInfo += '<p style="color:red;">❌ 无法获取有效的i18n实例</p>'
@@ -425,7 +489,7 @@ export const debugLanguageState = () => {
 
       details.innerHTML = debugInfo
     } catch (e) {
-      details.innerHTML = `<p style="color:red;">❌ 调试失败: ${e.message}</p>`
+      details.innerHTML = `<p style="color:red;">❌ 调试失败: ${errMessage(e)}</p>`
     }
   }, 500)
 }

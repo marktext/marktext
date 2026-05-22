@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchWithMarkdown, clickMenuById } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithMarkdown, clickMenuById } from './helpers'
 
 // Wait until a `v-show`-toggled element's visibility differs from `wasVisible`.
 // A missing element counts as "not visible", so the change-detection logic
 // stays consistent whether v-show clears the inline style or unmounts the node.
-const waitForVisibilityFlip = (page, selector, wasVisible) =>
+const waitForVisibilityFlip = (page: Page, selector: string, wasVisible: boolean) =>
   page.waitForFunction(
     ({ sel, prior }) => {
-      const el = document.querySelector(sel)
+      const el = document.querySelector(sel) as HTMLElement | null
       const visible = !!(el && el.style.display !== 'none' && el.offsetParent !== null)
       return visible !== prior
     },
@@ -18,8 +17,8 @@ const waitForVisibilityFlip = (page, selector, wasVisible) =>
   )
 
 test.describe('Layout panel toggles', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown('# Layout\n\n## Section A\n\n## Section B\n')
@@ -58,7 +57,7 @@ test.describe('Layout panel toggles', () => {
       await clickMenuById(app, 'sideBarMenuItem')
       await page.waitForFunction(
         () => {
-          const el = document.querySelector('.side-bar')
+          const el = document.querySelector('.side-bar') as HTMLElement | null
           return el && el.offsetParent !== null
         },
         null,

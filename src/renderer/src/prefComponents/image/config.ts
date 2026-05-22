@@ -1,8 +1,7 @@
-/* eslint-disable */
-// @ts-nocheck
 import { t } from '../../i18n'
+import type { PrefSelectOption } from '../common/types'
 
-export const getImageActions = () => [
+export const getImageActions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.image.actions.upload'),
     value: 'upload'

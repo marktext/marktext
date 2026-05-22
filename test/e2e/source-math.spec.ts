@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-require-imports */
-// @ts-nocheck
-const { expect, test } = require('@playwright/test')
-const { launchWithMarkdown, enterSourceMode } = require('./helpers')
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithMarkdown, enterSourceMode } from './helpers'
 
 // Regression test for https://github.com/marktext/marktext/issues/4121
 // Underscores inside inline math (`$...$`) and block math (`$$...$$`) must
@@ -18,10 +17,18 @@ const FIXTURE = [
   ''
 ].join('\n')
 
-const readSourceState = async(page) => {
+interface CMInstance {
+  lastLine(): number
+  getLine(n: number): string
+  getTokenAt(pos: { line: number; ch: number }, precise?: boolean): unknown
+}
+
+const readSourceState = async(page: Page) => {
   await page.waitForFunction(
     () => {
-      const root = document.querySelector('.source-code .CodeMirror')
+      const root = document.querySelector('.source-code .CodeMirror') as
+        | (Element & { CodeMirror?: CMInstance })
+        | null
       if (!root || !root.CodeMirror) return false
       const cm = root.CodeMirror
       const last = cm.lastLine()
@@ -43,8 +50,8 @@ const readSourceState = async(page) => {
 }
 
 test.describe('Source view: math tokenization (#4121)', () => {
-  let app = null
-  let page = null
+  let app: ElectronApplication
+  let page: Page
 
   test.beforeAll(async() => {
     const launched = await launchWithMarkdown(FIXTURE)
@@ -76,6 +83,7 @@ test.describe('Source view: math tokenization (#4121)', () => {
     // so any `$` after the second one must not start an unbounded math span.
     const lastLineHasMath = await page.evaluate(() => {
       const root = document.querySelector('.source-code .CodeMirror')
+      if (!root) return false
       const spans = root.querySelectorAll('.cm-math-inline, .cm-math-block')
       for (const span of spans) {
         if (span.textContent && span.textContent.includes('only')) return true

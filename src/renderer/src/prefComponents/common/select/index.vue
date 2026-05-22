@@ -38,24 +38,27 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, watch } from 'vue'
 import { InfoFilled } from '@element-plus/icons-vue'
+import type { PrefControlBaseProps, PrefSelectOption } from '../types'
 
-const props = defineProps({
-  description: String,
-  notes: String,
-  value: [String, Number],
-  options: Array,
-  onChange: Function,
-  more: String,
-  disable: {
-    type: Boolean,
-    default: false
-  }
+type SelectValue = string | number | boolean
+
+interface SelectProps extends PrefControlBaseProps {
+  notes?: string
+  value: SelectValue
+  options: ReadonlyArray<PrefSelectOption<SelectValue>>
+  onChange: (value: SelectValue) => void
+}
+
+const props = withDefaults(defineProps<SelectProps>(), {
+  description: '',
+  notes: '',
+  more: '',
+  disable: false
 })
 
-const selectValue = ref(props.value)
+const selectValue = ref<SelectValue>(props.value)
 
 watch(
   () => props.value,
@@ -72,7 +75,7 @@ const handleMoreClick = () => {
   }
 }
 
-const select = (value) => {
+const select = (value: SelectValue) => {
   props.onChange(value)
 }
 </script>

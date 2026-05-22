@@ -22,20 +22,9 @@ import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 import { t } from '../../i18n'
+import type { UnsavedFile } from '@shared/types/files'
 
 type Win = BrowserWindow | null | undefined
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SaveOptions = any
-
-interface UnsavedFile {
-  id: string
-  filename: string
-  pathname?: string
-  markdown: string
-  options: SaveOptions
-  defaultPath?: string
-}
 
 interface PageOptions {
   pageSize?: string
@@ -163,7 +152,7 @@ const handleResponseForSave = async(
   filename: string,
   pathname: string | undefined,
   markdown: string,
-  options: SaveOptions,
+  options: UnsavedFile['options'],
   defaultPath?: string
 ): Promise<string | void> => {
   const win = BrowserWindow.fromWebContents(e.sender)
@@ -202,7 +191,11 @@ const handleResponseForSave = async(
   filePath = !filePath.endsWith(extension) ? (filePath += extension) : filePath
   // The original JS passed `win` here; writeMarkdownFile only takes 3 args
   // (the 4th was silently ignored). Drop it explicitly under strict mode.
-  return writeMarkdownFile(filePath, markdown, options)
+  // The IPC `SaveOptions` has every field optional, but writeMarkdownFile
+  // requires the strict `MarkdownDocumentOptions` shape — the renderer always
+  // populates every field for the unsaved-file dialog payload, so the cast
+  // is safe at this seam.
+  return writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
     .then(() => {
       if (!alreadyExistOnDisk) {
         ipcMain.emit('window-add-file-path', win.id, filePath)
@@ -343,7 +336,7 @@ ipcMain.on(
     filename: string,
     pathname: string | undefined,
     markdown: string,
-    options: SaveOptions,
+    options: UnsavedFile['options'],
     defaultPath?: string
   ) => {
     const win = BrowserWindow.fromWebContents(e.sender)
@@ -367,7 +360,7 @@ ipcMain.on(
 
     if (filePath && !canceled) {
       filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options)
+      writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
         .then(() => {
           if (!alreadyExistOnDisk) {
             ipcMain.emit('window-add-file-path', win.id, filePath)
