@@ -1,5 +1,3 @@
-/* eslint-disable */
-// @ts-nocheck
 /*
 Copyright (c) GitHub, Inc.
 

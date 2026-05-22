@@ -16,10 +16,9 @@
 </template>
 
 <script setup lang="ts">
-// @ts-nocheck
-defineProps({
-  notes: String
-})
+defineProps<{
+  notes?: string
+}>()
 </script>
 
 <style>
