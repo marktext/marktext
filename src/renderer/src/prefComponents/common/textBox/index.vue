@@ -8,13 +8,12 @@
       style="display: flex; align-items: center"
     >
       <span>{{ description }}:</span>
-      <el-icon
+      <LinkIcon
         v-if="more"
-        :size="18"
+        :size="14"
+        class="link-icon"
         @click="handleMoreClick"
-      >
-        <Link />
-      </el-icon>
+      />
     </div>
     <el-input
       v-model="inputText"
@@ -36,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Link } from '@element-plus/icons-vue'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from '../types'
 
 interface TextBoxProps extends PrefControlBaseProps {

@@ -13,14 +13,13 @@
           v-if="selectValue"
           class="value"
         >{{ selectValue }} <span v-if="unit">{{ unit }}</span></span>
-        <el-icon
+        <LinkIcon
           v-if="more"
-          :size="18"
+          :size="14"
+          class="link-icon"
           style="margin-left: 4px"
           @click="handleMoreClick"
-        >
-          <Link />
-        </el-icon>
+        />
       </div>
     </div>
     <el-slider
@@ -36,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Link } from '@element-plus/icons-vue'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps } from '../types'
 
 interface RangeProps extends PrefControlBaseProps {

@@ -5,14 +5,13 @@
   >
     <div class="description">
       <span>{{ description }}:</span>
-      <el-icon
+      <LinkIcon
         v-if="more"
-        :size="18"
+        :size="14"
+        class="link-icon"
         style="margin-left: 4px"
         @click="handleMoreClick"
-      >
-        <Link />
-      </el-icon>
+      />
     </div>
     <el-autocomplete
       v-model="selectValue"
@@ -40,7 +39,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { Link, ArrowDown } from '@element-plus/icons-vue'
+import { ArrowDown } from '@element-plus/icons-vue'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import { useI18n } from 'vue-i18n'
 import type { PrefControlProps } from '../types'
 

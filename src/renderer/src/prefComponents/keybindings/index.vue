@@ -9,10 +9,10 @@
           :title="t('preferences.keybindings.online')"
           :aria-label="t('preferences.keybindings.online')"
           @click="openKeybindingWiki"
-        ><el-icon
-          :size="16"
+        ><LinkIcon
+          :size="14"
           class="link-icon"
-        ><Link /></el-icon></a>.
+        /></a>.
       </div>
       <el-table
         :data="keybindingList"
@@ -116,7 +116,8 @@ import KeyInputDialog from './key-input-dialog.vue'
 import KeybindingConfigurator from './KeybindingConfigurator'
 import type { UiKeybinding } from './KeybindingConfigurator'
 import notice from '@/services/notification'
-import { Edit, RefreshRight, Delete, Link } from '@element-plus/icons-vue'
+import { Edit, RefreshRight, Delete } from '@element-plus/icons-vue'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
@@ -268,6 +269,11 @@ const dumpKeyboardInformation = (): void => {
     & .link-icon {
       margin-left: 2px;
       vertical-align: -2px;
+      opacity: 0.7;
+      color: var(--iconColor);
+    }
+    & .link-icon:hover {
+      color: var(--themeColor);
     }
   }
   & button.el-button {
