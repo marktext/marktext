@@ -13,6 +13,7 @@
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
+      :icon="ArrowRight"
       @node-click="handleClick"
     />
   </div>
@@ -24,6 +25,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { ArrowRight } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 

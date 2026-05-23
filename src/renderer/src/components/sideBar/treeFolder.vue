@@ -3,17 +3,18 @@
     <div
       ref="folderEl"
       class="folder-name"
-      :style="{ 'padding-left': `${depth * 20 + 20}px` }"
+      :style="{ 'padding-left': `${depth * 6 + 10}px` }"
       :class="[{ active: folder.id === activeItem.id }]"
       :title="folder.pathname"
       @click="folderNameClick"
     >
-      <svg
-        class="icon"
-        aria-hidden="true"
+      <el-icon
+        class="icon-arrow"
+        :class="{ fold: isCollapsed }"
+        :size="12"
       >
-        <use :xlink:href="`#${isCollapsed ? 'icon-folder-close' : 'icon-folder-open'}`" />
-      </svg>
+        <ArrowRight />
+      </el-icon>
       <input
         v-if="renameCache === folder.pathname"
         ref="renameInput"
@@ -64,6 +65,7 @@ import { useProjectStore } from '@/store/project'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
 import File from './treeFile.vue'
+import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeFolderNode } from './types'
 
 const props = defineProps<{
@@ -147,10 +149,15 @@ onMounted(() => {
     align-items: center;
     height: 30px;
     padding-right: 15px;
-    & > svg {
+    & > .icon-arrow {
       flex-shrink: 0;
       color: var(--sideBarIconColor);
       margin-right: 5px;
+      transition: transform 0.25s ease-out;
+      transform: rotate(90deg);
+    }
+    & > .icon-arrow.fold {
+      transform: rotate(0);
     }
     &:hover {
       background: var(--sideBarItemHoverBgColor);

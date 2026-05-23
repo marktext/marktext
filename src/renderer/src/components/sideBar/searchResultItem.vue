@@ -7,10 +7,10 @@
       <el-icon
         class="icon-arrow"
         :class="{ fold: !showSearchMatches }"
-        :size="14"
+        :size="12"
         @click.stop="toggleSearchMatches()"
       >
-        <CaretRight />
+        <ArrowRight />
       </el-icon>
       <div
         class="file-info"
@@ -67,7 +67,7 @@ import { useEditorStore } from '@/store/editor'
 import { storeToRefs } from 'pinia'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
-import { CaretRight } from '@element-plus/icons-vue'
+import { ArrowRight } from '@element-plus/icons-vue'
 import type { SearchResult, SearchMatch } from './types'
 
 const { t } = useI18n()
@@ -184,7 +184,7 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
   overflow: hidden;
 }
 .search-result-item .title .filename {
-  font-size: 14px;
+  font-size: 12px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -233,13 +233,11 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
 }
 .title {
   display: flex;
+  align-items: center;
   color: var(--sideBarTextColor);
 }
 .title .filename {
   flex: 1;
-}
-.title .filename .name {
-  font-weight: 600;
 }
 .title .filename .extension {
   color: var(--sideBarTextColor);
@@ -247,12 +245,13 @@ const handleSearchResultClick = (searchMatch: SearchMatch): void => {
 }
 .title .match-count {
   display: inline-block;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 10px;
+  line-height: 16px;
   text-align: center;
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: 3px;
   flex-shrink: 0;
   background: var(--itemBgColor);
   color: var(--sideBarTextColor);

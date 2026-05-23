@@ -13,7 +13,7 @@
           :size="12"
           @click.stop="toggleOpenedFiles()"
         >
-          <CaretRight />
+          <ArrowRight />
         </el-icon>
         <span
           class="default-cursor text-overflow"
@@ -72,7 +72,7 @@
           :size="12"
           @click.stop="toggleDirectories()"
         >
-          <CaretRight />
+          <ArrowRight />
         </el-icon>
         <span
           class="default-cursor text-overflow"
@@ -155,7 +155,7 @@ import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
 import { useI18n } from 'vue-i18n'
-import { CaretRight } from '@element-plus/icons-vue'
+import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
