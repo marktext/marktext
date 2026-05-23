@@ -150,13 +150,14 @@ jobs:
       contents: write
       actions: read
     steps:
-      # upload-artifact@v4 preserves the workspace-relative path (so files
-      # were stored as `dist/<file>` inside each artifact). Downloading to `.`
-      # with merge-multiple recreates `./dist/<file>` flat across all platforms.
+      # upload-artifact@v4 treats `dist/` as the common-ancestor root and
+      # stores files flat inside each artifact (no `dist/` prefix). Downloading
+      # with `path: dist` + `merge-multiple` recreates `./dist/<file>` across
+      # all platforms.
       - name: Download all platform artifacts
         uses: actions/download-artifact@v4.3.0
         with:
-          path: .
+          path: dist
           merge-multiple: true
 
       - name: Generate SHA256SUMS.txt
