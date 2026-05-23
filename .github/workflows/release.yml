@@ -2,8 +2,10 @@ name: Release MarkText
 
 on:
   push:
+    # Broad trigger so the validate job can reject malformed v-tags
+    # (e.g. `vbad.tag`) instead of them silently not triggering anything.
     tags:
-      - 'v*.*.*'
+      - 'v*'
 
 concurrency:
   group: release-${{ github.ref }}
@@ -22,7 +24,7 @@ jobs:
           tag="${GITHUB_REF_NAME}"
           # SemVer 2.0.0 with leading "v"
           if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Tag '$tag' is not a valid semver (expected vX.Y.Z[-prerelease])"
+            echo "::error::Tag '$tag' is not a valid semver (expected vX.Y.Z[-prerelease][+build])"
             exit 1
           fi
           echo "Tag '$tag' is valid."
@@ -141,8 +143,12 @@ jobs:
     name: Publish GitHub Release
     needs: build
     runs-on: ubuntu-latest
+    # Per-job permissions REPLACE workflow-level ones, so re-declare
+    # both: contents:write to publish the release, actions:read for
+    # download-artifact's Actions API calls.
     permissions:
       contents: write
+      actions: read
     steps:
       # upload-artifact@v4 preserves the workspace-relative path (so files
       # were stored as `dist/<file>` inside each artifact). Downloading to `.`
