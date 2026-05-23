@@ -187,7 +187,8 @@ const {
   // Edit modes
   typewriter,
   focus,
-  sourceCode
+  sourceCode,
+  cleanWrite
 } = storeToRefs(preferencesStore)
 
 // Editor store refs
@@ -309,6 +310,12 @@ watch(typewriter, (value) => {
 watch(focus, (value) => {
   if (editor.value) {
     editor.value.setFocusMode(value)
+  }
+})
+
+watch(cleanWrite, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ cleanWrite: value }, true)
   }
 })
 
@@ -1197,6 +1204,7 @@ onMounted(() => {
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
     sequenceTheme: sequenceTheme.value,
+    cleanWrite: cleanWrite.value,
     spellcheckEnabled: spellcheckerEnabled.value,
     imageAction,
     imagePathPicker,

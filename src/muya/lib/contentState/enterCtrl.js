@@ -620,7 +620,7 @@ const enterCtrl = (ContentState) => {
 
     cursorBlock = getParagraphBlock(cursorBlock)
     const key =
-      cursorBlock.type === 'p' || cursorBlock.type === 'pre'
+      (cursorBlock.type === 'p' || cursorBlock.type === 'pre') && cursorBlock.children.length
         ? cursorBlock.children[0].key
         : cursorBlock.key
     let offset = 0

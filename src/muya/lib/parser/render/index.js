@@ -72,10 +72,42 @@ class StateRender {
   }
 
   getClassName(outerClass, block, token, cursor) {
+    if (this.muya.options.cleanWrite) {
+      if (/^(strong|em|del|inline_code|inline_math|highlight|sup_sub)$/.test(token.type)) {
+        const textLen = (block.text || '').length
+        const atStart = token.range && token.range.start === 0
+        const atEnd = token.range && token.range.end === textLen
+        if (atStart && atEnd) {
+          // Emphasis spanning the entire block is normal inside table cells
+          // and blockquotes — these containers are the natural text boundary.
+          // Only show gray markers when the cursor is actively editing the block.
+          if (this._isInTableOrBlockquote(block)) {
+            if (cursor && cursor.start && cursor.start.key === block.key) {
+              return CLASS_OR_ID.AG_GRAY
+            }
+            return CLASS_OR_ID.AG_HIDE
+          }
+          return CLASS_OR_ID.AG_GRAY
+        }
+      }
+      return CLASS_OR_ID.AG_HIDE
+    }
     return (
       outerClass ||
       (this.checkConflicted(block, token, cursor) ? CLASS_OR_ID.AG_GRAY : CLASS_OR_ID.AG_HIDE)
     )
+  }
+
+  _isInTableOrBlockquote(block) {
+    if (block.functionType === 'cellContent') return true
+    const contentState = this.muya.contentState
+    let current = block
+    while (current.parent) {
+      current = contentState.getParent(current)
+      if (!current) break
+      if (current.type === 'blockquote') return true
+    }
+    return false
   }
 
   getHighlightClassName(active) {

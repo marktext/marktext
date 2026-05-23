@@ -299,6 +299,7 @@ class AppMenu {
       updateMenuItem(oldMenu, newMenu, 'sourceCodeModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'typewriterModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
+      updateMenuItem(oldMenu, newMenu, 'cleanWriteMenuItem')
       updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
       updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
 

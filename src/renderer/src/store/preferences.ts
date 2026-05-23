@@ -233,6 +233,7 @@ export const usePreferencesStore = defineStore('preferences', {
     typewriter: false, // typewriter mode
     focus: false, // focus mode
     sourceCode: false, // source code mode
+    cleanWrite: true, // clean write mode — hide valid markdown syntax markers
 
     // user configration
     imageFolderPath: '',
@@ -290,6 +291,17 @@ export const usePreferencesStore = defineStore('preferences', {
 
       window.electron.ipcRenderer.on('mt::user-preference', (_e, preferences) => {
         this.SET_USER_PREFERENCE(preferences as Partial<PreferencesState>)
+
+        // Sync initial view mode states so menu checkboxes match defaults.
+        // Must happen here (not in LISTEN_FOR_VIEW) because the main process
+        // window menu and window.marktext.env are only ready after the async
+        // preference response.
+        this.DISPATCH_EDITOR_VIEW_STATE({
+          sourceCode: this.sourceCode,
+          typewriter: this.typewriter,
+          focus: this.focus,
+          cleanWrite: this.cleanWrite
+        })
       })
     },
 

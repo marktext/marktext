@@ -47,6 +47,10 @@ export const toggleFocusMode = (win: Win): void => {
   toggleTypeMode(win, 'focus')
 }
 
+export const toggleCleanWrite = (win: Win): void => {
+  toggleTypeMode(win, 'cleanWrite')
+}
+
 export const toggleSourceCodeMode = (win: Win): void => {
   toggleTypeMode(win, 'sourceCode')
 }
@@ -107,6 +111,8 @@ export const viewLayoutChanged = (
   applicationMenu: any,
   changes: Record<string, unknown>
 ): void => {
+  if (!applicationMenu) return
+
   const disableMenuByName = (id: string, value: boolean): void => {
     const menuItem: MenuItem = applicationMenu.getMenuItemById(id)
     menuItem.enabled = value
@@ -135,6 +141,9 @@ export const viewLayoutChanged = (
         break
       case 'focus':
         changeMenuByName(focusModeMenuItemId, value)
+        break
+      case 'cleanWrite':
+        changeMenuByName('cleanWriteMenuItem', value)
         break
     }
   }

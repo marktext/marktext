@@ -46,6 +46,15 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      id: 'cleanWriteMenuItem',
+      label: 'Clean Write Mode',
+      type: 'checkbox',
+      checked: true,
+      click(_item, focusedWindow) {
+        actions.toggleCleanWrite(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       type: 'separator'
     },
     {
