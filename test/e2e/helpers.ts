@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test'
 import { _electron, type ElectronApplication, type Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
@@ -62,13 +63,68 @@ export const launchElectron = async(userArgs?: string[]): Promise<LaunchResult> 
     executablePath,
     args,
     cwd: projectRoot,
-    env: { ...process.env, PERF_TESTING: 'true' },
+    // MARKTEXT_ERROR_INTERACTION suppresses the modal "Unexpected error" dialog
+    // (see src/main/exceptionHandler.ts) — we instead capture errors via the
+    // mt::handle-renderer-error IPC below so specs can assert on them.
+    env: { ...process.env, PERF_TESTING: 'true', MARKTEXT_ERROR_INTERACTION: '1' },
     timeout: 30000
   })
+  await installRendererErrorCounter(app)
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
   await new Promise((resolve) => setTimeout(resolve, 500))
   return { app, page }
+}
+
+// Capture renderer-process errors that would otherwise pop the "Unexpected
+// error" dialog. We attach a parallel listener to the same IPC channel
+// (`mt::handle-renderer-error`) that exceptionHandler.ts listens on, and
+// accumulate the count in a shared global so specs can read it back via
+// `getRendererErrors`. Multiple listeners are allowed on ipcMain.
+const installRendererErrorCounter = async(app: ElectronApplication): Promise<void> => {
+  await app.evaluate(({ ipcMain }) => {
+    const g = global as unknown as {
+      __mt_renderer_errors__?: Array<{ message?: string; name?: string; stack?: string }>
+    }
+    if (!g.__mt_renderer_errors__) {
+      const sink: Array<{ message?: string; name?: string; stack?: string }> = []
+      g.__mt_renderer_errors__ = sink
+      ipcMain.on('mt::handle-renderer-error', (_e, error) => {
+        sink.push(error)
+      })
+    }
+  })
+}
+
+export const getRendererErrors = async(
+  app: ElectronApplication
+): Promise<Array<{ message?: string; name?: string; stack?: string }>> => {
+  return await app.evaluate(() => {
+    const g = global as unknown as {
+      __mt_renderer_errors__?: Array<{ message?: string; name?: string; stack?: string }>
+    }
+    return (g.__mt_renderer_errors__ || []).slice()
+  })
+}
+
+export const clearRendererErrors = async(app: ElectronApplication): Promise<void> => {
+  await app.evaluate(() => {
+    const g = global as unknown as {
+      __mt_renderer_errors__?: Array<unknown>
+    }
+    if (g.__mt_renderer_errors__) g.__mt_renderer_errors__.length = 0
+  })
+}
+
+// Assert that no renderer-process error has been captured since the last clear.
+// On failure, prints the captured stacks so the spec output is actionable.
+export const expectNoRendererErrors = async(app: ElectronApplication): Promise<void> => {
+  const errors = await getRendererErrors(app)
+  if (errors.length > 0) {
+    const summary = errors.map((e) => `- ${e.name ?? 'Error'}: ${e.message}\n${e.stack ?? ''}`).join('\n\n')
+    throw new Error(`Expected no renderer errors, captured ${errors.length}:\n\n${summary}`)
+  }
+  expect(errors.length).toBe(0)
 }
 
 export const waitForMenuReady = async(
