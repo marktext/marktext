@@ -26,6 +26,10 @@ const updateCtrl = (ContentState) => {
     const { start: cStart, end: cEnd, anchor, focus } = cursor
     const startBlock = this.getBlock(cStart ? cStart.key : anchor.key)
     const endBlock = this.getBlock(cEnd ? cEnd.key : focus.key)
+    // Cursor may still reference a block that a prior render removed. There is
+    // nothing left to re-tokenize, so skip the check instead of crashing on
+    // null.text — see issues #3674, #3842, #4032, #4072, #4122, #4143, #4162.
+    if (!startBlock || !endBlock) return false
     const startOffset = cStart ? cStart.offset : anchor.offset
     const endOffset = cEnd ? cEnd.offset : focus.offset
     const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/

@@ -165,6 +165,7 @@ const clickCtrl = (ContentState) => {
     let needRender = false
     // is show format float box?
     if (
+      block &&
       start.key === end.key &&
       start.offset !== end.offset &&
       HAS_TEXT_BLOCK_REG.test(block.type) &&

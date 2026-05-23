@@ -194,9 +194,18 @@ const imageCtrl = (ContentState) => {
 
   ContentState.prototype.deleteImage = function({ key, token }) {
     const block = this.getBlock(key)
+    const { eventCenter } = this.muya
+    // The image block may have been removed by a prior render (e.g. a figure
+    // replacement). Clear selection so backspace doesn't keep firing on the
+    // stale reference — see issue #3950.
+    if (!block) {
+      this.selectedImage = null
+      eventCenter.dispatch('muya-transformer', { reference: null })
+      eventCenter.dispatch('muya-image-toolbar', { reference: null })
+      return
+    }
     const oldText = block.text
     const { start, end } = token.range
-    const { eventCenter } = this.muya
     block.text = oldText.substring(0, start) + oldText.substring(end)
 
     this.cursor = {

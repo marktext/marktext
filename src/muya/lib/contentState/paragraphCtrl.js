@@ -29,6 +29,12 @@ const paragraphCtrl = (ContentState) => {
     const cursorCoords = selection.getCursorCoords()
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+    // Cursor may reference a block that a prior render removed. Bail out with
+    // an empty affiliation rather than crash downstream on null.type — same
+    // stale-cursor family as #3674 / #3950; protects getTOC-style callers too.
+    if (!startBlock || !endBlock) {
+      return { start, end, affiliation: [], cursorCoords }
+    }
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
     const affiliation = startParents
