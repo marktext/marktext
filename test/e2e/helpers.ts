@@ -127,6 +127,25 @@ export const expectNoRendererErrors = async(app: ElectronApplication): Promise<v
   expect(errors.length).toBe(0)
 }
 
+// Poll until a renderer error matching `predicate` is captured (or timeout).
+// Prefer this over a fixed `waitForTimeout` when waiting for an error to
+// surface — IPC delivery time varies on slower CI runners.
+export const waitForRendererError = async(
+  app: ElectronApplication,
+  predicate: (e: { message?: string; name?: string; stack?: string }) => boolean,
+  timeoutMs = 5000,
+  pollMs = 50
+): Promise<{ message?: string; name?: string; stack?: string } | null> => {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    const errors = await getRendererErrors(app)
+    const match = errors.find(predicate)
+    if (match) return match
+    await new Promise((resolve) => setTimeout(resolve, pollMs))
+  }
+  return null
+}
+
 export const waitForMenuReady = async(
   app: ElectronApplication,
   timeout = 10000

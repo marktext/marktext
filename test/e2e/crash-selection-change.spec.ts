@@ -13,7 +13,8 @@ import {
   clearRendererErrors,
   clickMenuById,
   launchWithMarkdown,
-  placeCaretInEditor
+  placeCaretInEditor,
+  waitForMenuReady
 } from './helpers'
 
 test.describe('Crash: selectionChange null cursor', () => {
@@ -24,6 +25,7 @@ test.describe('Crash: selectionChange null cursor', () => {
     const launched = await launchWithMarkdown('# Doc\n\nSome text with **bold**.\n')
     app = launched.app
     page = launched.page
+    await waitForMenuReady(app)
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
   })
@@ -32,28 +34,32 @@ test.describe('Crash: selectionChange null cursor', () => {
     if (app) await app.close()
   })
 
-  test('Blur editor, clear DOM selection, then invoke format shortcut', async() => {
-    // Lose the DOM selection — emulates the user clicking outside the editor
-    // or another script (clipboard manager, screen reader) clearing it.
+  test('Blur the editor, clear DOM selection, then invoke a format menu item', async() => {
+    // Actually blur (not just clear selection) — the bug report path is the
+    // user clicking outside the editor before invoking a shortcut.
     await page.evaluate(() => {
+      const ae = document.activeElement as HTMLElement | null
+      if (ae && typeof ae.blur === 'function') ae.blur()
       window.getSelection()?.removeAllRanges()
       document.dispatchEvent(new Event('selectionchange'))
     })
     await page.waitForTimeout(100)
 
-    // Trigger a format menu item that internally calls selectionChange.
-    // Format menu ids come from src/main/menu/templates/format.ts.
-    try {
-      await clickMenuById(app, 'strongMenuItem')
-    } catch {
-      // ignored — the menu may not be ready in some test environments
-    }
-    await page.waitForTimeout(200)
+    // Trigger the format menu item that internally calls selectionChange.
+    // Surface failures from clickMenuById rather than swallowing them —
+    // if the menu id is wrong, the assertion below would be vacuous.
+    await clickMenuById(app, 'strongMenuItem')
+    await page.waitForTimeout(150)
 
     await expectNoRendererErrors(app)
   })
 
-  test('Repeated focus/blur with menu invocation does not throw', async() => {
+  test('Repeated DOM selection clear + refocus does not throw', async() => {
+    // Pure selection thrash — this verifies that the listeners hung off
+    // `document.selectionchange` and the focus/blur lifecycle do not throw
+    // when DOM selection is cycled out from underneath them. Menu invocation
+    // is intentionally NOT part of this test (it's covered by the previous
+    // case) so the spec name accurately describes the surface exercised.
     for (let i = 0; i < 5; i++) {
       await page.evaluate(() => {
         window.getSelection()?.removeAllRanges()
@@ -67,22 +73,17 @@ test.describe('Crash: selectionChange null cursor', () => {
   })
 })
 
-// Sanity: confirm the throw exists in code by directly invoking the
-// contentState API. If this fails, the throw site has changed and the test
-// suite above no longer covers the right surface.
+// White-box probe: directly invoke the contentState API to confirm the throw
+// is still present in the source. The renderer does not expose `muya` on
+// `window`, so we walk the editor component to find the instance via a known
+// property if available. If the probe cannot reach muya in this environment
+// it is skipped rather than passing vacuously.
 test.describe('selectionChange API behaviour', () => {
-  test('Calling selectionChange with null cursor today throws', async() => {
+  test('Calling selectionChange with null cursor throws (white-box)', async() => {
     const { app, page } = await launchWithMarkdown('# Doc\n')
     try {
       await page.waitForTimeout(300)
-      // Reach into the renderer global to invoke selectionChange directly.
-      // This is a white-box probe (not a user-action repro) used only to keep
-      // the higher-level user-path tests honest — if Muya later removes the
-      // throw, this assertion changes and we update the spec.
-      const threw = await page.evaluate(() => {
-        // Muya is not exposed on window; we walk the editor component to find
-        // the muya instance via a known property if available, otherwise
-        // return null and let the spec be informational.
+      const outcome = await page.evaluate(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const anyWin = window as any
         const muya = anyWin.__MUYA__ || anyWin.muya
@@ -95,9 +96,16 @@ test.describe('selectionChange API behaviour', () => {
           return 'threw'
         }
       })
-      // Either we don't have access to muya (acceptable — informational), or
-      // calling with null cursor still throws (which is the bug).
-      expect(['no-muya', 'threw', 'did-not-throw']).toContain(threw)
+      // Muya is not currently exposed on `window` — this probe is
+      // informational and is skipped when it cannot reach the instance.
+      // If a future change starts exposing muya, this guard switches from
+      // skip to a hard assertion that null-cursor selectionChange still
+      // throws (which is the current documented behaviour).
+      if (outcome === 'no-muya') {
+        test.skip(true, 'muya instance is not exposed on window in this build')
+      } else {
+        expect(outcome).toBe('threw')
+      }
     } finally {
       await app.close()
     }

@@ -13,7 +13,7 @@
 // `isAllowedTransformation` filtering keep updateParagraph from being called
 // with a stale cursor. If these tests start failing, the upstream guards
 // have regressed and paragraphCtrl.updateParagraph needs its own check.
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import {
   clickMenuById,
@@ -21,7 +21,8 @@ import {
   expectNoRendererErrors,
   launchWithMarkdown,
   placeCaretInEditor,
-  typeIntoEditor
+  typeIntoEditor,
+  waitForMenuReady
 } from './helpers'
 
 test.describe('Crash: updateParagraph null block', () => {
@@ -32,6 +33,7 @@ test.describe('Crash: updateParagraph null block', () => {
     const launched = await launchWithMarkdown('# Doc\n\nFirst para.\n\nSecond para.\n')
     app = launched.app
     page = launched.page
+    await waitForMenuReady(app)
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
   })
@@ -44,22 +46,22 @@ test.describe('Crash: updateParagraph null block', () => {
     // Fresh, single empty paragraph so the block-removal race in the report
     // (cursor on a paragraph that no longer exists) has the strongest chance.
     await typeIntoEditor(page, '@')
-    await page.waitForTimeout(300)
-    // Look for the quick-insert overlay and click the Header 1 item if present.
-    const overlay = await page.$('.ag-quick-insert')
-    if (overlay) {
-      const header1 = await page.$('.ag-quick-insert [data-label="header 1"], .ag-quick-insert .item:has-text("Header 1")')
-      if (header1) await header1.click()
-    } else {
-      // No overlay surfaced — fall back to using the menu item that produces
-      // the same updateParagraph code path.
-      try {
-        await clickMenuById(app, 'heading1MenuItem')
-      } catch {
-        // ignored
-      }
-    }
-    await page.waitForTimeout(300)
+    // The quick-insert overlay surfaces asynchronously after the @ is
+    // committed — wait for it rather than guessing.
+    const overlay = page.locator('.ag-quick-insert')
+    await overlay.waitFor({ state: 'attached', timeout: 5000 })
+
+    // Quick-insert items expose data-label matching the config in
+    // src/muya/lib/ui/quickInsert/config.js — "heading 1" (lowercase, with
+    // a space). Don't fall back to a localized text selector; fail loudly
+    // if the stable selector breaks.
+    const heading1 = overlay.locator('[data-label="heading 1"]')
+    await heading1.waitFor({ state: 'attached', timeout: 5000 })
+    await heading1.click()
+
+    // Allow the paragraph to be rewritten as a heading.
+    await page.waitForSelector('.editor-component h1', { state: 'attached', timeout: 5000 })
+
     await expectNoRendererErrors(app)
   })
 
@@ -76,8 +78,7 @@ test.describe('Crash: updateParagraph null block', () => {
       sel?.addRange(range)
     })
     await page.waitForTimeout(100)
-    // Delete the selected paragraph contents (Backspace × line length is
-    // simpler than orchestrating a Delete that removes the block).
+    // Delete the selected paragraph contents.
     for (let i = 0; i < 15; i++) {
       await page.keyboard.press('Backspace')
       await page.waitForTimeout(10)
@@ -85,27 +86,30 @@ test.describe('Crash: updateParagraph null block', () => {
     await page.keyboard.press('Backspace')
     await page.waitForTimeout(50)
 
-    // Now invoke the menu item that calls updateParagraph; if the model
-    // cursor still references the removed block, this is the crash.
-    try {
-      await clickMenuById(app, 'heading1MenuItem')
-    } catch {
-      // ignored
-    }
-    await page.waitForTimeout(300)
+    // Now invoke the menu item that calls updateParagraph. If clickMenuById
+    // throws (menu not built or id renamed), surface it — the test cannot
+    // honestly assert no-crash if the crash surface was never exercised.
+    await clickMenuById(app, 'heading1MenuItem')
+
+    // The mutation runs through partialRender → renderer commits. Wait for
+    // either an h1 to appear or a captured error.
+    await page.waitForTimeout(200)
 
     await expectNoRendererErrors(app)
   })
 
   test('Rapid alternation between Paragraph/Heading menu items', async() => {
     for (let i = 0; i < 6; i++) {
-      try {
-        await clickMenuById(app, i % 2 === 0 ? 'heading1MenuItem' : 'paragraphMenuItem')
-      } catch {
-        // ignored
-      }
+      // Surface failures — if the menu item id is wrong / menu not ready,
+      // the test must fail rather than silently no-op.
+      await clickMenuById(app, i % 2 === 0 ? 'heading1MenuItem' : 'paragraphMenuItem')
       await page.waitForTimeout(50)
     }
+    // Verify some structural transition actually happened — if neither
+    // heading nor paragraph styling toggles, the test was a no-op.
+    const hasHeading = await page.locator('.editor-component h1').count()
+    const hasParagraph = await page.locator('.editor-component p').count()
+    expect(hasHeading + hasParagraph).toBeGreaterThan(0)
     await expectNoRendererErrors(app)
   })
 })

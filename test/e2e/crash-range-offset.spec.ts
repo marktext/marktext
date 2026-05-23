@@ -283,10 +283,13 @@ test.describe('Crash counter sanity', () => {
           throw new Error('intentional-sanity-error')
         }, 0)
       })
-      await page.waitForTimeout(300)
-      const { getRendererErrors } = await import('./helpers')
-      const errs = await getRendererErrors(app)
-      expect(errs.some((e) => e.message?.includes('intentional-sanity-error'))).toBe(true)
+      const { waitForRendererError } = await import('./helpers')
+      const captured = await waitForRendererError(
+        app,
+        (e) => !!e.message?.includes('intentional-sanity-error'),
+        5000
+      )
+      expect(captured, 'expected the renderer-thrown error to reach the IPC sink').not.toBeNull()
     } finally {
       await app.close()
     }
