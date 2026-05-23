@@ -112,10 +112,8 @@ mac:
   icon: static/icon.icns
   notarize: false
   target:
-    - target: dmg
-      arch: [x64, arm64]
-    - target: zip
-      arch: [x64, arm64]
+    - dmg
+    - zip
 dmg:
   artifactName: 'marktext-mac-${arch}-${version}.${ext}'
   contents:
