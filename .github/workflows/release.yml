@@ -184,10 +184,9 @@ jobs:
               echo ""
             fi
             echo "## ⚠️ Note for macOS users"
-            echo "Releases are not notarised. After dragging MarkText into Applications, run:"
+            echo "Builds are unsigned (no Apple Developer ID). After dragging MarkText into Applications, clear the quarantine flag once:"
             echo '```'
-            echo 'sudo find /Applications/marktext.app -exec xattr -c {} \;'
-            echo 'sudo codesign --force --deep --sign - /Applications/marktext.app'
+            echo 'xattr -cr /Applications/marktext.app'
             echo '```'
             echo ""
             echo "## Verifying downloads"
