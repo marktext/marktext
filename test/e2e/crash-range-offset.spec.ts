@@ -31,7 +31,7 @@ test.describe('Crash: setStart Range offset', () => {
   let page: Page
 
   test.beforeEach(async() => {
-    const launched = await launchWithMarkdown('# Repro\n\nSeed.\n')
+    const launched = await launchWithMarkdown('# Repro\n\nSeed.\n', { suppressErrorDialog: true })
     app = launched.app
     page = launched.page
     await placeCaretInEditor(page)
@@ -50,8 +50,9 @@ test.describe('Crash: setStart Range offset', () => {
 
     // The user then clicks on / highlights the text. We simulate by selecting
     // all and then collapsing to caret to provoke setCursorRange across the
-    // mixed inline DOM the paragraph now contains.
-    await page.keyboard.press('Control+A')
+    // mixed inline DOM the paragraph now contains. ControlOrMeta+A maps to
+    // Cmd+A on macOS and Ctrl+A elsewhere (Select All on both).
+    await page.keyboard.press('ControlOrMeta+A')
     await page.waitForTimeout(50)
     await page.keyboard.press('ArrowRight')
     await page.waitForTimeout(50)
@@ -183,7 +184,7 @@ test.describe('Crash: setStart Range offset', () => {
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
 
-    await page.keyboard.press('Control+A')
+    await page.keyboard.press('ControlOrMeta+A')
     await page.waitForTimeout(50)
     await page.keyboard.press('Delete')
     await page.waitForTimeout(100)
@@ -202,7 +203,7 @@ test.describe('Crash: paste-induced setCursorRange', () => {
   let page: Page
 
   test.beforeEach(async() => {
-    const launched = await launchWithMarkdown('# Doc\n\nEdit here.\n')
+    const launched = await launchWithMarkdown('# Doc\n\nEdit here.\n', { suppressErrorDialog: true })
     app = launched.app
     page = launched.page
     await placeCaretInEditor(page)
@@ -276,7 +277,7 @@ test.describe('Crash: paste-induced setCursorRange', () => {
 // helper would always pass.
 test.describe('Crash counter sanity', () => {
   test('Forced throw in renderer is captured by getRendererErrors', async() => {
-    const { app, page } = await launchWithMarkdown('# Sanity\n')
+    const { app, page } = await launchWithMarkdown('# Sanity\n', { suppressErrorDialog: true })
     try {
       await page.evaluate(() => {
         setTimeout(() => {

@@ -52,24 +52,37 @@ export interface LaunchResult {
   page: Page
 }
 
-export const launchElectron = async(userArgs?: string[]): Promise<LaunchResult> => {
+export interface LaunchOptions {
+  // When true, sets MARKTEXT_ERROR_INTERACTION=1 in the launch env so
+  // src/main/exceptionHandler.ts suppresses the modal "Unexpected error"
+  // dialog. Only crash-guard specs that explicitly call expectNoRendererErrors
+  // should opt in — otherwise existing specs would silently ignore renderer
+  // exceptions that previously surfaced as a dialog (a hidden regression risk).
+  suppressErrorDialog?: boolean
+}
+
+export const launchElectron = async(
+  userArgs?: string[],
+  options: LaunchOptions = {}
+): Promise<LaunchResult> => {
   userArgs = userArgs || []
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
   const userDataDir = trackTempDir(getTempPath())
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
+  const env: Record<string, string> = {}
+  for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
+  env.PERF_TESTING = 'true'
+  if (options.suppressErrorDialog) env.MARKTEXT_ERROR_INTERACTION = '1'
   const app = await _electron.launch({
     executablePath,
     args,
     cwd: projectRoot,
-    // MARKTEXT_ERROR_INTERACTION suppresses the modal "Unexpected error" dialog
-    // (see src/main/exceptionHandler.ts) — we instead capture errors via the
-    // mt::handle-renderer-error IPC below so specs can assert on them.
-    env: { ...process.env, PERF_TESTING: 'true', MARKTEXT_ERROR_INTERACTION: '1' },
+    env,
     timeout: 30000
   })
-  await installRendererErrorCounter(app)
+  if (options.suppressErrorDialog) await installRendererErrorCounter(app)
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
   await new Promise((resolve) => setTimeout(resolve, 500))
@@ -325,8 +338,11 @@ const writeTempMarkdown = (content: string): string => {
   return filePath
 }
 
-export const launchWithDoc = async(relativeFixture: string): Promise<LaunchResult> => {
-  const { app, page } = await launchElectron([relativeFixture])
+export const launchWithDoc = async(
+  relativeFixture: string,
+  options: LaunchOptions = {}
+): Promise<LaunchResult> => {
+  const { app, page } = await launchElectron([relativeFixture], options)
   await waitForEditor(page)
   await waitForMenuReady(app)
   return { app, page }
@@ -336,9 +352,12 @@ export interface LaunchWithMarkdownResult extends LaunchResult {
   filePath: string
 }
 
-export const launchWithMarkdown = async(markdown = ''): Promise<LaunchWithMarkdownResult> => {
+export const launchWithMarkdown = async(
+  markdown = '',
+  options: LaunchOptions = {}
+): Promise<LaunchWithMarkdownResult> => {
   const filePath = writeTempMarkdown(markdown)
-  const { app, page } = await launchElectron([filePath])
+  const { app, page } = await launchElectron([filePath], options)
   await waitForEditor(page)
   await waitForMenuReady(app)
   return { app, page, filePath }

@@ -6,7 +6,7 @@
 // selection, then invoke a format menu item that calls selectionChange). On
 // current develop these recipes pass — the model-cursor fallback at
 // paragraphCtrl.js:18-22 catches the transient DOM-selection-loss case.
-import { expect, test } from '@playwright/test'
+import { test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import {
   expectNoRendererErrors,
@@ -22,7 +22,9 @@ test.describe('Crash: selectionChange null cursor', () => {
   let page: Page
 
   test.beforeEach(async() => {
-    const launched = await launchWithMarkdown('# Doc\n\nSome text with **bold**.\n')
+    const launched = await launchWithMarkdown('# Doc\n\nSome text with **bold**.\n', {
+      suppressErrorDialog: true
+    })
     app = launched.app
     page = launched.page
     await waitForMenuReady(app)
@@ -70,44 +72,5 @@ test.describe('Crash: selectionChange null cursor', () => {
       await page.waitForTimeout(50)
     }
     await expectNoRendererErrors(app)
-  })
-})
-
-// White-box probe: directly invoke the contentState API to confirm the throw
-// is still present in the source. The renderer does not expose `muya` on
-// `window`, so we walk the editor component to find the instance via a known
-// property if available. If the probe cannot reach muya in this environment
-// it is skipped rather than passing vacuously.
-test.describe('selectionChange API behaviour', () => {
-  test('Calling selectionChange with null cursor throws (white-box)', async() => {
-    const { app, page } = await launchWithMarkdown('# Doc\n')
-    try {
-      await page.waitForTimeout(300)
-      const outcome = await page.evaluate(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const anyWin = window as any
-        const muya = anyWin.__MUYA__ || anyWin.muya
-        if (!muya || !muya.contentState) return 'no-muya'
-        try {
-          muya.contentState.cursor = null
-          muya.contentState.selectionChange(null)
-          return 'did-not-throw'
-        } catch {
-          return 'threw'
-        }
-      })
-      // Muya is not currently exposed on `window` — this probe is
-      // informational and is skipped when it cannot reach the instance.
-      // If a future change starts exposing muya, this guard switches from
-      // skip to a hard assertion that null-cursor selectionChange still
-      // throws (which is the current documented behaviour).
-      if (outcome === 'no-muya') {
-        test.skip(true, 'muya instance is not exposed on window in this build')
-      } else {
-        expect(outcome).toBe('threw')
-      }
-    } finally {
-      await app.close()
-    }
   })
 })
