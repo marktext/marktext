@@ -64,7 +64,7 @@ jobs:
 
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: pnpm run build:mac -- --${{ matrix.arch }}
+        run: pnpm run build:mac:${{ matrix.arch }}
 
       - name: build-win
         if: matrix.platform == 'windows'

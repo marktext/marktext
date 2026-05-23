@@ -110,10 +110,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Mac builds are unsigned (no Developer ID); see release notes for the
-      # user-side xattr/codesign workaround.
+      # user-side xattr/codesign workaround. Per-arch script (not `build:mac --
+      # --${arch}`): pnpm's `--` separator makes electron-builder swallow the
+      # arch flag, so each mac job ends up building both arches.
       - name: build-mac
         if: matrix.platform == 'macos'
-        run: pnpm run build:mac -- --${{ matrix.arch }}
+        run: pnpm run build:mac:${{ matrix.arch }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
