@@ -1,15 +1,39 @@
-name: Build/release Marktext
+name: Release MarkText
 
 on:
   push:
     tags:
-      - v*.*.*
+      - 'v*.*.*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
-  release:
+  validate:
+    name: Validate tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate semver tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          # SemVer 2.0.0 with leading "v"
+          if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$tag' is not a valid semver (expected vX.Y.Z[-prerelease])"
+            exit 1
+          fi
+          echo "Tag '$tag' is valid."
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: validate
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: linux
@@ -29,31 +53,38 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
 
-      - name: Install python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24.14.1
-          cache: 'pnpm'
+      - name: Enable Git long paths on Windows
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: git config --global core.longpaths true
 
       - name: Install Linux Build Dependencies
         if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
-      # --ignore-scripts so we can set env vars before postinstall runs electron-rebuild
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Setup pnpm + Node + dependencies
+        uses: ./.github/actions/setup
+        with:
+          node-version: '24.14.1'
+
+      # Cache Electron binary; key on package.json so it busts when Electron version changes.
+      - name: Cache Electron binary
+        uses: actions/cache@v4.3.0
+        with:
+          path: |
+            ~/.cache/electron
+            ~/Library/Caches/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ matrix.os }}-${{ hashFiles('package.json') }}
+          restore-keys: |
+            electron-${{ matrix.os }}-
 
       # Must be set before postinstall runs electron-rebuild
       - name: Set C++20 for MacOS
@@ -76,8 +107,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Mac builds have been disabled due to a lack of a Developer ID to sign it
-      # All builds by default will give a "this app is damaged and can't be opened" error
+      # Mac builds are unsigned (no Developer ID); see release notes for the
+      # user-side xattr/codesign workaround.
       - name: build-mac
         if: matrix.platform == 'macos'
         run: pnpm run build:mac -- --${{ matrix.arch }}
@@ -90,27 +121,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: release
-        uses: softprops/action-gh-release@v1
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.6.2
         with:
-          draft: false
-          prerelease: true
-          generate_release_notes: true
-          name: 'Pre-release ${{ github.ref_name }}'
-          body: |
-            ## ❗This is a Pre-release
-            - This is a pre-release build of MarkText, it will most likely contain bugs and unfinished features.
-
-            ## ⚠️ Note for MacOS Users
-            - MacOS releases will show a "`Apple couldn't verify MarkText is free of viruses...`" due to a **lack of notorisation**.
-            - Please run the following commands [based off this fix here](https://github.com/marktext/marktext/issues/3004#issuecomment-1038207300) after you have dragged MarkText into the "Applications" folder
-            ```
-            sudo find /Applications/marktext.app -exec xattr -c {} \; # <-- Note this change on newer MacOS versions
-            sudo codesign --force --deep --sign - /Applications/marktext.app
-            ```
-
-            ## Changes
-          files: |
+          name: marktext-${{ matrix.name }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
             dist/*.exe
             dist/*.zip
             dist/*.dmg
@@ -119,5 +136,66 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.tar.gz
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # upload-artifact@v4 preserves the workspace-relative path (so files
+      # were stored as `dist/<file>` inside each artifact). Downloading to `.`
+      # with merge-multiple recreates `./dist/<file>` flat across all platforms.
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4.3.0
+        with:
+          path: .
+          merge-multiple: true
+
+      - name: Generate SHA256SUMS.txt
+        working-directory: dist
+        run: |
+          # Deterministic ordering so identical inputs always produce identical output
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS.txt' -printf '%f\n' \
+            | LC_ALL=C sort \
+            | xargs -I{} sha256sum "{}" > SHA256SUMS.txt
+          echo "---"
+          cat SHA256SUMS.txt
+
+      - name: Compose release notes body
+        env:
+          IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
+        run: |
+          {
+            if [[ "$IS_PRERELEASE" == "true" ]]; then
+              echo "## ❗ This is a pre-release"
+              echo "- May contain bugs and unfinished features."
+              echo ""
+            fi
+            echo "## ⚠️ Note for macOS users"
+            echo "Releases are not notarised. After dragging MarkText into Applications, run:"
+            echo '```'
+            echo 'sudo find /Applications/marktext.app -exec xattr -c {} \;'
+            echo 'sudo codesign --force --deep --sign - /Applications/marktext.app'
+            echo '```'
+            echo ""
+            echo "## Verifying downloads"
+            echo "All artifacts are listed with their SHA-256 in \`SHA256SUMS.txt\`. Verify with:"
+            echo '```'
+            echo 'sha256sum -c SHA256SUMS.txt --ignore-missing'
+            echo '```'
+          } > release_body.md
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2.6.2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          name: ${{ github.ref_name }}
+          body_path: release_body.md
+          fail_on_unmatched_files: true
+          files: dist/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
