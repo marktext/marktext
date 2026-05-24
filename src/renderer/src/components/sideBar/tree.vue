@@ -119,7 +119,7 @@
           <div class="centered-group">
             <button
               class="button-primary"
-              @click="createFile"
+              @click.stop="createFile"
             >
               {{ t('sideBar.tree.createFile') }}
             </button>
@@ -229,10 +229,11 @@ const handleInputEnter = (): void => {
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
 
-  // hide rename or create input if needed
+  // Hide rename / create inputs on outside clicks. Buttons that open these
+  // inputs must use @click.stop so their click never reaches this listener.
   document.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null
-    if (target && target.tagName !== 'INPUT' && target.textContent !== 'Create File') {
+    if (target && target.tagName !== 'INPUT') {
       projectStore.CHANGE_ACTIVE_ITEM({})
       projectStore.createCache = {}
       projectStore.renameCache = null
