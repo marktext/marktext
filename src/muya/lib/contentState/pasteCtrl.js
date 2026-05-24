@@ -133,6 +133,19 @@ const pasteCtrl = (ContentState) => {
   }
 
   ContentState.prototype.pasteImage = async function(event) {
+    // event.clipboardData is detached after we yield to the event loop, so snapshot
+    // the inline image item synchronously before awaiting the file-path lookup.
+    let file = null
+    const items = event.clipboardData && event.clipboardData.items
+    if (items && items.length) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          file = items[i].getAsFile()
+          break
+        }
+      }
+    }
+
     // Try to guess the clipboard file path. Supports both sync and async implementations.
     const maybePath = this.muya.options.clipboardFilePath()
     const imagePath = maybePath && typeof maybePath.then === 'function' ? await maybePath : maybePath
@@ -174,17 +187,6 @@ const pasteCtrl = (ContentState) => {
         })
       }
       return imagePath
-    }
-
-    const items = event.clipboardData && event.clipboardData.items
-    let file = null
-    if (items && items.length) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          file = items[i].getAsFile()
-          break
-        }
-      }
     }
 
     // handle paste to create inline image
