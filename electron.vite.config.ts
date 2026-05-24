@@ -17,12 +17,9 @@ export default defineConfig({
     // hence, we need to "exclude" (in order to NOT externalise) ESonly modules so that they can be converted to commonJS and can be required() afterwards correctly
     build: {
       externalizeDeps: {
-        // Bundle electron-store inline. Bundle @octokit/rest inline too —
-        // it's imported by the main process now (post-sandbox-migration),
-        // and pnpm's flattened layout drops transitive deps like
-        // @octokit/endpoint when electron-builder packs node_modules into
-        // app.asar.
-        exclude: ['electron-store', '@octokit/rest'],
+        // Bundle electron-store inline so it is available as a CommonJS
+        // require() after electron-vite converts the main process output.
+        exclude: ['electron-store'],
         include: ['native-keymap']
       }
     },
