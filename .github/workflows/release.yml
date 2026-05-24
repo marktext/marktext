@@ -136,6 +136,8 @@ jobs:
             dist/*.exe
             dist/*.zip
             dist/*.dmg
+            dist/*.blockmap
+            dist/*.yml
             dist/*.AppImage
             dist/*.snap
             dist/*.deb
