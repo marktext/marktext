@@ -528,7 +528,13 @@
         "fileSortBy": {
           "title": "文件排序方式",
           "creationTime": "创建时间",
-          "modificationTime": "修改时间"
+          "modificationTime": "修改时间",
+          "filename": "File Name"
+        },
+        "fileSortOrder": {
+          "title": "Sort Order",
+          "ascending": "Ascending",
+          "descending": "Descending"
         }
       },
       "misc": {

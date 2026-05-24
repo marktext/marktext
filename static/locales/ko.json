@@ -528,7 +528,13 @@
         "fileSortBy": {
           "title": "파일 정렬 기준",
           "creationTime": "생성 시간",
-          "modificationTime": "수정 시간"
+          "modificationTime": "수정 시간",
+          "filename": "File Name"
+        },
+        "fileSortOrder": {
+          "title": "Sort Order",
+          "ascending": "Ascending",
+          "descending": "Descending"
         }
       },
       "misc": {

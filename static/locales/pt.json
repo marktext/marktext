@@ -528,7 +528,13 @@
         "fileSortBy": {
           "title": "Ordenar Arquivos Por",
           "creationTime": "Hora de Criação",
-          "modificationTime": "Hora de Modificação"
+          "modificationTime": "Hora de Modificação",
+          "filename": "File Name"
+        },
+        "fileSortOrder": {
+          "title": "Sort Order",
+          "ascending": "Ascending",
+          "descending": "Descending"
         }
       },
       "misc": {

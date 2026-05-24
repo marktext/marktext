@@ -528,7 +528,13 @@
         "fileSortBy": {
           "title": "ファイルの並び順",
           "creationTime": "作成時刻",
-          "modificationTime": "変更時刻"
+          "modificationTime": "変更時刻",
+          "filename": "File Name"
+        },
+        "fileSortOrder": {
+          "title": "Sort Order",
+          "ascending": "Ascending",
+          "descending": "Descending"
         }
       },
       "misc": {

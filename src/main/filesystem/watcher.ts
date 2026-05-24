@@ -51,6 +51,7 @@ const add = async(
 ): Promise<void> => {
   const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
+  const mtimeMs = stats.mtimeMs
   const isMarkdown = hasMarkdownExtension(pathname)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const file: any = {
@@ -59,6 +60,7 @@ const add = async(
     isFile: true,
     isDirectory: false,
     birthTime,
+    mtimeMs,
     isMarkdown
   }
   if (isMarkdown) {

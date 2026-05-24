@@ -3,6 +3,9 @@ import { PATH_SEPARATOR } from '../config'
 
 // Helper module (NOT a Pinia store): file-tree mutation helpers.
 
+const naturalCompare = (a: string, b: string): number =>
+  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+
 interface TreeFolder {
   id?: string
   pathname: string
@@ -20,10 +23,26 @@ interface TreeFile {
   pathname: string
   name: string
   birthTime?: number | Date
+  mtimeMs?: number
   isDirectory: false
   isFile: true
   isMarkdown: boolean
 }
+
+const makeFileComparator = (sortBy: string, sortOrder: string) =>
+  (a: TreeFile, b: TreeFile): number => {
+    let result: number
+    if (sortBy === 'created') {
+      const aTime = a.birthTime instanceof Date ? a.birthTime.getTime() : Number(a.birthTime ?? 0)
+      const bTime = b.birthTime instanceof Date ? b.birthTime.getTime() : Number(b.birthTime ?? 0)
+      result = aTime - bTime
+    } else if (sortBy === 'modified') {
+      result = (a.mtimeMs ?? 0) - (b.mtimeMs ?? 0)
+    } else {
+      result = naturalCompare(a.name, b.name)
+    }
+    return sortOrder === 'desc' ? -result : result
+  }
 
 /**
  * Return all sub-directories relative to the root directory.
@@ -40,7 +59,7 @@ const getSubdirectoriesFromRoot = (rootPath: string, pathname: string): string[]
  * Add a new file to the tree list.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const addFile = (tree: TreeFolder, file: any): void => {
+export const addFile = (tree: TreeFolder, file: any, sortBy: string = 'title', sortOrder: string = 'asc'): void => {
   const { pathname, name } = file
   const dirname = window.path.dirname(pathname)
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
@@ -76,6 +95,7 @@ export const addFile = (tree: TreeFolder, file: any): void => {
     const fileCopy: TreeFile = {
       id: getUniqueId(),
       birthTime: file.birthTime,
+      mtimeMs: file.mtimeMs,
       isDirectory: file.isDirectory,
       isFile: file.isFile,
       isMarkdown: file.isMarkdown,
@@ -83,7 +103,8 @@ export const addFile = (tree: TreeFolder, file: any): void => {
       pathname: file.pathname
     }
 
-    const idx = currentFolder.files.findIndex((f) => f.name.localeCompare(name) > 0)
+    const comparator = makeFileComparator(sortBy, sortOrder)
+    const idx = currentFolder.files.findIndex((f) => comparator(f, fileCopy) > 0)
     if (idx !== -1) {
       currentFolder.files.splice(idx, 0, fileCopy)
     } else {
@@ -114,7 +135,7 @@ export const addDirectory = (tree: TreeFolder, dir: { pathname: string }): void 
         folders: [],
         files: []
       }
-      const idx = currentSubFolders.findIndex((f) => f.name.localeCompare(directoryName) > 0)
+      const idx = currentSubFolders.findIndex((f) => naturalCompare(f.name, directoryName) > 0)
       if (idx !== -1) {
         currentSubFolders.splice(idx, 0, childFolder)
       } else {
@@ -124,6 +145,17 @@ export const addDirectory = (tree: TreeFolder, dir: { pathname: string }): void 
 
     currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`
     currentSubFolders = childFolder.folders
+  }
+}
+
+/**
+ * Re-sort an already-populated tree in place when the sort preference changes.
+ */
+export const resortTree = (tree: TreeFolder, sortBy: string, sortOrder: string): void => {
+  tree.files.sort(makeFileComparator(sortBy, sortOrder))
+  tree.folders.sort((a, b) => naturalCompare(a.name, b.name))
+  for (const folder of tree.folders) {
+    resortTree(folder, sortBy, sortOrder)
   }
 }
 

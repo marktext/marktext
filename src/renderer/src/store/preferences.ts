@@ -17,6 +17,7 @@ export type SequenceTheme = 'hand' | 'simple'
 export type ImageInsertAction = 'folder' | 'path' | 'upload'
 export type ImageRelativeDirectoryBase = 'file' | 'root'
 export type FileSortBy = 'created' | 'modified' | 'title'
+export type FileSortOrder = 'asc' | 'desc'
 
 export interface GithubImageBedConfig {
   owner: string
@@ -39,6 +40,7 @@ export interface PreferencesState {
   hideScrollbar: boolean
   wordWrapInToc: boolean
   fileSortBy: FileSortBy | string
+  fileSortOrder: FileSortOrder | string
   startUpAction: StartUpAction | string
   restoreLayoutState: boolean
   defaultDirectoryToOpen: string
@@ -156,6 +158,7 @@ export const usePreferencesStore = defineStore('preferences', {
     hideScrollbar: false,
     wordWrapInToc: false,
     fileSortBy: 'created',
+    fileSortOrder: 'asc',
     startUpAction: 'restoreAll',
     restoreLayoutState: true,
     defaultDirectoryToOpen: '',

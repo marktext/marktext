@@ -77,8 +77,19 @@ export const getFileSortByOptions = (): PrefSelectOption<string>[] => [
     value: 'modified'
   },
   {
-    label: t('preferences.general.sidebar.fileSortBy.title'),
+    label: t('preferences.general.sidebar.fileSortBy.filename'),
     value: 'title'
+  }
+]
+
+export const getFileSortOrderOptions = (): PrefSelectOption<string>[] => [
+  {
+    label: t('preferences.general.sidebar.fileSortOrder.ascending'),
+    value: 'asc'
+  },
+  {
+    label: t('preferences.general.sidebar.fileSortOrder.descending'),
+    value: 'desc'
   }
 ]
 

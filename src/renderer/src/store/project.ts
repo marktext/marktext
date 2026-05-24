@@ -1,6 +1,7 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { addFile, unlinkFile, addDirectory, unlinkDirectory } from './treeCtrl'
+import { addFile, unlinkFile, addDirectory, unlinkDirectory, resortTree } from './treeCtrl'
+import { usePreferencesStore } from './preferences'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
@@ -82,6 +83,17 @@ export const useProjectStore = defineStore('project', () => {
   const projectTree = ref<ProjectTree | null>(null)
   const pendingTreeEvents = ref<PendingEvent[]>([])
 
+  const preferencesStore = usePreferencesStore()
+
+  watch(
+    [() => preferencesStore.fileSortBy, () => preferencesStore.fileSortOrder],
+    ([sortBy, sortOrder]) => {
+      if (projectTree.value) {
+        resortTree(projectTree.value, String(sortBy), String(sortOrder))
+      }
+    }
+  )
+
   function OPEN_PROJECT(
     pathname: string,
     { scheduleBufferUpdate = true }: OpenProjectOptions = {}
@@ -151,7 +163,7 @@ export const useProjectStore = defineStore('project', () => {
     switch (type) {
       case 'add': {
         const { pathname, data, isMarkdown } = change
-        addFile(projectTree.value, change)
+        addFile(projectTree.value, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
         if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
           const fileState = getFileStateFromData(data)
           editorStore.UPDATE_CURRENT_FILE(fileState)
