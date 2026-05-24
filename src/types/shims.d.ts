@@ -34,14 +34,6 @@ declare module 'minimatch' {
   export function minimatch(target: string, pattern: string, options?: unknown): boolean
 }
 
-// path-browserify reimplements Node's `path` module API (basename, dirname,
-// extname, join, resolve, relative, normalize, parse, format, sep, delimiter,
-// posix, win32, isAbsolute). It ships no types — defer to Node's path typings.
-declare module 'path-browserify' {
-  import path from 'node:path'
-  export = path
-}
-
 // Electron augments `process` with `resourcesPath` (and a few other fields)
 // at runtime. Surface them so common/* code can read them without casts.
 declare namespace NodeJS {

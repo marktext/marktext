@@ -137,8 +137,6 @@ declare global {
     }): string
     sep: string
     delimiter: string
-    posix: PathAPI
-    win32: PathAPI
   }
 
   interface CommandExistsAPI {

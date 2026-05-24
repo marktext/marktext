@@ -8,7 +8,7 @@
 
 import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
 import type { IpcRendererEvent } from 'electron'
-import pathBrowserify from 'path-browserify'
+import pathe from 'pathe'
 
 import type {
   IpcInvokeChannels,
@@ -133,14 +133,14 @@ const hasMarkdownExtension = (filename: string): boolean => {
 
 const isChildOfDirectory = (dir: string, child: string): boolean => {
   if (!dir || !child) return false
-  const relative = pathBrowserify.relative(dir, child)
-  return !!relative && !relative.startsWith('..') && !pathBrowserify.isAbsolute(relative)
+  const relative = pathe.relative(dir, child)
+  return !!relative && !relative.startsWith('..') && !pathe.isAbsolute(relative)
 }
 
 const isSamePathSync = (pathA: string, pathB: string, isNormalized: boolean = false): boolean => {
   if (!pathA || !pathB) return false
-  const a = isNormalized ? pathA : pathBrowserify.normalize(pathA)
-  const b = isNormalized ? pathB : pathBrowserify.normalize(pathB)
+  const a = isNormalized ? pathA : pathe.normalize(pathA)
+  const b = isNormalized ? pathB : pathe.normalize(pathB)
   if (a.length !== b.length) return false
   if (a === b) return true
   if (a.toLowerCase() === b.toLowerCase()) {
@@ -245,27 +245,26 @@ const electronAPI = {
   windowControl: windowControlAPI
 }
 
-// Expose a Node-`path`-compatible API to the renderer. path-browserify is a
-// pure-JS reimplementation that works inside a sandboxed renderer.
+// Expose a Node-`path`-compatible API to the renderer. `pathe` is a
+// cross-platform reimplementation that always uses `/` separators and works
+// inside a sandboxed renderer.
 const pathAPI = {
-  basename: (...args: Parameters<typeof pathBrowserify.basename>) =>
-    pathBrowserify.basename(...args),
-  dirname: (...args: Parameters<typeof pathBrowserify.dirname>) => pathBrowserify.dirname(...args),
-  extname: (...args: Parameters<typeof pathBrowserify.extname>) => pathBrowserify.extname(...args),
-  join: (...args: string[]) => pathBrowserify.join(...args),
-  resolve: (...args: string[]) => pathBrowserify.resolve(...args),
-  relative: (...args: Parameters<typeof pathBrowserify.relative>) =>
-    pathBrowserify.relative(...args),
-  isAbsolute: (...args: Parameters<typeof pathBrowserify.isAbsolute>) =>
-    pathBrowserify.isAbsolute(...args),
-  normalize: (...args: Parameters<typeof pathBrowserify.normalize>) =>
-    pathBrowserify.normalize(...args),
-  parse: (...args: Parameters<typeof pathBrowserify.parse>) => pathBrowserify.parse(...args),
-  format: (...args: Parameters<typeof pathBrowserify.format>) => pathBrowserify.format(...args),
-  sep: pathBrowserify.sep,
-  delimiter: pathBrowserify.delimiter,
-  posix: pathBrowserify.posix,
-  win32: pathBrowserify.win32
+  basename: (...args: Parameters<typeof pathe.basename>) => pathe.basename(...args),
+  dirname: (...args: Parameters<typeof pathe.dirname>) => pathe.dirname(...args),
+  extname: (...args: Parameters<typeof pathe.extname>) => pathe.extname(...args),
+  join: (...args: string[]) => pathe.join(...args),
+  resolve: (...args: string[]) => pathe.resolve(...args),
+  relative: (...args: Parameters<typeof pathe.relative>) => pathe.relative(...args),
+  isAbsolute: (...args: Parameters<typeof pathe.isAbsolute>) => pathe.isAbsolute(...args),
+  normalize: (...args: Parameters<typeof pathe.normalize>) => pathe.normalize(...args),
+  parse: (...args: Parameters<typeof pathe.parse>) => pathe.parse(...args),
+  format: (...args: Parameters<typeof pathe.format>) => pathe.format(...args),
+  sep: pathe.sep,
+  delimiter: pathe.delimiter
+  // Note: `pathe.posix` / `pathe.win32` are intentionally not exposed.
+  // Each contains a self-reference (`pathe.posix.posix === pathe.posix`),
+  // which breaks structured cloning inside `contextBridge.exposeInMainWorld`.
+  // No code in this repo reads `window.path.posix` / `window.path.win32`.
 }
 
 // Bundled third-party packages occasionally read `process.platform` at module

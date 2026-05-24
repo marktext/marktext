@@ -1,6 +1,6 @@
 import runSanitize from './dompurify'
 import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
-import path from 'path-browserify'
+import path from 'pathe'
 export { getUniqueId, getLongUniqueId } from './random'
 
 const TIMEOUT = 1500
@@ -72,7 +72,7 @@ export const throttle = (func, wait = 50) => {
     }
   }
 
-  return function() {
+  return function () {
     const now = Date.now()
     const remaining = wait - (now - previous)
 
@@ -97,7 +97,7 @@ export const throttle = (func, wait = 50) => {
 // simple implementation...
 export const debounce = (func, wait = 50) => {
   let timer = null
-  return function(...args) {
+  return function (...args) {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       func(...args)
@@ -140,7 +140,7 @@ export const deepCopy = (object) => {
   return obj
 }
 
-export const loadImage = async(url, detectContentType = false) => {
+export const loadImage = async (url, detectContentType = false) => {
   if (detectContentType) {
     const isImage = await checkImageContentType(url)
     if (!isImage) throw new Error('not an image')
