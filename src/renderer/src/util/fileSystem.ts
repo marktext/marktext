@@ -115,9 +115,6 @@ export const uploadImage = async(
   image: string | File,
   preferences: UploadImagePreferences
 ): Promise<unknown> => {
-  if (preferences.currentUploader === 'none') {
-    throw new Error('No image uploader provided.')
-  }
   const isPath = typeof image === 'string'
   if (isPath) {
     return window.uploader.uploadImage({ pathname, image, isPath: true, preferences })

@@ -36,7 +36,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     this.dataCenterPath = dataCenterPath
     this.userDataPath = userDataPath
     this.serviceName = 'marktext'
-    this.encryptKeys = ['githubToken']
+    this.encryptKeys = []
     this.hasDataCenterFile = fs.existsSync(
       path.join(this.dataCenterPath, `./${DATA_CENTER_NAME}.json`)
     )
@@ -56,19 +56,18 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
       screenshotFolderPath: path.join(this.userDataPath, 'screenshot'),
       webImages: [],
       cloudImages: [],
-      currentUploader: 'none',
-      imageBed: {
-        github: {
-          owner: '',
-          repo: '',
-          branch: ''
-        }
-      }
+      currentUploader: 'picgo'
     }
 
     if (!this.hasDataCenterFile) {
       this.store.set(defaultData)
       ensureDirSync(this.store.get('screenshotFolderPath') as string)
+    } else {
+      // Migrate legacy uploader values that no longer exist
+      const stored = this.store.get('currentUploader') as string | undefined
+      if (stored === 'none' || stored === 'github') {
+        this.store.set('currentUploader', 'picgo')
+      }
     }
     this._listenForIpcMain()
   }

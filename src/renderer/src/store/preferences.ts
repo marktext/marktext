@@ -18,16 +18,6 @@ export type ImageInsertAction = 'folder' | 'path' | 'upload'
 export type ImageRelativeDirectoryBase = 'file' | 'root'
 export type FileSortBy = 'created' | 'modified' | 'title'
 
-export interface GithubImageBedConfig {
-  owner: string
-  repo: string
-  branch: string
-}
-
-export interface ImageBedConfig {
-  github: GithubImageBedConfig
-}
-
 export interface PreferencesState {
   // ----- General -----
   autoSave: boolean
@@ -125,8 +115,6 @@ export interface PreferencesState {
   webImages: unknown[]
   cloudImages: unknown[]
   currentUploader: string
-  githubToken: string
-  imageBed: ImageBedConfig
   cliScript: string
 }
 
@@ -238,15 +226,7 @@ export const usePreferencesStore = defineStore('preferences', {
     imageFolderPath: '',
     webImages: [],
     cloudImages: [],
-    currentUploader: 'none',
-    githubToken: '',
-    imageBed: {
-      github: {
-        owner: '',
-        repo: '',
-        branch: ''
-      }
-    },
+    currentUploader: 'picgo',
     cliScript: ''
   }),
 

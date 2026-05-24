@@ -2,14 +2,13 @@
   <div class="pref-image-uploader">
     <h5>{{ t('preferences.image.uploader.title') }}</h5>
     <section class="current-uploader">
-      <div v-if="isValidUploaderService(currentUploader)">
+      <div>
         {{
           t('preferences.image.uploader.currentUploader', {
             name: getServiceNameById(currentUploader)
           })
         }}
       </div>
-      <span v-else>{{ t('preferences.image.uploader.noUploaderSelected') }}</span>
     </section>
     <section class="configration">
       <cur-select
@@ -219,80 +218,7 @@
         </div>
       </div>
       <div
-        v-if="currentUploader === 'github'"
-        class="github"
-      >
-        <div class="warning">
-          {{ t('preferences.image.uploader.githubDeprecated') }}
-        </div>
-        <div class="form-group">
-          <div class="label">
-            {{ t('preferences.image.uploader.githubToken') }}:
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="t('preferences.image.uploader.tokenTooltip')"
-              placement="top-start"
-            >
-              <InfoFilled
-                width="16"
-                height="16"
-              />
-            </el-tooltip>
-          </div>
-          <el-input
-            v-model="githubToken"
-            :placeholder="t('preferences.image.uploader.inputToken')"
-            size="mini"
-          />
-        </div>
-        <div class="form-group">
-          <div class="label">
-            {{ t('preferences.image.uploader.ownerName') }}:
-          </div>
-          <el-input
-            v-model="github.owner"
-            :placeholder="t('preferences.image.uploader.owner')"
-            size="mini"
-          />
-        </div>
-        <div class="form-group">
-          <div class="label">
-            {{ t('preferences.image.uploader.repoName') }}:
-          </div>
-          <el-input
-            v-model="github.repo"
-            :placeholder="t('preferences.image.uploader.repo')"
-            size="mini"
-          />
-        </div>
-        <div class="form-group">
-          <div class="label">
-            {{ t('preferences.image.uploader.branchName') }}:
-          </div>
-          <el-input
-            v-model="github.branch"
-            :placeholder="t('preferences.image.uploader.branch')"
-            size="mini"
-          />
-        </div>
-        <legal-notices-checkbox
-          class="github"
-          :class="[{ error: legalNoticesErrorStates.github }]"
-          :uploader-service="uploadServices.github"
-        />
-        <div class="form-group">
-          <el-button
-            size="mini"
-            :disabled="githubDisable"
-            @click="save('github')"
-          >
-            {{ t('preferences.image.uploader.save') }}
-          </el-button>
-        </div>
-      </div>
-      <div
-        v-else-if="currentUploader === 'cliScript'"
+        v-if="currentUploader === 'cliScript'"
         class="script"
       >
         <div class="description">
@@ -312,7 +238,7 @@
           <el-button
             size="mini"
             :disabled="cliScriptDisable"
-            @click="save('cliScript')"
+            @click="save()"
           >
             {{ t('preferences.image.uploader.save') }}
           </el-button>
@@ -325,7 +251,6 @@
 <script setup lang="ts">
 import {
   ref,
-  reactive,
   computed,
   watch,
   onMounted,
@@ -336,14 +261,12 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
-import getServices, { isValidService } from './services'
-import type { UploaderService, UploaderServiceId } from './services'
-import legalNoticesCheckbox from './legalNoticesCheckbox.vue'
+import getServices from './services'
+import type { UploaderServiceId } from './services'
 import { isFileExecutable } from '@/util/fileSystem'
 import CurSelect from '@/prefComponents/common/select/index.vue'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
-import { InfoFilled } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
 
@@ -360,12 +283,6 @@ const uploaderOptions: PrefSelectOption<string>[] = Object.keys(getServices()).m
     label,
     value: name
   }
-})
-const githubToken = ref<string>('')
-const github = reactive({
-  owner: '',
-  repo: '',
-  branch: ''
 })
 const cliScript = ref<string>('')
 const picgoExists = ref<boolean>(false)
@@ -388,20 +305,12 @@ const animationTimer = ref<ReturnType<typeof setInterval> | null>(null) // Anima
 const buttonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Button display timer
 const initialButtonTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Initial button timer
 const showStandaloneRefreshButton = ref<boolean>(true) // Whether to show the standalone refresh button
-const uploadServices: Record<UploaderServiceId, UploaderService> = getServices()
-const legalNoticesErrorStates = reactive<Record<string, boolean>>({
-  github: false
-})
-
 // computed
 const {
   currentUploader,
-  imageBed,
-  githubToken: prefGithubToken,
   cliScript: prefCliScript
 } = storeToRefs(preferenceStore)
 
-const githubDisable = computed(() => !githubToken.value || !github.owner || !github.repo)
 // `isFileExecutable` is async via IPC; track the result in a ref so the
 // disabled state still updates reactively.
 const cliScriptExecutable = ref(false)
@@ -421,13 +330,6 @@ watch(
   { immediate: true }
 )
 const cliScriptDisable = computed(() => !cliScript.value || !cliScriptExecutable.value)
-
-// watch
-watch(imageBed, (value, oldValue) => {
-  if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
-    Object.assign(github, value.github)
-  }
-})
 
 // Listen for uploader switch; immediately start detection when switching to picgo
 watch(currentUploader, (newValue, oldValue) => {
@@ -610,10 +512,6 @@ const handleComponentDeactivated = () => {
 onMounted(() => {
   console.log('=== onMounted 触发 ===', 'currentUploader:', currentUploader.value)
   nextTick(() => {
-    if (imageBed.value.github) {
-      Object.assign(github, imageBed.value.github)
-    }
-    githubToken.value = prefGithubToken.value
     cliScript.value = prefCliScript.value
 
     // Core detection startup logic — ensure it starts on onMounted
@@ -629,13 +527,6 @@ onMounted(() => {
           startRealtimeDetection()
         }
       }, 200) // Slightly longer delay to ensure state is fully initialized
-    }
-
-    if (Object.prototype.hasOwnProperty.call(uploadServices, currentUploader.value)) {
-      // `getServices()` returns a new object each call (see services.ts), so
-      // mutating its result would only update a throwaway instance. Use the
-      // cached `uploadServices` singleton that the checkbox is bound to.
-      uploadServices[currentUploader.value as UploaderServiceId].agreedToLegalNotices = true
     }
 
     // Extra safety mechanism: check again whether detection needs to start
@@ -695,10 +586,6 @@ onUnmounted(() => {
 })
 
 // methods
-const isValidUploaderService = (name: string): boolean => {
-  return isValidService(name)
-}
-
 const getServiceNameById = (id: string): string => {
   const services = getServices()
   if (Object.prototype.hasOwnProperty.call(services, id)) {
@@ -711,40 +598,14 @@ const open = (link: string): void => {
   window.electron.shell.openExternal(link)
 }
 
-const save = (type: string): void => {
-  if (!validate(type)) {
-    return
-  }
-
-  const newImageBedConfig = JSON.parse(JSON.stringify(imageBed.value)) as Record<string, unknown>
-  if (type === 'github') {
-    newImageBedConfig.github = { ...github }
-  } else if (type === 'cliScript') {
-    newImageBedConfig.cliScript = cliScript.value
-  }
-
+const save = (): void => {
   preferenceStore.SET_USER_DATA({
-    type: 'imageBed',
-    value: newImageBedConfig
+    type: 'cliScript',
+    value: cliScript.value
   })
-  if (type === 'github') {
-    preferenceStore.SET_USER_DATA({
-      type: 'githubToken',
-      value: githubToken.value
-    })
-  }
-  if (type === 'cliScript') {
-    preferenceStore.SET_USER_DATA({
-      type: 'cliScript',
-      value: cliScript.value
-    })
-  }
   notice.notify({
     title: t('preferences.image.uploader.saveConfig'),
-    message:
-      type === 'github'
-        ? t('preferences.image.uploader.githubConfigSaved')
-        : t('preferences.image.uploader.scriptConfigSaved'),
+    message: t('preferences.image.uploader.scriptConfigSaved'),
     type: 'primary'
   })
 }
@@ -986,21 +847,6 @@ const testPicgo = async (): Promise<void> => {
   stopAnimationAndButton()
 }
 
-const validate = (value: string): boolean => {
-  const services = getServices()
-  if (!Object.prototype.hasOwnProperty.call(services, value)) return true
-  const service = services[value as UploaderServiceId]
-  const { agreedToLegalNotices } = service
-  if (agreedToLegalNotices === false) {
-    legalNoticesErrorStates[value] = true
-    return false
-  }
-  if (legalNoticesErrorStates[value] !== undefined) {
-    legalNoticesErrorStates[value] = false
-  }
-
-  return true
-}
 </script>
 
 <style scoped>
@@ -1409,11 +1255,4 @@ const validate = (value: string): boolean => {
   margin-top: 30px;
 }
 
-.pref-image-uploader .pref-cb-legal-notices.github {
-  margin-top: 30px;
-}
-
-.pref-image-uploader .pref-cb-legal-notices.error {
-  border: 1px solid var(--deleteColor);
-}
 </style>
