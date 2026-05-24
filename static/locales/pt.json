@@ -529,12 +529,12 @@
           "title": "Ordenar Arquivos Por",
           "creationTime": "Hora de Criação",
           "modificationTime": "Hora de Modificação",
-          "filename": "File Name"
+          "filename": "Nome do arquivo"
         },
         "fileSortOrder": {
-          "title": "Sort Order",
-          "ascending": "Ascending",
-          "descending": "Descending"
+          "title": "Ordem de classificação",
+          "ascending": "Ascendente",
+          "descending": "Descendente"
         }
       },
       "misc": {

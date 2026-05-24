@@ -529,12 +529,12 @@
           "title": "파일 정렬 기준",
           "creationTime": "생성 시간",
           "modificationTime": "수정 시간",
-          "filename": "File Name"
+          "filename": "파일 이름"
         },
         "fileSortOrder": {
-          "title": "Sort Order",
-          "ascending": "Ascending",
-          "descending": "Descending"
+          "title": "정렬 순서",
+          "ascending": "오름차순",
+          "descending": "내림차순"
         }
       },
       "misc": {

@@ -529,12 +529,12 @@
           "title": "檔案排序方式",
           "creationTime": "建立時間",
           "modificationTime": "修改時間",
-          "filename": "File Name"
+          "filename": "檔案名稱"
         },
         "fileSortOrder": {
-          "title": "Sort Order",
-          "ascending": "Ascending",
-          "descending": "Descending"
+          "title": "排序順序",
+          "ascending": "升序",
+          "descending": "降序"
         }
       },
       "misc": {

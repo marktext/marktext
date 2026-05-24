@@ -29,19 +29,25 @@ interface TreeFile {
   isMarkdown: boolean
 }
 
+const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
+
 const makeFileComparator = (sortBy: string, sortOrder: string) =>
   (a: TreeFile, b: TreeFile): number => {
     let result: number
     if (sortBy === 'created') {
-      const aTime = a.birthTime instanceof Date ? a.birthTime.getTime() : Number(a.birthTime ?? 0)
-      const bTime = b.birthTime instanceof Date ? b.birthTime.getTime() : Number(b.birthTime ?? 0)
+      const aTime = a.birthTime instanceof Date ? a.birthTime.getTime() : safeTime(Number(a.birthTime))
+      const bTime = b.birthTime instanceof Date ? b.birthTime.getTime() : safeTime(Number(b.birthTime))
       result = aTime - bTime
     } else if (sortBy === 'modified') {
-      result = (a.mtimeMs ?? 0) - (b.mtimeMs ?? 0)
+      result = safeTime(a.mtimeMs) - safeTime(b.mtimeMs)
     } else {
       result = naturalCompare(a.name, b.name)
     }
-    return sortOrder === 'desc' ? -result : result
+    const ordered = sortOrder === 'desc' ? -result : result
+    if (ordered !== 0) return ordered
+    // Stable tie-breaker: natural name, then full pathname
+    const byName = naturalCompare(a.name, b.name)
+    return byName !== 0 ? byName : a.pathname.localeCompare(b.pathname)
   }
 
 /**
@@ -81,7 +87,12 @@ export const addFile = (tree: TreeFolder, file: any, sortBy: string = 'title', s
         folders: [],
         files: []
       }
-      currentSubFolders.push(childFolder)
+      const idx = currentSubFolders.findIndex((f) => naturalCompare(f.name, directoryName) > 0)
+      if (idx !== -1) {
+        currentSubFolders.splice(idx, 0, childFolder)
+      } else {
+        currentSubFolders.push(childFolder)
+      }
     }
 
     currentPath = `${currentPath}${PATH_SEPARATOR}${directoryName}`

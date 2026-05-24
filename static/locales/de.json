@@ -528,12 +528,12 @@
           "title": "Dateien sortieren nach",
           "creationTime": "Erstellungszeit",
           "modificationTime": "Änderungszeit",
-          "filename": "File Name"
+          "filename": "Dateiname"
         },
         "fileSortOrder": {
-          "title": "Sort Order",
-          "ascending": "Ascending",
-          "descending": "Descending"
+          "title": "Sortierreihenfolge",
+          "ascending": "Aufsteigend",
+          "descending": "Absteigend"
         }
       },
       "misc": {
