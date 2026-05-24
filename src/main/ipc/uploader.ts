@@ -129,8 +129,10 @@ const writeBinaryToTmp = async(
 
 const MAX_SIZE = 5 * 1024 * 1024
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const uploadFromPath = async(imagePath: string, options: any): Promise<string> => {
+const uploadFromPath = async(
+  imagePath: string,
+  options: { currentUploader: string; cliScript: string }
+): Promise<string> => {
   const { currentUploader, cliScript } = options
   const { size } = await fs.stat(imagePath)
   if (size > MAX_SIZE) {
