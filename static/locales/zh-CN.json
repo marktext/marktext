@@ -533,8 +533,10 @@
         },
         "fileSortOrder": {
           "title": "排序顺序",
-          "ascending": "升序",
-          "descending": "降序"
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "从旧到新",
+          "newestFirst": "从新到旧"
         }
       },
       "misc": {

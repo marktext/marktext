@@ -160,6 +160,47 @@ export const addDirectory = (tree: TreeFolder, dir: { pathname: string }): void 
 }
 
 /**
+ * Update a file's mtimeMs and re-insert it at the correct sorted position.
+ * Called when a file-change event arrives so modified-time sort stays live.
+ */
+export const updateFileMtime = (
+  tree: TreeFolder,
+  file: { pathname: string; mtimeMs: number },
+  sortBy: string,
+  sortOrder: string
+): void => {
+  const dirname = window.path.dirname(file.pathname)
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)
+
+  let currentFolder: TreeFolder = tree
+  let currentSubFolders: TreeFolder[] = tree.folders
+  for (const directoryName of subDirectories) {
+    const childFolder = currentSubFolders.find((f) => f.name === directoryName)
+    if (!childFolder) return
+    currentFolder = childFolder
+    currentSubFolders = childFolder.folders
+  }
+
+  const index = currentFolder.files.findIndex((f) => f.pathname === file.pathname)
+  if (index === -1) return
+
+  const entry = currentFolder.files[index]
+  entry.mtimeMs = file.mtimeMs
+
+  // Re-insert only if sorting by modified time — avoids unnecessary churn otherwise.
+  if (sortBy === 'modified') {
+    currentFolder.files.splice(index, 1)
+    const comparator = makeFileComparator(sortBy, sortOrder)
+    const idx = currentFolder.files.findIndex((f) => comparator(f, entry) > 0)
+    if (idx !== -1) {
+      currentFolder.files.splice(idx, 0, entry)
+    } else {
+      currentFolder.files.push(entry)
+    }
+  }
+}
+
+/**
  * Re-sort an already-populated tree in place when the sort preference changes.
  */
 export const resortTree = (tree: TreeFolder, sortBy: string, sortOrder: string): void => {

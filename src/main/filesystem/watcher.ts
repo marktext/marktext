@@ -109,19 +109,28 @@ const change = async(
   trimTrailingNewline: number,
   autoNormalizeLineEndings: boolean
 ): Promise<void> => {
-  if (type === 'dir') return
+  if (type === 'dir') {
+    // Only send mtimeMs so the sidebar can re-sort; skip loading file content.
+    try {
+      const stats = await fsPromises.stat(pathname)
+      win.webContents.send('mt::update-object-tree', {
+        type: 'change',
+        change: { pathname, mtimeMs: stats.mtimeMs }
+      })
+    } catch {
+      // File may have been deleted between the event and the stat; ignore.
+    }
+    return
+  }
 
   const isMarkdown = hasMarkdownExtension(pathname)
   if (isMarkdown) {
     try {
-      const data = await loadMarkdownFile(
-        pathname,
-        endOfLine,
-        autoGuessEncoding,
-        trimTrailingNewline,
-        autoNormalizeLineEndings
-      )
-      const file = { pathname, data }
+      const [data, stats] = await Promise.all([
+        loadMarkdownFile(pathname, endOfLine, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings),
+        fsPromises.stat(pathname)
+      ])
+      const file = { pathname, data, mtimeMs: stats.mtimeMs }
       win.webContents.send('mt::update-file', {
         type: 'change',
         change: file

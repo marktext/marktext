@@ -533,8 +533,10 @@
         },
         "fileSortOrder": {
           "title": "並び順",
-          "ascending": "昇順",
-          "descending": "降順"
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "古い順",
+          "newestFirst": "新しい順"
         }
       },
       "misc": {

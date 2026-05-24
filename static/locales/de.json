@@ -532,8 +532,10 @@
         },
         "fileSortOrder": {
           "title": "Sortierreihenfolge",
-          "ascending": "Aufsteigend",
-          "descending": "Absteigend"
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "Älteste zuerst",
+          "newestFirst": "Neueste zuerst"
         }
       },
       "misc": {

@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { addFile, unlinkFile, addDirectory, unlinkDirectory, resortTree } from './treeCtrl'
+import { addFile, unlinkFile, addDirectory, unlinkDirectory, resortTree, updateFileMtime } from './treeCtrl'
 import { usePreferencesStore } from './preferences'
 import bus from '../bus'
 import { create, paste, rename } from '../util/fileSystem'
@@ -156,6 +156,7 @@ export const useProjectStore = defineStore('project', () => {
       }
       _processTreeEvent(type, change)
     })
+
   }
 
   function _processTreeEvent(type: string, change: TreeChange): void {
@@ -182,6 +183,9 @@ export const useProjectStore = defineStore('project', () => {
         unlinkDirectory(projectTree.value, change)
         break
       case 'change':
+        if (change?.mtimeMs !== undefined) {
+          updateFileMtime(projectTree.value, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+        }
         break
       default:
         if (window.electron?.process?.env?.NODE_ENV === 'development') {

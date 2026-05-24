@@ -94,7 +94,7 @@
         <cur-select
           :description="t('preferences.general.sidebar.fileSortOrder.title')"
           :value="fileSortOrder"
-          :options="getFileSortOrderOptions()"
+          :options="getFileSortOrderOptions(String(fileSortBy))"
           :on-change="(value) => onSelectChange('fileSortOrder', value)"
         />
       </template>

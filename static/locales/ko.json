@@ -533,8 +533,10 @@
         },
         "fileSortOrder": {
           "title": "정렬 순서",
-          "ascending": "오름차순",
-          "descending": "내림차순"
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "오래된 순",
+          "newestFirst": "최신 순"
         }
       },
       "misc": {
