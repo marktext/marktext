@@ -156,7 +156,6 @@ export const useProjectStore = defineStore('project', () => {
       }
       _processTreeEvent(type, change)
     })
-
   }
 
   function _processTreeEvent(type: string, change: TreeChange): void {
