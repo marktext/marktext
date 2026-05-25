@@ -521,6 +521,7 @@
       "sidebar": {
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
+        "showOpenedFiles": "Show Opened Files",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {

@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
+        "showOpenedFiles": "顯示已開啟的檔案",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（備註）",
         "fileSortBy": {

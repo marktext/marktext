@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
+        "showOpenedFiles": "显示已打开文件",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（注释）",
         "fileSortBy": {

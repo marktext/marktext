@@ -68,6 +68,7 @@
   "sideBarVisibility": false,
   "tabBarVisibility": false,
   "sourceCodeModeEnabled": false,
+  "openedFilesInSidebar": true,
 
   "searchExclusions": [],
   "searchMaxFileSize": "",

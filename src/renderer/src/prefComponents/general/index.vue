@@ -76,6 +76,11 @@
           :bool="wordWrapInToc"
           :on-change="(value) => onSelectChange('wordWrapInToc', value)"
         />
+        <bool
+          :description="t('preferences.general.sidebar.showOpenedFiles')"
+          :bool="openedFilesInSidebar"
+          :on-change="(value) => onSelectChange('openedFilesInSidebar', value)"
+        />
 
         <text-box
           :description="t('preferences.general.sidebar.excludePatterns')"
@@ -208,7 +213,8 @@ const {
   hideScrollbar,
   wordWrapInToc,
   fileSortBy,
-  language
+  language,
+  openedFilesInSidebar
 } = storeToRefs(preferenceStore)
 
 const startUpAction = computed<string>({

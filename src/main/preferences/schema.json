@@ -357,6 +357,11 @@
     "type": "boolean",
     "default": false
   },
+  "openedFilesInSidebar": {
+    "description": "General--Whether to show opened files in the sidebar.",
+    "type": "boolean",
+    "default": true
+  },
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.--internal",
     "type": "array",
