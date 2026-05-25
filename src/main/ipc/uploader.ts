@@ -127,20 +127,11 @@ const writeBinaryToTmp = async(
   return tmpPath
 }
 
-const MAX_SIZE = 5 * 1024 * 1024
-
 const uploadFromPath = async(
   imagePath: string,
   options: { currentUploader: string; cliScript: string }
 ): Promise<string> => {
   const { currentUploader, cliScript } = options
-  const { size } = await fs.stat(imagePath)
-  if (size > MAX_SIZE) {
-    throw new Error(
-      'Cannot upload more than 5M image, the image will be copied to the image folder'
-    )
-  }
-
   if (currentUploader === 'picgo') return uploadByPicgo(imagePath)
   if (currentUploader === 'cliScript') return uploadByCli(cliScript, imagePath)
   throw new Error(`Unsupported uploader: ${currentUploader}`)
@@ -153,18 +144,13 @@ interface BufferImagePayload {
 }
 
 const uploadFromBuffer = async(
-  { data, name, byteLength }: BufferImagePayload,
+  { data, name }: BufferImagePayload,
   options: {
     currentUploader: string
     cliScript: string
   }
 ): Promise<string> => {
   const { currentUploader, cliScript } = options
-  if (byteLength > MAX_SIZE) {
-    throw new Error(
-      'Cannot upload more than 5M image, the image will be copied to the image folder'
-    )
-  }
   const suffix = path.extname(name || '') || ''
   const localPath = await writeBinaryToTmp(data, suffix)
   const cleanup = () =>
