@@ -17,16 +17,7 @@ export type SequenceTheme = 'hand' | 'simple'
 export type ImageInsertAction = 'folder' | 'path' | 'upload'
 export type ImageRelativeDirectoryBase = 'file' | 'root'
 export type FileSortBy = 'created' | 'modified' | 'title'
-
-export interface GithubImageBedConfig {
-  owner: string
-  repo: string
-  branch: string
-}
-
-export interface ImageBedConfig {
-  github: GithubImageBedConfig
-}
+export type FileSortOrder = 'asc' | 'desc'
 
 export interface PreferencesState {
   // ----- General -----
@@ -39,6 +30,7 @@ export interface PreferencesState {
   hideScrollbar: boolean
   wordWrapInToc: boolean
   fileSortBy: FileSortBy | string
+  fileSortOrder: FileSortOrder | string
   startUpAction: StartUpAction | string
   restoreLayoutState: boolean
   defaultDirectoryToOpen: string
@@ -126,8 +118,6 @@ export interface PreferencesState {
   webImages: unknown[]
   cloudImages: unknown[]
   currentUploader: string
-  githubToken: string
-  imageBed: ImageBedConfig
   cliScript: string
 }
 
@@ -157,6 +147,7 @@ export const usePreferencesStore = defineStore('preferences', {
     hideScrollbar: false,
     wordWrapInToc: false,
     fileSortBy: 'created',
+    fileSortOrder: 'asc',
     startUpAction: 'restoreAll',
     restoreLayoutState: true,
     defaultDirectoryToOpen: '',
@@ -240,15 +231,7 @@ export const usePreferencesStore = defineStore('preferences', {
     imageFolderPath: '',
     webImages: [],
     cloudImages: [],
-    currentUploader: 'none',
-    githubToken: '',
-    imageBed: {
-      github: {
-        owner: '',
-        repo: '',
-        branch: ''
-      }
-    },
+    currentUploader: 'picgo',
     cliScript: ''
   }),
 

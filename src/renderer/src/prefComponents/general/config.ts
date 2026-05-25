@@ -77,10 +77,23 @@ export const getFileSortByOptions = (): PrefSelectOption<string>[] => [
     value: 'modified'
   },
   {
-    label: t('preferences.general.sidebar.fileSortBy.title'),
+    label: t('preferences.general.sidebar.fileSortBy.filename'),
     value: 'title'
   }
 ]
+
+export const getFileSortOrderOptions = (sortBy: string = 'title'): PrefSelectOption<string>[] => {
+  if (sortBy === 'title') {
+    return [
+      { label: t('preferences.general.sidebar.fileSortOrder.aToZ'), value: 'asc' },
+      { label: t('preferences.general.sidebar.fileSortOrder.zToA'), value: 'desc' }
+    ]
+  }
+  return [
+    { label: t('preferences.general.sidebar.fileSortOrder.oldestFirst'), value: 'asc' },
+    { label: t('preferences.general.sidebar.fileSortOrder.newestFirst'), value: 'desc' }
+  ]
+}
 
 export const getLanguageOptions = (): PrefSelectOption<string>[] => [
   {

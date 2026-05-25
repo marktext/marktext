@@ -15,6 +15,7 @@ export interface IUserPreferences {
   hideScrollbar?: boolean
   sidebarColumn?: number
   fileSortBy?: string
+  fileSortOrder?: string
   startUpAction?: string
   defaultDirectoryToOpen?: string
   language?: string

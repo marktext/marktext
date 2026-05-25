@@ -47,6 +47,12 @@
     "enum": ["modified", "created", "title"],
     "default": "modified"
   },
+  "fileSortOrder": {
+    "description": "General--Sort order for files in opened folders: ascending or descending.",
+    "type": "string",
+    "enum": ["asc", "desc"],
+    "default": "asc"
+  },
   "lastOpenedFolder": {
     "description": "General--The last folder that was opened in MarkText.--internal",
     "type": "string"

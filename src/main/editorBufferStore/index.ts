@@ -44,7 +44,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     // written to disk when updated.
     this.bufferStores = null
     this.serviceName = 'marktext'
-    this.encryptKeys = ['githubToken']
+    this.encryptKeys = []
     this.writeSequence = 0
 
     this.init()

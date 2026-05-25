@@ -90,13 +90,17 @@
           more="https://github.com/isaacs/minimatch"
         />
 
-        <!-- TODO: The description is very bad and the entry isn't used by the editor. -->
         <cur-select
           :description="t('preferences.general.sidebar.fileSortBy.title')"
           :value="fileSortBy"
           :options="getFileSortByOptions()"
           :on-change="(value) => onSelectChange('fileSortBy', value)"
-          :disable="true"
+        />
+        <cur-select
+          :description="t('preferences.general.sidebar.fileSortOrder.title')"
+          :value="fileSortOrder"
+          :options="getFileSortOrderOptions(String(fileSortBy))"
+          :on-change="(value) => onSelectChange('fileSortOrder', value)"
         />
       </template>
     </compound>
@@ -195,6 +199,7 @@ import {
   getTitleBarStyleOptions,
   zoomOptions,
   getFileSortByOptions,
+  getFileSortOrderOptions,
   getLanguageOptions
 } from './config'
 
@@ -213,6 +218,7 @@ const {
   hideScrollbar,
   wordWrapInToc,
   fileSortBy,
+  fileSortOrder,
   language,
   openedFilesInSidebar
 } = storeToRefs(preferenceStore)
