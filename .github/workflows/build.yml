@@ -20,9 +20,14 @@ jobs:
           - name: linux
             os: ubuntu-latest
             platform: linux
-          - name: windows
+          - name: windows-x64
             os: windows-latest
             platform: windows
+            arch: x64
+          - name: windows-arm64
+            os: windows-11-arm
+            platform: windows
+            arch: arm64
           - name: macos-x64
             os: macos-15-intel
             platform: macos
@@ -68,7 +73,7 @@ jobs:
 
       - name: build-win
         if: matrix.platform == 'windows'
-        run: pnpm run build:win
+        run: pnpm run build:win:${{ matrix.arch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
