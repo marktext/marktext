@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "Barra Lateral",
         "wrapTextInToc": "Quebrar texto no índice",
+        "showOpenedFiles": "Mostrar arquivos abertos",
         "excludePatterns": "Padrões de exclusão",
         "excludePatternsNotes": "Padrões de exclusão (Notas)",
         "fileSortBy": {

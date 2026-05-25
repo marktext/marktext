@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "サイドバー",
         "wrapTextInToc": "目次でテキストを折り返し",
+        "showOpenedFiles": "開いているファイルを表示",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {

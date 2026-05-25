@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "사이드바",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
+        "showOpenedFiles": "열린 파일 표시",
         "excludePatterns": "제외 패턴",
         "excludePatternsNotes": "제외 패턴 (참고)",
         "fileSortBy": {

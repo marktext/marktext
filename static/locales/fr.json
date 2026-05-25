@@ -523,6 +523,7 @@
       "sidebar": {
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
+        "showOpenedFiles": "Afficher les fichiers ouverts",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
