@@ -140,7 +140,6 @@ const uploadFromPath = async(
 interface BufferImagePayload {
   data: Uint8Array | number[]
   name: string
-  byteLength: number
 }
 
 const uploadFromBuffer = async(

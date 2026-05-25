@@ -131,8 +131,7 @@ export const uploadImage = async(
     pathname,
     image: {
       data: new Uint8Array(arrayBuffer),
-      name: file.name,
-      byteLength: arrayBuffer.byteLength
+      name: file.name
     },
     isPath: false,
     preferences: ipcPrefs
