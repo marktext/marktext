@@ -58,31 +58,37 @@ fileAssociations:
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
   - ext: markdown
     name: Markdown
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
   - ext: mmd
     name: Markdown
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
   - ext: mdown
     name: Markdown
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
   - ext: mdtxt
     name: Markdown
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
   - ext: mdtext
     name: Markdown
     description: Markdown document
     mimeType: text/markdown
     role: Editor
+    icon: icons/md.ico
 win:
   executableName: marktext
   artifactName: 'marktext-win-${arch}-${version}.${ext}'
