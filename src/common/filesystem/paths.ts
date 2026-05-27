@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { isFile, isFile2, isSymbolicLink } from './index'
-import { minimatch } from 'minimatch'
+import minimatch from 'minimatch'
 
 const isOsx = process.platform === 'darwin'
 

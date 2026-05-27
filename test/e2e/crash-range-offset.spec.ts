@@ -180,8 +180,15 @@ test.describe('Crash: setStart Range offset', () => {
     const md = '# H\n\nstart $\\int_0^1 x$ middle $\\frac{a}{b}$ end\n'
     const { setSourceMarkdown } = await import('./helpers')
     await setSourceMarkdown(page, app, md)
-    await page.waitForTimeout(400)
-    await placeCaretInEditor(page)
+    // Wait explicitly for KaTeX to finish rendering both formulas before placing the
+    // cursor. Complex formulas (\int, \frac) take longer than simple ones ($a+b$);
+    // calling placeCaretInEditor while KaTeX is still patching the contenteditable
+    // DOM triggers a Chromium crash. waitForSelector guarantees the render is done.
+    await page.waitForSelector('.ag-math-render .katex', { state: 'attached', timeout: 10000 })
+    await page.waitForTimeout(100)
+    // Use a native click on the heading to place focus — avoids the programmatic
+    // selectNodeContents+collapse path that races with the KaTeX DOM patch.
+    await page.click('span.ag-paragraph', { timeout: 5000 })
     await clearRendererErrors(app)
 
     await page.keyboard.press('ControlOrMeta+A')

@@ -14,5 +14,11 @@
     "marktext",
     "muya",
     "Tkaixiang"
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "/^Get-Command pnpm -ErrorAction SilentlyContinue; where\\.exe pnpm 2>\\$null; Get-ChildItem \"C:\\\\Users\\\\ks248120\\\\AppData\\\\Roaming\\\\npm\\\\pnpm\\*\" -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Program Files\\\\nodejs\\\\pnpm\\*\" -ErrorAction SilentlyContinue$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }

@@ -52,6 +52,7 @@
     "perf:inspect-brk": "cross-env PERF_TESTING=true electron-vite preview -- --inspect-brk=5858",
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test test/e2e",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "typecheck:watch": "vue-tsc --noEmit -p tsconfig.json --watch",

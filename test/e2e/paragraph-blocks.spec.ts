@@ -81,15 +81,14 @@ test.describe('Paragraph block transforms', () => {
 
   // HR + table require Muya to act on a live cursor inside an empty paragraph
   // (isAllowedTransformation in paragraphCtrl.js gates them on !block.text).
-  // Driving that state purely from outside the renderer is not reliable on
-  // xvfb — the menu invocation reaches Muya but Muya's contentState.cursor
-  // is not pointing at an empty block. Skip until Muya exposes a test hook;
-  // smoke-coverage that the menu id exists is in menu-sanity.spec.js.
-  test.skip('Horizontal rule', async() => {
+  // Starting from an empty paragraph ensures block.text === '' so the
+  // transformation is allowed without any additional clearing step.
+  test('Horizontal rule', async() => {
     await resetTo(page, app, '')
     await clickMenuById(app, 'horizontalLineMenuItem')
+    // Muya renders HR as <p data-role="hr"> (see CSS: p:not(.ag-active)[data-role='hr']).
     const present = await page
-      .locator('.editor-component hr, .editor-component figure[data-role="HR"]')
+      .locator('.editor-component p[data-role="hr"], .editor-component [data-role="hr"]')
       .first()
       .waitFor({ state: 'attached', timeout: 5000 })
       .then(() => true)
@@ -119,8 +118,10 @@ test.describe('Paragraph block transforms', () => {
     expect(ok).toBe(true)
   })
 
-  test.skip('Insert table dialog opens and accepts default', async() => {
+  test('Insert table dialog opens and accepts default', async() => {
     // Same constraint as HR — needs empty paragraph + live cursor in Muya.
+    // Starting from an empty paragraph ensures block.text === '' so the
+    // table transformation is allowed.
     await resetTo(page, app, '')
     await clickMenuById(app, 'tableMenuItem')
     const dialog = page.locator('.ag-dialog-table, .el-overlay').first()
@@ -129,8 +130,8 @@ test.describe('Paragraph block transforms', () => {
       .then(() => true)
       .catch(() => false)
     expect(dialogVisible).toBe(true)
-    // Confirm default 3x3 by pressing Enter.
-    await page.keyboard.press('Enter')
+    // Click the OK button to confirm (focus is on the row spinbutton, so Enter alone won't work).
+    await page.locator('button:has-text("OK"), .el-button--primary').first().click()
     const tableAppeared = await page
       .locator('.editor-component table')
       .first()
