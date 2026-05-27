@@ -333,15 +333,9 @@ const cliScriptDisable = computed(() => !cliScript.value || !cliScriptExecutable
 
 // Listen for uploader switch; immediately start detection when switching to picgo
 watch(currentUploader, (newValue, oldValue) => {
-  console.log('=== watch currentUploader 触发 ===', oldValue, '->', newValue)
-
   if (newValue === 'picgo') {
-    // Switch to picgo: immediately start the detection flow
-    console.log('切换到picgo，启动检测流程')
     startRealtimeDetection()
   } else if (oldValue === 'picgo') {
-    // Switch away from picgo: stop detection
-    console.log('从picgo切换到其他上传器，停止检测')
     stopRealtimeDetection()
     // Reset UI state
     showInitialButton.value = false
@@ -357,11 +351,8 @@ watch(currentUploader, (newValue, oldValue) => {
 
 // Start realtime detection
 const startRealtimeDetection = () => {
-  console.log('=== startRealtimeDetection 被调用 ===', '当前上传器:', currentUploader.value)
-
   // Ensure detection is only started for the picgo uploader
   if (currentUploader.value !== 'picgo') {
-    console.log('当前不是picgo上传器，跳过检测')
     return
   }
 
@@ -371,11 +362,8 @@ const startRealtimeDetection = () => {
     detectionTimer.value = null
   }
 
-  console.log('开始启动PicGo检测流程...')
-
   // Check if a previous detection result exists; if so, show the status indicator first
   if (picgoDetectionStatus.value && (picgoExists.value || picgoDetectionFailed.value)) {
-    console.log('发现之前的检测结果，立即显示状态指示器')
     showStatusIndicator.value = true
     showInitialButton.value = false
     showLoadingAnimation.value = false
@@ -384,12 +372,10 @@ const startRealtimeDetection = () => {
 
     // Start the new detection flow after 1 second
     detectionTimer.value = setTimeout(() => {
-      console.log('开始新的检测流程...')
       startLoadingAnimation()
 
       // Execute detection after 3 seconds
       detectionTimer.value = setTimeout(() => {
-        console.log('执行PicGo检测...')
         testPicgo()
           .then(() => {
             scheduleNextDetection() // Begin normal scheduling after the first detection completes
@@ -406,7 +392,6 @@ const startRealtimeDetection = () => {
 
     // Execute the first detection after 3 seconds
     detectionTimer.value = setTimeout(() => {
-      console.log('执行PicGo检测...')
       testPicgo()
         .then(() => {
           scheduleNextDetection() // Begin normal scheduling after the first detection completes
@@ -434,10 +419,6 @@ const startRealtimeDetection = () => {
       interval = Math.max(interval * 2, 60000) // Check at least once per minute when page is hidden
     }
 
-    console.log(
-      `下次检测将在 ${interval / 1000} 秒后进行，连续失败次数: ${consecutiveFailures.value}`
-    )
-
     detectionTimer.value = setTimeout(() => {
       if (!isDetecting.value && isPageVisible.value) {
         testPicgo()
@@ -457,7 +438,6 @@ const startRealtimeDetection = () => {
 
 // Stop realtime detection
 const stopRealtimeDetection = () => {
-  console.log('停止实时检测')
   if (detectionTimer.value) {
     clearTimeout(detectionTimer.value) // Use clearTimeout instead of clearInterval because we use setTimeout
     detectionTimer.value = null
@@ -472,7 +452,6 @@ const handleVisibilityChange = () => {
   if (isPageVisible.value) {
     // When the page becomes visible, restart detection only if picgo is selected
     if (currentUploader.value === 'picgo') {
-      console.log('页面变为可见且当前选择picgo，重新启动检测')
       startRealtimeDetection()
     }
   } else {
@@ -483,19 +462,16 @@ const handleVisibilityChange = () => {
 
 // Component activation handler (for in-app page switches)
 const handleComponentActivated = () => {
-  console.log('=== handleComponentActivated 触发 ===', 'currentUploader:', currentUploader.value)
   isPageVisible.value = true
 
   // Only start detection if picgo is currently selected
   if (currentUploader.value === 'picgo') {
-    console.log('当前选择picgo，重新启动检测')
     // Ensure previous state is cleaned up to avoid duplicate detection flows
     stopRealtimeDetection()
     stopAnimationAndButton()
     // Force a new detection flow to ensure the UI state is displayed correctly
     setTimeout(() => {
       if (currentUploader.value === 'picgo' && isPageVisible.value) {
-        console.log('强制启动检测流程')
         startRealtimeDetection()
       }
     }, 50) // Very short delay to ensure state cleanup is complete
@@ -504,26 +480,22 @@ const handleComponentActivated = () => {
 
 // Component deactivation handler
 const handleComponentDeactivated = () => {
-  console.log('组件被失活，停止检测')
   isPageVisible.value = false
   stopRealtimeDetection()
 }
 
 onMounted(() => {
-  console.log('=== onMounted 触发 ===', 'currentUploader:', currentUploader.value)
   nextTick(() => {
     cliScript.value = prefCliScript.value
 
     // Core detection startup logic — ensure it starts on onMounted
     if (currentUploader.value === 'picgo') {
-      console.log('onMounted: 检测到picgo，强制启动检测流程')
       // Ensure UI state is clean
       stopRealtimeDetection()
       stopAnimationAndButton()
       // Start detection immediately
       setTimeout(() => {
         if (currentUploader.value === 'picgo') {
-          console.log('onMounted: 执行检测启动')
           startRealtimeDetection()
         }
       }, 200) // Slightly longer delay to ensure state is fully initialized
@@ -538,7 +510,6 @@ onMounted(() => {
           !showStatusIndicator.value &&
           !showRefreshButton.value
         ) {
-          console.log('onMounted: 保障机制 - 检测到picgo但没有显示任何状态，强制启动')
           startRealtimeDetection()
         }
       }, 500)
@@ -551,7 +522,6 @@ onMounted(() => {
 
 // Component activated (for in-app page switches)
 onActivated(() => {
-  console.log('=== onActivated 触发 ===')
   handleComponentActivated()
 
   // Extra safety mechanism: ensure the detection state is displayed correctly
@@ -563,7 +533,6 @@ onActivated(() => {
       !showRefreshButton.value &&
       !showInitialButton.value
     ) {
-      console.log('onActivated: 保障机制 - 检测到picgo但没有显示任何状态，强制启动')
       startRealtimeDetection()
     }
   }, 300)
@@ -668,8 +637,6 @@ const getStatusIndicatorClass = (): string => {
 
 // Start loading animation
 const startLoadingAnimation = () => {
-  console.log('=== startLoadingAnimation 被调用 ===')
-
   // Clear previous timers
   if (animationTimer.value) {
     clearInterval(animationTimer.value)
@@ -688,23 +655,13 @@ const startLoadingAnimation = () => {
   animationActive.value = false
   showLoadingAnimation.value = true
 
-  console.log('startLoadingAnimation: 初始状态设置完成:', {
-    showInitialButton: showInitialButton.value,
-    showLoadingAnimation: showLoadingAnimation.value,
-    showRefreshButton: showRefreshButton.value,
-    showStatusIndicator: showStatusIndicator.value,
-    animationActive: animationActive.value
-  })
-
   // Immediately start the animation timer without delay
   animationTimer.value = setInterval(() => {
     animationActive.value = !animationActive.value
-    console.log('startLoadingAnimation: 动画闪烁:', animationActive.value)
   }, 1000)
 
   // Show the refresh button after 6 seconds (3s detection time + 3s extra wait)
   buttonTimer.value = setTimeout(() => {
-    console.log('startLoadingAnimation: 显示刷新按钮')
     showLoadingAnimation.value = false
     showRefreshButton.value = true
     if (animationTimer.value) {
@@ -716,20 +673,11 @@ const startLoadingAnimation = () => {
 
 // Stop animation and hide buttons
 const stopAnimationAndButton = () => {
-  console.log('停止动画和按钮')
   showInitialButton.value = false
   showLoadingAnimation.value = false
   showRefreshButton.value = false
   showStatusIndicator.value = true
   animationActive.value = false
-
-  console.log('停止后状态:', {
-    showInitialButton: showInitialButton.value,
-    showLoadingAnimation: showLoadingAnimation.value,
-    showRefreshButton: showRefreshButton.value,
-    showStatusIndicator: showStatusIndicator.value,
-    animationActive: animationActive.value
-  })
 
   // Clear all timers
   if (animationTimer.value) {
@@ -747,10 +695,6 @@ const stopAnimationAndButton = () => {
 }
 
 const testPicgo = async (): Promise<void> => {
-  console.log('=== PicGo 检测开始 ===')
-
-  console.log('window.commandExists:', window.commandExists)
-
   // Record detection start time
   lastDetectionTime.value = new Date().toISOString()
 
@@ -780,7 +724,6 @@ const testPicgo = async (): Promise<void> => {
     const errorMsg = 'commandExists.exists 方法不可用'
     const availableKeys = Object.keys(window.commandExists).join(', ')
     console.error('✗', errorMsg)
-    console.log('commandExists 对象内容:', availableKeys)
     debugMessages.push(`✗ ${errorMsg}`)
     debugMessages.push(`可用方法: ${availableKeys}`)
     picgoExists.value = false
@@ -794,7 +737,6 @@ const testPicgo = async (): Promise<void> => {
   debugMessages.push('✓ commandExists.exists 方法可用')
 
   try {
-    console.log('正在检测 PicGo...')
     debugMessages.push('正在检测 PicGo 命令...')
 
     // First test some basic commands
@@ -804,7 +746,6 @@ const testPicgo = async (): Promise<void> => {
     debugMessages.push(`npm 检测: ${npmExists ? '✓' : '✗'}`)
 
     const result = await window.commandExists.exists('picgo')
-    console.log('PicGo 检测结果:', result)
     debugMessages.push(`PicGo 检测结果: ${result}`)
 
     picgoExists.value = result
@@ -840,8 +781,6 @@ const testPicgo = async (): Promise<void> => {
   }
 
   picgoDebugInfo.value = debugMessages.join('\n')
-  console.log('=== PicGo 检测结束 ===')
-  console.log('调试信息:', debugMessages.join('\n'))
 
   // Stop animation after detection completes
   stopAnimationAndButton()

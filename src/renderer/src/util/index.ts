@@ -23,32 +23,8 @@ export const delay = (time: number): CancellablePromise<void> => {
   return p
 }
 
-const ID_PREFEX = 'mt-'
+const ID_PREFIX = 'mt-'
 let id = 0
-
-export const serialize = function(params: Record<string, string | number | boolean>): string {
-  return Object.keys(params)
-    .map((key) => `${key}=${encodeURI(String(params[key]))}`)
-    .join('&')
-}
-
-export const merge = function <T extends object>(...args: Array<Partial<T>>): T {
-  return Object.assign({}, ...args) as T
-}
-
-export const dataURItoBlob = function(dataURI: string): Blob {
-  const data = dataURI.split(';base64,')
-  const byte = window.atob(data[1])
-  const mime = data[0].split(':')[1]
-  const ab = new ArrayBuffer(byte.length)
-  const ia = new Uint8Array(ab)
-  const len = byte.length
-  let i
-  for (i = 0; i < len; i++) {
-    ia[i] = byte.charCodeAt(i)
-  }
-  return new window.Blob([ab], { type: mime })
-}
 
 export interface Cursor {
   line: number
@@ -124,7 +100,7 @@ export const adjustCursor = (
     return nearestCursor
   }
 
-  const newCursor: Cursor = Object.assign({}, { line: cursor.line, ch: cursor.ch })
+  const newCursor: Cursor = { line: cursor.line, ch: cursor.ch }
   // It's need to adjust the cursor when cursor is at begin or end in table row.
   if (/\|[^|]+\|.+\|\s*$/.test(line)) {
     if (/\|\s*:?-+:?\s*\|[:-\s|]+\|\s*$/.test(line)) {
@@ -202,21 +178,10 @@ export const animatedScrollTo = function(
 }
 
 export const getUniqueId = (): string => {
-  return `${ID_PREFEX}${id++}`
+  return `${ID_PREFIX}${id++}`
 }
 
 export const hasKeys = (obj: object): boolean => Object.keys(obj).length > 0
-
-/**
- * Clone an object as a shallow or deep copy.
- *
- * @param obj Object to clone
- * @param deepCopy Create a shallow (false) or deep copy (true)
- * @deprecated Use `cloneObject` (shallow copy) or `deepClone` (deep copy).
- */
-export const cloneObj = <T>(obj: T, deepCopy = true): T => {
-  return deepCopy ? JSON.parse(JSON.stringify(obj)) : Object.assign({}, obj)
-}
 
 /**
  * Shallow clone the given object.

@@ -2,7 +2,7 @@ import Slugger from 'muya/lib/parser/marked/slugger'
 import { escapeHTML, unescapeHTML } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
 import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
-import { cloneObj } from '../util'
+import { deepClone } from '../util'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from '../util/dompurify'
 
 export interface PdfCssOptions {
@@ -154,7 +154,7 @@ const generateHtmlToc = (
 }
 
 export const getHtmlToc = (toc: TocEntry[], options: HtmlTocOptions = {}): string => {
-  const list = cloneObj(toc)
+  const list = deepClone(toc)
   const slugger = new Slugger()
   const tocList = generateHtmlToc(list, slugger, 0, options)
   if (!tocList) {
