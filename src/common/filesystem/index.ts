@@ -1,7 +1,7 @@
 import { access } from 'fs/promises'
 import { lstatSync, readlinkSync } from 'fs'
 import { resolve, dirname } from 'path'
-import { ensureDirSync as fsExtraEnsureDirSync, pathExistsSync } from 'fs-extra'
+import { ensureDirSync as fsExtraEnsureDirSync } from 'fs-extra'
 
 /**
  * Test whether or not the given path exists.
@@ -33,7 +33,7 @@ export const ensureDirSync = (dirPath: string): void => {
  */
 export const isDirectory = (dirPath: string): boolean => {
   try {
-    return pathExistsSync(dirPath) && lstatSync(dirPath).isDirectory()
+    return lstatSync(dirPath).isDirectory()
   } catch {
     return false
   }
@@ -45,10 +45,6 @@ export const isDirectory = (dirPath: string): boolean => {
  */
 export const isDirectory2 = (dirPath: string): boolean => {
   try {
-    if (!pathExistsSync(dirPath)) {
-      return false
-    }
-
     const fi = lstatSync(dirPath)
     if (fi.isDirectory()) {
       return true
@@ -67,7 +63,7 @@ export const isDirectory2 = (dirPath: string): boolean => {
  */
 export const isFile = (filepath: string): boolean => {
   try {
-    return pathExistsSync(filepath) && lstatSync(filepath).isFile()
+    return lstatSync(filepath).isFile()
   } catch {
     return false
   }
@@ -79,10 +75,6 @@ export const isFile = (filepath: string): boolean => {
  */
 export const isFile2 = (filepath: string): boolean => {
   try {
-    if (!pathExistsSync(filepath)) {
-      return false
-    }
-
     const fi = lstatSync(filepath)
     if (fi.isFile()) {
       return true
@@ -101,7 +93,7 @@ export const isFile2 = (filepath: string): boolean => {
  */
 export const isSymbolicLink = (filepath: string): boolean => {
   try {
-    return pathExistsSync(filepath) && lstatSync(filepath).isSymbolicLink()
+    return lstatSync(filepath).isSymbolicLink()
   } catch {
     return false
   }

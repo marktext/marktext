@@ -17,12 +17,13 @@ interface DirOrImageEntry {
 const IMAGE_PATH: Map<string, DirOrImageEntry[]> = new Map()
 export const watchers: Map<string, fs.FSWatcher> = new Map()
 
+const IMAGE_REG = new RegExp('(' + IMAGE_EXTENSIONS.join('|') + ')$', 'i')
+
 const filesHandler = (
   files: string[],
   directory: string,
   key?: string
 ): DirOrImageEntry[] | undefined => {
-  const IMAGE_REG = new RegExp('(' + IMAGE_EXTENSIONS.join('|') + ')$', 'i')
   const onlyDirAndImage: DirOrImageEntry[] = files
     .map((file): DirOrImageEntry => {
       const fullPath = path.join(directory, file)
