@@ -551,10 +551,6 @@ watch(sourceCode, (value, oldValue) => {
 })
 
 // Methods
-const photoCreatorClick = (url: string) => {
-  window.electron.shell.openExternal(url)
-}
-
 const jumpClick = (linkInfo: { href: string }) => {
   const { href } = linkInfo
   editorStore.FORMAT_LINK_CLICK({ data: { href }, dirname: window.DIRNAME })
@@ -1148,10 +1144,7 @@ onMounted(() => {
   Muya.use(CodePicker)
   Muya.use(EmojiPicker)
   Muya.use(ImagePathPicker)
-  Muya.use(ImageSelector, {
-    unsplashAccessKey: window.electron?.process?.env?.UNSPLASH_ACCESS_KEY,
-    photoCreatorClick
-  })
+  Muya.use(ImageSelector)
   Muya.use(Transformer)
   Muya.use(ImageToolbar)
   Muya.use(FormatPicker)
