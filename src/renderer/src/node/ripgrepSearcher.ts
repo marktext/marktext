@@ -3,6 +3,8 @@
 // in-renderer searcher (so call sites in search.vue and quickOpen don't need
 // to change).
 
+import { deepClone } from '../util'
+
 export type RipgrepMode = 'text' | 'files'
 
 export interface RipgrepSearchOptions {
@@ -98,7 +100,7 @@ const startSearch = ({ mode, directories, pattern, options }: StartArgs): Cancel
     const { didMatch: _a, didSearchPaths: _b, ...rest } = options
     let serializable: unknown
     try {
-      serializable = JSON.parse(JSON.stringify(rest))
+      serializable = deepClone(rest)
     } catch {
       serializable = rest
     }

@@ -446,7 +446,7 @@ export const useEditorStore = defineStore('editor', {
 
     SEARCH(value: IFileState['searchMatches']): void {
       if (!this.currentFile) return
-      this.currentFile.searchMatches = JSON.parse(JSON.stringify(value)) // deep clone to trigger state changes
+      this.currentFile.searchMatches = deepClone(value) // deep clone to trigger state changes
     },
 
     SHOW_IMAGE_DELETION_URL(deletionUrl: string): void {
@@ -1495,7 +1495,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_EXPORT_SUCCESS(): void {
+    LISTEN_FOR_EXPORT_SUCCESS(): void {
       window.electron.ipcRenderer.on('mt::export-success', (_, payload) => {
         const filePath = payload?.filePath ?? ''
         notice
@@ -1516,7 +1516,7 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.send('mt::response-print')
     },
 
-    LINTEN_FOR_PRINT_SERVICE_CLEARUP(): void {
+    LISTEN_FOR_PRINT_SERVICE_CLEARUP(): void {
       window.electron.ipcRenderer.on('mt::print-service-clearup', () => {
         bus.emit('print-service-clearup')
       })
@@ -1534,7 +1534,7 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
-    LINTEN_FOR_SET_LINE_ENDING(): void {
+    LISTEN_FOR_SET_LINE_ENDING(): void {
       window.electron.ipcRenderer.on('mt::set-line-ending', (_, lineEnding) => {
         this.SET_LINE_ENDING(lineEnding)
       })
@@ -1543,7 +1543,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_SET_ENCODING(): void {
+    LISTEN_FOR_SET_ENCODING(): void {
       bus.on('mt::set-file-encoding', (encodingName) => {
         if (!this.currentFile) return
         const { encoding } = this.currentFile.encoding
@@ -1556,7 +1556,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    LINTEN_FOR_SET_FINAL_NEWLINE(): void {
+    LISTEN_FOR_SET_FINAL_NEWLINE(): void {
       bus.on('mt::set-final-newline', (value) => {
         if (!this.currentFile) return
         const { trimTrailingNewline } = this.currentFile
@@ -1895,7 +1895,7 @@ function toSerializableValue<T>(value: T | null | undefined, fallback: T | null 
   if (value == null) return fallback
 
   try {
-    return JSON.parse(JSON.stringify(value)) as T
+    return deepClone(value) as T
   } catch (err) {
     console.warn('Unable to serialize editor buffer value:', err)
     return fallback
