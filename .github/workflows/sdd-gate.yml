@@ -1,0 +1,227 @@
+name: SDD Gate
+
+# Enforces Specification-Driven Development compliance.
+# Any PR that modifies >10 lines of application code in src/ (excluding test files and
+# locale files) must reference a valid, non-DRAFT spec from ai-meta/specs/ in the PR body.
+#
+# Pass conditions (any one is sufficient):
+#   • No src/ files changed
+#   • Total changed lines in qualifying src/ files ≤ 10
+#   • PR body contains "SPEC-XXXX" that resolves to a non-DRAFT spec in ai-meta/specs/
+#   • PR body contains "N/A" in the Spec ID line (acknowledged small fix)
+#
+# See ai-meta/AGENT_GUIDE.md for the full SDD protocol.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sdd-gate:
+    name: Specification-Driven Development Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run SDD compliance check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process')
+            const fs   = require('fs')
+            const path = require('path')
+
+            // ----------------------------------------------------------------
+            // 1. Fetch base branch and compute changed files
+            // ----------------------------------------------------------------
+            const baseRef = context.payload.pull_request.base.ref
+            execSync(`git fetch origin ${baseRef} --depth=1`, { stdio: 'pipe' })
+
+            const diffBase = `origin/${baseRef}`
+            let changedRaw = ''
+            try {
+              changedRaw = execSync(
+                `git diff --name-only ${diffBase}...HEAD`,
+                { stdio: 'pipe' }
+              ).toString().trim()
+            } catch (_) {}
+
+            if (!changedRaw) {
+              core.info('✅ SDD Gate PASSED — no changed files detected.')
+              return
+            }
+
+            const allChanged = changedRaw.split('\n').filter(Boolean)
+
+            // ----------------------------------------------------------------
+            // 2. Filter out exempted paths; keep only qualifying src/ files
+            // ----------------------------------------------------------------
+            const EXEMPT = [
+              /^test\//,
+              /^docs\//,
+              /^ai-meta\//,
+              /^static\/locales\//,
+              /\.spec\.(js|ts)x?$/,
+              /\.test\.(js|ts)x?$/,
+              /^src\/renderer\/src\/i18n\//,
+              /^src\/common\/i18n/,
+            ]
+
+            const srcFiles = allChanged.filter(f =>
+              f.startsWith('src/') && !EXEMPT.some(p => p.test(f))
+            )
+
+            if (srcFiles.length === 0) {
+              core.info('✅ SDD Gate PASSED — no qualifying src/ files changed.')
+              return
+            }
+
+            // ----------------------------------------------------------------
+            // 3. Count total changed lines across qualifying files
+            // ----------------------------------------------------------------
+            let totalLines = 0
+            for (const f of srcFiles) {
+              try {
+                const stat = execSync(
+                  `git diff --numstat ${diffBase}...HEAD -- "${f}"`,
+                  { stdio: 'pipe' }
+                ).toString().trim()
+                if (stat) {
+                  const parts = stat.split('\t')
+                  const added   = parseInt(parts[0], 10) || 0
+                  const removed = parseInt(parts[1], 10) || 0
+                  totalLines += added + removed
+                }
+              } catch (_) {}
+            }
+
+            if (totalLines <= 10) {
+              core.info(`✅ SDD Gate PASSED — small change (${totalLines} lines ≤ threshold of 10).`)
+              return
+            }
+
+            // ----------------------------------------------------------------
+            // 4. Parse the PR body for a Spec ID or explicit N/A declaration
+            // ----------------------------------------------------------------
+            const prBody = context.payload.pull_request.body || ''
+
+            // Detect "N/A" on the Spec ID line (small fix explicitly acknowledged)
+            const naLine = prBody.match(/Spec\s+ID\s*:.*\bN\/A\b/i)
+            if (naLine) {
+              core.info(
+                `✅ SDD Gate PASSED — PR author declared N/A for Spec ID ` +
+                `(${totalLines} lines changed across ${srcFiles.length} file(s)).`
+              )
+              core.warning(
+                `ℹ️  N/A was used. Maintainers: verify this change is genuinely small/trivial ` +
+                `and doesn't require a spec.`
+              )
+              return
+            }
+
+            // Extract SPEC-XXXX identifier
+            const specMatch = prBody.match(/\bSPEC-(\d+)\b/i)
+            const specId = specMatch ? `SPEC-${specMatch[1]}` : null
+
+            if (!specId) {
+              const fileList = srcFiles
+                .slice(0, 10)
+                .map(f => `  • ${f}`)
+                .join('\n')
+              const overflow = srcFiles.length > 10
+                ? `\n  … and ${srcFiles.length - 10} more file(s)`
+                : ''
+
+              core.setFailed(
+                `SDD Gate FAILED ❌\n\n` +
+                `This PR changes ${totalLines} lines across ${srcFiles.length} qualifying ` +
+                `src/ file(s), but no Spec ID was found in the PR description.\n\n` +
+                `Changed files:\n${fileList}${overflow}\n\n` +
+                `──────────────────────────────────────────────\n` +
+                `Required action:\n` +
+                `  1. Create a spec:  ai-meta/specs/<feature>/spec.md\n` +
+                `     Template:       ai-meta/specs/TEMPLATE.md\n` +
+                `  2. Set spec status to APPROVED or IN_PROGRESS\n` +
+                `  3. Add to PR description:  Spec ID: SPEC-XXXX\n\n` +
+                `For trivial changes (<10 lines), write:  Spec ID: N/A — <reason>\n\n` +
+                `Full protocol:  ai-meta/AGENT_GUIDE.md`
+              )
+              return
+            }
+
+            // ----------------------------------------------------------------
+            // 5. Locate the spec file in ai-meta/specs/ and verify status
+            // ----------------------------------------------------------------
+            const workspace  = process.env.GITHUB_WORKSPACE
+            const specsRoot  = path.join(workspace, 'ai-meta', 'specs')
+            let foundSpecRel = null
+            let specStatus   = null
+
+            if (fs.existsSync(specsRoot)) {
+              const walk = (dir) => {
+                for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                  if (foundSpecRel) return   // stop once found
+                  const full = path.join(dir, entry.name)
+                  if (entry.isDirectory()) {
+                    walk(full)
+                  } else if (entry.name === 'spec.md') {
+                    const content = fs.readFileSync(full, 'utf8')
+                    if (content.toUpperCase().includes(specId)) {
+                      foundSpecRel = full.replace(workspace + path.sep, '').replace(/\\/g, '/')
+                      // Parse status from the spec header table:
+                      // | **Status** | APPROVED |
+                      const m = content.match(/\*\*Status\*\*\s*\|\s*([A-Z_]+)/)
+                      specStatus = m ? m[1] : 'UNKNOWN'
+                    }
+                  }
+                }
+              }
+              walk(specsRoot)
+            }
+
+            if (!foundSpecRel) {
+              core.setFailed(
+                `SDD Gate FAILED ❌\n\n` +
+                `Spec ID "${specId}" was referenced in the PR description but no matching ` +
+                `spec.md containing that ID was found under ai-meta/specs/.\n\n` +
+                `• Create the spec file: ai-meta/specs/<feature>/spec.md\n` +
+                `• Use the template at:  ai-meta/specs/TEMPLATE.md\n` +
+                `• Ensure the Spec Header table includes:  | **Spec ID** | ${specId} |`
+              )
+              return
+            }
+
+            if (specStatus === 'DRAFT') {
+              core.setFailed(
+                `SDD Gate FAILED ❌\n\n` +
+                `Spec "${specId}" (${foundSpecRel}) has status DRAFT.\n\n` +
+                `Implementation may not begin until the spec is APPROVED or IN_PROGRESS.\n` +
+                `Update the | **Status** | row in the spec and push to re-run this check.`
+              )
+              return
+            }
+
+            // ----------------------------------------------------------------
+            // 6. All checks passed
+            // ----------------------------------------------------------------
+            const summary = [
+              `✅ SDD Gate PASSED`,
+              `   Spec ID : ${specId}`,
+              `   File    : ${foundSpecRel}`,
+              `   Status  : ${specStatus}`,
+              `   Changed : ${srcFiles.length} file(s), ${totalLines} lines`,
+            ].join('\n')
+
+            core.info(summary)

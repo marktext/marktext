@@ -2,6 +2,7 @@ node_modules
 dist
 out
 .DS_Store
+# ai-meta/ is intentionally tracked — AI development control layer (SDD/FDD scaffolding)
 .prettierignore
 .eslintcache
 *.log*
