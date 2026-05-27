@@ -286,7 +286,7 @@ const updateCommands = () => {
     availableCommands.value = cmd.subcommands ?? []
   } else {
     availableCommands.value = (cmd.subcommands ?? []).filter(
-      (c) => (c.description ?? '').toLowerCase().indexOf(queryString.toLowerCase()) !== -1
+      (c) => (c.description ?? '').toLowerCase().includes(queryString.toLowerCase())
     )
   }
   selectedCommandIndex.value = availableCommands.value.length ? 0 : -1

@@ -40,9 +40,12 @@ export const getPath = (name: Parameters<typeof app.getPath>[0]): string => {
 }
 
 export const hasSameKeys = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
-  const aKeys = Object.keys(a).sort()
-  const bKeys = Object.keys(b).sort()
-  return JSON.stringify(aKeys) === JSON.stringify(bKeys)
+  const aKeys = Object.keys(a)
+  const bKeys = Object.keys(b)
+  if (aKeys.length !== bKeys.length) return false
+  aKeys.sort()
+  bKeys.sort()
+  return aKeys.every((k, i) => k === bKeys[i])
 }
 
 export type LogLevel = 'silly' | 'debug' | 'verbose' | 'info'
