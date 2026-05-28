@@ -99,7 +99,7 @@ Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus. Et l
 
 You can use multiple consecutive newline characters (`\n`) to create extra spacing between sections in a markdown document. However, if you need to ensure that extra newlines are not collapsed, you can use as many HTML `<br>` elements as you want.
 
-Alternatively you can add **two spaces** spaces at the end of your paragraph to force a soft linebreak.
+Alternatively you can add **two spaces** at the end of your paragraph to force a soft linebreak.
 
 ## Horizontal Rule
 
