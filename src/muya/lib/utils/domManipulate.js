@@ -1,4 +1,3 @@
-
 /**
  * [description `add` or `remove` className of element
  */

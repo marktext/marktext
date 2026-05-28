@@ -2,48 +2,38 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
-      "name": "Launch MarkText",
-      "program": "${workspaceFolder}/.electron-vue/dev-runner.js",
-      "env": {
-        "NODE_ENV": "development",
-        "MARKTEXT_BUILD_VSCODE_DEBUG": "1"
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
       },
-      "outFiles": [
-        "${workspaceFolder}/dist/electron/main.js"
-      ]
+      "runtimeArgs": ["--sourcemap"],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222"
+      }
     },
     {
-      "type": "node",
+      "name": "Debug Renderer Process",
+      "port": 9222,
       "request": "attach",
-      "name": "Attach to Main Process",
-      "port": 5861,
-      "timeout": 60000,
-      "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/electron/main.js"
-      ]
-    },
-    {
-      "name": "Attach to Renderer Process",
       "type": "chrome",
-      "request": "attach",
-      "port": 8315,
-      "sourceMaps": true,
-      "webRoot": "${workspaceFolder}/src",
+      "webRoot": "${workspaceFolder}/src/renderer",
       "timeout": 60000,
-      "urlFilter": "http://localhost:9091"
+      "presentation": {
+        "hidden": true
+      }
     }
   ],
   "compounds": [
     {
-      "name": "Debug MarkText",
-      "configurations": [
-        "Launch MarkText",
-        "Attach to Main Process",
-        "Attach to Renderer Process"
-      ]
+      "name": "Debug All",
+      "configurations": ["Debug Main Process", "Debug Renderer Process"],
+      "presentation": {
+        "order": 1
+      }
     }
   ]
 }

@@ -1,8 +1,8 @@
 import selection from '../selection'
 
-const deleteCtrl = ContentState => {
+const deleteCtrl = (ContentState) => {
   // Handle `delete` keydown event on document.
-  ContentState.prototype.docDeleteHandler = function (event) {
+  ContentState.prototype.docDeleteHandler = function(event) {
     // handle delete selected image
     const { selectedImage } = this
     if (selectedImage) {
@@ -16,7 +16,7 @@ const deleteCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.deleteHandler = function (event) {
+  ContentState.prototype.deleteHandler = function(event) {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -38,18 +38,19 @@ const deleteCtrl = ContentState => {
       startBlock.text = text.substring(2)
       this.cursor = {
         start: { key, offset: 0 },
-        end: { key, offset: 0 }
+        end: { key, offset: 0 },
+        isEdit: true
       }
       return this.singleRender(startBlock)
     }
-    if (
-      /h\d|span/.test(type) &&
-      start.offset === text.length
-    ) {
+    if (/h\d|span/.test(type) && start.offset === text.length) {
       event.preventDefault()
       if (nextBlock && /h\d|span/.test(nextBlock.type)) {
         // if cursor at the end of code block-language input, do nothing!
-        if (nextBlock.functionType === 'codeContent' && startBlock.functionType === 'languageInput') {
+        if (
+          nextBlock.functionType === 'codeContent' &&
+          startBlock.functionType === 'languageInput'
+        ) {
           return
         }
 
@@ -66,12 +67,51 @@ const deleteCtrl = ContentState => {
           parent = this.getParent(parent)
         }
 
-        toBeRemoved.forEach(b => this.removeBlock(b))
+        toBeRemoved.forEach((b) => {
+          // Check if the parent is a list
+          const parent = this.getParent(b)
+
+          // ============= LIST HANDLING=============
+          if (parent && parent.type === 'li') {
+            // We need to move any sublists to outside of the list item
+            const ulBlock = this.getParent(parent)
+            let insertAfterThis = ulBlock
+
+            // Move any sublists out
+            parent.children.forEach((child) => {
+              if (/ul|ol/.test(child.type)) {
+                this.insertAfter(child, insertAfterThis)
+                insertAfterThis = child
+              }
+            })
+
+            // Move any subsequent list items out
+            let probe = this.getBlock(parent.nextSibling)
+            const listItemToBeSaved = []
+            while (probe && probe.type === 'li') {
+              listItemToBeSaved.push(probe)
+              probe = this.getBlock(probe.nextSibling)
+            }
+            if (listItemToBeSaved.length > 0) {
+              const newULBlock = this.createBlock('ul')
+              listItemToBeSaved.forEach((li) => {
+                this.appendChild(newULBlock, li)
+              })
+              this.insertAfter(newULBlock, insertAfterThis)
+            }
+
+            // Then delete the parent ul block from the list
+            this.removeBlock(ulBlock)
+          } else {
+            this.removeBlock(b)
+          }
+        })
 
         const offset = start.offset
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
         this.render()
       }

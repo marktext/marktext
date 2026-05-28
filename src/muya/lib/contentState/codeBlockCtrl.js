@@ -5,11 +5,11 @@ import selection from '../selection'
 
 const CODE_UPDATE_REP = /^`{3,}(.*)/
 
-const codeBlockCtrl = ContentState => {
+const codeBlockCtrl = (ContentState) => {
   /**
-  * check edit language
-  */
-  ContentState.prototype.checkEditLanguage = function () {
+   * check edit language
+   */
+  ContentState.prototype.checkEditLanguage = function() {
     const { start } = selection.getCursorRange()
     if (!start) {
       return { lang: '', paragraph: null }
@@ -34,7 +34,7 @@ const codeBlockCtrl = ContentState => {
     return { lang, paragraph }
   }
 
-  ContentState.prototype.selectLanguage = function (paragraph, lang) {
+  ContentState.prototype.selectLanguage = function(paragraph, lang) {
     const block = this.getBlock(paragraph.id)
     if (lang === 'math' && this.isGitlabCompatibilityEnabled && this.updateMathBlock(block)) {
       return
@@ -48,7 +48,7 @@ const codeBlockCtrl = ContentState => {
    * @param block Language-input block or paragraph
    * @param lang Language identifier
    */
-  ContentState.prototype.updateCodeLanguage = function (block, lang) {
+  ContentState.prototype.updateCodeLanguage = function(block, lang) {
     if (!lang || typeof lang !== 'string') {
       console.error('Invalid code block language string:', lang)
 
@@ -72,7 +72,7 @@ const codeBlockCtrl = ContentState => {
         preBlock.lang = lang
         preBlock.functionType = 'fencecode'
         nextSibling.lang = lang
-        nextSibling.children.forEach(c => (c.lang = lang))
+        nextSibling.children.forEach((c) => (c.lang = lang))
       }
 
       // Set cursor at the first line
@@ -80,7 +80,8 @@ const codeBlockCtrl = ContentState => {
       const offset = 0
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: false
       }
     } else {
       block.text = block.text.replace(/^(`+)([^`]+$)/g, `$1${lang}`)
@@ -92,7 +93,7 @@ const codeBlockCtrl = ContentState => {
   /**
    * [codeBlockUpdate if block updated to `pre` return true, else return false]
    */
-  ContentState.prototype.codeBlockUpdate = function (block, code = '', lang) {
+  ContentState.prototype.codeBlockUpdate = function(block, code = '', lang) {
     if (block.type === 'span') {
       block = this.getParent(block)
     }
@@ -136,7 +137,8 @@ const codeBlockCtrl = ContentState => {
       const offset = code.length
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: false
       }
       return true
     }
@@ -146,22 +148,21 @@ const codeBlockCtrl = ContentState => {
   /**
    * Copy the code block by click right-top copy icon in code block.
    */
-  ContentState.prototype.copyCodeBlock = function (event) {
+  ContentState.prototype.copyCodeBlock = function(event) {
     const { target } = event
     const preEle = target.closest('pre')
     const preBlock = this.getBlock(preEle.id)
-    const codeBlock = preBlock.children.find(c => c.type === 'code')
+    const codeBlock = preBlock.children.find((c) => c.type === 'code')
     const codeContent = codeBlock.children[0].text
     this.muya.clipboard.copy('copyCodeContent', codeContent)
   }
 
-  ContentState.prototype.resizeLineNumber = function () {
+  ContentState.prototype.resizeLineNumber = function() {
     // FIXME: Disabled due to #1648.
     // const { codeBlockLineNumbers } = this.muya.options
     // if (!codeBlockLineNumbers) {
     //   return
     // }
-
     // const codeBlocks = document.querySelectorAll('pre.line-numbers')
     // if (codeBlocks.length) {
     //   for (const ele of codeBlocks) {

@@ -10,7 +10,7 @@
  */
 
 class ExportMarkdown {
-  constructor (blocks, listIndentation = 1, isGitlabCompatibilityEnabled = false) {
+  constructor(blocks, listIndentation = 1, isGitlabCompatibilityEnabled = false) {
     this.blocks = blocks
     this.listType = [] // 'ul' or 'ol'
     // helper to translate the first tight item in a nested list
@@ -29,11 +29,11 @@ class ExportMarkdown {
     }
   }
 
-  generate () {
+  generate() {
     return this.translateBlocks2Markdown(this.blocks)
   }
 
-  translateBlocks2Markdown (blocks, indent = '', listIndent = '') {
+  translateBlocks2Markdown(blocks, indent = '', listIndent = '') {
     const result = []
     // helper for CommonMark 264
     let lastListBullet = ''
@@ -168,37 +168,43 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  insertLineBreak (result, indent) {
+  insertLineBreak(result, indent) {
     if (!result.length) return
     result.push(`${indent}\n`)
   }
 
-  normalizeParagraphText (block, indent) {
+  normalizeParagraphText(block, indent) {
     const { text } = block
     const lines = text.split('\n')
-    return lines.map(line => `${indent}${line}`).join('\n') + '\n'
+    return lines.map((line) => `${indent}${line}`).join('\n') + '\n'
   }
 
-  normalizeHeaderText (block, indent) {
+  normalizeHeaderText(block, indent) {
     const { headingStyle, marker } = block
     const { text } = block.children[0]
     if (headingStyle === 'atx') {
-      const match = text.match(/(#{1,6})(.*)/)
+      const match = text.match(/^ {0,3}(#{1,6})(.*)$/)
+      if (!match) {
+        // Fallback: if regex doesn't match, return text as-is
+        console.warn('normalizeHeaderText: ATX heading regex did not match:', text)
+        return `${indent}${text}\n`
+      }
       const atxHeadingText = `${match[1]} ${match[2].trim()}`
       return `${indent}${atxHeadingText}\n`
     } else if (headingStyle === 'setext') {
       const lines = text.trim().split('\n')
-      return lines.map(line => `${indent}${line}`).join('\n') + `\n${indent}${marker.trim()}\n`
+      return lines.map((line) => `${indent}${line}`).join('\n') + `\n${indent}${marker.trim()}\n`
     }
   }
 
-  normalizeBlockquote (block, indent) {
+  normalizeBlockquote(block, indent) {
     const { children } = block
     const newIndent = `${indent}> `
     return this.translateBlocks2Markdown(children, newIndent)
   }
 
-  normalizeFrontMatter (block, indent) { // preBlock
+  normalizeFrontMatter(block, indent) {
+    // preBlock
     let startToken
     let endToken
     switch (block.lang) {
@@ -230,7 +236,7 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeMultipleMath (block, /* figure */ indent) {
+  normalizeMultipleMath(block, /* figure */ indent) {
     const { isGitlabCompatibilityEnabled } = this
     let startToken = '$$'
     let endToken = '$$'
@@ -249,7 +255,7 @@ class ExportMarkdown {
   }
 
   // `mermaid` `flowchart` `sequence` `plantuml` `vega-lite`
-  normalizeContainer (block, indent) {
+  normalizeContainer(block, indent) {
     const result = []
     const diagramType = block.children[0].functionType
     result.push('```' + diagramType + '\n')
@@ -260,19 +266,19 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeCodeBlock (block, indent) {
+  normalizeCodeBlock(block, indent) {
     const result = []
     const codeContent = block.children[1].children[0]
     const textList = codeContent.text.split('\n')
     const { functionType } = block
     if (functionType === 'fencecode') {
       result.push(`${indent}${block.lang ? '```' + block.lang + '\n' : '```\n'}`)
-      textList.forEach(text => {
+      textList.forEach((text) => {
         result.push(`${indent}${text}\n`)
       })
       result.push(indent + '```\n')
     } else {
-      textList.forEach(text => {
+      textList.forEach((text) => {
         result.push(`${indent}    ${text}\n`)
       })
     }
@@ -280,7 +286,8 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeHTML (block, indent) { // figure
+  normalizeHTML(block, indent) {
+    // figure
     const result = []
     const codeContentText = block.children[0].children[0].children[0].text
     const lines = codeContentText.split('\n')
@@ -290,70 +297,82 @@ class ExportMarkdown {
     return result.join('')
   }
 
-  normalizeTable (table, indent) {
+  normalizeTable(table, indent) {
     const result = []
-    const { row, column } = table
     const tableData = []
     const tHeader = table.children[0]
     const tBody = table.children[1]
-    const escapeText = str => {
+    const escapeText = (str) => {
       return str.replace(/([^\\])\|/g, '$1\\|')
     }
 
-    tableData.push(tHeader.children[0].children.map(th => escapeText(th.children[0].text).trim()))
+    tableData.push(tHeader.children[0].children.map((th) => escapeText(th.children[0].text).trim()))
     if (tBody) {
-      tBody.children.forEach(bodyRow => {
-        tableData.push(bodyRow.children.map(td => escapeText(td.children[0].text).trim()))
+      tBody.children.forEach((bodyRow) => {
+        tableData.push(bodyRow.children.map((td) => escapeText(td.children[0].text).trim()))
       })
     }
 
-    const columnWidth = tHeader.children[0].children.map(th => ({ width: 5, align: th.align }))
+    const columnWidth = tHeader.children[0].children.map((th) => ({ width: 5, align: th.align }))
 
     let i
     let j
 
-    for (i = 0; i <= row; i++) {
-      for (j = 0; j <= column; j++) {
+    for (i = 0; i < tableData.length; i++) {
+      for (j = 0; j < Math.min(tableData[i].length, columnWidth.length); j++) {
         columnWidth[j].width = Math.max(columnWidth[j].width, tableData[i][j].length + 2) // add 2, because have two space around text
       }
     }
     tableData.forEach((r, i) => {
-      const rs = indent + '|' + r.map((cell, j) => {
-        const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`
-        return raw.substring(0, columnWidth[j].width)
-      }).join('|') + '|'
+      const rs =
+        indent +
+        '|' +
+        r
+          .slice(0, columnWidth.length)
+          .map((cell, j) => {
+            const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`
+            return raw.substring(0, columnWidth[j].width)
+          })
+          .join('|') +
+        '|'
       result.push(rs)
       if (i === 0) {
-        const cutOff = indent + '|' + columnWidth.map(({ width, align }) => {
-          let raw = '-'.repeat(width - 2)
-          switch (align) {
-            case 'left':
-              raw = `:${raw} `
-              break
-            case 'center':
-              raw = `:${raw}:`
-              break
-            case 'right':
-              raw = ` ${raw}:`
-              break
-            default:
-              raw = ` ${raw} `
-              break
-          }
-          return raw
-        }).join('|') + '|'
+        const cutOff =
+          indent +
+          '|' +
+          columnWidth
+            .map(({ width, align }) => {
+              let raw = '-'.repeat(width - 2)
+              switch (align) {
+                case 'left':
+                  raw = `:${raw} `
+                  break
+                case 'center':
+                  raw = `:${raw}:`
+                  break
+                case 'right':
+                  raw = ` ${raw}:`
+                  break
+                default:
+                  raw = ` ${raw} `
+                  break
+              }
+              return raw
+            })
+            .join('|') +
+          '|'
         result.push(cutOff)
       }
     })
     return result.join('\n') + '\n'
   }
 
-  normalizeList (block, indent, listIndent) {
+  normalizeList(block, indent, listIndent) {
     const { children } = block
     return this.translateBlocks2Markdown(children, indent, listIndent)
   }
 
-  normalizeListItem (block, indent) {
+  normalizeListItem(block, indent) {
     const result = []
     const listInfo = this.listType[this.listType.length - 1]
     const isUnorderedList = listInfo.type === 'ul'
@@ -399,11 +418,13 @@ class ExportMarkdown {
     }
 
     result.push(`${indent}${itemMarker}`)
-    result.push(this.translateBlocks2Markdown(children, newIndent, listIndent).substring(newIndent.length))
+    result.push(
+      this.translateBlocks2Markdown(children, newIndent, listIndent).substring(newIndent.length)
+    )
     return result.join('')
   }
 
-  normalizeFootnote (block, indent) {
+  normalizeFootnote(block, indent) {
     const result = []
     const identifier = block.children[0].text
     result.push(`${indent}[^${identifier}]:`)

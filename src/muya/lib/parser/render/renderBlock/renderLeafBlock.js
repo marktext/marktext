@@ -67,7 +67,7 @@ const hasReferenceToken = tokens => {
   return result
 }
 
-export default function renderLeafBlock (parent, block, activeBlocks, matches, useCache = false) {
+export default function renderLeafBlock(parent, block, activeBlocks, matches, useCache = false, t) {
   const { loadMathMap } = this
   const { cursor } = this.muya.contentState
   let selector = this.getSelector(block, activeBlocks)
@@ -136,7 +136,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
 
         // handle empty html bock
         if (/^<([a-z][a-z\d]*)[^>]*?>(\s*)<\/\1>$/.test(htmlContent.trim())) {
-          children = htmlToVNode('<div class="ag-empty">&lt;Empty HTML Block&gt;</div>')
+          children = htmlToVNode(`<div class="ag-empty">${t('editor.emptyHtmlBlock')}</div>`)
         } else {
           const parser = new DOMParser()
           const doc = parser.parseFromString(htmlContent, 'text/html')
@@ -156,7 +156,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
-          children = '< Empty Mathematical Formula >'
+          children = t('editor.emptyMathFormula')
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else if (loadMathMap.has(key)) {
           children = loadMathMap.get(key)
@@ -169,7 +169,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
             children = htmlToVNode(html)
             loadMathMap.set(key, children)
           } catch (err) {
-            children = '< Invalid Mathematical Formula >'
+            children = t('editor.invalidMathFormula')
             selector += `.${CLASS_OR_ID.AG_MATH_ERROR}`
           }
         }
@@ -179,10 +179,10 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
-          children = '< Empty Mermaid Block >'
+          children = t('editor.emptyMermaidBlock')
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
-          children = 'Loading...'
+          children = t('editor.loading')
           this.mermaidCache.set(`#${block.key}`, {
             code,
             functionType
@@ -197,10 +197,10 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
         selector += `.${CLASS_OR_ID.AG_CONTAINER_PREVIEW}`
         Object.assign(data.attrs, { spellcheck: 'false' })
         if (code === '') {
-          children = '< Empty Diagram Block >'
+          children = t('editor.emptyDiagramBlock')
           selector += `.${CLASS_OR_ID.AG_EMPTY}`
         } else {
-          children = 'Loading...'
+          children = t('editor.loading')
           this.diagramCache.set(`#${block.key}`, {
             code,
             functionType
@@ -238,7 +238,7 @@ export default function renderLeafBlock (parent, block, activeBlocks, matches, u
       const wrapper = document.createElement('div')
       wrapper.classList.add(`language-${transformedLang}`)
       wrapper.innerHTML = code
-      prism.highlightElement(wrapper, false, function () {
+      prism.highlightElement(wrapper, false, function() {
         const highlightedCode = this.innerHTML
         selector += `.language-${transformedLang}`
         children = htmlToVNode(highlightedCode)

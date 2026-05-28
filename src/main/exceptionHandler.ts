@@ -1,0 +1,143 @@
+// Based on electron-unhandled by sindresorhus:
+//
+// MIT License
+// Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+import { app, clipboard, crashReporter, dialog, ipcMain } from 'electron'
+import os from 'os'
+import log from 'electron-log'
+import { createAndOpenGitHubIssueUrl } from './utils/createGitHubIssue'
+import { t } from './i18n'
+
+type ErrorType = 'main' | 'renderer'
+type Logger = (s: string) => void
+
+const EXIT_ON_ERROR = !!process.env.MARKTEXT_EXIT_ON_ERROR
+const SHOW_ERROR_DIALOG = !process.env.MARKTEXT_ERROR_INTERACTION
+const ERROR_MSG_MAIN = (): string => t('error.unexpectedMainProcess')
+const ERROR_MSG_RENDERER = (): string => t('error.unexpectedRendererProcess')
+
+let logger: Logger = (s) => console.error(s)
+
+const getOSInformation = (): string => {
+  return `${os.type()} ${os.arch()} ${os.release()} (${os.platform()})`
+}
+
+const exceptionToString = (error: Error, type: ErrorType): string => {
+  const { message, stack } = error
+  return (
+    `Version: ${MARKTEXT_VERSION_STRING || app.getVersion()}\n` +
+    `OS: ${getOSInformation()}\n` +
+    `Type: ${type}\n` +
+    `Date: ${new Date().toUTCString()}\n` +
+    `Message: ${message}\n` +
+    `Stack: ${stack}\n`
+  )
+}
+
+const handleError = async(title: string, error: Error, type: ErrorType): Promise<void> => {
+  const { message, stack } = error
+
+  // Write error into file
+  if (type === 'main') {
+    logger(exceptionToString(error, type))
+  }
+
+  if (EXIT_ON_ERROR) {
+    console.log(t('error.terminatedDueToError'))
+    process.exit(1)
+    // eslint, don't lie to me, the return statement is important!
+    return
+  } else if (
+    !SHOW_ERROR_DIALOG ||
+    ((global as unknown as { MARKTEXT_IS_STABLE?: boolean }).MARKTEXT_IS_STABLE &&
+      type === 'renderer')
+  ) {
+    return
+  }
+
+  // show error dialog
+  if (app.isReady()) {
+    // Blocking message box
+    const { response } = await dialog.showMessageBox({
+      type: 'error',
+      buttons: [t('common.ok'), t('error.copyError'), t('error.report')],
+      defaultId: 0,
+      noLink: true,
+      message: title,
+      detail: stack
+    })
+
+    switch (response) {
+      case 1: {
+        clipboard.writeText(`${title}\n${stack}`)
+        break
+      }
+      case 2: {
+        const issueTitle = message ? t('error.unexpectedErrorWithMessage', { message }) : title
+        createAndOpenGitHubIssueUrl(
+          issueTitle,
+          `### Description
+
+${title}.
+
+### Minimal Reprouducible Markdown Example (or Steps)
+
+<Add steps or a markdown example to reproduce the problem.>
+
+### Stack Trace
+
+\`\`\`\n${stack}\n\`\`\`
+
+### Version
+
+MarkText: ${MARKTEXT_VERSION_STRING}
+Operating system: ${getOSInformation()}`
+        )
+        break
+      }
+    }
+  } else {
+    // error during Electron initialization
+    dialog.showErrorBox(title, stack ?? '')
+    process.exit(1)
+  }
+}
+
+const setupExceptionHandler = (): void => {
+  // Suppress EPIPE errors when electron-log writes to a closed pipe.
+  const ignoreEpipe = (err: NodeJS.ErrnoException): void => {
+    if (err.code !== 'EPIPE') throw err
+  }
+  process.stdout.on('error', ignoreEpipe)
+  process.stderr.on('error', ignoreEpipe)
+
+  // main process error handler
+  process.on('uncaughtException', (error: Error) => {
+    handleError(ERROR_MSG_MAIN(), error, 'main')
+  })
+
+  // renderer process error handler
+  ipcMain.on('mt::handle-renderer-error', (_e, error: Error) => {
+    handleError(ERROR_MSG_RENDERER(), error, 'renderer')
+  })
+
+  // start crashReporter to save core dumps to temporary folder
+  crashReporter.start({
+    companyName: 'marktext',
+    productName: 'marktext',
+    submitURL: 'http://0.0.0.0/',
+    uploadToServer: false,
+    compress: true
+  })
+}
+
+export const initExceptionLogger = (): void => {
+  // replace placeholder logger
+  logger = log.error as unknown as Logger
+}
+
+export default setupExceptionHandler

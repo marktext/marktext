@@ -3,7 +3,7 @@ const rendererCache = new Map()
  *
  * @param {string} name the renderer name: katex, sequence, plantuml, flowchart, mermaid, vega-lite
  */
-const loadRenderer = async (name) => {
+const loadRenderer = async(name) => {
   if (!rendererCache.has(name)) {
     let m
     switch (name) {
@@ -20,7 +20,7 @@ const loadRenderer = async (name) => {
         rendererCache.set(name, m.default)
         break
       case 'mermaid':
-        m = await import('mermaid/dist/mermaid.core.js')
+        m = await import('mermaid/dist/mermaid.core.mjs')
         rendererCache.set(name, m.default)
         break
       case 'vega-lite':

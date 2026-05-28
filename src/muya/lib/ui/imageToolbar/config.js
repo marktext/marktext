@@ -5,37 +5,16 @@ import middleIcon from '../../assets/pngicon/algin_center/2.png'
 import rightIcon from '../../assets/pngicon/algin_right/2.png'
 import deleteIcon from '../../assets/pngicon/image_delete/2.png'
 
-const icons = [
-  {
-    type: 'edit',
-    tooltip: 'Edit Image',
-    icon: editIcon
-  },
-  {
-    type: 'inline',
-    tooltip: 'Inline Image',
-    icon: inlineIcon
-  },
-  {
-    type: 'left',
-    tooltip: 'Align Left',
-    icon: leftIcon
-  },
-  {
-    type: 'center',
-    tooltip: 'Align Middle',
-    icon: middleIcon
-  },
-  {
-    type: 'right',
-    tooltip: 'Align Right',
-    icon: rightIcon
-  },
-  {
-    type: 'delete',
-    tooltip: 'Remove Image',
-    icon: deleteIcon
-  }
-]
+export const getIcons = (translateFn) => {
+  const t = typeof translateFn === 'function' ? translateFn : (k) => k
+  return [
+    { type: 'edit', tooltip: t('editor.image.toolbar.edit'), icon: editIcon },
+    { type: 'inline', tooltip: t('editor.image.toolbar.inline'), icon: inlineIcon },
+    { type: 'left', tooltip: t('editor.image.toolbar.alignLeft'), icon: leftIcon },
+    { type: 'center', tooltip: t('editor.image.toolbar.alignCenter'), icon: middleIcon },
+    { type: 'right', tooltip: t('editor.image.toolbar.alignRight'), icon: rightIcon },
+    { type: 'delete', tooltip: t('editor.image.toolbar.delete'), icon: deleteIcon }
+  ]
+}
 
-export default icons
+export default getIcons

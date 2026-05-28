@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "useDefineForClassFields": true,
+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": false,
+
+    "allowJs": false,
+    "checkJs": false,
+    "noEmit": true,
+
+    "paths": {
+      "@/*": ["./src/renderer/src/*"],
+      "common/*": ["./src/common/*"],
+      "muya/*": ["./src/muya/*"],
+      "@shared/*": ["./src/shared/*"],
+      "main_renderer/*": ["./src/main/*"]
+    }
+  }
+}

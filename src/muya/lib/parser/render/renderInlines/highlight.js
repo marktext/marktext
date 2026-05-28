@@ -1,7 +1,7 @@
 import { union } from '../../../utils'
 
 // change text to highlight vdom
-export default function highlight (h, block, rStart, rEnd, token) {
+export default function highlight(h, block, rStart, rEnd, token) {
   const { text } = block
   const { highlights } = token
   let result = []

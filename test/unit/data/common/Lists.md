@@ -9,11 +9,16 @@ To start an ordered list, write this:
 <!-- Strange indentation -->
 
 1. this starts a list *with* numbers
+
 2. this will show as number "2"
+
 3. this will show as number "3."
+
 4. any number, +, -, or * will keep the list going.
+   
    * just indent by 4 spaces (or tab) to make a sub-list
      1. keep indenting for more sub lists
+   
    * here i'm back to the second level
 
 ---

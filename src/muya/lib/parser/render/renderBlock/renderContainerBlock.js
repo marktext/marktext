@@ -20,7 +20,7 @@ const PRE_BLOCK_HASH = {
   'vega-lite': `.${CLASS_OR_ID.AG_VEGA_LITE}`
 }
 
-export default function renderContainerBlock (parent, block, activeBlocks, matches, useCache = false) {
+export default function renderContainerBlock(parent, block, activeBlocks, matches, useCache = false, t) {
   let selector = this.getSelector(block, activeBlocks)
   const {
     key,
@@ -43,7 +43,7 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     this.renderingRowContainer = block
   }
 
-  const children = block.children.map(child => this.renderBlock(block, child, activeBlocks, matches, useCache))
+  const children = block.children.map(child => this.renderBlock(block, child, activeBlocks, matches, useCache, t))
   const data = {
     attrs: {},
     dataset: {}
@@ -61,7 +61,7 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
       selector += `.language-${lang.replace(/[#.]{1}/g, '')}`
     }
     if (type === 'pre') {
-      children.unshift(renderCopyButton())
+      children.unshift(renderCopyButton(t))
     }
     // FIXME: Disabled due to #1648 - be consistent.
     // if (this.muya.options.codeBlockLineNumbers) {
@@ -145,9 +145,9 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
     if (functionType) {
       Object.assign(data.dataset, { role: functionType.toUpperCase() })
       if (functionType === 'table' && activeBlocks[0] && activeBlocks[0].functionType === 'cellContent') {
-        children.unshift(renderTableTools(activeBlocks))
+        children.unshift(renderTableTools(activeBlocks, t))
       } else if (functionType !== 'footnote') {
-        children.unshift(renderEditIcon())
+        children.unshift(renderEditIcon(t))
       } else {
         children.push(footnoteJumpIcon())
       }
@@ -182,7 +182,7 @@ export default function renderContainerBlock (parent, block, activeBlocks, match
   }
 
   if (!block.parent) {
-    children.unshift(this.renderIcon(block))
+    children.unshift(this.renderIcon(block, t))
   }
 
   return h(selector, data, children)

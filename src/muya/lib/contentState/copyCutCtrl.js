@@ -5,8 +5,8 @@ import { getSanitizeHtml } from '../utils/exportHtml'
 import ExportMarkdown from '../utils/exportMarkdown'
 import marked from '../parser/marked'
 
-const copyCutCtrl = ContentState => {
-  ContentState.prototype.docCutHandler = function (event) {
+const copyCutCtrl = (ContentState) => {
+  ContentState.prototype.docCutHandler = function(event) {
     const { selectedTableCells } = this
     if (selectedTableCells) {
       event.preventDefault()
@@ -14,7 +14,7 @@ const copyCutCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.cutHandler = function () {
+  ContentState.prototype.cutHandler = function() {
     if (this.selectedTableCells) {
       return
     }
@@ -34,19 +34,22 @@ const copyCutCtrl = ContentState => {
     }
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
-    startBlock.text = startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
+    startBlock.text =
+      startBlock.text.substring(0, start.offset) + endBlock.text.substring(end.offset)
     if (start.key !== end.key) {
       this.removeBlocks(startBlock, endBlock)
     }
     this.cursor = {
       start,
-      end: start
+      end: start,
+      isEdit: true
     }
     this.checkInlineUpdate(startBlock)
     this.partialRender()
+    this.muya.dispatchChange()
   }
 
-  ContentState.prototype.getClipBoardData = function () {
+  ContentState.prototype.getClipBoardData = function() {
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return { html: '', text: '' }
@@ -64,7 +67,8 @@ const copyCutCtrl = ContentState => {
       }
     }
     const html = selection.getSelectionHtml()
-    const wrapper = document.createElement('div')
+    const virtualDoc = new DOMParser().parseFromString(html, 'text/html') // This ensures nothing is actually fetched when we do clean-up below
+    const wrapper = virtualDoc.createElement('div')
     wrapper.innerHTML = html
     const removedElements = wrapper.querySelectorAll(
       `.${CLASS_OR_ID.AG_TOOL_BAR},
@@ -89,7 +93,11 @@ const copyCutCtrl = ContentState => {
       if (firstChild && firstChild.nodeName !== 'INPUT') {
         const originItem = document.querySelector(`#${item.id}`)
         let checked = false
-        if (originItem && originItem.firstElementChild && originItem.firstElementChild.nodeName === 'INPUT') {
+        if (
+          originItem &&
+          originItem.firstElementChild &&
+          originItem.firstElementChild.nodeName === 'INPUT'
+        ) {
           checked = originItem.firstElementChild.checked
         }
 
@@ -103,20 +111,36 @@ const copyCutCtrl = ContentState => {
       }
     }
 
-    const images = wrapper.querySelectorAll('span.ag-inline-image img')
-    for (const image of images) {
-      const src = image.getAttribute('src')
-      let originSrc = null
-      for (const [sSrc, tSrc] of this.stateRender.urlMap.entries()) {
-        if (tSrc === src) {
-          originSrc = sSrc
-          break
+    const imageWrappers = wrapper.querySelectorAll('span.ag-inline-image')
+    for (const imageWrapper of imageWrappers) {
+      const dataRaw = imageWrapper.getAttribute('data-raw')
+      const image = imageWrapper.querySelector('img')
+
+      if (!image) continue // image wasn't loaded for whatever reason
+      // 2 types of images:
+      // Type 1: ![alt](src "title")
+      const markdownSrcMatch = dataRaw.match(/!\[\]\((.*)\)/) // ![](<stuff here>)
+      // Type 2: <img ... />
+      let finalSrc = ''
+
+      if (markdownSrcMatch && markdownSrcMatch.length >= 2) {
+        finalSrc = markdownSrcMatch[1]
+      } else {
+        const imgSrcMatch = dataRaw.match(/<img[^>]*\bsrc="([^"]*)"/)
+        if (imgSrcMatch && imgSrcMatch.length >= 2) {
+          finalSrc = imgSrcMatch[1]
+        } else {
+          // Fallback to the actual image src
+          finalSrc = image.getAttribute('src')
         }
       }
 
-      if (originSrc) {
-        image.setAttribute('src', originSrc)
-      }
+      image.setAttribute(
+        'src',
+        finalSrc
+          .replace('file://', '') // We should not include file:// in the copied image path since markdown should not have the protocol specified
+          .replace(/\?msec=\d+/, '') // We also want to remove the "msec" query parameter used for cache busting
+      )
     }
 
     const hrs = wrapper.querySelectorAll('[data-role=hr]')
@@ -154,7 +178,7 @@ const copyCutCtrl = ContentState => {
       l.replaceWith(span)
     }
 
-    const codefense = wrapper.querySelectorAll('pre[data-role$=\'code\']')
+    const codefense = wrapper.querySelectorAll("pre[data-role$='code']")
     for (const cf of codefense) {
       const id = cf.id
       const block = this.getBlock(id)
@@ -167,13 +191,17 @@ const copyCutCtrl = ContentState => {
     const tightListItem = wrapper.querySelectorAll('.ag-tight-list-item')
     for (const li of tightListItem) {
       for (const item of li.childNodes) {
-        if (item.tagName === 'P' && item.childElementCount === 1 && item.classList.contains('ag-paragraph')) {
+        if (
+          item.tagName === 'P' &&
+          item.childElementCount === 1 &&
+          item.classList.contains('ag-paragraph')
+        ) {
           li.replaceChild(item.firstElementChild, item)
         }
       }
     }
 
-    const htmlBlock = wrapper.querySelectorAll('figure[data-role=\'HTML\']')
+    const htmlBlock = wrapper.querySelectorAll("figure[data-role='HTML']")
     for (const hb of htmlBlock) {
       const codeContent = hb.querySelector('.ag-code-content')
       const pre = document.createElement('pre')
@@ -220,7 +248,7 @@ const copyCutCtrl = ContentState => {
     return { html: htmlData, text: textData }
   }
 
-  ContentState.prototype.docCopyHandler = function (event) {
+  ContentState.prototype.docCopyHandler = function(event) {
     const { selectedTableCells } = this
     if (selectedTableCells) {
       event.preventDefault()
@@ -243,8 +271,10 @@ const copyCutCtrl = ContentState => {
 
       if (row === 1 && column === 1) {
         // Copy cells text if only one is selected
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', tableContents[0][0].text)
+        if (tableContents[0][0].text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', tableContents[0][0].text)
+        }
       } else {
         // Copy as markdown table
         const figureBlock = this.createBlock('figure', {
@@ -253,15 +283,20 @@ const copyCutCtrl = ContentState => {
         const table = this.createTableInFigure({ rows: row, columns: column }, tableContents)
         this.appendChild(figureBlock, table)
         const { isGitlabCompatibilityEnabled, listIndentation } = this
-        const markdown = new ExportMarkdown([figureBlock], listIndentation, isGitlabCompatibilityEnabled).generate()
-
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', markdown)
+        const markdown = new ExportMarkdown(
+          [figureBlock],
+          listIndentation,
+          isGitlabCompatibilityEnabled
+        ).generate()
+        if (markdown.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', markdown)
+        }
       }
     }
   }
 
-  ContentState.prototype.copyHandler = function (event, type, copyInfo = null) {
+  ContentState.prototype.copyHandler = function(event, type, copyInfo = null) {
     if (this.selectedTableCells) {
       // Hand over to docCopyHandler
       return
@@ -270,30 +305,41 @@ const copyCutCtrl = ContentState => {
     const { selectedImage } = this
     if (selectedImage) {
       const { token } = selectedImage
-      event.clipboardData.setData('text/html', token.raw)
-      event.clipboardData.setData('text/plain', token.raw)
+      if (token.raw.length > 0) {
+        event.clipboardData.setData('text/html', token.raw)
+        event.clipboardData.setData('text/plain', token.raw)
+      }
       return
     }
 
     const { html, text } = this.getClipBoardData()
     switch (type) {
       case 'normal': {
-        event.clipboardData.setData('text/html', html)
-        event.clipboardData.setData('text/plain', text)
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', text)
+        }
         break
       }
-      case 'copyAsMarkdown': {
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', text)
+      case 'copyAsRich': {
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', html)
+          event.clipboardData.setData('text/plain', text)
+        }
         break
       }
       case 'copyAsHtml': {
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', getSanitizeHtml(text, {
-          superSubScript: this.muya.options.superSubScript,
-          footnote: this.muya.options.footnote,
-          isGitlabCompatibilityEnabled: this.muya.options.isGitlabCompatibilityEnabled
-        }))
+        if (text.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData(
+            'text/plain',
+            getSanitizeHtml(text, {
+              superSubScript: this.muya.options.superSubScript,
+              footnote: this.muya.options.footnote,
+              isGitlabCompatibilityEnabled: this.muya.options.isGitlabCompatibilityEnabled
+            })
+          )
+        }
         break
       }
 
@@ -302,9 +348,15 @@ const copyCutCtrl = ContentState => {
         if (!block) return
         const anchor = this.getAnchor(block)
         const { isGitlabCompatibilityEnabled, listIndentation } = this
-        const markdown = new ExportMarkdown([anchor], listIndentation, isGitlabCompatibilityEnabled).generate()
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', markdown)
+        const markdown = new ExportMarkdown(
+          [anchor],
+          listIndentation,
+          isGitlabCompatibilityEnabled
+        ).generate()
+        if (markdown.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', markdown)
+        }
         break
       }
 
@@ -313,8 +365,10 @@ const copyCutCtrl = ContentState => {
         if (typeof codeContent !== 'string') {
           return
         }
-        event.clipboardData.setData('text/html', '')
-        event.clipboardData.setData('text/plain', codeContent)
+        if (codeContent.length > 0) {
+          event.clipboardData.setData('text/html', '')
+          event.clipboardData.setData('text/plain', codeContent)
+        }
       }
     }
   }

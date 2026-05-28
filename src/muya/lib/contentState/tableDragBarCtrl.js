@@ -1,15 +1,19 @@
 const calculateAspects = (tableId, barType) => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   if (barType === 'bottom') {
     const firstRow = table.querySelector('tr')
-    return Array.from(firstRow.children).map(cell => cell.clientWidth)
+    return Array.from(firstRow.children).map((cell) => cell.clientWidth)
   } else {
-    return Array.from(table.querySelectorAll('tr')).map(row => row.clientHeight)
+    return Array.from(table.querySelectorAll('tr')).map((row) => row.clientHeight)
   }
 }
 
-export const getAllTableCells = tableId => {
+export const getAllTableCells = (tableId) => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   const rows = table.querySelectorAll('tr')
   const cells = []
   for (const row of Array.from(rows)) {
@@ -37,7 +41,9 @@ export const getIndex = (barType, cell) => {
 }
 
 const getDragCells = (tableId, barType, index) => {
+  if (!tableId) return []
   const table = document.querySelector(`#${tableId}`)
+  if (!table) return []
   const dragCells = []
   if (barType === 'left') {
     if (index === 0) {
@@ -57,8 +63,8 @@ const getDragCells = (tableId, barType, index) => {
   return dragCells
 }
 
-const tableDragBarCtrl = ContentState => {
-  ContentState.prototype.handleMouseDown = function (event) {
+const tableDragBarCtrl = (ContentState) => {
+  ContentState.prototype.handleMouseDown = function(event) {
     event.preventDefault()
     const { eventCenter } = this.muya
     const { clientX, clientY, target } = event
@@ -87,18 +93,22 @@ const tableDragBarCtrl = ContentState => {
       }
     }
 
-    const mouseMoveId = eventCenter.attachDOMEvent(document, 'mousemove', this.handleMouseMove.bind(this))
+    const mouseMoveId = eventCenter.attachDOMEvent(
+      document,
+      'mousemove',
+      this.handleMouseMove.bind(this)
+    )
     const mouseUpId = eventCenter.attachDOMEvent(document, 'mouseup', this.handleMouseUp.bind(this))
     this.dragEventIds.push(mouseMoveId, mouseUpId)
   }
 
-  ContentState.prototype.handleMouseMove = function (event) {
+  ContentState.prototype.handleMouseMove = function(event) {
     if (!this.dragInfo) {
       return
     }
     const { barType } = this.dragInfo
     const attrName = barType === 'bottom' ? 'clientX' : 'clientY'
-    const offset = this.dragInfo.offset = event[attrName] - this.dragInfo[attrName]
+    const offset = (this.dragInfo.offset = event[attrName] - this.dragInfo[attrName])
     if (Math.abs(offset) < 5) {
       return
     }
@@ -109,7 +119,7 @@ const tableDragBarCtrl = ContentState => {
     this.setSwitchStyle()
   }
 
-  ContentState.prototype.handleMouseUp = function (event) {
+  ContentState.prototype.handleMouseUp = function(event) {
     const { eventCenter } = this.muya
     for (const id of this.dragEventIds) {
       eventCenter.detachDOMEvent(id)
@@ -128,7 +138,7 @@ const tableDragBarCtrl = ContentState => {
     }, 300)
   }
 
-  ContentState.prototype.hideUnnecessaryBar = function () {
+  ContentState.prototype.hideUnnecessaryBar = function() {
     const { barType } = this.dragInfo
     const hideClassName = barType === 'bottom' ? 'left' : 'bottom'
     const needHideBar = document.querySelector(`.ag-drag-handler.${hideClassName}`)
@@ -137,7 +147,7 @@ const tableDragBarCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.calculateCurIndex = function () {
+  ContentState.prototype.calculateCurIndex = function() {
     let { offset, aspects, index } = this.dragInfo
     let curIndex = index
     const len = aspects.length
@@ -175,7 +185,7 @@ const tableDragBarCtrl = ContentState => {
     this.dragInfo.curIndex = Math.max(0, Math.min(curIndex, len - 1))
   }
 
-  ContentState.prototype.setDragTargetStyle = function () {
+  ContentState.prototype.setDragTargetStyle = function() {
     const { offset, barType, dragCells } = this.dragInfo
 
     for (const cell of dragCells) {
@@ -188,7 +198,7 @@ const tableDragBarCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.setSwitchStyle = function () {
+  ContentState.prototype.setSwitchStyle = function() {
     const { index, offset, curIndex, barType, aspects, cells } = this.dragInfo
     const aspect = aspects[index]
     const len = aspects.length
@@ -245,7 +255,7 @@ const tableDragBarCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.setDropTargetStyle = function () {
+  ContentState.prototype.setDropTargetStyle = function() {
     const { dragCells, barType, curIndex, index, aspects, offset } = this.dragInfo
     let move = 0
     let i
@@ -267,7 +277,7 @@ const tableDragBarCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.switchTableData = function () {
+  ContentState.prototype.switchTableData = function() {
     const { barType, index, curIndex, tableId, offset } = this.dragInfo
     const table = this.getBlock(tableId)
     const tHead = table.children[0]
@@ -346,7 +356,8 @@ const tableDragBarCtrl = ContentState => {
           end: {
             key,
             offset: end.offset
-          }
+          },
+          isEdit: true
         }
         return this.singleRender(table)
       } else {
@@ -355,7 +366,7 @@ const tableDragBarCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.resetDragTableBar = function () {
+  ContentState.prototype.resetDragTableBar = function() {
     this.dragInfo = null
     this.isDragTableBar = false
   }

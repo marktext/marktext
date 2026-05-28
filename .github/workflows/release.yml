@@ -1,177 +1,217 @@
-name: Release
+name: Release MarkText
 
 on:
   push:
-    branches:
-      - 'release-v*'
+    # Broad trigger so the validate job can reject malformed v-tags
+    # (e.g. `vbad.tag`) instead of them silently not triggering anything.
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
-  unix:
+  validate:
+    name: Validate tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate semver tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          # SemVer 2.0.0 with leading "v"
+          if ! [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Tag '$tag' is not a valid semver (expected vX.Y.Z[-prerelease][+build])"
+            exit 1
+          fi
+          echo "Tag '$tag' is valid."
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: validate
     runs-on: ${{ matrix.os }}
-    continue-on-error: false
-    timeout-minutes: 45
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-11, ubuntu-latest]
-
-    env:
-      DISPLAY: ":99.0"
-      MARKTEXT_IS_STABLE: 1
-      MARKTEXT_EXIT_ON_ERROR: 1
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v2
-
-      - name: Install Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 14
-          check-latest: true
-          cache: yarn
-          cache-dependency-path: yarn.lock
-
-      - name: Install build dependencies
-        if: runner.os == 'Linux'
-        #                         electron-builder                 | keyboard-layout         | keytar                      | fontmanager     | RPM on Ubuntu
-        run: |
-          sudo apt-get -y update
-          sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
-
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-cache-v1-
-
-      - name: Cache Electron
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.HOME }}/.cache/electron
-          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-
-      - name: Cache Electron-Builder
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.HOME }}/.cache//electron-builder
-          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-
-      - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
-
-      - name: Strip ripgrep on Linux
-        if: runner.os == 'Linux'
-        run: strip node_modules/vscode-ripgrep/bin/rg
-
-      - name: Lint
-        run: |
-          yarn run lint
-          yarn run validate-licenses
-
-      - name: Run unit and E2E tests
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: yarn run test
-
-      - name: Build and release
-        run: |
-              if [ "$RUNNER_OS" == "Linux" ]; then
-                yarn run release:linux --publish always
-              elif [ "$RUNNER_OS" == "macOS" ]; then
-                yarn run release:mac --publish always
-              else
-                echo "$RUNNER_OS not supported"
-                exit 1
-              fi
-
-      - name: Calculate checksums
-        if: runner.os == 'Linux'
-        run: |
-          sha256sum build/marktext-x64.tar.gz
-          sha256sum build/marktext-x86_64.AppImage
-          sha256sum build/marktext-*.deb
-          sha256sum build/marktext-*.rpm
-        shell: bash
-
-      - name: Calculate checksums
-        if: runner.os == 'macOS'
-        run: |
-          shasum -a 256 build/marktext-arm64-mac.zip
-          shasum -a 256 build/marktext-x64-mac.zip
-          shasum -a 256 build/marktext-arm64.dmg
-          shasum -a 256 build/marktext-x64.dmg
-        shell: bash
-
-  windows:
-    runs-on: windows-latest
-    continue-on-error: false
-    timeout-minutes: 45
-
-    env:
-      MARKTEXT_IS_STABLE: 1
-      MARKTEXT_EXIT_ON_ERROR: 1
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        include:
+          - name: linux
+            os: ubuntu-22.04
+            platform: linux
+          - name: windows-x64
+            os: windows-latest
+            platform: windows
+            arch: x64
+          - name: windows-arm64
+            os: windows-11-arm
+            platform: windows
+            arch: arm64
+          - name: macos-x64
+            os: macos-15-intel
+            platform: macos
+            arch: x64
+          - name: macos-arm64
+            os: macos-15
+            platform: macos
+            arch: arm64
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.3.1
 
-      - name: Install Node.js
-        uses: actions/setup-node@v2
+      - name: Enable Git long paths on Windows
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: git config --global core.longpaths true
+
+      - name: Install Linux Build Dependencies
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5.6.0
         with:
-          node-version: 14
-          check-latest: true
-          cache: yarn
-          cache-dependency-path: yarn.lock
+          python-version: '3.12'
 
-      # Workaround: Fix native build failure due to outdated node-gyp version.
-      - name: Fix node-gyp
-        run: |
-          npm install --global node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-          node-gyp install
-        shell: pwsh
-
-      - name: Cache node_modules
-        uses: actions/cache@v2
+      - name: Setup pnpm + Node + dependencies
+        uses: ./.github/actions/setup
         with:
-          path: ${{ github.workspace }}\node_modules
-          key: ${{ runner.os }}-node_modules-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
+          node-version: '24.14.1'
+
+      # Cache Electron binary; key on package.json so it busts when Electron version changes.
+      - name: Cache Electron binary
+        uses: actions/cache@v4.3.0
+        with:
+          path: |
+            ~/.cache/electron
+            ~/Library/Caches/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-${{ matrix.os }}-${{ hashFiles('package.json') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-cache-v1-
+            electron-${{ matrix.os }}-
 
-      - name: Cache Electron
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.LOCALAPPDATA }}\electron\Cache
-          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
-
-      - name: Cache Electron-Builder
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.LOCALAPPDATA }}\electron-builder\cache
-          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles(format('{0}{1}', github.workspace, '\yarn.lock')) }}
-
-      - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
-
-      - name: Lint
+      # Must be set before postinstall runs electron-rebuild
+      - name: Set C++20 for MacOS
+        if: matrix.platform == 'macos'
         run: |
-          yarn run lint
-          yarn run validate-licenses
+          echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
 
-      - name: Run unit and E2E tests
-        run: yarn run test
+      # Run the full postinstall: Electron binary download, patch-package,
+      # electron-rebuild, and minify-locales.
+      - name: Run postinstall
+        run: pnpm tsx scripts/postinstall.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npm_config_user_agent: 'pnpm'
+          USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
 
-      - name: Build and release
-        run: yarn run release:win --publish always
+      - name: build-linux
+        if: matrix.platform == 'linux'
+        run: pnpm run build:linux
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Calculate checksums
+      # Mac builds are unsigned (no Developer ID); see release notes for the
+      # user-side xattr/codesign workaround. Per-arch script: electron-builder's
+      # --arm64/--x64 flags are additive over the config's arch list, so
+      # electron-builder.yml must not pin mac.target arches for the flag to
+      # actually restrict the build to a single arch.
+      - name: build-mac
+        if: matrix.platform == 'macos'
+        run: pnpm run build:mac:${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build-win
+        if: matrix.platform == 'windows'
+        run: pnpm run build:win:${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: marktext-${{ matrix.name }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.zip
+            dist/*.dmg
+            dist/*.blockmap
+            dist/*.yml
+            dist/*.AppImage
+            dist/*.snap
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    # Per-job permissions REPLACE workflow-level ones, so re-declare
+    # both: contents:write to publish the release, actions:read for
+    # download-artifact's Actions API calls.
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      # upload-artifact@v4 treats `dist/` as the common-ancestor root and
+      # stores files flat inside each artifact (no `dist/` prefix). Downloading
+      # with `path: dist` + `merge-multiple` recreates `./dist/<file>` across
+      # all platforms.
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@v4.3.0
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Generate SHA256SUMS.txt
+        working-directory: dist
         run: |
-          get-filehash -Algorithm SHA256 "build\marktext-setup.exe"
-          get-filehash -Algorithm SHA256 "build\marktext-*-win.zip"
-        shell: pwsh
+          # Deterministic ordering so identical inputs always produce identical output
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS.txt' -printf '%f\n' \
+            | LC_ALL=C sort \
+            | xargs -I{} sha256sum "{}" > SHA256SUMS.txt
+          echo "---"
+          cat SHA256SUMS.txt
+
+      - name: Compose release notes body
+        env:
+          IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
+        run: |
+          {
+            if [[ "$IS_PRERELEASE" == "true" ]]; then
+              echo "## ❗ This is a pre-release"
+              echo "- May contain bugs and unfinished features."
+              echo ""
+            fi
+            echo "## ⚠️ Note for macOS users"
+            echo "Builds are unsigned (no Apple Developer ID). After dragging MarkText into Applications, clear the quarantine flag once:"
+            echo '```'
+            echo 'xattr -cr /Applications/marktext.app'
+            echo '```'
+            echo ""
+            echo "## Verifying downloads"
+            echo "All artifacts are listed with their SHA-256 in \`SHA256SUMS.txt\`. Verify with:"
+            echo '```'
+            echo 'sha256sum -c SHA256SUMS.txt --ignore-missing'
+            echo '```'
+          } > release_body.md
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2.6.2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          name: ${{ github.ref_name }}
+          body_path: release_body.md
+          fail_on_unmatched_files: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

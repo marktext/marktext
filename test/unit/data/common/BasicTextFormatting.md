@@ -22,7 +22,7 @@ So _a_ single _word_ followed _b_y _a_nother
 
 So __a__ single __word__ followed __b__y __a__nother
 
-## Some markdown extentions
+## Some markdown extensions
 
 This is emoji :man:
 

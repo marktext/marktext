@@ -2,22 +2,26 @@
   --footerHeaderBorderColor: #1c1c1c;
 }
 
-table.page-container,
-table.page-container > thead,
-table.page-container > tfoot,
+table.page-container {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Our main markdown content shouldn't be affected by header/footer styles - use display: block*/
 table.page-container > tbody,
-table.page-container > thead > tr,
-table.page-container > thead > tr > th,
-table.page-container > thead > tr > td,
 table.page-container > tbody > tr,
-table.page-container > tbody > tr > th,
-table.page-container > tbody > tr > td,
-table.page-container > tfoot > tr,
-table.page-container > tfoot > tr > th,
-table.page-container > tfoot > tr > td  {
-  position: relative !important;
-  margin: 0 !important;
-  padding: 0 !important;
+table.page-container > tbody > tr > td {
+  display: block;
+  width: 100vw;
+}
+
+table.page-container > tbody > tr > td {
+  overflow-wrap: anywhere;
+}
+
+table.page-container > thead,
+table.page-container > tfoot {
+  display: table-header-group;
 }
 
 .page-header .hf-container,

@@ -7,25 +7,25 @@ import AlignRightIcon from '../../../assets/pngicon/algin_right/2.png'
 import AlignCenterIcon from '../../../assets/pngicon/algin_center/2.png'
 import DeleteIcon from '../../../assets/pngicon/table_delete/2.png'
 
-export const TABLE_TOOLS = Object.freeze([{
+export const getTableTools = (t) => Object.freeze([{
   label: 'table',
-  title: 'Resize Table',
+  title: t('table.resizeTable'),
   icon: TableIcon
 }, {
   label: 'left',
-  title: 'Align Left',
+  title: t('table.alignLeft'),
   icon: AlignLeftIcon
 }, {
   label: 'center',
-  title: 'Align Center',
+  title: t('table.alignCenter'),
   icon: AlignCenterIcon
 }, {
   label: 'right',
-  title: 'Align Right',
+  title: t('table.alignRight'),
   icon: AlignRightIcon
 }, {
   label: 'delete',
-  title: 'Delete Table',
+  title: t('table.deleteTable'),
   icon: DeleteIcon
 }])
 
@@ -59,6 +59,7 @@ const renderToolBar = (type, tools, activeBlocks) => {
   }, h('ul', children))
 }
 
-export const renderTableTools = (activeBlocks) => {
-  return renderToolBar('table', TABLE_TOOLS, activeBlocks)
+export const renderTableTools = (activeBlocks, t) => {
+  const tableTools = getTableTools(t)
+  return renderToolBar('table', tableTools, activeBlocks)
 }

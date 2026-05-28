@@ -9,7 +9,7 @@
   border-radius: 2px;
   box-shadow: var(--floatShadow);
   background-color: var(--floatBgColor);
-  transition: opacity .25s ease-in-out;
+  transition: opacity 0.25s ease-in-out;
   transform-origin: top;
   box-sizing: border-box;
   z-index: 10000;
@@ -20,7 +20,7 @@
   width: 0px;
 }
 
-[x-placement] {
+[data-popper-placement] {
   opacity: 1;
 }
 
@@ -34,18 +34,14 @@
   transform: rotate(45deg);
 }
 
-[x-placement="bottom-start"] > .ag-popper-arrow {
+[data-popper-placement^='bottom'] > .ag-popper-arrow {
   border-right: none;
   border-bottom: none;
   top: -9px;
 }
 
-[x-placement="top-start"] > .ag-popper-arrow {
+[data-popper-placement^='top'] > .ag-popper-arrow {
   border-left: none;
   border-top: none;
   bottom: -9px;
-}
-
-[x-out-of-boundaries] {
-  display: none;
 }

@@ -1,0 +1,1399 @@
+{
+  "menu": {
+    "counter": {
+      "words": "단어 수",
+      "characters": "글자 수",
+      "paragraphs": "단락 수"
+    },
+    "file": {
+      "file": "파일",
+      "new": "새로 만들기",
+      "newTab": "새 탭",
+      "newWindow": "새 창",
+      "open": "열기",
+      "openFile": "파일 열기...",
+      "openFolder": "폴더 열기...",
+      "openRecent": "최근 파일",
+      "clearRecentlyUsed": "최근 사용 목록 지우기",
+      "save": "저장",
+      "saveAs": "다른 이름으로 저장...",
+      "autoSave": "자동 저장",
+      "moveTo": "이동",
+      "rename": "이름 바꾸기",
+      "export": "내보내기",
+      "exportHtml": "HTML로 내보내기",
+      "exportPdf": "PDF로 내보내기",
+      "import": "가져오기",
+      "print": "인쇄",
+      "recent": "최근 파일",
+      "close": "닫기",
+      "closeAll": "모두 닫기",
+      "closeTab": "탭 닫기",
+      "closeWindow": "창 닫기",
+      "quit": "종료",
+      "preferences": "환경설정"
+    },
+    "edit": {
+      "edit": "편집",
+      "undo": "실행 취소",
+      "redo": "다시 실행",
+      "cut": "잘라내기",
+      "copy": "복사",
+      "paste": "붙여넣기",
+      "copyAsRich": "서식 있는 텍스트로 복사",
+      "copyAsHtml": "HTML로 복사",
+      "pasteAsPlainText": "일반 텍스트로 붙여넣기",
+      "selectAll": "모두 선택",
+      "duplicate": "복제",
+      "createParagraph": "단락 만들기",
+      "deleteParagraph": "단락 삭제",
+      "find": "찾기",
+      "replace": "바꾸기",
+      "findNext": "다음 찾기",
+      "findPrevious": "이전 찾기",
+      "findInFolder": "폴더에서 찾기",
+      "screenshot": "스크린샷",
+      "lineEnding": "줄 끝",
+      "lineEndingCrlf": "CRLF(Windows)",
+      "lineEndingLf": "LF(Linux/Mac)"
+    },
+    "paragraph": {
+      "title": "단락",
+      "paragraph": "단락",
+      "heading1": "제목 1",
+      "heading2": "제목 2",
+      "heading3": "제목 3",
+      "heading4": "제목 4",
+      "heading5": "제목 5",
+      "heading6": "제목 6",
+      "promoteHeading": "제목 수준 올리기",
+      "demoteHeading": "제목 수준 내리기",
+      "table": "표",
+      "codeFences": "코드 블록",
+      "codeBlock": "코드 블록",
+      "quoteBlock": "인용 블록",
+      "mathBlock": "수식 블록",
+      "htmlBlock": "HTML 블록",
+      "quote": "인용",
+      "orderedList": "순서 목록",
+      "bulletList": "글머리 기호 목록",
+      "unorderedList": "순서 없는 목록",
+      "taskList": "작업 목록",
+      "looseListItem": "느슨한 목록 항목",
+      "paragraphItem": "단락 항목",
+      "horizontalRule": "수평선",
+      "frontMatter": "프론트 매터"
+    },
+    "window": {
+      "title": "창",
+      "window": "창",
+      "minimize": "최소화",
+      "close": "닫기",
+      "zoom": "확대/축소",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "fullScreen": "전체 화면",
+      "bringAllToFront": "모든 창 앞으로 가져오기",
+      "alwaysOnTop": "항상 위에"
+    },
+    "help": {
+      "help": "도움말",
+      "markdownReference": "마크다운 참조",
+      "changelog": "변경 로그",
+      "askQuestion": "질문하기",
+      "reportBug": "버그 신고",
+      "viewSource": "소스 보기",
+      "followUs": "팔로우하기",
+      "support": "MarkText 후원",
+      "license": "라이선스",
+      "checkForUpdates": "업데이트 확인",
+      "aboutMarkText": "MarkText 정보",
+      "about": "정보",
+      "checkUpdates": "업데이트 확인"
+    },
+    "marktext": {
+      "title": "MarkText",
+      "marktext": "MarkText",
+      "about": "MarkText 정보",
+      "checkUpdates": "업데이트 확인...",
+      "preferences": "환경설정",
+      "services": "서비스",
+      "hide": "MarkText 숨기기",
+      "hideMarkText": "MarkText 숨기기",
+      "hideOthers": "다른 앱 숨기기",
+      "showAll": "모두 보기",
+      "quit": "MarkText 종료"
+    },
+    "view": {
+      "view": "보기",
+      "toggleSidebar": "사이드바 토글",
+      "toggleTabbar": "탭바 토글",
+      "commandPalette": "명령 팔레트",
+      "sourceCode": "소스 코드 모드",
+      "sourceCodeMode": "소스 코드 모드",
+      "typewriter": "타자기 모드",
+      "typewriterMode": "타자기 모드",
+      "focus": "집중 모드",
+      "focusMode": "집중 모드",
+      "showTabBar": "탭바 보기",
+      "toc": "목차",
+      "toggleTableOfContents": "목차 토글",
+      "reloadImages": "이미지 새로고침",
+      "showDeveloperTools": "개발자 도구 보기",
+      "reloadWindow": "창 새로고침"
+    },
+    "format": {
+      "format": "서식",
+      "bold": "굵게",
+      "italic": "기울임",
+      "underline": "밑줄",
+      "strikethrough": "취소선",
+      "code": "인라인 코드",
+      "codeBlock": "코드 블록",
+      "quote": "인용",
+      "unorderedList": "순서 없는 목록",
+      "orderedList": "순서 목록",
+      "taskList": "작업 목록",
+      "table": "표",
+      "link": "링크",
+      "image": "이미지",
+      "heading1": "제목 1",
+      "heading2": "제목 2",
+      "heading3": "제목 3",
+      "heading4": "제목 4",
+      "heading5": "제목 5",
+      "heading6": "제목 6",
+      "superscript": "위 첨자",
+      "subscript": "아래 첨자",
+      "highlight": "강조",
+      "inlineCode": "인라인 코드",
+      "inlineMath": "인라인 수식",
+      "hyperlink": "하이퍼링크",
+      "clearFormatting": "서식 지우기",
+      "clearFormat": "서식 지우기"
+    },
+    "theme": {
+      "theme": "&테마",
+      "light": "밝게",
+      "dark": "어둡게",
+      "auto": "자동",
+      "followThemDisabled": "시스템 테마를 따를 때는 테마 선택이 비활성화됩니다",
+      "lightThemes": "— 라이트 테마 —",
+      "darkThemes": "— 다크 테마 —",
+      "ayuDark": "Ayu 다크",
+      "ayuLight": "Ayu 라이트",
+      "ayuMirage": "Ayu Mirage",
+      "cadmiumDark": "카드뮴 다크",
+      "cadmiumLight": "카드뮴 라이트",
+      "catppuccinLatte": "Catppuccin Latte",
+      "catppuccinMocha": "Catppuccin Mocha",
+      "cyberdream": "cyberdream",
+      "dracula": "Dracula",
+      "everforestDark": "Everforest 다크",
+      "everforestLight": "Everforest 라이트",
+      "graphiteLight": "그래파이트 라이트",
+      "gruvboxDark": "Gruvbox 다크",
+      "gruvboxLight": "Gruvbox 라이트",
+      "horizonDark": "Horizon 다크",
+      "kanagawa": "Kanagawa",
+      "materialDark": "머티리얼 다크",
+      "monokaiPro": "Monokai Pro",
+      "nightfox": "Nightfox",
+      "nord": "Nord",
+      "oneDark": "One Dark",
+      "oxocarbonDark": "Oxocarbon 다크",
+      "palenight": "Palenight",
+      "rosePine": "Rosé Pine",
+      "rosePineDawn": "Rosé Pine Dawn",
+      "rosePineMoon": "Rosé Pine Moon",
+      "solarizedDark": "Solarized 다크",
+      "solarizedLight": "Solarized 라이트",
+      "synthwave84": "Synthwave '84",
+      "tokyoNight": "Tokyo Night",
+      "tokyoNightLight": "Tokyo Night 라이트",
+      "tokyoNightStorm": "Tokyo Night Storm",
+      "ulyssesLight": "율리시스 라이트"
+    }
+  },
+  "contextMenu": {
+    "cut": "잘라내기",
+    "copy": "복사",
+    "paste": "붙여넣기",
+    "copyAsRich": "서식 있는 텍스트로 복사",
+    "copyAsHtml": "HTML로 복사",
+    "pasteAsPlainText": "일반 텍스트로 붙여넣기",
+    "insertParagraphBefore": "앞에 단락 삽입",
+    "insertParagraphAfter": "뒤에 단락 삽입",
+    "spelling": "맞춤법...",
+    "changeLanguage": "언어 변경...",
+    "addToDictionary": "사전에 추가",
+    "editDictionary": "사전 편집...",
+    "sideBar": {
+      "newFile": "새 파일",
+      "newDirectory": "새 디렉터리",
+      "copy": "복사",
+      "cut": "잘라내기",
+      "paste": "붙여넣기",
+      "rename": "이름 바꾸기",
+      "moveToTrash": "휴지통으로 이동",
+      "showInFolder": "폴더에서 보기"
+    },
+    "tabs": {
+      "close": "닫기",
+      "closeOthers": "다른 탭 닫기",
+      "closeSavedTabs": "저장된 탭 닫기",
+      "closeAllTabs": "모든 탭 닫기",
+      "rename": "이름 바꾸기",
+      "copyPath": "경로 복사",
+      "showInFolder": "폴더에서 보기"
+    }
+  },
+  "search": {
+    "searchPlaceholder": "검색",
+    "caseSensitive": "대소문자 구분",
+    "wholeWord": "전체 단어 선택",
+    "useRegex": "정규식으로 쿼리 사용",
+    "replacementPlaceholder": "바꿀 내용",
+    "replaceAll": "모두 바꾸기",
+    "replaceSingle": "하나 바꾸기",
+    "invalidRegex": "잘못된 정규식 \"{pattern}\"",
+    "regexMatchEmpty": "정규식이 빈 문자열 \"{pattern}\"과 일치",
+    "searchResultCount": "검색 결과",
+    "searchResultInfo": "{fileCount}개의 파일에서 {matchCount}개 일치",
+    "searchLimited": "처음 {count}개의 결과까지만 검색"
+  },
+  "sideBar": {
+    "search": {
+      "searchInFolder": "폴더에서 검색...",
+      "noFolderOpen": "열린 폴더 없음",
+      "noResultsFound": "결과를 찾을 수 없습니다.",
+      "cancel": "취소",
+      "openFolder": "폴더 열기",
+      "showMoreMatches": "더 많은 일치 항목 보기"
+    },
+    "tree": {
+      "openedFiles": "열린 파일",
+      "saveAll": "모두 저장",
+      "closeAll": "모두 닫기",
+      "emptyProject": "빈 프로젝트",
+      "createFile": "파일 만들기",
+      "openFolder": "폴더 열기"
+    },
+    "toc": {
+      "title": "목차"
+    },
+    "icons": {
+      "files": "파일",
+      "search": "검색",
+      "toc": "목차",
+      "settings": "설정"
+    }
+  },
+  "commandPalette": {
+    "placeholder": "실행할 명령을 입력하세요",
+    "placeholders": {
+      "selectOption": "옵션 선택",
+      "searchFileToOpen": "열 파일 검색",
+      "selectLanguage": "언어 선택"
+    }
+  },
+  "exportSettings": {
+    "autoNumberingHeadings": "제목 자동 번호 매기기",
+    "title": "내보내기 옵션",
+    "info": {
+      "label": "정보",
+      "description": "페이지 모양을 사용자 정의하고 \"내보내기\"를 클릭하여 계속하세요."
+    },
+    "page": {
+      "label": "페이지",
+      "pageTitle": "페이지 제목:",
+      "pageSize": "페이지 크기:",
+      "landscapeOrientation": "가로 방향:",
+      "pageMargin": "페이지 여백(mm):",
+      "topBottom": "위/아래:",
+      "leftRight": "왼쪽/오른쪽:",
+      "widthHeight": "너비/높이(mm):"
+    },
+    "showFrontMatter": "프론트 매터 보기",
+    "style": {
+      "label": "스타일",
+      "overwriteThemeFont": "테마 글꼴 설정 덮어쓰기",
+      "fontFamily": "글꼴 패밀리:",
+      "fontSize": "글꼴 크기",
+      "lineHeight": "줄 높이"
+    },
+    "theme": {
+      "label": "테마",
+      "description": "테마를 선택하거나 직접 만들어 문서 모양을 변경할 수 있습니다.",
+      "theme": "테마"
+    },
+    "headerFooter": {
+      "allowStyled": "스타일 텍스트 허용",
+      "customizeStyle": "스타일 사용자 정의",
+      "fontSize": "글꼴 크기",
+      "footerType": "바닥글 유형",
+      "headerType": "머리글 유형",
+      "label": "머리글 및 바닥글",
+      "leftFooterText": "왼쪽 바닥글 텍스트",
+      "leftHeaderText": "왼쪽 머리글 텍스트",
+      "mainFooterText": "주 바닥글 텍스트",
+      "mainHeaderText": "주 머리글 텍스트",
+      "rightFooterText": "오른쪽 바닥글 텍스트",
+      "rightHeaderText": "오른쪽 머리글 텍스트",
+      "description": "머리글 및/또는 바닥글이 정의된 경우 모든 페이지에 텍스트가 나타납니다."
+    },
+    "toc": {
+      "includeTopHeading": "최상위 제목 포함",
+      "includeTopHeadingDetail": "최상위 제목 세부 정보 포함",
+      "label": "목차",
+      "title": "목차"
+    },
+    "export": "내보내기...",
+    "options": {
+      "pageSizes": {
+        "a3": "A3",
+        "a4": "A4",
+        "a5": "A5",
+        "legal": "Legal",
+        "letter": "Letter",
+        "tabloid": "Tabloid",
+        "custom": "사용자 정의"
+      },
+      "headerFooterTypes": {
+        "none": "없음",
+        "singleCell": "단일 셀",
+        "threeCells": "세 개 셀"
+      },
+      "headerFooterStyles": {
+        "default": "기본값",
+        "simple": "간단",
+        "styled": "스타일"
+      },
+      "themes": {
+        "academic": "학술",
+        "default": "GitHub (기본값)",
+        "liber": "Liber"
+      }
+    }
+  },
+  "table": {
+    "resizeTable": "테이블 크기 조정",
+    "alignLeft": "왼쪽 정렬",
+    "alignCenter": "가운데 정렬",
+    "alignRight": "오른쪽 정렬",
+    "deleteTable": "테이블 삭제"
+  },
+  "recent": {
+    "noTabsOpen": "열린 탭이 없습니다.",
+    "newFile": "새 파일"
+  },
+  "import": {
+    "title": "가져오기 또는 열기",
+    "description": "여기에 드롭하여 MarkText로 가져오세요"
+  },
+  "preferences": {
+    "title": "환경설정",
+    "search": {
+      "placeholder": "환경설정 검색...",
+      "optionalValues": "선택적 값",
+      "categories": {
+        "general": "일반",
+        "editor": "편집기",
+        "markdown": "마크다운",
+        "theme": "테마",
+        "image": "이미지",
+        "view": "보기",
+        "searcher": "검색기",
+        "watcher": "감시자",
+        "spelling": "맞춤법",
+        "custom css": "사용자 정의 CSS"
+      },
+      "items": {
+        "autoSave": "편집 중인 내용을 자동으로 저장",
+        "autoSaveDelay": "변경 후 파일이 저장되기까지의 시간(밀리초)",
+        "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 LF로 자동 정규화하고 선택적으로 후행 줄 바꿈을 처리합니다",
+        "titleBarStyle": "제목 표시줄 스타일(Windows 및 Linux 시스템만)",
+        "openFilesInNewWindow": "새 창에서 파일 열기",
+        "openFolderInNewWindow": "메뉴를 통해 새 창에서 폴더 열기",
+        "zoom": "확대/축소 수준. 0.5에서 2.0 사이",
+        "hideScrollbar": "스크롤바를 숨길지 여부",
+        "wordWrapInToc": "목차에서 자동 줄바꿈을 활성화할지 여부",
+        "fileSortBy": "열린 폴더의 파일을 생성 시간, 수정 시간, 제목으로 정렬",
+        "startUpAction": "MarkText 시작 후 작업, 마지막으로 편집한 내용 열기, 지정된 폴더 열기 또는 빈 페이지",
+        "restoreLayoutState": "시작 시 이전 편집기 상태 복원",
+        "defaultDirectoryToOpen": "startUp=folder일 때 시작 시 열어야 할 기본 디렉터리",
+        "language": "MarkText가 사용하는 언어",
+        "editorFontFamily": "편집기 글꼴 패밀리",
+        "fontSize": "픽셀 단위 글꼴 크기",
+        "lineHeight": "줄 높이",
+        "wrapCodeBlocks": "코드 블록 내에서 텍스트 줄바꿈",
+        "editorLineWidth": "편집기 영역의 최대 너비를 정의합니다. 빈 문자열 또는 ch(문자), px(픽셀), %(백분율) 접미사가 허용됩니다",
+        "codeFontSize": "코드 블록의 글꼴 크기, 범위는 12~18",
+        "codeFontFamily": "코드 블록에서 사용되는 글꼴 패밀리",
+        "codeBlockLineNumbers": "줄 번호를 표시할지 여부",
+        "trimUnnecessaryCodeBlockEmptyLines": "코드 블록의 시작과 끝에 있는 빈 줄 제거",
+        "autoPairBracket": "편집 시 자동으로 괄호 쌍 만들기",
+        "autoPairMarkdownSyntax": "마크다운 구문 자동 완성",
+        "autoPairQuote": "따옴표 자동 완성",
+        "endOfLine": "각 줄 끝에서 사용되는 줄바꿈 문자. 기본값은 default로, 운영 체제의 기본 줄바꿈 문자를 선택합니다",
+        "defaultEncoding": "기본 파일 인코딩",
+        "autoGuessEncoding": "파일을 열 때 파일 인코딩을 자동으로 추측하려고 시도",
+        "trimTrailingNewline": "후행 줄바꿈 제거 옵션",
+        "textDirection": "텍스트 쓰기 방향",
+        "hideQuickInsertHint": "빠르게 단락을 만들기 위한 힌트 숨기기",
+        "hideLinkPopup": "커서가 링크 위에 호버할 때 링크 팝업 숨기기",
+        "autoCheck": "관련 작업을 자동으로 확인할지 여부",
+        "preferLooseListItem": "선호하는 목록 유형",
+        "bulletListMarker": "글머리 기호 목록에서 사용되는 마커",
+        "orderListDelimiter": "순서가 있는 목록에서 사용되는 구분자",
+        "preferHeadingStyle": "MarkText에서 선호하는 제목 스타일",
+        "tabSize": "탭을 x개의 공백으로 바꾸기",
+        "listIndentation": "목록의 들여쓰기 선택",
+        "frontmatterType": "프론트매터 유형",
+        "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
+        "footnote": "Pandoc의 마크다운 확장 각주 활성화",
+        "isHtmlEnabled": "HTML 렌더링 활성화",
+        "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
+        "sequenceTheme": "시퀀스 다이어그램 테마",
+        "theme": "MarkText에서 사용할 테마 선택",
+        "followSystemTheme": "시스템 테마 따르기",
+        "lightModeTheme": "시스템이 라이트 모드일 때 사용할 테마",
+        "darkModeTheme": "시스템이 다크 모드일 때 사용할 테마",
+        "customCss": "현재 테마에 적용할 사용자 정의 CSS",
+        "spellcheckerEnabled": "맞춤법 검사가 활성화되어 있는지 여부",
+        "spellcheckerNoUnderline": "맞춤법 오류에 밑줄을 그지 않음",
+        "spellcheckerLanguage": "맞춤법 검사기 언어",
+        "imageInsertAction": "로컬 폴더에서 이미지를 삽입한 후의 기본 동작",
+        "imagePreferRelativeDirectory": "상대 이미지 디렉터리를 선호할지 여부",
+        "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
+        "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
+        "sideBarVisibility": "사이드바가 보이는지 여부",
+        "tabBarVisibility": "탭이 표시되는지 여부",
+        "sourceCodeModeEnabled": "소스 코드 모드가 기본적으로 활성화되어 있는지 여부",
+        "searchExclusions": "검색에서 제외할 glob 패턴 목록",
+        "searchMaxFileSize": "최대 파일 크기(<maxFileSize><suffix>). 접미사가 주어지지 않으면 K, M 또는 G 접미사가 허용되며, 숫자는 바이트로 처리됩니다",
+        "searchIncludeHidden": "숨겨진 파일과 디렉터리에서 검색할지 여부",
+        "searchNoIgnore": ".gitignore와 같은 무시 파일을 무시할지 여부",
+        "searchFollowSymlinks": "심볼릭 링크를 따라야 하는지 여부",
+        "watcherUsePolling": "폴링을 사용할지 여부. 폴링은 높은 CPU 사용률을 초래할 수 있지만 네트워크의 파일을 감시하는 데 필요합니다"
+      }
+    },
+    "categories": {
+      "general": "일반",
+      "editor": "편집기",
+      "markdown": "마크다운",
+      "spelling": "맞춤법",
+      "theme": "테마",
+      "image": "이미지",
+      "keybindings": "키 바인딩"
+    },
+    "general": {
+      "title": "일반",
+      "autoSave": {
+        "title": "자동 저장",
+        "description": "자동 저장",
+        "delayDescription": "자동 저장 지연"
+      },
+      "window": {
+        "title": "창",
+        "titleBarStyle": {
+          "title": "제목 표시줄 스타일",
+          "custom": "사용자 정의",
+          "titleBarStyle": "제목 표시줄 스타일",
+          "native": "네이티브"
+        },
+        "requiresRestart": "재시작 필요",
+        "hideScrollbars": "스크롤바 숨기기",
+        "openFilesInNewWindow": "새 창에서 파일 열기",
+        "openFoldersInNewWindow": "새 창에서 폴더 열기",
+        "zoom": "확대/축소"
+      },
+      "startup": {
+        "title": "시작",
+        "layoutOptions": "레이아웃 옵션",
+        "startupFilesFolders": "시작 파일/폴더",
+        "restorePreviousState": "이전 편집기 상태 복원",
+        "openBlankState": "빈 상태 열기",
+        "openDefaultDirectory": "기본 디렉터리 열기",
+        "openLastFolder": "열린 폴더 복원",
+        "restoreAll": "열려 있던 모든 파일과 폴더 복원",
+        "selectFolder": "폴더 선택",
+        "openBlankPage": "빈 페이지 열기"
+      },
+      "sidebar": {
+        "title": "사이드바",
+        "wrapTextInToc": "목차에서 텍스트 줄바꿈",
+        "showOpenedFiles": "열린 파일 표시",
+        "excludePatterns": "제외 패턴",
+        "excludePatternsNotes": "제외 패턴 (참고)",
+        "fileSortBy": {
+          "title": "파일 정렬 기준",
+          "creationTime": "생성 시간",
+          "modificationTime": "수정 시간",
+          "filename": "파일 이름"
+        },
+        "fileSortOrder": {
+          "title": "정렬 순서",
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "오래된 순",
+          "newestFirst": "최신 순"
+        }
+      },
+      "misc": {
+        "title": "기타",
+        "language": {
+          "title": "언어",
+          "english": "English",
+          "chinese": "简体中文",
+          "traditionalChinese": "繁體中文",
+          "spanish": "Español",
+          "french": "Français",
+          "german": "Deutsch",
+          "japanese": "日本語",
+          "korean": "한국어",
+          "portuguese": "Português"
+        }
+      }
+    },
+    "editor": {
+      "title": "편집기",
+      "textEditor": {
+        "title": "텍스트 편집기",
+        "fontSize": "글꼴 크기",
+        "lineHeight": "줄 높이",
+        "fontFamily": "글꼴 패밀리",
+        "maxWidth": "최대 너비",
+        "maxWidthNotes": "편집기 콘텐츠의 최대 너비"
+      },
+      "codeBlock": {
+        "title": "코드 블록",
+        "fontSize": "글꼴 크기",
+        "fontFamily": "글꼴 패밀리",
+        "showLineNumbers": "줄 번호 보기",
+        "removeEmptyLines": "빈 줄 제거"
+      },
+      "writingBehavior": {
+        "title": "작성 동작",
+        "autoCloseBrackets": "괄호 자동 닫기",
+        "autoCompleteMarkdown": "마크다운 자동 완성",
+        "autoCloseQuotes": "따옴표 자동 닫기"
+      },
+      "fileRepresentation": {
+        "title": "파일 표현",
+        "tabWidth": "탭 너비",
+        "lineSeparator": "줄 구분자",
+        "defaultEncoding": "기본 인코딩",
+        "autoDetectEncoding": "인코딩 자동 감지",
+        "trailingNewlines": {
+          "title": "끝 줄바꿈",
+          "doNothing": "아무것도 하지 않음",
+          "ensureOne": "하나 확보",
+          "preserve": "보존",
+          "trimAll": "모두 제거"
+        },
+        "endOfLine": {
+          "default": "기본값",
+          "crlf": "CRLF",
+          "lf": "LF"
+        }
+      },
+      "misc": {
+        "title": "기타",
+        "textDirection": {
+          "title": "텍스트 방향",
+          "ltr": "왼쪽에서 오른쪽",
+          "rtl": "오른쪽에서 왼쪽"
+        },
+        "hideQuickInsertHint": "빠른 삽입 힌트 숨기기",
+        "hideLinkPopup": "링크 팝업 숨기기",
+        "autoCheck": "자동 확인",
+        "autoNormalizeLineEndings": "열 때 줄 바꿈을 자동으로 LF로 정규화",
+        "wrapCodeBlocks": "코드 블록 줄바꿈"
+      }
+    },
+    "image": {
+      "title": "이미지",
+      "actions": {
+        "upload": "클라우드에 업로드",
+        "folder": "폴더에 복사",
+        "path": "절대 경로 사용"
+      },
+      "folderSetting": {
+        "title": "폴더 설정",
+        "globalFolder": "전역 이미지 폴더",
+        "open": "열기",
+        "showInFolder": "폴더에서 보기",
+        "preferRelative": "상대 디렉터리 선호",
+        "relativeCopyLocation": "이미지 상대 복사 기준",
+        "copyRelativeToFile": "파일 기준",
+        "copyRelativeToFolder": "폴더 기준",
+        "relativeFolderName": "상대 폴더 이름",
+        "filenameNote": "파일 이름은 자동으로 생성됩니다."
+      },
+      "imageInsertAction": {
+        "title": "이미지 삽입 동작",
+        "folder": "폴더에 업로드",
+        "path": "경로에 복사",
+        "upload": "클라우드에 업로드",
+        "copyToFolder": "폴더에 복사",
+        "uploadToServer": "서버에 업로드"
+      },
+      "imageFolderPath": {
+        "title": "이미지 폴더 경로",
+        "description": "이미지 폴더 경로",
+        "selectFolder": "폴더 선택",
+        "relativePath": "상대 경로",
+        "absolutePath": "절대 경로"
+      },
+      "cloudPictureBed": {
+        "title": "클라우드 이미지 저장소",
+        "github": "GitHub",
+        "smms": "SM.MS",
+        "qiniu": "Qiniu",
+        "upyun": "UpYun",
+        "tcyun": "Tencent Cloud",
+        "aliyun": "Alibaba Cloud",
+        "imgur": "Imgur",
+        "picgo": "PicGo"
+      },
+      "preferRelativeDirectory": {
+        "title": "상대 디렉터리 선호",
+        "description": "이미지에 대해 상대 디렉터리 선호"
+      },
+      "uploader": {
+        "title": "이미지 업로더",
+        "currentUploader": "현재 업로더",
+        "picgoNotInstalled": "PicGo가 설치되지 않음",
+        "picgoDetectionStatus": "PicGo 감지 상태",
+        "picgoInstalled": "PicGo가 설치됨",
+        "picgoDetectionFailed": "PicGo 감지 실패",
+        "debugInfo": "디버그 정보",
+        "installCommand": "설치 명령",
+        "npmInstallCommand": "npm install picgo -g",
+        "yarnInstallCommand": "yarn global add picgo",
+        "pnpmInstallCommand": "pnpm add -g picgo",
+        "brewInstallCommand": "brew install picgo",
+        "chooseInstallMethod": "설치 방법 선택:",
+        "retestPicgo": "다시 테스트",
+        "detecting": "감지 중...",
+        "lastDetectionTime": "마지막 감지 시간",
+        "detectionStatus": "감지 상태",
+        "usageGuide": {
+          "title": "PicGo 기본 사용 가이드",
+          "step1": "업로더 구성",
+          "step1Description": "다음 명령을 사용하여 PicGo 업로더를 구성하세요:",
+          "step2": "이미지 업로드",
+          "step2Description": "다음 명령을 사용하여 이미지를 업로드하세요:",
+          "step3": "구성 보기",
+          "step3Description": "다음 명령을 사용하여 현재 구성을 보세요:",
+          "documentation": "전체 문서 보기"
+        },
+        "configureUploader": "업로더 구성",
+        "configureDescription": "다음 명령을 사용하여 PicGo 업로더를 구성하세요:",
+        "uploadImage": "이미지 업로드",
+        "uploadDescription": "다음 명령을 사용하여 이미지를 업로드하세요:",
+        "viewConfig": "구성 보기",
+        "viewConfigDescription": "다음 명령을 사용하여 현재 구성을 보세요:",
+        "viewDocumentation": "전체 문서 보기",
+        "scriptDescription": "스크립트 설명",
+        "scriptLocation": "스크립트 위치",
+        "save": "저장",
+        "saveConfig": "구성 저장",
+        "scriptConfigSaved": "스크립트 구성 저장됨",
+        "services": {
+          "picgo": "PicGo",
+          "cliScript": "CLI 스크립트"
+        },
+        "pleaseInstall": "설치하세요",
+        "scriptPath": "스크립트 경로",
+        "picgoDetection": "PicGo 감지",
+        "autoDetection": "자동 감지 중",
+        "lastSuccessTime": "마지막 성공 시간",
+        "neverDetected": "감지된 적 없음",
+        "neverSuccessful": "성공한 적 없음"
+      },
+      "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
+    },
+    "markdown": {
+      "title": "마크다운",
+      "listItem": {
+        "title": "목록 항목",
+        "preferLooseListItem": "느슨한 목록 항목 선호",
+        "bulletListMarker": "글머리 기호 목록 마커",
+        "orderListDelimiter": "순서 목록 구분자",
+        "listIndentation": {
+          "title": "목록 들여쓰기",
+          "dfm": "기본 형식 모드",
+          "tab": "탭",
+          "oneSpace": "한 칸 공백",
+          "twoSpaces": "두 칸 공백",
+          "threeSpaces": "세 칸 공백",
+          "fourSpaces": "네 칸 공백"
+        }
+      },
+      "heading": {
+        "title": "제목",
+        "preferHeadingStyle": "제목 스타일 선호"
+      },
+      "frontmatter": {
+        "title": "프론트 매터",
+        "frontmatterType": "프론트 매터 유형"
+      },
+      "extensions": {
+        "title": "확장",
+        "superSubScript": "위/아래 첨자",
+        "footnote": "각주",
+        "isHtmlEnabled": "HTML 활성화",
+        "isGitlabCompatibilityEnabled": "GitLab 호환성",
+        "sequenceTheme": "시퀀스 테마",
+        "superscript": "위 첨자",
+        "subscript": "아래 첨자",
+        "frontMatter": "프론트 매터",
+        "math": "수학",
+        "diagram": "다이어그램",
+        "footnoteNotes": "각주 노트",
+        "frontmatterType": {
+          "frontmatterType": "프론트매터 유형",
+          "jsonBrace": "중괄호가 있는 JSON",
+          "jsonSemicolon": "세미콜론이 있는 JSON",
+          "title": "프론트매터 유형"
+        }
+      },
+      "diagrams": {
+        "title": "다이어그램",
+        "plantuml": "PlantUML",
+        "mermaid": "Mermaid",
+        "vega": "Vega",
+        "flowchart": "플로우차트",
+        "sequence": "시퀀스",
+        "gantt": "간트",
+        "sequenceTheme": {
+          "title": "시퀀스 테마",
+          "handDrawn": "손으로 그린",
+          "simple": "간단"
+        }
+      },
+      "math": {
+        "title": "수학",
+        "katex": "KaTeX",
+        "mathJax": "MathJax"
+      },
+      "misc": {
+        "preferHeadingStyle": {
+          "title": "제목 스타일 선호",
+          "atx": "ATX 스타일",
+          "setext": "Setext 스타일"
+        },
+        "title": "기타"
+      },
+      "compatibility": {
+        "enableGitlab": "GitLab 호환성 활성화",
+        "enableHtml": "HTML 지원 활성화",
+        "title": "호환성"
+      },
+      "lists": {
+        "bulletListMarker": "글머리 기호 목록 마커",
+        "listIndentation": {
+          "title": "목록 들여쓰기",
+          "dfm": "DFM 스타일",
+          "fourSpaces": "네 개 공백",
+          "oneSpace": "한 개 공백",
+          "tab": "탭",
+          "threeSpaces": "세 개 공백",
+          "twoSpaces": "두 개 공백"
+        },
+        "orderListDelimiter": "순서 목록 구분자",
+        "preferLooseListItem": "느슨한 목록 항목 선호",
+        "title": "목록"
+      }
+    },
+    "spelling": {
+      "title": "맞춤법",
+      "enabled": "맞춤법 검사 활성화",
+      "autoDetectLanguage": "언어 자동 감지",
+      "language": "언어",
+      "noSuggestions": "제안 없음",
+      "spellcheckerEnabled": "맞춤법 검사 활성화",
+      "spellcheckerNoUnderline": "맞춤법 오류에 밑줄 없음",
+      "spellcheckerLanguage": "맞춤법 검사 언어"
+    },
+    "theme": {
+      "title": "테마",
+      "theme": "테마",
+      "followSystemTheme": "시스템 테마 따르기",
+      "modeThemes": "테마 선택",
+      "lightModeTheme": "라이트 모드 테마",
+      "darkModeTheme": "다크 모드 테마",
+      "customCss": "사용자 정의 CSS",
+      "codeBlockTheme": {
+        "title": "코드 블록 테마",
+        "description": "코드 블록용 테마"
+      },
+      "importCustomThemes": "사용자 정의 테마 가져오기",
+      "importTheme": "테마 가져오기",
+      "openFolder": "폴더 열기",
+      "openThemesFolder": "테마 폴더 열기"
+    },
+    "keybindings": {
+      "title": "키 바인딩",
+      "description": "키보드 단축키 사용자 정의",
+      "searchPlaceholder": "키 바인딩 검색",
+      "command": "명령",
+      "keybinding": "키 바인딩",
+      "reset": "재설정",
+      "resetAll": "모두 재설정",
+      "edit": "편집",
+      "cancel": "취소",
+      "save": "저장",
+      "restoreDefaults": "기본값 복원",
+      "debugOptions": "디버그 옵션",
+      "dumpKeyboardInfo": "키보드 정보 덤프",
+      "failedToSave": "키 바인딩 저장 실패",
+      "keyInputDialog": {
+        "instructions": "할당하려는 키 조합을 누르세요",
+        "invalidKeybinding": "잘못된 키 조합",
+        "placeholder": "키를 누르세요..."
+      },
+      "online": "온라인",
+      "saveError": "키 바인딩 저장 오류",
+      "shortcutInUse": "사용 중인 단축키",
+      "shortcutInUseMessage": "이 단축키는 이미 다른 명령에 할당되어 있습니다",
+      "table": {
+        "description": "설명",
+        "edit": "편집",
+        "keyCombination": "키 조합",
+        "options": "옵션",
+        "reset": "재설정",
+        "unbind": "바인딩 해제"
+      }
+    },
+    "selectFont": "글꼴 선택",
+    "spellchecker": {
+      "autoDetectDescription": "문서 언어 자동 감지",
+      "autoDetectLanguage": "언어 자동 감지",
+      "customDictionary": {
+        "delete": "삭제",
+        "description": "개인 사전에 사용자 정의 단어 추가",
+        "noWordsAvailable": "사용 가능한 단어 없음",
+        "options": "옵션",
+        "title": "사용자 정의 사전",
+        "word": "단어"
+      },
+      "defaultLanguage": "기본 언어",
+      "enableSpellChecking": "맞춤법 검사 활성화",
+      "hideMarksForErrors": "맞춤법 오류 표시 숨기기",
+      "title": "맞춤법 검사기"
+    }
+  },
+  "about": {
+    "copyright": "저작권",
+    "copyrightContributors": "저작권 기여자"
+  },
+  "commands": {
+    "mt": {
+      "hide": "MarkText 숨기기",
+      "hideOthers": "다른 앱 숨기기"
+    },
+    "file": {
+      "newWindow": "새 창",
+      "newTab": "새 탭",
+      "openFile": "파일 열기",
+      "openFolder": "폴더 열기",
+      "save": "저장",
+      "saveAs": "다른 이름으로 저장",
+      "moveFile": "파일 이동",
+      "renameFile": "파일 이름 바꾸기",
+      "quickOpen": "빠른 열기",
+      "changeEncoding": "인코딩 변경",
+      "changeLineEnding": "줄 끝 변경",
+      "trailingNewline": "끝 줄바꿈",
+      "print": "인쇄",
+      "preferences": "환경설정",
+      "closeTab": "탭 닫기",
+      "closeWindow": "창 닫기",
+      "quit": "종료",
+      "toggleAutoSave": "자동 저장 토글",
+      "importFile": "파일 가져오기",
+      "exportFile": "파일 내보내기",
+      "exportFilePdf": "PDF로 내보내기",
+      "zoom": "확대/축소",
+      "checkUpdate": "업데이트 확인",
+      "lineEnding": "줄 끝",
+      "close": "닫기"
+    },
+    "edit": {
+      "undo": "실행 취소",
+      "redo": "다시 실행",
+      "cut": "잘라내기",
+      "copy": "복사",
+      "paste": "붙여넣기",
+      "copyAsRich": "서식 있는 텍스트로 복사",
+      "copyAsHtml": "HTML로 복사",
+      "pasteAsPlaintext": "일반 텍스트로 붙여넣기",
+      "selectAll": "모두 선택",
+      "duplicate": "복제",
+      "createParagraph": "단락 만들기",
+      "deleteParagraph": "단락 삭제",
+      "find": "찾기",
+      "findNext": "다음 찾기",
+      "findPrevious": "이전 찾기",
+      "replace": "바꾸기",
+      "findInFolder": "폴더에서 찾기",
+      "screenshot": "스크린샷",
+      "mathBlock": "수식 블록"
+    },
+    "paragraph": {
+      "heading1": "제목 1",
+      "heading2": "제목 2",
+      "heading3": "제목 3",
+      "heading4": "제목 4",
+      "heading5": "제목 5",
+      "heading6": "제목 6",
+      "upgradeHeading": "제목 수준 올리기",
+      "degradeHeading": "제목 수준 내리기",
+      "table": "표",
+      "codeFence": "코드 블록",
+      "quoteBlock": "인용 블록",
+      "mathFormula": "수학 공식",
+      "htmlBlock": "HTML 블록",
+      "orderList": "순서 목록",
+      "bulletList": "글머리 기호 목록",
+      "taskList": "작업 목록",
+      "looseListItem": "느슨한 목록 항목",
+      "paragraph": "단락",
+      "horizontalLine": "수평선",
+      "frontMatter": "프론트 매터",
+      "resetParagraph": "단락 재설정",
+      "mathBlock": "수식 블록",
+      "horizontalRule": "수평선"
+    },
+    "format": {
+      "strong": "굵게",
+      "emphasis": "기울임",
+      "underline": "밑줄",
+      "superscript": "위 첨자",
+      "subscript": "아래 첨자",
+      "highlight": "강조",
+      "inlineCode": "인라인 코드",
+      "inlineMath": "인라인 수식",
+      "strike": "취소선",
+      "hyperlink": "하이퍼링크",
+      "image": "이미지",
+      "clearFormat": "서식 지우기"
+    },
+    "window": {
+      "minimize": "최소화",
+      "toggleAlwaysOnTop": "항상 위에 토글",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "toggleFullScreen": "전체 화면 토글",
+      "changeTheme": "테마 변경",
+      "close": "닫기"
+    },
+    "view": {
+      "commandPalette": "명령 팔레트",
+      "sourceCodeMode": "소스 코드 모드",
+      "typewriterMode": "타자기 모드",
+      "focusMode": "집중 모드",
+      "toggleSourceCodeMode": "소스 코드 모드 토글",
+      "toggleTypewriterMode": "타자기 모드 토글",
+      "toggleFocusMode": "집중 모드 토글",
+      "toggleSidebar": "사이드바 토글",
+      "toggleToc": "목차 토글",
+      "toggleTabbar": "탭바 토글",
+      "toggleDevTools": "개발자 도구 토글",
+      "devReload": "개발자 새로고침",
+      "reloadImages": "이미지 새로고침",
+      "textDirection": "텍스트 방향",
+      "actualSize": "실제 크기",
+      "zoomIn": "확대",
+      "zoomOut": "축소",
+      "devToggleDeveloperTools": "개발자 도구 전환"
+    },
+    "tabs": {
+      "cycleForward": "앞으로 순환",
+      "cycleBackward": "뒤로 순환",
+      "switchToLeft": "왼쪽으로 전환",
+      "switchToRight": "오른쪽으로 전환",
+      "switchToFirst": "첫 번째로 전환",
+      "switchToSecond": "두 번째로 전환",
+      "switchToThird": "세 번째로 전환",
+      "switchToFourth": "네 번째로 전환",
+      "switchToFifth": "다섯 번째로 전환",
+      "switchToSixth": "여섯 번째로 전환",
+      "switchToSeventh": "일곱 번째로 전환",
+      "switchToEighth": "여덟 번째로 전환",
+      "switchToNinth": "아홉 번째로 전환",
+      "switchToTenth": "열 번째로 전환"
+    },
+    "docs": {
+      "userGuide": "사용자 가이드",
+      "markdownSyntax": "마크다운 문법"
+    },
+    "utils": {
+      "noUpdateResourceFile": "업데이트 리소스 파일 없음",
+      "todoUpdateCheck": "업데이트 확인"
+    },
+    "spellchecker": {
+      "switchLanguage": "언어 전환"
+    }
+  },
+  "common": {
+    "cancel": "취소",
+    "ok": "확인"
+  },
+  "dialog": {
+    "cancel": "취소",
+    "changesWillBeLost": "변경 사항이 손실됩니다",
+    "close": "닫기",
+    "dontSave": "저장하지 않음",
+    "file": "파일",
+    "fileExists": "파일이 존재합니다",
+    "files": "파일",
+    "importWarning": "가져오기 경고",
+    "installPandoc": "Pandoc 설치",
+    "keepOpen": "열어두기",
+    "replace": "바꾸기",
+    "save": "저장",
+    "saveChanges": "변경 사항 저장",
+    "saveFailure": "저장 실패"
+  },
+  "error": {
+    "configSchemaViolation": "구성 스키마 위반",
+    "copyError": "복사 오류",
+    "initializationFailed": "초기화 실패",
+    "otherInstanceDetected": "MarkText의 다른 인스턴스가 이미 실행 중입니다",
+    "report": "신고",
+    "startupError": "시작 오류",
+    "terminatedDueToError": "오류로 인해 종료됨",
+    "unexpectedErrorWithMessage": "메시지와 함께 예상치 못한 오류",
+    "unexpectedMainProcess": "예상치 못한 메인 프로세스 오류",
+    "unexpectedRendererProcess": "예상치 못한 렌더러 프로세스 오류"
+  },
+  "notifications": {
+    "defaultMessage": "기본 메시지",
+    "defaultTitle": "알림"
+  },
+  "store": {
+    "editor": {
+      "anchorLinkCopied": "앵커 링크 복사됨",
+      "tabNotFound": "탭을 찾을 수 없음",
+      "tocItemNotFound": "목차 항목을 찾을 수 없음",
+      "highlightStart": "[하이라이트 시작]",
+      "highlightEnd": "[하이라이트 끝]",
+      "typeAtToInsert": "{'@'} 입력하여 삽입",
+      "inputFootnoteDefinition": "각주 정의 입력...",
+      "inputYamlFrontMatter": "YAML 프론트 매터 입력...",
+      "inputLanguageIdentifier": "언어 식별자 입력...",
+      "inputMathematicalFormula": "수학 공식 입력...",
+      "fence": "펜스",
+      "indent": "들여쓰기",
+      "frontMatterDelimiter": "---",
+      "mathDelimiter": "$$",
+      "mermaidStart": "``` mermaid",
+      "flowchartStart": "``` flowchart",
+      "sequenceStart": "``` sequence",
+      "plantumlStart": "``` plantuml",
+      "vegaLiteStart": "``` vega-lite",
+      "codeFence": "```",
+      "clickToAddImage": "이미지 추가하려면 클릭",
+      "loadImageFailed": "이미지 로드 실패",
+      "errorLoadingTabTitle": "탭 로드 오류",
+      "errorLoadingTabMessage": "파일 변경을 로드하는 동안 오류가 발생했습니다. 탭을 찾을 수 없습니다.",
+      "mixedLineEndingsNormalized": "“{name}”에 혼합 줄 끝이 포함되어 있으며 {lineEnding}(으)로 자동 정규화되었습니다.",
+      "imageDeletionUrlTitle": "이미지 삭제 URL",
+      "imageDeletionUrlMessage": "업로드된 이미지의 삭제 URL을 클립보드에 복사합니다 ({url}).",
+      "errorWhileSaving": "저장 중 오류가 발생했습니다: {msg}",
+      "exportSuccessTitle": "내보내기 성공",
+      "exportSuccessMessage": "“{name}”을(를) 성공적으로 내보냈습니다!",
+      "fileRemovedOnDisk": "“{name}”이(가) 디스크에서 삭제되었습니다.",
+      "fileChangedOnDisk": "“{name}”이(가) 디스크에서 변경되었습니다. 다시 로드하시겠습니까?"
+    }
+  },
+  "spellchecker": {
+    "failedToRemoveWord": "사전에서 단어 제거 실패",
+    "unexpectedError": "예상치 못한 맞춤법 검사 오류"
+  },
+  "quickInsert": {
+    "basicBlock": "기본 블록",
+    "header": "헤더",
+    "advancedBlock": "고급 블록",
+    "listBlock": "목록 블록",
+    "diagram": "다이어그램",
+    "paragraph": {
+      "title": "단락",
+      "subtitle": "텍스트 내용 입력"
+    },
+    "horizontalLine": {
+      "title": "수평선",
+      "subtitle": "---"
+    },
+    "frontMatter": {
+      "title": "프론트 매터",
+      "subtitle": "--- YAML ---"
+    },
+    "header1": {
+      "title": "헤더 1",
+      "subtitle": "# 제목"
+    },
+    "header2": {
+      "title": "헤더 2",
+      "subtitle": "## 제목"
+    },
+    "header3": {
+      "title": "헤더 3",
+      "subtitle": "### 제목"
+    },
+    "header4": {
+      "title": "헤더 4",
+      "subtitle": "#### 제목"
+    },
+    "header5": {
+      "title": "헤더 5",
+      "subtitle": "##### 제목"
+    },
+    "header6": {
+      "title": "헤더 6",
+      "subtitle": "###### 제목"
+    },
+    "tableBlock": {
+      "title": "표 블록",
+      "subtitle": "｜ 헤더 ｜ 헤더 ｜"
+    },
+    "mathFormula": {
+      "title": "수학 공식",
+      "subtitle": "$$ 공식 $$"
+    },
+    "htmlBlock": {
+      "title": "HTML 블록",
+      "subtitle": "<div> HTML </div>"
+    },
+    "codeBlock": {
+      "title": "코드 블록",
+      "subtitle": "``` 코드 ```"
+    },
+    "quoteBlock": {
+      "title": "인용 블록",
+      "subtitle": "> 인용 내용"
+    },
+    "orderedList": {
+      "title": "순서 목록",
+      "subtitle": "1. 목록 항목"
+    },
+    "bulletList": {
+      "title": "글머리 기호 목록",
+      "subtitle": "- 목록 항목"
+    },
+    "todoList": {
+      "title": "할 일 목록",
+      "subtitle": "- [ ] 작업 항목"
+    },
+    "vegaChart": {
+      "title": "Vega-Lite 차트",
+      "subtitle": "데이터 시각화 차트"
+    },
+    "flowChart": {
+      "title": "플로우차트",
+      "subtitle": "순서도"
+    },
+    "sequenceChart": {
+      "title": "시퀀스 차트",
+      "subtitle": "시퀀스 다이어그램"
+    },
+    "plantUMLChart": {
+      "title": "PlantUML 차트",
+      "subtitle": "UML 다이어그램"
+    },
+    "mermaid": {
+      "title": "Mermaid 차트",
+      "subtitle": "Mermaid 다이어그램",
+      "gantt": {
+        "title": "간트 차트"
+      },
+      "pie": {
+        "title": "원형 차트"
+      },
+      "flowchart": {
+        "title": "순서도"
+      },
+      "sequence": {
+        "title": "시퀀스 다이어그램"
+      },
+      "class": {
+        "title": "클래스 다이어그램"
+      },
+      "state": {
+        "title": "상태 다이어그램",
+        "subtitle": "stateDiagram"
+      },
+      "journey": {
+        "title": "사용자 여정"
+      },
+      "git": {
+        "title": "Git 다이어그램"
+      },
+      "er": {
+        "title": "ER 다이어그램"
+      },
+      "requirement": {
+        "title": "요구사항 다이어그램"
+      }
+    },
+    "taskList": {
+      "title": "작업 목록"
+    },
+    "vegaliteChart": {
+      "title": "Vega-Lite 차트"
+    },
+    "plantUMLDiagram": {
+      "title": "PlantUML 다이어그램"
+    },
+    "mermaidDiagram": {
+      "title": "Mermaid 다이어그램"
+    }
+  },
+  "frontMenu": {
+    "duplicate": "복제",
+    "turnInto": "변환",
+    "newParagraph": "새 단락",
+    "delete": "삭제",
+    "paragraph": "단락",
+    "table": "표",
+    "html": "HTML",
+    "mathblock": "수식 블록",
+    "pre": "코드 블록",
+    "frontMatter": "프론트 매터",
+    "ulTask": "작업 목록",
+    "ulBullet": "글머리 기호 목록",
+    "olOrder": "번호 목록",
+    "blockquote": "인용문",
+    "heading1": "제목 1",
+    "heading2": "제목 2",
+    "heading3": "제목 3",
+    "heading4": "제목 4",
+    "heading5": "제목 5",
+    "heading6": "제목 6",
+    "hr": "수평선"
+  },
+  "editor": {
+    "image": {
+      "selector": {
+        "tab": {
+          "select": "선택",
+          "embedLink": "링크 삽입"
+        },
+        "select": {
+          "chooseButton": "이미지 선택",
+          "tip": "컴퓨터에서 이미지를 선택하세요."
+        },
+        "inputs": {
+          "alt": "대체 텍스트",
+          "src": "이미지 링크 또는 로컬 경로",
+          "title": "이미지 제목"
+        },
+        "embedButton": "이미지 삽입",
+        "hint": {
+          "prefix": "웹 이미지 또는 로컬 경로를 붙여넣기. 모드 전환",
+          "simple": "간단 모드",
+          "full": "전체 모드"
+        }
+      },
+      "toolbar": {
+        "edit": "이미지 편집",
+        "inline": "인라인 이미지",
+        "alignLeft": "왼쪽 정렬",
+        "alignCenter": "가운데 정렬",
+        "alignRight": "오른쪽 정렬",
+        "delete": "이미지 삭제"
+      }
+    },
+    "placeholders": {
+      "frontMatter": "YAML 프론트 매터 입력...",
+      "languageIdentifier": "언어 식별자 입력...",
+      "mathFormula": "수학 공식 입력..."
+    },
+    "export": {
+      "error": "내보내기 오류",
+      "errorExporting": "파일 내보내기 오류",
+      "failed": "내보내기 실패"
+    },
+    "insertTable": {
+      "title": "표 삽입",
+      "rows": "행",
+      "columns": "열"
+    },
+    "notifications": {
+      "notificationNotFound": "알림을 찾을 수 없음"
+    },
+    "print": {
+      "error": "인쇄 오류",
+      "failed": "인쇄 실패"
+    },
+    "sourceCode": {
+      "cursorNullComment": "커서 null 주석",
+      "imageStructureDeletedComment": "이미지 구조 삭제 주석"
+    },
+    "spellcheck": {
+      "enabled": "맞춤법 검사가 활성화되었습니다",
+      "disabled": "맞춤법 검사가 비활성화되었습니다",
+      "enabledError": "맞춤법 검사 활성화 오류",
+      "disabledError": "맞춤법 검사 비활성화 오류",
+      "errorSwitchingLanguage": "맞춤법 검사 언어 전환 오류",
+      "languageMissing": "맞춤법 검사 언어가 없습니다",
+      "switchError": "맞춤법 검사 전환 오류",
+      "title": "맞춤법 검사"
+    },
+    "table": "표",
+    "resizeTable": "표 크기 조정",
+    "left": "왼쪽",
+    "alignLeft": "왼쪽 정렬",
+    "center": "가운데",
+    "alignCenter": "가운데 정렬",
+    "right": "오른쪽",
+    "alignRight": "오른쪽 정렬",
+    "delete": "삭제",
+    "deleteTable": "표 삭제",
+    "insertRowAbove": "위에 행 삽입",
+    "insertRowBelow": "아래에 행 삽입",
+    "removeRow": "행 제거",
+    "insertColumnLeft": "왼쪽에 열 삽입",
+    "insertColumnRight": "오른쪽에 열 삽입",
+    "removeColumn": "열 제거",
+    "copyContent": "내용 복사",
+    "emptyMathFormula": "< 빈 수학 공식 >",
+    "invalidMathFormula": "< 잘못된 수학 공식 >",
+    "emptyMermaidBlock": "< 빈 Mermaid 블록 >",
+    "loading": "로딩 중...",
+    "emptyDiagramBlock": "< 빈 다이어그램 블록 >",
+    "emptyHtmlBlock": "< 빈 HTML 블록 >",
+    "onlyTopBlockCanRenderIcon": "최상위 블록만 앞의 아이콘 버튼을 렌더링할 수 있습니다.",
+    "unhandledFunctionType": "처리되지 않은 함수 유형: {functionType}",
+    "highlight-start": "[하이라이트 시작]",
+    "highlight-end": "[하이라이트 끝]",
+    "type-at-to-insert": "{'@'}를 입력하여 삽입",
+    "input-footnote-definition": "각주 정의 입력",
+    "input-yaml-front-matter": "YAML 프론트 매터 입력",
+    "input-language-identifier": "언어 식별자 입력",
+    "input-mathematical-formula": "수학 공식 입력",
+    "fence": "펜스",
+    "indent": "들여쓰기",
+    "front-matter-delimiter": "프론트 매터 구분자",
+    "math-delimiter": "수학 구분자",
+    "mermaid-start": "mermaid 시작",
+    "flowchart-start": "플로우차트 시작",
+    "sequence-start": "시퀀스 시작",
+    "plantuml-start": "plantuml 시작",
+    "vega-lite-start": "vega-lite 시작",
+    "click-to-add-image": "클릭하여 이미지 추가",
+    "load-image-failed": "이미지 로드 실패"
+  },
+  "edit": {
+    "undo": "실행 취소",
+    "redo": "다시 실행",
+    "cut": "잘라내기",
+    "copy": "복사",
+    "paste": "붙여넣기",
+    "selectAll": "모두 선택"
+  }
+}

@@ -6,24 +6,24 @@ Welcome to the end-user documentation of MarkText.
 
 **Quick start:**
 
-- [Basics](BASICS.md)
-- [Editing in depth](EDITING.md)
-- [Spelling](SPELLING.md)
-- [Markdown syntax](MARKDOWN_SYNTAX.md)
+- [Basics](end-user/BASICS.md)
+- [Editing in depth](end-user/EDITING.md)
+- [Spelling](end-user/SPELLING.md)
+- [Markdown syntax](end-user/MARKDOWN_SYNTAX.md)
 
 **Further documents:**
 
-- [Frequently asked questions (FAQ)](FAQ.md)
-- [Application data directory](APPLICATION_DATA_DIRECTORY.md)
-- [Command line interface](CLI.md)
-- [Environment variables](ENVIRONMENT.md)
-- [Export a document](EXPORT.md)
-- [Image uploader configuration](IMAGE_UPLOADER_CONFIGRATION.md)
+- [Frequently asked questions (FAQ)](end-user/FAQ.md)
+- [Application data directory](end-user/APPLICATION_DATA_DIRECTORY.md)
+- [Command line interface](end-user/CLI.md)
+- [Environment variables](end-user/ENVIRONMENT.md)
+- [Export a document](end-user/EXPORT.md)
+- [Image uploader configuration](end-user/IMAGE_UPLOADER_CONFIGRATION.md)
 - [Installation instructions](../README.md#download-and-installation)
-- [Key bindings](KEYBINDINGS.md)
-- [Portable mode](PORTABLE.md)
-- [Preferences](PREFERENCES.md)
-- [Themes](THEMES.md)
-- [Themes for exporting](EXPORT_THEMES.md)
+- [Key bindings](end-user/KEYBINDINGS.md)
+- [Portable mode](end-user/PORTABLE.md)
+- [Preferences](end-user/PREFERENCES.md)
+- [Themes](end-user/THEMES.md)
+- [Themes for exporting](end-user/EXPORT_THEMES.md)
 
 Interested in developer documentation? Please see [here](dev/README.md).

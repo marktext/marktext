@@ -1,28 +1,17 @@
-import { createApi } from 'unsplash-js'
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
 import { EVENT_KEYS, URL_REG, isWin } from '../../config'
 import { getUniqueId, getImageInfo as getImageSrc } from '../../utils'
 import { getImageInfo } from '../../utils/getImageInfo'
-
 import './index.css'
-
-const toJson = res => {
-  if (res.type === 'success') {
-    return Promise.resolve(res.response)
-  } else {
-    return Promise.reject(new Error(res.type))
-  }
-}
 
 class ImageSelector extends BaseFloat {
   static pluginName = 'imageSelector'
 
-  constructor (muya, options) {
+  constructor(muya, options) {
     const name = 'ag-image-selector'
-    const { unsplashAccessKey } = options
     options = Object.assign(options, {
-      placement: 'bottom-center',
+      placement: 'bottom',
       modifiers: {
         offset: {
           offset: '0, 0'
@@ -34,13 +23,6 @@ class ImageSelector extends BaseFloat {
     this.renderArray = []
     this.oldVnode = null
     this.imageInfo = null
-    if (!unsplashAccessKey) {
-      this.unsplash = null
-    } else {
-      this.unsplash = createApi({
-        accessKey: unsplashAccessKey
-      })
-    }
     this.photoList = []
     this.loading = false
     this.tab = 'link' // select or link
@@ -50,13 +32,13 @@ class ImageSelector extends BaseFloat {
       src: '',
       title: ''
     }
-    const imageSelectorContainer = this.imageSelectorContainer = document.createElement('div')
+    const imageSelectorContainer = (this.imageSelectorContainer = document.createElement('div'))
     this.container.appendChild(imageSelectorContainer)
     this.floatBox.classList.add('ag-image-selector-wrapper')
     this.listen()
   }
 
-  listen () {
+  listen() {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-selector', ({ reference, cb, imageInfo }) => {
@@ -68,6 +50,7 @@ class ImageSelector extends BaseFloat {
         }
 
         Object.assign(this.state, imageInfo.token.attrs)
+        this.imageInfo = imageInfo
 
         // Remove file protocol to allow autocomplete.
         const imageSrc = this.state.src
@@ -79,33 +62,19 @@ class ImageSelector extends BaseFloat {
           this.state.src = imageSrc.substring(protocolLen)
         }
 
-        if (this.unsplash) {
-          // Load latest unsplash photos.
-          this.loading = true
-          this.unsplash.photos.list({
-            perPage: 40
-          })
-            .then(toJson)
-            .then(json => {
-              this.loading = false
-              if (Array.isArray(json.results)) {
-                this.photoList = json.results
-                if (this.tab === 'unsplash') {
-                  this.render()
-                }
-              }
-            })
-        }
-
-        this.imageInfo = imageInfo
         this.show(reference, cb)
         this.render()
 
         // Auto focus and select all content of the `src.input` element.
         const input = this.imageSelectorContainer.querySelector('input.src')
         if (input) {
+          // Force value update - else Snabbdom might not update the value attribute when we re-open the image selector
+          // as it does not listen to users dirtying the input value.
+          input.value = this.state.src
           input.focus()
-          input.select()
+          if (typeof input.select === 'function') {
+            input.select()
+          }
         }
       } else {
         this.hide()
@@ -113,56 +82,30 @@ class ImageSelector extends BaseFloat {
     })
   }
 
-  searchPhotos = (keyword) => {
-    if (!this.unsplash) {
-      return
-    }
-
-    this.loading = true
-    this.photoList = []
-    this.unsplash.search.getPhotos({
-      query: keyword,
-      page: 1,
-      perPage: 40
-    })
-      .then(toJson)
-      .then(json => {
-        this.loading = false
-        if (Array.isArray(json.results)) {
-          this.photoList = json.results
-          if (this.tab === 'unsplash') {
-            this.render()
-          }
-        }
-      })
-
-    return this.render()
-  }
-
-  tabClick (event, tab) {
+  tabClick(event, tab) {
     const { value } = tab
     this.tab = value
     return this.render()
   }
 
-  toggleMode () {
+  toggleMode() {
     this.isFullMode = !this.isFullMode
     return this.render()
   }
 
-  inputHandler (event, type) {
+  inputHandler(event, type) {
     const value = event.target.value
     this.state[type] = value
   }
 
-  handleKeyDown (event) {
+  handleKeyDown(event) {
     if (event.key === EVENT_KEYS.Enter) {
       event.stopPropagation()
       this.handleLinkButtonClick()
     }
   }
 
-  srcInputKeyDown (event) {
+  srcInputKeyDown(event) {
     const { imagePathPicker } = this.muya
     if (!imagePathPicker.status) {
       if (event.key === EVENT_KEYS.Enter) {
@@ -190,24 +133,26 @@ class ImageSelector extends BaseFloat {
     }
   }
 
-  async handleKeyUp (event) {
+  async handleKeyUp(event) {
     const { key } = event
     if (
       key === EVENT_KEYS.ArrowUp ||
       key === EVENT_KEYS.ArrowDown ||
       key === EVENT_KEYS.Tab ||
-      key === EVENT_KEYS.Enter
+      (key === EVENT_KEYS.Enter && !this.state.src.endsWith('/') && !this.state.src.endsWith('\\'))
     ) {
       return
     }
-    const value = event.target.value
+
+    // Handle special case where the user selects a directory by pressing enter
+    const value = EVENT_KEYS.Enter ? this.state.src : event.target.value
     const { eventCenter } = this.muya
     const reference = this.imageSelectorContainer.querySelector('input.src')
-    const cb = item => {
+    const cb = (item) => {
       const { text } = item
 
       let basePath = ''
-      const pathSep = value.match(/(\/|\\)(?:[^/\\]+)$/)
+      const pathSep = value.match(/(\/|\\)(?:[^/\\]*)$/)
       if (pathSep && pathSep[0]) {
         basePath = value.substring(0, pathSep.index + 1)
       }
@@ -217,10 +162,7 @@ class ImageSelector extends BaseFloat {
       reference.value = newValue
       this.state.src = newValue
       reference.focus()
-      reference.setSelectionRange(
-        len,
-        len
-      )
+      reference.setSelectionRange(len, len)
     }
 
     let list
@@ -232,11 +174,11 @@ class ImageSelector extends BaseFloat {
     eventCenter.dispatch('muya-image-picker', { reference, list, cb })
   }
 
-  handleLinkButtonClick () {
+  handleLinkButtonClick() {
     return this.replaceImageAsync(this.state)
   }
 
-  replaceImageAsync = async ({ alt, src, title }) => {
+  replaceImageAsync = async({ alt, src, title }) => {
     if (!this.muya.options.imageAction || URL_REG.test(src)) {
       const { alt: oldAlt, src: oldSrc, title: oldTitle } = this.imageInfo.token.attrs
       if (alt !== oldAlt || src !== oldSrc || title !== oldTitle) {
@@ -280,7 +222,7 @@ class ImageSelector extends BaseFloat {
     this.muya.eventCenter.dispatch('stateChange')
   }
 
-  async handleSelectButtonClick () {
+  async handleSelectButtonClick() {
     if (!this.muya.options.imagePathPicker) {
       console.warn('You need to add a imagePathPicker option')
       return
@@ -295,31 +237,35 @@ class ImageSelector extends BaseFloat {
     })
   }
 
-  renderHeader () {
-    const tabs = [{
-      label: 'Select',
-      value: 'select'
-    }, {
-      label: 'Embed link',
-      value: 'link'
-    }]
+  renderHeader() {
+    const t = this.muya?.options?.t || ((k) => k)
+    const tabs = [
+      {
+        label: t('editor.image.selector.tab.select'),
+        value: 'select'
+      },
+      {
+        label: t('editor.image.selector.tab.embedLink'),
+        value: 'link'
+      }
+    ]
 
-    if (this.unsplash) {
-      tabs.push({
-        label: 'Unsplash',
-        value: 'unsplash'
-      })
-    }
-
-    const children = tabs.map(tab => {
+    const children = tabs.map((tab) => {
       const itemSelector = this.tab === tab.value ? 'li.active' : 'li'
-      return h(itemSelector, h('span', {
-        on: {
-          click: event => {
-            this.tabClick(event, tab)
-          }
-        }
-      }, tab.label))
+      return h(
+        itemSelector,
+        h(
+          'span',
+          {
+            on: {
+              click: (event) => {
+                this.tabClick(event, tab)
+              }
+            }
+          },
+          tab.label
+        )
+      )
     })
 
     return h('ul.header', children)
@@ -327,70 +273,75 @@ class ImageSelector extends BaseFloat {
 
   renderBody = () => {
     const { tab, state, isFullMode } = this
+    const t = this.muya?.options?.t || ((k) => k)
     const { alt, title, src } = state
     let bodyContent = null
     if (tab === 'select') {
       bodyContent = [
-        h('button.muya-button.role-button.select', {
-          on: {
-            click: event => {
-              this.handleSelectButtonClick()
+        h(
+          'button.muya-button.role-button.select',
+          {
+            on: {
+              click: (event) => {
+                this.handleSelectButtonClick()
+              }
             }
-          }
-        }, 'Choose an Image'),
-        h('span.description', 'Choose image from your computer.')
+          },
+          t('editor.image.selector.select.chooseButton')
+        ),
+        h('span.description', t('editor.image.selector.select.tip'))
       ]
-    } else if (tab === 'link') {
+    } else {
       const altInput = h('input.alt', {
         props: {
-          placeholder: 'Alt text',
+          placeholder: t('editor.image.selector.inputs.alt'),
           value: alt
         },
         on: {
-          input: event => {
+          input: (event) => {
             this.inputHandler(event, 'alt')
           },
-          paste: event => {
+          paste: (event) => {
             this.inputHandler(event, 'alt')
           },
-          keydown: event => {
+          keydown: (event) => {
             this.handleKeyDown(event)
           }
         }
       })
       const srcInput = h('input.src', {
         props: {
-          placeholder: 'Image link or local path',
+          placeholder: t('editor.image.selector.inputs.src'),
           value: src
         },
         on: {
-          input: event => {
+          input: (event) => {
             this.inputHandler(event, 'src')
           },
-          paste: event => {
+          paste: (event) => {
             this.inputHandler(event, 'src')
           },
-          keydown: event => {
+          keydown: (event) => {
             this.srcInputKeyDown(event)
           },
-          keyup: event => {
+          keyup: (event) => {
             this.handleKeyUp(event)
           }
         }
       })
       const titleInput = h('input.title', {
         props: {
-          placeholder: 'Image title',
+          placeholder: t('editor.image.selector.inputs.title'),
           value: title
         },
         on: {
-          input: event => {
+          input: (event) => {
             this.inputHandler(event, 'title')
           },
-          paste: event => {
+          paste: (event) => {
             this.inputHandler(event, 'title')
           },
-          keydown: event => {
+          keydown: (event) => {
             this.handleKeyDown(event)
           }
         }
@@ -400,99 +351,38 @@ class ImageSelector extends BaseFloat {
         ? h('div.input-container', [altInput, srcInput, titleInput])
         : h('div.input-container', [srcInput])
 
-      const embedButton = h('button.muya-button.role-button.link', {
-        on: {
-          click: event => {
-            this.handleLinkButtonClick()
-          }
-        }
-      }, 'Embed Image')
-      const bottomDes = h('span.description', [
-        h('span', 'Paste web image or local image path. Use '),
-        h('a', {
+      const embedButton = h(
+        'button.muya-button.role-button.link',
+        {
           on: {
-            click: event => {
-              this.toggleMode()
+            click: (event) => {
+              this.handleLinkButtonClick()
             }
           }
-        }, `${isFullMode ? 'simple mode' : 'full mode'}.`)
+        },
+        t('editor.image.selector.embedButton')
+      )
+      const bottomDes = h('span.description', [
+        h('span', t('editor.image.selector.hint.prefix') + ' '),
+        h(
+          'a',
+          {
+            on: {
+              click: (event) => {
+                this.toggleMode()
+              }
+            }
+          },
+          `${isFullMode ? t('editor.image.selector.hint.simple') : t('editor.image.selector.hint.full')}.`
+        )
       ])
       bodyContent = [inputWrapper, embedButton, bottomDes]
-    } else {
-      const searchInput = h('input.search', {
-        props: {
-          placeholder: 'Search photos on Unsplash'
-        },
-        on: {
-          keydown: (event) => {
-            const value = event.target.value
-            if (event.key === EVENT_KEYS.Enter && value) {
-              event.preventDefault()
-              event.stopPropagation()
-              this.searchPhotos(value)
-            }
-          }
-        }
-      })
-      bodyContent = [searchInput]
-      if (this.loading) {
-        const loadingCom = h('div.ag-plugin-loading')
-        bodyContent.push(loadingCom)
-      } else if (this.photoList.length === 0) {
-        const noDataCom = h('div.no-data', 'No result...')
-        bodyContent.push(noDataCom)
-      } else {
-        const photos = this.photoList.map(photo => {
-          const imageWrapper = h('div.image-wrapper', {
-            props: {
-              style: `background: ${photo.color};`
-            },
-            on: {
-              click: () => {
-                const title = photo.user.name
-                const alt = photo.alt_description
-                const src = photo.urls.regular
-                const { id: photoId } = photo
-                this.unsplash.photos.get({ photoId })
-                  .then(toJson)
-                  .then(result => {
-                    this.unsplash.photos.trackDownload({
-                      downloadLocation: result.links.download_location
-                    })
-                  })
-                return this.replaceImageAsync({ alt, title, src })
-              }
-            }
-          }, h('img', {
-            props: {
-              src: photo.urls.thumb
-            }
-          }))
-
-          const desCom = h('div.des', ['By ', h('a', {
-            props: {
-              href: photo.links.html
-            },
-            on: {
-              click: () => {
-                if (this.options.photoCreatorClick) {
-                  this.options.photoCreatorClick(photo.user.links.html)
-                }
-              }
-            }
-          }, photo.user.name)])
-          return h('div.photo', [imageWrapper, desCom])
-        })
-        const photoWrapper = h('div.photos-wrapper', photos)
-        const moreCom = h('div.more', 'Search for more photos...')
-        bodyContent.push(photoWrapper, moreCom)
-      }
     }
 
     return h('div.image-select-body', bodyContent)
   }
 
-  render () {
+  render() {
     const { oldVnode, imageSelectorContainer } = this
     const selector = 'div'
     const vnode = h(selector, [this.renderHeader(), this.renderBody()])

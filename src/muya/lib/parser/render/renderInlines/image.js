@@ -5,23 +5,34 @@ import ImageFailIcon from '../../../assets/pngicon/image_fail/2.png'
 import DeleteIcon from '../../../assets/pngicon/delete/2.png'
 
 const renderIcon = (h, className, icon) => {
-  const selector = `a.${className}`
-  const iconVnode = h('i.icon', h('i.icon-inner', {
-    style: {
-      background: `url(${icon}) no-repeat`,
-      'background-size': '100%'
-    }
-  }, ''))
+  const selector = `span.${className}`
+  const iconVnode = h(
+    'i.icon',
+    h(
+      'i.icon-inner',
+      {
+        style: {
+          background: `url(${icon}) no-repeat`,
+          'background-size': '100%'
+        }
+      },
+      ''
+    )
+  )
 
-  return h(selector, {
-    attrs: {
-      contenteditable: 'false'
-    }
-  }, iconVnode)
+  return h(
+    selector,
+    {
+      attrs: {
+        contenteditable: 'false'
+      }
+    },
+    iconVnode
+  )
 }
 
 // I dont want operate dom directly, is there any better method? need help!
-export default function image (h, cursor, block, token, outerClass) {
+export default function image(h, cursor, block, token, outerClass) {
   const imageInfo = getImageInfo(token.attrs.src)
   const { selectedImage } = this.muya.contentState
   const data = {
@@ -37,9 +48,10 @@ export default function image (h, cursor, block, token, outerClass) {
   const title = token.attrs.title
   const width = token.attrs.width
   const height = token.attrs.height
+  src = src.replace(/ /g, '%20') // Automatically replaces spaces with %20 to avoid parsing errors when exporting.
 
   if (src) {
-    ({ id, isSuccess, domsrc } = this.loadImageAsync(imageInfo, token.attrs))
+    ;({ id, isSuccess, domsrc } = this.loadImageAsync(imageInfo, token.attrs))
   }
 
   let wrapperSelector = id
@@ -131,25 +143,15 @@ export default function image (h, cursor, block, token, outerClass) {
         h(wrapperSelector, data, [
           ...imageIcons,
           renderImageContainer(
-            // An image description has inline elements as its contents.
-            // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
+              // An image description has inline elements as its contents.
+              // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
             renderImage()
           )
         ])
       ]
-      : [
-        h(wrapperSelector, data, [
-          ...imageIcons,
-          renderImageContainer()
-        ])
-      ]
+      : [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])]
   } else {
     wrapperSelector += `.${CLASS_OR_ID.AG_EMPTY_IMAGE}`
-    return [
-      h(wrapperSelector, data, [
-        ...imageIcons,
-        renderImageContainer()
-      ])
-    ]
+    return [h(wrapperSelector, data, [...imageIcons, renderImageContainer()])]
   }
 }

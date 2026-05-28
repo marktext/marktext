@@ -1,5 +1,0 @@
-test/unit/coverage/**
-test/unit/*.js
-test/e2e/*.js
-src/renderer/assets/symbolIcon/index.js
-src/muya/lib/assets/libs/*.js

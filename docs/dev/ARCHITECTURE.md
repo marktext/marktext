@@ -4,10 +4,10 @@
 
 - `.`: Configuration files
 - `package.json`: Project settings
-- `build/`: Contains generated binaries
-- `dist/`: Build files for deployment
+- `out/`: Compiled source code (main, preload, renderer bundles)
+- `dist/`: Packaged binaries and installers for distribution
+- `resources/`: Application assets (themes, icons, etc) included in builds
 - `docs/`: Documentation and assets
-- `resources/`: Application assets using at build time
 - `node_modules/`: Dependencies
 - `src`: MarkText source code
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
@@ -19,7 +19,7 @@
 
 ## Introduction to MarkText
 
-MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is build with HTML, JS and CSS on top of Electron. Currently we're using a few native node libraries and our UI is build with Vue/Vuex. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
+MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is built with HTML, JS and CSS on top of Electron. Currently we're using a few native node libraries and our UI is built with Vue 3 and Pinia. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
 
 Muya provides realtime preview and markdown editing via multiple modules based on a block structure. You can imagine it as the editor backend with modules for markdown parsing, data store as block structure, markdown document transformations according CommonMark and GitHub Flavored Markdown specification with some extra specifications, event listeners and an exporter to generate standalone HTML and markdown files but also to generate the WYSIWYG editor. Muya is single threaded as well as MarkText but use asynchronous functions to boost performance.
 
@@ -46,7 +46,7 @@ TBD
 
 ### Main- and renderer process communication
 
-Main- and renderer process communicate asynchronously via [inter-process communication (IPC)](code/IPC.md) and it's mainly used for IO and user interaction with native dialogs.
+Main- and renderer process communicate asynchronously via [inter-process communication (IPC)](IPC.md) and it's mainly used for IO and user interaction with native dialogs.
 
 ### Editor window (renderer process)
 

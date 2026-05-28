@@ -1,170 +1,168 @@
-productName: "MarkText"
-appId: "com.github.marktext.marktext"
-
-asar: true
-asarUnpack:
-- "**/*.node"
+appId: com.github.marktext.marktext
+productName: marktext
 directories:
-  output: "build"
-# Workaround: Don't download prebuilt libraries (GH#2953).
-buildDependenciesFromSource: true
+  buildResources: build
 files:
-- "dist/electron/**/*"
-# Don't bundle these files
-- "!**/node_modules/**/{CHANGELOG.md,README.md,README,readme.md,readme}"
-- "!node_modules/css-b64-images/{draft.png,draft.xcf}"
-- "!node_modules/dagre-d3-renderer/dist/demo/"
-- "!node_modules/dagre-d3/dist/demo/"
-- "!node_modules/dragula/resources"
-- "!node_modules/**/*.js.map"
-- "!node_modules/**/*.cjs.map"
-- "!node_modules/**/*.mjs.map"
-- "!node_modules/**/*.ts.map"
-# Don't bundle build files
-- "!node_modules/@felixrieseberg/spellchecker/bin"
-- "!node_modules/@hfelix/spellchecker/bin"
-- "!node_modules/ced/bin"
-- "!node_modules/ced/vendor"
-- "!node_modules/cld/bin"
-- "!node_modules/cld/deps"
-- "!node_modules/fontmanager-redux/bin"
-- "!node_modules/keyboard-layout/bin"
-- "!node_modules/keytar/bin"
-- "!node_modules/native-keymap/bin"
-# Large source files that aren't needed
-- "!node_modules/dagre-d3/dist/dagre-d3.min.js"
-- "!node_modules/mermaid/dist/mermaid.js"
-- "!node_modules/mermaid/dist/mermaid.min.js"
-- "!node_modules/mermaid/dist/mermaid.esm.min.mjs"
-- "!node_modules/katex/dist/katex.min.js"
-- "!node_modules/katex/dist/katex.mjs"
-- "!node_modules/vega/build-es5/"
-- "!node_modules/vega-embed/build-es5/"
-# Don't bundle Linux build files
-- "!node_modules/@hfelix/spellchecker/build/Release/hunspell.a"
-- "!node_modules/ced/build/Release/compact_enc_det.a"
-# Don't bundle Windows build files
-- "!node_modules/**/{*.vcxproj,*.vcxproj.filters}"
-- "!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}"
-- "!node_modules/**/build/Release/obj"
-- "!node_modules/ced/build/vendor"
-# Don't bundle LGPL source files
-- "!node_modules/@felixrieseberg/spellchecker/vendor"
-- "!node_modules/@hfelix/spellchecker/vendor"
-extraFiles:
-- "LICENSE"
-- from: "resources/THIRD-PARTY-LICENSES.txt"
-  to: "THIRD-PARTY-LICENSES.txt"
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!scripts/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  # ================================
+  # Do not bundle these files
+  # ================================
+  - '!node_modules/dragula/resources'
+  - '!node_modules/**/*.js.map'
+  - '!node_modules/**/*.cjs.map'
+  - '!node_modules/**/*.mjs.map'
+  - '!node_modules/**/*.ts.map'
+  - '!node_modules/@vscode/ripgrep/{jsconfig.json,*.md,LICENSE}'
+  - '!node_modules/@vscode/ripgrep/lib/download.js'
+  - '!node_modules/@vscode/ripgrep/lib/postinstall.js'
+  - '!node_modules/ced/vendor'
+  # Large source files
+  - '!node_modules/mermaid/dist/mermaid.js'
+  - '!node_modules/mermaid/dist/mermaid.min.js'
+  - '!node_modules/mermaid/dist/mermaid.esm.min.mjs'
+  - '!node_modules/katex/dist/katex.min.js'
+  - '!node_modules/katex/dist/katex.mjs'
+  # Don't bundle Linux build files
+  - '!node_modules/ced/build/Release/compact_enc_det.a'
+  - '!node_modules/**/{*.vcxproj,*.vcxproj.filters}'
+  - '!node_modules/**/build/Release/{*.lib,*.exp,*.ilk,*.pdb,*.iobj,*.ipdb}'
+  - '!node_modules/**/build/Release/obj'
+  # Do not bundle development related files
+  - '!eslint.config.js'
+  - '!jsconfig.json'
+  - '!docs/*'
 extraResources:
-- from: "resources/hunspell_dictionaries/"
-  to: "hunspell_dictionaries/"
-  filter:
-  - "!**/LICENSE-hunspell.txt"
-afterPack: './.electron-vue/electron-builder/afterPack.js'
+  - from: build/icons
+    to: icons # ends up at resources/icons/
+    filter:
+      - '*.ico'
+  - from: static
+    to: static
+    filter:
+      - '**/*'
+      - '!locales/**/!(*.min).json'
+npmRebuild: false
+electronLanguages: # Avoid packaging all chromium locales since our app has in-built locales
+  - en-US
 
+asarUnpack:
+  - resources/**
 fileAssociations:
-- ext:
-  - "md"
-  - "markdown"
-  - "mmd"
-  - "mdown"
-  - "mdtxt"
-  - "mdtext"
-  name: "Markdown"
-  description: "Markdown document"
-  role: "Editor"
-  icon: "../resources/icons/md.icns"
-mac:
-  artifactName: "marktext-${arch}-mac.${ext}"
-  icon: "resources/icons/icon.icns"
-  darkModeSupport: true
-  target:
-    - target: dmg
-      arch: [x64, arm64]
-    - target: zip
-      arch: [x64, arm64]
-dmg:
-  artifactName: "marktext-${arch}.${ext}"
-  contents:
-  - x: 410
-    y: 240
-    type: "link"
-    path: "/Applications"
-  - x: 130
-    y: 240
-    type: "file"
+  - ext: md
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
+  - ext: markdown
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
+  - ext: mmd
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
+  - ext: mdown
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
+  - ext: mdtxt
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
+  - ext: mdtext
+    name: Markdown
+    description: Markdown document
+    mimeType: text/markdown
+    role: Editor
+    icon: icons/md.ico
 win:
-  artifactName: "marktext-${arch}-win.${ext}"
-  icon: "resources/icons/icon.ico"
+  executableName: marktext
+  artifactName: 'marktext-win-${arch}-${version}.${ext}'
   target:
-  - target: "nsis"
-    arch: [ia32, x64]
-  - target: "zip"
-    arch: [ia32, x64]
-  requestedExecutionLevel: "asInvoker"
+    - target: 'nsis'
+    - target: 'zip'
+  icon: static/icon.ico
 nsis:
-  artifactName: "marktext-setup.${ext}"
-  perMachine: false
+  artifactName: 'marktext-win-${arch}-${version}-setup.${ext}'
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
   oneClick: false
   allowToChangeInstallationDirectory: true
-  include: "resources/windows/installer.nsh"
-linux:
-  artifactName: "marktext-${arch}.${ext}"
-  executableName: "marktext"
-  description: "A simple and elegant open-source markdown editor that focused on speed and usability."
-  maintainer: "MarkText Contributors"
-  category: "Office;TextEditor;Utility"
-  mimeTypes:
-  - "text/markdown"
-  icon: "resources/icons"
-  desktop:
-    StartupWMClass: "marktext"
-    Keywords: "marktext;"
+  perMachine: false
+  include: windows/installer.nsh
+mac:
+  artifactName: 'marktext-mac-${arch}-${version}.${ext}'
+  entitlementsInherit: build/mac/entitlements.mac.plist
+  extendInfo:
+    - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+  icon: static/icon.icns
+  notarize: false
   target:
-  - target: "AppImage"
-  - target: "deb"
-  - target: "rpm"
-  - target: "tar.gz"
-  # Workaround because file association array doesn't work.
+    - dmg
+    - zip
+dmg:
+  artifactName: 'marktext-mac-${arch}-${version}.${ext}'
+  contents:
+    - x: 410
+      y: 240
+      type: 'link'
+      path: '/Applications'
+    - x: 130
+      y: 240
+      type: 'file'
+linux:
+  artifactName: 'marktext-linux-${version}.${ext}'
+  executableName: 'marktext'
+  description: 'A simple and elegant open-source markdown editor that focused on speed and usability.'
+  maintainer: 'MarkText Contributors'
+  category: 'Office;TextEditor;Utility'
+  mimeTypes:
+    - 'text/markdown'
+  icon: 'static/icon.png'
+  desktop:
+    entry:
+      StartupWMClass: 'marktext'
+      Keywords: 'marktext;'
+  target:
+    - AppImage
+    - snap
+    - deb
+    - rpm
+    - tar.gz
   fileAssociations:
-  - ext: "md"
-    name: "Markdown"
-    description: "Markdown document"
-  - ext: "markdown"
-    name: "Markdown"
-    description: "Markdown document"
-  - ext: "mmd"
-    name: "Markdown"
-    description: "Markdown document"
-  - ext: "mdown"
-    name: "Markdown"
-    description: "Markdown document"
-  - ext: "mdtxt"
-    name: "Markdown"
-    description: "Markdown document"
-  - ext: "mdtext"
-    name: "Markdown"
-    description: "Markdown document"
-deb:
-  # Custom dependencies:
-  depends:
-  # keytar
-  - "libsecret-1-0"
-  # keyboard-layout
-  - "libx11-xcb1"
-  - "libxkbfile1"
-  # fontmanager
-  - "libfontconfig1"
-  fpm:
-  # Expat := MIT like
-  - "--license=Expat"
-rpm:
-  # Custom dependencies:
-  depends:
-  # keytar
-  - "libsecret"
-  # keyboard-layout
-  - "libX11-xcb"
-  - "libxkbfile"
-  # fontmanager
-  - "fontconfig"
+    - ext: 'md'
+      name: 'Markdown'
+      description: 'Markdown document'
+    - ext: 'markdown'
+      name: 'Markdown'
+      description: 'Markdown document'
+    - ext: 'mmd'
+      name: 'Markdown'
+      description: 'Markdown document'
+    - ext: 'mdown'
+      name: 'Markdown'
+      description: 'Markdown document'
+    - ext: 'mdtxt'
+      name: 'Markdown'
+      description: 'Markdown document'
+    - ext: 'mdtext'
+      name: 'Markdown'
+      description: 'Markdown document'

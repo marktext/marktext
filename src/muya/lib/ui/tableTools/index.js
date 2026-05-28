@@ -1,6 +1,6 @@
 import BaseFloat from '../baseFloat'
 import { patch, h } from '../../parser/render/snabbdom'
-import { toolList } from './config'
+import { getToolList } from './config'
 
 import './index.css'
 
@@ -17,7 +17,7 @@ const defaultOptions = {
 class TableBarTools extends BaseFloat {
   static pluginName = 'tableBarTools'
 
-  constructor (muya, options = {}) {
+  constructor(muya, options = {}) {
     const name = 'ag-table-bar-tools'
     const opts = Object.assign({}, defaultOptions, options)
     super(muya, name, opts)
@@ -30,7 +30,7 @@ class TableBarTools extends BaseFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-table-bar', ({ reference, tableInfo }) => {
@@ -44,8 +44,11 @@ class TableBarTools extends BaseFloat {
     })
   }
 
-  render () {
+  render() {
     const { tableInfo, oldVnode, tableBarContainer } = this
+    const { muya } = this
+    const t = muya.options.t || (key => key)
+    const toolList = getToolList(t)
     const renderArray = toolList[tableInfo.barType]
     const children = renderArray.map((item) => {
       const { label } = item
@@ -73,7 +76,7 @@ class TableBarTools extends BaseFloat {
     this.oldVnode = vnode
   }
 
-  selectItem (event, item) {
+  selectItem(event, item) {
     event.preventDefault()
     event.stopPropagation()
 

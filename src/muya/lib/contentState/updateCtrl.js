@@ -15,17 +15,21 @@ const INLINE_UPDATE_FRAGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i')
 
-const updateCtrl = ContentState => {
-  ContentState.prototype.checkSameMarkerOrDelimiter = function (list, markerOrDelimiter) {
+const updateCtrl = (ContentState) => {
+  ContentState.prototype.checkSameMarkerOrDelimiter = function(list, markerOrDelimiter) {
     if (!/ol|ul/.test(list.type)) return false
     return list.children[0].bulletMarkerOrDelimiter === markerOrDelimiter
   }
 
-  ContentState.prototype.checkNeedRender = function (cursor = this.cursor) {
+  ContentState.prototype.checkNeedRender = function(cursor = this.cursor) {
     const { labels } = this.stateRender
     const { start: cStart, end: cEnd, anchor, focus } = cursor
     const startBlock = this.getBlock(cStart ? cStart.key : anchor.key)
     const endBlock = this.getBlock(cEnd ? cEnd.key : focus.key)
+    // Cursor may still reference a block that a prior render removed. There is
+    // nothing left to re-tokenize, so skip the check instead of crashing on
+    // null.text — see issues #3674, #3842, #4032, #4072, #4122, #4143, #4162.
+    if (!startBlock || !endBlock) return false
     const startOffset = cStart ? cStart.offset : anchor.offset
     const endOffset = cEnd ? cEnd.offset : focus.offset
     const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/
@@ -50,9 +54,7 @@ const updateCtrl = ContentState => {
       if (NO_NEED_TOKEN_REG.test(token.type)) continue
       const { start, end } = token.range
       const textLen = endBlock.text.length
-      if (
-        conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [endOffset, endOffset])
-      ) {
+      if (conflict([Math.max(0, start - 1), Math.min(textLen, end + 1)], [endOffset, endOffset])) {
         return true
       }
     }
@@ -63,7 +65,7 @@ const updateCtrl = ContentState => {
   /**
    * block must be span block.
    */
-  ContentState.prototype.checkInlineUpdate = function (block) {
+  ContentState.prototype.checkInlineUpdate = function(block) {
     // table cell can not have blocks in it
     if (/figure/.test(block.type)) {
       return false
@@ -80,23 +82,33 @@ const updateCtrl = ContentState => {
     }
     const listItem = this.getParent(block)
     const [
-      match, bullet, tasklist, order, atxHeader,
-      setextHeader, blockquote, indentCode, footnote, hr
+      match,
+      bullet,
+      tasklist,
+      order,
+      atxHeader,
+      setextHeader,
+      blockquote,
+      indentCode,
+      footnote,
+      hr
     ] = text.match(INLINE_UPDATE_REG) || []
     const { footnote: isSupportFootnote } = this.muya.options
 
     switch (true) {
-      case (!!hr && new Set(hr.split('').filter(i => /\S/.test(i))).size === 1):
+      case !!hr && new Set(hr.split('').filter((i) => /\S/.test(i))).size === 1:
         return this.updateThematicBreak(block, hr, line)
 
-      case !!bullet:
+      // Prevents nested lists from being created when updating a list item, which leads to undefined behavior.
+      case !!bullet && !listItem:
         return this.updateList(block, 'bullet', bullet, line)
 
       // only `bullet` list item can be update to `task` list item
       case !!tasklist && listItem && listItem.listItemType === 'bullet':
         return this.updateTaskListItem(block, 'tasklist', tasklist)
 
-      case !!order:
+      // Prevents nested lists from being created when updating a list item, which leads to undefined behavior.
+      case !!order && !listItem:
         return this.updateList(block, 'order', order, line)
 
       case !!atxHeader:
@@ -121,7 +133,7 @@ const updateCtrl = ContentState => {
   }
 
   // Thematic break
-  ContentState.prototype.updateThematicBreak = function (block, marker, line) {
+  ContentState.prototype.updateThematicBreak = function(block, marker, line) {
     // If the block is already thematic break, no need to update.
     if (block.type === 'hr') return null
     const text = line.text
@@ -167,12 +179,13 @@ const updateCtrl = ContentState => {
     const endOffset = end.offset - preParagraphLength
     this.cursor = {
       start: { key, offset: startOffset },
-      end: { key, offset: endOffset }
+      end: { key, offset: endOffset },
+      isEdit: true
     }
     return thematicBlock
   }
 
-  ContentState.prototype.updateList = function (block, type, marker = '', line) {
+  ContentState.prototype.updateList = function(block, type, marker = '', line) {
     const cleanMarker = marker ? marker.trim() : null
     const { preferLooseListItem } = this.muya.options
     const wrapperTag = type === 'order' ? 'ol' : 'ul' // `bullet` => `ul` and `order` => `ol`
@@ -223,7 +236,7 @@ const updateCtrl = ContentState => {
 
     let bulletMarkerOrDelimiter
     if (type === 'order') {
-      bulletMarkerOrDelimiter = (cleanMarker && cleanMarker.length >= 2) ? cleanMarker.slice(-1) : '.'
+      bulletMarkerOrDelimiter = cleanMarker && cleanMarker.length >= 2 ? cleanMarker.slice(-1) : '.'
     } else {
       const { bulletListMarker } = this.muya.options
       bulletMarkerOrDelimiter = marker ? marker.charAt(0) : bulletListMarker
@@ -240,27 +253,24 @@ const updateCtrl = ContentState => {
     ) {
       this.appendChild(preSibling, newListItemBlock)
       const partChildren = nextSibling.children.splice(0)
-      partChildren.forEach(b => this.appendChild(preSibling, b))
+      partChildren.forEach((b) => this.appendChild(preSibling, b))
       this.removeBlock(nextSibling)
       this.removeBlock(block)
-      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
-      preSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
-    } else if (
-      preSibling &&
-      this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter)
-    ) {
+      const isLooseListItem = preSibling.children.some((c) => c.isLooseListItem)
+      preSibling.children.forEach((c) => (c.isLooseListItem = isLooseListItem))
+    } else if (preSibling && this.checkSameMarkerOrDelimiter(preSibling, bulletMarkerOrDelimiter)) {
       this.appendChild(preSibling, newListItemBlock)
       this.removeBlock(block)
-      const isLooseListItem = preSibling.children.some(c => c.isLooseListItem)
-      preSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
+      const isLooseListItem = preSibling.children.some((c) => c.isLooseListItem)
+      preSibling.children.forEach((c) => (c.isLooseListItem = isLooseListItem))
     } else if (
       nextSibling &&
       this.checkSameMarkerOrDelimiter(nextSibling, bulletMarkerOrDelimiter)
     ) {
       this.insertBefore(newListItemBlock, nextSibling.children[0])
       this.removeBlock(block)
-      const isLooseListItem = nextSibling.children.some(c => c.isLooseListItem)
-      nextSibling.children.forEach(c => (c.isLooseListItem = isLooseListItem))
+      const isLooseListItem = nextSibling.children.some((c) => c.isLooseListItem)
+      nextSibling.children.forEach((c) => (c.isLooseListItem = isLooseListItem))
     } else {
       // Create a new list when changing list type, bullet or list delimiter
       const listBlock = this.createBlock(wrapperTag, {
@@ -291,17 +301,18 @@ const updateCtrl = ContentState => {
       end: {
         key,
         offset: Math.max(0, endOffset - delta)
-      }
+      },
+      isEdit: true
     }
     if (TASK_LIST_REG.test(listItemText)) {
-      const [, , tasklist, , , ,] = listItemText.match(INLINE_UPDATE_REG) || [] // eslint-disable-line comma-spacing
+      const [, , tasklist, , , ,] = listItemText.match(INLINE_UPDATE_REG) || []
       return this.updateTaskListItem(block, 'tasklist', tasklist)
     } else {
       return block
     }
   }
 
-  ContentState.prototype.updateTaskListItem = function (block, type, marker = '') {
+  ContentState.prototype.updateTaskListItem = function(block, type, marker = '') {
     const { preferLooseListItem } = this.muya.options
     const parent = this.getParent(block)
     const grandpa = this.getParent(parent)
@@ -324,7 +335,9 @@ const updateCtrl = ContentState => {
         listType: 'task'
       })
 
-      this.isFirstChild(parent) ? this.insertBefore(taskListWrapper, grandpa) : this.insertAfter(taskListWrapper, grandpa)
+      this.isFirstChild(parent)
+        ? this.insertBefore(taskListWrapper, grandpa)
+        : this.insertAfter(taskListWrapper, grandpa)
       this.removeBlock(parent)
       this.appendChild(taskListWrapper, parent)
     } else {
@@ -362,13 +375,14 @@ const updateCtrl = ContentState => {
       end: {
         key: end.key,
         offset: Math.max(0, end.offset - marker.length)
-      }
+      },
+      isEdit: true
     }
     return taskListWrapper || grandpa
   }
 
   // ATX heading doesn't support soft line break and hard line break.
-  ContentState.prototype.updateAtxHeader = function (block, header, line) {
+  ContentState.prototype.updateAtxHeader = function(block, header, line) {
     const newType = `h${header.length}`
     const headingStyle = 'atx'
     if (block.type === newType && block.headingStyle === headingStyle) {
@@ -412,16 +426,31 @@ const updateCtrl = ContentState => {
 
     this.removeBlock(block)
 
+    // ISSUE: When pressing Shift + Enter in a paragraph and then attempting to create a header
+    // If the offset of start > length of text, the cursor range will be out of bounds and cause an error.
+    // Even for <= 5, it will set it to the END of the text content, which is not expected.
+    // We need to not take the offset from the START of the selection, but of the actual header line
     const { start, end } = this.cursor
+
     const key = atxBlock.children[0].key
     this.cursor = {
-      start: { key, offset: start.offset },
-      end: { key, offset: end.offset }
+      start: {
+        key,
+        offset: start.offset <= atxBlock.children[0].text.length ? start.offset : header.length + 1
+      },
+      end: {
+        key,
+        offset:
+          end.offset <= atxBlock.children[0].text.length
+            ? end.offset
+            : atxBlock.children[0].text.length
+      },
+      isEdit: true
     }
     return atxBlock
   }
 
-  ContentState.prototype.updateSetextHeader = function (block, marker, line) {
+  ContentState.prototype.updateSetextHeader = function(block, marker, line) {
     const newType = /=/.test(marker) ? 'h1' : 'h2'
     const headingStyle = 'setext'
     if (block.type === newType && block.headingStyle === headingStyle) {
@@ -467,13 +496,14 @@ const updateCtrl = ContentState => {
 
     this.cursor = {
       start: { key, offset },
-      end: { key, offset }
+      end: { key, offset },
+      isEdit: true
     }
 
     return setextBlock
   }
 
-  ContentState.prototype.updateBlockQuote = function (block, line) {
+  ContentState.prototype.updateBlockQuote = function(block, line) {
     const text = line.text
     const lines = text.split('\n')
     const preParagraphLines = []
@@ -523,12 +553,13 @@ const updateCtrl = ContentState => {
 
     this.cursor = {
       start: { key, offset: Math.max(0, start.offset - 1) },
-      end: { key, offset: Math.max(0, end.offset - 1) }
+      end: { key, offset: Math.max(0, end.offset - 1) },
+      isEdit: true
     }
     return quoteBlock
   }
 
-  ContentState.prototype.updateIndentCode = function (block, line) {
+  ContentState.prototype.updateIndentCode = function(block, line) {
     const lang = ''
     const codeBlock = this.createBlock('code', {
       lang
@@ -581,12 +612,13 @@ const updateCtrl = ContentState => {
     const { start, end } = this.cursor
     this.cursor = {
       start: { key, offset: start.offset - 4 },
-      end: { key, offset: end.offset - 4 }
+      end: { key, offset: end.offset - 4 },
+      isEdit: true
     }
     return preBlock
   }
 
-  ContentState.prototype.updateToParagraph = function (block, line) {
+  ContentState.prototype.updateToParagraph = function(block, line) {
     if (/^h\d$/.test(block.type) && block.headingStyle === 'setext') {
       return null
     }
@@ -600,7 +632,8 @@ const updateCtrl = ContentState => {
       const key = newBlock.children[0].key
       this.cursor = {
         start: { key, offset: start.offset },
-        end: { key, offset: end.offset }
+        end: { key, offset: end.offset },
+        isEdit: true
       }
       return block
     }

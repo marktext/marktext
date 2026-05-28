@@ -2,13 +2,13 @@
 import '@marktext/file-icons/build/index.css'
 import fileIcons from '@marktext/file-icons'
 
-fileIcons.getClassByName = function (name) {
+fileIcons.getClassByName = function(name) {
   const icon = fileIcons.matchName(name)
 
   return icon ? icon.getClass(0, false) : null
 }
 
-fileIcons.getClassByLanguage = function (lang) {
+fileIcons.getClassByLanguage = function(lang) {
   const icon = fileIcons.matchLanguage(lang)
 
   return icon ? icon.getClass(0, false) : null

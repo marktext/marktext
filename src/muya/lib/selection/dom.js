@@ -1,5 +1,8 @@
 import {
-  LOWERCASE_TAGS, CLASS_OR_ID, blockContainerElementNames, emptyElementNames
+  LOWERCASE_TAGS,
+  CLASS_OR_ID,
+  blockContainerElementNames,
+  emptyElementNames
 } from '../config'
 const CHOP_TEXT_REG = /(\*{1,3})([^*]+)(\1)/g
 
@@ -11,7 +14,7 @@ export const getTextContent = (node, blackList) => {
   }
 
   let text = ''
-  if (blackList.some(className => node.classList && node.classList.contains(className))) {
+  if (blackList.some((className) => node.classList && node.classList.contains(className))) {
     return text
   }
 
@@ -50,15 +53,18 @@ export const getOffsetOfParagraph = (node, paragraph) => {
   do {
     preSibling = preSibling.previousSibling
     if (preSibling) {
-      offset += getTextContent(preSibling, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]).length
+      offset += getTextContent(preSibling, [
+        CLASS_OR_ID.AG_MATH_RENDER,
+        CLASS_OR_ID.AG_RUBY_RENDER
+      ]).length
     }
   } while (preSibling)
-  return (node === paragraph || node.parentNode === paragraph)
+  return node === paragraph || node.parentNode === paragraph
     ? offset
     : offset + getOffsetOfParagraph(node.parentNode, paragraph)
 }
 
-export const findNearestParagraph = node => {
+export const findNearestParagraph = (node) => {
   if (!node) {
     return null
   }
@@ -69,24 +75,28 @@ export const findNearestParagraph = node => {
   return null
 }
 
-export const findOutMostParagraph = node => {
+export const findOutMostParagraph = (node) => {
   do {
     const parentNode = node.parentNode
     if (isMuyaEditorElement(parentNode) && isAganippeParagraph(node)) return node
     node = parentNode
   } while (node)
+  return null
 }
 
-export const isAganippeParagraph = element => {
+export const isAganippeParagraph = (element) => {
   return element && element.classList && element.classList.contains(CLASS_OR_ID.AG_PARAGRAPH)
 }
 
-export const isBlockContainer = element => {
-  return element && element.nodeType !== 3 &&
-  blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
+export const isBlockContainer = (element) => {
+  return (
+    element &&
+    element.nodeType !== 3 &&
+    blockContainerElementNames.indexOf(element.nodeName.toLowerCase()) !== -1
+  )
 }
 
-export const isMuyaEditorElement = element => {
+export const isMuyaEditorElement = (element) => {
   return element && element.id === CLASS_OR_ID.AG_EDITOR_ID
 }
 
@@ -112,17 +122,17 @@ export const traverseUp = (current, testElementFunction) => {
   return false
 }
 
-export const getFirstSelectableLeafNode = element => {
+export const getFirstSelectableLeafNode = (element) => {
   while (element && element.firstChild) {
     element = element.firstChild
   }
 
   // We don't want to set the selection to an element that can't have children, this messes up Gecko.
-  element = traverseUp(element, el => {
+  element = traverseUp(element, (el) => {
     return emptyElementNames.indexOf(el.nodeName.toLowerCase()) === -1
   })
   // Selecting at the beginning of a table doesn't work in PhantomJS.
-  if (element.nodeName.toLowerCase() === LOWERCASE_TAGS.table) {
+  if (element && element.nodeName.toLowerCase() === LOWERCASE_TAGS.table) {
     const firstCell = element.querySelector('th, td')
     if (firstCell) {
       element = firstCell
@@ -131,8 +141,8 @@ export const getFirstSelectableLeafNode = element => {
   return element
 }
 
-export const getClosestBlockContainer = node => {
-  return traverseUp(node, node => {
+export const getClosestBlockContainer = (node) => {
+  return traverseUp(node, (node) => {
     return isBlockContainer(node) || isMuyaEditorElement(node)
   })
 }
@@ -154,7 +164,7 @@ export const getCursorPositionWithinMarkedText = (markedText, cursorOffset) => {
     }
   } while (match)
 
-  chunks.forEach(chunk => {
+  chunks.forEach((chunk) => {
     const { index, leftSymbol, rightSymbol, lastIndex } = chunk
     if (cursorOffset > index && cursorOffset < lastIndex) {
       result = { type: 'IN', info: leftSymbol } // rightSymbol is also ok

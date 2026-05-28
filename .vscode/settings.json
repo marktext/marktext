@@ -1,21 +1,18 @@
 {
-  "editor.insertSpaces": true,
-  "editor.tabSize": 2,
-  // Issues with unit test files
-  //"editor.trimAutoWhitespace": false,
-  "files.eol": "\n",
-  "files.insertFinalNewline": true,
-
-  "search.exclude": {
-    "**/.git": true,
-    "**/build": true,
-    "**/node_modules": true,
-    "**/dist": true
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "eslint.format.enable": true,
+  "[javascript][typescript][vue]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
-  "files.watcherExclude": {
-    "**/.git": true,
-    "**/build": true,
-    "**/node_modules": true,
-    "**/dist": true
-  }
+  "cSpell.words": [
+    "contenteditable",
+    "frontmatter",
+    "Häusler",
+    "hfelix",
+    "Jocs",
+    "marktext",
+    "muya",
+    "Tkaixiang"
+  ]
 }

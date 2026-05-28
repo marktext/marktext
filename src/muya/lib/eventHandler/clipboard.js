@@ -1,18 +1,18 @@
 class Clipboard {
-  constructor (muya) {
+  constructor(muya) {
     this.muya = muya
-    this._copyType = 'normal' // `normal` or `copyAsMarkdown` or `copyAsHtml`
+    this._copyType = 'normal' // `normal` or `copyAsRich` or `copyAsHtml`
     this._pasteType = 'normal' // `normal` or `pasteAsPlainText`
     this._copyInfo = null
     this.listen()
   }
 
-  listen () {
+  listen() {
     const { container, eventCenter, contentState } = this.muya
-    const docPasteHandler = event => {
+    const docPasteHandler = (event) => {
       contentState.docPasteHandler(event)
     }
-    const docCopyCutHandler = event => {
+    const docCopyCutHandler = (event) => {
       contentState.docCopyHandler(event)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
@@ -20,7 +20,7 @@ class Clipboard {
         contentState.docCutHandler(event)
       }
     }
-    const copyCutHandler = event => {
+    const copyCutHandler = (event) => {
       contentState.copyHandler(event, this._copyType, this._copyInfo)
       if (event.type === 'cut') {
         // when user use `cut` function, the dom has been deleted by default.
@@ -29,7 +29,7 @@ class Clipboard {
       }
       this._copyType = 'normal'
     }
-    const pasteHandler = event => {
+    const pasteHandler = (event) => {
       contentState.pasteHandler(event, this._pasteType)
       this._pasteType = 'normal'
       this.muya.dispatchChange()
@@ -45,17 +45,17 @@ class Clipboard {
 
   // TODO: `document.execCommand` is deprecated!
 
-  copyAsMarkdown () {
-    this._copyType = 'copyAsMarkdown'
+  copyAsRich() {
+    this._copyType = 'copyAsRich'
     document.execCommand('copy')
   }
 
-  copyAsHtml () {
+  copyAsHtml() {
     this._copyType = 'copyAsHtml'
     document.execCommand('copy')
   }
 
-  pasteAsPlainText () {
+  pasteAsPlainText() {
     this._pasteType = 'pasteAsPlainText'
     document.execCommand('paste')
   }
@@ -65,7 +65,7 @@ class Clipboard {
    * @param {string|object} type copyBlock or copyCodeContent
    * @param {string|object} info  is the block key if it's string, or block if it's object
    */
-  copy (type, info) {
+  copy(type, info) {
     this._copyType = type
     this._copyInfo = info
     document.execCommand('copy')

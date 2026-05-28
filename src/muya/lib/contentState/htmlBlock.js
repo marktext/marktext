@@ -4,7 +4,7 @@ import { inlineRules } from '../parser/rules'
 const HTML_BLOCK_REG = /^<([a-zA-Z\d-]+)(?=\s|>)[^<>]*?>$/
 
 const htmlBlock = ContentState => {
-  ContentState.prototype.createHtmlBlock = function (code) {
+  ContentState.prototype.createHtmlBlock = function(code) {
     const block = this.createBlock('figure')
     block.functionType = 'html'
     const { preBlock, preview } = this.createPreAndPreview('html', code)
@@ -13,7 +13,7 @@ const htmlBlock = ContentState => {
     return block
   }
 
-  ContentState.prototype.initHtmlBlock = function (block) {
+  ContentState.prototype.initHtmlBlock = function(block) {
     let htmlContent = ''
     const text = block.children[0].text
     const matches = inlineRules.html_tag.exec(text)
@@ -49,7 +49,7 @@ const htmlBlock = ContentState => {
     return preBlock // preBlock
   }
 
-  ContentState.prototype.updateHtmlBlock = function (block) {
+  ContentState.prototype.updateHtmlBlock = function(block) {
     const { type } = block
     if (type !== 'li' && type !== 'p') return false
     const { text } = block.children[0]

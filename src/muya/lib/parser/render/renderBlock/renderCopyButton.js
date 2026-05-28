@@ -1,7 +1,7 @@
 import { h } from '../snabbdom'
 import copyIcon from '../../../assets/pngicon/copy/2.png'
 
-const renderCopyButton = () => {
+const renderCopyButton = (t) => {
   const selector = 'a.ag-code-copy'
   const iconVnode = h('i.icon', h('i.icon-inner', {
     style: {
@@ -12,7 +12,7 @@ const renderCopyButton = () => {
 
   return h(selector, {
     attrs: {
-      title: 'Copy content',
+      title: t('editor.copyContent'),
       contenteditable: 'false'
     }
   }, iconVnode)

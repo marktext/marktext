@@ -4,8 +4,8 @@ import { HAS_TEXT_BLOCK_REG, CLASS_OR_ID } from '../config'
 import { getParentCheckBox } from '../utils/getParentCheckBox'
 import { cumputeCheckboxStatus } from '../utils/cumputeCheckBoxStatus'
 
-const clickCtrl = ContentState => {
-  ContentState.prototype.clickHandler = function (event) {
+const clickCtrl = (ContentState) => {
+  ContentState.prototype.clickHandler = function(event) {
     const { eventCenter } = this.muya
     const { target } = event
     if (isMuyaEditorElement(target)) {
@@ -21,7 +21,10 @@ const clickCtrl = ContentState => {
       if (event.clientY > rect.top + rect.height) {
         let needToInsertNewParagraph = false
         if (lastBlock.type === 'span') {
-          if (/atxLine|paragraphContent/.test(lastBlock.functionType) && /\S/.test(lastBlock.text)) {
+          if (
+            /atxLine|paragraphContent/.test(lastBlock.functionType) &&
+            /\S/.test(lastBlock.text)
+          ) {
             needToInsertNewParagraph = true
           }
           if (!/atxLine|paragraphContent/.test(lastBlock.functionType)) {
@@ -39,7 +42,8 @@ const clickCtrl = ContentState => {
           const offset = 0
           this.cursor = {
             start: { key, offset },
-            end: { key, offset }
+            end: { key, offset },
+            isEdit: true
           }
 
           return this.render()
@@ -58,12 +62,12 @@ const clickCtrl = ContentState => {
         hasSameParent = startOutBlock === endOutBlock
       }
       // show the muya-front-menu only when the cursor in the same paragraph
-      if (target.closest('.ag-front-icon') && hasSameParent) {
+      if (target.closest('.ag-front-icon-button') && hasSameParent) {
         const currentBlock = this.findOutMostBlock(startBlock)
-        const frontIcon = target.closest('.ag-front-icon')
+        const frontIcon = target.closest('.ag-front-icon-button')
         const rect = frontIcon.getBoundingClientRect()
         const reference = {
-          getBoundingClientRect () {
+          getBoundingClientRect() {
             return rect
           },
           clientWidth: rect.width,
@@ -71,8 +75,18 @@ const clickCtrl = ContentState => {
           id: currentBlock.key
         }
         this.selectedBlock = currentBlock
-        eventCenter.dispatch('muya-front-menu', { reference, outmostBlock: currentBlock, startBlock, endBlock })
+        eventCenter.dispatch('muya-front-menu', {
+          reference,
+          outmostBlock: currentBlock,
+          startBlock,
+          endBlock
+        })
         return this.partialRender()
+      } else if (target.closest('.ag-copy-header-link') && hasSameParent) {
+        const currentBlock = this.findOutMostBlock(startBlock)
+        eventCenter.dispatch('heading-copy-link', {
+          key: currentBlock.key
+        })
       }
     }
     const { start, end } = selection.getCursorRange()
@@ -151,6 +165,7 @@ const clickCtrl = ContentState => {
     let needRender = false
     // is show format float box?
     if (
+      block &&
       start.key === end.key &&
       start.offset !== end.offset &&
       HAS_TEXT_BLOCK_REG.test(block.type) &&
@@ -171,17 +186,19 @@ const clickCtrl = ContentState => {
     }
 
     // change active status when paragraph changed
-    if (
-      start.key !== this.cursor.start.key ||
-      end.key !== this.cursor.end.key
-    ) {
+    if (start.key !== this.cursor.start.key || end.key !== this.cursor.end.key) {
       needRender = true
     }
 
-    const needMarkedUpdate = this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
+    const needMarkedUpdate =
+      this.checkNeedRender(this.cursor) || this.checkNeedRender({ start, end })
 
     if (needRender) {
-      this.cursor = { start, end }
+      this.cursor = {
+        start,
+        end,
+        isEdit: false
+      }
       return this.partialRender()
     } else if (needMarkedUpdate) {
       // Fix: whole select can not be canceled #613
@@ -195,18 +212,22 @@ const clickCtrl = ContentState => {
         return this.partialRender()
       })
     } else {
-      this.cursor = { start, end }
+      this.cursor = {
+        start,
+        end,
+        isEdit: false
+      }
     }
   }
 
-  ContentState.prototype.setCheckBoxState = function (checkbox, checked) {
+  ContentState.prototype.setCheckBoxState = function(checkbox, checked) {
     checkbox.checked = checked
     const block = this.getBlock(checkbox.id)
     block.checked = checked
     checkbox.classList.toggle(CLASS_OR_ID.AG_CHECKBOX_CHECKED)
   }
 
-  ContentState.prototype.updateParentsCheckBoxState = function (checkbox) {
+  ContentState.prototype.updateParentsCheckBoxState = function(checkbox) {
     let parent = getParentCheckBox(checkbox)
     while (parent !== null) {
       const checked = cumputeCheckboxStatus(parent)
@@ -219,8 +240,10 @@ const clickCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.updateChildrenCheckBoxState = function (checkbox, checked) {
-    const checkboxes = checkbox.parentElement.querySelectorAll(`input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`)
+  ContentState.prototype.updateChildrenCheckBoxState = function(checkbox, checked) {
+    const checkboxes = checkbox.parentElement.querySelectorAll(
+      `input ~ ul .${CLASS_OR_ID.AG_TASK_LIST_ITEM_CHECKBOX}`
+    )
     const len = checkboxes.length
     for (let i = 0; i < len; i++) {
       const checkbox = checkboxes[i]
@@ -231,7 +254,7 @@ const clickCtrl = ContentState => {
   }
 
   // handle task list item checkbox click
-  ContentState.prototype.listItemCheckBoxClick = function (checkbox) {
+  ContentState.prototype.listItemCheckBoxClick = function(checkbox) {
     const { checked } = checkbox
     this.setCheckBoxState(checkbox, checked)
 
@@ -247,7 +270,11 @@ const clickCtrl = ContentState => {
     const firstEditableBlock = this.firstInDescendant(parentBlock)
     const { key } = firstEditableBlock
     const offset = 0
-    this.cursor = { start: { key, offset }, end: { key, offset } }
+    this.cursor = {
+      start: { key, offset },
+      end: { key, offset },
+      isEdit: true
+    }
     return this.partialRender()
   }
 }

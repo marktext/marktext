@@ -1,6 +1,6 @@
 import { CLASS_OR_ID } from '../../../config'
 
-export default function header (h, cursor, block, token, outerClass) {
+export default function header(h, cursor, block, token, outerClass) {
   const { content } = token
   const { start, end } = token.range
   const className = this.getClassName(outerClass, block, {

@@ -1,0 +1,394 @@
+# Third Party Notices
+-------------------------------------------------
+
+This file contains all third-party packages that are bundled and shipped with MarkText.
+
+-------------------------------------------------
+# Summary
+-------------------------------------------------
+
+1. @electron-toolkit/preload (MIT)
+2. @electron-toolkit/utils (MIT)
+3. @electron/remote (MIT)
+4. @element-plus/icons-vue (MIT)
+5. @hfelix/electron-localshortcut (MIT)
+6. @marktext/file-icons (MIT)
+7. @octokit/rest (MIT)
+8. @popperjs/core (MIT)
+9. @vscode/ripgrep (MIT)
+10. arg (MIT)
+11. axios (MIT)
+12. ced ((ISC AND Apache-2.0))
+13. chokidar (MIT)
+14. codemirror (MIT)
+15. command-exists (MIT)
+16. deep-equal (MIT)
+17. dom-autoscroller (MIT)
+18. dompurify ((MPL-2.0 OR Apache-2.0))
+19. dragula (MIT)
+20. electron-log (MIT)
+21. electron-store (MIT)
+22. electron-updater (MIT)
+23. electron-window-state (MIT)
+24. element-plus (MIT)
+25. element-resize-detector (MIT)
+26. execall (MIT)
+27. flowchart.js (MIT)
+28. font-list (MIT)
+29. fs-extra (MIT)
+30. fuzzaldrin (MIT)
+31. github-markdown-css (MIT)
+32. html-tags (MIT)
+33. iso-639-1 (MIT)
+34. joplin-turndown-plugin-gfm (MIT)
+35. katex (MIT)
+36. keytar (MIT)
+37. languine (MIT)
+38. lodash (MIT)
+39. marktext (MIT*)
+40. mermaid (MIT)
+41. mitt (MIT)
+42. native-keymap (MIT)
+43. pinia (MIT)
+44. prismjs (MIT)
+45. snabbdom-to-html (MIT)
+46. snabbdom (MIT)
+47. snapsvg-cjs (MIT)
+48. turndown (MIT)
+49. underscore (MIT)
+50. vega-embed (BSD-3-Clause)
+51. vite-plugin-prismjs (MIT)
+52. vue-i18n (MIT)
+53. vue-router (MIT)
+54. webfontloader (Apache-2.0)
+
+
+-------------------------------------------------
+# Licenses
+-------------------------------------------------
+
+# @electron-toolkit/preload (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @electron-toolkit/utils (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @electron/remote (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @element-plus/icons-vue (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @hfelix/electron-localshortcut (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @marktext/file-icons (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @octokit/rest (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @popperjs/core (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# @vscode/ripgrep (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# arg (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# axios (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# ced ((ISC AND Apache-2.0))
+-------------------------------------------------
+undefined
+
+
+
+# chokidar (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# codemirror (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# command-exists (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# deep-equal (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# dom-autoscroller (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# dompurify ((MPL-2.0 OR Apache-2.0))
+-------------------------------------------------
+undefined
+
+
+
+# dragula (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# electron-log (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# electron-store (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# electron-updater (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# electron-window-state (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# element-plus (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# element-resize-detector (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# execall (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# flowchart.js (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# font-list (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# fs-extra (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# fuzzaldrin (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# github-markdown-css (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# html-tags (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# iso-639-1 (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# joplin-turndown-plugin-gfm (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# katex (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# keytar (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# languine (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# lodash (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# marktext (MIT*)
+-------------------------------------------------
+undefined
+
+
+
+# mermaid (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# mitt (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# native-keymap (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# pinia (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# prismjs (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# snabbdom-to-html (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# snabbdom (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# snapsvg-cjs (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# turndown (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# underscore (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# vega-embed (BSD-3-Clause)
+-------------------------------------------------
+undefined
+
+
+
+# vite-plugin-prismjs (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# vue-i18n (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# vue-router (MIT)
+-------------------------------------------------
+undefined
+
+
+
+# webfontloader (Apache-2.0)
+-------------------------------------------------
+undefined
+
+
+
+

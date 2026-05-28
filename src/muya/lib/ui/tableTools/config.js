@@ -1,34 +1,36 @@
-export const toolList = {
-  left: [{
-    label: 'Insert Row Above',
-    action: 'insert',
-    location: 'previous',
-    target: 'row'
-  }, {
-    label: 'Insert Row Below',
-    action: 'insert',
-    location: 'next',
-    target: 'row'
-  }, {
-    label: 'Remove Row',
-    action: 'remove',
-    location: 'current',
-    target: 'row'
-  }],
-  bottom: [{
-    label: 'Insert Column Left',
-    action: 'insert',
-    location: 'left',
-    target: 'column'
-  }, {
-    label: 'Insert Column Right',
-    action: 'insert',
-    location: 'right',
-    target: 'column'
-  }, {
-    label: 'Remove Column',
-    action: 'remove',
-    location: 'current',
-    target: 'column'
-  }]
+export const getToolList = (t) => {
+  return {
+    left: [{
+      label: t('editor.insertRowAbove'),
+      action: 'insert',
+      location: 'previous',
+      target: 'row'
+    }, {
+      label: t('editor.insertRowBelow'),
+      action: 'insert',
+      location: 'next',
+      target: 'row'
+    }, {
+      label: t('editor.removeRow'),
+      action: 'remove',
+      location: 'current',
+      target: 'row'
+    }],
+    bottom: [{
+      label: t('editor.insertColumnLeft'),
+      action: 'insert',
+      location: 'left',
+      target: 'column'
+    }, {
+      label: t('editor.insertColumnRight'),
+      action: 'insert',
+      location: 'right',
+      target: 'column'
+    }, {
+      label: t('editor.removeColumn'),
+      action: 'remove',
+      location: 'current',
+      target: 'column'
+    }]
+  }
 }

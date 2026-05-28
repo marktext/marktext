@@ -6,7 +6,7 @@ import './index.css'
 class EmojiPicker extends BaseScrollFloat {
   static pluginName = 'emojiPicker'
 
-  constructor (muya) {
+  constructor(muya) {
     const name = 'ag-emoji-picker'
     super(muya, name)
     this._renderObj = null
@@ -17,11 +17,11 @@ class EmojiPicker extends BaseScrollFloat {
     this.listen()
   }
 
-  get renderObj () {
+  get renderObj() {
     return this._renderObj
   }
 
-  set renderObj (obj) {
+  set renderObj(obj) {
     this._renderObj = obj
     const renderArray = []
     Object.keys(obj).forEach(key => {
@@ -35,7 +35,7 @@ class EmojiPicker extends BaseScrollFloat {
     }
   }
 
-  listen () {
+  listen() {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-emoji-picker', ({ reference, emojiNode }) => {
@@ -57,7 +57,7 @@ class EmojiPicker extends BaseScrollFloat {
     })
   }
 
-  render () {
+  render() {
     const { scrollElement, _renderObj, activeItem, oldVnode } = this
     const children = Object.keys(_renderObj).map(category => {
       const title = h('div.title', category)
@@ -87,12 +87,12 @@ class EmojiPicker extends BaseScrollFloat {
     this.oldVnode = vnode
   }
 
-  getItemElement (item) {
+  getItemElement(item) {
     const label = item.aliases[0]
     return this.floatBox.querySelector(`[data-label="${label}"]`)
   }
 
-  destroy () {
+  destroy() {
     super.destroy()
     this.emoji.destroy()
   }

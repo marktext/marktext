@@ -1,5 +1,5 @@
-import { sanitize, isValidAttribute } from 'dompurify'
+import DOMPurify from 'dompurify'
 
-export { isValidAttribute }
+export const isValidAttribute = DOMPurify.isValidAttribute
 
-export default sanitize
+export default DOMPurify.sanitize

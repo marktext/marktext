@@ -8,7 +8,7 @@ import defaultOptions from './options'
  * Parsing & Compiling
  */
 
-function Parser (options) {
+function Parser(options) {
   this.tokens = []
   this.token = null
   this.footnotes = null
@@ -24,7 +24,7 @@ function Parser (options) {
  * Parse Loop
  */
 
-Parser.prototype.parse = function (src) {
+Parser.prototype.parse = function(src) {
   this.inline = new InlineLexer(src.links, src.footnotes, this.options)
   // use an InlineLexer with a TextRenderer to extract pure text
   this.inlineText = new InlineLexer(
@@ -46,7 +46,7 @@ Parser.prototype.parse = function (src) {
  * Next Token
  */
 
-Parser.prototype.next = function () {
+Parser.prototype.next = function() {
   this.token = this.tokens.pop()
   return this.token
 }
@@ -55,7 +55,7 @@ Parser.prototype.next = function () {
  * Preview Next Token
  */
 
-Parser.prototype.peek = function () {
+Parser.prototype.peek = function() {
   return this.tokens[this.tokens.length - 1] || 0
 }
 
@@ -63,7 +63,7 @@ Parser.prototype.peek = function () {
  * Parse Text Tokens
  */
 
-Parser.prototype.parseText = function () {
+Parser.prototype.parseText = function() {
   let body = this.token.text
 
   while (this.peek().type === 'text') {
@@ -77,7 +77,7 @@ Parser.prototype.parseText = function () {
  * Parse Current Token
  */
 
-Parser.prototype.tok = function () {
+Parser.prototype.tok = function() {
   switch (this.token.type) {
     case 'frontmatter': {
       return this.renderer.frontmatter(this.token.text)

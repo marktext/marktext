@@ -3,8 +3,8 @@ import { findNearestParagraph, findOutMostParagraph } from '../selection/dom'
 import { tokenizer, generator } from '../parser/'
 import { getImageInfo } from '../utils/getImageInfo'
 
-const backspaceCtrl = ContentState => {
-  ContentState.prototype.checkBackspaceCase = function () {
+const backspaceCtrl = (ContentState) => {
+  ContentState.prototype.checkBackspaceCase = function() {
     const node = selection.getSelectionStart()
     const paragraph = findNearestParagraph(node)
     const outMostParagraph = findOutMostParagraph(node)
@@ -24,7 +24,11 @@ const backspaceCtrl = ContentState => {
 
     if (
       (parent && parent.type === 'li' && inLeft === 0 && this.isFirstChild(block)) ||
-      (parent && parent.type === 'li' && inLeft === 0 && parent.listItemType === 'task' && preBlock.type === 'input') // handle task item
+      (parent &&
+        parent.type === 'li' &&
+        inLeft === 0 &&
+        parent.listItemType === 'task' &&
+        preBlock.type === 'input') // handle task item
     ) {
       if (this.isOnlyChild(parent)) {
         /**
@@ -77,8 +81,7 @@ const backspaceCtrl = ContentState => {
          * ===>
          * <ul>
          *   <li>
-         *     <p>other list item</p>
-         *     <p>|text</p>
+         *     <p>other list item|text</p>
          *     <p>maybe has other paragraph</p>
          *   </li>
          *   <li>
@@ -101,7 +104,7 @@ const backspaceCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.docBackspaceHandler = function (event) {
+  ContentState.prototype.docBackspaceHandler = function(event) {
     // handle delete selected image
     if (this.selectedImage) {
       event.preventDefault()
@@ -113,7 +116,7 @@ const backspaceCtrl = ContentState => {
     }
   }
 
-  ContentState.prototype.backspaceHandler = function (event) {
+  ContentState.prototype.backspaceHandler = function(event) {
     const { start, end } = selection.getCursorRange()
 
     if (!start || !end) {
@@ -151,14 +154,15 @@ const backspaceCtrl = ContentState => {
       startBlock.functionType === 'atxLine'
     ) {
       if (
-        start.offset === 0 && end.offset === startBlock.text.length ||
-        start.offset === end.offset && start.offset === 1 && startBlock.text === '#'
+        (start.offset === 0 && end.offset === startBlock.text.length) ||
+        (start.offset === end.offset && start.offset === 1 && startBlock.text === '#')
       ) {
         event.preventDefault()
         startBlock.text = ''
         this.cursor = {
           start: { key: start.key, offset: 0 },
-          end: { key: end.key, offset: 0 }
+          end: { key: end.key, offset: 0 },
+          isEdit: true
         }
         this.updateToParagraph(this.getParent(startBlock), startBlock)
         return this.partialRender()
@@ -173,10 +177,7 @@ const backspaceCtrl = ContentState => {
     let preToken = null
     for (const token of tokens) {
       // handle delete the second $ in inline_math.
-      if (
-        token.range.end === start.offset &&
-        token.type === 'inline_math'
-      ) {
+      if (token.range.end === start.offset && token.type === 'inline_math') {
         needRender = true
         token.raw = token.raw.substr(0, token.raw.length - 1)
         break
@@ -201,7 +202,8 @@ const backspaceCtrl = ContentState => {
       end.offset--
       this.cursor = {
         start,
-        end
+        end,
+        isEdit: true
       }
       return this.partialRender()
     }
@@ -212,9 +214,10 @@ const backspaceCtrl = ContentState => {
     const maybeCell = this.getParent(startBlock)
     if (/th/.test(maybeCell.type) && start.offset === 0 && !maybeCell.preSibling) {
       if (
-        end.offset === endBlock.text.length &&
-        startOutmostBlock === endOutmostBlock &&
-        !endBlock.nextSibling && !maybeLastRow.nextSibling ||
+        (end.offset === endBlock.text.length &&
+          startOutmostBlock === endOutmostBlock &&
+          !endBlock.nextSibling &&
+          !maybeLastRow.nextSibling) ||
         startOutmostBlock !== endOutmostBlock
       ) {
         event.preventDefault()
@@ -233,7 +236,8 @@ const backspaceCtrl = ContentState => {
         const offset = 0
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
         return this.render()
       }
@@ -252,35 +256,50 @@ const backspaceCtrl = ContentState => {
       const offset = 0
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
 
       return this.singleRender(startBlock)
     }
 
-    // Fix: https://github.com/marktext/marktext/issues/2013
-    // Also fix the codeblock crashed when the code content is '\n' and press backspace.
     if (
       startBlock.functionType === 'codeContent' &&
       startBlock.key === endBlock.key &&
-      this.cursor.start.offset === this.cursor.end.offset &&
-      (/\n.$/.test(startBlock.text) || startBlock.text === '\n') &&
-      startBlock.text.length === this.cursor.start.offset
+      !(this.cursor.start.offset === 0 && this.cursor.end.offset === 0)
     ) {
       event.preventDefault()
       event.stopPropagation()
-
-      startBlock.text = /\n.$/.test(startBlock.text) ? startBlock.text.replace(/.$/, '') : ''
       const { key } = startBlock
-      const offset = startBlock.text.length
+      let offset
+      const startOffset = this.cursor.start.offset
+      const endOffset = this.cursor.end.offset
+      // Fix: https://github.com/marktext/marktext/issues/2013
+      // Also fix the codeblock crashed when the code content is '\n' and press backspace.
+      if (
+        startOffset === endOffset &&
+        (/\n.$/.test(startBlock.text) || startBlock.text === '\n') &&
+        startBlock.text.length === startOffset
+      ) {
+        startBlock.text = /\n.$/.test(startBlock.text) ? startBlock.text.slice(0, -1) : ''
+        offset = startBlock.text.length
+      } else {
+        // backspace at tabwidth within a codeblock if no text highlighted
+        // and cursor is after a tabWidth of whitespace
+        const regexUnindent = new RegExp(`\n.*(${String.fromCharCode(32).repeat(this.tabSize)})$`)
+        const shouldUnindent = regexUnindent.test(startBlock.text.substring(0, startOffset))
+        const backspaceSize = shouldUnindent ? this.tabSize : 1
+        offset = startOffset === endOffset ? startOffset - backspaceSize : startOffset
+        startBlock.text =
+          startBlock.text.substring(0, offset) + startBlock.text.substring(endOffset)
+      }
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
-
       return this.singleRender(startBlock)
     }
-
     // If select multiple paragraph or multiple characters in one paragraph, just let
     // inputCtrl to handle this case.
     if (start.key !== end.key || start.offset !== end.offset) {
@@ -314,7 +333,8 @@ const backspaceCtrl = ContentState => {
         const offset = start.offset - 1
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
         return this.singleRender(startBlock)
       }
@@ -343,7 +363,8 @@ const backspaceCtrl = ContentState => {
 
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
       return this.singleRender(startBlock)
     }
@@ -357,17 +378,20 @@ const backspaceCtrl = ContentState => {
       const offset = 0
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
 
       return this.singleRender(startBlock)
     }
 
-    const tableHasContent = table => {
+    const tableHasContent = (table) => {
       const tHead = table.children[0]
       const tBody = table.children[1]
-      const tHeadHasContent = tHead.children[0].children.some(th => th.children[0].text.trim())
-      const tBodyHasContent = tBody.children.some(row => row.children.some(td => td.children[0].text.trim()))
+      const tHeadHasContent = tHead.children[0].children.some((th) => th.children[0].text.trim())
+      const tBodyHasContent = tBody.children.some((row) =>
+        row.children.some((td) => td.children[0].text.trim())
+      )
       return tHeadHasContent || tBodyHasContent
     }
 
@@ -389,7 +413,8 @@ const backspaceCtrl = ContentState => {
         const offset = 0
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
 
         this.partialRender()
@@ -402,9 +427,7 @@ const backspaceCtrl = ContentState => {
     ) {
       event.preventDefault()
       event.stopPropagation()
-      if (
-        !block.nextSibling
-      ) {
+      if (!block.nextSibling) {
         const preBlock = this.getParent(parent)
         const pBlock = this.createBlock('p')
         const lineBlock = this.createBlock('span', { text: block.text })
@@ -433,7 +456,8 @@ const backspaceCtrl = ContentState => {
 
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
         this.partialRender()
       }
@@ -463,7 +487,8 @@ const backspaceCtrl = ContentState => {
       if (key !== undefined && offset !== undefined) {
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
 
         this.partialRender()
@@ -475,41 +500,131 @@ const backspaceCtrl = ContentState => {
         parent = this.getParent(parent)
       }
 
+      let key = block.type === 'p' ? block.children[0].key : block.key
+      let offset = 0
+
       switch (inlineDegrade.type) {
         case 'STOP': // Cursor at begin of article and nothing need to do
           break
+        case 'OL':
         case 'LI': {
-          if (inlineDegrade.info === 'REPLACEMENT') {
-            const children = parent.children
-            const grandpa = this.getBlock(parent.parent)
-            if (children[0].type === 'input') {
-              this.removeBlock(children[0])
+          // Note: The current block is the 'p' item, not the 'li' item
+          block = this.getParent(block) // let's get the 'li' item instead
+          parent = this.getBlock(block.parent) // parent is the 'ul' item
+
+          let newBlock
+
+          const grandpa = this.getParent(parent)
+          const greatGrandpaBlock = this.getParent(grandpa)
+          // console.log('block', JSON.parse(JSON.stringify(block)))
+          // console.log('parent', JSON.parse(JSON.stringify(parent)))
+          // console.log('grandParent', JSON.parse(JSON.stringify(grandpa)))
+          // console.log('greatGrandParent', JSON.parse(JSON.stringify(greatGrandpaBlock)))
+          // console.log('newBlock', JSON.parse(JSON.stringify(newBlock)))
+          if (
+            greatGrandpaBlock &&
+            (greatGrandpaBlock.type === 'ul' || greatGrandpaBlock.type === 'ol')
+          ) {
+            if (block.listItemType === 'task') {
+              const { checked } = parent.children[0]
+              newBlock = this.createTaskItemBlock(null, checked)
+              newBlock.children[1].children[0].text += block.children[1].children[0].text
+              key = newBlock.children[1].key
+            } else {
+              newBlock = this.createBlockLi()
+              newBlock.listItemType = parent.listItemType
+              newBlock.bulletMarkerOrDelimiter = parent.bulletMarkerOrDelimiter
+              newBlock.children[0].children[0].text += block.children[0].children[0].text
+              key = newBlock.children[0].key
             }
-            children.forEach(child => {
-              this.insertBefore(child, grandpa)
+            // Insert the new list item after the grandparent (the parent list item of the current list)
+            this.insertAfter(newBlock, grandpa)
+
+            block.children.forEach((child) => {
+              if (child.type === 'ul' || child.type === 'ol') this.appendChild(newBlock, child)
             })
-            this.removeBlock(grandpa)
-          } else if (inlineDegrade.info === 'REMOVE_INSERT_BEFORE') {
-            const children = parent.children
-            const grandpa = this.getBlock(parent.parent)
-            if (children[0].type === 'input') {
-              this.removeBlock(children[0])
+            if (block.nextSibling) {
+              // Also append all the nextSibilings of the current list item to a ul
+              // under the newBlock
+              const newULBlock =
+                parent.type === 'ul'
+                  ? this.createBlock('ul', {
+                    listType: 'bullet'
+                  })
+                  : this.createBlock('ol', {
+                    listType: 'order'
+                  })
+
+              let probe = this.getBlock(block.nextSibling)
+              const addedChildKeys = []
+              while (probe && probe.parent && probe.parent === parent.key) {
+                const nextSibilingSaved = probe.nextSibling // save it before we overwrite it by appending it
+                this.appendChild(newULBlock, probe)
+                addedChildKeys.push(probe.key)
+                probe = this.getBlock(nextSibilingSaved)
+              }
+              if (newULBlock.children.length > 0) {
+                this.appendChild(newBlock, newULBlock)
+                // Remove all the added siblings from the current parent
+                parent.children = parent.children.filter(
+                  (child) => !addedChildKeys.includes(child.key)
+                )
+              }
             }
-            children.forEach(child => {
-              this.insertBefore(child, grandpa)
-            })
-            this.removeBlock(parent)
-          } else if (inlineDegrade.info === 'INSERT_PRE_LIST_ITEM') {
-            const parPre = this.getBlock(parent.preSibling)
-            const children = parent.children
-            if (children[0].type === 'input') {
-              this.removeBlock(children[0])
+            // Remove list item from the current parent
+            this.removeBlock(block, this.blocks, true)
+          } else {
+            // We have reached end of indent level, so we should exit the list
+            newBlock = this.createBlockP()
+            if (block.listItemType === 'task') {
+              newBlock.children[0].text += block.children[1].children[0].text
+            } else {
+              newBlock.children[0].text += block.children[0].children[0].text
             }
-            children.forEach(child => {
-              this.appendChild(parPre, child)
+            key = newBlock.children[0].key
+            this.insertAfter(newBlock, parent)
+            // Any sublists it has should be added after the new paragraph
+            let prevBlock = newBlock
+            block.children.forEach((child) => {
+              if (child.type === 'ul' || child.type === 'ol') {
+                this.insertAfter(child, prevBlock)
+                prevBlock = child
+              }
             })
+            // Also append all the nextSibilings of the current list item to a ul
+            // under the newBlock
+            if (block.nextSibling) {
+              const newULBlock =
+                parent.type === 'ul'
+                  ? this.createBlock('ul', {
+                    listType: 'bullet'
+                  })
+                  : this.createBlock('ol', {
+                    listType: 'order'
+                  })
+              let probe = this.getBlock(block.nextSibling)
+              const addedChildKeys = []
+              while (probe && probe.parent && probe.parent === parent.key) {
+                const nextSibilingSaved = probe.nextSibling // save it before we overwrite it by appending it
+                this.appendChild(newULBlock, probe)
+                addedChildKeys.push(probe.key)
+                probe = this.getBlock(nextSibilingSaved)
+              }
+              if (newULBlock.children.length > 0) {
+                // Remove all the added siblings from the current parent
+                parent.children = parent.children.filter(
+                  (child) => !addedChildKeys.includes(child.key)
+                )
+                this.insertAfter(newULBlock, prevBlock)
+              }
+            }
+            this.removeBlock(block)
+          }
+          // If the parent list is now empty, we also need to remove it
+          if (parent.children.length === 0) {
             this.removeBlock(parent)
           }
+
           break
         }
         case 'BLOCKQUOTE':
@@ -523,11 +638,10 @@ const backspaceCtrl = ContentState => {
           break
       }
 
-      const key = block.type === 'p' ? block.children[0].key : block.key
-      const offset = 0
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
 
       if (inlineDegrade.type !== 'STOP') {
@@ -549,11 +663,16 @@ const backspaceCtrl = ContentState => {
 
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: true
       }
       let needRenderAll = false
 
-      if (this.isCollapse() && preBlock.type === 'span' && preBlock.functionType === 'paragraphContent') {
+      if (
+        this.isCollapse() &&
+        preBlock.type === 'span' &&
+        preBlock.functionType === 'paragraphContent'
+      ) {
         this.checkInlineUpdate(preBlock)
         needRenderAll = true
       }

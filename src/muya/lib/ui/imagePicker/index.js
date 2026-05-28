@@ -15,7 +15,7 @@ const iconhash = {
 class ImagePathPicker extends BaseScrollFloat {
   static pluginName = 'imagePathPicker'
 
-  constructor (muya) {
+  constructor(muya) {
     const name = 'ag-list-picker'
     super(muya, name)
     this.renderArray = []
@@ -25,7 +25,7 @@ class ImagePathPicker extends BaseScrollFloat {
     this.listen()
   }
 
-  listen () {
+  listen() {
     super.listen()
     const { eventCenter } = this.muya
     eventCenter.subscribe('muya-image-picker', ({ reference, list, cb }) => {
@@ -40,7 +40,7 @@ class ImagePathPicker extends BaseScrollFloat {
     })
   }
 
-  render () {
+  render() {
     const { renderArray, oldVnode, scrollElement, activeItem } = this
     const children = renderArray.map((item) => {
       const { text, iconClass } = item
@@ -50,7 +50,7 @@ class ImagePathPicker extends BaseScrollFloat {
           'aria-hidden': 'true'
         },
         hook: {
-          prepatch (oldvnode, vnode) {
+          prepatch(oldvnode, vnode) {
             // cheat snabbdom that the pre block is changed!!!
             oldvnode.children = []
             oldvnode.elm.innerHTML = ''
@@ -86,7 +86,7 @@ class ImagePathPicker extends BaseScrollFloat {
     this.oldVnode = vnode
   }
 
-  getItemElement (item) {
+  getItemElement(item) {
     const { text } = item
     return this.floatBox.querySelector(`[data-label="${text}"]`)
   }

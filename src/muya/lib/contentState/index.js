@@ -1,3 +1,7 @@
+// contentState is responsible for managing the main Vnodes (stored in this.blocks)
+// importMarkdown() is responsible for the initial parsing of markdown into vnodes
+// insertAfter(), insertBefore(), insertChild() etc. can then be used to add new vnodes
+
 import { HAS_TEXT_BLOCK_REG, DEFAULT_TURNDOWN_CONFIG } from '../config'
 import { getUniqueId, deepCopy } from '../utils'
 import selection from '../selection'
@@ -11,6 +15,7 @@ import tableBlockCtrl from './tableBlockCtrl'
 import tableDragBarCtrl from './tableDragBarCtrl'
 import tableSelectCellsCtrl from './tableSelectCellsCtrl'
 import coreApi from './core'
+import marktextApi from './marktext'
 import History from './history'
 import arrowCtrl from './arrowCtrl'
 import pasteCtrl from './pasteCtrl'
@@ -35,6 +40,7 @@ import escapeCharactersMap, { escapeCharacters } from '../parser/escapeCharacter
 
 const prototypes = [
   coreApi,
+  marktextApi,
   tabCtrl,
   enterCtrl,
   updateCtrl,
@@ -64,7 +70,7 @@ const prototypes = [
 ]
 
 class ContentState {
-  constructor (muya, options) {
+  constructor(muya, options) {
     const { bulletListMarker } = options
 
     this.muya = muya
@@ -82,6 +88,7 @@ class ContentState {
     this.dropAnchor = null
     this.prevCursor = null
     this.historyTimer = null
+    this.renderCodeBlockTimer = null
     this.history = new History(this)
     this.turndownConfig = Object.assign({}, DEFAULT_TURNDOWN_CONFIG, { bulletListMarker })
     // table drag bar
@@ -95,7 +102,7 @@ class ContentState {
     this.init()
   }
 
-  set selectedTableCells (info) {
+  set selectedTableCells(info) {
     const oldSelectedTableCells = this._selectedTableCells
     if (!info && !!oldSelectedTableCells) {
       const selectedCells = this.muya.container.querySelectorAll('.ag-cell-selected')
@@ -111,11 +118,11 @@ class ContentState {
     this._selectedTableCells = info
   }
 
-  get selectedTableCells () {
+  get selectedTableCells() {
     return this._selectedTableCells
   }
 
-  set selectedImage (image) {
+  set selectedImage(image) {
     const oldSelectedImage = this._selectedImage
     // if there is no selected image, remove selected status of current selected image.
     if (!image && oldSelectedImage) {
@@ -127,11 +134,11 @@ class ContentState {
     this._selectedImage = image
   }
 
-  get selectedImage () {
+  get selectedImage() {
     return this._selectedImage
   }
 
-  set cursor (cursor) {
+  set cursor(cursor) {
     if (!(cursor instanceof Cursor)) {
       cursor = new Cursor(cursor)
     }
@@ -149,16 +156,7 @@ class ContentState {
     }
 
     if (!cursor.noHistory) {
-      if (
-        this.prevCursor &&
-        (
-          this.prevCursor.start.key !== cursor.start.key ||
-          this.prevCursor.end.key !== cursor.end.key
-        )
-      ) {
-        // Push history immediately
-        this.history.push(getHistoryState())
-      } else {
+      if (cursor.isEdit) {
         // WORKAROUND: The current engine doesn't support a smart history and we
         // need to store the whole state. Therefore, we push history only when the
         // user stops typing. Pushing one pending entry allows us to commit the
@@ -168,16 +166,19 @@ class ContentState {
 
         this.historyTimer = setTimeout(() => {
           this.history.commitPending()
-        }, 2000)
+        }, 1500)
+      } else {
+        // Push history immediately
+        this.history.push(getHistoryState())
       }
     }
   }
 
-  get cursor () {
+  get cursor() {
     return this.currentCursor
   }
 
-  init () {
+  init() {
     const lastBlock = this.getLastBlock()
     const { key, text } = lastBlock
     const offset = text.length
@@ -188,39 +189,53 @@ class ContentState {
     }
     this.cursor = {
       start: { key, offset },
-      end: { key, offset }
+      end: { key, offset },
+      isEdit: false,
+      isInit: true
     }
   }
 
-  getHistory () {
-    const { stack, index } = this.history
-    return { stack, index }
+  getHistory() {
+    const { stack, index, lastEditIndex } = this.history
+    return { stack, index, lastEditIndex }
   }
 
-  setHistory ({ stack, index }) {
-    Object.assign(this.history, { stack, index })
+  setHistory({ stack, index, lastEditIndex }) {
+    Object.assign(this.history, { stack, index, pendingIndex: -1 })
+    if (typeof lastEditIndex === 'number' && lastEditIndex >= -1 && lastEditIndex < stack.length) {
+      this.history.lastEditIndex = lastEditIndex
+    } else {
+      this.history.updateFinalEditIndex()
+    }
   }
 
-  setCursor () {
+  setCursor() {
     selection.setCursorRange(this.cursor)
   }
 
-  setNextRenderRange () {
+  setNextRenderRange() {
     const { start, end } = this.cursor
-    const startBlock = this.getBlock(start.key)
-    const endBlock = this.getBlock(end.key)
+    const startBlock = this.getBlock(start ? start.key : null)
+    const endBlock = this.getBlock(end ? end.key : null)
+    if (!startBlock || !endBlock) {
+      this.renderRange = [null, null]
+      return
+    }
     const startOutMostBlock = this.findOutMostBlock(startBlock)
     const endOutMostBlock = this.findOutMostBlock(endBlock)
 
     this.renderRange = [startOutMostBlock.preSibling, endOutMostBlock.nextSibling]
   }
 
-  postRender () {
+  postRender() {
     this.resizeLineNumber()
   }
 
-  render (isRenderCursor = true, clearCache = false) {
-    const { blocks, searchMatches: { matches, index } } = this
+  render(isRenderCursor = true, clearCache = false) {
+    const {
+      blocks,
+      searchMatches: { matches, index }
+    } = this
     const activeBlocks = this.getActiveBlocks()
     if (clearCache) {
       this.stateRender.tokenCache.clear()
@@ -239,8 +254,11 @@ class ContentState {
     this.postRender()
   }
 
-  partialRender (isRenderCursor = true) {
-    const { blocks, searchMatches: { matches, index } } = this
+  partialRender(isRenderCursor = true) {
+    const {
+      blocks,
+      searchMatches: { matches, index }
+    } = this
     const activeBlocks = this.getActiveBlocks()
     const [startKey, endKey] = this.renderRange
     matches.forEach((m, i) => {
@@ -248,14 +266,14 @@ class ContentState {
     })
 
     // The `endKey` may already be removed from blocks if range was selected via keyboard (GH#1854).
-    let startIndex = startKey ? blocks.findIndex(block => block.key === startKey) : 0
+    let startIndex = startKey ? blocks.findIndex((block) => block.key === startKey) : 0
     if (startIndex === -1) {
       startIndex = 0
     }
 
     let endIndex = blocks.length
     if (endKey) {
-      const tmpEndIndex = blocks.findIndex(block => block.key === endKey)
+      const tmpEndIndex = blocks.findIndex((block) => block.key === endKey)
       if (tmpEndIndex >= 0) {
         endIndex = tmpEndIndex + 1
       }
@@ -274,8 +292,11 @@ class ContentState {
     this.postRender()
   }
 
-  singleRender (block, isRenderCursor = true) {
-    const { blocks, searchMatches: { matches, index } } = this
+  singleRender(block, isRenderCursor = true) {
+    const {
+      blocks,
+      searchMatches: { matches, index }
+    } = this
     const activeBlocks = this.getActiveBlocks()
     matches.forEach((m, i) => {
       m.active = i === index
@@ -295,7 +316,7 @@ class ContentState {
    * A block in MarkText present a paragraph(block syntax in GFM) or a line in paragraph.
    * a `span` block must in a `p block` or `pre block` and `p block`'s children must be `span` blocks.
    */
-  createBlock (type = 'span', extras = {}) {
+  createBlock(type = 'span', extras = {}) {
     const key = getUniqueId()
     const blockData = {
       key,
@@ -324,31 +345,35 @@ class ContentState {
     return blockData
   }
 
-  createBlockP (text = '') {
+  createBlockP(text = '') {
     const pBlock = this.createBlock('p')
     const contentBlock = this.createBlock('span', { text })
     this.appendChild(pBlock, contentBlock)
     return pBlock
   }
 
-  isCollapse (cursor = this.cursor) {
+  isCollapse(cursor = this.cursor) {
     const { start, end } = cursor
     return start.key === end.key && start.offset === end.offset
   }
 
+  setBlocks(blocks) {
+    this.blocks = blocks
+  }
+
   // getBlocks
-  getBlocks () {
+  getBlocks() {
     return this.blocks
   }
 
-  getCursor () {
+  getCursor() {
     return this.cursor
   }
 
-  getBlock (key) {
+  getBlock(key) {
     if (!key) return null
     let result = null
-    const travel = blocks => {
+    const travel = (blocks) => {
       for (const block of blocks) {
         if (block.key === key) {
           result = block
@@ -364,7 +389,7 @@ class ContentState {
     return result
   }
 
-  copyBlock (origin) {
+  copyBlock(origin) {
     const copiedBlock = deepCopy(origin)
     const travel = (block, parent, preBlock, nextBlock) => {
       const key = getUniqueId()
@@ -389,7 +414,7 @@ class ContentState {
     return copiedBlock
   }
 
-  getParent (block) {
+  getParent(block) {
     if (block && block.parent) {
       return this.getBlock(block.parent)
     }
@@ -397,7 +422,7 @@ class ContentState {
   }
 
   // return block and its parents
-  getParents (block) {
+  getParents(block) {
     const result = []
     result.push(block)
     let parent = this.getParent(block)
@@ -408,11 +433,11 @@ class ContentState {
     return result
   }
 
-  getPreSibling (block) {
+  getPreSibling(block) {
     return block.preSibling ? this.getBlock(block.preSibling) : null
   }
 
-  getNextSibling (block) {
+  getNextSibling(block) {
     return block.nextSibling ? this.getBlock(block.nextSibling) : null
   }
 
@@ -422,22 +447,22 @@ class ContentState {
    * @param  {[type]}  target [description]
    * @return {Boolean}        [description]
    */
-  isInclude (parent, target) {
+  isInclude(parent, target) {
     const children = parent.children
     if (children.length === 0) {
       return false
     } else {
-      if (children.some(child => child.key === target.key)) {
+      if (children.some((child) => child.key === target.key)) {
         return true
       } else {
-        return children.some(child => this.isInclude(child, target))
+        return children.some((child) => this.isInclude(child, target))
       }
     }
   }
 
-  removeTextOrBlock (block) {
+  removeTextOrBlock(block) {
     if (block.functionType === 'languageInput') return
-    const checkerIn = block => {
+    const checkerIn = (block) => {
       if (this.exemption.has(block.key)) {
         return true
       } else {
@@ -446,13 +471,13 @@ class ContentState {
       }
     }
 
-    const checkerOut = block => {
+    const checkerOut = (block) => {
       const children = block.children
       if (children.length) {
-        if (children.some(child => this.exemption.has(child.key))) {
+        if (children.some((child) => this.exemption.has(child.key))) {
           return true
         } else {
-          return children.some(child => checkerOut(child))
+          return children.some((child) => checkerOut(child))
         }
       } else {
         return false
@@ -463,7 +488,7 @@ class ContentState {
       block.text = ''
       const { children } = block
       if (children.length) {
-        children.forEach(child => this.removeTextOrBlock(child))
+        children.forEach((child) => this.removeTextOrBlock(child))
       }
     } else if (block.editable) {
       this.removeBlock(block)
@@ -473,7 +498,7 @@ class ContentState {
   /**
    * remove blocks between before and after, and includes after block.
    */
-  removeBlocks (before, after, isRemoveAfter = true, isRecursion = false) {
+  removeBlocks(before, after, isRemoveAfter = true, isRecursion = false) {
     if (!isRecursion) {
       if (/td|th/.test(before.type)) {
         this.exemption.add(this.closest(before, 'figure'))
@@ -511,7 +536,7 @@ class ContentState {
     if (!afterEnd) {
       const parent = this.getParent(after)
       if (parent) {
-        const removeAfter = isRemoveAfter && (this.isOnlyRemoveableChild(after))
+        const removeAfter = isRemoveAfter && this.isOnlyRemoveableChild(after)
         this.removeBlocks(before, parent, removeAfter, true)
       }
     }
@@ -523,7 +548,13 @@ class ContentState {
     }
   }
 
-  removeBlock (block, fromBlocks = this.blocks) {
+  /**
+   * Remove a block from this.blocks or fromBlocks
+   * @param {*} block Block to be removed
+   * @param {*} fromBlocks Removes block from here if specified
+   * @param {*} breakLinkedList Default false. If true, sets nextSibling and preSibling of adjacent blocks to null
+   */
+  removeBlock(block, fromBlocks = this.blocks, breakLinkedList = false) {
     const remove = (blocks, block) => {
       const len = blocks.length
       let i
@@ -533,10 +564,10 @@ class ContentState {
           const nextSibling = this.getBlock(block.nextSibling)
 
           if (preSibling) {
-            preSibling.nextSibling = nextSibling ? nextSibling.key : null
+            preSibling.nextSibling = nextSibling && !breakLinkedList ? nextSibling.key : null
           }
           if (nextSibling) {
-            nextSibling.preSibling = preSibling ? preSibling.key : null
+            nextSibling.preSibling = preSibling && !breakLinkedList ? preSibling.key : null
           }
 
           return blocks.splice(i, 1)
@@ -550,8 +581,11 @@ class ContentState {
     remove(Array.isArray(fromBlocks) ? fromBlocks : fromBlocks.children, block)
   }
 
-  getActiveBlocks () {
+  getActiveBlocks() {
     const result = []
+    if (!this.cursor || !this.cursor.start) {
+      return result
+    }
     let block = this.getBlock(this.cursor.start.key)
     if (block) {
       result.push(block)
@@ -563,7 +597,7 @@ class ContentState {
     return result
   }
 
-  insertAfter (newBlock, oldBlock) {
+  insertAfter(newBlock, oldBlock) {
     const siblings = oldBlock.parent ? this.getBlock(oldBlock.parent).children : this.blocks
     const oldNextSibling = this.getBlock(oldBlock.nextSibling)
     const index = this.findIndex(siblings, oldBlock)
@@ -572,12 +606,13 @@ class ContentState {
     newBlock.parent = oldBlock.parent
     newBlock.preSibling = oldBlock.key
     if (oldNextSibling) {
+      // If the oldBlock has a next node, we should make it our next current block's next node (Linked list)
       newBlock.nextSibling = oldNextSibling.key
       oldNextSibling.preSibling = newBlock.key
     }
   }
 
-  insertBefore (newBlock, oldBlock) {
+  insertBefore(newBlock, oldBlock) {
     const siblings = oldBlock.parent ? this.getBlock(oldBlock.parent).children : this.blocks
     const oldPreSibling = this.getBlock(oldBlock.preSibling)
     const index = this.findIndex(siblings, oldBlock)
@@ -593,16 +628,21 @@ class ContentState {
     }
   }
 
-  findOutMostBlock (block) {
+  findOutMostBlock(block) {
+    if (!block) {
+      return null
+    }
     const parent = this.getBlock(block.parent)
     return parent ? this.findOutMostBlock(parent) : block
   }
 
-  findIndex (children, block) {
-    return children.findIndex(child => child === block)
+  findIndex(children, block) {
+    // We need to compare the key instead of the object itself
+    // This is because the object may sometimes be a proxy due to Vue3 reactivity
+    return children.findIndex((child) => child.key === block.key)
   }
 
-  prependChild (parent, block) {
+  prependChild(parent, block) {
     block.parent = parent.key
     block.preSibling = null
     if (parent.children.length) {
@@ -611,7 +651,7 @@ class ContentState {
     parent.children.unshift(block)
   }
 
-  appendChild (parent, block) {
+  appendChild(parent, block) {
     const len = parent.children.length
     const lastChild = parent.children[len - 1]
     parent.children.push(block)
@@ -625,7 +665,7 @@ class ContentState {
     block.nextSibling = null
   }
 
-  replaceBlock (newBlock, oldBlock) {
+  replaceBlock(newBlock, oldBlock) {
     const blockList = oldBlock.parent ? this.getParent(oldBlock).children : this.blocks
     const index = this.findIndex(blockList, oldBlock)
 
@@ -635,34 +675,35 @@ class ContentState {
     newBlock.nextSibling = oldBlock.nextSibling
   }
 
-  canInserFrontMatter (block) {
+  canInserFrontMatter(block) {
     if (!block) return true
     const parent = this.getParent(block)
-    return block.type === 'span' &&
-      !block.preSibling &&
-      !parent.preSibling &&
-      !parent.parent
+    return block.type === 'span' && !block.preSibling && !parent.preSibling && !parent.parent
   }
 
-  isFirstChild (block) {
+  isFirstChild(block) {
     return !block.preSibling
   }
 
-  isLastChild (block) {
+  isLastChild(block) {
     return !block.nextSibling
   }
 
-  isOnlyChild (block) {
+  isOnlyChild(block) {
     return !block.nextSibling && !block.preSibling
   }
 
-  isOnlyRemoveableChild (block) {
+  isOnlyRemoveableChild(block) {
     if (block.editable === false) return false
     const parent = this.getParent(block)
-    return (parent ? parent.children : this.blocks).filter(child => child.editable && child.functionType !== 'languageInput').length === 1
+    return (
+      (parent ? parent.children : this.blocks).filter(
+        (child) => child.editable && child.functionType !== 'languageInput'
+      ).length === 1
+    )
   }
 
-  getLastChild (block) {
+  getLastChild(block) {
     if (block) {
       const len = block.children.length
       if (len) {
@@ -672,7 +713,7 @@ class ContentState {
     return null
   }
 
-  firstInDescendant (block) {
+  firstInDescendant(block) {
     const children = block.children
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
@@ -680,7 +721,8 @@ class ContentState {
       if (
         children[0].type === 'input' ||
         (children[0].type === 'div' && children[0].editable === false)
-      ) { // handle task item
+      ) {
+        // handle task item
         return this.firstInDescendant(children[1])
       } else {
         return this.firstInDescendant(children[0])
@@ -688,7 +730,7 @@ class ContentState {
     }
   }
 
-  lastInDescendant (block) {
+  lastInDescendant(block) {
     if (block.children.length === 0 && HAS_TEXT_BLOCK_REG.test(block.type)) {
       return block
     } else if (block.children.length) {
@@ -701,7 +743,7 @@ class ContentState {
     }
   }
 
-  findPreBlockInLocation (block) {
+  findPreBlockInLocation(block) {
     const parent = this.getParent(block)
     const preBlock = this.getPreSibling(block)
     if (
@@ -709,7 +751,8 @@ class ContentState {
       preBlock.type !== 'input' &&
       preBlock.type !== 'div' &&
       preBlock.editable !== false
-    ) { // handle task item and table
+    ) {
+      // handle task item and table
       return this.lastInDescendant(preBlock)
     } else if (parent) {
       return this.findPreBlockInLocation(parent)
@@ -718,13 +761,11 @@ class ContentState {
     }
   }
 
-  findNextBlockInLocation (block) {
+  findNextBlockInLocation(block) {
     const parent = this.getParent(block)
     const nextBlock = this.getNextSibling(block)
 
-    if (
-      nextBlock && nextBlock.editable !== false
-    ) {
+    if (nextBlock && nextBlock.editable !== false) {
       return this.firstInDescendant(nextBlock)
     } else if (parent) {
       return this.findNextBlockInLocation(parent)
@@ -733,7 +774,7 @@ class ContentState {
     }
   }
 
-  getPositionReference () {
+  getPositionReference() {
     const { fontSize, lineHeight } = this.muya.options
     const { start } = this.cursor
     const block = this.getBlock(start.key)
@@ -744,7 +785,7 @@ class ContentState {
     const left = x
     const top = y
     return {
-      getBoundingClientRect () {
+      getBoundingClientRect() {
         return { x, y, top, left, right, bottom, height, width }
       },
       clientWidth: width,
@@ -753,17 +794,17 @@ class ContentState {
     }
   }
 
-  getFirstBlock () {
+  getFirstBlock() {
     return this.firstInDescendant(this.blocks[0])
   }
 
-  getLastBlock () {
+  getLastBlock() {
     const { blocks } = this
     const len = blocks.length
     return this.lastInDescendant(blocks[len - 1])
   }
 
-  closest (block, type) {
+  closest(block, type) {
     if (!block) {
       return null
     }
@@ -775,7 +816,7 @@ class ContentState {
     }
   }
 
-  getAnchor (block) {
+  getAnchor(block) {
     const { type, functionType } = block
     if (type !== 'span') {
       return null
@@ -788,11 +829,19 @@ class ContentState {
     }
   }
 
-  clear () {
+  clear() {
+    if (this.historyTimer) {
+      clearTimeout(this.historyTimer)
+      this.historyTimer = null
+    }
+    if (this.renderCodeBlockTimer) {
+      clearTimeout(this.renderCodeBlockTimer)
+      this.renderCodeBlockTimer = null
+    }
     this.history.clearHistory()
   }
 }
 
-prototypes.forEach(ctrl => ctrl(ContentState))
+prototypes.forEach((ctrl) => ctrl(ContentState))
 
 export default ContentState

@@ -2,8 +2,8 @@ import { isLengthEven, getParagraphReference } from '../utils'
 
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/
 
-const tableBlockCtrl = ContentState => {
-  ContentState.prototype.createTableInFigure = function ({ rows, columns }, tableContents = []) {
+const tableBlockCtrl = (ContentState) => {
+  ContentState.prototype.createTableInFigure = function({ rows, columns }, tableContents = []) {
     const table = this.createBlock('table', {
       row: rows - 1, // zero base
       column: columns - 1
@@ -40,7 +40,7 @@ const tableBlockCtrl = ContentState => {
     return table
   }
 
-  ContentState.prototype.createFigure = function ({ rows, columns }) {
+  ContentState.prototype.createFigure = function({ rows, columns }) {
     const { end } = this.cursor
     const table = this.createTableInFigure({ rows, columns })
     const figureBlock = this.createBlock('figure', {
@@ -62,12 +62,13 @@ const tableBlockCtrl = ContentState => {
     const offset = 0
     this.cursor = {
       start: { key, offset },
-      end: { key, offset }
+      end: { key, offset },
+      isEdit: true
     }
     this.partialRender()
   }
 
-  ContentState.prototype.createTable = function (tableChecker) {
+  ContentState.prototype.createTable = function(tableChecker) {
     this.createFigure(tableChecker)
 
     this.muya.dispatchSelectionChange()
@@ -75,7 +76,7 @@ const tableBlockCtrl = ContentState => {
     this.muya.dispatchChange()
   }
 
-  ContentState.prototype.initTable = function (block) {
+  ContentState.prototype.initTable = function(block) {
     const { text } = block.children[0]
     const rowHeader = []
     const len = text.length
@@ -96,7 +97,9 @@ const tableBlockCtrl = ContentState => {
     const columns = rowHeader.length
     const rows = 2
 
-    const table = this.createTableInFigure({ rows, columns }, [rowHeader.map(text => ({ text, align: '' }))])
+    const table = this.createTableInFigure({ rows, columns }, [
+      rowHeader.map((text) => ({ text, align: '' }))
+    ])
 
     block.type = 'figure'
     block.text = ''
@@ -107,8 +110,10 @@ const tableBlockCtrl = ContentState => {
     return this.firstInDescendant(table.children[1]) // first cell content in tbody
   }
 
-  ContentState.prototype.tableToolBarClick = function (type) {
-    const { start: { key } } = this.cursor
+  ContentState.prototype.tableToolBarClick = function(type) {
+    const {
+      start: { key }
+    } = this.cursor
     const block = this.getBlock(key)
     const parentBlock = this.getParent(block)
     if (block.functionType !== 'cellContent') {
@@ -123,8 +128,8 @@ const tableBlockCtrl = ContentState => {
       case 'center':
       case 'right': {
         const newAlign = align === type ? '' : type
-        table.children.forEach(rowContainer => {
-          rowContainer.children.forEach(row => {
+        table.children.forEach((rowContainer) => {
+          rowContainer.children.forEach((row) => {
             row.children[column].align = newAlign
           })
         })
@@ -142,7 +147,8 @@ const tableBlockCtrl = ContentState => {
         const offset = 0
         this.cursor = {
           start: { key, offset },
-          end: { key, offset }
+          end: { key, offset },
+          isEdit: true
         }
         this.muya.eventCenter.dispatch('stateChange')
         this.partialRender()
@@ -172,7 +178,7 @@ const tableBlockCtrl = ContentState => {
               })
               this.appendChild(th, thContent)
               this.appendChild(headerRow, th)
-              bodyRows.forEach(bodyRow => {
+              bodyRows.forEach((bodyRow) => {
                 const td = this.createBlock('td', {
                   column: i,
                   align: ''
@@ -187,7 +193,7 @@ const tableBlockCtrl = ContentState => {
             }
           } else if (column < oldColumn) {
             const rows = [headerRow, ...bodyRows]
-            rows.forEach(row => {
+            rows.forEach((row) => {
               while (row.children.length > column + 1) {
                 const lastChild = row.children[row.children.length - 1]
                 this.removeBlock(lastChild)
@@ -195,7 +201,7 @@ const tableBlockCtrl = ContentState => {
             })
           }
 
-          if (row < oldRow) {
+          if (row < oldRow && tBody) {
             while (tBody.children.length > row) {
               const lastRow = tBody.children[tBody.children.length - 1]
               this.removeBlock(lastRow)
@@ -223,7 +229,8 @@ const tableBlockCtrl = ContentState => {
           const offset = cursorBlock.text.length
           this.cursor = {
             start: { key, offset },
-            end: { key, offset }
+            end: { key, offset },
+            isEdit: true
           }
           this.muya.eventCenter.dispatch('stateChange')
           this.partialRender()
@@ -236,14 +243,14 @@ const tableBlockCtrl = ContentState => {
   }
 
   // insert/remove row/column
-  ContentState.prototype.editTable = function ({ location, action, target }, cellContentKey) {
+  ContentState.prototype.editTable = function({ location, action, target }, cellContentKey) {
     let block
     let start
     let end
     if (cellContentKey) {
       block = this.getBlock(cellContentKey)
     } else {
-      ({ start, end } = this.cursor)
+      ;({ start, end } = this.cursor)
       if (start.key !== end.key) {
         throw new Error('Cursor is not in one block, can not editTable')
       }
@@ -267,14 +274,15 @@ const tableBlockCtrl = ContentState => {
 
     if (target === 'row') {
       if (action === 'insert') {
-        const newRow = (location === 'previous' && cellBlock.type === 'th')
-          ? this.createRow(currentRow, true)
-          : this.createRow(currentRow, false)
+        const newRow =
+          location === 'previous' && cellBlock.type === 'th'
+            ? this.createRow(currentRow, true)
+            : this.createRow(currentRow, false)
         if (location === 'previous') {
           this.insertBefore(newRow, currentRow)
           if (cellBlock.type === 'th') {
             this.removeBlock(currentRow)
-            currentRow.children.forEach(cell => (cell.type = 'td'))
+            currentRow.children.forEach((cell) => (cell.type = 'td'))
             const firstRow = tbody.children[0]
             this.insertBefore(currentRow, firstRow)
           }
@@ -296,28 +304,37 @@ const tableBlockCtrl = ContentState => {
             if (!currentRow.nextSibling) return
             this.removeBlock(headRow)
             this.removeBlock(currentRow)
-            currentRow.children.forEach(cell => (cell.type = 'th'))
+            currentRow.children.forEach((cell) => (cell.type = 'th'))
             this.appendChild(thead, currentRow)
           } else {
             const preRow = this.getPreSibling(currentRow)
             this.removeBlock(preRow)
           }
         } else if (location === 'current') {
-          if (cellBlock.type === 'th' && tbody.children.length >= 2) {
+          if (tbody.children.length <= 0) return
+          if (cellBlock.type === 'th') {
             const firstRow = tbody.children[0]
             this.removeBlock(currentRow)
             this.removeBlock(firstRow)
             this.appendChild(thead, firstRow)
-            firstRow.children.forEach(cell => (cell.type = 'th'))
+            firstRow.children.forEach((cell) => (cell.type = 'th'))
             cursorBlock = firstRow.children[columnIndex].children[0]
           }
-          if (cellBlock.type === 'td' && (currentRow.preSibling || currentRow.nextSibling)) {
-            cursorBlock = (this.getNextSibling(currentRow) || this.getPreSibling(currentRow)).children[columnIndex].children[0]
+          if (cellBlock.type === 'td') {
+            const nextOrPrevtdRow =
+              this.getNextSibling(currentRow) || this.getPreSibling(currentRow)
+
+            // If there are no more table rows left (i.e only header left)
+            if (nextOrPrevtdRow) {
+              cursorBlock = nextOrPrevtdRow.children[columnIndex].children[0]
+            } else {
+              cursorBlock = thead.children[0].children[columnIndex].children[0]
+            }
             this.removeBlock(currentRow)
           }
         } else {
           if (cellBlock.type === 'th') {
-            if (tbody.children.length >= 2) {
+            if (tbody && tbody.children.length >= 2) {
               const firstRow = tbody.children[0]
               this.removeBlock(firstRow)
             } else {
@@ -333,82 +350,105 @@ const tableBlockCtrl = ContentState => {
       }
     } else if (target === 'column') {
       if (action === 'insert') {
-        [...thead.children, ...tbody.children].forEach(tableRow => {
-          const targetCell = tableRow.children[columnIndex]
-          const cell = this.createBlock(targetCell.type, {
-            align: ''
-          })
-          const cellContent = this.createBlock('span', {
-            functionType: 'cellContent'
-          })
-          this.appendChild(cell, cellContent)
-          if (location === 'left') {
-            this.insertBefore(cell, targetCell)
-          } else {
-            this.insertAfter(cell, targetCell)
+        ;[...(thead ? thead.children : []), ...(tbody ? tbody.children : [])].forEach(
+          (tableRow) => {
+            const targetCell = tableRow.children[columnIndex]
+            const cell = this.createBlock(targetCell.type, {
+              align: ''
+            })
+            const cellContent = this.createBlock('span', {
+              functionType: 'cellContent'
+            })
+            this.appendChild(cell, cellContent)
+            if (location === 'left') {
+              this.insertBefore(cell, targetCell)
+            } else {
+              this.insertAfter(cell, targetCell)
+            }
+            tableRow.children.forEach((cell, i) => {
+              cell.column = i
+            })
           }
-          tableRow.children.forEach((cell, i) => {
-            cell.column = i
-          })
-        })
-        cursorBlock = location === 'left' ? this.getPreSibling(cellBlock).children[0] : this.getNextSibling(cellBlock).children[0]
+        )
+        cursorBlock =
+          location === 'left'
+            ? this.getPreSibling(cellBlock).children[0]
+            : this.getNextSibling(cellBlock).children[0]
         // handle remove column
       } else {
-        if (currentRow.children.length <= 2) return
-        [...thead.children, ...tbody.children].forEach(tableRow => {
-          const targetCell = tableRow.children[columnIndex]
-          const removeCell = location === 'left'
-            ? this.getPreSibling(targetCell)
-            : (location === 'current' ? targetCell : this.getNextSibling(targetCell))
-          if (removeCell === cellBlock) {
-            cursorBlock = this.findNextBlockInLocation(block)
-          }
+        if (currentRow.children.length <= 1) return // 1 col left, the drag bar should be hidden
+        ;[...(thead ? thead.children : []), ...(tbody ? tbody.children : [])].forEach(
+          (tableRow) => {
+            const targetCell = tableRow.children[columnIndex]
+            const removeCell =
+              location === 'left'
+                ? this.getPreSibling(targetCell)
+                : location === 'current'
+                  ? targetCell
+                  : this.getNextSibling(targetCell)
 
-          if (removeCell) this.removeBlock(removeCell)
-          tableRow.children.forEach((cell, i) => {
-            cell.column = i
-          })
-        })
+            if (removeCell === cellBlock) {
+              // Remove the current cell where the user has clicked
+              cursorBlock =
+                columnIndex === currentRow.children.length - 1 // If we are at the last column, we should find the previous cell
+                  ? this.findPreBlockInLocation(block)
+                  : this.findNextBlockInLocation(block)
+            }
+
+            if (removeCell) this.removeBlock(removeCell)
+            tableRow.children.forEach((cell, i) => {
+              cell.column = i
+            })
+          }
+        )
       }
     }
 
     const newColum = thead.children[0].children.length - 1
-    const newRow = thead.children.length + tbody.children.length - 1
+    //                                      \/ Handles single row tables
+    const newRow = thead.children.length + (tbody ? tbody.children.length - 1 : 0)
     Object.assign(table, { row: newRow, column: newColum })
 
     if (cursorBlock) {
       const { key } = cursorBlock
       const offset = 0
-      this.cursor = { start: { key, offset }, end: { key, offset } }
+      this.cursor = {
+        start: { key, offset },
+        end: { key, offset },
+        isEdit: true
+      }
     } else {
-      this.cursor = { start, end }
+      this.cursor = {
+        start,
+        end,
+        isEdit: true
+      }
     }
 
     this.partialRender()
     this.muya.eventCenter.dispatch('stateChange')
   }
 
-  ContentState.prototype.getTableBlock = function () {
+  ContentState.prototype.getTableBlock = function() {
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     const startParents = this.getParents(startBlock)
     const endParents = this.getParents(endBlock)
-    const affiliation = startParents
-      .filter(p => endParents.includes(p))
+    const affiliation = startParents.filter((p) => endParents.includes(p))
 
     if (affiliation.length) {
-      const figure = affiliation.find(p => p.type === 'figure')
+      const figure = affiliation.find((p) => p.type === 'figure')
       return figure
     }
   }
 
-  ContentState.prototype.tableBlockUpdate = function (block) {
+  ContentState.prototype.tableBlockUpdate = function(block) {
     const { type } = block
     if (type !== 'p') return false
     const { text } = block.children[0]
     const match = TABLE_BLOCK_REG.exec(text)
-    return (match && isLengthEven(match[1]) && isLengthEven(match[2])) ? this.initTable(block) : false
+    return match && isLengthEven(match[1]) && isLengthEven(match[2]) ? this.initTable(block) : false
   }
 }
 

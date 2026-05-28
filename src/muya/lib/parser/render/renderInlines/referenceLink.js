@@ -2,7 +2,7 @@ import { CLASS_OR_ID } from '../../../config'
 import { snakeToCamel } from '../../../utils'
 import { sanitizeHyperlink } from '../../../utils/url'
 
-export default function referenceLink (h, cursor, block, token, outerClass) {
+export default function referenceLink(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const labelClass = className === CLASS_OR_ID.AG_GRAY
     ? CLASS_OR_ID.AG_REFERENCE_LABEL

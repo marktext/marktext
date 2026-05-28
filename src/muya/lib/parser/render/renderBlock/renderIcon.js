@@ -23,6 +23,7 @@ import plantumlIcon from '../../../assets/pngicon/plantuml/2.png'
 import mermaidIcon from '../../../assets/pngicon/mermaid/2.png'
 import vegaIcon from '../../../assets/pngicon/chart/2.png'
 import footnoteIcon from '../../../assets/pngicon/footnote/2.png'
+import formatLink from '../../../assets/pngicon/format_link/2.png'
 
 const FUNCTION_TYPE_HASH = {
   mermaid: mermaidIcon,
@@ -39,13 +40,14 @@ const FUNCTION_TYPE_HASH = {
   footnote: footnoteIcon
 }
 
-export default function renderIcon (block) {
+export default function renderIcon(block, t) {
   if (block.parent) {
-    console.error('Only top most block can render front icon button.')
+    console.error(t('editor.onlyTopBlockCanRenderIcon'))
   }
   const { type, functionType, listType } = block
   const selector = `a.${CLASS_OR_ID.AG_FRONT_ICON}`
   let icon = null
+  let isCopyLink = false
 
   switch (type) {
     case 'p': {
@@ -56,7 +58,7 @@ export default function renderIcon (block) {
     case 'pre': {
       icon = FUNCTION_TYPE_HASH[functionType]
       if (!icon) {
-        console.warn(`Unhandled functionType ${functionType}`)
+        console.warn(t('editor.unhandledFunctionType', { functionType }))
         icon = paragraphIcon
       }
       break
@@ -79,26 +81,32 @@ export default function renderIcon (block) {
     }
     case 'h1': {
       icon = header1Icon
+      isCopyLink = true
       break
     }
     case 'h2': {
       icon = header2Icon
+      isCopyLink = true
       break
     }
     case 'h3': {
       icon = header3Icon
+      isCopyLink = true
       break
     }
     case 'h4': {
       icon = header4Icon
+      isCopyLink = true
       break
     }
     case 'h5': {
       icon = header5Icon
+      isCopyLink = true
       break
     }
     case 'h6': {
       icon = header6Icon
+      isCopyLink = true
       break
     }
     case 'hr': {
@@ -110,16 +118,46 @@ export default function renderIcon (block) {
       break
   }
 
-  const iconVnode = h('i.icon', h('i.icon-inner', {
-    style: {
-      background: `url(${icon}) no-repeat`,
-      'background-size': '100%'
-    }
-  }, ''))
+  const iconVnode = h(
+    'i.icon.ag-front-icon-button',
+    h(
+      'img.icon-inner',
+      {
+        attrs: {
+          src: icon
+        }
+      },
+      ''
+    )
+  )
 
-  return h(selector, {
-    attrs: {
-      contenteditable: 'false'
-    }
-  }, iconVnode)
+  const linkCopyIcon = h(
+    'i.icon.ag-copy-header-link',
+    {
+      style: {
+        left: '-30px'
+      }
+    },
+    h(
+      'img.icon-inner',
+      {
+        attrs: {
+          src: formatLink
+        }
+      },
+      ''
+    )
+  )
+
+  const iconsToRender = isCopyLink ? [iconVnode, linkCopyIcon] : [iconVnode]
+
+  return h(
+    selector,
+    {
+      attrs: {
+        contenteditable: 'false'
+      }
+    },
+    iconsToRender
+  )
 }

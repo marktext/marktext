@@ -1,20 +1,31 @@
 ---
 name: Feature Request
-about: Suggest an idea for MarkText
+about: Suggest an idea or improvement for MarkText
+title: "[Feature] "
+labels: ["enhancement"]
 ---
 
 <!--
-  - Please search for issues that matches the one you want to file and use the thumbs up emoji.
+  Before submitting: search existing issues and discussions to avoid duplicates.
+  If a similar request exists, react with 👍 to show your support.
 -->
 
-### Describe your feature request
+### Summary
 
-<!-- Describe your feature you would like -->
+<!-- A clear and concise summary of the feature you'd like -->
 
-### What problem does this feature solve? [optional]
+### Problem it solves
 
-<!-- Describe what problem does this feature solve -->
+<!-- What problem does this feature address? Why is it needed? -->
+
+### Proposed solution
+
+<!-- Describe how you envision this feature working -->
+
+### Alternatives considered [optional]
+
+<!-- Any alternative approaches you've thought about? -->
 
 ### Additional context [optional]
 
-<!-- Any other context or screenshots about the feature request -->
+<!-- Screenshots, mockups, or any other context about the feature request -->

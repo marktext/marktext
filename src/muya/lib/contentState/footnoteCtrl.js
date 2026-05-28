@@ -1,8 +1,8 @@
 /* eslint-disable no-useless-escape */
 const FOOTNOTE_REG = /^\[\^([^\^\[\]\s]+?)(?<!\\)\]: /
 /* eslint-enable no-useless-escape */
-const footnoteCtrl = ContentState => {
-  ContentState.prototype.updateFootnote = function (block, line) {
+const footnoteCtrl = (ContentState) => {
+  ContentState.prototype.updateFootnote = function(block, line) {
     const { start, end } = this.cursor
     const { text } = line
     const match = FOOTNOTE_REG.exec(text)
@@ -29,7 +29,8 @@ const footnoteCtrl = ContentState => {
       end: {
         key,
         offset: Math.max(0, end.offset - footnoteIdentifer.length)
-      }
+      },
+      isEdit: true
     }
 
     if (this.isCollapse()) {
@@ -40,7 +41,7 @@ const footnoteCtrl = ContentState => {
     return sectionWrapper
   }
 
-  ContentState.prototype.createFootnote = function (identifier) {
+  ContentState.prototype.createFootnote = function(identifier) {
     const { blocks } = this
     const lastBlock = blocks[blocks.length - 1]
     const newBlock = this.createBlockP(`[^${identifier}]: `)
@@ -49,7 +50,8 @@ const footnoteCtrl = ContentState => {
     const offset = newBlock.children[0].text.length
     this.cursor = {
       start: { key, offset },
-      end: { key, offset }
+      end: { key, offset },
+      isEdit: true
     }
     const sectionWrapper = this.updateFootnote(newBlock, newBlock.children[0])
     const id = sectionWrapper.key

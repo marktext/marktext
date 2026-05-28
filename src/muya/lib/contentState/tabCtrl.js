@@ -36,10 +36,22 @@ const parseSelector = (str = '') => {
   return { tag, id, className, isVoid }
 }
 
-const BOTH_SIDES_FORMATS = ['strong', 'em', 'inline_code', 'image', 'link', 'reference_image', 'reference_link', 'emoji', 'del', 'html_tag', 'inline_math']
+const BOTH_SIDES_FORMATS = [
+  'strong',
+  'em',
+  'inline_code',
+  'image',
+  'link',
+  'reference_image',
+  'reference_link',
+  'emoji',
+  'del',
+  'html_tag',
+  'inline_math'
+]
 
-const tabCtrl = ContentState => {
-  ContentState.prototype.findNextCell = function (block) {
+const tabCtrl = (ContentState) => {
+  ContentState.prototype.findNextCell = function(block) {
     if (block.functionType !== 'cellContent') {
       throw new Error('only th and td can have next cell')
     }
@@ -64,7 +76,7 @@ const tabCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.findPreviousCell = function (block) {
+  ContentState.prototype.findPreviousCell = function(block) {
     if (block.functionType !== 'cellContent') {
       throw new Error('only th and td can have previous cell')
     }
@@ -88,7 +100,7 @@ const tabCtrl = ContentState => {
     return block
   }
 
-  ContentState.prototype.isUnindentableListItem = function (block) {
+  ContentState.prototype.isUnindentableListItem = function(block) {
     const parent = this.getParent(block)
     const listItem = this.getParent(parent)
     const list = this.getParent(listItem)
@@ -100,7 +112,7 @@ const tabCtrl = ContentState => {
     return false
   }
 
-  ContentState.prototype.isIndentableListItem = function () {
+  ContentState.prototype.isIndentableListItem = function() {
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const parent = this.getParent(startBlock)
@@ -118,7 +130,7 @@ const tabCtrl = ContentState => {
     return list && /ol|ul/.test(list.type) && listItem.preSibling
   }
 
-  ContentState.prototype.unindentListItem = function (block, type) {
+  ContentState.prototype.unindentListItem = function(block, type) {
     const pBlock = this.getParent(block)
     const listItem = this.getParent(pBlock)
     const list = this.getParent(listItem)
@@ -161,7 +173,7 @@ const tabCtrl = ContentState => {
     return this.partialRender()
   }
 
-  ContentState.prototype.indentListItem = function () {
+  ContentState.prototype.indentListItem = function() {
     const { start } = this.cursor
     const startBlock = this.getBlock(start.key)
     const parent = this.getParent(startBlock)
@@ -174,7 +186,7 @@ const tabCtrl = ContentState => {
     // Search for a list in previous block
     let newList = this.getLastChild(prevListItem)
     if (!newList || !/ol|ul/.test(newList.type)) {
-      newList = this.createBlock(list.type)
+      newList = this.createBlock(list.type, { listType: list.listType })
       this.appendChild(prevListItem, newList)
     }
 
@@ -187,26 +199,86 @@ const tabCtrl = ContentState => {
     return this.partialRender()
   }
 
-  ContentState.prototype.insertTab = function () {
+  ContentState.prototype.insertTab = function(event) {
     const tabSize = this.tabSize
-    const tabCharacter = String.fromCharCode(160).repeat(tabSize)
+    const tabCharacter = String.fromCharCode(32).repeat(tabSize)
     const { start, end } = this.cursor
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
     if (start.key === end.key && start.offset === end.offset) {
-      startBlock.text = startBlock.text.substring(0, start.offset) +
-        tabCharacter + endBlock.text.substring(end.offset)
+      startBlock.text =
+        startBlock.text.substring(0, start.offset) +
+        tabCharacter +
+        endBlock.text.substring(end.offset)
       const key = start.key
       const offset = start.offset + tabCharacter.length
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: false
+      }
+      return this.partialRender()
+    } else if (
+      start.key === end.key &&
+      start.offset !== end.offset &&
+      startBlock.type === 'span' &&
+      startBlock.functionType === 'codeContent'
+    ) {
+      // Inside a code block
+      let nowLen = 0
+      let oldText = startBlock.text
+      let lines = oldText.split('\n')
+      let dealLine
+      let startTabSize = null
+      if (event.shiftKey) {
+        dealLine = (line) => {
+          let i = 0
+          for (; i < line.length && i < tabSize; i++) {
+            if (
+              !(
+                line.charAt(i) === String.fromCharCode(160) ||
+                line.charAt(i) === String.fromCharCode(32)
+              )
+            ) {
+              break
+            }
+          }
+          if (!startTabSize) startTabSize = -1 * i
+          return line.substr(i)
+        }
+      } else {
+        startTabSize = tabSize
+        dealLine = (line) => {
+          return tabCharacter + line
+        }
+      }
+      let isDealLine = false
+      for (let nowLineNum = 0; nowLineNum < lines.length; nowLineNum++) {
+        nowLen += lines[nowLineNum].length
+        if (start.offset <= nowLen && !isDealLine) {
+          isDealLine = true
+        }
+        if (isDealLine) lines[nowLineNum] = dealLine(lines[nowLineNum])
+        if (end.offset <= nowLen) {
+          break
+        }
+        nowLen += 1
+      }
+      startBlock.text = lines.join('\n')
+      let sk = start.key
+      let so = start.offset + startTabSize
+      let ek = end.key
+      let eo = startBlock.text.length - (oldText.length - end.offset)
+      this.cursor = {
+        start: { key: sk, offset: so },
+        end: { key: ek, offset: eo },
+        isEdit: false
       }
       return this.partialRender()
     }
   }
 
-  ContentState.prototype.checkCursorAtEndFormat = function (text, offset) {
+  ContentState.prototype.checkCursorAtEndFormat = function(text, offset) {
     const { labels } = this.stateRender
     const tokens = tokenizer(text, {
       hasBeginRules: false,
@@ -214,9 +286,20 @@ const tabCtrl = ContentState => {
       options: this.muya.options
     })
     let result = null
-    const walkTokens = tkns => {
+    const walkTokens = (tkns) => {
       for (const token of tkns) {
-        const { marker, type, range, children, srcAndTitle, hrefAndTitle, backlash, closeTag, isFullLink, label } = token
+        const {
+          marker,
+          type,
+          range,
+          children,
+          srcAndTitle,
+          hrefAndTitle,
+          backlash,
+          closeTag,
+          isFullLink,
+          label
+        } = token
         const { start, end } = range
         if (BOTH_SIDES_FORMATS.includes(type) && offset > start && offset < end) {
           switch (type) {
@@ -298,9 +381,14 @@ const tabCtrl = ContentState => {
     return result
   }
 
-  ContentState.prototype.tabHandler = function (event) {
+  ContentState.prototype.tabHandler = function(event) {
     // disable tab focus
     event.preventDefault()
+
+    // skip subsequent processing if IME is working
+    if (event.isComposing) {
+      return
+    }
 
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
@@ -313,8 +401,8 @@ const tabCtrl = ContentState => {
       const unindentType = this.isUnindentableListItem(startBlock)
       if (unindentType) {
         this.unindentListItem(startBlock, unindentType)
+        return
       }
-      return
     }
 
     // Handle `tab` to jump to the end of format when the cursor is at the end of format content.
@@ -331,7 +419,8 @@ const tabCtrl = ContentState => {
       if (atEnd) {
         this.cursor = {
           start: { key, offset: offset + atEnd.offset },
-          end: { key, offset: offset + atEnd.offset }
+          end: { key, offset: offset + atEnd.offset },
+          isEdit: false
         }
         return this.partialRender()
       }
@@ -342,7 +431,9 @@ const tabCtrl = ContentState => {
       start.key === end.key &&
       start.offset === end.offset &&
       startBlock.type === 'span' &&
-      (!startBlock.functionType || startBlock.functionType === 'codeContent' && /markup|html|xml|svg|mathml/.test(startBlock.lang))
+      (!startBlock.functionType ||
+        (startBlock.functionType === 'codeContent' &&
+          /markup|html|xml|svg|mathml/.test(startBlock.lang)))
     ) {
       const { text } = startBlock
       const lastWordBeforeCursor = text.substring(0, start.offset).split(/\s+/).pop()
@@ -391,7 +482,8 @@ const tabCtrl = ContentState => {
         startBlock.text = preText + html + postText
         this.cursor = {
           start: { key, offset: startOffset + preText.length },
-          end: { key, offset: endOffset + preText.length }
+          end: { key, offset: endOffset + preText.length },
+          isEdit: false
         }
         return this.partialRender()
       }
@@ -400,9 +492,7 @@ const tabCtrl = ContentState => {
     // Handle `tab` key in table cell.
     let nextCell
     if (start.key === end.key && startBlock.functionType === 'cellContent') {
-      nextCell = event.shiftKey
-        ? this.findPreviousCell(startBlock)
-        : this.findNextCell(startBlock)
+      nextCell = event.shiftKey ? this.findPreviousCell(startBlock) : this.findNextCell(startBlock)
     } else if (endBlock.functionType === 'cellContent') {
       nextCell = endBlock
     }
@@ -412,7 +502,8 @@ const tabCtrl = ContentState => {
       const offset = 0
       this.cursor = {
         start: { key, offset },
-        end: { key, offset }
+        end: { key, offset },
+        isEdit: false
       }
 
       const figure = this.closest(nextCell, 'figure')
@@ -422,7 +513,7 @@ const tabCtrl = ContentState => {
     if (this.isIndentableListItem()) {
       return this.indentListItem()
     }
-    return this.insertTab()
+    return this.insertTab(event)
   }
 }
 

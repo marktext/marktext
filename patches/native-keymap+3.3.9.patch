@@ -1,0 +1,49 @@
+diff --git a/node_modules/native-keymap/binding.gyp b/node_modules/native-keymap/binding.gyp
+index c8b244b..0000000 100644
+--- a/node_modules/native-keymap/binding.gyp
++++ b/node_modules/native-keymap/binding.gyp
+@@ -14,6 +14,7 @@
+       },
+       'msvs_settings': {
+         'VCCLCompilerTool': {
++          'LanguageStandard': 'stdcpp20',
+           'AdditionalOptions': [
+             '/guard:cf',
+             '/sdl',
+@@ -42,7 +43,8 @@
+           ],
+           "libraries": [
+             "<!@(${PKG_CONFIG:-pkg-config} x11 xkbfile --libs)"
+-          ]
++          ],
++          'cflags_cc': ['-std=c++20']
+         }],
+         ['OS=="freebsd"', {
+           "sources": [
+@@ -69,6 +71,10 @@
+           "sources": [
+             "src/keyboard_mac.mm"
+           ],
++          'xcode_settings': {
++            'CLANG_CXX_LANGUAGE_STANDARD': 'c++20',
++            'CLANG_CXX_LIBRARY': 'libc++'
++          },
+           'link_settings' : {
+             'libraries' : [
+               '-framework Cocoa'
+diff --git a/node_modules/native-keymap/src/keymapping.cc b/node_modules/native-keymap/src/keymapping.cc
+index 0000000..0000000 100644
+--- a/node_modules/native-keymap/src/keymapping.cc
++++ b/node_modules/native-keymap/src/keymapping.cc
+@@ -4,7 +4,11 @@
+  *--------------------------------------------------------------------------------------------*/
+
+ #define NODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT
++#ifdef _MSC_VER
++#include <intrin.h>
++#define __builtin_frame_address(x) (_AddressOfReturnAddress())
++#endif
+ #include <node.h>
+ #include <map>
+
+ #include "keymapping.h"

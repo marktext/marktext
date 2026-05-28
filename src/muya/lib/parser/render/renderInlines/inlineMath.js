@@ -5,7 +5,7 @@ import { htmlToVNode } from '../snabbdom'
 
 import 'katex/dist/katex.min.css'
 
-export default function displayMath (h, cursor, block, token, outerClass) {
+export default function displayMath(h, cursor, block, token, outerClass) {
   const className = this.getClassName(outerClass, block, token, cursor)
   const mathSelector = className === CLASS_OR_ID.AG_HIDE
     ? `span.${className}.${CLASS_OR_ID.AG_MATH}`

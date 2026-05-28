@@ -1,8 +1,7 @@
 import runSanitize from './dompurify'
 import { URL_REG, DATA_URL_REG, IMAGE_EXT_REG } from '../config'
-
-const ID_PREFIX = 'ag-'
-let id = 0
+import path from 'pathe'
+export { getUniqueId, getLongUniqueId } from './random'
 
 const TIMEOUT = 1500
 
@@ -14,25 +13,23 @@ const HTML_TAG_REPLACEMENTS = {
   "'": '&#39;'
 }
 
-export const getUniqueId = () => `${ID_PREFIX}${id++}`
-
-export const getLongUniqueId = () => `${getUniqueId()}-${(+new Date()).toString(32)}`
-
-export const isMetaKey = ({ key }) => key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
+export const isMetaKey = ({ key }) =>
+  key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta'
 
 export const noop = () => {}
 
-export const identity = i => i
+export const identity = (i) => i
 
-export const isOdd = number => Math.abs(number) % 2 === 1
+export const isOdd = (number) => Math.abs(number) % 2 === 1
 
-export const isEven = number => Math.abs(number) % 2 === 0
+export const isEven = (number) => Math.abs(number) % 2 === 0
 
 export const isLengthEven = (str = '') => str.length % 2 === 0
 
-export const snakeToCamel = name => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
+export const snakeToCamel = (name) => name.replace(/_([a-z])/g, (p0, p1) => p1.toUpperCase())
 
-export const camelToSnake = name => name.replace(/([A-Z])/g, (_, p) => `-${p.toLowerCase()}`)
+export const camelToSnake = (name) => name.replace(/([A-Z])/g, (_, p) => `-${p.toLowerCase()}`)
+
 /**
  *  Are two arrays have intersection
  */
@@ -75,7 +72,7 @@ export const throttle = (func, wait = 50) => {
     }
   }
 
-  return function () {
+  return function() {
     const now = Date.now()
     const remaining = wait - (now - previous)
 
@@ -100,7 +97,7 @@ export const throttle = (func, wait = 50) => {
 // simple implementation...
 export const debounce = (func, wait = 50) => {
   let timer = null
-  return function (...args) {
+  return function(...args) {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
       func(...args)
@@ -108,7 +105,7 @@ export const debounce = (func, wait = 50) => {
   }
 }
 
-export const deepCopyArray = array => {
+export const deepCopyArray = (array) => {
   const result = []
   const len = array.length
   let i
@@ -127,9 +124,9 @@ export const deepCopyArray = array => {
 }
 
 // TODO: @jocs rewrite deepCopy
-export const deepCopy = object => {
+export const deepCopy = (object) => {
   const obj = {}
-  Object.keys(object).forEach(key => {
+  Object.keys(object).forEach((key) => {
     if (typeof object[key] === 'object' && object[key] !== null) {
       if (Array.isArray(object[key])) {
         obj[key] = deepCopyArray(object[key])
@@ -143,7 +140,7 @@ export const deepCopy = object => {
   return obj
 }
 
-export const loadImage = async (url, detectContentType = false) => {
+export const loadImage = async(url, detectContentType = false) => {
   if (detectContentType) {
     const isImage = await checkImageContentType(url)
     if (!isImage) throw new Error('not an image')
@@ -157,7 +154,7 @@ export const loadImage = async (url, detectContentType = false) => {
         height: image.height
       })
     }
-    image.onerror = err => {
+    image.onerror = (err) => {
       reject(err)
     }
     image.src = url
@@ -168,7 +165,7 @@ export const isOnline = () => {
   return navigator.onLine === true
 }
 
-export const getPageTitle = url => {
+export const getPageTitle = (url) => {
   // No need to request the title when it's not url.
   if (!url.startsWith('http')) {
     return ''
@@ -219,7 +216,7 @@ export const getPageTitle = url => {
   return Promise.race([promise, timer])
 }
 
-export const checkImageContentType = url => {
+export const checkImageContentType = (url) => {
   const req = new XMLHttpRequest()
   let settle
   const promise = new Promise((resolve, reject) => {
@@ -234,7 +231,8 @@ export const checkImageContentType = url => {
         } else {
           settle(false)
         }
-      } else if (req.status === 405) { // status 405 means method not allowed, and just return true.(Solve issue#1297)
+      } else if (req.status === 405) {
+        // status 405 means method not allowed, and just return true.(Solve issue#1297)
         settle(true)
       } else {
         settle(false)
@@ -262,7 +260,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   const imageExtension = IMAGE_EXT_REG.test(src)
   const isUrl = URL_REG.test(src) || (imageExtension && /^file:\/\/.+/.test(src))
 
-  // Treat an URL with valid extension as image.
+  // Treat a URL with valid extension as image.
   if (imageExtension) {
     // NOTE: Check both "C:\" and "C:/" because we're using "file:///C:/".
     const isAbsoluteLocal = /^(?:\/|\\\\|[a-zA-Z]:\\|[a-zA-Z]:\/).+/.test(src)
@@ -281,7 +279,7 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
       // NOTE: We don't need to convert Windows styled path to UNIX style because Chromium handels this internal.
       return {
         isUnknownType: false,
-        src: 'file://' + require('path').resolve(baseUrl, src)
+        src: 'file://' + path.resolve(baseUrl, src)
       }
     }
   } else if (isUrl && !imageExtension) {
@@ -307,77 +305,58 @@ export const getImageInfo = (src, baseUrl = window.DIRNAME) => {
   }
 }
 
-export const escapeHTML = str =>
+export const escapeHTML = (str) =>
   str.replace(
     /[&<>'"]/g,
-    tag =>
+    (tag) =>
       ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         "'": '&#39;',
         '"': '&quot;'
-      }[tag] || tag)
+      })[tag] || tag
   )
 
-export const unescapeHTML = str =>
+export const unescapeHTML = (str) =>
   str.replace(
     /(?:&amp;|&lt;|&gt;|&quot;|&#39;)/g,
-    tag =>
+    (tag) =>
       ({
         '&amp;': '&',
         '&lt;': '<',
         '&gt;': '>',
         '&#39;': "'",
         '&quot;': '"'
-      }[tag] || tag)
+      })[tag] || tag
   )
 
-export const escapeInBlockHtml = html => {
-  return html
-    .replace(/(<(style|script|title)[^<>]*>)([\s\S]*?)(<\/\2>)/g, (m, p1, p2, p3, p4) => {
-      return `${escapeHTML(p1)}${p3}${escapeHTML(p4)}`
-    })
+export const escapeInBlockHtml = (html) => {
+  return html.replace(/(<(style|script|title)[^<>]*>)([\s\S]*?)(<\/\2>)/g, (m, p1, p2, p3, p4) => {
+    return `${escapeHTML(p1)}${p3}${escapeHTML(p4)}`
+  })
 }
 
-export const escapeHtmlTags = html => {
-  return html.replace(/[&<>"']/g, x => { return HTML_TAG_REPLACEMENTS[x] })
+export const escapeHtmlTags = (html) => {
+  return html.replace(/[&<>"']/g, (x) => {
+    return HTML_TAG_REPLACEMENTS[x]
+  })
 }
 
-export const wordCount = markdown => {
-  const paragraph = markdown.split(/\n{2,}/).filter(line => line).length
+export const wordCount = (markdown) => {
+  const paragraph = markdown.split(/\n{2,}/).filter((line) => line).length
   let word = 0
   let character = 0
   let all = 0
 
   const removedChinese = markdown.replace(/[\u4e00-\u9fa5]/g, '')
-  const tokens = removedChinese.split(/[\s\n]+/).filter(t => t)
+  const tokens = removedChinese.split(/[\s\n]+/).filter((t) => t)
   const chineseWordLength = markdown.length - removedChinese.length
   word += chineseWordLength + tokens.length
   character += tokens.reduce((acc, t) => acc + t.length, 0) + chineseWordLength
   all += markdown.length
 
   return { word, paragraph, character, all }
-}
-
-/**
- * [genUpper2LowerKeyHash generate constants map hash, the value is lowercase of the key,
- * also translate `_` to `-`]
- */
-export const genUpper2LowerKeyHash = keys => {
-  return keys.reduce((acc, key) => {
-    const value = key.toLowerCase().replace(/_/g, '-')
-    return Object.assign(acc, { [key]: value })
-  }, {})
-}
-
-/**
- * generate constants map, the value is the key.
- */
-export const generateKeyHash = keys => {
-  return keys.reduce((acc, key) => {
-    return Object.assign(acc, { [key]: key })
-  }, {})
 }
 
 // mixins
@@ -396,7 +375,7 @@ export const sanitize = (html, purifyOptions, disableHtml) => {
 export const getParagraphReference = (ele, id) => {
   const { x, y, left, top, bottom, height } = ele.getBoundingClientRect()
   return {
-    getBoundingClientRect () {
+    getBoundingClientRect() {
       return { x, y, left, top, bottom, height, width: 0, right: left }
     },
     clientWidth: 0,
@@ -408,7 +387,7 @@ export const getParagraphReference = (ele, id) => {
 export const verticalPositionInRect = (event, rect) => {
   const { clientY } = event
   const { top, height } = rect
-  return (clientY - top) > (height / 2) ? 'down' : 'up'
+  return clientY - top > height / 2 ? 'down' : 'up'
 }
 
 export const collectFootnotes = (blocks) => {
@@ -432,4 +411,13 @@ export const getDefer = () => {
   defer.promise = promise
 
   return defer
+}
+
+/**
+ * Deep clone the given object.
+ *
+ * @param {*} obj Object to clone
+ */
+export const deepClone = (obj) => {
+  return JSON.parse(JSON.stringify(obj))
 }
