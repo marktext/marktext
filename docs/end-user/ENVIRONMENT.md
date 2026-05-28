@@ -9,8 +9,7 @@
 
 ## Development
 
-| Name                                 | Description                                                  |
-| ------------------------------------ | ------------------------------------------------------------ |
-| `MARKTEXT_EXIT_ON_ERROR`             | Exit on the first error or exception that occurs.            |
-| `MARKTEXT_DEV_HIDE_BROWSER_ANALYZER` | Don't show the dependency analyzer.                          |
-| `MARKTEXT_IS_STABLE`                 | **Please don't use this!** Used to identify stable releases. |
+| Name                     | Description                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `MARKTEXT_EXIT_ON_ERROR` | Exit on the first error or exception that occurs.            |
+| `MARKTEXT_IS_STABLE`     | **Please don't use this!** Used to identify stable releases. |

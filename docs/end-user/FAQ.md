@@ -5,8 +5,8 @@
 MarkText is a desktop application and available for:
 
 - Linux x64 (tested on Debian and Red Hat based distros)
-- macOS 10.10 x64 or later
-- Windows 7-10 x86 and x64
+- macOS 11 (Big Sur) or later, x64 and arm64 (Apple Silicon)
+- Windows 10 or 11, x64 and arm64
 
 ### Is MarkText open-source and free?
 
@@ -22,7 +22,7 @@ Documentation is currently under development.
 
 - [End-user documentation](https://github.com/marktext/marktext/blob/develop/docs/README.md)
 
-- [Developer documentation](https://github.com/marktext/marktext/blob/develop/../dev/README.md)
+- [Developer documentation](https://github.com/marktext/marktext/blob/develop/docs/dev/README.md)
 
 ### Can I run a portable version of MarkText?
 

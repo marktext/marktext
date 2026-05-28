@@ -2,6 +2,8 @@
 
 MarkText includes 33 built-in themes organized into Light and Dark categories. Each theme provides a complete color scheme for the editor interface and syntax highlighting.
 
+The names below match the labels shown in the **Theme** menu. The underlying id stored in `preferences.json` under the `theme` field can differ — e.g. *Cadmium Light* → `light`, *Cadmium Dark* → `dark`, *Graphite Light* → `graphite`, *Ulysses Light* → `ulysses`. The full label↔id mapping lives in `src/main/menu/templates/theme.ts`.
+
 ## Light Themes
 
 | Theme | Description |
@@ -69,7 +71,7 @@ You can switch themes in several ways:
 
 | Dark | Material Dark |
 |------|---------------|
-| ![Dark](../themeImages/dark.png) | ![Material Dark](../themeImages/materal-dark.png) |
+| ![Dark](../themeImages/dark.png) | ![Material Dark](../themeImages/material-dark.png) |
 
 | One Dark | Dracula |
 |----------|---------|
