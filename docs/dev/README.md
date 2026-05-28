@@ -71,6 +71,8 @@ $ pnpm run build:linux
 - [Project architecture](ARCHITECTURE.md)
 - [Build instructions](BUILD.md)
 - [Debugging](DEBUGGING.md)
+- [Inter-process communication (IPC)](IPC.md)
 - [Interface](INTERFACE.md)
 - [Steps to release MarkText](RELEASE.md)
 - [Prepare a hotfix](RELEASE_HOTFIX.md)
+- [TypeScript layout and conventions](TYPESCRIPT.md)

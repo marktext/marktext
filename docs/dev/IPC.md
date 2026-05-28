@@ -1,41 +1,99 @@
 # Inter-Process Communication (IPC)
 
-[Electron](https://electronjs.org/docs/api/ipc-main) provides `ipcMain` and `ipcRenderer` to communicate asynchronously between the main process and renderer processes. The event name/channel must be prefixed with `mt::` if used between main process and renderer processes. The default argument list will be `(event, ...args)`. The event name/channel is not prefixed when using `ipcMain` to emit events to the main process directly and emitted events don't have an `event` parameter. The parameter list will only be `(...args)`! When simulate a renderer event you must specify a [event](https://electronjs.org/docs/api/ipc-main#event-object) parameter (`null` or `undefined` may lead to unexpected exceptions).
+The renderer runs sandboxed (`contextIsolation: true`, `sandbox: true`,
+`nodeIntegration: false` — see `src/main/config.ts`), so it can't import
+`electron` directly. All renderer↔main traffic goes through the typed
+preload bridge exposed in `src/preload/index.ts` as `window.electron.*`
+and a few sibling globals (`window.fileUtils`, `window.path`,
+`window.uploader`, etc.).
 
-## Examples
+Channel names are typed by the contract in `src/shared/types/ipc.ts` —
+wrong channel, wrong arg arity, or wrong return shape all fail at
+`pnpm typecheck`. See [TYPESCRIPT.md](TYPESCRIPT.md#ipc-contract) for the
+TypeScript-side details.
 
-Listening to a renderer event in the main process:
+## Channel naming
 
-```js
+Renderer↔main channels are prefixed with `mt::` (e.g. `mt::fs::stat`,
+`mt::open-new-tab`). A small number of legacy internal channels don't
+follow this convention (e.g. `language-changed`); new channels should
+always use `mt::`.
+
+## The four channel categories
+
+`src/shared/types/ipc.ts` defines four interfaces:
+
+| Interface              | Direction          | Semantics                                  |
+| ---------------------- | ------------------ | ------------------------------------------ |
+| `IpcInvokeChannels`    | renderer → main    | `Promise<T>` round-trip (`ipcMain.handle`) |
+| `IpcSendChannels`      | renderer → main    | fire-and-forget (`ipcMain.on`)             |
+| `IpcSyncChannels`      | renderer → main    | synchronous reply (`event.returnValue`)    |
+| `IpcMainEventChannels` | main → renderer    | push event (`webContents.send` / on)       |
+
+Each entry tells you the args tuple and (for invoke/sync) the return
+type:
+
+```ts
+'mt::fs::stat': { args: [path: string]; ret: SerializedStat }
+'mt::format-link-click': [data: unknown, dirname: string]   // send shape
+```
+
+## Renderer side
+
+Use the global `window.electron.ipcRenderer` (the typed wrapper exposed
+by the preload bridge). Don't `import { ipcRenderer } from 'electron'` —
+it isn't available under sandboxing.
+
+```ts
+// Round-trip
+const stat = await window.electron.ipcRenderer.invoke('mt::fs::stat', fullPath)
+
+// Fire-and-forget
+window.electron.ipcRenderer.send('mt::format-link-click', { data, dirname })
+
+// Subscribe to a main → renderer push event (returns an unsubscribe fn)
+const off = window.electron.ipcRenderer.on('mt::screenshot-captured', () => {
+  // …
+})
+off()
+```
+
+`once()` and `removeAllListeners()` follow the same shape. For
+filesystem and path helpers, prefer the typed convenience APIs already
+exposed via `window.fileUtils.*`, `window.path.*`, `window.uploader.*`,
+etc. — they wrap the underlying `mt::fs::*` / `mt::uploader::*` channels
+and keep call sites short.
+
+## Main side
+
+Channels are wired with `ipcMain.handle` (invoke), `ipcMain.on` (send /
+sync), or `webContents.send` (push):
+
+```ts
 import { ipcMain } from 'electron'
 
-// Listen for renderer events
-ipcMain.on('mt::some-event-name', (event, arg1, arg2) => {
-  // ...
-
-  // Send a direct response to the renderer process
-  event.sender.send('mt::some-event-name-response', 'pong')
+ipcMain.handle('mt::fs::stat', async (_event, path: string) => {
+  return await fs.stat(path)
 })
 
-// Listen for main events
-ipcMain.on('some-event-name', (arg1, arg2) => {
-  // ...
+ipcMain.on('mt::format-link-click', (_event, payload, dirname) => {
+  // …
 })
 
-
-ipcMain.emit('some-event-name', 'arg 1', 'arg 2')
-// ipcMain.emit('mt::some-event-name-response', undefined, 'arg 1', 'arg 2') // crash because event is used
+// Push to a specific renderer window:
+window.webContents.send('mt::open-new-tab', tabPayload, options, selected)
 ```
 
-Listening to a main event in the renderer process:
+## Adding a new channel
 
-```js
-import { ipcRenderer } from 'electron'
+1. Add an entry to the appropriate interface in
+   `src/shared/types/ipc.ts` (pick invoke / send / sync / main-event
+   based on the direction and shape).
+2. Wire the main-process handler in `src/main/ipc/*.ts` (or the relevant
+   feature module).
+3. Call it from the renderer through `window.electron.ipcRenderer.*` or,
+   if it deserves a dedicated facade, expose a method on one of the
+   typed bridges in `src/preload/index.ts`.
 
-// Listen for main events
-ipcRenderer.on('mt::some-event-name-response', (event, arg1, arg2) => {
-  // ...
-})
-
-ipcRenderer.send('mt::some-event-name-response', 'arg 1', 'arg 2')
-```
+After step 1, `pnpm typecheck` flags every existing call site that
+doesn't match the new shape — use that as your migration checklist.

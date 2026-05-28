@@ -12,14 +12,14 @@
 - `src`: MarkText source code
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
   - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
-  - `muya/`: MarkTexts backend that only allow pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs!
+  - `muya/`: MarkTexts backend, primarily pure JavaScript, BOM and DOM APIs. Don't use Electron APIs; the only intentional Node.js dependency is `src/muya/lib/parser/render/plantuml.js`, which uses `zlib` to encode PlantUML payloads.
   - `renderer`: Frontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
 - `static/`: Application assets (images, themes, etc)
 - `test/`: Contains (unit) tests
 
 ## Introduction to MarkText
 
-MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is built with HTML, JS and CSS on top of Electron. Currently we're using a few native node libraries and our UI is built with Vue 3 and Pinia. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
+MarkText is a realtime preview (WYSIWYG) editor for markdown with various markdown extensions and our philosophy is to keep things clean, simple and minimal. The application is built with TypeScript, Vue 3 and CSS on top of Electron (Muya, the editor backend, is currently still JavaScript). We use a few native node libraries and Pinia for renderer state. MarkText can be split in three parts: the core called Muya, the main- and renderer process.
 
 Muya provides realtime preview and markdown editing via multiple modules based on a block structure. You can imagine it as the editor backend with modules for markdown parsing, data store as block structure, markdown document transformations according CommonMark and GitHub Flavored Markdown specification with some extra specifications, event listeners and an exporter to generate standalone HTML and markdown files but also to generate the WYSIWYG editor. Muya is single threaded as well as MarkText but use asynchronous functions to boost performance.
 
@@ -33,8 +33,8 @@ The editor represents the view and is split into two parts. The first is the mai
 
 There are two entry points to the application:
 
-- `src/main/index.js` for the main process that is executed first and only once per instance. Once the application is initialized, it's safe to access all the environment variables and single-instances and the application (`App`) is started (`src/main/app/index.js`). You can use the application after `App::init()` is run successfully.
-- `src/renderer/main.js` for each editor window. At the beginning libraries are loaded, the window is initialized and Vue components are mounted.
+- `src/main/index.ts` for the main process that is executed first and only once per instance. Once the application is initialized, it's safe to access all the environment variables and single-instances and the application (`App`) is started (`src/main/app/index.ts`). You can use the application after `App::init()` is run successfully.
+- `src/renderer/src/main.ts` for each editor window. At the beginning libraries are loaded, the window is initialized and Vue components are mounted.
 
 ### How Muya work
 
@@ -64,7 +64,7 @@ TBD
 2. The application (`App` instance) tries to find the specified editor and call `openTab` on the editor window. A new editor window is created if no editor window exists.
 3. The editor window tries to load the markdown file via `loadMarkdownFile` and send the result via the `mt::open-new-tab` event to the renderer process.
   - Each opened file is also added to the filesystem watcher and the full path is saved to track opened file in the current editor window.
-4. The event is triggered in `src/renderer/store/editor.js` (renderer process), does some checks and create a new document state that represent a markdown document and tab state.
+4. The event is triggered in `src/renderer/src/store/editor.ts` (renderer process), does some checks and create a new document state that represent a markdown document and tab state.
 5. The new created tab is either opened and the `file-changed` event is emitted or just added to the tab state.
 6. Both Muya and the source-code editor listen on this event and change the markdown document accordingly.
 

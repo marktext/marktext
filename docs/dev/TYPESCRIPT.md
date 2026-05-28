@@ -20,10 +20,11 @@ tsconfig.base.json     # shared compiler options (strict, paths, libs)
 tsconfig.json          # extends base, adds lib/types/jsx + include/exclude
 ```
 
-Why a single project: `composite: true` requires declaration emission,
-which fails on `allowJs` files that transitively reach into `src/muya/`
-types pulled from `@types/trusted-types`. A single `--noEmit` project
-sidesteps the issue without giving up strict mode.
+Why a single project: nothing under `src/` needs declaration emission
+(the bundler is electron-vite), and the renderer, preload and main
+processes share enough types that splitting them into project
+references would mostly add ceremony. A single `--noEmit` project keeps
+the wiring minimal without giving up strict mode.
 
 Relevant settings (`tsconfig.base.json`):
 
@@ -33,8 +34,9 @@ Relevant settings (`tsconfig.base.json`):
 - `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
   restore path (which carries optional fields through JSON serialization)
   tolerant of `undefined` ≡ "key not present"
-- `allowJs: true, checkJs: false` — for `src/muya/` only (every other
-  directory is now `.ts`)
+- `allowJs: false, checkJs: false` — every directory under `src/` is
+  now `.ts` except `src/muya/`, which the rest of the tree reaches
+  through the ambient declarations in `src/types/muya.d.ts`
 - `noEmit: true` — vue-tsc only type-checks; electron-vite handles the
   actual bundling
 

@@ -33,7 +33,8 @@ pnpm run build
 exit
 # container should now be terminated
 
-# build artifacts can be found in out directory
+# build artifacts can be found in the dist/ directory (electron-builder output);
+# the intermediate electron-vite bundles live in out/
 ```
 
 Below are the complete build instructions, which may help you troubleshoot the above or attempt to build for other platforms.
@@ -64,7 +65,7 @@ On Arch Linux: `sudo pacman -S libx11 libxkbfile libsecret fontconfig`
 **Additional development dependencies on Windows:**
 
 - Windows 10 SDK (only needed before Windows 10)
-- Visual Studio 2022 (Build Tools for Visual Studio 2022 — see developer README §1.3)
+- Visual Studio 2022 (Build Tools for Visual Studio 2022). You also need the spectre-mitigated MSVC libs — see [developer README §1.3](README.md#13-windows-specific-pre-requisites) for the exact components to install.
 
 ### Let's build
 

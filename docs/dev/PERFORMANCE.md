@@ -42,7 +42,7 @@ pnpm run perf:inspect
 pnpm run start
 ```
 
-- This launches a production build of MarkText as well
+- This previews the most recent `pnpm run build` output via `electron-vite preview` with `PERF_TESTING=true` (so it behaves like a production launch). It does **not** rebuild — re-run `pnpm run build:unpack` first if your sources changed.
 
 - Press `F12` to open Dev Tools and press `Reload and Record` to benchmark start-up render performance
 
