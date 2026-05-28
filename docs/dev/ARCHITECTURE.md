@@ -12,7 +12,7 @@
 - `src`: MarkText source code
   - `common/`: Common source files that only require Node.js APIs. Code from this folder can be used in all other folders except `muya`.
   - `main/`: Main process source files that require Electron main-process APIs. `main` files can use `common` source code.
-  - `muya/`: MarkTexts backend, primarily pure JavaScript, BOM and DOM APIs. Don't use Electron APIs; the only intentional Node.js dependency is `src/muya/lib/parser/render/plantuml.js`, which uses `zlib` to encode PlantUML payloads.
+  - `muya/`: MarkTexts backend that only uses pure JavaScript, BOM and DOM APIs. Don't use Electron or Node.js APIs.
   - `renderer`: Frontend that require Electron renderer-process APIs and may use `common` or `muya` source code.
 - `static/`: Application assets (images, themes, etc)
 - `test/`: Contains (unit) tests

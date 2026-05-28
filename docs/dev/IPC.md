@@ -35,7 +35,7 @@ type:
 
 ```ts
 'mt::fs::stat': { args: [path: string]; ret: SerializedStat }
-'mt::format-link-click': [data: unknown, dirname: string]   // send shape
+'mt::format-link-click': [payload: { data: unknown; dirname: string }]   // send shape
 ```
 
 ## Renderer side
@@ -76,7 +76,7 @@ ipcMain.handle('mt::fs::stat', async (_event, path: string) => {
   return await fs.stat(path)
 })
 
-ipcMain.on('mt::format-link-click', (_event, payload, dirname) => {
+ipcMain.on('mt::format-link-click', (_event, { data, dirname }) => {
   // …
 })
 
