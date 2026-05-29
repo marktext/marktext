@@ -2,9 +2,9 @@
  * Shapes for user-imported ("custom") themes.
  *
  * Built-in themes are compiled into the renderer bundle. Custom themes live as
- * `<fileId>.theme.css` files in `<userData>/themes`; the main process reads,
- * parses, and sanitizes them (see `src/main/themes`) and the renderer applies
- * them at runtime (see `src/renderer/src/util/customThemes.ts`).
+ * `<fileId>.theme.css` files in `<userData>/themes/editor`; the main process
+ * reads, parses, and sanitizes them (see `src/main/themes`) and the renderer
+ * applies them at runtime (see `src/renderer/src/util/customThemes.ts`).
  */
 
 export type CustomThemeType = 'light' | 'dark'
