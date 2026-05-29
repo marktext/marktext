@@ -44,12 +44,12 @@ export interface WindowStateLike {
 /**
  * Resolve the position and size to use when (re)opening a window.
  *
- * The restored size is clamped to the work area of the display the window will
- * appear on (the display that contains the saved position, or the primary
- * display on first start or when the saved position is off-screen) so a window
- * whose saved size exceeds that screen never opens larger than the screen and
- * covers the taskbar. When the saved coordinates are missing or fall outside
- * every display, the window is centered on that display.
+ * The window is restored onto the display that contains its saved position (or
+ * the primary display on first start, or when the saved position is off every
+ * display). Its size is clamped to that display's work area so a window whose
+ * saved size exceeds the screen never opens larger than the screen and covers
+ * the taskbar. A saved position is kept but nudged so the window stays fully
+ * within the work area; with no saved position the window is centered.
  *
  * @param windowState The persisted window bounds (from electron-window-state).
  * @returns The position and size to apply to the BrowserWindow.
@@ -72,10 +72,12 @@ export const ensureWindowPosition = (
       ? undefined
       : displays.find(
         (display) =>
+          // Half-open bounds: a point on a shared edge (e.g. savedX ===
+          // display.bounds.x + width) belongs to the neighbouring display.
           savedX >= display.bounds.x &&
-            savedX <= display.bounds.x + display.bounds.width &&
+            savedX < display.bounds.x + display.bounds.width &&
             savedY >= display.bounds.y &&
-            savedY <= display.bounds.y + display.bounds.height
+            savedY < display.bounds.y + display.bounds.height
       )
   const targetDisplay = savedDisplay ?? screen.getPrimaryDisplay()
 
@@ -91,10 +93,16 @@ export const ensureWindowPosition = (
   if (screenArea.width < width) width = screenArea.width
   if (screenArea.height < height) height = screenArea.height
 
-  // Center when there is no saved position, or it lies outside every display.
-  if (savedDisplay === undefined) {
+  if (savedX === undefined || savedY === undefined || savedDisplay === undefined) {
+    // First start, or the saved position is off every display: center the
+    // (clamped) window on the target display.
     x = Math.ceil(screenArea.x + (screenArea.width - width) / 2)
     y = Math.ceil(screenArea.y + (screenArea.height - height) / 2)
+  } else {
+    // Returning to a known display: keep the saved position, but nudge it so
+    // the (clamped) window stays fully within the display's work area.
+    x = Math.min(Math.max(savedX, screenArea.x), screenArea.x + screenArea.width - width)
+    y = Math.min(Math.max(savedY, screenArea.y), screenArea.y + screenArea.height - height)
   }
   return {
     x: x as number,
