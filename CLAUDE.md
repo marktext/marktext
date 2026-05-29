@@ -126,9 +126,11 @@ root holds only shared tooling and CI-facing scripts.
       test/spec/            CommonMark 0.31 + GFM 0.29-gfm conformance.
       examples/             muya-examples — vite vanilla-TS dev demo
                             (listed in pnpm-workspace.yaml).
-      e2e/                  muya-e2e — Playwright (chromium/firefox/webkit).
-                            Skeleton CI workflow lands disabled; enable as
-                            follow-up.
+      e2e/                  muya-e2e — Playwright suite. CI runs Chromium
+                            only via muya-e2e.yml; Firefox + WebKit are
+                            wired in playwright.config.ts but deferred
+                            until BACKLOG Phase 3 lands engine-independent
+                            specs.
     website/                marktext-website (Vite + React 18). Standalone
                             toolchain; depends on @muyajs/core from npm,
                             not on the local muyajs package. Not part of

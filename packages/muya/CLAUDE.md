@@ -26,7 +26,7 @@ Run from the marktext repo root.
 - `pnpm -C packages/muya lint:types` — `tsc --noEmit`.
 - `pnpm -C packages/muya lint:css` — Stylelint over `src/**/*.css`.
 - `pnpm -C packages/muya check-circular` — `madge --circular src/index.ts`. CI enforces this.
-- `pnpm -C packages/muya/e2e e2e` — Playwright E2E (chromium/firefox/webkit). `e2e:install` is a one-time browser install. The marktext CI workflow `muya-e2e.yml` lands as a skeleton in the migration PR and will be enabled separately.
+- `pnpm -C packages/muya/e2e e2e` — Playwright E2E (chromium/firefox/webkit). `e2e:install` is a one-time browser install. CI (`muya-e2e.yml`) runs Chromium only; Firefox + WebKit are configured in `playwright.config.ts` and runnable locally, but excluded from the CI matrix until the engine-independent rewrites in BACKLOG Phase 3 land (triple-click selection, search-replace mutation timing).
 
 Engines: Node ≥20.19 (matches marktext root). Build target is `chrome70`.
 

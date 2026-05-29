@@ -1,15 +1,12 @@
-name: Muya E2E (skeleton — disabled)
+name: Muya E2E
 
-# NOTE: This workflow is the placeholder for running the muya Playwright
-# suite (chromium / firefox / webkit) under packages/muya/e2e/. The full
-# matrix downloads ~400MB of browser binaries and adds several minutes to
-# CI, so the migration PR lands the file with all jobs gated off. Enable
-# by flipping the `if:` condition to `${{ true }}` (or removing it) in a
-# follow-up PR once the basic muya CI pipeline (lint/test/spec/circular/
-# build) has been green for a few rounds.
-#
-# When you enable it, the trigger filter below already covers all the
-# relevant directories.
+# Runs the muya Playwright suite (packages/muya/e2e/) against the
+# packages/muya/e2e/host/ SUT page. Phase 1: Chromium only — firefox
+# and webkit are wired in playwright.config.ts but their bundled
+# binaries add ~5 min to CI install and a couple of specs need engine-
+# independent rewrites (triple-click selection, #all-replace) tracked
+# in packages/muya/e2e/BACKLOG.md Phase 3. Add them back to the matrix
+# below once those are landed.
 
 on:
   pull_request:
@@ -28,18 +25,17 @@ concurrency:
 
 jobs:
   e2e:
-    if: ${{ false }}  # disabled — see header note
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        project: [chromium, firefox, webkit]
+        project: [chromium]
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      - name: Install Playwright browsers
+      - name: Install Playwright browser (${{ matrix.project }})
         run: pnpm -C packages/muya/e2e exec playwright install --with-deps ${{ matrix.project }}
 
       - name: Run Playwright (${{ matrix.project }})
