@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "Ouvrir le dossier via le menu dans une nouvelle fenêtre",
         "zoom": "Le niveau de zoom. Entre 0.5 et 2.0 inclus",
         "hideScrollbar": "Masquer les barres de défilement",
+        "showFormattingToolbar": "Afficher la barre de formatage au-dessus de l'éditeur",
         "wordWrapInToc": "Activer le retour à la ligne dans la table des matières",
         "fileSortBy": "Trier les fichiers dans le dossier ouvert par heure de création, heure de modification et titre",
         "startUpAction": "L'action après le démarrage de MarkText, ouvrir le dernier contenu édité, ouvrir le dossier spécifié ou une page vierge",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "Nécessite un redémarrage",
         "hideScrollbars": "Masquer les barres de défilement",
+        "showFormattingToolbar": "Afficher la barre de formatage",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
         "openFoldersInNewWindow": "Ouvrir les dossiers dans une nouvelle fenêtre",
         "zoom": "Zoom"

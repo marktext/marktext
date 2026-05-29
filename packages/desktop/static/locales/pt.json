@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "Abrir pasta via menu em uma nova janela",
         "zoom": "O nível de zoom. Entre 0.5 e 2.0 inclusive",
         "hideScrollbar": "Se ocultar as barras de rolagem",
+        "showFormattingToolbar": "Se a barra de formatação deve aparecer acima do editor",
         "wordWrapInToc": "Se habilitar a quebra de linha na tabela de conteúdos",
         "fileSortBy": "Ordenar arquivos na pasta aberta por tempo de criação, tempo de modificação e título",
         "startUpAction": "A ação após a inicialização do MarkText, abrir o último conteúdo editado, abrir a pasta especificada ou página em branco",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "Requer reinicialização",
         "hideScrollbars": "Ocultar barras de rolagem",
+        "showFormattingToolbar": "Mostrar barra de formatação",
         "openFilesInNewWindow": "Abrir arquivos em nova janela",
         "openFoldersInNewWindow": "Abrir pastas em nova janela",
         "zoom": "Zoom"

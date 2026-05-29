@@ -129,6 +129,8 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
+  selectionMenuState: ApplicationMenuState
+  selectionFormatState: Record<string, boolean>
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
@@ -139,7 +141,18 @@ export const useEditorStore = defineStore('editor', {
     tabs: [],
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
-    toc: []
+    toc: [],
+    selectionMenuState: {
+      isDisabled: false,
+      isMultiline: false,
+      isLooseListItem: false,
+      isTaskList: false,
+      isCodeFences: false,
+      isCodeContent: false,
+      isTable: false,
+      affiliation: {}
+    },
+    selectionFormatState: {}
   }),
 
   actions: {
@@ -1448,20 +1461,26 @@ export const useEditorStore = defineStore('editor', {
         }
       }
 
+      const menuState = createApplicationMenuState(changes)
+      this.selectionMenuState = menuState
+
       const { windowId } = window.marktext?.env ?? { windowId: -1 }
       window.electron.ipcRenderer.send(
         'mt::editor-selection-changed',
         windowId,
-        createApplicationMenuState(changes)
+        menuState
       )
     },
 
     SELECTION_FORMATS(formats: SelectionFormat[]): void {
+      const formatState = createSelectionFormatState(formats)
+      this.selectionFormatState = formatState
+
       const { windowId } = window.marktext?.env ?? { windowId: -1 }
       window.electron.ipcRenderer.send(
         'mt::update-format-menu',
         windowId,
-        createSelectionFormatState(formats)
+        formatState
       )
     },
 

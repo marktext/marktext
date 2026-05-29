@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "메뉴를 통해 새 창에서 폴더 열기",
         "zoom": "확대/축소 수준. 0.5에서 2.0 사이",
         "hideScrollbar": "스크롤바를 숨길지 여부",
+        "showFormattingToolbar": "편집기 위에 서식 도구 모음을 표시할지 여부",
         "wordWrapInToc": "목차에서 자동 줄바꿈을 활성화할지 여부",
         "fileSortBy": "열린 폴더의 파일을 생성 시간, 수정 시간, 제목으로 정렬",
         "startUpAction": "MarkText 시작 후 작업, 마지막으로 편집한 내용 열기, 지정된 폴더 열기 또는 빈 페이지",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "재시작 필요",
         "hideScrollbars": "스크롤바 숨기기",
+        "showFormattingToolbar": "서식 도구 모음 표시",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFoldersInNewWindow": "새 창에서 폴더 열기",
         "zoom": "확대/축소"

@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "透過選單在新視窗中開啟資料夾",
         "zoom": "縮放層級。介於 0.5 和 2.0 之間",
         "hideScrollbar": "是否隱藏捲軸",
+        "showFormattingToolbar": "是否在編輯器上方顯示格式工具列",
         "wordWrapInToc": "是否在目錄中啟用自動換行",
         "fileSortBy": "按建立時間、修改時間和標題對開啟資料夾中的檔案進行排序",
         "startUpAction": "MarkText 啟動後的操作，開啟最後編輯的內容、開啟指定資料夾或空白頁面",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "需要重新啟動",
         "hideScrollbars": "隱藏捲軸",
+        "showFormattingToolbar": "顯示格式工具列",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
         "zoom": "縮放"

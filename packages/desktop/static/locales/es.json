@@ -416,6 +416,7 @@
         "openFolderInNewWindow": "Abrir carpeta vía menú en una nueva ventana",
         "zoom": "El nivel de zoom. Entre 0.5 y 2.0 inclusive",
         "hideScrollbar": "Si ocultar las barras de desplazamiento",
+        "showFormattingToolbar": "Si mostrar la barra de formato sobre el editor",
         "wordWrapInToc": "Si habilitar el ajuste de línea en la tabla de contenidos",
         "fileSortBy": "Ordenar archivos en la carpeta abierta por tiempo de creación, tiempo de modificación y título",
         "startUpAction": "La acción después del inicio de MarkText, abrir el último contenido editado, abrir la carpeta especificada o página en blanco",
@@ -503,6 +504,7 @@
         },
         "requiresRestart": "Requiere reinicio",
         "hideScrollbars": "Ocultar barras de desplazamiento",
+        "showFormattingToolbar": "Mostrar barra de formato",
         "openFilesInNewWindow": "Abrir archivos en nueva ventana",
         "openFoldersInNewWindow": "Abrir carpetas en nueva ventana",
         "zoom": "Zoom"

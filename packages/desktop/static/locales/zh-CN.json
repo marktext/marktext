@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "通过菜单在新窗口中打开文件夹",
         "zoom": "缩放级别。介于 0.5 和 2.0 之间",
         "hideScrollbar": "是否隐藏滚动条",
+        "showFormattingToolbar": "是否在编辑器上方显示格式工具栏",
         "wordWrapInToc": "是否在目录中启用自动换行",
         "fileSortBy": "按创建时间、修改时间和标题对打开文件夹中的文件进行排序",
         "startUpAction": "MarkText 启动后的操作，打开最后编辑的内容、打开指定文件夹或空白页",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "需要重启",
         "hideScrollbars": "隐藏滚动条",
+        "showFormattingToolbar": "显示格式工具栏",
         "openFilesInNewWindow": "在新窗口中打开文件",
         "openFoldersInNewWindow": "在新窗口中打开文件夹",
         "zoom": "缩放"

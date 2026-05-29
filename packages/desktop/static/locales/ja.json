@@ -417,6 +417,7 @@
         "openFolderInNewWindow": "メニューから新しいウィンドウでフォルダを開く",
         "zoom": "ズームレベル。0.5から2.0の間",
         "hideScrollbar": "スクロールバーを非表示にするかどうか",
+        "showFormattingToolbar": "エディター上部に書式ツールバーを表示するかどうか",
         "wordWrapInToc": "目次で自動改行を有効にするかどうか",
         "fileSortBy": "開いたフォルダ内のファイルを作成時刻、変更時刻、タイトルで並べ替え",
         "startUpAction": "MarkText起動後のアクション、最後に編集したコンテンツを開く、指定されたフォルダを開く、または空白ページ",
@@ -504,6 +505,7 @@
         },
         "requiresRestart": "再起動が必要",
         "hideScrollbars": "スクロールバーを隠す",
+        "showFormattingToolbar": "書式ツールバーを表示",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダを開く",
         "zoom": "ズーム"

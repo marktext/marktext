@@ -13,6 +13,7 @@ export interface IUserPreferences {
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
+  showFormattingToolbar?: boolean
   sidebarColumn?: number
   fileSortBy?: string
   fileSortOrder?: string

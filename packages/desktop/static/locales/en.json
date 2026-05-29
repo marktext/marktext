@@ -415,6 +415,7 @@
         "openFolderInNewWindow": "Open folder via menu in a new window",
         "zoom": "The zoom level. Between 0.5 and 2.0 inclusive",
         "hideScrollbar": "Whether to hide scrollbars",
+        "showFormattingToolbar": "Whether to show the formatting toolbar above the editor",
         "wordWrapInToc": "Whether to enable word wrap in TOC",
         "fileSortBy": "Sort files in opened folder by created time, modified time and title",
         "startUpAction": "The action after MarkText startup, open the last edited content, open the specified folder or blank page",
@@ -502,6 +503,7 @@
         },
         "requiresRestart": "Requires restart",
         "hideScrollbars": "Hide scrollbars",
+        "showFormattingToolbar": "Show formatting toolbar",
         "openFilesInNewWindow": "Open files in new window",
         "openFoldersInNewWindow": "Open folders in new window",
         "zoom": "Zoom"
