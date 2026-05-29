@@ -66,6 +66,10 @@ export interface LaunchOptions {
   preferences?: Record<string, unknown>
   // Extra files written into the throwaway user data directory before launch.
   userDataFiles?: Record<string, string>
+  // Use this user-data directory instead of a fresh temp one. Lets a spec
+  // pre-seed files under it (e.g. custom themes in themes/editor) before launch.
+  // The caller owns cleanup of a directory it provides.
+  userDataDir?: string
 }
 
 export const launchElectron = async(
@@ -76,7 +80,7 @@ export const launchElectron = async(
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const userDataDir = trackTempDir(getTempPath())
+  const userDataDir = options.userDataDir ?? trackTempDir(getTempPath())
   if (options.preferences) {
     fs.mkdirSync(userDataDir, { recursive: true })
     fs.writeFileSync(

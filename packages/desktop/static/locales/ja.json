@@ -777,7 +777,9 @@
       "importCustomThemes": "カスタムテーマのインポート",
       "importTheme": "テーマをインポート",
       "openFolder": "フォルダーを開く",
-      "openThemesFolder": "テーマフォルダーを開く"
+      "openThemesFolder": "テーマフォルダーを開く",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "キーバインド",

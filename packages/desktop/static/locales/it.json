@@ -777,7 +777,9 @@
       "importCustomThemes": "Importazione temi personalizzati",
       "importTheme": "Importa tema",
       "openFolder": "Apri cartella",
-      "openThemesFolder": "Apri cartella dei temi"
+      "openThemesFolder": "Apri cartella dei temi",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Combinazione di tasti",

@@ -777,7 +777,9 @@
       "importCustomThemes": "Aangepaste thema's importeren",
       "importTheme": "Thema importeren",
       "openFolder": "Map openen",
-      "openThemesFolder": "Themamap openen"
+      "openThemesFolder": "Themamap openen",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Sneltoetsen",
