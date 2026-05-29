@@ -31,6 +31,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # TEMPORARY: diagnose the Cloudflare token + account scoping so we can
+      # tell apart "token invalid" vs "scope missing" vs "endpoint unavailable".
+      # Remove this step once production deploy is bootstrapped.
+      - name: Diagnose Cloudflare token
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set +e
+          echo "=== Token shape ==="
+          echo "len=${#CF_TOKEN}"
+          echo "account_len=${#CF_ACCOUNT}"
+          echo
+          echo "=== /user/tokens/verify ==="
+          curl -s https://api.cloudflare.com/client/v4/user/tokens/verify \
+            -H "Authorization: Bearer $CF_TOKEN"
+          echo
+          echo
+          echo "=== /accounts (list accounts visible to this token) ==="
+          curl -s https://api.cloudflare.com/client/v4/accounts \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '{success, errors, accounts: [.result[]? | {id, name}]}'
+          echo
+          echo "=== /accounts/$CF_ACCOUNT/workers/scripts (classic API) ==="
+          curl -s "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/workers/scripts" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            | jq '{success, errors, total: (.result // [] | length)}'
+          echo
+          echo "=== /accounts/$CF_ACCOUNT/workers/services/marktext-website (new API) ==="
+          curl -s -w "\nHTTP %{http_code}\n" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/workers/services/marktext-website" \
+            -H "Authorization: Bearer $CF_TOKEN"
+
       - uses: pnpm/action-setup@v4
 
       - uses: actions/setup-node@v4
