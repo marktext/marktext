@@ -51,7 +51,7 @@ export default function DocsSidebar({ activeTab, activeHref, onNavigate }: Props
       />
       <div className="side-foot">
         <a
-          href={DOWNLOAD.repo + '/tree/develop/docs'}
+          href={DOWNLOAD.repo + '/tree/develop/packages/website/content/docs'}
           target="_blank"
           rel="noopener noreferrer"
         >

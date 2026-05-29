@@ -2,7 +2,7 @@
 
 We are really excited that you are interested in contributing to MarkText :tada:. Before submitting your contribution, please make sure to take a moment and read through the following guidelines.
 
-- [Code of Conduct](docs/dev/CODE_OF_CONDUCT.md)
+- [Code of Conduct](../packages/website/content/docs/dev/CODE_OF_CONDUCT.md)
 - [Philosophy](#philosophy)
 - [Issue reporting guidelines](#issue-reporting-guidelines)
 - [Pull request guidelines](#pull-request-guidelines)
@@ -76,7 +76,7 @@ If there are conflicts or you want to update your local branch, please do the fo
 
 ### Build Instructions
 
-🔗 [Build Instructions](docs/dev/BUILD.md)
+🔗 [Build Instructions](https://marktext.me/docs/dev/build)
 
 ### Style Guide
 
@@ -89,4 +89,4 @@ You can run ESLint (`pnpm run lint`) to help you to follow the style guide.
 
 ## Developer Documentation
 
-Please [click here](docs/dev/README.md) for more details.
+Please [click here](https://marktext.me/docs/dev/overview) for more details.

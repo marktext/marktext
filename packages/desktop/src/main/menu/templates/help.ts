@@ -34,7 +34,7 @@ export default function(): MenuItemConstructorOptions {
       label: t('menu.help.markdownReference'),
       click() {
         shell.openExternal(
-          'https://github.com/marktext/marktext/blob/develop/docs/end-user/MARKDOWN_SYNTAX.md'
+          'https://marktext.me/docs/markdown-syntax'
         )
       }
     },

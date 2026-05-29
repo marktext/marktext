@@ -217,7 +217,7 @@ Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` befo
 - 2-space indentation
 - No semicolons
 - Single quotes
-- TypeScript with `strict: true`; see `docs/dev/TYPESCRIPT.md`
+- TypeScript with `strict: true`; see `packages/website/content/docs/dev/TYPESCRIPT.md`
 - Cross-process types live in `packages/desktop/src/shared/types/`; ambient declarations in `packages/desktop/src/types/`
 - IPC channels are typed via the contract in `packages/desktop/src/shared/types/ipc.ts`
 - The renderer is fully sandboxed — every IPC and Node access goes through `window.electron.*` / `window.fileUtils.*` etc. (typed in `packages/desktop/src/types/global.d.ts`)
@@ -260,11 +260,11 @@ Muya  (packages/muyajs/)            ← workspace package @marktext/muyajs
 
 Most IPC channels between main and renderer use the `mt::` prefix (e.g. `mt::open-new-tab`, `mt::file-saved`). Some internal channels do not follow this convention (e.g. `language-changed`).
 
-See `docs/dev/IPC.md` for conventions and examples.
+See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 
 ## Further Reading
 
-`docs/dev/` contains the deeper developer documentation referenced by this guide:
+`packages/website/content/docs/dev/` contains the deeper developer documentation referenced by this guide. Same files are published as the developer docs section on https://marktext.me/docs/dev/overview:
 
 - `ARCHITECTURE.md` — process/module layering beyond the summary above
 - `BUILD.md` — full platform build prerequisites (including the Arch Linux deps added recently)

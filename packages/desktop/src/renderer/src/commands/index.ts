@@ -654,7 +654,7 @@ const commands: CommandDescriptor[] = [
     id: 'docs.user-guide',
     execute: async() => {
       window.electron.shell.openExternal(
-        'https://github.com/marktext/marktext/blob/develop/docs/end-user/BASICS.md'
+        'https://marktext.me/docs/basics'
       )
     }
   },
@@ -662,7 +662,7 @@ const commands: CommandDescriptor[] = [
     id: 'docs.markdown-syntax',
     execute: async() => {
       window.electron.shell.openExternal(
-        'https://github.com/marktext/marktext/blob/develop/docs/end-user/MARKDOWN_SYNTAX.md'
+        'https://marktext.me/docs/markdown-syntax'
       )
     }
   },

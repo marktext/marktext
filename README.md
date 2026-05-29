@@ -104,12 +104,12 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 **Special Sponsor**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext) |
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/packages/website/content/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## Screenshot
 
-![](docs/assets/marktext.png?raw=true)
+![](packages/website/content/docs/assets/marktext.png?raw=true)
 
 ## Features
 
@@ -118,7 +118,7 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 - Markdown extensions such as math expressions (KaTeX), front matter and emojis.
 - Support paragraphs and inline style shortcuts to improve your writing efficiency.
 - Output **HTML** and **PDF** files.
-- Various [themes](docs/end-user/THEMES.md): **Cadmium Light**, **Material Dark** etc.
+- Various [themes](https://marktext.me/docs/themes): **Cadmium Light**, **Material Dark** etc.
 - Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
 - Paste images directly from clipboard.
 
@@ -130,7 +130,7 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![Download for macOS](https://img.shields.io/badge/macOS-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Windows](https://img.shields.io/badge/Windows-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Linux](https://img.shields.io/badge/Linux-Download-blue)](https://github.com/marktext/marktext/releases/latest) |
 
-Want to see new features of the latest version? Please refer to [CHANGELOG](docs/CHANGELOG.md).
+Want to see new features of the latest version? Please refer to [CHANGELOG](https://marktext.me/docs/changelog).
 
 #### macOS
 
@@ -162,7 +162,7 @@ winget install marktext
 
 #### Linux
 
-Please follow the [Linux installation instructions](docs/end-user/LINUX.md).
+Please follow the [Linux installation instructions](https://marktext.me/docs/installation).
 
 #### Other
 
@@ -170,10 +170,10 @@ All binaries for Linux, macOS and Windows can be downloaded from the [release pa
 
 ## Development
 
-If you wish to build MarkText yourself, please check out our [build instructions](docs/dev/BUILD.md).
+If you wish to build MarkText yourself, please check out our [build instructions](https://marktext.me/docs/dev/build).
 
-- [User documentation](docs/README.md)
-- [Developer documentation](docs/dev/README.md)
+- [User documentation](https://marktext.me/docs/introduction)
+- [Developer documentation](https://marktext.me/docs/dev/overview)
 
 If you have any questions regarding MarkText, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
 
