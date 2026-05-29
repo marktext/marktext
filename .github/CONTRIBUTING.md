@@ -14,12 +14,12 @@ We are really excited that you are interested in contributing to MarkText :tada:
 
 ## Philosophy
 
-🔑 Our philosophy is to keep things clean, simple and minimal. 
+🔑 Our philosophy is to keep things clean, simple and minimal.
 MarkText is constantly changing and we want these improvements to align with our philosophy. For example, look at the side bar and tabs; these two panels provide awesome functionality *and* aren't distracting to the user. We'll continue adding more features (like plugins) that can be activated via 'settings' to improve MarkText. This will allow everyone to customize MarkText for their needs and provide a minimal default interface.
 
 ## Issue Reporting Guidelines
 
-Please search for similar issues before opening an issue and always follow the [issue template](.github/ISSUE_TEMPLATE/). Please review the following Pull Request guidelines before making your own PR. 
+Please search for similar issues before opening an issue and always follow the [issue template](.github/ISSUE_TEMPLATE/). Please review the following Pull Request guidelines before making your own PR.
 
 ## Pull Request Guidelines
 
@@ -43,7 +43,7 @@ If you add new feature:
 If you fix a bug:
 
 - If you are resolving a special issue, please add `fix: #<issue number> <short message>` in your PR title (e.g.`fix: #3899 update entities encoding/decoding`).
-- Provide a detailed description of the bug in your PR and/or link to the issue. 
+- Provide a detailed description of the bug in your PR and/or link to the issue.
 
 ### Where should I start?
 
@@ -85,7 +85,7 @@ You can run ESLint (`pnpm run lint`) to help you to follow the style guide.
 - ES6 and "best practices"
 - 2 space indent
 - no semicolons
-- documentation: [JSDoc](https://github.com/jsdoc/jsdoc) 
+- documentation: [JSDoc](https://github.com/jsdoc/jsdoc)
 
 ## Developer Documentation
 
