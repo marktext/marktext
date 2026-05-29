@@ -3,7 +3,8 @@
 import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
 import { useTilt } from '@/hooks/useTilt'
-import { CheckIcon, DownloadIcon, GitHubIcon, MenuIcon, SearchIcon } from './Icons'
+import MockWindow from './MockWindow'
+import { CheckIcon, DownloadIcon, GitHubIcon } from './Icons'
 
 export default function Hero() {
   const stageRef = useRef<HTMLDivElement>(null)
@@ -56,45 +57,29 @@ export default function Hero() {
 
         <div className="stage reveal d2" id="stage" ref={stageRef}>
           <div className="stage-glow" />
-          <div className="window" id="heroWin" ref={winRef}>
-            <div className="win-bar">
-              <div className="traffic">
-                <i />
-                <i />
-                <i />
-              </div>
-              <div className="win-title">
-                <span className="dot" /> product-launch.md
-              </div>
-              <div className="win-actions">
-                <SearchIcon />
-                <MenuIcon />
-              </div>
-            </div>
-            <div className="doc">
-              <h1>
-                Shipping Notes <span className="cursor" />
-              </h1>
-              <p className="doc-sub">A living document, written entirely in Markdown.</p>
-              <p className="lead">
-                MarkText renders your formatting <strong>as you type</strong> — headings grow, <em>emphasis</em> leans, and{' '}
-                <code className="inline">code</code> snaps into place without ever leaving the page.
-              </p>
-              <h2>What changed</h2>
-              <ul>
-                <li>Seamless real-time rendering with no preview pane</li>
-                <li>33 built-in themes plus full custom CSS</li>
-                <li>Tables, math, footnotes &amp; diagrams out of the box</li>
-              </ul>
-              <blockquote>“The best Markdown editors disappear. MarkText disappears beautifully.”</blockquote>
-              <pre>
-                <span className="c"># export.sh</span>
-                {'\n'}
-                <span className="k">marktext</span> notes.md <span className="f">--export</span>{' '}
-                <span className="s">pdf</span>
-              </pre>
-            </div>
-          </div>
+          <MockWindow title="product-launch.md" showActions windowId="heroWin" windowRef={winRef}>
+            <h1>
+              Shipping Notes <span className="cursor" />
+            </h1>
+            <p className="doc-sub">A living document, written entirely in Markdown.</p>
+            <p className="lead">
+              MarkText renders your formatting <strong>as you type</strong> — headings grow, <em>emphasis</em> leans, and{' '}
+              <code className="inline">code</code> snaps into place without ever leaving the page.
+            </p>
+            <h2>What changed</h2>
+            <ul>
+              <li>Seamless real-time rendering with no preview pane</li>
+              <li>33 built-in themes plus full custom CSS</li>
+              <li>Tables, math, footnotes &amp; diagrams out of the box</li>
+            </ul>
+            <blockquote>“The best Markdown editors disappear. MarkText disappears beautifully.”</blockquote>
+            <pre>
+              <span className="c">{'# export.sh'}</span>
+              {'\n'}
+              <span className="k">marktext</span> notes.md <span className="f">--export</span>{' '}
+              <span className="s">pdf</span>
+            </pre>
+          </MockWindow>
         </div>
       </div>
     </header>

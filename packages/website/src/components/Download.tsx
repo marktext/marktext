@@ -1,9 +1,10 @@
 import { DOWNLOAD } from '@/lib/downloads'
+import { SECTIONS } from '@/lib/sections'
 import { LinuxIcon, MacIcon, WindowsIcon } from './Icons'
 
 export default function Download() {
   return (
-    <section className="block" id="download">
+    <section className="block" id={SECTIONS.download.slice(1)}>
       <div className="wrap">
         <div className="cta reveal">
           <div className="cta-glow" />

@@ -1,29 +1,36 @@
 'use client'
 
-import { useEffect, type RefObject } from 'react'
+import { useEffect } from 'react'
 
-export function useCardGlow(containerRef: RefObject<HTMLElement | null>) {
+export function useCardGlow() {
   useEffect(() => {
-    const root = containerRef.current
-    if (!root) return
-    const cards = Array.from(root.querySelectorAll<HTMLElement>('.card'))
-    const handlers = new WeakMap<HTMLElement, (e: MouseEvent) => void>()
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('.card'))
+    const cleanups: Array<() => void> = []
 
     cards.forEach((c) => {
-      const handler = (e: MouseEvent) => {
+      let raf = 0
+      let pending: { x: number; y: number } | null = null
+
+      const onMove = (e: MouseEvent) => {
         const r = c.getBoundingClientRect()
-        c.style.setProperty('--mx', `${e.clientX - r.left}px`)
-        c.style.setProperty('--my', `${e.clientY - r.top}px`)
+        pending = { x: e.clientX - r.left, y: e.clientY - r.top }
+        if (raf) return
+        raf = requestAnimationFrame(() => {
+          raf = 0
+          if (!pending) return
+          c.style.setProperty('--mx', `${pending.x}px`)
+          c.style.setProperty('--my', `${pending.y}px`)
+          pending = null
+        })
       }
-      handlers.set(c, handler)
-      c.addEventListener('mousemove', handler)
+
+      c.addEventListener('mousemove', onMove)
+      cleanups.push(() => {
+        c.removeEventListener('mousemove', onMove)
+        if (raf) cancelAnimationFrame(raf)
+      })
     })
 
-    return () => {
-      cards.forEach((c) => {
-        const h = handlers.get(c)
-        if (h) c.removeEventListener('mousemove', h)
-      })
-    }
-  }, [containerRef])
+    return () => cleanups.forEach((fn) => fn())
+  }, [])
 }

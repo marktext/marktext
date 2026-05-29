@@ -1,9 +1,10 @@
 import { DOWNLOAD } from '@/lib/downloads'
+import { SECTIONS } from '@/lib/sections'
 import { HeartIcon } from './Icons'
 
 export default function Support() {
   return (
-    <section className="block" id="support">
+    <section className="block" id={SECTIONS.support.slice(1)}>
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="kicker">Support</span>

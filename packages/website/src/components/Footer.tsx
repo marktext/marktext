@@ -1,4 +1,5 @@
 import { DOWNLOAD } from '@/lib/downloads'
+import { SECTIONS } from '@/lib/sections'
 import { GitHubIcon } from './Icons'
 
 export default function Footer() {
@@ -7,8 +8,8 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <a className="brand" href="#top">
-              <img className="mark" src="/assets/logo.png" alt="MarkText logo" />
+            <a className="brand" href={SECTIONS.top}>
+              <img className="mark" src="/assets/logo.png" alt="MarkText logo" width={28} height={28} />
               MarkText
             </a>
             <p>
@@ -17,11 +18,11 @@ export default function Footer() {
           </div>
           <div className="foot-col">
             <h5>Product</h5>
-            <a href="#preview">Real-time preview</a>
-            <a href="#themes">Themes</a>
-            <a href="#extensions">Markdown support</a>
-            <a href="#download">Download</a>
-            <a href="#support">Support the project</a>
+            <a href={SECTIONS.preview}>Real-time preview</a>
+            <a href={SECTIONS.themes}>Themes</a>
+            <a href={SECTIONS.extensions}>Markdown support</a>
+            <a href={SECTIONS.download}>Download</a>
+            <a href={SECTIONS.support}>Support the project</a>
           </div>
           <div className="foot-col">
             <h5>Resources</h5>

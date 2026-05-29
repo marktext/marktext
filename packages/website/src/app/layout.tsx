@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { THEME_STORAGE_KEY } from '@/lib/sections'
 import './globals.css'
 
 const geistSans = Geist({
@@ -84,7 +85,8 @@ const jsonLd = {
   softwareVersion: 'latest'
 }
 
-const themeBootstrap = `(function(){try{var t=localStorage.getItem('marktext-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`
+// Inline before paint to avoid theme flash; mirrors useTheme's storage key.
+const themeBootstrap = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

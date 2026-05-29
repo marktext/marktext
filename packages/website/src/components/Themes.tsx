@@ -1,3 +1,5 @@
+import { SECTIONS } from '@/lib/sections'
+import FeatItem from './FeatItem'
 import { CodeIcon, SunSmallIcon } from './Icons'
 
 type Swatch = {
@@ -19,7 +21,7 @@ const SWATCHES: Swatch[] = [
 
 export default function Themes() {
   return (
-    <section className="block" id="themes">
+    <section className="block" id={SECTIONS.themes.slice(1)}>
       <div className="wrap">
         <div className="split rev">
           <div className="split-text">
@@ -32,24 +34,18 @@ export default function Themes() {
               </p>
             </div>
             <div className="feat-list">
-              <div className="feat-item reveal d1">
-                <div className="ic">
-                  <SunSmallIcon />
-                </div>
-                <div>
-                  <h4>Light &amp; dark, instantly</h4>
-                  <p>Switch with a keystroke, or follow your system.</p>
-                </div>
-              </div>
-              <div className="feat-item reveal d2">
-                <div className="ic">
-                  <CodeIcon />
-                </div>
-                <div>
-                  <h4>Author with plain CSS</h4>
-                  <p>No proprietary format. Know CSS? You can theme it.</p>
-                </div>
-              </div>
+              <FeatItem
+                delay="d1"
+                icon={<SunSmallIcon />}
+                title="Light & dark, instantly"
+                description="Switch with a keystroke, or follow your system."
+              />
+              <FeatItem
+                delay="d2"
+                icon={<CodeIcon />}
+                title="Author with plain CSS"
+                description="No proprietary format. Know CSS? You can theme it."
+              />
             </div>
           </div>
           <div className="reveal d2">
