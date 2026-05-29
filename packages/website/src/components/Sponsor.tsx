@@ -1,11 +1,3 @@
-import React from 'react'
-import addIcon from '../assets/add.svg?url'
-import openColIcon from '../assets/opencollective-icon.svg?url'
-import colTextIcon from '../assets/logotype.svg?url'
-import readmeLogo from '../assets/sponsor/readme.png'
-import qordobaLogo from '../assets/sponsor/qordoba.png'
-import './Sponsor.css'
-
 interface SponsorItem {
   name: string
   link: string
@@ -21,16 +13,8 @@ const specialSponsors: SponsorItem[] = [
 ]
 
 const platinumSponsors: SponsorItem[] = [
-  {
-    name: 'readme',
-    link: 'https://readme.io',
-    logo: readmeLogo
-  },
-  {
-    name: 'qordoba',
-    link: 'https://qordoba.com',
-    logo: qordobaLogo
-  }
+  { name: 'readme', link: 'https://readme.io', logo: '/assets/sponsor/readme.png' },
+  { name: 'qordoba', link: 'https://qordoba.com', logo: '/assets/sponsor/qordoba.png' }
 ]
 
 const Sponsor: React.FC = () => {
@@ -59,7 +43,7 @@ const Sponsor: React.FC = () => {
               </li>
             ))}
             <a href="https://opencollective.com/marktext#platinum-sponsors" target="_blank" rel="noopener noreferrer">
-              <img src={addIcon} alt="Add" className="icon" />
+              <img src="/assets/add.svg" alt="Add" className="icon" />
             </a>
           </ul>
           <a href="https://opencollective.com/marktext#platinum-sponsors" target="_blank" rel="noopener noreferrer">
@@ -81,20 +65,20 @@ const Sponsor: React.FC = () => {
           </p>
           <div className="button-group">
             <a href="https://opencollective.com/marktext#platinum-sponsors" className="opencollective" target="_blank" rel="noopener noreferrer">
-              <img src={openColIcon} alt="OpenCollective" className="icon" />
-              <img src={colTextIcon} alt="Collective" className="text" />
+              <img src="/assets/opencollective-icon.svg" alt="OpenCollective" className="icon" />
+              <img src="/assets/logotype.svg" alt="Collective" className="text" />
             </a>
             <a href="https://www.patreon.com/ranluo" className="patreon" target="_blank" rel="noopener noreferrer">
-              <img src={new URL('../assets/patreon.webp', import.meta.url).href} alt="patreon" />
+              <img src="/assets/patreon.webp" alt="patreon" />
               Become A Patreon
             </a>
           </div>
           <div>
-            <strong>What's the difference between Patreon and OpenCollective?</strong>
+            <strong>What&apos;s the difference between Patreon and OpenCollective?</strong>
             <div className="description">
               <div>
                 <p>
-                  Sponsored by Patreon, goes directly to support Ran Luo's work on MarkText. Sponsored by Open Collective, all expenses are transparent, and used for the development of MarkText.
+                  Sponsored by Patreon, goes directly to support Ran Luo&apos;s work on MarkText. Sponsored by Open Collective, all expenses are transparent, and used for the development of MarkText.
                 </p>
                 <strong>
                   We also accept{' '}
@@ -104,7 +88,7 @@ const Sponsor: React.FC = () => {
                 </strong>
               </div>
               <div className="description-image">
-                <img src={new URL('../assets/do_code.image.svg', import.meta.url).href} alt="" />
+                <img src="/assets/do_code.image.svg" alt="" />
               </div>
             </div>
           </div>

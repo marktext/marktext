@@ -1,3 +1,19 @@
 node_modules
-build
+.pnpm-store
 
+# Next.js
+.next
+out
+
+# OpenNext + Wrangler
+.open-next
+.wrangler
+
+# Generated content (markdown prerender output)
+src/generated
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
+.DS_Store

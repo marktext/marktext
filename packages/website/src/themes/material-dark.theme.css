@@ -47,11 +47,11 @@ pre.paragraph {
 }
 
 /*.image-marked-text::before {
-  background: url(../lib/assets/icons/image_dark.png);
+  background: url(/assets/missing-image_dark.png);
 }
 
 .image-marked-text.image-fail::before {
-  background-image: url(../lib/assets/icons/image_dark_fail.png);
+  background-image: url(/assets/missing-image_dark_fail.png);
 }*/
 
 /*

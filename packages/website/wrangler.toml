@@ -1,0 +1,20 @@
+name = "marktext-website"
+main = ".open-next/worker.js"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# Bind marktext.me as a Worker Custom Domain. The zone lives on the same
+# account as CLOUDFLARE_API_TOKEN (verified 2026-05-29), so wrangler will
+# create the route + DNS record automatically on first deploy. If the apex
+# currently has a conflicting A/AAAA/CNAME record, delete it first or the
+# deploy will refuse to bind the domain.
+[[routes]]
+pattern = "marktext.me"
+custom_domain = true
+
+[observability]
+enabled = true

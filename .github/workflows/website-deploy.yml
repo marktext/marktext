@@ -1,0 +1,88 @@
+name: Deploy website
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'packages/website/**'
+      - 'packages/muyajs/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/website-deploy.yml'
+  pull_request:
+    paths:
+      - 'packages/website/**'
+      - 'packages/muyajs/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/website-deploy.yml'
+
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.1'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter marktext-website run lint
+
+      - name: Type-check
+        run: pnpm --filter marktext-website run type-check
+
+      - name: Next build
+        run: pnpm --filter marktext-website run build
+
+      - name: OpenNext Cloudflare build
+        run: pnpm --filter marktext-website run cf:build
+
+      # ---- Production deploy: develop push ----
+      - name: Deploy (production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: pnpm --filter marktext-website exec wrangler deploy
+
+      # ---- Preview deploy: pull_request ----
+      - name: Deploy preview
+        id: preview
+        if: github.event_name == 'pull_request'
+        working-directory: packages/website
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler versions upload \
+            --message "PR #${{ github.event.pull_request.number }} @ ${{ github.event.pull_request.head.sha }}" \
+            --tag "pr-${{ github.event.pull_request.number }}" \
+            > upload.log
+          cat upload.log
+          PREVIEW_URL=$(grep -Eo 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' upload.log | head -n1 || true)
+          if [ -z "$PREVIEW_URL" ]; then
+            echo "Could not parse preview URL from wrangler output" >&2
+            exit 1
+          fi
+          echo "url=$PREVIEW_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request' && steps.preview.outputs.url != ''
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: website-preview
+          message: |
+            **Website preview ready:** ${{ steps.preview.outputs.url }}
+
+            Built from `${{ github.event.pull_request.head.sha }}` · Worker: `marktext-website` · Tag: `pr-${{ github.event.pull_request.number }}`

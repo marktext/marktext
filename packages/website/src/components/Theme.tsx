@@ -1,12 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
-import themeMd from '../markdowns/themes.md'
-import mermaid from 'mermaid'
-import { addThemeStyle } from '../utils/theme'
-import markdownToHtml from '../utils/markdownToHtml'
+'use client'
 
-import 'katex/dist/katex.min.css'
-import '../themes/default.css'
-import './Theme.css'
+import { useState, useRef, useEffect } from 'react'
+import mermaid from 'mermaid'
+import { addThemeStyle } from '@/utils/theme'
+import { markdownHtml } from '@/lib/markdown'
 
 interface ThemeItem {
   name: string
@@ -15,92 +12,48 @@ interface ThemeItem {
 }
 
 const lightThemes: ThemeItem[] = [
-  {
-    name: 'Cadmium Light',
-    label: 'light',
-    color: 'rgba(33, 181, 111, 1)'
-  },
-  {
-    name: 'Graphite Light',
-    label: 'graphite',
-    color: 'rgb(104, 134, 170)'
-  },
-  {
-    name: 'Ulysses Light',
-    label: 'ulysses',
-    color: 'rgb(12, 139, 186)'
-  }
+  { name: 'Cadmium Light', label: 'light', color: 'rgba(33, 181, 111, 1)' },
+  { name: 'Graphite Light', label: 'graphite', color: 'rgb(104, 134, 170)' },
+  { name: 'Ulysses Light', label: 'ulysses', color: 'rgb(12, 139, 186)' }
 ]
 
 const darkThemes: ThemeItem[] = [
-  {
-    name: 'Dark',
-    label: 'dark',
-    color: '#409eff'
-  },
-  {
-    name: 'Material Dark',
-    label: 'material-dark',
-    color: '#f48237'
-  },
-  {
-    name: 'One Dark',
-    label: 'one-dark',
-    color: '#e2c08d'
-  }
+  { name: 'Dark', label: 'dark', color: '#409eff' },
+  { name: 'Material Dark', label: 'material-dark', color: '#f48237' },
+  { name: 'One Dark', label: 'one-dark', color: '#e2c08d' }
 ]
 
 const Theme: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemeItem>(lightThemes[0])
-  const [themeHtml, setThemeHtml] = useState<string>('')
   const muyaContainerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    markdownToHtml(themeMd)
-      .then(html => {
-        if (!cancelled) setThemeHtml(html)
-      })
-      .catch(error => {
-        console.error('Error rendering theme markdown:', error)
-        if (!cancelled) setThemeHtml('<p>Error rendering theme content</p>')
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const themeHtml = markdownHtml.themes ?? ''
 
   useEffect(() => {
     if (!themeHtml || !muyaContainerRef.current) return
-    const codes = muyaContainerRef.current.querySelectorAll('code.language-mermaid')
-    for (const code of codes) {
-      const preEle = code.parentNode as HTMLElement
-      const mermaidContainer = document.createElement('div')
-      mermaidContainer.innerHTML = code.innerHTML
-      mermaidContainer.classList.add('mermaid')
-      preEle.replaceWith(mermaidContainer)
-    }
-    mermaid.init({}, muyaContainerRef.current.querySelectorAll('div.mermaid'))
-  }, [themeHtml])
+    const nodes = muyaContainerRef.current.querySelectorAll<HTMLElement>('div.mermaid')
+    const unrendered = Array.from(nodes).filter((d) => !d.querySelector('svg'))
+    if (unrendered.length === 0) return
+    void mermaid.run({ nodes: unrendered }).catch((err) => console.error('Mermaid render error:', err))
+  }, [themeHtml, currentTheme])
 
   const selectTheme = (theme: ThemeItem) => {
-    if (/dark/i.test(theme.label)) {
-      mermaid.initialize({
-        theme: 'dark'
-      })
-    } else {
-      mermaid.initialize({
-        theme: 'default'
-      })
-    }
+    mermaid.initialize({ theme: /dark/i.test(theme.label) ? 'dark' : 'default', startOnLoad: false })
     addThemeStyle(theme.label)
     setCurrentTheme(theme)
+    if (muyaContainerRef.current) {
+      const nodes = muyaContainerRef.current.querySelectorAll<HTMLElement>('div.mermaid')
+      nodes.forEach((n) => {
+        const original = n.getAttribute('data-source')
+        if (original) n.textContent = original
+        n.removeAttribute('data-processed')
+      })
+    }
   }
 
   return (
     <div className="theme">
-      <h2 className="slogan" id="themes">&#123; Themes &#125;</h2>
-      <img src={new URL('../assets/notes.image.svg', import.meta.url).href} alt="" className="bg-image" />
+      <h2 className="slogan" id="themes">{'{ Themes }'}</h2>
+      <img src="/assets/notes.image.svg" alt="" className="bg-image" />
       <div className="app-container">
         <div className="app-header">
           <span className="dot red"></span>
