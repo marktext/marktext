@@ -38,6 +38,15 @@ jobs:
           node-version: '22.21.1'
           cache: 'pnpm'
 
+      # The root postinstall script rebuilds the desktop app's Electron-native
+      # modules (native-keymap, keytar, ced). They need these system libraries
+      # on Linux even though the website itself does not.
+      - name: Install desktop-rebuild system libs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxkbfile-dev libsecret-1-dev
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
