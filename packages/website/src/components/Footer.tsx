@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { DOWNLOAD } from '@/lib/downloads'
 import { SECTIONS } from '@/lib/sections'
 import { GitHubIcon } from './Icons'
@@ -26,9 +27,7 @@ export default function Footer() {
           </div>
           <div className="foot-col">
             <h5>Resources</h5>
-            <a href={DOWNLOAD.repo} target="_blank" rel="noopener noreferrer">
-              Documentation
-            </a>
+            <Link href="/docs">Documentation</Link>
             <a href={DOWNLOAD.releases} target="_blank" rel="noopener noreferrer">
               Releases
             </a>

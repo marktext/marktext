@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Link from 'next/link'
 import { DOWNLOAD } from '@/lib/downloads'
 import { SECTIONS } from '@/lib/sections'
 import { useToggleTheme } from '@/hooks/useTheme'
@@ -22,6 +23,7 @@ export default function Nav() {
         <a href={SECTIONS.preview}>Features</a>
         <a href={SECTIONS.themes}>Themes</a>
         <a href={SECTIONS.extensions}>Markdown</a>
+        <Link href="/docs">Docs</Link>
         <a href={SECTIONS.support}>Support</a>
       </div>
       <div className="nav-right">
