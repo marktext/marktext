@@ -1,0 +1,27 @@
+{
+  "name": "@marktext/muyajs",
+  "version": "0.1.2",
+  "description": "A browser based markdown editor that powers MarkText (v1, legacy; muya-v2 will live in packages/muya)",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./lib": "./lib/index.js",
+    "./lib/*": "./lib/*",
+    "./themes/*": "./themes/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "themes"
+  ],
+  "author": "ransixi@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marktext/marktext.git",
+    "directory": "packages/muyajs"
+  },
+  "homepage": "https://github.com/marktext/marktext#readme"
+}

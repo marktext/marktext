@@ -287,6 +287,8 @@ importers:
         specifier: ^3.3.9
         version: 3.3.9
 
+  packages/muyajs: {}
+
 packages:
 
   7zip-bin@5.2.0:

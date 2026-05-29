@@ -1,3 +1,6 @@
+packages:
+  - 'packages/*'
+
 allowBuilds:
   ced: true
   electron-winstaller: true

@@ -23,7 +23,7 @@
     "node_modules",
     "out",
     "dist",
-    "src/muya/**/*",
+    "packages/muyajs/**/*",
     "src/renderer/src/assets/symbolIcon/index.js",
     "**/*.min.json"
   ]
