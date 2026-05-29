@@ -15,7 +15,7 @@ const features: FeatureItem[] = [
   { title: 'Diagram', description: 'Support Flowchart, Sequence diagram, Gantt diagram, Vega chart.', key: 'diagram' },
   { title: 'Inline Formats', description: 'Support CommonMark and GitHub Flavored Markdown Spec.', key: 'inlineFormats' },
   { title: 'Math Formula', description: 'Markdown extensions math expressions (KaTeX)', key: 'mathFormula' },
-  { title: 'Code Block', description: 'Support GFM code fense, highlight by prismjs.', key: 'codeBlock' }
+  { title: 'Code Block', description: 'Support GFM code fence, highlight by prismjs.', key: 'codeBlock' }
 ]
 
 const Feature: React.FC = () => {

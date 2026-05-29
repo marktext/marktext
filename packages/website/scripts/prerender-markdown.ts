@@ -52,6 +52,8 @@ const marked = new Marked(
     langPrefix: 'language-',
     highlight(code, lang) {
       if (lang === 'mermaid') {
+        // Defer rewrap to a post-pass so we can carry the raw source through to
+        // the final <div class="mermaid"> as a data-source attribute.
         return `__MERMAID_BLOCK__${Buffer.from(code, 'utf-8').toString('base64')}__END__`
       }
       const grammar = lang && Prism.languages[lang]
@@ -62,14 +64,19 @@ const marked = new Marked(
 )
 marked.setOptions({ gfm: true, breaks: false })
 
+function mermaidDiv(source: string): string {
+  // data-source carries the raw diagram text so Theme.tsx can restore it when
+  // the user switches themes — mermaid.run() replaces .textContent with an
+  // <svg> after the first render, losing the source otherwise.
+  const trimmed = source.trim()
+  const escaped = escapeHtml(trimmed)
+  return `<div class="mermaid" data-source="${escaped}">${escaped}</div>`
+}
+
 function rewrapMermaid(html: string): string {
-  // Replace marked-emitted mermaid placeholder blocks with bare <div class="mermaid">.
   return html.replace(
     /<pre><code class="language-mermaid">__MERMAID_BLOCK__([A-Za-z0-9+/=]+)__END__\s*<\/code><\/pre>/g,
-    (_, b64) => {
-      const source = Buffer.from(b64, 'base64').toString('utf-8')
-      return `<div class="mermaid">${escapeHtml(source.trim())}</div>`
-    }
+    (_, b64) => mermaidDiv(Buffer.from(b64, 'base64').toString('utf-8'))
   )
 }
 
@@ -85,7 +92,7 @@ function detectFallbackMermaid(html: string): string {
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'")
       .trim()
-    return MERMAID_HEAD.test(text) ? `<div class="mermaid">${escapeHtml(text)}</div>` : full
+    return MERMAID_HEAD.test(text) ? mermaidDiv(text) : full
   })
 }
 
