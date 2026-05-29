@@ -12,7 +12,6 @@ const config = [
       '.open-next/**',
       '.wrangler/**',
       'out/**',
-      'src/generated/**',
       'node_modules/**'
     ]
   },

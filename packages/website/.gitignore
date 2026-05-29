@@ -9,9 +9,6 @@ out
 .open-next
 .wrangler
 
-# Generated content (markdown prerender output)
-src/generated
-
 # Misc
 *.tsbuildinfo
 next-env.d.ts
