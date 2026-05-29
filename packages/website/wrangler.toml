@@ -3,6 +3,11 @@ main = ".open-next/worker.js"
 compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Enables versioned preview URLs like
+# https://pr-NNN-marktext-website.<subdomain>.workers.dev which the CI workflow
+# parses out of `wrangler versions upload` output and posts back to PRs.
+preview_urls = true
+
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
@@ -11,8 +16,7 @@ binding = "ASSETS"
 # Cloudflare account as CLOUDFLARE_API_TOKEN (verified 2026-05-29), so wrangler
 # creates the route + DNS record for each automatically. If either hostname has
 # an existing A/AAAA/CNAME record, delete it first or the deploy will refuse to
-# bind. The Worker (via next.config.ts redirects) sends www -> apex with 301 so
-# only the canonical hostname is indexed.
+# bind. www → apex 301 redirect lives in src/middleware.ts.
 [[routes]]
 pattern = "marktext.me"
 custom_domain = true
