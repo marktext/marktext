@@ -1,0 +1,97 @@
+.mu-front-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+
+.mu-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+
+    border-radius: 3px;
+    cursor: grab;
+    opacity: 0.8;
+}
+
+.mu-icon-wrapper:hover {
+    background: var(--button-bg-color-hover);
+    border: var(--button-border);
+    opacity: 1;
+}
+
+.mu-icon-wrapper:hover i.paragraph {
+    display: none;
+}
+
+.mu-icon-wrapper i.icon.drag {
+    display: none;
+}
+
+.mu-icon-wrapper:hover i.drag {
+    display: block;
+}
+
+.mu-icon-wrapper i.icon {
+    position: relative;
+
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    overflow: auto;
+
+    color: var(--icon-color);
+
+    transition: all 0.25s ease-in-out;
+}
+
+.mu-icon-wrapper i.icon > i[class^='icon-'] {
+    position: relative;
+    left: -14px;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    background-size: 100% !important;
+
+    filter: drop-shadow(14px 0 currentcolor);
+}
+
+.mu-line-ghost {
+    position: absolute;
+
+    height: 3px;
+
+    background: var(--editor-color-30);
+}
+
+.mu-shadow {
+    position: absolute;
+    z-index: 1;
+
+    background: var(--editor-bg-color);
+    box-shadow: var(--float-shadow);
+    transform: translateX(-30px);
+    opacity: 0.8;
+}
+
+.mu-shadow > * {
+    margin: 10px 0;
+}
+
+.mu-front-button-wrapper {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    z-index: 1000;
+
+    opacity: 0;
+
+    transition: opacity 0.2s ease-in-out;
+}

@@ -1,0 +1,531 @@
+.mu-gray {
+    color: var(--editor-color-30);
+    text-decoration: none;
+}
+
+.mu-hide,
+.mu-hide .mu-highlight,
+.mu-hide .mu-selection {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+
+    vertical-align: middle;
+}
+
+/* link and auto-link and reference link */
+a.mu-inline-rule,
+span.mu-inline-rule.mu-link {
+    color: rgb(20 86 240);
+}
+
+/* Note: previously this rule also set `pointer-events: none` to suppress
+   native navigation on `<a href>` clicks. That broke our hover-based
+   linkTools popover detection because every mouse event hit-tested
+   straight through to the editor container. Removed in PR-11b; the
+   `editor/linkMouseEvents.ts` click handler calls `preventDefault()`
+   on link clicks instead (standard contenteditable rich-text pattern). */
+
+.mu-link-in-bracket {
+    color: var(--editor-color-50);
+}
+
+/* inline code */
+code.mu-inline-rule {
+    margin: 0;
+    padding: 0.2em 0.4em;
+
+    color: var(--editor-color);
+    font-size: 0.8em;
+    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+
+    background-color: var(--code-block-bg-color);
+    border-radius: 3px;
+}
+
+/* emoji */
+.mu-emoji-marked-text {
+    position: relative;
+
+    color: var(--editor-color-50);
+}
+
+.mu-emoji-marked-text[data-emoji] {
+    margin-left: 1.1em;
+}
+
+.mu-hide.mu-emoji-marked-text[data-emoji],
+.mu-hide.mu-html-escape[data-character] {
+    overflow: visible;
+
+    color: transparent;
+    white-space: nowrap;
+}
+
+.mu-emoji-marked-text::before {
+    position: absolute;
+    top: 0;
+    left: -1em;
+
+    color: #000;
+    font-size: 1em;
+
+    content: attr(data-emoji);
+}
+
+.mu-hide.mu-emoji-marked-text::before {
+    top: -0.8em;
+}
+
+.mu-warn.mu-emoji-marked-text {
+    color: var(--delete-color);
+    text-decoration: none;
+}
+
+/* html escape */
+.mu-html-escape {
+    position: relative;
+
+    margin-left: 1em;
+}
+
+.mu-html-escape::before {
+    position: absolute;
+    top: 0;
+    left: -1em;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 1em;
+    height: 100%;
+
+    color: var(--editor-color);
+
+    content: attr(data-character);
+}
+
+/* hard line break and soft line end */
+.mu-line-end {
+    display: block;
+}
+
+.mu-hard-line-break-space::after {
+    font-family: monospace;
+
+    opacity: 0.5;
+
+    content: '↩';
+}
+
+/* ruby and inline math */
+.mu-ruby {
+    position: relative;
+
+    vertical-align: bottom;
+}
+
+.mu-math {
+    position: relative;
+
+    display: inline-block;
+
+    color: var(--editor-color);
+    font-family: monospace;
+    vertical-align: bottom;
+}
+
+.mu-math > .mu-math-render,
+.mu-ruby > .mu-ruby-render {
+    position: absolute;
+    top: calc(100% + 0.5em);
+    left: 0;
+    z-index: 1;
+
+    display: inline-block;
+    padding: 0.3em 0.5em;
+
+    color: var(--editor-color);
+
+    background: var(--float-bg-color);
+    border-radius: 4px;
+    box-shadow: var(--float-shadow);
+
+    user-select: none;
+}
+
+.mu-ruby > .mu-ruby-render {
+    left: 50%;
+
+    padding-bottom: 0;
+
+    transform: translateX(-50%);
+}
+
+div .mu-math-error,
+.mu-math > .mu-math-render.mu-math-error {
+    color: var(--delete-color);
+    font-size: 14px;
+    font-family: monospace;
+    font-style: italic;
+}
+
+.mu-math > .mu-math-render .katex-display {
+    margin: 0;
+}
+
+/* Inline math */
+.mu-math > .mu-math-render .katex {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.mu-hide.mu-ruby,
+.mu-hide.mu-math {
+    width: auto;
+    height: auto;
+}
+
+.mu-hide.mu-ruby > .mu-ruby-text,
+.mu-hide.mu-math > .mu-math-text {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.mu-hide.mu-ruby > .mu-ruby-render,
+.mu-hide.mu-math > .mu-math-render {
+    position: relative;
+    top: 0;
+
+    padding: 0;
+
+    color: var(--editor-color);
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    user-select: auto;
+}
+
+.mu-ruby:not(.mu-hide) > .mu-ruby-render,
+.mu-math:not(.mu-hide) > .mu-math-render {
+    z-index: 100;
+
+    box-shadow: var(--float-shadow);
+}
+
+.mu-ruby > .mu-ruby-render::before,
+.mu-math > .mu-math-render::before {
+    border-bottom-color: var(--float-bg-color);
+}
+
+.mu-gray.mu-ruby > .mu-ruby-render::before,
+.mu-gray.mu-math > .mu-math-render::before {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+
+    margin-left: -5px;
+
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px;
+
+    content: '';
+}
+
+.mu-hide.mu-ruby > .mu-ruby-render::before,
+.mu-hide.mu-math > .mu-math-render::before {
+    content: none;
+}
+
+blockquote .mu-hide.mu-ruby > .mu-ruby-render,
+blockquote .mu-hide.mu-math > .mu-math-render {
+    color: var(--editor-color-50);
+}
+
+/* header space */
+.mu-header-tight-space {
+    margin-left: -0.3em;
+}
+
+/* inline image and <img> image */
+.mu-inline-image,
+.mu-image-container {
+    font-size: 0;
+    line-height: 0;
+}
+
+.mu-inline-image {
+    position: relative;
+
+    display: inline-block;
+
+    background: var(--code-block-bg-color);
+    border-radius: 2px;
+}
+
+.mu-inline-image.left,
+.mu-inline-image.center,
+.mu-inline-image.right {
+    display: block;
+    margin: 30px auto 40px;
+}
+
+.mu-inline-image.left {
+    text-align: left;
+}
+
+.mu-inline-image.right {
+    text-align: right;
+}
+
+.mu-inline-image.center {
+    text-align: center;
+}
+
+.mu-inline-image .mu-image-container {
+    position: relative;
+
+    display: inline-block;
+    max-width: 100%;
+    overflow: visible;
+}
+
+.mu-image-marked-text ~ img {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.mu-inline-image .mu-image-container img {
+    max-width: 100%;
+}
+
+.mu-inline-image.mu-image-success {
+    background: transparent;
+}
+
+.mu-inline-image a.mu-image-icon-success,
+.mu-inline-image a.mu-image-icon-fail,
+.mu-inline-image a.mu-image-icon-close {
+    position: absolute;
+    top: 15px;
+
+    display: none;
+    width: 20px;
+    height: 20px;
+}
+
+.mu-inline-image a.mu-image-icon-success,
+.mu-inline-image a.mu-image-icon-fail {
+    left: 15px;
+}
+
+.mu-inline-image i.icon {
+    position: relative;
+
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    overflow: auto;
+
+    color: var(--icon-color);
+}
+
+.mu-inline-image i.icon > i[class^='icon-'] {
+    position: absolute;
+    left: -20px;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(20px 0 currentcolor);
+}
+
+.mu-inline-image.mu-image-fail,
+.mu-inline-image.mu-empty-image {
+    width: 100%;
+    height: 50px;
+
+    cursor: pointer;
+}
+
+.mu-inline-image.mu-image-loading {
+    width: 400px;
+    height: 250px;
+    margin: 0 auto;
+
+    vertical-align: bottom;
+}
+
+.mu-inline-image.mu-image-fail::before,
+.mu-inline-image.mu-empty-image::before {
+    position: absolute;
+    top: 15px;
+    left: 50px;
+
+    display: block;
+    width: calc(100% - 50px);
+    height: 20px;
+    overflow: hidden;
+
+    color: var(--editor-color);
+    font-size: 14px;
+    line-height: 20px;
+    white-space: nowrap;
+    text-align: left;
+    text-overflow: ellipsis;
+}
+
+.mu-inline-image.mu-empty-image::before {
+    font-weight: 600;
+
+    content: attr(empty-text);
+}
+
+.mu-inline-image.mu-image-fail::before {
+    font-weight: 600;
+
+    content: attr(fail-text);
+}
+
+.mu-inline-image.mu-image-loading a.mu-image-icon-success,
+.mu-inline-image.mu-empty-image a.mu-image-icon-success {
+    display: block;
+}
+
+.mu-inline-image.mu-image-fail a.mu-image-icon-fail {
+    display: block;
+}
+
+.mu-inline-image.mu-empty-image:hover a.mu-image-icon-close,
+.mu-inline-image.mu-image-fail:hover a.mu-image-icon-close {
+    right: 15px;
+    z-index: 1;
+
+    display: block;
+    align-items: center;
+    justify-content: space-around;
+
+    opacity: 0.5;
+}
+
+.mu-inline-image.mu-image-uploading .mu-image-container img {
+    opacity: 0.3;
+}
+
+.mu-inline-image.mu-image-success.mu-inline-image-selected .mu-image-container img {
+    filter: brightness(80%);
+}
+
+.mu-inline-image.mu-image-uploading .mu-image-container::before,
+.mu-inline-image.mu-image-uploading .mu-image-container::after,
+.mu-inline-image.mu-image-loading::before,
+.mu-inline-image.mu-image-loading::after {
+    position: absolute;
+    top: calc(50% - 11px);
+    left: calc(50% - 11px);
+
+    display: block;
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    content: '';
+}
+
+.mu-inline-image.mu-image-uploading .mu-image-container::before,
+.mu-inline-image.mu-image-loading::before {
+    position: absolute;
+
+    font-size: 10px;
+    text-indent: -9999px;
+
+    border-top: 2px solid var(--editor-color-10);
+    border-right: 2px solid var(--editor-color-10);
+    border-bottom: 2px solid var(--editor-color-10);
+    border-left: 2px solid var(--icon-color);
+    transform: translateZ(0);
+
+    animation: loading 1.1s infinite linear;
+}
+
+.mu-image-marked-text {
+    color: var(--editor-color-50);
+    font-size: 1em;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.mu-image-marked-text::before {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 5px;
+
+    vertical-align: sub;
+
+    background: url('../icons/image_light.png');
+    background-size: cover;
+
+    content: '';
+}
+
+.mu-image-marked-text.mu-image-fail::before {
+    background-image: url('../icons/image_light_fail.png');
+    background-size: cover;
+}
+
+/* text after ``` in paragraph content */
+.mu-language {
+    color: var(--editor-color-50);
+    font-weight: 600;
+    font-family: monospace;
+    text-decoration: none;
+}
+
+/* reference definition */
+.mu-reference-marker {
+    color: var(--editor-color-50);
+    font-size: 0.9em;
+}
+
+.mu-reference-title {
+    margin: 0 5px;
+
+    font-size: 0.9em;
+}
+
+.mu-reference-label {
+    margin: 0 5px;
+
+    font-weight: 600;
+}
+
+/* inline footnote identifier — `[^id]` rendered as a small superscript pill.
+   Marker spans (`[^` / `]`) inherit `.mu-hide` from the syntax renderer when
+   the cursor isn't on this token, so the user sees just the identifier text
+   inside the pill. */
+.mu-inline-footnote-identifier {
+    padding: 0 0.4em;
+
+    color: var(--editor-color-80);
+    font-size: 0.7em;
+
+    background: var(--code-block-bg-color);
+    border-radius: 3px;
+
+    cursor: pointer;
+}
+
+.mu-inline-footnote-identifier a {
+    color: var(--editor-color);
+    text-decoration: none;
+}

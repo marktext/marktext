@@ -3,6 +3,10 @@ name: Lint
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    # packages/muya (TS v2) self-lints via .github/workflows/muya-lint.yml.
+    # Skip the desktop lint+typecheck on muya-only PRs.
+    paths-ignore:
+      - 'packages/muya/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

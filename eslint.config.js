@@ -23,6 +23,12 @@ export default [
       'packages/website/**',
       'packages/muyajs/lib/assets/libs/**',
       'packages/muyajs/lib/parser/marked/urlify.js',
+      // muya v2 (TS) self-lints with its own antfu-based config
+      // (packages/muya/eslint.config.mjs). Different style rules from the
+      // marktext-desktop config (4-space indent, semis required, strict
+      // ts/no-explicit-any), so we keep them isolated rather than try to
+      // merge two flat configs.
+      'packages/muya/**',
       'packages/desktop/src/renderer/src/assets/symbolIcon/index.js',
       '**/*.min.json',
       'test-results/**',

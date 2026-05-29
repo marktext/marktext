@@ -1,0 +1,116 @@
+.mu-quick-insert {
+    width: 230px;
+    max-height: 260px;
+    padding: 0 0 20px;
+    overflow-y: auto;
+}
+
+.mu-quick-insert .title {
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+
+    display: flex;
+    padding: 10px 14px;
+
+    color: var(--editor-color);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 120%;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+
+    background: var(--float-bg-color);
+}
+
+.mu-quick-insert .item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 34px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.mu-quick-insert .active,
+.mu-quick-insert div.item:hover {
+    background-color: var(--float-hover-color);
+}
+
+.mu-quick-insert:hover .active {
+    background: transparent;
+}
+
+.mu-quick-insert .no-result {
+    margin-top: 20px;
+    padding: 0 20px;
+
+    color: var(--editor-color-50);
+    font-size: 14px;
+    text-align: center;
+}
+
+.mu-quick-insert .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    margin-left: 14px;
+}
+
+.mu-quick-insert .icon-container > i.icon {
+    position: relative;
+
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    overflow: auto;
+
+    color: var(--icon-color);
+
+    opacity: 0.8;
+
+    transition: all 0.25s ease-in-out;
+}
+
+.mu-quick-insert .icon-container > i.icon > i[class^='icon-'] {
+    position: relative;
+    left: -20px;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(20px 0 currentcolor);
+}
+
+.mu-quick-insert .description {
+    flex: 1;
+}
+
+.mu-quick-insert .short-cut {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-shrink: 1;
+    align-items: center;
+    width: 70px;
+    margin-right: 20px;
+
+    color: var(--editor-color-50);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.mu-quick-insert .big-title {
+    color: var(--editor-color);
+    font-size: 13px;
+}
+
+.mu-quick-insert .hide {
+    display: none;
+}

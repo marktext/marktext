@@ -3,6 +3,10 @@ name: Test
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    # packages/muya (TS v2) has its own test workflows (muya-test, muya-spec).
+    # Skip the desktop unit tests on muya-only PRs.
+    paths-ignore:
+      - 'packages/muya/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

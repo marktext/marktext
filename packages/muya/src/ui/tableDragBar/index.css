@@ -1,0 +1,80 @@
+.mu-table-drag-container {
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.mu-table-drag-bar[data-drag='bottom'] {
+    box-sizing: border-box;
+    width: 24px;
+    height: 10px;
+
+    border: 1px solid var(--editor-color-30);
+    border-radius: 5px;
+}
+
+.mu-table-drag-bar[data-drag='right'] {
+    box-sizing: border-box;
+    width: 10px;
+    height: 24px;
+
+    border: 1px solid var(--editor-color-30);
+    border-radius: 5px;
+}
+
+.mu-table-drag-bar::before,
+.mu-table-drag-bar::after {
+    position: absolute;
+
+    display: block;
+    width: 4px;
+    height: 4px;
+
+    background: var(--icon-color);
+    border-radius: 2px;
+
+    content: '';
+}
+
+.mu-table-drag-bar[data-drag='bottom']::before {
+    top: 3px;
+    left: 4px;
+}
+
+.mu-table-drag-bar[data-drag='bottom']::after {
+    top: 3px;
+    right: 4px;
+}
+
+.mu-table-drag-bar[data-drag='right']::before {
+    top: 4px;
+    right: 3px;
+}
+
+.mu-table-drag-bar[data-drag='right']::after {
+    right: 3px;
+    bottom: 4px;
+}
+
+.mu-cell-transform {
+    transition: transform 0.3s ease-in-out;
+}
+
+.mu-drag-cell {
+    z-index: 1;
+
+    background: var(--float-bg-color);
+    opacity: 0.7;
+
+    transition:
+        left 0.3s ease-in-out,
+        bottom 0.3s ease-in-out;
+}
+
+.mu-drag-cell.ag-drag-right {
+    left: -6px;
+}
+
+.mu-drag-cell.ag-drag-bottom {
+    bottom: -6px;
+}

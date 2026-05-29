@@ -1,0 +1,49 @@
+.mu-table-bar-tools {
+    min-width: 120px;
+}
+
+.mu-table-bar-tools ul,
+.mu-table-bar-tools li {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-table-bar-tools ul {
+    padding: 5px 0;
+}
+
+.mu-table-bar-tools li.item {
+    position: relative;
+
+    height: 25px;
+    padding: 0 8px;
+
+    color: var(--editor-color);
+    font-size: 13px;
+    line-height: 25px;
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.mu-table-bar-tools li.item[data-label='remove'] {
+    margin-top: 10px;
+}
+
+.mu-table-bar-tools li.item[data-label='remove']::before {
+    position: absolute;
+    top: -5px;
+    left: 8px;
+
+    display: block;
+    width: calc(100% - 16px);
+    height: 1px;
+
+    background: var(--editor-color-04);
+
+    content: '';
+}
+
+.mu-table-bar-tools li.item:hover {
+    background-color: var(--float-hover-color);
+}

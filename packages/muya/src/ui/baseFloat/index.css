@@ -1,0 +1,25 @@
+.mu-float-wrapper {
+    position: absolute;
+    top: -9999px;
+    right: -9999px;
+    z-index: 10000;
+
+    box-sizing: border-box;
+    width: 110px;
+    height: auto;
+    overflow: hidden;
+
+    font-size: 12px;
+
+    background-color: var(--float-bg-color);
+    border-radius: 2px;
+    box-shadow: var(--float-shadow);
+    transform-origin: top;
+    opacity: 0;
+
+    transition: opacity 0.2s ease-in-out;
+}
+
+.mu-float-container::-webkit-scrollbar:vertical {
+    width: 0;
+}

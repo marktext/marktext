@@ -1,0 +1,54 @@
+.mu-list-picker {
+    box-sizing: border-box;
+    width: 140px;
+    max-height: 156px;
+    padding: 8px 0;
+    overflow-y: auto;
+
+    font-size: 14px;
+}
+
+.mu-list-picker ul,
+.mu-list-picker li {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-list-picker .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 28px;
+    padding: 0 10px;
+
+    list-style: none;
+}
+
+.mu-list-picker:hover .active {
+    background: transparent;
+}
+
+.mu-list-picker .item:hover,
+.mu-list-picker .item.active {
+    background-color: var(--float-hover-color);
+}
+
+.mu-list-picker .item .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.mu-list-picker .item .icon-wrapper span::before {
+    font-size: 14px;
+}
+
+.mu-list-picker .item .language {
+    flex: 1;
+
+    color: var(--editor-color);
+    font-size: 14px;
+    line-height: 28px;
+}

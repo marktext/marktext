@@ -1,5 +1,10 @@
 packages:
   - 'packages/*'
+  # muya v2 (TS) nests its dev surface and Playwright suite inside its own
+  # package directory rather than as siblings under packages/, so list them
+  # explicitly.
+  - 'packages/muya/examples'
+  - 'packages/muya/e2e'
 
 allowBuilds:
   ced: true

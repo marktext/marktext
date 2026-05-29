@@ -1,0 +1,25 @@
+name: Muya Circular Dep Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/src/**'
+      - 'packages/muya/.madgerc'
+      - 'packages/muya/package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-circular.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  circular:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Madge circular-dep check
+        run: pnpm -C packages/muya check-circular

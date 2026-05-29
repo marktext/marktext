@@ -1,0 +1,123 @@
+// eslint.config.mjs
+import antfu from '@antfu/eslint-config';
+import parser from '@typescript-eslint/parser';
+
+function typescriptPreset() {
+    return {
+        files: ['**/*.ts', '**/*.tsx'],
+        rules: {
+            // Ban `any` (annotations, casts, generics). Genuine escape
+            // hatches (the block-constructor registry's `state: any`, the
+            // event Listener's `(...args: any[])`) are explicit
+            // `eslint-disable-next-line ts/no-explicit-any` comments at
+            // the source so they remain visible and reviewable.
+            'ts/no-explicit-any': 'error',
+            // Ban the `value as unknown as X` double-cast escape hatch outside
+            // a small set of audited boundary helpers (json1 ↔ TState, the
+            // dynamic inline-renderer dispatch table, marked hook this-binding,
+            // structural punning where two token unions overlap at runtime).
+            // New `as unknown as X` must come with a `// eslint-disable-next-line`
+            // and a comment explaining why the boundary can't be expressed in
+            // the TS type system.
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector: 'TSAsExpression > TSAsExpression[typeAnnotation.type=\'TSUnknownKeyword\']',
+                    message: '`value as unknown as X` double-casts the type system. Use a type guard, narrow via `instanceof` / discriminator, or wrap the unsafe boundary in a named helper. If genuinely unavoidable, disable this rule with an explanatory comment.',
+                },
+            ],
+            'ts/naming-convention': [
+                'warn',
+                // Interfaces' names should start with a capital 'I'.
+                {
+                    selector: 'interface',
+                    format: ['PascalCase'],
+                    custom: {
+                        regex: '^I[A-Z0-9]',
+                        match: true,
+                    },
+                },
+                // Private fields of a class should start with an underscore '_'.
+                {
+                    selector: ['classMethod', 'classProperty'],
+                    modifiers: ['private'],
+                    format: ['camelCase'],
+                    leadingUnderscore: 'require',
+                },
+            ],
+        },
+        languageOptions: {
+            parser,
+        },
+    };
+}
+
+// Test files routinely build partial structural mocks for the block-tree
+// classes (`fake as unknown as Table`); policing the double-cast pattern
+// there adds noise without safety. Disable only `no-restricted-syntax` —
+// `ts/no-explicit-any` and `ts/naming-convention` stay on for tests.
+function testFileDoubleCastOverride() {
+    return {
+        files: [
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+            '**/*.test.ts',
+            '**/*.test.tsx',
+        ],
+        rules: {
+            'no-restricted-syntax': 'off',
+        },
+    };
+}
+
+export default antfu(
+    {
+        stylistic: {
+            indent: 4,
+            semi: true,
+        },
+        react: false,
+        yaml: {
+            overrides: {
+                'yaml/indent': ['error', 4, { indicatorValueIndent: 2 }],
+            },
+        },
+        markdown: false,
+        typescript: true,
+        formatters: {
+            css: true,
+            html: true,
+        },
+        // CommonMark / GFM spec fixtures are generated from upstream sources
+        // (commonmark/CommonMark spec.txt + github/cmark-gfm spec.txt); lint
+        // rules around indent / line length don't apply to data files.
+        ignores: [
+            'test/spec/fixtures/**',
+            'test/spec/expected-failures.json',
+            'test/spec/conformance.md',
+            'examples/**',
+            'e2e/**',
+            'lib/**',
+            'docs/**',
+        ],
+    },
+    {
+        files: ['**/*.ts', '**/*.tsx'],
+        ignores: [
+            '**/*.tsx',
+            '**/*.d.ts',
+            '**/vite.config.ts',
+            'playwright.config.ts',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+            '**/*.test.ts',
+            '**/*.test.tsx',
+        ], // do not check test files
+        rules: {
+            'complexity': ['warn', { max: 20 }],
+            'max-lines-per-function': ['warn', 200],
+        },
+    },
+    typescriptPreset(),
+    testFileDoubleCastOverride(),
+);

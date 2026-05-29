@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/logo.jpg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Muya Playground</title>
+    </head>
+    <body>
+        <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Toggle sidebar" title="Toggle sidebar">☰</button>
+        <aside class="sidebar">
+            <header class="sidebar-brand">Muya Playground</header>
+
+            <details open>
+                <summary>Locale</summary>
+                <label for="language-select">Language:</label>
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="zh-CN">简体中文</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                </select>
+            </details>
+
+            <details open>
+                <summary>History &amp; Selection</summary>
+                <button id="undo">Undo</button>
+                <button id="redo">Redo</button>
+                <button id="select-all">Select All</button>
+                <button id="focus">Focus editor</button>
+            </details>
+
+            <details open>
+                <summary>Find &amp; Replace</summary>
+                <input id="search" type="text" placeholder="Search (regexp)…" />
+                <div class="sidebar-row">
+                    <button id="previous">Previous</button>
+                    <button id="next">Next</button>
+                </div>
+                <input id="replace" type="text" placeholder="Replacement text…" />
+                <div class="sidebar-row">
+                    <button id="single">Replace</button>
+                    <button id="all">Replace All</button>
+                </div>
+            </details>
+
+            <details open>
+                <summary>Content</summary>
+                <button id="set-content">Set Content (minimal)</button>
+                <button id="reset-demo">Reset to demo</button>
+                <button id="clear-all">Clear all</button>
+            </details>
+
+            <details open>
+                <summary>Export &amp; Debug</summary>
+                <div class="sidebar-row">
+                    <button id="show-md">Show MD</button>
+                    <button id="show-state">Show State</button>
+                </div>
+                <div class="sidebar-row">
+                    <button id="show-toc">Show TOC</button>
+                    <button id="export-html">Export HTML</button>
+                </div>
+                <textarea id="debug-out" readonly placeholder="Output appears here…"></textarea>
+            </details>
+
+            <details open>
+                <summary>Muya Options <span class="sidebar-hint">(Apply to reload)</span></summary>
+                <form id="options-form">
+                    <fieldset>
+                        <legend>Markdown extensions</legend>
+                        <label><input type="checkbox" data-opt="frontMatter" /> frontMatter</label>
+                        <label><input type="checkbox" data-opt="footnote" /> footnote</label>
+                        <label><input type="checkbox" data-opt="math" /> math</label>
+                        <label><input type="checkbox" data-opt="superSubScript" /> superSubScript</label>
+                        <label><input type="checkbox" data-opt="isGitlabCompatibilityEnabled" /> isGitlabCompatibilityEnabled</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Display</legend>
+                        <label><input type="checkbox" data-opt="codeBlockLineNumbers" /> codeBlockLineNumbers</label>
+                        <label><input type="checkbox" data-opt="focusMode" /> focusMode</label>
+                        <label><input type="checkbox" data-opt="spellcheckEnabled" /> spellcheckEnabled</label>
+                        <label><input type="checkbox" data-opt="disableHtml" /> disableHtml</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Editing behavior</legend>
+                        <label><input type="checkbox" data-opt="autoPairBracket" /> autoPairBracket</label>
+                        <label><input type="checkbox" data-opt="autoPairMarkdownSyntax" /> autoPairMarkdownSyntax</label>
+                        <label><input type="checkbox" data-opt="autoPairQuote" /> autoPairQuote</label>
+                        <label><input type="checkbox" data-opt="autoCheck" /> autoCheck</label>
+                        <label><input type="checkbox" data-opt="autoMoveCheckedToEnd" /> autoMoveCheckedToEnd</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Misc</legend>
+                        <label><input type="checkbox" data-opt="preferLooseListItem" /> preferLooseListItem</label>
+                        <label><input type="checkbox" data-opt="hideQuickInsertHint" /> hideQuickInsertHint</label>
+                        <label><input type="checkbox" data-opt="hideLinkPopup" /> hideLinkPopup</label>
+                        <label><input type="checkbox" data-opt="trimUnnecessaryCodeBlockEmptyLines" /> trimUnnecessaryCodeBlockEmptyLines</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>bulletListMarker</legend>
+                        <label><input type="radio" name="opt-bulletListMarker" value="-" /> -</label>
+                        <label><input type="radio" name="opt-bulletListMarker" value="+" /> +</label>
+                        <label><input type="radio" name="opt-bulletListMarker" value="*" /> *</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>orderListDelimiter</legend>
+                        <label><input type="radio" name="opt-orderListDelimiter" value="." /> .</label>
+                        <label><input type="radio" name="opt-orderListDelimiter" value=")" /> )</label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>frontmatterType</legend>
+                        <label><input type="radio" name="opt-frontmatterType" value="-" /> - (YAML)</label>
+                        <label><input type="radio" name="opt-frontmatterType" value="+" /> + (TOML)</label>
+                        <label><input type="radio" name="opt-frontmatterType" value=";" /> ; (JSON ;;;)</label>
+                        <label><input type="radio" name="opt-frontmatterType" value="{" /> { (JSON {})</label>
+                    </fieldset>
+
+                    <label class="sidebar-field">
+                        <span>mermaidTheme</span>
+                        <select data-opt="mermaidTheme">
+                            <option value="default">default</option>
+                            <option value="dark">dark</option>
+                            <option value="forest">forest</option>
+                        </select>
+                    </label>
+
+                    <label class="sidebar-field">
+                        <span>vegaTheme</span>
+                        <select data-opt="vegaTheme">
+                            <option value="latimes">latimes</option>
+                            <option value="excel">excel</option>
+                            <option value="ggplot2">ggplot2</option>
+                            <option value="quartz">quartz</option>
+                            <option value="vox">vox</option>
+                            <option value="fivethirtyeight">fivethirtyeight</option>
+                            <option value="dark">dark</option>
+                        </select>
+                    </label>
+
+                    <label class="sidebar-field">
+                        <span>fontSize (px)</span>
+                        <input type="number" data-opt="fontSize" min="8" max="32" step="1" />
+                    </label>
+                    <label class="sidebar-field">
+                        <span>lineHeight</span>
+                        <input type="number" data-opt="lineHeight" min="1" max="3" step="0.1" />
+                    </label>
+                    <label class="sidebar-field">
+                        <span>tabSize</span>
+                        <input type="number" data-opt="tabSize" min="2" max="8" step="1" />
+                    </label>
+                    <label class="sidebar-field">
+                        <span>listIndentation</span>
+                        <input type="number" data-opt="listIndentation" min="1" max="4" step="1" />
+                    </label>
+                </form>
+                <button id="apply-options" type="button">Apply settings &amp; reload</button>
+            </details>
+
+            <details open>
+                <summary>UI plugin hints</summary>
+                <ul class="sidebar-hints">
+                    <li>Hover the left margin of any paragraph → drag handle + paragraph menu (heading / list / quote conversion).</li>
+                    <li>Select text → inline format toolbar (B / I / Code / Link / …).</li>
+                    <li>Type <code>/</code> in an empty paragraph → quick insert menu.</li>
+                    <li>Type <code>:</code> → emoji picker.</li>
+                    <li>Hover a table row / column → drag bar, row-col menu, column toolbar.</li>
+                    <li>Hover an image → resize handles + image toolbar; click an empty image placeholder → image edit tool.</li>
+                    <li>Click the language label of a code block → language selector.</li>
+                    <li>Hover a link → link tools (edit / open / unlink).</li>
+                    <li>Hover a footnote reference → footnote editor.</li>
+                    <li>Hover a diagram / math / html block → preview toolbar (source ↔ preview).</li>
+                </ul>
+            </details>
+        </aside>
+
+        <main class="editor-container">
+            <div id="editor"></div>
+        </main>
+
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>

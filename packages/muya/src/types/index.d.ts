@@ -1,0 +1,13 @@
+declare module '*.svg';
+declare module '*.png';
+declare module '*.jpg';
+declare module '*.jpeg';
+declare module '*.gif';
+declare module '*.bmp';
+declare module '*.tiff';
+declare module '*.css';
+declare module '*.css?inline';
+declare module 'joplin-turndown-plugin-gfm';
+declare module 'prismjs/plugins/keep-markup/prism-keep-markup';
+declare module 'prismjs/dependencies';
+declare module '@marktext/file-icons';

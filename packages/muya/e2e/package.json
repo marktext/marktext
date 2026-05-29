@@ -1,0 +1,29 @@
+{
+    "name": "muya-e2e",
+    "type": "module",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Playwright end-to-end test suite for @muyajs/core",
+    "author": "jocs <ransixi@gmail.com>",
+    "license": "MIT",
+    "scripts": {
+        "e2e": "playwright test",
+        "e2e:chromium": "playwright test --project=chromium",
+        "e2e:firefox": "playwright test --project=firefox",
+        "e2e:webkit": "playwright test --project=webkit",
+        "e2e:ui": "playwright test --ui",
+        "e2e:headed": "playwright test --headed",
+        "e2e:report": "playwright show-report",
+        "e2e:install": "playwright install --with-deps chromium firefox webkit"
+    },
+    "dependencies": {
+        "@muyajs/core": "workspace:*",
+        "intl-segmenter-polyfill": "^0.4.4"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "^4.10.0",
+        "@playwright/test": "^1.50.0",
+        "@types/node": "^22.10.0",
+        "vite": "^8.0.13"
+    }
+}

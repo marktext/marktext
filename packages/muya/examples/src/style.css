@@ -1,0 +1,282 @@
+@supports (-moz-appearance: none) {
+    html {
+        position: fixed;
+    }
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- Sidebar toggle (always visible) ---------- */
+
+.sidebar-toggle {
+    position: fixed;
+    top: 8px;
+    left: 300px;
+    z-index: 100001;
+
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    font-size: 18px;
+    line-height: 30px;
+    text-align: center;
+
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    cursor: pointer;
+
+    transition: left 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+    background-color: #f0f0f0;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100000;
+
+    box-sizing: border-box;
+    width: 340px;
+    height: 100vh;
+    padding: 12px;
+    overflow-y: auto;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    background-color: #fafafa;
+    border-right: 1px solid #e5e5e5;
+
+    transition: transform 0.2s ease;
+}
+
+body.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+}
+
+body.sidebar-collapsed .sidebar-toggle {
+    left: 8px;
+}
+
+.sidebar-brand {
+    margin: 0 0 12px;
+    padding: 6px 4px;
+
+    font-weight: 700;
+
+    font-size: 15px;
+
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.sidebar details {
+    margin-bottom: 8px;
+    padding: 0 8px 8px;
+
+    background-color: #fff;
+    border: 1px solid #ececec;
+    border-radius: 4px;
+}
+
+.sidebar summary {
+    margin: 0 -8px;
+    padding: 6px 8px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.sidebar details > *:not(summary) {
+    margin: 6px 0;
+}
+
+.sidebar-hint {
+    color: #999;
+    font-weight: 400;
+}
+
+.sidebar button,
+.sidebar input[type="text"],
+.sidebar input[type="number"],
+.sidebar select,
+.sidebar textarea {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 3px 0;
+    padding: 4px 6px;
+
+    font: inherit;
+
+    background-color: #fff;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    outline: none;
+}
+
+.sidebar button {
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.sidebar-row {
+    display: flex;
+    gap: 6px;
+}
+
+.sidebar-row button {
+    flex: 1;
+    margin: 3px 0;
+}
+
+.sidebar button:hover {
+    background-color: #ececec;
+}
+
+.sidebar fieldset {
+    margin: 6px 8px;
+    padding: 6px 8px;
+
+    border: 1px solid #ececec;
+    border-radius: 3px;
+}
+
+.sidebar fieldset legend {
+    padding: 0 4px;
+
+    color: #555;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.sidebar fieldset label {
+    display: block;
+
+    padding: 1px 0;
+
+    cursor: pointer;
+}
+
+.sidebar fieldset input[type="checkbox"],
+.sidebar fieldset input[type="radio"] {
+    margin-right: 6px;
+
+    vertical-align: middle;
+}
+
+.sidebar-field {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.sidebar-field > span {
+    flex: 1;
+
+    color: #555;
+}
+
+.sidebar-field > input,
+.sidebar-field > select {
+    flex: 1;
+    width: auto;
+}
+
+.sidebar #debug-out {
+    min-height: 120px;
+
+    font-size: 11px;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    line-height: 1.4;
+    white-space: pre;
+
+    resize: vertical;
+}
+
+.sidebar-hints {
+    margin: 6px 8px;
+    padding-left: 18px;
+
+    color: #444;
+    line-height: 1.5;
+}
+
+.sidebar-hints code {
+    padding: 0 4px;
+
+    font-size: 12px;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    background-color: #f0f0f0;
+    border-radius: 3px;
+}
+
+/* ---------- Editor area ---------- */
+
+.editor-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 340px;
+
+    box-sizing: border-box;
+    height: 100vh;
+    padding: 24px 32px;
+    overflow: auto;
+
+    transition: left 0.2s ease;
+}
+
+body.sidebar-collapsed .editor-container {
+    left: 0;
+}
+
+#editor {
+    box-sizing: border-box;
+    width: 100%;
+
+    font-size: 16px;
+
+    outline: none;
+}
+
+/* ---------- Responsive fallback ---------- */
+
+@media (max-width: 720px) {
+    .sidebar {
+        position: static;
+
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+
+        border-right: none;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .editor-container {
+        position: static;
+        left: 0;
+
+        height: auto;
+    }
+}

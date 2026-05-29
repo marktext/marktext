@@ -37,6 +37,11 @@
     "gen-third-party": "tsx scripts/generateThirdPartyLicense.ts",
     "validate-licenses": "tsx scripts/validateLicenses.ts"
   },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.15"
+    }
+  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.28.6",
     "eslint": "^9.39.4",

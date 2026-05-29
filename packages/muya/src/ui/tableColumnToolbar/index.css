@@ -1,0 +1,93 @@
+.mu-float-wrapper.mu-table-column-tools-container {
+    overflow: visible;
+
+    border-radius: 2px;
+}
+
+.mu-table-column-tools {
+    width: 160px;
+    height: 24px;
+}
+
+.mu-table-column-tools ul,
+.mu-table-column-tools li {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-table-column-tools ul {
+    display: flex;
+    padding: 0 5px;
+}
+
+.mu-table-column-tools li.item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 24px;
+    height: 24px;
+
+    list-style: none;
+    cursor: pointer;
+}
+
+.mu-table-column-tools li.item:hover {
+    background: var(--float-hover-color);
+}
+
+.mu-table-column-tools li.item:last-of-type {
+    margin-left: 6px;
+}
+
+.mu-table-column-tools li.item:last-of-type::before {
+    position: absolute;
+    top: 5px;
+    left: -3px;
+
+    width: 1px;
+    height: 14px;
+
+    background: var(--editor-color-10);
+
+    content: '';
+}
+
+.mu-table-column-tools li.item .icon-wrapper {
+    display: flex;
+    width: 14px;
+    height: 14px;
+}
+
+.mu-table-column-tools li.item .icon-wrapper i.icon {
+    position: relative;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+
+    color: var(--icon-color);
+
+    transition: all 0.25s ease-in-out;
+}
+
+.mu-table-column-tools li.item .icon-wrapper i.icon > i[class^='icon-'] {
+    position: relative;
+    left: -14px;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(14px 0 currentcolor);
+}
+
+.mu-table-column-tools li.item.active .icon-wrapper i.icon {
+    color: var(--theme-color);
+}
+
+.mu-table-column-tools li.item.delete .icon-wrapper i.icon {
+    color: var(--delete-color);
+}

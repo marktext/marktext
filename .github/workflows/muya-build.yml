@@ -1,0 +1,26 @@
+name: Muya Build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/src/**'
+      - 'packages/muya/package.json'
+      - 'packages/muya/tsconfig.json'
+      - 'packages/muya/vite.config.ts'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-build.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Build @muyajs/core (tsc + vite)
+        run: pnpm -C packages/muya build

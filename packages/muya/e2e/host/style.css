@@ -1,0 +1,39 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.tools {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 10px;
+
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+button,
+select,
+input {
+    height: 26px;
+    padding: 0 6px;
+}
+
+input {
+    width: 120px;
+}
+
+.editor-container {
+    padding: 16px;
+}
+
+#editor {
+    min-height: 400px;
+}

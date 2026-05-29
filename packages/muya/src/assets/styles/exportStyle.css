@@ -1,0 +1,68 @@
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 45px;
+
+    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+@media not print {
+    .markdown-body {
+        padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+        .markdown-body {
+            padding: 15px;
+        }
+    }
+}
+
+.markdown-body pre {
+    white-space: pre-wrap;
+}
+
+.markdown-body table {
+    display: table;
+}
+
+.markdown-body img[data-align='center'] {
+    display: block;
+    margin: 0 auto;
+}
+
+.markdown-body img[data-align='right'] {
+    display: block;
+    margin: 0 0 0 auto;
+}
+
+.markdown-body li:has(input[type='checkbox']) {
+    list-style-type: none;
+}
+
+.markdown-body li input[type='checkbox'] {
+    margin: 0 0 0 -1.3em;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+    list-style-type: decimal;
+}
+
+.markdown-body ol ol ol,
+.markdown-body ol ul ol,
+.markdown-body ul ol ol,
+.markdown-body ul ul ol {
+    list-style-type: decimal;
+}
+
+.markdown-body div.plantuml,
+.markdown-body div.mermaid,
+.markdown-body div.vega-lite {
+    display: block;
+    padding: 20px 0;
+
+    text-align: center;
+}

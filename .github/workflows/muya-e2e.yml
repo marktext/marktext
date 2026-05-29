@@ -1,0 +1,54 @@
+name: Muya E2E (skeleton — disabled)
+
+# NOTE: This workflow is the placeholder for running the muya Playwright
+# suite (chromium / firefox / webkit) under packages/muya/e2e/. The full
+# matrix downloads ~400MB of browser binaries and adds several minutes to
+# CI, so the migration PR lands the file with all jobs gated off. Enable
+# by flipping the `if:` condition to `${{ true }}` (or removing it) in a
+# follow-up PR once the basic muya CI pipeline (lint/test/spec/circular/
+# build) has been green for a few rounds.
+#
+# When you enable it, the trigger filter below already covers all the
+# relevant directories.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/src/**'
+      - 'packages/muya/e2e/**'
+      - 'packages/muya/examples/**'
+      - 'packages/muya/package.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-e2e.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    if: ${{ false }}  # disabled — see header note
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Install Playwright browsers
+        run: pnpm -C packages/muya/e2e exec playwright install --with-deps ${{ matrix.project }}
+
+      - name: Run Playwright (${{ matrix.project }})
+        run: pnpm -C packages/muya/e2e exec playwright test --project=${{ matrix.project }}
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: muya-e2e-report-${{ matrix.project }}
+          path: packages/muya/e2e/playwright-report/
+          retention-days: 7

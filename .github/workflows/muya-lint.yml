@@ -1,0 +1,28 @@
+name: Muya Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/**'
+      - '!packages/muya/examples/**'
+      - '!packages/muya/e2e/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-lint.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Run ESLint (muya)
+        run: pnpm -C packages/muya lint
+
+      - name: Run TypeScript typecheck (muya)
+        run: pnpm -C packages/muya lint:types

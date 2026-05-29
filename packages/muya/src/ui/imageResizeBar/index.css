@@ -1,0 +1,21 @@
+.mu-transformer .bar {
+    position: absolute;
+
+    display: inline-block;
+    box-sizing: border-box;
+    width: 10px;
+    height: 50px;
+
+    background: var(--theme-color);
+    border: 2px solid var(--editor-bg-color);
+    border-radius: 5px;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 15%);
+}
+
+.mu-transformer .left {
+    cursor: ew-resize;
+}
+
+.mu-transformer .right {
+    cursor: ew-resize;
+}

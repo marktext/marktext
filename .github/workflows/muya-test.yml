@@ -1,0 +1,27 @@
+name: Muya Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/src/**'
+      - 'packages/muya/test/**'
+      - 'packages/muya/package.json'
+      - 'packages/muya/vite.config.ts'
+      - 'packages/muya/tsconfig.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-test.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Run muya unit tests
+        run: pnpm -C packages/muya test

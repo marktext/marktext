@@ -1,0 +1,93 @@
+/* Mirrors the per-instance overrides on the other floating tools
+   (imageToolbar / inlineFormatToolbar / tableColumnToolbar) so the
+   linkTools popover gets the same baseline as them. Without
+   `overflow: visible` the baseFloat default `overflow: hidden` clips
+   any decoration (li::before divider, focus rings, box-shadow) that
+   spills outside the 100x34 box. */
+.mu-float-wrapper.mu-link-tools-container {
+    overflow: visible;
+
+    border-radius: 2px;
+}
+
+.mu-link-tools {
+    position: relative;
+
+    width: 100px;
+    height: 34px;
+}
+
+.mu-link-tools ul,
+.mu-link-tools li {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-link-tools ul {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+}
+
+.mu-link-tools li.item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 28px;
+    height: 28px;
+    margin: 0 11px;
+
+    list-style: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.mu-link-tools li.item:hover {
+    background: var(--float-hover-color);
+}
+
+.mu-link-tools li.item:last-of-type::before {
+    position: absolute;
+    top: 6px;
+    left: -12px;
+
+    width: 1px;
+    height: 18px;
+
+    background: var(--editor-color-10);
+
+    content: '';
+}
+
+.mu-link-tools li.item .icon-wrapper {
+    width: 18px;
+    height: 18px;
+}
+
+.mu-link-tools li.item .icon-wrapper i.icon {
+    position: relative;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+
+    color: var(--icon-color);
+
+    transition: all 0.25s ease-in-out;
+}
+
+.mu-link-tools li.item .icon-wrapper i.icon > i[class^='icon-'] {
+    position: relative;
+    left: -18px;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(18px 0 currentcolor);
+}

@@ -1,0 +1,16 @@
+{
+    "name": "muya-examples",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Muya vanilla ts demo project",
+    "author": "jocs <ransixi@gmail.com>",
+    "license": "MIT",
+    "keywords": [],
+    "scripts": {
+        "dev:demo": "vite"
+    },
+    "dependencies": {
+        "@muyajs/core": "workspace:*",
+        "intl-segmenter-polyfill": "^0.4.4"
+    }
+}

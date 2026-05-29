@@ -1,0 +1,31 @@
+name: Muya Spec (CommonMark + GFM)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/muya/src/**'
+      - 'packages/muya/test/**'
+      - 'packages/muya/package.json'
+      - 'packages/muya/vite.config.ts'
+      - 'packages/muya/vitest.spec.config.ts'
+      - 'packages/muya/tsconfig.json'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/muya-spec.yml'
+
+# Spec suite runs ~670 fixtures; give it a dedicated concurrency group so
+# repeated pushes do not pile up but do not cancel sibling muya workflows.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  spec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Run CommonMark + GFM conformance suites
+        run: pnpm -C packages/muya test:spec

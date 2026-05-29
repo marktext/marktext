@@ -1,0 +1,213 @@
+:root {
+    /* editor */
+    --theme-color: rgb(33 181 111 / 100%);
+    --highlight-color: rgb(33 181 111 / 40%);
+    --selection-color: rgb(45 170 219 / 30%);
+    --editor-color: rgb(0 0 0 / 70%);
+    --editor-color-80: rgb(0 0 0 / 80%);
+    --editor-color-50: rgb(0 0 0 / 50%);
+    --editor-color-30: rgb(0 0 0 / 30%);
+    --editor-color-10: rgb(0 0 0 / 10%);
+    --editor-color-04: rgb(0 0 0 / 3%);
+    --editor-bg-color: rgb(255 255 255 / 100%);
+    --delete-color: #ff6969;
+    --icon-color: #6b737b;
+    --code-block-bg-color: rgb(0 0 0 / 3%);
+    --table-border-color: #e5e5e5;
+    --input-bg-color: rgb(0 0 0 / 6%);
+    --button-font-color: var(--editor-color);
+    --button-bg-color: #fff;
+    --button-border: 1px solid #dcdfe6;
+    --button-bg-color-hover: linear-gradient(#f9f9f9, #f2f2f2);
+    --button-border-hover: var(--button-border);
+    --float-bg-color: #fff;
+    --float-hover-color: rgb(0 0 0 / 4%);
+    --float-border-color: rgb(0 0 0 / 10%);
+    --float-shadow: rgb(15 15 15 / 3%) 0 0 0 1px, rgb(15 15 15 / 4%) 0 3px 6px, rgb(15 15 15 / 5%) 0 9px 24px;
+}
+
+/*
+ * Open Sans
+ * https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i&amp;subset=latin-ext
+ */
+@font-face {
+    font-weight: 300;
+    font-family: 'Open Sans';
+    font-style: normal;
+    src:
+        local('Open Sans Light'),
+        local('OpenSans-Light'),
+        url('./fonts/open-sans-v15-latin_latin-ext-300.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 300;
+    font-family: 'Open Sans';
+    font-style: italic;
+    src:
+        local('Open Sans Light Italic'),
+        local('OpenSans-LightItalic'),
+        url('./fonts/open-sans-v15-latin_latin-ext-300italic.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Open Sans';
+    font-style: normal;
+    src:
+        local('Open Sans Regular'),
+        local('OpenSans-Regular'),
+        url('./fonts/open-sans-v15-latin_latin-ext-regular.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Open Sans';
+    font-style: italic;
+    src:
+        local('Open Sans Italic'),
+        local('OpenSans-Italic'),
+        url('./fonts/open-sans-v15-latin_latin-ext-italic.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 600;
+    font-family: 'Open Sans';
+    font-style: normal;
+    src:
+        local('Open Sans SemiBold'),
+        local('OpenSans-SemiBold'),
+        url('./fonts/open-sans-v15-latin_latin-ext-600.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 600;
+    font-family: 'Open Sans';
+    font-style: italic;
+    src:
+        local('Open Sans SemiBold Italic'),
+        local('OpenSans-SemiBoldItalic'),
+        url('./fonts/open-sans-v15-latin_latin-ext-600italic.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 700;
+    font-family: 'Open Sans';
+    font-style: normal;
+    src:
+        local('Open Sans Bold'),
+        local('OpenSans-Bold'),
+        url('./fonts/open-sans-v15-latin_latin-ext-700.woff') format('woff');
+}
+
+@font-face {
+    font-weight: 700;
+    font-family: 'Open Sans';
+    font-style: italic;
+    src:
+        local('Open Sans Bold Italic'),
+        local('OpenSans-BoldItalic'),
+        url('./fonts/open-sans-v15-latin_latin-ext-700italic.woff') format('woff');
+}
+
+/*
+ * DejaVu Sans Mono
+ */
+@font-face {
+    font-family: 'DejaVu Sans Mono';
+    src: local('DejaVu Sans Mono'), url('./fonts/DejaVuSansMono.ttf');
+}
+
+@font-face {
+    font-weight: bold;
+    font-family: 'DejaVu Sans Mono';
+    src: url('./fonts/DejaVuSansMono-Bold.ttf');
+}
+
+@font-face {
+    font-weight: bold;
+    font-family: 'DejaVu Sans Mono';
+    font-style: oblique;
+    src: url('./fonts/DejaVuSansMono-BoldOblique.ttf');
+}
+
+@font-face {
+    font-weight: bold;
+    font-family: 'DejaVu Sans Mono';
+    font-style: italic;
+    src: url('./fonts/DejaVuSansMono-BoldOblique.ttf');
+}
+
+@font-face {
+    font-family: 'DejaVu Sans Mono';
+    font-style: italic;
+    src: url('./fonts/DejaVuSansMono-Oblique.ttf');
+}
+
+@font-face {
+    font-family: 'DejaVu Sans Mono';
+    font-style: oblique;
+    src: url('./fonts/DejaVuSansMono-Oblique.ttf');
+}
+
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes highlight {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    } /* ignored */
+    100% {
+        transform: scale(1);
+    }
+}
+
+html,
+body {
+    font-size: 16px;
+    font-family: 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.mu-highlight {
+    display: inline-block;
+    height: 1.3em;
+    padding: 0 2px;
+
+    color: var(--editor-color-80);
+    line-height: 1.3em;
+
+    background: var(--highlight-color);
+    border-radius: 1px;
+
+    animation-name: highlight;
+    animation-duration: 0.25s;
+}
+
+*:not(.mu-hide)::selection,
+.mu-selection {
+    padding: 0 0.2em;
+
+    color: var(--editor-color);
+
+    background: var(--selection-color);
+    border-radius: 2px;
+}
+
+.mu-hide::selection {
+    color: transparent;
+
+    background: none;
+}

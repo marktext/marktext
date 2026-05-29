@@ -1,0 +1,126 @@
+.mu-front-menu {
+    width: 230px;
+
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.mu-front-menu ul,
+.mu-front-menu li {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.mu-front-menu > ul {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.mu-front-menu > ul li.item {
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 32px;
+    padding: 0 15px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.mu-front-menu li .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+
+    color: var(--icon-color);
+
+    border-radius: 4px;
+}
+
+.mu-front-menu li.item .text {
+    margin-left: 10px;
+}
+
+.mu-front-menu li .icon-wrapper i.icon {
+    position: relative;
+
+    display: flex;
+    width: 18px;
+    height: 18px;
+    overflow: auto;
+
+    color: var(--icon-color);
+}
+
+.mu-front-menu li .icon-wrapper i.icon > i[class^='icon-'] {
+    position: relative;
+    left: -18px;
+
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(18px 0 currentcolor);
+}
+
+.mu-front-menu > ul li.item > span {
+    display: inline-block;
+    flex: 1;
+
+    color: var(--editor-color);
+}
+
+.mu-front-menu > ul li > .short-cut {
+    color: var(--editor-color);
+    font-size: 13px;
+}
+
+.mu-front-menu > ul li.item:hover {
+    background: var(--float-hover-color);
+}
+
+.mu-front-menu > ul li.item.delete:hover span {
+    color: var(--delete-color);
+}
+
+.mu-front-menu > ul li.divider {
+    width: 200px;
+    height: 1px;
+    margin: 4px 15px;
+
+    background: var(--editor-color-10);
+}
+
+.mu-front-menu li.turn-into-menu {
+    padding: 0 15px;
+}
+
+.mu-front-menu li.turn-into-menu .turn-into-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+
+    cursor: pointer;
+}
+
+.mu-front-menu li.turn-into-menu .turn-into-item.active i.icon {
+    color: var(--theme-color);
+}
+
+.mu-front-menu > ul li.item.delete:hover .icon-wrapper i.icon {
+    color: var(--delete-color);
+}
+
+.mu-front-menu li.turn-into-menu .turn-into-item .icon-wrapper:hover {
+    background: var(--float-hover-color);
+}

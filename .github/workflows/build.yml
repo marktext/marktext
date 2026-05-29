@@ -3,6 +3,10 @@ name: PR Build
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    # packages/muya (TS v2) does not affect the electron desktop build.
+    # Skip the multi-platform installer build on muya-only PRs.
+    paths-ignore:
+      - 'packages/muya/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

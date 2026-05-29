@@ -1,0 +1,815 @@
+.mu-editor {
+    outline: none;
+}
+
+.mu-container {
+    box-sizing: border-box;
+    max-width: 800px;
+    min-height: 100%;
+    margin: 0 auto;
+    padding: 0 50px 100px;
+
+    color: var(--editor-color);
+}
+
+.mu-container p,
+.mu-container blockquote,
+.mu-container ul,
+.mu-container ol,
+.mu-container dl,
+.mu-container table,
+.mu-container figure:not(.mu-table) {
+    margin: 0;
+    padding: 0.5em 0;
+}
+
+.mu-container h1,
+.mu-container h2,
+.mu-container h3,
+.mu-container h4,
+.mu-container h5,
+.mu-container h6 {
+    position: relative;
+
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0.5em 0;
+
+    color: var(--editor-color-80);
+    font-weight: bold;
+    line-height: 1.4;
+
+    cursor: text;
+}
+
+.mu-container h1 {
+    font-size: 1.875em;
+}
+
+.mu-container h2 {
+    font-size: 1.5em;
+}
+
+.mu-container h3 {
+    font-size: 1.375em;
+}
+
+.mu-container h4 {
+    font-size: 1.25em;
+}
+
+.mu-container h5 {
+    font-size: 1.125em;
+}
+
+.mu-container h6 {
+    font-size: 1em;
+}
+
+/* block quote */
+.mu-container blockquote {
+    position: relative;
+
+    margin-right: 0;
+    margin-left: 0;
+    padding: 0 1em;
+
+    color: var(--editor-color-50);
+
+    font-size: 1em;
+}
+
+.mu-container blockquote::before {
+    position: absolute;
+    top: 0.5em;
+    left: 0;
+
+    display: block;
+    width: 3px;
+    height: calc(100% - 1em);
+
+    background: var(--editor-color-30);
+
+    content: '';
+}
+
+.mu-container blockquote blockquote {
+    padding-right: 0;
+}
+
+/* thematic break */
+.mu-thematic-break {
+    position: relative;
+}
+
+.mu-thematic-break:not(.mu-active)::before {
+    position: absolute;
+    top: 1.3em;
+    left: 0;
+
+    display: block;
+    width: 100%;
+    height: 1px;
+
+    background: var(--editor-color-10);
+
+    content: '';
+}
+
+.mu-thematic-break.mu-active::before {
+    content: none;
+}
+
+.mu-thematic-break:not(.mu-active) > .mu-thematic-break-content {
+    opacity: 0;
+}
+
+/* code block */
+.mu-code-block,
+.mu-frontmatter,
+.mu-html-container,
+.mu-math-container,
+.mu-diagram-container {
+    position: relative;
+
+    margin-top: 1.5em;
+    padding: 1em;
+
+    color: var(--editor-color-50);
+    font-size: 90%;
+    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+    line-height: 1.6;
+
+    background: var(--code-block-bg-color);
+    border: 1px solid var(--editor-color-10);
+    border-radius: 3px;
+}
+
+.mu-code-copy {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+    z-index: 1;
+
+    width: 20px;
+    height: 20px;
+
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+
+    transition: opacity 0.2s ease-in-out;
+}
+
+.mu-code.mu-active .mu-code-copy {
+    opacity: 0.5;
+}
+
+code.mu-code .mu-code-copy:hover {
+    opacity: 1 !important;
+}
+
+.mu-code:not(.mu-active):hover .mu-code-copy {
+    opacity: 0.5;
+}
+
+.mu-code-copy i.icon {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+
+    width: 16px;
+    height: 16px;
+    overflow: auto;
+}
+
+.mu-code-copy i.icon > i[class^='icon-'] {
+    position: absolute;
+    left: -16px;
+
+    width: 100%;
+    height: 100%;
+
+    filter: drop-shadow(16px 0 var(--icon-color));
+}
+
+.mu-fenced-code.mu-active .mu-code::after {
+    content: 'fenced';
+}
+
+.mu-indented-code.mu-active .mu-code::after {
+    content: 'indented';
+}
+
+.mu-fenced-code.mu-active .mu-code::after,
+.mu-indented-code.mu-active .mu-code::after {
+    position: absolute;
+    right: 0.5em;
+    bottom: 0;
+    z-index: 1;
+
+    color: var(--editor-color-30);
+}
+
+/* code block line numbers (option: codeBlockLineNumbers) */
+.mu-code-block.mu-line-numbers {
+    padding-left: 3.5em;
+
+    counter-reset: mu-linenumber;
+}
+
+.mu-code-block.mu-line-numbers .mu-code {
+    position: relative;
+}
+
+.mu-line-numbers-rows {
+    position: absolute;
+    top: 0;
+    left: -2.5em;
+    z-index: 0;
+
+    width: 2.5em;
+
+    font-size: 100%;
+    letter-spacing: -1px;
+
+    user-select: none;
+
+    pointer-events: none;
+}
+
+.mu-line-numbers-rows > span {
+    display: block;
+
+    counter-increment: mu-linenumber;
+    pointer-events: none;
+}
+
+.mu-line-numbers-rows > span::before {
+    position: relative;
+    top: 0.05em;
+
+    display: block;
+    padding-right: 0.8em;
+
+    color: var(--editor-color-30);
+    text-align: right;
+
+    transform: scale(0.8);
+
+    content: counter(mu-linenumber);
+}
+
+span.mu-language-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+
+    min-width: 20em;
+
+    font-weight: 600;
+    font-size: 0.8em;
+
+    opacity: 0;
+}
+
+.mu-code-block.mu-active .mu-language-input {
+    top: -1.8em;
+    z-index: initial;
+
+    opacity: 1;
+}
+
+.mu-code-block.mu-active .mu-language-input:empty::after {
+    color: var(--editor-color-10);
+
+    content: attr(hint);
+}
+
+.mu-code-block.mu-fenced-code.mu-active .mu-language-input {
+    left: 30px;
+}
+
+/* loose tight list */
+.mu-tight-list > li > p {
+    margin: 0;
+    padding: 0;
+}
+
+/* order list and bullet list */
+ol.mu-order-list,
+ul.mu-bullet-list {
+    padding-left: 1em;
+}
+
+ol.mu-order-list {
+    list-style: decimal outside none;
+}
+
+ul.mu-bullet-list {
+    list-style: disc outside none;
+}
+
+ul.mu-bullet-list:first-child,
+ol.mu-order-list:first-child {
+    margin-top: 0;
+}
+
+ul.mu-bullet-list:last-child,
+ol.mu-order-list:last-child {
+    margin-bottom: 0;
+}
+
+/* task list */
+ul.mu-task-list {
+    padding-left: 1em;
+}
+
+li.mu-task-list-item {
+    position: relative;
+
+    padding-left: 0.3em;
+
+    list-style-type: none;
+}
+
+li.mu-task-list-item > input[type='checkbox'],
+li.mu-task-list-item > span.mu-task-list-checkbox {
+    position: absolute;
+    top: 0.9em;
+    left: -23px;
+
+    width: 12px;
+    height: 12px;
+
+    transform-origin: center;
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+
+    appearance: none;
+}
+
+ul.mu-tight-list > li.mu-task-list-item > input[type='checkbox'],
+ul.mu-tight-list > li.mu-task-list-item > span.mu-task-list-checkbox {
+    top: 0.3em;
+}
+
+li.mu-task-list-item > input.mu-checkbox-checked ~ *,
+li.mu-task-list-item > span.mu-checkbox-checked ~ * {
+    color: var(--editor-color-50);
+}
+
+li.mu-task-list-item > input[type='checkbox']::before,
+li.mu-task-list-item > span.mu-task-list-checkbox::before {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+
+    display: inline-block;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+
+    background-color: var(--editor-bg-color);
+    border: 2px solid var(--editor-color-50);
+    border-radius: 50%;
+
+    transition: all 0.2s ease;
+
+    content: '';
+}
+
+li.mu-task-list-item > input::after,
+li.mu-task-list-item > span.mu-task-list-checkbox::after {
+    position: absolute;
+    top: 1px;
+    left: 4px;
+
+    display: inline-block;
+    box-sizing: content-box;
+    width: 8px;
+    height: 4px;
+
+    border: 2px solid var(--editor-bg-color);
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg) scale(0);
+    transform-origin: bottom;
+
+    transition: all 0.2s ease;
+
+    content: '';
+}
+
+li.mu-task-list-item > input.mu-checkbox-checked::after,
+li.mu-task-list-item > span.mu-checkbox-checked::after {
+    transform: rotate(-45deg) scale(1);
+}
+
+li.mu-task-list-item > input.mu-checkbox-checked::before,
+li.mu-task-list-item > span.mu-checkbox-checked::before {
+    background: var(--icon-color);
+    border-color: var(--icon-color);
+}
+
+/* table */
+.mu-table {
+    margin: 0.5em 0 0;
+    padding: 0.5em 0;
+}
+
+.mu-table-inner {
+    padding: 0;
+
+    word-break: initial;
+
+    border-collapse: collapse;
+}
+
+.mu-table-inner tr {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-table-inner tr th {
+    position: relative;
+
+    margin: 0;
+    padding: 6px 13px;
+
+    font-weight: bold;
+    text-align: left;
+}
+
+.mu-table-inner tr td {
+    position: relative;
+
+    margin: 0;
+    padding: 6px 13px;
+
+    text-align: left;
+}
+
+.mu-table-inner tr th::before,
+.mu-table-inner tr td::before {
+    position: absolute;
+    inset: 0;
+
+    box-sizing: border-box;
+    width: calc(100% + 1px);
+    height: calc(100% + 1px);
+
+    border: 1px solid var(--table-border-color);
+
+    content: '';
+    pointer-events: none;
+}
+
+.mu-table-inner tr th:first-child,
+.mu-table-inner tr td:first-child {
+    margin-top: 0;
+}
+
+.mu-table-inner tr th:last-child,
+.mu-table-inner tr td:last-child {
+    margin-bottom: 0;
+}
+
+.mu-table-inner td[data-align='left'] {
+    text-align: left;
+}
+
+.mu-table-inner td[data-align='center'] {
+    text-align: center;
+}
+
+.mu-table-inner td[data-align='right'] {
+    text-align: right;
+}
+
+/* html block and math block, diagram block */
+figure.mu-html-block > .mu-html-container,
+figure.mu-math-block > .mu-math-container,
+figure.mu-diagram-block > .mu-diagram-container {
+    position: absolute;
+    z-index: -1;
+
+    width: 0;
+    height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    overflow: visible;
+
+    opacity: 0;
+}
+
+figure.mu-active.mu-html-block .mu-html-container,
+figure.mu-disable-html-render.mu-html-block .mu-html-container,
+figure.mu-active.mu-math-block .mu-math-container,
+figure.mu-active.mu-diagram-block .mu-diagram-container {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+
+    opacity: 1;
+}
+
+figure:not(.mu-active, .mu-disable-html-render).mu-html-block .mu-html-container,
+figure:not(.mu-active).mu-math-block .mu-math-container,
+figure:not(.mu-active).mu-diagram-block .mu-diagram-container {
+    overflow: hidden;
+}
+
+figure.mu-html-block .mu-html-preview,
+figure.mu-math-block .mu-math-preview,
+figure.mu-diagram-block .mu-diagram-preview {
+    display: block;
+    width: 100%;
+}
+
+figure.mu-math-block .mu-math-preview .katex-display {
+    margin: 0;
+    padding: 1em 0;
+}
+
+/* to prevent plantuml img overflow */
+figure.mu-diagram-block .mu-diagram-preview img {
+    max-width: 100%;
+}
+
+figure.mu-html-block .mu-html-preview > pre {
+    padding: 0 1rem;
+
+    white-space: pre-wrap;
+
+    background: inherit;
+    border: 0;
+    border-radius: 0.3em;
+}
+
+figure.mu-html-block.mu-active .mu-html-preview,
+figure.mu-html-block.mu-disable-html-render .mu-html-preview {
+    display: none;
+}
+
+/* math block and diagram */
+figure.mu-math-block,
+figure.mu-diagram-block {
+    position: relative;
+}
+
+figure.mu-html-block:not(.mu-active, .mu-disable-html-render):hover,
+figure.mu-math-block:not(.mu-active):hover {
+    background: var(--editor-color-04);
+}
+
+figure.mu-math-block div.mu-math-preview,
+figure.mu-diagram-block div.mu-diagram-preview {
+    width: 100%;
+
+    text-align: center;
+}
+
+figure.mu-math-block div.mu-math-preview > svg {
+    width: 100%;
+}
+
+figure.mu-active.mu-math-block > div.mu-math-preview,
+figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
+    position: absolute;
+    top: calc(100% + 20px);
+    left: 50%;
+    z-index: 10000;
+
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5rem;
+
+    background: var(--float-bg-color);
+    border: 1px solid var(--float-border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+    transform: translateX(-50%);
+}
+
+figure.mu-math-block span.mu-codeblock-content:first-of-type:empty::after {
+    color: var(--editor-color-30);
+
+    content: attr(math);
+}
+
+pre.mu-frontmatter span.mu-codeblock-content:first-of-type:empty::after {
+    color: var(--editor-color-30);
+
+    content: attr(frontMatter);
+}
+
+/* code html math ...code block style */
+pre.mu-active.mu-front-matter::before,
+pre.mu-active.mu-front-matter::after {
+    content: '---';
+}
+
+pre.mu-active.mu-math-container::before,
+pre.mu-active.mu-math-container::after {
+    content: '$$';
+}
+
+pre.mu-active[data-role='mermaid']::before {
+    content: '``` mermaid';
+}
+
+pre.mu-active[data-role='vega-lite']::before {
+    content: '``` vega-lite';
+}
+
+pre.mu-active.mu-fenced-code::before,
+pre.mu-active.mu-fenced-code::after,
+pre.mu-active[data-role='mermaid']::after,
+pre.mu-active[data-role='vega-lite']::after {
+    content: '```';
+}
+
+pre.mu-active.mu-front-matter::before,
+pre.mu-active.mu-front-matter::after,
+pre.mu-active[data-role='mermaid']::before,
+pre.mu-active[data-role='mermaid']::after,
+pre.mu-active[data-role='vega-lite']::before,
+pre.mu-active[data-role='vega-lite']::after,
+pre.mu-active.mu-fenced-code::before,
+pre.mu-active.mu-fenced-code::after,
+pre.mu-active.mu-math-container::before,
+pre.mu-active.mu-math-container::after {
+    position: absolute;
+    left: 0;
+
+    color: var(--editor-color-30);
+    font-weight: 100;
+}
+
+pre.mu-active.mu-front-matter::before,
+pre.mu-active[data-role='mermaid']::before,
+pre.mu-active[data-role='vega-lite']::before,
+pre.mu-active.mu-math-container::before,
+pre.mu-active.mu-fenced-code::before {
+    top: -20px;
+}
+
+pre.mu-active.mu-front-matter::after,
+pre.mu-active[data-role='mermaid']::after,
+pre.mu-active[data-role='vega-lite']::after,
+pre.mu-active.mu-math-container::after,
+pre.mu-active.mu-fenced-code::after {
+    bottom: -23px;
+}
+
+/* empty */
+
+.mu-empty,
+.mu-diagram-error {
+    color: var(--editor-color-50);
+    font-size: 14px;
+    font-family: monospace;
+    font-style: italic;
+    text-align: center;
+}
+
+/* content */
+.mu-content {
+    display: block;
+
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+
+    outline: none;
+}
+
+.mu-content:empty::after {
+    content: '\200B';
+}
+
+.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content:first-of-type::after {
+    padding-left: 8px;
+
+    color: var(--editor-color-30);
+
+    content: attr(placeholder);
+}
+
+.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content:first-of-type:empty::after {
+    color: var(--editor-color-30);
+
+    content: attr(empty-hint);
+}
+
+.mu-table-cell-content {
+    min-width: 10em;
+}
+
+/* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`
+   styling (src/muya/lib/assets/styles/index.css:194-246) with class prefix
+   `ag-` → `mu-` and CSS-var names rebound to the new repo's kebab-case set.
+   Layout: tinted figure with the `[^id]:` label absolutely positioned at the
+   top-left corner of the padding area, so the body text starts below it and
+   doesn't collide. */
+
+/* The top-of-file `.mu-container figure:not(.mu-table)` rule sets `padding:
+   0.5em 0; margin: 0` at specificity 0,2,1 and would otherwise win over a
+   plain `figure.mu-footnote`. Use `.mu-container figure.mu-footnote` to
+   match the same specificity, then source order wins. */
+.mu-container figure.mu-footnote {
+    position: relative;
+
+    /* Vertical separation between consecutive footnotes; 0 horizontal so the
+       block sits flush with the surrounding paragraphs. */
+    margin: 1.4em 0;
+    padding: 1.2em 2em 0.05em 1em;
+
+    font-size: 0.8em;
+
+    background: var(--editor-color-04);
+    opacity: 0.8;
+}
+
+.mu-container figure.mu-footnote pre {
+    font-size: 0.8em;
+}
+
+.mu-container figure.mu-footnote span code,
+.mu-container figure.mu-footnote td code,
+.mu-container figure.mu-footnote th code {
+    font-size: 0.8em;
+}
+
+.mu-container figure.mu-footnote > .mu-footnote-input {
+    position: absolute;
+    top: 0.2em;
+    left: 0;
+    z-index: 1;
+
+    min-width: 80px;
+    padding: 0 1em;
+
+    color: var(--editor-color);
+    font-weight: 600;
+    font-size: 14px;
+
+    font-family: monospace;
+
+    background: transparent;
+}
+
+.mu-container figure.mu-footnote > .mu-footnote-input::before {
+    content: '[^';
+}
+
+.mu-container figure.mu-footnote > .mu-footnote-input::after {
+    content: ']:';
+}
+
+/* The lowercase "footnote" badge in the top-right corner, only when the
+   block is active (focus inside its body) — same hint marktext shows via
+   `figure[data-role='FOOTNOTE'].ag-active::before`. */
+.mu-container figure.mu-footnote.mu-active::before {
+    position: absolute;
+    top: 0.2em;
+    right: 1em;
+
+    color: var(--editor-color-30);
+
+    font-size: 12px;
+
+    content: 'footnote';
+}
+
+/* Bottom-right ↩︎ backlink — clicking it jumps to the first
+   `<sup id="noteref-{id}">` reference. The `<i>` is appended to the figure
+   by `Footnote.create` and carries its own click listener. */
+.mu-container figure.mu-footnote > i.mu-footnote-backlink {
+    position: absolute;
+    right: 0.5em;
+    bottom: 0.5em;
+    z-index: 100;
+
+    display: block;
+    width: 20px;
+    height: 20px;
+
+    color: var(--editor-color-50);
+    font-family: sans-serif;
+    font-style: normal;
+    line-height: 20px;
+    text-align: center;
+
+    cursor: pointer;
+}
+
+.mu-container figure.mu-footnote > i.mu-footnote-backlink:hover {
+    color: var(--theme-color);
+}

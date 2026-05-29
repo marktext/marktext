@@ -95,14 +95,16 @@ root holds only shared tooling and CI-facing scripts.
                             IPC contract (`shared/types/ipc.ts`).
         types/              Ambient .d.ts declarations.
     muyajs/                 Legacy markdown editor engine
-                            (name: "@marktext/muyajs"; corresponds to the
-                            published @muyajs/core). Primarily JS + DOM,
+                            (name: "@marktext/muyajs"; the published
+                            @muyajs/core v0.1.x family). Primarily JS + DOM,
                             avoids Electron APIs. Exception:
                             packages/muyajs/lib/parser/render/plantuml.js
-                            imports Node's `zlib`. Reserved name `muya` is
-                            kept for the future TS rewrite from
-                            https://github.com/marktext/muya
-                            (will land as packages/muya).
+                            imports Node's `zlib`. **This is still what the
+                            desktop app consumes** via the `muya/` alias;
+                            packages/muya is its eventual successor but the
+                            two coexist until callers migrate (see #4244 era
+                            sandbox work for the most recent boundary
+                            tightening).
       lib/
         contentState/       Block structure and document transformations.
         parser/             Markdown parser.
@@ -110,6 +112,23 @@ root holds only shared tooling and CI-facing scripts.
         ui/                 Inline toolbar, emoji picker, etc.
         utils/              Internal utilities.
       themes/               Editor themes (Prism + fonts).
+    muya/                   TypeScript rewrite of muya
+                            (name: "@muyajs/core"; upstream:
+                            https://github.com/marktext/muya). Built on
+                            ot-json1 + ot-text-unicode + snabbdom + marked@16
+                            + rxjs. Self-contained: own eslint config
+                            (antfu), own stylelint, own madge, own vitest
+                            spec suites (CommonMark + GFM). Not yet wired
+                            into desktop — coexists with packages/muyajs
+                            until callers migrate. See packages/muya/CLAUDE.md
+                            for layout and commands.
+      src/                  TS source. Public entrypoint src/index.ts.
+      test/spec/            CommonMark 0.31 + GFM 0.29-gfm conformance.
+      examples/             muya-examples — vite vanilla-TS dev demo
+                            (listed in pnpm-workspace.yaml).
+      e2e/                  muya-e2e — Playwright (chromium/firefox/webkit).
+                            Skeleton CI workflow lands disabled; enable as
+                            follow-up.
     website/                marktext-website (Vite + React 18). Standalone
                             toolchain; depends on @muyajs/core from npm,
                             not on the local muyajs package. Not part of

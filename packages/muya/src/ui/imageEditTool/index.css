@@ -1,0 +1,90 @@
+.mu-image-selector-wrapper {
+    border-radius: 3px;
+}
+
+.mu-image-selector {
+    width: 400px;
+    height: 32px;
+}
+
+.mu-image-selector .image-edit-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+
+.mu-image-selector .image-edit-tool .more {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 32px;
+
+    border-right: 1px solid var(--float-border-color);
+    cursor: pointer;
+}
+
+.mu-image-selector .image-edit-tool .more-inner {
+    display: block;
+    width: 4px;
+    height: 4px;
+
+    background-color: var(--editor-color-50);
+    border-radius: 50%;
+}
+
+.mu-image-selector .image-edit-tool .more::before,
+.mu-image-selector .image-edit-tool .more::after {
+    position: absolute;
+    top: 14px;
+
+    display: block;
+    width: 4px;
+    height: 4px;
+
+    background-color: var(--editor-color-50);
+    border-radius: 50%;
+
+    content: '';
+}
+
+.mu-image-selector .image-edit-tool .more::before {
+    left: 10px;
+}
+
+.mu-image-selector .image-edit-tool .more::after {
+    right: 10px;
+}
+
+.mu-image-selector .image-edit-tool .src {
+    flex: 1;
+    height: 32px;
+    margin: 0;
+    padding: 0 5px;
+
+    color: var(--editor-color-50);
+
+    border: none;
+    border-right: 1px solid var(--float-border-color);
+    border-radius: 0;
+}
+
+.mu-image-selector .image-edit-tool .confirm {
+    width: 40px;
+    height: 32px;
+
+    font-weight: 600;
+    line-height: 32px;
+    text-align: center;
+
+    cursor: pointer;
+}
+
+.mu-image-selector .image-edit-tool .confirm:hover {
+    color: var(--theme-color);
+}

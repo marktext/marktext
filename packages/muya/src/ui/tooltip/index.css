@@ -1,0 +1,41 @@
+.mu-tooltip {
+    position: absolute;
+    z-index: 1000;
+
+    box-sizing: border-box;
+    padding: 5px 7px;
+
+    color: var(--editor-color);
+    font-size: 12px;
+
+    background: var(--float-bg-color);
+    border: 1px solid var(--float-border-color);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 var(--float-border-color);
+    opacity: 0;
+
+    transition: opacity 0.2s ease-in;
+}
+
+.mu-tooltip.active {
+    transform: translateY(-5px);
+    opacity: 1;
+}
+
+.mu-tooltip::after {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+
+    display: block;
+    width: 8px;
+    height: 8px;
+
+    background: inherit;
+    border: 1px solid var(--float-border-color);
+    border-right: none;
+    border-bottom: none;
+    transform: rotate(45deg) translateX(-50%);
+
+    content: '';
+}
