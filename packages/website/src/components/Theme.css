@@ -1,0 +1,146 @@
+.theme {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(-45deg, rgba(35,166,213, .1), rgba(35,213,171, .1));
+  display: flex;
+  padding: 150px 100px;
+  overflow: hidden;
+  position: relative;
+}
+
+.theme .app-container article.markdown-body {
+  padding: 20px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.theme .app-container article.markdown-body ul {
+  padding-left: 30px;
+}
+
+.theme img.bg-image {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  right: 320px;
+  top: 100px;
+}
+
+@media screen and (max-width: 768px) {
+  .theme {
+    flex-direction: column;
+    flex-flow: column-reverse;
+    height: auto;
+    padding: 150px 30px 300px;
+  }
+  .theme img.bg-image {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 60px;
+    margin: auto;
+  }
+}
+
+.theme-list {
+  padding: 150px 50px 0 50px;
+  flex: 1;
+  color: #666;
+}
+
+.theme-list h5 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.light-themes,
+.dark-themes {
+  margin-top: 50px;
+}
+
+.light-themes ul,
+.dark-themes ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.theme-list li {
+  width: 160px;
+  height: 40px;
+  padding: 5px 8px 5px 30px;
+  margin-right: 20px;
+  list-style: none;
+  text-align: center;
+  position: relative;
+  line-height: 30px;
+  cursor: pointer;
+  border-radius: 5px;
+  user-select: none;
+}
+
+.theme-list li.active {
+  background: linear-gradient(30deg, #efefef, rgba(245, 245, 245, .2));
+  color: var(--themeColor);
+}
+
+.theme-list li > span:first-of-type {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border-radius: 50%;
+  vertical-align: middle;
+  position: absolute;
+  left: 5px;
+  top: 10px;
+}
+
+.theme-list li.active > span:first-of-type::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 8px;
+  height: 4px;
+  border: 2px solid #fff;
+  border-top: transparent;
+  border-right: transparent;
+  transform: rotate(-45deg);
+}
+
+@media screen and (max-width: 768px) {
+  .theme-list {
+    margin-bottom: 60px;
+    padding: 0;
+  }
+  .theme-list h5 {
+    font-size: 20px;
+  }
+  .light-themes {
+    margin-top: 0;
+  }
+  .dark-themes {
+    margin-top: 60px;
+  }
+  .theme-list li {
+    width: 160px;
+    height: 40px;
+    padding: 5px 8px 5px 30px;
+    margin-right: 10px;
+  }
+  .theme-list li > span:first-of-type {
+    width: 18px;
+    height: 18px;
+  }
+  .theme-list li > span {
+    font-size: 12px;
+  }
+  .theme-list li.active > span:first-of-type::before {
+    top: 6px;
+    width: 6px;
+    height: 3px;
+  }
+}

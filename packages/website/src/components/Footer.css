@@ -1,0 +1,116 @@
+.footer {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(-45deg, #eeeeee, #efefef);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+#hero-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.inner-wrapper {
+  position: relative;
+  max-width: 960px;
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px;
+  box-sizing: padding-box;
+  z-index: 4;
+}
+
+.inner-wrapper img {
+  width: 200px;
+}
+
+.inner-wrapper p {
+  color: #666;
+  margin-bottom: 0;
+  font-size: 16px;
+  line-height: 150%;
+  max-width: 550px;
+}
+
+.inner-wrapper p.follow {
+  display: flex;
+  align-items: center;
+}
+
+.inner-wrapper p.follow a {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.inner-wrapper p a svg {
+  width: 100%;
+  height: 100%;
+}
+
+.inner-wrapper p.small {
+  font-size: 12px;
+}
+
+.inner-wrapper a {
+  display: inline-block;
+  margin: 0 10px;
+  color: rgba(163, 32, 109, 0.6);
+  text-decoration: none;
+}
+
+.inner-wrapper h1 {
+  color: rgba(163, 32, 109, 0.6);
+  font-weight: 300;
+  text-transform: uppercase;
+  margin-bottom: 0;
+  border-bottom: 2px rgba(163, 32, 109, 0.6) dashed;
+}
+
+.overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: transparent;
+  background: linear-gradient(to bottom, rgba(114, 81, 109, 0.2) 0%, rgba(238, 238, 238, 1) 100%);
+  z-index: 3;
+}
+
+.background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #EEEEEE;
+  z-index: 1;
+}
+
+.hero {
+  background-color: #EEEEEE;
+  width: 100%;
+  height: 100%;
+  max-height: calc(100% - 50px);
+}
+
+@media screen and (max-width: 768px) {
+  .inner-wrapper h1 {
+    font-size: 24px;
+  }
+}
