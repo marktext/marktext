@@ -7,13 +7,18 @@ compatibility_flags = ["nodejs_compat"]
 directory = ".open-next/assets"
 binding = "ASSETS"
 
-# Bind marktext.me as a Worker Custom Domain. The zone lives on the same
-# account as CLOUDFLARE_API_TOKEN (verified 2026-05-29), so wrangler will
-# create the route + DNS record automatically on first deploy. If the apex
-# currently has a conflicting A/AAAA/CNAME record, delete it first or the
-# deploy will refuse to bind the domain.
+# Bind both apex and www as Worker Custom Domains. The zone lives on the same
+# Cloudflare account as CLOUDFLARE_API_TOKEN (verified 2026-05-29), so wrangler
+# creates the route + DNS record for each automatically. If either hostname has
+# an existing A/AAAA/CNAME record, delete it first or the deploy will refuse to
+# bind. The Worker (via next.config.ts redirects) sends www -> apex with 301 so
+# only the canonical hostname is indexed.
 [[routes]]
 pattern = "marktext.me"
+custom_domain = true
+
+[[routes]]
+pattern = "www.marktext.me"
 custom_domain = true
 
 [observability]

@@ -15,6 +15,19 @@ const config: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['katex']
+  },
+  // marktext.me is canonical; redirect www -> apex permanently so SEO doesn't
+  // index duplicate hostnames. Both are bound as Worker Custom Domains in
+  // wrangler.toml, so the Worker handles www requests before issuing the 301.
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.marktext.me' }],
+        destination: 'https://marktext.me/:path*',
+        permanent: true
+      }
+    ]
   }
 }
 
