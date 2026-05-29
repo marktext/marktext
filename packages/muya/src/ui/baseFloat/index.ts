@@ -155,7 +155,6 @@ abstract class BaseFloat {
         const { placement, offsetOptions } = this.options;
         if (!floatBox) {
             throw new Error('The float box is not existed.');
-            return;
         }
         if (this._cleanup) {
             this._cleanup();

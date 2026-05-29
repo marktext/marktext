@@ -262,7 +262,7 @@ export class ParagraphFrontButton {
     startDrag = () => {
         const { _block: block } = this;
         // Frontmatter should not be drag.
-        if (!block || (block && block.blockName === 'frontmatter'))
+        if (!block || block.blockName === 'frontmatter')
             return;
 
         this._disableListen = true;
