@@ -83,7 +83,54 @@ You can switch themes in several ways:
 
 ## Custom Themes
 
-Custom theme support is planned for a future release. In the meantime, you can use the "Custom CSS" option in Preferences → Theme to override theme styles.
+You can add your own editor themes without rebuilding MarkText. A custom theme is a single CSS file you drop into a folder; MarkText discovers it and lists it under **Custom Themes** in the **Theme** menu and in **Preferences → Theme**.
+
+### Where to put themes
+
+Create a `.theme.css` file in the `themes/editor` folder inside MarkText's user-data directory:
+
+- **Windows:** `%APPDATA%\marktext\themes\editor\`
+- **macOS:** `~/Library/Application Support/marktext/themes/editor/`
+- **Linux:** `~/.config/marktext/themes/editor/`
+
+The quickest way to get there is **Preferences → Theme → Open themes folder**. You can also use **Import Theme** to pick a `.css` file and have it copied in for you.
+
+> This is separate from `themes/export`, which holds custom **export** (PDF / HTML) themes.
+
+### File name
+
+The file must be named `<id>.theme.css`, where `<id>` is lowercase letters, numbers, `-` or `_` (for example `my-theme.theme.css`). The id is also used to remember your selection.
+
+### File format
+
+A theme is plain CSS that overrides MarkText's CSS variables on `:root`, with an optional metadata header:
+
+```css
+/*!
+ * @name My Theme
+ * @type dark
+ */
+:root {
+  --themeColor: #8da101;
+  --editorColor: #2d353b;
+  --editorBgColor: #f3f4f2;
+  --sideBarBgColor: #e3e4df;
+  /* ...override as many variables as you like... */
+}
+```
+
+- `@name` - the label shown in the menu (defaults to a title-cased file id).
+- `@type` - `light` or `dark` (defaults to `light`). `dark` enables MarkText's dark-mode UI affordances.
+
+For the full list of variables you can set, copy one of the built-in themes as a starting point - see [`src/renderer/src/assets/themes`](https://github.com/marktext/marktext/tree/develop/packages/desktop/src/renderer/src/assets/themes) (for example `everforest-light.theme.css`).
+
+### Applying a theme
+
+Drop the file in the folder and reopen the window (or the **Preferences → Theme** pane), or use **Import Theme**, which applies it immediately. Your theme then appears under **Custom Themes** in the **Theme** menu and in Preferences.
+
+### Security note
+
+Custom theme CSS is sanitized before it is applied: `@import`, `@font-face`, and any `url()` / `image-set()` value (including remote, `file:` and `data:` URLs) are removed. Custom themes are therefore **colors-only** - they cannot load external images or fonts. For deeper one-off tweaks, the **Custom CSS** box in Preferences → Theme still applies raw (unsanitized) CSS to the current theme.
 
 ## Theme Credits
 

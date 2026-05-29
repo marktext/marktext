@@ -226,6 +226,12 @@ const fontsAPI = {
   list: () => invoke('mt::fonts::list')
 }
 
+const themesAPI = {
+  listCustom: () => invoke('mt::themes::list-custom'),
+  importCustom: () => invoke('mt::themes::import-custom'),
+  openFolder: () => invoke('mt::themes::open-folder')
+}
+
 const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
@@ -294,6 +300,7 @@ try {
   contextBridge.exposeInMainWorld('ripgrep', ripgrepAPI)
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
+  contextBridge.exposeInMainWorld('themes', themesAPI)
 } catch (error) {
   console.error(error)
 }

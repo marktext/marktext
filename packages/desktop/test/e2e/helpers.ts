@@ -59,6 +59,10 @@ export interface LaunchOptions {
   // should opt in — otherwise existing specs would silently ignore renderer
   // exceptions that previously surfaced as a dialog (a hidden regression risk).
   suppressErrorDialog?: boolean
+  // Use this user-data directory instead of a fresh temp one. Lets a spec
+  // pre-seed files under it (e.g. custom themes in themes/editor) before launch.
+  // The caller owns cleanup of a directory it provides.
+  userDataDir?: string
 }
 
 export const launchElectron = async(
@@ -69,7 +73,7 @@ export const launchElectron = async(
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const userDataDir = trackTempDir(getTempPath())
+  const userDataDir = options.userDataDir ?? trackTempDir(getTempPath())
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v

@@ -1,6 +1,7 @@
 import { type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/theme'
 import { t } from '../../i18n'
+import { listCustomThemes } from '../../themes'
 import type Preference from '../../preferences'
 
 export default function(userPreference: Preference): MenuItemConstructorOptions {
@@ -371,6 +372,29 @@ export default function(userPreference: Preference): MenuItemConstructorOptions 
       }
     }
   )
+
+  // Append user-imported custom themes (read from <userData>/themes).
+  const customThemes = listCustomThemes()
+  if (customThemes.length > 0) {
+    submenu.push(
+      { type: 'separator' },
+      {
+        label: t('preferences.theme.customThemes'),
+        enabled: false
+      },
+      ...customThemes.map((customTheme) => ({
+        label: customTheme.name,
+        type: 'radio' as const,
+        id: customTheme.id,
+        enabled: isThemeSelectionEnabled,
+        checked: theme === customTheme.id,
+        click() {
+          actions.selectTheme(customTheme.id)
+        }
+      }))
+    )
+  }
+
   return {
     label: t('menu.theme.theme'),
     id: 'themeMenu',

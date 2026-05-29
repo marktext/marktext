@@ -833,7 +833,9 @@
       "importCustomThemes": "Importar temas personalizados",
       "importTheme": "Importar Tema",
       "openFolder": "Abrir Pasta",
-      "openThemesFolder": "Abrir pasta de temas"
+      "openThemesFolder": "Abrir pasta de temas",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Atalhos de Teclado",

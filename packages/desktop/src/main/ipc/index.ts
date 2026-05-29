@@ -8,6 +8,7 @@ import { registerShellHandlers } from './shell'
 import { registerWindowHandlers } from './window'
 import { registerCmdHandlers } from './cmd'
 import { registerI18nHandlers } from './i18n'
+import { registerThemeHandlers } from './themes'
 
 export const registerSandboxIpcHandlers = (): void => {
   registerBootInfo()
@@ -20,4 +21,5 @@ export const registerSandboxIpcHandlers = (): void => {
   registerWindowHandlers()
   registerCmdHandlers()
   registerI18nHandlers()
+  registerThemeHandlers()
 }

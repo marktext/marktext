@@ -22,6 +22,7 @@ import { storeToRefs } from 'pinia'
 import TitleBar from '@/prefComponents/common/titlebar.vue'
 import SideBar from '@/prefComponents/sideBar/index.vue'
 import { addThemeStyle } from '@/util/theme'
+import { loadCustomThemes } from '@/util/customThemes'
 import { DEFAULT_STYLE } from '@/config'
 import { isOsx } from '@/util'
 
@@ -47,7 +48,8 @@ watch(theme, (newValue, oldValue) => {
 })
 
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
+  await loadCustomThemes()
   nextTick(() => {
     const state = window.marktext?.initialState ?? DEFAULT_STYLE
     addThemeStyle(state.theme ?? DEFAULT_STYLE.theme)

@@ -42,6 +42,7 @@ import { computed, watch, nextTick, onMounted, ref } from 'vue'
 import { useMainStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import { addStyles, addThemeStyle, addCustomStyle, type AddStylesOptions } from '@/util/theme'
+import { loadCustomThemes } from '@/util/customThemes'
 import Recent from '@/components/recent/index.vue'
 import EditorWithTabs from '@/components/editorWithTabs/index.vue'
 import TitleBar from '@/components/titleBar/index.vue'
@@ -197,6 +198,10 @@ onMounted(async () => {
   notificationStore.listenForNotification()
 
   setupDragDropHandler()
+
+  // Load user-imported themes before applying styles so a custom theme id
+  // resolves to its CSS on first paint.
+  await loadCustomThemes()
 
   nextTick(() => {
     // `initialState` from bootstrap carries nullable URL params (string|null);

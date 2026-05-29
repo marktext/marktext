@@ -833,7 +833,9 @@
       "importCustomThemes": "Importer des thèmes personnalisés",
       "importTheme": "Importer un thème",
       "openFolder": "Ouvrir le dossier",
-      "openThemesFolder": "Ouvrir le dossier des thèmes"
+      "openThemesFolder": "Ouvrir le dossier des thèmes",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Raccourcis clavier",

@@ -832,7 +832,9 @@
       "importCustomThemes": "导入自定义主题",
       "importTheme": "导入主题",
       "openFolder": "打开文件夹",
-      "openThemesFolder": "打开主题文件夹"
+      "openThemesFolder": "打开主题文件夹",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "快捷键",

@@ -833,7 +833,9 @@
       "importCustomThemes": "사용자 정의 테마 가져오기",
       "importTheme": "테마 가져오기",
       "openFolder": "폴더 열기",
-      "openThemesFolder": "테마 폴더 열기"
+      "openThemesFolder": "테마 폴더 열기",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "키 바인딩",

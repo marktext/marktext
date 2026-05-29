@@ -831,7 +831,9 @@
       "importCustomThemes": "Benutzerdefinierte Designs importieren",
       "importTheme": "Design importieren",
       "openFolder": "Ordner öffnen",
-      "openThemesFolder": "Design-Ordner öffnen"
+      "openThemesFolder": "Design-Ordner öffnen",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Tastenkürzel",

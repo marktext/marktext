@@ -831,7 +831,9 @@
       "importCustomThemes": "Importar temas personalizados",
       "importTheme": "Importar Tema",
       "openFolder": "Abrir Carpeta",
-      "openThemesFolder": "Abrir carpeta de temas"
+      "openThemesFolder": "Abrir carpeta de temas",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Atajos de Teclado",

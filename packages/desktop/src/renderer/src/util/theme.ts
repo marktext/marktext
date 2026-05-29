@@ -42,6 +42,7 @@ import {
   rosePineDawn
 } from './themeColor'
 import { isLinux } from './index'
+import { getCustomTheme } from './customThemes'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ORIGINAL_THEME = '#409EFF'
@@ -57,7 +58,10 @@ const getEmojiPickerPatch = (): string => {
 }
 
 export const addThemeStyle = (theme: string): void => {
-  const isCmRailscasts = railscastsThemes.includes(theme)
+  const customTheme = getCustomTheme(theme)
+  // A custom dark theme reuses the railscasts CodeMirror source-view theme,
+  // since custom themes only ship app/editor CSS variables (no CodeMirror theme).
+  const isCmRailscasts = railscastsThemes.includes(theme) || customTheme?.type === 'dark'
   const isCmOneDark = oneDarkThemes.includes(theme)
   const isDarkTheme = isCmOneDark || isCmRailscasts
   let themeStyleEle = document.querySelector(`#${THEME_STYLE_ID}`) as HTMLStyleElement | null
@@ -170,6 +174,10 @@ export const addThemeStyle = (theme: string): void => {
       themeStyleEle.innerHTML = patchTheme(rosePineDawn())
       break
     default:
+      // Custom themes imported from <userData>/themes. Their CSS is sanitized
+      // in the main process (no @import/@font-face/url()/remote resources) and
+      // assigned via textContent so it can never be treated as markup.
+      themeStyleEle.textContent = customTheme ? patchTheme(customTheme.css) : ''
       break
   }
 

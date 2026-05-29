@@ -830,7 +830,9 @@
       "importCustomThemes": "Import custom themes",
       "importTheme": "Import Theme",
       "openFolder": "Open Folder",
-      "openThemesFolder": "Open themes folder"
+      "openThemesFolder": "Open themes folder",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "Keybindings",

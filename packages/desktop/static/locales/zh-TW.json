@@ -833,7 +833,9 @@
       "importCustomThemes": "匯入自訂主題",
       "importTheme": "匯入主題",
       "openFolder": "開啟資料夾",
-      "openThemesFolder": "開啟主題資料夾"
+      "openThemesFolder": "開啟主題資料夾",
+      "customThemes": "Custom Themes",
+      "importFailed": "Could not import the theme."
     },
     "keybindings": {
       "title": "按鍵綁定",
