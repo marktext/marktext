@@ -7,6 +7,45 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@babel/eslint-parser':
+        specifier: ^7.28.6
+        version: 7.28.6(@babel/core@7.29.0)(eslint@9.39.4(jiti@2.7.0))
+      eslint:
+        specifier: ^9.39.4
+        version: 9.39.4(jiti@2.7.0)
+      eslint-plugin-html:
+        specifier: ^8.1.4
+        version: 8.1.4
+      eslint-plugin-i18n-json:
+        specifier: ^4.0.1
+        version: 4.0.1(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-jsonc:
+        specifier: ^3.1.2
+        version: 3.1.2(eslint@9.39.4(jiti@2.7.0))
+      eslint-plugin-vue:
+        specifier: ^10.9.1
+        version: 10.9.1(@stylistic/eslint-plugin@2.11.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(vue-eslint-parser@10.4.0(eslint@9.39.4(jiti@2.7.0)))
+      license-checker:
+        specifier: ^25.0.1
+        version: 25.0.1
+      neostandard:
+        specifier: ^0.13.0
+        version: 0.13.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
+      tsx:
+        specifier: ^4.22.3
+        version: 4.22.3
+      typescript-eslint:
+        specifier: ^8.59.3
+        version: 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      vue-eslint-parser:
+        specifier: ^10.4.0
+        version: 10.4.0(eslint@9.39.4(jiti@2.7.0))
+
+  packages/desktop:
     dependencies:
       '@electron-toolkit/preload':
         specifier: ^3.0.2
@@ -23,6 +62,9 @@ importers:
       '@marktext/file-icons':
         specifier: ^1.0.6
         version: 1.0.6
+      '@marktext/muyajs':
+        specifier: workspace:*
+        version: link:../muyajs
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8
@@ -165,9 +207,6 @@ importers:
         specifier: ^1.6.28
         version: 1.6.28
     devDependencies:
-      '@babel/eslint-parser':
-        specifier: ^7.28.6
-        version: 7.28.6(@babel/core@7.29.0)(eslint@9.39.4(jiti@2.7.0))
       '@electron/rebuild':
         specifier: ^4.0.4
         version: 4.0.4
@@ -222,48 +261,21 @@ importers:
       electron-vite:
         specifier: ^5.0.0
         version: 5.0.0(vite@7.3.3(@types/node@22.19.19)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
-      eslint:
-        specifier: ^9.39.4
-        version: 9.39.4(jiti@2.7.0)
-      eslint-plugin-html:
-        specifier: ^8.1.4
-        version: 8.1.4
-      eslint-plugin-i18n-json:
-        specifier: ^4.0.1
-        version: 4.0.1(eslint@9.39.4(jiti@2.7.0))
-      eslint-plugin-jsonc:
-        specifier: ^3.1.2
-        version: 3.1.2(eslint@9.39.4(jiti@2.7.0))
-      eslint-plugin-vue:
-        specifier: ^10.9.1
-        version: 10.9.1(@stylistic/eslint-plugin@2.11.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(vue-eslint-parser@10.4.0(eslint@9.39.4(jiti@2.7.0)))
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
-      license-checker:
-        specifier: ^25.0.1
-        version: 25.0.1
-      neostandard:
-        specifier: ^0.13.0
-        version: 0.13.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       patch-package:
         specifier: ^8.0.1
         version: 8.0.1
       postcss-preset-env:
         specifier: ^11.3.0
         version: 11.3.0(postcss@8.5.14)
-      prettier:
-        specifier: ^3.8.3
-        version: 3.8.3
       tsx:
         specifier: ^4.22.3
         version: 4.22.3
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.59.3
-        version: 8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
       vite:
         specifier: ^7.3.3
         version: 7.3.3(@types/node@22.19.19)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0)
@@ -276,9 +288,6 @@ importers:
       vue:
         specifier: ^3.5.34
         version: 3.5.34(typescript@5.9.3)
-      vue-eslint-parser:
-        specifier: ^10.4.0
-        version: 10.4.0(eslint@9.39.4(jiti@2.7.0))
       vue-tsc:
         specifier: ^2.2.12
         version: 2.2.12(typescript@5.9.3)
@@ -287,7 +296,62 @@ importers:
         specifier: ^3.3.9
         version: 3.3.9
 
-  packages/muyajs: {}
+  packages/muyajs:
+    dependencies:
+      '@marktext/file-icons':
+        specifier: ^1.0.6
+        version: 1.0.6
+      dompurify:
+        specifier: ^3.4.3
+        version: 3.4.3
+      element-resize-detector:
+        specifier: ^1.2.4
+        version: 1.2.4
+      execall:
+        specifier: ^3.0.0
+        version: 3.0.0
+      fuzzaldrin:
+        specifier: ^2.1.0
+        version: 2.1.0
+      github-markdown-css:
+        specifier: ^5.9.0
+        version: 5.9.0
+      html-tags:
+        specifier: ^5.1.0
+        version: 5.1.0
+      joplin-turndown-plugin-gfm:
+        specifier: ^1.0.12
+        version: 1.0.12
+      katex:
+        specifier: ^0.16.47
+        version: 0.16.47
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
+      prismjs:
+        specifier: ^1.30.0
+        version: 1.30.0
+      snabbdom:
+        specifier: ^3.6.3
+        version: 3.6.3
+      snabbdom-to-html:
+        specifier: ^7.1.0
+        version: 7.1.0
+      snapsvg-cjs:
+        specifier: ^0.0.6
+        version: 0.0.6(eve@0.5.4)
+      turndown:
+        specifier: ^7.2.4
+        version: 7.2.4
+      underscore:
+        specifier: ^1.13.8
+        version: 1.13.8
+      webfontloader:
+        specifier: ^1.6.28
+        version: 1.6.28
 
 packages:
 
@@ -9028,7 +9092,7 @@ snapshots:
       es6-error: 4.1.1
       matcher: 3.0.0
       roarr: 2.15.4
-      semver: 7.7.4
+      semver: 7.8.0
       serialize-error: 7.0.1
     optional: true
 

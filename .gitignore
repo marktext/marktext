@@ -1,6 +1,9 @@
 node_modules
+packages/*/node_modules
 dist
 out
+packages/*/out
+packages/*/dist
 .DS_Store
 .prettierignore
 .eslintcache

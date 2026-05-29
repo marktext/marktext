@@ -2,6 +2,7 @@ appId: com.github.marktext.marktext
 productName: marktext
 directories:
   buildResources: build
+  output: ../../dist
 files:
   - '!**/.vscode/*'
   - '!src/*'

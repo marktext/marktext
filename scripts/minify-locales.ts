@@ -2,12 +2,12 @@
 // @ts-nocheck
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
-const localesDir = path.join(process.cwd(), 'static/locales')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-if (!fs.existsSync(localesDir)) {
-  console.error('Locales directory does not exist!')
-}
+const localesDir = path.resolve(__dirname, '..', 'packages/desktop/static/locales')
 
 const files = fs.readdirSync(localesDir)
 files.forEach((file) => {

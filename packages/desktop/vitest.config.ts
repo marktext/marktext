@@ -15,7 +15,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src/renderer/src'),
       common: resolve(__dirname, 'src/common'),
-      muya: resolve(__dirname, 'packages/muyajs'),
+      muya: resolve(__dirname, '../muyajs'),
       '@shared': resolve(__dirname, 'src/shared'),
       main_renderer: resolve(__dirname, 'src/main')
     },

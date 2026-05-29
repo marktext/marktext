@@ -5,9 +5,9 @@
 const path = require('path')
 const fs = require('fs')
 const thirdPartyChecker = require('./thirdPartyChecker.js')
-const rootDir = path.resolve(__dirname, '..')
+const desktopRoot = path.resolve(__dirname, '..', 'packages/desktop')
 
-thirdPartyChecker.getLicenses(rootDir, (err, packages) => {
+thirdPartyChecker.getLicenses(desktopRoot, (err, packages) => {
   if (err) {
     console.log(`[ERROR] ${err}`)
     return
@@ -58,6 +58,6 @@ ${summary}
 ${licenseList}
 `
 
-  fs.writeFileSync(path.resolve(rootDir, 'build', 'THIRD-PARTY-LICENSES.txt'), output)
+  fs.writeFileSync(path.resolve(desktopRoot, 'build', 'THIRD-PARTY-LICENSES.txt'), output)
   console.log('THIRD-PARTY-LICENSES.txt generated successfully.')
 })

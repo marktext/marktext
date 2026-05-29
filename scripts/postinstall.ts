@@ -11,16 +11,26 @@
  *
  * Step order matters: native-keymap source must be restored before downloading
  * Electron, because the inner `pnpm add` can disturb devDependency state.
+ *
+ * Monorepo layout: the Electron desktop app lives in packages/desktop with
+ * its own node_modules (workspace-local deps are not hoisted to the root —
+ * `shamefully-hoist=true` only flattens transitive deps). All Electron-related
+ * lookups (binary, install.js, native-keymap, electron-rebuild, patch-package)
+ * therefore resolve under packages/desktop/node_modules. patch-package and
+ * electron-rebuild also run with cwd=packages/desktop so that `patches/` and
+ * the local package.json are picked up correctly.
  */
 
 const { execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
 
-const root = path.join(__dirname, '..')
+const repoRoot = path.join(__dirname, '..')
+const desktopRoot = path.join(repoRoot, 'packages', 'desktop')
 
-function run(cmd, env = {}) {
-  execSync(cmd, { stdio: 'inherit', cwd: root, env: { ...process.env, ...env } })
+function run(cmd, opts = {}) {
+  const { cwd = repoRoot, env = {} } = opts
+  execSync(cmd, { stdio: 'inherit', cwd, env: { ...process.env, ...env } })
 }
 
 // Detect which package manager invoked this postinstall so commands work
@@ -28,26 +38,26 @@ function run(cmd, env = {}) {
 const userAgent = process.env.npm_config_user_agent || ''
 const isPnpm = userAgent.startsWith('pnpm')
 // patch-package and electron-rebuild are locally installed; call their
-// node_modules/.bin entries directly to avoid any package-manager dependency.
+// node_modules/.bin entries directly (hoisted by shamefully-hoist=true).
 const ext = process.platform === 'win32' ? '.cmd' : ''
-const patchPackageBin = path.join(root, 'node_modules', '.bin', `patch-package${ext}`)
-const electronRebuildBin = path.join(root, 'node_modules', '.bin', `electron-rebuild${ext}`)
+const patchPackageBin = path.join(desktopRoot, 'node_modules', '.bin', `patch-package${ext}`)
+const electronRebuildBin = path.join(desktopRoot, 'node_modules', '.bin', `electron-rebuild${ext}`)
 
 // ── 1. Ensure native-keymap source is present (pm removes it on optional failure) ──
-const nativeKeymapDir = path.join(root, 'node_modules', 'native-keymap')
+const nativeKeymapDir = path.join(desktopRoot, 'node_modules', 'native-keymap')
 if (!fs.existsSync(nativeKeymapDir)) {
   console.log('Installing native-keymap source (skipping compilation)...')
-  // native-keymap is already in optionalDependencies so neither command changes
-  // the version range in package.json.
+  // native-keymap is already in marktext's optionalDependencies; the add
+  // re-installs without changing the version range.
   if (isPnpm) {
-    run('pnpm add native-keymap --ignore-scripts')
+    run('pnpm --filter marktext add native-keymap --ignore-scripts')
   } else {
-    run('npm install native-keymap --ignore-scripts --no-save')
+    run('npm install native-keymap --ignore-scripts --no-save', { cwd: desktopRoot })
   }
 }
 
 // ── 2. Download + extract Electron binary ────────────────────────────────────
-const electronInstall = path.join(root, 'node_modules', 'electron', 'install.js')
+const electronInstall = path.join(desktopRoot, 'node_modules', 'electron', 'install.js')
 
 if (!fs.existsSync(electronInstall)) {
   console.error('electron/install.js not found — skipping Electron download')
@@ -62,15 +72,15 @@ if (!fs.existsSync(electronInstall)) {
         ? 'Electron.app/Contents/MacOS/Electron'
         : 'electron'
 
-  const pathTxt = path.join(root, 'node_modules', 'electron', 'path.txt')
-  const distDir = path.join(root, 'node_modules', 'electron', 'dist')
+  const pathTxt = path.join(desktopRoot, 'node_modules', 'electron', 'path.txt')
+  const distDir = path.join(desktopRoot, 'node_modules', 'electron', 'dist')
 
   // On macOS we also require Frameworks/ — yauzl v2.10.0 hangs on Node v26+ and
   // silently produces an incomplete dist/ without Frameworks.
   const isComplete = () => {
     if (!fs.existsSync(pathTxt)) return false
     const rel = fs.readFileSync(pathTxt, 'utf8').trim()
-    if (!fs.existsSync(path.join(root, 'node_modules', 'electron', rel))) return false
+    if (!fs.existsSync(path.join(desktopRoot, 'node_modules', 'electron', rel))) return false
     if (plat === 'darwin' || plat === 'mas') {
       return fs.existsSync(path.join(distDir, 'Electron.app', 'Contents', 'Frameworks'))
     }
@@ -88,7 +98,7 @@ if (!fs.existsSync(electronInstall)) {
     } catch {
       const mirror = process.env.ELECTRON_MIRROR || 'https://npmmirror.com/mirrors/electron/'
       console.log(`Direct download failed, retrying with mirror: ${mirror}`)
-      run(`node "${electronInstall}"`, { ELECTRON_MIRROR: mirror })
+      run(`node "${electronInstall}"`, { env: { ELECTRON_MIRROR: mirror } })
     }
 
     // yauzl v2.10.0 + Node v26+: openReadStream callback never fires for
@@ -98,7 +108,7 @@ if (!fs.existsSync(electronInstall)) {
       (plat === 'darwin' || plat === 'mas') &&
       !fs.existsSync(path.join(distDir, 'Electron.app', 'Contents', 'Frameworks'))
     ) {
-      const { version } = require(path.join(root, 'node_modules', 'electron', 'package.json'))
+      const { version } = require(path.join(desktopRoot, 'node_modules', 'electron', 'package.json'))
       const arch = process.env.npm_config_arch || os.arch()
       const zipName = `electron-v${version}-darwin-${arch === 'arm64' ? 'arm64' : 'x64'}.zip`
       const cacheRoot =
@@ -137,13 +147,13 @@ if (!fs.existsSync(electronInstall)) {
   }
 }
 
-// ── 3. Apply C++20 patch to native-keymap ───────────────────────────────────
+// ── 3. Apply C++20 patch to native-keymap (patches/ lives in packages/desktop) ──
 console.log('Applying patches...')
-run(`"${patchPackageBin}"`)
+run(`"${patchPackageBin}"`, { cwd: desktopRoot })
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
 console.log('Rebuilding native modules for Electron...')
-run(`"${electronRebuildBin}" -f`)
+run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')

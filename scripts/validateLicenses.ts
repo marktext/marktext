@@ -4,6 +4,6 @@
 
 const path = require('path')
 const thirdPartyChecker = require('./thirdPartyChecker.js')
-const rootDir = path.resolve(__dirname, '..')
+const desktopRoot = path.resolve(__dirname, '..', 'packages/desktop')
 
-thirdPartyChecker.validateLicenses(rootDir)
+thirdPartyChecker.validateLicenses(desktopRoot)
