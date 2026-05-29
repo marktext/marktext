@@ -4,8 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "tsx scripts/prerender-markdown.ts",
-    "predev": "tsx scripts/prerender-markdown.ts",
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
@@ -16,8 +14,6 @@
     "cf:deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
-    "katex": "^0.16.9",
-    "mermaid": "^11.12.1",
     "next": "^15.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -25,18 +21,13 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@opennextjs/cloudflare": "^1.10.0",
-    "@types/katex": "^0.16.7",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.0",
-    "@types/prismjs": "^1.26.5",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.5.0",
-    "marked": "^15.0.0",
-    "marked-highlight": "^2.2.0",
-    "marked-katex-extension": "^5.1.0",
-    "prismjs": "^1.30.0",
-    "tsx": "^4.19.0",
+    "tailwindcss": "^4.0.0",
     "typescript": "^5.9.0",
     "wrangler": "^4.0.0"
   }

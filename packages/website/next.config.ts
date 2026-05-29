@@ -8,13 +8,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const config: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
-  transpilePackages: ['mermaid'],
   outputFileTracingRoot: resolve(__dirname, '../..'),
   images: {
     unoptimized: true
-  },
-  experimental: {
-    optimizePackageImports: ['katex']
   }
   // www -> apex redirect lives in middleware.ts. We tried Next's redirects()
   // here first, but OpenNext Cloudflare currently does not substitute

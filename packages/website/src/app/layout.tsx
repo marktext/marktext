@@ -1,17 +1,23 @@
 import type { Metadata, Viewport } from 'next'
-import 'katex/dist/katex.min.css'
-import '../app.global.css'
-import '../themes/default.css'
-import '../components/TitleBar.css'
-import '../components/Feature.css'
-import '../components/Theme.css'
-import '../components/Sponsor.css'
-import '../components/Footer.css'
+import { Geist, Geist_Mono } from 'next/font/google'
+import './globals.css'
+
+const geistSans = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist-sans',
+  display: 'swap'
+})
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  variable: '--font-geist-mono',
+  display: 'swap'
+})
 
 const SITE_URL = 'https://marktext.me'
-const TITLE = 'MarkText — Simple and Elegant Markdown Editor'
+const TITLE = 'MarkText — The Markdown editor that gets out of your way'
 const DESCRIPTION =
-  'MarkText is a free, open-source, real-time preview markdown editor for macOS, Windows and Linux. Supports CommonMark, GitHub Flavored Markdown, math (KaTeX), Mermaid diagrams and PlantUML.'
+  'A free, open-source, real-time preview Markdown editor for macOS, Windows and Linux. Beautiful typography, 33 built-in themes, math, diagrams, footnotes — all rendered live.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -60,7 +66,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#21b56f'
+  themeColor: '#08080b'
 }
 
 const jsonLd = {
@@ -78,11 +84,16 @@ const jsonLd = {
   softwareVersion: 'latest'
 }
 
+const themeBootstrap = `(function(){try{var t=localStorage.getItem('marktext-theme');if(!t)t='dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
       <body>
-        <div id="app">{children}</div>
+        {children}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
