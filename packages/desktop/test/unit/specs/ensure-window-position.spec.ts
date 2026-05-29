@@ -103,15 +103,38 @@ describe('ensureWindowPosition', () => {
     expect(result.y).to.equal(100)
   })
 
-  it('clamps to the secondary display work area when the saved size exceeds it', () => {
+  it('clamps size and position to the secondary display when the saved size exceeds it', () => {
     state.primary = makePrimary()
     state.displays = [state.primary, makeSecondary()]
 
     const result = ensureWindowPosition({ x: 1200, y: 100, width: 3000, height: 1600 })
     expect(result.width).to.equal(2560)
     expect(result.height).to.equal(1400)
-    // Position is preserved (not re-centered).
-    expect(result.x).to.equal(1200)
-    expect(result.y).to.equal(100)
+    // Full-size on the secondary, so the position is nudged to its top-left.
+    expect(result.x).to.equal(1138)
+    expect(result.y).to.equal(0)
+  })
+
+  it('nudges a window back on-screen when the saved position would overflow', () => {
+    // 400x300 saved near the bottom-right of the 1138x640 primary: the size
+    // fits but the position would push it past the edges, so it is nudged in.
+    const result = ensureWindowPosition({ x: 1000, y: 560, width: 400, height: 300 })
+    expect(result.width).to.equal(400)
+    expect(result.height).to.equal(300)
+    expect(result.x).to.equal(1138 - 400)
+    expect(result.y).to.equal(640 - 300)
+  })
+
+  it('selects the display by half-open bounds at a shared edge', () => {
+    // The saved x sits exactly on the shared edge between the primary (right
+    // edge 1138) and the secondary (left edge 1138). With half-open bounds the
+    // point belongs to the secondary, so the size is clamped against it (2560),
+    // not the smaller primary (1138).
+    state.primary = makePrimary()
+    state.displays = [state.primary, makeSecondary()]
+
+    const result = ensureWindowPosition({ x: 1138, y: 0, width: 2000, height: 500 })
+    expect(result.width).to.equal(2000)
+    expect(result.x).to.equal(1138)
   })
 })
