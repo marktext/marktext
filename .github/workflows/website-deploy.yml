@@ -50,6 +50,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Generates src/generated/{markdown-html,theme-css}.ts, which are
+      # gitignored and imported by both type-check and the Next build.
+      - name: Prerender content
+        run: pnpm --filter marktext-website exec tsx scripts/prerender-markdown.ts
+
       - name: Lint
         run: pnpm --filter marktext-website run lint
 
