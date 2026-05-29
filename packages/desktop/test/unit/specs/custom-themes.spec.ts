@@ -69,4 +69,15 @@ describe('loadCustomThemes', () => {
     const result = await loadCustomThemes()
     expect(result).to.deep.equal([])
   })
+
+  it('clears previously loaded themes when a later refresh fails', async() => {
+    stubListCustom(() => Promise.resolve([make('one', 'One')]))
+    await loadCustomThemes()
+    expect(getCustomTheme('custom:one')).to.not.equal(undefined)
+
+    stubListCustom(() => Promise.reject(new Error('boom')))
+    await loadCustomThemes()
+    expect(getCustomTheme('custom:one')).to.equal(undefined)
+    expect(getCustomThemes()).to.deep.equal([])
+  })
 })

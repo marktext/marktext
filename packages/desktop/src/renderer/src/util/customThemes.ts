@@ -32,6 +32,11 @@ export const loadCustomThemes = async(): Promise<CustomThemeDescriptor[]> => {
     setCustomThemes(themes)
     return themes
   } catch {
+    // Clear any previously loaded themes so the registry never disagrees with a
+    // failed refresh: callers treat the empty result as "no custom themes", and
+    // `getCustomTheme`/`getCustomThemes` must reflect that rather than serving
+    // stale descriptors from an earlier successful load.
+    setCustomThemes([])
     return []
   }
 }

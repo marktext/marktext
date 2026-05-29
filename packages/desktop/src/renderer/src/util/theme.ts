@@ -174,7 +174,7 @@ export const addThemeStyle = (theme: string): void => {
       themeStyleEle.innerHTML = patchTheme(rosePineDawn())
       break
     default:
-      // Custom themes imported from <userData>/themes. Their CSS is sanitized
+      // Custom themes imported from <userData>/themes/editor. Their CSS is sanitized
       // in the main process (no @import/@font-face/url()/remote resources) and
       // assigned via textContent so it can never be treated as markup.
       themeStyleEle.textContent = customTheme ? patchTheme(customTheme.css) : ''

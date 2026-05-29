@@ -62,8 +62,8 @@ const readDescriptor = (dir: string, filename: string): CustomThemeDescriptor | 
 }
 
 /**
- * Read and describe every valid custom theme in `<userData>/themes`, sorted by
- * display name. The returned CSS is already sanitized.
+ * Read and describe every valid custom theme in `<userData>/themes/editor`,
+ * sorted by display name. The returned CSS is already sanitized.
  */
 export const listCustomThemes = (): CustomThemeDescriptor[] => {
   const dir = ensureThemesDir()
@@ -160,6 +160,14 @@ export const importCustomTheme = async(): Promise<ImportCustomThemeResult> => {
 
   const descriptor = readDescriptor(dir, destFilename)
   if (!descriptor) {
+    // Roll back the copy: a file we cannot read back would otherwise be left
+    // behind to fail every future scan and to block re-importing the same id
+    // (the `exists` check above would keep matching it).
+    try {
+      fs.unlinkSync(dest)
+    } catch (err) {
+      log.error(`Failed to remove unreadable imported theme "${destFilename}":`, err)
+    }
     return { status: 'error', message: 'The imported theme could not be read back.' }
   }
   return { status: 'imported', theme: descriptor }
