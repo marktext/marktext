@@ -8,12 +8,13 @@
  */
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import matter from 'gray-matter'
 import GithubSlugger from 'github-slugger'
 import { ALL_PAGES } from '../src/lib/docs-nav'
 import type { IndexedHeading, IndexedPage } from '../src/lib/docs-search'
 
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const CONTENT_ROOT = path.join(ROOT, 'content', 'docs')
 const OUT_PATH = path.join(ROOT, 'public', 'docs-index.json')
 
@@ -85,6 +86,14 @@ async function buildIndex(): Promise<IndexedPage[]> {
 }
 
 async function main() {
+  if (process.argv.includes('--if-missing')) {
+    try {
+      await fs.access(OUT_PATH)
+      return
+    } catch {
+      /* fall through and build */
+    }
+  }
   const pages = await buildIndex()
   await fs.mkdir(path.dirname(OUT_PATH), { recursive: true })
   await fs.writeFile(OUT_PATH, JSON.stringify(pages))

@@ -8,6 +8,8 @@ import remarkRehype from 'remark-rehype'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypePrettyCode from 'rehype-pretty-code'
+import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
 import { toString as hastToString } from 'hast-util-to-string'
@@ -24,6 +26,21 @@ export type DocAst = {
 }
 
 const CONTENT_ROOT = path.join(process.cwd(), 'content', 'docs')
+
+const SANITIZE_SCHEMA: typeof defaultSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames ?? []), 'kbd', 'details', 'summary'],
+  attributes: {
+    ...defaultSchema.attributes,
+    a: [...(defaultSchema.attributes?.a ?? []), 'name', 'target', 'rel'],
+    h1: [...(defaultSchema.attributes?.h1 ?? []), 'align'],
+    h2: [...(defaultSchema.attributes?.h2 ?? []), 'align'],
+    h3: [...(defaultSchema.attributes?.h3 ?? []), 'align'],
+    h4: [...(defaultSchema.attributes?.h4 ?? []), 'align'],
+    h5: [...(defaultSchema.attributes?.h5 ?? []), 'align'],
+    h6: [...(defaultSchema.attributes?.h6 ?? []), 'align']
+  }
+}
 
 const FILE_TO_SLUG = new Map<string, string>(
   ALL_PAGES.map((p) => [p.file.toLowerCase(), '/docs/' + p.slug.join('/')])
@@ -45,6 +62,12 @@ export async function renderMarkdown(source: string, ownerFile: string): Promise
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
+    // Parse raw HTML embedded in markdown into real hast Elements, then
+    // sanitize. After this point the tree contains only trusted elements;
+    // every downstream plugin (rehype-pretty-code, the custom transform
+    // tree) adds wrappers, copy buttons and Shiki spans that we control.
+    .use(rehypeRaw)
+    .use(rehypeSanitize, SANITIZE_SCHEMA)
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, {
       behavior: 'append',
@@ -57,7 +80,7 @@ export async function renderMarkdown(source: string, ownerFile: string): Promise
       keepBackground: false
     })
     .use(() => transformTree(ownerDir, toc, (t) => (title = t), (l) => (lead = l)))
-    .use(rehypeStringify, { allowDangerousHtml: true })
+    .use(rehypeStringify)
     .process(content)
 
   return { html: String(processed), toc, title, lead }

@@ -36,6 +36,7 @@ export default function DocsChrome({ children }: Props) {
 
   useEffect(() => {
     function onKey(ev: KeyboardEvent) {
+      if (ev.isComposing) return
       const mod = ev.metaKey || ev.ctrlKey
       if (mod && (ev.key === 'k' || ev.key === 'K')) {
         ev.preventDefault()

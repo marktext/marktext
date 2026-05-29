@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node -e \"require('fs').existsSync('public/docs-index.json')||process.exit(1)\" || tsx scripts/build-docs-index.ts; next dev --port 3000",
+    "dev": "tsx scripts/build-docs-index.ts --if-missing && next dev --port 3000",
     "docs:index": "tsx scripts/build-docs-index.ts",
     "prebuild": "tsx scripts/build-docs-index.ts",
     "build": "next build",
@@ -24,6 +24,8 @@
     "react-dom": "^19.0.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-pretty-code": "^0.14.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "rehype-slug": "^6.0.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.0",

@@ -64,6 +64,7 @@ export default function CommandPalette({ open, onClose }: Props) {
   useEffect(() => {
     if (!open) return
     function onKey(ev: KeyboardEvent) {
+      if (ev.isComposing) return
       if (ev.key === 'Escape') {
         ev.preventDefault()
         onClose()
