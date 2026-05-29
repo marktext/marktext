@@ -100,7 +100,14 @@ jobs:
             exit $upload_status
           fi
 
-          PREVIEW_URL=$(grep -Eo 'https://[a-z0-9-]+\.workers\.dev[^[:space:]]*' upload.log | head -n1 || true)
+          # wrangler 4.x prints two preview lines: "Version Preview URL:"
+          # (versioned, per-deploy) and "Version Preview Alias URL:" (stable
+          # per --preview-alias, e.g. pr-NNNN). Prefer the alias because it's
+          # the URL we want to comment back on the PR.
+          PREVIEW_URL=$(grep -E '^Version Preview Alias URL:' upload.log | grep -Eo 'https://[^[:space:]]+' | head -n1 || true)
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL=$(grep -E '^Version Preview URL:' upload.log | grep -Eo 'https://[^[:space:]]+' | head -n1 || true)
+          fi
           VERSION_ID=$(grep -Eo 'Worker Version ID:[[:space:]]*[a-f0-9-]+' upload.log | awk '{print $NF}' || true)
 
           if [ -n "$PREVIEW_URL" ]; then
