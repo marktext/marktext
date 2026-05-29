@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import mermaid from 'mermaid'
 import { addThemeStyle } from '@/utils/theme'
-import { markdownHtml } from '@/lib/markdown'
+import { markdownHtml } from '@/generated/markdown-html'
+import { setMermaidTheme, runMermaid } from '@/lib/mermaid'
 
 interface ThemeItem {
   name: string
@@ -23,32 +23,41 @@ const darkThemes: ThemeItem[] = [
   { name: 'One Dark', label: 'one-dark', color: '#e2c08d' }
 ]
 
+const isDarkLabel = (label: string) => /dark/i.test(label)
+
 const Theme: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemeItem>(lightThemes[0])
   const muyaContainerRef = useRef<HTMLDivElement>(null)
   const themeHtml = markdownHtml.themes ?? ''
+  const isDark = isDarkLabel(currentTheme.label)
 
+  // Swap the page CSS on every theme change (light themes need this too).
   useEffect(() => {
-    if (!themeHtml || !muyaContainerRef.current) return
-    const nodes = muyaContainerRef.current.querySelectorAll<HTMLElement>('div.mermaid')
-    const unrendered = Array.from(nodes).filter((d) => !d.querySelector('svg'))
-    if (unrendered.length === 0) return
-    void mermaid.run({ nodes: unrendered }).catch((err) => console.error('Mermaid render error:', err))
-  }, [themeHtml, currentTheme])
+    addThemeStyle(currentTheme.label)
+  }, [currentTheme])
 
-  const selectTheme = (theme: ThemeItem) => {
-    mermaid.initialize({ theme: /dark/i.test(theme.label) ? 'dark' : 'default', startOnLoad: false })
-    addThemeStyle(theme.label)
-    setCurrentTheme(theme)
-    if (muyaContainerRef.current) {
-      const nodes = muyaContainerRef.current.querySelectorAll<HTMLElement>('div.mermaid')
+  // Repaint mermaid only when darkness flips: all light themes share mermaid's
+  // 'default' theme and all dark themes share 'dark', so light↔light switches
+  // do not need a re-render. Initial mount also runs here.
+  useEffect(() => {
+    const container = muyaContainerRef.current
+    if (!container) return
+    let cancelled = false
+    void (async () => {
+      await setMermaidTheme(isDark ? 'dark' : 'default')
+      if (cancelled) return
+      const nodes = container.querySelectorAll<HTMLElement>('div.mermaid')
       nodes.forEach((n) => {
-        const original = n.getAttribute('data-source')
-        if (original) n.textContent = original
+        const src = n.getAttribute('data-source')
+        if (src) n.textContent = src
         n.removeAttribute('data-processed')
       })
+      await runMermaid(Array.from(nodes))
+    })()
+    return () => {
+      cancelled = true
     }
-  }
+  }, [isDark])
 
   return (
     <div className="theme">
@@ -71,7 +80,7 @@ const Theme: React.FC = () => {
               <li
                 key={theme.name}
                 className={theme.name === currentTheme.name ? 'active' : ''}
-                onClick={() => selectTheme(theme)}
+                onClick={() => setCurrentTheme(theme)}
               >
                 <span style={{ background: theme.color, boxShadow: `0 3px 12px 0 ${theme.color}` }}></span>
                 <span>{theme.name}</span>
@@ -86,7 +95,7 @@ const Theme: React.FC = () => {
               <li
                 key={theme.name}
                 className={theme.name === currentTheme.name ? 'active' : ''}
-                onClick={() => selectTheme(theme)}
+                onClick={() => setCurrentTheme(theme)}
               >
                 <span style={{ background: theme.color, boxShadow: `0 3px 12px 0 ${theme.color}` }}></span>
                 <span>{theme.name}</span>

@@ -5,15 +5,10 @@ import { Marked } from 'marked'
 import { markedHighlight } from 'marked-highlight'
 import markedKatex from 'marked-katex-extension'
 import Prism from 'prismjs'
-import 'prismjs/components/prism-bash.js'
+// Demo markdown files only use ```javascript and ```mermaid fences. Add more
+// grammars here as demos grow; keep the list minimal so the build script stays
+// fast and the generated HTML doesn't reference non-existent classes.
 import 'prismjs/components/prism-javascript.js'
-import 'prismjs/components/prism-typescript.js'
-import 'prismjs/components/prism-json.js'
-import 'prismjs/components/prism-jsx.js'
-import 'prismjs/components/prism-tsx.js'
-import 'prismjs/components/prism-css.js'
-import 'prismjs/components/prism-markdown.js'
-import 'prismjs/components/prism-yaml.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

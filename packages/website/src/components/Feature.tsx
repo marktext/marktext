@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import mermaid from 'mermaid'
-import { markdownHtml } from '@/lib/markdown'
+import { useState, useRef } from 'react'
+import { markdownHtml } from '@/generated/markdown-html'
+import { useMermaidRender } from '@/lib/mermaid'
 
 interface FeatureItem {
   title: string
@@ -22,19 +22,7 @@ const Feature: React.FC = () => {
   const [selectedFeature, setSelectedFeature] = useState<FeatureItem>(features[0])
   const muyaContainerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    mermaid.initialize({ startOnLoad: false, theme: 'default' })
-  }, [])
-
-  useEffect(() => {
-    if (selectedFeature.key !== 'diagram') return
-    const container = muyaContainerRef.current
-    if (!container) return
-    const nodes = container.querySelectorAll<HTMLElement>('div.mermaid')
-    const unrendered = Array.from(nodes).filter((d) => !d.querySelector('svg'))
-    if (unrendered.length === 0) return
-    void mermaid.run({ nodes: unrendered }).catch((err) => console.error('Mermaid render error:', err))
-  }, [selectedFeature])
+  useMermaidRender(muyaContainerRef, [selectedFeature.key])
 
   const htmlContent = markdownHtml[selectedFeature.key] ?? ''
 
