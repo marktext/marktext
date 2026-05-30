@@ -273,6 +273,7 @@ export interface IpcMainEventChannels {
   'mt::tab-saved': [tabId: string]
   'mt::tabs-cycle-left': []
   'mt::tabs-cycle-right': []
+  'mt::toggle-observation-mode': []
   'mt::toggle-view-layout-entry': [entry: string]
   'mt::toggle-view-mode-entry': [entry: string]
   'mt::update-file': [payload: { type: 'add' | 'change' | 'unlink'; change: FileChangeDetail }]

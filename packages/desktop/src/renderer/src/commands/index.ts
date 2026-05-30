@@ -604,6 +604,12 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'view.observation-mode',
+    execute: async() => {
+      bus.emit('view:toggle-observation-mode')
+    }
+  },
+  {
     id: 'view.toggle-sidebar',
     execute: async() => {
       bus.emit('view:toggle-layout-entry', 'showSideBar')

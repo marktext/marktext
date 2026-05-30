@@ -88,6 +88,9 @@ export interface IFileState {
   // Muya block tree; only populated for the actively edited tab.
   blocks?: unknown
   isMixedLineEndings?: boolean
+  // Observation-Mode: tab is read-only and auto-reloads immediately on
+  // external file changes (no confirmation banner).
+  isObserved?: boolean
 }
 
 /**

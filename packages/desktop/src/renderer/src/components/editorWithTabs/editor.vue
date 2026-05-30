@@ -1038,6 +1038,24 @@ interface FileLoadedPayload {
 }
 
 // listen for `open-single-file` event, it will call this method only when open a new file.
+// Observation-Mode: make the Muya container read-only (and inert to pointer
+// input) while still allowing text selection/copy. Editable again otherwise.
+const applyObservationMode = (isObserved: boolean) => {
+  if (!editor.value) return
+  const { container } = editor.value
+  if (!container) return
+  container.setAttribute('contenteditable', isObserved ? 'false' : 'true')
+  container.style.pointerEvents = isObserved ? 'none' : ''
+  container.style.userSelect = 'text'
+}
+
+const handleObservationModeChanged = (payload: unknown) => {
+  const { id, isObserved } = (payload ?? {}) as { id?: string; isObserved?: boolean }
+  if (id === currentFile.value?.id) {
+    applyObservationMode(!!isObserved)
+  }
+}
+
 const setMarkdownToEditor = (payload: unknown) => {
   const { markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
@@ -1047,6 +1065,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     } else {
       editor.value.setMarkdown(newMarkdown)
     }
+    applyObservationMode(!!currentFile.value?.isObserved)
   }
 }
 
@@ -1093,6 +1112,10 @@ const handleFileChange = (payload: unknown) => {
       container.style.pointerEvents = 'auto'
       scrollToCursor(0)
     }
+
+    // Re-apply read-only state after the scroll handling above resets
+    // pointer-events, so switching to/from an observed tab stays correct.
+    applyObservationMode(!!currentFile.value?.isObserved)
   }
 }
 
@@ -1233,6 +1256,7 @@ onMounted(() => {
   bus.on('insert-image', insertImage)
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
+  bus.on('observation-mode-changed', handleObservationModeChanged)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
   bus.on('copyAsRich', handleCopyPaste)
@@ -1350,6 +1374,7 @@ onBeforeUnmount(() => {
   bus.off('insert-image', insertImage)
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
+  bus.off('observation-mode-changed', handleObservationModeChanged)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)
   bus.off('copyAsRich', handleCopyPaste)

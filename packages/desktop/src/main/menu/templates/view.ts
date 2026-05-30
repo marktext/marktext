@@ -49,6 +49,17 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      id: 'observationModeMenuItem',
+      label: t('menu.view.observationMode'),
+      accelerator: keybindings.getAccelerator('view.observation-mode') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.toggleObservationMode(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
       label: t('menu.view.toggleSidebar'),
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar') ?? undefined,

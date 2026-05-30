@@ -22,6 +22,7 @@ import { useLayoutStore } from './layout'
 import { useMainStore } from '.'
 import { t } from '../i18n'
 import { debouncedSendBufferedState, sendBufferedState } from './bufferedState'
+import { shouldAutoReload } from './observationMode'
 import type {
   IFileState,
   FileNotification,
@@ -1348,6 +1349,11 @@ export const useEditorStore = defineStore('editor', {
       const tab = this.tabs[this.tabIdToIndex[id]!]
       if (!tab) return
 
+      // Observation-Mode: the tab is read-only. Ignore any editor-originated
+      // content change so markdown/isSaved/history stay untouched (also
+      // covers the sourceCode.vue path which reuses this action).
+      if (tab.isObserved) return
+
       const { filename, pathname, markdown: oldMarkdown, trimTrailingNewline } = tab
 
       markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
@@ -1593,6 +1599,14 @@ export const useEditorStore = defineStore('editor', {
             case 'add':
             case 'change': {
               const { autoSave } = preferencesStore
+
+              // Observation-Mode: always reload immediately, before any
+              // autoSave/isSaved handling. No banner, no isSaved mutation.
+              if (tab.isObserved && shouldAutoReload(tab, autoSave)) {
+                this.loadChange(change as unknown as FileChangePayload)
+                return
+              }
+
               if (autoSave) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
@@ -1656,6 +1670,36 @@ export const useEditorStore = defineStore('editor', {
     LISTEN_FOR_RELOAD_IMAGES(): void {
       window.electron.ipcRenderer.on('mt::invalidate-image-cache', () => {
         bus.emit('invalidate-image-cache')
+      })
+    },
+
+    // Observation-Mode: toggle read-only + auto-reload for the current tab.
+    TOGGLE_OBSERVATION_MODE(): void {
+      const { currentFile } = this
+      if (!currentFile) return
+
+      currentFile.isObserved = !currentFile.isObserved
+
+      // Activating Observation-Mode means the tab becomes read-only; make sure
+      // it is marked saved so no spurious unsaved-dot/close dialog appears.
+      if (currentFile.isObserved) {
+        currentFile.isSaved = true
+      }
+
+      bus.emit('observation-mode-changed', {
+        id: currentFile.id,
+        isObserved: currentFile.isObserved
+      })
+      debouncedSendBufferedState()
+    },
+
+    LISTEN_FOR_OBSERVATION_MODE(): void {
+      window.electron.ipcRenderer.on('mt::toggle-observation-mode', () => {
+        this.TOGGLE_OBSERVATION_MODE()
+      })
+      // Command-palette entry dispatches via the bus instead of IPC.
+      bus.on('view:toggle-observation-mode', () => {
+        this.TOGGLE_OBSERVATION_MODE()
       })
     },
 
@@ -1916,6 +1960,7 @@ interface BufferedTabState {
   wordCount: IFileState['wordCount']
   muyaIndexCursor: unknown
   scrollTop: number
+  isObserved?: boolean
 }
 
 const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): BufferedTabState => {
@@ -1935,7 +1980,8 @@ const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): Buff
     cursor: toSerializableValue(tab.cursor, defaultFileState.cursor),
     wordCount: toSerializableValue(tab.wordCount, defaultFileState.wordCount),
     muyaIndexCursor: toSerializableValue(tab.muyaIndexCursor, defaultFileState.muyaIndexCursor),
-    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop
+    scrollTop: tab.scrollTop ?? defaultFileState.scrollTop,
+    isObserved: tab.isObserved ?? defaultFileState.isObserved
   }
 }
 

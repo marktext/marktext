@@ -12,13 +12,24 @@
           v-for="file of tabs"
           :key="file.id"
           :title="file.pathname"
-          :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
+          :class="{
+            active: currentFile?.id === file.id,
+            unsaved: !file.isSaved,
+            observed: file.isObserved
+          }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
           <span>{{ file.filename }}</span>
+          <el-icon
+            class="observed-indicator"
+            :size="12"
+            :title="t('editor.observationMode')"
+          >
+            <View />
+          </el-icon>
           <span class="unsaved-dot" />
           <el-icon
             class="close-icon"
@@ -48,9 +59,10 @@ import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
-import { Plus, Close } from '@element-plus/icons-vue'
+import { Plus, Close, View } from '@element-plus/icons-vue'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
+import { t } from '../../i18n'
 import type { IFileState } from '@shared/types/files'
 
 const editorStore = useEditorStore()
@@ -315,6 +327,15 @@ onBeforeUnmount(() => {
       background: var(--themeColor);
       flex-shrink: 0;
     }
+    & > .observed-indicator {
+      display: none;
+      margin-right: 3px;
+      color: var(--themeColor);
+      flex-shrink: 0;
+    }
+  }
+  & > li.observed > .observed-indicator {
+    display: inline-flex;
   }
   & > li.unsaved:not(.active) {
     & > .close-icon {
