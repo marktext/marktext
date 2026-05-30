@@ -13,6 +13,7 @@ const i18n = createI18n({
   locale: 'en', // default is en
   fallbackLocale: 'en',
   messages: { en: enTranslations }, // Load en by default only
+  warnHtmlMessage: false,
   // Disable linking to avoid '@' symbols being misinterpreted
   modifiers: {
     '@': () => '@'

@@ -1403,5 +1403,8 @@
     "copy": "Copier",
     "paste": "Coller",
     "selectAll": "Tout sélectionner"
+  },
+  "toolbar": {
+    "list": "Liste"
   }
 }

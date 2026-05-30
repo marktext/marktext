@@ -99,7 +99,7 @@
           class="toolbar-menu-trigger"
           :aria-label="t('menu.paragraph.taskList')"
         >
-          List
+          {{ t('toolbar.list') }}
         </summary>
         <div class="toolbar-menu-panel">
           <button
@@ -161,7 +161,7 @@
           class="toolbar-menu-trigger"
           :aria-label="t('menu.file.export')"
         >
-          <Download class="toolbar-icon" />
+          <Upload class="toolbar-icon" />
         </summary>
         <div class="toolbar-menu-panel align-right">
           <button
@@ -185,13 +185,12 @@ import { computed, h, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import {
-  Brush,
   DocumentChecked,
-  Download,
   Grid,
   Link,
-  Memo,
   Picture,
+  PriceTag,
+  Upload,
 } from '@element-plus/icons-vue'
 import bus from '@/bus'
 import { useEditorStore } from '@/store/editor'
@@ -219,7 +218,7 @@ interface ToolbarMenuOption {
 
 const FilePlusIcon: Component = {
   name: 'FilePlusIcon',
-  render() {
+  render () {
     return h(
       'svg',
       {
@@ -264,7 +263,7 @@ const FilePlusIcon: Component = {
 
 const UndoIcon: Component = {
   name: 'UndoIcon',
-  render() {
+  render () {
     return h(
       'svg',
       {
@@ -295,7 +294,7 @@ const UndoIcon: Component = {
 
 const RedoIcon: Component = {
   name: 'RedoIcon',
-  render() {
+  render () {
     return h(
       'svg',
       {
@@ -333,10 +332,22 @@ const editorStore = useEditorStore()
 const { selectionMenuState, selectionFormatState } = storeToRefs(editorStore)
 
 const isEditorCommandDisabled = computed(() => {
-  return props.sourceCode || selectionMenuState.value.isDisabled
+  return props.sourceCode ? false : selectionMenuState.value.isDisabled
 })
 
+const isSourceEditorCommand = (command: string): boolean => {
+  return command.startsWith('format.') ||
+    command.startsWith('paragraph.') ||
+    command === 'edit.undo' ||
+    command === 'edit.redo'
+}
+
 const executeCommand = (command: string): void => {
+  if (props.sourceCode && isSourceEditorCommand(command)) {
+    bus.emit('source-code::toolbar-command', command)
+    return
+  }
+
   switch (command) {
     case 'format.hyperlink':
       bus.emit('open-formatting-link-dialog')
@@ -355,7 +366,10 @@ const executeCommand = (command: string): void => {
 const headingOptions = computed<ToolbarMenuOption[]>(() => [
   { command: 'paragraph.heading-1', label: t('menu.format.heading1') },
   { command: 'paragraph.heading-2', label: t('menu.format.heading2') },
-  { command: 'paragraph.heading-3', label: t('menu.format.heading3') }
+  { command: 'paragraph.heading-3', label: t('menu.format.heading3') },
+  { command: 'paragraph.heading-4', label: t('menu.format.heading4') },
+  { command: 'paragraph.heading-5', label: t('menu.format.heading5') },
+  { command: 'paragraph.heading-6', label: t('menu.format.heading6') }
 ])
 
 const listOptions = computed<ToolbarMenuOption[]>(() => [
@@ -409,7 +423,7 @@ const isCodeBlockActive = (): boolean => {
 const createEditorItem = (item: ToolbarItem, active = false): ToolbarItem => {
   return {
     ...item,
-    active,
+    active: props.sourceCode ? false : active,
     disabled: isEditorCommandDisabled.value
   }
 }
@@ -517,17 +531,9 @@ const groups = computed<ToolbarGroup[]>(() => [
           command: 'paragraph.front-matter',
           label: '',
           title: t('menu.paragraph.frontMatter'),
-          icon: Memo
+          icon: PriceTag
         },
         hasAffiliation('frontmatter')
-      ),
-      createEditorItem(
-        {
-          command: 'format.clear-format',
-          label: '',
-          title: t('menu.format.clearFormat'),
-          icon: Brush
-        }
       )
     ]
   },

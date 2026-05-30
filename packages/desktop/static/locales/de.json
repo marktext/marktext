@@ -1395,5 +1395,8 @@
     "copy": "Kopieren",
     "paste": "Einfügen",
     "selectAll": "Alles auswählen"
+  },
+  "toolbar": {
+    "list": "Liste"
   }
 }

@@ -36,7 +36,7 @@
       center
       dir="ltr"
     >
-      <template #title>
+      <template #header>
         <div class="dialog-title">
           {{ t('editor.insertTable.title') }}
         </div>
@@ -88,7 +88,7 @@
       center
       dir="ltr"
     >
-      <template #title>
+      <template #header>
         <div class="dialog-title">
           {{ t('editor.insertLink.title') }}
         </div>

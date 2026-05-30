@@ -21,3 +21,4 @@ playwright-report/
 .claude/
 .agents/
 .agent/
+packages/desktop/test-results/.last-run.json

@@ -1396,5 +1396,8 @@
     "vega-lite-start": "vega-lite 开始",
     "click-to-add-image": "点击添加图片",
     "load-image-failed": "图片加载失败"
+  },
+  "toolbar": {
+    "list": "列表"
   }
 }

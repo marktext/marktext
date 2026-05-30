@@ -1405,5 +1405,8 @@
     "copy": "複製",
     "paste": "貼上",
     "selectAll": "全選"
+  },
+  "toolbar": {
+    "list": "清單"
   }
 }

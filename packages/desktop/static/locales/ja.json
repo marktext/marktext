@@ -1397,5 +1397,8 @@
     "copy": "コピー",
     "paste": "貼り付け",
     "selectAll": "すべて選択"
+  },
+  "toolbar": {
+    "list": "リスト"
   }
 }

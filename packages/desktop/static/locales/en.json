@@ -1401,5 +1401,8 @@
     "vega-lite-start": "vega-lite start",
     "click-to-add-image": "Click to add image",
     "load-image-failed": "Load image failed"
+  },
+  "toolbar": {
+    "list": "List"
   }
 }
