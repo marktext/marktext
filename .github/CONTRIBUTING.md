@@ -1,5 +1,7 @@
 # MarkText Contributing Guide
 
+> 🌐 Translations: [Deutsch](../docs/i18n/CONTRIBUTING-de.md)
+
 We are really excited that you are interested in contributing to MarkText :tada:. Before submitting your contribution, please make sure to take a moment and read through the following guidelines.
 
 - [Code of Conduct](../packages/website/content/docs/dev/CODE_OF_CONDUCT.md)
@@ -52,7 +54,7 @@ A good way to start is to find an [issue](https://github.com/marktext/marktext/i
 Other ways to help:
 
 - Documentation
-- Translation (currently unavailable)
+- Translation — MarkText ships localized UI (see `packages/desktop/static/locales/`); new languages and fixes are welcome
 - Design icons and logos
 - Improve the UI
 - Write tests for MarkText
