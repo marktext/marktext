@@ -1325,6 +1325,12 @@
       "rows": "Lignes",
       "columns": "Colonnes"
     },
+    "insertLink": {
+      "title": "Insérer un lien",
+      "linkText": "Texte du lien",
+      "url": "URL",
+      "titleField": "Titre"
+    },
     "notifications": {
       "notificationNotFound": "Notification introuvable"
     },

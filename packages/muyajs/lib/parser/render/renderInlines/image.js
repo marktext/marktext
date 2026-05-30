@@ -74,6 +74,11 @@ export default function image(h, cursor, block, token, outerClass) {
     return h(`span.${CLASS_OR_ID.AG_IMAGE_CONTAINER}`, data, args)
   }
 
+  const renderImageCaption = () => {
+    if (!title) return null
+    return h('span.ag-image-caption', title)
+  }
+
   if (typeof token.attrs['data-align'] === 'string') {
     wrapperSelector += `.${token.attrs['data-align']}`
   }
@@ -145,7 +150,8 @@ export default function image(h, cursor, block, token, outerClass) {
           renderImageContainer(
               // An image description has inline elements as its contents.
               // When an image is rendered to HTML, this is standardly used as the image’s alt attribute.
-            renderImage()
+            renderImage(),
+            renderImageCaption()
           )
         ])
       ]

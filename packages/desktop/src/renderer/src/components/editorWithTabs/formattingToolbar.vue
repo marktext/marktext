@@ -338,6 +338,9 @@ const isEditorCommandDisabled = computed(() => {
 
 const executeCommand = (command: string): void => {
   switch (command) {
+    case 'format.hyperlink':
+      bus.emit('open-formatting-link-dialog')
+      return
     case 'toolbar.export-html':
       bus.emit('showExportDialog', 'styledHtml')
       return

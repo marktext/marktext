@@ -333,6 +333,10 @@ class Muya {
     this.contentState.format(type)
   }
 
+  insertLink(linkInfo) {
+    this.contentState.insertLink(linkInfo)
+  }
+
   insertImage(imageInfo) {
     this.contentState.insertImage(imageInfo)
   }

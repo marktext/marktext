@@ -1331,6 +1331,12 @@
       "rows": "Rows",
       "columns": "Columns"
     },
+    "insertLink": {
+      "title": "Insert Link",
+      "linkText": "Link text",
+      "url": "URL",
+      "titleField": "Title"
+    },
     "notifications": {
       "notificationNotFound": "Notification not found"
     },

@@ -25,7 +25,7 @@ class ImageSelector extends BaseFloat {
     this.imageInfo = null
     this.photoList = []
     this.loading = false
-    this.tab = 'link' // select or link
+    this.tab = 'select' // select or link
     this.isFullMode = false // is show title and alt input
     this.state = {
       alt: '',
@@ -51,6 +51,7 @@ class ImageSelector extends BaseFloat {
 
         Object.assign(this.state, imageInfo.token.attrs)
         this.imageInfo = imageInfo
+        this.tab = 'select'
 
         // Remove file protocol to allow autocomplete.
         const imageSrc = this.state.src
@@ -275,9 +276,27 @@ class ImageSelector extends BaseFloat {
     const { tab, state, isFullMode } = this
     const t = this.muya?.options?.t || ((k) => k)
     const { alt, title, src } = state
+    const titleInput = h('input.title', {
+      props: {
+        placeholder: t('editor.image.selector.inputs.title'),
+        value: title
+      },
+      on: {
+        input: (event) => {
+          this.inputHandler(event, 'title')
+        },
+        paste: (event) => {
+          this.inputHandler(event, 'title')
+        },
+        keydown: (event) => {
+          this.handleKeyDown(event)
+        }
+      }
+    })
     let bodyContent = null
     if (tab === 'select') {
       bodyContent = [
+        h('div.input-container.select-title', [titleInput]),
         h(
           'button.muya-button.role-button.select',
           {
@@ -329,27 +348,10 @@ class ImageSelector extends BaseFloat {
           }
         }
       })
-      const titleInput = h('input.title', {
-        props: {
-          placeholder: t('editor.image.selector.inputs.title'),
-          value: title
-        },
-        on: {
-          input: (event) => {
-            this.inputHandler(event, 'title')
-          },
-          paste: (event) => {
-            this.inputHandler(event, 'title')
-          },
-          keydown: (event) => {
-            this.handleKeyDown(event)
-          }
-        }
-      })
 
       const inputWrapper = isFullMode
         ? h('div.input-container', [altInput, srcInput, titleInput])
-        : h('div.input-container', [srcInput])
+        : h('div.input-container', [srcInput, titleInput])
 
       const embedButton = h(
         'button.muya-button.role-button.link',
