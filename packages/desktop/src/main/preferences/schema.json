@@ -207,6 +207,11 @@
     "type": "boolean",
     "default": false
   },
+  "showHeadingFoldChevrons": {
+    "description": "Editor--Always show heading fold chevrons",
+    "type": "boolean",
+    "default": false
+  },
   "hideLinkPopup": {
     "description": "Editor--Hide link popup when the cursor is hover on the link",
     "type": "boolean",

@@ -138,6 +138,8 @@
       "showTabBar": "Afficher la barre d'onglets",
       "toc": "Table des matières",
       "toggleTableOfContents": "Basculer la table des matières",
+      "foldAllSections": "Tout replier",
+      "unfoldAllSections": "Tout déplier",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
       "reloadWindow": "Recharger la fenêtre"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "L'option de suppression des nouvelles lignes de fin",
         "textDirection": "La direction d'écriture du texte",
         "hideQuickInsertHint": "Masquer l'indice pour créer rapidement des paragraphes",
+        "showHeadingFoldChevrons": "Toujours afficher les chevrons de repli des titres",
         "hideLinkPopup": "Masquer la popup de lien quand le curseur survole le lien",
         "autoCheck": "Cocher automatiquement la tâche associée",
         "preferLooseListItem": "Le type de liste préféré",
@@ -606,6 +609,7 @@
           "rtl": "Droite à gauche"
         },
         "hideQuickInsertHint": "Masquer l'indice d'insertion rapide",
+        "showHeadingFoldChevrons": "Toujours afficher les chevrons de repli des titres",
         "hideLinkPopup": "Masquer la popup de lien",
         "autoCheck": "Vérification automatique",
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne en LF à l'ouverture",
@@ -1002,6 +1006,8 @@
       "toggleSidebar": "Basculer la barre latérale",
       "toggleToc": "Basculer la table des matières",
       "toggleTabbar": "Basculer la barre d'onglets",
+      "foldAllSections": "Tout replier",
+      "unfoldAllSections": "Tout déplier",
       "toggleDevTools": "Basculer les outils de développement",
       "devReload": "Rechargement développeur",
       "reloadImages": "Recharger les images",

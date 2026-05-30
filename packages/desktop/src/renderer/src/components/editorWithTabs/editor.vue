@@ -168,6 +168,7 @@ const {
   trimUnnecessaryCodeBlockEmptyLines,
   editorFontFamily,
   hideQuickInsertHint,
+  showHeadingFoldChevrons,
   hideLinkPopup,
   autoCheck,
   editorLineWidth,
@@ -406,6 +407,12 @@ watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
 watch(hideQuickInsertHint, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ hideQuickInsertHint: value })
+  }
+})
+
+watch(showHeadingFoldChevrons, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ showHeadingFoldChevrons: value })
   }
 })
 
@@ -750,6 +757,18 @@ const handleInvalidateImageCache = () => {
   }
 }
 
+const handleFoldAllHeadings = () => {
+  if (!sourceCode.value && editor.value) {
+    editor.value.foldAllHeadings()
+  }
+}
+
+const handleUnfoldAllHeadings = () => {
+  if (!sourceCode.value && editor.value) {
+    editor.value.unfoldAllHeadings()
+  }
+}
+
 const openSpellcheckerLanguageCommand = () => {
   if (!isOsx) {
     bus.emit('show-command-palette', switchLanguageCommand)
@@ -764,13 +783,13 @@ const replaceMisspelling = (payload: unknown) => {
 }
 
 const handleUndo = () => {
-  if (editor.value) {
+  if (!sourceCode.value && editor.value) {
     editor.value.undo()
   }
 }
 
 const handleRedo = () => {
-  if (editor.value) {
+  if (!sourceCode.value && editor.value) {
     editor.value.redo()
   }
 }
@@ -861,6 +880,14 @@ const scrollToHighlight = () => {
 }
 
 const scrollToHeader = (slug: unknown) => {
+  if (typeof slug !== 'string') return
+
+  const didUnfold = editor.value.unfoldBlockByKey(slug)
+  if (didUnfold) {
+    requestAnimationFrame(() => scrollToElement(`#${slug}`))
+    return
+  }
+
   return scrollToElement(`#${slug}`)
 }
 
@@ -1176,6 +1203,7 @@ onMounted(() => {
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
+    showHeadingFoldChevrons: showHeadingFoldChevrons.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
     sequenceTheme: sequenceTheme.value,
@@ -1223,6 +1251,8 @@ onMounted(() => {
   bus.on('undo', handleUndo)
   bus.on('redo', handleRedo)
   bus.on('selectAll', handleSelectAll)
+  bus.on('foldAllHeadings', handleFoldAllHeadings)
+  bus.on('unfoldAllHeadings', handleUnfoldAllHeadings)
   bus.on('export', handleExport)
   bus.on('print-service-clearup', handlePrintServiceClearup)
   bus.on('paragraph', handleEditParagraph)
@@ -1340,6 +1370,8 @@ onBeforeUnmount(() => {
   bus.off('undo', handleUndo)
   bus.off('redo', handleRedo)
   bus.off('selectAll', handleSelectAll)
+  bus.off('foldAllHeadings', handleFoldAllHeadings)
+  bus.off('unfoldAllHeadings', handleUnfoldAllHeadings)
   bus.off('export', handleExport)
   bus.off('print-service-clearup', handlePrintServiceClearup)
   bus.off('paragraph', handleEditParagraph)

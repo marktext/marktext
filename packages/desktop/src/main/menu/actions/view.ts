@@ -77,17 +77,31 @@ export const reloadImageCache = (win: Win): void => {
   }
 }
 
+export const foldAllSections = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::execute-command-by-id', COMMANDS.VIEW_FOLD_ALL_SECTIONS)
+  }
+}
+
+export const unfoldAllSections = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::execute-command-by-id', COMMANDS.VIEW_UNFOLD_ALL_SECTIONS)
+  }
+}
+
 // --- Commands -------------------------------------------------------------
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
+  commandManager.add(COMMANDS.VIEW_FOLD_ALL_SECTIONS, foldAllSections)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TOC, showTableOfContents)
   commandManager.add(COMMANDS.VIEW_TYPEWRITER_MODE, toggleTypewriterMode)
+  commandManager.add(COMMANDS.VIEW_UNFOLD_ALL_SECTIONS, unfoldAllSections)
 
   commandManager.add(COMMANDS.VIEW_DEV_RELOAD, debugReloadWindow)
   commandManager.add(COMMANDS.VIEW_TOGGLE_DEV_TOOLS, debugToggleDevTools)

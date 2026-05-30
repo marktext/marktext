@@ -138,6 +138,8 @@
       "showTabBar": "タブバーを表示",
       "toc": "目次",
       "toggleTableOfContents": "目次の切り替え",
+      "foldAllSections": "すべてのセクションを折りたたむ",
+      "unfoldAllSections": "すべてのセクションを展開",
       "reloadImages": "画像を再読み込み",
       "showDeveloperTools": "開発者ツールを表示",
       "reloadWindow": "ウィンドウを再読み込み"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "末尾改行のトリミングオプション",
         "textDirection": "テキストの書字方向",
         "hideQuickInsertHint": "段落を素早く作成するためのヒントを非表示",
+        "showHeadingFoldChevrons": "見出しの折りたたみシェブロンを常に表示",
         "hideLinkPopup": "カーソルがリンクの上にホバーしたときにリンクポップアップを非表示",
         "autoCheck": "関連するタスクを自動的にチェックするかどうか",
         "preferLooseListItem": "優先されるリストタイプ",
@@ -606,6 +609,7 @@
           "rtl": "右から左"
         },
         "hideQuickInsertHint": "クイック挿入ヒントを隠す",
+        "showHeadingFoldChevrons": "見出しの折りたたみシェブロンを常に表示",
         "hideLinkPopup": "リンクポップアップを隠す",
         "autoCheck": "自動チェック",
         "autoNormalizeLineEndings": "開くときに改行コードを自動的にLFに正規化する",
@@ -1002,6 +1006,8 @@
       "toggleSidebar": "サイドバーを切り替え",
       "toggleToc": "目次を切り替え",
       "toggleTabbar": "タブバーを切り替え",
+      "foldAllSections": "すべてのセクションを折りたたむ",
+      "unfoldAllSections": "すべてのセクションを展開",
       "toggleDevTools": "開発者ツールを切り替え",
       "devReload": "開発者リロード",
       "reloadImages": "画像を再読み込み",

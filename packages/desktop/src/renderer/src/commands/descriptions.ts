@@ -163,6 +163,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'view.toggle-sidebar': 'commands.view.toggleSidebar',
   'view.toggle-tabbar': 'commands.view.toggleTabbar',
   'view.toggle-toc': 'commands.view.toggleToc',
+  'view.fold-all-sections': 'commands.view.foldAllSections',
+  'view.unfold-all-sections': 'commands.view.unfoldAllSections',
 
   // Edit modes
   'view.toggle-source-code-mode': 'commands.view.toggleSourceCodeMode',

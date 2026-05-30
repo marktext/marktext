@@ -87,6 +87,8 @@ const searchCtrl = (ContentState) => {
 
     if (!match) return
     const { key, start, end } = match
+    const block = this.getBlock(key)
+    this.unfoldBlock(block)
 
     this.cursor = {
       noHistory: true,

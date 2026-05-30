@@ -1176,8 +1176,53 @@ span.ag-reference-link {
   display: block;
 }
 
+.ag-heading-fold-toggle::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid currentColor;
+  transform: rotate(90deg);
+}
+
+.ag-heading-fold-toggle.ag-heading-folded::before {
+  transform: rotate(0deg);
+}
+
 .ag-paragraph.ag-active .ag-front-icon {
   display: block;
+}
+
+.ag-show-heading-fold-chevrons h1.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-show-heading-fold-chevrons h2.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-show-heading-fold-chevrons h3.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-show-heading-fold-chevrons h4.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-show-heading-fold-chevrons h5.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-show-heading-fold-chevrons h6.ag-paragraph:not(.ag-active) .ag-front-icon,
+.ag-paragraph.ag-heading-folded-block:not(.ag-active) .ag-front-icon {
+  display: block;
+}
+
+.ag-show-heading-fold-chevrons h1.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h2.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h3.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h4.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h5.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h6.ag-paragraph:not(.ag-active) .ag-front-icon-button,
+.ag-show-heading-fold-chevrons h1.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-show-heading-fold-chevrons h2.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-show-heading-fold-chevrons h3.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-show-heading-fold-chevrons h4.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-show-heading-fold-chevrons h5.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-show-heading-fold-chevrons h6.ag-paragraph:not(.ag-active) .ag-copy-header-link,
+.ag-paragraph.ag-heading-folded-block:not(.ag-active) .ag-front-icon-button,
+.ag-paragraph.ag-heading-folded-block:not(.ag-active) .ag-copy-header-link {
+  display: none;
+}
+
+.ag-paragraph.ag-fold-hidden {
+  display: none;
 }
 
 .ag-meta-or-ctrl img,

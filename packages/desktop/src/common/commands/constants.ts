@@ -93,6 +93,7 @@ const COMMANDS = Object.freeze({
   VIEW_COMMAND_PALETTE: 'view.command-palette',
   VIEW_DEV_RELOAD: 'view.dev-reload',
   VIEW_FOCUS_MODE: 'view.focus-mode',
+  VIEW_FOLD_ALL_SECTIONS: 'view.fold-all-sections',
   VIEW_FORCE_RELOAD_IMAGES: 'view.reload-images',
   VIEW_SOURCE_CODE_MODE: 'view.source-code-mode',
   VIEW_TOGGLE_DEV_TOOLS: 'view.toggle-dev-tools',
@@ -100,6 +101,7 @@ const COMMANDS = Object.freeze({
   VIEW_TOGGLE_TABBAR: 'view.toggle-tabbar',
   VIEW_TOGGLE_TOC: 'view.toggle-toc',
   VIEW_TYPEWRITER_MODE: 'view.typewriter-mode',
+  VIEW_UNFOLD_ALL_SECTIONS: 'view.unfold-all-sections',
 
   WINDOW_MINIMIZE: 'window.minimize',
   WINDOW_TOGGLE_ALWAYS_ON_TOP: 'window.toggle-always-on-top',

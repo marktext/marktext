@@ -615,6 +615,18 @@ const commands: CommandDescriptor[] = [
       bus.emit('view:toggle-layout-entry', 'showTabBar')
     }
   },
+  {
+    id: 'view.fold-all-sections',
+    execute: async() => {
+      focusEditorAndExecute(() => bus.emit('foldAllHeadings'))
+    }
+  },
+  {
+    id: 'view.unfold-all-sections',
+    execute: async() => {
+      focusEditorAndExecute(() => bus.emit('unfoldAllHeadings'))
+    }
+  },
 
   {
     id: 'view.text-direction',

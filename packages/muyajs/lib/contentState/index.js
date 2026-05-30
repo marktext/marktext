@@ -24,6 +24,7 @@ import paragraphCtrl from './paragraphCtrl'
 import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
+import foldCtrl from './foldCtrl'
 import containerCtrl from './containerCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
@@ -56,6 +57,7 @@ const prototypes = [
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
+  foldCtrl,
   containerCtrl,
   htmlBlockCtrl,
   clickCtrl,
@@ -99,6 +101,7 @@ class ContentState {
     this.cellSelectInfo = null
     this._selectedTableCells = null
     this.cellSelectEventIds = []
+    this.foldedHeadings = new Set()
     this.init()
   }
 
@@ -232,6 +235,7 @@ class ContentState {
   }
 
   render(isRenderCursor = true, clearCache = false) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }
@@ -255,6 +259,7 @@ class ContentState {
   }
 
   partialRender(isRenderCursor = true) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }
@@ -293,6 +298,7 @@ class ContentState {
   }
 
   singleRender(block, isRenderCursor = true) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }

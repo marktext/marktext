@@ -138,6 +138,8 @@
       "showTabBar": "Mostrar Barra de Abas",
       "toc": "Índice",
       "toggleTableOfContents": "Alternar Índice",
+      "foldAllSections": "Recolher Todas as Seções",
+      "unfoldAllSections": "Expandir Todas as Seções",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
       "reloadWindow": "Recarregar Janela"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "A opção de aparar nova linha final",
         "textDirection": "A direção de escrita do texto",
         "hideQuickInsertHint": "Ocultar dica para criar parágrafos rapidamente",
+        "showHeadingFoldChevrons": "Sempre mostrar os chevrons de recolhimento dos títulos",
         "hideLinkPopup": "Ocultar popup de link quando o cursor está sobre o link",
         "autoCheck": "Se verificar automaticamente a tarefa relacionada",
         "preferLooseListItem": "O tipo de lista preferido",
@@ -606,6 +609,7 @@
           "rtl": "Direita para Esquerda"
         },
         "hideQuickInsertHint": "Ocultar dica de inserção rápida",
+        "showHeadingFoldChevrons": "Sempre mostrar os chevrons de recolhimento dos títulos",
         "hideLinkPopup": "Ocultar popup de link",
         "autoCheck": "Verificação automática",
         "autoNormalizeLineEndings": "Normalizar automaticamente finais de linha para LF ao abrir",
@@ -1002,6 +1006,8 @@
       "toggleSidebar": "Alternar Barra Lateral",
       "toggleToc": "Alternar Índice",
       "toggleTabbar": "Alternar Barra de Abas",
+      "foldAllSections": "Recolher Todas as Seções",
+      "unfoldAllSections": "Expandir Todas as Seções",
       "toggleDevTools": "Alternar Ferramentas de Desenvolvedor",
       "devReload": "Recarregar Desenvolvedor",
       "reloadImages": "Recarregar Imagens",

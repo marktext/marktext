@@ -170,6 +170,11 @@
           :on-change="(value) => onSelectChange('hideQuickInsertHint', value)"
         />
         <bool
+          :description="t('preferences.editor.misc.showHeadingFoldChevrons')"
+          :bool="showHeadingFoldChevrons"
+          :on-change="(value) => onSelectChange('showHeadingFoldChevrons', value)"
+        />
+        <bool
           :description="t('preferences.editor.misc.hideLinkPopup')"
           :bool="hideLinkPopup"
           :on-change="(value) => onSelectChange('hideLinkPopup', value)"
@@ -223,6 +228,7 @@ const {
   codeBlockLineNumbers,
   trimUnnecessaryCodeBlockEmptyLines,
   hideQuickInsertHint,
+  showHeadingFoldChevrons,
   hideLinkPopup,
   autoCheck,
   autoNormalizeLineEndings,

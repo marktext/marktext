@@ -138,6 +138,8 @@
       "showTabBar": "탭바 보기",
       "toc": "목차",
       "toggleTableOfContents": "목차 토글",
+      "foldAllSections": "모든 섹션 접기",
+      "unfoldAllSections": "모든 섹션 펼치기",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
       "reloadWindow": "창 새로고침"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "후행 줄바꿈 제거 옵션",
         "textDirection": "텍스트 쓰기 방향",
         "hideQuickInsertHint": "빠르게 단락을 만들기 위한 힌트 숨기기",
+        "showHeadingFoldChevrons": "제목 접기 화살표 항상 표시",
         "hideLinkPopup": "커서가 링크 위에 호버할 때 링크 팝업 숨기기",
         "autoCheck": "관련 작업을 자동으로 확인할지 여부",
         "preferLooseListItem": "선호하는 목록 유형",
@@ -606,6 +609,7 @@
           "rtl": "오른쪽에서 왼쪽"
         },
         "hideQuickInsertHint": "빠른 삽입 힌트 숨기기",
+        "showHeadingFoldChevrons": "제목 접기 화살표 항상 표시",
         "hideLinkPopup": "링크 팝업 숨기기",
         "autoCheck": "자동 확인",
         "autoNormalizeLineEndings": "열 때 줄 바꿈을 자동으로 LF로 정규화",
@@ -1002,6 +1006,8 @@
       "toggleSidebar": "사이드바 토글",
       "toggleToc": "목차 토글",
       "toggleTabbar": "탭바 토글",
+      "foldAllSections": "모든 섹션 접기",
+      "unfoldAllSections": "모든 섹션 펼치기",
       "toggleDevTools": "개발자 도구 토글",
       "devReload": "개발자 새로고침",
       "reloadImages": "이미지 새로고침",

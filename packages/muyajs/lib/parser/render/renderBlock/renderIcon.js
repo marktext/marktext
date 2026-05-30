@@ -149,7 +149,17 @@ export default function renderIcon(block, t) {
     )
   )
 
-  const iconsToRender = isCopyLink ? [iconVnode, linkCopyIcon] : [iconVnode]
+  const foldToggleIcon = h(
+    `i.icon.ag-heading-fold-toggle${this.muya.contentState.isHeadingFolded(block) ? '.ag-heading-folded' : ''}`,
+    {
+      style: {
+        left: '-60px'
+      }
+    },
+    ''
+  )
+
+  const iconsToRender = isCopyLink ? [iconVnode, linkCopyIcon, foldToggleIcon] : [iconVnode]
 
   return h(
     selector,

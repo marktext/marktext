@@ -138,6 +138,8 @@
       "showTabBar": "显示标签栏",
       "toc": "目录",
       "toggleTableOfContents": "切换目录",
+      "foldAllSections": "折叠所有章节",
+      "unfoldAllSections": "展开所有章节",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
       "reloadWindow": "重新加载窗口"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "修剪尾随换行符选项",
         "textDirection": "文本书写方向",
         "hideQuickInsertHint": "隐藏快速创建段落的提示",
+        "showHeadingFoldChevrons": "始终显示标题折叠箭头",
         "hideLinkPopup": "当光标悬停在链接上时隐藏链接弹出窗口",
         "autoCheck": "是否自动检查相关任务",
         "preferLooseListItem": "首选列表类型",
@@ -606,6 +609,7 @@
           "rtl": "从右到左"
         },
         "hideQuickInsertHint": "隐藏快速插入提示",
+        "showHeadingFoldChevrons": "始终显示标题折叠箭头",
         "hideLinkPopup": "隐藏链接弹出窗口",
         "autoCheck": "自动检查",
         "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF",
@@ -1009,6 +1013,8 @@
       "toggleSidebar": "切换侧边栏",
       "toggleToc": "切换目录",
       "toggleTabbar": "切换标签栏",
+      "foldAllSections": "折叠所有章节",
+      "unfoldAllSections": "展开所有章节",
       "toggleDevTools": "切换开发者工具",
       "actualSize": "实际大小",
       "zoomIn": "放大",

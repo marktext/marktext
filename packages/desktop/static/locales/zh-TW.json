@@ -138,6 +138,8 @@
       "showTabBar": "顯示標籤欄",
       "toc": "目錄",
       "toggleTableOfContents": "切換目錄",
+      "foldAllSections": "摺疊所有章節",
+      "unfoldAllSections": "展開所有章節",
       "reloadImages": "重新載入圖片",
       "showDeveloperTools": "顯示開發者工具",
       "reloadWindow": "重新載入視窗"
@@ -441,6 +443,7 @@
         "trimTrailingNewline": "修剪尾隨換行選項",
         "textDirection": "文本書寫方向",
         "hideQuickInsertHint": "隱藏快速建立段落的提示",
+        "showHeadingFoldChevrons": "一律顯示標題摺疊箭頭",
         "hideLinkPopup": "當游標懸停在連結上時隱藏連結彈出視窗",
         "autoCheck": "是否自動檢查相關任務",
         "preferLooseListItem": "首選清單類型",
@@ -606,6 +609,7 @@
           "rtl": "從右到左"
         },
         "hideQuickInsertHint": "隱藏快速插入提示",
+        "showHeadingFoldChevrons": "一律顯示標題摺疊箭頭",
         "hideLinkPopup": "隱藏連結彈出視窗",
         "autoCheck": "自動檢查",
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
@@ -1002,6 +1006,8 @@
       "toggleSidebar": "切換側邊欄",
       "toggleToc": "切換目錄",
       "toggleTabbar": "切換標籤欄",
+      "foldAllSections": "摺疊所有章節",
+      "unfoldAllSections": "展開所有章節",
       "toggleDevTools": "切換開發者工具",
       "devReload": "開發者重新載入",
       "reloadImages": "重新載入圖片",

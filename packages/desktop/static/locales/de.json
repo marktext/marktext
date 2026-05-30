@@ -138,6 +138,8 @@
       "showTabBar": "Tab-Leiste anzeigen",
       "toc": "Inhaltsverzeichnis",
       "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
+      "foldAllSections": "Alle Abschnitte einklappen",
+      "unfoldAllSections": "Alle Abschnitte ausklappen",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
       "reloadWindow": "Fenster neu laden"
@@ -440,6 +442,7 @@
         "trimTrailingNewline": "Die Option zum Entfernen nachfolgender Zeilenumbrüche",
         "textDirection": "Die Schreibrichtung des Textes",
         "hideQuickInsertHint": "Hinweis zum schnellen Erstellen von Absätzen ausblenden",
+        "showHeadingFoldChevrons": "Chevron zum Einklappen von Überschriften immer anzeigen",
         "hideLinkPopup": "Link-Popup ausblenden, wenn der Cursor über dem Link schwebt",
         "autoCheck": "Ob verwandte Aufgabe automatisch geprüft werden soll",
         "preferLooseListItem": "Der bevorzugte Listentyp",
@@ -605,6 +608,7 @@
           "rtl": "Rechts nach links"
         },
         "hideQuickInsertHint": "Schnelleinfügung-Hinweis ausblenden",
+        "showHeadingFoldChevrons": "Chevron zum Einklappen von Überschriften immer anzeigen",
         "hideLinkPopup": "Link-Popup ausblenden",
         "autoCheck": "Automatische Überprüfung",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
@@ -1000,6 +1004,8 @@
       "toggleSidebar": "Seitenleiste umschalten",
       "toggleToc": "Inhaltsverzeichnis umschalten",
       "toggleTabbar": "Tab-Leiste umschalten",
+      "foldAllSections": "Alle Abschnitte einklappen",
+      "unfoldAllSections": "Alle Abschnitte ausklappen",
       "toggleDevTools": "Entwicklertools umschalten",
       "devReload": "Entwickler-Neuladen",
       "reloadImages": "Bilder neu laden",
