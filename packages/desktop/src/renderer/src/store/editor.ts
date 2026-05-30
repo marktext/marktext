@@ -142,6 +142,18 @@ export const useEditorStore = defineStore('editor', {
     toc: []
   }),
 
+  getters: {
+    // Reactive lookup of an open tab by id (used by the split-view preview
+    // pane). Returns null when the id is unknown.
+    getFileById(state): (id: string | null | undefined) => IFileState | null {
+      return (id) => {
+        if (!id) return null
+        const index = state.tabIdToIndex[id]
+        return index === undefined ? null : (state.tabs[index] ?? null)
+      }
+    }
+  },
+
   actions: {
     updateTabIdToIndex(): void {
       this.tabIdToIndex = this.tabs.reduce<Record<string, number>>((map, tab, index) => {

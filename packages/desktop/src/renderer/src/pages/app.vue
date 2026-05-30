@@ -159,6 +159,7 @@ onMounted(async () => {
   mainStore.LISTEN_WIN_STATUS()
   await commandCenterStore.LISTEN_COMMAND_CENTER_BUS()
   layoutStore.LISTEN_FOR_LAYOUT()
+  layoutStore.LISTEN_FOR_SPLIT_VIEW()
   listenForMainStore.LISTEN_FOR_EDIT()
   preferencesStore.LISTEN_FOR_VIEW()
   listenForMainStore.LISTEN_FOR_SHOW_DIALOG()

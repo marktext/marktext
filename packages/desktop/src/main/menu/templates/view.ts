@@ -69,6 +69,13 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      label: t('menu.view.toggleSplitView'),
+      accelerator: keybindings.getAccelerator('view.toggle-split-view') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.toggleSplitView(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       label: t('menu.view.toggleTableOfContents'),
       id: 'tocMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-toc') ?? undefined,

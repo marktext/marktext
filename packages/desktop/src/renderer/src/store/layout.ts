@@ -9,6 +9,9 @@ interface LayoutPartial {
   showSideBar?: boolean
   showTabBar?: boolean
   sideBarWidth?: number | string
+  showSplitView?: boolean
+  splitRatio?: number
+  splitFileId?: string | null
 }
 
 interface SetLayoutOptions {
@@ -20,11 +23,20 @@ const normalizeSideBarWidth = (width: unknown): number => {
   return Number.isFinite(numericWidth) ? Math.max(numericWidth, 220) : 280
 }
 
+const clampSplitRatio = (ratio: unknown): number => {
+  const numericRatio = Number(ratio)
+  if (!Number.isFinite(numericRatio)) return 0.5
+  return Math.min(0.9, Math.max(0.1, numericRatio))
+}
+
 interface BufferedLayout {
   rightColumn: string | undefined
   showSideBar: boolean
   showTabBar: boolean
   sideBarWidth: number
+  showSplitView: boolean
+  splitRatio: number
+  splitFileId: string | null
 }
 
 const createBufferedLayoutState = (state: unknown): BufferedLayout | null => {
@@ -38,7 +50,10 @@ const createBufferedLayoutState = (state: unknown): BufferedLayout | null => {
     rightColumn: s.rightColumn,
     showSideBar: !!s.showSideBar,
     showTabBar: !!s.showTabBar,
-    sideBarWidth: normalizeSideBarWidth(s.sideBarWidth)
+    sideBarWidth: normalizeSideBarWidth(s.sideBarWidth),
+    showSplitView: !!s.showSplitView,
+    splitRatio: clampSplitRatio(s.splitRatio),
+    splitFileId: typeof s.splitFileId === 'string' ? s.splitFileId : null
   }
 }
 
@@ -50,6 +65,9 @@ export const useLayoutStore = defineStore('layout', () => {
   const showSideBar = ref(false)
   const showTabBar = ref(false)
   const sideBarWidth = ref<number>(initialSideBarWidth)
+  const showSplitView = ref(false)
+  const splitRatio = ref(0.5)
+  const splitFileId = ref<string | null>(null)
 
   // Actual rendered sidebar width. `sideBarWidth` is the right-column width
   // (clamped to ≥220 by `normalizeSideBarWidth`); when `rightColumn` is empty
@@ -95,7 +113,10 @@ export const useLayoutStore = defineStore('layout', () => {
       rightColumn: rightColumn.value,
       showSideBar: showSideBar.value,
       showTabBar: showTabBar.value,
-      sideBarWidth: sideBarWidth.value
+      sideBarWidth: sideBarWidth.value,
+      showSplitView: showSplitView.value,
+      splitRatio: splitRatio.value,
+      splitFileId: splitFileId.value
     })
   }
 
@@ -112,6 +133,9 @@ export const useLayoutStore = defineStore('layout', () => {
       },
       { scheduleBufferUpdate: false }
     )
+    showSplitView.value = layout.showSplitView
+    splitRatio.value = clampSplitRatio(layout.splitRatio)
+    splitFileId.value = layout.showSplitView ? layout.splitFileId : null
     DISPATCH_LAYOUT_MENU_ITEMS()
   }
 
@@ -183,11 +207,42 @@ export const useLayoutStore = defineStore('layout', () => {
     SET_SIDE_BAR_WIDTH(width)
   }
 
+  function TOGGLE_SPLIT_VIEW(): void {
+    showSplitView.value = !showSplitView.value
+    if (!showSplitView.value) {
+      splitFileId.value = null
+    }
+    debouncedSendBufferedState()
+  }
+
+  function SET_SPLIT_RATIO(ratio: number): void {
+    splitRatio.value = Math.min(0.9, Math.max(0.1, ratio))
+    debouncedSendBufferedState()
+  }
+
+  function SET_SPLIT_FILE(fileId: string | null): void {
+    splitFileId.value = fileId
+    debouncedSendBufferedState()
+  }
+
+  function LISTEN_FOR_SPLIT_VIEW(): void {
+    window.electron.ipcRenderer.on('mt::toggle-split-view', () => {
+      TOGGLE_SPLIT_VIEW()
+    })
+
+    bus.on('view:toggle-split-view', () => {
+      TOGGLE_SPLIT_VIEW()
+    })
+  }
+
   return {
     rightColumn,
     showSideBar,
     showTabBar,
     sideBarWidth,
+    showSplitView,
+    splitRatio,
+    splitFileId,
     effectiveSideBarWidth,
     SET_LAYOUT,
     CREATE_BUFFERED_STATE,
@@ -196,6 +251,10 @@ export const useLayoutStore = defineStore('layout', () => {
     SET_SIDE_BAR_WIDTH,
     LISTEN_FOR_LAYOUT,
     DISPATCH_LAYOUT_MENU_ITEMS,
-    CHANGE_SIDE_BAR_WIDTH
+    CHANGE_SIDE_BAR_WIDTH,
+    TOGGLE_SPLIT_VIEW,
+    SET_SPLIT_RATIO,
+    SET_SPLIT_FILE,
+    LISTEN_FOR_SPLIT_VIEW
   }
 })

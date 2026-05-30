@@ -14,7 +14,7 @@
           :title="file.pathname"
           :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
           :data-id="file.id"
-          @click.stop="selectFile(file)"
+          @click.stop="selectFile(file, $event)"
           @click.middle="closeTab(file.id)"
           @contextmenu.prevent="handleContextMenu($event, file)"
         >
@@ -68,7 +68,13 @@ let drake: dragula.Drake | null = null
 // Computed properties
 
 // Methods incorporated from tabsMixins
-const selectFile = (file: IFileState) => {
+const selectFile = (file: IFileState, event?: MouseEvent) => {
+  // With split-view active, Ctrl/Cmd+click loads the tab into the right-hand
+  // preview pane instead of switching the active (left) editor file.
+  if (layoutStore.showSplitView && event && (event.ctrlKey || event.metaKey)) {
+    layoutStore.SET_SPLIT_FILE(file.id)
+    return
+  }
   if (file.id !== currentFile.value?.id) {
     editorStore.UPDATE_CURRENT_FILE(file)
   }
