@@ -330,6 +330,10 @@ export const useEditorStore = defineStore('editor', {
       const oldNotifications = tab.notifications
       // Preserve scroll across external reload so the editor stays put.
       const oldScrollTop = tab.scrollTop
+      // Preserve Observation-Mode across reloads — otherwise the freshly
+      // created document state would reset it and the tab would fall back to
+      // the "file changed on disk" banner on the next external change.
+      const oldIsObserved = tab.isObserved
       let oldHistory: IFileState['history'] | null = null
       const histIndex = tab.history.index
       if (histIndex >= 0 && tab.history.stack.length >= 1) {
@@ -352,6 +356,7 @@ export const useEditorStore = defineStore('editor', {
       tab.id = oldId
       tab.notifications = oldNotifications
       tab.scrollTop = oldScrollTop
+      tab.isObserved = oldIsObserved
       if (oldHistory) {
         tab.history = oldHistory
       }
