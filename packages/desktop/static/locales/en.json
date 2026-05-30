@@ -410,6 +410,7 @@
       "items": {
         "autoSave": "Automatically save the content being edited",
         "autoSaveDelay": "The time in ms after a change that the file is saved",
+        "autoNormalizeLineEndings": "Automatically normalize line endings to LF when opening files",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
         "openFolderInNewWindow": "Open folder via menu in a new window",
