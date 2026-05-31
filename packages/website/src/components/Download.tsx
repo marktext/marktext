@@ -16,21 +16,21 @@ export default function Download() {
           </h2>
           <p>One download. No account, no subscription. Every desktop you write on.</p>
           <div className="platforms">
-            <a className="plat" href={DOWNLOAD.mac} target="_blank" rel="noopener noreferrer">
+            <a className="plat" href={DOWNLOAD.releases} target="_blank" rel="noopener noreferrer">
               <MacIcon />
               <div>
                 <b>macOS</b>
                 <span>.dmg · Apple Silicon &amp; Intel</span>
               </div>
             </a>
-            <a className="plat" href={DOWNLOAD.windows} target="_blank" rel="noopener noreferrer">
+            <a className="plat" href={DOWNLOAD.releases} target="_blank" rel="noopener noreferrer">
               <WindowsIcon />
               <div>
                 <b>Windows</b>
                 <span>.exe · x64 &amp; ARM64</span>
               </div>
             </a>
-            <a className="plat" href={DOWNLOAD.linux} target="_blank" rel="noopener noreferrer">
+            <a className="plat" href={DOWNLOAD.releases} target="_blank" rel="noopener noreferrer">
               <LinuxIcon />
               <div>
                 <b>Linux</b>

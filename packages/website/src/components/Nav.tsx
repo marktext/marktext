@@ -41,7 +41,12 @@ export default function Nav() {
         <a className="icon-btn" href={DOWNLOAD.repo} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
           <GitHubIcon />
         </a>
-        <a className="btn btn-primary" href={SECTIONS.download}>
+        <a
+          className="btn btn-primary"
+          href={DOWNLOAD.releases}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Download
         </a>
       </div>
