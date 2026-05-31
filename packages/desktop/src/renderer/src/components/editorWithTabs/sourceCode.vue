@@ -58,9 +58,45 @@ const editor = ref<CMInstance>(null)
 const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
+let sourceHoverLine: number | null = null
 
 const { theme, sourceCode } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
+
+const syncFoldGutterColor = () => {
+  const wrapper = editor.value && editor.value.getWrapperElement
+    ? editor.value.getWrapperElement()
+    : null
+  if (!wrapper) return
+
+  const lineNumber = wrapper.querySelector('.CodeMirror-linenumber')
+  if (!lineNumber) return
+
+  const color = window.getComputedStyle(lineNumber).color
+  if (color) {
+    wrapper.style.setProperty('--sourceFoldGutterColor', color)
+  }
+}
+
+const clearSourceHoverLine = () => {
+  if (sourceHoverLine === null || !editor.value) return
+
+  editor.value.removeLineClass(sourceHoverLine, 'wrap', 'CodeMirror-hoverline')
+  editor.value.removeLineClass(sourceHoverLine, 'gutter', 'CodeMirror-hoverline-gutter')
+  sourceHoverLine = null
+}
+
+const setSourceHoverLine = (event: MouseEvent) => {
+  if (!editor.value) return
+
+  const line = editor.value.lineAtHeight(event.clientY, 'window')
+  if (line === sourceHoverLine || typeof editor.value.getLine(line) !== 'string') return
+
+  clearSourceHoverLine()
+  editor.value.addLineClass(line, 'wrap', 'CodeMirror-hoverline')
+  editor.value.addLineClass(line, 'gutter', 'CodeMirror-hoverline-gutter')
+  sourceHoverLine = line
+}
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
   const c = cursor as MuyaIndexCursorLike | null | undefined
@@ -75,6 +111,12 @@ watch(
     }
   }
 )
+
+watch(theme, () => {
+  nextTick(() => {
+    requestAnimationFrame(syncFoldGutterColor)
+  })
+})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -481,7 +523,7 @@ onMounted(() => {
     lineNumbers: true,
     autofocus: true,
     lineWrapping: true,
-    gutters: [SOURCE_LINE_GUTTER, SOURCE_FOLD_GUTTER],
+    gutters: [SOURCE_FOLD_GUTTER, SOURCE_LINE_GUTTER],
     foldGutter: getSourceFoldOptions(),
     foldOptions: getSourceFoldOptions(),
     styleActiveLine: true,
@@ -527,6 +569,10 @@ onMounted(() => {
     event.stopPropagation()
   })
 
+  const wrapper = codeMirrorInstance.getWrapperElement()
+  wrapper.addEventListener('mousemove', setSourceHoverLine)
+  wrapper.addEventListener('mouseleave', clearSourceHoverLine)
+
   if (isValidMuyaIndexCursor(muyaIndexCursor)) {
     const { anchor, focus } = muyaIndexCursor
     codeMirrorInstance.setSelection(anchor, focus, { scroll: true })
@@ -536,6 +582,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  requestAnimationFrame(syncFoldGutterColor)
 
   listenChange()
 })
@@ -554,6 +601,10 @@ onBeforeUnmount(() => {
   bus.off('unfoldAllHeadings', handleUnfoldAllHeadings)
   bus.off('scroll-to-header', scrollToSourceHeader)
   bus.off('image-action', handleImageAction)
+  const wrapper = editor.value.getWrapperElement()
+  wrapper.removeEventListener('mousemove', setSourceHoverLine)
+  wrapper.removeEventListener('mouseleave', clearSourceHoverLine)
+  clearSourceHoverLine()
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {
@@ -576,6 +627,7 @@ onBeforeUnmount(() => {
   margin: 50px auto;
   max-width: var(--editorAreaWidth);
   background: transparent;
+  --sourceFoldGutterColor: #999;
 }
 .source-code .CodeMirror-gutters {
   border-right: none;
@@ -585,9 +637,47 @@ onBeforeUnmount(() => {
   color: var(--editorColor);
   text-shadow: none;
 }
+.source-code .CodeMirror-foldgutter {
+  width: 18px;
+}
 .source-code .CodeMirror-foldgutter-open,
 .source-code .CodeMirror-foldgutter-folded {
-  color: var(--editorColor);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 18px;
+  color: var(--sourceFoldGutterColor) !important;
+  line-height: inherit;
+  opacity: 0;
+}
+.source-code .CodeMirror-code > div:hover .CodeMirror-foldgutter-open,
+.source-code .CodeMirror-code > div:hover .CodeMirror-foldgutter-folded,
+.source-code .CodeMirror-hoverline .CodeMirror-foldgutter-open,
+.source-code .CodeMirror-hoverline .CodeMirror-foldgutter-folded,
+.source-code .CodeMirror-hoverline-gutter .CodeMirror-foldgutter-open,
+.source-code .CodeMirror-hoverline-gutter .CodeMirror-foldgutter-folded,
+.source-code .CodeMirror-activeline .CodeMirror-foldgutter-open,
+.source-code .CodeMirror-activeline .CodeMirror-foldgutter-folded,
+.source-code .CodeMirror-activeline-gutter .CodeMirror-foldgutter-open,
+.source-code .CodeMirror-activeline-gutter .CodeMirror-foldgutter-folded,
+.source-code .CodeMirror-foldgutter-folded {
+  opacity: 1;
+}
+.source-code .CodeMirror-foldgutter-open::after,
+.source-code .CodeMirror-foldgutter-folded::after {
+  content: '';
+}
+.source-code .CodeMirror-foldgutter-open::before,
+.source-code .CodeMirror-foldgutter-folded::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  clip-path: polygon(35% 20%, 70% 50%, 35% 80%);
+}
+.source-code .CodeMirror-foldgutter-open::before {
+  clip-path: polygon(20% 35%, 80% 35%, 50% 70%);
 }
 .source-code .CodeMirror-activeline-background,
 .source-code .CodeMirror-activeline-gutter {
