@@ -32,6 +32,9 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     window.electron.ipcRenderer.on('mt::show-export-dialog', (_e, type) => {
       bus.emit('showExportDialog', type)
     })
+    window.electron.ipcRenderer.on('mt::show-reload-document-dialog', () => {
+      bus.emit('showReloadDocumentDialog')
+    })
   }
 
   function LISTEN_FOR_PARAGRAPH_INLINE_STYLE(): void {

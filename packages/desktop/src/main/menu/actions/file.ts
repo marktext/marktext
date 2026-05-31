@@ -18,11 +18,11 @@ import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
-import { writeMarkdownFile } from '../../filesystem/markdown'
+import { loadMarkdownFile, writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 import { t } from '../../i18n'
-import type { UnsavedFile } from '@shared/types/files'
+import type { FileChangeDetail, LineEnding, UnsavedFile } from '@shared/types/files'
 
 type Win = BrowserWindow | null | undefined
 
@@ -31,6 +31,14 @@ interface PageOptions {
   pageSizeWidth?: number
   pageSizeHeight?: number
   isLandscape?: boolean
+}
+
+interface ReloadCurrentFilePayload {
+  pathname: string
+  preferredEol?: LineEnding | string
+  autoGuessEncoding?: boolean
+  trimTrailingNewline?: number
+  autoNormalizeLineEndings?: boolean
 }
 
 // TODO(refactor): "save" and "save as" should be moved to the editor window (editor.js) and
@@ -145,6 +153,32 @@ const handleResponseForPrint = async(e: IpcMainEvent): Promise<void> => {
     removePrintServiceFromWindow(win)
   })
 }
+
+ipcMain.handle(
+  'mt::reload-current-file',
+  async(_e, payload: ReloadCurrentFilePayload): Promise<FileChangeDetail> => {
+    const {
+      pathname,
+      preferredEol = 'lf',
+      autoGuessEncoding = true,
+      trimTrailingNewline = 2,
+      autoNormalizeLineEndings = false
+    } = payload
+
+    const data = await loadMarkdownFile(
+      pathname,
+      preferredEol as LineEnding,
+      autoGuessEncoding,
+      trimTrailingNewline,
+      autoNormalizeLineEndings
+    )
+
+    return {
+      pathname,
+      data
+    }
+  }
+)
 
 const handleResponseForSave = async(
   e: IpcMainEvent,
@@ -771,6 +805,12 @@ export const save = (win: Win): void => {
 export const saveAs = (win: Win): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-ask-file-save-as')
+  }
+}
+
+export const reloadDocument = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::show-reload-document-dialog')
   }
 }
 

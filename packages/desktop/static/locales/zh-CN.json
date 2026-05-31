@@ -25,6 +25,7 @@
       "exportPdf": "导出为 PDF",
       "import": "导入",
       "print": "打印",
+      "reloadDocument": "重新加载文档",
       "recent": "最近文件",
       "close": "关闭",
       "closeAll": "关闭全部",
@@ -1062,6 +1063,9 @@
     "installPandoc": "安装 Pandoc",
     "keepOpen": "保持打开",
     "replace": "替换",
+    "reload": "重新加载",
+    "reloadDocumentMessage": "当前文档中未保存的更改将会丢失。",
+    "reloadDocumentTitle": "重新加载文档",
     "save": "保存",
     "saveChanges": "保存修改",
     "saveFailure": "保存失败"

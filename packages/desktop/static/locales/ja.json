@@ -25,6 +25,7 @@
       "exportPdf": "PDFとしてエクスポート",
       "import": "インポート",
       "print": "印刷",
+      "reloadDocument": "ドキュメントを再読み込み",
       "recent": "最近使用したファイル",
       "close": "閉じる",
       "closeAll": "すべて閉じる",
@@ -1055,6 +1056,9 @@
     "installPandoc": "Pandocをインストール",
     "keepOpen": "開いたままにする",
     "replace": "置換",
+    "reload": "再読み込み",
+    "reloadDocumentMessage": "現在のドキュメントの未保存の変更は失われます。",
+    "reloadDocumentTitle": "ドキュメントを再読み込み",
     "save": "保存",
     "saveChanges": "変更を保存",
     "saveFailure": "保存に失敗"

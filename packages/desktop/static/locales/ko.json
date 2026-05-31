@@ -25,6 +25,7 @@
       "exportPdf": "PDF로 내보내기",
       "import": "가져오기",
       "print": "인쇄",
+      "reloadDocument": "문서 다시 불러오기",
       "recent": "최근 파일",
       "close": "닫기",
       "closeAll": "모두 닫기",
@@ -1055,6 +1056,9 @@
     "installPandoc": "Pandoc 설치",
     "keepOpen": "열어두기",
     "replace": "바꾸기",
+    "reload": "다시 불러오기",
+    "reloadDocumentMessage": "현재 문서의 저장되지 않은 변경 사항이 손실됩니다.",
+    "reloadDocumentTitle": "문서 다시 불러오기",
     "save": "저장",
     "saveChanges": "변경 사항 저장",
     "saveFailure": "저장 실패"

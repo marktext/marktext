@@ -69,6 +69,18 @@ export interface IpcInvokeChannels {
   }
   'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
+  'mt::reload-current-file': {
+    args: [
+      payload: {
+        pathname: string
+        preferredEol?: LineEnding | string
+        autoGuessEncoding?: boolean
+        trimTrailingNewline?: number
+        autoNormalizeLineEndings?: boolean
+      }
+    ]
+    ret: FileChangeDetail
+  }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }
   'mt::shell::open-path': { args: [fullPath: string]; ret: string }
@@ -265,6 +277,7 @@ export interface IpcMainEventChannels {
   'mt::show-command-palette': []
   'mt::show-export-dialog': [type: ExportType]
   'mt::show-notification': [payload: unknown]
+  'mt::show-reload-document-dialog': []
   'mt::spelling-replace-misspelling': [payload: unknown]
   'mt::spelling-show-switch-language': []
   'mt::switch-tab-by-file_path': [filePath: string]

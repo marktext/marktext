@@ -25,6 +25,7 @@
       "exportPdf": "匯出為 PDF",
       "import": "匯入",
       "print": "列印",
+      "reloadDocument": "重新載入文件",
       "recent": "最近檔案",
       "close": "關閉",
       "closeAll": "全部關閉",
@@ -1055,6 +1056,9 @@
     "installPandoc": "安裝 Pandoc",
     "keepOpen": "保持開啟",
     "replace": "取代",
+    "reload": "重新載入",
+    "reloadDocumentMessage": "目前文件中未儲存的變更將會遺失。",
+    "reloadDocumentTitle": "重新載入文件",
     "save": "儲存",
     "saveChanges": "儲存變更",
     "saveFailure": "儲存失敗"

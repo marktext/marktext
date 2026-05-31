@@ -25,6 +25,7 @@
       "exportPdf": "Als PDF exportieren",
       "import": "Importieren",
       "print": "Drucken",
+      "reloadDocument": "Dokument neu laden",
       "recent": "Zuletzt verwendete Dateien",
       "close": "Schließen",
       "closeAll": "Alle schließen",
@@ -1053,6 +1054,9 @@
     "installPandoc": "Pandoc installieren",
     "keepOpen": "Offen halten",
     "replace": "Ersetzen",
+    "reload": "Neu laden",
+    "reloadDocumentMessage": "Nicht gespeicherte Änderungen am aktuellen Dokument gehen verloren.",
+    "reloadDocumentTitle": "Dokument neu laden",
     "save": "Speichern",
     "saveChanges": "Änderungen speichern",
     "saveFailure": "Speichern fehlgeschlagen"

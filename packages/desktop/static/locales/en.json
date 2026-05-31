@@ -25,6 +25,7 @@
       "exportPdf": "Export as PDF",
       "import": "Import",
       "print": "Print",
+      "reloadDocument": "Reload Document",
       "recent": "Recent Files",
       "close": "Close",
       "closeAll": "Close All",
@@ -1060,6 +1061,9 @@
     "installPandoc": "Install Pandoc",
     "keepOpen": "Keep open",
     "replace": "Replace",
+    "reload": "Reload",
+    "reloadDocumentMessage": "Any unsaved changes in the current document will be lost.",
+    "reloadDocumentTitle": "Reload document",
     "save": "Save",
     "saveChanges": "Save changes",
     "saveFailure": "Save failure"

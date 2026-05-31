@@ -287,7 +287,7 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    loadChange(change: FileChangePayload): void {
+    loadChange(change: FileChangePayload, preserveHistory = true): void {
       const { tabs, currentFile } = this
       const { data, pathname } = change
       const {
@@ -330,20 +330,22 @@ export const useEditorStore = defineStore('editor', {
       // Preserve scroll across external reload so the editor stays put.
       const oldScrollTop = tab.scrollTop
       let oldHistory: IFileState['history'] | null = null
-      const histIndex = tab.history.index
-      if (histIndex >= 0 && tab.history.stack.length >= 1) {
-        const entry = tab.history.stack[histIndex]
-        if (entry) {
-          // Allow to restore the old document.
-          oldHistory = {
-            stack: [entry],
-            index: 0
+      if (preserveHistory) {
+        const histIndex = tab.history.index
+        if (histIndex >= 0 && tab.history.stack.length >= 1) {
+          const entry = tab.history.stack[histIndex]
+          if (entry) {
+            // Allow to restore the old document.
+            oldHistory = {
+              stack: [entry],
+              index: 0
+            }
           }
-        }
 
-        // Free reference from array
-        tab.history.index--
-        tab.history.stack.pop()
+          // Free reference from array
+          tab.history.index--
+          tab.history.stack.pop()
+        }
       }
 
       // Update file content and restore some entries.
@@ -384,6 +386,37 @@ export const useEditorStore = defineStore('editor', {
         })
       }
       debouncedSendBufferedState()
+    },
+
+    async RELOAD_CURRENT_FILE(): Promise<void> {
+      if (!this.currentFile?.pathname) return
+
+      const preferencesStore = usePreferencesStore()
+      const { pathname, lineEnding, trimTrailingNewline } = this.currentFile
+      const preferredEol = lineEnding === 'crlf' ? 'crlf' : 'lf'
+
+      try {
+        const change = await window.electron.ipcRenderer.invoke('mt::reload-current-file', {
+          pathname,
+          preferredEol,
+          autoGuessEncoding: preferencesStore.autoGuessEncoding,
+          trimTrailingNewline:
+            typeof trimTrailingNewline === 'number'
+              ? trimTrailingNewline
+              : preferencesStore.trimTrailingNewline,
+          autoNormalizeLineEndings: preferencesStore.autoNormalizeLineEndings
+        })
+        this.loadChange(change as unknown as FileChangePayload, false)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err)
+        notice.notify({
+          title: t('store.editor.errorLoadingTabTitle'),
+          message,
+          type: 'error',
+          time: 20000,
+          showConfirm: false
+        })
+      }
     },
 
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {

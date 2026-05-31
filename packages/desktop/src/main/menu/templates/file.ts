@@ -126,6 +126,12 @@ export default function(
       }
     },
     {
+      label: t('menu.file.reloadDocument'),
+      click(_menuItem, browserWindow) {
+        actions.reloadDocument(browserWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       type: 'separator'
     },
     {
