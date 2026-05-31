@@ -443,6 +443,16 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       this._watcher.unwatch(win, pathname, 'dir')
     })
 
+    // Re-watch a single file with polling forced on/off. Used by Observation
+    // Mode so observed files reliably detect external changes even on network /
+    // remote filesystems (SFTP, NFS, FUSE) where inotify delivers no events.
+    ipcMain.on('mt::set-file-watch-polling', (e, filePath: string, enabled: boolean) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (!win || !filePath) return
+      this._watcher.unwatch(win, filePath, 'file')
+      this._watcher.watch(win, filePath, 'file', enabled)
+    })
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ipcMain.on('window-add-file-path', (windowId: any, filePath: any) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -188,8 +188,17 @@ class Watcher {
     this.watchers = {}
   }
 
-  watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): () => void {
-    const usePolling = isOsx ? true : this._preferences.getItem('watcherUsePolling')
+  watch(
+    win: BrowserWindow,
+    watchPath: string,
+    type: WatchType = 'dir',
+    forcePolling = false
+  ): () => void {
+    // `forcePolling` lets a single watch opt into polling regardless of the
+    // global preference — used by Observation Mode so observed files detect
+    // changes on network/remote filesystems (SFTP/NFS/FUSE) where inotify
+    // delivers no events.
+    const usePolling = isOsx ? true : forcePolling || this._preferences.getItem('watcherUsePolling')
 
     const id = getUniqueId()
 

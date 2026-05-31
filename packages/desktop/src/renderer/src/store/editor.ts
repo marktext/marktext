@@ -1695,6 +1695,18 @@ export const useEditorStore = defineStore('editor', {
         id: currentFile.id,
         isObserved: currentFile.isObserved
       })
+
+      // Re-watch the file with polling while observed so external changes are
+      // detected even on network/remote filesystems (SFTP/NFS/FUSE) where
+      // inotify delivers no events. Disabling restores the default watch.
+      if (currentFile.pathname) {
+        window.electron.ipcRenderer.send(
+          'mt::set-file-watch-polling',
+          currentFile.pathname,
+          currentFile.isObserved
+        )
+      }
+
       debouncedSendBufferedState()
     },
 

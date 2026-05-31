@@ -164,6 +164,7 @@ export interface IpcSendChannels {
   'mt::save-and-close-tabs': [tabs: unknown[]]
   'mt::save-tabs': [tabs: unknown[]]
   'mt::select-default-directory-to-open': []
+  'mt::set-file-watch-polling': [filePath: string, enabled: boolean]
   'mt::set-user-data': [partial: unknown]
   'mt::set-user-preference': [partial: unknown]
   'mt::shell::open-external': [url: string]
