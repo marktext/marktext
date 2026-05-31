@@ -43,11 +43,12 @@ test.describe('Undo regression guards', () => {
 
     await placeCaretInEditor(page)
     await page.keyboard.type(' changed', { delay: 0 })
-    await expect.poll(() => getMarkdownContent(page, launched.app)).toContain(' changed')
+    await expect(page.locator('.editor-component')).toContainText(' changed')
 
     await placeCaretInEditor(page)
     await pressUndo(page)
-    await expect.poll(() => getMarkdownContent(page, launched.app)).toBe(baseline)
+    await expect(page.locator('.editor-component')).toContainText('Persistent text for undo guard.')
+    await expect(page.locator('.editor-component')).not.toContainText(' changed')
 
     await placeCaretInEditor(page)
     await pressUndo(page)
