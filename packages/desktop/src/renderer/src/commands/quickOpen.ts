@@ -80,7 +80,8 @@ class QuickOpenCommand {
   run = async(): Promise<void> => {
     const { _editorState, _folderState } = this
     if (!_folderState.projectTree && _editorState.tabs.length === 0) {
-      throw new Error(null as unknown as string)
+      this.subcommands = []
+      return
     }
 
     this.subcommands = _editorState.tabs

@@ -47,7 +47,7 @@ class SpellcheckerLanguageCommand {
     this.subcommands = finalLangs.map((lang) => {
       return {
         id: `spellchecker.switch-language-id-${lang}`,
-        description: getLanguageName(lang),
+        description: getLanguageName(lang) ?? lang,
         value: lang
       }
     })

@@ -110,7 +110,6 @@ export interface TocEntry {
   lvl: number
   content: string
   slug?: string
-  [key: string]: unknown
 }
 
 export interface HtmlTocOptions {
@@ -119,10 +118,13 @@ export interface HtmlTocOptions {
   [key: string]: unknown
 }
 
+interface SluggerInstance {
+  slug(content: string): string
+}
+
 const generateHtmlToc = (
   tocList: TocEntry[],
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  slugger: any,
+  slugger: SluggerInstance,
   currentLevel: number,
   options: HtmlTocOptions
 ): string => {
