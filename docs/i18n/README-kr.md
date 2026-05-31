@@ -109,7 +109,7 @@ MarkText는 커뮤니티의 지원으로 운영되는 오픈소스 Markdown 편�
 
 **특별 후원사**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [빠르고 쉬우며 완전한 API로 Google 및 기타 검색 엔진에서 데이터를 수집하세요.](https://serpapi.com/?utm_source=marktext) |
+| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [빠르고 쉬우며 완전한 API로 Google 및 기타 검색 엔진에서 데이터를 수집하세요.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## 스크린샷
