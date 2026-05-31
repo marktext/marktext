@@ -139,6 +139,16 @@ class Keyboard {
         container.classList.add('ag-meta-or-ctrl')
       }
 
+      if ((event.metaKey || event.ctrlKey) && event.key && event.key.toLowerCase() === 'z') {
+        event.preventDefault()
+        if (event.shiftKey) {
+          this.muya.redo()
+        } else {
+          this.muya.undo()
+        }
+        return
+      }
+
       if (
         Object.keys(this.shownFloat).length > 0 &&
         (event.key === EVENT_KEYS.Enter ||
@@ -204,7 +214,25 @@ class Keyboard {
 
   inputBinding() {
     const { container, eventCenter, contentState } = this.muya
+    const isHistoryInput = (event) => {
+      const inputType = typeof event.inputType === 'string' ? event.inputType.toLowerCase() : ''
+      return /historyundo|historyredo/.test(inputType)
+    }
+    const historyInputHandler = (event) => {
+      if (!isHistoryInput(event)) {
+        return
+      }
+
+      if (event.cancelable) {
+        event.preventDefault()
+      }
+    }
     const inputHandler = (event) => {
+      if (isHistoryInput(event)) {
+        contentState.render()
+        return
+      }
+
       if (!this.isComposed) {
         contentState.inputHandler(event)
         this.muya.dispatchChange()
@@ -225,6 +253,7 @@ class Keyboard {
       }
     }
 
+    eventCenter.attachDOMEvent(container, 'beforeinput', historyInputHandler)
     eventCenter.attachDOMEvent(container, 'input', inputHandler)
   }
 

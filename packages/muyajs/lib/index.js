@@ -61,6 +61,7 @@ class Muya {
       this.i18nCSS.updateCSSVariables()
     }
 
+    contentState.history.clearHistory()
     this.setMarkdown(markdown)
     this.setFocusMode(focusMode)
     this.mutationObserver()
@@ -105,9 +106,9 @@ class Muya {
           }
 
           if (target.getAttribute('id') === 'ag-editor-id' && target.childElementCount === 0) {
-            // TODO: the editor can not be input any more. report bugs and recovery...
-            eventCenter.dispatch('crashed')
-            console.warn('editor crashed, and can not be input any more.')
+            console.warn('editor DOM was emptied unexpectedly, restoring from state.')
+            this.contentState.render()
+            return
           }
         }
       }
@@ -374,7 +375,10 @@ class Muya {
   }
 
   undo() {
-    this.contentState.history.undo()
+    const changed = this.contentState.history.undo()
+    if (!changed) {
+      return
+    }
 
     this.dispatchSelectionChange()
     this.dispatchSelectionFormats()
@@ -382,7 +386,10 @@ class Muya {
   }
 
   redo() {
-    this.contentState.history.redo()
+    const changed = this.contentState.history.redo()
+    if (!changed) {
+      return
+    }
 
     this.dispatchSelectionChange()
     this.dispatchSelectionFormats()

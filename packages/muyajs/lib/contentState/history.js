@@ -36,7 +36,9 @@ class History {
       this.contentState.renderRange = renderRange
       this.contentState.cursor = cursor
       this.contentState.render()
+      return true
     }
+    return false
   }
 
   redo() {
@@ -53,7 +55,9 @@ class History {
       this.contentState.renderRange = renderRange
       this.contentState.cursor = cursor
       this.contentState.render()
+      return true
     }
+    return false
   }
 
   push(state, isPending = false) {

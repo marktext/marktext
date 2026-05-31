@@ -95,6 +95,11 @@ const inputCtrl = (ContentState) => {
   }
 
   ContentState.prototype.inputHandler = function(event, notEqual = false) {
+    const inputType = typeof event.inputType === 'string' ? event.inputType.toLowerCase() : ''
+    if (/historyundo|historyredo/.test(inputType)) {
+      return
+    }
+
     const { start, end } = selection.getCursorRange()
     if (!start || !end) {
       return
@@ -104,6 +109,11 @@ const inputCtrl = (ContentState) => {
     const key = start.key
     const block = this.getBlock(key)
     const paragraph = document.querySelector(`#${key}`)
+    const editorDom = this.stateRender.container
+    if (!paragraph || (editorDom && editorDom.childElementCount === 0)) {
+      this.render()
+      return
+    }
 
     // Fix issue 1447
     // Fixme: any better solution?
@@ -126,7 +136,18 @@ const inputCtrl = (ContentState) => {
       return this.inputHandler(event, true)
     }
 
-    let text = getTextContent(paragraph, [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER])
+    const renderTextBlacklist = [CLASS_OR_ID.AG_MATH_RENDER, CLASS_OR_ID.AG_RUBY_RENDER]
+    let text = getTextContent(paragraph, renderTextBlacklist)
+    if (
+      event.type === 'input' &&
+      editorDom &&
+      /[^\n]/.test(this.muya.markdown || '') &&
+      !/[^\n]/.test(getTextContent(editorDom, renderTextBlacklist)) &&
+      !/^(delete|insert)/.test(inputType)
+    ) {
+      this.render()
+      return
+    }
 
     let needRender = false
     let needRenderAll = false
