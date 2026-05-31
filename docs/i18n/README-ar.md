@@ -1,4 +1,4 @@
-<p align="center"><img src="../../packages/desktop/static/logo-small.png" alt="MarkText" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 dir="rtl" align="center">MarkText</h1>
 
@@ -108,12 +108,12 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 
 **الراعي المميز**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/packages/website/public/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.](https://serpapi.com/?utm_source=marktext) |
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## لقطة شاشة
 
-![](../../packages/website/public/docs/assets/marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 ## الميزات
 

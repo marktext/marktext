@@ -1,4 +1,4 @@
-<p align="center"><img src="../../packages/desktop/static/logo-small.png" alt="MarkText" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
 
@@ -109,12 +109,12 @@ MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 Mar
 
 **特別贊助商**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/packages/website/public/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [透過我們快速、便捷且完整的 API 抓取 Google 及其他搜尋引擎的資料。](https://serpapi.com/?utm_source=marktext) |
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [透過我們快速、便捷且完整的 API 抓取 Google 及其他搜尋引擎的資料。](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## 截圖
 
-![](../../packages/website/public/docs/assets/marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 ## 功能
 

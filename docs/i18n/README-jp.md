@@ -1,4 +1,4 @@
-<p align="center"><img src="../../packages/desktop/static/logo-small.png" alt="MarkText" width="100" height="100"></p>
+<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
 
@@ -109,12 +109,12 @@ MarkText はコミュニティの支援によって成り立つオープンソ�
 
 **スペシャルスポンサー**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/packages/website/public/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [高速で使いやすく完全な API で Google や他の検索エンジンからデータを取得できます。](https://serpapi.com/?utm_source=marktext) |
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [高速で使いやすく完全な API で Google や他の検索エンジンからデータを取得できます。](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## スクリーンショット
 
-![](../../packages/website/public/docs/assets/marktext.png?raw=true)
+![](../assets/marktext.png?raw=true)
 
 ## 機能
 
