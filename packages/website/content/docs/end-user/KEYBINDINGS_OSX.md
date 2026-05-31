@@ -116,6 +116,8 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 | `view.toggle-sidebar`   | <kbd>Command</kbd>+<kbd>J</kbd>                   | Toggle sidebar                           |
 | `view.toggle-tabbar`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
 | `view.toggle-toc` .     | <kbd>Command</kbd>+<kbd>K</kbd>                   | Toggle table of contents                 |
+| `view.fold-all-sections` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>F9</kbd>  | Fold all heading sections                |
+| `view.unfold-all-sections` | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>F10</kbd> | Unfold all heading sections              |
 | `view.toggle-dev-tools` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>I</kbd> | Toggle developer tools (debug mode only) |
 | `view.dev-reload`       | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>R</kbd> | Reload window (debug mode only)          |
 | `view.reload-images`    | <kbd>Command</kbd>+<kbd>R</kbd>                   | Reload images                            |
