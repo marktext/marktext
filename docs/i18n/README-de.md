@@ -1,4 +1,4 @@
-<p align="center"><img src="../../static/logo-small.png" alt="MarkText" width="100" height="100"></p>
+<p align="center"><img src="../../packages/desktop/static/logo-small.png" alt="MarkText" width="100" height="100"></p>
 
 <h1 align="center">MarkText</h1>
 
@@ -108,12 +108,12 @@ MarkText ist ein Open-Source-Markdown-Editor, der von seiner Community unterstü
 
 **Besonderer Sponsor**
 
-| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Extrahieren Sie Daten von Google und anderen Suchmaschinen über unsere schnelle, einfache und vollständige API.](https://serpapi.com/?utm_source=marktext) |
+| [<img src="https://raw.githubusercontent.com/marktext/marktext/develop/packages/website/public/docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Extrahieren Sie Daten von Google und anderen Suchmaschinen über unsere schnelle, einfache und vollständige API.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
 
 ## Screenshot
 
-![](../assets/marktext.png?raw=true)
+![](../../packages/website/public/docs/assets/marktext.png?raw=true)
 
 ## Funktionen
 
