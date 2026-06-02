@@ -3,9 +3,11 @@
 import { useRef } from 'react'
 import Link from 'next/link'
 import { DOWNLOAD } from '@/lib/downloads'
-import { SECTIONS } from '@/lib/sections'
+import { EXT_LINK } from '@/lib/links'
+import { SECTIONS, hash } from '@/lib/sections'
 import { useToggleTheme } from '@/hooks/useTheme'
 import { useNavShrink } from '@/hooks/useNavShrink'
+import Brand from './Brand'
 import { GitHubIcon, MoonIcon, SunIcon } from './Icons'
 
 export default function Nav() {
@@ -15,16 +17,13 @@ export default function Nav() {
 
   return (
     <nav className="nav" id="nav" ref={navRef}>
-      <a className="brand" href={SECTIONS.top}>
-        <img className="mark" src="/assets/logo.png" alt="MarkText logo" width={28} height={28} />
-        MarkText
-      </a>
+      <Brand />
       <div className="nav-links">
-        <a href={SECTIONS.preview}>Features</a>
-        <a href={SECTIONS.themes}>Themes</a>
-        <a href={SECTIONS.extensions}>Markdown</a>
+        <a href={hash(SECTIONS.preview)}>Features</a>
+        <a href={hash(SECTIONS.themes)}>Themes</a>
+        <a href={hash(SECTIONS.extensions)}>Markdown</a>
         <Link href="/docs">Docs</Link>
-        <a href={SECTIONS.support}>Support</a>
+        <a href={hash(SECTIONS.support)}>Support</a>
       </div>
       <div className="nav-right">
         <button
@@ -38,15 +37,10 @@ export default function Nav() {
           <MoonIcon className="theme-moon" />
           <SunIcon className="theme-sun" />
         </button>
-        <a className="icon-btn" href={DOWNLOAD.repo} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <a className="icon-btn" href={DOWNLOAD.repo} {...EXT_LINK} aria-label="GitHub">
           <GitHubIcon />
         </a>
-        <a
-          className="btn btn-primary"
-          href={DOWNLOAD.releases}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className="btn btn-primary" href={DOWNLOAD.releases} {...EXT_LINK}>
           Download
         </a>
       </div>

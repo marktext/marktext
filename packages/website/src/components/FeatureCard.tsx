@@ -1,31 +1,22 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { revealClass, type RevealDelay } from '@/lib/sections'
 
 type Props = {
   icon: ReactNode
   title: ReactNode
   description: ReactNode
-  className?: string
-  style?: CSSProperties
-  titleStyle?: CSSProperties
-  descStyle?: CSSProperties
+  delay?: RevealDelay
+  variant?: 'lg'
   children?: ReactNode
 }
 
-export default function FeatureCard({
-  icon,
-  title,
-  description,
-  className = 'card reveal',
-  style,
-  titleStyle,
-  descStyle,
-  children
-}: Props) {
+export default function FeatureCard({ icon, title, description, delay, variant, children }: Props) {
+  const base = variant === 'lg' ? 'card card--lg' : 'card'
   return (
-    <div className={className} style={style}>
+    <div className={revealClass(delay, base)}>
       <div className="ic-lg">{icon}</div>
-      <h3 style={titleStyle}>{title}</h3>
-      <p style={descStyle}>{description}</p>
+      <h3>{title}</h3>
+      <p>{description}</p>
       {children}
     </div>
   )

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { SECTIONS } from '@/lib/sections'
+import { SECTIONS, type RevealDelay } from '@/lib/sections'
 import FeatureCard from './FeatureCard'
 import {
   CodeIcon,
@@ -15,7 +15,7 @@ type Card = {
   title: string
   description: string
   mini: ReactNode
-  delay?: 'd1' | 'd2'
+  delay?: RevealDelay
 }
 
 const CARDS: Card[] = [
@@ -113,7 +113,7 @@ const CARDS: Card[] = [
 
 export default function Extensions() {
   return (
-    <section className="block" id={SECTIONS.extensions.slice(1)}>
+    <section className="block" id={SECTIONS.extensions}>
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="kicker">Markdown, extended</span>
@@ -126,10 +126,10 @@ export default function Extensions() {
           {CARDS.map((c) => (
             <FeatureCard
               key={c.title}
-              className={`card reveal${c.delay ? ` ${c.delay}` : ''}`}
               icon={c.icon}
               title={c.title}
               description={c.description}
+              delay={c.delay}
             >
               <div className="mini">{c.mini}</div>
             </FeatureCard>

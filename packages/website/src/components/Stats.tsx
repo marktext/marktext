@@ -1,24 +1,25 @@
+import { revealClass, type RevealDelay } from '@/lib/sections'
+
+type Stat = { value: string; label: string; delay?: RevealDelay }
+
+const STATS: Stat[] = [
+  { value: '56.6k', label: 'GitHub stars' },
+  { value: '146', label: 'Contributors', delay: 'd1' },
+  { value: '3', label: 'Platforms supported', delay: 'd2' },
+  { value: 'MIT', label: 'Free & open source', delay: 'd3' }
+]
+
 export default function Stats() {
   return (
-    <section className="block" style={{ paddingTop: 40 }}>
+    <section className="block block--top-tight">
       <div className="wrap">
         <div className="stats">
-          <div className="stat reveal">
-            <div className="n grad-text">56.6k</div>
-            <div className="l">GitHub stars</div>
-          </div>
-          <div className="stat reveal d1">
-            <div className="n grad-text">146</div>
-            <div className="l">Contributors</div>
-          </div>
-          <div className="stat reveal d2">
-            <div className="n grad-text">3</div>
-            <div className="l">Platforms supported</div>
-          </div>
-          <div className="stat reveal d3">
-            <div className="n grad-text">MIT</div>
-            <div className="l">Free &amp; open source</div>
-          </div>
+          {STATS.map((s) => (
+            <div className={revealClass(s.delay, 'stat')} key={s.label}>
+              <div className="n grad-text">{s.value}</div>
+              <div className="l">{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

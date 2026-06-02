@@ -1,6 +1,6 @@
 import { SECTIONS } from '@/lib/sections'
 import FeatItem from './FeatItem'
-import { CodeIcon, SunSmallIcon } from './Icons'
+import { CodeIcon, SunIcon } from './Icons'
 
 type Swatch = {
   name: string
@@ -21,7 +21,7 @@ const SWATCHES: Swatch[] = [
 
 export default function Themes() {
   return (
-    <section className="block" id={SECTIONS.themes.slice(1)}>
+    <section className="block" id={SECTIONS.themes}>
       <div className="wrap">
         <div className="split rev">
           <div className="split-text">
@@ -36,7 +36,7 @@ export default function Themes() {
             <div className="feat-list">
               <FeatItem
                 delay="d1"
-                icon={<SunSmallIcon />}
+                icon={<SunIcon />}
                 title="Light & dark, instantly"
                 description="Switch with a keystroke, or follow your system."
               />

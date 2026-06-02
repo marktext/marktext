@@ -5,7 +5,7 @@ import { BoltIcon, GridSmallIcon, LinesIcon } from './Icons'
 
 export default function Preview() {
   return (
-    <section className="block" id={SECTIONS.preview.slice(1)}>
+    <section className="block" id={SECTIONS.preview}>
       <div className="wrap">
         <div className="split">
           <div className="split-text">

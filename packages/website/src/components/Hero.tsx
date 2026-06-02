@@ -2,6 +2,8 @@
 
 import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
+import { EXT_LINK } from '@/lib/links'
+import { revealClass } from '@/lib/sections'
 import { useTilt } from '@/hooks/useTilt'
 import MockWindow from './MockWindow'
 import { CheckIcon, DownloadIcon, GitHubIcon } from './Icons'
@@ -14,36 +16,26 @@ export default function Hero() {
   return (
     <header className="hero">
       <div className="wrap">
-        <div className="eyebrow reveal">
+        <div className={revealClass(undefined, 'eyebrow')}>
           <span className="tag">v0.19.0</span> Free &amp; open source forever
         </div>
-        <h1 className="hero-title reveal d1">
+        <h1 className={revealClass('d1', 'hero-title')}>
           Write in Markdown. <span className="grad-text">Stay in flow.</span>
         </h1>
-        <p className="hero-sub reveal d2">
+        <p className={revealClass('d2', 'hero-sub')}>
           Realtime preview, beautiful typography, and zero distractions.
         </p>
-        <div className="hero-cta reveal d3">
-          <a
-            className="btn btn-primary btn-lg"
-            href={DOWNLOAD.releases}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        <div className={revealClass('d3', 'hero-cta')}>
+          <a className="btn btn-primary btn-lg" href={DOWNLOAD.releases} {...EXT_LINK}>
             <DownloadIcon />
             Download for free
           </a>
-          <a
-            className="btn btn-ghost btn-lg"
-            href={DOWNLOAD.repo}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a className="btn btn-ghost btn-lg" href={DOWNLOAD.repo} {...EXT_LINK}>
             <GitHubIcon />
             Star on GitHub
           </a>
         </div>
-        <div className="hero-note reveal d4">
+        <div className={revealClass('d4', 'hero-note')}>
           <span>
             <CheckIcon /> macOS · Windows · Linux
           </span>
@@ -55,7 +47,7 @@ export default function Hero() {
           </span>
         </div>
 
-        <div className="stage reveal d2" id="stage" ref={stageRef}>
+        <div className={revealClass('d2', 'stage')} id="stage" ref={stageRef}>
           <div className="stage-glow" />
           <MockWindow title="product-launch.md" showActions windowId="heroWin" windowRef={winRef}>
             <h1>

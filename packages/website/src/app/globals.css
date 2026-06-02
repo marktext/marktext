@@ -1233,3 +1233,44 @@ h2.sec-title {
     padding: 28px 22px 36px;
   }
 }
+
+.grid-3.grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+.card--lg {
+  padding: 34px;
+}
+.card--lg h3 {
+  font-size: 21px;
+}
+.card--lg > p {
+  font-size: 15px;
+}
+.card--lg .mini--lg {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.platforms--start {
+  justify-content: flex-start;
+  margin-top: 16px;
+}
+.plat--compact {
+  min-width: 0;
+  padding: 12px 18px;
+}
+.plat--compact b {
+  font-size: 14px;
+}
+.block--top-tight {
+  padding-top: 40px;
+}
+.kicker--center {
+  justify-content: center;
+}
+.hero-cta--center {
+  justify-content: center;
+  margin-top: 28px;
+}
+.hero-note--cta {
+  margin-top: 24px;
+}
