@@ -108,6 +108,14 @@ class ExportMarkdown {
           break
         }
         case 'ul': {
+          // An empty ul can appear transiently during list edits (Backspace at
+          // the start of the only item, Enter on an empty item) — see issues
+          // #4319, #4344, #4346. Skip serialization rather than destructure
+          // `children[0].bulletMarkerOrDelimiter` on undefined.
+          if (!block.children || block.children.length === 0 || !block.children[0]) {
+            lastListBullet = ''
+            break
+          }
           let insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
 
@@ -127,6 +135,10 @@ class ExportMarkdown {
           break
         }
         case 'ol': {
+          if (!block.children || block.children.length === 0 || !block.children[0]) {
+            lastListBullet = ''
+            break
+          }
           let insertNewLine = this.isLooseParentList
           this.isLooseParentList = true
 

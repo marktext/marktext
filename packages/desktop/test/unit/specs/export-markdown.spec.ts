@@ -73,3 +73,87 @@ describe('ExportMarkdown.normalizeTable', () => {
     expect(() => exporter.normalizeTable(table, '')).not.to.throw()
   })
 })
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Block = Record<string, any>
+
+const makeListItem = (text: string, bulletMarkerOrDelimiter = '-'): Block => ({
+  type: 'li',
+  isLooseListItem: false,
+  bulletMarkerOrDelimiter,
+  children: [
+    {
+      type: 'p',
+      children: [{ type: 'span', text }]
+    }
+  ]
+})
+
+// Regression guard for issues #4319, #4344, #4346 — getMarkdown threw
+// `TypeError: Cannot destructure property 'bulletMarkerOrDelimiter' of
+// 'block.children[0]' as it is undefined` whenever the document momentarily
+// contained an empty `ul` or `ol` block (an interim state during edits that
+// remove every list item). The exporter must not crash; an empty list must
+// serialize to nothing.
+describe('ExportMarkdown.translateBlocks2Markdown — empty list blocks', () => {
+  it('does not crash on an empty ul block (#4346)', () => {
+    const blocks: Block[] = [
+      {
+        type: 'ul',
+        listType: 'bullet',
+        children: []
+      }
+    ]
+    const exporter = new ExportMarkdown(blocks)
+    expect(() => exporter.generate()).not.to.throw()
+    expect(exporter.generate()).to.equal('')
+  })
+
+  it('does not crash on an empty ol block (#4344)', () => {
+    const blocks: Block[] = [
+      {
+        type: 'ol',
+        listType: 'order',
+        start: 1,
+        children: []
+      }
+    ]
+    const exporter = new ExportMarkdown(blocks)
+    expect(() => exporter.generate()).not.to.throw()
+    expect(exporter.generate()).to.equal('')
+  })
+
+  it('does not crash when a list is preceded by a heading (#4319)', () => {
+    const blocks: Block[] = [
+      {
+        type: 'h1',
+        headingStyle: 'atx',
+        marker: '#',
+        children: [{ text: '# heading' }]
+      },
+      {
+        type: 'ul',
+        listType: 'bullet',
+        children: []
+      }
+    ]
+    const exporter = new ExportMarkdown(blocks)
+    expect(() => exporter.generate()).not.to.throw()
+    const md = exporter.generate()
+    expect(md).to.include('# heading')
+  })
+
+  it('still exports a non-empty list correctly after the guard', () => {
+    const blocks: Block[] = [
+      {
+        type: 'ul',
+        listType: 'bullet',
+        children: [makeListItem('first'), makeListItem('second')]
+      }
+    ]
+    const exporter = new ExportMarkdown(blocks)
+    const md = exporter.generate()
+    expect(md).to.include('first')
+    expect(md).to.include('second')
+  })
+})
