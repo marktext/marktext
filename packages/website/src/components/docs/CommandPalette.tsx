@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loadIndex, search, type IndexedPage, type SearchHit } from '@/lib/docs-search'
 import { SearchIcon } from '@/components/Icons'
@@ -9,6 +9,9 @@ type Props = {
   open: boolean
   onClose: () => void
 }
+
+type GroupedHit = { hit: SearchHit; index: number }
+type HitGroup = { key: string; label: string; hits: GroupedHit[] }
 
 export default function CommandPalette({ open, onClose }: Props) {
   const router = useRouter()
@@ -22,7 +25,6 @@ export default function CommandPalette({ open, onClose }: Props) {
   useEffect(() => {
     if (!open) return
     loadIndex().then(setIndex).catch((err) => setError((err as Error).message))
-    // Reset query each time the palette opens (keeps the UX predictable).
     setQuery('')
     setSelected(0)
     queueMicrotask(() => inputRef.current?.focus())
@@ -31,7 +33,6 @@ export default function CommandPalette({ open, onClose }: Props) {
   const hits: SearchHit[] = useMemo(() => {
     if (!index) return []
     if (!query.trim()) {
-      // Default: show every page as a flat list (sorted by registry order).
       return index.map((page) => ({
         page,
         score: 0,
@@ -56,11 +57,6 @@ export default function CommandPalette({ open, onClose }: Props) {
     [router, onClose]
   )
 
-  const hitsRef = useRef(hits)
-  const selectedRef = useRef(selected)
-  hitsRef.current = hits
-  selectedRef.current = selected
-
   useEffect(() => {
     if (!open) return
     function onKey(ev: KeyboardEvent) {
@@ -72,7 +68,7 @@ export default function CommandPalette({ open, onClose }: Props) {
       }
       if (ev.key === 'ArrowDown') {
         ev.preventDefault()
-        setSelected((s) => Math.min(s + 1, hitsRef.current.length - 1))
+        setSelected((s) => Math.min(s + 1, hits.length - 1))
         return
       }
       if (ev.key === 'ArrowUp') {
@@ -82,15 +78,17 @@ export default function CommandPalette({ open, onClose }: Props) {
       }
       if (ev.key === 'Enter') {
         ev.preventDefault()
-        const hit = hitsRef.current[selectedRef.current]
-        if (hit) navigateTo(hit)
+        setSelected((s) => {
+          const hit = hits[s]
+          if (hit) navigateTo(hit)
+          return s
+        })
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose, navigateTo])
+  }, [open, onClose, navigateTo, hits])
 
-  // Keep the selected item scrolled into view.
   useEffect(() => {
     if (!open) return
     const el = listRef.current?.querySelector('.kbar-item.sel') as HTMLElement | null
@@ -126,18 +124,15 @@ export default function CommandPalette({ open, onClose }: Props) {
           {groups.map((group) => (
             <div key={group.key}>
               <div className="kbar-sec">{group.label}</div>
-              {group.hits.map((hit) => {
-                const idx = hits.indexOf(hit)
-                return (
-                  <ResultItem
-                    key={hit.page.slug}
-                    hit={hit}
-                    selected={idx === selected}
-                    onHover={() => setSelected(idx)}
-                    onClick={() => navigateTo(hit)}
-                  />
-                )
-              })}
+              {group.hits.map(({ hit, index: idx }) => (
+                <ResultItem
+                  key={hit.page.slug}
+                  hit={hit}
+                  selected={idx === selected}
+                  onHover={() => setSelected(idx)}
+                  onClick={() => navigateTo(hit)}
+                />
+              ))}
             </div>
           ))}
         </div>
@@ -161,20 +156,18 @@ export default function CommandPalette({ open, onClose }: Props) {
   )
 }
 
-function groupHits(hits: SearchHit[]) {
+function groupHits(hits: SearchHit[]): HitGroup[] {
   const order: Record<string, number> = { user: 0, dev: 1 }
-  const map = new Map<string, { key: string; label: string; hits: SearchHit[] }>()
-  for (const hit of hits) {
+  const map = new Map<string, HitGroup>()
+  hits.forEach((hit, index) => {
     const key = `${hit.page.tab}::${hit.page.group}`
-    if (!map.has(key)) {
-      map.set(key, {
-        key,
-        label: `${hit.page.tabLabel} · ${hit.page.group}`,
-        hits: []
-      })
+    let bucket = map.get(key)
+    if (!bucket) {
+      bucket = { key, label: `${hit.page.tabLabel} · ${hit.page.group}`, hits: [] }
+      map.set(key, bucket)
     }
-    map.get(key)!.hits.push(hit)
-  }
+    bucket.hits.push({ hit, index })
+  })
   return Array.from(map.values()).sort((a, b) => {
     const ta = a.key.split('::')[0]
     const tb = b.key.split('::')[0]
@@ -217,7 +210,11 @@ function ResultItem({
       </span>
       <span className="kt">
         <b>{hit.page.title}</b>
-        <span dangerouslySetInnerHTML={{ __html: hit.snippet }} />
+        {hit.snippetHtml ? (
+          <span dangerouslySetInnerHTML={{ __html: hit.snippetHtml }} />
+        ) : (
+          <span>{hit.snippet}</span>
+        )}
       </span>
       <span className="kgo">
         <svg

@@ -113,7 +113,9 @@ function transformTree(
       ) {
         addClass(node, 'inline')
       }
-      if (node.tagName === 'a') {
+      if (node.tagName === 'a' && !hasClass(node, 'anchor')) {
+        // Skip the autolink-headings <a class="anchor">#</a> — it points at
+        // its own heading's #id and does not need our prose styling.
         addClass(node, 'link')
         rewriteHref(node, ownerDir)
       }
@@ -250,7 +252,10 @@ function rewriteImgSrc(node: Element, ownerDir: string) {
 }
 
 const ALERT_RE = /^\s*\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)\]\s*/i
-const ALERT_KIND: Record<string, { cls: string; label: string }> = {
+
+type AlertKind = 'note' | 'tip' | 'warn'
+
+const ALERT_KIND: Record<string, { cls: AlertKind; label: string }> = {
   NOTE: { cls: 'note', label: 'Note' },
   TIP: { cls: 'tip', label: 'Tip' },
   WARNING: { cls: 'warn', label: 'Warning' },
@@ -258,8 +263,13 @@ const ALERT_KIND: Record<string, { cls: string; label: string }> = {
   IMPORTANT: { cls: 'note', label: 'Important' }
 }
 
+const ALERT_ICON_PATHS: Record<AlertKind, string> = {
+  tip: 'M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8',
+  warn: 'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01',
+  note: 'M12 16v-4M12 8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z'
+}
+
 function transformAlertBlockquote(node: Element): Element | null {
-  // Find the first paragraph; if it starts with `[!NOTE]` etc., extract.
   const firstP = node.children.find((c) => c.type === 'element' && c.tagName === 'p') as
     | Element
     | undefined
@@ -270,7 +280,6 @@ function transformAlertBlockquote(node: Element): Element | null {
   if (!m) return null
   const kind = ALERT_KIND[m[1].toUpperCase()]
   if (!kind) return null
-  // Strip the marker (and any following newline) from the leading text node.
   firstText.value = firstText.value.replace(ALERT_RE, '')
   if (firstText.value === '') firstP.children.shift()
 
@@ -293,13 +302,7 @@ function transformAlertBlockquote(node: Element): Element | null {
   }
 }
 
-function calloutIcon(kind: string): Element {
-  const path =
-    kind === 'tip'
-      ? 'M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8'
-      : kind === 'warn'
-        ? 'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01'
-        : 'M12 16v-4M12 8h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z'
+function calloutIcon(kind: AlertKind): Element {
   return {
     type: 'element',
     tagName: 'svg',
@@ -312,7 +315,7 @@ function calloutIcon(kind: string): Element {
       strokeLinecap: 'round',
       strokeLinejoin: 'round'
     },
-    children: [{ type: 'element', tagName: 'path', properties: { d: path }, children: [] }]
+    children: [{ type: 'element', tagName: 'path', properties: { d: ALERT_ICON_PATHS[kind] }, children: [] }]
   }
 }
 

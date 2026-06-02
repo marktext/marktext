@@ -14,8 +14,10 @@ export type IndexedPage = {
 export type SearchHit = {
   page: IndexedPage
   score: number
-  /** A short snippet of the matched text with `<mark>…</mark>` around the term. */
+  /** Plain-text snippet — typically the hint or a body prefix. Safe to render as text. */
   snippet: string
+  /** Pre-highlighted HTML snippet with `<mark>` — present only when a body match drove it. */
+  snippetHtml?: string
   /** Optional matched heading id — Enter navigates to title#id when present. */
   headingId?: string
 }
@@ -37,6 +39,23 @@ export async function loadIndex(): Promise<IndexedPage[]> {
   return cache
 }
 
+type Lc = { title: string; group: string; hint: string; body: string; headings: string[] }
+const lcCache = new WeakMap<IndexedPage, Lc>()
+function lc(page: IndexedPage): Lc {
+  let v = lcCache.get(page)
+  if (!v) {
+    v = {
+      title: page.title.toLowerCase(),
+      group: page.group.toLowerCase(),
+      hint: page.hint?.toLowerCase() ?? '',
+      body: page.body.toLowerCase(),
+      headings: page.headings.map((h) => h.text.toLowerCase())
+    }
+    lcCache.set(page, v)
+  }
+  return v
+}
+
 const TOKEN_RE = /\S+/g
 
 export function search(query: string, pages: IndexedPage[]): SearchHit[] {
@@ -55,52 +74,49 @@ export function search(query: string, pages: IndexedPage[]): SearchHit[] {
 }
 
 function scorePage(page: IndexedPage, q: string, terms: string[]): SearchHit | null {
-  const title = page.title.toLowerCase()
-  const group = page.group.toLowerCase()
-  const hint = page.hint?.toLowerCase() ?? ''
-  const body = page.body.toLowerCase()
+  const lcp = lc(page)
   let score = 0
   let matched = false
   let matchedHeading: IndexedHeading | undefined
-  let snippet = page.hint ?? truncate(page.body, 120)
+  let snippetHtml: string | undefined
 
-  if (title === q) {
+  if (lcp.title === q) {
     score += 1000
     matched = true
-  } else if (title.startsWith(q)) {
+  } else if (lcp.title.startsWith(q)) {
     score += 600
     matched = true
-  } else if (title.includes(q)) {
+  } else if (lcp.title.includes(q)) {
     score += 400
     matched = true
   }
 
   for (const term of terms) {
-    if (title.includes(term)) {
+    if (lcp.title.includes(term)) {
       score += 120
       matched = true
     }
-    if (hint.includes(term)) {
+    if (lcp.hint.includes(term)) {
       score += 60
       matched = true
     }
-    if (group.includes(term)) {
+    if (lcp.group.includes(term)) {
       score += 30
       matched = true
     }
-    for (const h of page.headings) {
-      const ht = h.text.toLowerCase()
-      if (ht.includes(term)) {
+    for (let i = 0; i < page.headings.length; i++) {
+      if (lcp.headings[i].includes(term)) {
+        const h = page.headings[i]
         score += h.depth === 2 ? 80 : 50
         matched = true
         if (!matchedHeading) matchedHeading = h
       }
     }
-    const bodyIdx = body.indexOf(term)
+    const bodyIdx = lcp.body.indexOf(term)
     if (bodyIdx !== -1) {
       score += 15
       matched = true
-      if (!matchedHeading) snippet = highlight(page.body, bodyIdx, term.length)
+      if (!matchedHeading && !snippetHtml) snippetHtml = highlight(page.body, bodyIdx, term.length)
     }
   }
 
@@ -108,7 +124,8 @@ function scorePage(page: IndexedPage, q: string, terms: string[]): SearchHit | n
   return {
     page,
     score,
-    snippet,
+    snippet: page.hint ?? truncate(page.body, 120),
+    snippetHtml,
     headingId: matchedHeading?.id
   }
 }

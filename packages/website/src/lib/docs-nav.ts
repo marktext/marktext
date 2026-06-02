@@ -127,10 +127,13 @@ export const ALL_PAGES: DocPageWithCtx[] = DOC_TABS.flatMap((tab) =>
   )
 )
 
+const PAGE_BY_KEY = new Map<string, { page: DocPageWithCtx; index: number }>(
+  ALL_PAGES.map((page, index) => [page.slug.join('/'), { page, index }])
+)
+
 /** Resolve a slug array (from a [...slug] route) to a registry entry, or null. */
 export function findPageBySlug(segments: string[]): DocPageWithCtx | null {
-  const target = segments.join('/')
-  return ALL_PAGES.find((p) => p.slug.join('/') === target) ?? null
+  return PAGE_BY_KEY.get(segments.join('/'))?.page ?? null
 }
 
 /** prev / next page in the flat ordered list. */
@@ -138,11 +141,12 @@ export function neighborsFor(slug: string[]): {
   prev: DocPageWithCtx | null
   next: DocPageWithCtx | null
 } {
-  const idx = ALL_PAGES.findIndex((p) => p.slug.join('/') === slug.join('/'))
-  if (idx === -1) return { prev: null, next: null }
+  const entry = PAGE_BY_KEY.get(slug.join('/'))
+  if (!entry) return { prev: null, next: null }
+  const { index } = entry
   return {
-    prev: idx > 0 ? ALL_PAGES[idx - 1] : null,
-    next: idx < ALL_PAGES.length - 1 ? ALL_PAGES[idx + 1] : null
+    prev: index > 0 ? ALL_PAGES[index - 1] : null,
+    next: index < ALL_PAGES.length - 1 ? ALL_PAGES[index + 1] : null
   }
 }
 

@@ -6,6 +6,7 @@ import DocsHeader from './DocsHeader'
 import DocsTabs from './DocsTabs'
 import CommandPalette from './CommandPalette'
 import CopyButton from './CopyButton'
+import { SidebarContext } from './sidebar-context'
 import { findPageBySlug, type DocTabId } from '@/lib/docs-nav'
 
 type Props = {
@@ -15,24 +16,19 @@ type Props = {
 export default function DocsChrome({ children }: Props) {
   const pathname = usePathname() ?? '/docs'
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const activeTab: DocTabId = useMemo(() => {
     const segments = pathname
       .replace(/^\/docs\/?/, '')
       .split('/')
       .filter(Boolean)
-    const page = findPageBySlug(segments)
-    return page?.tab ?? 'user'
+    return findPageBySlug(segments)?.tab ?? 'user'
   }, [pathname])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-doctab', activeTab)
   }, [activeTab])
-
-  useEffect(() => {
-    document.body.classList.add('docs')
-    return () => document.body.classList.remove('docs')
-  }, [])
 
   useEffect(() => {
     function onKey(ev: KeyboardEvent) {
@@ -57,14 +53,17 @@ export default function DocsChrome({ children }: Props) {
 
   const closePalette = useCallback(() => setPaletteOpen(false), [])
   const openPalette = useCallback(() => setPaletteOpen(true), [])
+  const sidebar = useMemo(() => ({ open: sidebarOpen, setOpen: setSidebarOpen }), [sidebarOpen])
 
   return (
-    <>
-      <DocsHeader onSearchOpen={openPalette} />
-      <DocsTabs activeTab={activeTab} />
-      {children}
-      <CommandPalette open={paletteOpen} onClose={closePalette} />
-      <CopyButton />
-    </>
+    <SidebarContext.Provider value={sidebar}>
+      <div className="docs">
+        <DocsHeader onSearchOpen={openPalette} />
+        <DocsTabs activeTab={activeTab} />
+        {children}
+        <CommandPalette open={paletteOpen} onClose={closePalette} />
+        <CopyButton />
+      </div>
+    </SidebarContext.Provider>
   )
 }

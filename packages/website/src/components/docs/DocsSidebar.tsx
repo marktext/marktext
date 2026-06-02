@@ -6,17 +6,18 @@ import type { DocTab, DocTabId } from '@/lib/docs-nav'
 import { DOC_TABS } from '@/lib/docs-nav'
 import { DOWNLOAD } from '@/lib/downloads'
 import { GitHubIcon } from '@/components/Icons'
+import { useSidebar } from './sidebar-context'
 
 const STORAGE_KEY = 'marktext-doc-groups'
 
 type Props = {
   activeTab: DocTabId
   activeHref: string
-  onNavigate?: () => void
 }
 
-export default function DocsSidebar({ activeTab, activeHref, onNavigate }: Props) {
+export default function DocsSidebar({ activeTab, activeHref }: Props) {
   const tab = DOC_TABS.find((t) => t.id === activeTab) ?? DOC_TABS[0]
+  const { open, setOpen } = useSidebar()
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
@@ -41,13 +42,13 @@ export default function DocsSidebar({ activeTab, activeHref, onNavigate }: Props
   }
 
   return (
-    <aside className="doc-side" id="docSide">
+    <aside className={'doc-side' + (open ? ' open' : '')}>
       <TabPane
         tab={tab}
         collapsed={collapsed}
         toggleGroup={toggleGroup}
         activeHref={activeHref}
-        onNavigate={onNavigate}
+        onNavigate={() => setOpen(false)}
       />
       <div className="side-foot">
         <a
@@ -89,7 +90,7 @@ function TabPane({
   collapsed: Record<string, boolean>
   toggleGroup: (k: string) => void
   activeHref: string
-  onNavigate?: () => void
+  onNavigate: () => void
 }) {
   return (
     <div className="tab-pane">
