@@ -9,6 +9,28 @@
  * The output markdown needs to obey the standards of these Spec.
  */
 
+// Diagnostic hook for the unsolved "empty ul/ol" crash (#4319/#4344/#4346).
+// Logs once per session with a sanitized block-tree dump so the next user who
+// trips the guard can attach the trigger context to a follow-up issue.
+let emptyListWarned = false
+const warnEmptyListOnce = (kind, block, allBlocks) => {
+  if (emptyListWarned) return
+  emptyListWarned = true
+  try {
+    const summarize = (blks) =>
+      blks.map((b) => {
+        const head = `${b.type}#${b.key}`
+        if (!Array.isArray(b.children) || b.children.length === 0) return head + '[]'
+        return head + '(' + summarize(b.children).join(',') + ')'
+      })
+    console.warn(
+      `[muya] empty ${kind} block (key=${block.key}) reached ExportMarkdown — ` +
+        'see issue #4346. Tree summary: ' +
+        summarize(allBlocks || []).join(' | ')
+    )
+  } catch (_e) { /* ignore */ }
+}
+
 class ExportMarkdown {
   constructor(blocks, listIndentation = 1, isGitlabCompatibilityEnabled = false) {
     this.blocks = blocks
@@ -108,11 +130,23 @@ class ExportMarkdown {
           break
         }
         case 'ul': {
-          // An empty ul can appear transiently during list edits (Backspace at
-          // the start of the only item, Enter on an empty item) — see issues
-          // #4319, #4344, #4346. Skip serialization rather than destructure
-          // `children[0].bulletMarkerOrDelimiter` on undefined.
+          // Defensive guard for an empty `ul`/`ol` block — see issues #4319,
+          // #4344, #4346. All three are crash dialogs filed against v0.19.0
+          // with the identical stack:
+          //   TypeError: Cannot destructure property 'bulletMarkerOrDelimiter'
+          //   of 'block.children[0]' as it is undefined.
+          //       at ExportMarkdown.translateBlocks2Markdown
+          //       at Muya.getMarkdown ← Muya.dispatchChange ← inputHandler
+          // No reproduction has been found in develop despite an extensive
+          // probe (38 targeted recipes + 400 fuzz iterations across nested
+          // lists, undo/redo, paste, source-mode round-trips, IME); the
+          // controllers all maintain the `ul/ol always has children`
+          // invariant for known user actions. The guard prevents the dialog
+          // spam + data-loss risk while we wait for a reproducer; the
+          // one-shot console.warn ships the block tree so the next user
+          // report includes the trigger context.
           if (!block.children || block.children.length === 0 || !block.children[0]) {
+            warnEmptyListOnce('ul', block, this.blocks)
             lastListBullet = ''
             break
           }
@@ -136,6 +170,7 @@ class ExportMarkdown {
         }
         case 'ol': {
           if (!block.children || block.children.length === 0 || !block.children[0]) {
+            warnEmptyListOnce('ol', block, this.blocks)
             lastListBullet = ''
             break
           }
