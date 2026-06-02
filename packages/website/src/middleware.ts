@@ -14,7 +14,7 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Skip Next.js static + image internals so the middleware doesn't redirect
-  // chunk requests (they come from the apex anyway, but be explicit).
-  matcher: ['/((?!_next/static|_next/image|favicon\\.ico).*)']
+  matcher: [
+    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|sitemap\\.xml|robots\\.txt|docs-index\\.json|assets/|docs/).*)'
+  ]
 }

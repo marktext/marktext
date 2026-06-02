@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import type { DocTabId } from '@/lib/docs-nav'
 import { DOC_TABS, firstPageOfTab } from '@/lib/docs-nav'
