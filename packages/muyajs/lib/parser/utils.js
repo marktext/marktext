@@ -39,11 +39,28 @@ export const WHITELIST_ATTRIBUTES = Object.freeze([
 
 const UNICODE_WHITESPACE_REG = /^\s/
 
-// CJK Unified Ideographs + extensions + Hiragana/Katakana + Hangul Syllables.
-// Treated as boundary-equivalent for delimiter flanking so that
-// `中文**"x"**中文`, `日本語**(強調)**日本語`, `한국어**[강조]**한국어` etc. render
-// emphasis the way users in CJK locales expect. CommonMark spec 6.2 does not
-// require this — see marktext/marktext#4307.
+// NON-STANDARD EXTENSION — this is a deliberate divergence from CommonMark.
+//
+// CommonMark spec 6.2 (https://spec.commonmark.org/0.31.2/#emphasis-and-strong-emphasis)
+// only counts Unicode whitespace and Unicode punctuation as flanking
+// boundaries. CJK Unified Ideographs are Lo (Letter, other) — neither
+// whitespace nor punctuation — so under a literal reading of the spec,
+// `中文**"加粗"**中文` MUST NOT open a strong run. GitHub/GFM behaves this way
+// and is, strictly speaking, spec-conformant.
+//
+// However, CJK scripts do not use spaces between words, so in practice this
+// rule denies emphasis to virtually any CJK paragraph that surrounds the
+// `**` run with punctuation (quotes, parentheses, brackets, …). Typora,
+// VSCode markdownlint, Joplin, and most CJK-oriented Markdown tools ship
+// the same extension we ship here: treat CJK ideographs (BMP + Ext-A +
+// Ext-B via surrogate pairs + Compatibility Ideographs), Hiragana,
+// Katakana, Halfwidth Katakana, and Hangul Syllables as boundary-equivalent
+// for purposes of the flanking check. The extension never *rejects*
+// emphasis that CommonMark accepts — it only widens what counts as a left
+// or right boundary — so all spec-conformant English inputs continue to
+// parse identically.
+//
+// Tracking: marktext/marktext#4307.
 const CJK_REG = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯ｦ-ﾝ]|[\uD840-\uD87F][\uDC00-\uDFFF]/
 
 const validWidthAndHeight = value => {
@@ -131,8 +148,9 @@ const canOpenEmphasis = (src, marker, pending) => {
   // and either (2a) not followed by a punctuation character,
   // or (2b) followed by a punctuation character and preceded by Unicode whitespace or a punctuation character.
   // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
-  // CJK extension (#4307): treat CJK ideographs as boundary-equivalent so that
-  // emphasis adjacent to CJK + inner punctuation still opens.
+  // Non-standard CJK widening (see CJK_REG block above) — additive only:
+  // CJK ideographs are accepted as "preceded by" boundary, on top of the
+  // CommonMark-defined whitespace/punctuation set.
   if (PUNCTUATION_REG.test(followedChar) && !(UNICODE_WHITESPACE_REG.test(precededChar) || PUNCTUATION_REG.test(precededChar) || CJK_REG.test(precededChar))) {
     return false
   }
@@ -151,7 +169,7 @@ const canCloseEmphasis = (src, offset, marker) => {
   }
   // either (2a) not preceded by a punctuation character,
   // or (2b) preceded by a punctuation character and followed by Unicode whitespace or a punctuation character.
-  // CJK extension (#4307): symmetric to canOpenEmphasis.
+  // Non-standard CJK widening: symmetric to canOpenEmphasis.
   if (PUNCTUATION_REG.test(precededChar) && !(UNICODE_WHITESPACE_REG.test(followedChar) || PUNCTUATION_REG.test(followedChar) || CJK_REG.test(followedChar))) {
     return false
   }
