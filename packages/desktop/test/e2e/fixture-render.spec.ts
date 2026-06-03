@@ -99,3 +99,14 @@ runFixture('formatted', 'test/e2e/data/formatted.md', async({ page }) => {
   expect(em).toBeGreaterThan(0)
   expect(code).toBeGreaterThan(0)
 })
+
+// Regression coverage for marktext#4341 — a ul nested inside an ol li (and
+// vice versa) was rewritten into a paragraph by the legacy muya lexer.
+runFixture('nested-mixed-lists', 'test/e2e/data/nested-mixed-lists.md', async({ page }) => {
+  await page.waitForSelector('.editor-component ol li ul li', { state: 'attached', timeout: 10000 })
+  await page.waitForSelector('.editor-component ul li ol li', { state: 'attached', timeout: 10000 })
+  const ulInOl = await page.locator('.editor-component ol > li ul > li').count()
+  const olInUl = await page.locator('.editor-component ul > li ol > li').count()
+  expect(ulInOl).toBeGreaterThanOrEqual(3)
+  expect(olInUl).toBeGreaterThanOrEqual(3)
+})

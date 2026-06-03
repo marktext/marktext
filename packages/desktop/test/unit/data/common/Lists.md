@@ -17,6 +17,7 @@ To start an ordered list, write this:
 4. any number, +, -, or * will keep the list going.
    
    * just indent by 4 spaces (or tab) to make a sub-list
+     
      1. keep indenting for more sub lists
    
    * here i'm back to the second level

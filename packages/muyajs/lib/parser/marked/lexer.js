@@ -347,23 +347,6 @@ Lexer.prototype.token = function(
       bull = cap[2]
       let isOrdered = bull.length > 1
 
-      // Nested list that differs from the prev list type (on the same line) should be parsed as just a text block.
-
-      if (prevListIsOrdered !== null && prevListIsOrdered !== isOrdered) {
-        // Should parse this as just a text block
-        cap = cap[0].match(this.rules.item)
-
-        this.tokens.push({
-          type: 'paragraph',
-          text: cursorAnchorFocus + cap[0].trimEnd()
-        })
-        // Recurse for any valid nested lists of the same type
-        if (cap.length > 1) {
-          this.token(cap.slice(1).join('\n'), false, prevListIsOrdered, checkCursorSignature)
-        }
-        continue
-      }
-
       this.tokens.push({
         type: 'list_start',
         ordered: isOrdered,
