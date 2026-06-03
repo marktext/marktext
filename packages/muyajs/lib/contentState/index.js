@@ -102,6 +102,7 @@ class ContentState {
     this._selectedTableCells = null
     this.cellSelectEventIds = []
     this.foldedHeadings = new Set()
+    this.foldHiddenBlockKeys = new Set()
     this.init()
   }
 
@@ -248,6 +249,7 @@ class ContentState {
       m.active = i === index
     })
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.render(blocks, activeBlocks, matches)
     if (isRenderCursor) {
@@ -287,6 +289,7 @@ class ContentState {
     const blocksToRender = blocks.slice(startIndex, endIndex)
 
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(blocksToRender, activeBlocks, matches, startKey, endKey)
     if (isRenderCursor) {
@@ -308,6 +311,7 @@ class ContentState {
       m.active = i === index
     })
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.singleRender(block, activeBlocks, matches)
     if (isRenderCursor) {

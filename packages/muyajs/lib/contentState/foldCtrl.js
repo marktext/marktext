@@ -48,10 +48,16 @@ const foldCtrl = (ContentState) => {
 
     const outmostBlock = block.parent ? this.findOutMostBlock(block) : block
     let heading = this.getBlock(outmostBlock.preSibling)
+    let boundaryLevel = Infinity
 
     while (heading) {
-      if (this.isHeadingFolded(heading) && this.getSectionBlocks(heading).includes(outmostBlock)) {
-        return heading
+      const headingLevel = getHeadingLevel(heading)
+      if (headingLevel > 0) {
+        if (headingLevel < boundaryLevel && this.isHeadingFolded(heading)) {
+          return heading
+        }
+
+        boundaryLevel = Math.min(boundaryLevel, headingLevel)
       }
 
       heading = this.getBlock(heading.preSibling)
@@ -60,11 +66,36 @@ const foldCtrl = (ContentState) => {
     return null
   }
 
+  ContentState.prototype.updateFoldHiddenBlockKeys = function(blocks = this.blocks) {
+    this.foldHiddenBlockKeys.clear()
+
+    if (!this.foldedHeadings.size) return
+
+    const foldedStack = []
+    for (const block of blocks) {
+      const level = getHeadingLevel(block)
+
+      if (level > 0) {
+        while (foldedStack.length && level <= foldedStack[foldedStack.length - 1].level) {
+          foldedStack.pop()
+        }
+      }
+
+      if (foldedStack.length) {
+        this.foldHiddenBlockKeys.add(block.key)
+      }
+
+      if (level > 0 && this.foldedHeadings.has(block.key)) {
+        foldedStack.push({ key: block.key, level })
+      }
+    }
+  }
+
   ContentState.prototype.isBlockHiddenByFold = function(block) {
-    if (!block) return false
+    if (!block || !this.foldedHeadings.size) return false
 
     const outmostBlock = block.parent ? this.findOutMostBlock(block) : block
-    return outmostBlock === block && !!this.getFoldHeadingForBlock(outmostBlock)
+    return outmostBlock === block && this.foldHiddenBlockKeys.has(outmostBlock.key)
   }
 
   ContentState.prototype.moveCursorToHeading = function(heading) {
@@ -152,6 +183,7 @@ const foldCtrl = (ContentState) => {
 
   ContentState.prototype.clearHeadingFolds = function() {
     this.foldedHeadings.clear()
+    this.foldHiddenBlockKeys.clear()
   }
 }
 

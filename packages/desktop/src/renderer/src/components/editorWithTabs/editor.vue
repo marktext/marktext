@@ -880,7 +880,7 @@ const scrollToHighlight = () => {
 }
 
 const scrollToHeader = (slug: unknown) => {
-  if (typeof slug !== 'string') return
+  if (sourceCode.value || typeof slug !== 'string') return
 
   const didUnfold = editor.value.unfoldBlockByKey(slug)
   if (didUnfold) {

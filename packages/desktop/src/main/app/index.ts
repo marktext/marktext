@@ -381,12 +381,9 @@ class App {
 
     const createWindow = (): void => {
       if (isRestorePathway) {
-        // We will restore based off the previous buffer, one window per buffer store file
-        const bufferStores = editorBufferStore.getAll()
-        const bufferStoreList = Object.values(bufferStores) as Array<{
-          id: string
-          filePath: string | null
-        }>
+        const bufferStoreList = editorBufferStore.prepareRestorableBufferStores(
+          process.env.NODE_ENV === 'development'
+        ) as Array<{ id: string; filePath: string }>
         if (bufferStoreList.length === 0) {
           this._createEditorWindow()
           return

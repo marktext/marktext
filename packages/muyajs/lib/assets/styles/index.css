@@ -1217,6 +1217,12 @@ h6.ag-paragraph::before {
   display: block;
 }
 
+.ag-show-heading-fold-chevrons h1.ag-paragraph .ag-front-icon,
+.ag-show-heading-fold-chevrons h2.ag-paragraph .ag-front-icon,
+.ag-show-heading-fold-chevrons h3.ag-paragraph .ag-front-icon,
+.ag-show-heading-fold-chevrons h4.ag-paragraph .ag-front-icon,
+.ag-show-heading-fold-chevrons h5.ag-paragraph .ag-front-icon,
+.ag-show-heading-fold-chevrons h6.ag-paragraph .ag-front-icon,
 h1.ag-paragraph:hover .ag-front-icon,
 h2.ag-paragraph:hover .ag-front-icon,
 h3.ag-paragraph:hover .ag-front-icon,
