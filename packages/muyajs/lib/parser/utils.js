@@ -138,9 +138,41 @@ export const parseSrcAndTitle = (text = '') => {
   return { src, title }
 }
 
+// Extract the trailing Unicode code point of `s` as a 1- or 2-char string,
+// or '' when `s` is empty. `String.prototype.charAt` and bracket indexing
+// return a single UTF-16 code unit, splitting non-BMP code points into raw
+// surrogate halves — those halves never match PUNCTUATION_REG / CJK_REG /
+// UNICODE_WHITESPACE_REG, so the surrogate-pair branches in those regexes
+// are effectively dead when callers feed in half-surrogates. Use this helper
+// at every flanking-boundary read so non-BMP CJK ideographs (e.g. CJK Ext-B)
+// and non-BMP Unicode punctuation are actually testable.
+const lastCodePointChar = (s) => {
+  if (!s) return ''
+  const len = s.length
+  const lastUnit = s.charCodeAt(len - 1)
+  if (lastUnit >= 0xDC00 && lastUnit <= 0xDFFF && len >= 2) {
+    const prevUnit = s.charCodeAt(len - 2)
+    if (prevUnit >= 0xD800 && prevUnit <= 0xDBFF) return s.slice(len - 2)
+  }
+  return s.charAt(len - 1)
+}
+
+// Same idea at an arbitrary index. Returns undefined past the end so the
+// existing `|| '\n'` / `UNICODE_WHITESPACE_REG.test(undefined)` semantics
+// at callers are preserved verbatim.
+const codePointCharAt = (s, i) => {
+  if (i >= s.length) return undefined
+  const unit = s.charCodeAt(i)
+  if (unit >= 0xD800 && unit <= 0xDBFF && i + 1 < s.length) {
+    const next = s.charCodeAt(i + 1)
+    if (next >= 0xDC00 && next <= 0xDFFF) return s.slice(i, i + 2)
+  }
+  return s.charAt(i)
+}
+
 const canOpenEmphasis = (src, marker, pending) => {
-  const precededChar = pending.charAt(pending.length - 1) || '\n'
-  const followedChar = src[marker.length]
+  const precededChar = lastCodePointChar(pending) || '\n'
+  const followedChar = codePointCharAt(src, marker.length)
   // not followed by Unicode whitespace,
   if (UNICODE_WHITESPACE_REG.test(followedChar)) {
     return false
@@ -161,8 +193,8 @@ const canOpenEmphasis = (src, marker, pending) => {
 }
 
 const canCloseEmphasis = (src, offset, marker) => {
-  const precededChar = src[offset - marker.length - 1]
-  const followedChar = src[offset] || '\n'
+  const precededChar = lastCodePointChar(src.substring(0, offset - marker.length))
+  const followedChar = codePointCharAt(src, offset) || '\n'
   // not preceded by Unicode whitespace,
   if (UNICODE_WHITESPACE_REG.test(precededChar)) {
     return false

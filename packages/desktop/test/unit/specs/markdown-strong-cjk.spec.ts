@@ -22,7 +22,11 @@ describe('inline strong with CJK boundaries (issue #4307)', () => {
   const cjkCases = [
     '例子例子**"加粗"**例子例子',
     '日本語**(強調)**日本語',
-    '한국어**[강조]**한국어'
+    '한국어**[강조]**한국어',
+    // Non-BMP CJK (CJK Ext-B): 𠀀 is U+20000, stored as the surrogate pair
+    // 𠀀. The flanking-boundary char extraction must read the full
+    // code point, otherwise CJK_REG's surrogate-pair branch is dead.
+    '𠀀𠀁**"加粗"**𠀀𠀁'
   ]
 
   // Sanity / regression cases that already work on develop. They lock in the
