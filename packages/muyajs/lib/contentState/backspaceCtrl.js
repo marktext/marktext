@@ -144,6 +144,13 @@ const backspaceCtrl = (ContentState) => {
 
     const startBlock = this.getBlock(start.key)
     const endBlock = this.getBlock(end.key)
+    // Guard against transient state where the cursor still references a block
+    // that was just removed by a list mutation (#4346). Without these blocks
+    // there is nothing meaningful to delete in this pass; let the next
+    // selection-change settle and re-issue.
+    if (!startBlock || !endBlock) {
+      return
+    }
     const maybeLastRow = this.getParent(endBlock)
     const startOutmostBlock = this.findOutMostBlock(startBlock)
     const endOutmostBlock = this.findOutMostBlock(endBlock)

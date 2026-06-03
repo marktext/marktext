@@ -162,6 +162,11 @@ const formatCtrl = (ContentState) => {
     }
 
     const startBlock = this.getBlock(start.key)
+    // Guard against transient state where the cursor still references a block
+    // that was just removed by a list mutation (#4346).
+    if (!startBlock) {
+      return { formats: [], tokens: [], neighbors: [] }
+    }
     const formats = []
     const neighbors = []
     let tokens = []
