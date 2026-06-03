@@ -58,6 +58,11 @@ declare module 'muya/lib/parser/marked' {
   export const Lexer: any
 }
 
+declare module 'muya/lib/parser' {
+  export const tokenizer: any
+  export const generator: any
+}
+
 declare module 'muya/lib/contentState' {
   const contentState: any
   export default contentState

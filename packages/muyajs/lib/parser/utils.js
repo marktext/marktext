@@ -39,6 +39,13 @@ export const WHITELIST_ATTRIBUTES = Object.freeze([
 
 const UNICODE_WHITESPACE_REG = /^\s/
 
+// CJK Unified Ideographs + extensions + Hiragana/Katakana + Hangul Syllables.
+// Treated as boundary-equivalent for delimiter flanking so that
+// `中文**"x"**中文`, `日本語**(強調)**日本語`, `한국어**[강조]**한국어` etc. render
+// emphasis the way users in CJK locales expect. CommonMark spec 6.2 does not
+// require this — see marktext/marktext#4307.
+const CJK_REG = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯ｦ-ﾝ]|[\uD840-\uD87F][\uDC00-\uDFFF]/
+
 const validWidthAndHeight = value => {
   if (!/^\d{1,}$/.test(value)) return ''
   value = parseInt(value)
@@ -124,10 +131,12 @@ const canOpenEmphasis = (src, marker, pending) => {
   // and either (2a) not followed by a punctuation character,
   // or (2b) followed by a punctuation character and preceded by Unicode whitespace or a punctuation character.
   // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
-  if (PUNCTUATION_REG.test(followedChar) && !(UNICODE_WHITESPACE_REG.test(precededChar) || PUNCTUATION_REG.test(precededChar))) {
+  // CJK extension (#4307): treat CJK ideographs as boundary-equivalent so that
+  // emphasis adjacent to CJK + inner punctuation still opens.
+  if (PUNCTUATION_REG.test(followedChar) && !(UNICODE_WHITESPACE_REG.test(precededChar) || PUNCTUATION_REG.test(precededChar) || CJK_REG.test(precededChar))) {
     return false
   }
-  if (/_/.test(marker) && !(UNICODE_WHITESPACE_REG.test(precededChar) || PUNCTUATION_REG.test(precededChar))) {
+  if (/_/.test(marker) && !(UNICODE_WHITESPACE_REG.test(precededChar) || PUNCTUATION_REG.test(precededChar) || CJK_REG.test(precededChar))) {
     return false
   }
   return true
@@ -142,10 +151,11 @@ const canCloseEmphasis = (src, offset, marker) => {
   }
   // either (2a) not preceded by a punctuation character,
   // or (2b) preceded by a punctuation character and followed by Unicode whitespace or a punctuation character.
-  if (PUNCTUATION_REG.test(precededChar) && !(UNICODE_WHITESPACE_REG.test(followedChar) || PUNCTUATION_REG.test(followedChar))) {
+  // CJK extension (#4307): symmetric to canOpenEmphasis.
+  if (PUNCTUATION_REG.test(precededChar) && !(UNICODE_WHITESPACE_REG.test(followedChar) || PUNCTUATION_REG.test(followedChar) || CJK_REG.test(followedChar))) {
     return false
   }
-  if (/_/.test(marker) && !(UNICODE_WHITESPACE_REG.test(followedChar) || PUNCTUATION_REG.test(followedChar))) {
+  if (/_/.test(marker) && !(UNICODE_WHITESPACE_REG.test(followedChar) || PUNCTUATION_REG.test(followedChar) || CJK_REG.test(followedChar))) {
     return false
   }
   return true
