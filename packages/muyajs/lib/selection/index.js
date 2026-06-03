@@ -19,6 +19,24 @@ const filterOnlyParentElements = (node) => {
   return isBlockContainer(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP
 }
 
+// Defensive clamp for issues #2800 (and #2526 family): when the DOM changes
+// between when an offset was captured and when the cursor is restored (e.g.
+// partialRender consolidates child spans after an inline-HTML token like
+// `<pre>...</pre>` materializes), the recorded offset can exceed the new
+// container's legal range. For an element node, `setStart`/`setEnd`/
+// `selection.extend` interpret `offset` as a childNodes index; for a text
+// node, as a character offset. Clamp accordingly so the caret lands on the
+// last valid position instead of throwing `IndexSizeError`.
+const clampLegalOffset = (node, offset) => {
+  if (!node || typeof offset !== 'number' || !Number.isFinite(offset) || offset < 0) {
+    return 0
+  }
+  const max = node.nodeType === 3
+    ? (node.length != null ? node.length : (node.textContent || '').length)
+    : node.childNodes.length
+  return Math.min(offset, max)
+}
+
 class Selection {
   constructor(doc) {
     this.doc = doc // document
@@ -368,10 +386,10 @@ class Selection {
 
   select(startNode, startOffset, endNode, endOffset) {
     const range = this.doc.createRange()
-    range.setStart(startNode, startOffset)
+    range.setStart(startNode, clampLegalOffset(startNode, startOffset))
 
     if (endNode) {
-      range.setEnd(endNode, endOffset)
+      range.setEnd(endNode, clampLegalOffset(endNode, endOffset))
     } else {
       range.collapse(true)
     }
@@ -381,7 +399,7 @@ class Selection {
 
   setFocus(focusNode, focusOffset) {
     const selection = this.doc.getSelection()
-    selection.extend(focusNode, focusOffset)
+    selection.extend(focusNode, clampLegalOffset(focusNode, focusOffset))
   }
 
   /**
