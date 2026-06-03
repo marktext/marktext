@@ -31,7 +31,7 @@ const clampLegalOffset = (node, offset) => {
   if (!node || typeof offset !== 'number' || !Number.isFinite(offset) || offset < 0) {
     return 0
   }
-  const max = node.nodeType === 3
+  const max = node.nodeType === Node.TEXT_NODE
     ? (node.length != null ? node.length : (node.textContent || '').length)
     : node.childNodes.length
   return Math.min(offset, max)
