@@ -1045,15 +1045,55 @@ const applyObservationMode = (isObserved: boolean) => {
   const { container } = editor.value
   if (!container) return
   container.setAttribute('contenteditable', isObserved ? 'false' : 'true')
-  container.style.pointerEvents = isObserved ? 'none' : ''
+  container.style.pointerEvents = isObserved ? 'none' : 'auto'
   container.style.userSelect = 'text'
 }
 
+// Index-based cursor captured while the tab is still editable. It survives a
+// re-parse (unlike a block-key cursor), so it can restore the caret when
+// leaving Observation Mode.
+let observationIndexCursor: unknown = null
+
 const handleObservationModeChanged = (payload: unknown) => {
   const { id, isObserved } = (payload ?? {}) as { id?: string; isObserved?: boolean }
-  if (id === currentFile.value?.id) {
-    applyObservationMode(!!isObserved)
+  if (id !== currentFile.value?.id || !editor.value) return
+
+  if (isObserved) {
+    // Capture the index cursor before the editor goes read-only.
+    try {
+      observationIndexCursor = editor.value.contentState?.getMuyaIndexCursor?.() ?? null
+    } catch {
+      observationIndexCursor = currentFile.value?.muyaIndexCursor ?? null
+    }
+    applyObservationMode(true)
+    return
   }
+
+  // Toggling `contenteditable` off invalidates Muya's selection/input model,
+  // which froze the tab (no typing/clicking) until a tab switch. Rebuild it
+  // with a full re-render — the same recovery a tab switch performs, which
+  // preserves undo history — restoring the caret from the captured index cursor
+  // so editing resumes at the same spot, then refocus. Scroll is restored
+  // across Muya's async scroll-to-cursor.
+  applyObservationMode(false)
+  const indexCursor = observationIndexCursor ?? currentFile.value?.muyaIndexCursor ?? null
+  const { container } = editor.value
+  const savedScroll = container ? container.scrollTop : 0
+  try {
+    editor.value.setMarkdown(editor.value.getMarkdown(), undefined, true, indexCursor, undefined)
+  } catch {
+    // Cursor may be stale; the editor is still rebuilt and editable.
+  }
+  editor.value.focus()
+  if (container) {
+    const restoreScroll = () => {
+      container.scrollTop = savedScroll
+    }
+    requestAnimationFrame(restoreScroll)
+    setTimeout(restoreScroll, 0)
+    setTimeout(restoreScroll, 60)
+  }
+  observationIndexCursor = null
 }
 
 const setMarkdownToEditor = (payload: unknown) => {
