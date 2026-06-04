@@ -14,6 +14,9 @@ importers:
       '@babel/eslint-parser':
         specifier: ^7.28.6
         version: 7.28.6(@babel/core@7.29.0)(eslint@9.39.4(jiti@2.7.0))
+      electron:
+        specifier: ^42.1.0
+        version: 42.1.0
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.7.0)
@@ -480,6 +483,9 @@ importers:
       execall:
         specifier: ^3.0.0
         version: 3.0.0
+      flowchart.js:
+        specifier: ^1.18.0
+        version: 1.18.0
       fuzzaldrin:
         specifier: ^2.1.0
         version: 2.1.0
@@ -495,6 +501,9 @@ importers:
       katex:
         specifier: ^0.16.47
         version: 0.16.47
+      mermaid:
+        specifier: ^11.15.0
+        version: 11.15.0
       pako:
         specifier: ^2.1.0
         version: 2.1.0
@@ -519,6 +528,9 @@ importers:
       underscore:
         specifier: ^1.13.8
         version: 1.13.8
+      vega-embed:
+        specifier: ^7.1.0
+        version: 7.1.0(vega-lite@6.4.3(vega@6.2.0))(vega@6.2.0)
       webfontloader:
         specifier: ^1.6.28
         version: 1.6.28
@@ -19736,7 +19748,7 @@ snapshots:
     dependencies:
       htmlparser2: 3.10.1
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
 
   postcss-image-set-function@8.0.0(postcss@8.5.15):
     dependencies:
@@ -19748,7 +19760,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
     transitivePeerDependencies:
       - supports-color
 
@@ -19773,7 +19785,7 @@ snapshots:
   postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15):
     dependencies:
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
       remark: 10.0.1
       unist-util-find-all-after: 1.0.5
 
@@ -19943,7 +19955,7 @@ snapshots:
       lodash: 4.18.1
       postcss: 8.5.15
 
-  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15):
+  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15):
     dependencies:
       postcss: 8.5.15
     optionalDependencies:
@@ -21158,7 +21170,7 @@ snapshots:
       postcss-sass: 0.3.5
       postcss-scss: 2.1.1
       postcss-selector-parser: 3.1.2
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
       postcss-value-parser: 3.3.1
       resolve-from: 4.0.0
       signal-exit: 3.0.7
