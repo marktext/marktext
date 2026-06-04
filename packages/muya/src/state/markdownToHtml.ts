@@ -78,7 +78,7 @@ export class MarkdownToHtml {
 
             try {
                 if (functionType === 'plantuml') {
-                    const diagram = render.parse(rawCode);
+                    const diagram = render.parse(rawCode, this.muya?.options.plantumlServer);
                     diagramContainer.innerHTML = '';
                     diagram.insertImgElement(diagramContainer);
                 }

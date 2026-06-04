@@ -101,7 +101,7 @@ class ExportHtml {
           diagram.drawSVG(diagramContainer, options)
         }
         if (functionType === 'plantuml') {
-          const diagram = render.parse(rawCode)
+          const diagram = render.parse(rawCode, this.muya ? this.muya.options.plantumlServer : undefined)
           diagramContainer.innerHTML = ''
           diagram.insertImgElement(diagramContainer)
         }

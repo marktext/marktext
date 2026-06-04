@@ -100,6 +100,12 @@
           :on-change="(value) => onSelectChange('sequenceTheme', value)"
           more="https://bramp.github.io/js-sequence-diagrams/"
         />
+        <text-box
+          :description="t('preferences.markdown.diagrams.plantumlServer.title')"
+          :input="plantumlServer"
+          :on-change="(value) => onSelectChange('plantumlServer', value)"
+          :default-value="'https://www.plantuml.com/plantuml'"
+        />
       </template>
     </compound>
 
@@ -129,6 +135,7 @@ import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import Bool from '../common/bool/index.vue'
 import CurSelect from '../common/select/index.vue'
+import TextBox from '../common/textBox/index.vue'
 import {
   bulletListMarkerOptions,
   orderListDelimiterOptions,
@@ -154,7 +161,8 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
-  sequenceTheme
+  sequenceTheme,
+  plantumlServer
 } = storeToRefs(preferenceStore)
 
 const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {

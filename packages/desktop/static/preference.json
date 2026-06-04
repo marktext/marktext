@@ -55,6 +55,7 @@
   "isHtmlEnabled": true,
   "isGitlabCompatibilityEnabled": false,
   "sequenceTheme": "hand",
+  "plantumlServer": "https://www.plantuml.com/plantuml",
 
   "theme": "light",
   "followSystemTheme": true,
