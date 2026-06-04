@@ -367,6 +367,12 @@ watch(sequenceTheme, (value, oldValue) => {
   }
 })
 
+watch(() => preferencesStore.plantumlServer, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ plantumlServer: value }, true)
+  }
+})
+
 watch(listIndentation, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setListIndentation(value)
