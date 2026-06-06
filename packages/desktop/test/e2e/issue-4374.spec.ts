@@ -16,7 +16,7 @@
 // li.children, and move any blocks AFTER it (sublist + trailing
 // paragraphs) into the new list item. Added a defensive `index === -1`
 // early-return inside chopBlockByCursor.
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import {
   clearRendererErrors,
@@ -128,6 +128,11 @@ test.describe('Issue #4374: enterHandler chopBlockByCursor nextSibling crash', (
     const md = '# Doc\n\n- one\n- two\n'
     await setSourceMarkdown(page, app, md)
     await page.waitForTimeout(500)
+
+    const liCountBefore = await page.evaluate(
+      () => document.querySelectorAll('.editor-component ul > li').length
+    )
+
     await placeCaretInSpanContaining(page, 'one')
     await clearRendererErrors(app)
 
@@ -135,6 +140,13 @@ test.describe('Issue #4374: enterHandler chopBlockByCursor nextSibling crash', (
     await page.waitForTimeout(200)
     await page.keyboard.type('inserted', { delay: 5 })
     await page.waitForTimeout(200)
+
+    const liCountAfter = await page.evaluate(
+      () => document.querySelectorAll('.editor-component ul > li').length
+    )
+    // Splitting `- one` into `- one` + `- inserted` must yield one more <li>,
+    // not collapse to a paragraph break or duplicate the original item.
+    expect(liCountAfter).toBe(liCountBefore + 1)
     await expectNoRendererErrors(app)
   })
 })

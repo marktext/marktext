@@ -21,14 +21,16 @@ const getIndentSpace = (text) => {
 const enterCtrl = (ContentState) => {
   // TODO@jocs this function need opti.
   ContentState.prototype.chopBlockByCursor = function(block, key, offset) {
-    const newBlock = this.createBlock('p')
     const { children } = block
     const index = children.findIndex((child) => child.key === key)
     // Defensive guard for issue #4374: when the caller resolves the wrong
     // owning paragraph (e.g. a list item with multiple paragraphs), `key`
-    // isn't in `children`. Return an empty continuation block instead of
-    // crashing on `children[-1].nextSibling = null`.
-    if (index === -1) return newBlock
+    // isn't in `children`. Return a well-formed empty paragraph (p with a
+    // single empty span child) instead of crashing on
+    // `children[-1].nextSibling = null` — a bare `createBlock('p')` would
+    // violate downstream code that assumes `p.children[0]` exists.
+    if (index === -1) return this.createBlockP('')
+    const newBlock = this.createBlock('p')
     const activeLine = this.getBlock(key)
     const { text } = activeLine
     newBlock.children = children.splice(index + 1)
