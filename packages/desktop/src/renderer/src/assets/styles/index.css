@@ -202,6 +202,15 @@ body {
   background-color: var(--themeColor);
 }
 
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: var(--themeColor);
+  background-color: var(--themeColor);
+}
+
+.el-radio__input.is-checked + .el-radio__label {
+  color: var(--editorColor);
+}
+
 .el-dialog,
 .el-dialog.ag-dialog-table {
   border-radius: 8px;
@@ -219,6 +228,11 @@ input.el-input__inner {
   background: var(--inputBgColor);
   border: 1px solid var(--editorColor10);
   color: var(--editorColor80);
+}
+
+.el-input.is-focus .el-input__wrapper,
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--themeColor) inset;
 }
 
 .el-input-number.is-controls-right span.el-input-number__decrease,
