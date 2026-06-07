@@ -455,6 +455,7 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "sequenceTheme": "시퀀스 다이어그램 테마",
+        "plantumlServer": "PlantUML 서버 URL",
         "theme": "MarkText에서 사용할 테마 선택",
         "followSystemTheme": "시스템 테마 따르기",
         "lightModeTheme": "시스템이 라이트 모드일 때 사용할 테마",
@@ -772,6 +773,9 @@
           "title": "시퀀스 테마",
           "handDrawn": "손으로 그린",
           "simple": "간단"
+        },
+        "plantumlServer": {
+          "title": "PlantUML 서버 URL"
         }
       },
       "math": {

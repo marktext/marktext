@@ -454,6 +454,7 @@
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
         "sequenceTheme": "Tema del diagrama de secuencia",
+        "plantumlServer": "URL del servidor PlantUML",
         "theme": "Seleccionar el tema usado en MarkText",
         "followSystemTheme": "Seguir tema del sistema",
         "lightModeTheme": "Tema a usar cuando el sistema está en modo claro",
@@ -770,6 +771,9 @@
           "title": "Tema de Secuencia",
           "handDrawn": "Dibujado a Mano",
           "simple": "Simple"
+        },
+        "plantumlServer": {
+          "title": "URL del servidor PlantUML"
         }
       },
       "math": {

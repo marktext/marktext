@@ -455,6 +455,7 @@
         "isHtmlEnabled": "HTMLレンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab互換モードを有効にする",
         "sequenceTheme": "シーケンス図のテーマ",
+        "plantumlServer": "PlantUMLサーバーのURL",
         "theme": "MarkTextで使用するテーマを選択",
         "followSystemTheme": "システムのテーマに従う",
         "lightModeTheme": "システムがライトモードの時に使用するテーマ",
@@ -772,6 +773,9 @@
           "title": "シーケンステーマ",
           "handDrawn": "手描き",
           "simple": "シンプル"
+        },
+        "plantumlServer": {
+          "title": "PlantUMLサーバーのURL"
         }
       },
       "math": {

@@ -455,6 +455,7 @@
         "isHtmlEnabled": "启用 HTML 渲染",
         "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
         "sequenceTheme": "序列图主题",
+        "plantumlServer": "PlantUML 服务器 URL",
         "theme": "选择 MarkText 中使用的主题",
         "followSystemTheme": "跟随系统主题",
         "lightModeTheme": "系统处于浅色模式时使用的主题",
@@ -771,6 +772,9 @@
           "title": "序列图主题",
           "handDrawn": "手绘",
           "simple": "简单"
+        },
+        "plantumlServer": {
+          "title": "PlantUML 服务器 URL"
         }
       },
       "math": {
