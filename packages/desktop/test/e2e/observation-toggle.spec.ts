@@ -31,9 +31,18 @@ test('Observation Mode toggle off restores editing without a tab switch', async(
     () => (document.querySelector('.editor-component') as HTMLElement)?.scrollTop ?? 0
   )
 
-  // Toggle on then off via IPC (== menu / keyboard shortcut), no clicking.
+  // Toggle on: read-only, but the editor must stay interactive (scrollable /
+  // selectable) — observed mode must NOT disable pointer-events.
   await sendIpcToRenderer(app, 'mt::toggle-observation-mode')
   await page.waitForTimeout(400)
+  const observedState = await page.evaluate(() => {
+    const el = document.querySelector('.editor-component') as HTMLElement
+    return { ce: el.getAttribute('contenteditable'), pe: getComputedStyle(el).pointerEvents }
+  })
+  expect(observedState.ce).toBe('false')
+  expect(observedState.pe).not.toBe('none')
+
+  // Toggle off via IPC (== menu / keyboard shortcut), no clicking.
   await sendIpcToRenderer(app, 'mt::toggle-observation-mode')
   await page.waitForTimeout(500)
 

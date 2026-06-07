@@ -1044,8 +1044,13 @@ const applyObservationMode = (isObserved: boolean) => {
   if (!editor.value) return
   const { container } = editor.value
   if (!container) return
+  // Read-only is enforced via `contenteditable` only (plus the store-side
+  // content-change guard). We must NOT disable pointer-events: doing so made an
+  // observed tab fully inert — no scrolling, selecting or clicking — which read
+  // as a frozen tab. Always clear any inline pointer-events so a value left over
+  // from an earlier state can never get stuck.
   container.setAttribute('contenteditable', isObserved ? 'false' : 'true')
-  container.style.pointerEvents = isObserved ? 'none' : 'auto'
+  container.style.pointerEvents = ''
   container.style.userSelect = 'text'
 }
 
@@ -1054,9 +1059,11 @@ const applyObservationMode = (isObserved: boolean) => {
 // leaving Observation Mode.
 let observationIndexCursor: unknown = null
 
-const handleObservationModeChanged = (payload: unknown) => {
-  const { id, isObserved } = (payload ?? {}) as { id?: string; isObserved?: boolean }
-  if (id !== currentFile.value?.id || !editor.value) return
+const handleObservationModeChanged = () => {
+  if (!editor.value) return
+  // Drive off the store (source of truth) rather than the event payload's id,
+  // which could fail to match and silently skip applying the state.
+  const isObserved = !!currentFile.value?.isObserved
 
   if (isObserved) {
     // Capture the index cursor before the editor goes read-only.
