@@ -1830,7 +1830,9 @@ const createApplicationMenuState = ({
   if (aff.length >= 1 && /ul|ol/.test(aff[0].type)) {
     const listBlock = aff[0]
     state.affiliation[listBlock.type] = true
-    state.isLooseListItem = !!listBlock.children?.[0]?.isLooseListItem
+    // The engine's affiliation entry carries the loose flag on the list block
+    // itself (derived from `meta.loose`), not via a `children` chain.
+    state.isLooseListItem = !!listBlock.isLooseListItem
     state.isTaskList = listBlock.listType === 'task'
   } else if (aff.length >= 3 && aff[1].type === 'li') {
     const listItem = aff[1]

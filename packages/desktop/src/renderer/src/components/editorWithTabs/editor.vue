@@ -297,38 +297,77 @@ interface SelectionFormatLike {
   [key: string]: unknown
 }
 
-// The engine's `selection-change` payload is keyed by `anchor`/`focus` +
-// `anchorPath`/`focusPath` and carries live block refs. The desktop's
-// application-menu state builder (`createApplicationMenuState`) was written
-// against the legacy `{ start, end, affiliation }` shape, so adapt it. Only
-// `start`/`end` (key + offset + the active content block) are derivable from
-// the new payload; the rich block `affiliation` chain is not surfaced by the
-// engine yet, so it degrades to empty (block-context menu toggles like
-// list/table awareness are a documented gap — format toggles still work via
-// `formats`).
+// Container `blockName` → legacy `functionType`. The engine's affiliation
+// entries carry `blockName` but not the legacy `functionType` the desktop
+// menu-state builder keys off for `pre`/`figure` containers (table detection +
+// Format-menu disable). Re-derive it here so `createApplicationMenuState`'s
+// existing `pre`/`figure` branches fire. The `code$` / `multiplemath` /
+// `frontmatter` / `html` / `table` values match the legacy muyajs vocabulary
+// (`createApplicationMenuState`'s `/frontmatter|html|multiplemath|code$/` test
+// and `=== 'table'` check).
+const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
+  'code-block': 'fencecode',
+  frontmatter: 'frontmatter',
+  table: 'table',
+  'html-block': 'html',
+  'math-block': 'multiplemath'
+}
+
+interface EngineAffiliationEntry {
+  type: string
+  blockName: string
+  listType?: string
+  listItemType?: string
+  isLooseListItem?: boolean
+  [key: string]: unknown
+}
+
+// The engine's `selection-change` payload (since #4410) carries an
+// `affiliation` chain (shared-ancestor paragraph-type blocks, outermost-first)
+// plus per-endpoint `anchorBlockInfo`/`focusBlockInfo` describing the content
+// leaf (`type: 'span'` + `functionType`). The desktop's application-menu state
+// builder (`createApplicationMenuState`) was written against the legacy
+// `{ start, end, affiliation }` shape, so map the new payload onto it:
+//   - `start.type`/`end.type` from the leaf info (`'span'`) so the
+//     `start.type === 'span'` guards fire,
+//   - `start.block.functionType`/`end.block.functionType` from the leaf info so
+//     code-content / table-cell detection lights up,
+//   - `affiliation` straight through (entries already carry `type` +
+//     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
+//     `functionType` on `pre`/`figure` containers for table / code-fence keys.
 const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
   const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
-  const anchorBlock = changes.anchorBlock as
-    | { text?: string; functionType?: string }
+  const anchorInfo = changes.anchorBlockInfo as
+    | { type?: string; functionType?: string }
+    | null
     | undefined
-  const focusBlock = changes.focusBlock as
-    | { text?: string; functionType?: string }
+  const focusInfo = changes.focusBlockInfo as
+    | { type?: string; functionType?: string }
+    | null
     | undefined
+  const rawAffiliation = (changes.affiliation ?? []) as EngineAffiliationEntry[]
+  const affiliation = rawAffiliation.map((entry) => {
+    const functionType =
+      entry.type === 'pre' || entry.type === 'figure'
+        ? CONTAINER_FUNCTION_TYPE[entry.blockName]
+        : undefined
+    return functionType ? { ...entry, functionType } : entry
+  })
   return {
     start: {
       key: anchorPath.join('/'),
       offset: (changes.anchor?.offset ?? 0) as number,
-      block: anchorBlock,
-      type: changes.type as string | undefined
+      block: { functionType: anchorInfo?.functionType },
+      type: anchorInfo?.type
     },
     end: {
       key: focusPath.join('/'),
       offset: (changes.focus?.offset ?? 0) as number,
-      block: focusBlock,
-      type: changes.type as string | undefined
+      block: { functionType: focusInfo?.functionType },
+      type: focusInfo?.type
     },
-    affiliation: [] as Array<{ type: string; [key: string]: unknown }>
+    affiliation
   }
 }
 
