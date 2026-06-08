@@ -47,6 +47,28 @@ function verticalPosition(event: DragEvent, rect: DOMRect): 'up' | 'down' {
     return event.clientY > rect.top + rect.height / 2 ? 'down' : 'up';
 }
 
+// A single dragged image FILE: exactly one item, of an image MIME type.
+function isImageFileDrag(dataTransfer: DataTransfer): boolean {
+    return (
+        dataTransfer.items.length === 1
+        && dataTransfer.items[0].type.includes('image')
+    );
+}
+
+// The "image dragged from a browser" signature: a `text/uri-list` item that
+// also carries `text/html` but NOT `text/plain`. Mirrors legacy muyajs
+// (`dragDropCtrl.js` dragoverHandler) so that dragging a plain hyperlink — which
+// carries `text/uri-list` + `text/plain` — is left to the browser instead of
+// being intercepted and swallowed.
+function isWebImageDrag(dataTransfer: DataTransfer): boolean {
+    const items = Array.from(dataTransfer.items);
+    const hasUri = items.some(i => i.type === 'text/uri-list');
+    const hasHtml = items.some(i => i.type === 'text/html');
+    const hasText = items.some(i => i.type === 'text/plain');
+
+    return hasUri && hasHtml && !hasText;
+}
+
 // Resolve the drop target to an outermost block + insert position. Returns
 // `null` when the pointer is not over an editor content block.
 function resolveDropTarget(event: DragEvent): IDropTarget | null {
@@ -171,7 +193,15 @@ async function persistDroppedImage(
 }
 
 // Drop path 2 — a local image FILE. Resolve it to a path via the embedder
-// `getPathForFile` hook, insert a loading placeholder, then persist it.
+// `getPathForFile` hook, then insert it.
+//
+// When an `imageAction` hook is configured we insert a `![loading-id](path)`
+// placeholder and let `persistDroppedImage` swap in the persisted src once the
+// hook resolves (copy-to-assets / upload). Without the hook there is nothing to
+// persist to, so we insert a clean `![name](path)` with the raw path verbatim —
+// matching the documented `imageAction` contract and the imageEditTool's
+// direct-replacement behaviour (a permanent `loading-*` alt would otherwise be
+// left behind).
 function handleFileImage(
     muya: Muya,
     event: DragEvent,
@@ -187,6 +217,12 @@ function handleFileImage(
         return false;
 
     const { name } = image;
+
+    if (!muya.options.imageAction) {
+        insertImageParagraph(muya, target, `![${name}](${path})`);
+        return true;
+    }
+
     const loadingId = `loading-${getUniqueId()}`;
     insertImageParagraph(muya, target, `![${loadingId}](${path})`);
 
@@ -211,11 +247,10 @@ export function attachDragDropImageHandlers(muya: Muya): void {
         if (!dataTransfer)
             return;
 
-        const hasImageFile
-            = dataTransfer.items.length === 1
-                && dataTransfer.items[0].type.includes('image');
-        const hasUriList = dataTransfer.types.includes('text/uri-list');
-        if (!hasImageFile && !hasUriList)
+        // Only intercept a single image file or a likely web-image drag; leave
+        // everything else (plain hyperlinks, tab reordering, text) to the
+        // browser so we never suppress an unrelated default drop.
+        if (!isImageFileDrag(dataTransfer) && !isWebImageDrag(dataTransfer))
             return;
 
         const target = resolveDropTarget(dragEvent);
@@ -231,6 +266,10 @@ export function attachDragDropImageHandlers(muya: Muya): void {
 
     const dropHandler = (event: Event) => {
         const dragEvent = event as DragEvent;
+        const { dataTransfer } = dragEvent;
+        if (!dataTransfer)
+            return;
+
         hideGhost();
         const target = resolveDropTarget(dragEvent);
         if (!target)
@@ -238,9 +277,12 @@ export function attachDragDropImageHandlers(muya: Muya): void {
 
         // Try the file path first (a dropped image file also exposes a
         // synthetic `text/uri-list`, but the file branch is the intended one).
-        const inserted
-            = handleFileImage(muya, dragEvent, target)
-                || handleWebLinkImage(muya, dragEvent, target);
+        // Only fall through to the web-link branch for the likely-web-image
+        // signature, so a plain hyperlink drop is left to the browser rather
+        // than suppressed by `preventDefault()`.
+        let inserted = handleFileImage(muya, dragEvent, target);
+        if (!inserted && isWebImageDrag(dataTransfer))
+            inserted = handleWebLinkImage(muya, dragEvent, target);
 
         if (inserted)
             event.preventDefault();

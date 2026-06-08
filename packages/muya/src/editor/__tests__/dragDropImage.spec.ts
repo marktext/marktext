@@ -150,6 +150,23 @@ describe('attachDragDropImageHandlers — local image FILE', () => {
         });
     });
 
+    it('inserts a clean `![name](path)` (no loading placeholder) when imageAction is absent', () => {
+        const getPathForFile = vi.fn().mockReturnValue('/abs/shot.png');
+        const muya = makeMuya({ getPathForFile });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        const file = new File(['x'], 'shot.png', { type: 'image/png' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+
+        // Raw path is used verbatim — no permanent `loading-*` alt is left.
+        expect(createdBlocks).toHaveLength(1);
+        expect(createdBlocks[0].text).toBe('![shot.png](/abs/shot.png)');
+    });
+
     it('does nothing when getPathForFile yields no path', () => {
         const imageAction = vi.fn().mockResolvedValue('x');
         const getPathForFile = vi.fn().mockReturnValue('');
@@ -168,14 +185,23 @@ describe('attachDragDropImageHandlers — local image FILE', () => {
     });
 });
 
+// A browser image drag carries `text/uri-list` + `text/html` and (crucially)
+// NO `text/plain`; a plain hyperlink drag additionally carries `text/plain`.
+// The handler gates on that signature so it intercepts only likely images.
+function webImageDataTransfer(url: string): DataTransfer {
+    const dt = new DataTransfer();
+    dt.items.add(url, 'text/uri-list');
+    dt.items.add(`<img src="${url}">`, 'text/html');
+    return dt;
+}
+
 describe('attachDragDropImageHandlers — web-link image', () => {
-    it('inserts `![](url)` for an image URL carried as text/uri-list', () => {
+    it('inserts `![](url)` for an image URL dragged from a browser', () => {
         const muya = makeMuya();
         const contentDom = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
 
-        const dt = new DataTransfer();
-        dt.items.add('https://example.com/pic.png', 'text/uri-list');
+        const dt = webImageDataTransfer('https://example.com/pic.png');
 
         muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
 
@@ -186,13 +212,29 @@ describe('attachDragDropImageHandlers — web-link image', () => {
         expect(createdBlocks[0].insertedBefore).toBe(true);
     });
 
-    it('ignores a non-image, non-URL text/uri-list payload', () => {
+    it('ignores a non-image URL even with the web-image signature', () => {
         const muya = makeMuya();
         const contentDom = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
 
+        // Well-formed signature, but the URL is not an image and the
+        // content-type sniff (HEAD fetch) fails under happy-dom → no insert.
+        const dt = webImageDataTransfer('https://example.com/page.html');
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+
+        expect(createdBlocks).toHaveLength(0);
+    });
+
+    it('ignores a plain hyperlink drag (uri-list + text/plain, no html)', () => {
+        const muya = makeMuya();
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        // The "dragged a normal link" shape — must be left to the browser.
         const dt = new DataTransfer();
-        dt.items.add('not-a-url', 'text/uri-list');
+        dt.items.add('https://example.com/pic.png', 'text/uri-list');
+        dt.items.add('https://example.com/pic.png', 'text/plain');
 
         muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
 
