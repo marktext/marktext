@@ -175,6 +175,44 @@ export class Muya {
     }
 
     /**
+     * Return the current selection, or null when the editor has no selection.
+     */
+    getSelection() {
+        return this.editor.selection.getSelection();
+    }
+
+    /**
+     * Whether the editor (or one of its descendants) currently holds focus.
+     */
+    hasFocus() {
+        const { activeElement } = document;
+
+        return this.domNode === activeElement || this.domNode.contains(activeElement);
+    }
+
+    /**
+     * Blur the editor.
+     * @param unfocus Also blur the underlying contenteditable DOM node.
+     * @param clearSelection Clear the current selection.
+     */
+    blur(unfocus = false, clearSelection = false) {
+        if (clearSelection)
+            this.editor.selection.setSelection({ anchor: null, focus: null });
+
+        this.editor.activeContentBlock = null;
+
+        if (unfocus)
+            this.domNode.blur();
+    }
+
+    /**
+     * Hide every floating tool/menu (toolbars, pickers, front button, …).
+     */
+    hideAllFloatTools() {
+        this.ui.hideAllFloatTools();
+    }
+
+    /**
      * Copy the current document as Markdown to the clipboard.
      */
     copyAsMarkdown() {
