@@ -449,6 +449,17 @@ export class Muya {
     }
 
     /**
+     * Copy the current selection as rich text to the clipboard: the rendered
+     * HTML goes in the `text/html` slot so a rich-text target (Word, email, a
+     * contenteditable) renders formatting, and the markdown source goes in the
+     * `text/plain` slot. Unlike {@link copyAsHtml}, which blanks `text/html`
+     * and drops the markup into `text/plain` as literal source.
+     */
+    copyAsRich() {
+        this.editor.clipboard.copyAsRich();
+    }
+
+    /**
      * Paste the clipboard content as plain text at the current cursor.
      */
     pasteAsPlainText() {

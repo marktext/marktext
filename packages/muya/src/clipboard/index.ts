@@ -353,6 +353,19 @@ class Clipboard {
                 break;
             }
 
+            // "Copy as Rich Text": put the rendered HTML in the html slot so a
+            // rich-text target (Word, email, contenteditable) renders formatted
+            // content, and keep the markdown source in the plain slot. Mirrors
+            // the `normal` branch; `copyAsHtml` instead blanks text/html and
+            // drops the markup into text/plain as literal source.
+            case 'copyAsRich': {
+                if (text.length === 0)
+                    return;
+                event.clipboardData.setData('text/html', html);
+                event.clipboardData.setData('text/plain', text);
+                break;
+            }
+
             case 'copyAsMarkdown': {
                 if (text.length === 0)
                     return;
@@ -809,6 +822,12 @@ class Clipboard {
 
     copyAsHtml() {
         this.copyType = 'copyAsHtml';
+        document.execCommand('copy');
+        this.copyType = 'normal';
+    }
+
+    copyAsRich() {
+        this.copyType = 'copyAsRich';
         document.execCommand('copy');
         this.copyType = 'normal';
     }
