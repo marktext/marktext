@@ -131,6 +131,21 @@ describe('format-click on images', () => {
         expect(payload.data).toBe(src);
     });
 
+    it('emits image format-click on a Ctrl-click (non-macOS modifier)', () => {
+        const src = 'https://example.com/x.png';
+        const { muya, img } = bootImage(src);
+
+        const handler = vi.fn();
+        muya.on('format-click', handler);
+
+        dispatchClick(img, { ctrlKey: true });
+
+        expect(handler).toHaveBeenCalledTimes(1);
+        const payload = handler.mock.calls[0][0];
+        expect(payload.formatType).toBe('image');
+        expect(payload.data).toBe(src);
+    });
+
     it('does NOT emit format-click on a plain (no-modifier) image click', () => {
         const { muya, img } = bootImage('https://example.com/x.png');
 
