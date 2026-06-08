@@ -2,6 +2,7 @@ import type Content from './block/base/content';
 import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
+import type { IIndexCursor } from './selection/offsetCursor';
 import type { ICursor } from './selection/types';
 import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
@@ -19,6 +20,7 @@ import { Editor } from './editor/index';
 
 import EventCenter from './event/index';
 import I18n from './i18n/index';
+import { injectSentinels, resolveSentinelCursor } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState } from './state/types';
 import { replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
@@ -715,6 +717,40 @@ export class Muya {
             focusBlock,
             focusPath: focusBlock.path,
         });
+    }
+
+    /**
+     * Restore the WYSIWYG caret from a source-mode (CodeMirror) `{ line, ch }`
+     * index cursor (PG2 parity). The block tree has no source-line mapping, so
+     * the offsets are resolved the way legacy muyajs did: inject sentinel
+     * strings into the current markdown at the line/ch positions, rebuild the
+     * tree (sentinels embed as literal text), find which content blocks they
+     * landed in, then rebuild the clean document and set the cursor by the
+     * resolved block paths + offsets. The sentinel-bearing tree is transient —
+     * both `setContent` calls run synchronously within this task, so no
+     * intermediate paint happens. No-op (returns `false`) when the cursor is
+     * stale / unresolvable, letting the caller fall back to its default.
+     */
+    setCursorByOffset(indexCursor: IIndexCursor): boolean {
+        const { scrollPage } = this.editor;
+        if (!scrollPage)
+            return false;
+
+        const cleanMarkdown = this.getMarkdown();
+        const sentinelMarkdown = injectSentinels(cleanMarkdown, indexCursor);
+        if (sentinelMarkdown == null)
+            return false;
+
+        this.editor.setContent(sentinelMarkdown);
+        const cursor = resolveSentinelCursor(this.editor.scrollPage!);
+        this.editor.setContent(cleanMarkdown);
+
+        if (!cursor)
+            return false;
+
+        this.setCursor(cursor);
+
+        return true;
     }
 
     /**
