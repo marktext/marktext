@@ -36,7 +36,9 @@
 
     /* markdown element colors — defaults mirror the current hardcoded /
        opacity-tier values so the bundled light theme renders identically.
-       Desktop themes drive these via their own kebab-cased overrides. */
+       Consumers override them per theme. The desktop themes currently use
+       camelCase names (e.g. --linkColor, --h1Color); they will be migrated
+       to these kebab-case names as part of the muyajs -> @muyajs/core move. */
     --link-color: rgb(20 86 240);
     --h1-color: var(--editor-color-80);
     --h2-color: var(--editor-color-80);
