@@ -935,10 +935,11 @@ const handleSelectAll = () => {
 }
 
 // Custom copyAsRich copyAsHtml pasteAsPlainText.
-// The engine has no `copyAsRich`; the legacy "copy as rich text" maps to
-// `copyAsHtml` (copies the rendered HTML of the selection).
-const COPY_PASTE_METHOD_MAP: Record<string, 'copyAsHtml' | 'pasteAsPlainText'> = {
-  copyAsRich: 'copyAsHtml',
+// `copyAsRich` writes the rendered HTML to `text/html` AND the plain text to
+// `text/plain`, so pasting into Word/email yields formatted rich text (whereas
+// `copyAsHtml` blanks `text/html` and puts the HTML source into `text/plain`).
+const COPY_PASTE_METHOD_MAP: Record<string, 'copyAsRich' | 'copyAsHtml' | 'pasteAsPlainText'> = {
+  copyAsRich: 'copyAsRich',
   copyAsHtml: 'copyAsHtml',
   pasteAsPlainText: 'pasteAsPlainText'
 }
