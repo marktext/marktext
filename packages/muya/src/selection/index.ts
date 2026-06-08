@@ -8,7 +8,7 @@ import type { Muya } from '../muya';
 import type { ICursor, INodeOffset, ISelection } from './types';
 import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
 import { isElement, isHTMLElement, isKeyboardEvent, isMouseEvent } from '../utils';
-import { getImageInfo } from '../utils/image';
+import { getImageInfo, getImageSrc } from '../utils/image';
 import {
     compareParagraphsOrder,
     findContentDOM,
@@ -565,6 +565,28 @@ class Selection {
 
         // Handle image click, to select the current image
         if (isHTMLElement(target) && target.tagName === 'IMG') {
+            // Cmd/Ctrl-click an image → ask the host to preview it. marktext's
+            // `clickEvent.js` dispatched `format-click` with `{ event,
+            // formatType: 'image', data: <src> }`; the desktop renderer
+            // (`editor.vue` `format-click` handler) gates on the modifier and
+            // opens a `SimpleImageViewer` with that src string. We resolve the
+            // src from the token (the same source path the renderer used)
+            // through `getImageSrc` so relative/file paths become loadable
+            // URLs, falling back to the rendered <img>'s own `src` attribute.
+            // The plain-click select/toolbar/transformer path below is left
+            // untouched.
+            if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
+                const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
+                const src = getImageSrc(tokenSrc).src || target.getAttribute('src') || '';
+                if (src) {
+                    eventCenter.emit('format-click', {
+                        event,
+                        formatType: 'image',
+                        data: src,
+                    });
+                }
+            }
+
             // Handle show image toolbar
             const rect = imageWrapper
                 .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
