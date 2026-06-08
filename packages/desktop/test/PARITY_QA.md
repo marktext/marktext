@@ -45,10 +45,12 @@ original absolute path).
 ## PG5 — Binary/bitmap clipboard image paste (screenshot, browser "Copy Image")
 
 **Why manual:** this needs a real bitmap on the OS clipboard (no file path). The
-engine-unit half — that a synthetic `clipboardData.files` PNG is persisted via
-`imageAction` — is covered in
-`packages/muya/src/clipboard/__tests__/parityImagePaste.spec.ts` (PG5). The full
-OS-clipboard + macOS `screencapture` integration can only be verified by hand.
+engine-unit half — that a synthetic `clipboardData.files` PNG is read into a
+base64 `data:` URL and persisted via `imageAction` — is now **implemented and
+passing** in
+`packages/muya/src/clipboard/__tests__/parityImagePaste.spec.ts` (PG5; the
+`it.fails` marker is removed). The full OS-clipboard + macOS `screencapture`
+integration can only be verified by hand and stays manual.
 
 ### Steps — browser "Copy Image"
 1. In a browser, right-click an image → **Copy Image** (puts a bitmap, not a
@@ -78,6 +80,8 @@ silently dead.
   engine paste/drop handler with a synthetic `DataTransfer` where the platform
   allows it, and keep this manual entry only for the OS-integration parts that
   remain un-automatable.
-- PG5 already has an engine-unit regression test; closing the engine half flips
-  that `it.fails` to passing. This manual entry covers the desktop OS-clipboard
-  delivery the unit test cannot reach.
+- PG5's engine half is now closed: the binary-paste branch reads
+  `clipboardData.files` → base64 `data:` URL → `imageAction`, and the
+  regression test's `it.fails` is now a passing `it`. This manual entry covers
+  only the desktop OS-clipboard delivery (real bitmap, macOS `screencapture`)
+  the unit test cannot reach.

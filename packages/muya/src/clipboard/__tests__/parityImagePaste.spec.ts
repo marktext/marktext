@@ -19,8 +19,9 @@ import { describe, expect, it, vi } from 'vitest';
 // has no `getAsFile`/`FileReader`/`clipboardData.files` path at all, so a
 // bitmap-only clipboard (screenshot, browser "Copy Image") inserts nothing.
 //
-// Both assert the DESIRED behaviour and are expected to FAIL today. When the
-// engine restores the `imageAction`-routed paste, drop the `.fails`.
+// Both assert the DESIRED behaviour. The engine now routes pasted images
+// (resolved file paths and in-memory bitmaps) through `options.imageAction`
+// (PG05/PG06), so they pass.
 
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim so the test can run under Node
@@ -97,7 +98,7 @@ function makePasteEvent(
 }
 
 describe('parity PG6: pasted image FILE routes through imageAction', () => {
-    it.fails(
+    it(
         'PG6: a resolved clipboard image path is persisted via options.imageAction (insert preference)',
         async () => {
             const clipboardFilePath = vi.fn().mockResolvedValue('/abs/photo.png');
@@ -124,7 +125,7 @@ describe('parity PG6: pasted image FILE routes through imageAction', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG6: the persisted (rewritten) src — not the raw on-disk path — is inserted',
         async () => {
             const clipboardFilePath = vi.fn().mockResolvedValue('/abs/photo.png');
@@ -147,7 +148,7 @@ describe('parity PG6: pasted image FILE routes through imageAction', () => {
 });
 
 describe('parity PG5: binary/bitmap clipboard image paste', () => {
-    it.fails(
+    it(
         'PG5: a bitmap-only clipboard (no file path) inserts an image via imageAction',
         async () => {
             // No clipboardFilePath hook resolves a path: the only data is an

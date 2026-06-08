@@ -14,10 +14,9 @@ import { describe, expect, it, vi } from 'vitest';
 // copyType already does the rich thing (`text/html = html`,
 // `text/plain = text`) but is not exposed as a method/copyType.
 //
-// These tests assert the DESIRED `copyAsRich` behaviour and are expected to
-// FAIL today (the branch doesn't exist, so `copyHandler` writes nothing for
-// `copyType = 'copyAsRich'`). When the engine adds the `copyAsRich` copyType +
-// `copyAsRich()` method, drop the `.fails`.
+// These tests assert the DESIRED `copyAsRich` behaviour. The engine now adds
+// the `copyAsRich` copyType in `copyHandler` plus the `copyAsRich()` method on
+// `Clipboard`/`Muya` (PG-COPYRICH), so they pass.
 
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim so the test can run under Node.
@@ -47,7 +46,7 @@ function makeClipboard(html: string, text: string) {
 }
 
 describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
-    it.fails(
+    it(
         'PG9: copyAsRich sets text/html=rendered html AND text/plain=text',
         () => {
             const html = '<h1>Title</h1><p><strong>bold</strong></p>';
@@ -65,7 +64,7 @@ describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG9: copyAsRich puts the rendered HTML in the text/html slot (unlike copyAsHtml)',
         () => {
             const html = '<p>rich</p>';
