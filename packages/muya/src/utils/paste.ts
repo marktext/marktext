@@ -152,6 +152,79 @@ export async function resolveClipboardImagePath(
 }
 
 /**
+ * Extract an in-memory image `File` from a paste `DataTransfer`.
+ *
+ * Covers the bitmap clipboard case (PG05): screenshots and browser
+ * "Copy Image" put image bytes — not a file path — on the clipboard. We
+ * prefer `clipboardData.files` and fall back to scanning `clipboardData.items`
+ * for the first `image/*` entry. Returns `null` when no image is present.
+ *
+ * Ported from the legacy `@muyajs` `pasteImage` `items[i].getAsFile()` snapshot.
+ */
+export function getClipboardImageFile(
+    clipboardData: DataTransfer | null,
+): File | null {
+    if (!clipboardData)
+        return null;
+
+    const { files, items } = clipboardData;
+
+    if (files && files.length > 0) {
+        for (const file of Array.from(files)) {
+            if (file.type.startsWith('image/'))
+                return file;
+        }
+    }
+
+    if (items) {
+        for (const item of Array.from(items)) {
+            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file)
+                    return file;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Read a `File`/`Blob` as a base64 `data:` URL.
+ *
+ * Used to turn a pasted bitmap (PG05) into a `data:` URL that the embedder's
+ * `imageAction` can persist. Prefers the native {@link FileReader}
+ * (`readAsDataURL`), matching the legacy `@muyajs` path and covering the
+ * `chrome70` build target where `Blob.arrayBuffer()` is unavailable; falls
+ * back to `Blob.arrayBuffer()` + `btoa` where `FileReader` is absent (e.g. the
+ * Node test environment). Resolves to `''` on read error.
+ */
+export function readFileAsDataURL(file: File): Promise<string> {
+    if (typeof FileReader !== 'undefined') {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                resolve(typeof reader.result === 'string' ? reader.result : '');
+            });
+            reader.addEventListener('error', () => resolve(''));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    return file
+        .arrayBuffer()
+        .then((buffer) => {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++)
+                binary += String.fromCharCode(bytes[i]);
+            const base64 = btoa(binary);
+            return `data:${file.type};base64,${base64}`;
+        })
+        .catch(() => '');
+}
+
+/**
  *
  * @param {string} html
  * @param {string} text

@@ -50,6 +50,33 @@ export interface IMuyaOptions {
      * Ported from the legacy `@muyajs` `clipboardFilePath` option.
      */
     clipboardFilePath?: () => Promise<string>;
+    /**
+     * Persist an image per the embedder's insert preference (copy into the
+     * document's assets folder, upload to an image host, or keep the path) and
+     * resolve to the src that should be written into the document.
+     *
+     * Invoked on paste — both when a clipboard FILE path is resolved (PG06)
+     * and when an in-memory bitmap is read from `clipboardData` (PG05) — and
+     * by the image-edit toolbar. `src` is an absolute local path (or a
+     * `data:` URL for a freshly pasted bitmap). Returning the original `src`
+     * keeps the path as-is.
+     *
+     * Ported from the legacy `@muyajs` `imageAction` option.
+     */
+    imageAction?: (state: IImageActionState) => Promise<string>;
+}
+
+/**
+ * Image descriptor passed to {@link IMuyaOptions.imageAction}. Mirrors the
+ * `{ src, alt, title }` shape used by the image-edit toolbar.
+ */
+export interface IImageActionState {
+    /** Image source — an absolute local path or a `data:` URL for a bitmap. */
+    src: string;
+    /** Image alt text. */
+    alt: string;
+    /** Image title. */
+    title: string;
 }
 
 export type Nullable<T> = T | null | undefined | void;

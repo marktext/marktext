@@ -15,11 +15,11 @@ import StateToMarkdown from '../state/stateToMarkdown';
 import { isAnyListState, isParagraphState } from '../state/types';
 import { deepClone, isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipBoardHtml } from '../utils/marked';
-import { getCopyTextType, isStandaloneTableHtml, normalizePastedHTML, resolveClipboardImagePath } from '../utils/paste';
+import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML, readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 
 class Clipboard {
-    public copyType: string = 'normal'; // `normal` or `copyAsMarkdown` or `copyAsHtml` or `copyCodeContent`
+    public copyType: string = 'normal'; // `normal` or `copyAsMarkdown` or `copyAsHtml` or `copyAsRich` or `copyCodeContent`
     public pasteType: string = 'normal'; // `normal` or `pasteAsPlainText`
     public copyInfo: string = '';
 
@@ -640,6 +640,10 @@ class Clipboard {
         // detached) clipboard.
         const text = rawText ?? event.clipboardData.getData('text/plain');
         let html = rawHtml ?? event.clipboardData.getData('text/html');
+        // Snapshot any in-memory image File (the bitmap / "Copy Image" /
+        // screenshot case, PG05) synchronously too — `clipboardData.files`
+        // is also detached after the first `await`.
+        const imageFile = getClipboardImageFile(event.clipboardData);
 
         if (!isSelectionInSameBlock) {
             this.cutHandler();
@@ -647,17 +651,11 @@ class Clipboard {
             return this.pasteHandler(event, text, html);
         }
 
-        // When the OS clipboard holds a file (e.g. an image copied from a
-        // file manager), let the embedder resolve it to a local path and
-        // insert it as an inline image, short-circuiting the text/HTML paste.
-        // Ported from the legacy `@muyajs` `clipboardFilePath` hook.
-        const imagePath = await resolveClipboardImagePath(
-            muya.options.clipboardFilePath,
-        );
-        if (imagePath) {
-            this.insertImagePath(anchorBlock, imagePath);
+        // When the clipboard holds an image — either a file resolved to a path
+        // (PG06) or an in-memory bitmap (PG05) — insert it as an inline image
+        // routed through `imageAction`, short-circuiting the text/HTML paste.
+        if (await this.tryPasteImage(anchorBlock, imageFile))
             return;
-        }
 
         // Support pasted URLs from Firefox.
         if (URL_REG.test(text) && !/\s/.test(text) && !html)
@@ -784,16 +782,66 @@ class Clipboard {
     }
 
     /**
-     * Insert a resolved clipboard file path as an inline image at the cursor.
+     * Insert a pasted image when the clipboard carries one. Tries a resolved
+     * clipboard FILE path first (PG06, via the `clipboardFilePath` hook), then
+     * an in-memory bitmap File (PG05, read as a base64 `data:` URL). Returns
+     * `true` when an image was inserted so the caller skips the text/HTML
+     * paste, `false` to fall through. Ported from the legacy `@muyajs`
+     * `pasteImage` ordering (file path, then binary).
+     */
+    private async tryPasteImage(
+        anchorBlock: Content,
+        imageFile: Nullable<File>,
+    ): Promise<boolean> {
+        const imagePath = await resolveClipboardImagePath(
+            this.muya.options.clipboardFilePath,
+        );
+        if (imagePath) {
+            await this.insertImageSrc(anchorBlock, imagePath);
+            return true;
+        }
+
+        if (imageFile) {
+            const dataUrl = await readFileAsDataURL(imageFile);
+            if (dataUrl) {
+                await this.insertImageSrc(anchorBlock, dataUrl);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Insert a pasted image at the cursor, routing it through the embedder's
+     * `imageAction` first so the user's insert preference (copy-to-assets /
+     * upload / keep-path) applies and a portable src is written. `src` is
+     * either a resolved clipboard file path (PG06) or a `data:` URL for an
+     * in-memory bitmap (PG05). When no `imageAction` is configured the src is
+     * inserted as-is, preserving the legacy file-path behaviour.
+     */
+    private async insertImageSrc(anchorBlock: Content, src: string): Promise<void> {
+        let finalSrc = src;
+        const { imageAction } = this.muya.options;
+        if (imageAction) {
+            const resolved = await imageAction({ src, alt: '', title: '' });
+            if (resolved)
+                finalSrc = resolved;
+        }
+
+        this.insertImageText(anchorBlock, finalSrc);
+    }
+
+    /**
+     * Splice `![](src)` into the anchor block at the current selection.
      *
      * Inline images in muya are plain markdown text (`![](src)`) on a content
-     * block; rendering turns the token into an image. We splice the image
-     * markdown into the anchor block at the current selection (replacing any
-     * collapsed/expanded range) and place the cursor after it. The src is
+     * block; rendering turns the token into an image. We replace any
+     * collapsed/expanded range and place the cursor after it. The src is
      * escaped the same way as {@link Format.replaceImage} so spaces and `#`
      * survive in the path.
      */
-    private insertImagePath(anchorBlock: Content, src: string): void {
+    private insertImageText(anchorBlock: Content, src: string): void {
         const cursor = anchorBlock.getCursor();
         if (!cursor)
             return;
