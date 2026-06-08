@@ -1,0 +1,129 @@
+// @vitest-environment happy-dom
+
+import type Content from '../block/base/content';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Muya } from '../muya';
+
+// PARITY SCOREBOARD — gap PG13 (file PG11/PG13, "insert-paragraph anchor").
+//
+// Legacy `packages/muyajs` `insertParagraph(location, text, outMost=false)`
+// chose the insertion anchor via `getAnchor(block)` (the IMMEDIATE enclosing
+// block) for the context-menu / Paragraph-menu Insert-Paragraph path, and only
+// used `findOutMostBlock` for the explicit "Create Paragraph Below" action. So
+// inserting a paragraph while the cursor sat inside a list item / blockquote
+// landed the new paragraph as an inner sibling, INSIDE the structure.
+//
+// `@muyajs/core`'s `insertParagraph(location, text)` ALWAYS resolves the target
+// via `_outmostBlockAtCursor()` → `outMostBlock` (the OUTERMOST container). So
+// in a nested list/blockquote the new paragraph lands AFTER the entire outer
+// block (at document root) instead of as an inner sibling.
+//
+// This asserts the DESIRED immediate-anchor behaviour and is expected to FAIL
+// today. When the engine restores the immediate-anchor path, drop the `.fails`.
+
+const bootedHosts: HTMLElement[] = [];
+let originalVersion: string | undefined;
+let hadVersion = false;
+
+beforeEach(() => {
+    hadVersion = 'MUYA_VERSION' in window;
+    originalVersion = window.MUYA_VERSION;
+    window.MUYA_VERSION = 'test';
+});
+
+afterEach(() => {
+    while (bootedHosts.length) {
+        const host = bootedHosts.pop()!;
+        host.remove();
+    }
+    if (hadVersion)
+        window.MUYA_VERSION = originalVersion as string;
+    else
+        delete (window as Partial<Window>).MUYA_VERSION;
+});
+
+function bootMuya(markdown: string): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+// Find the leaf content block whose text matches `text` and place the cursor on
+// it (the way a click sets `activeContentBlock`).
+function placeCursorOn(muya: Muya, text: string): Content {
+    let target: Content | null = null;
+    const visit = (block: { text?: string; constructor: { blockName?: string }; children?: { forEach: (cb: (b: unknown) => void) => void } }) => {
+        if (
+            (block.constructor as { blockName?: string }).blockName?.endsWith('.content')
+            && block.text === text
+        ) {
+            target = block as unknown as Content;
+        }
+        block.children?.forEach(b => visit(b as typeof block));
+    };
+    visit(muya.editor.scrollPage as unknown as Parameters<typeof visit>[0]);
+    if (!target)
+        throw new Error(`content block with text "${text}" not found`);
+    muya.editor.activeContentBlock = target;
+    return target;
+}
+
+interface StateNode { name: string; text?: string; children?: StateNode[] }
+
+// Does any block at the TOP level of the document carry this text directly?
+function topLevelHasParagraph(muya: Muya, text: string): boolean {
+    return (muya.getState() as unknown as StateNode[]).some(
+        node => node.name === 'paragraph' && node.text === text,
+    );
+}
+
+// Is the text present anywhere in the (nested) document state?
+function existsAnywhere(muya: Muya, text: string): boolean {
+    return JSON.stringify(muya.getState()).includes(text);
+}
+
+describe('parity PG13: insertParagraph anchors to the immediate block in nested structures', () => {
+    it.fails(
+        'PG13: inserting after a nested list item keeps the new paragraph inside the list, not at document root',
+        async () => {
+            const muya = bootMuya('- outer\n\n  - inner1\n  - inner2\n');
+            placeCursorOn(muya, 'inner1');
+
+            muya.insertParagraph('after', 'INNERSIBLING');
+
+            await vi.waitFor(() => {
+                expect(existsAnywhere(muya, 'INNERSIBLING')).toBe(true);
+            });
+
+            // Desired: the new paragraph is an INNER sibling — the top-level
+            // block count is unchanged (still just the one bullet-list) and the
+            // paragraph is NOT a root-level sibling. Today it lands at root.
+            expect(muya.getState().length).toBe(1);
+            expect(topLevelHasParagraph(muya, 'INNERSIBLING')).toBe(false);
+        },
+    );
+
+    it.fails(
+        'PG13: inserting after a paragraph inside a blockquote stays inside the blockquote',
+        async () => {
+            const muya = bootMuya('> quoted line\n');
+            placeCursorOn(muya, 'quoted line');
+
+            muya.insertParagraph('after', 'QUOTESIBLING');
+
+            await vi.waitFor(() => {
+                expect(existsAnywhere(muya, 'QUOTESIBLING')).toBe(true);
+            });
+
+            // Desired: still a single top-level block (the blockquote) with the
+            // new paragraph nested inside it. Today it lands after the quote at
+            // document root.
+            expect(muya.getState().length).toBe(1);
+            expect(muya.getState()[0].name).toBe('block-quote');
+            expect(topLevelHasParagraph(muya, 'QUOTESIBLING')).toBe(false);
+        },
+    );
+});
