@@ -1,5 +1,6 @@
 import type { ILexOption } from './types';
 import { Marked } from 'marked';
+import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import mathExtension from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
@@ -21,6 +22,10 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     marked.use({
         walkTokens: walkTokens({ math, isGitlabCompatibilityEnabled }),
     });
+
+    // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
+    // clipboard HTML consistent with the static / export render path.
+    marked.use(cjkEmStrongExtension());
 
     if (math) {
         marked.use(

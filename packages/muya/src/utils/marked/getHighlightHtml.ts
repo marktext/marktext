@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
+import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
 import mathExtension from './extensions/math';
@@ -48,6 +49,11 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     marked.use({
         walkTokens: walkTokens({ math, isGitlabCompatibilityEnabled }),
     });
+
+    // Treat CJK characters as punctuation for emphasis/strong flanking so
+    // `中文**"加粗"**中文` bolds (marktext/marktext#4307). Additive override —
+    // never regresses spec-conformant Latin emphasis.
+    marked.use(cjkEmStrongExtension());
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
 
