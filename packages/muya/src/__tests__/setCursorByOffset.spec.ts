@@ -111,4 +111,29 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         const muya = bootMuya('text\n');
         expect(muya.setCursorByOffset({ anchor: null, focus: null })).toBe(false);
     });
+
+    it('PG2: preserves the undo history across the internal setContent rebuild', async () => {
+        const muya = bootMuya('alpha\n');
+        // Seed a non-empty undo stack so we can detect a clobber. The text-setter
+        // op flushes to the history on the next frame (JSONState._emitStateChange).
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        first.setCursor(5, 5, true);
+        muya.editor.activeContentBlock = first;
+        first.text = 'alpha beta';
+        await vi.waitFor(() => {
+            expect(muya.getHistory().stack.undo.length).toBeGreaterThan(0);
+        });
+        const before = muya.getHistory();
+
+        const restored = muya.setCursorByOffset({
+            anchor: { line: 0, ch: 3 },
+            focus: { line: 0, ch: 3 },
+        });
+        expect(restored).toBe(true);
+
+        // The undo stack survives the caret-restore (setContent would otherwise
+        // have cleared it).
+        const after = muya.getHistory();
+        expect(after.stack.undo.length).toBe(before.stack.undo.length);
+    });
 });

@@ -728,8 +728,13 @@ export class Muya {
      * landed in, then rebuild the clean document and set the cursor by the
      * resolved block paths + offsets. The sentinel-bearing tree is transient —
      * both `setContent` calls run synchronously within this task, so no
-     * intermediate paint happens. No-op (returns `false`) when the cursor is
-     * stale / unresolvable, letting the caller fall back to its default.
+     * intermediate paint happens.
+     *
+     * `Editor.setContent` clears the undo history, so this method snapshots the
+     * history before its internal rebuild and restores it afterwards — the undo
+     * stack is preserved, leaving only the caret changed. No-op (returns
+     * `false`) when the cursor is stale / unresolvable, letting the caller fall
+     * back to its default.
      */
     setCursorByOffset(indexCursor: IIndexCursor): boolean {
         const { scrollPage } = this.editor;
@@ -741,9 +746,14 @@ export class Muya {
         if (sentinelMarkdown == null)
             return false;
 
+        // Preserve the undo history across the internal setContent rebuild
+        // (setContent clears it) so this stays a caret-only operation.
+        const savedHistory = this.getHistory();
+
         this.editor.setContent(sentinelMarkdown);
         const cursor = resolveSentinelCursor(this.editor.scrollPage!);
         this.editor.setContent(cleanMarkdown);
+        this.setHistory(savedHistory);
 
         if (!cursor)
             return false;

@@ -335,19 +335,25 @@ interface EngineAffiliationEntry {
 // The engine's `selection-change` payload (since #4410) carries an
 // `affiliation` chain (shared-ancestor paragraph-type blocks, outermost-first)
 // plus per-endpoint `anchorBlockInfo`/`focusBlockInfo` describing the content
-// leaf (`type: 'span'` + `functionType`). The desktop's application-menu state
-// builder (`createApplicationMenuState`) was written against the legacy
-// `{ start, end, affiliation }` shape, so map the new payload onto it:
+// leaf (`type: 'span'` + `functionType`), alongside the live `anchorBlock`/
+// `focusBlock` refs (which carry `.text`). The desktop's application-menu state
+// builder (`createApplicationMenuState`) and the selected-text derivation in
+// `SELECTION_CHANGE` were written against the legacy `{ start, end, affiliation }`
+// shape, so map the new payload onto it:
 //   - `start.type`/`end.type` from the leaf info (`'span'`) so the
 //     `start.type === 'span'` guards fire,
 //   - `start.block.functionType`/`end.block.functionType` from the leaf info so
 //     code-content / table-cell detection lights up,
+//   - `start.block.text`/`end.block.text` from the live block so the store can
+//     still slice the selected text (`SELECTION_CHANGE` → search prefill),
 //   - `affiliation` straight through (entries already carry `type` +
 //     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
 //     `functionType` on `pre`/`figure` containers for table / code-fence keys.
 const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
   const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
+  const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
+  const focusBlock = changes.focusBlock as { text?: string } | null | undefined
   const anchorInfo = changes.anchorBlockInfo as
     | { type?: string; functionType?: string }
     | null
@@ -368,13 +374,13 @@ const adaptSelectionChange = (changes: MuyaChange) => {
     start: {
       key: anchorPath.join('/'),
       offset: (changes.anchor?.offset ?? 0) as number,
-      block: { functionType: anchorInfo?.functionType },
+      block: { text: anchorBlock?.text, functionType: anchorInfo?.functionType },
       type: anchorInfo?.type
     },
     end: {
       key: focusPath.join('/'),
       offset: (changes.focus?.offset ?? 0) as number,
-      block: { functionType: focusInfo?.functionType },
+      block: { text: focusBlock?.text, functionType: focusInfo?.functionType },
       type: focusInfo?.type
     },
     affiliation
@@ -1307,18 +1313,18 @@ interface FileChangePayload {
 
 // A source-mode (CodeMirror) index cursor: `{ anchor, focus }` in `{ line, ch }`
 // coordinates. Produced by sourceCode.vue and carried on `file-changed` as
-// `muyaIndexCursor` when handing a tab back to WYSIWYG.
+// `muyaIndexCursor` when handing a tab back to WYSIWYG. Both `line` AND `ch`
+// must be present numbers — otherwise the engine would clamp a missing `ch` to
+// 0 and silently restore the caret to the wrong column.
+const isIndexPosition = (pos: unknown): pos is { line: number; ch: number } => {
+  const p = pos as { line?: unknown; ch?: unknown } | null
+  return !!p && typeof p.line === 'number' && typeof p.ch === 'number'
+}
 const isIndexCursor = (
   cursor: unknown
 ): cursor is { anchor: { line: number; ch: number }; focus: { line: number; ch: number } } => {
-  const c = cursor as { anchor?: { line?: unknown }; focus?: { line?: unknown } } | null
-  return (
-    !!c &&
-    !!c.anchor &&
-    !!c.focus &&
-    typeof c.anchor.line === 'number' &&
-    typeof c.focus.line === 'number'
-  )
+  const c = cursor as { anchor?: unknown; focus?: unknown } | null
+  return !!c && isIndexPosition(c.anchor) && isIndexPosition(c.focus)
 }
 
 // listen for markdown change form source mode or change tabs etc
