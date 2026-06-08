@@ -1,5 +1,14 @@
+// `escapeHTML`/`unescapeHTML` are migrated to @muyajs/core (identical impl).
+import { escapeHTML, unescapeHTML } from '@muyajs/core'
+// NOTE: `Slugger` is intentionally still sourced from the legacy muyajs engine.
+// The TOC anchors produced here (`#${slugger.slug(content)}`) must match the
+// heading `id` attributes in the exported document, and those ids are emitted
+// by the muyajs export renderer (`Muya#exportStyledHTML`) via the SAME Slugger.
+// editor.vue — and therefore the export render path — is still on muyajs in
+// this PR, so swapping to @muyajs/core's `generateGithubSlug` (a different
+// algorithm with no dedup/unicode downcoding) would break in-document TOC
+// links. This import moves to @muyajs/core together with the editor.vue swap.
 import Slugger from 'muya/lib/parser/marked/slugger'
-import { escapeHTML, unescapeHTML } from 'muya/lib/utils'
 import academicTheme from '@/assets/themes/export/academic.theme.css?inline'
 import liberTheme from '@/assets/themes/export/liber.theme.css?inline'
 import { deepClone } from '../util'

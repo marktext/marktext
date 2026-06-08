@@ -1,8 +1,9 @@
-import ExportHtml from 'muya/lib/utils/exportHtml'
+import { MarkdownToHtml } from '@muyajs/core'
 
 const markdownToHtml = async(markdown: string): Promise<string> => {
-  const html = await new ExportHtml(markdown).renderHtml()
-  return `<article class="markdown-body">${html}</article>`
+  // `MarkdownToHtml#renderHtml` already wraps the output in
+  // `<article class="markdown-body">…</article>`, so we return it as-is.
+  return new MarkdownToHtml(markdown).renderHtml()
 }
 
 export default markdownToHtml
