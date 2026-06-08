@@ -69,10 +69,11 @@ function makeClipboard(
     return clipboard;
 }
 
-// A clipboard event whose getData always returns '' — proving the image path
-// short-circuits before any text/HTML is read.
-function makePasteEvent() {
-    const getData = vi.fn().mockReturnValue('');
+// A clipboard event whose getData returns '' by default. Pass a map keyed by
+// MIME type (e.g. { 'text/plain': 'hi' }) to simulate a clipboard that holds
+// real text/HTML, proving the synchronous snapshot survives the async hook.
+function makePasteEvent(data: Record<string, string> = {}) {
+    const getData = vi.fn((type: string) => data[type] ?? '');
     return {
         event: {
             preventDefault: vi.fn(),
@@ -96,8 +97,10 @@ describe('clipboard.pasteHandler — clipboardFilePath hook', () => {
         expect(anchorBlock.text).toBe('![](/tmp/shot.png)');
         // Cursor lands right after the inserted image markdown.
         expect(anchorBlock.setCursor).toHaveBeenCalledWith(18, 18, true);
-        // The image path short-circuits before the text/HTML paste runs.
-        expect(getData).not.toHaveBeenCalled();
+        // text/html is snapshotted synchronously up front (before the async
+        // hook detaches the clipboard), but the resolved image still
+        // short-circuits the normal text/HTML paste so nothing else inserts.
+        expect(getData).toHaveBeenCalled();
     });
 
     it('splices the image into existing text at the cursor offset', async () => {
@@ -137,6 +140,25 @@ describe('clipboard.pasteHandler — clipboardFilePath hook', () => {
         // No image inserted; the text/HTML branch was reached (getData read).
         expect(anchorBlock.text).toBe('');
         expect(getData).toHaveBeenCalled();
+    });
+
+    it('pastes the snapshotted text/plain when the hook is present but returns ""', async () => {
+        // Regression: the hook is configured, so `pasteHandler` awaits it. The
+        // snapshot of `event.clipboardData` must be taken synchronously BEFORE
+        // that await — otherwise the detached DataTransfer would yield '' here
+        // and the paste would silently insert nothing.
+        const clipboardFilePath = vi.fn().mockResolvedValue('');
+        const anchorBlock = makeAnchorBlock('', 0);
+        const clipboard = makeClipboard({ clipboardFilePath }, anchorBlock);
+        const { event, getData } = makePasteEvent({ 'text/plain': 'hello world' });
+
+        await clipboard.pasteHandler(event);
+
+        expect(clipboardFilePath).toHaveBeenCalledOnce();
+        expect(getData).toHaveBeenCalledWith('text/plain');
+        // The captured text survived the async hook and was pasted in.
+        expect(anchorBlock.text).toBe('hello world');
+        expect(anchorBlock.setCursor).toHaveBeenCalledWith(11, 11, true);
     });
 
     it('falls through to the normal paste when the resolved path is not an image', async () => {

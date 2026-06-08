@@ -585,7 +585,19 @@ class Clipboard {
     }
 
     // eslint-disable-next-line complexity
-    async pasteHandler(event: ClipboardEvent): Promise<void> {
+    async pasteHandler(
+        event: ClipboardEvent,
+        // `event.clipboardData` is only valid synchronously while the paste
+        // event is being dispatched. Once `pasteHandler` yields at its first
+        // `await` (the `clipboardFilePath` hook), the browser may detach the
+        // DataTransfer and subsequent `getData()` calls return ''. We snapshot
+        // text/html synchronously below and thread the snapshot through the
+        // `!isSelectionInSameBlock` recursion via these optional params so the
+        // re-entry doesn't read a detached clipboard. Mirrors the legacy
+        // `@muyajs` `pasteHandler(event, type, rawText, rawHtml)` signature.
+        rawText?: string,
+        rawHtml?: string,
+    ): Promise<void> {
         event.preventDefault();
         event.stopPropagation();
 
@@ -604,14 +616,23 @@ class Clipboard {
 
         const { isSelectionInSameBlock, anchorBlock } = selection;
 
+        if (!anchorBlock || !event.clipboardData)
+            return;
+
+        // Snapshot everything we need from `event.clipboardData`
+        // synchronously, BEFORE any `await` — after the first yield the
+        // DataTransfer can be detached and `getData()` returns ''. On the
+        // `!isSelectionInSameBlock` recursion we reuse the snapshot captured
+        // by the outer call rather than re-reading the (now possibly
+        // detached) clipboard.
+        const text = rawText ?? event.clipboardData.getData('text/plain');
+        let html = rawHtml ?? event.clipboardData.getData('text/html');
+
         if (!isSelectionInSameBlock) {
             this.cutHandler();
 
-            return this.pasteHandler(event);
+            return this.pasteHandler(event, text, html);
         }
-
-        if (!anchorBlock || !event.clipboardData)
-            return;
 
         // When the OS clipboard holds a file (e.g. an image copied from a
         // file manager), let the embedder resolve it to a local path and
@@ -624,9 +645,6 @@ class Clipboard {
             this.insertImagePath(anchorBlock, imagePath);
             return;
         }
-
-        const text = event.clipboardData.getData('text/plain');
-        let html = event.clipboardData.getData('text/html');
 
         // Support pasted URLs from Firefox.
         if (URL_REG.test(text) && !/\s/.test(text) && !html)
