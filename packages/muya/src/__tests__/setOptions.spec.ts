@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 
 // Coverage for the runtime option API added for the muyajs -> @muyajs/core
@@ -47,15 +47,32 @@ describe('muya runtime options', () => {
         expect(muya.options.superSubScript).toBe(false);
     });
 
-    it('setOptions with forceRender preserves the document content and history', () => {
+    it('setOptions with forceRender preserves the document content', () => {
         const muya = bootMuya('# Heading\n\nsome text\n');
         const before = muya.getMarkdown();
         muya.setOptions({ footnote: true }, true);
         // A forced re-render rebuilds the block tree from current state, so the
-        // serialized document is unchanged...
+        // serialized document is unchanged.
         expect(muya.getMarkdown()).toBe(before);
-        // ...and undo history is untouched (setContent would have cleared it).
-        expect(() => muya.undo()).not.toThrow();
+    });
+
+    it('setOptions with forceRender does not clear the undo history', async () => {
+        const muya = bootMuya('one\n');
+        muya.editor.activeContentBlock = muya.editor.scrollPage!.firstContentInDescendant()!;
+        // Make an edit so the undo stack is non-empty.
+        muya.insertParagraph();
+        await vi.waitFor(() => {
+            expect(muya.getState().length).toBe(2);
+            // the edit was recorded onto the undo stack
+            expect(muya.editor.history.canUndo()).toBe(true);
+        });
+
+        // A forced re-render rebuilds the tree via ScrollPage.updateState, which
+        // uses the 'api' source (no json-change dispatch), so it neither clears
+        // the history (unlike setContent) nor pollutes it with re-render ops.
+        muya.setOptions({ footnote: true }, true);
+
+        expect(muya.editor.history.canUndo()).toBe(true);
     });
 
     it('setOptions reflects spellcheckEnabled on the container', () => {

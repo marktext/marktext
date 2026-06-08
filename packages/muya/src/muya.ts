@@ -231,13 +231,17 @@ export class Muya {
 
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
-        if (selection) {
-            this.editor.selection.setSelection({
-                anchor: selection.anchor,
-                focus: selection.focus,
-                anchorPath: selection.anchorPath,
-                focusPath: selection.focusPath,
-            });
+        // Restore the caret on the rebuilt tree by resolving the block at the
+        // saved path and setting the cursor on it directly. (Passing only a
+        // path to setSelection does not work — Selection._setCursor needs a
+        // concrete block's domNode; a bare queryBlock result is not a Node.)
+        // Mirrors Editor.updateContents' same-block cursor restore.
+        if (selection && selection.isSelectionInSameBlock) {
+            const begin = Math.min(selection.anchor.offset, selection.focus.offset);
+            const end = Math.max(selection.anchor.offset, selection.focus.offset);
+            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchorPath);
+            if (cursorBlock && cursorBlock.isContent())
+                cursorBlock.setCursor(begin, end, true);
         }
     }
 
