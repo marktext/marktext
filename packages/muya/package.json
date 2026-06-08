@@ -102,7 +102,6 @@
         "happy-dom": "^15.11.7",
         "madge": "^8.0.0",
         "stylelint": "^17.11.1",
-        "stylelint-config-rational-order": "^0.1.2",
         "stylelint-config-standard": "^40.0.0",
         "stylelint-order": "^8.1.1",
         "typescript": "^6.0.3",
