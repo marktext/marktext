@@ -1500,7 +1500,13 @@ onMounted(() => {
     sequenceTheme: sequenceTheme.value,
     spellcheckEnabled: spellcheckerEnabled.value,
     // Resolve the OS clipboard to a local file path on paste (image-from-file).
-    clipboardFilePath: guessClipboardFilePath
+    clipboardFilePath: guessClipboardFilePath,
+    // Image-persist callbacks read by the engine's clipboard + drag-drop handlers
+    // from `muya.options.*` (distinct from the ImageEditTool plugin option above).
+    // Without these, local-file drag-drop, screenshot/binary clipboard paste, and
+    // copy-to-assets on a pasted image file silently no-op or insert raw paths.
+    imageAction: muyaImageAction,
+    getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
   }
 
   if (/dark/i.test(theme.value)) {
