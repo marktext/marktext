@@ -19,7 +19,7 @@ import { Muya } from '../../muya';
 // This asserts the DESIRED Space-to-preview emit and is expected to FAIL
 // today. When the engine restores the `preview-image` emit, drop the `.fails`.
 
-const bootedHosts: HTMLElement[] = [];
+const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
 
@@ -30,10 +30,11 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    while (bootedHosts.length) {
-        const host = bootedHosts.pop()!;
-        host.remove();
-    }
+    // `destroy()` detaches the engine's DOM listeners — including the
+    // `document`-level keydown/click handlers registered by selection — and
+    // removes the host node, so listeners don't leak across tests.
+    while (bootedMuyas.length)
+        bootedMuyas.pop()!.destroy();
     if (hadVersion)
         window.MUYA_VERSION = originalVersion as string;
     else
@@ -45,7 +46,7 @@ function bootMuya(markdown: string): Muya {
     document.body.appendChild(host);
     const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
-    bootedHosts.push(muya.domNode);
+    bootedMuyas.push(muya);
     return muya;
 }
 

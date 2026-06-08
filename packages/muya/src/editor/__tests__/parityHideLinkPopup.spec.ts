@@ -21,7 +21,7 @@ import { Muya } from '../../muya';
 // A positive control proves the harness actually drives the hover emit. When
 // the engine gates the popover on `hideLinkPopup`, drop the `.fails`.
 
-const bootedHosts: HTMLElement[] = [];
+const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
 
@@ -32,10 +32,11 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    while (bootedHosts.length) {
-        const host = bootedHosts.pop()!;
-        host.remove();
-    }
+    // `destroy()` detaches the engine's DOM listeners — including the
+    // `document`-level handlers registered during init — and removes the host
+    // node, so listeners don't leak across tests.
+    while (bootedMuyas.length)
+        bootedMuyas.pop()!.destroy();
     if (hadVersion)
         window.MUYA_VERSION = originalVersion as string;
     else
@@ -50,7 +51,7 @@ function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya
         ...options,
     } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
-    bootedHosts.push(muya.domNode);
+    bootedMuyas.push(muya);
     return muya;
 }
 
