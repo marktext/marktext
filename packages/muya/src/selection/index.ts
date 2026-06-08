@@ -37,7 +37,7 @@ class Selection {
         };
     }
 
-    static getCursorCoords() {
+    static getCursorCoords(preferEnd = false) {
         const sel = document.getSelection();
         let range;
         let rect = null;
@@ -54,8 +54,11 @@ class Selection {
                             : null;
                 }
 
+                // For a forward range selection the caret sits at the END, so
+                // prefer the last client rect; otherwise the first rect is the
+                // caret (collapsed cursor or backward selection).
                 if (rects?.length)
-                    rect = rects[0];
+                    rect = preferEnd ? rects[rects.length - 1] : rects[0];
             }
         }
 
@@ -308,7 +311,9 @@ class Selection {
         // Backport of marktext's `selectionChange` payload extras the desktop
         // relies on: `cursorCoords` for typewriter-mode scrolling and the
         // active inline formats at the cursor for lighting up the toolbar.
-        const cursorCoords = Selection.getCursorCoords();
+        // Follow the caret (focus end) for forward selections so typewriter
+        // scrolling tracks the cursor rather than the selection start.
+        const cursorCoords = Selection.getCursorCoords(direction === 'forward');
         // Duck-type the Format block — a value import of Format here would
         // create a selection -> format circular dependency.
         const anchorBlockRef = this.anchorBlock as Format | null;

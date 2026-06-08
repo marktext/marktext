@@ -63,4 +63,26 @@ describe('selection-change payload', () => {
         expect(payload!).toHaveProperty('cursorCoords');
         expect(Array.isArray(payload!.formats)).toBe(true);
     });
+
+    it('reports the active inline format when the cursor is inside bold text', () => {
+        const muya = bootMuya('**bold**\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+
+        let payload: Record<string, unknown> | null = null;
+        muya.on('selection-change', (p: unknown) => {
+            payload = p as Record<string, unknown>;
+        });
+
+        // `**bold**` — place the selection inside the bolded word (offsets 3–5).
+        muya.editor.selection.setSelection({
+            anchor: { offset: 3 },
+            focus: { offset: 5 },
+            block: first,
+            path: first.path,
+        });
+
+        expect(payload).not.toBeNull();
+        const formats = payload!.formats as Array<{ type: string }>;
+        expect(formats.some(f => f.type === 'strong')).toBe(true);
+    });
 });
