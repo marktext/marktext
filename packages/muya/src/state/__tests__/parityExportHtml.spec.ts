@@ -18,9 +18,9 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // worked. `@muyajs/core` renders via stock `marked` with no heading-id
 // renderer, so exported `<h1>..<h6>` carry NO id and every TOC anchor is dead.
 //
-// These assert the DESIRED export output and are expected to FAIL today. When
-// the engine inlines base CSS (PG7) / injects heading ids (PG8), drop the
-// `.fails`.
+// These assert the DESIRED export output. The engine now inlines base CSS
+// (PG7), so those pass. PG8 (heading ids) is implemented in a follow-up commit
+// — its specs remain `it.fails` until then.
 
 const SAMPLE = '# Getting Started\n\n## Installation\n\nSome **body** text.\n';
 
@@ -31,13 +31,12 @@ async function generateExport(markdown: string): Promise<string> {
 }
 
 describe('parity PG7: export inlines base stylesheets (offline-safe)', () => {
-    it.fails(
+    it(
         'PG7: generated HTML inlines github-markdown-css as a <style> block, not a CDN <link>',
         async () => {
             const out = await generateExport(SAMPLE);
 
-            // Desired: the markdown-body CSS is inlined so the file renders
-            // offline. Today it is a CDN <link> only.
+            // The markdown-body CSS is inlined so the file renders offline.
             expect(out).toContain('.markdown-body');
             expect(out).not.toMatch(
                 /<link[^>]+href="https:\/\/cdnjs\.cloudflare\.com[^>]+github-markdown-css/,
@@ -45,12 +44,12 @@ describe('parity PG7: export inlines base stylesheets (offline-safe)', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG7: generated HTML does not depend on any external CDN stylesheet',
         async () => {
             const out = await generateExport(SAMPLE);
 
-            // Desired: zero external stylesheet links — fully self-contained.
+            // Zero external stylesheet links — fully self-contained.
             expect(out).not.toMatch(/<link[^>]+rel="stylesheet"[^>]+href="https:\/\//);
         },
     );

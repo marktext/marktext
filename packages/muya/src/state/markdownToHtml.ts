@@ -1,10 +1,30 @@
 import type { Muya } from '../muya';
+import githubMarkdownCss from 'github-markdown-css/github-markdown-light.css?inline';
+import katexCss from 'katex/dist/katex.css?inline';
+import prismCss from 'prismjs/themes/prism.css?inline';
 import exportStyle from '../assets/styles/exportStyle.css?inline';
 import { EXPORT_DOMPURIFY_CONFIG } from '../config';
 import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
+
+// Core stylesheets inlined into the exported document so the output is fully
+// self-contained and renders offline / behind CSP / air-gapped — matching the
+// legacy `packages/muyajs` `ExportHtml` behavior (PG7). Linking these from a
+// CDN left a saved `.html` file unstyled with no network access, a regression
+// for an offline desktop editor. Callers that explicitly want the lighter
+// CDN-linked shell can opt in via `generate({ inlineStyles: false })`.
+const BASE_STYLESHEETS = [githubMarkdownCss, katexCss, prismCss];
+
+// CDN `<link>` tags used when `inlineStyles` is disabled. Kept verbatim from
+// the previous default so the opt-out path is byte-identical to the old output.
+const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown-css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.css" integrity="sha512-n5zPz6LZB0QV1eraRj4OOxRbsV7a12eAGfFcrJ4bBFxxAwwYDp542z5M0w24tKPEhKk2QzjjIpR5hpOjJtGGoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- https://katex.org/docs/browser -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
+  <!-- https://cdnjs.com/libraries/prism -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
@@ -148,27 +168,34 @@ export class MarkdownToHtml {
     }
 
     /**
-     * Get HTML with style
+     * Get HTML with style.
      *
-     * @param {*} options Document options
+     * @param options Document options.
+     * @param options.title Document `<title>`.
+     * @param options.extraCSS Extra CSS appended after the base stylesheets.
+     * @param options.inlineStyles Inline the core stylesheets so the output is
+     * self-contained and renders offline (default `true`); pass `false` to fall
+     * back to CDN `<link>` tags.
      */
-    async generate(options: { title?: string; extraCSS?: string } = {}) {
+    async generate(
+        options: { title?: string; extraCSS?: string; inlineStyles?: boolean } = {},
+    ) {
         const html = await this.renderHtml();
 
         // `extraCSS` may changed in the mean time.
-        const { title = '', extraCSS = '' } = options;
+        const { title = '', extraCSS = '', inlineStyles = true } = options;
+
+        const baseStyles = inlineStyles
+            ? BASE_STYLESHEETS.map(css => `  <style>${css}</style>`).join('\n')
+            : CDN_STYLESHEET_LINKS;
+
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
-  <!-- https://cdnjs.com/libraries/github-markdown-css -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.css" integrity="sha512-n5zPz6LZB0QV1eraRj4OOxRbsV7a12eAGfFcrJ4bBFxxAwwYDp542z5M0w24tKPEhKk2QzjjIpR5hpOjJtGGoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <!-- https://katex.org/docs/browser -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
-  <!-- https://cdnjs.com/libraries/prism -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+${baseStyles}
   <style>${exportStyle}</style>
   <style>${extraCSS}</style>
 </head>

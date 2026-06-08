@@ -20,6 +20,12 @@ export default defineConfig({
         },
     },
     test: {
+        // Process CSS imports (including `?inline`) so the export path's
+        // inlined base stylesheets resolve to real content under Vitest.
+        // Without this Vitest defaults to `css: { include: [] }` and every
+        // CSS import returns an empty string, which would silently mask the
+        // PG7 offline-export regression in `parityExportHtml.spec.ts`.
+        css: true,
         coverage: {
             include: ['src/**/*.ts'],
             reporter: ['html', 'text', 'json'],
