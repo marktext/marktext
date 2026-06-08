@@ -5,6 +5,7 @@ import type DiagramBlock from '../../block/extra/diagram';
 import bulletListIcon from '../../assets/icons/bullet_list/2.png';
 import vegaIcon from '../../assets/icons/chart/2.png';
 import codeIcon from '../../assets/icons/code/2.png';
+import flowchartIcon from '../../assets/icons/flowchart/2.png';
 import footnoteIcon from '../../assets/icons/footnote/2.png';
 import frontMatterIcon from '../../assets/icons/front_matter/2.png';
 import header1Icon from '../../assets/icons/heading_1/2.png';
@@ -22,6 +23,7 @@ import orderListIcon from '../../assets/icons/order_list/2.png';
 import paragraphIcon from '../../assets/icons/paragraph/2.png';
 import plantumlIcon from '../../assets/icons/plantuml/2.png';
 import quoteIcon from '../../assets/icons/quote_block/2.png';
+import sequenceIcon from '../../assets/icons/sequence/2.png';
 import taskListIcon from '../../assets/icons/todolist/2.png';
 
 const HEADING_ICONS = [
@@ -37,6 +39,8 @@ const DIAGRAM_ICONS = {
     'plantuml': plantumlIcon,
     'mermaid': mermaidIcon,
     'vega-lite': vegaIcon,
+    'flowchart': flowchartIcon,
+    'sequence': sequenceIcon,
 };
 
 export function getIcon(block: Parent) {

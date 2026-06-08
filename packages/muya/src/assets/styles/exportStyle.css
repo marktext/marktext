@@ -60,7 +60,9 @@
 
 .markdown-body div.plantuml,
 .markdown-body div.mermaid,
-.markdown-body div.vega-lite {
+.markdown-body div.vega-lite,
+.markdown-body div.flowchart,
+.markdown-body div.sequence {
     display: block;
     padding: 20px 0;
 
