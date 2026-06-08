@@ -23,7 +23,7 @@ interface IHeadingBlock extends Parent {
 // cross-instance collision.
 const slugCache = new WeakMap<Parent, string>();
 
-function stableSlug(block: Parent): string {
+export function stableSlug(block: Parent): string {
     let slug = slugCache.get(block);
     if (slug == null) {
         slug = getUniqueId();

@@ -72,6 +72,55 @@
     font-size: 1em;
 }
 
+/* heading copy-anchor affordance — revealed on heading hover, sits in the
+   left gutter (matches the legacy `ag-copy-header-link` placement). */
+.mu-container h1 > .mu-copy-header-link,
+.mu-container h2 > .mu-copy-header-link,
+.mu-container h3 > .mu-copy-header-link,
+.mu-container h4 > .mu-copy-header-link,
+.mu-container h5 > .mu-copy-header-link,
+.mu-container h6 > .mu-copy-header-link {
+    position: absolute;
+    top: 0.65em;
+    left: -26px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+
+    cursor: pointer;
+    opacity: 0;
+
+    transition: opacity 0.2s ease;
+
+    user-select: none;
+}
+
+.mu-container h1:hover > .mu-copy-header-link,
+.mu-container h2:hover > .mu-copy-header-link,
+.mu-container h3:hover > .mu-copy-header-link,
+.mu-container h4:hover > .mu-copy-header-link,
+.mu-container h5:hover > .mu-copy-header-link,
+.mu-container h6:hover > .mu-copy-header-link {
+    opacity: 0.6;
+}
+
+.mu-container h1 > .mu-copy-header-link:hover,
+.mu-container h2 > .mu-copy-header-link:hover,
+.mu-container h3 > .mu-copy-header-link:hover,
+.mu-container h4 > .mu-copy-header-link:hover,
+.mu-container h5 > .mu-copy-header-link:hover,
+.mu-container h6 > .mu-copy-header-link:hover {
+    opacity: 1;
+}
+
+.mu-container .mu-copy-header-link > .mu-icon-inner {
+    width: 14px;
+    height: 14px;
+}
+
 /* block quote */
 .mu-container blockquote {
     position: relative;

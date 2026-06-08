@@ -14,9 +14,10 @@ import { Muya } from '../muya';
 // `heading-copy-link`; the desktop subscription was removed and documented as
 // a gap. `copyGithubSlug` is now unreachable dead code.
 //
-// This asserts the DESIRED hover-copy affordance + emit and is expected to
-// FAIL today (the affordance element isn't rendered, so the event can't fire).
-// When the engine restores the affordance + emit, drop the `.fails`.
+// The engine now restores the hover-copy affordance (a `mu-copy-header-link`
+// attachment on every heading) and emits `heading-copy-link` { key } on click,
+// so these assertions pass. The `key` is the heading's stable slug — the same
+// value `getTOC()` exposes as `ITocItem.slug` — so the host can resolve it.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -55,7 +56,7 @@ const COPY_LINK_SELECTOR
     = '.ag-copy-header-link, .mu-copy-header-link, [class*="copy-header-link"]';
 
 describe('parity PG11: heading hover-to-copy-anchor affordance', () => {
-    it.fails(
+    it(
         'PG11: a heading renders a copy-link affordance',
         () => {
             const muya = bootMuya('# Getting Started\n');
@@ -66,7 +67,7 @@ describe('parity PG11: heading hover-to-copy-anchor affordance', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG11: activating the heading copy affordance emits heading-copy-link with the block key',
         () => {
             const muya = bootMuya('# Getting Started\n');

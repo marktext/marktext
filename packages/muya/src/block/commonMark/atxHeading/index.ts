@@ -16,6 +16,10 @@ class AtxHeading extends Parent {
     static create(muya: Muya, state: IAtxHeadingState) {
         const heading = new AtxHeading(muya, state);
 
+        heading.appendAttachment(
+            ScrollPage.loadBlock('heading-copy-link').create(muya, null),
+        );
+
         heading.append(
             ScrollPage.loadBlock('atxheading.content').create(muya, state.text),
         );
