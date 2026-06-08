@@ -111,6 +111,46 @@ describe('muya.createTable()', () => {
         expect(() => muya.createTable({ rows: 2, columns: 2 })).not.toThrow();
         expect(firstBlock(muya).name).toBe('paragraph');
     });
+
+    it('clamps zero/negative dimensions to a valid table (rows >= 2, columns >= 1)', async () => {
+        const muya = bootMuya('\n');
+        placeCursorOnFirstBlock(muya);
+        // rows = 0 would otherwise build a table with no rows and crash
+        // `Table.columnCount` (which reads `firstChild.firstChild`).
+        expect(() => muya.createTable({ rows: 0, columns: 0 })).not.toThrow();
+        await vi.waitFor(() => {
+            const b = firstTable(muya);
+            expect(b.children.length).toBe(2); // header + one body row
+            expect(b.children.every(row => row.children.length === 1)).toBe(true);
+        });
+    });
+
+    it('coerces non-finite / fractional dimensions to integers', async () => {
+        const muya = bootMuya('\n');
+        placeCursorOnFirstBlock(muya);
+        expect(() =>
+            muya.createTable({ rows: Number.NaN, columns: Number.POSITIVE_INFINITY }),
+        ).not.toThrow();
+        await vi.waitFor(() => {
+            const b = firstTable(muya);
+            // NaN -> clamped to 2 rows; Infinity column count is not finite so it
+            // also normalises to the minimum of 1 column rather than allocating
+            // an array of non-integer length.
+            expect(b.children.length).toBe(2);
+            expect(b.children.every(row => row.children.length === 1)).toBe(true);
+        });
+    });
+
+    it('floors fractional dimensions instead of building a ragged table', async () => {
+        const muya = bootMuya('\n');
+        placeCursorOnFirstBlock(muya);
+        muya.createTable({ rows: 3.9, columns: 2.9 });
+        await vi.waitFor(() => {
+            const b = firstTable(muya);
+            expect(b.children.length).toBe(3); // floor(3.9)
+            expect(b.children.every(row => row.children.length === 2)).toBe(true); // floor(2.9)
+        });
+    });
 });
 
 describe('muya.insertImage()', () => {
@@ -158,6 +198,34 @@ describe('muya.insertImage()', () => {
         muya.editor.selection.anchorBlock = null;
         expect(() => muya.insertImage({ src: 'https://example.com/x.png' })).not.toThrow();
         expect(muya.getMarkdown()).not.toContain('![');
+    });
+
+    it('embeds a well-formed base64 data URL verbatim', async () => {
+        const muya = bootMuya('\n');
+        placeCursorOnFirstBlock(muya, 0);
+        const dataUrl
+            = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+        muya.insertImage({ src: dataUrl, alt: 'dot' });
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toContain(`![dot](${dataUrl})`);
+        });
+    });
+
+    it('does not embed a malformed data: src verbatim (aligns with strict DATA_URL_REG)', async () => {
+        const muya = bootMuya('\n');
+        placeCursorOnFirstBlock(muya, 0);
+        // `data:image/` prefix with no comma/payload — the old loose
+        // `^data:image/` check would have embedded it verbatim. It must instead
+        // fall through to the plain-path branch (spaces and '#' percent-encoded).
+        const malformed = 'data:image/png not-a-real#payload';
+        muya.insertImage({ src: malformed, alt: 'bad' });
+        await vi.waitFor(() => {
+            const md = muya.getMarkdown();
+            // Treated as a plain path: spaces and '#' are percent-encoded, so the
+            // raw malformed string is not present verbatim.
+            expect(md).not.toContain(`(${malformed})`);
+            expect(md).toContain('data:image/png%20not-a-real%23payload');
+        });
     });
 });
 

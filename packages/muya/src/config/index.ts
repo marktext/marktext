@@ -388,6 +388,12 @@ export const isWin
 // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
 export const URL_REG
     = /^http(s)?:\/\/([\w\-.~]+\.[a-z]{2,}|[0-9.]+|localhost|\[[a-f0-9.:]+\])(:\d{1,5})?\/\S+/i;
+// A fully-formed base64/percent-encoded image data URL, e.g.
+// `data:image/png;base64,iVBORw0KGg...`. Mirrors legacy muyajs `DATA_URL_REG`
+// and `utils/image.ts` `getImageSrc`, so a bare `data:image/` prefix is not
+// treated as a safe-to-embed source.
+export const DATA_URL_REG
+    = /^data:image\/[\w+-]+(?:;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/;
 export const PREVIEW_DOMPURIFY_CONFIG = {
     // do not forbid `class` because `code` element use class to present language
     FORBID_ATTR: ['style', 'contenteditable'],

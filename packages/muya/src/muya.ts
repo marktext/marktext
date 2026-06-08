@@ -11,6 +11,7 @@ import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
+    DATA_URL_REG,
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
@@ -472,16 +473,28 @@ export class Muya {
      * is in (legacy `createTableInFigure`/`createFigure`). The table has `rows`
      * rows × `columns` columns with the first row as the header; every cell is
      * empty with `align: 'none'`. The cursor lands in the first cell. No-op when
-     * there is no current block.
+     * there is no current block. `rows`/`columns` are coerced to integers and
+     * clamped to a valid GFM shape (`rows >= 2`, `columns >= 1`) so invalid
+     * input (e.g. `rows: 0`, non-finite, or fractional values) still yields a
+     * usable table instead of an invalid state.
      */
     createTable({ rows, columns }: { rows: number; columns: number }) {
         const block = this._outmostBlockAtCursor();
         if (!block)
             return;
 
+        // Coerce and clamp to a valid GFM table shape. A GFM table needs a
+        // header row plus at least one body row (rows >= 2) and at least one
+        // column (columns >= 1). Garbage input (NaN/Infinity/floats/negatives)
+        // is normalised rather than producing an invalid state — `rows = 0`
+        // would otherwise build a table with no rows and crash `columnCount`
+        // (which reads `firstChild.firstChild`).
+        const safeRows = Math.max(2, Number.isFinite(rows) ? Math.floor(rows) : 0);
+        const safeColumns = Math.max(1, Number.isFinite(columns) ? Math.floor(columns) : 0);
+
         const makeRow = (): ITableState['children'][number] => ({
             name: 'table.row',
-            children: Array.from({ length: columns }, () => ({
+            children: Array.from({ length: safeColumns }, () => ({
                 name: 'table.cell' as const,
                 meta: { align: 'none' },
                 text: '',
@@ -490,7 +503,7 @@ export class Muya {
 
         const state: ITableState = {
             name: 'table',
-            children: Array.from({ length: rows }, makeRow),
+            children: Array.from({ length: safeRows }, makeRow),
         };
 
         const newTable = ScrollPage.loadBlock('table').create(this, state);
@@ -522,12 +535,16 @@ export class Muya {
             alt = match?.[1] ?? '';
         }
 
-        // Only percent-encode plain paths; leave full URLs / data URLs as-is.
-        // Mirrors legacy `insertImage` / `replaceImage` src handling.
+        // Only percent-encode plain paths; leave full URLs / well-formed data
+        // URLs as-is. Mirrors legacy `insertImage` / `replaceImage` src
+        // handling — `DATA_URL_REG` requires the full `data:image/<type>...,<payload>`
+        // shape (the same regex `utils/image.ts` `getImageSrc` uses), so a bare
+        // `data:image/` prefix is not embedded verbatim and instead falls through
+        // to the plain-path branch.
         let imgUrl: string;
         if (URL_REG.test(src))
             imgUrl = encodeURI(src);
-        else if (/^data:image\//.test(src))
+        else if (DATA_URL_REG.test(src))
             imgUrl = src;
         else
             imgUrl = src.replace(/ /g, encodeURI(' ')).replace(/#/g, encodeURIComponent('#'));
