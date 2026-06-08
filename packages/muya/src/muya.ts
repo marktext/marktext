@@ -180,6 +180,35 @@ export class Muya {
     }
 
     /**
+     * Return a JSON-serializable snapshot of the undo/redo history.
+     *
+     * Used by the desktop shell to persist each tab's editing history across
+     * tab switches: read it before deactivating a tab, store it, and hand it
+     * back to `setHistory` when the tab is re-selected. The ot-json1 ops are
+     * deep-cloned plain JSON; selections are reduced to their serializable
+     * paths/offsets (live block references are dropped and re-resolved on
+     * restore). Lossless round-trip: `setHistory(getHistory())` then `undo()`
+     * reproduces the prior document state.
+     */
+    getHistory() {
+        return this.editor.history.getHistory();
+    }
+
+    /**
+     * Restore a history snapshot previously produced by `getHistory`.
+     */
+    setHistory(history: ReturnType<Muya['getHistory']>) {
+        this.editor.history.setHistory(history);
+    }
+
+    /**
+     * Clear the undo/redo history (e.g. after loading a fresh document).
+     */
+    clearHistory() {
+        this.editor.history.clear();
+    }
+
+    /**
      * Search value in current document.
      * @param {string} value
      * @param {object} opts
