@@ -59,6 +59,9 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
     'heading 6': 'atx-heading 6',
     'ul-bullet': 'bullet-list',
     'ol-order': 'order-list',
+    // The desktop command palette emits `ol-bullet` for the ordered-list
+    // command while the menu emits `ol-order`; accept both.
+    'ol-bullet': 'order-list',
     'ul-task': 'task-list',
     'mermaid': 'diagram mermaid',
     'plantuml': 'diagram plantuml',
@@ -411,15 +414,36 @@ export class Muya {
             return;
         }
 
-        const label = type === 'reset-to-paragraph' ? 'paragraph' : PARAGRAPH_LABEL_MAP[type];
+        // `reset-to-paragraph` returns the current block to plain paragraph
+        // form; structured containers (lists/blockquote) unwrap to preserve
+        // every child, tables are left untouched (matches legacy).
+        if (type === 'reset-to-paragraph') {
+            this._resetToParagraph(block);
+            return;
+        }
+
+        const label = PARAGRAPH_LABEL_MAP[type];
         if (!label)
             return;
 
-        // Converting between list types must preserve every item, so rebuild
-        // the list rather than replacing it with a single-item list of the
-        // leading text.
         if (label.endsWith('-list') && isAnyListState(block.getState())) {
-            this._convertListType(block, label);
+            // Selecting the active list type toggles the list off (unwrap each
+            // item back into paragraphs); a different type converts in place,
+            // preserving every item.
+            if (block.blockName === label)
+                this._unwrapToParagraphs(block);
+            else
+                this._convertListType(block, label);
+
+            return;
+        }
+
+        // Legacy `isAllowedTransformation`: hr/table only replace an empty
+        // block so user content is never silently dropped.
+        if (
+            (label === 'thematic-break' || label === 'table')
+            && this._blockLeadingText(block).trim() !== ''
+        ) {
             return;
         }
 
@@ -429,6 +453,53 @@ export class Muya {
             label,
             text: this._blockLeadingText(block),
         });
+    }
+
+    /** Return the block at the cursor to plain paragraph form. */
+    private _resetToParagraph(block: Parent) {
+        if (block.blockName === 'table')
+            return;
+
+        if (isAnyListState(block.getState()) || block.blockName === 'block-quote') {
+            this._unwrapToParagraphs(block);
+            return;
+        }
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label: 'paragraph',
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /**
+     * Unwrap a structured container (list or blockquote) into the top-level
+     * blocks it contains, preserving every item.
+     */
+    private _unwrapToParagraphs(block: Parent) {
+        const state = block.getState();
+        let inner: TState[] = [];
+        if (isAnyListState(state))
+            inner = state.children.flatMap(li => deepClone(li.children));
+        else if (state.name === 'block-quote')
+            inner = deepClone(state.children);
+
+        if (!inner.length)
+            return;
+
+        const parent = block.parent!;
+        let ref: Parent = block;
+        let firstNew: Parent | null = null;
+        for (const childState of inner) {
+            const newBlock = ScrollPage.loadBlock(childState.name).create(this, childState);
+            parent.insertAfter(newBlock, ref);
+            ref = newBlock;
+            firstNew ??= newBlock;
+        }
+
+        block.remove();
+        firstNew?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /** Leading text of a block, with the atx hash run stripped for headings. */

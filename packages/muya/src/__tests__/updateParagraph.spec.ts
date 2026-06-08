@@ -138,4 +138,46 @@ describe('muya.updateParagraph()', () => {
             expect(firstBlock(muya).meta.loose).toBe(!before);
         });
     });
+
+    it('maps the command-palette ol-bullet label to an ordered list', async () => {
+        const muya = bootMuya('item\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ol-bullet');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('order-list');
+        });
+    });
+
+    it('reset-to-paragraph unwraps a list into paragraphs, preserving items', async () => {
+        const muya = bootMuya('- one\n- two\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('reset-to-paragraph');
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state.every(b => b.name === 'paragraph')).toBe(true);
+        });
+        expect(muya.getMarkdown()).toContain('one');
+        expect(muya.getMarkdown()).toContain('two');
+    });
+
+    it('selecting the active list type toggles the list off, preserving items', async () => {
+        const muya = bootMuya('- a\n- b\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state.every(b => b.name === 'paragraph')).toBe(true);
+        });
+    });
+
+    it('does not convert a non-empty paragraph to hr (content guard)', async () => {
+        const muya = bootMuya('keep me\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('hr');
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(firstBlock(muya).name).toBe('paragraph');
+        expect(muya.getMarkdown()).toContain('keep me');
+    });
 });
