@@ -11,15 +11,10 @@ import { Muya } from '../../muya';
 // `muya-link-tools` (the link-edit/jump popover) when `!hideLinkPopup`. So
 // `hideLinkPopup: true` suppressed the popover on link hover.
 //
-// `@muyajs/core` still accepts `hideLinkPopup` (construction + setOptions) but
-// `editor/linkMouseEvents.ts#overHandler` emits `muya-link-tools`
-// UNCONDITIONALLY — it never reads the option. `grep hideLinkPopup
-// packages/muya/src` finds only the type decl + default. So the popover always
-// appears on hover even with `hideLinkPopup: true`.
-//
-// The gap test asserts the DESIRED suppression and is expected to FAIL today.
-// A positive control proves the harness actually drives the hover emit. When
-// the engine gates the popover on `hideLinkPopup`, drop the `.fails`.
+// `editor/linkMouseEvents.ts#overHandler` now reads `muya.options.hideLinkPopup`
+// and returns early when it is set, so the popover is suppressed on hover —
+// restoring parity. The gap test below asserts that suppression; the positive
+// control proves the harness actually drives the hover emit.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -85,7 +80,7 @@ describe('parity PG12: hideLinkPopup gates the link hover popover', () => {
         expect(countOpenEmits(handler)).toBe(1);
     });
 
-    it.fails(
+    it(
         'PG12: with hideLinkPopup=true, hovering a preview link does NOT open the popover',
         () => {
             const muya = bootMuya('[hello](https://example.com)\n', { hideLinkPopup: true });

@@ -80,6 +80,13 @@ export function attachLinkMouseHandlers(muya: Muya): void {
     const { eventCenter, domNode } = muya;
 
     const overHandler = (event: Event) => {
+        // marktext `eventHandler/mouseEvent.js` gated the link-tools dispatch
+        // on `!hideLinkPopup`: when the user sets `hideLinkPopup: true`, the
+        // hover popover is suppressed entirely. Read it live so a runtime
+        // `setOptions({ hideLinkPopup })` toggle takes effect immediately.
+        if (muya.options?.hideLinkPopup)
+            return;
+
         const wrapper = findLinkWrapper(event.target);
         if (!wrapper || !isPopoverTarget(wrapper))
             return;
