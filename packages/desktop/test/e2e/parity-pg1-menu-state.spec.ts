@@ -9,15 +9,11 @@ import { launchWithMarkdown, setSourceMarkdown, waitForMenuReady } from './helpe
 //
 // Legacy muyajs `selectionChange` carried the ancestor block `affiliation`
 // chain + block markdown types, which `createApplicationMenuState`
-// (store/editor.ts) turned into Paragraph-menu check marks. With @muyajs/core
-// the `selection-change` payload has no affiliation chain, so the affiliation
-// map the store builds stays empty and the Paragraph-menu check marks never
-// light up. Here we read the live application-menu `checked` state after
-// placing the caret in a heading.
-//
-// This RUNS but currently fails (the menu item never gets checked), so it is
-// marked `test.fail()`. When the engine restores affiliation and the store
-// lights the check mark, remove the `test.fail()`.
+// (store/editor.ts) turned into Paragraph-menu check marks. #4410 restored the
+// affiliation chain + per-endpoint block info on the `selection-change`
+// payload, and the desktop adapter (`adaptSelectionChange`) now feeds them to
+// the store, so the Paragraph-menu check marks light up again. Here we read the
+// live application-menu `checked` state after placing the caret in a heading.
 
 const headingMenuChecked = async(app: ElectronApplication, id: string): Promise<boolean> => {
   return await app.evaluate(({ Menu }, menuId) => {
@@ -69,7 +65,6 @@ test.describe('Parity PG1 — Paragraph menu reflects the current block', () => 
     if (app) await app.close()
   })
 
-  test.fail()
   test('PG1: placing the caret in an H1 checks heading1MenuItem in the Paragraph menu', async() => {
     await setSourceMarkdown(page, app, '# A heading\n')
     // Sanity: the heading rendered and the caret landed inside it (so a `false`

@@ -1353,6 +1353,19 @@ const handleFileChange = (payload: unknown) => {
     if (savedEngineHistory) {
       editor.value.setHistory(savedEngineHistory)
     }
+    // PARITY (gap PG14 — accept-defer): the bulk source-mode change is rebuilt
+    // via `setContent` and is NOT recorded as an engine undo op, so the first
+    // Ctrl+Z after exiting source mode replays the last pre-source WYSIWYG op
+    // instead of reverting the source-mode edit in one step (legacy muyajs
+    // pushed a full-state snapshot that made it a single undo boundary).
+    // Recording it as one boundary would mean computing a json1 op from the
+    // pre-source state to the post-source state and feeding it through
+    // `Editor.updateContents`' pick/drop walker — but that walker only handles
+    // specific op shapes (block insert at index, text edit, checked/meta), so a
+    // general whole-document diff (arbitrary add/remove/move/nested-replace)
+    // risks corrupting the document. Deferred rather than ship a fragile fix;
+    // the prior op stack is intact and undo still works, only the first-undo
+    // granularity across the boundary differs.
   } else if (newCursor) {
     editor.value.setCursor(newCursor)
   }

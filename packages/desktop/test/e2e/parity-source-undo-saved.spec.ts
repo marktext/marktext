@@ -23,10 +23,9 @@ const undo = async(app: Parameters<typeof sendIpcToRenderer>[0]): Promise<void> 
 }
 
 test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', () => {
-  // handleFileChange drops `muyaIndexCursor`/`blocks` and the engine has no
-  // index→path cursor conversion, so the source-mode editing position is lost
-  // on the handoff back to WYSIWYG and no meaningful caret is restored.
-  test.fail()
+  // handleFileChange now maps the saved `muyaIndexCursor` ({line, ch}) onto a
+  // block-key cursor via the engine's `setCursorByOffset`, so the source-mode
+  // editing position is restored on the handoff back to WYSIWYG.
   test('PG2: the caret lands in the block the source-mode cursor was on', async() => {
     const { app, page } = await launchWithMarkdown(
       'first para\n\nsecond para\n\nthird para here\n'
@@ -68,9 +67,14 @@ test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', 
 })
 
 test.describe('Parity PG14 — first undo after source mode reverts the edit in one step', () => {
-  // On source-mode exit the engine rebuilds the document via setContent (which
-  // does NOT record an undo op) then restores the pre-source op stack, so the
-  // bulk source-mode change is not a single undo boundary.
+  // ACCEPT-DEFER: on source-mode exit the engine rebuilds the document via
+  // setContent (which does NOT record an undo op) then restores the pre-source
+  // op stack, so the bulk source-mode change is not a single undo boundary.
+  // Recording it as one boundary would require feeding a general
+  // whole-document json1 diff through Editor.updateContents' pick/drop walker,
+  // which only handles specific op shapes (block insert / text edit /
+  // checked|meta) and would risk corrupting the document on arbitrary diffs.
+  // Left as `test.fail()` — see the matching note in editor.vue handleFileChange.
   test.fail()
   test('PG14: one undo after exiting source mode reverts the source-mode change', async() => {
     const { app, page } = await launchWithMarkdown('base\n')
@@ -93,10 +97,10 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
 })
 
 test.describe('Parity PG15 — undo back to on-disk content restores the saved indicator', () => {
-  // The desktop feeds the store a synthetic history whose id is regenerated on
-  // every json-change (including undo), so the saved-id comparison never
-  // matches again and the tab stays marked dirty even when content == disk.
-  test.fail()
+  // The synthetic save-tracking id is now the engine undo-stack depth (a stable
+  // position marker), and a freshly-loaded tab seeds `lastSavedHistoryId` to the
+  // baseline depth (0). Undoing an edit back to disk content returns the id to
+  // its saved value, so the saved/clean indicator is restored.
   test('PG15: undoing an edit back to disk content clears the unsaved indicator', async() => {
     const { app, page } = await launchWithMarkdown('hello world\n')
     await waitForMenuReady(app)
