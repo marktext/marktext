@@ -71,15 +71,16 @@ const FUNCTION_TYPE_BY_NAME: Readonly<Record<string, string>> = {
 };
 
 /**
- * Container `blockName` → list-block `listType` discriminator (matches
- * muyajs's `listType`/`listItemType`).
+ * List-block `blockName` → list discriminator (matches muyajs's
+ * `listType` / `listItemType`: `bullet` | `order` | `task`). Keyed only on the
+ * list container blocks — list-item blocks share the `list-item` block name for
+ * both bullet and ordered lists, so an item's discriminator is read from the
+ * parent list, never from the item itself.
  */
 const LIST_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'bullet-list': 'bullet',
     'order-list': 'order',
     'task-list': 'task',
-    'list-item': 'bullet',
-    'task-list-item': 'task',
 };
 
 /**
@@ -92,11 +93,19 @@ export interface IAffiliationEntry {
     type: string;
     /** Engine block name (`bullet-list`, `code-block`, …) for callers that want the precise block. */
     blockName: string;
-    /** Present on list / list-item ancestors: `bullet` | `order` | `task`. */
+    /** Present on list ancestors (`ul` / `ol`): `bullet` | `order` | `task`. */
     listType?: string;
-    /** Present on list-item ancestors: `bullet` | `task`. */
+    /**
+     * Present on list-item ancestors (`li`): the parent list's discriminator
+     * (`bullet` | `order` | `task`). Read from the parent list because both
+     * bullet and ordered lists share the `list-item` block.
+     */
     listItemType?: string;
-    /** Whether the list / list-item is rendered loose (blank-line separated). */
+    /**
+     * Whether the enclosing list is rendered loose (blank-line separated). For
+     * `li` entries this reflects the parent list's `meta.loose`, since the
+     * looseness flag lives on the list, not the item.
+     */
     isLooseListItem?: boolean;
 }
 
@@ -121,26 +130,51 @@ function _markdownTypeOf(block: TreeNode): string | undefined {
     return CONTAINER_TYPE_BY_NAME[block.blockName];
 }
 
-function _isLoose(block: Parent): boolean {
-    // Lists carry `meta.loose`; a loose list item is one inside a loose list.
-    const meta = (block as Parent & { meta?: { loose?: boolean } }).meta;
+const LIST_BLOCK_NAMES: ReadonlySet<string> = new Set([
+    'bullet-list',
+    'order-list',
+    'task-list',
+]);
+
+function _isLoose(block: Parent | null | undefined): boolean {
+    // Lists carry `meta.loose`; list *items* do not, so loose-ness for an `li`
+    // is read from its parent list block.
+    const meta = (block as (Parent & { meta?: { loose?: boolean } }) | null)?.meta;
 
     return Boolean(meta?.loose);
+}
+
+/**
+ * Walk up from a list-item block to its enclosing list block (`bullet-list` /
+ * `order-list` / `task-list`), which owns the list discriminator and the
+ * loose/tight flag.
+ */
+function _parentListOf(item: Parent): Parent | null {
+    let node: Nullable<Parent> = item.parent;
+    while (node) {
+        if (LIST_BLOCK_NAMES.has(node.blockName))
+            return node;
+
+        node = node.parent;
+    }
+
+    return null;
 }
 
 function _buildEntry(block: Parent, type: string): IAffiliationEntry {
     const entry: IAffiliationEntry = { type, blockName: block.blockName };
 
-    const listType = LIST_TYPE_BY_NAME[block.blockName];
-    if (listType) {
-        if (type === 'li')
-            entry.listItemType = listType;
-        else
-            entry.listType = listType;
-    }
-
-    if (type === 'ul' || type === 'ol' || type === 'li')
+    if (type === 'ul' || type === 'ol') {
+        entry.listType = LIST_TYPE_BY_NAME[block.blockName];
         entry.isLooseListItem = _isLoose(block);
+    }
+    else if (type === 'li') {
+        // Both bullet and ordered items share the `list-item` block, and the
+        // loose flag lives on the parent list — derive both from there.
+        const list = _parentListOf(block);
+        entry.listItemType = list ? LIST_TYPE_BY_NAME[list.blockName] : undefined;
+        entry.isLooseListItem = _isLoose(list);
+    }
 
     return entry;
 }

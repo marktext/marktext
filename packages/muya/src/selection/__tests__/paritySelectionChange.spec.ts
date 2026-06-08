@@ -150,4 +150,41 @@ describe('parity PG1: selection-change block affiliation', () => {
             expect(item!.listItemType).toBe('task');
         },
     );
+
+    it(
+        'PG1: ordered-list items report listItemType "order" (not misclassified as bullet)',
+        () => {
+            const muya = bootMuya('1. one\n2. two\n');
+            const leaf = muya.editor.scrollPage!.firstContentInDescendant()!;
+            const payload = emitSelectionFor(muya, leaf);
+            const affiliation = payload.affiliation as Array<{
+                type: string;
+                listType?: string;
+                listItemType?: string;
+            }>;
+
+            expect(affiliation.find(e => e.type === 'ol')?.listType).toBe('order');
+            // Bullet and ordered lists share the `list-item` block; the item's
+            // discriminator must come from the parent list.
+            expect(affiliation.find(e => e.type === 'li')?.listItemType).toBe('order');
+        },
+    );
+
+    it(
+        'PG1: loose lists report isLooseListItem true on both the list and the item',
+        () => {
+            // Blank lines between items make a loose list.
+            const muya = bootMuya('- one\n\n- two\n');
+            const leaf = muya.editor.scrollPage!.firstContentInDescendant()!;
+            const payload = emitSelectionFor(muya, leaf);
+            const affiliation = payload.affiliation as Array<{
+                type: string;
+                isLooseListItem?: boolean;
+            }>;
+
+            // Loose-ness lives on the list block; the `li` entry mirrors it.
+            expect(affiliation.find(e => e.type === 'ul')?.isLooseListItem).toBe(true);
+            expect(affiliation.find(e => e.type === 'li')?.isLooseListItem).toBe(true);
+        },
+    );
 });
