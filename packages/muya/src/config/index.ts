@@ -317,6 +317,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     frontmatterType: '-',
     mermaidTheme: 'default', // dark / forest / default
     vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
+    sequenceTheme: 'hand' as 'hand' | 'simple', // hand / simple
     hideQuickInsertHint: false,
     hideLinkPopup: false,
     autoCheck: false,

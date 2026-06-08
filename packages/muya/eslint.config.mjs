@@ -99,6 +99,11 @@ export default antfu(
             'e2e/**',
             'lib/**',
             'docs/**',
+            // Vendored third-party library (js-sequence-diagrams, bramp, BSD)
+            // wired to snap.svg. Kept verbatim for feature parity with the
+            // legacy muyajs engine; not subject to our lint/format rules.
+            'src/utils/diagram/sequence/sequence-diagram-snap.js',
+            'src/utils/diagram/sequence/sequence-diagram.css',
         ],
     },
     {

@@ -48,7 +48,7 @@ export class MarkdownToHtml {
 
     async renderDiagram() {
         const selector
-            = 'code.language-vega-lite, code.language-plantuml';
+            = 'code.language-vega-lite, code.language-plantuml, code.language-flowchart, code.language-sequence';
         const codes = this._exportContainer!.querySelectorAll(selector);
 
         for (const code of codes) {
@@ -56,6 +56,10 @@ export class MarkdownToHtml {
             const functionType = (() => {
                 if (/plantuml/.test(code.className))
                     return 'plantuml';
+                else if (/flowchart/.test(code.className))
+                    return 'flowchart';
+                else if (/sequence/.test(code.className))
+                    return 'sequence';
                 else
                     return 'vega-lite';
             })();
@@ -75,6 +79,11 @@ export class MarkdownToHtml {
                     theme: 'latimes', // only render light theme
                 });
             }
+            else if (functionType === 'sequence') {
+                Object.assign(options, {
+                    theme: this.muya?.options.sequenceTheme ?? 'hand',
+                });
+            }
 
             try {
                 if (functionType === 'plantuml') {
@@ -82,8 +91,14 @@ export class MarkdownToHtml {
                     diagramContainer.innerHTML = '';
                     diagram.insertImgElement(diagramContainer);
                 }
-                if (functionType === 'vega-lite')
+                else if (functionType === 'flowchart' || functionType === 'sequence') {
+                    const diagram = render.parse(rawCode);
+                    diagramContainer.innerHTML = '';
+                    diagram.drawSVG(diagramContainer, options);
+                }
+                else if (functionType === 'vega-lite') {
                     await render(diagramContainer, JSON.parse(rawCode), options);
+                }
             }
             catch {
                 diagramContainer.innerHTML = '< Invalid Diagram >';

@@ -18,6 +18,7 @@ export interface IMuyaOptions {
     frontmatterType: string; // '-' | '+' | ';' | '{';
     mermaidTheme: string;
     vegaTheme: string;
+    sequenceTheme: 'hand' | 'simple';
     hideQuickInsertHint: boolean;
     hideLinkPopup: boolean;
     autoCheck: boolean;

@@ -1,7 +1,7 @@
 const rendererCache = new Map();
 /**
  *
- * @param {string} name the renderer name:plantuml, mermaid, vega-lite
+ * @param {string} name the renderer name: plantuml, mermaid, vega-lite, flowchart, sequence
  */
 async function loadRenderer(name: string) {
     if (!rendererCache.has(name)) {
@@ -19,6 +19,16 @@ async function loadRenderer(name: string) {
 
             case 'vega-lite':
                 m = await import('vega-embed');
+                rendererCache.set(name, m.default);
+                break;
+
+            case 'flowchart':
+                m = await import('flowchart.js');
+                rendererCache.set(name, m.default);
+                break;
+
+            case 'sequence':
+                m = await import('./sequence');
                 rendererCache.set(name, m.default);
                 break;
 

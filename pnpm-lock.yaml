@@ -319,6 +319,9 @@ importers:
       fast-diff:
         specifier: ^1.3.0
         version: 1.3.0
+      flowchart.js:
+        specifier: ^1.18.0
+        version: 1.18.0
       fuse.js:
         specifier: ^7.3.0
         version: 7.3.0
@@ -361,9 +364,15 @@ importers:
       snabbdom-to-html:
         specifier: ^7.1.0
         version: 7.1.0
+      snapsvg-cjs:
+        specifier: ^0.0.6
+        version: 0.0.6(eve@0.5.4)
       turndown:
         specifier: ^7.2.4
         version: 7.2.4
+      underscore:
+        specifier: ^1.13.8
+        version: 1.13.8
       vega:
         specifier: ^6.2.0
         version: 6.2.0
@@ -373,6 +382,9 @@ importers:
       vega-lite:
         specifier: ^6.4.3
         version: 6.4.3(vega@6.2.0)
+      webfontloader:
+        specifier: ^1.6.28
+        version: 1.6.28
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^9.0.0
@@ -392,6 +404,12 @@ importers:
       '@types/turndown':
         specifier: ^5.0.4
         version: 5.0.6
+      '@types/underscore':
+        specifier: ^1.13.0
+        version: 1.13.0
+      '@types/webfontloader':
+        specifier: ^1.6.38
+        version: 1.6.38
       '@typescript-eslint/parser':
         specifier: ^8.59.4
         version: 8.60.0(eslint@10.4.0(jiti@2.7.0))(typescript@6.0.3)
@@ -3824,6 +3842,9 @@ packages:
 
   '@types/turndown@5.0.6':
     resolution: {integrity: sha512-ru00MoyeeouE5BX4gRL+6m/BsDfbRayOskWqUvh7CLGW+UXxHQItqALa38kKnOiZPqJrtzJUgAC2+F0rL1S4Pg==}
+
+  '@types/underscore@1.13.0':
+    resolution: {integrity: sha512-L6LBgy1f0EFQZ+7uSA57+n2g/s4Qs5r06Vwrwn0/nuK1de+adz00NWaztRQ30aEqw5qOaWbPI8u2cGQ52lj6VA==}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
@@ -13810,6 +13831,8 @@ snapshots:
 
   '@types/turndown@5.0.6': {}
 
+  '@types/underscore@1.13.0': {}
+
   '@types/unist@2.0.11': {}
 
   '@types/unist@3.0.3': {}
@@ -19748,7 +19771,7 @@ snapshots:
     dependencies:
       htmlparser2: 3.10.1
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
 
   postcss-image-set-function@8.0.0(postcss@8.5.15):
     dependencies:
@@ -19760,7 +19783,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
     transitivePeerDependencies:
       - supports-color
 
@@ -19785,7 +19808,7 @@ snapshots:
   postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15):
     dependencies:
       postcss: 8.5.15
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
       remark: 10.0.1
       unist-util-find-all-after: 1.0.5
 
@@ -19955,7 +19978,7 @@ snapshots:
       lodash: 4.18.1
       postcss: 8.5.15
 
-  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15):
+  postcss-syntax@0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15):
     dependencies:
       postcss: 8.5.15
     optionalDependencies:
@@ -21170,7 +21193,7 @@ snapshots:
       postcss-sass: 0.3.5
       postcss-scss: 2.1.1
       postcss-selector-parser: 3.1.2
-      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-jsx@0.36.4(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-less@3.1.4)(postcss-markdown@0.36.0(postcss-syntax@0.36.2(postcss@8.5.15))(postcss@8.5.15))(postcss-scss@2.1.1)(postcss@8.5.15)
       postcss-value-parser: 3.3.1
       resolve-from: 4.0.0
       signal-exit: 3.0.7

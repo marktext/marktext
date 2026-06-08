@@ -14,6 +14,8 @@ const DIAGRAM_TYPE = [
     'mermaid',
     'plantuml',
     'vega-lite',
+    'flowchart',
+    'sequence',
 ];
 
 function highlight(code: string, lang: string) {
