@@ -509,25 +509,6 @@ class Selection {
                 return this._handleClickInlineImage(event, imageWrapper);
         };
 
-        const handleKeydown = (event: Event) => {
-            if (!isKeyboardEvent(event))
-                return;
-
-            const { key } = event;
-            const { selectedImage } = this;
-            // marktext ed1b3354 (#2816): `Delete` was missing from the
-            // image-selected key set, so it fell through to native
-            // contenteditable handling and removed the text *after* the
-            // image. Match key exactly to avoid substring-collisions
-            // like `BackspaceX`.
-            if (selectedImage && /^(?:Backspace|Delete|Enter)$/.test(key)) {
-                event.preventDefault();
-                const { block, ...imageInfo } = selectedImage;
-                block.deleteImage(imageInfo);
-                this.selectedImage = null;
-            }
-        };
-
         eventCenter.attachDOMEvent(domNode, 'mousedown', handleMousedown);
         eventCenter.attachDOMEvent(domNode, 'mousemove', handleMousemoveOrClick);
         eventCenter.attachDOMEvent(domNode, 'mouseup', handleMouseupOrLeave);
@@ -535,7 +516,65 @@ class Selection {
         eventCenter.attachDOMEvent(domNode, 'click', handleMousemoveOrClick);
         eventCenter.attachDOMEvent(domNode, 'click', handleClick);
         eventCenter.attachDOMEvent(document, 'click', docHandlerClick);
-        eventCenter.attachDOMEvent(document, 'keydown', handleKeydown);
+        eventCenter.attachDOMEvent(document, 'keydown', this._handleImageKeydown);
+    }
+
+    // Keydown handling while an image is selected. Bound as a field so it can
+    // be passed directly to `attachDOMEvent` and keeps `_listenSelectActions`
+    // small. No-op unless an image is currently selected.
+    private _handleImageKeydown = (event: Event) => {
+        if (!isKeyboardEvent(event))
+            return;
+
+        const { key } = event;
+        const { selectedImage } = this;
+        if (!selectedImage)
+            return;
+
+        // marktext (#2816 era): pressing Space with an image selected asks the
+        // host to open the full-screen preview. Mirror the legacy `keyboard.js`
+        // emit (`preview-image` { data: src }) and resolve the src the same way
+        // the Cmd/Ctrl-click path does, so relative / file paths become
+        // loadable URLs. `preventDefault` stops the native space from being
+        // inserted next to the selected image.
+        if (key === ' ') {
+            event.preventDefault();
+            this._previewSelectedImage(selectedImage);
+            return;
+        }
+
+        // marktext ed1b3354 (#2816): `Delete` was missing from the
+        // image-selected key set, so it fell through to native contenteditable
+        // handling and removed the text *after* the image. Match key exactly
+        // to avoid substring-collisions like `BackspaceX`.
+        if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
+            event.preventDefault();
+            const { block, ...imageInfo } = selectedImage;
+            block.deleteImage(imageInfo);
+            this.selectedImage = null;
+        }
+    };
+
+    // Resolve the selected image's src and ask the host to full-screen
+    // preview it. Mirrors the legacy `preview-image` { data: src } payload so
+    // the desktop renderer's existing subscription opens `SimpleImageViewer`.
+    // Resolution matches the Cmd/Ctrl-click path: prefer the token src
+    // (run through `getImageSrc` so relative / file paths become loadable),
+    // and fall back to the rendered <img>'s own `src` attribute.
+    private _previewSelectedImage(selectedImage: NonNullable<Selection['selectedImage']>) {
+        const { token, imageId } = selectedImage;
+        const tokenSrc = token.src || token.attrs.src || '';
+        const imgSrc
+            = this.muya.domNode
+                .querySelector<HTMLImageElement>(`#${imageId} img`)
+                ?.getAttribute('src') ?? '';
+        const src = getImageSrc(tokenSrc).src || imgSrc;
+
+        if (src) {
+            this.muya.eventCenter.emit('preview-image', {
+                data: src,
+            });
+        }
     }
 
     // Handle click inline image.

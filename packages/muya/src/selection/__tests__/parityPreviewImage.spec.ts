@@ -16,8 +16,8 @@ import { Muya } from '../../muya';
 // `preview-image` subscription is dead code. The Cmd/Ctrl-click preview path
 // survives via `format-click`, so only the keyboard affordance is lost.
 //
-// This asserts the DESIRED Space-to-preview emit and is expected to FAIL
-// today. When the engine restores the `preview-image` emit, drop the `.fails`.
+// The engine now restores the Space-to-preview emit (selection keydown
+// handler emits `preview-image` { data: src }), so these assertions pass.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -74,7 +74,7 @@ function selectImage(img: HTMLImageElement): void {
 }
 
 describe('parity PG10: Space previews a selected image', () => {
-    it.fails(
+    it(
         'PG10: pressing Space with an image selected emits preview-image',
         () => {
             const src = 'https://example.com/pic.png';
@@ -100,7 +100,7 @@ describe('parity PG10: Space previews a selected image', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG10: the preview-image payload carries the selected image src',
         () => {
             const src = 'https://example.com/pic.png';
