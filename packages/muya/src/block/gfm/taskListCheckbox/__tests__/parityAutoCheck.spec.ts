@@ -13,16 +13,12 @@ import { Muya } from '../../../../muya';
 // (`updateChildrenCheckBoxState`) and re-derived ancestors
 // (`updateParentsCheckBoxState`).
 //
-// `@muyajs/core` still accepts `autoCheck` (construction + setOptions) but
-// NOTHING reads it — `grep autoCheck packages/muya/src` finds only the type
-// decl + default. The checkbox click handler
-// (`block/gfm/taskListCheckbox/index.ts`) toggles only the clicked item via
-// `update(checked, 'user')`, so enabling `autoCheck` has no cascade effect.
+// `block/gfm/taskListCheckbox/index.ts#update` now reads `muya.options.autoCheck`
+// and, for a `user` toggle, cascades the state to every descendant task item and
+// re-derives each ancestor — restoring parity.
 //
 // We drive the checkbox's `update(checked, 'user')` directly — that is exactly
-// what the DOM click handler invokes — and assert the DESIRED cascade. These
-// are expected to FAIL today. When the engine consumes `autoCheck`, drop the
-// `.fails`.
+// what the DOM click handler invokes — and assert the cascade.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -104,7 +100,7 @@ function checkedFlags(muya: Muya): boolean[] {
 }
 
 describe('parity PG3: autoCheck task-list cascade', () => {
-    it.fails(
+    it(
         'PG3: autoCheck cascades the toggle to descendant task items',
         async () => {
             const muya = bootMuya(NESTED_TASKS, { autoCheck: true });
@@ -122,7 +118,7 @@ describe('parity PG3: autoCheck task-list cascade', () => {
         },
     );
 
-    it.fails(
+    it(
         'PG3: autoCheck re-derives the parent when all descendants become checked',
         async () => {
             const muya = bootMuya(NESTED_TASKS, { autoCheck: true });
