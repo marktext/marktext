@@ -369,6 +369,19 @@ export class Muya {
     }
 
     /**
+     * Flush every cached inline image and force them to reload.
+     *
+     * The renderer memoises loaded images, so an image whose file changed on
+     * disk would otherwise keep showing the stale bitmap. Desktop calls this
+     * after a watched image file changes or on the `mt::invalidate-image-cache`
+     * IPC; it clears the image caches and re-renders all content blocks so the
+     * images load afresh.
+     */
+    invalidateImageCache() {
+        this.editor.inlineRenderer.invalidateImageCache();
+    }
+
+    /**
      * Copy the current document as Markdown to the clipboard.
      */
     copyAsMarkdown() {

@@ -35,6 +35,30 @@ class InlineRenderer {
         return tokenizer(text, { hasBeginRules, labels, options, highlights });
     }
 
+    /**
+     * Flush every cached image and force inline images to reload.
+     *
+     * The renderer memoises loaded images in `loadImageMap` (keyed by src,
+     * skipped on the next render once `isSuccess` is true) and resolved URLs
+     * in `urlMap`. When an image file changes on disk the cached entry would
+     * otherwise keep the stale bitmap, so clearing both maps and re-rendering
+     * every content block re-runs `loadImageAsync`, which loads the source
+     * afresh. Mirrors legacy muyajs `StateRender.invalidateImageCache`.
+     */
+    invalidateImageCache() {
+        this.renderer.loadImageMap.clear();
+        this.renderer.urlMap.clear();
+
+        const { scrollPage } = this.muya.editor;
+        if (!scrollPage)
+            return;
+
+        scrollPage.breadthFirstTraverse((node) => {
+            if (node.isContent())
+                node.update();
+        });
+    }
+
     patch(block: Format, cursor?: ICursor, highlights: IHighlight[] = []) {
         this.collectReferenceDefinitions();
         const { domNode } = block;
