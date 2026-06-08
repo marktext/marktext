@@ -1,9 +1,13 @@
+import type Content from './block/base/content';
+import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { ITocItem } from './state/getTOC';
 import type { TState } from './state/types';
 import type { IMuyaOptions } from './types';
 import Format from './block/base/format';
+import { ScrollPage } from './block/scrollPage';
+import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
     MUYA_DEFAULT_OPTIONS,
@@ -14,6 +18,7 @@ import EventCenter from './event/index';
 import I18n from './i18n/index';
 import { getTOC } from './state/getTOC';
 import { Ui } from './ui/ui';
+import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -276,6 +281,82 @@ export class Muya {
      */
     pasteAsPlainText() {
         this.editor.clipboard.pasteAsPlainText();
+    }
+
+    /**
+     * The outer-most block at the current cursor — the target for block-level
+     * operations. Uses the persisted active content block (which survives the
+     * menu/IPC round-trip), falling back to the selection anchor.
+     */
+    private _outmostBlockAtCursor(): Parent | null {
+        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+
+        return content?.outMostBlock ?? null;
+    }
+
+    /**
+     * Duplicate the block at the current cursor, placing the cursor in the
+     * copy. No-op when there is no current block.
+     */
+    duplicate() {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const state = deepClone(block.getState());
+        const dupBlock = ScrollPage.loadBlock(state.name).create(this, state);
+        block.parent!.insertAfter(dupBlock, block);
+        dupBlock.lastContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Insert an empty paragraph relative to the block at the current cursor.
+     * @param location Insert `before` or `after` the current block (default `after`).
+     * @param text Initial text of the new paragraph.
+     */
+    insertParagraph(location: 'before' | 'after' = 'after', text = '') {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const state = deepClone(emptyStates.paragraph);
+        state.text = text;
+        const newBlock = ScrollPage.loadBlock('paragraph').create(this, state);
+        if (location === 'before')
+            block.parent!.insertBefore(newBlock, block);
+        else
+            block.parent!.insertAfter(newBlock, block);
+
+        newBlock.lastContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Delete the block at the current cursor, moving the cursor to an adjacent
+     * block, or to a fresh empty paragraph when it was the only block.
+     */
+    deleteParagraph() {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        let cursorBlock: Content | null = null;
+        if (block.prev) {
+            cursorBlock = block.prev.lastContentInDescendant();
+        }
+        else if (block.next) {
+            cursorBlock = block.next.firstContentInDescendant();
+        }
+        else {
+            const newBlock = ScrollPage.loadBlock('paragraph').create(
+                this,
+                deepClone(emptyStates.paragraph),
+            );
+            block.parent!.insertAfter(newBlock, block);
+            cursorBlock = newBlock.lastContentInDescendant();
+        }
+
+        block.remove();
+        cursorBlock?.setCursor(0, 0, true);
     }
 
     destroy() {
