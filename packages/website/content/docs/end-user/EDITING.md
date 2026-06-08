@@ -50,7 +50,7 @@ MarkText will automatically format your markdown document according CommonMark a
 
 #### Quick insert
 
-When you start a new line, just type @ to access a pop-up with all available markdown features. At this point, you can choose an entry and the line is transformed into the selected attribute.
+When you start a new line, just type / to access a pop-up with all available markdown features. At this point, you can choose an entry and the line is transformed into the selected attribute.
 
 ![](../assets/marktext-quick-insert.png)
 
