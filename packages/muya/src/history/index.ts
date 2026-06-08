@@ -1,6 +1,6 @@
 import type { JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
-import type { ISelection } from '../selection/types';
+import type { IHistorySelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
@@ -15,7 +15,7 @@ interface IOptions {
 
 interface IOperation {
     operation: JSONOpList;
-    selection: Nullable<ISelection>;
+    selection: Nullable<IHistorySelection>;
 }
 
 interface IStack {
@@ -29,14 +29,14 @@ interface IStack {
 // `anchorPath` / `focusPath` via `scrollPage.queryBlock(path)` when no block
 // instance is present, so a path-only selection restores the caret losslessly.
 interface ISerializableSelection {
-    anchor: ISelection['anchor'];
-    focus: ISelection['focus'];
-    anchorPath: ISelection['anchorPath'];
-    focusPath: ISelection['focusPath'];
-    isCollapsed: ISelection['isCollapsed'];
-    isSelectionInSameBlock: ISelection['isSelectionInSameBlock'];
-    direction: ISelection['direction'];
-    type: ISelection['type'];
+    anchor: IHistorySelection['anchor'];
+    focus: IHistorySelection['focus'];
+    anchorPath: IHistorySelection['anchorPath'];
+    focusPath: IHistorySelection['focusPath'];
+    isCollapsed: IHistorySelection['isCollapsed'];
+    isSelectionInSameBlock: IHistorySelection['isSelectionInSameBlock'];
+    direction: IHistorySelection['direction'];
+    type: IHistorySelection['type'];
 }
 
 interface ISerializableOperation {
@@ -70,7 +70,7 @@ const DEFAULT_OPTIONS = {
 class History {
     private _lastRecorded: number = 0;
     private _ignoreChange: boolean = false;
-    private _selectionStack: (Nullable<ISelection>)[] = [];
+    private _selectionStack: (Nullable<IHistorySelection>)[] = [];
     private _stack: IStack = {
         undo: [],
         redo: [],
@@ -192,7 +192,7 @@ class History {
 
     // Strip the live block references and keep only plain paths + offsets.
     private _toSerializableSelection(
-        selection: Nullable<ISelection>,
+        selection: Nullable<IHistorySelection>,
     ): Nullable<ISerializableSelection> {
         if (selection == null)
             return selection;
@@ -213,17 +213,17 @@ class History {
     // are intentionally omitted: the only consumers of a restored selection
     // are `editor.updateContents` and `selection._setCursor`, both of which
     // re-resolve the target block from `anchorPath` / `focusPath` via
-    // `scrollPage.queryBlock` when no block instance is present. We therefore
-    // return an `ISelection`-shaped value with the (non-serializable) block
-    // fields left off; the single cast documents that deliberate gap rather
-    // than fabricating fake `ContentBlock` instances.
+    // `scrollPage.queryBlock` when no block instance is present. The return
+    // type is `IHistorySelection`, whose `anchorBlock` / `focusBlock` are
+    // optional, so the missing block fields are part of the contract rather
+    // than an unsound cast over fabricated `ContentBlock` instances.
     private _fromSerializableSelection(
         selection: Nullable<ISerializableSelection>,
-    ): Nullable<ISelection> {
+    ): Nullable<IHistorySelection> {
         if (selection == null)
             return selection;
 
-        const restored = {
+        return {
             anchor: deepClone(selection.anchor),
             focus: deepClone(selection.focus),
             anchorPath: deepClone(selection.anchorPath),
@@ -233,9 +233,6 @@ class History {
             direction: selection.direction,
             type: selection.type,
         };
-
-        // eslint-disable-next-line no-restricted-syntax -- block fields are intentionally absent; re-resolved from the paths on apply (see comment above).
-        return restored as unknown as ISelection;
     }
 
     cutoff() {

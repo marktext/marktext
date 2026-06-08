@@ -36,3 +36,14 @@ export interface ISelection {
     direction: string;
     type: string;
 }
+
+// An `ISelection` whose live `anchorBlock` / `focusBlock` references are
+// optional. The history stacks store selections that may have lost their block
+// instances after a serialize/restore round-trip (those references are an
+// in-memory optimization re-resolved from `anchorPath` / `focusPath` on apply).
+// A full `ISelection` is assignable to this type, so live selections captured
+// via `getSelection()` still fit without any cast.
+export type IHistorySelection = Omit<ISelection, 'anchorBlock' | 'focusBlock'> & {
+    anchorBlock?: ContentBlock;
+    focusBlock?: ContentBlock;
+};
