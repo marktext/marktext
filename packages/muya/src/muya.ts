@@ -174,6 +174,27 @@ export class Muya {
         this.editor.selection.selectAll();
     }
 
+    /**
+     * Copy the current document as Markdown to the clipboard.
+     */
+    copyAsMarkdown() {
+        this.editor.clipboard.copyAsMarkdown();
+    }
+
+    /**
+     * Copy the current selection as rendered HTML to the clipboard.
+     */
+    copyAsHtml() {
+        this.editor.clipboard.copyAsHtml();
+    }
+
+    /**
+     * Paste the clipboard content as plain text at the current cursor.
+     */
+    pasteAsPlainText() {
+        this.editor.clipboard.pasteAsPlainText();
+    }
+
     destroy() {
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
