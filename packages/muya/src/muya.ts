@@ -232,18 +232,22 @@ export class Muya {
     }
 
     /**
-     * Blur the editor.
-     * @param unfocus Also blur the underlying contenteditable DOM node.
-     * @param clearSelection Clear the current selection.
+     * Blur the editor (mirrors marktext muyajs `blur`). Always hides every
+     * floating tool and blurs the contenteditable node.
+     * @param isRemoveAllRange Remove all native selection ranges.
+     * @param unSelect Clear the selected inline image so its toolbar/resize
+     * bar do not linger after the editor is blurred.
      */
-    blur(unfocus = false, clearSelection = false) {
-        if (clearSelection)
-            this.editor.selection.setSelection({ anchor: null, focus: null });
+    blur(isRemoveAllRange = false, unSelect = false) {
+        if (isRemoveAllRange)
+            document.getSelection()?.removeAllRanges();
+
+        if (unSelect)
+            this.editor.selection.selectedImage = null;
 
         this.editor.activeContentBlock = null;
-
-        if (unfocus)
-            this.domNode.blur();
+        this.ui.hideAllFloatTools();
+        this.domNode.blur();
     }
 
     /**
