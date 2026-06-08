@@ -3,7 +3,7 @@ import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { ITocItem } from './state/getTOC';
-import type { TState } from './state/types';
+import type { IBulletListState, IOrderListState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions } from './types';
 import Format from './block/base/format';
 import { ScrollPage } from './block/scrollPage';
@@ -17,6 +17,8 @@ import { Editor } from './editor/index';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import { getTOC } from './state/getTOC';
+import { isAnyListState, isAtxHeadingState } from './state/types';
+import { replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -37,6 +39,33 @@ interface IPlugin {
     plugin: IMuyaPluginConstructor;
     options: Record<string, unknown>;
 }
+
+// Maps the marktext/muyajs paragraph-menu labels the desktop sends through
+// `updateParagraph` to the muya `replaceBlockByLabel` vocabulary.
+const PARAGRAPH_LABEL_MAP: Record<string, string> = {
+    'paragraph': 'paragraph',
+    'hr': 'thematic-break',
+    'front-matter': 'frontmatter',
+    'table': 'table',
+    'mathblock': 'math-block',
+    'html': 'html-block',
+    'pre': 'code-block',
+    'blockquote': 'block-quote',
+    'heading 1': 'atx-heading 1',
+    'heading 2': 'atx-heading 2',
+    'heading 3': 'atx-heading 3',
+    'heading 4': 'atx-heading 4',
+    'heading 5': 'atx-heading 5',
+    'heading 6': 'atx-heading 6',
+    'ul-bullet': 'bullet-list',
+    'ol-order': 'order-list',
+    'ul-task': 'task-list',
+    'mermaid': 'diagram mermaid',
+    'plantuml': 'diagram plantuml',
+    'vega-lite': 'diagram vega-lite',
+    'flowchart': 'diagram flowchart',
+    'sequence': 'diagram sequence',
+};
 
 export class Muya {
     static plugins: IPlugin[] = [];
@@ -357,6 +386,135 @@ export class Muya {
 
         block.remove();
         cursorBlock?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Convert the block at the cursor to another type, mirroring marktext's
+     * `updateParagraph`. `type` uses the marktext/muyajs paragraph-menu
+     * vocabulary: `paragraph`, `heading 1`–`heading 6`, `upgrade heading`,
+     * `degrade heading`, `blockquote`, `pre`, `mathblock`, `html`, `hr`,
+     * `table`, `front-matter`, `ul-bullet`/`ol-order`/`ul-task`,
+     * `loose-list-item`, `reset-to-paragraph`, and the diagram types.
+     */
+    updateParagraph(type: string) {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        if (type === 'upgrade heading' || type === 'degrade heading') {
+            this._changeHeadingLevel(block, type);
+            return;
+        }
+
+        if (type === 'loose-list-item') {
+            this._toggleLooseList(block);
+            return;
+        }
+
+        const label = type === 'reset-to-paragraph' ? 'paragraph' : PARAGRAPH_LABEL_MAP[type];
+        if (!label)
+            return;
+
+        // Converting between list types must preserve every item, so rebuild
+        // the list rather than replacing it with a single-item list of the
+        // leading text.
+        if (label.endsWith('-list') && isAnyListState(block.getState())) {
+            this._convertListType(block, label);
+            return;
+        }
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label,
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /** Leading text of a block, with the atx hash run stripped for headings. */
+    private _blockLeadingText(block: Parent): string {
+        const text = block.firstContentInDescendant()?.text ?? '';
+
+        return block.blockName === 'atx-heading'
+            ? text.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '')
+            : text;
+    }
+
+    /** Cycle the heading level (marktext upgrade/degrade semantics). */
+    private _changeHeadingLevel(block: Parent, type: 'upgrade heading' | 'degrade heading') {
+        const state = block.getState();
+        const level = isAtxHeadingState(state) ? state.meta.level : 0;
+        let newLevel = level;
+
+        if (type === 'upgrade heading' && level !== 1)
+            newLevel = level === 0 ? 6 : level - 1;
+        else if (type === 'degrade heading' && level !== 0)
+            newLevel = level === 6 ? 0 : level + 1;
+
+        if (newLevel === level)
+            return;
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label: newLevel === 0 ? 'paragraph' : `atx-heading ${newLevel}`,
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /** Toggle loose/tight on the list at the cursor. */
+    private _toggleLooseList(block: Parent) {
+        const state = block.getState();
+        if (!isAnyListState(state))
+            return;
+
+        const newState = deepClone(state);
+        newState.meta.loose = !newState.meta.loose;
+        const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
+        block.replaceWith(newBlock);
+        newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /** Convert an existing list to another list type, preserving items. */
+    private _convertListType(block: Parent, label: string) {
+        const state = block.getState();
+        if (!isAnyListState(state) || block.blockName === label)
+            return;
+
+        const { bulletListMarker, orderListDelimiter } = this.options;
+        const loose = !!state.meta.loose;
+        const childContents: TState[][] = state.children.map(li => deepClone(li.children));
+
+        let newState: IBulletListState | IOrderListState | ITaskListState;
+        if (label === 'task-list') {
+            newState = {
+                name: 'task-list',
+                meta: { marker: bulletListMarker, loose },
+                children: childContents.map(children => ({
+                    name: 'task-list-item',
+                    meta: { checked: false },
+                    children,
+                })),
+            };
+        }
+        else if (label === 'order-list') {
+            newState = {
+                name: 'order-list',
+                meta: { delimiter: orderListDelimiter, loose, start: 1 },
+                children: childContents.map(children => ({ name: 'list-item', children })),
+            };
+        }
+        else {
+            newState = {
+                name: 'bullet-list',
+                meta: { marker: bulletListMarker, loose },
+                children: childContents.map(children => ({ name: 'list-item', children })),
+            };
+        }
+
+        const newBlock = ScrollPage.loadBlock(label).create(this, newState);
+        block.replaceWith(newBlock);
+        newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     destroy() {
