@@ -19,6 +19,7 @@ import JSONState from '../state';
 import { hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
+import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
 
 const debug = logger('editor:');
@@ -74,6 +75,10 @@ export class Editor {
         // dispatches `muya-link-tools` so the staged popover lights up.
         // Cleanup is handled by `muya.destroy()` → `detachAllDomEvents`.
         attachLinkMouseHandlers(muya);
+        // marktext PG4 (#4406 follow-up): dropping an image file or web-link
+        // image into the editor inserts it as a new `![](src)` block. Cleanup
+        // is likewise handled by `detachAllDomEvents`.
+        attachDragDropImageHandlers(muya);
         this.focus();
     }
 

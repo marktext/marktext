@@ -56,14 +56,27 @@ export interface IMuyaOptions {
      * resolve to the src that should be written into the document.
      *
      * Invoked on paste — both when a clipboard FILE path is resolved (PG06)
-     * and when an in-memory bitmap is read from `clipboardData` (PG05) — and
-     * by the image-edit toolbar. `src` is an absolute local path (or a
-     * `data:` URL for a freshly pasted bitmap). Returning the original `src`
-     * keeps the path as-is.
+     * and when an in-memory bitmap is read from `clipboardData` (PG05) — by
+     * the image-edit toolbar, and by the drag-and-drop image handler (PG04),
+     * so a dropped local image file is persisted exactly like one inserted
+     * through the toolbar. `src` is an absolute local path (or a `data:` URL
+     * for a freshly pasted bitmap). Returning the original `src` keeps the
+     * path as-is; omitting the hook uses the raw `src` verbatim.
      *
      * Ported from the legacy `@muyajs` `imageAction` option.
      */
     imageAction?: (state: IImageActionState) => Promise<string>;
+    /**
+     * Resolve a dropped `File` to a local filesystem path.
+     *
+     * The DnD `DataTransfer` exposes a `File` object but not its on-disk
+     * path; only the embedder (e.g. Electron's `webUtils.getPathForFile`)
+     * can resolve it. Provide this hook to enable dropping a local image
+     * file into the document. Return `''` when no path is available.
+     *
+     * Ported from the legacy `@muyajs` direct `webUtils.getPathForFile` call.
+     */
+    getPathForFile?: (file: File) => string;
 }
 
 /**
