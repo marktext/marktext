@@ -467,6 +467,21 @@ export class Muya {
     }
 
     /**
+     * The immediate block-level parent of the active content leaf — the
+     * paragraph/heading block that directly wraps the cursor. This mirrors the
+     * legacy `getAnchor`/`getParent` anchor used by the context-menu
+     * "Insert Paragraph Before/After" path, so a new paragraph lands as an
+     * inner sibling inside a list item / blockquote rather than jumping out to
+     * the outermost container. Uses the persisted active content block (which
+     * survives the menu/IPC round-trip), falling back to the selection anchor.
+     */
+    private _immediateBlockAtCursor(): Parent | null {
+        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+
+        return content?.parent ?? null;
+    }
+
+    /**
      * Duplicate the block at the current cursor, placing the cursor in the
      * copy. No-op when there is no current block.
      */
@@ -485,9 +500,16 @@ export class Muya {
      * Insert an empty paragraph relative to the block at the current cursor.
      * @param location Insert `before` or `after` the current block (default `after`).
      * @param text Initial text of the new paragraph.
+     * @param outMost When `true`, anchor the new paragraph to the OUTERMOST
+     *   container (the legacy "Create Paragraph Below" behaviour). When `false`
+     *   (default), anchor to the IMMEDIATE block at the cursor so the paragraph
+     *   stays as an inner sibling inside a list item / blockquote — the legacy
+     *   context-menu "Insert Paragraph Before/After" behaviour.
      */
-    insertParagraph(location: 'before' | 'after' = 'after', text = '') {
-        const block = this._outmostBlockAtCursor();
+    insertParagraph(location: 'before' | 'after' = 'after', text = '', outMost = false) {
+        const block = outMost
+            ? this._outmostBlockAtCursor()
+            : this._immediateBlockAtCursor();
         if (!block)
             return;
 

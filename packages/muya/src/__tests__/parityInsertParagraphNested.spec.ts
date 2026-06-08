@@ -13,13 +13,17 @@ import { Muya } from '../muya';
 // inserting a paragraph while the cursor sat inside a list item / blockquote
 // landed the new paragraph as an inner sibling, INSIDE the structure.
 //
-// `@muyajs/core`'s `insertParagraph(location, text)` ALWAYS resolves the target
-// via `_outmostBlockAtCursor()` → `outMostBlock` (the OUTERMOST container). So
-// in a nested list/blockquote the new paragraph lands AFTER the entire outer
-// block (at document root) instead of as an inner sibling.
+// `@muyajs/core`'s `insertParagraph(location, text)` originally ALWAYS resolved
+// the target via `_outmostBlockAtCursor()` → `outMostBlock` (the OUTERMOST
+// container), so in a nested list/blockquote the new paragraph landed AFTER the
+// entire outer block (at document root) instead of as an inner sibling.
 //
-// This asserts the DESIRED immediate-anchor behaviour and is expected to FAIL
-// today. When the engine restores the immediate-anchor path, drop the `.fails`.
+// The engine now restores the immediate-anchor path: `insertParagraph` gained a
+// third `outMost` flag (default `false`) that anchors to the IMMEDIATE block at
+// the cursor, matching the legacy context-menu "Insert Paragraph Before/After"
+// behaviour. The explicit "Create Paragraph Below" caller passes `outMost=true`
+// to keep anchoring at the outermost container. These specs assert the restored
+// immediate-anchor behaviour and now PASS.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -87,7 +91,7 @@ function existsAnywhere(muya: Muya, text: string): boolean {
 }
 
 describe('parity PG13: insertParagraph anchors to the immediate block in nested structures', () => {
-    it.fails(
+    it(
         'PG13: inserting after a nested list item keeps the new paragraph inside the list, not at document root',
         async () => {
             const muya = bootMuya('- outer\n\n  - inner1\n  - inner2\n');
@@ -107,7 +111,7 @@ describe('parity PG13: insertParagraph anchors to the immediate block in nested 
         },
     );
 
-    it.fails(
+    it(
         'PG13: inserting after a paragraph inside a blockquote stays inside the blockquote',
         async () => {
             const muya = bootMuya('> quoted line\n');

@@ -52,6 +52,26 @@ function placeCursorOnFirstBlock(muya: Muya): Content {
     return first;
 }
 
+// Place the cursor on the leaf content block whose text matches `text`, the way
+// a click sets `activeContentBlock`. Used to exercise nested-block anchoring.
+function placeCursorOn(muya: Muya, text: string): Content {
+    let target: Content | null = null;
+    const visit = (block: { text?: string; constructor: { blockName?: string }; children?: { forEach: (cb: (b: unknown) => void) => void } }) => {
+        if (
+            (block.constructor as { blockName?: string }).blockName?.endsWith('.content')
+            && block.text === text
+        ) {
+            target = block as unknown as Content;
+        }
+        block.children?.forEach(b => visit(b as typeof block));
+    };
+    visit(muya.editor.scrollPage as unknown as Parameters<typeof visit>[0]);
+    if (!target)
+        throw new Error(`content block with text "${text}" not found`);
+    muya.editor.activeContentBlock = target;
+    return target;
+}
+
 describe('muya block editing api', () => {
     it('duplicate() copies the current block in place', async () => {
         const muya = bootMuya('# Title\n\nbody\n');
@@ -89,6 +109,22 @@ describe('muya block editing api', () => {
             expect(after[1].name).toBe('atx-heading');
         });
         expect(muya.getMarkdown()).toContain('intro');
+    });
+
+    it('insertParagraph("after", text, true) anchors at the outermost block in nested structures', async () => {
+        // The explicit "Create Paragraph Below" caller passes outMost=true, so a
+        // cursor inside a blockquote inserts the new paragraph AFTER the whole
+        // blockquote at document root — not as an inner sibling.
+        const muya = bootMuya('> quoted line\n');
+        placeCursorOn(muya, 'quoted line');
+        muya.insertParagraph('after', 'OUTERSIBLING', true);
+        await vi.waitFor(() => {
+            const after = muya.getState();
+            expect(after.length).toBe(2);
+            expect(after[0].name).toBe('block-quote');
+            expect(after[1].name).toBe('paragraph');
+        });
+        expect(muya.getMarkdown()).toContain('OUTERSIBLING');
     });
 
     it('deleteParagraph() removes the current block and keeps the rest', async () => {
