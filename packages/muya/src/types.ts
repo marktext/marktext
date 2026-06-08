@@ -37,6 +37,19 @@ export interface IMuyaOptions {
     };
     json?: TState[];
     markdown?: string;
+    /**
+     * Resolve the OS clipboard to a local file path on paste.
+     *
+     * When the user pastes and the system clipboard holds a file (for
+     * example an image copied from a file manager rather than image bytes),
+     * the embedder resolves it to an absolute path. If this hook is provided
+     * and returns a non-empty path with an image extension, muya inserts that
+     * path as an inline image at the cursor instead of running the default
+     * text/HTML paste. Return `''` to fall through to the normal paste flow.
+     *
+     * Ported from the legacy `@muyajs` `clipboardFilePath` option.
+     */
+    clipboardFilePath?: () => Promise<string>;
 }
 
 export type Nullable<T> = T | null | undefined | void;

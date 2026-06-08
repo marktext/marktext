@@ -1,4 +1,4 @@
-import { PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config';
+import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config';
 import { sanitize } from '../utils';
 
 const TIMEOUT = 1500;
@@ -124,6 +124,31 @@ export function isStandaloneTableHtml(text: string) {
     if (!text)
         return false;
     return STANDALONE_TABLE_REG.test(text.trim());
+}
+
+/**
+ * Resolve the `clipboardFilePath` paste hook to a usable inline-image path.
+ *
+ * Returns the resolved path only when the hook yields a non-empty string that
+ * looks like an image file (its extension matches {@link IMAGE_EXT_REG});
+ * otherwise returns `''` so the caller falls through to the normal text/HTML
+ * paste. Ported from the legacy `@muyajs` `pasteImage` guard, which inserted
+ * the resolved path as an image when it matched the same extension regex.
+ *
+ * @param hook the `options.clipboardFilePath` callback, if configured
+ */
+export async function resolveClipboardImagePath(
+    hook: (() => Promise<string>) | undefined,
+): Promise<string> {
+    if (typeof hook !== 'function')
+        return '';
+
+    const path = await hook();
+
+    if (typeof path === 'string' && path && IMAGE_EXT_REG.test(path))
+        return path;
+
+    return '';
 }
 
 /**

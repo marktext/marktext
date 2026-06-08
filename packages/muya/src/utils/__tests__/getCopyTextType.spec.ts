@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { getCopyTextType, isStandaloneTableHtml } from '../paste';
+import { describe, expect, it, vi } from 'vitest';
+import { getCopyTextType, isStandaloneTableHtml, resolveClipboardImagePath } from '../paste';
 
 // Regression for marktext commit 067ec485 (#1271).
 // Some clipboard sources (e.g. Apple Numbers, certain spreadsheet
@@ -67,5 +67,55 @@ describe('getCopyTextType — pre-existing classifier behaviour stays put', () =
         expect(
             getCopyTextType('<p>hi</p>', '<p>hi</p>', 'pasteAsPlainText'),
         ).toBe('code');
+    });
+});
+
+// Ported from the legacy `@muyajs` `clipboardFilePath` paste hook: on paste,
+// the embedder may resolve the OS clipboard to a local file path. Only a
+// non-empty, image-extension path should short-circuit the normal text/HTML
+// paste and be inserted as an inline image.
+describe('resolveClipboardImagePath', () => {
+    it('returns "" when no hook is provided', async () => {
+        expect(await resolveClipboardImagePath(undefined)).toBe('');
+    });
+
+    it('returns the path when the hook resolves an image file', async () => {
+        const hook = vi.fn().mockResolvedValue('/tmp/screenshot.png');
+        expect(await resolveClipboardImagePath(hook)).toBe('/tmp/screenshot.png');
+        expect(hook).toHaveBeenCalledOnce();
+    });
+
+    it('accepts every supported image extension (case-insensitive)', async () => {
+        for (const path of [
+            '/a/b.JPG',
+            '/a/b.jpeg',
+            '/a/b.png',
+            '/a/b.gif',
+            '/a/b.svg',
+            '/a/b.webp',
+        ]) {
+            expect(await resolveClipboardImagePath(() => Promise.resolve(path))).toBe(
+                path,
+            );
+        }
+    });
+
+    it('tolerates a query string after the extension', async () => {
+        expect(
+            await resolveClipboardImagePath(() => Promise.resolve('/a/b.png?x=1')),
+        ).toBe('/a/b.png?x=1');
+    });
+
+    it('returns "" when the hook resolves an empty string', async () => {
+        expect(await resolveClipboardImagePath(() => Promise.resolve(''))).toBe('');
+    });
+
+    it('returns "" when the resolved path is not an image', async () => {
+        expect(
+            await resolveClipboardImagePath(() => Promise.resolve('/a/b.txt')),
+        ).toBe('');
+        expect(
+            await resolveClipboardImagePath(() => Promise.resolve('/a/b.pdf')),
+        ).toBe('');
     });
 });

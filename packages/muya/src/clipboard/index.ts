@@ -15,7 +15,7 @@ import StateToMarkdown from '../state/stateToMarkdown';
 import { isAnyListState, isParagraphState } from '../state/types';
 import { deepClone, isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipBoardHtml } from '../utils/marked';
-import { getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
+import { getCopyTextType, isStandaloneTableHtml, normalizePastedHTML, resolveClipboardImagePath } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 
 class Clipboard {
@@ -613,6 +613,18 @@ class Clipboard {
         if (!anchorBlock || !event.clipboardData)
             return;
 
+        // When the OS clipboard holds a file (e.g. an image copied from a
+        // file manager), let the embedder resolve it to a local path and
+        // insert it as an inline image, short-circuiting the text/HTML paste.
+        // Ported from the legacy `@muyajs` `clipboardFilePath` hook.
+        const imagePath = await resolveClipboardImagePath(
+            muya.options.clipboardFilePath,
+        );
+        if (imagePath) {
+            this.insertImagePath(anchorBlock, imagePath);
+            return;
+        }
+
         const text = event.clipboardData.getData('text/plain');
         let html = event.clipboardData.getData('text/html');
 
@@ -738,6 +750,37 @@ class Clipboard {
 
             newBlock.lastContentInDescendant().setCursor(offset, offset, true);
         }
+    }
+
+    /**
+     * Insert a resolved clipboard file path as an inline image at the cursor.
+     *
+     * Inline images in muya are plain markdown text (`![](src)`) on a content
+     * block; rendering turns the token into an image. We splice the image
+     * markdown into the anchor block at the current selection (replacing any
+     * collapsed/expanded range) and place the cursor after it. The src is
+     * escaped the same way as {@link Format.replaceImage} so spaces and `#`
+     * survive in the path.
+     */
+    private insertImagePath(anchorBlock: Content, src: string): void {
+        const cursor = anchorBlock.getCursor();
+        if (!cursor)
+            return;
+
+        const { start, end } = cursor;
+        const { text: content } = anchorBlock;
+        const escapedSrc = src
+            .replace(/ /g, encodeURI(' '))
+            .replace(/#/g, encodeURIComponent('#'));
+        const imageText = `![](${escapedSrc})`;
+
+        anchorBlock.text
+            = content.substring(0, start.offset)
+                + imageText
+                + content.substring(end.offset);
+
+        const offset = start.offset + imageText.length;
+        anchorBlock.setCursor(offset, offset, true);
     }
 
     copyAsMarkdown() {
