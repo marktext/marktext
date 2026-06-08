@@ -106,7 +106,7 @@ describe('imagePathPicker — render on muya-image-picker event', () => {
         eventCenter.emit('muya-image-picker', { reference, list, cb });
         await nextTick();
 
-        const second = picker.floatBox!.querySelector('[data-label="second.png"]') as HTMLElement;
+        const second = picker.floatBox!.querySelector('[data-index="1"]') as HTMLElement;
         second.click();
 
         expect(cb).toHaveBeenCalledTimes(1);

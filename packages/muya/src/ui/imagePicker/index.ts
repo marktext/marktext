@@ -82,7 +82,7 @@ export class ImagePathPicker extends BaseScrollFloat {
 
     render() {
         const { renderArray, _oldVNode: oldVNode, scrollElement, activeItem } = this;
-        const children = renderArray.map((item) => {
+        const children = renderArray.map((item, index) => {
             const { text, iconClass } = item;
             // Icons are font-icon classes (parity placeholder for the legacy
             // inline SVGs — see PR notes). When the host omits `iconClass` we
@@ -96,8 +96,11 @@ export class ImagePathPicker extends BaseScrollFloat {
             return h(
                 selector,
                 {
+                    // Index-based lookup — file names can contain quotes/brackets
+                    // (unsafe in an attribute selector) and duplicate basenames
+                    // would otherwise collide on a text-based attribute.
                     dataset: {
-                        label: text,
+                        index: String(index),
                     },
                     on: {
                         click: () => {
@@ -120,9 +123,11 @@ export class ImagePathPicker extends BaseScrollFloat {
     }
 
     getItemElement(item: IImagePathSuggestion): HTMLElement | null {
-        const { text } = item;
+        const index = this.renderArray.indexOf(item);
+        if (index < 0)
+            return null;
 
-        return query<HTMLElement>(`[data-label="${text}"]`, this.floatBox!);
+        return query<HTMLElement>(`[data-index="${index}"]`, this.floatBox!);
     }
 }
 

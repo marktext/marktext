@@ -21,6 +21,10 @@
 .mu-image-picker-wrapper .mu-list-picker .item {
     display: flex;
     align-items: center;
+
+    /* override codeBlockLanguageSelector's global `.mu-list-picker .item`
+       justify-content: space-between, which would push icon/text apart */
+    justify-content: flex-start;
     height: 28px;
     padding: 0 10px;
 

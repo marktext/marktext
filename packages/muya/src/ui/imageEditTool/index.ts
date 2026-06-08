@@ -79,6 +79,9 @@ export class ImageEditTool extends BaseFloat {
     /** The block containing the image */
     private _block: Format | null = null;
 
+    /** Monotonic counter used to drop out-of-order imagePathAutoComplete responses */
+    private _autoCompleteSeq = 0;
+
     /** Current editing state */
     private _state: IState = {
         alt: '',
@@ -207,12 +210,17 @@ export class ImageEditTool extends BaseFloat {
         switch (event.key) {
             case EVENT_KEYS.ArrowUp:
                 event.preventDefault();
+                // Stop the editor's BaseScrollFloat keydown handler (bound on
+                // muya.domNode) from also stepping the picker — otherwise the
+                // active item advances twice per keypress.
+                event.stopPropagation();
                 picker.step('previous');
                 break;
 
             case EVENT_KEYS.ArrowDown:
             case EVENT_KEYS.Tab:
                 event.preventDefault();
+                event.stopPropagation();
                 picker.step('next');
                 break;
 
@@ -266,10 +274,14 @@ export class ImageEditTool extends BaseFloat {
                 return;
 
             const { text } = item;
+            // Derive the directory prefix from the CURRENT input value — the
+            // user may have kept typing after the suggestions were fetched, so
+            // the value captured on keyup can be stale.
+            const current = reference.value;
             let basePath = '';
-            const pathSep = value.match(/(?:\/|\\)[^/\\]*$/);
+            const pathSep = current.match(/(?:\/|\\)[^/\\]*$/);
             if (pathSep && pathSep[0])
-                basePath = value.substring(0, pathSep.index! + 1);
+                basePath = current.substring(0, pathSep.index! + 1);
 
             const newValue = basePath + text;
             const len = newValue.length;
@@ -279,7 +291,12 @@ export class ImageEditTool extends BaseFloat {
             reference.setSelectionRange(len, len);
         };
 
+        // Guard against out-of-order resolution: if the user types again before
+        // a slower earlier request resolves, drop the stale response.
+        const seq = ++this._autoCompleteSeq;
         const list = value ? await this.options.imagePathAutoComplete(value) : [];
+        if (seq !== this._autoCompleteSeq)
+            return;
         eventCenter.emit('muya-image-picker', { reference, list, cb });
     }
 
