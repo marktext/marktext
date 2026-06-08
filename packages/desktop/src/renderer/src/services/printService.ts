@@ -1,3 +1,13 @@
+// NOTE: still sourced from the legacy muyajs engine. The desktop calls
+// `getImageInfo(rawSrc: string)` to normalise an <img>'s src attribute into a
+// displayable URL before printing/PDF export (GH#678). @muyajs/core has no
+// behaviour-equivalent string helper:
+//   - its `getImageInfo(image: HTMLElement)` takes a DOM element, not a string;
+//   - its `getImageSrc(src: string)` double-prefixes already-resolved `file://`
+//     URLs (`file://file://…`) and blanks data: URLs — and the muyajs export
+//     renderer already emits absolute `file://` srcs here, so that would
+//     regress every image. This import migrates once the export render path
+//     (editor.vue / Muya#exportStyledHTML) moves to @muyajs/core.
 import { getImageInfo } from 'muya/lib/utils'
 
 class MarkdownPrint {
