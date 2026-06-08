@@ -8,6 +8,9 @@
 export const editor = {
     container: '#editor',
     root: '.mu-editor',
+    // Editor root carries this class while focus mode is enabled (toggled by
+    // `Muya#setFocusMode` / applied at construction for `focusMode: true`).
+    focusModeRoot: '.mu-editor.mu-focus-mode',
     paragraph: '.mu-paragraph',
     atxHeading: '.mu-atx-heading',
     setextHeading: '.mu-setext-heading',

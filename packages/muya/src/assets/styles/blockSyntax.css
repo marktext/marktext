@@ -853,3 +853,18 @@ pre.mu-active.mu-fenced-code::after {
 .mu-container figure.mu-footnote > i.mu-footnote-backlink:hover {
     color: var(--theme-color);
 }
+
+/* Focus mode (mirrors marktext muyajs `.ag-focus-mode`): when the editor
+   container carries `mu-focus-mode`, dim every top-level block and restore full
+   opacity on the active one. `mu-active` is applied to the whole ancestor chain
+   of the focused content block, so the top-level block containing the cursor
+   keeps `opacity: 1`. The class is toggled by `Muya#setFocusMode`. */
+.mu-focus-mode .mu-container > * {
+    opacity: 0.25;
+
+    transition: opacity 0.2s ease-in-out;
+}
+
+.mu-focus-mode .mu-container > .mu-active {
+    opacity: 1;
+}

@@ -176,6 +176,21 @@ export class Muya {
         this.editor.focus();
     }
 
+    /**
+     * Toggle focus mode (mirrors marktext muyajs `setFocusMode`). When enabled,
+     * every top-level block except the one holding the cursor is dimmed via the
+     * `mu-focus-mode` class on the editor container; the dimming itself lives in
+     * the stylesheet (`.mu-focus-mode .mu-container > * { opacity }`).
+     */
+    setFocusMode(focusMode: boolean) {
+        if (focusMode)
+            this.domNode.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
+        else
+            this.domNode.classList.remove(CLASS_NAMES.MU_FOCUS_MODE);
+
+        this.options.focusMode = focusMode;
+    }
+
     selectAll() {
         this.editor.selection.selectAll();
     }
@@ -376,7 +391,7 @@ export class Muya {
  * [ensureContainerDiv ensure container element is div]
  */
 function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
-    const { spellcheckEnabled, hideQuickInsertHint } = options;
+    const { spellcheckEnabled, hideQuickInsertHint, focusMode } = options;
     const newContainer = document.createElement('div');
     const attrs = originContainer.attributes;
     // Copy attrs from origin container to new container
@@ -386,6 +401,11 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
 
     if (!hideQuickInsertHint)
         newContainer.classList.add(CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT);
+
+    // Apply focus mode at construction when initially enabled; `setFocusMode`
+    // toggles it thereafter.
+    if (focusMode)
+        newContainer.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
 
     newContainer.classList.add(CLASS_NAMES.MU_EDITOR);
 
