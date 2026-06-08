@@ -79,4 +79,23 @@ describe('parity PG8: exported headings carry slug ids (live TOC anchors)', () =
             expect(out).toMatch(/<h2[^>]*\sid="installation"/);
         },
     );
+
+    it(
+        'PG8: duplicate / chained-collision headings get unique ids',
+        async () => {
+            // `heading`, `heading`, then a heading literally titled `heading-1`
+            // exercises the chained-collision case: naive per-base dedup would
+            // emit `heading-1` twice. Every id must be unique so anchors point
+            // at exactly one target (matching the legacy Slugger).
+            const out = await generateExport(
+                '# heading\n\n## heading\n\n## heading-1\n',
+            );
+            const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map(
+                m => m[1],
+            );
+
+            expect(ids).toEqual(['heading', 'heading-1', 'heading-1-1']);
+            expect(new Set(ids).size).toBe(ids.length);
+        },
+    );
 });

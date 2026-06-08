@@ -129,21 +129,34 @@ export class MarkdownToHtml {
 
     // Assign a github-compatible slug `id` to every `<h1>..<h6>` in the
     // export container. Headings that already carry an explicit id (none today,
-    // but defensive) are left as-is. Duplicate slugs are deduplicated with a
-    // `-N` suffix so each anchor target is unique, matching github / the legacy
-    // muyajs Slugger.
+    // but defensive) are left as-is and reserve that id. Duplicates are
+    // deduplicated by incrementing a `-N` suffix until the *full* candidate id
+    // is unused — so a later heading whose text already looks like an earlier
+    // `-N` slug (e.g. `heading`, `heading`, `heading-1`) still resolves to a
+    // unique anchor, matching github / the legacy muyajs Slugger.
     private _injectHeadingIds(container: HTMLElement) {
         const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        const seen = new Map<string, number>();
+        const seen = new Set<string>();
+
+        // Reserve any pre-existing ids first so generated slugs never collide
+        // with them.
+        for (const heading of headings) {
+            if (heading.id)
+                seen.add(heading.id);
+        }
 
         for (const heading of headings) {
             if (heading.id)
                 continue;
 
             const base = generateGithubSlug(heading.textContent ?? '') || 'heading';
-            const count = seen.get(base) ?? 0;
-            seen.set(base, count + 1);
-            heading.id = count === 0 ? base : `${base}-${count}`;
+            let slug = base;
+            let n = 1;
+            while (seen.has(slug))
+                slug = `${base}-${n++}`;
+
+            seen.add(slug);
+            heading.id = slug;
         }
     }
 
