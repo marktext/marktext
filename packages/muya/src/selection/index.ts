@@ -305,6 +305,20 @@ class Selection {
             selectedImage,
         } = this;
 
+        // Backport of marktext's `selectionChange` payload extras the desktop
+        // relies on: `cursorCoords` for typewriter-mode scrolling and the
+        // active inline formats at the cursor for lighting up the toolbar.
+        const cursorCoords = Selection.getCursorCoords();
+        // Duck-type the Format block — a value import of Format here would
+        // create a selection -> format circular dependency.
+        const anchorBlockRef = this.anchorBlock as Format | null;
+        const formats
+            = isSelectionInSameBlock
+                && anchorBlockRef
+                && typeof anchorBlockRef.getFormatsInRange === 'function'
+                ? anchorBlockRef.getFormatsInRange().formats
+                : [];
+
         this.muya.eventCenter.emit('selection-change', {
             anchor,
             focus,
@@ -317,6 +331,8 @@ class Selection {
             direction,
             type,
             selectedImage,
+            cursorCoords,
+            formats,
         });
     }
 
