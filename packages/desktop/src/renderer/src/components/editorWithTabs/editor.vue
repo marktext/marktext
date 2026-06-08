@@ -1518,9 +1518,12 @@ onMounted(() => {
   }
   container.addEventListener('scroll', scrollHandler, { passive: true })
 
-  // NOTE (gap): the engine does not emit `heading-copy-link` yet, so the
-  // hover-to-copy-heading-anchor affordance is unavailable. `scroll-to-header`
-  // (TOC navigation) and `copyGithubSlug` (via the command/menu) still work.
+  // Clicking the hover-to-copy affordance on a heading emits `heading-copy-link`
+  // with the heading's stable slug; copy the matching GitHub anchor to the
+  // clipboard (resolved via `listToc.find(i => i.slug === key)`).
+  editor.value.on('heading-copy-link', ({ key }: { key: string }) => {
+    editorStore.copyGithubSlug(key)
+  })
 
   editor.value.on(
     'format-click',
