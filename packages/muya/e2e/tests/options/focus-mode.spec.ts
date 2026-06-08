@@ -41,22 +41,18 @@ test.describe('options / focus-mode', () => {
         });
         expect(focused).toBe(true);
 
-        const dimmed = await page.evaluate(() => {
-            const blocks = Array.from(document.querySelectorAll('.mu-container > *')) as HTMLElement[];
-            return blocks.map((b) => {
-                const isActive = b.classList.contains('mu-active');
-                return { isActive, opacity: getComputedStyle(b).opacity };
-            });
-        });
         // Exactly one top-level block (the active one) is at full opacity; the
-        // rest are dimmed to 0.25.
-        const active = dimmed.filter(b => b.isActive);
-        const inactive = dimmed.filter(b => !b.isActive);
-        expect(active.length).toBe(1);
-        expect(active[0].opacity).toBe('1');
-        expect(inactive.length).toBeGreaterThan(0);
-        for (const b of inactive)
-            expect(b.opacity).toBe('0.25');
+        // rest are dimmed to 0.25. Use auto-retrying `toHaveCSS` so the
+        // `opacity 0.2s` transition has settled before we read the value.
+        const activeBlock = page.locator('.mu-container > .mu-active');
+        await expect(activeBlock).toHaveCount(1);
+        await expect(activeBlock).toHaveCSS('opacity', '1');
+
+        const inactiveBlocks = page.locator('.mu-container > :not(.mu-active)');
+        const inactiveCount = await inactiveBlocks.count();
+        expect(inactiveCount).toBeGreaterThan(0);
+        for (let i = 0; i < inactiveCount; i++)
+            await expect(inactiveBlocks.nth(i)).toHaveCSS('opacity', '0.25');
     });
 
     test('focusMode: false (default) — option reflected as false, no class', async ({ page }) => {
