@@ -3,6 +3,7 @@ import type { ILocale } from './i18n/types';
 import type { ITocItem } from './state/getTOC';
 import type { TState } from './state/types';
 import type { IMuyaOptions } from './types';
+import Format from './block/base/format';
 import {
     CLASS_NAMES,
     MUYA_DEFAULT_OPTIONS,
@@ -172,6 +173,46 @@ export class Muya {
 
     selectAll() {
         this.editor.selection.selectAll();
+    }
+
+    /**
+     * Toggle an inline format on the current selection.
+     * @param type One of strong/em/u/del/inline_code/link/image/inline_math/
+     * sub/sup/mark/clear (and html_tag aliases). No-op when the selection is
+     * not inside a single formattable block.
+     */
+    format(type: string) {
+        const { selection } = this.editor;
+        const sel = selection.getSelection();
+        if (!sel)
+            return;
+
+        const {
+            anchor,
+            focus,
+            anchorBlock,
+            anchorPath,
+            focusBlock,
+            focusPath,
+            isSelectionInSameBlock,
+        } = sel;
+
+        if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
+            return;
+
+        // Restore the selection before applying the format, mirroring the
+        // inline format toolbar — the menu/IPC round-trip can drop the live
+        // DOM selection.
+        selection.setSelection({
+            anchor,
+            focus,
+            anchorBlock,
+            anchorPath,
+            focusBlock,
+            focusPath,
+        });
+
+        anchorBlock.format(type);
     }
 
     /**
