@@ -268,6 +268,27 @@ export class Muya {
     }
 
     /**
+     * Replace the word at the current cursor with `replacement`, then place the
+     * cursor after the replacement.
+     *
+     * Mirrors legacy muyajs `_replaceCurrentWordInlineUnsafe`. The desktop spell
+     * checker calls this when the user picks a suggestion from the misspelled-word
+     * context menu (Chromium has already selected the whole word). Unsafe: the
+     * call is a no-op unless the word at the cursor matches `word`.
+     *
+     * @param word The expected (misspelled) word at the cursor.
+     * @param replacement The replacement word.
+     * @returns True when the replacement was applied.
+     */
+    replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
+        const block = this.editor.activeContentBlock;
+        if (!block)
+            return false;
+
+        return block.replaceCurrentWordInlineUnsafe(word, replacement);
+    }
+
+    /**
      * Return the current selection, or null when the editor has no selection.
      */
     getSelection() {
