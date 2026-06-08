@@ -4,7 +4,7 @@
 
 .mu-container {
     box-sizing: border-box;
-    max-width: 800px;
+    max-width: var(--editor-area-width, 800px);
     min-height: 100%;
     margin: 0 auto;
     padding: 0 50px 100px;
@@ -43,26 +43,32 @@
 }
 
 .mu-container h1 {
+    color: var(--h1-color, var(--editor-color-80));
     font-size: 1.875em;
 }
 
 .mu-container h2 {
+    color: var(--h2-color, var(--editor-color-80));
     font-size: 1.5em;
 }
 
 .mu-container h3 {
+    color: var(--h3-color, var(--editor-color-80));
     font-size: 1.375em;
 }
 
 .mu-container h4 {
+    color: var(--h4-color, var(--editor-color-80));
     font-size: 1.25em;
 }
 
 .mu-container h5 {
+    color: var(--h5-color, var(--editor-color-80));
     font-size: 1.125em;
 }
 
 .mu-container h6 {
+    color: var(--h6-color, var(--editor-color-80));
     font-size: 1em;
 }
 
@@ -74,7 +80,7 @@
     margin-left: 0;
     padding: 0 1em;
 
-    color: var(--editor-color-50);
+    color: var(--blockquote-text-color, var(--editor-color-50));
 
     font-size: 1em;
 }
@@ -88,7 +94,7 @@
     width: 3px;
     height: calc(100% - 1em);
 
-    background: var(--editor-color-30);
+    background: var(--blockquote-border-color, var(--editor-color-30));
 
     content: '';
 }
@@ -111,7 +117,7 @@
     width: 100%;
     height: 1px;
 
-    background: var(--editor-color-10);
+    background: var(--hr-color, var(--editor-color-10));
 
     content: '';
 }
@@ -309,6 +315,13 @@ ol.mu-order-list {
 
 ul.mu-bullet-list {
     list-style: disc outside none;
+}
+
+/* list markers — default to `inherit` (current text color) so the bundled
+   light theme is unchanged; themes can recolor the bullets / numbers. */
+ol.mu-order-list > li::marker,
+ul.mu-bullet-list > li::marker {
+    color: var(--list-marker-color, inherit);
 }
 
 ul.mu-bullet-list:first-child,

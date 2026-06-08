@@ -17,7 +17,7 @@
 /* link and auto-link and reference link */
 a.mu-inline-rule,
 span.mu-inline-rule.mu-link {
-    color: rgb(20 86 240);
+    color: var(--link-color, rgb(20 86 240));
 }
 
 /* Note: previously this rule also set `pointer-events: none` to suppress
@@ -29,6 +29,16 @@ span.mu-inline-rule.mu-link {
 
 .mu-link-in-bracket {
     color: var(--editor-color-50);
+}
+
+/* strong and emphasis — default to `inherit` (the surrounding editor color)
+   so the bundled light theme is unchanged; themes can recolor them. */
+strong.mu-inline-rule {
+    color: var(--strong-color, inherit);
+}
+
+em.mu-inline-rule {
+    color: var(--em-color, inherit);
 }
 
 /* inline code */
