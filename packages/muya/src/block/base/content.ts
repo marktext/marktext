@@ -21,7 +21,7 @@ import {
 // const debug = logger('block.content:')
 
 // Word boundary regexes ported from legacy muyajs
-// (lib/contentState/core.js), which in turn derive from VSCode's wordHelper.
+// (lib/marktext/spellchecker.js), which in turn derive from VSCode's wordHelper.
 // Used by `extractWord` to find the word at the cursor for spell-check
 // replacement.
 const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
@@ -30,7 +30,7 @@ const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g
 /**
  * Extract the word at the given offset from the text.
  *
- * Ported from legacy muyajs `extractWord` (lib/contentState/core.js).
+ * Ported from legacy muyajs `extractWord` (lib/marktext/spellchecker.js).
  *
  * @param text The line text.
  * @param offset Normalized cursor offset (e.g. `ab|c def` -> 2).
