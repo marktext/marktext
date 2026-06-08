@@ -271,14 +271,24 @@ let scrollHandler: ((e: Event) => void) | null = null
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
 // is migrated separately). We therefore keep the real engine history in a
 // per-tab map here for restoration across in-session tab switches, and feed the
-// store a SYNTHETIC desktop-shaped history whose entry id changes on every edit
-// so the store's `isSaved` logic keeps flipping correctly.
+// store a SYNTHETIC desktop-shaped history.
+//
+// The synthetic entry id is the engine undo-stack DEPTH — a stable position
+// marker, NOT an ever-incrementing counter. The store records the save-time id
+// as `lastSavedHistoryId` and clears the dirty indicator whenever the current
+// id matches it again. Using the undo-stack depth means undoing back to the
+// on-disk content returns the id to its saved value, so the saved/clean
+// indicator is restored (parity with the legacy history-index behaviour). An
+// ever-incrementing counter never matched again after an undo, leaving the tab
+// permanently dirty even when its content matched disk.
 const engineHistoryByTab = new Map<string, unknown>()
-let editSeq = 0
-const makeSyntheticHistory = (): IFileHistoryLike => {
-  editSeq += 1
+const engineUndoDepth = (history: unknown): number => {
+  const stack = (history as { stack?: { undo?: unknown[] } } | null)?.stack
+  return Array.isArray(stack?.undo) ? stack.undo.length : 0
+}
+const makeSyntheticHistory = (engineHistory: unknown): IFileHistoryLike => {
   return {
-    stack: [{ id: editSeq }],
+    stack: [{ id: engineUndoDepth(engineHistory) }],
     index: 0,
     lastEditIndex: 0,
     lastInitIndex: -1
@@ -1533,8 +1543,10 @@ onMounted(() => {
     const { id } = currentFile.value
     if (!id) return
     const markdown = editor.value.getMarkdown()
-    // Stash the real engine history for in-session tab-switch restoration.
-    engineHistoryByTab.set(id, editor.value.getHistory())
+    // Stash the real engine history for in-session tab-switch restoration, and
+    // derive the synthetic save-tracking id from its undo-stack depth.
+    const engineHistory = editor.value.getHistory()
+    engineHistoryByTab.set(id, engineHistory)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
       id,
       markdown,
@@ -1542,7 +1554,7 @@ onMounted(() => {
       cursor: serializeCursor(editor.value.getSelection()),
       // Synthetic, desktop-shaped history so the store's save/dirty tracking
       // keeps working (the engine history shape is incompatible).
-      history: makeSyntheticHistory(),
+      history: makeSyntheticHistory(engineHistory),
       toc: editor.value.getTOC(),
       blocks: editor.value.getState()
     })

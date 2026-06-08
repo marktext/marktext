@@ -119,7 +119,12 @@ export const getBlankFileState = (
     id,
     filename: `${defaultFilenamePrefix}-${++untitleId}`,
     markdown,
-    lastSavedHistoryId: -1
+    // The freshly-loaded document IS its on-disk/clean baseline. The engine
+    // clears its undo history on `setContent`, so the baseline undo-stack depth
+    // (the synthetic save-tracking id) is 0. Seeding `lastSavedHistoryId` to 0
+    // (not -1) lets the dirty indicator clear again when an edit is undone back
+    // to this baseline, even before the document has ever been saved.
+    lastSavedHistoryId: 0
   }) as IFileState
 }
 
@@ -143,7 +148,9 @@ export const createDocumentState = (
 
   return Object.assign(docState, {
     id,
-    lastSavedHistoryId: -1
+    // See `getBlankFileState`: the loaded document is its own clean baseline and
+    // the engine's baseline undo-stack depth (the synthetic id) is 0.
+    lastSavedHistoryId: 0
   }) as IFileState
 }
 
