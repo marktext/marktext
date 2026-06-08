@@ -211,17 +211,34 @@ export function readFileAsDataURL(file: File): Promise<string> {
         });
     }
 
+    // Fallback for environments without `FileReader` (e.g. Node tests). Guard
+    // the dependencies so a missing API resolves to '' rather than throwing
+    // out of the `Promise<string>` contract.
+    if (typeof file.arrayBuffer !== 'function' || typeof btoa !== 'function')
+        return Promise.resolve('');
+
     return file
         .arrayBuffer()
-        .then((buffer) => {
-            const bytes = new Uint8Array(buffer);
-            let binary = '';
-            for (let i = 0; i < bytes.length; i++)
-                binary += String.fromCharCode(bytes[i]);
-            const base64 = btoa(binary);
-            return `data:${file.type};base64,${base64}`;
-        })
+        .then(bufferToDataURL(file.type))
         .catch(() => '');
+}
+
+/**
+ * Base64-encode an `ArrayBuffer` into a `data:` URL of the given MIME type.
+ * Processes the bytes in chunks so a large blob doesn't build one huge
+ * intermediate string via per-byte concatenation.
+ */
+function bufferToDataURL(mimeType: string) {
+    return (buffer: ArrayBuffer): string => {
+        const bytes = new Uint8Array(buffer);
+        const CHUNK = 0x8000;
+        let binary = '';
+        for (let i = 0; i < bytes.length; i += CHUNK) {
+            const chunk = bytes.subarray(i, i + CHUNK);
+            binary += String.fromCharCode(...chunk);
+        }
+        return `data:${mimeType};base64,${btoa(binary)}`;
+    };
 }
 
 /**
