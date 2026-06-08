@@ -10,6 +10,10 @@ import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
 import { isElement, isHTMLElement, isKeyboardEvent, isMouseEvent } from '../utils';
 import { getImageInfo, getImageSrc } from '../utils/image';
 import {
+    buildSelectionAffiliation,
+    endpointBlockInfo,
+} from './affiliation';
+import {
     compareParagraphsOrder,
     findContentDOM,
     getNodeAndOffset,
@@ -324,6 +328,18 @@ class Selection {
                 ? anchorBlockRef.getFormatsInRange().formats
                 : [];
 
+        // PARITY (gap PG1): re-derive the legacy `selectionChange` block-context
+        // the desktop Paragraph/Format menu state builder consumes —
+        // `affiliation` is the shared ancestor PARAGRAPH-type chain, and the
+        // per-endpoint `{ type, functionType }` describe the content leaves
+        // (`type: 'span'`, `functionType: 'codeContent' | 'cellContent' | …`).
+        const affiliation = buildSelectionAffiliation(
+            this.anchorBlock,
+            this.focusBlock,
+        );
+        const anchorBlockInfo = endpointBlockInfo(this.anchorBlock);
+        const focusBlockInfo = endpointBlockInfo(this.focusBlock);
+
         this.muya.eventCenter.emit('selection-change', {
             anchor,
             focus,
@@ -338,6 +354,9 @@ class Selection {
             selectedImage,
             cursorCoords,
             formats,
+            affiliation,
+            anchorBlockInfo,
+            focusBlockInfo,
         });
     }
 

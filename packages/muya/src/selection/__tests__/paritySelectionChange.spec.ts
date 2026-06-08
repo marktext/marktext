@@ -73,32 +73,81 @@ function emitSelectionFor(muya: Muya, content: Content): Record<string, unknown>
 }
 
 describe('parity PG1: selection-change block affiliation', () => {
-    it.fails(
+    it(
         'PG1: selection-change payload exposes the ancestor block affiliation chain',
         () => {
             const muya = bootMuya('# Heading\n\nbody\n');
             const heading = muya.editor.scrollPage!.firstContentInDescendant()!;
             const payload = emitSelectionFor(muya, heading);
 
-            // Desired: the payload carries an `affiliation` map/list of the
-            // ancestor block types so the desktop Paragraph menu can light up.
-            // Today the key is entirely absent.
+            // The payload carries an `affiliation` list of the ancestor block
+            // types so the desktop Paragraph menu can light up.
             expect('affiliation' in payload).toBe(true);
+            expect(Array.isArray(payload.affiliation)).toBe(true);
         },
     );
 
-    it.fails(
+    it(
         'PG1: selection-change exposes the current block markdown type (h1), not just the selection kind',
         () => {
             const muya = bootMuya('# Heading\n\nbody\n');
             const heading = muya.editor.scrollPage!.firstContentInDescendant()!;
             const payload = emitSelectionFor(muya, heading);
 
-            // Desired: a consumer can learn the cursor sits in an `h1` heading
-            // (so `heading1MenuItem` can be checked). Today `type` is the
-            // selection kind 'Caret' / 'Range' and no field reports `h1`.
-            const flat = JSON.stringify(payload);
-            expect(flat).toContain('h1');
+            // A consumer can learn the cursor sits in an `h1` heading (so
+            // `heading1MenuItem` can be checked) — the affiliation chain reports
+            // the markdown block type, separate from the selection kind
+            // (`type` stays 'Caret' / 'Range').
+            const affiliation = payload.affiliation as Array<{ type: string }>;
+            expect(affiliation.map(entry => entry.type)).toContain('h1');
+            // The selection kind is still the flat caret/range type.
+            expect(payload.type).toBe('Caret');
+        },
+    );
+
+    it(
+        'PG1: selection-change exposes per-endpoint content-leaf block info (type + functionType)',
+        () => {
+            const muya = bootMuya('```js\nconst a = 1\n```\n');
+            // `firstContentInDescendant` of a code block is the language-input
+            // leaf; the code text lives in the last content leaf.
+            const codeLeaf = muya.editor.scrollPage!.lastContentInDescendant()!;
+            const payload = emitSelectionFor(muya, codeLeaf);
+
+            // The desktop store keys `isCodeFences` / `isCodeContent` off
+            // `start.type === 'span' && block.functionType === 'codeContent'`.
+            const info = payload.anchorBlockInfo as {
+                type: string;
+                functionType?: string;
+            };
+            expect(info.type).toBe('span');
+            expect(info.functionType).toBe('codeContent');
+            // The fenced code block contributes a `pre`-typed affiliation entry.
+            const affiliation = payload.affiliation as Array<{ type: string }>;
+            expect(affiliation.map(entry => entry.type)).toContain('pre');
+        },
+    );
+
+    it(
+        'PG1: selection-change surfaces list context (ul / li / loose / task) in affiliation',
+        () => {
+            const muya = bootMuya('- [ ] task\n');
+            const leaf = muya.editor.scrollPage!.firstContentInDescendant()!;
+            const payload = emitSelectionFor(muya, leaf);
+            const affiliation = payload.affiliation as Array<{
+                type: string;
+                listType?: string;
+                listItemType?: string;
+                isLooseListItem?: boolean;
+            }>;
+            const list = affiliation.find(entry => entry.type === 'ul');
+            const item = affiliation.find(entry => entry.type === 'li');
+
+            expect(list).toBeTruthy();
+            expect(list!.listType).toBe('task');
+            expect(list!.isLooseListItem).toBe(false);
+            expect(item).toBeTruthy();
+            expect(item!.listItemType).toBe('task');
         },
     );
 });
