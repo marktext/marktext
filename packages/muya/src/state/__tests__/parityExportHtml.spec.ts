@@ -18,9 +18,8 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // worked. `@muyajs/core` renders via stock `marked` with no heading-id
 // renderer, so exported `<h1>..<h6>` carry NO id and every TOC anchor is dead.
 //
-// These assert the DESIRED export output. The engine now inlines base CSS
-// (PG7), so those pass. PG8 (heading ids) is implemented in a follow-up commit
-// — its specs remain `it.fails` until then.
+// These assert the export output: the engine now inlines base CSS (PG7) and
+// injects github-compatible heading ids (PG8), so they pass.
 
 const SAMPLE = '# Getting Started\n\n## Installation\n\nSome **body** text.\n';
 
@@ -56,19 +55,19 @@ describe('parity PG7: export inlines base stylesheets (offline-safe)', () => {
 });
 
 describe('parity PG8: exported headings carry slug ids (live TOC anchors)', () => {
-    it.fails(
+    it(
         'PG8: exported <h1>..<hN> carry an id attribute',
         async () => {
             const out = await generateExport(SAMPLE);
 
-            // Desired: headings are emitted with ids so TOC `href="#slug"`
-            // anchors resolve. Today headings have no id at all.
+            // Headings are emitted with ids so TOC `href="#slug"` anchors
+            // resolve.
             expect(out).toMatch(/<h1[^>]*\sid="[^"]+"/);
             expect(out).toMatch(/<h2[^>]*\sid="[^"]+"/);
         },
     );
 
-    it.fails(
+    it(
         'PG8: the heading id matches the marktext slug of the heading text',
         async () => {
             const out = await generateExport(SAMPLE);

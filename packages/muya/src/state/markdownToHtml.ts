@@ -8,6 +8,7 @@ import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
+import { generateGithubSlug } from '../utils/slug';
 
 // Core stylesheets inlined into the exported document so the output is fully
 // self-contained and renders offline / behind CSP / air-gapped — matching the
@@ -126,6 +127,26 @@ export class MarkdownToHtml {
         }
     }
 
+    // Assign a github-compatible slug `id` to every `<h1>..<h6>` in the
+    // export container. Headings that already carry an explicit id (none today,
+    // but defensive) are left as-is. Duplicate slugs are deduplicated with a
+    // `-N` suffix so each anchor target is unique, matching github / the legacy
+    // muyajs Slugger.
+    private _injectHeadingIds(container: HTMLElement) {
+        const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        const seen = new Map<string, number>();
+
+        for (const heading of headings) {
+            if (heading.id)
+                continue;
+
+            const base = generateGithubSlug(heading.textContent ?? '') || 'heading';
+            const count = seen.get(base) ?? 0;
+            seen.set(base, count + 1);
+            heading.id = count === 0 ? base : `${base}-${count}`;
+        }
+    }
+
     // render pure html by marked
     async renderHtml() {
         let html = getHighlightHtml(this.markdown, {
@@ -147,6 +168,13 @@ export class MarkdownToHtml {
         // render only render the light theme of mermaid and diagram...
         await this.renderMermaid();
         await this.renderDiagram();
+
+        // Inject github-compatible slug ids onto exported headings so the
+        // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
+        // resolve (PG8). Scoped to this export DOM path — the conformance
+        // renderer (`renderToStaticHTML`) is deliberately left untouched.
+        this._injectHeadingIds(exportContainer);
+
         let result = exportContainer.innerHTML;
         exportContainer.remove();
 
