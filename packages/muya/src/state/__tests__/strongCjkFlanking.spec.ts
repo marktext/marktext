@@ -76,6 +76,10 @@ function rendersStrong(src: string): boolean {
     return /<strong>/.test(renderToStaticHTML(src, STATIC_OPTIONS));
 }
 
+function rendersEm(src: string): boolean {
+    return /<em>/.test(renderToStaticHTML(src, STATIC_OPTIONS));
+}
+
 function collectTypes(tokens: Token[], out: string[] = []): string[] {
     for (const token of tokens) {
         out.push(token.type);
@@ -105,8 +109,13 @@ describe('strong emphasis with CJK boundaries (#4307)', () => {
         }
 
         for (const src of NEGATIVE_CASES) {
-            it(`does not bold: ${src}`, () => {
-                expect(rendersStrong(src)).toBe(false);
+            it(`does not bold or italicise: ${src}`, () => {
+                // Assert NEITHER <strong> NOR <em>: because this PR widens the
+                // emphasis/strong flanking logic, a regression could surface as
+                // unexpected <em> output while still passing a <strong>-only
+                // check. Guard both tags so the negative cases stay meaningful.
+                expect(rendersStrong(src), src).toBe(false);
+                expect(rendersEm(src), src).toBe(false);
             });
         }
     });
