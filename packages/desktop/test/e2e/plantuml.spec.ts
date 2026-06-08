@@ -2,14 +2,14 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, focusEditor } from './helpers'
 
-// Validates the pako-based encoder that replaced Node zlib in
-// src/muya/lib/parser/render/plantuml.js. The encoded payload is what shows
-// up in the rendered img src; if pako or the base64 / table-translate path
-// regresses, the URL won't follow plantuml.com's expected shape.
+// Validates that @muyajs/core renders a plantuml code block to a plantuml.com
+// img. The new engine encodes the diagram via `plantuml-encoder` and builds a
+// `https://www.plantuml.com/plantuml/svg/<encoded>` URL (no `~1` deflate
+// prefix, unlike the legacy pako path).
 
 const PLANTUML_DOC = '# plantuml smoke\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```\n'
 
-test.describe('PlantUML render via pako', () => {
+test.describe('PlantUML render via plantuml-encoder', () => {
   let app: ElectronApplication
   let page: Page
 
@@ -29,6 +29,8 @@ test.describe('PlantUML render via pako', () => {
     const img = page.locator('img[src*="plantuml.com/plantuml"]').first()
     await expect(img).toHaveCount(1, { timeout: 10000 })
     const src = await img.getAttribute('src')
-    expect(src).toMatch(/^https:\/\/www\.plantuml\.com\/plantuml\/svg\/~1[A-Za-z0-9_-]+$/)
+    // `plantuml-encoder` emits the plantuml-alphabet base64 directly with no
+    // `~1` deflate prefix (the legacy pako path used `~1`).
+    expect(src).toMatch(/^https:\/\/www\.plantuml\.com\/plantuml\/svg\/[A-Za-z0-9_-]+$/)
   })
 })

@@ -29,7 +29,8 @@ const runFixture = (name: string, relativePath: string, assertion: FixtureAssert
 
 runFixture('table', 'test/e2e/data/table.md', async({ page }) => {
   await page.waitForSelector('.editor-component table', { state: 'attached', timeout: 10000 })
-  const cellCount = await page.locator('.editor-component table tbody td').count()
+  // The @muyajs/core engine renders rows directly under <table> (no <tbody>).
+  const cellCount = await page.locator('.editor-component table td').count()
   expect(cellCount).toBeGreaterThanOrEqual(6)
 })
 
@@ -42,7 +43,7 @@ runFixture('lists', 'test/e2e/data/lists.md', async({ page }) => {
 
 runFixture('code', 'test/e2e/data/code.md', async({ page }) => {
   const codeBlocks = await page
-    .locator('.editor-component pre, .editor-component .ag-code-block, .editor-component code')
+    .locator('.editor-component pre, .editor-component .mu-code-block, .editor-component code')
     .count()
   expect(codeBlocks).toBeGreaterThan(0)
 })
@@ -54,8 +55,13 @@ runFixture('blockquote', 'test/e2e/data/blockquote.md', async({ page }) => {
 })
 
 runFixture('link-image', 'test/e2e/data/link-image.md', async({ page }) => {
-  await page.waitForSelector('.editor-component a[href]', { state: 'attached', timeout: 10000 })
-  const linkCount = await page.locator('.editor-component a[href]').count()
+  // The engine renders an inline markdown link as an editable
+  // `span.mu-link[href]`, not an `<a href>`.
+  await page.waitForSelector('.editor-component .mu-link[href]', {
+    state: 'attached',
+    timeout: 10000
+  })
+  const linkCount = await page.locator('.editor-component .mu-link[href]').count()
   expect(linkCount).toBeGreaterThanOrEqual(1)
 })
 
@@ -67,9 +73,7 @@ runFixture('gfm', 'test/e2e/data/gfm.md', async({ page }) => {
 
 runFixture('frontmatter', 'test/e2e/data/frontmatter.md', async({ page }) => {
   const hasFront = await page
-    .locator(
-      '.editor-component .ag-front-matter, .editor-component pre[data-role="FRONT_MATTER"], .editor-component pre.ag-front-matter'
-    )
+    .locator('.editor-component .mu-front-matter, .editor-component pre.mu-front-matter')
     .first()
     .waitFor({ state: 'attached', timeout: 10000 })
     .then(() => true)
@@ -81,9 +85,7 @@ runFixture('frontmatter', 'test/e2e/data/frontmatter.md', async({ page }) => {
 runFixture('math', 'test/e2e/data/math.md', async({ page }) => {
   // KaTeX renders to .katex; fall back to muya math container if KaTeX has not run yet.
   const ok = await page
-    .locator(
-      '.editor-component .katex, .editor-component .ag-multiple-math, .editor-component figure[data-role="MATH"]'
-    )
+    .locator('.editor-component .katex, .editor-component .mu-math-block')
     .first()
     .waitFor({ state: 'attached', timeout: 15000 })
     .then(() => true)

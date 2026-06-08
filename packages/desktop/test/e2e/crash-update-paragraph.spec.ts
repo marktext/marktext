@@ -4,8 +4,8 @@
 // #3571, #3663, #3667, #3879).
 //
 // User-action paths from the bug reports:
-//  - Type `@` in a fresh file to open quick-insert, pick "Header 1" (now
-//    pre-guarded at quickInsert/index.js:160).
+//  - Open quick-insert in a fresh file (the @muyajs/core engine triggers it
+//    with `/`, replacing the legacy `@`), pick "Header 1".
 //  - Delete a paragraph then immediately trigger the Paragraph→Heading menu
 //    while the model cursor still points at the now-removed block.
 //
@@ -40,23 +40,29 @@ const launchAndReady = async(
 }
 
 test.describe('Crash: updateParagraph null block', () => {
-  test('Issue #2099: type @ in fresh file then select Header 1', async() => {
+  test('Issue #2099: open quick-insert in fresh file then select Header 1', async() => {
     // Fresh file = empty markdown. The #2099 report specifically says "opened
     // a new file" — seeding with anything else changes the recipe.
     const { app, page } = await launchAndReady('')
     try {
-      await typeIntoEditor(page, '@')
-      // The quick-insert overlay surfaces asynchronously after the @ is
-      // committed — wait for it rather than guessing.
-      const overlay = page.locator('.ag-quick-insert')
-      await overlay.waitFor({ state: 'attached', timeout: 5000 })
+      // The @muyajs/core quick-insert menu is triggered by `/` (the legacy
+      // engine used `@`). Type it into the empty paragraph to open the menu.
+      await typeIntoEditor(page, '/')
+
+      // The quick-insert float (`.mu-quick-insert`) is always present in the
+      // DOM but parked off-screen (top:-9999, opacity:0) until shown. Wait for
+      // it to be positioned on-screen — `state: 'visible'` honours the
+      // opacity/position so we click the real, shown menu rather than the
+      // parked one.
+      const overlay = page.locator('.mu-quick-insert')
+      await overlay.waitFor({ state: 'visible', timeout: 5000 })
 
       // Quick-insert items expose data-label matching the config in
-      // src/muya/lib/ui/quickInsert/config.js — "heading 1" (lowercase, with
-      // a space). Don't fall back to a localized text selector; fail loudly
-      // if the stable selector breaks.
-      const heading1 = overlay.locator('[data-label="heading 1"]')
-      await heading1.waitFor({ state: 'attached', timeout: 5000 })
+      // packages/muya/src/ui/paragraphQuickInsertMenu/config.ts —
+      // "atx-heading 1". Don't fall back to a localized text selector; fail
+      // loudly if the stable selector breaks.
+      const heading1 = overlay.locator('[data-label="atx-heading 1"]')
+      await heading1.waitFor({ state: 'visible', timeout: 5000 })
       await heading1.click()
 
       // Allow the paragraph to be rewritten as a heading.
@@ -73,7 +79,7 @@ test.describe('Crash: updateParagraph null block', () => {
     try {
       // Position at end of "Second para." and select the line backwards.
       await page.evaluate(() => {
-        const spans = document.querySelectorAll('.editor-component span.ag-paragraph')
+        const spans = document.querySelectorAll('.editor-component span.mu-paragraph-content')
         const target = spans[spans.length - 1] as HTMLElement | null
         if (!target) return
         const range = document.createRange()

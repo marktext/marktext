@@ -51,7 +51,7 @@ test.describe('Issue #4346: list-block null guards', () => {
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
     await page.evaluate(() => {
-      const items = document.querySelectorAll('.editor-component ul li span.ag-paragraph')
+      const items = document.querySelectorAll('.editor-component ul li span.mu-paragraph-content')
       const last = items[items.length - 1] as HTMLElement | null
       if (!last) return
       const range = document.createRange()
@@ -77,7 +77,7 @@ test.describe('Issue #4346: list-block null guards', () => {
     await placeCaretInEditor(page)
     await clearRendererErrors(app)
     await page.evaluate(() => {
-      const items = document.querySelectorAll('.editor-component li span.ag-paragraph')
+      const items = document.querySelectorAll('.editor-component li span.mu-paragraph-content')
       const last = items[items.length - 1] as HTMLElement | null
       if (!last) return
       const range = document.createRange()
@@ -100,7 +100,7 @@ test.describe('Issue #4346: list-block null guards', () => {
   test('paste HTML with empty list does not crash', async() => {
     const html = '<p>Before</p><ul></ul><ul><li></li></ul><ol></ol><p>After</p>'
     await page.evaluate((h) => {
-      const target = document.querySelector('.editor-component span.ag-paragraph') as HTMLElement | null
+      const target = document.querySelector('.editor-component span.mu-paragraph-content') as HTMLElement | null
       if (!target) return
       const range = document.createRange()
       range.selectNodeContents(target)

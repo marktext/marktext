@@ -257,61 +257,50 @@ export const typeIntoEditor = async(page: Page, text: string): Promise<void> => 
   await page.keyboard.type(text, { delay: 0 })
 }
 
-// Muya validates selections via `node.closest('span.ag-paragraph')` — the inner
-// span that wraps editable text. Selecting the outer <p class="ag-paragraph">
-// or its contents fails validation, so we always target the inner span.
-export const focusEditor = async(page: Page): Promise<void> => {
-  await page.evaluate(() => {
-    const root = document.querySelector('.editor-component') as HTMLElement | null
-    if (!root) return false
-    root.focus()
-    const spans = root.querySelectorAll('span.ag-paragraph')
-    let target: Element | null = null
-    for (const span of spans) {
-      if (span.textContent && span.textContent.trim().length > 0) {
-        target = span
-        break
-      }
+// The @muyajs/core engine wraps editable paragraph text in
+// `span.mu-paragraph-content` (inside `p.mu-paragraph`). Selecting the inner
+// content span is what the engine's selection logic expects, so we target it.
+// Place a selection inside the first non-empty paragraph content span and let
+// the engine commit it to its model. The @muyajs/core engine derives its
+// `activeContentBlock` from `click`/`input`/`keydown`/`keyup` events on the
+// editor root (see editor/index.ts), so a bare `selectionchange` is not enough
+// — we dispatch a synthetic `keyup` on the editor so the active block updates.
+const commitSelection = (collapse: boolean) => {
+  const root = document.querySelector('.editor-component') as HTMLElement | null
+  if (!root) return false
+  root.focus()
+  const spans = root.querySelectorAll('span.mu-paragraph-content')
+  let target: Element | null = null
+  for (const span of spans) {
+    if (span.textContent && span.textContent.trim().length > 0) {
+      target = span
+      break
     }
-    target = target || spans[0] || null
-    if (!target) return false
-    const range = document.createRange()
-    range.selectNodeContents(target)
-    const sel = window.getSelection()
-    if (!sel) return false
-    sel.removeAllRanges()
-    sel.addRange(range)
-    document.dispatchEvent(new Event('selectionchange'))
-    return true
-  })
+  }
+  target = target || spans[0] || null
+  if (!target) return false
+  const range = document.createRange()
+  range.selectNodeContents(target)
+  if (collapse) range.collapse(false)
+  const sel = window.getSelection()
+  if (!sel) return false
+  sel.removeAllRanges()
+  sel.addRange(range)
+  document.dispatchEvent(new Event('selectionchange'))
+  root.dispatchEvent(
+    new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true, cancelable: true })
+  )
+  return true
+}
+
+export const focusEditor = async(page: Page): Promise<void> => {
+  await page.evaluate(commitSelection, false)
   // Allow muya's selectionchange listener to commit the selection to its model.
   await page.waitForTimeout(150)
 }
 
 export const placeCaretInEditor = async(page: Page): Promise<void> => {
-  await page.evaluate(() => {
-    const root = document.querySelector('.editor-component') as HTMLElement | null
-    if (!root) return
-    root.focus()
-    const spans = root.querySelectorAll('span.ag-paragraph')
-    let target: Element | null = null
-    for (const span of spans) {
-      if (span.textContent && span.textContent.trim().length > 0) {
-        target = span
-        break
-      }
-    }
-    target = target || spans[0] || null
-    if (!target) return
-    const range = document.createRange()
-    range.selectNodeContents(target)
-    range.collapse(false)
-    const sel = window.getSelection()
-    if (!sel) return
-    sel.removeAllRanges()
-    sel.addRange(range)
-    document.dispatchEvent(new Event('selectionchange'))
-  })
+  await page.evaluate(commitSelection, true)
   await page.waitForTimeout(150)
 }
 

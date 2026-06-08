@@ -28,7 +28,7 @@ import {
 
 const placeCaretInSpanContaining = async(page: Page, needle: string) => {
   await page.evaluate((text) => {
-    const spans = document.querySelectorAll('.editor-component span.ag-paragraph')
+    const spans = document.querySelectorAll('.editor-component span.mu-paragraph-content')
     let target: HTMLElement | null = null
     for (const span of spans) {
       if ((span.textContent ?? '').includes(text)) {

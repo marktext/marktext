@@ -71,7 +71,7 @@ test.describe('Paragraph block transforms', () => {
   test('Code fence', async() => {
     await clickMenuById(app, 'codeFencesMenuItem')
     const present = await page
-      .locator('.editor-component pre, .editor-component .ag-code-block')
+      .locator('.editor-component pre, .editor-component .mu-code-block')
       .first()
       .waitFor({ state: 'attached', timeout: 5000 })
       .then(() => true)
@@ -100,7 +100,7 @@ test.describe('Paragraph block transforms', () => {
   test('Math block', async() => {
     await clickMenuById(app, 'mathBlockMenuItem')
     const ok = await page
-      .locator('.editor-component .ag-multiple-math, .editor-component figure[data-role="MATH"]')
+      .locator('.editor-component .mu-math-block, .editor-component figure.mu-math-block')
       .first()
       .waitFor({ state: 'attached', timeout: 5000 })
       .then(() => true)
@@ -111,7 +111,7 @@ test.describe('Paragraph block transforms', () => {
   test('HTML block', async() => {
     await clickMenuById(app, 'htmlBlockMenuItem')
     const ok = await page
-      .locator('.editor-component .ag-html-block, .editor-component figure[data-role="HTML"]')
+      .locator('.editor-component .mu-html-block, .editor-component figure.mu-html-block')
       .first()
       .waitFor({ state: 'attached', timeout: 5000 })
       .then(() => true)
