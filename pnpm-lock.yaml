@@ -71,6 +71,9 @@ importers:
       '@marktext/muyajs':
         specifier: workspace:*
         version: link:../muyajs
+      '@muyajs/core':
+        specifier: workspace:*
+        version: link:../muya
       '@popperjs/core':
         specifier: ^2.11.8
         version: 2.11.8

@@ -59,6 +59,7 @@
     "@hfelix/electron-localshortcut": "^4.0.1",
     "@marktext/file-icons": "^1.0.6",
     "@marktext/muyajs": "workspace:*",
+    "@muyajs/core": "workspace:*",
     "@popperjs/core": "^2.11.8",
     "@vscode/ripgrep": "^1.18.0",
     "arg": "^5.0.2",
