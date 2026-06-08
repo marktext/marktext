@@ -575,6 +575,21 @@ interface FormatLinkPayload {
   dirname?: string
 }
 
+const UNSAFE_EXTERNAL_PROTOCOLS = new Set(['file:', 'javascript:', 'data:', 'vbscript:'])
+
+const isExternalProtocolUrl = (value: string): boolean => {
+  if (/^[a-z]:[\\/]/i.test(value)) {
+    return false
+  }
+
+  try {
+    const url = new URL(value)
+    return !!url.protocol && !UNSAFE_EXTERNAL_PROTOCOLS.has(url.protocol.toLowerCase())
+  } catch {
+    return false
+  }
+}
+
 ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) => {
   if (!data || (!data.href && !data.text)) {
     return
@@ -602,8 +617,8 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) =>
   if (URL_REG.test(urlCandidate)) {
     shell.openExternal(urlCandidate)
     return
-  } else if (/^[a-z0-9]+:\/\//i.test(urlCandidate)) {
-    // Prevent other URLs.
+  } else if (isExternalProtocolUrl(urlCandidate)) {
+    shell.openExternal(urlCandidate)
     return
   }
 

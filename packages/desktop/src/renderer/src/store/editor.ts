@@ -75,7 +75,7 @@ interface FileChangePayload {
 }
 
 interface FormatLinkClickPayload {
-  data: { href: string; [key: string]: unknown }
+  data: { href?: string | null; text?: string | null; [key: string]: unknown }
   dirname: string
 }
 
@@ -389,8 +389,9 @@ export const useEditorStore = defineStore('editor', {
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
 
-      if (data.href.length > 0 && data.href[0] === '#') {
-        const anchorSlug = data.href.substring(1)
+      const href = typeof data.href === 'string' ? data.href : ''
+      if (href.length > 0 && href[0] === '#') {
+        const anchorSlug = href.substring(1)
         if (!anchorSlug) return
 
         // Find the block with the anchor slug from the TOC
