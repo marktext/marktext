@@ -1,0 +1,64 @@
+.mu-image-picker-wrapper {
+    z-index: 100000;
+}
+
+.mu-image-picker-wrapper .mu-list-picker {
+    box-sizing: border-box;
+    width: 450px;
+    max-height: 156px;
+    padding: 8px 0;
+    overflow-y: auto;
+
+    font-size: 14px;
+}
+
+.mu-image-picker-wrapper .mu-list-picker ul,
+.mu-image-picker-wrapper .mu-list-picker li {
+    margin: 0;
+    padding: 0;
+}
+
+.mu-image-picker-wrapper .mu-list-picker .item {
+    display: flex;
+    align-items: center;
+
+    /* override codeBlockLanguageSelector's global `.mu-list-picker .item`
+       justify-content: space-between, which would push icon/text apart */
+    justify-content: flex-start;
+    height: 28px;
+    padding: 0 10px;
+
+    list-style: none;
+}
+
+.mu-image-picker-wrapper .mu-list-picker:hover .active {
+    background: transparent;
+}
+
+.mu-image-picker-wrapper .mu-list-picker .item:hover,
+.mu-image-picker-wrapper .mu-list-picker .item.active {
+    background-color: var(--float-hover-color);
+}
+
+.mu-image-picker-wrapper .mu-list-picker .item .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.mu-image-picker-wrapper .mu-list-picker .item .icon-wrapper span::before {
+    font-size: 14px;
+}
+
+.mu-image-picker-wrapper .mu-list-picker .item .text {
+    flex: 1;
+    overflow: hidden;
+
+    color: var(--editor-color);
+    font-size: 14px;
+    line-height: 28px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

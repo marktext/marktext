@@ -159,9 +159,9 @@ export class MarkdownToState {
                         value = value.replace(/\n+$/, '').replace(/^\n+/, '');
                     }
 
-                    const diagramMatch = /^(mermaid|vega-lite|plantuml)$/.exec(lang);
+                    const diagramMatch = /^(mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
                     if (diagramMatch) {
-                        const diagramType = diagramMatch[1] as 'mermaid' | 'vega-lite' | 'plantuml';
+                        const diagramType = diagramMatch[1] as 'mermaid' | 'vega-lite' | 'plantuml' | 'flowchart' | 'sequence';
                         state = {
                             name: 'diagram' as const,
                             text: value,

@@ -3,6 +3,7 @@ import type { Muya } from '../../index';
 import bulletListIcon from '../../assets/icons/bullet_list/2.png';
 import vegaIcon from '../../assets/icons/chart/2.png';
 import codeIcon from '../../assets/icons/code/2.png';
+import flowchartIcon from '../../assets/icons/flowchart/2.png';
 import frontMatterIcon from '../../assets/icons/front_matter/2.png';
 import header1Icon from '../../assets/icons/heading_1/2.png';
 import header2Icon from '../../assets/icons/heading_2/2.png';
@@ -19,6 +20,7 @@ import orderListIcon from '../../assets/icons/order_list/2.png';
 import paragraphIcon from '../../assets/icons/paragraph/2.png';
 import plantumlIcon from '../../assets/icons/plantuml/2.png';
 import quoteIcon from '../../assets/icons/quote_block/2.png';
+import sequenceIcon from '../../assets/icons/sequence/2.png';
 
 import todoListIcon from '../../assets/icons/todolist/2.png';
 import { ScrollPage } from '../../block/scrollPage';
@@ -326,6 +328,18 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 label: 'diagram plantuml',
                 icon: plantumlIcon,
             },
+            {
+                title: 'Flowchart',
+                subTitle: 'By flowchart.js',
+                label: 'diagram flowchart',
+                icon: flowchartIcon,
+            },
+            {
+                title: 'Sequence',
+                subTitle: 'By js-sequence-diagrams',
+                label: 'diagram sequence',
+                icon: sequenceIcon,
+            },
         ],
     },
 ];
@@ -460,11 +474,21 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
             // fall through
         case 'diagram mermaid':
             // fall through
-        case 'diagram plantuml': {
+        case 'diagram plantuml':
+            // fall through
+        case 'diagram flowchart':
+            // fall through
+        case 'diagram sequence': {
             const diagramState = deepClone(emptyStates.diagram);
 
             const [name, type] = label.split(' ');
-            if (type === 'mermaid' || type === 'plantuml' || type === 'vega-lite') {
+            if (
+                type === 'mermaid'
+                || type === 'plantuml'
+                || type === 'vega-lite'
+                || type === 'flowchart'
+                || type === 'sequence'
+            ) {
                 diagramState.meta.type = type;
                 diagramState.meta.lang = type === 'vega-lite' ? 'json' : 'yaml';
             }

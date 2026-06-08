@@ -1,0 +1,183 @@
+// @vitest-environment happy-dom
+
+import type Content from '../block/base/content';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Muya } from '../muya';
+
+// Coverage for muya.updateParagraph — the block-type conversions the desktop
+// Paragraph menu drives (added for the muyajs -> @muyajs/core migration). It
+// accepts the marktext/muyajs label vocabulary and maps onto muya's
+// replaceBlockByLabel + list/heading handling. State flushes on rAF, so
+// assertions wait via vi.waitFor.
+
+const bootedHosts: HTMLElement[] = [];
+let originalVersion: string | undefined;
+let hadVersion = false;
+
+beforeEach(() => {
+    hadVersion = 'MUYA_VERSION' in window;
+    originalVersion = window.MUYA_VERSION;
+    window.MUYA_VERSION = 'test';
+});
+
+afterEach(() => {
+    while (bootedHosts.length) {
+        const host = bootedHosts.pop()!;
+        host.remove();
+    }
+    if (hadVersion)
+        window.MUYA_VERSION = originalVersion as string;
+    else
+        delete (window as Partial<Window>).MUYA_VERSION;
+});
+
+function bootMuya(markdown: string): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+function placeCursorOnFirstBlock(muya: Muya): Content {
+    const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+    muya.editor.activeContentBlock = first;
+    return first;
+}
+
+// eslint-disable-next-line ts/no-explicit-any
+function firstBlock(muya: Muya): any {
+    return muya.getState()[0];
+}
+
+describe('muya.updateParagraph()', () => {
+    it('turns a paragraph into a heading (text preserved)', async () => {
+        const muya = bootMuya('hello world\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('heading 1');
+        await vi.waitFor(() => {
+            const b = firstBlock(muya);
+            expect(b.name).toBe('atx-heading');
+            expect(b.meta.level).toBe(1);
+        });
+        expect(muya.getMarkdown()).toContain('hello world');
+    });
+
+    it('reset-to-paragraph turns a heading back into a paragraph', async () => {
+        const muya = bootMuya('## a heading\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('reset-to-paragraph');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('paragraph');
+        });
+    });
+
+    it('upgrade heading cycles paragraph -> h6 and h2 -> h1', async () => {
+        const muya = bootMuya('plain\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('upgrade heading');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('atx-heading');
+            expect(firstBlock(muya).meta.level).toBe(6);
+        });
+
+        const muya2 = bootMuya('## two\n');
+        placeCursorOnFirstBlock(muya2);
+        muya2.updateParagraph('upgrade heading');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya2).meta.level).toBe(1);
+        });
+    });
+
+    it('degrade heading lowers h1 -> h2', async () => {
+        const muya = bootMuya('# one\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('degrade heading');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.level).toBe(2);
+        });
+    });
+
+    it('turns a paragraph into a blockquote', async () => {
+        const muya = bootMuya('quote me\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('blockquote');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('block-quote');
+        });
+    });
+
+    it('turns a paragraph into a bullet list', async () => {
+        const muya = bootMuya('item\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('bullet-list');
+        });
+    });
+
+    it('converts a bullet list to an ordered list, preserving items', async () => {
+        const muya = bootMuya('- one\n- two\n');
+        placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('bullet-list');
+        muya.updateParagraph('ol-order');
+        await vi.waitFor(() => {
+            const b = firstBlock(muya);
+            expect(b.name).toBe('order-list');
+            expect(b.children.length).toBe(2);
+        });
+    });
+
+    it('toggles loose/tight on the current list', async () => {
+        const muya = bootMuya('- a\n- b\n');
+        placeCursorOnFirstBlock(muya);
+        const before = firstBlock(muya).meta.loose;
+        muya.updateParagraph('loose-list-item');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.loose).toBe(!before);
+        });
+    });
+
+    it('maps the command-palette ol-bullet label to an ordered list', async () => {
+        const muya = bootMuya('item\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ol-bullet');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('order-list');
+        });
+    });
+
+    it('reset-to-paragraph unwraps a list into paragraphs, preserving items', async () => {
+        const muya = bootMuya('- one\n- two\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('reset-to-paragraph');
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state.every(b => b.name === 'paragraph')).toBe(true);
+        });
+        expect(muya.getMarkdown()).toContain('one');
+        expect(muya.getMarkdown()).toContain('two');
+    });
+
+    it('selecting the active list type toggles the list off, preserving items', async () => {
+        const muya = bootMuya('- a\n- b\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state.every(b => b.name === 'paragraph')).toBe(true);
+        });
+    });
+
+    it('does not convert a non-empty paragraph to hr (content guard)', async () => {
+        const muya = bootMuya('keep me\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('hr');
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(firstBlock(muya).name).toBe('paragraph');
+        expect(muya.getMarkdown()).toContain('keep me');
+    });
+});

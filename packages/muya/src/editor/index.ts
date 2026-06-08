@@ -2,7 +2,7 @@ import type { JSONOp, JSONOpComponent, JSONOpList } from 'ot-json1';
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
 import type { Muya } from '../muya';
-import type { ISelection } from '../selection/types';
+import type { IHistorySelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as otText from 'ot-text-unicode';
@@ -162,7 +162,7 @@ export class Editor {
         firstLeafBlock.setCursor(0, 0, needUpdated);
     }
 
-    updateContents(operations: JSONOp, selection: Nullable<ISelection>, source: string) {
+    updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
         const { muya } = this;
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change

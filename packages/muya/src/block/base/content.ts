@@ -20,6 +20,82 @@ import {
 
 // const debug = logger('block.content:')
 
+// Word boundary regexes ported from legacy muyajs
+// (lib/marktext/spellchecker.js), which in turn derive from VSCode's wordHelper.
+// Used by `extractWord` to find the word at the cursor for spell-check
+// replacement.
+const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
+const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g;
+
+/**
+ * Extract the word at the given offset from the text.
+ *
+ * Ported from legacy muyajs `extractWord` (lib/marktext/spellchecker.js).
+ *
+ * @param text The line text.
+ * @param offset Normalized cursor offset (e.g. `ab|c def` -> 2).
+ * @returns The matched word with its `left`/`right` offsets, or null when the
+ * cursor is not inside a word.
+ */
+function extractWord(
+    text: string,
+    offset: number,
+): { left: number; right: number; word: string } | null {
+    if (!text || text.length === 0) {
+        return null;
+    }
+    else if (offset < 0) {
+        offset = 0;
+    }
+    else if (offset >= text.length) {
+        offset = text.length - 1;
+    }
+
+    // Matches all words starting at a good position.
+    WORD_DEFINITION.lastIndex = text.lastIndexOf(' ', offset - 1) + 1;
+    let match: RegExpExecArray | null = null;
+    let left = -1;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = WORD_DEFINITION.exec(text))) {
+        if (match && match.index <= offset) {
+            if (WORD_DEFINITION.lastIndex > offset)
+                left = match.index;
+        }
+        else {
+            break;
+        }
+    }
+    WORD_DEFINITION.lastIndex = 0;
+
+    // Cursor is between two word separators (e.g. `*|*` or ` |*`).
+    if (left <= -1)
+        return null;
+
+    // Find word ending.
+    WORD_SEPARATORS.lastIndex = offset;
+    match = WORD_SEPARATORS.exec(text);
+    let right = -1;
+    if (match)
+        right = match.index;
+
+    WORD_SEPARATORS.lastIndex = 0;
+
+    // The last word in the string is a special case.
+    if (right < 0) {
+        return {
+            left,
+            right: text.length,
+            word: text.slice(left),
+        };
+    }
+
+    return {
+        left,
+        right,
+        word: text.slice(left, right),
+    };
+}
+
 class Content extends TreeNode {
     public _text: string;
     public isComposed: boolean;
@@ -430,6 +506,48 @@ class Content extends TreeNode {
 
             this.setCursor(offset, offset, true);
         }
+    }
+
+    /**
+     * Replace the word at/around the current cursor with `replacement`.
+     *
+     * Ported from legacy muyajs `ContentState._replaceCurrentWordInlineUnsafe`
+     * (lib/contentState/marktext.js). Used by the desktop spell checker: right
+     * clicking a misspelled word selects the whole word via Chromium, and
+     * choosing a suggestion replaces it inline. `extractWord` mirrors the
+     * VSCode-derived word boundaries muyajs relied on.
+     *
+     * Unsafe: the caller asserts that exactly the word `word` is selected. If
+     * the word found at the cursor does not match `word` the call is a no-op
+     * (returns false) — this guards against a Chromium selection mismatch.
+     *
+     * @param word The expected word at the cursor; the whole word must be selected.
+     * @param replacement The replacement text.
+     * @returns True when the replacement was applied.
+     */
+    replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
+        const cursor = this.getCursor();
+        if (cursor == null)
+            return false;
+
+        const { text } = this;
+        // Use the start offset of the (possibly whole-word) selection as the
+        // probe point, matching the legacy `start.offset` behaviour.
+        const wordInfo = extractWord(text, cursor.start.offset);
+        if (wordInfo == null)
+            return false;
+
+        const { left, right, word: selectedWord } = wordInfo;
+        if (selectedWord !== word)
+            return false;
+
+        // Reuse the text setter so the change dispatches a json edit op.
+        this.text = text.substring(0, left) + replacement + text.substring(right);
+
+        const offset = left + replacement.length;
+        this.setCursor(offset, offset, true);
+
+        return true;
     }
 
     keydownHandler = (event: Event) => {

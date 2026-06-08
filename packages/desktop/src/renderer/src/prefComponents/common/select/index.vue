@@ -124,11 +124,19 @@ li.el-select-dropdown__item.hover,
 li.el-select-dropdown__item:hover {
   background: var(--floatHoverColor);
 }
+li.el-select-dropdown__item.selected,
+li.el-select-dropdown__item.is-selected {
+  color: var(--themeColor);
+  background: var(--themeColor10);
+}
 div.el-select-dropdown {
   background: var(--floatBgColor);
   border-color: var(--floatBorderColor);
   & .popper__arrow {
     display: none;
   }
+}
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px var(--themeColor) inset;
 }
 </style>

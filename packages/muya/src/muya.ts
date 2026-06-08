@@ -1,8 +1,13 @@
+import type Content from './block/base/content';
+import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { ITocItem } from './state/getTOC';
-import type { TState } from './state/types';
+import type { IBulletListState, IOrderListState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions } from './types';
+import Format from './block/base/format';
+import { ScrollPage } from './block/scrollPage';
+import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
     MUYA_DEFAULT_OPTIONS,
@@ -12,7 +17,10 @@ import { Editor } from './editor/index';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import { getTOC } from './state/getTOC';
+import { isAnyListState, isAtxHeadingState } from './state/types';
+import { replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
+import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -31,6 +39,36 @@ interface IPlugin {
     plugin: IMuyaPluginConstructor;
     options: Record<string, unknown>;
 }
+
+// Maps the marktext/muyajs paragraph-menu labels the desktop sends through
+// `updateParagraph` to the muya `replaceBlockByLabel` vocabulary.
+const PARAGRAPH_LABEL_MAP: Record<string, string> = {
+    'paragraph': 'paragraph',
+    'hr': 'thematic-break',
+    'front-matter': 'frontmatter',
+    'table': 'table',
+    'mathblock': 'math-block',
+    'html': 'html-block',
+    'pre': 'code-block',
+    'blockquote': 'block-quote',
+    'heading 1': 'atx-heading 1',
+    'heading 2': 'atx-heading 2',
+    'heading 3': 'atx-heading 3',
+    'heading 4': 'atx-heading 4',
+    'heading 5': 'atx-heading 5',
+    'heading 6': 'atx-heading 6',
+    'ul-bullet': 'bullet-list',
+    'ol-order': 'order-list',
+    // The desktop command palette emits `ol-bullet` for the ordered-list
+    // command while the menu emits `ol-order`; accept both.
+    'ol-bullet': 'order-list',
+    'ul-task': 'task-list',
+    'mermaid': 'diagram mermaid',
+    'plantuml': 'diagram plantuml',
+    'vega-lite': 'diagram vega-lite',
+    'flowchart': 'diagram flowchart',
+    'sequence': 'diagram sequence',
+};
 
 export class Muya {
     static plugins: IPlugin[] = [];
@@ -142,6 +180,35 @@ export class Muya {
     }
 
     /**
+     * Return a JSON-serializable snapshot of the undo/redo history.
+     *
+     * Used by the desktop shell to persist each tab's editing history across
+     * tab switches: read it before deactivating a tab, store it, and hand it
+     * back to `setHistory` when the tab is re-selected. The ot-json1 ops are
+     * deep-cloned plain JSON; selections are reduced to their serializable
+     * paths/offsets (live block references are dropped and re-resolved on
+     * restore). Lossless round-trip: `setHistory(getHistory())` then `undo()`
+     * reproduces the prior document state.
+     */
+    getHistory() {
+        return this.editor.history.getHistory();
+    }
+
+    /**
+     * Restore a history snapshot previously produced by `getHistory`.
+     */
+    setHistory(history: ReturnType<Muya['getHistory']>) {
+        this.editor.history.setHistory(history);
+    }
+
+    /**
+     * Clear the undo/redo history (e.g. after loading a fresh document).
+     */
+    clearHistory() {
+        this.editor.history.clear();
+    }
+
+    /**
      * Search value in current document.
      * @param {string} value
      * @param {object} opts
@@ -166,12 +233,483 @@ export class Muya {
         this.editor.setContent(content, autoFocus);
     }
 
+    /**
+     * Update editor options at runtime (mirrors marktext muyajs `setOptions`):
+     * merges `options` into `muya.options`, reflects the container-level ones
+     * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
+     * re-renders the document from its current state so render-affecting
+     * options (superSubScript, footnote, disableHtml, frontmatterType,
+     * codeBlockLineNumbers, GitLab compatibility, …) take effect. Unlike
+     * `setContent`, the undo history is preserved; the cursor is restored by path.
+     */
+    setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
+        Object.assign(this.options, options);
+
+        if ('spellcheckEnabled' in options)
+            this.domNode.setAttribute('spellcheck', options.spellcheckEnabled ? 'true' : 'false');
+
+        if ('hideQuickInsertHint' in options) {
+            this.domNode.classList.toggle(
+                CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT,
+                !options.hideQuickInsertHint,
+            );
+        }
+
+        if (!forceRender)
+            return;
+
+        const selection = this.editor.selection.getSelection();
+        this.editor.scrollPage?.updateState(this.getState());
+        // Restore the caret on the rebuilt tree by resolving the block at the
+        // saved path and setting the cursor on it directly. (Passing only a
+        // path to setSelection does not work — Selection._setCursor needs a
+        // concrete block's domNode; a bare queryBlock result is not a Node.)
+        // Mirrors Editor.updateContents' same-block cursor restore.
+        if (selection && selection.isSelectionInSameBlock) {
+            const begin = Math.min(selection.anchor.offset, selection.focus.offset);
+            const end = Math.max(selection.anchor.offset, selection.focus.offset);
+            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchorPath);
+            if (cursorBlock && cursorBlock.isContent())
+                cursorBlock.setCursor(begin, end, true);
+        }
+    }
+
+    /** Update the editor font size / line height (mirrors muyajs `setFont`). */
+    setFont({ fontSize, lineHeight }: { fontSize?: IMuyaOptions['fontSize']; lineHeight?: IMuyaOptions['lineHeight'] }) {
+        if (typeof fontSize === 'number')
+            this.options.fontSize = fontSize;
+        if (typeof lineHeight === 'number')
+            this.options.lineHeight = lineHeight;
+    }
+
+    /** Update the tab size used for indentation. */
+    setTabSize(tabSize: IMuyaOptions['tabSize']) {
+        this.options.tabSize = tabSize;
+    }
+
+    /** Update list indentation and re-render so it takes effect. */
+    setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
+        this.setOptions({ listIndentation }, true);
+    }
+
     focus() {
         this.editor.focus();
     }
 
+    /**
+     * Toggle focus mode (mirrors marktext muyajs `setFocusMode`). When enabled,
+     * every top-level block except the one holding the cursor is dimmed via the
+     * `mu-focus-mode` class on the editor container; the dimming itself lives in
+     * the stylesheet (`.mu-focus-mode .mu-container > * { opacity }`).
+     */
+    setFocusMode(focusMode: boolean) {
+        if (focusMode)
+            this.domNode.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
+        else
+            this.domNode.classList.remove(CLASS_NAMES.MU_FOCUS_MODE);
+
+        this.options.focusMode = focusMode;
+    }
+
     selectAll() {
         this.editor.selection.selectAll();
+    }
+
+    /**
+     * Toggle an inline format on the current selection.
+     * @param type One of strong/em/u/del/inline_code/link/image/inline_math/
+     * sub/sup/mark/clear (and html_tag aliases). No-op when the selection is
+     * not inside a single formattable block.
+     */
+    format(type: string) {
+        const { selection } = this.editor;
+        const sel = selection.getSelection();
+        if (!sel)
+            return;
+
+        const {
+            anchor,
+            focus,
+            anchorBlock,
+            anchorPath,
+            focusBlock,
+            focusPath,
+            isSelectionInSameBlock,
+        } = sel;
+
+        if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
+            return;
+
+        // Restore the selection before applying the format, mirroring the
+        // inline format toolbar — the menu/IPC round-trip can drop the live
+        // DOM selection.
+        selection.setSelection({
+            anchor,
+            focus,
+            anchorBlock,
+            anchorPath,
+            focusBlock,
+            focusPath,
+        });
+
+        anchorBlock.format(type);
+    }
+
+    /**
+     * Replace the word at the current cursor with `replacement`, then place the
+     * cursor after the replacement.
+     *
+     * Mirrors legacy muyajs `_replaceCurrentWordInlineUnsafe`. The desktop spell
+     * checker calls this when the user picks a suggestion from the misspelled-word
+     * context menu (Chromium has already selected the whole word). Unsafe: the
+     * call is a no-op unless the word at the cursor matches `word`.
+     *
+     * @param word The expected (misspelled) word at the cursor.
+     * @param replacement The replacement word.
+     * @returns True when the replacement was applied.
+     */
+    replaceCurrentWordInlineUnsafe(word: string, replacement: string): boolean {
+        const block = this.editor.activeContentBlock;
+        if (!block)
+            return false;
+
+        return block.replaceCurrentWordInlineUnsafe(word, replacement);
+    }
+
+    /**
+     * Return the current selection, or null when the editor has no selection.
+     */
+    getSelection() {
+        return this.editor.selection.getSelection();
+    }
+
+    /**
+     * Whether the editor (or one of its descendants) currently holds focus.
+     */
+    hasFocus() {
+        const { activeElement } = document;
+
+        return this.domNode === activeElement || this.domNode.contains(activeElement);
+    }
+
+    /**
+     * Blur the editor (mirrors marktext muyajs `blur`). Always hides every
+     * floating tool and blurs the contenteditable node.
+     * @param isRemoveAllRange Remove all native selection ranges.
+     * @param unSelect Clear the selected inline image so its toolbar/resize
+     * bar do not linger after the editor is blurred.
+     */
+    blur(isRemoveAllRange = false, unSelect = false) {
+        if (isRemoveAllRange)
+            document.getSelection()?.removeAllRanges();
+
+        if (unSelect)
+            this.editor.selection.selectedImage = null;
+
+        this.editor.activeContentBlock = null;
+        this.ui.hideAllFloatTools();
+        this.domNode.blur();
+    }
+
+    /**
+     * Hide every floating tool/menu (toolbars, pickers, front button, …).
+     */
+    hideAllFloatTools() {
+        this.ui.hideAllFloatTools();
+    }
+
+    /**
+     * Copy the current document as Markdown to the clipboard.
+     */
+    copyAsMarkdown() {
+        this.editor.clipboard.copyAsMarkdown();
+    }
+
+    /**
+     * Copy the current selection as rendered HTML to the clipboard.
+     */
+    copyAsHtml() {
+        this.editor.clipboard.copyAsHtml();
+    }
+
+    /**
+     * Paste the clipboard content as plain text at the current cursor.
+     */
+    pasteAsPlainText() {
+        this.editor.clipboard.pasteAsPlainText();
+    }
+
+    /**
+     * The outer-most block at the current cursor — the target for block-level
+     * operations. Uses the persisted active content block (which survives the
+     * menu/IPC round-trip), falling back to the selection anchor.
+     */
+    private _outmostBlockAtCursor(): Parent | null {
+        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+
+        return content?.outMostBlock ?? null;
+    }
+
+    /**
+     * Duplicate the block at the current cursor, placing the cursor in the
+     * copy. No-op when there is no current block.
+     */
+    duplicate() {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const state = deepClone(block.getState());
+        const dupBlock = ScrollPage.loadBlock(state.name).create(this, state);
+        block.parent!.insertAfter(dupBlock, block);
+        dupBlock.lastContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Insert an empty paragraph relative to the block at the current cursor.
+     * @param location Insert `before` or `after` the current block (default `after`).
+     * @param text Initial text of the new paragraph.
+     */
+    insertParagraph(location: 'before' | 'after' = 'after', text = '') {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const state = deepClone(emptyStates.paragraph);
+        state.text = text;
+        const newBlock = ScrollPage.loadBlock('paragraph').create(this, state);
+        if (location === 'before')
+            block.parent!.insertBefore(newBlock, block);
+        else
+            block.parent!.insertAfter(newBlock, block);
+
+        newBlock.lastContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Delete the block at the current cursor, moving the cursor to an adjacent
+     * block, or to a fresh empty paragraph when it was the only block.
+     */
+    deleteParagraph() {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        let cursorBlock: Content | null = null;
+        if (block.prev) {
+            cursorBlock = block.prev.lastContentInDescendant();
+        }
+        else if (block.next) {
+            cursorBlock = block.next.firstContentInDescendant();
+        }
+        else {
+            const newBlock = ScrollPage.loadBlock('paragraph').create(
+                this,
+                deepClone(emptyStates.paragraph),
+            );
+            block.parent!.insertAfter(newBlock, block);
+            cursorBlock = newBlock.lastContentInDescendant();
+        }
+
+        block.remove();
+        cursorBlock?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Convert the block at the cursor to another type, mirroring marktext's
+     * `updateParagraph`. `type` uses the marktext/muyajs paragraph-menu
+     * vocabulary: `paragraph`, `heading 1`–`heading 6`, `upgrade heading`,
+     * `degrade heading`, `blockquote`, `pre`, `mathblock`, `html`, `hr`,
+     * `table`, `front-matter`, `ul-bullet`/`ol-order`/`ul-task`,
+     * `loose-list-item`, `reset-to-paragraph`, and the diagram types.
+     */
+    updateParagraph(type: string) {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        if (type === 'upgrade heading' || type === 'degrade heading') {
+            this._changeHeadingLevel(block, type);
+            return;
+        }
+
+        if (type === 'loose-list-item') {
+            this._toggleLooseList(block);
+            return;
+        }
+
+        // `reset-to-paragraph` returns the current block to plain paragraph
+        // form; structured containers (lists/blockquote) unwrap to preserve
+        // every child, tables are left untouched (matches legacy).
+        if (type === 'reset-to-paragraph') {
+            this._resetToParagraph(block);
+            return;
+        }
+
+        const label = PARAGRAPH_LABEL_MAP[type];
+        if (!label)
+            return;
+
+        if (label.endsWith('-list') && isAnyListState(block.getState())) {
+            // Selecting the active list type toggles the list off (unwrap each
+            // item back into paragraphs); a different type converts in place,
+            // preserving every item.
+            if (block.blockName === label)
+                this._unwrapToParagraphs(block);
+            else
+                this._convertListType(block, label);
+
+            return;
+        }
+
+        // Legacy `isAllowedTransformation`: hr/table only replace an empty
+        // block so user content is never silently dropped.
+        if (
+            (label === 'thematic-break' || label === 'table')
+            && this._blockLeadingText(block).trim() !== ''
+        ) {
+            return;
+        }
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label,
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /** Return the block at the cursor to plain paragraph form. */
+    private _resetToParagraph(block: Parent) {
+        if (block.blockName === 'table')
+            return;
+
+        if (isAnyListState(block.getState()) || block.blockName === 'block-quote') {
+            this._unwrapToParagraphs(block);
+            return;
+        }
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label: 'paragraph',
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /**
+     * Unwrap a structured container (list or blockquote) into the top-level
+     * blocks it contains, preserving every item.
+     */
+    private _unwrapToParagraphs(block: Parent) {
+        const state = block.getState();
+        let inner: TState[] = [];
+        if (isAnyListState(state))
+            inner = state.children.flatMap(li => deepClone(li.children));
+        else if (state.name === 'block-quote')
+            inner = deepClone(state.children);
+
+        if (!inner.length)
+            return;
+
+        const parent = block.parent!;
+        let ref: Parent = block;
+        let firstNew: Parent | null = null;
+        for (const childState of inner) {
+            const newBlock = ScrollPage.loadBlock(childState.name).create(this, childState);
+            parent.insertAfter(newBlock, ref);
+            ref = newBlock;
+            firstNew ??= newBlock;
+        }
+
+        block.remove();
+        firstNew?.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /** Leading text of a block, with the atx hash run stripped for headings. */
+    private _blockLeadingText(block: Parent): string {
+        const text = block.firstContentInDescendant()?.text ?? '';
+
+        return block.blockName === 'atx-heading'
+            ? text.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '')
+            : text;
+    }
+
+    /** Cycle the heading level (marktext upgrade/degrade semantics). */
+    private _changeHeadingLevel(block: Parent, type: 'upgrade heading' | 'degrade heading') {
+        const state = block.getState();
+        const level = isAtxHeadingState(state) ? state.meta.level : 0;
+        let newLevel = level;
+
+        if (type === 'upgrade heading' && level !== 1)
+            newLevel = level === 0 ? 6 : level - 1;
+        else if (type === 'degrade heading' && level !== 0)
+            newLevel = level === 6 ? 0 : level + 1;
+
+        if (newLevel === level)
+            return;
+
+        replaceBlockByLabel({
+            block,
+            muya: this,
+            label: newLevel === 0 ? 'paragraph' : `atx-heading ${newLevel}`,
+            text: this._blockLeadingText(block),
+        });
+    }
+
+    /** Toggle loose/tight on the list at the cursor. */
+    private _toggleLooseList(block: Parent) {
+        const state = block.getState();
+        if (!isAnyListState(state))
+            return;
+
+        const newState = deepClone(state);
+        newState.meta.loose = !newState.meta.loose;
+        const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
+        block.replaceWith(newBlock);
+        newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /** Convert an existing list to another list type, preserving items. */
+    private _convertListType(block: Parent, label: string) {
+        const state = block.getState();
+        if (!isAnyListState(state) || block.blockName === label)
+            return;
+
+        const { bulletListMarker, orderListDelimiter } = this.options;
+        const loose = !!state.meta.loose;
+        const childContents: TState[][] = state.children.map(li => deepClone(li.children));
+
+        let newState: IBulletListState | IOrderListState | ITaskListState;
+        if (label === 'task-list') {
+            newState = {
+                name: 'task-list',
+                meta: { marker: bulletListMarker, loose },
+                children: childContents.map(children => ({
+                    name: 'task-list-item',
+                    meta: { checked: false },
+                    children,
+                })),
+            };
+        }
+        else if (label === 'order-list') {
+            newState = {
+                name: 'order-list',
+                meta: { delimiter: orderListDelimiter, loose, start: 1 },
+                children: childContents.map(children => ({ name: 'list-item', children })),
+            };
+        }
+        else {
+            newState = {
+                name: 'bullet-list',
+                meta: { marker: bulletListMarker, loose },
+                children: childContents.map(children => ({ name: 'list-item', children })),
+            };
+        }
+
+        const newBlock = ScrollPage.loadBlock(label).create(this, newState);
+        block.replaceWith(newBlock);
+        newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     destroy() {
@@ -191,7 +729,7 @@ export class Muya {
  * [ensureContainerDiv ensure container element is div]
  */
 function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
-    const { spellcheckEnabled, hideQuickInsertHint } = options;
+    const { spellcheckEnabled, hideQuickInsertHint, focusMode } = options;
     const newContainer = document.createElement('div');
     const attrs = originContainer.attributes;
     // Copy attrs from origin container to new container
@@ -201,6 +739,11 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
 
     if (!hideQuickInsertHint)
         newContainer.classList.add(CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT);
+
+    // Apply focus mode at construction when initially enabled; `setFocusMode`
+    // toggles it thereafter.
+    if (focusMode)
+        newContainer.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
 
     newContainer.classList.add(CLASS_NAMES.MU_EDITOR);
 

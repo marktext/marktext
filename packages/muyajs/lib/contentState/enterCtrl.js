@@ -21,9 +21,16 @@ const getIndentSpace = (text) => {
 const enterCtrl = (ContentState) => {
   // TODO@jocs this function need opti.
   ContentState.prototype.chopBlockByCursor = function(block, key, offset) {
-    const newBlock = this.createBlock('p')
     const { children } = block
     const index = children.findIndex((child) => child.key === key)
+    // Defensive guard for issue #4374: when the caller resolves the wrong
+    // owning paragraph (e.g. a list item with multiple paragraphs), `key`
+    // isn't in `children`. Return a well-formed empty paragraph (p with a
+    // single empty span child) instead of crashing on
+    // `children[-1].nextSibling = null` — a bare `createBlock('p')` would
+    // violate downstream code that assumes `p.children[0]` exists.
+    if (index === -1) return this.createBlockP('')
+    const newBlock = this.createBlock('p')
     const activeLine = this.getBlock(key)
     const { text } = activeLine
     newBlock.children = children.splice(index + 1)
@@ -448,6 +455,10 @@ const enterCtrl = (ContentState) => {
 
     // we only want to select the li if and only if we are currently in the <p> of an li
     // the <p> is the "text content" of the li
+    // Capture the active paragraph BEFORE we walk up to the li so the li
+    // branch below can split the actual line container, not a guessed
+    // children[0]/[1]. Fixes #4374.
+    const activeParagraphBlock = block
     if (parent && parent.type === 'li' && block.type === 'p') {
       block = parent
       parent = this.getParent(block)
@@ -481,22 +492,34 @@ const enterCtrl = (ContentState) => {
         } else if (block.type === 'p') {
           newBlock = this.chopBlockByCursor(block, start.key, start.offset)
         } else if (type === 'li') {
-          // handle task item
+          // Locate the paragraph that actually owns the caret. Loose lists
+          // and lists with nested sublists yield li.children shaped like
+          // [p, ul, p] or [p1, p2] — the caret may live in any of them,
+          // not just children[0]/[1]. Fallback to the historical index so
+          // single-paragraph items behave exactly as before. (#4374)
+          const fallbackIdx = block.listItemType === 'task' ? 1 : 0
+          let activeIdx = block.children.findIndex((c) => c.key === activeParagraphBlock.key)
+          if (activeIdx === -1) activeIdx = fallbackIdx
+          const activeChild = block.children[activeIdx] || block.children[fallbackIdx]
+          const trailing = block.children.slice(activeIdx + 1)
+
           if (block.listItemType === 'task') {
             const { checked } = block.children[0] // block.children[0] is input[type=checkbox]
-            newBlock = this.chopBlockByCursor(block.children[1], start.key, start.offset)
+            newBlock = this.chopBlockByCursor(activeChild, start.key, start.offset)
             newBlock = this.createTaskItemBlock(newBlock, checked)
           } else {
-            newBlock = this.chopBlockByCursor(block.children[0], start.key, start.offset)
+            newBlock = this.chopBlockByCursor(activeChild, start.key, start.offset)
             newBlock = this.createBlockLi(newBlock)
             newBlock.listItemType = block.listItemType
             newBlock.bulletMarkerOrDelimiter = block.bulletMarkerOrDelimiter
+          }
 
-            if (block.children.length > 1) {
-              // If we have a sublist, we need to move the sublist (not the contents) to the new block instead of inserting an "empty" block at the next line
-              this.appendChild(newBlock, block.children[1])
-              this.removeBlock(block.children[1])
-            }
+          // Move every block that came AFTER the active paragraph (sublist
+          // and/or trailing paragraphs) into the new li so split semantics
+          // preserve continuation order.
+          for (const child of trailing) {
+            this.appendChild(newBlock, child)
+            this.removeBlock(child)
           }
           newBlock.isLooseListItem = block.isLooseListItem
         } else if (block.type === 'hr') {

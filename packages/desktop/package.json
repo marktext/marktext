@@ -26,6 +26,10 @@
     }
   ],
   "homepage": "https://github.com/marktext/marktext",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marktext/marktext.git"
+  },
   "scripts": {
     "minify-locales": "tsx ../../scripts/minify-locales.ts",
     "rebuild-native": "electron-rebuild -f",

@@ -16,6 +16,7 @@ interface IRenderOptions {
     vegaTheme: string;
     mermaidTheme: string;
     plantumlServer: string;
+    sequenceTheme: 'hand' | 'simple';
 }
 
 async function renderDiagram({
@@ -25,6 +26,7 @@ async function renderDiagram({
     vegaTheme,
     mermaidTheme,
     plantumlServer,
+    sequenceTheme,
 }: IRenderOptions) {
     const render = await loadRenderer(type);
     const options = {};
@@ -36,6 +38,9 @@ async function renderDiagram({
             theme: vegaTheme,
         });
     }
+    else if (type === 'sequence') {
+        Object.assign(options, { theme: sequenceTheme });
+    }
 
     if (type === 'plantuml') {
         const diagram = render.parse(code, plantumlServer);
@@ -44,6 +49,11 @@ async function renderDiagram({
     }
     else if (type === 'vega-lite') {
         await render(target, JSON.parse(code), options);
+    }
+    else if (type === 'flowchart' || type === 'sequence') {
+        const diagram = render.parse(code);
+        target.innerHTML = '';
+        diagram.drawSVG(target, options);
     }
     else if (type === 'mermaid') {
         render.initialize({
@@ -119,7 +129,7 @@ class DiagramPreview extends Parent {
 
         if (code) {
             this.domNode!.innerHTML = i18n.t('Loading...');
-            const { mermaidTheme, vegaTheme, plantumlServer } = this.muya.options;
+            const { mermaidTheme, vegaTheme, plantumlServer, sequenceTheme } = this.muya.options;
             const { type } = this;
 
             try {
@@ -130,6 +140,7 @@ class DiagramPreview extends Parent {
                     mermaidTheme,
                     vegaTheme,
                     plantumlServer,
+                    sequenceTheme,
                 });
             }
             catch {

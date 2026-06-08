@@ -19,6 +19,7 @@ export interface IMuyaOptions {
     mermaidTheme: string;
     vegaTheme: string;
     plantumlServer: string;
+    sequenceTheme: 'hand' | 'simple';
     hideQuickInsertHint: boolean;
     hideLinkPopup: boolean;
     autoCheck: boolean;

@@ -2,14 +2,16 @@ import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
 import type { ImageToken } from '../../inlineRenderer/types';
+import type { IImagePathSuggestion } from '../imagePicker';
 import type { IBaseOptions } from '../types';
 import { EVENT_KEYS, isWin, URL_REG } from '../../config';
 import { getUniqueId, isHTMLInputElement, isKeyboardEvent } from '../../utils';
-import { query } from '../../utils/dom';
 
+import { query } from '../../utils/dom';
 import { getImageInfo, getImageSrc } from '../../utils/image';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
+import { ImagePathPicker } from '../imagePicker';
 import './index.css';
 
 /**
@@ -28,8 +30,15 @@ interface IState {
  * Image edit tool options
  */
 type Options = {
-    /** Custom image path picker function */
+    /** Custom image path picker function (one-shot native file dialog) */
     imagePathPicker?: () => Promise<string>;
+    /**
+     * Local image path autocomplete hook. Given the current src input value,
+     * returns a list of path suggestions to show in the floating
+     * {@link ImagePathPicker}. Mirrors the legacy `imagePathAutoComplete`
+     * option — typically backed by a filesystem directory listing.
+     */
+    imagePathAutoComplete?: (src: string) => Promise<IImagePathSuggestion[]>;
     /** Image upload action handler */
     imageAction?: (state: IState) => Promise<string>;
 } & IBaseOptions;
@@ -69,6 +78,9 @@ export class ImageEditTool extends BaseFloat {
 
     /** The block containing the image */
     private _block: Format | null = null;
+
+    /** Monotonic counter used to drop out-of-order imagePathAutoComplete responses */
+    private _autoCompleteSeq = 0;
 
     /** Current editing state */
     private _state: IState = {
@@ -161,16 +173,131 @@ export class ImageEditTool extends BaseFloat {
     }
 
     /**
-     * Handle Enter key press to confirm changes
+     * Locate the floating image-path picker if it is currently open.
+     * Plugins are registered privately on Muya, so we resolve the instance via
+     * the shared `ui.shownFloat` registry (the same pattern tableColumnToolbar
+     * uses to find the format picker). Returns null when the picker plugin is
+     * not registered or not currently shown.
+     */
+    private _getOpenImagePathPicker(): ImagePathPicker | null {
+        for (const tool of this.muya.ui.shownFloat) {
+            if (tool instanceof ImagePathPicker && tool.status)
+                return tool;
+        }
+        return null;
+    }
+
+    /**
+     * Handle keydown on the src input.
+     * When the autocomplete picker is open, arrow keys / Tab / Enter drive the
+     * picker (navigate + choose) instead of confirming. Otherwise Enter
+     * confirms the change, mirroring the legacy `srcInputKeyDown` behavior.
      * @param event - Keyboard event
      */
-    private _handleEnter(event: Event) {
+    private _handleSrcKeyDown(event: Event) {
         if (!isKeyboardEvent(event))
             return;
 
-        event.stopPropagation();
-        if (event.key === EVENT_KEYS.Enter)
-            this._handleConfirm();
+        const picker = this._getOpenImagePathPicker();
+        if (!picker) {
+            if (event.key === EVENT_KEYS.Enter) {
+                event.stopPropagation();
+                this._handleConfirm();
+            }
+            return;
+        }
+
+        switch (event.key) {
+            case EVENT_KEYS.ArrowUp:
+                event.preventDefault();
+                // Stop the editor's BaseScrollFloat keydown handler (bound on
+                // muya.domNode) from also stepping the picker — otherwise the
+                // active item advances twice per keypress.
+                event.stopPropagation();
+                picker.step('previous');
+                break;
+
+            case EVENT_KEYS.ArrowDown:
+            case EVENT_KEYS.Tab:
+                event.preventDefault();
+                event.stopPropagation();
+                picker.step('next');
+                break;
+
+            case EVENT_KEYS.Enter:
+                event.preventDefault();
+                event.stopPropagation();
+                if (picker.activeItem)
+                    picker.selectItem(picker.activeItem);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Handle keyup on the src input.
+     * Re-queries the `imagePathAutoComplete` hook (debounced via the browser's
+     * natural keystroke cadence) and dispatches `muya-image-picker` so the
+     * floating picker refreshes its suggestions. Navigation keys are ignored so
+     * they don't re-trigger a fetch while the user is moving through the list.
+     * @param event - Keyboard event
+     */
+    private async _handleSrcKeyUp(event: Event) {
+        if (!isKeyboardEvent(event) || !this.options.imagePathAutoComplete)
+            return;
+
+        const { key } = event;
+        if (
+            key === EVENT_KEYS.ArrowUp
+            || key === EVENT_KEYS.ArrowDown
+            || key === EVENT_KEYS.Tab
+            || (key === EVENT_KEYS.Enter
+                && !this._state.src.endsWith('/')
+                && !this._state.src.endsWith('\\'))
+        ) {
+            return;
+        }
+
+        const { eventCenter } = this.muya;
+        const value = this._state.src;
+        const reference = this.container
+            ? query<HTMLInputElement>('input.src', this.container)
+            : null;
+
+        // Write the chosen suggestion back into the src input. The new value is
+        // the directory portion of the current path plus the chosen basename,
+        // matching the legacy ImageSelector autocomplete UX.
+        const cb = (item: IImagePathSuggestion) => {
+            if (!reference)
+                return;
+
+            const { text } = item;
+            // Derive the directory prefix from the CURRENT input value — the
+            // user may have kept typing after the suggestions were fetched, so
+            // the value captured on keyup can be stale.
+            const current = reference.value;
+            let basePath = '';
+            const pathSep = current.match(/(?:\/|\\)[^/\\]*$/);
+            if (pathSep && pathSep[0])
+                basePath = current.substring(0, pathSep.index! + 1);
+
+            const newValue = basePath + text;
+            const len = newValue.length;
+            reference.value = newValue;
+            this._state.src = newValue;
+            reference.focus();
+            reference.setSelectionRange(len, len);
+        };
+
+        // Guard against out-of-order resolution: if the user types again before
+        // a slower earlier request resolves, drop the stale response.
+        const seq = ++this._autoCompleteSeq;
+        const list = value ? await this.options.imagePathAutoComplete(value) : [];
+        if (seq !== this._autoCompleteSeq)
+            return;
+        eventCenter.emit('muya-image-picker', { reference, list, cb });
     }
 
     /**
@@ -263,6 +390,17 @@ export class ImageEditTool extends BaseFloat {
     }
 
     /**
+     * Hide the tool and dismiss the autocomplete picker alongside it so a
+     * confirm/close never leaves a dangling suggestions dropdown.
+     */
+    override hide() {
+        const picker = this._getOpenImagePathPicker();
+        if (picker)
+            picker.hide();
+        super.hide();
+    }
+
+    /**
      * Handle click on "more" button to open file picker
      * Updates the src input with selected path
      */
@@ -305,7 +443,8 @@ export class ImageEditTool extends BaseFloat {
             on: {
                 input: event => this._handleSrcInput(event),
                 paste: event => this._handleSrcInput(event),
-                keydown: event => this._handleEnter(event),
+                keydown: event => this._handleSrcKeyDown(event),
+                keyup: event => this._handleSrcKeyUp(event),
             },
         });
 

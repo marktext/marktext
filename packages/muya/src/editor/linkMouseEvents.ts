@@ -57,6 +57,13 @@ function findLinkWrapper(target: EventTarget | null): HTMLElement | null {
     return target.closest<HTMLElement>(LINK_SELECTOR);
 }
 
+// True for a Cmd-click (macOS) or Ctrl-click (other platforms). The desktop
+// renderer makes the same OS distinction; emitting on either keeps muya
+// platform-agnostic and lets the host decide.
+function isModifierClick(event: Event): boolean {
+    return event instanceof MouseEvent && (event.metaKey || event.ctrlKey);
+}
+
 function isPopoverTarget(wrapper: HTMLElement): boolean {
     // HTML `<a>` is always a popover target — no source markers to hide.
     if (wrapper.classList.contains(CLASS_NAMES.MU_RAW_HTML))
@@ -116,8 +123,39 @@ export function attachLinkMouseHandlers(muya: Muya): void {
         if (!(event.target instanceof HTMLElement))
             return;
 
-        if (event.target.closest(ANCHOR_CLICK_SELECTOR))
+        // Suppress in-editor navigation for every real anchor variant. Place
+        // the cursor instead of opening a tab (standard contenteditable
+        // rich-text pattern). This runs for plain clicks too.
+        const anchor = event.target.closest<HTMLElement>(ANCHOR_CLICK_SELECTOR);
+        if (anchor)
             event.preventDefault();
+
+        // Cmd/Ctrl-click a link → ask the host to open it. marktext's
+        // `clickCtrl.js` dispatched `format-click` with `{ event, formatType:
+        // 'link', data: { text, href } }`; the desktop renderer gates on the
+        // modifier itself (`editor.vue` `format-click` handler) and calls
+        // `FORMAT_LINK_CLICK({ data })`, so the only contract it needs is a
+        // `data.href`. We gate on the modifier here too so plain clicks keep
+        // their cursor-placement-only behavior. `getLinkInfo` resolves the
+        // wrapper that hosts the href even when the IMG/text descendant was
+        // clicked, and returns a superset (`{ href, raw, text, range }`) of
+        // the legacy `{ text, href }` payload.
+        if (!isModifierClick(event))
+            return;
+
+        const wrapper = findLinkWrapper(event.target);
+        if (!wrapper)
+            return;
+
+        const linkInfo = getLinkInfo(wrapper);
+        if (!linkInfo || !linkInfo.href)
+            return;
+
+        eventCenter.emit('format-click', {
+            event,
+            formatType: 'link',
+            data: linkInfo,
+        });
     };
 
     eventCenter.attachDOMEvent(domNode, 'mouseover', overHandler);
