@@ -1305,12 +1305,29 @@ interface FileChangePayload {
   blocks?: unknown
 }
 
+// A source-mode (CodeMirror) index cursor: `{ anchor, focus }` in `{ line, ch }`
+// coordinates. Produced by sourceCode.vue and carried on `file-changed` as
+// `muyaIndexCursor` when handing a tab back to WYSIWYG.
+const isIndexCursor = (
+  cursor: unknown
+): cursor is { anchor: { line: number; ch: number }; focus: { line: number; ch: number } } => {
+  const c = cursor as { anchor?: { line?: unknown }; focus?: { line?: unknown } } | null
+  return (
+    !!c &&
+    !!c.anchor &&
+    !!c.focus &&
+    typeof c.anchor.line === 'number' &&
+    typeof c.focus.line === 'number'
+  )
+}
+
 // listen for markdown change form source mode or change tabs etc
 const handleFileChange = (payload: unknown) => {
   const {
     id,
     markdown: newMarkdown,
     cursor: newCursor,
+    muyaIndexCursor,
     scrollTop
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
@@ -1323,12 +1340,18 @@ const handleFileChange = (payload: unknown) => {
     // in-session tab switch. The `history` in the payload is the synthetic
     // desktop-shaped history used for save tracking, not the engine history.
     editor.value.setContent(newMarkdown)
+    if (newCursor) {
+      editor.value.setCursor(newCursor)
+    } else if (isIndexCursor(muyaIndexCursor)) {
+      // Coming back from source-code mode the tab only has a CodeMirror
+      // `{ line, ch }` index cursor; map it onto a block-key cursor so the
+      // WYSIWYG caret lands where the source-mode cursor was (PG2). The engine
+      // runs its own setContent dance internally, so restore the history after.
+      editor.value.setCursorByOffset(muyaIndexCursor)
+    }
     const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
     if (savedEngineHistory) {
       editor.value.setHistory(savedEngineHistory)
-    }
-    if (newCursor) {
-      editor.value.setCursor(newCursor)
     }
   } else if (newCursor) {
     editor.value.setCursor(newCursor)
