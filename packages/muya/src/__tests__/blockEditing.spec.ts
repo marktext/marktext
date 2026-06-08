@@ -14,8 +14,12 @@ import { Muya } from '../muya';
 // getState() are wrapped in vi.waitFor to await that flush.
 
 const bootedHosts: HTMLElement[] = [];
+let originalVersion: string | undefined;
+let hadVersion = false;
 
 beforeEach(() => {
+    hadVersion = 'MUYA_VERSION' in window;
+    originalVersion = window.MUYA_VERSION;
     window.MUYA_VERSION = 'test';
 });
 
@@ -24,7 +28,10 @@ afterEach(() => {
         const host = bootedHosts.pop()!;
         host.remove();
     }
-    delete (window as Partial<Window>).MUYA_VERSION;
+    if (hadVersion)
+        window.MUYA_VERSION = originalVersion as string;
+    else
+        delete (window as Partial<Window>).MUYA_VERSION;
 });
 
 function bootMuya(markdown: string): Muya {
