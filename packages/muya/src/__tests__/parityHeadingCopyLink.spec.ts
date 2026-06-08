@@ -90,4 +90,40 @@ describe('parity PG11: heading hover-to-copy-anchor affordance', () => {
             expect(payload?.key).toBeTruthy();
         },
     );
+
+    it(
+        'PG11: the affordance is an accessible, keyboard-focusable button',
+        () => {
+            const muya = bootMuya('# Getting Started\n');
+            const affordance = muya.domNode.querySelector<HTMLElement>(COPY_LINK_SELECTOR)!;
+
+            expect(affordance.getAttribute('role')).toBe('button');
+            expect(affordance.getAttribute('tabindex')).toBe('0');
+            expect(affordance.getAttribute('aria-label')).toBeTruthy();
+            // The icon image is decorative — the button carries the label — so
+            // it must expose an (empty) alt to satisfy the image-alt a11y rule.
+            const img = affordance.querySelector('img')!;
+            expect(img.getAttribute('alt')).toBe('');
+        },
+    );
+
+    it.each(['Enter', ' '])(
+        'PG11: pressing %s on the focused affordance emits heading-copy-link',
+        (key) => {
+            const muya = bootMuya('# Getting Started\n');
+
+            const handler = vi.fn();
+            muya.on('heading-copy-link', handler);
+
+            const affordance = muya.domNode.querySelector<HTMLElement>(COPY_LINK_SELECTOR);
+            affordance?.dispatchEvent(
+                new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }),
+            );
+
+            // Keyboard activation mirrors click so the control is operable
+            // without a pointer.
+            expect(handler).toHaveBeenCalledTimes(1);
+            expect(handler.mock.calls[0]?.[0]?.key).toBeTruthy();
+        },
+    );
 });

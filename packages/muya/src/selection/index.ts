@@ -528,6 +528,11 @@ class Selection {
 
         const { key } = event;
         const { selectedImage } = this;
+        // `selectedImage` is the gate: it is only ever set by an in-editor
+        // image click (`_handleClickInlineImage`) and is cleared on ANY
+        // document click (`docHandlerClick`) and on every delete/preview here.
+        // So this handler is inert unless the user has an image actively
+        // selected inside this editor — matching the legacy muyajs behavior.
         if (!selectedImage)
             return;
 

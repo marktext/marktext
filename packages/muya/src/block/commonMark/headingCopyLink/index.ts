@@ -2,6 +2,7 @@ import type { Muya } from '../../../muya';
 import formatLinkIcon from '../../../assets/icons/format_link/2.png';
 import { CLASS_NAMES } from '../../../config';
 import { stableSlug } from '../../../state/getTOC';
+import { isKeyboardEvent } from '../../../utils';
 import logger from '../../../utils/logger';
 import TreeNode from '../../base/treeNode';
 
@@ -35,14 +36,27 @@ class HeadingCopyLink extends TreeNode {
 
     constructor(muya: Muya) {
         super(muya);
+        const label = muya.i18n.t('Copy anchor link to this heading');
         this.tagName = 'i';
         this.classList = ['mu-icon', CLASS_NAMES.MU_COPY_HEADER_LINK];
-        this.attributes = { contenteditable: 'false' };
+        // Accessible button semantics: discoverable + focusable + operable by
+        // assistive tech and keyboard (the keydown handler below activates it).
+        this.attributes = {
+            'contenteditable': 'false',
+            'role': 'button',
+            'tabindex': '0',
+            'aria-label': label,
+            'title': label,
+        };
         this.createDomNode();
 
+        // The button carries the accessible label, so the icon image is purely
+        // decorative — an empty `alt` keeps screen readers from announcing it
+        // twice and satisfies the `image-alt` a11y rule.
         const img = document.createElement('img');
         img.classList.add('mu-icon-inner');
         img.setAttribute('src', formatLinkIcon);
+        img.setAttribute('alt', '');
         this.domNode!.appendChild(img);
 
         this.listen();
@@ -58,20 +72,37 @@ class HeadingCopyLink extends TreeNode {
             // properties are read, so no `MouseEvent` narrowing is needed.
             event.preventDefault();
             event.stopPropagation();
+            this._activate();
+        };
 
-            // At click time the attachment's parent is the heading block.
-            const heading = this.parent;
-            if (!heading)
+        // Keyboard activation (Enter / Space) for the focusable button, so it
+        // is operable without a pointer.
+        const keydownHandler = (event: Event) => {
+            if (!isKeyboardEvent(event))
                 return;
-
-            eventCenter.emit('heading-copy-link', {
-                key: stableSlug(heading),
-            });
+            if (event.key !== 'Enter' && event.key !== ' ')
+                return;
+            event.preventDefault();
+            event.stopPropagation();
+            this._activate();
         };
 
         this._eventIds.push(
             eventCenter.attachDOMEvent(domNode!, 'click', clickHandler),
+            eventCenter.attachDOMEvent(domNode!, 'keydown', keydownHandler),
         );
+    }
+
+    // Emit `heading-copy-link` with the heading's stable slug. At activation
+    // time the attachment's parent is the heading block.
+    private _activate() {
+        const heading = this.parent;
+        if (!heading)
+            return;
+
+        this.muya.eventCenter.emit('heading-copy-link', {
+            key: stableSlug(heading),
+        });
     }
 
     detachDOMEvents() {
