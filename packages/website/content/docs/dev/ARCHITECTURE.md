@@ -38,7 +38,22 @@ There are two entry points to the application:
 
 ### How Muya work
 
-TBD
+Muya is initialized by the renderer and owns the live WYSIWYG editor surface. The
+renderer registers the built-in Muya UI plugins, such as toolbars, pickers, and
+front menus, before creating the editor instance. Each UI plugin is a class with
+a static `pluginName`; `Muya.use(plugin, options)` stores that class and the
+options object, then a new Muya instance creates the plugin during editor
+startup.
+
+`pluginName` is the registration identity for these built-in UI extensions. A
+plugin can be registered again to update its constructor or options without
+duplicating the global registry. This is useful for renderer remounts and keeps
+the existing plugin seam predictable while the broader plugin architecture is
+still being designed.
+
+This registration path is not yet a full external plugin system. It does not
+load third-party packages, expose a marketplace, or define sandboxing and
+lifecycle APIs. Those remain part of the larger plugin work.
 
 - Overview about Muya components
 - How Muya work internal

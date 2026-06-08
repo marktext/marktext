@@ -18,6 +18,18 @@ class Muya {
   static plugins = []
 
   static use(plugin, options = {}) {
+    const pluginName = plugin && plugin.pluginName
+    if (pluginName) {
+      const registeredIndex = this.plugins.findIndex(({ plugin: Plugin }) => Plugin.pluginName === pluginName)
+      if (registeredIndex !== -1) {
+        this.plugins[registeredIndex] = {
+          plugin,
+          options
+        }
+        return
+      }
+    }
+
     this.plugins.push({
       plugin,
       options
