@@ -2,8 +2,9 @@ import type Content from './block/base/content';
 import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
+import type { ICursor } from './selection/types';
 import type { ITocItem } from './state/getTOC';
-import type { IBulletListState, IOrderListState, ITaskListState, TState } from './state/types';
+import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions } from './types';
 import Format from './block/base/format';
 import { ScrollPage } from './block/scrollPage';
@@ -11,6 +12,7 @@ import emptyStates from './config/emptyStates';
 import {
     CLASS_NAMES,
     MUYA_DEFAULT_OPTIONS,
+    URL_REG,
 } from './config/index';
 import { Editor } from './editor/index';
 
@@ -463,6 +465,143 @@ export class Muya {
 
         block.remove();
         cursorBlock?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Insert a GFM table at the current cursor, replacing the block the cursor
+     * is in (legacy `createTableInFigure`/`createFigure`). The table has `rows`
+     * rows × `columns` columns with the first row as the header; every cell is
+     * empty with `align: 'none'`. The cursor lands in the first cell. No-op when
+     * there is no current block.
+     */
+    createTable({ rows, columns }: { rows: number; columns: number }) {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const makeRow = (): ITableState['children'][number] => ({
+            name: 'table.row',
+            children: Array.from({ length: columns }, () => ({
+                name: 'table.cell' as const,
+                meta: { align: 'none' },
+                text: '',
+            })),
+        });
+
+        const state: ITableState = {
+            name: 'table',
+            children: Array.from({ length: rows }, makeRow),
+        };
+
+        const newTable = ScrollPage.loadBlock('table').create(this, state);
+        block.replaceWith(newTable);
+        newTable.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Insert an inline image at the current cursor in the active formattable
+     * block, mirroring legacy `insertImage`. The `![alt](src)` markdown is
+     * written through the `Format` block's text setter so it dispatches a JSON
+     * op (state stays in sync) rather than mutating the DOM directly. No-op when
+     * there is no active formattable (`Format`) block — e.g. inside a code block
+     * or with no cursor.
+     */
+    insertImage({ src = '', alt = '' }: { src?: string; alt?: string }) {
+        const block = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        if (!(block instanceof Format))
+            return;
+
+        const cursor = block.getCursor();
+        if (cursor == null)
+            return;
+
+        // Derive a sensible alt from the file name when none is provided,
+        // matching legacy `insertImage`.
+        if (!alt) {
+            const match = /[/\\]?([^./\\]+)\.[a-z]+$/i.exec(src);
+            alt = match?.[1] ?? '';
+        }
+
+        // Only percent-encode plain paths; leave full URLs / data URLs as-is.
+        // Mirrors legacy `insertImage` / `replaceImage` src handling.
+        let imgUrl: string;
+        if (URL_REG.test(src))
+            imgUrl = encodeURI(src);
+        else if (/^data:image\//.test(src))
+            imgUrl = src;
+        else
+            imgUrl = src.replace(/ /g, encodeURI(' ')).replace(/#/g, encodeURIComponent('#'));
+
+        const { start, end } = cursor;
+        const { text } = block;
+        // When there is a selection, use it as the alt text (legacy behaviour).
+        const imageAlt = start.offset !== end.offset ? text.substring(start.offset, end.offset) : alt;
+        const imageText = `![${imageAlt}](${imgUrl})`;
+
+        // The `text` setter diffs against the old value and dispatches a JSON op.
+        block.text = text.substring(0, start.offset) + imageText + text.substring(end.offset);
+        // Re-render and place the caret on the alt text (offset of `![`).
+        block.setCursor(start.offset + 2, start.offset + 2 + imageAlt.length, true);
+    }
+
+    /**
+     * Set the cursor programmatically. The desktop passes a cursor like
+     * `{ anchor, focus, anchorPath, focusPath }` (and may use `{ start, end }`
+     * / `block` / `path`). Resolves the target block(s) by path on the live tree
+     * and restores the selection the same way `Editor.updateContents` does —
+     * `block.setCursor` for the same-block case, `selection.setSelection` with
+     * resolved block instances for the cross-block case. Passing bare paths to
+     * `setSelection` does not work (it needs a block's `domNode`), so we always
+     * resolve and pass the block instance. No-op when the target can't be
+     * resolved.
+     */
+    setCursor(cursor: ICursor) {
+        const { scrollPage } = this.editor;
+        if (!scrollPage)
+            return;
+
+        // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
+        // `{ start, end, path }`/`block` shapes of ICursor.
+        const anchor = cursor.anchor ?? cursor.start ?? null;
+        const focus = cursor.focus ?? cursor.end ?? anchor;
+        const anchorPath = cursor.anchorPath ?? cursor.path;
+        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
+
+        if (!anchor || !focus)
+            return;
+
+        // queryBlock mutates its path argument (path.shift()) — pass copies.
+        const anchorBlock
+            = cursor.anchorBlock
+                ?? cursor.block
+                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
+        const focusBlock
+            = cursor.focusBlock
+                ?? cursor.block
+                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
+
+        if (anchorBlock == null || !anchorBlock.isContent())
+            return;
+
+        // Same-block, mirror Editor.updateContents' selection-restore.
+        if (anchorBlock === focusBlock || focusBlock == null) {
+            const begin = Math.min(anchor.offset, focus.offset);
+            const last = Math.max(anchor.offset, focus.offset);
+            anchorBlock.setCursor(begin, last, true);
+            return;
+        }
+
+        if (!focusBlock.isContent())
+            return;
+
+        this.editor.selection.setSelection({
+            anchor,
+            focus,
+            anchorBlock,
+            anchorPath: anchorBlock.path,
+            focusBlock,
+            focusPath: focusBlock.path,
+        });
     }
 
     /**
