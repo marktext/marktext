@@ -200,10 +200,10 @@ export const setWrapCodeBlocks = (value: boolean): void => {
   let result = ''
   if (value) {
     result =
-      '.mu-code { display: block; white-space: pre-wrap; word-break: break-word; overflow: hidden; }'
+      '.mu-code-block .mu-code { display: block; white-space: pre-wrap; word-break: break-word; overflow: hidden; }'
   } else {
     result =
-      '.mu-code { display: block; white-space: pre; word-break: break-word; overflow: auto; }'
+      '.mu-code-block .mu-code { display: block; white-space: pre; word-break: break-word; overflow: auto; }'
   }
   let styleEle = document.querySelector(`#${CODE_WRAP_STYLE_ID}`) as HTMLStyleElement | null
   if (!styleEle) {
