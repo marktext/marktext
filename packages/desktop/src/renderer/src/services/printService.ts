@@ -1,14 +1,21 @@
-// NOTE: still sourced from the legacy muyajs engine. The desktop calls
-// `getImageInfo(rawSrc: string)` to normalise an <img>'s src attribute into a
-// displayable URL before printing/PDF export (GH#678). @muyajs/core has no
-// behaviour-equivalent string helper:
-//   - its `getImageInfo(image: HTMLElement)` takes a DOM element, not a string;
-//   - its `getImageSrc(src: string)` double-prefixes already-resolved `file://`
-//     URLs (`file://file://…`) and blanks data: URLs — and the muyajs export
-//     renderer already emits absolute `file://` srcs here, so that would
-//     regress every image. This import migrates once the export render path
-//     (editor.vue / Muya#exportStyledHTML) moves to @muyajs/core.
-import { getImageInfo } from 'muya/lib/utils'
+// Resolve an <img>'s src for static (PDF) print (GH#678): a relative local
+// path is resolved to an absolute `file://` URL against the current document
+// directory; URLs, `data:` URIs, and already-absolute / `file://` srcs are
+// left untouched. Ported from the legacy muyajs `getImageInfo(src)` so the
+// desktop no longer depends on the muyajs engine (@muyajs/core's `getImageInfo`
+// takes a DOM element, and its `getImageSrc` would double-prefix `file://`).
+const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
+
+function resolveImageSrcForStaticPrint(src: string): string {
+  if (!src) return src
+  // Already a URL or data: URI — leave as-is (avoids `file://file://…`).
+  if (/^(?:https?:|file:|data:)/i.test(src)) return src
+  // Absolute local path (POSIX / UNC / Windows drive) → file://.
+  if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return `file://${src}`
+  // Relative local image path — resolve against the document directory.
+  if (IMAGE_EXT_REG.test(src) && window.DIRNAME) return `file://${window.path.resolve(window.DIRNAME, src)}`
+  return src
+}
 
 class MarkdownPrint {
   private container: HTMLElement | null = null
@@ -33,7 +40,7 @@ class MarkdownPrint {
       const images = printContainer.getElementsByTagName('img')
       for (const image of Array.from(images)) {
         const rawSrc = image.getAttribute('src') ?? ''
-        image.src = getImageInfo(rawSrc).src
+        image.src = resolveImageSrcForStaticPrint(rawSrc)
       }
     }
 
