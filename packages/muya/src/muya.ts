@@ -835,6 +835,22 @@ export class Muya {
         if (!label)
             return;
 
+        // The plain `paragraph` menu item only converts a *leaf* block (heading,
+        // hr, etc.) back to a paragraph. Inside a list or blockquote the cursor's
+        // immediate parent is already a paragraph, so legacy muyajs treated this
+        // as a no-op (paragraphCtrl.js `case 'paragraph'`, where
+        // `parent.type === 'p'` returned early). Without this guard the label
+        // would fall through to `replaceBlockByLabel` on the *whole* container
+        // and collapse every item/line into a single paragraph built from the
+        // first content's text — silent data loss. `reset-to-paragraph` is the
+        // explicit "unwrap the container" command and is handled above.
+        if (
+            label === 'paragraph'
+            && (isAnyListState(block.getState()) || block.blockName === 'block-quote')
+        ) {
+            return;
+        }
+
         if (label.endsWith('-list') && isAnyListState(block.getState())) {
             // Selecting the active list type toggles the list off (unwrap each
             // item back into paragraphs); a different type converts in place,
