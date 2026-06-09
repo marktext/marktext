@@ -361,18 +361,43 @@ export class Editor {
 
         drop(snapshot, operations);
 
-        if (selection) {
-            const { anchorPath, anchor, focus, isSelectionInSameBlock } = selection;
-            const cursorBlock = this.scrollPage?.queryBlock(anchorPath);
+        this._restoreSelection(selection);
+    }
 
-            const begin = Math.min(anchor.offset, focus.offset);
-            const end = Math.max(anchor.offset, focus.offset);
+    private _restoreSelection(selection: Nullable<IHistorySelection>) {
+        if (!selection)
+            return;
 
-            if (isSelectionInSameBlock && cursorBlock && cursorBlock.isContent())
-                cursorBlock.setCursor(begin, end, true);
-            else
-                this.selection.setSelection(selection);
-        }
+        const { anchorPath, anchor, focus, isSelectionInSameBlock } = selection;
+        // `ScrollPage.queryBlock` consumes the path array in place (`path.shift`),
+        // so query against a copy and leave the caller's selection untouched.
+        const cursorBlock = this.scrollPage?.queryBlock([...anchorPath]);
+
+        const begin = Math.min(anchor.offset, focus.offset);
+        const end = Math.max(anchor.offset, focus.offset);
+
+        if (isSelectionInSameBlock && cursorBlock && cursorBlock.isContent())
+            cursorBlock.setCursor(begin, end, true);
+        else
+            this.selection.setSelection(selection);
+    }
+
+    /**
+     * Apply a history op by rebuilding the live block tree wholesale instead of
+     * walking it incrementally (`updateContents`). The op is dispatched to the
+     * authoritative json state, then `ScrollPage.updateState` re-creates the DOM
+     * from that state — the same safe path `setContent` uses. Used for undo/redo
+     * of whole-document boundaries (e.g. exiting source-code mode) whose op
+     * shapes the incremental pick/drop walker cannot apply without desyncing the
+     * DOM from the json state.
+     */
+    rebuildContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
+        this.jsonState.dispatch(operations, source);
+
+        const state = this.jsonState.getState();
+        this.scrollPage!.updateState(state);
+
+        this._restoreSelection(selection);
     }
 
     setContent(content: TState[] | string, autoFocus = false) {

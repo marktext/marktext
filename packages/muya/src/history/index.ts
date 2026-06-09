@@ -16,6 +16,16 @@ interface IOptions {
 interface IOperation {
     operation: JSONOpList;
     selection: Nullable<IHistorySelection>;
+    // A `rebuild` entry is applied on undo/redo by dispatching its op to the
+    // authoritative json state and rebuilding the live block tree wholesale
+    // (ScrollPage.updateState) — NOT through `Editor.updateContents`'
+    // incremental pick/drop DOM walker. The walker only handles a few op shapes
+    // (single block insert at an index, text edit, checked/meta) and desyncs the
+    // DOM from the json state for whole-document ops, so bulk replacements
+    // (e.g. exiting source-code mode) are recorded as rebuild entries. The op
+    // itself is a normal, fully-invertible ot-json1 op, so compose / transform /
+    // invert continue to work unchanged.
+    rebuild?: boolean;
 }
 
 interface IStack {
@@ -42,6 +52,7 @@ interface ISerializableSelection {
 interface ISerializableOperation {
     operation: JSONOpList;
     selection: Nullable<ISerializableSelection>;
+    rebuild?: boolean;
 }
 
 // The public, JSON-serializable shape returned by `getHistory` and accepted by
@@ -112,17 +123,21 @@ class History {
         if (this._stack[source].length === 0)
             return;
 
-        const { operation, selection } = this._stack[source].pop()!;
+        const { operation, selection, rebuild } = this._stack[source].pop()!;
         const inverseOperation = json1.type.invert(operation);
 
         this._stack[dest].push({
             operation: inverseOperation as JSONOpList,
             selection: this.selection.getSelection(),
+            rebuild,
         });
 
         this._lastRecorded = 0;
         this._ignoreChange = true;
-        this.muya.editor.updateContents(operation, selection, 'user');
+        if (rebuild)
+            this.muya.editor.rebuildContents(operation, selection, 'user');
+        else
+            this.muya.editor.updateContents(operation, selection, 'user');
         this._ignoreChange = false;
 
         this.getLastSelection();
@@ -180,6 +195,7 @@ class History {
         return {
             operation: deepClone(op.operation),
             selection: this._toSerializableSelection(op.selection),
+            ...(op.rebuild ? { rebuild: true } : {}),
         };
     }
 
@@ -187,6 +203,7 @@ class History {
         return {
             operation: deepClone(op.operation),
             selection: this._fromSerializableSelection(op.selection),
+            ...(op.rebuild ? { rebuild: true } : {}),
         };
     }
 
@@ -277,6 +294,52 @@ class History {
 
         if (this._stack.undo.length > this.options.maxStack)
             this._stack.undo.shift();
+    }
+
+    /**
+     * Record a whole-document replacement (e.g. exiting source-code mode) as a
+     * single, standalone undo boundary that is applied via a full block-tree
+     * rebuild rather than the incremental DOM walker.
+     *
+     * The forward op (`prevDoc` -> current state) is dispatched to the json
+     * state by the caller; here we only record its lossless inverse so the first
+     * undo reverts the entire bulk change in one step. The entry never coalesces
+     * with neighbouring edits: `_lastRecorded` is reset so the next ordinary
+     * edit also starts its own boundary, and the redo stack is cleared.
+     */
+    recordRebuild(op: JSONOpList, prevDoc: TState[], selection: Nullable<IHistorySelection>) {
+        if (op.length === 0)
+            return;
+
+        const undoOperation = json1.type.invertWithDoc(op, asDoc(prevDoc));
+
+        if (!undoOperation || undoOperation.length === 0)
+            return;
+
+        this._stack.redo = [];
+        this._stack.undo.push({ operation: undoOperation, selection, rebuild: true });
+        // Force the next ordinary edit into its own undo entry — the bulk
+        // replacement must not absorb a later keystroke (or vice versa).
+        this._lastRecorded = 0;
+
+        if (this._stack.undo.length > this.options.maxStack)
+            this._stack.undo.shift();
+    }
+
+    /**
+     * Run `fn` (which dispatches a json-change) WITHOUT recording it on the undo
+     * stack. The caller has already recorded the corresponding boundary itself
+     * (see `recordRebuild`), so the forward apply must not be double-recorded.
+     */
+    suppressRecording(fn: () => void) {
+        const previous = this._ignoreChange;
+        this._ignoreChange = true;
+        try {
+            fn();
+        }
+        finally {
+            this._ignoreChange = previous;
+        }
     }
 
     canRedo() {

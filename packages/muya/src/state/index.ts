@@ -72,6 +72,13 @@ class JSONState {
     }
 
     setMarkdown(markdown: string) {
+        this._state = this.markdownToState(markdown);
+    }
+
+    // Parse markdown into a block-state array with the editor's current
+    // render-affecting options, WITHOUT mutating `this._state`. Used by
+    // `buildReplaceOp` to compute the target state for a bulk replacement.
+    markdownToState(markdown: string): TState[] {
         const {
             footnote,
             isGitlabCompatibilityEnabled,
@@ -80,13 +87,75 @@ class JSONState {
             math,
         } = this.muya.options;
 
-        this._state = new MarkdownToState({
+        return new MarkdownToState({
             footnote,
             isGitlabCompatibilityEnabled,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             math,
         }).generate(markdown);
+    }
+
+    /**
+     * Build a single, fully-invertible ot-json1 op that turns the CURRENT
+     * document state into `content` (markdown or a state array), and return it
+     * together with the before/after states.
+     *
+     * The op is deliberately MOVE-FREE: it replaces each overlapping top-level
+     * block, inserts the tail, and removes the surplus (highest index first).
+     * It never emits a pick/drop `move`, so `json1.type.apply` reproduces the
+     * target state exactly and `invertWithDoc` yields a lossless inverse. The op
+     * is applied to the live tree via `ScrollPage.updateState` (a full rebuild),
+     * never the incremental DOM walker, so arbitrary block-type changes are safe.
+     */
+    buildReplaceOp(content: TState[] | string): {
+        op: JSONOpList;
+        prevState: TState[];
+        nextState: TState[];
+    } {
+        const prevState = this.getState();
+        const nextState
+            = typeof content === 'string' ? this.markdownToState(content) : deepClone(content);
+
+        const components: JSONOpList[] = [];
+        const max = Math.max(prevState.length, nextState.length);
+
+        for (let i = 0; i < max; i++) {
+            if (i < prevState.length && i < nextState.length) {
+                if (
+                    JSON.stringify(prevState[i]) !== JSON.stringify(nextState[i])
+                ) {
+                    components.push(
+                        json1.replaceOp(
+                            [i],
+                            asDoc(prevState[i]),
+                            asDoc(nextState[i]),
+                        )!,
+                    );
+                }
+            }
+            else if (i < nextState.length) {
+                components.push(json1.insertOp([i], asDoc(nextState[i]))!);
+            }
+        }
+
+        // Remove surplus trailing blocks from the end so earlier indices stay
+        // stable while composing.
+        for (let i = prevState.length - 1; i >= nextState.length; i--)
+            components.push(json1.removeOp([i])!);
+
+        // Compose the components into one op. `json1.type.compose` returns
+        // `JSONOp` (= null | JSONOpList) and its identity element is `null`
+        // (composing onto `[]` throws "Empty descent"). Start from `null`, then
+        // normalize the final result to the empty op `[]` when nothing changed
+        // (the documents were identical) so callers can rely on `op.length`.
+        let composed: JSONOp = null;
+        for (const component of components)
+            composed = json1.type.compose(composed, component);
+
+        const op: JSONOpList = composed ?? [];
+
+        return { op, prevState, nextState };
     }
 
     insertOperation(path: Path, state: TState) {

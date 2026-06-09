@@ -239,6 +239,43 @@ export class Muya {
     }
 
     /**
+     * Replace the whole document with `content` (markdown or a state array) as a
+     * SINGLE undo boundary — the first subsequent `undo()` reverts the entire
+     * replacement in one step. Unlike `setContent`, the existing undo/redo
+     * history is preserved and a new boundary is pushed on top of it.
+     *
+     * Used by the desktop shell when handing a tab back from source-code mode:
+     * the bulk source-mode edit becomes one undo step (legacy muyajs parity,
+     * gap PG14). The change is recorded as a `rebuild` history entry, so undo /
+     * redo re-create the block tree wholesale (`ScrollPage.updateState`) rather
+     * than walking it incrementally — making arbitrary block-type changes
+     * (paragraph<->heading, list/table/code/frontmatter, multi-block reorder…)
+     * safe to round-trip. No-op when `content` is identical to the current
+     * document.
+     *
+     * @returns `true` if a boundary was recorded, `false` if nothing changed.
+     */
+    replaceContent(content: TState[] | string): boolean {
+        const { jsonState, history } = this.editor;
+        const { op, prevState } = jsonState.buildReplaceOp(content);
+
+        if (op.length === 0)
+            return false;
+
+        const selection = this.editor.selection.getSelection();
+        // Record the lossless inverse as a standalone rebuild boundary BEFORE
+        // applying the forward op, so the recorded `prevState` matches the doc
+        // the inverse must restore. The forward apply dispatches a json-change,
+        // so suppress History's own recording of it to avoid a duplicate entry.
+        history.recordRebuild(op, prevState, selection);
+        history.suppressRecording(() => {
+            this.editor.rebuildContents(op, selection, 'api');
+        });
+
+        return true;
+    }
+
+    /**
      * Update editor options at runtime (mirrors marktext muyajs `setOptions`):
      * merges `options` into `muya.options`, reflects the container-level ones
      * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
