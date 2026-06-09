@@ -43,10 +43,15 @@ const ABSOLUTE_LOCAL_REG = /^(?:\/|\\\\|[a-z]:\\|[a-z]:\/).+/i;
 function resolveRelativePath(base: string, relative: string): string {
     const normalizedBase = base.replace(/\\/g, '/').replace(/\/+$/, '');
     const combined = `${normalizedBase}/${relative.replace(/\\/g, '/')}`;
-    const isWinDrive = /^[a-z]:/i.test(combined);
-    const segments = combined.split('/');
+    // Isolate the root that `..` must never collapse past (mirroring
+    // `path.resolve`): a UNC share (`//server/share`), a Windows drive (`C:`),
+    // or the POSIX root. The root prefix is preserved; `..` beyond it is a no-op.
+    const root = combined.match(/^\/\/[^/]+\/[^/]+/)?.[0]
+        ?? combined.match(/^[a-z]:/i)?.[0]
+        ?? '';
+    const body = root ? combined.slice(root.length) : combined;
     const resolved: string[] = [];
-    for (const segment of segments) {
+    for (const segment of body.split('/')) {
         if (segment === '' || segment === '.')
             continue;
 
@@ -55,9 +60,12 @@ function resolveRelativePath(base: string, relative: string): string {
         else
             resolved.push(segment);
     }
-    // POSIX absolute paths keep their leading slash; Windows drive paths
-    // (`C:/...`) do not get one.
-    return isWinDrive ? resolved.join('/') : `/${resolved.join('/')}`;
+    const tail = resolved.join('/');
+    // POSIX root keeps a leading slash; a drive/UNC root prefixes its tail.
+    if (root === '')
+        return `/${tail}`;
+
+    return tail ? `${root}/${tail}` : root;
 }
 
 export function getImageSrc(src: string) {

@@ -133,3 +133,41 @@ describe('getImageSrc — non-relative sources are left unchanged', () => {
         });
     });
 });
+
+describe('getImageSrc — Windows drive + UNC base directories (Phase G review)', () => {
+    it('preserves the drive when resolving `..`', () => {
+        withDirname('C:/Users/me/docs', () => {
+            expect(getImageSrc('../img/a.png').src).toBe('file://C:/Users/me/img/a.png');
+        });
+    });
+
+    it('clamps `..` at the drive root so the drive is never lost', () => {
+        withDirname('C:/docs', () => {
+            expect(getImageSrc('../../../a.png').src).toBe('file://C:/a.png');
+        });
+    });
+
+    it('normalises a Windows-backslash base dir', () => {
+        withDirname('C:\\docs', () => {
+            expect(getImageSrc('a.png').src).toBe('file://C:/docs/a.png');
+        });
+    });
+
+    it('resolves against a UNC share base directory', () => {
+        withDirname('//server/share/docs', () => {
+            expect(getImageSrc('a.png').src).toBe('file:////server/share/docs/a.png');
+        });
+    });
+
+    it('normalises a backslash UNC base', () => {
+        withDirname('\\\\server\\share', () => {
+            expect(getImageSrc('sub/a.png').src).toBe('file:////server/share/sub/a.png');
+        });
+    });
+
+    it('clamps `..` at the UNC share root', () => {
+        withDirname('//server/share/docs', () => {
+            expect(getImageSrc('../../../a.png').src).toBe('file:////server/share/a.png');
+        });
+    });
+});
