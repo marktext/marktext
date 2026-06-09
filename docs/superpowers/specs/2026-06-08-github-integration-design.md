@@ -126,16 +126,19 @@ On Sync, main fetches and then inspects divergence:
 ## Testing
 
 - **Vitest (unit):**
-  - `git.ts` against a temporary **local file-based remote** — isomorphic-git
-    clones from a `file://` path, so no network is required for clone / commit /
-    push / fetch round-trips.
+  - `git.ts` local operations (status / stage / commit) and the
+    safety-critical merge / conflict-detection logic against **real temporary
+    repos** created with isomorphic-git. (Note: isomorphic-git has no `file://`
+    transport, so clone/push/fetch cannot run against a local file remote —
+    those network wrappers stay thin and are covered by the manual smoke test.)
   - Device-flow polling logic with fake timers and a mocked `fetch` (covers
     pending, slow-down, success, and expiry).
-  - status / stage / commit logic.
+  - REST client (`api.ts`) with a mocked `fetch`.
   - IPC contract type checks.
-- **Playwright (e2e):** one round-trip — clone → edit → commit → push — against
-  the local file remote with a stubbed API. Kept minimal to avoid depending on
-  live GitHub.
+- **Manual smoke test / deferred e2e:** the full networked round-trip (sign in →
+  clone → edit → commit → sync, plus a forced conflict) is verified manually
+  once the OAuth App `client_id` exists. A networked Playwright e2e is deferred
+  to avoid a brittle live-GitHub dependency.
 
 ## Dependencies
 
