@@ -23,7 +23,7 @@ import I18n from './i18n/index';
 import { injectSentinels, resolveSentinelCursor } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState } from './state/types';
-import { replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
+import { frontmatterMeta, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -835,6 +835,15 @@ export class Muya {
         if (!label)
             return;
 
+        // Front matter is only valid as the very first block of a document, so
+        // it is never an in-place replacement of the cursor block. Mirror legacy
+        // muyajs `handleFrontMatter`: idempotent no-op if the document already
+        // starts with front matter, otherwise prepend one at the top.
+        if (label === 'frontmatter') {
+            this._insertFrontMatter();
+            return;
+        }
+
         // The plain `paragraph` menu item only converts a *leaf* block (heading,
         // hr, etc.) back to a paragraph. Inside a list or blockquote the cursor's
         // immediate parent is already a paragraph, so legacy muyajs treated this
@@ -896,6 +905,29 @@ export class Muya {
             label: 'paragraph',
             text: this._blockLeadingText(block),
         });
+    }
+
+    /**
+     * Prepend a front matter block at the very start of the document, mirroring
+     * legacy muyajs `handleFrontMatter`. Idempotent: a no-op when the document
+     * already starts with front matter, so it never duplicates the block or
+     * destroys the block at the cursor.
+     */
+    private _insertFrontMatter() {
+        const { scrollPage } = this.editor;
+        if (!scrollPage)
+            return;
+
+        const firstBlock = scrollPage.firstChild as Parent | null;
+        if (firstBlock?.blockName === 'frontmatter')
+            return;
+
+        const fmState = deepClone(emptyStates.frontmatter);
+        Object.assign(fmState.meta, frontmatterMeta(this.options.frontmatterType));
+
+        const frontmatter = ScrollPage.loadBlock('frontmatter').create(this, fmState);
+        scrollPage.insertBefore(frontmatter, firstBlock);
+        frontmatter.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /**
