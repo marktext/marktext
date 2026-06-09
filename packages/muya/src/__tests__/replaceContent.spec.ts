@@ -194,6 +194,52 @@ describe('muya replaceContent — single undo boundary', () => {
         }
     });
 
+    it('does not mutate the stored undo-stack selection paths across replays', async () => {
+        // Regression: applying a rebuild entry restores the caret via
+        // Selection.setSelection -> _setCursor -> scrollPage.queryBlock(path),
+        // and queryBlock drains the path array with shift(). The stored undo
+        // entry's selection paths must survive repeated undo/redo replays (we
+        // clone them before resolving), otherwise the second replay would query
+        // an emptied path and lose the caret.
+        const muya = bootMuya('first\n\nsecond\n');
+        await vi.waitFor(() => expect(muya.getMarkdown().trim()).toBe('first\n\nsecond'));
+        // Seat the caret in the SECOND block so the recorded selection has a
+        // non-trivial path ([1, ...]) that would be visibly corrupted if drained.
+        const second = muya.editor.scrollPage!.lastContentInDescendant()!;
+        muya.editor.activeContentBlock = second;
+        second.setCursor(0, 0, true);
+
+        muya.replaceContent('first\n\nsecond\n\nthird\n');
+        expect(undoDepth(muya)).toBe(1);
+
+        // @ts-expect-error — reach into the private stack for assertions.
+        const storedSel = muya.editor.history._stack.undo[0].selection;
+        const pathLenBefore = storedSel?.anchorPath?.length ?? 0;
+        expect(pathLenBefore).toBeGreaterThan(0);
+
+        // Two full undo/redo cycles — each replay resolves the caret from paths.
+        // Re-fetch a live block each iteration: the prior `second` ref is
+        // detached after the rebuild and would crash on `.path` reads.
+        for (let i = 0; i < 2; i++) {
+            const live = muya.editor.scrollPage!.firstContentInDescendant()!;
+            muya.editor.activeContentBlock = live;
+            live.setCursor(0, 0, true);
+            muya.undo();
+            await vi.waitFor(() => expect(muya.getMarkdown()).not.toContain('third'));
+            const live2 = muya.editor.scrollPage!.firstContentInDescendant()!;
+            muya.editor.activeContentBlock = live2;
+            live2.setCursor(0, 0, true);
+            muya.redo();
+            await vi.waitFor(() => expect(muya.getMarkdown()).toContain('third'));
+        }
+
+        // The stored selection's paths are untouched (not drained to []).
+        // @ts-expect-error — private stack read.
+        const after = muya.editor.history._stack;
+        const finalSel = after.redo[0]?.selection ?? after.undo[0]?.selection;
+        expect(finalSel?.anchorPath?.length ?? 0).toBeGreaterThan(0);
+    });
+
     it('does not coalesce a later edit into the replacement boundary', async () => {
         const muya = bootMuya('base\n');
         await vi.waitFor(() => expect(muya.getMarkdown().trim()).toBe('base'));

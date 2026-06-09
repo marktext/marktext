@@ -364,7 +364,7 @@ export class Editor {
         this._restoreSelection(selection);
     }
 
-    private _restoreSelection(selection: Nullable<IHistorySelection>) {
+    private _restoreSelection(selection: Nullable<IHistorySelection>, treeRebuilt = false) {
         if (!selection)
             return;
 
@@ -376,10 +376,35 @@ export class Editor {
         const begin = Math.min(anchor.offset, focus.offset);
         const end = Math.max(anchor.offset, focus.offset);
 
-        if (isSelectionInSameBlock && cursorBlock && cursorBlock.isContent())
+        if (isSelectionInSameBlock && cursorBlock && cursorBlock.isContent()) {
             cursorBlock.setCursor(begin, end, true);
-        else
-            this.selection.setSelection(selection);
+            return;
+        }
+
+        // When the tree was rebuilt wholesale (rebuildContents), the saved
+        // selection's cached `anchorBlock` / `focusBlock` reference DETACHED
+        // nodes from the previous tree — resolving them would set the native DOM
+        // range onto a detached node and crash the next `getSelection()` read.
+        // Re-resolve the caret from the (cloned) path against the fresh tree;
+        // fall back to focusing the first content block when the saved path no
+        // longer points at a content leaf (e.g. a paragraph became a table).
+        if (treeRebuilt) {
+            if (cursorBlock && cursorBlock.isContent())
+                cursorBlock.setCursor(begin, end, true);
+            else
+                this.focus();
+
+            return;
+        }
+
+        // Incremental (updateContents) path: blocks are still attached. Clone the
+        // paths so `_setCursor`'s `queryBlock(path)` fallback can't drain the
+        // caller's arrays — notably the selection object stored in the undo stack.
+        this.selection.setSelection({
+            ...selection,
+            anchorPath: [...selection.anchorPath],
+            focusPath: [...selection.focusPath],
+        });
     }
 
     /**
@@ -397,7 +422,9 @@ export class Editor {
         const state = this.jsonState.getState();
         this.scrollPage!.updateState(state);
 
-        this._restoreSelection(selection);
+        // The tree was rebuilt wholesale, so the selection's cached block
+        // references are stale — resolve the caret from paths instead.
+        this._restoreSelection(selection, true);
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
