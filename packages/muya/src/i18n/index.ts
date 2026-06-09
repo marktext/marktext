@@ -18,7 +18,7 @@ class I18n {
     t(key: string): string {
         const { lang, resources } = this;
 
-        return resources?.[lang]?.[key] || resources.en[key] || key;
+        return resources?.[lang]?.[key] || resources.en?.[key] || key;
     }
 
     locale(object: ILocale) {
