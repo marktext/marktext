@@ -25,6 +25,41 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
     };
 }
 
+// A local image path that is already anchored to a filesystem root:
+// POSIX (`/foo`), Windows UNC (`\\host\share`), or a drive letter
+// (`C:\foo` / `C:/foo`). Mirrors legacy muyajs `getImageInfo`'s
+// `isAbsoluteLocal` check so absolute paths are NOT resolved against the
+// document directory.
+const ABSOLUTE_LOCAL_REG = /^(?:\/|\\\\|[a-z]:\\|[a-z]:\/).+/i;
+
+/**
+ * Resolve a relative POSIX path against an absolute base directory, mirroring
+ * Node's `path.resolve(base, rel)` for the cases `getImageSrc` cares about.
+ * Kept self-contained so the engine does not depend on the desktop host's
+ * `window.path` polyfill. Windows-style backslashes in `base` are normalised
+ * to `/` first (Chromium loads `file://` URLs with forward slashes regardless
+ * of platform). `.` and `..` segments are collapsed.
+ */
+function resolveRelativePath(base: string, relative: string): string {
+    const normalizedBase = base.replace(/\\/g, '/').replace(/\/+$/, '');
+    const combined = `${normalizedBase}/${relative.replace(/\\/g, '/')}`;
+    const isWinDrive = /^[a-z]:/i.test(combined);
+    const segments = combined.split('/');
+    const resolved: string[] = [];
+    for (const segment of segments) {
+        if (segment === '' || segment === '.')
+            continue;
+
+        if (segment === '..')
+            resolved.pop();
+        else
+            resolved.push(segment);
+    }
+    // POSIX absolute paths keep their leading slash; Windows drive paths
+    // (`C:/...`) do not get one.
+    return isWinDrive ? resolved.join('/') : `/${resolved.join('/')}`;
+}
+
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
     // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
@@ -33,12 +68,28 @@ export function getImageSrc(src: string) {
     const DATA_URL_REG
         = /^data:image\/[\w+-]+(?:;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/;
     const imageExtension = EXT_REG.test(src);
-    const isUrl = URL_REG.test(src);
+    // An already-`file://` src must not be re-prefixed (avoids `file://file://`).
+    const isFileUrl = /^file:\/\//i.test(src);
+    const isUrl = URL_REG.test(src) || (imageExtension && isFileUrl);
     if (imageExtension) {
+        const isAbsoluteLocal = ABSOLUTE_LOCAL_REG.test(src);
+        // Anchor a relative local path to the document directory, mirroring
+        // legacy muyajs `getImageInfo(src, baseUrl = window.DIRNAME)`. The
+        // engine runs in the host renderer where `window.DIRNAME` tracks the
+        // current document's directory; when it is absent (headless / no open
+        // file) we fall back to the legacy `file://${src}` form.
+        const baseUrl
+            = typeof window !== 'undefined' ? window.DIRNAME : undefined;
         if (isUrl) {
             return {
                 isUnknownType: false,
                 src,
+            };
+        }
+        else if (!isAbsoluteLocal && baseUrl) {
+            return {
+                isUnknownType: false,
+                src: `file://${resolveRelativePath(baseUrl, src)}`,
             };
         }
         else {
