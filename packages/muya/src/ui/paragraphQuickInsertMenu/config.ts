@@ -1,5 +1,6 @@
 import type Parent from '../../block/base/parent';
 import type { Muya } from '../../index';
+import type { IFrontmatterMeta } from '../../state/types';
 import bulletListIcon from '../../assets/icons/bullet_list/2.png';
 import vegaIcon from '../../assets/icons/chart/2.png';
 import codeIcon from '../../assets/icons/code/2.png';
@@ -32,6 +33,28 @@ import { deepClone, isKeyboardEvent } from '../../utils';
 import logger from '../../utils/logger';
 
 const debug = logger('quickInsert:');
+
+/**
+ * Derive the frontmatter `lang`/`style` from the user's `frontmatterType`
+ * preference, mirroring legacy muyajs `handleFrontMatter`
+ * (contentState/paragraphCtrl.js): `-` -> yaml `---`, `+` -> toml `+++`,
+ * `;`/`{` -> json (`;;;`/`{}`). The serializer (`serializeFrontMatter`)
+ * switches on `lang`, so getting `lang` right is what makes YAML/TOML emit
+ * their fences instead of falling through to JSON braces.
+ */
+export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
+    switch (frontmatterType) {
+        case '+':
+            return { lang: 'toml', style: '+' };
+        case ';':
+            return { lang: 'json', style: ';' };
+        case '{':
+            return { lang: 'json', style: '{' };
+        case '-':
+        default:
+            return { lang: 'yaml', style: '-' };
+    }
+}
 
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl';
 const OPTION_KEY = isOsx ? '⌥' : 'Alt';
@@ -414,8 +437,7 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
 
         case 'frontmatter': {
             const fmState = deepClone(emptyStates.frontmatter);
-            fmState.meta.style = frontmatterType;
-            fmState.meta.lang = /\+-/.test(frontmatterType) ? 'yaml' : 'json';
+            Object.assign(fmState.meta, frontmatterMeta(frontmatterType));
             state = fmState;
             newBlock = ScrollPage.loadBlock(label).create(muya, state);
             break;
