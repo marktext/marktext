@@ -135,6 +135,7 @@ import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 
 // Importing the engine entrypoint auto-injects its editor CSS (the muya.ts
 // module imports its stylesheets at load time). Desktop themes still target the
@@ -237,7 +238,7 @@ const {
 } = storeToRefs(preferencesStore)
 
 // Editor store refs
-const { currentFile } = storeToRefs(editorStore)
+const { currentFile, tabs } = storeToRefs(editorStore)
 
 // Project store refs
 const { projectTree } = storeToRefs(projectStore)
@@ -272,34 +273,44 @@ let scrollHandler: ((e: Event) => void) | null = null
 // is migrated separately). We therefore keep the real engine history in a
 // per-tab map here for restoration across in-session tab switches, and feed the
 // store a SYNTHETIC desktop-shaped history.
-//
-// The synthetic entry id is the engine undo-stack DEPTH — a stable position
-// marker, NOT an ever-incrementing counter. The store records the save-time id
-// as `lastSavedHistoryId` and clears the dirty indicator whenever the current
-// id matches it again. Using the undo-stack depth means undoing back to the
-// on-disk content returns the id to its saved value, so the saved/clean
-// indicator is restored (parity with the legacy history-index behaviour). An
-// ever-incrementing counter never matched again after an undo, leaving the tab
-// permanently dirty even when its content matched disk.
 const engineHistoryByTab = new Map<string, unknown>()
-const engineUndoDepth = (history: unknown): number => {
-  const stack = (history as { stack?: { undo?: unknown[] } } | null)?.stack
-  return Array.isArray(stack?.undo) ? stack.undo.length : 0
-}
-const makeSyntheticHistory = (engineHistory: unknown): IFileHistoryLike => {
-  return {
-    stack: [{ id: engineUndoDepth(engineHistory) }],
-    index: 0,
-    lastEditIndex: 0,
-    lastInitIndex: -1
-  }
-}
 
-interface IFileHistoryLike {
-  stack: Array<{ id: number | string; [key: string]: unknown }>
-  index: number
-  lastEditIndex: number
-  lastInitIndex: number
+// Per-tab monotonic save-tracking id allocator. The synthetic history entry id
+// is a MONOTONIC, never-reused id keyed on the live document content (see
+// `syntheticHistory.ts`), NOT the engine undo-stack depth: depth is reused
+// across distinct documents at the same stack height, which falsely showed a
+// divergently re-edited tab as clean (Phase G — G6). Reset whenever the engine
+// reloads the document via `setContent` (which clears the engine history), so
+// the reloaded content is the id-0 baseline matching the store's seeded
+// `lastSavedHistoryId: 0`.
+const syntheticHistoryByTab = new Map<string, SyntheticHistory>()
+const getSyntheticHistory = (id: string, baselineContent: string): SyntheticHistory => {
+  let tracker = syntheticHistoryByTab.get(id)
+  if (!tracker) {
+    tracker = new SyntheticHistory(baselineContent)
+    syntheticHistoryByTab.set(id, tracker)
+  }
+  return tracker
+}
+// Re-baseline a tab's id allocator to the given content (id 0). Called after
+// `setContent` reloads the document so the freshly loaded content is clean.
+const resetSyntheticHistory = (id: string, baselineContent: string): void => {
+  syntheticHistoryByTab.set(id, new SyntheticHistory(baselineContent))
+}
+const makeSyntheticHistory = (id: string, content: string): IFileHistoryLike => {
+  return getSyntheticHistory(id, content).build(content)
+}
+// Drop per-tab bookkeeping for tabs that no longer exist. Tab ids are unique
+// over the session, so without pruning these maps (and the content -> id map
+// each `SyntheticHistory` holds) would grow unbounded as tabs are opened and
+// closed. Driven by a watcher on the store's live tab id set.
+const pruneClosedTabState = (liveTabIds: Set<string>): void => {
+  for (const id of engineHistoryByTab.keys()) {
+    if (!liveTabIds.has(id)) engineHistoryByTab.delete(id)
+  }
+  for (const id of syntheticHistoryByTab.keys()) {
+    if (!liveTabIds.has(id)) syntheticHistoryByTab.delete(id)
+  }
 }
 
 interface SelectionFormatLike {
@@ -488,6 +499,16 @@ class SimpleImageViewer {
 }
 
 // Watchers
+// Prune per-tab engine/synthetic history bookkeeping when tabs close, so the
+// maps don't accumulate stale entries (and their content -> id maps) over a long
+// session. Watching the id set keeps this cheap — it only fires on tab add/close.
+watch(
+  () => tabs.value.map((t) => t.id),
+  (ids) => {
+    pruneClosedTabState(new Set(ids))
+  }
+)
+
 watch(typewriter, (value) => {
   if (value) {
     scrollToCursor()
@@ -1283,17 +1304,27 @@ const handleDialogTableConfirm = () => {
 }
 
 interface FileLoadedPayload {
+  id?: string
   markdown?: string
   cursor?: unknown
 }
 
 // listen for `open-single-file` event, it will call this method only when open a new file.
 const setMarkdownToEditor = (payload: unknown) => {
-  const { markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
+  const { id, markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
+    // The freshly loaded content is this tab's clean baseline (id 0). Re-seed
+    // the monotonic save-tracking allocator so undoing an edit back to this
+    // content reads as clean again (matches the store's `lastSavedHistoryId: 0`).
+    // Seed from the engine's OWN serialization of the loaded document (not the
+    // raw payload) so it matches the markdown later emitted on `json-change`
+    // — the engine may normalize trailing newlines / whitespace on round-trip.
+    if (id) {
+      resetSyntheticHistory(id, editor.value.getMarkdown())
+    }
     if (newCursor) {
       editor.value.setCursor(newCursor)
     }
@@ -1611,8 +1642,11 @@ onMounted(() => {
     const { id } = currentFile.value
     if (!id) return
     const markdown = editor.value.getMarkdown()
-    // Stash the real engine history for in-session tab-switch restoration, and
-    // derive the synthetic save-tracking id from its undo-stack depth.
+    // Stash the real engine history for in-session tab-switch restoration. The
+    // synthetic save-tracking id is derived from the live document content (a
+    // monotonic, never-reused id — see `syntheticHistory.ts`), NOT the engine
+    // undo-stack depth, which is reused and falsely showed a divergently
+    // re-edited tab as clean (Phase G — G6).
     const engineHistory = editor.value.getHistory()
     engineHistoryByTab.set(id, engineHistory)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
@@ -1622,7 +1656,7 @@ onMounted(() => {
       cursor: serializeCursor(editor.value.getSelection()),
       // Synthetic, desktop-shaped history so the store's save/dirty tracking
       // keeps working (the engine history shape is incompatible).
-      history: makeSyntheticHistory(engineHistory),
+      history: makeSyntheticHistory(id, markdown),
       toc: editor.value.getTOC(),
       blocks: editor.value.getState()
     })

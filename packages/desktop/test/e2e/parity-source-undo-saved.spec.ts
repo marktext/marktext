@@ -134,10 +134,11 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
 })
 
 test.describe('Parity PG15 — undo back to on-disk content restores the saved indicator', () => {
-  // The synthetic save-tracking id is now the engine undo-stack depth (a stable
-  // position marker), and a freshly-loaded tab seeds `lastSavedHistoryId` to the
-  // baseline depth (0). Undoing an edit back to disk content returns the id to
-  // its saved value, so the saved/clean indicator is restored.
+  // The synthetic save-tracking id is a MONOTONIC, never-reused id keyed on the
+  // live document content (see `syntheticHistory.ts`). A freshly-loaded tab seeds
+  // `lastSavedHistoryId` to the baseline (id 0); undoing an edit back to disk
+  // content reproduces the baseline content and hence the saved id, restoring the
+  // saved/clean indicator.
   test('PG15: undoing an edit back to disk content clears the unsaved indicator', async() => {
     const { app, page } = await launchWithMarkdown('hello world\n')
     await waitForMenuReady(app)
@@ -156,12 +157,53 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
     // Content is restored to disk...
     expect((await getMarkdownContent(page, app)).trim()).toBe('hello world')
 
-    // Desired: ...and the saved/clean indicator comes back (tab no longer
-    // marked unsaved). Today the tab stays dirty.
-    const stillUnsaved = await page.evaluate(
+    // ...and the saved/clean indicator comes back (tab no longer marked
+    // unsaved). Poll: the indicator clears on the undo's async json-change.
+    await expect
+      .poll(() => page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved')))
+      .toBe(false)
+    await app.close()
+  })
+
+  // G6: the saved/clean indicator must NOT falsely show clean after
+  // undo + a divergent re-edit returns the engine undo-stack to the saved DEPTH.
+  // With the old depth-as-id scheme the id collided with the saved id and the
+  // dirty tab read as clean (risking data loss on close-without-save). The
+  // monotonic content-keyed id keeps the divergent document dirty.
+  test('G6: a divergent re-edit at the saved undo depth stays dirty', async() => {
+    const { app, page } = await launchWithMarkdown('A\n')
+    await waitForMenuReady(app)
+
+    // Edit to A + B, then mark the tab saved at this state (same IPC channel the
+    // main process sends after a real save: records the current synthetic id as
+    // `lastSavedHistoryId` and clears the dirty flag).
+    await placeCaretInEditor(page)
+    await typeIntoEditor(page, ' B')
+    await page.waitForTimeout(500)
+    const tabId = await page.evaluate(
+      () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
+    )
+    expect(tabId).toBeTruthy()
+    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    await expect
+      .poll(() => page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved')))
+      .toBe(false)
+
+    // Undo B (back to 'A', dirty), then make a DIFFERENT edit C. The engine undo
+    // depth returns to the saved depth, but the document is A + C != saved A + B.
+    await undo(app)
+    await page.waitForTimeout(400)
+    await typeIntoEditor(page, ' C')
+    await page.waitForTimeout(500)
+
+    // The divergent document must stay dirty (the G6 false-clean regression).
+    const content = (await getMarkdownContent(page, app)).trim()
+    expect(content).toContain('C')
+    expect(content).not.toContain('B')
+    const dirty = await page.evaluate(
       () => !!document.querySelector('.editor-tabs li.unsaved')
     )
-    expect(stillUnsaved).toBe(false)
+    expect(dirty).toBe(true)
     await app.close()
   })
 })
