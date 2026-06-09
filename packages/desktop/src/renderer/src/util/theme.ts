@@ -52,7 +52,7 @@ const patchTheme = (css: string): string => {
 
 const getEmojiPickerPatch = (): string => {
   return isLinux
-    ? '.ag-emoji-picker section .emoji-wrapper .item span { font-family: sans-serif, "Noto Color Emoji"; }'
+    ? '.mu-emoji-picker section .emoji-wrapper .item span { font-family: sans-serif, "Noto Color Emoji"; }'
     : ''
 }
 
@@ -200,10 +200,10 @@ export const setWrapCodeBlocks = (value: boolean): void => {
   let result = ''
   if (value) {
     result =
-      '.ag-code-content { display: block; white-space: pre-wrap; word-break: break-word; overflow: hidden; }'
+      '.mu-code { display: block; white-space: pre-wrap; word-break: break-word; overflow: hidden; }'
   } else {
     result =
-      '.ag-code-content { display: block; white-space: pre; word-break: break-word; overflow: auto; }'
+      '.mu-code { display: block; white-space: pre; word-break: break-word; overflow: auto; }'
   }
   let styleEle = document.querySelector(`#${CODE_WRAP_STYLE_ID}`) as HTMLStyleElement | null
   if (!styleEle) {
@@ -260,7 +260,7 @@ th code,
 code,
 code[class*="language-"],
 .CodeMirror,
-pre.ag-paragraph {
+.mu-code-block {
 font-family: ${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY};
 font-size: ${codeFontSize}px;
 }
