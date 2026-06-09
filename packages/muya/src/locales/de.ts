@@ -42,6 +42,8 @@ export const de = {
         'Search keyword...': 'Suchbegriff...',
         'Type / to insert...': '/ eingeben zum Einfügen...',
         'Copy anchor link to this heading': 'Ankerlink zu dieser Überschrift kopieren',
+        'Click to add an image': 'Klicken, um ein Bild hinzuzufügen',
+        'Load image failed': 'Bild konnte nicht geladen werden',
         // formatPicker
         'Emphasize': 'Fett',
         'Italic': 'Kursiv',

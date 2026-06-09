@@ -42,6 +42,8 @@ export const ko = {
         'Search keyword...': '키워드 검색...',
         'Type / to insert...': '/ 입력하여 삽입...',
         'Copy anchor link to this heading': '이 제목의 앵커 링크 복사',
+        'Click to add an image': '클릭하여 이미지 추가',
+        'Load image failed': '이미지 로드 실패',
         // formatPicker
         'Emphasize': '굵게',
         'Italic': '기울임',

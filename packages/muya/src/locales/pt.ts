@@ -42,6 +42,8 @@ export const pt = {
         'Search keyword...': 'Buscar palavra-chave...',
         'Type / to insert...': 'Digite / para inserir...',
         'Copy anchor link to this heading': 'Copiar link de âncora para este título',
+        'Click to add an image': 'Clique para adicionar uma imagem',
+        'Load image failed': 'Falha ao carregar a imagem',
         // formatPicker
         'Emphasize': 'Negrito',
         'Italic': 'Itálico',

@@ -42,6 +42,8 @@ export const es = {
         'Search keyword...': 'Buscar palabra clave...',
         'Type / to insert...': 'Escribe / para insertar...',
         'Copy anchor link to this heading': 'Copiar enlace de ancla a este encabezado',
+        'Click to add an image': 'Haz clic para añadir una imagen',
+        'Load image failed': 'Error al cargar la imagen',
         // formatPicker
         'Emphasize': 'Negrita',
         'Italic': 'Cursiva',
