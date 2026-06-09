@@ -90,7 +90,7 @@ export const editorFindPrevious = (win: Win): void => {
 }
 
 export const editorReplace = (win: Win): void => {
-  edit(win, 'undo')
+  edit(win, 'replace')
 }
 
 export const findInFolder = (win: Win): void => {
