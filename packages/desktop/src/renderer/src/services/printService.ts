@@ -10,10 +10,14 @@ function resolveImageSrcForStaticPrint(src: string): string {
   if (!src) return src
   // Already a URL or data: URI — leave as-is (avoids `file://file://…`).
   if (/^(?:https?:|file:|data:)/i.test(src)) return src
-  // Absolute local path (POSIX / UNC / Windows drive) → file://.
+  // Only rewrite recognised local image paths (mirrors muyajs's IMAGE_EXT_REG
+  // gate) — leave anything else untouched, e.g. an extensionless absolute
+  // server path `/api/image?id=…` must not become `file:///api/image…`.
+  if (!IMAGE_EXT_REG.test(src)) return src
+  // Absolute local image path (POSIX / UNC / Windows drive) → file://.
   if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return `file://${src}`
   // Relative local image path — resolve against the document directory.
-  if (IMAGE_EXT_REG.test(src) && window.DIRNAME) return `file://${window.path.resolve(window.DIRNAME, src)}`
+  if (window.DIRNAME) return `file://${window.path.resolve(window.DIRNAME, src)}`
   return src
 }
 
