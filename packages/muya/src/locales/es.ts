@@ -41,6 +41,7 @@ export const es = {
         'No result': 'Sin resultados',
         'Search keyword...': 'Buscar palabra clave...',
         'Type / to insert...': 'Escribe / para insertar...',
+        'Copy anchor link to this heading': 'Copiar enlace de ancla a este encabezado',
         // formatPicker
         'Emphasize': 'Negrita',
         'Italic': 'Cursiva',

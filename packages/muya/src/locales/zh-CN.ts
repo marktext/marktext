@@ -41,6 +41,7 @@ export const zhCN = {
         'No result': '无结果',
         'Search keyword...': '搜索关键字...',
         'Type / to insert...': '输入 / 插入段落',
+        'Copy anchor link to this heading': '复制此标题的锚点链接',
         // formatPicker
         'Emphasize': '加粗',
         'Italic': '斜体',

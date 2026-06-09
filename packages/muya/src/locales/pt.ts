@@ -41,6 +41,7 @@ export const pt = {
         'No result': 'Sem resultados',
         'Search keyword...': 'Buscar palavra-chave...',
         'Type / to insert...': 'Digite / para inserir...',
+        'Copy anchor link to this heading': 'Copiar link de âncora para este título',
         // formatPicker
         'Emphasize': 'Negrito',
         'Italic': 'Itálico',

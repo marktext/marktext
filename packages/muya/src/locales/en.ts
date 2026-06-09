@@ -41,6 +41,7 @@ export const en = {
         'No result': 'No result',
         'Search keyword...': 'Search keyword...',
         'Type / to insert...': 'Type / to insert...',
+        'Copy anchor link to this heading': 'Copy anchor link to this heading',
         // formatPicker
         'Emphasize': 'Emphasize',
         'Italic': 'Italic',

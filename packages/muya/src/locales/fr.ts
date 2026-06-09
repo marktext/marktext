@@ -41,6 +41,7 @@ export const fr = {
         'No result': 'Aucun résultat',
         'Search keyword...': 'Rechercher un mot-clé...',
         'Type / to insert...': 'Tapez / pour insérer...',
+        'Copy anchor link to this heading': 'Copier le lien d\'ancrage vers ce titre',
         // formatPicker
         'Emphasize': 'Gras',
         'Italic': 'Italique',

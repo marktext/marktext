@@ -41,6 +41,7 @@ export const zhTW = {
         'No result': '無結果',
         'Search keyword...': '搜尋關鍵字...',
         'Type / to insert...': '輸入 / 插入段落',
+        'Copy anchor link to this heading': '複製此標題的錨點連結',
         // formatPicker
         'Emphasize': '粗體',
         'Italic': '斜體',

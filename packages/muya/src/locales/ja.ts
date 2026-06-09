@@ -41,6 +41,7 @@ export const ja = {
         'No result': '結果がありません',
         'Search keyword...': 'キーワードを検索する...',
         'Type / to insert...': '段落を入力 /挿入する',
+        'Copy anchor link to this heading': 'この見出しへのアンカーリンクをコピー',
         // formatPicker
         'Emphasize': '太字',
         'Italic': '斜体',

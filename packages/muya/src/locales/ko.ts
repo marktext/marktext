@@ -41,6 +41,7 @@ export const ko = {
         'No result': '결과 없음',
         'Search keyword...': '키워드 검색...',
         'Type / to insert...': '/ 입력하여 삽입...',
+        'Copy anchor link to this heading': '이 제목의 앵커 링크 복사',
         // formatPicker
         'Emphasize': '굵게',
         'Italic': '기울임',

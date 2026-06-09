@@ -41,6 +41,7 @@ export const de = {
         'No result': 'Kein Ergebnis',
         'Search keyword...': 'Suchbegriff...',
         'Type / to insert...': '/ eingeben zum Einfügen...',
+        'Copy anchor link to this heading': 'Ankerlink zu dieser Überschrift kopieren',
         // formatPicker
         'Emphasize': 'Fett',
         'Italic': 'Kursiv',
