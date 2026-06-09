@@ -1334,6 +1334,7 @@ const handleFileChange = (payload: unknown) => {
     markdown: newMarkdown,
     cursor: newCursor,
     muyaIndexCursor,
+    history: payloadHistory,
     scrollTop
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
@@ -1341,37 +1342,56 @@ const handleFileChange = (payload: unknown) => {
   if (!container) return
 
   if (typeof newMarkdown === 'string') {
-    // `setContent` replaces the document and clears history, so restore the
-    // real engine history (kept per-tab) afterwards — preserves undo/redo on
-    // in-session tab switch. The `history` in the payload is the synthetic
-    // desktop-shaped history used for save tracking, not the engine history.
-    editor.value.setContent(newMarkdown)
-    if (newCursor) {
-      editor.value.setCursor(newCursor)
-    } else if (isIndexCursor(muyaIndexCursor)) {
-      // Coming back from source-code mode the tab only has a CodeMirror
-      // `{ line, ch }` index cursor; map it onto a block-key cursor so the
-      // WYSIWYG caret lands where the source-mode cursor was (PG2). The engine
-      // runs its own setContent dance internally, so restore the history after.
+    // Returning from source-code mode: the WYSIWYG engine is never unmounted
+    // while source mode is up (index.vue overlays it via `v-if`), so it still
+    // holds the PRE-source-mode document and undo history. Record the bulk
+    // source-mode edit as a SINGLE engine undo boundary via `replaceContent`
+    // (PG14 parity): the first Ctrl+Z after the handoff reverts the entire
+    // source-mode change in one step, matching legacy muyajs' full-state
+    // snapshot history. `replaceContent` builds a fully-invertible whole-document
+    // ot-json1 op and applies undo/redo via a full block-tree rebuild (never the
+    // incremental pick/drop walker), so arbitrary block-type changes round-trip
+    // safely.
+    //
+    // Detection: only sourceCode.vue's onBeforeUnmount emits `file-changed` with
+    // a source-mode index cursor AND no block-key `cursor` AND no `history`
+    // (see sourceCode.vue ~L368). Every tab-switch / file-reload emitter in
+    // editor.ts carries both `cursor` and `history` alongside, so requiring
+    // those absent reliably isolates the WYSIWYG<-source handoff from a tab
+    // activation that merely replays a tab's persisted `muyaIndexCursor`.
+    const isSourceModeHandoff =
+      isIndexCursor(muyaIndexCursor) && !newCursor && payloadHistory == null
+
+    if (isSourceModeHandoff) {
+      // Record the bulk source-mode edit as a single undo boundary. When the
+      // document is unchanged this is a no-op (returns false) and the existing
+      // history/content already match — either way the caret still needs
+      // remapping below.
+      editor.value.replaceContent(newMarkdown)
+      // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
+      // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
+    } else {
+      // Tab switch / programmatic content swap: `setContent` replaces the
+      // document and clears history, so restore the real engine history (kept
+      // per-tab) afterwards — preserves undo/redo on in-session tab switch. The
+      // `history` in the payload is the synthetic desktop-shaped history used
+      // for save tracking, not the engine history.
+      editor.value.setContent(newMarkdown)
+      if (newCursor) {
+        editor.value.setCursor(newCursor)
+      } else if (isIndexCursor(muyaIndexCursor)) {
+        // Source-mode handoff for a tab the engine has no history for (e.g.
+        // first interaction after load): fall back to a caret-only remap. The
+        // engine runs its own setContent dance internally, so restore the
+        // history after.
+        editor.value.setCursorByOffset(muyaIndexCursor)
+      }
+      const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
+      if (savedEngineHistory) {
+        editor.value.setHistory(savedEngineHistory)
+      }
     }
-    const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
-    if (savedEngineHistory) {
-      editor.value.setHistory(savedEngineHistory)
-    }
-    // PARITY (gap PG14 — accept-defer): the bulk source-mode change is rebuilt
-    // via `setContent` and is NOT recorded as an engine undo op, so the first
-    // Ctrl+Z after exiting source mode replays the last pre-source WYSIWYG op
-    // instead of reverting the source-mode edit in one step (legacy muyajs
-    // pushed a full-state snapshot that made it a single undo boundary).
-    // Recording it as one boundary would mean computing a json1 op from the
-    // pre-source state to the post-source state and feeding it through
-    // `Editor.updateContents`' pick/drop walker — but that walker only handles
-    // specific op shapes (block insert at index, text edit, checked/meta), so a
-    // general whole-document diff (arbitrary add/remove/move/nested-replace)
-    // risks corrupting the document. Deferred rather than ship a fragile fix;
-    // the prior op stack is intact and undo still works, only the first-undo
-    // granularity across the boundary differs.
   } else if (newCursor) {
     editor.value.setCursor(newCursor)
   }

@@ -22,6 +22,10 @@ const undo = async(app: Parameters<typeof sendIpcToRenderer>[0]): Promise<void> 
   await sendIpcToRenderer(app, 'mt::editor-edit-action', 'undo')
 }
 
+const redo = async(app: Parameters<typeof sendIpcToRenderer>[0]): Promise<void> => {
+  await sendIpcToRenderer(app, 'mt::editor-edit-action', 'redo')
+}
+
 test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', () => {
   // handleFileChange now maps the saved `muyaIndexCursor` ({line, ch}) onto a
   // block-key cursor via the engine's `setCursorByOffset`, so the source-mode
@@ -67,15 +71,13 @@ test.describe('Parity PG2 — WYSIWYG caret restored after a source-mode edit', 
 })
 
 test.describe('Parity PG14 — first undo after source mode reverts the edit in one step', () => {
-  // ACCEPT-DEFER: on source-mode exit the engine rebuilds the document via
-  // setContent (which does NOT record an undo op) then restores the pre-source
-  // op stack, so the bulk source-mode change is not a single undo boundary.
-  // Recording it as one boundary would require feeding a general
-  // whole-document json1 diff through Editor.updateContents' pick/drop walker,
-  // which only handles specific op shapes (block insert / text edit /
-  // checked|meta) and would risk corrupting the document on arbitrary diffs.
-  // Left as `test.fail()` — see the matching note in editor.vue handleFileChange.
-  test.fail()
+  // FIXED: on source-mode exit, handleFileChange records the bulk change as a
+  // SINGLE engine undo boundary via `Muya.replaceContent` (a fully-invertible
+  // whole-document ot-json1 op applied through a full block-tree rebuild, never
+  // the incremental pick/drop walker), so the first undo reverts the entire
+  // source-mode edit in one step — matching legacy muyajs' full-state-snapshot
+  // history. See the matching note in editor.vue handleFileChange and the
+  // engine unit coverage in packages/muya/src/__tests__/replaceContent.spec.ts.
   test('PG14: one undo after exiting source mode reverts the source-mode change', async() => {
     const { app, page } = await launchWithMarkdown('base\n')
     await waitForMenuReady(app)
@@ -92,6 +94,41 @@ test.describe('Parity PG14 — first undo after source mode reverts the edit in 
     // Desired: the document reverts to the exact pre-source-mode content in a
     // single undo step.
     expect((await getMarkdownContent(page, app)).trim()).toBe('base')
+    await app.close()
+  })
+
+  test('PG14: redo re-applies the source-mode change in one step', async() => {
+    const { app, page } = await launchWithMarkdown('base\n')
+    await waitForMenuReady(app)
+
+    await setSourceMarkdown(page, app, 'base\n\nSOURCE ADDED LINE\n')
+    await page.waitForTimeout(500)
+
+    await undo(app)
+    await page.waitForTimeout(600)
+    expect((await getMarkdownContent(page, app)).trim()).toBe('base')
+
+    // Redo restores the entire bulk change in one step.
+    await redo(app)
+    await page.waitForTimeout(600)
+    expect((await getMarkdownContent(page, app)).trim()).toContain('SOURCE ADDED LINE')
+    await app.close()
+  })
+
+  test('PG14: a block-type bulk change reverts in one undo step', async() => {
+    const { app, page } = await launchWithMarkdown('hello\n')
+    await waitForMenuReady(app)
+
+    // Convert a paragraph into a heading + add a list — an arbitrary
+    // whole-document change (the corruption-risk surface the incremental walker
+    // could not handle). The single undo must restore the exact paragraph.
+    await setSourceMarkdown(page, app, '# hello\n\n- new item\n')
+    await page.waitForTimeout(500)
+    expect((await getMarkdownContent(page, app)).trim()).toContain('# hello')
+
+    await undo(app)
+    await page.waitForTimeout(600)
+    expect((await getMarkdownContent(page, app)).trim()).toBe('hello')
     await app.close()
   })
 })
