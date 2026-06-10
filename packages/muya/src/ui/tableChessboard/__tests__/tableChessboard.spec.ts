@@ -17,12 +17,22 @@ import EventCenter from '../../../event';
 // ui) and run BaseFloat for real so the snabbdom render path is exercised
 // end-to-end in happy-dom.
 
+// Nodes appended straight to `document.body` by the fakes below. Tracked so
+// `afterEach` can detach them — BaseFloat.destroy() only removes its own
+// floatBox, not these host/reference nodes.
+const appendedNodes: Node[] = [];
+
+function track<T extends Node>(node: T): T {
+    appendedNodes.push(node);
+    return node;
+}
+
 function makeFakeMuya(): { muya: Muya; eventCenter: EventCenter } {
     const eventCenter = new EventCenter();
     const editorDomNode = document.createElement('div');
     const editorWrapper = document.createElement('div');
     editorWrapper.appendChild(editorDomNode);
-    document.body.appendChild(editorWrapper);
+    document.body.appendChild(track(editorWrapper));
 
     const shownFloat = new Set();
     // Mirror Ui.listen so `status` flips when the float shows/hides.
@@ -47,7 +57,7 @@ function stubReference(): HTMLElement {
     // so a stubbed rect keeps autoUpdate from throwing.
     input.getBoundingClientRect = () =>
         ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => '' }) as DOMRect;
-    document.body.appendChild(input);
+    document.body.appendChild(track(input));
     return input;
 }
 
@@ -78,6 +88,13 @@ describe('tableChessboard — muya-table-picker subscription + grid pick', () =>
     });
 
     afterEach(() => {
+        // BaseFloat appends a floatBox to <body>, runs floating-ui autoUpdate,
+        // and observes its container with a ResizeObserver — tear all of that
+        // down so listeners/observers/nodes don't leak across specs.
+        picker.destroy();
+        // Detach the host/reference nodes the fakes appended to <body>.
+        for (const node of appendedNodes.splice(0))
+            (node as ChildNode).remove?.();
         vi.restoreAllMocks();
     });
 
