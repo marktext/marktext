@@ -342,7 +342,7 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     display: inline-block;
     width: 20px;
     height: 20px;
-    overflow: auto;
+    overflow: hidden;
 
     color: var(--icon-color);
 }

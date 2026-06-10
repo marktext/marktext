@@ -43,7 +43,7 @@
     display: inline-block;
     width: 14px;
     height: 14px;
-    overflow: auto;
+    overflow: hidden;
 
     color: var(--icon-color);
 

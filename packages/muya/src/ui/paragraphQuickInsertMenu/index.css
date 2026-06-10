@@ -69,7 +69,7 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    overflow: auto;
+    overflow: hidden;
 
     color: var(--icon-color);
 

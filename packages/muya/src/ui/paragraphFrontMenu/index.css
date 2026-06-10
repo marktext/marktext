@@ -55,7 +55,7 @@
     display: flex;
     width: 18px;
     height: 18px;
-    overflow: auto;
+    overflow: hidden;
 
     color: var(--icon-color);
 }

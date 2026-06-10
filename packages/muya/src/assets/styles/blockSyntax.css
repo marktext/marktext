@@ -235,7 +235,7 @@ code.mu-code .mu-code-copy:hover {
 
     width: 16px;
     height: 16px;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .mu-code-copy i.icon > i[class^='icon-'] {
