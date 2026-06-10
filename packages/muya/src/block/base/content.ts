@@ -568,6 +568,7 @@ class Content extends TreeNode {
             for (const tool of this.muya.ui.shownFloat) {
                 if (
                     tool.name === 'mu-format-picker'
+                    || tool.name === 'mu-table-picker'
                     || tool.name === 'mu-quick-insert'
                     || tool.name === 'mu-emoji-picker'
                     || tool.name === 'mu-front-menu'
