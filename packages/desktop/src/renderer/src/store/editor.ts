@@ -1321,6 +1321,21 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    /**
+     * Replaces the table of contents with a fresh snapshot from the engine.
+     *
+     * Used on file load and tab switch, where the engine fires no `json-change`
+     * event (so `LISTEN_FOR_CONTENT_CHANGE` never runs and the TOC would
+     * otherwise stay empty until the first edit). Always assigns — no `equal`
+     * guard, which previously kept a stale TOC when the new document's TOC was
+     * a subset of the old one.
+     * @param toc Flat list of headings returned by `muya.getTOC()`.
+     */
+    UPDATE_TOC(toc: TocItem[]): void {
+      this.listToc = toc ?? []
+      this.toc = listToTree<TocItem>(toc ?? [])
+    },
+
     // Content change from realtime preview editor and source code editor
     // There is a chance that this event is fired AFTER the tab is switched.
     LISTEN_FOR_CONTENT_CHANGE({

@@ -1163,8 +1163,25 @@ const scrollToHighlight = () => {
   return scrollToElement('.mu-highlight')
 }
 
+/**
+ * Scrolls the editor to the heading for a TOC entry.
+ *
+ * `@muyajs/core` slugs are stable per-block ids that are NOT stamped onto the
+ * heading DOM, so a `#slug` selector never matches. `getTOC` walks the headings
+ * in document order, so the slug is resolved to its index in `listToc` and the
+ * matching heading element (Nth `<h1>`-`<h6>`) is scrolled into view.
+ * @param slug The TOC entry's slug from the `scroll-to-header` bus event.
+ */
 const scrollToHeader = (slug: unknown) => {
-  return scrollToElement(`#${slug}`)
+  const index = editorStore.listToc.findIndex((item) => item.slug === slug)
+  if (index < 0) return
+  const container = getScrollContainer()
+  if (!container) return
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  const anchor = headings[index]
+  if (!anchor) return
+  const { y } = anchor.getBoundingClientRect()
+  animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
 }
 
 const scrollToElement = (selector: string) => {
@@ -1363,6 +1380,10 @@ const setMarkdownToEditor = (payload: unknown) => {
     if (newCursor) {
       editor.value.setCursor(newCursor)
     }
+    // `setContent` rebuilds the block tree synchronously but fires no
+    // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
+    // the first edit, and a file switch keeps the previous file's TOC).
+    editorStore.UPDATE_TOC(editor.value.getTOC())
   }
 }
 
@@ -1435,6 +1456,7 @@ const handleFileChange = (payload: unknown) => {
       // remapping below.
       editor.value.replaceContent(newMarkdown, preSourceModeSelection)
       preSourceModeSelection = null
+      editorStore.UPDATE_TOC(editor.value.getTOC())
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
@@ -1445,6 +1467,9 @@ const handleFileChange = (payload: unknown) => {
       // `history` in the payload is the synthetic desktop-shaped history used
       // for save tracking, not the engine history.
       editor.value.setContent(newMarkdown)
+      // Tab switch swaps content without firing `json-change`, so re-seed the
+      // TOC (otherwise returning to an open tab keeps the other tab's TOC).
+      editorStore.UPDATE_TOC(editor.value.getTOC())
       if (newCursor) {
         editor.value.setCursor(newCursor)
       } else if (isIndexCursor(muyaIndexCursor)) {
@@ -1628,6 +1653,9 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init()
   editor.value = muya
+  // The first document's content is set via constructor options, so no
+  // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
+  editorStore.UPDATE_TOC(muya.getTOC())
 
   // Seed the save-tracking baseline for the mount-loaded document (from the
   // engine's OWN serialization, same reason as setMarkdownToEditor). Without
