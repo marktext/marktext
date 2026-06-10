@@ -22,6 +22,7 @@ import {
     ParagraphQuickInsertMenu,
     PreviewToolBar,
     pt,
+    TableChessboard,
     TableColumnToolbar,
     TableDragBar,
     TableRowColumMenu,
@@ -73,6 +74,7 @@ Muya.use(LinkTools, {
 });
 Muya.use(ParagraphFrontButton);
 Muya.use(ParagraphFrontMenu);
+Muya.use(TableChessboard);
 Muya.use(TableColumnToolbar);
 Muya.use(ParagraphQuickInsertMenu);
 Muya.use(TableDragBar);
