@@ -19,8 +19,8 @@
 .mu-container dl,
 .mu-container table,
 .mu-container figure:not(.mu-table) {
-    margin: 0;
-    padding: 0.5em 0;
+    margin: 0.5em 0;
+    padding: 0;
 }
 
 .mu-container h1,
@@ -31,9 +31,8 @@
 .mu-container h6 {
     position: relative;
 
-    margin-top: 0;
-    margin-bottom: 0;
-    padding: 0.5em 0;
+    margin: 1rem 0;
+    padding: 0;
 
     color: var(--editor-color-80);
     font-weight: bold;
@@ -127,7 +126,7 @@
 
     margin-right: 0;
     margin-left: 0;
-    padding: 0 1em;
+    padding: 0 30px;
 
     color: var(--blockquote-text-color, var(--editor-color-50));
 
@@ -136,12 +135,12 @@
 
 .mu-container blockquote::before {
     position: absolute;
-    top: 0.5em;
-    left: 0;
+    top: 0;
+    left: 15px;
 
     display: block;
-    width: 3px;
-    height: calc(100% - 1em);
+    width: 2px;
+    height: 100%;
 
     background: var(--blockquote-border-color, var(--editor-color-30));
 
@@ -159,14 +158,16 @@
 
 .mu-thematic-break:not(.mu-active)::before {
     position: absolute;
-    top: 1.3em;
+    top: 50%;
     left: 0;
 
     display: block;
     width: 100%;
-    height: 1px;
+    height: 2px;
 
-    background: var(--hr-color, var(--editor-color-10));
+    background: none;
+    border-top: 2px dashed var(--hr-color, var(--editor-color-10));
+    transform: translateY(-50%);
 
     content: '';
 }
@@ -355,7 +356,7 @@ span.mu-language-input {
 /* order list and bullet list */
 ol.mu-order-list,
 ul.mu-bullet-list {
-    padding-left: 1em;
+    padding-left: 30px;
 }
 
 ol.mu-order-list {
@@ -406,13 +407,11 @@ ol.mu-order-list:last-child {
 
 /* task list */
 ul.mu-task-list {
-    padding-left: 1em;
+    padding-left: 30px;
 }
 
 li.mu-task-list-item {
     position: relative;
-
-    padding-left: 0.3em;
 
     list-style-type: none;
 }
@@ -420,7 +419,7 @@ li.mu-task-list-item {
 li.mu-task-list-item > input[type='checkbox'],
 li.mu-task-list-item > span.mu-task-list-checkbox {
     position: absolute;
-    top: 0.9em;
+    top: 0.3em;
     left: -23px;
 
     width: 12px;
@@ -493,8 +492,9 @@ li.mu-task-list-item > span.mu-checkbox-checked::after {
 
 li.mu-task-list-item > input.mu-checkbox-checked::before,
 li.mu-task-list-item > span.mu-checkbox-checked::before {
-    background: var(--icon-color);
-    border-color: var(--icon-color);
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    box-shadow: 0 3px 12px 0 var(--selection-color);
 }
 
 /* table */
