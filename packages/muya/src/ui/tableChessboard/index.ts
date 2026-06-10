@@ -160,7 +160,7 @@ class TablePicker extends BaseFloat {
             number--;
         else if (event.key === EVENT_KEYS.Enter)
             this.selectItem();
-        else if (typeof value === 'number')
+        else if (!Number.isNaN(value))
             number = value - 1;
 
         if (number !== +this._select![type]) {
@@ -171,7 +171,10 @@ class TablePicker extends BaseFloat {
 
     showPicker(current: ICheckerCount, reference: ReferenceElement, cb: (row: number, column: number) => void) {
     // current { row, column } zero base
-        this._current = this._select = current;
+        this._current = current;
+        // Clone so footer-input edits mutating `_select` never corrupt the
+        // immutable `_current` start position (ICheckerCount is flat).
+        this._select = { ...current };
         super.show(reference, cb);
     }
 
