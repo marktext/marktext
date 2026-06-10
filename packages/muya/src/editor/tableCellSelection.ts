@@ -57,6 +57,85 @@ class TableCellSelection {
         return this._table != null && this._anchor != null && this._focus != null;
     }
 
+    /**
+     * Whether the frozen selection covers exactly one cell. Mirrors legacy
+     * `tableSelectCellsCtrl.isSingleCellSelected` (cells.length === 1).
+     */
+    isSingleCellSelected(): boolean {
+        return this.hasSelection && this._anchor!.cell === this._focus!.cell;
+    }
+
+    /**
+     * Whether the frozen selection covers every cell in the table. Mirrors
+     * legacy `tableSelectCellsCtrl.isWholeTableSelected` (cells.length ===
+     * (row + 1) * (column + 1)).
+     */
+    isWholeTableSelected(): boolean {
+        if (!this.hasSelection)
+            return false;
+
+        const minRow = Math.min(this._anchor!.row, this._focus!.row);
+        const maxRow = Math.max(this._anchor!.row, this._focus!.row);
+        const minColumn = Math.min(this._anchor!.column, this._focus!.column);
+        const maxColumn = Math.max(this._anchor!.column, this._focus!.column);
+
+        return (
+            minRow === 0
+            && minColumn === 0
+            && maxRow === this._table!.rowCount - 1
+            && maxColumn === this._table!.columnCount - 1
+        );
+    }
+
+    /**
+     * Freeze a whole-table selection (anchor at the top-left cell, focus at the
+     * bottom-right cell) and highlight every cell. Mirrors legacy
+     * `tableSelectCellsCtrl.selectTable`.
+     */
+    selectTable(table: Table): void {
+        this.clear();
+
+        const anchorCell = table.cellAt(0, 0);
+        const focusCell = table.cellAt(table.rowCount - 1, table.columnCount - 1);
+        if (anchorCell == null || focusCell == null)
+            return;
+
+        this._table = table;
+        this._anchor = {
+            cell: anchorCell,
+            row: anchorCell.rowOffset,
+            column: anchorCell.columnOffset,
+        };
+        this._focus = {
+            cell: focusCell,
+            row: focusCell.rowOffset,
+            column: focusCell.columnOffset,
+        };
+        this._isSelecting = true;
+        this._collapseCaretToAnchor();
+        this._renderHighlight();
+    }
+
+    /**
+     * Freeze a single 1x1 cell selection on the given cell. Mirrors the legacy
+     * `selectAll` single-cell branch (`selectedTableCells` of length 1).
+     */
+    selectSingleCell(cell: TableBodyCell): void {
+        this.clear();
+
+        this._table = cell.table;
+        const position: ICellPosition = {
+            cell,
+            row: cell.rowOffset,
+            column: cell.columnOffset,
+        };
+        this._anchor = position;
+        this._focus = position;
+        this._isSelecting = true;
+        this._collapseCaretToAnchor();
+        this._renderHighlight();
+    }
+
     attach(): void {
         const { eventCenter, domNode } = this.muya;
         eventCenter.attachDOMEvent(domNode, 'mousedown', this._onMouseDown);
