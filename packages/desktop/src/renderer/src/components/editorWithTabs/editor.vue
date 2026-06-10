@@ -1861,6 +1861,11 @@ onBeforeUnmount(() => {
   overflow-anchor: none !important;
 }
 
+.editor-component .mu-container {
+  padding-top: 20px;
+  padding-bottom: 100vh;
+}
+
 .typewriter .editor-component {
   padding-top: calc(50vh - 136px);
   padding-bottom: calc(50vh - 54px);
