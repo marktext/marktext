@@ -49,13 +49,17 @@ describe('clipboard.copyHandler — skip empty clipboard writes', () => {
         expect(setData).not.toHaveBeenCalled();
     });
 
-    it('normal copy: writes both formats when text is non-empty', () => {
+    it('normal copy: writes markdown source to text/plain and blanks text/html', () => {
+        // Track B / D1: a `normal` copy writes ONLY the markdown source to
+        // text/plain and blanks text/html (legacy `copyCutCtrl.copyHandler`),
+        // so an external paste lands as markdown and an internal copy → paste
+        // round-trips through the markdown branch losslessly.
         const clipboard = makeClipboard('<p>hi</p>', 'hi');
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
 
-        expect(setData).toHaveBeenCalledWith('text/html', '<p>hi</p>');
+        expect(setData).toHaveBeenCalledWith('text/html', '');
         expect(setData).toHaveBeenCalledWith('text/plain', 'hi');
     });
 

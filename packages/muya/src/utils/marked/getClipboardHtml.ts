@@ -1,5 +1,7 @@
 import type { ILexOption } from './types';
 import { Marked } from 'marked';
+import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
+import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import mathExtension from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
@@ -50,4 +52,10 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     html += marked.parse(src);
 
     return html;
+}
+
+export function getSanitizeClipboardHtml(src: string, options: ILexOption = {}) {
+    const html = getClipBoardHtml(src, options);
+
+    return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
 }

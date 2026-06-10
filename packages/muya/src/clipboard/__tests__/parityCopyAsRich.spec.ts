@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
 

@@ -112,18 +112,33 @@ export async function normalizePastedHTML(html: string) {
     return tempWrapper.innerHTML;
 }
 
-// Sniffs whether `text` looks like an HTML `<table>` blob and nothing else
-// (no surrounding prose). The regex deliberately doesn't enforce "exactly
-// one root element" — sibling tables in the same payload still belong on
-// the HTML→Markdown path. Some clipboard sources (notably Apple Numbers,
-// marktext #1271) put raw HTML into `text/plain` with no `text/html`
-// flavour; the paste handler promotes such text into the html slot so it
-// goes through `HtmlToMarkdown` instead of being inserted verbatim.
+// Sniffs whether `text` looks like a single HTML `<table>` blob and nothing
+// else (no surrounding prose, no sibling root element). The regex match is
+// followed by a parse + `childElementCount === 1` check (legacy
+// `pasteCtrl.checkCopyType`), so a payload whose greedy regex spans two sibling
+// tables falls through to the normal HTML→Markdown path. Some clipboard sources
+// (notably Apple Numbers, marktext #1271) put raw HTML into `text/plain` with
+// no `text/html` flavour; the paste handler promotes such text into the html
+// slot so it goes through `HtmlToMarkdown` instead of being inserted verbatim.
 const STANDALONE_TABLE_REG = /^<table\b[\s\S]*<\/table>$/i;
 export function isStandaloneTableHtml(text: string) {
     if (!text)
         return false;
-    return STANDALONE_TABLE_REG.test(text.trim());
+
+    const trimmed = text.trim();
+    if (!STANDALONE_TABLE_REG.test(trimmed))
+        return false;
+
+    // The greedy regex above also matches two sibling `<table>`s, so parse the
+    // blob into a temporary container and require exactly one root element
+    // (legacy `pasteCtrl.checkCopyType`'s `tmp.childElementCount === 1` guard).
+    if (typeof document === 'undefined')
+        return true;
+
+    const tmp = document.createElement('div');
+    tmp.innerHTML = trimmed;
+
+    return tmp.childElementCount === 1;
 }
 
 /**
