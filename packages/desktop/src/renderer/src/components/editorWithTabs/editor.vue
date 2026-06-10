@@ -101,7 +101,6 @@ import {
   ParagraphFrontMenu,
   ParagraphQuickInsertMenu,
   PreviewToolBar,
-  TableChessboard,
   TableColumnToolbar,
   TableDragBar,
   TableRowColumMenu,
@@ -1514,7 +1513,6 @@ onMounted(() => {
   // callbacks; LinkTools receives the ctrl/cmd-click jump handler.
   if (!muyaPluginsRegistered) {
     muyaPluginsRegistered = true
-    Muya.use(TableChessboard)
     Muya.use(ParagraphQuickInsertMenu)
     Muya.use(CodeBlockLanguageSelector)
     Muya.use(EmojiSelector)

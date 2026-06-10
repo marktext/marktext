@@ -147,7 +147,7 @@ abstract class BaseFloat {
 
     // `cb` is a generic "selection made" callback. Concrete floats invoke it
     // with their own argument tuple (e.g. emojiSelector → `(item)`,
-    // tableChessboard → `(row, column)`). `never[]` in the contravariant
+    // imagePicker → `(suggestion)`). `never[]` in the contravariant
     // arg position accepts any concrete callback shape.
     show(reference: ReferenceElement, cb: (...args: never[]) => void = noop) {
         const { floatBox } = this;

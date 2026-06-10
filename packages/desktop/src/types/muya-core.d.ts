@@ -64,7 +64,6 @@ declare module '@muyajs/core' {
   export const ParagraphFrontMenu: any
   export const ParagraphQuickInsertMenu: any
   export const PreviewToolBar: any
-  export const TableChessboard: any
   export const TableColumnToolbar: any
   export const TableDragBar: any
   export const TableRowColumMenu: any
