@@ -270,6 +270,22 @@ export function injectStateSentinels(
     return ok ? state : null;
 }
 
+/**
+ * Count the `\n` characters in `markdown` before `idx` (= the 0-based line of
+ * `idx`) without allocating an intermediate array — this can run on large
+ * documents. `lastIndexOf` is a native scan, so the column is cheap too.
+ */
+function _lineColAt(markdown: string, idx: number): IIndexPosition {
+    let line = 0;
+    for (let i = 0; i < idx; i++) {
+        if (markdown.charCodeAt(i) === 10 /* \n */)
+            line++;
+    }
+    const lastNewline = markdown.lastIndexOf('\n', idx - 1);
+
+    return { line, ch: idx - (lastNewline + 1) };
+}
+
 /** Locate `sentinel` in `markdown` and return its `{ line, ch }`, or `null`. */
 function _findOffsetInMarkdown(
     markdown: string,
@@ -279,12 +295,7 @@ function _findOffsetInMarkdown(
     if (idx === -1)
         return null;
 
-    const before = markdown.slice(0, idx);
-    const line = before.split('\n').length - 1;
-    const lastNewline = before.lastIndexOf('\n');
-    const ch = idx - (lastNewline + 1);
-
-    return { line, ch };
+    return _lineColAt(markdown, idx);
 }
 
 /**
@@ -316,8 +327,7 @@ export function locateSentinelOffsets(markdown: string): IIndexCursor | null {
             return null;
         // Only same-line earlier sentinels shift `ch`; earlier-line ones don't.
         if (otherIdx !== -1 && otherIdx < ownIdx) {
-            const otherBefore = markdown.slice(0, otherIdx);
-            const otherLine = otherBefore.split('\n').length - 1;
+            const otherLine = _lineColAt(markdown, otherIdx).line;
             if (otherLine === raw.line)
                 return { line: raw.line, ch: raw.ch - otherLen };
         }

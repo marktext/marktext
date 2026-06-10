@@ -751,13 +751,28 @@ watch(currentFile, (value, oldValue) => {
   }
 })
 
-watch(sourceCode, (value, oldValue) => {
-  if (value && value !== oldValue) {
-    if (editor.value) {
-      editor.value.hideAllFloatTools()
+watch(
+  sourceCode,
+  (value, oldValue) => {
+    if (value && value !== oldValue) {
+      if (editor.value) {
+        editor.value.hideAllFloatTools()
+        // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
+        // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
+        // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
+        // runs this before the `v-if`-gated child reads `props.muyaIndexCursor`
+        // in its onMounted). This is the inverse of the `setCursorByOffset`
+        // source -> WYSIWYG path. Computing it here rather than on every
+        // json-change/selection-change avoids serializing the whole document on
+        // each keystroke/caret move, and guarantees a fresh (never stale) value.
+        if (currentFile.value) {
+          currentFile.value.muyaIndexCursor = editor.value.getCursorOffset() ?? null
+        }
+      }
     }
-  }
-})
+  },
+  { flush: 'sync' }
+)
 
 // Methods
 const jumpClick = (linkInfo: { href: string }) => {
@@ -1654,11 +1669,6 @@ onMounted(() => {
       markdown,
       wordCount: muyaWordCount(markdown),
       cursor: serializeCursor(editor.value.getSelection()),
-      // The live WYSIWYG caret as a source-markdown `{ line, ch }` index cursor
-      // (Phase G — G7). Carried into source-code mode so toggling WYSIWYG ->
-      // source opens CodeMirror at the same caret (the inverse of the
-      // `setCursorByOffset` source -> WYSIWYG path). `null` when unresolvable.
-      muyaIndexCursor: editor.value.getCursorOffset() ?? undefined,
       // Synthetic, desktop-shaped history so the store's save/dirty tracking
       // keeps working (the engine history shape is incompatible).
       history: makeSyntheticHistory(id, markdown),
@@ -1741,15 +1751,6 @@ onMounted(() => {
     // the old separate `selectionFormats` event) — drive the format menu/toolbar
     // state from them.
     editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
-
-    // Keep the tab's source-mode index cursor in sync on pure caret moves too
-    // (clicking / arrow keys fire only `selection-change`, not `json-change`),
-    // so toggling WYSIWYG -> source opens CodeMirror at the current caret even
-    // when the document was not edited (Phase G — G7).
-    if (currentFile.value && editor.value) {
-      const indexCursor = editor.value.getCursorOffset()
-      if (indexCursor) currentFile.value.muyaIndexCursor = indexCursor
-    }
   })
 
   document.addEventListener('keyup', keyup)
