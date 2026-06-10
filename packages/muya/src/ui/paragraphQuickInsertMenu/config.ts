@@ -56,6 +56,31 @@ export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
     }
 }
 
+/**
+ * Prepend a front matter block at the very start of the document, mirroring
+ * legacy muyajs `handleFrontMatter`. Front matter is only valid as the first
+ * block, so this never replaces the block at the cursor. Idempotent: a no-op
+ * when the document already starts with front matter, so it never duplicates
+ * the block. Shared by `Muya.updateParagraph('front-matter')` and the
+ * quick-insert menu's `frontmatter` entry so both follow identical semantics.
+ */
+export function insertFrontMatterAtStart(muya: Muya) {
+    const { scrollPage } = muya.editor;
+    if (!scrollPage)
+        return;
+
+    const firstBlock = scrollPage.firstChild as Parent | null;
+    if (firstBlock?.blockName === 'frontmatter')
+        return;
+
+    const fmState = deepClone(emptyStates.frontmatter);
+    Object.assign(fmState.meta, frontmatterMeta(muya.options.frontmatterType));
+
+    const frontmatter = ScrollPage.loadBlock('frontmatter').create(muya, fmState);
+    scrollPage.insertBefore(frontmatter, firstBlock);
+    frontmatter.firstContentInDescendant()?.setCursor(0, 0, true);
+}
+
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl';
 const OPTION_KEY = isOsx ? '⌥' : 'Alt';
 const SHIFT_KEY = isOsx ? '⇧' : 'Shift';
@@ -401,11 +426,21 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         preferLooseListItem,
         bulletListMarker,
         orderListDelimiter,
-        frontmatterType,
     } = muya.options;
     let newBlock = null;
     let state = null;
     let cursorBlock = null;
+
+    // Front matter is only valid as the document's first block, so the
+    // quick-insert "Front Matter" entry must NOT replace the cursor block in
+    // place (which destroyed its content and produced invalid mid-document
+    // front matter). Prepend at document start and bail before the in-place
+    // `block.replaceWith` below — sharing the idempotent doc-start logic with
+    // `Muya.updateParagraph('front-matter')`.
+    if (label === 'frontmatter') {
+        insertFrontMatterAtStart(muya);
+        return;
+    }
 
     switch (label) {
         case 'paragraph':
@@ -431,14 +466,6 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
                     inner.text = text;
             }
             state = cloned;
-            newBlock = ScrollPage.loadBlock(label).create(muya, state);
-            break;
-        }
-
-        case 'frontmatter': {
-            const fmState = deepClone(emptyStates.frontmatter);
-            Object.assign(fmState.meta, frontmatterMeta(frontmatterType));
-            state = fmState;
             newBlock = ScrollPage.loadBlock(label).create(muya, state);
             break;
         }

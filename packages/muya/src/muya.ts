@@ -23,7 +23,7 @@ import I18n from './i18n/index';
 import { injectSentinels, resolveSentinelCursor } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState } from './state/types';
-import { frontmatterMeta, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
+import { insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -840,25 +840,24 @@ export class Muya {
         // muyajs `handleFrontMatter`: idempotent no-op if the document already
         // starts with front matter, otherwise prepend one at the top.
         if (label === 'frontmatter') {
-            this._insertFrontMatter();
+            insertFrontMatterAtStart(this);
             return;
         }
 
-        // The plain `paragraph` menu item only converts a *leaf* block (heading,
-        // hr, etc.) back to a paragraph. Inside a list or blockquote the cursor's
-        // immediate parent is already a paragraph, so legacy muyajs treated this
-        // as a no-op (paragraphCtrl.js `case 'paragraph'`, where
-        // `parent.type === 'p'` returned early). Without this guard the label
-        // would fall through to `replaceBlockByLabel` on the *whole* container
-        // and collapse every item/line into a single paragraph built from the
-        // first content's text — silent data loss. `reset-to-paragraph` is the
-        // explicit "unwrap the container" command and is handled above.
-        if (
-            label === 'paragraph'
-            && (isAnyListState(block.getState()) || block.blockName === 'block-quote')
-        ) {
-            return;
-        }
+        // The plain `paragraph` menu item only converts the *leaf* block that
+        // directly wraps the cursor (heading, hr, …) back to a paragraph; it
+        // never touches the enclosing container. Mirror legacy muyajs
+        // (paragraphCtrl.js `case 'paragraph'`): there `parent = getParent(block)`
+        // is the cursor's immediate leaf and the conversion is a no-op only when
+        // `parent.type === 'p'` (already a paragraph) — otherwise it replaces
+        // just that leaf. Operating on the leaf (not the outermost container)
+        // means a heading inside a list item still converts while the list stays
+        // intact, and avoids the original G4 data loss where routing `paragraph`
+        // to the *whole* list/blockquote collapsed every item/line into a single
+        // paragraph built from the first content's text. `reset-to-paragraph`
+        // remains the explicit "unwrap the container" command (handled above).
+        if (label === 'paragraph')
+            return this._convertLeafToParagraph();
 
         if (label.endsWith('-list') && isAnyListState(block.getState())) {
             // Selecting the active list type toggles the list off (unwrap each
@@ -908,26 +907,24 @@ export class Muya {
     }
 
     /**
-     * Prepend a front matter block at the very start of the document, mirroring
-     * legacy muyajs `handleFrontMatter`. Idempotent: a no-op when the document
-     * already starts with front matter, so it never duplicates the block or
-     * destroys the block at the cursor.
+     * Convert the *leaf* block that directly wraps the cursor (the immediate
+     * parent of the active content) to a plain paragraph. No-op when that leaf
+     * is already a paragraph — mirroring legacy muyajs `case 'paragraph'`
+     * (`parent.type === 'p'` returned early). Because it targets the leaf rather
+     * than the outermost container, a heading inside a list item / blockquote
+     * converts to a paragraph while leaving the surrounding list/quote intact.
      */
-    private _insertFrontMatter() {
-        const { scrollPage } = this.editor;
-        if (!scrollPage)
+    private _convertLeafToParagraph() {
+        const leaf = this._immediateBlockAtCursor();
+        if (!leaf || leaf.blockName === 'paragraph')
             return;
 
-        const firstBlock = scrollPage.firstChild as Parent | null;
-        if (firstBlock?.blockName === 'frontmatter')
-            return;
-
-        const fmState = deepClone(emptyStates.frontmatter);
-        Object.assign(fmState.meta, frontmatterMeta(this.options.frontmatterType));
-
-        const frontmatter = ScrollPage.loadBlock('frontmatter').create(this, fmState);
-        scrollPage.insertBefore(frontmatter, firstBlock);
-        frontmatter.firstContentInDescendant()?.setCursor(0, 0, true);
+        replaceBlockByLabel({
+            block: leaf,
+            muya: this,
+            label: 'paragraph',
+            text: this._blockLeadingText(leaf),
+        });
     }
 
     /**
