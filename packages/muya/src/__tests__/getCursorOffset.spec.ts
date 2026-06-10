@@ -107,6 +107,31 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         expect(cursor!.focus).toEqual({ line: 0, ch: 5 });
     });
 
+    it('resolves a BACKWARD same-block selection (anchor after focus)', () => {
+        const muya = bootMuya('hello world\n');
+        const block = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const selection: ISelection = {
+            anchor: { offset: 9 }, // after "hello wor"
+            focus: { offset: 2 }, //  after "he"
+            anchorBlock: block,
+            anchorPath: [0, 'text'],
+            focusBlock: block,
+            focusPath: [0, 'text'],
+            isCollapsed: false,
+            isSelectionInSameBlock: true,
+            direction: 'backward',
+            type: 'Range',
+        };
+        const sentinelState = injectStateSentinels(muya.getState(), selection);
+        expect(sentinelState).not.toBeNull();
+        const md = muya.editor.jsonState.getMarkdownFromState(sentinelState!);
+        const cursor = locateSentinelOffsets(md);
+        expect(cursor).not.toBeNull();
+        // Sentinel-free offsets recovered regardless of injection order.
+        expect(cursor!.anchor).toEqual({ line: 0, ch: 9 });
+        expect(cursor!.focus).toEqual({ line: 0, ch: 2 });
+    });
+
     it('returns null when there is no selection', () => {
         const muya = bootMuya('text\n');
         document.getSelection()?.removeAllRanges();

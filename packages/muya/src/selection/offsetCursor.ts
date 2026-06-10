@@ -223,9 +223,11 @@ function _injectSentinelAtPath(
  * neither endpoint resolves to a content block's text (so the caret can't be
  * located in the serialized markdown).
  *
- * When anchor and focus share a block AND the anchor sits at or before the
- * focus, the anchor sentinel is injected first; the focus offset is then
- * bumped by the anchor sentinel's length so both land at the intended spot.
+ * When anchor and focus share a block, the sentinel at the SMALLER offset is
+ * injected first (unshifted) and the one at the larger offset second, with its
+ * offset bumped by the first sentinel's length — handling both forward and
+ * backward selections. `_injectSentinelAtPath` re-reads the text on each call,
+ * so injecting the earlier one first keeps the later offset valid.
  */
 export function injectStateSentinels(
     state: TState[],
@@ -239,35 +241,33 @@ export function injectStateSentinels(
         = anchorPath.length === focusPath.length
             && anchorPath.every((seg, i) => seg === focusPath[i]);
 
-    // Order the two injections so the earlier offset goes in first and the
-    // later one is shifted by the first sentinel's length (only matters when
-    // both share a block).
-    let anchorInjectOffset = anchorOffset;
-    let focusInjectOffset = focusOffset;
-    if (sameBlock) {
-        if (anchorOffset <= focusOffset)
-            focusInjectOffset = focusOffset + ANCHOR_SENTINEL.length;
-        else
-            anchorInjectOffset = anchorOffset + FOCUS_SENTINEL.length;
+    const inject = (
+        path: (string | number)[],
+        offset: number,
+        sentinel: string,
+    ): boolean => _injectSentinelAtPath(state, path, offset, sentinel);
+
+    if (!sameBlock) {
+        // Different blocks (or different lines): the injections never overlap.
+        const anchorOk = inject(anchorPath, anchorOffset, ANCHOR_SENTINEL);
+        const focusOk = inject(focusPath, focusOffset, FOCUS_SENTINEL);
+
+        return anchorOk || focusOk ? state : null;
     }
 
-    const anchorOk = _injectSentinelAtPath(
-        state,
-        anchorPath,
-        anchorInjectOffset,
-        ANCHOR_SENTINEL,
-    );
-    const focusOk = _injectSentinelAtPath(
-        state,
-        focusPath,
-        focusInjectOffset,
-        FOCUS_SENTINEL,
-    );
+    // Same block: inject the earlier offset first (unshifted), then the later
+    // one shifted by the first sentinel's length.
+    let ok: boolean;
+    if (anchorOffset <= focusOffset) {
+        ok = inject(anchorPath, anchorOffset, ANCHOR_SENTINEL);
+        ok = inject(focusPath, focusOffset + ANCHOR_SENTINEL.length, FOCUS_SENTINEL) || ok;
+    }
+    else {
+        ok = inject(focusPath, focusOffset, FOCUS_SENTINEL);
+        ok = inject(anchorPath, anchorOffset + FOCUS_SENTINEL.length, ANCHOR_SENTINEL) || ok;
+    }
 
-    if (!anchorOk && !focusOk)
-        return null;
-
-    return state;
+    return ok ? state : null;
 }
 
 /** Locate `sentinel` in `markdown` and return its `{ line, ch }`, or `null`. */
