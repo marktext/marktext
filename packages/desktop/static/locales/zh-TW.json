@@ -119,7 +119,10 @@
       "toggleTableOfContents": "切換目錄",
       "reloadImages": "重新載入圖片",
       "showDeveloperTools": "顯示開發者工具",
-      "reloadWindow": "重新載入視窗"
+      "reloadWindow": "重新載入視窗",
+      "secondaryFiles": "次側邊欄：檔案樹",
+      "secondarySearch": "次側邊欄：搜尋",
+      "secondaryToc": "次側邊欄：目錄"
     },
     "format": {
       "format": "格式",
@@ -845,7 +848,10 @@
       "reloadImages": "重新載入圖片",
       "textDirection": "文字方向",
       "actualSize": "實際大小",
-      "devToggleDeveloperTools": "切換開發者工具"
+      "devToggleDeveloperTools": "切換開發者工具",
+      "secondaryFiles": "次側邊欄：檔案樹",
+      "secondarySearch": "次側邊欄：搜尋",
+      "secondaryToc": "次側邊欄：目錄"
     },
     "tabs": {
       "cycleForward": "向前循環",

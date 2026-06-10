@@ -119,7 +119,10 @@
       "toggleTableOfContents": "Alternar Tabla de Contenidos",
       "reloadImages": "Recargar Imágenes",
       "showDeveloperTools": "Mostrar Herramientas de Desarrollador",
-      "reloadWindow": "Recargar Ventana"
+      "reloadWindow": "Recargar Ventana",
+      "secondaryFiles": "Barra lateral secundaria: Árbol de archivos",
+      "secondarySearch": "Barra lateral secundaria: Buscar",
+      "secondaryToc": "Barra lateral secundaria: Tabla de contenidos"
     },
     "format": {
       "format": "Formato",
@@ -845,7 +848,10 @@
       "reloadImages": "Recargar Imágenes",
       "textDirection": "Dirección del Texto",
       "actualSize": "Tamaño real",
-      "devToggleDeveloperTools": "Alternar herramientas de desarrollador"
+      "devToggleDeveloperTools": "Alternar herramientas de desarrollador",
+      "secondaryFiles": "Barra lateral secundaria: Árbol de archivos",
+      "secondarySearch": "Barra lateral secundaria: Buscar",
+      "secondaryToc": "Barra lateral secundaria: Tabla de contenidos"
     },
     "tabs": {
       "cycleForward": "Ciclar Adelante",

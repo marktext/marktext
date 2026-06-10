@@ -119,7 +119,10 @@
       "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
-      "reloadWindow": "Fenster neu laden"
+      "reloadWindow": "Fenster neu laden",
+      "secondaryFiles": "Sekundäre Seitenleiste: Dateibaum",
+      "secondarySearch": "Sekundäre Seitenleiste: Suche",
+      "secondaryToc": "Sekundäre Seitenleiste: Inhaltsverzeichnis"
     },
     "format": {
       "format": "Format",
@@ -845,7 +848,10 @@
       "reloadImages": "Bilder neu laden",
       "textDirection": "Textrichtung",
       "actualSize": "Tatsächliche Größe",
-      "devToggleDeveloperTools": "Entwicklertools umschalten"
+      "devToggleDeveloperTools": "Entwicklertools umschalten",
+      "secondaryFiles": "Sekundäre Seitenleiste: Dateibaum",
+      "secondarySearch": "Sekundäre Seitenleiste: Suche",
+      "secondaryToc": "Sekundäre Seitenleiste: Inhaltsverzeichnis"
     },
     "tabs": {
       "cycleForward": "Vorwärts wechseln",

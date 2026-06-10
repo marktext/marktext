@@ -119,7 +119,10 @@
       "toggleTableOfContents": "목차 토글",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
-      "reloadWindow": "창 새로고침"
+      "reloadWindow": "창 새로고침",
+      "secondaryFiles": "보조 사이드바: 파일 트리",
+      "secondarySearch": "보조 사이드바: 검색",
+      "secondaryToc": "보조 사이드바: 목차"
     },
     "format": {
       "format": "서식",
@@ -845,7 +848,10 @@
       "reloadImages": "이미지 새로고침",
       "textDirection": "텍스트 방향",
       "actualSize": "실제 크기",
-      "devToggleDeveloperTools": "개발자 도구 전환"
+      "devToggleDeveloperTools": "개발자 도구 전환",
+      "secondaryFiles": "보조 사이드바: 파일 트리",
+      "secondarySearch": "보조 사이드바: 검색",
+      "secondaryToc": "보조 사이드바: 목차"
     },
     "tabs": {
       "cycleForward": "앞으로 순환",

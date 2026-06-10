@@ -163,6 +163,9 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'view.toggle-sidebar': 'commands.view.toggleSidebar',
   'view.toggle-tabbar': 'commands.view.toggleTabbar',
   'view.toggle-toc': 'commands.view.toggleToc',
+  'view.secondary-files': 'commands.view.secondaryFiles',
+  'view.secondary-search': 'commands.view.secondarySearch',
+  'view.secondary-toc': 'commands.view.secondaryToc',
 
   // Edit modes
   'view.toggle-source-code-mode': 'commands.view.toggleSourceCodeMode',
