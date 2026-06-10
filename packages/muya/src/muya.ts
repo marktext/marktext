@@ -20,7 +20,12 @@ import { Editor } from './editor/index';
 
 import EventCenter from './event/index';
 import I18n from './i18n/index';
-import { injectSentinels, resolveSentinelCursor } from './selection/offsetCursor';
+import {
+    injectSentinels,
+    injectStateSentinels,
+    locateSentinelOffsets,
+    resolveSentinelCursor,
+} from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState } from './state/types';
 import { replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
@@ -129,8 +134,19 @@ export class Muya {
         }
     }
 
+    /**
+     * Switch the editor's UI language at runtime. Swaps the i18n resources, then
+     * re-renders the block tree so already-mounted blocks pick up the new
+     * translation (Phase G — G8). The inline placeholder hints (quick-insert
+     * "Type / to insert…", code-block language, math, front matter) are DOM
+     * attributes baked once in each block's constructor; without the re-render
+     * they would keep the old language until the block was next recreated.
+     * History and the caret are preserved across the refresh (`_forceRender`).
+     */
     locale(object: ILocale) {
-        return this.i18n.locale(object);
+        this.i18n.locale(object);
+        if (this.editor.scrollPage)
+            this._forceRender();
     }
 
     /**
@@ -300,6 +316,18 @@ export class Muya {
         if (!forceRender)
             return;
 
+        this._forceRender();
+    }
+
+    /**
+     * Rebuild the whole block tree from its current state, preserving the undo
+     * history (only `setContent` clears it; `updateState` does not) and
+     * restoring the caret by path. Re-running every block constructor re-applies
+     * the i18n-driven DOM attributes (placeholder hints, etc.), so this also
+     * serves as the locale refresh. Shared by `setOptions(..., forceRender)` and
+     * `locale()`.
+     */
+    private _forceRender() {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
         // Restore the caret on the rebuilt tree by resolving the block at the
@@ -798,6 +826,39 @@ export class Muya {
         this.setCursor(cursor);
 
         return true;
+    }
+
+    /**
+     * Read the current WYSIWYG caret as a source-mode (CodeMirror) `{ line, ch }`
+     * index cursor — the INVERSE of `setCursorByOffset` (PG2 parity / Phase G —
+     * G7). The desktop emits this on every change so toggling WYSIWYG -> source
+     * opens CodeMirror at the same caret.
+     *
+     * The block tree has no source-line mapping, so the offset is recovered the
+     * same way `setCursorByOffset` resolves the reverse: clone the current
+     * state, splice sentinel strings into the selected block's text at the
+     * anchor/focus offsets, serialize that clone to markdown (identical to what
+     * source mode shows), then read each sentinel's line/column back out. The
+     * live document and undo history are untouched — only a throwaway clone is
+     * mutated. Returns `null` when there is no selection or the caret can't be
+     * located (the caller then falls back to its default cursor placement).
+     */
+    getCursorOffset(): IIndexCursor | null {
+        const selection = this.editor.selection.getSelection();
+        if (!selection)
+            return null;
+
+        const sentinelState = injectStateSentinels(
+            this.editor.jsonState.getState(),
+            selection,
+        );
+        if (!sentinelState)
+            return null;
+
+        const sentinelMarkdown
+            = this.editor.jsonState.getMarkdownFromState(sentinelState);
+
+        return locateSentinelOffsets(sentinelMarkdown);
     }
 
     /**

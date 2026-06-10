@@ -209,7 +209,13 @@ class JSONState {
     }
 
     getMarkdown() {
-        const state = this.getState();
+        return this.getMarkdownFromState(this.getState());
+    }
+
+    // Serialize an ARBITRARY state array to markdown with the same generator
+    // `getMarkdown` uses. Used by `Muya.getCursorOffset` to serialize a
+    // sentinel-bearing state clone WITHOUT mutating the live `_state`.
+    getMarkdownFromState(state: TState[]): string {
         const mdGenerator = new StateToMarkdown();
 
         return mdGenerator.generate(state);
