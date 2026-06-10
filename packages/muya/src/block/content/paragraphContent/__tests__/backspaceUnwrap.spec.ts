@@ -102,12 +102,16 @@ describe('backspace at start-of-paragraph — merge with previous block', () => 
         expect(blockText(state, 0)).toBe('alphabeta');
     });
 
-    it('lands the caret at the join point (end of the former first paragraph)', () => {
+    it('lands the caret at the join point (end of the former first paragraph)', async () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const beta = contentByText(muya, 'beta');
 
         backspaceAtStart(muya, beta);
 
+        // The merge flushes on the next animation frame; await it before reading
+        // the merged tree, otherwise contentByText/getCursor observe the
+        // pre-merge state.
+        await flush();
         // After the merge the active block is `alpha`'s content; the caret sits
         // at offset 5 (the original `alpha` length), where the two joined.
         const merged = contentByText(muya, 'alphabeta');

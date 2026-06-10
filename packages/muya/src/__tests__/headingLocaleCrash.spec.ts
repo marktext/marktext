@@ -2,7 +2,7 @@
 
 import type Content from '../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { en, zhCN } from '../locales';
+import { de, en, es, fr, ja, ko, pt, zhCN, zhTW } from '../locales';
 import { Muya } from '../muya';
 
 // REGRESSION GUARD — #4424 / #4427 (Phase-G migration crash).
@@ -45,6 +45,9 @@ afterEach(() => {
         const host = bootedHosts.pop()!;
         host.remove();
     }
+    // Drop any document-global Selection so a stale Range can't point into a
+    // removed host node and break a later test's setCursor.
+    window.getSelection()?.removeAllRanges();
     if (hadVersion)
         window.MUYA_VERSION = originalVersion as string;
     else
@@ -105,9 +108,12 @@ describe('typing `#` to create a heading under a non-en locale (#4424 / #4427)',
         expect(muya.getState()[0].name).toBe('atx-heading');
     });
 
-    it('renders the copy-anchor affordance with the zh-CN translated label', () => {
+    it('renders the copy-anchor affordance with the zh-CN translated label', async () => {
         const muya = bootMuya('\n', zhCN);
         typeHeading(muya, '# Heading');
+        // The conversion (and its HeadingCopyLink attachment render) flushes on
+        // the next animation frame; await it before querying the affordance.
+        await flush();
 
         const affordance = copyLinkAffordance(muya);
         expect(affordance).toBeTruthy();
@@ -120,13 +126,15 @@ describe('typing `#` to create a heading under a non-en locale (#4424 / #4427)',
         expect(affordance!.getAttribute('title')).toBe(expected);
     });
 
-    it('resolves the affordance label per-locale (en vs zh-CN) for the same heading', () => {
+    it('resolves the affordance label per-locale (en vs zh-CN) for the same heading', async () => {
         const enMuya = bootMuya('\n', en);
         typeHeading(enMuya, '# Heading');
+        await flush();
         const enLabel = copyLinkAffordance(enMuya)!.getAttribute('aria-label');
 
         const zhMuya = bootMuya('\n', zhCN);
         typeHeading(zhMuya, '# Heading');
+        await flush();
         const zhLabel = copyLinkAffordance(zhMuya)!.getAttribute('aria-label');
 
         expect(enLabel).toBe(en.resource['Copy anchor link to this heading']);
@@ -134,9 +142,12 @@ describe('typing `#` to create a heading under a non-en locale (#4424 / #4427)',
         expect(enLabel).not.toBe(zhLabel);
     });
 
-    it('still emits heading-copy-link when the zh-CN affordance is activated', () => {
+    it('still emits heading-copy-link when the zh-CN affordance is activated', async () => {
         const muya = bootMuya('\n', zhCN);
         typeHeading(muya, '# Heading');
+        // The affordance only exists after the conversion flush; await it before
+        // dispatching the click.
+        await flush();
 
         const handler = vi.fn();
         muya.on('heading-copy-link', handler);
@@ -158,14 +169,19 @@ describe('typing `#` to create a heading under a non-en locale (#4424 / #4427)',
         expect(muya.i18n.t(missingKey)).toBe(missingKey);
     });
 
-    it('every shipped locale defines the heading copy-anchor key (no raw-key fall-through)', () => {
+    it('every shipped locale defines the heading copy-anchor key (no raw-key fall-through)', async () => {
         // The crash's second half was the missing locale key. Lock it in for
         // every shipped locale so a future locale addition can't silently
         // reintroduce the raw-key fall-through (and, under a non-en locale, the
-        // crash before the optional-chaining guard).
-        for (const locale of [en, zhCN]) {
+        // crash before the optional-chaining guard). This is the whole point of
+        // the guard — typing `#` must not crash under ANY shipped locale — so
+        // exercise the real conversion path for every one of them.
+        const shippedLocales = [de, en, es, fr, ja, ko, pt, zhCN, zhTW];
+        for (const locale of shippedLocales) {
             const muya = bootMuya('\n', locale);
             typeHeading(muya, '# Heading');
+            // The HeadingCopyLink attachment renders on the next frame.
+            await flush();
             const label = copyLinkAffordance(muya)!.getAttribute('aria-label');
             expect(label).toBe(locale.resource['Copy anchor link to this heading']);
         }
