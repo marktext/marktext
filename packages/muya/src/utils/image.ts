@@ -161,6 +161,22 @@ export async function loadImage(url: string, detectContentType = false): Promise
 
 export async function checkImageContentType(url: string) {
     try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return false;
+        }
+        const hostname = parsed.hostname.toLowerCase();
+        if (
+            hostname === 'localhost'
+            || hostname === '127.0.0.1'
+            || hostname === '::1'
+            || /^169\.254\./.test(hostname)
+            || /^10\./.test(hostname)
+            || /^192\.168\./.test(hostname)
+            || /^172\.(1[6-9]|2\d|3[01])\./.test(hostname)
+        ) {
+            return false;
+        }
         const res = await fetch(url, { method: 'HEAD' });
         const contentType = res.headers.get('content-type');
 
