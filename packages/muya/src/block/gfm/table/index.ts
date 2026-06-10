@@ -1,5 +1,5 @@
 import type { Muya } from '../../../muya';
-import type { ITableState } from '../../../state/types';
+import type { ITableRowState, ITableState } from '../../../state/types';
 import type { Nullable } from '../../../types';
 import type Content from '../../base/content';
 import type TableCellContent from '../../content/tableCell';
@@ -269,6 +269,54 @@ class Table extends Parent {
                 this.jsonState.editOperation(path, diffToTextOp(diffs));
             }
         });
+    }
+
+    /**
+     * Resolve a body cell by its (row, column) offsets, both zero-based. Returns
+     * `null` when either index is out of range. Used by the cross-cell selection
+     * controller to walk the rectangle between an anchor and focus cell.
+     */
+    cellAt(row: number, column: number): Nullable<TableBodyCell> {
+        const rowBlock = (this.firstChild as TableInner).find(row) as TableRow | undefined;
+        if (rowBlock == null)
+            return null;
+
+        return (rowBlock.find(column) as TableBodyCell | undefined) ?? null;
+    }
+
+    /**
+     * Build an `ITableState` for the rectangular block of cells bounded by
+     * (`startRow`, `startColumn`) and (`endRow`, `endColumn`) inclusive. The
+     * bounds may be passed in any order — they are normalised — and are clamped
+     * to the table's dimensions. Mirrors legacy `tableSelectCellsCtrl`'s
+     * sub-table extraction so a copied cell rectangle round-trips to GFM table
+     * markdown via `StateToMarkdown`. The first selected row becomes the header
+     * row of the resulting sub-table, preserving each cell's alignment.
+     */
+    getSubTableState(
+        startRow: number,
+        startColumn: number,
+        endRow: number,
+        endColumn: number,
+    ): ITableState {
+        const { rowCount, columnCount } = this;
+        const minRow = Math.max(0, Math.min(startRow, endRow));
+        const maxRow = Math.min(rowCount - 1, Math.max(startRow, endRow));
+        const minColumn = Math.max(0, Math.min(startColumn, endColumn));
+        const maxColumn = Math.min(columnCount - 1, Math.max(startColumn, endColumn));
+
+        const children: ITableState['children'] = [];
+        for (let r = minRow; r <= maxRow; r++) {
+            const cells: ITableRowState['children'] = [];
+            for (let c = minColumn; c <= maxColumn; c++) {
+                const cell = this.cellAt(r, c);
+                if (cell)
+                    cells.push(cell.getState());
+            }
+            children.push({ name: 'table.row', children: cells });
+        }
+
+        return { name: 'table', children };
     }
 
     override getState(): ITableState {

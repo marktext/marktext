@@ -560,6 +560,17 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
     margin-bottom: 0;
 }
 
+/* Cross-cell drag selection (port of marktext's `.ag-cell-selected`): the
+   rectangle of cells the user dragged across is tinted via the per-cell
+   `::before` overlay so it reads as one contiguous selection. Every cell
+   (header included) renders as a `td`, and the overlay already paints the cell
+   border, so a translucent accent fill is enough. */
+.mu-table-inner tr td.mu-table-cell-selected::before {
+    z-index: 1;
+
+    background: var(--selection-color);
+}
+
 .mu-table-inner td[data-align='left'] {
     text-align: left;
 }

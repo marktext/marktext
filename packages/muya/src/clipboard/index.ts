@@ -1,6 +1,7 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
+import type TableCellSelection from '../editor/tableCellSelection';
 import type { Muya } from '../muya';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
@@ -96,6 +97,10 @@ class Clipboard {
         fromEvent(domNode, 'keydown').subscribe(keydownHandler);
     }
 
+    get tableSelection(): Nullable<TableCellSelection> {
+        return this.muya.editor?.tableSelection;
+    }
+
     getClipboardData() {
         const { copyType, copyInfo } = this;
         if (copyType === 'copyCodeContent') {
@@ -104,6 +109,11 @@ class Clipboard {
                 text: copyInfo,
             };
         }
+
+        // A frozen cross-cell table selection copies just that rectangle.
+        const tableData = this._getTableSelectionClipboardData();
+        if (tableData != null)
+            return tableData;
 
         let text = '';
         let html = '';
@@ -325,6 +335,40 @@ class Clipboard {
         return { html, text };
     }
 
+    /**
+     * Clipboard payload for a frozen cross-cell table selection, or `null` when
+     * none is active. A single selected cell with text yields its plain text and
+     * no HTML (so a paste lands as literal text, matching legacy
+     * `docCopyHandler`); a larger rectangle serialises to GFM table markdown.
+     */
+    private _getTableSelectionClipboardData(): Nullable<{ html: string; text: string }> {
+        const state = this.tableSelection?.getStateForCopy();
+        if (state == null)
+            return null;
+
+        const isSingleCell
+            = state.children.length === 1 && state.children[0].children.length === 1;
+        if (isSingleCell) {
+            return { html: '', text: state.children[0].children[0].text };
+        }
+
+        const {
+            frontMatter = true,
+            math,
+            isGitlabCompatibilityEnabled,
+            superSubScript,
+        } = this.muya.options;
+        const text = new StateToMarkdown().generate([state]);
+        const html = getClipBoardHtml(text, {
+            frontMatter,
+            math,
+            isGitlabCompatibilityEnabled,
+            superSubScript,
+        });
+
+        return { html, text };
+    }
+
     copyHandler(event: ClipboardEvent): void {
         const { html, text } = this.getClipboardData();
 
@@ -385,6 +429,14 @@ class Clipboard {
     }
 
     cutHandler() {
+        // A frozen cross-cell table selection: empty just those cells in place
+        // (legacy `deleteSelectedTableCells`). The copy half already captured
+        // the rectangle's markdown via `getClipboardData`.
+        if (this.tableSelection?.hasSelection) {
+            this.tableSelection.clearSelectedCells();
+            return;
+        }
+
         const selection = this.selection.getSelection();
         if (selection == null)
             return;
