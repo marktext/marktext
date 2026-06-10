@@ -235,3 +235,103 @@ describe('replaceBlockByLabel — paragraph→list keeps text verbatim (marktext
         }
     });
 });
+
+// The in-editor "table" insert (the `/` quick-insert menu and the paragraph
+// front-menu both route through `replaceBlockByLabel`) must show the legacy
+// hover-grid dimension picker (`TableChessboard`) — NOT drop a fixed-size
+// table. This is a regression target: #4435 deleted the picker UI and the
+// quick-insert dropped a default table directly. `replaceBlockByLabel({label:
+// 'table'})` must instead dispatch `muya-table-picker` (which the chessboard
+// subscribes to) with a position reference and an `(row, column)` callback,
+// and that callback must create a table at `row + 1 × column + 1` to match
+// legacy muyajs `showTablePicker`.
+function makeTableMuya(): {
+    muya: Muya;
+    emit: ReturnType<typeof vi.fn>;
+    createTable: ReturnType<typeof vi.fn>;
+} {
+    const emit = vi.fn();
+    const createTable = vi.fn();
+
+    const muya = {
+        options: {
+            preferLooseListItem: false,
+            bulletListMarker: '-',
+            orderListDelimiter: '.',
+            frontmatterType: '---',
+        },
+        eventCenter: { emit },
+        createTable,
+    } as unknown as Muya;
+
+    return { muya, emit, createTable };
+}
+
+function makeTableBlock(): Parent {
+    return {
+        replaceWith: vi.fn(),
+        // `showTablePicker` falls back to the block's DOM node when the cursor
+        // has no coords (the happy-dom test env has no real selection).
+        domNode: document.createElement('div'),
+    } as unknown as Parent;
+}
+
+describe('replaceBlockByLabel — in-editor "table" shows the grid picker (revert #4435)', () => {
+    it('dispatches `muya-table-picker` with a reference + handler instead of creating a default table', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            const { muya, emit, createTable } = makeTableMuya();
+
+            replaceBlockByLabel({
+                block: makeTableBlock(),
+                muya,
+                label: 'table',
+            });
+
+            // The picker is dispatched...
+            expect(emit).toHaveBeenCalledTimes(1);
+            const [event, data, reference, handler] = emit.mock.calls[0];
+            expect(event).toBe('muya-table-picker');
+            expect(data).toEqual({ row: -1, column: -1 });
+            expect(reference).toBeTruthy();
+            expect(typeof handler).toBe('function');
+
+            // ...and NO default table block is built up-front.
+            expect(captured.find(c => c.label === 'table')).toBeUndefined();
+            expect(createTable).not.toHaveBeenCalled();
+        }
+        finally {
+            restore();
+        }
+    });
+
+    it('the picker handler creates a table at (row + 1) × (column + 1)', () => {
+        const { muya, emit, createTable } = makeTableMuya();
+
+        replaceBlockByLabel({
+            block: makeTableBlock(),
+            muya,
+            label: 'table',
+        });
+
+        const handler = emit.mock.calls[0][3] as (row: number, column: number) => void;
+        // The chessboard pick is zero-based, e.g. picking the 3rd row / 4th
+        // column reports (2, 3) -> a 3×4 table.
+        handler(2, 3);
+
+        expect(createTable).toHaveBeenCalledTimes(1);
+        expect(createTable).toHaveBeenCalledWith({ rows: 3, columns: 4 });
+    });
+
+    it('falls back to the block DOM node as the reference when the cursor has no coords', () => {
+        const { muya, emit } = makeTableMuya();
+        const block = makeTableBlock();
+
+        replaceBlockByLabel({ block, muya, label: 'table' });
+
+        const reference = emit.mock.calls[0][2];
+        // happy-dom yields no selection coords, so `getCursorReference()` is
+        // null and the fallback is the block's own DOM node.
+        expect(reference).toBe((block as unknown as { domNode: HTMLElement }).domNode);
+    });
+});

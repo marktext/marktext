@@ -28,6 +28,7 @@ import { ScrollPage } from '../../block/scrollPage';
 import { isOsx } from '../../config';
 
 import emptyStates from '../../config/emptyStates';
+import { getCursorReference } from '../../selection';
 import { isParagraphState } from '../../state/types';
 import { deepClone, isKeyboardEvent } from '../../utils';
 import logger from '../../utils/logger';
@@ -416,6 +417,32 @@ export function getLabelFromEvent(event: Event) {
         return result.label;
 }
 
+/**
+ * Show the in-editor table grid picker, porting legacy muyajs
+ * `paragraphCtrl.showTablePicker`. The in-editor "table" insert (the `/`
+ * quick-insert menu and the paragraph front-menu) must offer a hover-grid
+ * dimension picker rather than dropping a fixed-size table — the picker UI
+ * (`TableChessboard`) subscribes to `muya-table-picker` and invokes the
+ * dispatched callback with the zero-based `(row, column)` the user picked, so
+ * the table is created at `row + 1 × column + 1` to match legacy semantics.
+ *
+ * The float anchors to the caret (`getCursorReference`); when the cursor has
+ * no coords (e.g. the front-menu took focus) it falls back to the block's DOM
+ * node. No-op if neither is available.
+ */
+export function showTablePicker(muya: Muya, block: Parent) {
+    const { eventCenter } = muya;
+    const reference = getCursorReference() ?? block.domNode;
+    if (!reference)
+        return;
+
+    const handler = (row: number, column: number) => {
+        muya.createTable({ rows: row + 1, columns: column + 1 });
+    };
+
+    eventCenter.emit('muya-table-picker', { row: -1, column: -1 }, reference, handler);
+}
+
 export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     block: Parent;
     muya: Muya;
@@ -442,12 +469,19 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         return;
     }
 
+    // The in-editor "table" insert shows a hover-grid dimension picker
+    // (legacy muyajs `showTablePicker`) instead of dropping a fixed-size
+    // table. The picker's callback creates the table at the chosen size, so
+    // bail before the in-place empty-table replacement below.
+    if (label === 'table') {
+        showTablePicker(muya, block);
+        return;
+    }
+
     switch (label) {
         case 'paragraph':
             // fall through
         case 'thematic-break':
-            // fall through
-        case 'table':
             // fall through
         case 'math-block':
             // fall through
