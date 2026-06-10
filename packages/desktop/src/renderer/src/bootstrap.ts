@@ -65,13 +65,20 @@ const parseUrlArgs = (): UrlArgs => {
 const isCodeMirrorRaceCondition = (error: Error | null | undefined): boolean => {
   if (!error || !error.stack) return false
 
-  // CodeMirror internal error when line measurement data is unavailable during mouse click
-  // This happens when the document state is out of sync with the display during rapid changes
+  const { stack } = error
+  // CodeMirror internal error when line measurement data is unavailable while
+  // measuring cursor or mouse coordinates.
   const isMapOnUndefined = error.message === "Cannot read properties of undefined (reading 'map')"
-  const isInPrepareMeasure = error.stack.includes('prepareMeasureForLine')
-  const isInCoordsChar = error.stack.includes('coordsChar') || error.stack.includes('posFromMouse')
+  const isInPrepareMeasure = stack.includes('prepareMeasureForLine')
+  const isInMeasurement = [
+    'coordsChar',
+    'cursorCoords',
+    'posFromMouse',
+    'drawSelectionCursor',
+    'prepareSelection'
+  ].some((entry) => stack.includes(entry))
 
-  return isMapOnUndefined && isInPrepareMeasure && isInCoordsChar
+  return isMapOnUndefined && isInPrepareMeasure && isInMeasurement
 }
 
 const handleRendererError = (event: ErrorEvent | PromiseRejectionEvent | Event): void => {
@@ -80,7 +87,7 @@ const handleRendererError = (event: ErrorEvent | PromiseRejectionEvent | Event):
     // Suppress known non-fatal CodeMirror race conditions
     // These occur during rapid clicking/editing and don't affect functionality
     if (isCodeMirrorRaceCondition(errorEvent.error)) {
-      console.warn('Suppressed non-fatal CodeMirror race condition:', errorEvent.error.message)
+      event.preventDefault()
       return
     }
 

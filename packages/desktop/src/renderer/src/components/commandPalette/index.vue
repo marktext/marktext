@@ -8,7 +8,7 @@
       width="500px"
       @close="handleDialogClose"
     >
-      <template #title>
+      <template #header>
         <div class="search-wrapper">
           <div class="input-wrapper">
             <input

@@ -46,6 +46,11 @@
           :on-change="(value) => onSelectChange('hideScrollbar', value)"
         />
         <bool
+          :description="t('preferences.general.window.showFormattingToolbar')"
+          :bool="showFormattingToolbar"
+          :on-change="(value) => onSelectChange('showFormattingToolbar', value)"
+        />
+        <bool
           :description="t('preferences.general.window.openFilesInNewWindow')"
           :bool="openFilesInNewWindow"
           :on-change="(value) => onSelectChange('openFilesInNewWindow', value)"
@@ -216,6 +221,7 @@ const {
   treePathExcludePatterns: projectPaths,
   zoom,
   hideScrollbar,
+  showFormattingToolbar,
   wordWrapInToc,
   fileSortBy,
   fileSortOrder,

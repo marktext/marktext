@@ -37,6 +37,11 @@
     "type": "boolean",
     "default": false
   },
+  "showFormattingToolbar": {
+    "description": "General--Whether to show the formatting toolbar above the editor.",
+    "type": "boolean",
+    "default": false
+  },
   "wordWrapInToc": {
     "description": "General--Whether to enable word wrap in TOC.",
     "type": "boolean",

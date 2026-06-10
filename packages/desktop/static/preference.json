@@ -6,6 +6,7 @@
   "openFolderInNewWindow": false,
   "zoom": 1.0,
   "hideScrollbar": false,
+  "showFormattingToolbar": false,
   "wordWrapInToc": false,
   "fileSortBy": "created",
   "fileSortOrder": "asc",

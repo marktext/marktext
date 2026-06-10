@@ -723,17 +723,17 @@ export const getCommandsWithDescriptions = async(): Promise<CommandDescriptor[]>
         for (const subcommand of subcommands) {
           const { value } = subcommand
           if (value === 'light') {
-            subcommand.description = t('theme.cadmiumLight')
+            subcommand.description = t('menu.theme.cadmiumLight')
           } else if (value === 'dark') {
-            subcommand.description = t('theme.dark')
+            subcommand.description = t('menu.theme.dark')
           } else if (value === 'graphite') {
-            subcommand.description = t('theme.graphiteLight')
+            subcommand.description = t('menu.theme.graphiteLight')
           } else if (value === 'material-dark') {
-            subcommand.description = t('theme.materialDark')
+            subcommand.description = t('menu.theme.materialDark')
           } else if (value === 'one-dark') {
-            subcommand.description = t('theme.oneDark')
+            subcommand.description = t('menu.theme.oneDark')
           } else if (value === 'ulysses') {
-            subcommand.description = t('theme.ulyssesLight')
+            subcommand.description = t('menu.theme.ulyssesLight')
           }
         }
       }

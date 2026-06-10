@@ -36,7 +36,7 @@
       center
       dir="ltr"
     >
-      <template #title>
+      <template #header>
         <div class="dialog-title">
           {{ t('editor.insertTable.title') }}
         </div>
@@ -73,6 +73,48 @@
           <el-button
             type="primary"
             @click="handleDialogTableConfirm"
+          >
+            {{ t('common.ok') }}
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <el-dialog
+      v-model="dialogLinkVisible"
+      :show-close="isShowClose"
+      :modal="true"
+      class="ag-insert-table-dialog ag-insert-link-dialog"
+      width="520px"
+      center
+      dir="ltr"
+    >
+      <template #header>
+        <div class="dialog-title">
+          {{ t('editor.insertLink.title') }}
+        </div>
+      </template>
+      <el-form :model="linkForm">
+        <el-form-item :label="t('editor.insertLink.linkText')">
+          <el-input
+            ref="linkTextInput"
+            v-model="linkForm.text"
+          />
+        </el-form-item>
+        <el-form-item :label="t('editor.insertLink.url')">
+          <el-input v-model="linkForm.href" />
+        </el-form-item>
+        <el-form-item :label="t('editor.insertLink.titleField')">
+          <el-input v-model="linkForm.title" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogLinkVisible = false">
+            {{ t('common.cancel') }}
+          </el-button>
+          <el-button
+            type="primary"
+            @click="handleDialogLinkConfirm"
           >
             {{ t('common.ok') }}
           </el-button>
@@ -177,6 +219,7 @@ let muyaPluginsRegistered = false
 type MuyaInstance = any
 type MuyaChange = any
 type ElInputNumberInstance = any
+type ElInputInstance = any
 
 const props = defineProps<{
   markdown?: string
@@ -249,16 +292,23 @@ const selectionChange = ref<unknown>(null)
 const editor = ref<MuyaInstance>(null)
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
+const dialogLinkVisible = ref(false)
 const imageViewerVisible = ref<boolean | null>(null)
 const tableChecker = reactive({
   rows: 4,
   columns: 3
+})
+const linkForm = reactive({
+  text: '',
+  href: 'https://www.',
+  title: ''
 })
 
 // Template refs
 const editorRef = ref<HTMLDivElement | null>(null)
 const imageViewerRef = ref<HTMLDivElement | null>(null)
 const rowInput = ref<ElInputNumberInstance>(null)
+const linkTextInput = ref<ElInputInstance>(null)
 
 // Non-reactive variables
 let printer: any = null
@@ -1318,6 +1368,35 @@ const handleDialogTableConfirm = () => {
   editor.value && editor.value.createTable(tableChecker)
 }
 
+const getSelectedInlineText = () => {
+  if (!editor.value) return ''
+  const selection = editor.value.getSelection()
+  const { start, end } = selection || {}
+  if (!start || !end || start.key !== end.key) return ''
+  if (start.offset === end.offset) return ''
+  const text = start.block && typeof start.block.text === 'string' ? start.block.text : ''
+  return text.substring(start.offset, end.offset)
+}
+
+const openFormattingLinkDialog = () => {
+  if (!editor.value || sourceCode.value) return
+  linkForm.text = getSelectedInlineText()
+  linkForm.href = 'https://www.'
+  linkForm.title = ''
+  dialogLinkVisible.value = true
+  nextTick(() => {
+    linkTextInput.value?.focus?.()
+  })
+}
+
+const handleDialogLinkConfirm = () => {
+  const text = linkForm.text.trim()
+  const href = linkForm.href.trim()
+  const title = linkForm.title.trim()
+  dialogLinkVisible.value = false
+  editor.value && editor.value.insertLink({ text, href, title })
+}
+
 interface FileLoadedPayload {
   id?: string
   markdown?: string
@@ -1623,6 +1702,7 @@ onMounted(() => {
   bus.on('print-service-clearup', handlePrintServiceClearup)
   bus.on('paragraph', handleEditParagraph)
   bus.on('format', handleInlineFormat)
+  bus.on('open-formatting-link-dialog', openFormattingLinkDialog)
   bus.on('searchValue', handleSearch)
   bus.on('replaceValue', handReplace)
   bus.on('find-action', handleFindAction)
@@ -1769,6 +1849,7 @@ onBeforeUnmount(() => {
   bus.off('print-service-clearup', handlePrintServiceClearup)
   bus.off('paragraph', handleEditParagraph)
   bus.off('format', handleInlineFormat)
+  bus.off('open-formatting-link-dialog', openFormattingLinkDialog)
   bus.off('searchValue', handleSearch)
   bus.off('replaceValue', handReplace)
   bus.off('find-action', handleFindAction)
@@ -1842,6 +1923,29 @@ onBeforeUnmount(() => {
   & .el-button {
     font-size: 13px;
     width: 70px;
+  }
+}
+
+.ag-insert-link-dialog {
+  & .el-form-item {
+    margin-bottom: 12px;
+  }
+
+  & .el-form-item:last-child {
+    margin-bottom: 0;
+  }
+
+  & .el-form-item__label {
+    min-width: 120px;
+  }
+
+  & .el-input__wrapper {
+    background: var(--inputBgColor);
+    box-shadow: 0 0 0 1px var(--editorColor10) inset;
+  }
+
+  & .el-input__inner {
+    color: var(--editorColor80);
   }
 }
 

@@ -21,6 +21,31 @@ import { oneDarkThemes, railscastsThemes } from '@/config'
 type CMInstance = any
 type CMCursor = any
 
+interface SourceTemplateOptions {
+  rebuildAfterInsert?: boolean
+}
+
+interface SourceSelection {
+  anchor: CMCursor
+  focus: CMCursor
+}
+
+interface SourceRebuildOptions {
+  markdown?: string
+  preserveScroll?: boolean
+  scrollSelection?: boolean
+}
+
+interface SourceHistorySnapshot {
+  markdown: string
+  selection: SourceSelection
+}
+
+interface SourceHistoryEntry {
+  before: SourceHistorySnapshot
+  after: SourceHistorySnapshot
+}
+
 interface MuyaIndexCursorLike {
   anchor: CMCursor
   focus: CMCursor
@@ -40,6 +65,9 @@ const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 const editor = ref<CMInstance>(null)
 const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
+const suppressCursorActivitySave = ref(false)
+const sourceHistoryUndoStack = ref<SourceHistoryEntry[]>([])
+const sourceHistoryRedoStack = ref<SourceHistoryEntry[]>([])
 const tabId = ref<string | null>(null)
 
 const { theme, sourceCode } = storeToRefs(preferencesStore)
@@ -159,7 +187,12 @@ const handleFileChange = (payload: unknown) => {
   }
 
   if (typeof newMarkdown === 'string') {
+    const didChange = editor.value.getValue() !== newMarkdown
     editor.value.setValue(newMarkdown)
+    if (didChange) {
+      clearNativeHistory(editor.value)
+      clearSourceHistory()
+    }
   }
 
   // t('editor.sourceCode.cursorNullComment')
@@ -260,6 +293,16 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+const clearNativeHistory = (cm: CMInstance): void => {
+  cm.clearHistory?.()
+  cm.markClean?.()
+}
+
+const clearSourceHistory = (): void => {
+  sourceHistoryUndoStack.value = []
+  sourceHistoryRedoStack.value = []
+}
+
 const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
@@ -280,32 +323,70 @@ const saveContent = (cm: CMInstance) => {
   }
 }
 
-const listenChange = () => {
-  editor.value.on('cursorActivity', (cm: CMInstance) => {
-    saveContent(cm)
+const getCursorByOffset = (origin: CMCursor, text: string, offset: number): CMCursor => {
+  const lines = text.slice(0, offset).split('\n')
+  if (lines.length === 1) {
+    return {
+      line: origin.line,
+      ch: origin.ch + lines[0].length
+    }
+  }
+
+  return {
+    line: origin.line + lines.length - 1,
+    ch: lines[lines.length - 1].length
+  }
+}
+
+const focusSourceEditor = (
+  cm: CMInstance,
+  selection: SourceSelection | null = null
+): void => {
+  const focus = () => {
+    if (viewDestroyed.value || editor.value !== cm) return
+
+    if (selection) {
+      cm.setSelection(selection.anchor, selection.focus, { scroll: false })
+    }
+
+    cm.focus()
+    setTimeout(() => saveContent(cm), 0)
+  }
+
+  requestAnimationFrame(() => {
+    if (viewDestroyed.value || editor.value !== cm) return
+
+    focus()
   })
 }
 
-onMounted(() => {
-  if (!currentTab.value) return
-  const { id } = currentTab.value
-  // reset currentTab scrollTop position because the codeMirror scroll position is completely different from the muya scroll position
-  // reset blocks as well because the blocks are only valid in muya
-  // reset cursor because this is a direct "key-cursor", not a muyaIndexCursor, which is {focus: number, anchor: number}
-  currentTab.value.scrollTop = 0
-  currentTab.value.blocks = undefined
-  currentTab.value.cursor = undefined
+const getSourceSnapshot = (cm: CMInstance): SourceHistorySnapshot => {
+  return {
+    markdown: cm.getValue(),
+    selection: {
+      anchor: cm.getCursor('anchor'),
+      focus: cm.getCursor('head')
+    }
+  }
+}
 
-  const { markdown, muyaIndexCursor, textDirection } = props
-  const container = sourceCodeContainer.value
+const getSourceCodeMirrorConfig = (markdown: string): Record<string, unknown> => {
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
     lineNumbers: true,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
-    direction: textDirection,
+    direction: props.textDirection,
     viewportMargin: Infinity,
+    extraKeys: {
+      'Ctrl-Z': () => executeSourceHistoryCommand('undo'),
+      'Cmd-Z': () => executeSourceHistoryCommand('undo'),
+      'Shift-Ctrl-Z': () => executeSourceHistoryCommand('redo'),
+      'Shift-Cmd-Z': () => executeSourceHistoryCommand('redo'),
+      'Ctrl-Y': () => executeSourceHistoryCommand('redo'),
+      'Cmd-Y': () => executeSourceHistoryCommand('redo')
+    },
     lineNumberFormatter (line: number) {
       if (line % 10 === 0 || line === 1) {
         return line
@@ -321,37 +402,460 @@ onMounted(() => {
     codeMirrorConfig.theme = 'one-dark'
   }
 
+  return codeMirrorConfig
+}
+
+const handleSourceContextMenu = (_cm: CMInstance, event: Event): void => {
+  event.preventDefault()
+  event.stopPropagation()
+}
+
+const listenChange = (cm: CMInstance) => {
+  cm.on('cursorActivity', (instance: CMInstance) => {
+    if (suppressCursorActivitySave.value) return
+
+    saveContent(instance)
+  })
+}
+
+const configureSourceEditor = (
+  cm: CMInstance,
+  selection: SourceSelection | null = null,
+  scrollSelection = false
+): void => {
+  cm.setOption('mode', 'markdown-math')
+  cm.on('contextmenu', handleSourceContextMenu)
+  clearNativeHistory(cm)
+
+  if (selection) {
+    cm.setSelection(selection.anchor, selection.focus, { scroll: scrollSelection })
+  } else {
+    setCursorAtFirstLine(cm)
+  }
+}
+
+const createSourceEditor = (
+  markdown: string,
+  selection: SourceSelection | null = null,
+  scrollSelection = false
+): CMInstance | null => {
+  const container = sourceCodeContainer.value
+  if (!container) return null
+
+  const cm = codeMirror(container, getSourceCodeMirrorConfig(markdown))
+  configureSourceEditor(cm, selection, scrollSelection)
+  listenChange(cm)
+  editor.value = cm
+  return cm
+}
+
+const restoreSourceSnapshot = (cm: CMInstance, snapshot: SourceHistorySnapshot): void => {
+  const nextCm = rebuildSourceEditor(cm, snapshot.selection, {
+    markdown: snapshot.markdown,
+    scrollSelection: true
+  })
+
+  requestAnimationFrame(() => {
+    if (viewDestroyed.value || editor.value !== nextCm) return
+
+    setTimeout(() => saveContent(nextCm), 0)
+  })
+}
+
+const rememberSourceHistory = (
+  before: SourceHistorySnapshot,
+  after: SourceHistorySnapshot
+): void => {
+  sourceHistoryUndoStack.value.push({ before, after })
+  sourceHistoryRedoStack.value = []
+}
+
+const maybeRestoreSourceHistory = (command: 'undo' | 'redo'): boolean => {
+  const cm = editor.value
+  const sourceStack = command === 'undo'
+    ? sourceHistoryUndoStack.value
+    : sourceHistoryRedoStack.value
+  const targetStack = command === 'undo'
+    ? sourceHistoryRedoStack.value
+    : sourceHistoryUndoStack.value
+  const entry = sourceStack[sourceStack.length - 1]
+
+  if (!entry) return false
+
+  const expectedMarkdown = command === 'undo' ? entry.after.markdown : entry.before.markdown
+  if (cm.getValue() !== expectedMarkdown) return false
+
+  sourceStack.pop()
+  targetStack.push(entry)
+  restoreSourceSnapshot(cm, command === 'undo' ? entry.before : entry.after)
+  return true
+}
+
+const executeSourceHistoryCommand = (command: 'undo' | 'redo'): void => {
+  if (!sourceCode.value || !editor.value) return
+
+  if (maybeRestoreSourceHistory(command)) return
+
+  const historySize = editor.value.historySize?.()
+  if (historySize && historySize[command] <= 0) {
+    editor.value.focus()
+    return
+  }
+
+  editor.value.execCommand(command)
+  requestAnimationFrame(() => editor.value?.focus())
+  setTimeout(() => {
+    if (editor.value) saveContent(editor.value)
+  }, 0)
+}
+
+const handleSourceUndo = (): void => {
+  executeSourceHistoryCommand('undo')
+}
+
+const handleSourceRedo = (): void => {
+  executeSourceHistoryCommand('redo')
+}
+
+const rebuildSourceEditor = (
+  cm: CMInstance,
+  selection: SourceSelection,
+  options: SourceRebuildOptions = {}
+): CMInstance => {
+  if (viewDestroyed.value || editor.value !== cm) return cm
+
+  const { preserveScroll = true, scrollSelection = false } = options
+  const markdown = options.markdown ?? cm.getValue()
+  const scrollInfo = preserveScroll ? cm.getScrollInfo?.() : null
+  const wrapper = cm.getWrapperElement?.() as HTMLElement | null | undefined
+  const container = sourceCodeContainer.value
+
+  if (!container) return cm
+
+  suppressCursorActivitySave.value = true
+  if (wrapper?.parentElement) {
+    wrapper.parentElement.removeChild(wrapper)
+  }
+  const nextCm = createSourceEditor(markdown, selection, scrollSelection) ?? cm
+  if (scrollInfo && nextCm !== cm) {
+    nextCm.scrollTo(scrollInfo.left, scrollInfo.top)
+  }
+  suppressCursorActivitySave.value = false
+
+  requestAnimationFrame(() => {
+    if (viewDestroyed.value || editor.value !== nextCm) return
+
+    nextCm.refresh()
+    if (scrollInfo) {
+      nextCm.scrollTo(scrollInfo.left, scrollInfo.top)
+    }
+    nextCm.focus()
+    setTimeout(() => saveContent(nextCm), 0)
+  })
+
+  return nextCm
+}
+
+const replaceSelectionWithTemplate = (
+  template: string,
+  selectionStart: number,
+  selectionEnd: number,
+  options: SourceTemplateOptions = {}
+): void => {
+  const cm = editor.value
+  const from = cm.getCursor('from')
+  const anchor = getCursorByOffset(from, template, selectionStart)
+  const focus = getCursorByOffset(from, template, selectionEnd)
+
+  if (options.rebuildAfterInsert) {
+    const before = getSourceSnapshot(cm)
+    cm.operation(() => {
+      cm.replaceSelection(template)
+    })
+    rememberSourceHistory(before, {
+      markdown: cm.getValue(),
+      selection: { anchor, focus }
+    })
+    rebuildSourceEditor(cm, { anchor, focus })
+  } else {
+    cm.operation(() => {
+      cm.replaceSelection(template)
+      cm.setSelection(anchor, focus, { scroll: false })
+    })
+    focusSourceEditor(cm)
+  }
+}
+
+const wrapSourceSelection = (prefix: string, suffix: string, placeholder: string): void => {
+  const cm = editor.value
+  const selection = cm.getSelection()
+  const text = selection || placeholder
+  const template = `${prefix}${text}${suffix}`
+
+  replaceSelectionWithTemplate(template, prefix.length, prefix.length + text.length)
+}
+
+const insertSourceCodeFence = (): void => {
+  const cm = editor.value
+  const selection = cm.getSelection()
+  const text = selection || 'code'
+  const prefix = '```\n'
+  const suffix = '\n```'
+  const template = `${prefix}${text}${suffix}`
+
+  replaceSelectionWithTemplate(template, prefix.length, prefix.length + text.length, {
+    rebuildAfterInsert: true
+  })
+}
+
+const insertSourceLink = (): void => {
+  const cm = editor.value
+  const selection = cm.getSelection()
+  const text = selection || 'text'
+  const template = `[${text}](url)`
+
+  if (selection) {
+    const urlStart = text.length + 3
+    replaceSelectionWithTemplate(template, urlStart, urlStart + 3)
+  } else {
+    replaceSelectionWithTemplate(template, 1, 1 + text.length)
+  }
+}
+
+const insertSourceImage = (): void => {
+  const cm = editor.value
+  const selection = cm.getSelection()
+  const alt = selection || 'alt'
+  const template = `![${alt}](path)`
+
+  if (selection) {
+    const pathStart = alt.length + 4
+    replaceSelectionWithTemplate(template, pathStart, pathStart + 4)
+  } else {
+    replaceSelectionWithTemplate(template, 2, 2 + alt.length)
+  }
+}
+
+const insertSourceTable = (): void => {
+  const cm = editor.value
+  const from = cm.getCursor('from')
+  const to = cm.getCursor('to')
+  const beforeSelection = cm.getLine(from.line).slice(0, from.ch)
+  const afterSelection = cm.getLine(to.line).slice(to.ch)
+  const prefix = beforeSelection.trim() ? '\n\n' : ''
+  const suffix = afterSelection.trim() ? '\n\n' : '\n'
+  const template = `${prefix}| Column 1 | Column 2 |\n| --- | --- |\n| Cell 1 | Cell 2 |${suffix}`
+  const selectionStart = prefix.length + 2
+
+  replaceSelectionWithTemplate(template, selectionStart, selectionStart + 8, {
+    rebuildAfterInsert: true
+  })
+}
+
+const insertSourceFrontMatter = (): void => {
+  const cm = editor.value
+  const origin = { line: 0, ch: 0 }
+  const template = '---\ntitle: \n---\n\n'
+  const titleCursor = getCursorByOffset(origin, template, 11)
+  const before = getSourceSnapshot(cm)
+
+  cm.operation(() => {
+    cm.replaceRange(template, origin)
+  })
+  rememberSourceHistory(before, {
+    markdown: cm.getValue(),
+    selection: { anchor: titleCursor, focus: titleCursor }
+  })
+  rebuildSourceEditor(cm, { anchor: titleCursor, focus: titleCursor }, {
+    preserveScroll: false,
+    scrollSelection: true
+  })
+}
+
+const stripLinePrefix = (line: string): string => {
+  return line.replace(/^\s{0,3}(?:[-+*]\s(?:\[[ xX]\]\s)?|\d+[.)]\s|>\s?|#{1,6}\s+)/, '')
+}
+
+const getListMarkerLength = (line: string): number => {
+  return line.match(/^(?:[-+*]\s(?:\[[ xX]\]\s)?|\d+[.)]\s)/)?.[0].length ?? 0
+}
+
+const replaceSelectedLines = (
+  formatter: (lines: string[]) => string[],
+  selectionFactory?: (replacementLines: string[], startLine: number) => SourceSelection
+): void => {
+  const cm = editor.value
+  const from = cm.getCursor('from')
+  const to = cm.getCursor('to')
+  const startLine = Math.min(from.line, to.line)
+  let endLine = Math.max(from.line, to.line)
+
+  if (to.ch === 0 && endLine > startLine) {
+    endLine -= 1
+  }
+
+  const lines: string[] = []
+  for (let line = startLine; line <= endLine; line++) {
+    lines.push(cm.getLine(line))
+  }
+
+  const replacementLines = formatter(lines)
+  const replacement = replacementLines.join('\n')
+  const start = { line: startLine, ch: 0 }
+  const end = { line: endLine, ch: cm.getLine(endLine).length }
+  const replacementEnd = {
+    line: startLine + replacementLines.length - 1,
+    ch: replacementLines[replacementLines.length - 1].length
+  }
+  const selection = selectionFactory?.(replacementLines, startLine) ?? {
+    anchor: start,
+    focus: replacementEnd
+  }
+
+  cm.operation(() => {
+    cm.replaceRange(replacement, start, end)
+    cm.setSelection(selection.anchor, selection.focus, { scroll: false })
+  })
+  requestAnimationFrame(() => cm.focus())
+  setTimeout(() => saveContent(cm), 0)
+}
+
+const setSourceHeading = (level: number): void => {
+  replaceSelectedLines((lines) => {
+    const prefix = `${'#'.repeat(level)} `
+    return lines.map((line) => `${prefix}${line.replace(/^\s{0,3}#{1,6}\s+/, '') || 'Heading'}`)
+  })
+}
+
+const setSourceList = (marker: 'bullet' | 'ordered' | 'task'): void => {
+  replaceSelectedLines(
+    (lines) => {
+      return lines.map((line, index) => {
+        const text = stripLinePrefix(line) || 'list item'
+        if (marker === 'ordered') return `${index + 1}. ${text}`
+        if (marker === 'task') return `- [ ] ${text}`
+        return `- ${text}`
+      })
+    },
+    (replacementLines, startLine) => {
+      const firstLine = replacementLines[0]
+      return {
+        anchor: { line: startLine, ch: getListMarkerLength(firstLine) },
+        focus: { line: startLine, ch: firstLine.length }
+      }
+    }
+  )
+}
+
+const setSourceQuote = (): void => {
+  replaceSelectedLines(
+    (lines) => lines.map((line) => `> ${stripLinePrefix(line) || 'quote'}`),
+    (replacementLines, startLine) => ({
+      anchor: { line: startLine, ch: 2 },
+      focus: { line: startLine, ch: replacementLines[0].length }
+    })
+  )
+}
+
+const handleSourceToolbarCommand = (command: unknown): void => {
+  if (!sourceCode.value || !editor.value) return
+
+  switch (command) {
+    case 'format.strong':
+      wrapSourceSelection('**', '**', 'bold')
+      break
+    case 'format.emphasis':
+      wrapSourceSelection('*', '*', 'italic')
+      break
+    case 'format.strike':
+      wrapSourceSelection('~~', '~~', 'strikethrough')
+      break
+    case 'format.inline-code':
+      wrapSourceSelection('`', '`', 'code')
+      break
+    case 'format.hyperlink':
+      insertSourceLink()
+      break
+    case 'format.image':
+      insertSourceImage()
+      break
+    case 'paragraph.heading-1':
+      setSourceHeading(1)
+      break
+    case 'paragraph.heading-2':
+      setSourceHeading(2)
+      break
+    case 'paragraph.heading-3':
+      setSourceHeading(3)
+      break
+    case 'paragraph.heading-4':
+      setSourceHeading(4)
+      break
+    case 'paragraph.heading-5':
+      setSourceHeading(5)
+      break
+    case 'paragraph.heading-6':
+      setSourceHeading(6)
+      break
+    case 'paragraph.quote-block':
+      setSourceQuote()
+      break
+    case 'paragraph.code-fence':
+      insertSourceCodeFence()
+      break
+    case 'paragraph.bullet-list':
+      setSourceList('bullet')
+      break
+    case 'paragraph.order-list':
+      setSourceList('ordered')
+      break
+    case 'paragraph.task-list':
+      setSourceList('task')
+      break
+    case 'paragraph.table':
+      insertSourceTable()
+      break
+    case 'paragraph.front-matter':
+      insertSourceFrontMatter()
+      break
+    case 'edit.undo':
+      executeSourceHistoryCommand('undo')
+      break
+    case 'edit.redo':
+      executeSourceHistoryCommand('redo')
+      break
+  }
+}
+
+onMounted(() => {
+  if (!currentTab.value) return
+  const { id } = currentTab.value
+  // reset currentTab scrollTop position because the codeMirror scroll position is completely different from the muya scroll position
+  // reset blocks as well because the blocks are only valid in muya
+  // reset cursor because this is a direct "key-cursor", not a muyaIndexCursor, which is {focus: number, anchor: number}
+  currentTab.value.scrollTop = 0
+  currentTab.value.blocks = undefined
+  currentTab.value.cursor = undefined
+
+  const { markdown, muyaIndexCursor } = props
+
   bus.on('file-loaded', handleFileChange)
   bus.on('invalidate-image-cache', handleInvalidateImageCache)
   bus.on('file-changed', handleFileChange)
   bus.on('selectAll', handleSelectAll)
   bus.on('image-action', handleImageAction)
-
-  // For some reason, code mirror does not seem to play well with Vue's refs if we reference editor.value directly.
-  // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
-  const codeMirrorInstance = codeMirror(container, codeMirrorConfig)
-
-  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
-  // `$$...$$` spans to stex so subscript underscores in math do not flip the
-  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
-  codeMirrorInstance.setOption('mode', 'markdown-math')
-
-  codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
-    event.preventDefault()
-    event.stopPropagation()
-  })
+  bus.on('source-code::toolbar-command', handleSourceToolbarCommand)
+  bus.on('undo', handleSourceUndo)
+  bus.on('redo', handleSourceRedo)
 
   if (isValidMuyaIndexCursor(muyaIndexCursor)) {
     const { anchor, focus } = muyaIndexCursor
-    codeMirrorInstance.setSelection(anchor, focus, { scroll: true })
+    createSourceEditor(markdown ?? '', { anchor, focus }, true)
   } else {
-    setCursorAtFirstLine(codeMirrorInstance)
+    createSourceEditor(markdown ?? '')
   }
 
-  editor.value = codeMirrorInstance
   tabId.value = id
-
-  listenChange()
 })
 
 onBeforeUnmount(() => {
@@ -363,6 +867,9 @@ onBeforeUnmount(() => {
   bus.off('file-changed', handleFileChange)
   bus.off('selectAll', handleSelectAll)
   bus.off('image-action', handleImageAction)
+  bus.off('source-code::toolbar-command', handleSourceToolbarCommand)
+  bus.off('undo', handleSourceUndo)
+  bus.off('redo', handleSourceRedo)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {
