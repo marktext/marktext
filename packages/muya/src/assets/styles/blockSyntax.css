@@ -80,8 +80,8 @@
 .mu-container h5 > .mu-copy-header-link,
 .mu-container h6 > .mu-copy-header-link {
     position: absolute;
-    top: 0.65em;
-    left: -26px;
+    top: 0;
+    left: -40px;
 
     display: inline-flex;
     align-items: center;
@@ -90,6 +90,8 @@
     height: 18px;
 
     cursor: pointer;
+
+    transform: translateY(calc(0.7em - 9px));
     opacity: 0;
 
     transition: opacity 0.2s ease;
