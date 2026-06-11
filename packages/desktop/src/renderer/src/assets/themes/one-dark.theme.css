@@ -179,8 +179,8 @@
 
 /* --- Core elements --------------------------------------------- */
 
-.ag-front-menu .submenu,
-.ag-float-wrapper {
+.mu-front-menu,
+.mu-float-wrapper {
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
@@ -271,21 +271,21 @@ blockquote::before {
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),
 pre[class*='language-'],
-pre.ag-paragraph {
+pre.mu-code-block {
   background: var(--codeBlockBgColor) !important;
   border: none !important;
 }
 
-p:not(.ag-active)[data-role='hr']::before {
+.mu-thematic-break:not(.mu-active)::before {
   border-top: 2px dashed #4b5362 !important;
   background: none !important;
 }
 
-li.ag-task-list-item {
+li.mu-task-list-item {
   list-style-type: none;
   position: relative;
 }
-li.ag-task-list-item > input[type='checkbox'] {
+li.mu-task-list-item > input[type='checkbox'] {
   position: absolute;
   cursor: pointer;
   width: 16px;
@@ -297,11 +297,11 @@ li.ag-task-list-item > input[type='checkbox'] {
   transform-origin: center;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked {
+li.mu-task-list-item > input.mu-checkbox-checked {
   transform: rotate(0);
   opacity: 0.6;
 }
-li.ag-task-list-item > input[type='checkbox']::before {
+li.mu-task-list-item > input[type='checkbox']::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -315,11 +315,11 @@ li.ag-task-list-item > input[type='checkbox']::before {
   left: 0;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked::before {
+li.mu-task-list-item > input.mu-checkbox-checked::before {
   border: transparent;
   background-color: var(--editorColor);
 }
-li.ag-task-list-item > input::after {
+li.mu-task-list-item > input::after {
   content: '';
   transform: rotate(-45deg) scale(0);
   width: 9px;
@@ -333,10 +333,11 @@ li.ag-task-list-item > input::after {
   left: 5px;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked::after {
+li.mu-task-list-item > input.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
-figure.ag-active.ag-container-block > div.ag-container-preview {
+figure.mu-active.mu-math-block > div.mu-math-preview,
+figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }
 
