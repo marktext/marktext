@@ -574,7 +574,23 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
 .mu-table-inner tr td.mu-table-cell-selected::before {
     z-index: 1;
 
-    background: var(--selection-color);
+    background: var(--editor-color-04);
+}
+
+.mu-table-inner tr td.mu-table-cell-border-top::before {
+    border-top-color: var(--theme-color);
+}
+
+.mu-table-inner tr td.mu-table-cell-border-right::before {
+    border-right-color: var(--theme-color);
+}
+
+.mu-table-inner tr td.mu-table-cell-border-bottom::before {
+    border-bottom-color: var(--theme-color);
+}
+
+.mu-table-inner tr td.mu-table-cell-border-left::before {
+    border-left-color: var(--theme-color);
 }
 
 .mu-table-inner td[data-align='left'] {

@@ -10,7 +10,7 @@ import type { Nullable } from '../types';
 import { fromEvent, merge } from 'rxjs';
 import CodeBlockContent from '../block/content/codeBlockContent';
 import { ScrollPage } from '../block/scrollPage';
-import { URL_REG } from '../config';
+import { CLASS_NAMES, URL_REG } from '../config';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import StateToMarkdown from '../state/stateToMarkdown';
@@ -796,7 +796,7 @@ class Clipboard {
      */
     private _selectedTableCells(): Nullable<{ table: Table; cells: TableBodyCell[] }> {
         const { domNode } = this.muya;
-        const selectedDoms = domNode.querySelectorAll('.mu-table-cell-selected');
+        const selectedDoms = domNode.querySelectorAll(`.${CLASS_NAMES.MU_TABLE_CELL_SELECTED}`);
         const cells: TableBodyCell[] = [];
         let table: Nullable<Table> = null;
 

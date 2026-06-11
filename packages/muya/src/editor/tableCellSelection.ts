@@ -3,6 +3,7 @@ import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
 import type { ITableState } from '../state/types';
 import type { Nullable } from '../types';
+import { CLASS_NAMES } from '../config';
 import { isMouseEvent } from '../utils';
 import { getBlock } from '../utils/dom';
 
@@ -28,7 +29,13 @@ import { getBlock } from '../utils/dom';
 // `muya.destroy()` → `eventCenter.detachAllDomEvents()` removes the editor-level
 // handlers; the transient document-level drag handlers are detached on mouseup.
 
-const SELECTED_CLASS = 'mu-table-cell-selected';
+const SELECTED_CLASS = CLASS_NAMES.MU_TABLE_CELL_SELECTED;
+// Edge cells of the rectangle paint their outer border side in the theme
+// colour (port of legacy `ag-cell-border-*`), forming a perimeter outline.
+const BORDER_TOP_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_TOP;
+const BORDER_RIGHT_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_RIGHT;
+const BORDER_BOTTOM_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_BOTTOM;
+const BORDER_LEFT_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_LEFT;
 
 interface ICellPosition {
     cell: TableBodyCell;
@@ -270,8 +277,19 @@ class TableCellSelection {
 
         for (let r = minRow; r <= maxRow; r++) {
             for (let c = minColumn; c <= maxColumn; c++) {
-                const cell = this._table.cellAt(r, c);
-                cell?.domNode?.classList.add(SELECTED_CLASS);
+                const classList = this._table.cellAt(r, c)?.domNode?.classList;
+                if (classList == null)
+                    continue;
+
+                classList.add(SELECTED_CLASS);
+                if (r === minRow)
+                    classList.add(BORDER_TOP_CLASS);
+                if (c === maxColumn)
+                    classList.add(BORDER_RIGHT_CLASS);
+                if (r === maxRow)
+                    classList.add(BORDER_BOTTOM_CLASS);
+                if (c === minColumn)
+                    classList.add(BORDER_LEFT_CLASS);
             }
         }
     }
@@ -281,8 +299,15 @@ class TableCellSelection {
         if (dom == null)
             return;
 
-        for (const cell of dom.querySelectorAll(`.${SELECTED_CLASS}`))
-            cell.classList.remove(SELECTED_CLASS);
+        for (const cell of dom.querySelectorAll(`.${SELECTED_CLASS}`)) {
+            cell.classList.remove(
+                SELECTED_CLASS,
+                BORDER_TOP_CLASS,
+                BORDER_RIGHT_CLASS,
+                BORDER_BOTTOM_CLASS,
+                BORDER_LEFT_CLASS,
+            );
+        }
     }
 
     /**
