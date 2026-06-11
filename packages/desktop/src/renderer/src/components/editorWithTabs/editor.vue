@@ -267,6 +267,7 @@ let switchLanguageCommand: any = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
+let nativeSelectionChangeHandler: (() => void) | null = null
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -360,6 +361,46 @@ interface EngineAffiliationEntry {
 //   - `affiliation` straight through (entries already carry `type` +
 //     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
 //     `functionType` on `pre`/`figure` containers for table / code-fence keys.
+const getSelectedText = (changes: MuyaChange): string => {
+  if (!changes || changes.isCollapsed || changes.type === 'Caret') return ''
+
+  const nativeText = window.getSelection()?.toString() ?? ''
+  if (nativeText) return nativeText
+
+  const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
+  const focusBlock = changes.focusBlock as { text?: string } | null | undefined
+  const anchorOffset = (changes.anchor?.offset ?? 0) as number
+  const focusOffset = (changes.focus?.offset ?? 0) as number
+
+  if (anchorBlock && anchorBlock === focusBlock && typeof anchorBlock.text === 'string') {
+    const start = Math.min(anchorOffset, focusOffset)
+    const end = Math.max(anchorOffset, focusOffset)
+    return anchorBlock.text.substring(start, end)
+  }
+
+  return ''
+}
+
+const updateNativeSelectionWordCount = () => {
+  const selection = window.getSelection()
+  const container = getScrollContainer()
+  if (!selection || selection.isCollapsed || !container) {
+    editorStore.SET_SELECTION_WORD_COUNT(null)
+    return
+  }
+
+  const { anchorNode, focusNode } = selection
+  if (!anchorNode || !focusNode || !container.contains(anchorNode) || !container.contains(focusNode)) {
+    editorStore.SET_SELECTION_WORD_COUNT(null)
+    return
+  }
+
+  const selectedText = selection.toString()
+  editorStore.SET_SELECTION_WORD_COUNT(
+    selectedText.trim().length > 0 ? muyaWordCount(selectedText) : null
+  )
+}
+
 const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
   const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
@@ -1751,8 +1792,15 @@ onMounted(() => {
     // the old separate `selectionFormats` event) — drive the format menu/toolbar
     // state from them.
     editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
+
+    const selectedText = getSelectedText(changes)
+    editorStore.SET_SELECTION_WORD_COUNT(
+      selectedText.trim().length > 0 ? muyaWordCount(selectedText) : null
+    )
   })
 
+  nativeSelectionChangeHandler = updateNativeSelectionWordCount
+  document.addEventListener('selectionchange', nativeSelectionChangeHandler)
   document.addEventListener('keyup', keyup)
 
   setWrapCodeBlocks(wrapCodeBlocks.value)
@@ -1793,6 +1841,10 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
+  if (nativeSelectionChangeHandler) {
+    document.removeEventListener('selectionchange', nativeSelectionChangeHandler)
+  }
+  nativeSelectionChangeHandler = null
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.

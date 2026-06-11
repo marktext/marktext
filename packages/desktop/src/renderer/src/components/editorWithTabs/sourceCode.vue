@@ -260,6 +260,13 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+const updateSelectionWordCount = (cm: CMInstance) => {
+  const selectedText = cm?.getSelection?.('\n') ?? cm?.getSelection?.() ?? ''
+  editorStore.SET_SELECTION_WORD_COUNT(
+    selectedText.trim().length > 0 ? getWordCount(selectedText) : null
+  )
+}
+
 const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
@@ -283,6 +290,7 @@ const saveContent = (cm: CMInstance) => {
 const listenChange = () => {
   editor.value.on('cursorActivity', (cm: CMInstance) => {
     saveContent(cm)
+    updateSelectionWordCount(cm)
   })
 }
 
@@ -350,6 +358,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  updateSelectionWordCount(codeMirrorInstance)
 
   listenChange()
 })
@@ -363,6 +372,7 @@ onBeforeUnmount(() => {
   bus.off('file-changed', handleFileChange)
   bus.off('selectAll', handleSelectAll)
   bus.off('image-action', handleImageAction)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {

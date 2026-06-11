@@ -55,18 +55,24 @@
         <el-tooltip
           v-if="wordCount"
           class="item"
-          :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
+          :content="wordCountTooltip"
           placement="bottom-end"
         >
           <template #content>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ wordCount['word'] }}</span>
+            <div class="title-section">
+              {{ selectionWordCount ? 'Document / Selection' : 'Document' }}
             </div>
             <div class="title-item">
-              <span class="front">{{ t('menu.counter.characters') }}:</span><span class="text">{{ wordCount['character'] }}</span>
+              <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ formatCountPair('word') }}</span>
             </div>
             <div class="title-item">
-              <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ wordCount['paragraph'] }}</span>
+              <span class="front">{{ t('menu.counter.characters') }}:</span><span class="text">{{ formatCountPair('character') }}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ formatCountPair('paragraph') }}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">All characters:</span><span class="text">{{ formatCountPair('all') }}</span>
             </div>
           </template>
           <div
@@ -74,7 +80,7 @@
             class="word-count"
             @click.stop="handleWordClick"
           >
-            <span class="text-center-vertical">{{ `${HASH[show].short} ${wordCount[show]}` }}</span>
+            <span class="text-center-vertical">{{ wordCountText }}</span>
           </div>
         </el-tooltip>
       </div>
@@ -158,6 +164,7 @@ const props = defineProps<{
   pathname?: string
   active?: boolean
   wordCount?: FileWordCount | null
+  selectionWordCount?: FileWordCount | null
   platform?: string
   isSaved?: boolean
 }>()
@@ -218,6 +225,31 @@ const paths = computed(() => {
 const showCustomTitleBar = computed(() => {
   return titleBarStyle.value === 'custom' && !isOsx
 })
+
+const wordCountText = computed(() => {
+  if (!props.wordCount) return ''
+
+  const value = props.wordCount[show.value]
+  const selectionValue = props.selectionWordCount?.[show.value]
+  return selectionValue == null
+    ? `${HASH[show.value].short} ${value}`
+    : `${HASH[show.value].short} ${value} / ${selectionValue}`
+})
+
+const wordCountTooltip = computed(() => {
+  if (!props.wordCount) return ''
+
+  const value = props.wordCount[show.value]
+  const label = HASH[show.value].full + (value > 1 ? 's' : '')
+  const selectionValue = props.selectionWordCount?.[show.value]
+  return selectionValue == null ? `${value} ${label}` : `${value} / ${selectionValue} ${label}`
+})
+
+const formatCountPair = (key: keyof FileWordCount) => {
+  const value = props.wordCount?.[key] ?? 0
+  const selectionValue = props.selectionWordCount?.[key]
+  return selectionValue == null ? `${value}` : `${value} / ${selectionValue}`
+}
 
 watch(
   () => props.filename,
@@ -414,6 +446,11 @@ div.title > span {
   & .item {
     margin-right: 10px;
   }
+}
+
+.title-section {
+  font-weight: 600;
+  margin: 2px 0 4px;
 }
 
 .word-count {

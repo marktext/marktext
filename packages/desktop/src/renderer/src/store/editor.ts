@@ -25,6 +25,7 @@ import { debouncedSendBufferedState, sendBufferedState } from './bufferedState'
 import type {
   IFileState,
   FileNotification,
+  FileWordCount,
   LineEnding,
   MarkdownDocument,
   TabOptions
@@ -129,6 +130,7 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
+  selectionWordCount: FileWordCount | null
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
@@ -139,10 +141,15 @@ export const useEditorStore = defineStore('editor', {
     tabs: [],
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
-    toc: []
+    toc: [],
+    selectionWordCount: null
   }),
 
   actions: {
+    SET_SELECTION_WORD_COUNT(wordCount: FileWordCount | null): void {
+      this.selectionWordCount = wordCount
+    },
+
     updateTabIdToIndex(): void {
       this.tabIdToIndex = this.tabs.reduce<Record<string, number>>((map, tab, index) => {
         map[tab.id] = index
@@ -186,6 +193,7 @@ export const useEditorStore = defineStore('editor', {
         s.tabIdToIndex = {}
         s.listToc = []
         s.toc = []
+        s.selectionWordCount = null
       })
 
       this.updateTabIdToIndex()
@@ -787,6 +795,7 @@ export const useEditorStore = defineStore('editor', {
           currentFile
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
+        this.selectionWordCount = null
         didUpdateCurrentFile = true
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
@@ -971,6 +980,7 @@ export const useEditorStore = defineStore('editor', {
         const fileState: IFileState | null =
           this.tabs[index] ?? this.tabs[index - 1] ?? this.tabs[0] ?? null
         this.currentFile = fileState
+        this.selectionWordCount = null
         if (fileState && typeof fileState.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
             fileState
@@ -1050,6 +1060,7 @@ export const useEditorStore = defineStore('editor', {
         this.tabs.splice(index, 1)
         if (this.currentFile?.id === id) {
           this.currentFile = null
+          this.selectionWordCount = null
           window.DIRNAME = ''
           if (tabIdList.length === 1) {
             tabIndex = index
@@ -1062,6 +1073,7 @@ export const useEditorStore = defineStore('editor', {
       if (this.currentFile == null && this.tabs.length > 0) {
         this.currentFile =
           this.tabs[tabIndex] ?? this.tabs[tabIndex - 1] ?? this.tabs[0] ?? null
+        this.selectionWordCount = null
         if (this.currentFile && typeof this.currentFile.markdown === 'string') {
           const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
             this.currentFile
