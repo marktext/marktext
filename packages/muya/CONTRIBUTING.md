@@ -24,7 +24,7 @@ Be kind, assume good intent, and keep discussions on-topic. Personal attacks, ha
 
 - **Report a bug** — open an issue with a clear title, a minimal reproduction (Markdown input + steps), and the muya / browser version. Search [existing issues](https://github.com/marktext/muya/issues) first to avoid duplicates.
 - **Suggest an enhancement** — open an issue tagged with `enhancement` and explain the use case. Larger proposals (new public API, new block type) benefit from a short design sketch before the PR.
-- **Improve docs** — README, `CLAUDE.md`, `MIGRATION.md`, `docs/`, and the per-package READMEs are all fair game.
+- **Improve docs** — README, `CLAUDE.md`, `docs/`, and the per-package READMEs are all fair game.
 - **Send a pull request** — bug fixes, parser conformance improvements, new UI plugins, performance wins, tests, and CI hardening are all appreciated. See [Commits and pull requests](#commits-and-pull-requests) below.
 
 ## Development setup
@@ -153,7 +153,6 @@ Scope is optional but encouraged for `packages/core/` work (`core`, `inline`, `s
 
 4. If your change touches the UI or editing surface, run `pnpm e2e` and add coverage for the new behavior under `e2e/tests/`.
 5. If your change affects markdown parsing or HTML output, check the conformance baseline doesn't regress: `pnpm --filter @muyajs/core test:spec`. Conformance can only go up — see `packages/core/test/spec/expected-failures.json`.
-6. Update `MIGRATION.md` if you change a public API.
 
 **Opening the PR**
 

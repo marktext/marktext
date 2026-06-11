@@ -264,7 +264,7 @@ gh release create "v$VERSION" --title "v$VERSION" --notes-file /tmp/release-note
 - Hardening: XSS protections (hyperlink + Mermaid + code-block + langInput input via DOMPurify), normalizeTable crash fix, loadImageAsync failure cache, `stateToMarkdown` serialization baseline, clipboard/paste/copy corrections, editor cursor / IME / autopair / table navigation fixes, EventCenter listener-leak + once-iteration fix.
 - Tests: 1 → 386 unit tests (43 files).
 
-See [`CHANGELOG.md`](./CHANGELOG.md) for the full per-PR list and [`MIGRATION.md`](./MIGRATION.md) for the rolling migration log.
+See [`CHANGELOG.md`](./CHANGELOG.md) for the full per-PR list.
 
 ## Roadmap
 
