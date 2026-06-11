@@ -269,7 +269,7 @@ code.mu-code .mu-code-copy:hover {
 
 /* code block line numbers (option: codeBlockLineNumbers) */
 .mu-code-block.mu-line-numbers {
-    padding-left: 3.5em;
+    padding-left: 2.5em;
 
     counter-reset: mu-linenumber;
 }
@@ -344,7 +344,7 @@ span.mu-language-input {
 }
 
 .mu-code-block.mu-fenced-code.mu-active .mu-language-input {
-    left: 30px;
+    left: 20px;
 }
 
 /* loose tight list */
