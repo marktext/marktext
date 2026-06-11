@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import {
   clearRendererErrors,
+  enterSourceMode,
+  exitSourceMode,
   expectNoRendererErrors,
   launchWithMarkdown,
   placeCaretInEditor,
@@ -9,6 +11,15 @@ import {
 } from './helpers'
 
 const DOC = 'Alpha beta gamma\n\nDelta epsilon\n'
+
+const selectAllSourceText = async(page: Page): Promise<void> => {
+  await page.click('.source-code .CodeMirror')
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A')
+}
+
+const clearSourceSelection = async(page: Page): Promise<void> => {
+  await page.keyboard.press('ArrowRight')
+}
 
 const selectFirstParagraph = async(page: Page): Promise<void> => {
   await page.evaluate(() => {
@@ -72,6 +83,34 @@ test.describe('Title bar selection word count', () => {
 
     await selectFirstParagraph(page)
     await expect(counter).toHaveText('W 5 / 3')
+    await expectNoRendererErrors(app)
+  })
+
+  test('shows and clears selected count in source-code mode', async() => {
+    const counter = page.locator('.word-count')
+    await expect(counter).toHaveText('W 5')
+
+    await enterSourceMode(page, app)
+    await expect(counter).toHaveText('W 5')
+
+    await selectAllSourceText(page)
+    await expect(counter).toHaveText('W 5 / 5')
+
+    await clearSourceSelection(page)
+    await expect(counter).toHaveText('W 5')
+    await expectNoRendererErrors(app)
+  })
+
+  test('clears selected count after leaving source-code mode', async() => {
+    const counter = page.locator('.word-count')
+    await expect(counter).toHaveText('W 5')
+
+    await enterSourceMode(page, app)
+    await selectAllSourceText(page)
+    await expect(counter).toHaveText('W 5 / 5')
+
+    await exitSourceMode(page, app)
+    await expect(counter).toHaveText('W 5')
     await expectNoRendererErrors(app)
   })
 })

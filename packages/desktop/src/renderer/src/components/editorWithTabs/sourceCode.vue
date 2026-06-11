@@ -378,7 +378,7 @@ onBeforeUnmount(() => {
   bus.emit('file-changed', {
     id: tabId.value,
     markdown: newMarkdown,
-    muyaIndexCursor: cursor,
+    muyaIndexCursor: { anchor: cursor.focus, focus: cursor.focus },
     renderCursor: true
   })
 })

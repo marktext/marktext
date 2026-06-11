@@ -395,6 +395,8 @@ const setSelectionWordCountFromText = (selectedText: string) => {
 }
 
 const updateNativeSelectionWordCount = () => {
+  if (sourceCode.value) return
+
   const selection = window.getSelection()
   const container = getScrollContainer()
   if (!selection || selection.isCollapsed || !container) {
