@@ -535,6 +535,10 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
     text-align: left;
 }
 
+.mu-table-inner tr:first-child td {
+    font-weight: bold;
+}
+
 .mu-table-inner tr th::before,
 .mu-table-inner tr td::before {
     position: absolute;
