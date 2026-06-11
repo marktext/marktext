@@ -71,6 +71,7 @@ class Code extends Parent {
         super(muya);
         this.tagName = 'code';
         this.classList = ['mu-code'];
+        this.attributes = { spellcheck: 'false' };
         this._withLineNumbers = withLineNumbers;
         this.createDomNode();
         this.createCopyNode();
