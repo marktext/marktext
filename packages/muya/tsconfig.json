@@ -22,6 +22,7 @@
         "noEmit": true,
         "outDir": "lib/types",
         "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
         "skipLibCheck": true,
         "noErrorTruncation": true
