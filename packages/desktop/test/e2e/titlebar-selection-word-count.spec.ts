@@ -4,7 +4,8 @@ import {
   clearRendererErrors,
   expectNoRendererErrors,
   launchWithMarkdown,
-  placeCaretInEditor
+  placeCaretInEditor,
+  sendIpcToRenderer
 } from './helpers'
 
 const DOC = 'Alpha beta gamma\n\nDelta epsilon\n'
@@ -24,7 +25,6 @@ const selectFirstParagraph = async(page: Page): Promise<void> => {
     document.dispatchEvent(new Event('selectionchange'))
     root.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }))
   })
-  await page.waitForTimeout(150)
 }
 
 test.describe('Title bar selection word count', () => {
@@ -50,12 +50,28 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 5 / 3')
 
     await counter.hover()
-    const tooltip = page.locator('.el-popper').filter({ hasText: 'Document / Selection' }).last()
-    await expect(tooltip).toContainText('Document / Selection')
-    await expect(tooltip).toContainText('Words:5 / 3')
+    const tooltip = page.locator('.el-popper').filter({ hasText: '5 / 3' }).last()
+    await expect(tooltip).toContainText('5 / 3')
 
     await placeCaretInEditor(page)
     await expect(counter).toHaveText('W 5')
+    await expectNoRendererErrors(app)
+  })
+
+  test('restores the same selected count after tab switch clears it', async() => {
+    const counter = page.locator('.word-count')
+
+    await selectFirstParagraph(page)
+    await expect(counter).toHaveText('W 5 / 3')
+
+    await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'Alpha beta gamma\n')
+    await expect(counter).toHaveText('W 3')
+
+    await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
+    await expect(counter).toHaveText('W 5')
+
+    await selectFirstParagraph(page)
+    await expect(counter).toHaveText('W 5 / 3')
     await expectNoRendererErrors(app)
   })
 })

@@ -55,12 +55,11 @@
         <el-tooltip
           v-if="wordCount"
           class="item"
-          :content="wordCountTooltip"
           placement="bottom-end"
         >
           <template #content>
             <div class="title-section">
-              {{ selectionWordCount ? 'Document / Selection' : 'Document' }}
+              {{ selectionWordCount ? t('menu.counter.documentSelection') : t('menu.counter.document') }}
             </div>
             <div class="title-item">
               <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ formatCountPair('word') }}</span>
@@ -72,7 +71,7 @@
               <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ formatCountPair('paragraph') }}</span>
             </div>
             <div class="title-item">
-              <span class="front">All characters:</span><span class="text">{{ formatCountPair('all') }}</span>
+              <span class="front">{{ t('menu.counter.allCharacters') }}:</span><span class="text">{{ formatCountPair('all') }}</span>
             </div>
           </template>
           <div
@@ -234,15 +233,6 @@ const wordCountText = computed(() => {
   return selectionValue == null
     ? `${HASH[show.value].short} ${value}`
     : `${HASH[show.value].short} ${value} / ${selectionValue}`
-})
-
-const wordCountTooltip = computed(() => {
-  if (!props.wordCount) return ''
-
-  const value = props.wordCount[show.value]
-  const label = HASH[show.value].full + (value > 1 ? 's' : '')
-  const selectionValue = props.selectionWordCount?.[show.value]
-  return selectionValue == null ? `${value} ${label}` : `${value} / ${selectionValue} ${label}`
 })
 
 const formatCountPair = (key: keyof FileWordCount) => {

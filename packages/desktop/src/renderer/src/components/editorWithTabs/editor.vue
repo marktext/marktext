@@ -268,6 +268,8 @@ let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
 let nativeSelectionChangeHandler: (() => void) | null = null
+let selectionWordCountFrame: number | null = null
+let lastSelectedText = ''
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -381,24 +383,41 @@ const getSelectedText = (changes: MuyaChange): string => {
   return ''
 }
 
+const setSelectionWordCountFromText = (selectedText: string) => {
+  const hasSelection = selectedText.trim().length > 0
+  if (selectedText === lastSelectedText) {
+    const hasStoreSelection = editorStore.selectionWordCount != null
+    if (hasSelection === hasStoreSelection) return
+  }
+
+  lastSelectedText = selectedText
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
+}
+
 const updateNativeSelectionWordCount = () => {
   const selection = window.getSelection()
   const container = getScrollContainer()
   if (!selection || selection.isCollapsed || !container) {
-    editorStore.SET_SELECTION_WORD_COUNT(null)
+    setSelectionWordCountFromText('')
     return
   }
 
   const { anchorNode, focusNode } = selection
   if (!anchorNode || !focusNode || !container.contains(anchorNode) || !container.contains(focusNode)) {
-    editorStore.SET_SELECTION_WORD_COUNT(null)
+    setSelectionWordCountFromText('')
     return
   }
 
-  const selectedText = selection.toString()
-  editorStore.SET_SELECTION_WORD_COUNT(
-    selectedText.trim().length > 0 ? muyaWordCount(selectedText) : null
-  )
+  setSelectionWordCountFromText(selection.toString())
+}
+
+const scheduleNativeSelectionWordCount = () => {
+  if (selectionWordCountFrame != null) return
+
+  selectionWordCountFrame = requestAnimationFrame(() => {
+    selectionWordCountFrame = null
+    updateNativeSelectionWordCount()
+  })
 }
 
 const adaptSelectionChange = (changes: MuyaChange) => {
@@ -1793,13 +1812,10 @@ onMounted(() => {
     // state from them.
     editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
 
-    const selectedText = getSelectedText(changes)
-    editorStore.SET_SELECTION_WORD_COUNT(
-      selectedText.trim().length > 0 ? muyaWordCount(selectedText) : null
-    )
+    setSelectionWordCountFromText(getSelectedText(changes))
   })
 
-  nativeSelectionChangeHandler = updateNativeSelectionWordCount
+  nativeSelectionChangeHandler = scheduleNativeSelectionWordCount
   document.addEventListener('selectionchange', nativeSelectionChangeHandler)
   document.addEventListener('keyup', keyup)
 
@@ -1845,6 +1861,11 @@ onBeforeUnmount(() => {
     document.removeEventListener('selectionchange', nativeSelectionChangeHandler)
   }
   nativeSelectionChangeHandler = null
+  if (selectionWordCountFrame != null) {
+    cancelAnimationFrame(selectionWordCountFrame)
+  }
+  selectionWordCountFrame = null
+  lastSelectedText = ''
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.
