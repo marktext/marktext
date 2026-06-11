@@ -1,0 +1,4 @@
+# packages/muya (@muyajs/core) self-formats via its own ESLint config (antfu /
+# @stylistic: 4-space indent + semicolons), which differs from the root Prettier
+# style (2-space, no semi). Skip it so `pnpm format` doesn't fight muya's own lint.
+packages/muya/

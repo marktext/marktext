@@ -5,7 +5,6 @@ out
 packages/*/out
 packages/*/dist
 .DS_Store
-.prettierignore
 .eslintcache
 *.log*
 .trae/
