@@ -22,7 +22,7 @@ function defaultOptions() {
         offsetOptions: {
             mainAxis: 0,
             crossAxis: 0,
-            alignmentAxis: 10,
+            alignmentAxis: 0,
         },
         showArrow: false,
     };
