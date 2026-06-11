@@ -95,16 +95,15 @@ root holds only shared tooling and CI-facing scripts.
                             IPC contract (`shared/types/ipc.ts`).
         types/              Ambient .d.ts declarations.
     muyajs/                 Legacy markdown editor engine
-                            (name: "@marktext/muyajs"; the published
-                            @muyajs/core v0.1.x family). Primarily JS + DOM,
+                            (name: "@marktext/muyajs"). Primarily JS + DOM,
                             avoids Electron APIs. Exception:
                             packages/muyajs/lib/parser/render/plantuml.js
-                            imports Node's `zlib`. **This is still what the
-                            desktop app consumes** via the `muya/` alias;
-                            packages/muya is its eventual successor but the
-                            two coexist until callers migrate (see #4244 era
-                            sandbox work for the most recent boundary
-                            tightening).
+                            imports Node's `zlib`. Being retired: the
+                            desktop renderer now consumes @muyajs/core
+                            (packages/muya) as its editor engine; only a
+                            handful of legacy `muya/` alias call sites
+                            remain (see #4244 era sandbox work for the
+                            boundary tightening).
       lib/
         contentState/       Block structure and document transformations.
         parser/             Markdown parser.
@@ -118,10 +117,10 @@ root holds only shared tooling and CI-facing scripts.
                             ot-json1 + ot-text-unicode + snabbdom + marked@16
                             + rxjs. Self-contained: own eslint config
                             (antfu), own stylelint, own madge, own vitest
-                            spec suites (CommonMark + GFM). Not yet wired
-                            into desktop — coexists with packages/muyajs
-                            until callers migrate. See packages/muya/CLAUDE.md
-                            for layout and commands.
+                            spec suites (CommonMark + GFM). Now the editor
+                            engine the desktop renderer consumes; legacy
+                            packages/muyajs is being retired. See
+                            packages/muya/CLAUDE.md for layout and commands.
       src/                  TS source. Public entrypoint src/index.ts.
       test/spec/            CommonMark 0.31 + GFM 0.29-gfm conformance.
       examples/             muya-examples — vite vanilla-TS dev demo
@@ -251,9 +250,9 @@ Muya  (packages/muyajs/)            ← workspace package @marktext/muyajs
   ├── Self-contained editor backend
   ├── Primarily avoids Electron APIs; uses Node's zlib for PlantUML encoding
   ├── Handles markdown parsing, block data structure, document export, rendering
-  └── Reserved spot packages/muya/ awaits the TS rewrite from
-      https://github.com/marktext/muya — once it lands, both engines can
-      coexist until callers migrate.
+  └── packages/muya/ (@muyajs/core, the TS rewrite from
+      https://github.com/marktext/muya) has landed and is now the engine
+      the desktop renderer consumes; muyajs is being retired.
 ```
 
 ## IPC Conventions

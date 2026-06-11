@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code when working inside `packages/muya`.
 
-> **Location.** `packages/muya` is the TypeScript rewrite of muya (upstream: <https://github.com/marktext/muya>), migrated into this marktext monorepo. The legacy JS engine `packages/muyajs` (`@marktext/muyajs`) is still what the desktop app consumes via the `muya/` alias; the two engines coexist until callers are migrated. Treat `packages/muya` as a self-contained package — do not import from or wire into desktop code yet.
+> **Location.** `packages/muya` is the TypeScript rewrite of muya (upstream: <https://github.com/marktext/muya>), migrated into this marktext monorepo and published as `@muyajs/core`. The desktop renderer now consumes `@muyajs/core` as its editor engine; the legacy JS engine `packages/muyajs` (`@marktext/muyajs`, the `muya/` alias) is being retired and only a handful of call sites still reference it. `packages/muya` keeps its own toolchain (ESLint/antfu, stylelint, madge, vitest), and the marktext-root ESLint ignores `packages/muya/**` — treat it as a self-contained package with its own conventions.
 
 ## Layout inside `packages/muya`
 
