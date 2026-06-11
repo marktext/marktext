@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IBulletListState } from '../../../state/types';
 import type ListItem from '../listItem';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
 import Parent from '../../base/parent';
@@ -41,7 +42,7 @@ class BulletList extends Parent {
         this.datasets = {
             marker: meta.marker,
         };
-        this.classList = ['mu-bullet-list'];
+        this.classList = [CLASS_NAMES.MU_BULLET_LIST];
         if (!meta.loose)
             this.classList.push('mu-tight-list');
 

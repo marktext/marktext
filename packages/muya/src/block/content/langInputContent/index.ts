@@ -2,6 +2,7 @@ import type { Muya } from '../../../muya';
 import type { ICursor } from '../../../selection/types';
 import type { ICodeBlockState } from '../../../state/types';
 import type CodeBlock from '../../commonMark/codeBlock';
+import { CLASS_NAMES } from '../../../config';
 import Content from '../../base/content';
 import { escapeLangInputInnerHtml } from './escape';
 
@@ -18,7 +19,7 @@ class LangInputContent extends Content {
 
     constructor(muya: Muya, { meta }: ICodeBlockState) {
         super(muya, meta.lang);
-        this.classList = [...this.classList, 'mu-language-input'];
+        this.classList = [...this.classList, CLASS_NAMES.MU_LANGUAGE_INPUT];
         this.attributes.hint = muya.i18n.t('Input Language Identifier...');
         this.createDomNode();
     }

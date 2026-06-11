@@ -10,7 +10,7 @@ import { fromEvent, merge } from 'rxjs';
 import { registerBlocks } from '../block';
 import { ScrollPage } from '../block/scrollPage';
 import Clipboard from '../clipboard';
-import { isFirefox } from '../config';
+import { CLASS_NAMES, isFirefox } from '../config';
 import History from '../history';
 import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
@@ -97,7 +97,7 @@ export class Editor {
                 && isFirefox
                 && isHTMLElement(event.target)
                 && event.target.textContent === ''
-                && event.target.classList.contains('mu-language-input')
+                && event.target.classList.contains(CLASS_NAMES.MU_LANGUAGE_INPUT)
             ) {
                 (getBlock(event.target) as Content | undefined)?.setCursor(0, 0, true);
                 return;

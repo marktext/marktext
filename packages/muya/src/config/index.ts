@@ -454,11 +454,11 @@ export const DEFAULT_TURNDOWN_CONFIG = {
         node: Element & { isBlock?: boolean },
         _options: unknown,
     ) {
-        if (node && node.classList.contains('mu-soft-line-break'))
+        if (node && node.classList.contains(CLASS_NAMES.MU_SOFT_LINE_BREAK))
             return LINE_BREAK;
-        else if (node && node.classList.contains('mu-hard-line-break'))
+        else if (node && node.classList.contains(CLASS_NAMES.MU_HARD_LINE_BREAK))
             return `  ${LINE_BREAK}`;
-        else if (node && node.classList.contains('mu-hard-line-break-space'))
+        else if (node && node.classList.contains(CLASS_NAMES.MU_HARD_LINE_BREAK_SPACE))
             return '';
         else
             return node.isBlock ? '\n\n' : '';

@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IOrderListState } from '../../../state/types';
 import type ListItem from '../listItem';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
 import Parent from '../../base/parent';
@@ -39,7 +40,7 @@ class OrderList extends Parent {
         this.meta = meta;
         this.attributes = { start: String(meta.start) };
         this.datasets = { delimiter: meta.delimiter };
-        this.classList = ['mu-order-list'];
+        this.classList = [CLASS_NAMES.MU_ORDER_LIST];
         if (!meta.loose)
             this.classList.push('mu-tight-list');
 

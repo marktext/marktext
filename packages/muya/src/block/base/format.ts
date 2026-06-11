@@ -1544,7 +1544,7 @@ class Format extends Content {
 
                         if (
                             imageWrapper
-                            && imageWrapper.classList.contains('mu-empty-image')
+                            && imageWrapper.classList.contains(CLASS_NAMES.MU_EMPTY_IMAGE)
                         ) {
                             const imageInfo = getImageInfo(imageWrapper);
                             const rect = imageWrapper.getBoundingClientRect();

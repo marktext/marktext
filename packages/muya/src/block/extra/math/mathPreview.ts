@@ -2,6 +2,7 @@ import type { Muya } from '../../../muya';
 import type { IMathBlockState, TState } from '../../../state/types';
 import katex from 'katex';
 import { fromEvent } from 'rxjs';
+import { CLASS_NAMES } from '../../../config';
 import logger from '../../../utils/logger';
 import Parent from '../../base/parent';
 import 'katex/dist/contrib/mhchem.min.js';
@@ -70,13 +71,13 @@ class MathPreview extends Parent {
                 this.domNode!.innerHTML = html;
             }
             catch {
-                this.domNode!.innerHTML = `<div class="mu-math-error">&lt; ${i18n.t(
+                this.domNode!.innerHTML = `<div class="${CLASS_NAMES.MU_MATH_ERROR}">&lt; ${i18n.t(
                     'Invalid Mathematical Formula',
                 )} &gt;</div>`;
             }
         }
         else {
-            this.domNode!.innerHTML = `<div class="mu-empty">&lt; ${i18n.t(
+            this.domNode!.innerHTML = `<div class="${CLASS_NAMES.MU_EMPTY}">&lt; ${i18n.t(
                 'Empty Mathematical Formula',
             )} &gt;</div>`;
         }

@@ -4,7 +4,7 @@ import type { Nullable } from '../../../types';
 import type Parent from '../../base/parent';
 import type TaskList from '../taskList';
 import type TaskListItem from '../taskListItem';
-import { isFirefox } from '../../../config';
+import { CLASS_NAMES, isFirefox } from '../../../config';
 import { isHTMLInputElement, isMouseEvent } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
@@ -148,7 +148,7 @@ class TaskListCheckbox extends TreeNode {
             if (!isFirefox)
                 this.attributes.checked = true;
 
-            this.classList.push('mu-checkbox-checked');
+            this.classList.push(CLASS_NAMES.MU_CHECKBOX_CHECKED);
         }
 
         this.createDomNode();
@@ -226,7 +226,7 @@ class TaskListCheckbox extends TreeNode {
         operateClassName(
             this.domNode!,
             checked ? 'add' : 'remove',
-            'mu-checkbox-checked',
+            CLASS_NAMES.MU_CHECKBOX_CHECKED,
         );
 
         if (isHTMLInputElement(this.domNode) && this.domNode.checked !== checked && !isFirefox)

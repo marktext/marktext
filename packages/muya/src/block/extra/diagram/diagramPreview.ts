@@ -1,7 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IDiagramState, TState } from '../../../state/types';
 import { fromEvent } from 'rxjs';
-import { PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
+import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
 import loadRenderer from '../../../utils/diagram';
 import logger from '../../../utils/logger';
@@ -147,7 +147,7 @@ class DiagramPreview extends Parent {
             }
         }
         else {
-            this.domNode!.innerHTML = `<div class="mu-empty">&lt; ${i18n.t(
+            this.domNode!.innerHTML = `<div class="${CLASS_NAMES.MU_EMPTY}">&lt; ${i18n.t(
                 'Empty Diagram',
             )} &gt;</div>`;
         }

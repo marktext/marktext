@@ -54,8 +54,8 @@ export default function loadImageAsync(
                             oldImage.remove();
 
                         imageContainer!.appendChild(img);
-                        imageText.classList.remove('mu-image-loading');
-                        imageText.classList.add('mu-image-success');
+                        imageText.classList.remove(CLASS_NAMES.MU_IMAGE_LOADING);
+                        imageText.classList.add(CLASS_NAMES.MU_IMAGE_SUCCESS);
                         // marktext cb7be189 (#1318): mirror the small-image tagging from
                         // `image.ts` on the first async load — otherwise the class would
                         // only appear on the next re-render after the cache is populated.

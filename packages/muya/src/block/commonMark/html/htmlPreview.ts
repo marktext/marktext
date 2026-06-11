@@ -1,6 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { IHtmlBlockState, TState } from '../../../state/types';
-import { PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
+import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
 import { getImageSrc } from '../../../utils/image';
 import logger from '../../../utils/logger';
@@ -28,7 +28,7 @@ class HTMLPreview extends Parent {
         super(muya);
         this.tagName = 'div';
         this.html = text;
-        this.classList = ['mu-html-preview'];
+        this.classList = [CLASS_NAMES.MU_HTML_PREVIEW];
         this.attributes = {
             spellcheck: 'false',
             contenteditable: 'false',
@@ -48,7 +48,7 @@ class HTMLPreview extends Parent {
         // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
         if (/^<([a-z][a-z\d]*)[^>]*>\s*<\/\1>$/.test(htmlContent.trim())) {
             this.domNode!.innerHTML
-                = '<div class="mu-empty">&lt;Empty HTML Block&gt;</div>';
+                = `<div class="${CLASS_NAMES.MU_EMPTY}">&lt;Empty HTML Block&gt;</div>`;
         }
         else {
             const parser = new DOMParser();
