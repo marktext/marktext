@@ -30,7 +30,7 @@ class Footnote extends Parent {
 
         // Backlink arrow in the bottom-right of the figure. Clicking it
         // scrolls back up to the first inline `<sup id="noteref-{id}">`
-        // reference — mirrors marktext's `footnoteJumpIcon` UX.
+        // reference.
         const backlink = document.createElement('i');
         backlink.className = CLASS_NAMES.MU_FOOTNOTE_BACKLINK;
         backlink.textContent = '↩︎';
@@ -47,10 +47,10 @@ class Footnote extends Parent {
         return footnote;
     }
 
-    // Container-block path semantics: descendants address into `children`
-    // (mirrors BlockQuote / list-item). `Parent.getJsonPath` strips the
-    // trailing 'children' segment via `isContainerBlock`, which we override
-    // below so footnote participates in the same json1 op routing.
+    // Container-block path semantics: descendants address into `children`.
+    // `Parent.getJsonPath` strips the trailing 'children' segment via
+    // `isContainerBlock`, which we override below so footnote participates in
+    // the same json1 op routing.
     override get path() {
         const { path: pPath } = this.parent!;
         const offset = this.parent!.offset(this);

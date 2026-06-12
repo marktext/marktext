@@ -237,9 +237,8 @@ class TableCellContent extends Format {
         event.preventDefault();
         event.stopPropagation();
 
-        // marktext 5fb130d9 (issue #2330, PR #2331): Shift+Tab back-navigates
-        // inside the table (header row's first cell stays put when there is
-        // no previous content).
+        // Shift+Tab back-navigates inside the table (header row's first cell
+        // stays put when there is no previous content).
         // Read shiftKey directly — pointer Tab is not a thing, so callers
         // always pass a KeyboardEvent in practice. The structural check just
         // keeps unit tests that pass a partial event object passing.

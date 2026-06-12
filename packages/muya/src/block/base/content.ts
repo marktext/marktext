@@ -20,17 +20,13 @@ import {
 
 // const debug = logger('block.content:')
 
-// Word boundary regexes ported from legacy muyajs
-// (lib/marktext/spellchecker.js), which in turn derive from VSCode's wordHelper.
-// Used by `extractWord` to find the word at the cursor for spell-check
-// replacement.
+// Word boundary regexes derived from VSCode's wordHelper. Used by `extractWord`
+// to find the word at the cursor for spell-check replacement.
 const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
 const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g;
 
 /**
  * Extract the word at the given offset from the text.
- *
- * Ported from legacy muyajs `extractWord` (lib/marktext/spellchecker.js).
  *
  * @param text The line text.
  * @param offset Normalized cursor offset (e.g. `ab|c def` -> 2).
@@ -419,8 +415,8 @@ class Content extends TreeNode {
                 else {
                     // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
 
-                    // marktext 358fa83d (#2960): only pair quotes/brackets
-                    // when the cursor is at end-of-line or before whitespace.
+                    // Only pair quotes/brackets when the cursor is at
+                    // end-of-line or before whitespace.
                     // Inserting `"foo` would otherwise become `""foo` and force
                     // the user to immediately delete the spurious closing char.
                     const postIsNotTouching = !/\S/.test(postInputChar);
@@ -511,11 +507,10 @@ class Content extends TreeNode {
     /**
      * Replace the word at/around the current cursor with `replacement`.
      *
-     * Ported from legacy muyajs `ContentState._replaceCurrentWordInlineUnsafe`
-     * (lib/contentState/marktext.js). Used by the desktop spell checker: right
+     * Used by the desktop spell checker: right
      * clicking a misspelled word selects the whole word via Chromium, and
-     * choosing a suggestion replaces it inline. `extractWord` mirrors the
-     * VSCode-derived word boundaries muyajs relied on.
+     * choosing a suggestion replaces it inline. `extractWord` uses
+     * VSCode-derived word boundaries.
      *
      * Unsafe: the caller asserts that exactly the word `word` is selected. If
      * the word found at the cursor does not match `word` the call is a no-op
@@ -532,7 +527,7 @@ class Content extends TreeNode {
 
         const { text } = this;
         // Use the start offset of the (possibly whole-word) selection as the
-        // probe point, matching the legacy `start.offset` behaviour.
+        // probe point.
         const wordInfo = extractWord(text, cursor.start.offset);
         if (wordInfo == null)
             return false;

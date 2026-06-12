@@ -447,11 +447,8 @@ class Format extends Content {
 
     // Replace the link's source text (e.g. `[Anthropic](https://…)`) with the
     // visible anchor text only (`Anthropic`), stripping the markdown / HTML
-    // around it. Port of marktext `linkCtrl.unlink` (cb25b3d4 / #1415), but
-    // simplified — marktext substituted `token.href` for plain markdown links,
-    // which was a long-standing UX quirk that turned a styled anchor into a
-    // bare URL. We keep the visible text instead, matching the contemporary
-    // norm (Notion, GDocs, Slack).
+    // around it. We keep the visible text rather than substituting the URL,
+    // matching the contemporary norm (Notion, GDocs, Slack).
     unlink({ range, text }: { range: { start: number; end: number } | null; text: string }) {
         if (!range)
             return;
@@ -1599,10 +1596,9 @@ class Format extends Content {
                     end.offset += MARKER.length;
                 }
                 else {
-                    // Backport of marktext f3b53427: when wrapping a
-                    // non-empty selection, collapse the caret PAST the
-                    // closing marker so the next keystroke lands outside
-                    // the format instead of extending it.
+                    // When wrapping a non-empty selection, collapse the caret
+                    // PAST the closing marker so the next keystroke lands
+                    // outside the format instead of extending it.
                     end.offset += MARKER.length * 2;
                     start.offset = end.offset;
                 }

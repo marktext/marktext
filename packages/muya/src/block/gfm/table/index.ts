@@ -188,7 +188,7 @@ class Table extends Parent {
         if (row == null)
             return;
 
-        // Marktext 6293d408 (#572) backport: capture a surviving neighbour
+        // Capture a surviving neighbour
         // BEFORE the detach so the caller can place the caret on a cell that
         // is still attached to the DOM. Prefer the next row, fall back to the
         // previous; if no rows remain after this delete, capture a content
@@ -231,8 +231,8 @@ class Table extends Parent {
 
         // Capture the first row's surviving neighbour cell before mutation so
         // the caller can setCursor on a still-attached cell after the column
-        // detach. Same intent as marktext 6293d408 — but applied per column
-        // since the new architecture removes one cell per row in a loop.
+        // detach. Applied per column since the new architecture removes one
+        // cell per row in a loop.
         const firstRow = table.firstChild as TableRow;
         const targetCellInFirstRow = firstRow.find(offset) as TableBodyCell | null;
         const neighbourCell
@@ -288,9 +288,9 @@ class Table extends Parent {
      * Build an `ITableState` for the rectangular block of cells bounded by
      * (`startRow`, `startColumn`) and (`endRow`, `endColumn`) inclusive. The
      * bounds may be passed in any order — they are normalised — and are clamped
-     * to the table's dimensions. Mirrors legacy `tableSelectCellsCtrl`'s
-     * sub-table extraction so a copied cell rectangle round-trips to GFM table
-     * markdown via `StateToMarkdown`. The first selected row becomes the header
+     * to the table's dimensions, so a copied cell rectangle round-trips to GFM
+     * table markdown via `StateToMarkdown`. The first selected row becomes the
+     * header
      * row of the resulting sub-table, preserving each cell's alignment.
      */
     getSubTableState(
