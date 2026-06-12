@@ -109,16 +109,23 @@ function makeAnchorBlock(
     return block;
 }
 
-function makeClipboard(anchorBlock: any, options: Record<string, unknown> = {}) {
+function makeClipboard(
+    anchorBlock: any,
+    options: Record<string, unknown> = {},
+    tableStub: { hasSelection: boolean; getStateForCopy: () => any; clear: ReturnType<typeof vi.fn> } = {
+        hasSelection: false,
+        getStateForCopy: () => null,
+        clear: vi.fn(),
+    },
+) {
     const clipboard = new Clipboard({
         options: { bulletListMarker: '-', frontMatter: true, ...options },
         editor: {},
     } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
-        configurable: true,
         get: () => ({
             getSelection: () => ({ isSelectionInSameBlock: true, anchorBlock }),
-            table: { hasSelection: false, getStateForCopy: () => null, clear: vi.fn() },
+            table: tableStub,
         }),
     });
     return clipboard;
@@ -269,22 +276,15 @@ describe('pasteHandler — table-cell paste guards (sub-item 4)', () => {
         hasSelection: boolean,
         isSingleCell: boolean,
     ) {
-        const clipboard = makeClipboard(anchorBlock);
         const rows = isSingleCell
             ? [{ children: [{ text: '' }] }]
             : [{ children: [{ text: '' }, { text: '' }] }];
-        const table = {
+        const tableStub = {
             hasSelection,
             getStateForCopy: () => ({ name: 'table', children: rows }),
             clear: vi.fn(),
         };
-        Object.defineProperty(clipboard, 'selection', {
-            get: () => ({
-                getSelection: () => ({ isSelectionInSameBlock: true, anchorBlock }),
-                table,
-            }),
-        });
-        return clipboard;
+        return makeClipboard(anchorBlock, {}, tableStub);
     }
 
     it('single-cell selection replaces the cell text (\\n → <br/>)', async () => {
