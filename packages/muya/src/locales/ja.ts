@@ -79,6 +79,17 @@ export const ja = {
         // ImageSelector
         'Image src placeholder': '画像のURL',
         'Confirm Text': 'OK',
+        'Select': '選択',
+        'Embed link': 'リンクを埋め込む',
+        'Choose Image': '画像を選択',
+        'Choose image from your computer.': 'コンピュータから画像を選択します。',
+        'Alt text': '代替テキスト',
+        'Image link or local path': '画像リンクまたはローカルパス',
+        'Image title': '画像タイトル',
+        'Embed Image': '画像を埋め込む',
+        'Paste web image or local image path. Use': 'Web画像またはローカルパスを貼り付け。モードを切替',
+        'simple mode': 'シンプルモード',
+        'full mode': 'フルモード',
         // preview block
         'Loading...': 'ロード中...',
         'Invalid Diagram Code': 'グラフのレンダリングが失敗しました',

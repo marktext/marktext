@@ -79,6 +79,17 @@ export const zhCN = {
         // ImageSelector
         'Image src placeholder': '图片链接',
         'Confirm Text': '确定',
+        'Select': '选择',
+        'Embed link': '插入链接',
+        'Choose Image': '选择图片',
+        'Choose image from your computer.': '从你的电脑选择图片。',
+        'Alt text': '替代文本',
+        'Image link or local path': '图片链接或本地路径',
+        'Image title': '图片标题',
+        'Embed Image': '嵌入图片',
+        'Paste web image or local image path. Use': '粘贴网络图片或本地路径。切换模式',
+        'simple mode': '简洁模式',
+        'full mode': '完整模式',
         // preview block
         'Loading...': '加载中...',
         'Invalid Diagram Code': '图表渲染失败',

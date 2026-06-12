@@ -79,6 +79,17 @@ export const de = {
         // ImageSelector
         'Image src placeholder': 'Bild-URL',
         'Confirm Text': 'OK',
+        'Select': 'Auswählen',
+        'Embed link': 'Link einbetten',
+        'Choose Image': 'Bild wählen',
+        'Choose image from your computer.': 'Wählen Sie ein Bild von Ihrem Computer.',
+        'Alt text': 'Alternativtext',
+        'Image link or local path': 'Bildlink oder lokaler Pfad',
+        'Image title': 'Bildtitel',
+        'Embed Image': 'Bild einbetten',
+        'Paste web image or local image path. Use': 'Webbild oder lokalen Pfad einfügen. Modus wechseln',
+        'simple mode': 'einfacher Modus',
+        'full mode': 'vollständiger Modus',
         // preview block
         'Loading...': 'Wird geladen...',
         'Invalid Diagram Code': 'Ungültiger Diagramm-Code',

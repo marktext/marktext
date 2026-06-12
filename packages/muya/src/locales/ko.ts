@@ -79,6 +79,17 @@ export const ko = {
         // ImageSelector
         'Image src placeholder': '이미지 URL',
         'Confirm Text': '확인',
+        'Select': '선택',
+        'Embed link': '링크 삽입',
+        'Choose Image': '이미지 선택',
+        'Choose image from your computer.': '컴퓨터에서 이미지를 선택하세요.',
+        'Alt text': '대체 텍스트',
+        'Image link or local path': '이미지 링크 또는 로컬 경로',
+        'Image title': '이미지 제목',
+        'Embed Image': '이미지 삽입',
+        'Paste web image or local image path. Use': '웹 이미지 또는 로컬 경로를 붙여넣기. 모드 전환',
+        'simple mode': '간단 모드',
+        'full mode': '전체 모드',
         // preview block
         'Loading...': '로딩 중...',
         'Invalid Diagram Code': '잘못된 다이어그램 코드',

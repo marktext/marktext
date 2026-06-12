@@ -79,6 +79,17 @@ export const zhTW = {
         // ImageSelector
         'Image src placeholder': '圖片連結',
         'Confirm Text': '確定',
+        'Select': '選擇',
+        'Embed link': '插入連結',
+        'Choose Image': '選擇圖片',
+        'Choose image from your computer.': '從你的電腦選擇圖片。',
+        'Alt text': '替代文字',
+        'Image link or local path': '圖片連結或本機路徑',
+        'Image title': '圖片標題',
+        'Embed Image': '嵌入圖片',
+        'Paste web image or local image path. Use': '貼上網路圖片或本機路徑。切換模式',
+        'simple mode': '精簡模式',
+        'full mode': '完整模式',
         // preview block
         'Loading...': '載入中...',
         'Invalid Diagram Code': '圖表渲染失敗',
