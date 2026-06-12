@@ -12,6 +12,7 @@ import { isParagraphState } from '../state/types';
 import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 import { tryPasteImage } from './pasteImage';
+import { PasteType } from './types';
 
 // Everything the per-anchor paste handlers need from the synchronous snapshot
 // taken before any block mutation: the target leaf, its wrapper block, and the
@@ -195,22 +196,23 @@ function applyHtmlBlockPaste(
     newBlock.lastContentInDescendant().setCursor(offset, offset, true);
 }
 
-export async function pasteSelection(
-    clipboard: Clipboard,
-    event: ClipboardEvent,
-    // `event.clipboardData` is only valid synchronously while the paste
-    // event is being dispatched. Once `pasteSelection` yields at its first
-    // `await` (the `clipboardFilePath` hook), the browser may detach the
-    // DataTransfer and subsequent `getData()` calls return ''. We snapshot
-    // text/html synchronously below and thread the snapshot through the
-    // `!isSelectionInSameBlock` recursion via these optional params so the
-    // re-entry doesn't read a detached clipboard.
-    rawText?: string,
-    rawHtml?: string,
-): Promise<void> {
-    event.preventDefault();
-    event.stopPropagation();
+// Everything the paste pipeline needs, snapshotted up front so it survives the
+// async hops (image hook, HTML normalization) without re-reading a possibly
+// detached clipboard.
+interface IPasteData {
+    text: string;
+    html: string;
+    imageFile: File | null;
+    pasteType: PasteType;
+}
 
+// The paste pipeline, decoupled from the DOM `paste` event so it can be driven
+// either by a trusted paste event (`pasteSelection`) or by an explicit
+// clipboard read (`pastePlainText`). The latter exists because Chromium removed
+// programmatic clipboard reads via `document.execCommand('paste')`, so the
+// "set a flag → execCommand('paste') → handle the synthetic event" approach no
+// longer fires any paste event at all.
+async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
     const { muya } = clipboard;
     const { bulletListMarker } = muya.options;
     const selection = clipboard.selection.getSelection();
@@ -219,25 +221,16 @@ export async function pasteSelection(
 
     const { isSelectionInSameBlock, anchorBlock } = selection;
 
-    if (!anchorBlock || !event.clipboardData)
+    if (!anchorBlock)
         return;
 
-    // Snapshot everything we need from `event.clipboardData` synchronously,
-    // BEFORE any `await` — after the first yield the DataTransfer can be
-    // detached and `getData()` returns ''. On the `!isSelectionInSameBlock`
-    // recursion we reuse the snapshot captured by the outer call rather than
-    // re-reading the (now possibly detached) clipboard.
-    const text = rawText ?? event.clipboardData.getData('text/plain');
-    let html = rawHtml ?? event.clipboardData.getData('text/html');
-    // Snapshot any in-memory image File (the bitmap / "Copy Image" /
-    // screenshot case) synchronously too — `clipboardData.files`
-    // is also detached after the first `await`.
-    const imageFile = getClipboardImageFile(event.clipboardData);
+    const { text, imageFile, pasteType } = data;
+    let { html } = data;
 
     if (!isSelectionInSameBlock) {
         clipboard.cutHandler();
 
-        return clipboard.pasteHandler(event, text, html);
+        return applyPaste(clipboard, data);
     }
 
     // When the clipboard holds an image — either a file resolved to a path
@@ -259,7 +252,7 @@ export async function pasteSelection(
 
     // Remove crap from HTML such as meta data and styles.
     html = await normalizePastedHTML(html);
-    const copyType = getCopyTextType(html, text, clipboard.pasteType);
+    const copyType = getCopyTextType(html, text, pasteType);
 
     const { start, end } = anchorBlock.getCursor()!;
     const { text: content } = anchorBlock;
@@ -295,4 +288,47 @@ export async function pasteSelection(
     else {
         applyHtmlBlockPaste(clipboard, ctx, text);
     }
+}
+
+// Entry for a trusted DOM `paste` event (native Cmd/Ctrl+V).
+export function pasteSelection(
+    clipboard: Clipboard,
+    event: ClipboardEvent,
+    // `event.clipboardData` is only valid synchronously while the paste event
+    // is being dispatched. Once the pipeline yields at its first `await`, the
+    // browser may detach the DataTransfer and subsequent `getData()` calls
+    // return ''. We snapshot text/html/image synchronously below; the snapshot
+    // is then threaded through the `!isSelectionInSameBlock` recursion inside
+    // `applyPaste` rather than re-reading the (now possibly detached) clipboard.
+    rawText?: string,
+    rawHtml?: string,
+): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!event.clipboardData)
+        return Promise.resolve();
+
+    const text = rawText ?? event.clipboardData.getData('text/plain');
+    const html = rawHtml ?? event.clipboardData.getData('text/html');
+    // Snapshot any in-memory image File (the bitmap / "Copy Image" /
+    // screenshot case) synchronously too — `clipboardData.files` is also
+    // detached after the first `await`.
+    const imageFile = getClipboardImageFile(event.clipboardData);
+
+    return applyPaste(clipboard, { text, html, imageFile, pasteType: clipboard.pasteType });
+}
+
+// Entry for "Paste as Plain Text". The caller has already read the clipboard's
+// plain text (Chromium no longer fires a paste event for
+// `document.execCommand('paste')`), so feed it straight into the pipeline with
+// the plain-text flag and no HTML — the text is treated as markdown source
+// rather than being synthesized from rich HTML.
+export function pastePlainText(clipboard: Clipboard, text: string): Promise<void> {
+    return applyPaste(clipboard, {
+        text,
+        html: '',
+        imageFile: null,
+        pasteType: PasteType.PASTE_AS_PLAIN_TEXT,
+    });
 }

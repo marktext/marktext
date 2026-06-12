@@ -534,8 +534,8 @@ export class Muya {
     /**
      * Paste the clipboard content as plain text at the current cursor.
      */
-    pasteAsPlainText() {
-        this.editor.clipboard.pasteAsPlainText();
+    pasteAsPlainText(): Promise<void> {
+        return this.editor.clipboard.pasteAsPlainText();
     }
 
     /**

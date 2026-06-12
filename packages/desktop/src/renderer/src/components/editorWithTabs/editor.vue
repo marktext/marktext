@@ -1580,6 +1580,8 @@ onMounted(() => {
     spellcheckEnabled: spellcheckerEnabled.value,
     // Resolve the OS clipboard to a local file path on paste (image-from-file).
     clipboardFilePath: guessClipboardFilePath,
+    // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
+    clipboardText: () => window.electron.clipboard.readText(),
     // Image-persist callbacks read by the engine's clipboard + drag-drop handlers
     // from `muya.options.*` (distinct from the ImageEditTool plugin option above).
     // Without these, local-file drag-drop, screenshot/binary clipboard paste, and

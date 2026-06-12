@@ -49,6 +49,16 @@ export interface IMuyaOptions {
      */
     clipboardFilePath?: () => Promise<string>;
     /**
+     * Read the OS clipboard's plain text for "Paste as Plain Text".
+     *
+     * The embedder supplies this because Chromium removed programmatic
+     * clipboard reads via `document.execCommand('paste')`, and a sandboxed
+     * renderer cannot reach the system clipboard directly. Electron embedders
+     * typically wire this to an IPC bridge over the native `clipboard` module.
+     * When omitted, muya falls back to `navigator.clipboard.readText()`.
+     */
+    clipboardText?: () => Promise<string>;
+    /**
      * Persist an image per the embedder's insert preference (copy into the
      * document's assets folder, upload to an image host, or keep the path) and
      * resolve to the src that should be written into the document.
