@@ -23,8 +23,8 @@ export async function getPageTitle(url: string) {
             return '';
 
         // The response is HTML — read it as text and pluck `<title>`.
-        // Pre-fix this called `res.json()`, which always threw and made
-        // the helper silently return '' (marktext 141d25d8 / #1344).
+        // Reading it as `res.json()` would always throw and make the helper
+        // silently return ''.
         const body = await res.text();
         const match = body.match(/<title>([\s\S]*?)<\/title>/i);
 
@@ -115,8 +115,8 @@ export async function normalizePastedHTML(html: string) {
 
 // Sniffs whether `text` looks like a single HTML `<table>` blob and nothing
 // else (no surrounding prose, no sibling root element). The regex match is
-// followed by a parse + `childElementCount === 1` check (legacy
-// `pasteCtrl.checkCopyType`), so a payload whose greedy regex spans two sibling
+// followed by a parse + `childElementCount === 1` check, so a payload whose
+// greedy regex spans two sibling
 // tables falls through to the normal HTML→Markdown path. Some clipboard sources
 // (notably Apple Numbers, marktext #1271) put raw HTML into `text/plain` with
 // no `text/html` flavour; the paste handler promotes such text into the html
@@ -131,8 +131,7 @@ export function isStandaloneTableHtml(text: string) {
         return false;
 
     // The greedy regex above also matches two sibling `<table>`s, so parse the
-    // blob into a temporary container and require exactly one root element
-    // (legacy `pasteCtrl.checkCopyType`'s `tmp.childElementCount === 1` guard).
+    // blob into a temporary container and require exactly one root element.
     if (typeof document === 'undefined')
         return true;
 
@@ -148,8 +147,7 @@ export function isStandaloneTableHtml(text: string) {
  * Returns the resolved path only when the hook yields a non-empty string that
  * looks like an image file (its extension matches {@link IMAGE_EXT_REG});
  * otherwise returns `''` so the caller falls through to the normal text/HTML
- * paste. Ported from the legacy `@muyajs` `pasteImage` guard, which inserted
- * the resolved path as an image when it matched the same extension regex.
+ * paste.
  *
  * @param hook the `options.clipboardFilePath` callback, if configured
  */
@@ -170,12 +168,10 @@ export async function resolveClipboardImagePath(
 /**
  * Extract an in-memory image `File` from a paste `DataTransfer`.
  *
- * Covers the bitmap clipboard case (PG05): screenshots and browser
+ * Covers the bitmap clipboard case: screenshots and browser
  * "Copy Image" put image bytes — not a file path — on the clipboard. We
  * prefer `clipboardData.files` and fall back to scanning `clipboardData.items`
  * for the first `image/*` entry. Returns `null` when no image is present.
- *
- * Ported from the legacy `@muyajs` `pasteImage` `items[i].getAsFile()` snapshot.
  */
 export function getClipboardImageFile(
     clipboardData: DataTransfer | null,
@@ -208,9 +204,9 @@ export function getClipboardImageFile(
 /**
  * Read a `File`/`Blob` as a base64 `data:` URL.
  *
- * Used to turn a pasted bitmap (PG05) into a `data:` URL that the embedder's
+ * Used to turn a pasted bitmap into a `data:` URL that the embedder's
  * `imageAction` can persist. Prefers the native {@link FileReader}
- * (`readAsDataURL`), matching the legacy `@muyajs` path and covering the
+ * (`readAsDataURL`), covering the
  * `chrome70` build target where `Blob.arrayBuffer()` is unavailable; falls
  * back to `Blob.arrayBuffer()` + `btoa` where `FileReader` is absent (e.g. the
  * Node test environment). Resolves to `''` on read error.

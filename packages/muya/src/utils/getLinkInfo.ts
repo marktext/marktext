@@ -1,8 +1,7 @@
 // Extract the `linkInfo` payload that the linkTools popover hands back to
 // `contentState.unlink` / `options.jumpClick`.
 //
-// Port of marktext `src/muya/lib/utils/getLinkInfo.js` (commit cb25b3d4,
-// #1415). The new repo's link renderers (`link.ts`, `referenceLink.ts`,
+// The link renderers (`link.ts`, `referenceLink.ts`,
 // `htmlTag.ts`) all emit `dataset.{start,end,raw}` on the rendered link
 // wrapper plus an `href` — markdown `[]()` via snabbdom `props.href`
 // (DOM property on the `<span>`), HTML `<a>` and reference link via real

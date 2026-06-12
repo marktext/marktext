@@ -11,8 +11,8 @@ import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
 
 // Core stylesheets inlined into the exported document so the output is fully
-// self-contained and renders offline / behind CSP / air-gapped — matching the
-// legacy `packages/muyajs` `ExportHtml` behavior (PG7). Linking these from a
+// self-contained and renders offline / behind CSP / air-gapped. Linking these
+// from a
 // CDN left a saved `.html` file unstyled with no network access, a regression
 // for an offline desktop editor. Callers that explicitly want the lighter
 // CDN-linked shell can opt in via `generate({ inlineStyles: false })`.
@@ -133,7 +133,7 @@ export class MarkdownToHtml {
     // deduplicated by incrementing a `-N` suffix until the *full* candidate id
     // is unused — so a later heading whose text already looks like an earlier
     // `-N` slug (e.g. `heading`, `heading`, `heading-1`) still resolves to a
-    // unique anchor, matching github / the legacy muyajs Slugger.
+    // unique anchor, matching github.
     private _injectHeadingIds(container: HTMLElement) {
         const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
         const seen = new Set<string>();
@@ -184,7 +184,7 @@ export class MarkdownToHtml {
 
         // Inject github-compatible slug ids onto exported headings so the
         // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
-        // resolve (PG8). Scoped to this export DOM path — the conformance
+        // resolve. Scoped to this export DOM path — the conformance
         // renderer (`renderToStaticHTML`) is deliberately left untouched.
         this._injectHeadingIds(exportContainer);
 

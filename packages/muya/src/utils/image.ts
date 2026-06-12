@@ -27,8 +27,7 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
 
 // A local image path that is already anchored to a filesystem root:
 // POSIX (`/foo`), Windows UNC (`\\host\share`), or a drive letter
-// (`C:\foo` / `C:/foo`). Mirrors legacy muyajs `getImageInfo`'s
-// `isAbsoluteLocal` check so absolute paths are NOT resolved against the
+// (`C:\foo` / `C:/foo`), so absolute paths are NOT resolved against the
 // document directory.
 const ABSOLUTE_LOCAL_REG = /^(?:\/|\\\\|[a-z]:\\|[a-z]:\/).+/i;
 
@@ -81,11 +80,10 @@ export function getImageSrc(src: string) {
     const isUrl = URL_REG.test(src) || (imageExtension && isFileUrl);
     if (imageExtension) {
         const isAbsoluteLocal = ABSOLUTE_LOCAL_REG.test(src);
-        // Anchor a relative local path to the document directory, mirroring
-        // legacy muyajs `getImageInfo(src, baseUrl = window.DIRNAME)`. The
+        // Anchor a relative local path to the document directory. The
         // engine runs in the host renderer where `window.DIRNAME` tracks the
         // current document's directory; when it is absent (headless / no open
-        // file) we fall back to the legacy `file://${src}` form.
+        // file) we fall back to the `file://${src}` form.
         const baseUrl
             = typeof window !== 'undefined' ? window.DIRNAME : undefined;
         if (isUrl) {

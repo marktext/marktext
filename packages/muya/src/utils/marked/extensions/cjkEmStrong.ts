@@ -1,7 +1,6 @@
 import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 
-// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark, ported
-// from the legacy muyajs tokenizer (packages/muyajs/lib/parser/utils.js).
+// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark.
 //
 // CommonMark §6.2 only counts Unicode whitespace and Unicode punctuation as
 // emphasis flanking boundaries. CJK ideographs / Hangul / Kana are Lo
@@ -12,8 +11,8 @@ import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 // But CJK scripts do not use spaces between words, so that rule denies
 // emphasis to virtually any CJK paragraph that wraps the `**` run with
 // punctuation (quotes, parentheses, brackets, …). Typora, VSCode
-// markdownlint, Joplin and most CJK-oriented Markdown tools — and the legacy
-// muyajs engine MarkText shipped — widen the flanking check so CJK counts as
+// markdownlint, Joplin and most CJK-oriented Markdown tools widen the flanking
+// check so CJK counts as
 // a boundary. This extension restores that behavior for the marked-based
 // static / export render path.
 //
@@ -23,7 +22,7 @@ import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 //
 // Tracking: marktext/marktext#4307.
 
-// CJK ranges treated as punctuation for flanking (matches legacy CJK_REG):
+// CJK ranges treated as punctuation for flanking:
 //   U+3040–U+30FF  Hiragana + Katakana
 //   U+3400–U+4DBF  CJK Unified Ideographs Extension A
 //   U+4E00–U+9FFF  CJK Unified Ideographs
