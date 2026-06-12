@@ -275,6 +275,14 @@ let scrollHandler: ((e: Event) => void) | null = null
 // store a SYNTHETIC desktop-shaped history.
 const engineHistoryByTab = new Map<string, unknown>()
 
+// The WYSIWYG caret captured the instant the user switches INTO source mode.
+// Focus moves to CodeMirror while source mode is up, so by the time the tab is
+// handed back (`replaceContent`) the live DOM selection no longer points into
+// the muya tree. We stash the pre-source caret here and feed it to
+// `replaceContent` as the rebuild boundary's restore-selection, so the first
+// undo after the handoff returns the caret to where source mode was entered.
+let preSourceModeSelection: unknown = null
+
 // Per-tab monotonic save-tracking id allocator. The synthetic history entry id
 // is a MONOTONIC, never-reused id keyed on the live document content (see
 // `syntheticHistory.ts`), NOT the engine undo-stack depth: depth is reused
@@ -768,6 +776,10 @@ watch(
         if (currentFile.value) {
           currentFile.value.muyaIndexCursor = editor.value.getCursorOffset() ?? null
         }
+        // Capture the block-key caret too (same fresh selection getCursorOffset
+        // reads) so the post-handoff undo can restore it — see
+        // `preSourceModeSelection`.
+        preSourceModeSelection = editor.value.getSelection()
       }
     }
   },
@@ -1413,7 +1425,8 @@ const handleFileChange = (payload: unknown) => {
       // document is unchanged this is a no-op (returns false) and the existing
       // history/content already match — either way the caret still needs
       // remapping below.
-      editor.value.replaceContent(newMarkdown)
+      editor.value.replaceContent(newMarkdown, preSourceModeSelection)
+      preSourceModeSelection = null
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
