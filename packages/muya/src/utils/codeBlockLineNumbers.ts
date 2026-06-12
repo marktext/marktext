@@ -93,8 +93,8 @@ export function repositionLineNumberSpans(
     // Trailing empty line after a final "\n": no text node to measure from.
     // Place it one line-height below the previous span.
     if (lineIdx < spans.length) {
-        const prevTop = lineIdx > 0 ? parseFloat(spans[lineIdx - 1].style.top || '0') : 0;
-        const lineH = parseFloat(getComputedStyle(wrapper).lineHeight) || 24;
+        const prevTop = lineIdx > 0 ? Number.parseFloat(spans[lineIdx - 1].style.top || '0') : 0;
+        const lineH = Number.parseFloat(getComputedStyle(wrapper).lineHeight) || 24;
         for (let i = lineIdx; i < spans.length; i++) {
             spans[i].style.top = `${prevTop + lineH}px`;
         }
