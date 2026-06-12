@@ -255,11 +255,7 @@ class TextSelection {
             = anchorBlock === focusBlock && anchor.offset === focus.offset;
 
         const isSelectionInSameBlock = anchorBlock === focusBlock;
-        let direction = 'none';
-        let type = 'None';
-
-        if (isCollapsed)
-            direction = 'none';
+        let direction: string;
 
         if (isSelectionInSameBlock) {
             direction = anchor.offset < focus.offset ? 'forward' : 'backward';
@@ -271,7 +267,7 @@ class TextSelection {
             direction = order ? 'forward' : 'backward';
         }
 
-        type = isCollapsed ? 'Caret' : 'Range';
+        const type = isCollapsed ? 'Caret' : 'Range';
 
         return {
             anchor,
