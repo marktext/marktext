@@ -116,6 +116,12 @@ class Selection {
         this._activeType = 'text';
     }
 
+    clearImage(): void {
+        this._image.clear();
+        if (this._activeType === 'image')
+            this._activeType = 'text';
+    }
+
     getSelection(): ISelection | null {
         return this._text.getSelection();
     }
