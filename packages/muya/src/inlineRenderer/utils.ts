@@ -65,8 +65,7 @@ export const WHITELIST_ATTRIBUTES = [
 
 const UNICODE_WHITESPACE_REG = /^\s/;
 
-// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark, ported
-// from the legacy muyajs tokenizer (packages/muyajs/lib/parser/utils.js).
+// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark.
 //
 // CommonMark §6.2 only counts Unicode whitespace and Unicode punctuation as
 // emphasis flanking boundaries. CJK ideographs are Lo (Letter, other) —
@@ -74,7 +73,7 @@ const UNICODE_WHITESPACE_REG = /^\s/;
 // `中文**"加粗"**中文` MUST NOT open a strong run. But CJK scripts don't use
 // spaces between words, so that denies emphasis to virtually any CJK paragraph
 // that wraps the `**` run with punctuation (quotes, parentheses, brackets, …).
-// Typora, VSCode markdownlint, Joplin and the legacy muyajs engine all widen
+// Typora, VSCode markdownlint and Joplin all widen
 // the flanking check so CJK counts as a boundary; we match that here so the
 // live editor (inlineRenderer) bolds these spans consistently with the
 // marked-based static / export render path.
@@ -226,7 +225,7 @@ function canOpenEmphasis(src: string, marker: string, pending: string) {
 
     const precededChar = lastCodePointChar(pending) || '\n';
     // Past end of src → '' (matches neither whitespace nor punctuation),
-    // preserving the legacy `RegExp.test(undefined)` semantics type-safely.
+    // preserving the `RegExp.test(undefined)` semantics type-safely.
     const followedChar = codePointCharAt(src, marker.length) ?? '';
     // not followed by Unicode whitespace,
     if (UNICODE_WHITESPACE_REG.test(followedChar))

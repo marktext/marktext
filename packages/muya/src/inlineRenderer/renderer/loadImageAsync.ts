@@ -56,12 +56,11 @@ export default function loadImageAsync(
                         imageContainer!.appendChild(img);
                         imageText.classList.remove(CLASS_NAMES.MU_IMAGE_LOADING);
                         imageText.classList.add(CLASS_NAMES.MU_IMAGE_SUCCESS);
-                        // marktext cb7be189 (#1318): mirror the small-image tagging from
-                        // `image.ts` on the first async load — otherwise the class would
-                        // only appear on the next re-render after the cache is populated.
-                        // See `image.ts` for why the class is kept as a theming hook with
-                        // no in-package CSS consumer; downstream stylesheets own the
-                        // visual treatment.
+                        // Tag small images on the first async load — otherwise the class
+                        // would only appear on the next re-render after the cache is
+                        // populated. See `image.ts` for why the class is kept as a theming
+                        // hook with no in-package CSS consumer; downstream stylesheets own
+                        // the visual treatment.
                         if (width < 100 || height < 100)
                             imageText.classList.add(CLASS_NAMES.MU_SMALL_IMAGE);
                     }

@@ -123,7 +123,7 @@ export default function image(
         }
         else if (isSuccess === true) {
             wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_SUCCESS}`;
-            // marktext cb7be189 (#1318): tag images whose natural size is below
+            // Tag images whose natural size is below
             // 100px in either dimension. NOTE: no CSS in this package currently
             // consumes `.mu-small-image` — it is kept as a theming hook so
             // downstream stylesheets can shrink/hide the in-wrapper hover icons

@@ -43,7 +43,7 @@ class InlineRenderer {
      * in `urlMap`. When an image file changes on disk the cached entry would
      * otherwise keep the stale bitmap, so clearing both maps and re-rendering
      * every content block re-runs `loadImageAsync`, which loads the source
-     * afresh. Mirrors legacy muyajs `StateRender.invalidateImageCache`.
+     * afresh.
      */
     invalidateImageCache() {
         this.renderer.loadImageMap.clear();
