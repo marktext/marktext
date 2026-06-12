@@ -7,7 +7,7 @@ declare global {
         MUYA_VERSION: string;
         // Absolute directory of the document currently open in the host
         // (desktop) app. `getImageSrc` reads it to anchor relative local
-        // image paths, mirroring legacy muyajs `getImageInfo`. Undefined in
+        // image paths. Undefined in
         // non-desktop / headless contexts (the resolver then leaves relative
         // paths untouched rather than producing a broken `file://`).
         DIRNAME?: string;

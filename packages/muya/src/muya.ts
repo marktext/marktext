@@ -50,8 +50,8 @@ interface IPlugin {
     options: Record<string, unknown>;
 }
 
-// Maps the marktext/muyajs paragraph-menu labels the desktop sends through
-// `updateParagraph` to the muya `replaceBlockByLabel` vocabulary.
+// Maps the paragraph-menu labels the desktop sends through `updateParagraph`
+// to muya's `replaceBlockByLabel` vocabulary.
 const PARAGRAPH_LABEL_MAP: Record<string, string> = {
     'paragraph': 'paragraph',
     'hr': 'thematic-break',
@@ -111,8 +111,8 @@ export class Muya {
         this._bindFocusBlurEvents();
     }
 
-    // Backport of marktext 9eff8248: expose `focus` / `blur` lifecycle events
-    // so external SDK consumers can react to editor focus changes. Routed
+    // Expose `focus` / `blur` lifecycle events so external SDK consumers can
+    // react to editor focus changes. Routed
     // through attachDOMEvent so cleanup is automatic via detachAllDomEvents
     // in destroy().
     private _bindFocusBlurEvents() {
@@ -137,7 +137,7 @@ export class Muya {
     /**
      * Switch the editor's UI language at runtime. Swaps the i18n resources, then
      * re-renders the block tree so already-mounted blocks pick up the new
-     * translation (Phase G — G8). The inline placeholder hints (quick-insert
+     * translation. The inline placeholder hints (quick-insert
      * "Type / to insert…", code-block language, math, front matter) are DOM
      * attributes baked once in each block's constructor; without the re-render
      * they would keep the old language until the block was next recreated.
@@ -181,10 +181,9 @@ export class Muya {
     /**
      * Return a flat table of contents for the current document.
      *
-     * Mirrors marktext's `tocCtrl.getTOC` (including the 9cb2cbe8 regex
-     * fix). Only top-level atx / setext headings are surfaced; nested
-     * headings inside blockquotes / list items are ignored, same as
-     * marktext. `content` is the raw heading text (inline markdown not
+     * Only top-level atx / setext headings are surfaced; nested
+     * headings inside blockquotes / list items are ignored. `content` is the
+     * raw heading text (inline markdown not
      * parsed); `slug` is a stable per-block identifier; `githubSlug` is
      * the GitHub-style anchor derived from `content`.
      */
@@ -261,8 +260,8 @@ export class Muya {
      * history is preserved and a new boundary is pushed on top of it.
      *
      * Used by the desktop shell when handing a tab back from source-code mode:
-     * the bulk source-mode edit becomes one undo step (legacy muyajs parity,
-     * gap PG14). The change is recorded as a `rebuild` history entry, so undo /
+     * the bulk source-mode edit becomes one undo step. The change is recorded
+     * as a `rebuild` history entry, so undo /
      * redo re-create the block tree wholesale (`ScrollPage.updateState`) rather
      * than walking it incrementally — making arbitrary block-type changes
      * (paragraph<->heading, list/table/code/frontmatter, multi-block reorder…)
@@ -292,8 +291,8 @@ export class Muya {
     }
 
     /**
-     * Update editor options at runtime (mirrors marktext muyajs `setOptions`):
-     * merges `options` into `muya.options`, reflects the container-level ones
+     * Update editor options at runtime: merges `options` into `muya.options`,
+     * reflects the container-level ones
      * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
      * re-renders the document from its current state so render-affecting
      * options (superSubScript, footnote, disableHtml, frontmatterType,
@@ -334,7 +333,6 @@ export class Muya {
         // saved path and setting the cursor on it directly. (Passing only a
         // path to setSelection does not work — Selection._setCursor needs a
         // concrete block's domNode; a bare queryBlock result is not a Node.)
-        // Mirrors Editor.updateContents' same-block cursor restore.
         if (selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
@@ -344,7 +342,7 @@ export class Muya {
         }
     }
 
-    /** Update the editor font size / line height (mirrors muyajs `setFont`). */
+    /** Update the editor font size / line height. */
     setFont({ fontSize, lineHeight }: { fontSize?: IMuyaOptions['fontSize']; lineHeight?: IMuyaOptions['lineHeight'] }) {
         if (typeof fontSize === 'number')
             this.options.fontSize = fontSize;
@@ -367,7 +365,7 @@ export class Muya {
     }
 
     /**
-     * Toggle focus mode (mirrors marktext muyajs `setFocusMode`). When enabled,
+     * Toggle focus mode. When enabled,
      * every top-level block except the one holding the cursor is dimmed via the
      * `mu-focus-mode` class on the editor container; the dimming itself lives in
      * the stylesheet (`.mu-focus-mode .mu-container > * { opacity }`).
@@ -410,9 +408,8 @@ export class Muya {
         if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
             return;
 
-        // Restore the selection before applying the format, mirroring the
-        // inline format toolbar — the menu/IPC round-trip can drop the live
-        // DOM selection.
+        // Restore the selection before applying the format — the menu/IPC
+        // round-trip can drop the live DOM selection.
         selection.setSelection({
             anchor,
             focus,
@@ -429,8 +426,8 @@ export class Muya {
      * Replace the word at the current cursor with `replacement`, then place the
      * cursor after the replacement.
      *
-     * Mirrors legacy muyajs `_replaceCurrentWordInlineUnsafe`. The desktop spell
-     * checker calls this when the user picks a suggestion from the misspelled-word
+     * The desktop spell checker calls this when the user picks a suggestion
+     * from the misspelled-word
      * context menu (Chromium has already selected the whole word). Unsafe: the
      * call is a no-op unless the word at the cursor matches `word`.
      *
@@ -463,8 +460,8 @@ export class Muya {
     }
 
     /**
-     * Blur the editor (mirrors marktext muyajs `blur`). Always hides every
-     * floating tool and blurs the contenteditable node.
+     * Blur the editor. Always hides every floating tool and blurs the
+     * contenteditable node.
      * @param isRemoveAllRange Remove all native selection ranges.
      * @param unSelect Clear the selected inline image so its toolbar/resize
      * bar do not linger after the editor is blurred.
@@ -546,10 +543,9 @@ export class Muya {
 
     /**
      * The immediate block-level parent of the active content leaf — the
-     * paragraph/heading block that directly wraps the cursor. This mirrors the
-     * legacy `getAnchor`/`getParent` anchor used by the context-menu
-     * "Insert Paragraph Before/After" path, so a new paragraph lands as an
-     * inner sibling inside a list item / blockquote rather than jumping out to
+     * paragraph/heading block that directly wraps the cursor. Used by the
+     * context-menu "Insert Paragraph Before/After" path: a new paragraph lands
+     * as an inner sibling inside a list item / blockquote rather than jumping out to
      * the outermost container. Uses the persisted active content block (which
      * survives the menu/IPC round-trip), falling back to the selection anchor.
      */
@@ -633,7 +629,7 @@ export class Muya {
 
     /**
      * Insert a GFM table at the current cursor, replacing the block the cursor
-     * is in (legacy `createTableInFigure`/`createFigure`). The table has `rows`
+     * is in. The table has `rows`
      * rows × `columns` columns with the first row as the header; every cell is
      * empty with `align: 'none'`. The cursor lands in the first cell. No-op when
      * there is no current block. `rows`/`columns` are coerced to integers and
@@ -676,7 +672,7 @@ export class Muya {
 
     /**
      * Insert an inline image at the current cursor in the active formattable
-     * block, mirroring legacy `insertImage`. The `![alt](src)` markdown is
+     * block. The `![alt](src)` markdown is
      * written through the `Format` block's text setter so it dispatches a JSON
      * op (state stays in sync) rather than mutating the DOM directly. No-op when
      * there is no active formattable (`Format`) block — e.g. inside a code block
@@ -691,16 +687,14 @@ export class Muya {
         if (cursor == null)
             return;
 
-        // Derive a sensible alt from the file name when none is provided,
-        // matching legacy `insertImage`.
+        // Derive a sensible alt from the file name when none is provided.
         if (!alt) {
             const match = /[/\\]?([^./\\]+)\.[a-z]+$/i.exec(src);
             alt = match?.[1] ?? '';
         }
 
         // Only percent-encode plain paths; leave full URLs / well-formed data
-        // URLs as-is. Mirrors legacy `insertImage` / `replaceImage` src
-        // handling — `DATA_URL_REG` requires the full `data:image/<type>...,<payload>`
+        // URLs as-is. `DATA_URL_REG` requires the full `data:image/<type>...,<payload>`
         // shape (the same regex `utils/image.ts` `getImageSrc` uses), so a bare
         // `data:image/` prefix is not embedded verbatim and instead falls through
         // to the plain-path branch.
@@ -714,7 +708,7 @@ export class Muya {
 
         const { start, end } = cursor;
         const { text } = block;
-        // When there is a selection, use it as the alt text (legacy behaviour).
+        // When there is a selection, use it as the alt text.
         const imageAlt = start.offset !== end.offset ? text.substring(start.offset, end.offset) : alt;
         const imageText = `![${imageAlt}](${imgUrl})`;
 
@@ -763,7 +757,6 @@ export class Muya {
         if (anchorBlock == null || !anchorBlock.isContent())
             return;
 
-        // Same-block, mirror Editor.updateContents' selection-restore.
         if (anchorBlock === focusBlock || focusBlock == null) {
             const begin = Math.min(anchor.offset, focus.offset);
             const last = Math.max(anchor.offset, focus.offset);
@@ -786,8 +779,8 @@ export class Muya {
 
     /**
      * Restore the WYSIWYG caret from a source-mode (CodeMirror) `{ line, ch }`
-     * index cursor (PG2 parity). The block tree has no source-line mapping, so
-     * the offsets are resolved the way legacy muyajs did: inject sentinel
+     * index cursor. The block tree has no source-line mapping, so the offsets
+     * are resolved as follows: inject sentinel
      * strings into the current markdown at the line/ch positions, rebuild the
      * tree (sentinels embed as literal text), find which content blocks they
      * landed in, then rebuild the clean document and set the cursor by the
@@ -830,8 +823,8 @@ export class Muya {
 
     /**
      * Read the current WYSIWYG caret as a source-mode (CodeMirror) `{ line, ch }`
-     * index cursor — the INVERSE of `setCursorByOffset` (PG2 parity / Phase G —
-     * G7). The desktop emits this on every change so toggling WYSIWYG -> source
+     * index cursor — the INVERSE of `setCursorByOffset`. The desktop emits this
+     * on every change so toggling WYSIWYG -> source
      * opens CodeMirror at the same caret.
      *
      * The block tree has no source-line mapping, so the offset is recovered the
@@ -862,8 +855,8 @@ export class Muya {
     }
 
     /**
-     * Convert the block at the cursor to another type, mirroring marktext's
-     * `updateParagraph`. `type` uses the marktext/muyajs paragraph-menu
+     * Convert the block at the cursor to another type. `type` uses the
+     * paragraph-menu
      * vocabulary: `paragraph`, `heading 1`–`heading 6`, `upgrade heading`,
      * `degrade heading`, `blockquote`, `pre`, `mathblock`, `html`, `hr`,
      * `table`, `front-matter`, `ul-bullet`/`ol-order`/`ul-task`,
@@ -886,7 +879,7 @@ export class Muya {
 
         // `reset-to-paragraph` returns the current block to plain paragraph
         // form; structured containers (lists/blockquote) unwrap to preserve
-        // every child, tables are left untouched (matches legacy).
+        // every child, tables are left untouched.
         if (type === 'reset-to-paragraph') {
             this._resetToParagraph(block);
             return;
@@ -897,9 +890,9 @@ export class Muya {
             return;
 
         // Front matter is only valid as the very first block of a document, so
-        // it is never an in-place replacement of the cursor block. Mirror legacy
-        // muyajs `handleFrontMatter`: idempotent no-op if the document already
-        // starts with front matter, otherwise prepend one at the top.
+        // it is never an in-place replacement of the cursor block: idempotent
+        // no-op if the document already starts with front matter, otherwise
+        // prepend one at the top.
         if (label === 'frontmatter') {
             insertFrontMatterAtStart(this);
             return;
@@ -907,16 +900,13 @@ export class Muya {
 
         // The plain `paragraph` menu item only converts the *leaf* block that
         // directly wraps the cursor (heading, hr, …) back to a paragraph; it
-        // never touches the enclosing container. Mirror legacy muyajs
-        // (paragraphCtrl.js `case 'paragraph'`): there `parent = getParent(block)`
-        // is the cursor's immediate leaf and the conversion is a no-op only when
-        // `parent.type === 'p'` (already a paragraph) — otherwise it replaces
-        // just that leaf. Operating on the leaf (not the outermost container)
-        // means a heading inside a list item still converts while the list stays
-        // intact, and avoids the original G4 data loss where routing `paragraph`
-        // to the *whole* list/blockquote collapsed every item/line into a single
-        // paragraph built from the first content's text. `reset-to-paragraph`
-        // remains the explicit "unwrap the container" command (handled above).
+        // never touches the enclosing container. Operating on the leaf (not the
+        // outermost container) means a heading inside a list item still converts
+        // while the list stays intact, and avoids the data loss where routing
+        // `paragraph` to the *whole* list/blockquote collapsed every item/line
+        // into a single paragraph built from the first content's text.
+        // `reset-to-paragraph` remains the explicit "unwrap the container"
+        // command (handled above).
         if (label === 'paragraph')
             return this._convertLeafToParagraph();
 
@@ -932,8 +922,8 @@ export class Muya {
             return;
         }
 
-        // Legacy `isAllowedTransformation`: hr/table only replace an empty
-        // block so user content is never silently dropped.
+        // hr/table only replace an empty block so user content is never
+        // silently dropped.
         if (
             (label === 'thematic-break' || label === 'table')
             && this._blockLeadingText(block).trim() !== ''
@@ -970,8 +960,7 @@ export class Muya {
     /**
      * Convert the *leaf* block that directly wraps the cursor (the immediate
      * parent of the active content) to a plain paragraph. No-op when that leaf
-     * is already a paragraph — mirroring legacy muyajs `case 'paragraph'`
-     * (`parent.type === 'p'` returned early). Because it targets the leaf rather
+     * is already a paragraph. Because it targets the leaf rather
      * than the outermost container, a heading inside a list item / blockquote
      * converts to a paragraph while leaving the surrounding list/quote intact.
      */
