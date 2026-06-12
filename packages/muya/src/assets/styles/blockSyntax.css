@@ -382,6 +382,12 @@ ul.mu-bullet-list {
     list-style: disc outside none;
 }
 
+/* nested lists carry no vertical margin (muyajs `li > ol, li > ul`) */
+li > ol.mu-order-list,
+li > ul.mu-bullet-list {
+    margin: 0;
+}
+
 /* list markers — default to `inherit` (current text color) so the bundled
    light theme is unchanged; themes can recolor the bullets / numbers. */
 ol.mu-order-list > li::marker,
