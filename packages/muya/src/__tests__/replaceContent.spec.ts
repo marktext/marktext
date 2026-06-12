@@ -341,6 +341,41 @@ describe('muya replaceContent — single undo boundary', () => {
         });
     });
 
+    it('records an explicit recordSelection for the rebuild boundary', async () => {
+        // When the desktop shell hands a tab back from source-code mode, focus
+        // lives in CodeMirror, so the live DOM selection no longer points into
+        // the muya tree. The caller therefore passes the PRE-source-mode caret
+        // explicitly so the first undo after the handoff restores the caret to
+        // where it was when the user switched to source mode — not wherever the
+        // (stale/empty) live DOM selection happened to be.
+        const muya = bootMuya('first\n\nsecond\n');
+        await vi.waitFor(() => expect(muya.getMarkdown().trim()).toBe('first\n\nsecond'));
+
+        // Capture a selection pointing at the SECOND block — the pre-source caret.
+        const second = muya.editor.scrollPage!.lastContentInDescendant()!;
+        muya.editor.activeContentBlock = second;
+        second.setCursor(1, 1, true);
+        const recordSelection = muya.getSelection();
+        const recordPath = recordSelection?.anchorPath;
+        expect(recordPath?.length ?? 0).toBeGreaterThan(0);
+
+        // Move the LIVE caret to the FIRST block — this is what an unguarded
+        // getSelection() would record at replaceContent time.
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        muya.editor.activeContentBlock = first;
+        first.setCursor(0, 0, true);
+        const livePath = muya.getSelection()?.anchorPath;
+        expect(livePath).not.toEqual(recordPath);
+
+        muya.replaceContent('first\n\nsecond\n\nthird\n', recordSelection);
+
+        // The boundary recorded the EXPLICIT pre-source selection (second block),
+        // not the live DOM caret (first block).
+        // @ts-expect-error — reach into the private stack for assertions.
+        const storedSel = muya.editor.history._stack.undo[0].selection;
+        expect(storedSel?.anchorPath).toEqual(recordPath);
+    });
+
     it('accepts a state array as well as markdown', async () => {
         const muya = bootMuya('one\n');
         await vi.waitFor(() => expect(muya.getMarkdown().trim()).toBe('one'));

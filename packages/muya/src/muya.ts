@@ -3,10 +3,10 @@ import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
-import type { ICursor } from './selection/types';
+import type { ICursor, IHistorySelection } from './selection/types';
 import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
-import type { IMuyaOptions } from './types';
+import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
@@ -268,9 +268,16 @@ export class Muya {
      * safe to round-trip. No-op when `content` is identical to the current
      * document.
      *
+     * `recordSelection` overrides the caret stored on the rebuild boundary (the
+     * one the first `undo()` restores). Pass it when the live DOM selection no
+     * longer points into the muya tree at call time — notably the source-mode
+     * handoff, where focus has moved to CodeMirror, so the desktop shell hands
+     * back the caret captured when the user switched INTO source mode. Omitted,
+     * it falls back to the current live selection.
+     *
      * @returns `true` if a boundary was recorded, `false` if nothing changed.
      */
-    replaceContent(content: TState[] | string): boolean {
+    replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
         const { jsonState, history } = this.editor;
         const { op, prevState } = jsonState.buildReplaceOp(content);
 
@@ -278,11 +285,12 @@ export class Muya {
             return false;
 
         const selection = this.editor.selection.getSelection();
+        const boundarySelection = recordSelection !== undefined ? recordSelection : selection;
         // Record the lossless inverse as a standalone rebuild boundary BEFORE
         // applying the forward op, so the recorded `prevState` matches the doc
         // the inverse must restore. The forward apply dispatches a json-change,
         // so suppress History's own recording of it to avoid a duplicate entry.
-        history.recordRebuild(op, prevState, selection);
+        history.recordRebuild(op, prevState, boundarySelection);
         history.suppressRecording(() => {
             this.editor.rebuildContents(op, selection, 'api');
         });
