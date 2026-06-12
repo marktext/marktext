@@ -89,6 +89,12 @@ export class ImageEditTool extends BaseFloat {
         title: '',
     };
 
+    /** Active tab: file picker ("select") or link/path input ("link") */
+    private _tab: 'select' | 'link' = 'link';
+
+    /** Whether the link tab shows the alt and title inputs as well as src */
+    private _isFullMode = false;
+
     /** Container element for the image selector */
     private _imageSelectorContainer: HTMLDivElement
         = document.createElement('div');
@@ -157,19 +163,53 @@ export class ImageEditTool extends BaseFloat {
     private _focusSrcInput() {
         const input = this.container ? query<HTMLInputElement>('input.src', this.container) : null;
         if (input) {
+            // Force the value — when reopening the tool snabbdom may skip the
+            // value prop (the user dirtied the DOM input between renders).
+            input.value = this._state.src;
             input.focus();
             input.select();
         }
     }
 
     /**
-     * Handle input change for image source
+     * Handle input change for an editable image field (src / alt / title).
      * @param event - Input event
+     * @param type - Which image field the input edits
      */
-    private _handleSrcInput(event: Event) {
+    private _inputHandler(event: Event, type: keyof IState) {
         if (!isHTMLInputElement(event.target))
             return;
-        this._state.src = event.target.value;
+        this._state[type] = event.target.value;
+    }
+
+    /**
+     * Switch the active tab and re-render.
+     * @param tab - Tab to activate
+     */
+    private _tabClick(tab: 'select' | 'link') {
+        this._tab = tab;
+        this._render();
+    }
+
+    /**
+     * Toggle between simple (src only) and full (alt + src + title) mode.
+     */
+    private _toggleMode() {
+        this._isFullMode = !this._isFullMode;
+        this._render();
+    }
+
+    /**
+     * Handle keydown on the alt / title inputs — Enter confirms the change.
+     * @param event - Keyboard event
+     */
+    private _handleKeyDown(event: Event) {
+        if (!isKeyboardEvent(event))
+            return;
+        if (event.key === EVENT_KEYS.Enter) {
+            event.stopPropagation();
+            this._handleConfirm();
+        }
     }
 
     /**
@@ -401,68 +441,130 @@ export class ImageEditTool extends BaseFloat {
     }
 
     /**
-     * Handle click on "more" button to open file picker
-     * Updates the src input with selected path
+     * Handle click on the "Choose Image" button in the select tab.
+     * Opens the one-shot native file picker and applies the chosen path
+     * directly (matching the legacy ImageSelector select-tab behavior).
      */
-    private async _handleMoreClick() {
-        if (!this.options.imagePathPicker)
+    private async _handleSelectButtonClick() {
+        if (!this.options.imagePathPicker) {
+            console.warn('You need to add a imagePathPicker option');
             return;
+        }
 
         const path = await this.options.imagePathPicker();
-        this._state.src = path;
-        this._render();
+        const { alt, title } = this._state;
+        return this._replaceImageAsync({ alt, title, src: path });
     }
 
     /**
-     * Render the image edit tool UI
-     * Creates virtual DOM with file picker button (optional), src input and confirm button
+     * Render the tab header (Select / Embed link).
      */
-    private _render() {
-        const { _oldVNode: oldVNode, _imageSelectorContainer: imageSelectorContainer, _state: { src } } = this;
+    private _renderHeader(): VNode {
         const { i18n } = this.muya;
+        const tabs: { label: string; value: 'select' | 'link' }[] = [
+            { label: i18n.t('Select'), value: 'select' },
+            { label: i18n.t('Embed link'), value: 'link' },
+        ];
 
-        // Optional file picker button
-        const moreButton = this.options.imagePathPicker
-            ? h(
-                    'span.more',
-                    {
-                        on: {
-                            click: () => this._handleMoreClick(),
-                        },
-                    },
-                    h('span.more-inner'),
-                )
-            : null;
+        const children = tabs.map((tab) => {
+            const selector = this._tab === tab.value ? 'li.active' : 'li';
+            return h(selector, [
+                h(
+                    'span',
+                    { on: { click: () => this._tabClick(tab.value) } },
+                    tab.label,
+                ),
+            ]);
+        });
 
-        // Image source input
-        const srcInput = h('input.src', {
-            props: {
-                placeholder: i18n.t('Image src placeholder'),
-                value: src,
-            },
+        return h('ul.header', children);
+    }
+
+    /**
+     * Render the "Select" tab body: a Choose Image button and a tip.
+     */
+    private _renderSelectBody(): VNode[] {
+        const { i18n } = this.muya;
+        return [
+            h(
+                'button.role-button.select',
+                { on: { click: () => this._handleSelectButtonClick() } },
+                i18n.t('Choose Image'),
+            ),
+            h('span.description', i18n.t('Choose image from your computer.')),
+        ];
+    }
+
+    /**
+     * Render the "Embed link" tab body: the input container (src, plus alt and
+     * title in full mode), the Embed button and the simple/full mode hint.
+     */
+    private _renderLinkBody(): VNode[] {
+        const { i18n } = this.muya;
+        const { alt, src, title } = this._state;
+
+        const altInput = h('input.alt', {
+            props: { placeholder: i18n.t('Alt text'), value: alt },
             on: {
-                input: event => this._handleSrcInput(event),
-                paste: event => this._handleSrcInput(event),
-                keydown: event => this._handleSrcKeyDown(event),
-                keyup: event => this._handleSrcKeyUp(event),
+                input: (event: Event) => this._inputHandler(event, 'alt'),
+                paste: (event: Event) => this._inputHandler(event, 'alt'),
+                keydown: (event: Event) => this._handleKeyDown(event),
+            },
+        });
+        const srcInput = h('input.src', {
+            props: { placeholder: i18n.t('Image link or local path'), value: src },
+            on: {
+                input: (event: Event) => this._inputHandler(event, 'src'),
+                paste: (event: Event) => this._inputHandler(event, 'src'),
+                keydown: (event: Event) => this._handleSrcKeyDown(event),
+                keyup: (event: Event) => this._handleSrcKeyUp(event),
+            },
+        });
+        const titleInput = h('input.title', {
+            props: { placeholder: i18n.t('Image title'), value: title },
+            on: {
+                input: (event: Event) => this._inputHandler(event, 'title'),
+                paste: (event: Event) => this._inputHandler(event, 'title'),
+                keydown: (event: Event) => this._handleKeyDown(event),
             },
         });
 
-        // Confirm button
-        const confirmButton = h(
-            'span.confirm',
-            {
-                on: {
-                    click: () => this._handleConfirm(),
-                },
-            },
-            i18n.t('Confirm Text'),
+        const inputWrapper = this._isFullMode
+            ? h('div.input-container', [altInput, srcInput, titleInput])
+            : h('div.input-container', [srcInput]);
+
+        const embedButton = h(
+            'button.role-button.link',
+            { on: { click: () => this._handleConfirm() } },
+            i18n.t('Embed Image'),
         );
 
-        const vnode = h('div.image-edit-tool', [
-            moreButton,
-            srcInput,
-            confirmButton,
+        const bottomDes = h('span.description', [
+            h('span', `${i18n.t('Paste web image or local image path. Use')} `),
+            h(
+                'a',
+                { on: { click: () => this._toggleMode() } },
+                `${this._isFullMode ? i18n.t('simple mode') : i18n.t('full mode')}.`,
+            ),
+        ]);
+
+        return [inputWrapper, embedButton, bottomDes];
+    }
+
+    /**
+     * Render the image edit tool UI as a tabbed selector matching the legacy
+     * ImageSelector: a header (Select / Embed link) and the active tab body.
+     */
+    private _render() {
+        const { _oldVNode: oldVNode, _imageSelectorContainer: imageSelectorContainer } = this;
+
+        const body = this._tab === 'select'
+            ? this._renderSelectBody()
+            : this._renderLinkBody();
+
+        const vnode = h('div', [
+            this._renderHeader(),
+            h('div.image-select-body', body),
         ]);
 
         patch(oldVNode || imageSelectorContainer, vnode);
