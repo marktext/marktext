@@ -56,7 +56,7 @@ class ImageSelection {
             event.preventDefault();
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
-            this.selected = null;
+            this._selection.activate('text');
         }
     };
 
@@ -147,10 +147,7 @@ class ImageSelection {
                 block: contentBlock,
             });
             this._muya.editor.activeContentBlock = null;
-            this._selection.setSelection({
-                anchor: null,
-                focus: null,
-            });
+            this._selection.activate('image');
 
             return;
         }

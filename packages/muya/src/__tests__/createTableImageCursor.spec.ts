@@ -107,7 +107,7 @@ describe('muya.createTable()', () => {
     it('is a no-op when there is no current block', () => {
         const muya = bootMuya('hello\n');
         muya.editor.activeContentBlock = null;
-        muya.editor.selection.anchorBlock = null;
+        muya.editor.selection.setSelection({ anchor: null, focus: null });
         expect(() => muya.createTable({ rows: 2, columns: 2 })).not.toThrow();
         expect(firstBlock(muya).name).toBe('paragraph');
     });
@@ -195,7 +195,7 @@ describe('muya.insertImage()', () => {
     it('is a no-op when there is no active formattable block', () => {
         const muya = bootMuya('hello\n');
         muya.editor.activeContentBlock = null;
-        muya.editor.selection.anchorBlock = null;
+        muya.editor.selection.setSelection({ anchor: null, focus: null });
         expect(() => muya.insertImage({ src: 'https://example.com/x.png' })).not.toThrow();
         expect(muya.getMarkdown()).not.toContain('![');
     });
