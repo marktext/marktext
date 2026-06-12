@@ -1,5 +1,5 @@
-import type TableRectSelection from '../selection/TableRectSelection';
 import type { Muya } from '../muya';
+import type TableRectSelection from '../selection/TableRectSelection';
 import type { Nullable } from '../types';
 import type { IClipboardPayload } from './copyData';
 import { fromEvent, merge } from 'rxjs';

@@ -15,13 +15,13 @@ import History from '../history';
 import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
+import TableRectSelection from '../selection/TableRectSelection';
 import JSONState from '../state';
 import { hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
-import TableRectSelection from '../selection/TableRectSelection';
 
 const debug = logger('editor:');
 
