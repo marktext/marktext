@@ -160,9 +160,8 @@ class TableCellSelection {
         // drag; collapse it again each move so only the cell rectangle shows.
         this._collapseCaretToAnchor();
 
-        // Off-table moves null the focus (legacy `tableSelectCellsCtrl` sets
-        // `focus = null`), so releasing outside the table cancels the selection
-        // rather than freezing a 1×1 anchor-cell range.
+        // Off-table moves null the focus, so releasing outside the table
+        // cancels the selection rather than freezing a 1×1 anchor-cell range.
         this._focus = overSameTable ? position : null;
         this._renderHighlight();
     };
@@ -171,8 +170,7 @@ class TableCellSelection {
         this._detachDragEvents();
 
         // Nothing to freeze when the drag never started (a plain click) or the
-        // pointer was released outside the table (focus is null) — legacy
-        // `handleCellMouseUp` bails on a null focus too.
+        // pointer was released outside the table (focus is null).
         if (!this._isSelecting || this._focus == null)
             this.clear();
     };

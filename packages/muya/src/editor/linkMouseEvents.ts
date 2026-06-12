@@ -4,9 +4,7 @@ import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
 import { findContentDOM } from '../selection/dom';
 import { getLinkInfo } from '../utils/getLinkInfo';
 
-// Port of marktext `src/muya/lib/eventHandler/mouseEvent.js` (cb25b3d4
-// + the surrounding hover dispatch infrastructure). The new repo's
-// linkTools popover subscribes to `muya-link-tools` but had no emitter;
+// The linkTools popover subscribes to `muya-link-tools` but had no emitter;
 // this module is that emitter.
 //
 // Three rendered link variants are detected, each by its wrapper class:
@@ -21,8 +19,7 @@ import { getLinkInfo } from '../utils/getLinkInfo';
 // For the markdown and reference-link variants we additionally require the
 // preceding sibling to be `.mu-hide` — i.e. the source-character markers
 // are hidden, which means the wrapper is rendered in *preview* mode
-// (cursor isn't editing inside the link). This mirrors marktext's
-// `parentPreSibling.classList.contains('ag-hide')` guard and keeps the
+// (cursor isn't editing inside the link), which keeps the
 // popover from flashing while the user types the URL.
 //
 // Click suppression: PR-11b removed the `pointer-events: none` rule that
@@ -145,8 +142,7 @@ export function attachLinkMouseHandlers(muya: Muya): void {
         // `data.href`. We gate on the modifier here too so plain clicks keep
         // their cursor-placement-only behavior. `getLinkInfo` resolves the
         // wrapper that hosts the href even when the IMG/text descendant was
-        // clicked, and returns a superset (`{ href, raw, text, range }`) of
-        // the legacy `{ text, href }` payload.
+        // clicked, and returns a superset (`{ href, raw, text, range }`).
         if (!isModifierClick(event))
             return;
 

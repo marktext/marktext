@@ -11,14 +11,11 @@ import logger from '../utils/logger';
 
 const debug = logger('editor:dragDropImage:');
 
-// Port of marktext `src/muya/lib/eventHandler/dragDrop.js` +
-// `contentState/dragDropCtrl.js`. The legacy engine bound
-// dragover/drop/dragleave/dragstart on the editor container and inserted a
-// dropped image — either a web-link image (`text/uri-list`) or a local image
-// FILE — as a new `![](src)` paragraph block. The TS rewrite shipped without
-// any DnD handler (#4406 parity gap PG4); this module restores it.
+// Drag-and-drop image insertion: a dropped image — either a web-link image
+// (`text/uri-list`) or a local image FILE — is inserted as a new `![](src)`
+// paragraph block.
 //
-// Two drop paths, mirroring the legacy controller:
+// Two drop paths:
 //   - web-link image (`text/uri-list`)  → verify it is an image, then insert
 //                                          `![](url)` verbatim.
 //   - local image FILE (`dataTransfer.files`) → resolve the file to a path via
@@ -56,10 +53,9 @@ function isImageFileDrag(dataTransfer: DataTransfer): boolean {
 }
 
 // The "image dragged from a browser" signature: a `text/uri-list` item that
-// also carries `text/html` but NOT `text/plain`. Mirrors legacy muyajs
-// (`dragDropCtrl.js` dragoverHandler) so that dragging a plain hyperlink — which
-// carries `text/uri-list` + `text/plain` — is left to the browser instead of
-// being intercepted and swallowed.
+// also carries `text/html` but NOT `text/plain`, so that dragging a plain
+// hyperlink — which carries `text/uri-list` + `text/plain` — is left to the
+// browser instead of being intercepted and swallowed.
 function isWebImageDrag(dataTransfer: DataTransfer): boolean {
     const items = Array.from(dataTransfer.items);
     const hasUri = items.some(i => i.type === 'text/uri-list');
@@ -158,7 +154,7 @@ function handleWebLinkImage(
 }
 
 // Replace a `![loading-id](path)` placeholder with the persisted src returned
-// by `imageAction`. Mirrors the imageEditTool upload flow.
+// by `imageAction`.
 async function persistDroppedImage(
     muya: Muya,
     path: string,
@@ -293,8 +289,8 @@ export function attachDragDropImageHandlers(muya: Muya): void {
     eventCenter.attachDOMEvent(domNode, 'dragstart', dragStartHandler);
     eventCenter.attachDOMEvent(domNode, 'dragover', dragOverHandler);
     eventCenter.attachDOMEvent(domNode, 'drop', dropHandler);
-    // Legacy muyajs bound `dragleave` on `window` to clear the ghost when the
-    // pointer leaves the page; `document` bubbles the same event and is within
-    // `attachDOMEvent`'s accepted target union.
+    // `dragleave` is bound on `document` (not `window`) to clear the ghost when
+    // the pointer leaves the page; `document` bubbles the same event and is
+    // within `attachDOMEvent`'s accepted target union.
     eventCenter.attachDOMEvent(document, 'dragleave', dragLeaveHandler);
 }

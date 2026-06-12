@@ -74,13 +74,13 @@ export class Editor {
         this.scrollPage = ScrollPage.create(muya, state);
 
         this._dispatchEvents();
-        // marktext cb25b3d4 (#1415): hovering a rendered link wrapper
-        // dispatches `muya-link-tools` so the staged popover lights up.
-        // Cleanup is handled by `muya.destroy()` → `detachAllDomEvents`.
+        // Hovering a rendered link wrapper dispatches `muya-link-tools` so the
+        // staged popover lights up. Cleanup is handled by `muya.destroy()` →
+        // `detachAllDomEvents`.
         attachLinkMouseHandlers(muya);
-        // marktext PG4 (#4406 follow-up): dropping an image file or web-link
-        // image into the editor inserts it as a new `![](src)` block. Cleanup
-        // is likewise handled by `detachAllDomEvents`.
+        // Dropping an image file or web-link image into the editor inserts it
+        // as a new `![](src)` block. Cleanup is likewise handled by
+        // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
         this.focus();
     }
