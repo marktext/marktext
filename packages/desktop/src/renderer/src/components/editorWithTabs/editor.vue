@@ -1450,6 +1450,13 @@ const handleFileChange = (payload: unknown) => {
       if (savedEngineHistory) {
         editor.value.setHistory(savedEngineHistory)
       }
+      // First activation of a tab the save-tracking allocator has never seen:
+      // seed its clean baseline from the engine's serialization now, before
+      // any edit. For a tab that already has a tracker this is a no-op —
+      // switching back must keep the existing content -> id map.
+      if (id) {
+        getSyntheticHistory(id, editor.value.getMarkdown())
+      }
     }
   } else if (newCursor) {
     editor.value.setCursor(newCursor)
@@ -1609,6 +1616,15 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init()
   editor.value = muya
+
+  // Seed the save-tracking baseline for the mount-loaded document (from the
+  // engine's OWN serialization, same reason as setMarkdownToEditor). Without
+  // this the allocator is created lazily on the first `json-change` — i.e.
+  // after the first edit — so the pristine content never maps to id 0 and
+  // undoing back to the on-disk content can never read as clean again (PG15).
+  if (currentFile.value?.id) {
+    getSyntheticHistory(currentFile.value.id, muya.getMarkdown())
+  }
 
   const container = getScrollContainer()!
 
