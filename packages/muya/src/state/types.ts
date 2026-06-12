@@ -137,10 +137,16 @@ export interface IFrontmatterMeta {
     style: string; //  "-" | "+" | ";" | "{";
 }
 
+export interface IFrontmatterPropertyState {
+    name: 'frontmatter.row';
+    key: string;
+    value: string;
+}
+
 export interface IFrontmatterState {
     name: 'frontmatter';
     meta: IFrontmatterMeta;
-    text: string;
+    properties: IFrontmatterPropertyState[];
 }
 
 export interface IDiagramMeta {
@@ -174,6 +180,7 @@ export type TLeafState
         | ILinkReferenceDefinitionState
         | IMathBlockState
         | IFrontmatterState
+        | IFrontmatterPropertyState
         | IDiagramState
         | ITableCellState;
 
@@ -190,7 +197,7 @@ export type TContainerState
 
 export type TState = TLeafState | TContainerState;
 
-export type CodeContentState = ICodeBlockState | IHtmlBlockState | IDiagramState | IMathBlockState | IFrontmatterState;
+export type CodeContentState = ICodeBlockState | IHtmlBlockState | IDiagramState | IMathBlockState;
 
 // Discriminated-union type guards. `TState` is keyed by `name`, so consumers can
 // narrow without `as I<X>State` casts. Use `isStateOfName(state, 'atx-heading')`

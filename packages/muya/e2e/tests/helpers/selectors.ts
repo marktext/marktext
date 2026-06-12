@@ -40,7 +40,6 @@ export const editor = {
     image: '.mu-inline-image',
     inlineFootnoteIdentifier: '.mu-inline-footnote-identifier',
     link: 'span.mu-link, a.mu-reference-link, a.mu-raw-html',
-    // Frontmatter block (renders as a `<pre.mu-frontmatter>` wrapping a code block).
     frontmatter: '.mu-frontmatter',
     // Inline reference link / reference image — see PR-16 regression area.
     referenceLink: 'a.mu-reference-link',

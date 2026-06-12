@@ -184,7 +184,6 @@
 
 /* code block */
 .mu-code-block,
-.mu-frontmatter,
 .mu-html-container,
 .mu-math-container,
 .mu-diagram-container {
@@ -760,10 +759,130 @@ figure.mu-math-block span.mu-codeblock-content:first-of-type:empty::after {
     content: attr(math);
 }
 
-pre.mu-frontmatter span.mu-codeblock-content:first-of-type:empty::after {
-    color: var(--editor-color-30);
+/* frontmatter properties table */
+.mu-frontmatter {
+    position: relative;
 
-    content: attr(frontMatter);
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    padding: 0;
+
+    border: 1px solid var(--editor-color-10);
+    border-radius: 4px;
+    background: var(--code-block-bg-color);
+    overflow: hidden;
+}
+
+.mu-frontmatter-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--editor-color-50);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+
+    border-bottom: 1px solid var(--editor-color-10);
+    background: var(--code-block-bg-color);
+}
+
+.mu-frontmatter-toggle {
+    display: inline-block;
+    transition: transform 0.15s ease;
+    transform: rotate(90deg);
+    font-size: 10px;
+}
+
+.mu-collapsed .mu-frontmatter-toggle {
+    transform: rotate(0deg);
+}
+
+.mu-frontmatter-body {
+    display: grid;
+    grid-template-columns: 24px max-content 1fr;
+    width: 100%;
+}
+
+/* display:contents makes the row transparent to the grid so all cells share
+   the same column tracks — this is what gives the key column a uniform width
+   sized to the longest key string. */
+.mu-frontmatter-row {
+    display: contents;
+}
+
+.mu-frontmatter-drag-handle {
+    display: flex;
+    align-items: flex-start;
+    padding: 7px 4px 6px 8px;
+    color: var(--editor-color-20);
+    font-size: 10px;
+    cursor: grab;
+    user-select: none;
+    border-bottom: 1px solid var(--editor-color-10);
+}
+
+.mu-frontmatter-key,
+.mu-frontmatter-value {
+    display: block;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+    outline: none;
+    word-break: break-word;
+    white-space: pre-wrap;
+    min-height: 1.4em;
+    border-bottom: 1px solid var(--editor-color-10);
+}
+
+.mu-frontmatter-key {
+    white-space: nowrap;
+    color: var(--editor-color-50);
+    font-weight: 500;
+    border-right: 1px solid var(--editor-color-10);
+}
+
+.mu-frontmatter-value {
+    color: var(--editor-color);
+}
+
+.mu-frontmatter-row:last-child .mu-frontmatter-drag-handle,
+.mu-frontmatter-row:last-child .mu-frontmatter-key,
+.mu-frontmatter-row:last-child .mu-frontmatter-value {
+    border-bottom: none;
+}
+
+.mu-frontmatter-footer {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+
+    font-size: 13px;
+    color: var(--editor-color-30);
+    cursor: pointer;
+    user-select: none;
+
+    border-top: 1px solid var(--editor-color-10);
+}
+
+.mu-frontmatter-footer:hover {
+    color: var(--editor-color-50);
+    background: var(--code-block-bg-color);
+}
+
+.mu-frontmatter-add-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.mu-collapsed .mu-frontmatter-body,
+.mu-collapsed .mu-frontmatter-footer {
+    display: none;
 }
 
 /* code html math ...code block style */
