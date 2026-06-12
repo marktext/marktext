@@ -51,6 +51,7 @@ class FrontmatterRow extends Parent {
         handle.className = 'mu-frontmatter-drag-handle';
         handle.contentEditable = 'false';
         handle.setAttribute('contenteditable', 'false');
+        handle.setAttribute('draggable', 'true');
         handle.textContent = '⋮⋮';
         this.domNode!.appendChild(handle);
     }

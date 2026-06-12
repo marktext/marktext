@@ -856,6 +856,18 @@ figure.mu-math-block span.mu-codeblock-content:first-of-type:empty::after {
     border-bottom: none;
 }
 
+.mu-frontmatter-row.mu-drop-above .mu-frontmatter-drag-handle,
+.mu-frontmatter-row.mu-drop-above .mu-frontmatter-key,
+.mu-frontmatter-row.mu-drop-above .mu-frontmatter-value {
+    border-top: 2px solid var(--editor-color-50);
+}
+
+.mu-frontmatter-row.mu-drop-below .mu-frontmatter-drag-handle,
+.mu-frontmatter-row.mu-drop-below .mu-frontmatter-key,
+.mu-frontmatter-row.mu-drop-below .mu-frontmatter-value {
+    border-bottom: 2px solid var(--editor-color-50);
+}
+
 .mu-frontmatter-footer {
     display: flex;
     align-items: center;
