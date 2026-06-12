@@ -69,14 +69,12 @@ function replacePlaceholderImage(
  * Insert a pasted image at the cursor, routing it through the embedder's
  * `imageAction` so the user's insert preference (copy-to-assets / upload /
  * keep-path) applies and a portable src is written. `src` is either a
- * resolved clipboard file path (PG06) or a `data:` URL for an in-memory
- * bitmap (PG05).
+ * resolved clipboard file path or a `data:` URL for an in-memory bitmap.
  *
  * A `loading-<id>` placeholder image is spliced in synchronously (with the
  * incoming `src` as a temporary preview) BEFORE awaiting `imageAction`, then
- * replaced with the resolved src once it settles — mirroring legacy
- * `pasteCtrl.pasteImage`'s loading-id insert → imageAction → replace flow,
- * so the user sees a placeholder while the upload/copy runs. When no
+ * replaced with the resolved src once it settles, so the user sees a
+ * placeholder while the upload/copy runs. When no
  * `imageAction` is configured the placeholder's src is the final one.
  */
 async function insertImageSrc(
@@ -107,11 +105,10 @@ async function insertImageSrc(
 
 /**
  * Insert a pasted image when the clipboard carries one. Tries a resolved
- * clipboard FILE path first (PG06, via the `clipboardFilePath` hook), then
- * an in-memory bitmap File (PG05, read as a base64 `data:` URL). Returns
+ * clipboard FILE path first (via the `clipboardFilePath` hook), then
+ * an in-memory bitmap File (read as a base64 `data:` URL). Returns
  * `true` when an image was inserted so the caller skips the text/HTML
- * paste, `false` to fall through. Ported from the legacy `@muyajs`
- * `pasteImage` ordering (file path, then binary).
+ * paste, `false` to fall through.
  */
 export async function tryPasteImage(
     clipboard: Clipboard,

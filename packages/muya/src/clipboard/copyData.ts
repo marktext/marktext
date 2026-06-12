@@ -37,7 +37,6 @@ interface ICopyOrder {
     endOffset: number;
 }
 
-// `frontMatter` defaults to `true` to match the legacy behavior.
 function buildHtmlOptions(options: Muya['options']) {
     const {
         frontMatter = true,
@@ -133,8 +132,7 @@ function resolveSelectionOrder(
 }
 
 // Handle the start / end outmost block of a cross-block selection, pushing the
-// partial state for whichever edge `position` names. Ported from the legacy
-// `getPartialState` closure.
+// partial state for whichever edge `position` names.
 function appendPartialState(
     copyState: TState[],
     order: ICopyOrder,
@@ -298,8 +296,7 @@ export function writeClipboardData(
         return;
 
     // A selected inline image copies its raw `![alt](src)` markdown
-    // verbatim (legacy `copyCutCtrl.copyHandler`), short-circuiting the
-    // text-selection clipboard data.
+    // verbatim, short-circuiting the text-selection clipboard data.
     const selectedImage = clipboard.muya.editor?.selection?.selectedImage;
     if (selectedImage) {
         const { raw } = selectedImage.token;

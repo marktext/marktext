@@ -39,10 +39,10 @@ function isSingleCellSelected(clipboard: Clipboard): boolean {
     return state.children.length === 1 && state.children[0].children.length === 1;
 }
 
-// Parse a paste into real blocks (the common anchor case). Mirrors legacy
-// `pasteCtrl.pasteHandler`: parse markdown → state, splice a leading paragraph
-// back into a heading anchor, drop the selected range, insert the new blocks,
-// remove the emptied source paragraph, and seat the cursor at the end.
+// Parse a paste into real blocks (the common anchor case): parse markdown →
+// state, splice a leading paragraph back into a heading anchor, drop the
+// selected range, insert the new blocks, remove the emptied source paragraph,
+// and seat the cursor at the end.
 function applyParsedPaste(
     clipboard: Clipboard,
     ctx: IPasteContext,
@@ -52,9 +52,8 @@ function applyParsedPaste(
     const { anchorBlock, originWrapperBlock, start, end, content } = ctx;
     let wrapperBlock = ctx.wrapperBlock;
 
-    // An empty / whitespace-only paste is a no-op (legacy `pasteCtrl` bails
-    // on `stateFragments.length <= 0`); the parser would otherwise emit a
-    // lone empty paragraph and churn blocks.
+    // An empty / whitespace-only paste is a no-op; the parser would otherwise
+    // emit a lone empty paragraph and churn blocks.
     if (markdown.trim().length === 0)
         return;
 
@@ -76,7 +75,7 @@ function applyParsedPaste(
 
     // When pasting into a heading, splice the first paragraph back into the
     // heading text so the heading semantics survive. The helper also collapses
-    // any selection on the heading. Backport of marktext 1c42555a (#671).
+    // any selection on the heading.
     const remaining = mergePasteIntoHeading(
         anchorBlock,
         wrapperBlock,
@@ -111,8 +110,7 @@ function applyParsedPaste(
 }
 
 // `language-input`, `table.cell.content` and `codeblock.content` never parse a
-// paste into blocks — they take the text literally (legacy `pasteCtrl`
-// `languageInput` / `cellContent` / `codeContent` branches).
+// paste into blocks — they take the text literally.
 function applyLiteralPaste(
     clipboard: Clipboard,
     ctx: IPasteContext,
@@ -123,7 +121,7 @@ function applyLiteralPaste(
 
     // A frozen table-cell selection scopes the paste: a single cell gets its
     // text replaced (with `\n` → `<br/>`); a multi-cell rectangle cancels the
-    // paste (legacy `pasteCtrl.pasteHandler` `cellContent` branch).
+    // paste.
     if (
         anchorBlock.blockName === 'table.cell.content'
         && clipboard.tableSelection?.hasSelection
@@ -170,9 +168,8 @@ function applyLiteralPaste(
 }
 
 // Block-level HTML (`<ul>`/`<ol>`/`<pre>`/`<blockquote>` … — tags in
-// `PARAGRAPH_TYPES`) lands as a live html-block (legacy `pasteCtrl`
-// `copyAsHtml` → `insertHtmlBlock`), not a fenced ```html code block, so the
-// markup renders in place.
+// `PARAGRAPH_TYPES`) lands as a live html-block, not a fenced ```html code
+// block, so the markup renders in place.
 function applyHtmlBlockPaste(
     clipboard: Clipboard,
     ctx: IPasteContext,
@@ -207,8 +204,7 @@ export async function pasteSelection(
     // DataTransfer and subsequent `getData()` calls return ''. We snapshot
     // text/html synchronously below and thread the snapshot through the
     // `!isSelectionInSameBlock` recursion via these optional params so the
-    // re-entry doesn't read a detached clipboard. Mirrors the legacy
-    // `@muyajs` `pasteHandler(event, type, rawText, rawHtml)` signature.
+    // re-entry doesn't read a detached clipboard.
     rawText?: string,
     rawHtml?: string,
 ): Promise<void> {
@@ -234,7 +230,7 @@ export async function pasteSelection(
     const text = rawText ?? event.clipboardData.getData('text/plain');
     let html = rawHtml ?? event.clipboardData.getData('text/html');
     // Snapshot any in-memory image File (the bitmap / "Copy Image" /
-    // screenshot case, PG05) synchronously too — `clipboardData.files`
+    // screenshot case) synchronously too — `clipboardData.files`
     // is also detached after the first `await`.
     const imageFile = getClipboardImageFile(event.clipboardData);
 
@@ -245,7 +241,7 @@ export async function pasteSelection(
     }
 
     // When the clipboard holds an image — either a file resolved to a path
-    // (PG06) or an in-memory bitmap (PG05) — insert it as an inline image
+    // or an in-memory bitmap — insert it as an inline image
     // routed through `imageAction`, short-circuiting the text/HTML paste.
     if (await tryPasteImage(clipboard, anchorBlock, imageFile))
         return;
@@ -257,7 +253,7 @@ export async function pasteSelection(
     // Apple Numbers and a handful of other sources only put a raw
     // `<table>...</table>` blob in text/plain. Promote it to the HTML
     // slot so it goes through the HTML→Markdown converter rather than
-    // being inserted verbatim (marktext 067ec485 / #1271).
+    // being inserted verbatim.
     if (!html && isStandaloneTableHtml(text))
         html = text;
 

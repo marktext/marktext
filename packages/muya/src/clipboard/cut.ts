@@ -10,8 +10,7 @@ import { CLASS_NAMES } from '../config';
 import { getBlock } from '../utils/dom';
 
 /**
- * Whole-document selection predicate, ported from legacy
- * `paragraphCtrl.isSelectAll`: the selection spans from the very first
+ * Whole-document selection predicate: the selection spans from the very first
  * content leaf at offset 0 to the very last content leaf at its end.
  */
 function isSelectAll(
@@ -34,8 +33,7 @@ function isSelectAll(
 
 /**
  * Replace the whole document with a single empty paragraph and seat the
- * caret in it (legacy `backspaceCtrl` `isSelectAll` reset / empty-document
- * guard).
+ * caret in it.
  */
 function resetToEmptyParagraph(clipboard: Clipboard): void {
     const { scrollPage } = clipboard;
@@ -57,7 +55,7 @@ function resetToEmptyParagraph(clipboard: Clipboard): void {
 }
 
 // Empty every cell content leaf from `start` up to and including `after`,
-// keeping the table grid intact (legacy `removeBlocks` `td`/`th` exemption).
+// keeping the table grid intact.
 function emptyCellContentsUntil(
     start: Nullable<Content>,
     after: TreeNode,
@@ -80,7 +78,7 @@ function removeBlocksWithinTable(before: TreeNode, after: TreeNode): void {
 
 /**
  * Handle a cross-block cut whose end lands inside a table. The table grid is
- * exempt from structural removal (legacy `removeBlocks` `exemption`): remove
+ * exempt from structural removal: remove
  * the outmost blocks strictly between `before` and the table, then empty —
  * not remove — every cell from the table's first cell up to and including
  * `after`'s cell.
@@ -150,9 +148,8 @@ function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
  * targets a still-attached path.
  */
 function removeBlocks(before: TreeNode, after: TreeNode): void {
-    // A table is exempt from structural removal (legacy `removeBlocks`
-    // `exemption` for `td`/`th`): empty the spanned cells in place and keep
-    // the grid rather than deleting cells/rows.
+    // A table is exempt from structural removal: empty the spanned cells in
+    // place and keep the grid rather than deleting cells/rows.
     const beforeTable = before.closestBlock('table');
     const afterTable = after.closestBlock('table');
 
@@ -251,7 +248,7 @@ function selectedTableCells(
  * Structurally delete an empty whole row / column / table when cutting a
  * frozen table-cell selection. Returns `true` when it handled the cut (the
  * caller then skips the in-place clear), `false` to fall through to the
- * in-place clear. Mirrors legacy `deleteSelectedTableCells` (152-211).
+ * in-place clear.
  */
 function cutEmptyTableStructure(clipboard: Clipboard): boolean {
     const selectedCells = selectedTableCells(clipboard);
@@ -308,8 +305,8 @@ function cutEmptyTableStructure(clipboard: Clipboard): boolean {
 export function cutSelection(clipboard: Clipboard): void {
     // A frozen cross-cell table selection. When every selected cell is
     // already empty and the rectangle covers a whole row / column / table,
-    // delete that structure (legacy `deleteSelectedTableCells`); otherwise
-    // empty the cells in place. The copy half already captured the
+    // delete that structure; otherwise empty the cells in place. The copy half
+    // already captured the
     // rectangle's markdown via `getClipboardData`.
     if (clipboard.tableSelection?.hasSelection) {
         if (!cutEmptyTableStructure(clipboard))
@@ -349,15 +346,14 @@ export function cutSelection(clipboard: Clipboard): void {
     const startOffset = direction === 'forward' ? anchor.offset : focus.offset;
     const endOffset = direction === 'forward' ? focus.offset : anchor.offset;
 
-    // Whole-document selection collapses to a single empty paragraph
-    // (legacy `backspaceCtrl` `isSelectAll` reset).
+    // Whole-document selection collapses to a single empty paragraph.
     if (isSelectAll(clipboard, startBlock, startOffset, endBlock, endOffset)) {
         resetToEmptyParagraph(clipboard);
 
         return;
     }
 
-    // Leaf-level merge (legacy `cutHandler` + `removeBlocks`): keep the
+    // Leaf-level merge: keep the
     // start head and the end tail in the start content block, then remove
     // only the structure strictly between the two leaves (and the emptied
     // end-side containers). The start block keeps its container — a list
