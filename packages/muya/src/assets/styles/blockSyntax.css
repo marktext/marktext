@@ -405,6 +405,20 @@ ol.mu-order-list:last-child {
     margin-bottom: 0;
 }
 
+/* nested bullet markers follow the browser default cascade
+   (disc → circle → square), matching muyajs */
+ul.mu-bullet-list ul.mu-bullet-list,
+ol.mu-order-list ul.mu-bullet-list {
+    list-style-type: circle;
+}
+
+ul.mu-bullet-list ul.mu-bullet-list ul.mu-bullet-list,
+ul.mu-bullet-list ol.mu-order-list ul.mu-bullet-list,
+ol.mu-order-list ul.mu-bullet-list ul.mu-bullet-list,
+ol.mu-order-list ol.mu-order-list ul.mu-bullet-list {
+    list-style-type: square;
+}
+
 /* Focus mode (mirrors marktext muyajs `.ag-focus-mode`): when the editor
    container carries `mu-focus-mode`, dim every top-level block and restore full
    opacity on the active one. `mu-active` is applied to the whole ancestor chain
