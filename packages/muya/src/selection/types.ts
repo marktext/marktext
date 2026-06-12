@@ -1,4 +1,6 @@
 import type ContentBlock from '../block/base/content';
+import type Format from '../block/base/format';
+import type { ImageToken } from '../inlineRenderer/types';
 
 export interface INodeOffset {
     offset: number;
@@ -47,3 +49,11 @@ export type IHistorySelection = Omit<ISelection, 'anchorBlock' | 'focusBlock'> &
     anchorBlock?: ContentBlock;
     focusBlock?: ContentBlock;
 };
+
+export type SelectionType = 'text' | 'table' | 'image';
+
+export interface IImageSelectionData {
+    token: ImageToken;
+    imageId: string;
+    block: Format;
+}

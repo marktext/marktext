@@ -1,0 +1,179 @@
+import type Format from '../block/base/format';
+import type { Muya } from '../muya';
+import type Selection from './index';
+import type { IImageSelectionData } from './types';
+import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
+import { isHTMLElement, isKeyboardEvent } from '../utils';
+import { getImageInfo, getImageSrc } from '../utils/image';
+import { findContentDOM } from './dom';
+
+class ImageSelection {
+    selected: IImageSelectionData | null = null;
+
+    constructor(private _muya: Muya, private _selection: Selection) {}
+
+    attach(): void {
+        const { eventCenter, domNode } = this._muya;
+        eventCenter.attachDOMEvent(domNode, 'click', this._handleClick);
+        eventCenter.attachDOMEvent(document, 'click', this._handleDocClick);
+        eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown);
+    }
+
+    clear(): void {
+        this.selected = null;
+    }
+
+    private _handleDocClick = (): void => {
+        this.selected = null;
+    };
+
+    private _handleClick = (event: Event): void => {
+        const { target } = event;
+        if (!isHTMLElement(target))
+            return;
+        const imageWrapper = target.closest<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
+        this.selected = null;
+        if (imageWrapper)
+            this._handleClickInlineImage(event, imageWrapper);
+    };
+
+    private _handleKeydown = (event: Event): void => {
+        if (!isKeyboardEvent(event))
+            return;
+
+        const { key } = event;
+        const { selected } = this;
+        if (!selected)
+            return;
+
+        if (key === ' ') {
+            event.preventDefault();
+            this._previewSelectedImage(selected);
+            return;
+        }
+
+        if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
+            event.preventDefault();
+            const { block, ...imageInfo } = selected;
+            block.deleteImage(imageInfo);
+            this.selected = null;
+        }
+    };
+
+    private _previewSelectedImage(selected: IImageSelectionData) {
+        const { token, imageId } = selected;
+        const tokenSrc = token.src || token.attrs.src || '';
+        const imgSrc
+            = this._muya.domNode
+                .querySelector<HTMLImageElement>(`#${imageId} img`)
+                ?.getAttribute('src') ?? '';
+        const src = getImageSrc(tokenSrc).src || imgSrc;
+
+        if (src) {
+            this._muya.eventCenter.emit('preview-image', {
+                data: src,
+            });
+        }
+    }
+
+    private _handleClickInlineImage(event: Event, imageWrapper: HTMLElement) {
+        event.preventDefault();
+        event.stopPropagation();
+        const { eventCenter } = this._muya;
+        const imageInfo = getImageInfo(imageWrapper);
+        const { target } = event;
+        if (!(target instanceof Node))
+            return;
+        const deleteContainer = isHTMLElement(target)
+            ? target.closest('.mu-image-icon-close')
+            : null;
+        const contentDom = findContentDOM(target);
+
+        if (!contentDom)
+            return;
+
+        const contentBlock = contentDom[BLOCK_DOM_PROPERTY] as Format;
+
+        if (deleteContainer) {
+            contentBlock.deleteImage(imageInfo);
+
+            return;
+        }
+
+        // Handle image click, to select the current image
+        if (isHTMLElement(target) && target.tagName === 'IMG') {
+            if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
+                const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
+                const src = getImageSrc(tokenSrc).src || target.getAttribute('src') || '';
+                if (src) {
+                    eventCenter.emit('format-click', {
+                        event,
+                        formatType: 'image',
+                        data: src,
+                    });
+                }
+            }
+
+            // Handle show image toolbar
+            const rect = imageWrapper
+                .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
+                ?.getBoundingClientRect();
+            const reference = {
+                getBoundingClientRect: () => rect,
+                width: imageWrapper.offsetWidth,
+                height: imageWrapper.offsetHeight,
+            };
+
+            // Show image edit tool bar.
+            eventCenter.emit('muya-image-toolbar', {
+                block: contentBlock,
+                reference,
+                imageInfo,
+            });
+
+            const imageSelector = `#${imageInfo.imageId}`;
+
+            const imageContainer = document.querySelector(
+                `${imageSelector} .${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
+            );
+
+            eventCenter.emit('muya-transformer', {
+                block: contentBlock,
+                reference: imageContainer,
+                imageInfo,
+            });
+
+            this.selected = Object.assign({}, imageInfo, {
+                block: contentBlock,
+            });
+            this._muya.editor.activeContentBlock = null;
+            this._selection.setSelection({
+                anchor: null,
+                focus: null,
+            });
+
+            return;
+        }
+
+        // Handle click imageWrapper when it's empty or image load failed.
+        if (
+            imageWrapper.classList.contains(CLASS_NAMES.MU_EMPTY_IMAGE)
+            || imageWrapper.classList.contains(CLASS_NAMES.MU_IMAGE_FAIL)
+        ) {
+            const rect = imageWrapper.getBoundingClientRect();
+            const reference = {
+                getBoundingClientRect: () => rect,
+                width: imageWrapper.offsetWidth,
+                height: imageWrapper.offsetHeight,
+            };
+            const imageInfo = getImageInfo(imageWrapper);
+            eventCenter.emit('muya-image-selector', {
+                block: contentBlock,
+                reference,
+                imageInfo,
+            });
+        }
+    }
+}
+
+export default ImageSelection;

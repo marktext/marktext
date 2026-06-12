@@ -5,22 +5,22 @@ import type ListItem from '../block/commonMark/listItem';
 import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type TaskListItem from '../block/gfm/taskListItem';
-import type { ImageToken } from '../inlineRenderer/types';
 import type { Muya } from '../muya';
 import type { ICursor, INodeOffset, ISelection } from './types';
-import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
-import { isElement, isHTMLElement, isKeyboardEvent, isMouseEvent } from '../utils';
-import { getImageInfo, getImageSrc } from '../utils/image';
+import { BLOCK_DOM_PROPERTY } from '../config';
+import { isHTMLElement, isMouseEvent } from '../utils';
 import {
     buildSelectionAffiliation,
     endpointBlockInfo,
 } from './affiliation';
+import { getCursorCoords, getCursorYOffset, getSelectionStart } from './cursorCoords';
 import {
     compareParagraphsOrder,
     findContentDOM,
     getNodeAndOffset,
     getOffsetOfParagraph,
 } from './dom';
+import ImageSelection from './ImageSelection';
 
 class Selection {
     /**
@@ -28,57 +28,15 @@ class Selection {
      * @param {*} paragraph
      */
     static getCursorYOffset(paragraph: HTMLElement) {
-        const { y } = this.getCursorCoords()!;
-        const { height, top } = paragraph.getBoundingClientRect();
-        const lineHeight = Number.parseFloat(getComputedStyle(paragraph).lineHeight);
-        const topOffset = Math.floor((y - top) / lineHeight);
-        const bottomOffset = Math.round(
-            (top + height - lineHeight - y) / lineHeight,
-        );
-
-        return {
-            topOffset,
-            bottomOffset,
-        };
+        return getCursorYOffset(paragraph);
     }
 
     static getCursorCoords(preferEnd = false) {
-        const sel = document.getSelection();
-        let range;
-        let rect = null;
-
-        if (sel?.rangeCount) {
-            range = sel.getRangeAt(0).cloneRange();
-            if (range.getClientRects) {
-                // range.collapse(true)
-                let rects: DOMRectList | null = range.getClientRects();
-                if (rects.length === 0) {
-                    rects
-                        = range.startContainer && isElement(range.startContainer)
-                            ? range.startContainer.getClientRects()
-                            : null;
-                }
-
-                // For a forward range selection the caret sits at the END, so
-                // prefer the last client rect; otherwise the first rect is the
-                // caret (collapsed cursor or backward selection).
-                if (rects?.length)
-                    rect = preferEnd ? rects[rects.length - 1] : rects[0];
-            }
-        }
-
-        return rect;
+        return getCursorCoords(preferEnd);
     }
 
-    // https://stackoverflow.com/questions/1197401/
-    // how-can-i-get-the-element-the-caret-is-in-with-javascript-when-using-contenteditable
-    // by You
     static getSelectionStart() {
-        const node = document.getSelection()!.anchorNode;
-        const startNode
-            = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
-
-        return startNode;
+        return getSelectionStart();
     }
 
     get scrollPage() {
@@ -145,11 +103,16 @@ class Selection {
     public focusBlock: Content | null = null;
     public anchor: INodeOffset | null = null;
     public focus: INodeOffset | null = null;
-    public selectedImage: {
-        token: ImageToken;
-        imageId: string;
-        block: Format;
-    } | null = null;
+
+    private _image: ImageSelection;
+
+    get selectedImage() {
+        return this._image.selected;
+    }
+
+    set selectedImage(value) {
+        this._image.selected = value;
+    }
 
     private _selectInfo: {
         isSelect: boolean;
@@ -160,6 +123,8 @@ class Selection {
     };
 
     constructor(public muya: Muya) {
+        this._image = new ImageSelection(muya, this);
+        this._image.attach();
         this._listenSelectActions();
     }
 
@@ -582,188 +547,11 @@ class Selection {
                 this.setSelection(newSelection);
         };
 
-        const docHandlerClick = () => {
-            this.selectedImage = null;
-        };
-
-        const handleClick = (event: Event) => {
-            const { target } = event;
-            if (!isHTMLElement(target))
-                return;
-            const imageWrapper = target.closest<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
-            this.selectedImage = null;
-            if (imageWrapper)
-                return this._handleClickInlineImage(event, imageWrapper);
-        };
-
         eventCenter.attachDOMEvent(domNode, 'mousedown', handleMousedown);
         eventCenter.attachDOMEvent(domNode, 'mousemove', handleMousemoveOrClick);
         eventCenter.attachDOMEvent(domNode, 'mouseup', handleMouseupOrLeave);
         eventCenter.attachDOMEvent(domNode, 'mouseleave', handleMouseupOrLeave);
         eventCenter.attachDOMEvent(domNode, 'click', handleMousemoveOrClick);
-        eventCenter.attachDOMEvent(domNode, 'click', handleClick);
-        eventCenter.attachDOMEvent(document, 'click', docHandlerClick);
-        eventCenter.attachDOMEvent(document, 'keydown', this._handleImageKeydown);
-    }
-
-    // Keydown handling while an image is selected. Bound as a field so it can
-    // be passed directly to `attachDOMEvent` and keeps `_listenSelectActions`
-    // small. No-op unless an image is currently selected.
-    private _handleImageKeydown = (event: Event) => {
-        if (!isKeyboardEvent(event))
-            return;
-
-        const { key } = event;
-        const { selectedImage } = this;
-        // `selectedImage` is the gate: it is only ever set by an in-editor
-        // image click (`_handleClickInlineImage`) and is cleared on ANY
-        // document click (`docHandlerClick`) and on every delete/preview here.
-        // So this handler is inert unless the user has an image actively
-        // selected inside this editor.
-        if (!selectedImage)
-            return;
-
-        // Pressing Space with an image selected asks the host to open the
-        // full-screen preview, resolving the src the same way the Cmd/Ctrl-click
-        // path does so relative / file paths become loadable URLs.
-        // `preventDefault` stops the native space from being inserted next to
-        // the selected image.
-        if (key === ' ') {
-            event.preventDefault();
-            this._previewSelectedImage(selectedImage);
-            return;
-        }
-
-        // `Delete` was missing from the image-selected key set, so it fell
-        // through to native contenteditable handling and removed the text
-        // *after* the image. Match key exactly to avoid substring-collisions
-        // like `BackspaceX`.
-        if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
-            event.preventDefault();
-            const { block, ...imageInfo } = selectedImage;
-            block.deleteImage(imageInfo);
-            this.selectedImage = null;
-        }
-    };
-
-    // Resolve the selected image's src and ask the host to full-screen
-    // preview it. Resolution: prefer the token src (run through `getImageSrc`
-    // so relative / file paths become loadable), and fall back to the rendered
-    // <img>'s own `src` attribute.
-    private _previewSelectedImage(selectedImage: NonNullable<Selection['selectedImage']>) {
-        const { token, imageId } = selectedImage;
-        const tokenSrc = token.src || token.attrs.src || '';
-        const imgSrc
-            = this.muya.domNode
-                .querySelector<HTMLImageElement>(`#${imageId} img`)
-                ?.getAttribute('src') ?? '';
-        const src = getImageSrc(tokenSrc).src || imgSrc;
-
-        if (src) {
-            this.muya.eventCenter.emit('preview-image', {
-                data: src,
-            });
-        }
-    }
-
-    // Handle click inline image.
-    private _handleClickInlineImage(event: Event, imageWrapper: HTMLElement) {
-        event.preventDefault();
-        event.stopPropagation();
-        const { eventCenter } = this.muya;
-        const imageInfo = getImageInfo(imageWrapper);
-        const { target } = event;
-        if (!(target instanceof Node))
-            return;
-        const deleteContainer = isHTMLElement(target)
-            ? target.closest('.mu-image-icon-close')
-            : null;
-        const contentDom = findContentDOM(target);
-
-        if (!contentDom)
-            return;
-
-        const contentBlock = contentDom[BLOCK_DOM_PROPERTY] as Format;
-
-        if (deleteContainer) {
-            contentBlock.deleteImage(imageInfo);
-
-            return;
-        }
-
-        // Handle image click, to select the current image
-        if (isHTMLElement(target) && target.tagName === 'IMG') {
-            if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
-                const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
-                const src = getImageSrc(tokenSrc).src || target.getAttribute('src') || '';
-                if (src) {
-                    eventCenter.emit('format-click', {
-                        event,
-                        formatType: 'image',
-                        data: src,
-                    });
-                }
-            }
-
-            // Handle show image toolbar
-            const rect = imageWrapper
-                .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
-                ?.getBoundingClientRect();
-            const reference = {
-                getBoundingClientRect: () => rect,
-                width: imageWrapper.offsetWidth,
-                height: imageWrapper.offsetHeight,
-            };
-
-            // Show image edit tool bar.
-            eventCenter.emit('muya-image-toolbar', {
-                block: contentBlock,
-                reference,
-                imageInfo,
-            });
-
-            const imageSelector = `#${imageInfo.imageId}`;
-
-            const imageContainer = document.querySelector(
-                `${imageSelector} .${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
-            );
-
-            eventCenter.emit('muya-transformer', {
-                block: contentBlock,
-                reference: imageContainer,
-                imageInfo,
-            });
-
-            this.selectedImage = Object.assign({}, imageInfo, {
-                block: contentBlock,
-            });
-            this.muya.editor.activeContentBlock = null;
-            this.setSelection({
-                anchor: null,
-                focus: null,
-            });
-
-            return;
-        }
-
-        // Handle click imageWrapper when it's empty or image load failed.
-        if (
-            imageWrapper.classList.contains(CLASS_NAMES.MU_EMPTY_IMAGE)
-            || imageWrapper.classList.contains(CLASS_NAMES.MU_IMAGE_FAIL)
-        ) {
-            const rect = imageWrapper.getBoundingClientRect();
-            const reference = {
-                getBoundingClientRect: () => rect,
-                width: imageWrapper.offsetWidth,
-                height: imageWrapper.offsetHeight,
-            };
-            const imageInfo = getImageInfo(imageWrapper);
-            eventCenter.emit('muya-image-selector', {
-                block: contentBlock,
-                reference,
-                imageInfo,
-            });
-        }
     }
 
     private _selectRange(range: Range) {
@@ -850,7 +638,7 @@ class Selection {
 }
 
 export function getCursorReference() {
-    const rect = Selection.getCursorCoords();
+    const rect = getCursorCoords();
 
     if (!rect)
         return null;
