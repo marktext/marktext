@@ -155,7 +155,6 @@ class ImageSelection {
                 width: imageWrapper.offsetWidth,
                 height: imageWrapper.offsetHeight,
             };
-            const imageInfo = getImageInfo(imageWrapper);
             eventCenter.emit('muya-image-selector', {
                 block: contentBlock,
                 reference,
