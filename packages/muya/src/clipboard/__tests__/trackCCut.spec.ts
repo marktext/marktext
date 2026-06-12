@@ -281,7 +281,7 @@ describe('track C — whole-document selection collapses to one empty paragraph'
 });
 
 // Drive a real frozen table selection through DOM mouse events (same pattern
-// as editor/__tests__/tableCellSelection.spec.ts) so `cutHandler`'s table
+// as selection/__tests__/TableRectSelection.spec.ts) so `cutHandler`'s table
 // branch reads a genuine selection.
 function firstTable(muya: Muya): TableBlock {
     return muya.editor.scrollPage!.firstContentInDescendant()!.closestBlock('table') as TableBlock;
