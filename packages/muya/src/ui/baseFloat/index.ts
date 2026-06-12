@@ -5,6 +5,7 @@ import { autoUpdate, computePosition, flip, offset } from '@floating-ui/dom';
 import { EVENT_KEYS } from '../../config';
 
 import { isHTMLElement, isKeyboardEvent, noop } from '../../utils';
+import { findScrollContainer } from '../../utils/dom';
 
 import './index.css';
 
@@ -87,8 +88,6 @@ abstract class BaseFloat {
          * it means that the user's focus is no longer on the float box,
          * so the float box needs to be hidden.
          */
-        // TODO: @JOCS, But now there is a problem, the container for scroll is indeterminate,
-        // and currently the default scroll container is the parent element of the editor(muya.domNode)
         const scrollHandler = (event: Event) => {
             if (!isHTMLElement(event.target))
                 return;
@@ -113,7 +112,7 @@ abstract class BaseFloat {
             event.preventDefault();
         });
         eventCenter.attachDOMEvent(domNode, 'keydown', keydownHandler);
-        eventCenter.attachDOMEvent(domNode.parentElement!, 'scroll', scrollHandler);
+        eventCenter.attachDOMEvent(findScrollContainer(domNode), 'scroll', scrollHandler);
     }
 
     hide() {

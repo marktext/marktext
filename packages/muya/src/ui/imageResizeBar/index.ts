@@ -3,6 +3,7 @@ import type { Muya } from '../../index';
 import type { ImageToken } from '../../inlineRenderer/types';
 
 import { isHTMLElement, isMouseEvent } from '../../utils';
+import { findScrollContainer } from '../../utils/dom';
 import './index.css';
 
 const VERTICAL_BAR = ['left', 'right'];
@@ -73,7 +74,7 @@ export class ImageResizeBar {
         });
 
         eventCenter.attachDOMEvent(document, 'click', this.hide.bind(this));
-        eventCenter.attachDOMEvent(domNode.parentElement!, 'scroll', scrollHandler);
+        eventCenter.attachDOMEvent(findScrollContainer(domNode), 'scroll', scrollHandler);
         eventCenter.attachDOMEvent(this._container, 'dragstart', event =>
             event.preventDefault());
         eventCenter.attachDOMEvent(document.body, 'mousedown', this.mouseDown);
