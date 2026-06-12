@@ -2,8 +2,6 @@ import type Content from '../block/base/content';
 import type Format from '../block/base/format';
 import type Parent from '../block/base/parent';
 import type ListItem from '../block/commonMark/listItem';
-import type Table from '../block/gfm/table';
-import type TableBodyCell from '../block/gfm/table/cell';
 import type TaskListItem from '../block/gfm/taskListItem';
 import type { Muya } from '../muya';
 import type Selection from './index';
@@ -104,98 +102,7 @@ class TextSelection {
         this.setSelection({ anchor: null, focus: null });
     }
 
-    selectAll() {
-        const {
-            anchor,
-            focus,
-            isSelectionInSameBlock,
-            anchorBlock,
-            focusBlock,
-            anchorPath,
-        } = this;
-        const tableSelection = this._selection.table;
-
-        // Table escalation:
-        //   whole table frozen → clear + select the whole document.
-        //   single cell frozen → select the whole table.
-        if (tableSelection.isWholeTableSelected()) {
-            tableSelection.clear();
-            return this._selectAllContent();
-        }
-        if (tableSelection.isSingleCellSelected()) {
-            const cellBlock = anchorBlock?.closestBlock('table.cell') as TableBodyCell | null;
-            const table = cellBlock?.table ?? null;
-            if (table) {
-                tableSelection.selectTable(table);
-                return;
-            }
-        }
-
-        // Caret / range inside table cells. A 1x1 selection freezes that cell;
-        // a range across two cells of the same table selects the whole table;
-        // a range across two different tables is a no-op (no document select).
-        if (
-            anchorBlock?.blockName === 'table.cell.content'
-            && focusBlock?.blockName === 'table.cell.content'
-        ) {
-            const anchorTable = anchorBlock.closestBlock('table') as Table | null;
-            const focusTable = focusBlock.closestBlock('table') as Table | null;
-            if (anchorBlock === focusBlock) {
-                const cellBlock = anchorBlock.closestBlock('table.cell') as TableBodyCell | null;
-                if (cellBlock) {
-                    tableSelection.selectSingleCell(cellBlock);
-                    return;
-                }
-            }
-            else if (anchorTable && focusTable && anchorTable === focusTable) {
-                tableSelection.selectTable(anchorTable);
-                return;
-            }
-            else {
-                return;
-            }
-        }
-
-        // Code content (`codeblock.content`: code-block, html-block, math-block,
-        // diagram, front-matter) and the fenced language input clamp inside
-        // their own block and stay idempotent on repeated Cmd+A — never
-        // escalate to the whole document.
-        if (
-            anchorBlock
-            && (anchorBlock.blockName === 'codeblock.content'
-                || anchorBlock.blockName === 'language-input')
-        ) {
-            const cursor: ICursor = {
-                anchor: { offset: 0 },
-                focus: { offset: anchorBlock.text.length },
-                block: anchorBlock,
-                path: anchorPath,
-            };
-
-            this.setSelection(cursor);
-            return;
-        }
-        if (
-            isSelectionInSameBlock
-            && anchor
-            && focus
-            && anchorBlock
-            && Math.abs(focus.offset - anchor.offset) < anchorBlock.text.length
-        ) {
-            const cursor: ICursor = {
-                anchor: { offset: 0 },
-                focus: { offset: anchorBlock.text.length },
-                block: anchorBlock,
-                path: anchorPath,
-            };
-
-            this.setSelection(cursor);
-            return;
-        }
-        this._selectAllContent();
-    }
-
-    private _selectAllContent() {
+    selectAllContent() {
         const { scrollPage } = this;
         const aBlock = scrollPage?.firstContentInDescendant();
         const fBlock = scrollPage?.lastContentInDescendant();

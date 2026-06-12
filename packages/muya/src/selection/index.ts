@@ -1,3 +1,5 @@
+import type Table from '../block/gfm/table';
+import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
 import type { ICursor, IImageSelectionData, ISelection, SelectionType } from './types';
 import {
@@ -126,7 +128,84 @@ class Selection {
     }
 
     selectAll(): void {
-        this._text.selectAll();
+        const { anchor, focus, isSelectionInSameBlock, anchorBlock, focusBlock, anchorPath }
+            = this._text;
+        const tableSelection = this._table;
+
+        // Table escalation:
+        //   whole table frozen → clear + select the whole document.
+        //   single cell frozen → select the whole table.
+        if (tableSelection.isWholeTableSelected()) {
+            tableSelection.clear();
+            this._text.selectAllContent();
+            return;
+        }
+        if (tableSelection.isSingleCellSelected()) {
+            const cellBlock = anchorBlock?.closestBlock('table.cell') as TableBodyCell | null;
+            const table = cellBlock?.table ?? null;
+            if (table) {
+                tableSelection.selectTable(table);
+                return;
+            }
+        }
+
+        // Caret / range inside table cells. A 1x1 selection freezes that cell;
+        // a range across two cells of the same table selects the whole table;
+        // a range across two different tables is a no-op (no document select).
+        if (
+            anchorBlock?.blockName === 'table.cell.content'
+            && focusBlock?.blockName === 'table.cell.content'
+        ) {
+            const anchorTable = anchorBlock.closestBlock('table') as Table | null;
+            const focusTable = focusBlock.closestBlock('table') as Table | null;
+            if (anchorBlock === focusBlock) {
+                const cellBlock = anchorBlock.closestBlock('table.cell') as TableBodyCell | null;
+                if (cellBlock) {
+                    tableSelection.selectSingleCell(cellBlock);
+                    return;
+                }
+            }
+            else if (anchorTable && focusTable && anchorTable === focusTable) {
+                tableSelection.selectTable(anchorTable);
+                return;
+            }
+            else {
+                return;
+            }
+        }
+
+        // Code content and the fenced language input clamp inside their own
+        // block and stay idempotent on repeated Cmd+A — never escalate to the
+        // whole document.
+        if (
+            anchorBlock
+            && (anchorBlock.blockName === 'codeblock.content'
+                || anchorBlock.blockName === 'language-input')
+        ) {
+            this._text.setSelection({
+                anchor: { offset: 0 },
+                focus: { offset: anchorBlock.text.length },
+                block: anchorBlock,
+                path: anchorPath,
+            });
+            return;
+        }
+        if (
+            isSelectionInSameBlock
+            && anchor
+            && focus
+            && anchorBlock
+            && Math.abs(focus.offset - anchor.offset) < anchorBlock.text.length
+        ) {
+            this._text.setSelection({
+                anchor: { offset: 0 },
+                focus: { offset: anchorBlock.text.length },
+                block: anchorBlock,
+                path: anchorPath,
+            });
+            return;
+        }
+        this._text.selectAllContent();
     }
 }
 
