@@ -55,20 +55,26 @@ class FrontmatterValueContent extends Content {
         event.stopPropagation();
         const isShift = 'shiftKey' in event && (event as KeyboardEvent).shiftKey;
         if (isShift) {
-            // Move to key of this row.
-            const keyContent = this.previousContentInContext();
-            keyContent?.setCursor(keyContent.text.length, keyContent.text.length, true);
+            // Shift+Tab: move to key of the same row.
+            const row = this.parent;
+            if (row && row.isParent()) {
+                const key = row.firstContentInDescendant();
+                if (key) {
+                    key.setCursor(key.text.length, key.text.length, true);
+                }
+            }
         }
         else {
-            // Move to key of next row, or create a new row.
+            // Tab: key of next row, or exit frontmatter when on the last row.
             const next = this.nextContentInContext();
             if (next) {
                 next.setCursor(0, 0, true);
             }
             else {
-                const frontmatter = this.closestBlock('frontmatter');
-                if (frontmatter && 'addProperty' in frontmatter)
-                    (frontmatter as { addProperty: () => void }).addProperty();
+                // No block after the frontmatter — create a paragraph below it.
+                const newPara = ScrollPage.loadBlock('paragraph').create(this.muya, { name: 'paragraph', text: '' });
+                this.scrollPage?.append(newPara, 'user');
+                newPara.firstContentInDescendant()?.setCursor(0, 0, true);
             }
         }
     }

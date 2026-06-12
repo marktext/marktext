@@ -42,9 +42,12 @@ class FrontmatterKeyContent extends Content {
 
     override enterHandler(event: Event) {
         event.preventDefault();
-        // Tab from key to value of the same row.
-        const valueContent = this.nextContentInContext();
-        valueContent?.setCursor(0, 0, true);
+        // Enter in key → move to value of the same row.
+        const row = this.parent;
+        if (row && row.isParent()) {
+            const value = row.lastContentInDescendant();
+            value?.setCursor(0, 0, true);
+        }
     }
 
     override tabHandler(event: Event) {
@@ -52,13 +55,18 @@ class FrontmatterKeyContent extends Content {
         event.stopPropagation();
         const isShift = 'shiftKey' in event && (event as KeyboardEvent).shiftKey;
         if (isShift) {
+            // Shift+Tab: previous row's value, or exit frontmatter if first row.
             const prev = this.previousContentInContext();
             if (prev)
                 prev.setCursor(prev.text.length, prev.text.length, true);
         }
         else {
-            const valueContent = this.nextContentInContext();
-            valueContent?.setCursor(0, 0, true);
+            // Tab: move to value of the same row.
+            const row = this.parent;
+            if (row && row.isParent()) {
+                const value = row.lastContentInDescendant();
+                value?.setCursor(0, 0, true);
+            }
         }
     }
 
