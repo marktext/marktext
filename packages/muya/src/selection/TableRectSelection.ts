@@ -19,15 +19,15 @@ interface ICellPosition {
     column: number;
 }
 
-class TableCellSelection {
+class TableRectSelection {
     private _table: Nullable<Table> = null;
     private _anchor: Nullable<ICellPosition> = null;
     private _focus: Nullable<ICellPosition> = null;
     private _isSelecting = false;
     private _dragEventIds: string[] = [];
 
-    static create(muya: Muya): TableCellSelection {
-        const instance = new TableCellSelection(muya);
+    static create(muya: Muya): TableRectSelection {
+        const instance = new TableRectSelection(muya);
         instance.attach();
 
         return instance;
@@ -313,4 +313,4 @@ class TableCellSelection {
     }
 }
 
-export default TableCellSelection;
+export default TableRectSelection;

@@ -8,7 +8,7 @@ import { Muya } from '../../muya';
 // Coverage for the restored cross-cell table selection (Phase G). Dragging a
 // rectangle of table cells highlights them and makes copy/cut operate on just
 // that sub-range (legacy `tableSelectCellsCtrl`). These tests drive the
-// `TableCellSelection` controller through real DOM mouse events and the
+// `TableRectSelection` controller through real DOM mouse events and the
 // `Clipboard` through a synthetic `copy`/`cut` event so the whole path —
 // selection -> highlight -> clipboard payload / in-place clear — is exercised.
 

@@ -1,4 +1,4 @@
-import type TableCellSelection from '../editor/tableCellSelection';
+import type TableRectSelection from '../selection/TableRectSelection';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type { IClipboardPayload } from './copyData';
@@ -22,7 +22,7 @@ class Clipboard {
         return this.muya.editor.scrollPage;
     }
 
-    get tableSelection(): Nullable<TableCellSelection> {
+    get tableSelection(): Nullable<TableRectSelection> {
         return this.muya.editor?.tableSelection;
     }
 

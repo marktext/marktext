@@ -21,7 +21,7 @@ import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
-import TableCellSelection from './tableCellSelection';
+import TableRectSelection from '../selection/TableRectSelection';
 
 const debug = logger('editor:');
 
@@ -32,7 +32,7 @@ export class Editor {
     searchModule: Search;
     clipboard: Clipboard;
     history: History;
-    tableSelection: TableCellSelection;
+    tableSelection: TableRectSelection;
     scrollPage: Nullable<ScrollPage> = null;
 
     private _activeContentBlock: Nullable<Content> = null;
@@ -46,7 +46,7 @@ export class Editor {
         this.searchModule = new Search(muya);
         this.clipboard = Clipboard.create(muya);
         this.history = new History(muya);
-        this.tableSelection = TableCellSelection.create(muya);
+        this.tableSelection = TableRectSelection.create(muya);
     }
 
     get activeContentBlock() {
