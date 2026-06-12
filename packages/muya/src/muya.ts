@@ -471,7 +471,7 @@ export class Muya {
             document.getSelection()?.removeAllRanges();
 
         if (unSelect)
-            this.editor.selection.selectedImage = null;
+            this.editor.selection.clear();
 
         this.editor.activeContentBlock = null;
         this.ui.hideAllFloatTools();

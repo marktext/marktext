@@ -1355,16 +1355,9 @@ class Format extends Content {
             const imageWrapper = images[images.length - 1];
             const imageInfo = getImageInfo(imageWrapper);
 
-            this.muya.editor.selection.selectedImage = Object.assign({}, imageInfo, {
+            this.muya.editor.selection.selectImage(Object.assign({}, imageInfo, {
                 block: this,
-            });
-            this.muya.editor.activeContentBlock = null;
-            this.muya.editor.selection.setSelection({
-                anchor: null,
-                focus: null,
-                block: this,
-                path: this.path,
-            });
+            }));
         }
     }
 

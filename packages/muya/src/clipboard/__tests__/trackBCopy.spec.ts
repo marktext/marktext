@@ -46,7 +46,7 @@ function dataFor(setData: ReturnType<typeof vi.fn>, format: string) {
 function fakeMuya(overrides: Partial<Muya> = {}) {
     return {
         options: { frontMatter: true },
-        editor: { selection: { selectedImage: null } },
+        editor: { selection: { image: null } },
         ...overrides,
     } as unknown as Muya;
 }
@@ -167,7 +167,7 @@ describe('track B — selected inline image copies its raw markdown', () => {
         const raw = '![alt](https://e.com/x.png)';
         const muya = fakeMuya({
             editor: {
-                selection: { selectedImage: { token: imageToken(raw) } },
+                selection: { image: { token: imageToken(raw) } },
             },
         } as unknown as Partial<Muya>);
         const clipboard = new Clipboard(muya);
@@ -185,7 +185,7 @@ describe('track B — selected inline image copies its raw markdown', () => {
     it('does nothing for an image with empty raw', () => {
         const muya = fakeMuya({
             editor: {
-                selection: { selectedImage: { token: imageToken('') } },
+                selection: { image: { token: imageToken('') } },
             },
         } as unknown as Partial<Muya>);
         const clipboard = new Clipboard(muya);

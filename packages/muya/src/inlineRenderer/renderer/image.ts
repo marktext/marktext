@@ -32,7 +32,7 @@ export default function image(
     { h, block, token }: ISyntaxRenderOptions & { token: ImageToken },
 ) {
     const imageSrc = getImageSrc(token.attrs.src);
-    const { selectedImage } = this.muya.editor.selection;
+    const selectedImage = this.muya.editor.selection.image;
     const { i18n } = this.muya;
     const data = {
         attrs: {

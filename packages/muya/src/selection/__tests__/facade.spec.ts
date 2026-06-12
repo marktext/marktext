@@ -59,18 +59,16 @@ describe('selection facade', () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
 
-        muya.editor.selection.selectedImage = {
-            token: {},
-            imageId: 'image-1',
-            block: first,
-        } as unknown as IImageSelectionData;
-
         let payload: Record<string, unknown> | null = null;
         muya.on('selection-change', (p: unknown) => {
             payload = p as Record<string, unknown>;
         });
 
-        muya.editor.selection.activate('image');
+        muya.editor.selection.selectImage({
+            token: {},
+            imageId: 'image-1',
+            block: first,
+        } as unknown as IImageSelectionData);
 
         expect(muya.editor.selection.type).toBe('image');
         expect(payload).not.toBeNull();
@@ -81,18 +79,17 @@ describe('selection facade', () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
 
-        muya.editor.selection.selectedImage = {
+        muya.editor.selection.selectImage({
             token: {},
             imageId: 'image-1',
             block: first,
-        } as unknown as IImageSelectionData;
-        muya.editor.selection.activate('image');
+        } as unknown as IImageSelectionData);
         expect(muya.editor.selection.type).toBe('image');
 
         muya.editor.selection.clear();
 
         expect(muya.editor.selection.type).toBe('text');
-        expect(muya.editor.selection.selectedImage).toBeNull();
+        expect(muya.editor.selection.image).toBeNull();
     });
 
     it('text setSelection emits kind "text" while preserving the legacy type field', () => {

@@ -67,7 +67,7 @@ function bootImage(src: string): { muya: Muya; img: HTMLImageElement } {
     return { muya, img };
 }
 
-// Plain-click the image to populate `selection.selectedImage` (the same state a
+// Plain-click the image to populate `selection.image` (the same state a
 // real user click leaves behind before pressing Space).
 function selectImage(img: HTMLImageElement): void {
     img.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
@@ -81,7 +81,7 @@ describe('parity PG10: Space previews a selected image', () => {
             const { muya, img } = bootImage(src);
             selectImage(img);
             // Sanity: the click populated the selected-image state.
-            expect(muya.editor.selection.selectedImage).toBeTruthy();
+            expect(muya.editor.selection.image).toBeTruthy();
 
             const handler = vi.fn();
             muya.on('preview-image', handler);

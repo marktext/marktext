@@ -86,12 +86,10 @@ class Selection {
         return this._text.isSelectionInSameBlock;
     }
 
-    get selectedImage() {
-        return this._image.selected;
-    }
-
-    set selectedImage(value: IImageSelectionData | null) {
-        this._image.selected = value;
+    selectImage(data: IImageSelectionData): void {
+        this._image.selected = data;
+        this.muya.editor.activeContentBlock = null;
+        this.activate('image');
     }
 
     activate(type: SelectionType): void {

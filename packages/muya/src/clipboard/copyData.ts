@@ -297,7 +297,7 @@ export function writeClipboardData(
 
     // A selected inline image copies its raw `![alt](src)` markdown
     // verbatim, short-circuiting the text-selection clipboard data.
-    const selectedImage = clipboard.muya.editor?.selection?.selectedImage;
+    const selectedImage = clipboard.muya.editor?.selection?.image;
     if (selectedImage) {
         const { raw } = selectedImage.token;
         if (raw.length > 0) {

@@ -24,7 +24,7 @@ interface IFakeRenderer {
     ) => { id: string; isSuccess: boolean | undefined; width?: number; height?: number };
     urlMap: Map<string, string>;
     muya: {
-        editor: { selection: { selectedImage: null | unknown } };
+        editor: { selection: { image: null | unknown } };
         i18n: { t: (s: string) => string };
     };
 }
@@ -39,7 +39,7 @@ function makeRenderer(loadResult: {
         loadImageAsync: vi.fn(() => loadResult),
         urlMap: new Map(),
         muya: {
-            editor: { selection: { selectedImage: null } },
+            editor: { selection: { image: null } },
             i18n: { t: (s: string) => s },
         },
     };
