@@ -10,10 +10,6 @@ import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
 
 class Selection {
-    /**
-     * topOffset is the line counts above cursor, and bottomOffset is line counts bellow cursor.
-     * @param {*} paragraph
-     */
     static getCursorYOffset(paragraph: HTMLElement) {
         return getCursorYOffset(paragraph);
     }

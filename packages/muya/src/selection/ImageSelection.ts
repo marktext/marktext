@@ -100,7 +100,6 @@ class ImageSelection {
             return;
         }
 
-        // Handle image click, to select the current image
         if (isHTMLElement(target) && target.tagName === 'IMG') {
             if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
                 const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
@@ -114,7 +113,6 @@ class ImageSelection {
                 }
             }
 
-            // Handle show image toolbar
             const rect = imageWrapper
                 .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
                 ?.getBoundingClientRect();
@@ -124,7 +122,6 @@ class ImageSelection {
                 height: imageWrapper.offsetHeight,
             };
 
-            // Show image edit tool bar.
             eventCenter.emit('muya-image-toolbar', {
                 block: contentBlock,
                 reference,
@@ -148,7 +145,6 @@ class ImageSelection {
             return;
         }
 
-        // Handle click imageWrapper when it's empty or image load failed.
         if (
             imageWrapper.classList.contains(CLASS_NAMES.MU_EMPTY_IMAGE)
             || imageWrapper.classList.contains(CLASS_NAMES.MU_IMAGE_FAIL)

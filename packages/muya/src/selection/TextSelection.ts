@@ -175,8 +175,6 @@ class TextSelection {
             this.setSelection(cursor);
             return;
         }
-        // Select all in one content block.
-        // Can use getSelection here?
         if (
             isSelectionInSameBlock
             && anchor
@@ -194,7 +192,6 @@ class TextSelection {
             this.setSelection(cursor);
             return;
         }
-        // Select all content in all blocks.
         this._selectAllContent();
     }
 
@@ -221,10 +218,6 @@ class TextSelection {
             activeEle.blur();
     }
 
-    /**
-     * Return the current selection of doc or null if has no selection.
-     * @returns The resolved selection mapped to anchor/focus blocks, or null when no selection exists.
-     */
     getSelection(): ISelection | null {
         const selection = document.getSelection();
 
@@ -310,7 +303,6 @@ class TextSelection {
         this.anchorPath = anchorPath ?? path ?? [];
         this.focusBlock = focusBlock ?? block ?? null;
         this.focusPath = focusPath ?? path ?? [];
-        // Update cursor.
         this._setCursor();
 
         const {
@@ -320,9 +312,6 @@ class TextSelection {
             type,
         } = this;
 
-        // The `selectionChange` payload extras the desktop
-        // relies on: `cursorCoords` for typewriter-mode scrolling and the
-        // active inline formats at the cursor for lighting up the toolbar.
         // Follow the caret (focus end) for forward selections so typewriter
         // scrolling tracks the cursor rather than the selection start.
         const cursorCoords = getCursorCoords(direction === 'forward');
@@ -336,11 +325,6 @@ class TextSelection {
                 ? anchorBlockRef.getFormatsInRange().formats
                 : [];
 
-        // Block-context the desktop Paragraph/Format menu state builder
-        // consumes —
-        // `affiliation` is the shared ancestor PARAGRAPH-type chain, and the
-        // per-endpoint `{ type, functionType }` describe the content leaves
-        // (`type: 'span'`, `functionType: 'codeContent' | 'cellContent' | …`).
         const affiliation = buildSelectionAffiliation(
             this.anchorBlock,
             this.focusBlock,
@@ -402,7 +386,6 @@ class TextSelection {
                 return;
 
             const selection = this.getSelection();
-            // The cursor is not in editor
             if (!selection)
                 return;
 
@@ -416,7 +399,6 @@ class TextSelection {
             } = selection;
 
             if (isSelectionInSameBlock) {
-                // No need to handle this case
                 return;
             }
 
@@ -575,7 +557,6 @@ class TextSelection {
             scrollPage,
         } = this;
 
-        // Remove the selection when type is `None`.
         if (!anchor || !focus) {
             const selection = this.doc.getSelection();
             if (selection)
@@ -593,9 +574,7 @@ class TextSelection {
 
         // getNodeAndOffset expects a DOM Node. The fallback branch can hand
         // back a Parent/Content block (from scrollPage.queryBlock); narrow to
-        // an actual Node here. Fixing the underlying contract (so queryBlock
-        // is never reached with a block) is out of scope for this PR — early
-        // return preserves the existing not-found behavior.
+        // an actual Node here, preserving the existing not-found behavior.
         if (!(anchorParagraph instanceof Node) || !(focusParagraph instanceof Node))
             return;
         const { node: anchorNode, offset: anchorOffset } = getNodeAndOffset(
@@ -607,9 +586,7 @@ class TextSelection {
             focus.offset,
         );
 
-        // First set the anchor node and anchor offset, make it collapsed
         this._select(anchorNode, anchorOffset);
-        // Secondly, set the focus node and focus offset.
         this._setFocus(focusNode, focusOffset);
     }
 }
