@@ -1,15 +1,7 @@
 // Index-cursor → block-key cursor conversion for the source-code → WYSIWYG
-// handoff.
-//
-// PARITY (gap PG2): when the desktop app switches a tab back from source-code
-// mode to WYSIWYG, the only cursor it holds is a CodeMirror `{ line, ch }`
-// offset pair (`muyaIndexCursor`). Legacy `packages/muyajs` translated that
-// into a real block-key cursor by injecting sentinel strings into the markdown
-// at the line/ch offsets, re-parsing, and walking the block tree to find which
-// block's text the sentinels landed in (`addCursorToMarkdown` +
-// `convertMuyaIndexCursortoCursor`). `@muyajs/core` had no equivalent, so the
-// WYSIWYG caret was lost on the handoff. This module reproduces that mapping by
-// resolving the offsets against the live block tree.
+// handoff. The desktop app hands back only a CodeMirror `{ line, ch }` offset
+// pair when switching a tab from source mode to WYSIWYG; this resolves those
+// offsets against the live block tree to recover the caret's block-key cursor.
 
 import type Content from '../block/base/content';
 import type { ScrollPage } from '../block/scrollPage';
@@ -30,10 +22,9 @@ export interface IIndexCursor {
 
 // Sentinel strings injected at the cursor offsets. They must be improbable in
 // real markdown AND survive the markdown -> state round-trip as literal text.
-// (The legacy engine used private-use-area code points, but this engine's
-// markdown parser strips non-ASCII control/PUA characters, so the markers are
-// plain ASCII with a long random-looking token unlikely to occur in real
-// documents.) The two markers share no common substring so neither can be
+// The markdown parser strips non-ASCII control/PUA characters, so the markers
+// are plain ASCII with a long random-looking token unlikely to occur in real
+// documents. The two markers share no common substring so neither can be
 // found inside the other.
 const ANCHOR_SENTINEL = 'mUyAcUrSoRzZqAnChOr9x7kPvWb';
 const FOCUS_SENTINEL = 'mUyAcUrSoRzZqFoCuS4t2nDhGj';
@@ -133,8 +124,7 @@ function _findSentinel(scrollPage: ScrollPage, sentinel: string): ISentinelHit |
  * (the sentinels only change text), so the paths stay valid.
  *
  * The returned offsets are sentinel-free: the focus offset is decremented when
- * the anchor sentinel precedes it in the same block, mirroring the legacy
- * two-sentinel bookkeeping.
+ * the anchor sentinel precedes it in the same block.
  */
 export function resolveSentinelCursor(scrollPage: ScrollPage): ICursor | null {
     const anchorHit = _findSentinel(scrollPage, ANCHOR_SENTINEL);
@@ -168,15 +158,8 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): ICursor | null {
     };
 }
 
-// ---------------------------------------------------------------------------
-// INVERSE direction: WYSIWYG block-key selection -> source `{ line, ch }`
-// index cursor. The mirror of the index->path conversion above (PARITY gap
-// PG2 / Phase G — G7). Legacy muyajs computed this in
-// `ContentState.getMuyaIndexCursor` (block-path -> {line,ch} via sentinels +
-// ExportMarkdown) and emitted it on every change so the desktop could open
-// source-code mode at the same caret. `@muyajs/core` only shipped the WRITE
-// direction; this re-adds the READ direction reusing the same serialize path.
-// ---------------------------------------------------------------------------
+// INVERSE direction: WYSIWYG block-key selection -> source `{ line, ch }` index
+// cursor, reusing the same sentinel/serialize path as the forward conversion.
 
 /**
  * Walk a (cloned) state tree along a content block's json1 `path` — which ends

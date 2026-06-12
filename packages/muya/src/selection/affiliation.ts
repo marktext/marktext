@@ -1,14 +1,12 @@
 // Block-affiliation derivation for the `selection-change` payload.
 //
-// PARITY (gap PG1): legacy `packages/muyajs` emitted `selectionChange` with an
-// `affiliation` chain — the shared ancestor PARAGRAPH-type blocks of the
-// selection endpoints — plus per-endpoint `.type` (the markdown block type,
-// e.g. `span` for a content leaf) and `.functionType` (`codeContent`,
-// `cellContent`, …). The desktop store (`createApplicationMenuState`) consumed
-// those to light up the Paragraph-menu check marks, the Loose/Task-list
-// toggles, table/code-fence detection, and to disable the Format menu inside
-// code. `@muyajs/core` models the document as a block tree keyed by
-// `blockName`, so this module re-derives the same shape from that tree.
+// The payload carries an `affiliation` chain — the shared ancestor
+// PARAGRAPH-type blocks of the selection endpoints — plus per-endpoint `.type`
+// (the markdown block type, e.g. `span` for a content leaf) and `.functionType`
+// (`codeContent`, `cellContent`, …). The desktop store
+// (`createApplicationMenuState`) consumes those to light up the Paragraph-menu
+// check marks, the Loose/Task-list toggles, table/code-fence detection, and to
+// disable the Format menu inside code.
 
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
@@ -58,8 +56,8 @@ const CONTAINER_TYPE_BY_NAME: Readonly<Record<string, string>> = {
 };
 
 /**
- * Leaf-content `blockName` → legacy `functionType`. Mirrors the muyajs content
- * blocks (`codeContent`, `cellContent`, `languageInput`, `paragraphContent`).
+ * Leaf-content `blockName` → `functionType` (`codeContent`, `cellContent`,
+ * `languageInput`, `paragraphContent`).
  */
 const FUNCTION_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'codeblock.content': 'codeContent',
@@ -71,8 +69,8 @@ const FUNCTION_TYPE_BY_NAME: Readonly<Record<string, string>> = {
 };
 
 /**
- * List-block `blockName` → list discriminator (matches muyajs's
- * `listType` / `listItemType`: `bullet` | `order` | `task`). Keyed only on the
+ * List-block `blockName` → list discriminator (`bullet` | `order` | `task`).
+ * Keyed only on the
  * list container blocks — list-item blocks share the `list-item` block name for
  * both bullet and ordered lists, so an item's discriminator is read from the
  * parent list, never from the item itself.
@@ -84,12 +82,12 @@ const LIST_TYPE_BY_NAME: Readonly<Record<string, string>> = {
 };
 
 /**
- * One ancestor block in the affiliation chain. `type` is the legacy markdown
+ * One ancestor block in the affiliation chain. `type` is the markdown
  * block type; the remaining fields carry the list-context the desktop menu
- * needs. Shape parity with muyajs's affiliation entries.
+ * needs.
  */
 export interface IAffiliationEntry {
-    /** Legacy markdown block type: `p`, `h1`…`h6`, `ul`, `ol`, `li`, `pre`, `figure`, `blockquote`. */
+    /** Markdown block type: `p`, `h1`…`h6`, `ul`, `ol`, `li`, `pre`, `figure`, `blockquote`. */
     type: string;
     /** Engine block name (`bullet-list`, `code-block`, …) for callers that want the precise block. */
     blockName: string;
@@ -111,15 +109,15 @@ export interface IAffiliationEntry {
 
 /**
  * Per-endpoint block info for one selection end. `type` is always `span` for a
- * content leaf (parity with muyajs's content-block `type`); `functionType`
- * distinguishes code / table-cell / language-input content.
+ * content leaf; `functionType` distinguishes code / table-cell / language-input
+ * content.
  */
 export interface IEndpointBlockInfo {
     /** Engine block name of the content leaf, e.g. `codeblock.content`. */
     blockName: string;
-    /** Legacy content-block type — always `span` for a content leaf. */
+    /** Content-block type — always `span` for a content leaf. */
     type: string;
-    /** Legacy `functionType`: `codeContent` | `cellContent` | `languageInput` | `paragraphContent`. */
+    /** `functionType`: `codeContent` | `cellContent` | `languageInput` | `paragraphContent`. */
     functionType?: string;
 }
 
@@ -182,8 +180,7 @@ function _buildEntry(block: Parent, type: string): IAffiliationEntry {
 /**
  * Walk from a content leaf up to the outermost block, collecting the
  * paragraph-type ancestor blocks. Ordered outermost-first (top block → … →
- * leaf's container), matching muyajs where `affiliation[0]` is the enclosing
- * list and deeper entries follow.
+ * leaf's container).
  */
 function _ancestorBlocks(leaf: Content | null): Parent[] {
     const blocks: Parent[] = [];
@@ -215,8 +212,7 @@ export function buildAffiliation(leaf: Content | null): IAffiliationEntry[] {
 /**
  * Compute the shared-ancestor affiliation for a selection. When both endpoints
  * sit in the same block the anchor chain is returned; otherwise the chain is
- * trimmed to the ancestor block instances shared by both endpoints (parity
- * with muyajs's `startParents.filter(p => endParents.includes(p))`).
+ * trimmed to the ancestor block instances shared by both endpoints.
  */
 export function buildSelectionAffiliation(
     anchorLeaf: Content | null,

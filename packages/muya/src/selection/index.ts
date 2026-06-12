@@ -174,7 +174,7 @@ class Selection {
         } = this;
         const { tableSelection } = this.muya.editor;
 
-        // Table escalation, mirroring legacy `selectAll`:
+        // Table escalation:
         //   whole table frozen → clear + select the whole document.
         //   single cell frozen → select the whole table.
         if (tableSelection.isWholeTableSelected()) {
@@ -380,7 +380,7 @@ class Selection {
             selectedImage,
         } = this;
 
-        // Backport of marktext's `selectionChange` payload extras the desktop
+        // The `selectionChange` payload extras the desktop
         // relies on: `cursorCoords` for typewriter-mode scrolling and the
         // active inline formats at the cursor for lighting up the toolbar.
         // Follow the caret (focus end) for forward selections so typewriter
@@ -396,8 +396,8 @@ class Selection {
                 ? anchorBlockRef.getFormatsInRange().formats
                 : [];
 
-        // PARITY (gap PG1): re-derive the legacy `selectionChange` block-context
-        // the desktop Paragraph/Format menu state builder consumes —
+        // Block-context the desktop Paragraph/Format menu state builder
+        // consumes —
         // `affiliation` is the shared ancestor PARAGRAPH-type chain, and the
         // per-endpoint `{ type, functionType }` describe the content leaves
         // (`type: 'span'`, `functionType: 'codeContent' | 'cellContent' | …`).
@@ -619,26 +619,25 @@ class Selection {
         // image click (`_handleClickInlineImage`) and is cleared on ANY
         // document click (`docHandlerClick`) and on every delete/preview here.
         // So this handler is inert unless the user has an image actively
-        // selected inside this editor — matching the legacy muyajs behavior.
+        // selected inside this editor.
         if (!selectedImage)
             return;
 
-        // marktext (#2816 era): pressing Space with an image selected asks the
-        // host to open the full-screen preview. Mirror the legacy `keyboard.js`
-        // emit (`preview-image` { data: src }) and resolve the src the same way
-        // the Cmd/Ctrl-click path does, so relative / file paths become
-        // loadable URLs. `preventDefault` stops the native space from being
-        // inserted next to the selected image.
+        // Pressing Space with an image selected asks the host to open the
+        // full-screen preview, resolving the src the same way the Cmd/Ctrl-click
+        // path does so relative / file paths become loadable URLs.
+        // `preventDefault` stops the native space from being inserted next to
+        // the selected image.
         if (key === ' ') {
             event.preventDefault();
             this._previewSelectedImage(selectedImage);
             return;
         }
 
-        // marktext ed1b3354 (#2816): `Delete` was missing from the
-        // image-selected key set, so it fell through to native contenteditable
-        // handling and removed the text *after* the image. Match key exactly
-        // to avoid substring-collisions like `BackspaceX`.
+        // `Delete` was missing from the image-selected key set, so it fell
+        // through to native contenteditable handling and removed the text
+        // *after* the image. Match key exactly to avoid substring-collisions
+        // like `BackspaceX`.
         if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
             event.preventDefault();
             const { block, ...imageInfo } = selectedImage;
@@ -648,11 +647,9 @@ class Selection {
     };
 
     // Resolve the selected image's src and ask the host to full-screen
-    // preview it. Mirrors the legacy `preview-image` { data: src } payload so
-    // the desktop renderer's existing subscription opens `SimpleImageViewer`.
-    // Resolution matches the Cmd/Ctrl-click path: prefer the token src
-    // (run through `getImageSrc` so relative / file paths become loadable),
-    // and fall back to the rendered <img>'s own `src` attribute.
+    // preview it. Resolution: prefer the token src (run through `getImageSrc`
+    // so relative / file paths become loadable), and fall back to the rendered
+    // <img>'s own `src` attribute.
     private _previewSelectedImage(selectedImage: NonNullable<Selection['selectedImage']>) {
         const { token, imageId } = selectedImage;
         const tokenSrc = token.src || token.attrs.src || '';
