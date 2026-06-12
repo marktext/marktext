@@ -143,11 +143,7 @@ class ImageSelection {
                 imageInfo,
             });
 
-            this.selected = Object.assign({}, imageInfo, {
-                block: contentBlock,
-            });
-            this._muya.editor.activeContentBlock = null;
-            this._selection.activate('image');
+            this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
 
             return;
         }
