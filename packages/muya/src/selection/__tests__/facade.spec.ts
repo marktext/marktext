@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import type Table from '../../block/gfm/table';
 import type { IImageSelectionData } from '../types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
@@ -90,6 +91,22 @@ describe('selection facade', () => {
 
         expect(muya.editor.selection.type).toBe('text');
         expect(muya.editor.selection.image).toBeNull();
+    });
+
+    it('reports type "table" and current table while a table rectangle is frozen', () => {
+        const muya = bootMuya('| a | b |\n| --- | --- |\n| c | d |\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const table = first.closestBlock('table') as Table;
+        const { selection } = muya.editor;
+
+        selection.table.selectTable(table);
+
+        expect(selection.type).toBe('table');
+        expect(selection.current).toBe(selection.table);
+
+        selection.clear();
+
+        expect(selection.type).toBe('text');
     });
 
     it('text setSelection emits kind "text" while preserving the legacy type field', () => {
