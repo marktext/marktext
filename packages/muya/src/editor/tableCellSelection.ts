@@ -7,31 +7,7 @@ import { CLASS_NAMES } from '../config';
 import { isMouseEvent } from '../utils';
 import { getBlock } from '../utils/dom';
 
-// Port of marktext `src/muya/lib/contentState/tableSelectCellsCtrl.js`. The
-// legacy engine let the user drag a rectangle of table cells and copy/cut just
-// that sub-range (rather than the whole table). The TS rewrite shipped without
-// it (Phase G regression); this module restores it.
-//
-// Flow, mirroring the legacy controller:
-//   - mousedown on a cell        → record the anchor cell, arm a drag.
-//   - mousemove over a same-table cell other than the anchor → start the
-//     selection, collapse the caret into the anchor cell, highlight the
-//     anchor→focus rectangle. Moving off the table nulls the focus.
-//   - mouseup                    → freeze the selection so copy/cut can read it,
-//     unless the focus is null (released outside the table → cancelled).
-//
-// The selected rectangle is exposed as an `ITableState` (`getStateForCopy`) so
-// the clipboard serialises it to GFM markdown via `StateToMarkdown`, and
-// `clearSelectedCells` empties the cells in place for cut. A fresh caret
-// (mousedown inside a cell, click elsewhere) clears the selection.
-//
-// Cleanup: every listener is attached via `eventCenter.attachDOMEvent`, so
-// `muya.destroy()` → `eventCenter.detachAllDomEvents()` removes the editor-level
-// handlers; the transient document-level drag handlers are detached on mouseup.
-
 const SELECTED_CLASS = CLASS_NAMES.MU_TABLE_CELL_SELECTED;
-// Edge cells of the rectangle paint their outer border side in the theme
-// colour (port of legacy `ag-cell-border-*`), forming a perimeter outline.
 const BORDER_TOP_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_TOP;
 const BORDER_RIGHT_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_RIGHT;
 const BORDER_BOTTOM_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_BOTTOM;
@@ -59,24 +35,14 @@ class TableCellSelection {
 
     constructor(public muya: Muya) {}
 
-    /** True while a multi-cell rectangle is frozen and available to copy/cut. */
     get hasSelection(): boolean {
         return this._table != null && this._anchor != null && this._focus != null;
     }
 
-    /**
-     * Whether the frozen selection covers exactly one cell. Mirrors legacy
-     * `tableSelectCellsCtrl.isSingleCellSelected` (cells.length === 1).
-     */
     isSingleCellSelected(): boolean {
         return this.hasSelection && this._anchor!.cell === this._focus!.cell;
     }
 
-    /**
-     * Whether the frozen selection covers every cell in the table. Mirrors
-     * legacy `tableSelectCellsCtrl.isWholeTableSelected` (cells.length ===
-     * (row + 1) * (column + 1)).
-     */
     isWholeTableSelected(): boolean {
         if (!this.hasSelection)
             return false;
@@ -94,11 +60,6 @@ class TableCellSelection {
         );
     }
 
-    /**
-     * Freeze a whole-table selection (anchor at the top-left cell, focus at the
-     * bottom-right cell) and highlight every cell. Mirrors legacy
-     * `tableSelectCellsCtrl.selectTable`.
-     */
     selectTable(table: Table): void {
         this.clear();
 
@@ -123,10 +84,6 @@ class TableCellSelection {
         this._renderHighlight();
     }
 
-    /**
-     * Freeze a single 1x1 cell selection on the given cell. Mirrors the legacy
-     * `selectAll` single-cell branch (`selectedTableCells` of length 1).
-     */
     selectSingleCell(cell: TableBodyCell): void {
         this.clear();
 
@@ -220,12 +177,6 @@ class TableCellSelection {
             this.clear();
     };
 
-    /**
-     * Collapse the live native selection to a caret at the start of the anchor
-     * cell's content. Keeps the editor focused (so the clipboard `copy`/`cut`
-     * events still fire) while removing the blue text highlight that would
-     * otherwise compete with the cell rectangle.
-     */
     private _collapseCaretToAnchor(): void {
         const content = this._anchor?.cell.firstChild;
         if (content && content.isContent())
