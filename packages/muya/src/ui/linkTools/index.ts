@@ -56,9 +56,9 @@ class LinkTools extends BaseFloat {
         this.options = opts;
         const linkContainer = (this.linkContainer = document.createElement('div'));
         this.container!.appendChild(linkContainer);
-        // Mirrors the per-instance hook ImageToolBar adds on its floatBox so
-        // the parent `.mu-float-wrapper` is identifiable in DOM and reachable
-        // by `.mu-float-wrapper.mu-link-tools-container { … }` selectors.
+        // Add a per-instance class on the floatBox so the parent
+        // `.mu-float-wrapper` is identifiable in DOM and reachable by
+        // `.mu-float-wrapper.mu-link-tools-container { … }` selectors.
         this.floatBox!.classList.add('mu-link-tools-container');
         this.listen();
     }

@@ -37,8 +37,7 @@ const debug = logger('quickInsert:');
 
 /**
  * Derive the frontmatter `lang`/`style` from the user's `frontmatterType`
- * preference, mirroring legacy muyajs `handleFrontMatter`
- * (contentState/paragraphCtrl.js): `-` -> yaml `---`, `+` -> toml `+++`,
+ * preference: `-` -> yaml `---`, `+` -> toml `+++`,
  * `;`/`{` -> json (`;;;`/`{}`). The serializer (`serializeFrontMatter`)
  * switches on `lang`, so getting `lang` right is what makes YAML/TOML emit
  * their fences instead of falling through to JSON braces.
@@ -58,8 +57,8 @@ export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
 }
 
 /**
- * Prepend a front matter block at the very start of the document, mirroring
- * legacy muyajs `handleFrontMatter`. Front matter is only valid as the first
+ * Prepend a front matter block at the very start of the document. Front matter
+ * is only valid as the first
  * block, so this never replaces the block at the cursor. Idempotent: a no-op
  * when the document already starts with front matter, so it never duplicates
  * the block. Shared by `Muya.updateParagraph('front-matter')` and the
@@ -418,8 +417,7 @@ export function getLabelFromEvent(event: Event) {
 }
 
 /**
- * Show the in-editor table grid picker, porting legacy muyajs
- * `paragraphCtrl.showTablePicker`. The in-editor "table" insert (the `/`
+ * Show the in-editor table grid picker. The in-editor "table" insert (the `/`
  * quick-insert menu and the paragraph front-menu) must offer a hover-grid
  * dimension picker rather than dropping a fixed-size table — the picker UI
  * (`TableChessboard`) subscribes to `muya-table-picker` and invokes the
@@ -470,7 +468,7 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     }
 
     // The in-editor "table" insert shows a hover-grid dimension picker
-    // (legacy muyajs `showTablePicker`) instead of dropping a fixed-size
+    // instead of dropping a fixed-size
     // table. The picker's callback creates the table at the chosen size, so
     // bail before the in-place empty-table replacement below.
     if (label === 'table') {

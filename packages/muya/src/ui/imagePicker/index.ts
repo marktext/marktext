@@ -39,8 +39,7 @@ const defaultOptions = {
 
 /**
  * Floating autocomplete dropdown that suggests local image file paths as the
- * user edits an image's `src` in the {@link ImageEditTool}. It is a faithful
- * port of the legacy `packages/muyajs/lib/ui/imagePicker` plugin: it listens
+ * user edits an image's `src` in the {@link ImageEditTool}. It listens
  * for the `muya-image-picker` event, renders a scrollable filtered list, and
  * supports arrow-key navigation plus Enter/click to choose. The chosen path is
  * written back through the callback supplied in the event payload.
@@ -84,8 +83,7 @@ export class ImagePathPicker extends BaseScrollFloat {
         const { renderArray, _oldVNode: oldVNode, scrollElement, activeItem } = this;
         const children = renderArray.map((item, index) => {
             const { text, iconClass } = item;
-            // Icons are font-icon classes (parity placeholder for the legacy
-            // inline SVGs — see PR notes). When the host omits `iconClass` we
+            // Icons are font-icon classes. When the host omits `iconClass` we
             // simply render the text without an icon.
             const iconContent = iconClass
                 ? [h('div.icon-wrapper', h(`span.${iconClass}`))]

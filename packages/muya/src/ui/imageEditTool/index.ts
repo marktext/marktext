@@ -35,8 +35,8 @@ type Options = {
     /**
      * Local image path autocomplete hook. Given the current src input value,
      * returns a list of path suggestions to show in the floating
-     * {@link ImagePathPicker}. Mirrors the legacy `imagePathAutoComplete`
-     * option — typically backed by a filesystem directory listing.
+     * {@link ImagePathPicker}, typically backed by a filesystem directory
+     * listing.
      */
     imagePathAutoComplete?: (src: string) => Promise<IImagePathSuggestion[]>;
     /** Image upload action handler */
@@ -231,7 +231,7 @@ export class ImageEditTool extends BaseFloat {
      * Handle keydown on the src input.
      * When the autocomplete picker is open, arrow keys / Tab / Enter drive the
      * picker (navigate + choose) instead of confirming. Otherwise Enter
-     * confirms the change, mirroring the legacy `srcInputKeyDown` behavior.
+     * confirms the change.
      * @param event - Keyboard event
      */
     private _handleSrcKeyDown(event: Event) {
@@ -307,8 +307,7 @@ export class ImageEditTool extends BaseFloat {
             : null;
 
         // Write the chosen suggestion back into the src input. The new value is
-        // the directory portion of the current path plus the chosen basename,
-        // matching the legacy ImageSelector autocomplete UX.
+        // the directory portion of the current path plus the chosen basename.
         const cb = (item: IImagePathSuggestion) => {
             if (!reference)
                 return;
