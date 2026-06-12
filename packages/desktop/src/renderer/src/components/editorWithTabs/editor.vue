@@ -1759,6 +1759,12 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
+    // Persist the caret so a click/arrow-key move (which never fires
+    // `json-change`) survives an in-session tab switch — `tab.cursor` is what
+    // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
+    if (currentFile.value?.id && editor.value) {
+      editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
+    }
     editorStore.SELECTION_CHANGE(adaptSelectionChange(changes))
     // The active inline formats now ride along on selection-change (replacing
     // the old separate `selectionFormats` event) — drive the format menu/toolbar

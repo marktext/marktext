@@ -1456,6 +1456,21 @@ export const useEditorStore = defineStore('editor', {
       )
     },
 
+    // Persist the caret for a tab without the heavy content-change pipeline. A
+    // pure caret move (click / arrow key) fires `selection-change` but NOT
+    // `json-change`, so `tab.cursor` — the position replayed when the tab is
+    // re-activated — would otherwise only ever track the last EDIT, losing a
+    // click-moved caret across an in-session tab switch. Lightweight by design:
+    // it only stores the serialized caret, skipping markdown/blocks/TOC re-derivation
+    // and the save/dirty bookkeeping LISTEN_FOR_CONTENT_CHANGE performs.
+    PERSIST_CURSOR(id: string, cursor: unknown): void {
+      if (!id || !cursor) return
+      const index = this.tabIdToIndex[id]
+      if (index == null) return
+      const tab = this.tabs[index]
+      if (tab) tab.cursor = cursor
+    },
+
     SELECTION_FORMATS(formats: SelectionFormat[]): void {
       const { windowId } = window.marktext?.env ?? { windowId: -1 }
       window.electron.ipcRenderer.send(
