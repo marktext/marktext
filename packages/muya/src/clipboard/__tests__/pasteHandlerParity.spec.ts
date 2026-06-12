@@ -115,8 +115,10 @@ function makeClipboard(anchorBlock: any, options: Record<string, unknown> = {}) 
         editor: {},
     } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
+        configurable: true,
         get: () => ({
             getSelection: () => ({ isSelectionInSameBlock: true, anchorBlock }),
+            table: { hasSelection: false, getStateForCopy: () => null, clear: vi.fn() },
         }),
     });
     return clipboard;
@@ -271,11 +273,15 @@ describe('pasteHandler — table-cell paste guards (sub-item 4)', () => {
         const rows = isSingleCell
             ? [{ children: [{ text: '' }] }]
             : [{ children: [{ text: '' }, { text: '' }] }];
-        Object.defineProperty(clipboard, 'tableSelection', {
+        const table = {
+            hasSelection,
+            getStateForCopy: () => ({ name: 'table', children: rows }),
+            clear: vi.fn(),
+        };
+        Object.defineProperty(clipboard, 'selection', {
             get: () => ({
-                hasSelection,
-                getStateForCopy: () => ({ name: 'table', children: rows }),
-                clear: vi.fn(),
+                getSelection: () => ({ isSelectionInSameBlock: true, anchorBlock }),
+                table,
             }),
         });
         return clipboard;

@@ -113,7 +113,7 @@ class TextSelection {
             focusBlock,
             anchorPath,
         } = this;
-        const tableSelection = this._selection.table!;
+        const tableSelection = this._selection.table;
 
         // Table escalation:
         //   whole table frozen → clear + select the whole document.

@@ -86,7 +86,7 @@ function sliceListState(
 function getTableSelectionClipboardData(
     clipboard: Clipboard,
 ): Nullable<IClipboardPayload> {
-    const state = clipboard.tableSelection?.getStateForCopy();
+    const state = clipboard.selection.table.getStateForCopy();
     if (state == null)
         return null;
 

@@ -32,7 +32,7 @@ interface IPasteContext {
  * a multi-cell paste.
  */
 function isSingleCellSelected(clipboard: Clipboard): boolean {
-    const state = clipboard.tableSelection?.getStateForCopy();
+    const state = clipboard.selection.table.getStateForCopy();
     if (state == null)
         return false;
 
@@ -124,7 +124,7 @@ function applyLiteralPaste(
     // paste.
     if (
         anchorBlock.blockName === 'table.cell.content'
-        && clipboard.tableSelection?.hasSelection
+        && clipboard.selection.table.hasSelection
     ) {
         if (!isSingleCellSelected(clipboard))
             return;
@@ -132,7 +132,7 @@ function applyLiteralPaste(
         anchorBlock.text = markdown.trim().replace(/\n/g, '<br/>');
         const offset = anchorBlock.text.length;
         anchorBlock.setCursor(offset, offset, true);
-        clipboard.tableSelection.clear();
+        clipboard.selection.table.clear();
 
         return;
     }

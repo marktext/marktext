@@ -15,7 +15,6 @@ import History from '../history';
 import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
 import Selection from '../selection';
-import TableRectSelection from '../selection/TableRectSelection';
 import JSONState from '../state';
 import { hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
@@ -32,7 +31,6 @@ export class Editor {
     searchModule: Search;
     clipboard: Clipboard;
     history: History;
-    tableSelection: TableRectSelection;
     scrollPage: Nullable<ScrollPage> = null;
 
     private _activeContentBlock: Nullable<Content> = null;
@@ -46,7 +44,6 @@ export class Editor {
         this.searchModule = new Search(muya);
         this.clipboard = Clipboard.create(muya);
         this.history = new History(muya);
-        this.tableSelection = TableRectSelection.create(muya);
     }
 
     get activeContentBlock() {

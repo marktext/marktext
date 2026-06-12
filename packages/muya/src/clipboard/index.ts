@@ -1,6 +1,4 @@
 import type { Muya } from '../muya';
-import type TableRectSelection from '../selection/TableRectSelection';
-import type { Nullable } from '../types';
 import type { IClipboardPayload } from './copyData';
 import { fromEvent, merge } from 'rxjs';
 import { isClipboardEvent, isKeyboardEvent } from '../utils';
@@ -20,10 +18,6 @@ class Clipboard {
 
     get scrollPage() {
         return this.muya.editor.scrollPage;
-    }
-
-    get tableSelection(): Nullable<TableRectSelection> {
-        return this.muya.editor?.tableSelection;
     }
 
     static create(muya: Muya) {

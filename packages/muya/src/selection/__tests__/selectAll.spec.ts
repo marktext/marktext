@@ -58,7 +58,8 @@ describe('selection.selectAll table escalation', () => {
     it('cursor inside a single cell freezes that 1x1 cell (no document selection)', () => {
         const muya = bootMuya(TABLE_MD);
         const table = getTable(muya);
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
 
         // Caret inside the (0,0) cell content.
         cellContent(table, 0, 0).setCursor(0, 0, false);
@@ -73,7 +74,8 @@ describe('selection.selectAll table escalation', () => {
     it('escalates a frozen single cell to the whole table on the next Cmd+A', () => {
         const muya = bootMuya(TABLE_MD);
         const table = getTable(muya);
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
 
         cellContent(table, 0, 0).setCursor(0, 0, false);
         selection.selectAll();
@@ -90,7 +92,8 @@ describe('selection.selectAll table escalation', () => {
     it('escalates a frozen whole table to the whole document and clears the table selection', () => {
         const muya = bootMuya(`${TABLE_MD}\nbelow\n`);
         const table = getTable(muya);
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
         const sp = muya.editor.scrollPage!;
 
         tableSelection.selectTable(table);
@@ -107,7 +110,8 @@ describe('selection.selectAll table escalation', () => {
     it('escalates cell → whole table → whole document across three sequential Cmd+A presses', () => {
         const muya = bootMuya(`${TABLE_MD}\nbelow\n`);
         const table = getTable(muya);
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
         const sp = muya.editor.scrollPage!;
 
         cellContent(table, 0, 0).setCursor(0, 0, false);
@@ -127,7 +131,8 @@ describe('selection.selectAll table escalation', () => {
     it('selecting two cells of the SAME table escalates to the whole table', () => {
         const muya = bootMuya(TABLE_MD);
         const table = getTable(muya);
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
 
         const a = cellContent(table, 0, 0);
         const b = cellContent(table, 1, 1);
@@ -149,7 +154,8 @@ describe('selection.selectAll table escalation', () => {
     it('selecting cells across TWO different tables is a no-op (no document selection)', () => {
         const muya = bootMuya(`${TABLE_MD}\n${TABLE_MD}`);
         const sp = muya.editor.scrollPage!;
-        const { selection, tableSelection } = muya.editor;
+        const { selection } = muya.editor;
+        const tableSelection = selection.table;
 
         // Two distinct tables in the document.
         const firstContent = sp.firstContentInDescendant()!;

@@ -1,5 +1,4 @@
 import type { Muya } from '../muya';
-import type TableRectSelection from './TableRectSelection';
 import type { ICursor, IImageSelectionData, ISelection, SelectionType } from './types';
 import {
     getCursorCoords,
@@ -7,6 +6,7 @@ import {
     getSelectionStart,
 } from './cursorCoords';
 import ImageSelection from './ImageSelection';
+import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
 
 class Selection {
@@ -28,12 +28,14 @@ class Selection {
 
     private _text: TextSelection;
     private _image: ImageSelection;
+    private _table: TableRectSelection;
     private _activeType: SelectionType = 'text';
 
     constructor(public muya: Muya) {
         this._text = new TextSelection(muya, this);
         this._image = new ImageSelection(muya, this);
         this._image.attach();
+        this._table = TableRectSelection.create(muya);
     }
 
     get type(): SelectionType {
@@ -42,7 +44,7 @@ class Selection {
 
     get current(): TextSelection | TableRectSelection | ImageSelection {
         switch (this._activeType) {
-            case 'table': return this.table!;
+            case 'table': return this._table;
             case 'image': return this._image;
             default: return this._text;
         }
@@ -52,8 +54,8 @@ class Selection {
         return this._image.selected;
     }
 
-    get table(): TableRectSelection | null {
-        return this.muya.editor?.tableSelection ?? null;
+    get table(): TableRectSelection {
+        return this._table;
     }
 
     get anchorBlock() {
@@ -96,7 +98,7 @@ class Selection {
         if (type !== 'text')
             this._text.collapse();
         if (type !== 'table')
-            this.table?.clear();
+            this._table.clear();
         if (type !== 'image')
             this._image.clear();
         this._activeType = type;
@@ -111,7 +113,7 @@ class Selection {
 
     clear(): void {
         this._text.collapse();
-        this.table?.clear();
+        this._table.clear();
         this._image.clear();
         this._activeType = 'text';
     }

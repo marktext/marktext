@@ -105,7 +105,7 @@ describe('cross-cell table selection — highlight', () => {
         const table = firstTable(muya);
         dragSelect(table, 0, 0, 1, 1); // 2x2 rectangle => 4 cells
         expect(selectedCount(table)).toBe(4);
-        expect(muya.editor.tableSelection.hasSelection).toBe(true);
+        expect(muya.editor.selection.table.hasSelection).toBe(true);
     });
 
     it('does not start a selection when the pointer stays in one cell', () => {
@@ -114,7 +114,7 @@ describe('cross-cell table selection — highlight', () => {
         fireMouse(cellDom(table, 0, 0), 'mousedown');
         fireMouse(cellDom(table, 0, 0), 'mouseup');
         expect(selectedCount(table)).toBe(0);
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 
     it('clears the previous selection on a new mousedown', () => {
@@ -137,7 +137,7 @@ describe('cross-cell table selection — highlight', () => {
         fireMouse(muya.domNode, 'mouseup'); // released outside
         // Nothing frozen, no leftover highlight, no 1x1 anchor selection.
         expect(selectedCount(table)).toBe(0);
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 });
 
@@ -192,6 +192,6 @@ describe('cross-cell table selection — cut', () => {
             expect(md).toContain('c1');
             expect(md).toContain('a3');
         });
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 });

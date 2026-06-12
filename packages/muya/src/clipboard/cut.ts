@@ -277,7 +277,7 @@ function cutEmptyTableStructure(clipboard: Clipboard): boolean {
     const cursorOffsetRow = [...rows][0];
     const cursorOffsetColumn = [...columns][0];
 
-    clipboard.tableSelection?.clear();
+    clipboard.selection.table.clear();
 
     if (isWholeTable) {
         const outsideContent
@@ -308,9 +308,9 @@ export function cutSelection(clipboard: Clipboard): void {
     // delete that structure; otherwise empty the cells in place. The copy half
     // already captured the
     // rectangle's markdown via `getClipboardData`.
-    if (clipboard.tableSelection?.hasSelection) {
+    if (clipboard.selection.table.hasSelection) {
         if (!cutEmptyTableStructure(clipboard))
-            clipboard.tableSelection.clearSelectedCells();
+            clipboard.selection.table.clearSelectedCells();
 
         return;
     }

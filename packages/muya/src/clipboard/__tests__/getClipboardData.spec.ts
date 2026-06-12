@@ -53,6 +53,7 @@ function makeClipboard(
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => selectionOver(text, begin, end, blockName),
+            table: { getStateForCopy: () => null },
         }),
     });
     Object.defineProperty(clipboard, 'scrollPage', { get: () => null });
