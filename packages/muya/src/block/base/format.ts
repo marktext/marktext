@@ -1375,6 +1375,8 @@ class Format extends Content {
             return;
         }
 
+        event.preventDefault();
+
         const paragraphBlock = nextBlock.parent;
         let needRemovedBlock = paragraphBlock;
 
