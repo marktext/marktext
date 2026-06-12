@@ -14,6 +14,7 @@ import type Clipboard from './index';
 import StateToMarkdown from '../state/stateToMarkdown';
 import { isAnyListState } from '../state/types';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
+import { CopyType } from './types';
 
 export interface IClipboardPayload {
     html: string;
@@ -242,7 +243,7 @@ function collectCopyState(order: ICopyOrder): TState[] {
 
 export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     const { copyType, copyInfo } = clipboard;
-    if (copyType === 'copyCodeContent') {
+    if (copyType === CopyType.COPY_CODE_CONTENT) {
         return {
             html: '',
             text: copyInfo,
@@ -317,7 +318,7 @@ export function writeClipboardData(
     // when the selection has nothing to contribute, so a previous copy
     // from another app isn't silently clobbered (marktext #3130).
     switch (copyType) {
-        case 'normal': {
+        case CopyType.NORMAL: {
             if (text.length === 0)
                 return;
             event.clipboardData.setData('text/html', '');
@@ -325,7 +326,7 @@ export function writeClipboardData(
             break;
         }
 
-        case 'copyAsHtml': {
+        case CopyType.COPY_AS_HTML: {
             if (text.length === 0)
                 return;
             event.clipboardData.setData('text/html', '');
@@ -344,7 +345,7 @@ export function writeClipboardData(
         // content, and keep the markdown source in the plain slot. Mirrors
         // the `normal` branch; `copyAsHtml` instead blanks text/html and
         // drops the markup into text/plain as literal source.
-        case 'copyAsRich': {
+        case CopyType.COPY_AS_RICH: {
             if (text.length === 0)
                 return;
             event.clipboardData.setData('text/html', html);
@@ -352,7 +353,7 @@ export function writeClipboardData(
             break;
         }
 
-        case 'copyAsMarkdown': {
+        case CopyType.COPY_AS_MARKDOWN: {
             if (text.length === 0)
                 return;
             event.clipboardData.setData('text/html', '');
@@ -360,7 +361,7 @@ export function writeClipboardData(
             break;
         }
 
-        case 'copyCodeContent': {
+        case CopyType.COPY_CODE_CONTENT: {
             if (text.length === 0)
                 return;
             event.clipboardData.setData('text/html', '');

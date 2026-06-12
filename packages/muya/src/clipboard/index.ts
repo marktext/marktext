@@ -7,10 +7,11 @@ import { isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection } from './cut';
 import { pasteSelection } from './paste';
+import { CopyType, PasteType } from './types';
 
 class Clipboard {
-    public copyType: string = 'normal'; // `normal` or `copyAsMarkdown` or `copyAsHtml` or `copyAsRich` or `copyCodeContent`
-    public pasteType: string = 'normal'; // `normal` or `pasteAsPlainText`
+    public copyType: CopyType = CopyType.NORMAL;
+    public pasteType: PasteType = PasteType.NORMAL;
     public copyInfo: string = '';
 
     get selection() {
@@ -111,34 +112,34 @@ class Clipboard {
     }
 
     copyAsMarkdown() {
-        this.copyType = 'copyAsMarkdown';
+        this.copyType = CopyType.COPY_AS_MARKDOWN;
         document.execCommand('copy');
-        this.copyType = 'normal';
+        this.copyType = CopyType.NORMAL;
     }
 
     copyAsHtml() {
-        this.copyType = 'copyAsHtml';
+        this.copyType = CopyType.COPY_AS_HTML;
         document.execCommand('copy');
-        this.copyType = 'normal';
+        this.copyType = CopyType.NORMAL;
     }
 
     copyAsRich() {
-        this.copyType = 'copyAsRich';
+        this.copyType = CopyType.COPY_AS_RICH;
         document.execCommand('copy');
-        this.copyType = 'normal';
+        this.copyType = CopyType.NORMAL;
     }
 
     pasteAsPlainText() {
-        this.pasteType = 'pasteAsPlainText';
+        this.pasteType = PasteType.PASTE_AS_PLAIN_TEXT;
         document.execCommand('paste');
-        this.pasteType = 'normal';
+        this.pasteType = PasteType.NORMAL;
     }
 
-    copy(type: string, info: string) {
+    copy(type: CopyType, info: string) {
         this.copyType = type;
         this.copyInfo = info;
         document.execCommand('copy');
-        this.copyType = 'normal';
+        this.copyType = CopyType.NORMAL;
     }
 }
 

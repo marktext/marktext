@@ -1,3 +1,4 @@
+import { PasteType } from '../clipboard/types';
 import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config';
 import { sanitize } from '../utils';
 
@@ -264,7 +265,7 @@ function bufferToDataURL(mimeType: string) {
  * return html | text | code, if the return value is html, we'll use html as paste data, we'll use text
  * as paste data if the return value is text, we'll create a html code block if the result is code.
  */
-export function getCopyTextType(html: string, text: string, pasteType: string) {
+export function getCopyTextType(html: string, text: string, pasteType: PasteType) {
     const getTextType = (text: string) => {
         const match
         // eslint-disable-next-line regexp/no-super-linear-backtracking
@@ -282,7 +283,7 @@ export function getCopyTextType(html: string, text: string, pasteType: string) {
         return 'text';
     };
 
-    if (pasteType === 'normal')
+    if (pasteType === PasteType.NORMAL)
         return html && text ? 'html' : getTextType(text);
     else
         return getTextType(text);

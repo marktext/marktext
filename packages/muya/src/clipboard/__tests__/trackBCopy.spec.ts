@@ -3,6 +3,7 @@
 import type { ImageToken } from '../../inlineRenderer/types';
 import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
+import { CopyType } from '../types';
 
 // Track B — Copy (clipboard chain step 1). Ports `packages/muyajs`
 // `copyCutCtrl.copyHandler` behaviour into `@muyajs/core`:
@@ -93,7 +94,7 @@ describe('track B — normal copy writes only text/plain', () => {
 describe('track B — copyAsRich still writes both slots', () => {
     it('keeps rendered html in text/html and markdown in text/plain', () => {
         const clipboard = clipboardWithData('<p>hi</p>', 'hi');
-        clipboard.copyType = 'copyAsRich';
+        clipboard.copyType = CopyType.COPY_AS_RICH;
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
@@ -106,7 +107,7 @@ describe('track B — copyAsRich still writes both slots', () => {
 describe('track B — copyAsHtml is sanitized and text-guarded', () => {
     it('writes sanitized rendered HTML to text/plain, blanks text/html', () => {
         const clipboard = clipboardWithData('', '# Heading\n\nhello');
-        clipboard.copyType = 'copyAsHtml';
+        clipboard.copyType = CopyType.COPY_AS_HTML;
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
@@ -123,7 +124,7 @@ describe('track B — copyAsHtml is sanitized and text-guarded', () => {
         // guarantee is no LIVE `<script>` element survives — the markup is
         // escaped to inert text.
         const clipboard = clipboardWithData('', 'before\n\n<script>alert(1)</script>\n\nafter');
-        clipboard.copyType = 'copyAsHtml';
+        clipboard.copyType = CopyType.COPY_AS_HTML;
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
@@ -137,7 +138,7 @@ describe('track B — copyAsHtml is sanitized and text-guarded', () => {
         // html empty but text non-empty: legacy guarded on text, so it MUST
         // still copy. (muya previously returned early on empty html.)
         const clipboard = clipboardWithData('', 'plain text');
-        clipboard.copyType = 'copyAsHtml';
+        clipboard.copyType = CopyType.COPY_AS_HTML;
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
@@ -148,7 +149,7 @@ describe('track B — copyAsHtml is sanitized and text-guarded', () => {
 
     it('skips when text is empty', () => {
         const clipboard = clipboardWithData('', '');
-        clipboard.copyType = 'copyAsHtml';
+        clipboard.copyType = CopyType.COPY_AS_HTML;
         const { event, setData } = makeEvent();
 
         clipboard.copyHandler(event);
