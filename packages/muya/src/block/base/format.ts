@@ -1308,11 +1308,22 @@ class Format extends Content {
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript } = this.muya.options;
+        const { labels } = this.inlineRenderer;
         const tokens = tokenizer(text, {
+            labels,
             options: { footnote, superSubScript },
         });
-        const { needRender, imageToken }
+        const { needRender, imageToken, referenceImageToken }
             = this._scanBackspaceTokens(tokens, start.offset);
+
+        if (referenceImageToken) {
+            event.preventDefault();
+            event.stopPropagation();
+            const { start: from, end: to } = referenceImageToken.range;
+            this.text = text.substring(0, from) + text.substring(to);
+            this.setCursor(from, from, true);
+            return;
+        }
 
         if (needRender) {
             event.preventDefault();
@@ -1340,10 +1351,12 @@ class Format extends Content {
 
     // Scan tokens for the one ending at the caret. Mutates the matched token's
     // `raw` for the inline-syntax-marker cases (#113) so the caller can
-    // regenerate text; reports an inline image hit for the caller to select.
+    // regenerate text; reports image / reference-image hits for the caller to
+    // delete or select.
     private _scanBackspaceTokens(tokens: Token[], offset: number): {
         needRender: boolean;
         imageToken: Token | null;
+        referenceImageToken: Token | null;
     } {
         for (const token of tokens) {
             // An inline image followed by other content: the caret lands on the
@@ -1353,14 +1366,19 @@ class Format extends Content {
                 = token.type === 'image'
                     || (token.type === 'html_tag' && token.tag === 'img');
             if (token.range.end === offset && isImageToken)
-                return { needRender: false, imageToken: token };
+                return { needRender: false, imageToken: token, referenceImageToken: null };
+
+            // A reference image (`![alt][ref]`) is editable marked text, so it has
+            // no inline-image wrapper to select. Delete the whole token at once.
+            if (token.range.end === offset && token.type === 'reference_image')
+                return { needRender: false, imageToken: null, referenceImageToken: token };
 
             // handle delete the second marker(et:*、$) in inline syntax.(Firefox compatible)
             // Fix: https://github.com/marktext/muya/issues/113
             // for example: foo **strong**|
             if (token.range.end === offset) {
                 token.raw = token.raw.substring(0, token.raw.length - 1);
-                return { needRender: true, imageToken: null };
+                return { needRender: true, imageToken: null, referenceImageToken: null };
             }
 
             // If preToken is a syntax token, the the cursor is at offset 1, need to set the cursor manually.(Firefox compatible)
@@ -1368,11 +1386,11 @@ class Format extends Content {
             // for example: foo **strong**w|
             if (token.range.start + 1 === offset) {
                 token.raw = token.raw.substring(1);
-                return { needRender: true, imageToken: null };
+                return { needRender: true, imageToken: null, referenceImageToken: null };
             }
         }
 
-        return { needRender: false, imageToken: null };
+        return { needRender: false, imageToken: null, referenceImageToken: null };
     }
 
     // Return the inline image wrapper when the collapsed caret sits at the end of

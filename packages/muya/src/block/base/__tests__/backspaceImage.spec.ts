@@ -5,11 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CLASS_NAMES } from '../../../config';
 import { Muya } from '../../../muya';
 
-// Backspace deletes a whole inline image as a unit (matching muyajs).
+// Backspace deletes a whole image as a unit (matching muyajs).
 //
 // Inline images (`![]()` and raw `<img>`) render as a `contenteditable=false`
 // `.mu-inline-image` wrapper: the first Backspace right after one SELECTS it,
-// the second (handled by ImageSelection) deletes it.
+// the second (handled by ImageSelection) deletes it. Reference images
+// (`![alt][ref]`) are editable marked text with no wrapper, so one Backspace
+// removes the whole token.
 //
 // Two happy-dom fixups mirror real browsers: the async image load never
 // resolves, so the loaded `<img>` is injected by hand (as in
@@ -118,5 +120,17 @@ describe('backspace deletes a whole image', () => {
         );
         await flush();
         expect(muya.getMarkdown()).not.toContain('<img');
+    });
+
+    it('a reference image: one Backspace removes the whole token, keeping the definition', async () => {
+        const muya = bootMuya('![alt][ref]\n\n[ref]: https://example.com/a.png');
+        const content = firstContent(muya);
+        muya.editor.activeContentBlock = content;
+        content.setCursor(content.text.length, content.text.length, true);
+
+        backspace(content);
+        await flush();
+        expect(muya.getMarkdown()).not.toContain('![alt][ref]');
+        expect(muya.getMarkdown()).toContain('[ref]: https://example.com/a.png');
     });
 });
