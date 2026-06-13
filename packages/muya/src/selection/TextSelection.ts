@@ -1,8 +1,5 @@
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
-import type Parent from '../block/base/parent';
-import type ListItem from '../block/commonMark/listItem';
-import type TaskListItem from '../block/gfm/taskListItem';
 import type { Muya } from '../muya';
 import type Selection from './index';
 import type { ICursor, INodeOffset, ISelection } from './types';
@@ -298,7 +295,6 @@ class TextSelection {
                 anchorBlock,
                 focusBlock,
                 isSelectionInSameBlock,
-                direction,
             } = selection;
 
             if (isSelectionInSameBlock) {
@@ -313,95 +309,6 @@ class TextSelection {
                 anchorPath: anchorBlock.path,
                 focusPath: focusBlock.path,
             };
-
-            const anchorOutMostBlock = anchorBlock.outMostBlock as Parent;
-            const focusOutMostBlock = focusBlock.outMostBlock as Parent;
-            if (
-                /block-quote|code-block|html-block|table|math-block|frontmatter|diagram/.test(
-                    anchorOutMostBlock.blockName,
-                )
-            ) {
-                const firstContent = anchorOutMostBlock.firstContentInDescendant()!;
-                const lastContent = anchorOutMostBlock.lastContentInDescendant()!;
-
-                if (direction === 'forward') {
-                    newSelection.anchorBlock = firstContent;
-                    newSelection.anchorPath = firstContent.path;
-                    newSelection.anchor.offset = 0;
-                }
-                else {
-                    newSelection.anchorBlock = lastContent;
-                    newSelection.anchorPath = lastContent.path;
-                    newSelection.anchor.offset = lastContent.text.length;
-                }
-            }
-
-            if (
-                /block-quote|code-block|html-block|table|math-block|frontmatter|diagram/.test(
-                    focusOutMostBlock.blockName,
-                )
-            ) {
-                const firstContent = focusOutMostBlock.firstContentInDescendant()!;
-                const lastContent = focusOutMostBlock.lastContentInDescendant()!;
-                if (direction === 'forward') {
-                    newSelection.focusBlock = lastContent;
-                    newSelection.focusPath = lastContent.path;
-                    newSelection.focus.offset = lastContent.text.length;
-                }
-                else {
-                    newSelection.focusBlock = firstContent;
-                    newSelection.focusPath = firstContent.path;
-                    newSelection.focus.offset = 0;
-                }
-            }
-
-            if (
-                /bullet-list|order-list|task-list/.test(anchorOutMostBlock.blockName)
-            ) {
-                const listItemBlockName
-                    = anchorOutMostBlock.blockName === 'task-list'
-                        ? 'task-list-item'
-                        : 'list-item';
-                const listItem = anchorBlock.farthestBlock(listItemBlockName) as
-                    | ListItem
-                    | TaskListItem;
-                const firstContent = listItem.firstContentInDescendant()!;
-                const lastContent = listItem.lastContentInDescendant()!;
-                if (direction === 'forward') {
-                    newSelection.anchorBlock = firstContent;
-                    newSelection.anchorPath = firstContent.path;
-                    newSelection.anchor.offset = 0;
-                }
-                else {
-                    newSelection.anchorBlock = lastContent;
-                    newSelection.anchorPath = lastContent.path;
-                    newSelection.anchor.offset = lastContent.text.length;
-                }
-            }
-
-            if (
-                /bullet-list|order-list|task-list/.test(focusOutMostBlock.blockName)
-            ) {
-                const listItemBlockName
-                    = focusOutMostBlock.blockName === 'task-list'
-                        ? 'task-list-item'
-                        : 'list-item';
-                const listItem = focusBlock.farthestBlock(listItemBlockName) as
-                    | ListItem
-                    | TaskListItem;
-                const firstContent = listItem.firstContentInDescendant()!;
-                const lastContent = listItem.lastContentInDescendant()!;
-                if (direction === 'forward') {
-                    newSelection.focusBlock = lastContent;
-                    newSelection.focusPath = lastContent.path;
-                    newSelection.focus.offset = lastContent.text.length;
-                }
-                else {
-                    newSelection.focusBlock = firstContent;
-                    newSelection.focusPath = firstContent.path;
-                    newSelection.focus.offset = 0;
-                }
-            }
 
             if (type === 'mousemove')
                 this._selectInfo.selection = newSelection;
