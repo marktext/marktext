@@ -172,8 +172,10 @@ describe('muya.updateParagraph(\'front-matter\')', () => {
 // in-place `block.replaceWith` that could create front matter MID-document by
 // converting an empty paragraph — front matter is only valid at document start.
 describe('quick-insert front matter (replaceBlockByLabel)', () => {
-    it('inserts at document start, not in place, when triggered mid-document', async () => {
-        const muya = bootMuya('first para\n\nsecond para\n');
+    it('inserts at document start, clears the `/` trigger, keeps other blocks', async () => {
+        // The trigger paragraph carries the `/` the user typed to open the
+        // quick-insert menu (its whole text matches `/^[/、]\S*$/`).
+        const muya = bootMuya('first para\n\n/\n');
         // Quick-insert is triggered on the SECOND paragraph (mid-document). The
         // menu passes the leaf block at the cursor as `block`.
         const block = leafAt(muya, 1);
@@ -185,14 +187,16 @@ describe('quick-insert front matter (replaceBlockByLabel)', () => {
         });
 
         const state = muya.getState();
-        // The new front matter is prepended; both original paragraphs survive
-        // intact (the in-place replace bug would have destroyed the second one).
+        // The new front matter is prepended; the non-trigger paragraph survives
+        // intact (the in-place replace bug would have destroyed it) and the `/`
+        // trigger paragraph remains as an emptied block — its `/` is cleared,
+        // not left behind in the document.
         expect(state.length).toBe(3);
         expect(state[1].name).toBe('paragraph');
         expect(state[2].name).toBe('paragraph');
         const md = muya.getMarkdown();
         expect(md).toContain('first para');
-        expect(md).toContain('second para');
+        expect(md).not.toContain('/');
     });
 
     it('is idempotent — no second front matter block when one already exists', async () => {

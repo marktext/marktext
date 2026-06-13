@@ -236,6 +236,61 @@ describe('replaceBlockByLabel — paragraph→list keeps text verbatim (marktext
     });
 });
 
+// Front matter is prepended at the document start rather than replacing the
+// cursor block in place (`block.replaceWith`), so the `/` quick-insert trigger
+// text the user typed survives in the original paragraph unless we clear it
+// explicitly. Every other label drops the trigger implicitly via
+// `block.replaceWith(newBlock)`; front matter must clear the trigger paragraph
+// itself. Regression target: "通过 quick insert 菜单插入 Front matter 时候 `/`
+// 没有自动删除".
+function makeFrontMatterMuya(): Muya {
+    return {
+        options: {
+            preferLooseListItem: false,
+            bulletListMarker: '-',
+            orderListDelimiter: '.',
+            frontmatterType: '-',
+        },
+        editor: {
+            scrollPage: {
+                firstChild: { blockName: 'paragraph' },
+                insertBefore: vi.fn(),
+            },
+        },
+    } as unknown as Muya;
+}
+
+describe('replaceBlockByLabel — frontmatter clears the `/` trigger text', () => {
+    it('empties the trigger paragraph content and refreshes its DOM', () => {
+        const { restore } = setupCreateSpy();
+        try {
+            const update = vi.fn();
+            const content = { text: '/front', update };
+            const replaceWith = vi.fn();
+            const block = {
+                replaceWith,
+                firstContentInDescendant: () => content,
+            } as unknown as Parent;
+
+            replaceBlockByLabel({
+                block,
+                muya: makeFrontMatterMuya(),
+                label: 'frontmatter',
+            });
+
+            // The `/` typed to open the menu must be gone...
+            expect(content.text).toBe('');
+            // ...and the DOM re-rendered so it does not keep showing `/front`.
+            expect(update).toHaveBeenCalled();
+            // Front matter is prepended, never an in-place replace of the cursor block.
+            expect(replaceWith).not.toHaveBeenCalled();
+        }
+        finally {
+            restore();
+        }
+    });
+});
+
 // The in-editor "table" insert (the `/` quick-insert menu and the paragraph
 // front-menu both route through `replaceBlockByLabel`) must show the legacy
 // hover-grid dimension picker (`TableChessboard`) — NOT drop a fixed-size

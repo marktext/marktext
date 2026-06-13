@@ -64,14 +64,14 @@ export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
  * the block. Shared by `Muya.updateParagraph('front-matter')` and the
  * quick-insert menu's `frontmatter` entry so both follow identical semantics.
  */
-export function insertFrontMatterAtStart(muya: Muya) {
+export function insertFrontMatterAtStart(muya: Muya): boolean {
     const { scrollPage } = muya.editor;
     if (!scrollPage)
-        return;
+        return false;
 
     const firstBlock = scrollPage.firstChild as Parent | null;
     if (firstBlock?.blockName === 'frontmatter')
-        return;
+        return false;
 
     const fmState = deepClone(emptyStates.frontmatter);
     Object.assign(fmState.meta, frontmatterMeta(muya.options.frontmatterType));
@@ -79,6 +79,8 @@ export function insertFrontMatterAtStart(muya: Muya) {
     const frontmatter = ScrollPage.loadBlock('frontmatter').create(muya, fmState);
     scrollPage.insertBefore(frontmatter, firstBlock);
     frontmatter.firstContentInDescendant()?.setCursor(0, 0, true);
+
+    return true;
 }
 
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl';
@@ -463,7 +465,19 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     // `block.replaceWith` below — sharing the idempotent doc-start logic with
     // `Muya.updateParagraph('front-matter')`.
     if (label === 'frontmatter') {
-        insertFrontMatterAtStart(muya);
+        // Every other label drops the `/` quick-insert trigger text implicitly
+        // via `block.replaceWith(newBlock)`. Front matter is prepended at the
+        // document start instead (the trigger paragraph survives), so clear its
+        // `/…` text and refresh the DOM. Only do so when a block was actually
+        // inserted — when the document already starts with front matter the
+        // insert is a no-op and the trigger paragraph must be left untouched.
+        if (insertFrontMatterAtStart(muya)) {
+            const triggerContent = block.firstContentInDescendant();
+            if (triggerContent) {
+                triggerContent.text = '';
+                triggerContent.update();
+            }
+        }
         return;
     }
 
