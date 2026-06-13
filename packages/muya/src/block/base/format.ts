@@ -1295,16 +1295,6 @@ class Format extends Content {
         if (!start || !end || start?.offset !== end?.offset)
             return;
 
-        // When the caret is parked right after a trailing inline image (markdown
-        // `![]()` or raw html `<img>`, both rendered as `.mu-inline-image`), the
-        // browser places it inside the image container, so the text offset is
-        // unreliable. Detect it from the DOM and select the whole image.
-        const trailingImage = this._caretAfterInlineImage();
-        if (trailingImage) {
-            this._selectInlineImage(event, trailingImage);
-            return;
-        }
-
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript } = this.muya.options;
@@ -1313,8 +1303,12 @@ class Format extends Content {
             labels,
             options: { footnote, superSubScript },
         });
+        // The caret offset is unreliable when it is parked on a
+        // `contenteditable=false` inline image; resolve the real offset from the
+        // DOM so the scan can match the image token like any other caret.
+        const offset = this._caretOffsetOnInlineImage() ?? start.offset;
         const { needRender, imageToken, referenceImageToken }
-            = this._scanBackspaceTokens(tokens, start.offset);
+            = this._scanBackspaceTokens(tokens, offset);
 
         if (referenceImageToken) {
             event.preventDefault();
@@ -1393,15 +1387,16 @@ class Format extends Content {
         return { needRender: false, imageToken: null, referenceImageToken: null };
     }
 
-    // Return the inline image wrapper when the collapsed caret is parked on a
+    // Resolve the real caret offset when the collapsed caret is parked on a
     // trailing inline image, otherwise null. Inline images are
     // `contenteditable=false`, so the browser parks the caret on the wrapper or
-    // inside the image container — at the container's end after the `<img>`, or
-    // on the wrapper itself once the text that followed the image is deleted.
-    // When other content follows the image the caret lands in that content
-    // instead (and the token scan handles it), so a caret inside the wrapper of
-    // a trailing image means the caret is effectively after the image.
-    private _caretAfterInlineImage(): HTMLElement | null {
+    // inside the image container once nothing editable follows the image, and
+    // `getCursor` then reports an offset that collapses to the image's start
+    // (the image's own length is excluded). Report the image's end so the token
+    // scan treats it like any other caret-after-image. When other content
+    // follows the image the caret lands in that content (a reliable offset), so
+    // this returns null and the raw caret offset is used.
+    private _caretOffsetOnInlineImage(): number | null {
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0 || !selection.isCollapsed)
             return null;
@@ -1416,10 +1411,15 @@ class Format extends Content {
         const imageWrapper = element?.closest<HTMLElement>(
             `.${CLASS_NAMES.MU_INLINE_IMAGE}`,
         );
-        if (!imageWrapper || !this.domNode!.contains(imageWrapper))
+        if (
+            !imageWrapper
+            || !this.domNode!.contains(imageWrapper)
+            || !this._isTrailingInlineImage(imageWrapper)
+        ) {
             return null;
+        }
 
-        return this._isTrailingInlineImage(imageWrapper) ? imageWrapper : null;
+        return getImageInfo(imageWrapper).token.range.end;
     }
 
     // Whether nothing editable follows the inline image in its content block, so
