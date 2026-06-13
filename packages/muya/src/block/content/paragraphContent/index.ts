@@ -877,10 +877,10 @@ class ParagraphContent extends Format {
         if (event.shiftKey) {
             const unindentType = this._getUnindentType();
 
-            if (unindentType == null)
-                return;
+            if (unindentType != null)
+                this._unindentListItem(unindentType);
 
-            this._unindentListItem(unindentType);
+            return;
         }
 
         // Handle `tab` to jump to the end of format when the cursor is at the end of format content.
