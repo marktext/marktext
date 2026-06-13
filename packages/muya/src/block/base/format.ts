@@ -1295,49 +1295,24 @@ class Format extends Content {
         if (!start || !end || start?.offset !== end?.offset)
             return;
 
+        // When the caret is parked right after a trailing inline image (markdown
+        // `![]()` or raw html `<img>`, both rendered as `.mu-inline-image`), the
+        // browser places it inside the image container, so the text offset is
+        // unreliable. Detect it from the DOM and select the whole image.
+        const trailingImage = this._caretAfterInlineImage();
+        if (trailingImage) {
+            this._selectInlineImage(event, trailingImage);
+            return;
+        }
+
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript } = this.muya.options;
         const tokens = tokenizer(text, {
             options: { footnote, superSubScript },
         });
-        let needRender = false;
-        let preToken = null;
-        let needSelectImage = false;
-
-        for (const token of tokens) {
-            // handle delete the second marker(et:*、$) in inline syntax.(Firefox compatible)
-            // Fix: https://github.com/marktext/muya/issues/113
-            // for example: foo **strong**|
-            if (token.range.end === start.offset) {
-                needRender = true;
-                token.raw = token.raw.substring(0, token.raw.length - 1);
-                break;
-            }
-
-            // If preToken is a syntax token, the the cursor is at offset 1, need to set the cursor manually.(Firefox compatible)
-            // // Fix: https://github.com/marktext/muya/issues/113
-            // for example: foo **strong**w|
-            if (token.range.start + 1 === start.offset) {
-                needRender = true;
-                token.raw = token.raw.substring(1);
-                break;
-            }
-
-            // handle pre token is a image, need preventdefault.
-            if (
-                token.range.start + 1 === start.offset
-                && preToken
-                && preToken.type === 'image'
-            ) {
-                needSelectImage = true;
-                needRender = true;
-                token.raw = token.raw.substring(1);
-                break;
-            }
-
-            preToken = token;
-        }
+        const { needRender, imageToken }
+            = this._scanBackspaceTokens(tokens, start.offset);
 
         if (needRender) {
             event.preventDefault();
@@ -1348,17 +1323,106 @@ class Format extends Content {
             this.setCursor(start.offset, end.offset, true);
         }
 
-        if (needSelectImage) {
-            event.stopPropagation();
-            const images: NodeListOf<HTMLImageElement>
-                = this.domNode!.querySelectorAll(`.${CLASS_NAMES.MU_INLINE_IMAGE}`);
-            const imageWrapper = images[images.length - 1];
-            const imageInfo = getImageInfo(imageWrapper);
-
-            this.muya.editor.selection.selectImage(Object.assign({}, imageInfo, {
-                block: this,
-            }));
+        if (imageToken) {
+            const images = this.domNode!.querySelectorAll<HTMLElement>(
+                `.${CLASS_NAMES.MU_INLINE_IMAGE}`,
+            );
+            let imageWrapper = images[images.length - 1];
+            for (const image of images) {
+                if (getImageInfo(image).token.range.start === imageToken.range.start) {
+                    imageWrapper = image;
+                    break;
+                }
+            }
+            this._selectInlineImage(event, imageWrapper);
         }
+    }
+
+    // Scan tokens for the one ending at the caret. Mutates the matched token's
+    // `raw` for the inline-syntax-marker cases (#113) so the caller can
+    // regenerate text; reports an inline image hit for the caller to select.
+    private _scanBackspaceTokens(tokens: Token[], offset: number): {
+        needRender: boolean;
+        imageToken: Token | null;
+    } {
+        for (const token of tokens) {
+            // An inline image followed by other content: the caret lands on the
+            // next node at the image's end offset. Select the whole image so the
+            // next Backspace deletes it as a unit (matching muyajs interaction).
+            const isImageToken
+                = token.type === 'image'
+                    || (token.type === 'html_tag' && token.tag === 'img');
+            if (token.range.end === offset && isImageToken)
+                return { needRender: false, imageToken: token };
+
+            // handle delete the second marker(et:*、$) in inline syntax.(Firefox compatible)
+            // Fix: https://github.com/marktext/muya/issues/113
+            // for example: foo **strong**|
+            if (token.range.end === offset) {
+                token.raw = token.raw.substring(0, token.raw.length - 1);
+                return { needRender: true, imageToken: null };
+            }
+
+            // If preToken is a syntax token, the the cursor is at offset 1, need to set the cursor manually.(Firefox compatible)
+            // // Fix: https://github.com/marktext/muya/issues/113
+            // for example: foo **strong**w|
+            if (token.range.start + 1 === offset) {
+                token.raw = token.raw.substring(1);
+                return { needRender: true, imageToken: null };
+            }
+        }
+
+        return { needRender: false, imageToken: null };
+    }
+
+    // Return the inline image wrapper when the collapsed caret sits at the end of
+    // a trailing inline image (the browser parks it inside the image container),
+    // otherwise null.
+    private _caretAfterInlineImage(): HTMLElement | null {
+        const selection = document.getSelection();
+        if (!selection || selection.rangeCount === 0 || !selection.isCollapsed)
+            return null;
+
+        const { anchorNode, anchorOffset } = selection;
+        if (!anchorNode)
+            return null;
+
+        const element = isHTMLElement(anchorNode)
+            ? anchorNode
+            : anchorNode.parentElement;
+        const imageWrapper = element?.closest<HTMLElement>(
+            `.${CLASS_NAMES.MU_INLINE_IMAGE}`,
+        );
+        if (!imageWrapper || !this.domNode!.contains(imageWrapper))
+            return null;
+
+        const container = imageWrapper.querySelector(
+            `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
+        );
+        // Only when the caret is at the end of the image container (after the
+        // `<img>`), not before a leading image at offset 0.
+        if (
+            container
+            && anchorNode === container
+            && anchorOffset >= container.childNodes.length
+        ) {
+            return imageWrapper;
+        }
+
+        return null;
+    }
+
+    // Select the whole inline image. Stop propagation so this Backspace only
+    // selects; the next Backspace is handled by ImageSelection and deletes it.
+    private _selectInlineImage(event: Event, imageWrapper: HTMLElement): void {
+        event.preventDefault();
+        event.stopPropagation();
+        const imageInfo = getImageInfo(imageWrapper);
+        this.muya.editor.selection.selectImage(Object.assign({}, imageInfo, {
+            block: this,
+        }));
+        // Re-render so the inline image picks up the selected highlight class.
+        this.update();
     }
 
     override deleteHandler(event: KeyboardEvent): void {
