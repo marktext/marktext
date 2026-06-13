@@ -1393,15 +1393,20 @@ class Format extends Content {
         return { needRender: false, imageToken: null, referenceImageToken: null };
     }
 
-    // Return the inline image wrapper when the collapsed caret sits at the end of
-    // a trailing inline image (the browser parks it inside the image container),
-    // otherwise null.
+    // Return the inline image wrapper when the collapsed caret is parked on a
+    // trailing inline image, otherwise null. Inline images are
+    // `contenteditable=false`, so the browser parks the caret on the wrapper or
+    // inside the image container — at the container's end after the `<img>`, or
+    // on the wrapper itself once the text that followed the image is deleted.
+    // When other content follows the image the caret lands in that content
+    // instead (and the token scan handles it), so a caret inside the wrapper of
+    // a trailing image means the caret is effectively after the image.
     private _caretAfterInlineImage(): HTMLElement | null {
         const selection = document.getSelection();
         if (!selection || selection.rangeCount === 0 || !selection.isCollapsed)
             return null;
 
-        const { anchorNode, anchorOffset } = selection;
+        const { anchorNode } = selection;
         if (!anchorNode)
             return null;
 
@@ -1414,20 +1419,20 @@ class Format extends Content {
         if (!imageWrapper || !this.domNode!.contains(imageWrapper))
             return null;
 
-        const container = imageWrapper.querySelector(
-            `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
-        );
-        // Only when the caret is at the end of the image container (after the
-        // `<img>`), not before a leading image at offset 0.
-        if (
-            container
-            && anchorNode === container
-            && anchorOffset >= container.childNodes.length
-        ) {
-            return imageWrapper;
+        return this._isTrailingInlineImage(imageWrapper) ? imageWrapper : null;
+    }
+
+    // Whether nothing editable follows the inline image in its content block, so
+    // a caret parked on it is after it rather than before a leading image.
+    private _isTrailingInlineImage(imageWrapper: HTMLElement): boolean {
+        let sibling = imageWrapper.nextSibling;
+        while (sibling) {
+            if ((sibling.textContent ?? '').length > 0)
+                return false;
+            sibling = sibling.nextSibling;
         }
 
-        return null;
+        return true;
     }
 
     // Select the whole inline image. Stop propagation so this Backspace only

@@ -122,6 +122,39 @@ describe('backspace deletes a whole image', () => {
         expect(muya.getMarkdown()).not.toContain('<img');
     });
 
+    it('an image with text before it: Backspace selects once the following text is gone', async () => {
+        // `foo![]()` with the caret parked on the (now trailing) image wrapper —
+        // the position the browser leaves after deleting the text that followed
+        // the image (`foo![]()bar` → delete `bar`). Reported via the wrapper, not
+        // the container, so the offset reads as the image's start.
+        const muya = bootMuya('foo![alt](https://example.com/a.png)');
+        const content = firstContent(muya);
+        const wrapper = muya.domNode.querySelector<HTMLElement>(
+            `span.${CLASS_NAMES.MU_INLINE_IMAGE}`,
+        )!;
+        wrapper
+            .querySelector<HTMLElement>(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)!
+            .appendChild(document.createElement('img'));
+        muya.editor.activeContentBlock = content;
+        const range = document.createRange();
+        range.setStart(wrapper, 0);
+        range.collapse(true);
+        const selection = document.getSelection()!;
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        backspace(content);
+        expect(muya.editor.selection.type).toBe('image');
+
+        document.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true, cancelable: true }),
+        );
+        await flush();
+        const md = muya.getMarkdown();
+        expect(md).not.toContain('![alt]');
+        expect(md).toContain('foo');
+    });
+
     it('a reference image: one Backspace removes the whole token, keeping the definition', async () => {
         const muya = bootMuya('![alt][ref]\n\n[ref]: https://example.com/a.png');
         const content = firstContent(muya);
