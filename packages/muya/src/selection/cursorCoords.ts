@@ -31,7 +31,14 @@ export function getSelectionStart(): Node | null {
 }
 
 export function getCursorYOffset(paragraph: HTMLElement): { topOffset: number; bottomOffset: number } {
-    const { y } = getCursorCoords()!;
+    const coords = getCursorCoords();
+    // The collapsed caret can yield no client rects (e.g. an HTML/code block
+    // boundary position), so `getCursorCoords()` returns null. Treat that as
+    // "position unknown" and let arrow navigation leave the block.
+    if (coords == null)
+        return { topOffset: 0, bottomOffset: 0 };
+
+    const { y } = coords;
     const { height, top } = paragraph.getBoundingClientRect();
     const lineHeight = Number.parseFloat(getComputedStyle(paragraph).lineHeight);
     const topOffset = Math.floor((y - top) / lineHeight);
