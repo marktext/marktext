@@ -21,7 +21,7 @@ interface IFakeRenderer {
     loadImageAsync: (
         info: { isUnknownType: boolean; src: string },
         attrs: Record<string, string>,
-    ) => { id: string; isSuccess: boolean | undefined; width?: number; height?: number };
+    ) => { id: string; isSuccess: boolean | undefined; width?: number; height?: number; url?: string };
     urlMap: Map<string, string>;
     muya: {
         editor: { selection: { image: null | unknown } };
@@ -34,6 +34,7 @@ function makeRenderer(loadResult: {
     isSuccess: boolean | undefined;
     width?: number;
     height?: number;
+    url?: string;
 }): IFakeRenderer {
     return {
         loadImageAsync: vi.fn(() => loadResult),
@@ -69,6 +70,24 @@ function makeImageToken(overrides: Partial<ImageToken['attrs']> = {}): ImageToke
 function getWrapperSelector(vnodes: VNode | VNode[]): string {
     const arr = Array.isArray(vnodes) ? vnodes : [vnodes];
     return arr[0].sel as string;
+}
+
+function findImgSrc(vnodes: VNode | VNode[]): string | undefined {
+    const arr = Array.isArray(vnodes) ? vnodes : [vnodes];
+    let found: string | undefined;
+    const walk = (node: unknown) => {
+        if (!node || typeof node !== 'object')
+            return;
+        const vnode = node as VNode;
+        if (vnode.sel === 'img') {
+            found = (vnode.data?.props?.src as string | undefined);
+            return;
+        }
+        if (Array.isArray(vnode.children))
+            vnode.children.forEach(walk);
+    };
+    arr.forEach(walk);
+    return found;
 }
 
 // Narrow casts shared by every test: the fake renderer and block stubs
@@ -161,5 +180,48 @@ describe('image renderer — small image class (marktext cb7be189)', () => {
         );
 
         expect(getWrapperSelector(out)).not.toContain('.mu-small-image');
+    });
+});
+
+// Regression: "Reload images" must keep showing the refreshed local file even
+// after the block re-renders (every keystroke rewrites the block's innerHTML).
+// `loadImageAsync` resolves a cache-busted `file://?mucache=...` URL; the
+// rendered <img> must use that resolved URL rather than the plain `file://`
+// path, otherwise innerHTML re-requests the un-busted URL and Chromium serves
+// the stale, previously cached bitmap. Remote URLs have no resolved override.
+describe('image renderer — uses the cache-busted url for local files', () => {
+    it('renders the resolved (cache-busted) url returned by loadImageAsync', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-6',
+            isSuccess: true,
+            width: 400,
+            height: 300,
+            url: 'file:///tmp/pic.png?mucache=mu-6',
+        });
+        const token = makeImageToken({ src: 'file:///tmp/pic.png' });
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token, cursor: fakeCursor },
+        );
+
+        expect(findImgSrc(out)).toBe('file:///tmp/pic.png?mucache=mu-6');
+    });
+
+    it('falls back to the plain src when no resolved url is returned', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-7',
+            isSuccess: true,
+            width: 400,
+            height: 300,
+        });
+        const token = makeImageToken();
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token, cursor: fakeCursor },
+        );
+
+        expect(findImgSrc(out)).toBe('https://example.com/x.png');
     });
 });

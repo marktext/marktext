@@ -48,16 +48,25 @@ export default function image(
     let isSuccess: boolean | undefined;
     let naturalWidth: number | undefined;
     let naturalHeight: number | undefined;
-    let src = imageSrc.src;
+    let resolvedUrl: string | undefined;
+    // `src` stays the plain path — it is the key the `urlMap`/cache lookups use.
+    const src = imageSrc.src;
     const alt = token.attrs.alt;
     const title = token.attrs.title;
     const width = token.attrs.width;
     const height = token.attrs.height;
 
     if (src) {
-        ({ id, isSuccess, width: naturalWidth, height: naturalHeight }
+        ({ id, isSuccess, url: resolvedUrl, width: naturalWidth, height: naturalHeight }
             = this.loadImageAsync(imageSrc, token.attrs));
     }
+
+    // What the rendered <img> actually points at. For local files this is the
+    // cache-busted `file://?mucache=…` URL resolved by `loadImageAsync`, so a
+    // block re-render (`innerHTML = html`) re-requests the busted URL instead
+    // of the plain path Chromium has cached. Uploads in progress override it
+    // with the base64 preview below.
+    let imgSrc = resolvedUrl ?? src;
 
     let wrapperSelector = id
         ? `span#${isSuccess ? `${id}_${token.range.start}` : id}.${
@@ -101,7 +110,7 @@ export default function image(
             selectedImage.imageId = id;
         }
 
-        src = this.urlMap.get(src)!;
+        imgSrc = this.urlMap.get(src)!;
         isSuccess = true;
     }
 
@@ -111,7 +120,7 @@ export default function image(
             id: alt,
         });
         if (this.urlMap.has(alt)) {
-            src = this.urlMap.get(alt)!;
+            imgSrc = this.urlMap.get(alt)!;
             isSuccess = true;
         }
     }
@@ -162,7 +171,7 @@ export default function image(
             const data = {
                 props: {
                     alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, ''),
-                    src,
+                    src: imgSrc,
                     title,
                 },
             };
