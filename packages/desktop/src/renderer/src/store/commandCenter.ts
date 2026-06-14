@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import log from 'electron-log'
 import bus from '../bus'
+import { isOsx } from '@/util'
+import { acceleratorToTokens } from '@/util/accelerator'
 
 import staticCommands, {
   RootCommand,
@@ -87,10 +89,7 @@ const executeCommand = (root: Root, commandId: string): void => {
 
 const normalizeAccelerator = (acc: string): string[] => {
   try {
-    return acc
-      .replace(/cmdorctrl|cmd/i, 'Cmd')
-      .replace(/ctrl/i, 'Ctrl')
-      .split('+')
+    return acceleratorToTokens(acc, isOsx)
   } catch {
     return [acc]
   }
