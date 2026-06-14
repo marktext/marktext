@@ -1896,10 +1896,16 @@ const createApplicationMenuState = ({
 /**
  * Creates a object that contains the formats selection state.
  */
-const createSelectionFormatState = (formats: SelectionFormat[]): Record<string, boolean> => {
+export const createSelectionFormatState = (
+  formats: SelectionFormat[]
+): Record<string, boolean> => {
   const state: Record<string, boolean> = {}
   for (const item of formats) {
-    state[item.type] = true
+    // Underline/superscript/subscript/highlight are carried as `html_tag`
+    // tokens whose `tag` (u/sup/sub/mark) is the real format key the menu
+    // map keys off — the bare `type` would only ever yield `html_tag`.
+    const key = item.type === 'html_tag' ? (item.tag as string) : item.type
+    if (key) state[key] = true
   }
   return state
 }

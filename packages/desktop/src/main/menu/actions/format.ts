@@ -5,6 +5,10 @@ import type { CommandManager } from '../../commands'
 const MENU_ID_FORMAT_MAP: Readonly<Record<string, string>> = Object.freeze({
   strongMenuItem: 'strong',
   emphasisMenuItem: 'em',
+  underlineMenuItem: 'u',
+  superscriptMenuItem: 'sup',
+  subscriptMenuItem: 'sub',
+  highlightMenuItem: 'mark',
   inlineCodeMenuItem: 'inline_code',
   strikeMenuItem: 'del',
   hyperlinkMenuItem: 'link',
