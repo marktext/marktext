@@ -14,6 +14,7 @@ import {
     diffToTextOp,
     isInputEvent,
     isKeyboardEvent,
+    isMouseEvent,
 } from '../../utils';
 
 // import logger from './utils/logger'
@@ -166,8 +167,20 @@ class Content extends TreeNode {
         return null;
     }
 
-    clickHandler(_event: Event): void {
-    // Do nothing.
+    clickHandler(event: Event): void {
+        if (!isMouseEvent(event))
+            return;
+
+        requestAnimationFrame(() => {
+            if (event.shiftKey && this.selection.anchorBlock !== this)
+                return;
+
+            const cursor = this.getCursor();
+            if (!cursor)
+                return;
+
+            this.setCursor(cursor.start.offset, cursor.end.offset);
+        });
     }
 
     tabHandler(_event: Event): void {
