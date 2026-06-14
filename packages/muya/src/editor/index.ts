@@ -143,8 +143,25 @@ export class Editor {
     }
 
     focus() {
-    // TODO: the cursor maybe passed by muya options.cursor, and no need to find the first leaf block.
-        const firstLeafBlock = this.scrollPage?.firstContentInDescendant();
+        const { selection, scrollPage } = this;
+        const { anchorBlock, anchorPath, anchor, focus } = selection;
+
+        // Restore the user's last caret when it is still in the tree, so a
+        // focus() triggered after a blur (e.g. the command palette) keeps
+        // block-level commands operating on the block the user was editing
+        // rather than the first block of the document.
+        if (
+            anchorBlock
+            && anchor
+            && focus
+            && scrollPage?.queryBlock(anchorPath) === anchorBlock
+        ) {
+            anchorBlock.setCursor(anchor.offset, focus.offset, true);
+            return;
+        }
+
+        // TODO: the cursor maybe passed by muya options.cursor, and no need to find the first leaf block.
+        const firstLeafBlock = scrollPage?.firstContentInDescendant();
 
         if (firstLeafBlock == null)
             return;
