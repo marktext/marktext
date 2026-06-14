@@ -165,11 +165,18 @@ abstract class BaseFloat {
         // `unknown[]` so internal call sites can forward arbitrary args.
         this.cb = cb as (...args: unknown[]) => void;
 
-        this._cleanup = autoUpdate(reference, floatBox, () => {
+        const cleanup = autoUpdate(reference, floatBox, () => {
             computePosition(reference, floatBox, {
                 placement,
                 middleware: [offset(offsetOptions), flip()],
             }).then(({ x, y }) => {
+                // `computePosition` is async: a `hide()` (or a newer `show()`)
+                // can land before this resolves. Applying it then would set
+                // `opacity: 1` on an already-hidden float without restoring
+                // `status`, so the next `hide()` early-returns and the float is
+                // stuck visible. Bail unless this pass is still the active one.
+                if (this._cleanup !== cleanup)
+                    return;
                 Object.assign(floatBox.style, {
                     left: `${x}px`,
                     top: `${y}px`,
@@ -177,6 +184,7 @@ abstract class BaseFloat {
                 });
             });
         });
+        this._cleanup = cleanup;
 
         this.status = true;
 
