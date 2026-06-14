@@ -34,6 +34,7 @@ async function renderDiagram({
             tooltip: false,
             renderer: 'svg',
             theme: vegaTheme,
+            ast: true,
         });
     }
     else if (type === 'sequence') {
