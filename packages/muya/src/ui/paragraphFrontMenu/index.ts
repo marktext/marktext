@@ -276,8 +276,16 @@ export class ParagraphFrontMenu extends BaseFloat {
                 case 'bullet-list':
                     // fall through
                 case 'task-list': {
-                    if (!isAnyListState(oldState) || block.blockName === label)
+                    if (!isAnyListState(oldState))
                         break;
+
+                    // Clicking the active list type toggles the list off,
+                    // unwrapping every item back into plain paragraphs (matches
+                    // the command-palette/menu `reset-to-paragraph` behaviour).
+                    if (block.blockName === label) {
+                        muya.resetToParagraph(block);
+                        break;
+                    }
 
                     // The conversion between order/bullet/task lists re-shapes both
                     // the parent `meta` and each item's `meta` (only task-list-items

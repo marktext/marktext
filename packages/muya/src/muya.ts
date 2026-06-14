@@ -889,7 +889,7 @@ export class Muya {
         // form; structured containers (lists/blockquote) unwrap to preserve
         // every child, tables are left untouched.
         if (type === 'reset-to-paragraph') {
-            this._resetToParagraph(block);
+            this.resetToParagraph(block);
             return;
         }
 
@@ -947,8 +947,14 @@ export class Muya {
         });
     }
 
-    /** Return the block at the cursor to plain paragraph form. */
-    private _resetToParagraph(block: Parent) {
+    /**
+     * Return a block to plain paragraph form: lists and blockquotes unwrap to
+     * preserve every child, tables are left untouched, and everything else is
+     * replaced by a paragraph carrying its leading text. Public so the
+     * paragraph front menu can reset the block it targets (not just the cursor
+     * block).
+     */
+    resetToParagraph(block: Parent) {
         if (block.blockName === 'table')
             return;
 
