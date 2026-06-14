@@ -415,6 +415,7 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
     }
   }
   & h3 {
+    position: relative;
     margin: 0;
     font-size: 16px;
     color: currentColor;
