@@ -1669,26 +1669,18 @@ class Format extends Content {
             case 'inline_math': {
                 const MARKER = FORMAT_MARKER_MAP[type];
                 const oldText = this.text;
-                const wasCollapsed = start.offset === end.offset;
                 this.text
                     = oldText.substring(0, start.offset)
                         + MARKER
                         + oldText.substring(start.offset, end.offset)
                         + MARKER
                         + oldText.substring(end.offset);
-                if (wasCollapsed) {
-                    // Toggle-format-then-type: keep caret between markers
-                    // so the next keystroke is captured INSIDE the format.
-                    start.offset += MARKER.length;
-                    end.offset += MARKER.length;
-                }
-                else {
-                    // When wrapping a non-empty selection, collapse the caret
-                    // PAST the closing marker so the next keystroke lands
-                    // outside the format instead of extending it.
-                    end.offset += MARKER.length * 2;
-                    start.offset = end.offset;
-                }
+                // Shift both offsets past the opening marker. A collapsed
+                // cursor stays between the markers (toggle-then-type lands
+                // INSIDE the format); a non-empty selection keeps the
+                // original text selected now that it sits inside the markers.
+                start.offset += MARKER.length;
+                end.offset += MARKER.length;
                 break;
             }
 
@@ -1701,21 +1693,17 @@ class Format extends Content {
             case 'u': {
                 const MARKER = FORMAT_TAG_MAP[type];
                 const oldText = this.text;
-                const wasCollapsed = start.offset === end.offset;
                 this.text
                     = oldText.substring(0, start.offset)
                         + MARKER.open
                         + oldText.substring(start.offset, end.offset)
                         + MARKER.close
                         + oldText.substring(end.offset);
-                if (wasCollapsed) {
-                    start.offset += MARKER.open.length;
-                    end.offset += MARKER.open.length;
-                }
-                else {
-                    end.offset += MARKER.open.length + MARKER.close.length;
-                    start.offset = end.offset;
-                }
+                // Shift both offsets past the opening tag: a collapsed cursor
+                // stays between the tags, a non-empty selection keeps the
+                // wrapped text selected.
+                start.offset += MARKER.open.length;
+                end.offset += MARKER.open.length;
                 break;
             }
 
