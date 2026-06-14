@@ -2,7 +2,7 @@ import type { Muya } from '../muya';
 import type { IClipboardPayload } from './copyData';
 import { fromEvent, merge } from 'rxjs';
 import { isClipboardEvent, isKeyboardEvent } from '../utils';
-import { getClipboardData, writeClipboardData } from './copyData';
+import { getClipboardData, resolveClipboardSlots, writeClipboardData } from './copyData';
 import { cutSelection } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
 import { CopyType, PasteType } from './types';
@@ -107,20 +107,44 @@ class Clipboard {
 
     copyAsMarkdown() {
         this.copyType = CopyType.COPY_AS_MARKDOWN;
-        document.execCommand('copy');
+        if (!this._writeViaEmbedder())
+            document.execCommand('copy');
         this.copyType = CopyType.NORMAL;
     }
 
     copyAsHtml() {
         this.copyType = CopyType.COPY_AS_HTML;
-        document.execCommand('copy');
+        if (!this._writeViaEmbedder())
+            document.execCommand('copy');
         this.copyType = CopyType.NORMAL;
     }
 
     copyAsRich() {
         this.copyType = CopyType.COPY_AS_RICH;
-        document.execCommand('copy');
+        if (!this._writeViaEmbedder())
+            document.execCommand('copy');
         this.copyType = CopyType.NORMAL;
+    }
+
+    // `document.execCommand('copy')` no-ops when these methods are triggered
+    // from a main->renderer IPC message (menu / context menu / accelerator) in
+    // Electron 42 Chromium — no renderer user gesture and the editor is often
+    // unfocused — so the synthetic copy event never fires. When the embedder
+    // supplies a `clipboardWrite` hook (backed by the native OS clipboard) write
+    // the resolved slots through it directly and skip execCommand. Returns
+    // `true` when the embedder handled the write (including the deliberate
+    // no-write for an empty selection), `false` to fall back to execCommand for
+    // standalone/browser use.
+    private _writeViaEmbedder(): boolean {
+        const writer = this.muya.options.clipboardWrite;
+        if (typeof writer !== 'function')
+            return false;
+
+        const slots = resolveClipboardSlots(this);
+        if (slots != null)
+            writer(slots);
+
+        return true;
     }
 
     // Chromium removed programmatic clipboard reads via

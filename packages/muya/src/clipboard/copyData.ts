@@ -288,23 +288,21 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     return { html, text };
 }
 
-export function writeClipboardData(
+// Resolve the `text/html` and `text/plain` slots to place on the system
+// clipboard for the clipboard's current `copyType`, or `null` when nothing
+// should be written. Shared by the native `copy`-event path
+// ({@link writeClipboardData}) and the direct embedder-write path (used when a
+// `clipboardWrite` hook is supplied, since `document.execCommand('copy')` is a
+// no-op when triggered from a main->renderer IPC message in Electron 42).
+export function resolveClipboardSlots(
     clipboard: Clipboard,
-    event: ClipboardEvent,
-): void {
-    if (!event.clipboardData)
-        return;
-
+): Nullable<IClipboardPayload> {
     // A selected inline image copies its raw `![alt](src)` markdown
     // verbatim, short-circuiting the text-selection clipboard data.
     const selectedImage = clipboard.muya.editor?.selection?.image;
     if (selectedImage) {
         const { raw } = selectedImage.token;
-        if (raw.length > 0) {
-            event.clipboardData.setData('text/html', raw);
-            event.clipboardData.setData('text/plain', raw);
-        }
-        return;
+        return raw.length > 0 ? { html: raw, text: raw } : null;
     }
 
     const { copyType } = clipboard;
@@ -314,56 +312,48 @@ export function writeClipboardData(
     // Mirror native copy behavior: leave the system clipboard untouched
     // when the selection has nothing to contribute, so a previous copy
     // from another app isn't silently clobbered (marktext #3130).
+    if (text.length === 0)
+        return null;
+
     switch (copyType) {
-        case CopyType.NORMAL: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
-
-        case CopyType.COPY_AS_HTML: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData(
-                'text/plain',
-                getSanitizeClipboardHtml(
-                    text,
-                    buildHtmlOptions(clipboard.muya.options ?? {}),
-                ),
-            );
-            break;
-        }
-
         // "Copy as Rich Text": put the rendered HTML in the html slot so a
         // rich-text target (Word, email, contenteditable) renders formatted
         // content, and keep the markdown source in the plain slot. Mirrors
         // the `normal` branch; `copyAsHtml` instead blanks text/html and
         // drops the markup into text/plain as literal source.
-        case CopyType.COPY_AS_RICH: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', html);
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
+        case CopyType.COPY_AS_RICH:
+            return { html, text };
 
-        case CopyType.COPY_AS_MARKDOWN: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
+        case CopyType.COPY_AS_HTML:
+            return {
+                html: '',
+                text: getSanitizeClipboardHtml(
+                    text,
+                    buildHtmlOptions(clipboard.muya.options ?? {}),
+                ),
+            };
 
-        case CopyType.COPY_CODE_CONTENT: {
-            if (text.length === 0)
-                return;
-            event.clipboardData.setData('text/html', '');
-            event.clipboardData.setData('text/plain', text);
-            break;
-        }
+        case CopyType.NORMAL:
+        case CopyType.COPY_AS_MARKDOWN:
+        case CopyType.COPY_CODE_CONTENT:
+            return { html: '', text };
+
+        default:
+            return null;
     }
+}
+
+export function writeClipboardData(
+    clipboard: Clipboard,
+    event: ClipboardEvent,
+): void {
+    if (!event.clipboardData)
+        return;
+
+    const slots = resolveClipboardSlots(clipboard);
+    if (slots == null)
+        return;
+
+    event.clipboardData.setData('text/html', slots.html);
+    event.clipboardData.setData('text/plain', slots.text);
 }

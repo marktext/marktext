@@ -59,6 +59,19 @@ export interface IMuyaOptions {
      */
     clipboardText?: () => Promise<string>;
     /**
+     * Write the rendered slots for "Copy as Rich Text" / "Copy as HTML" /
+     * "Copy as Markdown" to the OS clipboard.
+     *
+     * The embedder supplies this because `document.execCommand('copy')` no-ops
+     * when these commands are triggered from a main->renderer IPC message
+     * (menu / context menu / accelerator) in Electron 42 Chromium — the editor
+     * is unfocused and there is no renderer user gesture, so the synthetic copy
+     * event never fires. Electron embedders wire this to an IPC bridge over the
+     * native `clipboard.write({ text, html })`. When omitted, muya falls back to
+     * `document.execCommand('copy')` for standalone/browser use.
+     */
+    clipboardWrite?: (data: { text: string; html: string }) => void;
+    /**
      * Persist an image per the embedder's insert preference (copy into the
      * document's assets folder, upload to an image host, or keep the path) and
      * resolve to the src that should be written into the document.
