@@ -1869,6 +1869,7 @@ const createApplicationMenuState = ({
       if (b.functionType === 'table') {
         state.isTable = true
         state.isDisabled = true
+        state.affiliation[b.type] = true
       }
       break
     } else if (isMultiline && /^h{1,6}$/.test(b.type)) {
