@@ -26,7 +26,17 @@ export default function loadImageAsync(
     // permanently poison the cache (marktext#3001 / #3010, commit bca2ed62).
     if (!cached || !cached.isSuccess) {
         id = getUniqueId();
-        loadImage(src, isUnknownType)
+        // Cache-bust local files so a fresh load reads the file off disk
+        // instead of Chromium's in-memory image cache. Without this, replacing
+        // an image on disk and running `invalidateImageCache()` (View → Reload
+        // images) re-requests the same `file://` URL and the stale bitmap is
+        // served. The cache key (`src`) stays unbusted so ordinary re-renders
+        // still hit the cache; only the load/`<img>` URL carries the token.
+        // `id` is monotonic (collision-free), unlike legacy muyajs's `?msec=`.
+        const loadSrc = /^file:\/\//i.test(src)
+            ? `${src}${src.includes('?') ? '&' : '?'}mucache=${id}`
+            : src;
+        loadImage(loadSrc, isUnknownType)
             .then(({ url, width, height }) => {
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 const img = document.createElement('img');

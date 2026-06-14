@@ -101,6 +101,77 @@ describe('loadImageAsync — failed cache should retry', () => {
     });
 });
 
+// Regression: "Reload images" (`muya.invalidateImageCache()`) did not refresh
+// a local image after its file was replaced on disk. The migration to the TS
+// engine dropped the legacy muyajs `?msec=` cache-buster, so a fresh load after
+// the cache was cleared re-requested the SAME `file://` URL — which Chromium
+// serves from its in-memory image cache, keeping the stale bitmap. Each load
+// of a `file://` source must therefore hit a unique URL so the browser
+// re-reads the file. Remote (http/https) URLs are left untouched.
+describe('loadImageAsync — local file cache-busting', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('appends a cache-busting query to file:// sources', async () => {
+        const { loadImage } = await import('../../../utils/image');
+        const r = makeRenderer();
+
+        loadImageAsync.call(
+            asRenderer(r),
+            { isUnknownType: false, src: 'file:///tmp/pic.png' },
+            {},
+        );
+
+        expect(loadImage).toHaveBeenCalledTimes(1);
+        const loadedUrl = vi.mocked(loadImage).mock.calls[0][0];
+        expect(loadedUrl).toMatch(/^file:\/\/\/tmp\/pic\.png\?[^=]+=[^&]+$/);
+    });
+
+    it('does NOT touch remote http(s) sources', async () => {
+        const { loadImage } = await import('../../../utils/image');
+        const r = makeRenderer();
+
+        loadImageAsync.call(
+            asRenderer(r),
+            { isUnknownType: false, src: 'https://example.com/a.png' },
+            {},
+        );
+
+        expect(loadImage).toHaveBeenCalledWith('https://example.com/a.png', false);
+    });
+
+    it('uses a different URL on each fresh load so a cleared cache refetches from disk', async () => {
+        const { loadImage } = await import('../../../utils/image');
+        vi.mocked(loadImage).mockImplementation(url =>
+            Promise.resolve({ url, width: 10, height: 10 }),
+        );
+        const r = makeRenderer();
+
+        // First render loads the image and caches it.
+        loadImageAsync.call(
+            asRenderer(r),
+            { isUnknownType: false, src: 'file:///tmp/pic.png' },
+            {},
+        );
+        await new Promise<void>(resolve => setTimeout(resolve, 0));
+        // The cache is keyed by the plain src so ordinary re-renders hit it.
+        expect(r.loadImageMap.has('file:///tmp/pic.png')).toBe(true);
+
+        // invalidateImageCache() clears the maps; the next render is a cache miss.
+        r.loadImageMap.clear();
+        loadImageAsync.call(
+            asRenderer(r),
+            { isUnknownType: false, src: 'file:///tmp/pic.png' },
+            {},
+        );
+
+        const firstUrl = vi.mocked(loadImage).mock.calls[0][0];
+        const secondUrl = vi.mocked(loadImage).mock.calls[1][0];
+        expect(secondUrl).not.toBe(firstUrl);
+    });
+});
+
 // Regression for Copilot review on PR-11a (#224): the `mu-small-image`
 // class added in `image.ts` was only applied on re-renders where the
 // `loadImageMap` cache held the dimensions. On the *first* render of a
