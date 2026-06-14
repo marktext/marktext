@@ -33,6 +33,7 @@ const PARAGRAPH_TYPES: ReadonlySet<string> = new Set([
     'ol',
     'li',
     'figure',
+    'hr',
 ]);
 
 /**
@@ -50,9 +51,10 @@ const CONTAINER_TYPE_BY_NAME: Readonly<Record<string, string>> = {
     'code-block': 'pre',
     'frontmatter': 'pre',
     'table': 'figure',
-    'html-block': 'figure',
-    'math-block': 'figure',
+    'html-block': 'pre',
+    'math-block': 'pre',
     'diagram': 'figure',
+    'thematic-break': 'hr',
 };
 
 /**
@@ -87,7 +89,7 @@ const LIST_TYPE_BY_NAME: Readonly<Record<string, string>> = {
  * needs.
  */
 export interface IAffiliationEntry {
-    /** Markdown block type: `p`, `h1`…`h6`, `ul`, `ol`, `li`, `pre`, `figure`, `blockquote`. */
+    /** Markdown block type: `p`, `h1`…`h6`, `ul`, `ol`, `li`, `pre`, `figure`, `blockquote`, `hr`. */
     type: string;
     /** Engine block name (`bullet-list`, `code-block`, …) for callers that want the precise block. */
     blockName: string;
