@@ -128,10 +128,13 @@ class ImageSelection {
                 imageInfo,
             });
 
-            const imageSelector = `#${imageInfo.imageId}`;
-
-            const imageContainer = document.querySelector(
-                `${imageSelector} .${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
+            // Resolve the image container from the clicked wrapper directly.
+            // Images that share the same src (and paragraph offset) render with
+            // duplicate DOM ids, so a `document.querySelector('#id ...')` lookup
+            // would resolve to the first occurrence and place the resize bar on
+            // the wrong image.
+            const imageContainer = imageWrapper.querySelector(
+                `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
             );
 
             eventCenter.emit('muya-transformer', {

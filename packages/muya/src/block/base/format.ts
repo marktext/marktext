@@ -439,7 +439,12 @@ class Format extends Content {
 
         const selector = `#${imageId.includes('_') ? imageId : `${imageId}_${token.range.start}`
         } img`;
-        const image: Nullable<HTMLElement> = document.querySelector<HTMLElement>(selector);
+        // Scope the lookup to this block: identical-src images share a DOM id,
+        // so a document-wide query would re-click the first occurrence. Within a
+        // single block the `_${range.start}` suffix is unique.
+        const image: Nullable<HTMLElement>
+            = this.domNode?.querySelector<HTMLElement>(selector)
+                ?? document.querySelector<HTMLElement>(selector);
 
         if (image)
             image.click();
