@@ -38,6 +38,14 @@ export const registerShellHandlers = (): void => {
       log.error('clipboard.writeText failed:', err)
     }
   })
+  ipcMain.on('mt::clipboard::write', (_e, data: { text: string; html: string }) => {
+    try {
+      const { text = '', html = '' } = data ?? {}
+      clipboard.write(html ? { text, html } : { text })
+    } catch (err) {
+      log.error('clipboard.write failed:', err)
+    }
+  })
   ipcMain.handle('mt::clipboard::read-text', () => {
     try {
       return clipboard.readText()

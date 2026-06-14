@@ -50,6 +50,7 @@ declare global {
 
   interface ElectronClipboardAPI {
     writeText(text: string): void
+    write(data: { text: string; html: string }): void
     readText(): Promise<string>
     guessFilePath(): Promise<string | null>
   }
