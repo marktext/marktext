@@ -143,6 +143,11 @@ const setupDragDropHandler = (): void => {
           bus.emit('importDialog', true)
         }
         e.dataTransfer.dropEffect = 'copy'
+      } else if (e.dataTransfer.types.indexOf('text/uri-list') >= 0) {
+        // A web-link / web-image drag (e.g. an <img> dragged from a browser).
+        // The muya editor's own dragover/drop handlers accept these and insert
+        // an image block, so leave the drop enabled — forcing dropEffect='none'
+        // here would clobber the editor's 'copy' and suppress the drop event.
       } else {
         e.stopPropagation()
         e.dataTransfer.dropEffect = 'none'
