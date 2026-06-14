@@ -1510,9 +1510,10 @@ const handleResetPaddingBottom = () => {
   }
 }
 
-const handleLanguageChanged = () => {
+const handleLanguageChanged = (newLocale?: unknown) => {
   if (editor.value) {
-    editor.value.locale(getMuyaLocale(language.value))
+    const locale = typeof newLocale === 'string' ? newLocale : language.value
+    editor.value.locale(getMuyaLocale(locale))
   }
 }
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
