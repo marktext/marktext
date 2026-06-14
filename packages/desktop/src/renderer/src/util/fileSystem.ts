@@ -68,6 +68,10 @@ export const moveImageToFolder = async(
   currentPathname: string | null = null
 ): Promise<string> => {
   await window.fileUtils.ensureDir(outputDir)
+  const toResult = (absolutePath: string) =>
+    isRelative && currentPathname
+      ? window.path.relative(window.path.dirname(currentPathname), absolutePath)
+      : absolutePath
   const isPath = typeof image === 'string'
   if (isPath) {
     const dir = window.path.dirname(pathname)
@@ -78,12 +82,12 @@ export const moveImageToFolder = async(
       const ext = window.path.extname(imagePath)
       const noHashPath = window.path.join(outputDir, filename)
       if (noHashPath === imagePath) {
-        return imagePath
+        return toResult(imagePath)
       }
       const hash = await getContentHash(imagePath)
       const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
       await window.fileUtils.copy(imagePath, hashFilePath)
-      return hashFilePath
+      return toResult(hashFilePath)
     } else {
       return image as string
     }
@@ -97,11 +101,7 @@ export const moveImageToFolder = async(
     const buffer = new Uint8Array(await file.arrayBuffer())
     await window.fileUtils.writeFile(imagePath, buffer)
 
-    if (isRelative && currentPathname) {
-      return window.path.relative(window.path.dirname(currentPathname), imagePath)
-    }
-
-    return imagePath
+    return toResult(imagePath)
   }
 }
 
