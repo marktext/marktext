@@ -856,6 +856,15 @@ pre.mu-active.mu-fenced-code::after {
     text-align: center;
 }
 
+.mu-diagram-error-detail {
+    margin-top: 6px;
+
+    font-size: 12px;
+    overflow-wrap: break-word;
+
+    opacity: 0.7;
+}
+
 /* content */
 .mu-content {
     display: block;

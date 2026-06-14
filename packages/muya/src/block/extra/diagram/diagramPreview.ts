@@ -141,10 +141,17 @@ class DiagramPreview extends Parent {
                     sequenceTheme,
                 });
             }
-            catch {
+            catch (error) {
+                const detail
+                    = error instanceof Error ? error.message : String(error);
+                debug.error(`render ${type} diagram failed: ${detail}`);
                 this.domNode!.innerHTML = `<div class="mu-diagram-error">&lt; ${i18n.t(
                     'Invalid Diagram Code',
-                )} &gt;</div>`;
+                )} &gt;<div class="mu-diagram-error-detail">${sanitize(
+                    detail,
+                    PREVIEW_DOMPURIFY_CONFIG,
+                    true,
+                )}</div></div>`;
             }
         }
         else {
