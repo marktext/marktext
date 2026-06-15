@@ -139,6 +139,25 @@ describe('muya.updateParagraph()', () => {
         });
     });
 
+    it('keeps the cursor in the same list item when toggling loose/tight', async () => {
+        const muya = bootMuya('- a\n- b\n');
+        const list = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock!;
+        const second = list.lastContentInDescendant()!;
+        // Caret at the end of the SECOND item ('b').
+        second.setCursor(1, 1, true);
+        expect(muya.editor.activeContentBlock).toBe(second);
+
+        muya.updateParagraph('loose-list-item');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.loose).toBe(true);
+        });
+
+        // The caret must stay in the second item at the same offset, not jump
+        // back to the first item at offset 0.
+        expect(muya.editor.activeContentBlock?.text).toBe('b');
+        expect(muya.editor.selection.anchor?.offset).toBe(1);
+    });
+
     it('maps the command-palette ol-bullet label to an ordered list', async () => {
         const muya = bootMuya('item\n');
         placeCursorOnFirstBlock(muya);

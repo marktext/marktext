@@ -1,5 +1,6 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
+import type TreeNode from './block/base/treeNode';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
@@ -1057,11 +1058,83 @@ export class Muya {
         if (!isAnyListState(state))
             return;
 
+        const cursor = this._captureListCursor(block);
+
         const newState = deepClone(state);
         newState.meta.loose = !newState.meta.loose;
         const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
         block.replaceWith(newBlock);
-        newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+
+        this._restoreListCursor(newBlock, cursor);
+    }
+
+    /**
+     * Record where the caret sits inside `list` as a child-index path plus the
+     * selection offsets. Toggling loose/tight rebuilds the whole list from a
+     * deep clone of its state, so the child structure is identical and the path
+     * maps one-to-one onto the rebuilt tree — letting the caret stay put instead
+     * of snapping to the first item. Returns null when the caret isn't inside
+     * this list.
+     */
+    private _captureListCursor(list: Parent): { path: number[]; start: number; end: number } | null {
+        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        if (!content || content.outMostBlock !== list)
+            return null;
+
+        const path: number[] = [];
+        let node: TreeNode = content;
+        while (node !== list && node.parent) {
+            path.unshift(node.parent.offset(node));
+            node = node.parent;
+        }
+        if (node !== list)
+            return null;
+
+        // The live DOM selection is the source of truth when present; fall back
+        // to the cached selection (which survives the menu/IPC round-trip) so a
+        // menu-driven toggle still restores the right offset.
+        const live = content.getCursor();
+        const sel = this.editor.selection;
+        let start = 0;
+        let end = 0;
+        if (live) {
+            start = live.start.offset;
+            end = live.end.offset;
+        }
+        else if (sel.anchorBlock === content && sel.anchor) {
+            const a = sel.anchor.offset;
+            const f = sel.focus?.offset ?? a;
+            start = Math.min(a, f);
+            end = Math.max(a, f);
+        }
+
+        return { path, start, end };
+    }
+
+    /**
+     * Restore a caret captured by `_captureListCursor` into the rebuilt list,
+     * falling back to the first content block when the path no longer resolves.
+     */
+    private _restoreListCursor(
+        list: Parent,
+        cursor: { path: number[]; start: number; end: number } | null,
+    ) {
+        if (cursor) {
+            let node: TreeNode | null = list;
+            for (const index of cursor.path) {
+                if (!node || !node.isParent()) {
+                    node = null;
+                    break;
+                }
+                node = node.find(index);
+            }
+            if (node && node.isContent()) {
+                node.setCursor(cursor.start, cursor.end, true);
+                return;
+            }
+        }
+
+        list.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /** Convert an existing list to another list type, preserving items. */
