@@ -77,8 +77,6 @@ export const tr = {
         'Inline Image': 'Satır İçi Görsel',
         'Remove Image': 'Görseli Kaldır',
         // ImageSelector
-        'Image src placeholder': 'Görsel kaynağı',
-        'Confirm Text': 'Tamam',
         'Select': 'Seç',
         'Embed link': 'Bağlantı göm',
         'Choose Image': 'Görsel Seç',

@@ -77,8 +77,6 @@ export const ko = {
         'Inline Image': '인라인 이미지',
         'Remove Image': '이미지 삭제',
         // ImageSelector
-        'Image src placeholder': '이미지 URL',
-        'Confirm Text': '확인',
         'Select': '선택',
         'Embed link': '링크 삽입',
         'Choose Image': '이미지 선택',

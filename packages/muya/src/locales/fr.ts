@@ -77,8 +77,6 @@ export const fr = {
         'Inline Image': 'Image en ligne',
         'Remove Image': 'Supprimer l\'image',
         // ImageSelector
-        'Image src placeholder': 'URL de l\'image',
-        'Confirm Text': 'OK',
         'Select': 'Sélectionner',
         'Embed link': 'Intégrer un lien',
         'Choose Image': 'Choisir une image',

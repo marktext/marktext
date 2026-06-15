@@ -77,8 +77,6 @@ export const pt = {
         'Inline Image': 'Imagem em linha',
         'Remove Image': 'Remover imagem',
         // ImageSelector
-        'Image src placeholder': 'URL da imagem',
-        'Confirm Text': 'OK',
         'Select': 'Selecionar',
         'Embed link': 'Inserir link',
         'Choose Image': 'Escolher imagem',

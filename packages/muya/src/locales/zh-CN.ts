@@ -77,8 +77,6 @@ export const zhCN = {
         'Inline Image': '行内图片',
         'Remove Image': '删除图片',
         // ImageSelector
-        'Image src placeholder': '图片链接',
-        'Confirm Text': '确定',
         'Select': '选择',
         'Embed link': '插入链接',
         'Choose Image': '选择图片',

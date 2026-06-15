@@ -77,8 +77,6 @@ export const ja = {
         'Inline Image': '行内画像',
         'Remove Image': '画像を削除する',
         // ImageSelector
-        'Image src placeholder': '画像のURL',
-        'Confirm Text': 'OK',
         'Select': '選択',
         'Embed link': 'リンクを埋め込む',
         'Choose Image': '画像を選択',

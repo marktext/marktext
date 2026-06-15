@@ -77,8 +77,6 @@ export const zhTW = {
         'Inline Image': '行內圖片',
         'Remove Image': '刪除圖片',
         // ImageSelector
-        'Image src placeholder': '圖片連結',
-        'Confirm Text': '確定',
         'Select': '選擇',
         'Embed link': '插入連結',
         'Choose Image': '選擇圖片',
