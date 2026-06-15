@@ -422,10 +422,7 @@ class CodeBlockContent extends Content {
             anchor.offset !== oldAnchor?.offset
             || focus.offset !== oldFocus?.offset
         ) {
-            this.selection.setSelection(
-                { offset: anchor.offset, block: this, path: this.path },
-                { offset: focus.offset, block: this, path: this.path },
-            );
+            this.setCursor(anchor.offset, focus.offset);
         }
     }
 }
