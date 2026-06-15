@@ -12,12 +12,12 @@ import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 import fs from 'fs'
 
+type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
+
 // The deferred file/markdown to open before the window finishes loading.
 interface PendingFile {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  doc: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: any
+  doc: RawMarkdownDocument
+  options: Record<string, unknown>
   selected: boolean
 }
 
@@ -29,6 +29,21 @@ interface BufferStoreInfo {
 interface CandidateScore {
   id: number | null
   score: number
+}
+
+interface RestoredTab {
+  pathname: string
+  filename?: string
+  markdown?: string
+  isSaved?: boolean
+  [key: string]: unknown
+}
+
+interface RestoredBufferState {
+  tabs: RestoredTab[]
+  restoreWarnings?: unknown[]
+  project?: { rootDirectory?: string }
+  [key: string]: unknown
 }
 
 class EditorWindow extends BaseWindow {
@@ -329,8 +344,7 @@ class EditorWindow extends BaseWindow {
         trimTrailingNewline,
         autoNormalizeLineEndings
       )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((rawDocument: any) => {
+        .then((rawDocument) => {
           if (this.lifecycle === WindowLifecycle.READY) {
             this._doOpenTab(rawDocument, options, selected)
           } else {
@@ -516,10 +530,8 @@ class EditorWindow extends BaseWindow {
    * Open a new new tab from the markdown document.
    */
   private _doOpenTab(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rawDocument: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    options: any,
+    rawDocument: RawMarkdownDocument,
+    options: Record<string, unknown>,
     selected: boolean
   ): void {
     const { _accessor, _openedFiles, browserWindow } = this
@@ -560,8 +572,9 @@ class EditorWindow extends BaseWindow {
     const { menu: appMenu, preferences } = _accessor as any
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const bufferState: any = JSON.parse(fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8'))
+      const bufferState = JSON.parse(
+        fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8')
+      ) as RestoredBufferState
       if (!bufferState || !Array.isArray(bufferState.tabs)) {
         throw new Error('Invalid editor buffer state.')
       }
@@ -592,8 +605,7 @@ class EditorWindow extends BaseWindow {
             trimTrailingNewline,
             autoNormalizeLineEndings
           )
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .then((rawDocument: any) => {
+            .then((rawDocument) => {
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {

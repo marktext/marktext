@@ -21,6 +21,7 @@ import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
+import type WindowManager from './windowManager'
 
 interface CliArgs {
   _: string[]
@@ -37,8 +38,7 @@ class App {
   private _args: CliArgs
   private _openFilesCache: PathInfo[]
   private _openFilesTimer: ReturnType<typeof setTimeout> | null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _windowManager: any
+  private _windowManager: WindowManager
   private _themeListenerRegistered: boolean
 
   /**
@@ -146,7 +146,7 @@ class App {
    */
   private async _initializeLanguage(): Promise<void> {
     try {
-      let currentLanguage = this._accessor.preferences.getItem('language')
+      let currentLanguage = this._accessor.preferences.getItem<string>('language')
 
       // If no language is set, auto-detect based on the system language
       if (!currentLanguage) {
@@ -214,7 +214,9 @@ class App {
   }
 
   async getScreenshotFileName(): Promise<string> {
-    const screenshotFolderPath = await this._accessor.dataCenter.getItem('screenshotFolderPath')
+    const screenshotFolderPath = (await this._accessor.dataCenter.getItem(
+      'screenshotFolderPath'
+    )) as string
     const fileName = `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-screenshot.png`
     return path.join(screenshotFolderPath, fileName)
   }
@@ -224,16 +226,11 @@ class App {
     const { preferences, editorBufferStore } = this._accessor
 
     // Initialize language settings
-    const {
-      startUpAction,
-      defaultDirectoryToOpen,
-      followSystemTheme,
-      lastOpenedFolder,
-      lightModeTheme,
-      darkModeTheme,
-      theme,
-      language
-    } = preferences.getAll()
+    const { startUpAction, defaultDirectoryToOpen, theme, language } = preferences.getAll()
+    const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
+    const lastOpenedFolder = preferences.getItem<string>('lastOpenedFolder')
+    const lightModeTheme = preferences.getItem<string>('lightModeTheme')
+    const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
     if (language) {
       setLanguage(language)
@@ -297,7 +294,8 @@ class App {
       // When followSystemTheme is enabled, immediately switch to match system
       if (change.followSystemTheme === true) {
         const systemIsDark = nativeTheme.shouldUseDarkColors
-        const { lightModeTheme, darkModeTheme } = preferences.getAll()
+        const lightModeTheme = preferences.getItem<string>('lightModeTheme')
+        const darkModeTheme = preferences.getItem<string>('darkModeTheme')
         const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
 
         log.info(
@@ -308,13 +306,14 @@ class App {
       }
       // When light/dark mode theme preferences change, apply immediately if following system
       if (
-        preferences.getItem('followSystemTheme') &&
+        preferences.getItem<boolean>('followSystemTheme') &&
         (change.lightModeTheme || change.darkModeTheme)
       ) {
         const systemIsDark = nativeTheme.shouldUseDarkColors
 
         // Get current values, but prefer the NEW values from the change event
-        let { lightModeTheme, darkModeTheme } = preferences.getAll()
+        let lightModeTheme = preferences.getItem<string>('lightModeTheme')
+        let darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
         // If these preferences were just changed, use the new values from the change object
         if (change.lightModeTheme !== undefined) {
@@ -335,12 +334,14 @@ class App {
     // Listen for system theme changes and auto-switch if enabled
     if (!this._themeListenerRegistered) {
       nativeTheme.on('updated', () => {
-        const { followSystemTheme, lightModeTheme, darkModeTheme } = preferences.getAll()
+        const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
+        const lightModeTheme = preferences.getItem<string>('lightModeTheme')
+        const darkModeTheme = preferences.getItem<string>('darkModeTheme')
 
         if (followSystemTheme) {
           const systemIsDark = nativeTheme.shouldUseDarkColors
           const newTheme = systemIsDark ? darkModeTheme : lightModeTheme
-          const currentTheme = preferences.getItem('theme')
+          const currentTheme = preferences.getItem<string>('theme')
 
           // Only switch if the theme actually needs to change
           if (newTheme !== currentTheme) {
@@ -484,7 +485,7 @@ class App {
     editor.createWindow(rootDirectory, fileList, markdownList, options, bufferStoreInfo)
     this._windowManager.add(editor)
     if (this._windowManager.windowCount === 1) {
-      this._accessor.menu.setActiveWindow(editor.id)
+      this._accessor.menu.setActiveWindow(editor.id!)
     }
     return editor
   }
@@ -497,7 +498,7 @@ class App {
     setting.createWindow(category ?? null)
     this._windowManager.add(setting)
     if (this._windowManager.windowCount === 1) {
-      this._accessor.menu.setActiveWindow(setting.id)
+      this._accessor.menu.setActiveWindow(setting.id!)
     }
   }
 
@@ -514,7 +515,7 @@ class App {
    */
   private _openPathList(pathsToOpen: PathInfo[], openFilesInSameWindow: boolean = false): void {
     const { _windowManager } = this
-    const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+    const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
     const fileSet = new Set<string>()
     const directorySet = new Set<string>()
@@ -527,11 +528,10 @@ class App {
     }
 
     // Filter out directories that are already opened.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const window of _windowManager.windows.values() as Iterable<any>) {
+    for (const window of _windowManager.windows.values()) {
       if (window.type === WindowType.EDITOR) {
-        const { openedRootDirectory } = window
-        if (directorySet.has(openedRootDirectory)) {
+        const { openedRootDirectory } = window as EditorWindow
+        if (openedRootDirectory && directorySet.has(openedRootDirectory)) {
           window.bringToFront()
           directorySet.delete(openedRootDirectory)
         }
@@ -593,8 +593,7 @@ class App {
         filesToOpen.length = 0
       } else {
         const windowList = _windowManager.findBestWindowToOpenIn(filesToOpen)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        for (const item of windowList as any[]) {
+        for (const item of windowList) {
           const { windowId, fileList } = item
 
           // File list is empty when all files are already opened.
@@ -603,7 +602,7 @@ class App {
           }
 
           if (windowId !== null) {
-            const window = _windowManager.get(windowId)
+            const window = _windowManager.get(windowId) as EditorWindow | undefined
             if (window) {
               window.openTabsFromPaths(fileList)
               window.bringToFront()
@@ -641,7 +640,7 @@ class App {
     const settingWins = this._windowManager.getWindowsByType(WindowType.SETTINGS)
     if (settingWins.length >= 1) {
       // A setting window is already created
-      const browserSettingWindow = settingWins[0].win.browserWindow
+      const browserSettingWindow = settingWins[0].win.browserWindow!
       browserSettingWindow.webContents.send('settings::change-tab', category)
       if (isLinux) {
         browserSettingWindow.focus()
@@ -703,11 +702,11 @@ class App {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ipcMain.on('app-open-file-by-id', (windowId: any, filePath: any) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [filePath as string])
       } else {
-        const editor = this._windowManager.get(windowId as number)
+        const editor = this._windowManager.get(windowId as number) as EditorWindow | undefined
         if (editor) {
           editor.openTab(filePath, {}, true)
         }
@@ -715,19 +714,17 @@ class App {
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ipcMain.on('app-open-files-by-id', (windowId: any, fileList: any) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, fileList as string[])
       } else {
-        const editor = this._windowManager.get(windowId as number)
+        const editor = this._windowManager.get(windowId as number) as EditorWindow | undefined
         if (editor) {
           editor.openTabsFromPaths(
             (fileList as string[])
               .map((p) => normalizeMarkdownPath(p))
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .filter((i: any) => i && !i.isDir)
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .map((i: any) => i.path)
+              .filter((i): i is PathInfo => i !== null && !i.isDir)
+              .map((i) => i.path)
           )
         }
       }
@@ -735,11 +732,11 @@ class App {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ipcMain.on('app-open-markdown-by-id', (windowId: any, data: any) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [], [data as string])
       } else {
-        const editor = this._windowManager.get(windowId as number)
+        const editor = this._windowManager.get(windowId as number) as EditorWindow | undefined
         if (editor) {
           editor.openUntitledTab(true, data as string)
         }
@@ -752,7 +749,7 @@ class App {
       (windowId: any, pathname: any, openInSameWindow: any) => {
         const { openFolderInNewWindow } = this._accessor.preferences.getAll()
         if (openInSameWindow || !openFolderInNewWindow) {
-          const editor = this._windowManager.get(windowId as number)
+          const editor = this._windowManager.get(windowId as number) as EditorWindow | undefined
           if (editor) {
             editor.openFolder(pathname as string)
             return
@@ -770,11 +767,11 @@ class App {
 
     ipcMain.on('mt::open-file-by-window-id', (_e, windowId: number, filePath: string) => {
       const resolvedPath = normalizeAndResolvePath(filePath)
-      const openFilesInNewWindow = this._accessor.preferences.getItem('openFilesInNewWindow')
+      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [resolvedPath])
       } else {
-        const editor = this._windowManager.get(windowId)
+        const editor = this._windowManager.get(windowId) as EditorWindow | undefined
         if (editor) {
           editor.openTab(resolvedPath, {}, true)
         }

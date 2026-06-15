@@ -7,8 +7,10 @@ import Watcher, {
   WATCHER_STABILITY_POLL_INTERVAL
 } from '../filesystem/watcher'
 import type BaseWindow from '../windows/base'
+import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
+import type EditorWindow from '../windows/editor'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -72,14 +74,11 @@ interface AppMenuLike {
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void
 }
 
-interface PreferenceLike {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
-}
-
 interface EditorBufferStoreLike {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleClose(restoreBufferId: string | undefined, windows: any[]): void
+  handleClose(
+    restoreBufferId: string | undefined,
+    windows: { id: number; win: BaseWindow }[]
+  ): void
 }
 
 class WindowManager extends TypedEmitter<WindowManagerEvents> {
@@ -97,7 +96,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
    */
   constructor(
     appMenu: AppMenuLike,
-    preferences: PreferenceLike,
+    preferences: Preference,
     editorBufferStore: EditorBufferStoreLike
   ) {
     super()
@@ -266,8 +265,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     let filePathScores: { id: number | null; score: number }[] | null = null
     for (const window of windows.values()) {
       if (window.type === WindowType.EDITOR) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const scores = (window as any).getCandidateScores(fileList)
+        const scores = (window as EditorWindow).getCandidateScores(fileList)
         if (!filePathScores) {
           filePathScores = scores
         } else {
@@ -370,8 +368,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.on('mt::window-add-file-path', (e, filePath: string) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const editor = this.get(win.id) as any
+      const editor = this.get(win.id) as EditorWindow | undefined
       if (!editor) {
         log.error(`Cannot find window id "${win.id}" to add opened file.`)
         return
@@ -393,8 +390,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.on('mt::open-file', (e, filePath: string, options: Record<string, unknown>) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const editor = this.get(win.id) as any
+      const editor = this.get(win.id) as EditorWindow | undefined
       if (!editor) {
         log.error(`Cannot find window id "${win.id}" to open file.`)
         return
@@ -405,8 +401,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     ipcMain.on('mt::window-tab-closed', (e, pathname: string) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const editor = this.get(win.id) as any
+      const editor = this.get(win.id) as EditorWindow | undefined
       if (editor) {
         editor.removeFromOpenedFiles(pathname)
       }
@@ -445,8 +440,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ipcMain.on('window-add-file-path', (windowId: any, filePath: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const editor = this.get(windowId as number) as any
+      const editor = this.get(windowId as number) as EditorWindow | undefined
       if (!editor) {
         log.error(`Cannot find window id "${windowId}" to add opened file.`)
         return
@@ -457,8 +451,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       'window-change-file-path',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (windowId: any, pathname: any, oldPathname: any) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const editor = this.get(windowId as number) as any
+        const editor = this.get(windowId as number) as EditorWindow | undefined
         if (!editor) {
           log.error(`Cannot find window id "${windowId}" to change file path.`)
           return
