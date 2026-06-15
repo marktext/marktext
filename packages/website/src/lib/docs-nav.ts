@@ -32,6 +32,7 @@ export const DOC_TABS: DocTab[] = [
         pages: [
           { slug: ['introduction'], title: 'Introduction', file: 'README.md', hint: 'Overview & getting started' },
           { slug: ['installation'], title: 'Installation', file: 'end-user/INSTALLATION.md', hint: 'Download & install on every platform' },
+          { slug: ['linux'], title: 'Linux notes', file: 'end-user/LINUX.md', hint: 'Distro-specific install tips & quirks' },
           { slug: ['basics'], title: 'Basics', file: 'end-user/BASICS.md', hint: 'The interface, files & tabs' },
           { slug: ['editing'], title: 'Editing in depth', file: 'end-user/EDITING.md', hint: 'Shortcuts, format bar & find/replace' },
           { slug: ['spelling'], title: 'Spelling', file: 'end-user/SPELLING.md', hint: 'Spell checker & dictionaries' },
@@ -43,6 +44,9 @@ export const DOC_TABS: DocTab[] = [
         pages: [
           { slug: ['preferences'], title: 'Preferences', file: 'end-user/PREFERENCES.md', hint: 'App settings reference' },
           { slug: ['key-bindings'], title: 'Key bindings', file: 'end-user/KEYBINDINGS.md', hint: 'Default & custom shortcuts' },
+          { slug: ['key-bindings-macos'], title: 'Key bindings (macOS)', file: 'end-user/KEYBINDINGS_OSX.md', hint: 'Default shortcuts on macOS' },
+          { slug: ['key-bindings-linux'], title: 'Key bindings (Linux)', file: 'end-user/KEYBINDINGS_LINUX.md', hint: 'Default shortcuts on Linux' },
+          { slug: ['key-bindings-windows'], title: 'Key bindings (Windows)', file: 'end-user/KEYBINDINGS_WINDOWS.md', hint: 'Default shortcuts on Windows' },
           { slug: ['application-data-directory'], title: 'Application data directory', file: 'end-user/APPLICATION_DATA_DIRECTORY.md', hint: 'Where MarkText stores user data' },
           { slug: ['environment-variables'], title: 'Environment variables', file: 'end-user/ENVIRONMENT.md', hint: 'Runtime environment overrides' },
           { slug: ['cli'], title: 'Command line interface', file: 'end-user/CLI.md', hint: 'Flags, switches, exit codes' }
