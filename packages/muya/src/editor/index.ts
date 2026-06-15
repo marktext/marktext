@@ -416,20 +416,17 @@ export class Editor {
         }
 
         // Incremental (updateContents) path: blocks are still attached. Clone the
-        // paths so `_setCursor`'s `queryBlock(path)` fallback can't drain the
-        // caller's arrays — notably the selection object stored in the undo stack.
-        this.selection.setSelection({
-            anchor,
-            focus,
-            anchorBlock: anchor.block,
-            anchorPath: [...anchor.path],
-            focusBlock: focus.block,
-            focusPath: [...focus.path],
-            isCollapsed: selection.isCollapsed,
-            isSelectionInSameBlock,
-            direction: selection.direction,
-            type: selection.type,
-        });
+        // paths so `queryBlock(path)` can't drain the caller's arrays — notably
+        // the selection object stored in the undo stack.
+        const anchorBlock = anchor.block ?? this.scrollPage?.queryBlock([...anchor.path]);
+        const focusBlock = focus.block ?? this.scrollPage?.queryBlock([...focus.path]);
+        if (!anchorBlock || !anchorBlock.isContent() || !focusBlock || !focusBlock.isContent())
+            return;
+
+        this.selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: [...anchor.path] },
+            { offset: focus.offset, block: focusBlock, path: [...focus.path] },
+        );
     }
 
     /**

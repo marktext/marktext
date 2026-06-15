@@ -1,7 +1,7 @@
 import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
-import type { ICursor, IImageSelectionData, ISelection } from './types';
+import type { IAnchorFocusInfo, IImageSelectionData, ISelection } from './types';
 import {
     getCursorCoords,
     getCursorYOffset,
@@ -123,8 +123,8 @@ class Selection {
         return this._text.getSelection();
     }
 
-    setSelection(cursor: ICursor): void {
-        this._text.setSelection(cursor);
+    setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo): void {
+        this._text.setSelection(anchor, focus);
     }
 
     selectAll(): void {
@@ -177,12 +177,10 @@ class Selection {
             && (anchorBlock.blockName === 'codeblock.content'
                 || anchorBlock.blockName === 'language-input')
         ) {
-            this._text.setSelection({
-                anchor: { offset: 0 },
-                focus: { offset: anchorBlock.text.length },
-                block: anchorBlock,
-                path: anchorPath,
-            });
+            this._text.setSelection(
+                { offset: 0, block: anchorBlock, path: anchorPath },
+                { offset: anchorBlock.text.length, block: anchorBlock, path: anchorPath },
+            );
             return;
         }
         if (
@@ -192,12 +190,10 @@ class Selection {
             && anchorBlock
             && Math.abs(focus.offset - anchor.offset) < anchorBlock.text.length
         ) {
-            this._text.setSelection({
-                anchor: { offset: 0 },
-                focus: { offset: anchorBlock.text.length },
-                block: anchorBlock,
-                path: anchorPath,
-            });
+            this._text.setSelection(
+                { offset: 0, block: anchorBlock, path: anchorPath },
+                { offset: anchorBlock.text.length, block: anchorBlock, path: anchorPath },
+            );
             return;
         }
 

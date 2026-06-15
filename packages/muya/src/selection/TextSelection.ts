@@ -4,7 +4,7 @@ import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type Selection from './index';
-import type { ICursor, INodeOffset, ISelection } from './types';
+import type { IAnchorFocusInfo, INodeOffset, ISelection } from './types';
 import { BLOCK_DOM_PROPERTY } from '../config';
 import { isHTMLElement, isMouseEvent } from '../utils';
 import {
@@ -32,7 +32,7 @@ class TextSelection {
 
     private _selectInfo: {
         isSelect: boolean;
-        selection: ICursor | null;
+        selection: { anchor: IAnchorFocusInfo; focus: IAnchorFocusInfo } | null;
     } = {
         isSelect: false,
         selection: null,
@@ -100,7 +100,14 @@ class TextSelection {
     }
 
     collapse(): void {
-        this.setSelection({ anchor: null, focus: null });
+        this.anchor = null;
+        this.focus = null;
+        this.anchorBlock = null;
+        this.focusBlock = null;
+        this.anchorPath = [];
+        this.focusPath = [];
+        this._updateSelection();
+        this._emitSelectionChange();
     }
 
     selectAllContent() {
@@ -111,16 +118,10 @@ class TextSelection {
         if (aBlock == null || fBlock == null)
             return;
 
-        const cursor: ICursor = {
-            anchor: { offset: 0 },
-            focus: { offset: fBlock.text.length },
-            anchorBlock: aBlock,
-            anchorPath: aBlock.path,
-            focusBlock: fBlock,
-            focusPath: fBlock.path,
-        };
-
-        this.setSelection(cursor);
+        this.setSelection(
+            { offset: 0, block: aBlock, path: aBlock.path },
+            { offset: fBlock.text.length, block: fBlock, path: fBlock.path },
+        );
         const activeEle = this._doc.activeElement;
         if (isHTMLElement(activeEle) && activeEle.classList.contains('mu-content'))
             activeEle.blur();
@@ -186,37 +187,28 @@ class TextSelection {
         };
     }
 
-    setSelection({
-        anchor,
-        focus,
-        block,
-        path,
-        anchorBlock,
-        anchorPath,
-        focusBlock,
-        focusPath,
-    }: ICursor) {
-        this.anchor = anchor ?? null;
-        this.focus = focus ?? null;
-        this.anchorBlock = anchorBlock ?? block ?? null;
-        this.anchorPath = anchorPath ?? path ?? [];
-        this.focusBlock = focusBlock ?? block ?? null;
-        this.focusPath = focusPath ?? path ?? [];
+    setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo) {
+        this.anchor = { offset: anchor.offset };
+        this.anchorBlock = anchor.block;
+        this.anchorPath = anchor.path;
+        this.focus = { offset: focus.offset };
+        this.focusBlock = focus.block;
+        this.focusPath = focus.path;
         this._updateSelection();
+        this._emitSelectionChange();
+    }
 
-        const {
-            isCollapsed,
-            isSelectionInSameBlock,
-            direction,
-            type,
-        } = this;
+    private _emitSelectionChange() {
+        const { isCollapsed, isSelectionInSameBlock, direction, type } = this;
+        const anchorBlock = this.anchorBlock ?? null;
+        const focusBlock = this.focusBlock ?? null;
 
         // Follow the caret (focus end) for forward selections so typewriter
         // scrolling tracks the cursor rather than the selection start.
         const cursorCoords = getCursorCoords(direction === SelectionDirection.Forward);
         // Duck-type the Format block — a value import of Format here would
         // create a selection -> format circular dependency.
-        const anchorBlockRef = this.anchorBlock as Format | null;
+        const anchorBlockRef = anchorBlock as Format | null;
         const formats
             = isSelectionInSameBlock
                 && anchorBlockRef
@@ -224,20 +216,15 @@ class TextSelection {
                 ? anchorBlockRef.getFormatsInRange().formats
                 : [];
 
-        const affiliation = buildSelectionAffiliation(
-            this.anchorBlock,
-            this.focusBlock,
-        );
-        const anchorBlockInfo = endpointBlockInfo(this.anchorBlock);
-        const focusBlockInfo = endpointBlockInfo(this.focusBlock);
+        const affiliation = buildSelectionAffiliation(anchorBlock, focusBlock);
 
         this._muya.eventCenter.emit('selection-change', {
-            anchor,
-            focus,
+            anchor: this.anchor,
+            focus: this.focus,
             anchorBlock,
-            anchorPath,
+            anchorPath: this.anchorPath,
             focusBlock,
-            focusPath,
+            focusPath: this.focusPath,
             isCollapsed,
             isSelectionInSameBlock,
             direction,
@@ -247,8 +234,8 @@ class TextSelection {
             cursorCoords,
             formats,
             affiliation,
-            anchorBlockInfo,
-            focusBlockInfo,
+            anchorBlockInfo: endpointBlockInfo(anchorBlock),
+            focusBlockInfo: endpointBlockInfo(focusBlock),
         });
     }
 
@@ -264,7 +251,7 @@ class TextSelection {
 
         const handleMouseupOrLeave = () => {
             if (this._selectInfo.selection)
-                this.setSelection(this._selectInfo.selection);
+                this.setSelection(this._selectInfo.selection.anchor, this._selectInfo.selection.focus);
 
             this._selectInfo = {
                 isSelect: false,
@@ -295,19 +282,13 @@ class TextSelection {
 
             const anchorBlock = anchor.block;
             const focusBlock = focus.block;
-            const newSelection = {
-                anchor,
-                focus,
-                anchorBlock,
-                focusBlock,
-                anchorPath: anchorBlock.path,
-                focusPath: focusBlock.path,
-            };
+            const endpointAnchor = { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path };
+            const endpointFocus = { offset: focus.offset, block: focusBlock, path: focusBlock.path };
 
             if (type === 'mousemove')
-                this._selectInfo.selection = newSelection;
+                this._selectInfo.selection = { anchor: endpointAnchor, focus: endpointFocus };
             else
-                this.setSelection(newSelection);
+                this.setSelection(endpointAnchor, endpointFocus);
         };
 
         eventCenter.attachDOMEvent(domNode, 'mousedown', handleMousedown);

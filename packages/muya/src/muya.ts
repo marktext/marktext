@@ -422,14 +422,10 @@ export class Muya {
 
         // Restore the selection before applying the format — the menu/IPC
         // round-trip can drop the live DOM selection.
-        selection.setSelection({
-            anchor,
-            focus,
-            anchorBlock,
-            anchorPath: anchor.path,
-            focusBlock: focus.block,
-            focusPath: focus.path,
-        });
+        selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchor.path },
+            { offset: focus.offset, block: focus.block, path: focus.path },
+        );
 
         anchorBlock.format(type);
     }
@@ -779,14 +775,10 @@ export class Muya {
         if (!focusBlock.isContent())
             return;
 
-        this.editor.selection.setSelection({
-            anchor,
-            focus,
-            anchorBlock,
-            anchorPath: anchorBlock.path,
-            focusBlock,
-            focusPath: focusBlock.path,
-        });
+        this.editor.selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path },
+            { offset: focus.offset, block: focusBlock, path: focusBlock.path },
+        );
     }
 
     /**
@@ -1121,14 +1113,10 @@ export class Muya {
             return false;
 
         this.editor.activeContentBlock = focusBlock;
-        this.editor.selection.setSelection({
-            anchor: { offset: snapshot.anchor },
-            focus: { offset: snapshot.focus },
-            anchorBlock,
-            anchorPath: [...snapshot.anchorPath],
-            focusBlock,
-            focusPath: [...snapshot.focusPath],
-        });
+        this.editor.selection.setSelection(
+            { offset: snapshot.anchor, block: anchorBlock, path: [...snapshot.anchorPath] },
+            { offset: snapshot.focus, block: focusBlock, path: [...snapshot.focusPath] },
+        );
 
         return true;
     }

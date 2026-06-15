@@ -530,7 +530,10 @@ class Format extends Content {
             if (needRender)
                 this.update(cursor);
 
-            this.selection.setSelection(cursor);
+            this.selection.setSelection(
+                { offset: cursor.anchor.offset, block: this, path: this.path },
+                { offset: cursor.focus.offset, block: this, path: this.path },
+            );
 
             // Check and show format picker
             if (cursor.start.offset !== cursor.end.offset) {
@@ -570,7 +573,10 @@ class Format extends Content {
             if (needUpdate)
                 this.update(cursor);
 
-            this.selection.setSelection(cursor);
+            this.selection.setSelection(
+                { offset: anchor.offset, block: this, path: this.path },
+                { offset: focus.offset, block: this, path: this.path },
+            );
         }
 
         // Check not edit emoji
@@ -660,7 +666,10 @@ class Format extends Content {
         if (checkMarkedUpdate || needRender)
             this.update(cursor);
 
-        this.selection.setSelection(cursor);
+        this.selection.setSelection(
+            { offset: start.offset, block: this, path: this.path },
+            { offset: end.offset, block: this, path: this.path },
+        );
         // check edit emoji
         if (
             inputType !== 'insertFromPaste'

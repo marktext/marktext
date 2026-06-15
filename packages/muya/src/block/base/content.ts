@@ -324,19 +324,15 @@ class Content extends TreeNode {
      * @param {boolean} needUpdate
      */
     setCursor(begin: number, end: number, needUpdate = false) {
-        const cursor = {
-            anchor: { offset: begin },
-            focus: { offset: end },
-            block: this,
-            path: this.path,
-        };
+        const anchor = { offset: begin, block: this, path: this.path };
+        const focus = { offset: end, block: this, path: this.path };
 
         if (needUpdate)
-            this.update(cursor);
+            this.update({ anchor, focus, block: this, path: this.path });
 
         this.muya.editor.activeContentBlock = this;
 
-        this.selection.setSelection(cursor);
+        this.selection.setSelection(anchor, focus);
     }
 
     update(_cursor?: ICursor, _highlights: IHighlight[] = []) {

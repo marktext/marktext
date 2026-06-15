@@ -46,12 +46,10 @@ describe('selection facade', () => {
         const muya = bootMuya('hello world\n');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
 
-        muya.editor.selection.setSelection({
-            anchor: { offset: 0 },
-            focus: { offset: 5 },
-            block: first,
-            path: first.path,
-        });
+        muya.editor.selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: 5, block: first, path: first.path },
+        );
 
         expect(muya.editor.selection.type).toBe('text');
     });
@@ -118,12 +116,10 @@ describe('selection facade', () => {
             payload = p as Record<string, unknown>;
         });
 
-        muya.editor.selection.setSelection({
-            anchor: { offset: 0 },
-            focus: { offset: 5 },
-            block: first,
-            path: first.path,
-        });
+        muya.editor.selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: 5, block: first, path: first.path },
+        );
 
         expect(payload).not.toBeNull();
         expect(payload!.kind).toBe('text');

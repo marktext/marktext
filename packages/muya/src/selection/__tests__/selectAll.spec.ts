@@ -136,14 +136,10 @@ describe('selection.selectAll table escalation', () => {
 
         const a = cellContent(table, 0, 0);
         const b = cellContent(table, 1, 1);
-        selection.setSelection({
-            anchor: { offset: 0 },
-            focus: { offset: b.text.length },
-            anchorBlock: a,
-            anchorPath: a.path,
-            focusBlock: b,
-            focusPath: b.path,
-        });
+        selection.setSelection(
+            { offset: 0, block: a, path: a.path },
+            { offset: b.text.length, block: b, path: b.path },
+        );
 
         selection.selectAll();
 
@@ -166,14 +162,10 @@ describe('selection.selectAll table escalation', () => {
 
         const a = cellContent(firstTable, 0, 0);
         const b = cellContent(secondTable, 0, 0);
-        selection.setSelection({
-            anchor: { offset: 0 },
-            focus: { offset: b.text.length },
-            anchorBlock: a,
-            anchorPath: a.path,
-            focusBlock: b,
-            focusPath: b.path,
-        });
+        selection.setSelection(
+            { offset: 0, block: a, path: a.path },
+            { offset: b.text.length, block: b, path: b.path },
+        );
 
         selection.selectAll();
 

@@ -253,15 +253,14 @@ export class InlineFormatToolbar extends BaseFloat {
         const { selection } = this.muya.editor;
         const { anchor, focus, anchorBlock, anchorPath, focusBlock, focusPath } = selection;
 
+        if (!anchor || !focus || !anchorBlock || !focusBlock)
+            return;
+
         // Restore selection before formatting
-        selection.setSelection({
-            anchor: anchor ?? null,
-            focus: focus ?? null,
-            anchorBlock: anchorBlock!,
-            anchorPath,
-            focusBlock: focusBlock!,
-            focusPath,
-        });
+        selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
+            { offset: focus.offset, block: focusBlock, path: focusPath },
+        );
 
         this._block!.format(item.type);
 

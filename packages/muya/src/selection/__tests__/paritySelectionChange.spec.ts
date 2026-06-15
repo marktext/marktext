@@ -61,12 +61,10 @@ function emitSelectionFor(muya: Muya, content: Content): Record<string, unknown>
     muya.on('selection-change', (p: unknown) => {
         payload = p as Record<string, unknown>;
     });
-    muya.editor.selection.setSelection({
-        anchor: { offset: 0 },
-        focus: { offset: 0 },
-        block: content,
-        path: content.path,
-    } as Parameters<typeof muya.editor.selection.setSelection>[0]);
+    muya.editor.selection.setSelection(
+        { offset: 0, block: content, path: content.path },
+        { offset: 0, block: content, path: content.path },
+    );
     if (!payload)
         throw new Error('selection-change was not emitted');
     return payload;
