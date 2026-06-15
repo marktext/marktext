@@ -136,7 +136,7 @@ test.describe('table', () => {
         // The active selection is still inside a table cell content block —
         // the shortcut did NOT escape the cell.
         const anchorBlockName = await page.evaluate(
-            () => window.muya!.editor.selection.getSelection()?.anchorBlock?.blockName,
+            () => window.muya!.editor.selection.getSelection()?.anchor?.block?.blockName,
         );
         expect(anchorBlockName).toBe('table.cell.content');
 
@@ -185,14 +185,14 @@ test.describe('table', () => {
         // `lastContentInDescendant().setCursor(...)`).
         await expect.poll(
             () => page.evaluate(
-                () => window.muya!.editor.selection.getSelection()?.anchorBlock?.blockName ?? null,
+                () => window.muya!.editor.selection.getSelection()?.anchor?.block?.blockName ?? null,
             ),
         ).toBe('table.cell.content');
 
         // And it is specifically the LAST cell of the table (last row, last
         // column) — `lastContentInDescendant`.
         const inLastCell = await page.evaluate(() => {
-            const anchorBlock = window.muya!.editor.selection.getSelection()?.anchorBlock;
+            const anchorBlock = window.muya!.editor.selection.getSelection()?.anchor?.block;
             if (!anchorBlock)
                 return false;
             const cellEl = (anchorBlock.domNode as HTMLElement | undefined)?.closest('td.mu-table-cell');

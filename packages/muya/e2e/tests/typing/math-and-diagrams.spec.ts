@@ -87,7 +87,7 @@ test.describe('math and diagrams', () => {
             return {
                 anchorOffset: sel.anchor.offset,
                 focusOffset: sel.focus.offset,
-                anchorBlockName: sel.anchorBlock.blockName,
+                anchorBlockName: sel.anchor.block.blockName,
             };
         });
         expect(selection).not.toBeNull();
