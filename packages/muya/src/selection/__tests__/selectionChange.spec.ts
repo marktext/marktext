@@ -85,4 +85,32 @@ describe('selection-change payload', () => {
         const formats = payload!.formats as Array<{ type: string }>;
         expect(formats.some(f => f.type === 'strong')).toBe(true);
     });
+
+    it('reports BOTH strong and em when the cursor is inside overlapping markers', () => {
+        // `**_x_**` nests an emphasis token inside a strong token. With the
+        // selection inside the shared `x`, `getFormatsInRange` recurses into the
+        // strong token's children and surfaces both inline formats so the
+        // desktop toolbar lights up bold AND italic at once.
+        const muya = bootMuya('**_x_**\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+
+        let payload: Record<string, unknown> | null = null;
+        muya.on('selection-change', (p: unknown) => {
+            payload = p as Record<string, unknown>;
+        });
+
+        // Text is `**_x_**`: `**_` is offsets 0-3, the `x` is offset 3-4, the
+        // closing `_**` is 4-7. Select just the `x` (3..4) — inside both ranges.
+        muya.editor.selection.setSelection({
+            anchor: { offset: 3 },
+            focus: { offset: 4 },
+            block: first,
+            path: first.path,
+        });
+
+        expect(payload).not.toBeNull();
+        const formats = (payload!.formats as Array<{ type: string }>).map(f => f.type);
+        expect(formats).toContain('strong');
+        expect(formats).toContain('em');
+    });
 });
