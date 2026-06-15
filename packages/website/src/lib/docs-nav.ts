@@ -54,6 +54,7 @@ export const DOC_TABS: DocTab[] = [
           { slug: ['export'], title: 'Export a document', file: 'end-user/EXPORT.md', hint: 'PDF, HTML, image export' },
           { slug: ['themes'], title: 'Themes', file: 'end-user/THEMES.md', hint: 'Built-in & custom UI themes' },
           { slug: ['export-themes'], title: 'Themes for exporting', file: 'end-user/EXPORT_THEMES.md', hint: 'Style your exported HTML' },
+          { slug: ['images'], title: 'Image support', file: 'end-user/IMAGES.md', hint: 'Copy images to a local folder' },
           { slug: ['image-uploader'], title: 'Image uploader configuration', file: 'end-user/IMAGE_UPLOADER_CONFIGRATION.md', hint: 'Cloud image hosts' }
         ]
       },
