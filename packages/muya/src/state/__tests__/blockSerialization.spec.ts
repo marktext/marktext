@@ -1,4 +1,7 @@
 // @vitest-environment happy-dom
+import type TreeNode from '../../block/base/treeNode';
+import type CodeBlock from '../../block/commonMark/codeBlock';
+import type { Nullable } from '../../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { MarkdownToState } from '../markdownToState';
@@ -52,13 +55,11 @@ function bootMuya(markdown: string): Muya {
 
 // Walk up from the first content leaf to the enclosing `code-block` parent
 // (the block that owns the `lang` setter and the `meta.type` field).
-// eslint-disable-next-line ts/no-explicit-any
-function findCodeBlock(muya: Muya): any {
-    // eslint-disable-next-line ts/no-explicit-any
-    let node: any = muya.editor.scrollPage!.firstContentInDescendant();
+function findCodeBlock(muya: Muya): CodeBlock {
+    let node: Nullable<TreeNode> = muya.editor.scrollPage!.firstContentInDescendant();
     while (node && node.blockName !== 'code-block')
         node = node.parent;
-    return node;
+    return node as CodeBlock;
 }
 
 describe('stateToMarkdown — heading round-trip', () => {

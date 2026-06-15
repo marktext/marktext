@@ -94,8 +94,7 @@ function stubSelection(
 // json state applies composed ops on a requestAnimationFrame; wait for the
 // authoritative markdown to settle.
 async function cutAndRead(muya: Muya): Promise<string> {
-    // eslint-disable-next-line ts/no-explicit-any
-    (muya.editor as any).clipboard.cutHandler();
+    muya.editor.clipboard.cutHandler();
     await new Promise(r => setTimeout(r, 40));
     return muya.getMarkdown();
 }
@@ -242,8 +241,7 @@ describe('track C — cross-block cut keeps both endpoint tails (leaf merge)', (
         const blocks = contentBlocks(muya);
         const start = blocks[0];
         stubSelection(muya, start, 2, blocks[blocks.length - 1], 3);
-        // eslint-disable-next-line ts/no-explicit-any
-        (muya.editor as any).clipboard.cutHandler();
+        muya.editor.clipboard.cutHandler();
         await new Promise(r => setTimeout(r, 40));
         // The caret is seated on the merged start block at the cut offset. The
         // happy-dom native selection does not round-trip, so assert on the
@@ -303,8 +301,7 @@ function dragSelect(table: TableBlock, r1: number, c1: number, r2: number, c2: n
 }
 
 async function cutSelectionAndRead(muya: Muya): Promise<string> {
-    // eslint-disable-next-line ts/no-explicit-any
-    (muya.editor as any).clipboard.cutHandler();
+    muya.editor.clipboard.cutHandler();
     await new Promise(r => setTimeout(r, 40));
     return muya.getMarkdown();
 }

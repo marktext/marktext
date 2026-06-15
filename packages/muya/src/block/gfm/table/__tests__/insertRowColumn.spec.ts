@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
 
+import type TreeNode from '../../../base/treeNode';
+import type Table from '../index';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
@@ -42,18 +44,15 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// eslint-disable-next-line ts/no-explicit-any
-function findTable(muya: Muya): any {
-    // eslint-disable-next-line ts/no-explicit-any
-    let table: any = null;
-    // eslint-disable-next-line ts/no-explicit-any
-    const visit = (block: any) => {
-        if (block.constructor?.blockName === 'table')
-            table = block;
-        // eslint-disable-next-line ts/no-explicit-any
-        block.children?.forEach((c: any) => visit(c));
+function findTable(muya: Muya): Table {
+    let table: Table | null = null;
+    const visit = (block: TreeNode) => {
+        if ((block.constructor as typeof TreeNode)?.blockName === 'table')
+            table = block as Table;
+        if (block.isParent())
+            block.children.forEach(c => visit(c));
     };
-    visit(muya.editor.scrollPage);
+    visit(muya.editor.scrollPage!);
     if (!table)
         throw new Error('no table found');
     return table;
@@ -105,7 +104,7 @@ describe('table.insertRow', () => {
         const caretCell = table.insertRow(1);
 
         expect(caretCell).toBeTruthy();
-        expect(caretCell.constructor.blockName).toBe('table.cell.content');
+        expect((caretCell.constructor as { blockName?: string }).blockName).toBe('table.cell.content');
         expect(caretCell.text).toBe('');
     });
 
@@ -157,7 +156,7 @@ describe('table.insertColumn', () => {
         const caretCell = table.insertColumn(1, 'center');
 
         expect(caretCell).toBeTruthy();
-        expect(caretCell.constructor.blockName).toBe('table.cell.content');
+        expect((caretCell.constructor as { blockName?: string }).blockName).toBe('table.cell.content');
         expect(caretCell.text).toBe('');
     });
 
