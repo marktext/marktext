@@ -84,6 +84,12 @@ class TableRectSelection {
         this._renderHighlight();
     }
 
+    selectWholeTable(): void {
+        const table = this._table;
+        if (table)
+            this.selectTable(table);
+    }
+
     selectSingleCell(cell: TableBodyCell): void {
         this.clear();
 
