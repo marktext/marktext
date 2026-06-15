@@ -18,7 +18,7 @@ import {
     getNodeAndOffset,
     getOffsetOfParagraph,
 } from './dom';
-import { SelectionType } from './types';
+import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
 class TextSelection {
     public anchorPath: TBlockPath = [];
@@ -74,29 +74,29 @@ class TextSelection {
             isCollapsed,
         } = this;
         if (anchor == null || focus == null || !anchorBlock || !focusBlock)
-            return 'none';
+            return SelectionDirection.None;
 
         if (isCollapsed)
-            return 'none';
+            return SelectionDirection.None;
 
         if (isSelectionInSameBlock) {
-            return anchor.offset < focus.offset ? 'forward' : 'backward';
+            return anchor.offset < focus.offset ? SelectionDirection.Forward : SelectionDirection.Backward;
         }
         else {
             const aDom = anchorBlock.domNode!;
             const fDom = focusBlock.domNode!;
             const order = compareParagraphsOrder(aDom, fDom);
 
-            return order ? 'forward' : 'backward';
+            return order ? SelectionDirection.Forward : SelectionDirection.Backward;
         }
     }
 
     get type() {
         const { anchorBlock, focusBlock, isCollapsed } = this;
         if (!anchorBlock && !focusBlock)
-            return 'None';
+            return SelectionCaretType.None;
 
-        return isCollapsed ? 'Caret' : 'Range';
+        return isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
     }
 
     collapse(): void {
@@ -162,19 +162,19 @@ class TextSelection {
         const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
 
-        let direction: string;
+        let direction: SelectionDirection;
 
         if (isSelectionInSameBlock) {
-            direction = anchor.offset < focus.offset ? 'forward' : 'backward';
+            direction = anchor.offset < focus.offset ? SelectionDirection.Forward : SelectionDirection.Backward;
         }
         else {
             const aDom = anchorBlock.domNode!;
             const fDom = focusBlock.domNode!;
             const order = compareParagraphsOrder(aDom, fDom);
-            direction = order ? 'forward' : 'backward';
+            direction = order ? SelectionDirection.Forward : SelectionDirection.Backward;
         }
 
-        const type = isCollapsed ? 'Caret' : 'Range';
+        const type = isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
 
         return {
             anchor: { offset: anchor.offset, block: anchorBlock, path: anchorPath },
@@ -213,7 +213,7 @@ class TextSelection {
 
         // Follow the caret (focus end) for forward selections so typewriter
         // scrolling tracks the cursor rather than the selection start.
-        const cursorCoords = getCursorCoords(direction === 'forward');
+        const cursorCoords = getCursorCoords(direction === SelectionDirection.Forward);
         // Duck-type the Format block — a value import of Format here would
         // create a selection -> format circular dependency.
         const anchorBlockRef = this.anchorBlock as Format | null;

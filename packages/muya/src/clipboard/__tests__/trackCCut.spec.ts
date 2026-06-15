@@ -5,6 +5,7 @@ import type TableBlock from '../../block/gfm/table';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
+import { SelectionCaretType, SelectionDirection } from '../../selection/types';
 
 // Track C — Cut (clipboard chain step 2). Ports `packages/muyajs`
 // `copyCutCtrl.cutHandler` + `removeBlocks` semantics into `@muyajs/core`:
@@ -76,7 +77,7 @@ function stubSelection(
     aOff: number,
     f: Content,
     fOff: number,
-    direction = 'forward',
+    direction = SelectionDirection.Forward,
 ) {
     const aPath = a.path;
     const fPath = f.path;
@@ -86,7 +87,7 @@ function stubSelection(
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction,
-        type: 'Range',
+        type: SelectionCaretType.Range,
     });
 }
 

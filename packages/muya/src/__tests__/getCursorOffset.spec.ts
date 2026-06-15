@@ -4,6 +4,7 @@ import type { ISelection } from '../selection/types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../muya';
 import { injectStateSentinels, locateSentinelOffsets } from '../selection/offsetCursor';
+import { SelectionCaretType, SelectionDirection } from '../selection/types';
 
 // PARITY (gap PG2 / Phase G — G7): `getCursorOffset` is the READ inverse of
 // `setCursorByOffset`. It maps the live WYSIWYG block-key caret back to a
@@ -91,8 +92,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             focus: { offset: 5, block, path: [0, 'text'] },
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: 'forward',
-            type: 'Range',
+            direction: SelectionDirection.Forward,
+            type: SelectionCaretType.Range,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();
@@ -111,8 +112,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             focus: { offset: 2, block, path: [0, 'text'] }, //  after "he"
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: 'backward',
-            type: 'Range',
+            direction: SelectionDirection.Backward,
+            type: SelectionCaretType.Range,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();

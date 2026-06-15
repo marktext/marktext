@@ -7,6 +7,7 @@ import type { Nullable } from '../types';
 import type Clipboard from './index';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
+import { SelectionDirection } from '../selection/types';
 import { getBlock } from '../utils/dom';
 
 /**
@@ -332,8 +333,8 @@ export function cutSelection(clipboard: Clipboard): void {
     if (isSelectionInSameBlock) {
         const { text } = anchorBlock;
         const startOffset
-            = direction === 'forward' ? anchor.offset : focus.offset;
-        const endOffset = direction === 'forward' ? focus.offset : anchor.offset;
+            = direction === SelectionDirection.Forward ? anchor.offset : focus.offset;
+        const endOffset = direction === SelectionDirection.Forward ? focus.offset : anchor.offset;
 
         anchorBlock.text
             = text.substring(0, startOffset) + text.substring(endOffset);
@@ -341,10 +342,10 @@ export function cutSelection(clipboard: Clipboard): void {
         return anchorBlock.setCursor(startOffset, startOffset, true);
     }
 
-    const startBlock = direction === 'forward' ? anchorBlock : focusBlock;
-    const endBlock = direction === 'forward' ? focusBlock : anchorBlock;
-    const startOffset = direction === 'forward' ? anchor.offset : focus.offset;
-    const endOffset = direction === 'forward' ? focus.offset : anchor.offset;
+    const startBlock = direction === SelectionDirection.Forward ? anchorBlock : focusBlock;
+    const endBlock = direction === SelectionDirection.Forward ? focusBlock : anchorBlock;
+    const startOffset = direction === SelectionDirection.Forward ? anchor.offset : focus.offset;
+    const endOffset = direction === SelectionDirection.Forward ? focus.offset : anchor.offset;
 
     // Whole-document selection collapses to a single empty paragraph.
     if (isSelectAll(clipboard, startBlock, startOffset, endBlock, endOffset)) {

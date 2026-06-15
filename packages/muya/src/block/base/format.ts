@@ -300,7 +300,7 @@ class Format extends Content {
     }
 
     // TODO: @JOCS remove use this.selection directly
-    checkNeedRender(cursor: ICursor = this.selection as ICursor) {
+    checkNeedRender(cursor: ICursor = { anchor: this.selection.anchor ?? null, focus: this.selection.focus ?? null }) {
         const { labels } = this.inlineRenderer;
         const { text } = this;
         const { start: cStart, end: cEnd, anchor, focus } = cursor;

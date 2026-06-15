@@ -22,8 +22,8 @@ export interface ICursor {
     focusPath?: TBlockPath;
     isCollapsed?: boolean;
     isSelectionInSameBlock?: boolean;
-    direction?: string;
-    type?: string;
+    direction?: SelectionDirection;
+    type?: SelectionCaretType;
 }
 
 // One endpoint of a selection: the offset plus the live block reference and its
@@ -41,8 +41,8 @@ export interface ISelection {
     focus: IAnchorFocusInfo;
     isCollapsed: boolean;
     isSelectionInSameBlock: boolean;
-    direction: string;
-    type: string;
+    direction: SelectionDirection;
+    type: SelectionCaretType;
 }
 
 // An endpoint whose live `block` reference is optional — used by the history
@@ -65,6 +65,18 @@ export enum SelectionType {
     Text = 'text',
     Table = 'table',
     Image = 'image',
+}
+
+export enum SelectionDirection {
+    None = 'none',
+    Forward = 'forward',
+    Backward = 'backward',
+}
+
+export enum SelectionCaretType {
+    None = 'None',
+    Caret = 'Caret',
+    Range = 'Range',
 }
 
 export interface IImageSelectionData {
