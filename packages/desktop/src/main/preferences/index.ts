@@ -24,8 +24,7 @@ interface AppPaths {
 class Preference extends TypedEmitter<PreferenceEvents> {
   public readonly preferencesPath: string
   public readonly hasPreferencesFile: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public readonly store: Store<any>
+  public readonly store: Store<IUserPreferences>
   public readonly staticPath: string
 
   /**
@@ -42,7 +41,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this.hasPreferencesFile = fs.existsSync(
       path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`)
     )
-    this.store = new Store({
+    this.store = new Store<IUserPreferences>({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       schema: schema as any,
       name: PREFERENCES_FILE_NAME,

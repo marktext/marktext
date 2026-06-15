@@ -55,7 +55,7 @@ declare namespace NodeJS {
   interface Global {
     __static: string
     MARKTEXT_DEBUG: boolean
-    MARKTEXT_DEBUG_VERBOSE: boolean
+    MARKTEXT_DEBUG_VERBOSE: number
     MARKTEXT_SAFE_MODE: boolean
   }
 }
@@ -67,6 +67,6 @@ declare var __static: string
 // eslint-disable-next-line no-var
 declare var MARKTEXT_DEBUG: boolean
 // eslint-disable-next-line no-var
-declare var MARKTEXT_DEBUG_VERBOSE: boolean
+declare var MARKTEXT_DEBUG_VERBOSE: number
 // eslint-disable-next-line no-var
 declare var MARKTEXT_SAFE_MODE: boolean

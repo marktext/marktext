@@ -9,6 +9,7 @@ import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
+import type Preference from '../preferences'
 
 // TODO(refactor): Please see GH#1035.
 
@@ -21,9 +22,6 @@ const EVENT_NAME = {
 }
 
 type WatchType = 'dir' | 'file'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Preferences = any
 
 interface IgnoreEntry {
   windowId: number
@@ -53,8 +51,16 @@ const add = async(
   const birthTime = stats.birthtime
   const mtimeMs = stats.mtimeMs
   const isMarkdown = hasMarkdownExtension(pathname)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const file: any = {
+  const file: {
+    pathname: string
+    name: string
+    isFile: boolean
+    isDirectory: boolean
+    birthTime: Date
+    mtimeMs: number
+    isMarkdown: boolean
+    data?: Awaited<ReturnType<typeof loadMarkdownFile>>
+  } = {
     pathname,
     name: path.basename(pathname),
     isFile: true,
@@ -178,18 +184,18 @@ const unlinkDir = (win: BrowserWindow, pathname: string, type: WatchType): void 
 }
 
 class Watcher {
-  private _preferences: Preferences
+  private _preferences: Preference
   private _ignoreChangeEvents: IgnoreEntry[]
   watchers: Record<string, WatcherEntry>
 
-  constructor(preferences: Preferences) {
+  constructor(preferences: Preference) {
     this._preferences = preferences
     this._ignoreChangeEvents = []
     this.watchers = {}
   }
 
   watch(win: BrowserWindow, watchPath: string, type: WatchType = 'dir'): () => void {
-    const usePolling = isOsx ? true : this._preferences.getItem('watcherUsePolling')
+    const usePolling = isOsx ? true : this._preferences.getItem<boolean>('watcherUsePolling')
 
     const id = getUniqueId()
 
@@ -204,7 +210,10 @@ class Watcher {
         }
 
         if (
-          checkPathExcludePattern(pathname, this._preferences.getItem('treePathExcludePatterns'))
+          checkPathExcludePattern(
+            pathname,
+            this._preferences.getItem<readonly string[]>('treePathExcludePatterns')
+          )
         ) {
           return true
         }
@@ -238,8 +247,9 @@ class Watcher {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
-          const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
-            _preferences.getAll()
+          const autoGuessEncoding = _preferences.getItem<boolean>('autoGuessEncoding')
+          const trimTrailingNewline = _preferences.getItem<number>('trimTrailingNewline')
+          const autoNormalizeLineEndings = _preferences.getItem<boolean>('autoNormalizeLineEndings')
           add(
             win,
             pathname,
@@ -255,8 +265,9 @@ class Watcher {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
-          const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
-            _preferences.getAll()
+          const autoGuessEncoding = _preferences.getItem<boolean>('autoGuessEncoding')
+          const trimTrailingNewline = _preferences.getItem<number>('trimTrailingNewline')
+          const autoNormalizeLineEndings = _preferences.getItem<boolean>('autoNormalizeLineEndings')
           change(
             win,
             pathname,
@@ -272,8 +283,9 @@ class Watcher {
       .on('addDir', (pathname: string) => addDir(win, pathname, type))
       .on('unlinkDir', (pathname: string) => unlinkDir(win, pathname, type))
       .on('raw', (event: string, subpath: string, details: unknown) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((globalThis as any).MARKTEXT_DEBUG_VERBOSE >= 3) {
+        if (
+          globalThis.MARKTEXT_DEBUG_VERBOSE >= 3
+        ) {
           console.log('watcher: ', event, subpath, details)
         }
 
@@ -413,8 +425,9 @@ class Watcher {
             try {
               const fileInfo = await fsPromises.stat(pathname)
               if (fileInfo.mtime.getTime() - start.getTime() < duration) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                if ((globalThis as any).MARKTEXT_DEBUG_VERBOSE >= 3) {
+                if (
+                  globalThis.MARKTEXT_DEBUG_VERBOSE >= 3
+                ) {
                   console.log(
                     `Ignoring file event after "stat": current="${currentTime.toISOString()}", start="${start.toISOString()}", file="${fileInfo.mtime.toISOString()}".`
                   )

@@ -169,8 +169,7 @@ interface UploadRequest {
   pathname: string
   image: string | BufferImagePayload
   isPath: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  preferences: any
+  preferences: { currentUploader: string; cliScript: string }
 }
 
 export const registerUploaderHandlers = (): void => {
