@@ -134,4 +134,44 @@ describe('parity PG3: autoCheck task-list cascade', () => {
             });
         },
     );
+
+    it(
+        'PG3: autoCheck:false leaves descendants untouched when the parent toggles',
+        async () => {
+            const muya = bootMuya(NESTED_TASKS, { autoCheck: false });
+            const [parent] = taskItems(muya);
+            expect(checkedFlags(muya)).toEqual([false, false, false]);
+
+            // The DOM click handler invokes `update(checked, 'user')`. With
+            // `autoCheck` disabled, the cascade guard (`source !== 'api' &&
+            // this.muya.options.autoCheck`) is false, so only the toggled item
+            // changes — descendants stay unchecked.
+            checkboxOf(parent).update(true, 'user');
+
+            await vi.waitFor(() => {
+                expect(checkedFlags(muya)).toEqual([true, false, false]);
+            });
+        },
+    );
+
+    it(
+        'PG3: a checked task item serializes as "- [x]"',
+        async () => {
+            const muya = bootMuya(NESTED_TASKS, { autoCheck: false });
+            const [parent] = taskItems(muya);
+
+            checkboxOf(parent).update(true, 'user');
+
+            await vi.waitFor(() => {
+                expect(checkedFlags(muya)).toEqual([true, false, false]);
+            });
+
+            const markdown = muya.getMarkdown();
+            // The checked parent emits the GFM checked marker; the unchecked
+            // children keep the empty marker.
+            expect(markdown).toContain('- [x] parent');
+            expect(markdown).toContain('- [ ] child1');
+            expect(markdown).toContain('- [ ] child2');
+        },
+    );
 });
