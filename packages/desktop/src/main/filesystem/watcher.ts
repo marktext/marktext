@@ -247,9 +247,11 @@ class Watcher {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
-          const autoGuessEncoding = _preferences.getItem<boolean>('autoGuessEncoding')
-          const trimTrailingNewline = _preferences.getItem<number>('trimTrailingNewline')
-          const autoNormalizeLineEndings = _preferences.getItem<boolean>('autoNormalizeLineEndings')
+          const {
+            autoGuessEncoding = true,
+            trimTrailingNewline = 2,
+            autoNormalizeLineEndings = false
+          } = _preferences.getAll()
           add(
             win,
             pathname,
@@ -265,9 +267,11 @@ class Watcher {
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
-          const autoGuessEncoding = _preferences.getItem<boolean>('autoGuessEncoding')
-          const trimTrailingNewline = _preferences.getItem<number>('trimTrailingNewline')
-          const autoNormalizeLineEndings = _preferences.getItem<boolean>('autoNormalizeLineEndings')
+          const {
+            autoGuessEncoding = true,
+            trimTrailingNewline = 2,
+            autoNormalizeLineEndings = false
+          } = _preferences.getAll()
           change(
             win,
             pathname,
