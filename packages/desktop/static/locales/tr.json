@@ -7,10 +7,8 @@
     },
     "file": {
       "file": "Dosya",
-      "new": "Yeni",
       "newTab": "Yeni Sekme",
       "newWindow": "Yeni Pencere",
-      "open": "Aç",
       "openFile": "Dosya Aç...",
       "openFolder": "Klasör Aç...",
       "openRecent": "Son Kullanılanları Aç",
@@ -25,9 +23,6 @@
       "exportPdf": "PDF Olarak Dışa Aktar",
       "import": "İçe Aktar",
       "print": "Yazdır",
-      "recent": "Son Dosyalar",
-      "close": "Kapat",
-      "closeAll": "Tümünü Kapat",
       "closeTab": "Sekmeyi Kapat",
       "closeWindow": "Pencereyi Kapat",
       "quit": "Çıkış",
@@ -70,26 +65,19 @@
       "demoteHeading": "Başlığı Alçalt",
       "table": "Tablo",
       "codeFences": "Kod Blokları",
-      "codeBlock": "Kod Bloğu",
       "quoteBlock": "Alıntı Bloğu",
       "mathBlock": "Matematik Bloğu",
       "htmlBlock": "HTML Bloğu",
-      "quote": "Alıntı",
       "orderedList": "Sıralı Liste",
       "bulletList": "Sırasız Liste",
-      "unorderedList": "Sırasız Liste",
       "taskList": "Görev Listesi",
       "looseListItem": "Gevşek Liste Öğesi",
-      "paragraphItem": "Paragraf Öğesi",
       "horizontalRule": "Yatay Çizgi",
       "frontMatter": "Ön Bilgi"
     },
     "window": {
       "title": "Pencere",
-      "window": "Pencere",
       "minimize": "Simge Durumuna Küçült",
-      "close": "Kapat",
-      "zoom": "Yakınlaştırma",
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
       "fullScreen": "Tam Ekran",
@@ -106,20 +94,16 @@
       "followUs": "Bizi Takip Edin",
       "support": "MarkText'e Destek Ol",
       "license": "Lisans",
-      "checkForUpdates": "Güncellemeleri Denetle",
-      "aboutMarkText": "MarkText Hakkında",
       "about": "Hakkında",
       "checkUpdates": "Güncellemeleri Denetle"
     },
     "marktext": {
       "title": "MarkText",
-      "marktext": "MarkText",
       "about": "MarkText Hakkında",
       "checkUpdates": "Güncellemeleri Denetle...",
       "preferences": "Tercihler",
       "services": "Hizmetler",
       "hide": "MarkText'i Gizle",
-      "hideMarkText": "MarkText'i Gizle",
       "hideOthers": "Diğerlerini Gizle",
       "showAll": "Tümünü Göster",
       "quit": "MarkText'ten Çık"
@@ -129,14 +113,9 @@
       "toggleSidebar": "Kenar Çubuğunu Aç/Kapat",
       "toggleTabbar": "Sekme Çubuğunu Aç/Kapat",
       "commandPalette": "Komut Paleti",
-      "sourceCode": "Kaynak Kod Modu",
       "sourceCodeMode": "Kaynak Kod Modu",
-      "typewriter": "Daktilo Modu",
       "typewriterMode": "Daktilo Modu",
-      "focus": "Odak Modu",
       "focusMode": "Odak Modu",
-      "showTabBar": "Sekme Çubuğunu Göster",
-      "toc": "İçindekiler",
       "toggleTableOfContents": "İçindekileri Aç/Kapat",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
@@ -148,35 +127,18 @@
       "italic": "İtalik",
       "underline": "Altı Çizili",
       "strikethrough": "Üstü Çizili",
-      "code": "Satır İçi Kod",
-      "codeBlock": "Kod Bloğu",
-      "quote": "Alıntı",
-      "unorderedList": "Sırasız Liste",
-      "orderedList": "Sıralı Liste",
-      "taskList": "Görev Listesi",
-      "table": "Tablo",
-      "link": "Bağlantı",
       "image": "Görsel",
-      "heading1": "Başlık 1",
-      "heading2": "Başlık 2",
-      "heading3": "Başlık 3",
-      "heading4": "Başlık 4",
-      "heading5": "Başlık 5",
-      "heading6": "Başlık 6",
       "superscript": "Üst Simge",
       "subscript": "Alt Simge",
       "highlight": "Vurgu",
       "inlineCode": "Satır İçi Kod",
       "inlineMath": "Satır İçi Matematik",
       "hyperlink": "Köprü",
-      "clearFormatting": "Biçimlendirmeyi Temizle",
       "clearFormat": "Biçimlendirmeyi Temizle"
     },
     "theme": {
       "theme": "&Tema",
-      "light": "Açık",
       "dark": "Koyu",
-      "auto": "Otomatik",
       "followThemDisabled": "Sistem temasını takip ederken tema seçimi devre dışı",
       "lightThemes": "— Açık Temalar —",
       "darkThemes": "— Koyu Temalar —",
@@ -375,13 +337,6 @@
       }
     }
   },
-  "table": {
-    "resizeTable": "Tabloyu Yeniden Boyutlandır",
-    "alignLeft": "Sola Hizala",
-    "alignCenter": "Ortala",
-    "alignRight": "Sağa Hizala",
-    "deleteTable": "Tabloyu Sil"
-  },
   "recent": {
     "noTabsOpen": "Açık sekmeniz yok.",
     "newFile": "Yeni Dosya"
@@ -394,7 +349,6 @@
     "title": "Tercihler",
     "search": {
       "placeholder": "Tercihlerde ara...",
-      "optionalValues": "isteğe bağlı değerler",
       "categories": {
         "general": "Genel",
         "editor": "Düzenleyici",
@@ -497,7 +451,6 @@
         "titleBarStyle": {
           "title": "Başlık Çubuğu Stili",
           "custom": "Özel",
-          "titleBarStyle": "Başlık Çubuğu Stili",
           "native": "Yerel"
         },
         "requiresRestart": "Yeniden başlatma gerektirir",
@@ -630,53 +583,19 @@
         "relativeFolderName": "Göreli klasör adı",
         "filenameNote": "Dosya adı otomatik olarak oluşturulacak."
       },
-      "imageInsertAction": {
-        "title": "Görsel ekleme eylemi",
-        "folder": "Klasöre yükle",
-        "path": "Yola kopyala",
-        "upload": "Buluta yükle",
-        "copyToFolder": "Klasöre kopyala",
-        "uploadToServer": "Sunucuya yükle"
-      },
-      "imageFolderPath": {
-        "title": "Görsel klasörü yolu",
-        "description": "Görsel klasörü yolu",
-        "selectFolder": "Klasör seç",
-        "relativePath": "Göreli yol",
-        "absolutePath": "Mutlak yol"
-      },
-      "cloudPictureBed": {
-        "title": "Bulut görsel deposu",
-        "github": "GitHub",
-        "smms": "SM.MS",
-        "qiniu": "Qiniu",
-        "upyun": "UpYun",
-        "tcyun": "Tencent Cloud",
-        "aliyun": "Alibaba Cloud",
-        "imgur": "Imgur",
-        "picgo": "PicGo"
-      },
-      "preferRelativeDirectory": {
-        "title": "Göreli klasörü tercih et",
-        "description": "Görseller için göreli klasörü tercih et"
-      },
       "uploader": {
         "title": "Görsel Yükleyici",
         "currentUploader": "Geçerli Yükleyici: {name}",
         "picgoNotInstalled": "PicGo yüklü değil",
-        "picgoDetectionStatus": "PicGo Algılama Durumu",
         "picgoInstalled": "PicGo yüklü",
         "picgoDetectionFailed": "PicGo algılaması başarısız",
         "debugInfo": "Hata Ayıklama Bilgisi",
-        "installCommand": "Yükleme Komutu",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "Yükleme yöntemini seçin:",
         "retestPicgo": "Yeniden Test Et",
-        "detecting": "Algılanıyor",
         "lastDetectionTime": "Son Algılama Zamanı",
-        "detectionStatus": "Algılama Durumu",
         "picgoDetection": "PicGo Algılama",
         "usageGuide": {
           "title": "PicGo Temel Kullanım Kılavuzu",
@@ -688,17 +607,9 @@
           "step3Description": "Geçerli yapılandırmayı görüntülemek için aşağıdaki komutu kullanın:",
           "documentation": "Tam belgeleri görüntüle"
         },
-        "autoDetection": "Otomatik algılanıyor",
         "lastSuccessTime": "Son başarı zamanı",
         "neverDetected": "Hiç algılanmadı",
         "neverSuccessful": "Hiç başarılı olmadı",
-        "configureUploader": "Yükleyiciyi Yapılandır",
-        "configureDescription": "PicGo yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
-        "uploadImage": "Görselleri Yükle",
-        "uploadDescription": "Görselleri yüklemek için aşağıdaki komutu kullanın:",
-        "viewConfig": "Yapılandırmayı Görüntüle",
-        "viewConfigDescription": "Geçerli yapılandırmayı görüntülemek için aşağıdaki komutu kullanın:",
-        "viewDocumentation": "Tam belgeleri görüntüle",
         "scriptDescription": "Betik Açıklaması",
         "scriptLocation": "Betik Konumu",
         "save": "Kaydet",
@@ -715,44 +626,12 @@
     },
     "markdown": {
       "title": "Markdown",
-      "listItem": {
-        "title": "Liste Öğesi",
-        "preferLooseListItem": "Gevşek liste öğesini tercih et",
-        "bulletListMarker": "Sırasız liste işareti",
-        "orderListDelimiter": "Sıralı liste ayracı",
-        "listIndentation": {
-          "title": "Liste Girintisi",
-          "dfm": "Varsayılan Biçim Modu",
-          "tab": "Sekme",
-          "oneSpace": "Bir Boşluk",
-          "twoSpaces": "İki Boşluk",
-          "threeSpaces": "Üç Boşluk",
-          "fourSpaces": "Dört Boşluk"
-        }
-      },
-      "heading": {
-        "title": "Başlık",
-        "preferHeadingStyle": "Başlık stilini tercih et"
-      },
-      "frontmatter": {
-        "title": "Ön Bilgi",
-        "frontmatterType": "Ön bilgi türü"
-      },
       "extensions": {
         "title": "Uzantılar",
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
-        "isHtmlEnabled": "HTML etkin",
-        "isGitlabCompatibilityEnabled": "GitLab uyumluluğu",
-        "sequenceTheme": "Dizi teması",
-        "superscript": "Üst Simge",
-        "subscript": "Alt Simge",
-        "frontMatter": "Ön Bilgi",
-        "math": "Matematik",
-        "diagram": "Diyagram",
         "footnoteNotes": "Dipnot notları",
         "frontmatterType": {
-          "frontmatterType": "Ön Bilgi Türü",
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
           "title": "Ön Bilgi Türü"
@@ -760,22 +639,11 @@
       },
       "diagrams": {
         "title": "Diyagramlar",
-        "plantuml": "PlantUML",
-        "mermaid": "Mermaid",
-        "vega": "Vega-Lite",
-        "flowchart": "Akış Şeması",
-        "sequence": "Dizi",
-        "gantt": "Gantt",
         "sequenceTheme": {
           "title": "Dizi Teması",
           "handDrawn": "El Çizimi",
           "simple": "Basit"
         }
-      },
-      "math": {
-        "title": "Matematik",
-        "katex": "KaTeX",
-        "mathJax": "MathJax"
       },
       "misc": {
         "preferHeadingStyle": {
@@ -806,28 +674,13 @@
         "title": "Listeler"
       }
     },
-    "spelling": {
-      "title": "Yazım",
-      "enabled": "Yazım denetleyiciyi etkinleştir",
-      "autoDetectLanguage": "Dili otomatik algıla",
-      "language": "Dil",
-      "noSuggestions": "Öneri yok",
-      "spellcheckerEnabled": "Yazım denetleyiciyi etkinleştir",
-      "spellcheckerNoUnderline": "Yanlış yazılan sözcüklerin altını çizme",
-      "spellcheckerLanguage": "Yazım denetleyici dili"
-    },
     "theme": {
       "title": "Tema",
-      "theme": "Tema",
       "followSystemTheme": "Sistem Temasını Takip Et",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
       "customCss": "Özel CSS",
-      "codeBlockTheme": {
-        "title": "Kod bloğu teması",
-        "description": "Kod blokları için tema"
-      },
       "importCustomThemes": "Özel temaları içe aktar",
       "importTheme": "Temayı İçe Aktar",
       "openFolder": "Klasör Aç",
@@ -836,13 +689,6 @@
     "keybindings": {
       "title": "Kısayol Tuşları",
       "description": "Klavye kısayollarını özelleştir",
-      "searchPlaceholder": "Kısayol tuşlarında ara",
-      "command": "Komut",
-      "keybinding": "Kısayol",
-      "reset": "Sıfırla",
-      "resetAll": "Tümünü sıfırla",
-      "edit": "Düzenle",
-      "cancel": "İptal",
       "save": "Kaydet",
       "restoreDefaults": "Varsayılanları geri yükle",
       "debugOptions": "Hata Ayıklama Seçenekleri",
@@ -884,14 +730,6 @@
       "title": "Yazım Denetleyici"
     }
   },
-  "edit": {
-    "undo": "Geri Al",
-    "redo": "Yinele",
-    "cut": "Kes",
-    "copy": "Kopyala",
-    "paste": "Yapıştır",
-    "selectAll": "Tümünü Seç"
-  },
   "about": {
     "copyright": "Telif Hakkı © Luo Ran 2017-{year}",
     "copyrightContributors": "Github Katkıda Bulunanlar tarafından <3 ile yapıldı"
@@ -924,9 +762,7 @@
       "exportFile": "Dosya Dışa Aktar",
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",
-      "checkUpdate": "Güncellemeleri Denetle",
-      "lineEnding": "Satır Sonu",
-      "close": "Kapat"
+      "checkUpdate": "Güncellemeleri Denetle"
     },
     "edit": {
       "undo": "Geri Al",
@@ -946,8 +782,7 @@
       "findPrevious": "Öncekini Bul",
       "replace": "Değiştir",
       "findInFolder": "Klasörde Bul",
-      "screenshot": "Ekran Görüntüsü",
-      "mathBlock": "Matematik Bloğu"
+      "screenshot": "Ekran Görüntüsü"
     },
     "paragraph": {
       "heading1": "Başlık 1",
@@ -1013,8 +848,6 @@
       "reloadImages": "Görselleri Yeniden Yükle",
       "textDirection": "Metin Yönü",
       "actualSize": "Gerçek Boyut",
-      "zoomIn": "Yakınlaştır",
-      "zoomOut": "Uzaklaştır",
       "devToggleDeveloperTools": "Geliştirici Araçlarını Aç/Kapat"
     },
     "tabs": {
@@ -1036,10 +869,6 @@
     "docs": {
       "userGuide": "Kullanıcı Kılavuzu",
       "markdownSyntax": "Markdown Söz Dizimi"
-    },
-    "utils": {
-      "noUpdateResourceFile": "Güncelleme kaynak dosyası yok",
-      "todoUpdateCheck": "Güncellemeleri denetle"
     },
     "spellchecker": {
       "switchLanguage": "Dili Değiştir"
@@ -1086,25 +915,6 @@
       "anchorLinkCopied": "Çapa bağlantısı kopyalandı",
       "tabNotFound": "Sekme bulunamadı",
       "tocItemNotFound": "İçindekiler {key} bulunamadı",
-      "highlightStart": "[highlight start]",
-      "highlightEnd": "[highlight end]",
-      "typeAtToInsert": "Eklemek için / yazın",
-      "inputFootnoteDefinition": "Dipnot tanımını girin...",
-      "inputYamlFrontMatter": "YAML Ön Bilgisini girin",
-      "inputLanguageIdentifier": "Dil Tanımlayıcısını girin...",
-      "inputMathematicalFormula": "Matematiksel Formülü girin...",
-      "fence": "kod bloğu",
-      "indent": "girinti",
-      "frontMatterDelimiter": "---",
-      "mathDelimiter": "$$",
-      "mermaidStart": "``` mermaid",
-      "flowchartStart": "``` flowchart",
-      "sequenceStart": "``` sequence",
-      "plantumlStart": "``` plantuml",
-      "vegaLiteStart": "``` vega-lite",
-      "codeFence": "```",
-      "clickToAddImage": "Görsel eklemek için tıklayın",
-      "loadImageFailed": "Görsel yüklenemedi",
       "errorLoadingTabTitle": "Sekme yüklenirken hata",
       "errorLoadingTabMessage": "Sekme bulunamadığı için dosya değişikliği yüklenirken bir hata oluştu.",
       "mixedLineEndingsNormalized": "\"{name}\" karışık satır sonları içeriyor; otomatik olarak {lineEnding} biçimine normalleştirildi.",
@@ -1121,205 +931,7 @@
     "failedToRemoveWord": "Sözcük sözlükten kaldırılamadı",
     "unexpectedError": "Beklenmeyen yazım denetleyici hatası"
   },
-  "quickInsert": {
-    "basicBlock": "Temel Blok",
-    "header": "Başlık",
-    "advancedBlock": "Gelişmiş Blok",
-    "listBlock": "Liste Bloğu",
-    "diagram": "Diyagram",
-    "paragraph": {
-      "title": "Paragraf",
-      "subtitle": "Metin içeriği girin"
-    },
-    "horizontalLine": {
-      "title": "Yatay Çizgi",
-      "subtitle": "---"
-    },
-    "frontMatter": {
-      "title": "Ön Bilgi",
-      "subtitle": "--- YAML ---"
-    },
-    "header1": {
-      "title": "Başlık 1",
-      "subtitle": "# Başlık"
-    },
-    "header2": {
-      "title": "Başlık 2",
-      "subtitle": "## Başlık"
-    },
-    "header3": {
-      "title": "Başlık 3",
-      "subtitle": "### Başlık"
-    },
-    "header4": {
-      "title": "Başlık 4",
-      "subtitle": "#### Başlık"
-    },
-    "header5": {
-      "title": "Başlık 5",
-      "subtitle": "##### Başlık"
-    },
-    "header6": {
-      "title": "Başlık 6",
-      "subtitle": "###### Başlık"
-    },
-    "tableBlock": {
-      "title": "Tablo Bloğu",
-      "subtitle": "｜ Başlık ｜ Başlık ｜"
-    },
-    "mathFormula": {
-      "title": "Matematik Formülü",
-      "subtitle": "$$ Formül $$"
-    },
-    "htmlBlock": {
-      "title": "HTML Bloğu",
-      "subtitle": "<div> HTML </div>"
-    },
-    "codeBlock": {
-      "title": "Kod Bloğu",
-      "subtitle": "``` Kod ```"
-    },
-    "quoteBlock": {
-      "title": "Alıntı Bloğu",
-      "subtitle": "> Alıntı içeriği"
-    },
-    "orderedList": {
-      "title": "Sıralı Liste",
-      "subtitle": "1. Liste öğesi"
-    },
-    "bulletList": {
-      "title": "Sırasız Liste",
-      "subtitle": "- Liste öğesi"
-    },
-    "todoList": {
-      "title": "Liste",
-      "subtitle": "- [ ] Görev öğesi"
-    },
-    "vegaChart": {
-      "title": "Vega-Lite Grafiği",
-      "subtitle": "Veri görselleştirme grafiği"
-    },
-    "flowChart": {
-      "title": "Akış Şeması",
-      "subtitle": "Akış şeması diyagramı"
-    },
-    "sequenceChart": {
-      "title": "Dizi Grafiği",
-      "subtitle": "Dizi diyagramı"
-    },
-    "plantUMLChart": {
-      "title": "PlantUML Grafiği",
-      "subtitle": "UML diyagramı"
-    },
-    "mermaid": {
-      "title": "Mermaid Grafiği",
-      "subtitle": "Mermaid diyagramı",
-      "gantt": {
-        "title": "Gantt Grafiği"
-      },
-      "pie": {
-        "title": "Pasta Grafiği"
-      },
-      "flowchart": {
-        "title": "Akış Şeması"
-      },
-      "sequence": {
-        "title": "Dizi Diyagramı"
-      },
-      "class": {
-        "title": "Sınıf Diyagramı"
-      },
-      "state": {
-        "title": "Durum Diyagramı",
-        "subtitle": "stateDiagram"
-      },
-      "journey": {
-        "title": "Kullanıcı Yolculuğu"
-      },
-      "git": {
-        "title": "Git Grafiği"
-      },
-      "er": {
-        "title": "ER Diyagramı"
-      },
-      "requirement": {
-        "title": "Gereksinim Diyagramı"
-      }
-    },
-    "taskList": {
-      "title": "Görev Listesi"
-    },
-    "vegaliteChart": {
-      "title": "Vega-Lite Grafiği"
-    },
-    "plantUMLDiagram": {
-      "title": "PlantUML Diyagramı"
-    },
-    "mermaidDiagram": {
-      "title": "Mermaid Diyagramı"
-    }
-  },
-  "frontMenu": {
-    "duplicate": "Çoğalt",
-    "turnInto": "Dönüştür",
-    "newParagraph": "Yeni Paragraf",
-    "delete": "Sil",
-    "paragraph": "Paragraf",
-    "table": "Tablo",
-    "html": "HTML",
-    "mathblock": "Matematik Bloğu",
-    "pre": "Kod Bloğu",
-    "frontMatter": "Ön Bilgi",
-    "ulTask": "Görev Listesi",
-    "ulBullet": "Sırasız Liste",
-    "olOrder": "Sıralı Liste",
-    "blockquote": "Alıntı",
-    "heading1": "Başlık 1",
-    "heading2": "Başlık 2",
-    "heading3": "Başlık 3",
-    "heading4": "Başlık 4",
-    "heading5": "Başlık 5",
-    "heading6": "Başlık 6",
-    "hr": "Yatay Çizgi"
-  },
   "editor": {
-    "words": {},
-    "image": {
-      "selector": {
-        "tab": {
-          "select": "Seç",
-          "embedLink": "Bağlantı göm"
-        },
-        "select": {
-          "chooseButton": "Görsel Seç",
-          "tip": "Bilgisayarınızdan bir görsel seçin."
-        },
-        "inputs": {
-          "alt": "Alternatif metin",
-          "src": "Görsel bağlantısı veya yerel yol",
-          "title": "Görsel başlığı"
-        },
-        "embedButton": "Görseli Göm",
-        "hint": {
-          "prefix": "Web görseli veya yerel görsel yolu yapıştırın. Şunu kullanın:",
-          "simple": "basit mod",
-          "full": "tam mod"
-        }
-      },
-      "toolbar": {
-        "edit": "Görseli Düzenle",
-        "inline": "Satır İçi Görsel",
-        "alignLeft": "Sola Hizala",
-        "alignCenter": "Ortala",
-        "alignRight": "Sağa Hizala",
-        "delete": "Görseli Kaldır"
-      }
-    },
-    "placeholders": {
-      "frontMatter": "YAML Ön Bilgisini girin",
-      "languageIdentifier": "Dil Tanımlayıcısını girin...",
-      "mathFormula": "Matematiksel Formülü girin..."
-    },
     "export": {
       "error": "Dışa aktarma hatası",
       "errorExporting": "{type} dosyası dışa aktarılırken hata",
@@ -1346,53 +958,7 @@
       "errorSwitchingLanguage": "Yazım denetimi dili değiştirilirken hata {languageCode}",
       "languageMissing": "Yazım denetimi dili eksik {languageCode}",
       "switchError": "{languageCode} için yazım denetimi değiştirme hatası, {error}",
-      "title": "Yazım Denetimi",
-      "disabled": "Yazım denetimi devre dışı",
-      "enabled": "Yazım denetimi etkin",
-      "enabledError": "Yazım denetimi etkinleştirilirken hata"
-    },
-    "table": "tablo",
-    "resizeTable": "Tabloyu Yeniden Boyutlandır",
-    "left": "sol",
-    "alignLeft": "Sola Hizala",
-    "center": "orta",
-    "alignCenter": "Ortala",
-    "right": "sağ",
-    "alignRight": "Sağa Hizala",
-    "delete": "sil",
-    "deleteTable": "Tabloyu Sil",
-    "insertRowAbove": "Üste Satır Ekle",
-    "insertRowBelow": "Alta Satır Ekle",
-    "removeRow": "Satırı Kaldır",
-    "insertColumnLeft": "Sola Sütun Ekle",
-    "insertColumnRight": "Sağa Sütun Ekle",
-    "removeColumn": "Sütunu Kaldır",
-    "copyContent": "İçeriği kopyala",
-    "emptyMathFormula": "< Boş Matematiksel Formül >",
-    "invalidMathFormula": "< Geçersiz Matematiksel Formül >",
-    "emptyMermaidBlock": "< Boş Mermaid Bloğu >",
-    "loading": "Yükleniyor...",
-    "emptyDiagramBlock": "< Boş Diyagram Bloğu >",
-    "emptyHtmlBlock": "< Boş HTML Bloğu >",
-    "onlyTopBlockCanRenderIcon": "Yalnızca en üstteki blok ön simge düğmesini işleyebilir.",
-    "unhandledFunctionType": "İşlenmeyen functionType: {functionType}",
-    "highlight-start": "[highlight end]",
-    "highlight-end": "[highlight end]",
-    "type-at-to-insert": "Eklemek için / yazın",
-    "input-footnote-definition": "Dipnot tanımını girin",
-    "input-yaml-front-matter": "YAML ön bilgisini girin",
-    "input-language-identifier": "Dil tanımlayıcısını girin",
-    "input-mathematical-formula": "Matematiksel formülü girin",
-    "fence": "kod bloğu",
-    "indent": "girinti",
-    "front-matter-delimiter": "ön bilgi ayracı",
-    "math-delimiter": "matematik ayracı",
-    "mermaid-start": "mermaid başlangıcı",
-    "flowchart-start": "akış şeması başlangıcı",
-    "sequence-start": "dizi başlangıcı",
-    "plantuml-start": "plantuml başlangıcı",
-    "vega-lite-start": "vega-lite başlangıcı",
-    "click-to-add-image": "Görsel eklemek için tıklayın",
-    "load-image-failed": "Görsel yüklenemedi"
+      "title": "Yazım Denetimi"
+    }
   }
 }

@@ -7,10 +7,8 @@
     },
     "file": {
       "file": "文件",
-      "new": "新建",
       "newTab": "新建标签页",
       "newWindow": "新建窗口",
-      "open": "打开",
       "openFile": "打开文件…",
       "openFolder": "打开文件夹…",
       "openRecent": "打开最近",
@@ -25,9 +23,6 @@
       "exportPdf": "导出为 PDF",
       "import": "导入",
       "print": "打印",
-      "recent": "最近文件",
-      "close": "关闭",
-      "closeAll": "关闭全部",
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
       "quit": "退出",
@@ -70,26 +65,19 @@
       "demoteHeading": "降低标题级别",
       "table": "表格",
       "codeFences": "代码围栏",
-      "codeBlock": "代码块",
       "quoteBlock": "引用块",
       "mathBlock": "数学块",
       "htmlBlock": "HTML 块",
-      "quote": "引用",
       "orderedList": "有序列表",
       "bulletList": "无序列表",
-      "unorderedList": "无序列表",
       "taskList": "任务列表",
       "looseListItem": "宽松列表项",
-      "paragraphItem": "段落项",
       "horizontalRule": "水平分割线",
       "frontMatter": "前置元数据"
     },
     "window": {
       "title": "窗口",
-      "window": "窗口",
       "minimize": "最小化",
-      "close": "关闭",
-      "zoom": "缩放",
       "zoomIn": "放大",
       "zoomOut": "缩小",
       "fullScreen": "全屏",
@@ -106,20 +94,16 @@
       "followUs": "关注我们",
       "support": "支持 MarkText",
       "license": "许可证",
-      "checkForUpdates": "检查更新",
-      "aboutMarkText": "关于 MarkText",
       "about": "关于",
       "checkUpdates": "检查更新"
     },
     "marktext": {
       "title": "MarkText",
-      "marktext": "MarkText",
       "about": "关于 MarkText",
       "checkUpdates": "检查更新…",
       "preferences": "偏好设置",
       "services": "服务",
       "hide": "隐藏 MarkText",
-      "hideMarkText": "隐藏 MarkText",
       "hideOthers": "隐藏其他",
       "showAll": "显示全部",
       "quit": "退出 MarkText"
@@ -129,14 +113,9 @@
       "toggleSidebar": "切换侧边栏",
       "toggleTabbar": "切换标签栏",
       "commandPalette": "命令面板",
-      "sourceCode": "源码模式",
       "sourceCodeMode": "源码模式",
-      "typewriter": "打字机模式",
       "typewriterMode": "打字机模式",
-      "focus": "专注模式",
       "focusMode": "专注模式",
-      "showTabBar": "显示标签栏",
-      "toc": "目录",
       "toggleTableOfContents": "切换目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
@@ -148,35 +127,18 @@
       "italic": "斜体",
       "underline": "下划线",
       "strikethrough": "删除线",
-      "code": "行内代码",
-      "codeBlock": "代码块",
-      "quote": "引用",
-      "unorderedList": "无序列表",
-      "orderedList": "有序列表",
-      "taskList": "任务列表",
-      "table": "表格",
-      "link": "链接",
       "image": "图片",
-      "heading1": "标题 1",
-      "heading2": "标题 2",
-      "heading3": "标题 3",
-      "heading4": "标题 4",
-      "heading5": "标题 5",
-      "heading6": "标题 6",
       "superscript": "上标",
       "subscript": "下标",
       "highlight": "高亮",
       "inlineCode": "行内代码",
       "inlineMath": "行内数学",
       "hyperlink": "超链接",
-      "clearFormatting": "清除格式",
       "clearFormat": "清除格式"
     },
     "theme": {
       "theme": "主题(&T)",
-      "light": "浅色",
       "dark": "深色",
-      "auto": "自动",
       "followThemDisabled": "跟随系统主题时无法选择主题",
       "lightThemes": "— 浅色主题 —",
       "darkThemes": "— 深色主题 —",
@@ -376,13 +338,6 @@
       }
     }
   },
-  "table": {
-    "resizeTable": "调整表格大小",
-    "alignLeft": "左对齐",
-    "alignCenter": "居中对齐",
-    "alignRight": "右对齐",
-    "deleteTable": "删除表格"
-  },
   "recent": {
     "noTabsOpen": "您没有打开的标签页。",
     "newFile": "新建文件"
@@ -395,7 +350,6 @@
     "title": "偏好设置",
     "search": {
       "placeholder": "搜索偏好设置…",
-      "optionalValues": "可选值",
       "categories": {
         "general": "通用",
         "editor": "编辑器",
@@ -500,8 +454,7 @@
         "titleBarStyle": {
           "title": "标题栏样式",
           "custom": "自定义",
-          "native": "原生",
-          "titleBarStyle": "标题栏样式"
+          "native": "原生"
         },
         "requiresRestart": "需要重启",
         "hideScrollbars": "隐藏滚动条",
@@ -633,53 +586,19 @@
         "relativeFolderName": "相对文件夹名称",
         "filenameNote": "文件名将自动生成。"
       },
-      "imageInsertAction": {
-        "title": "图片插入操作",
-        "folder": "上传到文件夹",
-        "path": "复制到路径",
-        "upload": "上传到云端",
-        "copyToFolder": "复制到文件夹",
-        "uploadToServer": "上传到服务器"
-      },
-      "imageFolderPath": {
-        "title": "图片文件夹路径",
-        "description": "图片文件夹路径",
-        "selectFolder": "选择文件夹",
-        "relativePath": "相对路径",
-        "absolutePath": "绝对路径"
-      },
-      "cloudPictureBed": {
-        "title": "云图床",
-        "github": "GitHub",
-        "smms": "SM.MS",
-        "qiniu": "七牛",
-        "upyun": "又拍云",
-        "tcyun": "腾讯云",
-        "aliyun": "阿里云",
-        "imgur": "Imgur",
-        "picgo": "PicGo"
-      },
-      "preferRelativeDirectory": {
-        "title": "首选相对目录",
-        "description": "图片首选相对目录"
-      },
       "uploader": {
         "title": "图片上传器",
         "currentUploader": "当前上传器",
         "picgoNotInstalled": "PicGo 未安装",
-        "picgoDetectionStatus": "PicGo 检测状态",
         "picgoInstalled": "PicGo 已安装",
         "picgoDetectionFailed": "PicGo 检测失败",
         "debugInfo": "调试信息",
-        "installCommand": "安装命令",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
         "chooseInstallMethod": "选择安装方式：",
         "retestPicgo": "重新检测",
-        "detecting": "检测中…",
         "lastDetectionTime": "上次检测时间",
-        "detectionStatus": "检测状态",
         "picgoDetection": "PicGo 检测",
         "usageGuide": {
           "title": "PicGo 基本使用说明",
@@ -691,17 +610,9 @@
           "step3Description": "使用以下命令查看当前配置：",
           "documentation": "查看完整文档"
         },
-        "autoDetection": "自动检测中",
         "lastSuccessTime": "上次成功时间",
         "neverDetected": "从未检测",
         "neverSuccessful": "从未成功",
-        "configureUploader": "配置上传器",
-        "configureDescription": "使用以下命令配置 PicGo 上传器：",
-        "uploadImage": "上传图片",
-        "uploadDescription": "使用以下命令上传图片：",
-        "viewConfig": "查看配置",
-        "viewConfigDescription": "使用以下命令查看当前配置：",
-        "viewDocumentation": "查看完整文档",
         "scriptDescription": "脚本描述",
         "scriptLocation": "脚本位置",
         "save": "保存",
@@ -718,44 +629,12 @@
     },
     "markdown": {
       "title": "Markdown",
-      "listItem": {
-        "title": "列表项",
-        "preferLooseListItem": "首选宽松列表项",
-        "bulletListMarker": "无序列表标记",
-        "orderListDelimiter": "有序列表分隔符",
-        "listIndentation": {
-          "title": "列表缩进",
-          "dfm": "默认格式模式",
-          "tab": "制表符",
-          "oneSpace": "一个空格",
-          "twoSpaces": "两个空格",
-          "threeSpaces": "三个空格",
-          "fourSpaces": "四个空格"
-        }
-      },
-      "heading": {
-        "title": "标题",
-        "preferHeadingStyle": "首选标题样式"
-      },
-      "frontmatter": {
-        "title": "前置元数据",
-        "frontmatterType": "前置元数据类型"
-      },
       "extensions": {
         "title": "扩展",
         "superSubScript": "上标/下标",
         "footnote": "脚注",
-        "isHtmlEnabled": "启用 HTML",
-        "isGitlabCompatibilityEnabled": "GitLab 兼容性",
-        "sequenceTheme": "序列主题",
-        "superscript": "上标",
-        "subscript": "下标",
-        "frontMatter": "前置元数据",
-        "math": "数学",
-        "diagram": "图表",
         "footnoteNotes": "脚注注释",
         "frontmatterType": {
-          "frontmatterType": "前置元数据类型",
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
           "title": "前置元数据类型"
@@ -763,12 +642,6 @@
       },
       "diagrams": {
         "title": "图表",
-        "plantuml": "PlantUML",
-        "mermaid": "Mermaid",
-        "vega": "Vega",
-        "flowchart": "流程图",
-        "sequence": "序列图",
-        "gantt": "甘特图",
         "sequenceTheme": {
           "title": "序列图主题",
           "handDrawn": "手绘",
@@ -777,11 +650,6 @@
         "plantumlServer": {
           "title": "PlantUML 服务器 URL"
         }
-      },
-      "math": {
-        "title": "数学",
-        "katex": "KaTeX",
-        "mathJax": "MathJax"
       },
       "misc": {
         "preferHeadingStyle": {
@@ -812,28 +680,13 @@
         "title": "列表"
       }
     },
-    "spelling": {
-      "title": "拼写",
-      "enabled": "启用拼写检查器",
-      "autoDetectLanguage": "自动检测语言",
-      "language": "语言",
-      "noSuggestions": "无建议",
-      "spellcheckerEnabled": "启用拼写检查器",
-      "spellcheckerNoUnderline": "拼写错误不显示下划线",
-      "spellcheckerLanguage": "拼写检查器语言"
-    },
     "theme": {
       "title": "主题",
-      "theme": "主题",
       "followSystemTheme": "跟随系统主题",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
       "customCss": "自定义 CSS",
-      "codeBlockTheme": {
-        "title": "代码块主题",
-        "description": "代码块的主题"
-      },
       "importCustomThemes": "导入自定义主题",
       "importTheme": "导入主题",
       "openFolder": "打开文件夹",
@@ -842,13 +695,6 @@
     "keybindings": {
       "title": "快捷键",
       "description": "自定义键盘快捷键",
-      "searchPlaceholder": "搜索快捷键",
-      "command": "命令",
-      "keybinding": "快捷键",
-      "reset": "重置",
-      "resetAll": "重置全部",
-      "edit": "编辑",
-      "cancel": "取消",
       "save": "保存",
       "restoreDefaults": "恢复默认",
       "debugOptions": "调试选项",
@@ -890,14 +736,6 @@
       "title": "拼写检查器"
     }
   },
-  "edit": {
-    "undo": "撤销",
-    "redo": "重做",
-    "cut": "剪切",
-    "copy": "复制",
-    "paste": "粘贴",
-    "selectAll": "全选"
-  },
   "about": {
     "copyright": "版权",
     "copyrightContributors": "版权贡献者"
@@ -918,11 +756,9 @@
       "renameFile": "重命名文件",
       "quickOpen": "快速打开",
       "changeEncoding": "更改编码",
-      "lineEnding": "行结束符",
       "trailingNewline": "尾随换行",
       "print": "打印",
       "preferences": "偏好设置",
-      "close": "关闭",
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
       "quit": "退出",
@@ -952,7 +788,6 @@
       "findPrevious": "查找上一个",
       "replace": "替换",
       "findInFolder": "在文件夹中查找",
-      "mathBlock": "数学块",
       "screenshot": "截图"
     },
     "paragraph": {
@@ -1016,8 +851,6 @@
       "toggleTabbar": "切换标签栏",
       "toggleDevTools": "切换开发者工具",
       "actualSize": "实际大小",
-      "zoomIn": "放大",
-      "zoomOut": "缩小",
       "devToggleDeveloperTools": "切换开发者工具",
       "devReload": "开发者重载",
       "reloadImages": "重新加载图片",
@@ -1042,10 +875,6 @@
     "docs": {
       "userGuide": "用户指南",
       "markdownSyntax": "Markdown 语法"
-    },
-    "utils": {
-      "noUpdateResourceFile": "没有更新资源文件",
-      "todoUpdateCheck": "检查更新"
     },
     "spellchecker": {
       "switchLanguage": "切换拼写检查语言"
@@ -1092,25 +921,6 @@
       "anchorLinkCopied": "锚点链接已复制",
       "tabNotFound": "未找到标签页",
       "tocItemNotFound": "未找到目录项",
-      "highlightStart": "[高亮开始]",
-      "highlightEnd": "[高亮结束]",
-      "typeAtToInsert": "输入 / 来插入",
-      "inputFootnoteDefinition": "输入脚注定义…",
-      "inputYamlFrontMatter": "输入 YAML 前置元数据",
-      "inputLanguageIdentifier": "输入语言标识符…",
-      "inputMathematicalFormula": "输入数学公式…",
-      "fence": "围栏",
-      "indent": "缩进",
-      "frontMatterDelimiter": "---",
-      "mathDelimiter": "$$",
-      "mermaidStart": "``` mermaid",
-      "flowchartStart": "``` flowchart",
-      "sequenceStart": "``` sequence",
-      "plantumlStart": "``` plantuml",
-      "vegaLiteStart": "``` vega-lite",
-      "codeFence": "```",
-      "clickToAddImage": "点击添加图片",
-      "loadImageFailed": "图片加载失败",
       "errorLoadingTabTitle": "加载标签页出错",
       "errorLoadingTabMessage": "加载文件变更时发生错误，因为找不到该标签页。",
       "mixedLineEndingsNormalized": "“{name}” 含有混合换行符，已自动规范化为 {lineEnding}。",
@@ -1127,204 +937,7 @@
     "failedToRemoveWord": "从词典中删除单词失败",
     "unexpectedError": "意外的拼写检查器错误"
   },
-  "quickInsert": {
-    "basicBlock": "基础块",
-    "header": "标题",
-    "advancedBlock": "高级块",
-    "listBlock": "列表块",
-    "diagram": "图表",
-    "paragraph": {
-      "title": "段落",
-      "subtitle": "输入文本内容"
-    },
-    "horizontalLine": {
-      "title": "水平分割线",
-      "subtitle": "---"
-    },
-    "frontMatter": {
-      "title": "前置元数据",
-      "subtitle": "--- YAML ---"
-    },
-    "header1": {
-      "title": "标题 1",
-      "subtitle": "# 标题"
-    },
-    "header2": {
-      "title": "标题 2",
-      "subtitle": "## 标题"
-    },
-    "header3": {
-      "title": "标题 3",
-      "subtitle": "### 标题"
-    },
-    "header4": {
-      "title": "标题 4",
-      "subtitle": "#### 标题"
-    },
-    "header5": {
-      "title": "标题 5",
-      "subtitle": "##### 标题"
-    },
-    "header6": {
-      "title": "标题 6",
-      "subtitle": "###### 标题"
-    },
-    "tableBlock": {
-      "title": "表格块",
-      "subtitle": "｜ 标题 ｜ 标题 ｜"
-    },
-    "mathFormula": {
-      "title": "数学公式",
-      "subtitle": "$$ 公式 $$"
-    },
-    "htmlBlock": {
-      "title": "HTML 块",
-      "subtitle": "<div> HTML </div>"
-    },
-    "codeBlock": {
-      "title": "代码块",
-      "subtitle": "``` 代码 ```"
-    },
-    "quoteBlock": {
-      "title": "引用块",
-      "subtitle": "> 引用内容"
-    },
-    "orderedList": {
-      "title": "有序列表",
-      "subtitle": "1. 列表项"
-    },
-    "bulletList": {
-      "title": "无序列表",
-      "subtitle": "- 列表项"
-    },
-    "todoList": {
-      "title": "任务列表",
-      "subtitle": "- [ ] 任务项"
-    },
-    "vegaChart": {
-      "title": "Vega-Lite图表",
-      "subtitle": "数据可视化图表"
-    },
-    "flowChart": {
-      "title": "流程图",
-      "subtitle": "流程图表"
-    },
-    "sequenceChart": {
-      "title": "时序图",
-      "subtitle": "时序图表"
-    },
-    "plantUMLChart": {
-      "title": "PlantUML图表",
-      "subtitle": "UML图表"
-    },
-    "mermaid": {
-      "title": "Mermaid图表",
-      "subtitle": "Mermaid图表",
-      "gantt": {
-        "title": "甘特图"
-      },
-      "pie": {
-        "title": "饼图"
-      },
-      "flowchart": {
-        "title": "流程图"
-      },
-      "sequence": {
-        "title": "时序图"
-      },
-      "class": {
-        "title": "类图"
-      },
-      "state": {
-        "title": "状态图",
-        "subtitle": "stateDiagram"
-      },
-      "journey": {
-        "title": "用户旅程"
-      },
-      "git": {
-        "title": "Git图"
-      },
-      "er": {
-        "title": "ER图"
-      },
-      "requirement": {
-        "title": "需求图"
-      }
-    },
-    "taskList": {
-      "title": "任务列表"
-    },
-    "vegaliteChart": {
-      "title": "Vega-Lite图表"
-    },
-    "plantUMLDiagram": {
-      "title": "PlantUML图表"
-    },
-    "mermaidDiagram": {
-      "title": "Mermaid图表"
-    }
-  },
-  "frontMenu": {
-    "duplicate": "创建副本",
-    "turnInto": "转换为",
-    "newParagraph": "新段落",
-    "delete": "删除",
-    "paragraph": "段落",
-    "table": "表格",
-    "html": "HTML",
-    "mathblock": "数学公式块",
-    "pre": "代码块",
-    "frontMatter": "前置信息",
-    "ulTask": "任务列表",
-    "ulBullet": "无序列表",
-    "olOrder": "有序列表",
-    "blockquote": "引用块",
-    "heading1": "一级标题",
-    "heading2": "二级标题",
-    "heading3": "三级标题",
-    "heading4": "四级标题",
-    "heading5": "五级标题",
-    "heading6": "六级标题",
-    "hr": "分隔线"
-  },
   "editor": {
-    "image": {
-      "selector": {
-        "tab": {
-          "select": "选择",
-          "embedLink": "插入链接"
-        },
-        "select": {
-          "chooseButton": "选择图片",
-          "tip": "从你的电脑选择图片。"
-        },
-        "inputs": {
-          "alt": "替代文本",
-          "src": "图片链接或本地路径",
-          "title": "图片标题"
-        },
-        "embedButton": "嵌入图片",
-        "hint": {
-          "prefix": "粘贴网络图片或本地路径。切换模式",
-          "simple": "简洁模式",
-          "full": "完整模式"
-        }
-      },
-      "toolbar": {
-        "edit": "编辑图片",
-        "inline": "行内图片",
-        "alignLeft": "左对齐",
-        "alignCenter": "居中对齐",
-        "alignRight": "右对齐",
-        "delete": "删除图片"
-      }
-    },
-    "placeholders": {
-      "frontMatter": "输入 YAML 前置信息",
-      "languageIdentifier": "输入语言标识符…",
-      "mathFormula": "输入数学公式…"
-    },
     "insertTable": {
       "title": "插入表格",
       "rows": "行",
@@ -1351,53 +964,7 @@
       "disabledError": "拼写检查已禁用错误",
       "errorSwitchingLanguage": "切换拼写检查语言时出错",
       "languageMissing": "拼写检查语言缺失",
-      "switchError": "拼写检查切换错误",
-      "disabled": "拼写检查已禁用",
-      "enabled": "拼写检查已启用",
-      "enabledError": "启用拼写检查时出错"
-    },
-    "table": "表格",
-    "resizeTable": "调整表格大小",
-    "left": "左对齐",
-    "alignLeft": "左对齐",
-    "center": "居中对齐",
-    "alignCenter": "居中对齐",
-    "right": "右对齐",
-    "alignRight": "右对齐",
-    "delete": "删除",
-    "deleteTable": "删除表格",
-    "insertRowAbove": "在上方插入行",
-    "insertRowBelow": "在下方插入行",
-    "removeRow": "删除行",
-    "insertColumnLeft": "在左侧插入列",
-    "insertColumnRight": "在右侧插入列",
-    "removeColumn": "删除列",
-    "copyContent": "复制内容",
-    "emptyMathFormula": "< 空数学公式 >",
-    "invalidMathFormula": "< 无效数学公式 >",
-    "emptyMermaidBlock": "< 空 Mermaid 块 >",
-    "loading": "加载中…",
-    "emptyDiagramBlock": "< 空图表块 >",
-    "emptyHtmlBlock": "< 空 HTML 块 >",
-    "onlyTopBlockCanRenderIcon": "只有顶级块可以渲染前置图标按钮。",
-    "unhandledFunctionType": "未处理的功能类型: {functionType}",
-    "highlight-start": "[高亮开始]",
-    "highlight-end": "[高亮结束]",
-    "type-at-to-insert": "输入 / 来插入",
-    "input-footnote-definition": "输入脚注定义",
-    "input-yaml-front-matter": "输入 YAML 前置内容",
-    "input-language-identifier": "输入语言标识符",
-    "input-mathematical-formula": "输入数学公式",
-    "fence": "围栏",
-    "indent": "缩进",
-    "front-matter-delimiter": "前置内容分隔符",
-    "math-delimiter": "数学分隔符",
-    "mermaid-start": "mermaid 开始",
-    "flowchart-start": "流程图 开始",
-    "sequence-start": "时序图 开始",
-    "plantuml-start": "plantuml 开始",
-    "vega-lite-start": "vega-lite 开始",
-    "click-to-add-image": "点击添加图片",
-    "load-image-failed": "图片加载失败"
+      "switchError": "拼写检查切换错误"
+    }
   }
 }
