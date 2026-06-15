@@ -20,6 +20,35 @@ import {
 } from './dom';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
+function computeDirection(
+    anchorBlock: Content,
+    focusBlock: Content,
+    anchorOffset: number,
+    focusOffset: number,
+    isSelectionInSameBlock: boolean,
+): SelectionDirection {
+    if (isSelectionInSameBlock) {
+        return anchorOffset < focusOffset
+            ? SelectionDirection.Forward
+            : SelectionDirection.Backward;
+    }
+
+    return compareParagraphsOrder(anchorBlock.domNode!, focusBlock.domNode!)
+        ? SelectionDirection.Forward
+        : SelectionDirection.Backward;
+}
+
+function computeCaretType(
+    anchorBlock: Nullable<Content>,
+    focusBlock: Nullable<Content>,
+    isCollapsed: boolean,
+): SelectionCaretType {
+    if (!anchorBlock && !focusBlock)
+        return SelectionCaretType.None;
+
+    return isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
+}
+
 class TextSelection {
     public anchorPath: TBlockPath = [];
     public anchorBlock: Nullable<Content> = null;
@@ -79,24 +108,19 @@ class TextSelection {
         if (isCollapsed)
             return SelectionDirection.None;
 
-        if (isSelectionInSameBlock) {
-            return anchor.offset < focus.offset ? SelectionDirection.Forward : SelectionDirection.Backward;
-        }
-        else {
-            const aDom = anchorBlock.domNode!;
-            const fDom = focusBlock.domNode!;
-            const order = compareParagraphsOrder(aDom, fDom);
-
-            return order ? SelectionDirection.Forward : SelectionDirection.Backward;
-        }
+        return computeDirection(
+            anchorBlock,
+            focusBlock,
+            anchor.offset,
+            focus.offset,
+            isSelectionInSameBlock,
+        );
     }
 
     get type() {
         const { anchorBlock, focusBlock, isCollapsed } = this;
-        if (!anchorBlock && !focusBlock)
-            return SelectionCaretType.None;
 
-        return isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
+        return computeCaretType(anchorBlock, focusBlock, isCollapsed);
     }
 
     collapse(): void {
@@ -163,19 +187,14 @@ class TextSelection {
         const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
 
-        let direction: SelectionDirection;
-
-        if (isSelectionInSameBlock) {
-            direction = anchor.offset < focus.offset ? SelectionDirection.Forward : SelectionDirection.Backward;
-        }
-        else {
-            const aDom = anchorBlock.domNode!;
-            const fDom = focusBlock.domNode!;
-            const order = compareParagraphsOrder(aDom, fDom);
-            direction = order ? SelectionDirection.Forward : SelectionDirection.Backward;
-        }
-
-        const type = isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
+        const direction = computeDirection(
+            anchorBlock,
+            focusBlock,
+            anchor.offset,
+            focus.offset,
+            isSelectionInSameBlock,
+        );
+        const type = computeCaretType(anchorBlock, focusBlock, isCollapsed);
 
         return {
             anchor: { offset: anchor.offset, block: anchorBlock, path: anchorPath },
