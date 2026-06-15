@@ -1,6 +1,5 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
-import type TreeNode from './block/base/treeNode';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
@@ -49,6 +48,17 @@ export interface IMuyaPluginConstructor {
 interface IPlugin {
     plugin: IMuyaPluginConstructor;
     options: Record<string, unknown>;
+}
+
+// A selection reduced to document paths + offsets, with block references
+// dropped so it survives a wholesale tree rebuild (paths are re-resolved
+// against the fresh tree). Used to keep the caret/selection put across a
+// loose/tight list toggle.
+interface ISelectionSnapshot {
+    anchor: number;
+    focus: number;
+    anchorPath: (string | number)[];
+    focusPath: (string | number)[];
 }
 
 // Maps the paragraph-menu labels the desktop sends through `updateParagraph`
@@ -1058,83 +1068,76 @@ export class Muya {
         if (!isAnyListState(state))
             return;
 
-        const cursor = this._captureListCursor(block);
+        // Toggling only flips meta.loose, so the rebuilt list keeps the same
+        // structure and document position. Snapshot the selection as paths +
+        // offsets so a caret OR a multi-item range can be restored afterwards
+        // instead of collapsing to the first item.
+        const snapshot = this._snapshotSelection();
 
         const newState = deepClone(state);
         newState.meta.loose = !newState.meta.loose;
         const newBlock = ScrollPage.loadBlock(newState.name).create(this, newState);
         block.replaceWith(newBlock);
 
-        this._restoreListCursor(newBlock, cursor);
+        if (!this._restoreSelection(snapshot))
+            newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     /**
-     * Record where the caret sits inside `list` as a child-index path plus the
-     * selection offsets. Toggling loose/tight rebuilds the whole list from a
-     * deep clone of its state, so the child structure is identical and the path
-     * maps one-to-one onto the rebuilt tree — letting the caret stay put instead
-     * of snapping to the first item. Returns null when the caret isn't inside
-     * this list.
+     * Capture the current selection as document paths + offsets. The live DOM
+     * selection is the source of truth (it carries a click-placed caret), with
+     * the cached selection — committed on mouse-up and surviving the menu/IPC
+     * round-trip — as the fallback. Block references are intentionally dropped:
+     * they go stale when the list is rebuilt, so the paths are re-resolved on
+     * restore.
      */
-    private _captureListCursor(list: Parent): { path: number[]; start: number; end: number } | null {
-        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
-        if (!content || content.outMostBlock !== list)
-            return null;
-
-        const path: number[] = [];
-        let node: TreeNode = content;
-        while (node !== list && node.parent) {
-            path.unshift(node.parent.offset(node));
-            node = node.parent;
-        }
-        if (node !== list)
-            return null;
-
-        // The live DOM selection is the source of truth when present; fall back
-        // to the cached selection (which survives the menu/IPC round-trip) so a
-        // menu-driven toggle still restores the right offset.
-        const live = content.getCursor();
+    private _snapshotSelection(): ISelectionSnapshot | null {
         const sel = this.editor.selection;
-        let start = 0;
-        let end = 0;
-        if (live) {
-            start = live.start.offset;
-            end = live.end.offset;
-        }
-        else if (sel.anchorBlock === content && sel.anchor) {
-            const a = sel.anchor.offset;
-            const f = sel.focus?.offset ?? a;
-            start = Math.min(a, f);
-            end = Math.max(a, f);
-        }
+        const live = sel.getSelection();
+        const anchor = live?.anchor ?? sel.anchor;
+        const focus = live?.focus ?? sel.focus;
+        const anchorPath = live?.anchorPath ?? sel.anchorPath;
+        const focusPath = live?.focusPath ?? sel.focusPath;
+        if (!anchor || !focus || !anchorPath?.length || !focusPath?.length)
+            return null;
 
-        return { path, start, end };
+        return {
+            anchor: anchor.offset,
+            focus: focus.offset,
+            anchorPath: [...anchorPath],
+            focusPath: [...focusPath],
+        };
     }
 
     /**
-     * Restore a caret captured by `_captureListCursor` into the rebuilt list,
-     * falling back to the first content block when the path no longer resolves.
+     * Re-resolve a snapshot's paths against the live tree and re-apply it via
+     * the selection API. Returns false when either path no longer resolves to a
+     * content block so the caller can fall back.
      */
-    private _restoreListCursor(
-        list: Parent,
-        cursor: { path: number[]; start: number; end: number } | null,
-    ) {
-        if (cursor) {
-            let node: TreeNode | null = list;
-            for (const index of cursor.path) {
-                if (!node || !node.isParent()) {
-                    node = null;
-                    break;
-                }
-                node = node.find(index);
-            }
-            if (node && node.isContent()) {
-                node.setCursor(cursor.start, cursor.end, true);
-                return;
-            }
-        }
+    private _restoreSelection(snapshot: ISelectionSnapshot | null): boolean {
+        if (!snapshot)
+            return false;
 
-        list.firstContentInDescendant()?.setCursor(0, 0, true);
+        const { scrollPage } = this.editor;
+        // `queryBlock` consumes its path array in place, so resolve against copies.
+        const anchorBlock = scrollPage?.queryBlock([...snapshot.anchorPath]);
+        const focusBlock = scrollPage?.queryBlock([...snapshot.focusPath]);
+        if (!anchorBlock || !focusBlock)
+            return false;
+        if (!anchorBlock.isContent() || !focusBlock.isContent())
+            return false;
+
+        this.editor.activeContentBlock = focusBlock;
+        this.editor.selection.setSelection({
+            anchor: { offset: snapshot.anchor },
+            focus: { offset: snapshot.focus },
+            anchorBlock,
+            anchorPath: [...snapshot.anchorPath],
+            focusBlock,
+            focusPath: [...snapshot.focusPath],
+        });
+
+        return true;
     }
 
     /** Convert an existing list to another list type, preserving items. */

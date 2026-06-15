@@ -158,6 +158,46 @@ describe('muya.updateParagraph()', () => {
         expect(muya.editor.selection.anchor?.offset).toBe(1);
     });
 
+    it('keeps a multi-item selection spanning list items when toggling loose/tight', async () => {
+        const muya = bootMuya('1. a\n2. b\n3. c\n');
+        const list = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock!;
+        const first = list.firstContentInDescendant()!;
+        const third = list.lastContentInDescendant()!;
+
+        // Simulate Chromium reporting a live selection spanning item 1 ('a') to
+        // item 3 ('c'). happy-dom's Selection.extend can't build a cross-node
+        // range, so the real menu scenario (getSelection returns the range) is
+        // stubbed here; the assertions below exercise the path re-resolution.
+        const liveSelection = {
+            anchor: { offset: 0 },
+            focus: { offset: 1 },
+            anchorBlock: first,
+            anchorPath: first.path,
+            focusBlock: third,
+            focusPath: third.path,
+            isCollapsed: false,
+            isSelectionInSameBlock: false,
+            direction: 'forward',
+            type: 'Range',
+        };
+        vi.spyOn(muya.editor.selection, 'getSelection').mockReturnValue(liveSelection as never);
+        muya.editor.activeContentBlock = third;
+
+        muya.updateParagraph('loose-list-item');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.loose).toBe(true);
+        });
+
+        // The selection must still span the first and third items, not collapse
+        // to a single item.
+        const sel = muya.editor.selection;
+        expect(sel.anchorBlock?.text).toBe('a');
+        expect(sel.focusBlock?.text).toBe('c');
+        expect(sel.anchorBlock).not.toBe(sel.focusBlock);
+        expect(sel.anchor?.offset).toBe(0);
+        expect(sel.focus?.offset).toBe(1);
+    });
+
     it('maps the command-palette ol-bullet label to an ordered list', async () => {
         const muya = bootMuya('item\n');
         placeCursorOnFirstBlock(muya);
