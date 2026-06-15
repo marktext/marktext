@@ -120,3 +120,30 @@ describe('forward Delete at end-of-paragraph — merge with next block', () => {
         expect(cursor!.start.offset).toBe(5);
     });
 });
+
+describe('forward Delete at end of a code block — no merge', () => {
+    it('leaves the state unchanged (codeBlockContent has no merging deleteHandler)', async () => {
+        const muya = bootMuya('```js\nx\n```\n');
+        const before = JSON.stringify(muya.getState());
+        const code = contentByText(muya, 'x');
+
+        deleteAtEnd(muya, code);
+
+        await flush();
+        const after = JSON.stringify(muya.getState());
+        expect(after).toBe(before);
+        const state = muya.getState();
+        expect(state.length).toBe(1);
+        expect(state[0].name).toBe('code-block');
+    });
+
+    it('preventDefaults at end-of-text but performs no model merge', () => {
+        const muya = bootMuya('```js\nx\n```\n');
+        const code = contentByText(muya, 'x');
+
+        const event = deleteAtEnd(muya, code);
+
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(code.text).toBe('x');
+    });
+});
