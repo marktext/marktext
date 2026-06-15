@@ -45,16 +45,18 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
+interface ITrackedEndpoints {
+    anchorBlock: Content | null;
+    focusBlock: Content | null;
+    anchor: { offset: number } | null;
+    focus: { offset: number } | null;
+}
+
 // Mirror the engine's tracked text endpoints back through getSelection so the
 // live read inside selectAll sees what a real browser would report.
 function mirrorLiveSelection(muya: Muya): void {
     const selection = muya.editor.selection;
-    const text = (selection as unknown as { _text: {
-        anchorBlock: Content | null;
-        focusBlock: Content | null;
-        anchor: { offset: number } | null;
-        focus: { offset: number } | null;
-    }; })._text;
+    const text = (selection as unknown as { _text: ITrackedEndpoints })._text;
 
     vi.spyOn(selection, 'getSelection').mockImplementation((): ISelection | null => {
         const { anchorBlock, focusBlock, anchor, focus } = text;
