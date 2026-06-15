@@ -220,7 +220,6 @@
     "replaceSingle": "單一取代",
     "invalidRegex": "無效的正規表示式 \"{pattern}\"",
     "regexMatchEmpty": "正規表示式 \"{pattern}\" 符合空字串",
-    "searchResultCount": "搜尋結果",
     "searchResultInfo": "在 {fileCount} 個檔案中找到 {matchCount} 個符合項目",
     "searchLimited": "搜尋僅限前 {count} 個結果"
   },
@@ -365,7 +364,7 @@
       "items": {
         "autoSave": "自動儲存正在編輯的內容",
         "autoSaveDelay": "檔案儲存前的延遲時間（毫秒）",
-        "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF，可選擇處理結尾換行符",
+        "autoNormalizeLineEndings": "開啟檔案時自動將行尾標準化。停用時，檔案會以原樣開啟",
         "titleBarStyle": "標題欄樣式（僅限 Windows 和 Linux 系統）",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFolderInNewWindow": "透過選單在新視窗中開啟資料夾",
@@ -414,7 +413,6 @@
         "followSystemTheme": "跟隨系統主題",
         "lightModeTheme": "系統處於淺色模式時使用的主題",
         "darkModeTheme": "系統處於深色模式時使用的主題",
-        "customCss": "套用到當前主題的自訂 CSS",
         "spellcheckerEnabled": "是否啟用拼字檢查",
         "spellcheckerNoUnderline": "不要為拼字錯誤加上底線",
         "spellcheckerLanguage": "拼字檢查器語言",
@@ -422,15 +420,8 @@
         "imagePreferRelativeDirectory": "是否首選相對圖片目錄",
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
-        "sideBarVisibility": "側邊欄是否可見",
-        "tabBarVisibility": "是否顯示標籤頁",
-        "sourceCodeModeEnabled": "是否預設啟用原始碼模式",
-        "searchExclusions": "要從搜尋中排除的 glob 模式清單",
-        "searchMaxFileSize": "最大檔案大小（<maxFileSize><suffix>）。如果沒有後綴，允許使用 K、M 或 G 後綴，數字會被視為位元組",
-        "searchIncludeHidden": "是否在隱藏檔案和目錄中搜尋",
-        "searchNoIgnore": "是否忽略像 .gitignore 這樣的忽略檔案",
-        "searchFollowSymlinks": "是否應該跟隨符號連結",
-        "watcherUsePolling": "是否使用輪詢。輪詢可能導致高 CPU 使用率，但對於監視網路上的檔案是必要的"
+        "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
       }
     },
     "categories": {
@@ -596,7 +587,6 @@
         "npmInstallCommand": "npm install picgo",
         "yarnInstallCommand": "yarn add picgo",
         "pnpmInstallCommand": "pnpm add picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "選擇安裝方法：",
         "retestPicgo": "重新檢測",
         "lastDetectionTime": "上次檢測時間",
@@ -937,16 +927,6 @@
   "spellchecker": {
     "failedToRemoveWord": "從字典中移除單字失敗",
     "unexpectedError": "意外的拼字檢查錯誤"
-  },
-  "quickInsert": {
-    "sequenceDiagram": {
-      "title": "序列圖",
-      "subtitle": "使用 js-sequence 渲染序列圖。"
-    },
-    "plantumlDiagram": {
-      "title": "PlantUML 圖表",
-      "subtitle": "渲染 PlantUML 圖表"
-    }
   },
   "editor": {
     "export": {

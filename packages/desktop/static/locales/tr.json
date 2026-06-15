@@ -411,7 +411,6 @@
         "followSystemTheme": "Sistem Temasını Takip Et",
         "lightModeTheme": "Sistem açık moddayken kullanılacak tema",
         "darkModeTheme": "Sistem koyu moddayken kullanılacak tema",
-        "customCss": "Geçerli temaya uygulanacak özel CSS",
         "spellcheckerEnabled": "Yazım denetiminin etkinleştirilip etkinleştirilmeyeceği",
         "spellcheckerNoUnderline": "Yazım hatalarının altını çizme",
         "spellcheckerLanguage": "Yazım denetleyici dili",
@@ -419,16 +418,10 @@
         "imagePreferRelativeDirectory": "Göreli görsel klasörünün tercih edilip edilmeyeceği",
         "imageRelativeDirectoryBase": "Göreli görsellerin nereye kopyalanacağı",
         "imageRelativeDirectoryName": "Göreli görsel klasörünün adı",
-        "sideBarVisibility": "Kenar çubuğunun görünür olup olmadığı",
-        "tabBarVisibility": "Sekmelerin gösterilip gösterilmediği",
-        "sourceCodeModeEnabled": "Kaynak kod modunun varsayılan olarak etkin olup olmadığı",
-        "searchExclusions": "Aramadan hariç tutulacak glob desenleri listesi",
-        "searchMaxFileSize": "Maksimum dosya boyutu (<maxFileSize><suffix>). K, M veya G son ekleri kullanılabilir; son ek verilmezse sayı bayt olarak kabul edilir",
-        "searchIncludeHidden": "Gizli dosya ve klasörlerde arama yapılıp yapılmayacağı",
-        "searchNoIgnore": ".gitignore gibi yoksayma dosyalarının yoksayılıp yoksayılmayacağı",
-        "searchFollowSymlinks": "Sembolik bağlantıların izlenip izlenmeyeceği",
-        "watcherUsePolling": "Yoklama kullanılıp kullanılmayacağı. Yoklama yüksek CPU kullanımına yol açabilir ancak ağ üzerindeki dosyaları izlemek için gereklidir",
-        "plantumlServer": "PlantUML sunucu URL'si"
+        "plantumlServer": "PlantUML sunucu URL'si",
+        "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
+        "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
       }
     },
     "categories": {

@@ -220,7 +220,6 @@
     "replaceSingle": "单个替换",
     "invalidRegex": "无效的正则表达式 \"{pattern}\"",
     "regexMatchEmpty": "正则表达式 \"{pattern}\" 匹配到了空字符串",
-    "searchResultCount": "搜索结果",
     "searchResultInfo": "在 {fileCount} 个文件中找到 {matchCount} 个匹配项",
     "searchLimited": "仅搜索前 {count} 个结果"
   },
@@ -365,7 +364,7 @@
       "items": {
         "autoSave": "自动保存正在编辑的内容",
         "autoSaveDelay": "文件保存前的延迟时间（毫秒）",
-        "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF，可选择处理末尾换行符",
+        "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
         "titleBarStyle": "标题栏样式（仅限 Windows 和 Linux 系统）",
         "openFilesInNewWindow": "在新窗口中打开文件",
         "openFolderInNewWindow": "通过菜单在新窗口中打开文件夹",
@@ -414,7 +413,6 @@
         "followSystemTheme": "跟随系统主题",
         "lightModeTheme": "系统处于浅色模式时使用的主题",
         "darkModeTheme": "系统处于深色模式时使用的主题",
-        "customCss": "应用到当前主题的自定义 CSS",
         "spellcheckerEnabled": "是否启用拼写检查",
         "spellcheckerNoUnderline": "不要为拼写错误添加下划线",
         "spellcheckerLanguage": "拼写检查器语言",
@@ -422,15 +420,8 @@
         "imagePreferRelativeDirectory": "是否首选相对图片目录",
         "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
-        "sideBarVisibility": "侧边栏是否可见",
-        "tabBarVisibility": "是否显示标签页",
-        "sourceCodeModeEnabled": "是否默认启用源代码模式",
-        "searchExclusions": "要从搜索中排除的 glob 模式列表",
-        "searchMaxFileSize": "最大文件大小（<maxFileSize><suffix>）。如果没有后缀，允许使用 K、M 或 G 后缀，数字会被视为字节",
-        "searchIncludeHidden": "是否在隐藏文件和目录中搜索",
-        "searchNoIgnore": "是否忽略像 .gitignore 这样的忽略文件",
-        "searchFollowSymlinks": "是否应该跟随符号链接",
-        "watcherUsePolling": "是否使用轮询。轮询可能导致高 CPU 使用率，但对于监视网络上的文件是必要的"
+        "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
+        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件"
       }
     },
     "categories": {

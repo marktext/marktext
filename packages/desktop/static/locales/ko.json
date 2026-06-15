@@ -220,7 +220,6 @@
     "replaceSingle": "하나 바꾸기",
     "invalidRegex": "잘못된 정규식 \"{pattern}\"",
     "regexMatchEmpty": "정규식이 빈 문자열 \"{pattern}\"과 일치",
-    "searchResultCount": "검색 결과",
     "searchResultInfo": "{fileCount}개의 파일에서 {matchCount}개 일치",
     "searchLimited": "처음 {count}개의 결과까지만 검색"
   },
@@ -365,7 +364,7 @@
       "items": {
         "autoSave": "편집 중인 내용을 자동으로 저장",
         "autoSaveDelay": "변경 후 파일이 저장되기까지의 시간(밀리초)",
-        "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 LF로 자동 정규화하고 선택적으로 후행 줄 바꿈을 처리합니다",
+        "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 자동으로 정규화합니다. 비활성화하면 파일을 있는 그대로 엽니다.",
         "titleBarStyle": "제목 표시줄 스타일(Windows 및 Linux 시스템만)",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFolderInNewWindow": "메뉴를 통해 새 창에서 폴더 열기",
@@ -414,7 +413,6 @@
         "followSystemTheme": "시스템 테마 따르기",
         "lightModeTheme": "시스템이 라이트 모드일 때 사용할 테마",
         "darkModeTheme": "시스템이 다크 모드일 때 사용할 테마",
-        "customCss": "현재 테마에 적용할 사용자 정의 CSS",
         "spellcheckerEnabled": "맞춤법 검사가 활성화되어 있는지 여부",
         "spellcheckerNoUnderline": "맞춤법 오류에 밑줄을 그지 않음",
         "spellcheckerLanguage": "맞춤법 검사기 언어",
@@ -422,15 +420,8 @@
         "imagePreferRelativeDirectory": "상대 이미지 디렉터리를 선호할지 여부",
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
-        "sideBarVisibility": "사이드바가 보이는지 여부",
-        "tabBarVisibility": "탭이 표시되는지 여부",
-        "sourceCodeModeEnabled": "소스 코드 모드가 기본적으로 활성화되어 있는지 여부",
-        "searchExclusions": "검색에서 제외할 glob 패턴 목록",
-        "searchMaxFileSize": "최대 파일 크기(<maxFileSize><suffix>). 접미사가 주어지지 않으면 K, M 또는 G 접미사가 허용되며, 숫자는 바이트로 처리됩니다",
-        "searchIncludeHidden": "숨겨진 파일과 디렉터리에서 검색할지 여부",
-        "searchNoIgnore": ".gitignore와 같은 무시 파일을 무시할지 여부",
-        "searchFollowSymlinks": "심볼릭 링크를 따라야 하는지 여부",
-        "watcherUsePolling": "폴링을 사용할지 여부. 폴링은 높은 CPU 사용률을 초래할 수 있지만 네트워크의 파일을 감시하는 데 필요합니다"
+        "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
       }
     },
     "categories": {
@@ -596,7 +587,6 @@
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "설치 방법 선택:",
         "retestPicgo": "다시 테스트",
         "lastDetectionTime": "마지막 감지 시간",

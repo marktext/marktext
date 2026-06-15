@@ -220,7 +220,6 @@
     "replaceSingle": "単一置換",
     "invalidRegex": "無効な正規表現 \"{pattern}\"",
     "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" にマッチ",
-    "searchResultCount": "検索結果",
     "searchResultInfo": "{fileCount} 件のファイルで {matchCount} 件一致",
     "searchLimited": "最初の {count} 件まで検索しました"
   },
@@ -365,7 +364,7 @@
       "items": {
         "autoSave": "編集中のコンテンツを自動保存",
         "autoSaveDelay": "変更後にファイルが保存されるまでの時間（ミリ秒）",
-        "autoNormalizeLineEndings": "開くときに改行コードを LF に自動正規化し、オプションで末尾の改行も処理します",
+        "autoNormalizeLineEndings": "ファイルを開くときに改行コードを自動正規化します。無効にすると、ファイルはそのまま開かれます",
         "titleBarStyle": "タイトルバーのスタイル（WindowsおよびLinuxシステムのみ）",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFolderInNewWindow": "メニューから新しいウィンドウでフォルダを開く",
@@ -414,7 +413,6 @@
         "followSystemTheme": "システムのテーマに従う",
         "lightModeTheme": "システムがライトモードの時に使用するテーマ",
         "darkModeTheme": "システムがダークモードの時に使用するテーマ",
-        "customCss": "現在のテーマに適用するカスタムCSS",
         "spellcheckerEnabled": "スペルチェックが有効かどうか",
         "spellcheckerNoUnderline": "スペルミスに下線を引かない",
         "spellcheckerLanguage": "スペルチェッカーの言語",
@@ -422,15 +420,8 @@
         "imagePreferRelativeDirectory": "相対画像ディレクトリを優先するかどうか",
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダ名",
-        "sideBarVisibility": "サイドバーが表示されているかどうか",
-        "tabBarVisibility": "タブが表示されているかどうか",
-        "sourceCodeModeEnabled": "ソースコードモードがデフォルトで有効かどうか",
-        "searchExclusions": "検索から除外するglobパターンのリスト",
-        "searchMaxFileSize": "最大ファイルサイズ（<maxFileSize><suffix>）。K、M、またはGの接尾辞が許可されます。接尾辞がない場合、数値はバイトとして扱われます",
-        "searchIncludeHidden": "隠しファイルとディレクトリで検索するかどうか",
-        "searchNoIgnore": ".gitignoreのような無視ファイルを無視するかどうか",
-        "searchFollowSymlinks": "シンボリックリンクをフォローするかどうか",
-        "watcherUsePolling": "ポーリングを使用するかどうか。ポーリングは高いCPU使用率につながる可能性がありますが、ネットワーク上のファイルを監視するために必要です"
+        "fileSortOrder": "開いたフォルダ内のファイルの並べ替え順、昇順または降順",
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
       }
     },
     "categories": {
@@ -596,7 +587,6 @@
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "インストール方法を選択:",
         "retestPicgo": "再テスト",
         "lastDetectionTime": "最後の検出時間",

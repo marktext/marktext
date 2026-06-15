@@ -364,7 +364,7 @@
       "items": {
         "autoSave": "Guardar automáticamente el contenido que se está editando",
         "autoSaveDelay": "El tiempo en ms después de un cambio que se guarda el archivo",
-        "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea a LF y opcionalmente las nuevas líneas finales al abrir",
+        "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea al abrir archivos. Si está desactivado, los archivos se abren tal cual",
         "titleBarStyle": "El estilo de la barra de título (solo sistema Windows y Linux)",
         "openFilesInNewWindow": "Abrir archivos en una nueva ventana",
         "openFolderInNewWindow": "Abrir carpeta vía menú en una nueva ventana",
@@ -413,7 +413,6 @@
         "followSystemTheme": "Seguir tema del sistema",
         "lightModeTheme": "Tema a usar cuando el sistema está en modo claro",
         "darkModeTheme": "Tema a usar cuando el sistema está en modo oscuro",
-        "customCss": "CSS personalizado para aplicar al tema actual",
         "spellcheckerEnabled": "Si la verificación ortográfica está habilitada",
         "spellcheckerNoUnderline": "No subrayar errores ortográficos",
         "spellcheckerLanguage": "El idioma del verificador ortográfico",
@@ -421,15 +420,8 @@
         "imagePreferRelativeDirectory": "Si preferir el directorio de imagen relativo",
         "imageRelativeDirectoryBase": "Dónde se copian las imágenes relativas",
         "imageRelativeDirectoryName": "El nombre de la carpeta de imagen relativa",
-        "sideBarVisibility": "Si la barra lateral es visible",
-        "tabBarVisibility": "Si las pestañas se muestran",
-        "sourceCodeModeEnabled": "Si el modo de código fuente está habilitado por defecto",
-        "searchExclusions": "Lista de patrones glob para excluir de la búsqueda",
-        "searchMaxFileSize": "El tamaño máximo de archivo (<maxFileSize><suffix>). Se permiten sufijos de K, M o G si no se da sufijo el número se trata como bytes",
-        "searchIncludeHidden": "Si buscar en archivos y directorios ocultos",
-        "searchNoIgnore": "Si ignorar archivos de ignore como .gitignore",
-        "searchFollowSymlinks": "Si los enlaces simbólicos deben seguirse",
-        "watcherUsePolling": "Si usar polling. El polling puede llevar a alta utilización de CPU pero es necesario para observar archivos sobre una red"
+        "fileSortOrder": "El orden de clasificación de los archivos en las carpetas abiertas: ascendente o descendente",
+        "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral"
       }
     },
     "categories": {

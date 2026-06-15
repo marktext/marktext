@@ -412,7 +412,6 @@
         "followSystemTheme": "Follow System Theme",
         "lightModeTheme": "Theme to use when system is in light mode",
         "darkModeTheme": "Theme to use when system is in dark mode",
-        "customCss": "Custom CSS to apply to the current theme",
         "spellcheckerEnabled": "Whether spell checking is enabled",
         "spellcheckerNoUnderline": "Don't underline spelling mistakes",
         "spellcheckerLanguage": "The spell checker language",
@@ -420,15 +419,9 @@
         "imagePreferRelativeDirectory": "Whether to prefer the relative image directory",
         "imageRelativeDirectoryBase": "Where relative images are copied",
         "imageRelativeDirectoryName": "The relative image folder name",
-        "sideBarVisibility": "Whether the side bar is visible",
-        "tabBarVisibility": "Whether the tabs are shown",
-        "sourceCodeModeEnabled": "Whether the source-code mode is enabled by default",
-        "searchExclusions": "List of glob patterns to exclude from search",
-        "searchMaxFileSize": "The maximal file size (<maxFileSize><suffix>). Suffixes of K, M or G are allowed if not suffix is given the number is treated as bytes",
-        "searchIncludeHidden": "Whether to search in hidden files and directories",
-        "searchNoIgnore": "Whether to ignore ignore files like .gitignore",
-        "searchFollowSymlinks": "Whether symlinks should be followed",
-        "watcherUsePolling": "Whether to use polling. Polling may leads to high CPU utilization but is necessary to watch files over a network"
+        "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
+        "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
       }
     },
     "categories": {

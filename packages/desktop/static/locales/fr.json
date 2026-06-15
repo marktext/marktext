@@ -220,7 +220,6 @@
     "replaceSingle": "Remplacer un",
     "invalidRegex": "Expression régulière invalide \"{pattern}\"",
     "regexMatchEmpty": "L'expression régulière correspond à une chaîne vide \"{pattern}\"",
-    "searchResultCount": "Résultats de recherche",
     "searchResultInfo": "{matchCount} correspondances dans {fileCount} fichiers",
     "searchLimited": "Recherche limitée aux {count} premiers résultats"
   },
@@ -365,7 +364,7 @@
       "items": {
         "autoSave": "Sauvegarder automatiquement le contenu en cours d'édition",
         "autoSaveDelay": "Le temps en ms après un changement avant que le fichier soit sauvegardé",
-        "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne en LF et éventuellement les nouvelles lignes de fin à l'ouverture",
+        "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
         "titleBarStyle": "Le style de la barre de titre (systèmes Windows et Linux uniquement)",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
         "openFolderInNewWindow": "Ouvrir le dossier via le menu dans une nouvelle fenêtre",
@@ -414,7 +413,6 @@
         "followSystemTheme": "Suivre le thème du système",
         "lightModeTheme": "Thème à utiliser lorsque le système est en mode clair",
         "darkModeTheme": "Thème à utiliser lorsque le système est en mode sombre",
-        "customCss": "CSS personnalisé à appliquer au thème actuel",
         "spellcheckerEnabled": "La vérification orthographique est-elle activée",
         "spellcheckerNoUnderline": "Ne pas souligner les erreurs d'orthographe",
         "spellcheckerLanguage": "La langue du vérificateur orthographique",
@@ -422,15 +420,8 @@
         "imagePreferRelativeDirectory": "Préférer le répertoire d'image relatif",
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
-        "sideBarVisibility": "La barre latérale est-elle visible",
-        "tabBarVisibility": "Les onglets sont-ils affichés",
-        "sourceCodeModeEnabled": "Le mode code source est-il activé par défaut",
-        "searchExclusions": "Liste des motifs glob à exclure de la recherche",
-        "searchMaxFileSize": "La taille maximale de fichier (<maxFileSize><suffix>). Les suffixes K, M ou G sont autorisés si aucun suffixe n'est donné, le nombre est traité comme des octets",
-        "searchIncludeHidden": "Rechercher dans les fichiers et répertoires cachés",
-        "searchNoIgnore": "Ignorer les fichiers d'ignore comme .gitignore",
-        "searchFollowSymlinks": "Les liens symboliques doivent-ils être suivis",
-        "watcherUsePolling": "Utiliser le polling. Le polling peut conduire à une utilisation élevée du CPU mais est nécessaire pour surveiller les fichiers sur un réseau"
+        "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
       }
     },
     "categories": {
@@ -596,7 +587,6 @@
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "Choisir la méthode d'installation :",
         "retestPicgo": "Retester",
         "lastDetectionTime": "Dernière détection",

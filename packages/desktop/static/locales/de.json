@@ -364,7 +364,7 @@
       "items": {
         "autoSave": "Den bearbeiteten Inhalt automatisch speichern",
         "autoSaveDelay": "Die Zeit in ms nach einer Änderung, bis die Datei gespeichert wird",
-        "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch zu LF normalisieren und optional nachgestellte neue Zeilen",
+        "autoNormalizeLineEndings": "Zeilenenden beim Öffnen von Dateien automatisch normalisieren. Wenn deaktiviert, werden Dateien unverändert geöffnet.",
         "titleBarStyle": "Der Titelleisten-Stil (nur Windows und Linux-System)",
         "openFilesInNewWindow": "Dateien in einem neuen Fenster öffnen",
         "openFolderInNewWindow": "Ordner über Menü in einem neuen Fenster öffnen",
@@ -413,7 +413,6 @@
         "followSystemTheme": "Systemdesign folgen",
         "lightModeTheme": "Design, das verwendet werden soll, wenn sich das System im hellen Modus befindet",
         "darkModeTheme": "Design, das verwendet werden soll, wenn sich das System im dunklen Modus befindet",
-        "customCss": "Benutzerdefiniertes CSS für das aktuelle Theme",
         "spellcheckerEnabled": "Ob Rechtschreibprüfung aktiviert ist",
         "spellcheckerNoUnderline": "Rechtschreibfehler nicht unterstreichen",
         "spellcheckerLanguage": "Die Rechtschreibprüfungs-Sprache",
@@ -421,15 +420,8 @@
         "imagePreferRelativeDirectory": "Ob das relative Bildverzeichnis bevorzugt werden soll",
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
-        "sideBarVisibility": "Ob die Seitenleiste sichtbar ist",
-        "tabBarVisibility": "Ob die Tabs angezeigt werden",
-        "sourceCodeModeEnabled": "Ob der Quellcode-Modus standardmäßig aktiviert ist",
-        "searchExclusions": "Liste der Glob-Muster, die von der Suche ausgeschlossen werden sollen",
-        "searchMaxFileSize": "Die maximale Dateigröße (<maxFileSize><suffix>). Suffixe von K, M oder G sind erlaubt, wenn kein Suffix angegeben ist, wird die Zahl als Bytes behandelt",
-        "searchIncludeHidden": "Ob in versteckten Dateien und Verzeichnissen gesucht werden soll",
-        "searchNoIgnore": "Ob Ignore-Dateien wie .gitignore ignoriert werden sollen",
-        "searchFollowSymlinks": "Ob symbolische Links verfolgt werden sollen",
-        "watcherUsePolling": "Ob Polling verwendet werden soll. Polling kann zu hoher CPU-Auslastung führen, ist aber notwendig, um Dateien über ein Netzwerk zu überwachen"
+        "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
       }
     },
     "categories": {
