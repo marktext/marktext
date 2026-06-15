@@ -3,15 +3,11 @@ import { delay } from '@/util'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
-import type { IFileState } from '@shared/types/files'
+import type { EditorState } from '@/store/editor'
 
 interface EncodingSubcommand {
   id: string
   description: string
-}
-
-interface EditorState {
-  currentFile: IFileState | null
 }
 
 class FileEncodingCommand {

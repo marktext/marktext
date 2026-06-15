@@ -29,15 +29,7 @@ interface TreeFile {
   isMarkdown: boolean
 }
 
-interface AddFileInput {
-  pathname: string
-  name: string
-  birthTime?: number | Date
-  mtimeMs?: number
-  isDirectory: false
-  isFile: true
-  isMarkdown: boolean
-}
+type AddFileInput = Omit<TreeFile, 'id'>
 
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 

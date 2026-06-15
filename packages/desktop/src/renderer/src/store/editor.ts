@@ -842,11 +842,11 @@ export const useEditorStore = defineStore('editor', {
         )
         bus.emit(
           'cmd::register-command',
-          new LineEndingCommand(this as unknown as { currentFile: IFileState })
+          new LineEndingCommand(this)
         )
         bus.emit(
           'cmd::register-command',
-          new TrailingNewlineCommand(this as unknown as { currentFile: IFileState })
+          new TrailingNewlineCommand(this)
         )
 
         setTimeout(() => {

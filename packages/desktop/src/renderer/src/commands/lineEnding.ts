@@ -1,5 +1,5 @@
 import { delay } from '@/util'
-import type { IFileState } from '@shared/types/files'
+import type { EditorState } from '@/store/editor'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -11,10 +11,6 @@ interface LineEndingSubcommand {
   id: string
   description: string
   value: 'crlf' | 'lf'
-}
-
-interface EditorState {
-  currentFile: IFileState
 }
 
 class LineEndingCommand {
@@ -49,7 +45,9 @@ class LineEndingCommand {
   }
 
   run = async(): Promise<void> => {
-    const { lineEnding } = this._editorState.currentFile
+    const { currentFile } = this._editorState
+    if (!currentFile) return
+    const { lineEnding } = currentFile
     if (lineEnding === 'crlf') {
       this.subcommandSelectedIndex = 0
       this.subcommands[0].description = `${crlfDescription} - current`
