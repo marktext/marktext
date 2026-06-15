@@ -59,6 +59,62 @@ test.describe('reference link', () => {
         await expect(anchor).toBeVisible();
         await expect(anchor).toHaveAttribute('href', 'https://example.com');
     });
+
+    test('editing the definition URL re-resolves the link href on re-render', async ({ page }) => {
+        // `InlineRenderer.collectReferenceDefinitions()` rebuilds the labels
+        // Map from the JSON state on every render pass, and `referenceLink.ts`
+        // reads `parent.labels.get(key)` for the href. Replacing the document
+        // with an updated definition therefore re-resolves `[a][r]` against the
+        // new URL when the link block re-patches.
+        await page.evaluate(() => {
+            window.muya!.setContent('[a][r]\n\n[r]: http://example.com\n');
+        });
+
+        const anchor = page.locator(editor.referenceLink).first();
+        await expect(anchor).toBeVisible();
+        await expect(anchor).toHaveAttribute('href', 'http://example.com');
+
+        // Swap only the definition's URL; the inline `[a][r]` text is unchanged.
+        await page.evaluate(() => {
+            window.muya!.setContent('[a][r]\n\n[r]: http://updated.example.org\n');
+        });
+
+        // After re-render the anchor mounts again and resolves the new href.
+        const updated = page.locator(editor.referenceLink).first();
+        await expect(updated).toBeVisible();
+        await expect(updated).toHaveAttribute('href', 'http://updated.example.org');
+
+        const md = await page.evaluate(() => window.muya!.getMarkdown());
+        expect(md).toContain('[a][r]');
+        expect(md).toContain('[r]: http://updated.example.org');
+    });
+
+    test('removing the definition leaves the reference unresolved (no anchor, literal text)', async ({ page }) => {
+        // The lexer only emits a `reference_link` token when the label is
+        // present in the labels Map (lexer.ts: `labels.has(...)` guard). With a
+        // matching definition the reference resolves to `a.mu-reference-link`.
+        // Dropping the definition means `[a][r]` is never tokenized as a
+        // reference at all — it renders as literal text, no anchor, no
+        // `span.mu-reference-link` either.
+        await page.evaluate(() => {
+            window.muya!.setContent('[a][r]\n\n[r]: http://example.com\n');
+        });
+
+        await expect(page.locator(editor.referenceLink).first()).toHaveAttribute(
+            'href',
+            'http://example.com',
+        );
+
+        await page.evaluate(() => {
+            window.muya!.setContent('[a][r]\n');
+        });
+
+        // No reference-link element of any kind survives an unresolved label.
+        await expect(page.locator('.mu-reference-link')).toHaveCount(0);
+        // The raw text round-trips through getMarkdown unchanged.
+        const md = await page.evaluate(() => window.muya!.getMarkdown());
+        expect(md).toContain('[a][r]');
+    });
 });
 
 test.describe('reference image', () => {

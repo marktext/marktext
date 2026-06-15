@@ -1,5 +1,6 @@
 import type { TState } from '@muyajs/core';
 import { expect, test } from '../fixtures/muya';
+import { getMarkdown } from '../helpers/api';
 import { editor } from '../helpers/selectors';
 
 /**
@@ -67,5 +68,92 @@ test.describe('options / disableHtml', () => {
         const preview = wrapper.locator(editor.htmlPreview);
         const injected = preview.locator('.injected');
         await expect(injected).toHaveCount(1);
+    });
+
+    /**
+     * CHARACTERIZATION — inline raw-html is NOT gated by `disableHtml`.
+     *
+     * Source of truth: `disableHtml` is read in exactly three block-level
+     * spots —
+     *   - `packages/core/src/block/commonMark/html/index.ts` (pushes the
+     *     `mu-disable-html-render` class onto the html-BLOCK wrapper),
+     *   - `packages/core/src/block/commonMark/html/htmlPreview.ts` +
+     *     `packages/core/src/utils/index.ts::sanitize` (escapes the
+     *     html-BLOCK preview),
+     *   - `packages/core/src/ui/previewToolBar/index.ts` (toolbar gating).
+     *
+     * The inline pipeline never consults it: neither
+     * `packages/core/src/inlineRenderer/lexer.ts` nor
+     * `packages/core/src/inlineRenderer/renderer/htmlTag.ts` reference
+     * `disableHtml`. So an inline `<u>…</u>` / `<b>…</b>` token inside a
+     * paragraph still renders as a LIVE element (a real `<u>`/`<b>` carrying
+     * `.mu-inline-rule.mu-raw-html`) even when `disableHtml: true`.
+     *
+     * That contradicts the intuitive expectation that `disableHtml` would
+     * also neutralize inline HTML — see `suspectedBugs`. These tests pin the
+     * actual behavior so the gap is visible if it ever changes.
+     */
+    test('disableHtml: true — inline <u> raw-html STILL renders as a live element (not source)', async ({ page }) => {
+        await page.evaluate(() => {
+            window.__e2e!.rebuildMuya({ disableHtml: true });
+            window.muya!.setContent([{
+                name: 'paragraph',
+                text: '<u>under</u>',
+            }] as TState[]);
+        });
+
+        // No block-level disable class is applied — that flag is html-BLOCK
+        // only, and this is a paragraph with an inline html_tag token.
+        await expect(page.locator(editor.htmlDisabled)).toHaveCount(0);
+        // The html-block wrapper is never created for inline html either.
+        await expect(page.locator(editor.htmlBlock)).toHaveCount(0);
+
+        // The inline raw-html renders as a live `<u>` element (NOT escaped
+        // source). The `<u>` carries the `.mu-raw-html` inline marker class.
+        const live = page.locator('u.mu-raw-html');
+        await expect(live).toHaveCount(1);
+        await expect(live).toBeVisible();
+        // The visible content of the rendered element is just the inner text,
+        // not the literal tag markup.
+        await expect(live).toHaveText('under');
+
+        // The original source is preserved on the element's `data-raw`
+        // attribute (used for round-trip / caret editing).
+        await expect(live).toHaveAttribute('data-raw', '<u>under</u>');
+
+        // Round-trips losslessly back to the raw-html source.
+        expect(await getMarkdown(page)).toBe('<u>under</u>\n');
+    });
+
+    test('disableHtml: true — inline <b> raw-html renders the same as with disableHtml: false', async ({ page }) => {
+        // disableHtml: true
+        await page.evaluate(() => {
+            window.__e2e!.rebuildMuya({ disableHtml: true });
+            window.muya!.setContent([{
+                name: 'paragraph',
+                text: '<b>strong</b>',
+            }] as TState[]);
+        });
+        const liveEnabled = page.locator('b.mu-raw-html');
+        await expect(liveEnabled).toHaveCount(1);
+        await expect(liveEnabled).toHaveText('strong');
+        const markdownEnabled = await getMarkdown(page);
+
+        // disableHtml: false (default) — identical inline outcome, proving the
+        // flag has no effect on inline html rendering.
+        await page.evaluate(() => {
+            window.__e2e!.rebuildMuya({ disableHtml: false });
+            window.muya!.setContent([{
+                name: 'paragraph',
+                text: '<b>strong</b>',
+            }] as TState[]);
+        });
+        const liveDefault = page.locator('b.mu-raw-html');
+        await expect(liveDefault).toHaveCount(1);
+        await expect(liveDefault).toHaveText('strong');
+        const markdownDefault = await getMarkdown(page);
+
+        expect(markdownEnabled).toBe(markdownDefault);
+        expect(markdownDefault).toBe('<b>strong</b>\n');
     });
 });
