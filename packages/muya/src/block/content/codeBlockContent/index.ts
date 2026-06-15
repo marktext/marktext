@@ -1,5 +1,5 @@
 import type { Muya } from '../../../muya';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type {
     CodeContentState,
     ICodeBlockState,
@@ -138,7 +138,7 @@ class CodeBlockContent extends Content {
             (this.outContainer?.attachments?.head as HTMLPreview).update(text);
     }
 
-    override update(_cursor: ICursor, highlights = []) {
+    override update(_cursor?: IRenderCursor, highlights = []) {
         const { lang, text } = this;
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];

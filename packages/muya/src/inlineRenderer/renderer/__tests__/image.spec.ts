@@ -2,7 +2,7 @@
 
 import type { VNode } from 'snabbdom';
 import type Format from '../../../block/base/format';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type { ImageToken } from '../../types';
 import type Renderer from '../index';
 import { describe, expect, it, vi } from 'vitest';
@@ -91,11 +91,11 @@ function findImgSrc(vnodes: VNode | VNode[]): string | undefined {
 }
 
 // Narrow casts shared by every test: the fake renderer and block stubs
-// don't satisfy the full Renderer / Format / ICursor surface, but
+// don't satisfy the full Renderer / Format / IRenderCursor surface, but
 // `image()` only touches the loadImageAsync / urlMap / muya fields and
 // the token range.
 const fakeBlock = {} as unknown as Format;
-const fakeCursor = {} as unknown as ICursor;
+const fakeCursor = {} as unknown as IRenderCursor;
 function asRenderer(r: IFakeRenderer): Renderer {
     return r as unknown as Renderer;
 }

@@ -1,5 +1,5 @@
 import type { Muya } from '../../../muya';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type Table from '../../gfm/table';
 import type Cell from '../../gfm/table/cell';
 import type Row from '../../gfm/table/row';
@@ -46,7 +46,7 @@ class TableCellContent extends Format {
         return this.table;
     }
 
-    override update(cursor: ICursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights = []) {
         return this.inlineRenderer.patch(this, cursor, highlights);
     }
 

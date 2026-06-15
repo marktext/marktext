@@ -6,7 +6,7 @@
 import type Content from '../block/base/content';
 import type { ScrollPage } from '../block/scrollPage';
 import type { TState } from '../state/types';
-import type { ICursor, ISelection } from './types';
+import type { IPathCursor, ISelection } from './types';
 
 /** One end of a source-mode (CodeMirror) selection: a `{ line, ch }` offset. */
 export interface IIndexPosition {
@@ -113,7 +113,7 @@ function _findSentinel(scrollPage: ScrollPage, sentinel: string): ISentinelHit |
 
 /**
  * Resolve the index cursor against the live (sentinel-bearing) block tree into
- * a PATH-ONLY `ICursor` (json paths + offsets), or `null` when neither sentinel
+ * a PATH-ONLY `IPathCursor` (json paths + offsets), or `null` when neither sentinel
  * resolved to a content block.
  *
  * Only the plain `anchorPath`/`focusPath` arrays are captured (snapshotted from
@@ -126,7 +126,7 @@ function _findSentinel(scrollPage: ScrollPage, sentinel: string): ISentinelHit |
  * The returned offsets are sentinel-free: the focus offset is decremented when
  * the anchor sentinel precedes it in the same block.
  */
-export function resolveSentinelCursor(scrollPage: ScrollPage): ICursor | null {
+export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | null {
     const anchorHit = _findSentinel(scrollPage, ANCHOR_SENTINEL);
     const focusHit = _findSentinel(scrollPage, FOCUS_SENTINEL);
 

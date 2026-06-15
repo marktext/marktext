@@ -7,23 +7,37 @@ export interface INodeOffset {
     offset: number;
 }
 
-// TODO: @JOCS, optimization of Cursor type, split it into for getCursor return type and setSelection params type?
-export interface ICursor {
+export interface IContentCursor extends ISelection {
+    start: INodeOffset;
+    end: INodeOffset;
+}
+
+export interface IRenderCursor {
+    start?: INodeOffset;
+    end?: INodeOffset;
+    anchor?: INodeOffset;
+    focus?: INodeOffset;
+    block?: ContentBlock;
+}
+
+export interface IPublicCursorInput {
     start?: INodeOffset | null;
     end?: INodeOffset | null;
-    block?: ContentBlock;
-    path?: TBlockPath;
-    // The same as TSelection
     anchor?: INodeOffset | null;
     focus?: INodeOffset | null;
+    block?: ContentBlock;
+    path?: TBlockPath;
     anchorBlock?: ContentBlock;
     anchorPath?: TBlockPath;
     focusBlock?: ContentBlock;
     focusPath?: TBlockPath;
-    isCollapsed?: boolean;
-    isSelectionInSameBlock?: boolean;
-    direction?: SelectionDirection;
-    type?: SelectionCaretType;
+}
+
+export interface IPathCursor {
+    anchor: INodeOffset;
+    anchorPath: TBlockPath;
+    focus: INodeOffset;
+    focusPath: TBlockPath;
 }
 
 // One endpoint of a selection: the offset plus the live block reference and its

@@ -1,7 +1,7 @@
 import type Format from '../block/base/format';
 import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
-import type { ICursor } from '../selection/types';
+import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TContainerState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import logger from '../utils/logger';
@@ -59,7 +59,7 @@ class InlineRenderer {
         });
     }
 
-    patch(block: Format, cursor?: ICursor, highlights: IHighlight[] = []) {
+    patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
         this.collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())

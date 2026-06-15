@@ -3,7 +3,7 @@ import type Parent from './block/base/parent';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
-import type { ICursor, IHistorySelection } from './selection/types';
+import type { IHistorySelection, IPublicCursorInput } from './selection/types';
 import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
@@ -737,13 +737,13 @@ export class Muya {
      * resolve and pass the block instance. No-op when the target can't be
      * resolved.
      */
-    setCursor(cursor: ICursor) {
+    setCursor(cursor: IPublicCursorInput) {
         const { scrollPage } = this.editor;
         if (!scrollPage)
             return;
 
         // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
-        // `{ start, end, path }`/`block` shapes of ICursor.
+        // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
         const anchor = cursor.anchor ?? cursor.start ?? null;
         const focus = cursor.focus ?? cursor.end ?? anchor;
         const anchorPath = cursor.anchorPath ?? cursor.path;

@@ -4,7 +4,7 @@ import type {
     TextToken,
     Token,
 } from '../../inlineRenderer/types';
-import type { ICursor } from '../../selection/types';
+import type { IContentCursor, IRenderCursor } from '../../selection/types';
 import type { IBulletListState, IListItemState, IOrderListState, IParagraphState } from '../../state/types';
 import type { Nullable } from '../../types';
 import type { IImageInfo } from '../../utils/image';
@@ -143,7 +143,7 @@ function getOffset(offset: number, token: Token) {
     }
 }
 
-function clearFormat(token: Token, cursor: ICursor) {
+function clearFormat(token: Token, cursor: IContentCursor) {
     switch (token.type) {
         case 'strong':
 
@@ -300,7 +300,7 @@ class Format extends Content {
     }
 
     // TODO: @JOCS remove use this.selection directly
-    checkNeedRender(cursor: ICursor = { anchor: this.selection.anchor ?? null, focus: this.selection.focus ?? null }) {
+    checkNeedRender(cursor: IRenderCursor = { anchor: this.selection.anchor ?? undefined, focus: this.selection.focus ?? undefined }) {
         const { labels } = this.inlineRenderer;
         const { text } = this;
         const { start: cStart, end: cEnd, anchor, focus } = cursor;
@@ -518,7 +518,6 @@ class Format extends Content {
 
             const cursor = Object.assign({}, currentCursor, {
                 block: this,
-                path: this.path,
             });
 
             // TODO: The codes bellow maybe is wrong? and remove use this.selection directly
@@ -565,7 +564,7 @@ class Format extends Content {
             || focus.offset !== oldFocus?.offset
         ) {
             const needUpdate = this.checkNeedRender({ anchor, focus });
-            const cursor = { anchor, focus, block: this, path: this.path };
+            const cursor = { anchor, focus, block: this };
 
             if (needUpdate)
                 this.update(cursor);
@@ -645,7 +644,6 @@ class Format extends Content {
         this.text = text;
 
         const cursor = {
-            path: this.path,
             block: this,
             anchor: {
                 offset: start.offset,
@@ -1519,7 +1517,7 @@ class Format extends Content {
         cursorBlock.setCursor(0, 0, true);
     }
 
-    getFormatsInRange(cursor = this.getCursor()) {
+    getFormatsInRange(cursor: IContentCursor | null = this.getCursor()) {
         if (cursor == null)
             return { formats: [], tokens: [], neighbors: [] };
 
@@ -1591,7 +1589,7 @@ class Format extends Content {
         // cache delta
         if (type === 'clear') {
             for (const neighbor of neighbors)
-                clearFormat(neighbor, { start, end });
+                clearFormat(neighbor, cursor);
 
             start.offset += start.delta;
             end.offset += end.delta;
@@ -1600,7 +1598,7 @@ class Format extends Content {
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
-                clearFormat(token, { start, end });
+                clearFormat(token, cursor);
 
             start.offset += start.delta;
             end.offset += end.delta;
@@ -1609,7 +1607,7 @@ class Format extends Content {
         else {
             if (currentNeighbors.length) {
                 for (const neighbor of currentNeighbors)
-                    clearFormat(neighbor, { start, end });
+                    clearFormat(neighbor, cursor);
             }
 
             start.offset += start.delta;

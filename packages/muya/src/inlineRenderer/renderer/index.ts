@@ -2,7 +2,7 @@
 import type { VNode } from 'snabbdom';
 import type Format from '../../block/base/format';
 import type { Muya } from '../../index';
-import type { ICursor } from '../../selection/types';
+import type { IRenderCursor } from '../../selection/types';
 import type InlineRenderer from '../index';
 import type { ISyntaxRenderOptions, Token } from '../types';
 import { CLASS_NAMES } from '../../config';
@@ -108,7 +108,7 @@ class Renderer {
 
     constructor(public muya: Muya, public parent: InlineRenderer) {}
 
-    checkConflicted(block: Format, token: Token, cursor: ICursor = {}) {
+    checkConflicted(block: Format, token: Token, cursor: IRenderCursor = {}) {
         const anchor = cursor.anchor || cursor.start;
         const focus = cursor.focus || cursor.end;
         if (!anchor || !focus || (cursor.block && cursor.block !== block))
@@ -126,7 +126,7 @@ class Renderer {
         outerClass: string | undefined,
         block: Format,
         token: Token,
-        cursor: ICursor,
+        cursor: IRenderCursor,
     ) {
         return (
             outerClass
@@ -155,7 +155,7 @@ class Renderer {
         return map[name](opts);
     }
 
-    output(tokens: Token[], block: Format, cursor: ICursor) {
+    output(tokens: Token[], block: Format, cursor: IRenderCursor) {
         const children: VNode[] = tokens.reduce(
             (acc, token) => [
                 ...acc,

@@ -1,6 +1,6 @@
 import type { Muya } from '../../../index';
 import type { ImageToken, LinkToken, Token } from '../../../inlineRenderer/types';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
     IBulletListState,
@@ -100,7 +100,7 @@ class ParagraphContent extends Format {
         return this.parent;
     }
 
-    override update(cursor?: ICursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights = []) {
         this.inlineRenderer.patch(this, cursor, highlights);
         const { label } = this.inlineRenderer.getLabelInfo(this);
 

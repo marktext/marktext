@@ -1,6 +1,6 @@
 import type { IHighlight } from '../../inlineRenderer/types';
 import type { Muya } from '../../muya';
-import type { ICursor, INodeOffset } from '../../selection/types';
+import type { IContentCursor, INodeOffset, IRenderCursor } from '../../selection/types';
 import type { Nullable } from '../../types';
 import type { TBlockPath } from '../types';
 import type Parent from './parent';
@@ -288,7 +288,7 @@ class Content extends TreeNode {
     /**
      * Get cursor if selection is in this block.
      */
-    getCursor() {
+    getCursor(): IContentCursor | null {
         const selection = this.selection.getSelection();
         if (selection == null)
             return null;
@@ -328,14 +328,14 @@ class Content extends TreeNode {
         const focus = { offset: end, block: this, path: this.path };
 
         if (needUpdate)
-            this.update({ anchor, focus, block: this, path: this.path });
+            this.update({ anchor, focus, block: this });
 
         this.muya.editor.activeContentBlock = this;
 
         this.selection.setSelection(anchor, focus);
     }
 
-    update(_cursor?: ICursor, _highlights: IHighlight[] = []) {
+    update(_cursor?: IRenderCursor, _highlights: IHighlight[] = []) {
         const { text } = this;
         this.domNode!.innerHTML = `<span class="mu-syntax-text">${text}</span>`;
     }

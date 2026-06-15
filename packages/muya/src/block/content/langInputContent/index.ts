@@ -1,5 +1,5 @@
 import type { Muya } from '../../../muya';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type { ICodeBlockState } from '../../../state/types';
 import type CodeBlock from '../../commonMark/codeBlock';
 import { CLASS_NAMES } from '../../../config';
@@ -28,7 +28,7 @@ class LangInputContent extends Content {
         return this.parent;
     }
 
-    override update(_cursor?: ICursor, highlights = []) {
+    override update(_cursor?: IRenderCursor, highlights = []) {
         this.domNode!.innerHTML = escapeLangInputInnerHtml(this.text, highlights);
     }
 

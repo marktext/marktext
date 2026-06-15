@@ -1,12 +1,12 @@
 import type { h } from 'snabbdom';
 import type Format from '../block/base/format';
-import type { ICursor } from '../selection/types';
+import type { IRenderCursor } from '../selection/types';
 
 export type H = typeof h;
 
 export interface ISyntaxRenderOptions {
     h: H;
-    cursor: ICursor;
+    cursor: IRenderCursor;
     block: Format;
     token: Token;
     outerClass?: string;
