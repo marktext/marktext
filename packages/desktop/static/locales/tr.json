@@ -1,0 +1,1398 @@
+{
+  "menu": {
+    "counter": {
+      "words": "Sözcükler",
+      "characters": "Karakterler",
+      "paragraphs": "Paragraflar"
+    },
+    "file": {
+      "file": "Dosya",
+      "new": "Yeni",
+      "newTab": "Yeni Sekme",
+      "newWindow": "Yeni Pencere",
+      "open": "Aç",
+      "openFile": "Dosya Aç...",
+      "openFolder": "Klasör Aç...",
+      "openRecent": "Son Kullanılanları Aç",
+      "clearRecentlyUsed": "Son Kullanılanları Temizle",
+      "save": "Kaydet",
+      "saveAs": "Farklı Kaydet...",
+      "autoSave": "Otomatik Kaydet",
+      "moveTo": "Taşı",
+      "rename": "Yeniden Adlandır",
+      "export": "Dışa Aktar",
+      "exportHtml": "HTML Olarak Dışa Aktar",
+      "exportPdf": "PDF Olarak Dışa Aktar",
+      "import": "İçe Aktar",
+      "print": "Yazdır",
+      "recent": "Son Dosyalar",
+      "close": "Kapat",
+      "closeAll": "Tümünü Kapat",
+      "closeTab": "Sekmeyi Kapat",
+      "closeWindow": "Pencereyi Kapat",
+      "quit": "Çıkış",
+      "preferences": "Tercihler"
+    },
+    "edit": {
+      "edit": "Düzen",
+      "undo": "Geri Al",
+      "redo": "Yinele",
+      "cut": "Kes",
+      "copy": "Kopyala",
+      "paste": "Yapıştır",
+      "copyAsRich": "Zengin Metin Olarak Kopyala",
+      "copyAsHtml": "HTML Olarak Kopyala",
+      "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
+      "selectAll": "Tümünü Seç",
+      "duplicate": "Çoğalt",
+      "createParagraph": "Paragraf Oluştur",
+      "deleteParagraph": "Paragrafı Sil",
+      "find": "Bul",
+      "replace": "Değiştir",
+      "findNext": "Sonrakini Bul",
+      "findPrevious": "Öncekini Bul",
+      "findInFolder": "Klasörde Bul",
+      "screenshot": "Ekran Görüntüsü",
+      "lineEnding": "Satır Sonu",
+      "lineEndingCrlf": "CRLF(Windows)",
+      "lineEndingLf": "LF(Linux/Mac)"
+    },
+    "paragraph": {
+      "title": "Paragraf",
+      "paragraph": "Paragraf",
+      "heading1": "Başlık 1",
+      "heading2": "Başlık 2",
+      "heading3": "Başlık 3",
+      "heading4": "Başlık 4",
+      "heading5": "Başlık 5",
+      "heading6": "Başlık 6",
+      "promoteHeading": "Başlığı Yükselt",
+      "demoteHeading": "Başlığı Alçalt",
+      "table": "Tablo",
+      "codeFences": "Kod Blokları",
+      "codeBlock": "Kod Bloğu",
+      "quoteBlock": "Alıntı Bloğu",
+      "mathBlock": "Matematik Bloğu",
+      "htmlBlock": "HTML Bloğu",
+      "quote": "Alıntı",
+      "orderedList": "Sıralı Liste",
+      "bulletList": "Sırasız Liste",
+      "unorderedList": "Sırasız Liste",
+      "taskList": "Görev Listesi",
+      "looseListItem": "Gevşek Liste Öğesi",
+      "paragraphItem": "Paragraf Öğesi",
+      "horizontalRule": "Yatay Çizgi",
+      "frontMatter": "Ön Bilgi"
+    },
+    "window": {
+      "title": "Pencere",
+      "window": "Pencere",
+      "minimize": "Simge Durumuna Küçült",
+      "close": "Kapat",
+      "zoom": "Yakınlaştırma",
+      "zoomIn": "Yakınlaştır",
+      "zoomOut": "Uzaklaştır",
+      "fullScreen": "Tam Ekran",
+      "bringAllToFront": "Tümünü Öne Getir",
+      "alwaysOnTop": "Her Zaman Üstte"
+    },
+    "help": {
+      "help": "Yardım",
+      "markdownReference": "Markdown Başvurusu",
+      "changelog": "Değişiklik Günlüğü",
+      "askQuestion": "Soru Sor",
+      "reportBug": "Hata Bildir",
+      "viewSource": "Kaynağı Görüntüle",
+      "followUs": "Bizi Takip Edin",
+      "support": "MarkText'e Destek Ol",
+      "license": "Lisans",
+      "checkForUpdates": "Güncellemeleri Denetle",
+      "aboutMarkText": "MarkText Hakkında",
+      "about": "Hakkında",
+      "checkUpdates": "Güncellemeleri Denetle"
+    },
+    "marktext": {
+      "title": "MarkText",
+      "marktext": "MarkText",
+      "about": "MarkText Hakkında",
+      "checkUpdates": "Güncellemeleri Denetle...",
+      "preferences": "Tercihler",
+      "services": "Hizmetler",
+      "hide": "MarkText'i Gizle",
+      "hideMarkText": "MarkText'i Gizle",
+      "hideOthers": "Diğerlerini Gizle",
+      "showAll": "Tümünü Göster",
+      "quit": "MarkText'ten Çık"
+    },
+    "view": {
+      "view": "Görünüm",
+      "toggleSidebar": "Kenar Çubuğunu Aç/Kapat",
+      "toggleTabbar": "Sekme Çubuğunu Aç/Kapat",
+      "commandPalette": "Komut Paleti",
+      "sourceCode": "Kaynak Kod Modu",
+      "sourceCodeMode": "Kaynak Kod Modu",
+      "typewriter": "Daktilo Modu",
+      "typewriterMode": "Daktilo Modu",
+      "focus": "Odak Modu",
+      "focusMode": "Odak Modu",
+      "showTabBar": "Sekme Çubuğunu Göster",
+      "toc": "İçindekiler",
+      "toggleTableOfContents": "İçindekileri Aç/Kapat",
+      "reloadImages": "Görselleri Yeniden Yükle",
+      "showDeveloperTools": "Geliştirici Araçlarını Göster",
+      "reloadWindow": "Pencereyi Yeniden Yükle"
+    },
+    "format": {
+      "format": "Biçim",
+      "bold": "Kalın",
+      "italic": "İtalik",
+      "underline": "Altı Çizili",
+      "strikethrough": "Üstü Çizili",
+      "code": "Satır İçi Kod",
+      "codeBlock": "Kod Bloğu",
+      "quote": "Alıntı",
+      "unorderedList": "Sırasız Liste",
+      "orderedList": "Sıralı Liste",
+      "taskList": "Görev Listesi",
+      "table": "Tablo",
+      "link": "Bağlantı",
+      "image": "Görsel",
+      "heading1": "Başlık 1",
+      "heading2": "Başlık 2",
+      "heading3": "Başlık 3",
+      "heading4": "Başlık 4",
+      "heading5": "Başlık 5",
+      "heading6": "Başlık 6",
+      "superscript": "Üst Simge",
+      "subscript": "Alt Simge",
+      "highlight": "Vurgu",
+      "inlineCode": "Satır İçi Kod",
+      "inlineMath": "Satır İçi Matematik",
+      "hyperlink": "Köprü",
+      "clearFormatting": "Biçimlendirmeyi Temizle",
+      "clearFormat": "Biçimlendirmeyi Temizle"
+    },
+    "theme": {
+      "theme": "&Tema",
+      "light": "Açık",
+      "dark": "Koyu",
+      "auto": "Otomatik",
+      "followThemDisabled": "Sistem temasını takip ederken tema seçimi devre dışı",
+      "lightThemes": "— Açık Temalar —",
+      "darkThemes": "— Koyu Temalar —",
+      "ayuDark": "Ayu Dark",
+      "ayuLight": "Ayu Light",
+      "ayuMirage": "Ayu Mirage",
+      "cadmiumDark": "Cadmium Dark",
+      "cadmiumLight": "Cadmium Light",
+      "catppuccinLatte": "Catppuccin Latte",
+      "catppuccinMocha": "Catppuccin Mocha",
+      "cyberdream": "cyberdream",
+      "dracula": "Dracula",
+      "everforestDark": "Everforest Dark",
+      "everforestLight": "Everforest Light",
+      "graphiteLight": "Graphite Light",
+      "gruvboxDark": "Gruvbox Dark",
+      "gruvboxLight": "Gruvbox Light",
+      "horizonDark": "Horizon Dark",
+      "kanagawa": "Kanagawa",
+      "materialDark": "Material Dark",
+      "monokaiPro": "Monokai Pro",
+      "nightfox": "Nightfox",
+      "nord": "Nord",
+      "oneDark": "One Dark",
+      "oxocarbonDark": "Oxocarbon Dark",
+      "palenight": "Palenight",
+      "rosePine": "Rosé Pine",
+      "rosePineDawn": "Rosé Pine Dawn",
+      "rosePineMoon": "Rosé Pine Moon",
+      "solarizedDark": "Solarized Dark",
+      "solarizedLight": "Solarized Light",
+      "synthwave84": "Synthwave '84",
+      "tokyoNight": "Tokyo Night",
+      "tokyoNightLight": "Tokyo Night Light",
+      "tokyoNightStorm": "Tokyo Night Storm",
+      "ulyssesLight": "Ulysses Light"
+    }
+  },
+  "contextMenu": {
+    "cut": "Kes",
+    "copy": "Kopyala",
+    "paste": "Yapıştır",
+    "copyAsRich": "Zengin Metin Olarak Kopyala",
+    "copyAsHtml": "HTML Olarak Kopyala",
+    "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
+    "insertParagraphBefore": "Önüne Paragraf Ekle",
+    "insertParagraphAfter": "Arkasına Paragraf Ekle",
+    "spelling": "Yazım...",
+    "changeLanguage": "Dili Değiştir...",
+    "addToDictionary": "Sözlüğe Ekle",
+    "editDictionary": "Sözlüğü Düzenle...",
+    "sideBar": {
+      "newFile": "Yeni Dosya",
+      "newDirectory": "Yeni Klasör",
+      "copy": "Kopyala",
+      "cut": "Kes",
+      "paste": "Yapıştır",
+      "rename": "Yeniden Adlandır",
+      "moveToTrash": "Çöp Kutusuna Taşı",
+      "showInFolder": "Klasörde Göster"
+    },
+    "tabs": {
+      "close": "Kapat",
+      "closeOthers": "Diğerlerini kapat",
+      "closeSavedTabs": "Kaydedilmiş sekmeleri kapat",
+      "closeAllTabs": "Tüm sekmeleri kapat",
+      "rename": "Yeniden Adlandır",
+      "copyPath": "Yolu kopyala",
+      "showInFolder": "Klasörde göster"
+    }
+  },
+  "search": {
+    "searchPlaceholder": "Ara",
+    "caseSensitive": "Büyük/Küçük Harf Duyarlı",
+    "wholeWord": "Tam sözcük seç",
+    "useRegex": "Sorguyu RegEx olarak kullan",
+    "replacementPlaceholder": "Değiştirme",
+    "replaceAll": "Tümünü Değiştir",
+    "replaceSingle": "Tek Değiştir",
+    "invalidRegex": "Geçersiz düzenli ifade \"{pattern}\"",
+    "regexMatchEmpty": "Düzenli ifade boş dizeyle eşleşiyor \"{pattern}\"",
+    "searchResultInfo": "{fileCount} dosyada {matchCount} eşleşme",
+    "searchLimited": "Arama ilk {count} sonuçla sınırlandırıldı"
+  },
+  "sideBar": {
+    "search": {
+      "searchInFolder": "Klasörde ara...",
+      "noFolderOpen": "Açık klasör yok",
+      "noResultsFound": "Sonuç bulunamadı.",
+      "cancel": "İptal",
+      "openFolder": "Klasör Aç",
+      "showMoreMatches": "Daha fazla eşleşme göster"
+    },
+    "tree": {
+      "openedFiles": "Açık dosyalar",
+      "saveAll": "Tümünü Kaydet",
+      "closeAll": "Tümünü Kapat",
+      "emptyProject": "Boş proje",
+      "createFile": "Dosya Oluştur",
+      "openFolder": "Klasör Aç"
+    },
+    "toc": {
+      "title": "İçindekiler"
+    },
+    "icons": {
+      "files": "Dosyalar",
+      "search": "Ara",
+      "toc": "İçindekiler",
+      "settings": "Ayarlar"
+    }
+  },
+  "commandPalette": {
+    "placeholder": "Çalıştırmak için bir komut yazın",
+    "placeholders": {
+      "selectOption": "Bir seçenek seçin",
+      "searchFileToOpen": "Açılacak dosyayı arayın",
+      "selectLanguage": "Geçilecek dili seçin"
+    }
+  },
+  "exportSettings": {
+    "autoNumberingHeadings": "Başlıkları otomatik numaralandır",
+    "title": "Dışa Aktarma Seçenekleri",
+    "info": {
+      "label": "Bilgi",
+      "description": "Lütfen sayfa görünümünü özelleştirin ve devam etmek için \"dışa aktar\"a tıklayın."
+    },
+    "page": {
+      "label": "Sayfa",
+      "pageTitle": "Sayfa başlığı:",
+      "pageSize": "Sayfa boyutu:",
+      "landscapeOrientation": "Yatay yönlendirme:",
+      "pageMargin": "mm cinsinden sayfa kenar boşluğu:",
+      "topBottom": "Üst/Alt:",
+      "leftRight": "Sol/Sağ:",
+      "widthHeight": "mm cinsinden Genişlik/Yükseklik:"
+    },
+    "showFrontMatter": "Ön bilgiyi göster",
+    "style": {
+      "label": "Stil",
+      "overwriteThemeFont": "Tema yazı tipi ayarlarının üzerine yaz",
+      "fontFamily": "Yazı tipi ailesi:",
+      "fontSize": "Yazı tipi boyutu",
+      "lineHeight": "Satır yüksekliği"
+    },
+    "theme": {
+      "label": "Tema",
+      "description": "Bir tema seçerek veya el yapımı bir tema oluşturarak belge görünümünü değiştirebilirsiniz.",
+      "theme": "Tema"
+    },
+    "headerFooter": {
+      "allowStyled": "Stilli metne izin ver",
+      "customizeStyle": "Stili özelleştir",
+      "fontSize": "Yazı tipi boyutu",
+      "footerType": "Alt bilgi türü",
+      "headerType": "Üst bilgi türü",
+      "label": "Üst Bilgi ve Alt Bilgi",
+      "leftFooterText": "Sol alt bilgi metni",
+      "leftHeaderText": "Sol üst bilgi metni",
+      "mainFooterText": "Ana alt bilgi metni",
+      "mainHeaderText": "Ana üst bilgi metni",
+      "rightFooterText": "Sağ alt bilgi metni",
+      "rightHeaderText": "Sağ üst bilgi metni",
+      "description": "Üst bilgi ve/veya alt bilgi tanımlanmışsa metin tüm sayfalarda görünür."
+    },
+    "toc": {
+      "includeTopHeading": "En üst başlığı dahil et",
+      "includeTopHeadingDetail": "En üst başlık ayrıntısını dahil et",
+      "label": "İçindekiler",
+      "title": "İçindekiler"
+    },
+    "export": "Dışa Aktar...",
+    "options": {
+      "pageSizes": {
+        "a3": "A3 (297mm x 420mm)",
+        "a4": "A4 (210mm x 297mm)",
+        "a5": "A5 (148mm x 210mm)",
+        "legal": "US Legal (8.5\" x 13\")",
+        "letter": "US Letter (8.5\" x 11\")",
+        "tabloid": "Tabloid (17\" x 11\")",
+        "custom": "Özel"
+      },
+      "headerFooterTypes": {
+        "none": "Yok",
+        "singleCell": "Tek hücre",
+        "threeCells": "Üç hücre"
+      },
+      "headerFooterStyles": {
+        "default": "Varsayılan",
+        "simple": "Basit",
+        "styled": "Stilli"
+      },
+      "themes": {
+        "academic": "Akademik",
+        "default": "GitHub (Varsayılan)",
+        "liber": "Liber"
+      }
+    }
+  },
+  "table": {
+    "resizeTable": "Tabloyu Yeniden Boyutlandır",
+    "alignLeft": "Sola Hizala",
+    "alignCenter": "Ortala",
+    "alignRight": "Sağa Hizala",
+    "deleteTable": "Tabloyu Sil"
+  },
+  "recent": {
+    "noTabsOpen": "Açık sekmeniz yok.",
+    "newFile": "Yeni Dosya"
+  },
+  "import": {
+    "title": "İçe Aktar veya Aç",
+    "description": "İçeriklerinizi MarkText'e almak için buraya bırakın"
+  },
+  "preferences": {
+    "title": "Tercihler",
+    "search": {
+      "placeholder": "Tercihlerde ara...",
+      "optionalValues": "isteğe bağlı değerler",
+      "categories": {
+        "general": "Genel",
+        "editor": "Düzenleyici",
+        "markdown": "Markdown",
+        "theme": "Tema",
+        "image": "Görsel",
+        "view": "Görünüm",
+        "searcher": "Arayıcı",
+        "watcher": "İzleyici",
+        "spelling": "Yazım",
+        "custom css": "Özel CSS"
+      },
+      "items": {
+        "autoSave": "Düzenlenen içeriği otomatik olarak kaydet",
+        "autoSaveDelay": "Bir değişiklikten sonra dosyanın kaydedileceği süre (ms)",
+        "titleBarStyle": "Başlık çubuğu stili (yalnızca Windows ve Linux)",
+        "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
+        "openFolderInNewWindow": "Klasörü menü aracılığıyla yeni pencerede aç",
+        "zoom": "Yakınlaştırma düzeyi. 0.5 ile 2.0 arasında (dahil)",
+        "hideScrollbar": "Kaydırma çubuklarının gizlenip gizlenmeyeceği",
+        "wordWrapInToc": "İçindekilerde sözcük kaydırmanın etkinleştirilip etkinleştirilmeyeceği",
+        "fileSortBy": "Açık klasördeki dosyaları oluşturulma zamanı, değiştirilme zamanı ve başlığa göre sırala",
+        "startUpAction": "MarkText başladıktan sonraki eylem: son düzenlenen içeriği aç, belirtilen klasörü aç veya boş sayfa",
+        "restoreLayoutState": "Başlangıçta önceki düzenleyici durumunu geri yükle",
+        "defaultDirectoryToOpen": "startUp=folder olduğunda başlangıçta açılması gereken varsayılan klasör",
+        "language": "MarkText'in kullandığı dil",
+        "editorFontFamily": "Düzenleyici yazı tipi ailesi",
+        "fontSize": "Piksel cinsinden yazı tipi boyutu",
+        "lineHeight": "Satır Yüksekliği",
+        "wrapCodeBlocks": "Kod bloklarındaki metni kaydır",
+        "editorLineWidth": "Maksimum düzenleyici alanı genişliğini tanımlar. Boş bir dize veya ch (karakter), px (piksel) ya da % (yüzde) son ekleri kullanılabilir",
+        "codeFontSize": "Kod bloğundaki yazı tipi boyutu, aralık 12 ~ 18",
+        "codeFontFamily": "Kod bloğunda kullanılan yazı tipi ailesi",
+        "codeBlockLineNumbers": "Satır numaralarının gösterilip gösterilmeyeceği",
+        "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
+        "autoPairBracket": "Düzenlerken parantezleri otomatik tamamla",
+        "autoPairMarkdownSyntax": "Markdown söz dizimini otomatik tamamla",
+        "autoPairQuote": "Tırnak işaretlerini otomatik tamamla",
+        "endOfLine": "Her satırın sonunda kullanılan yeni satır karakteri. Varsayılan değer, işletim sisteminizin varsayılan yeni satır karakterini seçen 'default' değeridir",
+        "defaultEncoding": "Varsayılan dosya kodlaması",
+        "autoGuessEncoding": "Dosyaları açarken dosya kodlamasını otomatik olarak tahmin etmeyi dene",
+        "trimTrailingNewline": "Sondaki yeni satırı kırpma seçeneği",
+        "textDirection": "Metin yazım yönü",
+        "hideQuickInsertHint": "Paragrafları hızlı oluşturma ipucunu gizle",
+        "hideLinkPopup": "İmleç bağlantının üzerine geldiğinde bağlantı açılır penceresini gizle",
+        "autoCheck": "İlgili görevin otomatik olarak işaretlenip işaretlenmeyeceği",
+        "preferLooseListItem": "Tercih edilen liste türü",
+        "bulletListMarker": "Sırasız listede kullanılan işaret",
+        "orderListDelimiter": "Sıralı listede kullanılan ayraç",
+        "preferHeadingStyle": "MarkText'te tercih edilen başlık stili",
+        "tabSize": "Sekmeyi x boşlukla değiştir",
+        "listIndentation": "Liste girintisini seçin",
+        "frontmatterType": "Ön bilgi türü",
+        "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
+        "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "isHtmlEnabled": "HTML işlemeyi etkinleştir",
+        "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
+        "sequenceTheme": "Dizi diyagramı teması",
+        "theme": "MarkText'te kullanılan temayı seçin",
+        "followSystemTheme": "Sistem Temasını Takip Et",
+        "lightModeTheme": "Sistem açık moddayken kullanılacak tema",
+        "darkModeTheme": "Sistem koyu moddayken kullanılacak tema",
+        "customCss": "Geçerli temaya uygulanacak özel CSS",
+        "spellcheckerEnabled": "Yazım denetiminin etkinleştirilip etkinleştirilmeyeceği",
+        "spellcheckerNoUnderline": "Yazım hatalarının altını çizme",
+        "spellcheckerLanguage": "Yazım denetleyici dili",
+        "imageInsertAction": "Yerel klasörden görsel ekledikten sonraki varsayılan davranış",
+        "imagePreferRelativeDirectory": "Göreli görsel klasörünün tercih edilip edilmeyeceği",
+        "imageRelativeDirectoryBase": "Göreli görsellerin nereye kopyalanacağı",
+        "imageRelativeDirectoryName": "Göreli görsel klasörünün adı",
+        "sideBarVisibility": "Kenar çubuğunun görünür olup olmadığı",
+        "tabBarVisibility": "Sekmelerin gösterilip gösterilmediği",
+        "sourceCodeModeEnabled": "Kaynak kod modunun varsayılan olarak etkin olup olmadığı",
+        "searchExclusions": "Aramadan hariç tutulacak glob desenleri listesi",
+        "searchMaxFileSize": "Maksimum dosya boyutu (<maxFileSize><suffix>). K, M veya G son ekleri kullanılabilir; son ek verilmezse sayı bayt olarak kabul edilir",
+        "searchIncludeHidden": "Gizli dosya ve klasörlerde arama yapılıp yapılmayacağı",
+        "searchNoIgnore": ".gitignore gibi yoksayma dosyalarının yoksayılıp yoksayılmayacağı",
+        "searchFollowSymlinks": "Sembolik bağlantıların izlenip izlenmeyeceği",
+        "watcherUsePolling": "Yoklama kullanılıp kullanılmayacağı. Yoklama yüksek CPU kullanımına yol açabilir ancak ağ üzerindeki dosyaları izlemek için gereklidir"
+      }
+    },
+    "categories": {
+      "general": "Genel",
+      "editor": "Düzenleyici",
+      "markdown": "Markdown",
+      "spelling": "Yazım",
+      "theme": "Tema",
+      "image": "Görsel",
+      "keybindings": "Kısayol Tuşları"
+    },
+    "general": {
+      "title": "Genel",
+      "autoSave": {
+        "title": "Otomatik Kaydet",
+        "description": "Otomatik kaydet",
+        "delayDescription": "Otomatik kaydetme gecikmesi"
+      },
+      "window": {
+        "title": "Pencere",
+        "titleBarStyle": {
+          "title": "Başlık Çubuğu Stili",
+          "custom": "Özel",
+          "titleBarStyle": "Başlık Çubuğu Stili",
+          "native": "Yerel"
+        },
+        "requiresRestart": "Yeniden başlatma gerektirir",
+        "hideScrollbars": "Kaydırma çubuklarını gizle",
+        "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
+        "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",
+        "zoom": "Yakınlaştırma"
+      },
+      "startup": {
+        "title": "Başlangıç Seçenekleri",
+        "layoutOptions": "Düzen Seçenekleri",
+        "startupFilesFolders": "Başlangıç Dosyaları/Klasörleri",
+        "restorePreviousState": "Önceki düzenleyici durumunu geri yükle",
+        "openBlankState": "Boş durum aç",
+        "openDefaultDirectory": "Varsayılan klasörü aç",
+        "openLastFolder": "Açık klasörü geri yükle",
+        "restoreAll": "Tüm açık dosya ve klasörleri geri yükle",
+        "selectFolder": "Klasör Seç",
+        "openBlankPage": "Boş sayfa aç"
+      },
+      "sidebar": {
+        "title": "Kenar Çubuğu",
+        "wrapTextInToc": "İçindekilerde metni kaydır",
+        "showOpenedFiles": "Açık dosyaları göster",
+        "excludePatterns": "Hariç tutma desenleri",
+        "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
+        "fileSortBy": {
+          "title": "Dosya Sıralama Ölçütü",
+          "creationTime": "Oluşturulma Zamanı",
+          "modificationTime": "Değiştirilme Zamanı",
+          "filename": "Dosya Adı"
+        },
+        "fileSortOrder": {
+          "title": "Sıralama Düzeni",
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "Önce En Eski",
+          "newestFirst": "Önce En Yeni"
+        }
+      },
+      "misc": {
+        "title": "Çeşitli",
+        "language": {
+          "title": "Dil",
+          "english": "English",
+          "chinese": "简体中文",
+          "traditionalChinese": "繁體中文",
+          "spanish": "Español",
+          "french": "Français",
+          "german": "Deutsch",
+          "japanese": "日本語",
+          "korean": "한국어",
+          "portuguese": "Português",
+          "turkish": "Türkçe"
+        }
+      }
+    },
+    "editor": {
+      "title": "Düzenleyici",
+      "textEditor": {
+        "title": "Metin Düzenleyici",
+        "fontSize": "Yazı tipi boyutu",
+        "lineHeight": "Satır yüksekliği",
+        "fontFamily": "Yazı tipi ailesi",
+        "maxWidth": "Maksimum genişlik",
+        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği"
+      },
+      "codeBlock": {
+        "title": "Kod Bloğu",
+        "fontSize": "Yazı tipi boyutu",
+        "fontFamily": "Yazı tipi ailesi",
+        "showLineNumbers": "Satır numaralarını göster",
+        "removeEmptyLines": "Boş satırları kaldır"
+      },
+      "writingBehavior": {
+        "title": "Yazma Davranışı",
+        "autoCloseBrackets": "Parantezleri otomatik kapat",
+        "autoCompleteMarkdown": "Markdown'u otomatik tamamla",
+        "autoCloseQuotes": "Tırnakları otomatik kapat"
+      },
+      "fileRepresentation": {
+        "title": "Dosya Gösterimi",
+        "tabWidth": "Sekme genişliği",
+        "lineSeparator": "Satır ayırıcı",
+        "defaultEncoding": "Varsayılan kodlama",
+        "autoDetectEncoding": "Kodlamayı otomatik algıla",
+        "trailingNewlines": {
+          "title": "Sondaki Yeni Satırlar",
+          "doNothing": "Hiçbir Şey Yapma",
+          "ensureOne": "Bir Tane Garanti Et",
+          "preserve": "Koru",
+          "trimAll": "Tümünü Kırp"
+        },
+        "endOfLine": {
+          "default": "Varsayılan",
+          "crlf": "CRLF(Windows)",
+          "lf": "LF(Linux/Mac)"
+        }
+      },
+      "misc": {
+        "title": "Çeşitli",
+        "textDirection": {
+          "title": "Metin Yönü",
+          "ltr": "Soldan Sağa",
+          "rtl": "Sağdan Sola"
+        },
+        "hideQuickInsertHint": "Hızlı ekleme ipucunu gizle",
+        "hideLinkPopup": "Bağlantı açılır penceresini gizle",
+        "autoCheck": "Otomatik işaretle",
+        "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
+        "wrapCodeBlocks": "Kod bloklarını kaydır"
+      }
+    },
+    "image": {
+      "title": "Görsel",
+      "actions": {
+        "upload": "Buluta yükle",
+        "folder": "Klasöre kopyala",
+        "path": "Mutlak yolu kullan"
+      },
+      "folderSetting": {
+        "title": "Klasör Ayarı",
+        "globalFolder": "Genel görsel klasörü",
+        "open": "Aç",
+        "showInFolder": "Klasörde Göster",
+        "preferRelative": "Göreli klasörü tercih et",
+        "relativeCopyLocation": "Görseli şuna göre kopyala",
+        "copyRelativeToFile": "Dosyaya göre",
+        "copyRelativeToFolder": "Klasöre göre",
+        "relativeFolderName": "Göreli klasör adı",
+        "filenameNote": "Dosya adı otomatik olarak oluşturulacak."
+      },
+      "imageInsertAction": {
+        "title": "Görsel ekleme eylemi",
+        "folder": "Klasöre yükle",
+        "path": "Yola kopyala",
+        "upload": "Buluta yükle",
+        "copyToFolder": "Klasöre kopyala",
+        "uploadToServer": "Sunucuya yükle"
+      },
+      "imageFolderPath": {
+        "title": "Görsel klasörü yolu",
+        "description": "Görsel klasörü yolu",
+        "selectFolder": "Klasör seç",
+        "relativePath": "Göreli yol",
+        "absolutePath": "Mutlak yol"
+      },
+      "cloudPictureBed": {
+        "title": "Bulut görsel deposu",
+        "github": "GitHub",
+        "smms": "SM.MS",
+        "qiniu": "Qiniu",
+        "upyun": "UpYun",
+        "tcyun": "Tencent Cloud",
+        "aliyun": "Alibaba Cloud",
+        "imgur": "Imgur",
+        "picgo": "PicGo"
+      },
+      "preferRelativeDirectory": {
+        "title": "Göreli klasörü tercih et",
+        "description": "Görseller için göreli klasörü tercih et"
+      },
+      "uploader": {
+        "title": "Görsel Yükleyici",
+        "currentUploader": "Geçerli Yükleyici: {name}",
+        "picgoNotInstalled": "PicGo yüklü değil",
+        "picgoDetectionStatus": "PicGo Algılama Durumu",
+        "picgoInstalled": "PicGo yüklü",
+        "picgoDetectionFailed": "PicGo algılaması başarısız",
+        "debugInfo": "Hata Ayıklama Bilgisi",
+        "installCommand": "Yükleme Komutu",
+        "npmInstallCommand": "npm install picgo -g",
+        "yarnInstallCommand": "yarn global add picgo",
+        "pnpmInstallCommand": "pnpm add -g picgo",
+        "chooseInstallMethod": "Yükleme yöntemini seçin:",
+        "retestPicgo": "Yeniden Test Et",
+        "detecting": "Algılanıyor",
+        "lastDetectionTime": "Son Algılama Zamanı",
+        "detectionStatus": "Algılama Durumu",
+        "picgoDetection": "PicGo Algılama",
+        "usageGuide": {
+          "title": "PicGo Temel Kullanım Kılavuzu",
+          "step1": "Yükleyiciyi Yapılandır",
+          "step1Description": "PicGo yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
+          "step2": "Görselleri Yükle",
+          "step2Description": "Görselleri yüklemek için aşağıdaki komutu kullanın:",
+          "step3": "Yapılandırmayı Görüntüle",
+          "step3Description": "Geçerli yapılandırmayı görüntülemek için aşağıdaki komutu kullanın:",
+          "documentation": "Tam belgeleri görüntüle"
+        },
+        "autoDetection": "Otomatik algılanıyor",
+        "lastSuccessTime": "Son başarı zamanı",
+        "neverDetected": "Hiç algılanmadı",
+        "neverSuccessful": "Hiç başarılı olmadı",
+        "configureUploader": "Yükleyiciyi Yapılandır",
+        "configureDescription": "PicGo yükleyicisini yapılandırmak için aşağıdaki komutu kullanın:",
+        "uploadImage": "Görselleri Yükle",
+        "uploadDescription": "Görselleri yüklemek için aşağıdaki komutu kullanın:",
+        "viewConfig": "Yapılandırmayı Görüntüle",
+        "viewConfigDescription": "Geçerli yapılandırmayı görüntülemek için aşağıdaki komutu kullanın:",
+        "viewDocumentation": "Tam belgeleri görüntüle",
+        "scriptDescription": "Betik Açıklaması",
+        "scriptLocation": "Betik Konumu",
+        "save": "Kaydet",
+        "saveConfig": "Yapılandırmayı Kaydet",
+        "scriptConfigSaved": "Betik yapılandırması kaydedildi",
+        "services": {
+          "picgo": "PicGo",
+          "cliScript": "CLI Betiği"
+        },
+        "pleaseInstall": "Lütfen yükleyin",
+        "scriptPath": "Betik yolu"
+      },
+      "defaultBehavior": "Görseli MarkText'e yapıştırdıktan veya sürükledikten sonraki varsayılan davranış"
+    },
+    "markdown": {
+      "title": "Markdown",
+      "listItem": {
+        "title": "Liste Öğesi",
+        "preferLooseListItem": "Gevşek liste öğesini tercih et",
+        "bulletListMarker": "Sırasız liste işareti",
+        "orderListDelimiter": "Sıralı liste ayracı",
+        "listIndentation": {
+          "title": "Liste Girintisi",
+          "dfm": "Varsayılan Biçim Modu",
+          "tab": "Sekme",
+          "oneSpace": "Bir Boşluk",
+          "twoSpaces": "İki Boşluk",
+          "threeSpaces": "Üç Boşluk",
+          "fourSpaces": "Dört Boşluk"
+        }
+      },
+      "heading": {
+        "title": "Başlık",
+        "preferHeadingStyle": "Başlık stilini tercih et"
+      },
+      "frontmatter": {
+        "title": "Ön Bilgi",
+        "frontmatterType": "Ön bilgi türü"
+      },
+      "extensions": {
+        "title": "Uzantılar",
+        "superSubScript": "Üst/Alt Simge",
+        "footnote": "Dipnot",
+        "isHtmlEnabled": "HTML etkin",
+        "isGitlabCompatibilityEnabled": "GitLab uyumluluğu",
+        "sequenceTheme": "Dizi teması",
+        "superscript": "Üst Simge",
+        "subscript": "Alt Simge",
+        "frontMatter": "Ön Bilgi",
+        "math": "Matematik",
+        "diagram": "Diyagram",
+        "footnoteNotes": "Dipnot notları",
+        "frontmatterType": {
+          "frontmatterType": "Ön Bilgi Türü",
+          "jsonBrace": "Süslü Parantezli JSON",
+          "jsonSemicolon": "Noktalı Virgüllü JSON",
+          "title": "Ön Bilgi Türü"
+        }
+      },
+      "diagrams": {
+        "title": "Diyagramlar",
+        "plantuml": "PlantUML",
+        "mermaid": "Mermaid",
+        "vega": "Vega-Lite",
+        "flowchart": "Akış Şeması",
+        "sequence": "Dizi",
+        "gantt": "Gantt",
+        "sequenceTheme": {
+          "title": "Dizi Teması",
+          "handDrawn": "El Çizimi",
+          "simple": "Basit"
+        }
+      },
+      "math": {
+        "title": "Matematik",
+        "katex": "KaTeX",
+        "mathJax": "MathJax"
+      },
+      "misc": {
+        "preferHeadingStyle": {
+          "title": "Tercih Edilen Başlık Stili",
+          "atx": "ATX Stili",
+          "setext": "Setext Stili"
+        },
+        "title": "Çeşitli"
+      },
+      "compatibility": {
+        "enableGitlab": "GitLab uyumluluğunu etkinleştir",
+        "enableHtml": "HTML desteğini etkinleştir",
+        "title": "Uyumluluk"
+      },
+      "lists": {
+        "bulletListMarker": "Sırasız liste işareti",
+        "listIndentation": {
+          "title": "Liste Girintisi",
+          "dfm": "DFM Stili",
+          "fourSpaces": "Dört Boşluk",
+          "oneSpace": "Bir Boşluk",
+          "tab": "Sekme",
+          "threeSpaces": "Üç Boşluk",
+          "twoSpaces": "İki Boşluk"
+        },
+        "orderListDelimiter": "Sıralı liste ayracı",
+        "preferLooseListItem": "Gevşek liste öğelerini tercih et",
+        "title": "Listeler"
+      }
+    },
+    "spelling": {
+      "title": "Yazım",
+      "enabled": "Yazım denetleyiciyi etkinleştir",
+      "autoDetectLanguage": "Dili otomatik algıla",
+      "language": "Dil",
+      "noSuggestions": "Öneri yok",
+      "spellcheckerEnabled": "Yazım denetleyiciyi etkinleştir",
+      "spellcheckerNoUnderline": "Yanlış yazılan sözcüklerin altını çizme",
+      "spellcheckerLanguage": "Yazım denetleyici dili"
+    },
+    "theme": {
+      "title": "Tema",
+      "theme": "Tema",
+      "followSystemTheme": "Sistem Temasını Takip Et",
+      "modeThemes": "Tema Seçimi",
+      "lightModeTheme": "Açık mod teması",
+      "darkModeTheme": "Koyu mod teması",
+      "customCss": "Özel CSS",
+      "codeBlockTheme": {
+        "title": "Kod bloğu teması",
+        "description": "Kod blokları için tema"
+      },
+      "importCustomThemes": "Özel temaları içe aktar",
+      "importTheme": "Temayı İçe Aktar",
+      "openFolder": "Klasör Aç",
+      "openThemesFolder": "Temalar klasörünü aç"
+    },
+    "keybindings": {
+      "title": "Kısayol Tuşları",
+      "description": "Klavye kısayollarını özelleştir",
+      "searchPlaceholder": "Kısayol tuşlarında ara",
+      "command": "Komut",
+      "keybinding": "Kısayol",
+      "reset": "Sıfırla",
+      "resetAll": "Tümünü sıfırla",
+      "edit": "Düzenle",
+      "cancel": "İptal",
+      "save": "Kaydet",
+      "restoreDefaults": "Varsayılanları geri yükle",
+      "debugOptions": "Hata Ayıklama Seçenekleri",
+      "dumpKeyboardInfo": "Klavye Bilgilerini Dök",
+      "failedToSave": "Kısayol tuşları kaydedilemedi",
+      "keyInputDialog": {
+        "instructions": "Atamak istediğiniz tuş kombinasyonuna basın",
+        "invalidKeybinding": "Geçersiz tuş kombinasyonu",
+        "placeholder": "Tuşlara basın..."
+      },
+      "online": "Çevrimiçi",
+      "saveError": "Kısayol tuşları kaydedilirken hata",
+      "shortcutInUse": "Kısayol kullanımda",
+      "shortcutInUseMessage": "Bu kısayol zaten {accelerator} öğesine atanmış",
+      "table": {
+        "description": "Açıklama",
+        "edit": "Düzenle",
+        "keyCombination": "Tuş Kombinasyonu",
+        "options": "Seçenekler",
+        "reset": "Sıfırla",
+        "unbind": "Bağlantıyı Kaldır"
+      }
+    },
+    "selectFont": "Yazı Tipi Seç",
+    "spellchecker": {
+      "autoDetectDescription": "Belge dilini otomatik olarak algıla",
+      "autoDetectLanguage": "Dili otomatik algıla",
+      "customDictionary": {
+        "delete": "Sil",
+        "description": "Kişisel sözlüğünüze özel sözcükler ekleyin",
+        "noWordsAvailable": "Sözcük yok",
+        "options": "Seçenekler",
+        "title": "Özel Sözlük",
+        "word": "Sözcük"
+      },
+      "defaultLanguage": "Varsayılan dil",
+      "enableSpellChecking": "Yazım denetimini etkinleştir",
+      "hideMarksForErrors": "Yazım hataları için işaretleri gizle",
+      "title": "Yazım Denetleyici"
+    }
+  },
+  "edit": {
+    "undo": "Geri Al",
+    "redo": "Yinele",
+    "cut": "Kes",
+    "copy": "Kopyala",
+    "paste": "Yapıştır",
+    "selectAll": "Tümünü Seç"
+  },
+  "about": {
+    "copyright": "Telif Hakkı © Luo Ran 2017-{year}",
+    "copyrightContributors": "Github Katkıda Bulunanlar tarafından <3 ile yapıldı"
+  },
+  "commands": {
+    "mt": {
+      "hide": "MarkText'i Gizle",
+      "hideOthers": "Diğerlerini Gizle"
+    },
+    "file": {
+      "newWindow": "Yeni Pencere",
+      "newTab": "Yeni Sekme",
+      "openFile": "Dosya Aç",
+      "openFolder": "Klasör Aç",
+      "save": "Kaydet",
+      "saveAs": "Farklı Kaydet",
+      "moveFile": "Dosyayı Taşı",
+      "renameFile": "Dosyayı Yeniden Adlandır",
+      "quickOpen": "Hızlı Aç",
+      "changeEncoding": "Kodlamayı Değiştir",
+      "changeLineEnding": "Satır Sonunu Değiştir",
+      "trailingNewline": "Sondaki Yeni Satır",
+      "print": "Yazdır",
+      "preferences": "Tercihler",
+      "closeTab": "Sekmeyi Kapat",
+      "closeWindow": "Pencereyi Kapat",
+      "quit": "Çıkış",
+      "toggleAutoSave": "Otomatik Kaydetmeyi Aç/Kapat",
+      "importFile": "Dosya İçe Aktar",
+      "exportFile": "Dosya Dışa Aktar",
+      "exportFilePdf": "PDF Olarak Dışa Aktar",
+      "zoom": "Yakınlaştırma",
+      "checkUpdate": "Güncellemeleri Denetle",
+      "lineEnding": "Satır Sonu",
+      "close": "Kapat"
+    },
+    "edit": {
+      "undo": "Geri Al",
+      "redo": "Yinele",
+      "cut": "Kes",
+      "copy": "Kopyala",
+      "paste": "Yapıştır",
+      "copyAsRich": "Zengin Metin Olarak Kopyala",
+      "copyAsHtml": "HTML Olarak Kopyala",
+      "pasteAsPlaintext": "Düz Metin Olarak Yapıştır",
+      "selectAll": "Tümünü Seç",
+      "duplicate": "Çoğalt",
+      "createParagraph": "Paragraf Oluştur",
+      "deleteParagraph": "Paragrafı Sil",
+      "find": "Bul",
+      "findNext": "Sonrakini Bul",
+      "findPrevious": "Öncekini Bul",
+      "replace": "Değiştir",
+      "findInFolder": "Klasörde Bul",
+      "screenshot": "Ekran Görüntüsü",
+      "mathBlock": "Matematik Bloğu"
+    },
+    "paragraph": {
+      "heading1": "Başlık 1",
+      "heading2": "Başlık 2",
+      "heading3": "Başlık 3",
+      "heading4": "Başlık 4",
+      "heading5": "Başlık 5",
+      "heading6": "Başlık 6",
+      "upgradeHeading": "Başlığı Yükselt",
+      "degradeHeading": "Başlığı Alçalt",
+      "table": "Tablo",
+      "codeFence": "Kod Bloğu",
+      "quoteBlock": "Alıntı Bloğu",
+      "mathFormula": "Matematik Formülü",
+      "htmlBlock": "HTML Bloğu",
+      "orderList": "Sıralı Liste",
+      "bulletList": "Sırasız Liste",
+      "taskList": "Görev Listesi",
+      "looseListItem": "Gevşek Liste Öğesi",
+      "paragraph": "Paragraf",
+      "horizontalLine": "Yatay Çizgi",
+      "frontMatter": "Ön Bilgi",
+      "resetParagraph": "Paragrafı Sıfırla",
+      "mathBlock": "Matematik Bloğu",
+      "horizontalRule": "Yatay Çizgi"
+    },
+    "format": {
+      "strong": "Kalın",
+      "emphasis": "İtalik",
+      "underline": "Altı Çizili",
+      "superscript": "Üst Simge",
+      "subscript": "Alt Simge",
+      "highlight": "Vurgu",
+      "inlineCode": "Satır İçi Kod",
+      "inlineMath": "Satır İçi Matematik",
+      "strike": "Üstü Çizili",
+      "hyperlink": "Köprü",
+      "image": "Görsel",
+      "clearFormat": "Biçimlendirmeyi Temizle"
+    },
+    "window": {
+      "minimize": "Simge Durumuna Küçült",
+      "close": "Kapat",
+      "toggleAlwaysOnTop": "Her Zaman Üstte'yi Aç/Kapat",
+      "zoomIn": "Yakınlaştır",
+      "zoomOut": "Uzaklaştır",
+      "toggleFullScreen": "Tam Ekranı Aç/Kapat",
+      "changeTheme": "Temayı Değiştir"
+    },
+    "view": {
+      "commandPalette": "Komut Paleti",
+      "sourceCodeMode": "Kaynak Kod Modu",
+      "typewriterMode": "Daktilo Modu",
+      "focusMode": "Odak Modu",
+      "toggleSourceCodeMode": "Kaynak Kod Modunu Aç/Kapat",
+      "toggleTypewriterMode": "Daktilo Modunu Aç/Kapat",
+      "toggleFocusMode": "Odak Modunu Aç/Kapat",
+      "toggleSidebar": "Kenar Çubuğunu Aç/Kapat",
+      "toggleToc": "İçindekileri Aç/Kapat",
+      "toggleTabbar": "Sekme Çubuğunu Aç/Kapat",
+      "toggleDevTools": "Geliştirici Araçlarını Aç/Kapat",
+      "devReload": "Geliştirici Yeniden Yükleme",
+      "reloadImages": "Görselleri Yeniden Yükle",
+      "textDirection": "Metin Yönü",
+      "actualSize": "Gerçek Boyut",
+      "zoomIn": "Yakınlaştır",
+      "zoomOut": "Uzaklaştır",
+      "devToggleDeveloperTools": "Geliştirici Araçlarını Aç/Kapat"
+    },
+    "tabs": {
+      "cycleForward": "İleri Geç",
+      "cycleBackward": "Geri Geç",
+      "switchToLeft": "Sola Geç",
+      "switchToRight": "Sağa Geç",
+      "switchToFirst": "Birinciye Geç",
+      "switchToSecond": "İkinciye Geç",
+      "switchToThird": "Üçüncüye Geç",
+      "switchToFourth": "Dördüncüye Geç",
+      "switchToFifth": "Beşinciye Geç",
+      "switchToSixth": "Altıncıya Geç",
+      "switchToSeventh": "Yedinciye Geç",
+      "switchToEighth": "Sekizinciye Geç",
+      "switchToNinth": "Dokuzuncuya Geç",
+      "switchToTenth": "Onuncuya Geç"
+    },
+    "docs": {
+      "userGuide": "Kullanıcı Kılavuzu",
+      "markdownSyntax": "Markdown Söz Dizimi"
+    },
+    "utils": {
+      "noUpdateResourceFile": "Güncelleme kaynak dosyası yok",
+      "todoUpdateCheck": "Güncellemeleri denetle"
+    },
+    "spellchecker": {
+      "switchLanguage": "Dili Değiştir"
+    }
+  },
+  "common": {
+    "cancel": "İptal",
+    "ok": "Tamam"
+  },
+  "dialog": {
+    "cancel": "İptal",
+    "changesWillBeLost": "Değişiklikler kaybolacak",
+    "close": "Kapat",
+    "dontSave": "Kaydetme",
+    "file": "Dosya",
+    "fileExists": "Dosya zaten var: {filename}",
+    "files": "Dosyalar",
+    "importWarning": "İçe aktarma uyarısı",
+    "installPandoc": "Pandoc'u Yükle",
+    "keepOpen": "Açık tut",
+    "replace": "Değiştir",
+    "save": "Kaydet",
+    "saveChanges": "Değişiklikleri kaydet",
+    "saveFailure": "Kaydetme hatası"
+  },
+  "error": {
+    "configSchemaViolation": "Yapılandırma şeması ihlali",
+    "copyError": "Kopyalama hatası",
+    "initializationFailed": "Başlatma başarısız {hint}",
+    "otherInstanceDetected": "Başka bir MarkText penceresi zaten açık",
+    "report": "Bildir",
+    "startupError": "Başlangıç hatası",
+    "terminatedDueToError": "Hata nedeniyle sonlandırıldı",
+    "unexpectedErrorWithMessage": "Beklenmeyen hata: {message}",
+    "unexpectedMainProcess": "Beklenmeyen ana işlem hatası",
+    "unexpectedRendererProcess": "Beklenmeyen işleyici işlem hatası"
+  },
+  "notifications": {
+    "defaultMessage": "Varsayılan mesaj",
+    "defaultTitle": "Bildirim"
+  },
+  "store": {
+    "editor": {
+      "anchorLinkCopied": "Çapa bağlantısı kopyalandı",
+      "tabNotFound": "Sekme bulunamadı",
+      "tocItemNotFound": "İçindekiler {key} bulunamadı",
+      "highlightStart": "[highlight start]",
+      "highlightEnd": "[highlight end]",
+      "typeAtToInsert": "Eklemek için / yazın",
+      "inputFootnoteDefinition": "Dipnot tanımını girin...",
+      "inputYamlFrontMatter": "YAML Ön Bilgisini girin",
+      "inputLanguageIdentifier": "Dil Tanımlayıcısını girin...",
+      "inputMathematicalFormula": "Matematiksel Formülü girin...",
+      "fence": "kod bloğu",
+      "indent": "girinti",
+      "frontMatterDelimiter": "---",
+      "mathDelimiter": "$$",
+      "mermaidStart": "``` mermaid",
+      "flowchartStart": "``` flowchart",
+      "sequenceStart": "``` sequence",
+      "plantumlStart": "``` plantuml",
+      "vegaLiteStart": "``` vega-lite",
+      "codeFence": "```",
+      "clickToAddImage": "Görsel eklemek için tıklayın",
+      "loadImageFailed": "Görsel yüklenemedi",
+      "errorLoadingTabTitle": "Sekme yüklenirken hata",
+      "errorLoadingTabMessage": "Sekme bulunamadığı için dosya değişikliği yüklenirken bir hata oluştu.",
+      "mixedLineEndingsNormalized": "\"{name}\" karışık satır sonları içeriyor; otomatik olarak {lineEnding} biçimine normalleştirildi.",
+      "imageDeletionUrlTitle": "Görsel silme URL'si",
+      "imageDeletionUrlMessage": "Yüklenen görselin silme URL'sini panoya kopyalamak için tıklayın {url}",
+      "errorWhileSaving": "Kaydedilirken bir hata oluştu: {msg}",
+      "exportSuccessTitle": "Başarıyla dışa aktarıldı",
+      "exportSuccessMessage": "\"{name}\" başarıyla dışa aktarıldı!",
+      "fileRemovedOnDisk": "\"{name}\" diskten kaldırıldı.",
+      "fileChangedOnDisk": "\"{name}\" dosyasında değişiklikler var, yeniden yüklensin mi?"
+    }
+  },
+  "spellchecker": {
+    "failedToRemoveWord": "Sözcük sözlükten kaldırılamadı",
+    "unexpectedError": "Beklenmeyen yazım denetleyici hatası"
+  },
+  "quickInsert": {
+    "basicBlock": "Temel Blok",
+    "header": "Başlık",
+    "advancedBlock": "Gelişmiş Blok",
+    "listBlock": "Liste Bloğu",
+    "diagram": "Diyagram",
+    "paragraph": {
+      "title": "Paragraf",
+      "subtitle": "Metin içeriği girin"
+    },
+    "horizontalLine": {
+      "title": "Yatay Çizgi",
+      "subtitle": "---"
+    },
+    "frontMatter": {
+      "title": "Ön Bilgi",
+      "subtitle": "--- YAML ---"
+    },
+    "header1": {
+      "title": "Başlık 1",
+      "subtitle": "# Başlık"
+    },
+    "header2": {
+      "title": "Başlık 2",
+      "subtitle": "## Başlık"
+    },
+    "header3": {
+      "title": "Başlık 3",
+      "subtitle": "### Başlık"
+    },
+    "header4": {
+      "title": "Başlık 4",
+      "subtitle": "#### Başlık"
+    },
+    "header5": {
+      "title": "Başlık 5",
+      "subtitle": "##### Başlık"
+    },
+    "header6": {
+      "title": "Başlık 6",
+      "subtitle": "###### Başlık"
+    },
+    "tableBlock": {
+      "title": "Tablo Bloğu",
+      "subtitle": "｜ Başlık ｜ Başlık ｜"
+    },
+    "mathFormula": {
+      "title": "Matematik Formülü",
+      "subtitle": "$$ Formül $$"
+    },
+    "htmlBlock": {
+      "title": "HTML Bloğu",
+      "subtitle": "<div> HTML </div>"
+    },
+    "codeBlock": {
+      "title": "Kod Bloğu",
+      "subtitle": "``` Kod ```"
+    },
+    "quoteBlock": {
+      "title": "Alıntı Bloğu",
+      "subtitle": "> Alıntı içeriği"
+    },
+    "orderedList": {
+      "title": "Sıralı Liste",
+      "subtitle": "1. Liste öğesi"
+    },
+    "bulletList": {
+      "title": "Sırasız Liste",
+      "subtitle": "- Liste öğesi"
+    },
+    "todoList": {
+      "title": "Liste",
+      "subtitle": "- [ ] Görev öğesi"
+    },
+    "vegaChart": {
+      "title": "Vega-Lite Grafiği",
+      "subtitle": "Veri görselleştirme grafiği"
+    },
+    "flowChart": {
+      "title": "Akış Şeması",
+      "subtitle": "Akış şeması diyagramı"
+    },
+    "sequenceChart": {
+      "title": "Dizi Grafiği",
+      "subtitle": "Dizi diyagramı"
+    },
+    "plantUMLChart": {
+      "title": "PlantUML Grafiği",
+      "subtitle": "UML diyagramı"
+    },
+    "mermaid": {
+      "title": "Mermaid Grafiği",
+      "subtitle": "Mermaid diyagramı",
+      "gantt": {
+        "title": "Gantt Grafiği"
+      },
+      "pie": {
+        "title": "Pasta Grafiği"
+      },
+      "flowchart": {
+        "title": "Akış Şeması"
+      },
+      "sequence": {
+        "title": "Dizi Diyagramı"
+      },
+      "class": {
+        "title": "Sınıf Diyagramı"
+      },
+      "state": {
+        "title": "Durum Diyagramı",
+        "subtitle": "stateDiagram"
+      },
+      "journey": {
+        "title": "Kullanıcı Yolculuğu"
+      },
+      "git": {
+        "title": "Git Grafiği"
+      },
+      "er": {
+        "title": "ER Diyagramı"
+      },
+      "requirement": {
+        "title": "Gereksinim Diyagramı"
+      }
+    },
+    "taskList": {
+      "title": "Görev Listesi"
+    },
+    "vegaliteChart": {
+      "title": "Vega-Lite Grafiği"
+    },
+    "plantUMLDiagram": {
+      "title": "PlantUML Diyagramı"
+    },
+    "mermaidDiagram": {
+      "title": "Mermaid Diyagramı"
+    }
+  },
+  "frontMenu": {
+    "duplicate": "Çoğalt",
+    "turnInto": "Dönüştür",
+    "newParagraph": "Yeni Paragraf",
+    "delete": "Sil",
+    "paragraph": "Paragraf",
+    "table": "Tablo",
+    "html": "HTML",
+    "mathblock": "Matematik Bloğu",
+    "pre": "Kod Bloğu",
+    "frontMatter": "Ön Bilgi",
+    "ulTask": "Görev Listesi",
+    "ulBullet": "Sırasız Liste",
+    "olOrder": "Sıralı Liste",
+    "blockquote": "Alıntı",
+    "heading1": "Başlık 1",
+    "heading2": "Başlık 2",
+    "heading3": "Başlık 3",
+    "heading4": "Başlık 4",
+    "heading5": "Başlık 5",
+    "heading6": "Başlık 6",
+    "hr": "Yatay Çizgi"
+  },
+  "editor": {
+    "words": {},
+    "image": {
+      "selector": {
+        "tab": {
+          "select": "Seç",
+          "embedLink": "Bağlantı göm"
+        },
+        "select": {
+          "chooseButton": "Görsel Seç",
+          "tip": "Bilgisayarınızdan bir görsel seçin."
+        },
+        "inputs": {
+          "alt": "Alternatif metin",
+          "src": "Görsel bağlantısı veya yerel yol",
+          "title": "Görsel başlığı"
+        },
+        "embedButton": "Görseli Göm",
+        "hint": {
+          "prefix": "Web görseli veya yerel görsel yolu yapıştırın. Şunu kullanın:",
+          "simple": "basit mod",
+          "full": "tam mod"
+        }
+      },
+      "toolbar": {
+        "edit": "Görseli Düzenle",
+        "inline": "Satır İçi Görsel",
+        "alignLeft": "Sola Hizala",
+        "alignCenter": "Ortala",
+        "alignRight": "Sağa Hizala",
+        "delete": "Görseli Kaldır"
+      }
+    },
+    "placeholders": {
+      "frontMatter": "YAML Ön Bilgisini girin",
+      "languageIdentifier": "Dil Tanımlayıcısını girin...",
+      "mathFormula": "Matematiksel Formülü girin..."
+    },
+    "export": {
+      "error": "Dışa aktarma hatası",
+      "errorExporting": "{type} dosyası dışa aktarılırken hata",
+      "failed": "{type} dışa aktarma başarısız"
+    },
+    "insertTable": {
+      "title": "Tablo Ekle",
+      "rows": "Satırlar",
+      "columns": "Sütunlar"
+    },
+    "notifications": {
+      "notificationNotFound": "Bildirim bulunamadı"
+    },
+    "print": {
+      "error": "\"{title}\" için yazdırma hatası",
+      "failed": "Yazdırma başarısız"
+    },
+    "sourceCode": {
+      "cursorNullComment": "İmleç boş yorumu",
+      "imageStructureDeletedComment": "Görsel yapısı silindi yorumu"
+    },
+    "spellcheck": {
+      "disabledError": "Yazım denetimi devre dışı hatası",
+      "errorSwitchingLanguage": "Yazım denetimi dili değiştirilirken hata {languageCode}",
+      "languageMissing": "Yazım denetimi dili eksik {languageCode}",
+      "switchError": "{languageCode} için yazım denetimi değiştirme hatası, {error}",
+      "title": "Yazım Denetimi",
+      "disabled": "Yazım denetimi devre dışı",
+      "enabled": "Yazım denetimi etkin",
+      "enabledError": "Yazım denetimi etkinleştirilirken hata"
+    },
+    "table": "tablo",
+    "resizeTable": "Tabloyu Yeniden Boyutlandır",
+    "left": "sol",
+    "alignLeft": "Sola Hizala",
+    "center": "orta",
+    "alignCenter": "Ortala",
+    "right": "sağ",
+    "alignRight": "Sağa Hizala",
+    "delete": "sil",
+    "deleteTable": "Tabloyu Sil",
+    "insertRowAbove": "Üste Satır Ekle",
+    "insertRowBelow": "Alta Satır Ekle",
+    "removeRow": "Satırı Kaldır",
+    "insertColumnLeft": "Sola Sütun Ekle",
+    "insertColumnRight": "Sağa Sütun Ekle",
+    "removeColumn": "Sütunu Kaldır",
+    "copyContent": "İçeriği kopyala",
+    "emptyMathFormula": "< Boş Matematiksel Formül >",
+    "invalidMathFormula": "< Geçersiz Matematiksel Formül >",
+    "emptyMermaidBlock": "< Boş Mermaid Bloğu >",
+    "loading": "Yükleniyor...",
+    "emptyDiagramBlock": "< Boş Diyagram Bloğu >",
+    "emptyHtmlBlock": "< Boş HTML Bloğu >",
+    "onlyTopBlockCanRenderIcon": "Yalnızca en üstteki blok ön simge düğmesini işleyebilir.",
+    "unhandledFunctionType": "İşlenmeyen functionType: {functionType}",
+    "highlight-start": "[highlight end]",
+    "highlight-end": "[highlight end]",
+    "type-at-to-insert": "Eklemek için / yazın",
+    "input-footnote-definition": "Dipnot tanımını girin",
+    "input-yaml-front-matter": "YAML ön bilgisini girin",
+    "input-language-identifier": "Dil tanımlayıcısını girin",
+    "input-mathematical-formula": "Matematiksel formülü girin",
+    "fence": "kod bloğu",
+    "indent": "girinti",
+    "front-matter-delimiter": "ön bilgi ayracı",
+    "math-delimiter": "matematik ayracı",
+    "mermaid-start": "mermaid başlangıcı",
+    "flowchart-start": "akış şeması başlangıcı",
+    "sequence-start": "dizi başlangıcı",
+    "plantuml-start": "plantuml başlangıcı",
+    "vega-lite-start": "vega-lite başlangıcı",
+    "click-to-add-image": "Görsel eklemek için tıklayın",
+    "load-image-failed": "Görsel yüklenemedi"
+  }
+}

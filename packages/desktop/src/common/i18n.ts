@@ -3,7 +3,7 @@ import path from 'path'
 
 export type Translations = Record<string, unknown>
 
-const SUPPORTED_LANGUAGES = ['en', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'ja', 'ko', 'pt'] as const
+const SUPPORTED_LANGUAGES = ['en', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'ja', 'ko', 'pt', 'tr'] as const
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 

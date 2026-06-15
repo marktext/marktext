@@ -131,5 +131,9 @@ export const getLanguageOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.general.misc.language.portuguese'),
     value: 'pt'
+  },
+  {
+    label: t('preferences.general.misc.language.turkish'),
+    value: 'tr'
   }
 ]
