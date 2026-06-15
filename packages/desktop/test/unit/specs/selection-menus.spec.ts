@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import { type Menu } from 'electron'
 
 import { updateSelectionMenus } from 'main_renderer/menu/actions/paragraph'
 
@@ -86,7 +87,7 @@ describe('updateSelectionMenus', () => {
   it('disables every Paragraph submenu item when the selection is disabled (table/multi-block)', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: {}, isDisabled: true })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: {}, isDisabled: true })
 
     expect(enabledIds(menu.paragraphItems)).toEqual([])
     expect(menu.paragraphItems.every((i) => i.enabled === false)).toBe(true)
@@ -95,7 +96,7 @@ describe('updateSelectionMenus', () => {
   it('leaves the Format submenu fully enabled for a disabled selection (it is reset first)', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: {}, isDisabled: true })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: {}, isDisabled: true })
 
     expect(menu.formatItems.every((i) => i.enabled === true)).toBe(true)
   })
@@ -103,7 +104,7 @@ describe('updateSelectionMenus', () => {
   it('disables hyperlink/image (Format) and heading/table (Paragraph) for a multiline selection', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: {}, isMultiline: true })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: {}, isMultiline: true })
 
     // Format menu: only the DISABLE_LABELS entries it owns are disabled.
     const formatItem = (id: string) => menu.formatItems.find((i) => i.id === id)!
@@ -124,7 +125,7 @@ describe('updateSelectionMenus', () => {
   it('disables every Format submenu item for code content and re-enables codeFences (Paragraph)', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, {
+    updateSelectionMenus(menu as unknown as Menu, {
       affiliation: { code: true },
       isCodeFences: true,
       isCodeContent: true
@@ -144,7 +145,7 @@ describe('updateSelectionMenus', () => {
   it('disables loose-list-item when the affiliation has neither ul nor ol', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: { p: true } })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { p: true } })
 
     const loose = menu.paragraphItems.find((i) => i.id === 'looseListItemMenuItem')!
     expect(loose.enabled).toBe(false)
@@ -153,7 +154,7 @@ describe('updateSelectionMenus', () => {
   it('keeps loose-list-item enabled when the affiliation is a list (ul/ol)', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: { ul: true } })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { ul: true } })
 
     const loose = menu.paragraphItems.find((i) => i.id === 'looseListItemMenuItem')!
     expect(loose.enabled).toBe(true)
@@ -162,7 +163,7 @@ describe('updateSelectionMenus', () => {
   it('checks the matching paragraph item via the affiliation -> menu id map', () => {
     const menu = makeMenu()
 
-    updateSelectionMenus(menu, { affiliation: { h1: true } })
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { h1: true } })
 
     const checked = menu.paragraphItems.filter((i) => i.checked).map((i) => i.id)
     expect(checked).toEqual(['heading1MenuItem'])
