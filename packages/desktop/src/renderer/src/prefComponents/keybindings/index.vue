@@ -8,7 +8,7 @@
           class="link"
           :title="t('preferences.keybindings.online')"
           :aria-label="t('preferences.keybindings.online')"
-          @click="openKeybindingWiki"
+          @click="openKeybindingDocs"
         ><LinkIcon
           :size="14"
           class="link-icon"
@@ -167,7 +167,7 @@ onUnmounted(() => {
   keybindingConfigurator.value = null
 })
 
-const openKeybindingWiki = (): void => {
+const openKeybindingDocs = (): void => {
   window.electron.shell.openExternal(
     'https://marktext.me/docs/key-bindings'
   )
