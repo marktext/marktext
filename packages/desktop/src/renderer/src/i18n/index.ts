@@ -34,8 +34,7 @@ const i18n = createI18n({
 } as any)
 
 // Export the translation function - Fix: correctly handle the Vue i18n v9+ global getter
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const t = (key: string, ...args: any[]): string => {
+export const t = (key: string, ...args: unknown[]): string => {
   // Check if the i18n instance is available
   if (!i18n) {
     console.warn('⚠️ i18n实例不可用，使用英文fallback')
@@ -66,8 +65,7 @@ const inflightLoads = new Map<string, Promise<Record<string, unknown> | undefine
 // Export language setter function
 export const setLanguage = async(locale: string): Promise<void> => {
   if (!locale) return
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const globalI18n = i18n.global as any
+  const globalI18n = i18n.global
   if (!globalI18n.availableLocales.includes(locale)) {
     let pending = inflightLoads.get(locale)
     if (!pending) {
@@ -89,8 +87,7 @@ export const setLanguage = async(locale: string): Promise<void> => {
 
 // Export the current language getter function
 export const getCurrentLanguage = (): string => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (i18n.global as any).locale.value
+  return i18n.global.locale.value
 }
 
 // Export the i18n instance (named and default export)

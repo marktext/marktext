@@ -145,6 +145,7 @@ import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 import '@muyajs/core'
 import '@/assets/themes/codemirror/one-dark.css'
 import { Close as CloseIcon } from '@element-plus/icons-vue'
+import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
 const STANDAR_Y = 320
@@ -173,12 +174,29 @@ const getMuyaLocale = (language: string): ILocale => MUYA_LOCALES[language] ?? e
 // only read app-singleton Pinia stores, so capturing them once is correct.
 let muyaPluginsRegistered = false
 
-// Muya remains untyped; everything that crosses the editor boundary is `any`
-// for now. We keep the spelling near the top of the file so future muya-side
-// typings can replace these in one place.
+// The `@muyajs/core` `Muya` surface is deliberately permissive (`[key: string]:
+// any` in muya-core.d.ts); everything that crosses the editor boundary leans on
+// it, so the instance handle stays `any` until the engine ships built typings.
 type MuyaInstance = any
-type MuyaChange = any
-type ElInputNumberInstance = any
+
+// The engine's `selection-change` / `json-change` payload. The consumed
+// `@muyajs/core` declaration does not re-export this shape, so describe the
+// fields the desktop reads (each is re-cast in the body); the index signature
+// keeps the boundary permissive for anything not enumerated here.
+interface MuyaChange {
+  anchorPath?: Array<string | number>
+  focusPath?: Array<string | number>
+  anchorBlock?: { text?: string } | null
+  focusBlock?: { text?: string } | null
+  anchorBlockInfo?: { type?: string; functionType?: string } | null
+  focusBlockInfo?: { type?: string; functionType?: string } | null
+  affiliation?: EngineAffiliationEntry[]
+  anchor?: { offset?: number } | null
+  focus?: { offset?: number } | null
+  cursorCoords?: { y?: number } | null
+  formats?: SelectionFormatLike[]
+  [key: string]: unknown
+}
 
 const props = defineProps<{
   markdown?: string
@@ -260,12 +278,12 @@ const tableChecker = reactive({
 // Template refs
 const editorRef = ref<HTMLDivElement | null>(null)
 const imageViewerRef = ref<HTMLDivElement | null>(null)
-const rowInput = ref<ElInputNumberInstance>(null)
+const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
-let printer: any = null
+let printer: Printer | null = null
 let spellchecker: any = null
-let switchLanguageCommand: any = null
+let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
@@ -1190,10 +1208,10 @@ interface ExportOptions {
   footer?: unknown
   headerFooterStyled?: unknown
   htmlTitle?: string
-  pageSize?: unknown
-  pageSizeWidth?: unknown
-  pageSizeHeight?: unknown
-  isLandscape?: unknown
+  pageSize?: string
+  pageSizeWidth?: number
+  pageSizeHeight?: number
+  isLandscape?: boolean
   [key: string]: unknown
 }
 
@@ -1252,7 +1270,7 @@ const handleExport = async (options: unknown) => {
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined
         })
-        printer.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1277,7 +1295,7 @@ const handleExport = async (options: unknown) => {
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined
         })
-        printer.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1294,7 +1312,7 @@ const handleExport = async (options: unknown) => {
 }
 
 const handlePrintServiceClearup = () => {
-  printer.clearup()
+  printer!.clearup()
 }
 
 const handleEditParagraph = (type: unknown) => {

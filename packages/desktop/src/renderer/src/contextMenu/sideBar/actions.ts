@@ -1,9 +1,7 @@
 import bus from '../../bus'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type MenuItemArg = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type BrowserWindowArg = any
+type MenuItemArg = unknown
+type BrowserWindowArg = unknown
 
 export const newFile = (_menuItem?: MenuItemArg, _browserWindow?: BrowserWindowArg): void => {
   bus.emit('SIDEBAR::new', 'file')

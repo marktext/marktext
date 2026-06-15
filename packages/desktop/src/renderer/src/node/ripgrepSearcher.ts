@@ -131,8 +131,7 @@ class RipgrepDirectorySearcher {
   rgPath: string
 
   constructor() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const marktext = (window as any).marktext
+    const marktext = window.marktext
     this.rgPath = marktext?.paths?.ripgrepBinaryPath || window.rgPath || ''
   }
 
