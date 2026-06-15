@@ -11,6 +11,14 @@ vi.hoisted(() => {
 
 import { createSelectionFormatState } from '@/store/editor'
 import { updateFormatMenu } from 'main_renderer/menu/actions/format'
+// The toolbar config is a deep subpath of @muyajs/core that vite resolves at
+// runtime but whose types are not exposed via the package `exports` map.
+// @ts-expect-error deep @muyajs/core subpath resolves at runtime (vite) but exposes no types
+import inlineFormatIcons from '@muyajs/core/ui/inlineFormatToolbar/config'
+import keybindingsWindows from 'main_renderer/keyboard/keybindingsWindows'
+import keybindingsLinux from 'main_renderer/keyboard/keybindingsLinux'
+
+interface IInlineFormatIcon { type: string, shortcut?: string }
 
 // Mimic the Electron application menu surface `updateFormatMenu` touches:
 // `getMenuItemById('formatMenuItem')` returning an object whose
@@ -89,5 +97,96 @@ describe('updateFormatMenu', () => {
     updateFormatMenu(menu, createSelectionFormatState([]))
 
     expect(checkedIds(menu)).toEqual([])
+  })
+})
+
+// Two surfaces advertise inline-format shortcuts to the user:
+//  - the desktop Format menu accelerators (keybindings*.ts → menu/templates/format.ts)
+//  - the muya InlineFormatToolbar (`@muyajs/core` config.ts → tooltip badge)
+// They are NOT derived from a single source, so they can drift. The test env is
+// non-osx (jsdom userAgent has no "Mac"), so the toolbar config renders with the
+// `Ctrl` COMMAND_KEY — line it up against the non-osx (Windows/Linux) keybindings.
+describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () => {
+  // muya toolbar `type` → desktop keybinding id (menu item accelerator source).
+  const TYPE_TO_KEYBINDING: Readonly<Record<string, string>> = {
+    strong: 'format.strong',
+    em: 'format.emphasis',
+    u: 'format.underline',
+    del: 'format.strike',
+    mark: 'format.highlight',
+    inline_code: 'format.inline-code',
+    inline_math: 'format.inline-math',
+    link: 'format.hyperlink',
+    image: 'format.image',
+    clear: 'format.clear-format'
+  }
+
+  // Canonical form so display notation (`⇧+Ctrl+H`, `⌘`) and Electron accelerator
+  // notation (`Ctrl+Shift+H`, `Command`) compare equal: sorted modifier set + key.
+  const normalizeShortcut = (raw: string | undefined | null): string => {
+    if (!raw) return ''
+    const mods = new Set<string>()
+    let key = ''
+    for (const part of raw.split('+').map((p) => p.trim()).filter(Boolean)) {
+      const lower = part.toLowerCase()
+      if (lower === 'ctrl' || lower === 'control' || lower === '⌃') mods.add('ctrl')
+      else if (lower === 'cmd' || lower === 'command' || lower === '⌘') mods.add('cmd')
+      else if (lower === 'cmdorctrl' || lower === 'commandorcontrol') mods.add('cmdorctrl')
+      else if (lower === 'shift' || lower === '⇧') mods.add('shift')
+      else if (lower === 'alt' || lower === 'option' || lower === '⌥') mods.add('alt')
+      else key = lower
+    }
+    return [...[...mods].sort(), `KEY=${key}`].join('+')
+  }
+
+  const toolbarShortcutOf = (type: string): string | undefined =>
+    (inlineFormatIcons as IInlineFormatIcon[]).find((i) => i.type === type)?.shortcut
+
+  it('confirms the test env is the non-osx (Ctrl) variant', () => {
+    // The toolbar config picks COMMAND_KEY from `isOsx`; jsdom is non-osx here.
+    expect(toolbarShortcutOf('strong')).toBe('Ctrl+B')
+  })
+
+  // strong/em are the requested reconcilable mapping, plus the rest of the set
+  // that agrees once notation is normalized.
+  const RECONCILABLE = ['strong', 'em', 'u', 'del', 'mark', 'link', 'image', 'clear'] as const
+
+  it.each(RECONCILABLE)(
+    'toolbar shortcut for "%s" matches the Format-menu accelerator (Windows + Linux)',
+    (type) => {
+      const kbId = TYPE_TO_KEYBINDING[type]
+      const toolbar = normalizeShortcut(toolbarShortcutOf(type))
+      expect(toolbar).not.toBe('')
+      expect(normalizeShortcut(keybindingsWindows.get(kbId))).toBe(toolbar)
+      expect(normalizeShortcut(keybindingsLinux.get(kbId))).toBe(toolbar)
+    }
+  )
+
+  // CHARACTERIZATION of a real drift (see suspectedBugs): the @muyajs/core toolbar
+  // advertises Ctrl+E / ⇧+Ctrl+E for inline code / inline math, but the Format
+  // menu binds Ctrl+` (Win) / Ctrl+Y (Linux) and Ctrl+Shift+M respectively.
+  it('inlineCode shortcut DIVERGES between toolbar and menu accelerator', () => {
+    const toolbar = normalizeShortcut(toolbarShortcutOf('inline_code'))
+    expect(toolbar).toBe(normalizeShortcut('Ctrl+E'))
+    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).toBe(
+      normalizeShortcut('Ctrl+`')
+    )
+    expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).toBe(
+      normalizeShortcut('Ctrl+Y')
+    )
+    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).not.toBe(toolbar)
+    expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).not.toBe(toolbar)
+  })
+
+  it('inlineMath shortcut DIVERGES between toolbar and menu accelerator', () => {
+    const toolbar = normalizeShortcut(toolbarShortcutOf('inline_math'))
+    expect(toolbar).toBe(normalizeShortcut('Shift+Ctrl+E'))
+    expect(normalizeShortcut(keybindingsWindows.get('format.inline-math'))).toBe(
+      normalizeShortcut('Ctrl+Shift+M')
+    )
+    expect(normalizeShortcut(keybindingsLinux.get('format.inline-math'))).toBe(
+      normalizeShortcut('Ctrl+Shift+M')
+    )
+    expect(normalizeShortcut(keybindingsWindows.get('format.inline-math'))).not.toBe(toolbar)
   })
 })
