@@ -5,15 +5,16 @@ import type Table from '../../block/gfm/table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 
-// Port of the legacy `packages/muyajs` `selectAll` behavior
-// (`contentState/paragraphCtrl.js`). Cmd+A escalates level-by-level:
-//   - cursor inside a single table cell      → freeze that 1x1 cell
-//   - one cell already frozen                → select the whole table
-//   - whole table already frozen             → clear + select whole document
-//   - selection spanning two cells (same)    → select the whole table
-//   - selection spanning two DIFFERENT tables → no-op (don't select document)
-// Code / language-input content blocks clamp inside their own block and stay
-// idempotent on repeated Cmd+A (never escalate to the whole document).
+// `selectAll` escalates through three rules:
+//   1. A frozen rectangular table selection: a partial rectangle (single cell
+//      included) grows to the whole table; the whole table jumps to the whole
+//      document.
+//   2. A caret/selection inside a single content block: a table cell freezes as
+//      a 1x1 rectangle; any other block (paragraph, heading, code, …) grows to
+//      the whole block, then to the whole document.
+//   3. A selection spanning multiple content blocks (two cells of the same
+//      table, cells of different tables, or plain paragraphs) goes straight to
+//      the whole document.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -128,11 +129,12 @@ describe('selection.selectAll table escalation', () => {
         expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
     });
 
-    it('selecting two cells of the SAME table escalates to the whole table', () => {
-        const muya = bootMuya(TABLE_MD);
+    it('selecting two cells of the SAME table escalates to the whole document', () => {
+        const muya = bootMuya(`${TABLE_MD}\nbelow\n`);
         const table = getTable(muya);
         const { selection } = muya.editor;
         const tableSelection = selection.table;
+        const sp = muya.editor.scrollPage!;
 
         const a = cellContent(table, 0, 0);
         const b = cellContent(table, 1, 1);
@@ -143,11 +145,12 @@ describe('selection.selectAll table escalation', () => {
 
         selection.selectAll();
 
-        expect(tableSelection.hasSelection).toBe(true);
-        expect(tableSelection.isWholeTableSelected()).toBe(true);
+        expect(tableSelection.hasSelection).toBe(false);
+        expect(selection.anchorBlock).toBe(sp.firstContentInDescendant());
+        expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
     });
 
-    it('selecting cells across TWO different tables is a no-op (no document selection)', () => {
+    it('selecting cells across TWO different tables escalates to the whole document', () => {
         const muya = bootMuya(`${TABLE_MD}\n${TABLE_MD}`);
         const sp = muya.editor.scrollPage!;
         const { selection } = muya.editor;
@@ -169,15 +172,14 @@ describe('selection.selectAll table escalation', () => {
 
         selection.selectAll();
 
-        // No table selection frozen and no whole-document escalation.
         expect(tableSelection.hasSelection).toBe(false);
-        expect(selection.anchorBlock).toBe(a);
-        expect(selection.focusBlock).toBe(b);
+        expect(selection.anchorBlock).toBe(sp.firstContentInDescendant());
+        expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
     });
 });
 
-describe('selection.selectAll code / language clamp', () => {
-    it('clamps inside a code block and stays idempotent on repeated Cmd+A', () => {
+describe('selection.selectAll code / language blocks', () => {
+    it('selects the whole code block first, then escalates to the whole document', () => {
         const muya = bootMuya('```js\nconst a = 1\nconst b = 2\n```\n');
         const sp = muya.editor.scrollPage!;
         const codeLeaf = sp.lastContentInDescendant()!;
@@ -185,38 +187,40 @@ describe('selection.selectAll code / language clamp', () => {
 
         codeLeaf.setCursor(0, 3, false);
 
+        // First Cmd+A selects the whole code block content.
         selection.selectAll();
         expect(selection.anchorBlock).toBe(codeLeaf);
         expect(selection.focusBlock).toBe(codeLeaf);
         expect(selection.anchor!.offset).toBe(0);
         expect(selection.focus!.offset).toBe(codeLeaf.text.length);
 
-        // Second Cmd+A: stays clamped inside the code block (no document).
+        // Second Cmd+A escalates to the whole document.
         selection.selectAll();
-        expect(selection.anchorBlock).toBe(codeLeaf);
-        expect(selection.focusBlock).toBe(codeLeaf);
-        expect(selection.focus!.offset).toBe(codeLeaf.text.length);
+        expect(selection.anchorBlock).toBe(sp.firstContentInDescendant());
+        expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
     });
 
-    it('clamps inside the language-input and stays idempotent on repeated Cmd+A', () => {
-        const muya = bootMuya('```js\nconst a = 1\n```\n');
+    it('selects the whole language-input first, then escalates to the whole document', () => {
+        const muya = bootMuya('```js\nconst a = 1\n```\n\nbelow\n');
         const sp = muya.editor.scrollPage!;
         const langInput = sp.firstContentInDescendant()!;
         expect(langInput.blockName).toBe('language-input');
+        expect(langInput.text).toBe('js');
         const { selection } = muya.editor;
 
         langInput.setCursor(0, 0, false);
 
+        // First Cmd+A selects the whole language-input content ("js").
         selection.selectAll();
         expect(selection.anchorBlock).toBe(langInput);
         expect(selection.focusBlock).toBe(langInput);
         expect(selection.anchor!.offset).toBe(0);
         expect(selection.focus!.offset).toBe(langInput.text.length);
 
+        // Second Cmd+A escalates to the whole document.
         selection.selectAll();
-        expect(selection.anchorBlock).toBe(langInput);
-        expect(selection.focusBlock).toBe(langInput);
-        expect(selection.focus!.offset).toBe(langInput.text.length);
+        expect(selection.anchorBlock).toBe(sp.firstContentInDescendant());
+        expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
     });
 
     it('plain paragraph still escalates to the whole document', () => {

@@ -1,4 +1,3 @@
-import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, IImageSelectionData, ISelection } from './types';
@@ -128,75 +127,46 @@ class Selection {
     }
 
     selectAll(): void {
-        const { anchor, focus, isSelectionInSameBlock, anchorBlock, focusBlock, anchorPath } = this._text;
+        const { anchor, focus, isSelectionInSameBlock, anchorBlock, anchorPath } = this._text;
         const tableSelection = this._table;
 
-        if (tableSelection.isWholeTableSelected()) {
-            tableSelection.clear();
-            this._text.selectAllContent();
+        // A frozen rectangular table selection escalates: the whole table jumps
+        // to the whole document; any partial rectangle (a single cell included)
+        // grows to the whole table first.
+        if (tableSelection.hasSelection) {
+            if (tableSelection.isWholeTableSelected()) {
+                tableSelection.clear();
+                this._text.selectAllContent();
+            }
+            else {
+                tableSelection.selectWholeTable();
+            }
             return;
         }
 
-        if (tableSelection.isSingleCellSelected()) {
-            const cellBlock = anchorBlock?.closestBlock('table.cell') as TableBodyCell | null;
-            const table = cellBlock?.table ?? null;
-
-            if (table) {
-                tableSelection.selectTable(table);
-                return;
-            }
-        }
-
-        if (
-            anchorBlock?.blockName === 'table.cell.content'
-            && focusBlock?.blockName === 'table.cell.content'
-        ) {
-            const anchorTable = anchorBlock.closestBlock('table') as Table | null;
-            const focusTable = focusBlock.closestBlock('table') as Table | null;
-            if (anchorBlock === focusBlock) {
+        // A caret or selection contained in a single content block.
+        if (isSelectionInSameBlock && anchor && focus && anchorBlock) {
+            // Inside one table cell: freeze it as a 1x1 rectangle.
+            if (anchorBlock.blockName === 'table.cell.content') {
                 const cellBlock = anchorBlock.closestBlock('table.cell') as TableBodyCell | null;
                 if (cellBlock) {
                     tableSelection.selectSingleCell(cellBlock);
                     return;
                 }
             }
-            else if (anchorTable && focusTable && anchorTable === focusTable) {
-                tableSelection.selectTable(anchorTable);
-                return;
-            }
-            else {
+
+            // A partial selection grows to the whole block; a full-block
+            // selection falls through to the whole document.
+            if (Math.abs(focus.offset - anchor.offset) < anchorBlock.text.length) {
+                this._text.setSelection(
+                    { offset: 0, block: anchorBlock, path: anchorPath },
+                    { offset: anchorBlock.text.length, block: anchorBlock, path: anchorPath },
+                );
                 return;
             }
         }
 
-        // Code content and the fenced language input clamp inside their own
-        // block and stay idempotent on repeated Cmd+A — never escalate to the
-        // whole document.
-        if (
-            anchorBlock
-            && (anchorBlock.blockName === 'codeblock.content'
-                || anchorBlock.blockName === 'language-input')
-        ) {
-            this._text.setSelection(
-                { offset: 0, block: anchorBlock, path: anchorPath },
-                { offset: anchorBlock.text.length, block: anchorBlock, path: anchorPath },
-            );
-            return;
-        }
-        if (
-            isSelectionInSameBlock
-            && anchor
-            && focus
-            && anchorBlock
-            && Math.abs(focus.offset - anchor.offset) < anchorBlock.text.length
-        ) {
-            this._text.setSelection(
-                { offset: 0, block: anchorBlock, path: anchorPath },
-                { offset: anchorBlock.text.length, block: anchorBlock, path: anchorPath },
-            );
-            return;
-        }
-
+        // Spanning multiple blocks, or a single block already fully selected.
         this._text.selectAllContent();
     }
 }
