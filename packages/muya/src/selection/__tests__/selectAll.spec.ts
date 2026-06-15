@@ -2,8 +2,10 @@
 
 import type Content from '../../block/base/content';
 import type Table from '../../block/gfm/table';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { ISelection } from '../types';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
+import { SelectionCaretType, SelectionDirection } from '../types';
 
 // `selectAll` escalates through three rules:
 //   1. A frozen rectangular table selection: a partial rectangle (single cell
@@ -15,6 +17,13 @@ import { Muya } from '../../muya';
 //   3. A selection spanning multiple content blocks (two cells of the same
 //      table, cells of different tables, or plain paragraphs) goes straight to
 //      the whole document.
+//
+// selectAll reads the live DOM selection. happy-dom's Selection cannot
+// represent a range (extend is a no-op, so every range collapses to its
+// anchor), so we mirror the engine's tracked text endpoints back through
+// getSelection — exactly what a real browser reports when the cached state and
+// the live DOM agree. The stale-cache regression test below overrides this to
+// model the one case where they diverge.
 
 const bootedMuyas: Muya[] = [];
 let originalVersion: string | undefined;
@@ -27,6 +36,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+    vi.restoreAllMocks();
     while (bootedMuyas.length)
         bootedMuyas.pop()!.destroy();
     if (hadVersion)
@@ -35,12 +45,43 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
+// Mirror the engine's tracked text endpoints back through getSelection so the
+// live read inside selectAll sees what a real browser would report.
+function mirrorLiveSelection(muya: Muya): void {
+    const selection = muya.editor.selection;
+    const text = (selection as unknown as { _text: {
+        anchorBlock: Content | null;
+        focusBlock: Content | null;
+        anchor: { offset: number } | null;
+        focus: { offset: number } | null;
+    }; })._text;
+
+    vi.spyOn(selection, 'getSelection').mockImplementation((): ISelection | null => {
+        const { anchorBlock, focusBlock, anchor, focus } = text;
+        if (!anchorBlock || !focusBlock || anchor == null || focus == null)
+            return null;
+
+        const isSelectionInSameBlock = anchorBlock === focusBlock;
+        const isCollapsed = isSelectionInSameBlock && anchor.offset === focus.offset;
+
+        return {
+            anchor: { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path },
+            focus: { offset: focus.offset, block: focusBlock, path: focusBlock.path },
+            isCollapsed,
+            isSelectionInSameBlock,
+            direction: SelectionDirection.None,
+            type: isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range,
+        };
+    });
+}
+
 function bootMuya(markdown: string): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
     const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedMuyas.push(muya);
+    mirrorLiveSelection(muya);
     return muya;
 }
 
@@ -239,5 +280,44 @@ describe('selection.selectAll code / language blocks', () => {
         selection.selectAll();
         expect(selection.anchorBlock).toBe(sp.firstContentInDescendant());
         expect(selection.focusBlock).toBe(sp.lastContentInDescendant());
+    });
+});
+
+describe('selection.selectAll honors the live selection over stale cache', () => {
+    it('selects the clicked block, not the document, after a whole-document selection', () => {
+        const muya = bootMuya('hello world\n\nsecond line\n');
+        const sp = muya.editor.scrollPage!;
+        const first = sp.firstContentInDescendant()!;
+        const second = sp.lastContentInDescendant()!;
+        const { selection } = muya.editor;
+
+        // The whole document is selected: the cached endpoints span first →
+        // second across two blocks.
+        selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: second.text.length, block: second, path: second.path },
+        );
+        expect(selection.anchorBlock).toBe(first);
+        expect(selection.focusBlock).toBe(second);
+
+        // The user clicks into the second block: the live DOM is a caret there,
+        // but the cached endpoints stay stale (the menu-driven selectAll never
+        // saw a setSelection refreshing them).
+        vi.mocked(selection.getSelection).mockReturnValue({
+            anchor: { offset: 3, block: second, path: second.path },
+            focus: { offset: 3, block: second, path: second.path },
+            isCollapsed: true,
+            isSelectionInSameBlock: true,
+            direction: SelectionDirection.None,
+            type: SelectionCaretType.Caret,
+        });
+
+        // selectAll must honor the live caret and grow to the whole second
+        // block, not jump straight to the whole document.
+        selection.selectAll();
+        expect(selection.anchorBlock).toBe(second);
+        expect(selection.focusBlock).toBe(second);
+        expect(selection.anchor!.offset).toBe(0);
+        expect(selection.focus!.offset).toBe(second.text.length);
     });
 });
