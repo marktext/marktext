@@ -91,8 +91,9 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
         });
 
         const handleKeydown = (event: Event) => {
-            const { anchorBlock, isSelectionInSameBlock }
-                = editor.selection.getSelection() ?? {};
+            const selectionResult = editor.selection.getSelection();
+            const anchorBlock = selectionResult?.anchor.block;
+            const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
             if (isSelectionInSameBlock && anchorBlock instanceof ParagraphContent) {
                 if (anchorBlock.text)
                     return;

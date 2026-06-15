@@ -124,7 +124,7 @@ function makeClipboard(
     } as unknown as Muya);
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
-            getSelection: () => ({ isSelectionInSameBlock: true, anchorBlock }),
+            getSelection: () => ({ isSelectionInSameBlock: true, anchor: { block: anchorBlock } }),
             table: tableStub,
         }),
     });

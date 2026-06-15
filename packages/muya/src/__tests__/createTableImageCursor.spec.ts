@@ -101,7 +101,7 @@ describe('muya.createTable()', () => {
         const sel = muya.editor.selection.getSelection();
         expect(sel).not.toBeNull();
         // The caret lands on a table-cell content block.
-        expect(sel!.anchorBlock.blockName).toBe('table.cell.content');
+        expect(sel!.anchor.block.blockName).toBe('table.cell.content');
     });
 
     it('is a no-op when there is no current block', () => {
@@ -242,7 +242,7 @@ describe('muya.setCursor()', () => {
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
             expect(sel).not.toBeNull();
-            expect(sel!.anchorBlock).toBe(first);
+            expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(3);
         });
     });
@@ -257,7 +257,7 @@ describe('muya.setCursor()', () => {
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
-            expect(sel!.anchorBlock).toBe(first);
+            expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(2);
         });
     });
@@ -275,7 +275,7 @@ describe('muya.setCursor()', () => {
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
-            expect(sel!.anchorBlock).toBe(secondContent);
+            expect(sel!.anchor.block).toBe(secondContent);
             expect(sel!.anchor.offset).toBe(1);
         });
     });

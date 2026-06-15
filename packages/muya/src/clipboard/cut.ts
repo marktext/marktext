@@ -322,11 +322,11 @@ export function cutSelection(clipboard: Clipboard): void {
     const {
         isSelectionInSameBlock,
         anchor,
-        anchorBlock,
         focus,
-        focusBlock,
         direction,
     } = selection;
+    const anchorBlock = anchor.block;
+    const focusBlock = focus.block;
 
     // Handler `cut` event in the same block.
     if (isSelectionInSameBlock) {

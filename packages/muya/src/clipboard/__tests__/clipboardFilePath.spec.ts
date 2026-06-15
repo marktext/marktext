@@ -64,7 +64,7 @@ function makeClipboard(
         get: () => ({
             getSelection: () => ({
                 isSelectionInSameBlock: true,
-                anchorBlock,
+                anchor: { block: anchorBlock },
             }),
         }),
     });

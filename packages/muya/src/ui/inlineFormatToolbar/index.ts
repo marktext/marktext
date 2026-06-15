@@ -130,7 +130,8 @@ export class InlineFormatToolbar extends BaseFloat {
         if (!selection)
             return;
 
-        const { anchorBlock, isSelectionInSameBlock } = selection;
+        const { anchor, isSelectionInSameBlock } = selection;
+        const anchorBlock = anchor.block;
 
         if (!isSelectionInSameBlock)
             return;
@@ -254,8 +255,8 @@ export class InlineFormatToolbar extends BaseFloat {
 
         // Restore selection before formatting
         selection.setSelection({
-            anchor,
-            focus,
+            anchor: anchor ?? null,
+            focus: focus ?? null,
             anchorBlock: anchorBlock!,
             anchorPath,
             focusBlock: focusBlock!,

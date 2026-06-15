@@ -53,7 +53,7 @@ describe('muya.setCursorByOffset() (PG2)', () => {
             const sel = muya.editor.selection.getSelection();
             expect(sel).not.toBeNull();
             // The caret lands inside the "third para here" block.
-            expect(sel!.anchorBlock.text).toBe('third para here');
+            expect(sel!.anchor.block.text).toBe('third para here');
             expect(sel!.anchor.offset).toBe(6);
         });
         // The document content is left clean (no sentinel residue).
@@ -72,7 +72,7 @@ describe('muya.setCursorByOffset() (PG2)', () => {
             const sel = muya.editor.selection.getSelection();
             // This engine keeps the `# ` marker in the heading content block's
             // text, so the caret lands at offset 4 of "# Title".
-            expect(sel!.anchorBlock.text).toBe('# Title');
+            expect(sel!.anchor.block.text).toBe('# Title');
             expect(sel!.anchor.offset).toBe(4);
         });
     });

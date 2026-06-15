@@ -81,12 +81,8 @@ function stubSelection(
     const aPath = a.path;
     const fPath = f.path;
     muya.editor.selection.getSelection = () => ({
-        anchor: { offset: aOff },
-        focus: { offset: fOff },
-        anchorBlock: a,
-        anchorPath: aPath,
-        focusBlock: f,
-        focusPath: fPath,
+        anchor: { offset: aOff, block: a, path: aPath },
+        focus: { offset: fOff, block: f, path: fPath },
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction,

@@ -355,7 +355,7 @@ export class Muya {
         if (selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
-            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchorPath);
+            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
             if (cursorBlock && cursorBlock.isContent())
                 cursorBlock.setCursor(begin, end, true);
         }
@@ -414,15 +414,8 @@ export class Muya {
         if (!sel)
             return;
 
-        const {
-            anchor,
-            focus,
-            anchorBlock,
-            anchorPath,
-            focusBlock,
-            focusPath,
-            isSelectionInSameBlock,
-        } = sel;
+        const { anchor, focus, isSelectionInSameBlock } = sel;
+        const anchorBlock = anchor.block;
 
         if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
             return;
@@ -433,9 +426,9 @@ export class Muya {
             anchor,
             focus,
             anchorBlock,
-            anchorPath,
-            focusBlock,
-            focusPath,
+            anchorPath: anchor.path,
+            focusBlock: focus.block,
+            focusPath: focus.path,
         });
 
         anchorBlock.format(type);
@@ -1096,8 +1089,8 @@ export class Muya {
         const live = sel.getSelection();
         const anchor = live?.anchor ?? sel.anchor;
         const focus = live?.focus ?? sel.focus;
-        const anchorPath = live?.anchorPath ?? sel.anchorPath;
-        const focusPath = live?.focusPath ?? sel.focusPath;
+        const anchorPath = live?.anchor.path ?? sel.anchorPath;
+        const focusPath = live?.focus.path ?? sel.focusPath;
         if (!anchor || !focus || !anchorPath?.length || !focusPath?.length)
             return null;
 

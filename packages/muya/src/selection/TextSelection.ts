@@ -1,6 +1,8 @@
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
+import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
+import type { Nullable } from '../types';
 import type Selection from './index';
 import type { ICursor, INodeOffset, ISelection } from './types';
 import { BLOCK_DOM_PROPERTY } from '../config';
@@ -16,15 +18,17 @@ import {
     getNodeAndOffset,
     getOffsetOfParagraph,
 } from './dom';
+import { SelectionType } from './types';
 
 class TextSelection {
-    public doc: Document = document;
-    public anchorPath: (string | number)[] = [];
-    public anchorBlock: Content | null = null;
-    public focusPath: (string | number)[] = [];
-    public focusBlock: Content | null = null;
-    public anchor: INodeOffset | null = null;
-    public focus: INodeOffset | null = null;
+    public anchorPath: TBlockPath = [];
+    public anchorBlock: Nullable<Content> = null;
+    public focusPath: TBlockPath = [];
+    public focusBlock: Nullable<Content> = null;
+    public anchor: Nullable<INodeOffset> = null;
+    public focus: Nullable<INodeOffset> = null;
+
+    private _doc: Document = document;
 
     private _selectInfo: {
         isSelect: boolean;
@@ -45,16 +49,16 @@ class TextSelection {
     get isCollapsed() {
         const { anchorBlock, focusBlock, anchor, focus } = this;
 
-        if (anchor === null || focus === null)
+        if (anchor == null || focus == null)
             return false;
 
         return anchorBlock === focusBlock && anchor.offset === focus.offset;
     }
 
     get isSelectionInSameBlock() {
-        const { anchorBlock, focusBlock, anchor } = this;
+        const { anchorBlock, focusBlock, anchor, focus } = this;
 
-        if (anchor === null || focus === null)
+        if (anchor == null || focus == null)
             return false;
 
         return anchorBlock === focusBlock;
@@ -69,7 +73,7 @@ class TextSelection {
             isSelectionInSameBlock,
             isCollapsed,
         } = this;
-        if (anchor === null || focus === null || !anchorBlock || !focusBlock)
+        if (anchor == null || focus == null || !anchorBlock || !focusBlock)
             return 'none';
 
         if (isCollapsed)
@@ -117,13 +121,13 @@ class TextSelection {
         };
 
         this.setSelection(cursor);
-        const activeEle = this.doc.activeElement;
+        const activeEle = this._doc.activeElement;
         if (isHTMLElement(activeEle) && activeEle.classList.contains('mu-content'))
             activeEle.blur();
     }
 
     getSelection(): ISelection | null {
-        const selection = document.getSelection();
+        const selection = this._doc.getSelection();
 
         if (!selection)
             return null;
@@ -146,19 +150,18 @@ class TextSelection {
         // crashing — the caller treats null the same as "no selection".
         if (!anchorBlock || !focusBlock)
             return null;
+
         const anchorPath = anchorBlock.path;
         const focusPath = focusBlock.path;
 
-        const aOffset
-            = getOffsetOfParagraph(anchorNode, anchorDomNode) + anchorOffset;
+        const aOffset = getOffsetOfParagraph(anchorNode, anchorDomNode) + anchorOffset;
         const fOffset = getOffsetOfParagraph(focusNode, focusDomNode) + focusOffset;
         const anchor = { offset: aOffset };
         const focus = { offset: fOffset };
 
-        const isCollapsed
-            = anchorBlock === focusBlock && anchor.offset === focus.offset;
-
+        const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
+
         let direction: string;
 
         if (isSelectionInSameBlock) {
@@ -174,12 +177,8 @@ class TextSelection {
         const type = isCollapsed ? 'Caret' : 'Range';
 
         return {
-            anchor,
-            focus,
-            anchorBlock,
-            anchorPath,
-            focusBlock,
-            focusPath,
+            anchor: { offset: anchor.offset, block: anchorBlock, path: anchorPath },
+            focus: { offset: focus.offset, block: focusBlock, path: focusPath },
             isCollapsed,
             isSelectionInSameBlock,
             direction,
@@ -203,7 +202,7 @@ class TextSelection {
         this.anchorPath = anchorPath ?? path ?? [];
         this.focusBlock = focusBlock ?? block ?? null;
         this.focusPath = focusPath ?? path ?? [];
-        this._setCursor();
+        this._updateSelection();
 
         const {
             isCollapsed,
@@ -243,8 +242,7 @@ class TextSelection {
             isSelectionInSameBlock,
             direction,
             type,
-            kind: 'text',
-            selection: this,
+            kind: SelectionType.Text,
             selectedImage: this._selection.image,
             cursorCoords,
             formats,
@@ -289,18 +287,14 @@ class TextSelection {
             if (!selection)
                 return;
 
-            const {
-                anchor,
-                focus,
-                anchorBlock,
-                focusBlock,
-                isSelectionInSameBlock,
-            } = selection;
+            const { anchor, focus, isSelectionInSameBlock } = selection;
 
             if (isSelectionInSameBlock) {
                 return;
             }
 
+            const anchorBlock = anchor.block;
+            const focusBlock = focus.block;
             const newSelection = {
                 anchor,
                 focus,
@@ -324,7 +318,7 @@ class TextSelection {
     }
 
     private _selectRange(range: Range) {
-        const selection = this.doc.getSelection();
+        const selection = this._doc.getSelection();
 
         if (selection) {
             selection.removeAllRanges();
@@ -338,7 +332,7 @@ class TextSelection {
         endNode?: Node,
         endOffset?: number,
     ) {
-        const range = this.doc.createRange();
+        const range = this._doc.createRange();
         range.setStart(startNode, startOffset);
         if (endNode && typeof endOffset === 'number')
             range.setEnd(endNode, endOffset);
@@ -351,12 +345,12 @@ class TextSelection {
     }
 
     private _setFocus(focusNode: Node, focusOffset: number) {
-        const selection = this.doc.getSelection();
+        const selection = this._doc.getSelection();
         if (selection)
             selection.extend(focusNode, focusOffset);
     }
 
-    private _setCursor() {
+    private _updateSelection() {
         const {
             anchor,
             focus,
@@ -368,7 +362,8 @@ class TextSelection {
         } = this;
 
         if (!anchor || !focus) {
-            const selection = this.doc.getSelection();
+            const selection = this._doc.getSelection();
+
             if (selection)
                 selection.removeAllRanges();
 

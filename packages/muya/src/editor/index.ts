@@ -86,8 +86,9 @@ export class Editor {
         const { domNode } = this.muya;
 
         const eventHandler = (event: Event) => {
-            const { anchorBlock, isSelectionInSameBlock }
-                = this.selection.getSelection() ?? {};
+            const selectionResult = this.selection.getSelection();
+            const anchorBlock = selectionResult?.anchor.block;
+            const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
             // Fix issue that language input can not get focus when it's empty(Firefox only)
             if (
                 event.type === 'click'
@@ -385,10 +386,10 @@ export class Editor {
         if (!selection)
             return;
 
-        const { anchorPath, anchor, focus, isSelectionInSameBlock } = selection;
+        const { anchor, focus, isSelectionInSameBlock } = selection;
         // `ScrollPage.queryBlock` consumes the path array in place (`path.shift`),
         // so query against a copy and leave the caller's selection untouched.
-        const cursorBlock = this.scrollPage?.queryBlock([...anchorPath]);
+        const cursorBlock = this.scrollPage?.queryBlock([...anchor.path]);
 
         const begin = Math.min(anchor.offset, focus.offset);
         const end = Math.max(anchor.offset, focus.offset);
@@ -418,9 +419,16 @@ export class Editor {
         // paths so `_setCursor`'s `queryBlock(path)` fallback can't drain the
         // caller's arrays — notably the selection object stored in the undo stack.
         this.selection.setSelection({
-            ...selection,
-            anchorPath: [...selection.anchorPath],
-            focusPath: [...selection.focusPath],
+            anchor,
+            focus,
+            anchorBlock: anchor.block,
+            anchorPath: [...anchor.path],
+            focusBlock: focus.block,
+            focusPath: [...focus.path],
+            isCollapsed: selection.isCollapsed,
+            isSelectionInSameBlock,
+            direction: selection.direction,
+            type: selection.type,
         });
     }
 

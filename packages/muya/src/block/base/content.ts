@@ -296,15 +296,13 @@ class Content extends TreeNode {
         const {
             anchor,
             focus,
-            anchorBlock,
-            focusBlock,
             isCollapsed,
             isSelectionInSameBlock, // This is always be true.
             direction,
             type,
         } = selection;
 
-        if (anchorBlock !== this || focusBlock !== this)
+        if (anchor.block !== this || focus.block !== this)
             return null;
 
         return {

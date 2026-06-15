@@ -169,12 +169,8 @@ describe('muya.updateParagraph()', () => {
         // range, so the real menu scenario (getSelection returns the range) is
         // stubbed here; the assertions below exercise the path re-resolution.
         const liveSelection = {
-            anchor: { offset: 0 },
-            focus: { offset: 1 },
-            anchorBlock: first,
-            anchorPath: first.path,
-            focusBlock: third,
-            focusPath: third.path,
+            anchor: { offset: 0, block: first, path: first.path },
+            focus: { offset: 1, block: third, path: third.path },
             isCollapsed: false,
             isSelectionInSameBlock: false,
             direction: 'forward',

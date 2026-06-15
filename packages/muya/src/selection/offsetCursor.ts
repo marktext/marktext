@@ -140,7 +140,7 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): ICursor | null {
     let focusOffset = focus.offset;
 
     // When both sentinels live in the same block, the second one's recorded
-    // offset is shifted by the first sentinel's length. Normalise so both
+    // offset is shifted by the first sentinel's length. Normalize so both
     // offsets are expressed against the sentinel-free text.
     if (anchor.block === focus.block) {
         if (anchorOffset <= focusOffset)
@@ -216,7 +216,8 @@ export function injectStateSentinels(
     state: TState[],
     selection: ISelection,
 ): TState[] | null {
-    const { anchorPath, focusPath } = selection;
+    const anchorPath = selection.anchor.path;
+    const focusPath = selection.focus.path;
     const anchorOffset = selection.anchor.offset;
     const focusOffset = selection.focus.offset;
 

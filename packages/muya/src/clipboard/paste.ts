@@ -219,7 +219,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!selection)
         return;
 
-    const { isSelectionInSameBlock, anchorBlock } = selection;
+    const { isSelectionInSameBlock, anchor } = selection;
+    const anchorBlock = anchor.block;
 
     if (!anchorBlock)
         return;

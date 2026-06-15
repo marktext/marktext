@@ -1,6 +1,6 @@
 import type { JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
-import type { IHistorySelection } from '../selection/types';
+import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
@@ -33,16 +33,16 @@ interface IStack {
     redo: IOperation[];
 }
 
-// A JSON-serializable view of an ISelection. The live `anchorBlock` /
-// `focusBlock` references are dropped — they are an in-memory optimization
-// only. `Selection._setCursor` re-resolves the target block from
-// `anchorPath` / `focusPath` via `scrollPage.queryBlock(path)` when no block
-// instance is present, so a path-only selection restores the caret losslessly.
+// A JSON-serializable view of an ISelection. The live endpoint `block`
+// references are dropped — they are an in-memory optimization only.
+// `Selection._setCursor` re-resolves the target block from each endpoint's
+// `path` via `scrollPage.queryBlock(path)` when no block instance is present,
+// so a path-only selection restores the caret losslessly.
+type ISerializableAnchorFocusInfo = Pick<IAnchorFocusInfo, 'offset' | 'path'>;
+
 interface ISerializableSelection {
-    anchor: IHistorySelection['anchor'];
-    focus: IHistorySelection['focus'];
-    anchorPath: IHistorySelection['anchorPath'];
-    focusPath: IHistorySelection['focusPath'];
+    anchor: ISerializableAnchorFocusInfo;
+    focus: ISerializableAnchorFocusInfo;
     isCollapsed: IHistorySelection['isCollapsed'];
     isSelectionInSameBlock: IHistorySelection['isSelectionInSameBlock'];
     direction: IHistorySelection['direction'];
@@ -215,10 +215,8 @@ class History {
             return selection;
 
         return {
-            anchor: deepClone(selection.anchor),
-            focus: deepClone(selection.focus),
-            anchorPath: deepClone(selection.anchorPath),
-            focusPath: deepClone(selection.focusPath),
+            anchor: { offset: selection.anchor.offset, path: deepClone(selection.anchor.path) },
+            focus: { offset: selection.focus.offset, path: deepClone(selection.focus.path) },
             isCollapsed: selection.isCollapsed,
             isSelectionInSameBlock: selection.isSelectionInSameBlock,
             direction: selection.direction,
@@ -229,9 +227,9 @@ class History {
     // Rebuild a selection without live block references. The block instances
     // are intentionally omitted: the only consumers of a restored selection
     // are `editor.updateContents` and `selection._setCursor`, both of which
-    // re-resolve the target block from `anchorPath` / `focusPath` via
+    // re-resolve the target block from each endpoint's `path` via
     // `scrollPage.queryBlock` when no block instance is present. The return
-    // type is `IHistorySelection`, whose `anchorBlock` / `focusBlock` are
+    // type is `IHistorySelection`, whose endpoint `block` references are
     // optional, so the missing block fields are part of the contract rather
     // than an unsound cast over fabricated `ContentBlock` instances.
     private _fromSerializableSelection(
@@ -241,10 +239,8 @@ class History {
             return selection;
 
         return {
-            anchor: deepClone(selection.anchor),
-            focus: deepClone(selection.focus),
-            anchorPath: deepClone(selection.anchorPath),
-            focusPath: deepClone(selection.focusPath),
+            anchor: { offset: selection.anchor.offset, path: deepClone(selection.anchor.path) },
+            focus: { offset: selection.focus.offset, path: deepClone(selection.focus.path) },
             isCollapsed: selection.isCollapsed,
             isSelectionInSameBlock: selection.isSelectionInSameBlock,
             direction: selection.direction,

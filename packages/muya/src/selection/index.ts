@@ -1,7 +1,7 @@
 import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
-import type { ICursor, IImageSelectionData, ISelection, SelectionType } from './types';
+import type { ICursor, IImageSelectionData, ISelection } from './types';
 import {
     getCursorCoords,
     getCursorYOffset,
@@ -10,6 +10,7 @@ import {
 import ImageSelection from './ImageSelection';
 import TableRectSelection from './TableRectSelection';
 import TextSelection from './TextSelection';
+import { SelectionType } from './types';
 
 class Selection {
     static getCursorYOffset(paragraph: HTMLElement) {
@@ -37,16 +38,16 @@ class Selection {
 
     get type(): SelectionType {
         if (this._image.selected)
-            return 'image';
+            return SelectionType.Image;
         if (this._table.hasSelection)
-            return 'table';
-        return 'text';
+            return SelectionType.Table;
+        return SelectionType.Text;
     }
 
     get current(): TextSelection | TableRectSelection | ImageSelection {
         switch (this.type) {
-            case 'image': return this._image;
-            case 'table': return this._table;
+            case SelectionType.Image: return this._image;
+            case SelectionType.Table: return this._table;
             default: return this._text;
         }
     }
@@ -90,21 +91,20 @@ class Selection {
     selectImage(data: IImageSelectionData): void {
         this._image.selected = data;
         this.muya.editor.activeContentBlock = null;
-        this.activate('image');
+        this.activate(SelectionType.Image);
     }
 
     activate(type: SelectionType): void {
-        if (type !== 'text')
+        if (type !== SelectionType.Text)
             this._text.collapse();
-        if (type !== 'table')
+        if (type !== SelectionType.Table)
             this._table.clear();
-        if (type !== 'image')
+        if (type !== SelectionType.Image)
             this._image.clear();
 
-        if (type !== 'text') {
+        if (type !== SelectionType.Text) {
             this.muya.eventCenter.emit('selection-change', {
                 kind: type,
-                selection: this.current,
             });
         }
     }
@@ -128,30 +128,25 @@ class Selection {
     }
 
     selectAll(): void {
-        const { anchor, focus, isSelectionInSameBlock, anchorBlock, focusBlock, anchorPath }
-            = this._text;
+        const { anchor, focus, isSelectionInSameBlock, anchorBlock, focusBlock, anchorPath } = this._text;
         const tableSelection = this._table;
 
-        // Table escalation:
-        //   whole table frozen → clear + select the whole document.
-        //   single cell frozen → select the whole table.
         if (tableSelection.isWholeTableSelected()) {
             tableSelection.clear();
             this._text.selectAllContent();
             return;
         }
+
         if (tableSelection.isSingleCellSelected()) {
             const cellBlock = anchorBlock?.closestBlock('table.cell') as TableBodyCell | null;
             const table = cellBlock?.table ?? null;
+
             if (table) {
                 tableSelection.selectTable(table);
                 return;
             }
         }
 
-        // Caret / range inside table cells. A 1x1 selection freezes that cell;
-        // a range across two cells of the same table selects the whole table;
-        // a range across two different tables is a no-op (no document select).
         if (
             anchorBlock?.blockName === 'table.cell.content'
             && focusBlock?.blockName === 'table.cell.content'
@@ -205,6 +200,7 @@ class Selection {
             });
             return;
         }
+
         this._text.selectAllContent();
     }
 }

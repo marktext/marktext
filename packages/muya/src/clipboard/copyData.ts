@@ -107,7 +107,9 @@ function resolveSelectionOrder(
     clipboard: Clipboard,
     selection: ISelection,
 ): Nullable<ICopyOrder> {
-    const { anchor, anchorBlock, focus, focusBlock } = selection;
+    const { anchor, focus } = selection;
+    const anchorBlock = anchor.block;
+    const focusBlock = focus.block;
     const anchorOutMostBlock = anchorBlock.outMostBlock!;
     const focusOutMostBlock = focusBlock.outMostBlock!;
     const anchorOutMostBlockOffset = clipboard.scrollPage?.offset(anchorOutMostBlock);
@@ -257,8 +259,9 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     if (selection == null)
         return { html: '', text: '' };
 
-    const { isSelectionInSameBlock, anchor, anchorBlock, focus, focusBlock }
-        = selection;
+    const { isSelectionInSameBlock, anchor, focus } = selection;
+    const anchorBlock = anchor.block;
+    const focusBlock = focus.block;
 
     if (anchorBlock == null || focusBlock == null)
         return { html: '', text: '' };

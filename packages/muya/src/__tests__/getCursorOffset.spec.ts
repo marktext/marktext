@@ -87,12 +87,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
         const selection: ISelection = {
-            anchor: { offset: 0 },
-            focus: { offset: 5 },
-            anchorBlock: block,
-            anchorPath: [0, 'text'],
-            focusBlock: block,
-            focusPath: [0, 'text'],
+            anchor: { offset: 0, block, path: [0, 'text'] },
+            focus: { offset: 5, block, path: [0, 'text'] },
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: 'forward',
@@ -111,12 +107,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
         const selection: ISelection = {
-            anchor: { offset: 9 }, // after "hello wor"
-            focus: { offset: 2 }, //  after "he"
-            anchorBlock: block,
-            anchorPath: [0, 'text'],
-            focusBlock: block,
-            focusPath: [0, 'text'],
+            anchor: { offset: 9, block, path: [0, 'text'] }, // after "hello wor"
+            focus: { offset: 2, block, path: [0, 'text'] }, //  after "he"
             isCollapsed: false,
             isSelectionInSameBlock: true,
             direction: 'backward',

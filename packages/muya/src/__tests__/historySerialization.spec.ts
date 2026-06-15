@@ -93,7 +93,7 @@ describe('muya history serialization api', () => {
         if (recorded.selection) {
             expect(recorded.selection).not.toHaveProperty('anchorBlock');
             expect(recorded.selection).not.toHaveProperty('focusBlock');
-            expect(Array.isArray(recorded.selection.anchorPath)).toBe(true);
+            expect(Array.isArray(recorded.selection.anchor.path)).toBe(true);
         }
     });
 

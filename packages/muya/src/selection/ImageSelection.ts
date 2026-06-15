@@ -6,6 +6,7 @@ import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
 import { isHTMLElement, isKeyboardEvent } from '../utils';
 import { getImageInfo, getImageSrc } from '../utils/image';
 import { findContentDOM } from './dom';
+import { SelectionType } from './types';
 
 class ImageSelection {
     selected: IImageSelectionData | null = null;
@@ -56,7 +57,7 @@ class ImageSelection {
             event.preventDefault();
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
-            this._selection.activate('text');
+            this._selection.activate(SelectionType.Text);
         }
     };
 
