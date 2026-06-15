@@ -1,4 +1,4 @@
-import { ipcMain, type BrowserWindow, type MenuItem } from 'electron'
+import { ipcMain, type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 
@@ -103,16 +103,15 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
  * @param changes Array of changed view settings (e.g. [ {showSideBar: true} ]).
  */
 export const viewLayoutChanged = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   changes: Record<string, unknown>
 ): void => {
   const disableMenuByName = (id: string, value: boolean): void => {
-    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)
+    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)!
     menuItem.enabled = value
   }
   const changeMenuByName = (id: string, value: unknown): void => {
-    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)
+    const menuItem: MenuItem = applicationMenu.getMenuItemById(id)!
     menuItem.checked = !!value
   }
 

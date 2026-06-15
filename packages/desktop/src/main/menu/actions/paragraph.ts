@@ -1,4 +1,4 @@
-import { type BrowserWindow, type MenuItem } from 'electron'
+import { type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 
@@ -156,25 +156,20 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const setParagraphMenuItemStatus = (applicationMenu: any, bool: boolean): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => (item.enabled = bool))
+const setParagraphMenuItemStatus = (applicationMenu: Menu, bool: boolean): void => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = bool))
 }
 
 const setMultipleStatus = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   list: readonly string[],
   status: boolean
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  paragraphMenuItem.submenu.items
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((item: any) => item.id && list.includes(item.id))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .forEach((item: any) => (item.enabled = status))
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items
+    .filter((item: MenuItem) => item.id && list.includes(item.id))
+    .forEach((item: MenuItem) => (item.enabled = status))
 }
 
 interface SelectionState {
@@ -189,15 +184,12 @@ interface SelectionState {
 }
 
 const setCheckedMenuItem = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   { affiliation, isTable, isLooseListItem, isTaskList }: SelectionState
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => (item.checked = false))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => {
     if (!item.id) {
       return false
     } else if (item.id === 'looseListItemMenuItem') {
@@ -230,8 +222,7 @@ const setCheckedMenuItem = (
  * @param state The selection information.
  */
 export const updateSelectionMenus = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   state: SelectionState
 ): void => {
   const {
@@ -245,9 +236,8 @@ export const updateSelectionMenus = (
   } = state
 
   // Reset format menu.
-  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(formatMenuItem.submenu as any).items.forEach((item: any) => (item.enabled = true))
+  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
+  formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = true))
 
   // Handle menu checked.
   setCheckedMenuItem(applicationMenu, state)
@@ -263,20 +253,16 @@ export const updateSelectionMenus = (
 
     // A code line is selected.
     if (isCodeContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(formatMenuItem.submenu as any).items.forEach((item: any) => (item.enabled = false))
+      formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = false))
 
       if (Object.keys(affiliation).some((b) => /code$/.test(b))) {
         setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
       }
     }
   } else if (isMultiline) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(formatMenuItem.submenu as any).items
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((item: any) => item.id && DISABLE_LABELS.includes(item.id))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .forEach((item: any) => (item.enabled = false))
+    formatMenuItem.submenu!.items
+      .filter((item: MenuItem) => item.id && DISABLE_LABELS.includes(item.id))
+      .forEach((item: MenuItem) => (item.enabled = false))
     setMultipleStatus(applicationMenu, DISABLE_LABELS, false)
   }
 

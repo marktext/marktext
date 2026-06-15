@@ -10,6 +10,9 @@ import { updateSelectionMenus } from '../menu/actions/paragraph'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
+import type Preference from '../preferences'
+import type Keybindings from '../keyboard/shortcutHandler'
+import type { IUserPreferences } from '@shared/types/preferences'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -37,13 +40,8 @@ interface ThemeMenuChange {
 }
 
 class AppMenu {
-  // Cross-batch class instances are typed as `any` for now (preferences,
-  // keybindings) — they refer to other main-process modules that are still
-  // partially typed.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly _preferences: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly _keybindings: any
+  private readonly _preferences: Preference
+  private readonly _keybindings: Keybindings
   private readonly _userDataPath: string
   public readonly RECENTS_PATH: string
   public readonly isOsxOrWindows: boolean
@@ -56,10 +54,8 @@ class AppMenu {
    * @param userDataPath The user data path.
    */
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    preferences: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    keybindings: any,
+    preferences: Preference,
+    keybindings: Keybindings,
     userDataPath: string
   ) {
     this._preferences = preferences
@@ -426,7 +422,7 @@ class AppMenu {
    */
   async _initializeLanguage(): Promise<void> {
     try {
-      const currentLanguage = this._preferences.getItem('language')
+      const currentLanguage = this._preferences.getItem<string>('language')
       if (currentLanguage) {
         setLanguage(currentLanguage)
         log.info(`Main process language initialized to: ${currentLanguage}`)
