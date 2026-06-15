@@ -18,8 +18,7 @@ const stores: StoreCache = {
   layoutStore: null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const createBufferedState = (): Record<string, any> | null => {
+export const createBufferedState = (): Record<string, unknown> | null => {
   if (!stores.editorStore) {
     stores.editorStore = useEditorStore()
   }

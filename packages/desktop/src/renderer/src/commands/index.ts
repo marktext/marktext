@@ -18,10 +18,8 @@ export { default as TrailingNewlineCommand } from './trailingNewline'
 export interface CommandSubcommand {
   id: string
   description?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  execute?: (...args: any[]) => any
+  value?: unknown
+  execute?: () => void | Promise<void>
 }
 
 export interface CommandDescriptor {
@@ -29,10 +27,8 @@ export interface CommandDescriptor {
   description?: string
   shortcut?: string[]
   subcommands?: CommandSubcommand[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  execute?: (...args: any[]) => any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  executeSubcommand?: (...args: any[]) => any
+  execute?: () => void | Promise<void>
+  executeSubcommand?: (commandId: string, value?: unknown) => void | Promise<void>
 }
 
 export class RootCommand {

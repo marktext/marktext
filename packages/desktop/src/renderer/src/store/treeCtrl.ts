@@ -29,6 +29,16 @@ interface TreeFile {
   isMarkdown: boolean
 }
 
+interface AddFileInput {
+  pathname: string
+  name: string
+  birthTime?: number | Date
+  mtimeMs?: number
+  isDirectory: false
+  isFile: true
+  isMarkdown: boolean
+}
+
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 
 const makeFileComparator = (sortBy: string, sortOrder: string) =>
@@ -64,8 +74,7 @@ const getSubdirectoriesFromRoot = (rootPath: string, pathname: string): string[]
 /**
  * Add a new file to the tree list.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const addFile = (tree: TreeFolder, file: any, sortBy: string = 'title', sortOrder: string = 'asc'): void => {
+export const addFile = (tree: TreeFolder, file: AddFileInput, sortBy: string = 'title', sortOrder: string = 'asc'): void => {
   const { pathname, name } = file
   const dirname = window.path.dirname(pathname)
   const subDirectories = getSubdirectoriesFromRoot(tree.pathname, dirname)

@@ -27,6 +27,7 @@ import type {
   FileNotification,
   LineEnding,
   MarkdownDocument,
+  PageOptions,
   TabOptions
 } from '@shared/types/files'
 
@@ -82,7 +83,7 @@ interface FormatLinkClickPayload {
 interface ExportPayload {
   type: string
   content?: string
-  pageOptions?: unknown
+  pageOptions?: PageOptions
 }
 
 interface AutoSavePayload {
@@ -104,10 +105,19 @@ interface ContentChangePayload {
   blocks?: unknown
 }
 
+interface AffiliationEntry {
+  type: string
+  functionType?: string
+  listType?: string
+  listItemType?: string
+  isLooseListItem?: boolean
+  [key: string]: unknown
+}
+
 interface SelectionChange {
   start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
   end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
-  affiliation?: Array<{ type: string; functionType?: string; [key: string]: unknown }>
+  affiliation?: AffiliationEntry[]
 }
 
 interface SelectionFormat {
@@ -830,8 +840,14 @@ export const useEditorStore = defineStore('editor', {
             project: projectStore
           })
         )
-        bus.emit('cmd::register-command', new LineEndingCommand(this))
-        bus.emit('cmd::register-command', new TrailingNewlineCommand(this))
+        bus.emit(
+          'cmd::register-command',
+          new LineEndingCommand(this as unknown as { currentFile: IFileState })
+        )
+        bus.emit(
+          'cmd::register-command',
+          new TrailingNewlineCommand(this as unknown as { currentFile: IFileState })
+        )
 
         setTimeout(() => {
           window.electron.ipcRenderer.send('mt::request-keybindings')
@@ -1505,8 +1521,7 @@ export const useEditorStore = defineStore('editor', {
         content: content ?? '',
         filename,
         pathname,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        pageOptions: (pageOptions ?? {}) as any
+        pageOptions: pageOptions ?? {}
       })
     },
 
@@ -1794,12 +1809,6 @@ interface ApplicationMenuState {
  * @param {*} selection The selection.
  * @returns A object that represents the application menu state.
  */
-// Loose shapes for the application-menu selection helpers. The legacy code
-// indexes through Muya block trees that aren't typed yet; use `any` locally to
-// keep the conversion focused on the store surface.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LooseAffiliation = any
-
 const createApplicationMenuState = ({
   start,
   end,
@@ -1822,9 +1831,9 @@ const createApplicationMenuState = ({
     affiliation: {}
   }
   const { isMultiline } = state
-  const aff = (affiliation ?? []) as LooseAffiliation[]
-  const startBlock = (start.block ?? {}) as LooseAffiliation
-  const endBlock = (end.block ?? {}) as LooseAffiliation
+  const aff: AffiliationEntry[] = affiliation ?? []
+  const startBlock: { text?: string; functionType?: string } = start.block ?? {}
+  const endBlock: { functionType?: string } = end.block ?? {}
 
   // Get code block information from selection.
   if (

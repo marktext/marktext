@@ -1,6 +1,7 @@
 import bus from '../bus'
 import { delay } from '@/util'
 import FileSearcher from '@/node/fileSearcher'
+import type { EditorState } from '@/store/editor'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
 
@@ -12,13 +13,9 @@ interface QuickOpenSubcommand {
   title?: string
 }
 
-// Loose state shapes; the actual Pinia stores are still JS.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FolderState = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RootState = { editor: EditorState; project: FolderState; [key: string]: any }
+type RootState = { editor: EditorState; project: FolderState; [key: string]: unknown }
 
 type CancelFn = (() => void) | null
 
@@ -67,9 +64,7 @@ class QuickOpenCommand {
 
     const timeout = delay(300)
     this._cancelFn = () => {
-      // `delay` returns a promise with a `cancel` attached.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(timeout as any).cancel()
+      timeout.cancel()
       this._cancelFn = null
     }
 
@@ -84,8 +79,7 @@ class QuickOpenCommand {
     }
 
     this.subcommands = _editorState.tabs
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((tab: any) => tab.pathname)
+      .map((tab) => tab.pathname)
       // Filter untitled tabs
       .filter((tabPath: string | null | undefined) => !!tabPath)
       .map((pathname: string) => {
@@ -102,8 +96,7 @@ class QuickOpenCommand {
   }
 
   executeSubcommand = async(id: string): Promise<void> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { windowId } = (window as any).marktext.env
+    const { windowId } = window.marktext!.env!
     window.electron.ipcRenderer.send('mt::open-file-by-window-id', windowId, id)
   }
 
@@ -191,8 +184,7 @@ class QuickOpenCommand {
             })
           )
         })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .catch((error: any) => {
+        .catch((error: unknown) => {
           this._cancelFn = null
           reject(error)
         })

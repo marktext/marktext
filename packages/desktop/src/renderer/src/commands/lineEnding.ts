@@ -1,4 +1,5 @@
 import { delay } from '@/util'
+import type { IFileState } from '@shared/types/files'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -12,9 +13,9 @@ interface LineEndingSubcommand {
   value: 'crlf' | 'lf'
 }
 
-// Loose editor-state shape; the actual store is still JS and migrates later.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
+interface EditorState {
+  currentFile: IFileState
+}
 
 class LineEndingCommand {
   id: string
