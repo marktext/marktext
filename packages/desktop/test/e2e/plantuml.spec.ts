@@ -48,7 +48,7 @@ test.describe('PlantUML render via plantuml-encoder', () => {
     const img = page.locator(`img[src*="${CUSTOM_SERVER}"]`).first()
     await expect(img).toHaveCount(1, { timeout: 10000 })
     const src = await img.getAttribute('src')
-    expect(src).toMatch(new RegExp(`^${escapeRegex(CUSTOM_SERVER)}/svg/~1[A-Za-z0-9_-]+$`))
+    expect(src).toMatch(new RegExp(`^${escapeRegex(CUSTOM_SERVER)}/svg/[A-Za-z0-9_-]+$`))
   })
 })
 
