@@ -5,7 +5,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import log from 'electron-log'
 import { isWindows } from '../config'
 import { hasSameKeys } from '../utils'
-import { getSupportedLanguages, isLanguageSupported } from 'common/i18n'
+import { matchSystemLocale } from 'common/i18n'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type { IUserPreferences } from '@shared/types/preferences'
 import schema from './schema.json'
@@ -202,29 +202,37 @@ class Preference extends TypedEmitter<PreferenceEvents> {
    */
   _getSystemLanguage(): string | null {
     try {
-      // Get the system language
-      const systemLocale = app.getLocale()
-      log.info(`System locale detected: ${systemLocale}`)
+      // Gather locale candidates from several sources and return the first that
+      // maps to a supported language. `app.getLocale()` is only reliable after
+      // the 'ready' event, but Preference is constructed at module load (see
+      // main/index.ts) — before 'ready'. On Linux that makes `app.getLocale()`
+      // return '' on first launch, so detection silently fell back to English
+      // even on e.g. a German system. The POSIX locale env vars and
+      // `app.getPreferredSystemLanguages()` are available immediately, so we
+      // consult them as fallbacks.
+      const candidates: Array<string | undefined> = [
+        app.getLocale(),
+        ...(typeof app.getPreferredSystemLanguages === 'function'
+          ? app.getPreferredSystemLanguages()
+          : []),
+        process.env.LC_ALL,
+        process.env.LC_MESSAGES,
+        process.env.LANG
+      ]
 
-      // Get the list of supported languages
-      const supportedLanguages = getSupportedLanguages()
-
-      // Directly match the full language code (e.g. zh-CN)
-      if (isLanguageSupported(systemLocale)) {
-        log.info(`Using system language: ${systemLocale}`)
-        return systemLocale
+      for (const candidate of candidates) {
+        const matched = matchSystemLocale(candidate)
+        if (matched) {
+          log.info(`Detected system language '${matched}' from locale '${candidate}'`)
+          return matched
+        }
       }
 
-      // Attempt to match the primary part of the language (e.g. zh)
-      const primaryLanguage = systemLocale.split('-')[0]!
-      const matchedLanguage = supportedLanguages.find((lang) => lang.startsWith(primaryLanguage))
-
-      if (matchedLanguage) {
-        log.info(`Using matched language: ${matchedLanguage} for system locale: ${systemLocale}`)
-        return matchedLanguage
-      }
-
-      log.info(`System language ${systemLocale} not supported, will use default language`)
+      log.info(
+        `No supported system language detected (candidates: ${candidates
+          .filter(Boolean)
+          .join(', ')}); using default language`
+      )
       return null
     } catch (error) {
       log.error('Error detecting system language:', error)

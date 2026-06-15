@@ -97,6 +97,36 @@ function isLanguageSupported(language: string): boolean {
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(language)
 }
 
+/**
+ * Normalizes a raw OS locale string (e.g. 'de_DE.UTF-8', 'de-DE', 'en') and
+ * matches it against the supported languages — first by exact BCP 47 tag, then
+ * by primary subtag (so 'de-DE' → 'de' and 'zh' → 'zh-CN'). Returns null for
+ * empty / `C` / `POSIX` locales or when nothing matches.
+ *
+ * This is deliberately defensive: callers may pass a locale obtained before the
+ * Electron `ready` event, when `app.getLocale()` can return ''. An empty string
+ * must never accidentally match a language — the previous `startsWith(primary)`
+ * approach matched the first supported language ('en') for an empty primary.
+ */
+function matchSystemLocale(rawLocale: string | undefined | null): string | null {
+  if (!rawLocale) return null
+
+  // 'de_DE.UTF-8' / 'de_DE@euro' -> 'de-DE'
+  const normalized = rawLocale.split('.')[0]!.split('@')[0]!.replace(/_/g, '-').trim()
+  if (!normalized || normalized === 'C' || normalized === 'POSIX') return null
+
+  // Exact tag match first (e.g. 'zh-CN').
+  if (isLanguageSupported(normalized)) return normalized
+
+  // Fall back to the primary subtag (e.g. 'de-DE' -> 'de', 'zh-Hant' -> 'zh').
+  const primary = normalized.split('-')[0]!.toLowerCase()
+  if (!primary) return null
+
+  return (
+    SUPPORTED_LANGUAGES.find((lang) => lang === primary || lang.startsWith(`${primary}-`)) ?? null
+  )
+}
+
 function clearCache(): void {
   translationsCache = {}
 }
@@ -109,6 +139,7 @@ export {
   getTranslation,
   getSupportedLanguages,
   isLanguageSupported,
+  matchSystemLocale,
   clearCache,
   getAllTranslations,
   loadTranslations
