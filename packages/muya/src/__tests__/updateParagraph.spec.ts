@@ -99,6 +99,36 @@ describe('muya.updateParagraph()', () => {
         });
     });
 
+    // Promote clamp: H1 is the top heading level, so `upgrade heading` on an
+    // H1 is a no-op (the level stays 1) — _changeHeadingLevel returns early
+    // when `level === 1`.
+    it('upgrade heading on h1 is a no-op (stays level 1)', async () => {
+        const muya = bootMuya('# one\n');
+        placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(1);
+        muya.updateParagraph('upgrade heading');
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(1);
+        expect(muya.getMarkdown()).toContain('# one');
+    });
+
+    // Demote clamp: degrading an H6 drops past the heading floor, so the block
+    // becomes a plain paragraph (newLevel === 0 -> 'paragraph' label).
+    it('degrade heading on h6 turns it into a paragraph', async () => {
+        const muya = bootMuya('###### six\n');
+        placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(6);
+        muya.updateParagraph('degrade heading');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('paragraph');
+        });
+        expect(muya.getMarkdown()).toContain('six');
+        expect(muya.getMarkdown()).not.toContain('# six');
+    });
+
     it('turns a paragraph into a blockquote', async () => {
         const muya = bootMuya('quote me\n');
         placeCursorOnFirstBlock(muya);
@@ -234,6 +264,37 @@ describe('muya.updateParagraph()', () => {
         await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         expect(firstBlock(muya).name).toBe('paragraph');
         expect(muya.getMarkdown()).toContain('keep me');
+    });
+
+    // HR positive path: an empty paragraph passes the content guard, so `hr`
+    // replaces it with a thematic-break AND inserts a fresh trailing paragraph
+    // so the user is never stranded on the un-editable rule. The cursor lands
+    // in that trailing paragraph.
+    it('converts an empty paragraph to an hr, leaving a trailing paragraph with the cursor', async () => {
+        const muya = bootMuya('');
+        const first = placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('paragraph');
+        expect(first.text).toBe('');
+
+        muya.updateParagraph('hr');
+
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state[0].name).toBe('thematic-break');
+            expect(state[1].name).toBe('paragraph');
+        });
+
+        const state = muya.getState();
+        // The trailing paragraph is empty and ready for input.
+        expect((state[1] as { text: string }).text).toBe('');
+
+        // The cursor moved off the original paragraph into the trailing one:
+        // the active content block is the trailing paragraph's leaf.
+        const active = muya.editor.activeContentBlock;
+        expect(active).not.toBeNull();
+        const trailing = muya.editor.scrollPage!.lastContentInDescendant();
+        expect(active).toBe(trailing);
     });
 
     // G4 regression: the plain 'paragraph' menu item must not collapse a list /
