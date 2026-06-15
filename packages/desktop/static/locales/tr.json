@@ -427,7 +427,8 @@
         "searchIncludeHidden": "Gizli dosya ve klasörlerde arama yapılıp yapılmayacağı",
         "searchNoIgnore": ".gitignore gibi yoksayma dosyalarının yoksayılıp yoksayılmayacağı",
         "searchFollowSymlinks": "Sembolik bağlantıların izlenip izlenmeyeceği",
-        "watcherUsePolling": "Yoklama kullanılıp kullanılmayacağı. Yoklama yüksek CPU kullanımına yol açabilir ancak ağ üzerindeki dosyaları izlemek için gereklidir"
+        "watcherUsePolling": "Yoklama kullanılıp kullanılmayacağı. Yoklama yüksek CPU kullanımına yol açabilir ancak ağ üzerindeki dosyaları izlemek için gereklidir",
+        "plantumlServer": "PlantUML sunucu URL'si"
       }
     },
     "categories": {
@@ -643,6 +644,9 @@
           "title": "Dizi Teması",
           "handDrawn": "El Çizimi",
           "simple": "Basit"
+        },
+        "plantumlServer": {
+          "title": "PlantUML Sunucu URL'si"
         }
       },
       "misc": {
