@@ -1,6 +1,5 @@
 import type { Muya } from '../muya';
 import type { IClipboardPayload } from './copyData';
-import { fromEvent, merge } from 'rxjs';
 import { isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection } from './cut';
@@ -30,10 +29,10 @@ class Clipboard {
     constructor(public muya: Muya) {}
 
     listen() {
-        const { domNode } = this.muya;
+        const ownsEvent = () => this.muya.hasFocus();
 
         const copyCutHandler = (event: Event) => {
-            if (!isClipboardEvent(event))
+            if (!ownsEvent() || !isClipboardEvent(event))
                 return;
             event.preventDefault();
             event.stopPropagation();
@@ -47,9 +46,12 @@ class Clipboard {
         };
 
         const keydownHandler = (event: Event) => {
-            if (!isKeyboardEvent(event))
+            if (!ownsEvent() || !isKeyboardEvent(event))
                 return;
             const { key, metaKey } = event;
+
+            if (this.selection.table.hasSelection)
+                return;
 
             const { isSelectionInSameBlock } = this.selection.getSelection() ?? {};
             if (isSelectionInSameBlock)
@@ -74,15 +76,16 @@ class Clipboard {
         };
 
         const pasteHandler = (event: Event) => {
-            if (isClipboardEvent(event))
+            if (ownsEvent() && isClipboardEvent(event))
                 this.pasteHandler(event);
         };
 
-        merge(fromEvent(domNode, 'copy'), fromEvent(domNode, 'cut'))
-            .subscribe(copyCutHandler);
+        const { eventCenter } = this.muya;
 
-        fromEvent(domNode, 'paste').subscribe(pasteHandler);
-        fromEvent(domNode, 'keydown').subscribe(keydownHandler);
+        eventCenter.attachDOMEvent(document, 'copy', copyCutHandler);
+        eventCenter.attachDOMEvent(document, 'cut', copyCutHandler);
+        eventCenter.attachDOMEvent(document, 'paste', pasteHandler);
+        eventCenter.attachDOMEvent(document, 'keydown', keydownHandler);
     }
 
     getClipboardData(): IClipboardPayload {

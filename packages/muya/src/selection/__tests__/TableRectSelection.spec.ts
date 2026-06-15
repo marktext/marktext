@@ -108,6 +108,17 @@ describe('cross-cell table selection — highlight', () => {
         expect(muya.editor.selection.table.hasSelection).toBe(true);
     });
 
+    it('keeps the table selection exclusive of any text selection', () => {
+        const muya = bootMuya(TABLE_MD);
+        const table = firstTable(muya);
+        dragSelect(table, 0, 0, 1, 1);
+        // The rectangle is the only selection: no model-level text caret and
+        // no native range survive alongside it.
+        expect(muya.editor.selection.table.hasSelection).toBe(true);
+        expect(muya.editor.activeContentBlock).toBe(null);
+        expect(document.getSelection()?.rangeCount).toBe(0);
+    });
+
     it('does not start a selection when the pointer stays in one cell', () => {
         const muya = bootMuya(TABLE_MD);
         const table = firstTable(muya);

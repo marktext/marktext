@@ -80,7 +80,7 @@ class TableRectSelection {
             column: focusCell.columnOffset,
         };
         this._isSelecting = true;
-        this._collapseCaretToAnchor();
+        this._freezeNativeSelection();
         this._renderHighlight();
     }
 
@@ -96,7 +96,7 @@ class TableRectSelection {
         this._anchor = position;
         this._focus = position;
         this._isSelecting = true;
-        this._collapseCaretToAnchor();
+        this._freezeNativeSelection();
         this._renderHighlight();
     }
 
@@ -146,19 +146,13 @@ class TableRectSelection {
             && !this._isSelecting
         ) {
             this._isSelecting = true;
-            // Collapse the native text range to a caret in the anchor cell so
-            // the rectangle highlight is the only visible *range* selection,
-            // while the editor stays focused — copy/cut events fire only on the
-            // focused element, so a full blur would break the clipboard.
-            this._collapseCaretToAnchor();
+            this._freezeNativeSelection();
         }
 
         if (!this._isSelecting)
             return;
 
-        // The browser keeps trying to extend a native text selection during the
-        // drag; collapse it again each move so only the cell rectangle shows.
-        this._collapseCaretToAnchor();
+        this._suppressNativeRange();
 
         // Off-table moves null the focus, so releasing outside the table
         // cancels the selection rather than freezing a 1×1 anchor-cell range.
@@ -175,12 +169,15 @@ class TableRectSelection {
             this.clear();
     };
 
-    private _collapseCaretToAnchor(): void {
-        const content = this._anchor?.cell.firstChild;
-        if (content && content.isContent())
-            content.setCursor(0, 0, false);
-
+    private _freezeNativeSelection(): void {
+        document.getSelection()?.removeAllRanges();
+        this.muya.domNode.focus();
+        this.muya.editor.activeContentBlock = null;
         this.muya.ui.hideAllFloatTools();
+    }
+
+    private _suppressNativeRange(): void {
+        document.getSelection()?.removeAllRanges();
     }
 
     private _detachDragEvents(): void {
