@@ -261,7 +261,7 @@ class TableRectSelection {
 
     /**
      * The selected rectangle as an `ITableState` sub-table, or `null` when there
-     * is no frozen selection. The clipboard serialises this to GFM markdown.
+     * is no frozen selection. The clipboard serializes this to GFM markdown.
      */
     getStateForCopy(): Nullable<ITableState> {
         if (!this.hasSelection)

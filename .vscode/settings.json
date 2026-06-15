@@ -6,14 +6,21 @@
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   "cSpell.words": [
+    "commonmark",
     "contenteditable",
+    "execall",
     "frontmatter",
     "Häusler",
     "hfelix",
     "Jocs",
+    "katex",
+    "laynezh",
     "marktext",
     "muya",
+    "Setext",
     "snabbdom",
-    "Tkaixiang"
+    "snapsvg",
+    "Tkaixiang",
+    "webfontloader"
   ]
 }
