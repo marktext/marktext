@@ -1,6 +1,9 @@
 // @vitest-environment happy-dom
+import type Parent from '../block/base/parent';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
+
+interface IStateBlock { name: string; text: string; children: IStateBlock[] }
 
 const hosts: HTMLElement[] = [];
 beforeEach(() => {
@@ -22,7 +25,7 @@ function boot(md: string): Muya {
 function selectFirstTwoBlocks(muya: Muya) {
     const sp = muya.editor.scrollPage!;
     const first = sp.firstContentInDescendant()!;
-    const second = sp.firstChild!.next!.firstContentInDescendant()!;
+    const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
     muya.editor.activeContentBlock = second;
     muya.editor.selection.setSelection(
         { offset: 0, block: first, path: first.path },
@@ -36,7 +39,7 @@ describe('cross-block paragraph wrapping', () => {
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('ul-bullet');
         await vi.waitFor(() => {
-            const s = muya.getState();
+            const s = muya.getState() as unknown as IStateBlock[];
             expect(s[0].name).toBe('bullet-list');
             expect(s[0].children.length).toBe(2);
             expect(s[0].children[0].children[0].text).toBe('alpha');
@@ -49,7 +52,7 @@ describe('cross-block paragraph wrapping', () => {
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('ol-order');
         await vi.waitFor(() => {
-            const s = muya.getState();
+            const s = muya.getState() as unknown as IStateBlock[];
             expect(s[0].name).toBe('order-list');
             expect(s[0].children.length).toBe(2);
         });
@@ -60,7 +63,7 @@ describe('cross-block paragraph wrapping', () => {
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('ul-task');
         await vi.waitFor(() => {
-            const s = muya.getState();
+            const s = muya.getState() as unknown as IStateBlock[];
             expect(s[0].name).toBe('task-list');
             expect(s[0].children.length).toBe(2);
         });
@@ -71,7 +74,7 @@ describe('cross-block paragraph wrapping', () => {
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('blockquote');
         await vi.waitFor(() => {
-            const s = muya.getState();
+            const s = muya.getState() as unknown as IStateBlock[];
             expect(s[0].name).toBe('block-quote');
             expect(s[0].children.length).toBe(2);
             expect(s[0].children[0].text).toBe('alpha');
@@ -84,7 +87,7 @@ describe('cross-block paragraph wrapping', () => {
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('pre');
         await vi.waitFor(() => {
-            const s = muya.getState();
+            const s = muya.getState() as unknown as IStateBlock[];
             expect(s.length).toBe(1);
             expect(s[0].name).toBe('code-block');
             const text = (s[0].text ?? '') as string;
