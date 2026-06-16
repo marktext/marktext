@@ -93,6 +93,228 @@ function extractWord(
     };
 }
 
+function shouldRemoveClosingChar(
+    inputChar: string,
+    prePreInputChar: string,
+    options: { autoPairBracket: boolean; autoPairMarkdownSyntax: boolean; autoPairQuote: boolean },
+) {
+    const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = options;
+
+    return (
+        (autoPairQuote && /'/.test(inputChar))
+        || (autoPairQuote && /"/.test(inputChar))
+        || (autoPairBracket && /[}\])]/.test(inputChar))
+        || (autoPairMarkdownSyntax && /\$/.test(inputChar))
+        || (autoPairMarkdownSyntax
+            && /[*$`~_]/.test(inputChar)
+            && /[_*~]/.test(prePreInputChar))
+    );
+}
+
+function shouldInsertClosingPair(
+    inputChar: string,
+    preInputChar: string,
+    postIsNotTouching: boolean,
+    ctx: {
+        autoPairBracket: boolean;
+        autoPairMarkdownSyntax: boolean;
+        autoPairQuote: boolean;
+        isInInlineMath: boolean;
+        isInInlineCode: boolean;
+        type: string;
+    },
+) {
+    const {
+        autoPairBracket,
+        autoPairMarkdownSyntax,
+        autoPairQuote,
+        isInInlineMath,
+        isInInlineCode,
+        type,
+    } = ctx;
+
+    return (
+        (autoPairQuote
+            && /'/.test(inputChar)
+            && postIsNotTouching
+            && !/[a-z\d]/i.test(preInputChar))
+        || (autoPairQuote && /"/.test(inputChar) && postIsNotTouching)
+        || (autoPairBracket && /[{[(]/.test(inputChar) && postIsNotTouching)
+        || (type === 'format'
+            && !isInInlineMath
+            && !isInInlineCode
+            && autoPairMarkdownSyntax
+            && !/[a-z0-9]/i.test(preInputChar)
+            && /[*$`~_]/.test(inputChar))
+    );
+}
+
+const FLOAT_PREVENT_DEFAULT_NAMES = new Set([
+    'mu-format-picker',
+    'mu-table-picker',
+    'mu-quick-insert',
+    'mu-emoji-picker',
+    'mu-front-menu',
+    'mu-list-picker',
+    'mu-image-selector',
+    'mu-table-column-tools',
+    'mu-table-bar-tools',
+]);
+
+interface IAutoPairCollapsedContext {
+    blockText: string;
+    options: {
+        autoPairBracket: boolean;
+        autoPairMarkdownSyntax: boolean;
+        autoPairQuote: boolean;
+    };
+    isInInlineMath: boolean;
+    isInInlineCode: boolean;
+    type: string;
+}
+
+function deleteAutoPair(
+    event: InputEvent,
+    text: string,
+    start: INodeOffset,
+    end: INodeOffset,
+    offset: number,
+    inputChar: string,
+    postInputChar: string,
+    blockText: string,
+) {
+    let needRender = false;
+    // handle `deleteContentBackward` or `deleteContentForward`
+    const deletedChar = blockText[offset];
+    if (
+        event.inputType === 'deleteContentBackward'
+        && postInputChar === BRACKET_HASH[deletedChar]
+    ) {
+        needRender = true;
+        text = text.substring(0, offset) + text.substring(offset + 1);
+    }
+
+    if (
+        event.inputType === 'deleteContentForward'
+        && inputChar === BACK_HASH[deletedChar]
+    ) {
+        needRender = true;
+        start.offset -= 1;
+        end.offset -= 1;
+        text = text.substring(0, offset - 1) + text.substring(offset);
+    }
+
+    return { text, needRender };
+}
+
+function collapsedInputAutoPair(
+    event: InputEvent,
+    text: string,
+    start: INodeOffset,
+    end: INodeOffset,
+    ctx: IAutoPairCollapsedContext,
+) {
+    const { blockText, options, isInInlineMath, isInInlineCode, type } = ctx;
+    const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = options;
+    const { offset } = start;
+    const inputChar = text.charAt(+offset - 1);
+    const preInputChar = text.charAt(+offset - 2);
+    const prePreInputChar = text.charAt(+offset - 3);
+    const postInputChar = text.charAt(+offset);
+    let needRender = false;
+
+    if (event.inputType.startsWith('delete'))
+        return deleteAutoPair(event, text, start, end, offset, inputChar, postInputChar, blockText);
+
+    if (
+        !event.inputType.includes('delete')
+        && inputChar === postInputChar
+        && shouldRemoveClosingChar(inputChar, prePreInputChar, options)
+    ) {
+        needRender = true;
+        text = text.substring(0, offset) + text.substring(offset + 1);
+
+        return { text, needRender };
+    }
+
+    // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
+
+    // Only pair quotes/brackets when the cursor is at
+    // end-of-line or before whitespace.
+    // Inserting `"foo` would otherwise become `""foo` and force
+    // the user to immediately delete the spurious closing char.
+    const postIsNotTouching = !/\S/.test(postInputChar);
+    if (
+        !/\\/.test(preInputChar)
+        && shouldInsertClosingPair(inputChar, preInputChar, postIsNotTouching, {
+            autoPairBracket,
+            autoPairMarkdownSyntax,
+            autoPairQuote,
+            isInInlineMath,
+            isInInlineCode,
+            type,
+        })
+    ) {
+        needRender = true;
+        text
+            = typeof event.data === 'string' && BRACKET_HASH[event.data]
+                ? text.substring(0, offset)
+                + BRACKET_HASH[inputChar]
+                + text.substring(offset)
+                : text;
+    }
+
+    // Delete the last `*` of `**` when you insert one space between `**` to create a bullet list.
+    if (
+        type === 'format'
+        && typeof event.data === 'string'
+        && /\s/.test(event.data)
+        && /^\* /.test(text)
+        && preInputChar === '*'
+        && postInputChar === '*'
+    ) {
+        text = text.substring(0, offset) + text.substring(offset + 1);
+        needRender = true;
+    }
+
+    return { text, needRender };
+}
+
+function lineBreakAutoPair(
+    event: InputEvent,
+    text: string,
+    start: INodeOffset,
+    end: INodeOffset,
+    oldStart: INodeOffset,
+    blockText: string,
+) {
+    // Just work for `Shift + Enter` to create a soft and hard line break.
+    if (
+        blockText.endsWith('\n')
+        && start.offset === text.length
+        && (event.inputType === 'insertText' || event.type === 'compositionend')
+    ) {
+        text = blockText + event.data;
+        // I don't know why firefox don't need to offset++
+        // For more info: https://github.com/marktext/muya/issues/130
+        if (!isFirefox) {
+            start.offset++;
+            end.offset++;
+        }
+    }
+    else if (
+        blockText.length === oldStart.offset
+        && blockText[oldStart.offset - 2] === '\n'
+        && event.inputType === 'deleteContentBackward'
+    ) {
+        text = blockText.substring(0, oldStart.offset - 1);
+        start.offset = text.length;
+        end.offset = text.length;
+    }
+
+    return text;
+}
+
 class Content extends TreeNode {
     public _text: string;
     public isComposed: boolean;
@@ -355,7 +577,6 @@ class Content extends TreeNode {
      * used in input handler
      * @param {input event} event
      */
-    // eslint-disable-next-line complexity
     autoPair(
         event: Event,
         text: string,
@@ -376,119 +597,18 @@ class Content extends TreeNode {
 
         if (this.text !== text) {
             if (start.offset === end.offset && event.type === 'input') {
-                const { offset } = start;
-                const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote }
-                    = this.muya.options;
-                const inputChar = text.charAt(+offset - 1);
-                const preInputChar = text.charAt(+offset - 2);
-                const prePreInputChar = text.charAt(+offset - 3);
-                const postInputChar = text.charAt(+offset);
-
-                if (event.inputType.startsWith('delete')) {
-                    // handle `deleteContentBackward` or `deleteContentForward`
-                    const deletedChar = this.text[offset];
-                    if (
-                        event.inputType === 'deleteContentBackward'
-                        && postInputChar === BRACKET_HASH[deletedChar]
-                    ) {
-                        needRender = true;
-                        text = text.substring(0, offset) + text.substring(offset + 1);
-                    }
-
-                    if (
-                        event.inputType === 'deleteContentForward'
-                        && inputChar === BACK_HASH[deletedChar]
-                    ) {
-                        needRender = true;
-                        start.offset -= 1;
-                        end.offset -= 1;
-                        text = text.substring(0, offset - 1) + text.substring(offset);
-                    }
-                }
-                else if (
-                    !event.inputType.includes('delete')
-                    && inputChar === postInputChar
-                    && ((autoPairQuote && /'/.test(inputChar))
-                        || (autoPairQuote && /"/.test(inputChar))
-                        || (autoPairBracket && /[}\])]/.test(inputChar))
-                        || (autoPairMarkdownSyntax && /\$/.test(inputChar))
-                        || (autoPairMarkdownSyntax
-                            && /[*$`~_]/.test(inputChar)
-                            && /[_*~]/.test(prePreInputChar)))
-                ) {
-                    needRender = true;
-                    text = text.substring(0, offset) + text.substring(offset + 1);
-                }
-                else {
-                    // Not Unicode aware, since things like \p{Alphabetic} or \p{L} are not supported yet
-
-                    // Only pair quotes/brackets when the cursor is at
-                    // end-of-line or before whitespace.
-                    // Inserting `"foo` would otherwise become `""foo` and force
-                    // the user to immediately delete the spurious closing char.
-                    const postIsNotTouching = !/\S/.test(postInputChar);
-                    if (
-                        !/\\/.test(preInputChar)
-                        && ((autoPairQuote
-                            && /'/.test(inputChar)
-                            && postIsNotTouching
-                            && !/[a-z\d]/i.test(preInputChar))
-                        || (autoPairQuote && /"/.test(inputChar) && postIsNotTouching)
-                        || (autoPairBracket && /[{[(]/.test(inputChar) && postIsNotTouching)
-                        || (type === 'format'
-                            && !isInInlineMath
-                            && !isInInlineCode
-                            && autoPairMarkdownSyntax
-                            && !/[a-z0-9]/i.test(preInputChar)
-                            && /[*$`~_]/.test(inputChar)))
-                    ) {
-                        needRender = true;
-                        text
-                            = typeof event.data === 'string' && BRACKET_HASH[event.data]
-                                ? text.substring(0, offset)
-                                + BRACKET_HASH[inputChar]
-                                + text.substring(offset)
-                                : text;
-                    }
-
-                    // Delete the last `*` of `**` when you insert one space between `**` to create a bullet list.
-                    if (
-                        type === 'format'
-                        && typeof event.data === 'string'
-                        && /\s/.test(event.data)
-                        && /^\* /.test(text)
-                        && preInputChar === '*'
-                        && postInputChar === '*'
-                    ) {
-                        text = text.substring(0, offset) + text.substring(offset + 1);
-                        needRender = true;
-                    }
-                }
+                const collapsed = collapsedInputAutoPair(event, text, start, end, {
+                    blockText: this.text,
+                    options: this.muya.options,
+                    isInInlineMath,
+                    isInInlineCode,
+                    type,
+                });
+                text = collapsed.text;
+                needRender = collapsed.needRender || needRender;
             }
 
-            // Just work for `Shift + Enter` to create a soft and hard line break.
-            if (
-                this.text.endsWith('\n')
-                && start.offset === text.length
-                && (event.inputType === 'insertText' || event.type === 'compositionend')
-            ) {
-                text = this.text + event.data;
-                // I don't know why firefox don't need to offset++
-                // For more info: https://github.com/marktext/muya/issues/130
-                if (!isFirefox) {
-                    start.offset++;
-                    end.offset++;
-                }
-            }
-            else if (
-                this.text.length === oldStart.offset
-                && this.text[oldStart.offset - 2] === '\n'
-                && event.inputType === 'deleteContentBackward'
-            ) {
-                text = this.text.substring(0, oldStart.offset - 1);
-                start.offset = text.length;
-                end.offset = text.length;
-            }
+            text = lineBreakAutoPair(event, text, start, end, oldStart, this.text);
         }
 
         return { text, needRender };
@@ -557,38 +677,8 @@ class Content extends TreeNode {
             return;
 
         // TODO: move codes bellow to muya.ui ?
-        if (
-            this.muya.ui.shownFloat.size > 0
-            && (event.key === EVENT_KEYS.Enter
-                || event.key === EVENT_KEYS.Escape
-                || event.key === EVENT_KEYS.Tab
-                || event.key === EVENT_KEYS.ArrowUp
-                || event.key === EVENT_KEYS.ArrowDown)
-        ) {
-            let needPreventDefault = false;
-
-            for (const tool of this.muya.ui.shownFloat) {
-                if (
-                    tool.name === 'mu-format-picker'
-                    || tool.name === 'mu-table-picker'
-                    || tool.name === 'mu-quick-insert'
-                    || tool.name === 'mu-emoji-picker'
-                    || tool.name === 'mu-front-menu'
-                    || tool.name === 'mu-list-picker'
-                    || tool.name === 'mu-image-selector'
-                    || tool.name === 'mu-table-column-tools'
-                    || tool.name === 'mu-table-bar-tools'
-                ) {
-                    needPreventDefault = true;
-                    break;
-                }
-            }
-
-            if (needPreventDefault)
-                event.preventDefault();
-
+        if (this._handleShownFloatKeydown(event))
             return;
-        }
 
         switch (event.key) {
             case EVENT_KEYS.Backspace:
@@ -624,6 +714,33 @@ class Content extends TreeNode {
                 break;
         }
     };
+
+    private _handleShownFloatKeydown(event: KeyboardEvent): boolean {
+        if (
+            this.muya.ui.shownFloat.size > 0
+            && (event.key === EVENT_KEYS.Enter
+                || event.key === EVENT_KEYS.Escape
+                || event.key === EVENT_KEYS.Tab
+                || event.key === EVENT_KEYS.ArrowUp
+                || event.key === EVENT_KEYS.ArrowDown)
+        ) {
+            let needPreventDefault = false;
+
+            for (const tool of this.muya.ui.shownFloat) {
+                if (FLOAT_PREVENT_DEFAULT_NAMES.has(tool.name)) {
+                    needPreventDefault = true;
+                    break;
+                }
+            }
+
+            if (needPreventDefault)
+                event.preventDefault();
+
+            return true;
+        }
+
+        return false;
+    }
 
     blurHandler() {
         this.scrollPage?.handleBlurFromContent(this);
