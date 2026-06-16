@@ -97,8 +97,8 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
 const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'task-list']);
 
 function endpointPair(
-    anchor: Parent | null | undefined,
-    focus: Parent | null | undefined,
+    anchor: Nullable<Parent>,
+    focus: Nullable<Parent>,
 ): { anchor: Parent; focus: Parent } | null {
     return anchor && focus ? { anchor, focus } : null;
 }
@@ -422,6 +422,15 @@ export class Muya {
      */
     format(type: string) {
         const { selection } = this.editor;
+
+        // Cross-block selection: apply to each formattable leaf in range. The
+        // live DOM selection collapses across blocks, so detect via the cached
+        // endpoints (the same ones the menu/IPC round-trip relies on).
+        if (!this._selectionInSameBlock()) {
+            this._formatAcrossBlocks(type);
+            return;
+        }
+
         const sel = selection.getSelection();
         if (!sel)
             return;
@@ -440,6 +449,69 @@ export class Muya {
         );
 
         anchorBlock.format(type);
+    }
+
+    /**
+     * Apply an inline format to every formattable leaf in a cross-block
+     * selection, in document order. Non-formattable leaves (code/math/html/
+     * frontmatter/diagram) are skipped; link/image are no-ops across blocks
+     * (and the menu disables them). Ported from muyajs's multi-block format.
+     */
+    private _formatAcrossBlocks(type: string) {
+        if (type === 'link' || type === 'image')
+            return;
+
+        const range = this._orderedSelectionRange();
+        if (!range)
+            return;
+
+        const { first, last, firstOffset, lastOffset } = range;
+        const snapshot = this._snapshotSelection();
+
+        let leaf: Content | null = first;
+        while (leaf) {
+            const start = leaf === first ? firstOffset : 0;
+            const end = leaf === last ? lastOffset : leaf.text.length;
+            this._formatLeafInRange(type, leaf, start, end);
+            if (leaf === last)
+                break;
+            leaf = leaf.nextContentInContext() ?? null;
+        }
+
+        this._restoreSelection(snapshot);
+    }
+
+    /** The selection's first/last content leaves and offsets, in document order. */
+    private _orderedSelectionRange() {
+        const { selection } = this.editor;
+        const anchorLeaf = selection.anchorBlock;
+        const focusLeaf = selection.focusBlock;
+        if (!anchorLeaf || !focusLeaf)
+            return null;
+
+        const sp = this.editor.scrollPage!;
+        const anchorOut = anchorLeaf.outMostBlock;
+        const focusOut = focusLeaf.outMostBlock;
+        const forward = anchorOut && focusOut ? sp.offset(anchorOut) <= sp.offset(focusOut) : true;
+
+        return {
+            first: forward ? anchorLeaf : focusLeaf,
+            last: forward ? focusLeaf : anchorLeaf,
+            firstOffset: (forward ? selection.anchor?.offset : selection.focus?.offset) ?? 0,
+            lastOffset: (forward ? selection.focus?.offset : selection.anchor?.offset) ?? 0,
+        };
+    }
+
+    /** Apply `type` to one leaf over [start, end], skipping non-formattable leaves. */
+    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number) {
+        if (!(leaf instanceof Format) || end <= start)
+            return;
+
+        this.editor.selection.setSelection(
+            { offset: start, block: leaf, path: leaf.path },
+            { offset: end, block: leaf, path: leaf.path },
+        );
+        leaf.format(type);
     }
 
     /**
