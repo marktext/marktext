@@ -670,7 +670,12 @@ class Format extends Content {
             }
         }
 
-        // Check block convert if needed, and table cell no need to check.
+        this.checkInlineUpdate();
+    }
+
+    // Re-evaluate this block's type from its text (a leading `# `, `- `, `> `…
+    // promotes/demotes it). Table cells never reinterpret their text as markdown.
+    checkInlineUpdate(): void {
         if (this.blockName !== 'table.cell.content')
             this._convertIfNeeded();
     }

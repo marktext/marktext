@@ -254,6 +254,17 @@ describe('track C — cross-block cut keeps both endpoint tails (leaf merge)', (
     });
 });
 
+describe('track C — cross-block cut preserves the end block soft-line tail (GH#2269 parity)', () => {
+    it('cutting into a multi-line paragraph keeps the trailing soft-lines', async () => {
+        const muya = bootMuya('alpha\n\nbeta\ngamma\ndelta\n');
+        const blocks = contentBlocks(muya);
+        // block 1 is one paragraph with soft breaks: 'beta\ngamma\ndelta'.
+        const end = blocks[blocks.length - 1];
+        stubSelection(muya, blocks[0], 2, end, 2);
+        expect(await cutAndRead(muya)).toBe('alta\ngamma\ndelta\n');
+    });
+});
+
 describe('track C — whole-document selection collapses to one empty paragraph', () => {
     it('select-all then cut leaves a single empty paragraph', async () => {
         const muya = bootMuya('# Title\n\nbody text\n\n- a\n- b\n');
@@ -343,19 +354,34 @@ describe('track C — empty table row/column/whole-table cut is structural', () 
         expect(md).not.toContain('|');
     });
 
-    it('cutting a selection that still has content only empties in place', async () => {
+    it('cutting a PARTIAL content selection only empties in place', async () => {
         const muya = bootMuya(
             '| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n',
         );
         const table = firstTable(muya);
         const beforeRows = table.rowCount;
         const beforeCols = table.columnCount;
-        dragSelect(table, 0, 0, 1, 1); // has content
+        dragSelect(table, 0, 0, 1, 0); // first column only — not the whole table
         const md = await cutSelectionAndRead(muya);
-        // Structure unchanged; only the cells were emptied.
+        // Structure unchanged; only the selected column's cells were emptied.
         expect(table.rowCount).toBe(beforeRows);
         expect(table.columnCount).toBe(beforeCols);
         expect(md).not.toMatch(/\ba1\b/);
-        expect(md).not.toMatch(/\bb2\b/);
+        expect(md).not.toMatch(/\ba2\b/);
+        expect(md).toContain('b1');
+        expect(md).toContain('b2');
+    });
+
+    it('cutting a whole table that still has content removes the table (muyajs parity)', async () => {
+        const muya = bootMuya(
+            '| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n',
+        );
+        const table = firstTable(muya);
+        // whole table, with content
+        dragSelect(table, 0, 0, table.rowCount - 1, table.columnCount - 1);
+        const md = await cutSelectionAndRead(muya);
+        expect(md).not.toContain('|');
+        expect(md).not.toContain('a1');
+        expect(md).not.toContain('b2');
     });
 });

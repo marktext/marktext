@@ -2,7 +2,7 @@ import type { Muya } from '../muya';
 import type { IClipboardPayload } from './copyData';
 import { isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
-import { cutSelection } from './cut';
+import { cutSelection, deleteTableSelection } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
 import { CopyType, PasteType } from './types';
 
@@ -50,8 +50,13 @@ class Clipboard {
                 return;
             const { key, metaKey } = event;
 
-            if (this.selection.table.hasSelection)
+            if (this.selection.table.hasSelection) {
+                if (!metaKey && (key === 'Backspace' || key === 'Delete')) {
+                    event.preventDefault();
+                    deleteTableSelection(this);
+                }
                 return;
+            }
 
             const { isSelectionInSameBlock } = this.selection.getSelection() ?? {};
             if (isSelectionInSameBlock)

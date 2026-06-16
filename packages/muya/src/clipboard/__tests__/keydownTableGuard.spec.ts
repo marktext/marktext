@@ -5,12 +5,9 @@ import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
 
-// A plain Backspace/Delete while a table rectangle is frozen must NOT fall
-// through to `cutHandler()`. The `keydownHandler` short-circuits on
-// `selection.table.hasSelection`, so the selected cells keep their text. The
-// document-level `keydown` listener is registered via
-// `eventCenter.attachDOMEvent(document, 'keydown', ...)`, so dispatching the
-// event on `document` exercises the real handler.
+// muyajs parity: Backspace/Delete over a frozen table rect clears the selected
+// cells (no clipboard write, no table deletion). The `keydown` listener is on
+// `document`, so dispatch there to exercise the real handler.
 
 // The clipboard module pulls in CodeBlockContent → utils/prism which touches
 // `window` at import time. Stub the prism shim (same stub as sibling specs).
@@ -75,12 +72,13 @@ function dragSelect(table: TableBlock, r1: number, c1: number, r2: number, c2: n
     fireMouse(cellDom(table, r2, c2), 'mouseup');
 }
 
-describe('track C — keydown table.hasSelection guard', () => {
-    it('a plain Backspace over a frozen table rect does not empty the cells', async () => {
-        const muya = bootMuya('| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n');
+describe('track C — keydown over a frozen table rect clears the cells', () => {
+    it('a plain Backspace over a frozen table rect empties the selected cells', async () => {
+        const muya = bootMuya('| a1 | b1 | c1 |\n| --- | --- | --- |\n| a2 | b2 | c2 |\n');
         const table = firstTable(muya);
 
-        // Freeze the whole 2x2 body grid so `selection.table.hasSelection`.
+        // Freeze a partial rectangle (top-left 2x2 of a 3-column table) so the
+        // selection is content-bearing but not the whole table.
         dragSelect(table, 0, 0, 1, 1);
         expect(muya.editor.selection.table.hasSelection).toBe(true);
 
@@ -91,19 +89,20 @@ describe('track C — keydown table.hasSelection guard', () => {
         const event = new KeyboardEvent('keydown', { key: 'Backspace', bubbles: true });
         document.dispatchEvent(event);
 
-        // The frozen selection still stands and the cells keep their text —
-        // the guard stopped the handler before `cutHandler()` ran.
+        // The selected cells are emptied, the frozen selection is released, and
+        // the table grid stays (keyboard delete never deletes the table).
         await new Promise(r => setTimeout(r, 40));
-        expect(muya.editor.selection.table.hasSelection).toBe(true);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
         const md = muya.getMarkdown();
-        expect(md).toContain('a1');
-        expect(md).toContain('b1');
-        expect(md).toContain('a2');
-        expect(md).toContain('b2');
+        expect(md).toContain('|');
+        expect(md).not.toMatch(/\ba1\b/);
+        expect(md).not.toMatch(/\bb1\b/);
+        expect(md).not.toMatch(/\ba2\b/);
+        expect(md).not.toMatch(/\bb2\b/);
     });
 
-    it('a plain Delete over a frozen table rect does not empty the cells', async () => {
-        const muya = bootMuya('| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n');
+    it('a plain Delete over a frozen table rect empties the selected cells', async () => {
+        const muya = bootMuya('| a1 | b1 | c1 |\n| --- | --- | --- |\n| a2 | b2 | c2 |\n');
         const table = firstTable(muya);
 
         dragSelect(table, 0, 0, 1, 1);
@@ -116,11 +115,10 @@ describe('track C — keydown table.hasSelection guard', () => {
         document.dispatchEvent(event);
 
         await new Promise(r => setTimeout(r, 40));
-        expect(muya.editor.selection.table.hasSelection).toBe(true);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
         const md = muya.getMarkdown();
-        expect(md).toContain('a1');
-        expect(md).toContain('b1');
-        expect(md).toContain('a2');
-        expect(md).toContain('b2');
+        expect(md).toContain('|');
+        expect(md).not.toMatch(/\ba1\b/);
+        expect(md).not.toMatch(/\bb2\b/);
     });
 });
