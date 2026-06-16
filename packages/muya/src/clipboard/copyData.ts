@@ -39,13 +39,14 @@ interface ICopyOrder {
 
 function buildHtmlOptions(options: Muya['options']) {
     const {
+        footnote,
         frontMatter = true,
         math,
         isGitlabCompatibilityEnabled,
         superSubScript,
     } = options;
 
-    return { frontMatter, math, isGitlabCompatibilityEnabled, superSubScript };
+    return { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript };
 }
 
 // Collapse the three list flavours (task/order/bullet) into one slice
