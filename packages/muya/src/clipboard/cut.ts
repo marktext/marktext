@@ -388,6 +388,15 @@ export function cutSelection(clipboard: Clipboard): void {
         return;
     }
 
+    // #918: a cross-block cut that starts inside a code fence's language line
+    // collapses the start code block to a paragraph holding the merged text,
+    // rather than corrupting the code block's language with the merged content.
+    if (startBlock.blockName === 'language-input') {
+        collapseLanguageInputCut(clipboard, startBlock, endBlock, startOffset, endOffset);
+
+        return;
+    }
+
     // Leaf-level merge: keep the
     // start head and the end tail in the start content block, then remove
     // only the structure strictly between the two leaves (and the emptied
@@ -406,6 +415,35 @@ export function cutSelection(clipboard: Clipboard): void {
     if (clipboard.scrollPage?.length() === 0) {
         resetToEmptyParagraph(clipboard);
     }
+}
+
+// #918: collapse the start code block (whose language line begins the
+// selection) into a paragraph carrying the merged head + end-tail text, then
+// remove the spanned structure.
+function collapseLanguageInputCut(
+    clipboard: Clipboard,
+    startBlock: Content,
+    endBlock: Content,
+    startOffset: number,
+    endOffset: number,
+): void {
+    const mergedText
+        = startBlock.text.substring(0, startOffset)
+            + endBlock.text.substring(endOffset);
+    const codeBlock = startBlock.outMostBlock;
+
+    removeBlocks(startBlock, endBlock);
+
+    const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
+        name: 'paragraph',
+        text: mergedText,
+    });
+    codeBlock?.replaceWith(paragraph);
+
+    paragraph.firstContentInDescendant()?.setCursor(startOffset, startOffset, true);
+
+    if (clipboard.scrollPage?.length() === 0)
+        resetToEmptyParagraph(clipboard);
 }
 
 // Keyboard delete over a frozen table selection (two-stage, muyajs parity):
