@@ -754,81 +754,67 @@ export class Muya {
     }
 
     /**
-     * Wrap each selected outmost block as one list item under a new list of
-     * `label`. Ported from muyajs handleListMenu's multi-block branch.
+     * Replace the selected outmost blocks with a single container built by
+     * `buildState`, then position the cursor/selection via `place`. Shared by the
+     * cross-block list / block-quote / code-block wraps (ported from muyajs's
+     * handleListMenu / handleQuoteMenu / handleCodeBlockMenu multi-block branches).
      */
+    private _wrapSelectedBlocks(
+        buildState: (blocks: Parent[]) => { name: string } & Record<string, unknown>,
+        place: (container: Parent) => void,
+    ) {
+        const blocks = this._selectedOutmostBlocks();
+        if (!blocks.length)
+            return;
+
+        const state = buildState(blocks);
+        const container = ScrollPage.loadBlock(state.name).create(this, state as never);
+        const parent = blocks[0].parent!;
+        parent.insertBefore(container, blocks[0]);
+        for (const b of blocks)
+            b.remove();
+
+        place(container);
+    }
+
+    /** Wrap the selected outmost blocks as items of a new list of `label`. */
     private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
-        const blocks = this._selectedOutmostBlocks();
-        if (!blocks.length)
-            return;
-
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
-        const isTask = label === 'task-list';
-        const itemName = isTask ? 'task-list-item' : 'list-item';
-        const children = blocks.map(b => isTask
-            ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
-            : { name: itemName, children: [b.getState()] });
+        const itemName = label === 'task-list' ? 'task-list-item' : 'list-item';
+        const meta: Record<string, unknown> = label === 'order-list'
+            ? { loose: preferLooseListItem, delimiter: orderListDelimiter, start: 1 }
+            : { loose: preferLooseListItem, marker: bulletListMarker };
 
-        const meta: Record<string, unknown> = { loose: preferLooseListItem };
-        if (label === 'order-list') {
-            meta.delimiter = orderListDelimiter;
-            meta.start = 1;
-        }
-        else {
-            meta.marker = bulletListMarker;
-        }
-
-        const listState = { name: label, meta, children };
-        const listBlock = ScrollPage.loadBlock(label).create(this, listState as never);
-        const parent = blocks[0].parent!;
-        parent.insertBefore(listBlock, blocks[0]);
-        for (const b of blocks)
-            b.remove();
-
-        this._selectWrappedContent(listBlock);
+        this._wrapSelectedBlocks(
+            blocks => ({
+                name: label,
+                meta,
+                children: blocks.map(b => label === 'task-list'
+                    ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
+                    : { name: itemName, children: [b.getState()] }),
+            }),
+            container => this._selectWrappedContent(container),
+        );
     }
 
-    /**
-     * Wrap each selected outmost block into a single new block-quote. Ported
-     * from muyajs handleQuoteMenu's multi-block branch.
-     */
+    /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
-        const blocks = this._selectedOutmostBlocks();
-        if (!blocks.length)
-            return;
-
-        const quoteState = { name: 'block-quote', children: blocks.map(b => b.getState()) };
-        const quoteBlock = ScrollPage.loadBlock('block-quote').create(this, quoteState as never);
-        const parent = blocks[0].parent!;
-        parent.insertBefore(quoteBlock, blocks[0]);
-        for (const b of blocks)
-            b.remove();
-
-        this._selectWrappedContent(quoteBlock);
+        this._wrapSelectedBlocks(
+            blocks => ({ name: 'block-quote', children: blocks.map(b => b.getState()) }),
+            container => this._selectWrappedContent(container),
+        );
     }
 
-    /**
-     * Join each selected outmost block's leading text into a single fenced code
-     * block. Ported from muyajs handleCodeBlockMenu's multi-block branch.
-     */
+    /** Join the selected outmost blocks' text into a single fenced code block. */
     private _wrapSelectedBlocksInCodeBlock() {
-        const blocks = this._selectedOutmostBlocks();
-        if (!blocks.length)
-            return;
-
-        const code = blocks.map(b => this._blockLeadingText(b)).join('\n');
-        const codeState = { name: 'code-block', meta: { type: 'fenced', lang: '' }, text: code };
-        const codeBlock = ScrollPage.loadBlock('code-block').create(this, codeState as never);
-        const parent = blocks[0].parent!;
-        parent.insertBefore(codeBlock, blocks[0]);
-        for (const b of blocks)
-            b.remove();
-
-        codeBlock.firstContentInDescendant()?.setCursor(0, 0, true);
-    }
-
-    private _insertBlockBelow(block: Parent, label: string) {
-        insertBlockBelowByLabel({ block, muya: this, label });
+        this._wrapSelectedBlocks(
+            blocks => ({
+                name: 'code-block',
+                meta: { type: 'fenced', lang: '' },
+                text: blocks.map(b => this._blockLeadingText(b)).join('\n'),
+            }),
+            container => container.firstContentInDescendant()?.setCursor(0, 0, true),
+        );
     }
 
     /**
@@ -1280,7 +1266,7 @@ export class Muya {
         if (leadingText.trim() === '')
             replaceBlockByLabel({ block: immediate, muya: this, label, text: '' });
         else
-            this._insertBlockBelow(immediate, label);
+            insertBlockBelowByLabel({ block: immediate, muya: this, label });
     }
 
     /**

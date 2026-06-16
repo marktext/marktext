@@ -602,11 +602,19 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         cursorBlock.setCursor(0, 0, true);
     }
     else {
-        const cursorBlock = newBlock.firstContentInDescendant();
-        // Set the cursor between <div>\n\n</div> when create html-block
-        const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
-        cursorBlock.setCursor(offset, offset, true);
+        placeCaretInNewBlock(newBlock, label);
     }
+}
+
+// Move the caret into a freshly-built block: between <div>\n\n</div> for an
+// html-block, otherwise to the end of its text.
+function placeCaretInNewBlock(newBlock: Parent, label: string) {
+    const cursorBlock = newBlock.firstContentInDescendant();
+    if (!cursorBlock)
+        return;
+
+    const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
+    cursorBlock.setCursor(offset, offset, true);
 }
 
 // Build a fresh block of `label` and insert it directly AFTER `block`
@@ -622,9 +630,5 @@ export function insertBlockBelowByLabel({ block, muya, label }: {
     if (!newBlock)
         return;
     block.parent!.insertAfter(newBlock, block);
-    const cursorBlock = newBlock.firstContentInDescendant();
-    if (!cursorBlock)
-        return;
-    const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
-    cursorBlock.setCursor(offset, offset, true);
+    placeCaretInNewBlock(newBlock, label);
 }
