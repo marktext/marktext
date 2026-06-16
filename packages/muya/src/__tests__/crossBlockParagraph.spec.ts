@@ -92,4 +92,19 @@ describe('cross-block paragraph wrapping', () => {
             expect(text).toContain('bravo');
         });
     });
+
+    it('keeps the selection spanning the wrapped content after list wrap', async () => {
+        const muya = boot('alpha\n\nbravo\n');
+        selectFirstTwoBlocks(muya);
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => {
+            expect(muya.getState()[0].name).toBe('bullet-list');
+        });
+        // happy-dom collapses the live DOM selection, so assert via the cached
+        // endpoints that setSelection records (the same ones the menu round-trip
+        // relies on).
+        const sel = muya.editor.selection;
+        expect(sel.anchorBlock!.text).toBe('alpha');
+        expect(sel.focusBlock!.text).toBe('bravo');
+    });
 });

@@ -665,6 +665,23 @@ export class Muya {
     }
 
     /**
+     * Select the full span of a freshly-wrapped container (first content leaf to
+     * last) so the selection keeps covering the wrapped content. Best-effort.
+     */
+    private _selectWrappedContent(container: Parent) {
+        const head = container.firstContentInDescendant();
+        const tail = container.lastContentInDescendant();
+        if (!head || !tail)
+            return;
+
+        this.editor.activeContentBlock = tail;
+        this.editor.selection.setSelection(
+            { offset: 0, block: head, path: head.path },
+            { offset: tail.text.length, block: tail, path: tail.path },
+        );
+    }
+
+    /**
      * Wrap each selected outmost block as one list item under a new list of
      * `label`. Ported from muyajs handleListMenu's multi-block branch.
      */
@@ -696,7 +713,7 @@ export class Muya {
         for (const b of blocks)
             b.remove();
 
-        listBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+        this._selectWrappedContent(listBlock);
     }
 
     /**
@@ -715,7 +732,7 @@ export class Muya {
         for (const b of blocks)
             b.remove();
 
-        quoteBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+        this._selectWrappedContent(quoteBlock);
     }
 
     /**
