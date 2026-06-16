@@ -21,14 +21,14 @@ class Clipboard {
 
     static create(muya: Muya) {
         const clipboard = new Clipboard(muya);
-        clipboard.listen();
+        clipboard._listen();
 
         return clipboard;
     }
 
     constructor(public muya: Muya) {}
 
-    listen() {
+    private _listen() {
         const ownsEvent = () => this.muya.hasFocus();
 
         const copyCutHandler = (event: Event) => {

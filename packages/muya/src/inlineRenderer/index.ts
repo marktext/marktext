@@ -19,7 +19,7 @@ class InlineRenderer {
         this.renderer = new Renderer(muya, this);
     }
 
-    tokenizer(block: Format, highlights: IHighlight[]) {
+    private _tokenizer(block: Format, highlights: IHighlight[]) {
         const { options } = this.muya;
         const { text } = block;
         const { labels } = this;
@@ -60,12 +60,12 @@ class InlineRenderer {
     }
 
     patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
-        this.collectReferenceDefinitions();
+        this._collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())
             debug.error('Patch can only handle content block');
 
-        const tokens = this.tokenizer(block, highlights);
+        const tokens = this._tokenizer(block, highlights);
         const html = this.renderer.output(
             tokens,
             block,
@@ -74,7 +74,7 @@ class InlineRenderer {
         domNode!.innerHTML = html;
     }
 
-    collectReferenceDefinitions() {
+    private _collectReferenceDefinitions() {
         const state = this.muya.editor.jsonState.getState();
         const labels = new Map();
 
