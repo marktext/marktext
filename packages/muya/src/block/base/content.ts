@@ -316,7 +316,7 @@ function lineBreakAutoPair(
 }
 
 class Content extends TreeNode {
-    public _text: string;
+    private _text: string;
     public isComposed: boolean;
 
     static override blockName = 'content';

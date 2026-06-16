@@ -21,7 +21,7 @@ interface IFakeFormatThis {
 // `Format.prototype.unlink` is a real instance method (declared on the class)
 // but isn't picked up by the public Format type when accessed via prototype.
 // Cast to a record of methods to call it with a structural fake.
-interface FormatProtoUnlink { unlink: (this: IFakeFormatThis, info: { range: { start: number; end: number } | null; text: string }) => void }
+interface IFormatProtoUnlink { unlink: (this: IFakeFormatThis, info: { range: { start: number; end: number } | null; text: string }) => void }
 
 function applyUnlink(text: string, range: { start: number; end: number }, anchorText: string) {
     const emit = vi.fn();
@@ -31,7 +31,7 @@ function applyUnlink(text: string, range: { start: number; end: number }, anchor
         setCursor,
         muya: { eventCenter: { emit } },
     };
-    (Format.prototype as unknown as FormatProtoUnlink).unlink.call(fakeThis, { range, text: anchorText });
+    (Format.prototype as unknown as IFormatProtoUnlink).unlink.call(fakeThis, { range, text: anchorText });
     return { text: fakeThis.text as string, emit, setCursor };
 }
 
@@ -86,7 +86,7 @@ describe('format.unlink — replaces link source with visible anchor', () => {
             setCursor,
             muya: { eventCenter: { emit } },
         };
-        (Format.prototype as unknown as FormatProtoUnlink).unlink.call(fakeThis, { range: null, text: 'whatever' });
+        (Format.prototype as unknown as IFormatProtoUnlink).unlink.call(fakeThis, { range: null, text: 'whatever' });
         expect(fakeThis.text).toBe(src);
         expect(setCursor).not.toHaveBeenCalled();
         expect(emit).not.toHaveBeenCalled();

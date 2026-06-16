@@ -91,7 +91,7 @@ class History {
         return this.muya.editor.selection;
     }
 
-    constructor(public muya: Muya, private options: IOptions = DEFAULT_OPTIONS) {
+    constructor(public muya: Muya, private _options: IOptions = DEFAULT_OPTIONS) {
         this._listen();
     }
 
@@ -111,7 +111,7 @@ class History {
                 if (this._ignoreChange)
                     return;
 
-                if (!this.options.userOnly || source === 'user')
+                if (!this._options.userOnly || source === 'user')
                     this._record(op, prevDoc);
                 else
                     this.transform(op);
@@ -271,7 +271,7 @@ class History {
 
         const timestamp = Date.now();
         if (
-            this._lastRecorded + this.options.delay > timestamp
+            this._lastRecorded + this._options.delay > timestamp
             && this._stack.undo.length > 0
         ) {
             const { operation: lastOperation, selection: lastSelection }
@@ -288,7 +288,7 @@ class History {
 
         this._stack.undo.push({ operation: undoOperation, selection });
 
-        if (this._stack.undo.length > this.options.maxStack)
+        if (this._stack.undo.length > this._options.maxStack)
             this._stack.undo.shift();
     }
 
@@ -318,7 +318,7 @@ class History {
         // replacement must not absorb a later keystroke (or vice versa).
         this._lastRecorded = 0;
 
-        if (this._stack.undo.length > this.options.maxStack)
+        if (this._stack.undo.length > this._options.maxStack)
             this._stack.undo.shift();
     }
 

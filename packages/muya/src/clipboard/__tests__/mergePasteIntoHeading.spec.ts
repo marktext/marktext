@@ -8,7 +8,7 @@ import { mergePasteIntoHeading } from '../mergePasteIntoHeading';
 // touches `text` / `update()` on the anchor and `blockName` on the wrapper,
 // so the fake objects intentionally don't satisfy the full Content / Parent
 // surface — `as unknown as Content` (etc.) makes the assertion explicit.
-function asContent(block: FakeContent): Content {
+function asContent(block: IFakeContent): Content {
     return block as unknown as Content;
 }
 function asParentWithBlockName(blockName: string): Parent {
@@ -28,14 +28,14 @@ function asParentWithBlockName(blockName: string): Parent {
 // `mergePasteIntoHeading` is the pure helper that decides whether to merge
 // and, if so, mutates the heading's text and returns the remaining states.
 
-interface FakeContent {
+interface IFakeContent {
     text: string;
     updated: boolean;
     update: () => void;
 }
 
-function content(text: string): FakeContent {
-    const block: FakeContent = {
+function content(text: string): IFakeContent {
+    const block: IFakeContent = {
         text,
         updated: false,
         update() {
