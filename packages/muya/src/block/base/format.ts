@@ -58,6 +58,39 @@ const INLINE_UPDATE_FRAGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i');
 
+// Offset of the cursor relative to a symmetric/asymmetric marker pair
+// (strong/em/code/math/html_tag). `open`/`close` are the opening/closing
+// marker lengths; for the symmetric inline markers they are equal.
+function markeredOffset(dis: number, len: number, open: number, close: number) {
+    if (dis < 0)
+        return 0;
+    if (dis < open)
+        return -dis;
+    if (dis <= len - close)
+        return -open;
+    if (dis <= len)
+        return len - dis - open - close;
+    return -open - close;
+}
+
+function linkOffset(dis: number, anchorLen: number) {
+    if (dis < 1)
+        return 0;
+    if (dis <= 1 + anchorLen)
+        return -1;
+    return anchorLen - dis;
+}
+
+function imageOffset(dis: number, altLen: number) {
+    if (dis < 1)
+        return 0;
+    if (dis < 2)
+        return -1;
+    if (dis <= 2 + altLen)
+        return -2;
+    return altLen - dis;
+}
+
 function getOffset(offset: number, token: Token) {
     const {
         range: { start, end },
@@ -76,70 +109,26 @@ function getOffset(offset: number, token: Token) {
         case 'inline_code':
 
         case 'inline_math': {
-            const MARKER_LEN = type === 'strong' || type === 'del' ? 2 : 1;
-            if (dis < 0)
-                return 0;
-            if (dis >= 0 && dis < MARKER_LEN)
-                return -dis;
-            if (dis >= MARKER_LEN && dis <= len - MARKER_LEN)
-                return -MARKER_LEN;
-            if (dis > len - MARKER_LEN && dis <= len)
-                return len - dis - 2 * MARKER_LEN;
-            if (dis > len)
-                return -2 * MARKER_LEN;
-
-            break;
+            const markerLen = type === 'strong' || type === 'del' ? 2 : 1;
+            return markeredOffset(dis, len, markerLen, markerLen);
         }
 
         case 'html_tag': {
             const { tag } = token;
             // handle underline, sup, sub
-            const OPEN_MARKER_LEN = FORMAT_TAG_MAP[tag].open.length;
-            const CLOSE_MARKER_LEN = FORMAT_TAG_MAP[tag].close.length;
-
-            if (dis < 0)
-                return 0;
-            if (dis >= 0 && dis < OPEN_MARKER_LEN)
-                return -dis;
-            if (dis >= OPEN_MARKER_LEN && dis <= len - CLOSE_MARKER_LEN)
-                return -OPEN_MARKER_LEN;
-            if (dis > len - CLOSE_MARKER_LEN && dis <= len)
-                return len - dis - OPEN_MARKER_LEN - CLOSE_MARKER_LEN;
-            if (dis > len)
-                return -OPEN_MARKER_LEN - CLOSE_MARKER_LEN;
-
-            break;
+            return markeredOffset(
+                dis,
+                len,
+                FORMAT_TAG_MAP[tag].open.length,
+                FORMAT_TAG_MAP[tag].close.length,
+            );
         }
 
-        case 'link': {
-            const { anchor } = token;
-            const MARKER_LEN = 1;
+        case 'link':
+            return linkOffset(dis, token.anchor.length);
 
-            if (dis < MARKER_LEN)
-                return 0;
-            if (dis >= MARKER_LEN && dis <= MARKER_LEN + anchor.length)
-                return -1;
-            if (dis > MARKER_LEN + anchor.length)
-                return anchor.length - dis;
-
-            break;
-        }
-
-        case 'image': {
-            const { alt } = token;
-            const MARKER_LEN = 1;
-
-            if (dis < MARKER_LEN)
-                return 0;
-            if (dis >= MARKER_LEN && dis < MARKER_LEN * 2)
-                return -1;
-            if (dis >= MARKER_LEN * 2 && dis <= MARKER_LEN * 2 + alt.length)
-                return -2;
-            if (dis > MARKER_LEN * 2 + alt.length)
-                return alt.length - dis;
-
-            break;
-        }
+        case 'image':
+            return imageOffset(dis, token.alt.length);
     }
 }
 
