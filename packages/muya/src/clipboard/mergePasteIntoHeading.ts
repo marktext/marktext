@@ -39,14 +39,12 @@ export function mergePasteIntoHeading(
 
     // A heading is a single line: only the first soft-line of the pasted
     // paragraph stays in the heading; any following lines become a paragraph
-    // block below it.
+    // block below it. The anchor's tail is NOT kept here — the caller sews it
+    // onto the last pasted block instead.
     const [firstLine, ...restLines] = first.text.split('\n');
 
     const original = anchorBlock.text;
-    anchorBlock.text
-        = original.substring(0, cursor.startOffset)
-            + firstLine
-            + original.substring(cursor.endOffset);
+    anchorBlock.text = original.substring(0, cursor.startOffset) + firstLine;
     anchorBlock.update();
 
     const remaining = states.slice(1);

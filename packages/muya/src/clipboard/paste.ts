@@ -113,16 +113,26 @@ function inlineMergeText(state: TState, anchorHasText: boolean): Nullable<string
 }
 
 // Heading anchor: the first line was spliced into the heading; insert the rest
-// as blocks below and seat the caret at the end of the last one.
-function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[]): void {
-    const last = insertStatesAfter(muya, ctx.wrapperBlock, remaining);
-    removeEmptyOriginParagraph(ctx.originWrapperBlock);
+// as blocks below. The anchor's tail is sewn onto the last pasted block so it
+// trails the whole paste (muyajs `pasteCtrl`); only when nothing follows does
+// it stay in the heading.
+function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[], tail: string): void {
+    const { anchorBlock } = ctx;
 
-    const cursorBlock = last?.firstContentInDescendant();
-    if (cursorBlock != null) {
-        const offset = cursorBlock.text.length;
-        cursorBlock.setCursor(offset, offset, true);
+    if (remaining.length === 0) {
+        const offset = anchorBlock.text.length;
+        if (tail.length > 0) {
+            anchorBlock.text += tail;
+            anchorBlock.update();
+        }
+        anchorBlock.setCursor(offset, offset, true);
+
+        return;
     }
+
+    const sewOffset = sewTail(remaining, tail);
+    const last = insertStatesAfter(muya, ctx.wrapperBlock, remaining);
+    seatCursorAtSeam(last, sewOffset);
 }
 
 // MERGE: splice the first state's text into the anchor (head + pasted), sewing
@@ -319,6 +329,9 @@ function applyParsedPaste(
     if (states.length === 0)
         return;
 
+    const head = content.substring(0, start.offset);
+    const tail = content.substring(end.offset);
+
     const remaining = mergePasteIntoHeading(
         anchorBlock,
         ctx.wrapperBlock,
@@ -326,13 +339,10 @@ function applyParsedPaste(
         { startOffset: start.offset, endOffset: end.offset },
     );
     if (remaining !== states) {
-        pasteAfterHeading(muya, ctx, remaining);
+        pasteAfterHeading(muya, ctx, remaining, tail);
 
         return;
     }
-
-    const head = content.substring(0, start.offset);
-    const tail = content.substring(end.offset);
 
     if (tryMergeListPaste(clipboard, ctx, states, head, tail))
         return;

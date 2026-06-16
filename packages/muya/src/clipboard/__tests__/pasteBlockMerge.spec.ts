@@ -126,4 +126,18 @@ describe('paste — multi-line paragraph into a heading keeps only the first lin
             '# Titlea\n\nb\nc\n',
         );
     });
+
+    it('pasting multiple paragraphs mid-heading sews the heading tail after the paste', async () => {
+        const muya = bootMuya('# hello world\n');
+        const block = contentBlocks(muya)[0]; // '# hello world'
+        // cursor between 'hello ' and 'world' (offset 8); 'world' must trail the
+        // whole paste, not stay in the heading.
+        expect(await paste(muya, block, 8, 8, 'A\n\nB')).toBe('# hello A\n\nBworld\n');
+    });
+
+    it('pasting a single paragraph mid-heading keeps it on the heading line', async () => {
+        const muya = bootMuya('# hello world\n');
+        const block = contentBlocks(muya)[0];
+        expect(await paste(muya, block, 8, 8, 'A')).toBe('# hello Aworld\n');
+    });
 });
