@@ -1,5 +1,6 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
+import type { TBlockPath } from './block/types';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
@@ -742,25 +743,18 @@ export class Muya {
         if (!scrollPage)
             return;
 
-        // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
-        // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
-        const anchor = cursor.anchor ?? cursor.start ?? null;
-        const focus = cursor.focus ?? cursor.end ?? anchor;
-        const anchorPath = cursor.anchorPath ?? cursor.path;
-        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
+        const { anchor, focus, anchorPath, focusPath }
+            = this._normalizeCursorEndpoints(cursor);
 
         if (!anchor || !focus)
             return;
 
-        // queryBlock mutates its path argument (path.shift()) — pass copies.
-        const anchorBlock
-            = cursor.anchorBlock
-                ?? cursor.block
-                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
-        const focusBlock
-            = cursor.focusBlock
-                ?? cursor.block
-                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
+        const { anchorBlock, focusBlock } = this._resolveCursorBlocks(
+            cursor,
+            scrollPage,
+            anchorPath,
+            focusPath,
+        );
 
         if (anchorBlock == null || !anchorBlock.isContent())
             return;
@@ -779,6 +773,36 @@ export class Muya {
             { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path },
             { offset: focus.offset, block: focusBlock, path: focusBlock.path },
         );
+    }
+
+    // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
+    // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
+    private _normalizeCursorEndpoints(cursor: IPublicCursorInput) {
+        const anchor = cursor.anchor ?? cursor.start ?? null;
+        const focus = cursor.focus ?? cursor.end ?? anchor;
+        const anchorPath = cursor.anchorPath ?? cursor.path;
+        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
+
+        return { anchor, focus, anchorPath, focusPath };
+    }
+
+    private _resolveCursorBlocks(
+        cursor: IPublicCursorInput,
+        scrollPage: ScrollPage,
+        anchorPath: TBlockPath | undefined,
+        focusPath: TBlockPath | undefined,
+    ) {
+        // queryBlock mutates its path argument (path.shift()) — pass copies.
+        const anchorBlock
+            = cursor.anchorBlock
+                ?? cursor.block
+                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
+        const focusBlock
+            = cursor.focusBlock
+                ?? cursor.block
+                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
+
+        return { anchorBlock, focusBlock };
     }
 
     /**
