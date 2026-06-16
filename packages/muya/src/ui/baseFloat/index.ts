@@ -24,12 +24,12 @@ function defaultOptions() {
 const BUTTON_GROUP = ['mu-table-drag-bar', 'mu-front-button'];
 
 abstract class BaseFloat {
-    public options: IBaseOptions;
+    protected options: IBaseOptions;
     public status: boolean = false;
     public floatBox: HTMLElement | null = null;
     public container: HTMLElement | null = null;
-    public lastScrollTop: number | null = null;
-    public cb: (...args: unknown[]) => void = noop;
+    private _lastScrollTop: number | null = null;
+    protected cb: (...args: unknown[]) => void = noop;
 
     private _cleanup: (() => void) | null = null;
     private _resizeObserver: ResizeObserver | null = null;
@@ -91,8 +91,8 @@ abstract class BaseFloat {
         const scrollHandler = (event: Event) => {
             if (!isHTMLElement(event.target))
                 return;
-            if (typeof this.lastScrollTop !== 'number') {
-                this.lastScrollTop = event.target.scrollTop;
+            if (typeof this._lastScrollTop !== 'number') {
+                this._lastScrollTop = event.target.scrollTop;
 
                 return;
             }
@@ -100,7 +100,7 @@ abstract class BaseFloat {
             // only when scroll distance great than 50px, then hide the float box.
             if (
                 this.status
-                && Math.abs(event.target.scrollTop - this.lastScrollTop) > 50
+                && Math.abs(event.target.scrollTop - this._lastScrollTop) > 50
             ) {
                 this.hide();
             }
@@ -137,7 +137,7 @@ abstract class BaseFloat {
         }
 
         this.cb = noop;
-        this.lastScrollTop = null;
+        this._lastScrollTop = null;
 
         if (BUTTON_GROUP.includes(this.name))
             eventCenter.emit('muya-float-button', this, false);

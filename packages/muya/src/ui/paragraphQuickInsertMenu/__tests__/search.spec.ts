@@ -56,11 +56,22 @@ function bootMuya(markdown: string): Muya {
 
 // Boot the editor over a single empty paragraph and hand back the menu with its
 // `block` already pointed at the paragraph's content leaf.
-function bootMenu(): { muya: Muya; menu: ParagraphQuickInsertMenu } {
+// White-box view onto the menu's private `_block` field and `_search` method,
+// which these characterization tests drive directly.
+interface IMenuView {
+    _block: ParagraphContent | null;
+    _search: (text: string) => void;
+    renderData: ParagraphQuickInsertMenu['renderData'];
+    renderArray: ParagraphQuickInsertMenu['renderArray'];
+    scrollElement: ParagraphQuickInsertMenu['scrollElement'];
+    activeItem: ParagraphQuickInsertMenu['activeItem'];
+}
+
+function bootMenu(): { muya: Muya; menu: IMenuView } {
     const muya = bootMuya('\n');
-    const menu = new ParagraphQuickInsertMenu(muya);
+    const menu = new ParagraphQuickInsertMenu(muya) as unknown as IMenuView;
     const first = muya.editor.scrollPage!.firstContentInDescendant()!;
-    menu.block = first as unknown as ParagraphContent;
+    menu._block = first as unknown as ParagraphContent;
 
     return { muya, menu };
 }
@@ -69,7 +80,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
     it('search("") returns the full menu config (frontmatter included on an empty doc-start paragraph)', () => {
         const { menu } = bootMenu();
 
-        menu.search('');
+        menu._search('');
 
         const sectionNames = menu.renderData.map(d => d.name);
         expect(sectionNames).toEqual([
@@ -94,7 +105,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
         const { menu } = bootMenu();
 
         // '代码块' is the zh-CN translation of 'Code Block'.
-        menu.search('代码');
+        menu._search('代码');
 
         expect(menu.renderData.map(d => d.name)).toEqual(['advanced blocks']);
         const matched = menu.renderData[0].children;
@@ -109,7 +120,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
         const { menu } = bootMenu();
 
         // '表格' is the zh-CN translation of 'Table Block'.
-        menu.search('表格');
+        menu._search('表格');
 
         // 'table' (advanced blocks) is the exact match and sorts first.
         expect(menu.renderData[0].name).toBe('advanced blocks');
@@ -124,7 +135,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
 
         // The character '表' appears in '表格' (Table Block, advanced blocks) and
         // in '任务列表'/etc. (list blocks), so two sections match.
-        menu.search('表');
+        menu._search('表');
 
         expect(menu.renderData.length).toBeGreaterThan(1);
         // 'advanced blocks' (table, best score) sorts ahead of 'list blocks'.
@@ -140,7 +151,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
     it('search("zzzzz") yields empty renderData', () => {
         const { menu } = bootMenu();
 
-        menu.search('zzzzz');
+        menu._search('zzzzz');
 
         expect(menu.renderData).toEqual([]);
         expect(menu.renderArray).toEqual([]);
@@ -152,7 +163,7 @@ describe('paragraphQuickInsertMenu render() — DOM output', () => {
         const { menu } = bootMenu();
 
         // search() calls render() internally; the no-result node lands in the DOM.
-        menu.search('zzzzz');
+        menu._search('zzzzz');
 
         const noResult = menu.scrollElement!.querySelector('.no-result');
         expect(noResult).not.toBeNull();
@@ -165,7 +176,7 @@ describe('paragraphQuickInsertMenu render() — DOM output', () => {
     it('a match renders one <section> per matched group with exactly one .item.active', () => {
         const { menu } = bootMenu();
 
-        menu.search('表');
+        menu._search('表');
 
         const sections = menu.scrollElement!.querySelectorAll('section');
         expect(sections.length).toBe(menu.renderData.length);
@@ -180,7 +191,7 @@ describe('paragraphQuickInsertMenu render() — DOM output', () => {
     it('renderArray is the flattened children of every matched section', () => {
         const { menu } = bootMenu();
 
-        menu.search('列表');
+        menu._search('列表');
 
         const flattened = menu.renderData.flatMap(d => d.children);
         expect(menu.renderArray).toEqual(flattened);

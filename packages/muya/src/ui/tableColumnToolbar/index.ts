@@ -23,10 +23,10 @@ const defaultOptions = {
 };
 
 export class TableColumnToolbar extends BaseFloat {
-    public oldVNode: VNode | null = null;
-    public block: CellBlock | null = null;
-    public icons: TableColumnToolIcon[] = icons;
-    public toolsContainer: HTMLDivElement = document.createElement('div');
+    private _oldVNode: VNode | null = null;
+    private _block: CellBlock | null = null;
+    private _icons: TableColumnToolIcon[] = icons;
+    private _toolsContainer: HTMLDivElement = document.createElement('div');
 
     static pluginName = 'tableColumnTools';
 
@@ -35,7 +35,7 @@ export class TableColumnToolbar extends BaseFloat {
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
         this.options = opts;
-        this.container!.appendChild(this.toolsContainer);
+        this.container!.appendChild(this._toolsContainer);
         this.floatBox!.classList.add('mu-table-column-tools-container');
         this.listen();
     }
@@ -72,7 +72,7 @@ export class TableColumnToolbar extends BaseFloat {
                         && ele[BLOCK_DOM_PROPERTY].blockName === 'table.cell',
                 );
                 const cellBlock = tableCellEle![BLOCK_DOM_PROPERTY];
-                this.block = cellBlock as CellBlock;
+                this._block = cellBlock as CellBlock;
                 this.show(tableCellEle!);
                 this.render();
             }
@@ -85,7 +85,7 @@ export class TableColumnToolbar extends BaseFloat {
     }
 
     render() {
-        const { icons, oldVNode, toolsContainer, block } = this;
+        const { _icons: icons, _oldVNode: oldVNode, _toolsContainer: toolsContainer, _block: block } = this;
         const { i18n } = this.muya;
         const children = icons.map((i) => {
             const iconWrapperSelector = 'div.icon-wrapper';
@@ -134,21 +134,21 @@ export class TableColumnToolbar extends BaseFloat {
         else
             patch(toolsContainer, vnode);
 
-        this.oldVNode = vnode;
+        this._oldVNode = vnode;
     }
 
     selectItem(event: Event, item: TableColumnToolIcon) {
         event.preventDefault();
         event.stopPropagation();
 
-        const { block } = this;
+        const { _block: block } = this;
         // Block is not null, just in case
         if (!block || !block.parent)
             return;
 
         const offset = block.parent.offset(block);
         const { table, row } = block;
-        const columnCount = row.offset(this.block!);
+        const columnCount = row.offset(this._block!);
 
         switch (item.type) {
             case 'remove': {

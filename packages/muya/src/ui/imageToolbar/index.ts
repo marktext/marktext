@@ -55,7 +55,7 @@ export class ImageToolBar extends BaseFloat {
                 this._imageInfo = imageInfo;
                 setTimeout(() => {
                     this.show(reference);
-                    this.render();
+                    this._render();
                 }, 0);
             }
             else {
@@ -64,7 +64,7 @@ export class ImageToolBar extends BaseFloat {
         });
     }
 
-    render() {
+    private _render() {
         const { _icons: icons, _oldVNode: oldVNode, _toolbarContainer: toolbarContainer, _imageInfo: imageInfo } = this;
         const { i18n } = this.muya;
         const { attrs } = imageInfo!.token;
@@ -101,7 +101,7 @@ export class ImageToolBar extends BaseFloat {
                     },
                     on: {
                         click: (event) => {
-                            this.selectItem(event, i);
+                            this._selectItem(event, i);
                         },
                     },
                 },
@@ -119,7 +119,7 @@ export class ImageToolBar extends BaseFloat {
         this._oldVNode = vnode;
     }
 
-    selectItem(event: Event, item: Icon) {
+    private _selectItem(event: Event, item: Icon) {
         event.preventDefault();
         event.stopPropagation();
 

@@ -34,10 +34,10 @@ export class ImageResizeBar {
         container.classList.add('mu-transformer');
         document.body.appendChild(container);
 
-        this.listen();
+        this._listen();
     }
 
-    listen() {
+    private _listen() {
         const { eventCenter, domNode } = this.muya;
 
         const scrollHandler = (event: Event) => {
@@ -65,7 +65,7 @@ export class ImageResizeBar {
                 this._block = block;
                 this._imageInfo = imageInfo;
                 setTimeout(() => {
-                    this.render();
+                    this._render();
                 });
             }
             else {
@@ -77,22 +77,22 @@ export class ImageResizeBar {
         eventCenter.attachDOMEvent(findScrollContainer(domNode), 'scroll', scrollHandler);
         eventCenter.attachDOMEvent(this._container, 'dragstart', event =>
             event.preventDefault());
-        eventCenter.attachDOMEvent(document.body, 'mousedown', this.mouseDown);
+        eventCenter.attachDOMEvent(document.body, 'mousedown', this._mouseDown);
     }
 
-    render() {
+    private _render() {
         const { eventCenter } = this.muya;
         if (this._status)
             this.hide();
 
         this._status = true;
 
-        this.createElements();
-        this.update();
+        this._createElements();
+        this._update();
         eventCenter.emit('muya-float', this, true);
     }
 
-    createElements() {
+    private _createElements() {
         VERTICAL_BAR.forEach((c) => {
             const bar = document.createElement('div');
             bar.classList.add('bar');
@@ -102,7 +102,7 @@ export class ImageResizeBar {
         });
     }
 
-    update() {
+    private _update() {
         const rect = this._reference!.getBoundingClientRect();
         VERTICAL_BAR.forEach((c) => {
             const bar: HTMLDivElement = this._container.querySelector(`.${c}`)!;
@@ -121,7 +121,7 @@ export class ImageResizeBar {
         });
     }
 
-    mouseDown = (event: Event) => {
+    private _mouseDown = (event: Event) => {
         if (!isHTMLElement(event.target) || !event.target.closest('.bar'))
             return;
 
@@ -131,12 +131,12 @@ export class ImageResizeBar {
         const mouseMoveId = eventCenter.attachDOMEvent(
             document.body,
             'mousemove',
-            this.mouseMove,
+            this._mouseMove,
         );
         const mouseUpId = eventCenter.attachDOMEvent(
             document.body,
             'mouseup',
-            this.mouseUp,
+            this._mouseUp,
         );
         this._resizing = true;
         // Hide image toolbar
@@ -144,7 +144,7 @@ export class ImageResizeBar {
         this._eventId.push(mouseMoveId, mouseUpId);
     };
 
-    mouseMove = (event: Event) => {
+    private _mouseMove = (event: Event) => {
         if (!isMouseEvent(event))
             return;
 
@@ -177,10 +177,10 @@ export class ImageResizeBar {
         width = Number.parseInt(String(width));
         this._width = width;
         image.setAttribute('width', String(width));
-        this.update();
+        this._update();
     };
 
-    mouseUp = (event: Event) => {
+    private _mouseUp = (event: Event) => {
         event.preventDefault();
         const { eventCenter } = this.muya;
         if (this._eventId.length) {

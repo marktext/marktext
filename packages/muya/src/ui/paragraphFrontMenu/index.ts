@@ -49,7 +49,6 @@ const defaultOptions = {
 
 export class ParagraphFrontMenu extends BaseFloat {
     static pluginName = 'frontMenu';
-    public reference: HTMLDivElement | null = null;
     private _oldVNode: VNode | null = null;
     private _block: Parent | null = null;
     private _frontMenuContainer: HTMLDivElement = document.createElement('div');
@@ -76,7 +75,6 @@ export class ParagraphFrontMenu extends BaseFloat {
         eventCenter.subscribe('muya-front-menu', ({ reference, block }) => {
             if (reference) {
                 this._block = block;
-                this.reference = reference;
 
                 setTimeout(() => {
                     this.show(reference);
@@ -87,14 +85,13 @@ export class ParagraphFrontMenu extends BaseFloat {
 
         const enterLeaveHandler = () => {
             this.hide();
-            this.reference = null;
             this._block = null;
         };
 
         eventCenter.attachDOMEvent(container!, 'mouseleave', enterLeaveHandler);
     }
 
-    renderSubMenu(subMenu: IQuickInsertMenuItem['children']) {
+    private _renderSubMenu(subMenu: IQuickInsertMenuItem['children']) {
         const { _block: block } = this;
         const { i18n } = this.muya;
         const children = subMenu.map((menuItem) => {
@@ -173,7 +170,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         if (subMenu.length) {
             const line = h('li.divider');
             children.unshift(line);
-            children.unshift(this.renderSubMenu(subMenu));
+            children.unshift(this._renderSubMenu(subMenu));
         }
 
         const vnode = h('ul', children);
