@@ -72,4 +72,16 @@ describe('updateParagraph same-block menu model', () => {
             expect((s[0] as { children: { children: { name: string }[] }[] }).children[0].children[0].name).toBe('atx-heading');
         });
     });
+
+    it('toggles an enclosing code block back to a paragraph instead of nesting one', async () => {
+        const muya = bootMuya('```\ncode here\n```\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('pre');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(1);
+            expect(s[0].name).toBe('paragraph');
+            expect((s[0] as { text: string }).text).toContain('code here');
+        });
+    });
 });

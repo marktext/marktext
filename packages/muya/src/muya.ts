@@ -28,7 +28,7 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
-import { isAnyListState, isAtxHeadingState } from './state/types';
+import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
 import { canTurnIntoMenu } from './ui/paragraphFrontMenu/config';
 import { insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
@@ -1220,6 +1220,12 @@ export class Muya {
             return;
         }
 
+        // Invoking "Code Block" while the cursor is already inside a code block
+        // toggles it back to a paragraph (muyajs semantics) instead of nesting a
+        // fresh code block into the inner `code` wrapper.
+        if (label === 'code-block' && this._toggleEnclosingCodeBlock())
+            return;
+
         // hr/table only replace an empty block so user content is never
         // silently dropped.
         if (
@@ -1229,24 +1235,48 @@ export class Muya {
             return;
         }
 
-        // General conversion — the front menu's turn-into set is the single source
-        // of truth. Operate on the IMMEDIATE block (the paragraph/heading directly
-        // wrapping the cursor) so a heading inside a list item converts while the
-        // list stays intact.
+        this._convertOrInsertBelow(label);
+    }
+
+    /**
+     * Toggle the code block enclosing the cursor back to a paragraph carrying
+     * its code text. Returns false when the cursor is not inside a code block.
+     */
+    private _toggleEnclosingCodeBlock(): boolean {
+        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        const codeBlock = content?.closestBlock('code-block') as Parent | null;
+        if (!codeBlock)
+            return false;
+
+        const state = codeBlock.getState();
+        replaceBlockByLabel({
+            block: codeBlock,
+            muya: this,
+            label: 'paragraph',
+            text: isCodeBlockState(state) ? state.text : '',
+        });
+
+        return true;
+    }
+
+    /**
+     * General same-block conversion: the front menu's turn-into set is the
+     * single source of truth. Operate on the IMMEDIATE block so a heading inside
+     * a list item converts while the list stays intact; a target that is not a
+     * valid turn-into replaces an empty block in place, or is inserted as a new
+     * block directly below a non-empty one (focus moves into it).
+     */
+    private _convertOrInsertBelow(label: string) {
         const immediate = this._immediateBlockAtCursor();
         if (!immediate)
             return;
 
         const leadingText = this._blockLeadingText(immediate);
-        const convertible = canTurnIntoMenu(immediate).some(item => item.label === label);
-
-        if (convertible) {
+        if (canTurnIntoMenu(immediate).some(item => item.label === label)) {
             replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText });
             return;
         }
 
-        // Not a valid turn-into: empty block -> replace in place; non-empty -> insert
-        // a new block of `label` directly below and move focus into it.
         if (leadingText.trim() === '')
             replaceBlockByLabel({ block: immediate, muya: this, label, text: '' });
         else
