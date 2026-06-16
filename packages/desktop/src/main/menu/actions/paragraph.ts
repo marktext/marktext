@@ -246,13 +246,14 @@ export const updateSelectionMenus = (
   if (isCodeFences) {
     setParagraphMenuItemStatus(applicationMenu, false)
 
-    // A code line is selected.
-    if (isCodeContent) {
-      formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = false))
+    // Non-formattable code-like content (code/math/html/frontmatter/diagram):
+    // disable every format item. Tables never reach here (they return early via
+    // isDisabled) so table cells keep formatting.
+    formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = false))
 
-      if (Object.keys(affiliation).some((b) => /code$/.test(b))) {
-        setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
-      }
+    // A code line is selected — re-enable the code-fence toggle.
+    if (isCodeContent && Object.keys(affiliation).some((b) => /code$/.test(b))) {
+      setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
     }
   } else if (isMultiline) {
     // Format: link/image are meaningless across a multi-block selection.

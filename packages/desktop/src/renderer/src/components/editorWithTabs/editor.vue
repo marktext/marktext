@@ -359,7 +359,8 @@ const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
   frontmatter: 'frontmatter',
   table: 'table',
   'html-block': 'html',
-  'math-block': 'multiplemath'
+  'math-block': 'multiplemath',
+  diagram: 'diagram'
 }
 
 interface EngineAffiliationEntry {

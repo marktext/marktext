@@ -1883,6 +1883,11 @@ const createApplicationMenuState = ({
         state.isTable = true
         state.isDisabled = true
         state.affiliation[b.type] = true
+      } else if (b.functionType === 'diagram') {
+        // Diagrams are atomic, non-formattable blocks: disable the whole
+        // paragraph + format menus like a code fence, but they are not tables.
+        state.isCodeFences = true
+        state.affiliation[b.functionType] = true
       }
       break
     } else if (isMultiline && /^h{1,6}$/.test(b.type)) {

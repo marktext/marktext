@@ -165,3 +165,21 @@ describe('updateSelectionMenus — front matter', () => {
     expect(fm.enabled).toBe(true)
   })
 })
+
+describe('updateSelectionMenus — format disabled in non-formattable blocks', () => {
+  it('disables all format items in a code-fence block even without code content (math/html/frontmatter/diagram)', () => {
+    const menu = makeMenu()
+
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { multiplemath: true }, isCodeFences: true })
+
+    expect(menu.formatItems.every((i) => i.enabled === false)).toBe(true)
+  })
+
+  it('keeps format items enabled inside a table (disabled paragraph, not code)', () => {
+    const menu = makeMenu()
+
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { figure: true }, isTable: true, isDisabled: true })
+
+    expect(menu.formatItems.every((i) => i.enabled === true)).toBe(true)
+  })
+})
