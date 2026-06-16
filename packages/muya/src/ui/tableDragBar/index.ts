@@ -100,6 +100,62 @@ const bottomOptions = {
     showArrow: false,
 };
 
+function isInMovedRange(
+    i: number,
+    index: number,
+    curIndex: number,
+    isPositive: boolean,
+) {
+    return isPositive
+        ? i > index && i <= curIndex
+        : i >= curIndex && i < index;
+}
+
+function switchTransform(
+    i: number,
+    index: number,
+    curIndex: number,
+    aspect: number,
+    axis: 'translateX' | 'translateY',
+    isPositive: boolean,
+): string | null {
+    if (isInMovedRange(i, index, curIndex, isPositive))
+        return `${axis}(${isPositive ? -aspect : aspect}px)`;
+    if (i !== index)
+        return `${axis}(0px)`;
+
+    return null;
+}
+
+function applyBottomSwitch(
+    cells: HTMLTableCellElement[][],
+    len: number,
+    compute: (i: number) => string | null,
+) {
+    for (const row of cells) {
+        for (let i = 0; i < len; i++) {
+            const transform = compute(i);
+            if (transform !== null)
+                row[i].style.transform = transform;
+        }
+    }
+}
+
+function applyRightSwitch(
+    cells: HTMLTableCellElement[][],
+    len: number,
+    compute: (i: number) => string | null,
+) {
+    for (let i = 0; i < len; i++) {
+        const transform = compute(i);
+        if (transform === null)
+            continue;
+
+        for (const cell of cells[i])
+            cell.style.transform = transform;
+    }
+}
+
 export class TableDragBar extends BaseFloat {
     static pluginName = 'tableDragBar';
     private _block: TableBodyCell | null = null;
@@ -339,58 +395,15 @@ export class TableDragBar extends BaseFloat {
         const { index, offset, curIndex, barType, aspects, cells } = this._dragInfo;
         const aspect = aspects[index];
         const len = aspects.length;
+        const isPositive = offset > 0;
+        const axis = barType === 'bottom' ? 'translateX' : 'translateY';
+        const compute = (i: number) =>
+            switchTransform(i, index, curIndex, aspect, axis, isPositive);
 
-        let i;
-        if (offset > 0) {
-            if (barType === 'bottom') {
-                for (const row of cells) {
-                    for (i = 0; i < len; i++) {
-                        const cell = row[i];
-                        if (i > index && i <= curIndex)
-                            cell.style.transform = `translateX(${-aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateX(0px)';
-                    }
-                }
-            }
-            else {
-                for (i = 0; i < len; i++) {
-                    const row = cells[i];
-
-                    for (const cell of row) {
-                        if (i > index && i <= curIndex)
-                            cell.style.transform = `translateY(${-aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateY(0px)';
-                    }
-                }
-            }
-        }
-        else {
-            if (barType === 'bottom') {
-                for (const row of cells) {
-                    for (i = 0; i < len; i++) {
-                        const cell = row[i];
-                        if (i >= curIndex && i < index)
-                            cell.style.transform = `translateX(${aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateX(0px)';
-                    }
-                }
-            }
-            else {
-                for (i = 0; i < len; i++) {
-                    const row = cells[i];
-
-                    for (const cell of row) {
-                        if (i >= curIndex && i < index)
-                            cell.style.transform = `translateY(${aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateY(0px)';
-                    }
-                }
-            }
-        }
+        if (barType === 'bottom')
+            applyBottomSwitch(cells, len, compute);
+        else
+            applyRightSwitch(cells, len, compute);
     };
 
     setDropTargetStyle = () => {
