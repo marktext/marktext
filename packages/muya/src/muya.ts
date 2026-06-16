@@ -93,6 +93,16 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
     'sequence': 'diagram sequence',
 };
 
+// The outmost-block labels that wrap a cross-block selection into a list.
+const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'task-list']);
+
+function endpointPair(
+    anchor: Parent | null | undefined,
+    focus: Parent | null | undefined,
+): { anchor: Parent; focus: Parent } | null {
+    return anchor && focus ? { anchor, focus } : null;
+}
+
 export class Muya {
     static plugins: IPlugin[] = [];
 
@@ -565,6 +575,122 @@ export class Muya {
         return content?.parent ?? null;
     }
 
+    /**
+     * Cross-block paragraph-menu handling: a selection that spans several
+     * outmost blocks wraps each block into one list item. Returns true when the
+     * operation was handled so the single-block path is skipped. Quote/code and
+     * other cross-block targets are gated by the menu layer and fall through.
+     */
+    private _handleCrossBlockParagraph(type: string): boolean {
+        if (this._selectionInSameBlock())
+            return false;
+
+        const label = PARAGRAPH_LABEL_MAP[type];
+        if (!CROSS_BLOCK_LIST_LABELS.has(label))
+            return false;
+
+        this._wrapSelectedBlocksInList(label as 'bullet-list' | 'order-list' | 'task-list');
+
+        return true;
+    }
+
+    /**
+     * The outmost-block endpoints of the current selection. Prefers the pair
+     * that spans two different outmost blocks: the live DOM selection is the
+     * truth in the browser, but the cached selection endpoints survive the
+     * menu/IPC round-trip (and the headless test environment, where
+     * `Selection.extend` collapses a cross-node range to one block).
+     */
+    private _selectionEndpoints(): { anchor: Parent; focus: Parent } | null {
+        const sel = this.editor.selection.getSelection();
+        const live = endpointPair(sel?.anchor.block?.outMostBlock, sel?.focus.block?.outMostBlock);
+        const cached = endpointPair(
+            this.editor.selection.anchorBlock?.outMostBlock,
+            this.editor.selection.focusBlock?.outMostBlock,
+        );
+
+        if (live && live.anchor !== live.focus)
+            return live;
+        if (cached && cached.anchor !== cached.focus)
+            return cached;
+
+        return live ?? cached;
+    }
+
+    /** Whether the current selection stays within a single outmost block. */
+    private _selectionInSameBlock(): boolean {
+        const endpoints = this._selectionEndpoints();
+        if (!endpoints)
+            return true;
+
+        return endpoints.anchor === endpoints.focus;
+    }
+
+    /**
+     * The contiguous run of OUTMOST (scrollPage-child) blocks the current
+     * selection spans, in document order. Mirrors clipboard's outmost walk.
+     */
+    private _selectedOutmostBlocks(): Parent[] {
+        const endpoints = this._selectionEndpoints();
+        if (!endpoints)
+            return [];
+
+        const a = endpoints.anchor;
+        const f = endpoints.focus;
+
+        if (a === f)
+            return [a];
+
+        const sp = this.editor.scrollPage!;
+        const start = sp.offset(a) <= sp.offset(f) ? a : f;
+        const end = start === a ? f : a;
+        const blocks: Parent[] = [];
+        let node: Parent | null = start;
+        while (node) {
+            blocks.push(node);
+            if (node === end)
+                break;
+            node = node.next as Parent | null;
+        }
+
+        return blocks;
+    }
+
+    /**
+     * Wrap each selected outmost block as one list item under a new list of
+     * `label`. Ported from muyajs handleListMenu's multi-block branch.
+     */
+    private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
+        const blocks = this._selectedOutmostBlocks();
+        if (!blocks.length)
+            return;
+
+        const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
+        const isTask = label === 'task-list';
+        const itemName = isTask ? 'task-list-item' : 'list-item';
+        const children = blocks.map(b => isTask
+            ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
+            : { name: itemName, children: [b.getState()] });
+
+        const meta: Record<string, unknown> = { loose: preferLooseListItem };
+        if (label === 'order-list') {
+            meta.delimiter = orderListDelimiter;
+            meta.start = 1;
+        }
+        else {
+            meta.marker = bulletListMarker;
+        }
+
+        const listState = { name: label, meta, children };
+        const listBlock = ScrollPage.loadBlock(label).create(this, listState as never);
+        const parent = blocks[0].parent!;
+        parent.insertBefore(listBlock, blocks[0]);
+        for (const b of blocks)
+            b.remove();
+
+        listBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
     private _insertBlockBelow(block: Parent, label: string) {
         insertBlockBelowByLabel({ block, muya: this, label });
     }
@@ -898,6 +1024,9 @@ export class Muya {
     updateParagraph(type: string) {
         const block = this._outmostBlockAtCursor();
         if (!block)
+            return;
+
+        if (this._handleCrossBlockParagraph(type))
             return;
 
         if (type === 'upgrade heading' || type === 'degrade heading') {
