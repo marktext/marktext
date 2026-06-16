@@ -1811,7 +1811,10 @@ onMounted(() => {
     if (currentFile.value?.id && editor.value) {
       editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
     }
-    editorStore.SELECTION_CHANGE(adaptSelectionChange(changes))
+    editorStore.SELECTION_CHANGE({
+      ...adaptSelectionChange(changes),
+      hasFrontMatter: editor.value?.getState()?.[0]?.name === 'frontmatter'
+    })
     // The active inline formats now ride along on selection-change (replacing
     // the old separate `selectionFormats` event) — drive the format menu/toolbar
     // state from them.

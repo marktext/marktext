@@ -169,3 +169,23 @@ describe('updateSelectionMenus', () => {
     expect(checked).toEqual(['heading1MenuItem'])
   })
 })
+
+describe('updateSelectionMenus — front matter', () => {
+  it('disables Front Matter when the document already has front matter', () => {
+    const menu = makeMenu()
+
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { p: true }, hasFrontMatter: true })
+
+    const fm = menu.paragraphItems.find((i) => i.id === 'frontMatterMenuItem')!
+    expect(fm.enabled).toBe(false)
+  })
+
+  it('keeps Front Matter enabled when the document has none', () => {
+    const menu = makeMenu()
+
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { p: true }, hasFrontMatter: false })
+
+    const fm = menu.paragraphItems.find((i) => i.id === 'frontMatterMenuItem')!
+    expect(fm.enabled).toBe(true)
+  })
+})

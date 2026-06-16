@@ -181,6 +181,7 @@ interface SelectionState {
   isMultiline?: boolean
   isCodeFences?: boolean
   isCodeContent?: boolean
+  hasFrontMatter?: boolean
 }
 
 const setCheckedMenuItem = (
@@ -269,5 +270,11 @@ export const updateSelectionMenus = (
   // Disable loose list item.
   if (!affiliation.ul && !affiliation.ol) {
     setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
+  }
+
+  // Front matter may exist at most once per document; disable the menu item
+  // whenever the document already has one.
+  if (state.hasFrontMatter) {
+    setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], false)
   }
 }

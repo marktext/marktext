@@ -118,6 +118,7 @@ interface SelectionChange {
   start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
   end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
   affiliation?: AffiliationEntry[]
+  hasFrontMatter?: boolean
 }
 
 interface SelectionFormat {
@@ -1800,6 +1801,7 @@ interface ApplicationMenuState {
   isCodeFences: boolean
   isCodeContent: boolean
   isTable: boolean
+  hasFrontMatter: boolean
   affiliation: Record<string, boolean>
 }
 
@@ -1812,7 +1814,8 @@ interface ApplicationMenuState {
 const createApplicationMenuState = ({
   start,
   end,
-  affiliation
+  affiliation,
+  hasFrontMatter
 }: SelectionChange): ApplicationMenuState => {
   const state: ApplicationMenuState = {
     isDisabled: false,
@@ -1827,6 +1830,7 @@ const createApplicationMenuState = ({
     isCodeContent: false,
     // Whether the selection contains a table.
     isTable: false,
+    hasFrontMatter: !!hasFrontMatter,
     // Contains keys about the selection type(s) (string, boolean) like "ul: true".
     affiliation: {}
   }
