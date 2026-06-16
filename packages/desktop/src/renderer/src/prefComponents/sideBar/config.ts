@@ -178,13 +178,13 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       try {
         translatedCategory = t(categoryKey)
       } catch (e) {
-        console.warn(`   ⚠️ 搜索分类翻译失败: ${errMessage(e)}`)
+        console.warn(`   ⚠️ Search category translation failed: ${errMessage(e)}`)
         // Try fallback to preferences.categories
         try {
           const fallbackKey = `preferences.categories.${mappedCategory}`
           translatedCategory = t(fallbackKey)
         } catch (e2) {
-          console.warn(`   ❌ 搜索分类fallback也失败: ${errMessage(e2)}`)
+          console.warn(`   ❌ Search category fallback also failed: ${errMessage(e2)}`)
           translatedCategory = categoryName
         }
       }
@@ -195,13 +195,13 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       try {
         translatedPreference = t(itemKey)
       } catch (e) {
-        console.warn(`   ⚠️ 搜索项目翻译失败: ${errMessage(e)}`)
+        console.warn(`   ⚠️ Search item translation failed: ${errMessage(e)}`)
         // Try fallback to preferences.items
         try {
           const fallbackKey = `preferences.items.${k}`
           translatedPreference = t(fallbackKey)
         } catch (e2) {
-          console.warn(`   ❌ 搜索项目fallback也失败: ${errMessage(e2)}`)
+          console.warn(`   ❌ Search item fallback also failed: ${errMessage(e2)}`)
           translatedPreference = description.split('--')[1] || description
         }
       }
@@ -239,7 +239,7 @@ export const setupLanguageChangeListener = (): void => {
           })
         )
       } catch (e) {
-        console.warn('⚠️ 无法获取更新后的语言设置:', e)
+        console.warn('⚠️ Failed to get updated language setting:', e)
       }
     }
   }
@@ -252,7 +252,7 @@ export const setupLanguageChangeListener = (): void => {
         // Use Vue's reactive system to listen for language changes
       }
     } catch (e) {
-      console.warn('⚠️ 设置语言变化监听器失败:', e)
+      console.warn('⚠️ Failed to set up language change listener:', e)
     }
   }
 
@@ -340,11 +340,11 @@ function createDebugPopup(): HTMLDivElement {
   `
 
   const title = document.createElement('h3')
-  title.textContent = '🛠️ 调试信息'
+  title.textContent = '🛠️ Debug Info'
   title.style.cssText = 'margin: 0; color: #333;'
 
   const closeButton = document.createElement('button')
-  closeButton.textContent = '✕ 关闭'
+  closeButton.textContent = '✕ Close'
   closeButton.style.cssText = `
     background: #ff4444;
     color: white;
@@ -419,7 +419,7 @@ export const debugLanguageState = (): void => {
   }
 
   // Clear and populate debug information
-  debugContent.innerHTML = '<div id="debugDetails">正在加载调试信息...</div>'
+  debugContent.innerHTML = '<div id="debugDetails">Loading debug info...</div>'
 
   // Populate debug details
   const details = debugContent.querySelector('#debugDetails') as HTMLDivElement | null
@@ -429,39 +429,39 @@ export const debugLanguageState = (): void => {
   setTimeout(() => {
     try {
       // Show detailed information about the i18n instance
-      let debugInfo = '<h4>🔍 i18n实例详细信息:</h4>'
+      let debugInfo = '<h4>🔍 i18n instance details:</h4>'
 
       if (!window.__VUE_I18N__) {
-        debugInfo += '<p style="color:red;">❌ __VUE_I18N__ 不存在</p>'
+        debugInfo += '<p style="color:red;">❌ __VUE_I18N__ does not exist</p>'
       } else {
         const i18n = window.__VUE_I18N__
         debugInfo += `
-          <p><strong>__VUE_I18N__ 类型:</strong> ${typeof i18n}</p>
-          <p><strong>__VUE_I18N__ 键:</strong> ${Object.keys(i18n).slice(0, 10).join(', ')}</p>
-          <p><strong>global 类型:</strong> ${typeof i18n.global}</p>
+          <p><strong>__VUE_I18N__ type:</strong> ${typeof i18n}</p>
+          <p><strong>__VUE_I18N__ keys:</strong> ${Object.keys(i18n).slice(0, 10).join(', ')}</p>
+          <p><strong>global type:</strong> ${typeof i18n.global}</p>
         `
 
         // Safely display global info
         try {
           if (i18n.global) {
             const globalKeys = Object.keys(i18n.global).slice(0, 5)
-            debugInfo += `<p><strong>global 键:</strong> ${globalKeys.join(', ')}</p>`
+            debugInfo += `<p><strong>global keys:</strong> ${globalKeys.join(', ')}</p>`
 
             // Check if translation function is available
             if (typeof (i18n.global as VueI18nGlobal).t === 'function') {
-              debugInfo += '<p style="color:green;">✅ global.t 函数可用</p>'
+              debugInfo += '<p style="color:green;">✅ global.t function available</p>'
             } else {
-              debugInfo += '<p style="color:orange;">⚠️ global.t 函数不可用</p>'
+              debugInfo += '<p style="color:orange;">⚠️ global.t function unavailable</p>'
             }
           }
         } catch (e) {
-          debugInfo += `<p style="color:red;">❌ 检查global时出错: ${errMessage(e)}</p>`
+          debugInfo += `<p style="color:red;">❌ Error checking global: ${errMessage(e)}</p>`
         }
 
         // Try to get the i18n instance
         const i18nInstance = getI18nInstance()
         if (i18nInstance) {
-          debugInfo += '<p style="color:green;">✅ 成功获取i18n实例</p>'
+          debugInfo += '<p style="color:green;">✅ Successfully got i18n instance</p>'
 
           // Get the current language
           let currentLanguage = 'unknown'
@@ -472,7 +472,7 @@ export const debugLanguageState = (): void => {
             currentLanguage = inst.locale
           }
 
-          debugInfo += `<p><strong>🌍 当前语言:</strong> ${currentLanguage}</p>`
+          debugInfo += `<p><strong>🌍 Current language:</strong> ${currentLanguage}</p>`
 
           // Test translation
           try {
@@ -480,18 +480,18 @@ export const debugLanguageState = (): void => {
             const testTranslation = tFn
               ? tFn('preferences.general.window.titleBarStyle.custom')
               : ''
-            debugInfo += `<p><strong>🔄 测试翻译:</strong> ${testTranslation}</p>`
+            debugInfo += `<p><strong>🔄 Test translation:</strong> ${testTranslation}</p>`
           } catch (e) {
-            debugInfo += `<p style="color:red;"><strong>🔄 测试翻译失败:</strong> ${errMessage(e)}</p>`
+            debugInfo += `<p style="color:red;"><strong>🔄 Test translation failed:</strong> ${errMessage(e)}</p>`
           }
         } else {
-          debugInfo += '<p style="color:red;">❌ 无法获取有效的i18n实例</p>'
+          debugInfo += '<p style="color:red;">❌ Could not get a valid i18n instance</p>'
         }
       }
 
       details.innerHTML = debugInfo
     } catch (e) {
-      details.innerHTML = `<p style="color:red;">❌ 调试失败: ${errMessage(e)}</p>`
+      details.innerHTML = `<p style="color:red;">❌ Debug failed: ${errMessage(e)}</p>`
     }
   }, 500)
 }
