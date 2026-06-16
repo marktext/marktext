@@ -1814,7 +1814,9 @@ onMounted(() => {
     }
     editorStore.SELECTION_CHANGE({
       ...adaptSelectionChange(changes),
-      hasFrontMatter: editor.value?.getState()?.[0]?.name === 'frontmatter'
+      // Read the live block tree (O(1)) rather than getState(), which deep-clones
+      // the whole document — this runs on every cursor move.
+      hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
     })
     // The active inline formats now ride along on selection-change (replacing
     // the old separate `selectionFormats` event) — drive the format menu/toolbar
