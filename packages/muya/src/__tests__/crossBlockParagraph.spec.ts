@@ -65,4 +65,17 @@ describe('cross-block paragraph wrapping', () => {
             expect(s[0].children.length).toBe(2);
         });
     });
+
+    it('wraps selected paragraphs into a single block-quote', async () => {
+        const muya = boot('alpha\n\nbravo\n');
+        selectFirstTwoBlocks(muya);
+        muya.updateParagraph('blockquote');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s[0].name).toBe('block-quote');
+            expect(s[0].children.length).toBe(2);
+            expect(s[0].children[0].text).toBe('alpha');
+            expect(s[0].children[1].text).toBe('bravo');
+        });
+    });
 });

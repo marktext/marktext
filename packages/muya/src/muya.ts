@@ -586,12 +586,16 @@ export class Muya {
             return false;
 
         const label = PARAGRAPH_LABEL_MAP[type];
-        if (!CROSS_BLOCK_LIST_LABELS.has(label))
-            return false;
+        if (CROSS_BLOCK_LIST_LABELS.has(label)) {
+            this._wrapSelectedBlocksInList(label as 'bullet-list' | 'order-list' | 'task-list');
+            return true;
+        }
+        if (label === 'block-quote') {
+            this._wrapSelectedBlocksInQuote();
+            return true;
+        }
 
-        this._wrapSelectedBlocksInList(label as 'bullet-list' | 'order-list' | 'task-list');
-
-        return true;
+        return false;
     }
 
     /**
@@ -689,6 +693,25 @@ export class Muya {
             b.remove();
 
         listBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Wrap each selected outmost block into a single new block-quote. Ported
+     * from muyajs handleQuoteMenu's multi-block branch.
+     */
+    private _wrapSelectedBlocksInQuote() {
+        const blocks = this._selectedOutmostBlocks();
+        if (!blocks.length)
+            return;
+
+        const quoteState = { name: 'block-quote', children: blocks.map(b => b.getState()) };
+        const quoteBlock = ScrollPage.loadBlock('block-quote').create(this, quoteState as never);
+        const parent = blocks[0].parent!;
+        parent.insertBefore(quoteBlock, blocks[0]);
+        for (const b of blocks)
+            b.remove();
+
+        quoteBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _insertBlockBelow(block: Parent, label: string) {
