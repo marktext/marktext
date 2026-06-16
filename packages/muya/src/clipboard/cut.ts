@@ -56,6 +56,20 @@ function resetToEmptyParagraph(clipboard: Clipboard): void {
     cursorBlock?.setCursor(0, 0, true);
 }
 
+// Seat the caret and re-evaluate the block's type from its new text — a cut can
+// add or remove a block-leading marker (`# `, `- `, …).
+function setCursorAndConvert(block: Content, offset: number): void {
+    block.setCursor(offset, offset, true);
+    if (block instanceof Format)
+        block.checkInlineUpdate();
+}
+
+// Collapse the document to a single empty paragraph once a cut empties it.
+function resetIfEmpty(clipboard: Clipboard): void {
+    if (clipboard.scrollPage?.length() === 0)
+        resetToEmptyParagraph(clipboard);
+}
+
 // Empty every cell content leaf from `start` up to and including `after`,
 // keeping the table grid intact.
 function emptyCellContentsUntil(
@@ -369,9 +383,7 @@ export function cutSelection(clipboard: Clipboard): void {
         anchorBlock.text
             = text.substring(0, startOffset) + text.substring(endOffset);
 
-        anchorBlock.setCursor(startOffset, startOffset, true);
-        if (anchorBlock instanceof Format)
-            anchorBlock.checkInlineUpdate();
+        setCursorAndConvert(anchorBlock, startOffset);
 
         return;
     }
@@ -408,13 +420,8 @@ export function cutSelection(clipboard: Clipboard): void {
 
     removeBlocks(startBlock, endBlock);
 
-    startBlock.setCursor(startOffset, startOffset, true);
-    if (startBlock instanceof Format)
-        startBlock.checkInlineUpdate();
-
-    if (clipboard.scrollPage?.length() === 0) {
-        resetToEmptyParagraph(clipboard);
-    }
+    setCursorAndConvert(startBlock, startOffset);
+    resetIfEmpty(clipboard);
 }
 
 // #918: collapse the start code block (whose language line begins the
@@ -442,8 +449,7 @@ function collapseLanguageInputCut(
 
     paragraph.firstContentInDescendant()?.setCursor(startOffset, startOffset, true);
 
-    if (clipboard.scrollPage?.length() === 0)
-        resetToEmptyParagraph(clipboard);
+    resetIfEmpty(clipboard);
 }
 
 // Keyboard delete over a frozen table selection (two-stage, muyajs parity):
