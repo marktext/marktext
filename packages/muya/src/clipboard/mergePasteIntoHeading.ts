@@ -37,12 +37,21 @@ export function mergePasteIntoHeading(
     if (first.name !== 'paragraph')
         return states;
 
+    // A heading is a single line: only the first soft-line of the pasted
+    // paragraph stays in the heading; any following lines become a paragraph
+    // block below it.
+    const [firstLine, ...restLines] = first.text.split('\n');
+
     const original = anchorBlock.text;
     anchorBlock.text
         = original.substring(0, cursor.startOffset)
-            + first.text
+            + firstLine
             + original.substring(cursor.endOffset);
     anchorBlock.update();
 
-    return states.slice(1);
+    const remaining = states.slice(1);
+    if (restLines.length > 0)
+        remaining.unshift({ name: 'paragraph', text: restLines.join('\n') });
+
+    return remaining;
 }
