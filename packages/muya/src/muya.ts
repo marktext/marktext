@@ -594,6 +594,10 @@ export class Muya {
             this._wrapSelectedBlocksInQuote();
             return true;
         }
+        if (label === 'code-block') {
+            this._wrapSelectedBlocksInCodeBlock();
+            return true;
+        }
 
         return false;
     }
@@ -712,6 +716,26 @@ export class Muya {
             b.remove();
 
         quoteBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    /**
+     * Join each selected outmost block's leading text into a single fenced code
+     * block. Ported from muyajs handleCodeBlockMenu's multi-block branch.
+     */
+    private _wrapSelectedBlocksInCodeBlock() {
+        const blocks = this._selectedOutmostBlocks();
+        if (!blocks.length)
+            return;
+
+        const code = blocks.map(b => this._blockLeadingText(b)).join('\n');
+        const codeState = { name: 'code-block', meta: { type: 'fenced', lang: '' }, text: code };
+        const codeBlock = ScrollPage.loadBlock('code-block').create(this, codeState as never);
+        const parent = blocks[0].parent!;
+        parent.insertBefore(codeBlock, blocks[0]);
+        for (const b of blocks)
+            b.remove();
+
+        codeBlock.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _insertBlockBelow(block: Parent, label: string) {

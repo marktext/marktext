@@ -78,4 +78,18 @@ describe('cross-block paragraph wrapping', () => {
             expect(s[0].children[1].text).toBe('bravo');
         });
     });
+
+    it('joins selected paragraphs into a single code block', async () => {
+        const muya = boot('alpha\n\nbravo\n');
+        selectFirstTwoBlocks(muya);
+        muya.updateParagraph('pre');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(1);
+            expect(s[0].name).toBe('code-block');
+            const text = (s[0].text ?? '') as string;
+            expect(text).toContain('alpha');
+            expect(text).toContain('bravo');
+        });
+    });
 });
