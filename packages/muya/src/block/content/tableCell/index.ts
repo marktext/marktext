@@ -10,7 +10,7 @@ import Format from '../../base/format';
 import { ScrollPage } from '../../scrollPage';
 
 class TableCellContent extends Format {
-    public hasZeroWidthSpaceAtBeginning: boolean = false;
+    private _hasZeroWidthSpaceAtBeginning: boolean = false;
 
     static override blockName = 'table.cell.content';
 
@@ -24,15 +24,15 @@ class TableCellContent extends Format {
         return this.closestBlock('table') as Table;
     }
 
-    get tableInner() {
+    private get _tableInner() {
         return this.closestBlock('table.inner') as TableInner;
     }
 
-    get row() {
+    private get _row() {
         return this.closestBlock('table.row') as Row;
     }
 
-    get cell() {
+    private get _cell() {
         return this.closestBlock('table.cell') as Cell;
     }
 
@@ -50,19 +50,19 @@ class TableCellContent extends Format {
         return this.inlineRenderer.patch(this, cursor, highlights);
     }
 
-    findNextRow() {
-        const { row } = this;
+    private _findNextRow() {
+        const { _row: row } = this;
 
         return row.next || null;
     }
 
-    findPreviousRow() {
-        const { row } = this;
+    private _findPreviousRow() {
+        const { _row: row } = this;
 
         return row.prev || null;
     }
 
-    shiftEnter(event: Event) {
+    private _shiftEnter(event: Event) {
         event.preventDefault();
 
         const { start, end } = this.getCursor()!;
@@ -76,21 +76,21 @@ class TableCellContent extends Format {
         this.setCursor(offset, offset, true);
     }
 
-    commandEnter(event: Event) {
+    private _commandEnter(event: Event) {
         event.preventDefault();
 
-        const offset = this.tableInner.offset(this.row);
+        const offset = this._tableInner.offset(this._row);
         const cursorBlock = this.table.insertRow(
             offset + 1, /* Because insert after the current row */
         );
         cursorBlock.setCursor(0, 0);
     }
 
-    normalEnter(event: Event) {
+    private _normalEnter(event: Event) {
         event.preventDefault();
 
-        const nextRow = this.findNextRow();
-        const { row } = this;
+        const nextRow = this._findNextRow();
+        const { _row: row } = this;
         let cursorBlock = null;
         if (nextRow) {
             cursorBlock = nextRow.firstContentInDescendant();
@@ -125,20 +125,20 @@ class TableCellContent extends Format {
             return;
 
         if (event.shiftKey)
-            return this.shiftEnter(event);
+            return this._shiftEnter(event);
         else if ((isOsx && event.metaKey) || (!isOsx && event.ctrlKey))
-            return this.commandEnter(event);
+            return this._commandEnter(event);
         else
-            return this.normalEnter(event);
+            return this._normalEnter(event);
     }
 
     override arrowHandler(event: Event) {
         if (!isKeyboardEvent(event))
             return;
 
-        const previousRow = this.findPreviousRow();
-        const nextRow = this.findNextRow();
-        const { table, cell, row } = this;
+        const previousRow = this._findPreviousRow();
+        const nextRow = this._findNextRow();
+        const { table, _cell: cell, _row: row } = this;
         const offset = row.offset(cell);
         const tablePrevContent = table.prev
             ? table.prev.lastContentInDescendant()
@@ -259,11 +259,11 @@ class TableCellContent extends Format {
     override composeHandler(event: Event) {
         super.composeHandler(event);
         if (event.type === 'compositionstart' && this.text === '') {
-            this.hasZeroWidthSpaceAtBeginning = true;
+            this._hasZeroWidthSpaceAtBeginning = true;
             this.domNode!.textContent = '\u200B';
         }
-        else if (event.type === 'compositionend' && this.hasZeroWidthSpaceAtBeginning) {
-            this.hasZeroWidthSpaceAtBeginning = false;
+        else if (event.type === 'compositionend' && this._hasZeroWidthSpaceAtBeginning) {
+            this._hasZeroWidthSpaceAtBeginning = false;
             const { text } = this;
             const offset = text.length - 1;
             this.text = text.substring(0, offset);

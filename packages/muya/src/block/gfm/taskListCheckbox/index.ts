@@ -233,14 +233,14 @@ class TaskListCheckbox extends TreeNode {
             this.domNode.checked = checked;
     }
 
-    detachDOMEvents() {
+    private _detachDOMEvents() {
         for (const id of this._eventIds)
             this.muya.eventCenter.detachDOMEvent(id);
     }
 
     override remove(_source: string) {
         super.remove();
-        this.detachDOMEvents();
+        this._detachDOMEvents();
 
         return this;
     }

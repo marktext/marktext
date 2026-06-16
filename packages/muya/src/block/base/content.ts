@@ -317,19 +317,19 @@ function lineBreakAutoPair(
 
 class Content extends TreeNode {
     private _text: string;
-    public isComposed: boolean;
+    protected isComposed: boolean;
 
     static override blockName = 'content';
 
-    get hasSelection() {
+    protected get hasSelection() {
         return !!this.getCursor();
     }
 
-    get selection() {
+    protected get selection() {
         return this.muya.editor.selection;
     }
 
-    get inlineRenderer() {
+    protected get inlineRenderer() {
         return this.muya.editor.inlineRenderer;
     }
 
@@ -363,7 +363,7 @@ class Content extends TreeNode {
         }
     }
 
-    get isCollapsed() {
+    protected get isCollapsed() {
         const { isCollapsed } = this.getCursor() ?? {};
 
         return isCollapsed;
@@ -614,7 +614,7 @@ class Content extends TreeNode {
         return { text, needRender };
     }
 
-    insertTab() {
+    protected insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
         const tabCharacter = String.fromCharCode(160).repeat(tabSize);
@@ -760,20 +760,6 @@ class Content extends TreeNode {
         }
 
         return ancestors;
-    }
-
-    getCommonAncestors(block: Content) {
-        const myAncestors = this.getAncestors();
-        const blockAncestors = block.getAncestors();
-
-        const commonAncestors = [];
-
-        for (const a of myAncestors) {
-            if (blockAncestors.includes(a))
-                commonAncestors.push(a);
-        }
-
-        return commonAncestors;
     }
 
     override remove(source = 'user') {

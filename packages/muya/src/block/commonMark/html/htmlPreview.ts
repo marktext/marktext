@@ -9,7 +9,7 @@ import Parent from '../../base/parent';
 const debug = logger('htmlPreview:');
 
 class HTMLPreview extends Parent {
-    public html: string;
+    private _html: string;
 
     static override blockName = 'html-preview';
 
@@ -27,7 +27,7 @@ class HTMLPreview extends Parent {
     constructor(muya: Muya, { text }: IHtmlBlockState) {
         super(muya);
         this.tagName = 'div';
-        this.html = text;
+        this._html = text;
         this.classList = [CLASS_NAMES.MU_HTML_PREVIEW];
         this.attributes = {
             spellcheck: 'false',
@@ -37,9 +37,9 @@ class HTMLPreview extends Parent {
         this.update();
     }
 
-    update(html = this.html) {
-        if (this.html !== html)
-            this.html = html;
+    update(html = this._html) {
+        if (this._html !== html)
+            this._html = html;
 
         const { disableHtml } = this.muya.options;
         const htmlContent = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml) as string;

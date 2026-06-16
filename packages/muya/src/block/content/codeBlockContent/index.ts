@@ -82,7 +82,7 @@ function hasStateMeta(
 }
 
 class CodeBlockContent extends Content {
-    public initialLang: string;
+    private _initialLang: string;
     public override parent: Code | null = null;
 
     static override blockName = 'codeblock.content';
@@ -93,21 +93,21 @@ class CodeBlockContent extends Content {
         return content;
     }
 
-    get lang() {
-        const { codeContainer } = this;
+    private get _lang() {
+        const { _codeContainer: codeContainer } = this;
 
-        return codeContainer ? codeContainer.lang : this.initialLang;
+        return codeContainer ? codeContainer.lang : this._initialLang;
     }
 
     /**
      * Always be the `pre` element
      */
-    get codeContainer() {
+    private get _codeContainer() {
         return this.parent?.parent;
     }
 
     get outContainer() {
-        const { codeContainer } = this;
+        const { _codeContainer: codeContainer } = this;
 
         return /code-block|frontmatter/.test(codeContainer!.blockName)
             ? codeContainer
@@ -117,9 +117,9 @@ class CodeBlockContent extends Content {
     constructor(muya: Muya, state: CodeContentState) {
         super(muya, state.text);
         if (hasStateMeta(state))
-            this.initialLang = state.meta.lang;
+            this._initialLang = state.meta.lang;
         else
-            this.initialLang = LANG_HASH[state.name];
+            this._initialLang = LANG_HASH[state.name];
 
         this.classList = [...this.classList, 'mu-codeblock-content'];
         // Used for empty status prompts
@@ -133,13 +133,13 @@ class CodeBlockContent extends Content {
     }
 
     // Some block has a preview container, like math, diagram, html, should update the preview if the text changed.
-    updatePreviewIfHave(text: string) {
+    private _updatePreviewIfHave(text: string) {
         if (this.outContainer?.attachments?.length)
             (this.outContainer?.attachments?.head as HTMLPreview).update(text);
     }
 
     override update(_cursor?: IRenderCursor, highlights = []) {
-        const { lang, text } = this;
+        const { _lang: lang, text } = this;
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
@@ -206,7 +206,7 @@ class CodeBlockContent extends Content {
         );
         this.text = text;
 
-        this.updatePreviewIfHave(text);
+        this._updatePreviewIfHave(text);
 
         if (needRender) {
             this.setCursor(start!.offset, end!.offset, true);
@@ -269,7 +269,7 @@ class CodeBlockContent extends Content {
     override tabHandler(event: KeyboardEvent): void {
         event.preventDefault();
         const { start, end } = this.getCursor()!;
-        const { lang, text } = this;
+        const { _lang: lang, text } = this;
         const isMarkupCodeContent = /markup|html|xml|svg|mathml/.test(lang);
 
         if (isMarkupCodeContent) {
@@ -368,7 +368,7 @@ class CodeBlockContent extends Content {
             event.preventDefault();
             const { text } = this;
             this.text = text.substring(0, start.offset - 1) + text.substring(start.offset);
-            this.updatePreviewIfHave(this.text);
+            this._updatePreviewIfHave(this.text);
             return this.setCursor(--start.offset, --end.offset, true);
         }
         // The following code is aimed at ensuring compatibility with Firefox.
@@ -377,7 +377,7 @@ class CodeBlockContent extends Content {
         // the backspace key is pressed in Firefox. Therefore, we need to manually
         // simulate the backspace key in order to set the cursor position correctly.
         if (start.offset === end.offset) {
-            const { lang, text } = this;
+            const { _lang: lang, text } = this;
             // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
@@ -403,7 +403,7 @@ class CodeBlockContent extends Content {
                 if (needRender) {
                     event.preventDefault();
                     this.text = code;
-                    this.updatePreviewIfHave(this.text);
+                    this._updatePreviewIfHave(this.text);
                     return this.setCursor(--start.offset, --end.offset, true);
                 }
             }

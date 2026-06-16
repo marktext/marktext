@@ -705,7 +705,7 @@ class Format extends Content {
                 break;
 
             case !!taskList:
-                this.convertToTaskList();
+                this._convertToTaskList();
                 break;
 
             case !!atxHeading:
@@ -868,10 +868,10 @@ class Format extends Content {
         // convert `[*-+] \[[xX ]\] ` to task list.
         const TASK_LIST_REG = /^\[[x ]\] {1,4}/i;
         if (TASK_LIST_REG.test(firstContent.text))
-            firstContent.convertToTaskList();
+            firstContent._convertToTaskList();
     }
 
-    convertToTaskList() {
+    private _convertToTaskList() {
         const { text, parent, muya, hasSelection } = this;
         const { preferLooseListItem } = muya.options;
         const listItem = parent!.parent!;
@@ -1251,7 +1251,7 @@ class Format extends Content {
     }
 
     // Paragraph
-    convertToParagraph(force = false) {
+    protected convertToParagraph(force = false) {
         if (
             !force
             && (this.parent!.blockName === 'setext-heading'
@@ -1472,7 +1472,7 @@ class Format extends Content {
         needRemovedBlock!.remove();
     }
 
-    shiftEnterHandler(event: Event): void {
+    protected shiftEnterHandler(event: Event): void {
         event.preventDefault();
         event.stopPropagation();
 

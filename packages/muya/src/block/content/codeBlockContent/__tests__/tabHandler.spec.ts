@@ -23,7 +23,7 @@ import CodeBlockContent from '../index';
 
 interface IFakeCell {
     text: string;
-    lang: string;
+    _lang: string;
     cursor: { start: number; end: number };
     getCursor: () => { start: { offset: number }; end: { offset: number } };
     setCursor: (start: number, end: number, _selected?: boolean) => void;
@@ -37,7 +37,7 @@ function makeFakeCodeContent(initial: {
 }): IFakeCell {
     return {
         text: initial.text,
-        lang: initial.lang,
+        _lang: initial.lang,
         cursor: { start: initial.cursorAt, end: initial.cursorAt },
         getCursor() {
             return {

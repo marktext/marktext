@@ -58,7 +58,7 @@ class Footnote extends Parent {
         return [...pPath, offset, 'children'];
     }
 
-    override get isContainerBlock() {
+    protected override get isContainerBlock() {
         return true;
     }
 

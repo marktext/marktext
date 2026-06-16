@@ -789,7 +789,7 @@ class ParagraphContent extends Format {
         cursorBlock?.setCursor(start.offset, end.offset, true);
     }
 
-    override insertTab() {
+    protected override insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
         const tabCharacter = String.fromCharCode(160).repeat(tabSize);
