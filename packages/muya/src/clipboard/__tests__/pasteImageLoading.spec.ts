@@ -86,9 +86,9 @@ describe('pasteHandler image paste — loading placeholder then replace (sub-ite
 
         const done = clipboard.pasteHandler(makePasteEvent());
 
-        // Give the microtasks up to the `await imageAction` a chance to run.
-        await Promise.resolve();
-        await Promise.resolve();
+        // The placeholder is spliced in synchronously just before `imageAction`
+        // is awaited; wait until that call to avoid coupling to microtask counts.
+        await vi.waitFor(() => expect(imageAction).toHaveBeenCalled());
 
         // A placeholder image markdown must already be present in the anchor.
         expect(anchorBlock.text).toMatch(/!\[[^\]]*\]\([^)]+\)/);

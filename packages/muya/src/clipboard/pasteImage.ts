@@ -1,6 +1,7 @@
 import type Content from '../block/base/content';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import { SelectionType } from '../selection/types';
 import { getUniqueId } from '../utils';
 import { readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
 
@@ -103,33 +104,65 @@ async function insertImageSrc(
     replacePlaceholderImage(anchorBlock, placeholderText, finalSrc);
 }
 
+// Resolve a pasted image to an `src`: a clipboard FILE path (via the
+// `clipboardFilePath` hook) first, then an in-memory bitmap File read as a
+// base64 `data:` URL. Returns null when the clipboard carries no image.
+async function resolveImageSrc(
+    clipboard: Clipboard,
+    imageFile: Nullable<File>,
+): Promise<Nullable<string>> {
+    const imagePath = await resolveClipboardImagePath(
+        clipboard.muya.options.clipboardFilePath,
+    );
+    if (imagePath)
+        return imagePath;
+
+    if (imageFile)
+        return readFileAsDataURL(imageFile);
+
+    return null;
+}
+
 /**
- * Insert a pasted image when the clipboard carries one. Tries a resolved
- * clipboard FILE path first (via the `clipboardFilePath` hook), then
- * an in-memory bitmap File (read as a base64 `data:` URL). Returns
- * `true` when an image was inserted so the caller skips the text/HTML
- * paste, `false` to fall through.
+ * Insert a pasted image when the clipboard carries one. Returns `true` when an
+ * image was inserted so the caller skips the text/HTML paste, `false` to fall
+ * through.
  */
 export async function tryPasteImage(
     clipboard: Clipboard,
     anchorBlock: Content,
     imageFile: Nullable<File>,
 ): Promise<boolean> {
-    const imagePath = await resolveClipboardImagePath(
-        clipboard.muya.options.clipboardFilePath,
-    );
-    if (imagePath) {
-        await insertImageSrc(clipboard, anchorBlock, imagePath);
-        return true;
-    }
+    const src = await resolveImageSrc(clipboard, imageFile);
+    if (src == null)
+        return false;
 
-    if (imageFile) {
-        const dataUrl = await readFileAsDataURL(imageFile);
-        if (dataUrl) {
-            await insertImageSrc(clipboard, anchorBlock, dataUrl);
-            return true;
-        }
-    }
+    await insertImageSrc(clipboard, anchorBlock, src);
 
-    return false;
+    return true;
+}
+
+/**
+ * Pasting an image while an inline image is selected replaces that image
+ * (muyajs `pasteImage` selectedImage branch) instead of inserting a new one.
+ * Returns `true` when it replaced the selected image.
+ */
+export async function tryReplaceSelectedImage(
+    clipboard: Clipboard,
+    imageFile: Nullable<File>,
+): Promise<boolean> {
+    const selectedImage = clipboard.selection.image;
+    if (selectedImage == null)
+        return false;
+
+    const src = await resolveImageSrc(clipboard, imageFile);
+    if (src == null)
+        return false;
+
+    const { block, token } = selectedImage;
+    clipboard.selection.activate(SelectionType.TEXT);
+    block.setCursor(token.range.start, token.range.end, true);
+    await insertImageSrc(clipboard, block, src);
+
+    return true;
 }

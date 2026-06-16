@@ -6,6 +6,7 @@ import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import CodeBlockContent from '../block/content/codeBlockContent';
+import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { URL_REG } from '../config';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
@@ -13,7 +14,7 @@ import { MarkdownToState } from '../state/markdownToState';
 import { isParagraphState } from '../state/types';
 import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
-import { tryPasteImage } from './pasteImage';
+import { tryPasteImage, tryReplaceSelectedImage } from './pasteImage';
 import { PasteType } from './types';
 
 // Everything the per-anchor paste handlers need from the synchronous snapshot
@@ -261,9 +262,25 @@ function applyLiteralPaste(
         return;
     }
 
-    if (anchorBlock.blockName === 'language-input')
-        markdown = markdown.replace(/\n/g, '');
-    else if (anchorBlock.blockName === 'table.cell.content')
+    // language-input: only the first line is the language; propagate it to the
+    // code block (re-highlight + language selector) rather than splicing raw.
+    if (anchorBlock.blockName === 'language-input') {
+        const firstLine = initialMarkdown.split('\n')[0];
+        const newLang
+            = content.substring(0, start.offset)
+                + firstLine
+                + content.substring(end.offset);
+        const offset = start.offset + firstLine.length;
+        if (anchorBlock instanceof LangInputContent)
+            anchorBlock.updateLanguage(newLang);
+        else
+            anchorBlock.text = newLang;
+        anchorBlock.setCursor(offset, offset, true);
+
+        return;
+    }
+
+    if (anchorBlock.blockName === 'table.cell.content')
         markdown = markdown.replace(/\n/g, '<br/>');
 
     anchorBlock.text
@@ -338,6 +355,13 @@ interface IPasteData {
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
     const { muya } = clipboard;
     const { bulletListMarker } = muya.options;
+
+    // A selected inline image collapses the text selection, so handle the
+    // "paste an image over a selected image" replace before reading the
+    // (now absent) text selection.
+    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
+        return;
+
     const selection = clipboard.selection.getSelection();
     if (!selection)
         return;
