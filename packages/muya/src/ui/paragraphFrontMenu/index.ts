@@ -192,175 +192,12 @@ export class ParagraphFrontMenu extends BaseFloat {
         if (!this._block)
             return;
 
-        const { _block: block, muya } = this;
-        const { editor } = muya;
+        const { _block: block } = this;
         const oldState = block.getState();
-        let cursorBlock = null;
-        let state = null;
-        const { bulletListMarker, orderListDelimiter } = muya.options;
 
-        if (/duplicate|new|delete/.test(label)) {
-            switch (label) {
-                case 'duplicate': {
-                    state = deepClone(oldState);
-                    const dupBlock = ScrollPage.loadBlock(state.name).create(muya, state);
-                    block.parent!.insertAfter(dupBlock, block);
-                    cursorBlock = dupBlock.lastContentInDescendant();
-                    break;
-                }
-
-                case 'new': {
-                    state = deepClone(emptyStates.paragraph);
-                    const newBlock = ScrollPage.loadBlock('paragraph').create(
-                        muya,
-                        state,
-                    );
-                    block.parent!.insertAfter(newBlock, block);
-                    cursorBlock = newBlock.lastContentInDescendant();
-                    break;
-                }
-
-                case 'delete': {
-                    if (block.prev) {
-                        cursorBlock = block.prev.lastContentInDescendant();
-                    }
-                    else if (block.next) {
-                        cursorBlock = block.next.firstContentInDescendant();
-                    }
-                    else {
-                        state = deepClone(emptyStates.paragraph);
-                        const newBlock = ScrollPage.loadBlock('paragraph').create(
-                            muya,
-                            state,
-                        );
-                        block.parent!.insertAfter(newBlock, block);
-                        cursorBlock = newBlock.lastContentInDescendant();
-                    }
-                    block.remove();
-                }
-            }
-        }
-        else {
-            switch (block.blockName) {
-                case 'paragraph':
-                    // fall through
-                case 'atx-heading': {
-                    if (block.blockName === 'paragraph' && block.blockName === label)
-                        break;
-
-                    const headingLevel = isAtxHeadingState(oldState) ? oldState.meta.level : null;
-                    if (
-                        block.blockName === 'atx-heading'
-                        && headingLevel !== null
-                        && label.split(' ')[1] === String(headingLevel)
-                    ) {
-                        break;
-                    }
-
-                    const rawText = 'text' in oldState ? oldState.text : '';
-                    const text
-                        = block.blockName === 'paragraph'
-                            ? rawText
-                            : rawText.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '');
-                    replaceBlockByLabel({
-                        block,
-                        label,
-                        muya,
-                        text,
-                    });
-                    break;
-                }
-
-                case 'order-list':
-                    // fall through
-                case 'bullet-list':
-                    // fall through
-                case 'task-list': {
-                    if (!isAnyListState(oldState))
-                        break;
-
-                    // Clicking the active list type toggles the list off,
-                    // unwrapping every item back into plain paragraphs (matches
-                    // the command-palette/menu `reset-to-paragraph` behaviour).
-                    if (block.blockName === label) {
-                        muya.resetToParagraph(block);
-                        break;
-                    }
-
-                    // The conversion between order/bullet/task lists re-shapes both
-                    // the parent `meta` and each item's `meta` (only task-list-items
-                    // carry meta). Rebuild a fresh state of the target shape rather
-                    // than mutating the old one in place — the in-place form requires
-                    // discriminant-changing casts that TS can't track.
-                    const sourceMeta = oldState.meta;
-                    const loose = sourceMeta.loose;
-                    const delimiter = 'delimiter' in sourceMeta
-                        ? sourceMeta.delimiter
-                        : orderListDelimiter;
-                    const marker = 'marker' in sourceMeta
-                        ? sourceMeta.marker
-                        : bulletListMarker;
-
-                    const childContents: TState[][] = oldState.children.map(
-                        li => deepClone(li.children),
-                    );
-
-                    if (label === 'task-list') {
-                        const newState: ITaskListState = {
-                            name: 'task-list',
-                            meta: { marker: marker ?? bulletListMarker, loose: !!loose },
-                            children: childContents.map(children => ({
-                                name: 'task-list-item',
-                                meta: { checked: false },
-                                children,
-                            })),
-                        };
-                        state = newState;
-                    }
-                    else if (label === 'order-list') {
-                        const newState: IOrderListState = {
-                            name: 'order-list',
-                            meta: { delimiter, loose: !!loose, start: 1 },
-                            children: childContents.map(children => ({
-                                name: 'list-item',
-                                children,
-                            })),
-                        };
-                        state = newState;
-                    }
-                    else {
-                        const newState: IBulletListState = {
-                            name: 'bullet-list',
-                            meta: { marker: marker ?? bulletListMarker, loose: !!loose },
-                            children: childContents.map(children => ({
-                                name: 'list-item',
-                                children,
-                            })),
-                        };
-                        state = newState;
-                    }
-                    // TODO: @JOCS, remove use this.selection directly.
-                    const { anchorPath, anchor, focus, isSelectionInSameBlock }
-                        = editor.selection;
-                    const listBlock = ScrollPage.loadBlock(label).create(muya, state);
-                    block.replaceWith(listBlock);
-                    const guessCursorBlock
-                        = muya.editor.scrollPage?.queryBlock(anchorPath);
-                    if (guessCursorBlock && isSelectionInSameBlock) {
-                        const begin = Math.min(anchor!.offset, focus!.offset);
-                        const end = Math.max(anchor!.offset, focus!.offset);
-                        // Make guessCursorBlock active. queryBlock returns the
-                        // closest block at the given path; for an inline path
-                        // it's a Content leaf (which has setCursor).
-                        (guessCursorBlock as Content).setCursor(begin, end, true);
-                    }
-                    else {
-                        cursorBlock = listBlock.firstContentInDescendant();
-                    }
-                    break;
-                }
-            }
-        }
+        const cursorBlock = /duplicate|new|delete/.test(label)
+            ? this._applyMetaAction(label, block, oldState)
+            : this._turnIntoBlock(label, block, oldState);
 
         if (cursorBlock) {
             // mock cursorBlock focus
@@ -368,5 +205,185 @@ export class ParagraphFrontMenu extends BaseFloat {
         }
         // Delay hide to avoid dispatch enter handler
         setTimeout(this.hide.bind(this));
+    }
+
+    private _applyMetaAction(label: string, block: Parent, oldState: TState) {
+        const { muya } = this;
+        switch (label) {
+            case 'duplicate': {
+                const state = deepClone(oldState);
+                const dupBlock = ScrollPage.loadBlock(state.name).create(muya, state);
+                block.parent!.insertAfter(dupBlock, block);
+                return dupBlock.lastContentInDescendant();
+            }
+
+            case 'new': {
+                const state = deepClone(emptyStates.paragraph);
+                const newBlock = ScrollPage.loadBlock('paragraph').create(
+                    muya,
+                    state,
+                );
+                block.parent!.insertAfter(newBlock, block);
+                return newBlock.lastContentInDescendant();
+            }
+
+            case 'delete': {
+                let cursorBlock = null;
+                if (block.prev) {
+                    cursorBlock = block.prev.lastContentInDescendant();
+                }
+                else if (block.next) {
+                    cursorBlock = block.next.firstContentInDescendant();
+                }
+                else {
+                    const state = deepClone(emptyStates.paragraph);
+                    const newBlock = ScrollPage.loadBlock('paragraph').create(
+                        muya,
+                        state,
+                    );
+                    block.parent!.insertAfter(newBlock, block);
+                    cursorBlock = newBlock.lastContentInDescendant();
+                }
+                block.remove();
+
+                return cursorBlock;
+            }
+
+            default:
+                return null;
+        }
+    }
+
+    private _turnIntoBlock(label: string, block: Parent, oldState: TState) {
+        const { muya } = this;
+        switch (block.blockName) {
+            case 'paragraph':
+                // fall through
+            case 'atx-heading': {
+                if (block.blockName === 'paragraph' && block.blockName === label)
+                    return null;
+
+                const headingLevel = isAtxHeadingState(oldState) ? oldState.meta.level : null;
+                if (
+                    block.blockName === 'atx-heading'
+                    && headingLevel !== null
+                    && label.split(' ')[1] === String(headingLevel)
+                ) {
+                    return null;
+                }
+
+                const rawText = 'text' in oldState ? oldState.text : '';
+                const text
+                    = block.blockName === 'paragraph'
+                        ? rawText
+                        : rawText.replace(/^ {0,3}#{1,6}(?:\s+|$)/, '');
+                replaceBlockByLabel({
+                    block,
+                    label,
+                    muya,
+                    text,
+                });
+
+                return null;
+            }
+
+            case 'order-list':
+                // fall through
+            case 'bullet-list':
+                // fall through
+            case 'task-list':
+                return this._turnIntoList(label, block, oldState);
+
+            default:
+                return null;
+        }
+    }
+
+    private _turnIntoList(label: string, block: Parent, oldState: TState) {
+        const { muya } = this;
+        const { editor } = muya;
+        const { bulletListMarker, orderListDelimiter } = muya.options;
+
+        if (!isAnyListState(oldState))
+            return null;
+
+        // Clicking the active list type toggles the list off,
+        // unwrapping every item back into plain paragraphs (matches
+        // the command-palette/menu `reset-to-paragraph` behaviour).
+        if (block.blockName === label) {
+            muya.resetToParagraph(block);
+
+            return null;
+        }
+
+        // The conversion between order/bullet/task lists re-shapes both
+        // the parent `meta` and each item's `meta` (only task-list-items
+        // carry meta). Rebuild a fresh state of the target shape rather
+        // than mutating the old one in place — the in-place form requires
+        // discriminant-changing casts that TS can't track.
+        const sourceMeta = oldState.meta;
+        const loose = sourceMeta.loose;
+        const delimiter = 'delimiter' in sourceMeta
+            ? sourceMeta.delimiter
+            : orderListDelimiter;
+        const marker = 'marker' in sourceMeta
+            ? sourceMeta.marker
+            : bulletListMarker;
+
+        const childContents: TState[][] = oldState.children.map(
+            li => deepClone(li.children),
+        );
+
+        let state: ITaskListState | IOrderListState | IBulletListState;
+        if (label === 'task-list') {
+            state = {
+                name: 'task-list',
+                meta: { marker: marker ?? bulletListMarker, loose: !!loose },
+                children: childContents.map(children => ({
+                    name: 'task-list-item',
+                    meta: { checked: false },
+                    children,
+                })),
+            };
+        }
+        else if (label === 'order-list') {
+            state = {
+                name: 'order-list',
+                meta: { delimiter, loose: !!loose, start: 1 },
+                children: childContents.map(children => ({
+                    name: 'list-item',
+                    children,
+                })),
+            };
+        }
+        else {
+            state = {
+                name: 'bullet-list',
+                meta: { marker: marker ?? bulletListMarker, loose: !!loose },
+                children: childContents.map(children => ({
+                    name: 'list-item',
+                    children,
+                })),
+            };
+        }
+        // TODO: @JOCS, remove use this.selection directly.
+        const { anchorPath, anchor, focus, isSelectionInSameBlock }
+            = editor.selection;
+        const listBlock = ScrollPage.loadBlock(label).create(muya, state);
+        block.replaceWith(listBlock);
+        const guessCursorBlock
+            = muya.editor.scrollPage?.queryBlock(anchorPath);
+        if (guessCursorBlock && isSelectionInSameBlock) {
+            const begin = Math.min(anchor!.offset, focus!.offset);
+            const end = Math.max(anchor!.offset, focus!.offset);
+            // Make guessCursorBlock active. queryBlock returns the
+            // closest block at the given path; for an inline path
+            // it's a Content leaf (which has setCursor).
+            (guessCursorBlock as Content).setCursor(begin, end, true);
+
+            return null;
+        }
+
+        return listBlock.firstContentInDescendant();
     }
 }
