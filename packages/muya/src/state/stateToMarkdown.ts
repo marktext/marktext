@@ -30,6 +30,7 @@ import type {
  * The output markdown needs to obey the standards of these Spec.
  */
 import { deepClone } from '../utils';
+import { serializeProperties } from '../utils/frontmatterUtils';
 
 import logger from '../utils/logger';
 
@@ -254,7 +255,7 @@ export default class ExportMarkdown {
 
         const result = [];
         result.push(startToken);
-        const { text } = state;
+        const text = serializeProperties(state.properties, state.meta.lang);
         const lines = text.split('\n');
 
         for (const line of lines)

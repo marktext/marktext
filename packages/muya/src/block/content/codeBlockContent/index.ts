@@ -4,7 +4,6 @@ import type {
     CodeContentState,
     ICodeBlockState,
     IDiagramState,
-    IFrontmatterState,
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
@@ -77,8 +76,8 @@ const LANG_HASH = {
 
 function hasStateMeta(
     state: CodeContentState,
-): state is ICodeBlockState | IDiagramState | IFrontmatterState {
-    return /code-block|diagram|frontmatter/.test(state.name);
+): state is ICodeBlockState | IDiagramState {
+    return /code-block|diagram/.test(state.name);
 }
 
 class CodeBlockContent extends Content {
@@ -109,7 +108,7 @@ class CodeBlockContent extends Content {
     get outContainer() {
         const { codeContainer } = this;
 
-        return /code-block|frontmatter/.test(codeContainer!.blockName)
+        return codeContainer?.blockName === 'code-block'
             ? codeContainer
             : codeContainer!.parent;
     }

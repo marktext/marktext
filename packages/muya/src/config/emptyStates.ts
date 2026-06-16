@@ -41,7 +41,7 @@ const emptyStates: IEmptyStates = {
     },
     'frontmatter': {
         name: 'frontmatter',
-        text: '',
+        properties: [],
         meta: {
             lang: 'yaml', // yaml | toml | json
             style: '-', // `-` for yaml | `+` for toml | `;;;` and `{}` for json

@@ -10,6 +10,7 @@ import type {
     ITaskListState,
     TState,
 } from './types';
+import { parseProperties } from '../utils/frontmatterUtils';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -98,7 +99,7 @@ export class MarkdownToState {
                             lang,
                             style,
                         },
-                        text: value,
+                        properties: parseProperties(value, lang),
                     };
 
                     parentList[0].push(state);

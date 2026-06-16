@@ -1,4 +1,8 @@
 import Frontmatter from './/extra/frontmatter';
+import FrontmatterBody from './/extra/frontmatter/body';
+import FrontmatterKeyContent from './/extra/frontmatter/keyContent';
+import FrontmatterRow from './/extra/frontmatter/row';
+import FrontmatterValueContent from './/extra/frontmatter/valueContent';
 import AtxHeading from './commonMark/atxHeading';
 // container block
 import BlockQuote from './commonMark/blockQuote';
@@ -79,6 +83,10 @@ export function registerBlocks() {
     ScrollPage.register(MathContainer);
     // FrontMatter
     ScrollPage.register(Frontmatter);
+    ScrollPage.register(FrontmatterBody);
+    ScrollPage.register(FrontmatterRow);
+    ScrollPage.register(FrontmatterKeyContent);
+    ScrollPage.register(FrontmatterValueContent);
     // Diagram
     ScrollPage.register(DiagramBlock);
     ScrollPage.register(DiagramContainer);
