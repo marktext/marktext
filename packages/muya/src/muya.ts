@@ -29,7 +29,8 @@ import {
 } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState } from './state/types';
-import { insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
+import { canTurnIntoMenu } from './ui/paragraphFrontMenu/config';
+import { insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -564,6 +565,10 @@ export class Muya {
         return content?.parent ?? null;
     }
 
+    private _insertBlockBelow(block: Parent, label: string) {
+        insertBlockBelowByLabel({ block, muya: this, label });
+    }
+
     /**
      * Duplicate the block at the current cursor, placing the cursor in the
      * copy. No-op when there is no current block.
@@ -959,12 +964,28 @@ export class Muya {
             return;
         }
 
-        replaceBlockByLabel({
-            block,
-            muya: this,
-            label,
-            text: this._blockLeadingText(block),
-        });
+        // General conversion — the front menu's turn-into set is the single source
+        // of truth. Operate on the IMMEDIATE block (the paragraph/heading directly
+        // wrapping the cursor) so a heading inside a list item converts while the
+        // list stays intact.
+        const immediate = this._immediateBlockAtCursor();
+        if (!immediate)
+            return;
+
+        const leadingText = this._blockLeadingText(immediate);
+        const convertible = canTurnIntoMenu(immediate).some(item => item.label === label);
+
+        if (convertible) {
+            replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText });
+            return;
+        }
+
+        // Not a valid turn-into: empty block -> replace in place; non-empty -> insert
+        // a new block of `label` directly below and move focus into it.
+        if (leadingText.trim() === '')
+            replaceBlockByLabel({ block: immediate, muya: this, label, text: '' });
+        else
+            this._insertBlockBelow(immediate, label);
     }
 
     /**

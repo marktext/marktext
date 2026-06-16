@@ -517,7 +517,7 @@ function buildDiagramBlock(label: string, muya: Muya) {
     return ScrollPage.loadBlock(name).create(muya, diagramState);
 }
 
-function buildReplacementBlock(label: string, muya: Muya, text: string) {
+export function buildReplacementBlock(label: string, muya: Muya, text: string) {
     if (label.startsWith('atx-heading '))
         return buildHeadingBlock(label, muya, text);
     if (label.startsWith('diagram '))
@@ -607,4 +607,24 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
         const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
         cursorBlock.setCursor(offset, offset, true);
     }
+}
+
+// Build a fresh block of `label` and insert it directly AFTER `block`
+// (inside the same container), then move the caret into the new block.
+// Used by the Paragraph menu when the target type is not a valid front-menu
+// turn-into of a non-empty block.
+export function insertBlockBelowByLabel({ block, muya, label }: {
+    block: Parent;
+    muya: Muya;
+    label: string;
+}) {
+    const newBlock = buildReplacementBlock(label, muya, '');
+    if (!newBlock)
+        return;
+    block.parent!.insertAfter(newBlock, block);
+    const cursorBlock = newBlock.firstContentInDescendant();
+    if (!cursorBlock)
+        return;
+    const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
+    cursorBlock.setCursor(offset, offset, true);
 }
