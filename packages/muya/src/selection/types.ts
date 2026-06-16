@@ -76,21 +76,21 @@ export type IHistorySelection = Omit<ISelection, 'anchor' | 'focus'> & {
 };
 
 export enum SelectionType {
-    Text = 'text',
-    Table = 'table',
-    Image = 'image',
+    TEXT = 'text',
+    TABLE = 'table',
+    IMAGE = 'image',
 }
 
 export enum SelectionDirection {
-    None = 'none',
-    Forward = 'forward',
-    Backward = 'backward',
+    NONE = 'none',
+    FORWARD = 'forward',
+    BACKWARD = 'backward',
 }
 
 export enum SelectionCaretType {
-    None = 'None',
-    Caret = 'Caret',
-    Range = 'Range',
+    NONE = 'None',
+    CARET = 'Caret',
+    RANGE = 'Range',
 }
 
 export interface IImageSelectionData {

@@ -37,16 +37,16 @@ class Selection {
 
     get type(): SelectionType {
         if (this._image.selected)
-            return SelectionType.Image;
+            return SelectionType.IMAGE;
         if (this._table.hasSelection)
-            return SelectionType.Table;
-        return SelectionType.Text;
+            return SelectionType.TABLE;
+        return SelectionType.TEXT;
     }
 
     get current(): TextSelection | TableRectSelection | ImageSelection {
         switch (this.type) {
-            case SelectionType.Image: return this._image;
-            case SelectionType.Table: return this._table;
+            case SelectionType.IMAGE: return this._image;
+            case SelectionType.TABLE: return this._table;
             default: return this._text;
         }
     }
@@ -90,18 +90,18 @@ class Selection {
     selectImage(data: IImageSelectionData): void {
         this._image.selected = data;
         this.muya.editor.activeContentBlock = null;
-        this.activate(SelectionType.Image);
+        this.activate(SelectionType.IMAGE);
     }
 
     activate(type: SelectionType): void {
-        if (type !== SelectionType.Text)
+        if (type !== SelectionType.TEXT)
             this._text.collapse();
-        if (type !== SelectionType.Table)
+        if (type !== SelectionType.TABLE)
             this._table.clear();
-        if (type !== SelectionType.Image)
+        if (type !== SelectionType.IMAGE)
             this._image.clear();
 
-        if (type !== SelectionType.Text) {
+        if (type !== SelectionType.TEXT) {
             this.muya.eventCenter.emit('selection-change', {
                 kind: type,
             });

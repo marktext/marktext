@@ -57,7 +57,7 @@ class ImageSelection {
             event.preventDefault();
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
-            this._selection.activate(SelectionType.Text);
+            this._selection.activate(SelectionType.TEXT);
         }
     };
 

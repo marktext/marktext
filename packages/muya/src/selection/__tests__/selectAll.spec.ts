@@ -71,8 +71,8 @@ function mirrorLiveSelection(muya: Muya): void {
             focus: { offset: focus.offset, block: focusBlock, path: focusBlock.path },
             isCollapsed,
             isSelectionInSameBlock,
-            direction: SelectionDirection.None,
-            type: isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range,
+            direction: SelectionDirection.NONE,
+            type: isCollapsed ? SelectionCaretType.CARET : SelectionCaretType.RANGE,
         };
     });
 }
@@ -310,8 +310,8 @@ describe('selection.selectAll honors the live selection over stale cache', () =>
             focus: { offset: 3, block: second, path: second.path },
             isCollapsed: true,
             isSelectionInSameBlock: true,
-            direction: SelectionDirection.None,
-            type: SelectionCaretType.Caret,
+            direction: SelectionDirection.NONE,
+            type: SelectionCaretType.CARET,
         });
 
         // selectAll must honor the live caret and grow to the whole second

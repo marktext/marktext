@@ -77,7 +77,7 @@ function stubSelection(
     aOff: number,
     f: Content,
     fOff: number,
-    direction = SelectionDirection.Forward,
+    direction = SelectionDirection.FORWARD,
 ) {
     const aPath = a.path;
     const fPath = f.path;
@@ -87,7 +87,7 @@ function stubSelection(
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction,
-        type: SelectionCaretType.Range,
+        type: SelectionCaretType.RANGE,
     });
 }
 

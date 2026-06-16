@@ -29,13 +29,13 @@ function computeDirection(
 ): SelectionDirection {
     if (isSelectionInSameBlock) {
         return anchorOffset < focusOffset
-            ? SelectionDirection.Forward
-            : SelectionDirection.Backward;
+            ? SelectionDirection.FORWARD
+            : SelectionDirection.BACKWARD;
     }
 
     return compareParagraphsOrder(anchorBlock.domNode!, focusBlock.domNode!)
-        ? SelectionDirection.Forward
-        : SelectionDirection.Backward;
+        ? SelectionDirection.FORWARD
+        : SelectionDirection.BACKWARD;
 }
 
 function computeCaretType(
@@ -44,9 +44,9 @@ function computeCaretType(
     isCollapsed: boolean,
 ): SelectionCaretType {
     if (!anchorBlock && !focusBlock)
-        return SelectionCaretType.None;
+        return SelectionCaretType.NONE;
 
-    return isCollapsed ? SelectionCaretType.Caret : SelectionCaretType.Range;
+    return isCollapsed ? SelectionCaretType.CARET : SelectionCaretType.RANGE;
 }
 
 class TextSelection {
@@ -103,10 +103,10 @@ class TextSelection {
             isCollapsed,
         } = this;
         if (anchor == null || focus == null || !anchorBlock || !focusBlock)
-            return SelectionDirection.None;
+            return SelectionDirection.NONE;
 
         if (isCollapsed)
-            return SelectionDirection.None;
+            return SelectionDirection.NONE;
 
         return computeDirection(
             anchorBlock,
@@ -224,7 +224,7 @@ class TextSelection {
 
         // Follow the caret (focus end) for forward selections so typewriter
         // scrolling tracks the cursor rather than the selection start.
-        const cursorCoords = getCursorCoords(direction === SelectionDirection.Forward);
+        const cursorCoords = getCursorCoords(direction === SelectionDirection.FORWARD);
         // Duck-type the Format block — a value import of Format here would
         // create a selection -> format circular dependency.
         const anchorBlockRef = anchorBlock as Format | null;
@@ -248,7 +248,7 @@ class TextSelection {
             isSelectionInSameBlock,
             direction,
             type,
-            kind: SelectionType.Text,
+            kind: SelectionType.TEXT,
             selectedImage: this._selection.image,
             cursorCoords,
             formats,

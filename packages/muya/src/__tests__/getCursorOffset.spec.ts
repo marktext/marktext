@@ -92,8 +92,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             focus: { offset: 5, block, path: [0, 'text'] },
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: SelectionDirection.Forward,
-            type: SelectionCaretType.Range,
+            direction: SelectionDirection.FORWARD,
+            type: SelectionCaretType.RANGE,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();
@@ -112,8 +112,8 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
             focus: { offset: 2, block, path: [0, 'text'] }, //  after "he"
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: SelectionDirection.Backward,
-            type: SelectionCaretType.Range,
+            direction: SelectionDirection.BACKWARD,
+            type: SelectionCaretType.RANGE,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();
