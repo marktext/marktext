@@ -24,6 +24,212 @@ import { attachLinkMouseHandlers } from './linkMouseEvents';
 
 const debug = logger('editor:');
 
+// The pick/drop walkers operate on live block-tree nodes (ScrollPage,
+// Parent, Content). The tree's instance methods (queryBlock, find,
+// insertBefore, etc.) are not all exposed on a single TS type, and
+// ot-json1 op descents are dynamically shaped — so we type these as
+// BlockNode (loose structural alias) inside the inner walkers and let
+// the runtime branches do the actual narrowing.
+type BlockNode = {
+    queryBlock?: (path: (string | number)[]) => BlockNode | undefined;
+    find?: (key: number | string) => BlockNode;
+    remove?: (source: string) => void;
+    replaceWith?: (newBlock: BlockNode, source: string) => void;
+    insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: string) => void;
+    update?: (value?: unknown, source?: string) => void;
+    blockName?: string;
+    align?: string;
+    _text?: string;
+    text?: string;
+    meta?: { lang?: string; type?: string };
+    parent?: BlockNode;
+} | undefined;
+
+function descend(
+    subDoc: BlockNode,
+    descent: JSONOpList,
+    stack: BlockNode[],
+): { subDoc: BlockNode; i: number } {
+    let i = 0;
+
+    for (; i < descent.length; i++) {
+        const d = descent[i];
+        if (Array.isArray(d))
+            break;
+        if (typeof d === 'object')
+            continue;
+        stack.push(subDoc);
+        // Its valid to descend into a null space - just we can't pick there.
+        subDoc = subDoc == null ? undefined : subDoc.queryBlock?.([d]);
+    }
+
+    return { subDoc, i };
+}
+
+function restore(
+    subDoc: BlockNode,
+    descent: JSONOpList,
+    stack: BlockNode[],
+    i: number,
+): BlockNode {
+    // Then back again.
+    for (--i; i >= 0; i--) {
+        const d = descent[i];
+        if (typeof d !== 'object') {
+            const container = stack.pop();
+            if (
+                subDoc
+                === (container == null ? undefined : container.queryBlock?.([d as string | number]))
+            ) {
+                subDoc = container;
+            }
+            else {
+                if (subDoc === undefined) {
+                    // TODO: handler typeof d === 'string'
+                    if (typeof d === 'number')
+                        container?.find?.(d)?.remove?.('api');
+                    subDoc = container;
+                }
+                else {
+                    if (typeof d === 'number')
+                        container?.find?.(d)?.replaceWith?.(subDoc, 'api');
+                    subDoc = container;
+                }
+            }
+        }
+        else if (!Array.isArray(d) && hasPick(d)) {
+            subDoc = undefined;
+        }
+    }
+
+    return subDoc;
+}
+
+// Phase 1: Pick. Returns updated subDocument.
+function pick(subDoc: BlockNode, descent: JSONOpList): BlockNode {
+    const stack: BlockNode[] = [];
+
+    const descended = descend(subDoc, descent, stack);
+    subDoc = descended.subDoc;
+    const i = descended.i;
+
+    // Children. These need to be traversed in reverse order here.
+    for (let j = descent.length - 1; j >= i; j--)
+        subDoc = pick(subDoc, descent[j] as JSONOpList);
+
+    return restore(subDoc, descent, stack, i);
+}
+
+function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
+    let subDoc = root;
+    let i = 0; // For reading
+    let m = 0;
+    const rootContainer: { root: BlockNode } = { root }; // This is an avoidable allocation.
+    let container: BlockNode | { root: BlockNode } = rootContainer;
+    let key: string | number = 'root'; // For writing
+
+    function mut() {
+        for (; m < i; m++) {
+            const d = descent[m];
+            if (typeof d === 'object')
+                continue;
+            if (key === 'root') {
+                const wrap = container as { root: BlockNode };
+                container = wrap.root;
+            }
+            else {
+                container = (container as BlockNode)?.queryBlock?.([key]);
+            }
+            key = d as string | number;
+        }
+    }
+
+    function applyInsert(comp: JSONOpComponent) {
+        // Insert
+        mut();
+        const cur = container as BlockNode;
+        const ref = cur?.find?.(key);
+        if (typeof key === 'number') {
+            const insertedState = comp.i as { name: string };
+            const newBlock = ScrollPage.loadBlock(insertedState.name).create(muya, insertedState) as BlockNode;
+            if (cur && ref && newBlock)
+                cur.insertBefore?.(newBlock, ref, 'api');
+
+            subDoc = newBlock;
+        }
+        else {
+            switch (key) {
+                case 'checked': {
+                    ref?.update?.(comp.i, 'api');
+                    break;
+                }
+
+                case 'meta':
+                    // Do nothing.
+                    break;
+
+                default:
+                    debug.warn(`Unknown operation path ${key}`);
+                    break;
+            }
+        }
+    }
+
+    function applyTextEdit(es: NonNullable<JSONOpComponent['es']>) {
+        // Edit. Ok because its illegal to drop inside mixed region
+        mut();
+        const sd = subDoc!;
+        if (sd.blockName === 'table.cell') {
+            sd.align = otText.type.apply(sd.align ?? '', es) as string;
+        }
+        else if (sd.blockName === 'language-input') {
+            sd._text = otText.type.apply(sd.text ?? '', es) as string;
+            if (sd.parent?.meta)
+                sd.parent.meta.lang = sd.text;
+            sd.update?.();
+        }
+        else if (sd.blockName === 'code-block') {
+            // Handle modify code block type.
+            if (sd.meta)
+                sd.meta.type = otText.type.apply(sd.meta.type ?? '', es) as string;
+        }
+        else {
+            sd._text = otText.type.apply(sd.text ?? '', es) as string;
+            sd.update?.();
+        }
+    }
+
+    for (; i < descent.length; i++) {
+        const d = descent[i];
+
+        if (Array.isArray(d)) {
+            const child = drop(subDoc, d, muya);
+            if (child !== subDoc && child !== undefined) {
+                mut();
+                // It maybe never go into this if statement.
+                if (key === 'root')
+                    (container as { root: BlockNode }).root = child;
+                else
+                    (container as Record<string, BlockNode>)[key] = child;
+                subDoc = child;
+            }
+        }
+        else if (typeof d === 'object') {
+            const comp = d as JSONOpComponent;
+            if (comp.i !== undefined)
+                applyInsert(comp);
+
+            if (comp.es)
+                applyTextEdit(comp.es);
+        }
+        else {
+            subDoc = subDoc != null ? subDoc.queryBlock?.([d]) : undefined;
+        }
+    }
+
+    return rootContainer.root;
+}
+
 export class Editor {
     jsonState: JSONState;
     inlineRenderer: InlineRenderer;
@@ -196,188 +402,9 @@ export class Editor {
         if (operations === null)
             return;
 
-        // The pick/drop walkers operate on live block-tree nodes (ScrollPage,
-        // Parent, Content). The tree's instance methods (queryBlock, find,
-        // insertBefore, etc.) are not all exposed on a single TS type, and
-        // ot-json1 op descents are dynamically shaped — so we type these as
-        // BlockNode (loose structural alias) inside the inner walkers and let
-        // the runtime branches do the actual narrowing.
-        type BlockNode = {
-            queryBlock?: (path: (string | number)[]) => BlockNode | undefined;
-            find?: (key: number | string) => BlockNode;
-            remove?: (source: string) => void;
-            replaceWith?: (newBlock: BlockNode, source: string) => void;
-            insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: string) => void;
-            update?: (value?: unknown, source?: string) => void;
-            blockName?: string;
-            align?: string;
-            _text?: string;
-            text?: string;
-            meta?: { lang?: string; type?: string };
-            parent?: BlockNode;
-        } | undefined;
-
-        // Phase 1: Pick. Returns updated subDocument.
-        function pick(subDoc: BlockNode, descent: JSONOpList): BlockNode {
-            const stack: BlockNode[] = [];
-
-            let i = 0;
-
-            for (; i < descent.length; i++) {
-                const d = descent[i];
-                if (Array.isArray(d))
-                    break;
-                if (typeof d === 'object')
-                    continue;
-                stack.push(subDoc);
-                // Its valid to descend into a null space - just we can't pick there.
-                subDoc = subDoc == null ? undefined : subDoc.queryBlock?.([d]);
-            }
-
-            // Children. These need to be traversed in reverse order here.
-            for (let j = descent.length - 1; j >= i; j--)
-                subDoc = pick(subDoc, descent[j] as JSONOpList);
-
-            // Then back again.
-            for (--i; i >= 0; i--) {
-                const d = descent[i];
-                if (typeof d !== 'object') {
-                    const container = stack.pop();
-                    if (
-                        subDoc
-                        === (container == null ? undefined : container.queryBlock?.([d as string | number]))
-                    ) {
-                        subDoc = container;
-                    }
-                    else {
-                        if (subDoc === undefined) {
-                            // TODO: handler typeof d === 'string'
-                            if (typeof d === 'number')
-                                container?.find?.(d)?.remove?.('api');
-                            subDoc = container;
-                        }
-                        else {
-                            if (typeof d === 'number')
-                                container?.find?.(d)?.replaceWith?.(subDoc, 'api');
-                            subDoc = container;
-                        }
-                    }
-                }
-                else if (!Array.isArray(d) && hasPick(d)) {
-                    subDoc = undefined;
-                }
-            }
-
-            return subDoc;
-        }
-
         const snapshot = pick(this.scrollPage as BlockNode, operations);
 
-        function drop(root: BlockNode, descent: JSONOpList): BlockNode {
-            let subDoc = root;
-            let i = 0; // For reading
-            let m = 0;
-            const rootContainer: { root: BlockNode } = { root }; // This is an avoidable allocation.
-            let container: BlockNode | { root: BlockNode } = rootContainer;
-            let key: string | number = 'root'; // For writing
-
-            function mut() {
-                for (; m < i; m++) {
-                    const d = descent[m];
-                    if (typeof d === 'object')
-                        continue;
-                    if (key === 'root') {
-                        const wrap = container as { root: BlockNode };
-                        container = wrap.root;
-                    }
-                    else {
-                        container = (container as BlockNode)?.queryBlock?.([key]);
-                    }
-                    key = d as string | number;
-                }
-            }
-
-            for (; i < descent.length; i++) {
-                const d = descent[i];
-
-                if (Array.isArray(d)) {
-                    const child = drop(subDoc, d);
-                    if (child !== subDoc && child !== undefined) {
-                        mut();
-                        // It maybe never go into this if statement.
-                        if (key === 'root')
-                            (container as { root: BlockNode }).root = child;
-                        else
-                            (container as Record<string, BlockNode>)[key] = child;
-                        subDoc = child;
-                    }
-                }
-                else if (typeof d === 'object') {
-                    const comp = d as JSONOpComponent;
-                    if (comp.i !== undefined) {
-                        // Insert
-                        mut();
-                        const cur = container as BlockNode;
-                        const ref = cur?.find?.(key);
-                        if (typeof key === 'number') {
-                            const insertedState = comp.i as { name: string };
-                            const newBlock = ScrollPage.loadBlock(insertedState.name).create(muya, insertedState) as BlockNode;
-                            if (cur && ref && newBlock)
-                                cur.insertBefore?.(newBlock, ref, 'api');
-
-                            subDoc = newBlock;
-                        }
-                        else {
-                            switch (key) {
-                                case 'checked': {
-                                    ref?.update?.(comp.i, 'api');
-                                    break;
-                                }
-
-                                case 'meta':
-                                    // Do nothing.
-                                    break;
-
-                                default:
-                                    debug.warn(`Unknown operation path ${key}`);
-                                    break;
-                            }
-                        }
-                    }
-
-                    if (comp.es) {
-                        // Edit. Ok because its illegal to drop inside mixed region
-                        mut();
-                        const sd = subDoc!;
-                        if (sd.blockName === 'table.cell') {
-                            sd.align = otText.type.apply(sd.align ?? '', comp.es) as string;
-                        }
-                        else if (sd.blockName === 'language-input') {
-                            sd._text = otText.type.apply(sd.text ?? '', comp.es) as string;
-                            if (sd.parent?.meta)
-                                sd.parent.meta.lang = sd.text;
-                            sd.update?.();
-                        }
-                        else if (sd.blockName === 'code-block') {
-                            // Handle modify code block type.
-                            if (sd.meta)
-                                sd.meta.type = otText.type.apply(sd.meta.type ?? '', comp.es) as string;
-                        }
-                        else {
-                            sd._text = otText.type.apply(sd.text ?? '', comp.es) as string;
-                            sd.update?.();
-                        }
-                    }
-                }
-                else {
-                    subDoc = subDoc != null ? subDoc.queryBlock?.([d]) : undefined;
-                }
-            }
-
-            return rootContainer.root;
-        }
-
-        drop(snapshot, operations);
+        drop(snapshot, operations, muya);
 
         this._restoreSelection(selection);
     }
