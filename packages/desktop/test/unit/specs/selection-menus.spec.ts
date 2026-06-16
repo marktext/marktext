@@ -65,24 +65,6 @@ type FakeMenu = ReturnType<typeof makeMenu>
 const enabledIds = (items: FakeMenu['paragraphItems']) =>
   items.filter((i) => i.enabled).map((i) => i.id)
 
-const disabledIds = (items: FakeMenu['paragraphItems']) =>
-  items.filter((i) => !i.enabled).map((i) => i.id)
-
-// The set the source disables for multiline selections (DISABLE_LABELS).
-const DISABLE_LABELS = [
-  'heading1MenuItem',
-  'heading2MenuItem',
-  'heading3MenuItem',
-  'heading4MenuItem',
-  'heading5MenuItem',
-  'heading6MenuItem',
-  'upgradeHeadingMenuItem',
-  'degradeHeadingMenuItem',
-  'tableMenuItem',
-  'hyperlinkMenuItem',
-  'imageMenuItem'
-]
-
 describe('updateSelectionMenus', () => {
   it('disables every Paragraph submenu item when the selection is disabled (table/multi-block)', () => {
     const menu = makeMenu()
@@ -101,25 +83,19 @@ describe('updateSelectionMenus', () => {
     expect(menu.formatItems.every((i) => i.enabled === true)).toBe(true)
   })
 
-  it('disables hyperlink/image (Format) and heading/table (Paragraph) for a multiline selection', () => {
+  it('enables only the honest set in Paragraph and disables link/image in Format for a multiline selection', () => {
     const menu = makeMenu()
 
     updateSelectionMenus(menu as unknown as Menu, { affiliation: {}, isMultiline: true })
 
-    // Format menu: only the DISABLE_LABELS entries it owns are disabled.
-    const formatItem = (id: string) => menu.formatItems.find((i) => i.id === id)!
-    expect(formatItem('hyperlinkMenuItem').enabled).toBe(false)
-    expect(formatItem('imageMenuItem').enabled).toBe(false)
-    expect(formatItem('strongMenuItem').enabled).toBe(true)
-    expect(formatItem('emphasisMenuItem').enabled).toBe(true)
-
-    // Paragraph menu: the DISABLE_LABELS heading/table entries are disabled.
-    const paraDisabled = disabledIds(menu.paragraphItems)
-    const expectedParaDisabled = DISABLE_LABELS.filter((id) => PARAGRAPH_MENU_IDS.includes(id))
-    // Plus the loose-list-item is disabled because affiliation has no ul/ol.
-    expect(paraDisabled.sort()).toEqual(
-      [...expectedParaDisabled, 'looseListItemMenuItem'].sort()
+    // Paragraph: only code/quote/ordered/bullet/task are actionable across blocks.
+    expect(enabledIds(menu.paragraphItems).sort()).toEqual(
+      ['bulletListMenuItem', 'codeFencesMenuItem', 'orderListMenuItem', 'quoteBlockMenuItem', 'taskListMenuItem'].sort()
     )
+
+    // Format: only link/image are disabled.
+    const formatDisabled = menu.formatItems.filter((i) => !i.enabled).map((i) => i.id)
+    expect(formatDisabled.sort()).toEqual(['hyperlinkMenuItem', 'imageMenuItem'].sort())
   })
 
   it('disables every Format submenu item for code content and re-enables codeFences (Paragraph)', () => {

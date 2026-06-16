@@ -4,20 +4,14 @@ import type { CommandManager } from '../../commands'
 
 type Win = BrowserWindow | null | undefined
 
-const DISABLE_LABELS: readonly string[] = [
-  // paragraph menu items
-  'heading1MenuItem',
-  'heading2MenuItem',
-  'heading3MenuItem',
-  'heading4MenuItem',
-  'heading5MenuItem',
-  'heading6MenuItem',
-  'upgradeHeadingMenuItem',
-  'degradeHeadingMenuItem',
-  'tableMenuItem',
-  // formats menu items
-  'hyperlinkMenuItem',
-  'imageMenuItem'
+// Paragraph-menu items that can actually be executed across a multi-block
+// selection; everything else is disabled when the selection spans blocks.
+const CROSS_BLOCK_ENABLED_PARAGRAPH: readonly string[] = [
+  'codeFencesMenuItem',
+  'quoteBlockMenuItem',
+  'orderListMenuItem',
+  'bulletListMenuItem',
+  'taskListMenuItem'
 ]
 
 const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
@@ -261,10 +255,17 @@ export const updateSelectionMenus = (
       }
     }
   } else if (isMultiline) {
+    // Format: link/image are meaningless across a multi-block selection.
     formatMenuItem.submenu!.items
-      .filter((item: MenuItem) => item.id && DISABLE_LABELS.includes(item.id))
+      .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
       .forEach((item: MenuItem) => (item.enabled = false))
-    setMultipleStatus(applicationMenu, DISABLE_LABELS, false)
+    // Paragraph: enable only the items that have a defined cross-block action.
+    const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+    paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
+      if (item.id) {
+        item.enabled = CROSS_BLOCK_ENABLED_PARAGRAPH.includes(item.id)
+      }
+    })
   }
 
   // Disable loose list item.
