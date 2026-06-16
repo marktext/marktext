@@ -30,9 +30,9 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
-    constructor(public markdown: string, public muya?: Muya) {}
+    constructor(public markdown: string, private _muya?: Muya) {}
 
-    async renderMermaid() {
+    private async _renderMermaid() {
         const codes = this._exportContainer!.querySelectorAll(
             'code.language-mermaid',
         );
@@ -59,15 +59,15 @@ export class MarkdownToHtml {
         await mermaid.run({
             nodes: [...this._exportContainer!.querySelectorAll('div.mermaid')],
         });
-        if (this.muya) {
+        if (this._muya) {
             mermaid.initialize({
                 securityLevel: 'strict',
-                theme: this.muya.options.mermaidTheme,
+                theme: this._muya.options.mermaidTheme,
             });
         }
     }
 
-    async renderDiagram() {
+    private async _renderDiagram() {
         const selector
             = 'code.language-vega-lite, code.language-plantuml, code.language-flowchart, code.language-sequence';
         const codes = this._exportContainer!.querySelectorAll(selector);
@@ -102,13 +102,13 @@ export class MarkdownToHtml {
             }
             else if (functionType === 'sequence') {
                 Object.assign(options, {
-                    theme: this.muya?.options.sequenceTheme ?? 'hand',
+                    theme: this._muya?.options.sequenceTheme ?? 'hand',
                 });
             }
 
             try {
                 if (functionType === 'plantuml') {
-                    const diagram = render.parse(rawCode, this.muya?.options.plantumlServer);
+                    const diagram = render.parse(rawCode, this._muya?.options.plantumlServer);
                     diagramContainer.innerHTML = '';
                     diagram.insertImgElement(diagramContainer);
                 }
@@ -163,11 +163,11 @@ export class MarkdownToHtml {
     // render pure html by marked
     async renderHtml() {
         let html = getHighlightHtml(this.markdown, {
-            superSubScript: this.muya?.options?.superSubScript ?? true,
-            footnote: this.muya?.options?.footnote ?? false,
+            superSubScript: this._muya?.options?.superSubScript ?? true,
+            footnote: this._muya?.options?.footnote ?? false,
             isGitlabCompatibilityEnabled:
-        this.muya?.options?.isGitlabCompatibilityEnabled ?? true,
-            math: this.muya?.options?.math ?? true,
+        this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
+            math: this._muya?.options?.math ?? true,
         });
 
         html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
@@ -179,8 +179,8 @@ export class MarkdownToHtml {
         document.body.appendChild(exportContainer);
 
         // render only render the light theme of mermaid and diagram...
-        await this.renderMermaid();
-        await this.renderDiagram();
+        await this._renderMermaid();
+        await this._renderDiagram();
 
         // Inject github-compatible slug ids onto exported headings so the
         // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors

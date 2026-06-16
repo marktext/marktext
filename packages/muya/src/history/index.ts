@@ -87,16 +87,16 @@ class History {
         redo: [],
     };
 
-    get selection() {
-        return this.muya.editor.selection;
+    private get _selection() {
+        return this._muya.editor.selection;
     }
 
-    constructor(public muya: Muya, private _options: IOptions = DEFAULT_OPTIONS) {
+    constructor(private _muya: Muya, private _options: IOptions = DEFAULT_OPTIONS) {
         this._listen();
     }
 
     private _listen() {
-        this.muya.eventCenter.on(
+        this._muya.eventCenter.on(
             'json-change',
             ({
                 op,
@@ -114,7 +114,7 @@ class History {
                 if (!this._options.userOnly || source === 'user')
                     this._record(op, prevDoc);
                 else
-                    this.transform(op);
+                    this._transform(op);
             },
         );
     }
@@ -128,19 +128,19 @@ class History {
 
         this._stack[dest].push({
             operation: inverseOperation as JSONOpList,
-            selection: this.selection.getSelection(),
+            selection: this._selection.getSelection(),
             rebuild,
         });
 
         this._lastRecorded = 0;
         this._ignoreChange = true;
         if (rebuild)
-            this.muya.editor.rebuildContents(operation, selection, 'user');
+            this._muya.editor.rebuildContents(operation, selection, 'user');
         else
-            this.muya.editor.updateContents(operation, selection, 'user');
+            this._muya.editor.updateContents(operation, selection, 'user');
         this._ignoreChange = false;
 
-        this.getLastSelection();
+        this._getLastSelection();
     }
 
     clear() {
@@ -252,8 +252,8 @@ class History {
         this._lastRecorded = 0;
     }
 
-    getLastSelection() {
-        this._selectionStack.push(this.selection.getSelection());
+    private _getLastSelection() {
+        this._selectionStack.push(this._selection.getSelection());
 
         if (this._selectionStack.length > 2)
             this._selectionStack.shift();
@@ -265,7 +265,7 @@ class History {
         if (op.length === 0)
             return;
 
-        let selection = this.getLastSelection();
+        let selection = this._getLastSelection();
         this._stack.redo = [];
         let undoOperation = json1.type.invertWithDoc(op, asDoc(doc));
 
@@ -346,7 +346,7 @@ class History {
         this._change(HistoryAction.REDO, HistoryAction.UNDO);
     }
 
-    transform(op: JSONOpList) {
+    private _transform(op: JSONOpList) {
         transformStack(this._stack.undo, op);
         transformStack(this._stack.redo, op);
     }

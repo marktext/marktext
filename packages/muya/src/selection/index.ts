@@ -28,11 +28,11 @@ class Selection {
     private _image: ImageSelection;
     private _table: TableRectSelection;
 
-    constructor(public muya: Muya) {
-        this._text = new TextSelection(muya, this);
-        this._image = new ImageSelection(muya, this);
+    constructor(private _muya: Muya) {
+        this._text = new TextSelection(this._muya, this);
+        this._image = new ImageSelection(this._muya, this);
         this._image.attach();
-        this._table = TableRectSelection.create(muya);
+        this._table = TableRectSelection.create(this._muya);
     }
 
     get type(): SelectionType {
@@ -89,7 +89,7 @@ class Selection {
 
     selectImage(data: IImageSelectionData): void {
         this._image.selected = data;
-        this.muya.editor.activeContentBlock = null;
+        this._muya.editor.activeContentBlock = null;
         this.activate(SelectionType.IMAGE);
     }
 
@@ -102,7 +102,7 @@ class Selection {
             this._image.clear();
 
         if (type !== SelectionType.TEXT) {
-            this.muya.eventCenter.emit('selection-change', {
+            this._muya.eventCenter.emit('selection-change', {
                 kind: type,
             });
         }

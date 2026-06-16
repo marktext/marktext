@@ -14,7 +14,7 @@ class EventCenter {
     public events: IEvent[] = [];
     public listeners: IListeners = {};
 
-    get eventId() {
+    private get _eventId() {
         return `${PREFIX}${idIterator.next().value}`;
     }
 
@@ -28,10 +28,10 @@ class EventCenter {
         listener: EventListener,
         capture?: boolean | AddEventListenerOptions,
     ): string {
-        if (this.checkHasBind(target, event, listener, capture))
+        if (this._checkHasBind(target, event, listener, capture))
             return '';
 
-        const { eventId } = this;
+        const eventId = this._eventId;
         target.addEventListener(event, listener, capture);
         this.events.push({
             eventId,
@@ -140,7 +140,7 @@ class EventCenter {
     }
 
     // Determine whether the event has been bind
-    checkHasBind(
+    private _checkHasBind(
         cTarget: HTMLElement | Document,
         cEvent: string,
         cListener: EventListenerOrEventListenerObject,

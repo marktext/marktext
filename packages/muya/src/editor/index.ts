@@ -241,15 +241,15 @@ export class Editor {
 
     private _activeContentBlock: Nullable<Content> = null;
 
-    constructor(public muya: Muya) {
-        const state = muya.options.json || muya.options.markdown || '';
+    constructor(private _muya: Muya) {
+        const state = _muya.options.json || _muya.options.markdown || '';
 
-        this.jsonState = new JSONState(muya, state);
-        this.inlineRenderer = new InlineRenderer(muya);
-        this.selection = new Selection(muya);
-        this.searchModule = new Search(muya);
-        this.clipboard = Clipboard.create(muya);
-        this.history = new History(muya);
+        this.jsonState = new JSONState(_muya, state);
+        this.inlineRenderer = new InlineRenderer(_muya);
+        this.selection = new Selection(_muya);
+        this.searchModule = new Search(_muya);
+        this.clipboard = Clipboard.create(_muya);
+        this.history = new History(_muya);
     }
 
     get activeContentBlock() {
@@ -271,7 +271,7 @@ export class Editor {
     init() {
         registerBlocks();
 
-        const { muya } = this;
+        const muya = this._muya;
         const state = this.jsonState.getState();
 
         this.scrollPage = ScrollPage.create(muya, state);
@@ -289,7 +289,7 @@ export class Editor {
     }
 
     private _dispatchEvents() {
-        const { domNode } = this.muya;
+        const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
             const selectionResult = this.selection.getSelection();
@@ -392,7 +392,7 @@ export class Editor {
     }
 
     updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
-        const { muya } = this;
+        const muya = this._muya;
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.

@@ -47,11 +47,11 @@ class JSONState {
 
     private _state: TState[] = [];
 
-    constructor(public muya: Muya, stateOrMarkdown: TState[] | string) {
+    constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
         this.setContent(stateOrMarkdown);
     }
 
-    apply(op: JSONOp) {
+    private _apply(op: JSONOp) {
         // ot-json1's noop is the literal `null`. `json1.type.apply` accepts it
         // and returns the doc unchanged — short-circuit instead so the rest of
         // the call site can treat `op` as definitely applied.
@@ -62,16 +62,16 @@ class JSONState {
 
     setContent(content: TState[] | string) {
         if (typeof content === 'object')
-            this.setState(content);
+            this._setState(content);
         else
-            this.setMarkdown(content);
+            this._setMarkdown(content);
     }
 
-    setState(state: TState[]) {
+    private _setState(state: TState[]) {
         this._state = state;
     }
 
-    setMarkdown(markdown: string) {
+    private _setMarkdown(markdown: string) {
         this._state = this.markdownToState(markdown);
     }
 
@@ -85,7 +85,7 @@ class JSONState {
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             math,
-        } = this.muya.options;
+        } = this._muya.options;
 
         return new MarkdownToState({
             footnote,
@@ -192,11 +192,11 @@ class JSONState {
 
     dispatch(op: JSONOp, source = 'user' /* user, api */) {
         const prevDoc = this.getState();
-        this.apply(op);
+        this._apply(op);
         // TODO: remove doc in future
         const doc = this.getState();
         debug.log(JSON.stringify(op));
-        this.muya.eventCenter.emit('json-change', {
+        this._muya.eventCenter.emit('json-change', {
             op,
             source,
             prevDoc,
@@ -242,10 +242,10 @@ class JSONState {
                 (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
             );
             const prevDoc = this.getState();
-            this.apply(op);
+            this._apply(op);
             // TODO: remove doc in future
             const doc = this.getState();
-            this.muya.eventCenter.emit('json-change', {
+            this._muya.eventCenter.emit('json-change', {
                 op,
                 source: 'user',
                 prevDoc,

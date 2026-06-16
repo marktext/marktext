@@ -71,11 +71,11 @@ class TextSelection {
         this._listenSelectActions();
     }
 
-    get scrollPage() {
+    private get _scrollPage() {
         return this._muya.editor.scrollPage;
     }
 
-    get isCollapsed() {
+    private get _isCollapsed() {
         const { anchorBlock, focusBlock, anchor, focus } = this;
 
         if (anchor == null || focus == null)
@@ -93,14 +93,14 @@ class TextSelection {
         return anchorBlock === focusBlock;
     }
 
-    get direction() {
+    private get _direction() {
         const {
             anchor,
             focus,
             anchorBlock,
             focusBlock,
             isSelectionInSameBlock,
-            isCollapsed,
+            _isCollapsed: isCollapsed,
         } = this;
         if (anchor == null || focus == null || !anchorBlock || !focusBlock)
             return SelectionDirection.NONE;
@@ -117,8 +117,8 @@ class TextSelection {
         );
     }
 
-    get type() {
-        const { anchorBlock, focusBlock, isCollapsed } = this;
+    private get _type() {
+        const { anchorBlock, focusBlock, _isCollapsed: isCollapsed } = this;
 
         return computeCaretType(anchorBlock, focusBlock, isCollapsed);
     }
@@ -135,7 +135,7 @@ class TextSelection {
     }
 
     selectAllContent() {
-        const { scrollPage } = this;
+        const { _scrollPage: scrollPage } = this;
         const aBlock = scrollPage?.firstContentInDescendant();
         const fBlock = scrollPage?.lastContentInDescendant();
 
@@ -218,7 +218,7 @@ class TextSelection {
     }
 
     private _emitSelectionChange() {
-        const { isCollapsed, isSelectionInSameBlock, direction, type } = this;
+        const { _isCollapsed: isCollapsed, isSelectionInSameBlock, _direction: direction, _type: type } = this;
         const anchorBlock = this.anchorBlock ?? null;
         const focusBlock = this.focusBlock ?? null;
 
@@ -358,7 +358,7 @@ class TextSelection {
             anchorPath,
             focusBlock,
             focusPath,
-            scrollPage,
+            _scrollPage: scrollPage,
         } = this;
 
         if (!anchor || !focus) {
