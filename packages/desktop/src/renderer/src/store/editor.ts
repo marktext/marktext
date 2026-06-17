@@ -1326,9 +1326,10 @@ export const useEditorStore = defineStore('editor', {
      *
      * Used on file load and tab switch, where the engine fires no `json-change`
      * event (so `LISTEN_FOR_CONTENT_CHANGE` never runs and the TOC would
-     * otherwise stay empty until the first edit). Always assigns — no `equal`
-     * guard, which previously kept a stale TOC when the new document's TOC was
-     * a subset of the old one.
+     * otherwise stay empty until the first edit). Assigns unconditionally: this
+     * is a re-seed on load/switch, so there is no `equal` guard to short-circuit
+     * — the incoming snapshot always wins, even if it happens to deep-equal the
+     * current TOC.
      * @param toc Flat list of headings returned by `muya.getTOC()`.
      */
     UPDATE_TOC(toc: TocItem[]): void {

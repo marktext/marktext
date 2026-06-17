@@ -130,6 +130,7 @@ import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
+import { resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -1159,41 +1160,35 @@ const scrollToCords = (y: number) => {
   })
 }
 
+// Smoothly scroll the editor so `anchor` sits at the standard top offset.
+// Shared by the TOC, search-highlight, and any other "reveal this element"
+// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
+  const container = getScrollContainer()
+  if (!container || !anchor) return
+  const { y } = anchor.getBoundingClientRect()
+  animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, duration)
+}
+
 const scrollToHighlight = () => {
   return scrollToElement('.mu-highlight')
 }
 
 /**
- * Scrolls the editor to the heading for a TOC entry.
- *
- * `@muyajs/core` slugs are stable per-block ids that are NOT stamped onto the
- * heading DOM, so a `#slug` selector never matches. `getTOC` walks the headings
- * in document order, so the slug is resolved to its index in `listToc` and the
- * matching heading element (Nth `<h1>`-`<h6>`) is scrolled into view.
+ * Scrolls the editor to the heading for a TOC entry. See
+ * `resolveTocHeadingElement` for why the slug is resolved by document order
+ * against the top-level headings only.
  * @param slug The TOC entry's slug from the `scroll-to-header` bus event.
  */
 const scrollToHeader = (slug: unknown) => {
-  const index = editorStore.listToc.findIndex((item) => item.slug === slug)
-  if (index < 0) return
   const container = getScrollContainer()
   if (!container) return
-  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6')
-  const anchor = headings[index]
-  if (!anchor) return
-  const { y } = anchor.getBoundingClientRect()
-  animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, 300)
+  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
 }
 
 const scrollToElement = (selector: string) => {
   // Scroll to search highlight word
-  const container = getScrollContainer()
-  if (!container) return
-  const anchor = document.querySelector(selector)
-  if (anchor) {
-    const { y } = anchor.getBoundingClientRect()
-    const DURATION = 300
-    animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
-  }
+  scrollElementIntoView(document.querySelector(selector))
 }
 
 const handleFindAction = (action: unknown) => {
