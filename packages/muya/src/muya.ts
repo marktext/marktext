@@ -1165,7 +1165,7 @@ export class Muya {
             return;
 
         if (type === 'upgrade heading' || type === 'degrade heading') {
-            this._changeHeadingLevel(block, type);
+            this._withPreservedOffset(() => this._changeHeadingLevel(block, type));
             return;
         }
 

@@ -260,4 +260,28 @@ describe('updateParagraph toggle-off active types', () => {
         expect(muya.editor.selection.anchorBlock?.text).toBe('# Title');
         expect(muya.editor.selection.anchor?.offset).toBe(5); // 3 + len("# ")
     });
+
+    it('keeps the caret when degrading a heading level (## -> ###)', async () => {
+        const muya = bootMuya('## Title\n');
+        const content = placeCursorOnFirstBlock(muya);
+        content.setCursor(6, 6, true); // after "## Tit"
+        muya.updateParagraph('degrade heading'); // h2 -> h3
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect((s[0] as { meta: { level: number } }).meta.level).toBe(3);
+        });
+        expect(muya.editor.selection.anchor?.offset).toBe(7); // +1 for the extra '#'
+    });
+
+    it('keeps the caret when upgrading a heading level (## -> #)', async () => {
+        const muya = bootMuya('## Title\n');
+        const content = placeCursorOnFirstBlock(muya);
+        content.setCursor(6, 6, true); // after "## Tit"
+        muya.updateParagraph('upgrade heading'); // h2 -> h1
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect((s[0] as { meta: { level: number } }).meta.level).toBe(1);
+        });
+        expect(muya.editor.selection.anchor?.offset).toBe(5); // -1 for the removed '#'
+    });
 });
