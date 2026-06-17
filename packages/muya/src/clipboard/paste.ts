@@ -527,8 +527,11 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!anchorBlock)
         return;
 
-    const { text, imageFile, pasteType } = data;
+    const { imageFile, pasteType } = data;
     let { html } = data;
+    // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
+    // and offset calculation sees one newline convention (muyajs strips \r).
+    const text = data.text.replace(/\r\n?/g, '\n');
 
     if (!isSelectionInSameBlock) {
         clipboard.cutHandler();
