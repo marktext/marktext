@@ -1409,12 +1409,12 @@ export class Muya {
         if (!leaf || leaf.blockName === 'paragraph')
             return;
 
-        replaceBlockByLabel({
+        this._withPreservedOffset(() => replaceBlockByLabel({
             block: leaf,
             muya: this,
             label: 'paragraph',
             text: this._blockLeadingText(leaf),
-        });
+        }));
     }
 
     /**
@@ -1515,6 +1515,7 @@ export class Muya {
     private _snapshotSelection(): ISelectionSnapshot | null {
         const sel = this.editor.selection;
         const live = sel.getSelection();
+
         const anchor = live?.anchor ?? sel.anchor;
         const focus = live?.focus ?? sel.focus;
         const anchorPath = live?.anchor.path ?? sel.anchorPath;

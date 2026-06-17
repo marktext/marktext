@@ -284,4 +284,14 @@ describe('updateParagraph toggle-off active types', () => {
         });
         expect(muya.editor.selection.anchor?.offset).toBe(5); // -1 for the removed '#'
     });
+
+    it('keeps the caret when the Paragraph menu item resets a heading leaf', async () => {
+        const muya = bootMuya('## Title\n');
+        const content = placeCursorOnFirstBlock(muya); // content text is "## Title"
+        content.setCursor(6, 6, true); // after "## Tit"
+        muya.updateParagraph('paragraph'); // reset the heading leaf -> "Title"
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('paragraph'));
+        expect(muya.editor.selection.anchorBlock?.text).toBe('Title');
+        expect(muya.editor.selection.anchor?.offset).toBe(3); // 6 - len("## ")
+    });
 });
