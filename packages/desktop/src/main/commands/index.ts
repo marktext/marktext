@@ -7,7 +7,9 @@ export const COMMANDS = COMMAND_CONSTANTS
 // CommandCallback is intentionally loose: registered command handlers vary
 // widely in their signatures (some take a BrowserWindow, some take nothing,
 // some take a string id, etc.). Mirrors the JS reality where callsites
-// passed any function shape and the manager just invoked it.
+// passed any function shape and the manager just invoked it. A single non-`any`
+// type cannot both accept every typed handler (contravariant params) and stay
+// callable with real args, so this stays an explicit, documented escape hatch.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CommandCallback = (...args: any[]) => any
 
