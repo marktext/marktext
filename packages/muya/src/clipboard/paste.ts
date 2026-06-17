@@ -82,13 +82,22 @@ function insertStatesAfter(
     return wb;
 }
 
-function removeEmptyOriginParagraph(originWrapperBlock: Nullable<Parent>): void {
-    if (originWrapperBlock?.blockName !== 'paragraph')
+// Drop the anchor's wrapper when the paste emptied it. muyajs removes any
+// emptied wrapper (removeBlock), so a heading whose text was consumed is
+// cleaned up too — not just a paragraph.
+function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
+    const blockName = originWrapperBlock?.blockName;
+    if (
+        blockName !== 'paragraph'
+        && blockName !== 'atx-heading'
+        && blockName !== 'setext-heading'
+    ) {
         return;
+    }
 
-    const originState = originWrapperBlock.getState();
-    if (isParagraphState(originState) && originState.text === '')
-        originWrapperBlock.remove();
+    const originState = originWrapperBlock!.getState() as { text?: string };
+    if (originState.text === '')
+        originWrapperBlock!.remove();
 }
 
 function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
@@ -183,7 +192,7 @@ function pasteNewline(
     const offset = sewTail(states, tail);
     const last = insertStatesAfter(muya, ctx.wrapperBlock, states);
     if (head.length === 0)
-        removeEmptyOriginParagraph(ctx.originWrapperBlock);
+        removeEmptyOriginWrapper(ctx.originWrapperBlock);
 
     seatCursorAtSeam(last, offset);
 }
@@ -475,12 +484,8 @@ function applyHtmlBlockPaste(
     const newBlock = ScrollPage.loadBlock(state.name).create(muya, state);
     wrapperBlock?.parent?.insertAfter(newBlock, wrapperBlock);
 
-    // Drop the empty paragraph the html-block replaced.
-    if (originWrapperBlock?.blockName === 'paragraph') {
-        const originState = originWrapperBlock.getState();
-        if (isParagraphState(originState) && originState.text === '')
-            originWrapperBlock.remove();
-    }
+    // Drop the empty wrapper the html-block replaced.
+    removeEmptyOriginWrapper(originWrapperBlock);
 
     const offset = state.text.length;
     newBlock.lastContentInDescendant().setCursor(offset, offset, true);
