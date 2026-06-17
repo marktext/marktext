@@ -1,5 +1,5 @@
 import { PasteType } from '../clipboard/types';
-import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config';
+import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, URL_REG } from '../config';
 import { sanitize } from '../utils';
 
 const TIMEOUT = 1500;
@@ -90,7 +90,10 @@ export async function normalizePastedHTML(html: string) {
         const href = link.getAttribute('href');
         const text = link.textContent;
 
-        if (href === text && typeof href === 'string') {
+        // Only unlink a bare URL (text === href). muyajs guards with
+        // `URL_REG.test(href)` so a non-URL link whose text happens to equal its
+        // href (e.g. `<a href="foo">foo</a>`) survives instead of collapsing.
+        if (typeof href === 'string' && URL_REG.test(href) && href === text) {
             // Resolve empty string when `TIMEOUT` passed.
             const timer = new Promise((resolve) => {
                 setTimeout(() => {
@@ -103,8 +106,11 @@ export async function normalizePastedHTML(html: string) {
                 link.textContent = title as string;
             }
             else {
+                // Escape + sanitize the fallback text (muyajs uses
+                // `sanitize(text, PREVIEW_DOMPURIFY_CONFIG, true)`) so a stray
+                // angle bracket can't re-enter as live markup.
                 const span = document.createElement('span');
-                span.innerHTML = text as string;
+                span.innerHTML = sanitize(text as string, PREVIEW_DOMPURIFY_CONFIG, true) as string;
                 link.replaceWith(span);
             }
         }
