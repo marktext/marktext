@@ -903,16 +903,21 @@ export class Muya {
     }
 
     /**
-     * Insert a GFM table at the current cursor, replacing the block the cursor
-     * is in. The table has `rows`
-     * rows × `columns` columns with the first row as the header; every cell is
-     * empty with `align: 'none'`. The cursor lands in the first cell. No-op when
-     * there is no current block. `rows`/`columns` are coerced to integers and
-     * clamped to a valid GFM shape (`rows >= 2`, `columns >= 1`) so invalid
-     * input (e.g. `rows: 0`, non-finite, or fractional values) still yields a
-     * usable table instead of an invalid state.
+     * Insert a GFM table at the current cursor. An EMPTY cursor block is
+     * replaced in place; a NON-empty block keeps its content and the table is
+     * inserted directly below it (matching the Paragraph menu's insert-below
+     * rule for non-convertible blocks). Pass `{ replace: true }` to always
+     * replace the cursor block — the in-editor grid picker uses this to consume
+     * its trigger block (a `/table` quick-insert line or the empty paragraph the
+     * front-menu offers). The table has `rows` rows × `columns` columns with the
+     * first row as the header; every cell is empty with `align: 'none'`. The
+     * cursor lands in the first cell. No-op when there is no current block.
+     * `rows`/`columns` are coerced to integers and clamped to a valid GFM shape
+     * (`rows >= 2`, `columns >= 1`) so invalid input (e.g. `rows: 0`, non-finite,
+     * or fractional values) still yields a usable table instead of an invalid
+     * state.
      */
-    createTable({ rows, columns }: { rows: number; columns: number }) {
+    createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
         const block = this._outmostBlockAtCursor();
         if (!block)
             return;
@@ -941,7 +946,15 @@ export class Muya {
         };
 
         const newTable = ScrollPage.loadBlock('table').create(this, state);
-        block.replaceWith(newTable);
+
+        // An empty block is disposable, so replace it in place; a block with
+        // real content is kept and the table goes directly below it. The picker
+        // passes `replace` to always consume its trigger block.
+        if (replace || this._blockLeadingText(block).trim() === '')
+            block.replaceWith(newTable);
+        else
+            block.parent!.insertAfter(newTable, block);
+
         newTable.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 

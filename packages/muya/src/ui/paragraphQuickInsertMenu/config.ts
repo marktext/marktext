@@ -437,7 +437,10 @@ export function showTablePicker(muya: Muya, block: Parent) {
         return;
 
     const handler = (row: number, column: number) => {
-        muya.createTable({ rows: row + 1, columns: column + 1 });
+        // The picker's trigger block (a `/table` quick-insert line or the empty
+        // paragraph the front-menu offers) is disposable, so always replace it
+        // rather than inserting the table below it.
+        muya.createTable({ rows: row + 1, columns: column + 1 }, { replace: true });
     };
 
     eventCenter.emit('muya-table-picker', { row: -1, column: -1 }, reference, handler);

@@ -375,7 +375,8 @@ describe('replaceBlockByLabel — in-editor "table" shows the grid picker (rever
         handler(2, 3);
 
         expect(createTable).toHaveBeenCalledTimes(1);
-        expect(createTable).toHaveBeenCalledWith({ rows: 3, columns: 4 });
+        // The picker always replaces its disposable trigger block.
+        expect(createTable).toHaveBeenCalledWith({ rows: 3, columns: 4 }, { replace: true });
     });
 
     it('falls back to the block DOM node as the reference when the cursor has no coords', () => {

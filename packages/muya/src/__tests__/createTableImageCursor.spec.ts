@@ -151,6 +151,45 @@ describe('muya.createTable()', () => {
             expect(b.children.every(row => row.children.length === 2)).toBe(true); // floor(2.9)
         });
     });
+
+    it('inserts the table BELOW a non-empty heading instead of replacing it', async () => {
+        const muya = bootMuya('# Title\n');
+        placeCursorOnFirstBlock(muya, 4); // caret inside the heading text
+        muya.createTable({ rows: 2, columns: 2 });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(2);
+            expect(s[0].name).toBe('atx-heading'); // heading kept
+            expect(s[1].name).toBe('table'); // table directly below
+        });
+        // the new table gets focus (caret in its first cell)
+        const sel = muya.editor.selection.getSelection();
+        expect(sel!.anchor.block.blockName).toBe('table.cell.content');
+    });
+
+    it('inserts the table BELOW a non-empty paragraph instead of replacing it', async () => {
+        const muya = bootMuya('hello\n');
+        placeCursorOnFirstBlock(muya, 5);
+        muya.createTable({ rows: 2, columns: 2 });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(2);
+            expect(s[0].name).toBe('paragraph');
+            expect((s[0] as { text: string }).text).toBe('hello');
+            expect(s[1].name).toBe('table');
+        });
+    });
+
+    it('replaces a non-empty block in place when { replace: true } (grid picker path)', async () => {
+        const muya = bootMuya('/table\n'); // a non-empty quick-insert trigger line
+        placeCursorOnFirstBlock(muya, 6);
+        muya.createTable({ rows: 2, columns: 2 }, { replace: true });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(1); // trigger consumed, not left behind
+            expect(s[0].name).toBe('table');
+        });
+    });
 });
 
 describe('muya.insertImage()', () => {
