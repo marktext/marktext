@@ -1516,10 +1516,19 @@ export class Muya {
         const sel = this.editor.selection;
         const live = sel.getSelection();
 
-        const anchor = live?.anchor ?? sel.anchor;
-        const focus = live?.focus ?? sel.focus;
-        const anchorPath = live?.anchor.path ?? sel.anchorPath;
-        const focusPath = live?.focus.path ?? sel.focusPath;
+        // The live DOM selection carries a click-placed caret, so it is the
+        // source of truth for a single block. But it COLLAPSES to one block for
+        // a cross-block selection — so when the cached endpoints (committed on
+        // mouse-up, the same ones the menu/IPC round-trip relies on) span
+        // several blocks while live has collapsed, trust the cached endpoints so
+        // the whole span survives the rebuild.
+        const cachedCrossBlock = !!sel.anchorBlock && !!sel.focusBlock && sel.anchorBlock !== sel.focusBlock;
+        const useLive = !!live && !(cachedCrossBlock && live.isSelectionInSameBlock);
+
+        const anchor = useLive ? live!.anchor : sel.anchor;
+        const focus = useLive ? live!.focus : sel.focus;
+        const anchorPath = useLive ? live!.anchor.path : sel.anchorPath;
+        const focusPath = useLive ? live!.focus.path : sel.focusPath;
         if (!anchor || !focus || !anchorPath?.length || !focusPath?.length)
             return null;
 

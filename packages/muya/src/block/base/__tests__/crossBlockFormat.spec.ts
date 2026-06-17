@@ -60,6 +60,28 @@ describe('cross-block format', () => {
         });
     });
 
+    it('keeps the selection spanning both blocks after a cross-block format', async () => {
+        const muya = boot('alpha\n\nbravo\n');
+        const sp = muya.editor.scrollPage!;
+        const first = sp.firstContentInDescendant()!;
+        const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
+        stubFullRange(first);
+        stubFullRange(second);
+        muya.editor.activeContentBlock = second;
+        muya.editor.selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: second.text.length, block: second, path: second.path },
+        );
+        muya.format('strong');
+        await vi.waitFor(() => expect(muya.getMarkdown()).toContain('**alpha**'));
+        // The span is restored across both blocks instead of collapsing onto the
+        // first block (the live DOM selection collapses for a cross-block range).
+        const sel = muya.editor.selection;
+        expect(sel.anchorBlock).not.toBe(sel.focusBlock);
+        expect(sel.anchorBlock!.text).toContain('alpha');
+        expect(sel.focusBlock!.text).toContain('bravo');
+    });
+
     it('skips a code block inside the range', async () => {
         const muya = boot('alpha\n\n```\ncode\n```\n\nbravo\n');
         const sp = muya.editor.scrollPage!;
