@@ -123,4 +123,21 @@ describe('cross-block paragraph wrapping', () => {
             expect(s[0].text).toContain('body');
         });
     });
+
+    it('preserves a multi-block selection across wrap then unwrap (paragraph + list)', async () => {
+        const muya = boot('alpha\n\n- bravo\n'); // a paragraph and an unordered list
+        selectFirstTwoBlocks(muya);
+        muya.updateParagraph('ol-order'); // wrap both into an ordered list
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('order-list'));
+
+        muya.updateParagraph('ol-order'); // click ordered again -> unwrap
+        await vi.waitFor(() => {
+            const s = muya.getState() as unknown as IStateBlock[];
+            expect(s.some(b => b.name === 'order-list')).toBe(false);
+        });
+        // the original span (alpha .. bravo) is restored
+        const sel = muya.editor.selection;
+        expect(sel.anchorBlock!.text).toBe('alpha');
+        expect(sel.focusBlock!.text).toBe('bravo');
+    });
 });

@@ -1288,26 +1288,44 @@ export class Muya {
      */
     private _withPreservedOffset(fn: () => void) {
         const { selection } = this.editor;
+        const anchorBlock = selection.anchorBlock;
+        const focusBlock = selection.focusBlock;
         const anchorOffset = selection.anchor?.offset ?? 0;
         const focusOffset = selection.focus?.offset ?? anchorOffset;
-        const cursorText = (this.editor.activeContentBlock ?? selection.anchorBlock)?.text;
+        const anchorText = anchorBlock?.text;
+        const focusText = focusBlock?.text;
+        const multiBlock = !!anchorBlock && !!focusBlock && anchorBlock !== focusBlock;
 
         fn();
 
+        const clampTo = (n: number, len: number) => Math.max(0, Math.min(n, len));
+
+        // A selection spanning several blocks (e.g. across list items) — re-find
+        // both endpoints by their text so the whole span survives an unwrap.
+        if (multiBlock && anchorText != null && focusText != null) {
+            const a = this._findContentByText(anchorText);
+            const f = this._findContentByText(focusText);
+            if (a && f) {
+                this.editor.selection.setSelection(
+                    { offset: clampTo(anchorOffset, a.text.length), block: a, path: a.path },
+                    { offset: clampTo(focusOffset, f.text.length), block: f, path: f.path },
+                );
+                return;
+            }
+        }
+
+        // Single block: the caret's content is the active block (in-place result
+        // or unwrap-restored). The text can change in place (a heading's `# `
+        // marker), so shift offsets by that front delta to track the same char.
         const target = this.editor.activeContentBlock;
         if (!target)
             return;
 
-        // Conversions leave the caret's content as the active block (unwraps
-        // restore it themselves). The text can change in place (e.g. a heading's
-        // `# ` marker), so shift offsets by that front delta to track the same
-        // character.
-        const delta = cursorText != null && target.text !== cursorText
-            ? target.text.length - cursorText.length
+        const delta = anchorText != null && target.text !== anchorText
+            ? target.text.length - anchorText.length
             : 0;
         const len = target.text.length;
-        const clamp = (n: number) => Math.max(0, Math.min(n, len));
-        target.setCursor(clamp(anchorOffset + delta), clamp(focusOffset + delta), true);
+        target.setCursor(clampTo(anchorOffset + delta, len), clampTo(focusOffset + delta, len), true);
     }
 
     /**
