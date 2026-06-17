@@ -6,6 +6,7 @@ import Watcher, {
   WATCHER_STABILITY_THRESHOLD,
   WATCHER_STABILITY_POLL_INTERVAL
 } from '../filesystem/watcher'
+import { onInternalChannel } from '../utils/internalIpc'
 import type BaseWindow from '../windows/base'
 import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
@@ -417,41 +418,34 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
 
     // --- local events ---------------
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('watcher-unwatch-all-by-id', (windowId: any) => {
-      this._watcher.unwatchByWindowId(windowId as number)
+    onInternalChannel('watcher-unwatch-all-by-id', (windowId: number) => {
+      this._watcher.unwatchByWindowId(windowId)
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('watcher-watch-file', (win: any, filePath: any) => {
+    onInternalChannel('watcher-watch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.watch(win, filePath, 'file')
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('watcher-watch-directory', (win: any, pathname: any) => {
+    onInternalChannel('watcher-watch-directory', (win: IBrowserWindow, pathname: string) => {
       this._watcher.watch(win, pathname, 'dir')
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('watcher-unwatch-file', (win: any, filePath: any) => {
+    onInternalChannel('watcher-unwatch-file', (win: IBrowserWindow, filePath: string) => {
       this._watcher.unwatch(win, filePath, 'file')
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('watcher-unwatch-directory', (win: any, pathname: any) => {
+    onInternalChannel('watcher-unwatch-directory', (win: IBrowserWindow, pathname: string) => {
       this._watcher.unwatch(win, pathname, 'dir')
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('window-add-file-path', (windowId: any, filePath: any) => {
-      const editor = this.get(windowId as number) as EditorWindow | undefined
+    onInternalChannel('window-add-file-path', (windowId: number, filePath: string) => {
+      const editor = this.get(windowId) as EditorWindow | undefined
       if (!editor) {
         log.error(`Cannot find window id "${windowId}" to add opened file.`)
         return
       }
       editor.addToOpenedFiles(filePath)
     })
-    ipcMain.on(
+    onInternalChannel(
       'window-change-file-path',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (windowId: any, pathname: any, oldPathname: any) => {
-        const editor = this.get(windowId as number) as EditorWindow | undefined
+      (windowId: number, pathname: string, oldPathname: string) => {
+        const editor = this.get(windowId) as EditorWindow | undefined
         if (!editor) {
           log.error(`Cannot find window id "${windowId}" to change file path.`)
           return
@@ -460,36 +454,28 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       }
     )
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('window-file-saved', (windowId: any, pathname: any) => {
+    onInternalChannel('window-file-saved', (windowId: number, pathname: string) => {
       // A changed event is emitted earliest after the stability threshold.
       const duration = WATCHER_STABILITY_THRESHOLD + WATCHER_STABILITY_POLL_INTERVAL * 2
-      this._watcher.ignoreChangedEvent(windowId as number, pathname as string, duration)
+      this._watcher.ignoreChangedEvent(windowId, pathname, duration)
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('window-close-by-id', (id: any) => {
-      this.forceCloseById(id as number)
+    onInternalChannel('window-close-by-id', (id: number) => {
+      this.forceCloseById(id)
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('window-reload-by-id', (id: any) => {
-      const window = this.get(id as number)
+    onInternalChannel('window-reload-by-id', (id: number) => {
+      const window = this.get(id)
       if (window) {
         window.reload()
       }
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('window-toggle-always-on-top', (win: any) => {
+    onInternalChannel('window-toggle-always-on-top', (win: IBrowserWindow) => {
       const flag = !win.isAlwaysOnTop()
       win.setAlwaysOnTop(flag)
       this._appMenu.updateAlwaysOnTopMenu(win.id, flag)
     })
 
-    // Dispatched in-process via `ipcMain.emit(channel, payload)` — emit passes
-    // args directly to listeners (no synthetic IpcMainEvent). Single-arg
-    // signature here, unlike the renderer-IPC listeners below.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(ipcMain as any).on('broadcast-preferences-changed', (prefs: Record<string, unknown>) => {
+    onInternalChannel('broadcast-preferences-changed', (prefs: Record<string, unknown>) => {
       // We can not dynamic change the title bar style, so do not need to send it to renderer.
       if (typeof prefs.titleBarStyle !== 'undefined') {
         delete prefs.titleBarStyle
@@ -501,9 +487,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       }
     })
 
-    // Dispatched in-process via `ipcMain.emit` — see comment above.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(ipcMain as any).on('broadcast-user-data-changed', (userData: Record<string, unknown>) => {
+    onInternalChannel('broadcast-user-data-changed', (userData: Record<string, unknown>) => {
       for (const { browserWindow } of this._windows.values()) {
         browserWindow?.webContents.send('mt::user-preference', userData)
       }

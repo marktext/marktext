@@ -172,7 +172,7 @@ const setMultipleStatus = (
     .forEach((item: MenuItem) => (item.enabled = status))
 }
 
-interface SelectionState {
+export interface SelectionState {
   affiliation: Record<string, boolean>
   isTable?: boolean
   isLooseListItem?: boolean

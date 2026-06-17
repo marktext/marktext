@@ -10,8 +10,8 @@ export const getNativeThemeSource = ({
   followSystemTheme,
   theme
 }: {
-  followSystemTheme: boolean
-  theme: unknown
+  followSystemTheme?: boolean
+  theme?: unknown
 }): NativeThemeSource => {
   if (followSystemTheme) {
     return 'system'
