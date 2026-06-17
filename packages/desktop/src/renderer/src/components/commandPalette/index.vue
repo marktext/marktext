@@ -444,7 +444,18 @@ ul.commands li span.shortcut {
   line-height: 20px;
 }
 ul.commands li span.shortcut > kbd {
-  margin-left: 2px;
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  min-width: 10px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--editorColor);
+  background: var(--floatBgColor);
+  border: 1px solid var(--floatBorderColor);
+  border-radius: 4px;
 }
 
 .fade-enter-active,

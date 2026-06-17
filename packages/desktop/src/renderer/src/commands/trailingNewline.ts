@@ -1,4 +1,5 @@
 import { delay } from '@/util'
+import type { EditorState } from '@/store/editor'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -10,10 +11,6 @@ interface TrailingNewlineSubcommand {
   description: string
   value: number
 }
-
-// Loose editor-state shape; the actual store is still JS and migrates later.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
 
 class TrailingNewlineCommand {
   id: string
@@ -35,7 +32,9 @@ class TrailingNewlineCommand {
   }
 
   run = async(): Promise<void> => {
-    const { trimTrailingNewline } = this._editorState.currentFile
+    const { currentFile } = this._editorState
+    if (!currentFile) return
+    const { trimTrailingNewline } = currentFile
     let index: number = trimTrailingNewline
     if (index !== 0 && index !== 1) {
       index = 2

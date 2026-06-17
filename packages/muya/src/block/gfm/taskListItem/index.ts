@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { ITaskListItemMeta, ITaskListItemState } from '../../../state/types';
 import type { TBlockPath } from '../../types';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
 import Parent from '../../base/parent';
@@ -59,7 +60,7 @@ class TaskListItem extends Parent {
         super(muya);
         this.tagName = 'li';
         this.meta = meta;
-        this.classList = ['mu-task-list-item'];
+        this.classList = [CLASS_NAMES.MU_TASK_LIST_ITEM];
         this.createDomNode();
     }
 

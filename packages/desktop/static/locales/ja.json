@@ -10,10 +10,8 @@
     },
     "file": {
       "file": "ファイル",
-      "new": "新規",
       "newTab": "新しいタブ",
       "newWindow": "新しいウィンドウ",
-      "open": "開く",
       "openFile": "ファイルを開く...",
       "openFolder": "フォルダを開く...",
       "openRecent": "最近使用したファイル",
@@ -28,9 +26,6 @@
       "exportPdf": "PDFとしてエクスポート",
       "import": "インポート",
       "print": "印刷",
-      "recent": "最近使用したファイル",
-      "close": "閉じる",
-      "closeAll": "すべて閉じる",
       "closeTab": "タブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
       "quit": "終了",
@@ -73,26 +68,19 @@
       "demoteHeading": "見出しレベルを下げる",
       "table": "表",
       "codeFences": "コードブロック",
-      "codeBlock": "コードブロック",
       "quoteBlock": "引用ブロック",
       "mathBlock": "数式ブロック",
       "htmlBlock": "HTMLブロック",
-      "quote": "引用",
       "orderedList": "番号付きリスト",
       "bulletList": "箇条書きリスト",
-      "unorderedList": "順序なしリスト",
       "taskList": "タスクリスト",
       "looseListItem": "ルーズリストアイテム",
-      "paragraphItem": "段落アイテム",
       "horizontalRule": "水平線",
       "frontMatter": "フロントマター"
     },
     "window": {
       "title": "ウィンドウ",
-      "window": "ウィンドウ",
       "minimize": "最小化",
-      "close": "閉じる",
-      "zoom": "ズーム",
       "zoomIn": "拡大",
       "zoomOut": "縮小",
       "fullScreen": "フルスクリーン",
@@ -109,20 +97,16 @@
       "followUs": "フォローする",
       "support": "MarkTextを支援",
       "license": "ライセンス",
-      "checkForUpdates": "アップデートを確認",
-      "aboutMarkText": "MarkTextについて",
       "about": "について",
       "checkUpdates": "アップデートを確認"
     },
     "marktext": {
       "title": "MarkText",
-      "marktext": "MarkText",
       "about": "MarkTextについて",
       "checkUpdates": "アップデートを確認...",
       "preferences": "環境設定",
       "services": "サービス",
       "hide": "MarkTextを隠す",
-      "hideMarkText": "MarkTextを隠す",
       "hideOthers": "他を隠す",
       "showAll": "すべて表示",
       "quit": "MarkTextを終了"
@@ -132,14 +116,9 @@
       "toggleSidebar": "サイドバーの切り替え",
       "toggleTabbar": "タブバーの切り替え",
       "commandPalette": "コマンドパレット",
-      "sourceCode": "ソースコードモード",
       "sourceCodeMode": "ソースコードモード",
-      "typewriter": "タイプライターモード",
       "typewriterMode": "タイプライターモード",
-      "focus": "フォーカスモード",
       "focusMode": "フォーカスモード",
-      "showTabBar": "タブバーを表示",
-      "toc": "目次",
       "toggleTableOfContents": "目次の切り替え",
       "reloadImages": "画像を再読み込み",
       "showDeveloperTools": "開発者ツールを表示",
@@ -151,35 +130,18 @@
       "italic": "斜体",
       "underline": "下線",
       "strikethrough": "取り消し線",
-      "code": "インラインコード",
-      "codeBlock": "コードブロック",
-      "quote": "引用",
-      "unorderedList": "順序なしリスト",
-      "orderedList": "番号付きリスト",
-      "taskList": "タスクリスト",
-      "table": "表",
-      "link": "リンク",
       "image": "画像",
-      "heading1": "見出し1",
-      "heading2": "見出し2",
-      "heading3": "見出し3",
-      "heading4": "見出し4",
-      "heading5": "見出し5",
-      "heading6": "見出し6",
       "superscript": "上付き文字",
       "subscript": "下付き文字",
       "highlight": "ハイライト",
       "inlineCode": "インラインコード",
       "inlineMath": "インライン数式",
       "hyperlink": "ハイパーリンク",
-      "clearFormatting": "書式をクリア",
       "clearFormat": "書式をクリア"
     },
     "theme": {
       "theme": "テーマ (&T)",
-      "light": "ライト",
       "dark": "ダーク",
-      "auto": "自動",
       "followThemDisabled": "システムテーマに従う場合、テーマ選択は無効です",
       "lightThemes": "— ライトテーマ —",
       "darkThemes": "— ダークテーマ —",
@@ -261,7 +223,6 @@
     "replaceSingle": "単一置換",
     "invalidRegex": "無効な正規表現 \"{pattern}\"",
     "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" にマッチ",
-    "searchResultCount": "検索結果",
     "searchResultInfo": "{fileCount} 件のファイルで {matchCount} 件一致",
     "searchLimited": "最初の {count} 件まで検索しました"
   },
@@ -379,13 +340,6 @@
       }
     }
   },
-  "table": {
-    "resizeTable": "テーブルサイズ変更",
-    "alignLeft": "左揃え",
-    "alignCenter": "中央揃え",
-    "alignRight": "右揃え",
-    "deleteTable": "テーブル削除"
-  },
   "recent": {
     "noTabsOpen": "開いているタブがありません。",
     "newFile": "新しいファイル"
@@ -398,7 +352,6 @@
     "title": "環境設定",
     "search": {
       "placeholder": "設定を検索...",
-      "optionalValues": "オプション値",
       "categories": {
         "general": "一般",
         "editor": "エディター",
@@ -414,7 +367,7 @@
       "items": {
         "autoSave": "編集中のコンテンツを自動保存",
         "autoSaveDelay": "変更後にファイルが保存されるまでの時間（ミリ秒）",
-        "autoNormalizeLineEndings": "開くときに改行コードを LF に自動正規化し、オプションで末尾の改行も処理します",
+        "autoNormalizeLineEndings": "ファイルを開くときに改行コードを自動正規化します。無効にすると、ファイルはそのまま開かれます",
         "titleBarStyle": "タイトルバーのスタイル（WindowsおよびLinuxシステムのみ）",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFolderInNewWindow": "メニューから新しいウィンドウでフォルダを開く",
@@ -458,11 +411,11 @@
         "isHtmlEnabled": "HTMLレンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab互換モードを有効にする",
         "sequenceTheme": "シーケンス図のテーマ",
+        "plantumlServer": "PlantUMLサーバーのURL",
         "theme": "MarkTextで使用するテーマを選択",
         "followSystemTheme": "システムのテーマに従う",
         "lightModeTheme": "システムがライトモードの時に使用するテーマ",
         "darkModeTheme": "システムがダークモードの時に使用するテーマ",
-        "customCss": "現在のテーマに適用するカスタムCSS",
         "spellcheckerEnabled": "スペルチェックが有効かどうか",
         "spellcheckerNoUnderline": "スペルミスに下線を引かない",
         "spellcheckerLanguage": "スペルチェッカーの言語",
@@ -470,15 +423,8 @@
         "imagePreferRelativeDirectory": "相対画像ディレクトリを優先するかどうか",
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダ名",
-        "sideBarVisibility": "サイドバーが表示されているかどうか",
-        "tabBarVisibility": "タブが表示されているかどうか",
-        "sourceCodeModeEnabled": "ソースコードモードがデフォルトで有効かどうか",
-        "searchExclusions": "検索から除外するglobパターンのリスト",
-        "searchMaxFileSize": "最大ファイルサイズ（<maxFileSize><suffix>）。K、M、またはGの接尾辞が許可されます。接尾辞がない場合、数値はバイトとして扱われます",
-        "searchIncludeHidden": "隠しファイルとディレクトリで検索するかどうか",
-        "searchNoIgnore": ".gitignoreのような無視ファイルを無視するかどうか",
-        "searchFollowSymlinks": "シンボリックリンクをフォローするかどうか",
-        "watcherUsePolling": "ポーリングを使用するかどうか。ポーリングは高いCPU使用率につながる可能性がありますが、ネットワーク上のファイルを監視するために必要です"
+        "fileSortOrder": "開いたフォルダ内のファイルの並べ替え順、昇順または降順",
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
       }
     },
     "categories": {
@@ -502,7 +448,6 @@
         "titleBarStyle": {
           "title": "タイトルバースタイル",
           "custom": "カスタム",
-          "titleBarStyle": "タイトルバースタイル",
           "native": "ネイティブ"
         },
         "requiresRestart": "再起動が必要",
@@ -555,7 +500,8 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
-          "portuguese": "Português"
+          "portuguese": "Português",
+          "turkish": "Türkçe"
         }
       }
     },
@@ -634,54 +580,19 @@
         "relativeFolderName": "相対フォルダ名",
         "filenameNote": "ファイル名は自動生成されます。"
       },
-      "imageInsertAction": {
-        "title": "画像挿入アクション",
-        "folder": "フォルダにアップロード",
-        "path": "パスにコピー",
-        "upload": "クラウドにアップロード",
-        "copyToFolder": "フォルダにコピー",
-        "uploadToServer": "サーバーにアップロード"
-      },
-      "imageFolderPath": {
-        "title": "画像フォルダパス",
-        "description": "画像フォルダパス",
-        "selectFolder": "フォルダを選択",
-        "relativePath": "相対パス",
-        "absolutePath": "絶対パス"
-      },
-      "cloudPictureBed": {
-        "title": "クラウド画像ベッド",
-        "github": "GitHub",
-        "smms": "SM.MS",
-        "qiniu": "Qiniu",
-        "upyun": "UpYun",
-        "tcyun": "Tencent Cloud",
-        "aliyun": "Alibaba Cloud",
-        "imgur": "Imgur",
-        "picgo": "PicGo"
-      },
-      "preferRelativeDirectory": {
-        "title": "相対ディレクトリを優先",
-        "description": "画像の優先相対ディレクトリ"
-      },
       "uploader": {
         "title": "画像アップローダー",
         "currentUploader": "現在のアップローダー",
         "picgoNotInstalled": "PicGoがインストールされていません",
-        "picgoDetectionStatus": "PicGo検出ステータス",
         "picgoInstalled": "PicGoがインストールされています",
         "picgoDetectionFailed": "PicGo検出に失敗しました",
         "debugInfo": "デバッグ情報",
-        "installCommand": "インストールコマンド",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "インストール方法を選択:",
         "retestPicgo": "再テスト",
-        "detecting": "検出中...",
         "lastDetectionTime": "最後の検出時間",
-        "detectionStatus": "検出ステータス",
         "usageGuide": {
           "title": "PicGo基本使用ガイド",
           "step1": "アップローダーを設定",
@@ -692,13 +603,6 @@
           "step3Description": "以下のコマンドを使用して現在の設定を表示してください：",
           "documentation": "完全なドキュメントを表示"
         },
-        "configureUploader": "アップローダーを設定",
-        "configureDescription": "以下のコマンドを使用してPicGoアップローダーを設定してください：",
-        "uploadImage": "画像をアップロード",
-        "uploadDescription": "以下のコマンドを使用して画像をアップロードしてください：",
-        "viewConfig": "設定を表示",
-        "viewConfigDescription": "以下のコマンドを使用して現在の設定を表示してください：",
-        "viewDocumentation": "完全なドキュメントを表示",
         "scriptDescription": "スクリプトの説明",
         "scriptLocation": "スクリプトの場所",
         "save": "保存",
@@ -711,7 +615,6 @@
         "pleaseInstall": "インストールしてください",
         "scriptPath": "スクリプトパス",
         "picgoDetection": "PicGo検出",
-        "autoDetection": "自動検出中",
         "lastSuccessTime": "最後の成功時刻",
         "neverDetected": "検出されたことがない",
         "neverSuccessful": "成功したことがない"
@@ -720,44 +623,12 @@
     },
     "markdown": {
       "title": "Markdown",
-      "listItem": {
-        "title": "リストアイテム",
-        "preferLooseListItem": "ルーズリストアイテムを優先",
-        "bulletListMarker": "箇条書きマーカー",
-        "orderListDelimiter": "番号付きリスト区切り文字",
-        "listIndentation": {
-          "title": "リストインデント",
-          "dfm": "デフォルトフォーマットモード",
-          "tab": "タブ",
-          "oneSpace": "1つのスペース",
-          "twoSpaces": "2つのスペース",
-          "threeSpaces": "3つのスペース",
-          "fourSpaces": "4つのスペース"
-        }
-      },
-      "heading": {
-        "title": "見出し",
-        "preferHeadingStyle": "優先見出しスタイル"
-      },
-      "frontmatter": {
-        "title": "フロントマター",
-        "frontmatterType": "フロントマタータイプ"
-      },
       "extensions": {
         "title": "拡張機能",
         "superSubScript": "上付き/下付き文字",
         "footnote": "脚注",
-        "isHtmlEnabled": "HTML有効",
-        "isGitlabCompatibilityEnabled": "GitLab互換性",
-        "sequenceTheme": "シーケンステーマ",
-        "superscript": "上付き文字",
-        "subscript": "下付き文字",
-        "frontMatter": "フロントマター",
-        "math": "数式",
-        "diagram": "図表",
         "footnoteNotes": "脚注",
         "frontmatterType": {
-          "frontmatterType": "フロントマタータイプ",
           "jsonBrace": "JSON括弧",
           "jsonSemicolon": "JSONセミコロン",
           "title": "フロントマタータイプ"
@@ -765,22 +636,14 @@
       },
       "diagrams": {
         "title": "図表",
-        "plantuml": "PlantUML",
-        "mermaid": "Mermaid",
-        "vega": "Vega",
-        "flowchart": "フローチャート",
-        "sequence": "シーケンス",
-        "gantt": "ガント",
         "sequenceTheme": {
           "title": "シーケンステーマ",
           "handDrawn": "手描き",
           "simple": "シンプル"
+        },
+        "plantumlServer": {
+          "title": "PlantUMLサーバーのURL"
         }
-      },
-      "math": {
-        "title": "数式",
-        "katex": "KaTeX",
-        "mathJax": "MathJax"
       },
       "misc": {
         "preferHeadingStyle": {
@@ -811,28 +674,13 @@
         "title": "リスト"
       }
     },
-    "spelling": {
-      "title": "スペルチェック",
-      "enabled": "スペルチェックを有効",
-      "autoDetectLanguage": "言語を自動検出",
-      "language": "言語",
-      "noSuggestions": "提案なし",
-      "spellcheckerEnabled": "スペルチェック有効",
-      "spellcheckerNoUnderline": "スペルミスの単語に下線なし",
-      "spellcheckerLanguage": "スペルチェック言語"
-    },
     "theme": {
       "title": "テーマ",
-      "theme": "テーマ",
       "followSystemTheme": "システムのテーマに従う",
       "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
       "customCss": "カスタムCSS",
-      "codeBlockTheme": {
-        "title": "コードブロックテーマ",
-        "description": "コードブロックのテーマ"
-      },
       "importCustomThemes": "カスタムテーマをインポート",
       "importTheme": "テーマをインポート",
       "openFolder": "フォルダを開く",
@@ -841,13 +689,6 @@
     "keybindings": {
       "title": "キーバインド",
       "description": "キーバインドをカスタマイズ",
-      "searchPlaceholder": "キーバインドを検索",
-      "command": "コマンド",
-      "keybinding": "キーバインド",
-      "reset": "リセット",
-      "resetAll": "すべてリセット",
-      "edit": "編集",
-      "cancel": "キャンセル",
       "save": "保存",
       "restoreDefaults": "デフォルトに復元",
       "debugOptions": "デバッグオプション",
@@ -921,9 +762,7 @@
       "exportFile": "ファイルをエクスポート",
       "exportFilePdf": "PDFとしてエクスポート",
       "zoom": "ズーム",
-      "checkUpdate": "アップデートを確認",
-      "lineEnding": "行末文字",
-      "close": "閉じる"
+      "checkUpdate": "アップデートを確認"
     },
     "edit": {
       "undo": "元に戻す",
@@ -943,8 +782,7 @@
       "findPrevious": "前を検索",
       "replace": "置換",
       "findInFolder": "フォルダ内を検索",
-      "screenshot": "スクリーンショット",
-      "mathBlock": "数式ブロック"
+      "screenshot": "スクリーンショット"
     },
     "paragraph": {
       "heading1": "見出し1",
@@ -1010,8 +848,6 @@
       "reloadImages": "画像を再読み込み",
       "textDirection": "テキスト方向",
       "actualSize": "実際のサイズ",
-      "zoomIn": "拡大",
-      "zoomOut": "縮小",
       "devToggleDeveloperTools": "開発者ツールの切り替え"
     },
     "tabs": {
@@ -1033,10 +869,6 @@
     "docs": {
       "userGuide": "ユーザーガイド",
       "markdownSyntax": "Markdown構文"
-    },
-    "utils": {
-      "noUpdateResourceFile": "アップデートリソースファイルなし",
-      "todoUpdateCheck": "アップデートチェック"
     },
     "spellchecker": {
       "switchLanguage": "言語を切り替え"
@@ -1083,25 +915,6 @@
       "anchorLinkCopied": "アンカーリンクがコピーされました",
       "tabNotFound": "タブが見つかりません",
       "tocItemNotFound": "目次アイテムが見つかりません",
-      "highlightStart": "[ハイライト開始]",
-      "highlightEnd": "[ハイライト終了]",
-      "typeAtToInsert": "/ を入力して挿入",
-      "inputFootnoteDefinition": "脚注定義を入力...",
-      "inputYamlFrontMatter": "YAML フロントマターを入力...",
-      "inputLanguageIdentifier": "言語識別子を入力...",
-      "inputMathematicalFormula": "数式を入力...",
-      "fence": "フェンス",
-      "indent": "インデント",
-      "frontMatterDelimiter": "---",
-      "mathDelimiter": "$$",
-      "mermaidStart": "``` mermaid",
-      "flowchartStart": "``` flowchart",
-      "sequenceStart": "``` sequence",
-      "plantumlStart": "``` plantuml",
-      "vegaLiteStart": "``` vega-lite",
-      "codeFence": "```",
-      "clickToAddImage": "画像を追加するにはクリック",
-      "loadImageFailed": "画像の読み込みに失敗しました",
       "errorLoadingTabTitle": "タブの読み込みエラー",
       "errorLoadingTabMessage": "ファイル変更の読み込み中にエラーが発生しました。タブが見つかりません。",
       "mixedLineEndingsNormalized": "「{name}」には混在した改行コードが含まれており、{lineEnding} に自動正規化されました。",
@@ -1118,204 +931,7 @@
     "failedToRemoveWord": "辞書から単語を削除できませんでした",
     "unexpectedError": "予期しないスペルチェックエラー"
   },
-  "quickInsert": {
-    "basicBlock": "基本ブロック",
-    "header": "ヘッダー",
-    "advancedBlock": "高度なブロック",
-    "listBlock": "リストブロック",
-    "diagram": "図表",
-    "paragraph": {
-      "title": "段落",
-      "subtitle": "テキスト内容を入力"
-    },
-    "horizontalLine": {
-      "title": "水平線",
-      "subtitle": "---"
-    },
-    "frontMatter": {
-      "title": "フロントマター",
-      "subtitle": "--- YAML ---"
-    },
-    "header1": {
-      "title": "見出し1",
-      "subtitle": "# 見出し"
-    },
-    "header2": {
-      "title": "見出し2",
-      "subtitle": "## 見出し"
-    },
-    "header3": {
-      "title": "見出し3",
-      "subtitle": "### 見出し"
-    },
-    "header4": {
-      "title": "見出し4",
-      "subtitle": "#### 見出し"
-    },
-    "header5": {
-      "title": "見出し5",
-      "subtitle": "##### 見出し"
-    },
-    "header6": {
-      "title": "見出し6",
-      "subtitle": "###### 見出し"
-    },
-    "tableBlock": {
-      "title": "表ブロック",
-      "subtitle": "｜ ヘッダー ｜ ヘッダー ｜"
-    },
-    "mathFormula": {
-      "title": "数式",
-      "subtitle": "$$ 数式 $$"
-    },
-    "htmlBlock": {
-      "title": "HTMLブロック",
-      "subtitle": "<div> HTML </div>"
-    },
-    "codeBlock": {
-      "title": "コードブロック",
-      "subtitle": "``` コード ```"
-    },
-    "quoteBlock": {
-      "title": "引用ブロック",
-      "subtitle": "> 引用内容"
-    },
-    "orderedList": {
-      "title": "番号付きリスト",
-      "subtitle": "1. リスト項目"
-    },
-    "bulletList": {
-      "title": "箇条書きリスト",
-      "subtitle": "- リスト項目"
-    },
-    "todoList": {
-      "title": "タスクリスト",
-      "subtitle": "- [ ] タスク項目"
-    },
-    "vegaChart": {
-      "title": "Vega-Liteチャート",
-      "subtitle": "データ可視化チャート"
-    },
-    "flowChart": {
-      "title": "フローチャート",
-      "subtitle": "フローチャート"
-    },
-    "sequenceChart": {
-      "title": "シーケンス図",
-      "subtitle": "シーケンス図"
-    },
-    "plantUMLChart": {
-      "title": "PlantUML図",
-      "subtitle": "UML図"
-    },
-    "mermaid": {
-      "title": "Mermaid図",
-      "subtitle": "Mermaid図",
-      "gantt": {
-        "title": "ガントチャート"
-      },
-      "pie": {
-        "title": "円グラフ"
-      },
-      "flowchart": {
-        "title": "フローチャート"
-      },
-      "sequence": {
-        "title": "シーケンス図"
-      },
-      "class": {
-        "title": "クラス図"
-      },
-      "state": {
-        "title": "状態図",
-        "subtitle": "stateDiagram"
-      },
-      "journey": {
-        "title": "ユーザージャーニー"
-      },
-      "git": {
-        "title": "Gitグラフ"
-      },
-      "er": {
-        "title": "ER図"
-      },
-      "requirement": {
-        "title": "要件図"
-      }
-    },
-    "taskList": {
-      "title": "タスクリスト"
-    },
-    "vegaliteChart": {
-      "title": "Vega-Liteチャート"
-    },
-    "plantUMLDiagram": {
-      "title": "PlantUML図表"
-    },
-    "mermaidDiagram": {
-      "title": "Mermaid図表"
-    }
-  },
-  "frontMenu": {
-    "duplicate": "複製",
-    "turnInto": "変換",
-    "newParagraph": "新しい段落",
-    "delete": "削除",
-    "paragraph": "段落",
-    "table": "表",
-    "html": "HTML",
-    "mathblock": "数式ブロック",
-    "pre": "コードブロック",
-    "frontMatter": "フロントマター",
-    "ulTask": "タスクリスト",
-    "ulBullet": "箇条書きリスト",
-    "olOrder": "番号付きリスト",
-    "blockquote": "引用",
-    "heading1": "見出し1",
-    "heading2": "見出し2",
-    "heading3": "見出し3",
-    "heading4": "見出し4",
-    "heading5": "見出し5",
-    "heading6": "見出し6",
-    "hr": "水平線"
-  },
   "editor": {
-    "image": {
-      "selector": {
-        "tab": {
-          "select": "選択",
-          "embedLink": "リンクを埋め込む"
-        },
-        "select": {
-          "chooseButton": "画像を選択",
-          "tip": "コンピュータから画像を選択します。"
-        },
-        "inputs": {
-          "alt": "代替テキスト",
-          "src": "画像リンクまたはローカルパス",
-          "title": "画像タイトル"
-        },
-        "embedButton": "画像を埋め込む",
-        "hint": {
-          "prefix": "Web画像またはローカルパスを貼り付け。モードを切替",
-          "simple": "シンプルモード",
-          "full": "フルモード"
-        }
-      },
-      "toolbar": {
-        "edit": "画像を編集",
-        "inline": "インライン画像",
-        "alignLeft": "左揃え",
-        "alignCenter": "中央揃え",
-        "alignRight": "右揃え",
-        "delete": "画像を削除"
-      }
-    },
-    "placeholders": {
-      "frontMatter": "YAML フロントマターを入力...",
-      "languageIdentifier": "言語識別子を入力...",
-      "mathFormula": "数式を入力..."
-    },
     "export": {
       "error": "エクスポートエラー",
       "errorExporting": "ファイルのエクスポート中にエラーが発生しました",
@@ -1338,65 +954,11 @@
       "imageStructureDeletedComment": "画像構造削除コメント"
     },
     "spellcheck": {
-      "enabled": "スペルチェックが有効になりました",
-      "disabled": "スペルチェックが無効になりました",
-      "enabledError": "スペルチェックの有効化エラー",
       "disabledError": "スペルチェックの無効化エラー",
       "errorSwitchingLanguage": "スペルチェック言語の切り替えエラー",
       "languageMissing": "スペルチェック言語が見つかりません",
       "switchError": "スペルチェックの切り替えエラー",
       "title": "スペルチェック"
-    },
-    "table": "表",
-    "resizeTable": "表のサイズ変更",
-    "left": "左",
-    "alignLeft": "左揃え",
-    "center": "中央",
-    "alignCenter": "中央揃え",
-    "right": "右",
-    "alignRight": "右揃え",
-    "delete": "削除",
-    "deleteTable": "表を削除",
-    "insertRowAbove": "上に行を挿入",
-    "insertRowBelow": "下に行を挿入",
-    "removeRow": "行を削除",
-    "insertColumnLeft": "左に列を挿入",
-    "insertColumnRight": "右に列を挿入",
-    "removeColumn": "列を削除",
-    "copyContent": "内容をコピー",
-    "emptyMathFormula": "< 空の数式 >",
-    "invalidMathFormula": "< 無効な数式 >",
-    "emptyMermaidBlock": "< 空のMermaidブロック >",
-    "loading": "読み込み中...",
-    "emptyDiagramBlock": "< 空の図表ブロック >",
-    "emptyHtmlBlock": "< 空のHTMLブロック >",
-    "onlyTopBlockCanRenderIcon": "最上位ブロックのみが前のアイコンボタンをレンダリングできます。",
-    "unhandledFunctionType": "未処理の関数タイプ: {functionType}",
-    "highlight-start": "[ハイライト開始]",
-    "highlight-end": "[ハイライト終了]",
-    "type-at-to-insert": "/を入力して挿入",
-    "input-footnote-definition": "脚注定義を入力",
-    "input-yaml-front-matter": "YAMLフロントマターを入力",
-    "input-language-identifier": "言語識別子を入力",
-    "input-mathematical-formula": "数式を入力",
-    "fence": "フェンス",
-    "indent": "インデント",
-    "front-matter-delimiter": "フロントマター区切り文字",
-    "math-delimiter": "数式区切り文字",
-    "mermaid-start": "mermaid開始",
-    "flowchart-start": "フローチャート開始",
-    "sequence-start": "シーケンス開始",
-    "plantuml-start": "plantuml開始",
-    "vega-lite-start": "vega-lite開始",
-    "click-to-add-image": "クリックして画像を追加",
-    "load-image-failed": "画像の読み込みに失敗しました"
-  },
-  "edit": {
-    "undo": "元に戻す",
-    "redo": "やり直し",
-    "cut": "切り取り",
-    "copy": "コピー",
-    "paste": "貼り付け",
-    "selectAll": "すべて選択"
+    }
   }
 }

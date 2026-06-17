@@ -37,8 +37,7 @@ const debug = logger('quickInsert:');
 
 /**
  * Derive the frontmatter `lang`/`style` from the user's `frontmatterType`
- * preference, mirroring legacy muyajs `handleFrontMatter`
- * (contentState/paragraphCtrl.js): `-` -> yaml `---`, `+` -> toml `+++`,
+ * preference: `-` -> yaml `---`, `+` -> toml `+++`,
  * `;`/`{` -> json (`;;;`/`{}`). The serializer (`serializeFrontMatter`)
  * switches on `lang`, so getting `lang` right is what makes YAML/TOML emit
  * their fences instead of falling through to JSON braces.
@@ -58,21 +57,21 @@ export function frontmatterMeta(frontmatterType: string): IFrontmatterMeta {
 }
 
 /**
- * Prepend a front matter block at the very start of the document, mirroring
- * legacy muyajs `handleFrontMatter`. Front matter is only valid as the first
+ * Prepend a front matter block at the very start of the document. Front matter
+ * is only valid as the first
  * block, so this never replaces the block at the cursor. Idempotent: a no-op
  * when the document already starts with front matter, so it never duplicates
  * the block. Shared by `Muya.updateParagraph('front-matter')` and the
  * quick-insert menu's `frontmatter` entry so both follow identical semantics.
  */
-export function insertFrontMatterAtStart(muya: Muya) {
+export function insertFrontMatterAtStart(muya: Muya): boolean {
     const { scrollPage } = muya.editor;
     if (!scrollPage)
-        return;
+        return false;
 
     const firstBlock = scrollPage.firstChild as Parent | null;
     if (firstBlock?.blockName === 'frontmatter')
-        return;
+        return false;
 
     const fmState = deepClone(emptyStates.frontmatter);
     Object.assign(fmState.meta, frontmatterMeta(muya.options.frontmatterType));
@@ -80,6 +79,8 @@ export function insertFrontMatterAtStart(muya: Muya) {
     const frontmatter = ScrollPage.loadBlock('frontmatter').create(muya, fmState);
     scrollPage.insertBefore(frontmatter, firstBlock);
     frontmatter.firstContentInDescendant()?.setCursor(0, 0, true);
+
+    return true;
 }
 
 const COMMAND_KEY = isOsx ? '⌘' : 'Ctrl';
@@ -418,8 +419,7 @@ export function getLabelFromEvent(event: Event) {
 }
 
 /**
- * Show the in-editor table grid picker, porting legacy muyajs
- * `paragraphCtrl.showTablePicker`. The in-editor "table" insert (the `/`
+ * Show the in-editor table grid picker. The in-editor "table" insert (the `/`
  * quick-insert menu and the paragraph front-menu) must offer a hover-grid
  * dimension picker rather than dropping a fixed-size table — the picker UI
  * (`TableChessboard`) subscribes to `muya-table-picker` and invokes the
@@ -437,46 +437,94 @@ export function showTablePicker(muya: Muya, block: Parent) {
         return;
 
     const handler = (row: number, column: number) => {
-        muya.createTable({ rows: row + 1, columns: column + 1 });
+        // The picker's trigger block (a `/table` quick-insert line or the empty
+        // paragraph the front-menu offers) is disposable, so always replace it
+        // rather than inserting the table below it.
+        muya.createTable({ rows: row + 1, columns: column + 1 }, { replace: true });
     };
 
     eventCenter.emit('muya-table-picker', { row: -1, column: -1 }, reference, handler);
 }
 
-export function replaceBlockByLabel({ block, muya, label, text = '' }: {
-    block: Parent;
-    muya: Muya;
-    label: string;
-    text?: string;
-}) {
-    const {
-        preferLooseListItem,
-        bulletListMarker,
-        orderListDelimiter,
-    } = muya.options;
-    let newBlock = null;
-    let state = null;
-    let cursorBlock = null;
+type TLeafReplacementLabel
+    = | 'paragraph'
+        | 'thematic-break'
+        | 'math-block'
+        | 'html-block'
+        | 'code-block'
+        | 'block-quote';
 
-    // Front matter is only valid as the document's first block, so the
-    // quick-insert "Front Matter" entry must NOT replace the cursor block in
-    // place (which destroyed its content and produced invalid mid-document
-    // front matter). Prepend at document start and bail before the in-place
-    // `block.replaceWith` below — sharing the idempotent doc-start logic with
-    // `Muya.updateParagraph('front-matter')`.
-    if (label === 'frontmatter') {
-        insertFrontMatterAtStart(muya);
-        return;
+function buildLeafBlock(label: TLeafReplacementLabel, muya: Muya, text: string) {
+    const cloned = deepClone(emptyStates[label]);
+    if (cloned.name === 'paragraph') {
+        cloned.text = text;
+    }
+    else if (cloned.name === 'block-quote') {
+        const inner = cloned.children[0];
+        if (isParagraphState(inner))
+            inner.text = text;
     }
 
-    // The in-editor "table" insert shows a hover-grid dimension picker
-    // (legacy muyajs `showTablePicker`) instead of dropping a fixed-size
-    // table. The picker's callback creates the table at the chosen size, so
-    // bail before the in-place empty-table replacement below.
-    if (label === 'table') {
-        showTablePicker(muya, block);
-        return;
+    return ScrollPage.loadBlock(label).create(muya, cloned);
+}
+
+function buildHeadingBlock(label: string, muya: Muya, text: string) {
+    const headingState = deepClone(emptyStates['atx-heading']);
+
+    const [blockName, level] = label.split(' ');
+    headingState.meta.level = +level;
+    headingState.text = `${'#'.repeat(+level)} ${text}`;
+
+    return ScrollPage.loadBlock(blockName).create(muya, headingState);
+}
+
+function buildOrderListBlock(muya: Muya, text: string) {
+    const { preferLooseListItem, orderListDelimiter } = muya.options;
+    const orderState = deepClone(emptyStates['order-list']);
+    orderState.meta.loose = preferLooseListItem;
+    orderState.meta.delimiter = orderListDelimiter;
+    const firstChild = orderState.children[0].children[0];
+    if (text && isParagraphState(firstChild))
+        firstChild.text = text;
+
+    return ScrollPage.loadBlock('order-list').create(muya, orderState);
+}
+
+function buildListBlock(label: 'bullet-list' | 'task-list', muya: Muya, text: string) {
+    const { preferLooseListItem, bulletListMarker } = muya.options;
+    const listState = deepClone(emptyStates[label]);
+    listState.meta.loose = preferLooseListItem;
+    listState.meta.marker = bulletListMarker;
+    const firstChild = listState.children[0].children[0];
+    if (text && isParagraphState(firstChild))
+        firstChild.text = text;
+
+    return ScrollPage.loadBlock(label).create(muya, listState);
+}
+
+function buildDiagramBlock(label: string, muya: Muya) {
+    const diagramState = deepClone(emptyStates.diagram);
+
+    const [name, type] = label.split(' ');
+    if (
+        type === 'mermaid'
+        || type === 'plantuml'
+        || type === 'vega-lite'
+        || type === 'flowchart'
+        || type === 'sequence'
+    ) {
+        diagramState.meta.type = type;
+        diagramState.meta.lang = type === 'vega-lite' ? 'json' : 'yaml';
     }
+
+    return ScrollPage.loadBlock(name).create(muya, diagramState);
+}
+
+export function buildReplacementBlock(label: string, muya: Muya, text: string) {
+    if (label.startsWith('atx-heading '))
+        return buildHeadingBlock(label, muya, text);
+    if (label.startsWith('diagram '))
+        return buildDiagramBlock(label, muya);
 
     switch (label) {
         case 'paragraph':
@@ -489,116 +537,108 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
             // fall through
         case 'code-block':
             // fall through
-        case 'block-quote': {
-            const cloned = deepClone(emptyStates[label]);
-            if (cloned.name === 'paragraph') {
-                cloned.text = text;
-            }
-            else if (cloned.name === 'block-quote') {
-                const inner = cloned.children[0];
-                if (isParagraphState(inner))
-                    inner.text = text;
-            }
-            state = cloned;
-            newBlock = ScrollPage.loadBlock(label).create(muya, state);
-            break;
-        }
+        case 'block-quote':
+            return buildLeafBlock(label, muya, text);
 
-        case 'atx-heading 1':
-            // fall through
-        case 'atx-heading 2':
-            // fall through
-        case 'atx-heading 3':
-            // fall through
-        case 'atx-heading 4':
-            // fall through
-        case 'atx-heading 5':
-            // fall through
-        case 'atx-heading 6': {
-            const headingState = deepClone(emptyStates['atx-heading']);
-
-            const [blockName, level] = label.split(' ');
-            headingState.meta.level = +level;
-            headingState.text = `${'#'.repeat(+level)} ${text}`;
-            state = headingState;
-            newBlock = ScrollPage.loadBlock(blockName).create(muya, state);
-            break;
-        }
-
-        case 'order-list': {
-            const orderState = deepClone(emptyStates[label]);
-            orderState.meta.loose = preferLooseListItem;
-            orderState.meta.delimiter = orderListDelimiter;
-            const firstChild = orderState.children[0].children[0];
-            if (text && isParagraphState(firstChild))
-                firstChild.text = text;
-
-            state = orderState;
-            newBlock = ScrollPage.loadBlock(label).create(muya, state);
-            break;
-        }
+        case 'order-list':
+            return buildOrderListBlock(muya, text);
 
         case 'bullet-list':
             // fall through
-        case 'task-list': {
-            const listState = deepClone(emptyStates[label]);
-            listState.meta.loose = preferLooseListItem;
-            listState.meta.marker = bulletListMarker;
-            const firstChild = listState.children[0].children[0];
-            if (text && isParagraphState(firstChild))
-                firstChild.text = text;
-
-            state = listState;
-            newBlock = ScrollPage.loadBlock(label).create(muya, state);
-            break;
-        }
-
-        case 'diagram vega-lite':
-            // fall through
-        case 'diagram mermaid':
-            // fall through
-        case 'diagram plantuml':
-            // fall through
-        case 'diagram flowchart':
-            // fall through
-        case 'diagram sequence': {
-            const diagramState = deepClone(emptyStates.diagram);
-
-            const [name, type] = label.split(' ');
-            if (
-                type === 'mermaid'
-                || type === 'plantuml'
-                || type === 'vega-lite'
-                || type === 'flowchart'
-                || type === 'sequence'
-            ) {
-                diagramState.meta.type = type;
-                diagramState.meta.lang = type === 'vega-lite' ? 'json' : 'yaml';
-            }
-            state = diagramState;
-            newBlock = ScrollPage.loadBlock(name).create(muya, state);
-            break;
-        }
+        case 'task-list':
+            return buildListBlock(label, muya, text);
 
         default:
             debug.log('Unknown label in quick insert');
-            break;
+            return null;
+    }
+}
+
+export function replaceBlockByLabel({ block, muya, label, text = '' }: {
+    block: Parent;
+    muya: Muya;
+    label: string;
+    text?: string;
+}) {
+    // Front matter is only valid as the document's first block, so the
+    // quick-insert "Front Matter" entry must NOT replace the cursor block in
+    // place (which destroyed its content and produced invalid mid-document
+    // front matter). Prepend at document start and bail before the in-place
+    // `block.replaceWith` below — sharing the idempotent doc-start logic with
+    // `Muya.updateParagraph('front-matter')`.
+    if (label === 'frontmatter') {
+        // Every other label drops the `/` quick-insert trigger text implicitly
+        // via `block.replaceWith(newBlock)`. Front matter is prepended at the
+        // document start instead (the trigger paragraph survives), so clear its
+        // `/…` text and refresh the DOM. Only do so when a block was actually
+        // inserted — when the document already starts with front matter the
+        // insert is a no-op and the trigger paragraph must be left untouched.
+        if (insertFrontMatterAtStart(muya)) {
+            const triggerContent = block.firstContentInDescendant();
+            if (triggerContent) {
+                triggerContent.text = '';
+                triggerContent.update();
+            }
+        }
+        return;
     }
 
+    // The in-editor "table" insert shows a hover-grid dimension picker
+    // instead of dropping a fixed-size
+    // table. The picker's callback creates the table at the chosen size, so
+    // bail before the in-place empty-table replacement below.
+    if (label === 'table') {
+        showTablePicker(muya, block);
+        return;
+    }
+
+    const newBlock = buildReplacementBlock(label, muya, text);
+
     block.replaceWith(newBlock);
+    finishInsertedBlock(newBlock, muya, label);
+}
+
+// Position the caret after a block was inserted or replaced. A thematic-break
+// is not editable, so append a trailing empty paragraph and put the caret there
+// (so the user can keep typing below the rule); otherwise move the caret into
+// the new block.
+function finishInsertedBlock(newBlock: Parent, muya: Muya, label: string) {
     if (label === 'thematic-break') {
         const nextParagraphBlock = ScrollPage.loadBlock('paragraph').create(
             muya,
             deepClone(emptyStates.paragraph),
         );
-        newBlock.parent.insertAfter(nextParagraphBlock, newBlock);
-        cursorBlock = nextParagraphBlock.firstContentInDescendant();
-        cursorBlock.setCursor(0, 0, true);
+        newBlock.parent!.insertAfter(nextParagraphBlock, newBlock);
+        nextParagraphBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+        return;
     }
-    else {
-        cursorBlock = newBlock.firstContentInDescendant();
-        // Set the cursor between <div>\n\n</div> when create html-block
-        const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
-        cursorBlock.setCursor(offset, offset, true);
-    }
+
+    placeCaretInNewBlock(newBlock, label);
+}
+
+// Move the caret into a freshly-built block: between <div>\n\n</div> for an
+// html-block, otherwise to the end of its text.
+function placeCaretInNewBlock(newBlock: Parent, label: string) {
+    const cursorBlock = newBlock.firstContentInDescendant();
+    if (!cursorBlock)
+        return;
+
+    const offset = label === 'html-block' ? 6 : cursorBlock.text.length;
+    cursorBlock.setCursor(offset, offset, true);
+}
+
+// Build a fresh block of `label` and insert it directly AFTER `block`
+// (inside the same container), then move the caret into the new block.
+// Used by the Paragraph menu when the target type is not a valid front-menu
+// turn-into of a non-empty block.
+export function insertBlockBelowByLabel({ block, muya, label }: {
+    block: Parent;
+    muya: Muya;
+    label: string;
+}) {
+    const newBlock = buildReplacementBlock(label, muya, '');
+    if (!newBlock)
+        return;
+    block.parent!.insertAfter(newBlock, block);
+    finishInsertedBlock(newBlock, muya, label);
 }

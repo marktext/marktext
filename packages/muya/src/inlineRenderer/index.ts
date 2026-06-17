@@ -1,7 +1,7 @@
 import type Format from '../block/base/format';
 import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
-import type { ICursor } from '../selection/types';
+import type { IRenderCursor } from '../selection/types';
 import type { IParagraphState, TContainerState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import logger from '../utils/logger';
@@ -19,7 +19,7 @@ class InlineRenderer {
         this.renderer = new Renderer(muya, this);
     }
 
-    tokenizer(block: Format, highlights: IHighlight[]) {
+    private _tokenizer(block: Format, highlights: IHighlight[]) {
         const { options } = this.muya;
         const { text } = block;
         const { labels } = this;
@@ -43,7 +43,7 @@ class InlineRenderer {
      * in `urlMap`. When an image file changes on disk the cached entry would
      * otherwise keep the stale bitmap, so clearing both maps and re-rendering
      * every content block re-runs `loadImageAsync`, which loads the source
-     * afresh. Mirrors legacy muyajs `StateRender.invalidateImageCache`.
+     * afresh.
      */
     invalidateImageCache() {
         this.renderer.loadImageMap.clear();
@@ -59,13 +59,13 @@ class InlineRenderer {
         });
     }
 
-    patch(block: Format, cursor?: ICursor, highlights: IHighlight[] = []) {
-        this.collectReferenceDefinitions();
+    patch(block: Format, cursor?: IRenderCursor, highlights: IHighlight[] = []) {
+        this._collectReferenceDefinitions();
         const { domNode } = block;
         if (block.isParent())
             debug.error('Patch can only handle content block');
 
-        const tokens = this.tokenizer(block, highlights);
+        const tokens = this._tokenizer(block, highlights);
         const html = this.renderer.output(
             tokens,
             block,
@@ -74,7 +74,7 @@ class InlineRenderer {
         domNode!.innerHTML = html;
     }
 
-    collectReferenceDefinitions() {
+    private _collectReferenceDefinitions() {
         const state = this.muya.editor.jsonState.getState();
         const labels = new Map();
 

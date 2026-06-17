@@ -3,88 +3,166 @@
 }
 
 .mu-image-selector {
-    width: 400px;
-    height: 32px;
+    width: 500px;
+    min-height: 190px;
+    max-height: 400px;
 }
 
-.mu-image-selector .image-edit-tool {
+.mu-image-selector > div {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
+    flex-direction: column;
+    max-height: 400px;
 }
 
-.mu-image-selector .image-edit-tool .more {
+.mu-image-selector ul.header {
+    display: flex;
+    flex-shrink: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    padding-left: 40px;
+
+    border-bottom: 1px solid var(--editor-color-10);
+}
+
+.mu-image-selector ul.header li {
     position: relative;
 
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 32px;
+    justify-content: space-around;
+    height: 100%;
 
-    border-right: 1px solid var(--float-border-color);
+    color: var(--editor-color);
+    font-size: 14px;
+}
+
+.mu-image-selector ul.header li span {
+    display: inline-block;
+    width: 100%;
+    height: 30px;
+    padding: 0 8px;
+
+    line-height: 30px;
+
+    border-radius: 5px;
     cursor: pointer;
 }
 
-.mu-image-selector .image-edit-tool .more-inner {
-    display: block;
-    width: 4px;
-    height: 4px;
-
-    background-color: var(--editor-color-50);
-    border-radius: 50%;
+.mu-image-selector ul.header li span:hover {
+    background: var(--editor-color-04);
 }
 
-.mu-image-selector .image-edit-tool .more::before,
-.mu-image-selector .image-edit-tool .more::after {
+.mu-image-selector ul.header li.active::before {
     position: absolute;
-    top: 14px;
+    bottom: 0;
+    left: 0;
 
     display: block;
-    width: 4px;
-    height: 4px;
+    width: 100%;
+    height: 3px;
 
-    background-color: var(--editor-color-50);
-    border-radius: 50%;
+    background: var(--theme-color);
 
     content: '';
 }
 
-.mu-image-selector .image-edit-tool .more::before {
-    left: 10px;
-}
-
-.mu-image-selector .image-edit-tool .more::after {
-    right: 10px;
-}
-
-.mu-image-selector .image-edit-tool .src {
+.mu-image-selector .image-select-body {
     flex: 1;
-    height: 32px;
-    margin: 0;
-    padding: 0 5px;
-
-    color: var(--editor-color-50);
-
-    border: none;
-    border-right: 1px solid var(--float-border-color);
-    border-radius: 0;
+    max-height: 359px;
+    overflow: auto;
 }
 
-.mu-image-selector .image-edit-tool .confirm {
-    width: 40px;
-    height: 32px;
+.mu-image-selector .image-select-body::-webkit-scrollbar:vertical {
+    width: 0;
+}
 
-    font-weight: 600;
-    line-height: 32px;
+.mu-image-selector .input-container {
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    height: 30px;
+    margin: 20px 0 15px;
+    padding: 0 25px;
+}
+
+.mu-image-selector .input-container input {
+    height: 30px;
+    margin-right: 10px;
+    padding: 0 15px;
+
+    color: var(--editor-color);
+    font-size: 14px;
+
+    background: var(--input-bg-color);
+    border: none;
+    border-radius: 15px;
+    outline: none;
+}
+
+.mu-image-selector .input-container input:last-of-type {
+    margin-right: 0;
+}
+
+.mu-image-selector .input-container input.src {
+    flex: 1;
+}
+
+.mu-image-selector .input-container input.alt,
+.mu-image-selector .input-container input.title {
+    flex: 0;
+    max-width: 80px;
+}
+
+.mu-image-selector button.role-button {
+    display: block;
+    box-sizing: border-box;
+    width: 240px;
+    margin: 0 auto 16px;
+    padding: 7px 14px;
+
+    color: var(--button-font-color);
+    font-size: 14px;
     text-align: center;
 
+    background: var(--button-bg-color);
+    border: var(--button-border);
+    border-radius: 8px;
     cursor: pointer;
+
+    user-select: none;
 }
 
-.mu-image-selector .image-edit-tool .confirm:hover {
+.mu-image-selector button.role-button:hover {
+    background: var(--button-bg-color-hover);
+    border: var(--button-border-hover);
+}
+
+.mu-image-selector button.role-button:active {
+    background: var(--button-bg-color-active);
+    border: var(--button-border-active);
+}
+
+.mu-image-selector button.role-button:focus {
+    border: var(--button-border-focus);
+    outline: none;
+}
+
+.mu-image-selector button.role-button.select {
+    margin-top: 35px;
+}
+
+.mu-image-selector span.description {
+    display: block;
+
+    color: var(--editor-color-30);
+    text-align: center;
+
+    user-select: none;
+}
+
+.mu-image-selector span.description a {
     color: var(--theme-color);
+
+    cursor: pointer;
 }

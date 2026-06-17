@@ -161,7 +161,7 @@ class StateRender {
             target.innerHTML = ''
             diagram.drawSVG(target, options)
           } else if (functionType === 'plantuml') {
-            const diagram = render.parse(code)
+            const diagram = render.parse(code, this.muya.options.plantumlServer)
             target.innerHTML = ''
             diagram.insertImgElement(target)
           } else if (functionType === 'vega-lite') {

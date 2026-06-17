@@ -21,7 +21,7 @@
   "lineHeight": 1.6,
   "codeFontSize": 14,
   "codeFontFamily": "DejaVu Sans Mono",
-  "codeBlockLineNumbers": true,
+  "codeBlockLineNumbers": false,
   "trimUnnecessaryCodeBlockEmptyLines": true,
   "wrapCodeBlocks": false,
   "editorLineWidth": "",
@@ -55,6 +55,7 @@
   "isHtmlEnabled": true,
   "isGitlabCompatibilityEnabled": false,
   "sequenceTheme": "hand",
+  "plantumlServer": "https://www.plantuml.com/plantuml",
 
   "theme": "light",
   "followSystemTheme": true,

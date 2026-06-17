@@ -213,7 +213,7 @@
             class="debug-info"
           >
             <summary>{{ t('preferences.image.uploader.debugInfo') }}</summary>
-            <pre>{{ picgoDebugInfo || '暂无调试信息' }}</pre>
+            <pre>{{ picgoDebugInfo || 'No debug info available' }}</pre>
           </details>
         </div>
       </div>
@@ -381,7 +381,7 @@ const startRealtimeDetection = () => {
             scheduleNextDetection() // Begin normal scheduling after the first detection completes
           })
           .catch((error) => {
-            console.error('初始PicGo检测失败:', error)
+            console.error('Initial PicGo detection failed:', error)
             scheduleNextDetection()
           })
       }, 3000)
@@ -397,7 +397,7 @@ const startRealtimeDetection = () => {
           scheduleNextDetection() // Begin normal scheduling after the first detection completes
         })
         .catch((error) => {
-          console.error('初始PicGo检测失败:', error)
+          console.error('Initial PicGo detection failed:', error)
           scheduleNextDetection()
         })
     }, 3000)
@@ -426,7 +426,7 @@ const startRealtimeDetection = () => {
             scheduleNextDetection() // Recursively schedule the next detection
           })
           .catch((error) => {
-            console.error('PicGo检测异常:', error)
+            console.error('PicGo detection error:', error)
             scheduleNextDetection()
           })
       } else {
@@ -699,17 +699,17 @@ const testPicgo = async (): Promise<void> => {
   lastDetectionTime.value = new Date().toISOString()
 
   const debugMessages: string[] = []
-  debugMessages.push(`检测时间: ${new Date().toLocaleString()}`)
+  debugMessages.push(`Detection time: ${new Date().toLocaleString()}`)
 
   // Add environment information
-  debugMessages.push(`平台: ${window.process?.platform || 'unknown'}`)
-  debugMessages.push('进程类型: renderer')
+  debugMessages.push(`Platform: ${window.process?.platform || 'unknown'}`)
+  debugMessages.push('Process type: renderer')
 
   if (typeof window.commandExists === 'undefined') {
-    const errorMsg = 'commandExists 未暴露到 window 对象'
+    const errorMsg = 'commandExists is not exposed on the window object'
     console.error('✗', errorMsg)
     debugMessages.push(`✗ ${errorMsg}`)
-    debugMessages.push('检查 preload 脚本是否正确加载')
+    debugMessages.push('Check whether the preload script is loaded correctly')
     picgoExists.value = false
     picgoDetectionFailed.value = true
     picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
@@ -718,14 +718,14 @@ const testPicgo = async (): Promise<void> => {
     return
   }
 
-  debugMessages.push('✓ commandExists 已暴露到 window 对象')
+  debugMessages.push('✓ commandExists is exposed on the window object')
 
   if (typeof window.commandExists.exists !== 'function') {
-    const errorMsg = 'commandExists.exists 方法不可用'
+    const errorMsg = 'commandExists.exists method is unavailable'
     const availableKeys = Object.keys(window.commandExists).join(', ')
     console.error('✗', errorMsg)
     debugMessages.push(`✗ ${errorMsg}`)
-    debugMessages.push(`可用方法: ${availableKeys}`)
+    debugMessages.push(`Available methods: ${availableKeys}`)
     picgoExists.value = false
     picgoDetectionFailed.value = true
     picgoDetectionStatus.value = t('preferences.image.uploader.picgoDetectionFailed')
@@ -734,45 +734,45 @@ const testPicgo = async (): Promise<void> => {
     return
   }
 
-  debugMessages.push('✓ commandExists.exists 方法可用')
+  debugMessages.push('✓ commandExists.exists method is available')
 
   try {
-    debugMessages.push('正在检测 PicGo 命令...')
+    debugMessages.push('Detecting PicGo command...')
 
     // First test some basic commands
     const nodeExists = await window.commandExists.exists('node')
     const npmExists = await window.commandExists.exists('npm')
-    debugMessages.push(`Node.js 检测: ${nodeExists ? '✓' : '✗'}`)
-    debugMessages.push(`npm 检测: ${npmExists ? '✓' : '✗'}`)
+    debugMessages.push(`Node.js detection: ${nodeExists ? '✓' : '✗'}`)
+    debugMessages.push(`npm detection: ${npmExists ? '✓' : '✗'}`)
 
     const result = await window.commandExists.exists('picgo')
-    debugMessages.push(`PicGo 检测结果: ${result}`)
+    debugMessages.push(`PicGo detection result: ${result}`)
 
     picgoExists.value = result
 
     if (result) {
-      debugMessages.push('✓ PicGo 命令检测成功')
+      debugMessages.push('✓ PicGo command detected successfully')
       picgoDetectionFailed.value = false
       picgoDetectionStatus.value = t('preferences.image.uploader.picgoInstalled')
       // Record the successful detection time
       lastSuccessTime.value = new Date().toISOString()
       consecutiveFailures.value = 0 // Reset failure count
     } else {
-      debugMessages.push('✗ PicGo 命令未找到')
-      debugMessages.push('可能原因:')
-      debugMessages.push('1. PicGo 未安装')
-      debugMessages.push('2. PATH 环境变量问题')
-      debugMessages.push('3. Electron 环境限制')
+      debugMessages.push('✗ PicGo command not found')
+      debugMessages.push('Possible causes:')
+      debugMessages.push('1. PicGo is not installed')
+      debugMessages.push('2. PATH environment variable issue')
+      debugMessages.push('3. Electron environment restriction')
       picgoDetectionFailed.value = false // Detection succeeded; PicGo is simply not installed
       picgoDetectionStatus.value = t('preferences.image.uploader.picgoNotInstalled')
     }
   } catch (error) {
-    console.error('PicGo 检测失败:', error)
+    console.error('PicGo detection failed:', error)
     const message = error instanceof Error ? error.message : String(error)
     const stack = error instanceof Error ? error.stack : undefined
-    debugMessages.push(`✗ 检测异常: ${message}`)
+    debugMessages.push(`✗ Detection error: ${message}`)
     if (stack) {
-      debugMessages.push(`错误堆栈: ${stack}`)
+      debugMessages.push(`Error stack: ${stack}`)
     }
     picgoExists.value = false
     picgoDetectionFailed.value = true

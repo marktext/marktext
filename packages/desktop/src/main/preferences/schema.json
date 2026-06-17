@@ -282,6 +282,12 @@
     "enum": ["hand", "simple"],
     "default": "hand"
   },
+  "plantumlServer": {
+    "description": "Markdown--PlantUML server URL for rendering diagrams",
+    "type": "string",
+    "pattern": "^(https?://|$)",
+    "default": "https://www.plantuml.com/plantuml"
+  },
   "theme": {
     "description": "Theme--Select the theme used in MarkText",
     "type": "string",

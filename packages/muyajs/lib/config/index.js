@@ -421,6 +421,7 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   sequenceTheme: 'hand', // hand or simple
   mermaidTheme: 'default', // dark / forest / default
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
+  plantumlServer: 'https://www.plantuml.com/plantuml',
   hideQuickInsertHint: false,
   hideLinkPopup: false,
   autoCheck: false,

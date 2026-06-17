@@ -185,18 +185,28 @@ describe('attachDragDropImageHandlers — local image FILE', () => {
     });
 });
 
-// A browser image drag carries `text/uri-list` + `text/html` and (crucially)
-// NO `text/plain`; a plain hyperlink drag additionally carries `text/plain`.
-// The handler gates on that signature so it intercepts only likely images.
-function webImageDataTransfer(url: string): DataTransfer {
+// A browser image drag carries `text/uri-list` + `text/html` (an `<img>`) and
+// (crucially) NO `text/plain`; a plain hyperlink drag additionally carries
+// `text/plain`. The handler gates on that signature so it intercepts only
+// likely images. The `text/html` `<img>` is read synchronously alongside the
+// uri-list, so the web-image branch now resolves over microtasks rather than
+// inside the same tick — tests await `flushMicrotasks()` before asserting.
+function webImageDataTransfer(url: string, html = `<img src="${url}">`): DataTransfer {
     const dt = new DataTransfer();
     dt.items.add(url, 'text/uri-list');
-    dt.items.add(`<img src="${url}">`, 'text/html');
+    dt.items.add(html, 'text/html');
     return dt;
 }
 
+// Drain the microtask queue so the chained getAsString → checkImageContentType
+// promise in `handleWebLinkImage` settles before assertions.
+async function flushMicrotasks(): Promise<void> {
+    for (let i = 0; i < 5; i++)
+        await Promise.resolve();
+}
+
 describe('attachDragDropImageHandlers — web-link image', () => {
-    it('inserts `![](url)` for an image URL dragged from a browser', () => {
+    it('inserts `![](url)` for an image URL dragged from a browser', async () => {
         const muya = makeMuya();
         const contentDom = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
@@ -204,29 +214,65 @@ describe('attachDragDropImageHandlers — web-link image', () => {
         const dt = webImageDataTransfer('https://example.com/pic.png');
 
         muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await flushMicrotasks();
 
-        // happy-dom fires getAsString synchronously and the URL has an image
-        // extension, so the block is inserted within the same tick.
         expect(createdBlocks).toHaveLength(1);
         expect(createdBlocks[0].text).toBe('![](https://example.com/pic.png)');
         expect(createdBlocks[0].insertedBefore).toBe(true);
     });
 
-    it('ignores a non-image URL even with the web-image signature', () => {
+    it('inserts an extension-less image URL using the dragged `<img>` html signal', async () => {
         const muya = makeMuya();
         const contentDom = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
 
-        // Well-formed signature, but the URL is not an image and the
-        // content-type sniff (HEAD fetch) fails under happy-dom → no insert.
-        const dt = webImageDataTransfer('https://example.com/page.html');
+        // A real-world CDN image: no file extension, query string — `IMAGE_EXT_REG`
+        // misses and the cross-origin HEAD sniff fails, but the `<img>` html proves
+        // it is an image without any network call.
+        const dt = webImageDataTransfer('https://images.example.com/photo?id=123');
 
         muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await flushMicrotasks();
+
+        expect(createdBlocks).toHaveLength(1);
+        expect(createdBlocks[0].text).toBe('![](https://images.example.com/photo?id=123)');
+    });
+
+    it('strips uri-list line terminators from the inserted URL', async () => {
+        const muya = makeMuya();
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        // `text/uri-list` is a CRLF-delimited format; a trailing CRLF must not
+        // leak into the markdown nor defeat the extension match.
+        const dt = webImageDataTransfer('https://example.com/pic.png\r\n');
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await flushMicrotasks();
+
+        expect(createdBlocks).toHaveLength(1);
+        expect(createdBlocks[0].text).toBe('![](https://example.com/pic.png)');
+    });
+
+    it('ignores a non-image URL with no `<img>` html and a failing content-type sniff', async () => {
+        const muya = makeMuya();
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        // Web-image signature shape, but the html is a link (not an `<img>`), the
+        // URL has no image extension, and the HEAD sniff fails under happy-dom.
+        const dt = webImageDataTransfer(
+            'https://example.com/page.html',
+            '<a href="https://example.com/page.html">link</a>',
+        );
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await flushMicrotasks();
 
         expect(createdBlocks).toHaveLength(0);
     });
 
-    it('ignores a plain hyperlink drag (uri-list + text/plain, no html)', () => {
+    it('ignores a plain hyperlink drag (uri-list + text/plain, no html)', async () => {
         const muya = makeMuya();
         const contentDom = makeDropTarget(muya);
         attachDragDropImageHandlers(muya as unknown as Muya);
@@ -237,6 +283,7 @@ describe('attachDragDropImageHandlers — web-link image', () => {
         dt.items.add('https://example.com/pic.png', 'text/plain');
 
         muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await flushMicrotasks();
 
         expect(createdBlocks).toHaveLength(0);
     });

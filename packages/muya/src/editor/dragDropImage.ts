@@ -11,14 +11,11 @@ import logger from '../utils/logger';
 
 const debug = logger('editor:dragDropImage:');
 
-// Port of marktext `src/muya/lib/eventHandler/dragDrop.js` +
-// `contentState/dragDropCtrl.js`. The legacy engine bound
-// dragover/drop/dragleave/dragstart on the editor container and inserted a
-// dropped image — either a web-link image (`text/uri-list`) or a local image
-// FILE — as a new `![](src)` paragraph block. The TS rewrite shipped without
-// any DnD handler (#4406 parity gap PG4); this module restores it.
+// Drag-and-drop image insertion: a dropped image — either a web-link image
+// (`text/uri-list`) or a local image FILE — is inserted as a new `![](src)`
+// paragraph block.
 //
-// Two drop paths, mirroring the legacy controller:
+// Two drop paths:
 //   - web-link image (`text/uri-list`)  → verify it is an image, then insert
 //                                          `![](url)` verbatim.
 //   - local image FILE (`dataTransfer.files`) → resolve the file to a path via
@@ -56,10 +53,9 @@ function isImageFileDrag(dataTransfer: DataTransfer): boolean {
 }
 
 // The "image dragged from a browser" signature: a `text/uri-list` item that
-// also carries `text/html` but NOT `text/plain`. Mirrors legacy muyajs
-// (`dragDropCtrl.js` dragoverHandler) so that dragging a plain hyperlink — which
-// carries `text/uri-list` + `text/plain` — is left to the browser instead of
-// being intercepted and swallowed.
+// also carries `text/html` but NOT `text/plain`, so that dragging a plain
+// hyperlink — which carries `text/uri-list` + `text/plain` — is left to the
+// browser instead of being intercepted and swallowed.
 function isWebImageDrag(dataTransfer: DataTransfer): boolean {
     const items = Array.from(dataTransfer.items);
     const hasUri = items.some(i => i.type === 'text/uri-list');
@@ -127,9 +123,33 @@ function insertImageParagraph(
     return imageBlock;
 }
 
-// Drop path 1 — a web-link image carried as `text/uri-list`. Verify the URL
-// resolves to an image (by extension, or by content-type sniff), then insert
-// `![](url)` verbatim.
+// `text/uri-list` is a CRLF-delimited format whose lines may include `#`
+// comments; the dragged image URL is the first non-comment line. Trimming it
+// also keeps a trailing CRLF out of the inserted markdown and out of the way of
+// `IMAGE_EXT_REG`'s end-of-string anchor.
+function firstUri(uriList: string): string {
+    return (
+        uriList
+            .split(/[\r\n]+/)
+            .map(line => line.trim())
+            .find(line => line.length > 0 && !line.startsWith('#')) ?? ''
+    );
+}
+
+// Read a `DataTransferItem` string synchronously-initiated as a promise. The
+// `getAsString` call must happen while the drag data store is still readable
+// (inside the drop handler), so every item is kicked off before the first
+// `await`; the callback merely resolves later.
+function readItem(item: DataTransferItem | undefined): Promise<string> {
+    if (!item)
+        return Promise.resolve('');
+    return new Promise(resolve => item.getAsString(resolve));
+}
+
+// Drop path 1 — a web-link image carried as `text/uri-list`. A browser image
+// drag also carries a `text/html` `<img>` payload, which is a definitive image
+// signal and needs no network round-trip; fall back to the URL extension and a
+// content-type HEAD sniff only when that payload is absent.
 function handleWebLinkImage(
     muya: Muya,
     event: DragEvent,
@@ -142,23 +162,36 @@ function handleWebLinkImage(
     if (!uriItem)
         return false;
 
-    uriItem.getAsString(async (url) => {
+    const htmlItem = items.find(
+        item => item.kind === 'string' && item.type === 'text/html',
+    );
+
+    // Both reads are initiated synchronously, before any await, so the data
+    // store is still in read-only (not protected) mode.
+    const uriPromise = readItem(uriItem);
+    const htmlPromise = readItem(htmlItem);
+
+    void (async () => {
+        const url = firstUri(await uriPromise);
         if (!URL_REG.test(url))
             return;
 
+        const html = await htmlPromise;
         const isImage
-            = IMAGE_EXT_REG.test(url) || (await checkImageContentType(url));
+            = /<img\b/i.test(html)
+                || IMAGE_EXT_REG.test(url)
+                || (await checkImageContentType(url));
         if (!isImage)
             return;
 
         insertImageParagraph(muya, target, `![](${url})`);
-    });
+    })();
 
     return true;
 }
 
 // Replace a `![loading-id](path)` placeholder with the persisted src returned
-// by `imageAction`. Mirrors the imageEditTool upload flow.
+// by `imageAction`.
 async function persistDroppedImage(
     muya: Muya,
     path: string,
@@ -293,8 +326,8 @@ export function attachDragDropImageHandlers(muya: Muya): void {
     eventCenter.attachDOMEvent(domNode, 'dragstart', dragStartHandler);
     eventCenter.attachDOMEvent(domNode, 'dragover', dragOverHandler);
     eventCenter.attachDOMEvent(domNode, 'drop', dropHandler);
-    // Legacy muyajs bound `dragleave` on `window` to clear the ghost when the
-    // pointer leaves the page; `document` bubbles the same event and is within
-    // `attachDOMEvent`'s accepted target union.
+    // `dragleave` is bound on `document` (not `window`) to clear the ghost when
+    // the pointer leaves the page; `document` bubbles the same event and is
+    // within `attachDOMEvent`'s accepted target union.
     eventCenter.attachDOMEvent(document, 'dragleave', dragLeaveHandler);
 }

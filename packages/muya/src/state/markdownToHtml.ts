@@ -11,8 +11,8 @@ import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
 
 // Core stylesheets inlined into the exported document so the output is fully
-// self-contained and renders offline / behind CSP / air-gapped — matching the
-// legacy `packages/muyajs` `ExportHtml` behavior (PG7). Linking these from a
+// self-contained and renders offline / behind CSP / air-gapped. Linking these
+// from a
 // CDN left a saved `.html` file unstyled with no network access, a regression
 // for an offline desktop editor. Callers that explicitly want the lighter
 // CDN-linked shell can opt in via `generate({ inlineStyles: false })`.
@@ -30,9 +30,9 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
-    constructor(public markdown: string, public muya?: Muya) {}
+    constructor(public markdown: string, private _muya?: Muya) {}
 
-    async renderMermaid() {
+    private async _renderMermaid() {
         const codes = this._exportContainer!.querySelectorAll(
             'code.language-mermaid',
         );
@@ -59,15 +59,15 @@ export class MarkdownToHtml {
         await mermaid.run({
             nodes: [...this._exportContainer!.querySelectorAll('div.mermaid')],
         });
-        if (this.muya) {
+        if (this._muya) {
             mermaid.initialize({
                 securityLevel: 'strict',
-                theme: this.muya.options.mermaidTheme,
+                theme: this._muya.options.mermaidTheme,
             });
         }
     }
 
-    async renderDiagram() {
+    private async _renderDiagram() {
         const selector
             = 'code.language-vega-lite, code.language-plantuml, code.language-flowchart, code.language-sequence';
         const codes = this._exportContainer!.querySelectorAll(selector);
@@ -102,13 +102,13 @@ export class MarkdownToHtml {
             }
             else if (functionType === 'sequence') {
                 Object.assign(options, {
-                    theme: this.muya?.options.sequenceTheme ?? 'hand',
+                    theme: this._muya?.options.sequenceTheme ?? 'hand',
                 });
             }
 
             try {
                 if (functionType === 'plantuml') {
-                    const diagram = render.parse(rawCode);
+                    const diagram = render.parse(rawCode, this._muya?.options.plantumlServer);
                     diagramContainer.innerHTML = '';
                     diagram.insertImgElement(diagramContainer);
                 }
@@ -133,7 +133,7 @@ export class MarkdownToHtml {
     // deduplicated by incrementing a `-N` suffix until the *full* candidate id
     // is unused — so a later heading whose text already looks like an earlier
     // `-N` slug (e.g. `heading`, `heading`, `heading-1`) still resolves to a
-    // unique anchor, matching github / the legacy muyajs Slugger.
+    // unique anchor, matching github.
     private _injectHeadingIds(container: HTMLElement) {
         const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
         const seen = new Set<string>();
@@ -163,11 +163,11 @@ export class MarkdownToHtml {
     // render pure html by marked
     async renderHtml() {
         let html = getHighlightHtml(this.markdown, {
-            superSubScript: this.muya?.options?.superSubScript ?? true,
-            footnote: this.muya?.options?.footnote ?? false,
+            superSubScript: this._muya?.options?.superSubScript ?? true,
+            footnote: this._muya?.options?.footnote ?? false,
             isGitlabCompatibilityEnabled:
-        this.muya?.options?.isGitlabCompatibilityEnabled ?? true,
-            math: this.muya?.options?.math ?? true,
+        this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
+            math: this._muya?.options?.math ?? true,
         });
 
         html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
@@ -179,12 +179,12 @@ export class MarkdownToHtml {
         document.body.appendChild(exportContainer);
 
         // render only render the light theme of mermaid and diagram...
-        await this.renderMermaid();
-        await this.renderDiagram();
+        await this._renderMermaid();
+        await this._renderDiagram();
 
         // Inject github-compatible slug ids onto exported headings so the
         // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
-        // resolve (PG8). Scoped to this export DOM path — the conformance
+        // resolve. Scoped to this export DOM path — the conformance
         // renderer (`renderToStaticHTML`) is deliberately left untouched.
         this._injectHeadingIds(exportContainer);
 

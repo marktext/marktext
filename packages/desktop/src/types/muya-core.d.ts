@@ -31,6 +31,7 @@ declare module '@muyajs/core' {
   export const ja: ILocale
   export const ko: ILocale
   export const pt: ILocale
+  export const tr: ILocale
   export const zhCN: ILocale
   export const zhTW: ILocale
 

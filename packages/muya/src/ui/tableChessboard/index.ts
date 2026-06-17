@@ -44,7 +44,7 @@ class TablePicker extends BaseFloat {
         super.listen();
         eventCenter.subscribe('muya-table-picker', (data, reference, cb) => {
             if (!this.status) {
-                this.showPicker(data, reference, cb);
+                this._showPicker(data, reference, cb);
                 this.render();
             }
             else {
@@ -112,7 +112,7 @@ class TablePicker extends BaseFloat {
                 },
                 on: {
                     keyup: (event: KeyboardEvent) => {
-                        this.keyupHandler(event, 'row');
+                        this._keyupHandler(event, 'row');
                     },
                 },
             }),
@@ -124,7 +124,7 @@ class TablePicker extends BaseFloat {
                 },
                 on: {
                     keyup: (event: KeyboardEvent) => {
-                        this.keyupHandler(event, 'column');
+                        this._keyupHandler(event, 'column');
                     },
                 },
             }),
@@ -151,7 +151,7 @@ class TablePicker extends BaseFloat {
         this._oldVNode = vnode;
     }
 
-    keyupHandler(event: KeyboardEvent, type: 'row' | 'column') {
+    private _keyupHandler(event: KeyboardEvent, type: 'row' | 'column') {
         let number = +this._select![type];
         const value = isHTMLInputElement(event.target) ? +event.target.value : Number.NaN;
         if (event.key === EVENT_KEYS.ArrowUp)
@@ -169,7 +169,7 @@ class TablePicker extends BaseFloat {
         }
     }
 
-    showPicker(current: ICheckerCount, reference: ReferenceElement, cb: (row: number, column: number) => void) {
+    private _showPicker(current: ICheckerCount, reference: ReferenceElement, cb: (row: number, column: number) => void) {
     // current { row, column } zero base
         this._current = current;
         // Clone so footer-input edits mutating `_select` never corrupt the

@@ -2,6 +2,7 @@
 
 import type { Muya } from '../../muya';
 import { describe, expect, it, vi } from 'vitest';
+import { CopyType } from '../types';
 
 // PARITY SCOREBOARD — gap PG9 (file PG-COPYRICH).
 //
@@ -54,7 +55,7 @@ describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
             const html = '<h1>Title</h1><p><strong>bold</strong></p>';
             const text = '# Title\n\n**bold**';
             const clipboard = makeClipboard(html, text);
-            clipboard.copyType = 'copyAsRich';
+            clipboard.copyType = CopyType.COPY_AS_RICH;
             const { event, setData } = makeEvent();
 
             clipboard.copyHandler(event);
@@ -75,7 +76,7 @@ describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
             // copyAsHtml (the current mapping target) blanks text/html and puts
             // the markup into text/plain — pasting yields literal markup.
             const asHtmlClip = makeClipboard(html, text);
-            asHtmlClip.copyType = 'copyAsHtml';
+            asHtmlClip.copyType = CopyType.COPY_AS_HTML;
             const asHtml = makeEvent();
             asHtmlClip.copyHandler(asHtml.event);
             const asHtmlHtmlSlot = asHtml.setData.mock.calls.find(
@@ -86,7 +87,7 @@ describe('parity PG9: copyAsRich writes rendered HTML as rich text', () => {
             // copyAsRich must instead place the real rendered HTML in the html
             // slot so a rich-text target renders it.
             const asRichClip = makeClipboard(html, text);
-            asRichClip.copyType = 'copyAsRich';
+            asRichClip.copyType = CopyType.COPY_AS_RICH;
             const asRich = makeEvent();
             asRichClip.copyHandler(asRich.event);
             const asRichHtmlSlot = asRich.setData.mock.calls.find(

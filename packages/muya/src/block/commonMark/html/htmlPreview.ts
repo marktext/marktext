@@ -1,6 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { IHtmlBlockState, TState } from '../../../state/types';
-import { PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
+import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
 import { getImageSrc } from '../../../utils/image';
 import logger from '../../../utils/logger';
@@ -9,7 +9,7 @@ import Parent from '../../base/parent';
 const debug = logger('htmlPreview:');
 
 class HTMLPreview extends Parent {
-    public html: string;
+    private _html: string;
 
     static override blockName = 'html-preview';
 
@@ -27,8 +27,8 @@ class HTMLPreview extends Parent {
     constructor(muya: Muya, { text }: IHtmlBlockState) {
         super(muya);
         this.tagName = 'div';
-        this.html = text;
-        this.classList = ['mu-html-preview'];
+        this._html = text;
+        this.classList = [CLASS_NAMES.MU_HTML_PREVIEW];
         this.attributes = {
             spellcheck: 'false',
             contenteditable: 'false',
@@ -37,9 +37,9 @@ class HTMLPreview extends Parent {
         this.update();
     }
 
-    update(html = this.html) {
-        if (this.html !== html)
-            this.html = html;
+    update(html = this._html) {
+        if (this._html !== html)
+            this._html = html;
 
         const { disableHtml } = this.muya.options;
         const htmlContent = sanitize(html, PREVIEW_DOMPURIFY_CONFIG, disableHtml) as string;
@@ -48,7 +48,7 @@ class HTMLPreview extends Parent {
         // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation
         if (/^<([a-z][a-z\d]*)[^>]*>\s*<\/\1>$/.test(htmlContent.trim())) {
             this.domNode!.innerHTML
-                = '<div class="mu-empty">&lt;Empty HTML Block&gt;</div>';
+                = `<div class="${CLASS_NAMES.MU_EMPTY}">&lt;Empty HTML Block&gt;</div>`;
         }
         else {
             const parser = new DOMParser();

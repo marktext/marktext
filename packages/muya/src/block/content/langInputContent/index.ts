@@ -1,7 +1,8 @@
 import type { Muya } from '../../../muya';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type { ICodeBlockState } from '../../../state/types';
 import type CodeBlock from '../../commonMark/codeBlock';
+import { CLASS_NAMES } from '../../../config';
 import Content from '../../base/content';
 import { escapeLangInputInnerHtml } from './escape';
 
@@ -18,7 +19,7 @@ class LangInputContent extends Content {
 
     constructor(muya: Muya, { meta }: ICodeBlockState) {
         super(muya, meta.lang);
-        this.classList = [...this.classList, 'mu-language-input'];
+        this.classList = [...this.classList, CLASS_NAMES.MU_LANGUAGE_INPUT];
         this.attributes.hint = muya.i18n.t('Input Language Identifier...');
         this.createDomNode();
     }
@@ -27,7 +28,7 @@ class LangInputContent extends Content {
         return this.parent;
     }
 
-    override update(_cursor?: ICursor, highlights = []) {
+    override update(_cursor?: IRenderCursor, highlights = []) {
         this.domNode!.innerHTML = escapeLangInputInnerHtml(this.text, highlights);
     }
 
@@ -35,7 +36,7 @@ class LangInputContent extends Content {
      * Update this block lang and parent's lang, and show/hide language selector.
      * @param lang
      */
-    updateLanguage(lang: string) {
+    private _updateLanguage(lang: string) {
         const { start, end } = this.getCursor()!;
         this.text = lang;
         this.parent!.lang = lang;
@@ -48,7 +49,7 @@ class LangInputContent extends Content {
     override inputHandler() {
         const textContent = this.domNode!.textContent ?? '';
         const lang = textContent.split(/\s+/)[0];
-        this.updateLanguage(lang);
+        this._updateLanguage(lang);
     }
 
     override enterHandler(event: Event) {
@@ -66,7 +67,7 @@ class LangInputContent extends Content {
         if (start.offset === 1 && end.offset === 1 && text.length === 1) {
             event.preventDefault();
             const lang = '';
-            this.updateLanguage(lang);
+            this._updateLanguage(lang);
         }
         if (start.offset === 0 && end.offset === 0) {
             event.preventDefault();

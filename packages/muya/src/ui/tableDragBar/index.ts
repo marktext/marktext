@@ -100,6 +100,62 @@ const bottomOptions = {
     showArrow: false,
 };
 
+function isInMovedRange(
+    i: number,
+    index: number,
+    curIndex: number,
+    isPositive: boolean,
+) {
+    return isPositive
+        ? i > index && i <= curIndex
+        : i >= curIndex && i < index;
+}
+
+function switchTransform(
+    i: number,
+    index: number,
+    curIndex: number,
+    aspect: number,
+    axis: 'translateX' | 'translateY',
+    isPositive: boolean,
+): string | null {
+    if (isInMovedRange(i, index, curIndex, isPositive))
+        return `${axis}(${isPositive ? -aspect : aspect}px)`;
+    if (i !== index)
+        return `${axis}(0px)`;
+
+    return null;
+}
+
+function applyBottomSwitch(
+    cells: HTMLTableCellElement[][],
+    len: number,
+    compute: (i: number) => string | null,
+) {
+    for (const row of cells) {
+        for (let i = 0; i < len; i++) {
+            const transform = compute(i);
+            if (transform !== null)
+                row[i].style.transform = transform;
+        }
+    }
+}
+
+function applyRightSwitch(
+    cells: HTMLTableCellElement[][],
+    len: number,
+    compute: (i: number) => string | null,
+) {
+    for (let i = 0; i < len; i++) {
+        const transform = compute(i);
+        if (transform === null)
+            continue;
+
+        for (const cell of cells[i])
+            cell.style.transform = transform;
+    }
+}
+
 export class TableDragBar extends BaseFloat {
     static pluginName = 'tableDragBar';
     private _block: TableBodyCell | null = null;
@@ -159,7 +215,7 @@ export class TableDragBar extends BaseFloat {
                 this._barType = barType;
                 this._block = cellBlock;
                 this.show(tableCellEl!);
-                this.render(barType);
+                this._render(barType);
             }
             else {
                 this.hide();
@@ -167,20 +223,20 @@ export class TableDragBar extends BaseFloat {
         });
 
         eventCenter.attachDOMEvent(document.body, 'mousemove', handler);
-        eventCenter.attachDOMEvent(container!, 'mousedown', this.mousedown);
-        eventCenter.attachDOMEvent(container!, 'mouseup', this.mouseup);
+        eventCenter.attachDOMEvent(container!, 'mousedown', this._mousedown);
+        eventCenter.attachDOMEvent(container!, 'mouseup', this._mouseup);
     }
 
-    mousedown = (event: Event) => {
+    private _mousedown = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
         this._mouseTimer = setTimeout(() => {
-            this.startDrag(event);
+            this._startDrag(event);
             this._mouseTimer = null;
         }, 300);
     };
 
-    mouseup = (event: Event) => {
+    private _mouseup = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
         const { container, _barType: barType } = this;
@@ -203,7 +259,7 @@ export class TableDragBar extends BaseFloat {
         }
     };
 
-    startDrag(event: Event) {
+    private _startDrag(event: Event) {
         event.preventDefault();
         if (!isMouseEvent(event) || !this._block || !this._barType)
             return;
@@ -235,12 +291,12 @@ export class TableDragBar extends BaseFloat {
         }
 
         this._dragEventIds.push(
-            eventCenter.attachDOMEvent(document, 'mousemove', this.docMousemove),
-            eventCenter.attachDOMEvent(document, 'mouseup', this.docMouseup),
+            eventCenter.attachDOMEvent(document, 'mousemove', this._docMousemove),
+            eventCenter.attachDOMEvent(document, 'mouseup', this._docMouseup),
         );
     }
 
-    docMousemove = (event: Event) => {
+    private _docMousemove = (event: Event) => {
         if (!this._dragInfo || !isMouseEvent(event))
             return;
 
@@ -252,12 +308,12 @@ export class TableDragBar extends BaseFloat {
             return;
 
         this._isDragTableBar = true;
-        this.calculateCurIndex();
-        this.setDragTargetStyle();
-        this.setSwitchStyle();
+        this._calculateCurIndex();
+        this._setDragTargetStyle();
+        this._setSwitchStyle();
     };
 
-    docMouseup = (event: Event) => {
+    private _docMouseup = (event: Event) => {
         event.preventDefault();
 
         const { eventCenter } = this.muya;
@@ -269,16 +325,16 @@ export class TableDragBar extends BaseFloat {
         if (!this._isDragTableBar)
             return;
 
-        this.setDropTargetStyle();
+        this._setDropTargetStyle();
 
         // The drop animation need 300ms.
         setTimeout(() => {
-            this.switchTableData();
-            this.resetDragTableBar();
+            this._switchTableData();
+            this._resetDragTableBar();
         }, 300);
     };
 
-    calculateCurIndex = () => {
+    private _calculateCurIndex = () => {
         if (!this._dragInfo)
             return;
 
@@ -319,7 +375,7 @@ export class TableDragBar extends BaseFloat {
         this._dragInfo.curIndex = Math.max(0, Math.min(curIndex, len - 1));
     };
 
-    setDragTargetStyle = () => {
+    private _setDragTargetStyle = () => {
         const { offset, barType, dragCells } = this._dragInfo!;
 
         for (const cell of dragCells) {
@@ -332,68 +388,25 @@ export class TableDragBar extends BaseFloat {
         }
     };
 
-    setSwitchStyle = () => {
+    private _setSwitchStyle = () => {
         if (!this._dragInfo)
             return;
 
         const { index, offset, curIndex, barType, aspects, cells } = this._dragInfo;
         const aspect = aspects[index];
         const len = aspects.length;
+        const isPositive = offset > 0;
+        const axis = barType === 'bottom' ? 'translateX' : 'translateY';
+        const compute = (i: number) =>
+            switchTransform(i, index, curIndex, aspect, axis, isPositive);
 
-        let i;
-        if (offset > 0) {
-            if (barType === 'bottom') {
-                for (const row of cells) {
-                    for (i = 0; i < len; i++) {
-                        const cell = row[i];
-                        if (i > index && i <= curIndex)
-                            cell.style.transform = `translateX(${-aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateX(0px)';
-                    }
-                }
-            }
-            else {
-                for (i = 0; i < len; i++) {
-                    const row = cells[i];
-
-                    for (const cell of row) {
-                        if (i > index && i <= curIndex)
-                            cell.style.transform = `translateY(${-aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateY(0px)';
-                    }
-                }
-            }
-        }
-        else {
-            if (barType === 'bottom') {
-                for (const row of cells) {
-                    for (i = 0; i < len; i++) {
-                        const cell = row[i];
-                        if (i >= curIndex && i < index)
-                            cell.style.transform = `translateX(${aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateX(0px)';
-                    }
-                }
-            }
-            else {
-                for (i = 0; i < len; i++) {
-                    const row = cells[i];
-
-                    for (const cell of row) {
-                        if (i >= curIndex && i < index)
-                            cell.style.transform = `translateY(${aspect}px)`;
-                        else if (i !== index)
-                            cell.style.transform = 'translateY(0px)';
-                    }
-                }
-            }
-        }
+        if (barType === 'bottom')
+            applyBottomSwitch(cells, len, compute);
+        else
+            applyRightSwitch(cells, len, compute);
     };
 
-    setDropTargetStyle = () => {
+    private _setDropTargetStyle = () => {
         if (!this._dragInfo)
             return;
 
@@ -419,7 +432,7 @@ export class TableDragBar extends BaseFloat {
         }
     };
 
-    switchTableData = () => {
+    private _switchTableData = () => {
         if (!this._dragInfo)
             return;
 
@@ -507,12 +520,12 @@ export class TableDragBar extends BaseFloat {
         }
     };
 
-    resetDragTableBar = () => {
+    private _resetDragTableBar = () => {
         this._dragInfo = null;
         this._isDragTableBar = false;
     };
 
-    render(barType: BarType) {
+    private _render(barType: BarType) {
         this.container!.dataset.drag = barType;
     }
 }

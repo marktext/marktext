@@ -27,7 +27,7 @@ class TreeNode implements ILinkedNode {
 
     static blockName = 'tree.node';
 
-    get static(): IConstructor<TreeNode> {
+    protected get static(): IConstructor<TreeNode> {
         // `this.constructor` is `Function` in lib.d.ts; subclasses' generated
         // constructors carry the static `blockName` etc., but TS can't see
         // through `Function` to the subclass shape.

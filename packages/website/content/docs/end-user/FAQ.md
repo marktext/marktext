@@ -18,11 +18,11 @@ MarkText is a pure markdown editor without feature such as knowledge management 
 
 ### Where can I find documentation?
 
-Documentation is currently under development.
+The full documentation is available on the MarkText website:
 
-- [End-user documentation](https://github.com/marktext/marktext/blob/develop/docs/README.md)
+- [End-user documentation](../README.md)
 
-- [Developer documentation](https://github.com/marktext/marktext/blob/develop/docs/dev/README.md)
+- [Developer documentation](../dev/README.md)
 
 ### Can I run a portable version of MarkText?
 

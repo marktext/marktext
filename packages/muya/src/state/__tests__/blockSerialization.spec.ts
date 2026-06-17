@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest';
+// @vitest-environment happy-dom
+import type TreeNode from '../../block/base/treeNode';
+import type CodeBlock from '../../block/commonMark/codeBlock';
+import type { Nullable } from '../../types';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Muya } from '../../muya';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
@@ -16,6 +21,45 @@ function roundTrip(md: string): string {
         frontMatter: true,
     }).generate(md);
     return new ExportMarkdown({ listIndentation: 1 }).generate(states);
+}
+
+function parse(md: string) {
+    return new MarkdownToState({
+        footnote: false,
+        math: true,
+        isGitlabCompatibilityEnabled: false,
+        trimUnnecessaryCodeBlockEmptyLines: false,
+        frontMatter: true,
+    }).generate(md);
+}
+
+const bootedHosts: HTMLElement[] = [];
+
+beforeEach(() => {
+    window.MUYA_VERSION = 'test';
+});
+
+afterEach(() => {
+    while (bootedHosts.length)
+        bootedHosts.pop()!.remove();
+});
+
+function bootMuya(markdown: string): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+// Walk up from the first content leaf to the enclosing `code-block` parent
+// (the block that owns the `lang` setter and the `meta.type` field).
+function findCodeBlock(muya: Muya): CodeBlock {
+    let node: Nullable<TreeNode> = muya.editor.scrollPage!.firstContentInDescendant();
+    while (node && node.blockName !== 'code-block')
+        node = node.parent;
+    return node as CodeBlock;
 }
 
 describe('stateToMarkdown — heading round-trip', () => {
@@ -163,6 +207,106 @@ describe('stateToMarkdown — table edge cases', () => {
 | 1   |     |
 `;
         expect(roundTrip(md)).toBe(md);
+    });
+});
+
+describe('markdownToState — indented code block', () => {
+    it('parses a 4-space-indented block as a code-block with meta.type "indented"', () => {
+        const states = parse('    code\n');
+
+        expect(states.length).toBe(1);
+        const state = states[0];
+        expect(state.name).toBe('code-block');
+        // `meta` only exists on the code-block state; narrow before reading it.
+        if (state.name !== 'code-block')
+            throw new Error('expected a code-block state');
+        expect(state.meta.type).toBe('indented');
+        // Indented blocks carry no info string, so the language is empty.
+        expect(state.meta.lang).toBe('');
+        expect(state.text).toBe('code');
+    });
+
+    it('round-trips an indented code block back to 4-space-indented markdown', () => {
+        // The serializer prefixes every line of a non-fenced code block with
+        // exactly four spaces (serializeCodeBlock, `type !== 'fenced'` branch).
+        const md = '    code\n';
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('round-trips a multi-line indented code block preserving each line indent', () => {
+        const md = '    line one\n    line two\n';
+        expect(roundTrip(md)).toBe(md);
+    });
+});
+
+describe('codeBlock — setting lang promotes an indented block to fenced', () => {
+    it('flips meta.type indented -> fenced and updates the live block lang', async () => {
+        const muya = bootMuya('    code\n');
+        const codeBlock = findCodeBlock(muya);
+        expect(codeBlock).toBeTruthy();
+        expect(codeBlock.meta.type).toBe('indented');
+
+        codeBlock.lang = 'js';
+
+        // The live block object reflects both the new type and language
+        // synchronously (the setter mutates `this.meta` directly).
+        expect(codeBlock.meta.type).toBe('fenced');
+        expect(codeBlock.meta.lang).toBe('js');
+
+        // The `meta.type` change is dispatched as an OT op, so it reaches the
+        // serialized JSON state after the rAF flush.
+        await vi.waitFor(() => {
+            const state = muya.getState()[0];
+            expect(state.name).toBe('code-block');
+            if (state.name !== 'code-block')
+                throw new Error('expected a code-block state');
+            expect(state.meta.type).toBe('fenced');
+        });
+    });
+
+    it('swaps the DOM class from mu-indented-code to mu-fenced-code', () => {
+        const muya = bootMuya('    code\n');
+        const codeBlock = findCodeBlock(muya);
+        const node = codeBlock.domNode as HTMLElement;
+        expect(node.classList.contains('mu-indented-code')).toBe(true);
+        expect(node.classList.contains('mu-fenced-code')).toBe(false);
+
+        codeBlock.lang = 'js';
+
+        expect(node.classList.contains('mu-indented-code')).toBe(false);
+        expect(node.classList.contains('mu-fenced-code')).toBe(true);
+    });
+
+    it('emits a fenced block from getMarkdown (CHARACTERIZATION: drops the language tag — see suspectedBugs)', async () => {
+        const muya = bootMuya('    code\n');
+        const codeBlock = findCodeBlock(muya);
+
+        codeBlock.lang = 'js';
+
+        // The setter dispatches an OT op ONLY for `meta.type`, never for
+        // `meta.lang`. So the serialized JSON state ends up `fenced` but with
+        // an EMPTY language: getMarkdown opens a bare ``` fence and the `js`
+        // info string is lost. This pins the actual current behaviour.
+        await vi.waitFor(() => {
+            const md = muya.getMarkdown();
+            expect(md).toContain('```');
+            expect(md).toContain('code');
+        });
+
+        const md = muya.getMarkdown();
+        // No longer the indented 4-space form.
+        expect(md.startsWith('    ')).toBe(false);
+        // Bug: the language tag never reaches the serializer.
+        expect(md).not.toContain('```js');
+        expect(md).toBe('```\ncode\n```\n');
+
+        // The JSON state confirms the language was dropped while the live
+        // block still holds it.
+        const state = muya.getState()[0];
+        if (state.name !== 'code-block')
+            throw new Error('expected a code-block state');
+        expect(state.meta.lang).toBe('');
+        expect(codeBlock.meta.lang).toBe('js');
     });
 });
 

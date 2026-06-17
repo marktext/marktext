@@ -12,10 +12,8 @@ interface IFootnoteRendererThis {
     parser?: { parse: (toks: Tokens.Generic[]) => string };
 }
 
-// Block-level rule for footnote definitions. Mirrors marktext's
-// src/muya/lib/parser/marked/blockRules.js after commit 1ecc3601, but
-// applied at the start of the marked tokenizer's remaining source rather
-// than the legacy parser's per-line buffer.
+// Block-level rule for footnote definitions, applied at the start of the
+// marked tokenizer's remaining source rather than against a per-line buffer.
 //
 // The `(?<!\\)` lookbehind in front of the closing `]` lets users escape
 // the bracket — `[^foo\]: bar` stays a paragraph instead of becoming a

@@ -1,5 +1,5 @@
 import type { Muya } from '../../../muya';
-import type { ICursor } from '../../../selection/types';
+import type { IRenderCursor } from '../../../selection/types';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
 import { ScrollPage } from '../../scrollPage';
@@ -23,7 +23,7 @@ class ThematicBreakContent extends Format {
         return this.parent;
     }
 
-    override update(cursor: ICursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights = []) {
         return this.inlineRenderer.patch(this, cursor, highlights);
     }
 

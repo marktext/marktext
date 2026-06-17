@@ -9,7 +9,7 @@ interface IPasteCursor {
 }
 
 /**
- * Backport of marktext commit 1c42555a (#671). When pasting multi-paragraph
+ * When pasting multi-paragraph
  * markdown into an atx/setext heading, splice the first paragraph state into
  * the heading's text — keeping the heading semantics intact — and return the
  * tail states so the caller can drop them in as new blocks below.

@@ -108,7 +108,7 @@ describe('muya.locale() refreshes rendered hints (Phase G — G8)', () => {
         const sel = muya.editor.selection.getSelection();
         expect(sel).not.toBeNull();
         expect(sel!.anchor.offset).toBe(5);
-        expect(sel!.anchorBlock.text).toBe('hello world');
+        expect(sel!.anchor.block.text).toBe('hello world');
     });
 
     it('is a no-op-safe re-render when the tree is not yet mounted', () => {

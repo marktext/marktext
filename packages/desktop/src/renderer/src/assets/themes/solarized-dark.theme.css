@@ -141,8 +141,8 @@
   background: var(--editorBgColor);
 }
 
-.ag-front-menu .submenu,
-.ag-float-wrapper {
+.mu-front-menu,
+.mu-float-wrapper {
   box-shadow: 0 4px 8px 0 var(--floatShadow) !important;
 }
 
@@ -200,14 +200,15 @@
 :not(pre) > code[class*='language-'],
 pre:not(.CodeMirror-line),
 pre[class*='language-'],
-pre.ag-paragraph {
+pre.mu-code-block {
   background: var(--codeBlockBgColor) !important;
   border: none !important;
 }
-p:not(.ag-active)[data-role='hr']::before {
+.mu-thematic-break:not(.mu-active)::before {
   border-top: 2px dashed var(--editorColor10) !important;
   background: none !important;
 }
-figure.ag-active.ag-container-block > div.ag-container-preview {
+figure.mu-active.mu-math-block > div.mu-math-preview,
+figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
   box-shadow: 0 3px 8px 0 var(--floatShadow) !important;
 }

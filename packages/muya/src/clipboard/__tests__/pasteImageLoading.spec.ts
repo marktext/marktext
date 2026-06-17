@@ -48,7 +48,7 @@ function makeClipboard(options: Record<string, unknown>, anchorBlock: Content) {
         get: () => ({
             getSelection: () => ({
                 isSelectionInSameBlock: true,
-                anchorBlock,
+                anchor: { block: anchorBlock },
             }),
         }),
     });

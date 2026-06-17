@@ -1,6 +1,6 @@
 import type { Muya } from '../../../index';
-import type { ImageToken, LinkToken, Token } from '../../../inlineRenderer/types';
-import type { ICursor } from '../../../selection/types';
+import type { CodeEmojiMathToken, HTMLTagToken, ImageToken, LinkToken, ReferenceLinkToken, Token } from '../../../inlineRenderer/types';
+import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
     IBulletListState,
@@ -54,6 +54,79 @@ const BOTH_SIDES_FORMATS = [
     'inline_math',
 ];
 
+interface IEndFormatHit {
+    offset: number;
+}
+
+type TEndFormatHandler = (token: Token, offset: number) => Nullable<IEndFormatHit>;
+
+function endHitStrongLike(token: Token, offset: number): Nullable<IEndFormatHit> {
+    const { end } = token.range;
+    const { marker } = token as CodeEmojiMathToken;
+    if (marker && offset === end - marker.length)
+        return { offset: marker.length };
+
+    return null;
+}
+
+function endHitImageLink(token: Token, offset: number): Nullable<IEndFormatHit> {
+    const { end } = token.range;
+    const { backlash } = token as ImageToken;
+    const srcAndTitle = (token as ImageToken).srcAndTitle;
+    const hrefAndTitle = (token as LinkToken).hrefAndTitle;
+    const linkTitleLen = (srcAndTitle || hrefAndTitle).length;
+    const secondLashLen
+        = backlash && backlash.second ? backlash.second.length : 0;
+    if (offset === end - 3 - (linkTitleLen + secondLashLen))
+        return { offset: 2 };
+    if (offset === end - 1)
+        return { offset: 1 };
+
+    return null;
+}
+
+function endHitReference(token: Token, offset: number): Nullable<IEndFormatHit> {
+    const { end } = token.range;
+    const { backlash, isFullLink, label } = token as ReferenceLinkToken;
+    const labelLen = label ? label.length : 0;
+    const secondLashLen
+        = backlash && backlash.second ? backlash.second.length : 0;
+    if (isFullLink) {
+        if (offset === end - 3 - labelLen - secondLashLen)
+            return { offset: 2 };
+        if (offset === end - 1)
+            return { offset: 1 };
+        return null;
+    }
+    if (offset === end - 1)
+        return { offset: 1 };
+
+    return null;
+}
+
+function endHitHtmlTag(token: Token, offset: number): Nullable<IEndFormatHit> {
+    const { end } = token.range;
+    const { closeTag } = token as HTMLTagToken;
+    if (closeTag && offset === end - closeTag.length)
+        return { offset: closeTag.length };
+
+    return null;
+}
+
+const END_FORMAT_HANDLERS: Record<string, TEndFormatHandler> = {
+    strong: endHitStrongLike,
+    em: endHitStrongLike,
+    inline_code: endHitStrongLike,
+    emoji: endHitStrongLike,
+    del: endHitStrongLike,
+    inline_math: endHitStrongLike,
+    image: endHitImageLink,
+    link: endHitImageLink,
+    reference_image: endHitReference,
+    reference_link: endHitReference,
+    html_tag: endHitHtmlTag,
+};
+
 function parseTableHeader(text: string) {
     const rowHeader = [];
     const len = text.length;
@@ -100,7 +173,7 @@ class ParagraphContent extends Format {
         return this.parent;
     }
 
-    override update(cursor?: ICursor, highlights = []) {
+    override update(cursor?: IRenderCursor, highlights = []) {
         this.inlineRenderer.patch(this, cursor, highlights);
         const { label } = this.inlineRenderer.getLabelInfo(this);
 
@@ -716,7 +789,7 @@ class ParagraphContent extends Format {
         cursorBlock?.setCursor(start.offset, end.offset, true);
     }
 
-    override insertTab() {
+    protected override insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
         const tabCharacter = String.fromCharCode(160).repeat(tabSize);
@@ -743,7 +816,6 @@ class ParagraphContent extends Format {
         });
         let result = null;
 
-        // eslint-disable-next-line complexity
         const walkTokens = (ts: Token[]) => {
             for (const token of ts) {
                 const { type, range } = token;
@@ -754,102 +826,12 @@ class ParagraphContent extends Format {
                     && offset > start
                     && offset < end
                 ) {
-                    switch (type) {
-                        case 'strong': // fall through
+                    const handler = END_FORMAT_HANDLERS[type];
+                    const hit = handler ? handler(token, offset) : null;
+                    if (hit) {
+                        result = hit;
 
-                        case 'em': // fall through
-
-                        case 'inline_code': // fall through
-
-                        case 'emoji': // fall through
-
-                        case 'del': // fall through
-
-                        case 'inline_math': {
-                            const { marker } = token;
-                            if (marker && offset === end - marker.length) {
-                                result = {
-                                    offset: marker.length,
-                                };
-
-                                return;
-                            }
-
-                            break;
-                        }
-
-                        case 'image': // fall through
-
-                        case 'link': {
-                            const { backlash } = token;
-                            const srcAndTitle = (token as ImageToken).srcAndTitle;
-                            const hrefAndTitle = (token as LinkToken).hrefAndTitle;
-                            const linkTitleLen = (srcAndTitle || hrefAndTitle).length;
-                            const secondLashLen
-                                = backlash && backlash.second ? backlash.second.length : 0;
-                            if (offset === end - 3 - (linkTitleLen + secondLashLen)) {
-                                result = {
-                                    offset: 2,
-                                };
-
-                                return;
-                            }
-                            else if (offset === end - 1) {
-                                result = {
-                                    offset: 1,
-                                };
-
-                                return;
-                            }
-                            break;
-                        }
-
-                        case 'reference_image': // fall through
-
-                        case 'reference_link': {
-                            const { backlash, isFullLink, label } = token;
-                            const labelLen = label ? label.length : 0;
-                            const secondLashLen
-                                = backlash && backlash.second ? backlash.second.length : 0;
-                            if (isFullLink) {
-                                if (offset === end - 3 - labelLen - secondLashLen) {
-                                    result = {
-                                        offset: 2,
-                                    };
-
-                                    return;
-                                }
-                                else if (offset === end - 1) {
-                                    result = {
-                                        offset: 1,
-                                    };
-
-                                    return;
-                                }
-                            }
-                            else if (offset === end - 1) {
-                                result = {
-                                    offset: 1,
-                                };
-
-                                return;
-                            }
-                            break;
-                        }
-
-                        case 'html_tag': {
-                            const { closeTag } = token;
-                            if (closeTag && offset === end - closeTag.length) {
-                                result = {
-                                    offset: closeTag.length,
-                                };
-
-                                return;
-                            }
-                            break;
-                        }
-                        default:
-                            break;
+                        return;
                     }
                 }
 
@@ -877,10 +859,10 @@ class ParagraphContent extends Format {
         if (event.shiftKey) {
             const unindentType = this._getUnindentType();
 
-            if (unindentType == null)
-                return;
+            if (unindentType != null)
+                this._unindentListItem(unindentType);
 
-            this._unindentListItem(unindentType);
+            return;
         }
 
         // Handle `tab` to jump to the end of format when the cursor is at the end of format content.

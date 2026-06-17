@@ -1,10 +1,14 @@
-import { type BrowserWindow } from 'electron'
+import { type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 
 const MENU_ID_FORMAT_MAP: Readonly<Record<string, string>> = Object.freeze({
   strongMenuItem: 'strong',
   emphasisMenuItem: 'em',
+  underlineMenuItem: 'u',
+  superscriptMenuItem: 'sup',
+  subscriptMenuItem: 'sub',
+  highlightMenuItem: 'mark',
   inlineCodeMenuItem: 'inline_code',
   strikeMenuItem: 'del',
   hyperlinkMenuItem: 'link',
@@ -96,13 +100,10 @@ export const loadFormatCommands = (commandManager: CommandManager): void => {
  * @param applicationMenu The application menu instance.
  * @param formats A object map with selected formats.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateFormatMenu = (applicationMenu: any, formats: Record<string, boolean>): void => {
-  const formatMenuItem = applicationMenu.getMenuItemById('formatMenuItem')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formatMenuItem.submenu.items.forEach((item: any) => (item.checked = false))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  formatMenuItem.submenu.items.forEach((item: any) => {
+export const updateFormatMenu = (applicationMenu: Menu, formats: Record<string, boolean>): void => {
+  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
+  formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
+  formatMenuItem.submenu!.items.forEach((item: MenuItem) => {
     if (item.id && formats[MENU_ID_FORMAT_MAP[item.id]!]) {
       item.checked = true
     }

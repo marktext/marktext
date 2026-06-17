@@ -1,5 +1,5 @@
 export type { ILocale } from './i18n/types';
-export { de, en, es, fr, ja, ko, pt, zhCN, zhTW } from './locales';
+export { de, en, es, fr, ja, ko, pt, tr, zhCN, zhTW } from './locales';
 
 export { Muya } from './muya';
 export type { ITocItem } from './state/getTOC';

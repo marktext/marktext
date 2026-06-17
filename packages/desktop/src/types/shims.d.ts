@@ -22,7 +22,8 @@ declare module 'command-exists'
 declare module 'pako'
 declare module 'snabbdom-to-html'
 declare module 'prismjs/themes/*'
-declare module 'codemirror'
+// `codemirror` (the bare module) is typed by `@types/codemirror`; only the
+// submodules below ship no declarations and are shimmed as `any`.
 declare module 'codemirror/keymap/*'
 declare module 'codemirror/lib/*'
 declare module 'codemirror/mode/*'
@@ -55,7 +56,7 @@ declare namespace NodeJS {
   interface Global {
     __static: string
     MARKTEXT_DEBUG: boolean
-    MARKTEXT_DEBUG_VERBOSE: boolean
+    MARKTEXT_DEBUG_VERBOSE: number
     MARKTEXT_SAFE_MODE: boolean
   }
 }
@@ -67,6 +68,6 @@ declare var __static: string
 // eslint-disable-next-line no-var
 declare var MARKTEXT_DEBUG: boolean
 // eslint-disable-next-line no-var
-declare var MARKTEXT_DEBUG_VERBOSE: boolean
+declare var MARKTEXT_DEBUG_VERBOSE: number
 // eslint-disable-next-line no-var
 declare var MARKTEXT_SAFE_MODE: boolean

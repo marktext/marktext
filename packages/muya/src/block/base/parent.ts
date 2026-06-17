@@ -48,7 +48,7 @@ class Parent extends TreeNode {
         return this.children.tail;
     }
 
-    get isContainerBlock() {
+    protected get isContainerBlock() {
         // `task-list-item` is intentionally omitted: it shares the
         // `task-list` prefix and would be matched by the alternative above.
         return /block-quote|order-list|bullet-list|task-list|list-item/.test(
@@ -62,7 +62,7 @@ class Parent extends TreeNode {
         return [];
     }
 
-    getJsonPath() {
+    private _getJsonPath() {
         const { path } = this;
         if (this.isContainerBlock)
             path.pop();
@@ -122,7 +122,7 @@ class Parent extends TreeNode {
         // push operations
         if (source === 'user') {
             (args as Parent[]).forEach((node) => {
-                const path = node.getJsonPath();
+                const path = node._getJsonPath();
                 const state = node.getState();
                 this.jsonState.insertOperation(path, state);
             });
@@ -133,7 +133,7 @@ class Parent extends TreeNode {
      * This method will only be used when initialization.
      * @param  {...any} nodes attachment blocks
      */
-    appendAttachment(...nodes: Parent[]) {
+    protected appendAttachment(...nodes: Parent[]) {
         nodes.forEach((node) => {
             node.parent = this;
             const { domNode } = node;
@@ -198,7 +198,7 @@ class Parent extends TreeNode {
 
         if (source === 'user') {
             // dispatch json1 operation
-            const path = newNode.getJsonPath();
+            const path = newNode._getJsonPath();
             const state = newNode.getState();
             this.jsonState.insertOperation(path, state);
         }
@@ -215,7 +215,7 @@ class Parent extends TreeNode {
     override remove(source = 'user') {
         if (source === 'user') {
             // dispatch json1 operation
-            const path = this.getJsonPath();
+            const path = this._getJsonPath();
             this.jsonState.removeOperation(path);
         }
 
@@ -224,7 +224,7 @@ class Parent extends TreeNode {
         return this;
     }
 
-    empty() {
+    protected empty() {
         this.forEach((child) => {
             this.removeChild(child, 'api');
         });

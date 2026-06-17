@@ -214,7 +214,7 @@ describe('muya replaceContent — single undo boundary', () => {
 
         // @ts-expect-error — reach into the private stack for assertions.
         const storedSel = muya.editor.history._stack.undo[0].selection;
-        const pathLenBefore = storedSel?.anchorPath?.length ?? 0;
+        const pathLenBefore = storedSel?.anchor.path?.length ?? 0;
         expect(pathLenBefore).toBeGreaterThan(0);
 
         // Two full undo/redo cycles — each replay resolves the caret from paths.
@@ -237,7 +237,7 @@ describe('muya replaceContent — single undo boundary', () => {
         // @ts-expect-error — private stack read.
         const after = muya.editor.history._stack;
         const finalSel = after.redo[0]?.selection ?? after.undo[0]?.selection;
-        expect(finalSel?.anchorPath?.length ?? 0).toBeGreaterThan(0);
+        expect(finalSel?.anchor.path?.length ?? 0).toBeGreaterThan(0);
     });
 
     it('does not coalesce a later edit into the replacement boundary', async () => {
@@ -339,6 +339,41 @@ describe('muya replaceContent — single undo boundary', () => {
         await vi.waitFor(() => {
             expect(muya.getMarkdown()).toBe(targetMd);
         });
+    });
+
+    it('records an explicit recordSelection for the rebuild boundary', async () => {
+        // When the desktop shell hands a tab back from source-code mode, focus
+        // lives in CodeMirror, so the live DOM selection no longer points into
+        // the muya tree. The caller therefore passes the PRE-source-mode caret
+        // explicitly so the first undo after the handoff restores the caret to
+        // where it was when the user switched to source mode — not wherever the
+        // (stale/empty) live DOM selection happened to be.
+        const muya = bootMuya('first\n\nsecond\n');
+        await vi.waitFor(() => expect(muya.getMarkdown().trim()).toBe('first\n\nsecond'));
+
+        // Capture a selection pointing at the SECOND block — the pre-source caret.
+        const second = muya.editor.scrollPage!.lastContentInDescendant()!;
+        muya.editor.activeContentBlock = second;
+        second.setCursor(1, 1, true);
+        const recordSelection = muya.getSelection();
+        const recordPath = recordSelection?.anchor.path;
+        expect(recordPath?.length ?? 0).toBeGreaterThan(0);
+
+        // Move the LIVE caret to the FIRST block — this is what an unguarded
+        // getSelection() would record at replaceContent time.
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        muya.editor.activeContentBlock = first;
+        first.setCursor(0, 0, true);
+        const livePath = muya.getSelection()?.anchor.path;
+        expect(livePath).not.toEqual(recordPath);
+
+        muya.replaceContent('first\n\nsecond\n\nthird\n', recordSelection);
+
+        // The boundary recorded the EXPLICIT pre-source selection (second block),
+        // not the live DOM caret (first block).
+        // @ts-expect-error — reach into the private stack for assertions.
+        const storedSel = muya.editor.history._stack.undo[0].selection;
+        expect(storedSel?.anchor.path).toEqual(recordPath);
     });
 
     it('accepts a state array as well as markdown', async () => {

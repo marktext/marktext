@@ -6,10 +6,14 @@ import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
-import { updateSelectionMenus } from '../menu/actions/paragraph'
+import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
+import { onInternalChannel } from '../utils/internalIpc'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
+import type Preference from '../preferences'
+import type Keybindings from '../keyboard/shortcutHandler'
+import type { IUserPreferences } from '@shared/types/preferences'
 
 const RECENTLY_USED_DOCUMENTS_FILE_NAME = 'recently-used-documents.json'
 const MAX_RECENTLY_USED_DOCUMENTS = 12
@@ -37,13 +41,8 @@ interface ThemeMenuChange {
 }
 
 class AppMenu {
-  // Cross-batch class instances are typed as `any` for now (preferences,
-  // keybindings) — they refer to other main-process modules that are still
-  // partially typed.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly _preferences: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private readonly _keybindings: any
+  private readonly _preferences: Preference
+  private readonly _keybindings: Keybindings
   private readonly _userDataPath: string
   public readonly RECENTS_PATH: string
   public readonly isOsxOrWindows: boolean
@@ -56,10 +55,8 @@ class AppMenu {
    * @param userDataPath The user data path.
    */
   constructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    preferences: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    keybindings: any,
+    preferences: Preference,
+    keybindings: Keybindings,
     userDataPath: string
   ) {
     this._preferences = preferences
@@ -426,7 +423,7 @@ class AppMenu {
    */
   async _initializeLanguage(): Promise<void> {
     try {
-      const currentLanguage = this._preferences.getItem('language')
+      const currentLanguage = this._preferences.getItem<string>('language')
       if (currentLanguage) {
         setLanguage(currentLanguage)
         log.info(`Main process language initialized to: ${currentLanguage}`)
@@ -470,8 +467,7 @@ class AppMenu {
         viewLayoutChanged(this.getWindowMenuById(windowId), viewSettings)
       }
     )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('mt::editor-selection-changed', (_e, windowId: number, changes: any) => {
+    ipcMain.on('mt::editor-selection-changed', (_e, windowId: number, changes: SelectionState) => {
       if (!this.has(windowId)) {
         log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
         return
@@ -479,18 +475,14 @@ class AppMenu {
       updateSelectionMenus(this.getWindowMenuById(windowId), changes)
     })
 
-    // Note: these channels are dispatched via `ipcMain.emit(...)` from other modules
-    // (see actions/file.ts), so payload is a single positional argument.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('menu-add-recently-used', (pathname: any) => {
-      this.addRecentlyUsedDocument(pathname as string)
+    onInternalChannel('menu-add-recently-used', (pathname: string) => {
+      this.addRecentlyUsedDocument(pathname)
     })
     ipcMain.on('menu-clear-recently-used', () => {
       this.clearRecentlyUsedDocuments()
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('broadcast-preferences-changed', async(prefs: any) => {
+    onInternalChannel('broadcast-preferences-changed', async(prefs: Partial<IUserPreferences>) => {
       if (prefs.theme !== undefined || prefs.followSystemTheme !== undefined) {
         this.updateAppMenu()
       }

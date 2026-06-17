@@ -4,6 +4,7 @@ import type { ISelection } from '../selection/types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../muya';
 import { injectStateSentinels, locateSentinelOffsets } from '../selection/offsetCursor';
+import { SelectionCaretType, SelectionDirection } from '../selection/types';
 
 // PARITY (gap PG2 / Phase G — G7): `getCursorOffset` is the READ inverse of
 // `setCursorByOffset`. It maps the live WYSIWYG block-key caret back to a
@@ -87,16 +88,12 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
         const selection: ISelection = {
-            anchor: { offset: 0 },
-            focus: { offset: 5 },
-            anchorBlock: block,
-            anchorPath: [0, 'text'],
-            focusBlock: block,
-            focusPath: [0, 'text'],
+            anchor: { offset: 0, block, path: [0, 'text'] },
+            focus: { offset: 5, block, path: [0, 'text'] },
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: 'forward',
-            type: 'Range',
+            direction: SelectionDirection.FORWARD,
+            type: SelectionCaretType.RANGE,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();
@@ -111,16 +108,12 @@ describe('muya.getCursorOffset() (Phase G — G7)', () => {
         const muya = bootMuya('hello world\n');
         const block = muya.editor.scrollPage!.firstContentInDescendant()!;
         const selection: ISelection = {
-            anchor: { offset: 9 }, // after "hello wor"
-            focus: { offset: 2 }, //  after "he"
-            anchorBlock: block,
-            anchorPath: [0, 'text'],
-            focusBlock: block,
-            focusPath: [0, 'text'],
+            anchor: { offset: 9, block, path: [0, 'text'] }, // after "hello wor"
+            focus: { offset: 2, block, path: [0, 'text'] }, //  after "he"
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: 'backward',
-            type: 'Range',
+            direction: SelectionDirection.BACKWARD,
+            type: SelectionCaretType.RANGE,
         };
         const sentinelState = injectStateSentinels(muya.getState(), selection);
         expect(sentinelState).not.toBeNull();

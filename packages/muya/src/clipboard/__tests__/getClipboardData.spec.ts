@@ -36,10 +36,8 @@ function selectionOver(
     const block = { text, blockName } as unknown as Content;
     return {
         isSelectionInSameBlock: true,
-        anchor: { offset: begin },
-        focus: { offset: end },
-        anchorBlock: block,
-        focusBlock: block,
+        anchor: { offset: begin, block, path: [] },
+        focus: { offset: end, block, path: [] },
     };
 }
 
@@ -53,6 +51,7 @@ function makeClipboard(
     Object.defineProperty(clipboard, 'selection', {
         get: () => ({
             getSelection: () => selectionOver(text, begin, end, blockName),
+            table: { hasSelection: false, getStateForCopy: () => null, clear: vi.fn() },
         }),
     });
     Object.defineProperty(clipboard, 'scrollPage', { get: () => null });

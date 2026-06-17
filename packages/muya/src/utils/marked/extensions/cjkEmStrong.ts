@@ -1,7 +1,6 @@
 import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 
-// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark, ported
-// from the legacy muyajs tokenizer (packages/muyajs/lib/parser/utils.js).
+// NON-STANDARD EXTENSION — a deliberate divergence from CommonMark.
 //
 // CommonMark §6.2 only counts Unicode whitespace and Unicode punctuation as
 // emphasis flanking boundaries. CJK ideographs / Hangul / Kana are Lo
@@ -12,8 +11,8 @@ import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 // But CJK scripts do not use spaces between words, so that rule denies
 // emphasis to virtually any CJK paragraph that wraps the `**` run with
 // punctuation (quotes, parentheses, brackets, …). Typora, VSCode
-// markdownlint, Joplin and most CJK-oriented Markdown tools — and the legacy
-// muyajs engine MarkText shipped — widen the flanking check so CJK counts as
+// markdownlint, Joplin and most CJK-oriented Markdown tools widen the flanking
+// check so CJK counts as
 // a boundary. This extension restores that behavior for the marked-based
 // static / export render path.
 //
@@ -23,7 +22,7 @@ import type { MarkedExtension, TokenizerObject, Tokens } from 'marked';
 //
 // Tracking: marktext/marktext#4307.
 
-// CJK ranges treated as punctuation for flanking (matches legacy CJK_REG):
+// CJK ranges treated as punctuation for flanking:
 //   U+3040–U+30FF  Hiragana + Katakana
 //   U+3400–U+4DBF  CJK Unified Ideographs Extension A
 //   U+4E00–U+9FFF  CJK Unified Ideographs
@@ -105,13 +104,102 @@ interface ITokenizerThis {
     lexer: { inlineTokens: (src: string) => Tokens.Generic[] };
 }
 
+// The right-delimiter scan + CommonMark "rule of 3" balancing, lifted out of
+// `cjkAwareEmStrong` so each carries its own complexity budget. `opener` is the
+// already-matched left-delimiter run; the loop walks the masked source for the
+// matching closer and returns the em/strong token (or undefined when none
+// balances). Logic mirrors marked@16's emStrong scan exactly.
+function scanEmphasisRun(
+    src: string,
+    maskedSrc: string,
+    opener: RegExpExecArray,
+    inline: IEmStrongRules,
+    lexer: ITokenizerThis['lexer'],
+): Tokens.Em | Tokens.Strong | undefined {
+    // Unicode codepoints can be 1 or 2 chars wide.
+    const lLength = [...opener[0]].length - 1;
+    let rDelim;
+    let rLength;
+    let delimTotal = lLength;
+    let midDelimTotal = 0;
+
+    const endReg
+        = opener[0][0] === '*'
+            ? inline.emStrongRDelimAst
+            : inline.emStrongRDelimUnd;
+    endReg.lastIndex = 0;
+
+    // Clip maskedSrc to the opener so the right-delimiter scan starts
+    // immediately after the opening run (marked passes the masked,
+    // already-skipped variant of `src`).
+    maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
+
+    let match: RegExpExecArray | null;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = endReg.exec(maskedSrc)) != null) {
+        rDelim
+            = match[1]
+                || match[2]
+                || match[3]
+                || match[4]
+                || match[5]
+                || match[6];
+
+        if (!rDelim)
+            continue;
+
+        rLength = [...rDelim].length;
+
+        if (match[3] || match[4]) {
+            // Found another opener — push the requirement deeper.
+            delimTotal += rLength;
+            continue;
+        }
+        else if ((match[5] || match[6]) && lLength % 3 && !((lLength + rLength) % 3)) {
+            // Rule of 3 — a delimiter run usable as both opener and
+            // closer can't close here.
+            midDelimTotal += rLength;
+            continue;
+        }
+
+        delimTotal -= rLength;
+        if (delimTotal > 0)
+            continue;
+
+        rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
+
+        const lastCharLength = [...match[0]][0].length;
+        const raw = src.slice(0, lLength + match.index + lastCharLength + rLength);
+
+        if (Math.min(lLength, rLength) % 2) {
+            const text = raw.slice(1, -1);
+            return {
+                type: 'em',
+                raw,
+                text,
+                tokens: lexer.inlineTokens(text),
+            } as Tokens.Em;
+        }
+
+        const text = raw.slice(2, -2);
+        return {
+            type: 'strong',
+            raw,
+            text,
+            tokens: lexer.inlineTokens(text),
+        } as Tokens.Strong;
+    }
+
+    return undefined;
+}
+
 /**
- * A faithful re-implementation of marked@16's `Tokenizer.emStrong`, identical
- * to the upstream body apart from swapping in the CJK-widened flanking rules
- * for the duration of the call. The rules are restored in a `finally` so the
- * shared `_Tokenizer.rules` object is never left mutated for other tokenizers.
+ * A faithful re-implementation of marked@16's `Tokenizer.emStrong`, swapping in
+ * the CJK-widened flanking rules for the duration of the call. The rules are
+ * restored in a `finally` so the shared `_Tokenizer.rules` object is never left
+ * mutated for other tokenizers. The right-delimiter scan lives in
+ * `scanEmphasisRun`; the behavior is unchanged from upstream marked.
  */
-// eslint-disable-next-line complexity -- verbatim copy of marked's emStrong body
 function cjkAwareEmStrong(
     this: ITokenizerThis,
     src: string,
@@ -135,7 +223,7 @@ function cjkAwareEmStrong(
     other.unicodeAlphaNumeric = unicodeAlphaNumeric;
 
     try {
-        let match = inline.emStrongLDelim.exec(src);
+        const match = inline.emStrongLDelim.exec(src);
         if (!match)
             return undefined;
 
@@ -148,80 +236,8 @@ function cjkAwareEmStrong(
 
         const nextChar = match[1] || match[2] || '';
 
-        if (!nextChar || !prevChar || inline.punctuation.exec(prevChar)) {
-            // Unicode codepoints can be 1 or 2 chars wide.
-            const lLength = [...match[0]].length - 1;
-            let rDelim;
-            let rLength;
-            let delimTotal = lLength;
-            let midDelimTotal = 0;
-
-            const endReg
-                = match[0][0] === '*'
-                    ? inline.emStrongRDelimAst
-                    : inline.emStrongRDelimUnd;
-            endReg.lastIndex = 0;
-
-            // Clip maskedSrc to the opener so the right-delimiter scan starts
-            // immediately after the opening run (marked passes the masked,
-            // already-skipped variant of `src`).
-            maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
-
-            // eslint-disable-next-line no-cond-assign
-            while ((match = endReg.exec(maskedSrc)) != null) {
-                rDelim
-                    = match[1]
-                        || match[2]
-                        || match[3]
-                        || match[4]
-                        || match[5]
-                        || match[6];
-
-                if (!rDelim)
-                    continue;
-
-                rLength = [...rDelim].length;
-
-                if (match[3] || match[4]) {
-                    // Found another opener — push the requirement deeper.
-                    delimTotal += rLength;
-                    continue;
-                }
-                else if ((match[5] || match[6]) && lLength % 3 && !((lLength + rLength) % 3)) {
-                    // Rule of 3 — a delimiter run usable as both opener and
-                    // closer can't close here.
-                    midDelimTotal += rLength;
-                    continue;
-                }
-
-                delimTotal -= rLength;
-                if (delimTotal > 0)
-                    continue;
-
-                rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
-
-                const lastCharLength = [...match[0]][0].length;
-                const raw = src.slice(0, lLength + match.index + lastCharLength + rLength);
-
-                if (Math.min(lLength, rLength) % 2) {
-                    const text = raw.slice(1, -1);
-                    return {
-                        type: 'em',
-                        raw,
-                        text,
-                        tokens: this.lexer.inlineTokens(text),
-                    } as Tokens.Em;
-                }
-
-                const text = raw.slice(2, -2);
-                return {
-                    type: 'strong',
-                    raw,
-                    text,
-                    tokens: this.lexer.inlineTokens(text),
-                } as Tokens.Strong;
-            }
-        }
+        if (!nextChar || !prevChar || inline.punctuation.exec(prevChar))
+            return scanEmphasisRun(src, maskedSrc, match, inline, this.lexer);
 
         return undefined;
     }

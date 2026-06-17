@@ -28,6 +28,14 @@ class CodeBlock extends Parent {
         codeBlock.append(langInput);
         codeBlock.append(code);
 
+        // Move the line-numbers gutter from .mu-code into the pre so that
+        // .mu-code's overflow (hidden/auto) does not clip the left-side gutter.
+        // The pre already has position:relative and padding-left:2.5em for this.
+        const lnWrapper = (code as { lineNumbersWrapper?: HTMLElement | null }).lineNumbersWrapper;
+        if (lnWrapper) {
+            codeBlock.domNode!.appendChild(lnWrapper);
+        }
+
         if (lang) {
             requestAnimationFrame(() => {
                 codeBlock.lang = lang;

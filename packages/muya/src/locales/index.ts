@@ -5,5 +5,6 @@ export { fr } from './fr';
 export { ja } from './ja';
 export { ko } from './ko';
 export { pt } from './pt';
+export { tr } from './tr';
 export { zhCN } from './zh-CN';
 export { zhTW } from './zh-TW';

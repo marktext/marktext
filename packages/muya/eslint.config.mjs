@@ -3,6 +3,8 @@ import antfu from '@antfu/eslint-config';
 import parser from '@typescript-eslint/parser';
 
 function typescriptPreset() {
+    const memberSelectors = ['classProperty', 'classMethod', 'parameterProperty', 'classicAccessor', 'autoAccessor'];
+
     return {
         files: ['**/*.ts', '**/*.tsx'],
         rules: {
@@ -27,7 +29,7 @@ function typescriptPreset() {
                 },
             ],
             'ts/naming-convention': [
-                'warn',
+                'error',
                 // Interfaces' names should start with a capital 'I'.
                 {
                     selector: 'interface',
@@ -37,9 +39,16 @@ function typescriptPreset() {
                         match: true,
                     },
                 },
-                // Private fields of a class should start with an underscore '_'.
+                // `_` <=> private: this block forbids a leading `_` on every member;
+                // the private block below (more specific, so it wins regardless of
+                // order) requires it. `format: null` checks only the underscore.
                 {
-                    selector: ['classMethod', 'classProperty'],
+                    selector: memberSelectors,
+                    format: null,
+                    leadingUnderscore: 'forbid',
+                },
+                {
+                    selector: memberSelectors,
                     modifiers: ['private'],
                     format: ['camelCase'],
                     leadingUnderscore: 'require',

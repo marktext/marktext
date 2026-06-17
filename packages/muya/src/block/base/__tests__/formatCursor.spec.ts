@@ -1,21 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import Format from '../format';
 
-// Regression for marktext UX commit `f3b53427` (kickoff PR-10b): after
-// applying an inline format like **bold**, the caret should jump past the
-// closing marker so the next keystroke continues *after* the bold rather
-// than ending up between the markers (which feels broken — typing extends
-// the bold instead of returning to body text).
-//
 // `Format.prototype._addFormat` is the small text-rewriter that:
 //   1. Wraps `text[start..end]` with the format's opening + closing
 //      markers.
 //   2. Adjusts `start.offset` / `end.offset` so the public `format()` call
 //      can `setCursor(start, end, true)` afterwards.
 //
-// Before this fix, step 2 only shifted both offsets by the opening
-// marker's length, leaving the caret BETWEEN the markers. The new
-// behavior collapses both offsets PAST the closing marker.
+// Two distinct cursor states drive two distinct outcomes:
+//   - Non-empty selection: the originally-selected text must STAY selected
+//     after wrapping (matching legacy muyajs and every standard editor —
+//     select a word, bold it, the word is still highlighted). Both offsets
+//     shift by the OPENING marker length so the range lands on the original
+//     text now sitting inside the markers. (PR-10b's f3b53427 had collapsed
+//     this selection to a caret past the closing marker — a regression.)
+//   - Collapsed selection (toggle-then-type): the caret stays BETWEEN the
+//     markers so the next keystroke is captured INSIDE the format.
 //
 // `_addFormat` only reads/writes `this.text`, so a structurally-typed
 // fake `this` is enough — no Muya bootstrap needed.
@@ -27,7 +27,7 @@ interface IOffset {
 // `_addFormat` is declared private on Format, so accessing it via the
 // prototype requires bypassing visibility — this structural type captures
 // the signature the helper here actually invokes.
-interface FormatProtoAddFormat {
+interface IFormatProtoAddFormat {
     _addFormat: (
         this: { text: string },
         type: string,
@@ -39,86 +39,86 @@ function applyAddFormat(text: string, start: number, end: number, type: string) 
     const fakeThis = { text } as { text: string };
     const startOffset: IOffset = { offset: start };
     const endOffset: IOffset = { offset: end };
-    (Format.prototype as unknown as FormatProtoAddFormat)._addFormat.call(fakeThis, type, {
+    (Format.prototype as unknown as IFormatProtoAddFormat)._addFormat.call(fakeThis, type, {
         start: startOffset,
         end: endOffset,
     });
     return { text: fakeThis.text, start: startOffset.offset, end: endOffset.offset };
 }
 
-describe('format._addFormat caret-after-format placement (marktext f3b53427 UX)', () => {
-    describe('paired markdown markers — caret collapses past the closing marker', () => {
-        it('strong (`**`): "abc" -> "**abc**" with caret at end (offset 7)', () => {
+describe('format._addFormat caret/selection placement after wrapping', () => {
+    describe('paired markdown markers — selection stays on the wrapped text', () => {
+        it('strong (`**`): "abc" -> "**abc**" with "abc" still selected (2..5)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'strong');
             expect(text).toBe('**abc**');
-            expect(start).toBe(7);
-            expect(end).toBe(7);
+            expect(start).toBe(2);
+            expect(end).toBe(5);
         });
 
-        it('em (`*`): "abc" -> "*abc*" with caret at end (offset 5)', () => {
+        it('em (`*`): "abc" -> "*abc*" with "abc" still selected (1..4)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'em');
             expect(text).toBe('*abc*');
-            expect(start).toBe(5);
-            expect(end).toBe(5);
+            expect(start).toBe(1);
+            expect(end).toBe(4);
         });
 
-        it('inline_code (`` ` ``): "abc" -> "`abc`" with caret at end (offset 5)', () => {
+        it('inline_code (`` ` ``): "abc" -> "`abc`" with "abc" still selected (1..4)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'inline_code');
             expect(text).toBe('`abc`');
-            expect(start).toBe(5);
-            expect(end).toBe(5);
+            expect(start).toBe(1);
+            expect(end).toBe(4);
         });
 
-        it('del (`~~`): "abc" -> "~~abc~~" with caret at end (offset 7)', () => {
+        it('del (`~~`): "abc" -> "~~abc~~" with "abc" still selected (2..5)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'del');
             expect(text).toBe('~~abc~~');
-            expect(start).toBe(7);
-            expect(end).toBe(7);
-        });
-
-        it('inline_math (`$`): "abc" -> "$abc$" with caret at end (offset 5)', () => {
-            const { text, start, end } = applyAddFormat('abc', 0, 3, 'inline_math');
-            expect(text).toBe('$abc$');
-            expect(start).toBe(5);
+            expect(start).toBe(2);
             expect(end).toBe(5);
         });
 
-        it('mid-text selection: "hello world" select "world" -> caret lands past closing `**`', () => {
+        it('inline_math (`$`): "abc" -> "$abc$" with "abc" still selected (1..4)', () => {
+            const { text, start, end } = applyAddFormat('abc', 0, 3, 'inline_math');
+            expect(text).toBe('$abc$');
+            expect(start).toBe(1);
+            expect(end).toBe(4);
+        });
+
+        it('mid-text selection: "hello world" select "world" -> "world" still selected', () => {
             const { text, start, end } = applyAddFormat('hello world', 6, 11, 'strong');
             expect(text).toBe('hello **world**');
-            // 'hello ' (6) + '**world**' (9) = 15
-            expect(start).toBe(15);
-            expect(end).toBe(15);
+            // 'hello ' (6) + '**' (2) = 8 .. 8 + 'world' (5) = 13
+            expect(start).toBe(8);
+            expect(end).toBe(13);
         });
     });
 
-    describe('html-tag markers — caret collapses past the closing tag', () => {
-        it('u (`<u>...</u>`): "abc" -> "<u>abc</u>" with caret at end (offset 10)', () => {
+    describe('html-tag markers — selection stays on the wrapped text', () => {
+        it('u (`<u>...</u>`): "abc" -> "<u>abc</u>" with "abc" still selected (3..6)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'u');
             expect(text).toBe('<u>abc</u>');
-            expect(start).toBe(10);
-            expect(end).toBe(10);
+            expect(start).toBe(3);
+            expect(end).toBe(6);
         });
 
-        it('sub: "abc" -> "<sub>abc</sub>" with caret at end (offset 14)', () => {
+        it('sub: "abc" -> "<sub>abc</sub>" with "abc" still selected (5..8)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'sub');
             expect(text).toBe('<sub>abc</sub>');
-            expect(start).toBe(14);
-            expect(end).toBe(14);
+            expect(start).toBe(5);
+            expect(end).toBe(8);
         });
 
-        it('sup: "abc" -> "<sup>abc</sup>" with caret at end (offset 14)', () => {
+        it('sup: "abc" -> "<sup>abc</sup>" with "abc" still selected (5..8)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'sup');
             expect(text).toBe('<sup>abc</sup>');
-            expect(start).toBe(14);
-            expect(end).toBe(14);
+            expect(start).toBe(5);
+            expect(end).toBe(8);
         });
 
-        it('mark: "abc" -> "<mark>abc</mark>" with caret at end (offset 16)', () => {
+        it('mark: "abc" -> "<mark>abc</mark>" with "abc" still selected (6..9)', () => {
             const { text, start, end } = applyAddFormat('abc', 0, 3, 'mark');
             expect(text).toBe('<mark>abc</mark>');
-            expect(start).toBe(16);
-            expect(end).toBe(16);
+            expect(start).toBe(6);
+            expect(end).toBe(9);
         });
     });
 

@@ -100,3 +100,98 @@ describe('muya runtime options', () => {
         expect(muya.getMarkdown()).toBe(before);
     });
 });
+
+// Render-affecting options: the inline renderer (`InlineRenderer.tokenizer`)
+// reads `muya.options` live on every render pass, so superSubScript governs
+// whether `^x^` / `~x~` are tokenized into <sup>/<sub> or left as literal
+// text. The serialized markdown is identical either way (the markers stay in
+// the source); the option only changes the rendered DOM, so these are asserted
+// against the rendered tree, not getMarkdown().
+describe('muya render-affecting options', () => {
+    function bootMuyaWith(markdown: string, options: Record<string, unknown>): Muya {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        const muya = new Muya(host, { markdown, ...options } as ConstructorParameters<typeof Muya>[1]);
+        muya.init();
+        bootedHosts.push(muya.domNode);
+        return muya;
+    }
+
+    it('superSubScript:false renders literal ^sup^ (no <sup> element)', async () => {
+        const muya = bootMuyaWith('^sup^\n', { superSubScript: false });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+        expect(muya.domNode.querySelectorAll('sup').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('^sup^');
+        // The source markdown is unchanged — the option only governs rendering.
+        expect(muya.getMarkdown()).toBe('^sup^\n');
+    });
+
+    it('superSubScript:true renders a <sup> element for ^sup^', async () => {
+        const muya = bootMuyaWith('^sup^\n', { superSubScript: true });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+        expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
+        // The marker is preserved in the serialized markdown regardless.
+        expect(muya.getMarkdown()).toBe('^sup^\n');
+    });
+
+    it('setOptions superSubScript with forceRender toggles the <sup> live', async () => {
+        const muya = bootMuyaWith('^sup^\n', { superSubScript: true });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
+
+        muya.setOptions({ superSubScript: false }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('sup').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('^sup^');
+
+        muya.setOptions({ superSubScript: true }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
+    });
+
+    it('frontmatterType:false drives the option onto muya.options', () => {
+        const muya = bootMuyaWith('body\n', {});
+        muya.setOptions({ frontmatterType: '+' });
+        expect(muya.options.frontmatterType).toBe('+');
+    });
+
+    // CHARACTERIZATION: setOptions({ frontmatterType }, forceRender) does NOT
+    // retroactively rewrite an existing frontmatter block's fences. The
+    // serializer (`serializeFrontMatter`) keys off the BLOCK's own
+    // `meta.lang`/`meta.style` (baked in at parse time), and `_forceRender`
+    // rebuilds the tree from the unchanged state, so a YAML (`---`) block stays
+    // YAML even after switching the option to TOML (`+`). The option only
+    // affects NEWLY inserted frontmatter (`insertFrontMatterAtStart`).
+    it('setOptions({frontmatterType}, true) does NOT rewrite existing frontmatter fences', async () => {
+        const muya = bootMuyaWith('---\ntitle: hi\n---\n\nbody\n', {});
+        const before = muya.getMarkdown();
+        expect((muya.getState()[0] as { meta: { lang: string } }).meta.lang).toBe('yaml');
+
+        muya.setOptions({ frontmatterType: '+' }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+        // The fences are still `---` (yaml), NOT `+++` (toml) — the existing
+        // block's meta is unchanged by the option switch.
+        expect(muya.getMarkdown()).toBe(before);
+        expect(muya.getMarkdown().startsWith('---\n')).toBe(true);
+        expect((muya.getState()[0] as { meta: { lang: string } }).meta.lang).toBe('yaml');
+    });
+
+    it('frontmatterType set via setOptions applies to NEWLY inserted frontmatter', async () => {
+        const muya = bootMuyaWith('body\n', {});
+        muya.setOptions({ frontmatterType: '+' });
+        // Place the cursor so updateParagraph has a target block.
+        muya.editor.activeContentBlock = muya.editor.scrollPage!.firstContentInDescendant()!;
+        muya.updateParagraph('front-matter');
+
+        await vi.waitFor(() => {
+            expect(muya.getState()[0].name).toBe('frontmatter');
+        });
+
+        // The freshly inserted block follows the updated option: TOML `+++`.
+        expect((muya.getState()[0] as { meta: { lang: string } }).meta.lang).toBe('toml');
+        expect(muya.getMarkdown().startsWith('+++\n')).toBe(true);
+    });
+});

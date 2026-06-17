@@ -10,10 +10,8 @@
     },
     "file": {
       "file": "Arquivo",
-      "new": "Novo",
       "newTab": "Nova Aba",
       "newWindow": "Nova Janela",
-      "open": "Abrir",
       "openFile": "Abrir Arquivo...",
       "openFolder": "Abrir Pasta...",
       "openRecent": "Abrir Recente",
@@ -28,9 +26,6 @@
       "exportPdf": "Exportar como PDF",
       "import": "Importar",
       "print": "Imprimir",
-      "recent": "Arquivos Recentes",
-      "close": "Fechar",
-      "closeAll": "Fechar Todos",
       "closeTab": "Fechar Aba",
       "closeWindow": "Fechar Janela",
       "quit": "Sair",
@@ -73,26 +68,19 @@
       "demoteHeading": "Rebaixar Cabeçalho",
       "table": "Tabela",
       "codeFences": "Blocos de Código",
-      "codeBlock": "Bloco de Código",
       "quoteBlock": "Bloco de Citação",
       "mathBlock": "Bloco Matemático",
       "htmlBlock": "Bloco HTML",
-      "quote": "Citação",
       "orderedList": "Lista Ordenada",
       "bulletList": "Lista com Marcadores",
-      "unorderedList": "Lista Não Ordenada",
       "taskList": "Lista de Tarefas",
       "looseListItem": "Item de Lista Solta",
-      "paragraphItem": "Item de Parágrafo",
       "horizontalRule": "Linha Horizontal",
       "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Janela",
-      "window": "Janela",
       "minimize": "Minimizar",
-      "close": "Fechar",
-      "zoom": "Zoom",
       "zoomIn": "Aumentar Zoom",
       "zoomOut": "Diminuir Zoom",
       "fullScreen": "Tela Cheia",
@@ -109,20 +97,16 @@
       "followUs": "Siga-nos",
       "support": "Apoiar MarkText",
       "license": "Licença",
-      "checkForUpdates": "Verificar Atualizações",
-      "aboutMarkText": "Sobre MarkText",
       "about": "Sobre",
       "checkUpdates": "Verificar Atualizações"
     },
     "marktext": {
       "title": "MarkText",
-      "marktext": "MarkText",
       "about": "Sobre MarkText",
       "checkUpdates": "Verificar Atualizações...",
       "preferences": "Preferências",
       "services": "Serviços",
       "hide": "Ocultar MarkText",
-      "hideMarkText": "Ocultar MarkText",
       "hideOthers": "Ocultar Outros",
       "showAll": "Mostrar Todos",
       "quit": "Sair do MarkText"
@@ -132,14 +116,9 @@
       "toggleSidebar": "Alternar Barra Lateral",
       "toggleTabbar": "Alternar Barra de Abas",
       "commandPalette": "Paleta de Comandos",
-      "sourceCode": "Modo Código Fonte",
       "sourceCodeMode": "Modo Código Fonte",
-      "typewriter": "Modo Máquina de Escrever",
       "typewriterMode": "Modo Máquina de Escrever",
-      "focus": "Modo Foco",
       "focusMode": "Modo Foco",
-      "showTabBar": "Mostrar Barra de Abas",
-      "toc": "Índice",
       "toggleTableOfContents": "Alternar Índice",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
@@ -151,35 +130,18 @@
       "italic": "Itálico",
       "underline": "Sublinhado",
       "strikethrough": "Riscado",
-      "code": "Código Inline",
-      "codeBlock": "Bloco de Código",
-      "quote": "Citação",
-      "unorderedList": "Lista Não Ordenada",
-      "orderedList": "Lista Ordenada",
-      "taskList": "Lista de Tarefas",
-      "table": "Tabela",
-      "link": "Link",
       "image": "Imagem",
-      "heading1": "Cabeçalho 1",
-      "heading2": "Cabeçalho 2",
-      "heading3": "Cabeçalho 3",
-      "heading4": "Cabeçalho 4",
-      "heading5": "Cabeçalho 5",
-      "heading6": "Cabeçalho 6",
       "superscript": "Sobrescrito",
       "subscript": "Subscrito",
       "highlight": "Destacar",
       "inlineCode": "Código Inline",
       "inlineMath": "Matemática Inline",
       "hyperlink": "Hiperlink",
-      "clearFormatting": "Limpar Formatação",
       "clearFormat": "Limpar Formatação"
     },
     "theme": {
       "theme": "&Tema",
-      "light": "Claro",
       "dark": "Escuro",
-      "auto": "Automático",
       "followThemDisabled": "Seleção de tema desativada ao seguir o tema do sistema",
       "lightThemes": "— Temas Claros —",
       "darkThemes": "— Temas Escuros —",
@@ -261,7 +223,6 @@
     "replaceSingle": "Substituir Um",
     "invalidRegex": "Expressão regular inválida \"{pattern}\"",
     "regexMatchEmpty": "Expressão regular corresponde à string vazia \"{pattern}\"",
-    "searchResultCount": "Resultados da pesquisa",
     "searchResultInfo": "{matchCount} correspondências em {fileCount} arquivos",
     "searchLimited": "Pesquisa limitada aos primeiros {count} resultados"
   },
@@ -379,13 +340,6 @@
       }
     }
   },
-  "table": {
-    "resizeTable": "Redimensionar Tabela",
-    "alignLeft": "Alinhar à Esquerda",
-    "alignCenter": "Alinhar ao Centro",
-    "alignRight": "Alinhar à Direita",
-    "deleteTable": "Excluir Tabela"
-  },
   "recent": {
     "noTabsOpen": "Você não tem abas abertas.",
     "newFile": "Novo Arquivo"
@@ -398,7 +352,6 @@
     "title": "Preferências",
     "search": {
       "placeholder": "Pesquisar preferências...",
-      "optionalValues": "valores opcionais",
       "categories": {
         "general": "Geral",
         "editor": "Editor",
@@ -414,7 +367,7 @@
       "items": {
         "autoSave": "Salvar automaticamente o conteúdo sendo editado",
         "autoSaveDelay": "O tempo em ms após uma mudança que o arquivo é salvo",
-        "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha para LF e opcionalmente novas linhas finais ao abrir",
+        "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha ao abrir arquivos. Quando desativado, os arquivos são abertos como estão.",
         "titleBarStyle": "O estilo da barra de título (apenas sistemas Windows e Linux)",
         "openFilesInNewWindow": "Abrir arquivos em uma nova janela",
         "openFolderInNewWindow": "Abrir pasta via menu em uma nova janela",
@@ -458,11 +411,11 @@
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
         "sequenceTheme": "Tema do diagrama de sequência",
+        "plantumlServer": "URL do servidor PlantUML",
         "theme": "Selecionar o tema usado no MarkText",
         "followSystemTheme": "Seguir tema do sistema",
         "lightModeTheme": "Tema a ser usado quando o sistema está no modo claro",
         "darkModeTheme": "Tema a ser usado quando o sistema está no modo escuro",
-        "customCss": "CSS personalizado para aplicar ao tema atual",
         "spellcheckerEnabled": "Se a verificação ortográfica está habilitada",
         "spellcheckerNoUnderline": "Não sublinhar erros ortográficos",
         "spellcheckerLanguage": "O idioma do verificador ortográfico",
@@ -470,15 +423,8 @@
         "imagePreferRelativeDirectory": "Se preferir o diretório de imagem relativo",
         "imageRelativeDirectoryBase": "Onde as imagens relativas são copiadas",
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
-        "sideBarVisibility": "Se a barra lateral está visível",
-        "tabBarVisibility": "Se as abas são mostradas",
-        "sourceCodeModeEnabled": "Se o modo código fonte está habilitado por padrão",
-        "searchExclusions": "Lista de padrões glob para excluir da pesquisa",
-        "searchMaxFileSize": "O tamanho máximo de arquivo (<maxFileSize><suffix>). Sufixos de K, M ou G são permitidos se nenhum sufixo for dado, o número é tratado como bytes",
-        "searchIncludeHidden": "Se pesquisar em arquivos e diretórios ocultos",
-        "searchNoIgnore": "Se ignorar arquivos de ignore como .gitignore",
-        "searchFollowSymlinks": "Se os links simbólicos devem ser seguidos",
-        "watcherUsePolling": "Se usar polling. O polling pode levar a alta utilização de CPU mas é necessário para observar arquivos sobre uma rede"
+        "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
+        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral."
       }
     },
     "categories": {
@@ -502,7 +448,6 @@
         "titleBarStyle": {
           "title": "Estilo da Barra de Título",
           "custom": "Personalizado",
-          "titleBarStyle": "Estilo da Barra de Título",
           "native": "Nativo"
         },
         "requiresRestart": "Requer reinicialização",
@@ -555,7 +500,8 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
-          "portuguese": "Português"
+          "portuguese": "Português",
+          "turkish": "Türkçe"
         }
       }
     },
@@ -634,54 +580,19 @@
         "relativeFolderName": "Nome da pasta relativa",
         "filenameNote": "O nome do arquivo será gerado automaticamente."
       },
-      "imageInsertAction": {
-        "title": "Ação de inserção de imagem",
-        "folder": "Enviar para pasta",
-        "path": "Copiar para caminho",
-        "upload": "Enviar para nuvem",
-        "copyToFolder": "Copiar para pasta",
-        "uploadToServer": "Enviar para servidor"
-      },
-      "imageFolderPath": {
-        "title": "Caminho da pasta de imagens",
-        "description": "Caminho da pasta de imagens",
-        "selectFolder": "Selecionar pasta",
-        "relativePath": "Caminho relativo",
-        "absolutePath": "Caminho absoluto"
-      },
-      "cloudPictureBed": {
-        "title": "Hospedagem de imagens na nuvem",
-        "github": "GitHub",
-        "smms": "SM.MS",
-        "qiniu": "Qiniu",
-        "upyun": "UpYun",
-        "tcyun": "Tencent Cloud",
-        "aliyun": "Alibaba Cloud",
-        "imgur": "Imgur",
-        "picgo": "PicGo"
-      },
-      "preferRelativeDirectory": {
-        "title": "Preferir diretório relativo",
-        "description": "Preferir diretório relativo para imagens"
-      },
       "uploader": {
         "title": "Carregador de Imagens",
         "currentUploader": "Carregador Atual",
         "picgoNotInstalled": "PicGo não está instalado",
-        "picgoDetectionStatus": "Status de Detecção do PicGo",
         "picgoInstalled": "PicGo está instalado",
         "picgoDetectionFailed": "Detecção do PicGo falhou",
         "debugInfo": "Informações de Debug",
-        "installCommand": "Comando de Instalação",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
         "pnpmInstallCommand": "pnpm add -g picgo",
-        "brewInstallCommand": "brew install picgo",
         "chooseInstallMethod": "Escolha o méde instalação:",
         "retestPicgo": "Testar novamente",
-        "detecting": "Detectando...",
         "lastDetectionTime": "Última detecção",
-        "detectionStatus": "Status de detecção",
         "usageGuide": {
           "title": "Guia básico de uso do PicGo",
           "step1": "Configurar carregador",
@@ -692,13 +603,6 @@
           "step3Description": "Use o seguinte comando para ver a configuração atual:",
           "documentation": "Ver documentação completa"
         },
-        "configureUploader": "Configurar carregador",
-        "configureDescription": "Use o seguinte comando para configurar o carregador PicGo:",
-        "uploadImage": "Carregar imagens",
-        "uploadDescription": "Use o seguinte comando para carregar imagens:",
-        "viewConfig": "Ver configuração",
-        "viewConfigDescription": "Use o seguinte comando para ver a configuração atual:",
-        "viewDocumentation": "Ver documentação completa",
         "scriptDescription": "Descrição do Script",
         "scriptLocation": "Localização do Script",
         "save": "Salvar",
@@ -711,7 +615,6 @@
         "pleaseInstall": "Por favor instale",
         "scriptPath": "Caminho do script",
         "picgoDetection": "Detecção do PicGo",
-        "autoDetection": "Detecção automática",
         "lastSuccessTime": "Última vez bem-sucedida",
         "neverDetected": "Nunca detectado",
         "neverSuccessful": "Nunca bem-sucedido"
@@ -720,44 +623,12 @@
     },
     "markdown": {
       "title": "Markdown",
-      "listItem": {
-        "title": "Item de Lista",
-        "preferLooseListItem": "Preferir item de lista solta",
-        "bulletListMarker": "Marcador de lista com marcadores",
-        "orderListDelimiter": "Delimitador de lista ordenada",
-        "listIndentation": {
-          "title": "Indentação de Lista",
-          "dfm": "Padrão",
-          "tab": "Tabulação",
-          "oneSpace": "Um espaço",
-          "twoSpaces": "Dois espaços",
-          "threeSpaces": "Três espaços",
-          "fourSpaces": "Quatro espaços"
-        }
-      },
-      "heading": {
-        "title": "Cabeçalho",
-        "preferHeadingStyle": "Preferir estilo de cabeçalho"
-      },
-      "frontmatter": {
-        "title": "Front Matter",
-        "frontmatterType": "Tipo de front matter"
-      },
       "extensions": {
         "title": "Extensões",
         "superSubScript": "Super/Sub script",
         "footnote": "Nota de rodapé",
-        "isHtmlEnabled": "HTML habilitado",
-        "isGitlabCompatibilityEnabled": "Compatibilidade GitLab",
-        "sequenceTheme": "Tema de sequência",
-        "superscript": "Sobrescrito",
-        "subscript": "Subscrito",
-        "frontMatter": "Front matter",
-        "math": "Matemática",
-        "diagram": "Diagrama",
         "footnoteNotes": "Notas de rodapé",
         "frontmatterType": {
-          "frontmatterType": "Tipo de Frontmatter",
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",
           "title": "Tipo de Frontmatter"
@@ -765,22 +636,14 @@
       },
       "diagrams": {
         "title": "Diagramas",
-        "plantuml": "PlantUML",
-        "mermaid": "Mermaid",
-        "vega": "Vega",
-        "flowchart": "Fluxograma",
-        "sequence": "Sequência",
-        "gantt": "Gantt",
         "sequenceTheme": {
           "title": "Tema de Sequência",
           "handDrawn": "Desenhado à Mão",
           "simple": "Simples"
+        },
+        "plantumlServer": {
+          "title": "URL do servidor PlantUML"
         }
-      },
-      "math": {
-        "title": "Matemática",
-        "katex": "KaTeX",
-        "mathJax": "MathJax"
       },
       "misc": {
         "preferHeadingStyle": {
@@ -811,28 +674,13 @@
         "title": "Listas"
       }
     },
-    "spelling": {
-      "title": "Ortografia",
-      "enabled": "Habilitar corretor ortográfico",
-      "autoDetectLanguage": "Detectar idioma automaticamente",
-      "language": "Idioma",
-      "noSuggestions": "Nenhuma sugestão",
-      "spellcheckerEnabled": "Habilitar corretor ortográfico",
-      "spellcheckerNoUnderline": "Sem sublinhado para palavras com erro ortográfico",
-      "spellcheckerLanguage": "Idioma do corretor ortográfico"
-    },
     "theme": {
       "title": "Tema",
-      "theme": "Tema",
       "followSystemTheme": "Seguir tema do sistema",
       "modeThemes": "Seleção de Tema",
       "lightModeTheme": "Tema do modo claro",
       "darkModeTheme": "Tema do modo escuro",
       "customCss": "CSS Personalizado",
-      "codeBlockTheme": {
-        "title": "Tema do bloco de código",
-        "description": "Tema para blocos de código"
-      },
       "importCustomThemes": "Importar temas personalizados",
       "importTheme": "Importar Tema",
       "openFolder": "Abrir Pasta",
@@ -841,13 +689,6 @@
     "keybindings": {
       "title": "Atalhos de Teclado",
       "description": "Personalizar atalhos de teclado",
-      "searchPlaceholder": "Pesquisar atalhos de teclado",
-      "command": "Comando",
-      "keybinding": "Atalho de Teclado",
-      "reset": "Resetar",
-      "resetAll": "Resetar todos",
-      "edit": "Editar",
-      "cancel": "Cancelar",
       "save": "Salvar",
       "restoreDefaults": "Restaurar padrões",
       "debugOptions": "Opções de Debug",
@@ -921,9 +762,7 @@
       "exportFile": "Exportar Arquivo",
       "exportFilePdf": "Exportar como PDF",
       "zoom": "Zoom",
-      "checkUpdate": "Verificar Atualizações",
-      "lineEnding": "Final de linha",
-      "close": "Fechar"
+      "checkUpdate": "Verificar Atualizações"
     },
     "edit": {
       "undo": "Desfazer",
@@ -943,8 +782,7 @@
       "findPrevious": "Localizar Anterior",
       "replace": "Substituir",
       "findInFolder": "Localizar na Pasta",
-      "screenshot": "Captura de Tela",
-      "mathBlock": "Bloco matemático"
+      "screenshot": "Captura de Tela"
     },
     "paragraph": {
       "heading1": "Cabeçalho 1",
@@ -1010,8 +848,6 @@
       "reloadImages": "Recarregar Imagens",
       "textDirection": "Direção do Texto",
       "actualSize": "Tamanho real",
-      "zoomIn": "Ampliar",
-      "zoomOut": "Reduzir",
       "devToggleDeveloperTools": "Alternar ferramentas de desenvolvedor"
     },
     "tabs": {
@@ -1033,10 +869,6 @@
     "docs": {
       "userGuide": "Guia do Usuário",
       "markdownSyntax": "Sintaxe Markdown"
-    },
-    "utils": {
-      "noUpdateResourceFile": "Nenhum arquivo de recurso de atualização",
-      "todoUpdateCheck": "Verificar atualizações"
     },
     "spellchecker": {
       "switchLanguage": "Alterar Idioma"
@@ -1083,25 +915,6 @@
       "anchorLinkCopied": "Link âncora copiado",
       "tabNotFound": "Aba não encontrada",
       "tocItemNotFound": "Item do índice não encontrado",
-      "highlightStart": "[Início do destaque]",
-      "highlightEnd": "[Fim do destaque]",
-      "typeAtToInsert": "Digite / para inserir",
-      "inputFootnoteDefinition": "Digite definição da nota de rodapé...",
-      "inputYamlFrontMatter": "Digite metadados YAML...",
-      "inputLanguageIdentifier": "Digite identificador de idioma...",
-      "inputMathematicalFormula": "Digite fórmula matemática...",
-      "fence": "Cerca",
-      "indent": "Indentação",
-      "frontMatterDelimiter": "---",
-      "mathDelimiter": "$$",
-      "mermaidStart": "``` mermaid",
-      "flowchartStart": "``` flowchart",
-      "sequenceStart": "``` sequence",
-      "plantumlStart": "``` plantuml",
-      "vegaLiteStart": "``` vega-lite",
-      "codeFence": "```",
-      "clickToAddImage": "Clique para adicionar imagem",
-      "loadImageFailed": "Falha ao carregar imagem",
       "errorLoadingTabTitle": "Erro ao carregar a aba",
       "errorLoadingTabMessage": "Ocorreu um erro ao carregar a alteração do arquivo porque a aba não pôde ser encontrada.",
       "mixedLineEndingsNormalized": "“{name}” possui finais de linha mistos que foram normalizados automaticamente para {lineEnding}.",
@@ -1118,204 +931,7 @@
     "failedToRemoveWord": "Falha ao remover palavra do dicionário",
     "unexpectedError": "Erro inesperado do corretor ortográfico"
   },
-  "quickInsert": {
-    "basicBlock": "Bloco Básico",
-    "header": "Cabeçalho",
-    "advancedBlock": "Bloco Avançado",
-    "listBlock": "Bloco de Lista",
-    "diagram": "Diagrama",
-    "paragraph": {
-      "title": "Parágrafo",
-      "subtitle": "Digite o conteúdo do texto"
-    },
-    "horizontalLine": {
-      "title": "Linha Horizontal",
-      "subtitle": "---"
-    },
-    "frontMatter": {
-      "title": "Front Matter",
-      "subtitle": "--- YAML ---"
-    },
-    "header1": {
-      "title": "Cabeçalho 1",
-      "subtitle": "# Cabeçalho"
-    },
-    "header2": {
-      "title": "Cabeçalho 2",
-      "subtitle": "## Cabeçalho"
-    },
-    "header3": {
-      "title": "Cabeçalho 3",
-      "subtitle": "### Cabeçalho"
-    },
-    "header4": {
-      "title": "Cabeçalho 4",
-      "subtitle": "#### Cabeçalho"
-    },
-    "header5": {
-      "title": "Cabeçalho 5",
-      "subtitle": "##### Cabeçalho"
-    },
-    "header6": {
-      "title": "Cabeçalho 6",
-      "subtitle": "###### Cabeçalho"
-    },
-    "tableBlock": {
-      "title": "Bloco de Tabela",
-      "subtitle": "｜ Cabeçalho ｜ Cabeçalho ｜"
-    },
-    "mathFormula": {
-      "title": "Fórmula Matemática",
-      "subtitle": "$$ Fórmula $$"
-    },
-    "htmlBlock": {
-      "title": "Bloco HTML",
-      "subtitle": "<div> HTML </div>"
-    },
-    "codeBlock": {
-      "title": "Bloco de Código",
-      "subtitle": "``` Código ```"
-    },
-    "quoteBlock": {
-      "title": "Bloco de Citação",
-      "subtitle": "> Conteúdo da citação"
-    },
-    "orderedList": {
-      "title": "Lista Ordenada",
-      "subtitle": "1. Item da lista"
-    },
-    "bulletList": {
-      "title": "Lista com Marcadores",
-      "subtitle": "- Item da lista"
-    },
-    "todoList": {
-      "title": "Lista de tarefas",
-      "subtitle": "- [ ] Item de tarefa"
-    },
-    "vegaChart": {
-      "title": "Gráfico Vega-Lite",
-      "subtitle": "Visualização de dados"
-    },
-    "flowChart": {
-      "title": "Fluxograma",
-      "subtitle": "Fluxograma"
-    },
-    "sequenceChart": {
-      "title": "Gráfico de Sequência",
-      "subtitle": "Diagrama de sequência"
-    },
-    "plantUMLChart": {
-      "title": "Gráfico PlantUML",
-      "subtitle": "Diagrama UML"
-    },
-    "mermaid": {
-      "title": "Gráfico Mermaid",
-      "subtitle": "Diagrama Mermaid",
-      "gantt": {
-        "title": "Gráfico de Gantt"
-      },
-      "pie": {
-        "title": "Gráfico de pizza"
-      },
-      "flowchart": {
-        "title": "Fluxograma"
-      },
-      "sequence": {
-        "title": "Diagrama de sequência"
-      },
-      "class": {
-        "title": "Diagrama de classes"
-      },
-      "state": {
-        "title": "Diagrama de estados",
-        "subtitle": "stateDiagram"
-      },
-      "journey": {
-        "title": "Jornada do usuário"
-      },
-      "git": {
-        "title": "Diagrama Git"
-      },
-      "er": {
-        "title": "Diagrama ER"
-      },
-      "requirement": {
-        "title": "Diagrama de requisitos"
-      }
-    },
-    "taskList": {
-      "title": "Lista de tarefas"
-    },
-    "vegaliteChart": {
-      "title": "Gráfico Vega-Lite"
-    },
-    "plantUMLDiagram": {
-      "title": "Diagrama PlantUML"
-    },
-    "mermaidDiagram": {
-      "title": "Diagrama Mermaid"
-    }
-  },
-  "frontMenu": {
-    "duplicate": "Duplicar",
-    "turnInto": "Transformar em",
-    "newParagraph": "Novo parágrafo",
-    "delete": "Excluir",
-    "paragraph": "Parágrafo",
-    "table": "Tabela",
-    "html": "HTML",
-    "mathblock": "Bloco matemático",
-    "pre": "Bloco de código",
-    "frontMatter": "Front Matter",
-    "ulTask": "Lista de tarefas",
-    "ulBullet": "Lista com marcadores",
-    "olOrder": "Lista ordenada",
-    "blockquote": "Citação",
-    "heading1": "Cabeçalho 1",
-    "heading2": "Cabeçalho 2",
-    "heading3": "Cabeçalho 3",
-    "heading4": "Cabeçalho 4",
-    "heading5": "Cabeçalho 5",
-    "heading6": "Cabeçalho 6",
-    "hr": "Linha horizontal"
-  },
   "editor": {
-    "image": {
-      "selector": {
-        "tab": {
-          "select": "Selecionar",
-          "embedLink": "Inserir link"
-        },
-        "select": {
-          "chooseButton": "Escolher imagem",
-          "tip": "Escolha uma imagem do seu computador."
-        },
-        "inputs": {
-          "alt": "Texto alternativo",
-          "src": "Link da imagem ou caminho local",
-          "title": "Título da imagem"
-        },
-        "embedButton": "Inserir imagem",
-        "hint": {
-          "prefix": "Cole imagem da web ou caminho local. Alternar modo",
-          "simple": "modo simples",
-          "full": "modo completo"
-        }
-      },
-      "toolbar": {
-        "edit": "Editar imagem",
-        "inline": "Imagem embutida",
-        "alignLeft": "Alinhar à esquerda",
-        "alignCenter": "Alinhar ao centro",
-        "alignRight": "Alinhar à direita",
-        "delete": "Remover imagem"
-      }
-    },
-    "placeholders": {
-      "frontMatter": "Inserir YAML Front Matter...",
-      "languageIdentifier": "Inserir Identificador de Linguagem...",
-      "mathFormula": "Inserir Fórmula Matemática..."
-    },
     "export": {
       "error": "Erro de exportação",
       "errorExporting": "Erro ao exportar arquivo",
@@ -1338,65 +954,11 @@
       "imageStructureDeletedComment": "Comentário de estrutura de imagem excluída"
     },
     "spellcheck": {
-      "enabled": "Verificação ortográfica ativada",
-      "disabled": "Verificação ortográfica desativada",
-      "enabledError": "Erro ao ativar verificação ortográfica",
       "disabledError": "Erro ao desativar verificação ortográfica",
       "errorSwitchingLanguage": "Erro ao trocar idioma da verificação ortográfica",
       "languageMissing": "Idioma da verificação ortográfica não encontrado",
       "switchError": "Erro ao trocar verificação ortográfica",
       "title": "Verificação Ortográfica"
-    },
-    "table": "tabela",
-    "resizeTable": "Redimensionar tabela",
-    "left": "esquerda",
-    "alignLeft": "Alinhar à esquerda",
-    "center": "centro",
-    "alignCenter": "Alinhar ao centro",
-    "right": "direita",
-    "alignRight": "Alinhar à direita",
-    "delete": "excluir",
-    "deleteTable": "Excluir tabela",
-    "insertRowAbove": "Inserir linha acima",
-    "insertRowBelow": "Inserir linha abaixo",
-    "removeRow": "Remover linha",
-    "insertColumnLeft": "Inserir coluna à esquerda",
-    "insertColumnRight": "Inserir coluna à direita",
-    "removeColumn": "Remover coluna",
-    "copyContent": "Copiar conteúdo",
-    "emptyMathFormula": "< Fórmula matemática vazia >",
-    "invalidMathFormula": "< Fórmula matemática inválida >",
-    "emptyMermaidBlock": "< Bloco Mermaid vazio >",
-    "loading": "Carregando...",
-    "emptyDiagramBlock": "< Bloco de diagrama vazio >",
-    "emptyHtmlBlock": "< Bloco HTML vazio >",
-    "onlyTopBlockCanRenderIcon": "Apenas o bloco superior pode renderizar o botão de ícone anterior.",
-    "unhandledFunctionType": "Tipo de função não tratado: {functionType}",
-    "highlight-start": "[início do destaque]",
-    "highlight-end": "[fim do destaque]",
-    "type-at-to-insert": "Digite / para inserir",
-    "input-footnote-definition": "Inserir definição de nota de rodapé",
-    "input-yaml-front-matter": "Inserir front matter YAML",
-    "input-language-identifier": "Inserir identificador de idioma",
-    "input-mathematical-formula": "Inserir fórmula matemática",
-    "fence": "cerca",
-    "indent": "indentação",
-    "front-matter-delimiter": "delimitador de front matter",
-    "math-delimiter": "delimitador matemático",
-    "mermaid-start": "início mermaid",
-    "flowchart-start": "início fluxograma",
-    "sequence-start": "início sequência",
-    "plantuml-start": "início plantuml",
-    "vega-lite-start": "início vega-lite",
-    "click-to-add-image": "Clique para adicionar imagem",
-    "load-image-failed": "Falha ao carregar imagem"
-  },
-  "edit": {
-    "undo": "Desfazer",
-    "redo": "Refazer",
-    "cut": "Cortar",
-    "copy": "Copiar",
-    "paste": "Colar",
-    "selectAll": "Selecionar tudo"
+    }
   }
 }

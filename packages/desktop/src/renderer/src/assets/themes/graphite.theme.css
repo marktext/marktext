@@ -177,16 +177,16 @@
 
 /* ------------------------------------ */
 
-li.ag-paragraph {
+.mu-container li.mu-list-item {
   color: var(--editorColor);
 }
 
 /*task list*/
-li.ag-task-list-item {
+li.mu-task-list-item {
   list-style-type: none;
   position: relative;
 }
-li.ag-task-list-item > input[type='checkbox'] {
+li.mu-task-list-item > input[type='checkbox'] {
   position: absolute;
   cursor: pointer;
   width: 16px;
@@ -198,11 +198,11 @@ li.ag-task-list-item > input[type='checkbox'] {
   transform-origin: center;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked {
+li.mu-task-list-item > input.mu-checkbox-checked {
   transform: rotate(0);
   opacity: 0.5;
 }
-li.ag-task-list-item > input[type='checkbox']::before {
+li.mu-task-list-item > input[type='checkbox']::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -216,11 +216,11 @@ li.ag-task-list-item > input[type='checkbox']::before {
   left: 0;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked::before {
+li.mu-task-list-item > input.mu-checkbox-checked::before {
   border: transparent;
   background-color: var(--editorColor);
 }
-li.ag-task-list-item > input::after {
+li.mu-task-list-item > input::after {
   content: '';
   transform: rotate(-45deg) scale(0);
   width: 9px;
@@ -234,12 +234,12 @@ li.ag-task-list-item > input::after {
   left: 5px;
   transition: all 0.2s ease;
 }
-li.ag-task-list-item > input.ag-checkbox-checked::after {
+li.mu-task-list-item > input.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 
 /*horizontal line*/
-p:not(.ag-active)[data-role='hr']::before {
+.mu-thematic-break:not(.mu-active)::before {
   content: '';
   position: absolute;
   width: 100%;

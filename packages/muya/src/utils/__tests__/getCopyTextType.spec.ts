@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { PasteType } from '../../clipboard/types';
 import { getCopyTextType, isStandaloneTableHtml, resolveClipboardImagePath } from '../paste';
 
 // Regression for marktext commit 067ec485 (#1271).
@@ -48,24 +49,24 @@ describe('isStandaloneTableHtml', () => {
 
 describe('getCopyTextType — pre-existing classifier behaviour stays put', () => {
     it('returns html when both html and text are present', () => {
-        expect(getCopyTextType('<p>x</p>', 'x', 'normal')).toBe('html');
+        expect(getCopyTextType('<p>x</p>', 'x', PasteType.NORMAL)).toBe('html');
     });
 
     it('returns code for <p> text-only', () => {
-        expect(getCopyTextType('', '<p>hi</p>', 'normal')).toBe('code');
+        expect(getCopyTextType('', '<p>hi</p>', PasteType.NORMAL)).toBe('code');
     });
 
     it('returns text for non-paragraph HTML shape text', () => {
-        expect(getCopyTextType('', '<span>hi</span>', 'normal')).toBe('text');
+        expect(getCopyTextType('', '<span>hi</span>', PasteType.NORMAL)).toBe('text');
     });
 
     it('falls back to text for plain strings', () => {
-        expect(getCopyTextType('', 'plain string', 'normal')).toBe('text');
+        expect(getCopyTextType('', 'plain string', PasteType.NORMAL)).toBe('text');
     });
 
     it('pasteAsPlainText ignores html', () => {
         expect(
-            getCopyTextType('<p>hi</p>', '<p>hi</p>', 'pasteAsPlainText'),
+            getCopyTextType('<p>hi</p>', '<p>hi</p>', PasteType.PASTE_AS_PLAIN_TEXT),
         ).toBe('code');
     });
 });

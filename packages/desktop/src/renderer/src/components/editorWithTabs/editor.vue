@@ -113,6 +113,7 @@ import {
   ja,
   ko,
   pt,
+  tr,
   zhCN,
   zhTW,
   type ILocale
@@ -144,6 +145,7 @@ import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 import '@muyajs/core'
 import '@/assets/themes/codemirror/one-dark.css'
 import { Close as CloseIcon } from '@element-plus/icons-vue'
+import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
 const STANDAR_Y = 320
@@ -157,6 +159,7 @@ const MUYA_LOCALES: Record<string, ILocale> = {
   ja,
   ko,
   pt,
+  tr,
   'zh-CN': zhCN,
   'zh-TW': zhTW
 }
@@ -171,12 +174,29 @@ const getMuyaLocale = (language: string): ILocale => MUYA_LOCALES[language] ?? e
 // only read app-singleton Pinia stores, so capturing them once is correct.
 let muyaPluginsRegistered = false
 
-// Muya remains untyped; everything that crosses the editor boundary is `any`
-// for now. We keep the spelling near the top of the file so future muya-side
-// typings can replace these in one place.
+// The `@muyajs/core` `Muya` surface is deliberately permissive (`[key: string]:
+// any` in muya-core.d.ts); everything that crosses the editor boundary leans on
+// it, so the instance handle stays `any` until the engine ships built typings.
 type MuyaInstance = any
-type MuyaChange = any
-type ElInputNumberInstance = any
+
+// The engine's `selection-change` / `json-change` payload. The consumed
+// `@muyajs/core` declaration does not re-export this shape, so describe the
+// fields the desktop reads (each is re-cast in the body); the index signature
+// keeps the boundary permissive for anything not enumerated here.
+interface MuyaChange {
+  anchorPath?: Array<string | number>
+  focusPath?: Array<string | number>
+  anchorBlock?: { text?: string } | null
+  focusBlock?: { text?: string } | null
+  anchorBlockInfo?: { type?: string; functionType?: string } | null
+  focusBlockInfo?: { type?: string; functionType?: string } | null
+  affiliation?: EngineAffiliationEntry[]
+  anchor?: { offset?: number } | null
+  focus?: { offset?: number } | null
+  cursorCoords?: { y?: number } | null
+  formats?: SelectionFormatLike[]
+  [key: string]: unknown
+}
 
 const props = defineProps<{
   markdown?: string
@@ -258,12 +278,12 @@ const tableChecker = reactive({
 // Template refs
 const editorRef = ref<HTMLDivElement | null>(null)
 const imageViewerRef = ref<HTMLDivElement | null>(null)
-const rowInput = ref<ElInputNumberInstance>(null)
+const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
-let printer: any = null
+let printer: Printer | null = null
 let spellchecker: any = null
-let switchLanguageCommand: any = null
+let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
@@ -277,6 +297,14 @@ let lastSelectedText = ''
 // per-tab map here for restoration across in-session tab switches, and feed the
 // store a SYNTHETIC desktop-shaped history.
 const engineHistoryByTab = new Map<string, unknown>()
+
+// The WYSIWYG caret captured the instant the user switches INTO source mode.
+// Focus moves to CodeMirror while source mode is up, so by the time the tab is
+// handed back (`replaceContent`) the live DOM selection no longer points into
+// the muya tree. We stash the pre-source caret here and feed it to
+// `replaceContent` as the rebuild boundary's restore-selection, so the first
+// undo after the handoff returns the caret to where source mode was entered.
+let preSourceModeSelection: unknown = null
 
 // Per-tab monotonic save-tracking id allocator. The synthetic history entry id
 // is a MONOTONIC, never-reused id keyed on the live document content (see
@@ -334,7 +362,8 @@ const CONTAINER_FUNCTION_TYPE: Record<string, string> = {
   frontmatter: 'frontmatter',
   table: 'table',
   'html-block': 'html',
-  'math-block': 'multiplemath'
+  'math-block': 'multiplemath',
+  diagram: 'diagram'
 }
 
 interface EngineAffiliationEntry {
@@ -650,6 +679,12 @@ watch(sequenceTheme, (value, oldValue) => {
   }
 })
 
+watch(() => preferencesStore.plantumlServer, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ plantumlServer: value }, true)
+  }
+})
+
 watch(listIndentation, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setListIndentation(value)
@@ -842,6 +877,10 @@ watch(
         if (currentFile.value) {
           currentFile.value.muyaIndexCursor = editor.value.getCursorOffset() ?? null
         }
+        // Capture the block-key caret too (same fresh selection getCursorOffset
+        // reads) so the post-handoff undo can restore it — see
+        // `preSourceModeSelection`.
+        preSourceModeSelection = editor.value.getSelection()
       }
     }
   },
@@ -1244,10 +1283,10 @@ interface ExportOptions {
   footer?: unknown
   headerFooterStyled?: unknown
   htmlTitle?: string
-  pageSize?: unknown
-  pageSizeWidth?: unknown
-  pageSizeHeight?: unknown
-  isLandscape?: unknown
+  pageSize?: string
+  pageSizeWidth?: number
+  pageSizeHeight?: number
+  isLandscape?: boolean
   [key: string]: unknown
 }
 
@@ -1306,7 +1345,7 @@ const handleExport = async (options: unknown) => {
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined
         })
-        printer.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1331,7 +1370,7 @@ const handleExport = async (options: unknown) => {
           footer,
           headerFooterStyled: headerFooterStyled as boolean | undefined
         })
-        printer.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1348,7 +1387,23 @@ const handleExport = async (options: unknown) => {
 }
 
 const handlePrintServiceClearup = () => {
-  printer.clearup()
+  printer!.clearup()
+}
+
+// Push the current selection to the application-menu / toolbar state. Called on
+// every muya selection-change, and again right after a paragraph action: a no-op
+// action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
+// clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
+const pushSelectionMenuState = (changes: MuyaChange) => {
+  editorStore.SELECTION_CHANGE({
+    ...adaptSelectionChange(changes),
+    // Read the live block tree (O(1)) rather than getState(), which deep-clones
+    // the whole document — this runs on every cursor move.
+    hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
+  })
+  // The active inline formats ride along on selection-change — drive the format
+  // menu/toolbar state from them.
+  editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
 }
 
 const handleEditParagraph = (type: unknown) => {
@@ -1361,6 +1416,12 @@ const handleEditParagraph = (type: unknown) => {
     })
   } else if (editor.value) {
     editor.value.updateParagraph(type)
+    // Re-sync the menu so a no-op action (e.g. "Paragraph" inside a list/quote)
+    // does not leave the clicked checkbox item checked. A real conversion fires
+    // its own selection-change, which resyncs again.
+    if (selectionChange.value) {
+      pushSelectionMenuState(selectionChange.value as MuyaChange)
+    }
   }
 }
 
@@ -1487,7 +1548,8 @@ const handleFileChange = (payload: unknown) => {
       // document is unchanged this is a no-op (returns false) and the existing
       // history/content already match — either way the caret still needs
       // remapping below.
-      editor.value.replaceContent(newMarkdown)
+      editor.value.replaceContent(newMarkdown, preSourceModeSelection)
+      preSourceModeSelection = null
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
@@ -1510,6 +1572,13 @@ const handleFileChange = (payload: unknown) => {
       const savedEngineHistory = id ? engineHistoryByTab.get(id) : undefined
       if (savedEngineHistory) {
         editor.value.setHistory(savedEngineHistory)
+      }
+      // First activation of a tab the save-tracking allocator has never seen:
+      // seed its clean baseline from the engine's serialization now, before
+      // any edit. For a tab that already has a tracker this is a no-op —
+      // switching back must keep the existing content -> id map.
+      if (id) {
+        getSyntheticHistory(id, editor.value.getMarkdown())
       }
     }
   } else if (newCursor) {
@@ -1571,9 +1640,10 @@ const handleResetPaddingBottom = () => {
   }
 }
 
-const handleLanguageChanged = () => {
+const handleLanguageChanged = (newLocale?: unknown) => {
   if (editor.value) {
-    editor.value.locale(getMuyaLocale(language.value))
+    const locale = typeof newLocale === 'string' ? newLocale : language.value
+    editor.value.locale(getMuyaLocale(locale))
   }
 }
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
@@ -1638,9 +1708,12 @@ onMounted(() => {
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
     sequenceTheme: sequenceTheme.value,
+    plantumlServer: preferencesStore.plantumlServer,
     spellcheckEnabled: spellcheckerEnabled.value,
     // Resolve the OS clipboard to a local file path on paste (image-from-file).
     clipboardFilePath: guessClipboardFilePath,
+    // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
+    clipboardText: () => window.electron.clipboard.readText(),
     // Image-persist callbacks read by the engine's clipboard + drag-drop handlers
     // from `muya.options.*` (distinct from the ImageEditTool plugin option above).
     // Without these, local-file drag-drop, screenshot/binary clipboard paste, and
@@ -1670,6 +1743,15 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init()
   editor.value = muya
+
+  // Seed the save-tracking baseline for the mount-loaded document (from the
+  // engine's OWN serialization, same reason as setMarkdownToEditor). Without
+  // this the allocator is created lazily on the first `json-change` — i.e.
+  // after the first edit — so the pristine content never maps to id 0 and
+  // undoing back to the on-disk content can never read as clean again (PG15).
+  if (currentFile.value?.id) {
+    getSyntheticHistory(currentFile.value.id, muya.getMarkdown())
+  }
 
   const container = getScrollContainer()!
 
@@ -1827,6 +1909,13 @@ onMounted(() => {
     editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
 
     setSelectionWordCountFromText(getSelectedText(changes))
+    // Persist the caret so a click/arrow-key move (which never fires
+    // `json-change`) survives an in-session tab switch — `tab.cursor` is what
+    // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
+    if (currentFile.value?.id && editor.value) {
+      editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
+    }
+    pushSelectionMenuState(changes)
   })
 
   nativeSelectionChangeHandler = scheduleNativeSelectionWordCount

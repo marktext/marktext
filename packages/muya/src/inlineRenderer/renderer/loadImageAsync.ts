@@ -26,7 +26,17 @@ export default function loadImageAsync(
     // permanently poison the cache (marktext#3001 / #3010, commit bca2ed62).
     if (!cached || !cached.isSuccess) {
         id = getUniqueId();
-        loadImage(src, isUnknownType)
+        // Cache-bust local files so a fresh load reads the file off disk
+        // instead of Chromium's in-memory image cache. Without this, replacing
+        // an image on disk and running `invalidateImageCache()` (View → Reload
+        // images) re-requests the same `file://` URL and the stale bitmap is
+        // served. The cache key (`src`) stays unbusted so ordinary re-renders
+        // still hit the cache; only the load/`<img>` URL carries the token.
+        // `id` is monotonic (collision-free), unlike legacy muyajs's `?msec=`.
+        const loadSrc = /^file:\/\//i.test(src)
+            ? `${src}${src.includes('?') ? '&' : '?'}mucache=${id}`
+            : src;
+        loadImage(loadSrc, isUnknownType)
             .then(({ url, width, height }) => {
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 const img = document.createElement('img');
@@ -54,14 +64,13 @@ export default function loadImageAsync(
                             oldImage.remove();
 
                         imageContainer!.appendChild(img);
-                        imageText.classList.remove('mu-image-loading');
-                        imageText.classList.add('mu-image-success');
-                        // marktext cb7be189 (#1318): mirror the small-image tagging from
-                        // `image.ts` on the first async load — otherwise the class would
-                        // only appear on the next re-render after the cache is populated.
-                        // See `image.ts` for why the class is kept as a theming hook with
-                        // no in-package CSS consumer; downstream stylesheets own the
-                        // visual treatment.
+                        imageText.classList.remove(CLASS_NAMES.MU_IMAGE_LOADING);
+                        imageText.classList.add(CLASS_NAMES.MU_IMAGE_SUCCESS);
+                        // Tag small images on the first async load — otherwise the class
+                        // would only appear on the next re-render after the cache is
+                        // populated. See `image.ts` for why the class is kept as a theming
+                        // hook with no in-package CSS consumer; downstream stylesheets own
+                        // the visual treatment.
                         if (width < 100 || height < 100)
                             imageText.classList.add(CLASS_NAMES.MU_SMALL_IMAGE);
                     }

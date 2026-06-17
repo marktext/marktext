@@ -62,9 +62,7 @@
           :value="codeFontFamily"
           :on-change="(value) => onSelectChange('codeFontFamily', value)"
         />
-        <!-- FIXME: Disabled due to #1648. -->
         <bool
-          v-show="false"
           :description="t('preferences.editor.codeBlock.showLineNumbers')"
           :bool="codeBlockLineNumbers"
           :on-change="(value) => onSelectChange('codeBlockLineNumbers', value)"

@@ -76,11 +76,11 @@ function placeCursorOn(muya: Muya, text: string): Content {
     return target;
 }
 
-interface StateNode { name: string; text?: string; children?: StateNode[] }
+interface IStateNode { name: string; text?: string; children?: IStateNode[] }
 
 // Does any block at the TOP level of the document carry this text directly?
 function topLevelHasParagraph(muya: Muya, text: string): boolean {
-    return (muya.getState() as unknown as StateNode[]).some(
+    return (muya.getState() as unknown as IStateNode[]).some(
         node => node.name === 'paragraph' && node.text === text,
     );
 }

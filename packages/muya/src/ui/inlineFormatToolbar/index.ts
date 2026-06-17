@@ -111,6 +111,18 @@ export class InlineFormatToolbar extends BaseFloat {
             }
         });
 
+        // While open, re-sync the highlight from the selection's current
+        // formats — this is how formats applied outside the toolbar (menu /
+        // command / shortcut) light up their buttons. Single-block tool, so
+        // ignore collapsed / cross-block selections.
+        eventCenter.subscribe('selection-change', ({ formats, isCollapsed, isSelectionInSameBlock }) => {
+            if (!this.status || isCollapsed || !isSelectionInSameBlock)
+                return;
+
+            this._formats = formats;
+            this._render();
+        });
+
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
             this._handleKeydown(event, editor);
         });
@@ -130,7 +142,8 @@ export class InlineFormatToolbar extends BaseFloat {
         if (!selection)
             return;
 
-        const { anchorBlock, isSelectionInSameBlock } = selection;
+        const { anchor, isSelectionInSameBlock } = selection;
+        const anchorBlock = anchor.block;
 
         if (!isSelectionInSameBlock)
             return;
@@ -252,15 +265,14 @@ export class InlineFormatToolbar extends BaseFloat {
         const { selection } = this.muya.editor;
         const { anchor, focus, anchorBlock, anchorPath, focusBlock, focusPath } = selection;
 
+        if (!anchor || !focus || !anchorBlock || !focusBlock)
+            return;
+
         // Restore selection before formatting
-        selection.setSelection({
-            anchor,
-            focus,
-            anchorBlock: anchorBlock!,
-            anchorPath,
-            focusBlock: focusBlock!,
-            focusPath,
-        });
+        selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
+            { offset: focus.offset, block: focusBlock, path: focusPath },
+        );
 
         this._block!.format(item.type);
 

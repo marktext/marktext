@@ -38,3 +38,65 @@ export function syncLineNumbersSpans(wrapper: HTMLElement, count: number): void 
         current--;
     }
 }
+
+// Measure the actual visual top of every logical line using Range API, then
+// set `top` on each span so line numbers align correctly in wrap mode (where
+// a single logical line can span multiple visual rows).
+//
+// Must run after layout (call via requestAnimationFrame).
+export function repositionLineNumberSpans(
+    wrapper: HTMLElement,
+    codeEl: HTMLElement,
+): void {
+    const spans = Array.from(wrapper.children) as HTMLElement[];
+    if (spans.length === 0)
+        return;
+
+    const text = codeEl.textContent ?? '';
+    const wrapperTop = wrapper.getBoundingClientRect().top;
+
+    // Global character offsets where each logical line begins.
+    const lineStarts: number[] = [0];
+    for (let i = 0; i < text.length; i++) {
+        if (text.charCodeAt(i) === LF)
+            lineStarts.push(i + 1);
+    }
+
+    // Walk all text nodes once, positioning each span when we cross a line start.
+    const walker = document.createTreeWalker(codeEl, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+
+    let nodeStart = 0;
+    let lineIdx = 0;
+    let node = walker.nextNode() as Text | null;
+
+    while (node !== null && lineIdx < lineStarts.length) {
+        const nodeLen = (node.textContent ?? '').length;
+        const nodeEnd = nodeStart + nodeLen;
+
+        // A line start may be INSIDE this node (< nodeEnd); if it equals nodeEnd
+        // it belongs to the next node and will be picked up on the next iteration.
+        while (lineIdx < lineStarts.length && lineStarts[lineIdx] < nodeEnd) {
+            const offsetInNode = lineStarts[lineIdx] - nodeStart;
+            range.setStart(node, offsetInNode);
+            range.collapse(true);
+            const top = range.getBoundingClientRect().top - wrapperTop;
+            if (lineIdx < spans.length)
+                spans[lineIdx].style.top = `${top}px`;
+            lineIdx++;
+        }
+
+        nodeStart = nodeEnd;
+        node = walker.nextNode() as Text | null;
+    }
+
+    // Trailing empty line after a final "\n": no text node to measure from.
+    // Place it one line-height below the previous span.
+    if (lineIdx < spans.length) {
+        const prevTop = lineIdx > 0 ? Number.parseFloat(spans[lineIdx - 1].style.top || '0') : 0;
+        const lineH = Number.parseFloat(getComputedStyle(wrapper).lineHeight) || 24;
+        for (let i = lineIdx; i < spans.length; i++) {
+            spans[i].style.top = `${prevTop + lineH}px`;
+        }
+    }
+}

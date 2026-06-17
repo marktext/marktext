@@ -1,5 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { IListItemState } from '../../../state/types';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { LinkedList } from '../../base/linkedList/linkedList';
 import Parent from '../../base/parent';
@@ -34,7 +35,7 @@ class ListItem extends Parent {
     constructor(muya: Muya) {
         super(muya);
         this.tagName = 'li';
-        this.classList = ['mu-list-item'];
+        this.classList = [CLASS_NAMES.MU_LIST_ITEM];
         this.createDomNode();
     }
 

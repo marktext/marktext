@@ -65,7 +65,7 @@
     src:
         local('Open Sans Light'),
         local('OpenSans-Light'),
-        url('./fonts/open-sans-v15-latin_latin-ext-300.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-300.woff') format('woff');
 }
 
 @font-face {
@@ -75,7 +75,7 @@
     src:
         local('Open Sans Light Italic'),
         local('OpenSans-LightItalic'),
-        url('./fonts/open-sans-v15-latin_latin-ext-300italic.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-300italic.woff') format('woff');
 }
 
 @font-face {
@@ -85,7 +85,7 @@
     src:
         local('Open Sans Regular'),
         local('OpenSans-Regular'),
-        url('./fonts/open-sans-v15-latin_latin-ext-regular.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-regular.woff') format('woff');
 }
 
 @font-face {
@@ -95,7 +95,7 @@
     src:
         local('Open Sans Italic'),
         local('OpenSans-Italic'),
-        url('./fonts/open-sans-v15-latin_latin-ext-italic.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-italic.woff') format('woff');
 }
 
 @font-face {
@@ -105,7 +105,7 @@
     src:
         local('Open Sans SemiBold'),
         local('OpenSans-SemiBold'),
-        url('./fonts/open-sans-v15-latin_latin-ext-600.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-600.woff') format('woff');
 }
 
 @font-face {
@@ -115,7 +115,7 @@
     src:
         local('Open Sans SemiBold Italic'),
         local('OpenSans-SemiBoldItalic'),
-        url('./fonts/open-sans-v15-latin_latin-ext-600italic.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-600italic.woff') format('woff');
 }
 
 @font-face {
@@ -125,7 +125,7 @@
     src:
         local('Open Sans Bold'),
         local('OpenSans-Bold'),
-        url('./fonts/open-sans-v15-latin_latin-ext-700.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-700.woff') format('woff');
 }
 
 @font-face {
@@ -135,7 +135,7 @@
     src:
         local('Open Sans Bold Italic'),
         local('OpenSans-BoldItalic'),
-        url('./fonts/open-sans-v15-latin_latin-ext-700italic.woff') format('woff');
+        url('./fonts/open-sans-v27-latin-ext_latin-700italic.woff') format('woff');
 }
 
 /*

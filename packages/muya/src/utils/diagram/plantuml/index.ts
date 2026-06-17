@@ -1,14 +1,19 @@
 import plantumlEncoder from 'plantuml-encoder';
 
+const PLANTUML_DEFAULT_URL = 'https://www.plantuml.com/plantuml';
+
 export default class Diagram {
     public encodedInput = '';
+    public plantumlServer = PLANTUML_DEFAULT_URL;
 
     /**
      * Builds a Diagram object storing the encoded input value
      */
-    static parse(input: string) {
+    static parse(input: string, plantumlServer?: string) {
         const diagram = new Diagram();
-        diagram.encode(input);
+        diagram._encode(input);
+        if (plantumlServer)
+            diagram.plantumlServer = plantumlServer;
 
         return diagram;
     }
@@ -21,12 +26,11 @@ export default class Diagram {
      * 2. Compressed using Deflate or Brotli algorithm
      * 3. Re-encoded in ASCII using a transformation close to base64
      */
-    encode(value: string) {
+    private _encode(value: string) {
         this.encodedInput = plantumlEncoder.encode(value);
     }
 
     insertImgElement(container: string | HTMLElement) {
-        const PLANTUML_URL = 'https://www.plantuml.com/plantuml';
         const div
             = typeof container === 'string'
                 ? document.getElementById(container)
@@ -34,7 +38,7 @@ export default class Diagram {
         if (div === null || !div.tagName)
             throw new Error(`Invalid container: ${container}`);
 
-        const src = `${PLANTUML_URL}/svg/${this.encodedInput}`;
+        const src = `${this.plantumlServer}/svg/${this.encodedInput}`;
 
         div.innerHTML = `<img src="${src}" >`;
     }

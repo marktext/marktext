@@ -1,4 +1,6 @@
 import type { VNode } from 'snabbdom';
+import type Format from '../../block/base/format';
+import type { IImageSelectionData } from '../../selection/types';
 import type { H, ImageToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import DeleteIcon from '../../assets/icons/delete/2.png';
@@ -26,13 +28,55 @@ function renderIcon(h: H, className: string, icon: string) {
     return h(selector, iconVnode);
 }
 
+function shouldSyncSelectedImageId(
+    selectedImage: IImageSelectionData | null,
+    src: string,
+    id: string,
+): selectedImage is IImageSelectionData {
+    return (
+        !!selectedImage
+        && selectedImage.token.attrs.src === src
+        && selectedImage.imageId !== id
+    );
+}
+
+function isSmallImage(
+    naturalWidth: number | undefined,
+    naturalHeight: number | undefined,
+) {
+    return (
+        typeof naturalWidth === 'number'
+        && typeof naturalHeight === 'number'
+        && (naturalWidth < 100 || naturalHeight < 100)
+    );
+}
+
+function isImageSelected(
+    selectedImage: IImageSelectionData | null,
+    block: Format,
+    token: ImageToken,
+    id: string,
+) {
+    if (!selectedImage)
+        return false;
+
+    const { imageId, block: selectedBlock, token: selectedToken } = selectedImage;
+
+    return (
+        imageId === `${id}_${token.range.start}`
+        && selectedBlock === block
+        && selectedToken.range.start === token.range.start
+        && selectedToken.range.end === token.range.end
+    );
+}
+
 // I don't want operate dom directly, is there any better way? need help!
 export default function image(
     this: Renderer,
     { h, block, token }: ISyntaxRenderOptions & { token: ImageToken },
 ) {
     const imageSrc = getImageSrc(token.attrs.src);
-    const { selectedImage } = this.muya.editor.selection;
+    const selectedImage = this.muya.editor.selection.image;
     const { i18n } = this.muya;
     const data = {
         attrs: {
@@ -48,16 +92,25 @@ export default function image(
     let isSuccess: boolean | undefined;
     let naturalWidth: number | undefined;
     let naturalHeight: number | undefined;
-    let src = imageSrc.src;
+    let resolvedUrl: string | undefined;
+    // `src` stays the plain path — it is the key the `urlMap`/cache lookups use.
+    const src = imageSrc.src;
     const alt = token.attrs.alt;
     const title = token.attrs.title;
     const width = token.attrs.width;
     const height = token.attrs.height;
 
     if (src) {
-        ({ id, isSuccess, width: naturalWidth, height: naturalHeight }
+        ({ id, isSuccess, url: resolvedUrl, width: naturalWidth, height: naturalHeight }
             = this.loadImageAsync(imageSrc, token.attrs));
     }
+
+    // What the rendered <img> actually points at. For local files this is the
+    // cache-busted `file://?mucache=…` URL resolved by `loadImageAsync`, so a
+    // block re-render (`innerHTML = html`) re-requests the busted URL instead
+    // of the plain path Chromium has cached. Uploads in progress override it
+    // with the base64 preview below.
+    let imgSrc = resolvedUrl ?? src;
 
     let wrapperSelector = id
         ? `span#${isSuccess ? `${id}_${token.range.start}` : id}.${
@@ -93,15 +146,10 @@ export default function image(
     // the src image is still loading, so use the url Map base64.
     if (this.urlMap.has(src)) {
     // fix: it will generate a new id if the image is not loaded.
-        if (
-            selectedImage
-            && selectedImage.token.attrs.src === src
-            && selectedImage.imageId !== id
-        ) {
+        if (shouldSyncSelectedImageId(selectedImage, src, id))
             selectedImage.imageId = id;
-        }
 
-        src = this.urlMap.get(src)!;
+        imgSrc = this.urlMap.get(src)!;
         isSuccess = true;
     }
 
@@ -111,7 +159,7 @@ export default function image(
             id: alt,
         });
         if (this.urlMap.has(alt)) {
-            src = this.urlMap.get(alt)!;
+            imgSrc = this.urlMap.get(alt)!;
             isSuccess = true;
         }
     }
@@ -123,7 +171,7 @@ export default function image(
         }
         else if (isSuccess === true) {
             wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_SUCCESS}`;
-            // marktext cb7be189 (#1318): tag images whose natural size is below
+            // Tag images whose natural size is below
             // 100px in either dimension. NOTE: no CSS in this package currently
             // consumes `.mu-small-image` — it is kept as a theming hook so
             // downstream stylesheets can shrink/hide the in-wrapper hover icons
@@ -133,36 +181,22 @@ export default function image(
             // have (our toolbar is a floating-ui overlay), so the rule lives
             // here as data only; downstream consumers / future PRs own the
             // visual treatment.
-            if (
-                typeof naturalWidth === 'number'
-                && typeof naturalHeight === 'number'
-                && (naturalWidth < 100 || naturalHeight < 100)
-            ) {
+            if (isSmallImage(naturalWidth, naturalHeight))
                 wrapperSelector += `.${CLASS_NAMES.MU_SMALL_IMAGE}`;
-            }
         }
         else {
             wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_FAIL}`;
         }
 
         // Add image selected class name.
-        if (selectedImage) {
-            const { imageId, block: SelectedImageBlock, token: selectedToken } = selectedImage;
-            if (
-                imageId === `${id}_${token.range.start}`
-                && SelectedImageBlock === block
-                && selectedToken.range.start === token.range.start
-                && selectedToken.range.end === token.range.end
-            ) {
-                wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
-            }
-        }
+        if (isImageSelected(selectedImage, block, token, id))
+            wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
 
         const renderImage = () => {
             const data = {
                 props: {
                     alt: alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, ''),
-                    src,
+                    src: imgSrc,
                     title,
                 },
             };

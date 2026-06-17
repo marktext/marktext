@@ -12,10 +12,7 @@ import keybindingsDarwin from './keybindingsDarwin'
 import keybindingsLinux from './keybindingsLinux'
 import keybindingsWindows from './keybindingsWindows'
 import type { CommandManager } from '../commands'
-
-// AppEnvironment is defined elsewhere (cross-batch) — keep loose for now.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AppEnvironment = any
+import type { AppEnvironment } from '../app/env'
 
 type ShortcutCallback = (win: BrowserWindow) => void
 

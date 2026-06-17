@@ -101,13 +101,13 @@ describe('muya.createTable()', () => {
         const sel = muya.editor.selection.getSelection();
         expect(sel).not.toBeNull();
         // The caret lands on a table-cell content block.
-        expect(sel!.anchorBlock.blockName).toBe('table.cell.content');
+        expect(sel!.anchor.block.blockName).toBe('table.cell.content');
     });
 
     it('is a no-op when there is no current block', () => {
         const muya = bootMuya('hello\n');
         muya.editor.activeContentBlock = null;
-        muya.editor.selection.anchorBlock = null;
+        muya.editor.selection.clear();
         expect(() => muya.createTable({ rows: 2, columns: 2 })).not.toThrow();
         expect(firstBlock(muya).name).toBe('paragraph');
     });
@@ -150,6 +150,61 @@ describe('muya.createTable()', () => {
             expect(b.children.length).toBe(3); // floor(3.9)
             expect(b.children.every(row => row.children.length === 2)).toBe(true); // floor(2.9)
         });
+    });
+
+    it('inserts the table BELOW a non-empty heading instead of replacing it', async () => {
+        const muya = bootMuya('# Title\n');
+        placeCursorOnFirstBlock(muya, 4); // caret inside the heading text
+        muya.createTable({ rows: 2, columns: 2 });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(2);
+            expect(s[0].name).toBe('atx-heading'); // heading kept
+            expect(s[1].name).toBe('table'); // table directly below
+        });
+        // the new table gets focus (caret in its first cell)
+        const sel = muya.editor.selection.getSelection();
+        expect(sel!.anchor.block.blockName).toBe('table.cell.content');
+    });
+
+    it('inserts the table BELOW a non-empty paragraph instead of replacing it', async () => {
+        const muya = bootMuya('hello\n');
+        placeCursorOnFirstBlock(muya, 5);
+        muya.createTable({ rows: 2, columns: 2 });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(2);
+            expect(s[0].name).toBe('paragraph');
+            expect((s[0] as { text: string }).text).toBe('hello');
+            expect(s[1].name).toBe('table');
+        });
+    });
+
+    it('replaces a non-empty block in place when { replace: true } (grid picker path)', async () => {
+        const muya = bootMuya('/table\n'); // a non-empty quick-insert trigger line
+        placeCursorOnFirstBlock(muya, 6);
+        muya.createTable({ rows: 2, columns: 2 }, { replace: true });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(1); // trigger consumed, not left behind
+            expect(s[0].name).toBe('table');
+        });
+    });
+
+    it('inserts the table right after the paragraph INSIDE a list item, not after the list', async () => {
+        const muya = bootMuya('- item text\n');
+        placeCursorOnFirstBlock(muya, 4);
+        muya.createTable({ rows: 2, columns: 2 });
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            // a single top-level bullet-list — the table did NOT land after it
+            expect(s.length).toBe(1);
+            expect(s[0].name).toBe('bullet-list');
+            const item = (s[0] as { children: { children: { name: string }[] }[] }).children[0];
+            expect(item.children.map(c => c.name)).toEqual(['paragraph', 'table']);
+        });
+        // the nested table still serializes without throwing
+        expect(() => muya.getMarkdown()).not.toThrow();
     });
 });
 
@@ -195,7 +250,7 @@ describe('muya.insertImage()', () => {
     it('is a no-op when there is no active formattable block', () => {
         const muya = bootMuya('hello\n');
         muya.editor.activeContentBlock = null;
-        muya.editor.selection.anchorBlock = null;
+        muya.editor.selection.clear();
         expect(() => muya.insertImage({ src: 'https://example.com/x.png' })).not.toThrow();
         expect(muya.getMarkdown()).not.toContain('![');
     });
@@ -242,7 +297,7 @@ describe('muya.setCursor()', () => {
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
             expect(sel).not.toBeNull();
-            expect(sel!.anchorBlock).toBe(first);
+            expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(3);
         });
     });
@@ -257,7 +312,7 @@ describe('muya.setCursor()', () => {
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
-            expect(sel!.anchorBlock).toBe(first);
+            expect(sel!.anchor.block).toBe(first);
             expect(sel!.anchor.offset).toBe(2);
         });
     });
@@ -275,7 +330,7 @@ describe('muya.setCursor()', () => {
         });
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
-            expect(sel!.anchorBlock).toBe(secondContent);
+            expect(sel!.anchor.block).toBe(secondContent);
             expect(sel!.anchor.offset).toBe(1);
         });
     });

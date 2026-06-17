@@ -1,4 +1,5 @@
 import type { IHighlight } from '../inlineRenderer/types';
+import { CLASS_NAMES } from '../config';
 import { getLongUniqueId } from '../utils';
 
 // TODO: @jocs any better solutions?
@@ -20,14 +21,14 @@ export function getHighlightHtml(text: string, highlights: IHighlight[], escape 
     for (const highlight of highlights) {
         const { start, end, active } = highlight;
         code += text.substring(pos, start);
-        const className = active ? 'mu-highlight' : 'mu-selection';
+        const className = active ? CLASS_NAMES.MU_HIGHLIGHT : CLASS_NAMES.MU_SELECTION;
         let highlightContent = text.substring(start, end);
         if (handleLineEnding && text.endsWith('\n') && end === text.length) {
             highlightContent
                 = highlightContent.substring(start, end - 1)
                     + (escape
-                        ? getEscapeHTML('mu-line-end', '\n')
-                        : '<span class="mu-line-end">\n</span>');
+                        ? getEscapeHTML(CLASS_NAMES.MU_LINE_END, '\n')
+                        : `<span class="${CLASS_NAMES.MU_LINE_END}">\n</span>`);
         }
         code += escape
             ? getEscapeHTML(className, highlightContent)
@@ -40,8 +41,8 @@ export function getHighlightHtml(text: string, highlights: IHighlight[], escape 
             code
                 += text.substring(pos, text.length - 1)
                     + (escape
-                        ? getEscapeHTML('mu-line-end', '\n')
-                        : '<span class="mu-line-end">\n</span>');
+                        ? getEscapeHTML(CLASS_NAMES.MU_LINE_END, '\n')
+                        : `<span class="${CLASS_NAMES.MU_LINE_END}">\n</span>`);
         }
         else {
             code += text.substring(pos);

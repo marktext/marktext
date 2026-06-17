@@ -1,4 +1,4 @@
-import { readlinkSync, outputFile } from 'fs-extra'
+import { readlinkSync, outputFile, type WriteFileOptions } from 'fs-extra'
 import path from 'path'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
@@ -25,14 +25,12 @@ export const writeFile = (
   pathname: string,
   content: string | Buffer,
   extension?: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: BufferEncoding | { encoding?: BufferEncoding } | undefined | any = 'utf-8'
+  options: WriteFileOptions | undefined = 'utf-8'
 ): Promise<void> => {
   if (!pathname) {
     return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return outputFile(pathname, content as any, options)
+  return outputFile(pathname, content, options)
 }

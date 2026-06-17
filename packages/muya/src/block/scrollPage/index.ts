@@ -27,11 +27,11 @@ export class ScrollPage extends Parent {
     // makes sense for Parent. Content leaves register themselves through
     // their containing Parent's create flow and don't go through
     // `loadBlock(...).create()` externally.
-    static registeredBlocks = new Map<string, IConstructor<Parent>>();
+    private static _registeredBlocks = new Map<string, IConstructor<Parent>>();
 
     static register(Block: IConstructor<TreeNode>) {
         const { blockName } = Block;
-        this.registeredBlocks.set(blockName, Block as IConstructor<Parent>);
+        this._registeredBlocks.set(blockName, Block as IConstructor<Parent>);
     }
 
     // Returns the registered constructor. Asserts non-undefined for
@@ -40,7 +40,7 @@ export class ScrollPage extends Parent {
     // Mismatched names hit the warn branch and the caller crashes at
     // `.create()` — matches the original loose contract.
     static loadBlock(blockName: string): IConstructor<Parent> {
-        const block = this.registeredBlocks.get(blockName);
+        const block = this._registeredBlocks.get(blockName);
 
         if (!block)
             debug.warn(`block:${blockName} is not existed.`);

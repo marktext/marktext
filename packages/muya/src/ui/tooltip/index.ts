@@ -26,11 +26,11 @@ class Tooltip {
         eventCenter.attachDOMEvent(
             domNode,
             'mouseover',
-            this.mouseOver.bind(this),
+            this._mouseOver.bind(this),
         );
     }
 
-    mouseOver(event) {
+    private _mouseOver(event) {
         const { target } = event;
         const toolTipTarget = target.closest('[data-tooltip]');
         const { eventCenter } = this._muya;
@@ -50,7 +50,7 @@ class Tooltip {
 
             const timer = setInterval(() => {
                 if (!document.body.contains(toolTipTarget)) {
-                    this.mouseLeave({ target: toolTipTarget });
+                    this._mouseLeave({ target: toolTipTarget });
                     clearInterval(timer);
                 }
             }, 300);
@@ -58,12 +58,12 @@ class Tooltip {
             eventCenter.attachDOMEvent(
                 toolTipTarget,
                 'mouseleave',
-                this.mouseLeave.bind(this),
+                this._mouseLeave.bind(this),
             );
         }
     }
 
-    mouseLeave(event) {
+    private _mouseLeave(event) {
         const { target } = event;
         if (this._cache.has(target)) {
             const tooltipEle = this._cache.get(target);

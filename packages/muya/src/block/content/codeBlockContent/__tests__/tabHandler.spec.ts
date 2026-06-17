@@ -21,9 +21,9 @@ import CodeBlockContent from '../index';
 // We drive the prototype directly with a structurally typed `this` so we
 // don't need a real Muya bootstrap.
 
-interface FakeCell {
+interface IFakeCell {
     text: string;
-    lang: string;
+    _lang: string;
     cursor: { start: number; end: number };
     getCursor: () => { start: { offset: number }; end: { offset: number } };
     setCursor: (start: number, end: number, _selected?: boolean) => void;
@@ -34,10 +34,10 @@ function makeFakeCodeContent(initial: {
     text: string;
     lang: string;
     cursorAt: number;
-}): FakeCell {
+}): IFakeCell {
     return {
         text: initial.text,
-        lang: initial.lang,
+        _lang: initial.lang,
         cursor: { start: initial.cursorAt, end: initial.cursorAt },
         getCursor() {
             return {

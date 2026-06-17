@@ -8,7 +8,7 @@ import { Muya } from '../../muya';
 // Coverage for the restored cross-cell table selection (Phase G). Dragging a
 // rectangle of table cells highlights them and makes copy/cut operate on just
 // that sub-range (legacy `tableSelectCellsCtrl`). These tests drive the
-// `TableCellSelection` controller through real DOM mouse events and the
+// `TableRectSelection` controller through real DOM mouse events and the
 // `Clipboard` through a synthetic `copy`/`cut` event so the whole path —
 // selection -> highlight -> clipboard payload / in-place clear — is exercised.
 
@@ -105,7 +105,18 @@ describe('cross-cell table selection — highlight', () => {
         const table = firstTable(muya);
         dragSelect(table, 0, 0, 1, 1); // 2x2 rectangle => 4 cells
         expect(selectedCount(table)).toBe(4);
-        expect(muya.editor.tableSelection.hasSelection).toBe(true);
+        expect(muya.editor.selection.table.hasSelection).toBe(true);
+    });
+
+    it('keeps the table selection exclusive of any text selection', () => {
+        const muya = bootMuya(TABLE_MD);
+        const table = firstTable(muya);
+        dragSelect(table, 0, 0, 1, 1);
+        // The rectangle is the only selection: no model-level text caret and
+        // no native range survive alongside it.
+        expect(muya.editor.selection.table.hasSelection).toBe(true);
+        expect(muya.editor.activeContentBlock).toBe(null);
+        expect(document.getSelection()?.rangeCount).toBe(0);
     });
 
     it('does not start a selection when the pointer stays in one cell', () => {
@@ -114,7 +125,7 @@ describe('cross-cell table selection — highlight', () => {
         fireMouse(cellDom(table, 0, 0), 'mousedown');
         fireMouse(cellDom(table, 0, 0), 'mouseup');
         expect(selectedCount(table)).toBe(0);
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 
     it('clears the previous selection on a new mousedown', () => {
@@ -137,7 +148,7 @@ describe('cross-cell table selection — highlight', () => {
         fireMouse(muya.domNode, 'mouseup'); // released outside
         // Nothing frozen, no leftover highlight, no 1x1 anchor selection.
         expect(selectedCount(table)).toBe(0);
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 });
 
@@ -192,6 +203,6 @@ describe('cross-cell table selection — cut', () => {
             expect(md).toContain('c1');
             expect(md).toContain('a3');
         });
-        expect(muya.editor.tableSelection.hasSelection).toBe(false);
+        expect(muya.editor.selection.table.hasSelection).toBe(false);
     });
 });

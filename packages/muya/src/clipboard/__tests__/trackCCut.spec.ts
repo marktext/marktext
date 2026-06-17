@@ -5,6 +5,7 @@ import type TableBlock from '../../block/gfm/table';
 import type { Muya } from '../../muya';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya as MuyaClass } from '../../muya';
+import { SelectionCaretType, SelectionDirection } from '../../selection/types';
 
 // Track C — Cut (clipboard chain step 2). Ports `packages/muyajs`
 // `copyCutCtrl.cutHandler` + `removeBlocks` semantics into `@muyajs/core`:
@@ -76,29 +77,24 @@ function stubSelection(
     aOff: number,
     f: Content,
     fOff: number,
-    direction = 'forward',
+    direction = SelectionDirection.FORWARD,
 ) {
     const aPath = a.path;
     const fPath = f.path;
     muya.editor.selection.getSelection = () => ({
-        anchor: { offset: aOff },
-        focus: { offset: fOff },
-        anchorBlock: a,
-        anchorPath: aPath,
-        focusBlock: f,
-        focusPath: fPath,
+        anchor: { offset: aOff, block: a, path: aPath },
+        focus: { offset: fOff, block: f, path: fPath },
         isCollapsed: false,
         isSelectionInSameBlock: a === f,
         direction,
-        type: 'Range',
+        type: SelectionCaretType.RANGE,
     });
 }
 
 // json state applies composed ops on a requestAnimationFrame; wait for the
 // authoritative markdown to settle.
 async function cutAndRead(muya: Muya): Promise<string> {
-    // eslint-disable-next-line ts/no-explicit-any
-    (muya.editor as any).clipboard.cutHandler();
+    muya.editor.clipboard.cutHandler();
     await new Promise(r => setTimeout(r, 40));
     return muya.getMarkdown();
 }
@@ -245,8 +241,7 @@ describe('track C — cross-block cut keeps both endpoint tails (leaf merge)', (
         const blocks = contentBlocks(muya);
         const start = blocks[0];
         stubSelection(muya, start, 2, blocks[blocks.length - 1], 3);
-        // eslint-disable-next-line ts/no-explicit-any
-        (muya.editor as any).clipboard.cutHandler();
+        muya.editor.clipboard.cutHandler();
         await new Promise(r => setTimeout(r, 40));
         // The caret is seated on the merged start block at the cut offset. The
         // happy-dom native selection does not round-trip, so assert on the
@@ -281,7 +276,7 @@ describe('track C — whole-document selection collapses to one empty paragraph'
 });
 
 // Drive a real frozen table selection through DOM mouse events (same pattern
-// as editor/__tests__/tableCellSelection.spec.ts) so `cutHandler`'s table
+// as selection/__tests__/TableRectSelection.spec.ts) so `cutHandler`'s table
 // branch reads a genuine selection.
 function firstTable(muya: Muya): TableBlock {
     return muya.editor.scrollPage!.firstContentInDescendant()!.closestBlock('table') as TableBlock;
@@ -306,8 +301,7 @@ function dragSelect(table: TableBlock, r1: number, c1: number, r2: number, c2: n
 }
 
 async function cutSelectionAndRead(muya: Muya): Promise<string> {
-    // eslint-disable-next-line ts/no-explicit-any
-    (muya.editor as any).clipboard.cutHandler();
+    muya.editor.clipboard.cutHandler();
     await new Promise(r => setTimeout(r, 40));
     return muya.getMarkdown();
 }

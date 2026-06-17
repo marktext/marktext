@@ -16,7 +16,7 @@ import AtxHeadingContent from '../index';
 // We exercise the handler directly with a structurally-typed `this` so
 // no Muya bootstrap is required.
 
-interface FakeAtxContent {
+interface IFakeAtxContent {
     text: string;
     cursor: { start: number; end: number };
     parent: {
@@ -28,7 +28,7 @@ interface FakeAtxContent {
     setCursor: (start: number, end: number, _selected?: boolean) => void;
 }
 
-function makeFakeContent(level: number, cursorAt: number): FakeAtxContent {
+function makeFakeContent(level: number, cursorAt: number): IFakeAtxContent {
     return {
         text: '# Headings',
         cursor: { start: cursorAt, end: cursorAt },

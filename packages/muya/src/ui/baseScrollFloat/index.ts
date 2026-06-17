@@ -6,23 +6,23 @@ import BaseFloat from '../baseFloat';
 
 abstract class BaseScrollFloat extends BaseFloat {
     public scrollElement: HTMLElement | null = null;
-    public reference: Element | ReferenceElement | null = null;
+    private _reference: Element | ReferenceElement | null = null;
     public activeItem: unknown | null = null;
     public renderArray: unknown[] = [];
 
     constructor(muya: Muya, name: string, options = {}) {
         super(muya, name, options);
-        this.createScrollElement();
+        this._createScrollElement();
     }
 
-    createScrollElement() {
+    private _createScrollElement() {
         const { container } = this;
         const scrollElement = document.createElement('div');
         container!.appendChild(scrollElement);
         this.scrollElement = scrollElement;
     }
 
-    activeEleScrollIntoView(ele: HTMLElement) {
+    protected activeEleScrollIntoView(ele: HTMLElement) {
         if (ele) {
             ele.scrollIntoView({
                 behavior: 'smooth',
@@ -64,7 +64,7 @@ abstract class BaseScrollFloat extends BaseFloat {
 
     override hide() {
         super.hide();
-        this.reference = null;
+        this._reference = null;
     }
 
     override show(reference: Element | ReferenceElement, cb: (...args: never[]) => void = noop) {
@@ -73,11 +73,11 @@ abstract class BaseScrollFloat extends BaseFloat {
         this.cb = cb as (...args: unknown[]) => void;
 
         if (reference instanceof HTMLElement) {
-            if (this.reference && this.reference === reference && this.status)
+            if (this._reference && this._reference === reference && this.status)
                 return;
         }
 
-        this.reference = reference;
+        this._reference = reference;
         super.show(reference, cb);
     }
 

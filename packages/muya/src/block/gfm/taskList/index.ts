@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { ITaskListMeta, ITaskListState } from '../../../state/types';
 import type TaskListItem from '../taskListItem';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import Parent from '../../base/parent';
 import IContainerQueryBlock from '../../mixins/containerQueryBlock';
@@ -38,7 +39,7 @@ class TaskList extends Parent {
         this.datasets = {
             marker: meta.marker,
         };
-        this.classList = ['mu-task-list'];
+        this.classList = [CLASS_NAMES.MU_TASK_LIST];
         if (!meta.loose)
             this.classList.push('mu-tight-list');
 

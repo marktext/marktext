@@ -119,11 +119,13 @@ test.describe('Parity G8 — language switch refreshes inline hints', () => {
     const enHint = await hintFor()
     expect(enHint).toBeTruthy()
 
-    // Switch the language the way the preference change does: update the
-    // preferences store (so `getMuyaLocale(language.value)` resolves zh-CN),
-    // then fire `language-changed`, which calls `editor.locale(...)`.
-    await sendIpcToRenderer(app, 'mt::user-preference', { language: 'zh-CN' })
+    // Mirror the real main-process order: AppMenu registers its
+    // `broadcast-preferences-changed` listener before WindowManager, so
+    // `language-changed` reaches the renderer BEFORE the `mt::user-preference`
+    // that syncs the preferences store. The handler must therefore read the
+    // locale from the event payload, not from the still-stale `language.value`.
     await sendIpcToRenderer(app, 'language-changed', 'zh-CN')
+    await sendIpcToRenderer(app, 'mt::user-preference', { language: 'zh-CN' })
     await page.waitForTimeout(400)
 
     const zhHint = await hintFor()

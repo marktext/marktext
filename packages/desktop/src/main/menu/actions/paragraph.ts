@@ -1,23 +1,17 @@
-import { type BrowserWindow, type MenuItem } from 'electron'
+import { type BrowserWindow, type Menu, type MenuItem } from 'electron'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 
 type Win = BrowserWindow | null | undefined
 
-const DISABLE_LABELS: readonly string[] = [
-  // paragraph menu items
-  'heading1MenuItem',
-  'heading2MenuItem',
-  'heading3MenuItem',
-  'heading4MenuItem',
-  'heading5MenuItem',
-  'heading6MenuItem',
-  'upgradeHeadingMenuItem',
-  'degradeHeadingMenuItem',
-  'tableMenuItem',
-  // formats menu items
-  'hyperlinkMenuItem',
-  'imageMenuItem'
+// Paragraph-menu items that can actually be executed across a multi-block
+// selection; everything else is disabled when the selection spans blocks.
+const CROSS_BLOCK_ENABLED_PARAGRAPH: readonly string[] = [
+  'codeFencesMenuItem',
+  'quoteBlockMenuItem',
+  'orderListMenuItem',
+  'bulletListMenuItem',
+  'taskListMenuItem'
 ]
 
 const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
@@ -34,7 +28,7 @@ const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
   quoteBlockMenuItem: 'blockquote',
   orderListMenuItem: 'ol',
   bulletListMenuItem: 'ul',
-  // taskListMenuItem: 'ul',
+  taskListMenuItem: 'task',
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
   frontMatterMenuItem: 'frontmatter' // 'pre'
@@ -156,28 +150,23 @@ export const loadParagraphCommands = (commandManager: CommandManager): void => {
 // NOTE: Don't use static `getMenuItemById` here, instead request the menu by
 //       window id from `AppMenu` manager.
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const setParagraphMenuItemStatus = (applicationMenu: any, bool: boolean): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => (item.enabled = bool))
+const setParagraphMenuItemStatus = (applicationMenu: Menu, bool: boolean): void => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = bool))
 }
 
 const setMultipleStatus = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   list: readonly string[],
   status: boolean
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  paragraphMenuItem.submenu.items
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .filter((item: any) => item.id && list.includes(item.id))
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .forEach((item: any) => (item.enabled = status))
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items
+    .filter((item: MenuItem) => item.id && list.includes(item.id))
+    .forEach((item: MenuItem) => (item.enabled = status))
 }
 
-interface SelectionState {
+export interface SelectionState {
   affiliation: Record<string, boolean>
   isTable?: boolean
   isLooseListItem?: boolean
@@ -186,34 +175,29 @@ interface SelectionState {
   isMultiline?: boolean
   isCodeFences?: boolean
   isCodeContent?: boolean
+  hasFrontMatter?: boolean
 }
 
 const setCheckedMenuItem = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
-  { affiliation, isTable, isLooseListItem, isTaskList }: SelectionState
+  applicationMenu: Menu,
+  { affiliation, isTable, isLooseListItem }: SelectionState
 ): void => {
-  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => (item.checked = false))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  paragraphMenuItem.submenu.items.forEach((item: any) => {
+  const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
+  paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => {
     if (!item.id) {
       return false
     } else if (item.id === 'looseListItemMenuItem') {
       item.checked = !!isLooseListItem
     } else if (
       Object.keys(affiliation).some((b) => {
-        if (b === 'ul' && isTaskList) {
-          if (item.id === 'taskListMenuItem') {
-            return true
-          }
-          return false
-        } else if (isTable && item.id === 'tableMenuItem') {
+        if (isTable && item.id === 'tableMenuItem') {
           return true
         } else if (item.id === 'codeFencesMenuItem' && /code$/.test(b)) {
           return true
         }
+        // Each list kind is its own affiliation key (ol / ul / task), so a
+        // nested chain checks every level via the id map.
         return b === MENU_ID_MAP[item.id]
       })
     ) {
@@ -230,8 +214,7 @@ const setCheckedMenuItem = (
  * @param state The selection information.
  */
 export const updateSelectionMenus = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  applicationMenu: any,
+  applicationMenu: Menu,
   state: SelectionState
 ): void => {
   const {
@@ -245,9 +228,8 @@ export const updateSelectionMenus = (
   } = state
 
   // Reset format menu.
-  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(formatMenuItem.submenu as any).items.forEach((item: any) => (item.enabled = true))
+  const formatMenuItem: MenuItem = applicationMenu.getMenuItemById('formatMenuItem')!
+  formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = true))
 
   // Handle menu checked.
   setCheckedMenuItem(applicationMenu, state)
@@ -261,27 +243,37 @@ export const updateSelectionMenus = (
   if (isCodeFences) {
     setParagraphMenuItemStatus(applicationMenu, false)
 
-    // A code line is selected.
-    if (isCodeContent) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(formatMenuItem.submenu as any).items.forEach((item: any) => (item.enabled = false))
+    // Non-formattable code-like content (code/math/html/frontmatter/diagram):
+    // disable every format item. Tables never reach here (they return early via
+    // isDisabled) so table cells keep formatting.
+    formatMenuItem.submenu!.items.forEach((item: MenuItem) => (item.enabled = false))
 
-      if (Object.keys(affiliation).some((b) => /code$/.test(b))) {
-        setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
-      }
+    // A code line is selected — re-enable the code-fence toggle.
+    if (isCodeContent && Object.keys(affiliation).some((b) => /code$/.test(b))) {
+      setMultipleStatus(applicationMenu, ['codeFencesMenuItem'], true)
     }
   } else if (isMultiline) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(formatMenuItem.submenu as any).items
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((item: any) => item.id && DISABLE_LABELS.includes(item.id))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .forEach((item: any) => (item.enabled = false))
-    setMultipleStatus(applicationMenu, DISABLE_LABELS, false)
+    // Format: link/image are meaningless across a multi-block selection.
+    formatMenuItem.submenu!.items
+      .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
+      .forEach((item: MenuItem) => (item.enabled = false))
+    // Paragraph: enable only the items that have a defined cross-block action.
+    const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!
+    paragraphMenu.submenu!.items.forEach((item: MenuItem) => {
+      if (item.id) {
+        item.enabled = CROSS_BLOCK_ENABLED_PARAGRAPH.includes(item.id)
+      }
+    })
   }
 
-  // Disable loose list item.
-  if (!affiliation.ul && !affiliation.ol) {
+  // Disable loose list item when not inside any list (bullet / ordered / task).
+  if (!affiliation.ul && !affiliation.ol && !affiliation.task) {
     setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
+  }
+
+  // Front matter may exist at most once per document; disable the menu item
+  // whenever the document already has one.
+  if (state.hasFrontMatter) {
+    setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], false)
   }
 }

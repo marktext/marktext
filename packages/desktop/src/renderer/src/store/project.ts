@@ -3,18 +3,18 @@ import { defineStore } from 'pinia'
 import { addFile, unlinkFile, addDirectory, unlinkDirectory, resortTree, updateFileMtime } from './treeCtrl'
 import { usePreferencesStore } from './preferences'
 import bus from '../bus'
-import { create, paste, rename } from '../util/fileSystem'
+import { create, paste, rename, type FileCreateType, type PasteOptions } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
 import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
 import { debouncedSendBufferedState } from './bufferedState'
+import type { TreeNode } from '../components/sideBar/types'
+import type { FileChangeDetail } from '@shared/types/files'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ProjectTree = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TreeChange = any
+type ProjectTree = TreeNode
+type TreeChange = FileChangeDetail
 
 const normalizeProjectRoot = (pathname: string | null | undefined): string => {
   return pathname ? window.path.normalize(pathname) : ''
@@ -46,8 +46,7 @@ interface BufferedProjectState {
 }
 
 const createBufferedProjectState = (state: unknown): BufferedProjectState => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const s = (state || {}) as any
+  const s = (state || {}) as { rootDirectory?: string; projectTree?: { pathname?: string } }
   return {
     rootDirectory: normalizeProjectRoot(s.rootDirectory || s.projectTree?.pathname)
   }
@@ -74,6 +73,9 @@ interface PendingEvent {
 }
 
 export const useProjectStore = defineStore('project', () => {
+  // Heterogeneous UI state: assigned file nodes, folder nodes, and the empty
+  // "no selection" object/null across sidebar components; a single non-`any`
+  // union breaks both the assignments and the field reads, so it stays a hatch.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeItem = ref<any>({})
   const createCache = ref<CreateCacheEntry | Record<string, never>>({})
@@ -148,8 +150,7 @@ export const useProjectStore = defineStore('project', () => {
 
   function LISTEN_FOR_UPDATE_PROJECT(): void {
     window.electron.ipcRenderer.on('mt::update-object-tree', (_e, payload) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { type, change } = (payload as any) ?? {}
+      const { type, change } = (payload as { type: string; change: TreeChange }) ?? {}
       if (!projectTree.value) {
         pendingTreeEvents.value.push({ type, change })
         return
@@ -163,27 +164,27 @@ export const useProjectStore = defineStore('project', () => {
     switch (type) {
       case 'add': {
         const { pathname, data, isMarkdown } = change
-        addFile(projectTree.value, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+        addFile(projectTree.value!, change as Parameters<typeof addFile>[1], String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
         if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
-          const fileState = getFileStateFromData(data)
+          const fileState = getFileStateFromData(data as Record<string, unknown>)
           editorStore.UPDATE_CURRENT_FILE(fileState)
           newFileNameCache.value = ''
         }
         break
       }
       case 'unlink':
-        unlinkFile(projectTree.value, change)
+        unlinkFile(projectTree.value!, change)
         editorStore.SET_SAVE_STATUS_WHEN_REMOVE(change)
         break
       case 'addDir':
-        addDirectory(projectTree.value, change)
+        addDirectory(projectTree.value!, change)
         break
       case 'unlinkDir':
-        unlinkDirectory(projectTree.value, change)
+        unlinkDirectory(projectTree.value!, change)
         break
       case 'change':
         if (change?.mtimeMs !== undefined) {
-          updateFileMtime(projectTree.value, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+          updateFileMtime(projectTree.value!, change as Parameters<typeof updateFileMtime>[1], String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
         }
         break
       default:
@@ -248,8 +249,7 @@ export const useProjectStore = defineStore('project', () => {
           return
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        paste(cb as any)
+        paste(cb as PasteOptions)
           .then(() => {
             clipboard.value = null
           })
@@ -270,8 +270,7 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   function CREATE_FILE_DIRECTORY(name: string): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cache = createCache.value as any
+    const cache = createCache.value as CreateCacheEntry
     const { dirname, type } = cache
 
     if (type === 'file' && !window.fileUtils.hasMarkdownExtension(name)) {
@@ -280,7 +279,7 @@ export const useProjectStore = defineStore('project', () => {
 
     const fullName = `${dirname}/${name}`
 
-    create(fullName, type)
+    create(fullName, type as FileCreateType)
       .then(() => {
         createCache.value = {}
         if (type === 'file') {

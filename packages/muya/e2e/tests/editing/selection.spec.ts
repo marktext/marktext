@@ -17,8 +17,8 @@ test.describe('selection', () => {
             const sel = window.muya!.editor.selection.getSelection();
             if (!sel)
                 return false;
-            const { anchorBlock, focusBlock } = sel;
-            return anchorBlock !== focusBlock;
+            const { anchor, focus } = sel;
+            return anchor.block !== focus.block;
         });
         expect(hasMultiBlockSelection).toBe(true);
     });

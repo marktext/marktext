@@ -1,5 +1,5 @@
 import type { ITurnoverOptions } from './types';
-import { DEFAULT_TURNDOWN_CONFIG } from '../config';
+import { CLASS_NAMES, DEFAULT_TURNDOWN_CONFIG } from '../config';
 import TurndownService, { usePluginsAddRules } from '../utils/turndownService';
 
 // Just because turndown change `\n`(soft line break) to space, So we add `span.ag-soft-line-break` to workaround.
@@ -44,7 +44,7 @@ function turnSoftBreakToSpan(html: string) {
                         params.push(document.createTextNode(text));
                         if (i !== len - 1) {
                             const softBreak = document.createElement('span');
-                            softBreak.classList.add('mu-soft-line-break');
+                            softBreak.classList.add(CLASS_NAMES.MU_SOFT_LINE_BREAK);
                             params.push(softBreak);
                         }
                     }

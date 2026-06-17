@@ -238,7 +238,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Main Project**: [MarkText Editor](https://github.com/marktext/marktext)
 - **Website**: [https://marktext.me](https://marktext.me)
-- **Documentation**: [MarkText Docs](https://github.com/marktext/marktext/tree/develop/docs)
+- **Documentation**: [MarkText Docs](https://marktext.me/docs)
 
 ## 💖 Sponsors
 

@@ -18,8 +18,7 @@ export interface ContextMenuItem {
   enabled?: boolean
   checked?: boolean
   submenu?: ContextMenuItem[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  click?: (...args: any[]) => void
+  click?: (...args: unknown[]) => void
 }
 
 let nextId = 1

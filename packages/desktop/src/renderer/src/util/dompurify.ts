@@ -1,4 +1,4 @@
-import DOMPurify from 'dompurify'
+import DOMPurify, { type Config } from 'dompurify'
 
 export const PREVIEW_DOMPURIFY_CONFIG = Object.freeze({
   FORBID_ATTR: ['style', 'contenteditable'],
@@ -35,7 +35,6 @@ export const EXPORT_DOMPURIFY_CONFIG = Object.freeze({
 // Both configs set `RETURN_TRUSTED_TYPE: false`, so the result is always a
 // string at runtime; the cast bridges DOMPurify's `string | TrustedHTML`
 // overload union (which the loosely-typed options can't statically narrow).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sanitize = (html: string, purifyOptions?: any): string => {
+export const sanitize = (html: string, purifyOptions?: Config): string => {
   return DOMPurify.sanitize(html, purifyOptions) as unknown as string
 }

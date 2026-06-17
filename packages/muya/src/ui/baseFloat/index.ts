@@ -5,6 +5,7 @@ import { autoUpdate, computePosition, flip, offset } from '@floating-ui/dom';
 import { EVENT_KEYS } from '../../config';
 
 import { isHTMLElement, isKeyboardEvent, noop } from '../../utils';
+import { findScrollContainer } from '../../utils/dom';
 
 import './index.css';
 
@@ -23,12 +24,12 @@ function defaultOptions() {
 const BUTTON_GROUP = ['mu-table-drag-bar', 'mu-front-button'];
 
 abstract class BaseFloat {
-    public options: IBaseOptions;
+    protected options: IBaseOptions;
     public status: boolean = false;
     public floatBox: HTMLElement | null = null;
     public container: HTMLElement | null = null;
-    public lastScrollTop: number | null = null;
-    public cb: (...args: unknown[]) => void = noop;
+    private _lastScrollTop: number | null = null;
+    protected cb: (...args: unknown[]) => void = noop;
 
     private _cleanup: (() => void) | null = null;
     private _resizeObserver: ResizeObserver | null = null;
@@ -87,13 +88,11 @@ abstract class BaseFloat {
          * it means that the user's focus is no longer on the float box,
          * so the float box needs to be hidden.
          */
-        // TODO: @JOCS, But now there is a problem, the container for scroll is indeterminate,
-        // and currently the default scroll container is the parent element of the editor(muya.domNode)
         const scrollHandler = (event: Event) => {
             if (!isHTMLElement(event.target))
                 return;
-            if (typeof this.lastScrollTop !== 'number') {
-                this.lastScrollTop = event.target.scrollTop;
+            if (typeof this._lastScrollTop !== 'number') {
+                this._lastScrollTop = event.target.scrollTop;
 
                 return;
             }
@@ -101,7 +100,7 @@ abstract class BaseFloat {
             // only when scroll distance great than 50px, then hide the float box.
             if (
                 this.status
-                && Math.abs(event.target.scrollTop - this.lastScrollTop) > 50
+                && Math.abs(event.target.scrollTop - this._lastScrollTop) > 50
             ) {
                 this.hide();
             }
@@ -113,7 +112,7 @@ abstract class BaseFloat {
             event.preventDefault();
         });
         eventCenter.attachDOMEvent(domNode, 'keydown', keydownHandler);
-        eventCenter.attachDOMEvent(domNode.parentElement!, 'scroll', scrollHandler);
+        eventCenter.attachDOMEvent(findScrollContainer(domNode), 'scroll', scrollHandler);
     }
 
     hide() {
@@ -138,7 +137,7 @@ abstract class BaseFloat {
         }
 
         this.cb = noop;
-        this.lastScrollTop = null;
+        this._lastScrollTop = null;
 
         if (BUTTON_GROUP.includes(this.name))
             eventCenter.emit('muya-float-button', this, false);
@@ -166,11 +165,18 @@ abstract class BaseFloat {
         // `unknown[]` so internal call sites can forward arbitrary args.
         this.cb = cb as (...args: unknown[]) => void;
 
-        this._cleanup = autoUpdate(reference, floatBox, () => {
+        const cleanup = autoUpdate(reference, floatBox, () => {
             computePosition(reference, floatBox, {
                 placement,
                 middleware: [offset(offsetOptions), flip()],
             }).then(({ x, y }) => {
+                // `computePosition` is async: a `hide()` (or a newer `show()`)
+                // can land before this resolves. Applying it then would set
+                // `opacity: 1` on an already-hidden float without restoring
+                // `status`, so the next `hide()` early-returns and the float is
+                // stuck visible. Bail unless this pass is still the active one.
+                if (this._cleanup !== cleanup)
+                    return;
                 Object.assign(floatBox.style, {
                     left: `${x}px`,
                     top: `${y}px`,
@@ -178,6 +184,7 @@ abstract class BaseFloat {
                 });
             });
         });
+        this._cleanup = cleanup;
 
         this.status = true;
 

@@ -27,6 +27,24 @@ export function queryAll<T extends Element = HTMLElement>(
     return Array.from(parent.querySelectorAll<T>(selector));
 }
 
+// Walk up from `node` (inclusive) to the nearest scrollable ancestor. The
+// editor's scroll container is not fixed across embeddings — in the desktop
+// app `muya.domNode` itself scrolls (`overflow:auto`), while other hosts may
+// scroll an ancestor. Float tools must listen on whichever element actually
+// scrolls, since scroll events do not bubble. Falls back to `node`.
+export function findScrollContainer(node: HTMLElement): HTMLElement {
+    let el: HTMLElement | null = node;
+    while (el && el !== document.body && el !== document.documentElement) {
+        const { overflowY } = getComputedStyle(el);
+        if (overflowY === 'auto' || overflowY === 'scroll')
+            return el;
+
+        el = el.parentElement;
+    }
+
+    return node;
+}
+
 // Read the Muya block stamped onto a DOM element. `BLOCK_DOM_PROPERTY` is a
 // string property attached by `TreeNode.attachDOMNode`; centralising the
 // cast here means callsites never need to reach into `element[KEY]` with

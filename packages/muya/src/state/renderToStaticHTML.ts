@@ -97,7 +97,7 @@ function transformFootnotes(html: string): string {
     let body = html.replace(FOOTNOTE_DEF_RE, (_, id: string, inner: string) => {
         // First definition wins for duplicate identifiers — matches the way
         // pandoc / GFM linkrefs treat repeated labels and what the plan asks
-        // for (Section 十, risk #2).
+        // for (Section 10, risk #2).
         if (!definitions.has(id))
             definitions.set(id, inner);
         return '';

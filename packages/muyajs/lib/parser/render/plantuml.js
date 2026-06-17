@@ -1,7 +1,7 @@
 import { deflate } from 'pako'
 import { toHTML, h } from './snabbdom'
 
-const PLANTUML_URL = 'https://www.plantuml.com/plantuml'
+const PLANTUML_DEFAULT_URL = 'https://www.plantuml.com/plantuml'
 
 function replaceChar(tableIn, tableOut, char) {
   const charIndex = tableIn.indexOf(char)
@@ -24,10 +24,14 @@ function uint8ArrayToBase64(bytes) {
 
 export default class Diagram {
   encodedInput = ''
+  plantumlServer = PLANTUML_DEFAULT_URL
 
-  static parse(input) {
+  static parse(input, plantumlServer) {
     const diagram = new Diagram()
     diagram.encodedInput = Diagram.encode(input)
+    if (plantumlServer) {
+      diagram.plantumlServer = plantumlServer
+    }
     return diagram
   }
 
@@ -51,7 +55,7 @@ export default class Diagram {
     if (div === null || !div.tagName) {
       throw new Error('Invalid container: ' + container)
     }
-    const src = `${PLANTUML_URL}/svg/~1${this.encodedInput}`
+    const src = `${this.plantumlServer}/svg/~1${this.encodedInput}`
     const node = h('img', { attrs: { src } })
     div.innerHTML = toHTML(node)
   }

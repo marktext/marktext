@@ -99,6 +99,36 @@ describe('muya.updateParagraph()', () => {
         });
     });
 
+    // Promote clamp: H1 is the top heading level, so `upgrade heading` on an
+    // H1 is a no-op (the level stays 1) — _changeHeadingLevel returns early
+    // when `level === 1`.
+    it('upgrade heading on h1 is a no-op (stays level 1)', async () => {
+        const muya = bootMuya('# one\n');
+        placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(1);
+        muya.updateParagraph('upgrade heading');
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(1);
+        expect(muya.getMarkdown()).toContain('# one');
+    });
+
+    // Demote clamp: degrading an H6 drops past the heading floor, so the block
+    // becomes a plain paragraph (newLevel === 0 -> 'paragraph' label).
+    it('degrade heading on h6 turns it into a paragraph', async () => {
+        const muya = bootMuya('###### six\n');
+        placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('atx-heading');
+        expect(firstBlock(muya).meta.level).toBe(6);
+        muya.updateParagraph('degrade heading');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).name).toBe('paragraph');
+        });
+        expect(muya.getMarkdown()).toContain('six');
+        expect(muya.getMarkdown()).not.toContain('# six');
+    });
+
     it('turns a paragraph into a blockquote', async () => {
         const muya = bootMuya('quote me\n');
         placeCursorOnFirstBlock(muya);
@@ -137,6 +167,61 @@ describe('muya.updateParagraph()', () => {
         await vi.waitFor(() => {
             expect(firstBlock(muya).meta.loose).toBe(!before);
         });
+    });
+
+    it('keeps the cursor in the same list item when toggling loose/tight', async () => {
+        const muya = bootMuya('- a\n- b\n');
+        const list = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock!;
+        const second = list.lastContentInDescendant()!;
+        // Caret at the end of the SECOND item ('b').
+        second.setCursor(1, 1, true);
+        expect(muya.editor.activeContentBlock).toBe(second);
+
+        muya.updateParagraph('loose-list-item');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.loose).toBe(true);
+        });
+
+        // The caret must stay in the second item at the same offset, not jump
+        // back to the first item at offset 0.
+        expect(muya.editor.activeContentBlock?.text).toBe('b');
+        expect(muya.editor.selection.anchor?.offset).toBe(1);
+    });
+
+    it('keeps a multi-item selection spanning list items when toggling loose/tight', async () => {
+        const muya = bootMuya('1. a\n2. b\n3. c\n');
+        const list = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock!;
+        const first = list.firstContentInDescendant()!;
+        const third = list.lastContentInDescendant()!;
+
+        // Simulate Chromium reporting a live selection spanning item 1 ('a') to
+        // item 3 ('c'). happy-dom's Selection.extend can't build a cross-node
+        // range, so the real menu scenario (getSelection returns the range) is
+        // stubbed here; the assertions below exercise the path re-resolution.
+        const liveSelection = {
+            anchor: { offset: 0, block: first, path: first.path },
+            focus: { offset: 1, block: third, path: third.path },
+            isCollapsed: false,
+            isSelectionInSameBlock: false,
+            direction: 'forward',
+            type: 'Range',
+        };
+        vi.spyOn(muya.editor.selection, 'getSelection').mockReturnValue(liveSelection as never);
+        muya.editor.activeContentBlock = third;
+
+        muya.updateParagraph('loose-list-item');
+        await vi.waitFor(() => {
+            expect(firstBlock(muya).meta.loose).toBe(true);
+        });
+
+        // The selection must still span the first and third items, not collapse
+        // to a single item.
+        const sel = muya.editor.selection;
+        expect(sel.anchorBlock?.text).toBe('a');
+        expect(sel.focusBlock?.text).toBe('c');
+        expect(sel.anchorBlock).not.toBe(sel.focusBlock);
+        expect(sel.anchor?.offset).toBe(0);
+        expect(sel.focus?.offset).toBe(1);
     });
 
     it('maps the command-palette ol-bullet label to an ordered list', async () => {
@@ -179,6 +264,37 @@ describe('muya.updateParagraph()', () => {
         await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         expect(firstBlock(muya).name).toBe('paragraph');
         expect(muya.getMarkdown()).toContain('keep me');
+    });
+
+    // HR positive path: an empty paragraph passes the content guard, so `hr`
+    // replaces it with a thematic-break AND inserts a fresh trailing paragraph
+    // so the user is never stranded on the un-editable rule. The cursor lands
+    // in that trailing paragraph.
+    it('converts an empty paragraph to an hr, leaving a trailing paragraph with the cursor', async () => {
+        const muya = bootMuya('');
+        const first = placeCursorOnFirstBlock(muya);
+        expect(firstBlock(muya).name).toBe('paragraph');
+        expect(first.text).toBe('');
+
+        muya.updateParagraph('hr');
+
+        await vi.waitFor(() => {
+            const state = muya.getState();
+            expect(state.length).toBe(2);
+            expect(state[0].name).toBe('thematic-break');
+            expect(state[1].name).toBe('paragraph');
+        });
+
+        const state = muya.getState();
+        // The trailing paragraph is empty and ready for input.
+        expect((state[1] as { text: string }).text).toBe('');
+
+        // The cursor moved off the original paragraph into the trailing one:
+        // the active content block is the trailing paragraph's leaf.
+        const active = muya.editor.activeContentBlock;
+        expect(active).not.toBeNull();
+        const trailing = muya.editor.scrollPage!.lastContentInDescendant();
+        expect(active).toBe(trailing);
     });
 
     // G4 regression: the plain 'paragraph' menu item must not collapse a list /

@@ -5,6 +5,7 @@ import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
+import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
@@ -12,12 +13,12 @@ import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 import fs from 'fs'
 
+type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
+
 // The deferred file/markdown to open before the window finishes loading.
 interface PendingFile {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  doc: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: any
+  doc: RawMarkdownDocument
+  options: Record<string, unknown>
   selected: boolean
 }
 
@@ -29,6 +30,21 @@ interface BufferStoreInfo {
 interface CandidateScore {
   id: number | null
   score: number
+}
+
+interface RestoredTab {
+  pathname: string
+  filename?: string
+  markdown?: string
+  isSaved?: boolean
+  [key: string]: unknown
+}
+
+interface RestoredBufferState {
+  tabs: RestoredTab[]
+  restoreWarnings?: unknown[]
+  project?: { rootDirectory?: string }
+  [key: string]: unknown
 }
 
 class EditorWindow extends BaseWindow {
@@ -46,7 +62,7 @@ class EditorWindow extends BaseWindow {
   /**
    * @param accessor The application accessor for application instances.
    */
-  constructor(accessor: unknown) {
+  constructor(accessor: Accessor) {
     super(accessor)
     this.type = WindowType.EDITOR
 
@@ -73,9 +89,7 @@ class EditorWindow extends BaseWindow {
     options: Partial<BrowserWindowConstructorOptions> = {},
     bufferStoreInfo: BufferStoreInfo | null = null
   ): BrowserWindow {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const accessor = this._accessor as any
-    const { menu: appMenu, env, preferences, editorBufferStore } = accessor
+    const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
     const addBlankTab =
       !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
@@ -134,14 +148,14 @@ class EditorWindow extends BaseWindow {
 
     if (spellcheckerEnabled && !isOsx) {
       try {
-        switchLanguage(win, spellcheckerLanguage)
+        switchLanguage(win, spellcheckerLanguage as string)
       } catch (error) {
         log.error('Unable to set spell checker language on startup:', error)
       }
     }
 
     // Create a menu for the current window
-    appMenu.addEditorMenu(win, { sourceCodeModeEnabled })
+    appMenu.addEditorMenu(win, { sourceCodeModeEnabled: sourceCodeModeEnabled as boolean })
 
     win.webContents.on('context-menu', (event, params) => {
       showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
@@ -155,7 +169,7 @@ class EditorWindow extends BaseWindow {
       this.bringToFront()
 
       const lineEnding = preferences.getPreferredEol()
-      appMenu.updateLineEndingMenu(this.id, lineEnding)
+      appMenu.updateLineEndingMenu(this.id!, lineEnding)
 
       win!.webContents.send('mt::bootstrap-editor', {
         addBlankTab,
@@ -232,8 +246,7 @@ class EditorWindow extends BaseWindow {
       (channel) => {
         // Electron's BrowserWindow.on() is heavily overloaded — the union of
         // event names can't be satisfied by a single overload, so we widen.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(win as any)!.on(channel, () => {
+        ;(win! as { on(event: string, listener: () => void): void }).on(channel, () => {
           win!.webContents.send(`mt::window-${channel}`)
         })
       }
@@ -310,8 +323,7 @@ class EditorWindow extends BaseWindow {
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
     const { browserWindow } = this
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { preferences } = this._accessor as any
+    const { preferences } = this._accessor
     const eol = preferences.getPreferredEol()
     const { autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings } =
       preferences.getAll()
@@ -329,8 +341,7 @@ class EditorWindow extends BaseWindow {
         trimTrailingNewline,
         autoNormalizeLineEndings
       )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .then((rawDocument: any) => {
+        .then((rawDocument) => {
           if (this.lifecycle === WindowLifecycle.READY) {
             this._doOpenTab(rawDocument, options, selected)
           } else {
@@ -379,9 +390,7 @@ class EditorWindow extends BaseWindow {
 
     if (this.lifecycle === WindowLifecycle.READY) {
       const { browserWindow } = this
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const _accessor = this._accessor as any
-      const { menu: appMenu, preferences } = _accessor
+      const { menu: appMenu, preferences } = this._accessor
 
       if (this._openedRootDirectory) {
         ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
@@ -474,8 +483,7 @@ class EditorWindow extends BaseWindow {
 
     browserWindow!.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { preferences } = this._accessor as any
+      const { preferences } = this._accessor
       const { sideBarVisibility, restoreLayoutState, tabBarVisibility, sourceCodeModeEnabled } =
         preferences.getAll()
       const resolvedSideBarVisibility = restoreLayoutState ? !!sideBarVisibility : false
@@ -516,15 +524,12 @@ class EditorWindow extends BaseWindow {
    * Open a new new tab from the markdown document.
    */
   private _doOpenTab(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rawDocument: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    options: any,
+    rawDocument: RawMarkdownDocument,
+    options: Record<string, unknown>,
     selected: boolean
   ): void {
     const { _accessor, _openedFiles, browserWindow } = this
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { menu: appMenu } = _accessor as any
+    const { menu: appMenu } = _accessor
     const { pathname } = rawDocument
 
     // Listen for file changed.
@@ -556,12 +561,12 @@ class EditorWindow extends BaseWindow {
       throw new Error('Invalid state.')
     }
     const { browserWindow, bufferStoreInfo, _accessor } = this
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { menu: appMenu, preferences } = _accessor as any
+    const { menu: appMenu, preferences } = _accessor
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const bufferState: any = JSON.parse(fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8'))
+      const bufferState = JSON.parse(
+        fs.readFileSync(bufferStoreInfo!.filePath!, 'utf-8')
+      ) as RestoredBufferState
       if (!bufferState || !Array.isArray(bufferState.tabs)) {
         throw new Error('Invalid editor buffer state.')
       }
@@ -592,8 +597,7 @@ class EditorWindow extends BaseWindow {
             trimTrailingNewline,
             autoNormalizeLineEndings
           )
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .then((rawDocument: any) => {
+            .then((rawDocument) => {
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {

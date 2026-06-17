@@ -266,3 +266,38 @@ describe('autoPair — bbea7eca skip when preInputChar is alphanumeric', () => {
         expect(needRender).toBe(false);
     });
 });
+
+// ── option toggles disable the individual auto-pair behaviours ────────────
+// Each of `autoPairBracket`, `autoPairMarkdownSyntax`, `autoPairQuote`
+// gates exactly one branch in `autoPair`. When the option is `false` the
+// branch must NOT fire: the typed character is left as-is with no inserted
+// closer and `needRender` stays `false`. These pin the per-option opt-out
+// so a future refactor can't silently re-enable a disabled behaviour.
+describe('autoPair — per-option opt-out', () => {
+    it('does not pair `(` when autoPairBracket is false', () => {
+        const fakeThis = makeFakeThis('foo', 3, { autoPairBracket: false });
+        const event = makeInputEvent('insertText', '(');
+        const { text, needRender } = invokeAutoPair(fakeThis, event, 'foo(', 4);
+
+        expect(text).toBe('foo(');
+        expect(needRender).toBe(false);
+    });
+
+    it('does not pair `*` after a space when autoPairMarkdownSyntax is false', () => {
+        const fakeThis = makeFakeThis('foo ', 4, { autoPairMarkdownSyntax: false });
+        const event = makeInputEvent('insertText', '*');
+        const { text, needRender } = invokeAutoPair(fakeThis, event, 'foo *', 5);
+
+        expect(text).toBe('foo *');
+        expect(needRender).toBe(false);
+    });
+
+    it('does not pair `"` when autoPairQuote is false', () => {
+        const fakeThis = makeFakeThis('foo', 3, { autoPairQuote: false });
+        const event = makeInputEvent('insertText', '"');
+        const { text, needRender } = invokeAutoPair(fakeThis, event, 'foo"', 4);
+
+        expect(text).toBe('foo"');
+        expect(needRender).toBe(false);
+    });
+});

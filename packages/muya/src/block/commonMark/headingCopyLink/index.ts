@@ -59,10 +59,10 @@ class HeadingCopyLink extends TreeNode {
         img.setAttribute('alt', '');
         this.domNode!.appendChild(img);
 
-        this.listen();
+        this._listen();
     }
 
-    listen() {
+    private _listen() {
         const { domNode, muya } = this;
         const { eventCenter } = muya;
 
@@ -105,14 +105,14 @@ class HeadingCopyLink extends TreeNode {
         });
     }
 
-    detachDOMEvents() {
+    private _detachDOMEvents() {
         for (const id of this._eventIds)
             this.muya.eventCenter.detachDOMEvent(id);
     }
 
     override remove(_source: string) {
         super.remove();
-        this.detachDOMEvents();
+        this._detachDOMEvents();
 
         return this;
     }
