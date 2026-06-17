@@ -42,19 +42,19 @@ class LinkTools extends BaseFloat {
     static pluginName = 'linkTools';
 
     public override options: ILinkToolsOptions;
-    public oldVNode: VNode | null = null;
-    public linkInfo: ILinkInfo | null = null;
-    public linkBlock: Format | null = null;
-    public icons: LinkToolIcon[] = iconsConfig;
-    public hideTimer: ReturnType<typeof setTimeout> | null = null;
-    public linkContainer: HTMLElement;
+    private _oldVNode: VNode | null = null;
+    private _linkInfo: ILinkInfo | null = null;
+    private _linkBlock: Format | null = null;
+    private _icons: LinkToolIcon[] = iconsConfig;
+    private _hideTimer: ReturnType<typeof setTimeout> | null = null;
+    private _linkContainer: HTMLElement;
 
     constructor(muya: Muya, options: Partial<ILinkToolsOptions> = {}) {
         const name = 'mu-link-tools';
         const opts: ILinkToolsOptions = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
         this.options = opts;
-        const linkContainer = (this.linkContainer = document.createElement('div'));
+        const linkContainer = (this._linkContainer = document.createElement('div'));
         this.container!.appendChild(linkContainer);
         // Add a per-instance class on the floatBox so the parent
         // `.mu-float-wrapper` is identifiable in DOM and reachable by
@@ -68,26 +68,26 @@ class LinkTools extends BaseFloat {
         super.listen();
         eventCenter.subscribe('muya-link-tools', ({ reference, linkInfo, block }: ILinkToolsEventPayload) => {
             if (reference) {
-                this.linkInfo = linkInfo ?? null;
-                this.linkBlock = block ?? null;
+                this._linkInfo = linkInfo ?? null;
+                this._linkBlock = block ?? null;
                 setTimeout(() => {
                     this.show(reference);
                     this.render();
                 }, 0);
             }
             else {
-                if (this.hideTimer)
-                    clearTimeout(this.hideTimer);
+                if (this._hideTimer)
+                    clearTimeout(this._hideTimer);
 
-                this.hideTimer = setTimeout(() => {
+                this._hideTimer = setTimeout(() => {
                     this.hide();
                 }, 500);
             }
         });
 
         const mouseOverHandler = () => {
-            if (this.hideTimer)
-                clearTimeout(this.hideTimer);
+            if (this._hideTimer)
+                clearTimeout(this._hideTimer);
         };
 
         const mouseOutHandler = () => {
@@ -99,7 +99,7 @@ class LinkTools extends BaseFloat {
     }
 
     render() {
-        const { icons, oldVNode, linkContainer } = this;
+        const { _icons: icons, _oldVNode: oldVNode, _linkContainer: linkContainer } = this;
         const children = icons.map((i) => {
             let icon: VNode | undefined;
             let iconWrapperSelector: string | undefined;
@@ -143,7 +143,7 @@ class LinkTools extends BaseFloat {
         else
             patch(linkContainer, vnode);
 
-        this.oldVNode = vnode;
+        this._oldVNode = vnode;
     }
 
     selectItem(event: Event, item: LinkToolIcon) {
@@ -151,8 +151,8 @@ class LinkTools extends BaseFloat {
         event.stopPropagation();
         switch (item.type) {
             case 'unlink': {
-                const block = this.linkBlock;
-                const linkInfo = this.linkInfo;
+                const block = this._linkBlock;
+                const linkInfo = this._linkInfo;
                 if (block && linkInfo && linkInfo.range) {
                     block.unlink({
                         range: linkInfo.range,
@@ -164,7 +164,7 @@ class LinkTools extends BaseFloat {
             }
 
             case 'jump':
-                this.options.jumpClick?.(this.linkInfo);
+                this.options.jumpClick?.(this._linkInfo);
                 this.hide();
                 break;
         }

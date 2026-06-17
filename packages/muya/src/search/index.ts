@@ -7,15 +7,15 @@ import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { buildRegexValue, matchString } from '../utils/search';
 
 export class Search {
-    public value: string = '';
+    private _value: string = '';
     public matches: IMatch[] = [];
     public index: number = -1;
 
-    get scrollPage() {
-        return this.muya.editor.scrollPage;
+    private get _scrollPage() {
+        return this._muya.editor.scrollPage;
     }
 
-    constructor(public muya: Muya) {}
+    constructor(private _muya: Muya) {}
 
     private _updateMatches(isClear = false) {
         const { matches, index } = this;
@@ -81,7 +81,8 @@ export class Search {
     replace(replaceValue: string, opt = { isSingle: true, isRegexp: false }) {
         const { isSingle, isRegexp, ...rest } = opt;
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, rest);
-        const { matches, value, index } = this;
+        const { matches, index } = this;
+        const value = this._value;
 
         if (matches.length) {
             if (isRegexp)
@@ -150,7 +151,7 @@ export class Search {
 
         // Highlight current search.
         if (value) {
-            this.scrollPage?.depthFirstTraverse((block: TreeNode) => {
+            this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (block.isContent()) {
                     const { text } = block;
                     if (text && typeof text === 'string') {
@@ -180,7 +181,7 @@ export class Search {
             index = 0;
         }
 
-        Object.assign(this, { value, matches, index });
+        Object.assign(this, { _value: value, matches, index });
 
         this._updateMatches();
 

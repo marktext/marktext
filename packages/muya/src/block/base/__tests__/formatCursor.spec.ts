@@ -27,7 +27,7 @@ interface IOffset {
 // `_addFormat` is declared private on Format, so accessing it via the
 // prototype requires bypassing visibility — this structural type captures
 // the signature the helper here actually invokes.
-interface FormatProtoAddFormat {
+interface IFormatProtoAddFormat {
     _addFormat: (
         this: { text: string },
         type: string,
@@ -39,7 +39,7 @@ function applyAddFormat(text: string, start: number, end: number, type: string) 
     const fakeThis = { text } as { text: string };
     const startOffset: IOffset = { offset: start };
     const endOffset: IOffset = { offset: end };
-    (Format.prototype as unknown as FormatProtoAddFormat)._addFormat.call(fakeThis, type, {
+    (Format.prototype as unknown as IFormatProtoAddFormat)._addFormat.call(fakeThis, type, {
         start: startOffset,
         end: endOffset,
     });

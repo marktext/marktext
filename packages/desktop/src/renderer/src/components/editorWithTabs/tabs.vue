@@ -58,11 +58,14 @@ const layoutStore = useLayoutStore()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
 
+interface AutoScroller {
+  readonly down: boolean
+  destroy: (forceCleanAnimation?: boolean) => void
+}
+
 const tabContainer = ref<HTMLElement | null>(null)
 const tabDropContainer = ref<HTMLElement | null>(null)
-// dom-autoscroller / dragula carry runtime APIs we don't yet model. Keep them
-// loose at the top of the file rather than retyping the libraries.
-let autoScroller: any = null
+let autoScroller: AutoScroller | null = null
 let drake: dragula.Drake | null = null
 
 // Computed properties
@@ -200,7 +203,7 @@ onMounted(() => {
     maxSpeed: 6,
     scrollWhenOutside: false,
     autoScroll: () => {
-      return autoScroller.down && drake?.dragging
+      return autoScroller!.down && drake?.dragging
     }
   })
 })

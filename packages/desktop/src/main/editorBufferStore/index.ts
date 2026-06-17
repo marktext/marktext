@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
+import type BaseWindow from '../windows/base'
 
 interface EditorBufferStorePaths {
   editorBufferStorePath: string
@@ -19,8 +20,7 @@ interface BufferStoreContent {
 
 interface EditorWindow {
   id: number
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any
+  win: BaseWindow
 }
 
 // No instance-level events emitted; kept as TypedEmitter for parity with the
@@ -201,8 +201,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
 
   updateBufferState(e: IpcMainInvokeEvent, newState: unknown): boolean {
     const win = BrowserWindow.fromWebContents(e.sender)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const restoreBufferId = (win as any)?.restoreBufferId as string | undefined
+    const restoreBufferId = (win as unknown as { restoreBufferId?: string })?.restoreBufferId
 
     if (!restoreBufferId) {
       console.warn('No restoreBufferId found for window, skipping buffer state update')

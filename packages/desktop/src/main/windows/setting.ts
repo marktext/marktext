@@ -2,7 +2,8 @@ import path from 'path'
 import { BrowserWindow, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { electronLocalshortcut } from '@hfelix/electron-localshortcut'
-import BaseWindow, { WindowLifecycle, WindowType } from './base'
+import BaseWindow, { WindowLifecycle, WindowType, type EnvLike, type PreferenceLike } from './base'
+import type Accessor from '../app/accessor'
 import { centerWindowOptions } from './utils'
 import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx } from '../config'
 import log from 'electron-log'
@@ -11,7 +12,7 @@ class SettingWindow extends BaseWindow {
   /**
    * @param accessor The application accessor for application instances.
    */
-  constructor(accessor: unknown) {
+  constructor(accessor: Accessor) {
     super(accessor)
     this.type = WindowType.SETTINGS
   }
@@ -22,9 +23,7 @@ class SettingWindow extends BaseWindow {
    * @param category The settings category tab name.
    */
   createWindow(category: string | null = null): BrowserWindow {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const accessor = this._accessor as any
-    const { menu: appMenu, env, keybindings, preferences } = accessor
+    const { menu: appMenu, env, keybindings, preferences } = this._accessor
     const winOptions: BrowserWindowConstructorOptions = Object.assign({}, preferencesWinOptions)
     centerWindowOptions(
       winOptions as BrowserWindowConstructorOptions & {
@@ -115,10 +114,8 @@ class SettingWindow extends BaseWindow {
 
   protected override _buildUrlString(
     windowId: number | null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    env: any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    userPreference: any,
+    env: EnvLike,
+    userPreference: PreferenceLike,
     category?: string | null
   ): string {
     const url = this._buildUrlWithSettings(windowId, env, userPreference)

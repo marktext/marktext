@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import Store from 'electron-store'
+import Store, { type Schema } from 'electron-store'
 import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import log from 'electron-log'
 import { isWindows } from '../config'
 import { hasSameKeys } from '../utils'
+import { onInternalChannel } from '../utils/internalIpc'
 import { getSupportedLanguages, isLanguageSupported } from 'common/i18n'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type { IUserPreferences } from '@shared/types/preferences'
@@ -24,8 +25,7 @@ interface AppPaths {
 class Preference extends TypedEmitter<PreferenceEvents> {
   public readonly preferencesPath: string
   public readonly hasPreferencesFile: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public readonly store: Store<any>
+  public readonly store: Store<IUserPreferences>
   public readonly staticPath: string
 
   /**
@@ -42,9 +42,8 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this.hasPreferencesFile = fs.existsSync(
       path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`)
     )
-    this.store = new Store({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      schema: schema as any,
+    this.store = new Store<IUserPreferences>({
+      schema: schema as unknown as Schema<IUserPreferences>,
       name: PREFERENCES_FILE_NAME,
       migrations: {
         '0.18.6': (store) => {
@@ -188,11 +187,8 @@ class Preference extends TypedEmitter<PreferenceEvents> {
       this.setItem('autoSave', !this.getItem('autoSave'))
     })
 
-    // Note: dispatched via `ipcMain.emit(...)`. The payload arrives as the
-    // first positional argument.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('set-user-preference', (settings: any) => {
-      this.setItems(settings as Record<string, unknown>)
+    onInternalChannel('set-user-preference', (settings: Record<string, unknown>) => {
+      this.setItems(settings)
     })
   }
 

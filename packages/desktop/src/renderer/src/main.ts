@@ -23,8 +23,7 @@ import './assets/styles/printService.css'
 
 // -----------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(window as any).marktext = {}
+window.marktext = {}
 bootstrapRenderer()
 
 // -----------------------------------------------
@@ -38,8 +37,7 @@ app.use(ElementPlus, {
   locale: en
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const envType = (window as any).marktext?.env?.type as string | undefined
+const envType = window.marktext?.env?.type as string | undefined
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -56,8 +54,7 @@ app.use(i18nPlugin)
 app.config.globalProperties.$http = axios
 
 // Register services globally
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(services as Array<Record<string, any>>).forEach((s) => {
+;(services as unknown as Array<Record<string, unknown> & { name: string }>).forEach((s) => {
   app.config.globalProperties['$' + s.name] = s[s.name]
 })
 

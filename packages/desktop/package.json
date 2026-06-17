@@ -114,6 +114,7 @@
   "devDependencies": {
     "@electron/rebuild": "^4.0.4",
     "@playwright/test": "^1.60.0",
+    "@types/codemirror": "^5.60.15",
     "@types/deep-equal": "^1.0.4",
     "@types/dragula": "^3.7.5",
     "@types/element-resize-detector": "^1.1.6",

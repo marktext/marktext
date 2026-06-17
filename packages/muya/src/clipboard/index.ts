@@ -21,14 +21,14 @@ class Clipboard {
 
     static create(muya: Muya) {
         const clipboard = new Clipboard(muya);
-        clipboard.listen();
+        clipboard._listen();
 
         return clipboard;
     }
 
     constructor(public muya: Muya) {}
 
-    listen() {
+    private _listen() {
         const ownsEvent = () => this.muya.hasFocus();
 
         const copyCutHandler = (event: Event) => {
@@ -136,7 +136,7 @@ class Clipboard {
             await pastePlainText(this, text);
     }
 
-    async _readClipboardText(): Promise<string> {
+    private async _readClipboardText(): Promise<string> {
         // Sandboxed Electron renderers can't reach the system clipboard
         // directly, so the embedder supplies a reader (e.g. an IPC bridge to
         // Electron's native `clipboard`). Fall back to the async Clipboard API

@@ -17,9 +17,23 @@ import LinkTools from '../index';
 // then poke `selectItem` directly to verify each branch dispatches to
 // the right collaborator.
 
+// White-box view onto LinkTools' private render state, which these tests
+// inject directly to exercise `selectItem`'s dispatch branches.
+interface ILinkToolsView {
+    _linkBlock: Format | null;
+    _linkInfo: {
+        href?: string;
+        text?: string;
+        raw?: string;
+        range?: { start: number; end: number } | null;
+    } | null;
+    selectItem: (event: Event, item: { type: string; icon: string }) => void;
+    destroy: () => void;
+}
+
 interface ITestSession {
     muya: Muya;
-    tools: LinkTools;
+    tools: ILinkToolsView;
     domNode: HTMLElement;
 }
 
@@ -44,7 +58,7 @@ interface ILinkToolsTestOptions {
 
 function bootLinkTools(options: ILinkToolsTestOptions = {}): ITestSession {
     const { muya, domNode } = makeFakeMuya();
-    const tools = new LinkTools(muya, options);
+    const tools = new LinkTools(muya, options) as unknown as ILinkToolsView;
     const session = { muya, tools, domNode };
     sessions.push(session);
     return session;
@@ -76,8 +90,8 @@ describe('linkTools.selectItem — dispatches to block.unlink / jumpClick', () =
         const blockUnlink = vi.fn();
         // linkBlock is typed as Format | null; the fake only implements
         // `unlink` (the only method selectItem calls).
-        tools.linkBlock = { unlink: blockUnlink } as unknown as Format;
-        tools.linkInfo = {
+        tools._linkBlock = { unlink: blockUnlink } as unknown as Format;
+        tools._linkInfo = {
             href: 'https://example.com',
             text: 'hi',
             raw: '[hi](https://example.com)',
@@ -95,8 +109,8 @@ describe('linkTools.selectItem — dispatches to block.unlink / jumpClick', () =
 
     it('unlink: no-ops when block is missing (defensive)', () => {
         const { tools } = bootLinkTools();
-        tools.linkBlock = null;
-        tools.linkInfo = { href: 'x', text: 'y', range: { start: 0, end: 1 } };
+        tools._linkBlock = null;
+        tools._linkInfo = { href: 'x', text: 'y', range: { start: 0, end: 1 } };
 
         // Should not throw.
         tools.selectItem(makeFakeEvent(), { type: 'unlink', icon: '' });
@@ -107,8 +121,8 @@ describe('linkTools.selectItem — dispatches to block.unlink / jumpClick', () =
         const blockUnlink = vi.fn();
         // linkBlock is typed as Format | null; the fake only implements
         // `unlink` (the only method selectItem calls).
-        tools.linkBlock = { unlink: blockUnlink } as unknown as Format;
-        tools.linkInfo = { href: 'x', text: 'y', range: null };
+        tools._linkBlock = { unlink: blockUnlink } as unknown as Format;
+        tools._linkInfo = { href: 'x', text: 'y', range: null };
 
         tools.selectItem(makeFakeEvent(), { type: 'unlink', icon: '' });
 
@@ -120,7 +134,7 @@ describe('linkTools.selectItem — dispatches to block.unlink / jumpClick', () =
         const { tools } = bootLinkTools({ jumpClick });
 
         const linkInfo = { href: 'https://example.com' };
-        tools.linkInfo = linkInfo;
+        tools._linkInfo = linkInfo;
 
         tools.selectItem(makeFakeEvent(), { type: 'jump', icon: '' });
 

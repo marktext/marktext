@@ -28,12 +28,12 @@ class TableRectSelection {
 
     static create(muya: Muya): TableRectSelection {
         const instance = new TableRectSelection(muya);
-        instance.attach();
+        instance._attach();
 
         return instance;
     }
 
-    constructor(public muya: Muya) {}
+    constructor(private _muya: Muya) {}
 
     get hasSelection(): boolean {
         return this._table != null && this._anchor != null && this._focus != null;
@@ -106,8 +106,8 @@ class TableRectSelection {
         this._renderHighlight();
     }
 
-    attach(): void {
-        const { eventCenter, domNode } = this.muya;
+    private _attach(): void {
+        const { eventCenter, domNode } = this._muya;
         eventCenter.attachDOMEvent(domNode, 'mousedown', this._onMouseDown);
     }
 
@@ -129,7 +129,7 @@ class TableRectSelection {
         this._focus = position;
         this._isSelecting = false;
 
-        const { eventCenter } = this.muya;
+        const { eventCenter } = this._muya;
         this._dragEventIds.push(
             eventCenter.attachDOMEvent(document, 'mousemove', this._onMouseMove),
             eventCenter.attachDOMEvent(document, 'mouseup', this._onMouseUp),
@@ -177,9 +177,9 @@ class TableRectSelection {
 
     private _freezeNativeSelection(): void {
         document.getSelection()?.removeAllRanges();
-        this.muya.domNode.focus();
-        this.muya.editor.activeContentBlock = null;
-        this.muya.ui.hideAllFloatTools();
+        this._muya.domNode.focus();
+        this._muya.editor.activeContentBlock = null;
+        this._muya.ui.hideAllFloatTools();
     }
 
     private _suppressNativeRange(): void {
@@ -187,7 +187,7 @@ class TableRectSelection {
     }
 
     private _detachDragEvents(): void {
-        const { eventCenter } = this.muya;
+        const { eventCenter } = this._muya;
         for (const id of this._dragEventIds)
             eventCenter.detachDOMEvent(id);
 

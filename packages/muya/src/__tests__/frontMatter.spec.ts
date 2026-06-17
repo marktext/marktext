@@ -2,6 +2,7 @@
 
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
+import type { IFrontmatterState } from '../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 import { replaceBlockByLabel } from '../ui/paragraphQuickInsertMenu/config';
@@ -113,8 +114,7 @@ describe('muya.updateParagraph(\'front-matter\')', () => {
             expect(muya.getState()[0].name).toBe('frontmatter');
         });
 
-        // eslint-disable-next-line ts/no-explicit-any
-        expect((muya.getState()[0] as any).meta.lang).toBe('yaml');
+        expect((muya.getState()[0] as IFrontmatterState).meta.lang).toBe('yaml');
         expect(muya.getMarkdown().startsWith('---\n')).toBe(true);
     });
 
@@ -127,8 +127,7 @@ describe('muya.updateParagraph(\'front-matter\')', () => {
             expect(muya.getState()[0].name).toBe('frontmatter');
         });
 
-        // eslint-disable-next-line ts/no-explicit-any
-        expect((muya.getState()[0] as any).meta.lang).toBe('toml');
+        expect((muya.getState()[0] as IFrontmatterState).meta.lang).toBe('toml');
         expect(muya.getMarkdown().startsWith('+++\n')).toBe(true);
     });
 
@@ -141,8 +140,7 @@ describe('muya.updateParagraph(\'front-matter\')', () => {
             expect(muya.getState()[0].name).toBe('frontmatter');
         });
 
-        // eslint-disable-next-line ts/no-explicit-any
-        expect((muya.getState()[0] as any).meta.lang).toBe('json');
+        expect((muya.getState()[0] as IFrontmatterState).meta.lang).toBe('json');
         expect(muya.getMarkdown().startsWith(';;;\n')).toBe(true);
     });
 
@@ -155,8 +153,7 @@ describe('muya.updateParagraph(\'front-matter\')', () => {
             expect(muya.getState()[0].name).toBe('frontmatter');
         });
 
-        // eslint-disable-next-line ts/no-explicit-any
-        const meta = (muya.getState()[0] as any).meta;
+        const meta = (muya.getState()[0] as IFrontmatterState).meta;
         expect(meta.lang).toBe('json');
         expect(meta.style).toBe('{');
         // The `{` style serializes the JSON-braces variant, NOT the `;;;` fences.
@@ -222,8 +219,7 @@ describe('quick-insert front matter (replaceBlockByLabel)', () => {
             expect(muya.getState()[0].name).toBe('frontmatter');
         });
 
-        // eslint-disable-next-line ts/no-explicit-any
-        expect((muya.getState()[0] as any).meta.lang).toBe('toml');
+        expect((muya.getState()[0] as IFrontmatterState).meta.lang).toBe('toml');
         expect(muya.getMarkdown().startsWith('+++\n')).toBe(true);
     });
 });

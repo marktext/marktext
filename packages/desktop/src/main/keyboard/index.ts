@@ -50,8 +50,7 @@ class KeyboardLayoutMonitor extends EventEmitter {
   // we preserve the original JS behavior verbatim: the first positional argument is
   // always treated as the callback. Parameters are typed loosely to keep TS happy
   // with the override against the base signature.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override addListener(eventNameOrCallback: any, _listener?: any): this {
+  override addListener(eventNameOrCallback: unknown, _listener?: unknown): this {
     this._ensureNativeListener()
     this.on(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, eventNameOrCallback as KeyboardInfoListener)
     return this
@@ -59,10 +58,8 @@ class KeyboardLayoutMonitor extends EventEmitter {
 
   // NOTE: Preserves the pre-existing single-argument override; the original JS
   // also delegated to `this.removeListener(channel, callback)` (recursive).
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  override removeListener(eventNameOrCallback: any, _listener?: any): this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(this as any).removeListener(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, eventNameOrCallback)
+  override removeListener(eventNameOrCallback: unknown, _listener?: unknown): this {
+    this.removeListener(KEYBOARD_LAYOUT_MONITOR_CHANNEL_ID, eventNameOrCallback as KeyboardInfoListener)
     return this
   }
 

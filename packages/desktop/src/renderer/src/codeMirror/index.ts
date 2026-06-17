@@ -4,6 +4,7 @@ import 'codemirror/addon/edit/closetag'
 import 'codemirror/addon/selection/active-line'
 import 'codemirror/mode/meta'
 import codeMirror from 'codemirror/lib/codemirror'
+import type CodeMirror from 'codemirror'
 
 import loadmode from './loadmode'
 import overlayMode from './overlayMode'
@@ -14,15 +15,14 @@ import 'codemirror/lib/codemirror.css'
 import './index.css'
 import 'codemirror/theme/railscasts.css'
 
-// CodeMirror 5 ships without TypeScript declarations. The bare `codemirror`
-// and `codemirror/lib/*` specifiers are declared as `any` shims in
-// src/types/shims.d.ts, so the surface is loose by design.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CodeMirrorLike = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CodeMirrorInstance = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CodeMirrorDoc = any
+// The runtime is imported from `codemirror/lib/codemirror` (an `any` shim), but
+// the public editor surface is typed via `@types/codemirror`.
+// Only the legacy `window.CodeMirror` exposure references this; never read typed.
+type CodeMirrorLike = unknown
+type CodeMirrorInstance = CodeMirror.Editor
+type CodeMirrorDoc = CodeMirror.Doc
+// `getCursor()` returns extra runtime flags not present on the typed `Position`.
+type CursorPosition = CodeMirror.Position & { outside?: boolean; hitSide?: boolean }
 
 interface ModeInfoEntry {
   name?: string
@@ -94,21 +94,21 @@ export const setCursorAtLastLine = (cm: CodeMirrorInstance): void => {
 
 // if cursor at firstLine return true
 export const isCursorAtFirstLine = (cm: CodeMirrorInstance): boolean => {
-  const cursor = cm.getCursor()
+  const cursor = cm.getCursor() as CursorPosition
   const { line, ch, outside } = cursor
 
-  return line === 0 && ch === 0 && outside
+  return line === 0 && ch === 0 && !!outside
 }
 
 export const isCursorAtLastLine = (cm: CodeMirrorInstance): boolean => {
   const lastLine = cm.lastLine()
-  const cursor = cm.getCursor()
+  const cursor = cm.getCursor() as CursorPosition
   const { line, outside, sticky } = cursor
   return line === lastLine && (outside || !sticky)
 }
 
 export const isCursorAtBegin = (cm: CodeMirrorInstance): boolean => {
-  const cursor = cm.getCursor()
+  const cursor = cm.getCursor() as CursorPosition
   const { line, ch, hitSide } = cursor
   return line === 0 && ch === 0 && !!hitSide
 }
@@ -120,7 +120,7 @@ export const onlyHaveOneLine = (cm: CodeMirrorInstance): boolean => {
 export const isCursorAtEnd = (cm: CodeMirrorInstance): boolean => {
   const lastLine = cm.lastLine()
   const lastLineHandle = cm.getLineHandle(lastLine)
-  const cursor = cm.getCursor()
+  const cursor = cm.getCursor() as CursorPosition
   const { line, ch, hitSide } = cursor
 
   return line === lastLine && ch === lastLineHandle.text.length && !!hitSide
@@ -167,7 +167,10 @@ export const setMode = (doc: CodeMirrorDoc, text: string): Promise<MatchedMode> 
   const { mode, mime } = m.mode as { mode: string; mime: string | string[] }
   return new Promise((resolve) => {
     codeMirror.requireMode(mode, () => {
-      doc.setOption('mode', mime || mode)
+      ;(doc as unknown as { setOption(option: string, value: unknown): void }).setOption(
+        'mode',
+        mime || mode
+      )
       codeMirror.autoLoadMode(doc, mode)
       resolve(m)
     })
@@ -175,7 +178,7 @@ export const setMode = (doc: CodeMirrorDoc, text: string): Promise<MatchedMode> 
 }
 
 export const setTextDirection = (cm: CodeMirrorInstance, textDirection: string): void => {
-  cm.setOption('direction', textDirection)
+  cm.setOption('direction', textDirection as 'ltr' | 'rtl')
 }
 
 export default codeMirror

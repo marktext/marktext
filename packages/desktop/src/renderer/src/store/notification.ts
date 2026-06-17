@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import notice from '../services/notification'
+import notice, { type NotifyOptions } from '../services/notification'
 import { t } from '../i18n'
 
 export const useNotificationStore = defineStore('notification', () => {
@@ -12,8 +12,7 @@ export const useNotificationStore = defineStore('notification', () => {
     }
 
     window.electron.ipcRenderer.on('mt::show-notification', (_e, opts) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const options = Object.assign({ ...DEFAULT_OPTS }, opts as any)
+      const options = Object.assign({ ...DEFAULT_OPTS }, opts as Partial<NotifyOptions>)
       notice.notify(options)
     })
 
@@ -21,8 +20,9 @@ export const useNotificationStore = defineStore('notification', () => {
       // Preserve the custom title/message from main (e.g. dialog.importWarning
       // / dialog.installPandoc); previously the opts arg was dropped and the
       // user saw the generic defaultTitle/defaultMessage.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const options: any = Object.assign({ ...DEFAULT_OPTS }, opts, { showConfirm: true })
+      const options: NotifyOptions = Object.assign({ ...DEFAULT_OPTS }, opts as Partial<NotifyOptions>, {
+        showConfirm: true
+      })
       await notice.notify(options)
       window.electron.shell.openExternal('http://pandoc.org')
     })

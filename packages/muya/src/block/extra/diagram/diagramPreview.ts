@@ -72,8 +72,8 @@ async function renderDiagram({
 }
 
 class DiagramPreview extends Parent {
-    public code: string;
-    public type: string;
+    private _code: string;
+    private _type: string;
     static override blockName = 'diagram-preview';
 
     static create(muya: Muya, state: IDiagramState) {
@@ -90,15 +90,15 @@ class DiagramPreview extends Parent {
     constructor(muya: Muya, { text, meta }: IDiagramState) {
         super(muya);
         this.tagName = 'div';
-        this.code = text;
-        this.type = meta.type;
+        this._code = text;
+        this._type = meta.type;
         this.classList = ['mu-diagram-preview'];
         this.attributes = {
             spellcheck: 'false',
             contenteditable: 'false',
         };
         this.createDomNode();
-        this.attachDOMEvents();
+        this._attachDOMEvents();
         this.update();
     }
 
@@ -107,7 +107,7 @@ class DiagramPreview extends Parent {
         return {} as TState;
     }
 
-    attachDOMEvents() {
+    private _attachDOMEvents() {
         const clickObservable = fromEvent(this.domNode!, 'click');
         clickObservable.subscribe(this.clickHandler.bind(this));
     }
@@ -123,15 +123,15 @@ class DiagramPreview extends Parent {
         cursorBlock?.setCursor(0, 0);
     }
 
-    async update(code = this.code) {
+    async update(code = this._code) {
         const { i18n } = this.muya;
-        if (this.code !== code)
-            this.code = code;
+        if (this._code !== code)
+            this._code = code;
 
         if (code) {
             this.domNode!.innerHTML = i18n.t('Loading...');
             const { mermaidTheme, vegaTheme, plantumlServer, sequenceTheme } = this.muya.options;
-            const { type } = this;
+            const { _type: type } = this;
 
             try {
                 await renderDiagram({

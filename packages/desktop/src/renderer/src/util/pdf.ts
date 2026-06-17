@@ -81,8 +81,7 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
       output += liberTheme
     } else {
       // Read theme from disk
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { userDataPath } = (window as any).marktext.paths as { userDataPath: string }
+      const { userDataPath } = window.marktext!.paths as { userDataPath: string }
       const themePath = window.path.join(userDataPath, 'themes/export', theme)
       if (await window.fileUtils.isFile(themePath)) {
         try {

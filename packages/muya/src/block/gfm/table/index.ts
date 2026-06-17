@@ -115,7 +115,7 @@ class Table extends Parent {
         return (this.firstChild as Parent & { queryBlock: (p: TBlockPath) => Parent | Content | undefined }).queryBlock(path);
     }
 
-    override empty() {
+    protected override empty() {
         if (this.isEmpty())
             return;
 

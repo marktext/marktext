@@ -1,6 +1,7 @@
 import bus from '../bus'
 import { delay } from '@/util'
 import FileSearcher from '@/node/fileSearcher'
+import type { EditorState } from '@/store/editor'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
 
@@ -12,13 +13,10 @@ interface QuickOpenSubcommand {
   title?: string
 }
 
-// Loose state shapes; the actual Pinia stores are still JS.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FolderState = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RootState = { editor: EditorState; project: FolderState; [key: string]: any }
+interface FolderState {
+  projectTree: { pathname: string } | null
+}
+type RootState = { editor: EditorState; project: FolderState; [key: string]: unknown }
 
 type CancelFn = (() => void) | null
 
@@ -32,8 +30,7 @@ class QuickOpenCommand {
   subcommandSelectedIndex: number
   private _editorState: EditorState
   private _folderState: FolderState
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _directorySearcher: any
+  private _directorySearcher: FileSearcher
   private _cancelFn: CancelFn
 
   constructor(rootState: RootState) {
@@ -67,9 +64,7 @@ class QuickOpenCommand {
 
     const timeout = delay(300)
     this._cancelFn = () => {
-      // `delay` returns a promise with a `cancel` attached.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(timeout as any).cancel()
+      timeout.cancel()
       this._cancelFn = null
     }
 
@@ -84,8 +79,7 @@ class QuickOpenCommand {
     }
 
     this.subcommands = _editorState.tabs
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((tab: any) => tab.pathname)
+      .map((tab) => tab.pathname)
       // Filter untitled tabs
       .filter((tabPath: string | null | undefined) => !!tabPath)
       .map((pathname: string) => {
@@ -102,8 +96,7 @@ class QuickOpenCommand {
   }
 
   executeSubcommand = async(id: string): Promise<void> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { windowId } = (window as any).marktext.env
+    const { windowId } = window.marktext!.env!
     window.electron.ipcRenderer.send('mt::open-file-by-window-id', windowId, id)
   }
 
@@ -125,7 +118,7 @@ class QuickOpenCommand {
     }
 
     const searchResult: string[] = []
-    const rootPath: string | null = isRootDirOpened ? _folderState.projectTree.pathname : null
+    const rootPath: string | null = isRootDirOpened ? _folderState.projectTree!.pathname : null
 
     // Add files that are not in the current root directory but opened.
     if (tabsAvailable) {
@@ -162,15 +155,15 @@ class QuickOpenCommand {
     // Search root directory on disk.
     return new Promise<QuickOpenSubcommand[]>((resolve, reject) => {
       let canceled = false
-      const promises = this._directorySearcher
-        .search([rootPath], '', {
-          didMatch: (result: string) => {
+      const promises: Promise<void> & { cancel?: () => void } = this._directorySearcher
+        .search([rootPath!], '', {
+          didMatch: (result: unknown) => {
             if (canceled) return
-            searchResult.push(result)
+            searchResult.push(result as string)
           },
-          didSearchPaths: (numPathsFound: number) => {
+          didSearchPaths: (numPathsFound: unknown) => {
             // Cancel when more than 30 files were found. User should specify the search query.
-            if (!canceled && numPathsFound > 30) {
+            if (!canceled && (numPathsFound as number) > 30) {
               canceled = true
               if (promises.cancel) {
                 promises.cancel()
@@ -191,8 +184,7 @@ class QuickOpenCommand {
             })
           )
         })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .catch((error: any) => {
+        .catch((error: unknown) => {
           this._cancelFn = null
           reject(error)
         })
@@ -221,7 +213,7 @@ class QuickOpenCommand {
   }
 
   _getPath = (pathname: string): { title?: string; description: string } => {
-    const rootPath: string = this._folderState.projectTree.pathname
+    const rootPath: string = this._folderState.projectTree!.pathname
     if (!window.fileUtils.isChildOfDirectory(rootPath, pathname)) {
       return { title: pathname, description: pathname }
     }

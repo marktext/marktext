@@ -50,7 +50,7 @@ function isOrderOrBulletList(block: Parent): block is OrderList | BulletList {
 
 export class ParagraphFrontButton {
     public name: string = 'mu-front-button';
-    public resizeObserver: ResizeObserver | null = null;
+    private _resizeObserver: ResizeObserver | null = null;
     private _options: IBaseOptions;
     private _block: Parent | null = null;
     private _oldVNode: VNode | null = null;
@@ -88,7 +88,7 @@ export class ParagraphFrontButton {
 
         // Since the size of the container is not fixed and changes according to the change of content,
         // the floatBox needs to set the size according to the container size
-        const resizeObserver = (this.resizeObserver = new ResizeObserver(() => {
+        const resizeObserver = (this._resizeObserver = new ResizeObserver(() => {
             // Use requestAnimationFrame to avoid "ResizeObserver loop completed" warning
             requestAnimationFrame(() => {
                 const { offsetWidth, offsetHeight } = container;
@@ -147,29 +147,29 @@ export class ParagraphFrontButton {
             });
         };
 
-        eventCenter.attachDOMEvent(container, 'mousedown', this.dragBarMouseDown);
-        eventCenter.attachDOMEvent(container, 'mouseup', this.dragBarMouseUp);
+        eventCenter.attachDOMEvent(container, 'mousedown', this._dragBarMouseDown);
+        eventCenter.attachDOMEvent(container, 'mouseup', this._dragBarMouseUp);
         eventCenter.attachDOMEvent(document, 'mousemove', mousemoveHandler);
         eventCenter.attachDOMEvent(container, 'click', clickHandler);
     }
 
-    dragBarMouseDown = (event: Event) => {
+    private _dragBarMouseDown = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
         this._dragTimer = setTimeout(() => {
-            this.startDrag();
+            this._startDrag();
             this._dragTimer = null;
         }, 300);
     };
 
-    dragBarMouseUp = () => {
+    private _dragBarMouseUp = () => {
         if (this._dragTimer) {
             clearTimeout(this._dragTimer);
             this._dragTimer = null;
         }
     };
 
-    mouseMove = (event: Event) => {
+    private _mouseMove = (event: Event) => {
         if (!this._dragInfo || !isMouseEvent(event))
             return;
 
@@ -185,7 +185,7 @@ export class ParagraphFrontButton {
                 ele[BLOCK_DOM_PROPERTY]
                 && (ele[BLOCK_DOM_PROPERTY] as Parent).isOutMostBlock,
         );
-        this.moveShadow(event);
+        this._moveShadow(event);
 
         if (
             outMostElement
@@ -195,7 +195,7 @@ export class ParagraphFrontButton {
             const block = outMostElement[BLOCK_DOM_PROPERTY];
             const rect = outMostElement.getBoundingClientRect();
             const position = verticalPositionInRect(event, rect);
-            this.createStyledGhost(rect, position);
+            this._createStyledGhost(rect, position);
 
             Object.assign(this._dragInfo, {
                 target: block,
@@ -212,7 +212,7 @@ export class ParagraphFrontButton {
         }
     };
 
-    mouseUp = (event: Event) => {
+    private _mouseUp = (event: Event) => {
         event.preventDefault();
         event.stopPropagation();
 
@@ -223,7 +223,7 @@ export class ParagraphFrontButton {
         if (this._ghost)
             this._ghost.remove();
 
-        this.destroyShadow();
+        this._destroyShadow();
         document.body.style.cursor = 'auto';
         this._dragTimer = null;
         const { block, target, position } = this._dragInfo || {};
@@ -259,7 +259,7 @@ export class ParagraphFrontButton {
         this._dragInfo = null;
     };
 
-    startDrag = () => {
+    private _startDrag = () => {
         const { _block: block } = this;
         // Frontmatter should not be drag.
         if (!block || block.blockName === 'frontmatter')
@@ -269,7 +269,7 @@ export class ParagraphFrontButton {
         this._dragInfo = {
             block,
         };
-        this.createStyledShadow();
+        this._createStyledShadow();
         this.hide();
         const { eventCenter } = this.muya;
 
@@ -279,13 +279,13 @@ export class ParagraphFrontButton {
             eventCenter.attachDOMEvent(
                 document,
                 'mousemove',
-                throttle(this.mouseMove, 100),
+                throttle(this._mouseMove, 100),
             ),
-            eventCenter.attachDOMEvent(document, 'mouseup', this.mouseUp),
+            eventCenter.attachDOMEvent(document, 'mouseup', this._mouseUp),
         ];
     };
 
-    createStyledGhost(rect: DOMRect, position: 'down' | 'up') {
+    private _createStyledGhost(rect: DOMRect, position: 'down' | 'up') {
         let ghost = this._ghost;
         if (!ghost) {
             ghost = document.createElement('div');
@@ -301,7 +301,7 @@ export class ParagraphFrontButton {
         });
     }
 
-    createStyledShadow() {
+    private _createStyledShadow() {
         const { domNode } = this._block!;
         const { width, top, left } = domNode!.getBoundingClientRect();
         const shadow = document.createElement('div');
@@ -316,7 +316,7 @@ export class ParagraphFrontButton {
         this._shadow = shadow;
     }
 
-    moveShadow(event: Event) {
+    private _moveShadow(event: Event) {
         const { _shadow: shadow } = this;
         // The shadow already be removed.
         if (!shadow || !isMouseEvent(event))
@@ -328,7 +328,7 @@ export class ParagraphFrontButton {
         });
     }
 
-    destroyShadow() {
+    private _destroyShadow() {
         const { _shadow: shadow } = this;
         if (shadow) {
             shadow.remove();
@@ -438,8 +438,8 @@ export class ParagraphFrontButton {
     }
 
     destroy() {
-        if (this._container && this.resizeObserver)
-            this.resizeObserver.unobserve(this._container);
+        if (this._container && this._resizeObserver)
+            this._resizeObserver.unobserve(this._container);
 
         if (this._cleanup) {
             this._cleanup();

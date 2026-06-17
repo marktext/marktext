@@ -1,4 +1,6 @@
 import type { VNode } from 'snabbdom';
+import type Format from '../../block/base/format';
+import type { IImageSelectionData } from '../../selection/types';
 import type { H, ImageToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import DeleteIcon from '../../assets/icons/delete/2.png';
@@ -24,6 +26,48 @@ function renderIcon(h: H, className: string, icon: string) {
     );
 
     return h(selector, iconVnode);
+}
+
+function shouldSyncSelectedImageId(
+    selectedImage: IImageSelectionData | null,
+    src: string,
+    id: string,
+): selectedImage is IImageSelectionData {
+    return (
+        !!selectedImage
+        && selectedImage.token.attrs.src === src
+        && selectedImage.imageId !== id
+    );
+}
+
+function isSmallImage(
+    naturalWidth: number | undefined,
+    naturalHeight: number | undefined,
+) {
+    return (
+        typeof naturalWidth === 'number'
+        && typeof naturalHeight === 'number'
+        && (naturalWidth < 100 || naturalHeight < 100)
+    );
+}
+
+function isImageSelected(
+    selectedImage: IImageSelectionData | null,
+    block: Format,
+    token: ImageToken,
+    id: string,
+) {
+    if (!selectedImage)
+        return false;
+
+    const { imageId, block: selectedBlock, token: selectedToken } = selectedImage;
+
+    return (
+        imageId === `${id}_${token.range.start}`
+        && selectedBlock === block
+        && selectedToken.range.start === token.range.start
+        && selectedToken.range.end === token.range.end
+    );
 }
 
 // I don't want operate dom directly, is there any better way? need help!
@@ -102,13 +146,8 @@ export default function image(
     // the src image is still loading, so use the url Map base64.
     if (this.urlMap.has(src)) {
     // fix: it will generate a new id if the image is not loaded.
-        if (
-            selectedImage
-            && selectedImage.token.attrs.src === src
-            && selectedImage.imageId !== id
-        ) {
+        if (shouldSyncSelectedImageId(selectedImage, src, id))
             selectedImage.imageId = id;
-        }
 
         imgSrc = this.urlMap.get(src)!;
         isSuccess = true;
@@ -142,30 +181,16 @@ export default function image(
             // have (our toolbar is a floating-ui overlay), so the rule lives
             // here as data only; downstream consumers / future PRs own the
             // visual treatment.
-            if (
-                typeof naturalWidth === 'number'
-                && typeof naturalHeight === 'number'
-                && (naturalWidth < 100 || naturalHeight < 100)
-            ) {
+            if (isSmallImage(naturalWidth, naturalHeight))
                 wrapperSelector += `.${CLASS_NAMES.MU_SMALL_IMAGE}`;
-            }
         }
         else {
             wrapperSelector += `.${CLASS_NAMES.MU_IMAGE_FAIL}`;
         }
 
         // Add image selected class name.
-        if (selectedImage) {
-            const { imageId, block: SelectedImageBlock, token: selectedToken } = selectedImage;
-            if (
-                imageId === `${id}_${token.range.start}`
-                && SelectedImageBlock === block
-                && selectedToken.range.start === token.range.start
-                && selectedToken.range.end === token.range.end
-            ) {
-                wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
-            }
-        }
+        if (isImageSelected(selectedImage, block, token, id))
+            wrapperSelector += `.${CLASS_NAMES.MU_INLINE_IMAGE_SELECTED}`;
 
         const renderImage = () => {
             const data = {

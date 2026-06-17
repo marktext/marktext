@@ -63,7 +63,7 @@ function firstBlock(muya: Muya): Format {
 }
 
 function directionOf(anchorOffset: number, focusOffset: number): SelectionDirection {
-    return anchorOffset < focusOffset ? SelectionDirection.Forward : SelectionDirection.Backward;
+    return anchorOffset < focusOffset ? SelectionDirection.FORWARD : SelectionDirection.BACKWARD;
 }
 
 function flushFrame(): Promise<void> {
@@ -81,7 +81,7 @@ describe('setCursor preserves a backward selection (begin > end stays backward)'
         expect(selection.anchor!.offset).toBe(7);
         expect(selection.focus!.offset).toBe(2);
         expect(directionOf(selection.anchor!.offset, selection.focus!.offset)).toBe(
-            SelectionDirection.Backward,
+            SelectionDirection.BACKWARD,
         );
     });
 
@@ -95,7 +95,7 @@ describe('setCursor preserves a backward selection (begin > end stays backward)'
         expect(selection.anchor!.offset).toBe(2);
         expect(selection.focus!.offset).toBe(7);
         expect(directionOf(selection.anchor!.offset, selection.focus!.offset)).toBe(
-            SelectionDirection.Forward,
+            SelectionDirection.FORWARD,
         );
     });
 });
@@ -117,7 +117,7 @@ describe('clickHandler forwards the backward anchor/focus (not normalized start/
             focus: { offset: 2, block: content as never, path: content.path },
             isCollapsed: false,
             isSelectionInSameBlock: true,
-            direction: SelectionDirection.Backward,
+            direction: SelectionDirection.BACKWARD,
             type: 'Range' as never,
         });
         const setCursorSpy = vi.spyOn(content, 'setCursor');

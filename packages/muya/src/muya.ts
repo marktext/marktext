@@ -1,5 +1,6 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
+import type { TBlockPath } from './block/types';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IIndexCursor } from './selection/offsetCursor';
@@ -27,8 +28,9 @@ import {
     resolveSentinelCursor,
 } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
-import { isAnyListState, isAtxHeadingState } from './state/types';
-import { insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
+import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
+import { canTurnIntoMenu } from './ui/paragraphFrontMenu/config';
+import { insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -90,6 +92,27 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
     'flowchart': 'diagram flowchart',
     'sequence': 'diagram sequence',
 };
+
+// The outmost-block labels that wrap a cross-block selection into a list.
+const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'task-list']);
+
+// Paragraph-menu labels whose block toggles back to a paragraph when the cursor
+// is already inside one (the menu item is checked) — clicking unwraps/removes it.
+const TOGGLEABLE_BLOCK_LABELS = new Set([
+    'bullet-list',
+    'order-list',
+    'task-list',
+    'block-quote',
+    'code-block',
+    'thematic-break',
+]);
+
+function endpointPair(
+    anchor: Nullable<Parent>,
+    focus: Nullable<Parent>,
+): { anchor: Parent; focus: Parent } | null {
+    return anchor && focus ? { anchor, focus } : null;
+}
 
 export class Muya {
     static plugins: IPlugin[] = [];
@@ -410,6 +433,15 @@ export class Muya {
      */
     format(type: string) {
         const { selection } = this.editor;
+
+        // Cross-block selection: apply to each formattable leaf in range. The
+        // live DOM selection collapses across blocks, so detect via the cached
+        // endpoints (the same ones the menu/IPC round-trip relies on).
+        if (!this._selectionInSameBlock()) {
+            this._formatAcrossBlocks(type);
+            return;
+        }
+
         const sel = selection.getSelection();
         if (!sel)
             return;
@@ -420,14 +452,135 @@ export class Muya {
         if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
             return;
 
+        // A heading's text includes its leading `# ` marker; never format the
+        // marker itself, only the heading content. Clamp the start past it.
+        const markerLen = this._headingMarkerLen(anchorBlock);
+        let lo = Math.min(anchor.offset, focus.offset);
+        const hi = Math.max(anchor.offset, focus.offset);
+        if (markerLen > 0) {
+            lo = Math.max(lo, markerLen);
+            if (hi <= markerLen)
+                return; // the selection lies entirely within the marker
+        }
+
         // Restore the selection before applying the format — the menu/IPC
         // round-trip can drop the live DOM selection.
         selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: anchor.path },
-            { offset: focus.offset, block: focus.block, path: focus.path },
+            { offset: lo, block: anchorBlock, path: anchor.path },
+            { offset: hi, block: anchorBlock, path: focus.path },
         );
 
         anchorBlock.format(type);
+    }
+
+    /**
+     * Apply an inline format to every formattable leaf in a cross-block
+     * selection, in document order. Non-formattable leaves (code/math/html/
+     * frontmatter/diagram) are skipped; link/image are no-ops across blocks
+     * (and the menu disables them). Ported from muyajs's multi-block format.
+     */
+    private _formatAcrossBlocks(type: string) {
+        if (type === 'link' || type === 'image')
+            return;
+
+        const range = this._orderedSelectionRange();
+        if (!range)
+            return;
+
+        const { first, last, firstOffset, lastOffset } = range;
+
+        // Restore the span across the formatted leaves using each leaf's
+        // post-format offsets (adding a marker shifts them), so the SAME text
+        // stays selected in both endpoints rather than collapsing onto the
+        // pre-format offsets.
+        let anchorLeaf: Content | null = null;
+        let focusLeaf: Content | null = null;
+        let anchorOffset = 0;
+        let focusOffset = 0;
+
+        let leaf: Content | null = first;
+        while (leaf) {
+            const start = leaf === first ? firstOffset : 0;
+            const end = leaf === last ? lastOffset : leaf.text.length;
+            const adjusted = this._formatLeafInRange(type, leaf, start, end);
+            if (adjusted) {
+                if (!anchorLeaf) {
+                    anchorLeaf = leaf;
+                    anchorOffset = adjusted.start;
+                }
+                focusLeaf = leaf;
+                focusOffset = adjusted.end;
+            }
+            if (leaf === last)
+                break;
+            leaf = leaf.nextContentInContext() ?? null;
+        }
+
+        if (anchorLeaf && focusLeaf) {
+            this.editor.selection.setSelection(
+                { offset: anchorOffset, block: anchorLeaf, path: anchorLeaf.path },
+                { offset: focusOffset, block: focusLeaf, path: focusLeaf.path },
+            );
+        }
+    }
+
+    /** The selection's first/last content leaves and offsets, in document order. */
+    private _orderedSelectionRange() {
+        const { selection } = this.editor;
+        const anchorLeaf = selection.anchorBlock;
+        const focusLeaf = selection.focusBlock;
+        if (!anchorLeaf || !focusLeaf)
+            return null;
+
+        const sp = this.editor.scrollPage!;
+        const anchorOut = anchorLeaf.outMostBlock;
+        const focusOut = focusLeaf.outMostBlock;
+        const forward = anchorOut && focusOut ? sp.offset(anchorOut) <= sp.offset(focusOut) : true;
+
+        return {
+            first: forward ? anchorLeaf : focusLeaf,
+            last: forward ? focusLeaf : anchorLeaf,
+            firstOffset: (forward ? selection.anchor?.offset : selection.focus?.offset) ?? 0,
+            lastOffset: (forward ? selection.focus?.offset : selection.anchor?.offset) ?? 0,
+        };
+    }
+
+    /**
+     * Apply `type` to one leaf over [start, end], skipping non-formattable
+     * leaves and a heading's leading `# ` marker. Returns the leaf's selection
+     * range AFTER formatting (offsets shift past inserted markers), or null when
+     * the leaf was skipped.
+     */
+    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number): { start: number; end: number } | null {
+        if (!(leaf instanceof Format))
+            return null;
+
+        // Never format a heading's leading `# ` marker, only its content.
+        const from = Math.max(start, this._headingMarkerLen(leaf));
+        if (end <= from)
+            return null;
+
+        const { selection } = this.editor;
+        selection.setSelection(
+            { offset: from, block: leaf, path: leaf.path },
+            { offset: end, block: leaf, path: leaf.path },
+        );
+        leaf.format(type);
+
+        // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
+        // updates the cached selection — read the adjusted range back from it.
+        return {
+            start: selection.anchor?.offset ?? from,
+            end: selection.focus?.offset ?? end,
+        };
+    }
+
+    /** Length of a heading content's leading `#{1,6}` + space marker, else 0. */
+    private _headingMarkerLen(leaf: Content): number {
+        if (leaf.parent?.blockName !== 'atx-heading')
+            return 0;
+
+        return /^ {0,3}#{1,6}(?:\s+|$)/.exec(leaf.text)?.[0].length ?? 0;
     }
 
     /**
@@ -564,6 +717,178 @@ export class Muya {
     }
 
     /**
+     * Cross-block paragraph-menu handling: a selection that spans several
+     * outmost blocks wraps each block into one list item. Returns true when the
+     * operation was handled so the single-block path is skipped. Quote/code and
+     * other cross-block targets are gated by the menu layer and fall through.
+     */
+    private _handleCrossBlockParagraph(type: string): boolean {
+        if (this._selectionInSameBlock())
+            return false;
+
+        const label = PARAGRAPH_LABEL_MAP[type];
+        if (CROSS_BLOCK_LIST_LABELS.has(label)) {
+            this._wrapSelectedBlocksInList(label as 'bullet-list' | 'order-list' | 'task-list');
+            return true;
+        }
+        if (label === 'block-quote') {
+            this._wrapSelectedBlocksInQuote();
+            return true;
+        }
+        if (label === 'code-block') {
+            this._wrapSelectedBlocksInCodeBlock();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * The outmost-block endpoints of the current selection. Prefers the pair
+     * that spans two different outmost blocks: the live DOM selection is the
+     * truth in the browser, but the cached selection endpoints survive the
+     * menu/IPC round-trip (and the headless test environment, where
+     * `Selection.extend` collapses a cross-node range to one block).
+     */
+    private _selectionEndpoints(): { anchor: Parent; focus: Parent } | null {
+        const sel = this.editor.selection.getSelection();
+        const live = endpointPair(sel?.anchor.block?.outMostBlock, sel?.focus.block?.outMostBlock);
+        const cached = endpointPair(
+            this.editor.selection.anchorBlock?.outMostBlock,
+            this.editor.selection.focusBlock?.outMostBlock,
+        );
+
+        if (live && live.anchor !== live.focus)
+            return live;
+        if (cached && cached.anchor !== cached.focus)
+            return cached;
+
+        return live ?? cached;
+    }
+
+    /** Whether the current selection stays within a single outmost block. */
+    private _selectionInSameBlock(): boolean {
+        const endpoints = this._selectionEndpoints();
+        if (!endpoints)
+            return true;
+
+        return endpoints.anchor === endpoints.focus;
+    }
+
+    /**
+     * The contiguous run of OUTMOST (scrollPage-child) blocks the current
+     * selection spans, in document order. Mirrors clipboard's outmost walk.
+     */
+    private _selectedOutmostBlocks(): Parent[] {
+        const endpoints = this._selectionEndpoints();
+        if (!endpoints)
+            return [];
+
+        const a = endpoints.anchor;
+        const f = endpoints.focus;
+
+        if (a === f)
+            return [a];
+
+        const sp = this.editor.scrollPage!;
+        const start = sp.offset(a) <= sp.offset(f) ? a : f;
+        const end = start === a ? f : a;
+        const blocks: Parent[] = [];
+        let node: Parent | null = start;
+        while (node) {
+            blocks.push(node);
+            if (node === end)
+                break;
+            node = node.next as Parent | null;
+        }
+
+        return blocks;
+    }
+
+    /**
+     * Select the full span of a freshly-wrapped container (first content leaf to
+     * last) so the selection keeps covering the wrapped content. Best-effort.
+     */
+    private _selectWrappedContent(container: Parent) {
+        const head = container.firstContentInDescendant();
+        const tail = container.lastContentInDescendant();
+        if (!head || !tail)
+            return;
+
+        this.editor.activeContentBlock = tail;
+        this.editor.selection.setSelection(
+            { offset: 0, block: head, path: head.path },
+            { offset: tail.text.length, block: tail, path: tail.path },
+        );
+    }
+
+    /**
+     * Replace the selected outmost blocks with a single container built by
+     * `buildState`, then position the cursor/selection via `place`. Shared by the
+     * cross-block list / block-quote / code-block wraps (ported from muyajs's
+     * handleListMenu / handleQuoteMenu / handleCodeBlockMenu multi-block branches).
+     */
+    private _wrapSelectedBlocks(
+        buildState: (blocks: Parent[]) => { name: string } & Record<string, unknown>,
+        place: (container: Parent) => void,
+    ) {
+        const blocks = this._selectedOutmostBlocks();
+        if (!blocks.length)
+            return;
+
+        const state = buildState(blocks);
+        const container = ScrollPage.loadBlock(state.name).create(this, state as never);
+        const parent = blocks[0].parent!;
+        parent.insertBefore(container, blocks[0]);
+        for (const b of blocks)
+            b.remove();
+
+        place(container);
+    }
+
+    /** Wrap the selected outmost blocks as items of a new list of `label`. */
+    private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
+        const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
+        const itemName = label === 'task-list' ? 'task-list-item' : 'list-item';
+        const meta: Record<string, unknown> = label === 'order-list'
+            ? { loose: preferLooseListItem, delimiter: orderListDelimiter, start: 1 }
+            : { loose: preferLooseListItem, marker: bulletListMarker };
+
+        this._wrapSelectedBlocks(
+            blocks => ({
+                name: label,
+                meta,
+                children: blocks.map(b => label === 'task-list'
+                    ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
+                    : { name: itemName, children: [b.getState()] }),
+            }),
+            container => this._selectWrappedContent(container),
+        );
+    }
+
+    /** Wrap the selected outmost blocks into a single block-quote. */
+    private _wrapSelectedBlocksInQuote() {
+        this._wrapSelectedBlocks(
+            blocks => ({ name: 'block-quote', children: blocks.map(b => b.getState()) }),
+            container => this._selectWrappedContent(container),
+        );
+    }
+
+    /** Join the selected outmost blocks' text into a single fenced code block. */
+    private _wrapSelectedBlocksInCodeBlock() {
+        this._wrapSelectedBlocks(
+            blocks => ({
+                name: 'code-block',
+                meta: { type: 'fenced', lang: '' },
+                text: this.editor.jsonState
+                    .getMarkdownFromState(blocks.map(b => b.getState()))
+                    .replace(/\n+$/, ''),
+            }),
+            container => container.firstContentInDescendant()?.setCursor(0, 0, true),
+        );
+    }
+
+    /**
      * Duplicate the block at the current cursor, placing the cursor in the
      * copy. No-op when there is no current block.
      */
@@ -636,17 +961,24 @@ export class Muya {
     }
 
     /**
-     * Insert a GFM table at the current cursor, replacing the block the cursor
-     * is in. The table has `rows`
-     * rows × `columns` columns with the first row as the header; every cell is
-     * empty with `align: 'none'`. The cursor lands in the first cell. No-op when
-     * there is no current block. `rows`/`columns` are coerced to integers and
-     * clamped to a valid GFM shape (`rows >= 2`, `columns >= 1`) so invalid
-     * input (e.g. `rows: 0`, non-finite, or fractional values) still yields a
-     * usable table instead of an invalid state.
+     * Insert a GFM table at the current cursor. An EMPTY cursor block is
+     * replaced in place; a NON-empty block keeps its content and the table is
+     * inserted directly AFTER it inside its own container (e.g. right after the
+     * paragraph in a list item, not after the whole list) — matching the
+     * Paragraph menu's insert-below rule for non-convertible blocks. Pass
+     * `{ replace: true }` to always
+     * replace the cursor block — the in-editor grid picker uses this to consume
+     * its trigger block (a `/table` quick-insert line or the empty paragraph the
+     * front-menu offers). The table has `rows` rows × `columns` columns with the
+     * first row as the header; every cell is empty with `align: 'none'`. The
+     * cursor lands in the first cell. No-op when there is no current block.
+     * `rows`/`columns` are coerced to integers and clamped to a valid GFM shape
+     * (`rows >= 2`, `columns >= 1`) so invalid input (e.g. `rows: 0`, non-finite,
+     * or fractional values) still yields a usable table instead of an invalid
+     * state.
      */
-    createTable({ rows, columns }: { rows: number; columns: number }) {
-        const block = this._outmostBlockAtCursor();
+    createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
+        const block = this._immediateBlockAtCursor();
         if (!block)
             return;
 
@@ -674,7 +1006,15 @@ export class Muya {
         };
 
         const newTable = ScrollPage.loadBlock('table').create(this, state);
-        block.replaceWith(newTable);
+
+        // An empty block is disposable, so replace it in place; a block with
+        // real content is kept and the table goes directly below it. The picker
+        // passes `replace` to always consume its trigger block.
+        if (replace || this._blockLeadingText(block).trim() === '')
+            block.replaceWith(newTable);
+        else
+            block.parent!.insertAfter(newTable, block);
+
         newTable.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
@@ -742,25 +1082,18 @@ export class Muya {
         if (!scrollPage)
             return;
 
-        // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
-        // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
-        const anchor = cursor.anchor ?? cursor.start ?? null;
-        const focus = cursor.focus ?? cursor.end ?? anchor;
-        const anchorPath = cursor.anchorPath ?? cursor.path;
-        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
+        const { anchor, focus, anchorPath, focusPath }
+            = this._normalizeCursorEndpoints(cursor);
 
         if (!anchor || !focus)
             return;
 
-        // queryBlock mutates its path argument (path.shift()) — pass copies.
-        const anchorBlock
-            = cursor.anchorBlock
-                ?? cursor.block
-                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
-        const focusBlock
-            = cursor.focusBlock
-                ?? cursor.block
-                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
+        const { anchorBlock, focusBlock } = this._resolveCursorBlocks(
+            cursor,
+            scrollPage,
+            anchorPath,
+            focusPath,
+        );
 
         if (anchorBlock == null || !anchorBlock.isContent())
             return;
@@ -779,6 +1112,36 @@ export class Muya {
             { offset: anchor.offset, block: anchorBlock, path: anchorBlock.path },
             { offset: focus.offset, block: focusBlock, path: focusBlock.path },
         );
+    }
+
+    // Accept both the `{ anchor, focus, anchorPath, focusPath }` and the
+    // `{ start, end, path }`/`block` shapes of IPublicCursorInput.
+    private _normalizeCursorEndpoints(cursor: IPublicCursorInput) {
+        const anchor = cursor.anchor ?? cursor.start ?? null;
+        const focus = cursor.focus ?? cursor.end ?? anchor;
+        const anchorPath = cursor.anchorPath ?? cursor.path;
+        const focusPath = cursor.focusPath ?? cursor.path ?? anchorPath;
+
+        return { anchor, focus, anchorPath, focusPath };
+    }
+
+    private _resolveCursorBlocks(
+        cursor: IPublicCursorInput,
+        scrollPage: ScrollPage,
+        anchorPath: TBlockPath | undefined,
+        focusPath: TBlockPath | undefined,
+    ) {
+        // queryBlock mutates its path argument (path.shift()) — pass copies.
+        const anchorBlock
+            = cursor.anchorBlock
+                ?? cursor.block
+                ?? (anchorPath ? scrollPage.queryBlock([...anchorPath]) : null);
+        const focusBlock
+            = cursor.focusBlock
+                ?? cursor.block
+                ?? (focusPath ? scrollPage.queryBlock([...focusPath]) : null);
+
+        return { anchorBlock, focusBlock };
     }
 
     /**
@@ -871,8 +1234,11 @@ export class Muya {
         if (!block)
             return;
 
+        if (this._handleCrossBlockParagraph(type))
+            return;
+
         if (type === 'upgrade heading' || type === 'degrade heading') {
-            this._changeHeadingLevel(block, type);
+            this._withPreservedOffset(() => this._changeHeadingLevel(block, type));
             return;
         }
 
@@ -914,33 +1280,166 @@ export class Muya {
         if (label === 'paragraph')
             return this._convertLeafToParagraph();
 
-        if (label.endsWith('-list') && isAnyListState(block.getState())) {
-            // Selecting the active list type toggles the list off (unwrap each
-            // item back into paragraphs); a different type converts in place,
-            // preserving every item.
-            if (block.blockName === label)
-                this._unwrapToParagraphs(block);
-            else
-                this._convertListType(block, label);
-
+        // Clicking an already-active type (its block is an ancestor of the
+        // cursor, i.e. the menu item is checked) toggles it off: unwrap every
+        // ancestor of that kind, or convert the matching leaf back to a paragraph.
+        if (this._toggleIfActive(label))
             return;
+
+        // A list kind clicked while inside a list of a DIFFERENT kind converts
+        // the cursor's (innermost) list to that kind.
+        if (label.endsWith('-list')) {
+            const list = this._closestListAtCursor();
+            if (list) {
+                this._withPreservedOffset(() => this._convertListType(list, label));
+                return;
+            }
         }
 
-        // hr/table only replace an empty block so user content is never
-        // silently dropped.
-        if (
-            (label === 'thematic-break' || label === 'table')
-            && this._blockLeadingText(block).trim() !== ''
-        ) {
-            return;
+        this._convertOrInsertBelow(label);
+    }
+
+    /**
+     * If the cursor is inside a block matching `label` (the menu item is
+     * checked), toggle it off and return true: unwrap EVERY ancestor of that
+     * kind (so nested same-kind lists collapse in one click and the item ends up
+     * un-checked), or convert a matching leaf (heading of that level / hr) back
+     * to a paragraph. Returns false when nothing matches.
+     */
+    private _toggleIfActive(label: string): boolean {
+        const cursorContent = () => this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        const content = cursorContent();
+        if (!content)
+            return false;
+
+        // Headings match only when the cursor's heading is exactly that level.
+        if (label.startsWith('atx-heading ')) {
+            const heading = content.closestBlock('atx-heading') as Parent | null;
+            if (!heading)
+                return false;
+
+            const state = heading.getState();
+            const level = Number(label.slice('atx-heading '.length));
+            if (!isAtxHeadingState(state) || state.meta.level !== level)
+                return false;
+
+            this._withPreservedOffset(() => this.resetToParagraph(heading));
+            return true;
         }
 
-        replaceBlockByLabel({
-            block,
-            muya: this,
-            label,
-            text: this._blockLeadingText(block),
+        if (!TOGGLEABLE_BLOCK_LABELS.has(label) || !content.closestBlock(label))
+            return false;
+
+        this._withPreservedOffset(() => {
+            for (let guard = 0; guard < 20; guard++) {
+                const target = cursorContent()?.closestBlock(label) as Parent | null;
+                if (!target)
+                    break;
+                this.resetToParagraph(target);
+            }
         });
+
+        return true;
+    }
+
+    /** The nearest list ancestor of the cursor, of any kind. */
+    private _closestListAtCursor(): Parent | null {
+        let node: Nullable<Parent> = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.parent;
+        while (node) {
+            if (node.blockName === 'bullet-list' || node.blockName === 'order-list' || node.blockName === 'task-list')
+                return node;
+            node = node.parent;
+        }
+
+        return null;
+    }
+
+    /**
+     * Run a conversion, then restore the prior selection (anchor AND focus, so a
+     * range stays selected) on the active content block — every conversion ends
+     * with the caret's content active (unwraps restore it themselves).
+     */
+    private _withPreservedOffset(fn: () => void) {
+        const { selection } = this.editor;
+        const anchorBlock = selection.anchorBlock;
+        const focusBlock = selection.focusBlock;
+        const anchorOffset = selection.anchor?.offset ?? 0;
+        const focusOffset = selection.focus?.offset ?? anchorOffset;
+        const anchorText = anchorBlock?.text;
+        const focusText = focusBlock?.text;
+        const multiBlock = !!anchorBlock && !!focusBlock && anchorBlock !== focusBlock;
+
+        fn();
+
+        const clampTo = (n: number, len: number) => Math.max(0, Math.min(n, len));
+
+        // A selection spanning several blocks (e.g. across list items) — re-find
+        // both endpoints by their text so the whole span survives an unwrap.
+        if (multiBlock && anchorText != null && focusText != null) {
+            const a = this._findContentByText(anchorText);
+            const f = this._findContentByText(focusText);
+            if (a && f) {
+                this.editor.selection.setSelection(
+                    { offset: clampTo(anchorOffset, a.text.length), block: a, path: a.path },
+                    { offset: clampTo(focusOffset, f.text.length), block: f, path: f.path },
+                );
+                return;
+            }
+        }
+
+        // Single block: the caret's content is the active block (in-place result
+        // or unwrap-restored). The text can change in place (a heading's `# `
+        // marker), so shift offsets by that front delta to track the same char.
+        const target = this.editor.activeContentBlock;
+        if (!target)
+            return;
+
+        const delta = anchorText != null && target.text !== anchorText
+            ? target.text.length - anchorText.length
+            : 0;
+        const len = target.text.length;
+        target.setCursor(clampTo(anchorOffset + delta, len), clampTo(focusOffset + delta, len), true);
+    }
+
+    /**
+     * The first FORMATTABLE content leaf whose text equals `text`, in document
+     * order. Restricting to Format leaves skips marker-only content (a thematic
+     * break's `---`, code/math/html), so toggling one never lands the caret on
+     * an unrelated block that happens to share that text.
+     */
+    private _findContentByText(text: string): Content | null {
+        let leaf: Nullable<Content> = this.editor.scrollPage?.firstContentInDescendant();
+        while (leaf) {
+            if (leaf instanceof Format && leaf.text === text)
+                return leaf;
+            leaf = leaf.nextContentInContext();
+        }
+
+        return null;
+    }
+
+    /**
+     * General same-block conversion: the front menu's turn-into set is the
+     * single source of truth. Operate on the IMMEDIATE block so a heading inside
+     * a list item converts while the list stays intact; a target that is not a
+     * valid turn-into replaces an empty block in place, or is inserted as a new
+     * block directly below a non-empty one (focus moves into it).
+     */
+    private _convertOrInsertBelow(label: string) {
+        const immediate = this._immediateBlockAtCursor();
+        if (!immediate)
+            return;
+
+        const leadingText = this._blockLeadingText(immediate);
+        if (canTurnIntoMenu(immediate).some(item => item.label === label)) {
+            this._withPreservedOffset(() => replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText }));
+            return;
+        }
+
+        if (leadingText.trim() === '')
+            replaceBlockByLabel({ block: immediate, muya: this, label, text: '' });
+        else
+            insertBlockBelowByLabel({ block: immediate, muya: this, label });
     }
 
     /**
@@ -959,12 +1458,23 @@ export class Muya {
             return;
         }
 
-        replaceBlockByLabel({
-            block,
-            muya: this,
-            label: 'paragraph',
-            text: this._blockLeadingText(block),
-        });
+        replaceBlockByLabel({ block, muya: this, label: 'paragraph', text: this._paragraphTextFor(block) });
+    }
+
+    /**
+     * The text a plain paragraph should carry when `block` is reset/converted to
+     * one: a code block keeps its raw code; a thematic break is all marker
+     * (`---` / `***` / …) with no content, so it yields an empty paragraph;
+     * everything else keeps its leading text (heading hashes stripped).
+     */
+    private _paragraphTextFor(block: Parent): string {
+        const state = block.getState();
+        if (isCodeBlockState(state))
+            return state.text;
+        if (block.blockName === 'thematic-break')
+            return '';
+
+        return this._blockLeadingText(block);
     }
 
     /**
@@ -979,12 +1489,12 @@ export class Muya {
         if (!leaf || leaf.blockName === 'paragraph')
             return;
 
-        replaceBlockByLabel({
+        this._withPreservedOffset(() => replaceBlockByLabel({
             block: leaf,
             muya: this,
             label: 'paragraph',
-            text: this._blockLeadingText(leaf),
-        });
+            text: this._paragraphTextFor(leaf),
+        }));
     }
 
     /**
@@ -1002,6 +1512,7 @@ export class Muya {
         if (!inner.length)
             return;
 
+        const cursorText = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.text;
         const parent = block.parent!;
         let ref: Parent = block;
         let firstNew: Parent | null = null;
@@ -1013,7 +1524,12 @@ export class Muya {
         }
 
         block.remove();
-        firstNew?.firstContentInDescendant()?.setCursor(0, 0, true);
+
+        // Keep the caret in the lifted block that still holds the cursor's text
+        // (its content was cloned), falling back to the first lifted block.
+        const restored = (cursorText != null ? this._findContentByText(cursorText) : null)
+            ?? firstNew?.firstContentInDescendant();
+        restored?.setCursor(0, 0, true);
     }
 
     /** Leading text of a block, with the atx hash run stripped for headings. */
@@ -1079,10 +1595,20 @@ export class Muya {
     private _snapshotSelection(): ISelectionSnapshot | null {
         const sel = this.editor.selection;
         const live = sel.getSelection();
-        const anchor = live?.anchor ?? sel.anchor;
-        const focus = live?.focus ?? sel.focus;
-        const anchorPath = live?.anchor.path ?? sel.anchorPath;
-        const focusPath = live?.focus.path ?? sel.focusPath;
+
+        // The live DOM selection carries a click-placed caret, so it is the
+        // source of truth for a single block. But it COLLAPSES to one block for
+        // a cross-block selection — so when the cached endpoints (committed on
+        // mouse-up, the same ones the menu/IPC round-trip relies on) span
+        // several blocks while live has collapsed, trust the cached endpoints so
+        // the whole span survives the rebuild.
+        const cachedCrossBlock = !!sel.anchorBlock && !!sel.focusBlock && sel.anchorBlock !== sel.focusBlock;
+        const useLive = !!live && !(cachedCrossBlock && live.isSelectionInSameBlock);
+
+        const anchor = useLive ? live!.anchor : sel.anchor;
+        const focus = useLive ? live!.focus : sel.focus;
+        const anchorPath = useLive ? live!.anchor.path : sel.anchorPath;
+        const focusPath = useLive ? live!.focus.path : sel.focusPath;
         if (!anchor || !focus || !anchorPath?.length || !focusPath?.length)
             return null;
 

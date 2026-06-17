@@ -81,6 +81,14 @@ interface RgMatchData {
   path: TextInput
 }
 
+interface RgMatch {
+  matchText: string
+  lineText: string
+  range: [[number, number], [number, number]]
+  leadingContextLines: unknown[]
+  trailingContextLines: unknown[]
+}
+
 const processUnicodeMatch = (match: RgMatchData): void => {
   const text = getText(match.lines)
   if (text.length === Buffer.byteLength(text)) return
@@ -249,11 +257,9 @@ const startTextSearch = (
 
     let buffer = ''
     let bufferError = ''
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let pendingEvent: { filePath: string; matches: any[] } | null = null
+    let pendingEvent: { filePath: string; matches: RgMatch[] } | null = null
     let pendingLeadingContext: unknown[] = []
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let pendingTrailingContexts: Set<any[]> = new Set()
+    let pendingTrailingContexts: Set<unknown[]> = new Set()
 
     child.on('close', (code) => {
       if (code !== null && code > 1 && bufferError) {

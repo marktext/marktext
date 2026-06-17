@@ -3,7 +3,7 @@ import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
 import keytar from 'keytar'
 import schema from './schema.json'
-import Store from 'electron-store'
+import Store, { type Schema } from 'electron-store'
 import log from 'electron-log'
 import { ensureDirSync } from 'common/filesystem'
 import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
@@ -26,8 +26,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
   serviceName: string
   encryptKeys: string[]
   hasDataCenterFile: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  store: Store<any>
+  store: Store<Record<string, unknown>>
 
   constructor(paths: DataCenterPaths) {
     super()
@@ -40,10 +39,8 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     this.hasDataCenterFile = fs.existsSync(
       path.join(this.dataCenterPath, `./${DATA_CENTER_NAME}.json`)
     )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.store = new Store<any>({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      schema: schema as any,
+    this.store = new Store<Record<string, unknown>>({
+      schema: schema as Schema<Record<string, unknown>>,
       name: DATA_CENTER_NAME
     })
 
@@ -72,8 +69,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     this._listenForIpcMain()
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async getAll(): Promise<Record<string, any>> {
+  async getAll(): Promise<Record<string, unknown>> {
     const { serviceName, encryptKeys } = this
     const data = this.store.store
     try {
@@ -82,8 +78,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
           return keytar.getPassword(serviceName, key)
         })
       )
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const encryptObj = encryptKeys.reduce<Record<string, any>>((acc, k, i) => {
+      const encryptObj = encryptKeys.reduce<Record<string, string | null>>((acc, k, i) => {
         return {
           ...acc,
           [k]: encryptData[i]
@@ -97,8 +92,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addImage(key: string, url: string): any {
+  addImage(key: string, url: string): void {
     const items = this.store.get(key) as Array<{ url: string; timeStamp: number }>
     const alreadyHas = items.some((item) => item.url === url)
     let item
@@ -124,8 +118,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     return this.store.set(type, items)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getItem(key: string): Promise<any> | any {
+  getItem(key: string): Promise<unknown> {
     const { encryptKeys, serviceName } = this
     if (encryptKeys.includes(key)) {
       return keytar.getPassword(serviceName, key)
@@ -135,8 +128,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async setItem(key: string, value: any): Promise<any> {
+  async setItem(key: string, value: unknown): Promise<void> {
     const { encryptKeys, serviceName } = this
     if (key === 'screenshotFolderPath') {
       ensureDirSync(value as string)
@@ -144,7 +136,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
     if (encryptKeys.includes(key)) {
       try {
-        return await keytar.setPassword(serviceName, key, value)
+        return await keytar.setPassword(serviceName, key, value as string)
       } catch (err) {
         log.error('Keytar error:', err)
       }
@@ -156,8 +148,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
   /**
    * Change multiple setting entries.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setItems(settings: Record<string, any>): void {
+  setItems(settings: Record<string, unknown>): void {
     if (!settings) {
       log.error('Cannot change settings without entires: object is undefined or null.')
       return
@@ -170,8 +161,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
 
   _listenForIpcMain(): void {
     ipcMain.on('set-image-folder-path', (newPath) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.setItem('imageFolderPath', newPath as any)
+      this.setItem('imageFolderPath', newPath)
     })
 
     ipcMain.on('mt::ask-for-user-data', async(e) => {
@@ -197,8 +187,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
       }
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ipcMain.on('mt::set-user-data', (_e, userData: Record<string, any>) => {
+    ipcMain.on('mt::set-user-data', (_e, userData: Record<string, unknown>) => {
       this.setItems(userData)
     })
 

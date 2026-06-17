@@ -1,6 +1,7 @@
 import path from 'path'
 import type { BrowserWindow } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
+import type Accessor from '../app/accessor'
 
 /**
  * A MarkText window.
@@ -40,30 +41,26 @@ export interface BaseWindowEvents {
   'window-closed': []
 }
 
-// Minimal shape for the accessor we keep a private reference to. The real
-// Accessor lives in src/main/app/accessor.ts and is not strongly typed here
-// because of the wide preferences/menu/keybinding surface it carries.
-type AccessorLike = unknown
-
-// Subset of preference accessor used while building the renderer URL.
-interface PreferenceLike {
+// Subset of preference accessor used while building the renderer URL. Fields are
+// optional to mirror `IUserPreferences` (the real `Preference.getAll()` return).
+export interface PreferenceLike {
   getAll(): {
-    codeFontFamily: string
-    codeFontSize: number
-    hideScrollbar: boolean
-    theme: string
-    titleBarStyle: string
+    codeFontFamily?: string
+    codeFontSize?: number
+    hideScrollbar?: boolean
+    theme?: string
+    titleBarStyle?: string
     [key: string]: unknown
   }
 }
 
-interface EnvLike {
+export interface EnvLike {
   debug: boolean
   paths: { userDataPath: string }
 }
 
 class BaseWindow extends TypedEmitter<BaseWindowEvents> {
-  protected _accessor: AccessorLike
+  protected _accessor: Accessor
   public id: number | null
   public browserWindow: BrowserWindow | null
   public lifecycle: WindowLifecycleValue
@@ -72,7 +69,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
   /**
    * @param accessor The application accessor for application instances.
    */
-  constructor(accessor: AccessorLike) {
+  constructor(accessor: Accessor) {
     super()
 
     this._accessor = accessor
@@ -132,11 +129,11 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     url.searchParams.set('type', type)
 
     // Settings
-    url.searchParams.set('cff', codeFontFamily)
+    url.searchParams.set('cff', codeFontFamily ?? '')
     url.searchParams.set('cfs', String(codeFontSize))
     url.searchParams.set('hsb', hideScrollbar ? '1' : '0')
-    url.searchParams.set('theme', theme)
-    url.searchParams.set('tbs', titleBarStyle)
+    url.searchParams.set('theme', theme ?? '')
+    url.searchParams.set('tbs', titleBarStyle ?? '')
 
     return url
   }
@@ -151,7 +148,7 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     return this._buildUrlWithSettings(windowId, env, userPreference).toString()
   }
 
-  protected _getPreferredBackgroundColor(theme: string): string {
+  protected _getPreferredBackgroundColor(theme: string | undefined): string {
     // Hardcode the theme background color and show the window direct for the fastet window ready time.
     // Later with custom themes we need the background color (e.g. from meta information) and wait
     // that the window is loaded and then pass theme data to the renderer.

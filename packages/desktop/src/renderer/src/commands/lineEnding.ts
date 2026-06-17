@@ -1,4 +1,5 @@
 import { delay } from '@/util'
+import type { EditorState } from '@/store/editor'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -11,10 +12,6 @@ interface LineEndingSubcommand {
   description: string
   value: 'crlf' | 'lf'
 }
-
-// Loose editor-state shape; the actual store is still JS and migrates later.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
 
 class LineEndingCommand {
   id: string
@@ -48,7 +45,9 @@ class LineEndingCommand {
   }
 
   run = async(): Promise<void> => {
-    const { lineEnding } = this._editorState.currentFile
+    const { currentFile } = this._editorState
+    if (!currentFile) return
+    const { lineEnding } = currentFile
     if (lineEnding === 'crlf') {
       this.subcommandSelectedIndex = 0
       this.subcommands[0].description = `${crlfDescription} - current`

@@ -32,6 +32,7 @@ import type {
 import { deepClone } from '../utils';
 
 import logger from '../utils/logger';
+import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
 function escapeText(str: string) {
@@ -83,15 +84,15 @@ export default class ExportMarkdown {
     }
 
     generate(states: TState[]) {
-        return this.convertStatesToMarkdown(states);
+        return this._convertStatesToMarkdown(states);
     }
 
-    convertStatesToMarkdown(
+    private _convertStatesToMarkdown(
         states: TState[],
         indent = '',
         listIndent = '',
     ): string {
-        const result = [];
+        const result: string[] = [];
         // helper for CommonMark 264
         let lastListBullet = '';
 
@@ -104,119 +105,140 @@ export default class ExportMarkdown {
                 lastListBullet = '';
             }
 
-            switch (state.name) {
-                case 'frontmatter':
-                    result.push(this.serializeFrontMatter(state));
-                    break;
-
-                case 'paragraph':
-
-                case 'thematic-break':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeTextParagraph(state, indent));
-                    break;
-
-                case 'atx-heading':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeAtxHeading(state, indent));
-                    break;
-
-                case 'setext-heading':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeSetextHeading(state, indent));
-                    break;
-
-                case 'code-block':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeCodeBlock(state, indent));
-                    break;
-
-                case 'html-block':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeHtmlBlock(state, indent));
-                    break;
-
-                case 'math-block':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeMathBlock(state, indent));
-                    break;
-
-                case 'diagram':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeDiagramBlock(state, indent));
-                    break;
-
-                case 'block-quote':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeBlockquote(state, indent));
-                    break;
-
-                case 'table':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeTable(state, indent));
-                    break;
-
-                case 'footnote':
-                    this.insertLineBreak(result, indent);
-                    result.push(this.serializeFootnote(state, indent));
-                    break;
-
-                case 'order-list':
-
-                case 'bullet-list':
-
-                case 'task-list': {
-                    let insertNewLine = this._isLooseParentList;
-                    this._isLooseParentList = true;
-                    const { meta } = state;
-
-                    // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
-                    const bulletMarkerOrDelimiter
-                        = 'delimiter' in meta ? meta.delimiter : meta.marker;
-
-                    if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
-                        insertNewLine = false;
-
-                    lastListBullet = bulletMarkerOrDelimiter;
-
-                    if (insertNewLine)
-                        this.insertLineBreak(result, indent);
-
-                    this._listType.push(deepClone(meta));
-                    result.push(this.serializeList(state, indent, listIndent));
-                    this._listType.pop();
-                    break;
-                }
-
-                case 'list-item':
-
-                case 'task-list-item': {
-                    const { loose } = this._listType[this._listType.length - 1];
-
-                    // helper variable to correct the first tight item in a nested list
-                    this._isLooseParentList = loose;
-                    if (loose)
-                        this.insertLineBreak(result, indent);
-
-                    result.push(this.serializeListItem(state, indent + listIndent));
-                    this._isLooseParentList = true;
-                    break;
-                }
-
-                default: {
-                    debug.warn(
-                        'convertStatesToMarkdown: Unknown state type:',
-                        state.name,
-                    );
-                    break;
-                }
+            if (isAnyListState(state)) {
+                lastListBullet = this._serializeListBlock(
+                    state,
+                    result,
+                    indent,
+                    listIndent,
+                    lastListBullet,
+                );
+            }
+            else if (state.name === 'list-item' || state.name === 'task-list-item') {
+                this._serializeListItemBlock(state, result, indent, listIndent);
+            }
+            else {
+                this._serializeSimpleBlock(state, result, indent);
             }
         }
 
         return result.join('');
     }
 
-    insertLineBreak(result: unknown[], indent: string) {
+    private _serializeSimpleBlock(state: TState, result: string[], indent: string) {
+        switch (state.name) {
+            case 'frontmatter':
+                result.push(this._serializeFrontMatter(state));
+                break;
+
+            case 'paragraph':
+
+            case 'thematic-break':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeTextParagraph(state, indent));
+                break;
+
+            case 'atx-heading':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeAtxHeading(state, indent));
+                break;
+
+            case 'setext-heading':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeSetextHeading(state, indent));
+                break;
+
+            case 'code-block':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeCodeBlock(state, indent));
+                break;
+
+            case 'html-block':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeHtmlBlock(state, indent));
+                break;
+
+            case 'math-block':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeMathBlock(state, indent));
+                break;
+
+            case 'diagram':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeDiagramBlock(state, indent));
+                break;
+
+            case 'block-quote':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeBlockquote(state, indent));
+                break;
+
+            case 'table':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeTable(state, indent));
+                break;
+
+            case 'footnote':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeFootnote(state, indent));
+                break;
+
+            default: {
+                debug.warn(
+                    'convertStatesToMarkdown: Unknown state type:',
+                    state.name,
+                );
+                break;
+            }
+        }
+    }
+
+    private _serializeListBlock(
+        state: IOrderListState | IBulletListState | ITaskListState,
+        result: string[],
+        indent: string,
+        listIndent: string,
+        lastListBullet: string,
+    ): string {
+        let insertNewLine = this._isLooseParentList;
+        this._isLooseParentList = true;
+        const { meta } = state;
+
+        // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
+        const bulletMarkerOrDelimiter
+            = 'delimiter' in meta ? meta.delimiter : meta.marker;
+
+        if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+            insertNewLine = false;
+
+        if (insertNewLine)
+            this._insertLineBreak(result, indent);
+
+        this._listType.push(deepClone(meta));
+        result.push(this._serializeList(state, indent, listIndent));
+        this._listType.pop();
+
+        return bulletMarkerOrDelimiter;
+    }
+
+    private _serializeListItemBlock(
+        state: IListItemState | ITaskListItemState,
+        result: string[],
+        indent: string,
+        listIndent: string,
+    ) {
+        const { loose } = this._listType[this._listType.length - 1];
+
+        // helper variable to correct the first tight item in a nested list
+        this._isLooseParentList = loose;
+        if (loose)
+            this._insertLineBreak(result, indent);
+
+        result.push(this._serializeListItem(state, indent + listIndent));
+        this._isLooseParentList = true;
+    }
+
+    private _insertLineBreak(result: unknown[], indent: string) {
         if (!result.length)
             return;
         // Blank lines inside a list item should be empty, not carry the
@@ -226,7 +248,7 @@ export default class ExportMarkdown {
         result.push(`${indent.replace(/ +$/, '')}\n`);
     }
 
-    serializeFrontMatter(state: IFrontmatterState) {
+    private _serializeFrontMatter(state: IFrontmatterState) {
         let startToken;
         let endToken;
         switch (state.meta.lang) {
@@ -265,7 +287,7 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    serializeTextParagraph(
+    private _serializeTextParagraph(
         state: IParagraphState | IThematicBreakState,
         indent: string,
     ) {
@@ -275,7 +297,7 @@ export default class ExportMarkdown {
         return `${lines.map(line => `${indent}${line}`).join('\n')}\n`;
     }
 
-    serializeAtxHeading(state: IAtxHeadingState, indent: string) {
+    private _serializeAtxHeading(state: IAtxHeadingState, indent: string) {
         const { text } = state;
         const match = text.match(/(#{1,6})(.*)/);
 
@@ -284,7 +306,7 @@ export default class ExportMarkdown {
         return `${indent}${atxHeadingText}\n`;
     }
 
-    serializeSetextHeading(state: ISetextHeadingState, indent: string) {
+    private _serializeSetextHeading(state: ISetextHeadingState, indent: string) {
         const { text, meta } = state;
         const { underline } = meta;
         const lines = text.trim().split('\n');
@@ -295,7 +317,7 @@ export default class ExportMarkdown {
         );
     }
 
-    serializeCodeBlock(state: ICodeBlockState, indent: string) {
+    private _serializeCodeBlock(state: ICodeBlockState, indent: string) {
         const result = [];
         const { text, meta } = state;
         const textList = text.split('\n');
@@ -317,7 +339,7 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    serializeHtmlBlock(state: IHtmlBlockState, indent: string) {
+    private _serializeHtmlBlock(state: IHtmlBlockState, indent: string) {
         const result = [];
         const { text } = state;
         const lines = text.split('\n');
@@ -328,7 +350,7 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    serializeMathBlock(state: IMathBlockState, indent: string) {
+    private _serializeMathBlock(state: IMathBlockState, indent: string) {
         const result = [];
         const {
             text,
@@ -345,7 +367,7 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    serializeDiagramBlock(state: IDiagramState, indent: string) {
+    private _serializeDiagramBlock(state: IDiagramState, indent: string) {
         const result = [];
         const {
             text,
@@ -362,14 +384,14 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    serializeBlockquote(state: IBlockQuoteState, indent: string) {
+    private _serializeBlockquote(state: IBlockQuoteState, indent: string) {
         const { children } = state;
         const newIndent = `${indent}> `;
 
-        return this.convertStatesToMarkdown(children, newIndent);
+        return this._convertStatesToMarkdown(children, newIndent);
     }
 
-    serializeFootnote(state: IFootnoteBlockState, indent: string) {
+    private _serializeFootnote(state: IFootnoteBlockState, indent: string) {
         // Footnote definitions render as
         //   [^id]: first paragraph
         //
@@ -379,7 +401,7 @@ export default class ExportMarkdown {
         // indented by four spaces past the surrounding `indent`.
         const { meta, children } = state;
         const innerIndent = `${indent}    `;
-        const inner = this.convertStatesToMarkdown(children, innerIndent);
+        const inner = this._convertStatesToMarkdown(children, innerIndent);
         const prefix = `${indent}[^${meta.identifier}]: `;
         // Strip the inner indent off the first non-empty line so the prefix
         // sits flush, leaving subsequent lines at the four-space indent.
@@ -387,7 +409,7 @@ export default class ExportMarkdown {
         return `${prefix}${stripped}`;
     }
 
-    serializeTable(state: ITableState, indent: string) {
+    private _serializeTable(state: ITableState, indent: string) {
         const result: string[] = [];
         const row = state.children.length;
         const tableData = [];
@@ -465,17 +487,17 @@ export default class ExportMarkdown {
         return `${result.join('\n')}\n`;
     }
 
-    serializeList(
+    private _serializeList(
         state: IBulletListState | IOrderListState | ITaskListState,
         indent: string,
         listIndent: string,
     ) {
         const { children } = state;
 
-        return this.convertStatesToMarkdown(children, indent, listIndent);
+        return this._convertStatesToMarkdown(children, indent, listIndent);
     }
 
-    serializeListItem(
+    private _serializeListItem(
         state: IListItemState | ITaskListItemState,
         indent: string,
     ) {
@@ -529,7 +551,7 @@ export default class ExportMarkdown {
 
         result.push(`${indent}${itemMarker}`);
         result.push(
-            this.convertStatesToMarkdown(children, newIndent, listIndent).substring(
+            this._convertStatesToMarkdown(children, newIndent, listIndent).substring(
                 newIndent.length,
             ),
         );

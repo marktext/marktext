@@ -2,6 +2,7 @@ import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 
 declare global {
+    // eslint-disable-next-line ts/naming-convention
     interface Window {
         Prism: unknown;
         MUYA_VERSION: string;
@@ -13,6 +14,7 @@ declare global {
         DIRNAME?: string;
     }
 
+    // eslint-disable-next-line ts/naming-convention
     interface Element {
         __MUYA_BLOCK__: Content | Parent;
     }

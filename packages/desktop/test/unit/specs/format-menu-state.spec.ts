@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import { type Menu } from 'electron'
 
 // `@/store/editor` transitively imports `@/config`, which reads
 // `window.path.sep` at module load (normally injected by the preload bridge).
@@ -74,7 +75,7 @@ describe('updateFormatMenu', () => {
       { type: 'html_tag', tag: 'mark' }
     ])
 
-    updateFormatMenu(menu, state)
+    updateFormatMenu(menu as unknown as Menu, state)
 
     expect(checkedIds(menu).sort()).toEqual(
       ['highlightMenuItem', 'subscriptMenuItem', 'superscriptMenuItem', 'underlineMenuItem'].sort()
@@ -85,7 +86,7 @@ describe('updateFormatMenu', () => {
     const menu = makeMenu(FORMAT_MENU_IDS)
     const state = createSelectionFormatState([{ type: 'strong' }, { type: 'em' }])
 
-    updateFormatMenu(menu, state)
+    updateFormatMenu(menu as unknown as Menu, state)
 
     expect(checkedIds(menu).sort()).toEqual(['emphasisMenuItem', 'strongMenuItem'].sort())
   })
@@ -94,7 +95,7 @@ describe('updateFormatMenu', () => {
     const menu = makeMenu(FORMAT_MENU_IDS)
     menu.items.forEach((i) => (i.checked = true))
 
-    updateFormatMenu(menu, createSelectionFormatState([]))
+    updateFormatMenu(menu as unknown as Menu, createSelectionFormatState([]))
 
     expect(checkedIds(menu)).toEqual([])
   })

@@ -13,21 +13,17 @@ interface SpellcheckerSubcommand {
   value: string
 }
 
-// SpellChecker is still JS; treat the instance loosely until it migrates.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SpellCheckerInstance = any
-
 // Command to switch the spellchecker language
 class SpellcheckerLanguageCommand {
   id: string
   description: string
   placeholder: string
   shortcut: string | null
-  spellchecker: SpellCheckerInstance
+  spellchecker: SpellChecker
   subcommands: SpellcheckerSubcommand[]
   subcommandSelectedIndex: number
 
-  constructor(spellchecker: SpellCheckerInstance) {
+  constructor(spellchecker: SpellChecker) {
     this.id = 'spellchecker.switch-language'
     this.description = getCommandDescriptionById('spellchecker.switch-language')
     this.placeholder = t('commandPalette.placeholders.selectLanguage')

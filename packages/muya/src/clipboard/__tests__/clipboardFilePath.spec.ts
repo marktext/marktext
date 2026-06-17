@@ -1,6 +1,7 @@
-/* eslint-disable ts/no-explicit-any */
 import type Content from '../../block/base/content';
+import type Parent from '../../block/base/parent';
 import type { Muya } from '../../muya';
+import type { TLeafState } from '../../state/types';
 import { describe, expect, it, vi } from 'vitest';
 import { ScrollPage } from '../../block/scrollPage';
 
@@ -154,11 +155,11 @@ describe('clipboard.pasteHandler — clipboardFilePath hook', () => {
         // through `MarkdownToState` (Track D / sub-item 1), so the captured text
         // lands in a created paragraph block rather than being spliced into the
         // anchor verbatim. Mock `loadBlock` to capture the created block's state.
-        const created: any[] = [];
+        const created: TLeafState[] = [];
         const spy = vi
             .spyOn(ScrollPage, 'loadBlock')
             .mockImplementation(() => ({
-                create: (_muya: unknown, state: any) => {
+                create: (_muya: unknown, state: TLeafState) => {
                     created.push(state);
                     return {
                         firstContentInDescendant: () => ({
@@ -167,7 +168,7 @@ describe('clipboard.pasteHandler — clipboardFilePath hook', () => {
                         }),
                     };
                 },
-            }) as any);
+            }) as unknown as ReturnType<typeof ScrollPage.loadBlock>);
 
         const clipboardFilePath = vi.fn().mockResolvedValue('');
         const anchorBlock = makeAnchorBlock('', 0);
@@ -178,8 +179,8 @@ describe('clipboard.pasteHandler — clipboardFilePath hook', () => {
             getState: () => ({ name: 'paragraph', text: '' }),
             remove: vi.fn(),
             parent: { insertAfter: vi.fn() },
-        };
-        (anchorBlock as any).getAnchor = () => wrapper;
+        } as unknown as Parent;
+        anchorBlock.getAnchor = () => wrapper;
         const clipboard = makeClipboard({ clipboardFilePath }, anchorBlock);
         const { event, getData } = makePasteEvent({ 'text/plain': 'hello world' });
 

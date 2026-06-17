@@ -3,15 +3,12 @@ import { delay } from '@/util'
 import bus from '../bus'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
+import type { EditorState } from '@/store/editor'
 
 interface EncodingSubcommand {
   id: string
   description: string
 }
-
-// Loose editor-state shape; the actual store is still JS and migrates later.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EditorState = any
 
 class FileEncodingCommand {
   id: string

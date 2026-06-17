@@ -75,8 +75,8 @@ class Code extends Parent {
         this.attributes = { spellcheck: 'false' };
         this._withLineNumbers = withLineNumbers;
         this.createDomNode();
-        this.createCopyNode();
-        this.listen();
+        this._createCopyNode();
+        this._listen();
     }
 
     override getState(): TState {
@@ -89,7 +89,7 @@ class Code extends Parent {
     // diagram / html), also create an empty line-numbers wrapper and cache
     // its element so CodeBlockContent.update() can sync rows without a
     // querySelector per keystroke.
-    createCopyNode() {
+    private _createCopyNode() {
         const { i18n, options } = this.muya;
         const withLineNumbers = options.codeBlockLineNumbers && this._withLineNumbers;
         let html = toHTML(renderCopyButton(i18n));
@@ -101,7 +101,7 @@ class Code extends Parent {
             : null;
     }
 
-    listen() {
+    private _listen() {
         const { editor } = this.muya;
 
         if (this.domNode == null)

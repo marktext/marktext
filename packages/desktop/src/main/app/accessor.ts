@@ -12,18 +12,12 @@ import type AppPaths from './paths'
 class Accessor {
   public env: AppEnvironment
   public paths: AppPaths
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public preferences: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public dataCenter: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public editorBufferStore: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public commandManager: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public keybindings: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public menu: any
+  public preferences: Preference
+  public dataCenter: DataCenter
+  public editorBufferStore: EditorBufferStore
+  public commandManager: CommandManager
+  public keybindings: Keybindings
+  public menu: AppMenu
   public windowManager: WindowManager
 
   /**

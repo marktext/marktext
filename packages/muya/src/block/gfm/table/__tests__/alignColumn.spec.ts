@@ -1,5 +1,9 @@
 // @vitest-environment happy-dom
 
+import type TableBodyCell from '../cell';
+import type Table from '../index';
+import type TableRow from '../row';
+import type TableInner from '../table';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
@@ -45,10 +49,8 @@ function bootMuya(markdown: string): Muya {
     return muya;
 }
 
-// eslint-disable-next-line ts/no-explicit-any
-function findTable(muya: Muya): any {
-    // eslint-disable-next-line ts/no-explicit-any
-    let table: any = null;
+function findTable(muya: Muya): Table {
+    let table: Table | null = null;
     // eslint-disable-next-line ts/no-explicit-any
     const visit = (block: any) => {
         if (block.constructor?.blockName === 'table')
@@ -67,16 +69,14 @@ function flush(): Promise<void> {
 }
 
 // Collect every cell in a given column (header + body) off the live block tree.
-/* eslint-disable ts/no-explicit-any */
-function cellsInColumn(table: any, column: number): any[] {
-    const inner = table.firstChild;
-    const cells: any[] = [];
-    inner.forEach((row: any) => {
-        cells.push(row.find(column));
+function cellsInColumn(table: Table, column: number): TableBodyCell[] {
+    const inner = table.firstChild as TableInner;
+    const cells: TableBodyCell[] = [];
+    inner.forEach((row) => {
+        cells.push((row as TableRow).find(column) as TableBodyCell);
     });
     return cells;
 }
-/* eslint-enable ts/no-explicit-any */
 
 // A plain 2-column table with no explicit alignment — both columns parse as
 // align 'none'.
@@ -93,7 +93,7 @@ describe('table.alignColumn', () => {
         for (const cell of cellsInColumn(table, 0)) {
             expect(cell.meta.align).toBe('center');
             expect(cell.align).toBe('center');
-            expect(cell.domNode.dataset.align).toBe('center');
+            expect(cell.domNode!.dataset.align).toBe('center');
         }
         // Column 1 is untouched.
         for (const cell of cellsInColumn(table, 1))
@@ -137,7 +137,7 @@ describe('table.alignColumn', () => {
 
         for (const cell of cellsInColumn(table, 0)) {
             expect(cell.meta.align).toBe('none');
-            expect(cell.domNode.dataset.align).toBe('none');
+            expect(cell.domNode!.dataset.align).toBe('none');
         }
         // The center delimiter is gone; the default un-aligned delimiter row
         // (only dashes, no colons) is serialized.

@@ -68,7 +68,7 @@ describe('langInputContent.backspaceHandler', () => {
                 start: { offset: 1 },
                 end: { offset: 1 },
             })),
-            updateLanguage: vi.fn(),
+            _updateLanguage: vi.fn(),
             previousContentInContext: vi.fn(() => null),
         };
         const event = makeFakeEvent();
@@ -79,7 +79,7 @@ describe('langInputContent.backspaceHandler', () => {
         );
 
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
-        expect(fakeThis.updateLanguage).toHaveBeenCalledWith('');
+        expect(fakeThis._updateLanguage).toHaveBeenCalledWith('');
         // The {1,1} branch does not also enter the {0,0} branch.
         expect(fakeThis.previousContentInContext).not.toHaveBeenCalled();
     });
@@ -95,7 +95,7 @@ describe('langInputContent.backspaceHandler', () => {
                 start: { offset: 0 },
                 end: { offset: 0 },
             })),
-            updateLanguage: vi.fn(),
+            _updateLanguage: vi.fn(),
             previousContentInContext: vi.fn(() => previousBlock),
         };
         const event = makeFakeEvent();
@@ -109,7 +109,7 @@ describe('langInputContent.backspaceHandler', () => {
         const offset = previousBlock.text.length;
         expect(previousBlock.setCursor).toHaveBeenCalledWith(offset, offset, true);
         // The {0,0} branch must not trigger the single-char updateLanguage path.
-        expect(fakeThis.updateLanguage).not.toHaveBeenCalled();
+        expect(fakeThis._updateLanguage).not.toHaveBeenCalled();
     });
 
     it('cursor {0,0} with NO previousContentInContext → preventDefault, no caret move, no throw', () => {
@@ -119,7 +119,7 @@ describe('langInputContent.backspaceHandler', () => {
                 start: { offset: 0 },
                 end: { offset: 0 },
             })),
-            updateLanguage: vi.fn(),
+            _updateLanguage: vi.fn(),
             previousContentInContext: vi.fn(() => null),
         };
         const event = makeFakeEvent();
@@ -133,7 +133,7 @@ describe('langInputContent.backspaceHandler', () => {
 
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
         expect(fakeThis.previousContentInContext).toHaveBeenCalledTimes(1);
-        expect(fakeThis.updateLanguage).not.toHaveBeenCalled();
+        expect(fakeThis._updateLanguage).not.toHaveBeenCalled();
     });
 
     it('cursor in the middle (e.g. {1,1} text length > 1) → neither branch fires, no preventDefault', () => {
@@ -143,7 +143,7 @@ describe('langInputContent.backspaceHandler', () => {
                 start: { offset: 1 },
                 end: { offset: 1 },
             })),
-            updateLanguage: vi.fn(),
+            _updateLanguage: vi.fn(),
             previousContentInContext: vi.fn(() => null),
         };
         const event = makeFakeEvent();
@@ -154,7 +154,7 @@ describe('langInputContent.backspaceHandler', () => {
         );
 
         expect(event.preventDefault).not.toHaveBeenCalled();
-        expect(fakeThis.updateLanguage).not.toHaveBeenCalled();
+        expect(fakeThis._updateLanguage).not.toHaveBeenCalled();
         expect(fakeThis.previousContentInContext).not.toHaveBeenCalled();
     });
 });

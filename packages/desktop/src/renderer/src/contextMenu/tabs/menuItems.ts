@@ -8,8 +8,7 @@ export const SEPARATOR = {
 }
 
 // Use function form to avoid calling the translation function during module load
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TabMenuItem = { _tabId: string; [key: string]: any }
+type TabMenuItem = { _tabId: string; [key: string]: unknown }
 
 export const getCloseThis = () => ({
   label: t('contextMenu.tabs.close'),
@@ -30,8 +29,7 @@ export const getCloseOthers = () => ({
 export const getCloseSaved = () => ({
   label: t('contextMenu.tabs.closeSavedTabs'),
   id: 'closeSavedTabs',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  click(_menuItem: any, _browserWindow?: unknown) {
+  click(_menuItem: TabMenuItem, _browserWindow?: unknown) {
     contextMenu.closeSaved()
   },
   enabled: true
@@ -40,8 +38,7 @@ export const getCloseSaved = () => ({
 export const getCloseAll = () => ({
   label: t('contextMenu.tabs.closeAllTabs'),
   id: 'closeAllTabs',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  click(_menuItem: any, _browserWindow?: unknown) {
+  click(_menuItem: TabMenuItem, _browserWindow?: unknown) {
     contextMenu.closeAll()
   }
 })

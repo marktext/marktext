@@ -108,7 +108,7 @@ class Renderer {
 
     constructor(public muya: Muya, public parent: InlineRenderer) {}
 
-    checkConflicted(block: Format, token: Token, cursor: IRenderCursor = {}) {
+    private _checkConflicted(block: Format, token: Token, cursor: IRenderCursor = {}) {
         const anchor = cursor.anchor || cursor.start;
         const focus = cursor.focus || cursor.end;
         if (!anchor || !focus || (cursor.block && cursor.block !== block))
@@ -130,7 +130,7 @@ class Renderer {
     ) {
         return (
             outerClass
-            || (this.checkConflicted(block, token, cursor)
+            || (this._checkConflicted(block, token, cursor)
                 ? CLASS_NAMES.MU_GRAY
                 : CLASS_NAMES.MU_HIDE)
         );
