@@ -73,18 +73,23 @@ describe('useEditorStore UPDATE_TOC', () => {
 })
 
 describe('resolveTocHeadingElement', () => {
-  // Mirror the live editor structure: top-level blocks are direct children of
-  // `.mu-container`. A blockquote-nested heading and a raw-HTML heading sit
-  // BETWEEN the two top-level headings — `getTOC` skips both, so `listToc` only
-  // carries the two top-level headings.
+  // Mirror the live editor structure: the scroll container the host passes in is
+  // muya's root (`.mu-editor`), which WRAPS the scrollPage root (`.mu-container`)
+  // whose DIRECT children are the top-level blocks. A blockquote-nested heading
+  // and a raw-HTML heading sit BETWEEN the two top-level headings — `getTOC`
+  // skips both, so `listToc` only carries the two top-level headings. Building
+  // the wrapper here guards against re-introducing a `:scope >`-on-the-scroller
+  // selector that would match zero headings (the headings are one level deeper).
   const buildContainer = (): HTMLElement => {
     const container = document.createElement('div')
-    container.className = 'mu-container'
+    container.className = 'editor-component mu-editor'
     container.innerHTML = `
-      <h1>Top One</h1>
-      <blockquote><h2>Nested heading</h2></blockquote>
-      <div class="mu-html-block"><h2>Raw HTML heading</h2></div>
-      <h2>Top Two</h2>
+      <div class="mu-container">
+        <h1>Top One</h1>
+        <blockquote><h2>Nested heading</h2></blockquote>
+        <div class="mu-html-block"><h2>Raw HTML heading</h2></div>
+        <h2>Top Two</h2>
+      </div>
     `
     return container
   }
@@ -116,7 +121,8 @@ describe('resolveTocHeadingElement', () => {
 
   it('returns null when the index has no matching DOM heading', () => {
     const container = document.createElement('div')
-    container.innerHTML = '<h1>Only one</h1>'
+    container.className = 'mu-editor'
+    container.innerHTML = '<div class="mu-container"><h1>Only one</h1></div>'
     // listToc claims two headings but the DOM has one — guard against overrun.
     expect(resolveTocHeadingElement(container, listToc, 'uid-2')).toBeNull()
   })
