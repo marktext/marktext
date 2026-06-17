@@ -1282,20 +1282,39 @@ export class Muya {
     }
 
     /**
-     * Run an in-place conversion, then restore the prior selection (anchor AND
-     * focus, so a range stays selected — not just a collapsed caret) on the
-     * resulting content block, with offsets clamped to its length.
+     * Run a conversion, then restore the prior selection (anchor AND focus, so a
+     * range stays selected) on the content that still holds the cursor's text.
+     * In-place conversions leave it as the active block; structural unwraps clone
+     * the cursor's block, so fall back to locating the block with the same text.
      */
     private _withPreservedOffset(fn: () => void) {
         const { selection } = this.editor;
         const anchorOffset = selection.anchor?.offset ?? 0;
         const focusOffset = selection.focus?.offset ?? anchorOffset;
+        const cursorText = (this.editor.activeContentBlock ?? selection.anchorBlock)?.text;
+
         fn();
-        const content = this.editor.activeContentBlock;
-        if (content) {
-            const len = content.text.length;
-            content.setCursor(Math.min(anchorOffset, len), Math.min(focusOffset, len), true);
+
+        let target: Nullable<Content> = this.editor.activeContentBlock;
+        if (cursorText != null && target?.text !== cursorText)
+            target = this._findContentByText(cursorText) ?? target;
+
+        if (target) {
+            const len = target.text.length;
+            target.setCursor(Math.min(anchorOffset, len), Math.min(focusOffset, len), true);
         }
+    }
+
+    /** The first content leaf whose text equals `text`, in document order. */
+    private _findContentByText(text: string): Content | null {
+        let leaf: Nullable<Content> = this.editor.scrollPage?.firstContentInDescendant();
+        while (leaf) {
+            if (leaf.text === text)
+                return leaf;
+            leaf = leaf.nextContentInContext();
+        }
+
+        return null;
     }
 
     /**

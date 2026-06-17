@@ -209,4 +209,14 @@ describe('updateParagraph toggle-off active types', () => {
             expect(muya.getState()[0].name).toBe('paragraph');
         });
     });
+
+    it('keeps the caret in the same text when toggling a nested list off', async () => {
+        const muya = bootMuya('- a\n\n  - bravo\n');
+        const content = placeCursorOnLastContent(muya); // cursor in "bravo"
+        content.setCursor(3, 3, true);
+        muya.updateParagraph('ul-bullet'); // toggle every bullet list off
+        await vi.waitFor(() => expect(hasName(muya.getState(), 'bullet-list')).toBe(false));
+        expect(muya.editor.selection.anchorBlock?.text).toBe('bravo');
+        expect(muya.editor.selection.anchor?.offset).toBe(3);
+    });
 });
