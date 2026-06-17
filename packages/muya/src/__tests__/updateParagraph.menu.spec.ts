@@ -25,6 +25,16 @@ function placeCursorOnFirstBlock(muya: Muya) {
     first.setCursor(0, 0, true);
     return first;
 }
+function placeCursorOnLastContent(muya: Muya) {
+    const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+    muya.editor.activeContentBlock = last as never;
+    last.setCursor(0, 0, true);
+    return last;
+}
+// eslint-disable-next-line ts/no-explicit-any
+function hasName(state: any[], name: string): boolean {
+    return state.some(b => b.name === name || (Array.isArray(b.children) && hasName(b.children, name)));
+}
 
 describe('updateParagraph same-block menu model', () => {
     it('converts a non-empty paragraph to a heading in place (convertible)', async () => {
@@ -136,6 +146,67 @@ describe('updateParagraph same-block menu model', () => {
         await vi.waitFor(() => {
             const s = muya.getState();
             expect(s[0].name).toBe('atx-heading');
+        });
+    });
+});
+
+describe('updateParagraph toggle-off active types', () => {
+    it('unwraps the matching list kind, leaving other kinds (ul > task > ol, click ordered)', async () => {
+        const muya = bootMuya('- a\n    - [ ] b\n        1. c\n');
+        placeCursorOnLastContent(muya); // cursor in the ordered list item
+        muya.updateParagraph('ol-order');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(hasName(s, 'order-list')).toBe(false);
+            expect(hasName(s, 'bullet-list')).toBe(true);
+            expect(hasName(s, 'task-list')).toBe(true);
+        });
+    });
+
+    it('removes every nested level of the clicked kind (ul > ul, click unordered)', async () => {
+        const muya = bootMuya('- a\n\n  - b\n');
+        placeCursorOnLastContent(muya); // cursor in the inner bullet list
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => {
+            expect(hasName(muya.getState(), 'bullet-list')).toBe(false);
+        });
+    });
+
+    it('converts the cursor list to a different kind when that kind is not active', async () => {
+        const muya = bootMuya('- a\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('ol-order');
+        await vi.waitFor(() => {
+            expect(muya.getState()[0].name).toBe('order-list');
+        });
+    });
+
+    it('toggles a heading back to a paragraph when its current level is clicked', async () => {
+        const muya = bootMuya('# Title\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('heading 1');
+        await vi.waitFor(() => {
+            expect(muya.getState()[0].name).toBe('paragraph');
+        });
+    });
+
+    it('changes the heading level when a different level is clicked', async () => {
+        const muya = bootMuya('# Title\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('heading 2');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s[0].name).toBe('atx-heading');
+            expect((s[0] as { meta: { level: number } }).meta.level).toBe(2);
+        });
+    });
+
+    it('toggles a thematic break back to a paragraph when clicked from within', async () => {
+        const muya = bootMuya('---\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('hr');
+        await vi.waitFor(() => {
+            expect(muya.getState()[0].name).toBe('paragraph');
         });
     });
 });

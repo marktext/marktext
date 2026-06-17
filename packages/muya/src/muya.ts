@@ -96,6 +96,17 @@ const PARAGRAPH_LABEL_MAP: Record<string, string> = {
 // The outmost-block labels that wrap a cross-block selection into a list.
 const CROSS_BLOCK_LIST_LABELS = new Set(['bullet-list', 'order-list', 'task-list']);
 
+// Paragraph-menu labels whose block toggles back to a paragraph when the cursor
+// is already inside one (the menu item is checked) — clicking unwraps/removes it.
+const TOGGLEABLE_BLOCK_LABELS = new Set([
+    'bullet-list',
+    'order-list',
+    'task-list',
+    'block-quote',
+    'code-block',
+    'thematic-break',
+]);
+
 function endpointPair(
     anchor: Nullable<Parent>,
     focus: Nullable<Parent>,
@@ -1196,43 +1207,78 @@ export class Muya {
         if (label === 'paragraph')
             return this._convertLeafToParagraph();
 
-        if (label.endsWith('-list') && isAnyListState(block.getState())) {
-            // Selecting the active list type toggles the list off (unwrap each
-            // item back into paragraphs); a different type converts in place,
-            // preserving every item. Keep the caret on the same text.
-            this._withPreservedOffset(() => {
-                if (block.blockName === label)
-                    this._unwrapToParagraphs(block);
-                else
-                    this._convertListType(block, label);
-            });
-
+        // Clicking an already-active type (its block is an ancestor of the
+        // cursor, i.e. the menu item is checked) toggles it off: unwrap every
+        // ancestor of that kind, or convert the matching leaf back to a paragraph.
+        if (this._toggleIfActive(label))
             return;
+
+        // A list kind clicked while inside a list of a DIFFERENT kind converts
+        // the cursor's (innermost) list to that kind.
+        if (label.endsWith('-list')) {
+            const list = this._closestListAtCursor();
+            if (list) {
+                this._withPreservedOffset(() => this._convertListType(list, label));
+                return;
+            }
         }
-
-        // Invoking "Code Block" / "Quote Block" while the cursor is already
-        // inside that container toggles it back to a paragraph (muyajs
-        // semantics) instead of nesting a fresh one below.
-        if ((label === 'code-block' || label === 'block-quote') && this._toggleEnclosingContainer(label))
-            return;
 
         this._convertOrInsertBelow(label);
     }
 
     /**
-     * Toggle the container of `blockName` (code-block / block-quote) enclosing
-     * the cursor back to a paragraph. Returns false when the cursor is not
-     * inside such a container.
+     * If the cursor is inside a block matching `label` (the menu item is
+     * checked), toggle it off and return true: unwrap EVERY ancestor of that
+     * kind (so nested same-kind lists collapse in one click and the item ends up
+     * un-checked), or convert a matching leaf (heading of that level / hr) back
+     * to a paragraph. Returns false when nothing matches.
      */
-    private _toggleEnclosingContainer(blockName: string): boolean {
-        const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
-        const container = content?.closestBlock(blockName) as Parent | null;
-        if (!container)
+    private _toggleIfActive(label: string): boolean {
+        const cursorContent = () => this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        const content = cursorContent();
+        if (!content)
             return false;
 
-        this._withPreservedOffset(() => this.resetToParagraph(container));
+        // Headings match only when the cursor's heading is exactly that level.
+        if (label.startsWith('atx-heading ')) {
+            const heading = content.closestBlock('atx-heading') as Parent | null;
+            if (!heading)
+                return false;
+
+            const state = heading.getState();
+            const level = Number(label.slice('atx-heading '.length));
+            if (!isAtxHeadingState(state) || state.meta.level !== level)
+                return false;
+
+            this._withPreservedOffset(() => this.resetToParagraph(heading));
+            return true;
+        }
+
+        if (!TOGGLEABLE_BLOCK_LABELS.has(label) || !content.closestBlock(label))
+            return false;
+
+        this._withPreservedOffset(() => {
+            for (let guard = 0; guard < 20; guard++) {
+                const target = cursorContent()?.closestBlock(label) as Parent | null;
+                if (!target)
+                    break;
+                this.resetToParagraph(target);
+            }
+        });
 
         return true;
+    }
+
+    /** The nearest list ancestor of the cursor, of any kind. */
+    private _closestListAtCursor(): Parent | null {
+        let node: Nullable<Parent> = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.parent;
+        while (node) {
+            if (node.blockName === 'bullet-list' || node.blockName === 'order-list' || node.blockName === 'task-list')
+                return node;
+            node = node.parent;
+        }
+
+        return null;
     }
 
     /**
