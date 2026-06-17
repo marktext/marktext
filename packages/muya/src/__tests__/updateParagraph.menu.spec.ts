@@ -139,6 +139,21 @@ describe('updateParagraph same-block menu model', () => {
         });
     });
 
+    it('inserts a thematic break + trailing empty paragraph below a non-empty heading (heading kept)', async () => {
+        const muya = bootMuya('# Title\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('hr');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(3);
+            expect(s[0].name).toBe('atx-heading');
+            expect((s[0] as { text: string }).text).toBe('# Title'); // heading kept
+            expect(s[1].name).toBe('thematic-break'); // rule below it
+            expect(s[2].name).toBe('paragraph');
+            expect((s[2] as { text: string }).text).toBe(''); // trailing empty paragraph
+        });
+    });
+
     it('unwraps an enclosing block-quote (with a heading inside) instead of nesting one', async () => {
         const muya = bootMuya('> # Title\n');
         placeCursorOnFirstBlock(muya);
