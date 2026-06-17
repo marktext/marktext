@@ -92,6 +92,15 @@ describe('paste — same-type list merges into the enclosing list (A5, muyajs pa
         expect(await paste(muya, block, 1, 1, '- x\n- y')).toBe('- ax\n- y\n');
     });
 
+    it('does NOT fold the first item for a task list — appends all (muyajs parity)', async () => {
+        const muya = bootMuya('- [ ] a\n');
+        const block = contentBlocks(muya)[0]; // task-list-item content 'a'
+        // muyajs never inline-folds a task item; 'a' stays, x and y are new items.
+        expect(await paste(muya, block, 1, 1, '- [ ] x\n- [ ] y')).toBe(
+            '- [ ] a\n- [ ] x\n- [ ] y\n',
+        );
+    });
+
     it('reconciles tight + loose into a loose list', async () => {
         const muya = bootMuya('- a\n');
         const block = contentBlocks(muya)[0];

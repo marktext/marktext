@@ -258,9 +258,14 @@ function tryMergeListPaste(
     const pastedItems = firstState.children;
     const pastedFirst = pastedItems[0].children[0];
 
+    // A task list never folds its first item: muyajs prepends an `input` child
+    // so its `liChildren[0].type === 'p'` check is false and it appends every
+    // pasted item. Bullet/order lists fold the first item's paragraph inline.
+    const canFold = firstState.name !== 'task-list' && isParagraphState(pastedFirst);
+
     const mergedChildren = [...listState.children];
     let foldedOnly = false;
-    if (isParagraphState(pastedFirst)) {
+    if (canFold) {
         anchorPara.text = head + pastedFirst.text;
         currentItem.children = [...currentItem.children, ...pastedItems[0].children.slice(1)];
         mergedChildren.push(...pastedItems.slice(1));
