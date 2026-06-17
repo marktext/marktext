@@ -443,33 +443,28 @@ function applyLiteralPaste(
     }
 }
 
-// A8: under Paste as Plain Text, block-level HTML is inserted as literal text
-// (muyajs `pasteAsPlainText` copyAsHtml branch) rather than a live html-block —
-// the markup stays visible as source. The first line folds into the anchor; any
-// remaining lines become their own paragraphs, so no block keeps a raw newline.
+// A8: under Paste as Plain Text, block-level HTML follows muyajs's
+// `pasteAsPlainText` copyAsHtml branch — its first line folds into the anchor as
+// literal text (the open tag stays visible at the seam), and any remaining lines
+// become a single live html-block below, matching muyajs's
+// `createBlockP(lines.slice(1).join('\n')) + insertHtmlBlock`.
 function applyPlainTextBlockHtml(clipboard: Clipboard, ctx: IPasteContext, text: string): void {
     const { anchorBlock, start, end, content } = ctx;
     const head = content.substring(0, start.offset);
     const tail = content.substring(end.offset);
     const lines = text.trim().split('\n');
 
-    if (lines.length === 1) {
-        anchorBlock.text = head + lines[0] + tail;
-        anchorBlock.update();
-        const offset = head.length + lines[0].length;
-        anchorBlock.setCursor(offset, offset, true);
-
-        return;
-    }
-
-    anchorBlock.text = head + lines[0];
+    anchorBlock.text = head + lines[0] + tail;
     anchorBlock.update();
+    const offset = head.length + lines[0].length;
+    anchorBlock.setCursor(offset, offset, true);
 
-    const rest = lines.slice(1).map(line => ({ name: 'paragraph' as const, text: line }));
-    const lastLine = rest[rest.length - 1];
-    lastLine.text += tail;
-    const last = insertStatesAfter(clipboard.muya, ctx.wrapperBlock, rest);
-    seatCursorAtSeam(last, lastLine.text.length - tail.length);
+    if (lines.length === 1)
+        return;
+
+    const htmlState = { name: 'html-block', text: lines.slice(1).join('\n') };
+    const newBlock = ScrollPage.loadBlock(htmlState.name).create(clipboard.muya, htmlState);
+    ctx.wrapperBlock?.parent?.insertAfter(newBlock, ctx.wrapperBlock);
 }
 
 // Block-level HTML (`<ul>`/`<ol>`/`<pre>`/`<blockquote>` … — tags in

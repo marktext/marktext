@@ -80,7 +80,7 @@ describe('paste as plain text — block-level HTML is literal (A8, muyajs parity
         expect(muya.editor.scrollPage!.length()).toBe(1);
     });
 
-    it('splits multi-line block HTML into per-line paragraphs (no raw newline in a block)', async () => {
+    it('folds the first line into the anchor and makes the rest one html-block (muyajs parity)', async () => {
         const html = '<ul>\n<li>a</li>\n</ul>';
         const muya = bootMuya('foo\n', { clipboardText: () => html });
         const block = firstContent(muya);
@@ -97,10 +97,10 @@ describe('paste as plain text — block-level HTML is literal (A8, muyajs parity
         await muya.editor.clipboard.pasteAsPlainText();
         await new Promise(r => setTimeout(r, 40));
 
-        // First line folds into 'foo'; the remaining two lines become their own
-        // paragraphs, so the markdown round-trips stably.
+        // muyajs: line 0 folds into 'foo' as literal text, the remaining lines
+        // become a single live html-block — two blocks, not three paragraphs.
         const md = muya.getMarkdown();
-        expect(md).toBe('foo<ul>\n\n<li>a</li>\n\n</ul>\n');
-        expect(muya.editor.scrollPage!.length()).toBe(3);
+        expect(md).toBe('foo<ul>\n\n<li>a</li>\n</ul>\n');
+        expect(muya.editor.scrollPage!.length()).toBe(2);
     });
 });
