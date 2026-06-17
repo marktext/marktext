@@ -93,10 +93,11 @@ function extractWord(
     };
 }
 
-function hasOddBackslashesBefore(text: string, charIndex: number) {
+function hasOddBackslashesBefore(text: string, charIndex: number): boolean {
     let count = 0;
-    for (let i = charIndex - 1; i >= 0 && text[i] === '\\'; i--)
+    for (let i = charIndex - 1; i >= 0 && text[i] === '\\'; i--) {
         count++;
+    }
 
     return count % 2 === 1;
 }
