@@ -1868,6 +1868,7 @@ onBeforeUnmount(() => {
   }
   selectionWordCountFrame = null
   lastSelectedText = ''
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.
