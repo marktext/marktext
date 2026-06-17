@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import type { ImageToken, LinkToken, StrongEmToken, SuperSubScriptToken, Token } from '../types';
+import type { CodeEmojiMathToken, ImageToken, LinkToken, StrongEmToken, SuperSubScriptToken, Token } from '../types';
 import { describe, expect, it } from 'vitest';
 import { tokenizer } from '../lexer';
 
@@ -96,6 +96,17 @@ describe('inline lexer — reference link (marktext d9f64bab)', () => {
         const tokens = tokenizer('[text][ref]', { labels });
         const types = tokens.map(t => t.type);
         expect(types, `tokens: ${JSON.stringify(types)}`).toContain('reference_link');
+    });
+});
+
+// Regression for issue #4555: escaped dollar signs inside inline math should
+// stay inside the math token instead of terminating the formula early.
+describe('inline lexer — inline math', () => {
+    it('parses escaped dollar signs inside inline math', () => {
+        const tokens = tokenizer(String.raw`$y = \$10000$`);
+        const math = tokens.find((t): t is CodeEmojiMathToken => t.type === 'inline_math');
+        expect(math, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBeDefined();
+        expect(math?.content).toBe(String.raw`y = \$10000`);
     });
 });
 

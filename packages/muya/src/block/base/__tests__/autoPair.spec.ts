@@ -169,6 +169,36 @@ describe('autoPair — 4278362f no markdown-syntax pairing inside inline math', 
         expect(text).toBe('$*x$');
         expect(needRender).toBe(false);
     });
+
+    it('does not treat an escaped dollar as skipping the closing math marker', () => {
+        const fakeThis = makeFakeThis(String.raw`$y=\$`, 4);
+        const event = makeInputEvent('insertText', '$');
+        const { text, needRender } = invokeAutoPair(
+            fakeThis,
+            event,
+            String.raw`$y=\$$`,
+            5,
+            { isInInlineMath: true },
+        );
+
+        expect(text).toBe(String.raw`$y=\$$`);
+        expect(needRender).toBe(false);
+    });
+
+    it('still skips the closing math marker after an even number of backslashes', () => {
+        const fakeThis = makeFakeThis(String.raw`$y=\\$`, 5);
+        const event = makeInputEvent('insertText', '$');
+        const { text, needRender } = invokeAutoPair(
+            fakeThis,
+            event,
+            String.raw`$y=\\$$`,
+            6,
+            { isInInlineMath: true },
+        );
+
+        expect(text).toBe(String.raw`$y=\\$`);
+        expect(needRender).toBe(true);
+    });
 });
 
 // ── marktext 701fb9ae "Append soft-lines on text removal" (#2853) ────────
