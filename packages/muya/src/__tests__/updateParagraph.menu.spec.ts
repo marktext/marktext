@@ -99,6 +99,22 @@ describe('updateParagraph same-block menu model', () => {
         expect(muya.editor.selection.anchor?.offset).toBe(3);
     });
 
+    it('preserves a range selection across paragraph -> list -> paragraph', async () => {
+        const muya = bootMuya('hello world\n');
+        const content = placeCursorOnFirstBlock(muya);
+        content.setCursor(2, 6, true); // select offsets [2, 6)
+
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('bullet-list'));
+        expect(muya.editor.selection.anchor?.offset).toBe(2);
+        expect(muya.editor.selection.focus?.offset).toBe(6);
+
+        muya.updateParagraph('ul-bullet'); // toggle back to paragraph
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('paragraph'));
+        expect(muya.editor.selection.anchor?.offset).toBe(2);
+        expect(muya.editor.selection.focus?.offset).toBe(6);
+    });
+
     it('inserts a thematic break below a non-empty paragraph', async () => {
         const muya = bootMuya('hello\n');
         placeCursorOnFirstBlock(muya);

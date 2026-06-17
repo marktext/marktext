@@ -1236,16 +1236,19 @@ export class Muya {
     }
 
     /**
-     * Run an in-place conversion, then restore the caret to its prior text
-     * offset on the resulting content block (clamped to its length).
+     * Run an in-place conversion, then restore the prior selection (anchor AND
+     * focus, so a range stays selected — not just a collapsed caret) on the
+     * resulting content block, with offsets clamped to its length.
      */
     private _withPreservedOffset(fn: () => void) {
-        const offset = this.editor.selection.anchor?.offset ?? 0;
+        const { selection } = this.editor;
+        const anchorOffset = selection.anchor?.offset ?? 0;
+        const focusOffset = selection.focus?.offset ?? anchorOffset;
         fn();
         const content = this.editor.activeContentBlock;
         if (content) {
-            const next = Math.min(offset, content.text.length);
-            content.setCursor(next, next, true);
+            const len = content.text.length;
+            content.setCursor(Math.min(anchorOffset, len), Math.min(focusOffset, len), true);
         }
     }
 
