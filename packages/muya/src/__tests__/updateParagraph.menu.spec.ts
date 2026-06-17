@@ -115,16 +115,17 @@ describe('updateParagraph same-block menu model', () => {
         expect(muya.editor.selection.focus?.offset).toBe(6);
     });
 
-    it('inserts a thematic break below a non-empty paragraph', async () => {
+    it('inserts a thematic break + trailing empty paragraph below a non-empty paragraph', async () => {
         const muya = bootMuya('hello\n');
         placeCursorOnFirstBlock(muya);
         muya.updateParagraph('hr');
         await vi.waitFor(() => {
             const s = muya.getState();
-            expect(s.length).toBe(2);
+            expect(s.length).toBe(3);
             expect(s[0].name).toBe('paragraph');
             expect((s[0] as { text: string }).text).toBe('hello');
             expect(s[1].name).toBe('thematic-break');
+            expect(s[2].name).toBe('paragraph');
         });
     });
 

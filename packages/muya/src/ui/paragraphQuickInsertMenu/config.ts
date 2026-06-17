@@ -592,18 +592,25 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     const newBlock = buildReplacementBlock(label, muya, text);
 
     block.replaceWith(newBlock);
+    finishInsertedBlock(newBlock, muya, label);
+}
+
+// Position the caret after a block was inserted or replaced. A thematic-break
+// is not editable, so append a trailing empty paragraph and put the caret there
+// (so the user can keep typing below the rule); otherwise move the caret into
+// the new block.
+function finishInsertedBlock(newBlock: Parent, muya: Muya, label: string) {
     if (label === 'thematic-break') {
         const nextParagraphBlock = ScrollPage.loadBlock('paragraph').create(
             muya,
             deepClone(emptyStates.paragraph),
         );
-        newBlock.parent.insertAfter(nextParagraphBlock, newBlock);
-        const cursorBlock = nextParagraphBlock.firstContentInDescendant();
-        cursorBlock.setCursor(0, 0, true);
+        newBlock.parent!.insertAfter(nextParagraphBlock, newBlock);
+        nextParagraphBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+        return;
     }
-    else {
-        placeCaretInNewBlock(newBlock, label);
-    }
+
+    placeCaretInNewBlock(newBlock, label);
 }
 
 // Move the caret into a freshly-built block: between <div>\n\n</div> for an
@@ -630,5 +637,5 @@ export function insertBlockBelowByLabel({ block, muya, label }: {
     if (!newBlock)
         return;
     block.parent!.insertAfter(newBlock, block);
-    placeCaretInNewBlock(newBlock, label);
+    finishInsertedBlock(newBlock, muya, label);
 }
