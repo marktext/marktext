@@ -963,8 +963,10 @@ export class Muya {
     /**
      * Insert a GFM table at the current cursor. An EMPTY cursor block is
      * replaced in place; a NON-empty block keeps its content and the table is
-     * inserted directly below it (matching the Paragraph menu's insert-below
-     * rule for non-convertible blocks). Pass `{ replace: true }` to always
+     * inserted directly AFTER it inside its own container (e.g. right after the
+     * paragraph in a list item, not after the whole list) — matching the
+     * Paragraph menu's insert-below rule for non-convertible blocks. Pass
+     * `{ replace: true }` to always
      * replace the cursor block — the in-editor grid picker uses this to consume
      * its trigger block (a `/table` quick-insert line or the empty paragraph the
      * front-menu offers). The table has `rows` rows × `columns` columns with the
@@ -976,7 +978,7 @@ export class Muya {
      * state.
      */
     createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
-        const block = this._outmostBlockAtCursor();
+        const block = this._immediateBlockAtCursor();
         if (!block)
             return;
 
