@@ -1372,12 +1372,15 @@ export class Muya {
         }
 
         const state = block.getState();
-        replaceBlockByLabel({
-            block,
-            muya: this,
-            label: 'paragraph',
-            text: isCodeBlockState(state) ? state.text : this._blockLeadingText(block),
-        });
+        let text = '';
+        if (isCodeBlockState(state))
+            text = state.text;
+        // A thematic break's text is all marker (`---` / `***` / …) with no
+        // content, so it resets to an empty paragraph.
+        else if (block.blockName !== 'thematic-break')
+            text = this._blockLeadingText(block);
+
+        replaceBlockByLabel({ block, muya: this, label: 'paragraph', text });
     }
 
     /**

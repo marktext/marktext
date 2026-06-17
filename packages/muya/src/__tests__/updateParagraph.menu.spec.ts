@@ -201,12 +201,14 @@ describe('updateParagraph toggle-off active types', () => {
         });
     });
 
-    it('toggles a thematic break back to a paragraph when clicked from within', async () => {
+    it('toggles a thematic break to an EMPTY paragraph (drops the --- markers)', async () => {
         const muya = bootMuya('---\n');
         placeCursorOnFirstBlock(muya);
         muya.updateParagraph('hr');
         await vi.waitFor(() => {
-            expect(muya.getState()[0].name).toBe('paragraph');
+            const s = muya.getState();
+            expect(s[0].name).toBe('paragraph');
+            expect((s[0] as { text: string }).text).toBe('');
         });
     });
 
