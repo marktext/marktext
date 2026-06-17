@@ -201,7 +201,7 @@ describe('updateParagraph toggle-off active types', () => {
         });
     });
 
-    it('toggles a thematic break to an EMPTY paragraph (drops the --- markers)', async () => {
+    it('toggles a thematic break to an EMPTY paragraph (drops the --- markers) and focuses it', async () => {
         const muya = bootMuya('---\n');
         placeCursorOnFirstBlock(muya);
         muya.updateParagraph('hr');
@@ -210,6 +210,25 @@ describe('updateParagraph toggle-off active types', () => {
             expect(s[0].name).toBe('paragraph');
             expect((s[0] as { text: string }).text).toBe('');
         });
+        expect(muya.editor.selection.anchorBlock?.text).toBe('');
+    });
+
+    it('toggling one of several thematic breaks lands the caret in ITS empty paragraph, not another rule', async () => {
+        const muya = bootMuya('a\n\n---\n\nb\n\n---\n\nc\n'); // two hrs at index 1 and 3
+        // eslint-disable-next-line ts/no-explicit-any
+        const secondHr = (muya.editor.scrollPage!.firstChild as any).next.next.next;
+        const hrContent = secondHr.firstContentInDescendant();
+        muya.editor.activeContentBlock = hrContent;
+        hrContent.setCursor(0, 0, true);
+        muya.updateParagraph('hr');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s[1].name).toBe('thematic-break'); // first rule survives
+            expect(s[3].name).toBe('paragraph'); // toggled one
+            expect((s[3] as { text: string }).text).toBe('');
+        });
+        // caret is in the new empty paragraph, not the surviving rule's "---"
+        expect(muya.editor.selection.anchorBlock?.text).toBe('');
     });
 
     it('keeps the caret in the same text when toggling a nested list off', async () => {

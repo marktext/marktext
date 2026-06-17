@@ -1283,9 +1283,8 @@ export class Muya {
 
     /**
      * Run a conversion, then restore the prior selection (anchor AND focus, so a
-     * range stays selected) on the content that still holds the cursor's text.
-     * In-place conversions leave it as the active block; structural unwraps clone
-     * the cursor's block, so fall back to locating the block with the same text.
+     * range stays selected) on the active content block — every conversion ends
+     * with the caret's content active (unwraps restore it themselves).
      */
     private _withPreservedOffset(fn: () => void) {
         const { selection } = this.editor;
@@ -1295,35 +1294,32 @@ export class Muya {
 
         fn();
 
-        let target: Nullable<Content> = this.editor.activeContentBlock;
-        let delta = 0;
-        if (cursorText != null && target?.text !== cursorText) {
-            const sameText = this._findContentByText(cursorText);
-            if (sameText) {
-                // A structural unwrap cloned the cursor's block elsewhere; its
-                // text (and so the offsets) are unchanged.
-                target = sameText;
-            }
-            else if (target) {
-                // The text changed in place (e.g. a heading's leading `# `);
-                // shift offsets by the front length change so the caret tracks
-                // the same character.
-                delta = target.text.length - cursorText.length;
-            }
-        }
+        const target = this.editor.activeContentBlock;
+        if (!target)
+            return;
 
-        if (target) {
-            const len = target.text.length;
-            const clamp = (n: number) => Math.max(0, Math.min(n, len));
-            target.setCursor(clamp(anchorOffset + delta), clamp(focusOffset + delta), true);
-        }
+        // Conversions leave the caret's content as the active block (unwraps
+        // restore it themselves). The text can change in place (e.g. a heading's
+        // `# ` marker), so shift offsets by that front delta to track the same
+        // character.
+        const delta = cursorText != null && target.text !== cursorText
+            ? target.text.length - cursorText.length
+            : 0;
+        const len = target.text.length;
+        const clamp = (n: number) => Math.max(0, Math.min(n, len));
+        target.setCursor(clamp(anchorOffset + delta), clamp(focusOffset + delta), true);
     }
 
-    /** The first content leaf whose text equals `text`, in document order. */
+    /**
+     * The first FORMATTABLE content leaf whose text equals `text`, in document
+     * order. Restricting to Format leaves skips marker-only content (a thematic
+     * break's `---`, code/math/html), so toggling one never lands the caret on
+     * an unrelated block that happens to share that text.
+     */
     private _findContentByText(text: string): Content | null {
         let leaf: Nullable<Content> = this.editor.scrollPage?.firstContentInDescendant();
         while (leaf) {
-            if (leaf.text === text)
+            if (leaf instanceof Format && leaf.text === text)
                 return leaf;
             leaf = leaf.nextContentInContext();
         }
@@ -1418,6 +1414,7 @@ export class Muya {
         if (!inner.length)
             return;
 
+        const cursorText = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.text;
         const parent = block.parent!;
         let ref: Parent = block;
         let firstNew: Parent | null = null;
@@ -1429,7 +1426,12 @@ export class Muya {
         }
 
         block.remove();
-        firstNew?.firstContentInDescendant()?.setCursor(0, 0, true);
+
+        // Keep the caret in the lifted block that still holds the cursor's text
+        // (its content was cloned), falling back to the first lifted block.
+        const restored = (cursorText != null ? this._findContentByText(cursorText) : null)
+            ?? firstNew?.firstContentInDescendant();
+        restored?.setCursor(0, 0, true);
     }
 
     /** Leading text of a block, with the atx hash run stripped for headings. */
