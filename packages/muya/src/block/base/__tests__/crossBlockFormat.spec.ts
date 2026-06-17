@@ -103,3 +103,48 @@ describe('cross-block format', () => {
         });
     });
 });
+
+// happy-dom does not track range offsets, so getCursor must report whatever the
+// cached selection currently holds (the per-leaf range _formatLeafInRange sets).
+// eslint-disable-next-line ts/no-explicit-any
+function stubDynamicCursor(muya: Muya, leaf: any) {
+    leaf.getCursor = () => {
+        const s = muya.editor.selection;
+        const a = s.anchor?.offset ?? 0;
+        const f = s.focus?.offset ?? 0;
+        return {
+            start: { offset: Math.min(a, f) },
+            end: { offset: Math.max(a, f) },
+            anchor: { offset: a, block: leaf },
+            focus: { offset: f, block: leaf },
+            isCollapsed: a === f,
+            isSelectionInSameBlock: true,
+            direction: 'forward',
+            type: 'Range',
+        };
+    };
+}
+
+describe('inline format — selection range & heading markers', () => {
+    it('preserves the partial selection range in BOTH blocks after a cross-block bold', () => {
+        const muya = boot('alpha beta\n\ngamma delta\n');
+        const sp = muya.editor.scrollPage!;
+        const first = sp.firstContentInDescendant()!;
+        const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
+        stubDynamicCursor(muya, first);
+        stubDynamicCursor(muya, second);
+        muya.editor.activeContentBlock = second;
+        // select "ha beta" .. "gamma d": first@3 -> second@7
+        muya.editor.selection.setSelection(
+            { offset: 3, block: first, path: first.path },
+            { offset: 7, block: second, path: second.path },
+        );
+        muya.format('strong');
+        const sel = muya.editor.selection;
+        // The selected text stays selected INSIDE the new markers in both blocks.
+        expect(sel.anchorBlock!.text).toBe('alp**ha beta**');
+        expect(sel.anchor!.offset).toBe(5); // 3 + len("**")
+        expect(sel.focusBlock!.text).toBe('**gamma d**elta');
+        expect(sel.focus!.offset).toBe(9); // 7 + len("**")
+    });
+});

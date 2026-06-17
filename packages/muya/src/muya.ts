@@ -477,19 +477,40 @@ export class Muya {
             return;
 
         const { first, last, firstOffset, lastOffset } = range;
-        const snapshot = this._snapshotSelection();
+
+        // Restore the span across the formatted leaves using each leaf's
+        // post-format offsets (adding a marker shifts them), so the SAME text
+        // stays selected in both endpoints rather than collapsing onto the
+        // pre-format offsets.
+        let anchorLeaf: Content | null = null;
+        let focusLeaf: Content | null = null;
+        let anchorOffset = 0;
+        let focusOffset = 0;
 
         let leaf: Content | null = first;
         while (leaf) {
             const start = leaf === first ? firstOffset : 0;
             const end = leaf === last ? lastOffset : leaf.text.length;
-            this._formatLeafInRange(type, leaf, start, end);
+            const adjusted = this._formatLeafInRange(type, leaf, start, end);
+            if (adjusted) {
+                if (!anchorLeaf) {
+                    anchorLeaf = leaf;
+                    anchorOffset = adjusted.start;
+                }
+                focusLeaf = leaf;
+                focusOffset = adjusted.end;
+            }
             if (leaf === last)
                 break;
             leaf = leaf.nextContentInContext() ?? null;
         }
 
-        this._restoreSelection(snapshot);
+        if (anchorLeaf && focusLeaf) {
+            this.editor.selection.setSelection(
+                { offset: anchorOffset, block: anchorLeaf, path: anchorLeaf.path },
+                { offset: focusOffset, block: focusLeaf, path: focusLeaf.path },
+            );
+        }
     }
 
     /** The selection's first/last content leaves and offsets, in document order. */
@@ -513,16 +534,29 @@ export class Muya {
         };
     }
 
-    /** Apply `type` to one leaf over [start, end], skipping non-formattable leaves. */
-    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number) {
+    /**
+     * Apply `type` to one leaf over [start, end], skipping non-formattable
+     * leaves and a heading's leading `# ` marker. Returns the leaf's selection
+     * range AFTER formatting (offsets shift past inserted markers), or null when
+     * the leaf was skipped.
+     */
+    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number): { start: number; end: number } | null {
         if (!(leaf instanceof Format) || end <= start)
-            return;
+            return null;
 
-        this.editor.selection.setSelection(
+        const { selection } = this.editor;
+        selection.setSelection(
             { offset: start, block: leaf, path: leaf.path },
             { offset: end, block: leaf, path: leaf.path },
         );
         leaf.format(type);
+
+        // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
+        // updates the cached selection — read the adjusted range back from it.
+        return {
+            start: selection.anchor?.offset ?? start,
+            end: selection.focus?.offset ?? end,
+        };
     }
 
     /**
