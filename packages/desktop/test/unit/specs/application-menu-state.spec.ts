@@ -96,3 +96,51 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
     expect(state.affiliation.ul).toBe(true)
   })
 })
+
+// The "Paragraph" menu item is checked via affiliation.p. Inside a list/quote
+// the leaf IS a paragraph but the item must NOT be checked (the user is in a
+// list/quote, not a bare paragraph); the cleanup drops `p` whenever another
+// block key is present. This is the true state a no-op Paragraph click resyncs
+// back to (it never has a real effect there — parity with muyajs).
+describe('createApplicationMenuState — Paragraph checked-state in containers', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.restoreAllMocks()
+  })
+
+  it('does NOT check Paragraph for a caret inside a list item', () => {
+    const state = menuStateFor({
+      start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      affiliation: [
+        { type: 'ul', blockName: 'bullet-list', listType: 'bullet' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'p', blockName: 'paragraph' }
+      ]
+    }) as unknown as { affiliation: Record<string, boolean> }
+    expect(state.affiliation.p).toBeFalsy()
+    expect(state.affiliation.ul).toBe(true)
+  })
+
+  it('does NOT check Paragraph for a caret inside a block-quote', () => {
+    const state = menuStateFor({
+      start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      affiliation: [
+        { type: 'blockquote', blockName: 'block-quote' },
+        { type: 'p', blockName: 'paragraph' }
+      ]
+    }) as unknown as { affiliation: Record<string, boolean> }
+    expect(state.affiliation.p).toBeFalsy()
+    expect(state.affiliation.blockquote).toBe(true)
+  })
+
+  it('DOES check Paragraph for a bare top-level paragraph', () => {
+    const state = menuStateFor({
+      start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      affiliation: [{ type: 'p', blockName: 'paragraph' }]
+    }) as unknown as { affiliation: Record<string, boolean> }
+    expect(state.affiliation.p).toBe(true)
+  })
+})

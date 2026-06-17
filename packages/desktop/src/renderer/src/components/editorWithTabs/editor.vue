@@ -1316,6 +1316,22 @@ const handlePrintServiceClearup = () => {
   printer!.clearup()
 }
 
+// Push the current selection to the application-menu / toolbar state. Called on
+// every muya selection-change, and again right after a paragraph action: a no-op
+// action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
+// clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
+const pushSelectionMenuState = (changes: MuyaChange) => {
+  editorStore.SELECTION_CHANGE({
+    ...adaptSelectionChange(changes),
+    // Read the live block tree (O(1)) rather than getState(), which deep-clones
+    // the whole document — this runs on every cursor move.
+    hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
+  })
+  // The active inline formats ride along on selection-change — drive the format
+  // menu/toolbar state from them.
+  editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
+}
+
 const handleEditParagraph = (type: unknown) => {
   if (type === 'table') {
     tableChecker.rows = 4
@@ -1326,6 +1342,12 @@ const handleEditParagraph = (type: unknown) => {
     })
   } else if (editor.value) {
     editor.value.updateParagraph(type)
+    // Re-sync the menu so a no-op action (e.g. "Paragraph" inside a list/quote)
+    // does not leave the clicked checkbox item checked. A real conversion fires
+    // its own selection-change, which resyncs again.
+    if (selectionChange.value) {
+      pushSelectionMenuState(selectionChange.value as MuyaChange)
+    }
   }
 }
 
@@ -1812,16 +1834,7 @@ onMounted(() => {
     if (currentFile.value?.id && editor.value) {
       editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
     }
-    editorStore.SELECTION_CHANGE({
-      ...adaptSelectionChange(changes),
-      // Read the live block tree (O(1)) rather than getState(), which deep-clones
-      // the whole document — this runs on every cursor move.
-      hasFrontMatter: editor.value?.editor?.scrollPage?.firstChild?.blockName === 'frontmatter'
-    })
-    // The active inline formats now ride along on selection-change (replacing
-    // the old separate `selectionFormats` event) — drive the format menu/toolbar
-    // state from them.
-    editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
+    pushSelectionMenuState(changes)
   })
 
   document.addEventListener('keyup', keyup)
