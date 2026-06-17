@@ -23,8 +23,7 @@ class SettingWindow extends BaseWindow {
    * @param category The settings category tab name.
    */
   createWindow(category: string | null = null): BrowserWindow {
-    const accessor = this._accessor
-    const { menu: appMenu, env, keybindings, preferences } = accessor
+    const { menu: appMenu, env, keybindings, preferences } = this._accessor
     const winOptions: BrowserWindowConstructorOptions = Object.assign({}, preferencesWinOptions)
     centerWindowOptions(
       winOptions as BrowserWindowConstructorOptions & {

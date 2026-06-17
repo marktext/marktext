@@ -89,8 +89,7 @@ class EditorWindow extends BaseWindow {
     options: Partial<BrowserWindowConstructorOptions> = {},
     bufferStoreInfo: BufferStoreInfo | null = null
   ): BrowserWindow {
-    const accessor = this._accessor
-    const { menu: appMenu, env, preferences, editorBufferStore } = accessor
+    const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
     const addBlankTab =
       !bufferStoreInfo && !rootDirectory && fileList.length === 0 && markdownList.length === 0
 
@@ -391,8 +390,7 @@ class EditorWindow extends BaseWindow {
 
     if (this.lifecycle === WindowLifecycle.READY) {
       const { browserWindow } = this
-      const _accessor = this._accessor
-      const { menu: appMenu, preferences } = _accessor
+      const { menu: appMenu, preferences } = this._accessor
 
       if (this._openedRootDirectory) {
         ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
