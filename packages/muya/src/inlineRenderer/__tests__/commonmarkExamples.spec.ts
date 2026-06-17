@@ -108,6 +108,13 @@ describe('inline lexer — inline math', () => {
         expect(math, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBeDefined();
         expect(math?.content).toBe(String.raw`y = \$10000`);
     });
+
+    it('parses inline math that ends with an escaped dollar sign', () => {
+        const tokens = tokenizer(String.raw`$x=\$$`);
+        const math = tokens.find((t): t is CodeEmojiMathToken => t.type === 'inline_math');
+        expect(math, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBeDefined();
+        expect(math?.content).toBe(String.raw`x=\$`);
+    });
 });
 
 // Defensive regression for marktext commit 8e32838b (PR #1531) — sup/sub

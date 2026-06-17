@@ -93,9 +93,9 @@ function extractWord(
     };
 }
 
-function hasOddBackslashesBefore(text: string, offset: number) {
+function hasOddBackslashesBefore(text: string, charIndex: number) {
     let count = 0;
-    for (let i = offset - 2; i >= 0 && text[i] === '\\'; i--)
+    for (let i = charIndex - 1; i >= 0 && text[i] === '\\'; i--)
         count++;
 
     return count % 2 === 1;
@@ -234,7 +234,8 @@ function collapsedInputAutoPair(
     if (event.inputType.startsWith('delete'))
         return deleteAutoPair(event, text, start, end, offset, inputChar, postInputChar, blockText);
 
-    const isEscapedDollar = inputChar === '$' && hasOddBackslashesBefore(text, offset);
+    const inputCharIndex = offset - 1;
+    const isEscapedDollar = inputChar === '$' && hasOddBackslashesBefore(text, inputCharIndex);
     if (
         !event.inputType.includes('delete')
         && inputChar === postInputChar
