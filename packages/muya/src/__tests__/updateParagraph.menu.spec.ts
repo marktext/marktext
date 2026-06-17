@@ -300,6 +300,15 @@ describe('updateParagraph toggle-off active types', () => {
         expect(muya.editor.selection.anchor?.offset).toBe(5); // -1 for the removed '#'
     });
 
+    it('clears the markers when the Paragraph menu item resets a thematic break', async () => {
+        const muya = bootMuya('---\n');
+        placeCursorOnFirstBlock(muya); // content text is the "---" marker
+        muya.updateParagraph('paragraph'); // reset the hr leaf
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('paragraph'));
+        expect((muya.getState()[0] as { text: string }).text).toBe(''); // empty, no "---"
+        expect(muya.editor.selection.anchorBlock?.text).toBe('');
+    });
+
     it('keeps the caret when the Paragraph menu item resets a heading leaf', async () => {
         const muya = bootMuya('## Title\n');
         const content = placeCursorOnFirstBlock(muya); // content text is "## Title"

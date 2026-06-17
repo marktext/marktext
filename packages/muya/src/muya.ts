@@ -1398,16 +1398,23 @@ export class Muya {
             return;
         }
 
-        const state = block.getState();
-        let text = '';
-        if (isCodeBlockState(state))
-            text = state.text;
-        // A thematic break's text is all marker (`---` / `***` / …) with no
-        // content, so it resets to an empty paragraph.
-        else if (block.blockName !== 'thematic-break')
-            text = this._blockLeadingText(block);
+        replaceBlockByLabel({ block, muya: this, label: 'paragraph', text: this._paragraphTextFor(block) });
+    }
 
-        replaceBlockByLabel({ block, muya: this, label: 'paragraph', text });
+    /**
+     * The text a plain paragraph should carry when `block` is reset/converted to
+     * one: a code block keeps its raw code; a thematic break is all marker
+     * (`---` / `***` / …) with no content, so it yields an empty paragraph;
+     * everything else keeps its leading text (heading hashes stripped).
+     */
+    private _paragraphTextFor(block: Parent): string {
+        const state = block.getState();
+        if (isCodeBlockState(state))
+            return state.text;
+        if (block.blockName === 'thematic-break')
+            return '';
+
+        return this._blockLeadingText(block);
     }
 
     /**
@@ -1426,7 +1433,7 @@ export class Muya {
             block: leaf,
             muya: this,
             label: 'paragraph',
-            text: this._blockLeadingText(leaf),
+            text: this._paragraphTextFor(leaf),
         }));
     }
 
