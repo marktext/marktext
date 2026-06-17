@@ -415,8 +415,10 @@ function applyLiteralPaste(
         return;
     }
 
+    // A table cell holds a single visual line: trim and fold newlines to
+    // `<br/>` (muyajs trims pasted cell text on both the framed and normal path).
     if (anchorBlock.blockName === 'table.cell.content')
-        markdown = markdown.replace(/\n/g, '<br/>');
+        markdown = markdown.trim().replace(/\n/g, '<br/>');
 
     anchorBlock.text
         = content.substring(0, start.offset)

@@ -88,6 +88,13 @@ async function pasteInto(muya: Muya, block: Content, start: number, end: number,
 }
 
 describe('paste — table cell takes text literally (muyajs parity)', () => {
+    it('trims surrounding whitespace from a normal cell paste', async () => {
+        const muya = bootMuya('| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n');
+        const cell = firstCellContent(muya); // header cell 'a1'
+        await pasteInto(muya, cell, 0, cell.text.length, '  hi  ');
+        expect(cell.text).toBe('hi');
+    });
+
     it('normalizes CRLF to LF so no stray carriage return survives', async () => {
         const muya = bootMuya('| a1 | b1 |\n| --- | --- |\n| a2 | b2 |\n');
         const cell = firstCellContent(muya);
