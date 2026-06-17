@@ -115,4 +115,19 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 5')
     await expectNoRendererErrors(app)
   })
+
+  test('restores source-code selected count after tab switch clears it', async() => {
+    const counter = page.locator('.word-count')
+
+    await enterSourceMode(page, app)
+    await selectAllSourceText(page)
+    await expect(counter).toHaveText('W 5 / 5')
+
+    await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'Alpha beta gamma\n')
+    await expect(counter).toHaveText('W 3')
+
+    await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
+    await expect(counter).toHaveText('W 5 / 5')
+    await expectNoRendererErrors(app)
+  })
 })

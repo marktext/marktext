@@ -264,12 +264,14 @@ let lastSelectedText = ''
 
 const updateSelectionWordCount = (cm: CMInstance) => {
   const selectedText = cm?.getSelection?.('\n') ?? cm?.getSelection?.() ?? ''
-  if (selectedText === lastSelectedText) return
+  const hasSelection = selectedText.trim().length > 0
+  if (selectedText === lastSelectedText) {
+    const hasStoreSelection = editorStore.selectionWordCount != null
+    if (hasSelection === hasStoreSelection) return
+  }
 
   lastSelectedText = selectedText
-  editorStore.SET_SELECTION_WORD_COUNT(
-    selectedText.trim().length > 0 ? getWordCount(selectedText) : null
-  )
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
 }
 
 const saveContent = (cm: CMInstance) => {
