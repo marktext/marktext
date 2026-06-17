@@ -55,4 +55,23 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
     expect(state.isCodeFences).toBe(true)
     expect(state.isTable).toBe(false)
   })
+
+  it('checks only the innermost list (ordered) for a deeply nested ul > ul > ol', () => {
+    const state = menuStateFor({
+      start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      affiliation: [
+        { type: 'ul', blockName: 'bullet-list', listType: 'bullet' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'ul', blockName: 'bullet-list', listType: 'bullet' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'ol', blockName: 'order-list', listType: 'order' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'p', blockName: 'paragraph' }
+      ]
+    }) as unknown as { affiliation: Record<string, boolean>; isTaskList: boolean }
+    expect(state.affiliation.ol).toBe(true)
+    expect(state.affiliation.ul).toBeFalsy()
+    expect(state.isTaskList).toBe(false)
+  })
 })

@@ -1854,20 +1854,17 @@ const createApplicationMenuState = ({
     }
   }
 
-  // Query list information.
-  if (aff.length >= 1 && /ul|ol/.test(aff[0].type)) {
-    const listBlock = aff[0]
-    state.affiliation[listBlock.type] = true
+  // The list the cursor is actually inside is the INNERMOST list in the
+  // affiliation chain. The chain is outermost-first, so it is the last ul/ol
+  // entry — keying off aff[0] would pick the outermost list and miss a deeply
+  // nested one (also beyond the depth-3 scan below).
+  const innerList = [...aff].reverse().find((b) => b.type === 'ul' || b.type === 'ol')
+  if (innerList) {
+    state.affiliation[innerList.type] = true
     // The engine's affiliation entry carries the loose flag on the list block
     // itself (derived from `meta.loose`), not via a `children` chain.
-    state.isLooseListItem = !!listBlock.isLooseListItem
-    state.isTaskList = listBlock.listType === 'task'
-  } else if (aff.length >= 3 && aff[1].type === 'li') {
-    const listItem = aff[1]
-    const listType = listItem.listItemType === 'order' ? 'ol' : 'ul'
-    state.affiliation[listType] = true
-    state.isLooseListItem = !!listItem.isLooseListItem
-    state.isTaskList = listItem.listItemType === 'task'
+    state.isLooseListItem = !!innerList.isLooseListItem
+    state.isTaskList = innerList.listType === 'task'
   }
 
   // Search with block depth 3 (e.g. "ul -> li -> p" where p is the actually paragraph inside the list (item)).
@@ -1894,7 +1891,9 @@ const createApplicationMenuState = ({
       // Multiple block elements are selected.
       state.affiliation = {}
       break
-    } else {
+    } else if (b.type !== 'ul' && b.type !== 'ol') {
+      // Lists are handled above (innermost only); the depth-limited scan must
+      // not re-add an outer list type and check two list kinds at once.
       if (!state.affiliation[b.type]) {
         state.affiliation[b.type] = true
       }
