@@ -61,7 +61,7 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 5 / 3')
 
     await counter.hover()
-    const tooltip = page.locator('.el-popper').filter({ hasText: '5 / 3' }).last()
+    const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '5 / 3' }).last()
     await expect(tooltip).toContainText('5 / 3')
 
     await placeCaretInEditor(page)
@@ -101,7 +101,7 @@ test.describe('Title bar selection word count', () => {
     await expectNoRendererErrors(app)
   })
 
-  test('clears selected count after leaving source-code mode', async() => {
+  test('preserves selected count after leaving source-code mode', async() => {
     const counter = page.locator('.word-count')
     await expect(counter).toHaveText('W 5')
 
@@ -110,6 +110,8 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 5 / 5')
 
     await exitSourceMode(page, app)
+    await expect(counter).toHaveText('W 5 / 5')
+    await placeCaretInEditor(page)
     await expect(counter).toHaveText('W 5')
     await expectNoRendererErrors(app)
   })

@@ -260,8 +260,13 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+let lastSelectedText = ''
+
 const updateSelectionWordCount = (cm: CMInstance) => {
   const selectedText = cm?.getSelection?.('\n') ?? cm?.getSelection?.() ?? ''
+  if (selectedText === lastSelectedText) return
+
+  lastSelectedText = selectedText
   editorStore.SET_SELECTION_WORD_COUNT(
     selectedText.trim().length > 0 ? getWordCount(selectedText) : null
   )
@@ -373,12 +378,13 @@ onBeforeUnmount(() => {
   bus.off('selectAll', handleSelectAll)
   bus.off('image-action', handleImageAction)
   editorStore.SET_SELECTION_WORD_COUNT(null)
+  lastSelectedText = ''
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {
     id: tabId.value,
     markdown: newMarkdown,
-    muyaIndexCursor: { anchor: cursor.focus, focus: cursor.focus },
+    muyaIndexCursor: cursor,
     renderCursor: true
   })
 })

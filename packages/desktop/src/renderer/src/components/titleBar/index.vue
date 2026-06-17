@@ -55,6 +55,7 @@
         <el-tooltip
           v-if="wordCount"
           class="item"
+          popper-class="word-count-tooltip"
           placement="bottom-end"
         >
           <template #content>
