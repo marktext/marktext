@@ -1296,12 +1296,26 @@ export class Muya {
         fn();
 
         let target: Nullable<Content> = this.editor.activeContentBlock;
-        if (cursorText != null && target?.text !== cursorText)
-            target = this._findContentByText(cursorText) ?? target;
+        let delta = 0;
+        if (cursorText != null && target?.text !== cursorText) {
+            const sameText = this._findContentByText(cursorText);
+            if (sameText) {
+                // A structural unwrap cloned the cursor's block elsewhere; its
+                // text (and so the offsets) are unchanged.
+                target = sameText;
+            }
+            else if (target) {
+                // The text changed in place (e.g. a heading's leading `# `);
+                // shift offsets by the front length change so the caret tracks
+                // the same character.
+                delta = target.text.length - cursorText.length;
+            }
+        }
 
         if (target) {
             const len = target.text.length;
-            target.setCursor(Math.min(anchorOffset, len), Math.min(focusOffset, len), true);
+            const clamp = (n: number) => Math.max(0, Math.min(n, len));
+            target.setCursor(clamp(anchorOffset + delta), clamp(focusOffset + delta), true);
         }
     }
 

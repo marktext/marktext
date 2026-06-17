@@ -219,4 +219,24 @@ describe('updateParagraph toggle-off active types', () => {
         expect(muya.editor.selection.anchorBlock?.text).toBe('bravo');
         expect(muya.editor.selection.anchor?.offset).toBe(3);
     });
+
+    it('keeps the caret position (accounting for "# ") when toggling a heading to a paragraph', async () => {
+        const muya = bootMuya('# Title\n');
+        const content = placeCursorOnFirstBlock(muya); // content text is "# Title"
+        content.setCursor(5, 5, true); // after "# Tit"
+        muya.updateParagraph('heading 1'); // toggle heading off -> "Title"
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('paragraph'));
+        expect(muya.editor.selection.anchorBlock?.text).toBe('Title');
+        expect(muya.editor.selection.anchor?.offset).toBe(3); // 5 - len("# ")
+    });
+
+    it('keeps the caret position (accounting for "# ") when converting a paragraph to a heading', async () => {
+        const muya = bootMuya('Title\n');
+        const content = placeCursorOnFirstBlock(muya);
+        content.setCursor(3, 3, true); // after "Tit"
+        muya.updateParagraph('heading 1'); // -> "# Title"
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('atx-heading'));
+        expect(muya.editor.selection.anchorBlock?.text).toBe('# Title');
+        expect(muya.editor.selection.anchor?.offset).toBe(5); // 3 + len("# ")
+    });
 });
