@@ -452,11 +452,22 @@ export class Muya {
         if (!isSelectionInSameBlock || !(anchorBlock instanceof Format))
             return;
 
+        // A heading's text includes its leading `# ` marker; never format the
+        // marker itself, only the heading content. Clamp the start past it.
+        const markerLen = this._headingMarkerLen(anchorBlock);
+        let lo = Math.min(anchor.offset, focus.offset);
+        const hi = Math.max(anchor.offset, focus.offset);
+        if (markerLen > 0) {
+            lo = Math.max(lo, markerLen);
+            if (hi <= markerLen)
+                return; // the selection lies entirely within the marker
+        }
+
         // Restore the selection before applying the format — the menu/IPC
         // round-trip can drop the live DOM selection.
         selection.setSelection(
-            { offset: anchor.offset, block: anchorBlock, path: anchor.path },
-            { offset: focus.offset, block: focus.block, path: focus.path },
+            { offset: lo, block: anchorBlock, path: anchor.path },
+            { offset: hi, block: anchorBlock, path: focus.path },
         );
 
         anchorBlock.format(type);
@@ -541,12 +552,17 @@ export class Muya {
      * the leaf was skipped.
      */
     private _formatLeafInRange(type: string, leaf: Content, start: number, end: number): { start: number; end: number } | null {
-        if (!(leaf instanceof Format) || end <= start)
+        if (!(leaf instanceof Format))
+            return null;
+
+        // Never format a heading's leading `# ` marker, only its content.
+        const from = Math.max(start, this._headingMarkerLen(leaf));
+        if (end <= from)
             return null;
 
         const { selection } = this.editor;
         selection.setSelection(
-            { offset: start, block: leaf, path: leaf.path },
+            { offset: from, block: leaf, path: leaf.path },
             { offset: end, block: leaf, path: leaf.path },
         );
         leaf.format(type);
@@ -554,9 +570,17 @@ export class Muya {
         // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
         // updates the cached selection — read the adjusted range back from it.
         return {
-            start: selection.anchor?.offset ?? start,
+            start: selection.anchor?.offset ?? from,
             end: selection.focus?.offset ?? end,
         };
+    }
+
+    /** Length of a heading content's leading `#{1,6}` + space marker, else 0. */
+    private _headingMarkerLen(leaf: Content): number {
+        if (leaf.parent?.blockName !== 'atx-heading')
+            return 0;
+
+        return /^ {0,3}#{1,6}(?:\s+|$)/.exec(leaf.text)?.[0].length ?? 0;
     }
 
     /**

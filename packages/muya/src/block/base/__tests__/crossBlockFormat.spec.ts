@@ -147,4 +147,46 @@ describe('inline format — selection range & heading markers', () => {
         expect(sel.focusBlock!.text).toBe('**gamma d**elta');
         expect(sel.focus!.offset).toBe(9); // 7 + len("**")
     });
+
+    it('skips the leading "# " marker when bolding a heading (same block)', async () => {
+        const muya = boot('# Title\n');
+        // eslint-disable-next-line ts/no-explicit-any
+        const c: any = muya.editor.scrollPage!.firstContentInDescendant()!; // "# Title"
+        muya.editor.activeContentBlock = c;
+        // muya.format() reads selection.getSelection(); happy-dom collapses the
+        // DOM selection, so stub it to the whole-heading range the user dragged.
+        muya.editor.selection.getSelection = () => ({
+            anchor: { offset: 0, block: c, path: c.path },
+            focus: { offset: 7, block: c, path: c.path },
+            start: { offset: 0, block: c },
+            end: { offset: 7, block: c },
+            isSelectionInSameBlock: true,
+            isCollapsed: false,
+            direction: 'forward',
+            type: 'Range',
+            // eslint-disable-next-line ts/no-explicit-any
+        }) as any;
+        stubDynamicCursor(muya, c); // Format.format reads getCursor after the clamp
+        muya.format('strong');
+        await vi.waitFor(() => expect(c.text).toBe('# **Title**')); // marker untouched
+    });
+
+    it('skips the heading marker for a heading inside a cross-block selection', async () => {
+        const muya = boot('# Heading\n\nbody text\n');
+        const sp = muya.editor.scrollPage!;
+        const first = sp.firstContentInDescendant()!; // "# Heading"
+        const second = (sp.firstChild!.next as Parent).firstContentInDescendant()!;
+        stubDynamicCursor(muya, first);
+        stubDynamicCursor(muya, second);
+        muya.editor.activeContentBlock = second;
+        muya.editor.selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: second.text.length, block: second, path: second.path },
+        );
+        muya.format('strong');
+        await vi.waitFor(() => {
+            expect(first.text).toBe('# **Heading**'); // "# " kept outside the bold
+            expect(second.text).toBe('**body text**');
+        });
+    });
 });
