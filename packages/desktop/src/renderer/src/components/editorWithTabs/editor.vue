@@ -366,8 +366,20 @@ interface EngineAffiliationEntry {
 const getSelectedText = (changes: MuyaChange): string => {
   if (!changes || changes.isCollapsed || changes.type === 'Caret') return ''
 
-  const nativeText = window.getSelection()?.toString() ?? ''
-  if (nativeText) return nativeText
+  const selection = window.getSelection()
+  const container = getScrollContainer()
+  const { anchorNode, focusNode } = selection ?? {}
+  const nativeText = selection?.toString() ?? ''
+  if (
+    nativeText &&
+    container &&
+    anchorNode &&
+    focusNode &&
+    container.contains(anchorNode) &&
+    container.contains(focusNode)
+  ) {
+    return nativeText
+  }
 
   const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
   const focusBlock = changes.focusBlock as { text?: string } | null | undefined
