@@ -15,7 +15,7 @@ import 'codemirror/lib/codemirror.css'
 import './index.css'
 import 'codemirror/theme/railscasts.css'
 
-// The runtime is imported from `codemirror/lib/codemirror` (a `any` shim), but
+// The runtime is imported from `codemirror/lib/codemirror` (an `any` shim), but
 // the public editor surface is typed via `@types/codemirror`.
 // Only the legacy `window.CodeMirror` exposure references this; never read typed.
 type CodeMirrorLike = unknown
