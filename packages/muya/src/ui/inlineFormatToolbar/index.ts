@@ -111,6 +111,18 @@ export class InlineFormatToolbar extends BaseFloat {
             }
         });
 
+        // While open, re-sync the highlight from the selection's current
+        // formats — this is how formats applied outside the toolbar (menu /
+        // command / shortcut) light up their buttons. Single-block tool, so
+        // ignore collapsed / cross-block selections.
+        eventCenter.subscribe('selection-change', ({ formats, isCollapsed, isSelectionInSameBlock }) => {
+            if (!this.status || isCollapsed || !isSelectionInSameBlock)
+                return;
+
+            this._formats = formats;
+            this._render();
+        });
+
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
             this._handleKeydown(event, editor);
         });
