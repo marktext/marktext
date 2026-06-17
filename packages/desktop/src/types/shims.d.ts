@@ -22,7 +22,8 @@ declare module 'command-exists'
 declare module 'pako'
 declare module 'snabbdom-to-html'
 declare module 'prismjs/themes/*'
-declare module 'codemirror'
+// `codemirror` (the bare module) is typed by `@types/codemirror`; only the
+// submodules below ship no declarations and are shimmed as `any`.
 declare module 'codemirror/keymap/*'
 declare module 'codemirror/lib/*'
 declare module 'codemirror/mode/*'
