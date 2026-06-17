@@ -56,7 +56,7 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
     expect(state.isTable).toBe(false)
   })
 
-  it('checks only the innermost list (ordered) for a deeply nested ul > ul > ol', () => {
+  it('checks every list level for a deeply nested ul > ul > ol (flags from innermost)', () => {
     const state = menuStateFor({
       start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
       end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
@@ -70,8 +70,10 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
         { type: 'p', blockName: 'paragraph' }
       ]
     }) as unknown as { affiliation: Record<string, boolean>; isTaskList: boolean }
+    // Both nested list levels are checked; the deeply nested ol is no longer
+    // dropped by the depth-3 scan.
     expect(state.affiliation.ol).toBe(true)
-    expect(state.affiliation.ul).toBeFalsy()
+    expect(state.affiliation.ul).toBe(true)
     expect(state.isTaskList).toBe(false)
   })
 })

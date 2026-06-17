@@ -1854,13 +1854,17 @@ const createApplicationMenuState = ({
     }
   }
 
-  // The list the cursor is actually inside is the INNERMOST list in the
-  // affiliation chain. The chain is outermost-first, so it is the last ul/ol
-  // entry — keying off aff[0] would pick the outermost list and miss a deeply
-  // nested one (also beyond the depth-3 scan below).
-  const innerList = [...aff].reverse().find((b) => b.type === 'ul' || b.type === 'ol')
+  // Check every list level in the affiliation chain — nested lists show all
+  // levels (e.g. a ul wrapping an ol checks both). Scanning the full chain (not
+  // just the depth-3 loop below) keeps a deeply nested inner list checked. The
+  // loose/task flags come from the INNERMOST list (the one the cursor is in);
+  // the chain is outermost-first, so that is the last ul/ol entry.
+  const listEntries = aff.filter((b) => b.type === 'ul' || b.type === 'ol')
+  for (const entry of listEntries) {
+    state.affiliation[entry.type] = true
+  }
+  const innerList = listEntries[listEntries.length - 1]
   if (innerList) {
-    state.affiliation[innerList.type] = true
     // The engine's affiliation entry carries the loose flag on the list block
     // itself (derived from `meta.loose`), not via a `children` chain.
     state.isLooseListItem = !!innerList.isLooseListItem
