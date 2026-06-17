@@ -1861,7 +1861,10 @@ const createApplicationMenuState = ({
   // the chain is outermost-first, so that is the last ul/ol entry.
   const listEntries = aff.filter((b) => b.type === 'ul' || b.type === 'ol')
   for (const entry of listEntries) {
-    state.affiliation[entry.type] = true
+    // Task and bullet lists are both `type: 'ul'`; distinguish by listType so a
+    // chain with several kinds (e.g. ol > task > ul) checks each list menu item.
+    const kind = entry.type === 'ol' ? 'ol' : entry.listType === 'task' ? 'task' : 'ul'
+    state.affiliation[kind] = true
   }
   const innerList = listEntries[listEntries.length - 1]
   if (innerList) {

@@ -183,3 +183,27 @@ describe('updateSelectionMenus — format disabled in non-formattable blocks', (
     expect(menu.formatItems.every((i) => i.enabled === true)).toBe(true)
   })
 })
+
+describe('updateSelectionMenus — list kinds', () => {
+  it('checks the task list (not bullet) for a task affiliation', () => {
+    const menu = makeMenu()
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { task: true } })
+    const ids = menu.paragraphItems.filter((i) => i.checked).map((i) => i.id)
+    expect(ids).toContain('taskListMenuItem')
+    expect(ids).not.toContain('bulletListMenuItem')
+  })
+
+  it('checks ordered + bullet + task for a nested ol/task/ul affiliation', () => {
+    const menu = makeMenu()
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { ol: true, task: true, ul: true } })
+    const ids = menu.paragraphItems.filter((i) => i.checked).map((i) => i.id).sort()
+    expect(ids).toEqual(['bulletListMenuItem', 'orderListMenuItem', 'taskListMenuItem'].sort())
+  })
+
+  it('keeps loose-list-item enabled inside a task list', () => {
+    const menu = makeMenu()
+    updateSelectionMenus(menu as unknown as Menu, { affiliation: { task: true } })
+    const loose = menu.paragraphItems.find((i) => i.id === 'looseListItemMenuItem')!
+    expect(loose.enabled).toBe(true)
+  })
+})

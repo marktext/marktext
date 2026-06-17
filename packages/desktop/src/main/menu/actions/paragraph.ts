@@ -28,7 +28,7 @@ const MENU_ID_MAP: Readonly<Record<string, string>> = Object.freeze({
   quoteBlockMenuItem: 'blockquote',
   orderListMenuItem: 'ol',
   bulletListMenuItem: 'ul',
-  // taskListMenuItem: 'ul',
+  taskListMenuItem: 'task',
   paragraphMenuItem: 'p',
   horizontalLineMenuItem: 'hr',
   frontMatterMenuItem: 'frontmatter' // 'pre'
@@ -180,7 +180,7 @@ interface SelectionState {
 
 const setCheckedMenuItem = (
   applicationMenu: Menu,
-  { affiliation, isTable, isLooseListItem, isTaskList }: SelectionState
+  { affiliation, isTable, isLooseListItem }: SelectionState
 ): void => {
   const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
   paragraphMenuItem.submenu!.items.forEach((item: MenuItem) => (item.checked = false))
@@ -191,16 +191,13 @@ const setCheckedMenuItem = (
       item.checked = !!isLooseListItem
     } else if (
       Object.keys(affiliation).some((b) => {
-        if (b === 'ul' && isTaskList) {
-          if (item.id === 'taskListMenuItem') {
-            return true
-          }
-          return false
-        } else if (isTable && item.id === 'tableMenuItem') {
+        if (isTable && item.id === 'tableMenuItem') {
           return true
         } else if (item.id === 'codeFencesMenuItem' && /code$/.test(b)) {
           return true
         }
+        // Each list kind is its own affiliation key (ol / ul / task), so a
+        // nested chain checks every level via the id map.
         return b === MENU_ID_MAP[item.id]
       })
     ) {
@@ -269,8 +266,8 @@ export const updateSelectionMenus = (
     })
   }
 
-  // Disable loose list item.
-  if (!affiliation.ul && !affiliation.ol) {
+  // Disable loose list item when not inside any list (bullet / ordered / task).
+  if (!affiliation.ul && !affiliation.ol && !affiliation.task) {
     setMultipleStatus(applicationMenu, ['looseListItemMenuItem'], false)
   }
 

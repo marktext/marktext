@@ -76,4 +76,23 @@ describe('createApplicationMenuState via SELECTION_CHANGE', () => {
     expect(state.affiliation.ul).toBe(true)
     expect(state.isTaskList).toBe(false)
   })
+
+  it('checks ordered + task + bullet for ol > task > ul (cursor in the bullet list)', () => {
+    const state = menuStateFor({
+      start: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      end: { key: 'a', offset: 0, type: 'span', block: { functionType: 'paragraphContent' } },
+      affiliation: [
+        { type: 'ol', blockName: 'order-list', listType: 'order' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'ul', blockName: 'task-list', listType: 'task' },
+        { type: 'li', blockName: 'task-list-item' },
+        { type: 'ul', blockName: 'bullet-list', listType: 'bullet' },
+        { type: 'li', blockName: 'list-item' },
+        { type: 'p', blockName: 'paragraph' }
+      ]
+    }) as unknown as { affiliation: Record<string, boolean> }
+    expect(state.affiliation.ol).toBe(true)
+    expect(state.affiliation.task).toBe(true)
+    expect(state.affiliation.ul).toBe(true)
+  })
 })
