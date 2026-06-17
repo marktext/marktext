@@ -110,4 +110,17 @@ describe('cross-block paragraph wrapping', () => {
         expect(sel.anchorBlock!.text).toBe('alpha');
         expect(sel.focusBlock!.text).toBe('bravo');
     });
+
+    it('preserves markdown syntax when wrapping a cross-block selection into a code block', async () => {
+        const muya = boot('# Title\n\nbody\n');
+        selectFirstTwoBlocks(muya);
+        muya.updateParagraph('pre');
+        await vi.waitFor(() => {
+            const s = muya.getState() as unknown as IStateBlock[];
+            expect(s.length).toBe(1);
+            expect(s[0].name).toBe('code-block');
+            expect(s[0].text).toContain('# Title');
+            expect(s[0].text).toContain('body');
+        });
+    });
 });

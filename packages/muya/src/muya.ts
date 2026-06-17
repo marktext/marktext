@@ -811,7 +811,9 @@ export class Muya {
             blocks => ({
                 name: 'code-block',
                 meta: { type: 'fenced', lang: '' },
-                text: blocks.map(b => this._blockLeadingText(b)).join('\n'),
+                text: this.editor.jsonState
+                    .getMarkdownFromState(blocks.map(b => b.getState()))
+                    .replace(/\n+$/, ''),
             }),
             container => container.firstContentInDescendant()?.setCursor(0, 0, true),
         );
@@ -1197,52 +1199,54 @@ export class Muya {
         if (label.endsWith('-list') && isAnyListState(block.getState())) {
             // Selecting the active list type toggles the list off (unwrap each
             // item back into paragraphs); a different type converts in place,
-            // preserving every item.
-            if (block.blockName === label)
-                this._unwrapToParagraphs(block);
-            else
-                this._convertListType(block, label);
+            // preserving every item. Keep the caret on the same text.
+            this._withPreservedOffset(() => {
+                if (block.blockName === label)
+                    this._unwrapToParagraphs(block);
+                else
+                    this._convertListType(block, label);
+            });
 
             return;
         }
 
-        // Invoking "Code Block" while the cursor is already inside a code block
-        // toggles it back to a paragraph (muyajs semantics) instead of nesting a
-        // fresh code block into the inner `code` wrapper.
-        if (label === 'code-block' && this._toggleEnclosingCodeBlock())
+        // Invoking "Code Block" / "Quote Block" while the cursor is already
+        // inside that container toggles it back to a paragraph (muyajs
+        // semantics) instead of nesting a fresh one below.
+        if ((label === 'code-block' || label === 'block-quote') && this._toggleEnclosingContainer(label))
             return;
-
-        // hr/table only replace an empty block so user content is never
-        // silently dropped.
-        if (
-            (label === 'thematic-break' || label === 'table')
-            && this._blockLeadingText(block).trim() !== ''
-        ) {
-            return;
-        }
 
         this._convertOrInsertBelow(label);
     }
 
     /**
-     * Toggle the code block enclosing the cursor back to a paragraph carrying
-     * its code text. Returns false when the cursor is not inside a code block.
+     * Toggle the container of `blockName` (code-block / block-quote) enclosing
+     * the cursor back to a paragraph. Returns false when the cursor is not
+     * inside such a container.
      */
-    private _toggleEnclosingCodeBlock(): boolean {
+    private _toggleEnclosingContainer(blockName: string): boolean {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
-        const codeBlock = content?.closestBlock('code-block') as Parent | null;
-        if (!codeBlock)
+        const container = content?.closestBlock(blockName) as Parent | null;
+        if (!container)
             return false;
 
-        const state = codeBlock.getState();
-        replaceBlockByLabel({
-            block: codeBlock,
-            muya: this,
-            label: 'paragraph',
-            text: isCodeBlockState(state) ? state.text : '',
-        });
+        this._withPreservedOffset(() => this.resetToParagraph(container));
 
         return true;
+    }
+
+    /**
+     * Run an in-place conversion, then restore the caret to its prior text
+     * offset on the resulting content block (clamped to its length).
+     */
+    private _withPreservedOffset(fn: () => void) {
+        const offset = this.editor.selection.anchor?.offset ?? 0;
+        fn();
+        const content = this.editor.activeContentBlock;
+        if (content) {
+            const next = Math.min(offset, content.text.length);
+            content.setCursor(next, next, true);
+        }
     }
 
     /**
@@ -1259,7 +1263,7 @@ export class Muya {
 
         const leadingText = this._blockLeadingText(immediate);
         if (canTurnIntoMenu(immediate).some(item => item.label === label)) {
-            replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText });
+            this._withPreservedOffset(() => replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText }));
             return;
         }
 
@@ -1285,11 +1289,12 @@ export class Muya {
             return;
         }
 
+        const state = block.getState();
         replaceBlockByLabel({
             block,
             muya: this,
             label: 'paragraph',
-            text: this._blockLeadingText(block),
+            text: isCodeBlockState(state) ? state.text : this._blockLeadingText(block),
         });
     }
 

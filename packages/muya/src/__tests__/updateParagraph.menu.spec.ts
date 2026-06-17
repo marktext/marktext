@@ -84,4 +84,41 @@ describe('updateParagraph same-block menu model', () => {
             expect((s[0] as { text: string }).text).toContain('code here');
         });
     });
+
+    it('preserves the caret offset across paragraph -> list -> paragraph', async () => {
+        const muya = bootMuya('hello world\n');
+        const content = placeCursorOnFirstBlock(muya);
+        content.setCursor(3, 3, true);
+
+        muya.updateParagraph('ul-bullet');
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('bullet-list'));
+        expect(muya.editor.selection.anchor?.offset).toBe(3);
+
+        muya.updateParagraph('ul-bullet'); // toggle back to paragraph
+        await vi.waitFor(() => expect(muya.getState()[0].name).toBe('paragraph'));
+        expect(muya.editor.selection.anchor?.offset).toBe(3);
+    });
+
+    it('inserts a thematic break below a non-empty paragraph', async () => {
+        const muya = bootMuya('hello\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('hr');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s.length).toBe(2);
+            expect(s[0].name).toBe('paragraph');
+            expect((s[0] as { text: string }).text).toBe('hello');
+            expect(s[1].name).toBe('thematic-break');
+        });
+    });
+
+    it('unwraps an enclosing block-quote (with a heading inside) instead of nesting one', async () => {
+        const muya = bootMuya('> # Title\n');
+        placeCursorOnFirstBlock(muya);
+        muya.updateParagraph('blockquote');
+        await vi.waitFor(() => {
+            const s = muya.getState();
+            expect(s[0].name).toBe('atx-heading');
+        });
+    });
 });
