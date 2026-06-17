@@ -11,10 +11,10 @@ import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
 import { debouncedSendBufferedState } from './bufferedState'
 import type { TreeNode } from '../components/sideBar/types'
+import type { FileChangeDetail } from '@shared/types/files'
 
 type ProjectTree = TreeNode
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TreeChange = any
+type TreeChange = FileChangeDetail
 
 const normalizeProjectRoot = (pathname: string | null | undefined): string => {
   return pathname ? window.path.normalize(pathname) : ''
@@ -73,6 +73,9 @@ interface PendingEvent {
 }
 
 export const useProjectStore = defineStore('project', () => {
+  // Heterogeneous UI state: assigned file nodes, folder nodes, and the empty
+  // "no selection" object/null across sidebar components; a single non-`any`
+  // union breaks both the assignments and the field reads, so it stays a hatch.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeItem = ref<any>({})
   const createCache = ref<CreateCacheEntry | Record<string, never>>({})
@@ -161,9 +164,9 @@ export const useProjectStore = defineStore('project', () => {
     switch (type) {
       case 'add': {
         const { pathname, data, isMarkdown } = change
-        addFile(projectTree.value!, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+        addFile(projectTree.value!, change as Parameters<typeof addFile>[1], String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
         if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
-          const fileState = getFileStateFromData(data)
+          const fileState = getFileStateFromData(data as Record<string, unknown>)
           editorStore.UPDATE_CURRENT_FILE(fileState)
           newFileNameCache.value = ''
         }
@@ -181,7 +184,7 @@ export const useProjectStore = defineStore('project', () => {
         break
       case 'change':
         if (change?.mtimeMs !== undefined) {
-          updateFileMtime(projectTree.value!, change, String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
+          updateFileMtime(projectTree.value!, change as Parameters<typeof updateFileMtime>[1], String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
         }
         break
       default:

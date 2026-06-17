@@ -50,8 +50,7 @@ export const t = (key: string, ...args: unknown[]): string => {
 
     // vue-i18n's `t` is heavily overloaded; the variadic call signature here
     // intentionally bypasses the strict overload set.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (i18n.global.t as any)(key, ...args)
+    return (i18n.global.t as (key: string, ...args: unknown[]) => string)(key, ...args)
   } catch (error) {
     console.error('❌ 翻译函数执行错误:', error)
     return key

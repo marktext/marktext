@@ -119,8 +119,8 @@ const bootstrapRenderer = (): void => {
     paths
   }
   // `global` is not available in a sandboxed renderer — attach to window.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(window as any).marktext = marktext
+  // RendererPaths has no string index signature, so widen through `unknown`.
+  window.marktext = marktext as unknown as Window['marktext']
 
   configureLogger()
 }

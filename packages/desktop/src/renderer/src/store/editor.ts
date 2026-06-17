@@ -435,13 +435,14 @@ export const useEditorStore = defineStore('editor', {
         })
         const id = getUniqueId()
         // Dynamic IPC channel — not part of the static IpcMainEventChannels contract.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(window.electron.ipcRenderer.once as any)(
-          `mt::response-of-image-path-${id}`,
-          (_: unknown, files: string[]) => {
-            rs(files)
-          }
-        )
+        ;(
+          window.electron.ipcRenderer.once as (
+            channel: string,
+            listener: (event: unknown, files: string[]) => void
+          ) => void
+        )(`mt::response-of-image-path-${id}`, (_: unknown, files: string[]) => {
+          rs(files)
+        })
         window.electron.ipcRenderer.send('mt::ask-for-image-auto-path', {
           pathname,
           src,

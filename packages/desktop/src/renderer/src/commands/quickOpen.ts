@@ -13,8 +13,9 @@ interface QuickOpenSubcommand {
   title?: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FolderState = any
+interface FolderState {
+  projectTree: { pathname: string } | null
+}
 type RootState = { editor: EditorState; project: FolderState; [key: string]: unknown }
 
 type CancelFn = (() => void) | null
@@ -29,8 +30,7 @@ class QuickOpenCommand {
   subcommandSelectedIndex: number
   private _editorState: EditorState
   private _folderState: FolderState
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _directorySearcher: any
+  private _directorySearcher: FileSearcher
   private _cancelFn: CancelFn
 
   constructor(rootState: RootState) {
@@ -118,7 +118,7 @@ class QuickOpenCommand {
     }
 
     const searchResult: string[] = []
-    const rootPath: string | null = isRootDirOpened ? _folderState.projectTree.pathname : null
+    const rootPath: string | null = isRootDirOpened ? _folderState.projectTree!.pathname : null
 
     // Add files that are not in the current root directory but opened.
     if (tabsAvailable) {
@@ -155,15 +155,15 @@ class QuickOpenCommand {
     // Search root directory on disk.
     return new Promise<QuickOpenSubcommand[]>((resolve, reject) => {
       let canceled = false
-      const promises = this._directorySearcher
-        .search([rootPath], '', {
-          didMatch: (result: string) => {
+      const promises: Promise<void> & { cancel?: () => void } = this._directorySearcher
+        .search([rootPath!], '', {
+          didMatch: (result: unknown) => {
             if (canceled) return
-            searchResult.push(result)
+            searchResult.push(result as string)
           },
-          didSearchPaths: (numPathsFound: number) => {
+          didSearchPaths: (numPathsFound: unknown) => {
             // Cancel when more than 30 files were found. User should specify the search query.
-            if (!canceled && numPathsFound > 30) {
+            if (!canceled && (numPathsFound as number) > 30) {
               canceled = true
               if (promises.cancel) {
                 promises.cancel()
@@ -213,7 +213,7 @@ class QuickOpenCommand {
   }
 
   _getPath = (pathname: string): { title?: string; description: string } => {
-    const rootPath: string = this._folderState.projectTree.pathname
+    const rootPath: string = this._folderState.projectTree!.pathname
     if (!window.fileUtils.isChildOfDirectory(rootPath, pathname)) {
       return { title: pathname, description: pathname }
     }
