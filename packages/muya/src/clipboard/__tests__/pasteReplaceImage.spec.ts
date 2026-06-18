@@ -92,4 +92,51 @@ describe('paste — replace a selected inline image (muyajs parity)', () => {
 
         expect(muya.getMarkdown()).toBe('![](/tmp/new.png)\n');
     });
+
+    it('replaces by the token range even when the DOM selection clamps to one position', async () => {
+        // Real browsers collapse a text selection spanning the atomic
+        // (contenteditable=false) image to a single position — this is what
+        // broke replacing a resized `<img>`: the splice consumed only the
+        // leading character and orphaned the rest of the tag. The replace must
+        // use the image token's range, not the clamped DOM selection.
+        const muya = bootMuya('![old](https://example.com/old.png)\n', {
+            clipboardFilePath: () => Promise.resolve('/tmp/new.png'),
+        });
+        const block = muya.editor.scrollPage!.firstContentInDescendant() as Format;
+        const raw = block.text;
+        muya.editor.selection.selectImage({
+            token: { type: 'image', raw, range: { start: 0, end: raw.length } } as unknown as ImageToken,
+            imageId: 'sel-img',
+            block,
+        });
+        const path = block.path;
+        muya.editor.selection.getSelection = () => ({
+            anchor: { offset: 0, block, path },
+            focus: { offset: 1, block, path }, // clamped across the atomic image
+            isCollapsed: false,
+            isSelectionInSameBlock: true,
+            direction: SelectionDirection.FORWARD,
+            type: SelectionCaretType.RANGE,
+        });
+
+        await muya.editor.clipboard.pasteHandler(pasteEvent(), '', '');
+        await new Promise(r => setTimeout(r, 40));
+
+        // The WHOLE image is replaced, not just the first character.
+        expect(muya.getMarkdown()).toBe('![](/tmp/new.png)\n');
+    });
+
+    it('leaves the replaced image selected so the toolbar / resize bar follow it', async () => {
+        const muya = bootMuya('![old](https://example.com/old.png)\n', {
+            clipboardFilePath: () => Promise.resolve('/tmp/new.png'),
+        });
+        selectWholeImage(muya);
+
+        await muya.editor.clipboard.pasteHandler(pasteEvent(), '', '');
+        await new Promise(r => setTimeout(r, 40));
+
+        const selected = muya.editor.selection.image;
+        expect(selected).not.toBeNull();
+        expect(selected!.token.attrs.src).toContain('/tmp/new.png');
+    });
 });
