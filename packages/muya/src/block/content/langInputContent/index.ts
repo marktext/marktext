@@ -46,6 +46,13 @@ class LangInputContent extends Content {
         this.muya.eventCenter.emit('content-change', { block: this });
     }
 
+    // Public entry for setting the language programmatically (e.g. pasting into
+    // the language input), so the code block re-highlights and `parent.lang`
+    // updates; the DOM input handlers use `_updateLanguage` directly.
+    updateLanguage(lang: string): void {
+        this._updateLanguage(lang);
+    }
+
     override inputHandler() {
         const textContent = this.domNode!.textContent ?? '';
         const lang = textContent.split(/\s+/)[0];
