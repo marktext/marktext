@@ -195,6 +195,7 @@ class Muya {
     blocks = undefined
   ) {
     let finalCursor = null
+    this.contentState.clearHeadingFolds()
 
     if (blocks && cursor) {
       // We have blocks and a cursor, so we can set the blocks and the cursor in the contentState.
@@ -373,7 +374,20 @@ class Muya {
     this.contentState.render(true)
   }
 
+  foldAllHeadings() {
+    this.contentState.foldAllHeadings()
+  }
+
+  unfoldAllHeadings() {
+    this.contentState.unfoldAllHeadings()
+  }
+
+  unfoldBlockByKey(key) {
+    return this.contentState.unfoldBlockByKey(key)
+  }
+
   undo() {
+    this.contentState.clearHeadingFolds()
     this.contentState.history.undo()
 
     this.dispatchSelectionChange()
@@ -382,6 +396,7 @@ class Muya {
   }
 
   redo() {
+    this.contentState.clearHeadingFolds()
     this.contentState.history.redo()
 
     this.dispatchSelectionChange()
@@ -443,6 +458,16 @@ class Muya {
         this.container.classList.remove('ag-show-quick-insert-hint')
       } else if (!hideQuickInsertHint && !hasClass) {
         this.container.classList.add('ag-show-quick-insert-hint')
+      }
+    }
+
+    const showHeadingFoldChevrons = options.showHeadingFoldChevrons
+    if (typeof showHeadingFoldChevrons !== 'undefined') {
+      const hasClass = this.container.classList.contains('ag-show-heading-fold-chevrons')
+      if (showHeadingFoldChevrons && !hasClass) {
+        this.container.classList.add('ag-show-heading-fold-chevrons')
+      } else if (!showHeadingFoldChevrons && hasClass) {
+        this.container.classList.remove('ag-show-heading-fold-chevrons')
       }
     }
 
@@ -515,7 +540,7 @@ class Muya {
  * [ensureContainerDiv ensure container element is div]
  */
 function getContainer(originContainer, options) {
-  const { hideQuickInsertHint, spellcheckEnabled } = options
+  const { hideQuickInsertHint, showHeadingFoldChevrons, spellcheckEnabled } = options
   const container = document.createElement('div')
   const rootDom = document.createElement('div')
   const attrs = originContainer.attributes
@@ -526,6 +551,10 @@ function getContainer(originContainer, options) {
 
   if (!hideQuickInsertHint) {
     container.classList.add('ag-show-quick-insert-hint')
+  }
+
+  if (showHeadingFoldChevrons) {
+    container.classList.add('ag-show-heading-fold-chevrons')
   }
 
   container.setAttribute('contenteditable', true)

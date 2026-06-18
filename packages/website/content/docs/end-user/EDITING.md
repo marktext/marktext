@@ -60,6 +60,16 @@ You can transform a line into another type by clicking on the highlighted icon i
 
 ![](../assets/marktext-line-transformer.png)
 
+#### Heading folding
+
+Headings can be used to fold and unfold sections in both editor modes.
+
+- In the realtime (WYSIWYG) editor, a chevron appears on heading lines when the heading is active or hovered. If a section is already folded, the chevron stays visible so you can see that content is hidden. Clicking the chevron folds or unfolds everything until the next heading of the same or higher level.
+- In source-code mode, the fold chevrons are shown in the gutter to the left of the line numbers and follow the same interaction pattern: they appear for the active or hovered heading line and stay visible for folded sections.
+- You can use the View menu commands *Fold All Sections* and *Unfold All Sections* to collapse or expand the whole document at once.
+
+If you prefer the chevrons to stay visible on all headings in the WYSIWYG editor, enable the `showHeadingFoldChevrons` preference in settings.
+
 #### Table tools
 
 It's sometimes hard to write and manage tables in markdown. In MarkText you can press <kbd>CmdOrCtrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd> to get a table dialog and create a table with variable row and column count. Both row and column count can be changed via the table tools (first icon above the table) later if necessary. You can use all inline styles in a table cell and align the text via table tools at the top of the table.

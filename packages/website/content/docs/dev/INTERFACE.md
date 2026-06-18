@@ -19,3 +19,8 @@ The sidebar is an optional feature of MarkText that contains three panels and ha
 ### Editor
 
 The editor is the core element that hosts the realtime preview editor called Muya and consists of three parts. Tabs are located at the top and at the bottom the per-tab notification bar is located for events like file changed or deleted. The main part is the editor that is either provided by Muya or CodeMirror for the source-code editor. There are multiple overlays available like inline toolbar, emoji picker, quick insert or image tools.
+
+Heading sections can be folded in both editor modes.
+
+- In Muya, heading lines render a fold chevron in the front-icon lane. The chevron is shown for the active or hovered heading line and remains visible for folded sections so hidden content stays discoverable. The optional `showHeadingFoldChevrons` preference makes these chevrons permanently visible on WYSIWYG headings.
+- In source-code mode, CodeMirror exposes heading folding through a dedicated gutter to the left of the line numbers. The gutter chevrons follow the line-number color from the active theme and mirror the same active, hover, and folded visibility rules.

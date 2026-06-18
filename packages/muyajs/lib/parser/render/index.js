@@ -97,6 +97,12 @@ class StateRender {
     if (!block.parent && selectedBlock && block.key === selectedBlock.key) {
       selector += `.${CLASS_OR_ID.AG_SELECTED}`
     }
+    if (this.muya.contentState.isBlockHiddenByFold(block)) {
+      selector += '.ag-fold-hidden'
+    }
+    if (this.muya.contentState.isHeadingFolded(block)) {
+      selector += '.ag-heading-folded-block'
+    }
     return selector
   }
 

@@ -800,6 +800,7 @@ const paragraphCtrl = (ContentState) => {
   }
 
   ContentState.prototype.selectAllContent = function() {
+    this.foldedHeadings.clear()
     const firstTextBlock = this.getFirstBlock()
     const lastTextBlock = this.getLastBlock()
     this.cursor = {

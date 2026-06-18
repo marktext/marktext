@@ -117,6 +117,8 @@
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
       "toggleTableOfContents": "Toggle Table of Contents",
+      "foldAllSections": "Fold All Sections",
+      "unfoldAllSections": "Unfold All Sections",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
       "reloadWindow": "Reload Window"
@@ -393,6 +395,7 @@
         "trimTrailingNewline": "The trim trailing newline option",
         "textDirection": "The writing text direction",
         "hideQuickInsertHint": "Hide hint for quickly creating paragraphs",
+        "showHeadingFoldChevrons": "Always show heading fold chevrons",
         "hideLinkPopup": "Hide link popup when the cursor is hover on the link",
         "autoCheck": "Whether to automatically check related task",
         "preferLooseListItem": "The preferred list type",
@@ -552,6 +555,7 @@
           "rtl": "Right to Left"
         },
         "hideQuickInsertHint": "Hide quick insert hint",
+        "showHeadingFoldChevrons": "Always show heading fold chevrons",
         "hideLinkPopup": "Hide link popup",
         "autoCheck": "Auto check",
         "autoNormalizeLineEndings": "Auto-normalize line endings to LF on open",
@@ -840,6 +844,8 @@
       "toggleSidebar": "Toggle Sidebar",
       "toggleToc": "Toggle Table of Contents",
       "toggleTabbar": "Toggle Tab Bar",
+      "foldAllSections": "Fold All Sections",
+      "unfoldAllSections": "Unfold All Sections",
       "toggleDevTools": "Toggle Developer Tools",
       "devReload": "Developer Reload",
       "reloadImages": "Reload Images",

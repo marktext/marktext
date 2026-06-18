@@ -423,6 +423,7 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
   plantumlServer: 'https://www.plantuml.com/plantuml',
   hideQuickInsertHint: false,
+  showHeadingFoldChevrons: false,
   hideLinkPopup: false,
   autoCheck: false,
   // Whether we should set spellcheck attribute on our container to highlight misspelled words.

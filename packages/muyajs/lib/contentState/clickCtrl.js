@@ -51,6 +51,16 @@ const clickCtrl = (ContentState) => {
       }
     }
     // handle front menu click
+    const foldToggle = target.closest('.ag-heading-fold-toggle')
+    if (foldToggle) {
+      const paragraph = foldToggle.closest('.ag-paragraph')
+      const block = paragraph && this.getBlock(paragraph.id)
+      event.preventDefault()
+      event.stopPropagation()
+      this.toggleHeadingFold(block)
+      return
+    }
+
     const { start: oldStart, end: oldEnd } = this.cursor
     if (oldStart && oldEnd) {
       let hasSameParent = false

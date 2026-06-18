@@ -61,6 +61,7 @@ export interface PreferencesState {
   trimTrailingNewline: number
   textDirection: TextDirection | string
   hideQuickInsertHint: boolean
+  showHeadingFoldChevrons: boolean
   imageInsertAction: ImageInsertAction | string
   imagePreferRelativeDirectory: boolean
   imageRelativeDirectoryBase: ImageRelativeDirectoryBase | string
@@ -177,6 +178,7 @@ export const usePreferencesStore = defineStore('preferences', {
     trimTrailingNewline: 2,
     textDirection: 'ltr',
     hideQuickInsertHint: false,
+    showHeadingFoldChevrons: false,
     imageInsertAction: 'folder',
     imagePreferRelativeDirectory: false,
     imageRelativeDirectoryBase: 'file',

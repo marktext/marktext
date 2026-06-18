@@ -25,6 +25,7 @@ export interface IUserPreferences {
   codeFontSize?: number
   codeFontFamily?: string
   hideQuickInsertHint?: boolean
+  showHeadingFoldChevrons?: boolean
   hideLinkPopup?: boolean
   autoPairBracket?: boolean
   autoPairMarkdownSyntax?: boolean

@@ -24,6 +24,7 @@ import paragraphCtrl from './paragraphCtrl'
 import tabCtrl from './tabCtrl'
 import formatCtrl from './formatCtrl'
 import searchCtrl from './searchCtrl'
+import foldCtrl from './foldCtrl'
 import containerCtrl from './containerCtrl'
 import htmlBlockCtrl from './htmlBlock'
 import clickCtrl from './clickCtrl'
@@ -56,6 +57,7 @@ const prototypes = [
   paragraphCtrl,
   formatCtrl,
   searchCtrl,
+  foldCtrl,
   containerCtrl,
   htmlBlockCtrl,
   clickCtrl,
@@ -99,6 +101,8 @@ class ContentState {
     this.cellSelectInfo = null
     this._selectedTableCells = null
     this.cellSelectEventIds = []
+    this.foldedHeadings = new Set()
+    this.foldHiddenBlockKeys = new Set()
     this.init()
   }
 
@@ -232,6 +236,7 @@ class ContentState {
   }
 
   render(isRenderCursor = true, clearCache = false) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }
@@ -244,6 +249,7 @@ class ContentState {
       m.active = i === index
     })
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.render(blocks, activeBlocks, matches)
     if (isRenderCursor) {
@@ -255,6 +261,7 @@ class ContentState {
   }
 
   partialRender(isRenderCursor = true) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }
@@ -282,6 +289,7 @@ class ContentState {
     const blocksToRender = blocks.slice(startIndex, endIndex)
 
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.partialRender(blocksToRender, activeBlocks, matches, startKey, endKey)
     if (isRenderCursor) {
@@ -293,6 +301,7 @@ class ContentState {
   }
 
   singleRender(block, isRenderCursor = true) {
+    this.ensureCursorVisible()
     const {
       blocks,
       searchMatches: { matches, index }
@@ -302,6 +311,7 @@ class ContentState {
       m.active = i === index
     })
     this.setNextRenderRange()
+    this.updateFoldHiddenBlockKeys(blocks)
     this.stateRender.collectLabels(blocks)
     this.stateRender.singleRender(block, activeBlocks, matches)
     if (isRenderCursor) {

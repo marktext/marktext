@@ -77,6 +77,28 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      type: 'separator'
+    },
+    {
+      label: t('menu.view.foldAllSections'),
+      id: 'foldAllSectionsMenuItem',
+      accelerator: keybindings.getAccelerator('view.fold-all-sections') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.foldAllSections(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.view.unfoldAllSections'),
+      id: 'unfoldAllSectionsMenuItem',
+      accelerator: keybindings.getAccelerator('view.unfold-all-sections') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.unfoldAllSections(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
       label: t('menu.view.reloadImages'),
       accelerator: keybindings.getAccelerator('view.reload-images') ?? undefined,
       click(_item, focusedWindow) {
