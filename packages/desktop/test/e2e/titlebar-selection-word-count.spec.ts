@@ -11,6 +11,7 @@ import {
 } from './helpers'
 
 const DOC = 'Alpha beta gamma\n\nDelta epsilon\n'
+const INLINE_MATH_DOC = '$E = mc^2$\n'
 const TABLE_DOC = [
   '| a1 | b1 | c1 |',
   '| --- | --- | --- |',
@@ -43,6 +44,17 @@ const selectFirstParagraph = async(page: Page): Promise<void> => {
     document.dispatchEvent(new Event('selectionchange'))
     root.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }))
   })
+}
+
+const dragSelectInlineMathParagraph = async(page: Page): Promise<void> => {
+  const paragraph = page.locator('p.mu-paragraph')
+  const box = await paragraph.boundingBox()
+  if (!box) throw new Error('inline math paragraph not found')
+
+  await page.mouse.move(box.x + 1, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width - 1, box.y + box.height / 2, { steps: 8 })
+  await page.mouse.up()
 }
 
 const dragSelectTableCells = async(page: Page): Promise<void> => {
@@ -159,6 +171,21 @@ test('shows selected count for table rectangular selection', async() => {
 
     await dragSelectTableCells(page)
     await expect(counter).toHaveText(/\/ 4$/)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('uses markdown source text when selecting inline math', async() => {
+  const { app, page } = await launchWithMarkdown(INLINE_MATH_DOC, { suppressErrorDialog: true })
+  try {
+    await clearRendererErrors(app)
+    const counter = page.locator('.word-count')
+    await expect(counter).toHaveText('W 3')
+
+    await dragSelectInlineMathParagraph(page)
+    await expect(counter).toHaveText('W 3 / 3')
     await expectNoRendererErrors(app)
   } finally {
     await app.close()

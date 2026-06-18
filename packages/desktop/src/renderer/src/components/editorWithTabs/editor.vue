@@ -416,26 +416,26 @@ const getTableSelectionText = (): string => {
     .join('\n')
 }
 
+const getNativeSelectionText = (selection: Selection): string => {
+  let text = ''
+  let shouldUseFragmentText = false
+  for (let i = 0; i < selection.rangeCount; i++) {
+    const fragment = selection.getRangeAt(i).cloneContents()
+    const renderedNodes = fragment.querySelectorAll('.mu-math-render, .mu-ruby-render')
+    if (renderedNodes.length > 0) {
+      shouldUseFragmentText = true
+      renderedNodes.forEach(node => node.remove())
+    }
+    text += fragment.textContent ?? ''
+  }
+  return shouldUseFragmentText ? text : selection.toString()
+}
+
 const getSelectedText = (changes: MuyaChange): string => {
   const tableText = getTableSelectionText()
   if (tableText) return tableText
 
   if (!changes || changes.isCollapsed || changes.type === 'Caret') return ''
-
-  const selection = window.getSelection()
-  const container = getScrollContainer()
-  const { anchorNode, focusNode } = selection ?? {}
-  const nativeText = selection?.toString() ?? ''
-  if (
-    nativeText &&
-    container &&
-    anchorNode &&
-    focusNode &&
-    container.contains(anchorNode) &&
-    container.contains(focusNode)
-  ) {
-    return nativeText
-  }
 
   const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
   const focusBlock = changes.focusBlock as { text?: string } | null | undefined
@@ -446,6 +446,21 @@ const getSelectedText = (changes: MuyaChange): string => {
     const start = Math.min(anchorOffset, focusOffset)
     const end = Math.max(anchorOffset, focusOffset)
     return anchorBlock.text.substring(start, end)
+  }
+
+  const selection = window.getSelection()
+  const container = getScrollContainer()
+  const { anchorNode, focusNode } = selection ?? {}
+  const nativeText = selection ? getNativeSelectionText(selection) : ''
+  if (
+    nativeText &&
+    container &&
+    anchorNode &&
+    focusNode &&
+    container.contains(anchorNode) &&
+    container.contains(focusNode)
+  ) {
+    return nativeText
   }
 
   return ''
@@ -484,7 +499,7 @@ const updateNativeSelectionWordCount = () => {
     return
   }
 
-  setSelectionWordCountFromText(selection.toString())
+  setSelectionWordCountFromText(getNativeSelectionText(selection))
 }
 
 const scheduleNativeSelectionWordCount = () => {
