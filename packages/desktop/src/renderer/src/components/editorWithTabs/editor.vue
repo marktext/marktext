@@ -1950,12 +1950,6 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
-    editorStore.SELECTION_CHANGE(adaptSelectionChange(changes))
-    // The active inline formats now ride along on selection-change (replacing
-    // the old separate `selectionFormats` event) — drive the format menu/toolbar
-    // state from them.
-    editorStore.SELECTION_FORMATS((changes.formats ?? []) as SelectionFormatLike[])
-
     setSelectionWordCountFromText(getSelectedText(changes))
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
