@@ -392,7 +392,34 @@ interface EngineAffiliationEntry {
 //   - `affiliation` straight through (entries already carry `type` +
 //     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
 //     `functionType` on `pre`/`figure` containers for table / code-fence keys.
+interface TableCellSelectionState {
+  text?: string
+}
+
+interface TableRowSelectionState {
+  children?: TableCellSelectionState[]
+}
+
+interface TableSelectionState {
+  children?: TableRowSelectionState[]
+}
+
+const getTableSelectionText = (): string => {
+  const tableState = editor.value?.editor?.selection?.table?.getStateForCopy?.() as
+    | TableSelectionState
+    | null
+    | undefined
+  if (!tableState?.children) return ''
+
+  return tableState.children
+    .flatMap((row) => row.children?.map((cell) => cell.text ?? '') ?? [])
+    .join('\n')
+}
+
 const getSelectedText = (changes: MuyaChange): string => {
+  const tableText = getTableSelectionText()
+  if (tableText) return tableText
+
   if (!changes || changes.isCollapsed || changes.type === 'Caret') return ''
 
   const selection = window.getSelection()
@@ -437,6 +464,12 @@ const setSelectionWordCountFromText = (selectedText: string) => {
 
 const updateNativeSelectionWordCount = () => {
   if (sourceCode.value) return
+
+  const tableText = getTableSelectionText()
+  if (tableText) {
+    setSelectionWordCountFromText(tableText)
+    return
+  }
 
   const selection = window.getSelection()
   const container = getScrollContainer()

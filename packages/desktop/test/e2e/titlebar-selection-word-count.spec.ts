@@ -11,6 +11,13 @@ import {
 } from './helpers'
 
 const DOC = 'Alpha beta gamma\n\nDelta epsilon\n'
+const TABLE_DOC = [
+  '| a1 | b1 | c1 |',
+  '| --- | --- | --- |',
+  '| a2 | b2 | c2 |',
+  '| a3 | b3 | c3 |',
+  ''
+].join('\n')
 
 const selectAllSourceText = async(page: Page): Promise<void> => {
   await page.click('.source-code .CodeMirror')
@@ -36,6 +43,18 @@ const selectFirstParagraph = async(page: Page): Promise<void> => {
     document.dispatchEvent(new Event('selectionchange'))
     root.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }))
   })
+}
+
+const dragSelectTableCells = async(page: Page): Promise<void> => {
+  const cells = page.locator('td.mu-table-cell')
+  const first = await cells.nth(0).boundingBox()
+  const fourth = await cells.nth(4).boundingBox()
+  if (!first || !fourth) throw new Error('table cells not found')
+
+  await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(fourth.x + fourth.width / 2, fourth.y + fourth.height / 2)
+  await page.mouse.up()
 }
 
 test.describe('Title bar selection word count', () => {
@@ -130,4 +149,18 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 5 / 5')
     await expectNoRendererErrors(app)
   })
+})
+
+test('shows selected count for table rectangular selection', async() => {
+  const { app, page } = await launchWithMarkdown(TABLE_DOC, { suppressErrorDialog: true })
+  try {
+    await clearRendererErrors(app)
+    const counter = page.locator('.word-count')
+
+    await dragSelectTableCells(page)
+    await expect(counter).toHaveText(/\/ 4$/)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
 })
