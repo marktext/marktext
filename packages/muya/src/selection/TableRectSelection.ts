@@ -283,24 +283,44 @@ class TableRectSelection {
      * content block's `text` setter so each edit dispatches a json op and the
      * document state stays in sync. The caret is placed in the anchor cell.
      */
-    clearSelectedCells(): void {
+    /**
+     * Empty every selected cell's text and re-render it, keeping the frozen
+     * selection. Returns whether any cell actually had content to clear — the
+     * caller uses that to drive the two-stage keyboard delete (first press
+     * clears, second press removes structure). Each cleared cell is re-rendered
+     * via `update()`; setting `.text` alone only patches state, so without this
+     * the non-anchor cells would keep their stale DOM.
+     */
+    emptySelectedCells(): boolean {
         if (!this.hasSelection)
-            return;
+            return false;
 
         const minRow = Math.min(this._anchor!.row, this._focus!.row);
         const maxRow = Math.max(this._anchor!.row, this._focus!.row);
         const minColumn = Math.min(this._anchor!.column, this._focus!.column);
         const maxColumn = Math.max(this._anchor!.column, this._focus!.column);
 
+        let hadContent = false;
         for (let r = minRow; r <= maxRow; r++) {
             for (let c = minColumn; c <= maxColumn; c++) {
                 const content = this._table!.cellAt(r, c)?.firstChild;
-                if (content && content.isContent() && content.text !== '')
+                if (content && content.isContent() && content.text !== '') {
+                    hadContent = true;
                     content.text = '';
+                    content.update();
+                }
             }
         }
 
+        return hadContent;
+    }
+
+    clearSelectedCells(): void {
+        if (!this.hasSelection)
+            return;
+
         const anchorContent = this._anchor!.cell.firstChild;
+        this.emptySelectedCells();
         this.clear();
         if (anchorContent && anchorContent.isContent())
             anchorContent.setCursor(0, 0, true);
