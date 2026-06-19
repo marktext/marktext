@@ -533,7 +533,18 @@ export default class ExportMarkdown {
         // Subsequent paragraph indentation
         const newIndent = indent + ' '.repeat(itemMarker.length);
 
-        // New list indentation. We already added one space to the indentation
+        // Extra indentation for a NESTED list, added on top of the parent
+        // item's content column — `newIndent` above already advanced by the
+        // marker width, i.e. the CommonMark-minimal nest (a child list must
+        // sit at least past the parent marker to parse as nested). The nested
+        // marker therefore lands at: itemMarker.length + (listIndentationCount - 1).
+        //
+        // So a numeric "N spaces" is an indentation LEVEL relative to the
+        // content column, NOT an absolute column count: for a `- ` marker
+        // (width 2), N=1 -> 2 cols (tightest), N=4 -> 5 cols. Only `dfm` pins a
+        // hard 4-column nest regardless of marker width (4 - itemMarker.length).
+        // This matches the legacy muyajs serializer byte-for-byte
+        // (muyajs/lib/utils/exportMarkdown.js `normalizeListItem`).
         let listIndent = '';
         const { _listIndentation: listIndentation } = this;
         if (listIndentation === 'dfm')
