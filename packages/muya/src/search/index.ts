@@ -11,6 +11,10 @@ export class Search {
     public matches: IMatch[] = [];
     public index: number = -1;
 
+    get value() {
+        return this._value;
+    }
+
     private get _scrollPage() {
         return this._muya.editor.scrollPage;
     }
