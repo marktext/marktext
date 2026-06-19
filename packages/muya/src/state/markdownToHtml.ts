@@ -99,6 +99,12 @@ export class MarkdownToHtml {
                     tooltip: false,
                     renderer: 'svg',
                     theme: 'latimes', // only render light theme
+                    // Parse the spec to an AST and evaluate expressions with the
+                    // interpreter instead of compiling them via `new Function`,
+                    // which the sandboxed renderer's CSP blocks (`unsafe-eval`
+                    // is not granted) — without this the embed throws and the
+                    // chart renders as `< Invalid Diagram >`.
+                    ast: true,
                 });
             }
             else if (functionType === 'sequence') {
