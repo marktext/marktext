@@ -434,18 +434,16 @@ const adaptSelectionChange = (changes: MuyaChange) => {
 // re-resolves the target blocks from `anchorPath`/`focusPath`.
 const serializeCursor = (
   selection: {
-    anchor?: { offset: number }
-    focus?: { offset: number }
-    anchorPath?: Array<string | number>
-    focusPath?: Array<string | number>
+    anchor?: { offset: number; path?: Array<string | number> }
+    focus?: { offset: number; path?: Array<string | number> }
   } | null
 ) => {
   if (!selection) return null
   return {
     anchor: selection.anchor ? { offset: selection.anchor.offset } : null,
     focus: selection.focus ? { offset: selection.focus.offset } : null,
-    anchorPath: selection.anchorPath,
-    focusPath: selection.focusPath
+    anchorPath: selection.anchor?.path,
+    focusPath: selection.focus?.path
   }
 }
 
