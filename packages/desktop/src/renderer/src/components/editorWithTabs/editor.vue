@@ -119,6 +119,7 @@ import {
   type ILocale
 } from '@muyajs/core'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
+import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -1414,7 +1415,12 @@ const setMarkdownToEditor = (payload: unknown) => {
       resetSyntheticHistory(id, editor.value.getMarkdown())
     }
     if (newCursor) {
-      editor.value.setCursor(newCursor)
+      applyCursor(editor.value, newCursor)
+      // A folder-search jump carries an index cursor; a freshly opened file
+      // starts scrolled to the top, so reveal the resolved caret.
+      if (isIndexCursor(newCursor)) {
+        scrollToCursor()
+      }
     }
     // `setContent` rebuilds the block tree synchronously but fires no
     // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
@@ -1432,22 +1438,6 @@ interface FileChangePayload {
   scrollTop?: number
   muyaIndexCursor?: unknown
   blocks?: unknown
-}
-
-// A source-mode (CodeMirror) index cursor: `{ anchor, focus }` in `{ line, ch }`
-// coordinates. Produced by sourceCode.vue and carried on `file-changed` as
-// `muyaIndexCursor` when handing a tab back to WYSIWYG. Both `line` AND `ch`
-// must be present numbers — otherwise the engine would clamp a missing `ch` to
-// 0 and silently restore the caret to the wrong column.
-const isIndexPosition = (pos: unknown): pos is { line: number; ch: number } => {
-  const p = pos as { line?: unknown; ch?: unknown } | null
-  return !!p && typeof p.line === 'number' && typeof p.ch === 'number'
-}
-const isIndexCursor = (
-  cursor: unknown
-): cursor is { anchor: { line: number; ch: number }; focus: { line: number; ch: number } } => {
-  const c = cursor as { anchor?: unknown; focus?: unknown } | null
-  return !!c && isIndexPosition(c.anchor) && isIndexPosition(c.focus)
 }
 
 // listen for markdown change form source mode or change tabs etc
@@ -1507,7 +1497,7 @@ const handleFileChange = (payload: unknown) => {
       // TOC (otherwise returning to an open tab keeps the other tab's TOC).
       editorStore.UPDATE_TOC(editor.value.getTOC())
       if (newCursor) {
-        editor.value.setCursor(newCursor)
+        applyCursor(editor.value, newCursor)
       } else if (isIndexCursor(muyaIndexCursor)) {
         // Source-mode handoff for a tab the engine has no history for (e.g.
         // first interaction after load): fall back to a caret-only remap. The
@@ -1528,7 +1518,7 @@ const handleFileChange = (payload: unknown) => {
       }
     }
   } else if (newCursor) {
-    editor.value.setCursor(newCursor)
+    applyCursor(editor.value, newCursor)
   }
 
   if (typeof scrollTop === 'number') {
