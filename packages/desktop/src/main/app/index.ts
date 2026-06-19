@@ -678,15 +678,23 @@ class App {
             log.error(err)
             return
           }
+          // The renderer can no longer paste the clipboard bitmap via the
+          // removed `document.execCommand('paste')`, so persist the capture to a
+          // PNG and hand the path to the renderer to insert at the cursor.
+          let savedPath = ''
           try {
-            // Write screenshot image into screenshot folder.
             const image = clipboard.readImage()
-            const bufferImage = image.toPNG()
-            await fsPromises.writeFile(screenshotFileName, bufferImage)
+            // `screencapture` leaves the clipboard untouched when the user
+            // cancels (Esc); skip so we don't insert a stale/empty image.
+            if (!image.isEmpty()) {
+              const bufferImage = image.toPNG()
+              await fsPromises.writeFile(screenshotFileName, bufferImage)
+              savedPath = screenshotFileName
+            }
           } catch (writeErr) {
             log.error(writeErr)
           }
-          win.webContents.send('mt::screenshot-captured')
+          win.webContents.send('mt::screenshot-captured', savedPath)
         })
       } else {
         // TODO: Do nothing, maybe we'll add screenCapture later on Linux and Windows.

@@ -258,7 +258,7 @@ export interface IpcMainEventChannels {
   'mt::rg::error': [payload: unknown]
   'mt::rg::match': [payload: unknown]
   'mt::rg::progress': [payload: unknown]
-  'mt::screenshot-captured': []
+  'mt::screenshot-captured': [filePath: string]
   'mt::set-line-ending': [lineEnding: LineEnding]
   'mt::set-pathname': [payload: { id: string; pathname: string; filename: string }]
   'mt::set-view-layout': [layout: unknown]
