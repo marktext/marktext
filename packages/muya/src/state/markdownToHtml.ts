@@ -9,6 +9,7 @@ import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
+import { transformFootnotes } from './transformFootnotes';
 
 // Core stylesheets inlined into the exported document so the output is fully
 // self-contained and renders offline / behind CSP / air-gapped. Linking these
@@ -162,13 +163,21 @@ export class MarkdownToHtml {
 
     // render pure html by marked
     async renderHtml() {
+        const footnote = this._muya?.options?.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
             superSubScript: this._muya?.options?.superSubScript ?? true,
-            footnote: this._muya?.options?.footnote ?? false,
+            footnote,
             isGitlabCompatibilityEnabled:
         this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
             math: this._muya?.options?.math ?? true,
         });
+
+        // Post-process footnotes into the standard GFM / pandoc shape (inline
+        // numbered <sup> refs + bottom <section class="footnotes"> with
+        // backrefs). Must run before DOMPurify strips the `data-identifier`
+        // marker the marked footnote extension emits.
+        if (footnote)
+            html = transformFootnotes(html);
 
         html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
 

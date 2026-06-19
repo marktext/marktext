@@ -58,6 +58,20 @@
     list-style-type: decimal;
 }
 
+.markdown-body sup.footnote-ref a {
+    text-decoration: none;
+}
+
+.markdown-body .footnotes {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+.markdown-body .footnotes .footnote-backref {
+    font-family: initial;
+    text-decoration: none;
+}
+
 .markdown-body div.plantuml,
 .markdown-body div.mermaid,
 .markdown-body div.vega-lite,
