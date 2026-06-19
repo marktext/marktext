@@ -99,6 +99,24 @@ describe('muya runtime options', () => {
         expect(muya.options.listIndentation).toBe(2);
         expect(muya.getMarkdown()).toBe(before);
     });
+
+    // Regression: getMarkdown() must serialize nested lists using the live
+    // `listIndentation` option. The legacy muyajs engine threaded it
+    // (muyajs/lib/index.js getMarkdown -> new ExportMarkdown(blocks,
+    // listIndentation, ...)), but the migrated JSONState.getMarkdownFromState
+    // constructed `new StateToMarkdown()` with no options, so it always fell
+    // back to the 1-space default and the desktop Preferences toggle had zero
+    // effect on source mode / saved files. A flat list (the test above) can't
+    // catch this — only a nested list exposes the indentation width.
+    it('setListIndentation drives the serialized nested-list indentation', () => {
+        const muya = bootMuya('- a\n  - b\n');
+        // Default listIndentation = 1 -> nested bullet at marker width (2).
+        expect(muya.getMarkdown()).toBe('- a\n  - b\n');
+
+        // listIndentation = 4 -> marker width (2) + (4 - 1) = 5 spaces.
+        muya.setListIndentation(4);
+        expect(muya.getMarkdown()).toBe('- a\n     - b\n');
+    });
 });
 
 // Render-affecting options: the inline renderer (`InlineRenderer.tokenizer`)
