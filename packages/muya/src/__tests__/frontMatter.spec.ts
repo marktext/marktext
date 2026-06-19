@@ -2,8 +2,10 @@
 
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
+import type { ILocale } from '../i18n/types';
 import type { IFrontmatterState } from '../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { zhCN } from '../locales';
 import { Muya } from '../muya';
 import { replaceBlockByLabel } from '../ui/paragraphQuickInsertMenu/config';
 
@@ -40,12 +42,14 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
-function bootMuya(markdown: string, frontmatterType?: string): Muya {
+function bootMuya(markdown: string, frontmatterType?: string, locale?: ILocale): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
     const options = { markdown } as ConstructorParameters<typeof Muya>[1] & { frontmatterType?: string };
     if (frontmatterType !== undefined)
         options.frontmatterType = frontmatterType;
+    if (locale !== undefined)
+        options.locale = locale;
     const muya = new Muya(host, options);
     muya.init();
     bootedHosts.push(muya.domNode);
@@ -221,5 +225,37 @@ describe('quick-insert front matter (replaceBlockByLabel)', () => {
 
         expect((muya.getState()[0] as IFrontmatterState).meta.lang).toBe('toml');
         expect(muya.getMarkdown().startsWith('+++\n')).toBe(true);
+    });
+});
+
+// The focused front-matter block renders before/after delimiter markers via the
+// CSS rule `pre.mu-active.mu-frontmatter::before/::after` (blockSyntax.css). Two
+// regressions are guarded:
+//   - The block's class must be `mu-frontmatter`; the CSS once targeted the
+//     non-existent `mu-front-matter`, so the markers never showed (muyajs parity).
+//   - The marker text is driven by the i18n `frontMatterDelimiter` attribute on
+//     the <pre> (CSS `content: attr(frontMatterDelimiter)`), not a hardcoded
+//     `---`, so it localizes with the editor locale.
+describe('front matter delimiter marker', () => {
+    function frontmatterPre(muya: Muya): HTMLElement {
+        const block = muya.editor.scrollPage!.find(0) as unknown as Parent;
+        return block.domNode!;
+    }
+
+    it('tags the front-matter <pre> with the class the marker CSS targets', () => {
+        const muya = bootMuya('---\ntitle: hi\n---\n\nbody\n');
+        const pre = frontmatterPre(muya);
+        expect(pre.tagName).toBe('PRE');
+        expect(pre.classList.contains('mu-frontmatter')).toBe(true);
+    });
+
+    it('exposes the localized marker text as the frontMatterDelimiter attribute (default en)', () => {
+        const muya = bootMuya('---\ntitle: hi\n---\n\nbody\n');
+        expect(frontmatterPre(muya).getAttribute('frontMatterDelimiter')).toBe('Front Matter');
+    });
+
+    it('localizes the marker text with the editor locale', () => {
+        const muya = bootMuya('---\ntitle: hi\n---\n\nbody\n', undefined, zhCN);
+        expect(frontmatterPre(muya).getAttribute('frontMatterDelimiter')).toBe('顶部信息块');
     });
 });
