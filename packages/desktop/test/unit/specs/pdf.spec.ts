@@ -121,6 +121,36 @@ describe('getCssForOptions', () => {
     expect(css).toContain('.hf-container{font-family:"Foo"')
   })
 
+  it('emits the font override AFTER theme CSS so "overwrite theme font" wins', async() => {
+    // A selected export theme sets its own `.markdown-body { font-size/line-height/
+    // font-family }`. The whole point of the "Overwrite theme font" toggle is that
+    // the user's font wins over the theme — so the override rule must be emitted
+    // AFTER the theme block (same specificity → later wins), otherwise the theme
+    // silently clobbers the user's font size / line height / family.
+    const w = globalThis as unknown as {
+      window: { fileUtils: { isFile: () => Promise<boolean>, readFile: () => Promise<string> } }
+    }
+    w.window.fileUtils = {
+      isFile: async() => true,
+      readFile: async() => '.markdown-body{font-size:99px;line-height:9;font-family:"Theme";}'
+    }
+
+    const { getCssForOptions } = await loadPdf()
+    const css = await getCssForOptions({
+      theme: 'mytheme',
+      fontFamily: 'Foo',
+      fontSize: 14,
+      lineHeight: 1.6
+    })
+
+    const themeAt = css.indexOf('font-size:99px')
+    const overrideAt = css.indexOf('font-size:14px;')
+    expect(themeAt).toBeGreaterThanOrEqual(0)
+    expect(overrideAt).toBeGreaterThanOrEqual(0)
+    // The user's override must come after the theme rule to win the cascade.
+    expect(overrideAt).toBeGreaterThan(themeAt)
+  })
+
   it('adds heading auto-numbering CSS when autoNumberingHeadings is set', async() => {
     const { getCssForOptions } = await loadPdf()
     const css = await getCssForOptions({ autoNumberingHeadings: true })
