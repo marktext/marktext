@@ -107,6 +107,19 @@ const TOGGLEABLE_BLOCK_LABELS = new Set([
     'thematic-break',
 ]);
 
+// Options consumed by the markdown→state lexer (markdownToState / lexBlock).
+// Changing any of these re-classifies block structure (e.g. ```math ⇄ code
+// block under GitLab compatibility, front matter, footnote definitions), which
+// a render-only rebuild from the already-parsed state cannot reflect — the
+// document must be re-parsed from markdown. See setOptions below.
+const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
+    'isGitlabCompatibilityEnabled',
+    'math',
+    'footnote',
+    'frontMatter',
+    'trimUnnecessaryCodeBlockEmptyLines',
+]);
+
 function endpointPair(
     anchor: Nullable<Parent>,
     focus: Nullable<Parent>,
@@ -336,9 +349,11 @@ export class Muya {
      * Update editor options at runtime: merges `options` into `muya.options`,
      * reflects the container-level ones
      * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
-     * re-renders the document from its current state so render-affecting
-     * options (superSubScript, footnote, disableHtml, frontmatterType,
-     * codeBlockLineNumbers, GitLab compatibility, …) take effect. Unlike
+     * re-renders the document so render-affecting options (superSubScript,
+     * disableHtml, frontmatterType, codeBlockLineNumbers, …) take effect. When a
+     * PARSE-affecting option changes (GitLab compatibility, math, footnote,
+     * frontMatter, …) the document is first re-parsed from markdown, since those
+     * options decide block structure the cached state cannot reflect. Unlike
      * `setContent`, the undo history is preserved; the cursor is restored by path.
      */
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
@@ -356,6 +371,15 @@ export class Muya {
 
         if (!forceRender)
             return;
+
+        // A parse-affecting option re-classifies block structure, so re-parse the
+        // current markdown into a fresh state before the render rebuild. This
+        // updates `jsonState` in place without clearing history (only `setContent`
+        // clears it), keeping setOptions' history-preserving contract.
+        if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
+            const { jsonState } = this.editor;
+            jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
+        }
 
         this._forceRender();
     }
