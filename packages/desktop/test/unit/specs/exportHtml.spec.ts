@@ -6,13 +6,28 @@ import { describe, it, expect, vi } from 'vitest'
 vi.hoisted(() => {
   const w = globalThis as unknown as {
     window?: {
-      path?: { sep: string; join?: (...parts: string[]) => string }
+      path?: {
+        sep: string
+        join?: (...parts: string[]) => string
+        resolve?: (...parts: string[]) => string
+      }
       fileUtils?: unknown
       marktext?: unknown
+      DIRNAME?: string
     }
   }
   w.window ??= {}
-  w.window.path ??= { sep: '/', join: (...parts: string[]) => parts.join('/') }
+  w.window.path ??= {
+    sep: '/',
+    join: (...parts: string[]) => parts.join('/'),
+    // Minimal POSIX-ish resolve good enough for relative image rewriting:
+    // `resolve('/docs', './a.png')` → `/docs/a.png`.
+    resolve: (...parts: string[]) =>
+      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
+  }
+  // The document directory the export wrapper resolves relative <img> src
+  // against (see resolveLocalImageSrc / window.DIRNAME).
+  w.window.DIRNAME = '/docs'
 })
 
 import { exportStyledHTML } from '@/util/exportHtml'
@@ -201,10 +216,19 @@ describe('exportStyledHTML — header/footer assembly', () => {
 })
 
 describe('exportStyledHTML — relative image paths', () => {
-  it('preserves a relative img src (not stripped by sanitize)', async() => {
+  it('rewrites a relative img src to an absolute file:// URL (issue 230)', async() => {
+    // window.DIRNAME is stubbed to '/docs', so `./a.png` resolves against it.
     const out = await exportStyledHTML(NO_MUYA, '![alt](./a.png)', {})
 
-    expect(out).toMatch(/<img[^>]+src="\.\/a\.png"/)
+    expect(out).toMatch(/<img[^>]+src="file:\/\/\/docs\/a\.png"/)
+    expect(out).not.toContain('src="./a.png"')
     expect(out).toContain('alt="alt"')
+  })
+
+  it('leaves a remote http(s) img src untouched', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '![alt](https://example.com/a.png)', {})
+
+    expect(out).toMatch(/<img[^>]+src="https:\/\/example\.com\/a\.png"/)
+    expect(out).not.toContain('file://')
   })
 })
