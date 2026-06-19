@@ -9,6 +9,10 @@ declare module '*.css';
 declare module '*.css?inline';
 declare module '*.woff';
 declare module '*.woff2';
+declare module '*.woff2?inline' {
+    const dataUri: string;
+    export default dataUri;
+}
 declare module 'joplin-turndown-plugin-gfm';
 declare module 'prismjs/plugins/keep-markup/prism-keep-markup';
 declare module 'prismjs/dependencies';

@@ -11,13 +11,12 @@ import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
 import { transformFootnotes } from './transformFootnotes';
 
-// Core stylesheets inlined into the exported document so the output is fully
-// self-contained and renders offline / behind CSP / air-gapped. Linking these
-// from a
-// CDN left a saved `.html` file unstyled with no network access, a regression
-// for an offline desktop editor. Callers that explicitly want the lighter
-// CDN-linked shell can opt in via `generate({ inlineStyles: false })`.
-const BASE_STYLESHEETS = [githubMarkdownCss, katexCss, prismCss];
+// The core stylesheets (github-markdown-css, katex, prism) are inlined into the
+// exported document so the output is fully self-contained and renders offline /
+// behind CSP / air-gapped — see `generate`. Linking them from a CDN left a
+// saved `.html` file unstyled with no network access, a regression for an
+// offline desktop editor. Callers that explicitly want the lighter CDN-linked
+// shell can opt in via `generate({ inlineStyles: false })`.
 
 // CDN `<link>` tags used when `inlineStyles` is disabled. Kept verbatim from
 // the previous default so the opt-out path is byte-identical to the old output.
@@ -241,9 +240,19 @@ export class MarkdownToHtml {
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true } = options;
 
-        const baseStyles = inlineStyles
-            ? BASE_STYLESHEETS.map(css => `  <style>${css}</style>`).join('\n')
-            : CDN_STYLESHEET_LINKS;
+        let baseStyles: string;
+        if (inlineStyles) {
+            // Embed the KaTeX fonts as data URIs so math renders offline. The
+            // font data (~300KB base64) is dynamically imported here so it only
+            // loads on export, never in the editor bundle.
+            const { embedKatexFonts } = await import('../utils/embedKatexFonts');
+            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismCss]
+                .map(css => `  <style>${css}</style>`)
+                .join('\n');
+        }
+        else {
+            baseStyles = CDN_STYLESHEET_LINKS;
+        }
 
         return `<!DOCTYPE html>
 <html lang="en">
