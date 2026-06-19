@@ -127,6 +127,33 @@ async function resolveImageSrc(
 }
 
 /**
+ * Insert an image at the current cursor from an explicit `src`, routing it
+ * through `imageAction` like a normal image paste. Used by the desktop macOS
+ * screenshot flow: Chromium removed `document.execCommand('paste')`, so the
+ * captured screenshot can no longer ride a synthetic paste event — the main
+ * process saves the bitmap to a PNG and hands the path here instead.
+ *
+ * The anchor is the live selection's block, falling back to the persisted
+ * active content block (the editor loses DOM focus during the menu/IPC
+ * round-trip). No-ops when `src` is empty or no anchor block is available.
+ */
+export async function pasteImageSrc(
+    clipboard: Clipboard,
+    src: string,
+): Promise<void> {
+    if (!src)
+        return;
+
+    const anchorBlock
+        = clipboard.selection.getSelection()?.anchor.block
+            ?? clipboard.muya.editor.activeContentBlock;
+    if (!anchorBlock)
+        return;
+
+    await insertImageSrc(clipboard, anchorBlock, src);
+}
+
+/**
  * Insert a pasted image when the clipboard carries one. Returns `true` when an
  * image was inserted so the caller skips the text/HTML paste, `false` to fall
  * through.

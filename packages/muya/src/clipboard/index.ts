@@ -4,6 +4,7 @@ import { isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
+import { pasteImageSrc } from './pasteImage';
 import { CopyType, PasteType } from './types';
 
 class Clipboard {
@@ -139,6 +140,14 @@ class Clipboard {
         const text = await this._readClipboardText();
         if (text)
             await pastePlainText(this, text);
+    }
+
+    // Insert an image at the cursor from an explicit `src` (a saved file path or
+    // `data:` URL), routing through `imageAction` like a clipboard image paste.
+    // Drives the macOS screenshot flow, which can no longer use the removed
+    // `document.execCommand('paste')`.
+    pasteImage(src: string): Promise<void> {
+        return pasteImageSrc(this, src);
     }
 
     private async _readClipboardText(): Promise<string> {

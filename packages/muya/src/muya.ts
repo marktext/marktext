@@ -692,6 +692,16 @@ export class Muya {
     }
 
     /**
+     * Insert an image at the current cursor from an explicit `src` (a saved file
+     * path or `data:` URL), routing through the configured `imageAction` like a
+     * clipboard image paste. Drives the desktop macOS screenshot flow, which can
+     * no longer rely on the removed `document.execCommand('paste')`.
+     */
+    pasteImage(src: string): Promise<void> {
+        return this.editor.clipboard.pasteImage(src);
+    }
+
+    /**
      * The outer-most block at the current cursor — the target for block-level
      * operations. Uses the persisted active content block (which survives the
      * menu/IPC round-trip), falling back to the selection anchor.
