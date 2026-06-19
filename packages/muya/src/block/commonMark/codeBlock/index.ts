@@ -34,6 +34,13 @@ class CodeBlock extends Parent {
         const lnWrapper = (code as { lineNumbersWrapper?: HTMLElement | null }).lineNumbersWrapper;
         if (lnWrapper) {
             codeBlock.domNode!.appendChild(lnWrapper);
+            // The gutter fills from CodeBlockContent.update(), a no-op until the
+            // tree is wired. The language-load callback below re-runs it, but
+            // language-less / unknown-language / indented blocks never load one —
+            // seed them here so first render fills the gutter regardless of language.
+            requestAnimationFrame(() => {
+                codeBlock.lastContentInDescendant()?.update();
+            });
         }
 
         if (lang) {
