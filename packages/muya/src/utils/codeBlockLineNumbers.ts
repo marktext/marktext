@@ -53,7 +53,6 @@ export function repositionLineNumberSpans(
         return;
 
     const text = codeEl.textContent ?? '';
-    const wrapperTop = wrapper.getBoundingClientRect().top;
 
     // Global character offsets where each logical line begins.
     const lineStarts: number[] = [0];
@@ -68,6 +67,13 @@ export function repositionLineNumberSpans(
 
     let nodeStart = 0;
     let lineIdx = 0;
+    // Origin = the measured top of the first logical line. A collapsed range's
+    // rect top sits at the text/caret box (below the line-box leading), so
+    // subtracting the wrapper top would offset every number down by that
+    // constant leading. Anchoring to the first line cancels it and keeps line 1
+    // flush with the gutter top, while preserving correct per-line deltas for
+    // wrap mode.
+    let baseTop: number | null = null;
     let node = walker.nextNode() as Text | null;
 
     while (node !== null && lineIdx < lineStarts.length) {
@@ -80,9 +86,11 @@ export function repositionLineNumberSpans(
             const offsetInNode = lineStarts[lineIdx] - nodeStart;
             range.setStart(node, offsetInNode);
             range.collapse(true);
-            const top = range.getBoundingClientRect().top - wrapperTop;
+            const measured = range.getBoundingClientRect().top;
+            if (baseTop === null)
+                baseTop = measured;
             if (lineIdx < spans.length)
-                spans[lineIdx].style.top = `${top}px`;
+                spans[lineIdx].style.top = `${measured - baseTop}px`;
             lineIdx++;
         }
 

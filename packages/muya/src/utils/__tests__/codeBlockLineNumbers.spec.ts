@@ -112,4 +112,37 @@ describe('repositionLineNumberSpans', () => {
 
         expect((wrapper.children[0] as HTMLElement).style.top).toBe('0px');
     });
+
+    it('anchors line numbers to the first line so the line-box leading cancels', () => {
+        const wrapper = document.createElement('span');
+        syncLineNumbersSpans(wrapper, 3);
+        const codeEl = document.createElement('code');
+        codeEl.appendChild(document.createTextNode('a\nb\nc'));
+
+        // happy-dom performs no layout. Emulate three stacked lines whose
+        // measured tops carry a constant line-box leading offset (110, 140,
+        // 170). The gutter must use the first line as its origin — not the
+        // wrapper rect — so that leading cancels and line 1 sits at 0px.
+        const tops = [110, 140, 170];
+        let call = 0;
+        const rangeProto = Range.prototype as unknown as {
+            getBoundingClientRect: () => { top: number };
+        };
+        const origRangeRect = rangeProto.getBoundingClientRect;
+        rangeProto.getBoundingClientRect = () => ({ top: tops[call++] });
+        // The wrapper's own rect must no longer influence the result.
+        (wrapper as unknown as { getBoundingClientRect: () => { top: number } })
+            .getBoundingClientRect = () => ({ top: 999 });
+
+        try {
+            repositionLineNumberSpans(wrapper, codeEl);
+        }
+        finally {
+            rangeProto.getBoundingClientRect = origRangeRect;
+        }
+
+        expect((wrapper.children[0] as HTMLElement).style.top).toBe('0px');
+        expect((wrapper.children[1] as HTMLElement).style.top).toBe('30px');
+        expect((wrapper.children[2] as HTMLElement).style.top).toBe('60px');
+    });
 });
