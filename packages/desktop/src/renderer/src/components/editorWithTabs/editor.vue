@@ -1426,6 +1426,8 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
+    // A freshly created/opened tab should be ready to type into.
+    focusFreshEditor()
   }
 }
 
@@ -1542,6 +1544,23 @@ const blurEditor = () => {
 
 const focusEditor = () => {
   editor.value?.focus()
+}
+
+// Focus a freshly opened/created tab's editor. The sibling `file-changed`
+// handler (emitted first, while the store commits the tab switch) hides the
+// editor and queues a `requestAnimationFrame` via `scrollToCords` to restore
+// it, and focus() is a no-op while the container is `visibility:hidden`. Our
+// rAF is registered after that restore rAF, so it runs once the editor is
+// visible; then take DOM focus (the engine's `focus()` only sets the selection
+// range — the contenteditable also needs focus or no caret blinks) and place
+// the caret at the document start.
+const focusFreshEditor = () => {
+  requestAnimationFrame(() => {
+    const ed = editor.value
+    if (!ed) return
+    ed.domNode.focus()
+    ed.focus()
+  })
 }
 
 // When a focus-trapping modal (the command palette) opens, release the editor's
