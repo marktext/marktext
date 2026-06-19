@@ -4,6 +4,7 @@ import {
     computeLineCount,
     LINE_NUMBERS_ROWS_CLASS,
     lineNumbersWrapperHTML,
+    repositionLineNumberSpans,
     syncLineNumbersSpans,
 } from '../codeBlockLineNumbers';
 
@@ -97,5 +98,18 @@ describe('syncLineNumbersSpans', () => {
         syncLineNumbersSpans(wrapper, 4);
         syncLineNumbersSpans(wrapper, 0);
         expect(wrapper.childElementCount).toBe(0);
+    });
+});
+
+describe('repositionLineNumberSpans', () => {
+    it('keeps the only line of an empty code block flush with the top', () => {
+        const wrapper = document.createElement('span');
+        syncLineNumbersSpans(wrapper, 1);
+        // An empty code element has no text nodes to measure from.
+        const codeEl = document.createElement('code');
+
+        repositionLineNumberSpans(wrapper, codeEl);
+
+        expect((wrapper.children[0] as HTMLElement).style.top).toBe('0px');
     });
 });
