@@ -1438,6 +1438,7 @@ interface FileChangePayload {
   scrollTop?: number
   muyaIndexCursor?: unknown
   blocks?: unknown
+  isReload?: boolean
 }
 
 // listen for markdown change form source mode or change tabs etc
@@ -1448,7 +1449,8 @@ const handleFileChange = (payload: unknown) => {
     cursor: newCursor,
     muyaIndexCursor,
     history: payloadHistory,
-    scrollTop
+    scrollTop,
+    isReload
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
   const container = getScrollContainer()
@@ -1486,6 +1488,28 @@ const handleFileChange = (payload: unknown) => {
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
+    } else if (isReload) {
+      // External disk reload (`loadChange`): the tab is already the live engine
+      // document, so record the new on-disk content as a SINGLE invertible undo
+      // boundary via `replaceContent` (legacy muyajs full-state-snapshot parity)
+      // — the first undo after the reload restores the pre-reload document in one
+      // step. `setContent` would clear the engine history and lose that boundary;
+      // restoring the per-tab engine history (the tab-switch path) would clobber
+      // it too. `replaceContent` preserves the existing undo stack and pushes the
+      // boundary on top.
+      //
+      // The new content is this tab's clean baseline (the store seeds
+      // `lastSavedHistoryId: 0`), so re-seed the save-tracking allocator BEFORE
+      // applying: `replaceContent` fires a SYNCHRONOUS `json-change` that would
+      // otherwise mark the tab dirty against the stale (pre-reload) baseline.
+      if (id) {
+        resetSyntheticHistory(id, newMarkdown)
+      }
+      editor.value.replaceContent(newMarkdown)
+      editorStore.UPDATE_TOC(editor.value.getTOC())
+      if (newCursor) {
+        applyCursor(editor.value, newCursor)
+      }
     } else {
       // Tab switch / programmatic content swap: `setContent` replaces the
       // document and clears history, so restore the real engine history (kept

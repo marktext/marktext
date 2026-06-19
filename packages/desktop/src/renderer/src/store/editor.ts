@@ -391,7 +391,11 @@ export const useEditorStore = defineStore('editor', {
           cursor,
           renderCursor: true,
           history,
-          scrollTop
+          scrollTop,
+          // External disk reload: the engine handler records the new content as a
+          // single invertible undo boundary (replaceContent) instead of clearing
+          // history (setContent), so the first undo restores the pre-reload doc.
+          isReload: true
         })
       }
       debouncedSendBufferedState()
