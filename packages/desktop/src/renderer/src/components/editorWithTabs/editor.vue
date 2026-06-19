@@ -1566,9 +1566,13 @@ const handleModalOpening = () => {
   }
 }
 
-const handleScreenShot = () => {
-  if (editor.value) {
-    document.execCommand('paste')
+// macOS Edit → Screenshot. The main process captures the region, saves it to a
+// PNG, and hands us the path. `document.execCommand('paste')` no longer fires in
+// Electron 42 Chromium, so insert the saved image at the cursor through the
+// engine (routing via `imageAction` → upload/folder/path).
+const handleScreenShot = (filePath?: unknown) => {
+  if (editor.value && typeof filePath === 'string' && filePath) {
+    editor.value.pasteImage(filePath)
   }
 }
 

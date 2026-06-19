@@ -420,8 +420,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     LISTEN_SCREEN_SHOT(): void {
-      window.electron.ipcRenderer.on('mt::screenshot-captured', () => {
-        bus.emit('screenshot-captured')
+      window.electron.ipcRenderer.on('mt::screenshot-captured', (_, filePath) => {
+        bus.emit('screenshot-captured', filePath)
       })
     },
 
