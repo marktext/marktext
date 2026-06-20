@@ -245,25 +245,39 @@ function appendPartialState(
         return;
     }
 
-    // Atomic blocks (code-block, html-block, table, math-block, frontmatter,
-    // diagram) are copied whole.
+    const truncated
+        = position === 'start'
+            ? block.text.substring(offset)
+            : block.text.substring(0, offset);
+
+    // Blocks whose marker lives in meta, not in the text: setext heading (its
+    // `===`/`---` underline) and the code-family (code-block, html-block,
+    // math-block, frontmatter, diagram fences/wrappers). Keep the block's own
+    // type + meta and truncate only its text — the serializer rebuilds the
+    // marker from meta. A fully-selected endpoint keeps the whole block. A code
+    // fence's language line has no place in the body text, so copy it whole.
     if (
-        /code-block|html-block|table|math-block|frontmatter|diagram/.test(
-            outBlock!.blockName,
-        )
+        /setext-heading|code-block|html-block|math-block|frontmatter|diagram/.test(outBlock!.blockName)
+        && block.blockName !== 'language-input'
     ) {
+        if (truncated.length === 0)
+            return;
+        copyState.push({ ...(outBlock as Parent).getState(), text: truncated } as TState);
+
+        return;
+    }
+
+    // A table, or a code fence's language line, is copied whole.
+    if (outBlock!.blockName === 'table' || block.blockName === 'language-input') {
         copyState.push((outBlock as Parent).getState());
 
         return;
     }
 
-    // Paragraph, headings and thematic-break: emit the selected substring as a
+    // Paragraph, atx/setext heading and thematic-break: emit the substring as a
     // paragraph. An atx heading's `# ` marker lives in the text, so it rides
-    // along when selected (and re-parses to a heading on paste).
-    const truncated
-        = position === 'start'
-            ? block.text.substring(offset)
-            : block.text.substring(0, offset);
+    // along when selected (and re-parses to a heading on paste) and is dropped
+    // when the selection starts after it — matching the in-place cut.
     if (truncated.length === 0)
         return;
 
