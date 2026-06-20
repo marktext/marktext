@@ -4,6 +4,7 @@ import type {
     IQuickInsertMenuItem,
 } from './config';
 import Fuse from 'fuse.js';
+import { replaceBlockByLabel } from '../../block/blockTransforms';
 import ParagraphContent from '../../block/content/paragraphContent';
 import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
@@ -12,7 +13,6 @@ import BaseScrollFloat from '../baseScrollFloat';
 import {
     getLabelFromEvent,
     MENU_CONFIG,
-    replaceBlockByLabel,
 } from './config';
 
 import './index.css';
@@ -31,6 +31,7 @@ function checkCanInsertFrontMatter(muya: Muya, block: ParagraphContent) {
 
 export class ParagraphQuickInsertMenu extends BaseScrollFloat {
     static pluginName = 'quickInsert';
+    public override capturesContentKeydown = true;
 
     public oldVNode: VNode | null = null;
     private _block: ParagraphContent | null = null;

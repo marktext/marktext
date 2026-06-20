@@ -26,6 +26,7 @@ const BUTTON_GROUP = ['mu-table-drag-bar', 'mu-front-button'];
 abstract class BaseFloat {
     protected options: IBaseOptions;
     public status: boolean = false;
+    public capturesContentKeydown = false;
     public floatBox: HTMLElement | null = null;
     public container: HTMLElement | null = null;
     private _lastScrollTop: number | null = null;

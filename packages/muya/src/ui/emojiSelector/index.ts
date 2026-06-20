@@ -20,6 +20,7 @@ const defaultOptions = {
 
 export class EmojiSelector extends BaseScrollFloat {
     static pluginName = 'emojiPicker';
+    public override capturesContentKeydown = true;
     private _renderObj: Record<string, EmojiType[]> | null = null;
     private _oldVNode: VNode | null = null;
     private _emoji: Emoji = new Emoji();

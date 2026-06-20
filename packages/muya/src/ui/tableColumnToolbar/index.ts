@@ -29,6 +29,7 @@ export class TableColumnToolbar extends BaseFloat {
     private _toolsContainer: HTMLDivElement = document.createElement('div');
 
     static pluginName = 'tableColumnTools';
+    public override capturesContentKeydown = true;
 
     constructor(muya: Muya, options = {}) {
         const name = 'mu-table-column-tools';

@@ -10,14 +10,14 @@ import type {
     TState,
 } from '../../state/types';
 import type { IQuickInsertMenuItem } from '../paragraphQuickInsertMenu/config';
+import { replaceBlockByLabel } from '../../block/blockTransforms';
 import { ScrollPage } from '../../block/scrollPage';
 import emptyStates from '../../config/emptyStates';
-import { isAnyListState, isAtxHeadingState } from '../../state/types';
 
+import { isAnyListState, isAtxHeadingState } from '../../state/types';
 import { deepClone, isHTMLElement } from '../../utils';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
-import { replaceBlockByLabel } from '../paragraphQuickInsertMenu/config';
 import { canTurnIntoMenu, FRONT_MENU } from './config';
 import './index.css';
 
@@ -49,6 +49,7 @@ const defaultOptions = {
 
 export class ParagraphFrontMenu extends BaseFloat {
     static pluginName = 'frontMenu';
+    public override capturesContentKeydown = true;
     private _oldVNode: VNode | null = null;
     private _block: Parent | null = null;
     private _frontMenuContainer: HTMLDivElement = document.createElement('div');

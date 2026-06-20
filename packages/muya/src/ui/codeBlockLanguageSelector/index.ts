@@ -23,6 +23,7 @@ const defaultOptions = {
 
 export class CodeBlockLanguageSelector extends BaseScrollFloat {
     static pluginName = 'codePicker';
+    public override capturesContentKeydown = true;
     private _oldVNode: VNode | null = null;
     private _block: ParagraphContent | LangInputContent | null = null;
 

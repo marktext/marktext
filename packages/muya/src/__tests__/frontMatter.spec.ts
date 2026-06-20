@@ -4,8 +4,8 @@ import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { IFrontmatterState } from '../state/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { replaceBlockByLabel } from '../block/blockTransforms';
 import { Muya } from '../muya';
-import { replaceBlockByLabel } from '../ui/paragraphQuickInsertMenu/config';
 
 // Coverage for the two front-matter entry points — the desktop Paragraph >
 // Front Matter menu item (`muya.updateParagraph('front-matter')`) and the

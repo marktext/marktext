@@ -149,18 +149,6 @@ function shouldInsertClosingPair(
     );
 }
 
-const FLOAT_PREVENT_DEFAULT_NAMES = new Set([
-    'mu-format-picker',
-    'mu-table-picker',
-    'mu-quick-insert',
-    'mu-emoji-picker',
-    'mu-front-menu',
-    'mu-list-picker',
-    'mu-image-selector',
-    'mu-table-column-tools',
-    'mu-table-bar-tools',
-]);
-
 interface IAutoPairCollapsedContext {
     blockText: string;
     options: {
@@ -676,8 +664,7 @@ class Content extends TreeNode {
         if (!isKeyboardEvent(event))
             return;
 
-        // TODO: move codes bellow to muya.ui ?
-        if (this._handleShownFloatKeydown(event))
+        if (this.muya.ui.handleContentKeydown(event))
             return;
 
         switch (event.key) {
@@ -714,33 +701,6 @@ class Content extends TreeNode {
                 break;
         }
     };
-
-    private _handleShownFloatKeydown(event: KeyboardEvent): boolean {
-        if (
-            this.muya.ui.shownFloat.size > 0
-            && (event.key === EVENT_KEYS.Enter
-                || event.key === EVENT_KEYS.Escape
-                || event.key === EVENT_KEYS.Tab
-                || event.key === EVENT_KEYS.ArrowUp
-                || event.key === EVENT_KEYS.ArrowDown)
-        ) {
-            let needPreventDefault = false;
-
-            for (const tool of this.muya.ui.shownFloat) {
-                if (FLOAT_PREVENT_DEFAULT_NAMES.has(tool.name)) {
-                    needPreventDefault = true;
-                    break;
-                }
-            }
-
-            if (needPreventDefault)
-                event.preventDefault();
-
-            return true;
-        }
-
-        return false;
-    }
 
     blurHandler() {
         this.scrollPage?.handleBlurFromContent(this);

@@ -293,8 +293,10 @@ class Format extends Content {
         const { labels } = this.inlineRenderer;
         const { text } = this;
         const { start: cStart, end: cEnd, anchor, focus } = cursor;
-        const anchorOffset = cStart ? cStart.offset : anchor!.offset;
-        const focusOffset = cEnd ? cEnd.offset : focus!.offset;
+        const anchorOffset = cStart ? cStart.offset : anchor?.offset;
+        const focusOffset = cEnd ? cEnd.offset : focus?.offset;
+        if (anchorOffset == null || focusOffset == null)
+            return false;
         const NO_NEED_TOKEN_REG = /text|hard_line_break|soft_line_break/;
 
         for (const token of tokenizer(text, {
@@ -1062,7 +1064,7 @@ class Format extends Content {
 
     // Setext Heading
     private _convertToSetextHeading(setextHeading: string) {
-        const level = /=/.test(setextHeading) ? 2 : 1;
+        const level = /=/.test(setextHeading) ? 1 : 2;
         if (
             this.parent?.blockName === 'setext-heading'
             && (this.parent as SetextHeading).meta.level === level

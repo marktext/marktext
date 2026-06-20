@@ -126,3 +126,84 @@ describe('useEditorStore copyGithubSlug', () => {
     expect(notice.notify).not.toHaveBeenCalled()
   })
 })
+
+describe('useEditorStore EXPORT (title derivation from listToc)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  // currentFile is IFileState; EXPORT only reads { filename, pathname }.
+  const setCurrentFile = (store: ReturnType<typeof useEditorStore>) => {
+    store.currentFile = {
+      filename: 'notes.md',
+      pathname: '/x/notes.md'
+    } as unknown as typeof store.currentFile
+  }
+
+  it('picks the shallowest heading and breaks early when a lvl-1 is reached', () => {
+    const store = useEditorStore()
+    setCurrentFile(store)
+    store.listToc = [
+      { lvl: 2, content: 'Sub' },
+      { lvl: 1, content: 'Top' }
+    ]
+
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.EXPORT({ type: 'pdf', pageOptions: {} })
+
+    expect(sendSpy).toHaveBeenCalledTimes(1)
+    const [channel, payload] = sendSpy.mock.calls[0]
+    expect(channel).toBe('mt::response-export')
+    expect(payload).toMatchObject({
+      type: 'pdf',
+      title: 'Top',
+      content: '',
+      filename: 'notes.md',
+      pathname: '/x/notes.md',
+      pageOptions: {}
+    })
+  })
+
+  it('keeps the first lvl-1 heading and ignores later shallower entries (loop break)', () => {
+    const store = useEditorStore()
+    setCurrentFile(store)
+    // headerRef starts lvl-1 -> loop breaks on first iteration, later lvl-0 ignored.
+    store.listToc = [
+      { lvl: 1, content: 'First' },
+      { lvl: 0, content: 'Shallower-but-skipped' }
+    ]
+
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.EXPORT({ type: 'pdf', pageOptions: {} })
+
+    expect(sendSpy.mock.calls[0][1]).toMatchObject({ title: 'First' })
+  })
+
+  it('sends an empty title when listToc is empty', () => {
+    const store = useEditorStore()
+    setCurrentFile(store)
+    store.listToc = []
+
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.EXPORT({ type: 'pdf', pageOptions: {} })
+
+    expect(sendSpy).toHaveBeenCalledTimes(1)
+    expect(sendSpy.mock.calls[0][1]).toMatchObject({ title: '' })
+  })
+
+  it('sends no IPC when currentFile is null (guard)', () => {
+    const store = useEditorStore()
+    store.currentFile = null
+    store.listToc = [{ lvl: 1, content: 'Top' }]
+
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.EXPORT({ type: 'pdf', pageOptions: {} })
+
+    expect(sendSpy).not.toHaveBeenCalled()
+  })
+})

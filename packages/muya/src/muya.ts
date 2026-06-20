@@ -9,6 +9,7 @@ import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
+import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -17,8 +18,8 @@ import {
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
-import { Editor } from './editor/index';
 
+import { Editor } from './editor/index';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import {
@@ -29,8 +30,6 @@ import {
 } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
-import { canTurnIntoMenu } from './ui/paragraphFrontMenu/config';
-import { insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -1472,7 +1471,7 @@ export class Muya {
             return;
 
         const leadingText = this._blockLeadingText(immediate);
-        if (canTurnIntoMenu(immediate).some(item => item.label === label)) {
+        if (canTurnInto(immediate, label)) {
             this._withPreservedOffset(() => replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText }));
             return;
         }

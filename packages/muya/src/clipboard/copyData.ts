@@ -3,16 +3,10 @@ import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
 import type { Muya } from '../muya';
 import type { ISelection } from '../selection/types';
-import type {
-    IBulletListState,
-    IOrderListState,
-    ITaskListState,
-    TState,
-} from '../state/types';
+import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import StateToMarkdown from '../state/stateToMarkdown';
-import { isAnyListState } from '../state/types';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
 
@@ -47,35 +41,6 @@ function buildHtmlOptions(options: Muya['options']) {
     } = options;
 
     return { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript };
-}
-
-// Collapse the three list flavours (task/order/bullet) into one slice
-// operation. `keep` decides which list items survive by index; the discriminated
-// union is rebuilt per-branch so each `children` array keeps its concrete type.
-function sliceListState(
-    listState: IOrderListState | IBulletListState | ITaskListState,
-    keep: (index: number) => boolean,
-): IOrderListState | IBulletListState | ITaskListState {
-    switch (listState.name) {
-        case 'task-list':
-            return {
-                name: 'task-list',
-                meta: listState.meta,
-                children: listState.children.filter((_, index) => keep(index)),
-            };
-        case 'order-list':
-            return {
-                name: 'order-list',
-                meta: listState.meta,
-                children: listState.children.filter((_, index) => keep(index)),
-            };
-        default:
-            return {
-                name: 'bullet-list',
-                meta: listState.meta,
-                children: listState.children.filter((_, index) => keep(index)),
-            };
-    }
 }
 
 /**
@@ -134,6 +99,129 @@ function resolveSelectionOrder(
     };
 }
 
+// Truncate a leaf block's state (paragraph, heading, …) to the selected side
+// of `offset`. Keeps the head (`0..offset`) for an end edge, the tail
+// (`offset..`) for a start edge.
+function truncateLeafState(
+    leafState: TState,
+    leaf: Content,
+    offset: number,
+    position: 'start' | 'end',
+): TState {
+    const text
+        = position === 'start'
+            ? leaf.text.substring(offset)
+            : leaf.text.substring(0, offset);
+
+    return { ...leafState, text } as TState;
+}
+
+// Build the partial state of a container (block-quote and any nested
+// containers) for whichever edge `position` names: keep the sibling blocks on
+// the selected side of the boundary leaf, recurse into the boundary child, and
+// truncate the boundary leaf's own text. Mirrors the legacy DOM-selection
+// serialization, which carried only the selected portion of a quote.
+function buildPartialContainerState(
+    container: Parent,
+    leaf: Content,
+    offset: number,
+    position: 'start' | 'end',
+): TState {
+    const fullState = container.getState() as TState & { children?: TState[] };
+    const childStates = fullState.children;
+    if (childStates == null)
+        return truncateLeafState(fullState, leaf, offset, position);
+
+    const childBlocks = container.children.map(child => child);
+    const idx = childBlocks.findIndex(
+        child => child === leaf || leaf.isInBlock(child as Parent),
+    );
+    if (idx < 0)
+        return fullState;
+
+    const boundaryChild = childBlocks[idx];
+    const boundaryFullState = childStates[idx] as TState & { children?: TState[] };
+    const boundaryState
+        = boundaryFullState.children != null
+            ? buildPartialContainerState(boundaryChild as Parent, leaf, offset, position)
+            : truncateLeafState(boundaryFullState, leaf, offset, position);
+
+    const keptChildren
+        = position === 'start'
+            ? [boundaryState, ...childStates.slice(idx + 1)]
+            : [...childStates.slice(0, idx), boundaryState];
+
+    return { ...fullState, children: keptChildren } as TState;
+}
+
+// Build the partial state of a container when BOTH selection boundaries stay
+// inside it (e.g. selecting across items of one list, or paragraphs of one
+// block-quote): keep the children between the two boundary leaves, truncate
+// both boundary leaves to the caret, and recurse into nested containers.
+function buildRangeContainerState(
+    container: Parent,
+    startLeaf: Content,
+    startOffset: number,
+    endLeaf: Content,
+    endOffset: number,
+): TState {
+    const fullState = container.getState() as TState & { children?: TState[] };
+    const childStates = fullState.children;
+    if (childStates == null) {
+        // A leaf-text block with both boundaries in the same content leaf:
+        // truncate to the selected span. When the boundaries are in different
+        // leaves of the same block (e.g. a code fence's language line and its
+        // body), there is no single text to slice — copy the whole block.
+        if (startLeaf !== endLeaf)
+            return fullState;
+
+        return {
+            ...fullState,
+            text: startLeaf.text.substring(startOffset, endOffset),
+        } as TState;
+    }
+
+    const childBlocks = container.children.map(child => child);
+    const startIdx = childBlocks.findIndex(
+        child => child === startLeaf || startLeaf.isInBlock(child as Parent),
+    );
+    const endIdx = childBlocks.findIndex(
+        child => child === endLeaf || endLeaf.isInBlock(child as Parent),
+    );
+    if (startIdx < 0 || endIdx < 0)
+        return fullState;
+
+    // Both boundaries share a child: recurse into it (or truncate it if it is a
+    // leaf block holding text directly).
+    if (startIdx === endIdx) {
+        const child = childBlocks[startIdx];
+        const childFull = childStates[startIdx] as TState & { children?: TState[] };
+        const childState
+            = childFull.children != null
+                ? buildRangeContainerState(child as Parent, startLeaf, startOffset, endLeaf, endOffset)
+                : { ...childFull, text: startLeaf.text.substring(startOffset, endOffset) } as TState;
+
+        return { ...fullState, children: [childState] } as TState;
+    }
+
+    const startChildFull = childStates[startIdx] as TState & { children?: TState[] };
+    const startState
+        = startChildFull.children != null
+            ? buildPartialContainerState(childBlocks[startIdx] as Parent, startLeaf, startOffset, 'start')
+            : truncateLeafState(startChildFull, startLeaf, startOffset, 'start');
+
+    const endChildFull = childStates[endIdx] as TState & { children?: TState[] };
+    const endState
+        = endChildFull.children != null
+            ? buildPartialContainerState(childBlocks[endIdx] as Parent, endLeaf, endOffset, 'end')
+            : truncateLeafState(endChildFull, endLeaf, endOffset, 'end');
+
+    return {
+        ...fullState,
+        children: [startState, ...childStates.slice(startIdx + 1, endIdx), endState],
+    } as TState;
+}
+
 // Handle the start / end outmost block of a cross-block selection, pushing the
 // partial state for whichever edge `position` names.
 function appendPartialState(
@@ -144,81 +232,81 @@ function appendPartialState(
     const { startOutBlock, endOutBlock, startBlock, endBlock, startOffset, endOffset } = order;
     const outBlock = position === 'start' ? startOutBlock : endOutBlock;
     const block = position === 'start' ? startBlock : endBlock;
-    // Handle anchor and focus in different blocks
+    const offset = position === 'start' ? startOffset : endOffset;
+
+    // A block-quote or list endpoint is partially selected: carry only the
+    // selected side of the container, with the boundary item's own text
+    // truncated to the caret, rather than the whole container/item.
+    if (/block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
+        copyState.push(
+            buildPartialContainerState(outBlock as Parent, block, offset, position),
+        );
+
+        return;
+    }
+
+    const truncated
+        = position === 'start'
+            ? block.text.substring(offset)
+            : block.text.substring(0, offset);
+
+    // Blocks whose marker lives in meta, not in the text: setext heading (its
+    // `===`/`---` underline) and the code-family (code-block, html-block,
+    // math-block, frontmatter, diagram fences/wrappers). Keep the block's own
+    // type + meta and truncate only its text — the serializer rebuilds the
+    // marker from meta. A fully-selected endpoint keeps the whole block. A code
+    // fence's language line has no place in the body text, so copy it whole.
     if (
-        /block-quote|code-block|html-block|table|math-block|frontmatter|diagram/.test(
-            outBlock!.blockName,
-        )
+        /setext-heading|code-block|html-block|math-block|frontmatter|diagram/.test(outBlock!.blockName)
+        && block.blockName !== 'language-input'
     ) {
+        if (truncated.length === 0)
+            return;
+        copyState.push({ ...(outBlock as Parent).getState(), text: truncated } as TState);
+
+        return;
+    }
+
+    // A table, or a code fence's language line, is copied whole.
+    if (outBlock!.blockName === 'table' || block.blockName === 'language-input') {
         copyState.push((outBlock as Parent).getState());
+
+        return;
     }
-    else if (/bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
-        const listItemBlockName
-            = outBlock!.blockName === 'task-list' ? 'task-list-item' : 'list-item';
-        const listItem = block.farthestBlock(listItemBlockName);
-        const offset = (outBlock as Parent).offset(listItem!);
-        // outBlock is a list parent at runtime; getState() returns a
-        // bullet/order/task-list state whose `children` is an
-        // IListItemState/ITaskListItemState array. Narrow via the
-        // discriminated-union guard before slicing.
-        const listState = (outBlock as Parent).getState();
-        if (isAnyListState(listState)) {
-            copyState.push(
-                sliceListState(listState, index =>
-                    position === 'start' ? index >= offset : index <= offset),
-            );
-        }
-    }
-    else {
-        if (position === 'start' && startOffset < startBlock.text.length) {
-            copyState.push({
-                name: 'paragraph',
-                text: startBlock.text.substring(startOffset),
-            });
-        }
-        else if (position === 'end' && endOffset > 0) {
-            copyState.push({
-                name: 'paragraph',
-                text: endBlock.text.substring(0, endOffset),
-            });
-        }
-    }
+
+    // Paragraph, atx/setext heading and thematic-break: emit the substring as a
+    // paragraph. An atx heading's `# ` marker lives in the text, so it rides
+    // along when selected (and re-parses to a heading on paste) and is dropped
+    // when the selection starts after it — matching the in-place cut.
+    if (truncated.length === 0)
+        return;
+
+    copyState.push({ name: 'paragraph', text: truncated });
 }
 
 function collectSameOutMostBlockState(order: ICopyOrder): TState[] {
-    const { anchorOutMostBlock, anchorBlock, focusBlock } = order;
+    const { anchorOutMostBlock, startBlock, endBlock, startOffset, endOffset } = order;
     const copyState: TState[] = [];
 
-    // Handle anchor and focus in same list\quote block
-    if (/block-quote|table/.test(anchorOutMostBlock!.blockName)) {
+    // A table is copied whole (its own cross-cell selection path handles
+    // partial rectangles elsewhere).
+    if (anchorOutMostBlock!.blockName === 'table') {
         copyState.push((anchorOutMostBlock as Parent).getState());
 
         return copyState;
     }
 
-    const listItemBlockName
-        = anchorOutMostBlock!.blockName === 'task-list'
-            ? 'task-list-item'
-            : 'list-item';
-    const anchorFarthestListItem = anchorBlock.farthestBlock(listItemBlockName);
-    const focusFarthestListItem = focusBlock.farthestBlock(listItemBlockName);
-    const anchorOffset = (anchorOutMostBlock as Parent).offset(
-        anchorFarthestListItem!,
+    // List or block-quote: keep only the selected range, with both boundary
+    // items/paragraphs truncated to the caret.
+    copyState.push(
+        buildRangeContainerState(
+            anchorOutMostBlock as Parent,
+            startBlock,
+            startOffset,
+            endBlock,
+            endOffset,
+        ),
     );
-    const focusOffset = (anchorOutMostBlock as Parent).offset(
-        focusFarthestListItem!,
-    );
-    const minOffset = Math.min(anchorOffset, focusOffset);
-    const maxOffset = Math.max(anchorOffset, focusOffset);
-    const listState = (anchorOutMostBlock as Parent).getState();
-    if (isAnyListState(listState)) {
-        copyState.push(
-            sliceListState(
-                listState,
-                index => index >= minOffset && index <= maxOffset,
-            ),
-        );
-    }
 
     return copyState;
 }

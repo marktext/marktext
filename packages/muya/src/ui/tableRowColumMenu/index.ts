@@ -25,6 +25,7 @@ interface ITableInfo {
 
 export class TableRowColumMenu extends BaseFloat {
     static pluginName = 'tableBarTools';
+    public override capturesContentKeydown = true;
     private _oldVNode: VNode | null = null;
     private _tableInfo: ITableInfo | null = null;
     private _block: TableBodyCell | null = null;
