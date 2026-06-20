@@ -191,8 +191,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.3)(vue@3.5.38(typescript@6.0.3))
       plist:
-        specifier: ^3.1.1
-        version: 3.1.1
+        specifier: ^5.0.0
+        version: 5.0.0
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -7647,6 +7647,10 @@ packages:
   plist@3.1.1:
     resolution: {integrity: sha512-ZIfcLJC+7E7FBFnDxm9MPmt7D+DidyQ26lewieO75AdhA2ayMtsJSES0iWzqJQbcVRSrTufQoy0DR94xHue0oA==}
     engines: {node: '>=10.4.0'}
+
+  plist@5.0.0:
+    resolution: {integrity: sha512-20N+g1DvMm/DFRbsvER7tT4wDryq0WunK7VMkDaiJcKNapAnUMkTsAnacFYf8n420F4Hf6/hefgmJRkMb1M0fg==}
+    engines: {node: '>=18'}
 
   plur@2.1.2:
     resolution: {integrity: sha512-WhcHk576xg9y/iv6RWOuroZgsqvCbJN+XGvAypCJwLAYs2iWDp5LUmvaCdV6JR2O0SMBf8l6p7A94AyLCFVMlQ==}
@@ -17615,6 +17619,11 @@ snapshots:
     dependencies:
       '@xmldom/xmldom': 0.9.10
       base64-js: 1.5.1
+      xmlbuilder: 15.1.1
+
+  plist@5.0.0:
+    dependencies:
+      '@xmldom/xmldom': 0.9.10
       xmlbuilder: 15.1.1
 
   plur@2.1.2:

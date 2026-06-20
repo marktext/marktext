@@ -96,7 +96,7 @@
     "pako": "^2.1.0",
     "pathe": "^2.0.3",
     "pinia": "^3.0.4",
-    "plist": "^3.1.1",
+    "plist": "^5.0.0",
     "prismjs": "^1.30.0",
     "snabbdom": "^3.6.4",
     "snabbdom-to-html": "^7.1.0",
