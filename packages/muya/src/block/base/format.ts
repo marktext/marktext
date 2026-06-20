@@ -1062,7 +1062,7 @@ class Format extends Content {
 
     // Setext Heading
     private _convertToSetextHeading(setextHeading: string) {
-        const level = /=/.test(setextHeading) ? 2 : 1;
+        const level = /=/.test(setextHeading) ? 1 : 2;
         if (
             this.parent?.blockName === 'setext-heading'
             && (this.parent as SetextHeading).meta.level === level
