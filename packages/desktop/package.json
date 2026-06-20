@@ -128,7 +128,7 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/coverage-v8": "^4.1.9",
     "cross-env": "^10.1.0",
-    "electron": "^42.4.1",
+    "electron": "~42.1.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "jsdom": "^29.1.1",
