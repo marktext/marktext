@@ -1,6 +1,6 @@
 import { ipcMain, shell, clipboard } from 'electron'
 import log from 'electron-log'
-import plist from 'plist'
+import * as plist from 'plist'
 
 export const registerShellHandlers = (): void => {
   ipcMain.handle('mt::shell::open-external', async(_e, url: string) => {
