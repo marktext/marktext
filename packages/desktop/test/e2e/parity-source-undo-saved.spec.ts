@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import type { Page } from 'playwright'
 import {
   launchWithMarkdown,
   waitForMenuReady,
@@ -204,6 +205,146 @@ test.describe('Parity PG15 — undo back to on-disk content restores the saved i
       () => !!document.querySelector('.editor-tabs li.unsaved')
     )
     expect(dirty).toBe(true)
+    await app.close()
+  })
+})
+
+const isTabDirty = (page: Page): Promise<boolean> =>
+  page.evaluate(() => !!document.querySelector('.editor-tabs li.unsaved'))
+
+const activeTabId = (page: Page): Promise<string | null> =>
+  page.evaluate(
+    () => document.querySelector('.editor-tabs li.active')?.getAttribute('data-id') ?? null
+  )
+
+// Read the live WYSIWYG document text WITHOUT toggling source mode. Toggling
+// into/out of source mode (as getMarkdownContent does) pushes extra
+// `replaceContent` undo boundaries, which would desync an undo-count assertion;
+// reading the rendered paragraphs directly keeps the engine undo stack clean.
+const wysiwygText = (page: Page): Promise<string> =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('.editor-component span.mu-paragraph-content'))
+      .map((el) => (el.textContent ?? '').replace(/\u00a0/g, ' ').trim())
+      .filter((t) => t.length > 0)
+      .join('\n')
+  )
+
+test.describe('Item 248 — a real source-mode keystroke dirties the tab dot', () => {
+  // A bulk `setSourceMarkdown` replace is already covered by PG14. The dirty-dot
+  // path driven by an actual CodeMirror keystroke is NOT — drive a real character
+  // insert through the live CodeMirror instance so cursorActivity fires, then
+  // assert the tab is marked `.unsaved` and the typed text survives the handoff
+  // back to WYSIWYG.
+  //
+  // Timing note (verified against the real build): source mode's `cursorActivity`
+  // -> saveContent -> LISTEN_FOR_CONTENT_CHANGE only refreshes markdown/cursor; it
+  // does NOT touch the synthetic history stack the dirty condition keys off, so
+  // the dot stays clean WHILE in source mode. The edit becomes a dirtying history
+  // boundary on the source->WYSIWYG handoff (editor.vue handleFileChange ->
+  // replaceContent), so the `.unsaved` dot appears right after exit.
+  test('typing in source mode marks the tab unsaved and the text survives exit', async() => {
+    const { app, page } = await launchWithMarkdown('saved baseline\n')
+    await waitForMenuReady(app)
+
+    // Freshly-loaded saved doc: no dirty dot yet.
+    expect(await isTabDirty(page)).toBe(false)
+
+    await enterSourceMode(page, app)
+
+    // Drive a REAL keystroke into CodeMirror (not the bulk setValue path):
+    // focus, place the caret at the line end, and insert characters so the
+    // `cursorActivity` listener runs.
+    await page.evaluate(() => {
+      const cm = (
+        document.querySelector('.source-code .CodeMirror') as Element & {
+          CodeMirror: {
+            focus(): void
+            setCursor(p: { line: number; ch: number }): void
+            replaceSelection(text: string): void
+          }
+        }
+      ).CodeMirror
+      cm.focus()
+      cm.setCursor({ line: 0, ch: 'saved baseline'.length })
+      cm.replaceSelection(' SRCKEY')
+    })
+
+    // The CodeMirror value reflects the typed text while still in source mode.
+    const sourceValue = await page.evaluate(() => {
+      const cm = (
+        document.querySelector('.source-code .CodeMirror') as Element & {
+          CodeMirror: { getValue(): string }
+        }
+      ).CodeMirror
+      return cm.getValue()
+    })
+    expect(sourceValue).toContain('saved baseline SRCKEY')
+
+    // Hand off back to WYSIWYG: the edit becomes a dirtying history boundary, so
+    // the active tab gains `.unsaved`, and the typed text survives the round trip.
+    await exitSourceMode(page, app)
+    await expect.poll(() => isTabDirty(page)).toBe(true)
+    await expect
+      .poll(() => getMarkdownContent(page, app).then((md) => md.trim()))
+      .toContain('saved baseline SRCKEY')
+    await app.close()
+  })
+})
+
+test.describe('Item 256 — save -> clean -> edit -> dirty -> undo-to-saved cycle', () => {
+  // A focused save/clean/edit/dirty loop. The G6 test only USES mt::tab-saved as
+  // a setup step; there is no standalone assertion that a real save clears the
+  // dot, that a fresh edit re-marks it, and that undoing back to the saved state
+  // clears it again. This exercises the full content-keyed synthetic-history
+  // round trip the save indicator relies on.
+  test('a save clears the dot, a new edit re-marks it, and undo-to-saved clears it', async() => {
+    const { app, page } = await launchWithMarkdown('hello world\n')
+    await waitForMenuReady(app)
+
+    // Freshly-loaded saved doc: no dirty dot yet.
+    expect(await isTabDirty(page)).toBe(false)
+
+    // 1) Edit to dirty the tab. Let the type fully commit as its own engine undo
+    //    boundary before sealing it (a too-early follow-up edit/undo can collapse
+    //    adjacent types into one step and overshoot the saved state).
+    await placeCaretInEditor(page)
+    await typeIntoEditor(page, ' EXTRA')
+    await expect.poll(() => isTabDirty(page)).toBe(true)
+    await page.waitForTimeout(400)
+
+    // Seal the EXTRA edit as a distinct committed undo boundary by round-tripping
+    // through source mode (the handoff records a single replaceContent boundary).
+    // Without this the engine groups the later "MORE" type with the EXTRA type
+    // into one undo step, so there would be no SAVED state distinct from the
+    // on-disk baseline to undo back to.
+    await getMarkdownContent(page, app)
+    await page.waitForTimeout(400)
+    await expect.poll(() => wysiwygText(page)).toContain('EXTRA')
+    // Capture the saved-state text so the undo assertion compares against the
+    // engine's exact rendered form.
+    const savedText = await wysiwygText(page)
+
+    // 2) Real save (same IPC the main process sends after writing to disk):
+    //    records the current synthetic id as lastSavedHistoryId and clears dirty.
+    const tabId = await activeTabId(page)
+    expect(tabId).toBeTruthy()
+    await sendIpcToRenderer(app, 'mt::tab-saved', tabId)
+    await expect.poll(() => isTabDirty(page)).toBe(false)
+
+    // 3) A fresh edit past the saved state re-marks the tab dirty.
+    await placeCaretInEditor(page)
+    await typeIntoEditor(page, ' MORE')
+    await expect.poll(() => isTabDirty(page)).toBe(true)
+    await expect.poll(() => wysiwygText(page)).toBe(`${savedText}\nMORE`)
+    await page.waitForTimeout(400)
+
+    // 4) Undo the MORE edit, landing back on the saved EXTRA content. The dot
+    //    clears again because the restored content reproduces the SAVED synthetic
+    //    id (content-keyed monotonic history) — NOT merely the on-disk baseline.
+    //    This is the full save->clean->edit->dirty->undo-to-saved loop.
+    await undo(app)
+    await expect.poll(() => wysiwygText(page)).toBe(savedText)
+    await expect.poll(() => isTabDirty(page)).toBe(false)
     await app.close()
   })
 })
