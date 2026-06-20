@@ -67,7 +67,7 @@
         "github-markdown-css": "^5.9.0",
         "html-tags": "^5.1.0",
         "joplin-turndown-plugin-gfm": "^1.0.12",
-        "katex": "0.16.47",
+        "katex": "^0.17.0",
         "marked": "^16.4.2",
         "marked-highlight": "^2.2.4",
         "mermaid": "11.15.0",

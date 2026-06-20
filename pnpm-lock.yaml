@@ -164,8 +164,8 @@ importers:
         specifier: ^1.0.12
         version: 1.0.12
       katex:
-        specifier: ^0.16.47
-        version: 0.16.47
+        specifier: ^0.17.0
+        version: 0.17.0
       keytar:
         specifier: ^7.9.0
         version: 7.9.0
@@ -349,8 +349,8 @@ importers:
         specifier: ^1.0.12
         version: 1.0.12
       katex:
-        specifier: 0.16.47
-        version: 0.16.47
+        specifier: ^0.17.0
+        version: 0.17.0
       marked:
         specifier: ^16.4.2
         version: 16.4.2
@@ -534,8 +534,8 @@ importers:
         specifier: ^1.0.12
         version: 1.0.12
       katex:
-        specifier: ^0.16.47
-        version: 0.16.47
+        specifier: ^0.17.0
+        version: 0.17.0
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
@@ -6670,6 +6670,10 @@ packages:
 
   katex@0.16.47:
     resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
+    hasBin: true
+
+  katex@0.17.0:
+    resolution: {integrity: sha512-Vdw0ATsQ9V+LuegM/BTwQqV/6cTl5lbGcIrU+BCgLxyf6bo38ybOr372tuSIxir3CN720flu1meYR6XzNMwQnw==}
     hasBin: true
 
   keytar@7.9.0:
@@ -16423,6 +16427,10 @@ snapshots:
       object.values: 1.2.1
 
   katex@0.16.47:
+    dependencies:
+      commander: 8.3.0
+
+  katex@0.17.0:
     dependencies:
       commander: 8.3.0
 
