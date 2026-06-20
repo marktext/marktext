@@ -56,6 +56,7 @@ const NON_EDITING_KEYS = new Set([
  */
 export class InlineFormatToolbar extends BaseFloat {
     static pluginName = 'formatPicker';
+    public override capturesContentKeydown = true;
 
     /** Previous virtual node for patching */
     private _oldVNode: VNode | null = null;

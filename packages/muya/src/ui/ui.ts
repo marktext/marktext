@@ -1,5 +1,14 @@
 import type { Muya } from '../muya';
 import type BaseFloat from './baseFloat';
+import { EVENT_KEYS } from '../config';
+
+const CONTENT_NAV_KEYS = new Set([
+    EVENT_KEYS.Enter,
+    EVENT_KEYS.Escape,
+    EVENT_KEYS.Tab,
+    EVENT_KEYS.ArrowUp,
+    EVENT_KEYS.ArrowDown,
+]);
 
 export class Ui {
     public shownFloat: Set<BaseFloat> = new Set();
@@ -26,5 +35,19 @@ export class Ui {
 
         for (const btn of this._shownButton)
             btn.hide();
+    }
+
+    handleContentKeydown(event: KeyboardEvent): boolean {
+        if (this.shownFloat.size === 0 || !CONTENT_NAV_KEYS.has(event.key))
+            return false;
+
+        for (const tool of this.shownFloat) {
+            if (tool.capturesContentKeydown) {
+                event.preventDefault();
+                break;
+            }
+        }
+
+        return true;
     }
 }

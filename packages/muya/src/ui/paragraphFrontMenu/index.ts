@@ -49,6 +49,7 @@ const defaultOptions = {
 
 export class ParagraphFrontMenu extends BaseFloat {
     static pluginName = 'frontMenu';
+    public override capturesContentKeydown = true;
     private _oldVNode: VNode | null = null;
     private _block: Parent | null = null;
     private _frontMenuContainer: HTMLDivElement = document.createElement('div');

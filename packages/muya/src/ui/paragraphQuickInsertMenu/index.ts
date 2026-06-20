@@ -31,6 +31,7 @@ function checkCanInsertFrontMatter(muya: Muya, block: ParagraphContent) {
 
 export class ParagraphQuickInsertMenu extends BaseScrollFloat {
     static pluginName = 'quickInsert';
+    public override capturesContentKeydown = true;
 
     public oldVNode: VNode | null = null;
     private _block: ParagraphContent | null = null;

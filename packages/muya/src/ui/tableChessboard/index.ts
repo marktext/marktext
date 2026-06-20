@@ -16,6 +16,7 @@ interface ICheckerCount {
 
 class TablePicker extends BaseFloat {
     static pluginName = 'tablePicker';
+    public override capturesContentKeydown = true;
 
     private _checkerCount: ICheckerCount;
     private _oldVNode: VNode | null;
