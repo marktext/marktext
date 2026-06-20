@@ -135,11 +135,11 @@
     "patch-package": "^8.0.1",
     "postcss-preset-env": "^11.3.1",
     "tsx": "^4.22.4",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vite": "^7.3.5",
     "vite-svg-loader": "^5.1.1",
     "vitest": "^4.1.9",
     "vue": "^3.5.38",
-    "vue-tsc": "^2.2.12"
+    "vue-tsc": "^3.3.5"
   }
 }
