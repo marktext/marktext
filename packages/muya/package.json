@@ -100,7 +100,7 @@
         "commonmark-spec": "^0.31.2",
         "eslint": "^10.4.0",
         "eslint-plugin-format": "^2.0.1",
-        "happy-dom": "^15.11.7",
+        "happy-dom": "^20.8.9",
         "jsdom": "^29.1.1",
         "madge": "^8.0.0",
         "stylelint": "^17.11.1",
