@@ -105,8 +105,8 @@ importers:
         specifier: ^2.3.4
         version: 2.3.4
       dompurify:
-        specifier: ^3.4.3
-        version: 3.4.3
+        specifier: ^3.4.9
+        version: 3.4.11
       dragula:
         specifier: ^3.7.3
         version: 3.7.3
@@ -317,8 +317,8 @@ importers:
         specifier: ^1.0.4
         version: 1.0.6
       dompurify:
-        specifier: ^3.4.5
-        version: 3.4.7
+        specifier: ^3.4.9
+        version: 3.4.11
       execall:
         specifier: ^3.0.0
         version: 3.0.0
@@ -437,6 +437,9 @@ importers:
       happy-dom:
         specifier: ^15.11.7
         version: 15.11.7
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1(@noble/hashes@1.8.0)
       madge:
         specifier: ^8.0.0
         version: 8.0.0(typescript@6.0.3)
@@ -499,8 +502,8 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6
       dompurify:
-        specifier: ^3.4.3
-        version: 3.4.3
+        specifier: ^3.4.9
+        version: 3.4.11
       element-resize-detector:
         specifier: ^1.2.4
         version: 1.2.4
@@ -5405,11 +5408,8 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
-  dompurify@3.4.3:
-    resolution: {integrity: sha512-VVwJidIJcp1hpg2OMXML3ZVRPYSZiq4aX7qBh83BSIpOaRDqI+qxhXjjIWnpzkOXhmp0L81lnoME1mnCc9H48A==}
-
-  dompurify@3.4.7:
-    resolution: {integrity: sha512-2jBxDJY4RR06tQNy4w5FlFH7kfxsQZlufd0sbv+chfHCxeJwrFw2baUDsSwvBISD4K4RDbd0PTfy3uNXsR6siA==}
+  dompurify@3.4.11:
+    resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
 
   domutils@3.2.2:
     resolution: {integrity: sha512-6kZKyUajlDuqlHKVX1w7gyslj9MPIXzIFiz/rGu35uC1wMi+kMhQwGhl4lt9unC9Vb9INnY9Z3/ZA3+FhASLaw==}
@@ -14841,11 +14841,7 @@ snapshots:
     dependencies:
       domelementtype: 2.3.0
 
-  dompurify@3.4.3:
-    optionalDependencies:
-      '@types/trusted-types': 2.0.7
-
-  dompurify@3.4.7:
+  dompurify@3.4.11:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -17418,7 +17414,7 @@ snapshots:
       d3-sankey: 0.12.3
       dagre-d3-es: 7.0.14
       dayjs: 1.11.20
-      dompurify: 3.4.7
+      dompurify: 3.4.11
       es-toolkit: 1.46.1
       katex: 0.16.47
       khroma: 2.1.0

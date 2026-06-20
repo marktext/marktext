@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "@marktext/file-icons": "^1.0.6",
-    "dompurify": "^3.4.3",
+    "dompurify": "^3.4.9",
     "element-resize-detector": "^1.2.4",
     "execall": "^3.0.0",
     "flowchart.js": "^1.18.0",

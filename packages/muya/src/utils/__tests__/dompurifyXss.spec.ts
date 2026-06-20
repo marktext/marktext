@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 
 import type { Config } from '../dompurify';
 import { describe, expect, it } from 'vitest';

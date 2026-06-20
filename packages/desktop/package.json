@@ -70,7 +70,7 @@
     "command-exists": "^1.2.9",
     "deep-equal": "^2.2.3",
     "dom-autoscroller": "^2.3.4",
-    "dompurify": "^3.4.3",
+    "dompurify": "^3.4.9",
     "dragula": "^3.7.3",
     "electron-log": "^5.4.4",
     "electron-store": "^11.0.2",
