@@ -279,8 +279,11 @@ export class MarkdownToState {
 
             case 'code': {
                 const { codeBlockStyle, text, lang: infoString = '' } = token;
+                // marked >=17 appends a trailing newline to indented code text
+                // (fenced text has none); strip it so indented blocks round-trip.
+                const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
                 parentList[0].push(
-                    this._buildCodeState(text, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines),
+                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines),
                 );
                 break;
             }

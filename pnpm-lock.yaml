@@ -352,11 +352,11 @@ importers:
         specifier: ^0.17.0
         version: 0.17.0
       marked:
-        specifier: ^16.4.2
-        version: 16.4.2
+        specifier: ^18.0.5
+        version: 18.0.5
       marked-highlight:
         specifier: ^2.2.4
-        version: 2.2.4(marked@16.4.2)
+        version: 2.2.4(marked@18.0.5)
       mermaid:
         specifier: 11.15.0
         version: 11.15.0
@@ -6980,6 +6980,11 @@ packages:
 
   marked@16.4.2:
     resolution: {integrity: sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
+  marked@18.0.5:
+    resolution: {integrity: sha512-S6GcvALHg6K4ohtu4E7x0a1AqhAjp6cV8KhLSyN9qVapnzJkusVBxZRcIU9AeYsbe6P1hKDusSbEOzGyyuce6w==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -16799,11 +16804,13 @@ snapshots:
 
   markdown-table@3.0.4: {}
 
-  marked-highlight@2.2.4(marked@16.4.2):
+  marked-highlight@2.2.4(marked@18.0.5):
     dependencies:
-      marked: 16.4.2
+      marked: 18.0.5
 
   marked@16.4.2: {}
+
+  marked@18.0.5: {}
 
   matcher@3.0.0:
     dependencies:
