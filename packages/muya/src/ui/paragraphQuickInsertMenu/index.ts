@@ -4,6 +4,7 @@ import type {
     IQuickInsertMenuItem,
 } from './config';
 import Fuse from 'fuse.js';
+import { replaceBlockByLabel } from '../../block/blockTransforms';
 import ParagraphContent from '../../block/content/paragraphContent';
 import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
@@ -12,7 +13,6 @@ import BaseScrollFloat from '../baseScrollFloat';
 import {
     getLabelFromEvent,
     MENU_CONFIG,
-    replaceBlockByLabel,
 } from './config';
 
 import './index.css';

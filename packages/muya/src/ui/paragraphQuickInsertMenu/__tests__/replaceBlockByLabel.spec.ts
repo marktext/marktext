@@ -3,8 +3,8 @@ import type Parent from '../../../block/base/parent';
 import type { IConstructor } from '../../../block/types';
 import type { Muya } from '../../../index';
 import { describe, expect, it, vi } from 'vitest';
+import { replaceBlockByLabel } from '../../../block/blockTransforms';
 import { ScrollPage } from '../../../block/scrollPage';
-import { replaceBlockByLabel } from '../config';
 
 // Loose mock-block shape the tests build via `makeFakeBlock` /
 // `makeFakeOriginBlock`. These don't satisfy the full Parent surface — the
