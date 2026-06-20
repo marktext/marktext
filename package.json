@@ -51,18 +51,18 @@
     }
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.28.6",
-    "electron": "^42.1.0",
+    "@babel/eslint-parser": "^7.29.7",
+    "electron": "^42.4.1",
     "eslint": "^9.39.4",
     "eslint-plugin-html": "^8.1.4",
     "eslint-plugin-i18n-json": "^4.0.1",
-    "eslint-plugin-jsonc": "^3.1.2",
-    "eslint-plugin-vue": "^10.9.1",
+    "eslint-plugin-jsonc": "^3.2.0",
+    "eslint-plugin-vue": "^10.9.2",
     "license-checker": "^25.0.1",
     "neostandard": "^0.13.0",
-    "prettier": "^3.8.3",
-    "tsx": "^4.22.3",
-    "typescript-eslint": "^8.59.3",
-    "vue-eslint-parser": "^10.4.0"
+    "prettier": "^3.8.4",
+    "tsx": "^4.22.4",
+    "typescript-eslint": "^8.61.1",
+    "vue-eslint-parser": "^10.4.1"
   }
 }
