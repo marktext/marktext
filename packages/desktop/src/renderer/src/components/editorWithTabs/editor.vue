@@ -765,8 +765,9 @@ watch(spellcheckerEnabled, (value, oldValue) => {
 
 watch(spellcheckerNoUnderline, (value, oldValue) => {
   if (value !== oldValue) {
-    // Set Muya's spellcheck container attribute.
-    editor.value.setOptions({ spellcheckEnabled: !value })
+    // Hide only the spelling squiggle; the native checker (and its right-click
+    // suggestions) stays controlled by `spellcheckerEnabled`.
+    editor.value.setOptions({ spellcheckHideMarks: value })
   }
 })
 
@@ -1691,6 +1692,7 @@ onMounted(() => {
     sequenceTheme: sequenceTheme.value,
     plantumlServer: preferencesStore.plantumlServer,
     spellcheckEnabled: spellcheckerEnabled.value,
+    spellcheckHideMarks: spellcheckerNoUnderline.value,
     // Resolve the OS clipboard to a local file path on paste (image-from-file).
     clipboardFilePath: guessClipboardFilePath,
     // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
