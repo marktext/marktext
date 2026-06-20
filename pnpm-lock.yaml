@@ -351,7 +351,7 @@ importers:
         specifier: ^2.2.4
         version: 2.2.4(marked@18.0.5)
       mermaid:
-        specifier: 11.15.0
+        specifier: ^11.15.0
         version: 11.15.0
       ot-json1:
         specifier: ^1.0.2
