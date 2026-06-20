@@ -24,6 +24,7 @@ export interface IMuyaOptions {
     hideLinkPopup: boolean;
     autoCheck: boolean;
     spellcheckEnabled: boolean;
+    spellcheckHideMarks: boolean;
     superSubScript: boolean;
     footnote: boolean;
     math: boolean;

@@ -121,6 +121,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_LINE_END',
     'MU_HEADER_TIGHT_SPACE',
     'MU_HIDE',
+    'MU_HIDE_SPELLING_MARKS',
     'MU_HIGHLIGHT',
     'MU_HTML_BLOCK',
     'MU_HTML_ESCAPE',
@@ -332,6 +333,10 @@ export const MUYA_DEFAULT_OPTIONS = {
     // NOTE: The browser is not able to correct misspelled words words without a custom
     // implementation like in MarkText.
     spellcheckEnabled: false,
+    // Hide the native spelling squiggle via CSS while keeping `spellcheckEnabled`
+    // (and thus the native checker + right-click suggestions) active. Independent
+    // of `spellcheckEnabled`.
+    spellcheckHideMarks: false,
     // Markdown extensions
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,

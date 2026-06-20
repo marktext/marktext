@@ -2,6 +2,13 @@
     outline: none;
 }
 
+/* Hide the native spelling squiggle while keeping `spellcheck="true"`, so the
+   native checker and its right-click suggestions stay active. Toggled by the
+   `spellcheckHideMarks` option. */
+.mu-hide-spelling-marks ::spelling-error {
+    text-decoration: none !important;
+}
+
 .mu-container {
     box-sizing: border-box;
     max-width: var(--editor-area-width, 800px);

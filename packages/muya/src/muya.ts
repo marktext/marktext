@@ -362,6 +362,13 @@ export class Muya {
         if ('spellcheckEnabled' in options)
             this.domNode.setAttribute('spellcheck', options.spellcheckEnabled ? 'true' : 'false');
 
+        if ('spellcheckHideMarks' in options) {
+            this.domNode.classList.toggle(
+                CLASS_NAMES.MU_HIDE_SPELLING_MARKS,
+                !!options.spellcheckHideMarks,
+            );
+        }
+
         if ('hideQuickInsertHint' in options) {
             this.domNode.classList.toggle(
                 CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT,
@@ -1740,7 +1747,7 @@ export class Muya {
  * [ensureContainerDiv ensure container element is div]
  */
 function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
-    const { spellcheckEnabled, hideQuickInsertHint, focusMode } = options;
+    const { spellcheckEnabled, spellcheckHideMarks, hideQuickInsertHint, focusMode } = options;
     const newContainer = document.createElement('div');
     const attrs = originContainer.attributes;
     // Copy attrs from origin container to new container
@@ -1750,6 +1757,9 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
 
     if (!hideQuickInsertHint)
         newContainer.classList.add(CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT);
+
+    if (spellcheckHideMarks)
+        newContainer.classList.add(CLASS_NAMES.MU_HIDE_SPELLING_MARKS);
 
     // Apply focus mode at construction when initially enabled; `setFocusMode`
     // toggles it thereafter.
