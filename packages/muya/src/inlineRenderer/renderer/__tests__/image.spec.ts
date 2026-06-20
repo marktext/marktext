@@ -225,3 +225,65 @@ describe('image renderer — uses the cache-busted url for local files', () => {
         expect(findImgSrc(out)).toBe('https://example.com/x.png');
     });
 });
+
+// Regression: the wrapper class gate that drives click-to-open-editor.
+// `.mu-image-fail` (loadImageAsync isSuccess:false) and `.mu-empty-image`
+// (token has no resolvable src) are the branches at image.ts:188 / image.ts:227.
+// The click-to-open-editor behaviour itself is e2e-covered (muya
+// image-tools.spec.ts); only the wrapper-class assignment is the missing slice.
+describe('image renderer — fail / empty wrapper classes', () => {
+    it('adds `mu-image-fail` class when loadImageAsync reports isSuccess:false', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-8',
+            isSuccess: false,
+        });
+        const token = makeImageToken();
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token, cursor: fakeCursor },
+        );
+
+        const selector = getWrapperSelector(out);
+        expect(selector).toContain('.mu-image-fail');
+        expect(selector).not.toContain('.mu-image-success');
+        expect(selector).not.toContain('.mu-empty-image');
+    });
+
+    it('adds `mu-empty-image` class when the token has no resolvable src', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-9',
+            isSuccess: false,
+        });
+        const token = makeImageToken({ src: '' });
+        token.src = '';
+        token.srcAndTitle = '';
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token, cursor: fakeCursor },
+        );
+
+        const selector = getWrapperSelector(out);
+        expect(selector).toContain('.mu-empty-image');
+        expect(selector).not.toContain('.mu-image-fail');
+        expect(selector).not.toContain('.mu-image-success');
+    });
+
+    it('does not call loadImageAsync for an empty-src token (no resolvable src)', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-10',
+            isSuccess: false,
+        });
+        const token = makeImageToken({ src: '' });
+        token.src = '';
+        token.srcAndTitle = '';
+
+        image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token, cursor: fakeCursor },
+        );
+
+        expect(renderer.loadImageAsync).not.toHaveBeenCalled();
+    });
+});

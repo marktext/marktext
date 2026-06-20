@@ -107,4 +107,41 @@ describe('selection-change payload', () => {
         expect(formats).toContain('strong');
         expect(formats).toContain('em');
     });
+
+    it('forwards the caret rect with a numeric cursorCoords.y for typewriter scrolling', () => {
+        // happy-dom has no real layout, so `range.getClientRects()` returns an
+        // empty list and `getCursorCoords()` yields null. Stub the Range rects
+        // with a numeric `.y` to prove the engine forwards it unchanged — this
+        // is the value the desktop typewriter scroll reads as `cursorCoords.y`.
+        const muya = bootMuya('hello world\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+
+        let payload: Record<string, unknown> | null = null;
+        muya.on('selection-change', (p: unknown) => {
+            payload = p as Record<string, unknown>;
+        });
+
+        const fakeRect = { x: 7, y: 123, width: 1, height: 18, top: 123, left: 7, right: 8, bottom: 141 } as DOMRect;
+        const fakeRects = Object.assign([fakeRect], { item: (i: number) => [fakeRect][i] ?? null }) as unknown as DOMRectList;
+        const original = Range.prototype.getClientRects;
+        Range.prototype.getClientRects = function getClientRects(): DOMRectList {
+            return fakeRects;
+        };
+
+        try {
+            muya.editor.selection.setSelection(
+                { offset: 0, block: first, path: first.path },
+                { offset: 5, block: first, path: first.path },
+            );
+        }
+        finally {
+            Range.prototype.getClientRects = original;
+        }
+
+        expect(payload).not.toBeNull();
+        const cursorCoords = payload!.cursorCoords as DOMRect;
+        expect(cursorCoords).not.toBeNull();
+        expect(typeof cursorCoords.y).toBe('number');
+        expect(cursorCoords.y).toBe(123);
+    });
 });

@@ -3,6 +3,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../muya';
 
+// The diagram renderer (`utils/diagram` default export) dynamically imports
+// heavy renderer packages (mermaid / vega) that don't load under happy-dom.
+// Mock it so the diagram-theme pass-through tests below can assert the renderer
+// is re-invoked with the switched theme on forceRender. The non-diagram tests
+// never call loadRenderer, so the mock is inert for them.
+const loadRendererMock = vi.fn();
+vi.mock('../utils/diagram', () => ({
+    default: (...args: unknown[]) => loadRendererMock(...args),
+}));
+
 // Coverage for the runtime option API added for the muyajs -> @muyajs/core
 // migration: setOptions / setFont / setTabSize / setListIndentation. Every
 // desktop Preferences toggle depends on options updating live. setOptions with
@@ -24,6 +34,7 @@ afterEach(() => {
         const host = bootedHosts.pop()!;
         host.remove();
     }
+    loadRendererMock.mockReset();
     if (hadVersion)
         window.MUYA_VERSION = originalVersion as string;
     else
@@ -211,5 +222,63 @@ describe('muya render-affecting options', () => {
         // The freshly inserted block follows the updated option: TOML `+++`.
         expect((muya.getState()[0] as { meta: { lang: string } }).meta.lang).toBe('toml');
         expect(muya.getMarkdown().startsWith('+++\n')).toBe(true);
+    });
+});
+
+// Diagram-theme options (mermaidTheme / vegaTheme) are render-affecting but NOT
+// parse-affecting: a forceRender rebuilds the block tree from the unchanged
+// state, and DiagramPreview.update() reads `muya.options.{mermaid,vega}Theme`
+// live on every render pass. This mirrors editor.vue's theme watcher
+// (src/renderer/src/components/editorWithTabs/editor.vue), which on a dark theme
+// calls setOptions({mermaidTheme:'dark',vegaTheme:'dark'}, true) and otherwise
+// setOptions({mermaidTheme:'default',vegaTheme:'latimes'}, true).
+describe('muya diagram-theme options', () => {
+    function bootMuyaWith(markdown: string, options: Record<string, unknown>): Muya {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        const muya = new Muya(host, { markdown, ...options } as ConstructorParameters<typeof Muya>[1]);
+        muya.init();
+        bootedHosts.push(muya.domNode);
+        return muya;
+    }
+
+    it('setOptions propagates mermaidTheme / vegaTheme onto muya.options and forceRender preserves content', () => {
+        const muya = bootMuya('```vega-lite\n{"mark":"bar"}\n```\n');
+        const before = muya.getMarkdown();
+
+        // Dark theme: matches editor.vue's /dark/i branch.
+        muya.setOptions({ mermaidTheme: 'dark', vegaTheme: 'dark' }, true);
+        expect(muya.options.mermaidTheme).toBe('dark');
+        expect(muya.options.vegaTheme).toBe('dark');
+        expect(muya.getMarkdown()).toBe(before);
+
+        // Light theme: matches editor.vue's else branch.
+        muya.setOptions({ mermaidTheme: 'default', vegaTheme: 'latimes' }, true);
+        expect(muya.options.mermaidTheme).toBe('default');
+        expect(muya.options.vegaTheme).toBe('latimes');
+        expect(muya.getMarkdown()).toBe(before);
+    });
+
+    it('setOptions vegaTheme with forceRender re-invokes the diagram renderer with the switched theme', async () => {
+        const render = vi.fn();
+        loadRendererMock.mockResolvedValue(render);
+
+        const muya = bootMuyaWith('```vega-lite\n{"mark":"bar"}\n```\n', { vegaTheme: 'latimes' });
+
+        // Initial render reads the boot-time vegaTheme.
+        await vi.waitFor(() => {
+            expect(render).toHaveBeenCalled();
+            expect(render.mock.lastCall![2]).toMatchObject({ theme: 'latimes', ast: true });
+        });
+        render.mockClear();
+
+        // Switching the option + forceRender rebuilds the diagram block, whose
+        // preview re-runs the renderer reading the now-dark vegaTheme live.
+        muya.setOptions({ vegaTheme: 'dark' }, true);
+
+        await vi.waitFor(() => {
+            expect(render).toHaveBeenCalled();
+            expect(render.mock.lastCall![2]).toMatchObject({ theme: 'dark', ast: true });
+        });
     });
 });

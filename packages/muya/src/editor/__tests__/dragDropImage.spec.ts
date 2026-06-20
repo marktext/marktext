@@ -289,6 +289,36 @@ describe('attachDragDropImageHandlers — web-link image', () => {
     });
 });
 
+// Mirror `dropEvent` but for the `dragover` type so the preventDefault gate in
+// `dragOverHandler` can be exercised directly.
+function dragoverEvent(target: HTMLElement, dataTransfer: DataTransfer): DragEvent {
+    const event = new DragEvent('dragover', { bubbles: true });
+    Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
+    Object.defineProperty(event, 'target', { value: target });
+    Object.defineProperty(event, 'clientY', { value: 5 });
+    return event;
+}
+
+describe('attachDragDropImageHandlers — dragover guard', () => {
+    it('does not preventDefault a text/plain-only drag (native text drag preserved)', () => {
+        const muya = makeMuya();
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        // Plain text drag: neither an image FILE nor the web-image signature, so
+        // the handler must bail before hijacking the browser's default drop.
+        const dt = new DataTransfer();
+        dt.items.add('hello', 'text/plain');
+
+        const event = dragoverEvent(contentDom, dt);
+        const preventDefault = vi.spyOn(event, 'preventDefault');
+
+        muya.domNode.dispatchEvent(event);
+
+        expect(preventDefault).not.toHaveBeenCalled();
+    });
+});
+
 describe('attachDragDropImageHandlers — drop target resolution', () => {
     it('inserts nothing when the drop is not over an editor content block', () => {
         const getPathForFile = vi.fn().mockReturnValue('/abs/shot.png');

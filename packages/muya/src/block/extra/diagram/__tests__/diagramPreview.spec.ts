@@ -171,3 +171,52 @@ describe('diagramPreview — clickHandler routing', () => {
         expect(parent.firstContentInDescendant).toHaveBeenCalledTimes(1);
     });
 });
+
+// Pins that the diagram-theme options flow from muya.options through
+// renderDiagram into the underlying renderer call (not just that the
+// default options carry the right value — diagramFlowchartSequence.spec
+// only asserts MUYA_DEFAULT_OPTIONS.sequenceTheme === 'hand').
+describe('diagramPreview — renderer theme pass-through', () => {
+    // The constructor fires update() unawaited, so assert on lastCall — our
+    // explicit update() (after mutating the option) is always the latest.
+    it('passes sequenceTheme into the sequence renderer drawSVG options (simple)', async () => {
+        const drawSVG = vi.fn();
+        loadRendererMock.mockResolvedValue({ parse: () => ({ drawSVG }) });
+
+        const { preview, muya } = makePreview('Alice->Bob: Hi', 'sequence');
+        muya.options.sequenceTheme = 'simple';
+        await preview.update('Alice->Bob: Hi');
+
+        expect(drawSVG).toHaveBeenCalled();
+        expect(drawSVG.mock.lastCall![1]).toMatchObject({ theme: 'simple' });
+    });
+
+    it('defaults sequenceTheme to the muya option value (hand) when unchanged', async () => {
+        const drawSVG = vi.fn();
+        loadRendererMock.mockResolvedValue({ parse: () => ({ drawSVG }) });
+
+        const { preview } = makePreview('Alice->Bob: Hi', 'sequence');
+        await preview.update('Alice->Bob: Hi');
+
+        expect(drawSVG).toHaveBeenCalled();
+        expect(drawSVG.mock.lastCall![1]).toMatchObject({ theme: 'hand' });
+    });
+
+    it('passes vegaTheme + ast:true into the vega-lite renderer options', async () => {
+        const render = vi.fn();
+        loadRendererMock.mockResolvedValue(render);
+
+        const { preview, muya } = makePreview('{}', 'vega-lite');
+        muya.options.vegaTheme = 'dark';
+        await preview.update('{"mark":"bar"}');
+
+        expect(render).toHaveBeenCalled();
+        expect(render.mock.lastCall![2]).toMatchObject({
+            theme: 'dark',
+            ast: true,
+            actions: false,
+            tooltip: false,
+            renderer: 'svg',
+        });
+    });
+});
