@@ -829,7 +829,11 @@ class App {
 
     ipcMain.handle('mt::keybinding-save-user-keybindings', async(_event, userKeybindings) => {
       const { keybindings } = this._accessor
-      return keybindings.setUserKeybindings(userKeybindings)
+      const editorWindows = this._windowManager
+        .getWindowsByType(WindowType.EDITOR)
+        .map(({ win }) => win.browserWindow)
+        .filter((win): win is BrowserWindow => win != null)
+      return keybindings.setUserKeybindings(userKeybindings, editorWindows)
     })
 
     ipcMain.handle('mt::fs-trash-item', async(_event, fullPath: string) => {
