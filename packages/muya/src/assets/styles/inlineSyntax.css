@@ -108,6 +108,16 @@ code.mu-inline-rule {
     white-space: nowrap;
 }
 
+/* When the caret is outside the entity, take the literal marker text out of
+   flow so it adds no width (an inline element ignores `width: 0`) and creates
+   no break opportunity — the glyph keeps showing via `::before`, which stays in
+   the outer span's normal-sized line box so it aligns. */
+.mu-hide.mu-html-escape[data-character] .mu-html-escape-marker {
+    position: absolute;
+
+    visibility: hidden;
+}
+
 .mu-html-escape::before {
     position: absolute;
     top: 0;
