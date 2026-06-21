@@ -361,7 +361,16 @@ function applyParsedPaste(
     if (tryMergeListPaste(clipboard, ctx, states, head, tail))
         return;
 
-    const mergeText = inlineMergeText(states[0], head.length > 0);
+    let mergeText = inlineMergeText(states[0], head.length > 0);
+
+    // Pasting into a link destination `[text](|)`: a pasted whole markdown link
+    // (e.g. a URL the clipboard delivered as a smart-link `[Title](url)`) must
+    // contribute only its URL, otherwise it nests as `[text]([Title](url))`.
+    if (mergeText != null && head.endsWith('](') && tail.startsWith(')')) {
+        const linkMatch = mergeText.match(/^\[.*?\]\((.*)\)$/);
+        if (linkMatch)
+            mergeText = linkMatch[1];
+    }
 
     if (mergeText != null)
         pasteInlineMerge(muya, ctx, states, mergeText, head, tail);

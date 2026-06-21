@@ -163,3 +163,17 @@ describe('paste — NEWLINE into an emptied non-paragraph wrapper (muyajs remove
         expect(muya.editor.scrollPage!.length()).toBe(1);
     });
 });
+
+// marktext #3848: pasting a URL (which the clipboard delivers as a smart-link
+// `[Title](url)`) inside an existing link's parentheses `[text](|)` produced a
+// nested `[text]([Title](url))`. When the caret is in a link destination, a
+// pasted whole markdown link should contribute only its URL.
+describe('paste — markdown link into a link destination uses only the URL (#3848)', () => {
+    it('pasting `[title](url)` inside `[text](|)` yields `[text](url)`, not a nested link', async () => {
+        const muya = bootMuya('[my text]()\n');
+        const block = contentBlocks(muya)[0];
+        // caret between the parentheses of `[my text]()` (offset 10)
+        const md = await paste(muya, block, 10, 10, '[Some Page Title](https://example.com/page)');
+        expect(md).toBe('[my text](https://example.com/page)\n');
+    });
+});
