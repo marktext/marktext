@@ -98,6 +98,10 @@ code.mu-inline-rule {
     position: relative;
 
     margin-left: 1em;
+
+    /* An escaped space entity (&nbsp;, &ensp; …) must not be a line-break
+       opportunity, otherwise text wraps across e.g. `Jul&nbsp;21`. */
+    white-space: nowrap;
 }
 
 .mu-html-escape::before {
