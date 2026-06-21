@@ -166,7 +166,7 @@ describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () =>
 
   // strong/em are the requested reconcilable mapping, plus the rest of the set
   // that agrees once notation is normalized.
-  const RECONCILABLE = ['strong', 'em', 'u', 'del', 'mark', 'link', 'image', 'clear'] as const
+  const RECONCILABLE = ['strong', 'em', 'u', 'del', 'mark', 'inline_math', 'link', 'image', 'clear'] as const
 
   it.each(RECONCILABLE)(
     'toolbar shortcut for "%s" matches the Format-menu accelerator (Windows + Linux)',
@@ -179,32 +179,21 @@ describe('Format-menu accelerators vs muya inlineFormatToolbar shortcuts', () =>
     }
   )
 
-  // CHARACTERIZATION of a real drift (see suspectedBugs): the @muyajs/core toolbar
-  // advertises Ctrl+E / ⇧+Ctrl+E for inline code / inline math, but the Format
-  // menu binds Ctrl+` (Win) / Ctrl+Y (Linux) and Ctrl+Shift+M respectively.
-  it('inlineCode shortcut DIVERGES between toolbar and menu accelerator', () => {
+  // After #4611 the toolbar advertises the real defaults — Ctrl+` for inline code
+  // and ⇧+Ctrl+M for inline math — so the tooltips agree with the keybindings.
+  // inline_math now matches the Format menu on every platform (covered by
+  // RECONCILABLE above). inline_code matches on Windows (Ctrl+`) but still
+  // diverges on Linux, which intentionally binds Ctrl+Y (see #4611 / #3630).
+  it('inlineCode toolbar matches Windows but diverges from the Linux accelerator (Ctrl+Y)', () => {
     const toolbar = normalizeShortcut(toolbarShortcutOf('inline_code'))
-    expect(toolbar).toBe(normalizeShortcut('Ctrl+E'))
-    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).toBe(
-      normalizeShortcut('Ctrl+`')
-    )
+    expect(toolbar).toBe(normalizeShortcut('Ctrl+`'))
+    // Windows binds Ctrl+` too, so toolbar and menu now agree there.
+    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).toBe(toolbar)
+    // Linux intentionally binds Ctrl+Y, which still diverges from the toolbar.
     expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).toBe(
       normalizeShortcut('Ctrl+Y')
     )
-    expect(normalizeShortcut(keybindingsWindows.get('format.inline-code'))).not.toBe(toolbar)
     expect(normalizeShortcut(keybindingsLinux.get('format.inline-code'))).not.toBe(toolbar)
-  })
-
-  it('inlineMath shortcut DIVERGES between toolbar and menu accelerator', () => {
-    const toolbar = normalizeShortcut(toolbarShortcutOf('inline_math'))
-    expect(toolbar).toBe(normalizeShortcut('Shift+Ctrl+E'))
-    expect(normalizeShortcut(keybindingsWindows.get('format.inline-math'))).toBe(
-      normalizeShortcut('Ctrl+Shift+M')
-    )
-    expect(normalizeShortcut(keybindingsLinux.get('format.inline-math'))).toBe(
-      normalizeShortcut('Ctrl+Shift+M')
-    )
-    expect(normalizeShortcut(keybindingsWindows.get('format.inline-math'))).not.toBe(toolbar)
   })
 })
 
