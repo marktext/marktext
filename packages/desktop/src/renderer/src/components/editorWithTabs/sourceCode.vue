@@ -9,6 +9,7 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
+import { findMarkdownHeadingLine } from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
@@ -286,6 +287,19 @@ const listenChange = () => {
   })
 }
 
+// #3580: in Source Code mode the WYSIWYG container is hidden, so the
+// `scroll-to-header` bus event (emitted when a TOC entry is clicked) must scroll
+// CodeMirror instead. Resolve the TOC entry to its heading line in the source.
+const handleScrollToHeader = (slug: unknown) => {
+  if (!editor.value) return
+  const index = editorStore.listToc.findIndex(item => item.slug === slug)
+  if (index < 0) return
+  const line = findMarkdownHeadingLine(editor.value.getValue(), index)
+  if (line < 0) return
+  editor.value.setCursor({ line, ch: 0 })
+  editor.value.scrollIntoView({ line, ch: 0 })
+}
+
 onMounted(() => {
   if (!currentTab.value) return
   const { id } = currentTab.value
@@ -326,6 +340,7 @@ onMounted(() => {
   bus.on('file-changed', handleFileChange)
   bus.on('selectAll', handleSelectAll)
   bus.on('image-action', handleImageAction)
+  bus.on('scroll-to-header', handleScrollToHeader)
 
   // For some reason, code mirror does not seem to play well with Vue's refs if we reference editor.value directly.
   // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
@@ -363,6 +378,7 @@ onBeforeUnmount(() => {
   bus.off('file-changed', handleFileChange)
   bus.off('selectAll', handleSelectAll)
   bus.off('image-action', handleImageAction)
+  bus.off('scroll-to-header', handleScrollToHeader)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {
