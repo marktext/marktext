@@ -48,44 +48,38 @@ describe('findMarkdownHeadingLine', () => {
 
 // marktext #3580 follow-up: clicking a TOC entry in Source Code mode must put
 // the heading at the TOP of the viewport (not the bottom, as CodeMirror's
-// minimal `scrollIntoView` did) and animate the scroll.
+// minimal `scrollIntoView` did) and animate the scroll. Because CodeMirror runs
+// with viewportMargin: Infinity (full-height render), the OUTER `.source-code`
+// container is the scrollable element — that is what gets scrolled.
 type SourceEditor = Parameters<typeof scrollSourceEditorToLine>[0]
 
 describe('scrollSourceEditorToLine', () => {
-  const makeEditor = (withScroller: boolean) => {
-    const scrollerScrollTo = vi.fn()
-    const scroller = withScroller
-      ? ({ scrollTo: scrollerScrollTo } as unknown as HTMLElement)
-      : null
+  const makeEditor = () => {
     const setCursor = vi.fn()
     const heightAtLine = vi.fn(() => 480)
-    const scrollTo = vi.fn()
-    const editor: SourceEditor = {
-      setCursor,
-      heightAtLine,
-      getScrollerElement: () => scroller,
-      scrollTo
-    }
-    return { editor, scrollerScrollTo, setCursor, heightAtLine, scrollTo }
+    const editor: SourceEditor = { setCursor, heightAtLine }
+    return { editor, setCursor, heightAtLine }
   }
 
-  it('positions the line at the top via a smooth scroll of the scroller', () => {
-    const { editor, scrollerScrollTo, setCursor, heightAtLine, scrollTo } = makeEditor(true)
-    scrollSourceEditorToLine(editor, 12)
+  it('smooth-scrolls the container so the line sits at the top', () => {
+    const { editor, setCursor, heightAtLine } = makeEditor()
+    const containerScrollTo = vi.fn()
+    const container = { scrollTo: containerScrollTo } as unknown as HTMLElement
+
+    scrollSourceEditorToLine(editor, 12, container)
 
     // line top resolved as a local Y coordinate
     expect(heightAtLine).toHaveBeenCalledWith(12, 'local')
-    // scroller scrolled so that Y sits at the top, animated
-    expect(scrollerScrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'smooth' })
-    // caret moved without fighting the animation
+    // the OUTER container is scrolled so that Y sits at the top, animated
+    expect(containerScrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'smooth' })
+    // caret moved without its native scroll fighting the animation
     expect(setCursor).toHaveBeenCalledWith({ line: 12, ch: 0 }, null, { scroll: false })
-    // the old minimal-scroll path is not used
-    expect(scrollTo).not.toHaveBeenCalled()
   })
 
-  it('falls back to cm.scrollTo when no scroller element is available', () => {
-    const { editor, scrollTo } = makeEditor(false)
-    scrollSourceEditorToLine(editor, 5)
-    expect(scrollTo).toHaveBeenCalledWith(null, 480)
+  it('still places the caret but does not throw when no container is given', () => {
+    const { editor, setCursor, heightAtLine } = makeEditor()
+    scrollSourceEditorToLine(editor, 5, null)
+    expect(setCursor).toHaveBeenCalledWith({ line: 5, ch: 0 }, null, { scroll: false })
+    expect(heightAtLine).not.toHaveBeenCalled()
   })
 })
