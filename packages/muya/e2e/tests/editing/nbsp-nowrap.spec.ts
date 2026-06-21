@@ -26,14 +26,32 @@ test('&nbsp; keeps the surrounding words on one line', async ({ page }) => {
   expect(await lineCount(page, 'aaaaaa&nbsp;bbbbbb')).toBe(1)
 })
 
-test('a hidden &nbsp; entity adds no extra width (literal marker is out of flow)', async ({ page }) => {
-  // When the caret is not inside the entity (`.mu-hide`), the literal `&nbsp;`
-  // text is taken out of flow, so the entity occupies only its glyph margin
-  // rather than the full width of the 6 transparent literal characters.
-  const boxWidth = await page.evaluate(() => {
-    window.muya!.setContent('a&nbsp;b')
-    const esc = document.querySelector('.mu-html-escape') as HTMLElement
-    return Math.round(esc.getBoundingClientRect().width)
-  })
-  expect(boxWidth).toBe(0)
+test('a &nbsp; renders the same width as a regular breaking space (#3840)', async ({ page }) => {
+  // #3840 expects the gap to be "the same width as breaking spaces" — the
+  // whitespace entity renders its glyph inline (the actual U+00A0) instead of
+  // in the 1em glyph slot, so the gap equals a normal space rather than 1em.
+  const gap = async (md: string) => {
+    await page.evaluate((m) => window.muya!.setContent(m), md)
+    return page.evaluate(() => {
+      const p = document.querySelector('.mu-paragraph') as HTMLElement
+      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT)
+      const xs: { node: Text; idx: number }[] = []
+      let n: Node | null
+      while ((n = walker.nextNode())) {
+        const t = n as Text
+        const s = t.textContent || ''
+        for (let i = 0; i < s.length; i++) if (s[i] === 'x') xs.push({ node: t, idx: i })
+      }
+      const rectOf = (e: { node: Text; idx: number }) => {
+        const r = document.createRange()
+        r.setStart(e.node, e.idx)
+        r.setEnd(e.node, e.idx + 1)
+        return r.getBoundingClientRect()
+      }
+      return Math.round(rectOf(xs[xs.length - 1]).left - rectOf(xs[0]).right)
+    })
+  }
+  const spaceGap = await gap('x x')
+  const nbspGap = await gap('x&nbsp;x')
+  expect(nbspGap).toBe(spaceGap)
 })
