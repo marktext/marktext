@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import type Format from '../format';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CLASS_NAMES } from '../../../config';
 import { Muya } from '../../../muya';
 
@@ -65,23 +65,31 @@ describe('format.format() mounts the html_tag into the live editor DOM', () => {
         const muya = bootMuya('abc\n');
         const content = selectInFirstBlock(muya, 0, 3);
         content.format('u');
-        await new Promise(r => requestAnimationFrame(r));
-        const u = content.domNode!.querySelector<HTMLElement>(
-            `u.${CLASS_NAMES.MU_INLINE_RULE}`,
-        );
-        expect(u).toBeTruthy();
-        expect(u!.textContent).toBe('abc');
+        // The html_tag mounts on a later render tick; poll rather than wait a
+        // single rAF (one frame is not always enough under CI load → flaky).
+        const u = await vi.waitFor(() => {
+            const el = content.domNode!.querySelector<HTMLElement>(
+                `u.${CLASS_NAMES.MU_INLINE_RULE}`,
+            );
+            expect(el).toBeTruthy();
+            return el!;
+        });
+        expect(u.textContent).toBe('abc');
     });
 
     it('mark: applying renders a live `<mark>` element wrapping `abc`', async () => {
         const muya = bootMuya('abc\n');
         const content = selectInFirstBlock(muya, 0, 3);
         content.format('mark');
-        await new Promise(r => requestAnimationFrame(r));
-        const mark = content.domNode!.querySelector<HTMLElement>(
-            `mark.${CLASS_NAMES.MU_INLINE_RULE}`,
-        );
-        expect(mark).toBeTruthy();
-        expect(mark!.textContent).toBe('abc');
+        // The html_tag mounts on a later render tick; poll rather than wait a
+        // single rAF (one frame is not always enough under CI load → flaky).
+        const mark = await vi.waitFor(() => {
+            const el = content.domNode!.querySelector<HTMLElement>(
+                `mark.${CLASS_NAMES.MU_INLINE_RULE}`,
+            );
+            expect(el).toBeTruthy();
+            return el!;
+        });
+        expect(mark.textContent).toBe('abc');
     });
 });
