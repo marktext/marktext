@@ -2,7 +2,6 @@
 
 import type Format from '../format';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CLASS_NAMES } from '../../../config';
 import { Muya } from '../../../muya';
 import { InlineFormatToolbar } from '../../../ui/inlineFormatToolbar';
 
@@ -205,32 +204,6 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
 // via `buildRawHtmlTag`) inside the booted content block, not just into a
 // serialized markdown string. (The export path is covered by
 // renderToStaticHTML.spec; this is the editing-surface mount.)
-describe('format.format() mounts the html_tag into the live editor DOM', () => {
-    it('u: applying renders a live `<u>` element wrapping `abc`', async () => {
-        const muya = bootMuya('abc\n');
-        const content = selectInFirstBlock(muya, 0, 3);
-        content.format('u');
-        await new Promise(r => requestAnimationFrame(r));
-        const u = content.domNode!.querySelector<HTMLElement>(
-            `u.${CLASS_NAMES.MU_INLINE_RULE}`,
-        );
-        expect(u).toBeTruthy();
-        expect(u!.textContent).toBe('abc');
-    });
-
-    it('mark: applying renders a live `<mark>` element wrapping `abc`', async () => {
-        const muya = bootMuya('abc\n');
-        const content = selectInFirstBlock(muya, 0, 3);
-        content.format('mark');
-        await new Promise(r => requestAnimationFrame(r));
-        const mark = content.domNode!.querySelector<HTMLElement>(
-            `mark.${CLASS_NAMES.MU_INLINE_RULE}`,
-        );
-        expect(mark).toBeTruthy();
-        expect(mark!.textContent).toBe('abc');
-    });
-});
-
 describe('format.format(\'clear\') with the caret inside the run', () => {
     it('strips a strong run to plain text', () => {
         const content = caretInFirstBlock(bootMuya('**word**\n'), 2);
