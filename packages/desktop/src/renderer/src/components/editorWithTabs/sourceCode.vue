@@ -9,7 +9,7 @@
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
-import { findMarkdownHeadingLine } from '@/util/sourceModeToc'
+import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
@@ -296,8 +296,7 @@ const handleScrollToHeader = (slug: unknown) => {
   if (index < 0) return
   const line = findMarkdownHeadingLine(editor.value.getValue(), index)
   if (line < 0) return
-  editor.value.setCursor({ line, ch: 0 })
-  editor.value.scrollIntoView({ line, ch: 0 })
+  scrollSourceEditorToLine(editor.value, line)
 }
 
 onMounted(() => {
