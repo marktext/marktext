@@ -446,10 +446,15 @@ class Content extends TreeNode {
         const { muya } = this;
         let cursorBlock = null;
         let offset = 0;
+        // In RTL the physical Left/Right arrows are visually mirrored, so the
+        // cross-block boundary keys swap (offset 0 is the visual right end).
+        const isRtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
+        const prevKey = isRtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft;
+        const nextKey = isRtl ? EVENT_KEYS.ArrowLeft : EVENT_KEYS.ArrowRight;
 
         if (
             event.key === EVENT_KEYS.ArrowUp
-            || (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
+            || (event.key === prevKey && start.offset === 0)
         ) {
             event.preventDefault();
             event.stopPropagation();
@@ -462,7 +467,7 @@ class Content extends TreeNode {
         }
         else if (
             event.key === EVENT_KEYS.ArrowDown
-            || (event.key === EVENT_KEYS.ArrowRight && start.offset === this.text.length)
+            || (event.key === nextKey && start.offset === this.text.length)
         ) {
             event.preventDefault();
             event.stopPropagation();

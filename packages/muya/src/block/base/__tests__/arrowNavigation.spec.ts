@@ -233,3 +233,52 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         expect(event.preventDefault).not.toHaveBeenCalled();
     });
 });
+
+// marktext #3568: in RTL mode the physical Left/Right arrows are visually
+// mirrored, so the cross-block boundary keys must swap. Offset 0 is the visual
+// RIGHT end of an RTL line (ArrowRight should go to the previous block); offset
+// === text.length is the visual LEFT end (ArrowLeft should go to the next).
+function bootMuyaRtl(markdown: string): Muya {
+    const muya = bootMuya(markdown);
+    muya.domNode.setAttribute('dir', 'rtl');
+    return muya;
+}
+
+describe('content arrowHandler — RTL cross-block navigation (#3568)', () => {
+    it('in RTL, ArrowRight at offset 0 moves the caret to the END of the previous paragraph', async () => {
+        const muya = bootMuyaRtl('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+
+        const event = arrowAt(muya, beta, 'ArrowRight', 0);
+        await flush();
+
+        const alpha = contentByText(muya, 'alpha');
+        const cursor = alpha.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe('alpha'.length);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('in RTL, ArrowLeft at the end of a paragraph moves the caret to the next paragraph', async () => {
+        const muya = bootMuyaRtl('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+
+        const event = arrowAt(muya, alpha, 'ArrowLeft', 'alpha'.length);
+        await flush();
+
+        const beta = contentByText(muya, 'beta');
+        expect(beta.getCursor()).not.toBeNull();
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('in RTL, ArrowLeft at offset 0 does NOT navigate cross-block', async () => {
+        const muya = bootMuyaRtl('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+
+        const event = arrowAt(muya, beta, 'ArrowLeft', 0);
+        await flush();
+
+        expect(contentByText(muya, 'alpha').getCursor()).toBeNull();
+        expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+});
