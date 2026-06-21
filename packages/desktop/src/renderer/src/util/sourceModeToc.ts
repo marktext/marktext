@@ -6,28 +6,32 @@ interface ISourceEditor {
     options?: { scroll?: boolean }
   ) => void
   heightAtLine: (line: number, mode: 'local' | 'page' | 'div') => number
-  getScrollerElement?: () => HTMLElement | null | undefined
-  scrollTo: (x: number | null, y: number | null) => void
 }
 
 /**
- * Scroll the Source Code (CodeMirror) editor so `line` sits at the TOP of the
- * viewport, animated. CodeMirror's own `scrollIntoView` only scrolls the
- * minimum amount, leaving the heading at the bottom edge with no animation, so
- * instead position the scroller directly: place the line's local Y at the top
- * via the scroller's native smooth scroll. `setCursor` is given `scroll: false`
- * so its built-in caret-into-view scroll doesn't fight the animation.
+ * Scroll the Source Code editor so `line` sits at the TOP of the viewport,
+ * animated.
+ *
+ * The editor runs CodeMirror with `viewportMargin: Infinity`, so CodeMirror
+ * renders the whole document at full height and its own `.CodeMirror-scroll`
+ * never scrolls — the OUTER `.source-code` container (`scrollContainer`) is the
+ * scrollable element. So neither `cm.scrollTo` nor `cm.scrollIntoView` moves
+ * anything; we scroll the container directly to the line's local Y, which puts
+ * the line at the top (CodeMirror's `scrollIntoView` only scrolled minimally,
+ * leaving the heading at the bottom edge with no animation). `setCursor` gets
+ * `scroll: false` so its native caret-into-view scroll doesn't fight the
+ * animation.
  */
-export function scrollSourceEditorToLine(editor: ISourceEditor, line: number): void {
+export function scrollSourceEditorToLine(
+  editor: ISourceEditor,
+  line: number,
+  scrollContainer: HTMLElement | null | undefined
+): void {
   editor.setCursor({ line, ch: 0 }, null, { scroll: false })
 
+  if (!scrollContainer) return
   const top = editor.heightAtLine(line, 'local')
-  const scroller = editor.getScrollerElement?.()
-  if (scroller && typeof scroller.scrollTo === 'function') {
-    scroller.scrollTo({ top, behavior: 'smooth' })
-  } else {
-    editor.scrollTo(null, top)
-  }
+  scrollContainer.scrollTo({ top, behavior: 'smooth' })
 }
 
 /**

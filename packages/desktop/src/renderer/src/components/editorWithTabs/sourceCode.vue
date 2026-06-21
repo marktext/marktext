@@ -296,7 +296,9 @@ const handleScrollToHeader = (slug: unknown) => {
   if (index < 0) return
   const line = findMarkdownHeadingLine(editor.value.getValue(), index)
   if (line < 0) return
-  scrollSourceEditorToLine(editor.value, line)
+  // `.source-code` is the scroll container (CodeMirror renders full-height with
+  // viewportMargin: Infinity, so its own scroller never scrolls).
+  scrollSourceEditorToLine(editor.value, line, sourceCodeContainer.value)
 }
 
 onMounted(() => {
