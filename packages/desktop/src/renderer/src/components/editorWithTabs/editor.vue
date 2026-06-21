@@ -1965,6 +1965,10 @@ onBeforeUnmount(() => {
 .editor-wrapper {
   height: 100%;
   position: relative;
+  /* Contain the editor's z-indexed children (e.g. the math/diagram preview
+     popups at z-index 10000) in their own stacking context so they cannot
+     paint above modal dialogs rendered outside the editor. */
+  isolation: isolate;
   flex: 1;
   color: var(--editorColor);
 }
