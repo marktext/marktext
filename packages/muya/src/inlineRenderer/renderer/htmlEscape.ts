@@ -16,23 +16,15 @@ export default function htmlEscape(
     const className = this.getClassName(outerClass, block, token, cursor);
     const { escapeCharacter } = token;
     const { start, end } = token.range;
-    const character = escapeCharactersMap[escapeCharacter];
 
     const content = this.highlight(h, block, start, end, token);
 
-    // Whitespace entities (&nbsp;, &ensp;, &emsp;) render their glyph inline so
-    // the gap is exactly one space wide instead of the 1em slot reserved for a
-    // visible glyph (©, ™, …).
-    const escapeClass = /\s/.test(character)
-        ? `${CLASS_NAMES.MU_HTML_ESCAPE}.${CLASS_NAMES.MU_HTML_ESCAPE_SPACE}`
-        : CLASS_NAMES.MU_HTML_ESCAPE;
-
     return [
         h(
-            `span.${className}.${escapeClass}`,
+            `span.${className}.${CLASS_NAMES.MU_HTML_ESCAPE}`,
             {
                 dataset: {
-                    character,
+                    character: escapeCharactersMap[escapeCharacter],
                 },
             },
             h(`span.${CLASS_NAMES.MU_HTML_ESCAPE_MARKER}`, content),

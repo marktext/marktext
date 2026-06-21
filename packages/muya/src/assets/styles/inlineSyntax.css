@@ -97,57 +97,34 @@ code.mu-inline-rule {
 .mu-html-escape {
     position: relative;
 
-    /* An escaped space entity (&nbsp;, &ensp; …) must not be a line-break
-       opportunity, otherwise text wraps across e.g. `Jul&nbsp;21`. Override the
-       `inline-block` inherited from `.mu-hide` (an atomic box the line breaks
-       around) with `inline`; `nowrap` keeps the literal entity text together. */
+    /* `inline` (overriding the `inline-block` inherited from `.mu-hide`, an
+       atomic box the line breaks around) so an entity breaks like the character
+       it represents — a `&nbsp;` glyph (U+00A0) is non-breaking; `nowrap` keeps
+       the literal entity text together while editing. `baseline` overrides the
+       `vertical-align: middle` from `.mu-hide` so the inline glyph sits on the
+       text baseline like the character it represents. */
     display: inline;
 
-    margin-left: 1em;
-
     white-space: nowrap;
+    vertical-align: baseline;
 }
 
 /* When the caret is outside the entity, take the literal marker text out of
-   flow so it adds no width (an inline element ignores `width: 0`) and creates
-   no break opportunity — the glyph keeps showing via `::before`, which stays in
-   the outer span's normal-sized line box so it aligns. */
+   flow so the entity shows only its `::before` glyph, at the glyph's own width
+   (no extra width from the hidden literal, no break opportunity). */
 .mu-hide.mu-html-escape[data-character] .mu-html-escape-marker {
     position: absolute;
 
     visibility: hidden;
 }
 
+/* Render the glyph (`data-character`) inline at its natural width, so every
+   entity is exactly as wide as the character it stands for: `&nbsp;` is one
+   space, `&amp;` one ampersand, `&mdash;` one em dash — not a fixed 1em slot. */
 .mu-html-escape::before {
-    position: absolute;
-    top: 0;
-    left: -1em;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    width: 1em;
-    height: 100%;
-
     color: var(--editor-color);
 
     content: attr(data-character);
-}
-
-/* A whitespace entity (&nbsp;, &ensp;, &emsp;) has a blank glyph, so render it
-   inline (its `data-character` is the actual U+00A0/U+2002/U+2003) instead of in
-   the 1em glyph slot — the gap is then exactly one non-breaking space wide
-   rather than 1em. */
-.mu-html-escape-space {
-    margin-left: 0;
-}
-
-.mu-html-escape-space::before {
-    position: static;
-
-    display: inline;
-    width: auto;
-    height: auto;
 }
 
 /* hard line break and soft line end */
