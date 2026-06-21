@@ -97,10 +97,14 @@ code.mu-inline-rule {
 .mu-html-escape {
     position: relative;
 
+    /* An escaped space entity (&nbsp;, &ensp; …) must not be a line-break
+       opportunity, otherwise text wraps across e.g. `Jul&nbsp;21`. Override the
+       `inline-block` inherited from `.mu-hide` (an atomic box the line breaks
+       around) with `inline`; `nowrap` keeps the literal entity text together. */
+    display: inline;
+
     margin-left: 1em;
 
-    /* An escaped space entity (&nbsp;, &ensp; …) must not be a line-break
-       opportunity, otherwise text wraps across e.g. `Jul&nbsp;21`. */
     white-space: nowrap;
 }
 
