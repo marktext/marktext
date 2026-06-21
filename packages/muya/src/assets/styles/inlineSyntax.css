@@ -134,6 +134,22 @@ code.mu-inline-rule {
     content: attr(data-character);
 }
 
+/* A whitespace entity (&nbsp;, &ensp;, &emsp;) has a blank glyph, so render it
+   inline (its `data-character` is the actual U+00A0/U+2002/U+2003) instead of in
+   the 1em glyph slot — the gap is then exactly one non-breaking space wide
+   rather than 1em. */
+.mu-html-escape-space {
+    margin-left: 0;
+}
+
+.mu-html-escape-space::before {
+    position: static;
+
+    display: inline;
+    width: auto;
+    height: auto;
+}
+
 /* hard line break and soft line end */
 .mu-line-end {
     display: block;
