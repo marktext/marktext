@@ -179,6 +179,10 @@ div .mu-math-error,
     font-size: 14px;
     font-family: monospace;
     font-style: italic;
+
+    /* Keep the KaTeX parse-error message on one line instead of wrapping
+       across the narrow inline-math popup. */
+    white-space: nowrap;
 }
 
 .mu-math > .mu-math-render .katex-display {
