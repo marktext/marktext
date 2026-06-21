@@ -219,6 +219,12 @@ div .mu-math-error,
 
     padding: 0;
 
+    /* The popup's `overflow: auto hidden` (for horizontal scrolling) makes this
+       inline-block take its baseline from its bottom edge, pushing the rendered
+       math/error a few px above the surrounding text. Inline (hidden) it is not
+       a scrollable popup, so restore `visible` to keep it on the baseline. */
+    overflow: visible;
+
     color: var(--editor-color);
 
     background: transparent;
