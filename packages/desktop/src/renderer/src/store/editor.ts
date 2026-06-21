@@ -76,7 +76,9 @@ interface FileChangePayload {
 }
 
 interface FormatLinkClickPayload {
-  data: { href: string; [key: string]: unknown }
+  // muya's getLinkInfo yields `href: null` when the rendered link carries no
+  // usable href (e.g. an unsupported protocol stripped by sanitizeHyperlink).
+  data: { href: string | null; [key: string]: unknown }
   dirname: string
 }
 
@@ -403,8 +405,7 @@ export const useEditorStore = defineStore('editor', {
 
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
-
-      if (data.href.length > 0 && data.href[0] === '#') {
+      if (data.href && data.href[0] === '#') {
         const anchorSlug = data.href.substring(1)
         if (!anchorSlug) return
 
@@ -415,6 +416,13 @@ export const useEditorStore = defineStore('editor', {
             bus.emit('scroll-to-header', item.slug)
             return
           }
+        }
+
+        // Fall back to a non-heading target: a custom `<a id="...">` (or any
+        // element with a matching id) rendered in the document.
+        const anchorElement = document.getElementById(anchorSlug)
+        if (anchorElement) {
+          bus.emit('scroll-to-anchor-element', anchorElement)
         }
 
         return

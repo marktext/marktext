@@ -129,8 +129,11 @@ export function attachLinkMouseHandlers(muya: Muya): void {
 
         // Suppress in-editor navigation for every real anchor variant. Place
         // the cursor instead of opening a tab (standard contenteditable
-        // rich-text pattern). This runs for plain clicks too.
-        const anchor = event.target.closest<HTMLElement>(ANCHOR_CLICK_SELECTOR);
+        // rich-text pattern). This runs for plain clicks too. Anchors inside a
+        // raw HTML block preview (`.mu-html-preview a`) have no wrapper class,
+        // so match them explicitly too.
+        const anchor = event.target.closest<HTMLElement>(ANCHOR_CLICK_SELECTOR)
+            ?? event.target.closest<HTMLElement>(`.${CLASS_NAMES.MU_HTML_PREVIEW} a[href]`);
         if (anchor)
             event.preventDefault();
 
@@ -147,8 +150,28 @@ export function attachLinkMouseHandlers(muya: Muya): void {
             return;
 
         const wrapper = findLinkWrapper(event.target);
-        if (!wrapper)
+        if (!wrapper) {
+            // A link inside a raw HTML block renders into `.mu-html-preview` as
+            // a plain `<a>` (no `mu-raw-html` wrapper), so it is not matched by
+            // LINK_SELECTOR. Emit the jump for it directly.
+            const previewAnchor = event.target.closest<HTMLAnchorElement>(
+                `.${CLASS_NAMES.MU_HTML_PREVIEW} a[href]`,
+            );
+            const previewHref = previewAnchor?.getAttribute('href');
+            if (previewAnchor && previewHref) {
+                eventCenter.emit('format-click', {
+                    event,
+                    formatType: 'link',
+                    data: {
+                        href: previewHref,
+                        raw: previewAnchor.outerHTML,
+                        text: previewAnchor.textContent ?? '',
+                    },
+                });
+            }
+
             return;
+        }
 
         const linkInfo = getLinkInfo(wrapper);
         if (!linkInfo || !linkInfo.href)

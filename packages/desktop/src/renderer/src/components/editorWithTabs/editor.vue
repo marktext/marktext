@@ -815,9 +815,12 @@ watch(
 )
 
 // Methods
-const jumpClick = (linkInfo: { href: string }) => {
+// muya types the callback as (linkInfo: ILinkInfo | null) and href itself can
+// be null when the rendered link has no usable href (see issue #4356).
+const jumpClick = (linkInfo: { href?: string | null } | null) => {
+  if (!linkInfo) return
   const { href } = linkInfo
-  editorStore.FORMAT_LINK_CLICK({ data: { href }, dirname: window.DIRNAME })
+  editorStore.FORMAT_LINK_CLICK({ data: { href: href ?? null }, dirname: window.DIRNAME })
 }
 
 interface ImagePathSuggestion {
@@ -1203,6 +1206,12 @@ const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
   scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+}
+
+// Scrolls to a non-heading in-document anchor target (e.g. a custom
+// `<a id="...">`) resolved by `FORMAT_LINK_CLICK` via `getElementById`.
+const scrollToAnchorElement = (element: unknown) => {
+  if (element instanceof Element) scrollElementIntoView(element)
 }
 
 const scrollToElement = (selector: string) => {
@@ -1781,6 +1790,7 @@ onMounted(() => {
   bus.on('deleteParagraph', handleParagraph)
   bus.on('insertParagraph', handleInsertParagraph)
   bus.on('scroll-to-header', scrollToHeader)
+  bus.on('scroll-to-anchor-element', scrollToAnchorElement)
   bus.on('screenshot-captured', handleScreenShot)
   bus.on('show-command-palette', handleModalOpening)
   bus.on('switch-spellchecker-language', switchSpellcheckLanguage)
@@ -1929,6 +1939,7 @@ onBeforeUnmount(() => {
   bus.off('deleteParagraph', handleParagraph)
   bus.off('insertParagraph', handleInsertParagraph)
   bus.off('scroll-to-header', scrollToHeader)
+  bus.off('scroll-to-anchor-element', scrollToAnchorElement)
   bus.off('screenshot-captured', handleScreenShot)
   bus.off('show-command-palette', handleModalOpening)
   bus.off('switch-spellchecker-language', switchSpellcheckLanguage)
@@ -1965,6 +1976,10 @@ onBeforeUnmount(() => {
 .editor-wrapper {
   height: 100%;
   position: relative;
+  /* Contain the editor's z-indexed children (e.g. the math/diagram preview
+     popups at z-index 10000) in their own stacking context so they cannot
+     paint above modal dialogs rendered outside the editor. */
+  isolation: isolate;
   flex: 1;
   color: var(--editorColor);
 }

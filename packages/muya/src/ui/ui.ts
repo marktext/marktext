@@ -41,6 +41,13 @@ export class Ui {
         if (this.shownFloat.size === 0 || !CONTENT_NAV_KEYS.has(event.key))
             return false;
 
+        if (
+            event.shiftKey
+            && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown)
+        ) {
+            return false;
+        }
+
         for (const tool of this.shownFloat) {
             if (tool.capturesContentKeydown) {
                 event.preventDefault();

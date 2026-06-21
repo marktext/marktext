@@ -46,13 +46,15 @@ const icons = [
     {
         type: 'inline_code',
         tooltip: 'Inline Code',
-        shortcut: `${COMMAND_KEY}+E`,
+        // Default keybinding is Cmd/Ctrl+` (Linux uses Ctrl+Y); was wrongly +E.
+        shortcut: `${COMMAND_KEY}+\``,
         icon: codeIcon,
     },
     {
         type: 'inline_math',
         tooltip: 'Inline Math',
-        shortcut: `⇧+${COMMAND_KEY}+E`,
+        // Default keybinding is Shift+Cmd/Ctrl+M; was wrongly +E.
+        shortcut: `⇧+${COMMAND_KEY}+M`,
         icon: mathIcon,
     },
     {

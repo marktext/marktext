@@ -2,7 +2,7 @@
 
 import type { Config } from '../dompurify';
 import { describe, expect, it } from 'vitest';
-import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
+import { EXPORT_DOMPURIFY_CONFIG, PREVIEW_DOMPURIFY_CONFIG } from '../../config';
 import sanitize, { isValidAttribute } from '../dompurify';
 
 // Lock the DOMPurify config to the typed contract so a regression in shape
@@ -93,5 +93,30 @@ describe('marktext 0baf2e9e/7de33f11 — inline html tag XSS defenses', () => {
             const cleaned = sanitize(html, EXPORT_CONFIG) as unknown as string;
             expect(cleaned).toContain('data-align="center"');
         });
+    });
+});
+
+// marktext #3594 / #3697: the editor's live HTML-block preview forbade the
+// `style` attribute while export allowed it, so inline-styled HTML rendered
+// unstyled in the editor. The preview config now matches export — `style`
+// survives, but DOMPurify still strips dangerous attributes.
+describe('preview config — inline style in html blocks (#3594 #3697)', () => {
+    const PREVIEW_CONFIG: Config = PREVIEW_DOMPURIFY_CONFIG;
+
+    it('keeps the style attribute on a styled element', () => {
+        const out = sanitize(
+            '<div style="color: SteelBlue; text-align: center;">centered</div>',
+            PREVIEW_CONFIG,
+        ) as string;
+        expect(out).toContain('style=');
+        expect(out).toContain('text-align');
+    });
+
+    it('still strips event-handler attributes from a styled element', () => {
+        const out = sanitize(
+            '<div style="color: red" onclick="alert(1)">x</div>',
+            PREVIEW_CONFIG,
+        ) as string;
+        expect(out).not.toContain('onclick');
     });
 });

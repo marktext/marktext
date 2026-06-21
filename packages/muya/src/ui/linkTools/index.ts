@@ -99,7 +99,14 @@ class LinkTools extends BaseFloat {
     }
 
     render() {
-        const { _icons: icons, _oldVNode: oldVNode, _linkContainer: linkContainer } = this;
+        const { _oldVNode: oldVNode, _linkContainer: linkContainer } = this;
+        // A link whose href was sanitized away (e.g. an unsupported custom
+        // protocol, issue #4356) carries `href: null` — there is nothing to
+        // jump to, so offer only "unlink" (the same nothing-to-act-on rule
+        // that keeps unresolved reference links out of the popover entirely).
+        const icons = this._linkInfo?.href
+            ? this._icons
+            : this._icons.filter(icon => icon.type !== 'jump');
         const children = icons.map((i) => {
             let icon: VNode | undefined;
             let iconWrapperSelector: string | undefined;

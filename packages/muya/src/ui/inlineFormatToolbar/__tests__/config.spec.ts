@@ -46,3 +46,21 @@ describe('inlineFormatToolbar config — required inline format types', () => {
         }
     });
 });
+
+// marktext #3630: the inline_code / inline_math tooltips advertised Cmd/Ctrl+E
+// and Shift+Cmd/Ctrl+E, but no platform binds those — the defaults are
+// Cmd/Ctrl+` (inline code) and Shift+Cmd/Ctrl+M (inline math). The label must
+// match the actual keybinding.
+describe('inlineFormatToolbar config — shortcut labels match default keybindings (#3630)', () => {
+    it('inline_code advertises the backtick key, not E', () => {
+        const entry = icons.find(i => i.type === 'inline_code')!;
+        expect(entry.shortcut).toContain('`');
+        expect(entry.shortcut).not.toMatch(/\+E$/i);
+    });
+
+    it('inline_math advertises the M key, not E', () => {
+        const entry = icons.find(i => i.type === 'inline_math')!;
+        expect(entry.shortcut).toMatch(/\+M$/);
+        expect(entry.shortcut).not.toMatch(/\+E$/i);
+    });
+});

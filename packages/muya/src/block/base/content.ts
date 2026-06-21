@@ -95,7 +95,7 @@ function extractWord(
 
 function shouldRemoveClosingChar(
     inputChar: string,
-    prePreInputChar: string,
+    preInputChar: string,
     options: { autoPairBracket: boolean; autoPairMarkdownSyntax: boolean; autoPairQuote: boolean },
 ) {
     const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = options;
@@ -107,7 +107,7 @@ function shouldRemoveClosingChar(
         || (autoPairMarkdownSyntax && /\$/.test(inputChar))
         || (autoPairMarkdownSyntax
             && /[*$`~_]/.test(inputChar)
-            && /[_*~]/.test(prePreInputChar))
+            && preInputChar !== inputChar)
     );
 }
 
@@ -207,7 +207,6 @@ function collapsedInputAutoPair(
     const { offset } = start;
     const inputChar = text.charAt(+offset - 1);
     const preInputChar = text.charAt(+offset - 2);
-    const prePreInputChar = text.charAt(+offset - 3);
     const postInputChar = text.charAt(+offset);
     let needRender = false;
 
@@ -217,7 +216,7 @@ function collapsedInputAutoPair(
     if (
         !event.inputType.includes('delete')
         && inputChar === postInputChar
-        && shouldRemoveClosingChar(inputChar, prePreInputChar, options)
+        && shouldRemoveClosingChar(inputChar, preInputChar, options)
     ) {
         needRender = true;
         text = text.substring(0, offset) + text.substring(offset + 1);

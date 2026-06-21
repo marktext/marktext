@@ -36,7 +36,7 @@ import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
 function escapeText(str: string) {
-    return str.replace(/([^\\])\|/g, '$1\\|');
+    return str.replace(/(?<!\\)\|/g, '\\|');
 }
 
 export interface IExportMarkdownOptions {

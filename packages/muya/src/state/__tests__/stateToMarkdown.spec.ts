@@ -142,3 +142,56 @@ describe('serializeTable — column alignment', () => {
         expect(secondPass.split('\n')[1]).toBe(delimiterRow);
     });
 });
+
+// Regression for marktext #3563. Typing a literal `|` into a table cell stores
+// a bare pipe in the cell's text. `escapeText` used `/([^\\])\|/g`, which
+// requires a non-backslash character *before* the pipe, so a pipe at the start
+// of a cell — or the second of two consecutive pipes (`||`) — was never escaped.
+// On reopening the saved file that unescaped pipe was read as a column
+// separator and the following text was dropped (the cell content "eaten").
+interface INavNode {
+    name: string;
+    text?: string;
+    children?: INavNode[];
+}
+
+describe('serializeTable — pipe escaping (#3563)', () => {
+    it('escapes a pipe at the very start of a cell', () => {
+        const md = new ExportMarkdown().generate([
+            table([row([cell('|lead'), cell('b')])]),
+        ]);
+
+        expect(md).toContain('\\|lead');
+    });
+
+    it('escapes both of two consecutive pipes in a cell', () => {
+        const md = new ExportMarkdown().generate([
+            table([row([cell('a||b'), cell('c')])]),
+        ]);
+
+        expect(md).toContain('a\\|\\|b');
+    });
+
+    it('round-trips a cell starting with a pipe byte-stably without losing columns', () => {
+        const built = table([
+            row([cell('head1'), cell('head2')]),
+            row([cell('|danger'), cell('keep')]),
+        ]);
+        const md = new ExportMarkdown().generate([built]);
+        expect(md).toContain('\\|danger');
+
+        const reparsed = gen(md) as unknown as INavNode[];
+        const tableNode = reparsed.find(n => n.name === 'table')!;
+        const bodyRow = tableNode.children![1];
+
+        // No phantom column, no content loss or shift into the next cell.
+        expect(bodyRow.children).toHaveLength(2);
+        expect(bodyRow.children![0].text).toContain('danger');
+        expect(bodyRow.children![1].text).toBe('keep');
+
+        // Save -> reopen -> save must be byte-stable; #3563's "reopen eats a
+        // chunk" was progressive corruption across this cycle.
+        const reserialized = new ExportMarkdown().generate(gen(md));
+        expect(reserialized).toBe(md);
+    });
+});

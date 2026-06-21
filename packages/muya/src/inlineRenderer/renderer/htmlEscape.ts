@@ -27,7 +27,7 @@ export default function htmlEscape(
                     character: escapeCharactersMap[escapeCharacter],
                 },
             },
-            content,
+            h(`span.${CLASS_NAMES.MU_HTML_ESCAPE_MARKER}`, content),
         ),
     ];
 }

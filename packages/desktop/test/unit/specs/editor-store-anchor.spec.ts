@@ -52,17 +52,38 @@ describe('useEditorStore FORMAT_LINK_CLICK (anchor links)', () => {
     expect(sendSpy).not.toHaveBeenCalled()
   })
 
-  it('does nothing for an anchor that matches no TOC github-slug', () => {
+  it('does nothing for an anchor that matches no TOC github-slug and no DOM id', () => {
     const store = useEditorStore()
     store.listToc = [{ githubSlug: 'installation', slug: 'uid-1', lvl: 2 }]
 
     const emitSpy = vi.spyOn(bus, 'emit')
     const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+    const getByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(null)
 
     store.FORMAT_LINK_CLICK({ data: { href: '#nope' }, dirname: '' })
 
     expect(emitSpy).not.toHaveBeenCalled()
     expect(sendSpy).not.toHaveBeenCalled()
+    getByIdSpy.mockRestore()
+  })
+
+  // marktext #3609: `[text](#id)` where `#id` is a custom `<a id="id">` (not a
+  // heading) was silently swallowed — it isn't in the TOC. Fall back to the DOM.
+  it('emits scroll-to-anchor-element for a non-heading anchor id found in the DOM', () => {
+    const store = useEditorStore()
+    store.listToc = [{ githubSlug: 'installation', slug: 'uid-1', lvl: 2 }]
+
+    const fakeEl = document.createElement('a')
+    const getByIdSpy = vi.spyOn(document, 'getElementById').mockReturnValue(fakeEl)
+    const emitSpy = vi.spyOn(bus, 'emit')
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.FORMAT_LINK_CLICK({ data: { href: '#jump' }, dirname: '' })
+
+    expect(getByIdSpy).toHaveBeenCalledWith('jump')
+    expect(emitSpy).toHaveBeenCalledWith('scroll-to-anchor-element', fakeEl)
+    expect(sendSpy).not.toHaveBeenCalled()
+    getByIdSpy.mockRestore()
   })
 
   it('ignores a bare "#" (empty anchor slug) without emit or IPC', () => {
