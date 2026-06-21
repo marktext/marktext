@@ -632,6 +632,9 @@ class Format extends Content {
         if (this._checkNotSameToken(this.text, text))
             needRender = true;
 
+        const inputData = 'data' in event && typeof event.data === 'string' ? event.data : null;
+        this.muya.editor.history.markInputBoundary(inputType, inputData);
+
         this.text = text;
 
         const cursor = {
@@ -1294,6 +1297,8 @@ class Format extends Content {
         if (!start || !end || start?.offset !== end?.offset)
             return;
 
+        this.muya.editor.history.markInputBoundary('deleteContentBackward', null);
+
         // fix: #897 in marktext repo
         const { text } = this;
         const { footnote, superSubScript } = this.muya.options;
@@ -1454,6 +1459,8 @@ class Format extends Content {
         if (start.offset !== end.offset || start.offset !== text.length)
             return;
 
+        this.muya.editor.history.markInputBoundary('deleteContentForward', null);
+
         const nextBlock = this.nextContentInContext();
         if (!nextBlock || nextBlock.blockName !== 'paragraph.content') {
             // If the next block is code content or table cell, nothing need to do.
@@ -1492,6 +1499,7 @@ class Format extends Content {
 
     override enterHandler(event: KeyboardEvent): void {
         event.preventDefault();
+        this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
         const { text: oldText, muya, parent } = this;
         const { start, end } = this.getCursor()!;
         this.text = oldText.substring(0, start.offset);
