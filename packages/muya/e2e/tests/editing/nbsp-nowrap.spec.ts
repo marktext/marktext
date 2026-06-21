@@ -25,3 +25,15 @@ test('&nbsp; keeps the surrounding words on one line', async ({ page }) => {
   // the fix: &nbsp; must NOT break → both words stay on one (overflowing) line
   expect(await lineCount(page, 'aaaaaa&nbsp;bbbbbb')).toBe(1)
 })
+
+test('a hidden &nbsp; entity adds no extra width (literal marker is out of flow)', async ({ page }) => {
+  // When the caret is not inside the entity (`.mu-hide`), the literal `&nbsp;`
+  // text is taken out of flow, so the entity occupies only its glyph margin
+  // rather than the full width of the 6 transparent literal characters.
+  const boxWidth = await page.evaluate(() => {
+    window.muya!.setContent('a&nbsp;b')
+    const esc = document.querySelector('.mu-html-escape') as HTMLElement
+    return Math.round(esc.getBoundingClientRect().width)
+  })
+  expect(boxWidth).toBe(0)
+})
