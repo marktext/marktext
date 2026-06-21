@@ -145,6 +145,15 @@ export function lowerPriority(src: string, offset: number, rules: Rules) {
         if (ignoreIndex.includes(i))
             continue;
 
+        // A character preceded by an odd number of backslashes is escaped
+        // (e.g. `\$`), so it cannot open a higher-priority construct such as
+        // inline math/code and must not lower the surrounding emphasis.
+        let backslashes = 0;
+        for (let j = i - 1; j >= 0 && src[j] === '\\'; j--)
+            backslashes++;
+        if (backslashes % 2 === 1)
+            continue;
+
         const text = src.substring(i);
 
         for (const [, regexp] of Object.entries(rules)) {

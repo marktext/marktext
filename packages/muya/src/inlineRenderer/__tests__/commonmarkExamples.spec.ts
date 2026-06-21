@@ -262,3 +262,21 @@ describe('inline lexer — link / image dest with parens (marktext 57af8304 / #1
         expect(image.raw).not.toContain('parens');
     });
 });
+
+// Regression for marktext #3778. `lowerPriority` scanned every position for a
+// higher-priority construct (inline math/code/links) that would overlap the
+// emphasis, but treated an escaped `\$` as a real `$` math delimiter — so the
+// first `**bold**` on a line that also contained a later `\$` was suppressed.
+describe('inline lexer — bold with escaped dollar signs (#3778)', () => {
+    it('emits a strong token for every `**`-wrapped span containing an escaped `$`', () => {
+        const tokens = tokenizer('It costs **\\$20** to **\\$30** online.');
+        const strongs = tokens.filter(t => t.type === 'strong');
+        expect(strongs.length, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBe(2);
+    });
+
+    it('still emits em for `*`-wrapped spans containing an escaped `$`', () => {
+        const tokens = tokenizer('a *\\$1* and *\\$2* b');
+        const ems = tokens.filter(t => t.type === 'em');
+        expect(ems.length, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBe(2);
+    });
+});
