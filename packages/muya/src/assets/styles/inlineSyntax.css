@@ -165,6 +165,13 @@ code.mu-inline-rule {
     user-select: none;
 }
 
+/* A long inline-math formula must scroll horizontally inside the popup instead
+   of overflowing the editor area. */
+.mu-math > .mu-math-render {
+    max-width: calc(var(--editor-area-width, 800px) - 100px);
+    overflow: auto hidden;
+}
+
 .mu-ruby > .mu-ruby-render {
     left: 50%;
 
