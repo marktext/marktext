@@ -26,32 +26,43 @@ test('&nbsp; keeps the surrounding words on one line', async ({ page }) => {
   expect(await lineCount(page, 'aaaaaa&nbsp;bbbbbb')).toBe(1)
 })
 
+// Horizontal gap between the first and last 'x' glyph in the paragraph — i.e.
+// the rendered width of whatever sits between them.
+async function gapBetweenX(page, md: string): Promise<number> {
+  await page.evaluate((m) => window.muya!.setContent(m), md)
+  return page.evaluate(() => {
+    const p = document.querySelector('.mu-paragraph') as HTMLElement
+    const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT)
+    const xs: { node: Text; idx: number }[] = []
+    let n: Node | null
+    while ((n = walker.nextNode())) {
+      const t = n as Text
+      const s = t.textContent || ''
+      for (let i = 0; i < s.length; i++) if (s[i] === 'x') xs.push({ node: t, idx: i })
+    }
+    const rectOf = (e: { node: Text; idx: number }) => {
+      const r = document.createRange()
+      r.setStart(e.node, e.idx)
+      r.setEnd(e.node, e.idx + 1)
+      return r.getBoundingClientRect()
+    }
+    return Math.round(rectOf(xs[xs.length - 1]).left - rectOf(xs[0]).right)
+  })
+}
+
 test('a &nbsp; renders the same width as a regular breaking space (#3840)', async ({ page }) => {
   // #3840 expects the gap to be "the same width as breaking spaces" — the
   // whitespace entity renders its glyph inline (the actual U+00A0) instead of
   // in the 1em glyph slot, so the gap equals a normal space rather than 1em.
-  const gap = async (md: string) => {
-    await page.evaluate((m) => window.muya!.setContent(m), md)
-    return page.evaluate(() => {
-      const p = document.querySelector('.mu-paragraph') as HTMLElement
-      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT)
-      const xs: { node: Text; idx: number }[] = []
-      let n: Node | null
-      while ((n = walker.nextNode())) {
-        const t = n as Text
-        const s = t.textContent || ''
-        for (let i = 0; i < s.length; i++) if (s[i] === 'x') xs.push({ node: t, idx: i })
-      }
-      const rectOf = (e: { node: Text; idx: number }) => {
-        const r = document.createRange()
-        r.setStart(e.node, e.idx)
-        r.setEnd(e.node, e.idx + 1)
-        return r.getBoundingClientRect()
-      }
-      return Math.round(rectOf(xs[xs.length - 1]).left - rectOf(xs[0]).right)
-    })
-  }
-  const spaceGap = await gap('x x')
-  const nbspGap = await gap('x&nbsp;x')
+  const spaceGap = await gapBetweenX(page, 'x x')
+  const nbspGap = await gapBetweenX(page, 'x&nbsp;x')
   expect(nbspGap).toBe(spaceGap)
+})
+
+test('a visible entity renders at its character width, not a fixed 1em slot (#3840)', async ({ page }) => {
+  // Every escape entity is exactly as wide as the character it stands for, so
+  // `&amp;` is the width of a literal "&" rather than the old 1em glyph slot.
+  const literalAmp = await gapBetweenX(page, 'x&x')
+  const entityAmp = await gapBetweenX(page, 'x&amp;x')
+  expect(entityAmp).toBe(literalAmp)
 })
