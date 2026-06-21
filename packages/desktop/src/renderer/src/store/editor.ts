@@ -417,6 +417,13 @@ export const useEditorStore = defineStore('editor', {
           }
         }
 
+        // Fall back to a non-heading target: a custom `<a id="...">` (or any
+        // element with a matching id) rendered in the document.
+        const anchorElement = document.getElementById(anchorSlug)
+        if (anchorElement) {
+          bus.emit('scroll-to-anchor-element', anchorElement)
+        }
+
         return
       }
 

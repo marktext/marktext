@@ -1205,6 +1205,12 @@ const scrollToHeader = (slug: unknown) => {
   scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
 }
 
+// Scrolls to a non-heading in-document anchor target (e.g. a custom
+// `<a id="...">`) resolved by `FORMAT_LINK_CLICK` via `getElementById`.
+const scrollToAnchorElement = (element: unknown) => {
+  if (element instanceof Element) scrollElementIntoView(element)
+}
+
 const scrollToElement = (selector: string) => {
   // Scroll to search highlight word
   scrollElementIntoView(document.querySelector(selector))
@@ -1781,6 +1787,7 @@ onMounted(() => {
   bus.on('deleteParagraph', handleParagraph)
   bus.on('insertParagraph', handleInsertParagraph)
   bus.on('scroll-to-header', scrollToHeader)
+  bus.on('scroll-to-anchor-element', scrollToAnchorElement)
   bus.on('screenshot-captured', handleScreenShot)
   bus.on('show-command-palette', handleModalOpening)
   bus.on('switch-spellchecker-language', switchSpellcheckLanguage)
@@ -1929,6 +1936,7 @@ onBeforeUnmount(() => {
   bus.off('deleteParagraph', handleParagraph)
   bus.off('insertParagraph', handleInsertParagraph)
   bus.off('scroll-to-header', scrollToHeader)
+  bus.off('scroll-to-anchor-element', scrollToAnchorElement)
   bus.off('screenshot-captured', handleScreenShot)
   bus.off('show-command-palette', handleModalOpening)
   bus.off('switch-spellchecker-language', switchSpellcheckLanguage)
