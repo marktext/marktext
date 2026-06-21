@@ -1,9 +1,13 @@
 import { expect, test } from '../fixtures/muya'
 
-// #4339 follow-up: the popup's `overflow: auto hidden` (for horizontal scroll)
-// also applied to the hidden inline render, making its inline-block baseline its
-// bottom edge — so a hidden inline math / parse-error sat a few px above the
-// surrounding text. `overflow: visible` when hidden keeps it on the baseline.
+// #4339: a long inline math must stay scrollable (not truncated) when hidden,
+// and the popup/inline scrollbar is thinned. The parse-error message is short
+// and never scrolls, so it keeps `overflow: visible` to stay on the text
+// baseline (the popup's `overflow: auto` otherwise takes the inline-block's
+// baseline from its bottom edge, pushing the message a few px above the text).
+// (A long valid formula keeps `overflow: auto` to stay scrollable, which is the
+// chosen trade-off — it sits slightly high rather than being truncated.)
+
 async function renderVsTextTop(page, md: string): Promise<number> {
   await page.evaluate((m) => window.muya!.setContent(m), md)
   await page.waitForTimeout(150)
@@ -20,10 +24,43 @@ async function renderVsTextTop(page, md: string): Promise<number> {
   })
 }
 
-test('a hidden inline math sits on the surrounding text baseline, not above it', async ({ page }) => {
-  expect(Math.abs(await renderVsTextTop(page, 'hello $x^2$ www'))).toBeLessThanOrEqual(3)
-})
-
 test('a hidden inline-math parse error sits on the surrounding text baseline', async ({ page }) => {
   expect(Math.abs(await renderVsTextTop(page, 'hello $\\invalidcmd$ www'))).toBeLessThanOrEqual(3)
+})
+
+test('a long hidden inline math stays scrollable, not truncated', async ({ page }) => {
+  const longMath = `$${Array.from({ length: 40 }, (_, i) => `x_{${i}}`).join('+')}$`
+  await page.evaluate((m) => window.muya!.setContent(`text ${m} end`), longMath)
+  await page.waitForTimeout(250)
+  const r = await page.evaluate(() => {
+    const render = document.querySelector('.mu-math > .mu-math-render') as HTMLElement
+    return {
+      hidden: render.closest('.mu-math')!.classList.contains('mu-hide'),
+      overflowX: getComputedStyle(render).overflowX,
+      scrollable: render.scrollWidth > render.clientWidth + 2,
+    }
+  })
+  expect(r.hidden).toBe(true)
+  expect(r.overflowX).toBe('auto')
+  expect(r.scrollable).toBe(true) // content is reachable by scrolling, not cut off
+})
+
+test('the inline-math scrollbar is thin (6px, matching code blocks)', async ({ page }) => {
+  await page.evaluate(() => window.muya!.setContent('x'))
+  await page.waitForTimeout(100)
+  // The ::-webkit-scrollbar height rule is what thins the bar; assert it is wired.
+  const height = await page.evaluate(() => {
+    const sheets = [...document.styleSheets]
+    for (const s of sheets) {
+      let rules: CSSRuleList
+      try { rules = s.cssRules } catch { continue }
+      for (const rule of rules) {
+        if (rule instanceof CSSStyleRule && rule.selectorText?.includes('.mu-math > .mu-math-render::-webkit-scrollbar')) {
+          return rule.style.height
+        }
+      }
+    }
+    return ''
+  })
+  expect(height).toBe('6px')
 })
