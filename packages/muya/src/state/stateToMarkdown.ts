@@ -32,6 +32,7 @@ import type {
 import { deepClone } from '../utils';
 
 import logger from '../utils/logger';
+import stringWidth from '../utils/stringWidth';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
@@ -433,7 +434,7 @@ export default class ExportMarkdown {
             for (j = 0; j < cells; j++) {
                 columnWidth[j].width = Math.max(
                     columnWidth[j].width,
-                    tableData[i][j].length + 2,
+                    stringWidth(tableData[i][j]) + 2,
                 ); // add 2, because have two space around text
             }
         }
@@ -445,9 +446,12 @@ export default class ExportMarkdown {
                     r
                         .slice(0, columnWidth.length)
                         .map((cell, j) => {
-                            const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`;
+                            // Pad by visual column width, not code-unit length,
+                            // so combining marks and wide characters stay
+                            // aligned (#1983). One leading space + cell + fill.
+                            const fill = columnWidth[j].width - 1 - stringWidth(cell);
 
-                            return raw.substring(0, columnWidth[j].width);
+                            return ` ${cell}${' '.repeat(Math.max(fill, 0))}`;
                         })
                         .join('|')
                 }|`;

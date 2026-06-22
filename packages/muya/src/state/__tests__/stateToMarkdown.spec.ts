@@ -74,6 +74,42 @@ describe('serializeTable — row width mismatch', () => {
     });
 });
 
+// Regression for #1983. Column padding used String.prototype.length, so a
+// cell containing a combining mark (its code units exceed its visual width)
+// was over-measured and broke alignment. Padding must use visual column width.
+describe('serializeTable — visual column width (#1983)', () => {
+    it('aligns a column whose cells contain combining marks', () => {
+        const state = table([
+            row([cell('A')]),
+            row([cell('nɔx')]),
+            row([cell('aʊ̯x')]), // a, ʊ, U+032F combining mark, x — 4 code units, 3 columns
+        ]);
+
+        const md = new ExportMarkdown().generate([state]);
+        const lines = md.split('\n');
+
+        expect(lines[0]).toBe('| A   |');
+        expect(lines[1]).toBe('| --- |');
+        expect(lines[2]).toBe('| nɔx |');
+        expect(lines[3]).toBe('| aʊ̯x |');
+    });
+
+    it('widens a column to fit East-Asian wide characters', () => {
+        const state = table([
+            row([cell('id')]),
+            row([cell('中文')]), // two wide characters → 4 columns
+        ]);
+
+        const md = new ExportMarkdown().generate([state]);
+        const lines = md.split('\n');
+
+        // Column width is max(visual): 'id' = 2, '中文' = 4 → inner width 4.
+        expect(lines[0]).toBe('| id   |');
+        expect(lines[1]).toBe('| ---- |');
+        expect(lines[2]).toBe('| 中文 |');
+    });
+});
+
 // `align` lives on every cell's `meta.align` ('none' | 'left' | 'center' |
 // 'right'). The serializer renders the delimiter row from the *header* row's
 // cell aligns: left → ':---', center → ':---:', right → '---:', none → '---'.
