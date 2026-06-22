@@ -35,6 +35,8 @@ class ThematicBreakContent extends Format {
         const { text, muya } = this;
         const { start, end } = this.getCursor()!;
         if (start.offset === end.offset && start.offset === 0) {
+            event.preventDefault();
+            event.stopPropagation();
             const newState = {
                 name: 'paragraph',
                 text: '',
@@ -56,6 +58,7 @@ class ThematicBreakContent extends Format {
     override backspaceHandler(event: Event) {
         const { start, end } = this.getCursor()!;
         if (start.offset === 0 && end.offset === 0) {
+            event.preventDefault();
             // Remove the text content and convert it to paragraph
             this.text = '';
             this.convertToParagraph();
