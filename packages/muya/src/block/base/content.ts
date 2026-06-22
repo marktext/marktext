@@ -609,7 +609,7 @@ class Content extends TreeNode {
     protected insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
-        const tabCharacter = String.fromCharCode(160).repeat(tabSize);
+        const tabCharacter = String.fromCharCode(32).repeat(tabSize);
         const { start, end } = this.getCursor()!;
 
         if (this.isCollapsed) {

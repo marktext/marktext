@@ -6,9 +6,12 @@ import { Muya } from '../../../../muya';
 
 // Characterization of ParagraphContent.tabHandler's three plain-Tab branches
 // (src/block/content/paragraphContent/index.ts):
-//   1. insertTab()           — a normal paragraph gains `tabSize` non-breaking
-//                              spaces (U+00A0) at the caret and the caret
-//                              advances by that width.
+//   1. insertTab()           — a normal paragraph gains `tabSize` ordinary
+//                              spaces (U+0020) at the caret and the caret
+//                              advances by that width. `.mu-content` is
+//                              `white-space: pre-wrap`, so ordinary spaces are
+//                              preserved visually without polluting the saved
+//                              markdown with non-breaking spaces (#3273).
 //   2. _indentListItem() / _unindentListItem() — Tab nests a list item under
 //      its predecessor; Shift+Tab lifts it back out.
 //   3. _checkCursorAtEndFormat() — with the caret just inside a closing inline
@@ -24,8 +27,8 @@ const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
 
-// A non-breaking space — the character insertTab repeats `tabSize` times.
-const NBSP = String.fromCharCode(160);
+// An ordinary space (U+0020) — the character insertTab repeats `tabSize` times.
+const SPACE = String.fromCharCode(32);
 
 beforeEach(() => {
     hadVersion = 'MUYA_VERSION' in window;
@@ -97,7 +100,7 @@ function blockText(state: ReturnType<Muya['getState']>, index: number): string {
 }
 
 describe('paragraphContent.tabHandler — insertTab in a plain paragraph', () => {
-    it('inserts `tabSize` non-breaking spaces and advances the caret by that width (default 4)', async () => {
+    it('inserts `tabSize` ordinary spaces and advances the caret by that width (default 4)', async () => {
         const muya = bootMuya('hello\n');
         expect(muya.options.tabSize).toBe(4);
         const content = contentByText(muya, 'hello');
@@ -106,15 +109,30 @@ describe('paragraphContent.tabHandler — insertTab in a plain paragraph', () =>
 
         await flush();
         const text = blockText(muya.getState(), 0);
-        // `hello` + four U+00A0 spaces.
-        expect(text).toBe(`hello${NBSP.repeat(4)}`);
+        // `hello` + four U+0020 spaces.
+        expect(text).toBe(`hello${SPACE.repeat(4)}`);
         expect(text.length).toBe(9);
-        // The inserted run is non-breaking spaces, not ordinary spaces.
-        expect([...text.slice(5)].every(ch => ch.charCodeAt(0) === 160)).toBe(true);
+        // The inserted run is ordinary spaces (U+0020), not non-breaking spaces.
+        expect([...text.slice(5)].every(ch => ch.charCodeAt(0) === 32)).toBe(true);
 
         const cursor = content.getCursor();
         expect(cursor).not.toBeNull();
         expect(cursor!.start.offset).toBe(9);
+    });
+
+    // #3273: Tab used to insert U+00A0 (charCode 160), which leaked into the
+    // saved markdown and was not treated as whitespace by other tools. The
+    // serialized document must contain only ordinary spaces.
+    it('does not write any non-breaking space into the serialized markdown', async () => {
+        const muya = bootMuya('hello\n');
+        const content = contentByText(muya, 'hello');
+
+        tabAt(muya, content, 5);
+
+        await flush();
+        const markdown = muya.getMarkdown();
+        expect(markdown).toContain(`hello${SPACE.repeat(4)}`);
+        expect([...markdown].some(ch => ch.charCodeAt(0) === 160)).toBe(false);
     });
 
     it('honors a custom tabSize of 2 (narrower insert, caret advances by 2)', async () => {
@@ -126,7 +144,7 @@ describe('paragraphContent.tabHandler — insertTab in a plain paragraph', () =>
 
         await flush();
         const text = blockText(muya.getState(), 0);
-        expect(text).toBe(`hello${NBSP.repeat(2)}`);
+        expect(text).toBe(`hello${SPACE.repeat(2)}`);
         expect(text.length).toBe(7);
 
         const cursor = content.getCursor();
@@ -222,7 +240,7 @@ describe('paragraphContent.tabHandler — jump past a closing inline marker', ()
         await flush();
         const text = blockText(muya.getState(), 0);
         // Caret was past the closing marker, so insertTab runs.
-        expect(text).toBe(`**bold**${NBSP.repeat(4)}`);
+        expect(text).toBe(`**bold**${SPACE.repeat(4)}`);
         expect(content.getCursor()!.start.offset).toBe(12);
     });
 });
