@@ -28,7 +28,6 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
@@ -157,10 +156,6 @@ export class Muya {
         this._bindFocusBlurEvents();
     }
 
-    // Expose `focus` / `blur` lifecycle events so external SDK consumers can
-    // react to editor focus changes. Routed
-    // through attachDOMEvent so cleanup is automatic via detachAllDomEvents
-    // in destroy().
     private _bindFocusBlurEvents() {
         this.eventCenter.attachDOMEvent(this.domNode, 'focus', () => {
             this.eventCenter.emit('focus');
@@ -180,15 +175,6 @@ export class Muya {
         }
     }
 
-    /**
-     * Switch the editor's UI language at runtime. Swaps the i18n resources, then
-     * re-renders the block tree so already-mounted blocks pick up the new
-     * translation. The inline placeholder hints (quick-insert
-     * "Type / to insert…", code-block language, math, front matter) are DOM
-     * attributes baked once in each block's constructor; without the re-render
-     * they would keep the old language until the block was next recreated.
-     * History and the caret are preserved across the refresh (`_forceRender`).
-     */
     locale(object: ILocale) {
         this.i18n.locale(object);
         if (this.editor.scrollPage)
@@ -224,17 +210,8 @@ export class Muya {
         return this.editor.jsonState.getMarkdown();
     }
 
-    /**
-     * Return a flat table of contents for the current document.
-     *
-     * Only top-level atx / setext headings are surfaced; nested
-     * headings inside blockquotes / list items are ignored. `content` is the
-     * raw heading text (inline markdown not
-     * parsed); `slug` is a stable per-block identifier; `githubSlug` is
-     * the GitHub-style anchor derived from `content`.
-     */
     getTOC(): ITocItem[] {
-        return getTOC(this);
+        return this.editor.jsonState.getTOC();
     }
 
     undo() {
@@ -245,24 +222,10 @@ export class Muya {
         this.editor.history.redo();
     }
 
-    /**
-     * Return a JSON-serializable snapshot of the undo/redo history.
-     *
-     * Used by the desktop shell to persist each tab's editing history across
-     * tab switches: read it before deactivating a tab, store it, and hand it
-     * back to `setHistory` when the tab is re-selected. The ot-json1 ops are
-     * deep-cloned plain JSON; selections are reduced to their serializable
-     * paths/offsets (live block references are dropped and re-resolved on
-     * restore). Lossless round-trip: `setHistory(getHistory())` then `undo()`
-     * reproduces the prior document state.
-     */
     getHistory() {
         return this.editor.history.getHistory();
     }
 
-    /**
-     * Restore a history snapshot previously produced by `getHistory`.
-     */
     setHistory(history: ReturnType<Muya['getHistory']>) {
         this.editor.history.setHistory(history);
     }
@@ -344,17 +307,6 @@ export class Muya {
         return true;
     }
 
-    /**
-     * Update editor options at runtime: merges `options` into `muya.options`,
-     * reflects the container-level ones
-     * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
-     * re-renders the document so render-affecting options (superSubScript,
-     * disableHtml, frontmatterType, codeBlockLineNumbers, …) take effect. When a
-     * PARSE-affecting option changes (GitLab compatibility, math, footnote,
-     * frontMatter, …) the document is first re-parsed from markdown, since those
-     * options decide block structure the cached state cannot reflect. Unlike
-     * `setContent`, the undo history is preserved; the cursor is restored by path.
-     */
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
         Object.assign(this.options, options);
 
@@ -378,10 +330,6 @@ export class Muya {
         if (!forceRender)
             return;
 
-        // A parse-affecting option re-classifies block structure, so re-parse the
-        // current markdown into a fresh state before the render rebuild. This
-        // updates `jsonState` in place without clearing history (only `setContent`
-        // clears it), keeping setOptions' history-preserving contract.
         if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
             const { jsonState } = this.editor;
             jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
@@ -390,21 +338,10 @@ export class Muya {
         this._forceRender();
     }
 
-    /**
-     * Rebuild the whole block tree from its current state, preserving the undo
-     * history (only `setContent` clears it; `updateState` does not) and
-     * restoring the caret by path. Re-running every block constructor re-applies
-     * the i18n-driven DOM attributes (placeholder hints, etc.), so this also
-     * serves as the locale refresh. Shared by `setOptions(..., forceRender)` and
-     * `locale()`.
-     */
     private _forceRender() {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
-        // Restore the caret on the rebuilt tree by resolving the block at the
-        // saved path and setting the cursor on it directly. (Passing only a
-        // path to setSelection does not work — Selection._setCursor needs a
-        // concrete block's domNode; a bare queryBlock result is not a Node.)
+
         if (selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);
@@ -436,12 +373,6 @@ export class Muya {
         this.editor.focus();
     }
 
-    /**
-     * Toggle focus mode. When enabled,
-     * every top-level block except the one holding the cursor is dimmed via the
-     * `mu-focus-mode` class on the editor container; the dimming itself lives in
-     * the stylesheet (`.mu-focus-mode .mu-container > * { opacity }`).
-     */
     setFocusMode(focusMode: boolean) {
         if (focusMode)
             this.domNode.classList.add(CLASS_NAMES.MU_FOCUS_MODE);
@@ -455,12 +386,6 @@ export class Muya {
         this.editor.selection.selectAll();
     }
 
-    /**
-     * Toggle an inline format on the current selection.
-     * @param type One of strong/em/u/del/inline_code/link/image/inline_math/
-     * sub/sup/mark/clear (and html_tag aliases). No-op when the selection is
-     * not inside a single formattable block.
-     */
     format(type: string) {
         const { selection } = this.editor;
 
@@ -503,12 +428,6 @@ export class Muya {
         anchorBlock.format(type);
     }
 
-    /**
-     * Apply an inline format to every formattable leaf in a cross-block
-     * selection, in document order. Non-formattable leaves (code/math/html/
-     * frontmatter/diagram) are skipped; link/image are no-ops across blocks
-     * (and the menu disables them). Ported from muyajs's multi-block format.
-     */
     private _formatAcrossBlocks(type: string) {
         if (type === 'link' || type === 'image')
             return;
@@ -731,25 +650,12 @@ export class Muya {
         return this.editor.clipboard.pasteImage(src);
     }
 
-    /**
-     * The outer-most block at the current cursor — the target for block-level
-     * operations. Uses the persisted active content block (which survives the
-     * menu/IPC round-trip), falling back to the selection anchor.
-     */
     private _outmostBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
 
         return content?.outMostBlock ?? null;
     }
 
-    /**
-     * The immediate block-level parent of the active content leaf — the
-     * paragraph/heading block that directly wraps the cursor. Used by the
-     * context-menu "Insert Paragraph Before/After" path: a new paragraph lands
-     * as an inner sibling inside a list item / blockquote rather than jumping out to
-     * the outermost container. Uses the persisted active content block (which
-     * survives the menu/IPC round-trip), falling back to the selection anchor.
-     */
     private _immediateBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
 
@@ -1000,34 +906,11 @@ export class Muya {
         cursorBlock?.setCursor(0, 0, true);
     }
 
-    /**
-     * Insert a GFM table at the current cursor. An EMPTY cursor block is
-     * replaced in place; a NON-empty block keeps its content and the table is
-     * inserted directly AFTER it inside its own container (e.g. right after the
-     * paragraph in a list item, not after the whole list) — matching the
-     * Paragraph menu's insert-below rule for non-convertible blocks. Pass
-     * `{ replace: true }` to always
-     * replace the cursor block — the in-editor grid picker uses this to consume
-     * its trigger block (a `/table` quick-insert line or the empty paragraph the
-     * front-menu offers). The table has `rows` rows × `columns` columns with the
-     * first row as the header; every cell is empty with `align: 'none'`. The
-     * cursor lands in the first cell. No-op when there is no current block.
-     * `rows`/`columns` are coerced to integers and clamped to a valid GFM shape
-     * (`rows >= 2`, `columns >= 1`) so invalid input (e.g. `rows: 0`, non-finite,
-     * or fractional values) still yields a usable table instead of an invalid
-     * state.
-     */
     createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
         const block = this._immediateBlockAtCursor();
         if (!block)
             return;
 
-        // Coerce and clamp to a valid GFM table shape. A GFM table needs a
-        // header row plus at least one body row (rows >= 2) and at least one
-        // column (columns >= 1). Garbage input (NaN/Infinity/floats/negatives)
-        // is normalised rather than producing an invalid state — `rows = 0`
-        // would otherwise build a table with no rows and crash `columnCount`
-        // (which reads `firstChild.firstChild`).
         const safeRows = Math.max(2, Number.isFinite(rows) ? Math.floor(rows) : 0);
         const safeColumns = Math.max(1, Number.isFinite(columns) ? Math.floor(columns) : 0);
 

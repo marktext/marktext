@@ -176,18 +176,6 @@ class History {
         this._lastRecorded = 0;
     }
 
-    /**
-     * Return a deep, JSON-serializable snapshot of the undo/redo history.
-     *
-     * The ot-json1 ops are plain JSON arrays and are deep-cloned as-is.
-     * Selections drop their live `anchorBlock` / `focusBlock` references and
-     * keep only the serializable `anchorPath` / `focusPath` + offsets; the
-     * caret is re-resolved from those paths on restore (see
-     * `_toSerializableSelection`). The result can be `JSON.stringify`-d, stored
-     * on a desktop tab, and handed back to `setHistory` to restore the exact
-     * undo/redo state — `setHistory(getHistory())` followed by `undo()`
-     * reproduces the prior document state.
-     */
     getHistory(): ISerializedHistory {
         return {
             stack: {
@@ -201,12 +189,6 @@ class History {
         };
     }
 
-    /**
-     * Restore a snapshot previously produced by `getHistory`. Replaces the
-     * undo/redo stacks and recording bookkeeping. The restored selections are
-     * path-only; `Selection.setSelection` / `_setCursor` resolve the live
-     * block from the path when the op is later applied by `undo` / `redo`.
-     */
     setHistory(history: ISerializedHistory) {
         this._stack = {
             undo: history.stack.undo.map(op => this._fromSerializableOperation(op)),

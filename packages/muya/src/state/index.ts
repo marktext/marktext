@@ -5,8 +5,9 @@ import type { TState } from './types';
 import * as json1 from 'ot-json1';
 import { deepClone } from '../utils';
 import logger from '../utils/logger';
-import { MarkdownToState } from './markdownToState';
+import { getTOC } from './getTOC';
 
+import { MarkdownToState } from './markdownToState';
 import StateToMarkdown from './stateToMarkdown';
 
 const debug = logger('jsonState:');
@@ -210,6 +211,10 @@ class JSONState {
 
     getMarkdown() {
         return this.getMarkdownFromState(this.getState());
+    }
+
+    getTOC() {
+        return getTOC(this._muya);
     }
 
     // Serialize an ARBITRARY state array to markdown with the same generator
