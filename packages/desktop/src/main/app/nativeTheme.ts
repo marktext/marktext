@@ -1,9 +1,16 @@
 import { isDarkThemeId } from '../../common/theme'
+import { isDarkCustomTheme } from '../themes'
 
 export type NativeThemeSource = 'system' | 'dark' | 'light'
 
 export const isDarkApplicationTheme = (theme: unknown): boolean => {
-  return isDarkThemeId(theme)
+  if (isDarkThemeId(theme)) return true
+  // Custom themes (`custom:<id>`) declare light/dark via their @type header, so
+  // the dark check for them is resolved from the themes folder.
+  if (typeof theme === 'string' && theme.startsWith('custom:')) {
+    return isDarkCustomTheme(theme)
+  }
+  return false
 }
 
 export const getNativeThemeSource = ({

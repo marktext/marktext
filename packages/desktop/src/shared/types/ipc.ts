@@ -32,6 +32,7 @@ import type {
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
+import type { CustomThemeDescriptor, ImportCustomThemeResult } from './theme'
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
@@ -77,6 +78,9 @@ export interface IpcInvokeChannels {
   'mt::spellchecker-remove-word': { args: [word: string]; ret: boolean }
   'mt::spellchecker-set-enabled': { args: [enabled: boolean]; ret: void }
   'mt::spellchecker-switch-language': { args: [language: string]; ret: void }
+  'mt::themes::import-custom': { args: []; ret: ImportCustomThemeResult }
+  'mt::themes::list-custom': { args: []; ret: CustomThemeDescriptor[] }
+  'mt::themes::open-folder': { args: []; ret: string }
   'mt::uploader::upload': { args: [req: unknown]; ret: unknown }
   'mt::win::is-fullscreen': { args: []; ret: boolean }
   'mt::win::is-maximized': { args: []; ret: boolean }

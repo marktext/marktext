@@ -12,6 +12,7 @@ import type {
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
+import type { CustomThemeDescriptor, ImportCustomThemeResult } from '@shared/types/theme'
 
 declare global {
   // ---- Build-time defines (electron-vite `define`) ----
@@ -165,6 +166,12 @@ declare global {
     list(): Promise<string[]>
   }
 
+  interface ThemesAPI {
+    listCustom(): Promise<CustomThemeDescriptor[]>
+    importCustom(): Promise<ImportCustomThemeResult>
+    openFolder(): Promise<string>
+  }
+
   interface ProcessShim {
     platform: NodeJS.Platform
     arch?: string
@@ -184,6 +191,7 @@ declare global {
     ripgrep: RipgrepAPI
     uploader: UploaderAPI
     fonts: FontsAPI
+    themes: ThemesAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.
