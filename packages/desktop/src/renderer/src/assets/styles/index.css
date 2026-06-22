@@ -19,14 +19,14 @@
 
   --highlightColor: rgba(33, 181, 111, 0.4);
   --selectionColor: rgba(0, 0, 0, 0.1);
-  --editorColor: rgba(0, 0, 0, 0.7);
-  --editorColor80: rgba(0, 0, 0, 0.8);
-  --editorColor60: rgba(0, 0, 0, 0.6);
-  --editorColor50: rgba(0, 0, 0, 0.5);
-  --editorColor40: rgba(0, 0, 0, 0.4);
-  --editorColor30: rgba(0, 0, 0, 0.3);
-  --editorColor10: rgba(0, 0, 0, 0.1);
-  --editorColor04: rgba(0, 0, 0, 0.03);
+  --editorColor: #4d4d4d;
+  --editorColor80: #333333;
+  --editorColor60: #666666;
+  --editorColor50: #808080;
+  --editorColor40: #999999;
+  --editorColor30: #b3b3b3;
+  --editorColor10: #e6e6e6;
+  --editorColor04: #f7f7f7;
   --editorBgColor: rgba(255, 255, 255, 1);
   --deleteColor: #ff6969;
   --iconColor: #6b737b;
