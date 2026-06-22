@@ -1421,7 +1421,7 @@ export const useEditorStore = defineStore('editor', {
         typeof lastEditIndex === 'number' && lastEditIndex >= 0
           ? tab.history.stack[lastEditIndex]
           : undefined
-      if (
+      const historyMarksDirty =
         (typeof lastEditIndex === 'number' &&
           lastEditIndex >= 0 &&
           editEntry !== undefined &&
@@ -1429,7 +1429,8 @@ export const useEditorStore = defineStore('editor', {
         (lastEditIndex === -1 &&
           tab.lastSavedHistoryId !== -1 &&
           tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
-      ) {
+      const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
+      if (isDirty) {
         tab.isSaved = false
         if (pathname && autoSave) {
           const options = getOptionsFromState(tab)
@@ -1441,7 +1442,7 @@ export const useEditorStore = defineStore('editor', {
             options
           })
         }
-      } else if (tab.lastSavedHistoryId !== -1) {
+      } else if (history !== undefined && tab.lastSavedHistoryId !== -1) {
         // Check here is to prevent it from overriding a restored .isSaved state
         tab.isSaved = true // An undo can trigger this
       }
