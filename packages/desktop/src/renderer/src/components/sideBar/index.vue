@@ -37,14 +37,19 @@
       v-show="activeColumn"
       class="right-column"
     >
+      <!-- Only mount a panel view while this sidebar is actually shown. The
+           `v-show` above keeps a hidden sidebar in the DOM, so without the
+           `showBar` guard the secondary sidebar (whose default column is
+           'toc') would render a second, hidden `.side-bar-toc` permanently,
+           breaking the TOC e2e specs that expect a single instance. -->
       <tree
-        v-if="activeColumn === 'files'"
+        v-if="showBar && activeColumn === 'files'"
         :project-tree="projectTree"
         :opened-files="openedFiles"
         :tabs="tabs"
       />
-      <side-bar-search v-else-if="activeColumn === 'search'" />
-      <toc v-else-if="activeColumn === 'toc'" />
+      <side-bar-search v-else-if="showBar && activeColumn === 'search'" />
+      <toc v-else-if="showBar && activeColumn === 'toc'" />
     </div>
     <div
       v-show="activeColumn"
