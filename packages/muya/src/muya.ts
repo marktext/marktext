@@ -9,6 +9,7 @@ import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
+import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -17,8 +18,8 @@ import {
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
-import { Editor } from './editor/index';
 
+import { Editor } from './editor/index';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import {
@@ -29,8 +30,6 @@ import {
 } from './selection/offsetCursor';
 import { getTOC } from './state/getTOC';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
-import { canTurnIntoMenu } from './ui/paragraphFrontMenu/config';
-import { insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './ui/paragraphQuickInsertMenu/config';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import './assets/styles/blockSyntax.css';
@@ -105,6 +104,19 @@ const TOGGLEABLE_BLOCK_LABELS = new Set([
     'block-quote',
     'code-block',
     'thematic-break',
+]);
+
+// Options consumed by the markdown→state lexer (markdownToState / lexBlock).
+// Changing any of these re-classifies block structure (e.g. ```math ⇄ code
+// block under GitLab compatibility, front matter, footnote definitions), which
+// a render-only rebuild from the already-parsed state cannot reflect — the
+// document must be re-parsed from markdown. See setOptions below.
+const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
+    'isGitlabCompatibilityEnabled',
+    'math',
+    'footnote',
+    'frontMatter',
+    'trimUnnecessaryCodeBlockEmptyLines',
 ]);
 
 function endpointPair(
@@ -336,9 +348,11 @@ export class Muya {
      * Update editor options at runtime: merges `options` into `muya.options`,
      * reflects the container-level ones
      * (spellcheck, quick-insert hint), and — when `forceRender` is set — fully
-     * re-renders the document from its current state so render-affecting
-     * options (superSubScript, footnote, disableHtml, frontmatterType,
-     * codeBlockLineNumbers, GitLab compatibility, …) take effect. Unlike
+     * re-renders the document so render-affecting options (superSubScript,
+     * disableHtml, frontmatterType, codeBlockLineNumbers, …) take effect. When a
+     * PARSE-affecting option changes (GitLab compatibility, math, footnote,
+     * frontMatter, …) the document is first re-parsed from markdown, since those
+     * options decide block structure the cached state cannot reflect. Unlike
      * `setContent`, the undo history is preserved; the cursor is restored by path.
      */
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
@@ -346,6 +360,13 @@ export class Muya {
 
         if ('spellcheckEnabled' in options)
             this.domNode.setAttribute('spellcheck', options.spellcheckEnabled ? 'true' : 'false');
+
+        if ('spellcheckHideMarks' in options) {
+            this.domNode.classList.toggle(
+                CLASS_NAMES.MU_HIDE_SPELLING_MARKS,
+                !!options.spellcheckHideMarks,
+            );
+        }
 
         if ('hideQuickInsertHint' in options) {
             this.domNode.classList.toggle(
@@ -356,6 +377,15 @@ export class Muya {
 
         if (!forceRender)
             return;
+
+        // A parse-affecting option re-classifies block structure, so re-parse the
+        // current markdown into a fresh state before the render rebuild. This
+        // updates `jsonState` in place without clearing history (only `setContent`
+        // clears it), keeping setOptions' history-preserving contract.
+        if (Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions))) {
+            const { jsonState } = this.editor;
+            jsonState.setContent(jsonState.markdownToState(this.getMarkdown()));
+        }
 
         this._forceRender();
     }
@@ -689,6 +719,16 @@ export class Muya {
      */
     pasteAsPlainText(): Promise<void> {
         return this.editor.clipboard.pasteAsPlainText();
+    }
+
+    /**
+     * Insert an image at the current cursor from an explicit `src` (a saved file
+     * path or `data:` URL), routing through the configured `imageAction` like a
+     * clipboard image paste. Drives the desktop macOS screenshot flow, which can
+     * no longer rely on the removed `document.execCommand('paste')`.
+     */
+    pasteImage(src: string): Promise<void> {
+        return this.editor.clipboard.pasteImage(src);
     }
 
     /**
@@ -1431,7 +1471,7 @@ export class Muya {
             return;
 
         const leadingText = this._blockLeadingText(immediate);
-        if (canTurnIntoMenu(immediate).some(item => item.label === label)) {
+        if (canTurnInto(immediate, label)) {
             this._withPreservedOffset(() => replaceBlockByLabel({ block: immediate, muya: this, label, text: leadingText }));
             return;
         }
@@ -1706,7 +1746,7 @@ export class Muya {
  * [ensureContainerDiv ensure container element is div]
  */
 function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
-    const { spellcheckEnabled, hideQuickInsertHint, focusMode } = options;
+    const { spellcheckEnabled, spellcheckHideMarks, hideQuickInsertHint, focusMode } = options;
     const newContainer = document.createElement('div');
     const attrs = originContainer.attributes;
     // Copy attrs from origin container to new container
@@ -1716,6 +1756,9 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
 
     if (!hideQuickInsertHint)
         newContainer.classList.add(CLASS_NAMES.MU_SHOW_QUICK_INSERT_HINT);
+
+    if (spellcheckHideMarks)
+        newContainer.classList.add(CLASS_NAMES.MU_HIDE_SPELLING_MARKS);
 
     // Apply focus mode at construction when initially enabled; `setFocusMode`
     // toggles it thereafter.

@@ -84,6 +84,35 @@ describe('code-block line-numbers gutter', () => {
             await nextFrame();
             expect(wrapper.childElementCount).toBe(1);
         });
+
+        // The lazy fill only runs from CodeBlockContent.update(). During the
+        // initial tree build that fires once per code-block via the
+        // language-load callback — but a fenced block with no info string, an
+        // unknown language, or an indented block never loads a language, so the
+        // gutter must be seeded on first render independent of the language.
+        it('fills spans on first render for a fenced block with no language', async () => {
+            const muya = bootMuya('```\nconst a = 1\nconst b = 2\nconst c = 3\n```\n', { codeBlockLineNumbers: true });
+            const wrapper = muya.domNode.querySelector<HTMLElement>('.mu-line-numbers-rows')!;
+            await nextFrame();
+            await nextFrame();
+            expect(wrapper.childElementCount).toBe(3);
+        });
+
+        it('fills spans on first render for an unknown language', async () => {
+            const muya = bootMuya('```not-a-real-language\none\ntwo\n```\n', { codeBlockLineNumbers: true });
+            const wrapper = muya.domNode.querySelector<HTMLElement>('.mu-line-numbers-rows')!;
+            await nextFrame();
+            await nextFrame();
+            expect(wrapper.childElementCount).toBe(2);
+        });
+
+        it('fills spans on first render for an indented code block', async () => {
+            const muya = bootMuya('    const a = 1\n    const b = 2\n', { codeBlockLineNumbers: true });
+            const wrapper = muya.domNode.querySelector<HTMLElement>('.mu-line-numbers-rows')!;
+            await nextFrame();
+            await nextFrame();
+            expect(wrapper.childElementCount).toBe(2);
+        });
     });
 
     describe('when codeBlockLineNumbers is false', () => {

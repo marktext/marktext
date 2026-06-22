@@ -66,6 +66,7 @@ const FILE_PROTOCOL_LENGTH = 7;
 export class ImageEditTool extends BaseFloat {
     public override options: Options;
     static pluginName = 'imageSelector';
+    public override capturesContentKeydown = true;
 
     /** Previous virtual node for patching */
     private _oldVNode: VNode | null = null;

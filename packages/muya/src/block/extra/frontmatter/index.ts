@@ -11,6 +11,20 @@ import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('frontmatter:');
 
+// The before/after focus markers mirror the delimiters `stateToMarkdown`
+// serializes for each front-matter type, so they reflect the real fences:
+// yaml `---`, toml `+++`, json `;;;`, or the json-braces variant (`{` / `}`).
+function delimiters(meta: IFrontmatterMeta): [string, string] {
+    switch (meta.lang) {
+        case 'toml':
+            return ['+++', '+++'];
+        case 'json':
+            return meta.style === ';' ? [';;;', ';;;'] : ['{', '}'];
+        default:
+            return ['---', '---'];
+    }
+}
+
 class Frontmatter extends Parent {
     public meta: IFrontmatterMeta;
 
@@ -67,6 +81,9 @@ class Frontmatter extends Parent {
         this.tagName = 'pre';
         this.meta = meta;
         this.classList = ['mu-frontmatter'];
+        const [start, end] = delimiters(meta);
+        this.attributes.frontMatterStart = start;
+        this.attributes.frontMatterEnd = end;
         this.createDomNode();
     }
 

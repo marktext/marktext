@@ -216,7 +216,9 @@ class JSONState {
     // `getMarkdown` uses. Used by `Muya.getCursorOffset` to serialize a
     // sentinel-bearing state clone WITHOUT mutating the live `_state`.
     getMarkdownFromState(state: TState[]): string {
-        const mdGenerator = new StateToMarkdown();
+        const mdGenerator = new StateToMarkdown({
+            listIndentation: this._muya.options.listIndentation,
+        });
 
         return mdGenerator.generate(state);
     }

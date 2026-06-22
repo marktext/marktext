@@ -95,7 +95,7 @@ function extractWord(
 
 function shouldRemoveClosingChar(
     inputChar: string,
-    prePreInputChar: string,
+    preInputChar: string,
     options: { autoPairBracket: boolean; autoPairMarkdownSyntax: boolean; autoPairQuote: boolean },
 ) {
     const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = options;
@@ -107,7 +107,7 @@ function shouldRemoveClosingChar(
         || (autoPairMarkdownSyntax && /\$/.test(inputChar))
         || (autoPairMarkdownSyntax
             && /[*$`~_]/.test(inputChar)
-            && /[_*~]/.test(prePreInputChar))
+            && preInputChar !== inputChar)
     );
 }
 
@@ -148,18 +148,6 @@ function shouldInsertClosingPair(
             && /[*$`~_]/.test(inputChar))
     );
 }
-
-const FLOAT_PREVENT_DEFAULT_NAMES = new Set([
-    'mu-format-picker',
-    'mu-table-picker',
-    'mu-quick-insert',
-    'mu-emoji-picker',
-    'mu-front-menu',
-    'mu-list-picker',
-    'mu-image-selector',
-    'mu-table-column-tools',
-    'mu-table-bar-tools',
-]);
 
 interface IAutoPairCollapsedContext {
     blockText: string;
@@ -219,7 +207,6 @@ function collapsedInputAutoPair(
     const { offset } = start;
     const inputChar = text.charAt(+offset - 1);
     const preInputChar = text.charAt(+offset - 2);
-    const prePreInputChar = text.charAt(+offset - 3);
     const postInputChar = text.charAt(+offset);
     let needRender = false;
 
@@ -229,7 +216,7 @@ function collapsedInputAutoPair(
     if (
         !event.inputType.includes('delete')
         && inputChar === postInputChar
-        && shouldRemoveClosingChar(inputChar, prePreInputChar, options)
+        && shouldRemoveClosingChar(inputChar, preInputChar, options)
     ) {
         needRender = true;
         text = text.substring(0, offset) + text.substring(offset + 1);
@@ -458,10 +445,15 @@ class Content extends TreeNode {
         const { muya } = this;
         let cursorBlock = null;
         let offset = 0;
+        // In RTL the physical Left/Right arrows are visually mirrored, so the
+        // cross-block boundary keys swap (offset 0 is the visual right end).
+        const isRtl = this.domNode?.closest('[dir]')?.getAttribute('dir') === 'rtl';
+        const prevKey = isRtl ? EVENT_KEYS.ArrowRight : EVENT_KEYS.ArrowLeft;
+        const nextKey = isRtl ? EVENT_KEYS.ArrowLeft : EVENT_KEYS.ArrowRight;
 
         if (
             event.key === EVENT_KEYS.ArrowUp
-            || (event.key === EVENT_KEYS.ArrowLeft && start.offset === 0)
+            || (event.key === prevKey && start.offset === 0)
         ) {
             event.preventDefault();
             event.stopPropagation();
@@ -474,7 +466,7 @@ class Content extends TreeNode {
         }
         else if (
             event.key === EVENT_KEYS.ArrowDown
-            || (event.key === EVENT_KEYS.ArrowRight && start.offset === this.text.length)
+            || (event.key === nextKey && start.offset === this.text.length)
         ) {
             event.preventDefault();
             event.stopPropagation();
@@ -617,7 +609,7 @@ class Content extends TreeNode {
     protected insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
-        const tabCharacter = String.fromCharCode(160).repeat(tabSize);
+        const tabCharacter = String.fromCharCode(32).repeat(tabSize);
         const { start, end } = this.getCursor()!;
 
         if (this.isCollapsed) {
@@ -676,8 +668,7 @@ class Content extends TreeNode {
         if (!isKeyboardEvent(event))
             return;
 
-        // TODO: move codes bellow to muya.ui ?
-        if (this._handleShownFloatKeydown(event))
+        if (this.muya.ui.handleContentKeydown(event))
             return;
 
         switch (event.key) {
@@ -714,33 +705,6 @@ class Content extends TreeNode {
                 break;
         }
     };
-
-    private _handleShownFloatKeydown(event: KeyboardEvent): boolean {
-        if (
-            this.muya.ui.shownFloat.size > 0
-            && (event.key === EVENT_KEYS.Enter
-                || event.key === EVENT_KEYS.Escape
-                || event.key === EVENT_KEYS.Tab
-                || event.key === EVENT_KEYS.ArrowUp
-                || event.key === EVENT_KEYS.ArrowDown)
-        ) {
-            let needPreventDefault = false;
-
-            for (const tool of this.muya.ui.shownFloat) {
-                if (FLOAT_PREVENT_DEFAULT_NAMES.has(tool.name)) {
-                    needPreventDefault = true;
-                    break;
-                }
-            }
-
-            if (needPreventDefault)
-                event.preventDefault();
-
-            return true;
-        }
-
-        return false;
-    }
 
     blurHandler() {
         this.scrollPage?.handleBlurFromContent(this);

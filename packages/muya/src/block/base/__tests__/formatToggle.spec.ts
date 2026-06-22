@@ -125,6 +125,19 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
         content.format('mark');
         expect(content.text).toBe('word');
     });
+
+    it('sup (html_tag): `<sup>word</sup>` removes the superscript tags', () => {
+        // `format('sup')` matches the html_tag token whose tag === 'sup'.
+        const content = caretInFirstBlock(bootMuya('<sup>word</sup>\n'), 2);
+        content.format('sup');
+        expect(content.text).toBe('word');
+    });
+
+    it('sub (html_tag): `<sub>word</sub>` removes the subscript tags', () => {
+        const content = caretInFirstBlock(bootMuya('<sub>word</sub>\n'), 2);
+        content.format('sub');
+        expect(content.text).toBe('word');
+    });
 });
 
 describe('format.format() apply-ON over a non-collapsed selection', () => {
@@ -160,6 +173,23 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
         });
     });
 
+    it('sup (html_tag): selecting `abc` and applying wraps it in `<sup>…</sup>`', async () => {
+        // `format('sup')` wraps the selection with FORMAT_TAG_MAP.sup open/close.
+        const muya = bootMuya('abc\n');
+        selectInFirstBlock(muya, 0, 3).format('sup');
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toContain('<sup>abc</sup>');
+        });
+    });
+
+    it('sub (html_tag): selecting `abc` and applying wraps it in `<sub>…</sub>`', async () => {
+        const muya = bootMuya('abc\n');
+        selectInFirstBlock(muya, 0, 3).format('sub');
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toContain('<sub>abc</sub>');
+        });
+    });
+
     it('also rewrites the live block text, not only the serialized state', () => {
         const muya = bootMuya('abc\n');
         const content = selectInFirstBlock(muya, 0, 3);
@@ -168,6 +198,12 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
     });
 });
 
+// The markdown round-trip above proves the html_tag format committed to state.
+// These pin the *live* DOM mount: the inline renderer turns `<u>`/`<mark>`
+// html_tag tokens into real elements (bare tag + `.mu-inline-rule.mu-raw-html`
+// via `buildRawHtmlTag`) inside the booted content block, not just into a
+// serialized markdown string. (The export path is covered by
+// renderToStaticHTML.spec; this is the editing-surface mount.)
 describe('format.format(\'clear\') with the caret inside the run', () => {
     it('strips a strong run to plain text', () => {
         const content = caretInFirstBlock(bootMuya('**word**\n'), 2);

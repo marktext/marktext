@@ -65,7 +65,7 @@ const commands: CommandDescriptor[] = [
   {
     id: 'file.new-tab',
     execute: async() => {
-      bus.emit('mt::new-untitled-tab', { selected: '', markdown: '' })
+      bus.emit('mt::new-untitled-tab', { selected: true, markdown: '' })
     }
   },
   {

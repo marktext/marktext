@@ -78,4 +78,44 @@ describe('moveImageToFolder relative-directory persistence', () => {
     expect(path.isAbsolute(result)).toBe(false)
     expect(result.startsWith('assets/')).toBe(true)
   })
+
+  // Item 114: editor.vue imageInsertAction='path'. The string-path branch
+  // (typeof image==='string' → destImagePath = image, verbatim, no copy) lives
+  // in editor.vue:917-920 and is not importable. The automatable slice is its
+  // binary fallback (editor.vue:926-932): a saved-on-disk tab with
+  // preferRelative routes a File through moveImageToFolder(null, file, relDir,
+  // true, currentPathname). pathname is null there because a File needs no
+  // source dir — assert that path stays portable and never dereferences null.
+  it('routes a binary File through the relative branch with a null pathname (path-action fallback)', async() => {
+    const file = new File([new Uint8Array([4, 5, 6])], 'pasted.png', { type: 'image/png' })
+    const result = await moveImageToFolder(
+      null as unknown as string,
+      file,
+      assetsDir,
+      true,
+      docPath
+    )
+    // No copy for a binary File — it is written, not copied.
+    expect(copy).not.toHaveBeenCalled()
+    expect(writeFile).toHaveBeenCalledTimes(1)
+    // The written destination is inside the assets dir...
+    expect((writeFile.mock.calls[0] as unknown[])[0] as string).toMatch(/pasted\.png$/)
+    expect(((writeFile.mock.calls[0] as unknown[])[0] as string).startsWith(assetsDir)).toBe(true)
+    // ...and the inserted reference is the portable relative path.
+    expect(path.isAbsolute(result)).toBe(false)
+    expect(result.startsWith('assets/')).toBe(true)
+    expect(result.endsWith('pasted.png')).toBe(true)
+  })
+
+  it('a string local path already inside outputDir is returned verbatim when isRelative is false (path-action string passthrough analog)', async() => {
+    // Mirrors the editor.vue 'path' string branch intent: an absolute local
+    // path that already lives in the output dir is neither copied nor uploaded;
+    // the absolute reference is preserved unchanged.
+    const local = path.join(assetsDir, 'pic.png')
+    const result = await moveImageToFolder(docPath, local, assetsDir, false, docPath)
+    expect(copy).not.toHaveBeenCalled()
+    expect(writeFile).not.toHaveBeenCalled()
+    expect(result).toBe(local)
+    expect(path.isAbsolute(result)).toBe(true)
+  })
 })

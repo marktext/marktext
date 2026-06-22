@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 
 import type { ImageToken } from '../../inlineRenderer/types';
 import type { Muya } from '../../muya';

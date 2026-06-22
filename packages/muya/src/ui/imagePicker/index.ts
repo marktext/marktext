@@ -50,6 +50,7 @@ const defaultOptions = {
  */
 export class ImagePathPicker extends BaseScrollFloat {
     static pluginName = 'imagePathPicker';
+    public override capturesContentKeydown = true;
 
     private _oldVNode: VNode | null = null;
     public override renderArray: IImagePathSuggestion[] = [];

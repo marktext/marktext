@@ -4,6 +4,7 @@ import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
     IBulletListState,
+    IDiagramMeta,
     IListItemState,
     IOrderListState,
     IParagraphState,
@@ -249,24 +250,48 @@ class ParagraphContent extends Format {
             mathBlock.firstContentInDescendant().setCursor(0, 0);
         }
         else if (codeBlockToken) {
-            // Convert to code block
             const lang = codeBlockToken[2];
-            const state = {
-                name: 'code-block',
-                meta: {
-                    lang,
-                    type: 'fenced',
-                },
-                text: '',
-            };
-            const codeBlock = ScrollPage.loadBlock(state.name).create(
-                this.muya,
-                state,
-            );
+            // Diagram fences (```mermaid etc.) become diagram blocks, mirroring
+            // the file-load path in markdownToState; everything else is a fenced
+            // code block.
+            const diagramMatch = /^(?:mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
+            if (diagramMatch) {
+                const type = lang as IDiagramMeta['type'];
+                const state = {
+                    name: 'diagram',
+                    text: '',
+                    meta: {
+                        type,
+                        lang: type === 'vega-lite' ? 'json' : 'yaml',
+                    },
+                };
+                const diagramBlock = ScrollPage.loadBlock(state.name).create(
+                    this.muya,
+                    state,
+                );
 
-            this.parent!.replaceWith(codeBlock);
+                this.parent!.replaceWith(diagramBlock);
 
-            codeBlock.lastContentInDescendant().setCursor(0, 0);
+                diagramBlock.firstContentInDescendant().setCursor(0, 0, true);
+            }
+            else {
+                const state = {
+                    name: 'code-block',
+                    meta: {
+                        lang,
+                        type: 'fenced',
+                    },
+                    text: '',
+                };
+                const codeBlock = ScrollPage.loadBlock(state.name).create(
+                    this.muya,
+                    state,
+                );
+
+                this.parent!.replaceWith(codeBlock);
+
+                codeBlock.lastContentInDescendant().setCursor(0, 0);
+            }
         }
         else if (
             tableMatch
@@ -649,6 +674,10 @@ class ParagraphContent extends Format {
         return list && /ol|ul/.test(list.tagName) && listItem.prev;
     }
 
+    private _placeCursorIn(block: Nullable<Parent>, startOffset: number, endOffset: number) {
+        block?.firstContentInDescendant()?.setCursor(startOffset, endOffset, true);
+    }
+
     private _unindentListItem(type: UnindentType) {
         const { parent } = this;
         const listItem = parent?.parent;
@@ -678,6 +707,8 @@ class ParagraphContent extends Format {
                 list.remove();
             else
                 listItem.remove();
+
+            this._placeCursorIn(paragraph, start.offset, end.offset);
         }
         else if (type === UnindentType.INDENT) {
             const newListItem = listItem.clone() as Parent;
@@ -741,11 +772,11 @@ class ParagraphContent extends Format {
                 return;
             }
 
-            const cursorBlock = (
-                newListItem.find(cursorParagraphOffset) as Parent
-            ).firstContentInDescendant();
-
-            cursorBlock?.setCursor(start.offset, end.offset, true);
+            this._placeCursorIn(
+                newListItem.find(cursorParagraphOffset) as Parent,
+                start.offset,
+                end.offset,
+            );
         }
     }
 
@@ -792,7 +823,7 @@ class ParagraphContent extends Format {
     protected override insertTab() {
         const { muya, text } = this;
         const { tabSize } = muya.options;
-        const tabCharacter = String.fromCharCode(160).repeat(tabSize);
+        const tabCharacter = String.fromCharCode(32).repeat(tabSize);
         const { start, end } = this.getCursor()!;
 
         if (this.isCollapsed) {

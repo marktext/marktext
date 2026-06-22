@@ -118,10 +118,37 @@ class Keybindings {
    * @param userKeybindings New user key bindings.
    */
   async setUserKeybindings(
-    userKeybindings: Map<string, string> | Iterable<readonly [string, string]>
+    userKeybindings: Map<string, string> | Iterable<readonly [string, string]>,
+    windows: BrowserWindow[] = []
   ): Promise<boolean> {
     this.userKeybindings = new Map(userKeybindings)
-    return this._saveUserKeybindings()
+    const saved = await this._saveUserKeybindings()
+    this._reloadKeybindings(windows)
+    return saved
+  }
+
+  /**
+   * Rebuilds the active key map from the defaults plus the persisted user
+   * keybindings and re-registers shortcuts on the given windows, so a change
+   * takes effect without restarting the application.
+   */
+  _reloadKeybindings(windows: BrowserWindow[]): void {
+    const previousAccelerators = [...this.keys.values()].filter(
+      (accelerator) => accelerator && accelerator.length > 1
+    )
+
+    this.keys = this.getDefaultKeybindings()
+    this._loadLocalKeybindings()
+
+    for (const win of windows) {
+      if (!win || win.isDestroyed()) {
+        continue
+      }
+      for (const accelerator of previousAccelerators) {
+        this.unregisterAccelerator(win, accelerator)
+      }
+      this.registerEditorKeyHandlers(win)
+    }
   }
 
   // --- private --------------------------------

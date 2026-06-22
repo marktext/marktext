@@ -93,6 +93,31 @@ describe('search.search()', () => {
     });
 });
 
+describe('search.search() — selectHighlight restores the editor cursor', () => {
+    it('places the cursor on the last active match when closing the search bar (empty value + selectHighlight)', () => {
+        const muya = bootMuya('apple banana apple cherry\n');
+        const block = placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('apple');
+        // Move the active match to the second "apple" (offset 13-18).
+        search.find('next');
+        expect(search.index).toBe(1);
+
+        // Closing the search bar empties the search with selectHighlight, which
+        // must drop the editor cursor back onto the last active match so the
+        // user can keep typing where the highlight was.
+        search.search('', { selectHighlight: true });
+
+        expect(highlightCount(muya)).toBe(0);
+        expect(muya.editor.activeContentBlock).toBe(block);
+        expect(muya.editor.selection.anchorBlock).toBe(block);
+        expect(muya.editor.selection.focusBlock).toBe(block);
+        expect(muya.editor.selection.anchor!.offset).toBe(13);
+        expect(muya.editor.selection.focus!.offset).toBe(18);
+    });
+});
+
 describe('search.find() — cursor navigation across matches', () => {
     it('wraps forward 0 -> 1 -> 2 -> 0 and backward 0 -> 2, moving the active mu-highlight', () => {
         const muya = bootMuya('x and x and x\n');

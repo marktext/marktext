@@ -17,9 +17,12 @@ export default defineConfig({
     // hence, we need to "exclude" (in order to NOT externalise) ESonly modules so that they can be converted to commonJS and can be required() afterwards correctly
     build: {
       externalizeDeps: {
-        // Bundle electron-store inline so it is available as a CommonJS
-        // require() after electron-vite converts the main process output.
-        exclude: ['electron-store'],
+        // Bundle electron-store + plist inline so they are available as a
+        // CommonJS require() after electron-vite converts the main process
+        // output. plist 5 ships ESM-only (no CJS `exports` entry), so leaving
+        // it externalized makes the main process `require('plist')` throw
+        // ERR_PACKAGE_PATH_NOT_EXPORTED at startup.
+        exclude: ['electron-store', 'plist'],
         include: ['native-keymap']
       }
     },

@@ -22,12 +22,14 @@ import LinkTools from '../index';
 interface ILinkToolsView {
     _linkBlock: Format | null;
     _linkInfo: {
-        href?: string;
+        href?: string | null;
         text?: string;
         raw?: string;
         range?: { start: number; end: number } | null;
     } | null;
     selectItem: (event: Event, item: { type: string; icon: string }) => void;
+    render: () => void;
+    container: HTMLElement | null;
     destroy: () => void;
 }
 
@@ -140,5 +142,40 @@ describe('linkTools.selectItem — dispatches to block.unlink / jumpClick', () =
 
         expect(jumpClick).toHaveBeenCalledTimes(1);
         expect(jumpClick).toHaveBeenCalledWith(linkInfo);
+    });
+});
+
+describe('linkTools.render — jump visibility tracks linkInfo.href', () => {
+    // Regression guard for issue #4356: a link whose href was sanitized away
+    // (unsupported custom protocol) reaches the popover with `href: null`.
+    // There is nothing to jump to, so the jump item must not render.
+    it('omits the jump item when linkInfo.href is null', () => {
+        const { tools } = bootLinkTools();
+        tools._linkInfo = {
+            href: null,
+            text: 'sambesi://localhost/node/11164',
+            raw: '[sambesi://localhost/node/11164](sambesi://localhost/node/11164)',
+            range: { start: 0, end: 64 },
+        };
+
+        tools.render();
+
+        expect(tools.container!.querySelectorAll('li.item.jump').length).toBe(0);
+        expect(tools.container!.querySelectorAll('li.item.unlink').length).toBe(1);
+    });
+
+    it('renders both unlink and jump when linkInfo.href is present', () => {
+        const { tools } = bootLinkTools();
+        tools._linkInfo = {
+            href: 'https://example.com',
+            text: 'hi',
+            raw: '[hi](https://example.com)',
+            range: { start: 0, end: 25 },
+        };
+
+        tools.render();
+
+        expect(tools.container!.querySelectorAll('li.item.jump').length).toBe(1);
+        expect(tools.container!.querySelectorAll('li.item.unlink').length).toBe(1);
     });
 });

@@ -188,3 +188,14 @@ export function getNodeAndOffset(
 
     return { node, offset };
 }
+
+export function getLegalOffset(node: Node, offset: number): number {
+    if (!node || typeof offset !== 'number' || !Number.isFinite(offset) || offset < 0)
+        return 0;
+
+    const max = node.nodeType === Node.TEXT_NODE
+        ? (node as Text).length
+        : node.childNodes.length;
+
+    return Math.min(offset, max);
+}

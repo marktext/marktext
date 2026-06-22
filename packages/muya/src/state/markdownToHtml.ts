@@ -9,14 +9,14 @@ import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
 import { generateGithubSlug } from '../utils/slug';
+import { transformFootnotes } from './transformFootnotes';
 
-// Core stylesheets inlined into the exported document so the output is fully
-// self-contained and renders offline / behind CSP / air-gapped. Linking these
-// from a
-// CDN left a saved `.html` file unstyled with no network access, a regression
-// for an offline desktop editor. Callers that explicitly want the lighter
-// CDN-linked shell can opt in via `generate({ inlineStyles: false })`.
-const BASE_STYLESHEETS = [githubMarkdownCss, katexCss, prismCss];
+// The core stylesheets (github-markdown-css, katex, prism) are inlined into the
+// exported document so the output is fully self-contained and renders offline /
+// behind CSP / air-gapped — see `generate`. Linking them from a CDN left a
+// saved `.html` file unstyled with no network access, a regression for an
+// offline desktop editor. Callers that explicitly want the lighter CDN-linked
+// shell can opt in via `generate({ inlineStyles: false })`.
 
 // CDN `<link>` tags used when `inlineStyles` is disabled. Kept verbatim from
 // the previous default so the opt-out path is byte-identical to the old output.
@@ -98,6 +98,12 @@ export class MarkdownToHtml {
                     tooltip: false,
                     renderer: 'svg',
                     theme: 'latimes', // only render light theme
+                    // Parse the spec to an AST and evaluate expressions with the
+                    // interpreter instead of compiling them via `new Function`,
+                    // which the sandboxed renderer's CSP blocks (`unsafe-eval`
+                    // is not granted) — without this the embed throws and the
+                    // chart renders as `< Invalid Diagram >`.
+                    ast: true,
                 });
             }
             else if (functionType === 'sequence') {
@@ -162,13 +168,21 @@ export class MarkdownToHtml {
 
     // render pure html by marked
     async renderHtml() {
+        const footnote = this._muya?.options?.footnote ?? false;
         let html = getHighlightHtml(this.markdown, {
             superSubScript: this._muya?.options?.superSubScript ?? true,
-            footnote: this._muya?.options?.footnote ?? false,
+            footnote,
             isGitlabCompatibilityEnabled:
         this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
             math: this._muya?.options?.math ?? true,
         });
+
+        // Post-process footnotes into the standard GFM / pandoc shape (inline
+        // numbered <sup> refs + bottom <section class="footnotes"> with
+        // backrefs). Must run before DOMPurify strips the `data-identifier`
+        // marker the marked footnote extension emits.
+        if (footnote)
+            html = transformFootnotes(html);
 
         html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
 
@@ -226,9 +240,19 @@ export class MarkdownToHtml {
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true } = options;
 
-        const baseStyles = inlineStyles
-            ? BASE_STYLESHEETS.map(css => `  <style>${css}</style>`).join('\n')
-            : CDN_STYLESHEET_LINKS;
+        let baseStyles: string;
+        if (inlineStyles) {
+            // Embed the KaTeX fonts as data URIs so math renders offline. The
+            // font data (~300KB base64) is dynamically imported here so it only
+            // loads on export, never in the editor bundle.
+            const { embedKatexFonts } = await import('../utils/embedKatexFonts');
+            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismCss]
+                .map(css => `  <style>${css}</style>`)
+                .join('\n');
+        }
+        else {
+            baseStyles = CDN_STYLESHEET_LINKS;
+        }
 
         return `<!DOCTYPE html>
 <html lang="en">

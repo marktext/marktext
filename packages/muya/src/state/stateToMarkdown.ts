@@ -32,11 +32,12 @@ import type {
 import { deepClone } from '../utils';
 
 import logger from '../utils/logger';
+import stringWidth from '../utils/stringWidth';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
 function escapeText(str: string) {
-    return str.replace(/([^\\])\|/g, '$1\\|');
+    return str.replace(/(?<!\\)\|/g, '\\|');
 }
 
 export interface IExportMarkdownOptions {
@@ -433,7 +434,7 @@ export default class ExportMarkdown {
             for (j = 0; j < cells; j++) {
                 columnWidth[j].width = Math.max(
                     columnWidth[j].width,
-                    tableData[i][j].length + 2,
+                    stringWidth(tableData[i][j]) + 2,
                 ); // add 2, because have two space around text
             }
         }
@@ -445,9 +446,12 @@ export default class ExportMarkdown {
                     r
                         .slice(0, columnWidth.length)
                         .map((cell, j) => {
-                            const raw = ` ${cell + ' '.repeat(columnWidth[j].width)}`;
+                            // Pad by visual column width, not code-unit length,
+                            // so combining marks and wide characters stay
+                            // aligned (#1983). One leading space + cell + fill.
+                            const fill = columnWidth[j].width - 1 - stringWidth(cell);
 
-                            return raw.substring(0, columnWidth[j].width);
+                            return ` ${cell}${' '.repeat(Math.max(fill, 0))}`;
                         })
                         .join('|')
                 }|`;
@@ -533,7 +537,18 @@ export default class ExportMarkdown {
         // Subsequent paragraph indentation
         const newIndent = indent + ' '.repeat(itemMarker.length);
 
-        // New list indentation. We already added one space to the indentation
+        // Extra indentation for a NESTED list, added on top of the parent
+        // item's content column — `newIndent` above already advanced by the
+        // marker width, i.e. the CommonMark-minimal nest (a child list must
+        // sit at least past the parent marker to parse as nested). The nested
+        // marker therefore lands at: itemMarker.length + (listIndentationCount - 1).
+        //
+        // So a numeric "N spaces" is an indentation LEVEL relative to the
+        // content column, NOT an absolute column count: for a `- ` marker
+        // (width 2), N=1 -> 2 cols (tightest), N=4 -> 5 cols. Only `dfm` pins a
+        // hard 4-column nest regardless of marker width (4 - itemMarker.length).
+        // This matches the legacy muyajs serializer byte-for-byte
+        // (muyajs/lib/utils/exportMarkdown.js `normalizeListItem`).
         let listIndent = '';
         const { _listIndentation: listIndentation } = this;
         if (listIndentation === 'dfm')

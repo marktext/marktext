@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 
 import { describe, expect, it } from 'vitest';
 import { MarkdownToHtml } from '../markdownToHtml';
@@ -52,6 +52,22 @@ describe('parity PG7: export inlines base stylesheets (offline-safe)', () => {
             expect(out).not.toMatch(/<link[^>]+rel="stylesheet"[^>]+href="https:\/\//);
         },
     );
+});
+
+describe('export ships the table-of-contents stylesheet', () => {
+    // The desktop wrapper injects the `[TOC]` list with `toc-container` /
+    // `toc-hN` / `dots` markup but no styles of its own — the styling rides
+    // along in the engine's inlined export stylesheet. Without it the exported
+    // TOC renders as plain link-blue bullets with no dotted leader (issue 229).
+    it('inlines the .toc-container rules (body-colour links + dotted leader)', async () => {
+        const out = await generateExport(SAMPLE);
+
+        expect(out).toContain('.toc-container');
+        // Links inherit the body colour rather than the default link blue.
+        expect(out).toMatch(/\.toc-container ul li span a\s*\{[^}]*color:\s*inherit/);
+        // The `.dots` leader line after each entry.
+        expect(out).toMatch(/span\.dots\s*\{[^}]*border-bottom:\s*2px dotted/);
+    });
 });
 
 describe('parity PG8: exported headings carry slug ids (live TOC anchors)', () => {

@@ -121,9 +121,11 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_LINE_END',
     'MU_HEADER_TIGHT_SPACE',
     'MU_HIDE',
+    'MU_HIDE_SPELLING_MARKS',
     'MU_HIGHLIGHT',
     'MU_HTML_BLOCK',
     'MU_HTML_ESCAPE',
+    'MU_HTML_ESCAPE_MARKER',
     'MU_HTML_PREVIEW',
     'MU_HTML_TAG',
     'MU_IMAGE_FAIL',
@@ -332,6 +334,10 @@ export const MUYA_DEFAULT_OPTIONS = {
     // NOTE: The browser is not able to correct misspelled words words without a custom
     // implementation like in MarkText.
     spellcheckEnabled: false,
+    // Hide the native spelling squiggle via CSS while keeping `spellcheckEnabled`
+    // (and thus the native checker + right-click suggestions) active. Independent
+    // of `spellcheckEnabled`.
+    spellcheckHideMarks: false,
     // Markdown extensions
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
@@ -401,8 +407,11 @@ export const URL_REG
 export const DATA_URL_REG
     = /^data:image\/[\w+-]+(?:;[\w-]+=[\w-]+|;base64)*,[a-zA-Z0-9+/]+={0,2}$/;
 export const PREVIEW_DOMPURIFY_CONFIG = {
-    // do not forbid `class` because `code` element use class to present language
-    FORBID_ATTR: ['style', 'contenteditable'],
+    // do not forbid `class` because `code` element use class to present language.
+    // `style` is allowed (matching EXPORT_DOMPURIFY_CONFIG) so inline-styled HTML
+    // blocks render the same in the editor as on export; DOMPurify still
+    // sanitizes the style values themselves.
+    FORBID_ATTR: ['contenteditable'],
     ALLOW_DATA_ATTR: false,
     USE_PROFILES: {
         html: true,

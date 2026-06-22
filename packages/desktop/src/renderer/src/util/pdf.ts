@@ -50,20 +50,6 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
       margin: ${pageMarginTop}mm ${pageMarginRight}mm ${pageMarginBottom}mm ${pageMarginLeft}mm;}`
   }
 
-  // Font options
-  output += '.markdown-body{'
-  if (fontFamily) {
-    output += `font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};`
-    output = `.hf-container{font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};}${output}`
-  }
-  if (fontSize) {
-    output += `font-size:${fontSize}px;`
-  }
-  if (lineHeight) {
-    output += `line-height:${lineHeight};`
-  }
-  output += '}'
-
   // Auto numbering headings via CSS
   if (autoNumberingHeadings) {
     output += autoNumberingHeadingsCss
@@ -95,6 +81,23 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
       }
     }
   }
+
+  // Font options. Emitted AFTER the theme CSS so the "Overwrite theme font"
+  // settings win the cascade: a selected export theme also sets `.markdown-body`
+  // font-size/line-height/font-family, and at equal specificity the later rule
+  // wins — so the user's override must come last to actually override the theme.
+  output += '.markdown-body{'
+  if (fontFamily) {
+    output += `font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};`
+    output = `.hf-container{font-family:"${fontFamily}",${FALLBACK_FONT_FAMILIES};}${output}`
+  }
+  if (fontSize) {
+    output += `font-size:${fontSize}px;`
+  }
+  if (lineHeight) {
+    output += `line-height:${lineHeight};`
+  }
+  output += '}'
 
   if (headerFooterFontSize) {
     output += `.page-header .hf-container,

@@ -78,8 +78,35 @@ const DEFAULT_OPTIONS = {
     userOnly: false,
 };
 
+export type TInputKind = 'insert' | 'delete';
+
+// Undo grouping is otherwise purely time-based (`delay`), so a fast typed
+// sentence coalesces into a single entry. These helpers let the input pipeline
+// hint a boundary: a switch between inserting and deleting, or typing a
+// whitespace (word boundary), starts a fresh undo entry.
+export function classifyInputKind(inputType: string): Nullable<TInputKind> {
+    if (inputType.startsWith('insert'))
+        return 'insert';
+    if (inputType.startsWith('delete'))
+        return 'delete';
+    return null;
+}
+
+export function shouldBreakUndoGroup(
+    prevKind: Nullable<TInputKind>,
+    kind: Nullable<TInputKind>,
+    data: Nullable<string>,
+): boolean {
+    if (kind == null)
+        return false;
+    const isWordBoundary = kind === 'insert' && data != null && /\s/.test(data);
+    const switchedKind = prevKind != null && prevKind !== kind;
+    return isWordBoundary || switchedKind;
+}
+
 class History {
     private _lastRecorded: number = 0;
+    private _lastInputKind: Nullable<TInputKind> = null;
     private _ignoreChange: boolean = false;
     private _selectionStack: (Nullable<IHistorySelection>)[] = [];
     private _stack: IStack = {
@@ -250,6 +277,15 @@ class History {
 
     cutoff() {
         this._lastRecorded = 0;
+    }
+
+    markInputBoundary(inputType: string, data: Nullable<string>): void {
+        const kind = classifyInputKind(inputType);
+        if (kind == null)
+            return;
+        if (shouldBreakUndoGroup(this._lastInputKind, kind, data))
+            this.cutoff();
+        this._lastInputKind = kind;
     }
 
     private _getLastSelection() {

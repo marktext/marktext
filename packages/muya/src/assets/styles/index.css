@@ -3,12 +3,12 @@
     --theme-color: rgb(33 181 111 / 100%);
     --highlight-color: rgb(33 181 111 / 40%);
     --selection-color: rgb(45 170 219 / 30%);
-    --editor-color: rgb(0 0 0 / 70%);
-    --editor-color-80: rgb(0 0 0 / 80%);
-    --editor-color-50: rgb(0 0 0 / 50%);
-    --editor-color-30: rgb(0 0 0 / 30%);
-    --editor-color-10: rgb(0 0 0 / 10%);
-    --editor-color-04: rgb(0 0 0 / 3%);
+    --editor-color: #4d4d4d;
+    --editor-color-80: #333;
+    --editor-color-50: #808080;
+    --editor-color-30: #b3b3b3;
+    --editor-color-10: #e6e6e6;
+    --editor-color-04: #f7f7f7;
     --editor-bg-color: rgb(255 255 255 / 100%);
 
     /* width of the centered editing column (`.mu-container` max-width) */

@@ -9,6 +9,43 @@ import Parent from '../../base/parent';
 
 const debug = logger('diagramPreview:');
 
+// Give a fixed-size `<svg>` (one with `width`/`height` px attributes but no
+// `viewBox`) a viewBox derived from those dimensions, so `max-width: 100%`
+// scales it down to fit instead of clipping it. Returns true once applied.
+function addViewBox(target: HTMLElement): boolean {
+    const svg = target.querySelector('svg');
+    if (!svg || svg.getAttribute('viewBox'))
+        return !!svg;
+    const width = Number.parseFloat(svg.getAttribute('width') ?? '');
+    const height = Number.parseFloat(svg.getAttribute('height') ?? '');
+    if (width > 0 && height > 0) {
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        return true;
+    }
+    return false;
+}
+
+// `drawSVG` (js-sequence-diagrams / flowchart.js) renders the `<svg>`
+// asynchronously — it's drawn from a theme callback after its font loads — so
+// the element and its `width`/`height` attributes aren't there synchronously.
+// Try once, then observe `target` until the sized `<svg>` appears.
+function ensureViewBox(target: HTMLElement): void {
+    if (addViewBox(target))
+        return;
+    const observer = new MutationObserver(() => {
+        if (addViewBox(target))
+            observer.disconnect();
+    });
+    observer.observe(target, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['width', 'height'],
+    });
+    // Safety net so the observer can't leak if the svg never renders.
+    setTimeout(() => observer.disconnect(), 5000);
+}
+
 interface IRenderOptions {
     type: string;
     code: string;
@@ -55,6 +92,11 @@ async function renderDiagram({
         const diagram = render.parse(code);
         target.innerHTML = '';
         diagram.drawSVG(target, options);
+        // js-sequence-diagrams / flowchart.js emit an <svg> with a fixed pixel
+        // width/height but NO viewBox, so the `max-width: 100%` style can only
+        // clip a wide diagram, not scale it. Derive a viewBox from those pixel
+        // dimensions (once the async draw completes) so it scales to fit.
+        ensureViewBox(target);
     }
     else if (type === 'mermaid') {
         render.initialize({

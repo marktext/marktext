@@ -119,6 +119,7 @@ import {
   type ILocale
 } from '@muyajs/core'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
+import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
@@ -130,6 +131,7 @@ import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
+import { resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -554,18 +556,16 @@ const adaptSelectionChange = (changes: MuyaChange) => {
 // re-resolves the target blocks from `anchorPath`/`focusPath`.
 const serializeCursor = (
   selection: {
-    anchor?: { offset: number }
-    focus?: { offset: number }
-    anchorPath?: Array<string | number>
-    focusPath?: Array<string | number>
+    anchor?: { offset: number; path?: Array<string | number> }
+    focus?: { offset: number; path?: Array<string | number> }
   } | null
 ) => {
   if (!selection) return null
   return {
     anchor: selection.anchor ? { offset: selection.anchor.offset } : null,
     focus: selection.focus ? { offset: selection.focus.offset } : null,
-    anchorPath: selection.anchorPath,
-    focusPath: selection.focusPath
+    anchorPath: selection.anchor?.path,
+    focusPath: selection.focus?.path
   }
 }
 
@@ -887,8 +887,9 @@ watch(spellcheckerEnabled, (value, oldValue) => {
 
 watch(spellcheckerNoUnderline, (value, oldValue) => {
   if (value !== oldValue) {
-    // Set Muya's spellcheck container attribute.
-    editor.value.setOptions({ spellcheckEnabled: !value })
+    // Hide only the spelling squiggle; the native checker (and its right-click
+    // suggestions) stays controlled by `spellcheckerEnabled`.
+    editor.value.setOptions({ spellcheckHideMarks: value })
   }
 })
 
@@ -936,9 +937,12 @@ watch(
 )
 
 // Methods
-const jumpClick = (linkInfo: { href: string }) => {
+// muya types the callback as (linkInfo: ILinkInfo | null) and href itself can
+// be null when the rendered link has no usable href (see issue #4356).
+const jumpClick = (linkInfo: { href?: string | null } | null) => {
+  if (!linkInfo) return
   const { href } = linkInfo
-  editorStore.FORMAT_LINK_CLICK({ data: { href }, dirname: window.DIRNAME })
+  editorStore.FORMAT_LINK_CLICK({ data: { href: href ?? null }, dirname: window.DIRNAME })
 }
 
 interface ImagePathSuggestion {
@@ -1300,24 +1304,41 @@ const scrollToCords = (y: number) => {
   })
 }
 
+// Smoothly scroll the editor so `anchor` sits at the standard top offset.
+// Shared by the TOC, search-highlight, and any other "reveal this element"
+// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
+  const container = getScrollContainer()
+  if (!container || !anchor) return
+  const { y } = anchor.getBoundingClientRect()
+  animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, duration)
+}
+
 const scrollToHighlight = () => {
   return scrollToElement('.mu-highlight')
 }
 
+/**
+ * Scrolls the editor to the heading for a TOC entry. See
+ * `resolveTocHeadingElement` for why the slug is resolved by document order
+ * against the top-level headings only.
+ * @param slug The TOC entry's slug from the `scroll-to-header` bus event.
+ */
 const scrollToHeader = (slug: unknown) => {
-  return scrollToElement(`#${slug}`)
+  const container = getScrollContainer()
+  if (!container) return
+  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+}
+
+// Scrolls to a non-heading in-document anchor target (e.g. a custom
+// `<a id="...">`) resolved by `FORMAT_LINK_CLICK` via `getElementById`.
+const scrollToAnchorElement = (element: unknown) => {
+  if (element instanceof Element) scrollElementIntoView(element)
 }
 
 const scrollToElement = (selector: string) => {
   // Scroll to search highlight word
-  const container = getScrollContainer()
-  if (!container) return
-  const anchor = document.querySelector(selector)
-  if (anchor) {
-    const { y } = anchor.getBoundingClientRect()
-    const DURATION = 300
-    animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, DURATION)
-  }
+  scrollElementIntoView(document.querySelector(selector))
 }
 
 const handleFindAction = (action: unknown) => {
@@ -1524,8 +1545,19 @@ const setMarkdownToEditor = (payload: unknown) => {
       resetSyntheticHistory(id, editor.value.getMarkdown())
     }
     if (newCursor) {
-      editor.value.setCursor(newCursor)
+      applyCursor(editor.value, newCursor)
+      // A folder-search jump carries an index cursor; a freshly opened file
+      // starts scrolled to the top, so reveal the resolved caret.
+      if (isIndexCursor(newCursor)) {
+        scrollToCursor()
+      }
     }
+    // `setContent` rebuilds the block tree synchronously but fires no
+    // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
+    // the first edit, and a file switch keeps the previous file's TOC).
+    editorStore.UPDATE_TOC(editor.value.getTOC())
+    // A freshly created/opened tab should be ready to type into.
+    focusFreshEditor()
   }
 }
 
@@ -1538,22 +1570,7 @@ interface FileChangePayload {
   scrollTop?: number
   muyaIndexCursor?: unknown
   blocks?: unknown
-}
-
-// A source-mode (CodeMirror) index cursor: `{ anchor, focus }` in `{ line, ch }`
-// coordinates. Produced by sourceCode.vue and carried on `file-changed` as
-// `muyaIndexCursor` when handing a tab back to WYSIWYG. Both `line` AND `ch`
-// must be present numbers — otherwise the engine would clamp a missing `ch` to
-// 0 and silently restore the caret to the wrong column.
-const isIndexPosition = (pos: unknown): pos is { line: number; ch: number } => {
-  const p = pos as { line?: unknown; ch?: unknown } | null
-  return !!p && typeof p.line === 'number' && typeof p.ch === 'number'
-}
-const isIndexCursor = (
-  cursor: unknown
-): cursor is { anchor: { line: number; ch: number }; focus: { line: number; ch: number } } => {
-  const c = cursor as { anchor?: unknown; focus?: unknown } | null
-  return !!c && isIndexPosition(c.anchor) && isIndexPosition(c.focus)
+  isReload?: boolean
 }
 
 // listen for markdown change form source mode or change tabs etc
@@ -1564,7 +1581,8 @@ const handleFileChange = (payload: unknown) => {
     cursor: newCursor,
     muyaIndexCursor,
     history: payloadHistory,
-    scrollTop
+    scrollTop,
+    isReload
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
   const container = getScrollContainer()
@@ -1598,9 +1616,32 @@ const handleFileChange = (payload: unknown) => {
       // remapping below.
       editor.value.replaceContent(newMarkdown, preSourceModeSelection)
       preSourceModeSelection = null
+      editorStore.UPDATE_TOC(editor.value.getTOC())
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
       editor.value.setCursorByOffset(muyaIndexCursor)
+    } else if (isReload) {
+      // External disk reload (`loadChange`): the tab is already the live engine
+      // document, so record the new on-disk content as a SINGLE invertible undo
+      // boundary via `replaceContent` (legacy muyajs full-state-snapshot parity)
+      // — the first undo after the reload restores the pre-reload document in one
+      // step. `setContent` would clear the engine history and lose that boundary;
+      // restoring the per-tab engine history (the tab-switch path) would clobber
+      // it too. `replaceContent` preserves the existing undo stack and pushes the
+      // boundary on top.
+      //
+      // The new content is this tab's clean baseline (the store seeds
+      // `lastSavedHistoryId: 0`), so re-seed the save-tracking allocator BEFORE
+      // applying: `replaceContent` fires a SYNCHRONOUS `json-change` that would
+      // otherwise mark the tab dirty against the stale (pre-reload) baseline.
+      if (id) {
+        resetSyntheticHistory(id, newMarkdown)
+      }
+      editor.value.replaceContent(newMarkdown)
+      editorStore.UPDATE_TOC(editor.value.getTOC())
+      if (newCursor) {
+        applyCursor(editor.value, newCursor)
+      }
     } else {
       // Tab switch / programmatic content swap: `setContent` replaces the
       // document and clears history, so restore the real engine history (kept
@@ -1608,8 +1649,11 @@ const handleFileChange = (payload: unknown) => {
       // `history` in the payload is the synthetic desktop-shaped history used
       // for save tracking, not the engine history.
       editor.value.setContent(newMarkdown)
+      // Tab switch swaps content without firing `json-change`, so re-seed the
+      // TOC (otherwise returning to an open tab keeps the other tab's TOC).
+      editorStore.UPDATE_TOC(editor.value.getTOC())
       if (newCursor) {
-        editor.value.setCursor(newCursor)
+        applyCursor(editor.value, newCursor)
       } else if (isIndexCursor(muyaIndexCursor)) {
         // Source-mode handoff for a tab the engine has no history for (e.g.
         // first interaction after load): fall back to a caret-only remap. The
@@ -1630,7 +1674,7 @@ const handleFileChange = (payload: unknown) => {
       }
     }
   } else if (newCursor) {
-    editor.value.setCursor(newCursor)
+    applyCursor(editor.value, newCursor)
   }
 
   if (typeof scrollTop === 'number') {
@@ -1656,6 +1700,23 @@ const focusEditor = () => {
   editor.value?.focus()
 }
 
+// Focus a freshly opened/created tab's editor. The sibling `file-changed`
+// handler (emitted first, while the store commits the tab switch) hides the
+// editor and queues a `requestAnimationFrame` via `scrollToCords` to restore
+// it, and focus() is a no-op while the container is `visibility:hidden`. Our
+// rAF is registered after that restore rAF, so it runs once the editor is
+// visible; then take DOM focus (the engine's `focus()` only sets the selection
+// range — the contenteditable also needs focus or no caret blinks) and place
+// the caret at the document start.
+const focusFreshEditor = () => {
+  requestAnimationFrame(() => {
+    const ed = editor.value
+    if (!ed) return
+    ed.domNode.focus()
+    ed.focus()
+  })
+}
+
 // When a focus-trapping modal (the command palette) opens, release the editor's
 // contenteditable focus first. element-plus's el-dialog restores focus to the
 // previously focused element on close; restoring it into the engine's
@@ -1668,9 +1729,13 @@ const handleModalOpening = () => {
   }
 }
 
-const handleScreenShot = () => {
-  if (editor.value) {
-    document.execCommand('paste')
+// macOS Edit → Screenshot. The main process captures the region, saves it to a
+// PNG, and hands us the path. `document.execCommand('paste')` no longer fires in
+// Electron 42 Chromium, so insert the saved image at the cursor through the
+// engine (routing via `imageAction` → upload/folder/path).
+const handleScreenShot = (filePath?: unknown) => {
+  if (editor.value && typeof filePath === 'string' && filePath) {
+    editor.value.pasteImage(filePath)
   }
 }
 
@@ -1758,6 +1823,7 @@ onMounted(() => {
     sequenceTheme: sequenceTheme.value,
     plantumlServer: preferencesStore.plantumlServer,
     spellcheckEnabled: spellcheckerEnabled.value,
+    spellcheckHideMarks: spellcheckerNoUnderline.value,
     // Resolve the OS clipboard to a local file path on paste (image-from-file).
     clipboardFilePath: guessClipboardFilePath,
     // Read the OS clipboard's plain text for "Paste as Plain Text" (execCommand('paste') no longer fires).
@@ -1791,6 +1857,9 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init()
   editor.value = muya
+  // The first document's content is set via constructor options, so no
+  // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
+  editorStore.UPDATE_TOC(muya.getTOC())
 
   // Seed the save-tracking baseline for the mount-loaded document (from the
   // engine's OWN serialization, same reason as setMarkdownToEditor). Without
@@ -1843,6 +1912,7 @@ onMounted(() => {
   bus.on('deleteParagraph', handleParagraph)
   bus.on('insertParagraph', handleInsertParagraph)
   bus.on('scroll-to-header', scrollToHeader)
+  bus.on('scroll-to-anchor-element', scrollToAnchorElement)
   bus.on('screenshot-captured', handleScreenShot)
   bus.on('show-command-palette', handleModalOpening)
   bus.on('switch-spellchecker-language', switchSpellcheckLanguage)
@@ -1994,6 +2064,7 @@ onBeforeUnmount(() => {
   bus.off('deleteParagraph', handleParagraph)
   bus.off('insertParagraph', handleInsertParagraph)
   bus.off('scroll-to-header', scrollToHeader)
+  bus.off('scroll-to-anchor-element', scrollToAnchorElement)
   bus.off('screenshot-captured', handleScreenShot)
   bus.off('show-command-palette', handleModalOpening)
   bus.off('switch-spellchecker-language', switchSpellcheckLanguage)
@@ -2040,6 +2111,10 @@ onBeforeUnmount(() => {
 .editor-wrapper {
   height: 100%;
   position: relative;
+  /* Contain the editor's z-indexed children (e.g. the math/diagram preview
+     popups at z-index 10000) in their own stacking context so they cannot
+     paint above modal dialogs rendered outside the editor. */
+  isolation: isolate;
   flex: 1;
   color: var(--editorColor);
 }

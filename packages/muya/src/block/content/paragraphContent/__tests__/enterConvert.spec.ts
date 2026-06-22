@@ -164,6 +164,62 @@ describe('enter on ```` ```js ```` — converts to a fenced code-block', () => {
     });
 });
 
+// #2177: typing ```` ```mermaid ```` (or any diagram language) and pressing
+// Enter must produce a diagram block, the same as loading that fence from a
+// file. The file-load path (markdownToState) already routes the five diagram
+// languages to a `diagram` state; the live-typing path must match.
+describe('enter on ```` ```mermaid ```` — converts to a diagram block', () => {
+    it('replaces the paragraph with a single diagram block (not a code-block)', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```mermaid');
+
+        await flush();
+        const state = muya.getState();
+        expect(state.length).toBe(1);
+        expect(state[0].name).toBe('diagram');
+    });
+
+    it('records meta.type === "mermaid" and meta.lang === "yaml"', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```mermaid');
+
+        await flush();
+        const state = muya.getState();
+        const meta = (state[0] as { meta: { lang: string; type: string } }).meta;
+        expect(meta.type).toBe('mermaid');
+        expect(meta.lang).toBe('yaml');
+    });
+
+    it('uses meta.lang === "json" for a vega-lite fence', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```vega-lite');
+
+        await flush();
+        const state = muya.getState();
+        expect(state[0].name).toBe('diagram');
+        const meta = (state[0] as { meta: { lang: string; type: string } }).meta;
+        expect(meta.type).toBe('vega-lite');
+        expect(meta.lang).toBe('json');
+    });
+
+    it('still converts a non-diagram fence (```js) to a code-block', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```js');
+
+        await flush();
+        const state = muya.getState();
+        expect(state[0].name).toBe('code-block');
+    });
+});
+
 describe('enter on `<div>` — converts to an html-block', () => {
     it('replaces the paragraph with a single html-block', async () => {
         const muya = bootMuya('seed\n');

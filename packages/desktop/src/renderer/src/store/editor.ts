@@ -77,7 +77,9 @@ interface FileChangePayload {
 }
 
 interface FormatLinkClickPayload {
-  data: { href: string; [key: string]: unknown }
+  // muya's getLinkInfo yields `href: null` when the rendered link carries no
+  // usable href (e.g. an unsupported protocol stripped by sanitizeHyperlink).
+  data: { href: string | null; [key: string]: unknown }
   dirname: string
 }
 
@@ -399,7 +401,11 @@ export const useEditorStore = defineStore('editor', {
           cursor,
           renderCursor: true,
           history,
-          scrollTop
+          scrollTop,
+          // External disk reload: the engine handler records the new content as a
+          // single invertible undo boundary (replaceContent) instead of clearing
+          // history (setContent), so the first undo restores the pre-reload doc.
+          isReload: true
         })
       }
       debouncedSendBufferedState()
@@ -407,8 +413,7 @@ export const useEditorStore = defineStore('editor', {
 
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
-
-      if (data.href.length > 0 && data.href[0] === '#') {
+      if (data.href && data.href[0] === '#') {
         const anchorSlug = data.href.substring(1)
         if (!anchorSlug) return
 
@@ -421,6 +426,13 @@ export const useEditorStore = defineStore('editor', {
           }
         }
 
+        // Fall back to a non-heading target: a custom `<a id="...">` (or any
+        // element with a matching id) rendered in the document.
+        const anchorElement = document.getElementById(anchorSlug)
+        if (anchorElement) {
+          bus.emit('scroll-to-anchor-element', anchorElement)
+        }
+
         return
       }
 
@@ -428,8 +440,8 @@ export const useEditorStore = defineStore('editor', {
     },
 
     LISTEN_SCREEN_SHOT(): void {
-      window.electron.ipcRenderer.on('mt::screenshot-captured', () => {
-        bus.emit('screenshot-captured')
+      window.electron.ipcRenderer.on('mt::screenshot-captured', (_, filePath) => {
+        bus.emit('screenshot-captured', filePath)
       })
     },
 
@@ -1351,6 +1363,22 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    /**
+     * Replaces the table of contents with a fresh snapshot from the engine.
+     *
+     * Used on file load and tab switch, where the engine fires no `json-change`
+     * event (so `LISTEN_FOR_CONTENT_CHANGE` never runs and the TOC would
+     * otherwise stay empty until the first edit). Assigns unconditionally: this
+     * is a re-seed on load/switch, so there is no `equal` guard to short-circuit
+     * — the incoming snapshot always wins, even if it happens to deep-equal the
+     * current TOC.
+     * @param toc Flat list of headings returned by `muya.getTOC()`.
+     */
+    UPDATE_TOC(toc: TocItem[]): void {
+      this.listToc = toc ?? []
+      this.toc = listToTree<TocItem>(toc ?? [])
+    },
+
     // Content change from realtime preview editor and source code editor
     // There is a chance that this event is fired AFTER the tab is switched.
     LISTEN_FOR_CONTENT_CHANGE({
@@ -1405,7 +1433,7 @@ export const useEditorStore = defineStore('editor', {
         typeof lastEditIndex === 'number' && lastEditIndex >= 0
           ? tab.history.stack[lastEditIndex]
           : undefined
-      if (
+      const historyMarksDirty =
         (typeof lastEditIndex === 'number' &&
           lastEditIndex >= 0 &&
           editEntry !== undefined &&
@@ -1413,7 +1441,8 @@ export const useEditorStore = defineStore('editor', {
         (lastEditIndex === -1 &&
           tab.lastSavedHistoryId !== -1 &&
           tab.lastSavedHistoryId !== tab.history.lastInitIndex) // Edge Case: Undo to original content (lastEditIndex === -1) after saving means we cant use the lastEditIndex. Compare it against the lastInitIndex instead.
-      ) {
+      const isDirty = history === undefined ? markdown !== oldMarkdown : historyMarksDirty
+      if (isDirty) {
         tab.isSaved = false
         if (pathname && autoSave) {
           const options = getOptionsFromState(tab)
@@ -1425,7 +1454,7 @@ export const useEditorStore = defineStore('editor', {
             options
           })
         }
-      } else if (tab.lastSavedHistoryId !== -1) {
+      } else if (history !== undefined && tab.lastSavedHistoryId !== -1) {
         // Check here is to prevent it from overriding a restored .isSaved state
         tab.isSaved = true // An undo can trigger this
       }

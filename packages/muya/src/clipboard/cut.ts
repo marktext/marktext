@@ -5,9 +5,10 @@ import type Table from '../block/gfm/table';
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import Format from '../block/base/format';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
-import { SelectionDirection } from '../selection/types';
+import { SelectionDirection, SelectionType } from '../selection/types';
 import { getBlock } from '../utils/dom';
 
 /**
@@ -53,6 +54,20 @@ function resetToEmptyParagraph(clipboard: Clipboard): void {
 
     const cursorBlock = newParagraphBlock.firstContentInDescendant();
     cursorBlock?.setCursor(0, 0, true);
+}
+
+// Seat the caret and re-evaluate the block's type from its new text — a cut can
+// add or remove a block-leading marker (`# `, `- `, …).
+function setCursorAndConvert(block: Content, offset: number): void {
+    block.setCursor(offset, offset, true);
+    if (block instanceof Format)
+        block.checkInlineUpdate();
+}
+
+// Collapse the document to a single empty paragraph once a cut empties it.
+function resetIfEmpty(clipboard: Clipboard): void {
+    if (clipboard.scrollPage?.length() === 0)
+        resetToEmptyParagraph(clipboard);
 }
 
 // Empty every cell content leaf from `start` up to and including `after`,
@@ -245,72 +260,101 @@ function selectedTableCells(
     return { table, cells };
 }
 
-/**
- * Structurally delete an empty whole row / column / table when cutting a
- * frozen table-cell selection. Returns `true` when it handled the cut (the
- * caller then skips the in-place clear), `false` to fall through to the
- * in-place clear.
- */
-function cutEmptyTableStructure(clipboard: Clipboard): boolean {
+// Remove the whole table block and seat the caret just outside it (or reset to
+// a single empty paragraph when the table was the only block).
+function removeWholeTable(clipboard: Clipboard, table: Table): void {
+    clipboard.selection.table.clear();
+    const outsideContent
+        = table.nextContentInContext() ?? table.previousContentInContext();
+    table.remove();
+    if (clipboard.scrollPage?.length() === 0)
+        resetToEmptyParagraph(clipboard);
+    else
+        outsideContent?.setCursor(0, 0, true);
+}
+
+// For an already-empty frozen selection: if the rectangle covers whole
+// column(s), whole row(s), or the whole table, delete that structure and return
+// `true`; a partial rectangle returns `false` so the caller just drops the
+// selection. Multiple whole columns / rows are removed high-index-first so the
+// remaining offsets stay valid.
+function removeEmptyTableStructure(clipboard: Clipboard): boolean {
     const selectedCells = selectedTableCells(clipboard);
     if (selectedCells == null)
         return false;
 
     const { table, cells } = selectedCells;
-    const hasContent = cells.some(cell => (cell.firstChild as Content)?.text);
-    if (hasContent)
-        return false;
-
     const rows = new Set(cells.map(cell => cell.rowOffset));
     const columns = new Set(cells.map(cell => cell.columnOffset));
-    const { rowCount, columnCount } = table;
+    const spansAllRows = rows.size === table.rowCount;
+    const spansAllColumns = columns.size === table.columnCount;
 
-    const isWholeColumn = columns.size === 1 && rows.size === rowCount;
-    const isWholeRow = rows.size === 1 && columns.size === columnCount;
-    const isWholeTable
-        = rows.size === rowCount
-            && columns.size === columnCount
-            && cells.length === rowCount * columnCount;
+    if (spansAllRows && spansAllColumns) {
+        removeWholeTable(clipboard, table);
 
-    if (!isWholeColumn && !isWholeRow && !isWholeTable)
+        return true;
+    }
+
+    if (spansAllRows) {
+        clipboard.selection.table.clear();
+        let cursorBlock: Nullable<Content> = null;
+        for (const column of [...columns].sort((a, b) => b - a))
+            cursorBlock = table.removeColumn(column);
+        cursorBlock?.setCursor(0, 0, true);
+
+        return true;
+    }
+
+    if (spansAllColumns) {
+        clipboard.selection.table.clear();
+        let cursorBlock: Nullable<Content> = null;
+        for (const row of [...rows].sort((a, b) => b - a))
+            cursorBlock = table.removeRow(row);
+        cursorBlock?.setCursor(0, 0, true);
+
+        return true;
+    }
+
+    return false;
+}
+
+// Clipboard cut over a frozen table selection: a whole-table selection is
+// deleted even with content; otherwise content cells fall back to an in-place
+// clear, and an empty whole column/row selection deletes that structure.
+function cutTableStructure(clipboard: Clipboard): boolean {
+    const selectedCells = selectedTableCells(clipboard);
+    if (selectedCells == null)
         return false;
 
-    const cursorOffsetRow = [...rows][0];
-    const cursorOffsetColumn = [...columns][0];
+    const { table, cells } = selectedCells;
+    const rows = new Set(cells.map(cell => cell.rowOffset));
+    const columns = new Set(cells.map(cell => cell.columnOffset));
 
-    clipboard.selection.table.clear();
+    if (rows.size === table.rowCount && columns.size === table.columnCount) {
+        removeWholeTable(clipboard, table);
 
-    if (isWholeTable) {
-        const outsideContent
-            = table.nextContentInContext() ?? table.previousContentInContext();
-        table.remove();
-        if (clipboard.scrollPage?.length() === 0) {
-            resetToEmptyParagraph(clipboard);
-        }
-        else {
-            outsideContent?.setCursor(0, 0, true);
-        }
-    }
-    else if (isWholeColumn) {
-        const cursorBlock = table.removeColumn(cursorOffsetColumn);
-        cursorBlock?.setCursor(0, 0, true);
-    }
-    else {
-        const cursorBlock = table.removeRow(cursorOffsetRow);
-        cursorBlock?.setCursor(0, 0, true);
+        return true;
     }
 
-    return true;
+    if (cells.some(cell => (cell.firstChild as Content)?.text))
+        return false;
+
+    return removeEmptyTableStructure(clipboard);
 }
 
 export function cutSelection(clipboard: Clipboard): void {
-    // A frozen cross-cell table selection. When every selected cell is
-    // already empty and the rectangle covers a whole row / column / table,
-    // delete that structure; otherwise empty the cells in place. The copy half
-    // already captured the
-    // rectangle's markdown via `getClipboardData`.
+    // Cut a selected image: the copy half wrote its raw markdown; remove it here.
+    const selectedImage = clipboard.selection.image;
+    if (selectedImage) {
+        const { block, ...imageInfo } = selectedImage;
+        block.deleteImage(imageInfo);
+        clipboard.selection.activate(SelectionType.TEXT);
+
+        return;
+    }
+
     if (clipboard.selection.table.hasSelection) {
-        if (!cutEmptyTableStructure(clipboard))
+        if (!cutTableStructure(clipboard))
             clipboard.selection.table.clearSelectedCells();
 
         return;
@@ -339,7 +383,9 @@ export function cutSelection(clipboard: Clipboard): void {
         anchorBlock.text
             = text.substring(0, startOffset) + text.substring(endOffset);
 
-        return anchorBlock.setCursor(startOffset, startOffset, true);
+        setCursorAndConvert(anchorBlock, startOffset);
+
+        return;
     }
 
     const startBlock = direction === SelectionDirection.FORWARD ? anchorBlock : focusBlock;
@@ -350,6 +396,15 @@ export function cutSelection(clipboard: Clipboard): void {
     // Whole-document selection collapses to a single empty paragraph.
     if (isSelectAll(clipboard, startBlock, startOffset, endBlock, endOffset)) {
         resetToEmptyParagraph(clipboard);
+
+        return;
+    }
+
+    // #918: a cross-block cut that starts inside a code fence's language line
+    // collapses the start code block to a paragraph holding the merged text,
+    // rather than corrupting the code block's language with the merged content.
+    if (startBlock.blockName === 'language-input') {
+        collapseLanguageInputCut(clipboard, startBlock, endBlock, startOffset, endOffset);
 
         return;
     }
@@ -365,9 +420,46 @@ export function cutSelection(clipboard: Clipboard): void {
 
     removeBlocks(startBlock, endBlock);
 
-    startBlock.setCursor(startOffset, startOffset, true);
+    setCursorAndConvert(startBlock, startOffset);
+    resetIfEmpty(clipboard);
+}
 
-    if (clipboard.scrollPage?.length() === 0) {
-        resetToEmptyParagraph(clipboard);
-    }
+// #918: collapse the start code block (whose language line begins the
+// selection) into a paragraph carrying the merged head + end-tail text, then
+// remove the spanned structure.
+function collapseLanguageInputCut(
+    clipboard: Clipboard,
+    startBlock: Content,
+    endBlock: Content,
+    startOffset: number,
+    endOffset: number,
+): void {
+    const mergedText
+        = startBlock.text.substring(0, startOffset)
+            + endBlock.text.substring(endOffset);
+    const codeBlock = startBlock.outMostBlock;
+
+    removeBlocks(startBlock, endBlock);
+
+    const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
+        name: 'paragraph',
+        text: mergedText,
+    });
+    codeBlock?.replaceWith(paragraph);
+
+    paragraph.firstContentInDescendant()?.setCursor(startOffset, startOffset, true);
+
+    resetIfEmpty(clipboard);
+}
+
+// Keyboard delete over a frozen table selection (two-stage, muyajs parity):
+// the first press clears the selected cells' text but keeps the rectangle
+// frozen; once the cells are empty, the next press removes whole column(s) /
+// row(s) / the whole table, or drops the selection for a partial rectangle.
+export function deleteTableSelection(clipboard: Clipboard): void {
+    if (clipboard.selection.table.emptySelectedCells())
+        return;
+
+    if (!removeEmptyTableStructure(clipboard))
+        clipboard.selection.table.clear();
 }

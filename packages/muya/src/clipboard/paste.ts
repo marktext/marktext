@@ -1,17 +1,20 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
+import type { Muya } from '../muya';
+import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import CodeBlockContent from '../block/content/codeBlockContent';
+import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { URL_REG } from '../config';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
-import { isParagraphState } from '../state/types';
+import { isAnyListState, isParagraphState } from '../state/types';
 import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
-import { tryPasteImage } from './pasteImage';
+import { tryPasteImage, tryReplaceSelectedImage } from './pasteImage';
 import { PasteType } from './types';
 
 // Everything the per-anchor paste handlers need from the synchronous snapshot
@@ -40,18 +43,281 @@ function isSingleCellSelected(clipboard: Clipboard): boolean {
     return state.children.length === 1 && state.children[0].children.length === 1;
 }
 
-// Parse a paste into real blocks (the common anchor case): parse markdown →
-// state, splice a leading paragraph back into a heading anchor, drop the
-// selected range, insert the new blocks, remove the emptied source paragraph,
-// and seat the cursor at the end.
+// The deepest last text-bearing leaf of a parsed state (a paragraph inside a
+// list / quote), used to sew the anchor's trailing text onto the last block.
+function lastLeafState(state: TState): Nullable<{ text: string }> {
+    const node = state as { children?: TState[]; text?: string };
+    if (Array.isArray(node.children) && node.children.length > 0)
+        return lastLeafState(node.children[node.children.length - 1]);
+
+    return typeof node.text === 'string' ? (node as { text: string }) : null;
+}
+
+// Append the anchor's trailing text onto the last pasted block; return the caret
+// offset (the length before the sewn tail) inside that leaf.
+function sewTail(states: TState[], tail: string): number {
+    const leaf = lastLeafState(states[states.length - 1]);
+    if (leaf == null)
+        return 0;
+
+    const offset = leaf.text.length;
+    if (tail.length > 0)
+        leaf.text += tail;
+
+    return offset;
+}
+
+function insertStatesAfter(
+    muya: Muya,
+    wrapperBlock: Nullable<Parent>,
+    states: TState[],
+): Nullable<Parent> {
+    let wb = wrapperBlock;
+    for (const state of states) {
+        const newBlock = ScrollPage.loadBlock(state.name).create(muya, state);
+        wb?.parent?.insertAfter(newBlock, wb);
+        wb = newBlock;
+    }
+
+    return wb;
+}
+
+// Drop the anchor's wrapper when the paste emptied it. muyajs removes any
+// emptied wrapper (removeBlock), so a heading whose text was consumed is
+// cleaned up too — not just a paragraph.
+function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
+    const blockName = originWrapperBlock?.blockName;
+    if (
+        blockName !== 'paragraph'
+        && blockName !== 'atx-heading'
+        && blockName !== 'setext-heading'
+    ) {
+        return;
+    }
+
+    const originState = originWrapperBlock!.getState() as { text?: string };
+    if (originState.text === '')
+        originWrapperBlock!.remove();
+}
+
+function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
+    last?.lastContentInDescendant()?.setCursor(offset, offset, true);
+}
+
+// muyajs `checkPasteType`: a paragraph always merges inline into the anchor; a
+// heading merges (with its marker dropped) only into a non-empty anchor;
+// anything else starts a new block. Returns the inline text to merge, or null
+// for the NEWLINE path.
+function inlineMergeText(state: TState, anchorHasText: boolean): Nullable<string> {
+    switch (state.name) {
+        case 'paragraph':
+            return state.text;
+        case 'atx-heading':
+            return anchorHasText ? state.text.replace(/^ {0,3}#{1,6}\s+/, '') : null;
+        case 'setext-heading':
+            return anchorHasText ? state.text : null;
+        default:
+            return null;
+    }
+}
+
+// Heading anchor: the first line was spliced into the heading; insert the rest
+// as blocks below. The anchor's tail is sewn onto the last pasted block so it
+// trails the whole paste (muyajs `pasteCtrl`); only when nothing follows does
+// it stay in the heading.
+function pasteAfterHeading(muya: Muya, ctx: IPasteContext, remaining: TState[], tail: string): void {
+    const { anchorBlock } = ctx;
+
+    if (remaining.length === 0) {
+        const offset = anchorBlock.text.length;
+        if (tail.length > 0) {
+            anchorBlock.text += tail;
+            anchorBlock.update();
+        }
+        anchorBlock.setCursor(offset, offset, true);
+
+        return;
+    }
+
+    const sewOffset = sewTail(remaining, tail);
+    const last = insertStatesAfter(muya, ctx.wrapperBlock, remaining);
+    seatCursorAtSeam(last, sewOffset);
+}
+
+// MERGE: splice the first state's text into the anchor (head + pasted), sewing
+// the anchor's tail onto the last pasted block — or back onto the anchor when
+// the paste is a single state.
+function pasteInlineMerge(
+    muya: Muya,
+    ctx: IPasteContext,
+    states: TState[],
+    mergeText: string,
+    head: string,
+    tail: string,
+): void {
+    const { anchorBlock } = ctx;
+    const rest = states.slice(1);
+
+    if (rest.length === 0) {
+        anchorBlock.text = head + mergeText + tail;
+        anchorBlock.update();
+        const offset = head.length + mergeText.length;
+        anchorBlock.setCursor(offset, offset, true);
+
+        return;
+    }
+
+    anchorBlock.text = head + mergeText;
+    anchorBlock.update();
+    const offset = sewTail(rest, tail);
+    const last = insertStatesAfter(muya, ctx.wrapperBlock, rest);
+    seatCursorAtSeam(last, offset);
+}
+
+// NEWLINE: the first state cannot merge into the anchor — insert every state as
+// a new block, sewing the tail onto the last and dropping an emptied anchor.
+function pasteNewline(
+    muya: Muya,
+    ctx: IPasteContext,
+    states: TState[],
+    head: string,
+    tail: string,
+): void {
+    const { anchorBlock } = ctx;
+    if (anchorBlock.text !== head) {
+        anchorBlock.text = head;
+        anchorBlock.update();
+    }
+
+    const offset = sewTail(states, tail);
+    const last = insertStatesAfter(muya, ctx.wrapperBlock, states);
+    if (head.length === 0)
+        removeEmptyOriginWrapper(ctx.originWrapperBlock);
+
+    seatCursorAtSeam(last, offset);
+}
+
+// The content leaf of the `paraIndex`-th block inside the `itemIndex`-th list
+// item — used to seat the caret after a list-merge rebuilds the list block.
+function itemParaContent(list: Parent, itemIndex: number, paraIndex: number): Nullable<Content> {
+    const item = list.find(itemIndex) as Parent | undefined;
+    const para = item?.find(paraIndex) as Parent | undefined;
+
+    return para?.firstContentInDescendant() ?? null;
+}
+
+// Same list kind + same bullet marker / order delimiter.
+function listMarkersMatch(a: TState, b: TState): boolean {
+    if (a.name === 'order-list' && b.name === 'order-list')
+        return a.meta.delimiter === b.meta.delimiter;
+    if (a.name === 'bullet-list' && b.name === 'bullet-list')
+        return a.meta.marker === b.meta.marker;
+    if (a.name === 'task-list' && b.name === 'task-list')
+        return a.meta.marker === b.meta.marker;
+
+    return false;
+}
+
+// A5: pasting a same-kind, same-marker list into a list item merges it into the
+// enclosing list (muyajs `pasteCtrl` LIST MERGE) — the first pasted item folds
+// inline into the current item, the rest append to the list, and loose/tight
+// reconcile (`a.loose || b.loose`). Returns false to fall through to a normal
+// paste (no enclosing list, or a mismatched kind/marker).
+function tryMergeListPaste(
+    clipboard: Clipboard,
+    ctx: IPasteContext,
+    states: TState[],
+    head: string,
+    tail: string,
+): boolean {
+    const firstState = states[0];
+    if (!isAnyListState(firstState))
+        return false;
+
+    const listItemName = firstState.name === 'task-list' ? 'task-list-item' : 'list-item';
+    const listItem = ctx.anchorBlock.closestBlock(listItemName);
+    const listBlock = listItem?.parent;
+    if (listItem == null || listBlock == null || listBlock.blockName !== firstState.name)
+        return false;
+
+    const listState = listBlock.getState();
+    if (!isAnyListState(listState) || !listMarkersMatch(listState, firstState))
+        return false;
+
+    const itemIndex = listBlock.offset(listItem);
+    // The cursor lives in a specific paragraph of the item — not necessarily the
+    // first (loose list items hold several blocks). Merge into that paragraph.
+    const paraIndex = ctx.wrapperBlock ? (listItem as Parent).offset(ctx.wrapperBlock) : 0;
+    const currentItem = listState.children[itemIndex];
+    const anchorPara = currentItem?.children[paraIndex];
+    if (anchorPara == null || !isParagraphState(anchorPara))
+        return false;
+
+    // Sew the anchor's tail onto the last pasted leaf; the head stays here.
+    const sewOffset = sewTail(states, tail);
+    const pastedItems = firstState.children;
+    const pastedFirst = pastedItems[0].children[0];
+
+    // A task list never folds its first item: muyajs prepends an `input` child
+    // so its `liChildren[0].type === 'p'` check is false and it appends every
+    // pasted item. Bullet/order lists fold the first item's paragraph inline.
+    const canFold = firstState.name !== 'task-list' && isParagraphState(pastedFirst);
+
+    const mergedChildren = [...listState.children];
+    let foldedOnly = false;
+    if (canFold) {
+        anchorPara.text = head + pastedFirst.text;
+        currentItem.children = [...currentItem.children, ...pastedItems[0].children.slice(1)];
+        mergedChildren.push(...pastedItems.slice(1));
+        // The whole paste folded into `anchorPara` (no extra blocks/items): the
+        // caret stays in that paragraph at the seam.
+        foldedOnly
+            = pastedItems.length === 1
+                && pastedItems[0].children.length === 1
+                && states.length === 1;
+    }
+    else {
+        anchorPara.text = head;
+        mergedChildren.push(...pastedItems);
+    }
+
+    const loose = listState.meta.loose || firstState.meta.loose;
+    const mergedListState = {
+        ...listState,
+        meta: { ...listState.meta, loose },
+        children: mergedChildren,
+    };
+
+    const newList = ScrollPage.loadBlock(mergedListState.name).create(
+        clipboard.muya,
+        mergedListState,
+    );
+    listBlock.replaceWith(newList);
+
+    if (foldedOnly) {
+        const cursor = itemParaContent(newList, itemIndex, paraIndex);
+        const offset = head.length + sewOffset;
+        cursor?.setCursor(offset, offset, true);
+    }
+    else {
+        const last = insertStatesAfter(clipboard.muya, newList, states.slice(1));
+        seatCursorAtSeam(last, sewOffset);
+    }
+
+    return true;
+}
+
+// Parse a paste into real blocks. A heading anchor keeps the first line; a
+// same-kind list merges into the enclosing list; otherwise a non-heading anchor
+// merges the first paragraph/heading inline (head + pasted + tail) or, for
+// non-mergeable content, starts new blocks below.
 function applyParsedPaste(
     clipboard: Clipboard,
     ctx: IPasteContext,
     markdown: string,
 ): void {
     const { muya } = clipboard;
-    const { anchorBlock, originWrapperBlock, start, end, content } = ctx;
-    let wrapperBlock = ctx.wrapperBlock;
+    const { anchorBlock, start, end, content } = ctx;
 
     // An empty / whitespace-only paste is a no-op; the parser would otherwise
     // emit a lone empty paragraph and churn blocks.
@@ -74,40 +340,42 @@ function applyParsedPaste(
         frontMatter,
     }).generate(markdown);
 
-    // When pasting into a heading, splice the first paragraph back into the
-    // heading text so the heading semantics survive. The helper also collapses
-    // any selection on the heading.
+    if (states.length === 0)
+        return;
+
+    const head = content.substring(0, start.offset);
+    const tail = content.substring(end.offset);
+
     const remaining = mergePasteIntoHeading(
         anchorBlock,
-        wrapperBlock,
+        ctx.wrapperBlock,
         states,
         { startOffset: start.offset, endOffset: end.offset },
     );
+    if (remaining !== states) {
+        pasteAfterHeading(muya, ctx, remaining, tail);
 
-    if (remaining === states && start.offset !== end.offset) {
-        anchorBlock.text
-            = content.substring(0, start.offset) + content.substring(end.offset);
-        anchorBlock.update();
+        return;
     }
 
-    for (const state of remaining) {
-        const newBlock = ScrollPage.loadBlock(state.name).create(muya, state);
-        wrapperBlock?.parent?.insertAfter(newBlock, wrapperBlock);
-        wrapperBlock = newBlock;
+    if (tryMergeListPaste(clipboard, ctx, states, head, tail))
+        return;
+
+    let mergeText = inlineMergeText(states[0], head.length > 0);
+
+    // Pasting into a link destination `[text](|)`: a pasted whole markdown link
+    // (e.g. a URL the clipboard delivered as a smart-link `[Title](url)`) must
+    // contribute only its URL, otherwise it nests as `[text]([Title](url))`.
+    if (mergeText != null && head.endsWith('](') && tail.startsWith(')')) {
+        const linkMatch = mergeText.match(/^\[.*?\]\((.*)\)$/);
+        if (linkMatch)
+            mergeText = linkMatch[1];
     }
 
-    // Remove empty paragraph when paste.
-    if (originWrapperBlock?.blockName === 'paragraph') {
-        const originState = originWrapperBlock.getState();
-        if (isParagraphState(originState) && originState.text === '')
-            originWrapperBlock.remove();
-    }
-
-    const cursorBlock = wrapperBlock?.firstContentInDescendant();
-    const offset = cursorBlock?.text.length;
-
-    if (offset != null)
-        cursorBlock?.setCursor(offset, offset, true);
+    if (mergeText != null)
+        pasteInlineMerge(muya, ctx, states, mergeText, head, tail);
+    else
+        pasteNewline(muya, ctx, states, head, tail);
 }
 
 // `language-input`, `table.cell.content` and `codeblock.content` never parse a
@@ -138,10 +406,28 @@ function applyLiteralPaste(
         return;
     }
 
-    if (anchorBlock.blockName === 'language-input')
-        markdown = markdown.replace(/\n/g, '');
-    else if (anchorBlock.blockName === 'table.cell.content')
-        markdown = markdown.replace(/\n/g, '<br/>');
+    // language-input: only the first line is the language; propagate it to the
+    // code block (re-highlight + language selector) rather than splicing raw.
+    if (anchorBlock.blockName === 'language-input') {
+        const firstLine = initialMarkdown.split('\n')[0];
+        const newLang
+            = content.substring(0, start.offset)
+                + firstLine
+                + content.substring(end.offset);
+        const offset = start.offset + firstLine.length;
+        if (anchorBlock instanceof LangInputContent)
+            anchorBlock.updateLanguage(newLang);
+        else
+            anchorBlock.text = newLang;
+        anchorBlock.setCursor(offset, offset, true);
+
+        return;
+    }
+
+    // A table cell holds a single visual line: trim and fold newlines to
+    // `<br/>` (muyajs trims pasted cell text on both the framed and normal path).
+    if (anchorBlock.blockName === 'table.cell.content')
+        markdown = markdown.trim().replace(/\n/g, '<br/>');
 
     anchorBlock.text
         = content.substring(0, start.offset)
@@ -168,6 +454,30 @@ function applyLiteralPaste(
     }
 }
 
+// A8: under Paste as Plain Text, block-level HTML follows muyajs's
+// `pasteAsPlainText` copyAsHtml branch — its first line folds into the anchor as
+// literal text (the open tag stays visible at the seam), and any remaining lines
+// become a single live html-block below, matching muyajs's
+// `createBlockP(lines.slice(1).join('\n')) + insertHtmlBlock`.
+function applyPlainTextBlockHtml(clipboard: Clipboard, ctx: IPasteContext, text: string): void {
+    const { anchorBlock, start, end, content } = ctx;
+    const head = content.substring(0, start.offset);
+    const tail = content.substring(end.offset);
+    const lines = text.trim().split('\n');
+
+    anchorBlock.text = head + lines[0] + tail;
+    anchorBlock.update();
+    const offset = head.length + lines[0].length;
+    anchorBlock.setCursor(offset, offset, true);
+
+    if (lines.length === 1)
+        return;
+
+    const htmlState = { name: 'html-block', text: lines.slice(1).join('\n') };
+    const newBlock = ScrollPage.loadBlock(htmlState.name).create(clipboard.muya, htmlState);
+    ctx.wrapperBlock?.parent?.insertAfter(newBlock, ctx.wrapperBlock);
+}
+
 // Block-level HTML (`<ul>`/`<ol>`/`<pre>`/`<blockquote>` … — tags in
 // `PARAGRAPH_TYPES`) lands as a live html-block, not a fenced ```html code
 // block, so the markup renders in place.
@@ -185,12 +495,8 @@ function applyHtmlBlockPaste(
     const newBlock = ScrollPage.loadBlock(state.name).create(muya, state);
     wrapperBlock?.parent?.insertAfter(newBlock, wrapperBlock);
 
-    // Drop the empty paragraph the html-block replaced.
-    if (originWrapperBlock?.blockName === 'paragraph') {
-        const originState = originWrapperBlock.getState();
-        if (isParagraphState(originState) && originState.text === '')
-            originWrapperBlock.remove();
-    }
+    // Drop the empty wrapper the html-block replaced.
+    removeEmptyOriginWrapper(originWrapperBlock);
 
     const offset = state.text.length;
     newBlock.lastContentInDescendant().setCursor(offset, offset, true);
@@ -215,6 +521,13 @@ interface IPasteData {
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
     const { muya } = clipboard;
     const { bulletListMarker } = muya.options;
+
+    // A selected inline image collapses the text selection, so handle the
+    // "paste an image over a selected image" replace before reading the
+    // (now absent) text selection.
+    if (clipboard.selection.image && await tryReplaceSelectedImage(clipboard, data.imageFile))
+        return;
+
     const selection = clipboard.selection.getSelection();
     if (!selection)
         return;
@@ -225,8 +538,11 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!anchorBlock)
         return;
 
-    const { text, imageFile, pasteType } = data;
+    const { imageFile, pasteType } = data;
     let { html } = data;
+    // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
+    // and offset calculation sees one newline convention (muyajs strips \r).
+    const text = data.text.replace(/\r\n?/g, '\n');
 
     if (!isSelectionInSameBlock) {
         clipboard.cutHandler();
@@ -285,6 +601,11 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
             applyParsedPaste(clipboard, ctx, markdown);
         else
             applyLiteralPaste(clipboard, ctx, markdown);
+    }
+    else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
+        // Paste as Plain Text inserts block-level HTML as literal text, not a
+        // live html-block (muyajs `pasteAsPlainText` copyAsHtml branch).
+        applyPlainTextBlockHtml(clipboard, ctx, text);
     }
     else {
         applyHtmlBlockPaste(clipboard, ctx, text);

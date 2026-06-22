@@ -301,3 +301,30 @@ describe('autoPair — per-option opt-out', () => {
         expect(needRender).toBe(false);
     });
 });
+
+// ── marktext #3573 absorb manually typed closing markdown marker ──────────
+// With auto-pair on, typing `_` inserts `_|_`. Typing text then the closing
+// `_` should "type over" the auto-paired closing marker (-> `_text_`), but
+// the old `shouldRemoveClosingChar` only absorbed when the char two before
+// the caret was itself a formatting char, so a closing `_` after normal text
+// left a stray trailing `_` (`_text__`).
+describe('autoPair — #3573 absorb manually typed closing markdown marker', () => {
+    it('absorbs the closing `_` typed over the auto-paired one after text', () => {
+        // "_something|_" + type "_" -> browser yields "_something__" @ offset 11
+        const fakeThis = makeFakeThis('_something_', 10);
+        const event = makeInputEvent('insertText', '_');
+        const { text, needRender } = invokeAutoPair(fakeThis, event, '_something__', 11);
+
+        expect(text).toBe('_something_');
+        expect(needRender).toBe(true);
+    });
+
+    it('still doubles `*` into a bold opener (does not absorb marker doubling)', () => {
+        // "*|*" (auto-paired italic) + type "*" -> "***"; must NOT collapse to "**"
+        const fakeThis = makeFakeThis('**', 1);
+        const event = makeInputEvent('insertText', '*');
+        const { text } = invokeAutoPair(fakeThis, event, '***', 2);
+
+        expect(text).not.toBe('**');
+    });
+});

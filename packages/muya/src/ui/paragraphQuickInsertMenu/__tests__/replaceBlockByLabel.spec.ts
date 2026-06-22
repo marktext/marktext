@@ -2,9 +2,10 @@
 import type Parent from '../../../block/base/parent';
 import type { IConstructor } from '../../../block/types';
 import type { Muya } from '../../../index';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { replaceBlockByLabel } from '../../../block/blockTransforms';
 import { ScrollPage } from '../../../block/scrollPage';
-import { replaceBlockByLabel } from '../config';
+import { Muya as MuyaClass } from '../../../muya';
 
 // Loose mock-block shape the tests build via `makeFakeBlock` /
 // `makeFakeOriginBlock`. These don't satisfy the full Parent surface — the
@@ -389,5 +390,97 @@ describe('replaceBlockByLabel — in-editor "table" shows the grid picker (rever
         // happy-dom yields no selection coords, so `getCursorReference()` is
         // null and the fallback is the block's own DOM node.
         expect(reference).toBe((block as unknown as { domNode: HTMLElement }).domNode);
+    });
+});
+
+// Item 36: the quick-insert "Front Matter" entry derives the block's
+// lang/style from `muya.options.frontmatterType` (the #4429 fix replaced the
+// buggy `/\+-/.test()` derivation), and `serializeFrontMatter` switches on
+// `lang` to emit the right fences. The frontmatter describe above only covers
+// `frontmatterType: '-'` for trigger-text clearing — it never asserts the
+// serialized delimiter for all four types. Boot a real Muya per type, drive
+// the quick-insert frontmatter path (`replaceBlockByLabel` label
+// 'frontmatter'), and assert the round-tripped markdown carries the matching
+// delimiters: '-'->---/---, '+'->+++/+++, ';'->;;;/;;;, '{'->{/}.
+const bootedHosts: HTMLElement[] = [];
+let originalVersion: string | undefined;
+let hadVersion = false;
+
+beforeEach(() => {
+    hadVersion = 'MUYA_VERSION' in window;
+    originalVersion = window.MUYA_VERSION;
+    window.MUYA_VERSION = 'test';
+});
+
+afterEach(() => {
+    while (bootedHosts.length) {
+        const host = bootedHosts.pop()!;
+        host.remove();
+    }
+    if (hadVersion)
+        window.MUYA_VERSION = originalVersion as string;
+    else
+        delete (window as Partial<Window>).MUYA_VERSION;
+});
+
+function bootMuya(frontmatterType: string): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new MuyaClass(host, {
+        markdown: '',
+        frontmatterType,
+    } as ConstructorParameters<typeof MuyaClass>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+interface IFrontmatterCase {
+    label: string;
+    type: string;
+    start: string;
+    end: string;
+}
+
+const FRONTMATTER_CASES: IFrontmatterCase[] = [
+    { label: 'yaml (---)', type: '-', start: '---\n', end: '---\n' },
+    { label: 'toml (+++)', type: '+', start: '+++\n', end: '+++\n' },
+    { label: 'json (;;;)', type: ';', start: ';;;\n', end: ';;;\n' },
+    { label: 'json ({})', type: '{', start: '{\n', end: '}\n' },
+];
+
+describe('replaceBlockByLabel — quick-insert frontmatter serializes the right delimiter per frontmatterType', () => {
+    for (const c of FRONTMATTER_CASES) {
+        it(`frontmatterType '${c.type}' -> ${c.label}`, async () => {
+            const muya = bootMuya(c.type);
+            const block = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock! as unknown as Parent;
+
+            replaceBlockByLabel({ block, muya, label: 'frontmatter' });
+
+            await vi.waitFor(() => {
+                expect((muya.getState()[0] as { name: string }).name).toBe('frontmatter');
+            });
+
+            const md = muya.getMarkdown();
+            expect(md.startsWith(c.start)).toBe(true);
+            // Empty frontmatter serializes as start + one empty line + end, so
+            // the closing delimiter must also be present.
+            expect(md).toContain(c.end);
+        });
+    }
+
+    it('the inserted frontmatter block carries the lang derived from frontmatterType', async () => {
+        const muya = bootMuya('+');
+        const block = muya.editor.scrollPage!.firstContentInDescendant()!.outMostBlock! as unknown as Parent;
+
+        replaceBlockByLabel({ block, muya, label: 'frontmatter' });
+
+        await vi.waitFor(() => {
+            const fm = muya.getState()[0] as { name: string; meta: { lang: string; style: string } };
+            expect(fm.name).toBe('frontmatter');
+            // '+' must map to toml/'+' — not fall through to json (the #4429 bug).
+            expect(fm.meta.lang).toBe('toml');
+            expect(fm.meta.style).toBe('+');
+        });
     });
 });

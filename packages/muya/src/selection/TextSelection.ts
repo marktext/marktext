@@ -15,6 +15,7 @@ import { getCursorCoords } from './cursorCoords';
 import {
     compareParagraphsOrder,
     findContentDOM,
+    getLegalOffset,
     getNodeAndOffset,
     getOffsetOfParagraph,
 } from './dom';
@@ -333,9 +334,9 @@ class TextSelection {
         endOffset?: number,
     ) {
         const range = this._doc.createRange();
-        range.setStart(startNode, startOffset);
+        range.setStart(startNode, getLegalOffset(startNode, startOffset));
         if (endNode && typeof endOffset === 'number')
-            range.setEnd(endNode, endOffset);
+            range.setEnd(endNode, getLegalOffset(endNode, endOffset));
         else
             range.collapse(true);
 
@@ -347,7 +348,7 @@ class TextSelection {
     private _setFocus(focusNode: Node, focusOffset: number) {
         const selection = this._doc.getSelection();
         if (selection)
-            selection.extend(focusNode, focusOffset);
+            selection.extend(focusNode, getLegalOffset(focusNode, focusOffset));
     }
 
     private _updateSelection() {

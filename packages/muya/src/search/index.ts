@@ -11,6 +11,10 @@ export class Search {
     public matches: IMatch[] = [];
     public index: number = -1;
 
+    get value() {
+        return this._value;
+    }
+
     private get _scrollPage() {
         return this._muya.editor.scrollPage;
     }
@@ -143,8 +147,13 @@ export class Search {
     search(value: string, opts = {}) {
         const matches: IMatch[] = [];
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
-        const { highlightIndex } = options;
+        const { highlightIndex, selectHighlight } = options;
         let index = -1;
+
+        // The currently active match, captured before it is cleared below, so a
+        // `selectHighlight` request can drop the cursor back onto it when the
+        // new search has no match of its own (e.g. closing the search bar).
+        const prevActiveMatch = this.matches[this.index];
 
         // Empty last search.
         this._updateMatches(true);
@@ -184,6 +193,18 @@ export class Search {
         Object.assign(this, { _value: value, matches, index });
 
         this._updateMatches();
+
+        // Restore the editor cursor onto the active match. Mirrors muyajs's
+        // `render(selectHighlight)` -> `setCursor()` path: closing the search
+        // bar empties the search with `selectHighlight`, which must place the
+        // cursor where the highlight was so the user can keep typing there.
+        if (selectHighlight) {
+            const activeMatch = matches[index] ?? prevActiveMatch;
+            if (activeMatch) {
+                const { block, start, end } = activeMatch;
+                block.setCursor(start, end, true);
+            }
+        }
 
         return this;
     }

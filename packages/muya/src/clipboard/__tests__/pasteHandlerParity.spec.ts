@@ -102,6 +102,7 @@ function makeAnchorBlock(
         getCursor: () => ({ start: { offset: cursor }, end: { offset: cursor } }),
         setCursor: vi.fn(),
         getAnchor: () => wrapper,
+        closestBlock: () => null,
         firstContentInDescendant: () => block,
         getState: () => ({ name: blockName, text: block.text }),
         update: vi.fn(),
