@@ -154,7 +154,7 @@ code.mu-inline-rule {
 
     color: var(--editor-color);
     font-family: monospace;
-    vertical-align: bottom;
+    vertical-align: middle;
 }
 
 .mu-math > .mu-math-render,
