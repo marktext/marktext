@@ -170,12 +170,27 @@ watch(searchValue, () => {
 })
 
 watch(searchMatches, (newValue, oldValue) => {
+  // Once the search bar is open it owns the query. Ignore editor
+  // selection-changes while open — notably the spurious selection-change the
+  // engine emits when the bar steals editor focus, which would otherwise
+  // clobber the just-prefilled value (e.g. leaving a stale single character).
+  if (showSearch.value) return
   if (!newValue || !oldValue) return
   const { value } = newValue
   if (value !== oldValue.value) {
     searchValue.value = value
   }
 })
+
+// Seed the find input from the current selection synchronously, before the bar
+// opens and steals focus. Relying on the reactive `searchMatches` watch alone
+// races with the focus-steal selection-change and can drop the prefill.
+const prefillFromSelection = () => {
+  const selected = searchMatches.value?.value
+  if (selected) {
+    searchValue.value = selected
+  }
+}
 
 const highlightIndex = computed(() => {
   if (searchMatches.value) {
@@ -229,6 +244,7 @@ const toggleCtrl = (ctrl: 'isCaseSensitive' | 'isWholeWord' | 'isRegexp') => {
 }
 
 const listenFind = () => {
+  prefillFromSelection()
   showSearch.value = true
   type.value = 'search'
   nextTick(() => {
@@ -240,6 +256,7 @@ const listenFind = () => {
 }
 
 const listenReplace = () => {
+  prefillFromSelection()
   showSearch.value = true
   type.value = 'replace'
 }
