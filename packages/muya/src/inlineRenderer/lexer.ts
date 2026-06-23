@@ -515,6 +515,59 @@ function tryHtmlEscape(state: ILexState): boolean {
     return true;
 }
 
+// GFM §6.9: trim a www/url autolink's extent to drop characters that are not
+// part of the link. The match is greedy (`\S+`), so these are applied after the
+// regex, mirroring cmark-gfm's `autolink_delim`:
+//   - a `<` ends the autolink;
+//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
+//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
+//     autolink can sit inside parentheses;
+//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
+// The last three rules interleave and are applied repeatedly (e.g. `).`).
+function trimAutoLinkExtent(raw: string): string {
+    let end = raw.length;
+
+    const lt = raw.indexOf('<');
+    if (lt !== -1)
+        end = lt;
+
+    let changed = true;
+    while (changed && end > 0) {
+        changed = false;
+        const c = raw[end - 1];
+
+        if ('?!.,:*_~'.includes(c)) {
+            end -= 1;
+            changed = true;
+        }
+        else if (c === ')') {
+            let opening = 0;
+            let closing = 0;
+            for (let i = 0; i < end; i++) {
+                if (raw[i] === '(')
+                    opening += 1;
+                else if (raw[i] === ')')
+                    closing += 1;
+            }
+            if (closing > opening) {
+                end -= 1;
+                changed = true;
+            }
+        }
+        else if (c === ';') {
+            let entityStart = end - 2;
+            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
+                entityStart -= 1;
+            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
+                end = entityStart;
+                changed = true;
+            }
+        }
+    }
+
+    return raw.slice(0, end);
+}
+
 // auto link extension
 function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
@@ -533,18 +586,17 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     let url = autoLinkExtTo[2];
     const email = autoLinkExtTo[3];
 
-    // GFM §6.9: trailing punctuation (?!.,:*_~) is not part of a www/url
-    // autolink — strip it from the match so it renders as plain text instead
-    // (#2096). Interior punctuation is kept; email autolinks are unaffected.
+    // GFM §6.9: trim characters that are not part of a www/url autolink so the
+    // leftover renders as plain text instead (#2096). Email autolinks are
+    // unaffected (their extent is fixed by the domain regex).
     if (!email) {
-        const trailing = /[?!.,:*_~]+$/.exec(raw);
-        if (trailing) {
-            const cut = trailing[0].length;
-            raw = raw.slice(0, -cut);
+        const trimmed = trimAutoLinkExtent(raw);
+        if (trimmed.length !== raw.length) {
+            raw = trimmed;
             if (www)
-                www = www.slice(0, -cut);
+                www = trimmed;
             if (url)
-                url = url.slice(0, -cut);
+                url = trimmed;
         }
     }
 

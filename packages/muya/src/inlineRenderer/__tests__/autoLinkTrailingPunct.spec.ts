@@ -41,3 +41,49 @@ describe('extended autolink — trailing punctuation (#2096)', () => {
         expect(token!.url).toBe('https://example.com/a/b');
     });
 });
+
+// GFM §6.9 also trims the link extent for three further cases. The match is
+// greedy (`\S+`) so these all need post-match trimming, not regex.
+describe('extended autolink — GFM §6.9 extent trimming', () => {
+    // Rule: an unmatched trailing `)` is excluded when the link has more `)`
+    // than `(`, so an autolink can sit inside parentheses.
+    it('excludes a trailing ) when parens are unbalanced', () => {
+        const token = autoLinkExt('(https://en.wikipedia.org/wiki/Foo_(bar)) end');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://en.wikipedia.org/wiki/Foo_(bar)');
+    });
+
+    it('keeps a trailing ) when parens are balanced', () => {
+        const token = autoLinkExt('https://example.com/foo(bar) end');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://example.com/foo(bar)');
+    });
+
+    // Rule: a trailing `;` closing an `&entity;`-looking reference is excluded.
+    it('excludes a trailing &entity; reference', () => {
+        const token = autoLinkExt('https://example.com/foo?bar=1&amp; end');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://example.com/foo?bar=1');
+    });
+
+    it('keeps a bare trailing ; that is not an entity', () => {
+        const token = autoLinkExt('https://example.com/a;b; end');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://example.com/a;b;');
+    });
+
+    // Rule: a `<` ends the autolink.
+    it('ends the link at a < character', () => {
+        const token = autoLinkExt('https://example.com/a<b end');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://example.com/a');
+    });
+
+    // The rules interleave and apply repeatedly: ").": trim '.' then the now-
+    // unbalanced ')'.
+    it('applies the rules repeatedly (trailing ").")', () => {
+        const token = autoLinkExt('(see https://example.com/path). rest');
+        expect(token).toBeDefined();
+        expect(token!.url).toBe('https://example.com/path');
+    });
+});
