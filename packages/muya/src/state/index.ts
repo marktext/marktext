@@ -44,10 +44,10 @@ class JSONState {
 
     private _operationCache: JSONOpList[] = [];
 
-    private _isGoing = false;
-
-    // Handle of the scheduled deferred-op flush, so `setContent` can cancel a
-    // pending batch that belongs to the outgoing document (#2938).
+    // Handle of the scheduled deferred-op flush. Doubles as the "a flush is
+    // already scheduled" guard (non-null ⇒ batching in progress), and lets
+    // `setContent` cancel a pending batch that belongs to the outgoing
+    // document (#2938).
     private _rafId: number | null = null;
 
     private _state: TState[] = [];
@@ -67,15 +67,14 @@ class JSONState {
 
     setContent(content: TState[] | string) {
         // A pending deferred-op batch belongs to the OUTGOING document. Applying
-        // it to the new content would corrupt it (or throw and leave `_isGoing`
-        // stuck, freezing all future edits). Drop the batch and cancel its
+        // it to the new content would corrupt it (or throw and leave the flush
+        // guard stuck, freezing all future edits). Drop the batch and cancel its
         // scheduled flush before swapping the state (#2938).
         if (this._rafId !== null) {
             cancelAnimationFrame(this._rafId);
             this._rafId = null;
         }
         this._operationCache = [];
-        this._isGoing = false;
 
         if (typeof content === 'object')
             this._setState(content);
@@ -244,10 +243,8 @@ class JSONState {
     }
 
     private _emitStateChange() {
-        if (this._isGoing)
+        if (this._rafId !== null)
             return;
-
-        this._isGoing = true;
 
         this._rafId = requestAnimationFrame(() => {
             // Wrap compose in a lambda — `Array.prototype.reduce` passes
@@ -274,7 +271,6 @@ class JSONState {
                 doc,
             });
             this._operationCache = [];
-            this._isGoing = false;
             this._rafId = null;
         });
     }
