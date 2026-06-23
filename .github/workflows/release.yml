@@ -203,15 +203,24 @@ jobs:
             echo '```'
           } > release_body.md
 
-      - name: Publish release
+      # Immutable-release repos forbid adding assets to an already-published
+      # release, and action-gh-release publishes before uploading the assets.
+      # Create the release as a draft (assets allowed), then promote it to a
+      # published release in the next step.
+      - name: Create draft release with assets
         uses: softprops/action-gh-release@v2.6.2
         with:
-          draft: false
+          draft: true
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           name: ${{ github.ref_name }}
           body_path: release_body.md
           fail_on_unmatched_files: true
           files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote draft to published release
+        run: gh release edit "${GITHUB_REF_NAME}" --draft=false --repo "${GITHUB_REPOSITORY}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
