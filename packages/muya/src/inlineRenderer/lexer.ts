@@ -528,22 +528,42 @@ function tryAutoLinkExtension(state: ILexState): boolean {
         return false;
     }
 
+    let raw = autoLinkExtTo[0];
+    let www = autoLinkExtTo[1];
+    let url = autoLinkExtTo[2];
+    const email = autoLinkExtTo[3];
+
+    // GFM §6.9: trailing punctuation (?!.,:*_~) is not part of a www/url
+    // autolink — strip it from the match so it renders as plain text instead
+    // (#2096). Interior punctuation is kept; email autolinks are unaffected.
+    if (!email) {
+        const trailing = /[?!.,:*_~]+$/.exec(raw);
+        if (trailing) {
+            const cut = trailing[0].length;
+            raw = raw.slice(0, -cut);
+            if (www)
+                www = www.slice(0, -cut);
+            if (url)
+                url = url.slice(0, -cut);
+        }
+    }
+
     pushPending(state);
     state.tokens.push({
         type: 'auto_link_extension',
-        raw: autoLinkExtTo[0],
-        www: autoLinkExtTo[1],
-        url: autoLinkExtTo[2],
-        email: autoLinkExtTo[3],
-        linkType: autoLinkExtTo[1] ? 'www' : autoLinkExtTo[2] ? 'url' : 'email',
+        raw,
+        www,
+        url,
+        email,
+        linkType: www ? 'www' : url ? 'url' : 'email',
         parent: state.tokens,
         range: {
             start: state.pos,
-            end: state.pos + autoLinkExtTo[0].length,
+            end: state.pos + raw.length,
         },
     });
-    state.src = state.src.substring(autoLinkExtTo[0].length);
-    state.pos = state.pos + autoLinkExtTo[0].length;
+    state.src = state.src.substring(raw.length);
+    state.pos = state.pos + raw.length;
 
     return true;
 }
