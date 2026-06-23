@@ -5,10 +5,11 @@ import axios from './axios'
 import pinia from './store'
 import './assets/symbolIcon'
 
-// Element Plus instead of Element UI for Vue 3
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import en from 'element-plus/es/locale/lang/en'
+// Element Plus components are auto-imported on demand (see the Components()
+// plugin in electron.vite.config.ts), which also pulls in each component's
+// styles. Only the base reset/index variables stylesheet must be loaded
+// globally; per-component CSS is injected by the resolver.
+import 'element-plus/theme-chalk/base.css'
 
 // I18n translation system
 import i18nPlugin from './i18n'
@@ -31,11 +32,6 @@ bootstrapRenderer()
 
 // Create Vue app
 const app: App<Element> = createApp(Main)
-
-// Configure Element Plus with locale
-app.use(ElementPlus, {
-  locale: en
-})
 
 const envType = window.marktext?.env?.type as string | undefined
 

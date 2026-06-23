@@ -1,16 +1,22 @@
 import type { RouteRecordRaw } from 'vue-router'
-// .vue extensions are explicit so TS resolves them through the *.vue module
-// shim in src/types/renderer.d.ts. Vite handles extension-less imports at
-// runtime, but vue-tsc needs the suffix.
+// The editor page is imported eagerly: the editor window's `mt::bootstrap-editor`
+// IPC is a fire-and-forget push sent by the main process on `did-finish-load`,
+// and the listener is registered when app.vue mounts (store/editor.ts). Lazy-
+// loading app.vue would defer that mount past did-finish-load and miss the
+// message, leaving the window stuck on its placeholder. The preference page and
+// its panels stay lazy: the settings window uses a pull model (the renderer
+// requests its data on mount), so there is no message to miss, and editor
+// windows then never download/parse the preference UI code.
+// .vue extension is explicit so vue-tsc resolves it via the *.vue module shim.
 import App from '@/pages/app.vue'
-import Preference from '@/pages/preference.vue'
-import General from '@/prefComponents/general/index.vue'
-import Editor from '@/prefComponents/editor/index.vue'
-import Markdown from '@/prefComponents/markdown/index.vue'
-import SpellChecker from '@/prefComponents/spellchecker/index.vue'
-import Theme from '@/prefComponents/theme/index.vue'
-import Image from '@/prefComponents/image/index.vue'
-import Keybindings from '@/prefComponents/keybindings/index.vue'
+const Preference = () => import('@/pages/preference.vue')
+const General = () => import('@/prefComponents/general/index.vue')
+const Editor = () => import('@/prefComponents/editor/index.vue')
+const Markdown = () => import('@/prefComponents/markdown/index.vue')
+const SpellChecker = () => import('@/prefComponents/spellchecker/index.vue')
+const Theme = () => import('@/prefComponents/theme/index.vue')
+const Image = () => import('@/prefComponents/image/index.vue')
+const Keybindings = () => import('@/prefComponents/keybindings/index.vue')
 
 const parseSettingsPage = (type: string | null | undefined): string => {
   let pageUrl = '/preference'

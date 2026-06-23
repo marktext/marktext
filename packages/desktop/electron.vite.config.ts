@@ -3,6 +3,8 @@ import type { PluginOption } from 'vite'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import postcssPresetEnv from 'postcss-preset-env'
 import packageJson from './package.json' with { type: 'json' }
 import { fileURLToPath } from 'url'
@@ -95,7 +97,22 @@ export default defineConfig({
         }
       }
     },
-    plugins: [vue(), svgLoader()] as PluginOption[],
+    plugins: [
+      vue(),
+      svgLoader(),
+      // On-demand import of Element Plus components + their styles. Replaces the
+      // global `app.use(ElementPlus)` + full `element-plus/dist/index.css`, so
+      // each window only bundles the `<el-*>` components it actually renders.
+      Components({
+        dts: false,
+        // Only auto-import Element Plus via the resolver. Disable the default
+        // `src/components` directory scan so local components keep using their
+        // explicit imports (the scan otherwise globally registers them and
+        // triggers naming conflicts, e.g. two `Search` components).
+        dirs: [],
+        resolvers: [ElementPlusResolver()]
+      })
+    ] as PluginOption[],
     css: {
       postcss: {
         plugins: [
