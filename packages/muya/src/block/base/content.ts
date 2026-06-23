@@ -458,8 +458,15 @@ class Content extends TreeNode {
             event.preventDefault();
             event.stopPropagation();
 
-            if (!previousContentBlock)
+            if (!previousContentBlock) {
+                // First block, no previous: ArrowUp moves the caret to the
+                // start of the line (offset 0) instead of staying put (#3193).
+                // A boundary ArrowLeft has nowhere to go, so leave it.
+                if (event.key === EVENT_KEYS.ArrowUp)
+                    this.setCursor(0, 0, true);
+
                 return;
+            }
 
             cursorBlock = previousContentBlock;
             offset = previousContentBlock.text.length;

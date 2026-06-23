@@ -138,6 +138,22 @@ describe('content arrowHandler — cross-block navigation up', () => {
         expect(event.preventDefault).not.toHaveBeenCalled();
         expect(event.stopPropagation).not.toHaveBeenCalled();
     });
+
+    // #3193: ArrowUp on the first visual line of the FIRST block (no previous
+    // block) used to preventDefault and return without moving the caret, so the
+    // caret stayed put. It should move to the start of the line (offset 0).
+    it('arrowUp in the first block (no previous) moves the caret to offset 0', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+
+        const event = arrowAt(muya, alpha, 'ArrowUp', 3);
+        await flush();
+
+        const cursor = alpha.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
 });
 
 describe('content arrowHandler — cross-block navigation down', () => {
