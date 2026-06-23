@@ -819,8 +819,12 @@ class Format extends Content {
     private _convertToList() {
         const { text, parent, muya, hasSelection } = this;
         const { preferLooseListItem } = muya.options;
+        // The marker must start a line: the pre-group captures whole lines up to
+        // (and including) the newline before the marker, so a `*` inside e.g.
+        // `**bold**` on an earlier soft-line is never mistaken for the bullet
+        // marker (#2429).
         const matches = text.match(
-            /^([\s\S]*?) {0,3}([*+-]|\d{1,9}(?:\.|\))) {1,4}([\s\S]*)$/,
+            /^([\s\S]*\n)? {0,3}([*+-]|\d{1,9}(?:\.|\))) {1,4}([\s\S]*)$/,
         );
         const isOrdered = /\d/.test(matches![2]);
 
