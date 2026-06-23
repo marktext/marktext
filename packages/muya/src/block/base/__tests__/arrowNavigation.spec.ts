@@ -212,6 +212,32 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         expect(event.stopPropagation).toHaveBeenCalled();
     });
 
+    // #3520: pressing ArrowDown on an already-empty trailing paragraph must NOT
+    // keep appending new empty paragraphs on every keypress. A trailing
+    // paragraph is created only when the current (last) block has content.
+    it('does not append another paragraph when ArrowDown is pressed in an already-empty trailing paragraph (#3520)', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+
+        // First ArrowDown at the end of a non-empty last block appends one
+        // trailing empty paragraph (existing, desired behavior).
+        arrowAt(muya, beta, 'ArrowDown', 'beta'.length);
+        await flush();
+        expect(muya.getState().length).toBe(3);
+
+        const appended = muya.editor.scrollPage!.lastContentInDescendant() as Content;
+        expect(appended.text).toBe('');
+
+        // Pressing ArrowDown again, now inside the empty trailing paragraph,
+        // must NOT create a fourth block — the caret stays put.
+        const event = arrowAt(muya, appended, 'ArrowDown', 0);
+        await flush();
+
+        expect(muya.getState().length).toBe(3);
+        expect(appended.getCursor()).not.toBeNull();
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
     it('shiftKey held suppresses cross-block navigation (selection extend, not move)', async () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const alpha = contentByText(muya, 'alpha');

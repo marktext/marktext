@@ -473,7 +473,10 @@ class Content extends TreeNode {
             if (nextContentBlock) {
                 cursorBlock = nextContentBlock;
             }
-            else {
+            // Only append a trailing paragraph when the last block has content.
+            // Otherwise ArrowDown in an already-empty last paragraph would keep
+            // creating empty paragraphs on every keypress (#3520).
+            else if (this.text.length > 0) {
                 const newNodeState = {
                     name: 'paragraph',
                     text: '',
@@ -485,7 +488,8 @@ class Content extends TreeNode {
                 this.scrollPage?.append(newNode, 'user');
                 cursorBlock = newNode.children.head;
             }
-            offset = adjustOffset(0, cursorBlock, event);
+            if (cursorBlock)
+                offset = adjustOffset(0, cursorBlock, event);
         }
 
         if (cursorBlock) {
