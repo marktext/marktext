@@ -207,4 +207,10 @@ export class ImageResizeBar {
         this._status = false;
         eventCenter.emit('muya-float', this, false);
     }
+
+    // Remove the `.mu-transformer` container appended to document.body in the
+    // constructor; invoked by `Muya.destroy()` so it is not leaked (#3315).
+    destroy() {
+        this._container.remove();
+    }
 }

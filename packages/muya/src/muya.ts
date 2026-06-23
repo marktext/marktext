@@ -1622,6 +1622,15 @@ export class Muya {
         // Hide all float tools.
         if (this.ui)
             this.ui.hideAllFloatTools();
+
+        // Destroy every registered UI plugin so the nodes they appended to
+        // `document.body` (float boxes, the image resize bar, tooltips) are
+        // removed rather than leaked (#3315).
+        for (const plugin of Object.values(this._uiPlugins)) {
+            const destroy = (plugin as { destroy?: unknown })?.destroy;
+            if (typeof destroy === 'function')
+                (destroy as () => void).call(plugin);
+        }
     }
 }
 
