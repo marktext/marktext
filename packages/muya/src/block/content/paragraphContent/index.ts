@@ -469,7 +469,11 @@ class ParagraphContent extends Format {
                         : { name: 'list-item', children: [] };
 
                 const offset = listItem.offset(parent!);
-                listItem.forEachAt(offset, undefined, (node) => {
+                // Splitting from index 0 would empty the original list item,
+                // leaving a childless list-item that breaks arrow navigation
+                // (#4644). Keep the empty first paragraph and split below it.
+                const from = offset === 0 ? 1 : offset;
+                listItem.forEachAt(from, undefined, (node) => {
                     if (node.isParent())
                         newListItemState.children.push(node.getState());
                     node.remove();
