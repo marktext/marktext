@@ -7,6 +7,21 @@ import { pastePlainText, pasteSelection } from './paste';
 import { pasteImageSrc } from './pasteImage';
 import { CopyType, PasteType } from './types';
 
+// After the table/same-block guards, decide whether a keydown over a
+// cross-block selection should cut (replace) the selected text. Non-editing
+// keys and any modifier combo must NOT cut — in particular Ctrl+<key> (e.g.
+// Ctrl+C copy on Windows/Linux), which was previously not excluded and
+// silently deleted the selection (#3491). Mirrors the macOS metaKey guard.
+export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: boolean): boolean {
+    if (/Alt|Option|Meta|Shift|CapsLock|ArrowUp|ArrowDown|ArrowLeft|ArrowRight/.test(key))
+        return false;
+
+    if (metaKey || ctrlKey)
+        return false;
+
+    return true;
+}
+
 class Clipboard {
     public copyType: CopyType = CopyType.NORMAL;
     public pasteType: PasteType = PasteType.NORMAL;
@@ -63,16 +78,7 @@ class Clipboard {
             if (isSelectionInSameBlock)
                 return;
 
-            // TODO: Is there any way to identify these key bellow?
-            if (
-                /Alt|Option|Meta|Shift|CapsLock|ArrowUp|ArrowDown|ArrowLeft|ArrowRight/.test(
-                    key,
-                )
-            ) {
-                return;
-            }
-
-            if (metaKey)
+            if (!shouldCrossBlockCut(key, metaKey, event.ctrlKey))
                 return;
 
             if (key === 'Backspace' || key === 'Delete')
