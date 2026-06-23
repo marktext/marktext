@@ -32,5 +32,8 @@ export const writeFile = (
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
+  // `outputFile` creates any missing parent directories before writing, so a
+  // save whose folder was moved/deleted recreates it and still succeeds —
+  // matching VS Code, and keeping (auto)save from ever silently failing (#3509).
   return outputFile(pathname, content, options)
 }
