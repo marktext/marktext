@@ -154,6 +154,39 @@ describe('content arrowHandler — cross-block navigation up', () => {
         expect(cursor!.start.offset).toBe(0);
         expect(event.preventDefault).toHaveBeenCalled();
     });
+
+    // #3193 follow-up: when the caret is ALREADY at offset 0 of the first block,
+    // ArrowUp has nowhere to go — it must not re-set the selection (which would
+    // emit a spurious selection-change and needlessly re-render the block).
+    it('arrowUp already at offset 0 of the first block does not emit selection-change', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+
+        // Land at offset 0 first; this setup emits its own change.
+        muya.editor.activeContentBlock = alpha;
+        alpha.setCursor(0, 0, true);
+        await flush();
+
+        // Only now start counting: the no-op ArrowUp must stay silent.
+        let emitted = 0;
+        muya.eventCenter.on('selection-change', () => {
+            emitted += 1;
+        });
+
+        const event = {
+            preventDefault: vi.fn(),
+            stopPropagation: vi.fn(),
+            key: 'ArrowUp',
+            shiftKey: false,
+        } as unknown as FakeArrowEvent;
+        alpha.arrowHandler(event);
+        await flush();
+
+        expect(emitted).toBe(0);
+        // The caret is untouched, and the native no-op scroll is still suppressed.
+        expect(alpha.getCursor()!.start.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
 });
 
 describe('content arrowHandler — cross-block navigation down', () => {
