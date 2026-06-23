@@ -515,9 +515,10 @@ function tryHtmlEscape(state: ILexState): boolean {
     return true;
 }
 
-// GFM §6.9: trim a www/url autolink's extent to drop characters that are not
-// part of the link. The match is greedy (`\S+`), so these are applied after the
-// regex, mirroring cmark-gfm's `autolink_delim`:
+// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
+// www/url autolink's extent to drop characters that are not part of the link.
+// The match is greedy (`\S+`), so these are applied after the regex, mirroring
+// cmark-gfm's `autolink_delim`:
 //   - a `<` ends the autolink;
 //   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
 //   - a trailing `)` is excluded when the link has more `)` than `(`, so an
