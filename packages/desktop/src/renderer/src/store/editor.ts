@@ -809,6 +809,11 @@ export const useEditorStore = defineStore('editor', {
       if (oldCurrentFile == null || oldCurrentFile.id !== currentFile.id) {
         const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
           currentFile
+        // Must run while `currentFile` still points at the outgoing tab, so its
+        // flushed edit is attributed to that tab and not lost on switch (#2938).
+        if (oldCurrentFile) {
+          bus.emit('flush-active-editor')
+        }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
         didUpdateCurrentFile = true

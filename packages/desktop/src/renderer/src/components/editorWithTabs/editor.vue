@@ -1574,6 +1574,10 @@ const blurEditor = () => {
   editor.value?.blur(false, true)
 }
 
+const flushActiveEditor = () => {
+  editor.value?.flush()
+}
+
 const focusEditor = () => {
   editor.value?.focus()
 }
@@ -1780,6 +1784,7 @@ onMounted(() => {
   bus.on('insert-image', insertImage)
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
+  bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
   bus.on('copyAsRich', handleCopyPaste)
@@ -1929,6 +1934,7 @@ onBeforeUnmount(() => {
   bus.off('insert-image', insertImage)
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
+  bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)
   bus.off('copyAsRich', handleCopyPaste)
