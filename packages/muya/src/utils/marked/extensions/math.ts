@@ -16,7 +16,7 @@ interface IOptions {
 const inlineStartRule = /(\s|^)\${1,2}(?!\$)/;
 const inlineRule
     = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n$]))\1(?=[\s?!.,:]|$)/;
-const blockRule = /^(\${1,2})\n((?:\\[\s\S]|[^\\])+?)\n\1(?:\n|$)/;
+const blockRule = /^(\${1,2})\n((?:\\[\s\S]|[^\\])+?)\n\1[ \t]*(?:\n|$)/;
 
 const DEFAULT_OPTIONS = {
     throwOnError: false,
