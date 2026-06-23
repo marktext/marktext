@@ -1,4 +1,5 @@
 import { resolve, dirname } from 'path'
+import type { PluginOption } from 'vite'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
@@ -94,7 +95,7 @@ export default defineConfig({
         }
       }
     },
-    plugins: [vue(), svgLoader()],
+    plugins: [vue(), svgLoader()] as PluginOption[],
     css: {
       postcss: {
         plugins: [
