@@ -389,10 +389,12 @@ export class Muya {
     format(type: string) {
         const { selection } = this.editor;
 
-        // Cross-block selection: apply to each formattable leaf in range. The
+        // Cross-leaf selection: apply to each formattable leaf in range. The
         // live DOM selection collapses across blocks, so detect via the cached
-        // endpoints (the same ones the menu/IPC round-trip relies on).
-        if (!this._selectionInSameBlock()) {
+        // endpoints (the same ones the menu/IPC round-trip relies on). Compare
+        // at the LEAF level, not the outmost block: two paragraphs nested in the
+        // same blockquote share an outmost block but are distinct leaves (#3462).
+        if (!this._selectionInSameLeaf()) {
             this._formatAcrossBlocks(type);
             return;
         }
@@ -719,6 +721,28 @@ export class Muya {
             return true;
 
         return endpoints.anchor === endpoints.focus;
+    }
+
+    /**
+     * Whether the current selection stays within a single content leaf. Unlike
+     * `_selectionInSameBlock` (outmost-block granularity, for paragraph-menu
+     * dispatch), this compares the actual leaves so a selection spanning two
+     * paragraphs nested in one blockquote is correctly treated as cross-leaf
+     * for inline formatting (#3462).
+     */
+    private _selectionInSameLeaf(): boolean {
+        const sel = this.editor.selection;
+        const liveSel = sel.getSelection();
+        const liveAnchor = liveSel?.anchor.block;
+        const liveFocus = liveSel?.focus.block;
+        if (liveAnchor && liveFocus && liveAnchor !== liveFocus)
+            return false;
+        const cachedAnchor = sel.anchorBlock;
+        const cachedFocus = sel.focusBlock;
+        if (cachedAnchor && cachedFocus && cachedAnchor !== cachedFocus)
+            return false;
+
+        return true;
     }
 
     /**
