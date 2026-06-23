@@ -210,6 +210,12 @@ export class Muya {
         return this.editor.jsonState.getMarkdown();
     }
 
+    // Flush queued edits synchronously; call before swapping the document out
+    // (e.g. a tab switch) so a same-frame keystroke isn't lost (#2938).
+    flush() {
+        this.editor.jsonState.flush();
+    }
+
     getTOC(): ITocItem[] {
         return this.editor.jsonState.getTOC();
     }
