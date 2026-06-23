@@ -46,6 +46,10 @@ class JSONState {
 
     private _isGoing = false;
 
+    // Handle of the scheduled deferred-op flush, so `setContent` can cancel a
+    // pending batch that belongs to the outgoing document (#2938).
+    private _rafId: number | null = null;
+
     private _state: TState[] = [];
 
     constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
@@ -62,6 +66,17 @@ class JSONState {
     }
 
     setContent(content: TState[] | string) {
+        // A pending deferred-op batch belongs to the OUTGOING document. Applying
+        // it to the new content would corrupt it (or throw and leave `_isGoing`
+        // stuck, freezing all future edits). Drop the batch and cancel its
+        // scheduled flush before swapping the state (#2938).
+        if (this._rafId !== null) {
+            cancelAnimationFrame(this._rafId);
+            this._rafId = null;
+        }
+        this._operationCache = [];
+        this._isGoing = false;
+
         if (typeof content === 'object')
             this._setState(content);
         else
@@ -234,7 +249,7 @@ class JSONState {
 
         this._isGoing = true;
 
-        requestAnimationFrame(() => {
+        this._rafId = requestAnimationFrame(() => {
             // Wrap compose in a lambda — `Array.prototype.reduce` passes
             // (acc, current, index, array) to the callback, but
             // `json1.type.compose` only accepts (op1, op2). Without the
@@ -260,6 +275,7 @@ class JSONState {
             });
             this._operationCache = [];
             this._isGoing = false;
+            this._rafId = null;
         });
     }
 }
