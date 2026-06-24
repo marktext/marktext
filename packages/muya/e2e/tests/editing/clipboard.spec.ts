@@ -45,6 +45,30 @@ test.describe('clipboard paste', () => {
         }).toMatch(/\*\*foo\*\*/);
     });
 
+    test('pasting Google Docs CSS formatting preserves the real bold and italic ranges', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+        const html = [
+            '<b style="font-weight:normal" id="docs-internal-guid-abc">',
+            '<p dir="ltr">',
+            '<span style="font-weight:700">Bold</span>',
+            '<span> normal </span>',
+            '<span style="font-style:italic">italic</span>',
+            '</p>',
+            '</b>',
+        ].join('');
+
+        await pasteClipboard(page, html, 'Bold normal italic');
+
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe('**Bold** normal *italic*\n');
+
+        const md = await getMarkdown(page);
+        expect(md).not.toContain('**\n\n');
+    });
+
     test('pasting <a href> converts to markdown link', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
