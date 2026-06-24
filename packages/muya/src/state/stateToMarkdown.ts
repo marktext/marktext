@@ -564,6 +564,9 @@ export default class ExportMarkdown {
         if (name === 'task-list-item')
             itemMarker += state.meta.checked ? '[x] ' : '[ ] ';
 
+        if (children.length === 0)
+            return `${indent}${itemMarker}\n`;
+
         result.push(`${indent}${itemMarker}`);
         result.push(
             this._convertStatesToMarkdown(children, newIndent, listIndent).substring(

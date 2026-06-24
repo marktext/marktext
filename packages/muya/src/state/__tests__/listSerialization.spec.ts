@@ -17,6 +17,43 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
     return new ExportMarkdown({ listIndentation }).generate(states);
 }
 
+describe('stateToMarkdown — empty list items', () => {
+    it('keeps adjacent empty bullet items on separate lines', () => {
+        const md = '- \n- \n- \n\nz\n';
+        const out = roundTrip(md, 1);
+        expect(out).toBe(md);
+
+        const reparsed = new MarkdownToState({
+            footnote: false,
+            math: false,
+            isGitlabCompatibilityEnabled: false,
+            trimUnnecessaryCodeBlockEmptyLines: false,
+            frontMatter: false,
+        }).generate(out);
+        expect(reparsed[0].name).toBe('bullet-list');
+        expect((reparsed[0] as IBulletListState).children).toHaveLength(3);
+        expect(reparsed[1].name).toBe('paragraph');
+    });
+
+    it('keeps an empty bullet item between populated sibling items', () => {
+        const md = '- a\n- \n- c\n';
+        const out = roundTrip(md, 1);
+        expect(out).toBe(md);
+
+        const reparsed = new MarkdownToState({
+            footnote: false,
+            math: false,
+            isGitlabCompatibilityEnabled: false,
+            trimUnnecessaryCodeBlockEmptyLines: false,
+            frontMatter: false,
+        }).generate(out);
+        const list = reparsed[0] as IBulletListState;
+        expect(list.name).toBe('bullet-list');
+        expect(list.children).toHaveLength(3);
+        expect(list.children[1].children).toHaveLength(0);
+    });
+});
+
 // Regression baseline ported from marktext's
 // test/unit/specs/markdown-list-indentation.spec.js, the suite touched by
 // commit 02841ffd (fix: subsequent list paragraphs, PR #916). marktext used
