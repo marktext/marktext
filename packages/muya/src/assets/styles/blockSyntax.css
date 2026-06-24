@@ -375,10 +375,11 @@ span.mu-language-input {
     padding: 0;
 }
 
-/* order list and bullet list */
+/* order list and bullet list — logical `inline-start` so nested-list
+   indentation mirrors correctly under `dir="rtl"` (#4673) */
 ol.mu-order-list,
 ul.mu-bullet-list {
-    padding-left: 30px;
+    padding-inline-start: 30px;
 }
 
 ol.mu-order-list {
@@ -449,7 +450,7 @@ ol.mu-order-list ol.mu-order-list ul.mu-bullet-list {
 
 /* task list */
 ul.mu-task-list {
-    padding-left: 30px;
+    padding-inline-start: 30px;
 }
 
 li.mu-task-list-item {
@@ -462,7 +463,7 @@ li.mu-task-list-item > input[type='checkbox'],
 li.mu-task-list-item > span.mu-task-list-checkbox {
     position: absolute;
     top: 0.3em;
-    left: -23px;
+    inset-inline-start: -23px;
 
     width: 12px;
     height: 12px;
