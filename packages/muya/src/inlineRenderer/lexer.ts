@@ -6,7 +6,7 @@ import type {
     Token,
 } from './types';
 import { isLengthEven, union } from '../utils';
-import { beginRules, inlineRules, validateRules } from './rules';
+import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
     getAttributes,
@@ -361,7 +361,7 @@ function tryLink(state: ILexState): boolean {
             // than links. If a higher-priority inline rule matches a span
             // that extends past the tentative link's range, defer to it.
             // Covers CM 0.29 examples 520 (HTML tag) and 521 (code span).
-            && lowerPriority(state.src, linkTo[0].length, validateRules)
+            && lowerPriority(state.src, linkTo[0].length, linkValidateRules)
         )
     ) {
         return false;
@@ -414,7 +414,7 @@ function tryReferenceLink(state: ILexState): boolean {
             && state.labels.has((rLinkTo[3] || rLinkTo[1]).toLowerCase())
             && isLengthEven(rLinkTo[2])
             && isLengthEven(rLinkTo[4])
-            && lowerPriority(state.src, rLinkTo[0].length, validateRules)
+            && lowerPriority(state.src, rLinkTo[0].length, linkValidateRules)
         )
     ) {
         return false;
