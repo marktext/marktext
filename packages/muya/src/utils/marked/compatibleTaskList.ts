@@ -6,6 +6,7 @@ function isListToken(token: Token | ListToken): token is ListToken {
 }
 
 const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
+const EMPTY_TASK_REG = /^ {0,3}[*+-]\s+\[( |x|X)\]\s*$/;
 
 // marked >=17 keeps the GFM task marker inside the item content: a leading
 // `checkbox` token, plus the literal "[ ] " / "[x] " prefix in the first
@@ -30,6 +31,24 @@ function stripTaskMarker(item: ListItemToken) {
         if (typeof first.raw === 'string' && first.raw.startsWith(raw))
             first.raw = first.raw.slice(raw.length);
     }
+}
+
+function normalizeEmptyTaskItem(item: ListItemToken) {
+    if (item.task)
+        return;
+
+    const matches = EMPTY_TASK_REG.exec(item.raw);
+    if (!matches)
+        return;
+
+    const text = typeof item.text === 'string' ? item.text.trimEnd() : '';
+    if (text !== `[${matches[1]}]`)
+        return;
+
+    item.task = true;
+    item.checked = matches[1] !== ' ';
+    item.text = '';
+    item.tokens = [];
 }
 
 // If bullet list contains task list items, split the bullet list into bullet lists and task lists.
@@ -65,6 +84,7 @@ function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) 
 
                 for (const item of token.items) {
                     item.tokens = compatibleTaskList(item.tokens);
+                    normalizeEmptyTaskItem(item);
                     const listItemType = item.task ? 'task' : 'bullet';
                     item.listItemType = listItemType;
                     if (item.task)
