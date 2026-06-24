@@ -93,6 +93,12 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
                 this.hide();
             }
         });
+
+        // Self-hide when the caret leaves the picker's target block (#4654).
+        eventCenter.on('selection-change', ({ anchorBlock }) => {
+            if (this.status && anchorBlock !== this._block)
+                this.hide();
+        });
     }
 
     render() {

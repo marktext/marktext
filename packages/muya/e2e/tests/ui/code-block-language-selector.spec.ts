@@ -112,6 +112,26 @@ test.describe('code-block language selector', () => {
             .toBe('0');
     });
 
+    test('the picker hides when the caret leaves the language input', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('```\ncode\n```\n'));
+        await focusFirstLanguageInput(page);
+        await slowType(page, 'pyth');
+        await expect(page.locator(floats.codeBlockLanguageSelector)).toBeVisible();
+        // Moving the caret out of the language-input (as Left/Right arrow does)
+        // emits a `selection-change` whose anchorBlock is no longer the picker's
+        // target, so the selector self-hides (#4654).
+        await page.evaluate(() => {
+            const langInput = window.muya!.editor.activeContentBlock;
+            langInput.parent.lastContentInDescendant().setCursor(0, 0, true);
+        });
+        const wrapper = page
+            .locator(floats.codeBlockLanguageSelector)
+            .locator('xpath=ancestor::*[contains(@class,"mu-float-wrapper")]');
+        await expect
+            .poll(() => wrapper.evaluate(el => (el as HTMLElement).style.opacity))
+            .toBe('0');
+    });
+
     test('typing the opening fence in a paragraph opens the picker', async ({ page }) => {
         // The selector also listens on `paragraph.content`: a fence prefix like
         // ```pyth in a plain paragraph is parsed for the language token and
