@@ -164,11 +164,15 @@ class History {
 
         this._lastRecorded = 0;
         this._ignoreChange = true;
-        if (rebuild)
-            this._muya.editor.rebuildContents(operation, selection, 'user');
-        else
-            this._muya.editor.updateContents(operation, selection, 'user');
-        this._ignoreChange = false;
+        try {
+            if (rebuild)
+                this._muya.editor.rebuildContents(operation, selection, 'user');
+            else
+                this._muya.editor.updateContents(operation, selection, 'user');
+        }
+        finally {
+            this._ignoreChange = false;
+        }
 
         this._getLastSelection();
     }
@@ -177,6 +181,7 @@ class History {
         this._stack = { undo: [], redo: [] };
         this._selectionStack = [];
         this._lastRecorded = 0;
+        this._ignoreChange = false;
     }
 
     getHistory(): ISerializedHistory {
