@@ -774,6 +774,7 @@ class Content extends TreeNode {
 
         event.preventDefault();
         event.stopPropagation();
+        this.muya.editor.history.markInputBoundary('insertText', event.key);
 
         const { start, end } = cursor;
         const selectedText = this.text.substring(start.offset, end.offset);

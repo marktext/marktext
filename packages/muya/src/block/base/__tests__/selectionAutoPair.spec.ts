@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type Format from '../format';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
 
 const bootedHosts: HTMLElement[] = [];
@@ -59,10 +59,12 @@ describe('autoPair — wraps selected text on keydown before native replacement'
         const muya = bootMuya('hello world\n');
         const content = firstBlock(muya);
         content.setCursor(0, 5);
+        const markInputBoundary = vi.spyOn(muya.editor.history, 'markInputBoundary');
 
         const event = pressKey(content, '(');
 
         expect(event.defaultPrevented).toBe(true);
+        expect(markInputBoundary).toHaveBeenCalledWith('insertText', '(');
         expect(content.text).toBe('(hello) world');
     });
 
