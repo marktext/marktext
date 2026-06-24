@@ -55,6 +55,21 @@ async function getFirstBlockText(page: Page): Promise<string> {
     });
 }
 
+async function setContentAndSelect(
+    page: Page,
+    initial: string,
+    start: number,
+    end: number,
+): Promise<void> {
+    await page.evaluate(({ initial, start, end }) => {
+        window.muya!.setContent(initial);
+        window.muya!.focus();
+        window.muya!.domNode.focus();
+        const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+        block.setCursor(start, end, true);
+    }, { initial, start, end });
+}
+
 test.describe('options / auto-pair matrix', () => {
     test('autoPairBracket: on → `(` produces `()`', async ({ page }) => {
         await rebuildAndFocus(page, {
@@ -148,5 +163,33 @@ test.describe('options / auto-pair matrix', () => {
         });
         await page.keyboard.type('"');
         await expect.poll(() => getFirstBlockText(page)).toBe('"');
+    });
+
+    test('typing an auto-pair character over a selection wraps the selected text', async ({ page }) => {
+        await rebuildAndFocus(page, {
+            autoPairBracket: true,
+            autoPairMarkdownSyntax: true,
+            autoPairQuote: true,
+        });
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('(');
+        await expect.poll(() => getFirstBlockText(page)).toBe('(hello) world');
+
+        await setContentAndSelect(page, 'hello world', 0, 11);
+        await page.keyboard.type('"');
+        await expect.poll(() => getFirstBlockText(page)).toBe('"hello world"');
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('*');
+        await expect.poll(() => getFirstBlockText(page)).toBe('*hello* world');
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('`');
+        await expect.poll(() => getFirstBlockText(page)).toBe('`hello` world');
+
+        await setContentAndSelect(page, '中文文本', 0, 4);
+        await page.keyboard.type('"');
+        await expect.poll(() => getFirstBlockText(page)).toBe('"中文文本"');
     });
 });
