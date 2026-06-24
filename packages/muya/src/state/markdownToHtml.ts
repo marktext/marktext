@@ -231,14 +231,26 @@ export class MarkdownToHtml {
      * @param options.inlineStyles Inline the core stylesheets so the output is
      * self-contained and renders offline (default `true`); pass `false` to fall
      * back to CDN `<link>` tags.
+     * @param options.dir Text direction set on the root `<html>` (`rtl` / `auto`);
+     * `ltr` is the HTML default and stays implicit.
      */
     async generate(
-        options: { title?: string; extraCSS?: string; inlineStyles?: boolean } = {},
+        options: {
+            title?: string;
+            extraCSS?: string;
+            inlineStyles?: boolean;
+            dir?: string;
+        } = {},
     ) {
         const html = await this.renderHtml();
 
         // `extraCSS` may changed in the mean time.
-        const { title = '', extraCSS = '', inlineStyles = true } = options;
+        const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
+
+        // Mirror the editor's text direction onto the exported document so RTL
+        // documents export right-to-left (#4553). LTR is the HTML default, so it
+        // stays implicit to keep existing exports byte-identical.
+        const dirAttr = dir === 'rtl' || dir === 'auto' ? ` dir="${dir}"` : '';
 
         let baseStyles: string;
         if (inlineStyles) {
@@ -255,7 +267,7 @@ export class MarkdownToHtml {
         }
 
         return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en"${dirAttr}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
