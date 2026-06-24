@@ -6,7 +6,7 @@ function isListToken(token: Token | ListToken): token is ListToken {
 }
 
 const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
-const EMPTY_TASK_REG = /^ {0,3}[*+-]\s+\[( |x|X)\]\s*$/;
+const EMPTY_TASK_REG = /^ {0,3}[*+-]\s+\[([ x])\]\s*$/i;
 
 // marked >=17 keeps the GFM task marker inside the item content: a leading
 // `checkbox` token, plus the literal "[ ] " / "[x] " prefix in the first
