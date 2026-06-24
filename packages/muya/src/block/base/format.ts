@@ -554,7 +554,11 @@ class Format extends Content {
             anchor.offset !== oldAnchor?.offset
             || focus.offset !== oldFocus?.offset
         ) {
-            const needUpdate = this.checkNeedRender({ anchor, focus });
+            // Also check the previously committed selection (no-arg default):
+            // a held arrow fires one keyup on release, so the caret can leap
+            // clear of a token in a single step and leave its markers stuck
+            // revealed. Mirrors the guard in `clickHandler`.
+            const needUpdate = this.checkNeedRender({ anchor, focus }) || this.checkNeedRender();
             const cursor = { anchor, focus, block: this };
 
             if (needUpdate)
