@@ -40,6 +40,7 @@ enum UnindentType {
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
+const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
 
 const BOTH_SIDES_FORMATS = [
     'strong',
@@ -227,7 +228,7 @@ class ParagraphContent extends Format {
         const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
         const MATH_BLOCK_REG = /^\$\$/;
         const { text } = this;
-        const codeBlockToken = text.match(/(^ {0,3}`{3,})([^` ]*)/);
+        const codeBlockToken = text.match(CODE_BLOCK_REG);
         const tableMatch = TABLE_BLOCK_REG.exec(text);
         const htmlMatch = HTML_BLOCK_REG.exec(text);
         const mathMath = MATH_BLOCK_REG.exec(text);
@@ -522,6 +523,12 @@ class ParagraphContent extends Format {
 
         if (event.shiftKey)
             return this.shiftEnterHandler(event);
+
+        // A code fence (```` ```lang ````) always converts the paragraph in
+        // place, even inside a block-quote or list item — the resulting
+        // code-block stays nested in its container (matches muyajs).
+        if (CODE_BLOCK_REG.test(this.text))
+            return this._enterConvert(event);
 
         const type = this._paragraphParentType();
 
