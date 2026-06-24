@@ -68,6 +68,21 @@ async function setContentAndSelect(
         const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
         block.setCursor(start, end, true);
     }, { initial, start, end });
+
+    const selectedText = initial.slice(start, end);
+    await expect.poll(() => page.evaluate(() => {
+        const live = window.muya!.editor.selection.getSelection();
+        const native = window.getSelection();
+        return {
+            anchorOffset: live?.anchor.offset ?? null,
+            focusOffset: live?.focus.offset ?? null,
+            selectedText: native?.toString() ?? '',
+        };
+    })).toEqual({
+        anchorOffset: start,
+        focusOffset: end,
+        selectedText,
+    });
 }
 
 test.describe('options / auto-pair matrix', () => {
