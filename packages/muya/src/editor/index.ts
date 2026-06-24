@@ -36,6 +36,7 @@ type BlockNode = {
     remove?: (source: string) => void;
     replaceWith?: (newBlock: BlockNode, source: string) => void;
     insertBefore?: (newBlock: BlockNode, ref: BlockNode, source: string) => void;
+    append?: (newBlock: BlockNode, source: string) => void;
     update?: (value?: unknown, source?: string) => void;
     blockName?: string;
     align?: string;
@@ -152,8 +153,12 @@ function drop(root: BlockNode, descent: JSONOpList, muya: Muya): BlockNode {
         if (typeof key === 'number') {
             const insertedState = comp.i as { name: string };
             const newBlock = ScrollPage.loadBlock(insertedState.name).create(muya, insertedState) as BlockNode;
-            if (cur && ref && newBlock)
-                cur.insertBefore?.(newBlock, ref, 'api');
+            if (cur && newBlock) {
+                if (ref)
+                    cur.insertBefore?.(newBlock, ref, 'api');
+                else
+                    cur.append?.(newBlock, 'api');
+            }
 
             subDoc = newBlock;
         }
