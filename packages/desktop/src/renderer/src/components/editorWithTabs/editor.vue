@@ -1258,7 +1258,8 @@ const handleExport = async (options: unknown) => {
           title: htmlTitle || '',
           printOptimization: false,
           extraCss,
-          toc: htmlToc
+          toc: htmlToc,
+          dir: props.textDirection
         })
         editorStore.EXPORT({ type, content })
       } catch (err) {
@@ -1290,7 +1291,8 @@ const handleExport = async (options: unknown) => {
           toc: htmlToc,
           header,
           footer,
-          headerFooterStyled: headerFooterStyled as boolean | undefined
+          headerFooterStyled: headerFooterStyled as boolean | undefined,
+          dir: props.textDirection
         })
         printer!.renderMarkdown(html, true)
         editorStore.EXPORT({ type, pageOptions })
@@ -1315,7 +1317,8 @@ const handleExport = async (options: unknown) => {
           toc: htmlToc,
           header,
           footer,
-          headerFooterStyled: headerFooterStyled as boolean | undefined
+          headerFooterStyled: headerFooterStyled as boolean | undefined,
+          dir: props.textDirection
         })
         printer!.renderMarkdown(html, true)
         editorStore.PRINT_RESPONSE()

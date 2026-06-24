@@ -215,6 +215,29 @@ describe('exportStyledHTML — header/footer assembly', () => {
   })
 })
 
+describe('exportStyledHTML — text direction (issue #4553)', () => {
+  it('sets dir="rtl" on the exported <html> when dir is "rtl"', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# سلام\n\nمتن', { dir: 'rtl' })
+
+    expect(out).toMatch(/<html lang="en" dir="rtl">/)
+  })
+
+  it('forwards dir="auto" to the exported <html>', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# Hi', { dir: 'auto' })
+
+    expect(out).toMatch(/<html lang="en" dir="auto">/)
+  })
+
+  it('leaves the default LTR export without a dir attribute', async() => {
+    const ltr = await exportStyledHTML(NO_MUYA, '# Hi', { dir: 'ltr' })
+    const none = await exportStyledHTML(NO_MUYA, '# Hi', {})
+
+    expect(ltr).toContain('<html lang="en">')
+    expect(ltr).not.toMatch(/<html[^>]+dir=/)
+    expect(none).not.toMatch(/<html[^>]+dir=/)
+  })
+})
+
 describe('exportStyledHTML — relative image paths', () => {
   it('rewrites a relative img src to an absolute file:// URL (issue 230)', async() => {
     // window.DIRNAME is stubbed to '/docs', so `./a.png` resolves against it.

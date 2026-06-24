@@ -30,6 +30,8 @@ export interface ExportStyledHtmlOptions {
   header?: HeaderFooterPart | null
   footer?: HeaderFooterPart | null
   headerFooterStyled?: boolean
+  /** Editor text direction ('ltr' | 'rtl' | 'auto'); set on the exported <html>. */
+  dir?: string
 }
 
 // Ported verbatim from legacy muyajs `headerFooterStyle.css` so the page
@@ -143,7 +145,7 @@ export const exportStyledHTML = async(
   markdown: string,
   options: ExportStyledHtmlOptions = {}
 ): Promise<string> => {
-  const { title = '', toc = '', header, footer, headerFooterStyled } = options
+  const { title = '', toc = '', header, footer, headerFooterStyled, dir } = options
   let { extraCss = '' } = options
 
   // The header/footer page table needs its own stylesheet — fold it into
@@ -156,7 +158,11 @@ export const exportStyledHTML = async(
 
   // Render the engine's full HTML document. We re-extract its <article> body so
   // we can inject the TOC / header-footer, then re-emit the document shell.
-  const fullDoc = await new MarkdownToHtml(markdown, muya).generate({ title, extraCSS: extraCss })
+  const fullDoc = await new MarkdownToHtml(markdown, muya).generate({
+    title,
+    extraCSS: extraCss,
+    dir
+  })
 
   // Pull out the rendered <article class="markdown-body">…</article> body.
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
