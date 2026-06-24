@@ -5,7 +5,7 @@ import { fromEvent } from 'rxjs';
 import { CLASS_NAMES } from '../../../config';
 import logger from '../../../utils/logger';
 import Parent from '../../base/parent';
-import 'katex/dist/contrib/mhchem.min.js';
+import 'katex/dist/contrib/mhchem.mjs';
 
 const debug = logger('mathPreview:');
 

@@ -3,7 +3,7 @@ import type Renderer from './index';
 import katex from 'katex';
 import { CLASS_NAMES } from '../../config';
 import { htmlToVNode } from '../../utils/snabbdom';
-import 'katex/dist/contrib/mhchem.min.js';
+import 'katex/dist/contrib/mhchem.mjs';
 
 import 'katex/dist/katex.min.css';
 

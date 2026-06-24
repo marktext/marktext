@@ -1,4 +1,5 @@
 import katex from 'katex';
+import 'katex/dist/contrib/mhchem.mjs';
 
 export interface IMathToken {
     type: 'inlineMath' | 'multiplemath';
