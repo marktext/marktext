@@ -101,7 +101,14 @@ export default defineConfig({
         plugins: [
           postcssPresetEnv({
             stage: 0,
-            features: { 'nesting-rules': true }
+            features: {
+              'nesting-rules': true,
+              // Electron ships Chromium, which supports CSS logical properties
+              // natively. Leave them untouched so `padding-inline-start` /
+              // `inset-inline-start` mirror correctly under `dir="rtl"` instead
+              // of being down-compiled to hard-coded LTR physical props (#4673).
+              'logical-properties-and-values': false
+            }
           })
         ]
       }
