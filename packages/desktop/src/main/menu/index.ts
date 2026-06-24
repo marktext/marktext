@@ -310,6 +310,42 @@ class AppMenu {
   }
 
   /**
+   * Rebuild every window menu so updated keybinding accelerators are reflected
+   * wherever shortcuts are shown: the menu bar on Windows/Linux and the macOS
+   * application menu for both editor and settings windows.
+   */
+  updateKeybindings(): void {
+    const recentUsedDocuments = this.getRecentlyUsedDocuments()
+    this.windowMenus.forEach((value, key) => {
+      const { menu: oldMenu, type } = value
+
+      let newMenu: Menu | null = null
+      if (type === MenuType.EDITOR) {
+        if (!oldMenu) return
+        const { menu: rebuilt } = this._buildEditorMenu(recentUsedDocuments)
+        if (!rebuilt) return
+
+        updateMenuItem(oldMenu, rebuilt, 'sourceCodeModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'typewriterModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'focusModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'sideBarMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'tabBarMenuItem')
+        newMenu = rebuilt
+      } else if (type === MenuType.SETTINGS) {
+        newMenu = this._buildSettingMenu().menu
+        if (!newMenu) return
+      } else {
+        return
+      }
+
+      value.menu = newMenu
+      if (this.activeWindowId === key) {
+        this._setApplicationMenu(newMenu)
+      }
+    })
+  }
+
+  /**
    * Update line ending menu items.
    *
    * @param windowId The window id.
