@@ -96,6 +96,7 @@ export default class ExportMarkdown {
         const result: string[] = [];
         // helper for CommonMark 264
         let lastListBullet = '';
+        let previousState: TState | undefined;
 
         for (const state of states) {
             if (
@@ -107,12 +108,16 @@ export default class ExportMarkdown {
             }
 
             if (isAnyListState(state)) {
+                const forceLineBreak = previousState?.name === 'paragraph'
+                    && previousState.text.trim() !== ''
+                    && this._startsWithEmptyDashBulletItem(state);
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
                     lastListBullet,
+                    forceLineBreak,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -121,6 +126,8 @@ export default class ExportMarkdown {
             else {
                 this._serializeSimpleBlock(state, result, indent);
             }
+
+            previousState = state;
         }
 
         return result.join('');
@@ -200,8 +207,9 @@ export default class ExportMarkdown {
         indent: string,
         listIndent: string,
         lastListBullet: string,
+        forceLineBreak = false,
     ): string {
-        let insertNewLine = this._isLooseParentList;
+        let insertNewLine = forceLineBreak || this._isLooseParentList;
         this._isLooseParentList = true;
         const { meta } = state;
 
@@ -220,6 +228,22 @@ export default class ExportMarkdown {
         this._listType.pop();
 
         return bulletMarkerOrDelimiter;
+    }
+
+    private _startsWithEmptyDashBulletItem(
+        state: IOrderListState | IBulletListState | ITaskListState,
+    ) {
+        if (state.name !== 'bullet-list' || state.meta.marker !== '-')
+            return false;
+
+        const firstItem = state.children[0];
+        if (!firstItem)
+            return false;
+        if (firstItem.children.length === 0)
+            return true;
+
+        const firstChild = firstItem.children[0];
+        return firstChild.name === 'paragraph' && firstChild.text === '';
     }
 
     private _serializeListItemBlock(

@@ -17,6 +17,47 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
     return new ExportMarkdown({ listIndentation }).generate(states);
 }
 
+describe('stateToMarkdown — nested empty list items', () => {
+    it('does not serialize nested empty bullet items as a setext heading underline', () => {
+        const states: TState[] = [{
+            name: 'bullet-list',
+            meta: { marker: '-', loose: false },
+            children: [{
+                name: 'list-item',
+                children: [
+                    { name: 'paragraph', text: 'a' },
+                    {
+                        name: 'bullet-list',
+                        meta: { marker: '-', loose: false },
+                        children: [
+                            { name: 'list-item', children: [{ name: 'paragraph', text: '' }] },
+                            { name: 'list-item', children: [{ name: 'paragraph', text: '' }] },
+                        ],
+                    },
+                ],
+            }],
+        }];
+
+        const out = new ExportMarkdown({ listIndentation: 1 }).generate(states);
+        expect(out).toBe('- a\n\n  - \n  - \n');
+
+        const reparsed = new MarkdownToState({
+            footnote: false,
+            math: false,
+            isGitlabCompatibilityEnabled: false,
+            trimUnnecessaryCodeBlockEmptyLines: false,
+            frontMatter: false,
+        }).generate(out);
+        const outer = reparsed[0] as IBulletListState;
+        expect(outer.name).toBe('bullet-list');
+        const parent = outer.children[0];
+        expect(parent.children[0]).toEqual({ name: 'paragraph', text: 'a' });
+        expect(parent.children.some(child => child.name === 'setext-heading')).toBe(false);
+        const nested = parent.children.find(child => child.name === 'bullet-list') as IBulletListState;
+        expect(nested.children).toHaveLength(2);
+    });
+});
+
 // Regression baseline ported from marktext's
 // test/unit/specs/markdown-list-indentation.spec.js, the suite touched by
 // commit 02841ffd (fix: subsequent list paragraphs, PR #916). marktext used
