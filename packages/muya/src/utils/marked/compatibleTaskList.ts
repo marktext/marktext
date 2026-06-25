@@ -7,6 +7,40 @@ function isListToken(token: Token | ListToken): token is ListToken {
 
 const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
 const EMPTY_TASK_REG = /^ {0,3}[*+-]\s+\[([ x])\]\s*$/i;
+const TASK_MARKER_PREFIX_REG = /^ {0,3}[*+-]\s+\[([ x])\]\s+/i;
+
+function stripTaskTextPrefix(value: string, marker: string) {
+    if (!value.startsWith(marker))
+        return value;
+
+    const rest = value.slice(marker.length);
+    const newlinePrefix = /^[ \t]*\r?\n/.exec(rest);
+    if (newlinePrefix)
+        return rest.slice(newlinePrefix[0].length);
+
+    return rest.replace(/^[ \t]+/, '');
+}
+
+function stripSyntheticTaskMarker(item: ListItemToken, marker: string) {
+    const first = item.tokens?.[0] as Token & { raw?: string; text?: string; tokens?: Token[] } | undefined;
+    if (!first)
+        return;
+
+    if (typeof first.text === 'string')
+        first.text = stripTaskTextPrefix(first.text, marker);
+    if (typeof first.raw === 'string')
+        first.raw = stripTaskTextPrefix(first.raw, marker);
+
+    const inner = first.type === 'paragraph'
+        ? first.tokens?.[0] as Token & { raw?: string; text?: string } | undefined
+        : undefined;
+    if (inner) {
+        if (typeof inner.text === 'string')
+            inner.text = stripTaskTextPrefix(inner.text, marker);
+        if (typeof inner.raw === 'string')
+            inner.raw = stripTaskTextPrefix(inner.raw, marker);
+    }
+}
 
 // marked >=17 keeps the GFM task marker inside the item content: a leading
 // `checkbox` token, plus the literal "[ ] " / "[x] " prefix in the first
@@ -37,18 +71,22 @@ function normalizeEmptyTaskItem(item: ListItemToken) {
     if (item.task)
         return;
 
-    const matches = EMPTY_TASK_REG.exec(item.raw);
+    const matches = EMPTY_TASK_REG.exec(item.raw) || TASK_MARKER_PREFIX_REG.exec(item.raw);
     if (!matches)
         return;
 
-    const text = typeof item.text === 'string' ? item.text.trimEnd() : '';
-    if (text !== `[${matches[1]}]`)
+    const marker = `[${matches[1]}]`;
+    const text = typeof item.text === 'string' ? item.text : '';
+    if (text.trimEnd() !== marker && !text.startsWith(marker))
         return;
 
     item.task = true;
     item.checked = matches[1] !== ' ';
-    item.text = '';
-    item.tokens = [];
+    item.text = stripTaskTextPrefix(text, marker);
+    if (item.text === '')
+        item.tokens = [];
+    else
+        stripSyntheticTaskMarker(item, marker);
 }
 
 // If bullet list contains task list items, split the bullet list into bullet lists and task lists.

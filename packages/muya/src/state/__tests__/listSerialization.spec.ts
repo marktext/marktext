@@ -17,6 +17,17 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
     return new ExportMarkdown({ listIndentation }).generate(states);
 }
 
+describe('stateToMarkdown — empty list item serialization', () => {
+    it('keeps consecutive empty task items on separate lines', () => {
+        expect(roundTrip('- [ ] \n- [ ] \n')).toBe('- [ ] \n- [ ] \n');
+        expect(roundTrip('- [ ] \n- [x] \n')).toBe('- [ ] \n- [x] \n');
+    });
+
+    it('keeps consecutive empty bullet items on separate lines', () => {
+        expect(roundTrip('- \n- \n')).toBe('- \n- \n');
+    });
+});
+
 // Regression baseline ported from marktext's
 // test/unit/specs/markdown-list-indentation.spec.js, the suite touched by
 // commit 02841ffd (fix: subsequent list paragraphs, PR #916). marktext used
