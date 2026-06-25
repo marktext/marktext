@@ -5,15 +5,11 @@ import { launchWithMarkdown } from './helpers'
 // Post-migration (muyajs -> @muyajs/core) coverage backfill for the
 // "Wrap Code Blocks" and "Code Block Line Numbers" editor preferences.
 //
-// The wrap preference is implemented as an injected <style id="ag-code-wrap">
-// (packages/desktop/src/renderer/src/util/theme.ts::setWrapCodeBlocks). Issue
-// #4421 changed the selector from the legacy DOM class to
-// `.mu-code-block .mu-code`. If that selector ever stops matching the rendered
-// @muyajs/core code DOM (`pre.mu-code-block > code.mu-code`), the style silently
-// no-ops — the computed white-space below would never flip. These tests prove
-// the selector still matches the live engine DOM and that the round-trip
-// (renderer -> main store -> broadcast -> Pinia watcher -> setWrapCodeBlocks /
-// muya.setOptions(forceRender)) takes effect live.
+// The wrap preference is implemented via muya.setOptions({ wrapCodeBlocks }),
+// which toggles a .mu-code-wrap class on the editor root. Muya's stylesheet
+// then applies `white-space: pre-wrap` to .mu-code-wrap .mu-code-block .mu-code.
+// These tests prove the round-trip (renderer -> main store -> broadcast ->
+// Pinia watcher -> muya.setOptions) takes effect live.
 //
 // The actual visual wrapping / horizontal scroll behaviour is not asserted here
 // (that remains manual); we assert the load-bearing computed style + class.
@@ -58,8 +54,8 @@ test.describe('Code block wrap + line-numbers preferences', () => {
 
   // Item 99: wrap preference toggles white-space on .mu-code-block .mu-code.
   test('wrapCodeBlocks toggles computed white-space on .mu-code-block .mu-code', async() => {
-    // Default preference is wrapCodeBlocks: false, so on boot setWrapCodeBlocks
-    // injects `white-space: pre`. Establish the baseline first.
+    // Default preference is wrapCodeBlocks: false, so the editor root has no
+    // .mu-code-wrap class and white-space is pre. Establish the baseline first.
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre')
 
     // Enable wrapping -> selector should resolve to `pre-wrap`.
@@ -113,7 +109,7 @@ test.describe('Code block wrap + line-numbers preferences', () => {
       { timeout: 10000 }
     )
 
-    // The newly-rendered .mu-code must still pick up the #ag-code-wrap style.
+    // The newly-rendered .mu-code must still pick up the muya wrap CSS.
     await expect.poll(() => readWhiteSpace(page), { timeout: 10000 }).toBe('pre-wrap')
 
     // Restore defaults so the suite leaves no global preference state behind.
