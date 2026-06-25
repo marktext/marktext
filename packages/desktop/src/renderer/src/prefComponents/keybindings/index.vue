@@ -309,6 +309,15 @@ const dumpKeyboardInformation = (): void => {
 .pref-keybindings .el-table tr {
   background: var(--editorBgColor) !important;
 }
+/* Element Plus colours table text with its own --el-text-color-regular grey,
+   which the app never themes — so the list rendered as low-contrast grey on
+   every theme (≈2.3:1 on dark themes, well below WCAG AA). Use the theme's own
+   editor text colour so the bindings stay readable everywhere (#3937). */
+.pref-keybindings .el-table,
+.pref-keybindings .el-table th.el-table__cell,
+.pref-keybindings .el-table td.el-table__cell {
+  color: var(--editorColor);
+}
 .pref-keybindings .el-table th.el-table__cell.is-leaf,
 .pref-keybindings .el-table th,
 .pref-keybindings .el-table td {
