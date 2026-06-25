@@ -71,6 +71,21 @@ test.describe('clipboard paste', () => {
         expect(md).toMatch(/\|\s*r1c1\s*\|\s*r1c2\s*\|/);
     });
 
+    test('pasting a <table> with first-row colspan converts to a GFM table', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+        const html = '<table><tr><td colspan="2">A</td></tr><tr><td>B</td><td>C</td></tr></table>';
+        await pasteClipboard(page, html, 'A\nB\tC');
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toMatch(/\|\s*A\s*\|\s*\|/);
+
+        const md = await getMarkdown(page);
+        expect(md).toMatch(/\|\s*-+\s*\|\s*-+\s*\|/);
+        expect(md).toMatch(/\|\s*B\s*\|\s*C\s*\|/);
+    });
+
     test('pasting plain text without HTML falls back to text insertion', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
