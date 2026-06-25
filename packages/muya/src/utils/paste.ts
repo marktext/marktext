@@ -6,6 +6,29 @@ const TIMEOUT = 1500;
 
 export const isOnline = () => navigator.onLine === true;
 
+function expandTableColspans(table: HTMLTableElement) {
+    for (const row of Array.from(table.rows)) {
+        const cells = Array.from(row.cells);
+
+        for (const cell of cells) {
+            const colSpan = Math.max(1, Math.trunc(cell.colSpan || 1));
+            if (colSpan <= 1)
+                continue;
+
+            cell.removeAttribute('colspan');
+
+            const placeholders: HTMLTableCellElement[] = [];
+            for (let i = 1; i < colSpan; i++) {
+                placeholders.push(
+                    document.createElement(cell.tagName.toLowerCase()) as HTMLTableCellElement,
+                );
+            }
+
+            cell.after(...placeholders);
+        }
+    }
+}
+
 export async function getPageTitle(url: string) {
     // No need to request the title when it's not url.
     if (!url.startsWith('http'))
@@ -56,6 +79,8 @@ export async function normalizePastedHTML(html: string) {
     const tables = Array.from(tempWrapper.querySelectorAll('table'));
 
     for (const table of tables) {
+        expandTableColspans(table);
+
         const row = table.querySelector('tr');
         if (row && row.firstElementChild?.tagName !== 'TH') {
             [...row.children].forEach((cell) => {

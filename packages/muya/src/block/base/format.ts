@@ -215,6 +215,10 @@ function checkTokenIsInlineFormat(token: Token) {
 class Format extends Content {
     static override blockName = 'format';
 
+    protected override get autoPairType() {
+        return 'format';
+    }
+
     private _checkCursorInTokenType(
         text: string,
         offset: number,
