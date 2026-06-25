@@ -158,6 +158,23 @@ describe('pasteHandler - whitespace-only plain text paste', () => {
         expect(anchor.text).toBe('A  B');
         expect(anchor.setCursor).toHaveBeenCalledWith(3, 3, true);
     });
+
+    it('preserves inline spaces when the clipboard also contains HTML', async () => {
+        const created: IRecordedBlock[] = [];
+        installLoadBlockSpy(created);
+        const wrapper = makeWrapper('paragraph');
+        const anchor = makeAnchorBlock('paragraph.content', 'AB', wrapper, 1);
+        const clipboard = makeClipboard(anchor);
+
+        await clipboard.pasteHandler(makePasteEvent({
+            'text/html': '<span>  </span>',
+            'text/plain': '  ',
+        }));
+
+        expect(created).toHaveLength(0);
+        expect(anchor.text).toBe('A  B');
+        expect(anchor.setCursor).toHaveBeenCalledWith(3, 3, true);
+    });
 });
 
 describe('pasteHandler — single-line markdown parses into real blocks (sub-item 1)', () => {

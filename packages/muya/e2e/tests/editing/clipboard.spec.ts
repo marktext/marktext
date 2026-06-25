@@ -83,6 +83,16 @@ test.describe('clipboard paste', () => {
         const md = await getMarkdown(page);
         expect(md).not.toMatch(/[*_`|[\]]/);
     });
+
+    test('pasting inline spaces with HTML still inserts the plain spaces', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+        await pasteClipboardAt(page, 'AB', 1, '<span style="white-space: pre;">  </span>', '  ');
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe('A  B\n');
+    });
 });
 
 /**
@@ -126,6 +136,33 @@ async function pasteClipboard(
 
     // Focus via muya's API + DOM focus, so the trusted paste keystroke
     // lands inside the editor's contenteditable.
+    await page.evaluate(() => {
+        window.muya!.focus();
+        window.muya!.domNode.focus();
+    });
+    await page.keyboard.press(`${metaKey()}+v`);
+}
+
+async function pasteClipboardAt(
+    page: Parameters<Parameters<typeof test>[1]>[0]['page'],
+    initial: string,
+    offset: number,
+    html: string,
+    text: string,
+): Promise<void> {
+    await page.evaluate((value) => window.muya!.setContent(value), initial);
+
+    await page.evaluate(async ({ html, text, offset }) => {
+        const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+        block.setCursor(offset, offset, true);
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([text], { type: 'text/plain' }),
+            }),
+        ]);
+    }, { html, text, offset });
+
     await page.evaluate(() => {
         window.muya!.focus();
         window.muya!.domNode.focus();

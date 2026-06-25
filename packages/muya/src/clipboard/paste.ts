@@ -597,14 +597,10 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 || anchorBlock.blockName === 'table.cell.content'
                 || anchorBlock.blockName === 'codeblock.content';
 
-        const isPlainInlineWhitespace
-            = copyType === 'text'
-                && markdown.length > 0
-                && markdown.trim().length === 0
-                && !markdown.includes('\n');
+        const isPlainInlineSpaces = /^ +$/.test(text);
 
-        if (isLiteralAnchor || isPlainInlineWhitespace)
-            applyLiteralPaste(clipboard, ctx, markdown);
+        if (isLiteralAnchor || isPlainInlineSpaces)
+            applyLiteralPaste(clipboard, ctx, isPlainInlineSpaces ? text : markdown);
         else
             applyParsedPaste(clipboard, ctx, markdown);
     }
