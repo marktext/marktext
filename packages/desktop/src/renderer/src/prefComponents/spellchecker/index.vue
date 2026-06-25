@@ -223,6 +223,14 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
 .pref-spellchecker .el-table tr {
   background: var(--editorBgColor);
 }
+/* Element Plus colours table cells with its own grey --el-text-color-regular,
+   which the app never themes, so the custom-dictionary words rendered as
+   low-contrast grey on every theme. Use the theme's editor text colour. */
+.pref-spellchecker .el-table,
+.pref-spellchecker .el-table th.el-table__cell,
+.pref-spellchecker .el-table td.el-table__cell {
+  color: var(--editorColor);
+}
 .pref-spellchecker .el-table th.el-table__cell.is-leaf,
 .pref-spellchecker .el-table th,
 .pref-spellchecker .el-table td {
@@ -240,11 +248,14 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
 .pref-spellchecker .el-table__fixed::before {
   background: var(--tableBorderColor);
 }
-.pref-spellchecker .el-table__body tr.hover-row.current-row > td,
-.pref-spellchecker .el-table__body tr.hover-row.el-table__row--striped.current-row > td,
-.pref-spellchecker .el-table__body tr.hover-row.el-table__row--striped > td,
-.pref-spellchecker .el-table__body tr.hover-row > td {
-  background: var(--selectionColor);
+/* Theme Element Plus's table colour variables so the active theme is honoured
+   instead of EP's light defaults: the hovered row (--el-fill-color-light, a
+   near-white bar that hides the text) and the header background
+   (--el-fill-color-blank / white, which left the fixed "Options" column header
+   a white block on dark themes). */
+.pref-spellchecker .el-table {
+  --el-table-row-hover-bg-color: var(--selectionColor);
+  --el-table-header-bg-color: var(--editorBgColor);
 }
 .pref-spellchecker .el-table .el-table__cell {
   padding: 2px 0;
