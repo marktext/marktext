@@ -407,11 +407,21 @@ export class Editor {
         if (operations === null)
             return;
 
-        const snapshot = pick(this.scrollPage as BlockNode, operations);
+        try {
+            const snapshot = pick(this.scrollPage as BlockNode, operations);
 
-        drop(snapshot, operations, muya);
+            drop(snapshot, operations, muya);
 
-        this._restoreSelection(selection);
+            this._restoreSelection(selection);
+        }
+        catch (error) {
+            // The incremental walk left the live tree half-applied (pick removed
+            // blocks drop never re-inserted). The json state is authoritative and
+            // already up to date — rebuild from it instead of leaving an empty doc.
+            debug.error(`updateContents incremental apply failed; rebuilding from state: ${String(error)}`);
+            this.scrollPage!.updateState(this.jsonState.getState());
+            this._restoreSelection(selection, true);
+        }
     }
 
     private _restoreSelection(selection: Nullable<IHistorySelection>, treeRebuilt = false) {

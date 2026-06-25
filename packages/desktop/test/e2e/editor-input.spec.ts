@@ -47,9 +47,7 @@ test.describe('Editor input and source-mode roundtrip', () => {
 
   test('Typing into the editor appends content', async() => {
     await typeIntoEditor(page, ' typed-token')
-    await page.waitForTimeout(400)
-    const markdown = await getMarkdownContent(page, app)
-    expect(markdown).toContain('typed-token')
+    await expect.poll(async() => await getMarkdownContent(page, app)).toContain('typed-token')
   })
 })
 
@@ -127,7 +125,6 @@ test.describe('Title-bar word counter (item 24)', () => {
     // add a word).
     await placeCaretInEditor(page)
     await typeIntoEditor(page, ' four five 你好')
-    await page.waitForTimeout(400)
 
     // The counter updates async after the json-change round-trip; it must have
     // strictly increased over the pre-typing baseline.

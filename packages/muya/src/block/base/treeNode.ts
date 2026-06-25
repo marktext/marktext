@@ -119,14 +119,25 @@ class TreeNode implements ILinkedNode {
             return null;
 
         const { parent } = this;
-        if (parent.prev) {
-            return parent.prev.isParent()
-                ? parent.prev.lastContentInDescendant()
-                : parent.prev; // language input
+
+        // Walk previous siblings, skipping empty containers (e.g. a list item
+        // whose only paragraph was removed) that hold no content descendant.
+        // Otherwise such a sibling yields null and the caret gets stuck when
+        // navigating up/left across it (#4644).
+        let sibling = parent.prev;
+        while (sibling) {
+            if (sibling.isParent()) {
+                const content = sibling.lastContentInDescendant();
+                if (content)
+                    return content;
+            }
+            else {
+                return sibling; // language input
+            }
+            sibling = sibling.prev;
         }
-        else {
-            return parent.previousContentInContext();
-        }
+
+        return parent.previousContentInContext();
     }
 
     // Get next content block in block tree.
@@ -139,10 +150,22 @@ class TreeNode implements ILinkedNode {
         if (this.blockName === 'language-input')
             return parent.lastContentInDescendant();
 
-        if (parent.next)
-            return parent.next.firstContentInDescendant();
-        else
-            return parent.nextContentInContext();
+        // Walk next siblings, skipping empty containers with no content
+        // descendant so the caret can cross them instead of getting stuck (#4644).
+        let sibling = parent.next;
+        while (sibling) {
+            if (sibling.isParent()) {
+                const content = sibling.firstContentInDescendant();
+                if (content)
+                    return content;
+            }
+            else {
+                return sibling; // language input
+            }
+            sibling = sibling.next;
+        }
+
+        return parent.nextContentInContext();
     }
 
     /**

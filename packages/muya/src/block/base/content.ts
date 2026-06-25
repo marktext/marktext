@@ -149,6 +149,33 @@ function shouldInsertClosingPair(
     );
 }
 
+function selectionPairForKey(
+    key: string,
+    options: {
+        autoPairBracket: boolean;
+        autoPairMarkdownSyntax: boolean;
+        autoPairQuote: boolean;
+    },
+    type: string,
+) {
+    if (key.length !== 1)
+        return null;
+
+    const close = key === '`' ? '`' : BRACKET_HASH[key];
+    if (!close)
+        return null;
+
+    const { autoPairBracket, autoPairMarkdownSyntax, autoPairQuote } = options;
+    if (autoPairQuote && /['"]/.test(key))
+        return { open: key, close };
+    if (autoPairBracket && /[{[(]/.test(key))
+        return { open: key, close };
+    if (type === 'format' && autoPairMarkdownSyntax && /[*$~_`]/.test(key))
+        return { open: key, close };
+
+    return null;
+}
+
 interface IAutoPairCollapsedContext {
     blockText: string;
     options: {
@@ -318,6 +345,10 @@ class Content extends TreeNode {
 
     protected get inlineRenderer() {
         return this.muya.editor.inlineRenderer;
+    }
+
+    protected get autoPairType() {
+        return this.blockName;
     }
 
     get path(): TBlockPath {
@@ -684,6 +715,9 @@ class Content extends TreeNode {
         if (this.muya.ui.handleContentKeydown(event))
             return;
 
+        if (this._wrapSelectionWithAutoPair(event))
+            return;
+
         switch (event.key) {
             case EVENT_KEYS.Backspace:
                 this.backspaceHandler(event);
@@ -718,6 +752,44 @@ class Content extends TreeNode {
                 break;
         }
     };
+
+    private _wrapSelectionWithAutoPair(event: KeyboardEvent) {
+        if (
+            this.isComposed
+            || event.defaultPrevented
+            || event.ctrlKey
+            || event.metaKey
+            || event.altKey
+        ) {
+            return false;
+        }
+
+        const cursor = this.getCursor();
+        if (!cursor || cursor.start.offset === cursor.end.offset)
+            return false;
+
+        const pair = selectionPairForKey(event.key, this.muya.options, this.autoPairType);
+        if (!pair)
+            return false;
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.muya.editor.history.markInputBoundary('insertText', event.key);
+
+        const { start, end } = cursor;
+        const selectedText = this.text.substring(start.offset, end.offset);
+        const wrappedText = `${pair.open}${selectedText}${pair.close}`;
+        this.text
+            = this.text.substring(0, start.offset)
+                + wrappedText
+                + this.text.substring(end.offset);
+
+        const selectionStart = start.offset + pair.open.length;
+        const selectionEnd = selectionStart + selectedText.length;
+        this.setCursor(selectionStart, selectionEnd, true);
+
+        return true;
+    }
 
     blurHandler() {
         this.scrollPage?.handleBlurFromContent(this);
