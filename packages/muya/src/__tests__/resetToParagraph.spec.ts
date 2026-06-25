@@ -188,3 +188,13 @@ describe('paragraph front menu — a single menu open performs at most one actio
         ).not.toThrow();
     });
 });
+
+describe('muya.resetToParagraph(block) — detached block (#4686)', () => {
+    it('is a no-op on a list already removed from the document', () => {
+        const muya = bootMuya('- one\n- two\n');
+        const list = firstOutmostBlock(muya);
+        list.remove(); // detach: parent -> null, children left intact
+
+        expect(() => muya.resetToParagraph(list)).not.toThrow();
+    });
+});

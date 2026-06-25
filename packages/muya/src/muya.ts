@@ -1455,6 +1455,11 @@ export class Muya {
      * blocks it contains, preserving every item.
      */
     private _unwrapToParagraphs(block: Parent) {
+        // A detached block has no parent to reparent its children into (#4686).
+        const parent = block.parent;
+        if (!parent)
+            return;
+
         const state = block.getState();
         let inner: TState[] = [];
         if (isAnyListState(state))
@@ -1466,7 +1471,6 @@ export class Muya {
             return;
 
         const cursorText = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.text;
-        const parent = block.parent!;
         let ref: Parent = block;
         let firstNew: Parent | null = null;
         for (const childState of inner) {
