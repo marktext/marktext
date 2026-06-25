@@ -2,13 +2,6 @@
   <div
     class="editor-wrapper"
     :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
-    :style="{
-      lineHeight: lineHeight,
-      fontSize: `${fontSize}px`,
-      'font-family': editorFontFamily
-        ? `${editorFontFamily}, ${defaultFontFamily}`
-        : `${defaultFontFamily}`
-    }"
     :dir="textDirection"
   >
     <div
@@ -122,7 +115,7 @@ import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
-import { DEFAULT_EDITOR_FONT_FAMILY } from '@/config'
+import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
@@ -1695,6 +1688,12 @@ onMounted(() => {
     tabSize: tabSize.value,
     fontSize: fontSize.value,
     lineHeight: lineHeight.value,
+    editorFontFamily: editorFontFamily.value
+      ? `${editorFontFamily.value}, ${defaultFontFamily}`
+      : defaultFontFamily,
+    codeFontSize: codeFontSize.value,
+    codeFontFamily: `${codeFontFamily.value}, ${DEFAULT_CODE_FONT_FAMILY}`,
+    wrapCodeBlocks: wrapCodeBlocks.value,
     codeBlockLineNumbers: codeBlockLineNumbers.value,
     listIndentation: listIndentation.value,
     frontmatterType: frontmatterType.value,
