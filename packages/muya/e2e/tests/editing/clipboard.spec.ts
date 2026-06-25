@@ -102,6 +102,8 @@ test.describe('clipboard paste', () => {
             timeout: 5_000,
             intervals: [50, 100, 250, 500],
         }).toBe('task-list');
+    });
+
     test('pasting a <table> with first-row colspan converts to a GFM table', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
