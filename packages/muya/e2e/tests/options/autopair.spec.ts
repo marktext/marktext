@@ -85,6 +85,27 @@ async function setContentAndSelect(
     });
 }
 
+async function expectSelectedText(
+    page: Page,
+    selectedText: string,
+    start: number,
+    end: number,
+): Promise<void> {
+    await expect.poll(() => page.evaluate(() => {
+        const live = window.muya!.editor.selection.getSelection();
+        const native = window.getSelection();
+        return {
+            anchorOffset: live?.anchor.offset ?? null,
+            focusOffset: live?.focus.offset ?? null,
+            selectedText: native?.toString() ?? '',
+        };
+    })).toEqual({
+        anchorOffset: start,
+        focusOffset: end,
+        selectedText,
+    });
+}
+
 test.describe('options / auto-pair matrix', () => {
     test('autoPairBracket: on → `(` produces `()`', async ({ page }) => {
         await rebuildAndFocus(page, {
@@ -190,21 +211,26 @@ test.describe('options / auto-pair matrix', () => {
         await setContentAndSelect(page, 'hello world', 0, 5);
         await page.keyboard.type('(');
         await expect.poll(() => getFirstBlockText(page)).toBe('(hello) world');
+        await expectSelectedText(page, 'hello', 1, 6);
 
         await setContentAndSelect(page, 'hello world', 0, 11);
         await page.keyboard.type('"');
         await expect.poll(() => getFirstBlockText(page)).toBe('"hello world"');
+        await expectSelectedText(page, 'hello world', 1, 12);
 
         await setContentAndSelect(page, 'hello world', 0, 5);
         await page.keyboard.type('*');
         await expect.poll(() => getFirstBlockText(page)).toBe('*hello* world');
+        await expectSelectedText(page, 'hello', 1, 6);
 
         await setContentAndSelect(page, 'hello world', 0, 5);
         await page.keyboard.type('`');
         await expect.poll(() => getFirstBlockText(page)).toBe('`hello` world');
+        await expectSelectedText(page, 'hello', 1, 6);
 
         await setContentAndSelect(page, '中文文本', 0, 4);
         await page.keyboard.type('"');
         await expect.poll(() => getFirstBlockText(page)).toBe('"中文文本"');
+        await expectSelectedText(page, '中文文本', 1, 5);
     });
 });

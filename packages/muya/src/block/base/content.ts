@@ -784,8 +784,9 @@ class Content extends TreeNode {
                 + wrappedText
                 + this.text.substring(end.offset);
 
-        const offset = start.offset + wrappedText.length;
-        this.setCursor(offset, offset, true);
+        const selectionStart = start.offset + pair.open.length;
+        const selectionEnd = selectionStart + selectedText.length;
+        this.setCursor(selectionStart, selectionEnd, true);
 
         return true;
     }

@@ -54,6 +54,12 @@ function pressKey(content: Format, key: string): KeyboardEvent {
     return event;
 }
 
+function expectSelectedRange(content: Format, start: number, end: number) {
+    const cursor = content.getCursor();
+    expect(cursor?.start.offset).toBe(start);
+    expect(cursor?.end.offset).toBe(end);
+}
+
 describe('autoPair — wraps selected text on keydown before native replacement', () => {
     it('wraps a selected word with brackets', () => {
         const muya = bootMuya('hello world\n');
@@ -66,6 +72,7 @@ describe('autoPair — wraps selected text on keydown before native replacement'
         expect(event.defaultPrevented).toBe(true);
         expect(markInputBoundary).toHaveBeenCalledWith('insertText', '(');
         expect(content.text).toBe('(hello) world');
+        expectSelectedRange(content, 1, 6);
     });
 
     it('wraps a full-line selection with quotes', () => {
@@ -77,6 +84,7 @@ describe('autoPair — wraps selected text on keydown before native replacement'
 
         expect(event.defaultPrevented).toBe(true);
         expect(content.text).toBe('"hello world"');
+        expectSelectedRange(content, 1, 12);
     });
 
     it('wraps a selected word with markdown syntax markers', () => {
@@ -88,6 +96,7 @@ describe('autoPair — wraps selected text on keydown before native replacement'
 
         expect(event.defaultPrevented).toBe(true);
         expect(content.text).toBe('*hello* world');
+        expectSelectedRange(content, 1, 6);
     });
 
     it('wraps a selected word with backticks', () => {
@@ -99,6 +108,7 @@ describe('autoPair — wraps selected text on keydown before native replacement'
 
         expect(event.defaultPrevented).toBe(true);
         expect(content.text).toBe('`hello` world');
+        expectSelectedRange(content, 1, 6);
     });
 
     it('leaves ordinary selected-text replacement to the browser', () => {
