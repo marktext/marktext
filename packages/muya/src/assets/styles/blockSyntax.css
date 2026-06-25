@@ -235,6 +235,11 @@
 .mu-code-block .mu-code {
     display: block;
     overflow: auto;
+
+    /* The code text lives in this <code> element; its UA `font-family:
+       monospace` would override the inherited block font and block the
+       `--mu-code-font-family` cascade. Inherit the resolved block font. */
+    font-family: inherit;
 }
 
 /* `wrapCodeBlocks` option → `.mu-code-wrap` on the root. Overrides the prism
