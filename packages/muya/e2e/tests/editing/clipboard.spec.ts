@@ -71,6 +71,39 @@ test.describe('clipboard paste', () => {
         expect(md).toMatch(/\|\s*r1c1\s*\|\s*r1c2\s*\|/);
     });
 
+    test('pasting HTML task-list items creates task-list Markdown', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+
+        await pasteClipboard(
+            page,
+            '<ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" disabled=""><span>&nbsp;</span>task</li></ul>',
+            ' task',
+        );
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toContain('- [ ] task');
+        await expect.poll(async () => page.evaluate(() => window.muya!.getState()[0].name), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe('task-list');
+
+        await pasteClipboard(
+            page,
+            '<ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked="" disabled=""><span>&nbsp;</span>done</li></ul>',
+            ' done',
+        );
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toContain('- [x] done');
+        await expect.poll(async () => page.evaluate(() => window.muya!.getState()[0].name), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe('task-list');
+    });
+
     test('pasting plain text without HTML falls back to text insertion', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
