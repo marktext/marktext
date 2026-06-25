@@ -2,6 +2,7 @@ import path from 'path'
 import type { BrowserWindow } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type Accessor from '../app/accessor'
+import { getThemeBackgroundColor } from '../../common/theme'
 
 /**
  * A MarkText window.
@@ -149,24 +150,11 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
   }
 
   protected _getPreferredBackgroundColor(theme: string | undefined): string {
-    // Hardcode the theme background color and show the window direct for the fastet window ready time.
-    // Later with custom themes we need the background color (e.g. from meta information) and wait
-    // that the window is loaded and then pass theme data to the renderer.
-    switch (theme) {
-      case 'dark':
-        return '#282828'
-      case 'material-dark':
-        return '#34393f'
-      case 'ulysses':
-        return '#f3f3f3'
-      case 'graphite':
-        return '#f7f7f7'
-      case 'one-dark':
-        return '#282c34'
-      case 'light':
-      default:
-        return '#ffffff'
-    }
+    // Paint the window with the active theme's background and show it directly,
+    // for the fastest window-ready time. Previously only a handful of themes
+    // were mapped and every other (dark) theme fell back to white, flashing
+    // white on launch (#3957); the full per-theme map lives in common/theme.
+    return getThemeBackgroundColor(theme)
   }
 }
 
