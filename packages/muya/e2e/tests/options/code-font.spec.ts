@@ -1,0 +1,61 @@
+import { expect, test } from '../fixtures/muya';
+
+/**
+ * Code-block font options reaching the rendered code, and the line-number
+ * gutter re-measuring when those options change.
+ *
+ * The code text is rendered as `<code class="mu-code"><span
+ * class="mu-codeblock-content">…`. The `<code>` element's user-agent
+ * `font-family: monospace` overrides the inherited block font, so
+ * `--mu-code-font-family` (set on the editor root) only reached `.mu-code-block`
+ * (the `<pre>`) and never the text — changing the code font had no visible
+ * effect. `.mu-code-block .mu-code { font-family: inherit }` re-opens the
+ * cascade. `font-size` was unaffected because the UA `<code>` rule sets no
+ * size, so it kept inheriting.
+ *
+ * Separately, the line-number gutter is positioned by measuring each line's
+ * pixel top (`repositionLineNumberSpans`), which only re-ran on text edits — a
+ * code-font / size / wrap change left the numbers misaligned until `setOptions`
+ * re-measured them.
+ */
+
+// The host boots with `codeBlockLineNumbers: true`, so the gutter renders.
+const CODE_MD = '```js\nconst a = 1\nconst b = 2\nconst c = 3\n```\n';
+
+test.describe('code-block font options', () => {
+    test('codeFontFamily reaches the code text element', async ({ page }) => {
+        await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
+        await page.waitForSelector('.mu-codeblock-content');
+
+        const family = () => page.evaluate(() =>
+            getComputedStyle(document.querySelector('.mu-codeblock-content')!).fontFamily);
+
+        // Default: the bundled DejaVu stack inherited from the block (not the
+        // browser's bare `monospace`).
+        await expect.poll(family).toContain('DejaVu Sans Mono');
+
+        await page.evaluate(() =>
+            window.muya!.setOptions({ codeFontFamily: 'Courier New, monospace' }));
+
+        await expect.poll(family).toContain('Courier New');
+    });
+
+    test('changing code font size re-measures the line-number gutter', async ({ page }) => {
+        await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
+        await page.waitForSelector('.mu-line-numbers-rows span');
+
+        const thirdLineTop = () => page.evaluate(() => {
+            const spans = document.querySelectorAll<HTMLElement>('.mu-line-numbers-rows span');
+            return Number.parseFloat(spans[2]?.style.top || '0');
+        });
+
+        // Wait for the initial line-number rAF to position the spans.
+        await expect.poll(thirdLineTop).toBeGreaterThan(0);
+        const before = await thirdLineTop();
+
+        await page.evaluate(() => window.muya!.setOptions({ codeFontSize: 30 }));
+
+        // The 3rd line number must move down to track the taller lines.
+        await expect.poll(thirdLineTop).toBeGreaterThan(before + 5);
+    });
+});
