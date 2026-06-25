@@ -55,6 +55,25 @@ test.describe('clipboard paste', () => {
         }).toMatch(/\[click here\]\(https:\/\/example\.test\/?\)/);
     });
 
+    test('pasting bare URL HTML link inside text preserves link markup', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+        const url = 'http://10.255.255.1/page';
+
+        await page.evaluate(() => {
+            Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+            window.muya!.setContent('AB');
+            const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+            block.setCursor(1, 1, true);
+        });
+
+        await pasteClipboard(page, `<a href="${url}">${url}</a>`, url, { resetContent: false });
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe(`A[${url}](${url})B\n`);
+    });
+
     test('pasting a basic <table> converts to a GFM table', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
@@ -112,8 +131,10 @@ async function pasteClipboard(
     page: Parameters<Parameters<typeof test>[1]>[0]['page'],
     html: string,
     text: string,
+    options: { resetContent?: boolean } = {},
 ): Promise<void> {
-    await page.evaluate(() => window.muya!.setContent(''));
+    if (options.resetContent !== false)
+        await page.evaluate(() => window.muya!.setContent(''));
 
     await page.evaluate(async ({ html, text }) => {
         await navigator.clipboard.write([

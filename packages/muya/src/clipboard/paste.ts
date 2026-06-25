@@ -540,6 +540,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
 
     const { imageFile, pasteType } = data;
     let { html } = data;
+    // Preserve source provenance before synthetic URL/table HTML promotion.
+    const hasClipboardHtml = html !== '';
     // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
     // and offset calculation sees one newline convention (muyajs strips \r).
     const text = data.text.replace(/\r\n?/g, '\n');
@@ -568,7 +570,9 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
         html = text;
 
     // Remove crap from HTML such as meta data and styles.
-    html = await normalizePastedHTML(html);
+    html = await normalizePastedHTML(html, {
+        preserveBareUrlLinks: hasClipboardHtml,
+    });
     const copyType = getCopyTextType(html, text, pasteType);
 
     const { start, end } = anchorBlock.getCursor()!;
