@@ -333,6 +333,8 @@ export class Muya {
             );
         }
 
+        applyAppearance(this.domNode, options);
+
         if (!forceRender)
             return;
 
@@ -357,17 +359,19 @@ export class Muya {
         }
     }
 
-    /** Update the editor font size / line height. */
+    /** @deprecated Use `setOptions({ fontSize, lineHeight })`. */
     setFont({ fontSize, lineHeight }: { fontSize?: IMuyaOptions['fontSize']; lineHeight?: IMuyaOptions['lineHeight'] }) {
+        const next: Partial<IMuyaOptions> = {};
         if (typeof fontSize === 'number')
-            this.options.fontSize = fontSize;
+            next.fontSize = fontSize;
         if (typeof lineHeight === 'number')
-            this.options.lineHeight = lineHeight;
+            next.lineHeight = lineHeight;
+        this.setOptions(next);
     }
 
-    /** Update the tab size used for indentation. */
+    /** @deprecated Use `setOptions({ tabSize })`. */
     setTabSize(tabSize: IMuyaOptions['tabSize']) {
-        this.options.tabSize = tabSize;
+        this.setOptions({ tabSize });
     }
 
     /** Update list indentation and re-render so it takes effect. */
@@ -1668,6 +1672,28 @@ export class Muya {
     }
 }
 
+// Apply the appearance options (typography + code-block wrap) onto the editor
+// root as `--mu-*` CSS custom properties and a wrap class, so muya renders its
+// own content from options alone — no embedder reaching into muya's DOM. Each
+// value is written only when provided; unset options fall back to the defaults
+// baked into muya's stylesheets, so a standalone embedder that passes nothing
+// renders byte-identically.
+function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
+    const { style } = domNode;
+    if (typeof options.fontSize === 'number')
+        style.setProperty('--mu-font-size', `${options.fontSize}px`);
+    if (typeof options.lineHeight === 'number')
+        style.setProperty('--mu-line-height', `${options.lineHeight}`);
+    if (options.editorFontFamily)
+        style.setProperty('--mu-font-family', options.editorFontFamily);
+    if (typeof options.codeFontSize === 'number')
+        style.setProperty('--mu-code-font-size', `${options.codeFontSize}px`);
+    if (options.codeFontFamily)
+        style.setProperty('--mu-code-font-family', options.codeFontFamily);
+    if ('wrapCodeBlocks' in options)
+        domNode.classList.toggle(CLASS_NAMES.MU_CODE_WRAP, !!options.wrapCodeBlocks);
+}
+
 /**
  * [ensureContainerDiv ensure container element is div]
  */
@@ -1698,6 +1724,8 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
     newContainer.setAttribute('autocomplete', 'off');
     newContainer.setAttribute('spellcheck', spellcheckEnabled ? 'true' : 'false');
     originContainer.replaceWith(newContainer);
+
+    applyAppearance(newContainer, options);
 
     return newContainer;
 }
