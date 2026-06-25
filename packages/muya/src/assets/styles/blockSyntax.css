@@ -222,7 +222,14 @@
    touched. */
 .mu-code-block {
     font-size: var(--mu-code-font-size, 90%);
-    font-family: var(--mu-code-font-family, 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace);
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        Consolas,
+        monospace
+    );
 }
 
 .mu-code-block .mu-code {
