@@ -1,4 +1,8 @@
 .mu-editor {
+    font-size: var(--mu-font-size, 16px);
+    font-family: var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+    line-height: var(--mu-line-height, 1.6);
+
     outline: none;
 }
 
@@ -210,9 +214,29 @@
     border-radius: 3px;
 }
 
+/* Code-block font is driven by the embedder via `--mu-code-*`, falling back to
+   the shared monospace/90% defaults above for standalone use. Scoped to
+   `.mu-code-block` only (placed after the shared rule so it wins at equal
+   specificity) — frontmatter / html / math / diagram containers keep the
+   shared 90% sizing. Inline code (`code.mu-inline-rule`) is intentionally NOT
+   touched. */
+.mu-code-block {
+    font-size: var(--mu-code-font-size, 90%);
+    font-family: var(--mu-code-font-family, 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace);
+}
+
 .mu-code-block .mu-code {
     display: block;
     overflow: auto;
+}
+
+/* `wrapCodeBlocks` option → `.mu-code-wrap` on the root. Overrides the prism
+   `pre.mu-code-block { white-space: pre }` so long lines wrap. */
+.mu-code-wrap .mu-code-block .mu-code {
+    overflow: hidden;
+
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .mu-code-block .mu-code::-webkit-scrollbar {
