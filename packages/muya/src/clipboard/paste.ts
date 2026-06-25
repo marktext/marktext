@@ -319,8 +319,8 @@ function applyParsedPaste(
     const { muya } = clipboard;
     const { anchorBlock, start, end, content } = ctx;
 
-    // An empty / whitespace-only paste is a no-op; the parser would otherwise
-    // emit a lone empty paragraph and churn blocks.
+    // An empty / whitespace-only paste is a no-op while parsing; non-empty
+    // inline whitespace from text/plain is routed through literal insertion.
     if (markdown.trim().length === 0)
         return;
 
@@ -597,10 +597,16 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 || anchorBlock.blockName === 'table.cell.content'
                 || anchorBlock.blockName === 'codeblock.content';
 
-        if (!isLiteralAnchor)
-            applyParsedPaste(clipboard, ctx, markdown);
-        else
+        const isPlainInlineWhitespace
+            = copyType === 'text'
+                && markdown.length > 0
+                && markdown.trim().length === 0
+                && !markdown.includes('\n');
+
+        if (isLiteralAnchor || isPlainInlineWhitespace)
             applyLiteralPaste(clipboard, ctx, markdown);
+        else
+            applyParsedPaste(clipboard, ctx, markdown);
     }
     else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
         // Paste as Plain Text inserts block-level HTML as literal text, not a
