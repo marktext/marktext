@@ -1,4 +1,11 @@
-import type { IBulletListState, IOrderListState, TState } from '../types';
+import type {
+    IBulletListState,
+    IListItemState,
+    IOrderListState,
+    ITaskListItemState,
+    ITaskListState,
+    TState,
+} from '../types';
 import { describe, expect, it } from 'vitest';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
@@ -17,44 +24,147 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
     return new ExportMarkdown({ listIndentation }).generate(states);
 }
 
+function parseMarkdown(md: string): TState[] {
+    return new MarkdownToState({
+        footnote: false,
+        math: false,
+        isGitlabCompatibilityEnabled: false,
+        trimUnnecessaryCodeBlockEmptyLines: false,
+        frontMatter: false,
+    }).generate(md);
+}
+
+function serializeState(states: TState[]): string {
+    return new ExportMarkdown({ listIndentation: 1 }).generate(states);
+}
+
+function firstNestedBulletList(
+    state: IBulletListState | IOrderListState | ITaskListState,
+): IBulletListState {
+    const parent = state.children[0];
+    expect(parent.children.some(child => child.name === 'setext-heading')).toBe(false);
+    const nested = parent.children.find(
+        (child): child is IBulletListState => child.name === 'bullet-list',
+    );
+    expect(nested).toBeDefined();
+    return nested!;
+}
+
+function paragraph(text: string): TState {
+    return { name: 'paragraph', text };
+}
+
+function listItem(children: TState[]): IListItemState {
+    return { name: 'list-item', children };
+}
+
+function taskListItem(children: TState[]): ITaskListItemState {
+    return { name: 'task-list-item', meta: { checked: false }, children };
+}
+
+function emptyListItem(): IListItemState {
+    return listItem([paragraph('')]);
+}
+
+function bulletList(marker: string, children: IListItemState[]): IBulletListState {
+    return { name: 'bullet-list', meta: { marker, loose: false }, children };
+}
+
+function bulletParent(nested: IBulletListState): TState[] {
+    return [{
+        name: 'bullet-list',
+        meta: { marker: '-', loose: false },
+        children: [listItem([paragraph('a'), nested])],
+    }];
+}
+
 describe('stateToMarkdown — nested empty list items', () => {
-    it('does not serialize nested empty bullet items as a setext heading underline', () => {
-        const states: TState[] = [{
-            name: 'bullet-list',
-            meta: { marker: '-', loose: false },
-            children: [{
-                name: 'list-item',
-                children: [
-                    { name: 'paragraph', text: 'a' },
-                    {
-                        name: 'bullet-list',
-                        meta: { marker: '-', loose: false },
-                        children: [
-                            { name: 'list-item', children: [{ name: 'paragraph', text: '' }] },
-                            { name: 'list-item', children: [{ name: 'paragraph', text: '' }] },
-                        ],
-                    },
-                ],
-            }],
-        }];
+    it('uses an alternate nested marker instead of making a tight list loose', () => {
+        const nested = bulletList('-', [emptyListItem(), emptyListItem()]);
+        const out = serializeState(bulletParent(nested));
+        expect(out).toBe('- a\n  * \n  * \n');
+        expect(nested.meta.marker).toBe('-');
 
-        const out = new ExportMarkdown({ listIndentation: 1 }).generate(states);
-        expect(out).toBe('- a\n\n  - \n  - \n');
-
-        const reparsed = new MarkdownToState({
-            footnote: false,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
-            trimUnnecessaryCodeBlockEmptyLines: false,
-            frontMatter: false,
-        }).generate(out);
+        const reparsed = parseMarkdown(out);
         const outer = reparsed[0] as IBulletListState;
         expect(outer.name).toBe('bullet-list');
-        const parent = outer.children[0];
-        expect(parent.children[0]).toEqual({ name: 'paragraph', text: 'a' });
-        expect(parent.children.some(child => child.name === 'setext-heading')).toBe(false);
-        const nested = parent.children.find(child => child.name === 'bullet-list') as IBulletListState;
+        expect(outer.meta.loose).toBe(false);
+        expect(outer.children[0].children[0]).toEqual({ name: 'paragraph', text: 'a' });
+        const reparsedNested = firstNestedBulletList(outer);
+        expect(reparsedNested.meta.marker).toBe('*');
+        expect(reparsedNested.children).toHaveLength(2);
+        expect(serializeState(reparsed)).toBe(out);
+    });
+
+    it('uses the same safe marker under ordered and task-list parents', () => {
+        const orderedStates: TState[] = [{
+            name: 'order-list',
+            meta: { start: 1, loose: false, delimiter: '.' },
+            children: [listItem([paragraph('a'), bulletList('-', [emptyListItem(), emptyListItem()])])],
+        }];
+        const orderedOut = serializeState(orderedStates);
+        expect(orderedOut).toBe('1. a\n   * \n   * \n');
+        const ordered = parseMarkdown(orderedOut)[0] as IOrderListState;
+        expect(ordered.name).toBe('order-list');
+        expect(ordered.meta.loose).toBe(false);
+        expect(firstNestedBulletList(ordered).children).toHaveLength(2);
+
+        const taskStates: TState[] = [{
+            name: 'task-list',
+            meta: { marker: '-', loose: false },
+            children: [taskListItem([paragraph('a'), bulletList('-', [emptyListItem(), emptyListItem()])])],
+        }];
+        const taskOut = serializeState(taskStates);
+        expect(taskOut).toBe('- [ ] a\n  * \n  * \n');
+        const task = parseMarkdown(taskOut)[0] as ITaskListState;
+        expect(task.name).toBe('task-list');
+        expect(task.meta.loose).toBe(false);
+        expect(firstNestedBulletList(task).children).toHaveLength(2);
+    });
+
+    it('handles a first empty nested item followed by a non-empty item', () => {
+        const out = serializeState(bulletParent(bulletList('-', [
+            emptyListItem(),
+            listItem([paragraph('b')]),
+        ])));
+        expect(out).toBe('- a\n  * \n  * b\n');
+        const outer = parseMarkdown(out)[0] as IBulletListState;
+        const nested = firstNestedBulletList(outer);
         expect(nested.children).toHaveLength(2);
+        expect(nested.children[1].children[0]).toEqual({ name: 'paragraph', text: 'b' });
+    });
+
+    it('does not rewrite nested dash lists whose first item is not empty', () => {
+        const out = serializeState(bulletParent(bulletList('-', [
+            listItem([paragraph('b')]),
+            emptyListItem(),
+        ])));
+        expect(out).toBe('- a\n  - b\n  - \n');
+        const outer = parseMarkdown(out)[0] as IBulletListState;
+        const nested = firstNestedBulletList(outer);
+        expect(nested.meta.marker).toBe('-');
+        expect(nested.children).toHaveLength(2);
+        expect(serializeState(parseMarkdown(out))).toBe(out);
+    });
+
+    it('keeps already-loose parent lists on their original dash marker', () => {
+        const states: TState[] = [{
+            name: 'bullet-list',
+            meta: { marker: '-', loose: true },
+            children: [listItem([paragraph('a'), bulletList('-', [emptyListItem(), emptyListItem()])])],
+        }];
+        const out = serializeState(states);
+        expect(out).toBe('- a\n\n  - \n  - \n');
+        const outer = parseMarkdown(out)[0] as IBulletListState;
+        expect(outer.meta.loose).toBe(true);
+        const nested = firstNestedBulletList(outer);
+        expect(nested.meta.marker).toBe('-');
+        expect(nested.children).toHaveLength(2);
+    });
+
+    it('serializes parser-created empty list items as separate lines', () => {
+        const out = serializeState(parseMarkdown('- \n- \n'));
+        expect(out).toBe('- \n- \n');
     });
 });
 

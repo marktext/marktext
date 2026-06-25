@@ -36,6 +36,8 @@ import stringWidth from '../utils/stringWidth';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
+const SETEXT_SAFE_BULLET_MARKER = '*';
+
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
@@ -108,16 +110,19 @@ export default class ExportMarkdown {
             }
 
             if (isAnyListState(state)) {
-                const forceLineBreak = previousState?.name === 'paragraph'
+                const markerOverride = !this._isLooseParentList
+                    && previousState?.name === 'paragraph'
                     && previousState.text.trim() !== ''
-                    && this._startsWithEmptyDashBulletItem(state);
+                    && this._startsWithEmptyDashBulletItem(state)
+                    ? SETEXT_SAFE_BULLET_MARKER
+                    : undefined;
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
                     lastListBullet,
-                    forceLineBreak,
+                    markerOverride,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -207,11 +212,13 @@ export default class ExportMarkdown {
         indent: string,
         listIndent: string,
         lastListBullet: string,
-        forceLineBreak = false,
+        markerOverride?: string,
     ): string {
-        let insertNewLine = forceLineBreak || this._isLooseParentList;
+        let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
-        const { meta } = state;
+        const meta = deepClone(state.meta);
+        if (markerOverride && 'marker' in meta)
+            meta.marker = markerOverride;
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
         const bulletMarkerOrDelimiter
@@ -223,7 +230,7 @@ export default class ExportMarkdown {
         if (insertNewLine)
             this._insertLineBreak(result, indent);
 
-        this._listType.push(deepClone(meta));
+        this._listType.push(meta);
         result.push(this._serializeList(state, indent, listIndent));
         this._listType.pop();
 
@@ -243,7 +250,7 @@ export default class ExportMarkdown {
             return true;
 
         const firstChild = firstItem.children[0];
-        return firstChild.name === 'paragraph' && firstChild.text === '';
+        return firstChild.name === 'paragraph' && firstChild.text.trim() === '';
     }
 
     private _serializeListItemBlock(
@@ -587,6 +594,9 @@ export default class ExportMarkdown {
 
         if (name === 'task-list-item')
             itemMarker += state.meta.checked ? '[x] ' : '[ ] ';
+
+        if (!children.length)
+            return `${indent}${itemMarker}\n`;
 
         result.push(`${indent}${itemMarker}`);
         result.push(
