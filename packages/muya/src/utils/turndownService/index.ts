@@ -82,11 +82,6 @@ export function usePluginsAddRules(turndownService: TurndownService) {
             node: Node,
             options: { bulletListMarker?: string },
         ) {
-            content = content
-                .replace(/^\n+/, '') // remove leading newlines
-                .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
-                .replace(/\n/g, '\n  '); // indent
-
             let prefix = `${options.bulletListMarker} `;
             const parent = node.parentNode;
             if (isHTMLElement(parent) && parent.nodeName === 'OL') {
@@ -94,6 +89,12 @@ export function usePluginsAddRules(turndownService: TurndownService) {
                 const index = Array.prototype.indexOf.call(parent.children, node);
                 prefix = `${start ? Number(start) + index : index + 1}. `;
             }
+
+            const continuationIndent = ' '.repeat(prefix.length);
+            content = content
+                .replace(/^\n+/, '') // remove leading newlines
+                .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
+                .replace(/\n/g, `\n${continuationIndent}`); // indent
 
             return (
                 prefix

@@ -71,6 +71,23 @@ test.describe('clipboard paste', () => {
         expect(md).toMatch(/\|\s*r1c1\s*\|\s*r1c2\s*\|/);
     });
 
+    test('pasting nested HTML lists under ordered parents preserves nesting', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+
+        await pasteClipboard(page, '<ol><li>one<ul><li>two</li></ul></li><li>three</li></ol>', 'one\ntwo\nthree');
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toContain('1. one\n   - two\n2. three');
+
+        await pasteClipboard(page, '<ol><li>one<ol><li>two</li></ol></li><li>three</li></ol>', 'one\ntwo\nthree');
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toContain('1. one\n   1. two\n2. three');
+    });
+
     test('pasting plain text without HTML falls back to text insertion', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);
