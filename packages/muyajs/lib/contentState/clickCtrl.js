@@ -61,8 +61,10 @@ const clickCtrl = (ContentState) => {
         const endOutBlock = this.findOutMostBlock(endBlock)
         hasSameParent = startOutBlock === endOutBlock
       }
-      // show the muya-front-menu only when the cursor in the same paragraph
-      if (target.closest('.ag-front-icon-button') && hasSameParent) {
+      // Open the front menu for the block the icon belongs to. It must also be
+      // available for multi-block selections (e.g. "turn into list" wraps every
+      // selected paragraph), so it is no longer gated by `hasSameParent`.
+      if (target.closest('.ag-front-icon-button')) {
         const currentBlock = this.findOutMostBlock(startBlock)
         const frontIcon = target.closest('.ag-front-icon-button')
         const rect = frontIcon.getBoundingClientRect()
