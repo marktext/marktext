@@ -573,7 +573,7 @@ watch(preferLooseListItem, (value, oldValue) => {
 
 watch(tabSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setTabSize(value)
+    editor.value.setOptions({ tabSize: value })
   }
 })
 
