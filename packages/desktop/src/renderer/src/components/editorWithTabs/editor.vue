@@ -125,7 +125,7 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import { resolveTocHeadingElement } from '@/util/tocNavigation'
-import { addCommonStyle, setEditorWidth, setWrapCodeBlocks } from '@/util/theme'
+import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
@@ -545,13 +545,21 @@ watch(focus, (value) => {
 
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setFont({ fontSize: value })
+    editor.value.setOptions({ fontSize: value })
   }
 })
 
 watch(lineHeight, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setFont({ lineHeight: value })
+    editor.value.setOptions({ lineHeight: value })
+  }
+})
+
+watch(editorFontFamily, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({
+      editorFontFamily: value ? `${value}, ${defaultFontFamily}` : defaultFontFamily
+    })
   }
 })
 
@@ -653,8 +661,8 @@ watch(editorLineWidth, (value, oldValue) => {
 })
 
 watch(wrapCodeBlocks, (value, oldValue) => {
-  if (value !== oldValue) {
-    setWrapCodeBlocks(value)
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ wrapCodeBlocks: value })
   }
 })
 
@@ -707,12 +715,8 @@ watch(autoCheck, (value, oldValue) => {
 })
 
 watch(codeFontSize, (value, oldValue) => {
-  if (value !== oldValue) {
-    addCommonStyle({
-      codeFontSize: value,
-      codeFontFamily: codeFontFamily.value,
-      hideScrollbar: hideScrollbar.value
-    })
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ codeFontSize: value })
   }
 })
 
@@ -723,12 +727,8 @@ watch(codeBlockLineNumbers, (value, oldValue) => {
 })
 
 watch(codeFontFamily, (value, oldValue) => {
-  if (value !== oldValue) {
-    addCommonStyle({
-      codeFontSize: codeFontSize.value,
-      codeFontFamily: value,
-      hideScrollbar: hideScrollbar.value
-    })
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ codeFontFamily: `${value}, ${DEFAULT_CODE_FONT_FAMILY}` })
   }
 })
 
@@ -1916,7 +1916,6 @@ onMounted(() => {
 
   document.addEventListener('keyup', keyup)
 
-  setWrapCodeBlocks(wrapCodeBlocks.value)
   setEditorWidth(editorLineWidth.value)
 })
 
