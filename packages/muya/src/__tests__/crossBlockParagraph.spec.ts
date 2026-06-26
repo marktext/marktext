@@ -125,7 +125,7 @@ describe('cross-block paragraph wrapping', () => {
     });
 
     it('preserves a multi-block selection across wrap then unwrap (paragraph + list)', async () => {
-        const muya = boot('alpha\n\n- bravo\n'); // a paragraph and an unordered list
+        const muya = boot('alpha\n\n- bravo\n');
         selectFirstTwoBlocks(muya);
         muya.updateParagraph('ol-order'); // wrap both into an ordered list
         await vi.waitFor(() => expect(muya.getState()[0].name).toBe('order-list'));

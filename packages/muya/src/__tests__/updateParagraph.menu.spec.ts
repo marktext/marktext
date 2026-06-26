@@ -148,9 +148,9 @@ describe('updateParagraph same-block menu model', () => {
             expect(s.length).toBe(3);
             expect(s[0].name).toBe('atx-heading');
             expect((s[0] as { text: string }).text).toBe('# Title'); // heading kept
-            expect(s[1].name).toBe('thematic-break'); // rule below it
+            expect(s[1].name).toBe('thematic-break');
             expect(s[2].name).toBe('paragraph');
-            expect((s[2] as { text: string }).text).toBe(''); // trailing empty paragraph
+            expect((s[2] as { text: string }).text).toBe('');
         });
     });
 

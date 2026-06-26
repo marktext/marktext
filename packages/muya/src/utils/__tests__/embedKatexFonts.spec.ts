@@ -18,7 +18,6 @@ describe('embedKatexFonts', () => {
     it('drops the now-broken relative font references and woff/ttf fallbacks', () => {
         const out = embedKatexFonts(katexCss);
 
-        // No `url(fonts/…)` left, and no woff/ttf alternatives in any src.
         expect(out).not.toMatch(/url\(\s*fonts\//);
         expect(out).not.toContain('format("woff")');
         expect(out).not.toContain('format("truetype")');

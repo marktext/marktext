@@ -33,7 +33,6 @@ test.describe('keyboard shortcuts', () => {
         await page.evaluate(() => window.muya!.setContent('struck text'));
         await tripleClickFirstParagraph(page);
         await page.keyboard.press(`${metaKey()}+d`);
-        // The `del` renderer mounts a live `<del>` element inside the paragraph.
         const del = page.locator(`${editor.paragraph} del`).first();
         await expect(del).toBeVisible();
         await expect(del).toContainText('struck text');

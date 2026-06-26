@@ -309,6 +309,65 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
     });
 });
 
+// #4644: an empty list item with no content descendant (e.g. left behind after
+// its only paragraph is removed during editing) sitting between two items used
+// to make previous/nextContentInContext return null, so ArrowUp/ArrowDown could
+// not cross it and the caret got stuck. Navigation must skip the empty container
+// and reach the content beyond it. `*  ` (a bullet marker with no text) parses to
+// exactly such a childless list item.
+function allContentTexts(muya: Muya): string[] {
+    const texts: string[] = [];
+    const visit = (block: {
+        text?: string;
+        constructor: { blockName?: string };
+        children?: { forEach: (cb: (b: unknown) => void) => void };
+    }) => {
+        if (block.constructor.blockName?.endsWith('.content'))
+            texts.push(block.text ?? '');
+        block.children?.forEach(b => visit(b as typeof block));
+    };
+    visit(muya.editor.scrollPage as unknown as Parameters<typeof visit>[0]);
+    return texts;
+}
+
+describe('content arrowHandler — skips empty sibling containers (#4644)', () => {
+    it('arrowUp at offset 0 skips an empty list item and lands at the END of the item above', async () => {
+        const muya = bootMuya('* A\n*  \n* B\n');
+        // Precondition: the middle item holds NO content block, so a passing
+        // caret assertion below can only mean the empty item was skipped.
+        expect(allContentTexts(muya)).toEqual(['A', 'B']);
+
+        const b = contentByText(muya, 'B');
+        const event = arrowAt(muya, b, 'ArrowUp', 0);
+        await flush();
+
+        const a = contentByText(muya, 'A');
+        const cursor = a.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe('A'.length);
+        expect(cursor!.end.offset).toBe('A'.length);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+    });
+
+    it('arrowDown at end of an item skips an empty list item and lands at offset 0 of the item below', async () => {
+        const muya = bootMuya('* A\n*  \n* B\n');
+        expect(allContentTexts(muya)).toEqual(['A', 'B']);
+
+        const a = contentByText(muya, 'A');
+        const event = arrowAt(muya, a, 'ArrowDown', 'A'.length);
+        await flush();
+
+        const b = contentByText(muya, 'B');
+        const cursor = b.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe(0);
+        expect(cursor!.end.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+    });
+});
+
 // marktext #3568: in RTL mode the physical Left/Right arrows are visually
 // mirrored, so the cross-block boundary keys must swap. Offset 0 is the visual
 // RIGHT end of an RTL line (ArrowRight should go to the previous block); offset

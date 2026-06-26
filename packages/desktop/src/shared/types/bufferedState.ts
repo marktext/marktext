@@ -1,6 +1,4 @@
 // Buffered editor state (persisted across window close/reopen).
-//
-// Refined when Commit 7 rewrites the editor + bufferedState stores.
 
 import type { IFileState } from './files'
 

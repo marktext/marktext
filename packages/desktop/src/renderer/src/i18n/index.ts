@@ -4,7 +4,6 @@ import bus from '../bus'
 // Directly import translation files
 import enTranslations from '../../../../static/locales/en.json'
 
-// Create the Vue i18n instance.
 // vue-i18n's options type intersection between Composition + Legacy modes is
 // notoriously difficult to satisfy with mixed shapes; we cast the options once
 // at the call site rather than spreading `any` further.
@@ -61,7 +60,6 @@ export const t = (key: string, ...args: unknown[]): string => {
 // don't fire duplicate IPCs for the same locale.
 const inflightLoads = new Map<string, Promise<Record<string, unknown> | undefined>>()
 
-// Export language setter function
 export const setLanguage = async(locale: string): Promise<void> => {
   if (!locale) return
   const globalI18n = i18n.global

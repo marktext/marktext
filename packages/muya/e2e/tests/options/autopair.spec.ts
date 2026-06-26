@@ -55,6 +55,57 @@ async function getFirstBlockText(page: Page): Promise<string> {
     });
 }
 
+async function setContentAndSelect(
+    page: Page,
+    initial: string,
+    start: number,
+    end: number,
+): Promise<void> {
+    await page.evaluate(({ initial, start, end }) => {
+        window.muya!.setContent(initial);
+        window.muya!.focus();
+        window.muya!.domNode.focus();
+        const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+        block.setCursor(start, end, true);
+    }, { initial, start, end });
+
+    const selectedText = initial.slice(start, end);
+    await expect.poll(() => page.evaluate(() => {
+        const live = window.muya!.editor.selection.getSelection();
+        const native = window.getSelection();
+        return {
+            anchorOffset: live?.anchor.offset ?? null,
+            focusOffset: live?.focus.offset ?? null,
+            selectedText: native?.toString() ?? '',
+        };
+    })).toEqual({
+        anchorOffset: start,
+        focusOffset: end,
+        selectedText,
+    });
+}
+
+async function expectSelectedText(
+    page: Page,
+    selectedText: string,
+    start: number,
+    end: number,
+): Promise<void> {
+    await expect.poll(() => page.evaluate(() => {
+        const live = window.muya!.editor.selection.getSelection();
+        const native = window.getSelection();
+        return {
+            anchorOffset: live?.anchor.offset ?? null,
+            focusOffset: live?.focus.offset ?? null,
+            selectedText: native?.toString() ?? '',
+        };
+    })).toEqual({
+        anchorOffset: start,
+        focusOffset: end,
+        selectedText,
+    });
+}
+
 test.describe('options / auto-pair matrix', () => {
     test('autoPairBracket: on → `(` produces `()`', async ({ page }) => {
         await rebuildAndFocus(page, {
@@ -148,5 +199,38 @@ test.describe('options / auto-pair matrix', () => {
         });
         await page.keyboard.type('"');
         await expect.poll(() => getFirstBlockText(page)).toBe('"');
+    });
+
+    test('typing an auto-pair character over a selection wraps the selected text', async ({ page }) => {
+        await rebuildAndFocus(page, {
+            autoPairBracket: true,
+            autoPairMarkdownSyntax: true,
+            autoPairQuote: true,
+        });
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('(');
+        await expect.poll(() => getFirstBlockText(page)).toBe('(hello) world');
+        await expectSelectedText(page, 'hello', 1, 6);
+
+        await setContentAndSelect(page, 'hello world', 0, 11);
+        await page.keyboard.type('"');
+        await expect.poll(() => getFirstBlockText(page)).toBe('"hello world"');
+        await expectSelectedText(page, 'hello world', 1, 12);
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('*');
+        await expect.poll(() => getFirstBlockText(page)).toBe('*hello* world');
+        await expectSelectedText(page, 'hello', 1, 6);
+
+        await setContentAndSelect(page, 'hello world', 0, 5);
+        await page.keyboard.type('`');
+        await expect.poll(() => getFirstBlockText(page)).toBe('`hello` world');
+        await expectSelectedText(page, 'hello', 1, 6);
+
+        await setContentAndSelect(page, '中文文本', 0, 4);
+        await page.keyboard.type('"');
+        await expect.poll(() => getFirstBlockText(page)).toBe('"中文文本"');
+        await expectSelectedText(page, '中文文本', 1, 5);
     });
 });

@@ -5,7 +5,7 @@ import type Clipboard from './index';
 import { CLASS_NAMES } from '../config';
 import { SelectionType } from '../selection/types';
 import { getUniqueId } from '../utils';
-import { getImageInfo } from '../utils/image';
+import { encodeImageSrc, getImageInfo } from '../utils/image';
 import { readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
 
 /**
@@ -15,7 +15,7 @@ import { readFileAsDataURL, resolveClipboardImagePath } from '../utils/paste';
  * Inline images in muya are plain markdown text (`![](src)`) on a content
  * block; rendering turns the token into an image. We replace any
  * collapsed/expanded range and place the cursor after it. The src is
- * escaped the same way as {@link Format.replaceImage} so spaces and `#`
+ * escaped via {@link encodeImageSrc} so spaces, `#`, and parentheses
  * survive in the path.
  */
 function insertImageText(anchorBlock: Content, src: string, alt = ''): string {
@@ -25,9 +25,7 @@ function insertImageText(anchorBlock: Content, src: string, alt = ''): string {
 
     const { start, end } = cursor;
     const { text: content } = anchorBlock;
-    const escapedSrc = src
-        .replace(/ /g, encodeURI(' '))
-        .replace(/#/g, encodeURIComponent('#'));
+    const escapedSrc = encodeImageSrc(src);
     const imageText = `![${alt}](${escapedSrc})`;
 
     anchorBlock.text
@@ -55,9 +53,7 @@ function replacePlaceholderImage(
     if (index === -1)
         return;
 
-    const escapedSrc = src
-        .replace(/ /g, encodeURI(' '))
-        .replace(/#/g, encodeURIComponent('#'));
+    const escapedSrc = encodeImageSrc(src);
     const imageText = `![](${escapedSrc})`;
 
     anchorBlock.text
@@ -187,9 +183,7 @@ function spliceImageText(
     src: string,
     alt = '',
 ): string {
-    const escapedSrc = src
-        .replace(/ /g, encodeURI(' '))
-        .replace(/#/g, encodeURIComponent('#'));
+    const escapedSrc = encodeImageSrc(src);
     const imageText = `![${alt}](${escapedSrc})`;
 
     block.text

@@ -113,6 +113,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_EMPTY',
     'MU_FENCE_CODE',
     'MU_FOCUS_MODE',
+    'MU_CODE_WRAP',
     'MU_FRONT_MATTER',
     'MU_FRONT_ICON',
     'MU_GRAY',
@@ -320,6 +321,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     orderListDelimiter: '.',
     tabSize: 4,
     codeBlockLineNumbers: false,
+    wrapCodeBlocks: false,
     // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
     listIndentation: 1,
     frontmatterType: '-',

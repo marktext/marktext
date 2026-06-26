@@ -42,7 +42,6 @@ test.describe('Crash: setStart Range offset', () => {
     if (app) await app.close()
   })
 
-  // Recipe from #2526.
   test('Issue #2526: typing escaped <pre>...</pre> then re-selecting does not crash', async() => {
     // Type literal `\<pre\>some text\</pre\>` as the user described.
     await typeIntoEditor(page, '\\<pre\\>some text\\</pre\\>')
@@ -64,7 +63,6 @@ test.describe('Crash: setStart Range offset', () => {
     await expectNoRendererErrors(app)
   })
 
-  // Recipe from #3737 — backspace at the start of a code block.
   test('Issue #3737: backspace at start of a code block does not crash', async() => {
     // Build a code block via the markdown source-mode round-trip.
     // (Code blocks are rendered as CodeMirror instances inside Muya; the
