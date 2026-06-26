@@ -1044,12 +1044,20 @@ const replaceMisspelling = (payload: unknown) => {
 }
 
 const handleUndo = () => {
+  if (sourceCode.value) {
+    return
+  }
+
   if (editor.value) {
     editor.value.undo()
   }
 }
 
 const handleRedo = () => {
+  if (sourceCode.value) {
+    return
+  }
+
   if (editor.value) {
     editor.value.redo()
   }
