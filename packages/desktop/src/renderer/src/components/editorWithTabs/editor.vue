@@ -260,6 +260,9 @@ const { projectTree } = storeToRefs(projectStore)
 
 // Component state
 const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
+const resolveEditorFont = (family: string): string =>
+  family ? `${family}, ${defaultFontFamily}` : defaultFontFamily
+const resolveCodeFont = (family: string): string => `${family}, ${DEFAULT_CODE_FONT_FAMILY}`
 const selectionChange = ref<unknown>(null)
 const editor = ref<MuyaInstance>(null)
 const isShowClose = ref(false)
@@ -557,9 +560,7 @@ watch(lineHeight, (value, oldValue) => {
 
 watch(editorFontFamily, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({
-      editorFontFamily: value ? `${value}, ${defaultFontFamily}` : defaultFontFamily
-    })
+    editor.value.setOptions({ editorFontFamily: resolveEditorFont(value) })
   }
 })
 
@@ -717,6 +718,12 @@ watch(autoCheck, (value, oldValue) => {
 watch(codeFontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ codeFontSize: value })
+    // Source-mode CodeMirror is a separate surface muya doesn't own.
+    addCommonStyle({
+      codeFontSize: value,
+      codeFontFamily: codeFontFamily.value,
+      hideScrollbar: hideScrollbar.value
+    })
   }
 })
 
@@ -728,7 +735,13 @@ watch(codeBlockLineNumbers, (value, oldValue) => {
 
 watch(codeFontFamily, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ codeFontFamily: `${value}, ${DEFAULT_CODE_FONT_FAMILY}` })
+    editor.value.setOptions({ codeFontFamily: resolveCodeFont(value) })
+    // Source-mode CodeMirror is a separate surface muya doesn't own.
+    addCommonStyle({
+      codeFontSize: codeFontSize.value,
+      codeFontFamily: value,
+      hideScrollbar: hideScrollbar.value
+    })
   }
 })
 
@@ -1688,11 +1701,9 @@ onMounted(() => {
     tabSize: tabSize.value,
     fontSize: fontSize.value,
     lineHeight: lineHeight.value,
-    editorFontFamily: editorFontFamily.value
-      ? `${editorFontFamily.value}, ${defaultFontFamily}`
-      : defaultFontFamily,
+    editorFontFamily: resolveEditorFont(editorFontFamily.value),
     codeFontSize: codeFontSize.value,
-    codeFontFamily: `${codeFontFamily.value}, ${DEFAULT_CODE_FONT_FAMILY}`,
+    codeFontFamily: resolveCodeFont(codeFontFamily.value),
     wrapCodeBlocks: wrapCodeBlocks.value,
     codeBlockLineNumbers: codeBlockLineNumbers.value,
     listIndentation: listIndentation.value,
