@@ -729,6 +729,8 @@ figure.mu-diagram-block .mu-diagram-preview {
 figure.mu-math-block .mu-math-preview .katex-display {
     margin: 0;
     padding: 1em 0;
+
+    overflow: auto hidden;
 }
 
 /* to prevent plantuml img overflow */
