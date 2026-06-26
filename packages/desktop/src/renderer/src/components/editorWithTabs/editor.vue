@@ -2028,6 +2028,11 @@ onBeforeUnmount(() => {
   top: 0;
   left: 0;
   overflow: hidden;
+  /* `z-index: -1` only hides the editor visually; `document.elementsFromPoint`
+     ignores stacking, so muya's mousemove-driven float tools (front button/menu,
+     table drag/column toolbars, preview toolbar) still re-trigger over the source
+     editor. Drop the subtree from hit-testing too so they cannot (#4731). */
+  pointer-events: none;
 }
 
 .editor-component {
