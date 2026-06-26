@@ -33,6 +33,22 @@ const checkSequence = (buffer: Buffer, sequence: number[]): boolean => {
   return sequence.every((v, i) => v === buffer[i])
 }
 
+// `ced` occasionally misdetects a valid UTF-8 file as a legacy double-byte
+// encoding (notably GBK), mojibaking multi-byte text — e.g. Greek µ/κ/α become
+// CJK 碌/魏/伪 (#3151). A NUL byte signals binary / BOM-less UTF-16, not a UTF-8
+// text file.
+const isLikelyUtf8 = (buffer: Buffer): boolean => {
+  if (buffer.includes(0)) {
+    return false
+  }
+  try {
+    new TextDecoder('utf-8', { fatal: true }).decode(buffer)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /**
  * Guess the encoding from the buffer.
  */
@@ -49,6 +65,11 @@ export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encod
 
   // Auto guess encoding, otherwise use UTF-8.
   if (autoGuessEncoding) {
+    // A file that is already valid UTF-8 must be decoded as UTF-8, regardless
+    // of what `ced` heuristically guesses (#3151).
+    if (isLikelyUtf8(buffer)) {
+      return { encoding: 'utf8', isBom }
+    }
     encoding = ced(buffer)
     if (CED_ICONV_ENCODINGS[encoding]) {
       encoding = CED_ICONV_ENCODINGS[encoding]
