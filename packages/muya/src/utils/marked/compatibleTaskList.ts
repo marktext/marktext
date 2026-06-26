@@ -6,8 +6,8 @@ function isListToken(token: Token | ListToken): token is ListToken {
 }
 
 const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
-const EMPTY_TASK_REG = /^ {0,3}[*+-]\s+\[([ x])\]\s*$/i;
-const TASK_MARKER_PREFIX_REG = /^ {0,3}[*+-]\s+\[([ x])\]\s+/i;
+const EMPTY_TASK_REG = /^ {0,3}[*+-][ \t]+\[([ x])\][ \t]*$/i;
+const TASK_MARKER_PREFIX_REG = /^ {0,3}[*+-][ \t]+\[([ x])\][ \t]+/i;
 
 function stripTaskTextPrefix(value: string, marker: string) {
     if (!value.startsWith(marker))
