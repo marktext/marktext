@@ -105,7 +105,6 @@ describe('selection.selectAll table escalation', () => {
         const { selection } = muya.editor;
         const tableSelection = selection.table;
 
-        // Caret inside the (0,0) cell content.
         cellContent(table, 0, 0).setCursor(0, 0, false);
 
         selection.selectAll();

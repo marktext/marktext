@@ -121,6 +121,52 @@ describe('forward Delete at end-of-paragraph — merge with next block', () => {
     });
 });
 
+// #1845 — forward-Delete at the end of an empty list item must pull the next
+// item's WHOLE content up, not just its paragraph. The next item held a nested
+// sublist (`- D`) as a sibling of its paragraph; merging only the paragraph and
+// removing it stranded that sublist as the item's sole child, which serializes
+// with a doubled bullet (`* - D`).
+describe('forward Delete merging a list item that owns a nested sublist (#1845)', () => {
+    function emptyFirstItemThenDelete(muya: Muya): void {
+        const first = contentByText(muya, 'a');
+        first.text = '';
+        deleteAtEnd(muya, first);
+    }
+
+    it('does not strand the nested sublist with a doubled bullet', async () => {
+        const muya = bootMuya('* a\n\n* C\n  \n  - D\n');
+
+        emptyFirstItemThenDelete(muya);
+
+        await flush();
+        const markdown = muya.getMarkdown();
+        expect(markdown).not.toMatch(/\*\s+-\s+D/);
+        expect(markdown).toContain('  - D');
+    });
+
+    it('moves the merged text and sublist into the first item and drops the empty one', async () => {
+        const muya = bootMuya('* a\n\n* C\n  \n  - D\n');
+
+        emptyFirstItemThenDelete(muya);
+
+        await flush();
+        const state = muya.getState();
+        expect(state.length).toBe(1);
+        const list = state[0] as { name: string; children: unknown[] };
+        expect(list.name).toBe('bullet-list');
+        expect(list.children.length).toBe(1);
+        const item = list.children[0] as { name: string; children: unknown[] };
+        expect(item.name).toBe('list-item');
+        expect(item.children[0]).toMatchObject({ name: 'paragraph', text: 'C' });
+        expect(item.children[1]).toMatchObject({ name: 'bullet-list' });
+        const sublist = item.children[1] as { children: Array<{ children: unknown[] }> };
+        expect(sublist.children[0].children[0]).toMatchObject({
+            name: 'paragraph',
+            text: 'D',
+        });
+    });
+});
+
 describe('forward Delete at end of a code block — no merge', () => {
     it('leaves the state unchanged (codeBlockContent has no merging deleteHandler)', async () => {
         const muya = bootMuya('```js\nx\n```\n');

@@ -102,6 +102,24 @@ function formatContent(
     return result;
 }
 
+function isTaskListCheckbox(node: unknown) {
+    return (
+        isHTMLInputElement(node)
+        && node.type === 'checkbox'
+        && (node.parentNode?.nodeName === 'P' || node.parentNode?.nodeName === 'LI')
+    );
+}
+
+function normalizeTaskMarkerSpacing(content: string) {
+    return content.replace(/^(\[[ x]\])[ \t\u00A0]+/i, (_, marker: string) => `${marker.toLowerCase()} `);
+}
+
+function containsOwnTaskListCheckbox(node: Node) {
+    return isHTMLElement(node)
+        && Array.from(node.querySelectorAll('input[type="checkbox"]'))
+            .some(input => isTaskListCheckbox(input) && input.closest('li') === node);
+}
+
 export function usePluginsAddRules(turndownService: TurndownService) {
     // Use the gfm plugin
     const { strikethrough, tables } = turndownPluginGfm;
@@ -183,11 +201,7 @@ export function usePluginsAddRules(turndownService: TurndownService) {
 
     turndownService.addRule('taskListItems', {
         filter(node) {
-            return (
-                isHTMLInputElement(node)
-                && node.type === 'checkbox'
-                && node.parentNode?.nodeName === 'P'
-            );
+            return isTaskListCheckbox(node);
         },
         replacement(_content, node) {
             return `${isHTMLInputElement(node) && node.checked ? '[x]' : '[ ]'} `;
@@ -219,6 +233,8 @@ export function usePluginsAddRules(turndownService: TurndownService) {
                 .replace(/^\n+/, '') // remove leading newlines
                 .replace(/\n+$/, '\n') // replace trailing newlines with just a single one
                 .replace(/\n/g, '\n  '); // indent
+            if (containsOwnTaskListCheckbox(node))
+                content = normalizeTaskMarkerSpacing(content);
 
             let prefix = `${options.bulletListMarker} `;
             const parent = node.parentNode;

@@ -31,6 +31,7 @@ import {
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
+import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -333,6 +334,8 @@ export class Muya {
             );
         }
 
+        applyAppearance(this.domNode, options);
+
         if (!forceRender)
             return;
 
@@ -355,19 +358,6 @@ export class Muya {
             if (cursorBlock && cursorBlock.isContent())
                 cursorBlock.setCursor(begin, end, true);
         }
-    }
-
-    /** Update the editor font size / line height. */
-    setFont({ fontSize, lineHeight }: { fontSize?: IMuyaOptions['fontSize']; lineHeight?: IMuyaOptions['lineHeight'] }) {
-        if (typeof fontSize === 'number')
-            this.options.fontSize = fontSize;
-        if (typeof lineHeight === 'number')
-            this.options.lineHeight = lineHeight;
-    }
-
-    /** Update the tab size used for indentation. */
-    setTabSize(tabSize: IMuyaOptions['tabSize']) {
-        this.options.tabSize = tabSize;
     }
 
     /** Update list indentation and re-render so it takes effect. */
@@ -1005,7 +995,7 @@ export class Muya {
         else if (DATA_URL_REG.test(src))
             imgUrl = src;
         else
-            imgUrl = src.replace(/ /g, encodeURI(' ')).replace(/#/g, encodeURIComponent('#'));
+            imgUrl = encodeImageSrc(src);
 
         const { start, end } = cursor;
         const { text } = block;
@@ -1455,6 +1445,11 @@ export class Muya {
      * blocks it contains, preserving every item.
      */
     private _unwrapToParagraphs(block: Parent) {
+        // A detached block has no parent to reparent its children into (#4686).
+        const parent = block.parent;
+        if (!parent)
+            return;
+
         const state = block.getState();
         let inner: TState[] = [];
         if (isAnyListState(state))
@@ -1466,7 +1461,6 @@ export class Muya {
             return;
 
         const cursorText = (this.editor.activeContentBlock ?? this.editor.selection.anchorBlock)?.text;
-        const parent = block.parent!;
         let ref: Parent = block;
         let firstNew: Parent | null = null;
         for (const childState of inner) {
@@ -1664,6 +1658,23 @@ export class Muya {
     }
 }
 
+// Write provided appearance options as `--mu-*` vars / a wrap class on the root.
+function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
+    const { style } = domNode;
+    if (typeof options.fontSize === 'number')
+        style.setProperty('--mu-font-size', `${options.fontSize}px`);
+    if (typeof options.lineHeight === 'number')
+        style.setProperty('--mu-line-height', `${options.lineHeight}`);
+    if (options.editorFontFamily)
+        style.setProperty('--mu-font-family', options.editorFontFamily);
+    if (typeof options.codeFontSize === 'number')
+        style.setProperty('--mu-code-font-size', `${options.codeFontSize}px`);
+    if (options.codeFontFamily)
+        style.setProperty('--mu-code-font-family', options.codeFontFamily);
+    if ('wrapCodeBlocks' in options)
+        domNode.classList.toggle(CLASS_NAMES.MU_CODE_WRAP, !!options.wrapCodeBlocks);
+}
+
 /**
  * [ensureContainerDiv ensure container element is div]
  */
@@ -1694,6 +1705,8 @@ function getContainer(originContainer: HTMLElement, options: IMuyaOptions) {
     newContainer.setAttribute('autocomplete', 'off');
     newContainer.setAttribute('spellcheck', spellcheckEnabled ? 'true' : 'false');
     originContainer.replaceWith(newContainer);
+
+    applyAppearance(newContainer, options);
 
     return newContainer;
 }

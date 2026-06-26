@@ -1,4 +1,8 @@
 .mu-editor {
+    font-size: var(--mu-font-size, 16px);
+    font-family: var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+    line-height: var(--mu-line-height, 1.6);
+
     outline: none;
 }
 
@@ -210,9 +214,33 @@
     border-radius: 3px;
 }
 
+/* Code-block font via `--mu-code-*`; code blocks only (inline code untouched). */
+.mu-code-block {
+    font-size: var(--mu-code-font-size, 90%);
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        Consolas,
+        monospace
+    );
+}
+
 .mu-code-block .mu-code {
     display: block;
     overflow: auto;
+
+    /* Override the <code> UA monospace so the block's code font reaches the text. */
+    font-family: inherit;
+}
+
+/* wrapCodeBlocks → `.mu-code-wrap`; wraps long lines (overrides prism's `pre`). */
+.mu-code-wrap .mu-code-block .mu-code {
+    overflow: hidden;
+
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .mu-code-block .mu-code::-webkit-scrollbar {

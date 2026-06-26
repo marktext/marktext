@@ -83,7 +83,6 @@ test.describe('mermaid diagram', () => {
         await expect(error).toBeVisible({ timeout: 15_000 });
         await expect(error).toContainText('Invalid Diagram Code');
 
-        // No SVG should have mounted for a failed parse.
         await expect(page.locator(`${editor.diagramPreview} svg`)).toHaveCount(0);
 
         // The editor stays alive (no thrown crash): the source still round-trips.

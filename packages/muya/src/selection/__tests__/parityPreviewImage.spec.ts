@@ -94,8 +94,8 @@ describe('parity PG10: Space previews a selected image', () => {
                 }),
             );
 
-            // Desired: the engine emits preview-image so the host can open the
-            // full-screen viewer. Today nothing fires (Space inserts a space).
+            // The engine emits preview-image so the host can open the
+            // full-screen viewer.
             expect(handler).toHaveBeenCalledTimes(1);
         },
     );

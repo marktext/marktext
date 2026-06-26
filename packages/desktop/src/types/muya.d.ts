@@ -5,9 +5,6 @@
  * Delete this file the day upstream lands; see packages/website/content/docs/dev/TYPESCRIPT.md.
  */
 
-// Ambient bridge to the JavaScript muya/ tree. Delete this file the day
-// upstream TS muya (https://github.com/marktext/muya) lands.
-//
 // We declare every muya path that's imported from outside src/muya/. This
 // cuts the dependency graph at the boundary: TypeScript no longer follows
 // imports into the legacy JS source, so e.g. inferred types from dompurify

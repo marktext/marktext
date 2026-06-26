@@ -105,7 +105,7 @@ describe('parity PG13: insertParagraph anchors to the immediate block in nested 
 
             // Desired: the new paragraph is an INNER sibling — the top-level
             // block count is unchanged (still just the one bullet-list) and the
-            // paragraph is NOT a root-level sibling. Today it lands at root.
+            // paragraph is NOT a root-level sibling.
             expect(muya.getState().length).toBe(1);
             expect(topLevelHasParagraph(muya, 'INNERSIBLING')).toBe(false);
         },
@@ -124,8 +124,7 @@ describe('parity PG13: insertParagraph anchors to the immediate block in nested 
             });
 
             // Desired: still a single top-level block (the blockquote) with the
-            // new paragraph nested inside it. Today it lands after the quote at
-            // document root.
+            // new paragraph nested inside it.
             expect(muya.getState().length).toBe(1);
             expect(muya.getState()[0].name).toBe('block-quote');
             expect(topLevelHasParagraph(muya, 'QUOTESIBLING')).toBe(false);

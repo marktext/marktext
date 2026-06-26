@@ -126,7 +126,6 @@ test.describe('options / disableHtml', () => {
     });
 
     test('disableHtml: true — inline <b> raw-html renders the same as with disableHtml: false', async ({ page }) => {
-        // disableHtml: true
         await page.evaluate(() => {
             window.__e2e!.rebuildMuya({ disableHtml: true });
             window.muya!.setContent([{

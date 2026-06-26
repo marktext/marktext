@@ -14,6 +14,21 @@
     vertical-align: middle;
 }
 
+/* Hide syntax markers as zero-size `inline` text, not `inline-block` — atomic
+   boxes create a wrap opportunity that breaks punctuation after a link onto its
+   own line (#2258 / #3025). `nowrap` stops the hidden URL's `/`,`.` from
+   wrapping. Scoped to `.mu-remove` so math/ruby/emoji previews keep inline-block. */
+.mu-hide.mu-remove,
+.mu-hide.mu-remove .mu-highlight,
+.mu-hide.mu-remove .mu-selection {
+    display: inline;
+    width: auto;
+    height: auto;
+
+    font-size: 0;
+    white-space: nowrap;
+}
+
 /* link and auto-link and reference link */
 a.mu-inline-rule,
 span.mu-inline-rule.mu-link {

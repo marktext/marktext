@@ -52,7 +52,6 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         await vi.waitFor(() => {
             const sel = muya.editor.selection.getSelection();
             expect(sel).not.toBeNull();
-            // The caret lands inside the "third para here" block.
             expect(sel!.anchor.block.text).toBe('third para here');
             expect(sel!.anchor.offset).toBe(6);
         });
