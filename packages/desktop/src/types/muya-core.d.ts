@@ -84,7 +84,6 @@ declare module '@muyajs/core' {
 
   export function renderToStaticHTML(...args: any[]): any
 
-  // Utils.
   export function escapeHTML(str: string): string
   export function unescapeHTML(str: string): string
   export function sanitize(html: string, config?: any, isInline?: boolean): string
