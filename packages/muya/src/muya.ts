@@ -359,21 +359,6 @@ export class Muya {
         }
     }
 
-    /** @deprecated Use `setOptions({ fontSize, lineHeight })`. */
-    setFont({ fontSize, lineHeight }: { fontSize?: IMuyaOptions['fontSize']; lineHeight?: IMuyaOptions['lineHeight'] }) {
-        const next: Partial<IMuyaOptions> = {};
-        if (typeof fontSize === 'number')
-            next.fontSize = fontSize;
-        if (typeof lineHeight === 'number')
-            next.lineHeight = lineHeight;
-        this.setOptions(next);
-    }
-
-    /** @deprecated Use `setOptions({ tabSize })`. */
-    setTabSize(tabSize: IMuyaOptions['tabSize']) {
-        this.setOptions({ tabSize });
-    }
-
     /** Update list indentation and re-render so it takes effect. */
     setListIndentation(listIndentation: IMuyaOptions['listIndentation']) {
         this.setOptions({ listIndentation }, true);

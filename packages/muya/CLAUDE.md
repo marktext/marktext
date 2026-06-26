@@ -93,8 +93,7 @@ Inline code (`code.mu-inline-rule`) is deliberately NOT driven by these — it
 keeps its relative `0.8em` / mono sizing. Editor column width
 (`--editor-area-width`) and the colour palette (`--editor-color-*`) are
 separate, pre-existing contracts owned by the host. All runtime changes go
-through `muya.setOptions({...})`; `setFont`/`setTabSize` are deprecated thin
-wrappers around it.
+through `muya.setOptions({...})`.
 
 ## Conventions enforced by tooling
 

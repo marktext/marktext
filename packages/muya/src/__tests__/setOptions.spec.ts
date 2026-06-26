@@ -14,7 +14,7 @@ vi.mock('../utils/diagram', () => ({
 }));
 
 // Coverage for the runtime option API added for the muyajs -> @muyajs/core
-// migration: setOptions / setFont / setTabSize / setListIndentation. Every
+// migration: setOptions / setListIndentation. Every
 // desktop Preferences toggle depends on options updating live. setOptions with
 // forceRender re-renders from current state (so render-affecting options take
 // effect) WITHOUT clearing undo history, and preserves the document content.
@@ -92,15 +92,6 @@ describe('muya runtime options', () => {
         expect(muya.domNode.getAttribute('spellcheck')).toBe('true');
         muya.setOptions({ spellcheckEnabled: false });
         expect(muya.domNode.getAttribute('spellcheck')).toBe('false');
-    });
-
-    it('setFont and setTabSize update options', () => {
-        const muya = bootMuya('x\n');
-        muya.setFont({ fontSize: 18, lineHeight: 1.8 });
-        expect(muya.options.fontSize).toBe(18);
-        expect(muya.options.lineHeight).toBe(1.8);
-        muya.setTabSize(2);
-        expect(muya.options.tabSize).toBe(2);
     });
 
     it('setListIndentation updates options and preserves content', () => {
