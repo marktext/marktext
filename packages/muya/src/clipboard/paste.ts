@@ -9,6 +9,7 @@ import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { URL_REG } from '../config';
+import { tokenizer } from '../inlineRenderer/lexer';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
@@ -98,6 +99,38 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
     const originState = originWrapperBlock!.getState() as { text?: string };
     if (originState.text === '')
         originWrapperBlock!.remove();
+}
+
+function isSinglePlainUrl(text: string): boolean {
+    return URL_REG.test(text) && !/\s/.test(text);
+}
+
+function canPlainUrlFallbackAutoLink(
+    text: string,
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    const candidate
+        = content.substring(0, start.offset)
+            + text
+            + content.substring(end.offset);
+
+    return tokenizer(candidate, { hasBeginRules: false }).some(token =>
+        token.type === 'auto_link_extension'
+        && token.linkType === 'url'
+        && token.range.start === start.offset
+        && token.range.end === start.offset + text.length,
+    );
+}
+
+function shouldPreserveBareUrlLinkForPaste(
+    text: string,
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    return isSinglePlainUrl(text) && !canPlainUrlFallbackAutoLink(text, content, start, end);
 }
 
 function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
@@ -319,8 +352,8 @@ function applyParsedPaste(
     const { muya } = clipboard;
     const { anchorBlock, start, end, content } = ctx;
 
-    // An empty / whitespace-only paste is a no-op; the parser would otherwise
-    // emit a lone empty paragraph and churn blocks.
+    // An empty / whitespace-only paste is a no-op while parsing; non-empty
+    // inline whitespace from text/plain is routed through literal insertion.
     if (markdown.trim().length === 0)
         return;
 
@@ -540,6 +573,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
 
     const { imageFile, pasteType } = data;
     let { html } = data;
+    // Preserve source provenance before synthetic URL/table HTML promotion.
+    const hasClipboardHtml = html !== '';
     // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
     // and offset calculation sees one newline convention (muyajs strips \r).
     const text = data.text.replace(/\r\n?/g, '\n');
@@ -567,8 +602,19 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!html && isStandaloneTableHtml(text))
         html = text;
 
+    const cursorBeforeNormalize = anchorBlock.getCursor();
+
     // Remove crap from HTML such as meta data and styles.
-    html = await normalizePastedHTML(html);
+    html = await normalizePastedHTML(html, {
+        preserveBareUrlLinks: hasClipboardHtml
+            && cursorBeforeNormalize != null
+            && shouldPreserveBareUrlLinkForPaste(
+                text,
+                anchorBlock.text,
+                cursorBeforeNormalize.start,
+                cursorBeforeNormalize.end,
+            ),
+    });
     const copyType = getCopyTextType(html, text, pasteType);
 
     const { start, end } = anchorBlock.getCursor()!;
@@ -597,10 +643,12 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 || anchorBlock.blockName === 'table.cell.content'
                 || anchorBlock.blockName === 'codeblock.content';
 
-        if (!isLiteralAnchor)
-            applyParsedPaste(clipboard, ctx, markdown);
+        const isPlainInlineSpaces = /^ +$/.test(text);
+
+        if (isLiteralAnchor || isPlainInlineSpaces)
+            applyLiteralPaste(clipboard, ctx, isPlainInlineSpaces ? text : markdown);
         else
-            applyLiteralPaste(clipboard, ctx, markdown);
+            applyParsedPaste(clipboard, ctx, markdown);
     }
     else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
         // Paste as Plain Text inserts block-level HTML as literal text, not a

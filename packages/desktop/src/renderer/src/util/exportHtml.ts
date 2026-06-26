@@ -164,7 +164,6 @@ export const exportStyledHTML = async(
     dir
   })
 
-  // Pull out the rendered <article class="markdown-body">…</article> body.
   const articleMatch = /<article class="markdown-body">([\s\S]*)<\/article>/.exec(fullDoc)
   let article = articleMatch ? articleMatch[1] : fullDoc
 

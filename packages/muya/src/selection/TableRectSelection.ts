@@ -279,11 +279,6 @@ class TableRectSelection {
     }
 
     /**
-     * Empty every selected cell's text in place (cut). Routed through the
-     * content block's `text` setter so each edit dispatches a json op and the
-     * document state stays in sync. The caret is placed in the anchor cell.
-     */
-    /**
      * Empty every selected cell's text and re-render it, keeping the frozen
      * selection. Returns whether any cell actually had content to clear — the
      * caller uses that to drive the two-stage keyboard delete (first press

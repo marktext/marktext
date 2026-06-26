@@ -52,9 +52,7 @@ test.describe('paragraphs and headings', () => {
 
             const heading = page.locator(editor.atxHeading).first();
             await expect(heading).toBeVisible();
-            // The heading tag reflects the level (h4 / h5 / h6).
             await expect(heading).toHaveJSProperty('tagName', `H${level}`);
-            // No paragraph remains.
             await expect(page.locator(editor.paragraph)).toHaveCount(0);
             // Markdown round-trips with the right number of leading hashes.
             expect(await getMarkdown(page)).toContain(`${hashes} Title`);

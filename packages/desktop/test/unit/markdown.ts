@@ -40,10 +40,6 @@ export const ListsTemplate = () => {
   return loadMarkdownContent('common/Lists.md')
 }
 
-// --------------------------------------------------------
-// GFM templates
-//
-
 export const GfmBasicTextFormattingTemplate = () => {
   return loadMarkdownContent('gfm/BasicTextFormatting.md')
 }

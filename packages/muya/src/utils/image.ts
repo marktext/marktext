@@ -177,6 +177,17 @@ export async function checkImageContentType(url: string) {
     }
 }
 
+// Percent-encode the chars that break a markdown image destination — an
+// unbalanced `)` truncates the path (#3060). `encodeURIComponent` leaves `(`/`)`
+// untouched, so encode them explicitly.
+export function encodeImageSrc(src: string): string {
+    return src
+        .replace(/ /g, encodeURI(' '))
+        .replace(/#/g, encodeURIComponent('#'))
+        .replace(/\(/g, '%28')
+        .replace(/\)/g, '%29');
+}
+
 export function correctImageSrc(src: string) {
     if (src) {
     // Fix ASCII and UNC paths on Windows (#1997).

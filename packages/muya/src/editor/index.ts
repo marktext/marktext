@@ -499,6 +499,7 @@ export class Editor {
 
         this.scrollPage!.updateState(state);
         this.history.clear();
+        this.searchModule.reset();
 
         if (autoFocus)
             this.focus();

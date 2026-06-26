@@ -10,6 +10,7 @@ We are really excited that you are interested in contributing to MarkText :tada:
 - [Quick start](#quick-start)
   - [Build instructions](#build-instructions)
   - [Style guide](#style-guide)
+  - [Commenting guidelines](#commenting-guidelines)
 - [Developer documentation](#developer-documentation)
 
 ## Philosophy
@@ -86,6 +87,10 @@ You can run ESLint (`pnpm run lint`) to help you to follow the style guide.
 - 2 space indent
 - no semicolons
 - documentation: [JSDoc](https://github.com/jsdoc/jsdoc) 
+
+### Commenting Guidelines
+
+When writing comments, please follow our [Commenting Guidelines](./COMMENTING-GUIDELINES.md). In short: a comment should describe what isn't obvious from the code — the rationale, units, invariants, and abstractions — rather than restating it. Reviewers check new and changed comments against these guidelines.
 
 ## Developer Documentation
 
