@@ -733,6 +733,12 @@ figure.mu-math-block .mu-math-preview .katex-display {
     overflow: auto hidden;
 }
 
+figure.mu-math-block .mu-math-preview .katex-display::-webkit-scrollbar {
+    display: block;
+    width: 3px;
+    height: 6px;
+}
+
 /* to prevent plantuml img overflow */
 figure.mu-diagram-block .mu-diagram-preview img {
     max-width: 100%;
