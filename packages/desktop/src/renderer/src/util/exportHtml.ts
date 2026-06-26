@@ -13,6 +13,7 @@ import type { Muya } from '@muyajs/core'
 import { MarkdownToHtml } from '@muyajs/core'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
 import { resolveLocalImageSrc } from './resolveImageSrc'
+import { resolveLocalLinkHref } from './resolveLinkHref'
 
 export interface HeaderFooterPart {
   type?: number
@@ -134,6 +135,23 @@ const rewriteImageSrcs = (html: string): string =>
     return resolved === src ? match : `${pre}${resolved}${post}`
   })
 
+// Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
+// engine output, so relative local links are rewritten to absolute `file://`
+// URLs the same way images are.
+const ANCHOR_HREF_REG = /(<a\b[^>]*?\shref=")([^"]*)(")/gi
+
+/**
+ * Rewrite relative / absolute-local `<a href>` to absolute `file://` URLs so a
+ * link to a local file still resolves after the saved document is moved out of
+ * the source folder (#1688). Remote URLs, `mailto:`/`data:` schemes and in-page
+ * fragment anchors are left untouched.
+ */
+const rewriteAnchorHrefs = (html: string): string =>
+  html.replace(ANCHOR_HREF_REG, (match, pre: string, href: string, post: string) => {
+    const resolved = resolveLocalLinkHref(href)
+    return resolved === href ? match : `${pre}${resolved}${post}`
+  })
+
 /**
  * Build a styled, standalone HTML document equivalent to legacy muyajs
  * `exportStyledHTML`. Renders markdown through the new engine, injects the TOC
@@ -170,6 +188,9 @@ export const exportStyledHTML = async(
   // Resolve relative image paths to absolute file:// URLs so the saved document
   // still shows its images when opened from a different folder (issue 230).
   article = rewriteImageSrcs(article)
+  // Same for relative local links so they still resolve after the document is
+  // moved out of the source folder (#1688).
+  article = rewriteAnchorHrefs(article)
 
   // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
   // the document explicitly contains `[TOC]`). The marker is rendered as a
