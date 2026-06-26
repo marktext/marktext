@@ -74,6 +74,25 @@ test.describe('clipboard paste', () => {
         }).toBe(`A[${url}](${url})B\n`);
     });
 
+    test('pasting bare URL HTML link with auto-link boundaries keeps plain URL fallback', async ({ browserName, context, page }) => {
+        test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
+        await grantClipboardPermissions(context);
+        const url = 'http://10.255.255.1/page';
+
+        await page.evaluate(() => {
+            Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+            window.muya!.setContent('A  B');
+            const block = window.muya!.editor.scrollPage!.firstContentInDescendant()!;
+            block.setCursor(2, 2, true);
+        });
+
+        await pasteClipboard(page, `<a href="${url}">${url}</a>`, url, { resetContent: false });
+        await expect.poll(async () => getMarkdown(page), {
+            timeout: 5_000,
+            intervals: [50, 100, 250, 500],
+        }).toBe(`A ${url} B\n`);
+    });
+
     test('pasting a basic <table> converts to a GFM table', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'ClipboardItem text/html unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await grantClipboardPermissions(context);

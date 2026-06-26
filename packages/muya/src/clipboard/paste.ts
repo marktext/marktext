@@ -100,6 +100,37 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
         originWrapperBlock!.remove();
 }
 
+const AUTO_LINK_LEFT_BOUNDARY_REG = /[* _~(]/;
+
+function isSinglePlainUrl(text: string): boolean {
+    return URL_REG.test(text) && !/\s/.test(text);
+}
+
+function canPlainUrlFallbackAutoLink(
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    const head = content.substring(0, start.offset);
+    const tail = content.substring(end.offset);
+    const leftChar = head[head.length - 1] ?? '';
+    const rightChar = tail[0] ?? '';
+    const hasLeftBoundary
+        = head.length === 0 || AUTO_LINK_LEFT_BOUNDARY_REG.test(leftChar);
+    const hasRightBoundary = tail.length === 0 || /\s/.test(rightChar);
+
+    return hasLeftBoundary && hasRightBoundary;
+}
+
+function shouldPreserveBareUrlLinkForPaste(
+    text: string,
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    return isSinglePlainUrl(text) && !canPlainUrlFallbackAutoLink(content, start, end);
+}
+
 function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
     last?.lastContentInDescendant()?.setCursor(offset, offset, true);
 }
@@ -569,9 +600,18 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!html && isStandaloneTableHtml(text))
         html = text;
 
+    const cursorBeforeNormalize = anchorBlock.getCursor();
+
     // Remove crap from HTML such as meta data and styles.
     html = await normalizePastedHTML(html, {
-        preserveBareUrlLinks: hasClipboardHtml,
+        preserveBareUrlLinks: hasClipboardHtml
+            && cursorBeforeNormalize != null
+            && shouldPreserveBareUrlLinkForPaste(
+                text,
+                anchorBlock.text,
+                cursorBeforeNormalize.start,
+                cursorBeforeNormalize.end,
+            ),
     });
     const copyType = getCopyTextType(html, text, pasteType);
 

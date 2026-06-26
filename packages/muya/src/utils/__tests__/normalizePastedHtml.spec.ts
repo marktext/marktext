@@ -4,9 +4,9 @@ import { afterEach, describe, expect, it } from 'vitest';
 import HtmlToMarkdown from '../../state/htmlToMarkdown';
 import { normalizePastedHTML } from '../paste';
 
-// Bare-URL links need two separate paths: synthesized anchors for plain URL
-// paste may still fall back to plain text, but clipboard-provided HTML anchors
-// must keep their link semantics.
+// Bare-URL links need two separate paths: callers can keep the old plain URL
+// fallback when auto-link can still recognize it, but preserve the anchor when
+// the paste context would otherwise lose link semantics.
 
 function setOnline(value: boolean) {
     Object.defineProperty(navigator, 'onLine', { value, configurable: true });
@@ -39,7 +39,7 @@ describe('normalizePastedHTML — bare URL link normalization', () => {
         expect(out).toContain('http://example.com/page');
     });
 
-    it('keeps a clipboard-provided bare URL link when no page title resolves', async () => {
+    it('keeps a bare URL link when the caller requests preservation', async () => {
         setOnline(false);
         const url = 'http://example.com/page';
         const out = await normalizePastedHTML(`<a href="${url}">${url}</a>`, {
