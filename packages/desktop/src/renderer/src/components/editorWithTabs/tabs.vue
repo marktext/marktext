@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { storeToRefs } from 'pinia'
@@ -89,6 +89,25 @@ const removeFileInTab = (file: IFileState) => {
 // Original methods
 const newFile = () => {
   editorStore.NEW_UNTITLED_TAB({})
+}
+
+// Keep the active tab visible when the selection changes by something other
+// than a direct click on a visible tab (keyboard cycle, switch-by-index, open
+// from the sidebar): the strip has `overflow: hidden` and only scrolls on the
+// wheel, so an off-screen tab would otherwise stay hidden (#3958).
+const scrollActiveTabIntoView = () => {
+  const container = tabContainer.value
+  if (!container) return
+  const activeTab = container.querySelector<HTMLElement>('li.active')
+  if (!activeTab) return
+
+  const containerRect = container.getBoundingClientRect()
+  const tabRect = activeTab.getBoundingClientRect()
+  if (tabRect.left < containerRect.left) {
+    container.scrollLeft -= containerRect.left - tabRect.left
+  } else if (tabRect.right > containerRect.right) {
+    container.scrollLeft += tabRect.right - containerRect.right
+  }
 }
 
 const handleTabScroll = (event: WheelEvent) => {
@@ -156,6 +175,13 @@ const handleContextMenu = (event: MouseEvent, tab: IFileState) => {
     showContextMenu(event, tab)
   }
 }
+
+watch(
+  () => currentFile.value?.id,
+  () => {
+    nextTick(scrollActiveTabIntoView)
+  }
+)
 
 onMounted(() => {
   bus.on('TABS::close-this', closeTab)
