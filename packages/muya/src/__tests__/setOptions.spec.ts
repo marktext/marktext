@@ -74,7 +74,6 @@ describe('muya runtime options', () => {
         muya.insertParagraph();
         await vi.waitFor(() => {
             expect(muya.getState().length).toBe(2);
-            // the edit was recorded onto the undo stack
             expect(muya.editor.history.canUndo()).toBe(true);
         });
 

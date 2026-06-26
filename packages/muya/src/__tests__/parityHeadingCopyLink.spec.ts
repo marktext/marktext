@@ -62,7 +62,6 @@ describe('parity PG11: heading hover-to-copy-anchor affordance', () => {
             const muya = bootMuya('# Getting Started\n');
             const affordance = muya.domNode.querySelector(COPY_LINK_SELECTOR);
 
-            // Desired: the heading exposes a hover-copy-anchor affordance.
             expect(affordance).toBeTruthy();
         },
     );

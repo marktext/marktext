@@ -130,7 +130,6 @@ test.describe('table', () => {
         // No atx-heading appears, and the table is still a table.
         await expect(page.locator(editor.atxHeading)).toHaveCount(0);
         await expect(table).toBeVisible();
-        // The literal text lives in the cell.
         await expect(cellContent).toContainText('# x');
 
         // The active selection is still inside a table cell content block —
@@ -189,7 +188,6 @@ test.describe('table', () => {
         await expect(linkSpan).toHaveAttribute('href', 'http://y');
         await expect(linkSpan).toContainText('x');
 
-        // getMarkdown serialises the link back into the body cell.
         await expect.poll(() => getMarkdown(page)).toContain('[x](http://y)');
     });
 
