@@ -490,11 +490,23 @@ li.mu-task-list-item {
 li.mu-task-list-item > input[type='checkbox'],
 li.mu-task-list-item > span.mu-task-list-checkbox {
     position: absolute;
-    top: 0.3em;
-    inset-inline-start: -23px;
+
+    /* Center the 18px circle (drawn by ::before at top:-2px, so its center sits
+       7px below this box's top) on the first text line, whose vertical midpoint
+       is `0.5 * line-height * font-size`. The editor font is read from
+       `--mu-font-size` rather than `em` on purpose: on Chromium the checkbox is
+       a real <input>, which keeps the UA form-control font size and ignores
+       `font-size: inherit`, so `em` here would be frozen and the marker would
+       stop tracking the editor font. Custom properties still inherit into the
+       input, so this stays aligned at every font size. */
+    top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 7px);
 
     width: 12px;
     height: 12px;
+
+    /* Drop the UA <input> margin (3px top), which otherwise pushes the
+       absolutely-positioned marker below the computed `top`. */
+    margin: 0;
 
     transform-origin: center;
     cursor: pointer;
@@ -502,11 +514,7 @@ li.mu-task-list-item > span.mu-task-list-checkbox {
     transition: all 0.2s ease;
 
     appearance: none;
-}
-
-ul.mu-tight-list > li.mu-task-list-item > input[type='checkbox'],
-ul.mu-tight-list > li.mu-task-list-item > span.mu-task-list-checkbox {
-    top: 0.3em;
+    inset-inline-start: -23px;
 }
 
 li.mu-task-list-item > input.mu-checkbox-checked ~ *,
