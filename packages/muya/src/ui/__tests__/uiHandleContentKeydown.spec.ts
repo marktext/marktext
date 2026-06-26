@@ -38,12 +38,14 @@ describe('ui.handleContentKeydown', () => {
         expect(event.preventDefault).not.toHaveBeenCalled();
     });
 
-    it('skips block handling but does not preventDefault for a non-capturing float', () => {
+    it('lets the block handle the key (and does not preventDefault) for a non-capturing float (#3196)', () => {
+        // A passive float (e.g. the inline format toolbar shown on selection)
+        // must not block Enter/Tab/arrows from reaching the block handler.
         const ui = makeUi();
         ui.shownFloat.add(fakeFloat(false));
         const event = keyEvent('Enter');
 
-        expect(ui.handleContentKeydown(event)).toBe(true);
+        expect(ui.handleContentKeydown(event)).toBe(false);
         expect(event.preventDefault).not.toHaveBeenCalled();
     });
 

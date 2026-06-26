@@ -11,6 +11,7 @@ import type { IImageInfo } from '../../utils/image';
 import type AtxHeading from '../commonMark/atxHeading';
 import type BulletList from '../commonMark/bulletList';
 import type SetextHeading from '../commonMark/setextHeading';
+import type Parent from './parent';
 import type TreeNode from './treeNode';
 import Content from '../../block/base/content';
 import { ScrollPage } from '../../block/scrollPage';
@@ -27,7 +28,7 @@ import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
 import { conflict, isHTMLElement, isMouseEvent } from '../../utils';
-import { correctImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
 interface IOffset {
@@ -371,11 +372,8 @@ class Format extends Content {
                 imageText += alt;
 
             imageText += '](';
-            if (src) {
-                imageText += src
-                    .replace(/ /g, encodeURI(' '))
-                    .replace(/#/g, encodeURIComponent('#'));
-            }
+            if (src)
+                imageText += encodeImageSrc(src);
 
             if (title)
                 imageText += ` "${title}"`;
@@ -1482,9 +1480,32 @@ class Format extends Content {
 
         event.preventDefault();
 
-        const paragraphBlock = nextBlock.parent;
-        let needRemovedBlock = paragraphBlock;
+        const paragraphBlock = nextBlock.parent!;
 
+        this.text = text + nextBlock.text;
+        this.setCursor(start.offset, end.offset, true);
+
+        // When the merge crosses a list-item boundary, blocks that followed the
+        // next paragraph inside its item (e.g. a nested sublist) must travel up
+        // with the merged text. Left behind they become the sole child of the
+        // now-empty item and serialize with a doubled bullet (#1845).
+        const paragraph = this.parent;
+        if (paragraph && paragraphBlock.parent !== paragraph.parent) {
+            const trailing: TreeNode[] = [];
+            let sibling = paragraphBlock.next;
+            while (sibling) {
+                trailing.push(sibling);
+                sibling = sibling.next;
+            }
+
+            let anchor: Parent = paragraph;
+            for (const block of trailing) {
+                block.insertInto(paragraph.parent!, anchor.next as Nullable<Parent>);
+                anchor = block as Parent;
+            }
+        }
+
+        let needRemovedBlock: Nullable<Parent> = paragraphBlock;
         while (
             needRemovedBlock
             && needRemovedBlock.isOnlyChild()
@@ -1492,9 +1513,6 @@ class Format extends Content {
         ) {
             needRemovedBlock = needRemovedBlock.parent;
         }
-
-        this.text = text + nextBlock.text;
-        this.setCursor(start.offset, end.offset, true);
         needRemovedBlock!.remove();
     }
 
@@ -1610,7 +1628,7 @@ class Format extends Content {
             start.offset += start.delta;
             end.offset += end.delta;
 
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
@@ -1618,7 +1636,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
         }
         else {
             if (currentNeighbors.length) {
@@ -1628,7 +1646,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
 
             this._addFormat(type, { start, end });
 

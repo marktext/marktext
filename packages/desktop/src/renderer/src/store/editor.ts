@@ -1942,7 +1942,6 @@ const createApplicationMenuState = ({
     }
   }
 
-  // Clean up
   if (Object.getOwnPropertyNames(state.affiliation).length >= 2 && state.affiliation.p) {
     delete state.affiliation.p
   }

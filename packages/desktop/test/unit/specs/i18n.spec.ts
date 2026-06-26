@@ -46,3 +46,46 @@ describe('renderer i18n language loading', () => {
     expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledWith('zh-CN')
   })
 })
+
+// Issue #4046: exporting HTML/PDF surfaced an "Unexpected renderer process
+// error" — a vue-i18n message-compiler SyntaxError (code 9,
+// NOT_ALLOW_NEST_PLACEHOLDER) thrown while lazily compiling a translation whose
+// value contained a nested placeholder (e.g. literal `{{type}}`). A single
+// malformed translation must degrade to raw text, never crash the renderer.
+describe('renderer i18n malformed-message resilience (issue #4046)', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    win.i18nUtils = { loadTranslations: vi.fn() }
+  })
+
+  afterEach(() => {
+    delete win.i18nUtils
+  })
+
+  interface TestComposer {
+    setLocaleMessage: (locale: string, message: Record<string, unknown>) => void
+    locale: { value: string }
+    t: (key: string, named?: Record<string, unknown>) => string
+  }
+
+  it('does not throw when a registered message contains a nested placeholder', async() => {
+    const { i18n } = await import('../../../src/renderer/src/i18n')
+    const composer = i18n.global as unknown as TestComposer
+
+    composer.setLocaleMessage('xx', { export: { failed: 'Failed {{type}} export' } })
+    composer.locale.value = 'xx'
+
+    expect(() => composer.t('export.failed', { type: 'PDF' })).not.toThrow()
+    expect(composer.t('export.failed', { type: 'PDF' })).toBe('Failed {{type}} export')
+  })
+
+  it('still interpolates well-formed messages', async() => {
+    const { i18n } = await import('../../../src/renderer/src/i18n')
+    const composer = i18n.global as unknown as TestComposer
+
+    composer.setLocaleMessage('xx', { greeting: 'Hello {name}' })
+    composer.locale.value = 'xx'
+
+    expect(composer.t('greeting', { name: 'World' })).toBe('Hello World')
+  })
+})

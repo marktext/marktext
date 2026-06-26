@@ -127,7 +127,6 @@ describe('search.find() — cursor navigation across matches', () => {
         search.search('x');
         expect(search.matches.length).toBe(3);
         expect(search.index).toBe(0);
-        // Exactly one active highlight, the other two are selections.
         expect(highlightCount(muya)).toBe(1);
         expect(selectionCount(muya)).toBe(2);
 

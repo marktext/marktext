@@ -1,5 +1,6 @@
 import type { Muya } from '../muya';
 import type { IClipboardPayload } from './copyData';
+import Format from '../block/base/format';
 import { isClipboardEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection } from './cut';
@@ -80,6 +81,17 @@ class Clipboard {
 
             if (!shouldCrossBlockCut(key, metaKey, event.ctrlKey))
                 return;
+
+            // Enter over a cross-block selection: suppress the corrupting native
+            // Enter and mirror the same-block path — delete then split (#2443).
+            if (key === 'Enter') {
+                event.preventDefault();
+                this.cutHandler();
+                const block = this.muya.editor.activeContentBlock;
+                if (!event.shiftKey && block instanceof Format)
+                    block.enterHandler(event);
+                return;
+            }
 
             if (key === 'Backspace' || key === 'Delete')
                 event.preventDefault();

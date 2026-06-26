@@ -63,8 +63,6 @@ function placeCursorOnFirstBlock(muya: Muya): Content {
     return first;
 }
 
-// Undo entries coalesce within options.delay; cutoff() forces the next edit
-// into its own undo entry so depth assertions are deterministic.
 function undoDepth(muya: Muya): number {
     // @ts-expect-error — reach into the private stack for test assertions.
     return muya.editor.history._stack.undo.length;

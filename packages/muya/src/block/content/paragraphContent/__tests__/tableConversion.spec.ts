@@ -115,7 +115,6 @@ describe('paragraphContent.enterHandler — pipe-table conversion', () => {
         await flush();
         const anchorBlock = muya.editor.selection.anchorBlock;
         expect(anchorBlock).not.toBeNull();
-        // Caret is in a table cell content leaf.
         expect(anchorBlock!.blockName).toBe('table.cell.content');
 
         // The owning cell sits in the SECOND row (the empty body row, index 1)

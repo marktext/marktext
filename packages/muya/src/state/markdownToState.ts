@@ -100,7 +100,10 @@ export class MarkdownToState {
                 // Fix #1735 the blockquote maybe empty. like bellow:
                 // >
                 // bar
-                if (parentList[0].length === 0 && token.tokenType === 'blockquote') {
+                if (
+                    parentList[0].length === 0
+                    && (token.tokenType === 'blockquote' || token.tokenType === 'list-item')
+                ) {
                     state = {
                         name: 'paragraph' as const,
                         text: '',

@@ -74,7 +74,6 @@ const notificationStore = useNotificationStore()
 
 const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 
-// States from Pinia
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar } = storeToRefs(layoutStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)

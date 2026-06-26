@@ -228,11 +228,19 @@ class Watcher {
 
       depth: type === 'file' ? (isOsx ? 1 : 0) : undefined,
 
-      // Please see GH#1043
-      awaitWriteFinish: {
-        stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
-        pollInterval: WATCHER_STABILITY_POLL_INTERVAL
-      },
+      // Defer events until writes settle only for the file watcher, which
+      // reloads file CONTENT on change and would otherwise read a partial file
+      // (GH#1043). The directory watcher just lists nodes and re-sorts by mtime,
+      // so deferring its `add` events only made new files appear in the sidebar
+      // ~1s late (GH#3955).
+      ...(type === 'file'
+        ? {
+          awaitWriteFinish: {
+            stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
+            pollInterval: WATCHER_STABILITY_POLL_INTERVAL
+          }
+        }
+        : {}),
 
       usePolling
       // chokidar's `ignored` callback signature varies between versions; this options

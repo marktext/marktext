@@ -12,7 +12,7 @@ import ICONS from './config';
 import './index.css';
 
 const defaultOptions = {
-    placement: 'left-start' as const,
+    placement: 'right-start' as const,
     offsetOptions: {
         mainAxis: -95,
         crossAxis: 5,

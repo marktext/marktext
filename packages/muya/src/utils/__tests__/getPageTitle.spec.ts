@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Regression for marktext commit 141d25d8 (#1344).

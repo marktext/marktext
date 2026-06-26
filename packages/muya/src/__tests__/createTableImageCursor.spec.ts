@@ -100,7 +100,6 @@ describe('muya.createTable()', () => {
         });
         const sel = muya.editor.selection.getSelection();
         expect(sel).not.toBeNull();
-        // The caret lands on a table-cell content block.
         expect(sel!.anchor.block.blockName).toBe('table.cell.content');
     });
 

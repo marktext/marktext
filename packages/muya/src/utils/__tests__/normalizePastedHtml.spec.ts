@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it } from 'vitest';
+import HtmlToMarkdown from '../../state/htmlToMarkdown';
 import { normalizePastedHTML } from '../paste';
 
-// muyajs `pasteCtrl.normalizePastedHTML` only "unlinks" an <a> whose visible
-// text equals its href AND whose href is an actual URL (`URL_REG.test(href) &&
-// href === text`). muya was missing the URL_REG guard, so any link whose text
-// happened to equal its href — even a non-URL like `<a href="foo">foo</a>` —
-// was stripped to a bare span. Restore the guard and sanitize the fallback span.
+// Bare-URL links need two separate paths: callers can keep the old plain URL
+// fallback when auto-link can still recognize it, but preserve the anchor when
+// the paste context would otherwise lose link semantics.
 
 function setOnline(value: boolean) {
     Object.defineProperty(navigator, 'onLine', { value, configurable: true });
@@ -17,7 +16,7 @@ afterEach(() => {
     setOnline(true);
 });
 
-describe('normalizePastedHTML — link unlinking matches muyajs', () => {
+describe('normalizePastedHTML — bare URL link normalization', () => {
     it('keeps a link whose href is not a URL even when text === href', async () => {
         const out = await normalizePastedHTML('<a href="foo">foo</a>');
         // Non-URL href: the link must survive, not collapse into a bare span.
@@ -38,5 +37,17 @@ describe('normalizePastedHTML — link unlinking matches muyajs', () => {
         );
         expect(out).not.toContain('<a ');
         expect(out).toContain('http://example.com/page');
+    });
+
+    it('keeps a bare URL link when the caller requests preservation', async () => {
+        setOnline(false);
+        const url = 'http://example.com/page';
+        const out = await normalizePastedHTML(`<a href="${url}">${url}</a>`, {
+            preserveBareUrlLinks: true,
+        });
+        const markdown = new HtmlToMarkdown({ bulletListMarker: '-' }).generate(out);
+
+        expect(out).toContain(`href="${url}"`);
+        expect(markdown).toContain(`[${url}](${url})`);
     });
 });

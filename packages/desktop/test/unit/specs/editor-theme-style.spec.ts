@@ -9,7 +9,7 @@ vi.hoisted(() => {
   w.window.path ??= { sep: '/' }
 })
 
-import { addCommonStyle, setWrapCodeBlocks, setEditorWidth } from '@/util/theme'
+import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { COMMON_STYLE_ID, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 
 const styleHtml = (id: string) =>
@@ -23,26 +23,28 @@ describe('theme.ts style injection helpers', () => {
     document.body.className = ''
   })
 
-  // Items 196, 210 — addCommonStyle injects code font onto the engine .mu-code-block.
+  // Items 196, 210 — addCommonStyle injects code font onto the source-mode .CodeMirror selector.
   describe('addCommonStyle', () => {
-    it('injects code font-family/size onto the .mu-code-block selector list', () => {
+    it('injects code font-family/size onto the .CodeMirror selector', () => {
       addCommonStyle({ codeFontFamily: 'Courier New', codeFontSize: 24 })
 
       const css = styleHtml(COMMON_STYLE_ID)
-      // selector list targets the engine block class
-      expect(css).toContain('.mu-code-block')
+      // selector targets source-mode CodeMirror only (muya owns code-block font via --mu-code-* vars)
+      expect(css).toContain('.CodeMirror')
+      expect(css).not.toContain('.mu-code-block')
       // family is the requested font followed by the default fallback chain
       expect(css).toContain(`font-family: Courier New, ${DEFAULT_CODE_FONT_FAMILY};`)
       // size is the numeric value suffixed with px
       expect(css).toContain('font-size: 24px;')
     })
 
-    it('targets the engine .mu-code-block class (not a legacy ag-* class)', () => {
+    it('targets only .CodeMirror (no legacy ag-* or mu-code-block classes)', () => {
       addCommonStyle({ codeFontFamily: 'Courier New', codeFontSize: 14 })
 
       const css = styleHtml(COMMON_STYLE_ID)
-      expect(css).toContain('.mu-code-block')
+      expect(css).toContain('.CodeMirror')
       expect(css).not.toContain('.ag-code-block')
+      expect(css).not.toContain('.mu-code-block')
     })
 
     it('prepends the webkit scrollbar hide rule when hideScrollbar is true', () => {
@@ -68,41 +70,6 @@ describe('theme.ts style injection helpers', () => {
       expect(css).toContain('font-size: 18px;')
       expect(css).not.toContain('Courier New')
       expect(css).not.toContain('font-size: 14px;')
-    })
-  })
-
-  // Item 197 — setWrapCodeBlocks toggles pre-wrap vs pre on .mu-code-block .mu-code.
-  describe('setWrapCodeBlocks', () => {
-    const WRAP_STYLE_ID = 'ag-code-wrap'
-
-    it('uses white-space: pre-wrap and overflow: hidden when wrapping is enabled', () => {
-      setWrapCodeBlocks(true)
-
-      const css = styleHtml(WRAP_STYLE_ID)
-      expect(css).toContain('.mu-code-block .mu-code {')
-      expect(css).toContain('white-space: pre-wrap;')
-      expect(css).toContain('overflow: hidden;')
-    })
-
-    it('uses white-space: pre and overflow: auto when wrapping is disabled', () => {
-      setWrapCodeBlocks(false)
-
-      const css = styleHtml(WRAP_STYLE_ID)
-      expect(css).toContain('.mu-code-block .mu-code {')
-      expect(css).toContain('white-space: pre;')
-      expect(css).toContain('overflow: auto;')
-      // the disabled rule must not leak the wrapped values
-      expect(css).not.toContain('white-space: pre-wrap;')
-    })
-
-    it('replaces the rule in the same single style element when toggled true -> false', () => {
-      setWrapCodeBlocks(true)
-      setWrapCodeBlocks(false)
-
-      expect(styleCount(WRAP_STYLE_ID)).toBe(1)
-      const css = styleHtml(WRAP_STYLE_ID)
-      expect(css).toContain('white-space: pre;')
-      expect(css).not.toContain('white-space: pre-wrap;')
     })
   })
 

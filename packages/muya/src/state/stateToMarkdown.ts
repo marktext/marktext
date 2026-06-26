@@ -36,6 +36,8 @@ import stringWidth from '../utils/stringWidth';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
+const SETEXT_SAFE_BULLET_MARKER = '*';
+
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
@@ -96,6 +98,7 @@ export default class ExportMarkdown {
         const result: string[] = [];
         // helper for CommonMark 264
         let lastListBullet = '';
+        let previousState: TState | undefined;
 
         for (const state of states) {
             if (
@@ -107,12 +110,19 @@ export default class ExportMarkdown {
             }
 
             if (isAnyListState(state)) {
+                const markerOverride = !this._isLooseParentList
+                    && previousState?.name === 'paragraph'
+                    && previousState.text.trim() !== ''
+                    && this._startsWithEmptyDashBulletItem(state)
+                    ? SETEXT_SAFE_BULLET_MARKER
+                    : undefined;
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
                     indent,
                     listIndent,
                     lastListBullet,
+                    markerOverride,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -121,6 +131,8 @@ export default class ExportMarkdown {
             else {
                 this._serializeSimpleBlock(state, result, indent);
             }
+
+            previousState = state;
         }
 
         return result.join('');
@@ -200,10 +212,13 @@ export default class ExportMarkdown {
         indent: string,
         listIndent: string,
         lastListBullet: string,
+        markerOverride?: string,
     ): string {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
-        const { meta } = state;
+        const meta = deepClone(state.meta);
+        if (markerOverride && 'marker' in meta)
+            meta.marker = markerOverride;
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
         const bulletMarkerOrDelimiter
@@ -215,11 +230,27 @@ export default class ExportMarkdown {
         if (insertNewLine)
             this._insertLineBreak(result, indent);
 
-        this._listType.push(deepClone(meta));
+        this._listType.push(meta);
         result.push(this._serializeList(state, indent, listIndent));
         this._listType.pop();
 
         return bulletMarkerOrDelimiter;
+    }
+
+    private _startsWithEmptyDashBulletItem(
+        state: IOrderListState | IBulletListState | ITaskListState,
+    ) {
+        if (state.name !== 'bullet-list' || state.meta.marker !== '-')
+            return false;
+
+        const firstItem = state.children[0];
+        if (!firstItem)
+            return false;
+        if (firstItem.children.length === 0)
+            return true;
+
+        const firstChild = firstItem.children[0];
+        return firstChild.name === 'paragraph' && firstChild.text.trim() === '';
     }
 
     private _serializeListItemBlock(
@@ -563,6 +594,9 @@ export default class ExportMarkdown {
 
         if (name === 'task-list-item')
             itemMarker += state.meta.checked ? '[x] ' : '[ ] ';
+
+        if (!children.length)
+            return `${indent}${itemMarker}\n`;
 
         result.push(`${indent}${itemMarker}`);
         result.push(
