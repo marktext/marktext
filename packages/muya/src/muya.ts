@@ -31,7 +31,6 @@ import {
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
-import { LINE_NUMBERS_ROWS_CLASS, repositionLineNumberSpans } from './utils/codeBlockLineNumbers';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -117,18 +116,6 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'footnote',
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
-]);
-
-// Options that change code-block line metrics, so the line-number gutter (whose
-// per-line pixel tops are measured, not derived) must be re-measured. Includes
-// the editor base `fontSize` / `lineHeight`: the code block's font-size can be
-// relative (`90%`), so an editor-font change shifts the code lines too.
-const LINE_NUMBER_RELAYOUT_OPTIONS = new Set<keyof IMuyaOptions>([
-    'fontSize',
-    'lineHeight',
-    'codeFontSize',
-    'codeFontFamily',
-    'wrapCodeBlocks',
 ]);
 
 function endpointPair(
@@ -347,9 +334,6 @@ export class Muya {
         }
 
         applyAppearance(this.domNode, options);
-
-        if (Object.keys(options).some(key => LINE_NUMBER_RELAYOUT_OPTIONS.has(key as keyof IMuyaOptions)))
-            relayoutCodeLineNumbers(this.domNode);
 
         if (!forceRender)
             return;
@@ -1713,19 +1697,6 @@ function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
 // Re-measure the line-number gutter of every code block after a code-font /
 // wrap change. `repositionLineNumberSpans` reads the post-change layout, so it
 // must run in a rAF (after the browser reflows with the new metrics).
-function relayoutCodeLineNumbers(domNode: HTMLElement) {
-    requestAnimationFrame(() => {
-        const wrappers = domNode.querySelectorAll<HTMLElement>(`.${LINE_NUMBERS_ROWS_CLASS}`);
-        for (const wrapper of wrappers) {
-            const codeEl = wrapper
-                .closest('.mu-code-block')
-                ?.querySelector<HTMLElement>('.mu-codeblock-content');
-            if (codeEl)
-                repositionLineNumberSpans(wrapper, codeEl);
-        }
-    });
-}
-
 /**
  * [ensureContainerDiv ensure container element is div]
  */

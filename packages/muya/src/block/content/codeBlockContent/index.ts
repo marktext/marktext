@@ -169,6 +169,7 @@ class CodeBlockContent extends Content {
     }
 
     private _lastLineCount = -1;
+    private _lineNumberResizeObserver: ResizeObserver | null = null;
 
     private _updateLineNumbers(text: string) {
         if (!this.muya.options.codeBlockLineNumbers)
@@ -181,12 +182,31 @@ class CodeBlockContent extends Content {
             syncLineNumbersSpans(wrapper, count);
             this._lastLineCount = count;
         }
+        this._observeLineNumberResize(wrapper);
         // Reposition on every update so wrap-mode line breaks are reflected.
         const codeEl = this.domNode;
         requestAnimationFrame(() => {
             if (codeEl && wrapper.isConnected)
                 repositionLineNumberSpans(wrapper, codeEl);
         });
+    }
+
+    // The gutter's per-line tops are measured, so any reflow (editor or code
+    // font, wrap toggle, window resize) invalidates them. A ResizeObserver on
+    // the code element re-measures AFTER layout settles — unlike a one-shot rAF
+    // fired right after an option change, which on a heavy document can measure
+    // before the reflow lands and leave the numbers overlapping.
+    private _observeLineNumberResize(wrapper: HTMLElement) {
+        if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
+            return;
+        const codeEl = this.domNode;
+        if (codeEl == null)
+            return;
+        this._lineNumberResizeObserver = new ResizeObserver(() => {
+            if (codeEl.isConnected && wrapper.isConnected)
+                repositionLineNumberSpans(wrapper, codeEl);
+        });
+        this._lineNumberResizeObserver.observe(codeEl);
     }
 
     override inputHandler(event: Event): void {
