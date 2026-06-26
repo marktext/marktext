@@ -66,6 +66,9 @@ importers:
       '@hfelix/electron-localshortcut':
         specifier: ^4.0.1
         version: 4.0.1
+      '@intlify/core-base':
+        specifier: ^11.4.6
+        version: 11.4.6
       '@marktext/file-icons':
         specifier: ^1.0.6
         version: 1.0.6
