@@ -34,4 +34,14 @@ test.describe('Find/Replace in source-code mode (#3311)', () => {
     await expect(input).toBeVisible({ timeout: 5000 })
     await page.keyboard.press('Escape')
   })
+
+  test('search dialog is opaque so the document text does not bleed through (#4741)', async() => {
+    await sendIpcToRenderer(app, 'mt::editor-edit-action', 'find')
+    const dialog = page.locator('.source-code .CodeMirror-dialog').first()
+    await expect(dialog).toBeVisible({ timeout: 5000 })
+    const bg = await dialog.evaluate((el) => getComputedStyle(el).backgroundColor)
+    expect(bg).not.toBe('rgba(0, 0, 0, 0)')
+    expect(bg).not.toBe('transparent')
+    await page.keyboard.press('Escape')
+  })
 })

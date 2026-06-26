@@ -431,4 +431,20 @@ onBeforeUnmount(() => {
 .source-code .CodeMirror-activeline-gutter {
   background: var(--floatHoverColor);
 }
+/* The dialog addon defaults to `background: inherit`, which the transparent
+   source-mode CodeMirror resolves to see-through — the document text bled
+   through the find/replace bar (#4741). Paint it with the theme colors. */
+.source-code .CodeMirror-dialog {
+  background: var(--editorBgColor);
+  color: var(--editorColor);
+}
+.source-code .CodeMirror-dialog-top {
+  border-bottom: 1px solid var(--floatBorderColor);
+}
+.source-code .CodeMirror-dialog-bottom {
+  border-top: 1px solid var(--floatBorderColor);
+}
+.source-code .CodeMirror-dialog input {
+  color: var(--editorColor);
+}
 </style>
