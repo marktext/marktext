@@ -1912,6 +1912,10 @@ onMounted(() => {
         // editableHeight is the lowest cursor position(till to top) that editor allowed.
         const editableHeight = container.clientHeight - 100
         animatedScrollTo(container, container.scrollTop + (y - editableHeight), 0)
+      } else if (y < 100) {
+        // Symmetric to #628: scroll up when the cursor rises above the top edge
+        // (e.g. Arrow-Up), otherwise the caret leaves the viewport (#3329).
+        animatedScrollTo(container, container.scrollTop + (y - 100), 0)
       }
     }
 
