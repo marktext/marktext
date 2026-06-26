@@ -191,11 +191,8 @@ class CodeBlockContent extends Content {
         });
     }
 
-    // The gutter's per-line tops are measured, so any reflow (editor or code
-    // font, wrap toggle, window resize) invalidates them. A ResizeObserver on
-    // the code element re-measures AFTER layout settles — unlike a one-shot rAF
-    // fired right after an option change, which on a heavy document can measure
-    // before the reflow lands and leave the numbers overlapping.
+    // Re-measure the gutter after any code-block reflow (post-layout, so it
+    // can't read stale positions).
     private _observeLineNumberResize(wrapper: HTMLElement) {
         if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
             return;

@@ -1672,12 +1672,7 @@ export class Muya {
     }
 }
 
-// Apply the appearance options (typography + code-block wrap) onto the editor
-// root as `--mu-*` CSS custom properties and a wrap class, so muya renders its
-// own content from options alone — no embedder reaching into muya's DOM. Each
-// value is written only when provided; unset options fall back to the defaults
-// baked into muya's stylesheets, so a standalone embedder that passes nothing
-// renders byte-identically.
+// Write provided appearance options as `--mu-*` vars / a wrap class on the root.
 function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
     const { style } = domNode;
     if (typeof options.fontSize === 'number')
@@ -1694,9 +1689,6 @@ function applyAppearance(domNode: HTMLElement, options: Partial<IMuyaOptions>) {
         domNode.classList.toggle(CLASS_NAMES.MU_CODE_WRAP, !!options.wrapCodeBlocks);
 }
 
-// Re-measure the line-number gutter of every code block after a code-font /
-// wrap change. `repositionLineNumberSpans` reads the post-change layout, so it
-// must run in a rAF (after the browser reflows with the new metrics).
 /**
  * [ensureContainerDiv ensure container element is div]
  */

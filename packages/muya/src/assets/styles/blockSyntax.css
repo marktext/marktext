@@ -214,12 +214,7 @@
     border-radius: 3px;
 }
 
-/* Code-block font is driven by the embedder via `--mu-code-*`, falling back to
-   the shared monospace/90% defaults above for standalone use. Scoped to
-   `.mu-code-block` only (placed after the shared rule so it wins at equal
-   specificity) — frontmatter / html / math / diagram containers keep the
-   shared 90% sizing. Inline code (`code.mu-inline-rule`) is intentionally NOT
-   touched. */
+/* Code-block font via `--mu-code-*`; code blocks only (inline code untouched). */
 .mu-code-block {
     font-size: var(--mu-code-font-size, 90%);
     font-family: var(
@@ -236,14 +231,11 @@
     display: block;
     overflow: auto;
 
-    /* The code text lives in this <code> element; its UA `font-family:
-       monospace` would override the inherited block font and block the
-       `--mu-code-font-family` cascade. Inherit the resolved block font. */
+    /* Override the <code> UA monospace so the block's code font reaches the text. */
     font-family: inherit;
 }
 
-/* `wrapCodeBlocks` option → `.mu-code-wrap` on the root. Overrides the prism
-   `pre.mu-code-block { white-space: pre }` so long lines wrap. */
+/* wrapCodeBlocks → `.mu-code-wrap`; wraps long lines (overrides prism's `pre`). */
 .mu-code-wrap .mu-code-block .mu-code {
     overflow: hidden;
 
