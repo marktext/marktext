@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
-import type Content from '../content';
 import type { TState } from '../../../state/types';
+import type Content from '../content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
 
