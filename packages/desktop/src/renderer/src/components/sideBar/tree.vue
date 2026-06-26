@@ -65,7 +65,10 @@
       v-if="projectTree"
       class="project-tree"
     >
-      <div class="title">
+      <div
+        class="title"
+        @contextmenu.prevent="handleRootContextMenu"
+      >
         <el-icon
           class="icon-arrow"
           :class="{ fold: !showDirectories }"
@@ -155,6 +158,7 @@ import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
+import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeNode, TabDescriptor } from './types'
@@ -183,6 +187,7 @@ const preferencesStore = usePreferencesStore()
 
 // Computed properties
 const { createCache } = storeToRefs(projectStore)
+const { clipboard } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
 // The createCache state is `{ dirname, type }` while an input is shown, and
@@ -205,6 +210,11 @@ const saveAll = (isClose: boolean): void => {
 const createFile = (): void => {
   projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
   bus.emit('SIDEBAR::new', 'file')
+}
+
+const handleRootContextMenu = (event: MouseEvent): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
+  showContextMenu(event, !!clipboard.value)
 }
 
 const toggleOpenedFiles = (): void => {
