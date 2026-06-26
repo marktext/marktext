@@ -9,6 +9,7 @@ import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { URL_REG } from '../config';
+import { tokenizer } from '../inlineRenderer/lexer';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
@@ -100,26 +101,27 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
         originWrapperBlock!.remove();
 }
 
-const AUTO_LINK_LEFT_BOUNDARY_REG = /[* _~(]/;
-
 function isSinglePlainUrl(text: string): boolean {
     return URL_REG.test(text) && !/\s/.test(text);
 }
 
 function canPlainUrlFallbackAutoLink(
+    text: string,
     content: string,
     start: { offset: number },
     end: { offset: number },
 ): boolean {
-    const head = content.substring(0, start.offset);
-    const tail = content.substring(end.offset);
-    const leftChar = head[head.length - 1] ?? '';
-    const rightChar = tail[0] ?? '';
-    const hasLeftBoundary
-        = head.length === 0 || AUTO_LINK_LEFT_BOUNDARY_REG.test(leftChar);
-    const hasRightBoundary = tail.length === 0 || /\s/.test(rightChar);
+    const candidate
+        = content.substring(0, start.offset)
+            + text
+            + content.substring(end.offset);
 
-    return hasLeftBoundary && hasRightBoundary;
+    return tokenizer(candidate, { hasBeginRules: false }).some(token =>
+        token.type === 'auto_link_extension'
+        && token.linkType === 'url'
+        && token.range.start === start.offset
+        && token.range.end === start.offset + text.length,
+    );
 }
 
 function shouldPreserveBareUrlLinkForPaste(
@@ -128,7 +130,7 @@ function shouldPreserveBareUrlLinkForPaste(
     start: { offset: number },
     end: { offset: number },
 ): boolean {
-    return isSinglePlainUrl(text) && !canPlainUrlFallbackAutoLink(content, start, end);
+    return isSinglePlainUrl(text) && !canPlainUrlFallbackAutoLink(text, content, start, end);
 }
 
 function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
