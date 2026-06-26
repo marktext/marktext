@@ -13,8 +13,7 @@ import {
 } from './helpers'
 
 // PARITY SCOREBOARD — desktop gaps PG2 (file PG02), PG14 (file PG15),
-// PG15 (file PG16). Each RUNS headless but currently fails, so each is marked
-// `test.fail()`. When the corresponding fix lands, remove the `test.fail()`.
+// PG15 (file PG16).
 
 // Trigger an editor undo through the same IPC channel the Edit › Undo menu item
 // uses (`mt::editor-edit-action` → bus `undo` → editor.undo()). More reliable

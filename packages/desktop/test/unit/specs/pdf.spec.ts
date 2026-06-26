@@ -25,7 +25,7 @@ vi.hoisted(() => {
 // characterize the branch *dispatch* (academic/liber take the inline path and
 // never touch `window.fileUtils`/`window.marktext`, unlike a disk theme name)
 // rather than asserting a theme-specific selector token, which is unavailable
-// here. See suspectedBugs / notes.
+// here.
 
 const loadPdf = async() => {
   return import('@/util/pdf')

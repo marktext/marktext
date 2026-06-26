@@ -90,8 +90,6 @@ describe('parity PG12: hideLinkPopup gates the link hover popover', () => {
             muya.on('muya-link-tools', handler);
             hover(link);
 
-            // Desired: the popover stays suppressed when the preference is set.
-            // Today the emitter ignores the option and opens it anyway.
             expect(countOpenEmits(handler)).toBe(0);
         },
     );

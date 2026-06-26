@@ -228,12 +228,6 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
     });
 });
 
-// The markdown round-trip above proves the html_tag format committed to state.
-// These pin the *live* DOM mount: the inline renderer turns `<u>`/`<mark>`
-// html_tag tokens into real elements (bare tag + `.mu-inline-rule.mu-raw-html`
-// via `buildRawHtmlTag`) inside the booted content block, not just into a
-// serialized markdown string. (The export path is covered by
-// renderToStaticHTML.spec; this is the editing-surface mount.)
 describe('format.format(\'clear\') with the caret inside the run', () => {
     it('strips a strong run to plain text', () => {
         const content = caretInFirstBlock(bootMuya('**word**\n'), 2);
