@@ -183,25 +183,20 @@ class CodeBlockContent extends Content {
             this._lastLineCount = count;
         }
         this._observeLineNumberResize(wrapper);
-        // Reposition on every update so wrap-mode line breaks are reflected.
-        const codeEl = this.domNode;
-        requestAnimationFrame(() => {
-            if (codeEl && wrapper.isConnected)
-                repositionLineNumberSpans(wrapper, codeEl);
-        });
     }
 
-    // Re-measure the gutter after any code-block reflow (post-layout, so it
-    // can't read stale positions).
+    // Re-measure the gutter after any code-block reflow (initial render, font /
+    // wrap change, content edit, viewport resize). Fires post-layout, so it
+    // can't read stale positions; owns all repositioning.
     private _observeLineNumberResize(wrapper: HTMLElement) {
         if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
             return;
-        const codeEl = this.domNode;
-        if (codeEl == null)
-            return;
+        const codeEl = this.domNode!;
         this._lineNumberResizeObserver = new ResizeObserver(() => {
             if (codeEl.isConnected && wrapper.isConnected)
                 repositionLineNumberSpans(wrapper, codeEl);
+            else
+                this._lineNumberResizeObserver?.disconnect();
         });
         this._lineNumberResizeObserver.observe(codeEl);
     }
