@@ -27,7 +27,7 @@ import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
 import { conflict, isHTMLElement, isMouseEvent } from '../../utils';
-import { correctImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
 interface IOffset {
@@ -371,11 +371,8 @@ class Format extends Content {
                 imageText += alt;
 
             imageText += '](';
-            if (src) {
-                imageText += src
-                    .replace(/ /g, encodeURI(' '))
-                    .replace(/#/g, encodeURIComponent('#'));
-            }
+            if (src)
+                imageText += encodeImageSrc(src);
 
             if (title)
                 imageText += ` "${title}"`;

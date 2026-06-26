@@ -31,6 +31,7 @@ import {
 import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
+import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
@@ -994,7 +995,7 @@ export class Muya {
         else if (DATA_URL_REG.test(src))
             imgUrl = src;
         else
-            imgUrl = src.replace(/ /g, encodeURI(' ')).replace(/#/g, encodeURIComponent('#'));
+            imgUrl = encodeImageSrc(src);
 
         const { start, end } = cursor;
         const { text } = block;
