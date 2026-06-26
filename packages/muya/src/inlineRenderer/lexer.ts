@@ -196,11 +196,17 @@ function tryChunks(state: ILexState): boolean {
     for (const rule of chunks) {
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
-            if (
-                rule === 'emoji'
-                && !lowerPriority(state.src, to[0].length, validateRules)
-            ) {
-                return false;
+            if (rule === 'emoji') {
+                // An emoji opener must sit at a word boundary: a ":" glued to a
+                // preceding letter/digit (e.g. the colons in "12:00-14:00") is
+                // not the start of a shortcode (#1677).
+                const prevChar = state.originSrc[state.pos - 1];
+                if (
+                    (prevChar && /\w/.test(prevChar))
+                    || !lowerPriority(state.src, to[0].length, validateRules)
+                ) {
+                    return false;
+                }
             }
             pushPending(state);
             const range = {
