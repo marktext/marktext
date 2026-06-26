@@ -58,4 +58,43 @@ test.describe('code-block font options', () => {
         // The 3rd line number must move down to track the taller lines.
         await expect.poll(thirdLineTop).toBeGreaterThan(before + 5);
     });
+
+    test('editor font size also re-measures the line-number gutter', async ({ page }) => {
+        await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
+        await page.waitForSelector('.mu-line-numbers-rows span');
+
+        const thirdLineTop = () => page.evaluate(() => {
+            const spans = document.querySelectorAll<HTMLElement>('.mu-line-numbers-rows span');
+            return Number.parseFloat(spans[2]?.style.top || '0');
+        });
+
+        await expect.poll(thirdLineTop).toBeGreaterThan(0);
+        const before = await thirdLineTop();
+
+        // The code block font is relative (`90%`), so the editor base font
+        // change enlarges the code lines — the gutter must track them.
+        await page.evaluate(() => window.muya!.setOptions({ fontSize: 30 }));
+
+        await expect.poll(thirdLineTop).toBeGreaterThan(before + 5);
+    });
+
+    test('wrapCodeBlocks wraps long lines', async ({ page }) => {
+        const longLine = `\`\`\`js\nconst x = "${'a'.repeat(160)}"\n\`\`\`\n`;
+        await page.evaluate(md => window.muya!.setContent(md), longLine);
+        await page.waitForSelector('.mu-code-block .mu-code');
+
+        const overflowing = () => page.evaluate(() => {
+            const code = document.querySelector('.mu-code-block .mu-code') as HTMLElement;
+            return code.scrollWidth > code.clientWidth + 2;
+        });
+
+        // Off: the long line overflows horizontally.
+        await expect.poll(overflowing).toBe(true);
+
+        await page.evaluate(() => window.muya!.setOptions({ wrapCodeBlocks: true }));
+        await expect.poll(overflowing).toBe(false);
+
+        await page.evaluate(() => window.muya!.setOptions({ wrapCodeBlocks: false }));
+        await expect.poll(overflowing).toBe(true);
+    });
 });
