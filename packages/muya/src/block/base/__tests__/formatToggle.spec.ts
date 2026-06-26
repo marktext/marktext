@@ -252,6 +252,28 @@ function makeFakeEvent(): Event {
     } as unknown as Event;
 }
 
+// #3196 — the inline format toolbar pops up on any text selection. It must be a
+// passive (non-capturing) float, otherwise the UI keydown gate swallows Enter
+// while it is shown and a selection can no longer be replaced with a line break.
+describe('inline format toolbar is a passive float (#3196)', () => {
+    it('does not capture content keydown, so Enter passes through the UI gate', () => {
+        const muya = bootMuya('hello world\n');
+        const toolbar = new InlineFormatToolbar(muya);
+
+        expect(toolbar.capturesContentKeydown).toBe(false);
+
+        // Simulate the toolbar being the only shown float (as it is whenever
+        // text is selected) and assert the gate lets Enter through.
+        muya.ui.shownFloat.add(toolbar as unknown as Parameters<typeof muya.ui.shownFloat.add>[0]);
+        const event = { key: 'Enter', preventDefault: vi.fn() } as unknown as KeyboardEvent;
+
+        expect(muya.ui.handleContentKeydown(event)).toBe(false);
+        expect(event.preventDefault).not.toHaveBeenCalled();
+
+        toolbar.destroy();
+    });
+});
+
 describe('format picker collapses after link creation', () => {
     it('selecting the link button runs content.format(\'link\') and hides the picker', () => {
         const muya = bootMuya('abc\n');
