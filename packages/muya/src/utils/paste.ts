@@ -45,13 +45,13 @@ export async function getPageTitle(url: string) {
         if (res.status !== 200 || !contentType || !/text\/html/i.test(contentType))
             return '';
 
-        // The response is HTML — read it as text and pluck `<title>`.
-        // Reading it as `res.json()` would always throw and make the helper
-        // silently return ''.
+        // Parse inertly and read `<title>` textContent, which decodes HTML
+        // entities so they don't leak into the pasted link text (#2525).
         const body = await res.text();
-        const match = body.match(/<title>([\s\S]*?)<\/title>/i);
+        const doc = new DOMParser().parseFromString(body, 'text/html');
+        const title = doc.querySelector('title')?.textContent?.trim();
 
-        return match && match[1] ? match[1].trim() : '';
+        return title || '';
     }
     catch {
         return '';
