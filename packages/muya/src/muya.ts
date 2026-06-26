@@ -119,10 +119,13 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'trimUnnecessaryCodeBlockEmptyLines',
 ]);
 
-// Options that change code-block line metrics (font / wrap). The line-number
-// gutter is positioned by measuring each line's pixel top, which goes stale on
-// a pure CSS change, so it must be re-measured after these change.
-const CODE_LAYOUT_OPTIONS = new Set<keyof IMuyaOptions>([
+// Options that change code-block line metrics, so the line-number gutter (whose
+// per-line pixel tops are measured, not derived) must be re-measured. Includes
+// the editor base `fontSize` / `lineHeight`: the code block's font-size can be
+// relative (`90%`), so an editor-font change shifts the code lines too.
+const LINE_NUMBER_RELAYOUT_OPTIONS = new Set<keyof IMuyaOptions>([
+    'fontSize',
+    'lineHeight',
     'codeFontSize',
     'codeFontFamily',
     'wrapCodeBlocks',
@@ -345,7 +348,7 @@ export class Muya {
 
         applyAppearance(this.domNode, options);
 
-        if (Object.keys(options).some(key => CODE_LAYOUT_OPTIONS.has(key as keyof IMuyaOptions)))
+        if (Object.keys(options).some(key => LINE_NUMBER_RELAYOUT_OPTIONS.has(key as keyof IMuyaOptions)))
             relayoutCodeLineNumbers(this.domNode);
 
         if (!forceRender)
