@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/muya';
 
 /**
@@ -22,6 +23,12 @@ import { expect, test } from '../fixtures/muya';
 // The host boots with `codeBlockLineNumbers: true`, so the gutter renders.
 const CODE_MD = '```js\nconst a = 1\nconst b = 2\nconst c = 3\n```\n';
 
+// Measured `top` of the 3rd line number (the gutter is positioned, not derived).
+const thirdLineTop = (page: Page) => page.evaluate(() => {
+    const spans = document.querySelectorAll<HTMLElement>('.mu-line-numbers-rows span');
+    return Number.parseFloat(spans[2]?.style.top || '0');
+});
+
 test.describe('code-block font options', () => {
     test('codeFontFamily reaches the code text element', async ({ page }) => {
         await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
@@ -44,38 +51,28 @@ test.describe('code-block font options', () => {
         await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
         await page.waitForSelector('.mu-line-numbers-rows span');
 
-        const thirdLineTop = () => page.evaluate(() => {
-            const spans = document.querySelectorAll<HTMLElement>('.mu-line-numbers-rows span');
-            return Number.parseFloat(spans[2]?.style.top || '0');
-        });
-
-        // Wait for the initial line-number rAF to position the spans.
-        await expect.poll(thirdLineTop).toBeGreaterThan(0);
-        const before = await thirdLineTop();
+        // Wait for the initial line-number positioning.
+        await expect.poll(() => thirdLineTop(page)).toBeGreaterThan(0);
+        const before = await thirdLineTop(page);
 
         await page.evaluate(() => window.muya!.setOptions({ codeFontSize: 30 }));
 
         // The 3rd line number must move down to track the taller lines.
-        await expect.poll(thirdLineTop).toBeGreaterThan(before + 5);
+        await expect.poll(() => thirdLineTop(page)).toBeGreaterThan(before + 5);
     });
 
     test('editor font size also re-measures the line-number gutter', async ({ page }) => {
         await page.evaluate(md => window.muya!.setContent(md), CODE_MD);
         await page.waitForSelector('.mu-line-numbers-rows span');
 
-        const thirdLineTop = () => page.evaluate(() => {
-            const spans = document.querySelectorAll<HTMLElement>('.mu-line-numbers-rows span');
-            return Number.parseFloat(spans[2]?.style.top || '0');
-        });
-
-        await expect.poll(thirdLineTop).toBeGreaterThan(0);
-        const before = await thirdLineTop();
+        await expect.poll(() => thirdLineTop(page)).toBeGreaterThan(0);
+        const before = await thirdLineTop(page);
 
         // The code block font is relative (`90%`), so the editor base font
         // change enlarges the code lines — the gutter must track them.
         await page.evaluate(() => window.muya!.setOptions({ fontSize: 30 }));
 
-        await expect.poll(thirdLineTop).toBeGreaterThan(before + 5);
+        await expect.poll(() => thirdLineTop(page)).toBeGreaterThan(before + 5);
     });
 
     test('wrapCodeBlocks wraps long lines', async ({ page }) => {
