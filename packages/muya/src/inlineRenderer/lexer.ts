@@ -900,11 +900,33 @@ export function tokenizer(src: string, {
 
 // transform `tokens` to text ignore the range of token
 // the opposite of tokenizer
-export function generator(tokens: Token[]) {
+// Rebuild a marker-wrapped token from its children instead of its stale cached
+// `raw` (#2063). Link/image keep their stored raw.
+function rebuildWrapperToken(token: Token): string {
+    switch (token.type) {
+        case 'strong':
+        case 'em':
+        case 'del':
+            return token.marker + generator(token.children, true) + token.marker;
+
+        case 'html_tag':
+            if (token.openTag != null && token.closeTag != null && token.children != null)
+                return token.openTag + generator(token.children, true) + token.closeTag;
+
+            return token.raw;
+
+        default:
+            return token.raw;
+    }
+}
+
+// `rebuildWrappers` is opt-in: only `format()` mutates a wrapper's children;
+// `backspaceHandler` trims a marker off `raw` and needs it echoed verbatim.
+export function generator(tokens: Token[], rebuildWrappers = false) {
     let result = '';
 
     for (const token of tokens)
-        result += token.raw;
+        result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
 
     return result;
 }

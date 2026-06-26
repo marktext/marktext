@@ -140,6 +140,36 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
     });
 });
 
+// #2063 — toggling the INNER format off a nested run (e.g. removing italic from
+// bold-italic `***foo***`). `clearFormat` splices the inner token's children up
+// into the ancestor wrapper's `children` array, but the ancestor's cached `raw`
+// goes stale; the serializer must rebuild the wrapper from its children, not
+// trust that raw, or the toggle is a silent no-op.
+describe('format.format() toggle-off the inner format of a nested run (#2063)', () => {
+    it('em inside strong: selecting `foo` in `***foo***` un-italics to `**foo**`', () => {
+        // Raw offsets: `bar ***foo*** bar` → `foo` spans 7..10 (inside both the
+        // strong 4..13 and the em 6..11 token ranges).
+        const content = selectInFirstBlock(bootMuya('bar ***foo*** bar\n'), 7, 10);
+        content.format('em');
+        expect(content.text).toBe('bar **foo** bar');
+    });
+
+    it('the un-italic also drops the inner markers from the serialized markdown', async () => {
+        const muya = bootMuya('bar ***foo*** bar\n');
+        selectInFirstBlock(muya, 7, 10).format('em');
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown().trim()).toBe('bar **foo** bar');
+        });
+    });
+
+    it('strong inside del: selecting `b` in `~~a **b** a~~` un-bolds to `~~a b a~~`', () => {
+        // `~~a **b** a~~`: the strong `**b**` raw spans 5..10, text `b` at 7..8.
+        const content = selectInFirstBlock(bootMuya('~~a **b** a~~\n'), 7, 8);
+        content.format('strong');
+        expect(content.text).toBe('~~a b a~~');
+    });
+});
+
 describe('format.format() apply-ON over a non-collapsed selection', () => {
     it('strong: selecting `abc` and applying wraps it in `**…**`', async () => {
         const muya = bootMuya('abc\n');
