@@ -21,6 +21,14 @@ export class Search {
 
     constructor(private _muya: Muya) {}
 
+    // Drop match state when the document is replaced (e.g. a tab switch), so
+    // stale matches don't reference the previous document's blocks (#1932).
+    reset() {
+        this._value = '';
+        this.matches = [];
+        this.index = -1;
+    }
+
     private _updateMatches(isClear = false) {
         const { matches, index } = this;
         let i;
