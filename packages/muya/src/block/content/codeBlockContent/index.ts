@@ -114,8 +114,14 @@ class CodeBlockContent extends Content {
             : codeContainer!.parent;
     }
 
+    // The text the preview was last rendered from. Seeded with the initial
+    // text so the create-pass update() does not re-trigger a render that races
+    // the preview's own one-shot render on append (async for diagrams).
+    private _lastPreviewText: string;
+
     constructor(muya: Muya, state: CodeContentState) {
         super(muya, state.text);
+        this._lastPreviewText = state.text;
         if (hasStateMeta(state))
             this._initialLang = state.meta.lang;
         else
@@ -134,6 +140,17 @@ class CodeBlockContent extends Content {
 
     // Some block has a preview container, like math, diagram, html, should update the preview if the text changed.
     private _updatePreviewIfHave(text: string) {
+        // update() runs during the initial create pass before this block is
+        // attached, when outContainer cannot resolve its parent chain.
+        if (!this._codeContainer)
+            return;
+        // Only re-render when the text actually changed. update() is called on
+        // every render pass; without this guard a diagram's create-pass render
+        // and update()'s render race (DiagramPreview.update is async), leaving
+        // the SVG unmounted.
+        if (text === this._lastPreviewText)
+            return;
+        this._lastPreviewText = text;
         if (this.outContainer?.attachments?.length)
             (this.outContainer?.attachments?.head as HTMLPreview).update(text);
     }
@@ -166,6 +183,9 @@ class CodeBlockContent extends Content {
         }
 
         this._updateLineNumbers(text);
+        // Re-render the math/diagram/html preview too; undo/redo reaches this
+        // block only through update(), not inputHandler (#1632).
+        this._updatePreviewIfHave(text);
     }
 
     private _lastLineCount = -1;
