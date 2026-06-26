@@ -205,6 +205,22 @@ const handleSelectAll = () => {
   }
 }
 
+// The desktop find bar is removed in source mode, so route Find/Replace to
+// CodeMirror's own search dialogs instead of dropping the events (#3311).
+const handleSourceFind = () => {
+  if (sourceCode.value && editor.value) {
+    editor.value.focus()
+    editor.value.execCommand('findPersistent')
+  }
+}
+
+const handleSourceReplace = () => {
+  if (sourceCode.value && editor.value) {
+    editor.value.focus()
+    editor.value.execCommand('replace')
+  }
+}
+
 interface ImageActionPayload {
   id: string
   result: string
@@ -342,6 +358,8 @@ onMounted(() => {
   bus.on('selectAll', handleSelectAll)
   bus.on('image-action', handleImageAction)
   bus.on('scroll-to-header', handleScrollToHeader)
+  bus.on('find', handleSourceFind)
+  bus.on('replace', handleSourceReplace)
 
   // For some reason, code mirror does not seem to play well with Vue's refs if we reference editor.value directly.
   // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
@@ -380,6 +398,8 @@ onBeforeUnmount(() => {
   bus.off('selectAll', handleSelectAll)
   bus.off('image-action', handleImageAction)
   bus.off('scroll-to-header', handleScrollToHeader)
+  bus.off('find', handleSourceFind)
+  bus.off('replace', handleSourceReplace)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
   bus.emit('file-changed', {
