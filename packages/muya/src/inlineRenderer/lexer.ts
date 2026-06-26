@@ -114,7 +114,6 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     }
 }
 
-// backlash
 function tryBacklash(state: ILexState): boolean {
     const backTo = state.inlineRules.backlash.exec(state.src);
     if (!backTo)
@@ -140,7 +139,6 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-// strong | em
 function tryStrongEm(state: ILexState): boolean {
     const emRules = ['strong', 'em'] as const;
 
@@ -254,7 +252,6 @@ function tryChunks(state: ILexState): boolean {
     return false;
 }
 
-// superscript and subscript
 function trySuperSubScript(state: ILexState): boolean {
     if (!state.superSubScript)
         return false;
@@ -282,7 +279,6 @@ function trySuperSubScript(state: ILexState): boolean {
     return true;
 }
 
-// footnote identifier
 function tryFootnote(state: ILexState): boolean {
     if (state.pos === 0 || !state.footnote)
         return false;
@@ -309,7 +305,6 @@ function tryFootnote(state: ILexState): boolean {
     return true;
 }
 
-// image
 function tryImage(state: ILexState): boolean {
     const imageTo = state.inlineRules.image.exec(state.src);
     correctUrl(imageTo);
@@ -348,7 +343,6 @@ function tryImage(state: ILexState): boolean {
     return true;
 }
 
-// link
 function tryLink(state: ILexState): boolean {
     const linkTo = state.inlineRules.link.exec(state.src);
     correctUrl(linkTo);
@@ -491,7 +485,6 @@ function tryReferenceImage(state: ILexState): boolean {
     return true;
 }
 
-// html escape
 function tryHtmlEscape(state: ILexState): boolean {
     const htmlEscapeTo = state.inlineRules.html_escape.exec(state.src);
     if (!htmlEscapeTo)
@@ -569,7 +562,6 @@ function trimAutoLinkExtent(raw: string): string {
     return raw.slice(0, end);
 }
 
-// auto link extension
 function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
     if (
@@ -621,7 +613,6 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     return true;
 }
 
-// auto link
 function tryAutoLink(state: ILexState): boolean {
     const autoLTo = state.inlineRules.auto_link.exec(state.src);
     if (!autoLTo)
@@ -718,7 +709,6 @@ function tryHtmlTag(state: ILexState): boolean {
     return false;
 }
 
-// soft line break
 function trySoftLineBreak(state: ILexState): boolean {
     const softTo = state.inlineRules.soft_line_break.exec(state.src);
     if (!softTo)
@@ -743,7 +733,6 @@ function trySoftLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// hard line break
 function tryHardLineBreak(state: ILexState): boolean {
     const hardTo = state.inlineRules.hard_line_break.exec(state.src);
     if (!hardTo)
@@ -769,7 +758,6 @@ function tryHardLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// tail header
 function tryTailHeader(state: ILexState): boolean {
     const tailTo = state.inlineRules.tail_header.exec(state.src);
     if (!(tailTo && state.top))
