@@ -505,7 +505,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
+      const defaultPath = getDialogDefaultPath(projectStore)
       if (id) {
         window.electron.ipcRenderer.send(
           'mt::response-file-save',
@@ -534,7 +534,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
+      const defaultPath = getDialogDefaultPath(projectStore)
 
       if (id) {
         window.electron.ipcRenderer.send(
@@ -651,7 +651,7 @@ export const useEditorStore = defineStore('editor', {
                   pathname,
                   markdown,
                   options,
-                  defaultPath: getRootFolderFromState(projectStore)
+                  defaultPath: getDialogDefaultPath(projectStore)
                 }
               })
 
@@ -687,7 +687,7 @@ export const useEditorStore = defineStore('editor', {
             pathname,
             markdown,
             options,
-            defaultPath: getRootFolderFromState(projectStore)
+            defaultPath: getDialogDefaultPath(projectStore)
           }
         })
 
@@ -708,7 +708,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
+      const defaultPath = getDialogDefaultPath(projectStore)
       if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
@@ -750,7 +750,7 @@ export const useEditorStore = defineStore('editor', {
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
-      const defaultPath = getRootFolderFromState(projectStore)
+      const defaultPath = getDialogDefaultPath(projectStore)
       if (!id) return
       if (!pathname) {
         // if current file is a newly created file, just save it!
@@ -1474,7 +1474,7 @@ export const useEditorStore = defineStore('editor', {
 
         const tab = this.tabs.find((t) => t.id === id)
         if (tab && !tab.isSaved) {
-          const defaultPath = getRootFolderFromState(projectStore)
+          const defaultPath = getDialogDefaultPath(projectStore)
           window.electron.ipcRenderer.send(
             'mt::response-file-save',
             id,
@@ -1778,6 +1778,13 @@ const getRootFolderFromState = (projectStore: ProjectStoreLike): string => {
     return openedFolder.pathname ?? ''
   }
   return ''
+}
+
+// Default directory for save/move/rename dialogs: the opened project folder,
+// or — when none is open — the directory of the file currently being edited
+// (#2156). Main falls back to the Documents folder only when both are empty.
+const getDialogDefaultPath = (projectStore: ProjectStoreLike): string => {
+  return getRootFolderFromState(projectStore) || (window.DIRNAME ?? '')
 }
 
 /**
