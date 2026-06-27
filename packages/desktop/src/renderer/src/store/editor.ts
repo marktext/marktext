@@ -1658,6 +1658,14 @@ export const useEditorStore = defineStore('editor', {
             }
             case 'add':
             case 'change': {
+              // Only the file's metadata changed on disk (e.g. a git checkout
+              // that left the content byte-identical) — there is nothing to
+              // reload and no reason to warn the user (#1861).
+              const newMarkdown = (change as unknown as FileChangePayload).data?.markdown
+              if (typeof newMarkdown === 'string' && newMarkdown === tab.markdown) {
+                break
+              }
+
               const { autoSave } = preferencesStore
               if (autoSave) {
                 if (autoSaveTimers.has(id)) {
