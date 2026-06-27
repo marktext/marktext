@@ -22,8 +22,12 @@ function checkAutoIndent(text: string, offset: number) {
     return /^(?:\{\}|\[\]|\(\)|><)$/.test(pairStr);
 }
 
-function getIndentSpace(text: string) {
-    const match = /^(\s*)\S/.exec(text);
+function getIndentSpace(text: string, offset: number) {
+    const lineStart = text.lastIndexOf('\n', offset - 1) + 1;
+    let lineEnd = text.indexOf('\n', lineStart);
+    if (lineEnd === -1)
+        lineEnd = text.length;
+    const match = /^(\s*)\S/.exec(text.slice(lineStart, lineEnd));
 
     return match ? match[1] : '';
 }
@@ -281,7 +285,7 @@ class CodeBlockContent extends Content {
         const { start } = this.getCursor()!;
         const { text } = this;
         const autoIndent = checkAutoIndent(text, start.offset);
-        const indent = getIndentSpace(text);
+        const indent = getIndentSpace(text, start.offset);
 
         this.text
             = `${text.substring(0, start.offset)
