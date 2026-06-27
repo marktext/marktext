@@ -73,4 +73,30 @@ test.describe('#2421 sidebar state survives icon toggle', () => {
     expect(Math.abs(reExpanded - widened)).toBeLessThanOrEqual(3)
   })
 
+  test('a collapsed tree section stays collapsed after toggling the sidebar', async() => {
+    const arrow = page.locator('.side-bar .opened-files > .title .icon-arrow').first()
+    await expect(arrow).toBeVisible()
+
+    // Collapse the "Opened files" section.
+    await arrow.click()
+    await page.waitForFunction(() => {
+      const a = document.querySelector('.side-bar .opened-files .icon-arrow')
+      return !!(a && a.classList.contains('fold'))
+    }, null, { timeout: 5000 })
+
+    // Toggle the whole sidebar off and back on via its icon.
+    await filesIcon(page).click()
+    await page.waitForTimeout(250)
+    await filesIcon(page).click()
+    await page.waitForFunction(() => {
+      const el = document.querySelector('.side-bar .opened-files') as HTMLElement | null
+      return !!(el && el.offsetParent !== null)
+    }, null, { timeout: 5000 })
+
+    const stillCollapsed = await page.evaluate(() => {
+      const a = document.querySelector('.side-bar .opened-files .icon-arrow')
+      return !!(a && a.classList.contains('fold'))
+    })
+    expect(stillCollapsed).toBe(true)
+  })
 })
