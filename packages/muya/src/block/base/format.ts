@@ -1648,6 +1648,15 @@ class Format extends Content {
             end.offset += end.delta;
             this.text = generator(tokens, true);
 
+            // Whitespace wrapped inside emphasis markers is invalid CommonMark
+            // (`**foo **` is not right-flanking, so it renders literally), so
+            // trim the selection to its non-whitespace span before wrapping.
+            const selected = this.text.substring(start.offset, end.offset);
+            if (selected.trim().length > 0) {
+                start.offset += selected.length - selected.trimStart().length;
+                end.offset -= selected.length - selected.trimEnd().length;
+            }
+
             this._addFormat(type, { start, end });
 
             if (type === 'image') {
