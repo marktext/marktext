@@ -393,7 +393,7 @@ class Format extends Content {
                 imageText += `${attr}="${value}" `;
             }
             imageText = imageText.trim();
-            imageText += '>';
+            imageText += ' />';
         }
 
         this.text
@@ -424,7 +424,7 @@ class Format extends Content {
             imageText += `${attr}="${value}" `;
         }
         imageText = imageText.trim();
-        imageText += '>';
+        imageText += ' />';
         this.text
             = oldText.substring(0, start) + imageText + oldText.substring(end);
 
