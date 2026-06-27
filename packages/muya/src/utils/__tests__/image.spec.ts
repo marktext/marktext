@@ -153,21 +153,53 @@ describe('getImageSrc — Windows drive + UNC base directories (Phase G review)'
         });
     });
 
-    it('resolves against a UNC share base directory', () => {
+    it('resolves against a UNC share base directory (authority form)', () => {
         withDirname('//server/share/docs', () => {
-            expect(getImageSrc('a.png').src).toBe('file:////server/share/docs/a.png');
+            expect(getImageSrc('a.png').src).toBe('file://server/share/docs/a.png');
         });
     });
 
     it('normalises a backslash UNC base', () => {
         withDirname('\\\\server\\share', () => {
-            expect(getImageSrc('sub/a.png').src).toBe('file:////server/share/sub/a.png');
+            expect(getImageSrc('sub/a.png').src).toBe('file://server/share/sub/a.png');
         });
     });
 
     it('clamps `..` at the UNC share root', () => {
         withDirname('//server/share/docs', () => {
-            expect(getImageSrc('../../../a.png').src).toBe('file:////server/share/a.png');
+            expect(getImageSrc('../../../a.png').src).toBe('file://server/share/a.png');
+        });
+    });
+
+    it('resolves images on a WSL path base directory', () => {
+        withDirname('//wsl.localhost/Ubuntu-24.04/home/user/docs', () => {
+            expect(getImageSrc('img/photo.png').src).toBe(
+                'file://wsl.localhost/Ubuntu-24.04/home/user/docs/img/photo.png',
+            );
+        });
+    });
+
+    it('resolves an absolute UNC path with backslashes', () => {
+        withDirname('/home/user/docs', () => {
+            expect(getImageSrc('\\\\server\\share\\img\\pic.png').src).toBe(
+                'file://server/share/img/pic.png',
+            );
+        });
+    });
+
+    it('resolves an absolute forward-slash UNC path', () => {
+        withDirname('/home/user/docs', () => {
+            expect(getImageSrc('//server/share/img/pic.png').src).toBe(
+                'file://server/share/img/pic.png',
+            );
+        });
+    });
+
+    it('does not corrupt an already-correct file:// UNC URL', () => {
+        withDirname(undefined, () => {
+            expect(getImageSrc('file://server/share/img/pic.png').src).toBe(
+                'file://server/share/img/pic.png',
+            );
         });
     });
 });
