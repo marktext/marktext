@@ -116,8 +116,12 @@ onMounted(() => {
 
 const handleLeftIconClick = (name: string): void => {
   if (rightColumn.value === name) {
+    // Capture the expanded width BEFORE collapsing: once rightColumn is '',
+    // finalSideBarWidth evaluates to the 45px icon strip and would overwrite
+    // the user's real width with the clamped 220px minimum (#2421).
+    const widthToPersist = finalSideBarWidth.value
     layoutStore.SET_LAYOUT({ rightColumn: '' })
-    layoutStore.CHANGE_SIDE_BAR_WIDTH(finalSideBarWidth.value)
+    layoutStore.CHANGE_SIDE_BAR_WIDTH(widthToPersist)
   } else {
     const needDispatch = rightColumn.value === ''
     layoutStore.SET_LAYOUT({ rightColumn: name })
