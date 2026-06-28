@@ -60,6 +60,9 @@ export interface IBlockQuoteState {
 
 export interface IListItemState {
     name: 'list-item';
+    meta?: {
+        orderMarker?: string; // e.g. "1.", "001.", "10)"
+    };
     children: TState[];
 }
 

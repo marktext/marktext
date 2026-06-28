@@ -559,15 +559,50 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
     });
 });
 
-// Ordered-list start number is preserved through the markdown round-trip, and
-// the per-item number is computed by incrementing `meta.start` (see
-// stateToMarkdown.ts `serializeListItem`). The delimiter (`.` or `)`) likewise
-// comes from `meta.delimiter`, which a real boot seeds from
-// `muya.options.orderListDelimiter`.
+// Ordered-list start number is preserved through the markdown round-trip.
+// Parser-created items also carry their original source marker so save/open
+// does not canonicalize author-chosen numbering. Manually-created state with
+// no item marker metadata still falls back to incrementing `meta.start`.
 describe('stateToMarkdown — ordered list start + delimiter', () => {
     function serialize(states: TState[]): string {
         return new ExportMarkdown({ listIndentation: 1 }).generate(states);
     }
+
+    it('preserves repeated ordered markers from source markdown (#4772)', () => {
+        const md = `Below is the numbered list:
+
+1. One
+1. Two
+1. Three
+
+Text after numbered list.
+`;
+        expect(roundTrip(md)).toBe(md);
+
+        const list = parseMarkdown(md)[1] as IOrderListState;
+        expect(list.name).toBe('order-list');
+        expect(list.children.map(item => item.meta?.orderMarker)).toEqual([
+            '1.',
+            '1.',
+            '1.',
+        ]);
+    });
+
+    it('preserves non-canonical ordered item numbers from source markdown', () => {
+        const md = `10) one
+20) two
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('preserves repeated ordered markers in nested lists', () => {
+        const md = `1. outer
+   1. nested one
+   1. nested two
+1. outer again
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
 
     it('keeps a non-1 start number through the round-trip', () => {
         // The parser stores start=3; the serializer renders 3., 4. (start + i).

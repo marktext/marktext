@@ -36,6 +36,8 @@ const DEFAULT_OPTIONS = {
     frontMatter: true,
 };
 
+const ORDERED_LIST_MARKER_REG = /^ {0,3}(\d{1,9})([.)])(?=[ \t\r\n]|$)/;
+
 // Token types whose handler manipulates the `parentList` stack (push a
 // container and recurse via synthetic `block-end`), as opposed to the leaf
 // tokens that only append a state to the current level.
@@ -52,6 +54,19 @@ export class MarkdownToState {
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);
+    }
+
+    private _orderedListItemMeta(token: Extract<TBlockToken, { type: 'list_item' }>): IListItemState['meta'] | undefined {
+        if (token.listItemType !== 'order')
+            return undefined;
+
+        const match = ORDERED_LIST_MARKER_REG.exec(token.raw);
+        if (!match)
+            return undefined;
+
+        return {
+            orderMarker: `${match[1]}${match[2]}`,
+        };
     }
 
     private _convertMarkdownToState(markdown: string): TState[] {
@@ -183,8 +198,10 @@ export class MarkdownToState {
                     };
                 }
                 else {
+                    const meta = this._orderedListItemMeta(token);
                     itemState = {
                         name: 'list-item',
+                        ...(meta ? { meta } : {}),
                         children: [],
                     };
                 }

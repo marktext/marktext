@@ -568,13 +568,22 @@ export default class ExportMarkdown {
         else if ('start' in listInfo) {
             // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
             //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-            let n = listInfo.start;
-            if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
-                n = 1;
+            const preservedMarker = state.name === 'list-item'
+                ? state.meta?.orderMarker
+                : undefined;
+            if (preservedMarker) {
+                itemMarker = `${preservedMarker} `;
+                listInfo.start++;
+            }
+            else {
+                let n = listInfo.start;
+                if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
+                    n = 1;
 
-            listInfo.start++;
+                listInfo.start++;
 
-            itemMarker = `${n}${delimiter || '.'} `;
+                itemMarker = `${n}${delimiter || '.'} `;
+            }
         }
         else {
             itemMarker = '- ';
