@@ -67,6 +67,18 @@ function resolveRelativePath(base: string, relative: string): string {
     return tail ? `${root}/${tail}` : root;
 }
 
+function localPathToFileUrl(src: string): string {
+    const normalized = src.replace(/\\/g, '/');
+
+    if (/^\/\/[^/]+\/[^/]+/.test(normalized))
+        return `file://${normalized.slice(2)}`;
+
+    if (/^[a-z]:\//i.test(normalized))
+        return `file:///${normalized}`;
+
+    return `file://${normalized}`;
+}
+
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
     // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
@@ -95,13 +107,13 @@ export function getImageSrc(src: string) {
         else if (!isAbsoluteLocal && baseUrl) {
             return {
                 isUnknownType: false,
-                src: `file://${resolveRelativePath(baseUrl, src)}`,
+                src: localPathToFileUrl(resolveRelativePath(baseUrl, src)),
             };
         }
         else {
             return {
                 isUnknownType: false,
-                src: `file://${src}`,
+                src: localPathToFileUrl(src),
             };
         }
     }
