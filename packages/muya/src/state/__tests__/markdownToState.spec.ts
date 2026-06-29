@@ -37,6 +37,90 @@ function generate(
 // the correct nesting so a future list refactor can't quietly re-introduce
 // the flattening.
 describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
+    it('keeps an empty unchecked task item after a populated task item', () => {
+        const states = generate('- [ ] a\n- [ ] \n');
+
+        expect(states.length).toBe(1);
+        const list = states[0];
+        expect(list.name).toBe('task-list');
+        expect(list.children).toHaveLength(2);
+        expect(list.children!.map(c => c.name)).toEqual(['task-list-item', 'task-list-item']);
+        expect(list.children!.map(c => c.meta?.checked)).toEqual([false, false]);
+        expect(list.children![0].children!.find(c => c.name === 'paragraph')?.text).toBe('a');
+        expect(list.children![1].children).toEqual([{ name: 'paragraph', text: '' }]);
+    });
+
+    it('parses a single empty unchecked task item as a task list item', () => {
+        const states = generate('- [ ] \n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('task-list');
+        expect(states[0].children).toHaveLength(1);
+        expect(states[0].children![0].name).toBe('task-list-item');
+        expect(states[0].children![0].meta?.checked).toBe(false);
+        expect(states[0].children![0].children).toEqual([{ name: 'paragraph', text: '' }]);
+    });
+
+    it('parses a single empty checked task item as a checked task list item', () => {
+        const states = generate('- [x] \n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('task-list');
+        expect(states[0].children).toHaveLength(1);
+        expect(states[0].children![0].name).toBe('task-list-item');
+        expect(states[0].children![0].meta?.checked).toBe(true);
+        expect(states[0].children![0].children).toEqual([{ name: 'paragraph', text: '' }]);
+    });
+
+    it('parses an empty task marker with lazy continuation text as a task item', () => {
+        const states = generate('- [ ] \ntext\n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('task-list');
+        expect(states[0].children).toHaveLength(1);
+        expect(states[0].children![0].name).toBe('task-list-item');
+        expect(states[0].children![0].meta?.checked).toBe(false);
+        expect(states[0].children![0].children).toHaveLength(1);
+        expect(states[0].children![0].children![0]).toEqual({ name: 'paragraph', text: 'text' });
+    });
+
+    it('keeps lazy continuation text on the final empty task marker in a task list', () => {
+        const states = generate('- [ ] a\n\n- [ ] \n- [ ] \n- [ ] \ntext\n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('task-list');
+        expect(states[0].children).toHaveLength(4);
+        expect(states[0].children!.map(c => c.name)).toEqual([
+            'task-list-item',
+            'task-list-item',
+            'task-list-item',
+            'task-list-item',
+        ]);
+        expect(states[0].children!.map(c => c.meta?.checked)).toEqual([false, false, false, false]);
+        expect(states[0].children![0].children![0]).toEqual({ name: 'paragraph', text: 'a' });
+        expect(states[0].children![1].children).toEqual([{ name: 'paragraph', text: '' }]);
+        expect(states[0].children![2].children).toEqual([{ name: 'paragraph', text: '' }]);
+        expect(states[0].children![3].children![0]).toEqual({ name: 'paragraph', text: 'text' });
+    });
+
+    it('does not treat `- []` as an empty task item', () => {
+        const states = generate('- []\n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('bullet-list');
+        expect(states[0].children![0].name).toBe('list-item');
+        expect(states[0].children![0].children![0]).toEqual({ name: 'paragraph', text: '[]' });
+    });
+
+    it('does not treat `- [ ]text` as a task item without a marker separator', () => {
+        const states = generate('- [ ]text\n');
+
+        expect(states.length).toBe(1);
+        expect(states[0].name).toBe('bullet-list');
+        expect(states[0].children![0].name).toBe('list-item');
+        expect(states[0].children![0].children![0]).toEqual({ name: 'paragraph', text: '[ ]text' });
+    });
+
     it('keeps three levels of task-list nesting', () => {
         const md = `- [ ] task1
 

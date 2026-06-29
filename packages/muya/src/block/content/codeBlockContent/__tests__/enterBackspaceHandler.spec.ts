@@ -157,6 +157,23 @@ describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent
         expect(event.preventDefault).toHaveBeenCalledTimes(1);
     });
 
+    it('inherits the CURRENT line indent when Enter is pressed on a later line, not line 0', () => {
+        const muya = bootMuya('```js\nfoo\n```\n');
+        const content = codeContent(muya);
+        // Two lines: line 0 has no indent, line 1 is indented 4 spaces.
+        content.text = 'def foo():\n    bar()';
+        muya.editor.activeContentBlock = content;
+        const offset = content.text.length; // caret at end of the indented 2nd line
+        content.setCursor(offset, offset, true);
+
+        content.enterHandler(keyEvent({ key: 'Enter' }));
+
+        // The new line must inherit line 1's 4-space indent, not line 0's empty indent.
+        expect(content.text).toBe('def foo():\n    bar()\n    ');
+        const cursor = content.getCursor()!;
+        expect(cursor.start.offset).toBe(offset + 1 + 4);
+    });
+
     it('adds an extra tabSize block when the caret sits inside an auto-indent pair', () => {
         const muya = bootMuya('```js\nfoo\n```\n');
         const content = codeContent(muya);

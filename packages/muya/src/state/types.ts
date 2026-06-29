@@ -30,6 +30,7 @@ export interface ICodeBlockState {
     meta: {
         type: string; // "indented" | "fenced";
         lang: string;
+        fenceLength?: number;
     };
     text: string;
 }

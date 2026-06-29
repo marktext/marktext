@@ -36,6 +36,6 @@ test('a wide sequence diagram scales to fit its block, not clipped (#3560)', asy
         return { wideEnough: intrinsic > blockWidth, fits: rendered <= blockWidth + 1 };
     }, editor.diagramPreview);
 
-    expect(fits.wideEnough).toBe(true); // the diagram really is wider than the block
-    expect(fits.fits).toBe(true); // ...but is scaled down to fit it
+    expect(fits.wideEnough).toBe(true);
+    expect(fits.fits).toBe(true);
 });

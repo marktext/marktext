@@ -115,7 +115,6 @@ describe('nested mixed lists (#4341)', () => {
 
         const nestedList = children(secondItem).find(c => c.name === 'order-list');
         expect(nestedList, 'expected an order-list nested inside the second bullet-list item').toBeDefined();
-        // The item is exactly [leading paragraph, nested order-list].
         expect(children(secondItem).map(c => c.name)).toEqual(['paragraph', 'order-list']);
         expect(children(nestedList)).toHaveLength(3);
         expect(children(nestedList).map(firstText)).toEqual(['First step', 'Second step', 'Third step']);

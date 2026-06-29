@@ -7,3 +7,11 @@
 .CodeMirror-line > span > span::selection {
   background: rgb(178, 215, 254);
 }
+/* #2372 — make the source-mode selection use the same visible colour as the
+   WYSIWYG editor. The bundled railscasts theme paints the selection at #272935,
+   almost identical to its #2b2b2b background, so it was invisible on dark
+   themes. The higher specificity (+ !important) beats both railscasts' own
+   !important rule and the one-dark theme. */
+.source-code .CodeMirror div.CodeMirror-selected {
+  background: var(--selection-color, rgb(45 170 219 / 30%)) !important;
+}

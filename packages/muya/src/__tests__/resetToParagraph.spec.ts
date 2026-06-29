@@ -138,7 +138,6 @@ describe('paragraph front menu — a single menu open performs at most one actio
         // list, but the menu still holds it in `_block`.
         menu.selectItem(new Event('click'), { label: 'order-list' });
 
-        // Selecting again on the now-detached block must not throw.
         expect(() =>
             menu.selectItem(new Event('click'), { label: 'bullet-list' }),
         ).not.toThrow();

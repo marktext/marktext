@@ -4,6 +4,10 @@ import { sanitize } from '../utils';
 
 const TIMEOUT = 1500;
 
+interface INormalizePastedHTMLOptions {
+    preserveBareUrlLinks?: boolean;
+}
+
 export const isOnline = () => navigator.onLine === true;
 
 function expandTableColspans(table: HTMLTableElement) {
@@ -45,20 +49,23 @@ export async function getPageTitle(url: string) {
         if (res.status !== 200 || !contentType || !/text\/html/i.test(contentType))
             return '';
 
-        // The response is HTML — read it as text and pluck `<title>`.
-        // Reading it as `res.json()` would always throw and make the helper
-        // silently return ''.
+        // Parse inertly and read `<title>` textContent, which decodes HTML
+        // entities so they don't leak into the pasted link text (#2525).
         const body = await res.text();
-        const match = body.match(/<title>([\s\S]*?)<\/title>/i);
+        const doc = new DOMParser().parseFromString(body, 'text/html');
+        const title = doc.querySelector('title')?.textContent?.trim();
 
-        return match && match[1] ? match[1].trim() : '';
+        return title || '';
     }
     catch {
         return '';
     }
 }
 
-export async function normalizePastedHTML(html: string) {
+export async function normalizePastedHTML(
+    html: string,
+    options: INormalizePastedHTMLOptions = {},
+) {
     // Only extract the `body.innerHTML` when the `html` is a full HTML Document.
     if (/<body>[\s\S]*<\/body>/.test(html)) {
         const match = /<body>([\s\S]*)<\/body>/.exec(html);
@@ -130,7 +137,7 @@ export async function normalizePastedHTML(html: string) {
             if (title) {
                 link.textContent = title as string;
             }
-            else {
+            else if (!options.preserveBareUrlLinks) {
                 // Escape + sanitize the fallback text (muyajs uses
                 // `sanitize(text, PREVIEW_DOMPURIFY_CONFIG, true)`) so a stray
                 // angle bracket can't re-enter as live markup.

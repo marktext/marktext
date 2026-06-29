@@ -114,7 +114,6 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     }
 }
 
-// backlash
 function tryBacklash(state: ILexState): boolean {
     const backTo = state.inlineRules.backlash.exec(state.src);
     if (!backTo)
@@ -140,7 +139,6 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-// strong | em
 function tryStrongEm(state: ILexState): boolean {
     const emRules = ['strong', 'em'] as const;
 
@@ -198,11 +196,17 @@ function tryChunks(state: ILexState): boolean {
     for (const rule of chunks) {
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
-            if (
-                rule === 'emoji'
-                && !lowerPriority(state.src, to[0].length, validateRules)
-            ) {
-                return false;
+            if (rule === 'emoji') {
+                // An emoji opener must sit at a word boundary: a ":" glued to a
+                // preceding letter/digit (e.g. the colons in "12:00-14:00") is
+                // not the start of a shortcode (#1677).
+                const prevChar = state.originSrc[state.pos - 1];
+                if (
+                    (prevChar && /\w/.test(prevChar))
+                    || !lowerPriority(state.src, to[0].length, validateRules)
+                ) {
+                    return false;
+                }
             }
             pushPending(state);
             const range = {
@@ -254,7 +258,6 @@ function tryChunks(state: ILexState): boolean {
     return false;
 }
 
-// superscript and subscript
 function trySuperSubScript(state: ILexState): boolean {
     if (!state.superSubScript)
         return false;
@@ -282,7 +285,6 @@ function trySuperSubScript(state: ILexState): boolean {
     return true;
 }
 
-// footnote identifier
 function tryFootnote(state: ILexState): boolean {
     if (state.pos === 0 || !state.footnote)
         return false;
@@ -309,7 +311,6 @@ function tryFootnote(state: ILexState): boolean {
     return true;
 }
 
-// image
 function tryImage(state: ILexState): boolean {
     const imageTo = state.inlineRules.image.exec(state.src);
     correctUrl(imageTo);
@@ -348,7 +349,6 @@ function tryImage(state: ILexState): boolean {
     return true;
 }
 
-// link
 function tryLink(state: ILexState): boolean {
     const linkTo = state.inlineRules.link.exec(state.src);
     correctUrl(linkTo);
@@ -491,7 +491,6 @@ function tryReferenceImage(state: ILexState): boolean {
     return true;
 }
 
-// html escape
 function tryHtmlEscape(state: ILexState): boolean {
     const htmlEscapeTo = state.inlineRules.html_escape.exec(state.src);
     if (!htmlEscapeTo)
@@ -569,7 +568,6 @@ function trimAutoLinkExtent(raw: string): string {
     return raw.slice(0, end);
 }
 
-// auto link extension
 function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
     if (
@@ -621,7 +619,6 @@ function tryAutoLinkExtension(state: ILexState): boolean {
     return true;
 }
 
-// auto link
 function tryAutoLink(state: ILexState): boolean {
     const autoLTo = state.inlineRules.auto_link.exec(state.src);
     if (!autoLTo)
@@ -718,7 +715,6 @@ function tryHtmlTag(state: ILexState): boolean {
     return false;
 }
 
-// soft line break
 function trySoftLineBreak(state: ILexState): boolean {
     const softTo = state.inlineRules.soft_line_break.exec(state.src);
     if (!softTo)
@@ -743,7 +739,6 @@ function trySoftLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// hard line break
 function tryHardLineBreak(state: ILexState): boolean {
     const hardTo = state.inlineRules.hard_line_break.exec(state.src);
     if (!hardTo)
@@ -769,7 +764,6 @@ function tryHardLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// tail header
 function tryTailHeader(state: ILexState): boolean {
     const tailTo = state.inlineRules.tail_header.exec(state.src);
     if (!(tailTo && state.top))
@@ -900,11 +894,33 @@ export function tokenizer(src: string, {
 
 // transform `tokens` to text ignore the range of token
 // the opposite of tokenizer
-export function generator(tokens: Token[]) {
+// Rebuild a marker-wrapped token from its children instead of its stale cached
+// `raw` (#2063). Link/image keep their stored raw.
+function rebuildWrapperToken(token: Token): string {
+    switch (token.type) {
+        case 'strong':
+        case 'em':
+        case 'del':
+            return token.marker + generator(token.children, true) + token.marker;
+
+        case 'html_tag':
+            if (token.openTag != null && token.closeTag != null && token.children != null)
+                return token.openTag + generator(token.children, true) + token.closeTag;
+
+            return token.raw;
+
+        default:
+            return token.raw;
+    }
+}
+
+// `rebuildWrappers` is opt-in: only `format()` mutates a wrapper's children;
+// `backspaceHandler` trims a marker off `raw` and needs it echoed verbatim.
+export function generator(tokens: Token[], rebuildWrappers = false) {
     let result = '';
 
     for (const token of tokens)
-        result += token.raw;
+        result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
 
     return result;
 }

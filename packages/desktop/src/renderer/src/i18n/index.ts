@@ -1,10 +1,28 @@
 import { createI18n } from 'vue-i18n'
+import { compile, type MessageCompiler } from '@intlify/core-base'
 import bus from '../bus'
-
 // Directly import translation files
 import enTranslations from '../../../../static/locales/en.json'
 
-// Create the Vue i18n instance.
+// vue-i18n compiles each translation lazily on first use, and its compiler
+// throws a SyntaxError on any value it can't parse — e.g. a literal `{{x}}`
+// (nested placeholder) or stray linked-message syntax. A single malformed
+// translation then crashed the renderer; during HTML/PDF export this surfaced
+// as an "Unexpected renderer process error" even though the export itself
+// succeeded (issue #4046). Reuse vue-i18n's own compiler so well-formed
+// messages keep their `{name}` interpolation, plurals and linked references,
+// and fall back to the raw text when compilation fails.
+const safeMessageCompiler: MessageCompiler = (message, context) => {
+  try {
+    return compile(message, context)
+  } catch (err) {
+    if (typeof message === 'string') {
+      return () => message
+    }
+    throw err
+  }
+}
+
 // vue-i18n's options type intersection between Composition + Legacy modes is
 // notoriously difficult to satisfy with mixed shapes; we cast the options once
 // at the call site rather than spreading `any` further.
@@ -19,17 +37,8 @@ const i18n = createI18n({
   },
   // Disable plural parsing
   pluralRules: {},
-  // Custom message compiler to handle '|' characters
-  messageCompiler: {
-    compile: (message: unknown) => {
-      // If the message contains '|', return the raw string without plural parsing
-      if (typeof message === 'string' && message.includes('|')) {
-        return () => message
-      }
-      // For other messages, use the default compiler
-      return null
-    }
-  }
+  // Degrade malformed translations to raw text instead of crashing the renderer.
+  messageCompiler: safeMessageCompiler
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any)
 
@@ -61,7 +70,6 @@ export const t = (key: string, ...args: unknown[]): string => {
 // don't fire duplicate IPCs for the same locale.
 const inflightLoads = new Map<string, Promise<Record<string, unknown> | undefined>>()
 
-// Export language setter function
 export const setLanguage = async(locale: string): Promise<void> => {
   if (!locale) return
   const globalI18n = i18n.global

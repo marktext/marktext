@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import type { TState } from '../../../state/types';
 import type Content from '../content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
@@ -42,6 +43,15 @@ function bootMuya(markdown: string): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
     const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+function bootMuyaState(json: TState[]): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new Muya(host, { json } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedHosts.push(muya.domNode);
     return muya;
@@ -313,8 +323,19 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
 // its only paragraph is removed during editing) sitting between two items used
 // to make previous/nextContentInContext return null, so ArrowUp/ArrowDown could
 // not cross it and the caret got stuck. Navigation must skip the empty container
-// and reach the content beyond it. `*  ` (a bullet marker with no text) parses to
-// exactly such a childless list item.
+// and reach the content beyond it.
+function listWithChildlessMiddleItem(): TState[] {
+    return [{
+        name: 'bullet-list',
+        meta: { marker: '*', loose: false },
+        children: [
+            { name: 'list-item', children: [{ name: 'paragraph', text: 'A' }] },
+            { name: 'list-item', children: [] },
+            { name: 'list-item', children: [{ name: 'paragraph', text: 'B' }] },
+        ],
+    }];
+}
+
 function allContentTexts(muya: Muya): string[] {
     const texts: string[] = [];
     const visit = (block: {
@@ -332,7 +353,7 @@ function allContentTexts(muya: Muya): string[] {
 
 describe('content arrowHandler — skips empty sibling containers (#4644)', () => {
     it('arrowUp at offset 0 skips an empty list item and lands at the END of the item above', async () => {
-        const muya = bootMuya('* A\n*  \n* B\n');
+        const muya = bootMuyaState(listWithChildlessMiddleItem());
         // Precondition: the middle item holds NO content block, so a passing
         // caret assertion below can only mean the empty item was skipped.
         expect(allContentTexts(muya)).toEqual(['A', 'B']);
@@ -351,7 +372,7 @@ describe('content arrowHandler — skips empty sibling containers (#4644)', () =
     });
 
     it('arrowDown at end of an item skips an empty list item and lands at offset 0 of the item below', async () => {
-        const muya = bootMuya('* A\n*  \n* B\n');
+        const muya = bootMuyaState(listWithChildlessMiddleItem());
         expect(allContentTexts(muya)).toEqual(['A', 'B']);
 
         const a = contentByText(muya, 'A');

@@ -197,26 +197,6 @@ export const addThemeStyle = (theme: string): void => {
   }
 }
 
-export const setWrapCodeBlocks = (value: boolean): void => {
-  const CODE_WRAP_STYLE_ID = 'ag-code-wrap'
-  let result = ''
-  if (value) {
-    result =
-      '.mu-code-block .mu-code { display: block; white-space: pre-wrap; word-break: break-word; overflow: hidden; }'
-  } else {
-    result =
-      '.mu-code-block .mu-code { display: block; white-space: pre; word-break: break-word; overflow: auto; }'
-  }
-  let styleEle = document.querySelector(`#${CODE_WRAP_STYLE_ID}`) as HTMLStyleElement | null
-  if (!styleEle) {
-    styleEle = document.createElement('style')
-    styleEle.setAttribute('id', CODE_WRAP_STYLE_ID)
-    document.head.appendChild(styleEle)
-  }
-
-  styleEle.innerHTML = result
-}
-
 export const setEditorWidth = (value: string): void => {
   const EDITOR_WIDTH_STYLE_ID = 'editor-width'
   let result = ''
@@ -256,13 +236,7 @@ export const addCommonStyle = (options: CommonStyleOptions): void => {
   }
 
   sheet.innerHTML = `${scrollbarStyle}
-span code,
-td code,
-th code,
-code,
-code[class*="language-"],
-.CodeMirror,
-.mu-code-block {
+.CodeMirror {
 font-family: ${codeFontFamily}, ${DEFAULT_CODE_FONT_FAMILY};
 font-size: ${codeFontSize}px;
 }

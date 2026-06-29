@@ -41,6 +41,39 @@ const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
 const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
+const MATH_BLOCK_REG = /^\$\$/;
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
+
+type BlockConversion
+    = | { kind: 'math' }
+        | { kind: 'code'; lang: string }
+        | { kind: 'table' }
+        | { kind: 'html'; tagName: string };
+
+// Single source of truth for "what block, if any, does this paragraph text
+// convert into on Enter". Shared by the enterHandler guard (to decide whether
+// to convert in place) and `_enterConvert` (to perform it), so the match rules
+// can never drift between the two.
+function matchBlockConversion(text: string): BlockConversion | null {
+    if (MATH_BLOCK_REG.test(text))
+        return { kind: 'math' };
+
+    const codeBlockToken = text.match(CODE_BLOCK_REG);
+    if (codeBlockToken)
+        return { kind: 'code', lang: codeBlockToken[2] };
+
+    const tableMatch = TABLE_BLOCK_REG.exec(text);
+    if (tableMatch && isLengthEven(tableMatch[1]) && isLengthEven(tableMatch[2]))
+        return { kind: 'table' };
+
+    const htmlMatch = HTML_BLOCK_REG.exec(text);
+    const tagName = htmlMatch && htmlMatch[1] && HTML_TAGS.find(t => t === htmlMatch[1]);
+    if (tagName && VOID_HTML_TAGS.every(tag => tag !== tagName))
+        return { kind: 'html', tagName };
+
+    return null;
+}
 
 const BOTH_SIDES_FORMATS = [
     'strong',
@@ -224,117 +257,113 @@ class ParagraphContent extends Format {
         event.preventDefault();
         event.stopPropagation();
 
-        // eslint-disable-next-line regexp/no-super-linear-backtracking
-        const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
-        const MATH_BLOCK_REG = /^\$\$/;
-        const { text } = this;
-        const codeBlockToken = text.match(CODE_BLOCK_REG);
-        const tableMatch = TABLE_BLOCK_REG.exec(text);
-        const htmlMatch = HTML_BLOCK_REG.exec(text);
-        const mathMath = MATH_BLOCK_REG.exec(text);
-        const tagName
-            = htmlMatch && htmlMatch[1] && HTML_TAGS.find(t => t === htmlMatch[1]);
-
-        if (mathMath) {
-            const state = {
-                name: 'math-block',
-                text: '',
-                meta: {
-                    mathStyle: '',
-                },
-            };
-            const mathBlock = ScrollPage.loadBlock('math-block').create(
-                this.muya,
-                state,
-            );
-            this.parent!.replaceWith(mathBlock);
-            mathBlock.firstContentInDescendant().setCursor(0, 0);
-        }
-        else if (codeBlockToken) {
-            const lang = codeBlockToken[2];
-            // Diagram fences (```mermaid etc.) become diagram blocks, mirroring
-            // the file-load path in markdownToState; everything else is a fenced
-            // code block.
-            const diagramMatch = /^(?:mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
-            if (diagramMatch) {
-                const type = lang as IDiagramMeta['type'];
-                const state = {
-                    name: 'diagram',
-                    text: '',
-                    meta: {
-                        type,
-                        lang: type === 'vega-lite' ? 'json' : 'yaml',
-                    },
-                };
-                const diagramBlock = ScrollPage.loadBlock(state.name).create(
-                    this.muya,
-                    state,
-                );
-
-                this.parent!.replaceWith(diagramBlock);
-
-                diagramBlock.firstContentInDescendant().setCursor(0, 0, true);
-            }
-            else {
-                const state = {
-                    name: 'code-block',
-                    meta: {
-                        lang,
-                        type: 'fenced',
-                    },
-                    text: '',
-                };
-                const codeBlock = ScrollPage.loadBlock(state.name).create(
-                    this.muya,
-                    state,
-                );
-
-                this.parent!.replaceWith(codeBlock);
-
-                codeBlock.lastContentInDescendant().setCursor(0, 0);
-            }
-        }
-        else if (
-            tableMatch
-            && isLengthEven(tableMatch[1])
-            && isLengthEven(tableMatch[2])
-        ) {
-            const tableHeader = parseTableHeader(this.text);
-            // Table extends the base `create` shape with a static
-            // `createWithHeader(muya, header)` factory; the registry-level
-            // IConstructor doesn't surface it. Cast to a structural view that
-            // names only the static slot we read.
-            const tableCtor = ScrollPage.loadBlock('table') as {
-                createWithHeader?: (muya: Muya, header: string[]) => Parent;
-            };
-            const tableBlock = tableCtor.createWithHeader!(this.muya, tableHeader);
-
-            this.parent!.replaceWith(tableBlock);
-
-            // Set cursor at the first cell of second row. The runtime chain
-            // is: table → table-body (Parent.firstChild) → row (find(1)) →
-            // first cell content (firstContentInDescendant). Asserted as
-            // Parent at each container hop since createWithHeader guarantees
-            // a populated structure.
-            const tableBody = tableBlock.firstChild as Parent;
-            const secondRow = tableBody.find(1) as Parent;
-            secondRow.firstContentInDescendant()?.setCursor(0, 0, true);
-        }
-        else if (tagName && VOID_HTML_TAGS.every(tag => tag !== tagName)) {
-            const state = {
-                name: 'html-block',
-                text: `<${tagName}>\n\n</${tagName}>`,
-            };
-            const htmlBlock = ScrollPage.loadBlock('html-block').create(
-                this.muya,
-                state,
-            );
-            this.parent!.replaceWith(htmlBlock);
-            const offset = tagName.length + 3;
-            htmlBlock.firstContentInDescendant().setCursor(offset, offset);
-        }
-        else {
+        const match = matchBlockConversion(this.text);
+        if (!match)
             return super.enterHandler(event);
+
+        switch (match.kind) {
+            case 'math': {
+                const state = {
+                    name: 'math-block',
+                    text: '',
+                    meta: {
+                        mathStyle: '',
+                    },
+                };
+                const mathBlock = ScrollPage.loadBlock('math-block').create(
+                    this.muya,
+                    state,
+                );
+                this.parent!.replaceWith(mathBlock);
+                mathBlock.firstContentInDescendant().setCursor(0, 0);
+                break;
+            }
+
+            case 'code': {
+                const { lang } = match;
+                // Diagram fences (```mermaid etc.) become diagram blocks,
+                // mirroring the file-load path in markdownToState; everything
+                // else is a fenced code block.
+                const diagramMatch = /^(?:mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
+                if (diagramMatch) {
+                    const type = lang as IDiagramMeta['type'];
+                    const state = {
+                        name: 'diagram',
+                        text: '',
+                        meta: {
+                            type,
+                            lang: type === 'vega-lite' ? 'json' : 'yaml',
+                        },
+                    };
+                    const diagramBlock = ScrollPage.loadBlock(state.name).create(
+                        this.muya,
+                        state,
+                    );
+
+                    this.parent!.replaceWith(diagramBlock);
+
+                    diagramBlock.firstContentInDescendant().setCursor(0, 0, true);
+                }
+                else {
+                    const state = {
+                        name: 'code-block',
+                        meta: {
+                            lang,
+                            type: 'fenced',
+                        },
+                        text: '',
+                    };
+                    const codeBlock = ScrollPage.loadBlock(state.name).create(
+                        this.muya,
+                        state,
+                    );
+
+                    this.parent!.replaceWith(codeBlock);
+
+                    codeBlock.lastContentInDescendant().setCursor(0, 0);
+                }
+                break;
+            }
+
+            case 'table': {
+                const tableHeader = parseTableHeader(this.text);
+                // Table extends the base `create` shape with a static
+                // `createWithHeader(muya, header)` factory; the registry-level
+                // IConstructor doesn't surface it. Cast to a structural view
+                // that names only the static slot we read.
+                const tableCtor = ScrollPage.loadBlock('table') as {
+                    createWithHeader?: (muya: Muya, header: string[]) => Parent;
+                };
+                const tableBlock = tableCtor.createWithHeader!(this.muya, tableHeader);
+
+                this.parent!.replaceWith(tableBlock);
+
+                // Set cursor at the first cell of second row. The runtime chain
+                // is: table → table-body (Parent.firstChild) → row (find(1)) →
+                // first cell content (firstContentInDescendant). Asserted as
+                // Parent at each container hop since createWithHeader guarantees
+                // a populated structure.
+                const tableBody = tableBlock.firstChild as Parent;
+                const secondRow = tableBody.find(1) as Parent;
+                secondRow.firstContentInDescendant()?.setCursor(0, 0, true);
+                break;
+            }
+
+            case 'html': {
+                const { tagName } = match;
+                const state = {
+                    name: 'html-block',
+                    text: `<${tagName}>\n\n</${tagName}>`,
+                };
+                const htmlBlock = ScrollPage.loadBlock('html-block').create(
+                    this.muya,
+                    state,
+                );
+                this.parent!.replaceWith(htmlBlock);
+                const offset = tagName.length + 3;
+                htmlBlock.firstContentInDescendant().setCursor(offset, offset);
+                break;
+            }
         }
     }
 
@@ -524,10 +553,13 @@ class ParagraphContent extends Format {
         if (event.shiftKey)
             return this.shiftEnterHandler(event);
 
-        // A code fence (```` ```lang ````) always converts the paragraph in
-        // place, even inside a block-quote or list item — the resulting
-        // code-block stays nested in its container (matches muyajs).
-        if (CODE_BLOCK_REG.test(this.text))
+        // Any paragraph that would convert to a block (code fence, math block,
+        // table, HTML block) converts in place, even inside a block-quote or
+        // list item — the resulting block stays nested in its container
+        // (matches muyajs). Otherwise typing the block syntax in a list would
+        // split the item and strand an empty list entry (#2276, plus table /
+        // HTML block).
+        if (matchBlockConversion(this.text))
             return this._enterConvert(event);
 
         const type = this._paragraphParentType();

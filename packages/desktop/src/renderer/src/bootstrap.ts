@@ -77,8 +77,6 @@ const isCodeMirrorRaceCondition = (error: Error | null | undefined): boolean => 
 const handleRendererError = (event: ErrorEvent | PromiseRejectionEvent | Event): void => {
   const errorEvent = event as ErrorEvent
   if (errorEvent.error) {
-    // Suppress known non-fatal CodeMirror race conditions
-    // These occur during rapid clicking/editing and don't affect functionality
     if (isCodeMirrorRaceCondition(errorEvent.error)) {
       console.warn('Suppressed non-fatal CodeMirror race condition:', errorEvent.error.message)
       return

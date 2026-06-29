@@ -109,9 +109,7 @@ test.describe('reference link', () => {
             window.muya!.setContent('[a][r]\n');
         });
 
-        // No reference-link element of any kind survives an unresolved label.
         await expect(page.locator('.mu-reference-link')).toHaveCount(0);
-        // The raw text round-trips through getMarkdown unchanged.
         const md = await page.evaluate(() => window.muya!.getMarkdown());
         expect(md).toContain('[a][r]');
     });

@@ -24,7 +24,6 @@
           <div class="detection-header">
             <h6>{{ t('preferences.image.uploader.picgoDetection') }}</h6>
             <div class="detection-controls">
-              <!-- Standalone refresh button -->
               <button
                 v-if="showStandaloneRefreshButton"
                 class="standalone-refresh-button"
@@ -84,7 +83,6 @@
                   >
                     <!-- All SVG icons removed -->
                   </button>
-                  <!-- Refresh button -->
                   <button
                     v-if="showRefreshButton"
                     class="refresh-button"
@@ -167,7 +165,6 @@
             </div>
           </div>
 
-          <!-- PicGo basic usage guide -->
           <div class="usage-guide">
             <div class="usage-title">
               {{ t('preferences.image.uploader.usageGuide.title') }}
@@ -290,7 +287,7 @@ const picgoDetectionFailed = ref<boolean>(false) // Whether detection failed
 const picgoDetectionStatus = ref<string>('') // Detection status text
 const picgoDebugInfo = ref<string>('') // Debug information
 const isDetecting = ref<boolean>(false) // Whether detection is in progress
-const lastDetectionTime = ref<string | null>(null) // Last detection time
+const lastDetectionTime = ref<string | null>(null)
 const lastSuccessTime = ref<string | null>(null) // Last successful detection time
 const detectionTimer = ref<ReturnType<typeof setTimeout> | null>(null) // Detection interval constant moved into scheduleNextDetection function
 const consecutiveFailures = ref<number>(0) // Number of consecutive failures
@@ -695,7 +692,6 @@ const stopAnimationAndButton = () => {
 }
 
 const testPicgo = async (): Promise<void> => {
-  // Record detection start time
   lastDetectionTime.value = new Date().toISOString()
 
   const debugMessages: string[] = []

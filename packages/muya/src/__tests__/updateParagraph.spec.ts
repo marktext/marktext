@@ -286,7 +286,6 @@ describe('muya.updateParagraph()', () => {
         });
 
         const state = muya.getState();
-        // The trailing paragraph is empty and ready for input.
         expect((state[1] as { text: string }).text).toBe('');
 
         // The cursor moved off the original paragraph into the trailing one:

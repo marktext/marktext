@@ -169,7 +169,6 @@ describe('paragraphQuickInsertMenu render() — DOM output', () => {
         expect(noResult).not.toBeNull();
         // '无结果' is the zh-CN translation of 'No result'.
         expect(noResult!.textContent).toBe('无结果');
-        // No section is rendered when there is no result.
         expect(menu.scrollElement!.querySelectorAll('section').length).toBe(0);
     });
 
