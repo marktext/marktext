@@ -77,10 +77,10 @@ function pathToFileUrl(p: string): string {
     const normalized = p.replace(/\\/g, '/');
     // UNC paths: `//server/share/...` → `file://server/share/...` (authority form).
     if (normalized.startsWith('//')) {
-        return 'file:' + normalized;
+        return `file:${normalized}`;
     }
     // Regular absolute paths: `/posix` or `C:/windows` → `file:///posix` or `file://C:/windows`.
-    return 'file://' + normalized;
+    return `file://${normalized}`;
 }
 
 export function getImageSrc(src: string) {
@@ -204,7 +204,7 @@ export function correctImageSrc(src: string) {
         }
         else if (isWin && /^\\\\[^?]/.test(src)) {
             // UNC path (\\server\share\...) → file://server/share/...
-            src = 'file://' + src.substring(2).replace(/\\/g, '/');
+            src = `file://${src.substring(2).replace(/\\/g, '/')}`;
         }
         else if (/^\/.+/.test(src)) {
             // Also adding file protocol on UNIX.
