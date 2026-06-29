@@ -507,7 +507,7 @@ class Watcher {
     const id = getUniqueId()
     let disposed = false
 
-    const handler = async (): Promise<void> => {
+    const handler = async(): Promise<void> => {
       if (disposed) return
 
       const isMarkdown = hasMarkdownExtension(watchPath)
@@ -576,7 +576,7 @@ class Watcher {
     let known = new Map<string, 'file' | 'dir'>()
     let disposed = false
 
-    const handler = async (): Promise<void> => {
+    const handler = async(): Promise<void> => {
       if (disposed) return
 
       const current = new Map<string, 'file' | 'dir'>()
