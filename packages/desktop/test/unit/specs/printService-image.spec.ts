@@ -36,13 +36,13 @@ describe('resolveLocalImageSrc — branch coverage', () => {
     expect(resolveLocalImageSrc('/tmp/b.png')).toBe('file:///tmp/b.png')
   })
 
-  it('(b) Windows drive image path → file:// preserving backslashes', () => {
-    expect(resolveLocalImageSrc('C:\\pics\\b.png')).toBe('file://C:\\pics\\b.png')
+  it('(b) Windows drive image path → file:// with forward slashes', () => {
+    expect(resolveLocalImageSrc('C:\\pics\\b.png')).toBe('file://C:/pics/b.png')
   })
 
-  it('(c) UNC image path → file:// preserving the \\\\host prefix', () => {
+  it('(c) UNC image path → file:// authority form', () => {
     expect(resolveLocalImageSrc('\\\\host\\share\\c.png')).toBe(
-      'file://\\\\host\\share\\c.png'
+      'file://host/share/c.png'
     )
   })
 
