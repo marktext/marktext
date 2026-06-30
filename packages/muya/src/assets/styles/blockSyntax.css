@@ -815,6 +815,20 @@ figure.mu-diagram-block .mu-diagram-preview svg path[stroke='#000000'] {
     stroke: var(--editor-color);
 }
 
+/* js-sequence-diagrams creates its <text> with no fill attribute and its
+   note/actor boxes with the 3-char `#fff`, so the attribute-keyed rules above
+   miss them and the labels/boxes stay black-on-white on dark themes (#3047).
+   Recolor the sequence SVG by element, scoped to `svg.sequence` so mermaid /
+   vega / flowchart (which set fills via attributes) are untouched. */
+figure.mu-diagram-block .mu-diagram-preview svg.sequence text {
+    fill: var(--editor-color);
+}
+
+figure.mu-diagram-block .mu-diagram-preview svg.sequence rect[fill='#fff'],
+figure.mu-diagram-block .mu-diagram-preview svg.sequence path[fill='#fff'] {
+    fill: var(--editor-bg-color);
+}
+
 figure.mu-active.mu-math-block > div.mu-math-preview,
 figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
     position: absolute;
