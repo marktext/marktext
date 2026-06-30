@@ -73,7 +73,12 @@
       "taskList": "Görev Listesi",
       "looseListItem": "Gevşek Liste Öğesi",
       "horizontalRule": "Yatay Çizgi",
-      "frontMatter": "Ön Bilgi"
+      "frontMatter": "Ön Bilgi",
+      "documentDirection": "Belge yönü",
+      "blockDirection": "Blok yönü",
+      "rtl": "Sağdan sola (RTL)",
+      "ltr": "Soldan sağa (LTR)",
+      "directionNone": "Belge yönünü takip et"
     },
     "window": {
       "title": "Pencere",
@@ -804,7 +809,12 @@
       "frontMatter": "Ön Bilgi",
       "resetParagraph": "Paragrafı Sıfırla",
       "mathBlock": "Matematik Bloğu",
-      "horizontalRule": "Yatay Çizgi"
+      "horizontalRule": "Yatay Çizgi",
+      "documentDirection": "Belge yönü",
+      "blockDirection": "Blok yönü",
+      "rtl": "Sağdan sola (RTL)",
+      "ltr": "Soldan sağa (LTR)",
+      "directionNone": "Belge yönünü takip et"
     },
     "format": {
       "strong": "Kalın",

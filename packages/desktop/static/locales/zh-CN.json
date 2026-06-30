@@ -73,7 +73,12 @@
       "taskList": "任务列表",
       "looseListItem": "宽松列表项",
       "horizontalRule": "水平分割线",
-      "frontMatter": "前置元数据"
+      "frontMatter": "前置元数据",
+      "documentDirection": "文档方向",
+      "blockDirection": "块方向",
+      "rtl": "从右到左 (RTL)",
+      "ltr": "从左到右 (LTR)",
+      "directionNone": "跟随文档方向"
     },
     "window": {
       "title": "窗口",
@@ -804,7 +809,12 @@
       "horizontalRule": "水平分割线",
       "horizontalLine": "水平分割线",
       "frontMatter": "前置元数据",
-      "resetParagraph": "重置段落"
+      "resetParagraph": "重置段落",
+      "documentDirection": "文档方向",
+      "blockDirection": "块方向",
+      "rtl": "从右到左 (RTL)",
+      "ltr": "从左到右 (LTR)",
+      "directionNone": "跟随文档方向"
     },
     "format": {
       "strong": "粗体",

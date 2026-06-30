@@ -73,7 +73,12 @@
       "taskList": "任務清單",
       "looseListItem": "鬆散清單項目",
       "horizontalRule": "水平線",
-      "frontMatter": "前置資料"
+      "frontMatter": "前置資料",
+      "documentDirection": "文件方向",
+      "blockDirection": "區塊方向",
+      "rtl": "從右到左 (RTL)",
+      "ltr": "從左到右 (LTR)",
+      "directionNone": "跟隨文件方向"
     },
     "window": {
       "title": "視窗",
@@ -804,7 +809,12 @@
       "frontMatter": "前置資料",
       "resetParagraph": "重設段落",
       "mathBlock": "數學區塊",
-      "horizontalRule": "水平線"
+      "horizontalRule": "水平線",
+      "documentDirection": "文件方向",
+      "blockDirection": "區塊方向",
+      "rtl": "從右到左 (RTL)",
+      "ltr": "從左到右 (LTR)",
+      "directionNone": "跟隨文件方向"
     },
     "format": {
       "strong": "粗體",

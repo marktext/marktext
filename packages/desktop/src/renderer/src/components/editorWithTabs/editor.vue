@@ -2,20 +2,10 @@
   <div
     class="editor-wrapper"
     :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
-    :dir="textDirection"
   >
-    <div
-      ref="editorRef"
-      class="editor-component"
-    />
-    <div
-      v-show="imageViewerVisible"
-      class="image-viewer"
-    >
-      <span
-        class="icon-close"
-        @click="setImageViewerVisible(false)"
-      >
+    <div ref="editorRef" class="editor-component" />
+    <div v-show="imageViewerVisible" class="image-viewer">
+      <span class="icon-close" @click="setImageViewerVisible(false)">
         <CloseIcon />
       </span>
       <div ref="imageViewerRef" />
@@ -34,10 +24,7 @@
           {{ t('editor.insertTable.title') }}
         </div>
       </template>
-      <el-form
-        :model="tableChecker"
-        :inline="true"
-      >
+      <el-form :model="tableChecker" :inline="true">
         <el-form-item :label="t('editor.insertTable.rows')">
           <el-input-number
             ref="rowInput"
@@ -63,10 +50,7 @@
           <el-button @click="dialogTableVisible = false">
             {{ t('common.cancel') }}
           </el-button>
-          <el-button
-            type="primary"
-            @click="handleDialogTableConfirm"
-          >
+          <el-button type="primary" @click="handleDialogTableConfirm">
             {{ t('common.ok') }}
           </el-button>
         </div>
@@ -607,11 +591,14 @@ watch(sequenceTheme, (value, oldValue) => {
   }
 })
 
-watch(() => preferencesStore.plantumlServer, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ plantumlServer: value }, true)
+watch(
+  () => preferencesStore.plantumlServer,
+  (value, oldValue) => {
+    if (value !== oldValue && editor.value) {
+      editor.value.setOptions({ plantumlServer: value }, true)
+    }
   }
-})
+)
 
 watch(listIndentation, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1412,6 +1399,34 @@ const handleInlineFormat = (type: unknown) => {
   editor.value && editor.value.format(type)
 }
 
+const applyDocumentDir = (dir: 'rtl' | 'ltr' | null) => {
+  ;(editor.value?.domNode as HTMLElement | null)?.setAttribute('dir', dir ?? 'ltr')
+  sendDirectionMenuState(dir)
+}
+
+const sendDirectionMenuState = (
+  documentDir: 'rtl' | 'ltr' | null,
+  blockDir: 'rtl' | 'ltr' | null = null
+) => {
+  const { windowId } = (window.marktext?.env ?? { windowId: -1 }) as { windowId: number }
+  window.electron.ipcRenderer.send('mt::update-direction-menu', windowId, { documentDir, blockDir })
+}
+
+const handleDirectionAction = (payload: unknown) => {
+  const { scope, dir } = (payload ?? {}) as {
+    scope: 'document' | 'block'
+    dir: 'rtl' | 'ltr' | null
+  }
+  if (!editor.value) return
+  if (scope === 'document') {
+    editor.value.setDocumentDirection(dir)
+    applyDocumentDir(dir)
+  } else {
+    editor.value.setBlockDirection(dir)
+    sendDirectionMenuState(editor.value.documentDir ?? null, editor.value.getBlockDirection())
+  }
+}
+
 const handleDialogTableConfirm = () => {
   dialogTableVisible.value = false
   editor.value && editor.value.createTable(tableChecker)
@@ -1430,6 +1445,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
+    applyDocumentDir(editor.value.documentDir ?? null)
     // The freshly loaded content is this tab's clean baseline (id 0). Re-seed
     // the monotonic save-tracking allocator so undoing an edit back to this
     // content reads as clean again (matches the store's `lastSavedHistoryId: 0`).
@@ -1511,6 +1527,9 @@ const handleFileChange = (payload: unknown) => {
       // remapping below.
       editor.value.replaceContent(newMarkdown, preSourceModeSelection)
       preSourceModeSelection = null
+      // Apply the document direction parsed from the source-mode markdown so the
+      // editor DOM reflects any direction change the user made in source mode.
+      applyDocumentDir(editor.value.documentDir ?? null)
       editorStore.UPDATE_TOC(editor.value.getTOC())
       // Map the CodeMirror `{ line, ch }` cursor onto a block-key cursor so the
       // WYSIWYG caret lands where the source-mode cursor was (PG2).
@@ -1533,6 +1552,7 @@ const handleFileChange = (payload: unknown) => {
         resetSyntheticHistory(id, newMarkdown)
       }
       editor.value.replaceContent(newMarkdown)
+      applyDocumentDir(editor.value.documentDir ?? null)
       editorStore.UPDATE_TOC(editor.value.getTOC())
       if (newCursor) {
         applyCursor(editor.value, newCursor)
@@ -1544,6 +1564,7 @@ const handleFileChange = (payload: unknown) => {
       // `history` in the payload is the synthetic desktop-shaped history used
       // for save tracking, not the engine history.
       editor.value.setContent(newMarkdown)
+      applyDocumentDir(editor.value.documentDir ?? null)
       // Tab switch swaps content without firing `json-change`, so re-seed the
       // TOC (otherwise returning to an open tab keeps the other tab's TOC).
       editorStore.UPDATE_TOC(editor.value.getTOC())
@@ -1760,6 +1781,10 @@ onMounted(() => {
   // the document tree and instantiates the registered UI plugins).
   muya.init()
   editor.value = muya
+  // Apply the direction of the initial document. The constructor captures
+  // documentDir via _setMarkdown, but nothing sets the DOM `dir` attribute for
+  // the first document — only subsequent setContent/open-single-file calls do.
+  applyDocumentDir(muya.documentDir ?? null)
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
   editorStore.UPDATE_TOC(muya.getTOC())
@@ -1814,6 +1839,7 @@ onMounted(() => {
   bus.on('duplicate', handleParagraph)
   bus.on('createParagraph', handleParagraph)
   bus.on('deleteParagraph', handleParagraph)
+  bus.on('direction-action', handleDirectionAction)
   bus.on('insertParagraph', handleInsertParagraph)
   bus.on('scroll-to-header', scrollToHeader)
   bus.on('scroll-to-anchor-element', scrollToAnchorElement)
@@ -1822,6 +1848,10 @@ onMounted(() => {
   bus.on('switch-spellchecker-language', switchSpellcheckLanguage)
   bus.on('open-command-spellchecker-switch-language', openSpellcheckerLanguageCommand)
   bus.on('replace-misspelling', replaceMisspelling)
+
+  editor.value.on('muya-document-dir-change', (dir: unknown) => {
+    applyDocumentDir((dir as 'rtl' | 'ltr' | null) ?? null)
+  })
 
   // The engine emits a low-level `json-change` ({ op, source, prevDoc, doc })
   // on every document mutation; the desktop's content-change pipeline wants the
@@ -1935,6 +1965,9 @@ onMounted(() => {
       editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
     }
     pushSelectionMenuState(changes)
+    if (editor.value) {
+      sendDirectionMenuState(editor.value.documentDir ?? null, editor.value.getBlockDirection())
+    }
   })
 
   document.addEventListener('keyup', keyup)
@@ -1967,6 +2000,7 @@ onBeforeUnmount(() => {
   bus.off('duplicate', handleParagraph)
   bus.off('createParagraph', handleParagraph)
   bus.off('deleteParagraph', handleParagraph)
+  bus.off('direction-action', handleDirectionAction)
   bus.off('insertParagraph', handleInsertParagraph)
   bus.off('scroll-to-header', scrollToHeader)
   bus.off('scroll-to-anchor-element', scrollToAnchorElement)

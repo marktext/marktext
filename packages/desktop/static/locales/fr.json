@@ -73,7 +73,12 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Métadonnées"
+      "frontMatter": "Métadonnées",
+      "documentDirection": "Direction du document",
+      "blockDirection": "Direction du bloc",
+      "rtl": "De droite à gauche (RTL)",
+      "ltr": "De gauche à droite (LTR)",
+      "directionNone": "Suivre la direction du document"
     },
     "window": {
       "title": "Fenêtre",
@@ -804,7 +809,12 @@
       "frontMatter": "Métadonnées",
       "resetParagraph": "Réinitialiser le paragraphe",
       "mathBlock": "Bloc mathématique",
-      "horizontalRule": "Ligne horizontale"
+      "horizontalRule": "Ligne horizontale",
+      "documentDirection": "Direction du document",
+      "blockDirection": "Direction du bloc",
+      "rtl": "De droite à gauche (RTL)",
+      "ltr": "De gauche à droite (LTR)",
+      "directionNone": "Suivre la direction du document"
     },
     "format": {
       "strong": "Gras",

@@ -73,7 +73,12 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Metadatos"
+      "frontMatter": "Metadatos",
+      "documentDirection": "Dirección del documento",
+      "blockDirection": "Dirección del bloque",
+      "rtl": "De derecha a izquierda (RTL)",
+      "ltr": "De izquierda a derecha (LTR)",
+      "directionNone": "Seguir la dirección del documento"
     },
     "window": {
       "title": "Ventana",
@@ -804,7 +809,12 @@
       "frontMatter": "Metadatos",
       "resetParagraph": "Restablecer Párrafo",
       "mathBlock": "Bloque matemático",
-      "horizontalRule": "Línea horizontal"
+      "horizontalRule": "Línea horizontal",
+      "documentDirection": "Dirección del documento",
+      "blockDirection": "Dirección del bloque",
+      "rtl": "De derecha a izquierda (RTL)",
+      "ltr": "De izquierda a derecha (LTR)",
+      "directionNone": "Seguir la dirección del documento"
     },
     "format": {
       "strong": "Negrita",

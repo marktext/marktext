@@ -73,7 +73,12 @@
       "taskList": "タスクリスト",
       "looseListItem": "ルーズリストアイテム",
       "horizontalRule": "水平線",
-      "frontMatter": "フロントマター"
+      "frontMatter": "フロントマター",
+      "documentDirection": "ドキュメントの方向",
+      "blockDirection": "ブロックの方向",
+      "rtl": "右から左 (RTL)",
+      "ltr": "左から右 (LTR)",
+      "directionNone": "ドキュメントの方向に従う"
     },
     "window": {
       "title": "ウィンドウ",
@@ -804,7 +809,12 @@
       "frontMatter": "フロントマター",
       "resetParagraph": "段落をリセット",
       "mathBlock": "数式ブロック",
-      "horizontalRule": "水平線"
+      "horizontalRule": "水平線",
+      "documentDirection": "ドキュメントの方向",
+      "blockDirection": "ブロックの方向",
+      "rtl": "右から左 (RTL)",
+      "ltr": "左から右 (LTR)",
+      "directionNone": "ドキュメントの方向に従う"
     },
     "format": {
       "strong": "太字",

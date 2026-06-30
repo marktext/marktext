@@ -73,7 +73,12 @@
       "taskList": "Lista de Tarefas",
       "looseListItem": "Item de Lista Solta",
       "horizontalRule": "Linha Horizontal",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Direção do documento",
+      "blockDirection": "Direção do bloco",
+      "rtl": "Da direita para a esquerda (RTL)",
+      "ltr": "Da esquerda para a direita (LTR)",
+      "directionNone": "Seguir a direção do documento"
     },
     "window": {
       "title": "Janela",
@@ -804,7 +809,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Resetar Parágrafo",
       "mathBlock": "Bloco matemático",
-      "horizontalRule": "Linha horizontal"
+      "horizontalRule": "Linha horizontal",
+      "documentDirection": "Direção do documento",
+      "blockDirection": "Direção do bloco",
+      "rtl": "Da direita para a esquerda (RTL)",
+      "ltr": "Da esquerda para a direita (LTR)",
+      "directionNone": "Seguir a direção do documento"
     },
     "format": {
       "strong": "Negrito",

@@ -26,6 +26,8 @@ export function asState(doc: unknown): TState[] {
 }
 
 class JSONState {
+    public documentDir: 'ltr' | 'rtl' | null = null;
+
     static invert(op: JSONOpList) {
         return json1.type.invert(op);
     }
@@ -87,13 +89,14 @@ class JSONState {
     }
 
     private _setMarkdown(markdown: string) {
-        this._state = this.markdownToState(markdown);
+        this._state = this.markdownToState(markdown, true);
     }
 
     // Parse markdown into a block-state array with the editor's current
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
-    markdownToState(markdown: string): TState[] {
+    // When called from `_setMarkdown`, also captures `lastDocumentDir`.
+    markdownToState(markdown: string, captureDocDir = false): TState[] {
         const {
             footnote,
             isGitlabCompatibilityEnabled,
@@ -102,13 +105,18 @@ class JSONState {
             math,
         } = this._muya.options;
 
-        return new MarkdownToState({
+        const parser = new MarkdownToState({
             footnote,
             isGitlabCompatibilityEnabled,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             math,
-        }).generate(markdown);
+        });
+        const states = parser.generate(markdown);
+        if (captureDocDir)
+            this.documentDir = parser.lastDocumentDir;
+
+        return states;
     }
 
     /**
@@ -129,8 +137,10 @@ class JSONState {
         nextState: TState[];
     } {
         const prevState = this.getState();
+        // Capture documentDir from the new content so the serializer wraps the
+        // document in the correct direction div after the replace.
         const nextState
-            = typeof content === 'string' ? this.markdownToState(content) : deepClone(content);
+            = typeof content === 'string' ? this.markdownToState(content, true) : deepClone(content);
 
         const components: JSONOpList[] = [];
         const max = Math.max(prevState.length, nextState.length);
@@ -224,22 +234,26 @@ class JSONState {
     }
 
     getMarkdown() {
-        return this.getMarkdownFromState(this.getState());
+        const mdGenerator = new StateToMarkdown({
+            listIndentation: this._muya.options.listIndentation,
+        });
+
+        return mdGenerator.generate(this.getState(), { documentDir: this.documentDir });
     }
 
     getTOC() {
         return getTOC(this._muya);
     }
 
-    // Serialize an ARBITRARY state array to markdown with the same generator
-    // `getMarkdown` uses. Used by `Muya.getCursorOffset` to serialize a
-    // sentinel-bearing state clone WITHOUT mutating the live `_state`.
+    // Serialize an ARBITRARY state array to markdown. Used by `Muya.getCursorOffset`
+    // for sentinel-bearing clones — passes documentDir: null so no outer wrapper
+    // is emitted for internal cursor calculations.
     getMarkdownFromState(state: TState[]): string {
         const mdGenerator = new StateToMarkdown({
             listIndentation: this._muya.options.listIndentation,
         });
 
-        return mdGenerator.generate(state);
+        return mdGenerator.generate(state, { documentDir: null });
     }
 
     private _emitStateChange() {

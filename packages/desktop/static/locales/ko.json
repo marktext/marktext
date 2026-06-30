@@ -73,7 +73,12 @@
       "taskList": "작업 목록",
       "looseListItem": "느슨한 목록 항목",
       "horizontalRule": "수평선",
-      "frontMatter": "프론트 매터"
+      "frontMatter": "프론트 매터",
+      "documentDirection": "문서 방향",
+      "blockDirection": "블록 방향",
+      "rtl": "오른쪽에서 왼쪽 (RTL)",
+      "ltr": "왼쪽에서 오른쪽 (LTR)",
+      "directionNone": "문서 방향 따르기"
     },
     "window": {
       "title": "창",
@@ -804,7 +809,12 @@
       "frontMatter": "프론트 매터",
       "resetParagraph": "단락 재설정",
       "mathBlock": "수식 블록",
-      "horizontalRule": "수평선"
+      "horizontalRule": "수평선",
+      "documentDirection": "문서 방향",
+      "blockDirection": "블록 방향",
+      "rtl": "오른쪽에서 왼쪽 (RTL)",
+      "ltr": "왼쪽에서 오른쪽 (LTR)",
+      "directionNone": "문서 방향 따르기"
     },
     "format": {
       "strong": "굵게",

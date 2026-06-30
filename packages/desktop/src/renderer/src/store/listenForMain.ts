@@ -44,6 +44,9 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     window.electron.ipcRenderer.on('mt::editor-format-action', (_e, { type }) => {
       bus.emit('format', type)
     })
+    window.electron.ipcRenderer.on('mt::editor-direction-action', (_e, payload) => {
+      bus.emit('direction-action', payload)
+    })
   }
 
   return {

@@ -73,7 +73,12 @@
       "taskList": "Task List",
       "looseListItem": "Loose List Item",
       "horizontalRule": "Horizontal Rule",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Document Direction",
+      "blockDirection": "Block Direction",
+      "rtl": "Right to Left (RTL)",
+      "ltr": "Left to Right (LTR)",
+      "directionNone": "Follow Document"
     },
     "window": {
       "title": "Window",
@@ -549,7 +554,8 @@
         "textDirection": {
           "title": "Text Direction",
           "ltr": "Left to Right",
-          "rtl": "Right to Left"
+          "rtl": "Right to Left",
+          "deprecation": "Text direction is now configured per-document via the Paragraph menu."
         },
         "hideQuickInsertHint": "Hide quick insert hint",
         "hideLinkPopup": "Hide link popup",
@@ -804,7 +810,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Reset Paragraph",
       "mathBlock": "Math Block",
-      "horizontalRule": "Horizontal Rule"
+      "horizontalRule": "Horizontal Rule",
+      "documentDirection": "Document Direction",
+      "blockDirection": "Block Direction",
+      "rtl": "Right to Left (RTL)",
+      "ltr": "Left to Right (LTR)",
+      "directionNone": "Follow Document"
     },
     "format": {
       "strong": "Bold",

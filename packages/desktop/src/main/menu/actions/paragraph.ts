@@ -120,6 +120,42 @@ export const increaseHeading = (win: Win): void => {
   transformEditorElement(win, 'upgrade heading')
 }
 
+const sendDirectionAction = (
+  win: Win,
+  scope: 'document' | 'block',
+  dir: 'rtl' | 'ltr' | null
+): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-direction-action', { scope, dir })
+  }
+}
+
+export const setDocumentDirectionRTL = (win: Win): void =>
+  sendDirectionAction(win, 'document', 'rtl')
+export const setDocumentDirectionLTR = (win: Win): void =>
+  sendDirectionAction(win, 'document', 'ltr')
+export const setBlockDirectionRTL = (win: Win): void => sendDirectionAction(win, 'block', 'rtl')
+export const setBlockDirectionLTR = (win: Win): void => sendDirectionAction(win, 'block', 'ltr')
+export const setBlockDirectionNone = (win: Win): void => sendDirectionAction(win, 'block', null)
+
+export const updateDirectionMenu = (
+  applicationMenu: Menu,
+  documentDir: 'rtl' | 'ltr' | null,
+  blockDir: 'rtl' | 'ltr' | null
+): void => {
+  const rtlItem = applicationMenu.getMenuItemById('documentDirectionRTLMenuItem')
+  const ltrItem = applicationMenu.getMenuItemById('documentDirectionLTRMenuItem')
+  if (rtlItem) rtlItem.checked = documentDir === 'rtl'
+  if (ltrItem) ltrItem.checked = documentDir === 'ltr'
+
+  const blockRtlItem = applicationMenu.getMenuItemById('blockDirectionRTLMenuItem')
+  const blockLtrItem = applicationMenu.getMenuItemById('blockDirectionLTRMenuItem')
+  const blockNoneItem = applicationMenu.getMenuItemById('blockDirectionNoneMenuItem')
+  if (blockRtlItem) blockRtlItem.checked = blockDir === 'rtl'
+  if (blockLtrItem) blockLtrItem.checked = blockDir === 'ltr'
+  if (blockNoneItem) blockNoneItem.checked = blockDir === null
+}
+
 // --- Commands -------------------------------------------------------------
 
 export const loadParagraphCommands = (commandManager: CommandManager): void => {
@@ -161,8 +197,8 @@ const setMultipleStatus = (
   status: boolean
 ): void => {
   const paragraphMenuItem = applicationMenu.getMenuItemById('paragraphMenuEntry')!
-  paragraphMenuItem.submenu!.items
-    .filter((item: MenuItem) => item.id && list.includes(item.id))
+  paragraphMenuItem
+    .submenu!.items.filter((item: MenuItem) => item.id && list.includes(item.id))
     .forEach((item: MenuItem) => (item.enabled = status))
 }
 
@@ -213,10 +249,7 @@ const setCheckedMenuItem = (
  * @param applicationMenu The application menu instance.
  * @param state The selection information.
  */
-export const updateSelectionMenus = (
-  applicationMenu: Menu,
-  state: SelectionState
-): void => {
+export const updateSelectionMenus = (applicationMenu: Menu, state: SelectionState): void => {
   const {
     // Key/boolean object like "ul: true" of block elements that are selected.
     // This may be an empty object when multiple block elements are selected.
@@ -254,8 +287,10 @@ export const updateSelectionMenus = (
     }
   } else if (isMultiline) {
     // Format: link/image are meaningless across a multi-block selection.
-    formatMenuItem.submenu!.items
-      .filter((item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem')
+    formatMenuItem
+      .submenu!.items.filter(
+      (item: MenuItem) => item.id === 'hyperlinkMenuItem' || item.id === 'imageMenuItem'
+    )
       .forEach((item: MenuItem) => (item.enabled = false))
     // Paragraph: enable only the items that have a defined cross-block action.
     const paragraphMenu = applicationMenu.getMenuItemById('paragraphMenuEntry')!

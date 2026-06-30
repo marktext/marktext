@@ -73,7 +73,12 @@
       "taskList": "Aufgabenliste",
       "looseListItem": "Lockeres Listenelement",
       "horizontalRule": "Horizontale Linie",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Dokumentenrichtung",
+      "blockDirection": "Blockrichtung",
+      "rtl": "Rechts nach links (RTL)",
+      "ltr": "Links nach rechts (LTR)",
+      "directionNone": "Dokumentenrichtung folgen"
     },
     "window": {
       "title": "Fenster",
@@ -804,7 +809,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Absatz zurücksetzen",
       "mathBlock": "Mathe-Block",
-      "horizontalRule": "Horizontale Linie"
+      "horizontalRule": "Horizontale Linie",
+      "documentDirection": "Dokumentenrichtung",
+      "blockDirection": "Blockrichtung",
+      "rtl": "Rechts nach links (RTL)",
+      "ltr": "Links nach rechts (LTR)",
+      "directionNone": "Dokumentenrichtung folgen"
     },
     "format": {
       "strong": "Fett",

@@ -165,6 +165,12 @@ export interface IFootnoteBlockState {
     children: TState[];
 }
 
+export interface IDirectionBlockState {
+    name: 'direction-block';
+    meta: { dir: 'ltr' | 'rtl' };
+    children: TState[];
+}
+
 export type TLeafState
     = | IParagraphState
         | IAtxHeadingState
@@ -187,7 +193,8 @@ export type TContainerState
         | ITaskListItemState
         | IListItemState
         | ITableRowState
-        | IFootnoteBlockState;
+        | IFootnoteBlockState
+        | IDirectionBlockState;
 
 export type TState = TLeafState | TContainerState;
 
@@ -224,6 +231,7 @@ export const isTaskListItemState = (s: TState): s is ITaskListItemState => s.nam
 export const isListItemState = (s: TState): s is IListItemState => s.name === 'list-item';
 export const isTableRowState = (s: TState): s is ITableRowState => s.name === 'table.row';
 export const isFootnoteBlockState = (s: TState): s is IFootnoteBlockState => s.name === 'footnote';
+export const isDirectionBlockState = (s: TState): s is IDirectionBlockState => s.name === 'direction-block';
 
 export function isAnyListState(s: TState): s is IOrderListState | IBulletListState | ITaskListState {
     return s.name === 'order-list' || s.name === 'bullet-list' || s.name === 'task-list';
