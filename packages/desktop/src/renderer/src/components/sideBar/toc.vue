@@ -7,19 +7,25 @@
       {{ t('sideBar.toc.title') }}
     </div>
     <el-tree
-      v-if="toc.length"
-      :data="toc"
-      :default-expand-all="true"
+      v-if="keyedToc.length"
+      ref="treeRef"
+      :data="keyedToc"
+      node-key="key"
+      :default-expanded-keys="initialExpandedKeys"
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
       :icon="ArrowRight"
       @node-click="handleClick"
+      @node-expand="onExpand"
+      @node-collapse="onCollapse"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue'
+import type { TreeInstance } from 'element-plus'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import bus from '../../bus'
@@ -39,6 +45,68 @@ const defaultProps = {
 
 const { toc } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
+
+interface KeyedTocNode {
+  key: string
+  label: unknown
+  slug: unknown
+  children: KeyedTocNode[]
+}
+
+// The TOC nodes carry no stable id, so el-tree (without a node-key) discarded
+// the user's expand/collapse state on every content edit (#3028). Derive a
+// stable key per node — its slug, deduplicated in document order so duplicate
+// headings stay unique — and let el-tree preserve state by that key.
+const keyedToc = computed<KeyedTocNode[]>(() => {
+  const seen = new Map<string, number>()
+  const assign = (nodes: Array<Record<string, unknown>>): KeyedTocNode[] =>
+    nodes.map((node) => {
+      const base = typeof node.slug === 'string' && node.slug ? node.slug : 'heading'
+      const count = seen.get(base) ?? 0
+      seen.set(base, count + 1)
+      return {
+        key: count === 0 ? base : `${base}-${count}`,
+        label: node.label,
+        slug: node.slug,
+        children: assign((node.children as Array<Record<string, unknown>>) ?? [])
+      }
+    })
+  return assign(toc.value as unknown as Array<Record<string, unknown>>)
+})
+
+// Expand everything on first render (the old default-expand-all behavior).
+const initialExpandedKeys = computed<string[]>(() => {
+  const keys: string[] = []
+  const walk = (nodes: KeyedTocNode[]): void => {
+    for (const node of nodes) {
+      keys.push(node.key)
+      walk(node.children)
+    }
+  }
+  walk(keyedToc.value)
+  return keys
+})
+
+// Track which headings the user collapsed (by stable key). On every content
+// edit el-tree rebuilds from fresh data and re-expands; re-apply the collapse
+// afterwards so the user's choice survives (#3028).
+const treeRef = ref<TreeInstance>()
+const collapsedKeys = ref<Set<string>>(new Set())
+
+const onCollapse = (data: { key?: string }): void => {
+  if (data.key) collapsedKeys.value.add(data.key)
+}
+
+const onExpand = (data: { key?: string }): void => {
+  if (data.key) collapsedKeys.value.delete(data.key)
+}
+
+watch(keyedToc, async () => {
+  await nextTick()
+  for (const key of collapsedKeys.value) {
+    treeRef.value?.getNode(key)?.collapse()
+  }
+})
 
 const handleClick = (data: { slug?: unknown }): void => {
   // editor.vue builds a CSS selector with `#${slug}` — bail out if the
