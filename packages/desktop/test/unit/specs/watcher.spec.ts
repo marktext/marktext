@@ -70,6 +70,12 @@ vi.mock('common/filesystem', () => ({
   exists: vi.fn()
 }))
 
+// Prevent `ced` native bindings from being loaded during the dynamic import
+// of watcher.ts (which transitively imports loadMarkdownFile → ... → ced).
+// In CI, ced is compiled for Electron's Node.js ABI and fails to load under
+// the system Node.js that vitest uses.
+vi.mock('ced', () => ({ default: {} }))
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
