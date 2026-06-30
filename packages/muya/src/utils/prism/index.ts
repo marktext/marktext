@@ -7,6 +7,17 @@ const prism = Prism;
 window.Prism = Prism;
 import('prismjs/plugins/keep-markup/prism-keep-markup');
 
+// prismjs ships C++ without a `c++`/`h++` alias, so fenced blocks tagged
+// ```c++ never resolve to the cpp grammar and stay unhighlighted (#2910).
+if (languages.cpp) {
+    const existing = languages.cpp.alias;
+    languages.cpp.alias = Array.isArray(existing)
+        ? [...existing, 'c++', 'h++']
+        : existing
+            ? [existing, 'c++', 'h++']
+            : ['c++', 'h++'];
+}
+
 const langs: {
     name: string;
     [key: string]: string;
