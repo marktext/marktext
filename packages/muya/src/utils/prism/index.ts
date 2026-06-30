@@ -50,8 +50,19 @@ function search(text: string) {
     return fuse.search(text).map(i => i.item).slice(0, 5);
 }
 
+// In LaTeX `\%` is an escaped literal percent, not a line comment, but
+// prismjs's default latex `comment` token (`/%.*/`) swallows everything after
+// it. Require the `%` to not follow a backslash so `\%` highlights as a normal
+// control sequence (#3037). tex/context alias the same grammar object, so this
+// one override covers all three.
+export function patchLatexEscapedPercent(prismInstance: typeof Prism) {
+    const latex = prismInstance.languages.latex as { comment?: unknown } | undefined;
+    if (latex?.comment)
+        latex.comment = { pattern: /(^|[^\\])%.*/, lookbehind: true };
+}
+
 // pre load latex and yaml and html for `math block` \ `front matter` and `html block`
-loadLanguage('latex');
+loadLanguage('latex').then(() => patchLatexEscapedPercent(prism));
 loadLanguage('yaml');
 
 export { walkTokens } from './walkToken';
