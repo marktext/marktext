@@ -159,7 +159,10 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         }
       },
       {
-        type: 'separator'
+        // Screenshot is macOS-only; hide its trailing separator too so
+        // Windows/Linux don't show a doubled divider here (#2997).
+        type: 'separator',
+        visible: isOsx
       },
       {
         // TODO: Remove this menu entry and add it to the command palette (#1408).
