@@ -45,7 +45,7 @@ type ContextMenuEvent = {
 }
 
 // Dynamically fetch menu items to ensure correct translation
-const getContextItems = (selectionText: string): MenuItemConstructorOptions[] => [
+const getContextItems = (): MenuItemConstructorOptions[] => [
   getInsertBefore(),
   getInsertAfter(),
   SEPARATOR,
@@ -55,8 +55,7 @@ const getContextItems = (selectionText: string): MenuItemConstructorOptions[] =>
   SEPARATOR,
   getCopyAsRich(),
   getCopyAsHtml(),
-  getPasteAsPlainText(),
-  ...(isOsx && selectionText.trim().length > 0 ? [SEPARATOR, getLookUp(selectionText)] : [])
+  getPasteAsPlainText()
 ]
 
 const isInsideEditor = (params: ContextMenuParams): boolean => {
@@ -91,6 +90,11 @@ export const showEditorContextMenu = (
     const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
     const menu = new Menu()
+    if (isOsx && hasText) {
+      menu.append(new MenuItem(getLookUp(selectionText)))
+      menu.append(new MenuItem(SEPARATOR))
+    }
+
     if (isSpellcheckerEnabled) {
       const spellingSubmenu = spellcheckMenuBuilder(
         isMisspelled,
@@ -106,12 +110,17 @@ export const showEditorContextMenu = (
       menu.append(new MenuItem(SEPARATOR))
     }
 
-    const contextItems = getContextItems(selectionText)
-    const copyItems = [contextItems[3], contextItems[4], contextItems[8], contextItems[7]] // CUT, COPY, COPY_AS_HTML, COPY_AS_RICH
-    copyItems.forEach((item) => {
-      if (item) item.enabled = canCopy
-    })
+    const contextItems = getContextItems()
+    const copyItemIds = new Set([
+      'cutMenuItem',
+      'copyMenuItem',
+      'copyAsHtmlMenuItem',
+      'copyAsRichMenuItem'
+    ])
     contextItems.forEach((item) => {
+      if (item.id && copyItemIds.has(item.id)) {
+        item.enabled = canCopy
+      }
       menu.append(new MenuItem(item))
     })
     // The original JS passes an array literal here, which Electron treats as

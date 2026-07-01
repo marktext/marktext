@@ -184,7 +184,7 @@
     "copyAsRich": "复制为富文本",
     "copyAsHtml": "复制为 HTML",
     "pasteAsPlainText": "粘贴为纯文本",
-    "lookUp": "查询",
+    "lookUp": "查询“{selection}”",
     "insertParagraphBefore": "在前面插入段落",
     "insertParagraphAfter": "在后面插入段落",
     "spelling": "拼写…",

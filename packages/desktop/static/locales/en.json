@@ -184,7 +184,7 @@
     "copyAsRich": "Copy As Rich Text",
     "copyAsHtml": "Copy As HTML",
     "pasteAsPlainText": "Paste as Plain Text",
-    "lookUp": "Look Up",
+    "lookUp": "Look Up \"{selection}\"",
     "insertParagraphBefore": "Insert Paragraph Before",
     "insertParagraphAfter": "Insert Paragraph After",
     "spelling": "Spelling...",

@@ -1,6 +1,6 @@
 // NOTE: This are mutable fields that may change at runtime.
 
-import { shell, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
+import { type BaseWindow, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import { t } from '../../i18n'
 
 // Use function form to avoid calling the translation function during module load
@@ -52,21 +52,40 @@ export const getPasteAsPlainText = (): MenuItemConstructorOptions => ({
   }
 })
 
-export const lookUpSelection = (selectionText: string): boolean => {
+type LookupTarget = BaseWindow & {
+  webContents: {
+    showDefinitionForSelection: () => void
+  }
+}
+
+const canShowDefinitionForSelection = (
+  targetWindow?: BaseWindow | null
+): targetWindow is LookupTarget => {
+  const candidate = targetWindow as (BaseWindow & {
+    webContents?: { showDefinitionForSelection?: unknown }
+  }) | null | undefined
+
+  return typeof candidate?.webContents?.showDefinitionForSelection === 'function'
+}
+
+export const lookUpSelection = (
+  selectionText: string,
+  targetWindow?: BaseWindow | null
+): boolean => {
   const selection = selectionText.trim()
-  if (!selection) {
+  if (!selection || !canShowDefinitionForSelection(targetWindow)) {
     return false
   }
 
-  shell.openExternal(`dict://${encodeURIComponent(selection)}`)
+  targetWindow.webContents.showDefinitionForSelection()
   return true
 }
 
 export const getLookUp = (selectionText: string): MenuItemConstructorOptions => ({
-  label: t('contextMenu.lookUp'),
+  label: t('contextMenu.lookUp', { selection: selectionText.trim() }),
   id: 'lookUpMenuItem',
-  click() {
-    lookUpSelection(selectionText)
+  click(_menuItem, targetWindow) {
+    lookUpSelection(selectionText, targetWindow)
   }
 })
 

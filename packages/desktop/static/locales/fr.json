@@ -184,7 +184,7 @@
     "copyAsRich": "Copier en texte riche",
     "copyAsHtml": "Copier en HTML",
     "pasteAsPlainText": "Coller en texte brut",
-    "lookUp": "Rechercher",
+    "lookUp": "Rechercher \"{selection}\"",
     "insertParagraphBefore": "Insérer un paragraphe avant",
     "insertParagraphAfter": "Insérer un paragraphe après",
     "spelling": "Orthographe...",

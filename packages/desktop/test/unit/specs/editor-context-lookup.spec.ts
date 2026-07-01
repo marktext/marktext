@@ -1,45 +1,48 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { shell } from 'electron'
 
-vi.mock('electron', () => ({
-  shell: {
-    openExternal: vi.fn()
-  }
-}))
+vi.hoisted(() => {
+  process.env.PERF_TESTING = 'true'
+})
 
 const { getLookUp, lookUpSelection } = await import('main_renderer/contextMenu/editor/menuItems')
 
 describe('editor context menu Look Up', () => {
+  const showDefinitionForSelection = vi.fn()
+  const targetWindow = {
+    webContents: {
+      showDefinitionForSelection
+    }
+  } as never
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('opens selected text with the macOS Dictionary URL scheme', () => {
-    expect(lookUpSelection(' apple ')).toBe(true)
+  it('shows the native macOS lookup panel for selected text', () => {
+    expect(lookUpSelection(' apple ', targetWindow)).toBe(true)
 
-    expect(shell.openExternal).toHaveBeenCalledWith('dict://apple')
+    expect(showDefinitionForSelection).toHaveBeenCalledOnce()
   })
 
-  it('URL-encodes spaces and unicode characters', () => {
-    expect(lookUpSelection('cafe au lait')).toBe(true)
-    expect(lookUpSelection('na\u00efve fa\u00e7ade')).toBe(true)
+  it('does not show the lookup panel for blank selections', () => {
+    expect(lookUpSelection('   ', targetWindow)).toBe(false)
 
-    expect(shell.openExternal).toHaveBeenNthCalledWith(1, 'dict://cafe%20au%20lait')
-    expect(shell.openExternal).toHaveBeenNthCalledWith(2, 'dict://na%C3%AFve%20fa%C3%A7ade')
+    expect(showDefinitionForSelection).not.toHaveBeenCalled()
   })
 
-  it('does not open Dictionary for blank selections', () => {
-    expect(lookUpSelection('   ')).toBe(false)
+  it('does not show the lookup panel without a target window', () => {
+    expect(lookUpSelection('markdown')).toBe(false)
 
-    expect(shell.openExternal).not.toHaveBeenCalled()
+    expect(showDefinitionForSelection).not.toHaveBeenCalled()
   })
 
   it('wires the context-menu item to the lookup action', () => {
     const item = getLookUp(' markdown ')
 
-    item.click?.({} as never, undefined as never, {} as never)
+    item.click?.({} as never, targetWindow, {} as never)
 
     expect(item.id).toBe('lookUpMenuItem')
-    expect(shell.openExternal).toHaveBeenCalledWith('dict://markdown')
+    expect(item.label).toBe('Look Up "markdown"')
+    expect(showDefinitionForSelection).toHaveBeenCalledOnce()
   })
 })

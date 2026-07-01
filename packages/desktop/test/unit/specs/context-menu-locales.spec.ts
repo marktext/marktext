@@ -16,8 +16,10 @@ describe('context menu locale coverage', () => {
         contextMenu?: { lookUp?: unknown }
       }
 
-      expect(locale.contextMenu?.lookUp, `${language} contextMenu.lookUp`).toEqual(expect.any(String))
-      expect(locale.contextMenu?.lookUp).not.toBe('')
+      const lookUp = locale.contextMenu?.lookUp
+      expect(lookUp, `${language} contextMenu.lookUp`).toEqual(expect.any(String))
+      expect(lookUp).not.toBe('')
+      expect(lookUp).toContain('{selection}')
     }
   })
 })
