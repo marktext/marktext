@@ -184,6 +184,7 @@
     "copyAsRich": "リッチテキストとしてコピー",
     "copyAsHtml": "HTMLとしてコピー",
     "pasteAsPlainText": "プレーンテキストとして貼り付け",
+    "lookUp": "調べる",
     "insertParagraphBefore": "前に段落を挿入",
     "insertParagraphAfter": "後に段落を挿入",
     "spelling": "スペルチェック...",

@@ -6,12 +6,14 @@ import {
   getCopyAsRich,
   getCopyAsHtml,
   getPasteAsPlainText,
+  getLookUp,
   SEPARATOR,
   getInsertBefore,
   getInsertAfter
 } from './menuItems'
 import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
+import { isOsx } from '../../config'
 
 // Electron's ContextMenuParams shape we rely on. Kept narrow — the renderer
 // supplies the full surface so we only annotate the fields we use.
@@ -43,7 +45,7 @@ type ContextMenuEvent = {
 }
 
 // Dynamically fetch menu items to ensure correct translation
-const getContextItems = (): MenuItemConstructorOptions[] => [
+const getContextItems = (selectionText: string): MenuItemConstructorOptions[] => [
   getInsertBefore(),
   getInsertAfter(),
   SEPARATOR,
@@ -53,7 +55,8 @@ const getContextItems = (): MenuItemConstructorOptions[] => [
   SEPARATOR,
   getCopyAsRich(),
   getCopyAsHtml(),
-  getPasteAsPlainText()
+  getPasteAsPlainText(),
+  ...(isOsx && selectionText.trim().length > 0 ? [SEPARATOR, getLookUp(selectionText)] : [])
 ]
 
 const isInsideEditor = (params: ContextMenuParams): boolean => {
@@ -103,7 +106,7 @@ export const showEditorContextMenu = (
       menu.append(new MenuItem(SEPARATOR))
     }
 
-    const contextItems = getContextItems()
+    const contextItems = getContextItems(selectionText)
     const copyItems = [contextItems[3], contextItems[4], contextItems[8], contextItems[7]] // CUT, COPY, COPY_AS_HTML, COPY_AS_RICH
     copyItems.forEach((item) => {
       if (item) item.enabled = canCopy

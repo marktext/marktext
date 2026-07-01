@@ -1,6 +1,6 @@
 // NOTE: This are mutable fields that may change at runtime.
 
-import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
+import { shell, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import { t } from '../../i18n'
 
 // Use function form to avoid calling the translation function during module load
@@ -49,6 +49,24 @@ export const getPasteAsPlainText = (): MenuItemConstructorOptions => ({
     if (targetWindow) {
       ;(targetWindow as BrowserWindow).webContents.send('mt::cm-paste-as-plain-text')
     }
+  }
+})
+
+export const lookUpSelection = (selectionText: string): boolean => {
+  const selection = selectionText.trim()
+  if (!selection) {
+    return false
+  }
+
+  shell.openExternal(`dict://${encodeURIComponent(selection)}`)
+  return true
+}
+
+export const getLookUp = (selectionText: string): MenuItemConstructorOptions => ({
+  label: t('contextMenu.lookUp'),
+  id: 'lookUpMenuItem',
+  click() {
+    lookUpSelection(selectionText)
   }
 })
 

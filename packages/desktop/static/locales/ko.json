@@ -184,6 +184,7 @@
     "copyAsRich": "서식 있는 텍스트로 복사",
     "copyAsHtml": "HTML로 복사",
     "pasteAsPlainText": "일반 텍스트로 붙여넣기",
+    "lookUp": "찾아보기",
     "insertParagraphBefore": "앞에 단락 삽입",
     "insertParagraphAfter": "뒤에 단락 삽입",
     "spelling": "맞춤법...",
