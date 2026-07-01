@@ -1371,6 +1371,12 @@ const pushSelectionMenuState = (changes: MuyaChange) => {
 }
 
 const handleEditParagraph = (type: unknown) => {
+  // These commands act on the hidden WYSIWYG engine, so block them in
+  // source-code mode (mirrors handleUndo/handleSelectAll) — otherwise e.g. the
+  // Insert Table wizard opens and writes to the invisible editor (#3531).
+  if (sourceCode.value) {
+    return
+  }
   if (type === 'table') {
     tableChecker.rows = 4
     tableChecker.columns = 3
@@ -1391,6 +1397,9 @@ const handleEditParagraph = (type: unknown) => {
 
 // handle `duplicate`, `delete`, `create paragraph below`
 const handleParagraph = (type: unknown) => {
+  if (sourceCode.value) {
+    return
+  }
   if (editor.value) {
     switch (type) {
       case 'duplicate': {
@@ -1409,6 +1418,9 @@ const handleParagraph = (type: unknown) => {
 }
 
 const handleInlineFormat = (type: unknown) => {
+  if (sourceCode.value) {
+    return
+  }
   editor.value && editor.value.format(type)
 }
 
