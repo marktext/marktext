@@ -1058,6 +1058,12 @@ h2.sec-title {
   text-transform: uppercase;
   color: var(--muted);
 }
+.sponsor-logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+}
 .sponsor-logo {
   display: inline-flex;
   align-items: center;
@@ -1081,7 +1087,13 @@ h2.sec-title {
   width: auto;
   display: block;
 }
-[data-theme='dark'] .sponsor-logo img {
+/* Opaque logos ship their own background and can't be recolored; show them as
+   a light tile so they stay legible on the dark card instead of being inverted. */
+.sponsor-logo-raw {
+  background: #fff;
+  border-radius: 6px;
+}
+[data-theme='dark'] .sponsor-logo img:not(.sponsor-logo-raw) {
   filter: brightness(0) invert(1);
   opacity: 0.9;
 }
