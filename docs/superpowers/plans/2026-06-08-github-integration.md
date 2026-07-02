@@ -18,9 +18,9 @@
 
 | File | Responsibility |
 |---|---|
-| `git.ts` | isomorphic-git wrapper: `cloneRepo`, `listChanges`, `stage`/`unstage`, `commit`, `sync` (fetch → ff / clean-merge / conflict). Electron-free so it unit-tests easily. |
-| `auth.ts` | OAuth Device Flow + keytar token storage, behind a `GitHubAuthProvider` interface. |
-| `api.ts` | Minimal GitHub REST client over global `fetch`: `getUser`, `listRepos`. |
+| `git.ts` | isomorphic-git wrapper: `cloneRepo`, `listChanges`, `stage`/`unstage`, `commit`, `sync` (dirty-guard → fetch → ff / clean-merge / conflict), `detectRepo` (github.com origin match + SSH→HTTPS rewrite, repo root only), `hasLfsPatterns`, `withRepoQueue` (per-repo serialization — isomorphic-git has no `index.lock`). Electron-free so it unit-tests easily. |
+| `auth.ts` | OAuth Device Flow + keytar token storage, behind a `GitHubAuthProvider` interface. A new poll cancels any in-flight one; the (non-secret) user identity persists in a second keytar entry so offline commits work. |
+| `api.ts` | Minimal GitHub REST client over global `fetch`: `getUser` (login, name, id — source of the commit author via `commitAuthorFor`), `listRepos` (paginated). |
 | `ipc.ts` | `registerGitHubHandlers()` — wires `mt::github::*` channels to the three modules above and emits progress/auth events. |
 | `config.ts` | The OAuth `client_id` (env-overridable) and constants (service name, scopes, endpoints). |
 
@@ -28,7 +28,7 @@
 - `packages/desktop/src/main/ipc/index.ts` — call `registerGitHubHandlers()`.
 
 **Shared / preload (modified)**
-- `packages/desktop/src/shared/types/ipc.ts` — add `mt::github::*` channels + `GitHubRepo`/`GitHubChange`/`SyncResult`/`DeviceCodeInfo` types.
+- `packages/desktop/src/shared/types/ipc.ts` — add `mt::github::*` channels + `GitHubRepoInfo`/`GitHubChangeInfo`/`GitHubSyncResult`/`GitHubDeviceCode`/`GitHubAuthStatus`/`GitHubRepoDetection` types.
 - `packages/desktop/src/preload/index.ts` — expose `githubAPI` on `window.github`.
 - `packages/desktop/src/types/global.d.ts` — declare `window.github`.
 
@@ -77,9 +77,11 @@ export const GITHUB_CLIENT_ID = process.env.MARKTEXT_GITHUB_CLIENT_ID || ''
 
 export const GITHUB_OAUTH_SCOPE = 'repo'
 
-// keytar storage coordinates for the access token.
+// keytar storage coordinates for the access token and the (non-secret)
+// user identity persisted for offline commits / signed-in display.
 export const KEYTAR_SERVICE = 'marktext-github'
 export const KEYTAR_ACCOUNT = 'oauth-token'
+export const KEYTAR_ACCOUNT_IDENTITY = 'user-identity'
 
 export const GITHUB_DEVICE_CODE_URL = 'https://github.com/login/device/code'
 export const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token'
@@ -114,7 +116,7 @@ import os from 'os'
 import path from 'path'
 import fs from 'fs'
 import git from 'isomorphic-git'
-import { listChanges, stage, commit } from 'main_renderer/github/git'
+import { listChanges, stage, commit, detectRepo, hasLfsPatterns } from 'main_renderer/github/git'
 
 let dir: string
 
@@ -152,6 +154,25 @@ describe('github/git local ops', () => {
     expect(staged?.staged).toBe(true)
     await commit(dir, 'add b', { name: 'Test', email: 'test@example.com' })
     expect(await listChanges(dir)).toHaveLength(0)
+  })
+
+  it('detectRepo identifies a github origin and rewrites SSH to HTTPS', async () => {
+    await git.addRemote({ fs, dir, remote: 'origin', url: 'git@github.com:octocat/hello.git' })
+    expect(await detectRepo(dir)).toEqual({
+      isRepo: true,
+      remoteUrl: 'git@github.com:octocat/hello.git',
+      httpsUrl: 'https://github.com/octocat/hello.git'
+    })
+    expect(await detectRepo(os.tmpdir())).toEqual({ isRepo: false })
+  })
+
+  it('hasLfsPatterns detects filter=lfs in .gitattributes', async () => {
+    expect(await hasLfsPatterns(dir)).toBe(false)
+    fs.writeFileSync(
+      path.join(dir, '.gitattributes'),
+      '*.png filter=lfs diff=lfs merge=lfs -text\n'
+    )
+    expect(await hasLfsPatterns(dir)).toBe(true)
   })
 })
 ```
@@ -223,25 +244,61 @@ export const unstage = async (dir: string, files: string[]): Promise<void> => {
 export const commit = async (dir: string, message: string, author: GitAuthor): Promise<string> => {
   return git.commit({ fs, dir, message, author })
 }
+
+export interface RepoDetection {
+  isRepo: boolean
+  remoteUrl?: string
+  httpsUrl?: string
+}
+
+// The Source Control panel serves any opened folder whose origin points at
+// github.com — not only repos cloned through MarkText. SSH origins are
+// rewritten to their HTTPS equivalent so isomorphic-git's http transport and
+// token auth work regardless of how the repo was cloned. Root-only in v1:
+// the opened folder itself must be the repo root (no upward walk).
+export const detectRepo = async (dir: string): Promise<RepoDetection> => {
+  try {
+    const remotes = await git.listRemotes({ fs, dir })
+    const origin = remotes.find((r) => r.remote === 'origin')
+    if (!origin) return { isRepo: false }
+    const m = origin.url.match(/^(?:https:\/\/github\.com\/|git@github\.com:)(.+?)(?:\.git)?$/)
+    if (!m) return { isRepo: false }
+    return { isRepo: true, remoteUrl: origin.url, httpsUrl: `https://github.com/${m[1]}.git` }
+  } catch {
+    return { isRepo: false }
+  }
+}
+
+// isomorphic-git has no LFS support: LFS-tracked files clone as pointer files
+// and committing them writes raw content. Detect so the panel can warn.
+// Best-effort: only the root .gitattributes is scanned.
+export const hasLfsPatterns = async (dir: string): Promise<boolean> => {
+  try {
+    const attrs = await fs.promises.readFile(`${dir}/.gitattributes`, 'utf8')
+    return /(^|\s)filter=lfs(\s|$)/m.test(attrs)
+  } catch {
+    return false
+  }
+}
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pnpm -C packages/desktop exec vitest run test/unit/specs/github-git.spec.ts`
-Expected: PASS (2 passing).
+Expected: PASS (4 passing).
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add packages/desktop/src/main/github/git.ts packages/desktop/test/unit/specs/github-git.spec.ts
-git commit -m "feat(github): add local git status/stage/commit operations"
+git commit -m "feat(github): add local git ops plus repo/LFS detection"
 ```
 
 ---
 
 ### Task 3: `git.ts` — sync (merge / conflict detection)
 
-The safety-critical piece. `sync` fetches, then merges `origin/<branch>` with `abortOnConflict: true` so a conflicting merge leaves the working tree untouched and we report it instead of corrupting state. We can test the merge/conflict branch entirely locally by hand-building a diverged `refs/remotes/origin/main`.
+The safety-critical piece. `sync` first refuses a dirty working tree (**before any network I/O** — a merge/checkout over uncommitted changes could clobber them, and v1 has no stash), then fetches and merges `origin/<branch>` with `abortOnConflict: true` so a conflicting merge leaves the working tree untouched and we report it instead of corrupting state. We can test the dirty guard and the merge/conflict branch entirely locally by hand-building a diverged `refs/remotes/origin/main`.
 
 **Files:**
 - Modify: `packages/desktop/src/main/github/git.ts`
@@ -252,7 +309,7 @@ The safety-critical piece. `sync` fetches, then merges `origin/<branch>` with `a
 Add to `packages/desktop/test/unit/specs/github-git.spec.ts`:
 
 ```ts
-import { resolveAndMerge } from 'main_renderer/github/git'
+import { resolveAndMerge, sync, withRepoQueue } from 'main_renderer/github/git'
 
 describe('github/git resolveAndMerge', () => {
   beforeEach(initRepo)
@@ -307,6 +364,38 @@ describe('github/git resolveAndMerge', () => {
     // Working tree unchanged — no conflict markers written.
     expect(fs.readFileSync(path.join(dir, 'a.md'), 'utf8')).toBe(before)
   })
+
+  it('sync refuses a dirty working tree before touching the network', async () => {
+    fs.writeFileSync(path.join(dir, 'a.md'), '# uncommitted local edit\n')
+    // No fetch mock needed: the dirty guard must return before any network I/O.
+    const res = await sync(dir, async () => 'tok', { name: 'M', email: 'm@example.com' })
+    expect(res.dirty).toBe(true)
+    expect(fs.readFileSync(path.join(dir, 'a.md'), 'utf8')).toBe('# uncommitted local edit\n')
+  })
+})
+
+describe('github/git withRepoQueue', () => {
+  it('serializes operations on the same repo path', async () => {
+    const order: number[] = []
+    const slow = withRepoQueue('/repo', async () => {
+      await new Promise((r) => setTimeout(r, 20))
+      order.push(1)
+    })
+    const fast = withRepoQueue('/repo', async () => {
+      order.push(2)
+    })
+    await Promise.all([slow, fast])
+    expect(order).toEqual([1, 2])
+  })
+
+  it('keeps the queue alive after a failed operation', async () => {
+    await expect(
+      withRepoQueue('/repo', async () => {
+        throw new Error('boom')
+      })
+    ).rejects.toThrow('boom')
+    expect(await withRepoQueue('/repo', async () => 'ok')).toBe('ok')
+  })
 })
 ```
 
@@ -324,6 +413,7 @@ import http from 'isomorphic-git/http/node'
 
 export interface SyncResult {
   conflict: boolean
+  dirty: boolean
   files: string[]
   ahead: number
   behind: number
@@ -356,10 +446,20 @@ export const cloneRepo = async (
     dir,
     url,
     singleBranch: true,
-    depth: 0,
     onAuth: onAuth(getToken),
     onProgress: (e) => onProgress?.({ phase: e.phase, loaded: e.loaded, total: e.total || 0 })
   })
+}
+
+// isomorphic-git has no index.lock: concurrent ops on the same repo (two
+// windows, or a watcher-driven status racing a commit) can corrupt the
+// index. ipc.ts routes every git operation through this per-repo queue.
+const repoQueues = new Map<string, Promise<unknown>>()
+export const withRepoQueue = <T>(repoPath: string, op: () => Promise<T>): Promise<T> => {
+  const tail = repoQueues.get(repoPath) ?? Promise.resolve()
+  const run = tail.catch(() => {}).then(op)
+  repoQueues.set(repoPath, run.catch(() => {}))
+  return run
 }
 
 export const currentBranch = async (dir: string): Promise<string> => {
@@ -396,7 +496,7 @@ export const resolveAndMerge = async (
   const remoteRef = `refs/remotes/origin/${branch}`
   const ahead = await countCommits(dir, branch, remoteRef)
   const behind = await countCommits(dir, remoteRef, branch)
-  if (behind === 0) return { conflict: false, files: [], ahead, behind }
+  if (behind === 0) return { conflict: false, dirty: false, files: [], ahead, behind }
 
   try {
     await git.merge({
@@ -408,11 +508,11 @@ export const resolveAndMerge = async (
       abortOnConflict: true
     })
     await git.checkout({ fs, dir, ref: branch })
-    return { conflict: false, files: [], ahead, behind }
+    return { conflict: false, dirty: false, files: [], ahead, behind }
   } catch (err) {
     const e = err as { code?: string; data?: { filepaths?: string[] } }
     if (e.code === 'MergeConflictError' || e.code === 'MergeNotSupportedError') {
-      return { conflict: true, files: e.data?.filepaths ?? [], ahead, behind }
+      return { conflict: true, dirty: false, files: e.data?.filepaths ?? [], ahead, behind }
     }
     throw err
   }
@@ -426,12 +526,17 @@ export const pushBranch = async (dir: string, getToken: TokenProvider): Promise<
   await git.push({ fs, http, dir, onAuth: onAuth(getToken) })
 }
 
-// Full sync: fetch → merge (ff / clean / conflict) → push when clean.
+// Full sync: dirty-guard → fetch → merge (ff / clean / conflict) → push when
+// clean. The dirty guard runs before any network I/O: the renderer save-alls
+// first, but main is the authoritative check (spec: Sync preconditions).
 export const sync = async (
   dir: string,
   getToken: TokenProvider,
   author: GitAuthor
 ): Promise<SyncResult> => {
+  if ((await listChanges(dir)).length > 0) {
+    return { conflict: false, dirty: true, files: [], ahead: 0, behind: 0 }
+  }
   await fetchRemote(dir, getToken)
   const branch = await currentBranch(dir)
   const result = await resolveAndMerge(dir, branch, author)
@@ -458,6 +563,10 @@ git commit -m "feat(github): add fetch/merge/push sync with safe conflict report
 
 ### Task 4: `auth.ts` — OAuth Device Flow + keytar
 
+> keytar is archived upstream; we keep it for v1 because it already ships with
+> MarkText. The `GitHubAuthProvider` interface below is the seam for migrating
+> to Electron's `safeStorage` later.
+
 **Files:**
 - Create: `packages/desktop/src/main/github/auth.ts`
 - Test: `packages/desktop/test/unit/specs/github-auth.spec.ts`
@@ -483,7 +592,14 @@ vi.mock('keytar', () => ({
   }
 }))
 
-import { requestDeviceCode, pollForToken, getToken, signOut } from 'main_renderer/github/auth'
+import {
+  requestDeviceCode,
+  pollForToken,
+  getToken,
+  signOut,
+  saveIdentity,
+  loadIdentity
+} from 'main_renderer/github/auth'
 
 beforeEach(() => {
   for (const k of Object.keys(store)) delete store[k]
@@ -531,10 +647,35 @@ describe('github/auth', () => {
     expect(await getToken()).toBe('gho_abc')
   })
 
-  it('signOut clears the stored token', async () => {
+  it('starting a new poll cancels the in-flight one', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ error: 'authorization_pending' })
+    })) as unknown as typeof fetch)
+    const first = pollForToken('dc-old', 1)
+    const firstRejects = expect(first).rejects.toThrow('cancelled')
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ access_token: 'gho_new' })
+    })) as unknown as typeof fetch)
+    const second = pollForToken('dc-new', 1)
+    await vi.advanceTimersByTimeAsync(1000)
+    await firstRejects
+    expect(await second).toBe('gho_new')
+  })
+
+  it('persists and reloads the user identity', async () => {
+    await saveIdentity({ login: 'octocat', name: 'The Octocat', id: 583231 })
+    expect(await loadIdentity()).toEqual({ login: 'octocat', name: 'The Octocat', id: 583231 })
+  })
+
+  it('signOut clears the stored token and identity', async () => {
     store['oauth-token'] = 'gho_abc'
+    store['user-identity'] = '{"login":"octocat","name":null,"id":583231}'
     await signOut()
     expect(await getToken()).toBeNull()
+    expect(await loadIdentity()).toBeNull()
   })
 })
 ```
@@ -556,7 +697,8 @@ import {
   GITHUB_DEVICE_CODE_URL,
   GITHUB_TOKEN_URL,
   KEYTAR_SERVICE,
-  KEYTAR_ACCOUNT
+  KEYTAR_ACCOUNT,
+  KEYTAR_ACCOUNT_IDENTITY
 } from './config'
 
 export interface DeviceCodeInfo {
@@ -578,8 +720,33 @@ export interface GitHubAuthProvider {
 export const getToken = (): Promise<string | null> =>
   keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
 
+// The identity is persisted (it is not a secret) so commit — a purely local
+// operation — and the signed-in display work offline and across restarts
+// without a network round-trip (spec: Commit identity).
+export interface StoredIdentity {
+  login: string
+  name: string | null
+  id: number
+}
+
+export const saveIdentity = (identity: StoredIdentity): Promise<void> =>
+  keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY, JSON.stringify(identity))
+
+export const loadIdentity = async (): Promise<StoredIdentity | null> => {
+  const raw = await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw) as StoredIdentity
+  } catch {
+    return null
+  }
+}
+
 export const signOut = async (): Promise<void> => {
+  // Local sign-out only: device-flow apps cannot revoke the token
+  // server-side (that requires the client secret). Documented in the spec.
   await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
+  await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
 }
 
 export const requestDeviceCode = async (): Promise<DeviceCodeInfo> => {
@@ -602,12 +769,18 @@ export const requestDeviceCode = async (): Promise<DeviceCodeInfo> => {
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
 // Polls the token endpoint until the user authorizes (or the code expires).
-// intervalSeconds comes from requestDeviceCode(); GitHub may ask us to back off.
+// intervalSeconds comes from requestDeviceCode(); GitHub may ask us to back
+// off. Starting a new poll cancels any in-flight one — clicking "Sign in"
+// twice must not leave two pollers racing to write the token.
+let pollGeneration = 0
+
 export const pollForToken = async (deviceCode: string, intervalSeconds: number): Promise<string> => {
+  const generation = ++pollGeneration
   let interval = intervalSeconds
   // eslint-disable-next-line no-constant-condition
   while (true) {
     await sleep(interval * 1000)
+    if (generation !== pollGeneration) throw new Error('Polling cancelled by a newer sign-in')
     const res = await fetch(GITHUB_TOKEN_URL, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -635,7 +808,7 @@ export const pollForToken = async (deviceCode: string, intervalSeconds: number):
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pnpm -C packages/desktop exec vitest run test/unit/specs/github-auth.spec.ts`
-Expected: PASS (3 passing).
+Expected: PASS (5 passing).
 
 - [ ] **Step 5: Commit**
 
@@ -658,17 +831,26 @@ Create `packages/desktop/test/unit/specs/github-api.spec.ts`:
 
 ```ts
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { getUser, listRepos } from 'main_renderer/github/api'
+import { getUser, listRepos, commitAuthorFor } from 'main_renderer/github/api'
 
 afterEach(() => vi.restoreAllMocks())
 
 describe('github/api', () => {
-  it('getUser returns the authenticated login', async () => {
+  it('getUser returns the fields the commit author is built from', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
-      json: async () => ({ login: 'octocat' })
+      json: async () => ({ login: 'octocat', name: 'The Octocat', id: 583231 })
     })) as unknown as typeof fetch)
-    expect(await getUser('tok')).toEqual({ login: 'octocat' })
+    expect(await getUser('tok')).toEqual({ login: 'octocat', name: 'The Octocat', id: 583231 })
+  })
+
+  it('commitAuthorFor builds the noreply identity', () => {
+    expect(commitAuthorFor({ login: 'octocat', name: 'The Octocat', id: 583231 })).toEqual({
+      name: 'The Octocat',
+      email: '583231+octocat@users.noreply.github.com'
+    })
+    // Profiles without a display name fall back to the login.
+    expect(commitAuthorFor({ login: 'octocat', name: null, id: 583231 }).name).toBe('octocat')
   })
 
   it('listRepos maps the fields we care about', async () => {
@@ -685,6 +867,23 @@ describe('github/api', () => {
       private: false,
       defaultBranch: 'main'
     })
+  })
+
+  it('listRepos follows pagination until a short page', async () => {
+    const raw = (i: number) => ({
+      full_name: `octocat/repo-${i}`,
+      clone_url: `https://github.com/octocat/repo-${i}.git`,
+      private: false,
+      default_branch: 'main'
+    })
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => Array.from({ length: 100 }, (_, i) => raw(i)) })
+      .mockResolvedValueOnce({ ok: true, json: async () => [raw(100)] })
+    vi.stubGlobal('fetch', fetchMock as unknown as typeof fetch)
+    const repos = await listRepos('tok')
+    expect(repos).toHaveLength(101)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(String(fetchMock.mock.calls[1][0])).toContain('page=2')
   })
 
   it('throws on a non-ok response', async () => {
@@ -708,6 +907,8 @@ import { GITHUB_API_BASE } from './config'
 
 export interface GitHubUser {
   login: string
+  name: string | null
+  id: number
 }
 
 export interface GitHubRepo {
@@ -730,9 +931,17 @@ const request = async <T>(path: string, token: string): Promise<T> => {
 }
 
 export const getUser = async (token: string): Promise<GitHubUser> => {
-  const data = await request<{ login: string }>('/user', token)
-  return { login: data.login }
+  const data = await request<{ login: string; name: string | null; id: number }>('/user', token)
+  return { login: data.login, name: data.name, id: data.id }
 }
+
+// Commits are authored with GitHub's noreply address so they attribute
+// correctly on github.com without leaking a private email (spec: Commit
+// identity).
+export const commitAuthorFor = (user: GitHubUser): { name: string; email: string } => ({
+  name: user.name || user.login,
+  email: `${user.id}+${user.login}@users.noreply.github.com`
+})
 
 interface RawRepo {
   full_name: string
@@ -741,21 +950,32 @@ interface RawRepo {
   default_branch: string
 }
 
+// Paginated: users routinely exceed one page of repos.
 export const listRepos = async (token: string): Promise<GitHubRepo[]> => {
-  const data = await request<RawRepo[]>('/user/repos?per_page=100&sort=updated', token)
-  return data.map((r) => ({
-    fullName: r.full_name,
-    cloneUrl: r.clone_url,
-    private: r.private,
-    defaultBranch: r.default_branch
-  }))
+  const repos: GitHubRepo[] = []
+  for (let page = 1; ; page++) {
+    const data = await request<RawRepo[]>(
+      `/user/repos?per_page=100&sort=updated&page=${page}`,
+      token
+    )
+    repos.push(
+      ...data.map((r) => ({
+        fullName: r.full_name,
+        cloneUrl: r.clone_url,
+        private: r.private,
+        defaultBranch: r.default_branch
+      }))
+    )
+    if (data.length < 100) break
+  }
+  return repos
 }
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `pnpm -C packages/desktop exec vitest run test/unit/specs/github-api.spec.ts`
-Expected: PASS (3 passing).
+Expected: PASS (5 passing).
 
 - [ ] **Step 5: Commit**
 
@@ -797,9 +1017,16 @@ export interface GitHubChangeInfo {
 
 export interface GitHubSyncResult {
   conflict: boolean
+  dirty: boolean
   files: string[]
   ahead: number
   behind: number
+}
+
+export interface GitHubRepoDetection {
+  isRepo: boolean
+  remoteUrl?: string
+  httpsUrl?: string
 }
 
 export interface GitHubDeviceCode {
@@ -830,6 +1057,8 @@ Inside `interface IpcInvokeChannels`, add (keep alphabetical grouping with the o
   'mt::github::unstage': { args: [repoPath: string, files: string[]]; ret: GitHubChangeInfo[] }
   'mt::github::commit': { args: [repoPath: string, message: string]; ret: { oid: string } }
   'mt::github::sync': { args: [repoPath: string]; ret: GitHubSyncResult }
+  'mt::github::repo-info': { args: [path: string]; ret: GitHubRepoDetection }
+  'mt::github::lfs-check': { args: [repoPath: string]; ret: boolean }
 ```
 
 - [ ] **Step 3: Register the push-event channels**
@@ -868,31 +1097,54 @@ git commit -m "feat(github): add mt::github::* IPC channel contract"
 Create `packages/desktop/src/main/github/ipc.ts`:
 
 ```ts
-import { ipcMain, BrowserWindow, app } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
 import path from 'path'
 import * as gitOps from './git'
 import * as auth from './auth'
 import * as api from './api'
 
-const author = (): gitOps.GitAuthor => ({
-  name: app.getName(),
-  email: 'noreply@marktext.app'
-})
+// Commit identity comes from the GitHub profile (noreply email) — MarkText
+// has no git identity of its own (spec: Commit identity). The persisted
+// identity keeps commit working offline; the network fetch is only a
+// fallback for tokens stored before identity persistence existed.
+let cachedAuthor: gitOps.GitAuthor | null = null
+const author = async (): Promise<gitOps.GitAuthor> => {
+  if (cachedAuthor) return cachedAuthor
+  const identity = await auth.loadIdentity()
+  if (identity) {
+    cachedAuthor = api.commitAuthorFor(identity)
+    return cachedAuthor
+  }
+  const token = await auth.getToken()
+  if (!token) throw new Error('Not authenticated with GitHub')
+  const user = await api.getUser(token)
+  await auth.saveIdentity(user)
+  cachedAuthor = api.commitAuthorFor(user)
+  return cachedAuthor
+}
 
 const senderWindow = (e: Electron.IpcMainInvokeEvent): BrowserWindow | null =>
   BrowserWindow.fromWebContents(e.sender)
 
+// status-changed is broadcast: two windows can have the same repo open and
+// each window's store filters by its own repoPath. Auth + clone-progress
+// events target only the initiating window.
+const broadcastStatusChanged = (repoPath: string): void => {
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.webContents.send('mt::github::status-changed', repoPath)
+  }
+}
+
 export const registerGitHubHandlers = (): void => {
   ipcMain.handle('mt::github::auth-status', async (): Promise<{ signedIn: boolean; username?: string }> => {
+    // Offline-friendly (spec: IPC contract): token presence = signed in, no
+    // network round-trip. Token validity surfaces lazily when a network op
+    // fails with 401.
     const token = await auth.getToken()
     if (!token) return { signedIn: false }
-    try {
-      const user = await api.getUser(token)
-      return { signedIn: true, username: user.login }
-    } catch {
-      return { signedIn: false }
-    }
+    const identity = await auth.loadIdentity()
+    return { signedIn: true, username: identity?.login }
   })
 
   ipcMain.handle('mt::github::auth-start', async (e) => {
@@ -903,6 +1155,8 @@ export const registerGitHubHandlers = (): void => {
       .pollForToken(info.deviceCode, info.interval)
       .then(async (token) => {
         const user = await api.getUser(token)
+        await auth.saveIdentity(user)
+        cachedAuthor = api.commitAuthorFor(user)
         win?.webContents.send('mt::github::auth-success', { signedIn: true, username: user.login })
       })
       .catch((err) => {
@@ -917,7 +1171,14 @@ export const registerGitHubHandlers = (): void => {
     }
   })
 
-  ipcMain.handle('mt::github::sign-out', () => auth.signOut())
+  ipcMain.handle('mt::github::sign-out', () => {
+    cachedAuthor = null
+    return auth.signOut()
+  })
+
+  ipcMain.handle('mt::github::repo-info', (_e, path: string) => gitOps.detectRepo(path))
+
+  ipcMain.handle('mt::github::lfs-check', (_e, repoPath: string) => gitOps.hasLfsPatterns(repoPath))
 
   ipcMain.handle('mt::github::list-repos', async () => {
     const token = await auth.getToken()
@@ -929,37 +1190,56 @@ export const registerGitHubHandlers = (): void => {
     const repoName = path.basename(cloneUrl).replace(/\.git$/, '')
     const localPath = path.join(targetDir, repoName)
     const win = senderWindow(e)
+    // isomorphic-git fires onProgress extremely often — throttle the IPC
+    // forwarding (spec: IPC contract).
+    let lastProgress = 0
     await gitOps.cloneRepo(cloneUrl, localPath, auth.getToken, (p) => {
+      const now = Date.now()
+      if (now - lastProgress < 100 && p.loaded !== p.total) return
+      lastProgress = now
       win?.webContents.send('mt::github::clone-progress', p)
     })
     return { localPath }
   })
 
-  ipcMain.handle('mt::github::status', (_e, repoPath: string) => gitOps.listChanges(repoPath))
+  // Every git operation goes through the per-repo queue (spec: Concurrency):
+  // isomorphic-git has no index.lock, so two windows — or a watcher-driven
+  // status racing a commit — could otherwise corrupt the index.
+  ipcMain.handle('mt::github::status', (_e, repoPath: string) =>
+    gitOps.withRepoQueue(repoPath, () => gitOps.listChanges(repoPath))
+  )
 
-  ipcMain.handle('mt::github::stage', async (e, repoPath: string, files: string[]) => {
-    await gitOps.stage(repoPath, files)
-    senderWindow(e)?.webContents.send('mt::github::status-changed', repoPath)
-    return gitOps.listChanges(repoPath)
-  })
+  ipcMain.handle('mt::github::stage', (_e, repoPath: string, files: string[]) =>
+    gitOps.withRepoQueue(repoPath, async () => {
+      await gitOps.stage(repoPath, files)
+      broadcastStatusChanged(repoPath)
+      return gitOps.listChanges(repoPath)
+    })
+  )
 
-  ipcMain.handle('mt::github::unstage', async (e, repoPath: string, files: string[]) => {
-    await gitOps.unstage(repoPath, files)
-    senderWindow(e)?.webContents.send('mt::github::status-changed', repoPath)
-    return gitOps.listChanges(repoPath)
-  })
+  ipcMain.handle('mt::github::unstage', (_e, repoPath: string, files: string[]) =>
+    gitOps.withRepoQueue(repoPath, async () => {
+      await gitOps.unstage(repoPath, files)
+      broadcastStatusChanged(repoPath)
+      return gitOps.listChanges(repoPath)
+    })
+  )
 
-  ipcMain.handle('mt::github::commit', async (e, repoPath: string, message: string) => {
-    const oid = await gitOps.commit(repoPath, message, author())
-    senderWindow(e)?.webContents.send('mt::github::status-changed', repoPath)
-    return { oid }
-  })
+  ipcMain.handle('mt::github::commit', (_e, repoPath: string, message: string) =>
+    gitOps.withRepoQueue(repoPath, async () => {
+      const oid = await gitOps.commit(repoPath, message, await author())
+      broadcastStatusChanged(repoPath)
+      return { oid }
+    })
+  )
 
-  ipcMain.handle('mt::github::sync', async (e, repoPath: string) => {
-    const result = await gitOps.sync(repoPath, auth.getToken, author())
-    senderWindow(e)?.webContents.send('mt::github::status-changed', repoPath)
-    return result
-  })
+  ipcMain.handle('mt::github::sync', (_e, repoPath: string) =>
+    gitOps.withRepoQueue(repoPath, async () => {
+      const result = await gitOps.sync(repoPath, auth.getToken, await author())
+      broadcastStatusChanged(repoPath)
+      return result
+    })
+  )
 }
 ```
 
@@ -1013,6 +1293,8 @@ const githubAPI = {
   unstage: (repoPath: string, files: string[]) => invoke('mt::github::unstage', repoPath, files),
   commit: (repoPath: string, message: string) => invoke('mt::github::commit', repoPath, message),
   sync: (repoPath: string) => invoke('mt::github::sync', repoPath),
+  repoInfo: (path: string) => invoke('mt::github::repo-info', path),
+  lfsCheck: (repoPath: string) => invoke('mt::github::lfs-check', repoPath),
   onAuthSuccess: (handler: (status: { signedIn: boolean; username?: string }) => void) =>
     ipcWrapper.on('mt::github::auth-success', (_e, status) => handler(status)),
   onAuthError: (handler: (message: string) => void) =>
@@ -1048,6 +1330,8 @@ In `packages/desktop/src/types/global.d.ts`, inside `declare global`, add an int
     unstage(repoPath: string, files: string[]): Promise<import('@shared/types/ipc').GitHubChangeInfo[]>
     commit(repoPath: string, message: string): Promise<{ oid: string }>
     sync(repoPath: string): Promise<import('@shared/types/ipc').GitHubSyncResult>
+    repoInfo(path: string): Promise<import('@shared/types/ipc').GitHubRepoDetection>
+    lfsCheck(repoPath: string): Promise<boolean>
     onAuthSuccess(handler: (status: import('@shared/types/ipc').GitHubAuthStatus) => void): () => void
     onAuthError(handler: (message: string) => void): () => void
     onCloneProgress(handler: (p: { phase: string; loaded: number; total: number }) => void): () => void
@@ -1103,6 +1387,7 @@ export const useGithubStore = defineStore('github', () => {
   const ahead = ref(0)
   const behind = ref(0)
   const conflictFiles = ref<string[]>([])
+  const lfsWarning = ref(false)
   const busy = ref(false)
 
   const refreshAuth = async (): Promise<void> => {
@@ -1139,7 +1424,21 @@ export const useGithubStore = defineStore('github', () => {
 
   const setRepo = async (path: string | null): Promise<void> => {
     repoPath.value = path
+    // isomorphic-git has no LFS support — warn when the repo uses it.
+    lfsWarning.value = path ? await window.github.lfsCheck(path) : false
     await refreshStatus()
+  }
+
+  // Called whenever the opened project root changes: the panel serves any
+  // git repo with a github.com origin, not only repos cloned through
+  // MarkText (spec: UX flow step 3).
+  const detectRepoForFolder = async (rootPath: string | null): Promise<void> => {
+    if (!rootPath) {
+      await setRepo(null)
+      return
+    }
+    const info = await window.github.repoInfo(rootPath)
+    await setRepo(info.isRepo ? rootPath : null)
   }
 
   const refreshStatus = async (): Promise<void> => {
@@ -1148,6 +1447,17 @@ export const useGithubStore = defineStore('github', () => {
       return
     }
     changes.value = await window.github.status(repoPath.value)
+  }
+
+  // statusMatrix walks the whole tree — debounce watcher-driven bursts
+  // instead of refreshing once per fs event.
+  let statusTimer: ReturnType<typeof setTimeout> | null = null
+  const scheduleRefresh = (): void => {
+    if (statusTimer) clearTimeout(statusTimer)
+    statusTimer = setTimeout(() => {
+      statusTimer = null
+      void refreshStatus()
+    }, 300)
   }
 
   const stage = async (files: string[]): Promise<void> => {
@@ -1170,6 +1480,12 @@ export const useGithubStore = defineStore('github', () => {
     if (!repoPath.value) return null
     busy.value = true
     try {
+      // Spec: Sync preconditions. Save all open tabs first — a pull may
+      // rewrite files that are open in the editor, and an unsaved buffer
+      // would clobber the pulled content on its next save. Main additionally
+      // re-verifies a clean tree and returns { dirty: true } otherwise.
+      const editorStore = useEditorStore()
+      editorStore.ASK_FOR_SAVE_ALL(false)
       const result = await window.github.sync(repoPath.value)
       ahead.value = result.ahead
       behind.value = result.behind
@@ -1188,7 +1504,7 @@ export const useGithubStore = defineStore('github', () => {
     void loadRepos()
   })
   window.github.onStatusChanged((changed) => {
-    if (changed === repoPath.value) void refreshStatus()
+    if (changed === repoPath.value) scheduleRefresh()
   })
 
   return {
@@ -1200,6 +1516,7 @@ export const useGithubStore = defineStore('github', () => {
     ahead,
     behind,
     conflictFiles,
+    lfsWarning,
     busy,
     refreshAuth,
     startAuth,
@@ -1207,7 +1524,9 @@ export const useGithubStore = defineStore('github', () => {
     loadRepos,
     cloneRepo,
     setRepo,
+    detectRepoForFolder,
     refreshStatus,
+    scheduleRefresh,
     stage,
     unstage,
     commit,
@@ -1215,6 +1534,20 @@ export const useGithubStore = defineStore('github', () => {
   }
 })
 ```
+
+Add the editor-store import at the top of the file alongside the other imports:
+
+```ts
+import { useEditorStore } from '@/store/editor'
+```
+
+> **Save-all caveat:** `ASK_FOR_SAVE_ALL(false)` (see `store/editor.ts` and its
+> use in `sideBar/tree.vue`) is the existing save-all path, but it is
+> fire-and-forget (`void`). During implementation, make the sync action wait
+> for the saves to land before invoking `mt::github::sync` — e.g. await the
+> IPC round-trip if main exposes one, or watch the tabs' saved flags settle.
+> The main-process dirty guard is the safety net either way: at worst an
+> unsaved tab surfaces as `{ dirty: true }` instead of losing data.
 
 - [ ] **Step 2: Typecheck**
 
@@ -1285,6 +1618,15 @@ Create `packages/desktop/src/renderer/src/components/sideBar/sourceControl.vue`:
 
       <template v-else>
         <el-alert
+          v-if="lfsWarning"
+          type="warning"
+          :closable="false"
+          show-icon
+          title="This repo uses Git LFS, which MarkText does not support"
+          description="LFS-tracked files appear as pointer files; avoid editing them here."
+        />
+
+        <el-alert
           v-if="conflictFiles.length"
           type="warning"
           :closable="false"
@@ -1308,8 +1650,12 @@ Create `packages/desktop/src/renderer/src/components/sideBar/sourceControl.vue`:
             :disabled="!canCommit"
             @click="onCommit"
           >Commit</el-button>
+          <!-- Sync requires a clean tree (spec: Sync preconditions); main
+               re-verifies, this is just the affordance. -->
           <el-button
             size="small"
+            :disabled="changes.length > 0"
+            :title="changes.length ? 'Commit your changes first' : ''"
             :loading="busy"
             @click="onSync"
           >Sync<span v-if="ahead || behind"> ({{ ahead }}↑ {{ behind }}↓)</span></el-button>
@@ -1334,15 +1680,19 @@ Create `packages/desktop/src/renderer/src/components/sideBar/sourceControl.vue`:
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
 import { useGithubStore } from '@/store/github'
+import { useProjectStore } from '@/store/project'
 import RepoBrowser from '../github/repoBrowser.vue'
 
 const githubStore = useGithubStore()
-const { signedIn, username, repoPath, changes, ahead, behind, conflictFiles, busy } =
+const { signedIn, username, repoPath, changes, ahead, behind, conflictFiles, lfsWarning, busy } =
   storeToRefs(githubStore)
+
+const projectStore = useProjectStore()
+const { projectTree } = storeToRefs(projectStore)
 
 const message = ref('')
 const showBrowser = ref(false)
@@ -1352,6 +1702,14 @@ const canCommit = computed(
 )
 
 onMounted(() => githubStore.refreshAuth())
+
+// The panel serves any opened folder that is a GitHub repo (spec: UX flow
+// step 3) — watch the opened project root and (re)detect.
+watch(
+  () => projectTree.value?.pathname ?? null,
+  (root) => void githubStore.detectRepoForFolder(root),
+  { immediate: true }
+)
 
 const openRepoBrowser = (): void => {
   showBrowser.value = true
@@ -1376,7 +1734,10 @@ const onCommit = async (): Promise<void> => {
 
 const onSync = async (): Promise<void> => {
   const result = await githubStore.sync()
-  if (result?.conflict) {
+  if (!result) return
+  if (result.dirty) {
+    ElMessage.warning('Commit your changes first.')
+  } else if (result.conflict) {
     ElMessage.warning('Sync paused: resolve conflicts manually.')
   } else {
     ElMessage.success('Synced with GitHub.')
@@ -1462,13 +1823,21 @@ Add the render branch in the `right-column` block after the `<toc ... />` line:
       <source-control v-else-if="rightColumn === 'source-control'" />
 ```
 
-- [ ] **Step 4: Add the i18n label**
+- [ ] **Step 4: Add the i18n strings**
 
 In `packages/desktop/src/main/i18n/locales/en.json` (or the equivalent en locale source — confirm the path with `rg -l '"icons"' packages/desktop`), add a `sourceControl` key under `sideBar.icons` next to `files`/`search`/`toc`:
 
 ```json
 "sourceControl": "Source Control"
 ```
+
+The spec requires **all** panel strings to go through the i18n system like the
+rest of the sidebar — the template listings above show hardcoded English for
+readability only. Add a `sideBar.sourceControl.*` group (e.g. `signIn`,
+`signedOutHint`, `cloneRepo`, `noRepo`, `commitPlaceholder`, `commit`, `sync`,
+`commitFirst`, `noChanges`, `conflictTitle`, `openRepoFolder`, `lfsTitle`,
+`lfsHint`, plus the toast messages) and wire the component through `t()` the
+same way `tree.vue` does. The same applies to `repoBrowser.vue` in Task 11.
 
 - [ ] **Step 5: Typecheck and run the app**
 
@@ -1684,6 +2053,11 @@ MARKTEXT_GITHUB_CLIENT_ID=Iv1.xxxxxxxx pnpm run dev
 
 The app requests the `repo` scope (read/write to public and private repos the
 user owns). This is required for cloning private repos and pushing.
+
+Classic OAuth App tokens do not expire; there is no refresh flow. Note that
+organizations enforcing **OAuth App access restrictions** must approve the app
+before their repositories are listed or pushable — until then the API omits
+them and pushes return 403.
 ```
 
 - [ ] **Step 2: Commit**
@@ -1730,3 +2104,28 @@ confirm the conflict banner appears and the working tree is left intact.
   `mt::github::choose-dir` channel) — confirm during implementation.
 - **`global.d.ts` shape:** Task 8 assumes top-level `var` globals; if the file
   uses a `Window` interface, follow that instead.
+- **Design-review fixes (2026-07-01):** the spec review added: commit identity
+  from the GitHub profile (`commitAuthorFor` — noreply email, cached in main,
+  cleared on sign-out), a Sync dirty-guard in main **before any network I/O**
+  plus renderer save-all, panel activation for any opened github.com repo via
+  `detectRepo` / `mt::github::repo-info` (SSH origins rewritten to HTTPS),
+  paginated `listRepos`, an LFS warning banner (`hasLfsPatterns` /
+  `mt::github::lfs-check`), broadcast `mt::github::status-changed` (multi-
+  window), and debounced status refresh. keytar stays for v1 despite being
+  archived upstream (`GitHubAuthProvider` is the `safeStorage` migration
+  seam).
+- **Save-all before sync:** `editorStore.ASK_FOR_SAVE_ALL(false)` is the
+  existing save-all path but returns `void` — make the store's sync action
+  wait for saves to land before invoking `mt::github::sync` (see the caveat in
+  Task 9). The main-process dirty guard is the safety net if a save races.
+- **Design-review fixes, round 2 (2026-07-01):** per-repo operation
+  serialization (`withRepoQueue` in git.ts, applied to every git handler in
+  ipc.ts — isomorphic-git has no `index.lock`); offline support (identity
+  persisted via `saveIdentity`/`loadIdentity`, `auth-status` answers from
+  token presence with no network round-trip, commit works offline after a
+  restart); a new device poll cancels any in-flight one (generation counter);
+  sign-out documented as local-only (device flow cannot revoke server-side);
+  `detectRepo` is repo-root-only in v1 (no upward walk); LFS detection is
+  best-effort on the root `.gitattributes`; `clone-progress` is throttled in
+  main; all panel strings go through i18n; dropped the misleading `depth: 0`
+  from `cloneRepo`.
