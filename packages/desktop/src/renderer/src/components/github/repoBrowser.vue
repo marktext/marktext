@@ -53,16 +53,22 @@
           v-for="repo in filtered"
           :key="repo.fullName"
         >
-          <span class="name">{{ repo.fullName }}</span>
+          <span
+            class="name"
+            :title="repo.fullName"
+          >{{ repo.fullName }}</span>
           <el-tag
             v-if="repo.private"
             size="small"
+            type="info"
+            effect="plain"
           >
             {{ t('sideBar.sourceControl.private') }}
           </el-tag>
           <el-button
             size="small"
-            :loading="busy"
+            :loading="cloningRepo === repo.fullName"
+            :disabled="cloningRepo !== null && cloningRepo !== repo.fullName"
             @click="clone(repo)"
           >
             {{ t('sideBar.sourceControl.cloneButton') }}
@@ -92,11 +98,14 @@ const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 const githubStore = useGithubStore()
-const { signedIn, repos, busy } = storeToRefs(githubStore)
+const { signedIn, repos } = storeToRefs(githubStore)
 
 const deviceCode = ref('')
 const verificationUri = ref('')
 const filter = ref('')
+// Track which repo is currently cloning so only its button shows a spinner
+// (the shared store `busy` flag would spin every row's button at once).
+const cloningRepo = ref<string | null>(null)
 
 const filtered = computed<GitHubRepoInfo[]>(() => {
   const q = filter.value.toLowerCase()
@@ -138,6 +147,7 @@ const clone = async (repo: GitHubRepoInfo): Promise<void> => {
     ElMessage.error(t('sideBar.sourceControl.cloneLocationFailed'))
     return
   }
+  cloningRepo.value = repo.fullName
   try {
     const localPath = await githubStore.cloneRepo(repo.cloneUrl, targetDir)
     // Main opens the cloned folder; point the panel at it too.
@@ -146,6 +156,8 @@ const clone = async (repo: GitHubRepoInfo): Promise<void> => {
     ElMessage.success(t('sideBar.sourceControl.cloned', { repo: repo.fullName }))
   } catch (err) {
     ElMessage.error(`${t('sideBar.sourceControl.cloneFailed')}: ${(err as Error).message}`)
+  } finally {
+    cloningRepo.value = null
   }
 }
 </script>
@@ -162,14 +174,25 @@ const clone = async (repo: GitHubRepoInfo): Promise<void> => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 0;
+  padding: 6px 4px;
   border-bottom: 1px solid var(--itemBgColor);
+  border-radius: 4px;
+}
+.repos li:hover {
+  background: var(--itemBgColor);
 }
 .repos .name {
   flex: 1;
+  /* min-width:0 lets the name shrink so the tag + button never get pushed
+     off the row; overflow then truncates instead. */
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.repos li .el-tag,
+.repos li .el-button {
+  flex-shrink: 0;
 }
 .code-row {
   display: flex;
@@ -183,7 +206,8 @@ const clone = async (repo: GitHubRepoInfo): Promise<void> => {
   letter-spacing: 2px;
 }
 .filter {
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 .none {
   opacity: 0.6;

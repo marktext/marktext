@@ -2,10 +2,10 @@ import {
   Folder as FilesIcon,
   Search as SearchIcon,
   Memo as TocIcon,
-  Share as SourceControlIcon,
   Setting as SettingIcon
 } from '@element-plus/icons-vue'
 import { t } from '@/i18n'
+import GithubIcon from './githubIcon.vue'
 
 export interface SideBarIconEntry {
   id: string
@@ -32,7 +32,7 @@ export const sideBarIcons: SideBarIconEntry[] = [
   {
     id: 'source-control',
     name: () => t('sideBar.icons.sourceControl'),
-    icon: SourceControlIcon
+    icon: GithubIcon
   }
 ]
 
