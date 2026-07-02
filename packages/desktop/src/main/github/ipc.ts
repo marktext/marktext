@@ -37,6 +37,13 @@ const broadcastStatusChanged = (repoPath: string): void => {
   }
 }
 
+/**
+ * Register all `mt::github::*` IPC handlers, bridging the sandboxed renderer to
+ * the auth/api/git modules. Every git operation is routed through the per-repo
+ * queue, and status changes are broadcast to all windows. Call once at main
+ * startup. The renderer never receives the token — only booleans, the
+ * username, repo metadata, and changed-file lists cross the bridge.
+ */
 export const registerGitHubHandlers = (): void => {
   ipcMain.handle('mt::github::auth-status', async() => {
     // Offline-friendly (spec: IPC contract): token presence = signed in, no

@@ -19,6 +19,13 @@ export interface GitChange {
 // HEAD:    0 = absent,        1 = present
 // workdir: 0 = absent, 1 = identical to HEAD, 2 = different
 // stage:   0 = absent, 1 = identical to HEAD, 2 = identical to workdir, 3 = different from both
+/**
+ * Compute the working-tree changes for a repo from isomorphic-git's status
+ * matrix, classifying each path and whether it is staged.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @returns One entry per changed file (unchanged files are omitted).
+ */
 export const listChanges = async(dir: string): Promise<GitChange[]> => {
   const matrix = (await git.statusMatrix({ fs, dir })) as Array<[string, number, number, number]>
   const changes: GitChange[] = []
@@ -38,6 +45,13 @@ export const listChanges = async(dir: string): Promise<GitChange[]> => {
   return changes
 }
 
+/**
+ * Stage files into the index. A path that no longer exists on disk is staged
+ * as a deletion.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param files - Repo-relative paths to stage.
+ */
 export const stage = async(dir: string, files: string[]): Promise<void> => {
   for (const filepath of files) {
     if (fs.existsSync(`${dir}/${filepath}`)) {
@@ -48,12 +62,26 @@ export const stage = async(dir: string, files: string[]): Promise<void> => {
   }
 }
 
+/**
+ * Unstage files by resetting their index entry back to HEAD.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param files - Repo-relative paths to unstage.
+ */
 export const unstage = async(dir: string, files: string[]): Promise<void> => {
   for (const filepath of files) {
     await git.resetIndex({ fs, dir, filepath })
   }
 }
 
+/**
+ * Create a commit from the current index.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param message - Commit message.
+ * @param author - Commit author (see api.commitAuthorFor).
+ * @returns The new commit's oid.
+ */
 export const commit = async(dir: string, message: string, author: GitAuthor): Promise<string> => {
   return git.commit({ fs, dir, message, author })
 }
@@ -64,11 +92,17 @@ export interface RepoDetection {
   httpsUrl?: string
 }
 
-// The Source Control panel serves any opened folder whose origin points at
-// github.com — not only repos cloned through MarkText. SSH origins are
-// rewritten to their HTTPS equivalent so isomorphic-git's http transport and
-// token auth work regardless of how the repo was cloned. Root-only in v1:
-// the opened folder itself must be the repo root (no upward walk).
+/**
+ * Detect whether an opened folder is a git repo with a github.com `origin`,
+ * so the Source Control panel can serve any GitHub clone (not only ones cloned
+ * through MarkText). SSH origins are normalized to their HTTPS equivalent so
+ * isomorphic-git's http transport + token auth work regardless of clone style.
+ * Root-only in v1: the folder itself must be the repo root (no upward walk).
+ *
+ * @param dir - Absolute path to the opened folder.
+ * @returns `{ isRepo, remoteUrl?, httpsUrl? }`; `isRepo` is false for non-git
+ *   folders and non-github origins.
+ */
 export const detectRepo = async(dir: string): Promise<RepoDetection> => {
   try {
     const remotes = await git.listRemotes({ fs, dir })
@@ -82,9 +116,14 @@ export const detectRepo = async(dir: string): Promise<RepoDetection> => {
   }
 }
 
-// isomorphic-git has no LFS support: LFS-tracked files clone as pointer files
-// and committing them writes raw content. Detect so the panel can warn.
-// Best-effort: only the root .gitattributes is scanned.
+/**
+ * Detect whether a repo uses Git LFS (isomorphic-git has no LFS support, so
+ * LFS-tracked files clone as pointer files and committing would write raw
+ * content). Best-effort: only the root `.gitattributes` is scanned.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @returns True if a `filter=lfs` attribute is present.
+ */
 export const hasLfsPatterns = async(dir: string): Promise<boolean> => {
   try {
     const attrs = await fs.promises.readFile(`${dir}/.gitattributes`, 'utf8')
@@ -117,6 +156,15 @@ export interface CloneProgress {
   total: number
 }
 
+/**
+ * Clone a repository (single-branch) into `dir`, authenticating with the
+ * provided token and reporting progress.
+ *
+ * @param url - HTTPS clone URL.
+ * @param dir - Absolute destination path.
+ * @param getToken - Supplies the access token for `onAuth`.
+ * @param onProgress - Optional progress callback (`total` normalized to 0 when unknown).
+ */
 export const cloneRepo = async(
   url: string,
   dir: string,
@@ -134,6 +182,11 @@ export const cloneRepo = async(
   })
 }
 
+/**
+ * Resolve the current branch name, defaulting to `main` when detached.
+ *
+ * @param dir - Absolute path to the repo root.
+ */
 export const currentBranch = async(dir: string): Promise<string> => {
   return (await git.currentBranch({ fs, dir, fullname: false })) || 'main'
 }
@@ -142,6 +195,16 @@ export const currentBranch = async(dir: string): Promise<string> => {
 // windows, or a watcher-driven status racing a commit) can corrupt the
 // index. ipc.ts routes every git operation through this per-repo queue.
 const repoQueues = new Map<string, Promise<unknown>>()
+/**
+ * Serialize operations per repo path. isomorphic-git has no `index.lock`, so
+ * concurrent mutating ops on one repo (two windows, or a watcher-driven status
+ * racing a commit) could corrupt the index. A rejected op does not stall the
+ * queue — the next op still runs.
+ *
+ * @param repoPath - Repo root used as the queue key.
+ * @param op - The operation to run once the repo's queue drains.
+ * @returns The operation's result (rejections propagate to the caller).
+ */
 export const withRepoQueue = <T>(repoPath: string, op: () => Promise<T>): Promise<T> => {
   const tail = repoQueues.get(repoPath) ?? Promise.resolve()
   const run = tail.catch(() => {}).then(op)
@@ -173,9 +236,17 @@ const countCommits = async(dir: string, ref: string, notRef: string): Promise<nu
   }
 }
 
-// Merge origin/<branch> into the current branch. abortOnConflict keeps the
-// working tree untouched on conflict so we can report it safely (v1: no
-// in-app resolution).
+/**
+ * Merge `origin/<branch>` into the current branch. `abortOnConflict` keeps the
+ * working tree untouched on conflict so it can be reported safely (v1 has no
+ * in-app conflict resolution). Non-conflict errors are rethrown.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param branch - Local branch name (also the tracked remote branch).
+ * @param author - Author for the merge commit.
+ * @returns Ahead/behind counts and, on overlap, `conflict: true` with the
+ *   conflicted file list — never mutating the tree in that case.
+ */
 export const resolveAndMerge = async(
   dir: string,
   branch: string,
@@ -206,17 +277,38 @@ export const resolveAndMerge = async(
   }
 }
 
+/**
+ * Fetch the tracked remote branch (single-branch).
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param getToken - Supplies the access token for `onAuth`.
+ */
 export const fetchRemote = async(dir: string, getToken: TokenProvider): Promise<void> => {
   await git.fetch({ fs, http, dir, singleBranch: true, onAuth: onAuth(getToken) })
 }
 
+/**
+ * Push the current branch to its remote.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param getToken - Supplies the access token for `onAuth`.
+ */
 export const pushBranch = async(dir: string, getToken: TokenProvider): Promise<void> => {
   await git.push({ fs, http, dir, onAuth: onAuth(getToken) })
 }
 
-// Full sync: dirty-guard → fetch → merge (ff / clean / conflict) → push when
-// clean. The dirty guard runs before any network I/O: the renderer save-alls
-// first, but main is the authoritative check (spec: Sync preconditions).
+/**
+ * Full sync: dirty-guard → fetch → merge (ff / clean / conflict) → push when
+ * clean. The dirty guard runs before any network I/O — the renderer saves all
+ * tabs first, but this is the authoritative check (spec: Sync preconditions),
+ * so uncommitted work is never overwritten.
+ *
+ * @param dir - Absolute path to the repo root.
+ * @param getToken - Supplies the access token for fetch/push.
+ * @param author - Author for any merge commit.
+ * @returns `{ dirty: true }` if the tree is dirty; otherwise the merge result
+ *   (including `conflict: true` with files when the merge would overlap).
+ */
 export const sync = async(
   dir: string,
   getToken: TokenProvider,

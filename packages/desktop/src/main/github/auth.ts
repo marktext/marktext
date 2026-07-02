@@ -34,12 +34,29 @@ export interface GitHubAuthProvider {
   signOut(): Promise<void>
 }
 
+/**
+ * Read the stored GitHub access token from the OS keychain.
+ *
+ * @returns The token, or null if the user is not signed in.
+ */
 export const getToken = (): Promise<string | null> =>
   keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
 
+/**
+ * Persist the (non-secret) GitHub identity so commit — a purely local
+ * operation — and the signed-in display work offline and across restarts
+ * without a network round-trip.
+ *
+ * @param identity - Profile fields captured at sign-in.
+ */
 export const saveIdentity = (identity: StoredIdentity): Promise<void> =>
   keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY, JSON.stringify(identity))
 
+/**
+ * Read the persisted GitHub identity.
+ *
+ * @returns The stored identity, or null if absent or unparseable.
+ */
 export const loadIdentity = async(): Promise<StoredIdentity | null> => {
   const raw = await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
   if (!raw) return null
@@ -50,13 +67,28 @@ export const loadIdentity = async(): Promise<StoredIdentity | null> => {
   }
 }
 
+/**
+ * Sign out locally by clearing the token and identity from the keychain.
+ *
+ * Note: this does not revoke the token server-side — device-flow apps cannot
+ * revoke (that requires the client secret). The token stays valid until the
+ * user revokes the app in their GitHub settings.
+ */
 export const signOut = async(): Promise<void> => {
-  // Local sign-out only: device-flow apps cannot revoke the token
-  // server-side (that requires the client secret). Documented in the spec.
   await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
   await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
 }
 
+/**
+ * Begin the OAuth Device Flow by requesting a device + user code.
+ *
+ * Fails fast with an actionable message when no client id is configured,
+ * instead of surfacing a confusing 404 from GitHub.
+ *
+ * @returns The device code, the user-facing code, the verification URI, and
+ *   the poll interval/expiry to drive {@link pollForToken}.
+ * @throws If no client id is set, or the request fails.
+ */
 export const requestDeviceCode = async(): Promise<DeviceCodeInfo> => {
   const clientId = getClientId()
   // Fail fast with an actionable message instead of a confusing 404 from
@@ -85,12 +117,20 @@ export const requestDeviceCode = async(): Promise<DeviceCodeInfo> => {
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Polls the token endpoint until the user authorizes (or the code expires).
-// intervalSeconds comes from requestDeviceCode(); GitHub may ask us to back
-// off. Starting a new poll cancels any in-flight one — clicking "Sign in"
-// twice must not leave two pollers racing to write the token.
+// Starting a new poll cancels any in-flight one — clicking "Sign in" twice
+// must not leave two pollers racing to write the token.
 let pollGeneration = 0
 
+/**
+ * Poll the token endpoint until the user authorizes the device code, honoring
+ * GitHub's `slow_down` back-off. On success the token is written to the
+ * keychain and returned. Starting a newer poll cancels this one.
+ *
+ * @param deviceCode - The `deviceCode` from {@link requestDeviceCode}.
+ * @param intervalSeconds - Initial poll interval from `requestDeviceCode`.
+ * @returns The access token once authorization completes.
+ * @throws If the code expires, is denied, or a newer sign-in supersedes this poll.
+ */
 export const pollForToken = async(deviceCode: string, intervalSeconds: number): Promise<string> => {
   const generation = ++pollGeneration
   let interval = intervalSeconds
