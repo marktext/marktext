@@ -5,6 +5,7 @@ import type {
     Labels,
     Token,
 } from './types';
+import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
 import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
@@ -921,6 +922,82 @@ export function generator(tokens: Token[], rebuildWrappers = false) {
 
     for (const token of tokens)
         result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
+
+    return result;
+}
+
+// The reader-facing text of inline tokens with every marker, delimiter, URL and
+// tag dropped — `**bold**` → `bold`, `[text](url)` → `text`, `![alt](src)` →
+// `alt`. Mirrors the visible `textContent` a rendered heading yields, so a slug
+// derived from this matches the anchor id the HTML export injects
+// (state/markdownToHtml.ts injects ids from `heading.textContent`). The TOC uses
+// it to show and slug headings by their rendered text instead of raw source
+// (#4811).
+export function tokensToPlainText(tokens: Token[]): string {
+    let result = '';
+
+    for (const token of tokens) {
+        switch (token.type) {
+            case 'text':
+            case 'inline_code':
+            case 'inline_math':
+            case 'emoji':
+            case 'super_sub_script':
+            case 'footnote_identifier':
+                result += token.content;
+                break;
+
+            case 'strong':
+            case 'em':
+            case 'del':
+            case 'link':
+            case 'reference_link':
+                result += tokensToPlainText(token.children);
+                break;
+
+            case 'image':
+            case 'reference_image':
+                result += token.alt;
+                break;
+
+            case 'html_tag':
+                if (token.children)
+                    result += tokensToPlainText(token.children);
+                else if (token.content)
+                    result += token.content;
+                break;
+
+            case 'backlash':
+                // `content` is empty; the escaped char is `raw` minus its leading `\`.
+                result += token.raw.replace(/^\\/, '');
+                break;
+
+            case 'html_escape':
+                result += escapeCharactersMap[token.escapeCharacter] ?? token.raw;
+                break;
+
+            case 'auto_link':
+                // `<http://x>` / `<foo@bar.com>` show verbatim between the
+                // angle brackets — `href` may carry an added `mailto:` scheme.
+                result += token.raw.replace(/^<|>$/g, '');
+                break;
+
+            case 'auto_link_extension':
+                result += token.raw;
+                break;
+
+            case 'soft_line_break':
+            case 'hard_line_break':
+                result += ' ';
+                break;
+
+            // header / hr / code_fence / multiple_math begin markers, the
+            // reference_definition line, and an atx heading's tail `#`s carry no
+            // reader-facing text.
+            default:
+                break;
+        }
+    }
 
     return result;
 }

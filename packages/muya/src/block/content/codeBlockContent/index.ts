@@ -417,7 +417,7 @@ class CodeBlockContent extends Content {
             // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
-                const tokens = prism.tokenize(text, prism.languages[lang]);
+                const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
                 let offset = start.offset;
                 let code = '';
                 let needRender = false;
