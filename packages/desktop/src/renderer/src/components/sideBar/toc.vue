@@ -8,10 +8,9 @@
     </div>
     <el-tree
       v-if="keyedToc.length"
-      ref="treeRef"
       :data="keyedToc"
       node-key="key"
-      :default-expanded-keys="initialExpandedKeys"
+      :default-expanded-keys="expandedKeys"
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
@@ -24,8 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
-import type { TreeInstance } from 'element-plus'
+import { computed, ref } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import bus from '../../bus'
@@ -74,38 +72,37 @@ const keyedToc = computed<KeyedTocNode[]>(() => {
   return assign(toc.value as unknown as Array<Record<string, unknown>>)
 })
 
-// Expand everything on first render (the old default-expand-all behavior).
-const initialExpandedKeys = computed<string[]>(() => {
-  const keys: string[] = []
-  const walk = (nodes: KeyedTocNode[]): void => {
-    for (const node of nodes) {
-      keys.push(node.key)
-      walk(node.children)
-    }
-  }
-  walk(keyedToc.value)
-  return keys
-})
-
-// Track which headings the user collapsed (by stable key). On every content
-// edit el-tree rebuilds from fresh data and re-expands; re-apply the collapse
-// afterwards so the user's choice survives (#3028).
-const treeRef = ref<TreeInstance>()
+// Track which headings the user collapsed, by stable key (#3028). Headings are
+// expanded by default; a collapse is remembered here.
 const collapsedKeys = ref<Set<string>>(new Set())
 
 const onCollapse = (data: { key?: string }): void => {
-  if (data.key) collapsedKeys.value.add(data.key)
+  if (data.key) collapsedKeys.value = new Set(collapsedKeys.value).add(data.key)
 }
 
 const onExpand = (data: { key?: string }): void => {
-  if (data.key) collapsedKeys.value.delete(data.key)
+  if (!data.key) return
+  const next = new Set(collapsedKeys.value)
+  next.delete(data.key)
+  collapsedKeys.value = next
 }
 
-watch(keyedToc, async () => {
-  await nextTick()
-  for (const key of collapsedKeys.value) {
-    treeRef.value?.getNode(key)?.collapse()
+// The set el-tree should have expanded: every node that is neither collapsed
+// nor inside a collapsed ancestor. On each content edit el-tree rebuilds and
+// re-applies these keys, so binding the *correct* set makes it paint the right
+// state directly — instead of expanding everything and then collapsing, which
+// flickered.
+const expandedKeys = computed<string[]>(() => {
+  const keys: string[] = []
+  const walk = (nodes: KeyedTocNode[], hiddenByAncestor: boolean): void => {
+    for (const node of nodes) {
+      const collapsed = hiddenByAncestor || collapsedKeys.value.has(node.key)
+      if (!collapsed) keys.push(node.key)
+      walk(node.children, collapsed)
+    }
   }
+  walk(keyedToc.value, false)
+  return keys
 })
 
 const handleClick = (data: { slug?: unknown }): void => {
