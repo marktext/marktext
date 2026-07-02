@@ -110,6 +110,7 @@ MarkText ist ein Open-Source-Markdown-Editor, der von seiner Community unterstü
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Extrahieren Sie Daten von Google und anderen Suchmaschinen über unsere schnelle, einfache und vollständige API.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="../assets/sponsors/ukey.jpg" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## Screenshot
 

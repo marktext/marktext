@@ -111,6 +111,7 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="../assets/sponsors/ukey.jpg" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## Ekran Görüntüsü
 
