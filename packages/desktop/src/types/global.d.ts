@@ -8,7 +8,13 @@ import type {
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  GitHubAuthStatus,
+  GitHubDeviceCode,
+  GitHubRepoInfo,
+  GitHubChangeInfo,
+  GitHubSyncResult,
+  GitHubRepoDetection
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
@@ -165,6 +171,26 @@ declare global {
     list(): Promise<string[]>
   }
 
+  interface GitHubAPI {
+    authStatus(): Promise<GitHubAuthStatus>
+    authStart(): Promise<GitHubDeviceCode>
+    signOut(): Promise<void>
+    listRepos(): Promise<GitHubRepoInfo[]>
+    chooseDir(): Promise<string | null>
+    clone(cloneUrl: string, targetDir: string): Promise<{ localPath: string }>
+    status(repoPath: string): Promise<GitHubChangeInfo[]>
+    stage(repoPath: string, files: string[]): Promise<GitHubChangeInfo[]>
+    unstage(repoPath: string, files: string[]): Promise<GitHubChangeInfo[]>
+    commit(repoPath: string, message: string): Promise<{ oid: string }>
+    sync(repoPath: string): Promise<GitHubSyncResult>
+    repoInfo(path: string): Promise<GitHubRepoDetection>
+    lfsCheck(repoPath: string): Promise<boolean>
+    onAuthSuccess(handler: (status: GitHubAuthStatus) => void): () => void
+    onAuthError(handler: (message: string) => void): () => void
+    onCloneProgress(handler: (p: { phase: string; loaded: number; total: number }) => void): () => void
+    onStatusChanged(handler: (repoPath: string) => void): () => void
+  }
+
   interface ProcessShim {
     platform: NodeJS.Platform
     arch?: string
@@ -184,6 +210,7 @@ declare global {
     ripgrep: RipgrepAPI
     uploader: UploaderAPI
     fonts: FontsAPI
+    github: GitHubAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.

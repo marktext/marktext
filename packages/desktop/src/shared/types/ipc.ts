@@ -83,6 +83,20 @@ export interface IpcInvokeChannels {
   // Main derives the BrowserWindow via BrowserWindow.fromWebContents(e.sender);
   // no need to pass windowId. Payload is the editor+project+layout snapshot.
   'update-buffer-state': { args: [payload: unknown]; ret: void }
+  // --- GitHub integration ---
+  'mt::github::auth-start': { args: []; ret: GitHubDeviceCode }
+  'mt::github::auth-status': { args: []; ret: GitHubAuthStatus }
+  'mt::github::sign-out': { args: []; ret: void }
+  'mt::github::list-repos': { args: []; ret: GitHubRepoInfo[] }
+  'mt::github::choose-dir': { args: []; ret: string | null }
+  'mt::github::clone': { args: [cloneUrl: string, targetDir: string]; ret: { localPath: string } }
+  'mt::github::status': { args: [repoPath: string]; ret: GitHubChangeInfo[] }
+  'mt::github::stage': { args: [repoPath: string, files: string[]]; ret: GitHubChangeInfo[] }
+  'mt::github::unstage': { args: [repoPath: string, files: string[]]; ret: GitHubChangeInfo[] }
+  'mt::github::commit': { args: [repoPath: string, message: string]; ret: { oid: string } }
+  'mt::github::sync': { args: [repoPath: string]; ret: GitHubSyncResult }
+  'mt::github::repo-info': { args: [path: string]; ret: GitHubRepoDetection }
+  'mt::github::lfs-check': { args: [repoPath: string]; ret: boolean }
 }
 
 // =================================================================
@@ -286,6 +300,11 @@ export interface IpcMainEventChannels {
   'mt::window-unmaximize': []
   'mt::window-zoom': [zoomLevel: number]
   'settings::change-tab': [tab: string]
+  // --- GitHub integration ---
+  'mt::github::auth-success': [status: GitHubAuthStatus]
+  'mt::github::auth-error': [message: string]
+  'mt::github::clone-progress': [progress: { phase: string; loaded: number; total: number }]
+  'mt::github::status-changed': [repoPath: string]
 }
 
 // =================================================================
@@ -300,6 +319,49 @@ export interface IpcMainEventChannels {
 export interface KeyboardInfo {
   layout: IKeyboardLayoutInfo
   keymap: IKeyboardMapping
+}
+
+// =================================================================
+// GitHub integration payloads
+// =================================================================
+
+export interface GitHubRepoInfo {
+  fullName: string
+  cloneUrl: string
+  private: boolean
+  defaultBranch: string
+}
+
+export interface GitHubChangeInfo {
+  filepath: string
+  status: 'modified' | 'untracked' | 'deleted' | 'added'
+  staged: boolean
+}
+
+export interface GitHubSyncResult {
+  conflict: boolean
+  dirty: boolean
+  files: string[]
+  ahead: number
+  behind: number
+}
+
+export interface GitHubRepoDetection {
+  isRepo: boolean
+  remoteUrl?: string
+  httpsUrl?: string
+}
+
+export interface GitHubDeviceCode {
+  userCode: string
+  verificationUri: string
+  expiresIn: number
+  interval: number
+}
+
+export interface GitHubAuthStatus {
+  signedIn: boolean
+  username?: string
 }
 
 export interface BootInfo {
