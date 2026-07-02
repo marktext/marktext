@@ -9,13 +9,18 @@ import('prismjs/plugins/keep-markup/prism-keep-markup');
 
 // prismjs ships C++ without a `c++`/`h++` alias, so fenced blocks tagged
 // ```c++ never resolve to the cpp grammar and stay unhighlighted (#2910).
+// Add each alias only once — `components.languages` is a shared singleton and
+// this module may be evaluated more than once (tests, HMR); pushing duplicates
+// makes prism's dependency loader throw "c++ cannot be alias for both cpp and
+// cpp".
 if (languages.cpp) {
     const existing = languages.cpp.alias;
-    languages.cpp.alias = Array.isArray(existing)
-        ? [...existing, 'c++', 'h++']
-        : existing
-            ? [existing, 'c++', 'h++']
-            : ['c++', 'h++'];
+    const alias = Array.isArray(existing) ? [...existing] : existing ? [existing] : [];
+    for (const name of ['c++', 'h++']) {
+        if (!alias.includes(name))
+            alias.push(name);
+    }
+    languages.cpp.alias = alias;
 }
 
 const langs: {
