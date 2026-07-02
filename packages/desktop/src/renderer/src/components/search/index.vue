@@ -249,6 +249,9 @@ const listenFind = () => {
   type.value = 'search'
   nextTick(() => {
     search.value?.focus()
+    // Select the existing term so re-opening Find types over it instead of
+    // appending to the previous query (#3458).
+    search.value?.select()
     if (searchValue.value) {
       searchFn()
     }

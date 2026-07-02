@@ -65,7 +65,10 @@
       v-if="projectTree"
       class="project-tree"
     >
-      <div class="title">
+      <div
+        class="title"
+        @contextmenu.prevent="handleRootContextMenu"
+      >
         <el-icon
           class="icon-arrow"
           :class="{ fold: !showDirectories }"
@@ -155,6 +158,7 @@ import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
 import bus from '../../bus'
+import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import type { TreeNode, TabDescriptor } from './types'
@@ -172,8 +176,15 @@ const props = defineProps<{
 }>()
 
 const depth = 0
-const showDirectories = ref(true)
-const showOpenedFiles = ref(true)
+// Persist the section collapse state (#2421). The tree is rendered under a
+// v-if and is destroyed when the sidebar collapses to its icon strip, so local
+// refs reset to expanded on re-open. Back them with localStorage (like the
+// sidebar width) so the state survives a re-mount and app restart.
+const SHOW_DIRECTORIES_KEY = 'side-bar-show-directories'
+const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
+const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
+const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
+const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const createName = ref('')
 const input = ref<HTMLInputElement | null>(null)
 
@@ -183,6 +194,7 @@ const preferencesStore = usePreferencesStore()
 
 // Computed properties
 const { createCache } = storeToRefs(projectStore)
+const { clipboard } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
 // The createCache state is `{ dirname, type }` while an input is shown, and
@@ -207,12 +219,19 @@ const createFile = (): void => {
   bus.emit('SIDEBAR::new', 'file')
 }
 
+const handleRootContextMenu = (event: MouseEvent): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(props.projectTree)
+  showContextMenu(event, !!clipboard.value)
+}
+
 const toggleOpenedFiles = (): void => {
   showOpenedFiles.value = !showOpenedFiles.value
+  localStorage.setItem(SHOW_OPENED_FILES_KEY, String(showOpenedFiles.value))
 }
 
 const toggleDirectories = (): void => {
   showDirectories.value = !showDirectories.value
+  localStorage.setItem(SHOW_DIRECTORIES_KEY, String(showDirectories.value))
 }
 
 // From createFileOrDirectoryMixins
@@ -417,16 +436,16 @@ onMounted(() => {
 }
 .open-project .el-button.is-text.is-has-bg,
 .empty-project .el-button.is-text.is-has-bg {
-  background-color: var(--itemBgColor);
-  color: var(--themeColor);
+  background-color: var(--buttonPrimaryBgColor);
+  color: var(--buttonPrimaryFontColor);
   border-color: transparent;
 }
 .open-project .el-button.is-text.is-has-bg:hover,
 .open-project .el-button.is-text.is-has-bg:focus,
 .empty-project .el-button.is-text.is-has-bg:hover,
 .empty-project .el-button.is-text.is-has-bg:focus {
-  background-color: var(--floatHoverColor);
-  color: var(--themeColor);
+  background-color: var(--buttonPrimaryBgColorHover);
+  color: var(--buttonPrimaryFontColorHover);
 }
 .new-input {
   outline: none;

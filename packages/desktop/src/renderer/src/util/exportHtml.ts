@@ -13,6 +13,7 @@ import type { Muya } from '@muyajs/core'
 import { MarkdownToHtml } from '@muyajs/core'
 import { sanitize, EXPORT_DOMPURIFY_CONFIG } from './dompurify'
 import { resolveLocalImageSrc } from './resolveImageSrc'
+import { resolveLocalLinkHref } from './resolveLinkHref'
 
 export interface HeaderFooterPart {
   type?: number
@@ -80,26 +81,36 @@ const styledClass = (value: boolean | undefined): string => {
   return value ? ' styled' : ' simple'
 }
 
+// Header/footer left/center/right are user-supplied, so sanitize them here.
+// The article body is NOT sanitized again (it was already sanitized by the
+// engine during render); re-sanitizing it strips diagram <foreignObject>
+// labels and drops mermaid content from the export (#3359).
+const hf = (value: string): string => sanitize(value, EXPORT_DOMPURIFY_CONFIG) as string
+
 const createTableHeader = (header: HeaderFooterPart, headerFooterStyled?: boolean): string => {
   const { type, left = '', center = '', right = '' } = header
-  const headerClass = (type === 1 ? 'single' : '') + styledClass(headerFooterStyled)
-  return `<thead class="page-header ${headerClass}"><tr><th>
+  const headerClass = `page-header ${(type === 1 ? 'single' : '') + styledClass(headerFooterStyled)}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return `<thead class="${headerClass}"><tr><th>
   <div class="hf-container">
-    <div class="header-content-left">${left}</div>
-    <div class="header-content">${center}</div>
-    <div class="header-content-right">${right}</div>
+    <div class="header-content-left">${hf(left)}</div>
+    <div class="header-content">${hf(center)}</div>
+    <div class="header-content-right">${hf(right)}</div>
   </div>
 </th></tr></thead>`
 }
 
 const createRealFooter = (footer: HeaderFooterPart, headerFooterStyled?: boolean): string => {
   const { type, left = '', center = '', right = '' } = footer
-  const footerClass = (type === 1 ? 'single' : '') + styledClass(headerFooterStyled)
-  return `<div class="page-footer ${footerClass}">
+  const footerClass = `page-footer ${(type === 1 ? 'single' : '') + styledClass(headerFooterStyled)}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return `<div class="${footerClass}">
   <div class="hf-container">
-    <div class="footer-content-left">${left}</div>
-    <div class="footer-content">${center}</div>
-    <div class="footer-content-right">${right}</div>
+    <div class="footer-content-left">${hf(left)}</div>
+    <div class="footer-content">${hf(center)}</div>
+    <div class="footer-content-right">${hf(right)}</div>
   </div>
 </div>`
 }
@@ -132,6 +143,23 @@ const rewriteImageSrcs = (html: string): string =>
   html.replace(IMG_SRC_REG, (match, pre: string, src: string, post: string) => {
     const resolved = resolveLocalImageSrc(src)
     return resolved === src ? match : `${pre}${resolved}${post}`
+  })
+
+// Match the `href="…"` of an <a> tag in the (already sanitized, double-quoted)
+// engine output, so relative local links are rewritten to absolute `file://`
+// URLs the same way images are.
+const ANCHOR_HREF_REG = /(<a\b[^>]*?\shref=")([^"]*)(")/gi
+
+/**
+ * Rewrite relative / absolute-local `<a href>` to absolute `file://` URLs so a
+ * link to a local file still resolves after the saved document is moved out of
+ * the source folder (#1688). Remote URLs, `mailto:`/`data:` schemes and in-page
+ * fragment anchors are left untouched.
+ */
+const rewriteAnchorHrefs = (html: string): string =>
+  html.replace(ANCHOR_HREF_REG, (match, pre: string, href: string, post: string) => {
+    const resolved = resolveLocalLinkHref(href)
+    return resolved === href ? match : `${pre}${resolved}${post}`
   })
 
 /**
@@ -170,6 +198,9 @@ export const exportStyledHTML = async(
   // Resolve relative image paths to absolute file:// URLs so the saved document
   // still shows its images when opened from a different folder (issue 230).
   article = rewriteImageSrcs(article)
+  // Same for relative local links so they still resolve after the document is
+  // moved out of the source folder (#1688).
+  article = rewriteAnchorHrefs(article)
 
   // Inject the TOC at the `[TOC]` marker (legacy behaviour: only appears when
   // the document explicitly contains `[TOC]`). The marker is rendered as a
@@ -195,7 +226,7 @@ export const exportStyledHTML = async(
     }
     output += createTableBody(`<article class="markdown-body">${article}</article>`)
     output += HF_TABLE_END
-    bodyHtml = sanitize(output, EXPORT_DOMPURIFY_CONFIG) as string
+    bodyHtml = output
   }
 
   // Re-emit the engine document shell with the (possibly augmented) body.

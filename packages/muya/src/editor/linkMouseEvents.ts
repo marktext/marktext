@@ -40,6 +40,8 @@ const LINK_SELECTOR = [
     `span.${CLASS_NAMES.MU_LINK}`,
     `a.${CLASS_NAMES.MU_REFERENCE_LINK}`,
     `a.${CLASS_NAMES.MU_RAW_HTML}`,
+    `a.${CLASS_NAMES.MU_AUTO_LINK}`,
+    `a.${CLASS_NAMES.MU_AUTO_LINK_EXTENSION}`,
 ].join(', ');
 
 // Click suppression covers all real anchor variants whether or not they
@@ -62,6 +64,16 @@ function isModifierClick(event: Event): boolean {
 }
 
 function isPopoverTarget(wrapper: HTMLElement): boolean {
+    // Auto-detected links are follow-only (Cmd/Ctrl-click). The edit/unlink
+    // popover doesn't apply — there is no `[text](url)` source to rewrite, and
+    // the URL re-autolinks on the next render anyway.
+    if (
+        wrapper.classList.contains(CLASS_NAMES.MU_AUTO_LINK)
+        || wrapper.classList.contains(CLASS_NAMES.MU_AUTO_LINK_EXTENSION)
+    ) {
+        return false;
+    }
+
     // HTML `<a>` is always a popover target — no source markers to hide.
     if (wrapper.classList.contains(CLASS_NAMES.MU_RAW_HTML))
         return true;

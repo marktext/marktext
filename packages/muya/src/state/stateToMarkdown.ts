@@ -356,11 +356,12 @@ export default class ExportMarkdown {
         const { type, lang } = meta;
 
         if (type === 'fenced') {
-            result.push(`${indent}${lang ? `\`\`\`${lang}\n` : '```\n'}`);
+            const fence = '`'.repeat(this._codeFenceLength(text, meta.fenceLength));
+            result.push(`${indent}${lang ? `${fence}${lang}\n` : `${fence}\n`}`);
             textList.forEach((text) => {
                 result.push(`${indent}${text}\n`);
             });
-            result.push(`${indent}\`\`\`\n`);
+            result.push(`${indent}${fence}\n`);
         }
         else {
             textList.forEach((text) => {
@@ -369,6 +370,20 @@ export default class ExportMarkdown {
         }
 
         return result.join('');
+    }
+
+    // The opening fence must be longer than any all-backtick line in the body
+    // (else that line closes the block early), at least as long as the original
+    // fence, and never shorter than the markdown minimum of 3.
+    private _codeFenceLength(text: string, stored?: number): number {
+        let longestInterior = 0;
+        for (const line of text.split('\n')) {
+            const trimmed = line.trim();
+            if (/^`+$/.test(trimmed))
+                longestInterior = Math.max(longestInterior, trimmed.length);
+        }
+
+        return Math.max(3, stored ?? 3, longestInterior + 1);
     }
 
     private _serializeHtmlBlock(state: IHtmlBlockState, indent: string) {

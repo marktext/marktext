@@ -255,3 +255,27 @@ describe('exportStyledHTML — relative image paths', () => {
     expect(out).not.toContain('file://')
   })
 })
+
+describe('exportStyledHTML — relative link paths (#1688)', () => {
+  it('rewrites a relative <a href> to an absolute file:// URL', async() => {
+    // window.DIRNAME is stubbed to '/docs', so `./my_file.pdf` resolves against it.
+    const out = await exportStyledHTML(NO_MUYA, '[doc](./my_file.pdf)', {})
+
+    expect(out).toMatch(/<a[^>]+href="file:\/\/\/docs\/my_file\.pdf"/)
+    expect(out).not.toContain('href="./my_file.pdf"')
+  })
+
+  it('leaves a remote http(s) link untouched', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '[site](https://example.com/p)', {})
+
+    expect(out).toMatch(/<a[^>]+href="https:\/\/example\.com\/p"/)
+    expect(out).not.toContain('file://')
+  })
+
+  it('leaves an in-page fragment anchor untouched', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# Heading\n\n[jump](#heading)', {})
+
+    expect(out).toContain('href="#heading"')
+    expect(out).not.toContain('file://')
+  })
+})

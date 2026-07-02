@@ -228,6 +228,33 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
     });
 });
 
+// #2166 — double-clicking a word selects the word PLUS the trailing whitespace.
+// Wrapping that whitespace inside the markers (`**foo **`) is invalid emphasis
+// per CommonMark's flanking rules, so it renders as literal text. The markers
+// must hug the non-whitespace content, leaving the whitespace outside.
+describe('format.format() trims selection whitespace before wrapping (#2166)', () => {
+    it('strong: selecting `foo ` (with trailing space) wraps only `foo`', () => {
+        // `foo bar`: offsets 0..4 cover `foo ` including the trailing space.
+        const content = selectInFirstBlock(bootMuya('foo bar\n'), 0, 4);
+        content.format('strong');
+        expect(content.text).toBe('**foo** bar');
+    });
+
+    it('em: selecting ` bar` (with leading space) wraps only `bar`', () => {
+        // `foo bar`: offsets 3..7 cover ` bar` including the leading space.
+        const content = selectInFirstBlock(bootMuya('foo bar\n'), 3, 7);
+        content.format('em');
+        expect(content.text).toBe('foo *bar*');
+    });
+
+    it('strong: selecting `foo ` then ` bar` style both-side padding wraps only the words', () => {
+        // ` foo ` at offsets 0..5 of ` foo bar` → only `foo` gets wrapped.
+        const content = selectInFirstBlock(bootMuya(' foo bar\n'), 0, 5);
+        content.format('strong');
+        expect(content.text).toBe(' **foo** bar');
+    });
+});
+
 describe('format.format(\'clear\') with the caret inside the run', () => {
     it('strips a strong run to plain text', () => {
         const content = caretInFirstBlock(bootMuya('**word**\n'), 2);

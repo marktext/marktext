@@ -220,10 +220,23 @@ div .mu-math-error,
     font-size: 14px;
     font-family: monospace;
     font-style: italic;
+}
 
-    /* Keep the KaTeX parse-error message on one line instead of wrapping
-       across the narrow inline-math popup. */
+/* Inline math shows a short error label: keep it on one line in the narrow
+   popup, and let it overflow VISIBLE rather than be clipped — the default
+   `overflow: auto` on .mu-math-render both clips the label and takes the
+   inline-block's baseline from its bottom edge, lifting it off the text. */
+.mu-math > .mu-math-render.mu-math-error {
+    overflow: visible;
+
     white-space: nowrap;
+}
+
+/* Block math shows the full KaTeX parse-error message, which can be long; wrap
+   it within the block instead of overflowing horizontally (#2220). */
+.mu-math-preview .mu-math-error {
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .mu-math > .mu-math-render .katex-display {
@@ -264,14 +277,6 @@ div .mu-math-error,
     box-shadow: none;
 
     user-select: auto;
-}
-
-/* A parse-error message is short and never needs scrolling, but `overflow: auto`
-   makes the inline-block take its baseline from its bottom edge, pushing it a few
-   px above the surrounding text. `visible` keeps it on the baseline. (A long
-   valid formula keeps `overflow: auto` so it stays scrollable, not truncated.) */
-.mu-hide.mu-math > .mu-math-render.mu-math-error {
-    overflow: visible;
 }
 
 .mu-ruby:not(.mu-hide) > .mu-ruby-render,

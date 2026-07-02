@@ -42,6 +42,11 @@ export default function autoLink(
                     href: sanitizeHyperlink(hyperlink),
                     target: '_blank',
                 },
+                dataset: {
+                    start: String(start),
+                    end: String(end),
+                    raw: token.raw,
+                },
             },
             content,
         ),

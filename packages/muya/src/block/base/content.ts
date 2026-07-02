@@ -746,7 +746,9 @@ class Content extends TreeNode {
                 break;
 
             case EVENT_KEYS.Tab:
-                this.tabHandler(event);
+                if (!this.isComposed)
+                    this.tabHandler(event);
+
                 break;
             default:
                 break;

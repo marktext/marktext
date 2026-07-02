@@ -106,7 +106,15 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   if (filePath && !canceled) {
     try {
       if (type === 'pdf') {
-        const options: Electron.PrintToPDFOptions = { printBackground: true }
+        // Build a clickable bookmark/outline tree from the document's h1-h6
+        // headings so exported PDFs have a navigation pane (#2989). The outline
+        // is derived from the tagged-PDF structure tree, so generateTaggedPDF is
+        // required — generateDocumentOutline alone produces no outline.
+        const options: Electron.PrintToPDFOptions = {
+          printBackground: true,
+          generateTaggedPDF: true,
+          generateDocumentOutline: true
+        }
         Object.assign(options, getPdfPageOptions(pageOptions))
         const data = await win.webContents.printToPDF(options)
         removePrintServiceFromWindow(win)
