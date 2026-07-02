@@ -1,6 +1,7 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
+import { tokenizer, tokensToPlainText } from '../inlineRenderer/lexer';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
 
@@ -42,9 +43,22 @@ export function getTOC(muya: Muya): ITocItem[] {
         const head = block.children.head as Content | null;
         const text = head?.text ?? '';
 
-        const content = blockName === 'setext-heading'
+        const source = blockName === 'setext-heading'
             ? text.trim()
             : text.replace(/^\s*#{1,6}\s+/, '').trim();
+
+        // Show and slug the heading by its rendered text — inline markdown
+        // (`**bold**`, `[label](url)`, images) stripped to what a reader sees —
+        // instead of the raw source (#4811). Slugging the same plain text keeps
+        // `githubSlug` in step with the anchor id the HTML export injects from
+        // `heading.textContent` (state/markdownToHtml.ts).
+        const { superSubScript, footnote } = muya.options;
+        const content = tokensToPlainText(
+            tokenizer(source, {
+                hasBeginRules: false,
+                options: { superSubScript, footnote },
+            }),
+        ).trim();
 
         items.push({
             content,
