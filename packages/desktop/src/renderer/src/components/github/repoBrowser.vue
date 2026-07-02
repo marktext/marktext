@@ -17,9 +17,17 @@
         class="device"
       >
         <p>{{ t('sideBar.sourceControl.deviceCodePrompt', { uri: verificationUri }) }}</p>
-        <p class="code">
-          {{ deviceCode }}
-        </p>
+        <div class="code-row">
+          <span class="code">{{ deviceCode }}</span>
+          <el-button
+            :icon="CopyDocument"
+            size="small"
+            :title="t('sideBar.sourceControl.copyCode')"
+            @click="copyCode"
+          >
+            {{ t('sideBar.sourceControl.copyCode') }}
+          </el-button>
+        </div>
         <p class="hint">
           {{ t('sideBar.sourceControl.waiting') }}
         </p>
@@ -75,6 +83,7 @@
 import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
+import { CopyDocument } from '@element-plus/icons-vue'
 import { useGithubStore } from '@/store/github'
 import { t } from '@/i18n'
 import type { GitHubRepoInfo } from '@shared/types/ipc'
@@ -117,6 +126,11 @@ const startAuth = async (): Promise<void> => {
   }
 }
 
+const copyCode = (): void => {
+  window.electron.clipboard.writeText(deviceCode.value)
+  ElMessage.success(t('sideBar.sourceControl.copiedCode'))
+}
+
 const clone = async (repo: GitHubRepoInfo): Promise<void> => {
   // Reuse the main-process native directory picker (spec: UX flow step 2).
   const targetDir = await window.github.chooseDir()
@@ -156,6 +170,12 @@ const clone = async (repo: GitHubRepoInfo): Promise<void> => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.code-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
 }
 .code {
   font-family: monospace;

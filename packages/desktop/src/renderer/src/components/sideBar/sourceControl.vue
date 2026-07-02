@@ -15,14 +15,23 @@
 
     <template v-else>
       <div class="header">
-        <span class="user">@{{ username }}</span>
-        <el-button
-          link
-          size="small"
-          @click="openRepoBrowser"
-        >
-          {{ t('sideBar.sourceControl.cloneRepo') }}
-        </el-button>
+        <span class="user" :title="`@${username}`">@{{ username }}</span>
+        <div class="header-actions">
+          <el-button
+            link
+            size="small"
+            @click="openRepoBrowser"
+          >
+            {{ t('sideBar.sourceControl.cloneRepo') }}
+          </el-button>
+          <el-button
+            link
+            size="small"
+            :icon="SwitchButton"
+            :title="t('sideBar.sourceControl.signOut')"
+            @click="onSignOut"
+          />
+        </div>
       </div>
 
       <div
@@ -120,6 +129,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { ElMessage } from 'element-plus'
+import { SwitchButton } from '@element-plus/icons-vue'
 import { useGithubStore } from '@/store/github'
 import { useProjectStore } from '@/store/project'
 import { t } from '@/i18n'
@@ -155,6 +165,11 @@ const openRepoBrowser = (): void => {
   showBrowser.value = true
 }
 
+const onSignOut = async (): Promise<void> => {
+  await githubStore.signOut()
+  ElMessage.success(t('sideBar.sourceControl.signedOut'))
+}
+
 const openRepoFolder = (): void => {
   if (repoPath.value) window.electron.shell.showItemInFolder(repoPath.value)
 }
@@ -188,7 +203,9 @@ const onSync = async (): Promise<void> => {
 <style scoped>
 .source-control {
   height: 100%;
-  padding: 8px 10px;
+  /* Top inset clears the macOS window traffic lights, matching the other
+     sidebar panels (tree/search use ~35-37px). */
+  padding: 37px 10px 8px;
   box-sizing: border-box;
   overflow-y: auto;
   font-size: 13px;
@@ -197,10 +214,20 @@ const onSync = async (): Promise<void> => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   margin-bottom: 8px;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
 }
 .user {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .commit-message {
   width: 100%;

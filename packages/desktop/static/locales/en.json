@@ -252,6 +252,8 @@
     },
     "sourceControl": {
       "signIn": "Sign in to GitHub",
+      "signOut": "Sign out",
+      "signedOut": "Signed out of GitHub",
       "signedOutHint": "Connect MarkText to your GitHub account to clone and sync repositories.",
       "cloneRepo": "Clone repository…",
       "cloneButton": "Clone",
@@ -275,6 +277,8 @@
       "filterPlaceholder": "Filter repositories",
       "deviceCodePrompt": "Enter this code at {uri} (opened in your browser):",
       "waiting": "Waiting for authorization…",
+      "copyCode": "Copy code",
+      "copiedCode": "Code copied to clipboard",
       "signInPrompt": "Sign in to access your repositories.",
       "signInFailed": "GitHub sign-in failed",
       "noRepos": "No repositories",
