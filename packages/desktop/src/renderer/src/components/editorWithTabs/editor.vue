@@ -547,11 +547,22 @@ watch(focus, (value) => {
 })
 
 // In source-code mode the Paragraph and Format menus operate on the hidden
-// WYSIWYG engine, so ask the main process to grey them out; re-enable on the
-// way back (the next selection change then refines them) (#3531).
+// WYSIWYG engine, so grey them out. On return to WYSIWYG, re-apply the menu
+// state for the CURRENT cursor context (a code block/table still disables some
+// items) rather than blanket-enabling everything (#3531).
 watch(sourceCode, (isSource) => {
   const windowId = window.marktext?.env?.windowId ?? -1
-  window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, !isSource)
+  if (isSource) {
+    window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, false)
+    return
+  }
+  nextTick(() => {
+    if (selectionChange.value) {
+      pushSelectionMenuState(selectionChange.value as MuyaChange)
+    } else {
+      window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, true)
+    }
+  })
 })
 
 watch(fontSize, (value, oldValue) => {

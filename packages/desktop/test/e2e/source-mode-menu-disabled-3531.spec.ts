@@ -51,3 +51,34 @@ test.describe('paragraph/format menus disabled in source mode (#3531)', () => {
     })
   })
 })
+
+test.describe('menus reflect cursor context after exiting source mode (#3531)', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown('```js\nconst x = 1\n```\n\n# Heading\n', {
+      suppressErrorDialog: true
+    })
+    app = launched.app
+    page = launched.page
+    await focusEditor(page)
+  })
+
+  test.afterAll(async() => {
+    if (app) await app.close()
+  })
+
+  test('a cursor in a code block keeps Format items disabled after a source-mode round-trip', async() => {
+    // Put the caret inside the fenced code block; its context disables the Format menu.
+    await page.locator('.editor-component pre.mu-code-block .mu-codeblock-content').first().click()
+    await expect.poll(() => readEnabled(app).then((s) => s.strong)).toBe(false)
+
+    await enterSourceMode(page, app)
+    await expect.poll(() => readEnabled(app).then((s) => s.strong)).toBe(false)
+
+    await exitSourceMode(page, app)
+    // The fix: the menu is re-applied for the code-block cursor, NOT blanket-enabled.
+    await expect.poll(() => readEnabled(app).then((s) => s.strong)).toBe(false)
+  })
+})
