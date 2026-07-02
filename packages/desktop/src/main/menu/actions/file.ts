@@ -614,7 +614,13 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) =>
 
   if (pathname) {
     // decodeURIComponent() CommonMark #503, allow percent encoded path names to open files. https://github.com/marktext/marktext/issues/57
-    pathname = path.normalize(decodeURIComponent(pathname))
+    let decoded: string
+    try {
+      decoded = decodeURIComponent(pathname)
+    } catch {
+      decoded = pathname
+    }
+    pathname = path.normalize(decoded)
     if (isMarkdownFile(pathname)) {
       const innerWin = BrowserWindow.fromWebContents(e.sender)
       if (innerWin) {
