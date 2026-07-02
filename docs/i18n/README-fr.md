@@ -90,6 +90,9 @@
   <a href="README-ar.md#readme">
     <span>:saudi_arabia:</span>
   </a>
+  <a href="README-bn.md#readme">
+    <span>🇧🇩</span>
+  </a>
 </div>
 
 <div align="center">

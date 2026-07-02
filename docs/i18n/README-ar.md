@@ -90,6 +90,9 @@
   <a href="README-kr.md#readme">
     <span>:kr:</span>
   </a>
+  <a href="README-bn.md#readme">
+    <span>🇧🇩</span>
+  </a>
 </div>
 
 <div dir="rtl" align="center">
