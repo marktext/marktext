@@ -546,6 +546,14 @@ watch(focus, (value) => {
   }
 })
 
+// In source-code mode the Paragraph and Format menus operate on the hidden
+// WYSIWYG engine, so ask the main process to grey them out; re-enable on the
+// way back (the next selection change then refines them) (#3531).
+watch(sourceCode, (isSource) => {
+  const windowId = window.marktext?.env?.windowId ?? -1
+  window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, !isSource)
+})
+
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ fontSize: value })
