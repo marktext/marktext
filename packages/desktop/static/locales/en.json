@@ -275,7 +275,6 @@
       "stageFailed": "Could not update staging",
       "loadReposFailed": "Could not load repositories",
       "cloneFailed": "Clone failed",
-      "cloneLocationFailed": "Could not determine a clone location.",
       "cloned": "Cloned {repo}",
       "dialogTitle": "GitHub repositories",
       "filterPlaceholder": "Filter repositories",

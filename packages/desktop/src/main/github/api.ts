@@ -1,4 +1,8 @@
-import { GITHUB_API_BASE } from './config'
+import { GITHUB_API_BASE, FETCH_TIMEOUT_MS } from './config'
+
+// Repos page size, shared by the request URL and the pagination stop condition
+// so the two can't drift.
+const PER_PAGE = 100
 
 export interface GitHubUser {
   login: string
@@ -15,6 +19,7 @@ export interface GitHubRepo {
 
 const request = async <T>(path: string, token: string): Promise<T> => {
   const res = await fetch(`${GITHUB_API_BASE}${path}`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github+json',
@@ -69,7 +74,7 @@ export const listRepos = async(token: string): Promise<GitHubRepo[]> => {
   const repos: GitHubRepo[] = []
   for (let page = 1; ; page++) {
     const data = await request<RawRepo[]>(
-      `/user/repos?per_page=100&sort=updated&page=${page}`,
+      `/user/repos?per_page=${PER_PAGE}&sort=updated&page=${page}`,
       token
     )
     repos.push(
@@ -80,7 +85,7 @@ export const listRepos = async(token: string): Promise<GitHubRepo[]> => {
         defaultBranch: r.default_branch
       }))
     )
-    if (data.length < 100) break
+    if (data.length < PER_PAGE) break
   }
   return repos
 }

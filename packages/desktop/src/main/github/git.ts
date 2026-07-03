@@ -98,6 +98,35 @@ export interface RepoDetection {
 }
 
 /**
+ * Normalize a github.com origin URL (https, scp-style `git@github.com:o/r`, or
+ * `ssh://git@github.com/o/r`) to a canonical HTTPS URL. This is the single
+ * security-relevant gate for the integration: it validates the host is exactly
+ * `github.com` and the path is a well-formed `owner/repo`, and it is the URL
+ * form isomorphic-git's HTTP transport + token auth actually work against.
+ *
+ * @param originUrl - A remote URL of any supported form.
+ * @returns The canonical `https://github.com/owner/repo.git`, or null for any
+ *   non-github, mishosted, or malformed origin.
+ */
+export const toGithubHttpsUrl = (originUrl: string): string | null => {
+  const m = originUrl.match(
+    /^(?:https:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])([\w.-]+\/[\w.-]+?)(?:\.git)?\/?$/
+  )
+  return m ? `https://github.com/${m[1]}.git` : null
+}
+
+// Read the repo's origin URL and return its canonical github HTTPS form,
+// throwing if the origin is missing or not a github.com remote. Used to gate
+// every authenticated network op — never trust the raw origin.
+const requireGithubOrigin = async(dir: string): Promise<string> => {
+  const remotes = await git.listRemotes({ fs, dir })
+  const origin = remotes.find((r) => r.remote === 'origin')
+  const httpsUrl = origin && toGithubHttpsUrl(origin.url)
+  if (!httpsUrl) throw new Error('Not a github.com repository')
+  return httpsUrl
+}
+
+/**
  * Detect whether an opened folder is a git repo with a github.com `origin`,
  * so the Source Control panel can serve any GitHub clone (not only ones cloned
  * through MarkText). SSH origins are normalized to their HTTPS equivalent so
@@ -113,12 +142,9 @@ export const detectRepo = async(dir: string): Promise<RepoDetection> => {
     const remotes = await git.listRemotes({ fs, dir })
     const origin = remotes.find((r) => r.remote === 'origin')
     if (!origin) return { isRepo: false }
-    // Match https, scp-style (git@github.com:o/r), and ssh:// origin forms.
-    const m = origin.url.match(
-      /^(?:https:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])(.+?)(?:\.git)?$/
-    )
-    if (!m) return { isRepo: false }
-    return { isRepo: true, remoteUrl: origin.url, httpsUrl: `https://github.com/${m[1]}.git` }
+    const httpsUrl = toGithubHttpsUrl(origin.url)
+    if (!httpsUrl) return { isRepo: false }
+    return { isRepo: true, remoteUrl: origin.url, httpsUrl }
   } catch {
     return { isRepo: false }
   }
@@ -151,7 +177,18 @@ export interface SyncResult {
 
 export type TokenProvider = () => Promise<string | null>
 
-const onAuth = (getToken: TokenProvider) => async() => {
+// isomorphic-git calls onAuth(url, auth) when a request is challenged. Gate on
+// the host so the keychain token is NEVER handed to a non-github server — a
+// compromised renderer could otherwise point clone/sync at an attacker URL
+// that answers 401 and receive the repo-scoped token (see the security review).
+const onAuth = (getToken: TokenProvider) => async(url: string) => {
+  let host: string
+  try {
+    host = new URL(url).host
+  } catch {
+    return {}
+  }
+  if (host !== 'github.com') return {}
   const token = await getToken()
   if (!token) throw new Error('Not authenticated with GitHub')
   // GitHub accepts the token as the username with any password.
@@ -292,7 +329,11 @@ export const resolveAndMerge = async(
  * @param getToken - Supplies the access token for `onAuth`.
  */
 export const fetchRemote = async(dir: string, getToken: TokenProvider): Promise<void> => {
-  await git.fetch({ fs, http, dir, singleBranch: true, onAuth: onAuth(getToken) })
+  // Pass the canonical github HTTPS url explicitly so a repo cloned over SSH
+  // (whose origin isomorphic-git's HTTP transport can't speak) still syncs, and
+  // so we never fetch against a non-github origin.
+  const url = await requireGithubOrigin(dir)
+  await git.fetch({ fs, http, dir, url, singleBranch: true, onAuth: onAuth(getToken) })
 }
 
 /**
@@ -302,7 +343,8 @@ export const fetchRemote = async(dir: string, getToken: TokenProvider): Promise<
  * @param getToken - Supplies the access token for `onAuth`.
  */
 export const pushBranch = async(dir: string, getToken: TokenProvider): Promise<void> => {
-  await git.push({ fs, http, dir, onAuth: onAuth(getToken) })
+  const url = await requireGithubOrigin(dir)
+  await git.push({ fs, http, dir, url, onAuth: onAuth(getToken) })
 }
 
 /**
@@ -322,14 +364,20 @@ export const sync = async(
   getToken: TokenProvider,
   author: GitAuthor
 ): Promise<SyncResult> => {
-  if ((await listChanges(dir)).length > 0) {
-    return { conflict: false, dirty: true, files: [], ahead: 0, behind: 0 }
-  }
+  const dirty: SyncResult = { conflict: false, dirty: true, files: [], ahead: 0, behind: 0 }
+  if ((await listChanges(dir)).length > 0) return dirty
   await fetchRemote(dir, getToken)
+  // Re-check after the network window: an editor autosave may have landed
+  // during the fetch (seconds on a large repo). Merging onto a now-dirty tree
+  // would advance the branch ref and then fail checkout, leaving the tree at
+  // pre-merge content — the next commit+push would silently revert the pull.
+  if ((await listChanges(dir)).length > 0) return dirty
   const branch = await currentBranch(dir)
   const result = await resolveAndMerge(dir, branch, author)
   if (!result.conflict) {
     await pushBranch(dir, getToken)
+    // After a clean merge + push, local and remote match: no pending commits.
+    return { ...result, ahead: 0, behind: 0 }
   }
   return result
 }

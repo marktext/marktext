@@ -6,7 +6,8 @@ import {
   GITHUB_TOKEN_URL,
   KEYTAR_SERVICE,
   KEYTAR_ACCOUNT,
-  KEYTAR_ACCOUNT_IDENTITY
+  KEYTAR_ACCOUNT_IDENTITY,
+  FETCH_TIMEOUT_MS
 } from './config'
 
 export interface DeviceCodeInfo {
@@ -61,7 +62,17 @@ export const loadIdentity = async(): Promise<StoredIdentity | null> => {
   const raw = await keytar.getPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
   if (!raw) return null
   try {
-    return JSON.parse(raw) as StoredIdentity
+    const v = JSON.parse(raw) as Record<string, unknown>
+    // Validate the shape before it flows into commit author metadata — a
+    // malformed entry (e.g. a login with newlines) could corrupt commits.
+    if (
+      typeof v.login !== 'string' ||
+      typeof v.id !== 'number' ||
+      (v.name !== null && typeof v.name !== 'string')
+    ) {
+      return null
+    }
+    return { login: v.login, id: v.id, name: v.name as string | null }
   } catch {
     return null
   }
@@ -105,6 +116,7 @@ export const requestDeviceCode = async(): Promise<DeviceCodeInfo> => {
   const res = await fetch(GITHUB_DEVICE_CODE_URL, {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     body: JSON.stringify({ client_id: clientId, scope: GITHUB_OAUTH_SCOPE })
   })
   if (!res.ok) throw new Error(`GitHub device code request failed: ${res.status}`)
@@ -138,20 +150,34 @@ export const pollForToken = async(deviceCode: string, intervalSeconds: number): 
   const generation = ++pollGeneration
   let interval = intervalSeconds
 
+  const cancelled = (): boolean => generation !== pollGeneration
+
   while (true) {
     await sleep(interval * 1000)
-    if (generation !== pollGeneration) throw new Error('GitHub sign-in polling was cancelled')
-    const res = await fetch(GITHUB_TOKEN_URL, {
-      method: 'POST',
-      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: getClientId(),
-        device_code: deviceCode,
-        grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+    if (cancelled()) throw new Error('GitHub sign-in polling was cancelled')
+    // A transient failure (network blip, 502 with an HTML body) must not abort
+    // the whole sign-in — keep polling until the code expires.
+    let data: { access_token?: unknown; error?: string; interval?: number }
+    try {
+      const res = await fetch(GITHUB_TOKEN_URL, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        body: JSON.stringify({
+          client_id: getClientId(),
+          device_code: deviceCode,
+          grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+        })
       })
-    })
-    const data = await res.json()
-    if (data.access_token) {
+      if (!res.ok) continue
+      data = await res.json()
+    } catch {
+      continue
+    }
+    // Re-check after the network round-trip: sign-out (or a newer poll) may
+    // have fired while the request was in flight. Never write the token then.
+    if (cancelled()) throw new Error('GitHub sign-in polling was cancelled')
+    if (typeof data.access_token === 'string') {
       await keytar.setPassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT, data.access_token)
       return data.access_token
     }

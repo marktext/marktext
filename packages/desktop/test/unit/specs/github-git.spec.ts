@@ -12,8 +12,26 @@ import {
   hasLfsPatterns,
   resolveAndMerge,
   sync,
-  withRepoQueue
+  withRepoQueue,
+  toGithubHttpsUrl
 } from 'main_renderer/github/git'
+
+describe('github/git toGithubHttpsUrl', () => {
+  it('normalizes https, scp, and ssh github origins to a canonical https url', () => {
+    const https = 'https://github.com/octocat/hello.git'
+    expect(toGithubHttpsUrl('https://github.com/octocat/hello.git')).toBe(https)
+    expect(toGithubHttpsUrl('https://github.com/octocat/hello')).toBe(https)
+    expect(toGithubHttpsUrl('git@github.com:octocat/hello.git')).toBe(https)
+    expect(toGithubHttpsUrl('ssh://git@github.com/octocat/hello.git')).toBe(https)
+  })
+
+  it('returns null for non-github and malformed origins', () => {
+    expect(toGithubHttpsUrl('https://gitlab.com/foo/bar.git')).toBeNull()
+    expect(toGithubHttpsUrl('https://github.com.evil.com/foo/bar.git')).toBeNull()
+    expect(toGithubHttpsUrl('https://github.com/only-one-segment')).toBeNull()
+    expect(toGithubHttpsUrl('not a url')).toBeNull()
+  })
+})
 
 let dir: string
 

@@ -63,3 +63,34 @@ wrappers, device flow, and REST client use mocked `fetch` / isomorphic-git
 (sign in → clone → edit → commit → sync, plus a forced conflict) is verified
 manually once a real `client_id` exists; a networked Playwright e2e is deferred
 to avoid a brittle live-GitHub dependency.
+
+## Security model
+
+The access token lives only in the main process / OS keychain; the sandboxed
+renderer never receives it. Because a compromised renderer can invoke any
+`mt::github::*` handler with arbitrary arguments, the main process treats those
+arguments as untrusted:
+
+- `onAuth` (git.ts) only returns the token when the request host is exactly
+  `github.com`, so a clone/sync pointed at an attacker URL that answers 401
+  cannot capture the token.
+- `mt::github::clone` validates the URL is `https://github.com/...` and derives
+  the destination folder name from the parsed `owner/repo` (no path traversal).
+- `fetchRemote`/`pushBranch` resolve the repo's origin through
+  `toGithubHttpsUrl` and refuse non-github origins, rather than trusting the
+  raw `.git/config` URL.
+
+## Known limitations (v1)
+
+- **Multi-window unsaved buffers:** Sync waits for the *initiating* window's
+  tabs to save. A second window with an unsaved buffer over the same repo can
+  still clobber pulled content when it later saves. Single-window use is safe;
+  cross-window coordination is future work.
+- **Untracked files block Sync:** any change (including an untracked
+  `.DS_Store`) makes Sync refuse until committed — deliberately conservative.
+- **Large accounts:** the repo browser fetches the full repo list on each open
+  with no cache or virtualization; accounts with thousands of repos will see a
+  slower dialog.
+- **SSH remotes** are supported for detection and sync (rewritten to HTTPS for
+  the token transport), but the underlying auth is always the OAuth token, not
+  an SSH key.

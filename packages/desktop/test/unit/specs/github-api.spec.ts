@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { getUser, listRepos, commitAuthorFor } from 'main_renderer/github/api'
 
-afterEach(() => vi.restoreAllMocks())
+afterEach(() => {
+  vi.restoreAllMocks()
+  // restoreAllMocks does not undo stubGlobal('fetch', …) — unstub so a
+  // fetch stub can't leak into a later test that forgets to set its own.
+  vi.unstubAllGlobals()
+})
 
 describe('github/api', () => {
   it('getUser returns the fields the commit author is built from', async() => {

@@ -34,6 +34,15 @@ export const useGithubStore = defineStore('github', () => {
     await window.github.signOut()
     signedIn.value = false
     username.value = undefined
+    // Clear all session state so the next account never sees the prior user's
+    // repo list, changes, or ahead/behind badges.
+    repos.value = []
+    changes.value = []
+    conflictFiles.value = []
+    repoPath.value = null
+    ahead.value = 0
+    behind.value = 0
+    authError.value = null
   }
 
   const loadRepos = async(): Promise<void> => {
@@ -110,10 +119,18 @@ export const useGithubStore = defineStore('github', () => {
   // and a stale buffer save could clobber pulled changes after the merge.
   const SAVE_SETTLE_TIMEOUT = 5000
   const SAVE_POLL_INTERVAL = 100
+  // True when a path is `root` itself or a file inside it. A bare
+  // startsWith(root) would wrongly match sibling dirs (`/repo` vs
+  // `/repo-notes/a.md`); require a path-separator boundary after the root.
+  const isInsideRepo = (pathname: string, root: string): boolean =>
+    pathname === root ||
+    pathname.startsWith(`${root}/`) ||
+    pathname.startsWith(`${root}\\`)
+
   const unsavedRepoTabs = (
     tabs: Array<{ pathname: string | null; isSaved: boolean }>,
     root: string
-  ): boolean => tabs.some((t) => !t.isSaved && !!t.pathname && t.pathname.startsWith(root))
+  ): boolean => tabs.some((t) => !t.isSaved && !!t.pathname && isInsideRepo(t.pathname, root))
 
   const waitForRepoSaves = async(
     editorStore: { tabs: Array<{ pathname: string | null; isSaved: boolean }> },

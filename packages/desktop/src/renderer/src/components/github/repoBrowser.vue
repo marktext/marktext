@@ -163,10 +163,8 @@ const copyCode = (): void => {
 const clone = async (repo: GitHubRepoInfo): Promise<void> => {
   // Reuse the main-process native directory picker (spec: UX flow step 2).
   const targetDir = await window.github.chooseDir()
-  if (!targetDir) {
-    ElMessage.error(t('sideBar.sourceControl.cloneLocationFailed'))
-    return
-  }
+  // Cancelling the picker returns null — a normal action, not an error.
+  if (!targetDir) return
   cloningRepo.value = repo.fullName
   try {
     const localPath = await githubStore.cloneRepo(repo.cloneUrl, targetDir)

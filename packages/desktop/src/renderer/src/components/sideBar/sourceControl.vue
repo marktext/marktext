@@ -153,7 +153,11 @@ const canCommit = computed(
   () => message.value.trim().length > 0 && changes.value.some((c) => c.staged)
 )
 
-onMounted(() => githubStore.refreshAuth())
+// Swallow failures (e.g. Linux without libsecret makes every keytar call
+// reject) so the panel just stays signed-out instead of throwing on mount.
+onMounted(() => {
+  githubStore.refreshAuth().catch(() => {})
+})
 
 // The panel serves any opened folder that is a GitHub repo (spec: UX flow
 // step 3) — watch the opened project root and (re)detect.

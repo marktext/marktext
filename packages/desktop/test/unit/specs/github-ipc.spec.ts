@@ -44,7 +44,13 @@ vi.mock('main_renderer/github/git', () => ({
     onProgress?.({ phase: 'x', loaded: 2, total: 2 })
   }),
   detectRepo: vi.fn(async() => ({ isRepo: true, remoteUrl: 'u', httpsUrl: 'h' })),
-  hasLfsPatterns: vi.fn(async() => true)
+  hasLfsPatterns: vi.fn(async() => true),
+  toGithubHttpsUrl: (url: string) => {
+    const m = url.match(
+      /^(?:https:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])([\w.-]+\/[\w.-]+?)(?:\.git)?\/?$/
+    )
+    return m ? `https://github.com/${m[1]}.git` : null
+  }
 }))
 
 let token: string | null = 'tok'
@@ -77,6 +83,7 @@ vi.mock('main_renderer/github/api', () => ({
 
 import { registerGitHubHandlers } from 'main_renderer/github/ipc'
 import * as auth from 'main_renderer/github/auth'
+import * as api from 'main_renderer/github/api'
 
 const fakeEvent = { sender: {} } as never
 const call = (channel: string, ...args: unknown[]) => handlers.get(channel)!(fakeEvent, ...args)
@@ -161,7 +168,9 @@ describe('github/ipc handlers', () => {
 
   it('commit throws when no identity and no token are available', async() => {
     await call('mt::github::sign-out') // clear the module-level cached author
-    ;(auth.loadIdentity as ReturnType<typeof vi.fn>).mockResolvedValue(null)
+    // -Once so this override cannot leak into later tests (beforeEach only
+    // clears call history, not implementations).
+    ;(auth.loadIdentity as ReturnType<typeof vi.fn>).mockResolvedValueOnce(null)
     token = null
     await expect(call('mt::github::commit', '/repo', 'msg')).rejects.toThrow('Not authenticated')
   })
@@ -201,6 +210,15 @@ describe('github/ipc handlers', () => {
     expect(await call('mt::github::choose-dir')).toBe('/chosen')
   })
 
+  it('clone rejects a non-github / non-https URL', async() => {
+    const git = await import('main_renderer/github/git')
+    await expect(
+      call('mt::github::clone', 'https://attacker.example/x.git', '/tmp')
+    ).rejects.toThrow(/github/i)
+    await expect(call('mt::github::clone', 'http://github.com/o/r.git', '/tmp')).rejects.toThrow()
+    expect(git.cloneRepo).not.toHaveBeenCalled()
+  })
+
   it('choose-dir returns null when the dialog is canceled', async() => {
     showOpenDialog.mockResolvedValueOnce({ canceled: true, filePaths: [] })
     expect(await call('mt::github::choose-dir')).toBeNull()
@@ -221,6 +239,17 @@ describe('github/ipc handlers', () => {
     // No window → no progress events and no open-folder emit.
     expect(sentEvents).toHaveLength(0)
     expect(emitted).toHaveLength(0)
+  })
+
+  it('auth-start still reports success when the identity fetch fails (token is valid)', async() => {
+    ;(auth.pollForToken as ReturnType<typeof vi.fn>).mockResolvedValue('gho_x')
+    ;(api.getUser as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('network'))
+    await call('mt::github::auth-start')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    // Token was obtained → signed in; a transient identity-fetch failure must
+    // not be reported as auth failure.
+    expect(sentEvents.some((e) => e.channel === 'mt::github::auth-success')).toBe(true)
+    expect(sentEvents.some((e) => e.channel === 'mt::github::auth-error')).toBe(false)
   })
 
   it('auth-start survives the window being destroyed before the poll resolves', async() => {

@@ -70,12 +70,22 @@ export const registerGitHubHandlers = (): void => {
     auth
       .pollForToken(info.deviceCode, info.interval)
       .then(async(token) => {
-        const user = await api.getUser(token)
-        await auth.saveIdentity(user)
-        cachedAuthor = api.commitAuthorFor(user)
-        safeSend(win, 'mt::github::auth-success', { signedIn: true, username: user.login })
+        // The token is persisted → the user is signed in. Fetching the profile
+        // is best-effort: a transient failure here must not be reported as an
+        // auth failure (the username just fills in on the next refresh).
+        let username: string | undefined
+        try {
+          const user = await api.getUser(token)
+          await auth.saveIdentity(user)
+          cachedAuthor = api.commitAuthorFor(user)
+          username = user.login
+        } catch (err) {
+          log.error('GitHub identity fetch failed (still signed in):', err)
+        }
+        safeSend(win, 'mt::github::auth-success', { signedIn: true, username })
       })
       .catch((err) => {
+        // Reaches here only for poll failures (expired/denied/cancelled code).
         log.error('GitHub auth failed:', err)
         safeSend(win, 'mt::github::auth-error', String(err?.message ?? err))
       })
@@ -114,7 +124,14 @@ export const registerGitHubHandlers = (): void => {
   })
 
   ipcMain.handle('mt::github::clone', async(e, cloneUrl: string, targetDir: string) => {
-    const repoName = path.basename(cloneUrl).replace(/\.git$/, '')
+    // Validate the URL in main (never trust the renderer): only https
+    // github.com repos, and derive the repo name from the parsed owner/repo
+    // path so a crafted URL can't traverse out of targetDir (e.g. `.../..`).
+    const httpsUrl = gitOps.toGithubHttpsUrl(cloneUrl)
+    if (!httpsUrl || !cloneUrl.startsWith('https://')) {
+      throw new Error('Only https github.com repositories can be cloned')
+    }
+    const repoName = httpsUrl.slice('https://github.com/'.length).replace(/\.git$/, '').split('/')[1]
     const localPath = path.join(targetDir, repoName)
     const win = senderWindow(e)
     // isomorphic-git fires onProgress extremely often — throttle the IPC

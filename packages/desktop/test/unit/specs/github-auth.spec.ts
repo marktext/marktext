@@ -30,6 +30,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllEnvs()
+  vi.unstubAllGlobals()
 })
 
 describe('github/auth device code', () => {
@@ -209,5 +210,60 @@ describe('github/auth identity + sign out', () => {
     await assertion
     // The late authorization must NOT silently re-sign the user in.
     expect(await getToken()).toBeNull()
+  })
+
+  it('signOut DURING the token fetch still prevents the token write (TOCTOU)', async() => {
+    vi.useFakeTimers()
+    // The fetch itself triggers sign-out, then resolves with a token — the
+    // generation re-check before setPassword must catch this.
+    vi.stubGlobal('fetch', vi.fn(async() => {
+      await signOut()
+      return { ok: true, json: async() => ({ access_token: 'gho_race' }) }
+    }) as unknown as typeof fetch)
+
+    const poll = pollForToken('dc', 1)
+    const assertion = expect(poll).rejects.toThrow('cancelled')
+    await vi.advanceTimersByTimeAsync(1000)
+    await assertion
+    expect(await getToken()).toBeNull()
+  })
+
+  it('pollForToken retries a transient non-ok / unparseable response', async() => {
+    vi.useFakeTimers()
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async() => {
+      calls++
+      if (calls === 1) return { ok: false, status: 502, json: async() => { throw new Error('bad html') } }
+      return { ok: true, json: async() => ({ access_token: 'gho_ok' }) }
+    }) as unknown as typeof fetch)
+
+    const promise = pollForToken('dc', 1)
+    await vi.advanceTimersByTimeAsync(1000) // transient 502
+    await vi.advanceTimersByTimeAsync(1000) // success
+    expect(await promise).toBe('gho_ok')
+  })
+
+  it('pollForToken never persists a non-string access_token', async() => {
+    vi.useFakeTimers()
+    vi.stubGlobal('fetch', vi.fn(async() => ({
+      ok: true,
+      json: async() => ({ access_token: 12345 })
+    })) as unknown as typeof fetch)
+
+    const promise = pollForToken('dc', 1)
+    const assertion = expect(promise).rejects.toThrow()
+    await vi.advanceTimersByTimeAsync(1000)
+    await assertion
+    expect(await getToken()).toBeNull()
+  })
+
+  it('loadIdentity rejects a malformed stored identity', async() => {
+    store['user-identity'] = JSON.stringify({ login: 42, id: 'nope', name: [] })
+    expect(await loadIdentity()).toBeNull()
+  })
+
+  it('loadIdentity accepts a well-formed identity', async() => {
+    store['user-identity'] = JSON.stringify({ login: 'octocat', id: 1, name: null })
+    expect(await loadIdentity()).toEqual({ login: 'octocat', id: 1, name: null })
   })
 })

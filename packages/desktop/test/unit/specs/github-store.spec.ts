@@ -246,6 +246,35 @@ describe('github store — sync save race', () => {
     const res = await store.sync()
     expect(res?.behind).toBe(1)
   })
+
+  it('ignores unsaved tabs in a sibling folder sharing the repo path prefix', async() => {
+    const store = useGithubStore()
+    await store.setRepo('/tmp/hello')
+    editorTabs.push({ pathname: '/tmp/hello-notes/b.md', isSaved: false })
+    const res = await store.sync()
+    // '/tmp/hello-notes' must NOT be treated as inside '/tmp/hello'.
+    expect(github.sync).toHaveBeenCalled()
+    expect(res?.dirty).toBe(false)
+  })
+})
+
+describe('github store — sign out cleanup', () => {
+  it('signOut clears repo/session state, not just auth', async() => {
+    const store = useGithubStore()
+    await store.refreshAuth()
+    await store.loadRepos()
+    await store.setRepo('/tmp/hello')
+    await store.sync()
+    expect(store.repos.length).toBeGreaterThan(0)
+    await store.signOut()
+    expect(store.signedIn).toBe(false)
+    expect(store.repos).toHaveLength(0)
+    expect(store.changes).toHaveLength(0)
+    expect(store.conflictFiles).toHaveLength(0)
+    expect(store.repoPath).toBeNull()
+    expect(store.ahead).toBe(0)
+    expect(store.behind).toBe(0)
+  })
 })
 
 describe('github store — auth errors + file watching', () => {
