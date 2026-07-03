@@ -85,7 +85,7 @@
     <span>:kr:</span>
   </a>
   <a href="docs/i18n/README-bn.md#readme">
-    <span>🇧🇩</span>
+    <span>:bangladesh:</span>
   </a>
 </div>
 

@@ -91,7 +91,7 @@
     <span>:saudi_arabia:</span>
   </a>
   <a href="README-bn.md#readme">
-    <span>🇧🇩</span>
+    <span>:bangladesh:</span>
   </a>
 </div>
 
