@@ -29,7 +29,7 @@ export default function Support() {
               <img src="/assets/serpapi.png" alt="SerpApi" loading="lazy" />
             </a>
             <a className="sponsor-logo" href={DOWNLOAD.ukey} {...EXT_LINK} title="UKey Wallet">
-              <img className="sponsor-logo-raw" src="/assets/ukey.jpg" alt="UKey Wallet" loading="lazy" />
+              <img className="sponsor-logo-raw" src="/assets/ukey.png" alt="UKey Wallet" loading="lazy" />
             </a>
           </div>
         </div>

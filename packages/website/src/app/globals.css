@@ -1087,12 +1087,8 @@ h2.sec-title {
   width: auto;
   display: block;
 }
-/* Opaque logos ship their own background and can't be recolored; show them as
-   a light tile so they stay legible on the dark card instead of being inverted. */
-.sponsor-logo-raw {
-  background: #fff;
-  border-radius: 6px;
-}
+/* Logos that carry their own background can't be recolored, so exclude them
+   from the dark-mode inversion that transparent single-color logos rely on. */
 [data-theme='dark'] .sponsor-logo img:not(.sponsor-logo-raw) {
   filter: brightness(0) invert(1);
   opacity: 0.9;
