@@ -53,8 +53,10 @@ modal (`components/github/repoBrowser.vue`) render it.
 ## Testing
 
 Unit tests live in `packages/desktop/test/unit/specs/github-*.spec.ts` and are
-gated at 90%+ coverage (`vitest --coverage`, scoped to `src/main/github/**` and
-`store/github.ts` in `vitest.config.ts`). Local git operations and the
+gated at 90%+ coverage on the logic modules via
+`pnpm -C packages/desktop run coverage:github` (a dedicated
+`vitest.github-coverage.config.ts`, kept out of the default config so ordinary
+`--coverage` runs aren't failed by feature-scoped thresholds). Local git operations and the
 merge/conflict logic run against **real temporary repos**; the network
 wrappers, device flow, and REST client use mocked `fetch` / isomorphic-git
 (isomorphic-git has no `file://` transport). The full networked round-trip

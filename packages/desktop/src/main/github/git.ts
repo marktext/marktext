@@ -75,14 +75,19 @@ export const unstage = async(dir: string, files: string[]): Promise<void> => {
 }
 
 /**
- * Create a commit from the current index.
+ * Create a commit from the current index. Refuses when nothing is staged —
+ * isomorphic-git would happily create an empty commit, which turns a
+ * double-clicked Commit button into a duplicate empty commit.
  *
  * @param dir - Absolute path to the repo root.
  * @param message - Commit message.
  * @param author - Commit author (see api.commitAuthorFor).
  * @returns The new commit's oid.
+ * @throws If no changes are staged.
  */
 export const commit = async(dir: string, message: string, author: GitAuthor): Promise<string> => {
+  const staged = (await listChanges(dir)).some((c) => c.staged)
+  if (!staged) throw new Error('Nothing to commit')
   return git.commit({ fs, dir, message, author })
 }
 
@@ -108,7 +113,10 @@ export const detectRepo = async(dir: string): Promise<RepoDetection> => {
     const remotes = await git.listRemotes({ fs, dir })
     const origin = remotes.find((r) => r.remote === 'origin')
     if (!origin) return { isRepo: false }
-    const m = origin.url.match(/^(?:https:\/\/github\.com\/|git@github\.com:)(.+?)(?:\.git)?$/)
+    // Match https, scp-style (git@github.com:o/r), and ssh:// origin forms.
+    const m = origin.url.match(
+      /^(?:https:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])(.+?)(?:\.git)?$/
+    )
     if (!m) return { isRepo: false }
     return { isRepo: true, remoteUrl: origin.url, httpsUrl: `https://github.com/${m[1]}.git` }
   } catch {

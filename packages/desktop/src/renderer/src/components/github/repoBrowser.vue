@@ -98,7 +98,7 @@ const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>()
 
 const githubStore = useGithubStore()
-const { signedIn, repos } = storeToRefs(githubStore)
+const { signedIn, repos, authError } = storeToRefs(githubStore)
 
 const deviceCode = ref('')
 const verificationUri = ref('')
@@ -115,11 +115,31 @@ const filtered = computed<GitHubRepoInfo[]>(() => {
 watch(
   () => props.modelValue,
   async (open) => {
-    if (!open) return
-    await githubStore.refreshAuth()
-    if (signedIn.value) await githubStore.loadRepos()
+    if (!open) {
+      // Reset the device-code view so a stale code isn't shown next time.
+      deviceCode.value = ''
+      verificationUri.value = ''
+      return
+    }
+    try {
+      await githubStore.refreshAuth()
+      if (signedIn.value) await githubStore.loadRepos()
+    } catch (err) {
+      // e.g. 401 after the user revoked the OAuth grant — without this the
+      // dialog silently renders a misleading "No repositories" empty state.
+      ElMessage.error(`${t('sideBar.sourceControl.loadReposFailed')}: ${(err as Error).message}`)
+    }
   }
 )
+
+// A failed device-flow poll (denied/expired) pushes auth-error from main:
+// surface it and clear the dead code so Sign in becomes available again.
+watch(authError, (msg) => {
+  if (!msg) return
+  ElMessage.error(`${t('sideBar.sourceControl.signInFailed')}: ${msg}`)
+  deviceCode.value = ''
+  verificationUri.value = ''
+})
 
 const startAuth = async (): Promise<void> => {
   try {

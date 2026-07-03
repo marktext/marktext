@@ -94,6 +94,21 @@ describe('github/git local ops', () => {
     })
   })
 
+  it('detectRepo accepts an ssh:// github origin', async() => {
+    await git.addRemote({ fs, dir, remote: 'origin', url: 'ssh://git@github.com/octocat/hello.git' })
+    expect(await detectRepo(dir)).toEqual({
+      isRepo: true,
+      remoteUrl: 'ssh://git@github.com/octocat/hello.git',
+      httpsUrl: 'https://github.com/octocat/hello.git'
+    })
+  })
+
+  it('commit refuses when nothing is staged (guards empty duplicate commits)', async() => {
+    await expect(
+      commit(dir, 'empty', { name: 'Test', email: 'test@example.com' })
+    ).rejects.toThrow(/nothing to commit/i)
+  })
+
   it('detectRepo keeps an https github origin as-is', async() => {
     await git.addRemote({ fs, dir, remote: 'origin', url: 'https://github.com/octocat/hello.git' })
     expect(await detectRepo(dir)).toEqual({

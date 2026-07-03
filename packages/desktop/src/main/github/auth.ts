@@ -75,6 +75,9 @@ export const loadIdentity = async(): Promise<StoredIdentity | null> => {
  * user revokes the app in their GitHub settings.
  */
 export const signOut = async(): Promise<void> => {
+  // Cancel any in-flight device-flow poll: a late authorization must not
+  // write a fresh token and silently re-sign the user in after sign-out.
+  pollGeneration++
   await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT)
   await keytar.deletePassword(KEYTAR_SERVICE, KEYTAR_ACCOUNT_IDENTITY)
 }
@@ -137,7 +140,7 @@ export const pollForToken = async(deviceCode: string, intervalSeconds: number): 
 
   while (true) {
     await sleep(interval * 1000)
-    if (generation !== pollGeneration) throw new Error('Polling cancelled by a newer sign-in')
+    if (generation !== pollGeneration) throw new Error('GitHub sign-in polling was cancelled')
     const res = await fetch(GITHUB_TOKEN_URL, {
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },

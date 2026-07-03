@@ -49,6 +49,7 @@
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
     "test:e2e": "playwright test test/e2e",
+    "coverage:github": "vitest run --coverage -c vitest.github-coverage.config.ts",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "typecheck:watch": "vue-tsc --noEmit -p tsconfig.json --watch"
   },

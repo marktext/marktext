@@ -2,12 +2,16 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
 const askForSaveAll = vi.fn()
+// Mutable tab list backing the mocked editor store (pathname + isSaved are
+// what the github store's save-settle wait reads).
+const editorTabs: Array<{ pathname: string | null; isSaved: boolean }> = []
 vi.mock('@/store/editor', () => ({
-  useEditorStore: () => ({ ASK_FOR_SAVE_ALL: askForSaveAll })
+  useEditorStore: () => ({ ASK_FOR_SAVE_ALL: askForSaveAll, tabs: editorTabs })
 }))
 
 // Captured event callbacks so the test can simulate main → renderer pushes.
 let authSuccessCb: ((s: { signedIn: boolean; username?: string }) => void) | undefined
+let authErrorCb: ((message: string) => void) | undefined
 let statusChangedCb: ((repoPath: string) => void) | undefined
 
 const github = {
@@ -33,7 +37,9 @@ const github = {
   onAuthSuccess: vi.fn((cb) => {
     authSuccessCb = cb
   }),
-  onAuthError: vi.fn(),
+  onAuthError: vi.fn((cb) => {
+    authErrorCb = cb
+  }),
   onCloneProgress: vi.fn(),
   onStatusChanged: vi.fn((cb) => {
     statusChangedCb = cb
@@ -41,15 +47,25 @@ const github = {
 }
 
 const openExternal = vi.fn()
+// Captured renderer-side listeners for main push events (watcher/save).
+const ipcEventHandlers: Record<string, (...a: unknown[]) => void> = {}
+const ipcOn = vi.fn((channel: string, cb: (...a: unknown[]) => void) => {
+  ipcEventHandlers[channel] = cb
+  return () => {}
+})
 
 import { useGithubStore } from '@/store/github'
 
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
+  editorTabs.length = 0
   ;(globalThis as unknown as { window: unknown }).window = globalThis
   ;(globalThis as unknown as { github: unknown }).github = github
-  ;(globalThis as unknown as { electron: unknown }).electron = { shell: { openExternal } }
+  ;(globalThis as unknown as { electron: unknown }).electron = {
+    shell: { openExternal },
+    ipcRenderer: { on: ipcOn }
+  }
 })
 afterEach(() => vi.useRealTimers())
 
@@ -187,6 +203,85 @@ describe('github store — sync', () => {
   it('sync returns null without a repo', async() => {
     const store = useGithubStore()
     expect(await store.sync()).toBeNull()
+  })
+})
+
+describe('github store — sync save race', () => {
+  it('waits for unsaved repo tabs to be saved before invoking sync', async() => {
+    vi.useFakeTimers()
+    const store = useGithubStore()
+    await store.setRepo('/tmp/hello')
+    const tab = { pathname: '/tmp/hello/a.md', isSaved: false }
+    editorTabs.push(tab)
+
+    const syncPromise = store.sync()
+    await vi.advanceTimersByTimeAsync(200)
+    // Save has not landed yet — sync must not have fired.
+    expect(github.sync).not.toHaveBeenCalled()
+
+    tab.isSaved = true // main confirms the save
+    await vi.advanceTimersByTimeAsync(200)
+    const res = await syncPromise
+    expect(github.sync).toHaveBeenCalled()
+    expect(res?.behind).toBe(1)
+  })
+
+  it('aborts as dirty when saves never settle', async() => {
+    vi.useFakeTimers()
+    const store = useGithubStore()
+    await store.setRepo('/tmp/hello')
+    editorTabs.push({ pathname: '/tmp/hello/a.md', isSaved: false })
+
+    const syncPromise = store.sync()
+    await vi.advanceTimersByTimeAsync(6000)
+    const res = await syncPromise
+    expect(res?.dirty).toBe(true)
+    expect(github.sync).not.toHaveBeenCalled()
+  })
+
+  it('ignores unsaved tabs outside the repo', async() => {
+    const store = useGithubStore()
+    await store.setRepo('/tmp/hello')
+    editorTabs.push({ pathname: '/elsewhere/b.md', isSaved: false })
+    const res = await store.sync()
+    expect(res?.behind).toBe(1)
+  })
+})
+
+describe('github store — auth errors + file watching', () => {
+  it('an auth-error push records the error message', async() => {
+    const store = useGithubStore()
+    authErrorCb!('expired_token')
+    expect(store.authError).toBe('expired_token')
+  })
+
+  it('startAuth clears a previous auth error', async() => {
+    const store = useGithubStore()
+    authErrorCb!('expired_token')
+    await store.startAuth()
+    expect(store.authError).toBeNull()
+  })
+
+  it('a file-change push triggers one debounced status refresh', async() => {
+    vi.useFakeTimers()
+    const store = useGithubStore()
+    await store.setRepo('/tmp/hello')
+    github.status.mockClear()
+    ipcEventHandlers['mt::update-file']?.({}, { type: 'change' })
+    ipcEventHandlers['mt::update-file']?.({}, { type: 'change' })
+    ipcEventHandlers['mt::tab-saved']?.({}, 'tab-1')
+    await vi.advanceTimersByTimeAsync(300)
+    expect(github.status).toHaveBeenCalledTimes(1)
+  })
+
+  it('file-change pushes are ignored with no repo open', async() => {
+    vi.useFakeTimers()
+    const store = useGithubStore()
+    await store.detectRepoForFolder(null)
+    github.status.mockClear()
+    ipcEventHandlers['mt::update-file']?.({}, { type: 'change' })
+    await vi.advanceTimersByTimeAsync(300)
+    expect(github.status).not.toHaveBeenCalled()
   })
 })
 

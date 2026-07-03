@@ -194,4 +194,20 @@ describe('github/auth identity + sign out', () => {
     expect(await getToken()).toBeNull()
     expect(await loadIdentity()).toBeNull()
   })
+
+  it('signOut cancels an in-flight device-flow poll', async() => {
+    vi.useFakeTimers()
+    vi.stubGlobal('fetch', vi.fn(async() => ({
+      ok: true,
+      json: async() => ({ access_token: 'gho_late' })
+    })) as unknown as typeof fetch)
+
+    const poll = pollForToken('dc', 1)
+    const assertion = expect(poll).rejects.toThrow('cancelled')
+    await signOut()
+    await vi.advanceTimersByTimeAsync(1000)
+    await assertion
+    // The late authorization must NOT silently re-sign the user in.
+    expect(await getToken()).toBeNull()
+  })
 })

@@ -28,12 +28,20 @@ const author = async(): Promise<gitOps.GitAuthor> => {
 const senderWindow = (e: Electron.IpcMainInvokeEvent): BrowserWindow | null =>
   BrowserWindow.fromWebContents(e.sender)
 
+// Long-running operations (device-flow poll, clone) outlive windows: touching
+// webContents on a destroyed BrowserWindow throws, so every deferred send
+// goes through this guard.
+const safeSend = (win: BrowserWindow | null, channel: string, ...args: unknown[]): void => {
+  if (!win || win.isDestroyed()) return
+  win.webContents.send(channel, ...args)
+}
+
 // status-changed is broadcast: two windows can have the same repo open and
 // each window's store filters by its own repoPath. Auth + clone-progress
 // events target only the initiating window.
 const broadcastStatusChanged = (repoPath: string): void => {
   for (const win of BrowserWindow.getAllWindows()) {
-    win.webContents.send('mt::github::status-changed', repoPath)
+    safeSend(win, 'mt::github::status-changed', repoPath)
   }
 }
 
@@ -65,11 +73,11 @@ export const registerGitHubHandlers = (): void => {
         const user = await api.getUser(token)
         await auth.saveIdentity(user)
         cachedAuthor = api.commitAuthorFor(user)
-        win?.webContents.send('mt::github::auth-success', { signedIn: true, username: user.login })
+        safeSend(win, 'mt::github::auth-success', { signedIn: true, username: user.login })
       })
       .catch((err) => {
         log.error('GitHub auth failed:', err)
-        win?.webContents.send('mt::github::auth-error', String(err?.message ?? err))
+        safeSend(win, 'mt::github::auth-error', String(err?.message ?? err))
       })
     return {
       userCode: info.userCode,
@@ -116,7 +124,7 @@ export const registerGitHubHandlers = (): void => {
       const now = Date.now()
       if (now - lastProgress < 100 && p.loaded !== p.total) return
       lastProgress = now
-      win?.webContents.send('mt::github::clone-progress', p)
+      safeSend(win, 'mt::github::clone-progress', p)
     })
     // Open the freshly cloned folder in the requesting window through the
     // existing folder-open path (spec: reuse the open-folder machinery).

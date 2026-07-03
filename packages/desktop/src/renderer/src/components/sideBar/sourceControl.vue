@@ -78,7 +78,8 @@
           <el-button
             type="primary"
             size="small"
-            :disabled="!canCommit"
+            :disabled="!canCommit || committing"
+            :loading="committing"
             @click="onCommit"
           >
             {{ t('sideBar.sourceControl.commit') }}
@@ -144,6 +145,9 @@ const { projectTree } = storeToRefs(projectStore)
 
 const message = ref('')
 const showBrowser = ref(false)
+// Guards double-click: a second commit against an unchanged index would
+// create an empty duplicate commit.
+const committing = ref(false)
 
 const canCommit = computed(
   () => message.value.trim().length > 0 && changes.value.some((c) => c.staged)
@@ -178,24 +182,39 @@ const statusLetter = (status: string): string =>
   ({ modified: 'M', untracked: 'U', deleted: 'D', added: 'A' })[status] ?? '?'
 
 const toggleStage = (filepath: string, staged: boolean): void => {
-  if (staged) githubStore.stage([filepath])
-  else githubStore.unstage([filepath])
+  const op = staged ? githubStore.stage([filepath]) : githubStore.unstage([filepath])
+  op.catch((err) => {
+    ElMessage.error(`${t('sideBar.sourceControl.stageFailed')}: ${(err as Error).message}`)
+  })
 }
 
 const onCommit = async (): Promise<void> => {
-  await githubStore.commit(message.value.trim())
-  message.value = ''
+  committing.value = true
+  try {
+    await githubStore.commit(message.value.trim())
+    message.value = ''
+  } catch (err) {
+    ElMessage.error(`${t('sideBar.sourceControl.commitFailed')}: ${(err as Error).message}`)
+  } finally {
+    committing.value = false
+  }
 }
 
 const onSync = async (): Promise<void> => {
-  const result = await githubStore.sync()
-  if (!result) return
-  if (result.dirty) {
-    ElMessage.warning(t('sideBar.sourceControl.dirtyToast'))
-  } else if (result.conflict) {
-    ElMessage.warning(t('sideBar.sourceControl.conflictToast'))
-  } else {
-    ElMessage.success(t('sideBar.sourceControl.syncedToast'))
+  try {
+    const result = await githubStore.sync()
+    if (!result) return
+    if (result.dirty) {
+      ElMessage.warning(t('sideBar.sourceControl.dirtyToast'))
+    } else if (result.conflict) {
+      ElMessage.warning(t('sideBar.sourceControl.conflictToast'))
+    } else {
+      ElMessage.success(t('sideBar.sourceControl.syncedToast'))
+    }
+  } catch (err) {
+    // Offline fetch, non-fast-forward push rejection, 401 — surface them
+    // here instead of the window-level unhandledrejection path.
+    ElMessage.error(`${t('sideBar.sourceControl.syncFailed')}: ${(err as Error).message}`)
   }
 }
 </script>

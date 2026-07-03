@@ -4,10 +4,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const handlers = new Map<string, (...a: unknown[]) => unknown>()
 const sentEvents: Array<{ channel: string; args: unknown[] }> = []
 const emitted: Array<{ event: string; args: unknown[] }> = []
+let windowDestroyed = false
 const fakeWebContents = {
-  send: (channel: string, ...args: unknown[]) => sentEvents.push({ channel, args })
+  send: (channel: string, ...args: unknown[]) => {
+    // Mirrors Electron: touching webContents of a destroyed window throws.
+    if (windowDestroyed) throw new Error('Object has been destroyed')
+    sentEvents.push({ channel, args })
+  }
 }
-const fakeWindow = { id: 7, webContents: fakeWebContents }
+const fakeWindow = { id: 7, isDestroyed: () => windowDestroyed, webContents: fakeWebContents }
 const showOpenDialog = vi.fn(async() => ({ canceled: false, filePaths: ['/chosen'] }))
 // Configurable so a test can simulate "no owning window".
 let currentWindow: typeof fakeWindow | null = fakeWindow
@@ -82,6 +87,7 @@ beforeEach(() => {
   emitted.length = 0
   token = 'tok'
   currentWindow = fakeWindow
+  windowDestroyed = false
   vi.clearAllMocks()
   showOpenDialog.mockResolvedValue({ canceled: false, filePaths: ['/chosen'] })
   registerGitHubHandlers()
@@ -215,6 +221,30 @@ describe('github/ipc handlers', () => {
     // No window → no progress events and no open-folder emit.
     expect(sentEvents).toHaveLength(0)
     expect(emitted).toHaveLength(0)
+  })
+
+  it('auth-start survives the window being destroyed before the poll resolves', async() => {
+    ;(auth.pollForToken as ReturnType<typeof vi.fn>).mockResolvedValue('gho_x')
+    await call('mt::github::auth-start')
+    windowDestroyed = true // user closes the window while the poll is pending
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    // The token/identity work still completes; no send against the dead window.
+    expect(auth.saveIdentity).toHaveBeenCalled()
+    expect(sentEvents.some((e) => e.channel === 'mt::github::auth-success')).toBe(false)
+  })
+
+  it('auth-start error path survives a destroyed window', async() => {
+    ;(auth.pollForToken as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('expired_token'))
+    await call('mt::github::auth-start')
+    windowDestroyed = true
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(sentEvents.some((e) => e.channel === 'mt::github::auth-error')).toBe(false)
+  })
+
+  it('status-changed broadcast skips destroyed windows', async() => {
+    windowDestroyed = true
+    await call('mt::github::stage', '/repo', ['a.md'])
+    expect(sentEvents).toHaveLength(0)
   })
 
   it('auth-start reports device code even with no owning window', async() => {

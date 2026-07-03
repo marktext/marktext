@@ -14,6 +14,8 @@ export const useGithubStore = defineStore('github', () => {
   const conflictFiles = ref<string[]>([])
   const lfsWarning = ref(false)
   const busy = ref(false)
+  // Last device-flow failure pushed from main (expired/denied code, network).
+  const authError = ref<string | null>(null)
 
   const refreshAuth = async(): Promise<void> => {
     const status = await window.github.authStatus()
@@ -22,6 +24,7 @@ export const useGithubStore = defineStore('github', () => {
   }
 
   const startAuth = async(): Promise<{ userCode: string; verificationUri: string }> => {
+    authError.value = null
     const info = await window.github.authStart()
     window.electron.shell.openExternal(info.verificationUri)
     return info
@@ -101,6 +104,29 @@ export const useGithubStore = defineStore('github', () => {
     await refreshStatus()
   }
 
+  // ASK_FOR_SAVE_ALL is a fire-and-forget IPC send: poll the editor's tab
+  // state until every tab under the repo reports saved, or give up after the
+  // timeout. Without this wait, main's dirty check can race the async writes
+  // and a stale buffer save could clobber pulled changes after the merge.
+  const SAVE_SETTLE_TIMEOUT = 5000
+  const SAVE_POLL_INTERVAL = 100
+  const unsavedRepoTabs = (
+    tabs: Array<{ pathname: string | null; isSaved: boolean }>,
+    root: string
+  ): boolean => tabs.some((t) => !t.isSaved && !!t.pathname && t.pathname.startsWith(root))
+
+  const waitForRepoSaves = async(
+    editorStore: { tabs: Array<{ pathname: string | null; isSaved: boolean }> },
+    root: string
+  ): Promise<boolean> => {
+    const deadline = Date.now() + SAVE_SETTLE_TIMEOUT
+    while (unsavedRepoTabs(editorStore.tabs, root)) {
+      if (Date.now() >= deadline) return false
+      await new Promise((resolve) => setTimeout(resolve, SAVE_POLL_INTERVAL))
+    }
+    return true
+  }
+
   const sync = async(): Promise<GitHubSyncResult | null> => {
     if (!repoPath.value) return null
     busy.value = true
@@ -111,6 +137,17 @@ export const useGithubStore = defineStore('github', () => {
       // re-verifies a clean tree and returns { dirty: true } otherwise.
       const editorStore = useEditorStore()
       editorStore.ASK_FOR_SAVE_ALL(false)
+      const settled = await waitForRepoSaves(editorStore, repoPath.value)
+      if (!settled) {
+        // Saves didn't land in time — refuse rather than race the merge.
+        return {
+          conflict: false,
+          dirty: true,
+          files: [],
+          ahead: ahead.value,
+          behind: behind.value
+        }
+      }
       const result = await window.github.sync(repoPath.value)
       ahead.value = result.ahead
       behind.value = result.behind
@@ -126,10 +163,23 @@ export const useGithubStore = defineStore('github', () => {
   window.github.onAuthSuccess((status) => {
     signedIn.value = status.signedIn
     username.value = status.username
+    authError.value = null
     loadRepos().catch(() => {})
+  })
+  window.github.onAuthError((message) => {
+    authError.value = message
   })
   window.github.onStatusChanged((changed) => {
     if (changed === repoPath.value) scheduleRefresh()
+  })
+  // Refresh the change list when repo files change on disk (editor saves or
+  // external edits) — our own git ops broadcast status-changed separately,
+  // but ordinary file writes only surface through these push events.
+  window.electron.ipcRenderer.on('mt::update-file', () => {
+    if (repoPath.value) scheduleRefresh()
+  })
+  window.electron.ipcRenderer.on('mt::tab-saved', () => {
+    if (repoPath.value) scheduleRefresh()
   })
 
   return {
@@ -143,6 +193,7 @@ export const useGithubStore = defineStore('github', () => {
     conflictFiles,
     lfsWarning,
     busy,
+    authError,
     refreshAuth,
     startAuth,
     signOut,
