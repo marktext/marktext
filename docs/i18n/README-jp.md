@@ -111,7 +111,7 @@ MarkText はコミュニティの支援によって成り立つオープンソ�
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [高速で使いやすく完全な API で Google や他の検索エンジンからデータを取得できます。](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
-| [<img src="../assets/sponsors/ukey.jpg" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## スクリーンショット
 
