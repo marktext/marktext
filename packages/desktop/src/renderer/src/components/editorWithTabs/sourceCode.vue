@@ -339,7 +339,8 @@ onMounted(() => {
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
-    direction: textDirection,
+    // CodeMirror has no per-paragraph 'auto'; the source view stays LTR for it.
+    direction: textDirection === 'rtl' ? 'rtl' : 'ltr',
     viewportMargin: Infinity,
     lineNumberFormatter (line: number) {
       if (line % 10 === 0 || line === 1) {

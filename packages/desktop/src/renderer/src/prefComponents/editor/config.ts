@@ -63,6 +63,12 @@ export const getTextDirectionOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.misc.textDirection.rtl'),
     value: 'rtl'
+  },
+  {
+    // Detects each paragraph's direction from its first strong character, so
+    // Persian/Arabic blocks flow RTL while English blocks stay LTR (#4553).
+    label: t('preferences.editor.misc.textDirection.auto'),
+    value: 'auto'
   }
 ]
 

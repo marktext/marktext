@@ -252,6 +252,14 @@ export class MarkdownToHtml {
         // stays implicit to keep existing exports byte-identical.
         const dirAttr = dir === 'rtl' || dir === 'auto' ? ` dir="${dir}"` : '';
 
+        // For 'auto', make each prose block derive its own direction from its
+        // content (matches the editor's per-paragraph behavior) instead of the
+        // whole document inheriting a single base direction from `dir="auto"`.
+        const dirStyle
+            = dir === 'auto'
+                ? `\n  <style>.markdown-body p,.markdown-body li,.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6,.markdown-body blockquote,.markdown-body th,.markdown-body td { unicode-bidi: plaintext; }</style>`
+                : '';
+
         let baseStyles: string;
         if (inlineStyles) {
             // Embed the KaTeX fonts as data URIs so math renders offline. The
@@ -274,7 +282,7 @@ export class MarkdownToHtml {
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
   <style>${exportStyle}</style>
-  <style>${extraCSS}</style>
+  <style>${extraCSS}</style>${dirStyle}
 </head>
 <body>
   ${html}
