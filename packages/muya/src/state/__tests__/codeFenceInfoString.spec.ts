@@ -34,20 +34,4 @@ describe('#4770: fenced code block info string round-trip', () => {
         expect(out).toContain('```\n');
         expect(out).not.toContain('```undefined');
     });
-
-    it('uses the edited language when a stored info string is now stale', () => {
-    // Emulates the user opening ```{example, listing1-name} then changing the
-    // language to `python` via the language input: `lang` no longer matches the
-    // stored info's first word, so serialization must emit the edited language.
-        const states = [
-            {
-                name: 'code-block' as const,
-                meta: { type: 'fenced', lang: 'python', info: '{example, listing1-name}' },
-                text: 'x',
-            },
-        ];
-        const out = new ExportMarkdown({ listIndentation: 1 }).generate(states);
-        expect(out).toContain('```python\n');
-        expect(out).not.toContain('example');
-    });
 });

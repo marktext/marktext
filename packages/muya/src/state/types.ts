@@ -29,13 +29,11 @@ export interface ICodeBlockState {
     name: 'code-block';
     meta: {
         type: string; // "indented" | "fenced";
+        // The full fenced info string, verbatim (e.g. `js`, `js title="x"`, or a
+        // Pandoc/RMarkdown `{…}` block). The language for highlighting is its
+        // first word — derive via `firstWordOfInfo()`, never assume a single word.
         lang: string;
         fenceLength?: number;
-        // Full fenced info string when it carries more than the language word
-        // (e.g. `js title="x"` or a Pandoc/RMarkdown `{…}` attribute block).
-        // `lang` keeps just the first word for highlighting; `info` preserves
-        // the whole string so the fence round-trips losslessly (#4770).
-        info?: string;
     };
     text: string;
 }
