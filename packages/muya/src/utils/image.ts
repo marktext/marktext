@@ -160,7 +160,10 @@ export async function loadImage(url: string, detectContentType = false): Promise
 export async function checkImageContentType(url: string) {
     try {
         const res = await fetch(url, { method: 'HEAD' });
-        const contentType = res.headers.get('content-type');
+        // Content-Type can carry parameters (e.g. shields.io badges send
+        // `image/svg+xml;charset=utf-8`); match only the MIME type so those
+        // extensionless dynamic images still load (#3837).
+        const contentType = res.headers.get('content-type')?.split(';')[0].trim();
 
         if (
             contentType

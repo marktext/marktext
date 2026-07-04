@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
-import { afterEach, describe, expect, it } from 'vitest';
-import { getImageSrc } from '../image';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { checkImageContentType, getImageSrc } from '../image';
 
 // Regression tests for the Phase G "G1" blocker: relative-path images stopped
 // rendering after the @muyajs/core migration because `getImageSrc` returned a
@@ -25,6 +25,45 @@ function withDirname(dirname: string | undefined, fn: () => void) {
 
 afterEach(() => {
     window.DIRNAME = undefined;
+});
+
+describe('checkImageContentType — tolerates Content-Type parameters (#3837)', () => {
+    function mockFetch(status: number, contentType: string | null) {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                status,
+                headers: {
+                    get: (h: string) =>
+                        h.toLowerCase() === 'content-type' ? contentType : null,
+                },
+            }),
+        );
+    }
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('accepts an image type carrying a charset parameter (shields.io badges)', async () => {
+        mockFetch(200, 'image/svg+xml;charset=utf-8');
+        expect(await checkImageContentType('https://img.shields.io/badge/x-blue')).toBe(true);
+    });
+
+    it('accepts a bare image content type', async () => {
+        mockFetch(200, 'image/png');
+        expect(await checkImageContentType('https://example.com/badge')).toBe(true);
+    });
+
+    it('rejects a non-image content type', async () => {
+        mockFetch(200, 'text/html;charset=utf-8');
+        expect(await checkImageContentType('https://example.com/page')).toBe(false);
+    });
+
+    it('rejects a non-200 response even with an image content type', async () => {
+        mockFetch(404, 'image/png');
+        expect(await checkImageContentType('https://example.com/missing')).toBe(false);
+    });
 });
 
 describe('getImageSrc — relative local image paths anchored to window.DIRNAME', () => {
