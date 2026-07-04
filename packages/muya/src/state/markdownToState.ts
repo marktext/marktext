@@ -14,11 +14,6 @@ import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
 const debug = logger('import markdown: ');
-function restoreTableEscapeCharacters(text: string) {
-    // NOTE: markedjs replaces all escaped "|" ("\|") characters inside a cell with "|".
-    //       We have to re-escape the character to not break the table.
-    return text.replace(/\|/g, '\\|');
-}
 
 interface IMarkdownToStateOptions {
     footnote: boolean;
@@ -299,12 +294,17 @@ export class MarkdownToState {
                     children: [],
                 };
 
+                // Store the cell text as marked emits it (with the table `\|`
+                // escape already resolved to a literal `|`), so the editor shows
+                // `` `|` `` rather than the escaped `` `\|` `` inside inline code
+                // (#4849). `escapeText` re-adds the `\|` escape on serialization,
+                // keeping the markdown round-trip intact.
                 tableState.children.push({
                     name: 'table.row',
                     children: header.map((h, i) => ({
                         name: 'table.cell' as const,
                         meta: { align: align[i] || 'none' },
-                        text: restoreTableEscapeCharacters(h.text),
+                        text: h.text,
                     })),
                 });
 
@@ -314,7 +314,7 @@ export class MarkdownToState {
                         children: row.map((c, i) => ({
                             name: 'table.cell' as const,
                             meta: { align: align[i] || 'none' },
-                            text: restoreTableEscapeCharacters(c.text),
+                            text: c.text,
                         })),
                     })),
                 );
