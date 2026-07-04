@@ -8,6 +8,7 @@ import logger from '../../../utils/logger';
 import { loadLanguage } from '../../../utils/prism';
 import Parent from '../../base/parent';
 import { ScrollPage } from '../../scrollPage';
+import { firstWordOfInfo } from './infoString';
 
 const debug = logger('codeblock:');
 
@@ -72,8 +73,10 @@ class CodeBlock extends Parent {
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
 
-        !!value
-        && loadLanguage(value)
+        // `value` is the full info string; load Prism for its first word only.
+        const language = firstWordOfInfo(value);
+        !!language
+        && loadLanguage(language)
             .then((infoList) => {
                 if (!Array.isArray(infoList))
                     return;
