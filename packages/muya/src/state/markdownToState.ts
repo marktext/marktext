@@ -10,7 +10,7 @@ import type {
     ITaskListState,
     TState,
 } from './types';
-import { firstWordOfInfo } from '../block/commonMark/codeBlock/infoString';
+import { firstWordOfInfo } from '../utils';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -454,10 +454,9 @@ export class MarkdownToState {
             name: 'code-block' as const,
             meta: {
                 type: isFenced ? 'fenced' : 'indented',
-                // Fenced blocks keep the full info string; indented blocks have
-                // none (the derived first word is empty). The language is the
-                // first word — see `firstWordOfInfo`.
-                lang: isFenced ? info : lang,
+                // The full info string verbatim (empty for indented blocks); the
+                // language is its first word — see `firstWordOfInfo`.
+                lang: info,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
             },
             text: value,

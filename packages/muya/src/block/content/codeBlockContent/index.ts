@@ -9,12 +9,11 @@ import type {
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML } from '../../../utils';
+import { adjustOffset, escapeHTML, firstWordOfInfo } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
 import Content from '../../base/content';
-import { firstWordOfInfo } from '../../commonMark/codeBlock/infoString';
 import { ScrollPage } from '../../scrollPage';
 
 function checkAutoIndent(text: string, offset: number) {
@@ -98,10 +97,15 @@ class CodeBlockContent extends Content {
         return content;
     }
 
+    // The language word for highlighting / tokenizing — the first word of the
+    // code container's info string (which may carry attributes, e.g.
+    // `js title="x"`). Every consumer of `_lang` wants the language, never the
+    // full info string (that is read from `meta.lang` directly by the language
+    // input), so derive it once here.
     private get _lang() {
         const { _codeContainer: codeContainer } = this;
 
-        return codeContainer ? codeContainer.lang : this._initialLang;
+        return firstWordOfInfo(codeContainer ? codeContainer.lang : this._initialLang);
     }
 
     /**
@@ -162,9 +166,8 @@ class CodeBlockContent extends Content {
 
     override update(_cursor?: IRenderCursor, highlights = []) {
         const { _lang: lang, text } = this;
-        // The info string may carry attributes (`js title="x"`); only its first
-        // word is the language for Prism / the `language-*` class.
-        const fullLengthLang = transformAliasToOrigin([firstWordOfInfo(lang)])[0];
+        // transform alias to original language
+        const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
         const code = escapeHTML(getHighlightHtml(text, highlights, true, true))
             .replace(new RegExp(MARKER_HASH['<'], 'g'), '<')

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { firstWordOfInfo } from '../infoString';
+import { firstWordOfInfo } from '../index';
 
 describe('firstWordOfInfo', () => {
     it('returns the whole word for a plain language', () => {
