@@ -72,6 +72,7 @@ export interface IOrderListState {
         start: number;
         loose: boolean;
         delimiter: string; // "." | ")";
+        sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
     };
     children: IListItemState[];
 }

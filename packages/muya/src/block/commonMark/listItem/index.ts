@@ -16,7 +16,7 @@ class ListItem extends Parent {
 
     static create(muya: Muya, state: IListItemState) {
         const listItem = new ListItem(muya);
-        listItem.meta = ListItem._cloneMeta(state.meta);
+        listItem.meta = state.meta;
 
         listItem.append(
             ...state.children.map(child =>
@@ -41,19 +41,10 @@ class ListItem extends Parent {
         this.createDomNode();
     }
 
-    private static _cloneMeta(meta: IListItemState['meta']): IListItemState['meta'] {
-        if (!meta)
-            return undefined;
-
-        return {
-            ...meta,
-        };
-    }
-
     override getState(): IListItemState {
         const state: IListItemState = {
             name: 'list-item',
-            ...(this.meta ? { meta: ListItem._cloneMeta(this.meta) } : {}),
+            ...(this.meta ? { meta: { ...this.meta } } : {}),
             children: this.children.map(child => child.getState()),
         };
 

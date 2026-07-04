@@ -228,11 +228,19 @@ Text after numbered list.
         expect(list.name).toBe('order-list');
         if (list.name !== 'order-list')
             throw new Error('expected an order-list state');
+        expect(list.meta.sourceMarkers).toEqual([
+            '1.',
+            '1.',
+            '1.',
+        ]);
         expect(list.children.map(item => item.meta?.orderMarker)).toEqual([
             '1.',
             '1.',
             '1.',
         ]);
+
+        list.meta.sourceMarkers![0] = '2.';
+        expect(muya.getMarkdown()).toBe(md);
     });
 });
 

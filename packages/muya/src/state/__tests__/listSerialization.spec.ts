@@ -561,11 +561,12 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
 
 // Ordered-list start number is preserved through the markdown round-trip.
 // Parser-created items also carry their original source marker so save/open
-// does not canonicalize author-chosen numbering. Manually-created state with
-// no item marker metadata still falls back to incrementing `meta.start`.
+// does not canonicalize author-chosen numbering. If the parsed list structure
+// changes, the source-marker signature no longer matches and serialization
+// falls back to incrementing `meta.start`.
 describe('stateToMarkdown — ordered list start + delimiter', () => {
-    function serialize(states: TState[]): string {
-        return new ExportMarkdown({ listIndentation: 1 }).generate(states);
+    function serialize(states: TState[], listIndentation: number | string = 1): string {
+        return new ExportMarkdown({ listIndentation }).generate(states);
     }
 
     it('preserves repeated ordered markers from source markdown (#4772)', () => {
@@ -581,6 +582,11 @@ Text after numbered list.
 
         const list = parseMarkdown(md)[1] as IOrderListState;
         expect(list.name).toBe('order-list');
+        expect(list.meta.sourceMarkers).toEqual([
+            '1.',
+            '1.',
+            '1.',
+        ]);
         expect(list.children.map(item => item.meta?.orderMarker)).toEqual([
             '1.',
             '1.',
@@ -602,6 +608,36 @@ Text after numbered list.
 1. outer again
 `;
         expect(roundTrip(md)).toBe(md);
+    });
+
+    it('preserves 100+ source markers in dfm mode without throwing', () => {
+        const md = `100. one
+101. two
+`;
+        expect(roundTrip(md, 'dfm')).toBe(md);
+    });
+
+    it('renumbers a parsed ordered list after inserting a new item', () => {
+        const states = parseMarkdown(`1. one
+2. two
+`);
+        const list = states[0] as IOrderListState;
+
+        list.children.splice(1, 0, { name: 'list-item', children: [] });
+
+        expect(serialize(states)).toBe('1. one\n2. \n3. two\n');
+    });
+
+    it('renumbers a parsed ordered list after deleting an item', () => {
+        const states = parseMarkdown(`5. one
+6. two
+`);
+        const list = states[0] as IOrderListState;
+
+        list.children.shift();
+
+        expect(serialize(states)).toBe(`5. two
+`);
     });
 
     it('keeps a non-1 start number through the round-trip', () => {
