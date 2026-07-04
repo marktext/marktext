@@ -206,6 +206,21 @@ code.mu-inline-rule {
     height: 6px;
 }
 
+/* KaTeX gives every sub/superscript a 2px `.vlist-s` strut that
+   `.vlist-t2 { margin-right: -2px }` cancels visually. The negative margin fixes
+   layout width but not scrollWidth, so the `overflow: auto` above draws a
+   spurious scrollbar under any short formula ending in a sub/superscript
+   (#4837). Zero both to match the scroll extent to the visible width — net-zero
+   visually; a genuinely long formula still overflows and stays scrollable. */
+.mu-math > .mu-math-render .katex .vlist-s {
+    width: 0;
+    min-width: 0;
+}
+
+.mu-math > .mu-math-render .katex .vlist-t2 {
+    margin-right: 0;
+}
+
 .mu-ruby > .mu-ruby-render {
     left: 50%;
 
