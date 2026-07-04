@@ -32,11 +32,13 @@ export const IMAGE_EXTENSIONS: readonly string[] = Object.freeze([
   'webp'
 ])
 
-// Extensions Windows (and the OS shell) will execute rather than open in an
-// application. Opening one of these via shell.openPath runs code, so a markdown
-// link pointing at a co-located script must be confirmed first (#3575).
+// Extensions the OS shell will execute rather than open in an application.
+// Opening one of these via shell.openPath runs code, so a markdown link
+// pointing at a co-located script/executable must be confirmed first (#3575).
+// The vulnerable path is cross-platform, so the list covers Windows, macOS and
+// Linux launchers — not just Windows.
 export const DANGEROUS_EXECUTABLE_EXTENSIONS: readonly string[] = Object.freeze([
-  // Native executables, installers and control-panel items
+  // Windows — native executables, installers and control-panel items
   'exe',
   'com',
   'scr',
@@ -47,7 +49,7 @@ export const DANGEROUS_EXECUTABLE_EXTENSIONS: readonly string[] = Object.freeze(
   'msc',
   'gadget',
   'application',
-  // Shell / batch
+  // Windows — shell / batch
   'bat',
   'cmd',
   // Windows Script Host
@@ -69,13 +71,20 @@ export const DANGEROUS_EXECUTABLE_EXTENSIONS: readonly string[] = Object.freeze(
   'psc2',
   'psd1',
   'psm1',
-  // Shortcuts, registry and JVM launchers
+  // Windows — shortcuts, registry and JVM launchers
   'lnk',
   'inf',
   'reg',
   'scf',
   'jar',
-  'jnlp'
+  'jnlp',
+  // macOS — Terminal scripts and app bundles
+  'command',
+  'app',
+  // Linux — desktop entries and self-contained executables
+  'desktop',
+  'appimage',
+  'run'
 ])
 
 /**
@@ -84,7 +93,10 @@ export const DANGEROUS_EXECUTABLE_EXTENSIONS: readonly string[] = Object.freeze(
  */
 export const isDangerousExecutableFile = (filepath: string): boolean => {
   if (!filepath || typeof filepath !== 'string') return false
-  const ext = path.extname(filepath).slice(1).toLowerCase()
+  // Windows strips trailing dots/spaces during ShellExecute canonicalization,
+  // so `update.js.` / `<./update.js >` still run `update.js` — strip them
+  // before reading the extension or the guard is trivially bypassed.
+  const ext = path.extname(filepath.replace(/[ .]+$/, '')).slice(1).toLowerCase()
   return !!ext && DANGEROUS_EXECUTABLE_EXTENSIONS.includes(ext)
 }
 

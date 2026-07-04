@@ -30,6 +30,25 @@ describe('#3575 — isDangerousExecutableFile', () => {
     expect(isDangerousExecutableFile('/tmp/run.VBS')).toBe(true)
   })
 
+  it('flags macOS and Linux launchers, not just Windows', () => {
+    for (const name of ['run.command', 'Foo.app', 'launch.desktop', 'App.AppImage', 'installer.run']) {
+      expect(isDangerousExecutableFile(name)).toBe(true)
+    }
+  })
+
+  it('still flags when a trailing dot or space would slip past ShellExecute (#4843 review)', () => {
+    // Windows strips trailing dots/spaces, so these still run update.js.
+    expect(isDangerousExecutableFile('update.js.')).toBe(true)
+    expect(isDangerousExecutableFile('update.js ')).toBe(true)
+    expect(isDangerousExecutableFile('payload.exe...')).toBe(true)
+    expect(isDangerousExecutableFile('payload.bat  ')).toBe(true)
+  })
+
+  it('does not misflag a safe file that merely ends in a dot/space', () => {
+    expect(isDangerousExecutableFile('note.md.')).toBe(false)
+    expect(isDangerousExecutableFile('photo.png ')).toBe(false)
+  })
+
   it('does not flag documents, images or markdown', () => {
     for (const name of ['note.md', 'photo.png', 'data.json', 'readme.txt', 'archive.zip', 'index.html']) {
       expect(isDangerousExecutableFile(name)).toBe(false)
