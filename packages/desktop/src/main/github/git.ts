@@ -1,6 +1,21 @@
 import fs from 'fs'
+import path from 'path'
 import git from 'isomorphic-git'
 import http from 'isomorphic-git/http/node'
+
+// isomorphic-git file paths must stay inside the repo. The `files` list arrives
+// from the (untrusted) renderer, so reject absolute paths, Windows drive paths,
+// and any `..` segment before handing them to git.add/remove/resetIndex.
+const assertRepoRelative = (files: string[]): void => {
+  for (const filepath of files) {
+    const bad =
+      !filepath ||
+      path.isAbsolute(filepath) ||
+      /^[a-zA-Z]:/.test(filepath) ||
+      filepath.split(/[\\/]/).includes('..')
+    if (bad) throw new Error(`Invalid path (must be repo-relative): ${filepath}`)
+  }
+}
 
 export interface GitAuthor {
   name: string
@@ -53,6 +68,7 @@ export const listChanges = async(dir: string): Promise<GitChange[]> => {
  * @param files - Repo-relative paths to stage.
  */
 export const stage = async(dir: string, files: string[]): Promise<void> => {
+  assertRepoRelative(files)
   for (const filepath of files) {
     if (fs.existsSync(`${dir}/${filepath}`)) {
       await git.add({ fs, dir, filepath })
@@ -69,6 +85,7 @@ export const stage = async(dir: string, files: string[]): Promise<void> => {
  * @param files - Repo-relative paths to unstage.
  */
 export const unstage = async(dir: string, files: string[]): Promise<void> => {
+  assertRepoRelative(files)
   for (const filepath of files) {
     await git.resetIndex({ fs, dir, filepath })
   }

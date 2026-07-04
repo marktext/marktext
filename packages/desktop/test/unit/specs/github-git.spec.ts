@@ -93,6 +93,13 @@ describe('github/git local ops', () => {
     expect(a?.staged).toBe(true)
   })
 
+  it('stage and unstage reject non-repo-relative paths (traversal guard)', async() => {
+    for (const bad of ['/etc/passwd', '../outside.md', 'a/../../b.md']) {
+      await expect(stage(dir, [bad])).rejects.toThrow(/repo-relative|invalid path/i)
+      await expect(unstage(dir, [bad])).rejects.toThrow(/repo-relative|invalid path/i)
+    }
+  })
+
   it('unstage reverts a staged file back to unstaged', async() => {
     fs.writeFileSync(path.join(dir, 'a.md'), '# changed\n')
     await stage(dir, ['a.md'])
