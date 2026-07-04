@@ -32,6 +32,62 @@ export const IMAGE_EXTENSIONS: readonly string[] = Object.freeze([
   'webp'
 ])
 
+// Extensions Windows (and the OS shell) will execute rather than open in an
+// application. Opening one of these via shell.openPath runs code, so a markdown
+// link pointing at a co-located script must be confirmed first (#3575).
+export const DANGEROUS_EXECUTABLE_EXTENSIONS: readonly string[] = Object.freeze([
+  // Native executables, installers and control-panel items
+  'exe',
+  'com',
+  'scr',
+  'pif',
+  'cpl',
+  'msi',
+  'msp',
+  'msc',
+  'gadget',
+  'application',
+  // Shell / batch
+  'bat',
+  'cmd',
+  // Windows Script Host
+  'js',
+  'jse',
+  'vbs',
+  'vbe',
+  'wsf',
+  'wsh',
+  'ws',
+  'wsc',
+  'hta',
+  // PowerShell
+  'ps1',
+  'ps1xml',
+  'ps2',
+  'ps2xml',
+  'psc1',
+  'psc2',
+  'psd1',
+  'psm1',
+  // Shortcuts, registry and JVM launchers
+  'lnk',
+  'inf',
+  'reg',
+  'scf',
+  'jar',
+  'jnlp'
+])
+
+/**
+ * Returns true if the path's extension is one the OS will execute as code
+ * (script or binary), so opening it warrants a confirmation prompt.
+ */
+export const isDangerousExecutableFile = (filepath: string): boolean => {
+  if (!filepath || typeof filepath !== 'string') return false
+  const ext = path.extname(filepath).slice(1).toLowerCase()
+  return !!ext && DANGEROUS_EXECUTABLE_EXTENSIONS.includes(ext)
+}
+
 /**
  * Returns true if the filename matches one of the markdown extensions.
  */
