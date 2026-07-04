@@ -502,6 +502,11 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE(): void {
       if (!this.currentFile) return
+      // Flush any edit still queued in the engine's rAF batch into currentFile
+      // before reading its markdown, otherwise a keystroke typed in the same
+      // frame as Cmd+S is dropped from the saved file (#3803). Mirrors the
+      // tab-switch flush in UPDATE_CURRENT_FILE.
+      bus.emit('flush-active-editor')
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -531,6 +536,8 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE_AS(): void {
       if (!this.currentFile) return
+      // See FILE_SAVE: flush pending edits before snapshotting markdown (#3803).
+      bus.emit('flush-active-editor')
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
