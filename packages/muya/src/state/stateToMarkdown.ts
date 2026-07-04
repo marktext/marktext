@@ -354,10 +354,16 @@ export default class ExportMarkdown {
         const { text, meta } = state;
         const textList = text.split('\n');
         const { type, lang } = meta;
+        // Emit the preserved full info string (`js title="x"`, Pandoc `{…}`
+        // attributes), but only while `lang` is still its first word: once the
+        // language is edited the stored info is stale, so the edited language
+        // wins (#4770).
+        const info
+            = meta.info && meta.info.match(/\S*/)?.[0] === lang ? meta.info : lang;
 
         if (type === 'fenced') {
             const fence = '`'.repeat(this._codeFenceLength(text, meta.fenceLength));
-            result.push(`${indent}${lang ? `${fence}${lang}\n` : `${fence}\n`}`);
+            result.push(`${indent}${info ? `${fence}${info}\n` : `${fence}\n`}`);
             textList.forEach((text) => {
                 result.push(`${indent}${text}\n`);
             });

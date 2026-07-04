@@ -449,12 +449,17 @@ export class MarkdownToState {
         // but `'fenced'` reaches us at runtime via the
         // walkTokens assignment — hence the cast.
         const isFenced = (codeBlockStyle as 'indented' | 'fenced' | undefined) === 'fenced';
+        // Preserve the full info string when it carries more than the language
+        // word (attributes like `title="x"`, or a Pandoc/RMarkdown `{…}` block),
+        // so the fence round-trips instead of collapsing to its first word (#4770).
+        const info = infoString || '';
         return {
             name: 'code-block' as const,
             meta: {
                 type: isFenced ? 'fenced' : 'indented',
                 lang,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
+                ...(isFenced && info !== lang ? { info } : {}),
             },
             text: value,
         };

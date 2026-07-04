@@ -31,6 +31,11 @@ export interface ICodeBlockState {
         type: string; // "indented" | "fenced";
         lang: string;
         fenceLength?: number;
+        // Full fenced info string when it carries more than the language word
+        // (e.g. `js title="x"` or a Pandoc/RMarkdown `{…}` attribute block).
+        // `lang` keeps just the first word for highlighting; `info` preserves
+        // the whole string so the fence round-trips losslessly (#4770).
+        info?: string;
     };
     text: string;
 }
