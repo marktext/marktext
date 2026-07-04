@@ -63,8 +63,12 @@ export type GfmRules = typeof gfmRules;
 
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
+    // `${1,2}`: `$…$` is inline math, `$$…$$` on one line is display math
+    // (#4782). The `\1` backreference forces a matching close, so the opener
+    // and closer always agree; for a single `$` this stays byte-identical to
+    // the old rule.
     // eslint-disable-next-line regexp/no-super-linear-backtracking
-    inline_math: /^(\$)((?:[^$\\]|\\.)+)(\\*)\1(?!\1)/,
+    inline_math: /^(\${1,2})((?:[^$\\]|\\.)+)(\\*)\1(?!\1)/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
