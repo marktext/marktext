@@ -634,13 +634,13 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayloa
       if (isDangerousExecutableFile(pathname)) {
         const { response } = await dialog.showMessageBox(win, {
           type: 'warning',
-          buttons: ['Cancel', 'Open Anyway'],
+          buttons: [t('dialog.cancel'), t('dialog.openAnyway')],
           defaultId: 0,
           cancelId: 0,
           noLink: true,
-          title: 'Potentially unsafe file',
-          message: 'This link opens a file that can run code',
-          detail: `“${path.basename(pathname)}” is an executable or script file. Opening it may run programs on your computer. Only continue if you trust this document.`
+          title: t('dialog.unsafeFileTitle'),
+          message: t('dialog.unsafeFileMessage'),
+          detail: t('dialog.unsafeFileDetail', { name: path.basename(pathname) })
         })
         if (response !== 1) {
           return
