@@ -102,7 +102,12 @@ class ImageSelection {
         }
 
         if (isHTMLElement(target) && target.tagName === 'IMG') {
-            if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
+            // A linked image `[![alt](src)](href)` renders its image wrapper
+            // inside a `span.mu-link`. On modifier-click the link handler
+            // (linkMouseEvents) opens the URL; don't also emit the image
+            // preview, which would pop a viewer over the navigation (#3835).
+            const insideLink = !!imageWrapper.closest(`.${CLASS_NAMES.MU_LINK}`);
+            if (!insideLink && event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
                 const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
                 const src = getImageSrc(tokenSrc).src || target.getAttribute('src') || '';
                 if (src) {
