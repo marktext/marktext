@@ -120,6 +120,16 @@ describe('htmlToMarkdown — Google Docs style inline formatting', () => {
         ).toBe('**Bold** *italic*');
     });
 
+    it('does not duplicate formatting through disabled semantic wrappers inside active ancestors', () => {
+        expect(
+            convert('<p><strong><b style="font-weight:normal"><span style="font-weight:700">Bold</span></b></strong></p>'),
+        ).toBe('**Bold**');
+
+        expect(
+            convert('<p><em><i style="font-style:normal"><span style="font-style:italic">italic</span></i></em></p>'),
+        ).toBe('*italic*');
+    });
+
     it('keeps normal semantic strong and emphasis HTML unchanged', () => {
         expect(
             convert('<p>Plain <strong>boldword</strong> and <em>italicword</em> end.</p>'),

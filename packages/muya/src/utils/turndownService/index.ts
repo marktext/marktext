@@ -56,8 +56,8 @@ function hasSemanticAncestor(
 ): boolean {
     let current = node.parentElement;
     while (current) {
-        if (isSemantic(current))
-            return !isDisabled(current);
+        if (isSemantic(current) && !isDisabled(current))
+            return true;
         current = current.parentElement;
     }
 
@@ -100,6 +100,13 @@ function formatContent(
     }
 
     return result;
+}
+
+function getInlineStyleFormatting(node: Node) {
+    return {
+        strong: hasStrongFontWeight(node) && !hasStrongSemanticAncestor(node),
+        emphasis: hasItalicFontStyle(node) && !hasEmphasisSemanticAncestor(node),
+    };
 }
 
 function isTaskListCheckbox(node: unknown) {
@@ -154,18 +161,19 @@ export function usePluginsAddRules(turndownService: TurndownService) {
 
     turndownService.addRule('cssInlineStyle', {
         filter(node: Node) {
-            return isStyledSpan(node)
-                && (
-                    (hasStrongFontWeight(node) && !hasStrongSemanticAncestor(node))
-                    || (hasItalicFontStyle(node) && !hasEmphasisSemanticAncestor(node))
-                );
+            if (!isStyledSpan(node))
+                return false;
+
+            const formatting = getInlineStyleFormatting(node);
+            return formatting.strong || formatting.emphasis;
         },
-        replacement(content: string, _node: Node, options: TurndownService.Options) {
+        replacement(content: string, node: Node, options: TurndownService.Options) {
+            const formatting = getInlineStyleFormatting(node);
             return formatContent(
                 content,
                 options,
-                hasStrongFontWeight(_node) && !hasStrongSemanticAncestor(_node),
-                hasItalicFontStyle(_node) && !hasEmphasisSemanticAncestor(_node),
+                formatting.strong,
+                formatting.emphasis,
             );
         },
     });
