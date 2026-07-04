@@ -1,6 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
 import type { Token } from '../../inlineRenderer/types';
+import type { IInlineFormatShortcut } from '../../types';
 import type { IBaseOptions } from '../types';
 
 import type { FormatToolIcon } from './config';
@@ -21,24 +22,6 @@ const defaultOptions = {
     },
     showArrow: false,
 };
-
-/** Format keyboard shortcuts without shift modifier */
-const FORMAT_SHORTCUTS = {
-    b: 'strong',
-    i: 'em',
-    u: 'u',
-    d: 'del',
-    e: 'inline_code',
-    l: 'link',
-} as const;
-
-/** Format keyboard shortcuts with shift modifier */
-const FORMAT_SHORTCUTS_SHIFT = {
-    h: 'mark',
-    e: 'inline_math',
-    i: 'image',
-    r: 'clear',
-} as const;
 
 /** Keys that should not trigger toolbar hiding */
 const NON_EDITING_KEYS = new Set([
@@ -140,7 +123,7 @@ export class InlineFormatToolbar extends BaseFloat {
         if (!isKeyboardEvent(event))
             return;
 
-        const { key, shiftKey, metaKey, ctrlKey } = event;
+        const { key, metaKey, ctrlKey } = event;
         const selection = editor.selection.getSelection();
         if (!selection)
             return;
@@ -158,7 +141,7 @@ export class InlineFormatToolbar extends BaseFloat {
         }
 
         // Handle format shortcuts
-        this._handleFormatShortcut(event, key, shiftKey, anchorBlock);
+        this._handleFormatShortcut(event, anchorBlock);
     }
 
     /**
@@ -178,24 +161,43 @@ export class InlineFormatToolbar extends BaseFloat {
     }
 
     /**
-     * Handle format keyboard shortcuts
+     * Resolve the effective shortcut for a toolbar button: the embedder's
+     * `inlineFormatShortcuts` entry when one exists for the format type,
+     * otherwise the bundled default from `config.ts`. Read per event/render
+     * (not cached) so `setOptions` changes apply immediately.
+     */
+    private _shortcutFor(icon: FormatToolIcon): IInlineFormatShortcut {
+        const override = this.muya.options.inlineFormatShortcuts?.[icon.type];
+
+        return override ?? { label: icon.shortcut, key: icon.key, shiftKey: icon.shiftKey };
+    }
+
+    /**
+     * Apply the format whose effective shortcut matches the pressed key.
+     * Only reached with Cmd/Ctrl held (gated in `_handleKeydown`). Keys are
+     * compared case-insensitively because Shift-modified letters arrive
+     * uppercase in `KeyboardEvent.key`.
      * @param event - Keyboard event
-     * @param key - Key name
-     * @param shiftKey - Shift key state
      * @param anchorBlock - Anchor block
      */
-    private _handleFormatShortcut(
-        event: KeyboardEvent,
-        key: string,
-        shiftKey: boolean,
-        anchorBlock: Format,
-    ) {
-        const shortcuts = shiftKey ? FORMAT_SHORTCUTS_SHIFT : FORMAT_SHORTCUTS;
-        const formatType = shortcuts[key as keyof typeof shortcuts];
+    private _handleFormatShortcut(event: KeyboardEvent, anchorBlock: Format) {
+        const pressedKey = event.key.toLowerCase();
 
-        if (formatType) {
+        for (const icon of this._icons) {
+            const { key, shiftKey, altKey } = this._shortcutFor(icon);
+            if (
+                !key
+                || key.toLowerCase() !== pressedKey
+                || !!shiftKey !== event.shiftKey
+                || !!altKey !== event.altKey
+            ) {
+                continue;
+            }
+
             event.preventDefault();
-            anchorBlock.format(formatType);
+            anchorBlock.format(icon.type);
+
+            return;
         }
     }
 
@@ -241,12 +243,13 @@ export class InlineFormatToolbar extends BaseFloat {
         );
 
         const itemSelector = `li.item.${icon.type}${isActive ? '.active' : ''}`;
+        const { label } = this._shortcutFor(icon);
 
         return h(
             itemSelector,
             {
                 attrs: {
-                    title: `${i18n.t(icon.tooltip)}\n${icon.shortcut}`,
+                    title: label ? `${i18n.t(icon.tooltip)}\n${label}` : i18n.t(icon.tooltip),
                 },
                 on: {
                     click: event => this._selectItem(event, icon),

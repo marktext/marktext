@@ -123,6 +123,7 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { buildInlineFormatShortcuts } from '@/util/formatShortcuts'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import { resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
@@ -1689,6 +1690,22 @@ const handleLanguageChanged = (newLocale?: unknown) => {
     editor.value.locale(getMuyaLocale(locale))
   }
 }
+
+// Keep the inline format toolbar's shortcut hints and internal key handling
+// in sync with the user's current keybindings (#4687). Fired via the editor
+// store's `mt::keybindings-response` re-broadcast — at startup and every time
+// the user saves Preferences → Keybindings.
+const handleKeybindingsChanged = (keybindingMap: unknown) => {
+  if (!editor.value || !keybindingMap || typeof keybindingMap !== 'object') {
+    return
+  }
+  editor.value.setOptions({
+    inlineFormatShortcuts: buildInlineFormatShortcuts(
+      keybindingMap as Record<string, string>,
+      isOsx
+    )
+  })
+}
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
 onMounted(() => {
@@ -1808,6 +1825,12 @@ onMounted(() => {
 
   // Listen for language changes and update the engine locale.
   bus.on('language-changed', handleLanguageChanged)
+
+  // Sync the format toolbar with the current keybindings, and re-request them:
+  // the store's bootstrap request can fire before this component subscribes,
+  // so a fresh response guarantees the newly created engine gets today's map.
+  bus.on('keybindings-changed', handleKeybindingsChanged)
+  window.electron.ipcRenderer.send('mt::request-keybindings')
 
   // Create spell check wrapper and enable spell checking if preferred.
   spellchecker = new SpellChecker(spellcheckerEnabled.value, spellcheckerLanguage.value)
@@ -2007,6 +2030,7 @@ onBeforeUnmount(() => {
   bus.off('open-command-spellchecker-switch-language', openSpellcheckerLanguageCommand)
   bus.off('replace-misspelling', replaceMisspelling)
   bus.off('language-changed', handleLanguageChanged)
+  bus.off('keybindings-changed', handleKeybindingsChanged)
 
   document.removeEventListener('keyup', keyup)
 

@@ -1,5 +1,29 @@
 import type { TState } from './state/types';
 
+/**
+ * One inline-format shortcut as the format toolbar consumes it: the hint text
+ * rendered in the button tooltip plus the key the editor's internal
+ * Cmd/Ctrl-gated keydown handler matches. An entry without `key` shows the
+ * hint only — the embedder owns the combo (e.g. through its application menu).
+ */
+export interface IInlineFormatShortcut {
+    /** Tooltip hint, e.g. '⇧+⌘+H'. An empty string hides the hint line. */
+    label: string;
+    /**
+     * `KeyboardEvent.key` to match, compared case-insensitively so
+     * Shift-modified letters ('H') still hit their lowercase entry. Cmd or
+     * Ctrl must be held regardless — that gate is not expressible here.
+     */
+    key?: string;
+    /** Shift must be held iff true. */
+    shiftKey?: boolean;
+    /** Alt/Option must be held iff true. */
+    altKey?: boolean;
+}
+
+/** Format type (e.g. 'strong', 'inline_code') → its shortcut override. */
+export type TInlineFormatShortcutMap = Partial<Record<string, IInlineFormatShortcut>>;
+
 export interface IMuyaOptions {
     fontSize: number;
     lineHeight: number;
@@ -35,6 +59,15 @@ export interface IMuyaOptions {
     isGitlabCompatibilityEnabled: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;
+    /**
+     * Per-format overrides for the inline format toolbar's shortcut hints and
+     * its internal Cmd/Ctrl key handling, replacing the bundled defaults for
+     * the given format types (missing types keep their default). Embedders
+     * whose accelerators are rebindable pass the current bindings here and
+     * push changes at runtime via `setOptions({ inlineFormatShortcuts })` so
+     * the toolbar never advertises — or keeps applying — a stale combo.
+     */
+    inlineFormatShortcuts?: TInlineFormatShortcutMap;
     locale: {
         name: string;
         resource: {
