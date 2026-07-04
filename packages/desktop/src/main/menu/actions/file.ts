@@ -11,7 +11,7 @@ import {
 } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isMarkdownFile } from 'common/filesystem/paths'
+import { MARKDOWN_EXTENSIONS, isDangerousExecutableFile, isMarkdownFile } from 'common/filesystem/paths'
 import { checkUpdates, userSetting } from './marktext'
 import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
@@ -583,7 +583,7 @@ interface FormatLinkPayload {
   dirname?: string
 }
 
-ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) => {
+ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayload) => {
   if (!data || (!data.href && !data.text)) {
     return
   }
@@ -629,6 +629,23 @@ ipcMain.on('mt::format-link-click', (e, { data, dirname }: FormatLinkPayload) =>
         openFileOrFolder(innerWin, pathname)
       }
     } else {
+      // A link in an untrusted document could point at a co-located script or
+      // executable; opening it via the OS shell would run code silently (#3575).
+      if (isDangerousExecutableFile(pathname)) {
+        const { response } = await dialog.showMessageBox(win, {
+          type: 'warning',
+          buttons: ['Cancel', 'Open Anyway'],
+          defaultId: 0,
+          cancelId: 0,
+          noLink: true,
+          title: 'Potentially unsafe file',
+          message: 'This link opens a file that can run code',
+          detail: `“${path.basename(pathname)}” is an executable or script file. Opening it may run programs on your computer. Only continue if you trust this document.`
+        })
+        if (response !== 1) {
+          return
+        }
+      }
       shell.openPath(pathname)
     }
   }
