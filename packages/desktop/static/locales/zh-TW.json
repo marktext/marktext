@@ -889,7 +889,11 @@
     "replace": "取代",
     "save": "儲存",
     "saveChanges": "儲存變更",
-    "saveFailure": "儲存失敗"
+    "saveFailure": "儲存失敗",
+    "unsafeFileTitle": "潛在不安全的檔案",
+    "unsafeFileMessage": "此連結將開啟一個可執行程式碼的檔案",
+    "unsafeFileDetail": "「{name}」是可執行檔或指令碼檔案。開啟它可能會在你的電腦上執行程式。請僅在信任此文件時繼續。",
+    "openAnyway": "仍要開啟"
   },
   "error": {
     "configSchemaViolation": "設定結構違規",

@@ -889,7 +889,11 @@
     "replace": "Replace",
     "save": "Save",
     "saveChanges": "Save changes",
-    "saveFailure": "Save failure"
+    "saveFailure": "Save failure",
+    "unsafeFileTitle": "Potentially unsafe file",
+    "unsafeFileMessage": "This link opens a file that can run code",
+    "unsafeFileDetail": "\"{name}\" is an executable or script file. Opening it may run programs on your computer. Only continue if you trust this document.",
+    "openAnyway": "Open Anyway"
   },
   "error": {
     "configSchemaViolation": "Configuration schema violation",
