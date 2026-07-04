@@ -1,4 +1,4 @@
-import { readlinkSync, outputFile, type WriteFileOptions } from 'fs-extra'
+import { readlinkSync, outputFile, remove, rename, type WriteFileOptions } from 'fs-extra'
 import path from 'path'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
@@ -21,7 +21,7 @@ export const normalizeAndResolvePath = (pathname: string): string => {
   return path.resolve(pathname)
 }
 
-export const writeFile = (
+export const writeFile = async(
   pathname: string,
   content: string | Buffer,
   extension?: string,
@@ -32,8 +32,21 @@ export const writeFile = (
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  // `outputFile` creates any missing parent directories before writing, so a
-  // save whose folder was moved/deleted recreates it and still succeeds —
-  // matching VS Code, and keeping (auto)save from ever silently failing (#3509).
-  return outputFile(pathname, content, options)
+  // Write to a temp file in the SAME directory, then atomically rename it over
+  // the target. A crash/power-loss mid-write can only corrupt the throwaway
+  // temp file, never truncate the user's existing document (#3786, #3828) —
+  // the rename is atomic on a single volume, which same-directory guarantees.
+  // `outputFile` still creates any missing parent directories first, so a save
+  // whose folder was moved/deleted recreates it and succeeds (#3509).
+  const tempPath = path.join(
+    path.dirname(pathname),
+    `.${path.basename(pathname)}.${process.pid}.${Date.now()}.tmp`
+  )
+  try {
+    await outputFile(tempPath, content, options)
+    await rename(tempPath, pathname)
+  } catch (err) {
+    await remove(tempPath).catch(() => {})
+    throw err
+  }
 }
