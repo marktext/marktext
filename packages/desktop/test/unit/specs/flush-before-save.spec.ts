@@ -85,4 +85,21 @@ describe('editor store — flush pending edits before saving (#3803)', () => {
     expect(saveAsCall).toBeTruthy()
     expect(emitSpy.mock.invocationCallOrder[0]).toBeLessThan(sendSpy.mock.invocationCallOrder[0])
   })
+
+  // The same "read currentFile.markdown then persist" pattern also lives in
+  // MOVE_FILE_TO / RESPONSE_FOR_RENAME, which now flush through the shared
+  // helper too so those paths don't drop the last keystroke either (#3803).
+  it('MOVE_FILE_TO flushes the active editor before sending its IPC', () => {
+    const store = useEditorStore()
+    seedCurrentFile(store)
+
+    const emitSpy = vi.spyOn(bus, 'emit')
+    const sendSpy = vi.spyOn(window.electron.ipcRenderer, 'send')
+
+    store.MOVE_FILE_TO()
+
+    expect(emitSpy).toHaveBeenCalledWith('flush-active-editor')
+    expect(sendSpy).toHaveBeenCalled()
+    expect(emitSpy.mock.invocationCallOrder[0]).toBeLessThan(sendSpy.mock.invocationCallOrder[0])
+  })
 })
