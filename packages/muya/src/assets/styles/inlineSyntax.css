@@ -393,9 +393,9 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     background: transparent;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail,
-.mu-inline-image a.mu-image-icon-close {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail,
+.mu-inline-image .mu-image-icon-close {
     position: absolute;
     top: 15px;
 
@@ -404,8 +404,8 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     height: 20px;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail {
     left: 15px;
 }
 
@@ -478,17 +478,17 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     content: attr(fail-text);
 }
 
-.mu-inline-image.mu-image-loading a.mu-image-icon-success,
-.mu-inline-image.mu-empty-image a.mu-image-icon-success {
+.mu-inline-image.mu-image-loading .mu-image-icon-success,
+.mu-inline-image.mu-empty-image .mu-image-icon-success {
     display: block;
 }
 
-.mu-inline-image.mu-image-fail a.mu-image-icon-fail {
+.mu-inline-image.mu-image-fail .mu-image-icon-fail {
     display: block;
 }
 
-.mu-inline-image.mu-empty-image:hover a.mu-image-icon-close,
-.mu-inline-image.mu-image-fail:hover a.mu-image-icon-close {
+.mu-inline-image.mu-empty-image:hover .mu-image-icon-close,
+.mu-inline-image.mu-image-fail:hover .mu-image-icon-close {
     right: 15px;
     z-index: 1;
 

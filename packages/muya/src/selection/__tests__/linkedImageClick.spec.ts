@@ -92,3 +92,28 @@ describe('linked image modifier-click does not pop the image preview (#3835)', (
         expect(types).toContain('image');
     });
 });
+
+// #4865: a reference-linked image `[![alt](src)][ref]` must render the image
+// inside `a.mu-reference-link`, so the #3835 guard applies and Ctrl/Cmd-click
+// follows the link. The inline tokenizer previously fragmented it into a bare
+// image plus a separate empty reference link (its anchor group stopped at the
+// image's inner `]`), leaving the image unwrapped.
+describe('reference-linked image modifier-click follows the link (#4865)', () => {
+    it('renders the image inside a.mu-reference-link and suppresses the image format-click', () => {
+        const src = 'https://example.com/pic.png';
+        const muya = boot(`[![alt](${src})][ref]\n\n[ref]: https://link.example.com`);
+
+        const wrapper = muya.domNode.querySelector<HTMLElement>(
+            `span.${CLASS_NAMES.MU_INLINE_IMAGE}`,
+        )!;
+        expect(wrapper).not.toBeNull();
+        expect(wrapper.closest(`a.${CLASS_NAMES.MU_REFERENCE_LINK}`)).not.toBeNull();
+
+        const img = injectImg(muya, src);
+        const types = captureFormatClickTypes(muya);
+
+        ctrlClick(img);
+
+        expect(types).not.toContain('image');
+    });
+});
