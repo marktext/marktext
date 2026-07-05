@@ -357,7 +357,7 @@
   "sideBarVisibility": {
     "description": "View--Whether the side bar is visible.--internal",
     "type": "boolean",
-    "default": false
+    "default": true
   },
   "tabBarVisibility": {
     "description": "View--Whether the tabs are shown.--internal",
