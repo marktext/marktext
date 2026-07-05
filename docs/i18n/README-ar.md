@@ -90,6 +90,9 @@
   <a href="README-kr.md#readme">
     <span>:kr:</span>
   </a>
+  <a href="README-bn.md#readme">
+    <span>:bangladesh:</span>
+  </a>
 </div>
 
 <div dir="rtl" align="center">
@@ -110,6 +113,7 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## لقطة شاشة
 

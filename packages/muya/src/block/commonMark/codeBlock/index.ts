@@ -2,7 +2,7 @@ import type { Muya } from '../../../muya';
 import type { ICodeBlockState } from '../../../state/types';
 import type { TBlockPath } from '../../types';
 import diff from 'fast-diff';
-import { diffToTextOp } from '../../../utils';
+import { diffToTextOp, firstWordOfInfo } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
 import { loadLanguage } from '../../../utils/prism';
@@ -72,8 +72,10 @@ class CodeBlock extends Parent {
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
 
-        !!value
-        && loadLanguage(value)
+        // `value` is the full info string; load Prism for its first word only.
+        const language = firstWordOfInfo(value);
+        !!language
+        && loadLanguage(language)
             .then((infoList) => {
                 if (!Array.isArray(infoList))
                     return;

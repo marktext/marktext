@@ -206,6 +206,21 @@ code.mu-inline-rule {
     height: 6px;
 }
 
+/* KaTeX gives every sub/superscript a 2px `.vlist-s` strut that
+   `.vlist-t2 { margin-right: -2px }` cancels visually. The negative margin fixes
+   layout width but not scrollWidth, so the `overflow: auto` above draws a
+   spurious scrollbar under any short formula ending in a sub/superscript
+   (#4837). Zero both to match the scroll extent to the visible width — net-zero
+   visually; a genuinely long formula still overflows and stays scrollable. */
+.mu-math > .mu-math-render .katex .vlist-s {
+    width: 0;
+    min-width: 0;
+}
+
+.mu-math > .mu-math-render .katex .vlist-t2 {
+    margin-right: 0;
+}
+
 .mu-ruby > .mu-ruby-render {
     left: 50%;
 
@@ -378,9 +393,9 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     background: transparent;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail,
-.mu-inline-image a.mu-image-icon-close {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail,
+.mu-inline-image .mu-image-icon-close {
     position: absolute;
     top: 15px;
 
@@ -389,8 +404,8 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     height: 20px;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail {
     left: 15px;
 }
 
@@ -463,17 +478,17 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     content: attr(fail-text);
 }
 
-.mu-inline-image.mu-image-loading a.mu-image-icon-success,
-.mu-inline-image.mu-empty-image a.mu-image-icon-success {
+.mu-inline-image.mu-image-loading .mu-image-icon-success,
+.mu-inline-image.mu-empty-image .mu-image-icon-success {
     display: block;
 }
 
-.mu-inline-image.mu-image-fail a.mu-image-icon-fail {
+.mu-inline-image.mu-image-fail .mu-image-icon-fail {
     display: block;
 }
 
-.mu-inline-image.mu-empty-image:hover a.mu-image-icon-close,
-.mu-inline-image.mu-image-fail:hover a.mu-image-icon-close {
+.mu-inline-image.mu-empty-image:hover .mu-image-icon-close,
+.mu-inline-image.mu-image-fail:hover .mu-image-icon-close {
     right: 15px;
     z-index: 1;
 

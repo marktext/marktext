@@ -84,6 +84,9 @@
   <a href="docs/i18n/README-kr.md#readme">
     <span>:kr:</span>
   </a>
+  <a href="docs/i18n/README-bn.md#readme">
+    <span>:bangladesh:</span>
+  </a>
 </div>
 
 <div align="center">
@@ -106,6 +109,7 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 | [<img src="docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="docs/assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## Screenshot
 

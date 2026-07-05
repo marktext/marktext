@@ -889,7 +889,11 @@
     "replace": "Değiştir",
     "save": "Kaydet",
     "saveChanges": "Değişiklikleri kaydet",
-    "saveFailure": "Kaydetme hatası"
+    "saveFailure": "Kaydetme hatası",
+    "unsafeFileTitle": "Güvenli olmayabilecek dosya",
+    "unsafeFileMessage": "Bu bağlantı, kod çalıştırabilen bir dosyayı açar",
+    "unsafeFileDetail": "\"{name}\" bir yürütülebilir veya betik dosyasıdır. Açmak, bilgisayarınızda program çalıştırabilir. Yalnızca bu belgeye güveniyorsanız devam edin.",
+    "openAnyway": "Yine de aç"
   },
   "error": {
     "configSchemaViolation": "Yapılandırma şeması ihlali",

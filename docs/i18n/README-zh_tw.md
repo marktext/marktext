@@ -90,6 +90,9 @@
   <a href="README-ar.md#readme">
     <span>:saudi_arabia:</span>
   </a>
+  <a href="README-bn.md#readme">
+    <span>:bangladesh:</span>
+  </a>
 </div>
 
 <div align="center">
@@ -111,6 +114,7 @@ MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 Mar
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [透過我們快速、便捷且完整的 API 抓取 Google 及其他搜尋引擎的資料。](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## 截圖
 

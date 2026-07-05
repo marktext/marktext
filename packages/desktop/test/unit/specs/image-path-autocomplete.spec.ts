@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
@@ -102,5 +102,27 @@ describe('searchFilesAndDir', () => {
     const missing = path.join(os.tmpdir(), 'mt-img-ac-does-not-exist-xyz')
 
     await expect(searchFilesAndDir(missing, '')).rejects.toBeTruthy()
+  })
+
+  it('still resolves when the directory cannot be watched (UNC/WSL paths, #3779)', async() => {
+    const dir = seedDir()
+    tmpDirs.push(dir)
+
+    // fs.watch throws synchronously for unwatchable dirs (e.g. \\wsl.localhost
+    // UNC paths on Windows -> EISDIR). This used to escape as an uncaught
+    // exception -> "Unexpected error in the main process" dialog.
+    const spy = vi.spyOn(fs, 'watch').mockImplementation(() => {
+      throw Object.assign(new Error('EISDIR: illegal operation on a directory, watch'), {
+        code: 'EISDIR'
+      })
+    })
+
+    const result = await searchFilesAndDir(dir, '')
+
+    expect(result.some((e) => e.file === 'a.png')).toBe(true)
+    // The unwatchable directory is simply not tracked.
+    expect(watchers.has(dir)).toBe(false)
+
+    spy.mockRestore()
   })
 })

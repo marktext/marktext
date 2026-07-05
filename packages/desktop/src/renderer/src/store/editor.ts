@@ -500,8 +500,18 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // Flush any edit still queued in the engine's rAF batch into the active
+    // tab's `currentFile` before its markdown is read to persist — otherwise an
+    // edit made in the same frame as the read is silently dropped from the
+    // written file (#3803), the way tab switching already guards (#2938). Safe
+    // no-op when nothing is pending.
+    flushActiveEditor(): void {
+      bus.emit('flush-active-editor')
+    },
+
     FILE_SAVE(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -531,6 +541,7 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE_AS(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -705,6 +716,7 @@ export const useEditorStore = defineStore('editor', {
 
     MOVE_FILE_TO(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -747,6 +759,7 @@ export const useEditorStore = defineStore('editor', {
 
     RESPONSE_FOR_RENAME(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -812,7 +825,7 @@ export const useEditorStore = defineStore('editor', {
         // Must run while `currentFile` still points at the outgoing tab, so its
         // flushed edit is attributed to that tab and not lost on switch (#2938).
         if (oldCurrentFile) {
-          bus.emit('flush-active-editor')
+          this.flushActiveEditor()
         }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile

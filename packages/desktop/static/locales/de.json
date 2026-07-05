@@ -889,7 +889,11 @@
     "replace": "Ersetzen",
     "save": "Speichern",
     "saveChanges": "Änderungen speichern",
-    "saveFailure": "Speichern fehlgeschlagen"
+    "saveFailure": "Speichern fehlgeschlagen",
+    "unsafeFileTitle": "Möglicherweise unsichere Datei",
+    "unsafeFileMessage": "Dieser Link öffnet eine Datei, die Code ausführen kann",
+    "unsafeFileDetail": "„{name}“ ist eine ausführbare Datei oder ein Skript. Das Öffnen kann Programme auf Ihrem Computer ausführen. Fahren Sie nur fort, wenn Sie diesem Dokument vertrauen.",
+    "openAnyway": "Trotzdem öffnen"
   },
   "error": {
     "configSchemaViolation": "Konfigurationsschema-Verletzung",

@@ -889,7 +889,11 @@
     "replace": "置換",
     "save": "保存",
     "saveChanges": "変更を保存",
-    "saveFailure": "保存に失敗"
+    "saveFailure": "保存に失敗",
+    "unsafeFileTitle": "安全でない可能性のあるファイル",
+    "unsafeFileMessage": "このリンクはコードを実行できるファイルを開きます",
+    "unsafeFileDetail": "「{name}」は実行可能ファイルまたはスクリプトファイルです。開くとコンピューター上でプログラムが実行される可能性があります。この文書を信頼できる場合のみ続行してください。",
+    "openAnyway": "それでも開く"
   },
   "error": {
     "configSchemaViolation": "設定スキーマ違反",

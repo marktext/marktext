@@ -889,7 +889,11 @@
     "replace": "替换",
     "save": "保存",
     "saveChanges": "保存修改",
-    "saveFailure": "保存失败"
+    "saveFailure": "保存失败",
+    "unsafeFileTitle": "潜在不安全的文件",
+    "unsafeFileMessage": "此链接将打开一个可执行代码的文件",
+    "unsafeFileDetail": "“{name}”是可执行文件或脚本文件。打开它可能会在你的计算机上运行程序。请仅在信任此文档时继续。",
+    "openAnyway": "仍然打开"
   },
   "error": {
     "configSchemaViolation": "配置架构违规",

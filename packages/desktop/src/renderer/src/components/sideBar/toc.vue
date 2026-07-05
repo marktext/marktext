@@ -26,6 +26,7 @@
 import { computed, ref } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
+import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
 import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -44,33 +45,9 @@ const defaultProps = {
 const { toc } = storeToRefs(editorStore)
 const { wordWrapInToc } = storeToRefs(preferencesStore)
 
-interface KeyedTocNode {
-  key: string
-  label: unknown
-  slug: unknown
-  children: KeyedTocNode[]
-}
-
-// The TOC nodes carry no stable id, so el-tree (without a node-key) discarded
-// the user's expand/collapse state on every content edit (#3028). Derive a
-// stable key per node — its slug, deduplicated in document order so duplicate
-// headings stay unique — and let el-tree preserve state by that key.
-const keyedToc = computed<KeyedTocNode[]>(() => {
-  const seen = new Map<string, number>()
-  const assign = (nodes: Array<Record<string, unknown>>): KeyedTocNode[] =>
-    nodes.map((node) => {
-      const base = typeof node.slug === 'string' && node.slug ? node.slug : 'heading'
-      const count = seen.get(base) ?? 0
-      seen.set(base, count + 1)
-      return {
-        key: count === 0 ? base : `${base}-${count}`,
-        label: node.label,
-        slug: node.slug,
-        children: assign((node.children as Array<Record<string, unknown>>) ?? [])
-      }
-    })
-  return assign(toc.value as unknown as Array<Record<string, unknown>>)
-})
+// Stable per-node key so el-tree preserves the user's expand/collapse state
+// across content edits (#3028) and tab switches (#3791). See deriveKeyedToc.
+const keyedToc = computed<KeyedTocNode[]>(() => deriveKeyedToc(toc.value))
 
 // Track which headings the user collapsed, by stable key (#3028). Headings are
 // expanded by default; a collapse is remembered here.

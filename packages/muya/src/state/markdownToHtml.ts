@@ -49,6 +49,10 @@ export class MarkdownToHtml {
             mermaidContainer.classList.add('mermaid');
             preEle.replaceWith(mermaidContainer);
         }
+        const nodes = [...this._exportContainer!.querySelectorAll('div.mermaid')];
+        if (nodes.length === 0)
+            return;
+
         const mermaid = await loadRenderer('mermaid');
         // We only export light theme, so set mermaid theme to `default`, in the future, we can choose which theme to export.
         mermaid.initialize({
@@ -56,9 +60,18 @@ export class MarkdownToHtml {
             securityLevel: 'strict',
             theme: 'default',
         });
-        await mermaid.run({
-            nodes: [...this._exportContainer!.querySelectorAll('div.mermaid')],
-        });
+        // Render each diagram in isolation: `mermaid.run` rejects the whole
+        // batch on the first parse error, so one invalid diagram used to abort
+        // the entire export (#4812). Contain the failure to that diagram and
+        // fall back to the same placeholder the other diagram renderers use.
+        for (const node of nodes) {
+            try {
+                await mermaid.run({ nodes: [node] });
+            }
+            catch {
+                node.innerHTML = '< Invalid Diagram >';
+            }
+        }
         if (this._muya) {
             mermaid.initialize({
                 securityLevel: 'strict',

@@ -889,7 +889,11 @@
     "replace": "Reemplazar",
     "save": "Guardar",
     "saveChanges": "Guardar cambios",
-    "saveFailure": "Error al guardar"
+    "saveFailure": "Error al guardar",
+    "unsafeFileTitle": "Archivo potencialmente peligroso",
+    "unsafeFileMessage": "Este enlace abre un archivo que puede ejecutar código",
+    "unsafeFileDetail": "«{name}» es un archivo ejecutable o de script. Abrirlo podría ejecutar programas en tu equipo. Continúa solo si confías en este documento.",
+    "openAnyway": "Abrir de todos modos"
   },
   "error": {
     "configSchemaViolation": "Violación del esquema de configuración",

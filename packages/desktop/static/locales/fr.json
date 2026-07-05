@@ -889,7 +889,11 @@
     "replace": "Remplacer",
     "save": "Enregistrer",
     "saveChanges": "Enregistrer les modifications",
-    "saveFailure": "Échec de l'enregistrement"
+    "saveFailure": "Échec de l'enregistrement",
+    "unsafeFileTitle": "Fichier potentiellement dangereux",
+    "unsafeFileMessage": "Ce lien ouvre un fichier pouvant exécuter du code",
+    "unsafeFileDetail": "« {name} » est un fichier exécutable ou un script. L’ouvrir pourrait exécuter des programmes sur votre ordinateur. Ne continuez que si vous faites confiance à ce document.",
+    "openAnyway": "Ouvrir quand même"
   },
   "error": {
     "configSchemaViolation": "Violation du schéma de configuration",
