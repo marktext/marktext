@@ -160,22 +160,39 @@ export async function loadImage(url: string, detectContentType = false): Promise
     });
 }
 
-// Returns `true`/`false` when the HEAD response positively identifies the URL
-// as an image (or not), or `null` when that can't be determined — the request
-// was blocked (the renderer CSP has no `connect-src`, so it falls back to the
-// restrictive `default-src 'self'` and cross-origin HEADs throw) or failed on
-// the network. A `null` must NOT be read as "not an image": the actual <img>
-// load is governed by the far more permissive `img-src`, so callers should
-// still attempt it (#3837 — shields.io badges and other extensionless remote
-// images).
+// Only a same-origin URL can have its Content-Type read from the renderer: a
+// cross-origin response has its headers stripped by CORS, and the app's CSP
+// (no `connect-src`, so it falls back to `default-src 'self'`) refuses the
+// request outright. Relative/opaque URLs are treated as same-origin so the
+// check is still attempted.
+function isSameOrigin(url: string): boolean {
+    try {
+        return new URL(url, window.location.href).origin === window.location.origin;
+    }
+    catch {
+        return true;
+    }
+}
+
+// Returns `true`/`false` when a HEAD response positively identifies the URL as
+// an image (or not), or `null` when that can't be determined. A `null` must NOT
+// be read as "not an image": the actual <img> load is governed by the far more
+// permissive `img-src`, so callers should still attempt it (#3837 — shields.io
+// badges and other extensionless remote images).
 export async function checkImageContentType(url: string): Promise<boolean | null> {
+    // Don't fire a HEAD we could never read: a cross-origin request is refused
+    // by the CSP (logging a console error) and unreadable under CORS anyway.
+    // Report "undetermined" and let the caller fall through to the <img> load.
+    if (!isSameOrigin(url))
+        return null;
+
     try {
         const res = await fetch(url, { method: 'HEAD' });
         if (res.status !== 200)
             return null;
 
-        // Content-Type can carry parameters (e.g. shields.io badges send
-        // `image/svg+xml;charset=utf-8`); match only the MIME type.
+        // Content-Type can carry parameters (e.g. `image/svg+xml;charset=utf-8`);
+        // match only the MIME type.
         const contentType = res.headers.get('content-type')?.split(';')[0].trim();
         if (!contentType)
             return null;

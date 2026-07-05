@@ -27,7 +27,11 @@ afterEach(() => {
     window.DIRNAME = undefined;
 });
 
-describe('checkImageContentType — tolerates Content-Type parameters (#3837)', () => {
+describe('checkImageContentType (#3837)', () => {
+    // Same-origin URL — the only kind whose HEAD the renderer can actually read.
+    const sameOrigin = (p: string) => new URL(p, window.location.href).href;
+    const CROSS_ORIGIN = 'https://img.shields.io/badge/x-blue';
+
     function mockFetch(status: number, contentType: string | null) {
         vi.stubGlobal(
             'fetch',
@@ -39,35 +43,43 @@ describe('checkImageContentType — tolerates Content-Type parameters (#3837)', 
                 },
             }),
         );
+        return globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
     }
 
     afterEach(() => {
         vi.unstubAllGlobals();
     });
 
-    it('accepts an image type carrying a charset parameter (shields.io badges)', async () => {
+    it('accepts a same-origin image type carrying a charset parameter', async () => {
         mockFetch(200, 'image/svg+xml;charset=utf-8');
-        expect(await checkImageContentType('https://img.shields.io/badge/x-blue')).toBe(true);
+        expect(await checkImageContentType(sameOrigin('/badge'))).toBe(true);
     });
 
-    it('accepts a bare image content type', async () => {
+    it('accepts a bare same-origin image content type', async () => {
         mockFetch(200, 'image/png');
-        expect(await checkImageContentType('https://example.com/badge')).toBe(true);
+        expect(await checkImageContentType(sameOrigin('/badge'))).toBe(true);
     });
 
-    it('reports a non-image content type as false', async () => {
+    it('reports a same-origin non-image content type as false', async () => {
         mockFetch(200, 'text/html;charset=utf-8');
-        expect(await checkImageContentType('https://example.com/page')).toBe(false);
+        expect(await checkImageContentType(sameOrigin('/page'))).toBe(false);
     });
 
     it('returns null (undetermined) on a non-200 response', async () => {
         mockFetch(404, 'image/png');
-        expect(await checkImageContentType('https://example.com/missing')).toBeNull();
+        expect(await checkImageContentType(sameOrigin('/missing'))).toBeNull();
     });
 
-    it('returns null when the HEAD request is blocked (CSP/CORS/network)', async () => {
-        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Refused to connect (CSP)')));
-        expect(await checkImageContentType('https://img.shields.io/badge/x-blue')).toBeNull();
+    it('returns null when the same-origin HEAD fails (network)', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')));
+        expect(await checkImageContentType(sameOrigin('/x'))).toBeNull();
+    });
+
+    it('skips the HEAD entirely for a cross-origin URL (CSP/CORS can never read it)', async () => {
+        const fetchSpy = mockFetch(200, 'image/png');
+        expect(await checkImageContentType(CROSS_ORIGIN)).toBeNull();
+        // No wasted, guaranteed-to-fail request (and no CSP console error).
+        expect(fetchSpy).not.toHaveBeenCalled();
     });
 });
 
@@ -98,23 +110,24 @@ describe('loadImage — undetermined content-type still attempts the load (#3837
         vi.unstubAllGlobals();
     });
 
-    it('loads a cross-origin extensionless image when the HEAD check is CSP-blocked', async () => {
-        // In the shipping app the HEAD fetch to shields.io is refused by CSP, so
-        // the content-type can't be checked — the badge must still load via img-src.
-        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Refused to connect (CSP)')));
+    const sameOrigin = (p: string) => new URL(p, window.location.href).href;
+
+    it('loads a cross-origin extensionless image (its HEAD check is skipped)', async () => {
+        // The shields.io badge's content-type can't be read (CSP/CORS), so the
+        // check is skipped and the badge must still load via the permissive img-src.
         stubImage(true);
         await expect(
             loadImage('https://img.shields.io/badge/example-blue', true),
         ).resolves.toMatchObject({ width: 10, height: 10 });
     });
 
-    it('still rejects when the HEAD check positively reports a non-image type', async () => {
+    it('still rejects when a same-origin HEAD positively reports a non-image type', async () => {
         vi.stubGlobal(
             'fetch',
             vi.fn().mockResolvedValue({ status: 200, headers: { get: () => 'text/html' } }),
         );
         stubImage(true);
-        await expect(loadImage('https://example.com/page', true)).rejects.toBe('not an image.');
+        await expect(loadImage(sameOrigin('/page'), true)).rejects.toBe('not an image.');
     });
 });
 
