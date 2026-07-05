@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { checkImageContentType, getImageSrc } from '../image';
+import { checkImageContentType, getImageSrc, loadImage } from '../image';
 
 // Regression tests for the Phase G "G1" blocker: relative-path images stopped
 // rendering after the @muyajs/core migration because `getImageSrc` returned a
@@ -55,14 +55,66 @@ describe('checkImageContentType — tolerates Content-Type parameters (#3837)', 
         expect(await checkImageContentType('https://example.com/badge')).toBe(true);
     });
 
-    it('rejects a non-image content type', async () => {
+    it('reports a non-image content type as false', async () => {
         mockFetch(200, 'text/html;charset=utf-8');
         expect(await checkImageContentType('https://example.com/page')).toBe(false);
     });
 
-    it('rejects a non-200 response even with an image content type', async () => {
+    it('returns null (undetermined) on a non-200 response', async () => {
         mockFetch(404, 'image/png');
-        expect(await checkImageContentType('https://example.com/missing')).toBe(false);
+        expect(await checkImageContentType('https://example.com/missing')).toBeNull();
+    });
+
+    it('returns null when the HEAD request is blocked (CSP/CORS/network)', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Refused to connect (CSP)')));
+        expect(await checkImageContentType('https://img.shields.io/badge/x-blue')).toBeNull();
+    });
+});
+
+describe('loadImage — undetermined content-type still attempts the load (#3837)', () => {
+    // Drive the <img> load deterministically: setting `src` fires onload/onerror.
+    function stubImage(succeeds: boolean) {
+        class FakeImage {
+            width = 10;
+            height = 10;
+            onload: (() => void) | null = null;
+            onerror: ((err: unknown) => void) | null = null;
+            private _src = '';
+            get src(): string {
+                return this._src;
+            }
+
+            set src(v: string) {
+                this._src = v;
+                queueMicrotask(() =>
+                    succeeds ? this.onload?.() : this.onerror?.(new Error('load failed')),
+                );
+            }
+        }
+        vi.stubGlobal('Image', FakeImage);
+    }
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('loads a cross-origin extensionless image when the HEAD check is CSP-blocked', async () => {
+        // In the shipping app the HEAD fetch to shields.io is refused by CSP, so
+        // the content-type can't be checked — the badge must still load via img-src.
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Refused to connect (CSP)')));
+        stubImage(true);
+        await expect(
+            loadImage('https://img.shields.io/badge/example-blue', true),
+        ).resolves.toMatchObject({ width: 10, height: 10 });
+    });
+
+    it('still rejects when the HEAD check positively reports a non-image type', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({ status: 200, headers: { get: () => 'text/html' } }),
+        );
+        stubImage(true);
+        await expect(loadImage('https://example.com/page', true)).rejects.toBe('not an image.');
     });
 });
 

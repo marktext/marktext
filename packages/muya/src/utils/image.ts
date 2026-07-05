@@ -135,7 +135,10 @@ export async function loadImage(url: string, detectContentType = false): Promise
 }> {
     if (detectContentType) {
         const isImage = await checkImageContentType(url);
-        if (!isImage)
+        // Only bail out when we positively know it is NOT an image. `null`
+        // means we couldn't check (e.g. a cross-origin HEAD blocked by CSP);
+        // fall through to the actual load, which `img-src` permits (#3837).
+        if (isImage === false)
             // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject('not an image.');
     }
@@ -157,26 +160,30 @@ export async function loadImage(url: string, detectContentType = false): Promise
     });
 }
 
-export async function checkImageContentType(url: string) {
+// Returns `true`/`false` when the HEAD response positively identifies the URL
+// as an image (or not), or `null` when that can't be determined — the request
+// was blocked (the renderer CSP has no `connect-src`, so it falls back to the
+// restrictive `default-src 'self'` and cross-origin HEADs throw) or failed on
+// the network. A `null` must NOT be read as "not an image": the actual <img>
+// load is governed by the far more permissive `img-src`, so callers should
+// still attempt it (#3837 — shields.io badges and other extensionless remote
+// images).
+export async function checkImageContentType(url: string): Promise<boolean | null> {
     try {
         const res = await fetch(url, { method: 'HEAD' });
+        if (res.status !== 200)
+            return null;
+
         // Content-Type can carry parameters (e.g. shields.io badges send
-        // `image/svg+xml;charset=utf-8`); match only the MIME type so those
-        // extensionless dynamic images still load (#3837).
+        // `image/svg+xml;charset=utf-8`); match only the MIME type.
         const contentType = res.headers.get('content-type')?.split(';')[0].trim();
+        if (!contentType)
+            return null;
 
-        if (
-            contentType
-            && res.status === 200
-            && /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType)
-        ) {
-            return true;
-        }
-
-        return false;
+        return /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType);
     }
     catch {
-        return false;
+        return null;
     }
 }
 
