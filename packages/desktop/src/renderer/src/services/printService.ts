@@ -9,11 +9,18 @@ class MarkdownPrint {
    *
    * @param html HTML string
    * @param renderStatic Render for static files like PDF documents
+   * @param dir Text direction to mirror onto the container. `innerHTML` drops
+   *   the exporter's outer `<html dir=…>` shell and the container is a sibling
+   *   of `.editor-wrapper`, so RTL documents print LTR unless we set it here
+   *   (#4833). LTR is the default and stays implicit.
    */
-  renderMarkdown(html: string, renderStatic?: boolean): void {
+  renderMarkdown(html: string, renderStatic?: boolean, dir?: string): void {
     this.clearup()
     const printContainer = document.createElement('article')
     printContainer.classList.add('print-container')
+    if (dir === 'rtl' || dir === 'auto') {
+      printContainer.setAttribute('dir', dir)
+    }
     this.container = printContainer
     printContainer.innerHTML = html
 
