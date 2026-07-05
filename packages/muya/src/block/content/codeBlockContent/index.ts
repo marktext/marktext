@@ -199,6 +199,8 @@ class CodeBlockContent extends Content {
 
     private _lastLineCount = -1;
     private _lineNumberResizeObserver: ResizeObserver | null = null;
+    private static readonly _highlightDelay = 300;
+    private _highlightTimer: ReturnType<typeof setTimeout> | null = null;
 
     private _updateLineNumbers(text: string) {
         if (!this.muya.options.codeBlockLineNumbers)
@@ -249,12 +251,62 @@ class CodeBlockContent extends Content {
 
         this._updatePreviewIfHave(text);
 
-        if (needRender) {
-            this.setCursor(start!.offset, end!.offset, true);
+        // An IME commit (compositionend, plus the trailing `insertCompositionText`
+        // input Chromium fires right after it) must NOT rebuild the code DOM here:
+        // update() replaces `domNode.innerHTML`, destroying the text node the IME
+        // is still anchored to, so the next character's composition begins against
+        // a fresh node and corrupts (#4851). The committed text is already in the
+        // live node, so just place the caret and defer the syntax re-highlight
+        // until typing settles.
+        if (this._isImeCommit(event) && !needRender && text === textContent) {
+            this.setCursor(start!.offset, end!.offset);
+            this._scheduleHighlight();
+
+            return;
         }
-        else {
-            // TODO: throttle render
-            this.setCursor(start!.offset, end!.offset, true);
+
+        this._cancelScheduledHighlight();
+        this.setCursor(start!.offset, end!.offset, true);
+    }
+
+    private _isImeCommit(event: Event): boolean {
+        if (event.type === 'compositionend')
+            return true;
+
+        return 'inputType' in event
+            && (event as InputEvent).inputType === 'insertCompositionText';
+    }
+
+    // A trailing debounce so a burst of per-character IME commits re-highlights
+    // at most once, after the user pauses — never synchronously between two
+    // compositions (which destroys the IME's anchor node, #4851). The delay must
+    // outlast the inter-composition gap; 300ms matches the retired muyajs engine.
+    private _scheduleHighlight(): void {
+        this._cancelScheduledHighlight();
+        this._highlightTimer = setTimeout(() => {
+            this._highlightTimer = null;
+            // Detached (setContent / block removed) before the timer fired.
+            if (!this.domNode?.isConnected)
+                return;
+            // A composition may have restarted — never rebuild mid-composition.
+            if (this.isComposed) {
+                this._scheduleHighlight();
+
+                return;
+            }
+            // update() drops the native selection with the old DOM; restore the
+            // caret only when it is still in this block.
+            const cursor = this.getCursor();
+            this.update();
+            if (cursor)
+                this.setCursor(cursor.start.offset, cursor.end.offset);
+        }, CodeBlockContent._highlightDelay);
+    }
+
+    private _cancelScheduledHighlight(): void {
+        if (this._highlightTimer != null) {
+            clearTimeout(this._highlightTimer);
+            this._highlightTimer = null;
         }
     }
 
