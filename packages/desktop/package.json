@@ -107,7 +107,8 @@
     "vega-embed": "^7.1.0",
     "vue-i18n": "^11.4.6",
     "vue-router": "^4.6.4",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "write-file-atomic": "^7.0.1"
   },
   "optionalDependencies": {
     "native-keymap": "^3.3.9"

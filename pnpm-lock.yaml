@@ -219,6 +219,9 @@ importers:
       webfontloader:
         specifier: ^1.6.28
         version: 1.6.28
+      write-file-atomic:
+        specifier: ^7.0.1
+        version: 7.0.1
     devDependencies:
       '@electron/rebuild':
         specifier: ^4.0.4

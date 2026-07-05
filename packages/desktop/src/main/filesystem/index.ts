@@ -1,5 +1,6 @@
-import { readlinkSync, outputFile, remove, rename, type WriteFileOptions } from 'fs-extra'
+import { readlinkSync, ensureDir, type WriteFileOptions } from 'fs-extra'
 import path from 'path'
+import writeFileAtomic from 'write-file-atomic'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
 
 /**
@@ -32,21 +33,17 @@ export const writeFile = async(
   }
   pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
 
-  // Write to a temp file in the SAME directory, then atomically rename it over
-  // the target. A crash/power-loss mid-write can only corrupt the throwaway
-  // temp file, never truncate the user's existing document (#3786, #3828) —
-  // the rename is atomic on a single volume, which same-directory guarantees.
-  // `outputFile` still creates any missing parent directories first, so a save
-  // whose folder was moved/deleted recreates it and succeeds (#3509).
-  const tempPath = path.join(
-    path.dirname(pathname),
-    `.${path.basename(pathname)}.${process.pid}.${Date.now()}.tmp`
-  )
-  try {
-    await outputFile(tempPath, content, options)
-    await rename(tempPath, pathname)
-  } catch (err) {
-    await remove(tempPath).catch(() => {})
-    throw err
-  }
+  // write-file-atomic does not create parent directories; recreate a moved or
+  // deleted folder first so an (auto)save into it still succeeds (#3509).
+  await ensureDir(path.dirname(pathname))
+
+  // Durable atomic save: write to a temp file in the target's directory, fsync
+  // it, then rename it over the target. This survives an application crash AND
+  // a power loss / OS reboot — the fsync before the rename is what closes the
+  // power-loss window that otherwise leaves a full-length, zero-filled file
+  // (#3786, #3828); a bare rename is only namespace-atomic, not data-durable.
+  // write-file-atomic also preserves the target's mode/owner, writes through a
+  // symlink to its target, and uses a unique temp name — all of which a plain
+  // temp+rename dropped.
+  await writeFileAtomic(pathname, content, options)
 }

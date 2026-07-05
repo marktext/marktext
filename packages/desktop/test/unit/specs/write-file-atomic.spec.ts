@@ -1,20 +1,23 @@
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync
+} from 'fs'
 import { tmpdir } from 'os'
 import path from 'path'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import * as fsExtra from 'fs-extra'
+import { afterEach, describe, expect, it } from 'vitest'
 import { writeFile } from 'main_renderer/filesystem'
 
-// #3786 / #3828: saves used a plain (truncate-then-write) `outputFile`, so a
-// crash/power-loss mid-write left the user's document truncated to 0 bytes.
-// writeFile now writes to a temp file in the same directory and renames it over
-// the target, so an interrupted write can only ever corrupt the throwaway temp
-// file — never the existing document. These tests pin that guarantee.
-
-vi.mock('fs-extra', async(importOriginal) => {
-  const actual = await importOriginal<typeof fsExtra>()
-  return { ...actual, rename: vi.fn(actual.rename) }
-})
+// #3786 / #3828: saves must survive an application crash AND a power loss.
+// writeFile writes to a temp file, fsyncs it, then renames it over the target
+// (via write-file-atomic), so an interrupted or unflushed write can never leave
+// the document truncated or zero-filled — and, unlike a plain temp+rename, the
+// target's permission mode is preserved across the save.
 
 const dirs: string[] = []
 function tempDir(): string {
@@ -24,29 +27,11 @@ function tempDir(): string {
 }
 
 afterEach(() => {
-  vi.mocked(fsExtra.rename).mockClear()
   for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true })
 })
 
-describe('writeFile — atomic save (#3786, #3828)', () => {
-  it('leaves the existing file intact when the write fails partway', async() => {
-    const dir = tempDir()
-    const target = path.join(dir, 'note.md')
-    writeFileSync(target, 'ORIGINAL CONTENT')
-
-    // Fail the rename step (the moment a non-atomic write would already have
-    // clobbered the original with a partial/empty file).
-    vi.mocked(fsExtra.rename).mockRejectedValueOnce(new Error('simulated crash'))
-
-    await expect(writeFile(target, 'NEW CONTENT', undefined)).rejects.toThrow()
-
-    // The original document must survive untouched.
-    expect(readFileSync(target, 'utf-8')).toBe('ORIGINAL CONTENT')
-    // No temp turds left behind.
-    expect(readdirSync(dir)).toEqual(['note.md'])
-  })
-
-  it('writes the new content and overwrites an existing file on success', async() => {
+describe('writeFile — durable atomic save (#3786, #3828)', () => {
+  it('overwrites an existing file and leaves no temp file behind', async() => {
     const dir = tempDir()
     const target = path.join(dir, 'note.md')
     writeFileSync(target, 'OLD')
@@ -54,8 +39,17 @@ describe('writeFile — atomic save (#3786, #3828)', () => {
     await writeFile(target, 'NEW', undefined)
 
     expect(readFileSync(target, 'utf-8')).toBe('NEW')
-    // Only the final file remains — no leftover temp file.
+    // The temp file was renamed over the target — nothing left in the dir.
     expect(readdirSync(dir)).toEqual(['note.md'])
+  })
+
+  it('writes a Buffer payload (the markdown save path)', async() => {
+    const dir = tempDir()
+    const target = path.join(dir, 'note.md')
+
+    await writeFile(target, Buffer.from('buffered', 'utf-8'), undefined)
+
+    expect(readFileSync(target, 'utf-8')).toBe('buffered')
   })
 
   it('still recreates a missing parent directory (#3509)', async() => {
@@ -67,4 +61,21 @@ describe('writeFile — atomic save (#3786, #3828)', () => {
     expect(existsSync(path.dirname(target))).toBe(true)
     expect(readFileSync(target, 'utf-8')).toBe('hello')
   })
+
+  it.skipIf(process.platform === 'win32')(
+    'preserves the target file\'s permission mode across a save',
+    async() => {
+      const dir = tempDir()
+      const target = path.join(dir, 'secret.md')
+      writeFileSync(target, 'v1')
+      chmodSync(target, 0o600)
+
+      await writeFile(target, 'v2', undefined)
+
+      expect(readFileSync(target, 'utf-8')).toBe('v2')
+      // A plain temp+rename would install a fresh 0o644 inode; write-file-atomic
+      // restores the original mode.
+      expect(statSync(target).mode & 0o777).toBe(0o600)
+    }
+  )
 })
