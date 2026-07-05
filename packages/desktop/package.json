@@ -107,7 +107,8 @@
     "vega-embed": "^7.1.0",
     "vue-i18n": "^11.4.6",
     "vue-router": "^4.6.4",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "write-file-atomic": "^7.0.1"
   },
   "optionalDependencies": {
     "native-keymap": "^3.3.9"
@@ -126,6 +127,7 @@
     "@types/node": "^22.20.0",
     "@types/turndown": "^5.0.6",
     "@types/webfontloader": "^1.6.38",
+    "@types/write-file-atomic": "^4.0.3",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/coverage-v8": "^4.1.9",
     "cross-env": "^10.1.0",

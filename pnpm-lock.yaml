@@ -219,6 +219,9 @@ importers:
       webfontloader:
         specifier: ^1.6.28
         version: 1.6.28
+      write-file-atomic:
+        specifier: ^7.0.1
+        version: 7.0.1
     devDependencies:
       '@electron/rebuild':
         specifier: ^4.0.4
@@ -259,6 +262,9 @@ importers:
       '@types/webfontloader':
         specifier: ^1.6.38
         version: 1.6.38
+      '@types/write-file-atomic':
+        specifier: ^4.0.3
+        version: 4.0.3
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@7.3.5(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.16.9)(tsx@4.22.4)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
@@ -3560,6 +3566,9 @@ packages:
 
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
+
+  '@types/write-file-atomic@4.0.3':
+    resolution: {integrity: sha512-qdo+vZRchyJIHNeuI1nrpsLw+hnkgqP/8mlaN6Wle/NKhydHmUN9l4p3ZE8yP90AJNJW4uB8HQhedb4f1vNayQ==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -12503,6 +12512,10 @@ snapshots:
   '@types/webfontloader@1.6.38': {}
 
   '@types/whatwg-mimetype@3.0.2': {}
+
+  '@types/write-file-atomic@4.0.3':
+    dependencies:
+      '@types/node': 22.20.0
 
   '@types/ws@8.18.1':
     dependencies:
