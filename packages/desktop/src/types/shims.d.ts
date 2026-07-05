@@ -35,22 +35,6 @@ declare module 'minimatch' {
   export function minimatch(target: string, pattern: string, options?: unknown): boolean
 }
 
-declare module 'write-file-atomic' {
-  interface WriteFileAtomicOptions {
-    encoding?: BufferEncoding | null
-    mode?: string | number
-    chown?: { uid: number; gid: number }
-    fsync?: boolean
-    tmpfileCreated?: (tmpfile: string) => void | Promise<void>
-  }
-  function writeFileAtomic(
-    filename: string,
-    data: string | Uint8Array,
-    options?: WriteFileAtomicOptions | BufferEncoding | null
-  ): Promise<void>
-  export default writeFileAtomic
-}
-
 declare module '@marktext/file-icons' {
   interface FileIcon {
     getClass(colourMode?: number, asObject?: boolean): string

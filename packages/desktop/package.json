@@ -127,6 +127,7 @@
     "@types/node": "^22.20.0",
     "@types/turndown": "^5.0.6",
     "@types/webfontloader": "^1.6.38",
+    "@types/write-file-atomic": "^4.0.3",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vitest/coverage-v8": "^4.1.9",
     "cross-env": "^10.1.0",

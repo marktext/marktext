@@ -1,4 +1,4 @@
-import { readlinkSync, ensureDir, type WriteFileOptions } from 'fs-extra'
+import { readlinkSync, ensureDir } from 'fs-extra'
 import path from 'path'
 import writeFileAtomic from 'write-file-atomic'
 import { isDirectory, isFile, isSymbolicLink } from 'common/filesystem'
@@ -26,7 +26,7 @@ export const writeFile = async(
   pathname: string,
   content: string | Buffer,
   extension?: string,
-  options: WriteFileOptions | undefined = 'utf-8'
+  options: BufferEncoding | undefined = 'utf-8'
 ): Promise<void> => {
   if (!pathname) {
     return Promise.reject(new Error('[ERROR] Cannot save file without path.'))
