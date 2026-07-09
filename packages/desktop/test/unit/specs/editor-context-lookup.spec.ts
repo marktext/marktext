@@ -45,4 +45,10 @@ describe('editor context menu Look Up', () => {
     expect(item.label).toBe('Look Up "markdown"')
     expect(showDefinitionForSelection).toHaveBeenCalledOnce()
   })
+
+  it('renders lookup labels with literal dollar-sign replacement patterns', () => {
+    const item = getLookUp(" $& a$'b $$ $1 ")
+
+    expect(item.label).toBe('Look Up "$& a$\'b $$ $1"')
+  })
 })
