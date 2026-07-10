@@ -46,6 +46,15 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      id: 'sourceLineNumbersMenuItem',
+      label: t('menu.view.showLineNumbers'),
+      type: 'checkbox',
+      checked: true,
+      click(_item, focusedWindow) {
+        actions.toggleSourceLineNumbers(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       type: 'separator'
     },
     {

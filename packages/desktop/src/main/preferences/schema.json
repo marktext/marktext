@@ -120,6 +120,11 @@
     "type": "boolean",
     "default": true
   },
+  "sourceLineNumberFrequency": {
+    "description": "Editor--Line number display frequency in source code mode (0 = off)",
+    "type": "number",
+    "default": 10
+  },
   "trimUnnecessaryCodeBlockEmptyLines": {
     "description": "Editor--Trim the beginning and ending empty lines in code block",
     "type": "boolean",

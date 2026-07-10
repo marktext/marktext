@@ -21,6 +21,33 @@ export const tabSizeOptions: PrefSelectOption<number>[] = [
   }
 ]
 
+export const getSourceLineNumberOptions = (): PrefSelectOption<number>[] => [
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.off'),
+    value: 0
+  },
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.everyLine'),
+    value: 1
+  },
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.every5'),
+    value: 5
+  },
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.every10'),
+    value: 10
+  },
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.every20'),
+    value: 20
+  },
+  {
+    label: t('preferences.editor.codeBlock.sourceLineNumbers.every50'),
+    value: 50
+  }
+]
+
 export const getEndOfLineOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.fileRepresentation.endOfLine.default'),

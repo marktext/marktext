@@ -116,6 +116,7 @@
       "sourceCodeMode": "Quellcode-Modus",
       "typewriterMode": "Schreibmaschinen-Modus",
       "focusMode": "Fokus-Modus",
+      "showLineNumbers": "Show Line Numbers",
       "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
@@ -517,7 +518,16 @@
         "fontSize": "Schriftgröße",
         "fontFamily": "Schriftfamilie",
         "showLineNumbers": "Zeilennummern anzeigen",
-        "removeEmptyLines": "Leere Zeilen entfernen"
+        "removeEmptyLines": "Leere Zeilen entfernen",
+        "sourceLineNumbers": {
+          "title": "Source code line numbers",
+          "off": "Off",
+          "everyLine": "Every line",
+          "every5": "Every 5 lines",
+          "every10": "Every 10 lines",
+          "every20": "Every 20 lines",
+          "every50": "Every 50 lines"
+        }
       },
       "writingBehavior": {
         "title": "Schreibverhalten",

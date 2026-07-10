@@ -116,6 +116,7 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
+      "showLineNumbers": "显示行号",
       "toggleTableOfContents": "切换目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
@@ -517,7 +518,16 @@
         "fontSize": "字体大小",
         "fontFamily": "字体系列",
         "showLineNumbers": "显示行号",
-        "removeEmptyLines": "删除空行"
+        "removeEmptyLines": "删除空行",
+        "sourceLineNumbers": {
+          "title": "源码模式行号",
+          "off": "关闭",
+          "everyLine": "每行",
+          "every5": "每 5 行",
+          "every10": "每 10 行",
+          "every20": "每 20 行",
+          "every50": "每 50 行"
+        }
       },
       "writingBehavior": {
         "title": "写作行为",
