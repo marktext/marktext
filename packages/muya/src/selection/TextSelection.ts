@@ -177,6 +177,9 @@ class TextSelection {
         if (!anchorBlock || !focusBlock)
             return null;
 
+        if (!anchorBlock.outMostBlock || !focusBlock.outMostBlock)
+            return null;
+
         const anchorPath = anchorBlock.path;
         const focusPath = focusBlock.path;
 

@@ -72,6 +72,29 @@ Each subfolder is a floating tool/menu (inline format toolbar, image tools, para
 
 `src/index.ts` is the published entrypoint. The `exports` map in `package.json` points `.` at `./src/index.ts` during development and `./lib/es/index.js` after publish — keep this file the single export hub.
 
+### Appearance contract (typography)
+
+muya renders its own content's typography from two equivalent inputs — pass
+options, or override the CSS custom properties directly (pure-CSS theming).
+The variables are set on the editor root (`.mu-editor`) and consumed by the
+bundled stylesheets; each has a default baked into the CSS, so passing nothing
+renders the standalone defaults.
+
+| Option (`IMuyaOptions`) | CSS variable | Default | Applies to |
+|---|---|---|---|
+| `fontSize` (number, px) | `--mu-font-size` | `16px` | `.mu-editor` base text |
+| `lineHeight` (number) | `--mu-line-height` | `1.6` | `.mu-editor` base text |
+| `editorFontFamily` (string) | `--mu-font-family` | Open Sans stack | `.mu-editor` base text |
+| `codeFontSize` (number, px) | `--mu-code-font-size` | `90%` | `.mu-code-block` only |
+| `codeFontFamily` (string) | `--mu-code-font-family` | DejaVu Sans Mono stack | `.mu-code-block` only |
+| `wrapCodeBlocks` (boolean) | — (`.mu-code-wrap` root class) | off (`pre`) | code-block line wrapping |
+
+Inline code (`code.mu-inline-rule`) is deliberately NOT driven by these — it
+keeps its relative `0.8em` / mono sizing. Editor column width
+(`--editor-area-width`) and the colour palette (`--editor-color-*`) are
+separate, pre-existing contracts owned by the host. All runtime changes go
+through `muya.setOptions({...})`.
+
 ## Conventions enforced by tooling
 
 - **ESLint** (`eslint.config.mjs`, antfu base) adds:

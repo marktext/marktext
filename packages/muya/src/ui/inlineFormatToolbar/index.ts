@@ -56,7 +56,9 @@ const NON_EDITING_KEYS = new Set([
  */
 export class InlineFormatToolbar extends BaseFloat {
     static pluginName = 'formatPicker';
-    public override capturesContentKeydown = true;
+    // Passive float: must not capture nav keys, or Enter over a selection is
+    // swallowed while it's shown (#3196).
+    public override capturesContentKeydown = false;
 
     /** Previous virtual node for patching */
     private _oldVNode: VNode | null = null;

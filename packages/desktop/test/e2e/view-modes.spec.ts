@@ -39,7 +39,6 @@ const waitForChecked = async(
   return last ?? { checked: false, enabled: false }
 }
 
-// Poll the menu item until its `enabled` flag matches `want`.
 const waitForEnabled = async(
   app: ElectronApplication,
   id: string,

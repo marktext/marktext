@@ -187,10 +187,17 @@ export class ParagraphFrontMenu extends BaseFloat {
         event.preventDefault();
         event.stopPropagation();
 
-        if (!this._block)
+        // A single menu open performs at most one action: consume the target
+        // synchronously, then bail unless it is still in the document. This
+        // covers both a rapid second click (a real double-click before the
+        // deferred hide()) and an external command — e.g. the app menu bar —
+        // that unwrapped the block while this menu stayed open. Every action
+        // below assumes `block.parent` (#4686).
+        const block = this._block;
+        this._block = null;
+        if (!block?.parent)
             return;
 
-        const { _block: block } = this;
         const oldState = block.getState();
 
         const cursorBlock = /duplicate|new|delete/.test(label)

@@ -93,6 +93,12 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
                 this.hide();
             }
         });
+
+        // Self-hide when the caret leaves the picker's target block (#4654).
+        eventCenter.on('selection-change', ({ anchorBlock }) => {
+            if (this.status && anchorBlock !== this._block)
+                this.hide();
+        });
     }
 
     render() {
@@ -170,6 +176,11 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
         if (!block)
             return;
 
+        // Bail if the block was detached from the document while the picker
+        // stayed open — mutating an orphaned block crashes on a null parent (#4654).
+        if (!block.outMostBlock)
+            return;
+
         function isParagraphContent(
             b: ParagraphContent | LangInputContent,
         ): b is ParagraphContent {
@@ -190,10 +201,11 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
             codeContent?.setCursor(0, 0);
         }
         else {
+            const codeBlock = block.parent!;
             block.text = name;
             block.update();
-            block.parent!.lang = name;
-            block.parent?.lastContentInDescendant()?.setCursor(0, 0);
+            codeBlock.lang = name;
+            codeBlock.lastContentInDescendant()?.setCursor(0, 0);
         }
 
         super.selectItem(item);

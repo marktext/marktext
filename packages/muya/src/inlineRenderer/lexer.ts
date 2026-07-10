@@ -5,8 +5,9 @@ import type {
     Labels,
     Token,
 } from './types';
+import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
-import { beginRules, inlineRules, validateRules } from './rules';
+import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
     getAttributes,
@@ -114,7 +115,6 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     }
 }
 
-// backlash
 function tryBacklash(state: ILexState): boolean {
     const backTo = state.inlineRules.backlash.exec(state.src);
     if (!backTo)
@@ -140,7 +140,6 @@ function tryBacklash(state: ILexState): boolean {
     return true;
 }
 
-// strong | em
 function tryStrongEm(state: ILexState): boolean {
     const emRules = ['strong', 'em'] as const;
 
@@ -198,11 +197,17 @@ function tryChunks(state: ILexState): boolean {
     for (const rule of chunks) {
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
-            if (
-                rule === 'emoji'
-                && !lowerPriority(state.src, to[0].length, validateRules)
-            ) {
-                return false;
+            if (rule === 'emoji') {
+                // An emoji opener must sit at a word boundary: a ":" glued to a
+                // preceding letter/digit (e.g. the colons in "12:00-14:00") is
+                // not the start of a shortcode (#1677).
+                const prevChar = state.originSrc[state.pos - 1];
+                if (
+                    (prevChar && /\w/.test(prevChar))
+                    || !lowerPriority(state.src, to[0].length, validateRules)
+                ) {
+                    return false;
+                }
             }
             pushPending(state);
             const range = {
@@ -254,7 +259,6 @@ function tryChunks(state: ILexState): boolean {
     return false;
 }
 
-// superscript and subscript
 function trySuperSubScript(state: ILexState): boolean {
     if (!state.superSubScript)
         return false;
@@ -282,7 +286,6 @@ function trySuperSubScript(state: ILexState): boolean {
     return true;
 }
 
-// footnote identifier
 function tryFootnote(state: ILexState): boolean {
     if (state.pos === 0 || !state.footnote)
         return false;
@@ -309,7 +312,6 @@ function tryFootnote(state: ILexState): boolean {
     return true;
 }
 
-// image
 function tryImage(state: ILexState): boolean {
     const imageTo = state.inlineRules.image.exec(state.src);
     correctUrl(imageTo);
@@ -348,7 +350,6 @@ function tryImage(state: ILexState): boolean {
     return true;
 }
 
-// link
 function tryLink(state: ILexState): boolean {
     const linkTo = state.inlineRules.link.exec(state.src);
     correctUrl(linkTo);
@@ -361,7 +362,7 @@ function tryLink(state: ILexState): boolean {
             // than links. If a higher-priority inline rule matches a span
             // that extends past the tentative link's range, defer to it.
             // Covers CM 0.29 examples 520 (HTML tag) and 521 (code span).
-            && lowerPriority(state.src, linkTo[0].length, validateRules)
+            && lowerPriority(state.src, linkTo[0].length, linkValidateRules)
         )
     ) {
         return false;
@@ -414,7 +415,7 @@ function tryReferenceLink(state: ILexState): boolean {
             && state.labels.has((rLinkTo[3] || rLinkTo[1]).toLowerCase())
             && isLengthEven(rLinkTo[2])
             && isLengthEven(rLinkTo[4])
-            && lowerPriority(state.src, rLinkTo[0].length, validateRules)
+            && lowerPriority(state.src, rLinkTo[0].length, linkValidateRules)
         )
     ) {
         return false;
@@ -491,7 +492,6 @@ function tryReferenceImage(state: ILexState): boolean {
     return true;
 }
 
-// html escape
 function tryHtmlEscape(state: ILexState): boolean {
     const htmlEscapeTo = state.inlineRules.html_escape.exec(state.src);
     if (!htmlEscapeTo)
@@ -515,7 +515,60 @@ function tryHtmlEscape(state: ILexState): boolean {
     return true;
 }
 
-// auto link extension
+// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
+// www/url autolink's extent to drop characters that are not part of the link.
+// The match is greedy (`\S+`), so these are applied after the regex, mirroring
+// cmark-gfm's `autolink_delim`:
+//   - a `<` ends the autolink;
+//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
+//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
+//     autolink can sit inside parentheses;
+//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
+// The last three rules interleave and are applied repeatedly (e.g. `).`).
+function trimAutoLinkExtent(raw: string): string {
+    let end = raw.length;
+
+    const lt = raw.indexOf('<');
+    if (lt !== -1)
+        end = lt;
+
+    let changed = true;
+    while (changed && end > 0) {
+        changed = false;
+        const c = raw[end - 1];
+
+        if ('?!.,:*_~'.includes(c)) {
+            end -= 1;
+            changed = true;
+        }
+        else if (c === ')') {
+            let opening = 0;
+            let closing = 0;
+            for (let i = 0; i < end; i++) {
+                if (raw[i] === '(')
+                    opening += 1;
+                else if (raw[i] === ')')
+                    closing += 1;
+            }
+            if (closing > opening) {
+                end -= 1;
+                changed = true;
+            }
+        }
+        else if (c === ';') {
+            let entityStart = end - 2;
+            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
+                entityStart -= 1;
+            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
+                end = entityStart;
+                changed = true;
+            }
+        }
+    }
+
+    return raw.slice(0, end);
+}
+
 function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
     if (
@@ -528,27 +581,45 @@ function tryAutoLinkExtension(state: ILexState): boolean {
         return false;
     }
 
+    let raw = autoLinkExtTo[0];
+    let www = autoLinkExtTo[1];
+    let url = autoLinkExtTo[2];
+    const email = autoLinkExtTo[3];
+
+    // GFM §6.9: trim characters that are not part of a www/url autolink so the
+    // leftover renders as plain text instead (#2096). Email autolinks are
+    // unaffected (their extent is fixed by the domain regex).
+    if (!email) {
+        const trimmed = trimAutoLinkExtent(raw);
+        if (trimmed.length !== raw.length) {
+            raw = trimmed;
+            if (www)
+                www = trimmed;
+            if (url)
+                url = trimmed;
+        }
+    }
+
     pushPending(state);
     state.tokens.push({
         type: 'auto_link_extension',
-        raw: autoLinkExtTo[0],
-        www: autoLinkExtTo[1],
-        url: autoLinkExtTo[2],
-        email: autoLinkExtTo[3],
-        linkType: autoLinkExtTo[1] ? 'www' : autoLinkExtTo[2] ? 'url' : 'email',
+        raw,
+        www,
+        url,
+        email,
+        linkType: www ? 'www' : url ? 'url' : 'email',
         parent: state.tokens,
         range: {
             start: state.pos,
-            end: state.pos + autoLinkExtTo[0].length,
+            end: state.pos + raw.length,
         },
     });
-    state.src = state.src.substring(autoLinkExtTo[0].length);
-    state.pos = state.pos + autoLinkExtTo[0].length;
+    state.src = state.src.substring(raw.length);
+    state.pos = state.pos + raw.length;
 
     return true;
 }
 
-// auto link
 function tryAutoLink(state: ILexState): boolean {
     const autoLTo = state.inlineRules.auto_link.exec(state.src);
     if (!autoLTo)
@@ -645,7 +716,6 @@ function tryHtmlTag(state: ILexState): boolean {
     return false;
 }
 
-// soft line break
 function trySoftLineBreak(state: ILexState): boolean {
     const softTo = state.inlineRules.soft_line_break.exec(state.src);
     if (!softTo)
@@ -670,7 +740,6 @@ function trySoftLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// hard line break
 function tryHardLineBreak(state: ILexState): boolean {
     const hardTo = state.inlineRules.hard_line_break.exec(state.src);
     if (!hardTo)
@@ -696,7 +765,6 @@ function tryHardLineBreak(state: ILexState): boolean {
     return true;
 }
 
-// tail header
 function tryTailHeader(state: ILexState): boolean {
     const tailTo = state.inlineRules.tail_header.exec(state.src);
     if (!(tailTo && state.top))
@@ -827,11 +895,109 @@ export function tokenizer(src: string, {
 
 // transform `tokens` to text ignore the range of token
 // the opposite of tokenizer
-export function generator(tokens: Token[]) {
+// Rebuild a marker-wrapped token from its children instead of its stale cached
+// `raw` (#2063). Link/image keep their stored raw.
+function rebuildWrapperToken(token: Token): string {
+    switch (token.type) {
+        case 'strong':
+        case 'em':
+        case 'del':
+            return token.marker + generator(token.children, true) + token.marker;
+
+        case 'html_tag':
+            if (token.openTag != null && token.closeTag != null && token.children != null)
+                return token.openTag + generator(token.children, true) + token.closeTag;
+
+            return token.raw;
+
+        default:
+            return token.raw;
+    }
+}
+
+// `rebuildWrappers` is opt-in: only `format()` mutates a wrapper's children;
+// `backspaceHandler` trims a marker off `raw` and needs it echoed verbatim.
+export function generator(tokens: Token[], rebuildWrappers = false) {
     let result = '';
 
     for (const token of tokens)
-        result += token.raw;
+        result += rebuildWrappers ? rebuildWrapperToken(token) : token.raw;
+
+    return result;
+}
+
+// The reader-facing text of inline tokens with every marker, delimiter, URL and
+// tag dropped — `**bold**` → `bold`, `[text](url)` → `text`, `![alt](src)` →
+// `alt`. Mirrors the visible `textContent` a rendered heading yields, so a slug
+// derived from this matches the anchor id the HTML export injects
+// (state/markdownToHtml.ts injects ids from `heading.textContent`). The TOC uses
+// it to show and slug headings by their rendered text instead of raw source
+// (#4811).
+export function tokensToPlainText(tokens: Token[]): string {
+    let result = '';
+
+    for (const token of tokens) {
+        switch (token.type) {
+            case 'text':
+            case 'inline_code':
+            case 'inline_math':
+            case 'emoji':
+            case 'super_sub_script':
+            case 'footnote_identifier':
+                result += token.content;
+                break;
+
+            case 'strong':
+            case 'em':
+            case 'del':
+            case 'link':
+            case 'reference_link':
+                result += tokensToPlainText(token.children);
+                break;
+
+            case 'image':
+            case 'reference_image':
+                result += token.alt;
+                break;
+
+            case 'html_tag':
+                if (token.children)
+                    result += tokensToPlainText(token.children);
+                else if (token.content)
+                    result += token.content;
+                break;
+
+            case 'backlash':
+                // `content` is empty; the escaped char is `raw` minus its leading `\`.
+                result += token.raw.replace(/^\\/, '');
+                break;
+
+            case 'html_escape':
+                result += escapeCharactersMap[token.escapeCharacter] ?? token.raw;
+                break;
+
+            case 'auto_link':
+                // `<http://x>` / `<foo@bar.com>` show verbatim between the
+                // angle brackets — `href` may carry an added `mailto:` scheme.
+                result += token.raw.replace(/^<|>$/g, '');
+                break;
+
+            case 'auto_link_extension':
+                result += token.raw;
+                break;
+
+            case 'soft_line_break':
+            case 'hard_line_break':
+                result += ' ';
+                break;
+
+            // header / hr / code_fence / multiple_math begin markers, the
+            // reference_definition line, and an atx heading's tail `#`s carry no
+            // reader-facing text.
+            default:
+                break;
+        }
+    }
 
     return result;
 }

@@ -9,6 +9,7 @@ import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { URL_REG } from '../config';
+import { tokenizer } from '../inlineRenderer/lexer';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
@@ -98,6 +99,38 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
     const originState = originWrapperBlock!.getState() as { text?: string };
     if (originState.text === '')
         originWrapperBlock!.remove();
+}
+
+function isSinglePlainUrl(text: string): boolean {
+    return URL_REG.test(text) && !/\s/.test(text);
+}
+
+function canPlainUrlFallbackAutoLink(
+    text: string,
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    const candidate
+        = content.substring(0, start.offset)
+            + text
+            + content.substring(end.offset);
+
+    return tokenizer(candidate, { hasBeginRules: false }).some(token =>
+        token.type === 'auto_link_extension'
+        && token.linkType === 'url'
+        && token.range.start === start.offset
+        && token.range.end === start.offset + text.length,
+    );
+}
+
+function shouldPreserveBareUrlLinkForPaste(
+    text: string,
+    content: string,
+    start: { offset: number },
+    end: { offset: number },
+): boolean {
+    return isSinglePlainUrl(text) && !canPlainUrlFallbackAutoLink(text, content, start, end);
 }
 
 function seatCursorAtSeam(last: Nullable<Parent>, offset: number): void {
@@ -206,6 +239,39 @@ function itemParaContent(list: Parent, itemIndex: number, paraIndex: number): Nu
     return para?.firstContentInDescendant() ?? null;
 }
 
+interface IListMergeSeam {
+    foldedOnly: boolean;
+    itemIndex: number;
+    paraIndex: number;
+    head: string;
+    sewOffset: number;
+    canFold: boolean;
+    pastedCount: number;
+    trailingStates: TState[];
+}
+
+// Seat the caret after a list-merge rebuilds the list block: inside the folded
+// paragraph, on trailing non-list content, or on the last pasted item (which is
+// spliced in after the anchor, so it is no longer the list's last descendant).
+function seatListMergeCursor(muya: Muya, newList: Parent, seam: IListMergeSeam): void {
+    const { foldedOnly, itemIndex, paraIndex, head, sewOffset, canFold, pastedCount, trailingStates } = seam;
+    if (foldedOnly) {
+        const cursor = itemParaContent(newList, itemIndex, paraIndex);
+        const offset = head.length + sewOffset;
+        cursor?.setCursor(offset, offset, true);
+
+        return;
+    }
+    if (trailingStates.length > 0) {
+        const last = insertStatesAfter(muya, newList, trailingStates);
+        seatCursorAtSeam(last, sewOffset);
+
+        return;
+    }
+    const lastPastedIndex = itemIndex + pastedCount - (canFold ? 1 : 0);
+    seatCursorAtSeam(newList.find(lastPastedIndex) as Nullable<Parent>, sewOffset);
+}
+
 // Same list kind + same bullet marker / order delimiter.
 function listMarkersMatch(a: TState, b: TState): boolean {
     if (a.name === 'order-list' && b.name === 'order-list')
@@ -268,7 +334,7 @@ function tryMergeListPaste(
     if (canFold) {
         anchorPara.text = head + pastedFirst.text;
         currentItem.children = [...currentItem.children, ...pastedItems[0].children.slice(1)];
-        mergedChildren.push(...pastedItems.slice(1));
+        mergedChildren.splice(itemIndex + 1, 0, ...pastedItems.slice(1));
         // The whole paste folded into `anchorPara` (no extra blocks/items): the
         // caret stays in that paragraph at the seam.
         foldedOnly
@@ -278,7 +344,7 @@ function tryMergeListPaste(
     }
     else {
         anchorPara.text = head;
-        mergedChildren.push(...pastedItems);
+        mergedChildren.splice(itemIndex + 1, 0, ...pastedItems);
     }
 
     const loose = listState.meta.loose || firstState.meta.loose;
@@ -294,15 +360,16 @@ function tryMergeListPaste(
     );
     listBlock.replaceWith(newList);
 
-    if (foldedOnly) {
-        const cursor = itemParaContent(newList, itemIndex, paraIndex);
-        const offset = head.length + sewOffset;
-        cursor?.setCursor(offset, offset, true);
-    }
-    else {
-        const last = insertStatesAfter(clipboard.muya, newList, states.slice(1));
-        seatCursorAtSeam(last, sewOffset);
-    }
+    seatListMergeCursor(clipboard.muya, newList as Parent, {
+        foldedOnly,
+        itemIndex,
+        paraIndex,
+        head,
+        sewOffset,
+        canFold,
+        pastedCount: pastedItems.length,
+        trailingStates: states.slice(1),
+    });
 
     return true;
 }
@@ -319,8 +386,8 @@ function applyParsedPaste(
     const { muya } = clipboard;
     const { anchorBlock, start, end, content } = ctx;
 
-    // An empty / whitespace-only paste is a no-op; the parser would otherwise
-    // emit a lone empty paragraph and churn blocks.
+    // An empty / whitespace-only paste is a no-op while parsing; non-empty
+    // inline whitespace from text/plain is routed through literal insertion.
     if (markdown.trim().length === 0)
         return;
 
@@ -540,6 +607,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
 
     const { imageFile, pasteType } = data;
     let { html } = data;
+    // Preserve source provenance before synthetic URL/table HTML promotion.
+    const hasClipboardHtml = html !== '';
     // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
     // and offset calculation sees one newline convention (muyajs strips \r).
     const text = data.text.replace(/\r\n?/g, '\n');
@@ -567,8 +636,19 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     if (!html && isStandaloneTableHtml(text))
         html = text;
 
+    const cursorBeforeNormalize = anchorBlock.getCursor();
+
     // Remove crap from HTML such as meta data and styles.
-    html = await normalizePastedHTML(html);
+    html = await normalizePastedHTML(html, {
+        preserveBareUrlLinks: hasClipboardHtml
+            && cursorBeforeNormalize != null
+            && shouldPreserveBareUrlLinkForPaste(
+                text,
+                anchorBlock.text,
+                cursorBeforeNormalize.start,
+                cursorBeforeNormalize.end,
+            ),
+    });
     const copyType = getCopyTextType(html, text, pasteType);
 
     const { start, end } = anchorBlock.getCursor()!;
@@ -597,10 +677,12 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 || anchorBlock.blockName === 'table.cell.content'
                 || anchorBlock.blockName === 'codeblock.content';
 
-        if (!isLiteralAnchor)
-            applyParsedPaste(clipboard, ctx, markdown);
+        const isPlainInlineSpaces = /^ +$/.test(text);
+
+        if (isLiteralAnchor || isPlainInlineSpaces)
+            applyLiteralPaste(clipboard, ctx, isPlainInlineSpaces ? text : markdown);
         else
-            applyLiteralPaste(clipboard, ctx, markdown);
+            applyParsedPaste(clipboard, ctx, markdown);
     }
     else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
         // Paste as Plain Text inserts block-level HTML as literal text, not a

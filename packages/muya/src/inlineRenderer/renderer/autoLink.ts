@@ -28,7 +28,7 @@ export default function autoLink(
         token,
     );
 
-    const hyperlink = isLink ? encodeURI(href) : `mailto:${email}`;
+    const hyperlink = isLink ? href : `mailto:${email}`;
 
     return [
         h(`span.${className}`, startMarker),
@@ -41,6 +41,11 @@ export default function autoLink(
                 props: {
                     href: sanitizeHyperlink(hyperlink),
                     target: '_blank',
+                },
+                dataset: {
+                    start: String(start),
+                    end: String(end),
+                    raw: token.raw,
                 },
             },
             content,

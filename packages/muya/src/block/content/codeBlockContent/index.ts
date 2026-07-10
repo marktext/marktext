@@ -9,7 +9,7 @@ import type {
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML } from '../../../utils';
+import { adjustOffset, escapeHTML, firstWordOfInfo } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -22,8 +22,12 @@ function checkAutoIndent(text: string, offset: number) {
     return /^(?:\{\}|\[\]|\(\)|><)$/.test(pairStr);
 }
 
-function getIndentSpace(text: string) {
-    const match = /^(\s*)\S/.exec(text);
+function getIndentSpace(text: string, offset: number) {
+    const lineStart = text.lastIndexOf('\n', offset - 1) + 1;
+    let lineEnd = text.indexOf('\n', lineStart);
+    if (lineEnd === -1)
+        lineEnd = text.length;
+    const match = /^(\s*)\S/.exec(text.slice(lineStart, lineEnd));
 
     return match ? match[1] : '';
 }
@@ -93,10 +97,15 @@ class CodeBlockContent extends Content {
         return content;
     }
 
+    // The language word for highlighting / tokenizing — the first word of the
+    // code container's info string (which may carry attributes, e.g.
+    // `js title="x"`). Every consumer of `_lang` wants the language, never the
+    // full info string (that is read from `meta.lang` directly by the language
+    // input), so derive it once here.
     private get _lang() {
         const { _codeContainer: codeContainer } = this;
 
-        return codeContainer ? codeContainer.lang : this._initialLang;
+        return firstWordOfInfo(codeContainer ? codeContainer.lang : this._initialLang);
     }
 
     /**
@@ -114,8 +123,14 @@ class CodeBlockContent extends Content {
             : codeContainer!.parent;
     }
 
+    // The text the preview was last rendered from. Seeded with the initial
+    // text so the create-pass update() does not re-trigger a render that races
+    // the preview's own one-shot render on append (async for diagrams).
+    private _lastPreviewText: string;
+
     constructor(muya: Muya, state: CodeContentState) {
         super(muya, state.text);
+        this._lastPreviewText = state.text;
         if (hasStateMeta(state))
             this._initialLang = state.meta.lang;
         else
@@ -134,6 +149,17 @@ class CodeBlockContent extends Content {
 
     // Some block has a preview container, like math, diagram, html, should update the preview if the text changed.
     private _updatePreviewIfHave(text: string) {
+        // update() runs during the initial create pass before this block is
+        // attached, when outContainer cannot resolve its parent chain.
+        if (!this._codeContainer)
+            return;
+        // Only re-render when the text actually changed. update() is called on
+        // every render pass; without this guard a diagram's create-pass render
+        // and update()'s render race (DiagramPreview.update is async), leaving
+        // the SVG unmounted.
+        if (text === this._lastPreviewText)
+            return;
+        this._lastPreviewText = text;
         if (this.outContainer?.attachments?.length)
             (this.outContainer?.attachments?.head as HTMLPreview).update(text);
     }
@@ -166,9 +192,13 @@ class CodeBlockContent extends Content {
         }
 
         this._updateLineNumbers(text);
+        // Re-render the math/diagram/html preview too; undo/redo reaches this
+        // block only through update(), not inputHandler (#1632).
+        this._updatePreviewIfHave(text);
     }
 
     private _lastLineCount = -1;
+    private _lineNumberResizeObserver: ResizeObserver | null = null;
 
     private _updateLineNumbers(text: string) {
         if (!this.muya.options.codeBlockLineNumbers)
@@ -181,12 +211,23 @@ class CodeBlockContent extends Content {
             syncLineNumbersSpans(wrapper, count);
             this._lastLineCount = count;
         }
-        // Reposition on every update so wrap-mode line breaks are reflected.
-        const codeEl = this.domNode;
-        requestAnimationFrame(() => {
-            if (codeEl && wrapper.isConnected)
+        this._observeLineNumberResize(wrapper);
+    }
+
+    // Re-measure the gutter after any code-block reflow (initial render, font /
+    // wrap change, content edit, viewport resize). Fires post-layout, so it
+    // can't read stale positions; owns all repositioning.
+    private _observeLineNumberResize(wrapper: HTMLElement) {
+        if (this._lineNumberResizeObserver != null || typeof ResizeObserver === 'undefined')
+            return;
+        const codeEl = this.domNode!;
+        this._lineNumberResizeObserver = new ResizeObserver(() => {
+            if (codeEl.isConnected && wrapper.isConnected)
                 repositionLineNumberSpans(wrapper, codeEl);
+            else
+                this._lineNumberResizeObserver?.disconnect();
         });
+        this._lineNumberResizeObserver.observe(codeEl);
     }
 
     override inputHandler(event: Event): void {
@@ -249,7 +290,7 @@ class CodeBlockContent extends Content {
         const { start } = this.getCursor()!;
         const { text } = this;
         const autoIndent = checkAutoIndent(text, start.offset);
-        const indent = getIndentSpace(text);
+        const indent = getIndentSpace(text, start.offset);
 
         this.text
             = `${text.substring(0, start.offset)
@@ -381,7 +422,7 @@ class CodeBlockContent extends Content {
             // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
-                const tokens = prism.tokenize(text, prism.languages[lang]);
+                const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
                 let offset = start.offset;
                 let code = '';
                 let needRender = false;

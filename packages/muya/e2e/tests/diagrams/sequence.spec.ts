@@ -34,7 +34,6 @@ test.describe('sequence diagram', () => {
         const svg = page.locator(`${editor.diagramPreview} svg`).first();
         await expect(svg).toBeVisible({ timeout: 15_000 });
 
-        // The vendored renderer always tags the svg with the `sequence` class.
         await expect(svg).toHaveClass(/sequence/);
     });
 

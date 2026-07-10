@@ -16,11 +16,13 @@
     "katex",
     "laynezh",
     "marktext",
+    "mathblock",
     "muya",
     "Setext",
     "snabbdom",
     "snapsvg",
     "Tkaixiang",
+    "TOGGLEABLE",
     "webfontloader"
   ]
 }

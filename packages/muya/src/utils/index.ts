@@ -50,6 +50,14 @@ export const isLengthEven = (str = '') => str.length % 2 === 0;
 export function snakeToCamel(name: string) {
     return name.replace(/_([a-z])/g, (_p0, p1) => p1.toUpperCase());
 }
+
+// The fenced code block info string's first non-whitespace run is the
+// "language" used for syntax highlighting and the `language-*` class
+// (CommonMark §4.5). The rest of the info string is preserved as-is on the
+// block so the fence round-trips.
+export function firstWordOfInfo(info: string): string {
+    return info.match(/\S*/)?.[0] ?? '';
+}
 /**
  *  Are two arrays have intersection
  */

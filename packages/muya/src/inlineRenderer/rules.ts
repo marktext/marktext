@@ -31,8 +31,12 @@ export const commonMarkRules = {
     image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
     link: /^(\[)((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\]\((.*)(\\*)\)/, // can nest
+    // Link text can hold balanced brackets — notably an image `![alt](src)` —
+    // so mirror `link`'s nesting-capable anchor group instead of the bracket-
+    // free `[^\]]+?`, which stopped at the image's inner `]` and broke
+    // `[![alt](img)][ref]` (#4865).
     // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_link: /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+    reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     html_tag:
@@ -110,3 +114,17 @@ export const validateRules: ValidateRules = (Object.keys(inlineRules) as InlineR
         };
     }
 }, {} as ValidateRules);
+
+// Veto set used when validating a tentative `[text](url)` / reference link.
+// Per CommonMark §6.6 only code spans, raw HTML tags and `<...>` autolinks bind
+// more tightly than a link, so only those may defer a link that overlaps them
+// (CM 0.29 examples 520/521). Using the full `validateRules` here is wrong: a
+// GFM extended (bare-URL) autolink or the link rule's own greedy destination
+// match would extend past the tentative link and veto it, dropping links such
+// as `[t](https://x)、` or `[t](https://x)foo` and the first of two links on a
+// line (#4671).
+export const linkValidateRules: Pick<InlineRules, 'inline_code' | 'html_tag' | 'auto_link'> = {
+    inline_code: inlineRules.inline_code,
+    html_tag: inlineRules.html_tag,
+    auto_link: inlineRules.auto_link,
+};

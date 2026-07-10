@@ -91,13 +91,17 @@ const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 
 const handleInputFocus = (): void => {
+  // Only the folder that is the create target reacts. Expand it FIRST so the
+  // create input renders even when the folder was collapsed, then focus it on
+  // the next tick — previously the expand sat behind `if (input.value)`, which
+  // is null while collapsed, so New File on a collapsed folder did nothing
+  // (#3439).
+  if (createCache.value.dirname !== props.folder.pathname) return
+  isCollapsed.value = false
   nextTick(() => {
     if (input.value) {
       input.value.focus()
       createName.value = ''
-      if (props.folder) {
-        isCollapsed.value = false
-      }
     }
   })
 }

@@ -288,8 +288,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, type Ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, type Ref } from 'vue'
 import bus from '../../bus'
+import { loadExportSettings, saveExportSettings } from './persistence'
 import Bool from '@/prefComponents/common/bool/index.vue'
 import CurSelect from '@/prefComponents/common/select/index.vue'
 import FontTextBox from '@/prefComponents/common/fontTextBox/index.vue'
@@ -338,7 +339,57 @@ const headerFooterFontSize = ref(12)
 const tocTitle = ref('')
 const tocIncludeTopHeading = ref(true)
 
+// #2287 — persist the chosen export options across sessions. Every option ref
+// is registered here; changes are saved to localStorage and restored on mount.
+const persistableSettings: Record<string, Ref<unknown>> = {
+  htmlTitle,
+  pageSize,
+  pageSizeWidth,
+  pageSizeHeight,
+  isLandscape,
+  pageMarginTop,
+  pageMarginRight,
+  pageMarginBottom,
+  pageMarginLeft,
+  fontSettingsOverwrite,
+  fontFamily,
+  fontSize,
+  lineHeight,
+  autoNumberingHeadings,
+  showFrontMatter,
+  theme,
+  headerType,
+  headerTextLeft,
+  headerTextCenter,
+  headerTextRight,
+  footerType,
+  footerTextLeft,
+  footerTextCenter,
+  footerTextRight,
+  headerFooterCustomize,
+  headerFooterStyled,
+  headerFooterFontSize,
+  tocTitle,
+  tocIncludeTopHeading
+}
+
+const restoreExportSettings = () => {
+  const saved = loadExportSettings()
+  for (const [key, settingRef] of Object.entries(persistableSettings)) {
+    if (key in saved) settingRef.value = saved[key]
+  }
+}
+
+watch(Object.values(persistableSettings), () => {
+  saveExportSettings(
+    Object.fromEntries(
+      Object.entries(persistableSettings).map(([key, settingRef]) => [key, settingRef.value])
+    )
+  )
+})
+
 onMounted(() => {
+  restoreExportSettings()
   bus.on('showExportDialog', showDialog)
   bus.on('language-changed', updateTranslations)
 })

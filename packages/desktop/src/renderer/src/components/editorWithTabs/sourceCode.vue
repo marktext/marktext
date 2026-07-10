@@ -205,6 +205,26 @@ const handleSelectAll = () => {
   }
 }
 
+const handleUndo = () => {
+  if (!sourceCode.value) {
+    return
+  }
+
+  if (editor.value) {
+    editor.value.execCommand('undo')
+  }
+}
+
+const handleRedo = () => {
+  if (!sourceCode.value) {
+    return
+  }
+
+  if (editor.value) {
+    editor.value.execCommand('redo')
+  }
+}
+
 interface ImageActionPayload {
   id: string
   result: string
@@ -355,6 +375,8 @@ onMounted(() => {
   bus.on('invalidate-image-cache', handleInvalidateImageCache)
   bus.on('file-changed', handleFileChange)
   bus.on('selectAll', handleSelectAll)
+  bus.on('undo', handleUndo)
+  bus.on('redo', handleRedo)
   bus.on('image-action', handleImageAction)
   bus.on('scroll-to-header', handleScrollToHeader)
 
@@ -394,6 +416,8 @@ onBeforeUnmount(() => {
   bus.off('invalidate-image-cache', handleInvalidateImageCache)
   bus.off('file-changed', handleFileChange)
   bus.off('selectAll', handleSelectAll)
+  bus.off('undo', handleUndo)
+  bus.off('redo', handleRedo)
   bus.off('image-action', handleImageAction)
   editorStore.SET_SELECTION_WORD_COUNT(null)
   lastSelectedText = ''

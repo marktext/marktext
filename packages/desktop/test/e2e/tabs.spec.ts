@@ -299,6 +299,71 @@ test.describe('Tab management', () => {
     }
   })
 
+  // Issue #3958 — switching to a tab that has overflowed off the right edge of
+  // the tab bar must scroll it back into the visible viewport. Before the fix
+  // the active tab is highlighted but invisible (the strip never scrolls), so
+  // the user can't see which tab they're on. Runs in its own app because it
+  // opens many tabs to force horizontal overflow.
+  test('Switching to an overflowed tab scrolls it into view', async() => {
+    const launch = await launchWithMarkdown('# overflow base\n')
+    const sApp = launch.app
+    const sPage = launch.page
+    try {
+      // Open enough untitled tabs to overflow the tab strip horizontally,
+      // regardless of the test window width.
+      const TAB_COUNT = 25
+      for (let i = 0; i < TAB_COUNT; i++) {
+        const before = await sPage.locator(tabSelector).count()
+        await sendIpcToRenderer(sApp, 'mt::new-untitled-tab', true, `overflow body ${i}\n`)
+        await sPage.waitForFunction(
+          ({ selector, prev }) => document.querySelectorAll(selector).length > prev,
+          { selector: tabSelector, prev: before },
+          { timeout: 5000 }
+        )
+      }
+
+      // The strip must genuinely overflow, otherwise the assertions below are
+      // vacuously true.
+      await expect
+        .poll(
+          () =>
+            sPage.evaluate(() => {
+              const c = document.querySelector('.scrollable-tabs') as HTMLElement | null
+              return !!c && c.scrollWidth > c.clientWidth + 4
+            }),
+          { timeout: 5000 }
+        )
+        .toBe(true)
+
+      // The active tab's box must sit fully inside the scroll viewport.
+      const activeTabVisible = () =>
+        sPage.evaluate(() => {
+          const container = document.querySelector('.scrollable-tabs')
+          const tab = document.querySelector('.tabs-container > li.active')
+          if (!container || !tab) return false
+          const c = container.getBoundingClientRect()
+          const t = tab.getBoundingClientRect()
+          return t.width > 0 && t.left >= c.left - 1 && t.right <= c.right + 1
+        })
+
+      // Far-left tab: must be brought into view.
+      await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', 0)
+      await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
+
+      // Far-right (last) tab: at scrollLeft 0 it is off the right edge — the
+      // regression. Switching to it must scroll the strip so it's visible.
+      const ids = await readTabIds(sPage)
+      await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', ids.length - 1)
+      await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
+
+      // Back to the first tab: must scroll left again.
+      await sendIpcToRenderer(sApp, 'mt::switch-tab-by-index', 0)
+      await expect.poll(activeTabVisible, { timeout: 5000 }).toBe(true)
+    } finally {
+      await sApp.close()
+    }
+  })
+
   // Item 267 — the tab context-menu "close others / close saved / close all"
   // survivor sets. Driven through the live `editor` store actions (the bus
   // events delegate verbatim to these; the native context menu / mitt bus are

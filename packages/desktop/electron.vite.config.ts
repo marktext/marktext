@@ -1,4 +1,5 @@
 import { resolve, dirname } from 'path'
+import type { PluginOption } from 'vite'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
@@ -94,13 +95,20 @@ export default defineConfig({
         }
       }
     },
-    plugins: [vue(), svgLoader()],
+    plugins: [vue(), svgLoader()] as PluginOption[],
     css: {
       postcss: {
         plugins: [
           postcssPresetEnv({
             stage: 0,
-            features: { 'nesting-rules': true }
+            features: {
+              'nesting-rules': true,
+              // Electron ships Chromium, which supports CSS logical properties
+              // natively. Leave them untouched so `padding-inline-start` /
+              // `inset-inline-start` mirror correctly under `dir="rtl"` instead
+              // of being down-compiled to hard-coded LTR physical props (#4673).
+              'logical-properties-and-values': false
+            }
           })
         ]
       }

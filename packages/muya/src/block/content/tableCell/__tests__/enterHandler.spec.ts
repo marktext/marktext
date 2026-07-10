@@ -112,7 +112,6 @@ describe('tableCellContent.enterHandler', () => {
 
         await flush();
         expect(cell.text).toContain('<br/>');
-        // `a` + `<br/>` + `b`
         expect(cell.text).toBe('a<br/>b');
 
         const cursor = cell.getCursor();

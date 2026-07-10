@@ -1,4 +1,8 @@
 .mu-editor {
+    font-size: var(--mu-font-size, 16px);
+    font-family: var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+    line-height: var(--mu-line-height, 1.6);
+
     outline: none;
 }
 
@@ -210,9 +214,33 @@
     border-radius: 3px;
 }
 
+/* Code-block font via `--mu-code-*`; code blocks only (inline code untouched). */
+.mu-code-block {
+    font-size: var(--mu-code-font-size, 90%);
+    font-family: var(
+        --mu-code-font-family,
+        'DejaVu Sans Mono',
+        'Source Code Pro',
+        'Droid Sans Mono',
+        Consolas,
+        monospace
+    );
+}
+
 .mu-code-block .mu-code {
     display: block;
     overflow: auto;
+
+    /* Override the <code> UA monospace so the block's code font reaches the text. */
+    font-family: inherit;
+}
+
+/* wrapCodeBlocks → `.mu-code-wrap`; wraps long lines (overrides prism's `pre`). */
+.mu-code-wrap .mu-code-block .mu-code {
+    overflow: hidden;
+
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
 }
 
 .mu-code-block .mu-code::-webkit-scrollbar {
@@ -375,10 +403,11 @@ span.mu-language-input {
     padding: 0;
 }
 
-/* order list and bullet list */
+/* order list and bullet list — logical `inline-start` so nested-list
+   indentation mirrors correctly under `dir="rtl"` (#4673) */
 ol.mu-order-list,
 ul.mu-bullet-list {
-    padding-left: 30px;
+    padding-inline-start: 30px;
 }
 
 ol.mu-order-list {
@@ -449,7 +478,7 @@ ol.mu-order-list ol.mu-order-list ul.mu-bullet-list {
 
 /* task list */
 ul.mu-task-list {
-    padding-left: 30px;
+    padding-inline-start: 30px;
 }
 
 li.mu-task-list-item {
@@ -461,11 +490,23 @@ li.mu-task-list-item {
 li.mu-task-list-item > input[type='checkbox'],
 li.mu-task-list-item > span.mu-task-list-checkbox {
     position: absolute;
-    top: 0.3em;
-    left: -23px;
+
+    /* Center the 18px circle (drawn by ::before at top:-2px, so its center sits
+       7px below this box's top) on the first text line, whose vertical midpoint
+       is `0.5 * line-height * font-size`. The editor font is read from
+       `--mu-font-size` rather than `em` on purpose: on Chromium the checkbox is
+       a real <input>, which keeps the UA form-control font size and ignores
+       `font-size: inherit`, so `em` here would be frozen and the marker would
+       stop tracking the editor font. Custom properties still inherit into the
+       input, so this stays aligned at every font size. */
+    top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 7px);
 
     width: 12px;
     height: 12px;
+
+    /* Drop the UA <input> margin (3px top), which otherwise pushes the
+       absolutely-positioned marker below the computed `top`. */
+    margin: 0;
 
     transform-origin: center;
     cursor: pointer;
@@ -473,11 +514,7 @@ li.mu-task-list-item > span.mu-task-list-checkbox {
     transition: all 0.2s ease;
 
     appearance: none;
-}
-
-ul.mu-tight-list > li.mu-task-list-item > input[type='checkbox'],
-ul.mu-tight-list > li.mu-task-list-item > span.mu-task-list-checkbox {
-    top: 0.3em;
+    inset-inline-start: -23px;
 }
 
 li.mu-task-list-item > input.mu-checkbox-checked ~ *,
@@ -692,6 +729,14 @@ figure.mu-diagram-block .mu-diagram-preview {
 figure.mu-math-block .mu-math-preview .katex-display {
     margin: 0;
     padding: 1em 0;
+
+    overflow: auto hidden;
+}
+
+figure.mu-math-block .mu-math-preview .katex-display::-webkit-scrollbar {
+    display: block;
+    width: 3px;
+    height: 6px;
 }
 
 /* to prevent plantuml img overflow */
@@ -768,6 +813,20 @@ figure.mu-diagram-block .mu-diagram-preview svg use[fill='#000000'] {
 figure.mu-diagram-block .mu-diagram-preview svg rect[stroke='#000000'],
 figure.mu-diagram-block .mu-diagram-preview svg path[stroke='#000000'] {
     stroke: var(--editor-color);
+}
+
+/* js-sequence-diagrams creates its <text> with no fill attribute and its
+   note/actor boxes with the 3-char `#fff`, so the attribute-keyed rules above
+   miss them and the labels/boxes stay black-on-white on dark themes (#3047).
+   Recolor the sequence SVG by element, scoped to `svg.sequence` so mermaid /
+   vega / flowchart (which set fills via attributes) are untouched. */
+figure.mu-diagram-block .mu-diagram-preview svg.sequence text {
+    fill: var(--editor-color);
+}
+
+figure.mu-diagram-block .mu-diagram-preview svg.sequence rect[fill='#fff'],
+figure.mu-diagram-block .mu-diagram-preview svg.sequence path[fill='#fff'] {
+    fill: var(--editor-bg-color);
 }
 
 figure.mu-active.mu-math-block > div.mu-math-preview,

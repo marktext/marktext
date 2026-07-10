@@ -14,6 +14,21 @@
     vertical-align: middle;
 }
 
+/* Hide syntax markers as zero-size `inline` text, not `inline-block` — atomic
+   boxes create a wrap opportunity that breaks punctuation after a link onto its
+   own line (#2258 / #3025). `nowrap` stops the hidden URL's `/`,`.` from
+   wrapping. Scoped to `.mu-remove` so math/ruby/emoji previews keep inline-block. */
+.mu-hide.mu-remove,
+.mu-hide.mu-remove .mu-highlight,
+.mu-hide.mu-remove .mu-selection {
+    display: inline;
+    width: auto;
+    height: auto;
+
+    font-size: 0;
+    white-space: nowrap;
+}
+
 /* link and auto-link and reference link */
 a.mu-inline-rule,
 span.mu-inline-rule.mu-link {
@@ -191,6 +206,21 @@ code.mu-inline-rule {
     height: 6px;
 }
 
+/* KaTeX gives every sub/superscript a 2px `.vlist-s` strut that
+   `.vlist-t2 { margin-right: -2px }` cancels visually. The negative margin fixes
+   layout width but not scrollWidth, so the `overflow: auto` above draws a
+   spurious scrollbar under any short formula ending in a sub/superscript
+   (#4837). Zero both to match the scroll extent to the visible width — net-zero
+   visually; a genuinely long formula still overflows and stays scrollable. */
+.mu-math > .mu-math-render .katex .vlist-s {
+    width: 0;
+    min-width: 0;
+}
+
+.mu-math > .mu-math-render .katex .vlist-t2 {
+    margin-right: 0;
+}
+
 .mu-ruby > .mu-ruby-render {
     left: 50%;
 
@@ -205,10 +235,23 @@ div .mu-math-error,
     font-size: 14px;
     font-family: monospace;
     font-style: italic;
+}
 
-    /* Keep the KaTeX parse-error message on one line instead of wrapping
-       across the narrow inline-math popup. */
+/* Inline math shows a short error label: keep it on one line in the narrow
+   popup, and let it overflow VISIBLE rather than be clipped — the default
+   `overflow: auto` on .mu-math-render both clips the label and takes the
+   inline-block's baseline from its bottom edge, lifting it off the text. */
+.mu-math > .mu-math-render.mu-math-error {
+    overflow: visible;
+
     white-space: nowrap;
+}
+
+/* Block math shows the full KaTeX parse-error message, which can be long; wrap
+   it within the block instead of overflowing horizontally (#2220). */
+.mu-math-preview .mu-math-error {
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
 .mu-math > .mu-math-render .katex-display {
@@ -249,14 +292,6 @@ div .mu-math-error,
     box-shadow: none;
 
     user-select: auto;
-}
-
-/* A parse-error message is short and never needs scrolling, but `overflow: auto`
-   makes the inline-block take its baseline from its bottom edge, pushing it a few
-   px above the surrounding text. `visible` keeps it on the baseline. (A long
-   valid formula keeps `overflow: auto` so it stays scrollable, not truncated.) */
-.mu-hide.mu-math > .mu-math-render.mu-math-error {
-    overflow: visible;
 }
 
 .mu-ruby:not(.mu-hide) > .mu-ruby-render,
@@ -358,9 +393,9 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     background: transparent;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail,
-.mu-inline-image a.mu-image-icon-close {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail,
+.mu-inline-image .mu-image-icon-close {
     position: absolute;
     top: 15px;
 
@@ -369,8 +404,8 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     height: 20px;
 }
 
-.mu-inline-image a.mu-image-icon-success,
-.mu-inline-image a.mu-image-icon-fail {
+.mu-inline-image .mu-image-icon-success,
+.mu-inline-image .mu-image-icon-fail {
     left: 15px;
 }
 
@@ -443,17 +478,17 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     content: attr(fail-text);
 }
 
-.mu-inline-image.mu-image-loading a.mu-image-icon-success,
-.mu-inline-image.mu-empty-image a.mu-image-icon-success {
+.mu-inline-image.mu-image-loading .mu-image-icon-success,
+.mu-inline-image.mu-empty-image .mu-image-icon-success {
     display: block;
 }
 
-.mu-inline-image.mu-image-fail a.mu-image-icon-fail {
+.mu-inline-image.mu-image-fail .mu-image-icon-fail {
     display: block;
 }
 
-.mu-inline-image.mu-empty-image:hover a.mu-image-icon-close,
-.mu-inline-image.mu-image-fail:hover a.mu-image-icon-close {
+.mu-inline-image.mu-empty-image:hover .mu-image-icon-close,
+.mu-inline-image.mu-image-fail:hover .mu-image-icon-close {
     right: 15px;
     z-index: 1;
 

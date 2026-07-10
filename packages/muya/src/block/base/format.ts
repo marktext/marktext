@@ -11,6 +11,7 @@ import type { IImageInfo } from '../../utils/image';
 import type AtxHeading from '../commonMark/atxHeading';
 import type BulletList from '../commonMark/bulletList';
 import type SetextHeading from '../commonMark/setextHeading';
+import type Parent from './parent';
 import type TreeNode from './treeNode';
 import Content from '../../block/base/content';
 import { ScrollPage } from '../../block/scrollPage';
@@ -27,7 +28,7 @@ import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
 import { conflict, isHTMLElement, isMouseEvent } from '../../utils';
-import { correctImageSrc, getImageInfo } from '../../utils/image';
+import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
 interface IOffset {
@@ -215,6 +216,10 @@ function checkTokenIsInlineFormat(token: Token) {
 class Format extends Content {
     static override blockName = 'format';
 
+    protected override get autoPairType() {
+        return 'format';
+    }
+
     private _checkCursorInTokenType(
         text: string,
         offset: number,
@@ -367,11 +372,8 @@ class Format extends Content {
                 imageText += alt;
 
             imageText += '](';
-            if (src) {
-                imageText += src
-                    .replace(/ /g, encodeURI(' '))
-                    .replace(/#/g, encodeURIComponent('#'));
-            }
+            if (src)
+                imageText += encodeImageSrc(src);
 
             if (title)
                 imageText += ` "${title}"`;
@@ -391,7 +393,7 @@ class Format extends Content {
                 imageText += `${attr}="${value}" `;
             }
             imageText = imageText.trim();
-            imageText += '>';
+            imageText += ' />';
         }
 
         this.text
@@ -422,7 +424,7 @@ class Format extends Content {
             imageText += `${attr}="${value}" `;
         }
         imageText = imageText.trim();
-        imageText += '>';
+        imageText += ' />';
         this.text
             = oldText.substring(0, start) + imageText + oldText.substring(end);
 
@@ -554,7 +556,11 @@ class Format extends Content {
             anchor.offset !== oldAnchor?.offset
             || focus.offset !== oldFocus?.offset
         ) {
-            const needUpdate = this.checkNeedRender({ anchor, focus });
+            // Also check the previously committed selection (no-arg default):
+            // a held arrow fires one keyup on release, so the caret can leap
+            // clear of a token in a single step and leave its markers stuck
+            // revealed. Mirrors the guard in `clickHandler`.
+            const needUpdate = this.checkNeedRender({ anchor, focus }) || this.checkNeedRender();
             const cursor = { anchor, focus, block: this };
 
             if (needUpdate)
@@ -819,8 +825,12 @@ class Format extends Content {
     private _convertToList() {
         const { text, parent, muya, hasSelection } = this;
         const { preferLooseListItem } = muya.options;
+        // The marker must start a line: the pre-group captures whole lines up to
+        // (and including) the newline before the marker, so a `*` inside e.g.
+        // `**bold**` on an earlier soft-line is never mistaken for the bullet
+        // marker (#2429).
         const matches = text.match(
-            /^([\s\S]*?) {0,3}([*+-]|\d{1,9}(?:\.|\))) {1,4}([\s\S]*)$/,
+            /^([\s\S]*\n)? {0,3}([*+-]|\d{1,9}(?:\.|\))) {1,4}([\s\S]*)$/,
         );
         const isOrdered = /\d/.test(matches![2]);
 
@@ -1470,9 +1480,32 @@ class Format extends Content {
 
         event.preventDefault();
 
-        const paragraphBlock = nextBlock.parent;
-        let needRemovedBlock = paragraphBlock;
+        const paragraphBlock = nextBlock.parent!;
 
+        this.text = text + nextBlock.text;
+        this.setCursor(start.offset, end.offset, true);
+
+        // When the merge crosses a list-item boundary, blocks that followed the
+        // next paragraph inside its item (e.g. a nested sublist) must travel up
+        // with the merged text. Left behind they become the sole child of the
+        // now-empty item and serialize with a doubled bullet (#1845).
+        const paragraph = this.parent;
+        if (paragraph && paragraphBlock.parent !== paragraph.parent) {
+            const trailing: TreeNode[] = [];
+            let sibling = paragraphBlock.next;
+            while (sibling) {
+                trailing.push(sibling);
+                sibling = sibling.next;
+            }
+
+            let anchor: Parent = paragraph;
+            for (const block of trailing) {
+                block.insertInto(paragraph.parent!, anchor.next as Nullable<Parent>);
+                anchor = block as Parent;
+            }
+        }
+
+        let needRemovedBlock: Nullable<Parent> = paragraphBlock;
         while (
             needRemovedBlock
             && needRemovedBlock.isOnlyChild()
@@ -1480,9 +1513,6 @@ class Format extends Content {
         ) {
             needRemovedBlock = needRemovedBlock.parent;
         }
-
-        this.text = text + nextBlock.text;
-        this.setCursor(start.offset, end.offset, true);
         needRemovedBlock!.remove();
     }
 
@@ -1598,7 +1628,7 @@ class Format extends Content {
             start.offset += start.delta;
             end.offset += end.delta;
 
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
         }
         else if (currentFormats.length) {
             for (const token of currentFormats)
@@ -1606,7 +1636,7 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
         }
         else {
             if (currentNeighbors.length) {
@@ -1616,7 +1646,16 @@ class Format extends Content {
 
             start.offset += start.delta;
             end.offset += end.delta;
-            this.text = generator(tokens);
+            this.text = generator(tokens, true);
+
+            // Whitespace wrapped inside emphasis markers is invalid CommonMark
+            // (`**foo **` is not right-flanking, so it renders literally), so
+            // trim the selection to its non-whitespace span before wrapping.
+            const selected = this.text.substring(start.offset, end.offset);
+            if (selected.trim().length > 0) {
+                start.offset += selected.length - selected.trimStart().length;
+                end.offset -= selected.length - selected.trimEnd().length;
+            }
 
             this._addFormat(type, { start, end });
 

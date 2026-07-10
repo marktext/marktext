@@ -75,9 +75,10 @@ describe('exportStyledHTML — wrapper parity', () => {
 
 describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
   // Mirror what `muya.getTOC()` returns ({ lvl, content } per heading, content
-  // being the RAW markdown heading text). `getHtmlToc` re-slugs `content`; the
-  // engine slugs each heading's rendered textContent — both via the SAME
-  // `generateGithubSlug`, so for plain-text headings the anchors line up.
+  // being the heading's rendered plain text — inline markdown stripped (#4811)).
+  // `getHtmlToc` re-slugs `content`; the engine slugs each heading's rendered
+  // textContent — both via the SAME `generateGithubSlug` over the same plain
+  // text, so the anchors line up even for headings authored with formatting.
   const MD = [
     '# Getting Started',
     '',
@@ -98,7 +99,9 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     { lvl: 1, content: 'Getting Started' },
     { lvl: 2, content: 'Installation' },
     { lvl: 2, content: 'Installation' },
-    { lvl: 2, content: 'Use **bold** and [a link](http://x)' }
+    // getTOC() strips the `**bold**` / `[a link](http://x)` markup to the
+    // rendered text before it reaches the export TOC.
+    { lvl: 2, content: 'Use bold and a link' }
   ]
 
   it('replaces the rendered <p>[TOC]</p> with the toc list', async() => {
@@ -131,22 +134,21 @@ describe('exportStyledHTML — [TOC] expansion and slug matching', () => {
     expect(ids).toContain('installation-1')
   })
 
-  it('SLUG DIVERGENCE: a heading with inline markup produces a TOC anchor that does NOT match the heading id', async() => {
+  it('a heading with inline markup produces a TOC anchor that matches the heading id (#4811)', async() => {
     const toc = getHtmlToc(TOC, {})
     const out = await exportStyledHTML(NO_MUYA, MD, { toc })
 
     const hrefs = [...out.matchAll(/href="#([^"]+)"/g)].map((m) => m[1])
     const ids = [...out.matchAll(/<h[1-6][^>]*\sid="([^"]+)"/g)].map((m) => m[1])
 
-    // getHtmlToc slugs the RAW markdown content "Use **bold** and [a link](http://x)"
-    // → "use-bold-and-a-linkhttpx" (only `*[]():/` etc. stripped as non-\w, so
-    // the "httpx" of "http://x" survives). The engine slugs the heading's
-    // rendered textContent "Use bold and a link" → "use-bold-and-a-link". The
-    // two diverge, so this anchor is a DEAD link in the exported document.
-    expect(hrefs).toContain('use-bold-and-a-linkhttpx')
+    // getHtmlToc slugs the plain-text content "Use bold and a link" that
+    // getTOC() now yields → "use-bold-and-a-link", and the engine slugs the
+    // heading's rendered textContent to the same "use-bold-and-a-link". They
+    // converge, so the anchor is a live link in the exported document. The old
+    // raw-markdown slug "use-bold-and-a-linkhttpx" (a dead link) is gone.
+    expect(hrefs).toContain('use-bold-and-a-link')
     expect(ids).toContain('use-bold-and-a-link')
-    expect(ids).not.toContain('use-bold-and-a-linkhttpx')
-    expect(hrefs).not.toContain('use-bold-and-a-link')
+    expect(hrefs).not.toContain('use-bold-and-a-linkhttpx')
   })
 
   it('does not inject the toc when the document has no [TOC] marker', async() => {
@@ -215,6 +217,29 @@ describe('exportStyledHTML — header/footer assembly', () => {
   })
 })
 
+describe('exportStyledHTML — text direction (issue #4553)', () => {
+  it('sets dir="rtl" on the exported <html> when dir is "rtl"', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# سلام\n\nمتن', { dir: 'rtl' })
+
+    expect(out).toMatch(/<html lang="en" dir="rtl">/)
+  })
+
+  it('forwards dir="auto" to the exported <html>', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# Hi', { dir: 'auto' })
+
+    expect(out).toMatch(/<html lang="en" dir="auto">/)
+  })
+
+  it('leaves the default LTR export without a dir attribute', async() => {
+    const ltr = await exportStyledHTML(NO_MUYA, '# Hi', { dir: 'ltr' })
+    const none = await exportStyledHTML(NO_MUYA, '# Hi', {})
+
+    expect(ltr).toContain('<html lang="en">')
+    expect(ltr).not.toMatch(/<html[^>]+dir=/)
+    expect(none).not.toMatch(/<html[^>]+dir=/)
+  })
+})
+
 describe('exportStyledHTML — relative image paths', () => {
   it('rewrites a relative img src to an absolute file:// URL (issue 230)', async() => {
     // window.DIRNAME is stubbed to '/docs', so `./a.png` resolves against it.
@@ -229,6 +254,30 @@ describe('exportStyledHTML — relative image paths', () => {
     const out = await exportStyledHTML(NO_MUYA, '![alt](https://example.com/a.png)', {})
 
     expect(out).toMatch(/<img[^>]+src="https:\/\/example\.com\/a\.png"/)
+    expect(out).not.toContain('file://')
+  })
+})
+
+describe('exportStyledHTML — relative link paths (#1688)', () => {
+  it('rewrites a relative <a href> to an absolute file:// URL', async() => {
+    // window.DIRNAME is stubbed to '/docs', so `./my_file.pdf` resolves against it.
+    const out = await exportStyledHTML(NO_MUYA, '[doc](./my_file.pdf)', {})
+
+    expect(out).toMatch(/<a[^>]+href="file:\/\/\/docs\/my_file\.pdf"/)
+    expect(out).not.toContain('href="./my_file.pdf"')
+  })
+
+  it('leaves a remote http(s) link untouched', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '[site](https://example.com/p)', {})
+
+    expect(out).toMatch(/<a[^>]+href="https:\/\/example\.com\/p"/)
+    expect(out).not.toContain('file://')
+  })
+
+  it('leaves an in-page fragment anchor untouched', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# Heading\n\n[jump](#heading)', {})
+
+    expect(out).toContain('href="#heading"')
     expect(out).not.toContain('file://')
   })
 })

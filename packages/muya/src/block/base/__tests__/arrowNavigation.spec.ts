@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import type { TState } from '../../../state/types';
 import type Content from '../content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
@@ -42,6 +43,15 @@ function bootMuya(markdown: string): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
     const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    bootedHosts.push(muya.domNode);
+    return muya;
+}
+
+function bootMuyaState(json: TState[]): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const muya = new Muya(host, { json } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedHosts.push(muya.domNode);
     return muya;
@@ -138,6 +148,55 @@ describe('content arrowHandler — cross-block navigation up', () => {
         expect(event.preventDefault).not.toHaveBeenCalled();
         expect(event.stopPropagation).not.toHaveBeenCalled();
     });
+
+    // #3193: ArrowUp on the first visual line of the FIRST block (no previous
+    // block) used to preventDefault and return without moving the caret, so the
+    // caret stayed put. It should move to the start of the line (offset 0).
+    it('arrowUp in the first block (no previous) moves the caret to offset 0', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+
+        const event = arrowAt(muya, alpha, 'ArrowUp', 3);
+        await flush();
+
+        const cursor = alpha.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    // #3193 follow-up: when the caret is ALREADY at offset 0 of the first block,
+    // ArrowUp has nowhere to go — it must not re-set the selection (which would
+    // emit a spurious selection-change and needlessly re-render the block).
+    it('arrowUp already at offset 0 of the first block does not emit selection-change', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+
+        // Land at offset 0 first; this setup emits its own change.
+        muya.editor.activeContentBlock = alpha;
+        alpha.setCursor(0, 0, true);
+        await flush();
+
+        // Only now start counting: the no-op ArrowUp must stay silent.
+        let emitted = 0;
+        muya.eventCenter.on('selection-change', () => {
+            emitted += 1;
+        });
+
+        const event = {
+            preventDefault: vi.fn(),
+            stopPropagation: vi.fn(),
+            key: 'ArrowUp',
+            shiftKey: false,
+        } as unknown as FakeArrowEvent;
+        alpha.arrowHandler(event);
+        await flush();
+
+        expect(emitted).toBe(0);
+        // The caret is untouched, and the native no-op scroll is still suppressed.
+        expect(alpha.getCursor()!.start.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
 });
 
 describe('content arrowHandler — cross-block navigation down', () => {
@@ -212,6 +271,32 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         expect(event.stopPropagation).toHaveBeenCalled();
     });
 
+    // #3520: pressing ArrowDown on an already-empty trailing paragraph must NOT
+    // keep appending new empty paragraphs on every keypress. A trailing
+    // paragraph is created only when the current (last) block has content.
+    it('does not append another paragraph when ArrowDown is pressed in an already-empty trailing paragraph (#3520)', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+
+        // First ArrowDown at the end of a non-empty last block appends one
+        // trailing empty paragraph (existing, desired behavior).
+        arrowAt(muya, beta, 'ArrowDown', 'beta'.length);
+        await flush();
+        expect(muya.getState().length).toBe(3);
+
+        const appended = muya.editor.scrollPage!.lastContentInDescendant() as Content;
+        expect(appended.text).toBe('');
+
+        // Pressing ArrowDown again, now inside the empty trailing paragraph,
+        // must NOT create a fourth block — the caret stays put.
+        const event = arrowAt(muya, appended, 'ArrowDown', 0);
+        await flush();
+
+        expect(muya.getState().length).toBe(3);
+        expect(appended.getCursor()).not.toBeNull();
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+
     it('shiftKey held suppresses cross-block navigation (selection extend, not move)', async () => {
         const muya = bootMuya('alpha\n\nbeta\n');
         const alpha = contentByText(muya, 'alpha');
@@ -231,6 +316,76 @@ describe('content arrowHandler — trailing-paragraph creation at document end',
         expect(muya.getState().length).toBe(2);
         expect(contentByText(muya, 'beta').getCursor()).toBeNull();
         expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+});
+
+// #4644: an empty list item with no content descendant (e.g. left behind after
+// its only paragraph is removed during editing) sitting between two items used
+// to make previous/nextContentInContext return null, so ArrowUp/ArrowDown could
+// not cross it and the caret got stuck. Navigation must skip the empty container
+// and reach the content beyond it.
+function listWithChildlessMiddleItem(): TState[] {
+    return [{
+        name: 'bullet-list',
+        meta: { marker: '*', loose: false },
+        children: [
+            { name: 'list-item', children: [{ name: 'paragraph', text: 'A' }] },
+            { name: 'list-item', children: [] },
+            { name: 'list-item', children: [{ name: 'paragraph', text: 'B' }] },
+        ],
+    }];
+}
+
+function allContentTexts(muya: Muya): string[] {
+    const texts: string[] = [];
+    const visit = (block: {
+        text?: string;
+        constructor: { blockName?: string };
+        children?: { forEach: (cb: (b: unknown) => void) => void };
+    }) => {
+        if (block.constructor.blockName?.endsWith('.content'))
+            texts.push(block.text ?? '');
+        block.children?.forEach(b => visit(b as typeof block));
+    };
+    visit(muya.editor.scrollPage as unknown as Parameters<typeof visit>[0]);
+    return texts;
+}
+
+describe('content arrowHandler — skips empty sibling containers (#4644)', () => {
+    it('arrowUp at offset 0 skips an empty list item and lands at the END of the item above', async () => {
+        const muya = bootMuyaState(listWithChildlessMiddleItem());
+        // Precondition: the middle item holds NO content block, so a passing
+        // caret assertion below can only mean the empty item was skipped.
+        expect(allContentTexts(muya)).toEqual(['A', 'B']);
+
+        const b = contentByText(muya, 'B');
+        const event = arrowAt(muya, b, 'ArrowUp', 0);
+        await flush();
+
+        const a = contentByText(muya, 'A');
+        const cursor = a.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe('A'.length);
+        expect(cursor!.end.offset).toBe('A'.length);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+    });
+
+    it('arrowDown at end of an item skips an empty list item and lands at offset 0 of the item below', async () => {
+        const muya = bootMuyaState(listWithChildlessMiddleItem());
+        expect(allContentTexts(muya)).toEqual(['A', 'B']);
+
+        const a = contentByText(muya, 'A');
+        const event = arrowAt(muya, a, 'ArrowDown', 'A'.length);
+        await flush();
+
+        const b = contentByText(muya, 'B');
+        const cursor = b.getCursor();
+        expect(cursor).not.toBeNull();
+        expect(cursor!.start.offset).toBe(0);
+        expect(cursor!.end.offset).toBe(0);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
     });
 });
 

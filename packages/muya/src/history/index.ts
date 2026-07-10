@@ -130,12 +130,19 @@ class History {
                 source,
                 prevDoc,
             }: {
-                op: JSONOpList;
+                op: Nullable<JSONOpList>;
                 source: string;
                 prevDoc: TState[];
                 doc: TState[];
             }) => {
                 if (this._ignoreChange)
+                    return;
+
+                // The identity op (`null`) carries no change to record or
+                // transform. It can still reach here through `json-change` when
+                // queued ops compose away (e.g. IME edits, #4806); `_record`
+                // would otherwise crash reading `op.length`.
+                if (op == null)
                     return;
 
                 if (!this._options.userOnly || source === 'user')
@@ -151,7 +158,10 @@ class History {
             return;
 
         const { operation, selection, rebuild } = this._stack[source].pop()!;
-        const inverseOperation = json1.type.invert(operation);
+        const inverseOperation = json1.type.invertWithDoc(
+            operation,
+            asDoc(this._muya.editor.jsonState.getState()),
+        );
 
         this._stack[dest].push({
             operation: inverseOperation as JSONOpList,
@@ -161,11 +171,15 @@ class History {
 
         this._lastRecorded = 0;
         this._ignoreChange = true;
-        if (rebuild)
-            this._muya.editor.rebuildContents(operation, selection, 'user');
-        else
-            this._muya.editor.updateContents(operation, selection, 'user');
-        this._ignoreChange = false;
+        try {
+            if (rebuild)
+                this._muya.editor.rebuildContents(operation, selection, 'user');
+            else
+                this._muya.editor.updateContents(operation, selection, 'user');
+        }
+        finally {
+            this._ignoreChange = false;
+        }
 
         this._getLastSelection();
     }
@@ -174,20 +188,9 @@ class History {
         this._stack = { undo: [], redo: [] };
         this._selectionStack = [];
         this._lastRecorded = 0;
+        this._ignoreChange = false;
     }
 
-    /**
-     * Return a deep, JSON-serializable snapshot of the undo/redo history.
-     *
-     * The ot-json1 ops are plain JSON arrays and are deep-cloned as-is.
-     * Selections drop their live `anchorBlock` / `focusBlock` references and
-     * keep only the serializable `anchorPath` / `focusPath` + offsets; the
-     * caret is re-resolved from those paths on restore (see
-     * `_toSerializableSelection`). The result can be `JSON.stringify`-d, stored
-     * on a desktop tab, and handed back to `setHistory` to restore the exact
-     * undo/redo state — `setHistory(getHistory())` followed by `undo()`
-     * reproduces the prior document state.
-     */
     getHistory(): ISerializedHistory {
         return {
             stack: {
@@ -201,12 +204,6 @@ class History {
         };
     }
 
-    /**
-     * Restore a snapshot previously produced by `getHistory`. Replaces the
-     * undo/redo stacks and recording bookkeeping. The restored selections are
-     * path-only; `Selection.setSelection` / `_setCursor` resolve the live
-     * block from the path when the op is later applied by `undo` / `redo`.
-     */
     setHistory(history: ISerializedHistory) {
         this._stack = {
             undo: history.stack.undo.map(op => this._fromSerializableOperation(op)),

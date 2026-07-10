@@ -103,7 +103,7 @@ describe('parity PG6: pasted image FILE routes through imageAction', () => {
         async () => {
             const clipboardFilePath = vi.fn().mockResolvedValue('/abs/photo.png');
             // The user's insert preference moves the file into the assets dir and
-            // returns the rewritten src. With the gap, this is never called.
+            // returns the rewritten src.
             const imageAction = vi
                 .fn()
                 .mockResolvedValue('assets/photo.png');
@@ -140,8 +140,7 @@ describe('parity PG6: pasted image FILE routes through imageAction', () => {
             await clipboard.pasteHandler(event);
 
             // Desired: the assets-relative src returned by imageAction is what
-            // lands in the document (portable). Today the raw absolute path is
-            // written verbatim.
+            // lands in the document (portable).
             expect(anchorBlock.text).toBe('![](assets/photo.png)');
         },
     );
@@ -168,8 +167,7 @@ describe('parity PG5: binary/bitmap clipboard image paste', () => {
             await clipboard.pasteHandler(event);
 
             // Desired: the binary image is persisted through imageAction and an
-            // image is inserted. Today nothing is read from clipboardData.files
-            // and nothing is inserted.
+            // image is inserted.
             expect(imageAction).toHaveBeenCalledTimes(1);
             expect(anchorBlock.text).toBe('![](assets/pasted.png)');
         },

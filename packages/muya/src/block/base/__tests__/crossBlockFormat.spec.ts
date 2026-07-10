@@ -82,6 +82,30 @@ describe('cross-block format', () => {
         expect(sel.focusBlock!.text).toContain('bravo');
     });
 
+    it('bolds two paragraphs nested in the same blockquote (#3462)', async () => {
+        const muya = boot('> alpha\n>\n> bravo\n');
+        const sp = muya.editor.scrollPage!;
+        const first = sp.firstContentInDescendant()!;
+        const second = sp.lastContentInDescendant()!;
+        // Both leaves live inside the SAME outmost block (the blockquote), so an
+        // outmost-block-granular same-block check wrongly reports "same block".
+        expect(first).not.toBe(second);
+        expect(first.outMostBlock).toBe(second.outMostBlock);
+        stubFullRange(first);
+        stubFullRange(second);
+        muya.editor.activeContentBlock = second;
+        muya.editor.selection.setSelection(
+            { offset: 0, block: first, path: first.path },
+            { offset: second.text.length, block: second, path: second.path },
+        );
+        muya.format('strong');
+        await vi.waitFor(() => {
+            const md = muya.getMarkdown();
+            expect(md).toContain('**alpha**');
+            expect(md).toContain('**bravo**');
+        });
+    });
+
     it('skips a code block inside the range', async () => {
         const muya = boot('alpha\n\n```\ncode\n```\n\nbravo\n');
         const sp = muya.editor.scrollPage!;

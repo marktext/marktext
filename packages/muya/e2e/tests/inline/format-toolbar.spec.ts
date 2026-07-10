@@ -53,7 +53,6 @@ test.describe('inline format toolbar', () => {
         // the strong token; the markers should collapse to `.mu-hide`.
         await page.locator(editor.paragraph).first().click({ position: { x: 2, y: 2 } });
 
-        // The strong run itself is a live `<strong.mu-inline-rule>` node.
         const strongRun = page.locator(`${editor.paragraph} strong.mu-inline-rule`);
         await expect(strongRun).toHaveCount(1);
         await expect(strongRun).toHaveText('bold');

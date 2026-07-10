@@ -48,7 +48,6 @@ test.describe('math and diagrams', () => {
         await expect(page.locator(`${editor.paragraph} ${editor.katex}`).first())
             .toBeVisible({ timeout: 10_000 });
 
-        // Exactly one inline formula was rendered.
         await expect(page.locator(editor.katex)).toHaveCount(1);
 
         // The source markdown round-trips losslessly through the serializer.

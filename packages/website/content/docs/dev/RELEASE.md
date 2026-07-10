@@ -1,6 +1,6 @@
 # Releasing MarkText
 
-The release pipeline is triggered by pushing a `v*` tag. The `Release MarkText` workflow (`.github/workflows/release.yml`) then runs **validate → build (4-platform matrix) → publish** and creates a GitHub Release with installers and `SHA256SUMS.txt`.
+The release pipeline is triggered by pushing a `v*` tag. The `Release MarkText` workflow (`.github/workflows/release.yml`) then runs **validate → build (5-platform matrix) → publish** and creates a GitHub Release with installers and `SHA256SUMS.txt`.
 
 The flow below covers both release candidates and stable releases — same steps, only the version string differs.
 
@@ -63,7 +63,7 @@ gh run list --workflow=release.yml --limit 3
 gh run watch <run-id> --exit-status
 ```
 
-Approximate timing: validate ~30 s · build matrix ~15–30 min (4 platforms in parallel) · publish ~1 min.
+Approximate timing: validate ~30 s · build matrix ~15–30 min (5 platforms in parallel) · publish ~1 min.
 
 ## 7. Verify the published release
 

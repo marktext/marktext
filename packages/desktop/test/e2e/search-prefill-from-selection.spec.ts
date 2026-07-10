@@ -48,6 +48,24 @@ test.describe('Find bar prefill from selection', () => {
     await page.mouse.dblclick(point.x, point.y)
     await expect.poll(() => page.evaluate(() => window.getSelection()?.toString())).toBe('fox')
 
+    // The DOM selection is set synchronously by the double-click, but the engine
+    // commits it to its model on the next animation frame (content block
+    // `clickHandler` defers `setCursor` via requestAnimationFrame → `selection-change`
+    // → store). A real user always opens the find bar well after that commit; only
+    // an instantaneous select→find (as here) can race it.
+    //
+    // Wait on the *frame*, not wall-clock time: `clickHandler` runs synchronously
+    // on the click, so its commit rAF is already scheduled (the DOM-selection poll
+    // above proves the click fired). A double rAF is therefore guaranteed to run
+    // after that deferred commit — robust even under xvfb's erratic frame timing,
+    // where a fixed `waitForTimeout` could still lose if a frame exceeds it.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        )
+    )
+
     await sendIpcToRenderer(app, 'mt::editor-edit-action', 'find')
     const searchBar = page.locator('.search-bar')
     await expect(searchBar).toBeVisible({ timeout: 5000 })

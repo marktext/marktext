@@ -508,8 +508,18 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // Flush any edit still queued in the engine's rAF batch into the active
+    // tab's `currentFile` before its markdown is read to persist — otherwise an
+    // edit made in the same frame as the read is silently dropped from the
+    // written file (#3803), the way tab switching already guards (#2938). Safe
+    // no-op when nothing is pending.
+    flushActiveEditor(): void {
+      bus.emit('flush-active-editor')
+    },
+
     FILE_SAVE(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -539,6 +549,7 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE_AS(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -713,6 +724,7 @@ export const useEditorStore = defineStore('editor', {
 
     MOVE_FILE_TO(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -755,6 +767,7 @@ export const useEditorStore = defineStore('editor', {
 
     RESPONSE_FOR_RENAME(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -817,6 +830,11 @@ export const useEditorStore = defineStore('editor', {
       if (oldCurrentFile == null || oldCurrentFile.id !== currentFile.id) {
         const { id, markdown, cursor, history, pathname, scrollTop, blocks, muyaIndexCursor } =
           currentFile
+        // Must run while `currentFile` still points at the outgoing tab, so its
+        // flushed edit is attributed to that tab and not lost on switch (#2938).
+        if (oldCurrentFile) {
+          this.flushActiveEditor()
+        }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
         this.selectionWordCount = null
@@ -1665,6 +1683,14 @@ export const useEditorStore = defineStore('editor', {
             }
             case 'add':
             case 'change': {
+              // Only the file's metadata changed on disk (e.g. a git checkout
+              // that left the content byte-identical) — there is nothing to
+              // reload and no reason to warn the user (#1861).
+              const newMarkdown = (change as unknown as FileChangePayload).data?.markdown
+              if (typeof newMarkdown === 'string' && newMarkdown === tab.markdown) {
+                break
+              }
+
               const { autoSave } = preferencesStore
               if (autoSave) {
                 if (autoSaveTimers.has(id)) {
@@ -1949,7 +1975,6 @@ const createApplicationMenuState = ({
     }
   }
 
-  // Clean up
   if (Object.getOwnPropertyNames(state.affiliation).length >= 2 && state.affiliation.p) {
     delete state.affiliation.p
   }

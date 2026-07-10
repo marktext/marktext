@@ -3,9 +3,10 @@ import type { IMathBlockState, TState } from '../../../state/types';
 import katex from 'katex';
 import { fromEvent } from 'rxjs';
 import { CLASS_NAMES } from '../../../config';
+import { escapeHTML } from '../../../utils';
 import logger from '../../../utils/logger';
 import Parent from '../../base/parent';
-import 'katex/dist/contrib/mhchem.min.js';
+import 'katex/dist/contrib/mhchem.mjs';
 
 const debug = logger('mathPreview:');
 
@@ -70,10 +71,9 @@ class MathPreview extends Parent {
                 });
                 this.domNode!.innerHTML = html;
             }
-            catch {
-                this.domNode!.innerHTML = `<div class="${CLASS_NAMES.MU_MATH_ERROR}">&lt; ${i18n.t(
-                    'Invalid Mathematical Formula',
-                )} &gt;</div>`;
+            catch (err) {
+                const message = err instanceof Error ? err.message : i18n.t('Invalid Mathematical Formula');
+                this.domNode!.innerHTML = `<div class="${CLASS_NAMES.MU_MATH_ERROR}">${escapeHTML(message)}</div>`;
             }
         }
         else {

@@ -439,14 +439,14 @@ onMounted(() => {
     margin-top: 20px;
   }
   & .no-data .el-button.is-text.is-has-bg {
-    background-color: var(--itemBgColor);
-    color: var(--themeColor);
+    background-color: var(--buttonPrimaryBgColor);
+    color: var(--buttonPrimaryFontColor);
     border-color: transparent;
   }
   & .no-data .el-button.is-text.is-has-bg:hover,
   & .no-data .el-button.is-text.is-has-bg:focus {
-    background-color: var(--floatHoverColor);
-    color: var(--themeColor);
+    background-color: var(--buttonPrimaryBgColorHover);
+    color: var(--buttonPrimaryFontColorHover);
   }
 }
 </style>

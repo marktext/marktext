@@ -14,7 +14,7 @@ vi.mock('../utils/diagram', () => ({
 }));
 
 // Coverage for the runtime option API added for the muyajs -> @muyajs/core
-// migration: setOptions / setFont / setTabSize / setListIndentation. Every
+// migration: setOptions / setListIndentation. Every
 // desktop Preferences toggle depends on options updating live. setOptions with
 // forceRender re-renders from current state (so render-affecting options take
 // effect) WITHOUT clearing undo history, and preserves the document content.
@@ -74,7 +74,6 @@ describe('muya runtime options', () => {
         muya.insertParagraph();
         await vi.waitFor(() => {
             expect(muya.getState().length).toBe(2);
-            // the edit was recorded onto the undo stack
             expect(muya.editor.history.canUndo()).toBe(true);
         });
 
@@ -92,15 +91,6 @@ describe('muya runtime options', () => {
         expect(muya.domNode.getAttribute('spellcheck')).toBe('true');
         muya.setOptions({ spellcheckEnabled: false });
         expect(muya.domNode.getAttribute('spellcheck')).toBe('false');
-    });
-
-    it('setFont and setTabSize update options', () => {
-        const muya = bootMuya('x\n');
-        muya.setFont({ fontSize: 18, lineHeight: 1.8 });
-        expect(muya.options.fontSize).toBe(18);
-        expect(muya.options.lineHeight).toBe(1.8);
-        muya.setTabSize(2);
-        expect(muya.options.tabSize).toBe(2);
     });
 
     it('setListIndentation updates options and preserves content', () => {
@@ -127,6 +117,46 @@ describe('muya runtime options', () => {
         // listIndentation = 4 -> marker width (2) + (4 - 1) = 5 spaces.
         muya.setListIndentation(4);
         expect(muya.getMarkdown()).toBe('- a\n     - b\n');
+    });
+
+    it('setOptions writes typography as --mu-* custom properties on the root', () => {
+        const muya = bootMuya('x\n');
+        muya.setOptions({
+            fontSize: 18,
+            lineHeight: 1.8,
+            editorFontFamily: 'Inter',
+            codeFontSize: 13,
+            codeFontFamily: 'Fira Code',
+        });
+        const { style } = muya.domNode;
+        expect(style.getPropertyValue('--mu-font-size')).toBe('18px');
+        expect(style.getPropertyValue('--mu-line-height')).toBe('1.8');
+        expect(style.getPropertyValue('--mu-font-family')).toBe('Inter');
+        expect(style.getPropertyValue('--mu-code-font-size')).toBe('13px');
+        expect(style.getPropertyValue('--mu-code-font-family')).toBe('Fira Code');
+    });
+
+    it('setOptions toggles the .mu-code-wrap class', () => {
+        const muya = bootMuya('x\n');
+        muya.setOptions({ wrapCodeBlocks: true });
+        expect(muya.domNode.classList.contains('mu-code-wrap')).toBe(true);
+        muya.setOptions({ wrapCodeBlocks: false });
+        expect(muya.domNode.classList.contains('mu-code-wrap')).toBe(false);
+    });
+
+    it('construction applies typography options onto the root', () => {
+        const host = document.createElement('div');
+        document.body.appendChild(host);
+        const muya = new Muya(host, {
+            fontSize: 20,
+            codeFontSize: 12,
+            wrapCodeBlocks: true,
+        } as ConstructorParameters<typeof Muya>[1]);
+        muya.init();
+        bootedHosts.push(muya.domNode);
+        expect(muya.domNode.style.getPropertyValue('--mu-font-size')).toBe('20px');
+        expect(muya.domNode.style.getPropertyValue('--mu-code-font-size')).toBe('12px');
+        expect(muya.domNode.classList.contains('mu-code-wrap')).toBe(true);
     });
 });
 

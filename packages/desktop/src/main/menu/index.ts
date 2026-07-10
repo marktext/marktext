@@ -310,6 +310,42 @@ class AppMenu {
   }
 
   /**
+   * Rebuild every window menu so updated keybinding accelerators are reflected
+   * wherever shortcuts are shown: the menu bar on Windows/Linux and the macOS
+   * application menu for both editor and settings windows.
+   */
+  updateKeybindings(): void {
+    const recentUsedDocuments = this.getRecentlyUsedDocuments()
+    this.windowMenus.forEach((value, key) => {
+      const { menu: oldMenu, type } = value
+
+      let newMenu: Menu | null = null
+      if (type === MenuType.EDITOR) {
+        if (!oldMenu) return
+        const { menu: rebuilt } = this._buildEditorMenu(recentUsedDocuments)
+        if (!rebuilt) return
+
+        updateMenuItem(oldMenu, rebuilt, 'sourceCodeModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'typewriterModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'focusModeMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'sideBarMenuItem')
+        updateMenuItem(oldMenu, rebuilt, 'tabBarMenuItem')
+        newMenu = rebuilt
+      } else if (type === MenuType.SETTINGS) {
+        newMenu = this._buildSettingMenu().menu
+        if (!newMenu) return
+      } else {
+        return
+      }
+
+      value.menu = newMenu
+      if (this.activeWindowId === key) {
+        this._setApplicationMenu(newMenu)
+      }
+    })
+  }
+
+  /**
    * Update line ending menu items.
    *
    * @param windowId The window id.
@@ -473,6 +509,18 @@ class AppMenu {
         return
       }
       updateSelectionMenus(this.getWindowMenuById(windowId), changes)
+    })
+
+    // In source-code mode the Paragraph and Format commands act on the hidden
+    // WYSIWYG engine, so grey them out; on return to WYSIWYG they are re-enabled
+    // and the next selection change refines them (#3531).
+    ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
+      if (!this.has(windowId)) return
+      const menu = this.getWindowMenuById(windowId)
+      for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
+        const entry = menu.getMenuItemById(id)
+        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
+      }
     })
 
     onInternalChannel('menu-add-recently-used', (pathname: string) => {

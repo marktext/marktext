@@ -269,7 +269,7 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  function CREATE_FILE_DIRECTORY(name: string): void {
+  async function CREATE_FILE_DIRECTORY(name: string): Promise<void> {
     const cache = createCache.value as CreateCacheEntry
     const { dirname, type } = cache
 
@@ -278,6 +278,18 @@ export const useProjectStore = defineStore('project', () => {
     }
 
     const fullName = `${dirname}/${name}`
+
+    // Creating over an existing path would silently overwrite it (outputFile
+    // truncates). Refuse instead of destroying the existing file (#1946).
+    if (await window.fileUtils.pathExists(fullName)) {
+      createCache.value = {}
+      notice.notify({
+        title: 'Error in Side Bar',
+        type: 'error',
+        message: `A ${type} named "${name}" already exists in this folder.`
+      })
+      return
+    }
 
     create(fullName, type as FileCreateType)
       .then(() => {
