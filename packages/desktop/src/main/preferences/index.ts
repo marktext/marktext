@@ -86,6 +86,11 @@ class Preference extends TypedEmitter<PreferenceEvents> {
       throw new Error('Can not load static preference.json file')
     }
 
+    const configuredSpellcheckerLanguages = this.store.get('spellcheckerLanguage')
+    if (typeof configuredSpellcheckerLanguages === 'string') {
+      this.store.set('spellcheckerLanguage', [configuredSpellcheckerLanguages])
+    }
+
     // I don't know why `this.store.size` is 3 when first load, so I just check file existed.
     if (!this.hasPreferencesFile) {
       this.store.set(defaultSettings)
