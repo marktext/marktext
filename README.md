@@ -146,6 +146,22 @@ You can either download the latest `marktext-mac-(arm64|x64)-%version%.dmg` from
 brew install --cask mark-text
 ```
 
+**Troubleshooting**
+
+- **"MarkText is damaged and can't be opened."** The macOS builds are ad-hoc signed and are not notarized, so Gatekeeper quarantines them on first launch (see [#3991](https://github.com/marktext/marktext/issues/3991) and [#3729](https://github.com/marktext/marktext/issues/3729)). After installing, remove the quarantine attribute and reopen the app:
+
+  ```bash
+  xattr -dr com.apple.quarantine /Applications/MarkText.app
+  ```
+
+  Alternatively, right-click the app in Finder, choose **Open**, and confirm the prompt once.
+
+- **The app feels slow on Apple Silicon.** Make sure you installed the `arm64` build rather than the `x64` build running under Rosetta. If you install with Homebrew, run it from a native arm64 Homebrew (`/opt/homebrew`); an Intel Homebrew (`/usr/local`) runs under Rosetta, reports itself as `x86_64`, and therefore fetches the `x64` dmg. Verify the installed architecture with:
+
+  ```bash
+  file /Applications/MarkText.app/Contents/MacOS/marktext   # should report "arm64"
+  ```
+
 #### Windows
 
 Requires Windows 10 or 11. Both x64 and arm64 installers are published — pick the architecture that matches your machine.
