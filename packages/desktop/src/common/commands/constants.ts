@@ -91,9 +91,11 @@ const COMMANDS = Object.freeze({
   TABS_SWITCH_TO_THIRD: 'tabs.switchToThird',
 
   VIEW_COMMAND_PALETTE: 'view.command-palette',
+  VIEW_DECREASE_FONT_SIZE: 'view.decrease-font-size',
   VIEW_DEV_RELOAD: 'view.dev-reload',
   VIEW_FOCUS_MODE: 'view.focus-mode',
   VIEW_FORCE_RELOAD_IMAGES: 'view.reload-images',
+  VIEW_INCREASE_FONT_SIZE: 'view.increase-font-size',
   VIEW_SOURCE_CODE_MODE: 'view.source-code-mode',
   VIEW_TOGGLE_DEV_TOOLS: 'view.toggle-dev-tools',
   VIEW_TOGGLE_SIDEBAR: 'view.toggle-sidebar',

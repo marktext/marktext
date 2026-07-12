@@ -213,6 +213,56 @@ function checkTokenIsInlineFormat(token: Token) {
     return false;
 }
 
+function tokenMatchesFormatType(token: Token, type: string): boolean {
+    return (
+        token.type === type
+        || (token.type === 'html_tag' && token.tag === type)
+    );
+}
+
+/**
+ * True when every offset in [start, end) lies inside a token of `type`
+ * (e.g. the selection is entirely bold). Used for Word-style toggle:
+ * fully covered → remove format; otherwise → apply format.
+ */
+function isRangeCoveredByFormatType(
+    tokens: Token[],
+    type: string,
+    start: number,
+    end: number,
+): boolean {
+    if (start >= end)
+        return false;
+
+    const ranges: Array<{ start: number; end: number }> = [];
+    (function collect(tks: Token[]) {
+        for (const token of tks) {
+            if (tokenMatchesFormatType(token, type))
+                ranges.push({ start: token.range.start, end: token.range.end });
+            if ('children' in token && Array.isArray(token.children))
+                collect(token.children);
+        }
+    })(tokens);
+
+    if (!ranges.length)
+        return false;
+
+    ranges.sort((a, b) => a.start - b.start || a.end - b.end);
+
+    let pos = start;
+    for (const range of ranges) {
+        if (range.end <= pos)
+            continue;
+        if (range.start > pos)
+            return false;
+        pos = Math.max(pos, range.end);
+        if (pos >= end)
+            return true;
+    }
+
+    return pos >= end;
+}
+
 class Format extends Content {
     static override blockName = 'format';
 
@@ -1594,7 +1644,25 @@ class Format extends Content {
         return { formats, tokens, neighbors };
     }
 
-    format(type: string) {
+    /**
+     * True when [start, end) is entirely covered by inline format `type`.
+     * Cross-block formatting uses this to decide a single on/off for the range.
+     */
+    isRangeCoveredByFormat(type: string, start: number, end: number): boolean {
+        const tokens = tokenizer(this.text, {
+            options: this.muya.options,
+        });
+
+        return isRangeCoveredByFormatType(tokens, type, start, end);
+    }
+
+    /**
+     * Toggle (or force) an inline format over the current selection.
+     * @param force When set, skip the usual toggle check and always apply (`on`)
+     *   or remove (`off`). Cross-block Cmd+B uses this so mixed paragraphs
+     *   unify instead of each leaf inverting on its own.
+     */
+    format(type: string, force?: 'on' | 'off') {
         const cursor = this.getCursor();
         if (cursor == null)
             return;
@@ -1611,14 +1679,27 @@ class Format extends Content {
         const [currentFormats, currentNeighbors] = [formats, neighbors].map(
             item =>
                 item
-                    .filter((format) => {
-                        return (
-                            format.type === type
-                            || (format.type === 'html_tag' && format.tag === type)
-                        );
-                    })
+                    .filter(format => tokenMatchesFormatType(format, type))
                     .reverse(),
         );
+
+        const isCollapsed = start.offset === end.offset;
+        // Word-style: a non-collapsed selection that is already fully covered
+        // by `type` toggles OFF even when it isn't a subset of one token
+        // (e.g. selecting across `**a****b**`).
+        const fullyCovered
+            = !isCollapsed
+                && isRangeCoveredByFormatType(
+                    tokens,
+                    type,
+                    start.offset,
+                    end.offset,
+                );
+        const shouldRemove
+            = force === 'off'
+                || (force !== 'on'
+                    && ((isCollapsed && currentFormats.length > 0)
+                        || fullyCovered));
 
         // cache delta
         if (type === 'clear') {
@@ -1630,8 +1711,14 @@ class Format extends Content {
 
             this.text = generator(tokens, true);
         }
-        else if (currentFormats.length) {
-            for (const token of currentFormats)
+        else if (shouldRemove) {
+            // Collapsed caret: clear the containing format token(s).
+            // Range: clear every overlapping same-type neighbor.
+            const toClear
+                = isCollapsed && currentFormats.length > 0
+                    ? currentFormats
+                    : currentNeighbors;
+            for (const token of toClear)
                 clearFormat(token, cursor);
 
             start.offset += start.delta;
@@ -1640,6 +1727,13 @@ class Format extends Content {
         }
         else {
             if (currentNeighbors.length) {
+                // Expand to cover any partially-overlapping same-type run so
+                // clear+wrap yields one clean format (`**hello world**`) instead
+                // of truncating mid-token (`**hello w**orld`).
+                for (const neighbor of currentNeighbors) {
+                    start.offset = Math.min(start.offset, neighbor.range.start);
+                    end.offset = Math.max(end.offset, neighbor.range.end);
+                }
                 for (const neighbor of currentNeighbors)
                     clearFormat(neighbor, cursor);
             }

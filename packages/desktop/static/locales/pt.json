@@ -119,7 +119,9 @@
       "toggleTableOfContents": "Alternar Índice",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
-      "reloadWindow": "Recarregar Janela"
+      "reloadWindow": "Recarregar Janela",
+      "increaseFontSize": "Aumentar tamanho da fonte",
+      "decreaseFontSize": "Diminuir tamanho da fonte"
     },
     "format": {
       "format": "Formato",
@@ -845,7 +847,9 @@
       "reloadImages": "Recarregar Imagens",
       "textDirection": "Direção do Texto",
       "actualSize": "Tamanho real",
-      "devToggleDeveloperTools": "Alternar ferramentas de desenvolvedor"
+      "devToggleDeveloperTools": "Alternar ferramentas de desenvolvedor",
+      "increaseFontSize": "Aumentar tamanho da fonte",
+      "decreaseFontSize": "Diminuir tamanho da fonte"
     },
     "tabs": {
       "cycleForward": "Ciclar para Frente",

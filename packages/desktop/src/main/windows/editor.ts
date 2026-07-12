@@ -322,6 +322,10 @@ class EditorWindow extends BaseWindow {
     // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
 
+    // Opening a file into a window that was hidden after closing its last tab
+    // must restore visibility (Dock / New File / Open File recovery path).
+    this.bringToFront()
+
     const { browserWindow } = this
     const { preferences } = this._accessor
     const eol = preferences.getPreferredEol()
@@ -366,6 +370,8 @@ class EditorWindow extends BaseWindow {
   openUntitledTab(selected: boolean = true, markdown: string = ''): void {
     // TODO: Don't allow new files if quitting.
     if (this.lifecycle === WindowLifecycle.QUITTED) return
+
+    this.bringToFront()
 
     if (this.lifecycle === WindowLifecycle.READY) {
       const { browserWindow } = this

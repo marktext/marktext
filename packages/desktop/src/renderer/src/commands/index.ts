@@ -600,6 +600,18 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'view.increase-font-size',
+    execute: async() => {
+      bus.emit('mt::editor-font-size-adjust', 1)
+    }
+  },
+  {
+    id: 'view.decrease-font-size',
+    execute: async() => {
+      bus.emit('mt::editor-font-size-adjust', -1)
+    }
+  },
+  {
     id: 'view.toggle-sidebar',
     execute: async() => {
       bus.emit('view:toggle-layout-entry', 'showSideBar')

@@ -97,6 +97,8 @@ const keybindings: Map<string, string> = new Map([
   ['view.toggle-sidebar', 'Command+J'],
   ['view.toggle-toc', 'Command+K'],
   ['view.toggle-tabbar', 'Command+Option+B'],
+  ['view.increase-font-size', 'Command+Shift+Plus'],
+  ['view.decrease-font-size', 'Command+Shift+-'],
   ['view.toggle-dev-tools', 'Command+Option+I'],
   ['view.dev-reload', 'Command+Option+R'],
   ['view.reload-images', 'Command+R'],

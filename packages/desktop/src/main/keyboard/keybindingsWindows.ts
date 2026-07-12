@@ -100,6 +100,8 @@ const keybindings: Map<string, string> = new Map([
   ['view.toggle-sidebar', 'Ctrl+J'],
   ['view.toggle-toc', 'Ctrl+K'],
   ['view.toggle-tabbar', 'Ctrl+Shift+B'],
+  ['view.increase-font-size', 'Ctrl+Shift+Plus'],
+  ['view.decrease-font-size', 'Ctrl+Shift+-'],
   ['view.toggle-dev-tools', 'Ctrl+Alt+I'],
   ['view.dev-reload', 'Ctrl+F5'],
   ['view.reload-images', 'F5'],

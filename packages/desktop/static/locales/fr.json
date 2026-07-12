@@ -119,7 +119,9 @@
       "toggleTableOfContents": "Basculer la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
-      "reloadWindow": "Recharger la fenêtre"
+      "reloadWindow": "Recharger la fenêtre",
+      "increaseFontSize": "Augmenter la taille de police",
+      "decreaseFontSize": "Diminuer la taille de police"
     },
     "format": {
       "format": "Format",
@@ -845,7 +847,9 @@
       "reloadImages": "Recharger les images",
       "textDirection": "Direction du texte",
       "actualSize": "Taille réelle",
-      "devToggleDeveloperTools": "Basculer les outils de développement"
+      "devToggleDeveloperTools": "Basculer les outils de développement",
+      "increaseFontSize": "Augmenter la taille de police",
+      "decreaseFontSize": "Diminuer la taille de police"
     },
     "tabs": {
       "cycleForward": "Cycle vers l'avant",

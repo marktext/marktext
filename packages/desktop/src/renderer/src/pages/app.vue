@@ -193,6 +193,7 @@ onMounted(async () => {
   editorStore.LISTEN_FOR_EXPORT_SUCCESS()
   editorStore.LISTEN_FOR_FILE_CHANGE()
   editorStore.LISTEN_WINDOW_ZOOM()
+  editorStore.LISTEN_EDITOR_FONT_SIZE()
   editorStore.LISTEN_FOR_RELOAD_IMAGES()
   editorStore.LISTEN_FOR_CONTEXT_MENU()
   editorStore.LISTEN_FOR_STATE_REPLACE()

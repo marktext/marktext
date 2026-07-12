@@ -725,6 +725,9 @@ export const openFile = async(win: BrowserWindow | null): Promise<void> => {
   if (!win) {
     return
   }
+  if (!win.isVisible()) {
+    win.show()
+  }
   const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openFile', 'multiSelections'],
     filters: [
@@ -743,6 +746,9 @@ export const openFile = async(win: BrowserWindow | null): Promise<void> => {
 export const openFolder = async(win: BrowserWindow | null): Promise<void> => {
   if (!win) {
     return
+  }
+  if (!win.isVisible()) {
+    win.show()
   }
   const { filePaths } = await dialog.showOpenDialog(win, {
     properties: ['openDirectory', 'createDirectory']
@@ -766,6 +772,11 @@ export const openFileOrFolder = (win: BrowserWindow, pathname: string): void => 
 
 export const newBlankTab = (win: Win): void => {
   if (win && win.webContents) {
+    // Closing the last tab hides the window on macOS; New Tab must restore it.
+    if (!win.isVisible()) {
+      win.show()
+    }
+    win.focus()
     win.webContents.send('mt::new-untitled-tab')
     showTabBar(win)
   }
