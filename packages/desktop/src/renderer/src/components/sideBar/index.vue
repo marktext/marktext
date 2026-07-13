@@ -1,22 +1,29 @@
 <template>
   <div
-    v-show="showSideBar"
+    v-show="showBar"
     ref="sideBar"
     class="side-bar"
-    :style="[!rightColumn ? { 'min-width': '45px' } : {}, { width: `${finalSideBarWidth}px` }]"
+    :class="isRight ? 'side-right' : 'side-left'"
+    :style="{ minWidth: `${finalSideBarWidth}px`, width: `${finalSideBarWidth}px` }"
   >
-    <div class="left-column">
+    <div
+      v-show="!isRight"
+      class="left-column"
+    >
       <ul>
         <li
           v-for="(c, index) of sideBarIcons"
           :key="index"
-          :class="{ active: c.id === rightColumn }"
+          :class="{ active: c.id === activeColumn }"
           @click="handleLeftIconClick(c.id)"
         >
           <component :is="c.icon" />
         </li>
       </ul>
-      <ul class="bottom">
+      <ul
+        v-if="!isRight"
+        class="bottom"
+      >
         <li
           v-for="(c, index) of sideBarBottomIcons"
           :key="index"
@@ -27,20 +34,25 @@
       </ul>
     </div>
     <div
-      v-show="rightColumn"
+      v-show="activeColumn"
       class="right-column"
     >
+      <!-- Only mount a panel view while this sidebar is actually shown. The
+           `v-show` above keeps a hidden sidebar in the DOM, so without the
+           `showBar` guard the secondary sidebar (whose default column is
+           'toc') would render a second, hidden `.side-bar-toc` permanently,
+           breaking the TOC e2e specs that expect a single instance. -->
       <tree
-        v-if="rightColumn === 'files'"
+        v-if="showBar && activeColumn === 'files'"
         :project-tree="projectTree"
         :opened-files="openedFiles"
         :tabs="tabs"
       />
-      <side-bar-search v-else-if="rightColumn === 'search'" />
-      <toc v-else-if="rightColumn === 'toc'" />
+      <side-bar-search v-else-if="showBar && activeColumn === 'search'" />
+      <toc v-else-if="showBar && activeColumn === 'toc'" />
     </div>
     <div
-      v-show="rightColumn"
+      v-show="activeColumn"
       ref="dragBar"
       class="drag-bar"
     />
@@ -60,6 +72,13 @@ import Toc from './toc.vue'
 import { storeToRefs } from 'pinia'
 import type { TabDescriptor } from './types'
 
+// `side` selects which set of layout-store fields this instance is bound to.
+// The same component renders both the primary (left) and secondary (right)
+// sidebar; app.vue mounts one of each.
+const props = withDefaults(defineProps<{ side?: 'left' | 'right' }>(), {
+  side: 'left'
+})
+
 const layoutStore = useLayoutStore()
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -70,23 +89,61 @@ const dragBar = ref<HTMLDivElement | null>(null)
 const openedFiles = ref<TabDescriptor[]>([])
 const sideBarViewWidth = ref(280)
 
-const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
+const {
+  rightColumn,
+  secondaryColumn,
+  showSideBar,
+  showSecondarySideBar,
+  sideBarWidth,
+  secondarySideBarWidth
+} = storeToRefs(layoutStore)
 
 const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
 
+const isRight = computed<boolean>(() => props.side === 'right')
+
+// This side's active view, visibility, persisted width and icon-strip visibility.
+const activeColumn = computed<string>(() =>
+  isRight.value ? secondaryColumn.value : rightColumn.value
+)
+const showBar = computed<boolean>(() =>
+  isRight.value ? showSecondarySideBar.value : showSideBar.value
+)
+const persistedWidth = computed<number>(() =>
+  Number(isRight.value ? secondarySideBarWidth.value : sideBarWidth.value)
+)
+
 const finalSideBarWidth = computed<number>(() => {
-  if (!showSideBar.value) return 0
-  if (rightColumn.value === '') return 45
+  if (!showBar.value) return 0
+  // The primary sidebar keeps a 45px icon strip when no view is active; the
+  // secondary sidebar has no icon strip.
+  if (!activeColumn.value) return isRight.value ? 0 : 45
   return sideBarViewWidth.value < 220 ? 220 : sideBarViewWidth.value
 })
+
+const setActiveColumn = (name: string): void => {
+  if (isRight.value) {
+    layoutStore.SET_LAYOUT({ secondaryColumn: name })
+  } else {
+    layoutStore.SET_LAYOUT({ rightColumn: name })
+  }
+}
+
+const changeWidth = (width: number): void => {
+  if (isRight.value) {
+    layoutStore.CHANGE_SECONDARY_SIDE_BAR_WIDTH(width)
+  } else {
+    layoutStore.CHANGE_SIDE_BAR_WIDTH(width)
+  }
+}
 
 onMounted(() => {
   nextTick(() => {
     const dragBarEl = dragBar.value
     if (!dragBarEl) return
     let startX = 0
-    let currentSideBarWidth = +sideBarWidth.value
+    let currentSideBarWidth = persistedWidth.value
     let startWidth = currentSideBarWidth
 
     sideBarViewWidth.value = currentSideBarWidth
@@ -94,18 +151,20 @@ onMounted(() => {
     const mouseUpHandler = (): void => {
       document.removeEventListener('mousemove', mouseMoveHandler, false)
       document.removeEventListener('mouseup', mouseUpHandler, false)
-      layoutStore.CHANGE_SIDE_BAR_WIDTH(currentSideBarWidth < 220 ? 220 : currentSideBarWidth)
+      changeWidth(currentSideBarWidth < 220 ? 220 : currentSideBarWidth)
     }
 
     const mouseMoveHandler = (event: MouseEvent): void => {
-      const offset = event.clientX - startX
+      // The left sidebar grows when its right edge is dragged rightwards; the
+      // right sidebar grows when its left edge is dragged leftwards (sign flips).
+      const offset = isRight.value ? startX - event.clientX : event.clientX - startX
       currentSideBarWidth = startWidth + offset
       sideBarViewWidth.value = currentSideBarWidth
     }
 
     const mouseDownHandler = (event: MouseEvent): void => {
       startX = event.clientX
-      startWidth = +sideBarWidth.value
+      startWidth = persistedWidth.value
       document.addEventListener('mousemove', mouseMoveHandler, false)
       document.addEventListener('mouseup', mouseUpHandler, false)
     }
@@ -115,19 +174,20 @@ onMounted(() => {
 })
 
 const handleLeftIconClick = (name: string): void => {
-  if (rightColumn.value === name) {
-    // Capture the expanded width BEFORE collapsing: once rightColumn is '',
-    // finalSideBarWidth evaluates to the 45px icon strip and would overwrite
-    // the user's real width with the clamped 220px minimum (#2421).
+  if (activeColumn.value === name) {
+    // Capture the expanded width BEFORE collapsing: once the active column is '',
+    // finalSideBarWidth evaluates to the icon strip (45px on the left, 0 on the
+    // right) and would overwrite the user's real width with the clamped 220px
+    // minimum (#2421).
     const widthToPersist = finalSideBarWidth.value
-    layoutStore.SET_LAYOUT({ rightColumn: '' })
-    layoutStore.CHANGE_SIDE_BAR_WIDTH(widthToPersist)
+    setActiveColumn('')
+    changeWidth(widthToPersist)
   } else {
-    const needDispatch = rightColumn.value === ''
-    layoutStore.SET_LAYOUT({ rightColumn: name })
-    sideBarViewWidth.value = +sideBarWidth.value
+    const needDispatch = activeColumn.value === ''
+    setActiveColumn(name)
+    sideBarViewWidth.value = persistedWidth.value
     if (needDispatch) {
-      layoutStore.CHANGE_SIDE_BAR_WIDTH(finalSideBarWidth.value)
+      changeWidth(finalSideBarWidth.value)
     }
   }
 }
@@ -152,6 +212,14 @@ const handleLeftBottomClick = (name: string): void => {
   user-select: none;
   background: var(--sideBarBgColor);
   border-right: 1px solid var(--itemBgColor);
+}
+
+/* Secondary (right) sidebar: it has no icon strip; the resize handle and
+   border sit on the inner (left) edge since the panel is docked to the
+   window's right side. */
+.side-bar.side-right {
+  border-right: none;
+  border-left: 1px solid var(--itemBgColor);
 }
 
 .side-bar .left-column svg {
@@ -213,6 +281,14 @@ const handleLeftBottomClick = (name: string): void => {
   overflow: hidden;
 }
 
+/* The secondary sidebar has no icon strip, so give its view a little breathing
+   room off the panel edges. The primary sidebar keeps its icons (which already
+   provide that spacing), so it is left untouched. */
+.side-bar.side-right .right-column {
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
 .drag-bar {
   position: absolute;
   top: 0;
@@ -221,6 +297,11 @@ const handleLeftBottomClick = (name: string): void => {
   height: 100%;
   width: 3px;
   cursor: col-resize;
+}
+
+.side-bar.side-right .drag-bar {
+  right: auto;
+  left: 0;
 }
 
 .drag-bar:hover {

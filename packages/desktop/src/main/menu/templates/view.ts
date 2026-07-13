@@ -77,6 +77,36 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      label: t('menu.view.secondaryFiles'),
+      id: 'secondaryContentFilesMenuItem',
+      accelerator: keybindings.getAccelerator('view.secondary-files') ?? undefined,
+      type: 'checkbox',
+      checked: false,
+      click(_item, focusedWindow) {
+        actions.showSecondaryFiles(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.view.secondarySearch'),
+      id: 'secondaryContentSearchMenuItem',
+      accelerator: keybindings.getAccelerator('view.secondary-search') ?? undefined,
+      type: 'checkbox',
+      checked: false,
+      click(_item, focusedWindow) {
+        actions.showSecondarySearch(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.view.secondaryToc'),
+      id: 'secondaryContentTocMenuItem',
+      accelerator: keybindings.getAccelerator('view.secondary-toc') ?? undefined,
+      type: 'checkbox',
+      checked: false,
+      click(_item, focusedWindow) {
+        actions.showSecondaryToc(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       label: t('menu.view.reloadImages'),
       accelerator: keybindings.getAccelerator('view.reload-images') ?? undefined,
       click(_item, focusedWindow) {

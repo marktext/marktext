@@ -59,6 +59,21 @@ export const toggleTabBar = (win: Win): void => {
   toggleLayout(win, 'showTabBar')
 }
 
+/** Shows the file tree in the secondary (right) sidebar; hides it if already active. */
+export const showSecondaryFiles = (win: Win): void => {
+  setLayout(win, 'secondaryColumn', 'files')
+}
+
+/** Shows search in the secondary (right) sidebar; hides it if already active. */
+export const showSecondarySearch = (win: Win): void => {
+  setLayout(win, 'secondaryColumn', 'search')
+}
+
+/** Shows the table of contents in the secondary (right) sidebar; hides it if already active. */
+export const showSecondaryToc = (win: Win): void => {
+  setLayout(win, 'secondaryColumn', 'toc')
+}
+
 export const showTabBar = (win: Win): void => {
   setLayout(win, 'showTabBar', true)
 }
@@ -85,6 +100,9 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
+  commandManager.add(COMMANDS.VIEW_SECONDARY_FILES, showSecondaryFiles)
+  commandManager.add(COMMANDS.VIEW_SECONDARY_SEARCH, showSecondarySearch)
+  commandManager.add(COMMANDS.VIEW_SECONDARY_TOC, showSecondaryToc)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TOC, showTableOfContents)
   commandManager.add(COMMANDS.VIEW_TYPEWRITER_MODE, toggleTypewriterMode)
@@ -136,5 +154,15 @@ export const viewLayoutChanged = (
         changeMenuByName(focusModeMenuItemId, value)
         break
     }
+  }
+
+  // Secondary sidebar content checkboxes reflect the active view only while the
+  // panel is visible. Both fields arrive together from DISPATCH_LAYOUT_MENU_ITEMS.
+  if ('secondaryColumn' in changes || 'showSecondarySideBar' in changes) {
+    const shown = !!changes.showSecondarySideBar
+    const col = changes.secondaryColumn
+    changeMenuByName('secondaryContentFilesMenuItem', shown && col === 'files')
+    changeMenuByName('secondaryContentSearchMenuItem', shown && col === 'search')
+    changeMenuByName('secondaryContentTocMenuItem', shown && col === 'toc')
   }
 }

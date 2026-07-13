@@ -1,6 +1,9 @@
 <template>
   <div class="editor-container">
-    <side-bar v-if="init" />
+    <side-bar
+      v-if="init"
+      side="left"
+    />
 
     <div class="editor-middle">
       <title-bar
@@ -34,6 +37,10 @@
       <rename />
       <import-modal />
     </div>
+    <side-bar
+      v-if="init"
+      side="right"
+    />
   </div>
 </template>
 
@@ -244,6 +251,9 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex: 1;
+  /* Allow this column to shrink below its content's intrinsic width so a full
+     tab bar scrolls/truncates instead of pushing the secondary sidebar off-screen. */
+  min-width: 0;
   min-height: 100vh;
   position: relative;
   & > .editor {

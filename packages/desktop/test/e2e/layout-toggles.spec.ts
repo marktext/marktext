@@ -31,10 +31,10 @@ test.describe('Layout panel toggles', () => {
   })
 
   test('Sidebar toggle changes .side-bar visibility', async() => {
-    const sideBar = page.locator('.side-bar')
+    const sideBar = page.locator('.side-bar.side-left')
     const initial = await sideBar.isVisible()
     await clickMenuById(app, 'sideBarMenuItem')
-    await waitForVisibilityFlip(page, '.side-bar', initial)
+    await waitForVisibilityFlip(page, '.side-bar.side-left', initial)
     const afterToggle = await sideBar.isVisible()
     expect(afterToggle).not.toBe(initial)
     await clickMenuById(app, 'sideBarMenuItem')
@@ -52,12 +52,12 @@ test.describe('Layout panel toggles', () => {
 
   test('TOC menu toggles ToC panel without throwing', async() => {
     // Ensure sidebar is visible so TOC has somewhere to render.
-    const sideBar = page.locator('.side-bar')
+    const sideBar = page.locator('.side-bar.side-left')
     if (!(await sideBar.isVisible())) {
       await clickMenuById(app, 'sideBarMenuItem')
       await page.waitForFunction(
         () => {
-          const el = document.querySelector('.side-bar') as HTMLElement | null
+          const el = document.querySelector('.side-bar.side-left') as HTMLElement | null
           return el && el.offsetParent !== null
         },
         null,
@@ -77,12 +77,12 @@ test.describe('Layout panel toggles', () => {
   // from the *effective* sidebar width, not the raw store value.
   test('Editor fills width after collapsing sidebar to icon strip', async() => {
     // Ensure sidebar is visible.
-    const sideBar = page.locator('.side-bar')
+    const sideBar = page.locator('.side-bar.side-left')
     if (!(await sideBar.isVisible())) {
       await clickMenuById(app, 'sideBarMenuItem')
       await page.waitForFunction(
         () => {
-          const el = document.querySelector('.side-bar') as HTMLElement | null
+          const el = document.querySelector('.side-bar.side-left') as HTMLElement | null
           return !!(el && el.offsetParent !== null)
         },
         null,
@@ -93,16 +93,16 @@ test.describe('Layout panel toggles', () => {
     // Open search panel and then collapse it back to the icon strip by
     // clicking the search icon. We use a locator-based click (not a DOM
     // .click()) so Playwright handles focus/activation correctly.
-    const searchIcon = page.locator('.side-bar .left-column > ul').first().locator('li').nth(1)
+    const searchIcon = page.locator('.side-bar.side-left .left-column > ul').first().locator('li').nth(1)
 
     // Step 1: ensure rightColumn='search' (sidebar width ≥ 220 with the
     // search panel mounted at `.side-bar-search`).
     for (let i = 0; i < 3; i++) {
       const { width, hasSearch } = await page.evaluate(() => {
-        const sb = document.querySelector('.side-bar') as HTMLElement | null
+        const sb = document.querySelector('.side-bar.side-left') as HTMLElement | null
         return {
           width: sb ? Math.round(sb.getBoundingClientRect().width) : 0,
-          hasSearch: !!document.querySelector('.side-bar .right-column .side-bar-search')
+          hasSearch: !!document.querySelector('.side-bar.side-left .right-column .side-bar-search')
         }
       })
       if (width >= 220 && hasSearch) break
@@ -115,7 +115,7 @@ test.describe('Layout panel toggles', () => {
     await searchIcon.click()
     await page.waitForFunction(
       () => {
-        const sb = document.querySelector('.side-bar') as HTMLElement | null
+        const sb = document.querySelector('.side-bar.side-left') as HTMLElement | null
         return !!sb && sb.getBoundingClientRect().width <= 50
       },
       null,
@@ -124,7 +124,7 @@ test.describe('Layout panel toggles', () => {
 
     const { editorWidth, sideBarWidth, viewportWidth } = await page.evaluate(() => {
       const editor = document.querySelector('.editor-with-tabs') as HTMLElement | null
-      const sb = document.querySelector('.side-bar') as HTMLElement | null
+      const sb = document.querySelector('.side-bar.side-left') as HTMLElement | null
       return {
         editorWidth: editor ? editor.getBoundingClientRect().width : 0,
         sideBarWidth: sb ? sb.getBoundingClientRect().width : 0,

@@ -119,7 +119,10 @@
       "toggleTableOfContents": "目次の切り替え",
       "reloadImages": "画像を再読み込み",
       "showDeveloperTools": "開発者ツールを表示",
-      "reloadWindow": "ウィンドウを再読み込み"
+      "reloadWindow": "ウィンドウを再読み込み",
+      "secondaryFiles": "セカンダリサイドバー：ファイルツリー",
+      "secondarySearch": "セカンダリサイドバー：検索",
+      "secondaryToc": "セカンダリサイドバー：目次"
     },
     "format": {
       "format": "フォーマット",
@@ -845,7 +848,10 @@
       "reloadImages": "画像を再読み込み",
       "textDirection": "テキスト方向",
       "actualSize": "実際のサイズ",
-      "devToggleDeveloperTools": "開発者ツールの切り替え"
+      "devToggleDeveloperTools": "開発者ツールの切り替え",
+      "secondaryFiles": "セカンダリサイドバー：ファイルツリー",
+      "secondarySearch": "セカンダリサイドバー：検索",
+      "secondaryToc": "セカンダリサイドバー：目次"
     },
     "tabs": {
       "cycleForward": "前方に循環",
