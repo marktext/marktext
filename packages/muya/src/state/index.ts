@@ -52,8 +52,19 @@ class JSONState {
 
     private _state: TState[] = [];
 
+    // Monotonic revision bumped on every `_state` reassignment (the only way
+    // `_state` ever changes — there is no in-place mutation). Consumers that
+    // derive data from the whole document (e.g. the inline renderer's reference
+    // -definition labels) cache against it and recompute only when it changes,
+    // instead of re-deriving on every access.
+    private _revision = 0;
+
     constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
         this.setContent(stateOrMarkdown);
+    }
+
+    get revision() {
+        return this._revision;
     }
 
     private _apply(op: JSONOp) {
@@ -63,6 +74,7 @@ class JSONState {
         if (op === null)
             return;
         this._state = asState(json1.type.apply(asDoc(this._state), op));
+        this._revision++;
     }
 
     setContent(content: TState[] | string) {
@@ -84,10 +96,12 @@ class JSONState {
 
     private _setState(state: TState[]) {
         this._state = state;
+        this._revision++;
     }
 
     private _setMarkdown(markdown: string) {
         this._state = this.markdownToState(markdown);
+        this._revision++;
     }
 
     // Parse markdown into a block-state array with the editor's current

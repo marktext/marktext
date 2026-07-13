@@ -15,6 +15,13 @@ class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
 
+    // jsonState revision the cached `labels` were collected at. Collecting walks
+    // the whole document, and `patch` runs once per content block, so without
+    // this guard the initial render (and every re-render) was O(n^2): a full
+    // document deep-clone + walk per block. The labels only change when the
+    // document does, so recompute only when the revision advances.
+    private _labelsRevision = -1;
+
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
     }
@@ -75,7 +82,12 @@ class InlineRenderer {
     }
 
     private _collectReferenceDefinitions() {
-        const state = this.muya.editor.jsonState.getState();
+        const { jsonState } = this.muya.editor;
+        // The document hasn't changed since we last collected — reuse the cache.
+        if (this._labelsRevision === jsonState.revision)
+            return;
+
+        const state = jsonState.getState();
         const labels = new Map();
 
         const travel = (sts: TState[]) => {
@@ -96,6 +108,7 @@ class InlineRenderer {
         travel(state);
 
         this.labels = labels;
+        this._labelsRevision = jsonState.revision;
     }
 
     getLabelInfo(blockOrState: ParagraphContent | IParagraphState) {
