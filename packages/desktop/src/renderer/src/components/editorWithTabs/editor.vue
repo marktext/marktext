@@ -221,6 +221,7 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   lineHeight,
   fontSize,
   codeFontSize,
@@ -665,6 +666,12 @@ watch(isHtmlEnabled, (value, oldValue) => {
 watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ isGitlabCompatibilityEnabled: value }, true)
+  }
+})
+
+watch(softNewlineAsSpace, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ softNewlineAsSpace: value }, true)
   }
 })
 
@@ -1751,6 +1758,7 @@ onMounted(() => {
     footnote: footnote.value,
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
+    softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
