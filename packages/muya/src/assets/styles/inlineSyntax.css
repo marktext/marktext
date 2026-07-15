@@ -264,6 +264,13 @@ div .mu-math-error,
     vertical-align: middle;
 }
 
+.mu-hide.mu-math.mu-display-math {
+    display: block;
+    width: 100%;
+
+    text-align: center;
+}
+
 .mu-hide.mu-ruby,
 .mu-hide.mu-math {
     width: auto;

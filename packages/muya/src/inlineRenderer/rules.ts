@@ -65,6 +65,9 @@ export const gfmRules = {
 
 export type GfmRules = typeof gfmRules;
 
+// eslint-disable-next-line regexp/no-super-linear-backtracking
+export const inlineDisplayMathRule = /^(\$\$)(?!\$)((?:(?!\1)[^\\\n]|\\.)+)(\\*)\1/;
+
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
     // eslint-disable-next-line regexp/no-super-linear-backtracking
