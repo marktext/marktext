@@ -708,6 +708,32 @@ class Content extends TreeNode {
         return true;
     }
 
+    private _snapDeletionCursorToCodePointBoundary(event: KeyboardEvent) {
+        if (event.key !== EVENT_KEYS.Backspace && event.key !== EVENT_KEYS.Delete)
+            return;
+
+        const cursor = this.getCursor();
+        if (!cursor?.isCollapsed)
+            return;
+
+        const offset = cursor.start.offset;
+        const previous = this.text.charCodeAt(offset - 1);
+        const next = this.text.charCodeAt(offset);
+        const splitsSurrogatePair
+            = previous >= 0xD800
+                && previous <= 0xDBFF
+                && next >= 0xDC00
+                && next <= 0xDFFF;
+
+        // Native deletion at this invalid UTF-16 boundary leaves a lone
+        // surrogate that text-unicode cannot encode (#4926).
+        if (splitsSurrogatePair) {
+            const safeOffset
+                = event.key === EVENT_KEYS.Backspace ? offset + 1 : offset - 1;
+            this.setCursor(safeOffset, safeOffset);
+        }
+    }
+
     keydownHandler = (event: Event) => {
         if (!isKeyboardEvent(event))
             return;
@@ -717,6 +743,8 @@ class Content extends TreeNode {
 
         if (this._wrapSelectionWithAutoPair(event))
             return;
+
+        this._snapDeletionCursorToCodePointBoundary(event);
 
         switch (event.key) {
             case EVENT_KEYS.Backspace:

@@ -41,6 +41,23 @@ interface IOffsetWithDelta extends IOffset {
 
 const debug = logger('block.format:');
 
+function firstCodePointLength(text: string) {
+    const codePoint = text.codePointAt(0);
+    return codePoint !== undefined && codePoint > 0xFFFF ? 2 : 1;
+}
+
+function lastCodePointLength(text: string) {
+    const last = text.length - 1;
+    const lastUnit = text.charCodeAt(last);
+    const previousUnit = text.charCodeAt(last - 1);
+    return lastUnit >= 0xDC00
+        && lastUnit <= 0xDFFF
+        && previousUnit >= 0xD800
+        && previousUnit <= 0xDBFF
+        ? 2
+        : 1;
+}
+
 function isEmojiToken(token: Token): token is CodeEmojiMathToken {
     return token.type === 'emoji';
 }
@@ -1321,7 +1338,7 @@ class Format extends Content {
         // `contenteditable=false` inline image; resolve the real offset from the
         // DOM so the scan can match the image token like any other caret.
         const offset = this._caretOffsetOnInlineImage() ?? start.offset;
-        const { needRender, imageToken, referenceImageToken }
+        const { needRender, imageToken, referenceImageToken, offsetDelta }
             = this._scanBackspaceTokens(tokens, offset);
 
         if (referenceImageToken) {
@@ -1337,8 +1354,8 @@ class Format extends Content {
             event.preventDefault();
             this.text = generator(tokens);
 
-            start.offset--;
-            end.offset--;
+            start.offset -= offsetDelta;
+            end.offset -= offsetDelta;
             this.setCursor(start.offset, end.offset, true);
         }
 
@@ -1365,6 +1382,7 @@ class Format extends Content {
         needRender: boolean;
         imageToken: Token | null;
         referenceImageToken: Token | null;
+        offsetDelta: number;
     } {
         for (const token of tokens) {
             // An inline image followed by other content: the caret lands on the
@@ -1374,31 +1392,33 @@ class Format extends Content {
                 = token.type === 'image'
                     || (token.type === 'html_tag' && token.tag === 'img');
             if (token.range.end === offset && isImageToken)
-                return { needRender: false, imageToken: token, referenceImageToken: null };
+                return { needRender: false, imageToken: token, referenceImageToken: null, offsetDelta: 0 };
 
             // A reference image (`![alt][ref]`) is editable marked text, so it has
             // no inline-image wrapper to select. Delete the whole token at once.
             if (token.range.end === offset && token.type === 'reference_image')
-                return { needRender: false, imageToken: null, referenceImageToken: token };
+                return { needRender: false, imageToken: null, referenceImageToken: token, offsetDelta: 0 };
 
             // handle delete the second marker(et:*、$) in inline syntax.(Firefox compatible)
             // Fix: https://github.com/marktext/muya/issues/113
             // for example: foo **strong**|
             if (token.range.end === offset) {
-                token.raw = token.raw.substring(0, token.raw.length - 1);
-                return { needRender: true, imageToken: null, referenceImageToken: null };
+                const removedLength = lastCodePointLength(token.raw);
+                token.raw = token.raw.substring(0, token.raw.length - removedLength);
+                return { needRender: true, imageToken: null, referenceImageToken: null, offsetDelta: removedLength };
             }
 
-            // If preToken is a syntax token, the the cursor is at offset 1, need to set the cursor manually.(Firefox compatible)
-            // // Fix: https://github.com/marktext/muya/issues/113
-            // for example: foo **strong**w|
-            if (token.range.start + 1 === offset) {
-                token.raw = token.raw.substring(1);
-                return { needRender: true, imageToken: null, referenceImageToken: null };
+            // When the caret is just after a token's first code point, remove
+            // that code point and place the cursor manually (Firefox parity).
+            // Fix: https://github.com/marktext/muya/issues/113
+            const removedLength = firstCodePointLength(token.raw);
+            if (token.range.start + removedLength === offset) {
+                token.raw = token.raw.substring(removedLength);
+                return { needRender: true, imageToken: null, referenceImageToken: null, offsetDelta: removedLength };
             }
         }
 
-        return { needRender: false, imageToken: null, referenceImageToken: null };
+        return { needRender: false, imageToken: null, referenceImageToken: null, offsetDelta: 0 };
     }
 
     // Resolve the real caret offset when the collapsed caret is parked on a
