@@ -36,6 +36,7 @@ import {
     EmojiSelector,
     FootnoteTool,
     ImageEditTool,
+    ImagePathPicker,
     ImageResizeBar,
     ImageToolBar,
     InlineFormatToolbar,
@@ -45,6 +46,7 @@ import {
     ParagraphFrontMenu,
     ParagraphQuickInsertMenu,
     PreviewToolBar,
+    TableChessboard,
     TableColumnToolbar,
     TableDragBar,
     TableRowColumMenu,
@@ -59,8 +61,11 @@ Muya.use(FootnoteTool);
 Muya.use(InlineFormatToolbar);
 Muya.use(ImageToolBar);
 Muya.use(ImageResizeBar);
+Muya.use(ImagePathPicker);
 Muya.use(ImageEditTool, {
     imagePathPicker: async () => '/path/to/image.png',
+    imagePathAutoComplete: async (src) =>
+        src ? [{ text: 'image.png', type: 'file' }] : [],
     imageAction: async () => 'https://example.com/uploaded.png',
 });
 Muya.use(CodeBlockLanguageSelector);
@@ -74,6 +79,7 @@ Muya.use(LinkTools, {
 Muya.use(ParagraphFrontButton);
 Muya.use(ParagraphFrontMenu);
 Muya.use(ParagraphQuickInsertMenu);
+Muya.use(TableChessboard);
 Muya.use(TableColumnToolbar);
 Muya.use(TableDragBar);
 Muya.use(TableRowColumMenu);
@@ -142,11 +148,13 @@ Plugins are floating tools/menus that you opt into with `Muya.use(Plugin, option
 | `InlineFormatToolbar` | Bold / italic / link / etc. toolbar that follows the selection. |
 | `EmojiSelector` | `:` trigger emoji picker. |
 | `CodeBlockLanguageSelector` | Language picker inside fenced code blocks. |
-| `ImageToolBar`, `ImageResizeBar`, `ImageEditTool` | Image-related affordances; `ImageEditTool` accepts `imagePathPicker` and `imageAction` callbacks for upload flows. |
+| `ImageToolBar`, `ImageResizeBar`, `ImageEditTool` | Image-related affordances; `ImageEditTool` accepts `imagePathPicker`, `imagePathAutoComplete`, and `imageAction` callbacks for host-provided file and upload flows. |
+| `ImagePathPicker` | Floating autocomplete results for `ImageEditTool`; register it when providing `imagePathAutoComplete`. |
 | `LinkTools` | Hover toolbar over native `<a>`, markdown links, and reference links. Takes a `jumpClick` callback to control jump-out behavior. |
 | `FootnoteTool` | Floating popover for editing footnote definitions; requires the `footnote: true` editor option. |
 | `ParagraphFrontButton`, `ParagraphFrontMenu` | The handle and menu that appear to the left of the active block. |
 | `ParagraphQuickInsertMenu` | The `/` slash-command menu for inserting blocks. |
+| `TableChessboard` | Grid picker used by the table quick-insert action. |
 | `TableColumnToolbar`, `TableDragBar`, `TableRowColumMenu` | Table editing affordances. |
 | `PreviewToolBar` | Tools shown over previewable blocks (math, Mermaid, etc.). |
 
