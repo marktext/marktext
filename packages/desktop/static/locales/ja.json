@@ -656,8 +656,9 @@
         "title": "その他"
       },
       "compatibility": {
-        "enableGitlab": "GitLab 互換性を有効",
-        "enableHtml": "HTML サポートを有効",
+        "enableGitlab": "GitLab互換性を有効",
+        "enableHtml": "HTMLサポートを有効",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "互換性"
       },
       "lists": {
