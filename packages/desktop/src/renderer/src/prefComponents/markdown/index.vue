@@ -83,6 +83,11 @@
           :bool="isGitlabCompatibilityEnabled"
           :on-change="(value) => onSelectChange('isGitlabCompatibilityEnabled', value)"
         />
+        <bool
+          :description="t('preferences.markdown.compatibility.softNewlineAsSpace')"
+          :bool="softNewlineAsSpace"
+          :on-change="(value) => onSelectChange('softNewlineAsSpace', value)"
+        />
       </template>
     </compound>
 
@@ -161,6 +166,7 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   sequenceTheme,
   plantumlServer
 } = storeToRefs(preferenceStore)
