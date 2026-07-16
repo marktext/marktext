@@ -113,7 +113,6 @@ const TOGGLEABLE_BLOCK_LABELS = new Set([
 // document must be re-parsed from markdown. See setOptions below.
 const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'isGitlabCompatibilityEnabled',
-    'softNewlineAsSpace',
     'math',
     'footnote',
     'frontMatter',

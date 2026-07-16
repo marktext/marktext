@@ -260,6 +260,17 @@ export class MarkdownToHtml {
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
 
+        // When softNewlineAsSpace is off (default), include the pre-wrap rules
+        // so bare \n characters render as line breaks — matching the editor.
+        // When on, omit them so \n collapses to a space (CommonMark default).
+        const [exportStyleBase, exportStyleSoftBreak] = exportStyle.split(
+            '/* Render soft line breaks',
+        );
+        const exportStyleFinal
+            = this._muya?.options.softNewlineAsSpace
+                ? exportStyleBase
+                : `${exportStyleBase}/* Render soft line breaks${exportStyleSoftBreak}`;
+
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
         // stays implicit to keep existing exports byte-identical.
@@ -286,7 +297,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyle}</style>
+  <style>${exportStyleFinal}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

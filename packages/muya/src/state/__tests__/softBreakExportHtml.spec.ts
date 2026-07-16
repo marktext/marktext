@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { getHighlightHtml } from '../../utils/marked';
 
@@ -32,5 +34,25 @@ describe('#3676 — soft line breaks survive export as a conformant newline', ()
         // Sanity: the change only touches soft breaks; hard breaks are untouched.
         const html = getHighlightHtml('line one  \nline two', OPTS);
         expect(html).toMatch(/<br\s*\/?>/);
+    });
+});
+
+// When softNewlineAsSpace is on, the export stylesheet omits the `pre-wrap`
+// rules for `.markdown-body p` and tight `li` so bare `\n` collapses to a space.
+describe('softNewlineAsSpace export CSS conditional inclusion', () => {
+    it('omits the paragraph/tight-list pre-wrap rule from exportStyle', () => {
+        // Read the raw CSS and apply the same split logic as generate().
+        const cssPath = resolve(__dirname, '../../assets/styles/exportStyle.css');
+        const exportStyle = readFileSync(cssPath, 'utf8');
+        const [base] = exportStyle.split('/* Render soft line breaks');
+        // Simulating softNewlineAsSpace on: only the base part is included.
+
+        // The paragraph/tight-list pre-wrap rule should be gone.
+        expect(base).not.toMatch(
+            /\.markdown-body p,\s*\.markdown-body li:not\(:has\(> p\)\)\s*\{/,
+        );
+        // The code-block pre-wrap rule must remain.
+        expect(base).toContain('.markdown-body pre');
+        expect(base).toMatch(/white-space:\s*pre-wrap/);
     });
 });
