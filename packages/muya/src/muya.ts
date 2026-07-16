@@ -221,6 +221,15 @@ export class Muya {
         return this.editor.jsonState.getTOC();
     }
 
+    /**
+     * Synchronously mount top-level blocks up to `index` if a progressive
+     * mount is still in flight (#4887). Hosts call this before scrolling to
+     * a block whose DOM may not exist yet — e.g. a TOC entry's `index`.
+     */
+    ensureMountedThrough(index: number) {
+        this.editor.scrollPage?.ensureMountedThrough(index);
+    }
+
     undo() {
         this.editor.history.undo();
     }
@@ -1637,6 +1646,9 @@ export class Muya {
     }
 
     destroy() {
+        // A chunked mount still in flight must never fire against a
+        // torn-down instance (scrollPage/index.ts).
+        this.editor.scrollPage?.cancelPendingMount();
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
         // this.domNode[BLOCK_DOM_PROPERTY] = null;

@@ -86,6 +86,16 @@ class EventCenter {
     }
 
     /**
+     * Whether any listener is subscribed to `event`. Lets producers skip
+     * expensive preparation (e.g. completing a progressive mount, #4887)
+     * when no consumer is installed.
+     */
+    hasListeners(event: string): boolean {
+        const listeners = this.listeners[event];
+        return Array.isArray(listeners) && listeners.length > 0;
+    }
+
+    /**
      * [on] on custom event
      */
     on(event: string, listener: Listener) {
