@@ -162,6 +162,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_RUBY_RENDER',
     'MU_SELECTED',
     'MU_SOFT_LINE_BREAK',
+    'MU_SOFT_NEWLINE_AS_SPACE',
     'MU_MATH_ERROR',
     'MU_MATH_MARKER',
     'MU_MATH_RENDER',

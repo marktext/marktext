@@ -6,11 +6,13 @@ export default function softLineBreak(
     this: Renderer,
     { h, token }: ISyntaxRenderOptions & { token: SoftLineBreakToken },
 ) {
-    const { isAtEnd } = token;
-    const content = this.muya.options.softNewlineAsSpace ? ' ' : token.lineBreak;
     let selector = `span.${CLASS_NAMES.MU_SOFT_LINE_BREAK}`;
-    if (isAtEnd)
+    if (this.muya.options.softNewlineAsSpace) {
+        selector += `.${CLASS_NAMES.MU_SOFT_NEWLINE_AS_SPACE}`;
+    }
+    else if (token.isAtEnd) {
         selector += `.${CLASS_NAMES.MU_LINE_END}`;
+    }
 
-    return [h(selector, content)];
+    return [h(selector, token.lineBreak)];
 }
