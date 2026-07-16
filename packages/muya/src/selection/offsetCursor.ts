@@ -127,6 +127,18 @@ function _findSentinel(scrollPage: ScrollPage, sentinel: string): ISentinelHit |
  * the anchor sentinel precedes it in the same block.
  */
 export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | null {
+    // The sentinel may sit in a block whose mount chunk has not run yet
+    // (#4887 progressive mount). Locate its top-level index in the COMPLETE
+    // state and mount just far enough — never the whole remainder.
+    const states = scrollPage.muya.editor.jsonState.rawState;
+    for (let i = states.length - 1; i >= 0; i--) {
+        const raw = JSON.stringify(states[i]);
+        if (raw.includes(ANCHOR_SENTINEL) || raw.includes(FOCUS_SENTINEL)) {
+            scrollPage.ensureMountedThrough(i);
+            break;
+        }
+    }
+
     const anchorHit = _findSentinel(scrollPage, ANCHOR_SENTINEL);
     const focusHit = _findSentinel(scrollPage, FOCUS_SENTINEL);
 

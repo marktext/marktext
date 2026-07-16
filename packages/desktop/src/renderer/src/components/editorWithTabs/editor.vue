@@ -1263,6 +1263,12 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
+  // The heading's DOM may not exist yet while a progressive mount is in
+  // flight (#4887) — mount up to it before resolving by document order.
+  const item = editorStore.listToc.find((entry) => entry.slug === slug) as
+    | { index?: unknown }
+    | undefined
+  if (item && typeof item.index === 'number') editor.value?.ensureMountedThrough(item.index)
   const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
   if (!heading) return
   animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)

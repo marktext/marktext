@@ -103,6 +103,11 @@ class HeadingCopyLink extends TreeNode {
         if (!heading)
             return;
 
+        // The block path reflects same-frame tree mutations immediately,
+        // while `rawState` only updates on the rAF flush — drain the batch
+        // so the index resolves against the same document revision.
+        this.muya.editor.jsonState.flush();
+
         const index = heading.path[0];
         const node = typeof index === 'number'
             ? this.muya.editor.jsonState.rawState[index]

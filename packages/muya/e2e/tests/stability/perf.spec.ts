@@ -26,7 +26,9 @@ import { editor } from '../helpers/selectors';
  *   - `expect(result.ms).toBeLessThan(60_000)` further down — the actual
  *     setContent perf budget. This is the assertion that catches a 5-10×
  *     regression on the render path. A future Phase-5 nightly job can
- *     tighten this against a production bundle.
+ *     tighten this against a production bundle. Since the chunked mount
+ *     (#4887) the synchronous budget covers parse + prefix mount, and the
+ *     polled full-count assertion covers the background chunk mounting.
  *
  * Tagged @perf so a future Phase-2 CI config can `--grep-invert "@perf"`
  * for the PR-time runs and keep this in a nightly schedule.
@@ -57,14 +59,18 @@ test.describe('stability / perf smoke @perf', () => {
         });
 
         // Wide budget — see file header. Tighten once we have a baseline.
+        // Since the chunked mount (#4887) the synchronous call path only
+        // parses the document and mounts an over-viewport prefix, so this
+        // now guards the parse path plus first paint rather than the full
+        // tree build.
         expect(result.ms, `setContent(${result.n} paragraphs) took ${result.ms.toFixed(0)}ms`).toBeLessThan(60_000);
 
-        // Confirm the DOM actually rendered the count we asked for.
-        // `count()` walks the page synchronously — we use it once here
-        // (not in a polling expect) because rendering completes inside
-        // setContent's synchronous call path.
-        const paragraphCount = await page.locator(editor.paragraph).count();
-        expect(paragraphCount).toBe(result.n);
+        // The remaining blocks mount in scheduled chunks (#4887), so the
+        // full count is an eventually-true condition, not a synchronous
+        // one. The poll budget doubles as the full-mount perf guard.
+        await expect
+            .poll(() => page.locator(editor.paragraph).count(), { timeout: 60_000 })
+            .toBe(result.n);
 
         // Scroll the last paragraph into view and assert it becomes
         // visible within 5s. The .last() chain selects the bottom of

@@ -10,7 +10,9 @@ import TableCellContent from '../index';
 // We drive the handler directly off the prototype with a structurally
 // typed `this` so we don't need the full Muya bootstrap (which needs a
 // real DOM). The handler only reads `event.shiftKey` and calls
-// `previousContentInContext` / `nextContentInContext` on `this`.
+// `previousContentInContext` / `resolveNextContentInContext` on `this`
+// (the latter is the pending-mount-aware wrapper, #4887; with no
+// scrollPage on the stub it degrades to the plain context walk).
 
 // Structural neighbour shape — the table-cell tab handler only calls
 // `setCursor` on whatever `prev`/`next` resolves to.
@@ -22,6 +24,8 @@ function makeFakeCell(prev: IFakeNeighbour | null, next: IFakeNeighbour | null) 
     return {
         nextContentInContext: vi.fn(() => next),
         previousContentInContext: vi.fn(() => prev),
+        resolveNextContentInContext:
+            TableCellContent.prototype.resolveNextContentInContext,
     };
 }
 
