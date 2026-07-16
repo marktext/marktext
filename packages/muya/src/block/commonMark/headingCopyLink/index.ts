@@ -94,14 +94,24 @@ class HeadingCopyLink extends TreeNode {
     }
 
     // Emit `heading-copy-link` with the heading's stable slug. At activation
-    // time the attachment's parent is the heading block.
+    // time the attachment's parent is the heading block. Slugs are keyed on
+    // the heading's STATE node (see state/getTOC.ts), so resolve the block to
+    // its top-level state entry — headings are always top-level, and the
+    // block's path starts with its top-level index.
     private _activate() {
         const heading = this.parent;
         if (!heading)
             return;
 
+        const index = heading.path[0];
+        const node = typeof index === 'number'
+            ? this.muya.editor.jsonState.rawState[index]
+            : undefined;
+        if (!node)
+            return;
+
         this.muya.eventCenter.emit('heading-copy-link', {
-            key: stableSlug(heading),
+            key: stableSlug(node),
         });
     }
 

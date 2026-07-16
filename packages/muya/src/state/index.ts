@@ -252,6 +252,15 @@ class JSONState {
         };
     }
 
+    // The live state root WITHOUT a defensive clone. For read-only,
+    // same-tick consumers (TOC collection, slug identity) that must see the
+    // complete logical document regardless of how much of it is mounted, and
+    // for whom the per-call whole-document clone of `getState()` is the cost
+    // being avoided. Callers must never mutate the returned tree.
+    get rawState(): readonly TState[] {
+        return this._state;
+    }
+
     getState(): TState[] {
         // The document schema is bounded (scalar metadata plus `children`
         // arrays); the schema-specific clone avoids structuredClone's high
