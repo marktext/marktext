@@ -1855,7 +1855,8 @@ onMounted(() => {
   bus.on('replace-misspelling', replaceMisspelling)
 
   // The engine emits a low-level `json-change` ({ op, source, prevDoc, doc })
-  // on every document mutation; the desktop's content-change pipeline wants the
+  // on every document mutation (`doc` is a memoized lazy getter — reading it
+  // clones the current state); the desktop's content-change pipeline wants the
   // derived document snapshot (markdown / word count / cursor / history / TOC /
   // block AST), so we compute it here — mirroring the legacy engine's
   // `dispatchChange` payload.
