@@ -179,6 +179,45 @@ export class MarkdownToHtml {
         }
     }
 
+    // The export stylesheet renders tight list items `white-space: pre-wrap`
+    // so authored soft breaks survive (#3676) — but `white-space`
+    // inherits, and marked pretty-prints nested block children with
+    // formatting-only newlines (`line A\n<ul>`, `<ul>\n<li>`, `</ul>\n</li>`).
+    // Under pre-wrap each of those becomes a visible empty line box in the
+    // exported HTML/PDF (measured: a tight item with one nested child renders
+    // 105px instead of 42px). Strip the serializer whitespace: it is never
+    // authored text — an authored soft break always has text after it, so a
+    // newline touching a block-element sibling is marked's, not the user's.
+    private _stripListFormattingWhitespace(container: HTMLElement) {
+        const blockChild = new Set(['P', 'UL', 'OL', 'BLOCKQUOTE', 'PRE', 'TABLE', 'DIV']);
+        const isBlock = (node: Node | null): boolean =>
+            node?.nodeType === Node.ELEMENT_NODE
+            && blockChild.has((node as Element).tagName);
+
+        for (const parent of container.querySelectorAll('li, ul, ol, blockquote')) {
+            for (const node of Array.from(parent.childNodes)) {
+                if (node.nodeType !== Node.TEXT_NODE)
+                    continue;
+
+                const text = node.textContent ?? '';
+                if (!text.trim()) {
+                    // Whitespace-only nodes between block children are pure
+                    // serializer formatting (ul/ol may only contain li).
+                    node.remove();
+                    continue;
+                }
+
+                let trimmed = text;
+                if (isBlock(node.nextSibling))
+                    trimmed = trimmed.replace(/\n+$/, '');
+                if (isBlock(node.previousSibling))
+                    trimmed = trimmed.replace(/^\n+/, '');
+                if (trimmed !== text)
+                    node.textContent = trimmed;
+            }
+        }
+    }
+
     // render pure html by marked
     async renderHtml() {
         const footnote = this._muya?.options?.footnote ?? false;
@@ -204,6 +243,8 @@ export class MarkdownToHtml {
         exportContainer.classList.add('mu-render-container');
         exportContainer.innerHTML = html;
         document.body.appendChild(exportContainer);
+
+        this._stripListFormattingWhitespace(exportContainer);
 
         // render only render the light theme of mermaid and diagram...
         await this._renderMermaid();
