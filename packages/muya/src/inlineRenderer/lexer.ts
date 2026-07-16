@@ -7,7 +7,7 @@ import type {
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
-import { beginRules, inlineDisplayMathRule, inlineRules, linkValidateRules, validateRules } from './rules';
+import { beginRules, execInlineDisplayMath, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
     getAttributes,
@@ -198,7 +198,7 @@ function tryChunks(state: ILexState): boolean {
         let to: RegExpExecArray | null;
         if (rule === 'inline_math') {
             to
-                = inlineDisplayMathRule.exec(state.src)
+                = execInlineDisplayMath(state.src)
                     ?? state.inlineRules[rule].exec(state.src);
         }
         else {

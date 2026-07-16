@@ -4,6 +4,7 @@ import type { CodeEmojiMathToken } from '../types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 import { tokenizer } from '../lexer';
+import { execInlineDisplayMath } from '../rules';
 
 const bootedHosts: HTMLElement[] = [];
 
@@ -101,5 +102,45 @@ describe('same-line display math (#4904)', () => {
         const muya = bootMuya(source);
 
         expect(muya.getMarkdown()).toBe(source);
+    });
+});
+
+describe('same-line display math — escape handling and adversarial input', () => {
+    it('lets an escaped closer extend the content to the next closer', () => {
+        const [token] = mathTokens('$$a\\$$b$$');
+
+        expect(token.marker).toBe('$$');
+        expect(token.content).toBe('a\\$$b');
+    });
+
+    it('treats an even backslash run before the closer as escaped-backslash content', () => {
+        const [token] = mathTokens('$$a\\\\$$');
+
+        expect(token.content).toBe('a\\\\');
+    });
+
+    it('does not match when the only closer is escaped', () => {
+        expect(execInlineDisplayMath('$$a\\$$')).toBeNull();
+    });
+
+    it('does not match a dangling backslash or a backslash before a newline', () => {
+        expect(execInlineDisplayMath('$$a\\')).toBeNull();
+        expect(execInlineDisplayMath('$$a\\\n$$')).toBeNull();
+    });
+
+    // The replaced regex backtracked quadratically here: 131,072 backslashes
+    // blocked Node for ~10 seconds. The scanner must stay linear.
+    it('handles adversarial backslash runs in linear time', () => {
+        const src = `$$${'\\'.repeat(131072)}$`;
+
+        const started = performance.now();
+        expect(execInlineDisplayMath(src)).toBeNull();
+        const tokens = mathTokens(src);
+        const elapsed = performance.now() - started;
+
+        // The full tokenizer may still match the tail as single-dollar math,
+        // but never as display math.
+        expect(tokens.every(token => token.marker === '$')).toBe(true);
+        expect(elapsed).toBeLessThan(500);
     });
 });
