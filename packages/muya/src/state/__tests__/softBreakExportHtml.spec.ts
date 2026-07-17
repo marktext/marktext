@@ -86,6 +86,41 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
         expect(html).toContain('<strong>left</strong>\n<strong>right</strong>');
     });
 
+    it('preserves authored whitespace between inline siblings in a raw blockquote', () => {
+        // Raw HTML blockquotes may carry inline flow content directly —
+        // unlike marked-generated ones, which always wrap children in
+        // blocks. happy-dom's sanitize unwraps top-level blockquotes, so
+        // drive the cleanup itself; the real-browser pipeline case lives in
+        // e2e/tests/export/serializer-whitespace.spec.ts.
+        const container = document.createElement('div');
+        container.innerHTML
+            = '<blockquote><strong>left</strong> <strong>right</strong></blockquote>';
+        (new MarkdownToHtml('') as unknown as {
+            _stripListFormattingWhitespace: (c: HTMLElement) => void;
+        })._stripListFormattingWhitespace(container);
+
+        expect(container.innerHTML).toBe(
+            '<blockquote><strong>left</strong> <strong>right</strong></blockquote>',
+        );
+    });
+
+    it('a heading as the sole list-item child carries no formatting newline', async () => {
+        // marked emits `<li><h1>heading</h1>\n</li>` for `- # heading`; H1
+        // must count as a block child or the newline renders as a phantom
+        // row under inherited pre-wrap.
+        const html = await new MarkdownToHtml('- # heading\n').renderHtml();
+
+        expect(html).toMatch(/<li><h1[^>]*>heading<\/h1><\/li>/);
+        expect(html).not.toMatch(/\n<\/li>/);
+    });
+
+    it('a thematic break as the sole list-item child carries no formatting newline', async () => {
+        const html = await new MarkdownToHtml('- * * *\n').renderHtml();
+
+        expect(html).toContain('<li><hr></li>');
+        expect(html).not.toMatch(/\n<\/li>/);
+    });
+
     it('leaves paragraph soft breaks intact through the full pipeline', async () => {
         // happy-dom's DOMPurify pass unwraps the <p> in this environment (a
         // test-runtime artifact — the getHighlightHtml assertion above pins

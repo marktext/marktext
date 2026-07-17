@@ -28,6 +28,46 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
 export class MarkdownToHtml {
+    // Every tag the HTML spec treats as block-level flow content. marked can
+    // emit headings (`- # h`) and thematic breaks (`- * * *`) as direct
+    // list-item children — not just the common container tags — and any tag
+    // missing here resurfaces the phantom-row bug for that construct.
+    private static readonly _blockLevelTags = new Set([
+        'ADDRESS',
+        'ARTICLE',
+        'ASIDE',
+        'BLOCKQUOTE',
+        'DD',
+        'DETAILS',
+        'DIALOG',
+        'DIV',
+        'DL',
+        'DT',
+        'FIELDSET',
+        'FIGCAPTION',
+        'FIGURE',
+        'FOOTER',
+        'FORM',
+        'H1',
+        'H2',
+        'H3',
+        'H4',
+        'H5',
+        'H6',
+        'HEADER',
+        'HGROUP',
+        'HR',
+        'LI',
+        'MAIN',
+        'NAV',
+        'OL',
+        'P',
+        'PRE',
+        'SECTION',
+        'TABLE',
+        'UL',
+    ]);
+
     private _exportContainer: HTMLDivElement | null = null;
 
     constructor(public markdown: string, private _muya?: Muya) {}
@@ -189,16 +229,19 @@ export class MarkdownToHtml {
     // authored text — an authored soft break always has text after it, so a
     // newline touching a block-element sibling is marked's, not the user's.
     private _stripListFormattingWhitespace(container: HTMLElement) {
-        const blockChild = new Set(['P', 'UL', 'OL', 'BLOCKQUOTE', 'PRE', 'TABLE', 'DIV']);
         const isBlock = (node: Node | null): boolean =>
             node?.nodeType === Node.ELEMENT_NODE
-            && blockChild.has((node as Element).tagName);
+            && MarkdownToHtml._blockLevelTags.has((node as Element).tagName);
 
         for (const parent of container.querySelectorAll('li, ul, ol, blockquote')) {
-            // Only list items mix inline content with block children — under
-            // ul/ol/blockquote every legal child is a block, so ALL
-            // whitespace-only text nodes there are serializer formatting.
-            const mixedContext = parent.tagName === 'LI';
+            // List items AND raw HTML blockquotes may carry inline flow
+            // content directly (a marked-GENERATED blockquote always wraps
+            // its children in blocks, so its formatting whitespace is still
+            // removed via block adjacency below). Only under ul/ol is every
+            // legal child a block, making ALL whitespace-only text nodes
+            // serializer formatting.
+            const mixedContext
+                = parent.tagName === 'LI' || parent.tagName === 'BLOCKQUOTE';
             for (const node of Array.from(parent.childNodes)) {
                 if (node.nodeType !== Node.TEXT_NODE)
                     continue;
