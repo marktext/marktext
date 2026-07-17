@@ -146,6 +146,71 @@ describe('everything that is NOT an authored soft break stays marked-canonical',
         expect(html).toContain('<title>left\nright</title>');
     });
 
+    it('a literal raw-text open inside another raw-text element does not leak state', () => {
+        // <script>'s content is raw; a literal "<textarea>" string inside
+        // it must not start protection that outlives </script>.
+        const html = getHighlightHtml(
+            'x <script>const tag = "<textarea>";\n</script> after\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('const tag = "<textarea>";');
+        expect(html).toContain('after<br>next');
+    });
+
+    it('a literal marked-tracked open inside our raw-text element does not leak marked\'s state', () => {
+        // A literal "<script>" inside a textarea starts marked's own
+        // escaped tracking; the authoritative active-tag state must exit at
+        // </textarea> and keep converting soft breaks after it.
+        const html = getHighlightHtml(
+            'x <textarea><script>literal\n</textarea> after\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<textarea><script>literal\n</textarea>');
+        expect(html).toContain('after<br>next');
+    });
+
+    it('a mismatched close inside script neither escapes nor breaks its content', () => {
+        // marked's boolean raw-block state exits on ANY of its list's end
+        // tags — a literal "</code>" string would both HTML-escape the
+        // remaining script content and let <br> in.
+        const html = getHighlightHtml(
+            'x <script>const tag = "</code>";\nnext</script>\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('const tag = "</code>";\nnext</script>');
+        expect(html).not.toContain('&quot;');
+        expect(html).not.toContain('<br>');
+    });
+
+    it('a self-closing-style raw-text open still activates protection', () => {
+        // Browsers ignore the self-closing flag on textarea/style/title —
+        // <textarea/> parses as a normal opening tag.
+        const html = getHighlightHtml(
+            'before <textarea/>left\nright</textarea> after\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<textarea/>left\nright</textarea>');
+    });
+
+    it('legitimate nesting like <pre><code> stays protected through the inner close', () => {
+        const html = getHighlightHtml(
+            'x <pre><code>a\nb</code></pre> y\nz\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<pre><code>a\nb</code></pre>');
+        expect(html).toContain('y<br>z');
+    });
+
     it('keeps canonical block separators for inline-restyling themes', () => {
         const html = getHighlightHtml('- # left\n  right\n', OPTS, EXPORT);
         // The `\n` after the heading collapses to the separating space when

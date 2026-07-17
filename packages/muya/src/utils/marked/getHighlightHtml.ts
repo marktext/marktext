@@ -88,17 +88,22 @@ export function getHighlightHtml(
     }
 
     if (exportSoftBreaks) {
-        // marked's lexer flags text inside inline raw-text elements as
-        // `escaped` — but only for its pre/code/kbd/script list; textarea,
-        // style, and title content arrives as plain text tokens. Track the
-        // ACTIVE tag here so their newlines (content, not soft breaks) stay
-        // untouched. Raw-text semantics: once inside, every other tag is
-        // plain content — a literal nested open never stacks, and only the
+        // ONE authoritative raw-text state. marked tracks its own
+        // (pre/code/kbd/script) as a single BOOLEAN that any list member's
+        // close tag exits — a literal "</code>" inside a script both
+        // un-protects and mis-escapes the remainder — and it misses
+        // textarea/style/title entirely. Track the ACTIVE tag for the full
+        // set here and recompute each leaf's `escaped` from it (trusting
+        // marked's flag would let the two states contaminate each other).
+        // Raw-text semantics: once inside, every other tag is plain
+        // content — a literal nested open never stacks, and only the
         // SAME-NAME closing tag exits, so this is a single slot, not a
-        // counter.
+        // counter. The open matcher accepts a self-closing-style `/` too:
+        // browsers ignore that flag on these elements and parse them as
+        // normal opening tags.
         let rawTextTag: string | null = null;
-        const rawTextOpen = /^<(textarea|style|title)[\s>]/i;
-        const rawTextClose = /^<\/(textarea|style|title)[\s>]/i;
+        const rawTextOpen = /^<(pre|code|kbd|script|textarea|style|title)(?=[\s/>])/i;
+        const rawTextClose = /^<\/(pre|code|kbd|script|textarea|style|title)[\s>]/i;
         marked.use({
             renderer: {
                 html(token) {
@@ -120,23 +125,25 @@ export function getHighlightHtml(
                     return Renderer.prototype.html.call(this, token);
                 },
                 text(token) {
-                    const html = Renderer.prototype.text.call(this, token);
                     // Block-level text tokens carry children whose inline
                     // pieces (raw HTML among them) are already rendered —
                     // only LEAF text can contain authored soft breaks. Code
                     // spans, raw HTML, and hard breaks are separate token
-                    // types; `escaped` leaf text is inline raw-text content
-                    // per marked's own tracking, and `rawTextTag` covers
-                    // the tags that tracking misses. (Global-regex
-                    // `replace`, not `replaceAll` — the build targets
-                    // chrome70, which lacks it.)
-                    if (
-                        ('tokens' in token && token.tokens)
-                        || ('escaped' in token && token.escaped)
-                        || rawTextTag !== null
-                    ) {
-                        return html;
-                    }
+                    // types.
+                    if ('tokens' in token && token.tokens)
+                        return Renderer.prototype.text.call(this, token);
+
+                    // Recompute `escaped` from the authoritative state: a
+                    // leaf inside raw text is emitted verbatim even when
+                    // marked's mis-tracked flag says otherwise (the base
+                    // renderer would HTML-escape real script content), and
+                    // a leaf outside is escaped normally with its soft
+                    // breaks rendered as <br>. (Global-regex `replace`, not
+                    // `replaceAll` — the build targets chrome70.)
+                    if (rawTextTag !== null)
+                        return Renderer.prototype.text.call(this, { ...token, escaped: true });
+
+                    const html = Renderer.prototype.text.call(this, { ...token, escaped: false });
                     return html.replace(/\n/g, '<br>');
                 },
             },
