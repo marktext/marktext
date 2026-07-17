@@ -92,6 +92,23 @@ describe('everything that is NOT an authored soft break stays marked-canonical',
         expect(html).toContain('<code>x y</code>');
     });
 
+    it('leaves inline raw-text element content untouched (<pre>)', () => {
+        // marked flags the interior of inline raw-text elements as
+        // `escaped` leaf text - those newlines are CONTENT, not soft
+        // breaks, and must never become <br>.
+        const html = getHighlightHtml('text <pre>a\nb</pre> more\n', OPTS, EXPORT);
+        expect(html).toContain('<pre>a\nb</pre>');
+    });
+
+    it('leaves inline raw-text element content untouched (<textarea>)', () => {
+        const html = getHighlightHtml(
+            'text <textarea>a\nb</textarea> more\n',
+            OPTS,
+            EXPORT,
+        );
+        expect(html).toContain('<textarea>a\nb</textarea>');
+    });
+
     it('keeps canonical block separators for inline-restyling themes', () => {
         const html = getHighlightHtml('- # left\n  right\n', OPTS, EXPORT);
         // The `\n` after the heading collapses to the separating space when
