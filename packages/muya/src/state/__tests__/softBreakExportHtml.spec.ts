@@ -87,21 +87,68 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
     });
 
     it('preserves authored whitespace between inline siblings in a raw blockquote', () => {
-        // Raw HTML blockquotes may carry inline flow content directly —
-        // unlike marked-generated ones, which always wrap children in
-        // blocks. happy-dom's sanitize unwraps top-level blockquotes, so
-        // drive the cleanup itself; the real-browser pipeline case lives in
-        // e2e/tests/export/serializer-whitespace.spec.ts.
-        const container = document.createElement('div');
-        container.innerHTML
-            = '<blockquote><strong>left</strong> <strong>right</strong></blockquote>';
-        (new MarkdownToHtml('') as unknown as {
-            _stripListFormattingWhitespace: (c: HTMLElement) => void;
-        })._stripListFormattingWhitespace(container);
+        // Raw HTML blocks pass through marked verbatim — the space between
+        // the inline siblings is the author's, and nothing downstream may
+        // touch it (happy-dom's sanitize unwraps top-level blockquotes, so
+        // assert at the renderer level; the real-browser pipeline case
+        // lives in the upstream muya e2e suite).
+        const html = getHighlightHtml(
+            '<blockquote><strong>left</strong> <strong>right</strong></blockquote>\n',
+            OPTS,
+        );
 
-        expect(container.innerHTML).toBe(
+        expect(html).toContain(
             '<blockquote><strong>left</strong> <strong>right</strong></blockquote>',
         );
+    });
+
+    it('preserves an authored &nbsp; item next to a nested list', async () => {
+        // NBSP is trim()-whitespace but AUTHORED content — the old post-hoc
+        // cleanup deleted it outright. With compact block joins there is no
+        // serializer newline to strip, so the entity passes through.
+        const html = await new MarkdownToHtml('- &nbsp;\n  - child\n').renderHtml();
+
+        expect(html).toContain('<li>&nbsp;<ul><li>child</li></ul></li>');
+    });
+
+    it('preserves the authored newline before an inline-styled raw div', () => {
+        // The export sanitizer allows `style`, so a DIV can be author-styled
+        // inline — classifying "block" by tag name would delete the authored
+        // newline and render "leftright".
+        const html = getHighlightHtml(
+            '<blockquote><strong>left</strong>\n<div style="display:inline">right</div></blockquote>\n',
+            OPTS,
+        );
+
+        expect(html).toContain(
+            '<strong>left</strong>\n<div style="display:inline">right</div>',
+        );
+    });
+
+    it('keeps raw-HTML formatting newlines verbatim inside a tight item', async () => {
+        // Raw HTML keeps its authored bytes; the export stylesheet resets
+        // `white-space` on container children of tight items so these
+        // newlines follow normal HTML semantics (collapse) instead of the
+        // item's pre-wrap — covered by the browser layout spec.
+        const html = await new MarkdownToHtml(
+            '- <div>\n  <strong>left</strong>\n  <strong>right</strong>\n  </div>\n',
+        ).renderHtml();
+
+        expect(html).toContain('<li><div>\n<strong>left</strong>\n<strong>right</strong>\n</div></li>');
+    });
+
+    it('display math in a tight item carries no serializer newline ($$ syntax)', async () => {
+        const html = await new MarkdownToHtml('- $$x+1$$\n').renderHtml();
+
+        expect(html).toContain('katex-display');
+        expect(html).not.toMatch(/\n<\/li>/);
+    });
+
+    it('display math in a tight item carries no serializer newline (fenced syntax)', async () => {
+        const html = await new MarkdownToHtml('- ```math\n  x+1\n  ```\n').renderHtml();
+
+        expect(html).toContain('katex-display');
+        expect(html).not.toMatch(/\n<\/li>/);
     });
 
     it('a heading as the sole list-item child carries no formatting newline', async () => {

@@ -12,6 +12,13 @@ export interface IMathToken {
 interface IOptions {
     throwOnError?: boolean;
     useKatexRender?: boolean;
+    /**
+     * Append a cosmetic newline after block math (marked-style block
+     * serialization). The export pipeline turns this off: under its
+     * pre-wrap list rendering every serializer newline shows as a phantom
+     * empty line (#4951 review).
+     */
+    newlineAfterBlock?: boolean;
 }
 
 const inlineStartRule = /(\s|^)\${1,2}(?!\$)/;
@@ -30,7 +37,7 @@ export default function (options: IOptions = {}) {
     return {
         extensions: [
             inlineKatex(createRenderer(opts, false)),
-            blockKatex(createRenderer(opts, true)),
+            blockKatex(createRenderer(opts, options.newlineAfterBlock ?? true)),
         ],
     };
 }

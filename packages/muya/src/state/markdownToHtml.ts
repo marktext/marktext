@@ -28,46 +28,6 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
 export class MarkdownToHtml {
-    // Every tag the HTML spec treats as block-level flow content. marked can
-    // emit headings (`- # h`) and thematic breaks (`- * * *`) as direct
-    // list-item children — not just the common container tags — and any tag
-    // missing here resurfaces the phantom-row bug for that construct.
-    private static readonly _blockLevelTags = new Set([
-        'ADDRESS',
-        'ARTICLE',
-        'ASIDE',
-        'BLOCKQUOTE',
-        'DD',
-        'DETAILS',
-        'DIALOG',
-        'DIV',
-        'DL',
-        'DT',
-        'FIELDSET',
-        'FIGCAPTION',
-        'FIGURE',
-        'FOOTER',
-        'FORM',
-        'H1',
-        'H2',
-        'H3',
-        'H4',
-        'H5',
-        'H6',
-        'HEADER',
-        'HGROUP',
-        'HR',
-        'LI',
-        'MAIN',
-        'NAV',
-        'OL',
-        'P',
-        'PRE',
-        'SECTION',
-        'TABLE',
-        'UL',
-    ]);
-
     private _exportContainer: HTMLDivElement | null = null;
 
     constructor(public markdown: string, private _muya?: Muya) {}
@@ -219,61 +179,6 @@ export class MarkdownToHtml {
         }
     }
 
-    // The export stylesheet renders tight list items `white-space: pre-wrap`
-    // so authored soft breaks survive (#3676) — but `white-space`
-    // inherits, and marked pretty-prints nested block children with
-    // formatting-only newlines (`line A\n<ul>`, `<ul>\n<li>`, `</ul>\n</li>`).
-    // Under pre-wrap each of those becomes a visible empty line box in the
-    // exported HTML/PDF (measured: a tight item with one nested child renders
-    // 105px instead of 42px). Strip the serializer whitespace: it is never
-    // authored text — an authored soft break always has text after it, so a
-    // newline touching a block-element sibling is marked's, not the user's.
-    private _stripListFormattingWhitespace(container: HTMLElement) {
-        const isBlock = (node: Node | null): boolean =>
-            node?.nodeType === Node.ELEMENT_NODE
-            && MarkdownToHtml._blockLevelTags.has((node as Element).tagName);
-
-        for (const parent of container.querySelectorAll('li, ul, ol, blockquote')) {
-            // List items AND raw HTML blockquotes may carry inline flow
-            // content directly (a marked-GENERATED blockquote always wraps
-            // its children in blocks, so its formatting whitespace is still
-            // removed via block adjacency below). Only under ul/ol is every
-            // legal child a block, making ALL whitespace-only text nodes
-            // serializer formatting.
-            const mixedContext
-                = parent.tagName === 'LI' || parent.tagName === 'BLOCKQUOTE';
-            for (const node of Array.from(parent.childNodes)) {
-                if (node.nodeType !== Node.TEXT_NODE)
-                    continue;
-
-                const text = node.textContent ?? '';
-                if (!text.trim()) {
-                    // Authored whitespace between INLINE siblings must
-                    // survive: the space in `**left** **right**`, or a soft
-                    // break whose lines are both wrapped in inline markup.
-                    // Only whitespace touching a block child is marked's
-                    // pretty-printing.
-                    if (
-                        !mixedContext
-                        || isBlock(node.previousSibling)
-                        || isBlock(node.nextSibling)
-                    ) {
-                        node.remove();
-                    }
-                    continue;
-                }
-
-                let trimmed = text;
-                if (isBlock(node.nextSibling))
-                    trimmed = trimmed.replace(/\n+$/, '');
-                if (isBlock(node.previousSibling))
-                    trimmed = trimmed.replace(/^\n+/, '');
-                if (trimmed !== text)
-                    node.textContent = trimmed;
-            }
-        }
-    }
-
     // render pure html by marked
     async renderHtml() {
         const footnote = this._muya?.options?.footnote ?? false;
@@ -299,8 +204,6 @@ export class MarkdownToHtml {
         exportContainer.classList.add('mu-render-container');
         exportContainer.innerHTML = html;
         document.body.appendChild(exportContainer);
-
-        this._stripListFormattingWhitespace(exportContainer);
 
         // render only render the light theme of mermaid and diagram...
         await this._renderMermaid();

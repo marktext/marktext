@@ -1,5 +1,5 @@
 import type { ILexOption } from './types';
-import { Marked } from 'marked';
+import { Marked, Renderer } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
@@ -62,9 +62,53 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
             mathExtension({
                 throwOnError: false,
                 useKatexRender: true,
+                newlineAfterBlock: false,
             }),
         );
     }
+
+    // marked's default block renderers append newlines purely to
+    // pretty-print the serialized HTML. This HTML feeds the export, whose
+    // stylesheet renders paragraphs and tight list items pre-wrap — there,
+    // every serializer newline shows as a phantom empty line (#4951). Emit
+    // compact block joins instead: with them gone, every whitespace byte in
+    // the output originates from the author's source (soft breaks, NBSP,
+    // raw-HTML formatting), so nothing downstream has to guess — and cannot
+    // wrongly guess — which whitespace is authored.
+    marked.use({
+        renderer: {
+            blockquote({ tokens }) {
+                return `<blockquote>${this.parser.parse(tokens)}</blockquote>`;
+            },
+            code(token) {
+                return Renderer.prototype.code.call(this, token).replace(/\n$/, '');
+            },
+            heading(token) {
+                return Renderer.prototype.heading.call(this, token).replace(/\n$/, '');
+            },
+            hr() {
+                return '<hr>';
+            },
+            list(token) {
+                let body = '';
+                for (const item of token.items)
+                    body += this.listitem(item);
+                const tag = token.ordered ? 'ol' : 'ul';
+                const start
+                    = token.ordered && token.start !== 1 ? ` start="${token.start}"` : '';
+                return `<${tag}${start}>${body}</${tag}>`;
+            },
+            listitem(item) {
+                return Renderer.prototype.listitem.call(this, item).replace(/\n$/, '');
+            },
+            paragraph(token) {
+                return Renderer.prototype.paragraph.call(this, token).replace(/\n$/, '');
+            },
+            table(token) {
+                return Renderer.prototype.table.call(this, token).replace(/\n$/, '');
+            },
+        },
+    });
 
     if (superSubScript)
         marked.use(superSubScriptExtension());

@@ -105,6 +105,17 @@
     white-space: pre-wrap;
 }
 
+/* `white-space` inherits, but markdown soft breaks can only be authored in
+   paragraph text or a tight item's DIRECT text — never inside container
+   children. Reset containers so raw HTML inside a tight item (`<div>`, raw
+   `<blockquote>`, …) keeps normal HTML whitespace semantics; markdown-
+   generated containers re-apply the rules above at each nesting level (a
+   nested `li` or `p` matches again), so nested soft breaks are unaffected.
+   `pre` is excluded: it has its own explicit rule above. */
+.markdown-body li:not(:has(> p)) > :is(div, blockquote, ul, ol, table, h1, h2, h3, h4, h5, h6) {
+    white-space: normal;
+}
+
 .markdown-body table {
     display: table;
 }
