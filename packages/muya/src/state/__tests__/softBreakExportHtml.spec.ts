@@ -211,6 +211,53 @@ describe('everything that is NOT an authored soft break stays marked-canonical',
         expect(html).toContain('y<br>z');
     });
 
+    it('same-name <code> nesting keeps the outer container protected', () => {
+        // pre/code/kbd are ordinary containers (not HTML raw-text): they
+        // nest legally, so the state is a stack — an inner </code> must not
+        // strip protection from content still inside the outer <code>.
+        const html = getHighlightHtml(
+            'x <code><code>left\nright</code>\nafter</code> end\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<code><code>left\nright</code>\nafter</code>');
+        expect(html).toContain('end<br>next');
+    });
+
+    it('accepts a self-closing-style closing tag', () => {
+        // Browsers parse </textarea/> as a valid textarea end tag — the
+        // close matcher must accept the trailing slash like the opener.
+        const html = getHighlightHtml(
+            'x <textarea/>left\nright</textarea/> after\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<textarea/>left\nright</textarea/>');
+        expect(html).toContain('after<br>next');
+    });
+
+    it('an unbalanced raw-text open inside a BLOCK html token still protects', () => {
+        // marked's type-6 html blocks end at a blank line, so a block token
+        // may contain an UNMATCHED <textarea> open; the following paragraph
+        // is really textarea content and must not gain <br>.
+        const html = getHighlightHtml('<div>\n<textarea>\n\nleft\nright\n', OPTS, EXPORT);
+
+        expect(html).toContain('left\nright');
+        expect(html).not.toContain('<br>');
+    });
+
+    it('a raw-text close inside a BLOCK html token clears the state', () => {
+        const html = getHighlightHtml(
+            'x <textarea>content\n\n<div>\n</textarea>\n</div>\n\nafter\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('after<br>next');
+    });
+
     it('keeps canonical block separators for inline-restyling themes', () => {
         const html = getHighlightHtml('- # left\n  right\n', OPTS, EXPORT);
         // The `\n` after the heading collapses to the separating space when

@@ -88,39 +88,60 @@ export function getHighlightHtml(
     }
 
     if (exportSoftBreaks) {
-        // ONE authoritative raw-text state. marked tracks its own
-        // (pre/code/kbd/script) as a single BOOLEAN that any list member's
-        // close tag exits — a literal "</code>" inside a script both
-        // un-protects and mis-escapes the remainder — and it misses
-        // textarea/style/title entirely. Track the ACTIVE tag for the full
-        // set here and recompute each leaf's `escaped` from it (trusting
-        // marked's flag would let the two states contaminate each other).
-        // Raw-text semantics: once inside, every other tag is plain
-        // content — a literal nested open never stacks, and only the
-        // SAME-NAME closing tag exits, so this is a single slot, not a
-        // counter. The open matcher accepts a self-closing-style `/` too:
-        // browsers ignore that flag on these elements and parse them as
-        // normal opening tags.
+        // ONE authoritative protection state, replacing marked's own
+        // tracking (a single boolean over pre/code/kbd/script that ANY list
+        // member's close tag exits — a literal "</code>" inside a script
+        // both un-protects and mis-escapes the remainder — and that misses
+        // textarea/style/title entirely). Two semantic tiers:
+        //
+        // - script/style/title/textarea are true HTML raw-text: once
+        //   inside, every other tag is plain content and only the
+        //   SAME-NAME closing tag exits — a single slot.
+        // - pre/code/kbd are ordinary containers marked merely refuses to
+        //   parse markdown inside; they nest legally (same-name included),
+        //   so they need a stack. An end tag closes its nearest matching
+        //   open plus anything above it, like the HTML parser would.
+        //
+        // Transitions are scanned from EVERY html token's text, block
+        // tokens included: marked's type-6 blocks end at a blank line, so
+        // a block token can carry an unmatched open (or the close of an
+        // element opened inline). Comments are stripped first — their
+        // content is never markup. Self-closing-style tags (`<textarea/>`,
+        // `</textarea/>`) count like their plain forms: browsers ignore
+        // that flag on non-void elements.
+        const RAW_TEXT_TAGS = new Set(['script', 'style', 'title', 'textarea']);
         let rawTextTag: string | null = null;
-        const rawTextOpen = /^<(pre|code|kbd|script|textarea|style|title)(?=[\s/>])/i;
-        const rawTextClose = /^<\/(pre|code|kbd|script|textarea|style|title)[\s>]/i;
+        const containerStack: string[] = [];
+        const transition = (tag: string, isClose: boolean) => {
+            if (rawTextTag !== null) {
+                if (isClose && tag === rawTextTag)
+                    rawTextTag = null;
+                return;
+            }
+            if (RAW_TEXT_TAGS.has(tag)) {
+                if (!isClose)
+                    rawTextTag = tag;
+                return;
+            }
+            if (!isClose) {
+                containerStack.push(tag);
+                return;
+            }
+            const openIndex = containerStack.lastIndexOf(tag);
+            if (openIndex >= 0)
+                containerStack.length = openIndex;
+        };
+        const isProtected = () => rawTextTag !== null || containerStack.length > 0;
         marked.use({
             renderer: {
                 html(token) {
-                    // Inline raw-text tags arrive as separate open/close
-                    // tokens; block html tokens carry balanced content and
-                    // must not move the state.
-                    if (!token.block) {
-                        if (rawTextTag === null) {
-                            const open = rawTextOpen.exec(token.text);
-                            if (open)
-                                rawTextTag = open[1].toLowerCase();
-                        }
-                        else {
-                            const close = rawTextClose.exec(token.text);
-                            if (close && close[1].toLowerCase() === rawTextTag)
-                                rawTextTag = null;
-                        }
+                    const text = token.text.replace(/<!--[\s\S]*?-->/g, '');
+                    const tagPattern
+                        = /<(\/?)(pre|code|kbd|script|textarea|style|title)(?=[\s/>])/gi;
+                    let match = tagPattern.exec(text);
+                    while (match !== null) {
+                        transition(match[2].toLowerCase(), match[1] === '/');
+                        match = tagPattern.exec(text);
                     }
                     return Renderer.prototype.html.call(this, token);
                 },
@@ -134,13 +155,35 @@ export function getHighlightHtml(
                         return Renderer.prototype.text.call(this, token);
 
                     // Recompute `escaped` from the authoritative state: a
-                    // leaf inside raw text is emitted verbatim even when
-                    // marked's mis-tracked flag says otherwise (the base
-                    // renderer would HTML-escape real script content), and
-                    // a leaf outside is escaped normally with its soft
-                    // breaks rendered as <br>. (Global-regex `replace`, not
-                    // `replaceAll` — the build targets chrome70.)
-                    if (rawTextTag !== null)
+                    // leaf inside raw text or a container is emitted
+                    // verbatim even when marked's mis-tracked flag says
+                    // otherwise (the base renderer would HTML-escape real
+                    // script content), and a leaf outside is escaped
+                    // normally with its soft breaks rendered as <br>.
+                    // (Global-regex `replace`, not `replaceAll` — the build
+                    // targets chrome70.)
+                    if (rawTextTag !== null) {
+                        // marked's inline tag rule rejects self-closing-style
+                        // end tags (`</textarea/>`), so such a close arrives
+                        // INSIDE a text leaf: keep everything through it
+                        // verbatim, exit the state, and process the rest of
+                        // the leaf normally.
+                        const close = new RegExp(`</${rawTextTag}[\\s/]*>`, 'i')
+                            .exec(token.text);
+                        if (close !== null) {
+                            const cut = close.index + close[0].length;
+                            const head = token.text.slice(0, cut);
+                            const tail = token.text.slice(cut);
+                            rawTextTag = null;
+                            const tailHtml = Renderer.prototype.text.call(
+                                this,
+                                { ...token, raw: tail, text: tail, escaped: false },
+                            );
+                            return head + tailHtml.replace(/\n/g, '<br>');
+                        }
+                        return Renderer.prototype.text.call(this, { ...token, escaped: true });
+                    }
+                    if (isProtected())
                         return Renderer.prototype.text.call(this, { ...token, escaped: true });
 
                     const html = Renderer.prototype.text.call(this, { ...token, escaped: false });
