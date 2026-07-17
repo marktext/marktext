@@ -37,16 +37,17 @@ function highlight(code: string, lang: string) {
 
 export interface IHighlightHtmlOptions {
     /**
-     * Export soft-break markup (#4951): mark markdown-GENERATED paragraphs
-     * and list items with `data-md` so the export stylesheet can scope its
-     * pre-wrap soft-break rendering to them — raw HTML passed through
-     * verbatim carries no marker and keeps normal whitespace semantics —
-     * and join a tight list item's DIRECT children without marked's
-     * serializer newlines, which the item's pre-wrap would render as
-     * phantom empty lines. Everything else keeps marked's canonical
-     * output: the block separators are load-bearing for user export themes
-     * that restyle blocks `display: inline`, and the CommonMark/GFM
-     * conformance suites normalize against them.
+     * Render authored soft line breaks as `<br>` (#3676, #4951). CommonMark
+     * explicitly permits a renderer option that outputs soft breaks as hard
+     * line breaks; doing it AT THE INLINE TOKEN - the only place the parser
+     * itself distinguishes an authored soft break from raw-HTML formatting
+     * or its own serializer newlines - needs no stylesheet cooperation, so
+     * raw HTML, user export themes, and marked's canonical block output all
+     * stay byte-for-byte untouched. (The presentation-layer alternative,
+     * pre-wrap on containers, re-interprets EVERY newline it inherits into
+     * and was withdrawn after repeated review counterexamples.) Off by
+     * default: the editor and the CommonMark/GFM conformance renderer keep
+     * spec-canonical output.
      */
     exportSoftBreaks?: boolean;
 }
@@ -89,36 +90,16 @@ export function getHighlightHtml(
     if (exportSoftBreaks) {
         marked.use({
             renderer: {
-                paragraph(token) {
-                    const html = Renderer.prototype.paragraph.call(this, token);
-                    // Only ever tag the paragraph's own opening tag - inline
-                    // raw HTML inside the paragraph is authored bytes.
-                    return html.startsWith('<p>')
-                        ? `<p data-md>${html.slice('<p>'.length)}`
-                        : html;
-                },
-                listitem(item) {
-                    if (item.loose) {
-                        const html = Renderer.prototype.listitem.call(this, item);
-                        return html.startsWith('<li>')
-                            ? `<li data-md>${html.slice('<li>'.length)}`
-                            : html;
-                    }
-
-                    // A tight item's DIRECT children sit under the item's
-                    // pre-wrap, where every serializer newline renders as a
-                    // phantom empty line - join them without marked's block
-                    // separators. Nested containers keep their canonical
-                    // interior; the export stylesheet resets them to normal
-                    // whitespace semantics.
-                    let body = '';
-                    for (const child of item.tokens) {
-                        body += this.parser
-                            .parse([child])
-                            .replace(/^\n+/, '')
-                            .replace(/\n+$/, '');
-                    }
-                    return `<li data-md>${body}</li>\n`;
+                text(token) {
+                    const html = Renderer.prototype.text.call(this, token);
+                    // Block-level text tokens carry children whose inline
+                    // pieces (raw HTML among them) are already rendered -
+                    // only LEAF text can contain authored soft breaks. Code
+                    // spans, inline raw HTML, and hard breaks are separate
+                    // token types and never reach this replacement.
+                    if ('tokens' in token && token.tokens)
+                        return html;
+                    return html.replaceAll('\n', '<br>');
                 },
             },
         });

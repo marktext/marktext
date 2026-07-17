@@ -89,66 +89,6 @@
     white-space: pre-wrap;
 }
 
-/* Render soft line breaks (Shift+Enter → a bare `\n` inside a block) the way
-   the editor does (`.mu-content` is pre-wrap) instead of emitting a
-   non-standard `<br>`, so the exported HTML stays CommonMark-conformant (the
-   `\n` is a plain line ending) yet still shows the break (#3676).
-
-   `[data-md]` is stamped by the export render onto markdown-GENERATED
-   paragraphs and list items only — raw HTML passed through verbatim carries
-   no marker and keeps normal HTML whitespace semantics (its newlines are
-   HTML formatting, not soft breaks). `li[data-md]:not(:has(> p))` targets
-   tight items, whose soft break is a bare `\n` directly inside the `<li>`;
-   loose items wrap their content in `<p data-md>` (handled by the `p`
-   rule). */
-.markdown-body p[data-md],
-.markdown-body li[data-md]:not(:has(> p)) {
-    white-space: pre-wrap;
-}
-
-/* `white-space` inherits, but markdown soft breaks can only be authored in
-   paragraph text or a tight item's DIRECT text — never inside container
-   children. Reset every HTML block container so raw HTML inside a tight
-   item keeps normal whitespace semantics; markdown-generated containers
-   re-apply the rules above at each nesting level (a nested `li[data-md]`
-   or `p[data-md]` matches again), so nested soft breaks are unaffected.
-   `pre` is excluded: it has its own explicit rule above. */
-.markdown-body
-    li[data-md]:not(:has(> p))
-    > :is(
-        address,
-        article,
-        aside,
-        blockquote,
-        dd,
-        details,
-        dialog,
-        div,
-        dl,
-        dt,
-        fieldset,
-        figcaption,
-        figure,
-        footer,
-        form,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        header,
-        hgroup,
-        main,
-        nav,
-        ol,
-        section,
-        table,
-        ul
-    ) {
-    white-space: normal;
-}
-
 .markdown-body table {
     display: table;
 }

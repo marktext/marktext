@@ -1,15 +1,13 @@
 import { expect, test } from '../fixtures/muya';
 
 /**
- * Real-browser coverage for the export soft-break markup (follow-up to
- * #4844): the export render marks markdown-GENERATED paragraphs and list
- * items with `data-md` — the stylesheet scopes its pre-wrap to the marker —
- * and joins a tight item's direct children without marked's serializer
- * newlines, so nothing renders as a phantom row while authored whitespace,
- * including inline flow directly inside RAW HTML blockquotes, survives. The
- * unit suite pins the emitted markup; this spec pins the sanitize pass and
- * the rendered layout, which happy-dom cannot reproduce (it unwraps
- * top-level blocks during sanitize).
+ * Real-browser coverage for the export soft-break rendering (follow-up to
+ * #4844): authored soft breaks render as `<br>` at the inline text leaf
+ * (`exportSoftBreaks`), everything else stays byte-for-byte
+ * marked-canonical, and no stylesheet whitespace rules exist to interfere
+ * with raw HTML or user export themes. The unit suite pins the emitted
+ * markup; this spec pins the sanitize pass and the rendered layout in a
+ * real Chromium (happy-dom unwraps top-level blocks during sanitize).
  */
 
 test('raw-blockquote inline whitespace survives the real sanitize pass', async ({ page }) => {
@@ -27,20 +25,50 @@ test('raw-blockquote inline whitespace survives the real sanitize pass', async (
     );
 });
 
-test('a heading list item renders without a phantom row in the exported document', async ({ page }) => {
-    const html = await page.evaluate(async () => {
-        const instance = new window.MarkdownToHtml!('- # heading\n');
+test('a soft break renders as a real second line in the exported document', async ({ page }) => {
+    const single = await page.evaluate(async () => {
+        const instance = new window.MarkdownToHtml!('line one\n');
+        return instance.generate();
+    });
+    const soft = await page.evaluate(async () => {
+        const instance = new window.MarkdownToHtml!('line one\nline two\n');
         return instance.generate();
     });
 
-    // Render the REAL export document (inlined export stylesheet included)
-    // and measure: the item must hug its heading instead of carrying an
-    // extra ~half-line from marked's `</h1>\n</li>` newline.
-    await page.setContent(html);
-    const { li, h1 } = await page.evaluate(() => ({
-        li: document.querySelector('.markdown-body li')!.getBoundingClientRect().height,
-        h1: document.querySelector('.markdown-body h1')!.getBoundingClientRect().height,
-    }));
+    await page.setContent(single);
+    const singleHeight = await page.evaluate(
+        () => document.querySelector('.markdown-body p')!.getBoundingClientRect().height,
+    );
+    await page.setContent(soft);
+    const softHeight = await page.evaluate(
+        () => document.querySelector('.markdown-body p')!.getBoundingClientRect().height,
+    );
 
-    expect(li).toBeLessThan(h1 * 1.5);
+    expect(softHeight).toBeGreaterThan(singleHeight * 1.8);
+    expect(softHeight).toBeLessThan(singleHeight * 2.6);
+});
+
+test('a tight item with a nested list renders without phantom rows', async ({ page }) => {
+    // `- line A\n  - child` is exactly two text lines. marked's canonical
+    // serializer newlines around the nested list collapse under normal
+    // whitespace — if any stylesheet rule ever re-interprets them again
+    // (the withdrawn pre-wrap approach measured 105px here instead of
+    // ~2 lines), this catches it.
+    const measure = async (markdown: string, selector: string) => {
+        const html = await page.evaluate(async (md) => {
+            const instance = new window.MarkdownToHtml!(md);
+            return instance.generate();
+        }, markdown);
+        await page.setContent(html);
+        return page.evaluate(
+            sel => document.querySelector(sel)!.getBoundingClientRect().height,
+            selector,
+        );
+    };
+
+    const single = await measure('- line A\n', '.markdown-body > ul > li');
+    const nested = await measure('- line A\n  - child\n', '.markdown-body > ul > li');
+
+    expect(nested).toBeGreaterThan(single * 1.6);
+    expect(nested).toBeLessThan(single * 2.6);
 });

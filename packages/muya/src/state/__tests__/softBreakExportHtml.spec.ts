@@ -4,203 +4,103 @@ import { describe, expect, it } from 'vitest';
 import { getHighlightHtml } from '../../utils/marked';
 import { MarkdownToHtml } from '../markdownToHtml';
 
-// #3676 — a soft line break (Shift+Enter, serialized as a bare `\n`
-// inside a block) shows as a line break in the editor (`.mu-content` is
-// pre-wrap) but was lost on export because marked renders a soft break as a
-// space. Rather than emit a non-standard `<br>` (which CommonMark reserves for
-// hard breaks), the export keeps the conformant `\n` and renders it with
-// `white-space: pre-wrap` on `.markdown-body p` and `li:not(:has(> p))`
-// (tight items only).
+// #3676 — a soft line break (Shift+Enter, a bare `\n` inside a block) shows
+// as a line break in the editor (`.mu-content` is pre-wrap) but collapsed to
+// a space on HTML/PDF export.
 //
-// The export render (getHighlightHtml's `exportSoftBreaks` option) stamps
-// markdown-GENERATED paragraphs and list items with `data-md` — the
-// stylesheet scopes pre-wrap to the marker, so raw HTML keeps normal
-// whitespace semantics — and joins a tight item's DIRECT children without
-// marked's serializer newlines, which the item's pre-wrap would render as
-// phantom empty lines. Everything else keeps marked's canonical output
-// (block separators are load-bearing for inline-restyling export themes and
-// for the CommonMark/GFM conformance suites). The pixel-level rendering is
-// covered by the muya e2e suite
-// (e2e/tests/export/serializer-whitespace.spec.ts).
+// The export renders authored soft breaks as `<br>` at the inline TEXT leaf
+// (`exportSoftBreaks`) — the only layer where the parser itself
+// distinguishes an authored soft break from raw-HTML formatting whitespace
+// or its own serializer newlines. CommonMark explicitly permits rendering
+// soft breaks as hard line breaks. Everything else in the output is
+// byte-for-byte marked-canonical: raw HTML, `&nbsp;`, comments, block
+// separators (load-bearing for inline-restyling export themes and for the
+// `<p>[TOC]</p>` injector), and the conformance renderer (option off).
+//
+// The presentation-layer alternative — `white-space: pre-wrap` on container
+// elements — was withdrawn: it re-interprets EVERY newline it applies to or
+// inherits into, and five review rounds produced counterexample after
+// counterexample (serializer phantom rows, raw-HTML collapse, `&nbsp;`
+// deletion, inline-restyled themes, raw `<p>`/`<section>` containers).
 
 const OPTS = { math: false, superSubScript: false, footnote: false, frontMatter: false };
+const EXPORT = { exportSoftBreaks: true };
 
-describe('#3676 — soft line breaks survive export as a conformant newline', () => {
-    it('keeps a paragraph soft break as a newline, never a <br>', () => {
-        const html = getHighlightHtml('line one\nline two', OPTS);
+describe('#3676 — authored soft breaks render as <br> on export', () => {
+    it('renders a paragraph soft break as <br>', () => {
+        const html = getHighlightHtml('line one\nline two\n', OPTS, EXPORT);
+        expect(html).toContain('<p>line one<br>line two</p>');
+    });
+
+    it('renders a tight-item soft break as <br>', () => {
+        const html = getHighlightHtml('- line A\n  line B\n', OPTS, EXPORT);
+        expect(html).toContain('<li>line A<br>line B</li>');
+    });
+
+    it('renders a soft break between inline-wrapped lines as <br>', () => {
+        const html = getHighlightHtml('- **left**\n  **right**\n', OPTS, EXPORT);
+        expect(html).toContain('<strong>left</strong><br><strong>right</strong>');
+    });
+
+    it('renders a soft break inside an inline span as <br>', () => {
+        const html = getHighlightHtml('**left\nright**\n', OPTS, EXPORT);
+        expect(html).toContain('<strong>left<br>right</strong>');
+    });
+
+    it('keeps a real hard break working (two trailing spaces)', () => {
+        const html = getHighlightHtml('line one  \nline two\n', OPTS, EXPORT);
+        expect(html).toMatch(/line one<br\s*\/?>\s*line two/);
+    });
+
+    it('reaches the exported document through the full pipeline', async () => {
+        const html = await new MarkdownToHtml('- line A\n  line B\n').renderHtml();
+        expect(html).toContain('line A<br>line B');
+    });
+
+    it('is off by default — the conformance render keeps the spec newline', () => {
+        const html = getHighlightHtml('line one\nline two\n', OPTS);
         expect(html).toContain('<p>line one\nline two</p>');
-        expect(html).not.toMatch(/<br\s*\/?>/);
-    });
-
-    it('keeps a soft break inside a tight list item, never a <br>', () => {
-        const html = getHighlightHtml('- line A\n  line B', OPTS);
-        expect(html).toMatch(/<li>line A\nline B<\/li>/);
-        expect(html).not.toMatch(/<br\s*\/?>/);
-    });
-
-    it('leaves a real hard break (two trailing spaces) as <br>', () => {
-        // Sanity: the change only touches soft breaks; hard breaks are untouched.
-        const html = getHighlightHtml('line one  \nline two', OPTS);
-        expect(html).toMatch(/<br\s*\/?>/);
+        expect(html).not.toContain('<br>');
     });
 });
 
-describe('export pipeline strips serializer whitespace in pre-wrap list contexts', () => {
-    it('a tight item with a nested list carries no formatting newlines', async () => {
-        const html = await new MarkdownToHtml('- line A\n  - child\n').renderHtml();
-
-        // marked emits `line A\n<ul>\n<li>child</li>\n</ul>\n</li>`; every one
-        // of those newlines is an empty line box under inherited pre-wrap.
-        expect(html).toContain('<li data-md="">line A<ul>\n<li data-md="">child</li>\n</ul></li>');
+describe('everything that is NOT an authored soft break stays marked-canonical', () => {
+    it('leaves raw HTML byte-for-byte untouched', () => {
+        const raw = '<p>\n<strong>left</strong>\n<strong>right</strong>\n</p>';
+        const html = getHighlightHtml(`${raw}\n`, OPTS, EXPORT);
+        expect(html).toContain(raw);
     });
 
-    it('keeps the authored soft break while stripping the serializer newline', async () => {
-        const html = await new MarkdownToHtml('- line A\n  line B\n  - child\n').renderHtml();
-
-        // The `\n` between "line A" and "line B" is the user's; the `\n`
-        // between "line B" and the nested list is marked's.
-        expect(html).toContain('<li data-md="">line A\nline B<ul>\n<li data-md="">child</li>\n</ul></li>');
+    it('leaves raw blockquote inline whitespace untouched', () => {
+        const raw = '<blockquote><strong>left</strong> <strong>right</strong></blockquote>';
+        const html = getHighlightHtml(`${raw}\n`, OPTS, EXPORT);
+        expect(html).toContain(raw);
     });
 
-    it('a nested blockquote in a tight item carries no formatting newlines', async () => {
-        const html = await new MarkdownToHtml('- line A\n  > quoted\n').renderHtml();
-
-        expect(html).toMatch(/<li data-md="">line A<blockquote>\s*<p data-md="">quoted<\/p>\s*<\/blockquote><\/li>/);
-        // The blockquote's own children are not under the tight-item pre-wrap
-        // text path, but strip its formatting whitespace too — `white-space`
-        // inherits into it.
-        expect(html).not.toMatch(/\n<\/li>/);
+    it('leaves the newline around an inline comment untouched', () => {
+        const html = getHighlightHtml('- left\n  <!-- c -->\n  right\n', OPTS, EXPORT);
+        expect(html).toContain('left<!-- c -->\nright');
     });
 
-    it('preserves the authored space between inline siblings', async () => {
-        const html = await new MarkdownToHtml('- **left** **right**\n').renderHtml();
-
-        // The space between the two <strong> elements is authored text, not
-        // serializer formatting — removing it would export "leftright".
-        expect(html).toContain('<strong>left</strong> <strong>right</strong>');
+    it('preserves an authored &nbsp; item next to a nested list', () => {
+        const html = getHighlightHtml('- &nbsp;\n  - child\n', OPTS, EXPORT);
+        expect(html).toContain('<li>&nbsp;<ul>');
     });
 
-    it('preserves a soft break whose lines are both wrapped in inline markup', async () => {
-        const html = await new MarkdownToHtml('- **left**\n  **right**\n').renderHtml();
-
-        // The newline lives in a whitespace-only text node between two
-        // inline siblings — exactly the soft break this feature exists to
-        // keep.
-        expect(html).toContain('<strong>left</strong>\n<strong>right</strong>');
+    it('collapses a code-span newline to a space per spec, never <br>', () => {
+        const html = getHighlightHtml('a `x\ny` b\n', OPTS, EXPORT);
+        expect(html).toContain('<code>x y</code>');
     });
 
-    it('preserves authored whitespace between inline siblings in a raw blockquote', () => {
-        // Raw HTML blocks pass through marked verbatim — the space between
-        // the inline siblings is the author's, and nothing downstream may
-        // touch it (happy-dom's sanitize unwraps top-level blockquotes, so
-        // assert at the renderer level; the real-browser pipeline case
-        // lives in the upstream muya e2e suite).
-        const html = getHighlightHtml(
-            '<blockquote><strong>left</strong> <strong>right</strong></blockquote>\n',
-            OPTS,
-        );
-
-        expect(html).toContain(
-            '<blockquote><strong>left</strong> <strong>right</strong></blockquote>',
-        );
+    it('keeps canonical block separators for inline-restyling themes', () => {
+        const html = getHighlightHtml('- # left\n  right\n', OPTS, EXPORT);
+        // The `\n` after the heading collapses to the separating space when
+        // an export theme restyles headings `display: inline`.
+        expect(html).toMatch(/<\/h1>\nright/);
     });
 
-    it('preserves an authored &nbsp; item next to a nested list', async () => {
-        // NBSP is trim()-whitespace but AUTHORED content — the old post-hoc
-        // cleanup deleted it outright. With compact block joins there is no
-        // serializer newline to strip, so the entity passes through.
-        const html = await new MarkdownToHtml('- &nbsp;\n  - child\n').renderHtml();
-
-        expect(html).toContain('<li data-md="">&nbsp;<ul>\n<li data-md="">child</li>\n</ul></li>');
-    });
-
-    it('preserves the authored newline before an inline-styled raw div', () => {
-        // The export sanitizer allows `style`, so a DIV can be author-styled
-        // inline — classifying "block" by tag name would delete the authored
-        // newline and render "leftright".
-        const html = getHighlightHtml(
-            '<blockquote><strong>left</strong>\n<div style="display:inline">right</div></blockquote>\n',
-            OPTS,
-        );
-
-        expect(html).toContain(
-            '<strong>left</strong>\n<div style="display:inline">right</div>',
-        );
-    });
-
-    it('keeps raw-HTML formatting newlines verbatim inside a tight item', async () => {
-        // Raw HTML keeps its authored bytes; the export stylesheet resets
-        // `white-space` on container children of tight items so these
-        // newlines follow normal HTML semantics (collapse) instead of the
-        // item's pre-wrap — covered by the browser layout spec.
-        const html = await new MarkdownToHtml(
-            '- <div>\n  <strong>left</strong>\n  <strong>right</strong>\n  </div>\n',
-        ).renderHtml();
-
-        expect(html).toContain('<li data-md=""><div>\n<strong>left</strong>\n<strong>right</strong>\n</div></li>');
-    });
-
-    it('display math in a tight item carries no serializer newline ($$ syntax)', async () => {
-        const html = await new MarkdownToHtml('- $$x+1$$\n').renderHtml();
-
-        expect(html).toContain('katex-display');
-        expect(html).not.toMatch(/\n<\/li>/);
-    });
-
-    it('display math in a tight item carries no serializer newline (fenced syntax)', async () => {
-        const html = await new MarkdownToHtml('- ```math\n  x+1\n  ```\n').renderHtml();
-
-        expect(html).toContain('katex-display');
-        expect(html).not.toMatch(/\n<\/li>/);
-    });
-
-    it('a heading as the sole list-item child carries no formatting newline', async () => {
-        // marked emits `<li><h1>heading</h1>\n</li>` for `- # heading`; H1
-        // must count as a block child or the newline renders as a phantom
-        // row under inherited pre-wrap.
-        const html = await new MarkdownToHtml('- # heading\n').renderHtml();
-
-        expect(html).toMatch(/<li data-md=""><h1[^>]*>heading<\/h1><\/li>/);
-        expect(html).not.toMatch(/\n<\/li>/);
-    });
-
-    it('a thematic break as the sole list-item child carries no formatting newline', async () => {
-        const html = await new MarkdownToHtml('- * * *\n').renderHtml();
-
-        expect(html).toContain('<li data-md=""><hr></li>');
-        expect(html).not.toMatch(/\n<\/li>/);
-    });
-
-    it('marks generated paragraphs and keeps canonical top-level separators', () => {
-        // The marker lets the stylesheet scope pre-wrap to GENERATED
-        // paragraphs; the canonical newline between top-level blocks is
-        // load-bearing for user export themes that restyle blocks
-        // `display: inline` (it collapses to the separating space).
-        const html = getHighlightHtml('# left\n\nright\n', OPTS, { exportSoftBreaks: true });
-
-        expect(html).toContain('</h1>\n<p data-md>right</p>');
-    });
-
-    it('leaves raw HTML paragraphs unmarked', () => {
-        // A raw <p> passed through verbatim must NOT get the marker — its
-        // newlines are HTML formatting, and the stylesheet's pre-wrap would
-        // otherwise render them as extra lines.
-        const html = getHighlightHtml(
-            '<p>\n<strong>left</strong>\n<strong>right</strong>\n</p>\n',
-            OPTS,
-            { exportSoftBreaks: true },
-        );
-
-        expect(html).toContain('<p>\n<strong>left</strong>\n<strong>right</strong>\n</p>');
-        expect(html).not.toContain('<p data-md>\n<strong>left</strong>');
-    });
-
-    it('leaves paragraph soft breaks intact through the full pipeline', async () => {
-        // happy-dom's DOMPurify pass unwraps the <p> in this environment (a
-        // test-runtime artifact — the getHighlightHtml assertion above pins
-        // the real markup), so assert only what this suite owns: the strip
-        // never touches an authored newline.
-        const html = await new MarkdownToHtml('line one\nline two\n').renderHtml();
-        expect(html).toContain('line one\nline two');
+    it('keeps the [TOC] paragraph shape the desktop injector matches', () => {
+        const html = getHighlightHtml('[TOC]\n\ntext\n', OPTS, EXPORT);
+        expect(html).toContain('<p>[TOC]</p>');
     });
 });
