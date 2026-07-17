@@ -109,6 +109,43 @@ describe('everything that is NOT an authored soft break stays marked-canonical',
         expect(html).toContain('<textarea>a\nb</textarea>');
     });
 
+    it('does not exit raw-text mode on a mismatched closing tag', () => {
+        // Inside a raw-text element every other tag is plain content; only
+        // the SAME-NAME closing tag exits. A stray </style> inside a
+        // textarea must neither end the protection nor let the inner
+        // newline become <br>.
+        const html = getHighlightHtml(
+            'before <textarea>left\n</style>\nright</textarea> after\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<textarea>left\n</style>\nright</textarea>');
+        expect(html).toContain('after<br>next');
+    });
+
+    it('ignores a literal nested opening tag inside raw text', () => {
+        // A literal <style> INSIDE a textarea is content, not nesting — the
+        // matching </textarea> must still exit, and soft breaks after it
+        // must still convert.
+        const html = getHighlightHtml(
+            'before <textarea><style>left\nright</textarea> after\nnext\n',
+            OPTS,
+            EXPORT,
+        );
+
+        expect(html).toContain('<textarea><style>left\nright</textarea>');
+        expect(html).toContain('after<br>next');
+    });
+
+    it('leaves inline raw-text element content untouched (<title>)', () => {
+        // <title> is an escapable raw-text element too — the project's own
+        // inline lexer treats it as raw content.
+        const html = getHighlightHtml('before <title>left\nright</title> after\n', OPTS, EXPORT);
+
+        expect(html).toContain('<title>left\nright</title>');
+    });
+
     it('keeps canonical block separators for inline-restyling themes', () => {
         const html = getHighlightHtml('- # left\n  right\n', OPTS, EXPORT);
         // The `\n` after the heading collapses to the separating space when

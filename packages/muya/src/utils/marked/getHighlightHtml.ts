@@ -89,23 +89,33 @@ export function getHighlightHtml(
 
     if (exportSoftBreaks) {
         // marked's lexer flags text inside inline raw-text elements as
-        // `escaped` — but only for its pre/code/kbd/script list; textarea
-        // and style content arrives as plain text tokens. Track those two
-        // here so their newlines (content, not soft breaks) stay untouched.
-        let rawTextDepth = 0;
-        const rawTextOpen = /^<(?:textarea|style)[\s>]/i;
-        const rawTextClose = /^<\/(?:textarea|style)[\s>]/i;
+        // `escaped` — but only for its pre/code/kbd/script list; textarea,
+        // style, and title content arrives as plain text tokens. Track the
+        // ACTIVE tag here so their newlines (content, not soft breaks) stay
+        // untouched. Raw-text semantics: once inside, every other tag is
+        // plain content — a literal nested open never stacks, and only the
+        // SAME-NAME closing tag exits, so this is a single slot, not a
+        // counter.
+        let rawTextTag: string | null = null;
+        const rawTextOpen = /^<(textarea|style|title)[\s>]/i;
+        const rawTextClose = /^<\/(textarea|style|title)[\s>]/i;
         marked.use({
             renderer: {
                 html(token) {
                     // Inline raw-text tags arrive as separate open/close
                     // tokens; block html tokens carry balanced content and
-                    // must not move the counter.
+                    // must not move the state.
                     if (!token.block) {
-                        if (rawTextOpen.test(token.text))
-                            rawTextDepth += 1;
-                        else if (rawTextClose.test(token.text) && rawTextDepth > 0)
-                            rawTextDepth -= 1;
+                        if (rawTextTag === null) {
+                            const open = rawTextOpen.exec(token.text);
+                            if (open)
+                                rawTextTag = open[1].toLowerCase();
+                        }
+                        else {
+                            const close = rawTextClose.exec(token.text);
+                            if (close && close[1].toLowerCase() === rawTextTag)
+                                rawTextTag = null;
+                        }
                     }
                     return Renderer.prototype.html.call(this, token);
                 },
@@ -116,14 +126,14 @@ export function getHighlightHtml(
                     // only LEAF text can contain authored soft breaks. Code
                     // spans, raw HTML, and hard breaks are separate token
                     // types; `escaped` leaf text is inline raw-text content
-                    // per marked's own tracking, and `rawTextDepth` covers
+                    // per marked's own tracking, and `rawTextTag` covers
                     // the tags that tracking misses. (Global-regex
                     // `replace`, not `replaceAll` — the build targets
                     // chrome70, which lacks it.)
                     if (
                         ('tokens' in token && token.tokens)
                         || ('escaped' in token && token.escaped)
-                        || rawTextDepth > 0
+                        || rawTextTag !== null
                     ) {
                         return html;
                     }
