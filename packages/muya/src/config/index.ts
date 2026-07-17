@@ -426,7 +426,10 @@ export const PREVIEW_DOMPURIFY_CONFIG = {
 export const EXPORT_DOMPURIFY_CONFIG = {
     FORBID_ATTR: ['contenteditable'],
     ALLOW_DATA_ATTR: false,
-    ADD_ATTR: ['data-align'],
+    // `data-md` marks markdown-GENERATED paragraphs/list items in the
+    // export so the stylesheet can scope soft-break pre-wrap to them while
+    // raw HTML keeps normal whitespace semantics (#4951 review).
+    ADD_ATTR: ['data-align', 'data-md'],
     USE_PROFILES: {
         html: true,
         svg: true,

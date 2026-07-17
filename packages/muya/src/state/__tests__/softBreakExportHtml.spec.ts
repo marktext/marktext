@@ -12,13 +12,16 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // `white-space: pre-wrap` on `.markdown-body p` and `li:not(:has(> p))`
 // (tight items only).
 //
-// Because `white-space` inherits, marked's pretty-printing newlines around
-// nested block children (`line A\n<ul>`, `<ul>\n<li>`, `</ul>\n</li>`) would
-// each render as a visible empty line box under that rule, so the export
-// pipeline strips serializer-only whitespace from list/blockquote contexts
-// while leaving authored soft breaks (which always have text after them)
-// untouched. The pixel-level rendering of both halves is covered by the
-// Playwright layout spec (tests/e2e/export-soft-break-layout.spec.ts).
+// The export render (getHighlightHtml's `exportSoftBreaks` option) stamps
+// markdown-GENERATED paragraphs and list items with `data-md` — the
+// stylesheet scopes pre-wrap to the marker, so raw HTML keeps normal
+// whitespace semantics — and joins a tight item's DIRECT children without
+// marked's serializer newlines, which the item's pre-wrap would render as
+// phantom empty lines. Everything else keeps marked's canonical output
+// (block separators are load-bearing for inline-restyling export themes and
+// for the CommonMark/GFM conformance suites). The pixel-level rendering is
+// covered by the muya e2e suite
+// (e2e/tests/export/serializer-whitespace.spec.ts).
 
 const OPTS = { math: false, superSubScript: false, footnote: false, frontMatter: false };
 
@@ -48,7 +51,7 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
 
         // marked emits `line A\n<ul>\n<li>child</li>\n</ul>\n</li>`; every one
         // of those newlines is an empty line box under inherited pre-wrap.
-        expect(html).toContain('<li>line A<ul><li>child</li></ul></li>');
+        expect(html).toContain('<li data-md="">line A<ul>\n<li data-md="">child</li>\n</ul></li>');
     });
 
     it('keeps the authored soft break while stripping the serializer newline', async () => {
@@ -56,13 +59,13 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
 
         // The `\n` between "line A" and "line B" is the user's; the `\n`
         // between "line B" and the nested list is marked's.
-        expect(html).toContain('<li>line A\nline B<ul><li>child</li></ul></li>');
+        expect(html).toContain('<li data-md="">line A\nline B<ul>\n<li data-md="">child</li>\n</ul></li>');
     });
 
     it('a nested blockquote in a tight item carries no formatting newlines', async () => {
         const html = await new MarkdownToHtml('- line A\n  > quoted\n').renderHtml();
 
-        expect(html).toMatch(/<li>line A<blockquote>\s*<p>quoted<\/p>\s*<\/blockquote><\/li>/);
+        expect(html).toMatch(/<li data-md="">line A<blockquote>\s*<p data-md="">quoted<\/p>\s*<\/blockquote><\/li>/);
         // The blockquote's own children are not under the tight-item pre-wrap
         // text path, but strip its formatting whitespace too — `white-space`
         // inherits into it.
@@ -108,7 +111,7 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
         // serializer newline to strip, so the entity passes through.
         const html = await new MarkdownToHtml('- &nbsp;\n  - child\n').renderHtml();
 
-        expect(html).toContain('<li>&nbsp;<ul><li>child</li></ul></li>');
+        expect(html).toContain('<li data-md="">&nbsp;<ul>\n<li data-md="">child</li>\n</ul></li>');
     });
 
     it('preserves the authored newline before an inline-styled raw div', () => {
@@ -134,7 +137,7 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
             '- <div>\n  <strong>left</strong>\n  <strong>right</strong>\n  </div>\n',
         ).renderHtml();
 
-        expect(html).toContain('<li><div>\n<strong>left</strong>\n<strong>right</strong>\n</div></li>');
+        expect(html).toContain('<li data-md=""><div>\n<strong>left</strong>\n<strong>right</strong>\n</div></li>');
     });
 
     it('display math in a tight item carries no serializer newline ($$ syntax)', async () => {
@@ -157,15 +160,39 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
         // row under inherited pre-wrap.
         const html = await new MarkdownToHtml('- # heading\n').renderHtml();
 
-        expect(html).toMatch(/<li><h1[^>]*>heading<\/h1><\/li>/);
+        expect(html).toMatch(/<li data-md=""><h1[^>]*>heading<\/h1><\/li>/);
         expect(html).not.toMatch(/\n<\/li>/);
     });
 
     it('a thematic break as the sole list-item child carries no formatting newline', async () => {
         const html = await new MarkdownToHtml('- * * *\n').renderHtml();
 
-        expect(html).toContain('<li><hr></li>');
+        expect(html).toContain('<li data-md=""><hr></li>');
         expect(html).not.toMatch(/\n<\/li>/);
+    });
+
+    it('marks generated paragraphs and keeps canonical top-level separators', () => {
+        // The marker lets the stylesheet scope pre-wrap to GENERATED
+        // paragraphs; the canonical newline between top-level blocks is
+        // load-bearing for user export themes that restyle blocks
+        // `display: inline` (it collapses to the separating space).
+        const html = getHighlightHtml('# left\n\nright\n', OPTS, { exportSoftBreaks: true });
+
+        expect(html).toContain('</h1>\n<p data-md>right</p>');
+    });
+
+    it('leaves raw HTML paragraphs unmarked', () => {
+        // A raw <p> passed through verbatim must NOT get the marker — its
+        // newlines are HTML formatting, and the stylesheet's pre-wrap would
+        // otherwise render them as extra lines.
+        const html = getHighlightHtml(
+            '<p>\n<strong>left</strong>\n<strong>right</strong>\n</p>\n',
+            OPTS,
+            { exportSoftBreaks: true },
+        );
+
+        expect(html).toContain('<p>\n<strong>left</strong>\n<strong>right</strong>\n</p>');
+        expect(html).not.toContain('<p data-md>\n<strong>left</strong>');
     });
 
     it('leaves paragraph soft breaks intact through the full pipeline', async () => {

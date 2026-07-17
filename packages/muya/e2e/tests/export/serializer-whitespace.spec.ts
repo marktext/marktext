@@ -1,14 +1,15 @@
 import { expect, test } from '../fixtures/muya';
 
 /**
- * Real-browser coverage for the export serializer-whitespace cleanup
- * (`MarkdownToHtml._stripListFormattingWhitespace`, follow-up to #4844):
- * marked's formatting newlines around block children must not render as
- * phantom rows under the export stylesheet's inherited pre-wrap, while
- * authored whitespace — including inline flow directly inside RAW HTML
- * blockquotes — survives. The unit suite pins the emitted markup; this spec
- * pins the sanitize pass and the rendered layout, which happy-dom cannot
- * reproduce (it unwraps top-level blocks during sanitize).
+ * Real-browser coverage for the export soft-break markup (follow-up to
+ * #4844): the export render marks markdown-GENERATED paragraphs and list
+ * items with `data-md` — the stylesheet scopes its pre-wrap to the marker —
+ * and joins a tight item's direct children without marked's serializer
+ * newlines, so nothing renders as a phantom row while authored whitespace,
+ * including inline flow directly inside RAW HTML blockquotes, survives. The
+ * unit suite pins the emitted markup; this spec pins the sanitize pass and
+ * the rendered layout, which happy-dom cannot reproduce (it unwraps
+ * top-level blocks during sanitize).
  */
 
 test('raw-blockquote inline whitespace survives the real sanitize pass', async ({ page }) => {
