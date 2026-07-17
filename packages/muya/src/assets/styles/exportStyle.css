@@ -113,11 +113,38 @@
    re-apply the rules above at each nesting level (a nested `li[data-md]`
    or `p[data-md]` matches again), so nested soft breaks are unaffected.
    `pre` is excluded: it has its own explicit rule above. */
-.markdown-body li[data-md]:not(:has(> p))
+.markdown-body
+    li[data-md]:not(:has(> p))
     > :is(
-        address, article, aside, blockquote, dd, details, dialog, div, dl,
-        dt, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5,
-        h6, header, hgroup, main, nav, ol, section, table, ul
+        address,
+        article,
+        aside,
+        blockquote,
+        dd,
+        details,
+        dialog,
+        div,
+        dl,
+        dt,
+        fieldset,
+        figcaption,
+        figure,
+        footer,
+        form,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        header,
+        hgroup,
+        main,
+        nav,
+        ol,
+        section,
+        table,
+        ul
     ) {
     white-space: normal;
 }
