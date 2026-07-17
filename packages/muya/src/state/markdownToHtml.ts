@@ -195,15 +195,28 @@ export class MarkdownToHtml {
             && blockChild.has((node as Element).tagName);
 
         for (const parent of container.querySelectorAll('li, ul, ol, blockquote')) {
+            // Only list items mix inline content with block children — under
+            // ul/ol/blockquote every legal child is a block, so ALL
+            // whitespace-only text nodes there are serializer formatting.
+            const mixedContext = parent.tagName === 'LI';
             for (const node of Array.from(parent.childNodes)) {
                 if (node.nodeType !== Node.TEXT_NODE)
                     continue;
 
                 const text = node.textContent ?? '';
                 if (!text.trim()) {
-                    // Whitespace-only nodes between block children are pure
-                    // serializer formatting (ul/ol may only contain li).
-                    node.remove();
+                    // Authored whitespace between INLINE siblings must
+                    // survive: the space in `**left** **right**`, or a soft
+                    // break whose lines are both wrapped in inline markup.
+                    // Only whitespace touching a block child is marked's
+                    // pretty-printing.
+                    if (
+                        !mixedContext
+                        || isBlock(node.previousSibling)
+                        || isBlock(node.nextSibling)
+                    ) {
+                        node.remove();
+                    }
                     continue;
                 }
 

@@ -69,6 +69,23 @@ describe('export pipeline strips serializer whitespace in pre-wrap list contexts
         expect(html).not.toMatch(/\n<\/li>/);
     });
 
+    it('preserves the authored space between inline siblings', async () => {
+        const html = await new MarkdownToHtml('- **left** **right**\n').renderHtml();
+
+        // The space between the two <strong> elements is authored text, not
+        // serializer formatting — removing it would export "leftright".
+        expect(html).toContain('<strong>left</strong> <strong>right</strong>');
+    });
+
+    it('preserves a soft break whose lines are both wrapped in inline markup', async () => {
+        const html = await new MarkdownToHtml('- **left**\n  **right**\n').renderHtml();
+
+        // The newline lives in a whitespace-only text node between two
+        // inline siblings — exactly the soft break this feature exists to
+        // keep.
+        expect(html).toContain('<strong>left</strong>\n<strong>right</strong>');
+    });
+
     it('leaves paragraph soft breaks intact through the full pipeline', async () => {
         // happy-dom's DOMPurify pass unwraps the <p> in this environment (a
         // test-runtime artifact — the getHighlightHtml assertion above pins
