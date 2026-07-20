@@ -192,12 +192,92 @@ class StateRender {
     this.codeCache.clear()
   }
 
+  /**
+   * Try to update the given outermost blocks in place with snabbdom.
+   *
+   * The legacy path below serializes the whole render range to an HTML
+   * string and rebuilds the DOM from scratch. For big single blocks -- most
+   * notably tables with hundreds or thousands of rows -- that means every
+   * click, arrow key or keystroke rebuilds (and re-lays-out) the entire
+   * table, which freezes the UI (#large-table-freeze). When the block
+   * structure is unchanged (the common case: cursor moves and inline edits),
+   * we can diff each block against its existing DOM node instead, which only
+   * touches the nodes that actually changed.
+   *
+   * Returns `true` when the in-place patch was applied, `false` when the
+   * DOM does not match the block sequence (structural change) and the
+   * caller must fall back to the rebuild path.
+   */
+  patchPartialBlocks(blocks, activeBlocks, matches, t) {
+    if (blocks.length === 0) {
+      return false
+    }
+    const firstDom = document.querySelector(`#${blocks[0].key}`)
+    if (!firstDom) {
+      return false
+    }
+    // The DOM sibling sequence must match the block sequence exactly,
+    // including both boundaries, otherwise blocks were added/removed and we
+    // cannot patch in place.
+    const preKey = blocks[0].preSibling || null
+    const preDom = firstDom.previousElementSibling
+    if (preKey !== (preDom ? preDom.id : null)) {
+      return false
+    }
+    const doms = []
+    let dom = firstDom
+    for (const block of blocks) {
+      if (!dom || dom.id !== block.key) {
+        return false
+      }
+      doms.push(dom)
+      dom = dom.nextElementSibling
+    }
+    const nextKey = blocks[blocks.length - 1].nextSibling || null
+    if (nextKey !== (dom ? dom.id : null)) {
+      return false
+    }
+
+    blocks.forEach((block, i) => {
+      const newVnode = this.renderBlock(null, block, activeBlocks, matches, false, t)
+      patch(toVNode(doms[i]), newVnode)
+    })
+
+    return true
+  }
+
   // Only render the blocks which you updated
   partialRender(blocks, activeBlocks, matches, startKey, endKey) {
     const cursorOutMostBlock = activeBlocks[activeBlocks.length - 1]
     // If cursor is not in render blocks, need to render cursor block independently
     const needRenderCursorBlock = blocks.indexOf(cursorOutMostBlock) === -1
     const t = this.muya.options.t || ((key) => key) // Get the translation function, falling back to returning the key itself if absent
+
+    if (this.patchPartialBlocks(blocks, activeBlocks, matches, t)) {
+      // Render cursor block independently
+      if (needRenderCursorBlock) {
+        const { key } = cursorOutMostBlock
+        const cursorDom = document.querySelector(`#${key}`)
+        if (cursorDom) {
+          const oldCursorVnode = toVNode(cursorDom)
+          const newCursorVnode = this.renderBlock(
+            null,
+            cursorOutMostBlock,
+            activeBlocks,
+            matches,
+            false,
+            t
+          )
+          patch(oldCursorVnode, newCursorVnode)
+        }
+      }
+
+      this.renderMermaid()
+      this.renderDiagram()
+      this.codeCache.clear()
+      return
+    }
+
     const newVnode = h(
       'section',
       blocks.map((block) => this.renderBlock(null, block, activeBlocks, matches, false, t))

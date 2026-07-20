@@ -365,6 +365,22 @@ const inputCtrl = (ContentState) => {
       }
     }
 
+    // PERF: an inline edit inside a table cell only affects that cell's own
+    // content. Going through `partialRender` would re-render the whole
+    // outermost block -- for a table that means rebuilding every single cell
+    // on each keystroke, which freezes the editor on large tables. When the
+    // edit is contained in one cell and no block-structure change happened,
+    // patch just the edited cell.
+    if (
+      block.functionType === 'cellContent' &&
+      !inlineUpdatedBlock &&
+      !needRenderAll &&
+      oldStart.key === oldEnd.key &&
+      (checkMarkedUpdate || needRender)
+    ) {
+      return this.singleRender(block)
+    }
+
     if (checkMarkedUpdate || inlineUpdatedBlock || needRender) {
       return needRenderAll ? this.render() : this.partialRender()
     }
