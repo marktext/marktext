@@ -27,7 +27,7 @@ import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
-import { conflict, isHTMLElement, isMouseEvent } from '../../utils';
+import { conflict, escapeHTML, isHTMLElement, isMouseEvent } from '../../utils';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
@@ -390,7 +390,7 @@ class Format extends Content {
                 if (value && attr === 'src')
                     value = correctImageSrc(value);
 
-                imageText += `${attr}="${value}" `;
+                imageText += `${attr}="${escapeHTML(String(value))}" `;
             }
             imageText = imageText.trim();
             imageText += ' />';
@@ -421,7 +421,7 @@ class Format extends Content {
             if (value && attr === 'src')
                 value = correctImageSrc(value);
 
-            imageText += `${attr}="${value}" `;
+            imageText += `${attr}="${escapeHTML(String(value))}" `;
         }
         imageText = imageText.trim();
         imageText += ' />';
