@@ -8,9 +8,12 @@
     </div>
     <el-tree
       v-if="keyedToc.length"
+      ref="tocTreeRef"
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
+      :current-node-key="activeNodeKey"
+      highlight-current
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
@@ -23,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
@@ -31,11 +34,14 @@ import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import type { TreeInstance } from 'element-plus'
 
 const { t } = useI18n()
 
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
+
+const tocTreeRef = ref<TreeInstance | null>(null)
 
 const defaultProps = {
   children: 'children',
@@ -82,6 +88,30 @@ const expandedKeys = computed<string[]>(() => {
   return keys
 })
 
+// Map the store's activeHeadingSlug (an engine-internal slug like "mu-42") to
+// the el-tree node-key (a content-derived githubSlug like "my-heading"). The
+// slug lives on the flat TOC item; the key lives on the keyed tree node at the
+// same position.
+const activeNodeKey = computed<string>(() => {
+  const slug = editorStore.activeHeadingSlug
+  if (typeof slug !== 'string') return ''
+  const findKey = (nodes: KeyedTocNode[]): string => {
+    for (const node of nodes) {
+      if (node.slug === slug) return node.key
+      const found = findKey(node.children)
+      if (found) return found
+    }
+    return ''
+  }
+  return findKey(keyedToc.value)
+})
+
+// el-tree's `current-node-key` prop only sets the initial value; subsequent
+// changes require the imperative `setCurrentKey` call.
+watch(activeNodeKey, (key) => {
+  tocTreeRef.value?.setCurrentKey(key || undefined)
+})
+
 const handleClick = (data: { slug?: unknown }): void => {
   // editor.vue builds a CSS selector with `#${slug}` — bail out if the
   // node has no slug (e.g. unsluggable headings) to avoid emitting
@@ -116,6 +146,7 @@ const handleClick = (data: { slug?: unknown }): void => {
 .side-bar-toc .el-tree {
   background: transparent;
   color: var(--sideBarColor);
+  --el-tree-text-color: var(--sideBarColor);
 }
 
 .side-bar-toc .el-tree-node:focus > .el-tree-node__content {
@@ -124,6 +155,13 @@ const handleClick = (data: { slug?: unknown }): void => {
 
 .side-bar-toc .el-tree-node__content:hover {
   background: var(--sideBarItemHoverBgColor);
+}
+
+/* Active heading highlight — requires `.el-tree--highlight-current` in the
+   selector to win specificity over Element Plus's built-in transparent rule. */
+.side-bar-toc .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background-color: var(--sideBarItemHoverBgColor);
+  color: var(--themeColor);
 }
 
 .side-bar-toc > li {
