@@ -241,7 +241,9 @@
       "openFolder": "폴더 열기"
     },
     "toc": {
-      "title": "목차"
+      "title": "목차",
+      "expandAll": "모두 펼치기",
+      "collapseAll": "모두 접기"
     },
     "icons": {
       "files": "파일",

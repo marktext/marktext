@@ -241,7 +241,9 @@
       "openFolder": "Ordner öffnen"
     },
     "toc": {
-      "title": "Inhaltsverzeichnis"
+      "title": "Inhaltsverzeichnis",
+      "expandAll": "Alle ausklappen",
+      "collapseAll": "Alle einklappen"
     },
     "icons": {
       "files": "Dateien",

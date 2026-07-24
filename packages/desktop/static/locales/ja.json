@@ -241,7 +241,9 @@
       "openFolder": "フォルダを開く"
     },
     "toc": {
-      "title": "目次"
+      "title": "目次",
+      "expandAll": "すべて展開",
+      "collapseAll": "すべて折りたたむ"
     },
     "icons": {
       "files": "ファイル",

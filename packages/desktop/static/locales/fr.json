@@ -241,7 +241,9 @@
       "openFolder": "Ouvrir un dossier"
     },
     "toc": {
-      "title": "Table des matières"
+      "title": "Table des matières",
+      "expandAll": "Tout développer",
+      "collapseAll": "Tout réduire"
     },
     "icons": {
       "files": "Fichiers",

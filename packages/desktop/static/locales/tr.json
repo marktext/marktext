@@ -241,7 +241,9 @@
       "openFolder": "Klasör Aç"
     },
     "toc": {
-      "title": "İçindekiler"
+      "title": "İçindekiler",
+      "expandAll": "Tümünü genişlet",
+      "collapseAll": "Tümünü daralt"
     },
     "icons": {
       "files": "Dosyalar",

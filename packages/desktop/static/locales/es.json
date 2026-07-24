@@ -241,7 +241,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
-      "title": "Tabla de Contenidos"
+      "title": "Tabla de Contenidos",
+      "expandAll": "Expandir todo",
+      "collapseAll": "Contraer todo"
     },
     "icons": {
       "files": "Archivos",

@@ -241,7 +241,9 @@
       "openFolder": "Abrir Pasta"
     },
     "toc": {
-      "title": "Índice"
+      "title": "Índice",
+      "expandAll": "Expandir tudo",
+      "collapseAll": "Recolher tudo"
     },
     "icons": {
       "files": "Arquivos",
