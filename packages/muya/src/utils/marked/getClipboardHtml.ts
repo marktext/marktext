@@ -12,7 +12,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, math, inlineMath, isGitlabCompatibilityEnabled, superSubScript }
         = options;
     let html = '';
 
@@ -35,6 +35,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
             mathExtension({
                 throwOnError: false,
                 useKatexRender: false,
+                inlineMath,
             }),
         );
     }

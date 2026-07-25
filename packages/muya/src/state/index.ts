@@ -100,6 +100,7 @@ class JSONState {
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             math,
+            inlineMath,
         } = this._muya.options;
 
         return new MarkdownToState({
@@ -108,6 +109,7 @@ class JSONState {
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             math,
+            inlineMath,
         }).generate(markdown);
     }
 

@@ -344,6 +344,9 @@ export const MUYA_DEFAULT_OPTIONS = {
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
     footnote: false,
+    // Keep inline math independently configurable so currency-heavy prose can
+    // use literal dollar signs while display-math blocks remain available.
+    inlineMath: true,
     // Whether math block is supported.
     math: true,
     isGitlabCompatibilityEnabled: true,

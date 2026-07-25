@@ -52,11 +52,11 @@ export function getTOC(muya: Muya): ITocItem[] {
         // instead of the raw source (#4811). Slugging the same plain text keeps
         // `githubSlug` in step with the anchor id the HTML export injects from
         // `heading.textContent` (state/markdownToHtml.ts).
-        const { superSubScript, footnote } = muya.options;
+        const { superSubScript, footnote, inlineMath } = muya.options;
         const content = tokensToPlainText(
             tokenizer(source, {
                 hasBeginRules: false,
-                options: { superSubScript, footnote },
+                options: { superSubScript, footnote, inlineMath },
             }),
         ).trim();
 

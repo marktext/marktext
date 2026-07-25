@@ -37,7 +37,7 @@ function highlight(code: string, lang: string) {
 
 export function getHighlightHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, math, inlineMath, isGitlabCompatibilityEnabled, superSubScript }
         = options;
 
     // Build a fresh Marked instance per call. `Marked.use({ walkTokens })`
@@ -62,6 +62,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
             mathExtension({
                 throwOnError: false,
                 useKatexRender: true,
+                inlineMath,
             }),
         );
     }

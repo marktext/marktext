@@ -220,6 +220,18 @@ describe('renderToStaticHTML', () => {
             // KaTeX output contains class="katex" wrappers when math enabled.
             expect(html).toMatch(/katex|<math/i);
         });
+
+        it('can disable inline math without disabling display math', () => {
+            const markdown = 'Revenue moved from $13B to $24B.\n\n$$\nx^2\n$$';
+            const html = renderToStaticHTML(markdown, {
+                math: true,
+                inlineMath: false,
+            });
+
+            expect(html).toContain('$13B');
+            expect(html).toContain('$24B');
+            expect(html).toMatch(/katex|<math/i);
+        });
     });
 
     it('returns a string for empty input', () => {
