@@ -436,6 +436,29 @@ export class Muya {
 
         const { first, last, firstOffset, lastOffset } = range;
 
+        // One decision for the whole range (Word-style): if every formattable
+        // slice is already covered by `type`, remove it everywhere; otherwise
+        // apply it everywhere. Per-leaf toggle would invert mixed paragraphs.
+        let allCovered = true;
+        let sawLeaf = false;
+        let probe: Content | null = first;
+        while (probe) {
+            const start = probe === first ? firstOffset : 0;
+            const end = probe === last ? lastOffset : probe.text.length;
+            if (probe instanceof Format) {
+                const from = Math.max(start, this._headingMarkerLen(probe));
+                if (end > from) {
+                    sawLeaf = true;
+                    if (!probe.isRangeCoveredByFormat(type, from, end))
+                        allCovered = false;
+                }
+            }
+            if (probe === last)
+                break;
+            probe = probe.nextContentInContext() ?? null;
+        }
+        const force: 'on' | 'off' = sawLeaf && allCovered ? 'off' : 'on';
+
         // Restore the span across the formatted leaves using each leaf's
         // post-format offsets (adding a marker shifts them), so the SAME text
         // stays selected in both endpoints rather than collapsing onto the
@@ -449,7 +472,7 @@ export class Muya {
         while (leaf) {
             const start = leaf === first ? firstOffset : 0;
             const end = leaf === last ? lastOffset : leaf.text.length;
-            const adjusted = this._formatLeafInRange(type, leaf, start, end);
+            const adjusted = this._formatLeafInRange(type, leaf, start, end, force);
             if (adjusted) {
                 if (!anchorLeaf) {
                     anchorLeaf = leaf;
@@ -498,7 +521,13 @@ export class Muya {
      * range AFTER formatting (offsets shift past inserted markers), or null when
      * the leaf was skipped.
      */
-    private _formatLeafInRange(type: string, leaf: Content, start: number, end: number): { start: number; end: number } | null {
+    private _formatLeafInRange(
+        type: string,
+        leaf: Content,
+        start: number,
+        end: number,
+        force?: 'on' | 'off',
+    ): { start: number; end: number } | null {
         if (!(leaf instanceof Format))
             return null;
 
@@ -512,7 +541,7 @@ export class Muya {
             { offset: from, block: leaf, path: leaf.path },
             { offset: end, block: leaf, path: leaf.path },
         );
-        leaf.format(type);
+        leaf.format(type, force);
 
         // leaf.format ends with setCursor(adjustedStart, adjustedEnd), which
         // updates the cached selection — read the adjusted range back from it.

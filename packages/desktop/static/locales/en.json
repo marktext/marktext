@@ -116,6 +116,8 @@
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
+      "increaseFontSize": "Increase Font Size",
+      "decreaseFontSize": "Decrease Font Size",
       "toggleTableOfContents": "Toggle Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
@@ -845,6 +847,8 @@
       "reloadImages": "Reload Images",
       "textDirection": "Text Direction",
       "actualSize": "Actual Size",
+      "increaseFontSize": "Increase Font Size",
+      "decreaseFontSize": "Decrease Font Size",
       "devToggleDeveloperTools": "Toggle Developer Tools"
     },
     "tabs": {

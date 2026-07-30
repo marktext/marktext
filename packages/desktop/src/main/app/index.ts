@@ -126,6 +126,12 @@ class App {
       // dock icon is clicked and there are no other windows open.
       if (this._windowManager.windowCount === 0) {
         this.ready()
+      } else {
+        // Restore a hidden editor (e.g. after closing the last tab) instead of
+        // leaving the Dock click a no-op while windows still exist.
+        const activeWindow =
+          this._windowManager.getActiveEditor() ?? this._windowManager.getActiveWindow()
+        activeWindow?.bringToFront()
       }
     })
 

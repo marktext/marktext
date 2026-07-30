@@ -1041,6 +1041,7 @@ export const useEditorStore = defineStore('editor', {
       if (this.tabs.length === 0) {
         this.listToc = []
         this.toc = []
+        window.electron.ipcRenderer.send('mt::win::hide')
       }
 
       const { pathname } = file
@@ -1130,6 +1131,7 @@ export const useEditorStore = defineStore('editor', {
       if (this.tabs.length === 0) {
         this.listToc = []
         this.toc = []
+        window.electron.ipcRenderer.send('mt::win::hide')
       }
       debouncedSendBufferedState()
     },
@@ -1737,6 +1739,23 @@ export const useEditorStore = defineStore('editor', {
       })
       bus.on('mt::window-zoom', (zoomFactor) => {
         this.EDIT_ZOOM(zoomFactor as number)
+      })
+    },
+
+    ADJUST_EDITOR_FONT_SIZE(delta: number): void {
+      const preferencesStore = usePreferencesStore()
+      const next = Math.min(32, Math.max(12, preferencesStore.fontSize + delta))
+      if (next !== preferencesStore.fontSize) {
+        preferencesStore.SET_SINGLE_PREFERENCE({ type: 'fontSize', value: next })
+      }
+    },
+
+    LISTEN_EDITOR_FONT_SIZE(): void {
+      window.electron.ipcRenderer.on('mt::editor-font-size-adjust', (_, delta) => {
+        this.ADJUST_EDITOR_FONT_SIZE(delta)
+      })
+      bus.on('mt::editor-font-size-adjust', (delta) => {
+        this.ADJUST_EDITOR_FONT_SIZE(delta as number)
       })
     },
 

@@ -119,7 +119,9 @@
       "toggleTableOfContents": "切换目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",
-      "reloadWindow": "重新加载窗口"
+      "reloadWindow": "重新加载窗口",
+      "increaseFontSize": "增大字体",
+      "decreaseFontSize": "减小字体"
     },
     "format": {
       "format": "格式",
@@ -845,7 +847,9 @@
       "devToggleDeveloperTools": "切换开发者工具",
       "devReload": "开发者重载",
       "reloadImages": "重新加载图片",
-      "textDirection": "文本方向"
+      "textDirection": "文本方向",
+      "increaseFontSize": "增大字体",
+      "decreaseFontSize": "减小字体"
     },
     "tabs": {
       "cycleForward": "向前循环",

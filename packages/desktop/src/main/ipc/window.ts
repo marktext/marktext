@@ -8,6 +8,7 @@ import {
 } from 'electron'
 import log from 'electron-log'
 import type { MenuTemplate, MenuTemplateItem, MenuPopupPosition } from '@shared/types/menu'
+import { isOsx } from '../config'
 
 const windowFromEvent = (event: IpcMainEvent): BrowserWindow | null =>
   BrowserWindow.fromWebContents(event.sender)
@@ -69,6 +70,13 @@ export const registerWindowHandlers = (): void => {
   ipcMain.on('mt::win::close', (event) => {
     const win = windowFromEvent(event)
     if (win) win.close()
+  })
+  ipcMain.on('mt::win::hide', (event) => {
+    // Hide-on-last-tab is a macOS Dock affordance (Cmd+H style). Other
+    // platforms keep the empty-state window visible.
+    if (!isOsx) return
+    const win = windowFromEvent(event)
+    if (win) win.hide()
   })
   ipcMain.on('mt::win::set-fullscreen', (event, flag: boolean) => {
     const win = windowFromEvent(event)

@@ -77,12 +77,26 @@ export const reloadImageCache = (win: Win): void => {
   }
 }
 
+export const increaseEditorFontSize = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-font-size-adjust', 1)
+  }
+}
+
+export const decreaseEditorFontSize = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::editor-font-size-adjust', -1)
+  }
+}
+
 // --- Commands -------------------------------------------------------------
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
+  commandManager.add(COMMANDS.VIEW_DECREASE_FONT_SIZE, decreaseEditorFontSize)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
+  commandManager.add(COMMANDS.VIEW_INCREASE_FONT_SIZE, increaseEditorFontSize)
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)

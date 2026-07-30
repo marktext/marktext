@@ -49,6 +49,23 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      label: t('menu.view.increaseFontSize'),
+      accelerator: keybindings.getAccelerator('view.increase-font-size') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.increaseEditorFontSize(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.view.decreaseFontSize'),
+      accelerator: keybindings.getAccelerator('view.decrease-font-size') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.decreaseEditorFontSize(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
       label: t('menu.view.toggleSidebar'),
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar') ?? undefined,

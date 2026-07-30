@@ -175,6 +175,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   // View features
   'view.command-palette': 'commands.view.commandPalette',
   'view.actual-size': 'commands.view.actualSize',
+  'view.increase-font-size': 'commands.view.increaseFontSize',
+  'view.decrease-font-size': 'commands.view.decreaseFontSize',
   'view.text-direction': 'commands.view.textDirection',
 
   // Developer tools

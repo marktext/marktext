@@ -56,8 +56,10 @@ const keybindings: Map<string, string> = new Map([
   ['paragraph.heading-4', ''],
   ['paragraph.heading-5', ''],
   ['paragraph.heading-6', ''],
-  ['paragraph.upgrade-heading', 'Ctrl+Plus'],
-  ['paragraph.degrade-heading', 'Ctrl+-'],
+  // Alt variants: Ctrl+=/- are editor font size. Shift is stripped for
+  // `+`/`=`/`-`, so Ctrl+Shift+=/- used to hit heading promote/demote instead.
+  ['paragraph.upgrade-heading', 'Ctrl+Alt+='],
+  ['paragraph.degrade-heading', 'Ctrl+Alt+-'],
   ['paragraph.table', 'Ctrl+Shift+T'],
   ['paragraph.code-fence', 'Ctrl+Shift+K'],
   ['paragraph.quote-block', 'Ctrl+Shift+Q'],
@@ -100,6 +102,8 @@ const keybindings: Map<string, string> = new Map([
   ['view.toggle-sidebar', 'Ctrl+J'],
   ['view.toggle-toc', 'Ctrl+K'],
   ['view.toggle-tabbar', 'Ctrl+Shift+B'],
+  ['view.increase-font-size', 'Ctrl+=|Ctrl+Plus'],
+  ['view.decrease-font-size', 'Ctrl+-'],
   ['view.toggle-dev-tools', 'Ctrl+Alt+I'],
   ['view.dev-reload', 'Ctrl+F5'],
   ['view.reload-images', 'F5'],

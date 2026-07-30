@@ -53,8 +53,10 @@ const keybindings: Map<string, string> = new Map([
   ['paragraph.heading-4', 'Command+4'],
   ['paragraph.heading-5', 'Command+5'],
   ['paragraph.heading-6', 'Command+6'],
-  ['paragraph.upgrade-heading', 'Command+='],
-  ['paragraph.degrade-heading', 'Command+-'],
+  // Option variants: Cmd+=/- are editor font size. electron-localshortcut
+  // strips Shift for `+`/`=`/`-`, so Cmd+Shift+=/- used to hit these instead.
+  ['paragraph.upgrade-heading', 'Command+Option+='],
+  ['paragraph.degrade-heading', 'Command+Option+-'],
   ['paragraph.table', 'Command+Shift+T'],
   ['paragraph.code-fence', 'Command+Option+C'],
   ['paragraph.quote-block', 'Command+Option+Q'],
@@ -97,6 +99,10 @@ const keybindings: Map<string, string> = new Map([
   ['view.toggle-sidebar', 'Command+J'],
   ['view.toggle-toc', 'Command+K'],
   ['view.toggle-tabbar', 'Command+Option+B'],
+  // Relative editor font size (not heading level). Register both `=` and `Plus`
+  // because Shift+= may normalize to either key after Shift is stripped.
+  ['view.increase-font-size', 'Command+=|Command+Plus'],
+  ['view.decrease-font-size', 'Command+-'],
   ['view.toggle-dev-tools', 'Command+Option+I'],
   ['view.dev-reload', 'Command+Option+R'],
   ['view.reload-images', 'Command+R'],

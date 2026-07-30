@@ -54,7 +54,16 @@ class Keybindings {
     if (!name) {
       return null
     }
-    return name
+    // Multi-accelerator entries use `|`; menus show the primary binding only.
+    return name.split('|')[0] || null
+  }
+
+  /** Split a key map value that may list several accelerators joined by `|`. */
+  private _acceleratorsOf(value: string): string[] {
+    return value
+      .split('|')
+      .map((part) => part.trim())
+      .filter((part) => part.length > 1)
   }
 
   registerAccelerator(win: BrowserWindow, accelerator: string, callback: ShortcutCallback): void {
@@ -73,15 +82,21 @@ class Keybindings {
   }
 
   unregisterAccelerator(win: BrowserWindow, accelerator: string): void {
-    electronLocalshortcut.unregister(win, accelerator)
+    for (const accel of this._acceleratorsOf(accelerator)) {
+      electronLocalshortcut.unregister(win, accel)
+    }
   }
 
   registerEditorKeyHandlers(win: BrowserWindow): void {
     for (const [id, accelerator] of this.keys) {
-      if (accelerator && accelerator.length > 1) {
-        this.registerAccelerator(win, accelerator, () => {
-          this.commandManager.execute(id, win)
-        })
+      if (!accelerator || accelerator.length <= 1) {
+        continue
+      }
+      const execute = (): void => {
+        this.commandManager.execute(id, win)
+      }
+      for (const accel of this._acceleratorsOf(accelerator)) {
+        this.registerAccelerator(win, accel, execute)
       }
     }
   }

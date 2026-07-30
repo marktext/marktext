@@ -119,7 +119,9 @@
       "toggleTableOfContents": "İçindekileri Aç/Kapat",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
-      "reloadWindow": "Pencereyi Yeniden Yükle"
+      "reloadWindow": "Pencereyi Yeniden Yükle",
+      "increaseFontSize": "Yazı Tipi Boyutunu Büyüt",
+      "decreaseFontSize": "Yazı Tipi Boyutunu Küçült"
     },
     "format": {
       "format": "Biçim",
@@ -845,7 +847,9 @@
       "reloadImages": "Görselleri Yeniden Yükle",
       "textDirection": "Metin Yönü",
       "actualSize": "Gerçek Boyut",
-      "devToggleDeveloperTools": "Geliştirici Araçlarını Aç/Kapat"
+      "devToggleDeveloperTools": "Geliştirici Araçlarını Aç/Kapat",
+      "increaseFontSize": "Yazı Tipi Boyutunu Büyüt",
+      "decreaseFontSize": "Yazı Tipi Boyutunu Küçült"
     },
     "tabs": {
       "cycleForward": "İleri Geç",
