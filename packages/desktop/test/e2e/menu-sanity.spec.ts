@@ -46,6 +46,7 @@ test.describe('Application menu wiring', () => {
       'subscriptMenuItem',
       'inlineMathMenuItem',
       'sourceCodeModeMenuItem',
+      'splitViewModeMenuItem',
       'typewriterModeMenuItem',
       'focusModeMenuItem',
       'sideBarMenuItem',

@@ -4,7 +4,10 @@ import {
   launchWithMarkdown,
   clickMenuById,
   enterSourceMode,
-  exitSourceMode
+  exitSourceMode,
+  enterSplitMode,
+  exitSplitMode,
+  sendIpcToRenderer
 } from './helpers'
 
 // Read the live `checked`/`enabled` state of a view-mode menu item straight
@@ -107,6 +110,68 @@ test.describe('View modes', () => {
     })
   })
 
+  test('Toggle split-view mode shows source+preview and exits cleanly', async() => {
+    await enterSplitMode(page, app)
+    await expect(page.locator('.split-view')).toBeVisible()
+    await expect(page.locator('.split-view .source-code .CodeMirror')).toBeVisible()
+    await expect(page.locator('.split-view .split-preview')).toBeVisible()
+
+    await exitSplitMode(page, app)
+    await expect(page.locator('.split-view')).toHaveCount(0)
+  })
+
+  test('Split view preview reflects source edits after debounce and is read-only', async() => {
+    await enterSplitMode(page, app)
+
+    const token = `split-preview-token-${Date.now()}`
+    await page.click('.split-view .source-code .CodeMirror')
+    await page.keyboard.type(`\n\n**${token}**`, { delay: 0 })
+
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const el = document.querySelector(
+              '.split-preview .split-preview-content'
+            ) as HTMLElement | null
+            return el?.innerHTML ?? ''
+          }),
+        { timeout: 5000 }
+      )
+      .toContain(`<strong>${token}</strong>`)
+
+    const previewIsEditable = await page.evaluate(() => {
+      const el = document.querySelector(
+        '.split-preview .split-preview-content'
+      ) as HTMLElement | null
+      return !!el?.isContentEditable
+    })
+    expect(previewIsEditable).toBe(false)
+
+    const markdownBefore = await page.evaluate(() => {
+      const cm = document.querySelector('.split-view .source-code .CodeMirror') as
+        | (Element & { CodeMirror?: { getValue(): string } })
+        | null
+      return cm?.CodeMirror?.getValue() ?? ''
+    })
+
+    await page.click('.split-view .split-preview .split-preview-content')
+    await page.keyboard.type('preview-should-not-edit')
+
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const cm = document.querySelector('.split-view .source-code .CodeMirror') as
+              | (Element & { CodeMirror?: { getValue(): string } })
+              | null
+            return cm?.CodeMirror?.getValue() ?? ''
+          }),
+        { timeout: 1500 }
+      )
+      .toBe(markdownBefore)
+  })
+
   // Item 155 — In source-code mode the Typewriter and Focus menu items are
   // disabled (editing modes don't apply to the CodeMirror surface), and become
   // enabled again on exit. `viewLayoutChanged`'s `sourceCode` branch toggles
@@ -130,10 +195,32 @@ test.describe('View modes', () => {
     expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
   })
 
+  test('Split view disables Typewriter + Focus menu items, exit re-enables', async() => {
+    expect((await waitForEnabled(app, 'typewriterModeMenuItem', true)).enabled).toBe(true)
+    expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
+
+    await enterSplitMode(page, app)
+
+    expect((await waitForEnabled(app, 'typewriterModeMenuItem', false)).enabled).toBe(false)
+    expect((await waitForEnabled(app, 'focusModeMenuItem', false)).enabled).toBe(false)
+
+    await exitSplitMode(page, app)
+
+    expect((await waitForEnabled(app, 'typewriterModeMenuItem', true)).enabled).toBe(true)
+    expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
+  })
+
   // Item 265 — The three view-mode menu items are checkboxes whose `checked`
   // state must flip with each toggle. view-modes' other tests only assert the
   // `.editor-wrapper` class; menu-sanity only asserts the ids EXIST.
   test('Item 265: view-mode menu items track their checked state on toggle', async() => {
+    // Split-view mode checkbox.
+    expect((await viewModeMenuItem(app, 'splitViewModeMenuItem'))?.checked).toBe(false)
+    await enterSplitMode(page, app)
+    expect((await waitForChecked(app, 'splitViewModeMenuItem', true)).checked).toBe(true)
+    await exitSplitMode(page, app)
+    expect((await waitForChecked(app, 'splitViewModeMenuItem', false)).checked).toBe(false)
+
     // Source-code mode checkbox.
     expect((await viewModeMenuItem(app, 'sourceCodeModeMenuItem'))?.checked).toBe(false)
     await enterSourceMode(page, app)
@@ -154,6 +241,42 @@ test.describe('View modes', () => {
     expect((await waitForChecked(app, 'focusModeMenuItem', true)).checked).toBe(true)
     await clickMenuById(app, 'focusModeMenuItem')
     expect((await waitForChecked(app, 'focusModeMenuItem', false)).checked).toBe(false)
+  })
+})
+
+test.describe('View modes — split view lifecycle', () => {
+  test('split view stays active when opening/switching documents in the same window', async() => {
+    const launched = await launchWithMarkdown('# Split lifecycle\n\nBody\n')
+    const app = launched.app
+    const page = launched.page
+
+    try {
+      await enterSplitMode(page, app)
+      await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '# New tab\n')
+
+      await expect(page.locator('.split-view')).toBeVisible()
+      expect((await waitForChecked(app, 'splitViewModeMenuItem', true)).checked).toBe(true)
+    } finally {
+      await app.close()
+    }
+  })
+
+  test('split view does not persist across app restart', async() => {
+    const first = await launchWithMarkdown('# Split restart\n\nBody\n')
+    try {
+      await enterSplitMode(first.page, first.app)
+      expect((await waitForChecked(first.app, 'splitViewModeMenuItem', true)).checked).toBe(true)
+    } finally {
+      await first.app.close()
+    }
+
+    const second = await launchWithMarkdown('# Split restart\n\nBody\n')
+    try {
+      await expect(second.page.locator('.split-view')).toHaveCount(0)
+      expect((await waitForChecked(second.app, 'splitViewModeMenuItem', false)).checked).toBe(false)
+    } finally {
+      await second.app.close()
+    }
   })
 })
 

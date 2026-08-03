@@ -113,6 +113,7 @@ export interface PreferencesState {
   typewriter: boolean
   focus: boolean
   sourceCode: boolean
+  splitView: boolean
 
   // ----- User config -----
   imageFolderPath: string
@@ -133,7 +134,7 @@ interface SetUserDataPayload {
 }
 
 interface ModeTogglePayload {
-  type: keyof PreferencesState | 'typewriter' | 'focus' | 'sourceCode'
+  type: keyof PreferencesState | 'typewriter' | 'focus' | 'sourceCode' | 'splitView'
   checked: boolean
 }
 
@@ -228,6 +229,7 @@ export const usePreferencesStore = defineStore('preferences', {
     typewriter: false, // typewriter mode
     focus: false,
     sourceCode: false, // source code mode
+    splitView: false,
 
     // user configration
     imageFolderPath: '',
@@ -266,9 +268,40 @@ export const usePreferencesStore = defineStore('preferences', {
       ;(this as unknown as Record<string, unknown>)[type as string] = checked
     },
 
-    TOGGLE_VIEW_MODE(entryName: keyof PreferencesState | string): void {
+    TOGGLE_VIEW_MODE(entryName: keyof PreferencesState | string): Record<string, boolean> {
       const target = this as unknown as Record<string, unknown>
-      target[entryName as string] = !target[entryName as string]
+      const changes: Record<string, boolean> = {}
+
+      switch (entryName) {
+        case 'sourceCode': {
+          const next = !target.sourceCode
+          target.sourceCode = next
+          changes.sourceCode = next as boolean
+          if (next && target.splitView) {
+            target.splitView = false
+            changes.splitView = false
+          }
+          break
+        }
+        case 'splitView': {
+          const next = !target.splitView
+          target.splitView = next
+          changes.splitView = next as boolean
+          if (next && target.sourceCode) {
+            target.sourceCode = false
+            changes.sourceCode = false
+          }
+          break
+        }
+        default: {
+          const name = entryName as string
+          target[name] = !target[name]
+          changes[name] = target[name] as boolean
+          break
+        }
+      }
+
+      return changes
     },
 
     ASK_FOR_USER_PREFERENCE(): void {
@@ -310,9 +343,8 @@ export const usePreferencesStore = defineStore('preferences', {
         bus.emit('show-command-palette')
       })
       window.electron.ipcRenderer.on('mt::toggle-view-mode-entry', (_event, entryName) => {
-        this.TOGGLE_VIEW_MODE(entryName)
-        const target = this as unknown as Record<string, unknown>
-        this.DISPATCH_EDITOR_VIEW_STATE({ [entryName]: target[entryName] })
+        const changes = this.TOGGLE_VIEW_MODE(entryName)
+        this.DISPATCH_EDITOR_VIEW_STATE(changes)
       })
     },
 
@@ -320,9 +352,8 @@ export const usePreferencesStore = defineStore('preferences', {
     LISTEN_TOGGLE_VIEW(): void {
       bus.on('view:toggle-view-entry', (entryName) => {
         const name = entryName as string
-        this.TOGGLE_VIEW_MODE(name)
-        const target = this as unknown as Record<string, unknown>
-        this.DISPATCH_EDITOR_VIEW_STATE({ [name]: target[name] })
+        const changes = this.TOGGLE_VIEW_MODE(name)
+        this.DISPATCH_EDITOR_VIEW_STATE(changes)
       })
     },
 

@@ -582,6 +582,12 @@ const commands: CommandDescriptor[] = [
   // View
 
   {
+    id: 'view.split-mode',
+    execute: async() => {
+      bus.emit('view:toggle-view-entry', 'splitView')
+    }
+  },
+  {
     id: 'view.source-code-mode',
     execute: async() => {
       bus.emit('view:toggle-view-entry', 'sourceCode')
@@ -649,17 +655,13 @@ const commands: CommandDescriptor[] = [
   {
     id: 'docs.user-guide',
     execute: async() => {
-      window.electron.shell.openExternal(
-        'https://marktext.me/docs/basics'
-      )
+      window.electron.shell.openExternal('https://marktext.me/docs/basics')
     }
   },
   {
     id: 'docs.markdown-syntax',
     execute: async() => {
-      window.electron.shell.openExternal(
-        'https://marktext.me/docs/markdown-syntax'
-      )
+      window.electron.shell.openExternal('https://marktext.me/docs/markdown-syntax')
     }
   },
 

@@ -6,6 +6,8 @@ type Win = BrowserWindow | null | undefined
 
 const typewriterModeMenuItemId = 'typewriterModeMenuItem'
 const focusModeMenuItemId = 'focusModeMenuItem'
+const sourceCodeModeMenuItemId = 'sourceCodeModeMenuItem'
+const splitViewModeMenuItemId = 'splitViewModeMenuItem'
 
 const toggleTypeMode = (win: Win, type: string): void => {
   if (win && win.webContents) {
@@ -51,6 +53,10 @@ export const toggleSourceCodeMode = (win: Win): void => {
   toggleTypeMode(win, 'sourceCode')
 }
 
+export const toggleSplitViewMode = (win: Win): void => {
+  toggleTypeMode(win, 'splitView')
+}
+
 export const toggleSidebar = (win: Win): void => {
   toggleLayout(win, 'showSideBar')
 }
@@ -83,6 +89,7 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
+  commandManager.add(COMMANDS.VIEW_SPLIT_MODE, toggleSplitViewMode)
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)
@@ -115,6 +122,9 @@ export const viewLayoutChanged = (
     menuItem.checked = !!value
   }
 
+  let sourceCodeChecked = !!applicationMenu.getMenuItemById(sourceCodeModeMenuItemId)?.checked
+  let splitViewChecked = !!applicationMenu.getMenuItemById(splitViewModeMenuItemId)?.checked
+
   for (const key in changes) {
     const value = changes[key]
     switch (key) {
@@ -125,9 +135,12 @@ export const viewLayoutChanged = (
         changeMenuByName('tabBarMenuItem', value)
         break
       case 'sourceCode':
-        changeMenuByName('sourceCodeModeMenuItem', !!value)
-        disableMenuByName(focusModeMenuItemId, !value)
-        disableMenuByName(typewriterModeMenuItemId, !value)
+        sourceCodeChecked = !!value
+        changeMenuByName(sourceCodeModeMenuItemId, !!value)
+        break
+      case 'splitView':
+        splitViewChecked = !!value
+        changeMenuByName(splitViewModeMenuItemId, !!value)
         break
       case 'typewriter':
         changeMenuByName(typewriterModeMenuItemId, value)
@@ -137,4 +150,8 @@ export const viewLayoutChanged = (
         break
     }
   }
+
+  const shouldDisableEditingModes = sourceCodeChecked || splitViewChecked
+  disableMenuByName(focusModeMenuItemId, !shouldDisableEditingModes)
+  disableMenuByName(typewriterModeMenuItemId, !shouldDisableEditingModes)
 }
