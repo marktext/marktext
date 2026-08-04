@@ -110,7 +110,7 @@ test.describe('View modes', () => {
     })
   })
 
-  test('Toggle split-view mode shows source+preview and exits cleanly', async() => {
+  test('Toggle Split View mode shows source+preview and exits cleanly', async() => {
     await enterSplitMode(page, app)
     await expect(page.locator('.split-view')).toBeVisible()
     await expect(page.locator('.split-view .source-code .CodeMirror')).toBeVisible()
@@ -120,7 +120,7 @@ test.describe('View modes', () => {
     await expect(page.locator('.split-view')).toHaveCount(0)
   })
 
-  test('Split view preview reflects source edits after debounce and is read-only', async() => {
+  test('Split View preview reflects source edits after debounce and is read-only', async() => {
     await enterSplitMode(page, app)
     try {
       const token = `split-preview-token-${Date.now()}`
@@ -198,7 +198,7 @@ test.describe('View modes', () => {
     expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
   })
 
-  test('Split view disables Typewriter + Focus menu items, exit re-enables', async() => {
+  test('Split View disables Typewriter + Focus menu items, exit re-enables', async() => {
     expect((await waitForEnabled(app, 'typewriterModeMenuItem', true)).enabled).toBe(true)
     expect((await waitForEnabled(app, 'focusModeMenuItem', true)).enabled).toBe(true)
 
@@ -247,8 +247,8 @@ test.describe('View modes', () => {
   })
 })
 
-test.describe('View modes — split view lifecycle', () => {
-  test('split view stays active when opening/switching documents in the same window', async() => {
+test.describe('View modes — Split View lifecycle', () => {
+  test('Split View stays active when opening/switching documents in the same window', async() => {
     const launched = await launchWithMarkdown('# Split lifecycle\n\nBody\n')
     const app = launched.app
     const page = launched.page
@@ -264,7 +264,7 @@ test.describe('View modes — split view lifecycle', () => {
     }
   })
 
-  test('split view does not persist across app restart', async() => {
+  test('Split View does not persist across app restart', async() => {
     const first = await launchWithMarkdown('# Split restart\n\nBody\n')
     try {
       await enterSplitMode(first.page, first.app)
