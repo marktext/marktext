@@ -122,54 +122,57 @@ test.describe('View modes', () => {
 
   test('Split view preview reflects source edits after debounce and is read-only', async() => {
     await enterSplitMode(page, app)
+    try {
+      const token = `split-preview-token-${Date.now()}`
+      await page.click('.split-view .source-code .CodeMirror')
+      await page.keyboard.type(`\n\n**${token}**`, { delay: 0 })
 
-    const token = `split-preview-token-${Date.now()}`
-    await page.click('.split-view .source-code .CodeMirror')
-    await page.keyboard.type(`\n\n**${token}**`, { delay: 0 })
+      await expect
+        .poll(
+          () =>
+            page.evaluate(() => {
+              const el = document.querySelector(
+                '.split-preview .split-preview-content'
+              ) as HTMLElement | null
+              return el?.innerHTML ?? ''
+            }),
+          { timeout: 5000 }
+        )
+        .toContain(`<strong>${token}</strong>`)
 
-    await expect
-      .poll(
-        () =>
-          page.evaluate(() => {
-            const el = document.querySelector(
-              '.split-preview .split-preview-content'
-            ) as HTMLElement | null
-            return el?.innerHTML ?? ''
-          }),
-        { timeout: 5000 }
-      )
-      .toContain(`<strong>${token}</strong>`)
+      const previewIsEditable = await page.evaluate(() => {
+        const el = document.querySelector(
+          '.split-preview .split-preview-content'
+        ) as HTMLElement | null
+        return !!el?.isContentEditable
+      })
+      expect(previewIsEditable).toBe(false)
 
-    const previewIsEditable = await page.evaluate(() => {
-      const el = document.querySelector(
-        '.split-preview .split-preview-content'
-      ) as HTMLElement | null
-      return !!el?.isContentEditable
-    })
-    expect(previewIsEditable).toBe(false)
+      const markdownBefore = await page.evaluate(() => {
+        const cm = document.querySelector('.split-view .source-code .CodeMirror') as
+          | (Element & { CodeMirror?: { getValue(): string } })
+          | null
+        return cm?.CodeMirror?.getValue() ?? ''
+      })
 
-    const markdownBefore = await page.evaluate(() => {
-      const cm = document.querySelector('.split-view .source-code .CodeMirror') as
-        | (Element & { CodeMirror?: { getValue(): string } })
-        | null
-      return cm?.CodeMirror?.getValue() ?? ''
-    })
+      await page.click('.split-view .split-preview .split-preview-content')
+      await page.keyboard.type('preview-should-not-edit')
 
-    await page.click('.split-view .split-preview .split-preview-content')
-    await page.keyboard.type('preview-should-not-edit')
-
-    await expect
-      .poll(
-        () =>
-          page.evaluate(() => {
-            const cm = document.querySelector('.split-view .source-code .CodeMirror') as
-              | (Element & { CodeMirror?: { getValue(): string } })
-              | null
-            return cm?.CodeMirror?.getValue() ?? ''
-          }),
-        { timeout: 1500 }
-      )
-      .toBe(markdownBefore)
+      await expect
+        .poll(
+          () =>
+            page.evaluate(() => {
+              const cm = document.querySelector('.split-view .source-code .CodeMirror') as
+                | (Element & { CodeMirror?: { getValue(): string } })
+                | null
+              return cm?.CodeMirror?.getValue() ?? ''
+            }),
+          { timeout: 1500 }
+        )
+        .toBe(markdownBefore)
+    } finally {
+      await exitSplitMode(page, app)
+    }
   })
 
   // Item 155 — In source-code mode the Typewriter and Focus menu items are
