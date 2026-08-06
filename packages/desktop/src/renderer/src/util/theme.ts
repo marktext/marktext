@@ -197,10 +197,15 @@ export const addThemeStyle = (theme: string): void => {
   }
 }
 
-export const setEditorWidth = (value: string): void => {
+export type EditorWidthMode = 'fixed' | 'fluid'
+
+export const setEditorWidth = (value: string, mode: EditorWidthMode = 'fixed'): void => {
   const EDITOR_WIDTH_STYLE_ID = 'editor-width'
   let result = ''
-  if (value && /^[0-9]+(?:ch|px|%)$/.test(value)) {
+  if (mode === 'fluid') {
+    // box-sizing: border-box 使 100% 已包含 .mu-container 的左右 padding。
+    result = ':root { --editorAreaWidth: 100%; --editor-area-width: 100%; }'
+  } else if (value && /^[0-9]+(?:ch|px|%)$/.test(value)) {
     // Add 100px for the container's horizontal padding. Set both the legacy
     // camelCase var (source mode) and the kebab-case var the active
     // @muyajs/core engine reads for `.mu-container` max-width (issue #4828).

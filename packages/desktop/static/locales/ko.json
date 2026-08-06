@@ -273,7 +273,9 @@
       "pageMargin": "페이지 여백(mm):",
       "topBottom": "위/아래:",
       "leftRight": "왼쪽/오른쪽:",
-      "widthHeight": "너비/높이(mm):"
+      "widthHeight": "너비/높이(mm):",
+      "contentWidth": "컨텐츠 너비",
+      "contentWidthNotes": "내보낸 컨텐츠의 최대 너비입니다. 비어있으면 기본 980px를 사용합니다."
     },
     "showFrontMatter": "프론트 매터 보기",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "줄 높이",
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
-        "maxWidthNotes": "편집기 콘텐츠의 최대 너비"
+        "maxWidthNotes": "편집기 콘텐츠의 최대 너비",
+        "widthMode": {
+          "label": "너비 모드",
+          "fixed": "고정",
+          "fluid": "유동체"
+        }
       },
       "codeBlock": {
         "title": "코드 블록",

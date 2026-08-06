@@ -30,7 +30,7 @@ vi.hoisted(() => {
   w.window.DIRNAME = '/docs'
 })
 
-import { exportStyledHTML } from '@/util/exportHtml'
+import { exportStyledHTML, exportWidthCss } from '@/util/exportHtml'
 import { getHtmlToc, type TocEntry } from '@/util/pdf'
 
 // `exportStyledHTML(muya, markdown, options)` renders through the real
@@ -279,5 +279,23 @@ describe('exportStyledHTML — relative link paths (#1688)', () => {
 
     expect(out).toContain('href="#heading"')
     expect(out).not.toContain('file://')
+  })
+})
+
+describe('exportWidthCss + extra max-width injection (#5033)', () => {
+  it('maps a valid width to a .markdown-body max-width rule', () => {
+    expect(exportWidthCss('100%')).toBe('.markdown-body{max-width:100%;}')
+    expect(exportWidthCss('900px')).toBe('.markdown-body{max-width:900px;}')
+  })
+
+  it('rejects empty and invalid values (defensive CSS-injection guard)', () => {
+    expect(exportWidthCss('')).toBe('')
+    expect(exportWidthCss('abc')).toBe('')
+    expect(exportWidthCss('10em')).toBe('')
+  })
+
+  it('injects the override into the exported HTML via extraCss', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '# Hi', { extraCss: exportWidthCss('100%') })
+    expect(out).toContain('.markdown-body{max-width:100%;}')
   })
 })

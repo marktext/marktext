@@ -111,7 +111,7 @@ import {
   zhTW,
   type ILocale
 } from '@muyajs/core'
-import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
+import { exportStyledHTML, exportWidthCss, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
@@ -125,7 +125,7 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import { resolveTocHeadingElement } from '@/util/tocNavigation'
-import { addCommonStyle, setEditorWidth } from '@/util/theme'
+import { addCommonStyle, setEditorWidth, type EditorWidthMode } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
@@ -232,6 +232,7 @@ const {
   hideLinkPopup,
   autoCheck,
   editorLineWidth,
+  editorWidthMode,
   wrapCodeBlocks,
   imageInsertAction,
   imagePreferRelativeDirectory,
@@ -674,11 +675,11 @@ watch(hideQuickInsertHint, (value, oldValue) => {
   }
 })
 
-watch(editorLineWidth, (value, oldValue) => {
-  if (value !== oldValue) {
-    setEditorWidth(value)
-  }
-})
+const applyEditorWidth = () => {
+  setEditorWidth(editorLineWidth.value, editorWidthMode.value as EditorWidthMode)
+}
+watch(editorLineWidth, applyEditorWidth)
+watch(editorWidthMode, applyEditorWidth)
 
 watch(wrapCodeBlocks, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1287,10 +1288,11 @@ const handleExport = async (options: unknown) => {
   switch (type) {
     case 'styledHtml': {
       try {
+        const widthCss = exportWidthCss(typeof opts.exportWidth === 'string' ? opts.exportWidth : '')
         const content = await exportStyledHTML(editor.value, markdown, {
           title: htmlTitle || '',
           printOptimization: false,
-          extraCss,
+          extraCss: extraCss + widthCss,
           toc: htmlToc,
           dir: props.textDirection
         })
@@ -1970,7 +1972,7 @@ onMounted(() => {
 
   document.addEventListener('keyup', keyup)
 
-  setEditorWidth(editorLineWidth.value)
+  setEditorWidth(editorLineWidth.value, editorWidthMode.value as EditorWidthMode)
 })
 
 onBeforeUnmount(() => {

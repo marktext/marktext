@@ -273,7 +273,9 @@
       "pageMargin": "Page margin in mm:",
       "topBottom": "Top/Bottom:",
       "leftRight": "Left/Right:",
-      "widthHeight": "Width/Height in mm:"
+      "widthHeight": "Width/Height in mm:",
+      "contentWidth": "Content width",
+      "contentWidthNotes": "Maximum width of the exported content. Empty uses the default 980px."
     },
     "showFrontMatter": "Show front matter",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Line height",
         "fontFamily": "Font family",
         "maxWidth": "Max width",
-        "maxWidthNotes": "Maximum width of editor content"
+        "maxWidthNotes": "Maximum width of editor content",
+        "widthMode": {
+          "label": "Width mode",
+          "fixed": "Fixed",
+          "fluid": "Fluid"
+        }
       },
       "codeBlock": {
         "title": "Code Block",

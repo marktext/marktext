@@ -123,5 +123,17 @@ describe('theme.ts style injection helpers', () => {
       // the invalid final call cleared the previously valid override
       expect(styleHtml(WIDTH_STYLE_ID)).toBe('')
     })
+
+    it('fluid mode writes a 100% width override (no calc padding offset)', () => {
+      setEditorWidth('', 'fluid')
+      expect(styleHtml(WIDTH_STYLE_ID)).toBe(
+        ':root { --editorAreaWidth: 100%; --editor-area-width: 100%; }'
+      )
+    })
+
+    it('fixed mode (explicit) matches the default calc() behaviour', () => {
+      setEditorWidth('800px', 'fixed')
+      expect(styleHtml(WIDTH_STYLE_ID)).toContain('--editor-area-width: calc(100px + 800px);')
+    })
   })
 })

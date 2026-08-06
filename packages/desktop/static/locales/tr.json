@@ -273,7 +273,9 @@
       "pageMargin": "mm cinsinden sayfa kenar boşluğu:",
       "topBottom": "Üst/Alt:",
       "leftRight": "Sol/Sağ:",
-      "widthHeight": "mm cinsinden Genişlik/Yükseklik:"
+      "widthHeight": "mm cinsinden Genişlik/Yükseklik:",
+      "contentWidth": "İçerik genişliği",
+      "contentWidthNotes": "Dışa aktarılan içeriğin en fazla genişliği. Boş bırakıldığında varsayılan 980px kullanılır."
     },
     "showFrontMatter": "Ön bilgiyi göster",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Satır yüksekliği",
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
-        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği"
+        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği",
+        "widthMode": {
+          "label": "Genişlik modu",
+          "fixed": "Sabit",
+          "fluid": "Akıcı"
+        }
       },
       "codeBlock": {
         "title": "Kod Bloğu",

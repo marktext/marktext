@@ -273,7 +273,9 @@
       "pageMargin": "Margem da página em mm:",
       "topBottom": "Superior/Inferior:",
       "leftRight": "Esquerda/Direita:",
-      "widthHeight": "Largura/Altura em mm:"
+      "widthHeight": "Largura/Altura em mm:",
+      "contentWidth": "Largura do conteúdo",
+      "contentWidthNotes": "Largura máxima do conteúdo exportado. Vazio usa o padrão 980px."
     },
     "showFrontMatter": "Mostrar front matter",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Altura da linha",
         "fontFamily": "Família da fonte",
         "maxWidth": "Largura máxima",
-        "maxWidthNotes": "Largura máxima do conteúdo do editor"
+        "maxWidthNotes": "Largura máxima do conteúdo do editor",
+        "widthMode": {
+          "label": "Modo de largura",
+          "fixed": "Fixo",
+          "fluid": "Fluido"
+        }
       },
       "codeBlock": {
         "title": "Bloco de Código",

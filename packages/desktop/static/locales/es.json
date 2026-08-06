@@ -273,7 +273,9 @@
       "pageMargin": "Margen de página en mm:",
       "topBottom": "Superior/Inferior:",
       "leftRight": "Izquierda/Derecha:",
-      "widthHeight": "Ancho/Alto en mm:"
+      "widthHeight": "Ancho/Alto en mm:",
+      "contentWidth": "Ancho del contenido",
+      "contentWidthNotes": "Ancho máximo del contenido exportado. Vacío usa el 980px predeterminado."
     },
     "showFrontMatter": "Mostrar metadatos",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
-        "maxWidthNotes": "Ancho máximo del contenido del editor"
+        "maxWidthNotes": "Ancho máximo del contenido del editor",
+        "widthMode": {
+          "label": "Modo de ancho",
+          "fixed": "Fijo",
+          "fluid": "Fluido"
+        }
       },
       "codeBlock": {
         "title": "Bloque de Código",
