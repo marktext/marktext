@@ -67,6 +67,22 @@ function resolveRelativePath(base: string, relative: string): string {
     return tail ? `${root}/${tail}` : root;
 }
 
+/**
+ * Convert a local filesystem path to a `file://` URL, handling UNC paths
+ * (e.g. `\\server\share\...` or `//server/share/...`) correctly as
+ * `file://server/share/...` instead of the invalid `file:////server/share/...`
+ * which Chromium cannot load.
+ */
+function pathToFileUrl(p: string): string {
+    const normalized = p.replace(/\\/g, '/');
+    // UNC paths: `//server/share/...` → `file://server/share/...` (authority form).
+    if (normalized.startsWith('//')) {
+        return `file:${normalized}`;
+    }
+    // Regular absolute paths: `/posix` or `C:/windows` → `file:///posix` or `file://C:/windows`.
+    return `file://${normalized}`;
+}
+
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
     // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
@@ -95,13 +111,13 @@ export function getImageSrc(src: string) {
         else if (!isAbsoluteLocal && baseUrl) {
             return {
                 isUnknownType: false,
-                src: `file://${resolveRelativePath(baseUrl, src)}`,
+                src: pathToFileUrl(resolveRelativePath(baseUrl, src)),
             };
         }
         else {
             return {
                 isUnknownType: false,
-                src: `file://${src}`,
+                src: pathToFileUrl(src),
             };
         }
     }
@@ -217,12 +233,16 @@ export function encodeImageSrc(src: string): string {
 
 export function correctImageSrc(src: string) {
     if (src) {
-    // Fix ASCII and UNC paths on Windows (#1997).
+        // Fix ASCII and UNC paths on Windows (#1997).
         if (isWin && /^(?:[a-z]:\\|[a-z]:\/).+/i.test(src)) {
             src = `file:///${src.replace(/\\/g, '/')}`;
         }
         else if (isWin && /^\\\\\?\\.+/.test(src)) {
             src = `file:///${src.substring(4).replace(/\\/g, '/')}`;
+        }
+        else if (isWin && /^\\\\[^?]/.test(src)) {
+            // UNC path (\\server\share\...) → file://server/share/...
+            src = `file://${src.substring(2).replace(/\\/g, '/')}`;
         }
         else if (/^\/.+/.test(src)) {
             // Also adding file protocol on UNIX.

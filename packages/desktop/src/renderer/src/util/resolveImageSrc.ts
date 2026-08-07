@@ -6,6 +6,19 @@
 // the source folder.
 const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
 
+/**
+ * Convert a local filesystem path to a `file://` URL, handling UNC paths
+ * (\\server\share\... or //server/share/...) correctly as
+ * file://server/share/... instead of the invalid file:////server/share/...
+ */
+function pathToFileUrl(p: string): string {
+  const normalized = p.replace(/\\/g, '/')
+  // UNC paths: //server/share/... → file://server/share/...
+  if (normalized.startsWith('//')) return 'file:' + normalized
+  // Regular paths: /posix or C:/windows
+  return 'file://' + normalized
+}
+
 export function resolveLocalImageSrc(src: string): string {
   if (!src) return src
   // Already a URL or data: URI — leave as-is (avoids `file://file://…`).
@@ -15,8 +28,8 @@ export function resolveLocalImageSrc(src: string): string {
   // server path `/api/image?id=…` must not become `file:///api/image…`.
   if (!IMAGE_EXT_REG.test(src)) return src
   // Absolute local image path (POSIX / UNC / Windows drive) → file://.
-  if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return `file://${src}`
+  if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return pathToFileUrl(src)
   // Relative local image path — resolve against the document directory.
-  if (window.DIRNAME) return `file://${window.path.resolve(window.DIRNAME, src)}`
+  if (window.DIRNAME) return pathToFileUrl(window.path.resolve(window.DIRNAME, src))
   return src
 }
