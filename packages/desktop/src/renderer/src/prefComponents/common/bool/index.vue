@@ -110,9 +110,12 @@ const handleSwitchChange = (value: boolean | string | number) => {
   }
 }
 
-/* Fix toggle switch circle visibility for light/white themes */
-.el-switch__core .el-switch__action {
-  background-color: #000000 !important;
+/* Fix toggle switch circle visibility to match design language */
+.el-switch:not(.is-checked) .el-switch__core .el-switch__action {
+  background-color: var(--iconColor) !important;
+}
+.el-switch.is-checked .el-switch__core .el-switch__action {
+  background-color: #ffffff !important;
 }
 
 span.el-switch__core::after {
