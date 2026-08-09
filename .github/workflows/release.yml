@@ -106,9 +106,7 @@ jobs:
         if: matrix.platform == 'macos'
         run: |
           echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
-      - name: Set GYP_MSVS_VERSION
-        run: echo "GYP_MSVS_VERSION=2022" >> $GITHUB_ENV
-          
+         
       # Run the full postinstall: Electron binary download, patch-package,
       # electron-rebuild, and minify-locales.
       - name: Run postinstall
