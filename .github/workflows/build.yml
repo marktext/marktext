@@ -25,7 +25,7 @@ jobs:
             os: ubuntu-latest
             platform: linux
           - name: windows-x64
-            os: windows-latest
+            os: windows-2022
             platform: windows
             arch: x64
           - name: windows-arm64
