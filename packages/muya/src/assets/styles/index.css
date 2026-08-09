@@ -249,3 +249,10 @@ body {
 
     background: var(--highlight-color);
 }
+
+/* Dynamic BiDi Support */
+.editor-wrapper[dir="auto"] .mu-block,
+.editor-wrapper[dir="auto"] .mu-paragraph {
+    unicode-bidi: plaintext;
+    text-align: start;
+}

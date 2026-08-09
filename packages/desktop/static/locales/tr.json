@@ -549,7 +549,8 @@
         "textDirection": {
           "title": "Metin Yönü",
           "ltr": "Soldan Sağa",
-          "rtl": "Sağdan Sola"
+          "rtl": "Sağdan Sola",
+          "auto": "Auto"
         },
         "hideQuickInsertHint": "Hızlı ekleme ipucunu gizle",
         "hideLinkPopup": "Bağlantı açılır penceresini gizle",

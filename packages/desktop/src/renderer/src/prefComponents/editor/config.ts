@@ -63,6 +63,10 @@ export const getTextDirectionOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.misc.textDirection.rtl'),
     value: 'rtl'
+  },
+  {
+    label: t('preferences.editor.misc.textDirection.auto'),
+    value: 'auto'
   }
 ]
 

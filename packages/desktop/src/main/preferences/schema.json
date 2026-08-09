@@ -199,7 +199,7 @@
   },
   "textDirection": {
     "description": "Editor--The writing text direction",
-    "enum": ["ltr", "rtl"],
+    "enum": ["ltr", "rtl", "auto"],
     "default": "ltr"
   },
   "hideQuickInsertHint": {

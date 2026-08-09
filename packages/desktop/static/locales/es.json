@@ -549,7 +549,8 @@
         "textDirection": {
           "title": "Dirección del Texto",
           "ltr": "Izquierda a Derecha",
-          "rtl": "Derecha a Izquierda"
+          "rtl": "Derecha a Izquierda",
+          "auto": "Auto"
         },
         "hideQuickInsertHint": "Ocultar sugerencia de inserción rápida",
         "hideLinkPopup": "Ocultar popup de enlace",

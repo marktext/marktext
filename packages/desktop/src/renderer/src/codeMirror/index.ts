@@ -178,7 +178,7 @@ export const setMode = (doc: CodeMirrorDoc, text: string): Promise<MatchedMode> 
 }
 
 export const setTextDirection = (cm: CodeMirrorInstance, textDirection: string): void => {
-  cm.setOption('direction', textDirection as 'ltr' | 'rtl')
+  cm.setOption('direction', (textDirection === 'auto' ? 'ltr' : textDirection) as 'ltr' | 'rtl')
 }
 
 export default codeMirror

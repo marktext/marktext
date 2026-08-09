@@ -549,7 +549,8 @@
         "textDirection": {
           "title": "Textrichtung",
           "ltr": "Links nach rechts",
-          "rtl": "Rechts nach links"
+          "rtl": "Rechts nach links",
+          "auto": "Auto"
         },
         "hideQuickInsertHint": "Schnelleinfügung-Hinweis ausblenden",
         "hideLinkPopup": "Link-Popup ausblenden",

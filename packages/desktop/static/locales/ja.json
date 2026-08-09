@@ -549,7 +549,8 @@
         "textDirection": {
           "title": "テキスト方向",
           "ltr": "左から右",
-          "rtl": "右から左"
+          "rtl": "右から左",
+          "auto": "Auto"
         },
         "hideQuickInsertHint": "クイック挿入ヒントを隠す",
         "hideLinkPopup": "リンクポップアップを隠す",
