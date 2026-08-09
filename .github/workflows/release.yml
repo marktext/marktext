@@ -106,7 +106,18 @@ jobs:
         if: matrix.platform == 'macos'
         run: |
           echo "CXXFLAGS=-std=gnu++20 -stdlib=libc++" >> $GITHUB_ENV
-
+      
+      - name: Locate Visual Studio for node-gyp
+        if: matrix.platform == 'windows'
+        shell: bash
+        run: |
+          # Find Visual Studio installation and set GYP_MSVS_VERSION
+          vsPath=$(find "C:/Program Files (x86)/Microsoft Visual Studio" -name "msbuild.exe" -type f 2>/dev/null | head -1 | xargs dirname | xargs dirname | xargs dirname)
+          if [ -n "$vsPath" ]; then
+            echo "Found Visual Studio at: $vsPath"
+            echo "GYP_MSVS_VERSION=2022" >> $GITHUB_ENV
+          fi
+          
       # Run the full postinstall: Electron binary download, patch-package,
       # electron-rebuild, and minify-locales.
       - name: Run postinstall
@@ -115,7 +126,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           npm_config_user_agent: 'pnpm'
           USE_ELECTRON_CLANG: ${{ matrix.platform == 'linux' && '0' || '' }}
-
+          GYP_MSVS_VERSION: '2022' 
+          
       - name: build-linux
         if: matrix.platform == 'linux'
         run: pnpm run build:linux
