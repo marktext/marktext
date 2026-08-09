@@ -250,19 +250,4 @@ body {
     background: var(--highlight-color);
 }
 
-/* Added for BiDi support */
-.editor-wrapper[dir="auto"] .mu-block,
-.editor-wrapper[dir="auto"] .mu-paragraph,
-.editor-wrapper[dir="auto"] h1,
-.editor-wrapper[dir="auto"] h2,
-.editor-wrapper[dir="auto"] h3,
-.editor-wrapper[dir="auto"] h4,
-.editor-wrapper[dir="auto"] h5,
-.editor-wrapper[dir="auto"] h6,
-.editor-wrapper[dir="auto"] .mu-list-item,
-.editor-wrapper[dir="auto"] .mu-task-list-item,
-.editor-wrapper[dir="auto"] th,
-.editor-wrapper[dir="auto"] td {
-    unicode-bidi: plaintext;
-    text-align: start;
-}
+

@@ -2,7 +2,8 @@
   <div
     class="editor-wrapper"
     :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
-    :dir="textDirection"
+    :dir="textDirection === 'auto' ? undefined : textDirection"
+    :data-text-direction="textDirection"
   >
     <div
       ref="editorRef"
@@ -1691,6 +1692,31 @@ const handleLanguageChanged = (newLocale?: unknown) => {
 }
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
+// BiDi Logic
+const updateBidiBlocks = (blocks?: NodeList | Element[] | HTMLElement[]) => {
+  const isAuto = props.textDirection === 'auto'
+  if (!blocks) {
+    if (!editorRef.value) return
+    blocks = Array.from(editorRef.value.querySelectorAll('.mu-paragraph, .mu-list-item, h1, h2, h3, h4, h5, h6, .mu-table-cell, th, td'))
+  }
+  blocks.forEach((node) => {
+    if (node && (node as any).nodeType === 1) { // Node.ELEMENT_NODE
+      const el = node as HTMLElement
+      if (isAuto) {
+        if (el.getAttribute('dir') !== 'auto') el.setAttribute('dir', 'auto')
+      } else {
+        if (el.hasAttribute('dir')) el.removeAttribute('dir')
+      }
+    }
+  })
+}
+
+watch(() => props.textDirection, () => {
+  updateBidiBlocks()
+})
+
+let bidiObserver: MutationObserver | null = null
+
 onMounted(() => {
   printer = new Printer()
   const ele = editorRef.value
@@ -1971,6 +1997,31 @@ onMounted(() => {
   document.addEventListener('keyup', keyup)
 
   setEditorWidth(editorLineWidth.value)
+
+  // Setup BiDi observer
+  if (ele) {
+    bidiObserver = new MutationObserver((mutations) => {
+      if (props.textDirection !== 'auto') return
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList') {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === 1) {
+              const el = node as HTMLElement
+              const selectors = '.mu-paragraph, .mu-list-item, h1, h2, h3, h4, h5, h6, .mu-table-cell, th, td'
+              if (el.matches && el.matches(selectors)) {
+                if (el.getAttribute('dir') !== 'auto') el.setAttribute('dir', 'auto')
+              }
+              if (el.querySelectorAll) {
+                updateBidiBlocks(el.querySelectorAll(selectors))
+              }
+            }
+          }
+        }
+      }
+    })
+    bidiObserver.observe(ele, { childList: true, subtree: true })
+    updateBidiBlocks()
+  }
 })
 
 onBeforeUnmount(() => {
@@ -2019,6 +2070,11 @@ onBeforeUnmount(() => {
   scrollHandler = null
 
   resizeObserverForEditor.disconnect()
+
+  if (bidiObserver) {
+    bidiObserver.disconnect()
+    bidiObserver = null
+  }
 
   if (imageViewer) {
     imageViewer.destroy()
