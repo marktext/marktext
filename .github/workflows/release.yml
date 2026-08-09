@@ -84,6 +84,10 @@ jobs:
       - name: Install Visual Studio Build Tools
         if: matrix.platform == 'windows'
         uses: microsoft/setup-msbuild@v2
+
+      - name: Setup Windows build tools
+        if: matrix.platform == 'windows'
+        uses: ilammy/msvc-dev-cmd@v1
         
       # Cache Electron binary; key on package.json so it busts when Electron version changes.
       - name: Cache Electron binary
