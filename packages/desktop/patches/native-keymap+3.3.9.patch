@@ -2,7 +2,10 @@ diff --git a/node_modules/native-keymap/binding.gyp b/node_modules/native-keymap
 index c8b244b..0000000 100644
 --- a/node_modules/native-keymap/binding.gyp
 +++ b/node_modules/native-keymap/binding.gyp
-@@ -14,6 +14,7 @@
+@@ -12,8 +12,9 @@
+       'msvs_configuration_attributes': {
+-        'SpectreMitigation': 'Spectre'
++        'SpectreMitigation': 'false'
        },
        'msvs_settings': {
          'VCCLCompilerTool': {

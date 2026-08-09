@@ -93,6 +93,15 @@ class TreeNode implements ILinkedNode {
     }
 
     /**
+     * Tags whose DOM elements should receive a `dir` attribute when the
+     * engine's `textDirection` option is `'auto'` (per-block detection) or
+     * a fixed direction (`'ltr'`/`'rtl'`).
+     */
+    private static readonly BIDI_TAGS = new Set([
+        'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'th', 'td',
+    ]);
+
+    /**
      * create domNode
      */
     createDomNode() {
@@ -103,6 +112,12 @@ class TreeNode implements ILinkedNode {
             attributes,
             datasets,
         });
+
+        // Apply per-block text direction when the engine option is set.
+        const dir = this.muya.options.textDirection;
+        if (dir && dir !== 'ltr' && TreeNode.BIDI_TAGS.has(tagName)) {
+            domNode.setAttribute('dir', dir);
+        }
 
         // Concrete subclasses are always Parent | Content, but the static
         // signature here is TreeNode (Format extends Content via a separate

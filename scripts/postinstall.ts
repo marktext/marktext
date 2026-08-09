@@ -153,7 +153,7 @@ run(`"${patchPackageBin}"`, { cwd: desktopRoot })
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
 console.log('Rebuilding native modules for Electron...')
-run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
+run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot, env: { npm_config_msbuild_args: '/p:SpectreMitigation=false' } })
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')

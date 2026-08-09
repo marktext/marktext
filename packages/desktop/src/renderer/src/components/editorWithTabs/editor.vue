@@ -1692,30 +1692,13 @@ const handleLanguageChanged = (newLocale?: unknown) => {
 }
 const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
-// BiDi Logic
-const updateBidiBlocks = (blocks?: NodeList | Element[] | HTMLElement[]) => {
-  const isAuto = props.textDirection === 'auto'
-  if (!blocks) {
-    if (!editorRef.value) return
-    blocks = Array.from(editorRef.value.querySelectorAll('.mu-paragraph, .mu-list-item, h1, h2, h3, h4, h5, h6, .mu-table-cell, th, td'))
+// BiDi: delegate to the Muya engine. The initial direction is passed via
+// `textDirection` in the constructor options; this watcher handles live changes.
+watch(() => props.textDirection, (dir) => {
+  if (editor.value) {
+    editor.value.setTextDirection(dir as 'ltr' | 'rtl' | 'auto')
   }
-  blocks.forEach((node) => {
-    if (node && (node as any).nodeType === 1) { // Node.ELEMENT_NODE
-      const el = node as HTMLElement
-      if (isAuto) {
-        if (el.getAttribute('dir') !== 'auto') el.setAttribute('dir', 'auto')
-      } else {
-        if (el.hasAttribute('dir')) el.removeAttribute('dir')
-      }
-    }
-  })
-}
-
-watch(() => props.textDirection, () => {
-  updateBidiBlocks()
 })
-
-let bidiObserver: MutationObserver | null = null
 
 onMounted(() => {
   printer = new Printer()
@@ -1793,7 +1776,8 @@ onMounted(() => {
     // Without these, local-file drag-drop, screenshot/binary clipboard paste, and
     // copy-to-assets on a pasted image file silently no-op or insert raw paths.
     imageAction: muyaImageAction,
-    getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file)
+    getPathForFile: (file: File) => window.electron.webUtils.getPathForFile(file),
+    textDirection: props.textDirection as 'ltr' | 'rtl' | 'auto'
   }
 
   if (/dark/i.test(theme.value)) {
@@ -1997,31 +1981,6 @@ onMounted(() => {
   document.addEventListener('keyup', keyup)
 
   setEditorWidth(editorLineWidth.value)
-
-  // Setup BiDi observer
-  if (ele) {
-    bidiObserver = new MutationObserver((mutations) => {
-      if (props.textDirection !== 'auto') return
-      for (const mutation of mutations) {
-        if (mutation.type === 'childList') {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType === 1) {
-              const el = node as HTMLElement
-              const selectors = '.mu-paragraph, .mu-list-item, h1, h2, h3, h4, h5, h6, .mu-table-cell, th, td'
-              if (el.matches && el.matches(selectors)) {
-                if (el.getAttribute('dir') !== 'auto') el.setAttribute('dir', 'auto')
-              }
-              if (el.querySelectorAll) {
-                updateBidiBlocks(el.querySelectorAll(selectors))
-              }
-            }
-          }
-        }
-      }
-    })
-    bidiObserver.observe(ele, { childList: true, subtree: true })
-    updateBidiBlocks()
-  }
 })
 
 onBeforeUnmount(() => {

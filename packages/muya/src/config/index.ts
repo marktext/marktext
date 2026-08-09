@@ -342,6 +342,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     spellcheckHideMarks: false,
     // Markdown extensions
     frontMatter: true, // Whether to support frontmatter.
+    textDirection: 'ltr' as 'ltr' | 'rtl' | 'auto',
     superSubScript: true,
     footnote: false,
     // Whether math block is supported.

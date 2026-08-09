@@ -29,6 +29,13 @@ export interface IMuyaOptions {
     autoCheck: boolean;
     spellcheckEnabled: boolean;
     spellcheckHideMarks: boolean;
+    /**
+     * Text direction for block-level elements.
+     * - `'ltr'` – left-to-right (default)
+     * - `'rtl'` – right-to-left
+     * - `'auto'` – per-block auto-detection via the HTML `dir="auto"` attribute
+     */
+    textDirection: 'ltr' | 'rtl' | 'auto';
     superSubScript: boolean;
     footnote: boolean;
     math: boolean;

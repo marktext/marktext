@@ -183,6 +183,26 @@ export class Muya {
     }
 
     /**
+     * Update the text direction for all text-bearing block elements.
+     * When `dir` is `'auto'`, each paragraph / heading / list-item / table-cell
+     * independently resolves its direction from its first strongly-typed
+     * Unicode character, giving true per-block bidirectional support.
+     */
+    setTextDirection(dir: 'ltr' | 'rtl' | 'auto') {
+        this.options.textDirection = dir;
+        // Walk every existing DOM node and update its `dir` attribute.
+        const BIDI_SELECTORS = 'p, h1, h2, h3, h4, h5, h6, li, th, td';
+        const elements = this.domNode.querySelectorAll<HTMLElement>(BIDI_SELECTORS);
+        for (const el of elements) {
+            if (dir === 'ltr') {
+                el.removeAttribute('dir');
+            } else {
+                el.setAttribute('dir', dir);
+            }
+        }
+    }
+
+    /**
      * [on] on custom event
      */
     on(event: string, listener: Listener) {
