@@ -40,7 +40,8 @@
   "pnpm": {
     "overrides": {
       "postcss": "8.5.15",
-      "esbuild@>=0.27.0 <0.28.1": "0.28.1"
+      "esbuild@>=0.27.0 <0.28.1": "0.28.1",
+      "js-yaml": "3.15.1"
     }
   },
   "devDependencies": {
