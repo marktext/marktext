@@ -42,7 +42,7 @@ jobs:
             os: ubuntu-22.04
             platform: linux
           - name: windows-x64
-            os: windows-latest
+            os: windows-2022
             platform: windows
             arch: x64
           - name: windows-arm64
@@ -88,7 +88,11 @@ jobs:
       - name: Setup Windows build tools
         if: matrix.platform == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
-        
+    
+      - name: Set GYP_MSVS_VERSION
+        if: matrix.platform == 'windows'
+        run: echo "GYP_MSVS_VERSION=2022" >> $GITHUB_ENV
+     
       # Cache Electron binary; key on package.json so it busts when Electron version changes.
       - name: Cache Electron binary
         uses: actions/cache@v4.3.0
