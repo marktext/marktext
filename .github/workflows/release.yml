@@ -80,7 +80,11 @@ jobs:
         uses: ./.github/actions/setup
         with:
           node-version: '24.14.1'
-
+      
+      - name: Install Visual Studio Build Tools
+        if: matrix.platform == 'windows'
+        uses: microsoft/setup-msbuild@v2.0.1
+        
       # Cache Electron binary; key on package.json so it busts when Electron version changes.
       - name: Cache Electron binary
         uses: actions/cache@v4.3.0
