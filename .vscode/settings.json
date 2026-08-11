@@ -1,5 +1,5 @@
 {
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "eslint.format.enable": true,
   "[javascript][typescript][vue]": {
@@ -24,6 +24,5 @@
     "Tkaixiang",
     "TOGGLEABLE",
     "webfontloader"
-  ],
-  "editor.formatOnSaveMode": "modifications"
+  ]
 }
