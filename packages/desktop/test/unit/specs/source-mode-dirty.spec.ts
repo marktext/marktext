@@ -82,4 +82,21 @@ describe('useEditorStore LISTEN_FOR_CONTENT_CHANGE — source-mode dirty trackin
 
     expect(tab.isSaved).toBe(true)
   })
+
+  it('can rebaseline a load-time normalized document back to clean (#5074)', () => {
+    const store = useEditorStore()
+    const tab = makeSavedTab(store)
+    tab.isSaved = false
+    tab.markdown = 'hello\n'
+    tab.lastSavedHistoryId = 0
+    tab.history = { stack: [{ id: 1 }], lastEditIndex: 0, lastInitIndex: -1 } as never
+
+    store.LISTEN_FOR_CONTENT_CHANGE({
+      id: 'tab-1',
+      markdown: 'hello\n\n',
+      history: { stack: [{ id: 0 }], lastEditIndex: 0, lastInitIndex: -1 } as never
+    })
+
+    expect(tab.isSaved).toBe(true)
+  })
 })

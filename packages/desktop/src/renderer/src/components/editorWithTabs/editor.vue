@@ -323,6 +323,11 @@ const getSyntheticHistory = (id: string, baselineContent: string): SyntheticHist
 const resetSyntheticHistory = (id: string, baselineContent: string): void => {
   syntheticHistoryByTab.set(id, new SyntheticHistory(baselineContent))
 }
+const rebaselineSyntheticHistory = (id: string, baselineContent: string): IFileHistoryLike => {
+  const tracker = new SyntheticHistory(baselineContent)
+  syntheticHistoryByTab.set(id, tracker)
+  return tracker.build(baselineContent)
+}
 const makeSyntheticHistory = (id: string, content: string): IFileHistoryLike => {
   return getSyntheticHistory(id, content).build(content)
 }
@@ -1482,6 +1487,12 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
+    // Opening a file may emit an initial normalization `json-change` before the
+    // load baseline is reseeded. Re-sync the store to the engine's loaded
+    // snapshot so an untouched file still closes cleanly (#5074).
+    if (id) {
+      markLoadedContentClean(id)
+    }
     // A freshly created/opened tab should be ready to type into.
     focusFreshEditor()
   }
@@ -1624,6 +1635,20 @@ const blurEditor = () => {
 
 const flushActiveEditor = () => {
   editor.value?.flush()
+}
+
+const markLoadedContentClean = (id: string): void => {
+  const ed = editor.value
+  if (!ed) return
+
+  const markdown = ed.getMarkdown()
+  editorStore.LISTEN_FOR_CONTENT_CHANGE({
+    id,
+    markdown,
+    history: rebaselineSyntheticHistory(id, markdown),
+    toc: ed.getTOC(),
+    blocks: ed.getState()
+  })
 }
 
 const focusEditor = () => {
@@ -1801,7 +1826,11 @@ onMounted(() => {
   // after the first edit — so the pristine content never maps to id 0 and
   // undoing back to the on-disk content can never read as clean again (PG15).
   if (currentFile.value?.id) {
-    getSyntheticHistory(currentFile.value.id, muya.getMarkdown())
+    if (currentFile.value.isSaved) {
+      markLoadedContentClean(currentFile.value.id)
+    } else {
+      getSyntheticHistory(currentFile.value.id, muya.getMarkdown())
+    }
   }
 
   const container = getScrollContainer()!
