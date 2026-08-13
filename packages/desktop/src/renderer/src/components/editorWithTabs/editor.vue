@@ -818,6 +818,14 @@ watch(
     if (value && value !== oldValue) {
       if (editor.value) {
         editor.value.hideAllFloatTools()
+        // Flush the engine's queued rAF-batch ops into the tab before
+        // sourceCode.vue mounts and snapshots `currentFile.markdown` — an edit
+        // made in the same frame as the mode switch (e.g. a task-checkbox
+        // click) would otherwise be missing from the snapshot, and the swap
+        // back out of source mode cancels the scheduled flush, dropping the
+        // edit permanently. Same guard as saving (#3803) and tab switch
+        // (#2938).
+        editor.value.flush()
         // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
         // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
         // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
