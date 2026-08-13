@@ -117,6 +117,7 @@
       "typewriterMode": "Typewriter Mode",
       "focusMode": "Focus Mode",
       "toggleTableOfContents": "Toggle Table of Contents",
+      "toggleLineNumbers": "Toggle Line Numbers",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
       "reloadWindow": "Reload Window"

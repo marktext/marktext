@@ -117,6 +117,7 @@
       "typewriterMode": "Schreibmaschinen-Modus",
       "focusMode": "Fokus-Modus",
       "toggleTableOfContents": "Inhaltsverzeichnis umschalten",
+      "toggleLineNumbers": "Zeilennummern umschalten",
       "reloadImages": "Bilder neu laden",
       "showDeveloperTools": "Entwicklertools anzeigen",
       "reloadWindow": "Fenster neu laden"

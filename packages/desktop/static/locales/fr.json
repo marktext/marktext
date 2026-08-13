@@ -117,6 +117,7 @@
       "typewriterMode": "Mode machine à écrire",
       "focusMode": "Mode focus",
       "toggleTableOfContents": "Basculer la table des matières",
+      "toggleLineNumbers": "Basculer les numéros de ligne",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
       "reloadWindow": "Recharger la fenêtre"

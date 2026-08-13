@@ -10,6 +10,7 @@ import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
+import { formatSourceLineNumber } from '@/util/sourceLineNumbers'
 import { storeToRefs } from 'pinia'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
@@ -43,7 +44,7 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode } = storeToRefs(preferencesStore)
+const { theme, sourceCode, lineNumbers } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -59,6 +60,10 @@ watch(
     }
   }
 )
+
+watch(lineNumbers, (value) => {
+  editor.value?.setOption('lineNumbers', value)
+})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -335,19 +340,13 @@ onMounted(() => {
   const container = sourceCodeContainer.value
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
-    lineNumbers: true,
+    lineNumbers: lineNumbers.value,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
     direction: textDirection,
     viewportMargin: Infinity,
-    lineNumberFormatter (line: number) {
-      if (line % 10 === 0 || line === 1) {
-        return line
-      } else {
-        return ''
-      }
-    }
+    lineNumberFormatter: formatSourceLineNumber
   }
 
   if (railscastsThemes.includes(theme.value)) {

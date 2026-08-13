@@ -117,6 +117,7 @@
       "typewriterMode": "打字機模式",
       "focusMode": "專注模式",
       "toggleTableOfContents": "切換目錄",
+      "toggleLineNumbers": "切換行號",
       "reloadImages": "重新載入圖片",
       "showDeveloperTools": "顯示開發者工具",
       "reloadWindow": "重新載入視窗"

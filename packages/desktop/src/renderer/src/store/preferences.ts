@@ -113,6 +113,7 @@ export interface PreferencesState {
   typewriter: boolean
   focus: boolean
   sourceCode: boolean
+  lineNumbers: boolean
 
   // ----- User config -----
   imageFolderPath: string
@@ -228,6 +229,7 @@ export const usePreferencesStore = defineStore('preferences', {
     typewriter: false, // typewriter mode
     focus: false,
     sourceCode: false, // source code mode
+    lineNumbers: true,
 
     // user configration
     imageFolderPath: '',

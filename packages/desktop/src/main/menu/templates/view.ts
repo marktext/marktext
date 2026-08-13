@@ -77,6 +77,15 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      label: t('menu.view.toggleLineNumbers'),
+      id: 'lineNumbersMenuItem',
+      type: 'checkbox',
+      checked: true,
+      click(_item, focusedWindow) {
+        actions.toggleLineNumbers(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       label: t('menu.view.reloadImages'),
       accelerator: keybindings.getAccelerator('view.reload-images') ?? undefined,
       click(_item, focusedWindow) {
