@@ -241,7 +241,9 @@
       "openFolder": "폴더 열기"
     },
     "toc": {
-      "title": "목차"
+      "title": "목차",
+      "expandAll": "모두 펼치기",
+      "collapseAll": "모두 접기"
     },
     "icons": {
       "files": "파일",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,7 +582,7 @@
       },
       "uploader": {
         "title": "이미지 업로더",
-        "currentUploader": "현재 업로더",
+        "currentUploader": "Current Uploader: {name}",
         "picgoNotInstalled": "PicGo가 설치되지 않음",
         "picgoInstalled": "PicGo가 설치됨",
         "picgoDetectionFailed": "PicGo 감지 실패",
@@ -699,7 +702,7 @@
       "online": "온라인",
       "saveError": "키 바인딩 저장 오류",
       "shortcutInUse": "사용 중인 단축키",
-      "shortcutInUseMessage": "이 단축키는 이미 다른 명령에 할당되어 있습니다",
+      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
       "table": {
         "description": "설명",
         "edit": "편집",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "저작권",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "저작권 기여자"
   },
   "commands": {
@@ -881,7 +884,7 @@
     "close": "닫기",
     "dontSave": "저장하지 않음",
     "file": "파일",
-    "fileExists": "파일이 존재합니다",
+    "fileExists": "File exists {filename}",
     "files": "파일",
     "importWarning": "가져오기 경고",
     "installPandoc": "Pandoc 설치",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "구성 스키마 위반",
     "copyError": "복사 오류",
-    "initializationFailed": "초기화 실패",
+    "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "MarkText의 다른 인스턴스가 이미 실행 중입니다",
     "report": "신고",
     "startupError": "시작 오류",
     "terminatedDueToError": "오류로 인해 종료됨",
-    "unexpectedErrorWithMessage": "메시지와 함께 예상치 못한 오류",
+    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "예상치 못한 메인 프로세스 오류",
     "unexpectedRendererProcess": "예상치 못한 렌더러 프로세스 오류"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "앵커 링크 복사됨",
       "tabNotFound": "탭을 찾을 수 없음",
-      "tocItemNotFound": "목차 항목을 찾을 수 없음",
+      "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "탭 로드 오류",
       "errorLoadingTabMessage": "파일 변경을 로드하는 동안 오류가 발생했습니다. 탭을 찾을 수 없습니다.",
       "mixedLineEndingsNormalized": "“{name}”에 혼합 줄 끝이 포함되어 있으며 {lineEnding}(으)로 자동 정규화되었습니다.",
@@ -935,8 +938,8 @@
   "editor": {
     "export": {
       "error": "내보내기 오류",
-      "errorExporting": "파일 내보내기 오류",
-      "failed": "내보내기 실패"
+      "errorExporting": "Error exporting {type} file",
+      "failed": "{type} export failed"
     },
     "insertTable": {
       "title": "표 삽입",
@@ -947,7 +950,7 @@
       "notificationNotFound": "알림을 찾을 수 없음"
     },
     "print": {
-      "error": "인쇄 오류",
+      "error": "Print error for \"{title}\"",
       "failed": "인쇄 실패"
     },
     "sourceCode": {
@@ -956,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "맞춤법 검사 비활성화 오류",
-      "errorSwitchingLanguage": "맞춤법 검사 언어 전환 오류",
-      "languageMissing": "맞춤법 검사 언어가 없습니다",
-      "switchError": "맞춤법 검사 전환 오류",
+      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
+      "languageMissing": "Spellcheck language missing {languageCode}",
+      "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "맞춤법 검사"
     }
   }

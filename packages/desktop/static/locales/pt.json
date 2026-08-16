@@ -241,7 +241,9 @@
       "openFolder": "Abrir Pasta"
     },
     "toc": {
-      "title": "Índice"
+      "title": "Índice",
+      "expandAll": "Expandir tudo",
+      "collapseAll": "Recolher tudo"
     },
     "icons": {
       "files": "Arquivos",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,7 +582,7 @@
       },
       "uploader": {
         "title": "Carregador de Imagens",
-        "currentUploader": "Carregador Atual",
+        "currentUploader": "Current Uploader: {name}",
         "picgoNotInstalled": "PicGo não está instalado",
         "picgoInstalled": "PicGo está instalado",
         "picgoDetectionFailed": "Detecção do PicGo falhou",
@@ -699,7 +702,7 @@
       "online": "Online",
       "saveError": "Erro ao salvar atalhos de teclado",
       "shortcutInUse": "Atalho em uso",
-      "shortcutInUseMessage": "Este atalho já está atribuído a outro comando",
+      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
       "table": {
         "description": "Descrição",
         "edit": "Editar",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "Copyright",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "Copyright Contribuidores"
   },
   "commands": {
@@ -881,7 +884,7 @@
     "close": "Fechar",
     "dontSave": "Não Salvar",
     "file": "Arquivo",
-    "fileExists": "Arquivo existe",
+    "fileExists": "File exists {filename}",
     "files": "Arquivos",
     "importWarning": "Aviso de importação",
     "installPandoc": "Instalar Pandoc",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "Violação do esquema de configuração",
     "copyError": "Erro de cópia",
-    "initializationFailed": "Falha na inicialização",
+    "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "Outra instância do MarkText já está em execução",
     "report": "Reportar",
     "startupError": "Erro de inicialização",
     "terminatedDueToError": "Terminado devido a erro",
-    "unexpectedErrorWithMessage": "Erro inesperado com mensagem",
+    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "Erro inesperado do processo principal",
     "unexpectedRendererProcess": "Erro inesperado do processo de renderização"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "Link âncora copiado",
       "tabNotFound": "Aba não encontrada",
-      "tocItemNotFound": "Item do índice não encontrado",
+      "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "Erro ao carregar a aba",
       "errorLoadingTabMessage": "Ocorreu um erro ao carregar a alteração do arquivo porque a aba não pôde ser encontrada.",
       "mixedLineEndingsNormalized": "“{name}” possui finais de linha mistos que foram normalizados automaticamente para {lineEnding}.",
@@ -935,8 +938,8 @@
   "editor": {
     "export": {
       "error": "Erro de exportação",
-      "errorExporting": "Erro ao exportar arquivo",
-      "failed": "Exportação falhou"
+      "errorExporting": "Error exporting {type} file",
+      "failed": "{type} export failed"
     },
     "insertTable": {
       "title": "Inserir Tabela",
@@ -947,7 +950,7 @@
       "notificationNotFound": "Notificação não encontrada"
     },
     "print": {
-      "error": "Erro de impressão",
+      "error": "Print error for \"{title}\"",
       "failed": "Impressão falhou"
     },
     "sourceCode": {
@@ -956,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "Erro ao desativar verificação ortográfica",
-      "errorSwitchingLanguage": "Erro ao trocar idioma da verificação ortográfica",
-      "languageMissing": "Idioma da verificação ortográfica não encontrado",
-      "switchError": "Erro ao trocar verificação ortográfica",
+      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
+      "languageMissing": "Spellcheck language missing {languageCode}",
+      "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Verificação Ortográfica"
     }
   }

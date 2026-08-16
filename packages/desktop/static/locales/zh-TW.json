@@ -241,7 +241,9 @@
       "openFolder": "開啟資料夾"
     },
     "toc": {
-      "title": "目錄"
+      "title": "目錄",
+      "expandAll": "全部展開",
+      "collapseAll": "全部折疊"
     },
     "icons": {
       "files": "檔案",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,7 +582,7 @@
       },
       "uploader": {
         "title": "圖片上傳器",
-        "currentUploader": "目前上傳器",
+        "currentUploader": "Current Uploader: {name}",
         "picgoNotInstalled": "PicGo 未安裝",
         "picgoInstalled": "PicGo 已安裝",
         "picgoDetectionFailed": "PicGo 偵測失敗",
@@ -699,7 +702,7 @@
       "online": "線上",
       "saveError": "儲存按鍵綁定時發生錯誤",
       "shortcutInUse": "快捷鍵使用中",
-      "shortcutInUseMessage": "此快捷鍵已指派給另一個命令",
+      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
       "table": {
         "description": "描述",
         "edit": "編輯",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "版權",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "版權貢獻者"
   },
   "commands": {
@@ -881,7 +884,7 @@
     "close": "關閉",
     "dontSave": "不儲存",
     "file": "檔案",
-    "fileExists": "檔案已存在",
+    "fileExists": "File exists {filename}",
     "files": "檔案",
     "importWarning": "匯入警告",
     "installPandoc": "安裝 Pandoc",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "設定結構違規",
     "copyError": "複製錯誤",
-    "initializationFailed": "初始化失敗",
+    "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "偵測到另一個 MarkText 實例正在執行",
     "report": "回報",
     "startupError": "啟動錯誤",
     "terminatedDueToError": "因錯誤而終止",
-    "unexpectedErrorWithMessage": "意外錯誤訊息",
+    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "意外的主程序錯誤",
     "unexpectedRendererProcess": "意外的渲染程序錯誤"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "錨點連結已複製",
       "tabNotFound": "找不到標籤頁",
-      "tocItemNotFound": "找不到目錄項目",
+      "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "載入標籤頁發生錯誤",
       "errorLoadingTabMessage": "載入檔案變更時發生錯誤，因為找不到該標籤頁。",
       "mixedLineEndingsNormalized": "「{name}」含有混合換行字元，已自動正規化為 {lineEnding}。",
@@ -935,8 +938,8 @@
   "editor": {
     "export": {
       "error": "匯出錯誤",
-      "errorExporting": "匯出檔案時發生錯誤",
-      "failed": "匯出失敗"
+      "errorExporting": "Error exporting {type} file",
+      "failed": "{type} export failed"
     },
     "insertTable": {
       "title": "插入表格",
@@ -947,7 +950,7 @@
       "notificationNotFound": "找不到通知"
     },
     "print": {
-      "error": "列印錯誤",
+      "error": "Print error for \"{title}\"",
       "failed": "列印失敗"
     },
     "sourceCode": {
@@ -956,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "拼字檢查停用錯誤",
-      "errorSwitchingLanguage": "切換拼字檢查語言時發生錯誤",
-      "languageMissing": "拼字檢查語言遺失",
-      "switchError": "拼字檢查切換錯誤",
+      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
+      "languageMissing": "Spellcheck language missing {languageCode}",
+      "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "拼字檢查"
     }
   }

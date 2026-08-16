@@ -73,7 +73,7 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Métadonnées"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Fenêtre",
@@ -241,7 +241,9 @@
       "openFolder": "Ouvrir un dossier"
     },
     "toc": {
-      "title": "Table des matières"
+      "title": "Table des matières",
+      "expandAll": "Tout développer",
+      "collapseAll": "Tout réduire"
     },
     "icons": {
       "files": "Fichiers",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,7 +582,7 @@
       },
       "uploader": {
         "title": "Téléchargeur d'images",
-        "currentUploader": "Téléchargeur actuel",
+        "currentUploader": "Current Uploader: {name}",
         "picgoNotInstalled": "PicGo non installé",
         "picgoInstalled": "PicGo installé",
         "picgoDetectionFailed": "Échec de la détection PicGo",
@@ -699,7 +702,7 @@
       "online": "En ligne",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
-      "shortcutInUseMessage": "Ce raccourci est déjà assigné à une autre commande",
+      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
       "table": {
         "description": "Description",
         "edit": "Modifier",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "Droits d'auteur",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "Contributeurs aux droits d'auteur"
   },
   "commands": {
@@ -801,7 +804,7 @@
       "looseListItem": "Élément de liste lâche",
       "paragraph": "Paragraphe",
       "horizontalLine": "Ligne horizontale",
-      "frontMatter": "Métadonnées",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Réinitialiser le paragraphe",
       "mathBlock": "Bloc mathématique",
       "horizontalRule": "Ligne horizontale"
@@ -881,7 +884,7 @@
     "close": "Fermer",
     "dontSave": "Ne pas enregistrer",
     "file": "Fichier",
-    "fileExists": "Le fichier existe",
+    "fileExists": "File exists {filename}",
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
     "installPandoc": "Installer Pandoc",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "Violation du schéma de configuration",
     "copyError": "Erreur de copie",
-    "initializationFailed": "Échec de l'initialisation",
+    "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "Une autre instance de MarkText détectée en cours d'exécution",
     "report": "Signaler",
     "startupError": "Erreur de démarrage",
     "terminatedDueToError": "Terminé en raison d'une erreur",
-    "unexpectedErrorWithMessage": "Message d'erreur inattendue",
+    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "Erreur inattendue du processus principal",
     "unexpectedRendererProcess": "Erreur inattendue du processus de rendu"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "Lien d'ancrage copié",
       "tabNotFound": "Onglet introuvable",
-      "tocItemNotFound": "Élément de table des matières introuvable",
+      "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "Erreur lors du chargement de l’onglet",
       "errorLoadingTabMessage": "Une erreur s’est produite lors du chargement de la modification du fichier car l’onglet est introuvable.",
       "mixedLineEndingsNormalized": "« {name} » contient des fins de ligne mixtes qui ont été automatiquement normalisées en {lineEnding}.",
@@ -935,8 +938,8 @@
   "editor": {
     "export": {
       "error": "Erreur d'exportation",
-      "errorExporting": "Erreur lors de l'exportation du fichier",
-      "failed": "Échec de l'exportation"
+      "errorExporting": "Error exporting {type} file",
+      "failed": "{type} export failed"
     },
     "insertTable": {
       "title": "Insérer un tableau",
@@ -947,7 +950,7 @@
       "notificationNotFound": "Notification introuvable"
     },
     "print": {
-      "error": "Erreur d'impression",
+      "error": "Print error for \"{title}\"",
       "failed": "Échec de l'impression"
     },
     "sourceCode": {
@@ -956,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "Erreur de désactivation de la vérification orthographique",
-      "errorSwitchingLanguage": "Erreur lors du changement de langue de vérification orthographique",
-      "languageMissing": "Langue de vérification orthographique manquante",
-      "switchError": "Erreur de changement de vérification orthographique",
+      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
+      "languageMissing": "Spellcheck language missing {languageCode}",
+      "switchError": "Spellcheck switch error for {languageCode}, {error}",
       "title": "Vérification orthographique"
     }
   }

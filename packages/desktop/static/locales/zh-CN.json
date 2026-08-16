@@ -241,7 +241,9 @@
       "openFolder": "打开文件夹"
     },
     "toc": {
-      "title": "目录"
+      "title": "目录",
+      "expandAll": "全部展开",
+      "collapseAll": "全部折叠"
     },
     "icons": {
       "files": "文件",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,7 +582,7 @@
       },
       "uploader": {
         "title": "图片上传器",
-        "currentUploader": "当前上传器",
+        "currentUploader": "Current Uploader: {name}",
         "picgoNotInstalled": "PicGo 未安装",
         "picgoInstalled": "PicGo 已安装",
         "picgoDetectionFailed": "PicGo 检测失败",
@@ -699,7 +702,7 @@
       "online": "在线",
       "saveError": "保存快捷键时出错",
       "shortcutInUse": "快捷键正在使用",
-      "shortcutInUseMessage": "此快捷键已分配给另一个命令",
+      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
       "table": {
         "description": "描述",
         "edit": "编辑",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "版权",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "版权贡献者"
   },
   "commands": {
@@ -881,7 +884,7 @@
     "close": "关闭",
     "dontSave": "放弃保存",
     "file": "文件",
-    "fileExists": "文件已存在",
+    "fileExists": "File exists {filename}",
     "files": "文件",
     "importWarning": "导入警告",
     "installPandoc": "安装 Pandoc",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "配置架构违规",
     "copyError": "复制错误",
-    "initializationFailed": "初始化失败",
+    "initializationFailed": "Initialization failed {hint}",
     "otherInstanceDetected": "检测到 MarkText 的另一个实例正在运行",
     "report": "报告",
     "startupError": "启动错误",
     "terminatedDueToError": "由于错误而终止",
-    "unexpectedErrorWithMessage": "意外错误消息",
+    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
     "unexpectedMainProcess": "意外的主进程错误",
     "unexpectedRendererProcess": "意外的渲染进程错误"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "锚点链接已复制",
       "tabNotFound": "未找到标签页",
-      "tocItemNotFound": "未找到目录项",
+      "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "加载标签页出错",
       "errorLoadingTabMessage": "加载文件变更时发生错误，因为找不到该标签页。",
       "mixedLineEndingsNormalized": "“{name}” 含有混合换行符，已自动规范化为 {lineEnding}。",
@@ -947,19 +950,19 @@
     },
     "export": {
       "error": "导出错误",
-      "errorExporting": "导出文件时出错",
-      "failed": "导出失败"
+      "errorExporting": "Error exporting {type} file",
+      "failed": "{type} export failed"
     },
     "print": {
-      "error": "打印错误",
+      "error": "Print error for \"{title}\"",
       "failed": "打印失败"
     },
     "spellcheck": {
       "title": "拼写检查",
       "disabledError": "拼写检查已禁用错误",
-      "errorSwitchingLanguage": "切换拼写检查语言时出错",
-      "languageMissing": "拼写检查语言缺失",
-      "switchError": "拼写检查切换错误"
+      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
+      "languageMissing": "Spellcheck language missing {languageCode}",
+      "switchError": "Spellcheck switch error for {languageCode}, {error}"
     }
   }
 }
