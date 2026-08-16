@@ -15,7 +15,7 @@ interface BufferStoreEntry {
 }
 
 interface BufferStoreContent {
-  tabs: Array<{ isSaved: boolean; [key: string]: unknown }>
+  tabs: Array<{ isSaved: boolean; pathname?: string | null; [key: string]: unknown }>
   [key: string]: unknown
 }
 
@@ -66,6 +66,65 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     }
 
     return this.bufferStores
+  }
+
+  /**
+   * The buffer stores to restore on startup: at most one per distinct set of
+   * open documents, newest wins. Superseded stores are deleted.
+   *
+   * A window's restore identity is the set of documents it had open. Stores
+   * are only ever collected once every tab reports `isSaved`, so a document
+   * edited across many sessions without an explicit save leaves one store
+   * behind per session — and `restoreAll` then opens a window for each,
+   * growing without bound.
+   *
+   * Stores holding an untitled tab keep their own identity: their content
+   * exists nowhere else, so two untitled drafts must never collapse into one.
+   */
+  getRestorableBufferStores(): BufferStoreEntry[] {
+    const stores = this.getAllBufferStores()
+    const newestBySignature = new Map<string, { entry: BufferStoreEntry; mtimeMs: number }>()
+    const superseded: BufferStoreEntry[] = []
+
+    for (const id of Object.keys(stores)) {
+      const entry = stores[id]
+      let signature: string
+      let mtimeMs: number
+
+      try {
+        const buffer = this.readBufferStoreFile(entry.filePath)
+        const pathnames = buffer.tabs.map((tab) => tab.pathname)
+        signature = pathnames.every((pathname) => !!pathname)
+          ? JSON.stringify((pathnames as string[]).slice().sort())
+          : `untitled:${entry.id}`
+        mtimeMs = fs.statSync(entry.filePath).mtimeMs
+      } catch (e) {
+        console.error('Failed to inspect buffer store file while restoring', e)
+        continue
+      }
+
+      const incumbent = newestBySignature.get(signature)
+      if (!incumbent) {
+        newestBySignature.set(signature, { entry, mtimeMs })
+      } else if (mtimeMs > incumbent.mtimeMs) {
+        newestBySignature.set(signature, { entry, mtimeMs })
+        superseded.push(incumbent.entry)
+      } else {
+        superseded.push(entry)
+      }
+    }
+
+    for (const entry of superseded) {
+      try {
+        fs.unlinkSync(entry.filePath)
+        // `stores` is the live `this.bufferStores` map returned above.
+        delete stores[entry.id]
+      } catch (e) {
+        console.error('Failed to delete superseded buffer store file', e)
+      }
+    }
+
+    return [...newestBySignature.values()].map(({ entry }) => entry)
   }
 
   clearBufferStoresWithAllSaved(): void {

@@ -329,6 +329,19 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     const { id: windowId } = browserWindow
     const { _appMenu, _windows } = this
 
+    // Buffer cleanup belongs here rather than on the `mt::close-window` reply:
+    // every teardown path funnels through this method, so a window destroyed
+    // without the renderer round trip — `forceCloseById`, application quit, a
+    // renderer that never answers `mt::ask-for-close` — would otherwise leave
+    // its store behind forever. Must run before `remove()` so the editor window
+    // list still counts this window.
+    if (this.get(windowId)?.type === WindowType.EDITOR) {
+      this.editorBufferStore.handleClose(
+        (browserWindow as unknown as { restoreBufferId?: string }).restoreBufferId,
+        this.getWindowsByType('editor')
+      )
+    }
+
     // Free watchers used by this window
     this._watcher.unwatchByWindowId(windowId)
 
@@ -379,13 +392,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
 
     // Force close a BrowserWindow
     ipcMain.on('mt::close-window', (e) => {
-      const win = BrowserWindow.fromWebContents(e.sender)
-      // Before closing, update the buffer store if needed
-      this.editorBufferStore.handleClose(
-        (win as unknown as { restoreBufferId?: string })?.restoreBufferId,
-        this.getWindowsByType('editor')
-      )
-      this.forceClose(win)
+      this.forceClose(BrowserWindow.fromWebContents(e.sender))
     })
 
     ipcMain.on('mt::open-file', (e, filePath: string, options: Record<string, unknown>) => {
