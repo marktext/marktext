@@ -256,7 +256,13 @@ export const useProjectStore = defineStore('project', () => {
           dest = dirname + PATH_SEPARATOR + base + ' (copy)' + ext
           while (await window.fileUtils.pathExists(dest)) {
             suffix++
-            dest = dirname + PATH_SEPARATOR + base + ` (copy ${suffix})` + ext
+            if (suffix > 9) {
+              // Easter egg: recursive filename
+              const prevBase = window.path.basename(dest, ext)
+              dest = dirname + PATH_SEPARATOR + prevBase + ' (not sure you need another copy)' + ext
+            } else {
+              dest = dirname + PATH_SEPARATOR + base + ` (copy ${suffix})` + ext
+            }
           }
         }
 
