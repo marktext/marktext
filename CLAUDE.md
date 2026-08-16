@@ -2,9 +2,58 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# MarkText
+## Fork-specific guidance
 
-## Project Overview
+This repository is a maintained fork of [MarkText](https://github.com/marktext/marktext),
+not the upstream project itself. Preserve MarkText's editor behavior, file
+formats, and existing workflows whenever possible. Prefer additive changes in
+fork-owned modules over invasive changes to Muya or established MarkText paths.
+
+The fork will periodically attempt to merge changes from upstream MarkText.
+Keep fork-specific code and documentation clearly scoped so those merges stay
+small and reviewable. Before changing an upstream file, check whether the
+feature can be implemented through an existing extension point, the main
+process, preload/IPC, shared types, or a dedicated fork module instead.
+
+### Fork AI Feature Notes
+
+The AI editor is implemented across `packages/desktop/src/main/ai/`, the
+renderer AI panel/store, and `packages/desktop/src/shared/types/ai.ts`:
+
+- The three modes are `answer`, `edit`, and `rewrite`. Networking, API-key
+  access, attachment storage, provider adaptation, validation, and revisions
+  stay in the main process; the renderer uses typed `mt::ai::*` IPC only.
+- OpenAI Chat Completions and Anthropic Messages are supported. Image input is
+  PNG, JPEG, WebP, or GIF only: up to 10 images per request, 10 MB per image,
+  and 30 MB total. Images are stored under Electron `userData`, while chat
+  history keeps metadata and the panel displays an icon plus filename (not a
+  thumbnail). Direct PDF uploads are not supported.
+- `prompts.ts` contains the shared MarkText/CommonMark/GFM rules. New math uses
+  `$...$` inline and standalone `$$` block delimiters. The incompatible
+  `\(...\)`, `\[...\]`, same-line `$$...$$`, and math code fences are rejected
+  or repaired. Unrelated existing Markdown is preserved.
+- Precise edits are handled by `documentEditAgent.ts`. It uses the structured
+  `submit_markdown_edits` tool when available, then falls back to tokenized
+  exact `SEARCH/DIVIDER/REPLACE` blocks. Failed output gets bounded retries
+  and safe local normalization; a complete-document fallback is shown for
+  confirmation instead of being applied silently. `outputRepair.ts` protects
+  code spans/fences and never performs a global blind replacement.
+- Every edit is based on an exact document snapshot, validated atomically, and
+  committed through the revision journal so stale results cannot overwrite
+  human changes. AI edits can be undone deterministically without another
+  model call.
+
+AI logs use `[ai-editor]` and `[ai-output-repair]`; they must not include API
+keys, image bytes/base64, attachment paths, or document content. Relevant
+tests are in `packages/desktop/test/unit/specs/ai-*.spec.ts`.
+
+## Upstream MarkText baseline
+
+The following sections describe the inherited MarkText architecture and
+development workflow. Keep them separate from the fork-specific guidance
+above when updating this file.
+
+### Project Overview
 
 MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports CommonMark, GitHub Flavored Markdown, math (KaTeX), Mermaid diagrams, PlantUML, and multiple editing modes (focus, typewriter, source-code).
 
@@ -12,7 +61,7 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 - **License**: MIT
 - **Repository**: https://github.com/marktext/marktext
 
-## Tech Stack
+### Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -30,7 +79,7 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 | Repo layout | pnpm monorepo — see Directory Structure |
 | Node.js minimum | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1) |
 
-## Directory Structure
+### Directory Structure
 
 This is a pnpm workspace. Three packages live under `packages/`, and the
 root holds only shared tooling and CI-facing scripts.
@@ -139,7 +188,7 @@ root holds only shared tooling and CI-facing scripts.
 
 The root has no `src/`, `test/`, `static/`, or `build/` of its own anymore — they all live in `packages/desktop/`.
 
-## Development Workflow
+### Development Workflow
 
 All commands run from the repo root. The root `package.json` proxies every
 desktop-specific script to `packages/desktop` via `pnpm --filter marktext`,
@@ -180,7 +229,7 @@ pnpm --filter marktext-website build    # static build → packages/website/buil
 If you need to invoke a script directly inside a package, use
 `pnpm --filter <name> <script>` or `pnpm -C packages/<name> <script>`.
 
-## Build Commands
+### Build Commands
 
 ```bash
 pnpm run build:win    # Windows x64 — NSIS installer + zip
@@ -190,7 +239,7 @@ pnpm run build:linux  # Linux — AppImage, snap, deb, rpm, tar.gz
 
 All platform build scripts automatically run `minify-locales` and `electron-rebuild` before packaging.
 
-## Testing
+### Testing
 
 ```bash
 pnpm run test          # All unit tests (Vitest)
@@ -209,7 +258,7 @@ pnpm -C packages/desktop exec playwright test test/e2e/launch.spec.ts
 pnpm -C packages/desktop exec playwright test -g 'partial test name'
 ```
 
-## Code Style
+### Code Style
 
 Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` before committing.
 
@@ -221,11 +270,11 @@ Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` befo
 - IPC channels are typed via the contract in `packages/desktop/src/shared/types/ipc.ts`
 - The renderer is fully sandboxed — every IPC and Node access goes through `window.electron.*` / `window.fileUtils.*` etc. (typed in `packages/desktop/src/types/global.d.ts`)
 
-### Comments
+#### Comments
 
 Follow `.github/COMMENTING-GUIDELINES.md` for every comment you write. The core rule: a comment must describe what isn't obvious from the code — rationale, units, invariants, ownership, the abstraction a caller needs — never restate the code or echo the words already in the name. Before finishing any change, review the comments you added or touched against that document, and delete any that only repeat the code. Prefer self-explanatory names over comments; when a comment is genuinely needed, keep it short and complete and place it next to the code it describes.
 
-## Architecture: Three-Process Electron Model
+### Architecture: Three-Process Electron Model
 
 All Electron processes live in `packages/desktop/`. Muya is a separate
 workspace package that the renderer (and tests) consume via the `muya`
@@ -259,13 +308,13 @@ Muya  (packages/muyajs/)            ← workspace package @marktext/muyajs
       the desktop renderer consumes; muyajs is being retired.
 ```
 
-## IPC Conventions
+### IPC Conventions
 
 Most IPC channels between main and renderer use the `mt::` prefix (e.g. `mt::open-new-tab`, `mt::file-saved`). Some internal channels do not follow this convention (e.g. `language-changed`).
 
 See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 
-## Further Reading
+### Further Reading
 
 `packages/website/content/docs/dev/` contains the deeper developer documentation referenced by this guide. Same files are published as the developer docs section on https://marktext.me/docs/dev/overview:
 
@@ -278,7 +327,7 @@ See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 - `PERFORMANCE.md` — perf measurement workflow (pairs with `pnpm run perf:inspect`)
 - `RELEASE.md` / `RELEASE_HOTFIX.md` — release process
 
-## Important Build Notes
+### Important Build Notes
 
 - **CommonJS vs ESM**: `main` and `preload` compile to CommonJS; `renderer` is ESM-only. Do not use `require()` in renderer code.
 - **Minify locales**: `pnpm run minify-locales` must run before production builds. It is included in `build:win/mac/linux` but not in `dev`.
@@ -293,7 +342,7 @@ See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 - **Workspace deps**: muya's own npm runtime deps (`github-markdown-css`, `katex`, `dompurify`, `snabbdom`, …) are declared in `packages/muyajs/package.json` so Node module resolution from `packages/muyajs/lib/*.js` finds them inside the workspace rather than walking out to a parent directory.
 - **Patches**: `patch-package` patches live at `packages/desktop/patches/`. The root `postinstall` calls patch-package with `cwd=packages/desktop` so the path resolves correctly.
 
-## Contribution
+### Contribution
 
 - Submit PRs to the **`develop`** branch (not `main`).
 - Reference the related issue in the PR description.
