@@ -311,7 +311,7 @@ export const useAiStore = defineStore('ai', () => {
       return
     }
     if (nextMarkdown === beforeMarkdown) {
-      appendMessage('assistant', '', response.mode, { editSummary: response.editSummary })
+      appendMessage('assistant', response.summary ?? '', response.mode, { editSummary: response.editSummary })
       await saveChat()
       return
     }
@@ -358,7 +358,7 @@ export const useAiStore = defineStore('ai', () => {
                 changeTracker.markSaved(tabId)
               }
               refreshChangeMarker(tabId)
-              appendMessage('assistant', '', response.mode, {
+              appendMessage('assistant', response.summary ?? '', response.mode, {
                 revisionId: pendingRevision.value.revisionId,
                 editSummary: response.editSummary
               })

@@ -74,24 +74,14 @@ describe('document edit agent', () => {
     expect(generate).toHaveBeenCalledTimes(2)
   })
 
-  it('accepts standard Aider-style divider and closing markers without the request token', async() => {
+  it('rejects marker blocks without the request token', async() => {
     const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
       const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
       if (!delimiter) throw new Error('The test prompt did not contain an edit delimiter.')
-      return {
-        content: [
-          '<<<<<<< SEARCH',
-          'old',
-          '=======',
-          'new',
-          '>>>>>>> REPLACE'
-        ].join('\n')
-      }
+      return { content: '<<<<<<< SEARCH\nold\n=======\nnew\n>>>>>>> REPLACE' }
     })
 
-    const result = await request('old', generate)
-    expect(result.markdown).toBe('new')
-    expect(result.attempts).toBe(1)
+    await expect(request('old', generate)).rejects.toThrow('after 2 attempts')
   })
 
   it('validates all blocks before applying multiple edits', async() => {
@@ -158,12 +148,10 @@ describe('document edit agent', () => {
       attempt: 1,
       responseChars: expect.any(Number),
       responseLines: 6,
+      summaryMarkers: 0,
       searchMarkers: 1,
       dividerMarkers: 1,
-      replaceMarkers: 1,
-      legacySearchMarkers: 0,
-      legacyDividerMarkers: 0,
-      legacyReplaceMarkers: 0
+      replaceMarkers: 1
     })
   })
 
@@ -175,7 +163,10 @@ describe('document edit agent', () => {
     expect(result.markdown).toBe('# Added')
     expect(result.summary.addedLines).toBe(1)
 
-    const noChanges = await request('already done', vi.fn(async() => ({ content: 'NO_CHANGES' })))
+    const noChanges = await request('already done', vi.fn(async(input: DocumentEditGenerateRequest) => {
+      const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
+      return { content: `NO_CHANGES ${delimiter}` }
+    }))
     expect(noChanges.markdown).toBe('already done')
     expect(noChanges.summary).toEqual({
       operationCount: 0,
@@ -183,6 +174,38 @@ describe('document edit agent', () => {
       removedLines: 0,
       operations: []
     })
+  })
+
+  it('returns a one-line model summary and preserves CRLF documents', async() => {
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
+      const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
+      if (!delimiter) throw new Error('The test prompt did not contain an edit delimiter.')
+      return {
+        content: [
+          `<<<<<<< SUMMARY ${delimiter}`,
+          'Updated the title.',
+          `>>>>>>> SUMMARY ${delimiter}`,
+          `<<<<<<< SEARCH ${delimiter}`,
+          '# Old title\n\nKeep this.',
+          `======= ${delimiter}`,
+          '# New title\n\nKeep this.',
+          `>>>>>>> REPLACE ${delimiter}`
+        ].join('\n')
+      }
+    })
+
+    const result = await request('# Old title\r\n\r\nKeep this.', generate)
+    expect(result.message).toBe('Updated the title.')
+    expect(result.markdown).toBe('# New title\r\n\r\nKeep this.')
+  })
+
+  it('allows Setext Markdown inside a tokenized SEARCH block', async() => {
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => ({
+      content: responseWith(input.system, 'Title\n=====', 'New title\n---------')
+    }))
+
+    const result = await request('Title\n=====\n\nBody', generate)
+    expect(result.markdown).toBe('New title\n---------\n\nBody')
   })
 
   it('rejects truncated model output', async() => {

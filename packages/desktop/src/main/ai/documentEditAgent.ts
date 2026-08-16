@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import type {
   AiEditOperationSummary,
   AiEditSummary
@@ -7,7 +6,8 @@ import {
   buildDocumentPrompt,
   buildPreciseEditRepairPrompt,
   buildPreciseEditSystemPrompt,
-  makePreciseEditMarkers
+  makePreciseEditMarkers,
+  makePromptToken
 } from './prompts'
 
 export interface DocumentEditMessage {
@@ -25,12 +25,10 @@ export interface DocumentEditValidationDiagnostic {
   error: string
   responseChars: number
   responseLines: number
+  summaryMarkers: number
   searchMarkers: number
-  legacySearchMarkers: number
   dividerMarkers: number
-  legacyDividerMarkers: number
   replaceMarkers: number
-  legacyReplaceMarkers: number
 }
 
 export interface DocumentEditGenerateRequest {
@@ -53,12 +51,18 @@ export interface DocumentEditAgentRequest {
 export interface DocumentEditAgentResult {
   markdown: string
   summary: AiEditSummary
+  message?: string
   attempts: number
 }
 
 interface ParsedEdit {
   search: string
   replace: string
+}
+
+interface ParsedEditResponse {
+  message?: string
+  edits: ParsedEdit[]
 }
 
 interface LocatedEdit extends ParsedEdit {
@@ -69,8 +73,9 @@ interface LocatedEdit extends ParsedEdit {
 
 const MAX_ATTEMPTS = 2
 const MAX_OPERATIONS = 32
+const MAX_MESSAGE_LENGTH = 240
 
-const makeDelimiter = (): string => `MT_EDIT_${crypto.randomUUID().replaceAll('-', '')}`
+const makeDelimiter = (): string => makePromptToken('MT_EDIT')
 
 const lineNumberAt = (value: string, offset: number): number =>
   value.slice(0, offset).split('\n').length
@@ -133,32 +138,50 @@ const countOccurrences = (value: string, search: string): number[] => {
   return locations
 }
 
-const isMarkerLine = (line: string, marker: string, legacyMarker: string): boolean => {
-  const normalized = line.trim()
-  return normalized === marker || normalized === legacyMarker
+const isMarkerLine = (line: string, marker: string): boolean => line.trim() === marker
+
+const countMarkerLines = (lines: string[], marker: string): number =>
+  lines.filter(line => line.trim() === marker).length
+
+const cleanMessage = (value: string): string | undefined => {
+  const message = value.replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim()
+  if (!message || message.length > MAX_MESSAGE_LENGTH) return undefined
+  return message
 }
 
-const countMarkerLines = (lines: string[], marker: string, legacyMarker: string): { exact: number; legacy: number } => ({
-  exact: lines.filter(line => line.trim() === marker).length,
-  legacy: lines.filter(line => line.trim() === legacyMarker).length
-})
-
-const parseEditResponse = (response: string, markdown: string, delimiter: string): ParsedEdit[] => {
+const parseEditResponse = (response: string, markdown: string, delimiter: string): ParsedEditResponse => {
   const normalized = response.replaceAll('\r\n', '\n')
-  if (normalized.trim() === 'NO_CHANGES') return []
-
   const markers = makePreciseEditMarkers(delimiter)
-  const legacyMarkers = {
-    search: '<<<<<<< SEARCH',
-    divider: '=======',
-    replace: '>>>>>>> REPLACE'
-  }
   const lines = normalized.split('\n')
   let first = 0
   while (first < lines.length && !lines[first].trim()) first += 1
   let last = lines.length - 1
   while (last >= first && !lines[last].trim()) last -= 1
-  if (first > last || !isMarkerLine(lines[first], markers.search, legacyMarkers.search)) {
+
+  let message: string | undefined
+  if (first <= last && isMarkerLine(lines[first], markers.summaryStart)) {
+    const summaryStart = first + 1
+    let summaryEnd = summaryStart
+    while (summaryEnd <= last && !isMarkerLine(lines[summaryEnd], markers.summaryEnd)) summaryEnd += 1
+    if (summaryEnd <= last) {
+      message = cleanMessage(lines.slice(summaryStart, summaryEnd).join('\n'))
+      first = summaryEnd + 1
+      while (first <= last && !lines[first].trim()) first += 1
+    } else {
+      const searchStart = lines.findIndex((line, index) => index >= summaryStart && isMarkerLine(line, markers.search))
+      if (searchStart >= 0) first = searchStart
+      else throw new Error('The summary block is incomplete.')
+    }
+  }
+
+  if (first > last) throw new Error('The response did not contain an edit instruction.')
+  if (isMarkerLine(lines[first], markers.noChanges)) {
+    if (lines.slice(first + 1, last + 1).some(line => line.trim())) {
+      throw new Error('Unexpected text after NO_CHANGES.')
+    }
+    return { message, edits: [] }
+  }
+  if (!isMarkerLine(lines[first], markers.search)) {
     throw new Error('The response must contain only precise SEARCH/REPLACE edit blocks.')
   }
 
@@ -169,17 +192,17 @@ const parseEditResponse = (response: string, markdown: string, delimiter: string
       index += 1
       continue
     }
-    if (!isMarkerLine(lines[index], markers.search, legacyMarkers.search)) {
+    if (!isMarkerLine(lines[index], markers.search)) {
       throw new Error('Unexpected text outside a SEARCH/REPLACE edit block.')
     }
     index += 1
     const searchStart = index
-    while (index <= last && !isMarkerLine(lines[index], markers.divider, legacyMarkers.divider)) index += 1
+    while (index <= last && !isMarkerLine(lines[index], markers.divider)) index += 1
     if (index > last) throw new Error('An edit block is missing its divider.')
     const search = lines.slice(searchStart, index).join('\n')
     index += 1
     const replaceStart = index
-    while (index <= last && !isMarkerLine(lines[index], markers.replace, legacyMarkers.replace)) index += 1
+    while (index <= last && !isMarkerLine(lines[index], markers.replace)) index += 1
     if (index > last) throw new Error('An edit block is missing its closing marker.')
     const replace = lines.slice(replaceStart, index).join('\n')
     if (search === replace) throw new Error('An edit block does not change any text.')
@@ -191,10 +214,16 @@ const parseEditResponse = (response: string, markdown: string, delimiter: string
   if (edits.length > MAX_OPERATIONS) {
     throw new Error(`The response contains more than ${MAX_OPERATIONS} edit blocks.`)
   }
-  if (!edits.length && normalized.trim() !== 'NO_CHANGES') {
+  if (!edits.length) {
     throw new Error('The response did not contain an edit block.')
   }
-  return edits
+  return { message, edits }
+}
+
+const lineEndingVariants = (value: string, markdown: string): string[] => {
+  const normalized = value.replaceAll('\r\n', '\n')
+  if (!markdown.includes('\r\n') || !normalized.includes('\n')) return [normalized]
+  return [normalized, normalized.replaceAll('\n', '\r\n')]
 }
 
 const locateEdits = (edits: ParsedEdit[], markdown: string): LocatedEdit[] => {
@@ -202,7 +231,15 @@ const locateEdits = (edits: ParsedEdit[], markdown: string): LocatedEdit[] => {
     throw new Error('An empty document can contain only one empty SEARCH block.')
   }
   const located = edits.map((edit) => {
-    const matches = countOccurrences(markdown, edit.search)
+    const candidates = lineEndingVariants(edit.search, markdown)
+    const replacementCandidates = lineEndingVariants(edit.replace, markdown)
+    const matchesByCandidate = candidates.map(search => ({
+      search,
+      matches: countOccurrences(markdown, search)
+    }))
+    const matched = matchesByCandidate.find(candidate => candidate.matches.length > 0)
+    const search = matched?.search ?? edit.search
+    const matches = matched?.matches ?? []
     if (!edit.search && markdown) {
       throw new Error('An empty SEARCH block can only target an empty document.')
     }
@@ -213,10 +250,12 @@ const locateEdits = (edits: ParsedEdit[], markdown: string): LocatedEdit[] => {
       throw new Error('A SEARCH block matched multiple locations; include more surrounding context.')
     }
     const start = matches[0]
-    const end = start + edit.search.length
-    const counts = lineChangeCounts(edit.search, edit.replace)
+    const end = start + search.length
+    const replacement = replacementCandidates[candidates.indexOf(search)] ?? edit.replace
+    const counts = lineChangeCounts(search, replacement)
     return {
-      ...edit,
+      search,
+      replace: replacement,
       start,
       end,
       summary: {
@@ -275,7 +314,7 @@ const summarize = (markdown: string, edits: LocatedEdit[]): AiEditSummary => ({
 export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Promise<DocumentEditAgentResult> => {
   const delimiter = makeDelimiter()
   const system = buildPreciseEditSystemPrompt(delimiter)
-  const documentPrompt = buildDocumentPrompt(request.instruction, request.markdown)
+  const documentPrompt = buildDocumentPrompt(request.instruction, request.markdown, delimiter)
   let previousResponse = ''
   let failure = ''
 
@@ -287,7 +326,7 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
     if (previousResponse) {
       messages.push(
         { role: 'assistant', content: previousResponse },
-        { role: 'user', content: buildPreciseEditRepairPrompt(failure) }
+        { role: 'user', content: buildPreciseEditRepairPrompt(failure, delimiter) }
       )
     }
     const generated = await request.generate({
@@ -301,35 +340,29 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
       const parsed = generated.truncated
         ? (() => { throw new Error('The model response was truncated before a complete edit was returned.') })()
         : parseEditResponse(generated.content, request.markdown, delimiter)
-      const located = locateEdits(parsed, request.markdown)
+      const located = locateEdits(parsed.edits, request.markdown)
       return {
         markdown: applyEdits(request.markdown, located),
         summary: summarize(request.markdown, located),
+        message: parsed.message,
         attempts: attempt
       }
     } catch (error) {
       failure = error instanceof Error ? error.message : String(error)
       const responseLines = generated.content.replaceAll('\r\n', '\n').split('\n')
       const markers = makePreciseEditMarkers(delimiter)
-      const legacyMarkers = {
-        search: '<<<<<<< SEARCH',
-        divider: '=======',
-        replace: '>>>>>>> REPLACE'
-      }
-      const search = countMarkerLines(responseLines, markers.search, legacyMarkers.search)
-      const divider = countMarkerLines(responseLines, markers.divider, legacyMarkers.divider)
-      const replace = countMarkerLines(responseLines, markers.replace, legacyMarkers.replace)
+      const search = countMarkerLines(responseLines, markers.search)
+      const divider = countMarkerLines(responseLines, markers.divider)
+      const replace = countMarkerLines(responseLines, markers.replace)
       request.onValidationFailure?.({
         attempt,
         error: failure,
         responseChars: generated.content.length,
         responseLines: responseLines.length,
-        searchMarkers: search.exact,
-        legacySearchMarkers: search.legacy,
-        dividerMarkers: divider.exact,
-        legacyDividerMarkers: divider.legacy,
-        replaceMarkers: replace.exact,
-        legacyReplaceMarkers: replace.legacy
+        summaryMarkers: countMarkerLines(responseLines, markers.summaryStart) + countMarkerLines(responseLines, markers.summaryEnd),
+        searchMarkers: search,
+        dividerMarkers: divider,
+        replaceMarkers: replace
       })
       if (attempt === MAX_ATTEMPTS) {
         throw new Error(`The AI edit could not be validated after ${MAX_ATTEMPTS} attempts. ${failure}`)

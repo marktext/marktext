@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
   answerSystemPrompt,
+  buildAnswerSystemPrompt,
   buildDocumentContext,
   buildDocumentPrompt,
+  buildRewriteSystemPrompt,
   buildPreciseEditRepairPrompt,
   buildPreciseEditSystemPrompt,
   connectionTestSystemPrompt,
   connectionTestUserPrompt,
   makePreciseEditMarkers,
+  makePromptToken,
   previousPreciseEditContextMessage,
   previousRewriteContextMessage,
   rewriteSystemPrompt
@@ -18,7 +21,7 @@ describe('AI prompt templates', () => {
     expect(connectionTestSystemPrompt).toContain('testing an AI connection')
     expect(connectionTestUserPrompt).toBe('Reply with the single word OK.')
     expect(previousPreciseEditContextMessage).toContain('previous precise edit')
-    expect(previousRewriteContextMessage).toContain('previous document rewrite')
+    expect(previousRewriteContextMessage).toContain('previous full rewrite')
     expect(answerSystemPrompt).toContain('Never rewrite or mutate the document')
     expect(rewriteSystemPrompt).toContain('complete revised Markdown document')
   })
@@ -31,15 +34,26 @@ describe('AI prompt templates', () => {
     expect(system).toContain(markers.search)
     expect(system).toContain(markers.divider)
     expect(system).toContain(markers.replace)
+    expect(system).toContain(markers.summaryStart)
+    expect(system).toContain(markers.summaryEnd)
+    expect(system).toContain(markers.noChanges)
     expect(system).toContain('NO_CHANGES')
+    expect(system).toContain('front matter')
+    expect(system).toContain('completion report')
+    expect(system).toContain('not a restatement of the user\'s request')
   })
 
-  it('builds document and repair messages without changing their boundaries', () => {
-    expect(buildDocumentContext('# Old title')).toBe('\n\n<current_document>\n# Old title\n</current_document>')
-    expect(buildDocumentPrompt('Change the title.', '# Old title')).toBe(
-      'Change the title.\n\n<current_document>\n# Old title\n</current_document>'
+  it('builds tokenized document boundaries and repair messages', () => {
+    const delimiter = makePromptToken('MT_TEST')
+    expect(buildDocumentContext('# Old title', delimiter)).toBe(
+      `\n\nDOCUMENT ${delimiter}\n# Old title\nEND_DOCUMENT ${delimiter}`
     )
-    expect(buildPreciseEditRepairPrompt('The SEARCH block did not match.')).toContain(
+    expect(buildDocumentPrompt('Change the title.', '# Old title', delimiter)).toBe(
+      `TASK ${delimiter}\nChange the title.\nEND_TASK ${delimiter}\n\nDOCUMENT ${delimiter}\n# Old title\nEND_DOCUMENT ${delimiter}`
+    )
+    expect(buildAnswerSystemPrompt(delimiter)).toContain(`DOCUMENT ${delimiter}`)
+    expect(buildRewriteSystemPrompt(delimiter)).toContain(`END_DOCUMENT ${delimiter}`)
+    expect(buildPreciseEditRepairPrompt('The SEARCH block did not match.', delimiter)).toContain(
       'The SEARCH block did not match.'
     )
   })

@@ -57,6 +57,7 @@ export interface AiResponse {
   requestId: string
   mode: AiInteractionMode
   content: string
+  summary?: string
   markdown?: string
   editSummary?: AiEditSummary
   documentId: string

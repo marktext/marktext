@@ -78,7 +78,7 @@
         </div>
         <pre v-if="message.content">{{ message.content }}</pre>
         <div
-          v-else-if="message.editSummary || message.mode === 'rewrite'"
+          v-if="message.editSummary || message.mode === 'rewrite'"
           class="ai-edit-summary"
         >
           {{ editSummaryLabel(message) }}

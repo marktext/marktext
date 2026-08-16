@@ -150,6 +150,7 @@ interface AiResponse {
   documentId: string
   mode: AiInteractionMode
   content: string
+  summary?: string
   markdown?: string
   editSummary?: AiEditSummary
 }
@@ -214,13 +215,17 @@ focused on prompt behavior and constraints rather than duplicating the source
 text here.
 
 Always send the current complete Markdown document and at most the ten most
-recent persisted messages for that document. The precise-edit Agent parses and
+recent persisted messages for that document. Prompt templates and their
+request-specific document/task boundaries are centralized in
+`packages/desktop/src/main/ai/prompts.ts`. The precise-edit Agent parses and
 validates every block before applying any block. A missing match, non-unique
 match, overlap, malformed response, truncation, or second failed validation
 causes the complete request to fail without mutation. The Agent may make one
 automatic correction request with the validation error; it never uses fuzzy
-matching. Rewrite output is parsed as plain Markdown and rejects an empty or
-unambiguously wrapped outer code fence.
+matching. Successful precise edits may also return a short one-line model
+summary for the chat UI, but local edit statistics remain authoritative. Rewrite
+output is parsed as plain Markdown and rejects an empty or unambiguously wrapped
+outer code fence.
 
 ### 3.4 Single-document edit Agent
 
@@ -232,25 +237,28 @@ document.
 The response uses request-specific variants of this protocol:
 
 ```text
-SEARCH_MARKER <request-token>
+SUMMARY_START <request-token>
+one-line summary
+SUMMARY_END <request-token>
+SEARCH_START <request-token>
 exact existing text
-DIVIDER_MARKER <request-token>
+DIVIDER <request-token>
 replacement text
-REPLACE_MARKER <request-token>
+REPLACE_END <request-token>
 ```
 
-The Agent rejects extra prose, empty SEARCH blocks for non-empty documents,
-missing or repeated matches, overlapping ranges, no-op replacements, more than
-32 blocks, and truncated responses. It validates all blocks against the same
-captured Markdown, applies them atomically in memory, and returns the resulting
-Markdown plus line-level statistics. A failed parse or match receives one
-structured correction request; the second failure leaves the document untouched.
+The response may use the exact token `NO_CHANGES <request-token>` after the
+summary. The Agent rejects extra prose, empty SEARCH blocks for
+non-empty documents, missing or repeated matches, overlapping ranges, no-op
+replacements, more than 32 blocks, and truncated responses. It validates all
+blocks against the same captured Markdown, applies them atomically in memory,
+and returns the resulting Markdown plus line-level statistics and an optional
+bounded summary. A failed parse or match receives one structured correction
+request; the second failure leaves the document untouched.
 
-The parser accepts both the request-tokenized markers above and the plain
-Aider-compatible `<<<<<<< SEARCH`, `=======`, and `>>>>>>> REPLACE` marker lines.
-This compatibility path still requires exact unique SEARCH matches and the same
-atomic validation rules; it only tolerates providers that drop the request token
-from their response.
+The parser accepts only request-tokenized markers. Plain Aider-compatible marker
+lines are intentionally rejected because bare `=======` is valid Setext
+Markdown and can otherwise be mistaken for an edit divider.
 
 The request token prevents a Markdown document containing ordinary conflict
 markers from confusing the parser. The implementation is an independent

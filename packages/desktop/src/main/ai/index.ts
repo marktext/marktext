@@ -19,13 +19,14 @@ import type {
 } from '@shared/types/ai'
 import { runDocumentEditAgent } from './documentEditAgent'
 import {
-  answerSystemPrompt,
-  buildDocumentContext,
+  buildAnswerSystemPrompt,
+  buildDocumentPrompt,
+  buildRewriteSystemPrompt,
   connectionTestSystemPrompt,
   connectionTestUserPrompt,
+  makePromptToken,
   previousPreciseEditContextMessage,
-  previousRewriteContextMessage,
-  rewriteSystemPrompt
+  previousRewriteContextMessage
 } from './prompts'
 
 const DEFAULT_PROTOCOL = 'openai-chat-completions' as const
@@ -466,13 +467,13 @@ class AiService {
       recentMessages.length,
       request.requestId
     )
-    const documentContext = buildDocumentContext(request.markdown)
     if (request.mode === 'answer') {
+      const promptToken = makePromptToken('MT_CONTEXT')
       const result = await this.requestProvider(
         settings,
         apiKey,
-        answerSystemPrompt,
-        [...recentMessages, { role: 'user', content: `${request.prompt}${documentContext}` }],
+        buildAnswerSystemPrompt(promptToken),
+        [...recentMessages, { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken) }],
         request.requestId
       )
       featureLog(
@@ -494,11 +495,12 @@ class AiService {
     this.controllers.set(request.requestId, controller)
     try {
       if (request.mode === 'rewrite') {
+        const promptToken = makePromptToken('MT_CONTEXT')
         const result = await this.requestProvider(
           settings,
           apiKey,
-          rewriteSystemPrompt,
-          [...recentMessages, { role: 'user', content: `${request.prompt}${documentContext}` }],
+          buildRewriteSystemPrompt(promptToken),
+          [...recentMessages, { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken) }],
           request.requestId,
           controller.signal
         )
@@ -539,17 +541,15 @@ class AiService {
         },
         onValidationFailure: diagnostic => {
           featureLog(
-            'edit agent validation failure attempt=%s error=%s responseChars=%s responseLines=%s searchMarkers=%s legacySearchMarkers=%s dividerMarkers=%s legacyDividerMarkers=%s replaceMarkers=%s legacyReplaceMarkers=%s requestId=%s',
+            'edit agent validation failure attempt=%s error=%s responseChars=%s responseLines=%s summaryMarkers=%s searchMarkers=%s dividerMarkers=%s replaceMarkers=%s requestId=%s',
             diagnostic.attempt,
             diagnostic.error,
             diagnostic.responseChars,
             diagnostic.responseLines,
+            diagnostic.summaryMarkers,
             diagnostic.searchMarkers,
-            diagnostic.legacySearchMarkers,
             diagnostic.dividerMarkers,
-            diagnostic.legacyDividerMarkers,
             diagnostic.replaceMarkers,
-            diagnostic.legacyReplaceMarkers,
             request.requestId
           )
         }
@@ -567,6 +567,7 @@ class AiService {
         requestId: request.requestId,
         mode: request.mode,
         content: '',
+        summary: result.message,
         markdown: result.markdown,
         editSummary: result.summary,
         documentId: request.documentId,
