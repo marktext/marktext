@@ -1,5 +1,5 @@
 export type AiProtocol = 'openai-chat-completions' | 'anthropic-messages'
-export type AiInteractionMode = 'answer' | 'edit'
+export type AiInteractionMode = 'answer' | 'edit' | 'rewrite'
 
 export interface AiConnectionSettings {
   protocol: AiProtocol
@@ -21,6 +21,8 @@ export interface AiChatMessage {
   mode: AiInteractionMode
   content: string
   createdAt: number
+  revisionId?: string
+  editSummary?: AiEditSummary
 }
 
 export interface AiRequest {
@@ -32,10 +34,26 @@ export interface AiRequest {
   messages: AiChatMessage[]
 }
 
+export interface AiEditOperationSummary {
+  startLine: number
+  endLine: number
+  addedLines: number
+  removedLines: number
+}
+
+export interface AiEditSummary {
+  operationCount: number
+  addedLines: number
+  removedLines: number
+  operations: AiEditOperationSummary[]
+}
+
 export interface AiResponse {
   requestId: string
   mode: AiInteractionMode
   content: string
+  markdown?: string
+  editSummary?: AiEditSummary
   documentId: string
   baseMarkdown: string
 }

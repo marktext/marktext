@@ -48,10 +48,16 @@
       >
         {{ labels.edit }}
       </button>
+      <button
+        :class="{ active: ai.mode === 'rewrite' }"
+        @click="ai.setMode('rewrite')"
+      >
+        {{ labels.rewrite }}
+      </button>
     </div>
 
     <p class="ai-mode-help">
-      {{ ai.mode === 'answer' ? labels.answerHelp : labels.editHelp }}
+      {{ modeHelp }}
     </p>
 
     <div class="ai-messages">
@@ -70,7 +76,13 @@
         <div class="ai-message-role">
           {{ message.role === 'user' ? labels.you : labels.ai }}
         </div>
-        <pre>{{ message.content }}</pre>
+        <pre v-if="message.content">{{ message.content }}</pre>
+        <div
+          v-else-if="message.editSummary || message.mode === 'rewrite'"
+          class="ai-edit-summary"
+        >
+          {{ editSummaryLabel(message) }}
+        </div>
       </article>
     </div>
 
@@ -149,6 +161,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAiStore } from '@/store/ai'
 import { getCurrentLanguage } from '@/i18n'
+import type { AiChatMessage } from '@shared/types/ai'
 
 const ai = useAiStore()
 const { currentDocumentId } = storeToRefs(ai)
@@ -166,7 +179,9 @@ const labels = computed(() => chinese.value
       answer: '回答',
       edit: '修改文档',
       answerHelp: '回答模式只提供建议，不会修改当前文档。',
-      editHelp: '修改模式会自动应用完整 Markdown，可用 AI 撤销恢复。',
+      editHelp: '精确修改只应用模型指出的局部内容，可用 AI 撤销恢复。',
+      rewrite: '全文重写',
+      rewriteHelp: '全文重写会替换整篇 Markdown，请确认后再使用。',
       empty: '在这里开始与当前文档对话。',
       you: '你',
       ai: 'AI',
@@ -178,7 +193,10 @@ const labels = computed(() => chinese.value
       send: '发送',
       clear: '清空对话',
       undo: '撤销 AI 修改',
-      unconfigured: '未配置连接'
+      unconfigured: '未配置连接',
+      editApplied: (count: number, added: number, removed: number) => `已应用 ${count} 处修改（新增 ${added} 行，删除 ${removed} 行）`,
+      noChanges: '文档无需修改',
+      rewriteApplied: '已重写全文'
     }
   : {
       title: 'AI Editor',
@@ -187,7 +205,9 @@ const labels = computed(() => chinese.value
       answer: 'Answer',
       edit: 'Edit document',
       answerHelp: 'Answer mode provides suggestions only and never changes the document.',
-      editHelp: 'Edit mode automatically applies complete Markdown and supports AI undo.',
+      editHelp: 'Precise edit applies only the requested local changes and supports AI undo.',
+      rewrite: 'Rewrite document',
+      rewriteHelp: 'Rewrite replaces the complete Markdown document. Use it intentionally.',
       empty: 'Start a conversation about the current document.',
       you: 'You',
       ai: 'AI',
@@ -199,10 +219,30 @@ const labels = computed(() => chinese.value
       send: 'Send',
       clear: 'Clear chat',
       undo: 'Undo AI edit',
-      unconfigured: 'Connection not configured'
+      unconfigured: 'Connection not configured',
+      editApplied: (count: number, added: number, removed: number) => `Applied ${count} edit${count === 1 ? '' : 's'} (+${added}/-${removed} lines)`,
+      noChanges: 'No document changes were needed.',
+      rewriteApplied: 'The document was rewritten.'
     })
-const modeLabel = computed(() => ai.mode === 'answer' ? labels.value.answer : labels.value.edit)
+const modeLabel = computed(() => {
+  if (ai.mode === 'rewrite') return labels.value.rewrite
+  return ai.mode === 'answer' ? labels.value.answer : labels.value.edit
+})
+const modeHelp = computed(() => {
+  if (ai.mode === 'rewrite') return labels.value.rewriteHelp
+  return ai.mode === 'answer' ? labels.value.answerHelp : labels.value.editHelp
+})
 const hasDocument = computed(() => !!currentDocumentId.value)
+
+const editSummaryLabel = (message: AiChatMessage): string => {
+  if (message.mode === 'rewrite') return labels.value.rewriteApplied
+  if (!message.editSummary || message.editSummary.operationCount === 0) return labels.value.noChanges
+  return labels.value.editApplied(
+    message.editSummary.operationCount,
+    message.editSummary.addedLines,
+    message.editSummary.removedLines
+  )
+}
 
 const send = (): void => {
   const value = draft.value.trim()
@@ -296,6 +336,7 @@ onUnmounted(() => {
 .ai-message { margin: 10px 0; padding: 9px 10px; border-radius: 7px; background: var(--editorBgColor); }
 .ai-message.user { background: var(--floatHoverColor); }
 .ai-message-role { margin-bottom: 5px; color: var(--editorColor60); font-size: 11px; font-weight: 600; }
+.ai-edit-summary { color: var(--editorColor80); font-size: 13px; line-height: 1.4; }
 .ai-message pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.45; }
 .ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }
 .ai-working { display: flex; align-items: center; gap: 7px; margin: 0 12px 8px; padding: 7px 8px; color: var(--editorColor60); background: var(--floatHoverColor); border-radius: 5px; font-size: 12px; }

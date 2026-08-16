@@ -5,6 +5,7 @@ import { useEditorStore } from './editor'
 import type {
   AiChatMessage,
   AiConnectionSettings,
+  AiEditSummary,
   AiInteractionMode,
   AiPreparedRevision,
   AiResponse
@@ -38,7 +39,16 @@ const toIpcChatMessage = (message: AiChatMessage): AiChatMessage => ({
   role: message.role,
   mode: message.mode,
   content: message.content,
-  createdAt: message.createdAt
+  createdAt: message.createdAt,
+  revisionId: message.revisionId,
+  editSummary: message.editSummary
+    ? {
+      operationCount: message.editSummary.operationCount,
+      addedLines: message.editSummary.addedLines,
+      removedLines: message.editSummary.removedLines,
+      operations: message.editSummary.operations.map(operation => ({ ...operation }))
+    }
+    : undefined
 })
 
 const toIpcChatMessages = (items: readonly AiChatMessage[]): AiChatMessage[] =>
@@ -123,13 +133,19 @@ export const useAiStore = defineStore('ai', () => {
     }
   }
 
-  const appendMessage = (role: 'user' | 'assistant', content: string, messageMode: AiInteractionMode): void => {
+  const appendMessage = (
+    role: 'user' | 'assistant',
+    content: string,
+    messageMode: AiInteractionMode,
+    options: { revisionId?: string; editSummary?: AiEditSummary } = {}
+  ): void => {
     messages.value.push({
       id: createId(),
       role,
       mode: messageMode,
       content,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      ...options
     })
     messages.value = messages.value.slice(-10)
   }
@@ -158,12 +174,12 @@ export const useAiStore = defineStore('ai', () => {
         messages: toIpcChatMessages(messages.value.slice(0, -1))
       })
       if (requestId !== activeRequestId.value || documentId !== currentDocumentId.value) return
-      appendMessage('assistant', response.content, requestMode)
-      lastAnswer.value = response.content
-      if (requestMode === 'edit') {
-        await applyEdit(response, file.id, baseMarkdown)
-      } else {
+      if (requestMode === 'answer') {
+        appendMessage('assistant', response.content, requestMode)
+        lastAnswer.value = response.content
         await saveChat()
+      } else if (response.markdown !== undefined) {
+        await applyEdit(response, file.id, baseMarkdown)
       }
     } catch (err) {
       if (requestId === activeRequestId.value) {
@@ -180,20 +196,27 @@ export const useAiStore = defineStore('ai', () => {
   const applyEdit = async(response: AiResponse, tabId: string, beforeMarkdown: string): Promise<void> => {
     editorStore.flushActiveEditor()
     const currentFile = editorStore.currentFile
+    const nextMarkdown = response.markdown
     if (
       response.baseMarkdown !== beforeMarkdown ||
       response.documentId !== currentDocumentId.value ||
       currentFile?.id !== tabId ||
-      currentFile.markdown !== beforeMarkdown
+      currentFile.markdown !== beforeMarkdown ||
+      nextMarkdown === undefined
     ) {
       error.value = 'The document changed while the AI was working. The edit was discarded.'
+      return
+    }
+    if (nextMarkdown === beforeMarkdown) {
+      appendMessage('assistant', '', response.mode, { editSummary: response.editSummary })
+      await saveChat()
       return
     }
     const revision = await window.electron.ipcRenderer.invoke('mt::ai::revision-prepare', {
       documentId: response.documentId,
       beforeMarkdown,
-      afterMarkdown: response.content,
-      mode: 'edit'
+      afterMarkdown: nextMarkdown,
+      mode: response.mode
     })
     pendingRevision.value = revision
     await new Promise<void>((resolve) => {
@@ -201,11 +224,12 @@ export const useAiStore = defineStore('ai', () => {
         tabId,
         mode: 'edit',
         beforeMarkdown,
-        markdown: response.content,
+        markdown: nextMarkdown,
         onApplied: (success, markdown) => {
           const finishApply = async(): Promise<void> => {
             if (!success || !markdown || !pendingRevision.value) {
               error.value = 'The AI edit could not be applied because the document changed.'
+              pendingRevision.value = null
               resolve()
               return
             }
@@ -216,6 +240,10 @@ export const useAiStore = defineStore('ai', () => {
                 response.documentId,
                 markdown
               )
+              appendMessage('assistant', '', response.mode, {
+                revisionId: pendingRevision.value.revisionId,
+                editSummary: response.editSummary
+              })
               await saveChat()
             } catch (err) {
               error.value = err instanceof Error ? err.message : String(err)
