@@ -582,7 +582,7 @@
       },
       "uploader": {
         "title": "Téléchargeur d'images",
-        "currentUploader": "Current Uploader: {name}",
+        "currentUploader": "Téléverseur actuel : {name}",
         "picgoNotInstalled": "PicGo non installé",
         "picgoInstalled": "PicGo installé",
         "picgoDetectionFailed": "Échec de la détection PicGo",
@@ -702,7 +702,7 @@
       "online": "En ligne",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
-      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
+      "shortcutInUseMessage": "Ce raccourci est déjà assigné à {accelerator}",
       "table": {
         "description": "Description",
         "edit": "Modifier",
@@ -884,7 +884,7 @@
     "close": "Fermer",
     "dontSave": "Ne pas enregistrer",
     "file": "Fichier",
-    "fileExists": "File exists {filename}",
+    "fileExists": "Le fichier existe déjà : {filename}",
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
     "installPandoc": "Installer Pandoc",
@@ -901,12 +901,12 @@
   "error": {
     "configSchemaViolation": "Violation du schéma de configuration",
     "copyError": "Erreur de copie",
-    "initializationFailed": "Initialization failed {hint}",
+    "initializationFailed": "Échec de l'initialisation {hint}",
     "otherInstanceDetected": "Une autre instance de MarkText détectée en cours d'exécution",
     "report": "Signaler",
     "startupError": "Erreur de démarrage",
     "terminatedDueToError": "Terminé en raison d'une erreur",
-    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
+    "unexpectedErrorWithMessage": "Erreur inattendue : {message}",
     "unexpectedMainProcess": "Erreur inattendue du processus principal",
     "unexpectedRendererProcess": "Erreur inattendue du processus de rendu"
   },
@@ -918,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "Lien d'ancrage copié",
       "tabNotFound": "Onglet introuvable",
-      "tocItemNotFound": "Table of contents {key} not found",
+      "tocItemNotFound": "Élément de la table des matières {key} introuvable",
       "errorLoadingTabTitle": "Erreur lors du chargement de l’onglet",
       "errorLoadingTabMessage": "Une erreur s’est produite lors du chargement de la modification du fichier car l’onglet est introuvable.",
       "mixedLineEndingsNormalized": "« {name} » contient des fins de ligne mixtes qui ont été automatiquement normalisées en {lineEnding}.",
@@ -938,8 +938,8 @@
   "editor": {
     "export": {
       "error": "Erreur d'exportation",
-      "errorExporting": "Error exporting {type} file",
-      "failed": "{type} export failed"
+      "errorExporting": "Erreur lors de l'exportation du fichier {type}",
+      "failed": "Échec de l'exportation {type}"
     },
     "insertTable": {
       "title": "Insérer un tableau",
@@ -950,7 +950,7 @@
       "notificationNotFound": "Notification introuvable"
     },
     "print": {
-      "error": "Print error for \"{title}\"",
+      "error": "Erreur d'impression pour \"{title}\"",
       "failed": "Échec de l'impression"
     },
     "sourceCode": {
@@ -959,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "Erreur de désactivation de la vérification orthographique",
-      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
-      "languageMissing": "Spellcheck language missing {languageCode}",
-      "switchError": "Spellcheck switch error for {languageCode}, {error}",
+      "errorSwitchingLanguage": "Erreur lors du changement de langue du correcteur {languageCode}",
+      "languageMissing": "Langue du correcteur manquante {languageCode}",
+      "switchError": "Erreur de changement du correcteur pour {languageCode}, {error}",
       "title": "Vérification orthographique"
     }
   }

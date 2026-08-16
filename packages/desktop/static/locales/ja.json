@@ -582,7 +582,7 @@
       },
       "uploader": {
         "title": "画像アップローダー",
-        "currentUploader": "Current Uploader: {name}",
+        "currentUploader": "現在のアップローダー: {name}",
         "picgoNotInstalled": "PicGoがインストールされていません",
         "picgoInstalled": "PicGoがインストールされています",
         "picgoDetectionFailed": "PicGo検出に失敗しました",
@@ -702,7 +702,7 @@
       "online": "オンライン",
       "saveError": "キーバインドの保存エラー",
       "shortcutInUse": "ショートカットが使用中",
-      "shortcutInUseMessage": "This shortcut is already assigned to {accelerator}",
+      "shortcutInUseMessage": "このショートカットは既に {accelerator} に割り当てられています",
       "table": {
         "description": "説明",
         "edit": "編集",
@@ -884,7 +884,7 @@
     "close": "閉じる",
     "dontSave": "保存しない",
     "file": "ファイル",
-    "fileExists": "File exists {filename}",
+    "fileExists": "ファイルが既に存在します: {filename}",
     "files": "ファイル",
     "importWarning": "インポート警告",
     "installPandoc": "Pandocをインストール",
@@ -901,12 +901,12 @@
   "error": {
     "configSchemaViolation": "設定スキーマ違反",
     "copyError": "コピーエラー",
-    "initializationFailed": "Initialization failed {hint}",
+    "initializationFailed": "初期化に失敗しました {hint}",
     "otherInstanceDetected": "MarkTextの別のインスタンスが既に実行中です",
     "report": "報告",
     "startupError": "起動エラー",
     "terminatedDueToError": "エラーにより終了",
-    "unexpectedErrorWithMessage": "Unexpected error with message {message}",
+    "unexpectedErrorWithMessage": "予期しないエラー: {message}",
     "unexpectedMainProcess": "予期しないメインプロセスエラー",
     "unexpectedRendererProcess": "予期しないレンダラープロセスエラー"
   },
@@ -918,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "アンカーリンクがコピーされました",
       "tabNotFound": "タブが見つかりません",
-      "tocItemNotFound": "Table of contents {key} not found",
+      "tocItemNotFound": "目次項目 {key} が見つかりません",
       "errorLoadingTabTitle": "タブの読み込みエラー",
       "errorLoadingTabMessage": "ファイル変更の読み込み中にエラーが発生しました。タブが見つかりません。",
       "mixedLineEndingsNormalized": "「{name}」には混在した改行コードが含まれており、{lineEnding} に自動正規化されました。",
@@ -938,8 +938,8 @@
   "editor": {
     "export": {
       "error": "エクスポートエラー",
-      "errorExporting": "Error exporting {type} file",
-      "failed": "{type} export failed"
+      "errorExporting": "{type} ファイルのエクスポートエラー",
+      "failed": "{type} エクスポートに失敗しました"
     },
     "insertTable": {
       "title": "表を挿入",
@@ -950,7 +950,7 @@
       "notificationNotFound": "通知が見つかりません"
     },
     "print": {
-      "error": "Print error for \"{title}\"",
+      "error": "\"{title}\" の印刷エラー",
       "failed": "印刷に失敗しました"
     },
     "sourceCode": {
@@ -959,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "スペルチェックの無効化エラー",
-      "errorSwitchingLanguage": "Error switching spellcheck language {languageCode}",
-      "languageMissing": "Spellcheck language missing {languageCode}",
-      "switchError": "Spellcheck switch error for {languageCode}, {error}",
+      "errorSwitchingLanguage": "スペルチェック言語の切り替えエラー {languageCode}",
+      "languageMissing": "スペルチェック言語が見つかりません {languageCode}",
+      "switchError": "{languageCode} のスペルチェック切り替えエラー、{error}",
       "title": "スペルチェック"
     }
   }

@@ -37,7 +37,7 @@ const nonEnLocales: Array<[string, typeof en]> = [
 const TECHNICAL_TERMS: Record<string, string> = {
     'Front Matter': 'Front Matter',
     'Mermaid': 'Mermaid',
-    'Plantuml': 'Plantuml', // key is misspelled upstream; correct: PlantUML
+    'Plantuml': 'PlantUML', // key is misspelled upstream; display value uses correct casing
 };
 
 const LATIN_SCRIPT_LOCALES = ['de', 'es', 'fr', 'nl', 'pt'];
