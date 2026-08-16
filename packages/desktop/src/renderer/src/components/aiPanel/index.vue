@@ -76,7 +76,12 @@
         <div class="ai-message-role">
           {{ message.role === 'user' ? labels.you : labels.ai }}
         </div>
-        <pre v-if="message.content">{{ message.content }}</pre>
+        <div
+          v-if="message.content"
+          class="ai-message-content"
+        >
+          {{ message.content }}
+        </div>
         <div
           v-if="message.editSummary || message.mode === 'rewrite'"
           class="ai-edit-summary"
@@ -301,8 +306,8 @@ onUnmounted(() => {
   flex-direction: column;
   height: 100vh;
   box-sizing: border-box;
-  border-left: 1px solid var(--floatBorderColor);
-  background: var(--floatBgColor);
+  border-left: 1px solid var(--itemBgColor);
+  background: var(--sideBarBgColor);
   color: var(--editorColor);
   z-index: 8;
 }
@@ -320,37 +325,43 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
 }
-.ai-header { padding: 16px; border-bottom: 1px solid var(--floatBorderColor); }
+.ai-header { padding: 16px; border-bottom: 1px solid var(--itemBgColor); color: var(--sideBarTitleColor); }
 .ai-subtitle { display: block; margin-top: 3px; color: var(--editorColor60); font-size: 12px; }
 .ai-header-actions { display: flex; gap: 4px; }
 .icon-button, .link-button, .primary-button, .secondary-button, .ai-mode-switch button {
   border: 0; cursor: pointer; font: inherit;
 }
-.icon-button { width: 28px; height: 28px; background: transparent; color: var(--editorColor); font-size: 18px; }
+.icon-button { width: 28px; height: 28px; background: transparent; color: var(--sideBarIconColor); font-size: 18px; }
+.icon-button:hover:not(:disabled), .link-button:hover:not(:disabled) { color: var(--themeColor); }
 .ai-mode-switch { display: flex; gap: 4px; padding: 12px 12px 0; }
-.ai-mode-switch button { flex: 1; padding: 8px; border-radius: 5px; color: var(--editorColor80); background: var(--sideBarItemHoverBgColor); }
-.ai-mode-switch button.active { color: var(--highlightThemeColor); background: var(--floatHoverColor); font-weight: 600; }
+.ai-mode-switch button { flex: 1; padding: 8px; border: 1px solid transparent; border-radius: 5px; color: var(--sideBarColor); background: transparent; }
+.ai-mode-switch button:hover:not(:disabled) { background: var(--sideBarItemHoverBgColor); }
+.ai-mode-switch button.active { border-color: var(--themeColor); color: var(--themeColor); background: var(--buttonBgColorActive); font-weight: 600; }
 .ai-mode-help { margin: 8px 14px; color: var(--editorColor60); font-size: 12px; line-height: 1.4; }
 .ai-messages { flex: 1; overflow: auto; padding: 0 12px 12px; }
 .ai-empty { padding: 30px 8px; color: var(--editorColor60); text-align: center; font-size: 13px; }
-.ai-message { margin: 10px 0; padding: 9px 10px; border-radius: 7px; background: var(--editorBgColor); }
-.ai-message.user { background: var(--floatHoverColor); }
+.ai-message { margin: 10px 0; padding: 9px 0; border-bottom: 1px solid var(--editorColor10); }
+.ai-message.user { padding-left: 9px; border-left: 2px solid var(--themeColor); }
 .ai-message-role { margin-bottom: 5px; color: var(--editorColor60); font-size: 11px; font-weight: 600; }
 .ai-edit-summary { color: var(--editorColor80); font-size: 13px; line-height: 1.4; }
-.ai-message pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.45; }
+.ai-message-content { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.45; }
 .ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }
 .ai-working { display: flex; align-items: center; gap: 7px; margin: 0 12px 8px; padding: 7px 8px; color: var(--editorColor60); background: var(--floatHoverColor); border-radius: 5px; font-size: 12px; }
-.ai-spinner { width: 12px; height: 12px; box-sizing: border-box; border: 2px solid var(--editorColor30); border-top-color: var(--highlightThemeColor); border-radius: 50%; animation: ai-spinner-rotation .8s linear infinite; }
+.ai-spinner { width: 12px; height: 12px; box-sizing: border-box; border: 2px solid var(--editorColor30); border-top-color: var(--themeColor); border-radius: 50%; animation: ai-spinner-rotation .8s linear infinite; }
 @keyframes ai-spinner-rotation { to { transform: rotate(360deg); } }
-.ai-composer { padding: 10px 12px; border-top: 1px solid var(--floatBorderColor); }
-.ai-composer textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; padding: 9px; border: 1px solid var(--floatBorderColor); border-radius: 5px; background: var(--editorBgColor); color: var(--editorColor); font: inherit; }
+.ai-composer { padding: 10px 12px; border-top: 1px solid var(--itemBgColor); }
+.ai-composer textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; padding: 9px; border: 1px solid var(--editorColor30); border-radius: 5px; background: var(--inputBgColor); color: var(--editorColor); font: inherit; }
+.ai-composer textarea:focus { outline: none; border-color: var(--themeColor); }
 .ai-composer-actions { margin-top: 7px; gap: 8px; }
 .ai-hint { flex: 1; color: var(--editorColor50); font-size: 11px; }
 .primary-button, .secondary-button { padding: 6px 10px; border-radius: 4px; }
-.primary-button { color: #fff; background: var(--highlightThemeColor); }
-.secondary-button { color: var(--editorColor); background: var(--floatHoverColor); }
+.primary-button { color: var(--buttonPrimaryFontColor); background: var(--buttonPrimaryBgColor); }
+.primary-button:hover:not(:disabled) { background: var(--buttonPrimaryBgColorHover); }
+.secondary-button { border: var(--buttonBorder); color: var(--buttonFontColor); background: var(--buttonBgColor); }
+.secondary-button:hover:not(:disabled) { background: var(--buttonBgColorHover); }
 button:disabled { cursor: default; opacity: .45; }
-.ai-footer { padding: 8px 12px 12px; gap: 10px; border-top: 1px solid var(--floatBorderColor); }
-.link-button { padding: 0; color: var(--highlightThemeColor); background: transparent; font-size: 12px; }
+.ai-footer { padding: 8px 12px 12px; gap: 10px; border-top: 1px solid var(--itemBgColor); }
+.link-button { padding: 0; color: var(--themeColor); background: transparent; font-size: 12px; }
 .ai-unconfigured { margin-left: auto; color: var(--editorColor50); font-size: 11px; }
+button:focus-visible, textarea:focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
 </style>
