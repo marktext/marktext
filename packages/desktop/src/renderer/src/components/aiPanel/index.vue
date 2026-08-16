@@ -89,14 +89,33 @@
           <div
             v-for="attachment in message.attachments"
             :key="attachment.id"
-            class="ai-image-preview"
+            class="ai-attachment-chip"
+            :title="attachment.name"
           >
-            <img
-              v-if="attachmentUrl(attachment)"
-              :src="attachmentUrl(attachment)"
-              :alt="attachment.name"
+            <span
+              class="ai-attachment-icon"
+              aria-hidden="true"
             >
-            <span>{{ attachment.name }}</span>
+              <svg
+                viewBox="0 0 16 16"
+                focusable="false"
+              >
+                <rect
+                  x="1.5"
+                  y="2"
+                  width="13"
+                  height="12"
+                  rx="1.5"
+                />
+                <circle
+                  cx="5"
+                  cy="5.5"
+                  r="1.25"
+                />
+                <path d="m3 12 3.2-3.2 2.3 2.1 1.6-1.6L13 12" />
+              </svg>
+            </span>
+            <span class="ai-attachment-name">{{ attachment.name }}</span>
           </div>
         </div>
         <div
@@ -183,12 +202,32 @@
           v-for="pending in ai.pendingAttachments"
           :key="pending.attachment.id"
           class="ai-pending-attachment"
+          :title="pending.attachment.name"
         >
-          <img
-            :src="pending.previewUrl"
-            :alt="pending.attachment.name"
+          <span
+            class="ai-attachment-icon"
+            aria-hidden="true"
           >
-          <span>{{ pending.attachment.name }}</span>
+            <svg
+              viewBox="0 0 16 16"
+              focusable="false"
+            >
+              <rect
+                x="1.5"
+                y="2"
+                width="13"
+                height="12"
+                rx="1.5"
+              />
+              <circle
+                cx="5"
+                cy="5.5"
+                r="1.25"
+              />
+              <path d="m3 12 3.2-3.2 2.3 2.1 1.6-1.6L13 12" />
+            </svg>
+          </span>
+          <span class="ai-attachment-name">{{ pending.attachment.name }}</span>
           <button
             type="button"
             :title="labels.removeAttachment"
@@ -259,14 +298,13 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAiStore } from '@/store/ai'
 import { getCurrentLanguage } from '@/i18n'
-import type { AiChatMessage, AiImageAttachment } from '@shared/types/ai'
+import type { AiChatMessage } from '@shared/types/ai'
 
 const ai = useAiStore()
 const { currentDocumentId } = storeToRefs(ai)
 const draft = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
 const dragOver = ref(false)
-const loadingPreviewIds = new Set<string>()
 const resizing = ref(false)
 const resizeStartX = ref(0)
 const resizeStartWidth = ref(380)
@@ -369,15 +407,6 @@ const recoveryPreview = computed(() => {
   if (!proposal) return ''
   return makeUnifiedDiff(proposal.beforeMarkdown, proposal.response.markdown ?? '')
 })
-
-const attachmentUrl = (attachment: AiImageAttachment): string => {
-  const url = ai.attachmentPreviewUrls[attachment.id] ?? ''
-  if (!url && !loadingPreviewIds.has(attachment.id)) {
-    loadingPreviewIds.add(attachment.id)
-    ai.loadAttachmentPreview(attachment).finally(() => loadingPreviewIds.delete(attachment.id))
-  }
-  return url
-}
 
 const editSummaryLabel = (message: AiChatMessage): string => {
   if (message.mode === 'rewrite') return labels.value.rewriteApplied
@@ -494,7 +523,6 @@ onMounted(() => {
 watch(currentDocumentId, (value) => {
   ai.discardPendingRecovery()
   ai.clearPendingAttachments()
-  ai.releaseAllAttachmentPreviews()
   if (value) ai.loadChat(value).catch(() => undefined)
 })
 
@@ -502,7 +530,6 @@ onUnmounted(() => {
   window.electron.ipcRenderer.removeAllListeners('mt::ai-toggle-panel')
   window.electron.ipcRenderer.removeAllListeners('mt::ai-settings-changed')
   ai.clearPendingAttachments()
-  ai.releaseAllAttachmentPreviews()
   stopResize()
 })
 </script>
@@ -555,9 +582,11 @@ onUnmounted(() => {
 .ai-edit-summary { color: var(--editorColor80); font-size: 13px; line-height: 1.4; }
 .ai-message-content { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.45; }
 .ai-message-attachments, .ai-pending-attachments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
-.ai-image-preview, .ai-pending-attachment { display: flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 5px; border: 1px solid var(--editorColor20); border-radius: 4px; color: var(--editorColor70); font-size: 11px; overflow: hidden; }
-.ai-image-preview img, .ai-pending-attachment img { width: 48px; height: 48px; flex: 0 0 auto; object-fit: cover; border-radius: 3px; background: var(--editorColor10); }
-.ai-image-preview span, .ai-pending-attachment span { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-attachment-chip, .ai-pending-attachment { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box; padding: 4px 7px; border: 1px solid var(--editorColor20); border-radius: 5px; color: var(--editorColor70); background: var(--editorColor05, transparent); font-size: 11px; overflow: hidden; }
+.ai-attachment-name { min-width: 0; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-attachment-icon { display: inline-flex; flex: 0 0 auto; width: 15px; height: 15px; color: var(--themeColor); }
+.ai-attachment-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.35; }
+.ai-attachment-icon circle { fill: currentColor; stroke: none; }
 .ai-pending-attachment button { padding: 0 2px; border: 0; color: var(--editorColor60); background: transparent; cursor: pointer; font: inherit; }
 .ai-pending-attachment button:hover { color: var(--errorColor, #d33); }
   .ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }

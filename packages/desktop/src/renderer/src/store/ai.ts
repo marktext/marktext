@@ -35,7 +35,6 @@ export type AiAttachmentError = '' | 'unsupported' | 'too-large' | 'too-many' | 
 export interface PendingAiImage {
   attachment: AiImageAttachment
   data: Uint8Array
-  previewUrl: string
 }
 
 export interface PendingAiRecovery {
@@ -117,7 +116,6 @@ export const useAiStore = defineStore('ai', () => {
   const width = ref(Number(localStorage.getItem('ai-panel-width')) || 380)
   const messages = ref<AiChatMessage[]>([])
   const pendingAttachments = ref<PendingAiImage[]>([])
-  const attachmentPreviewUrls = ref<Record<string, string>>({})
   const attachmentError = ref<AiAttachmentError>('')
   const loading = ref(false)
   const error = ref('')
@@ -133,31 +131,8 @@ export const useAiStore = defineStore('ai', () => {
   let chatLoadSequence = 0
   let loadedChatDocumentId = ''
 
-  const setPreviewUrl = (id: string, url: string): void => {
-    attachmentPreviewUrls.value = { ...attachmentPreviewUrls.value, [id]: url }
-  }
-
-  const releasePreviewUrl = (id: string): void => {
-    const url = attachmentPreviewUrls.value[id]
-    if (url) URL.revokeObjectURL(url)
-    const next = { ...attachmentPreviewUrls.value }
-    delete next[id]
-    attachmentPreviewUrls.value = next
-  }
-
-  const releaseMessagePreviews = (items: readonly AiChatMessage[]): void => {
-    for (const message of items) {
-      for (const attachment of message.attachments ?? []) releasePreviewUrl(attachment.id)
-    }
-  }
-
   const clearPendingAttachments = (): void => {
-    for (const pending of pendingAttachments.value) releasePreviewUrl(pending.attachment.id)
     pendingAttachments.value = []
-  }
-
-  const releaseAllAttachmentPreviews = (): void => {
-    for (const id of Object.keys(attachmentPreviewUrls.value)) releasePreviewUrl(id)
   }
 
   const addImageFiles = async(files: readonly File[]): Promise<void> => {
@@ -189,9 +164,7 @@ export const useAiStore = defineStore('ai', () => {
           mimeType,
           byteSize: data.byteLength
         }
-        const previewUrl = URL.createObjectURL(file)
-        setPreviewUrl(attachment.id, previewUrl)
-        pendingAttachments.value.push({ attachment, data, previewUrl })
+        pendingAttachments.value.push({ attachment, data })
         totalBytes += data.byteLength
       } catch {
         rejected = rejected || 'read-failed'
@@ -201,28 +174,7 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   const removePendingAttachment = (id: string): void => {
-    pendingAttachments.value = pendingAttachments.value.filter(item => {
-      if (item.attachment.id !== id) return true
-      releasePreviewUrl(id)
-      return false
-    })
-  }
-
-  const loadAttachmentPreview = async(
-    attachment: AiImageAttachment,
-    documentId?: string
-  ): Promise<void> => {
-    const targetDocumentId = documentId ?? currentDocumentId.value
-    if (!targetDocumentId || attachmentPreviewUrls.value[attachment.id]) return
-    try {
-      const data = await window.electron.ipcRenderer.invoke('mt::ai::attachment-read', targetDocumentId, attachment.id)
-      const blobBytes = new Uint8Array(data.data.byteLength)
-      blobBytes.set(data.data)
-      const blob = new Blob([blobBytes.buffer as ArrayBuffer], { type: data.mimeType })
-      setPreviewUrl(attachment.id, URL.createObjectURL(blob))
-    } catch {
-      // A missing or expired preview does not invalidate the text conversation.
-    }
+    pendingAttachments.value = pendingAttachments.value.filter(item => item.attachment.id !== id)
   }
 
   const currentDocumentId = computed(() => {
@@ -322,7 +274,6 @@ export const useAiStore = defineStore('ai', () => {
     try {
       const loadedMessages: AiChatMessage[] = await window.electron.ipcRenderer.invoke('mt::ai::chat-load', documentId)
       if (loadSequence !== chatLoadSequence || documentId !== currentDocumentId.value) return
-      if (activeDocumentId.value !== documentId) releaseMessagePreviews(messages.value)
       messages.value = loadedMessages
       loadedChatDocumentId = documentId
     } catch (err) {
@@ -344,7 +295,6 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   const clearChat = async(): Promise<void> => {
-    releaseMessagePreviews(messages.value)
     clearPendingAttachments()
     messages.value = []
     lastAnswer.value = ''
@@ -361,7 +311,6 @@ export const useAiStore = defineStore('ai', () => {
     messageMode: AiInteractionMode,
     options: { revisionId?: string; editSummary?: AiEditSummary; attachments?: AiImageAttachment[] } = {}
   ): void => {
-    const previousMessages = messages.value
     messages.value.push({
       id: createId(),
       role,
@@ -371,14 +320,6 @@ export const useAiStore = defineStore('ai', () => {
       ...options
     })
     const retainedMessages = messages.value.slice(-10)
-    const retainedAttachmentIds = new Set(
-      retainedMessages.flatMap(message => (message.attachments ?? []).map(attachment => attachment.id))
-    )
-    for (const message of previousMessages) {
-      for (const attachment of message.attachments ?? []) {
-        if (!retainedAttachmentIds.has(attachment.id)) releasePreviewUrl(attachment.id)
-      }
-    }
     messages.value = retainedMessages
   }
 
@@ -592,7 +533,6 @@ export const useAiStore = defineStore('ai', () => {
     messages,
     pendingAttachments,
     pendingRecovery,
-    attachmentPreviewUrls,
     attachmentError,
     loading,
     error,
@@ -606,8 +546,6 @@ export const useAiStore = defineStore('ai', () => {
     addImageFiles,
     removePendingAttachment,
     clearPendingAttachments,
-    releaseAllAttachmentPreviews,
-    loadAttachmentPreview,
     navigateToChange,
     loadSettings,
     loadChat,
