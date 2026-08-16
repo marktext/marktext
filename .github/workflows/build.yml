@@ -7,6 +7,7 @@ on:
     # Skip the multi-platform installer build on muya-only PRs.
     paths-ignore:
       - 'packages/muya/**'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
