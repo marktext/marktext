@@ -253,16 +253,19 @@ export const useProjectStore = defineStore('project', () => {
           const ext = window.path.extname(cb.src)
           const base = window.path.basename(cb.src, ext)
           let suffix = 1
+          const MAX_COPIES = 99
           dest = dirname + PATH_SEPARATOR + base + ' (copy)' + ext
           while (await window.fileUtils.pathExists(dest)) {
             suffix++
-            if (suffix > 9) {
-              // Easter egg: recursive filename
-              const prevBase = window.path.basename(dest, ext)
-              dest = dirname + PATH_SEPARATOR + prevBase + ' (not sure you need another copy)' + ext
-            } else {
-              dest = dirname + PATH_SEPARATOR + base + ` (copy ${suffix})` + ext
+            if (suffix > MAX_COPIES) {
+              notice.notify({
+                title: 'Too many copies',
+                type: 'warning',
+                message: `Maximum of ${MAX_COPIES} copies reached. Please clean up first.`
+              })
+              return
             }
+            dest = dirname + PATH_SEPARATOR + base + ` (copy ${suffix})` + ext
           }
         }
 
