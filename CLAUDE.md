@@ -47,6 +47,30 @@ AI logs use `[ai-editor]` and `[ai-output-repair]`; they must not include API
 keys, image bytes/base64, attachment paths, or document content. Relevant
 tests are in `packages/desktop/test/unit/specs/ai-*.spec.ts`.
 
+### Runtime data paths
+
+Runtime state is rooted at `<userDataPath>`:
+
+- Production uses Electron's `app.getPath('userData')`.
+- Development uses `<appData>/marktext-dev` automatically.
+- `--user-data-dir <path>` overrides the root. A sibling `marktext-user-data`
+  directory is used for portable mode when present.
+
+AI-specific files under that root are:
+
+| Path | Contents |
+|---|---|
+| `ai-chat.json` | Per-document conversation history and attachment metadata |
+| `ai-attachments/` | Random-ID PNG/JPEG/WebP/GIF files sent to vision models |
+| `ai-connection.json` | Provider, endpoint, and model settings |
+| `ai-connection-key.json` | The locally stored API key; main-process only |
+| `ai-revisions.json` | Prepared/committed Markdown snapshots used for undo |
+
+Other common MarkText state includes `preferences.json`, `dataCenter.json`,
+`editorStates/`, `images/`, `screenshot/`, and `logs/<YYYY><M>/`. Chat,
+revision, attachment, and key files can contain sensitive data and must never
+be committed or copied into debug reports.
+
 ## Upstream MarkText baseline
 
 The following sections describe the inherited MarkText architecture and
