@@ -39,6 +39,9 @@ importers:
       neostandard:
         specifier: ^0.13.0
         version: 0.13.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3)
+      node-gyp:
+        specifier: 12.4.0
+        version: 12.4.0
       prettier:
         specifier: ^3.8.4
         version: 3.8.4
