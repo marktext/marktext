@@ -159,6 +159,10 @@ interface AiEditOperationSummary {
   endLine: number
   addedLines: number
   removedLines: number
+  afterStartLine?: number
+  afterEndLine?: number
+  afterStartOffset?: number
+  afterEndOffset?: number
 }
 
 interface AiEditSummary {
@@ -261,11 +265,21 @@ captured Markdown, applies them atomically in memory, and returns the resulting
 Markdown plus line-level statistics. A failed parse or match receives one
 structured correction request; the second failure leaves the document untouched.
 
+The parser accepts both the request-tokenized markers above and the plain
+Aider-compatible `<<<<<<< SEARCH`, `=======`, and `>>>>>>> REPLACE` marker lines.
+This compatibility path still requires exact unique SEARCH matches and the same
+atomic validation rules; it only tolerates providers that drop the request token
+from their response.
+
 The request token prevents a Markdown document containing ordinary conflict
 markers from confusing the parser. The implementation is an independent
 TypeScript implementation inspired by Aider's Apache-2.0 edit-block protocol
 and OpenCode's unique old/new text validation; no provider tool-calling is
 required.
+
+The Agent also returns the exact changed span in the resulting document. The
+renderer uses these ranges to provide navigation markers without exposing the
+raw edit protocol in chat.
 
 ## 4. Document mutation, safety, and history
 
@@ -283,9 +297,27 @@ Use the current Muya and editor-store paths discovered in this repository:
 Never write AI output directly to the Markdown file, mutate rendered DOM, or
 destroy/recreate Muya to apply a result.
 
+After a successful AI edit, the renderer tracks only that latest AI revision per
+tab. It shows yellow markers until the corresponding file save succeeds, then
+green markers until the next successful AI edit. Answer requests and
+no-op/failed edits do not replace the marker set. Ordinary editor changes shift
+the tracked ranges using the observed Markdown delta; undoing to the pre-edit
+snapshot hides them and redoing the AI snapshot shows them again.
+
+The source editor shows exact line markers in a CodeMirror gutter. WYSIWYG mode
+shows a narrow overview ruler at the editor edge; clicking either view moves to
+the changed source line using the existing Muya offset-cursor bridge. This is a
+renderer-only feature and does not add line mapping or decoration APIs to Muya,
+keeping upstream synchronization low-cost. Marker state is session-scoped and
+is not restored after an application restart.
+
 ### 4.2 Request concurrency
 
 Each request captures `requestId`, `documentId`, and exact `baseMarkdown`.
+The renderer captures the active tab identity after flushing the editor, loads
+chat history for that same document, and rechecks the tab and document identity
+before sending the request. The main-process Agent receives only that captured
+Markdown snapshot; it does not read other open tabs or the filesystem.
 Before applying an edit, verify all three conditions:
 
 1. the same document is still active and open;
@@ -407,6 +439,8 @@ Cover at least:
   submission;
 - Muya replacement producing one logical undo step;
 - source-code mode dirty state and save behavior;
+- precise AI marker ranges, save color transitions, range movement after user
+  edits, undo/redo visibility, tab isolation, and overview/gutter navigation;
 - settings/page mode behavior and i18n fallback.
 
 ### Manual and build validation
@@ -446,6 +480,8 @@ Stop when all of the following are true:
 - API keys never enter renderer state or logs;
 - precise edits are generated as local patches and applied through
   Muya/CodeMirror, not filesystem writes;
+- the latest AI edit is discoverable in large documents through yellow/green
+  renderer markers without modifying Muya's upstream-facing core;
 - every successful edit has persistent deterministic recovery;
 - chat history is visible and persists per document;
 - stale, cancelled, failed, or cross-document responses cannot mutate content;

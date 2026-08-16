@@ -1527,6 +1527,24 @@ const handleAiApply = (payload: unknown): void => {
   request.onApplied(true, appliedMarkdown)
 }
 
+const handleAiNavigate = (payload: unknown): void => {
+  const data = payload as { tabId?: string; line?: number } | undefined
+  if (
+    sourceCode.value ||
+    !editor.value ||
+    !data ||
+    data.tabId !== currentFile.value?.id ||
+    typeof data.line !== 'number'
+  ) return
+  const line = Math.max(0, Math.round(data.line) - 1)
+  if (editor.value.setCursorByOffset({
+    anchor: { line, ch: 0 },
+    focus: { line, ch: 0 }
+  })) {
+    scrollToCursor()
+  }
+}
+
 // listen for markdown change form source mode or change tabs etc
 const handleFileChange = (payload: unknown) => {
   const {
@@ -1865,6 +1883,7 @@ onMounted(() => {
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
   bus.on('ai-apply-markdown', handleAiApply)
+  bus.on('ai-navigate-to-line', handleAiNavigate)
   bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
@@ -2019,6 +2038,7 @@ onBeforeUnmount(() => {
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
   bus.off('ai-apply-markdown', handleAiApply)
+  bus.off('ai-navigate-to-line', handleAiNavigate)
   bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)

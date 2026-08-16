@@ -169,7 +169,19 @@ const normalizeMessages = (messages: unknown): AiChatMessage[] => {
             startLine: operation.startLine as number,
             endLine: operation.endLine as number,
             addedLines: operation.addedLines as number,
-            removedLines: operation.removedLines as number
+            removedLines: operation.removedLines as number,
+            afterStartLine: typeof operation.afterStartLine === 'number'
+              ? operation.afterStartLine as number
+              : operation.startLine as number,
+            afterEndLine: typeof operation.afterEndLine === 'number'
+              ? operation.afterEndLine as number
+              : operation.endLine as number,
+            afterStartOffset: typeof operation.afterStartOffset === 'number'
+              ? operation.afterStartOffset as number
+              : undefined,
+            afterEndOffset: typeof operation.afterEndOffset === 'number'
+              ? operation.afterEndOffset as number
+              : undefined
           }))
         }
         : undefined
@@ -434,9 +446,13 @@ class AiService {
       role,
       content: content || (mode === 'rewrite' ? 'The previous document rewrite was applied.' : 'The previous precise edit was applied.')
     }))
+    let documentKind = 'unknown'
+    if (request.documentId.startsWith('path:')) documentKind = 'path'
+    else if (request.documentId.startsWith('tab:')) documentKind = 'tab'
     featureLog(
-      'request input mode=%s markdownChars=%s contextMessages=%s requestId=%s',
+      'request input mode=%s documentKind=%s markdownChars=%s contextMessages=%s requestId=%s',
       request.mode,
+      documentKind,
       request.markdown.length,
       recentMessages.length,
       request.requestId
@@ -511,6 +527,22 @@ class AiService {
             agentRequest.signal
           )
           return { content: generated.content, truncated: generated.truncated }
+        },
+        onValidationFailure: diagnostic => {
+          featureLog(
+            'edit agent validation failure attempt=%s error=%s responseChars=%s responseLines=%s searchMarkers=%s legacySearchMarkers=%s dividerMarkers=%s legacyDividerMarkers=%s replaceMarkers=%s legacyReplaceMarkers=%s requestId=%s',
+            diagnostic.attempt,
+            diagnostic.error,
+            diagnostic.responseChars,
+            diagnostic.responseLines,
+            diagnostic.searchMarkers,
+            diagnostic.legacySearchMarkers,
+            diagnostic.dividerMarkers,
+            diagnostic.legacyDividerMarkers,
+            diagnostic.replaceMarkers,
+            diagnostic.legacyReplaceMarkers,
+            request.requestId
+          )
         }
       })
       featureLog(

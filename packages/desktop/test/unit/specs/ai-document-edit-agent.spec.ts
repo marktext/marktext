@@ -2,17 +2,24 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   documentEditAgentLimits,
   runDocumentEditAgent,
-  type DocumentEditGenerateRequest
+  type DocumentEditAgentRequest,
+  type DocumentEditGenerateRequest,
+  type DocumentEditValidationDiagnostic
 } from 'main_renderer/ai/documentEditAgent'
 
-const request = (markdown: string, generate: (input: DocumentEditGenerateRequest) => Promise<{ content: string; truncated?: boolean }>) =>
+const request = (
+  markdown: string,
+  generate: (input: DocumentEditGenerateRequest) => Promise<{ content: string; truncated?: boolean }>,
+  options: Pick<DocumentEditAgentRequest, 'onValidationFailure'> = {}
+) =>
   runDocumentEditAgent({
     markdown,
     instruction: 'Make the requested change.',
     contextMessages: [],
     requestId: 'test-request',
     signal: new AbortController().signal,
-    generate
+    generate,
+    ...options
   })
 
 const responseWith = (system: string, search: string, replace: string): string => {
@@ -40,7 +47,16 @@ describe('document edit agent', () => {
       operationCount: 1,
       addedLines: 1,
       removedLines: 1,
-      operations: [{ startLine: 1, endLine: 1, addedLines: 1, removedLines: 1 }]
+      operations: [{
+        startLine: 1,
+        endLine: 1,
+        addedLines: 1,
+        removedLines: 1,
+        afterStartLine: 1,
+        afterEndLine: 1,
+        afterStartOffset: 2,
+        afterEndOffset: 5
+      }]
     })
     expect(result.attempts).toBe(1)
   })
@@ -56,6 +72,26 @@ describe('document edit agent', () => {
     expect(result.markdown).toBe('new\nold')
     expect(result.attempts).toBe(2)
     expect(generate).toHaveBeenCalledTimes(2)
+  })
+
+  it('accepts standard Aider-style divider and closing markers without the request token', async() => {
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
+      const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
+      if (!delimiter) throw new Error('The test prompt did not contain an edit delimiter.')
+      return {
+        content: [
+          '<<<<<<< SEARCH',
+          'old',
+          '=======',
+          'new',
+          '>>>>>>> REPLACE'
+        ].join('\n')
+      }
+    })
+
+    const result = await request('old', generate)
+    expect(result.markdown).toBe('new')
+    expect(result.attempts).toBe(1)
   })
 
   it('validates all blocks before applying multiple edits', async() => {
@@ -111,9 +147,24 @@ describe('document edit agent', () => {
     const generate = vi.fn(async(input: DocumentEditGenerateRequest) => ({
       content: `${responseWith(input.system, 'missing', 'new')}\nUnexpected explanation`
     }))
+    const diagnostics: DocumentEditValidationDiagnostic[] = []
 
-    await expect(request('existing', generate)).rejects.toThrow('after 2 attempts')
+    await expect(request('existing', generate, {
+      onValidationFailure: diagnostic => diagnostics.push(diagnostic)
+    })).rejects.toThrow('after 2 attempts')
     expect(generate).toHaveBeenCalledTimes(documentEditAgentLimits.maxAttempts)
+    expect(diagnostics).toHaveLength(documentEditAgentLimits.maxAttempts)
+    expect(diagnostics[0]).toMatchObject({
+      attempt: 1,
+      responseChars: expect.any(Number),
+      responseLines: 6,
+      searchMarkers: 1,
+      dividerMarkers: 1,
+      replaceMarkers: 1,
+      legacySearchMarkers: 0,
+      legacyDividerMarkers: 0,
+      legacyReplaceMarkers: 0
+    })
   })
 
   it('supports inserting into an empty document and no-op responses', async() => {

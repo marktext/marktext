@@ -623,6 +623,7 @@ export const useEditorStore = defineStore('editor', {
             }
           }
           tab.isSaved = true
+          bus.emit('ai-document-saved', tabId)
           debouncedSendBufferedState()
         }
       })
@@ -1424,6 +1425,9 @@ export const useEditorStore = defineStore('editor', {
 
       markdown = adjustTrailingNewlines(markdown, trimTrailingNewline)
       tab.markdown = markdown
+      if (markdown !== oldMarkdown) {
+        bus.emit('ai-document-content-changed', { id, oldMarkdown, markdown })
+      }
 
       if (oldMarkdown.length === 0 && markdown.length === 1 && markdown[0] === '\n') {
         debouncedSendBufferedState()

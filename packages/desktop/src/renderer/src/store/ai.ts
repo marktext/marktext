@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import log from 'electron-log'
 import bus from '../bus'
 import { useEditorStore } from './editor'
 import type {
@@ -10,6 +11,7 @@ import type {
   AiPreparedRevision,
   AiResponse
 } from '@shared/types/ai'
+import { AiChangeTracker, rangesFromSummary, fullDocumentRange, type AiChangeMarker } from './aiChangeTracker'
 
 export interface AiApplyPayload {
   tabId: string
@@ -29,6 +31,16 @@ const createId = (): string => {
 const normalizeDocumentId = (id: string, pathname: string): string => {
   if (pathname) return `path:${pathname}`
   return `tab:${id}`
+}
+
+const documentIdentityKind = (documentId: string): 'path' | 'tab' | 'unknown' => {
+  if (documentId.startsWith('path:')) return 'path'
+  if (documentId.startsWith('tab:')) return 'tab'
+  return 'unknown'
+}
+
+const featureLog = (message: string, ...args: unknown[]): void => {
+  log.info(`[ai-editor] ${message}`, ...args)
 }
 
 // Pinia wraps store values in Vue reactive proxies. Electron IPC uses the
@@ -72,10 +84,69 @@ export const useAiStore = defineStore('ai', () => {
   const pendingRevision = ref<AiPreparedRevision | null>(null)
   const activeRequestId = ref<string | null>(null)
   const activeDocumentId = ref('')
+  const changeTracker = new AiChangeTracker()
+  const changeVersion = ref(0)
+  const lastSavedSequence = new Map<string, number>()
+  let saveSequence = 0
+  let chatLoadSequence = 0
+  let loadedChatDocumentId = ''
 
   const currentDocumentId = computed(() => {
     const file = editorStore.currentFile
     return file ? normalizeDocumentId(file.id, file.pathname) : ''
+  })
+
+  const currentChangeMarker = computed<AiChangeMarker | undefined>(() => {
+    const version = changeVersion.value
+    const tabId = editorStore.currentFile?.id
+    return version >= 0 && tabId ? changeTracker.get(tabId) : undefined
+  })
+
+  const publishChangeMarker = (tabId: string): void => {
+    const marker = changeTracker.get(tabId)
+    bus.emit('ai-change-marker-updated', {
+      tabId,
+      marker: marker
+        ? {
+          revisionId: marker.revisionId,
+          status: marker.status,
+          visible: marker.visible,
+          ranges: marker.ranges.map(range => ({ ...range }))
+        }
+        : undefined
+    })
+  }
+
+  const refreshChangeMarker = (tabId?: string): void => {
+    changeVersion.value += 1
+    if (tabId) publishChangeMarker(tabId)
+  }
+
+  bus.on('ai-request-change-marker', (tabId) => {
+    if (typeof tabId === 'string') publishChangeMarker(tabId)
+  })
+
+  bus.on('ai-document-content-changed', (payload) => {
+    const data = payload as { id?: string; markdown?: string } | undefined
+    if (!data?.id || typeof data.markdown !== 'string') return
+    changeTracker.updateDocument(data.id, data.markdown)
+    refreshChangeMarker(data.id)
+  })
+  bus.on('ai-document-saved', (tabId) => {
+    if (typeof tabId !== 'string') return
+    saveSequence += 1
+    lastSavedSequence.set(tabId, saveSequence)
+    changeTracker.markSaved(tabId)
+    refreshChangeMarker(tabId)
+  })
+  bus.on('file-loaded', (payload) => {
+    const data = payload as { id?: string; markdown?: string } | undefined
+    if (!data?.id || typeof data.markdown !== 'string') return
+    const marker = changeTracker.get(data.id)
+    if (marker && data.markdown !== marker.currentMarkdown && data.markdown !== marker.beforeMarkdown && data.markdown !== marker.afterMarkdown) {
+      changeTracker.clear(data.id)
+      refreshChangeMarker(data.id)
+    }
   })
 
   const setVisible = (value: boolean): void => {
@@ -96,6 +167,12 @@ export const useAiStore = defineStore('ai', () => {
     localStorage.setItem('ai-panel-width', String(width.value))
   }
 
+  const navigateToChange = (line: number): void => {
+    const tabId = editorStore.currentFile?.id
+    if (!tabId || !Number.isFinite(line)) return
+    bus.emit('ai-navigate-to-line', { tabId, line: Math.max(1, Math.round(line)) })
+  }
+
   const loadSettings = async(): Promise<void> => {
     try {
       settings.value = await window.electron.ipcRenderer.invoke('mt::ai::get-settings')
@@ -105,13 +182,19 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   const loadChat = async(documentId: string = currentDocumentId.value): Promise<void> => {
-    if (!documentId || documentId === activeDocumentId.value) return
+    if (!documentId || (documentId === activeDocumentId.value && loadedChatDocumentId === documentId)) return
+    const loadSequence = ++chatLoadSequence
     activeDocumentId.value = documentId
     try {
-      messages.value = await window.electron.ipcRenderer.invoke('mt::ai::chat-load', documentId)
+      const loadedMessages: AiChatMessage[] = await window.electron.ipcRenderer.invoke('mt::ai::chat-load', documentId)
+      if (loadSequence !== chatLoadSequence || documentId !== currentDocumentId.value) return
+      messages.value = loadedMessages
+      loadedChatDocumentId = documentId
     } catch (err) {
+      if (loadSequence !== chatLoadSequence || documentId !== currentDocumentId.value) return
       error.value = err instanceof Error ? err.message : String(err)
       messages.value = []
+      loadedChatDocumentId = documentId
     }
   }
 
@@ -155,12 +238,32 @@ export const useAiStore = defineStore('ai', () => {
     const value = prompt.trim()
     if (!file || !value || loading.value) return
     editorStore.flushActiveEditor()
-    await loadChat()
-    const documentId = currentDocumentId.value
-    const baseMarkdown = editorStore.currentFile?.markdown ?? file.markdown
+    const requestTabId = file.id
+    const requestDocumentId = normalizeDocumentId(file.id, file.pathname)
     const requestId = createId()
+    await loadChat(requestDocumentId)
+    const requestFile = editorStore.currentFile
+    if (
+      !requestFile ||
+      requestFile.id !== requestTabId ||
+      normalizeDocumentId(requestFile.id, requestFile.pathname) !== requestDocumentId
+    ) {
+      featureLog('request skipped because active document changed requestId=%s', requestId)
+      await loadChat()
+      return
+    }
+    const documentId = requestDocumentId
+    const baseMarkdown = requestFile.markdown
     const requestMode = mode.value
     appendMessage('user', value, requestMode)
+    featureLog(
+      'request snapshot mode=%s documentKind=%s markdownChars=%s contextMessages=%s requestId=%s',
+      requestMode,
+      documentIdentityKind(documentId),
+      baseMarkdown.length,
+      messages.value.length - 1,
+      requestId
+    )
     error.value = ''
     loading.value = true
     activeRequestId.value = requestId
@@ -179,7 +282,7 @@ export const useAiStore = defineStore('ai', () => {
         lastAnswer.value = response.content
         await saveChat()
       } else if (response.markdown !== undefined) {
-        await applyEdit(response, file.id, baseMarkdown)
+        await applyEdit(response, requestTabId, baseMarkdown)
       }
     } catch (err) {
       if (requestId === activeRequestId.value) {
@@ -219,6 +322,7 @@ export const useAiStore = defineStore('ai', () => {
       mode: response.mode
     })
     pendingRevision.value = revision
+    const applySaveSequence = saveSequence
     await new Promise<void>((resolve) => {
       const payload: AiApplyPayload = {
         tabId,
@@ -240,6 +344,20 @@ export const useAiStore = defineStore('ai', () => {
                 response.documentId,
                 markdown
               )
+              const ranges = response.mode === 'rewrite'
+                ? fullDocumentRange(markdown)
+                : rangesFromSummary(markdown, response.editSummary)
+              changeTracker.apply(
+                tabId,
+                pendingRevision.value.revisionId,
+                beforeMarkdown,
+                markdown,
+                ranges
+              )
+              if ((lastSavedSequence.get(tabId) ?? 0) > applySaveSequence) {
+                changeTracker.markSaved(tabId)
+              }
+              refreshChangeMarker(tabId)
               appendMessage('assistant', '', response.mode, {
                 revisionId: pendingRevision.value.revisionId,
                 editSummary: response.editSummary
@@ -290,6 +408,10 @@ export const useAiStore = defineStore('ai', () => {
       }
       bus.emit('ai-apply-markdown', payload)
     })
+    if (result) {
+      changeTracker.clear(file.id)
+      refreshChangeMarker(file.id)
+    }
   }
 
   return {
@@ -301,11 +423,13 @@ export const useAiStore = defineStore('ai', () => {
     loading,
     error,
     lastAnswer,
+    currentChangeMarker,
     currentDocumentId,
     setVisible,
     togglePanel,
     setMode,
     setWidth,
+    navigateToChange,
     loadSettings,
     loadChat,
     clearChat,

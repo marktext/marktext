@@ -39,6 +39,11 @@ export interface AiEditOperationSummary {
   endLine: number
   addedLines: number
   removedLines: number
+  /** The exact changed span in the resulting document, when available. */
+  afterStartLine?: number
+  afterEndLine?: number
+  afterStartOffset?: number
+  afterEndOffset?: number
 }
 
 export interface AiEditSummary {
