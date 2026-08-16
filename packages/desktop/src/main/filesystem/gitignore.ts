@@ -8,7 +8,12 @@ import ignore, { type Ignore } from 'ignore'
  * Returns `null` if no .gitignore exists.
  */
 export const loadGitignore = (rootPath: string): Ignore | null => {
-  const gitignorePath = path.join(rootPath, '.gitignore')
+  const resolvedRoot = path.resolve(rootPath)
+  const gitignorePath = path.resolve(resolvedRoot, '.gitignore')
+
+  // Guard against path traversal: ensure the resolved path stays within rootPath
+  if (!gitignorePath.startsWith(resolvedRoot)) return null
+
   try {
     const content = fs.readFileSync(gitignorePath, 'utf8')
     const ig = ignore()
