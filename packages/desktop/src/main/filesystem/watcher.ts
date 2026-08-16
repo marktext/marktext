@@ -4,6 +4,7 @@ import log from 'electron-log'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { exists } from 'common/filesystem'
 import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
+import { loadGitignore, isGitignored } from '../filesystem/gitignore'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux, isOsx } from '../config'
@@ -193,6 +194,9 @@ class Watcher {
 
     const id = getUniqueId()
 
+    // Load .gitignore rules if present at the watch root
+    const gitignoreFilter = loadGitignore(watchPath)
+
     const watcher = chokidar.watch(watchPath, {
       ignored: (pathname: string, fileInfo?: { isDirectory: () => boolean }) => {
         if (!fileInfo) {
@@ -208,6 +212,12 @@ class Watcher {
         ) {
           return true
         }
+
+        // Respect .gitignore patterns
+        if (isGitignored(gitignoreFilter, watchPath, pathname)) {
+          return true
+        }
+
         if (fileInfo.isDirectory()) {
           return false
         }

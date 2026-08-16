@@ -143,6 +143,9 @@ importers:
       html-tags:
         specifier: ^5.1.0
         version: 5.1.0
+      ignore:
+        specifier: 7.0.4
+        version: 7.0.4
       iso-639-1:
         specifier: ^3.1.5
         version: 3.1.5
@@ -6863,6 +6866,10 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
+    engines: {node: '>= 4'}
+
+  ignore@7.0.4:
+    resolution: {integrity: sha512-gJzzk+PQNznz8ysRrC0aOkBNVRBDtE1n53IqyqEf3PXrYwomFs5q4pGMizBMJF+ykh03insJ27hB8gSrD2Hn8A==}
     engines: {node: '>= 4'}
 
   ignore@7.0.5:
@@ -17825,6 +17832,8 @@ snapshots:
   ignore@4.0.6: {}
 
   ignore@5.3.2: {}
+
+  ignore@7.0.4: {}
 
   ignore@7.0.5: {}
 
