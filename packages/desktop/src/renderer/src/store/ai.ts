@@ -38,6 +38,12 @@ export interface PendingAiImage {
   previewUrl: string
 }
 
+export interface PendingAiRecovery {
+  response: AiResponse
+  tabId: string
+  beforeMarkdown: string
+}
+
 const createId = (): string => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID()
@@ -117,6 +123,7 @@ export const useAiStore = defineStore('ai', () => {
   const error = ref('')
   const lastAnswer = ref('')
   const pendingRevision = ref<AiPreparedRevision | null>(null)
+  const pendingRecovery = ref<PendingAiRecovery | null>(null)
   const activeRequestId = ref<string | null>(null)
   const activeDocumentId = ref('')
   const changeTracker = new AiChangeTracker()
@@ -342,6 +349,7 @@ export const useAiStore = defineStore('ai', () => {
     messages.value = []
     lastAnswer.value = ''
     attachmentError.value = ''
+    pendingRecovery.value = null
     if (activeDocumentId.value) {
       await window.electron.ipcRenderer.invoke('mt::ai::chat-clear', activeDocumentId.value)
     }
@@ -377,7 +385,7 @@ export const useAiStore = defineStore('ai', () => {
   const submit = async(prompt: string): Promise<void> => {
     const file = editorStore.currentFile
     const value = prompt.trim()
-    if (!file || !value || loading.value) return
+    if (!file || !value || loading.value || pendingRecovery.value) return
     editorStore.flushActiveEditor()
     const requestTabId = file.id
     const requestDocumentId = normalizeDocumentId(file.id, file.pathname)
@@ -429,7 +437,11 @@ export const useAiStore = defineStore('ai', () => {
         lastAnswer.value = response.content
         await saveChat()
       } else if (response.markdown !== undefined) {
-        await applyEdit(response, requestTabId, baseMarkdown)
+        if (response.recovery?.requiresConfirmation) {
+          pendingRecovery.value = { response, tabId: requestTabId, beforeMarkdown: baseMarkdown }
+        } else {
+          await applyEdit(response, requestTabId, baseMarkdown)
+        }
       }
     } catch (err) {
       if (requestId === activeRequestId.value) {
@@ -524,6 +536,17 @@ export const useAiStore = defineStore('ai', () => {
     })
   }
 
+  const acceptPendingRecovery = async(): Promise<void> => {
+    const proposal = pendingRecovery.value
+    if (!proposal || loading.value) return
+    pendingRecovery.value = null
+    await applyEdit(proposal.response, proposal.tabId, proposal.beforeMarkdown)
+  }
+
+  const discardPendingRecovery = (): void => {
+    pendingRecovery.value = null
+  }
+
   const stop = (): void => {
     if (!activeRequestId.value) return
     const requestId = activeRequestId.value
@@ -568,6 +591,7 @@ export const useAiStore = defineStore('ai', () => {
     width,
     messages,
     pendingAttachments,
+    pendingRecovery,
     attachmentPreviewUrls,
     attachmentError,
     loading,
@@ -589,6 +613,8 @@ export const useAiStore = defineStore('ai', () => {
     loadChat,
     clearChat,
     submit,
+    acceptPendingRecovery,
+    discardPendingRecovery,
     stop,
     undoAiEdit
   }

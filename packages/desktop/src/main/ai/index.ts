@@ -12,6 +12,7 @@ import type {
   AiImageAttachment,
   AiImageMimeType,
   AiProtocol,
+  AiRecoveryInfo,
   AiPreparedRevision,
   AiRequest,
   AiResponse,
@@ -22,10 +23,11 @@ import type {
 import { AI_MAX_IMAGE_BYTES, AI_MAX_IMAGE_COUNT, AI_MAX_IMAGE_TOTAL_BYTES } from '@shared/types/ai'
 import { runDocumentEditAgent } from './documentEditAgent'
 import { AiAttachmentStore, normalizeImageAttachment, normalizeImageUploads, orderAttachmentLocations } from './attachments'
-import { serializeProviderMessages, type ProviderImage, type ProviderMessage } from './providerMessages'
+import { preciseEditTool, serializeProviderMessages, type ProviderImage, type ProviderMessage, type ProviderToolCall, type ProviderToolDefinition } from './providerMessages'
 import {
   buildAnswerSystemPrompt,
   buildDocumentPrompt,
+  buildMarkdownFormatRepairPrompt,
   buildRewriteSystemPrompt,
   connectionTestSystemPrompt,
   connectionTestUserPrompt,
@@ -33,6 +35,7 @@ import {
   previousPreciseEditContextMessage,
   previousRewriteContextMessage
 } from './prompts'
+import { inspectMarkdown, normalizeGeneratedMarkdown } from './outputRepair'
 
 const DEFAULT_PROTOCOL = 'openai-chat-completions' as const
 const SETTINGS_FILE = 'ai-connection.json'
@@ -47,6 +50,28 @@ const ATTACHMENT_GRACE_MS = 24 * 60 * 60 * 1000
 interface ProviderResponse {
   content: string
   truncated: boolean
+  toolCalls?: ProviderToolCall[]
+}
+
+interface ProviderRequestOptions {
+  tool?: ProviderToolDefinition
+}
+
+interface RepairedMarkdownResult {
+  content: string
+  recovery: AiRecoveryInfo
+}
+
+class ProviderRequestError extends Error {
+  readonly status: number
+  readonly toolRequest: boolean
+
+  constructor(message: string, status: number, toolRequest: boolean) {
+    super(message)
+    this.name = 'ProviderRequestError'
+    this.status = status
+    this.toolRequest = toolRequest
+  }
 }
 
 const normalizeRevisionMarkdown = (value: string): string => value.replace(/[\r\n]+$/, '')
@@ -268,15 +293,6 @@ const isTruncatedResponse = (payload: unknown, protocol: AiProtocol): boolean =>
   return choices[0].finish_reason === 'length'
 }
 
-const assertRewriteOutput = (value: string): string => {
-  const content = value.trim()
-  if (!content) throw new Error('The model returned an empty document.')
-  if (/^```/.test(content) || /```$/.test(content)) {
-    throw new Error('The model returned a fenced document instead of Markdown.')
-  }
-  return content
-}
-
 class AiService {
   private readonly settingsPath: string
   private readonly keyPath: string
@@ -287,6 +303,7 @@ class AiService {
   private readonly pendingAttachmentDocuments = new Map<string, string>()
   private readonly attachmentMimeTypes = new Map<string, AiImageMimeType>()
   private readonly controllers = new Map<string, AbortController>()
+  private readonly toolCapabilities = new Map<string, boolean>()
 
   constructor(userDataPath: string) {
     this.settingsPath = path.join(userDataPath, SETTINGS_FILE)
@@ -351,7 +368,8 @@ class AiService {
     system: string,
     messages: ProviderMessage[],
     requestId: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options: ProviderRequestOptions = {}
   ): Promise<ProviderResponse> {
     if (!apiKey) throw new Error('Configure an API key in AI settings first.')
     if (!settings.endpoint || !settings.model) {
@@ -397,12 +415,20 @@ class AiService {
         headers['api-key'] = apiKey
         headers['anthropic-version'] = ANTHROPIC_VERSION
         body = { model: settings.model, max_tokens: 4096, system, messages: serializeProviderMessages(settings.protocol, messages) }
+        if (options.tool) {
+          body.tools = [{ name: options.tool.name, description: options.tool.description, input_schema: options.tool.parameters }]
+          body.tool_choice = { type: 'tool', name: options.tool.name }
+        }
       } else {
         headers.authorization = `Bearer ${apiKey}`
         // Some OpenAI-compatible gateways, including MiMo Token Plan, document
         // `api-key` instead of the standard Authorization header.
         headers['api-key'] = apiKey
         body = { model: settings.model, messages: [{ role: 'system', content: system }, ...serializeProviderMessages(settings.protocol, messages)] }
+        if (options.tool) {
+          body.tools = [{ type: 'function', function: { name: options.tool.name, description: options.tool.description, parameters: options.tool.parameters } }]
+          body.tool_choice = { type: 'function', function: { name: options.tool.name } }
+        }
       }
       const response = await fetch(requestEndpoint, {
         method: 'POST',
@@ -433,11 +459,12 @@ class AiService {
         const visionHint = messages.some(message => !!message.images?.length)
           ? ' The configured model or endpoint may not support image input.'
           : ''
-        throw new Error(`Provider returned HTTP ${response.status} from ${requestEndpoint}. ${providerMessage}${visionHint}`)
+        throw new ProviderRequestError(`Provider returned HTTP ${response.status} from ${requestEndpoint}. ${providerMessage}${visionHint}`, response.status, !!options.tool)
       }
       const content = extractText(payload)
-      if (!content) throw new Error('The provider returned no text content.')
-      return { content, truncated: isTruncatedResponse(payload, settings.protocol) }
+      const toolCalls = extractToolCalls(payload, settings.protocol)
+      if (!content && !toolCalls.length) throw new Error('The provider returned no text content.')
+      return { content, toolCalls, truncated: isTruncatedResponse(payload, settings.protocol) }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         if (timedOut) {
@@ -584,6 +611,71 @@ class AiService {
     }))
   }
 
+  private async repairMarkdownResponse(
+    settings: StoredSettings,
+    apiKey: string,
+    system: string,
+    messages: ProviderMessage[],
+    generated: ProviderResponse,
+    requestId: string,
+    signal: AbortSignal | undefined,
+    stripOuterFence: boolean,
+    strict: boolean
+  ): Promise<RepairedMarkdownResult> {
+    const normalized = normalizeGeneratedMarkdown(generated.content, { stripOuterFence })
+    if (!normalized.content.trim()) throw new Error('The model returned an empty document.')
+    const inspection = inspectMarkdown(normalized.content)
+    if (!inspection.issues.length) {
+      return {
+        content: normalized.content.trim(),
+        recovery: {
+          strategy: normalized.changes.length ? 'local-normalization' : 'direct',
+          attempts: 1,
+          changes: normalized.changes.length ? normalized.changes : undefined
+        }
+      }
+    }
+    const failure = inspection.issues.map(issue => issue.message).join(' ')
+    try {
+      const repaired = await this.requestProvider(
+        settings,
+        apiKey,
+        system,
+        [
+          ...messages,
+          { role: 'assistant', content: generated.content },
+          { role: 'user', content: buildMarkdownFormatRepairPrompt(failure) }
+        ],
+        requestId,
+        signal
+      )
+      const repairedNormalized = normalizeGeneratedMarkdown(repaired.content, { stripOuterFence })
+      const repairedInspection = inspectMarkdown(repairedNormalized.content)
+      if (repairedInspection.issues.length) throw new Error(repairedInspection.issues.map(issue => issue.message).join(' '))
+      return {
+        content: repairedNormalized.content.trim(),
+        recovery: {
+          strategy: 'model-repair',
+          attempts: 2,
+          changes: repairedNormalized.changes.length ? repairedNormalized.changes : undefined
+        }
+      }
+    } catch (error) {
+      if (!strict) {
+        return {
+          content: normalized.content.trim(),
+          recovery: {
+            strategy: normalized.changes.length ? 'local-normalization' : 'direct',
+            attempts: 2,
+            changes: normalized.changes.length ? normalized.changes : undefined,
+            warning: `The response still contains non-standard Markdown: ${error instanceof Error ? error.message : String(error)}`
+          }
+        }
+      }
+      throw error
+    }
+  }
+
   async readAttachment(documentId: string, attachmentId: string): Promise<{ mimeType: AiImageMimeType; data: Uint8Array }> {
     const all = await readJson<Record<string, unknown>>(this.chatPath, {})
     const messages = normalizeMessages(all[documentId])
@@ -629,6 +721,17 @@ class AiService {
         messages,
         request.requestId
       )
+      const repaired = await this.repairMarkdownResponse(
+        settings,
+        apiKey,
+        buildAnswerSystemPrompt(promptToken),
+        messages,
+        result,
+        request.requestId,
+        undefined,
+        false,
+        false
+      )
       featureLog(
         'request content received mode=%s contentChars=%s requestId=%s',
         request.mode,
@@ -638,7 +741,8 @@ class AiService {
       return {
         requestId: request.requestId,
         mode: request.mode,
-        content: result.content.trim(),
+        content: repaired.content,
+        recovery: repaired.recovery,
         documentId: request.documentId,
         baseMarkdown: request.markdown
       }
@@ -662,7 +766,18 @@ class AiService {
           controller.signal
         )
         if (result.truncated) throw new Error('The model response was truncated before a complete document was returned.')
-        const markdown = assertRewriteOutput(result.content)
+        const repaired = await this.repairMarkdownResponse(
+          settings,
+          apiKey,
+          buildRewriteSystemPrompt(promptToken),
+          messages,
+          result,
+          request.requestId,
+          controller.signal,
+          true,
+          true
+        )
+        const markdown = repaired.content
         featureLog(
           'request content received mode=%s contentChars=%s requestId=%s',
           request.mode,
@@ -674,6 +789,7 @@ class AiService {
           mode: request.mode,
           content: '',
           markdown,
+          recovery: repaired.recovery,
           documentId: request.documentId,
           baseMarkdown: request.markdown
         }
@@ -684,6 +800,32 @@ class AiService {
         instruction: request.prompt,
         contextMessages: recentMessages,
         attachments: currentAttachments,
+        generateTool: async(agentRequest) => {
+          const hasImages = agentRequest.messages.some(message => !!message.attachments?.length)
+          const capabilityKey = `${settings.protocol}|${resolveRequestEndpoint(settings)}|${settings.model}|${hasImages ? 'image' : 'text'}`
+          if (this.toolCapabilities.get(capabilityKey) === false) return { content: '', toolUnsupported: true }
+          const messages = await this.hydrateProviderMessages(agentRequest.messages, priorityAttachmentIds)
+          try {
+            const generated = await this.requestProvider(
+              settings,
+              apiKey,
+              `${agentRequest.system}\nWhen the submit_markdown_edits tool is available, call it exactly once with the validated edit object instead of writing the text protocol. Do not emit prose or a text protocol outside the tool call.`,
+              messages,
+              agentRequest.requestId,
+              agentRequest.signal,
+              { tool: preciseEditTool }
+            )
+            this.toolCapabilities.set(capabilityKey, true)
+            return { content: generated.content, toolCalls: generated.toolCalls, truncated: generated.truncated }
+          } catch (error) {
+            if (error instanceof ProviderRequestError && [400, 404, 422].includes(error.status)) {
+              this.toolCapabilities.set(capabilityKey, false)
+              featureLog('output repair tool capability unavailable protocol=%s model=%s requestId=%s', settings.protocol, settings.model, agentRequest.requestId)
+              return { content: '', toolUnsupported: true }
+            }
+            throw error
+          }
+        },
         requestId: request.requestId,
         signal: controller.signal,
         generate: async(agentRequest) => {
@@ -698,10 +840,23 @@ class AiService {
           )
           return { content: generated.content, truncated: generated.truncated }
         },
+        generateWhole: async(agentRequest) => {
+          const messages = await this.hydrateProviderMessages(agentRequest.messages, priorityAttachmentIds)
+          const generated = await this.requestProvider(
+            settings,
+            apiKey,
+            agentRequest.system,
+            messages,
+            agentRequest.requestId,
+            agentRequest.signal
+          )
+          return { content: generated.content, truncated: generated.truncated }
+        },
         onValidationFailure: diagnostic => {
           featureLog(
-            'edit agent validation failure attempt=%s error=%s responseChars=%s responseLines=%s summaryMarkers=%s searchMarkers=%s dividerMarkers=%s replaceMarkers=%s requestId=%s',
+            'edit agent validation failure attempt=%s code=%s error=%s responseChars=%s responseLines=%s summaryMarkers=%s searchMarkers=%s dividerMarkers=%s replaceMarkers=%s requestId=%s',
             diagnostic.attempt,
+            diagnostic.code ?? 'contract',
             diagnostic.error,
             diagnostic.responseChars,
             diagnostic.responseLines,
@@ -729,6 +884,7 @@ class AiService {
         summary: result.message,
         markdown: result.markdown,
         editSummary: result.summary,
+        recovery: result.recovery,
         documentId: request.documentId,
         baseMarkdown: request.markdown
       }
@@ -863,6 +1019,43 @@ class AiService {
     if (changed) await writeJsonAtomic(this.revisionPath, state)
     await this.pruneAttachments(0).catch(error => featureLog('attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
   }
+}
+
+const parseToolInput = (value: unknown): unknown => {
+  if (isRecord(value)) return value
+  if (typeof value !== 'string') return undefined
+  try {
+    return JSON.parse(value)
+  } catch {
+    return undefined
+  }
+}
+
+const extractToolCalls = (payload: unknown, protocol: AiProtocol): ProviderToolCall[] => {
+  if (!isRecord(payload)) return []
+  if (protocol === 'anthropic-messages') {
+    const content = payload.content
+    if (!Array.isArray(content)) return []
+    return content
+      .filter(isRecord)
+      .filter(part => part.type === 'tool_use' && typeof part.name === 'string')
+      .map(part => ({ name: part.name as string, input: parseToolInput(part.input) }))
+      .filter(call => call.input !== undefined)
+  }
+  const choices = payload.choices
+  if (!Array.isArray(choices) || !isRecord(choices[0]) || !isRecord(choices[0].message)) return []
+  const toolCalls = choices[0].message.tool_calls
+  if (!Array.isArray(toolCalls)) return []
+  return toolCalls
+    .filter(isRecord)
+    .map(call => {
+      const functionCall = isRecord(call.function) ? call.function : undefined
+      return {
+        name: functionCall && typeof functionCall.name === 'string' ? functionCall.name : '',
+        input: parseToolInput(functionCall?.arguments)
+      }
+    })
+    .filter(call => !!call.name && call.input !== undefined)
 }
 
 export const registerAiIpcHandlers = (userDataPath: string): void => {

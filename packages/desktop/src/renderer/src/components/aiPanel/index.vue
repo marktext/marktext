@@ -116,6 +116,28 @@
     </div>
 
     <div
+      v-if="ai.pendingRecovery"
+      class="ai-recovery"
+    >
+      <p>{{ labels.recoveryWarning }}</p>
+      <pre>{{ recoveryPreview }}</pre>
+      <div class="ai-recovery-actions">
+        <button
+          class="primary-button"
+          @click="ai.acceptPendingRecovery"
+        >
+          {{ labels.recoveryApply }}
+        </button>
+        <button
+          class="secondary-button"
+          @click="ai.discardPendingRecovery"
+        >
+          {{ labels.recoveryDiscard }}
+        </button>
+      </div>
+    </div>
+
+    <div
       v-if="ai.loading"
       class="ai-working"
       role="status"
@@ -200,7 +222,7 @@
         </button>
         <button
           class="primary-button"
-          :disabled="!draft.trim() || ai.loading || !hasDocument"
+          :disabled="!draft.trim() || ai.loading || !!ai.pendingRecovery || !hasDocument"
           @click="send"
         >
           {{ ai.loading ? labels.thinking : labels.send }}
@@ -283,7 +305,10 @@ const labels = computed(() => chinese.value
       unconfigured: '未配置连接',
       editApplied: (count: number, added: number, removed: number) => `已应用 ${count} 处修改（新增 ${added} 行，删除 ${removed} 行）`,
       noChanges: '文档无需修改',
-      rewriteApplied: '已重写全文'
+      rewriteApplied: '已重写全文',
+      recoveryWarning: '模型未能生成可靠的局部编辑，以下是整篇替代结果，请确认差异后应用。',
+      recoveryApply: '应用替代结果',
+      recoveryDiscard: '丢弃'
     }
   : {
       title: 'AI Editor',
@@ -317,7 +342,10 @@ const labels = computed(() => chinese.value
       unconfigured: 'Connection not configured',
       editApplied: (count: number, added: number, removed: number) => `Applied ${count} edit${count === 1 ? '' : 's'} (+${added}/-${removed} lines)`,
       noChanges: 'No document changes were needed.',
-      rewriteApplied: 'The document was rewritten.'
+      rewriteApplied: 'The document was rewritten.',
+      recoveryWarning: 'The model could not produce a reliable local edit. Review the complete-document fallback before applying it.',
+      recoveryApply: 'Apply fallback',
+      recoveryDiscard: 'Discard'
     })
 const modeLabel = computed(() => {
   if (ai.mode === 'rewrite') return labels.value.rewrite
@@ -335,6 +363,11 @@ const attachmentErrorLabel = computed(() => {
   if (ai.attachmentError === 'total-too-large') return labels.value.attachmentTotalTooLarge
   if (ai.attachmentError === 'read-failed') return labels.value.attachmentReadFailed
   return ''
+})
+const recoveryPreview = computed(() => {
+  const proposal = ai.pendingRecovery
+  if (!proposal) return ''
+  return makeUnifiedDiff(proposal.beforeMarkdown, proposal.response.markdown ?? '')
 })
 
 const attachmentUrl = (attachment: AiImageAttachment): string => {
@@ -361,6 +394,35 @@ const send = (): void => {
   if (!value) return
   draft.value = ''
   ai.submit(value).catch(() => undefined)
+}
+
+const makeUnifiedDiff = (before: string, after: string): string => {
+  const oldLines = before.replaceAll('\r\n', '\n').split('\n')
+  const newLines = after.replaceAll('\r\n', '\n').split('\n')
+  const prefix = (() => {
+    let index = 0
+    while (index < oldLines.length && index < newLines.length && oldLines[index] === newLines[index]) index += 1
+    return index
+  })()
+  let suffix = 0
+  while (
+    suffix < oldLines.length - prefix &&
+    suffix < newLines.length - prefix &&
+    oldLines[oldLines.length - suffix - 1] === newLines[newLines.length - suffix - 1]
+  ) suffix += 1
+  const oldChanged = oldLines.slice(prefix, oldLines.length - suffix)
+  const newChanged = newLines.slice(prefix, newLines.length - suffix)
+  const contextBefore = oldLines.slice(Math.max(0, prefix - 3), prefix).map(line => ` ${line}`)
+  const contextAfter = oldLines.slice(oldLines.length - suffix, Math.min(oldLines.length, oldLines.length - suffix + 3)).map(line => ` ${line}`)
+  const header = `@@ -${prefix + 1},${oldChanged.length} +${prefix + 1},${newChanged.length} @@`
+  const body = [
+    ...contextBefore,
+    ...oldChanged.map(line => `-${line}`),
+    ...newChanged.map(line => `+${line}`),
+    ...contextAfter
+  ]
+  const result = [header, ...body].join('\n')
+  return result.length > 12000 ? `${result.slice(0, 12000)}\n…` : result
 }
 
 const openFilePicker = (): void => {
@@ -430,6 +492,7 @@ onMounted(() => {
 })
 
 watch(currentDocumentId, (value) => {
+  ai.discardPendingRecovery()
   ai.clearPendingAttachments()
   ai.releaseAllAttachmentPreviews()
   if (value) ai.loadChat(value).catch(() => undefined)
@@ -497,7 +560,11 @@ onUnmounted(() => {
 .ai-image-preview span, .ai-pending-attachment span { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ai-pending-attachment button { padding: 0 2px; border: 0; color: var(--editorColor60); background: transparent; cursor: pointer; font: inherit; }
 .ai-pending-attachment button:hover { color: var(--errorColor, #d33); }
-.ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }
+  .ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }
+  .ai-recovery { margin: 0 12px 8px; padding: 8px; border: 1px solid var(--themeColor); border-radius: 5px; font-size: 12px; }
+  .ai-recovery p { margin: 0 0 7px; line-height: 1.4; }
+  .ai-recovery pre { max-height: 220px; margin: 0 0 7px; padding: 6px; overflow: auto; color: var(--editorColor); background: var(--editorColor10); font: 11px/1.35 monospace; white-space: pre-wrap; }
+  .ai-recovery-actions { display: flex; gap: 7px; }
 .ai-attachment-error { margin: 6px 0 0; color: var(--errorColor, #d33); font-size: 11px; }
 .ai-working { display: flex; align-items: center; gap: 7px; margin: 0 12px 8px; padding: 7px 8px; color: var(--editorColor60); background: var(--floatHoverColor); border-radius: 5px; font-size: 12px; }
 .ai-spinner { width: 12px; height: 12px; box-sizing: border-box; border: 2px solid var(--editorColor30); border-top-color: var(--themeColor); border-radius: 50%; animation: ai-spinner-rotation .8s linear infinite; }

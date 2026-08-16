@@ -91,3 +91,9 @@ export const buildPreciseEditRepairPrompt = (failure: string, delimiter: string)
   const markers = makePreciseEditMarkers(delimiter)
   return `The previous response was not applied because validation failed: ${failure} No edit block was applied. Return the complete corrected response for the original document, including every requested change, using the exact token ${markers.noChanges} or the SUMMARY and SEARCH/REPLACE blocks. Do not return prose outside the protocol.`
 }
+
+export const buildPreciseEditWholeFallbackPrompt = (delimiter: string): string =>
+  `You are recovering a failed Markdown edit. Return only the complete revised Markdown document, with no explanation and no Markdown fence. Apply the original task exactly, preserve every unrelated character, and do not include protocol markers. The document is enclosed between DOCUMENT ${delimiter} and END_DOCUMENT ${delimiter}.`
+
+export const buildMarkdownFormatRepairPrompt = (failure: string): string =>
+  `The previous Markdown response failed a compatibility check: ${failure} Return the complete response again with the same meaning and information. Repair formatting only: use MarkText-compatible CommonMark/GFM, inline math as $...$, display math with standalone $$ lines, and no outer Markdown fence. Do not add explanations or omit content.`

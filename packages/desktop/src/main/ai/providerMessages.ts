@@ -11,6 +11,44 @@ export interface ProviderMessage {
   images?: ProviderImage[]
 }
 
+export interface ProviderToolDefinition {
+  name: string
+  description: string
+  parameters: Record<string, unknown>
+}
+
+export interface ProviderToolCall {
+  name: string
+  input: unknown
+}
+
+export const preciseEditTool: ProviderToolDefinition = {
+  name: 'submit_markdown_edits',
+  description: 'Submit validated Markdown edit operations. SEARCH strings must be copied exactly from the current document.',
+  parameters: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      status: { type: 'string', enum: ['changed', 'no_changes'] },
+      summary: { type: 'string' },
+      edits: {
+        type: 'array',
+        maxItems: 32,
+        items: {
+          type: 'object',
+          additionalProperties: false,
+          properties: {
+            search: { type: 'string' },
+            replace: { type: 'string' }
+          },
+          required: ['search', 'replace']
+        }
+      }
+    },
+    required: ['status', 'summary', 'edits']
+  }
+}
+
 const toImageDataUrl = (image: ProviderImage): string => `data:${image.mimeType};base64,${image.data}`
 
 export const serializeProviderMessages = (

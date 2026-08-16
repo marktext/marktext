@@ -1,15 +1,20 @@
 import type {
   AiImageAttachment,
   AiEditOperationSummary,
-  AiEditSummary
+  AiEditSummary,
+  AiRecoveryInfo
 } from '@shared/types/ai'
+import type { AiOutputFailureCode } from './outputRepair'
+import type { ProviderToolCall } from './providerMessages'
 import {
   buildDocumentPrompt,
   buildPreciseEditRepairPrompt,
   buildPreciseEditSystemPrompt,
+  buildPreciseEditWholeFallbackPrompt,
   makePreciseEditMarkers,
   makePromptToken
 } from './prompts'
+import { assertMarkdownCompatibility, normalizeGeneratedMarkdown } from './outputRepair'
 
 export interface DocumentEditMessage {
   role: 'user' | 'assistant'
@@ -20,10 +25,13 @@ export interface DocumentEditMessage {
 export interface GeneratedEditResponse {
   content: string
   truncated?: boolean
+  toolCalls?: ProviderToolCall[]
+  toolUnsupported?: boolean
 }
 
 export interface DocumentEditValidationDiagnostic {
   attempt: number
+  code?: AiOutputFailureCode
   error: string
   responseChars: number
   responseLines: number
@@ -38,6 +46,7 @@ export interface DocumentEditGenerateRequest {
   messages: DocumentEditMessage[]
   requestId: string
   signal: AbortSignal
+  format?: 'tool' | 'protocol' | 'whole'
 }
 
 export interface DocumentEditAgentRequest {
@@ -48,6 +57,8 @@ export interface DocumentEditAgentRequest {
   requestId: string
   signal: AbortSignal
   generate: (request: DocumentEditGenerateRequest) => Promise<GeneratedEditResponse>
+  generateTool?: (request: DocumentEditGenerateRequest) => Promise<GeneratedEditResponse>
+  generateWhole?: (request: DocumentEditGenerateRequest) => Promise<GeneratedEditResponse>
   onValidationFailure?: (diagnostic: DocumentEditValidationDiagnostic) => void
 }
 
@@ -56,6 +67,8 @@ export interface DocumentEditAgentResult {
   summary: AiEditSummary
   message?: string
   attempts: number
+  recovery?: AiRecoveryInfo
+  requiresConfirmation?: boolean
 }
 
 interface ParsedEdit {
@@ -79,6 +92,77 @@ const MAX_OPERATIONS = 32
 const MAX_MESSAGE_LENGTH = 240
 
 const makeDelimiter = (): string => makePromptToken('MT_EDIT')
+
+const classifyEditFailure = (failure: string): AiOutputFailureCode => {
+  if (/SEARCH block|overlap|empty SEARCH|multiple locations|match the document/i.test(failure)) return 'exact-match'
+  if (/truncated/i.test(failure)) return 'truncated'
+  return 'contract'
+}
+
+const stripOuterProtocolFence = (response: string, delimiter: string): string => {
+  const normalized = response.replaceAll('\r\n', '\n').trim()
+  const lines = normalized.split('\n')
+  const markers = makePreciseEditMarkers(delimiter)
+  if (lines.length < 3 || !/^\s*(`{3,}|~{3,})[^`~]*\s*$/.test(lines[0])) return normalized
+  if (!lines.some(line => isMarkerLine(line, markers.search))) return normalized
+  const opening = lines[0].trim()[0]
+  const closing = lines[lines.length - 1].trim()
+  if (closing[0] !== opening || !new RegExp(`^${opening}{3,}$`).test(closing)) return normalized
+  return lines.slice(1, -1).join('\n').trim()
+}
+
+interface ParsedToolEditResponse {
+  message?: string
+  edits: ParsedEdit[]
+}
+
+const repairBareDividers = (response: string, markdown: string, delimiter: string): string => {
+  const normalized = stripOuterProtocolFence(response, delimiter)
+  const markers = makePreciseEditMarkers(delimiter)
+  const lines = normalized.split('\n')
+  let index = 0
+  let changed = false
+  while (index < lines.length) {
+    if (!isMarkerLine(lines[index], markers.search)) {
+      index += 1
+      continue
+    }
+    const searchStart = index + 1
+    let replaceIndex = searchStart
+    while (replaceIndex < lines.length && !isMarkerLine(lines[replaceIndex], markers.replace)) replaceIndex += 1
+    if (replaceIndex >= lines.length) break
+    const candidates: number[] = []
+    for (let candidate = searchStart; candidate < replaceIndex; candidate += 1) {
+      if (!/^\s*={7}\s*$/.test(lines[candidate])) continue
+      const search = lines.slice(searchStart, candidate).join('\n')
+      const matches = search ? countOccurrences(markdown, search) : markdown ? [] : [0]
+      if (matches.length === 1) candidates.push(candidate)
+    }
+    if (candidates.length === 1 && lines[candidates[0]].trim() !== markers.divider) {
+      lines[candidates[0]] = markers.divider
+      changed = true
+    }
+    index = replaceIndex + 1
+  }
+  return changed ? lines.join('\n') : normalized
+}
+
+const parseToolEditResponse = (input: unknown): ParsedToolEditResponse => {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('The structured edit response was not an object.')
+  const value = input as Record<string, unknown>
+  if (value.status !== 'changed' && value.status !== 'no_changes') throw new Error('The structured edit response has an invalid status.')
+  if (typeof value.summary !== 'string') throw new Error('The structured edit response is missing its summary.')
+  if (!Array.isArray(value.edits)) throw new Error('The structured edit response is missing its edit list.')
+  const edits = value.edits.map((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error('A structured edit is not an object.')
+    const edit = item as Record<string, unknown>
+    if (typeof edit.search !== 'string' || typeof edit.replace !== 'string') throw new Error('A structured edit is missing SEARCH or REPLACE text.')
+    return { search: edit.search, replace: edit.replace }
+  })
+  if (value.status === 'no_changes' && edits.length) throw new Error('NO_CHANGES cannot include edit blocks.')
+  if (value.status === 'changed' && !edits.length) throw new Error('A changed structured response must include an edit block.')
+  return { message: cleanMessage(value.summary), edits }
+}
 
 const lineNumberAt = (value: string, offset: number): number =>
   value.slice(0, offset).split('\n').length
@@ -153,7 +237,7 @@ const cleanMessage = (value: string): string | undefined => {
 }
 
 const parseEditResponse = (response: string, markdown: string, delimiter: string): ParsedEditResponse => {
-  const normalized = response.replaceAll('\r\n', '\n')
+  const normalized = repairBareDividers(response, markdown, delimiter)
   const markers = makePreciseEditMarkers(delimiter)
   const lines = normalized.split('\n')
   let first = 0
@@ -287,6 +371,17 @@ const applyEdits = (markdown: string, edits: LocatedEdit[]): string => {
     )
 }
 
+const normalizeLocatedEdits = (edits: LocatedEdit[]): { edits: LocatedEdit[]; changes: string[] } => {
+  const changes = new Set<string>()
+  const normalized = edits.map((edit) => {
+    const result = normalizeGeneratedMarkdown(edit.replace, { preserveWhitespace: true })
+    for (const change of result.changes) changes.add(change)
+    const replace = edit.replace.includes('\r\n') ? result.content.replaceAll('\n', '\r\n') : result.content
+    return { ...edit, replace }
+  })
+  return { edits: normalized, changes: [...changes] }
+}
+
 const summarize = (markdown: string, edits: LocatedEdit[]): AiEditSummary => ({
   operationCount: edits.length,
   addedLines: edits.reduce((total, edit) => total + edit.summary.addedLines, 0),
@@ -320,6 +415,57 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
   const documentPrompt = buildDocumentPrompt(request.instruction, request.markdown, delimiter)
   let previousResponse = ''
   let failure = ''
+  let toolAttempted = false
+
+  if (request.generateTool) {
+    const generated = await request.generateTool({
+      system,
+      messages: [
+        ...request.contextMessages,
+        { role: 'user', content: documentPrompt, attachments: request.attachments }
+      ],
+      requestId: request.requestId,
+      signal: request.signal,
+      format: 'tool'
+    })
+    if (!generated.toolUnsupported) {
+      toolAttempted = true
+      try {
+        if (generated.truncated) throw new Error('The structured edit response was truncated.')
+        const toolCall = generated.toolCalls?.find(call => call.name === 'submit_markdown_edits')
+        if (!toolCall) throw new Error('The provider returned no structured edit tool call.')
+        const parsed = parseToolEditResponse(toolCall.input)
+        const locatedResult = normalizeLocatedEdits(locateEdits(parsed.edits, request.markdown))
+        const located = locatedResult.edits
+        return {
+          markdown: applyEdits(request.markdown, located),
+          summary: summarize(request.markdown, located),
+          message: parsed.message,
+          attempts: 1,
+          recovery: {
+            strategy: locatedResult.changes.length ? 'local-normalization' : 'direct',
+            attempts: 1,
+            changes: locatedResult.changes.length ? locatedResult.changes : undefined
+          }
+        }
+      } catch (error) {
+        failure = error instanceof Error ? error.message : String(error)
+        const response = generated.content || JSON.stringify(generated.toolCalls?.[0]?.input ?? '')
+        previousResponse = response
+        request.onValidationFailure?.({
+          attempt: 1,
+          code: classifyEditFailure(failure),
+          error: failure,
+          responseChars: response.length,
+          responseLines: response.replaceAll('\r\n', '\n').split('\n').length,
+          summaryMarkers: 0,
+          searchMarkers: 0,
+          dividerMarkers: 0,
+          replaceMarkers: 0
+        })
+      }
+    }
+  }
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     const messages: DocumentEditMessage[] = [
@@ -332,23 +478,35 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
         { role: 'user', content: buildPreciseEditRepairPrompt(failure, delimiter) }
       )
     }
+    const wasRepair = !!previousResponse
     const generated = await request.generate({
       system,
       messages,
       requestId: request.requestId,
-      signal: request.signal
+      signal: request.signal,
+      format: 'protocol'
     })
     previousResponse = generated.content
     try {
       const parsed = generated.truncated
         ? (() => { throw new Error('The model response was truncated before a complete edit was returned.') })()
         : parseEditResponse(generated.content, request.markdown, delimiter)
-      const located = locateEdits(parsed.edits, request.markdown)
+      const locatedResult = normalizeLocatedEdits(locateEdits(parsed.edits, request.markdown))
+      const located = locatedResult.edits
       return {
         markdown: applyEdits(request.markdown, located),
         summary: summarize(request.markdown, located),
         message: parsed.message,
-        attempts: attempt
+        attempts: attempt + (toolAttempted ? 1 : 0),
+        recovery: {
+          strategy: locatedResult.changes.length
+            ? 'local-normalization'
+            : wasRepair
+              ? 'model-repair'
+              : 'direct',
+          attempts: attempt + (toolAttempted ? 1 : 0),
+          changes: locatedResult.changes.length ? locatedResult.changes : undefined
+        }
       }
     } catch (error) {
       failure = error instanceof Error ? error.message : String(error)
@@ -359,6 +517,7 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
       const replace = countMarkerLines(responseLines, markers.replace)
       request.onValidationFailure?.({
         attempt,
+        code: classifyEditFailure(failure),
         error: failure,
         responseChars: generated.content.length,
         responseLines: responseLines.length,
@@ -368,6 +527,53 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
         replaceMarkers: replace
       })
       if (attempt === MAX_ATTEMPTS) {
+        if (request.generateWhole) {
+          const fallbackAttempt = MAX_ATTEMPTS + 1
+          const fallback = await request.generateWhole({
+            system: buildPreciseEditWholeFallbackPrompt(delimiter),
+            messages: [
+              ...request.contextMessages,
+              { role: 'user', content: documentPrompt, attachments: request.attachments }
+            ],
+            requestId: request.requestId,
+            signal: request.signal,
+            format: 'whole'
+          })
+          try {
+            if (fallback.truncated) throw new Error('The model response was truncated before a complete document was returned.')
+            const normalized = normalizeGeneratedMarkdown(fallback.content, { stripOuterFence: true })
+            assertMarkdownCompatibility(normalized.content)
+            const located = locateEdits([{ search: request.markdown, replace: normalized.content }], request.markdown)
+            return {
+              markdown: applyEdits(request.markdown, located),
+              summary: summarize(request.markdown, located),
+              attempts: fallbackAttempt,
+              recovery: {
+                strategy: 'whole-document-fallback',
+                attempts: fallbackAttempt,
+                changes: normalized.changes,
+                requiresConfirmation: true,
+                warning: 'The model could not produce a precise edit block. Review the complete-document fallback before applying it.'
+              },
+              requiresConfirmation: true
+            }
+          } catch (fallbackError) {
+            const fallbackFailure = fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+            const responseLines = fallback.content.replaceAll('\r\n', '\n').split('\n')
+            request.onValidationFailure?.({
+              attempt: fallbackAttempt,
+              code: classifyEditFailure(fallbackFailure),
+              error: fallbackFailure,
+              responseChars: fallback.content.length,
+              responseLines: responseLines.length,
+              summaryMarkers: 0,
+              searchMarkers: 0,
+              dividerMarkers: 0,
+              replaceMarkers: 0
+            })
+            throw new Error(`The AI edit could not be validated after ${fallbackAttempt} attempts. ${fallbackFailure}`)
+          }
+        }
         throw new Error(`The AI edit could not be validated after ${MAX_ATTEMPTS} attempts. ${failure}`)
       }
     }

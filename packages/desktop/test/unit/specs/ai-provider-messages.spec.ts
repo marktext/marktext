@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { serializeProviderMessages } from 'main_renderer/ai/providerMessages'
+import { preciseEditTool, serializeProviderMessages } from 'main_renderer/ai/providerMessages'
 
 describe('AI provider image message serialization', () => {
   const messages = [
@@ -9,6 +9,14 @@ describe('AI provider image message serialization', () => {
       images: [{ mimeType: 'image/png', data: 'aGVsbG8=' }]
     }
   ]
+
+  it('defines a provider-neutral precise edit tool schema', () => {
+    expect(preciseEditTool.name).toBe('submit_markdown_edits')
+    expect(preciseEditTool.parameters).toMatchObject({
+      type: 'object',
+      required: ['status', 'summary', 'edits']
+    })
+  })
 
   it('keeps the existing plain-text wire shape', () => {
     expect(serializeProviderMessages('openai-chat-completions', [{ role: 'user', content: 'Hello' }])).toEqual([

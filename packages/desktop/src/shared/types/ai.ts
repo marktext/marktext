@@ -1,5 +1,14 @@
 export type AiProtocol = 'openai-chat-completions' | 'anthropic-messages'
 export type AiInteractionMode = 'answer' | 'edit' | 'rewrite'
+export type AiRecoveryStrategy = 'direct' | 'local-normalization' | 'model-repair' | 'whole-document-fallback'
+
+export interface AiRecoveryInfo {
+  strategy: AiRecoveryStrategy
+  attempts: number
+  changes?: string[]
+  requiresConfirmation?: boolean
+  warning?: string
+}
 
 export type AiImageMimeType = 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif'
 
@@ -91,6 +100,7 @@ export interface AiResponse {
   summary?: string
   markdown?: string
   editSummary?: AiEditSummary
+  recovery?: AiRecoveryInfo
   documentId: string
   baseMarkdown: string
 }

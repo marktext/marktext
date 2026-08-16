@@ -112,6 +112,76 @@ describe('document edit agent', () => {
     await expect(request('old', generate)).rejects.toThrow('after 2 attempts')
   })
 
+  it('repairs an un-tokenized divider only when the search is uniquely determined', async() => {
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
+      const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
+      if (!delimiter) throw new Error('The test prompt did not contain an edit delimiter.')
+      return {
+        content: [
+          `<<<<<<< SEARCH ${delimiter}`,
+          'old',
+          '=======',
+          'new',
+          `>>>>>>> REPLACE ${delimiter}`
+        ].join('\n')
+      }
+    })
+
+    const result = await request('old', generate)
+    expect(result.markdown).toBe('new')
+    expect(result.attempts).toBe(1)
+  })
+
+  it('uses the complete-document fallback only through an explicit callback', async() => {
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => ({
+      content: `${responseWith(input.system, 'missing', 'new')}\nUnexpected explanation`
+    }))
+    const generateWhole = vi.fn(async() => ({ content: '# new title' }))
+
+    const result = await runDocumentEditAgent({
+      markdown: '# old title',
+      instruction: 'Update the title.',
+      contextMessages: [],
+      requestId: 'test-request',
+      signal: new AbortController().signal,
+      generate,
+      generateWhole
+    })
+
+    expect(result.markdown).toBe('# new title')
+    expect(result.requiresConfirmation).toBe(true)
+    expect(result.recovery?.strategy).toBe('whole-document-fallback')
+    expect(generateWhole).toHaveBeenCalledTimes(1)
+  })
+
+  it('accepts a validated structured edit response', async() => {
+    const generateTool = vi.fn(async() => ({
+      content: '',
+      toolCalls: [{
+        name: 'submit_markdown_edits',
+        input: {
+          status: 'changed',
+          summary: 'Updated the title.',
+          edits: [{ search: '# old', replace: '# new' }]
+        }
+      }]
+    }))
+
+    const result = await runDocumentEditAgent({
+      markdown: '# old',
+      instruction: 'Update the title.',
+      contextMessages: [],
+      requestId: 'test-request',
+      signal: new AbortController().signal,
+      generate: vi.fn(),
+      generateTool
+    })
+
+    expect(result.markdown).toBe('# new')
+    expect(result.message).toBe('Updated the title.')
+    expect(result.recovery?.strategy).toBe('direct')
+  })
+
   it('validates all blocks before applying multiple edits', async() => {
     const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
       const delimiter = input.system.match(/MT_EDIT_[a-f0-9]+/)?.[0]
