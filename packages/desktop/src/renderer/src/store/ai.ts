@@ -7,9 +7,18 @@ import type {
   AiChatMessage,
   AiConnectionSettings,
   AiEditSummary,
+  AiImageAttachment,
+  AiImageMimeType,
+  AiImageUpload,
   AiInteractionMode,
   AiPreparedRevision,
   AiResponse
+} from '@shared/types/ai'
+import {
+  AI_IMAGE_MIME_TYPES,
+  AI_MAX_IMAGE_BYTES,
+  AI_MAX_IMAGE_COUNT,
+  AI_MAX_IMAGE_TOTAL_BYTES
 } from '@shared/types/ai'
 import { AiChangeTracker, rangesFromSummary, fullDocumentRange, type AiChangeMarker } from './aiChangeTracker'
 
@@ -19,6 +28,14 @@ export interface AiApplyPayload {
   beforeMarkdown: string
   markdown: string
   onApplied: (success: boolean, markdown?: string) => void
+}
+
+export type AiAttachmentError = '' | 'unsupported' | 'too-large' | 'too-many' | 'total-too-large' | 'read-failed'
+
+export interface PendingAiImage {
+  attachment: AiImageAttachment
+  data: Uint8Array
+  previewUrl: string
 }
 
 const createId = (): string => {
@@ -43,6 +60,20 @@ const featureLog = (message: string, ...args: unknown[]): void => {
   log.info(`[ai-editor] ${message}`, ...args)
 }
 
+const MIME_BY_EXTENSION: Record<string, AiImageMimeType> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif'
+}
+
+const resolveImageMimeType = (file: File): AiImageMimeType | undefined => {
+  if (AI_IMAGE_MIME_TYPES.includes(file.type as AiImageMimeType)) return file.type as AiImageMimeType
+  const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase()
+  return MIME_BY_EXTENSION[extension]
+}
+
 // Pinia wraps store values in Vue reactive proxies. Electron IPC uses the
 // structured clone algorithm, which cannot clone those proxies, so every
 // chat message crossing the renderer/main boundary must be copied explicitly.
@@ -53,6 +84,7 @@ const toIpcChatMessage = (message: AiChatMessage): AiChatMessage => ({
   content: message.content,
   createdAt: message.createdAt,
   revisionId: message.revisionId,
+  attachments: message.attachments?.map(attachment => ({ ...attachment })),
   editSummary: message.editSummary
     ? {
       operationCount: message.editSummary.operationCount,
@@ -78,6 +110,9 @@ export const useAiStore = defineStore('ai', () => {
   const visible = ref(localStorage.getItem('ai-panel-visible') !== 'false')
   const width = ref(Number(localStorage.getItem('ai-panel-width')) || 380)
   const messages = ref<AiChatMessage[]>([])
+  const pendingAttachments = ref<PendingAiImage[]>([])
+  const attachmentPreviewUrls = ref<Record<string, string>>({})
+  const attachmentError = ref<AiAttachmentError>('')
   const loading = ref(false)
   const error = ref('')
   const lastAnswer = ref('')
@@ -90,6 +125,98 @@ export const useAiStore = defineStore('ai', () => {
   let saveSequence = 0
   let chatLoadSequence = 0
   let loadedChatDocumentId = ''
+
+  const setPreviewUrl = (id: string, url: string): void => {
+    attachmentPreviewUrls.value = { ...attachmentPreviewUrls.value, [id]: url }
+  }
+
+  const releasePreviewUrl = (id: string): void => {
+    const url = attachmentPreviewUrls.value[id]
+    if (url) URL.revokeObjectURL(url)
+    const next = { ...attachmentPreviewUrls.value }
+    delete next[id]
+    attachmentPreviewUrls.value = next
+  }
+
+  const releaseMessagePreviews = (items: readonly AiChatMessage[]): void => {
+    for (const message of items) {
+      for (const attachment of message.attachments ?? []) releasePreviewUrl(attachment.id)
+    }
+  }
+
+  const clearPendingAttachments = (): void => {
+    for (const pending of pendingAttachments.value) releasePreviewUrl(pending.attachment.id)
+    pendingAttachments.value = []
+  }
+
+  const releaseAllAttachmentPreviews = (): void => {
+    for (const id of Object.keys(attachmentPreviewUrls.value)) releasePreviewUrl(id)
+  }
+
+  const addImageFiles = async(files: readonly File[]): Promise<void> => {
+    attachmentError.value = ''
+    let rejected: AiAttachmentError = ''
+    const available = AI_MAX_IMAGE_COUNT - pendingAttachments.value.length
+    if (files.length > available) rejected = 'too-many'
+    const selected = files.slice(0, Math.max(0, available))
+    let totalBytes = pendingAttachments.value.reduce((total, item) => total + item.attachment.byteSize, 0)
+    for (const file of selected) {
+      const mimeType = resolveImageMimeType(file)
+      if (!mimeType) {
+        rejected = rejected || 'unsupported'
+        continue
+      }
+      if (file.size <= 0 || file.size > AI_MAX_IMAGE_BYTES) {
+        rejected = rejected || 'too-large'
+        continue
+      }
+      if (totalBytes + file.size > AI_MAX_IMAGE_TOTAL_BYTES) {
+        rejected = rejected || 'total-too-large'
+        continue
+      }
+      try {
+        const data = new Uint8Array(await file.arrayBuffer())
+        const attachment: AiImageAttachment = {
+          id: createId(),
+          name: file.name || 'image',
+          mimeType,
+          byteSize: data.byteLength
+        }
+        const previewUrl = URL.createObjectURL(file)
+        setPreviewUrl(attachment.id, previewUrl)
+        pendingAttachments.value.push({ attachment, data, previewUrl })
+        totalBytes += data.byteLength
+      } catch {
+        rejected = rejected || 'read-failed'
+      }
+    }
+    attachmentError.value = rejected
+  }
+
+  const removePendingAttachment = (id: string): void => {
+    pendingAttachments.value = pendingAttachments.value.filter(item => {
+      if (item.attachment.id !== id) return true
+      releasePreviewUrl(id)
+      return false
+    })
+  }
+
+  const loadAttachmentPreview = async(
+    attachment: AiImageAttachment,
+    documentId?: string
+  ): Promise<void> => {
+    const targetDocumentId = documentId ?? currentDocumentId.value
+    if (!targetDocumentId || attachmentPreviewUrls.value[attachment.id]) return
+    try {
+      const data = await window.electron.ipcRenderer.invoke('mt::ai::attachment-read', targetDocumentId, attachment.id)
+      const blobBytes = new Uint8Array(data.data.byteLength)
+      blobBytes.set(data.data)
+      const blob = new Blob([blobBytes.buffer as ArrayBuffer], { type: data.mimeType })
+      setPreviewUrl(attachment.id, URL.createObjectURL(blob))
+    } catch {
+      // A missing or expired preview does not invalidate the text conversation.
+    }
+  }
 
   const currentDocumentId = computed(() => {
     const file = editorStore.currentFile
@@ -188,6 +315,7 @@ export const useAiStore = defineStore('ai', () => {
     try {
       const loadedMessages: AiChatMessage[] = await window.electron.ipcRenderer.invoke('mt::ai::chat-load', documentId)
       if (loadSequence !== chatLoadSequence || documentId !== currentDocumentId.value) return
+      if (activeDocumentId.value !== documentId) releaseMessagePreviews(messages.value)
       messages.value = loadedMessages
       loadedChatDocumentId = documentId
     } catch (err) {
@@ -209,8 +337,11 @@ export const useAiStore = defineStore('ai', () => {
   }
 
   const clearChat = async(): Promise<void> => {
+    releaseMessagePreviews(messages.value)
+    clearPendingAttachments()
     messages.value = []
     lastAnswer.value = ''
+    attachmentError.value = ''
     if (activeDocumentId.value) {
       await window.electron.ipcRenderer.invoke('mt::ai::chat-clear', activeDocumentId.value)
     }
@@ -220,8 +351,9 @@ export const useAiStore = defineStore('ai', () => {
     role: 'user' | 'assistant',
     content: string,
     messageMode: AiInteractionMode,
-    options: { revisionId?: string; editSummary?: AiEditSummary } = {}
+    options: { revisionId?: string; editSummary?: AiEditSummary; attachments?: AiImageAttachment[] } = {}
   ): void => {
+    const previousMessages = messages.value
     messages.value.push({
       id: createId(),
       role,
@@ -230,7 +362,16 @@ export const useAiStore = defineStore('ai', () => {
       createdAt: Date.now(),
       ...options
     })
-    messages.value = messages.value.slice(-10)
+    const retainedMessages = messages.value.slice(-10)
+    const retainedAttachmentIds = new Set(
+      retainedMessages.flatMap(message => (message.attachments ?? []).map(attachment => attachment.id))
+    )
+    for (const message of previousMessages) {
+      for (const attachment of message.attachments ?? []) {
+        if (!retainedAttachmentIds.has(attachment.id)) releasePreviewUrl(attachment.id)
+      }
+    }
+    messages.value = retainedMessages
   }
 
   const submit = async(prompt: string): Promise<void> => {
@@ -255,7 +396,12 @@ export const useAiStore = defineStore('ai', () => {
     const documentId = requestDocumentId
     const baseMarkdown = requestFile.markdown
     const requestMode = mode.value
-    appendMessage('user', value, requestMode)
+    const pending = pendingAttachments.value.map(item => ({ ...item, attachment: { ...item.attachment } }))
+    const attachments = pending.map(item => item.attachment)
+    const uploads: AiImageUpload[] = pending.map(item => ({ ...item.attachment, data: new Uint8Array(item.data) }))
+    pendingAttachments.value = []
+    attachmentError.value = ''
+    appendMessage('user', value, requestMode, { attachments })
     featureLog(
       'request snapshot mode=%s documentKind=%s markdownChars=%s contextMessages=%s requestId=%s',
       requestMode,
@@ -274,6 +420,7 @@ export const useAiStore = defineStore('ai', () => {
         mode: requestMode,
         prompt: value,
         markdown: baseMarkdown,
+        attachments: uploads,
         messages: toIpcChatMessages(messages.value.slice(0, -1))
       })
       if (requestId !== activeRequestId.value || documentId !== currentDocumentId.value) return
@@ -420,6 +567,9 @@ export const useAiStore = defineStore('ai', () => {
     visible,
     width,
     messages,
+    pendingAttachments,
+    attachmentPreviewUrls,
+    attachmentError,
     loading,
     error,
     lastAnswer,
@@ -429,6 +579,11 @@ export const useAiStore = defineStore('ai', () => {
     togglePanel,
     setMode,
     setWidth,
+    addImageFiles,
+    removePendingAttachment,
+    clearPendingAttachments,
+    releaseAllAttachmentPreviews,
+    loadAttachmentPreview,
     navigateToChange,
     loadSettings,
     loadChat,

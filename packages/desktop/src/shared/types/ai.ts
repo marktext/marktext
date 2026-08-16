@@ -1,6 +1,35 @@
 export type AiProtocol = 'openai-chat-completions' | 'anthropic-messages'
 export type AiInteractionMode = 'answer' | 'edit' | 'rewrite'
 
+export type AiImageMimeType = 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif'
+
+export const AI_IMAGE_MIME_TYPES: readonly AiImageMimeType[] = Object.freeze([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/gif'
+])
+
+export const AI_MAX_IMAGE_COUNT = 10
+export const AI_MAX_IMAGE_BYTES = 10 * 1024 * 1024
+export const AI_MAX_IMAGE_TOTAL_BYTES = 30 * 1024 * 1024
+
+export interface AiImageAttachment {
+  id: string
+  name: string
+  mimeType: AiImageMimeType
+  byteSize: number
+}
+
+export interface AiImageUpload extends AiImageAttachment {
+  data: Uint8Array
+}
+
+export interface AiImageData {
+  mimeType: AiImageMimeType
+  data: Uint8Array
+}
+
 export interface AiConnectionSettings {
   protocol: AiProtocol
   endpoint: string
@@ -23,6 +52,7 @@ export interface AiChatMessage {
   createdAt: number
   revisionId?: string
   editSummary?: AiEditSummary
+  attachments?: AiImageAttachment[]
 }
 
 export interface AiRequest {
@@ -32,6 +62,7 @@ export interface AiRequest {
   prompt: string
   markdown: string
   messages: AiChatMessage[]
+  attachments?: AiImageUpload[]
 }
 
 export interface AiEditOperationSummary {

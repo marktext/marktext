@@ -6,6 +6,7 @@ import {
   type DocumentEditGenerateRequest,
   type DocumentEditValidationDiagnostic
 } from 'main_renderer/ai/documentEditAgent'
+import type { AiImageAttachment } from '@shared/types/ai'
 
 const request = (
   markdown: string,
@@ -70,6 +71,33 @@ describe('document edit agent', () => {
     const result = await request('old\nold', generate)
 
     expect(result.markdown).toBe('new\nold')
+    expect(result.attempts).toBe(2)
+    expect(generate).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps current image attachments on a validation repair retry', async() => {
+    const attachment: AiImageAttachment = {
+      id: 'attachment-test-0001',
+      name: 'table.png',
+      mimeType: 'image/png',
+      byteSize: 8
+    }
+    const generate = vi.fn(async(input: DocumentEditGenerateRequest) => {
+      expect(input.messages.find(message => message.role === 'user')?.attachments).toEqual([attachment])
+      if (generate.mock.calls.length === 1) return { content: responseWith(input.system, 'old', 'new') }
+      return { content: responseWith(input.system, 'old\nold', 'new\nold') }
+    })
+
+    const result = await runDocumentEditAgent({
+      markdown: 'old\nold',
+      instruction: 'Make the requested change.',
+      contextMessages: [],
+      attachments: [attachment],
+      requestId: 'test-request',
+      signal: new AbortController().signal,
+      generate
+    })
+
     expect(result.attempts).toBe(2)
     expect(generate).toHaveBeenCalledTimes(2)
   })

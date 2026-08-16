@@ -36,6 +36,7 @@ import type {
   AiChatMessage,
   AiConnectionSettings,
   AiConnectionSettingsInput,
+  AiImageData,
   AiPreparedRevision,
   AiRequest,
   AiResponse,
@@ -57,6 +58,7 @@ export interface IpcInvokeChannels {
   'mt::ai::chat-load': { args: [documentId: string]; ret: AiChatMessage[] }
   'mt::ai::chat-save': { args: [documentId: string, messages: AiChatMessage[]]; ret: void }
   'mt::ai::chat-clear': { args: [documentId: string]; ret: void }
+  'mt::ai::attachment-read': { args: [documentId: string, attachmentId: string]; ret: AiImageData }
   'mt::ai::revision-prepare': { args: [request: AiRevisionRequest]; ret: AiPreparedRevision }
   'mt::ai::revision-commit': { args: [revisionId: string, documentId: string, afterMarkdown: string]; ret: void }
   'mt::ai::revision-undo': { args: [documentId: string, currentMarkdown: string]; ret: AiUndoResult | null }

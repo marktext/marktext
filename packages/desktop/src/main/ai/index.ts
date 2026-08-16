@@ -9,6 +9,8 @@ import type {
   AiConnectionSettings,
   AiConnectionSettingsInput,
   AiEditSummary,
+  AiImageAttachment,
+  AiImageMimeType,
   AiProtocol,
   AiPreparedRevision,
   AiRequest,
@@ -17,7 +19,10 @@ import type {
   AiTestResult,
   AiUndoResult
 } from '@shared/types/ai'
+import { AI_MAX_IMAGE_BYTES, AI_MAX_IMAGE_COUNT, AI_MAX_IMAGE_TOTAL_BYTES } from '@shared/types/ai'
 import { runDocumentEditAgent } from './documentEditAgent'
+import { AiAttachmentStore, normalizeImageAttachment, normalizeImageUploads, orderAttachmentLocations } from './attachments'
+import { serializeProviderMessages, type ProviderImage, type ProviderMessage } from './providerMessages'
 import {
   buildAnswerSystemPrompt,
   buildDocumentPrompt,
@@ -37,8 +42,7 @@ const REVISION_FILE = 'ai-revisions.json'
 const ANTHROPIC_VERSION = '2023-06-01'
 const MAX_CONTEXT_MESSAGES = 10
 const REQUEST_TIMEOUT_MS = 300_000
-
-type ProviderMessage = { role: 'user' | 'assistant'; content: string }
+const ATTACHMENT_GRACE_MS = 24 * 60 * 60 * 1000
 
 interface ProviderResponse {
   content: string
@@ -64,6 +68,31 @@ interface StoredRevisionState {
 
 const featureLog = (message: string, ...args: unknown[]): void => {
   log.info(`[ai-editor] ${message}`, ...args)
+}
+
+const normalizeAttachmentList = (value: unknown): AiImageAttachment[] | undefined => {
+  if (!Array.isArray(value)) return undefined
+  const attachments: AiImageAttachment[] = []
+  const ids = new Set<string>()
+  for (const item of value.slice(0, AI_MAX_IMAGE_COUNT)) {
+    try {
+      const attachment = normalizeImageAttachment(item)
+      if (ids.has(attachment.id)) continue
+      ids.add(attachment.id)
+      attachments.push(attachment)
+    } catch {
+      // Invalid persisted attachment metadata is ignored without rejecting the chat.
+    }
+  }
+  return attachments.length ? attachments : undefined
+}
+
+const collectAttachmentIds = (messages: AiChatMessage[]): Set<string> => {
+  const ids = new Set<string>()
+  for (const message of messages) {
+    for (const attachment of message.attachments ?? []) ids.add(attachment.id)
+  }
+  return ids
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -198,7 +227,8 @@ const normalizeMessages = (messages: unknown): AiChatMessage[] => {
       return {
         ...item,
         revisionId: typeof item.revisionId === 'string' ? item.revisionId : undefined,
-        editSummary
+        editSummary,
+        attachments: normalizeAttachmentList(item.attachments)
       }
     })
     .slice(-MAX_CONTEXT_MESSAGES)
@@ -252,6 +282,10 @@ class AiService {
   private readonly keyPath: string
   private readonly chatPath: string
   private readonly revisionPath: string
+  private readonly attachmentStore: AiAttachmentStore
+  private readonly pendingAttachmentIds = new Map<string, number>()
+  private readonly pendingAttachmentDocuments = new Map<string, string>()
+  private readonly attachmentMimeTypes = new Map<string, AiImageMimeType>()
   private readonly controllers = new Map<string, AbortController>()
 
   constructor(userDataPath: string) {
@@ -259,6 +293,7 @@ class AiService {
     this.keyPath = path.join(userDataPath, KEY_FILE)
     this.chatPath = path.join(userDataPath, CHAT_FILE)
     this.revisionPath = path.join(userDataPath, REVISION_FILE)
+    this.attachmentStore = new AiAttachmentStore(userDataPath)
   }
 
   private async readSettings(): Promise<{ settings: StoredSettings; apiKey: string }> {
@@ -361,13 +396,13 @@ class AiService {
         headers['x-api-key'] = apiKey
         headers['api-key'] = apiKey
         headers['anthropic-version'] = ANTHROPIC_VERSION
-        body = { model: settings.model, max_tokens: 4096, system, messages }
+        body = { model: settings.model, max_tokens: 4096, system, messages: serializeProviderMessages(settings.protocol, messages) }
       } else {
         headers.authorization = `Bearer ${apiKey}`
         // Some OpenAI-compatible gateways, including MiMo Token Plan, document
         // `api-key` instead of the standard Authorization header.
         headers['api-key'] = apiKey
-        body = { model: settings.model, messages: [{ role: 'system', content: system }, ...messages] }
+        body = { model: settings.model, messages: [{ role: 'system', content: system }, ...serializeProviderMessages(settings.protocol, messages)] }
       }
       const response = await fetch(requestEndpoint, {
         method: 'POST',
@@ -395,7 +430,10 @@ class AiService {
         const providerMessage = isRecord(payload) && isRecord(payload.error) && typeof payload.error.message === 'string'
           ? payload.error.message
           : `Provider returned HTTP ${response.status}.`
-        throw new Error(`Provider returned HTTP ${response.status} from ${requestEndpoint}. ${providerMessage}`)
+        const visionHint = messages.some(message => !!message.images?.length)
+          ? ' The configured model or endpoint may not support image input.'
+          : ''
+        throw new Error(`Provider returned HTTP ${response.status} from ${requestEndpoint}. ${providerMessage}${visionHint}`)
       }
       const content = extractText(payload)
       if (!content) throw new Error('The provider returned no text content.')
@@ -414,15 +452,25 @@ class AiService {
         )
         throw new Error('AI request was cancelled.')
       }
-      featureLog(
-        'request error name=%s message=%s protocol=%s endpoint=%s model=%s requestId=%s',
-        error instanceof Error ? error.name : 'unknown',
-        error instanceof Error ? error.message : String(error),
-        settings.protocol,
-        requestEndpoint,
-        settings.model,
-        requestId
-      )
+      const hasImages = messages.some(message => !!message.images?.length)
+      if (hasImages) {
+        featureLog(
+          'request error name=%s protocol=%s requestId=%s',
+          error instanceof Error ? error.name : 'unknown',
+          settings.protocol,
+          requestId
+        )
+      } else {
+        featureLog(
+          'request error name=%s message=%s protocol=%s endpoint=%s model=%s requestId=%s',
+          error instanceof Error ? error.name : 'unknown',
+          error instanceof Error ? error.message : String(error),
+          settings.protocol,
+          requestEndpoint,
+          settings.model,
+          requestId
+        )
+      }
       throw error
     } finally {
       clearTimeout(timeout)
@@ -449,31 +497,136 @@ class AiService {
     }
   }
 
+  private async pruneAttachments(graceMs = ATTACHMENT_GRACE_MS): Promise<void> {
+    const all = await readJson<Record<string, unknown>>(this.chatPath, {})
+    const referenced = new Set<string>()
+    for (const value of Object.values(all)) {
+      if (Array.isArray(value)) {
+        for (const id of collectAttachmentIds(normalizeMessages(value))) referenced.add(id)
+      }
+    }
+    const now = Date.now()
+    for (const [id, expiresAt] of this.pendingAttachmentIds) {
+      if (expiresAt > now) referenced.add(id)
+      else {
+        this.pendingAttachmentIds.delete(id)
+        this.pendingAttachmentDocuments.delete(id)
+        this.attachmentMimeTypes.delete(id)
+      }
+    }
+    await this.attachmentStore.prune(referenced, graceMs)
+  }
+
+  private async saveRequestAttachments(uploads: unknown, documentId: string): Promise<AiImageAttachment[]> {
+    const normalized = normalizeImageUploads(uploads)
+    if (!normalized.length) return []
+    const saved = await this.attachmentStore.save(normalized)
+    const expiresAt = Date.now() + ATTACHMENT_GRACE_MS
+    for (const attachment of saved) {
+      this.pendingAttachmentIds.set(attachment.id, expiresAt)
+      this.pendingAttachmentDocuments.set(attachment.id, documentId)
+      this.attachmentMimeTypes.set(attachment.id, attachment.mimeType)
+    }
+    featureLog(
+      'request attachments saved count=%s bytes=%s',
+      saved.length,
+      saved.reduce((total, attachment) => total + attachment.byteSize, 0)
+    )
+    return saved
+  }
+
+  private async hydrateProviderMessages(
+    messages: Array<{ role: 'user' | 'assistant'; content: string; attachments?: AiImageAttachment[] }>,
+    priorityAttachmentIds: ReadonlySet<string> = new Set()
+  ): Promise<ProviderMessage[]> {
+    const imagesByMessage = new Map<number, ProviderImage[]>()
+    const selected = new Set<string>()
+    let imageCount = 0
+    let totalBytes = 0
+    const addAttachment = async(
+      index: number,
+      attachment: AiImageAttachment,
+      required: boolean
+    ): Promise<void> => {
+      if (selected.has(attachment.id)) return
+      if (imageCount >= AI_MAX_IMAGE_COUNT || totalBytes + attachment.byteSize > AI_MAX_IMAGE_TOTAL_BYTES) {
+        if (required) throw new Error('The selected images exceed the image context limit.')
+        return
+      }
+      try {
+        const stored = await this.attachmentStore.read(attachment.id, attachment.mimeType)
+        if (stored.data.byteLength > AI_MAX_IMAGE_BYTES) throw new Error('Image is too large.')
+        if (totalBytes + stored.data.byteLength > AI_MAX_IMAGE_TOTAL_BYTES) {
+          if (required) throw new Error('The selected images exceed the image context limit.')
+          return
+        }
+        selected.add(attachment.id)
+        imageCount += 1
+        totalBytes += stored.data.byteLength
+        const images = imagesByMessage.get(index) ?? []
+        images.push({ mimeType: stored.mimeType, data: Buffer.from(stored.data).toString('base64') })
+        imagesByMessage.set(index, images)
+      } catch (error) {
+        if (required) throw new Error(`The current image attachment could not be read. ${error instanceof Error ? error.message : String(error)}`)
+        featureLog('historical image attachment skipped reason=%s', error instanceof Error ? error.message : String(error))
+      }
+    }
+
+    const ordered = orderAttachmentLocations(messages, priorityAttachmentIds)
+    if (ordered.missing.length) throw new Error('The current image attachment was not found.')
+    for (const location of ordered.locations) {
+      await addAttachment(location.index, location.attachment, location.required)
+    }
+    return messages.map((message, index) => ({
+      role: message.role,
+      content: message.content,
+      images: imagesByMessage.get(index)
+    }))
+  }
+
+  async readAttachment(documentId: string, attachmentId: string): Promise<{ mimeType: AiImageMimeType; data: Uint8Array }> {
+    const all = await readJson<Record<string, unknown>>(this.chatPath, {})
+    const messages = normalizeMessages(all[documentId])
+    const metadata = messages.flatMap(message => message.attachments ?? []).find(attachment => attachment.id === attachmentId)
+    const mimeType = metadata?.mimeType ?? this.attachmentMimeTypes.get(attachmentId)
+    if (!mimeType) throw new Error('Image attachment was not found.')
+    return this.attachmentStore.read(attachmentId, mimeType)
+  }
+
   async request(request: AiRequest): Promise<AiResponse> {
     if (!request.requestId || !request.documentId) throw new Error('Invalid AI request.')
     const { settings, apiKey } = await this.readSettings()
-    const recentMessages = normalizeMessages(request.messages).map(({ role, mode, content }) => ({
+    const currentAttachments = await this.saveRequestAttachments(request.attachments, request.documentId)
+    const priorityAttachmentIds = new Set(currentAttachments.map(attachment => attachment.id))
+    const recentMessages = normalizeMessages(request.messages).map(({ role, mode, content, attachments }) => ({
       role,
-      content: content || (mode === 'rewrite' ? previousRewriteContextMessage : previousPreciseEditContextMessage)
+      content: content || (mode === 'rewrite' ? previousRewriteContextMessage : previousPreciseEditContextMessage),
+      attachments
     }))
     let documentKind = 'unknown'
     if (request.documentId.startsWith('path:')) documentKind = 'path'
     else if (request.documentId.startsWith('tab:')) documentKind = 'tab'
     featureLog(
-      'request input mode=%s documentKind=%s markdownChars=%s contextMessages=%s requestId=%s',
+      'request input mode=%s documentKind=%s markdownChars=%s contextMessages=%s imageCount=%s imageBytes=%s requestId=%s',
       request.mode,
       documentKind,
       request.markdown.length,
       recentMessages.length,
+      currentAttachments.length,
+      currentAttachments.reduce((total, attachment) => total + attachment.byteSize, 0),
       request.requestId
     )
     if (request.mode === 'answer') {
       const promptToken = makePromptToken('MT_CONTEXT')
+      const messages = await this.hydrateProviderMessages([
+        ...recentMessages,
+        { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken), attachments: currentAttachments }
+      ], priorityAttachmentIds)
       const result = await this.requestProvider(
         settings,
         apiKey,
         buildAnswerSystemPrompt(promptToken),
-        [...recentMessages, { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken) }],
+        messages,
         request.requestId
       )
       featureLog(
@@ -496,11 +649,15 @@ class AiService {
     try {
       if (request.mode === 'rewrite') {
         const promptToken = makePromptToken('MT_CONTEXT')
+        const messages = await this.hydrateProviderMessages([
+          ...recentMessages,
+          { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken), attachments: currentAttachments }
+        ], priorityAttachmentIds)
         const result = await this.requestProvider(
           settings,
           apiKey,
           buildRewriteSystemPrompt(promptToken),
-          [...recentMessages, { role: 'user', content: buildDocumentPrompt(request.prompt, request.markdown, promptToken) }],
+          messages,
           request.requestId,
           controller.signal
         )
@@ -526,14 +683,16 @@ class AiService {
         markdown: request.markdown,
         instruction: request.prompt,
         contextMessages: recentMessages,
+        attachments: currentAttachments,
         requestId: request.requestId,
         signal: controller.signal,
         generate: async(agentRequest) => {
+          const messages = await this.hydrateProviderMessages(agentRequest.messages, priorityAttachmentIds)
           const generated = await this.requestProvider(
             settings,
             apiKey,
             agentRequest.system,
-            agentRequest.messages,
+            messages,
             agentRequest.requestId,
             agentRequest.signal
           )
@@ -592,14 +751,28 @@ class AiService {
 
   async saveChat(documentId: string, messages: AiChatMessage[]): Promise<void> {
     const all = await readJson<Record<string, unknown>>(this.chatPath, {})
-    all[documentId] = normalizeMessages(messages)
+    const normalized = normalizeMessages(messages)
+    all[documentId] = normalized
+    for (const [id, pendingDocumentId] of this.pendingAttachmentDocuments) {
+      if (pendingDocumentId === documentId) {
+        this.pendingAttachmentIds.delete(id)
+        this.pendingAttachmentDocuments.delete(id)
+        this.attachmentMimeTypes.delete(id)
+      }
+    }
     await writeJsonAtomic(this.chatPath, all)
+    await this.pruneAttachments(0).catch(error => featureLog('attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
   }
 
   async clearChat(documentId: string): Promise<void> {
     const all = await readJson<Record<string, unknown>>(this.chatPath, {})
     delete all[documentId]
     await writeJsonAtomic(this.chatPath, all)
+    await this.pruneAttachments(0).catch(error => featureLog('attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
+  }
+
+  async cleanupAttachments(): Promise<void> {
+    await this.pruneAttachments(0).catch(error => featureLog('attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
   }
 
   private async readRevisions(): Promise<StoredRevisionState> {
@@ -688,6 +861,7 @@ class AiService {
       }
     }
     if (changed) await writeJsonAtomic(this.revisionPath, state)
+    await this.pruneAttachments(0).catch(error => featureLog('attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
   }
 }
 
@@ -715,9 +889,11 @@ export const registerAiIpcHandlers = (userDataPath: string): void => {
   ipcMain.handle('mt::ai::chat-load', (_event, documentId: string) => aiService.loadChat(documentId))
   ipcMain.handle('mt::ai::chat-save', (_event, documentId: string, messages: AiChatMessage[]) => aiService.saveChat(documentId, messages))
   ipcMain.handle('mt::ai::chat-clear', (_event, documentId: string) => aiService.clearChat(documentId))
+  ipcMain.handle('mt::ai::attachment-read', (_event, documentId: string, attachmentId: string) => aiService.readAttachment(documentId, attachmentId))
   ipcMain.handle('mt::ai::revision-prepare', (_event, request: AiRevisionRequest) => aiService.prepareRevision(request))
   ipcMain.handle('mt::ai::revision-commit', (_event, revisionId: string, documentId: string, afterMarkdown: string) => aiService.commitRevision(revisionId, documentId, afterMarkdown))
   ipcMain.handle('mt::ai::revision-undo', (_event, documentId: string, currentMarkdown: string) => aiService.undoRevision(documentId, currentMarkdown))
   ipcMain.handle('mt::ai::revision-migrate', (_event, fromDocumentId: string, toDocumentId: string) => aiService.migrateDocumentIdentity(fromDocumentId, toDocumentId))
+  aiService.cleanupAttachments().catch(error => featureLog('startup attachment cleanup skipped reason=%s', error instanceof Error ? error.message : String(error)))
   featureLog('IPC handlers registered')
 }

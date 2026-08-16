@@ -83,6 +83,23 @@
           {{ message.content }}
         </div>
         <div
+          v-if="message.attachments?.length"
+          class="ai-message-attachments"
+        >
+          <div
+            v-for="attachment in message.attachments"
+            :key="attachment.id"
+            class="ai-image-preview"
+          >
+            <img
+              v-if="attachmentUrl(attachment)"
+              :src="attachmentUrl(attachment)"
+              :alt="attachment.name"
+            >
+            <span>{{ attachment.name }}</span>
+          </div>
+        </div>
+        <div
           v-if="message.editSummary || message.mode === 'rewrite'"
           class="ai-edit-summary"
         >
@@ -111,12 +128,66 @@
       <span>{{ labels.working }}</span>
     </div>
 
-    <div class="ai-composer">
+    <div
+      class="ai-composer"
+      @dragenter.prevent="dragOver = true"
+      @dragover.prevent="dragOver = true"
+      @dragleave="dragOver = false"
+      @drop.prevent="dropFiles"
+    >
+      <input
+        ref="fileInput"
+        class="ai-file-input"
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        multiple
+        @change="selectFiles"
+      >
+      <div
+        class="ai-attachment-dropzone"
+        :class="{ active: dragOver }"
+        @click="openFilePicker"
+      >
+        <span>📎 {{ labels.attachHint }}</span>
+      </div>
+      <p class="ai-attachment-privacy">
+        {{ labels.attachmentPrivacy }}
+      </p>
+      <div
+        v-if="ai.pendingAttachments.length"
+        class="ai-pending-attachments"
+      >
+        <div
+          v-for="pending in ai.pendingAttachments"
+          :key="pending.attachment.id"
+          class="ai-pending-attachment"
+        >
+          <img
+            :src="pending.previewUrl"
+            :alt="pending.attachment.name"
+          >
+          <span>{{ pending.attachment.name }}</span>
+          <button
+            type="button"
+            :title="labels.removeAttachment"
+            @click="ai.removePendingAttachment(pending.attachment.id)"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+      <p
+        v-if="attachmentErrorLabel"
+        class="ai-attachment-error"
+      >
+        {{ attachmentErrorLabel }}
+      </p>
       <textarea
         v-model="draft"
         :placeholder="labels.placeholder"
         :disabled="ai.loading || !hasDocument"
         rows="4"
+        @paste="pasteFiles"
       />
       <div class="ai-composer-actions">
         <span class="ai-hint">{{ labels.sendHint }}</span>
@@ -166,11 +237,14 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAiStore } from '@/store/ai'
 import { getCurrentLanguage } from '@/i18n'
-import type { AiChatMessage } from '@shared/types/ai'
+import type { AiChatMessage, AiImageAttachment } from '@shared/types/ai'
 
 const ai = useAiStore()
 const { currentDocumentId } = storeToRefs(ai)
 const draft = ref('')
+const fileInput = ref<HTMLInputElement | null>(null)
+const dragOver = ref(false)
+const loadingPreviewIds = new Set<string>()
 const resizing = ref(false)
 const resizeStartX = ref(0)
 const resizeStartWidth = ref(380)
@@ -191,6 +265,14 @@ const labels = computed(() => chinese.value
       you: '你',
       ai: 'AI',
       placeholder: '输入问题或编辑指令…',
+      attachHint: '粘贴或拖入图片，也可点击选择',
+      attachmentPrivacy: '图片会发送到当前配置的 AI 服务。',
+      removeAttachment: '移除图片',
+      attachmentUnsupported: '仅支持 PNG、JPEG、WebP 或 GIF 图片。',
+      attachmentTooLarge: '单张图片不能超过 10 MB。',
+      attachmentTooMany: '一次最多添加 10 张图片。',
+      attachmentTotalTooLarge: '一次图片总大小不能超过 30 MB。',
+      attachmentReadFailed: '无法读取图片。',
       sendHint: '点击发送按钮提交',
       working: 'AI 正在处理…',
       stop: '停止',
@@ -217,6 +299,14 @@ const labels = computed(() => chinese.value
       you: 'You',
       ai: 'AI',
       placeholder: 'Ask a question or describe an edit…',
+      attachHint: 'Paste, drop, or choose images',
+      attachmentPrivacy: 'Images are sent to the configured AI service.',
+      removeAttachment: 'Remove image',
+      attachmentUnsupported: 'Only PNG, JPEG, WebP, or GIF images are supported.',
+      attachmentTooLarge: 'Each image must be smaller than 10 MB.',
+      attachmentTooMany: 'You can attach up to 10 images at a time.',
+      attachmentTotalTooLarge: 'Images in one request must total less than 30 MB.',
+      attachmentReadFailed: 'The image could not be read.',
       sendHint: 'Click Send to submit',
       working: 'AI is working…',
       stop: 'Stop',
@@ -238,6 +328,23 @@ const modeHelp = computed(() => {
   return ai.mode === 'answer' ? labels.value.answerHelp : labels.value.editHelp
 })
 const hasDocument = computed(() => !!currentDocumentId.value)
+const attachmentErrorLabel = computed(() => {
+  if (ai.attachmentError === 'unsupported') return labels.value.attachmentUnsupported
+  if (ai.attachmentError === 'too-large') return labels.value.attachmentTooLarge
+  if (ai.attachmentError === 'too-many') return labels.value.attachmentTooMany
+  if (ai.attachmentError === 'total-too-large') return labels.value.attachmentTotalTooLarge
+  if (ai.attachmentError === 'read-failed') return labels.value.attachmentReadFailed
+  return ''
+})
+
+const attachmentUrl = (attachment: AiImageAttachment): string => {
+  const url = ai.attachmentPreviewUrls[attachment.id] ?? ''
+  if (!url && !loadingPreviewIds.has(attachment.id)) {
+    loadingPreviewIds.add(attachment.id)
+    ai.loadAttachmentPreview(attachment).finally(() => loadingPreviewIds.delete(attachment.id))
+  }
+  return url
+}
 
 const editSummaryLabel = (message: AiChatMessage): string => {
   if (message.mode === 'rewrite') return labels.value.rewriteApplied
@@ -254,6 +361,41 @@ const send = (): void => {
   if (!value) return
   draft.value = ''
   ai.submit(value).catch(() => undefined)
+}
+
+const openFilePicker = (): void => {
+  if (!ai.loading && hasDocument.value) fileInput.value?.click()
+}
+
+const addFiles = (files: File[]): void => {
+  if (!files.length) return
+  ai.addImageFiles(files).catch(() => undefined)
+}
+
+const selectFiles = (event: Event): void => {
+  const input = event.target as HTMLInputElement
+  addFiles(input.files ? Array.from(input.files) : [])
+  input.value = ''
+}
+
+const dropFiles = (event: DragEvent): void => {
+  dragOver.value = false
+  if (event.dataTransfer) addFiles(Array.from(event.dataTransfer.files))
+}
+
+const pasteFiles = (event: ClipboardEvent): void => {
+  const files: File[] = []
+  if (event.clipboardData) {
+    for (const item of Array.from(event.clipboardData.items)) {
+      if (item.kind !== 'file') continue
+      const file = item.getAsFile()
+      if (file) files.push(file)
+    }
+  }
+  if (files.length) {
+    event.preventDefault()
+    addFiles(files)
+  }
 }
 
 const openSettings = (): void => {
@@ -288,12 +430,16 @@ onMounted(() => {
 })
 
 watch(currentDocumentId, (value) => {
+  ai.clearPendingAttachments()
+  ai.releaseAllAttachmentPreviews()
   if (value) ai.loadChat(value).catch(() => undefined)
 })
 
 onUnmounted(() => {
   window.electron.ipcRenderer.removeAllListeners('mt::ai-toggle-panel')
   window.electron.ipcRenderer.removeAllListeners('mt::ai-settings-changed')
+  ai.clearPendingAttachments()
+  ai.releaseAllAttachmentPreviews()
   stopResize()
 })
 </script>
@@ -345,11 +491,22 @@ onUnmounted(() => {
 .ai-message-role { margin-bottom: 5px; color: var(--editorColor60); font-size: 11px; font-weight: 600; }
 .ai-edit-summary { color: var(--editorColor80); font-size: 13px; line-height: 1.4; }
 .ai-message-content { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; line-height: 1.45; }
+.ai-message-attachments, .ai-pending-attachments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.ai-image-preview, .ai-pending-attachment { display: flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 5px; border: 1px solid var(--editorColor20); border-radius: 4px; color: var(--editorColor70); font-size: 11px; overflow: hidden; }
+.ai-image-preview img, .ai-pending-attachment img { width: 48px; height: 48px; flex: 0 0 auto; object-fit: cover; border-radius: 3px; background: var(--editorColor10); }
+.ai-image-preview span, .ai-pending-attachment span { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-pending-attachment button { padding: 0 2px; border: 0; color: var(--editorColor60); background: transparent; cursor: pointer; font: inherit; }
+.ai-pending-attachment button:hover { color: var(--errorColor, #d33); }
 .ai-error { margin: 0 12px 8px; padding: 8px; color: var(--errorColor, #d33); border: 1px solid currentColor; border-radius: 5px; font-size: 12px; }
+.ai-attachment-error { margin: 6px 0 0; color: var(--errorColor, #d33); font-size: 11px; }
 .ai-working { display: flex; align-items: center; gap: 7px; margin: 0 12px 8px; padding: 7px 8px; color: var(--editorColor60); background: var(--floatHoverColor); border-radius: 5px; font-size: 12px; }
 .ai-spinner { width: 12px; height: 12px; box-sizing: border-box; border: 2px solid var(--editorColor30); border-top-color: var(--themeColor); border-radius: 50%; animation: ai-spinner-rotation .8s linear infinite; }
 @keyframes ai-spinner-rotation { to { transform: rotate(360deg); } }
 .ai-composer { padding: 10px 12px; border-top: 1px solid var(--itemBgColor); }
+.ai-file-input { display: none; }
+.ai-attachment-dropzone { margin-bottom: 7px; padding: 6px 8px; border: 1px dashed var(--editorColor30); border-radius: 4px; color: var(--editorColor60); cursor: pointer; font-size: 11px; text-align: center; }
+.ai-attachment-dropzone:hover, .ai-attachment-dropzone.active { border-color: var(--themeColor); color: var(--themeColor); background: var(--buttonBgColorActive); }
+.ai-attachment-privacy { margin: -2px 0 6px; color: var(--editorColor50); font-size: 10px; }
 .ai-composer textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 76px; padding: 9px; border: 1px solid var(--editorColor30); border-radius: 5px; background: var(--inputBgColor); color: var(--editorColor); font: inherit; }
 .ai-composer textarea:focus { outline: none; border-color: var(--themeColor); }
 .ai-composer-actions { margin-top: 7px; gap: 8px; }

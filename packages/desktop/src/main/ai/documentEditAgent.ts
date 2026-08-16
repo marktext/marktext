@@ -1,4 +1,5 @@
 import type {
+  AiImageAttachment,
   AiEditOperationSummary,
   AiEditSummary
 } from '@shared/types/ai'
@@ -13,6 +14,7 @@ import {
 export interface DocumentEditMessage {
   role: 'user' | 'assistant'
   content: string
+  attachments?: AiImageAttachment[]
 }
 
 export interface GeneratedEditResponse {
@@ -42,6 +44,7 @@ export interface DocumentEditAgentRequest {
   markdown: string
   instruction: string
   contextMessages: DocumentEditMessage[]
+  attachments?: AiImageAttachment[]
   requestId: string
   signal: AbortSignal
   generate: (request: DocumentEditGenerateRequest) => Promise<GeneratedEditResponse>
@@ -321,7 +324,7 @@ export const runDocumentEditAgent = async(request: DocumentEditAgentRequest): Pr
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     const messages: DocumentEditMessage[] = [
       ...request.contextMessages,
-      { role: 'user', content: documentPrompt }
+      { role: 'user', content: documentPrompt, attachments: request.attachments }
     ]
     if (previousResponse) {
       messages.push(
