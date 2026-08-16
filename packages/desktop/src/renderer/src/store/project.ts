@@ -233,21 +233,34 @@ export const useProjectStore = defineStore('project', () => {
       const { pathname: src } = activeItem.value
       clipboard.value = { type: String(type), src }
     })
-    bus.on('SIDEBAR::paste', () => {
+    bus.on('SIDEBAR::paste', async() => {
       const cb = clipboard.value
       const { pathname, isDirectory } = activeItem.value
       const dirname = isDirectory ? pathname : window.path.dirname(pathname)
       if (cb && cb.src) {
-        cb.dest = dirname + PATH_SEPARATOR + window.path.basename(cb.src)
+        let dest = dirname + PATH_SEPARATOR + window.path.basename(cb.src)
 
-        if (window.path.normalize(cb.src) === window.path.normalize(cb.dest)) {
-          notice.notify({
-            title: 'Paste Forbidden',
-            type: 'warning',
-            message: 'Source and destination must not be the same.'
-          })
-          return
+        if (window.path.normalize(cb.src) === window.path.normalize(dest)) {
+          if (cb.type === 'cut') {
+            notice.notify({
+              title: 'Paste Forbidden',
+              type: 'warning',
+              message: 'Source and destination must not be the same.'
+            })
+            return
+          }
+          // Copy in same folder: generate unique name (e.g. "file (copy).md", "file (copy 2).md")
+          const ext = window.path.extname(cb.src)
+          const base = window.path.basename(cb.src, ext)
+          let suffix = 1
+          dest = dirname + PATH_SEPARATOR + base + ' (copy)' + ext
+          while (await window.fileUtils.pathExists(dest)) {
+            suffix++
+            dest = dirname + PATH_SEPARATOR + base + ` (copy ${suffix})` + ext
+          }
         }
+
+        cb.dest = dest
 
         paste(cb as PasteOptions)
           .then(() => {
