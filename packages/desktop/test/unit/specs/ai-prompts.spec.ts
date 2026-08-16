@@ -43,6 +43,24 @@ describe('AI prompt templates', () => {
     expect(system).toContain('not a restatement of the user\'s request')
   })
 
+  it('shares MarkText-compatible Markdown generation rules across AI modes', () => {
+    const delimiter = 'MT_FORMAT_TEST'
+    const prompts = [
+      buildAnswerSystemPrompt(delimiter),
+      buildRewriteSystemPrompt(delimiter),
+      buildPreciseEditSystemPrompt(delimiter)
+    ]
+
+    for (const prompt of prompts) {
+      expect(prompt).toContain('For inline math, use single-dollar delimiters like $a^2$.')
+      expect(prompt).toContain('For display math, use a standalone block with $$ on its own line')
+      expect(prompt).toContain('Never generate \\(...\\), \\[...\\], same-line $$...$$, or ```math blocks')
+      expect(prompt).toContain('Use ATX headings')
+      expect(prompt).toContain('GFM pipe tables')
+      expect(prompt).toContain('preserve unrelated existing Markdown byte-for-byte')
+    }
+  })
+
   it('builds tokenized document boundaries and repair messages', () => {
     const delimiter = makePromptToken('MT_TEST')
     expect(buildDocumentContext('# Old title', delimiter)).toBe(
