@@ -55,6 +55,12 @@ export const toggleSidebar = (win: Win): void => {
   toggleLayout(win, 'showSideBar')
 }
 
+export const toggleAiPanel = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::ai-toggle-panel')
+  }
+}
+
 export const toggleTabBar = (win: Win): void => {
   toggleLayout(win, 'showTabBar')
 }
@@ -81,6 +87,7 @@ export const reloadImageCache = (win: Win): void => {
 
 export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_COMMAND_PALETTE, showCommandPalette)
+  commandManager.add(COMMANDS.VIEW_TOGGLE_AI_PANEL, toggleAiPanel)
   commandManager.add(COMMANDS.VIEW_FOCUS_MODE, toggleFocusMode)
   commandManager.add(COMMANDS.VIEW_FORCE_RELOAD_IMAGES, reloadImageCache)
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)

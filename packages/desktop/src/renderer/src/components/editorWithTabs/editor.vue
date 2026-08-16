@@ -1499,6 +1499,34 @@ interface FileChangePayload {
   isReload?: boolean
 }
 
+interface AiApplyPayload {
+  tabId: string
+  mode: 'edit' | 'undo'
+  beforeMarkdown: string
+  markdown: string
+  onApplied: (success: boolean, markdown?: string) => void
+}
+
+const sameAiMarkdown = (left: string, right: string): boolean =>
+  left.replace(/[\r\n]+$/, '') === right.replace(/[\r\n]+$/, '')
+
+const handleAiApply = (payload: unknown): void => {
+  const request = payload as AiApplyPayload
+  if (!request || sourceCode.value || !editor.value || currentFile.value?.id !== request.tabId) {
+    request?.onApplied(false)
+    return
+  }
+  const currentMarkdown = editor.value.getMarkdown()
+  if (!sameAiMarkdown(currentMarkdown, request.beforeMarkdown)) {
+    request.onApplied(false, currentMarkdown)
+    return
+  }
+  editor.value.replaceContent(request.markdown)
+  editorStore.UPDATE_TOC(editor.value.getTOC())
+  const appliedMarkdown = editor.value.getMarkdown()
+  request.onApplied(true, appliedMarkdown)
+}
+
 // listen for markdown change form source mode or change tabs etc
 const handleFileChange = (payload: unknown) => {
   const {
@@ -1836,6 +1864,7 @@ onMounted(() => {
   bus.on('insert-image', insertImage)
   bus.on('image-uploaded', handleUploadedImage)
   bus.on('file-changed', handleFileChange)
+  bus.on('ai-apply-markdown', handleAiApply)
   bus.on('flush-active-editor', flushActiveEditor)
   bus.on('editor-blur', blurEditor)
   bus.on('editor-focus', focusEditor)
@@ -1989,6 +2018,7 @@ onBeforeUnmount(() => {
   bus.off('insert-image', insertImage)
   bus.off('image-uploaded', handleUploadedImage)
   bus.off('file-changed', handleFileChange)
+  bus.off('ai-apply-markdown', handleAiApply)
   bus.off('flush-active-editor', flushActiveEditor)
   bus.off('editor-blur', blurEditor)
   bus.off('editor-focus', focusEditor)

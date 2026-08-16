@@ -78,14 +78,16 @@ Add an `AI` category to the existing settings window. Store one active
 connection, not a profile list:
 
 - protocol: `OpenAI Chat Completions` or `Anthropic Messages`;
-- request URL: the complete endpoint URL, used exactly as entered;
+- API URL: an HTTPS Base URL or complete endpoint URL;
 - API key;
 - model name;
 - `保存并测试` / `Save and test` button;
 - explicit key deletion action.
 
-Only HTTPS URLs are accepted. Do not append paths automatically and do not
-follow redirects. The settings page must explain that the key is stored locally.
+Only HTTPS URLs are accepted. For convenience, resolve the provider's standard
+path when a Base URL is entered: OpenAI `/chat/completions` and Anthropic
+`/v1/messages`. Complete endpoint URLs remain unchanged, and redirects are not
+followed. The settings page must explain that the key is stored locally.
 
 The key is stored in a separate local configuration file under Electron's
 `userData` directory, as explicitly chosen for this fork. It is never included
@@ -177,7 +179,8 @@ reference](https://platform.openai.com/docs/api-reference/backward-compatibility
 and [Anthropic Messages API](https://platform.claude.com/docs/en/api/messages/create).
 
 Do not add provider SDKs, streaming, tool calls, function calls, special Azure
-authentication, arbitrary custom headers, or automatic endpoint rewriting.
+authentication, or arbitrary custom headers. The only URL normalization is the
+deterministic provider-path resolution described in the settings section.
 
 Use separate prompts for the two modes:
 

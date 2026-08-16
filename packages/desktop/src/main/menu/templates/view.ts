@@ -49,6 +49,17 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       type: 'separator'
     },
     {
+      label: t('menu.view.aiEditor'),
+      id: 'aiEditorPanelMenuItem',
+      accelerator: keybindings.getAccelerator('view.toggle-ai-panel') ?? undefined,
+      click(_item, focusedWindow) {
+        actions.toggleAiPanel(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
       label: t('menu.view.toggleSidebar'),
       id: 'sideBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-sidebar') ?? undefined,

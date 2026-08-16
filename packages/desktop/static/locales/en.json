@@ -112,6 +112,7 @@
       "view": "View",
       "toggleSidebar": "Toggle Sidebar",
       "toggleTabbar": "Toggle Tabbar",
+      "aiEditor": "AI Editor",
       "commandPalette": "Command Palette",
       "sourceCodeMode": "Source Code Mode",
       "typewriterMode": "Typewriter Mode",
@@ -431,7 +432,8 @@
       "spelling": "Spelling",
       "theme": "Theme",
       "image": "Image",
-      "keybindings": "Keybindings"
+      "keybindings": "Keybindings",
+      "ai": "AI"
     },
     "general": {
       "title": "General",

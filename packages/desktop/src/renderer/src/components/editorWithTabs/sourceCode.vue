@@ -117,6 +117,36 @@ interface FileChangePayloadLike {
   muyaIndexCursor?: unknown
 }
 
+interface AiApplyPayload {
+  tabId: string
+  mode: 'edit' | 'undo'
+  beforeMarkdown: string
+  markdown: string
+  onApplied: (success: boolean, markdown?: string) => void
+}
+
+const sameAiMarkdown = (left: string, right: string): boolean =>
+  left.replace(/[\r\n]+$/, '') === right.replace(/[\r\n]+$/, '')
+
+const handleAiApply = (payload: unknown): void => {
+  const request = payload as AiApplyPayload
+  if (!request || !sourceCode.value || !editor.value || tabId.value !== request.tabId) {
+    request?.onApplied(false)
+    return
+  }
+  const currentMarkdown = editor.value.getValue()
+  if (!sameAiMarkdown(currentMarkdown, request.beforeMarkdown)) {
+    request.onApplied(false, currentMarkdown)
+    return
+  }
+  const lastLine = editor.value.lineCount() - 1
+  const end = { line: lastLine, ch: editor.value.getLine(lastLine).length }
+  editor.value.replaceRange(request.markdown, { line: 0, ch: 0 }, end, 'ai-editor')
+  saveContent(editor.value)
+  const appliedMarkdown = editor.value.getValue()
+  request.onApplied(true, appliedMarkdown)
+}
+
 const handleFileChange = (payload: unknown) => {
   const { id, markdown: newMarkdown, muyaIndexCursor } = payload as FileChangePayloadLike
   if (!editor.value) return
@@ -184,6 +214,10 @@ const handleInvalidateImageCache = () => {
   if (editor.value) {
     editor.value.invalidateImageCache()
   }
+}
+
+const flushActiveEditor = (): void => {
+  if (editor.value) saveContent(editor.value)
 }
 
 const handleSelectAll = () => {
@@ -358,7 +392,9 @@ onMounted(() => {
 
   bus.on('file-loaded', handleFileChange)
   bus.on('invalidate-image-cache', handleInvalidateImageCache)
+  bus.on('flush-active-editor', flushActiveEditor)
   bus.on('file-changed', handleFileChange)
+  bus.on('ai-apply-markdown', handleAiApply)
   bus.on('selectAll', handleSelectAll)
   bus.on('undo', handleUndo)
   bus.on('redo', handleRedo)
@@ -398,7 +434,9 @@ onBeforeUnmount(() => {
 
   bus.off('file-loaded', handleFileChange)
   bus.off('invalidate-image-cache', handleInvalidateImageCache)
+  bus.off('flush-active-editor', flushActiveEditor)
   bus.off('file-changed', handleFileChange)
+  bus.off('ai-apply-markdown', handleAiApply)
   bus.off('selectAll', handleSelectAll)
   bus.off('undo', handleUndo)
   bus.off('redo', handleRedo)

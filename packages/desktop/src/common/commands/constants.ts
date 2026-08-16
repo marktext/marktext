@@ -96,6 +96,7 @@ const COMMANDS = Object.freeze({
   VIEW_FORCE_RELOAD_IMAGES: 'view.reload-images',
   VIEW_SOURCE_CODE_MODE: 'view.source-code-mode',
   VIEW_TOGGLE_DEV_TOOLS: 'view.toggle-dev-tools',
+  VIEW_TOGGLE_AI_PANEL: 'view.toggle-ai-panel',
   VIEW_TOGGLE_SIDEBAR: 'view.toggle-sidebar',
   VIEW_TOGGLE_TABBAR: 'view.toggle-tabbar',
   VIEW_TOGGLE_TOC: 'view.toggle-toc',

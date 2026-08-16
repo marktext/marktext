@@ -798,8 +798,8 @@ class App {
       }
     })
 
-    ipcMain.on('mt::open-setting-window', () => {
-      this._openSettingsWindow()
+    ipcMain.on('mt::open-setting-window', (_event, category?: string) => {
+      this._openSettingsWindow(category)
     })
 
     ipcMain.on('mt::make-screenshot', (e) => {

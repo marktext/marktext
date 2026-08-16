@@ -112,6 +112,7 @@
       "view": "视图",
       "toggleSidebar": "切换侧边栏",
       "toggleTabbar": "切换标签栏",
+      "aiEditor": "AI 编辑器",
       "commandPalette": "命令面板",
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
@@ -431,7 +432,8 @@
       "spelling": "拼写",
       "theme": "主题",
       "image": "图片",
-      "keybindings": "快捷键"
+      "keybindings": "快捷键",
+      "ai": "AI"
     },
     "general": {
       "title": "通用",

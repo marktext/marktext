@@ -589,6 +589,14 @@ export const useEditorStore = defineStore('editor', {
           this.CLOSE_TAB(existingTab)
         }
 
+        const oldDocumentId = tab.pathname ? `path:${tab.pathname}` : `tab:${tab.id}`
+        const newDocumentId = pathname ? `path:${pathname}` : `tab:${tab.id}`
+        if (oldDocumentId !== newDocumentId) {
+          window.electron.ipcRenderer
+            .invoke('mt::ai::revision-migrate', oldDocumentId, newDocumentId)
+            .catch(() => undefined)
+        }
+
         // SET_PATHNAME
         const { filename } = fileInfo
         if (id === this.currentFile?.id && pathname) {

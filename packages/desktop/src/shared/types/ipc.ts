@@ -32,12 +32,35 @@ import type {
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
+import type {
+  AiChatMessage,
+  AiConnectionSettings,
+  AiConnectionSettingsInput,
+  AiPreparedRevision,
+  AiRequest,
+  AiResponse,
+  AiTestResult,
+  AiUndoResult,
+  AiRevisionRequest
+} from './ai'
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
 // =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::ai::get-settings': { args: []; ret: AiConnectionSettings }
+  'mt::ai::save-settings': { args: [settings: AiConnectionSettingsInput]; ret: AiConnectionSettings }
+  'mt::ai::delete-key': { args: []; ret: AiConnectionSettings }
+  'mt::ai::test-settings': { args: [settings: AiConnectionSettingsInput]; ret: AiTestResult }
+  'mt::ai::request': { args: [request: AiRequest]; ret: AiResponse }
+  'mt::ai::chat-load': { args: [documentId: string]; ret: AiChatMessage[] }
+  'mt::ai::chat-save': { args: [documentId: string, messages: AiChatMessage[]]; ret: void }
+  'mt::ai::chat-clear': { args: [documentId: string]; ret: void }
+  'mt::ai::revision-prepare': { args: [request: AiRevisionRequest]; ret: AiPreparedRevision }
+  'mt::ai::revision-commit': { args: [revisionId: string, documentId: string, afterMarkdown: string]; ret: void }
+  'mt::ai::revision-undo': { args: [documentId: string, currentMarkdown: string]; ret: AiUndoResult | null }
+  'mt::ai::revision-migrate': { args: [fromDocumentId: string, toDocumentId: string]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
@@ -90,6 +113,7 @@ export interface IpcInvokeChannels {
 // =================================================================
 
 export interface IpcSendChannels {
+  'mt::ai::cancel': [requestId: string]
   'app-create-editor-window': [config?: unknown]
   'app-create-settings-window': []
   'app-open-directory-by-id': [windowId: number, dirPath: string]
@@ -127,9 +151,9 @@ export interface IpcSendChannels {
   'mt::menu::popup': [template: MenuTemplate, position?: MenuPopupPosition]
   'mt::menu::popup-application': [position?: MenuPopupPosition]
   'mt::open-file': [filePath: string, options?: unknown]
+  'mt::open-setting-window': [category?: string]
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
-  'mt::open-setting-window': []
   'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
   'mt::request-keybindings': []
   'mt::set-editor-format-menus-enabled': [windowId: number, enabled: boolean]
@@ -222,6 +246,8 @@ export interface IpcMainEventChannels {
   'mt::UPDATE_NOT_AVAILABLE': [info?: unknown]
   'mt::about-dialog': []
   'mt::ask-for-close': []
+  'mt::ai-settings-changed': [settings: AiConnectionSettings]
+  'mt::ai-toggle-panel': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
   'mt::cm-copy-as-html': []
   'mt::cm-copy-as-rich': []

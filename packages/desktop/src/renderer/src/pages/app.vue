@@ -34,6 +34,7 @@
       <rename />
       <import-modal />
     </div>
+    <ai-panel />
   </div>
 </template>
 
@@ -51,6 +52,7 @@ import CommandPalette from '@/components/commandPalette/index.vue'
 import ExportSettingDialog from '@/components/exportSettings/index.vue'
 import Rename from '@/components/rename/index.vue'
 import ImportModal from '@/components/import/index.vue'
+import AiPanel from '@/components/aiPanel/index.vue'
 import bus from '@/bus'
 import { DEFAULT_STYLE } from '@/config'
 import { useLayoutStore } from '@/store/layout'
@@ -246,6 +248,7 @@ onMounted(async () => {
   flex: 1;
   min-height: 100vh;
   position: relative;
+  min-width: 0;
   & > .editor {
     flex: 1;
   }
