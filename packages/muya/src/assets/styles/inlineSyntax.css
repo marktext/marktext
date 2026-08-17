@@ -192,9 +192,17 @@ code.mu-inline-rule {
 }
 
 /* A long inline-math formula must scroll horizontally (in the editing popup and
-   inline when hidden) instead of overflowing the editor area. */
+   inline when hidden) instead of overflowing the editor area.
+   `100cqw` is `.mu-container`'s resolved content width, already net of its
+   own padding (`container-type: inline-size` in blockSyntax.css). Using
+   `--editor-area-width` here directly would break when its value is a `%`:
+   this element's absolute positioning containing block is `.mu-math`, a
+   shrink-to-fit inline box sized to the raw formula text, not
+   `.mu-container` — a `%` baked into the custom property would resolve
+   against that tiny box instead. `cqw` is anchored to the query container
+   regardless of the positioning ancestor. */
 .mu-math > .mu-math-render {
-    max-width: calc(var(--editor-area-width, 800px) - 100px);
+    max-width: 100cqw;
     overflow: auto hidden;
 
     scrollbar-width: thin;

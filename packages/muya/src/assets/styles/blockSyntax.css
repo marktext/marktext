@@ -21,6 +21,15 @@
     padding: 0 50px 100px;
 
     color: var(--editor-color);
+
+    /* Query container so descendants (e.g. the inline-math popup, see
+       inlineSyntax.css) can size themselves against THIS element's resolved
+       width via `cqw` instead of re-reading `--editor-area-width` through a
+       `%`-bearing `calc()` — a custom property's `%` component re-resolves
+       against whichever containing block consumes it, which for a
+       `position: absolute` descendant nested inside a small inline element
+       is not `.mu-container`. */
+    container-type: inline-size;
 }
 
 .mu-container p,
