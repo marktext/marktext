@@ -242,6 +242,11 @@ class JSONState {
         return mdGenerator.generate(state);
     }
 
+    /** Whether edits are queued for the next animation frame. */
+    get hasPendingOperations() {
+        return this._rafId !== null;
+    }
+
     private _emitStateChange() {
         if (this._rafId !== null)
             return;
