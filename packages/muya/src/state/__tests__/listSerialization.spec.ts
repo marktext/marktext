@@ -612,3 +612,27 @@ describe('stateToMarkdown — ordered list start + delimiter', () => {
         expect(serialize(states)).toBe('5) one\n6) two\n');
     });
 });
+
+describe('stateToMarkdown — a task item beside a bullet item', () => {
+    // A bullet item and a task item written as one list are two blocks in Muya's state, and
+    // separating them on the way out turns a tight list into a loose one.
+    it.each([
+        '- containing a bullet\n- [ ] and a task\n',
+        '- [x] a task\n- followed by a bullet\n',
+        '- a bullet\n- [ ] a task\n- another bullet\n- [x] another task\n',
+    ])('keeps adjacent bullet and task runs tight: %j', (md) => {
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('keeps the pair tight inside an ordered item', () => {
+        const md = '1. An ordered item\n   - containing a bullet\n   - [ ] and a task\n2. Another ordered item\n';
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it.each([
+        '- a bullet item\n\n- [ ] a task item\n',
+        '- [x] a task item\n\n- a bullet item\n',
+    ])('preserves authored loose spacing: %j', (md) => {
+        expect(roundTrip(md)).toBe(md);
+    });
+});

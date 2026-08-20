@@ -226,6 +226,10 @@ export default class ExportMarkdown {
 
         if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
             insertNewLine = false;
+        // Bullet and task runs share one Markdown list. Separating tight runs
+        // with a blank line would make the whole list loose.
+        else if (lastListBullet && 'loose' in meta && !meta.loose)
+            insertNewLine = false;
 
         if (insertNewLine)
             this._insertLineBreak(result, indent);
