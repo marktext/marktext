@@ -1058,6 +1058,12 @@ h2.sec-title {
   text-transform: uppercase;
   color: var(--muted);
 }
+.sponsor-logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+}
 .sponsor-logo {
   display: inline-flex;
   align-items: center;
@@ -1081,7 +1087,9 @@ h2.sec-title {
   width: auto;
   display: block;
 }
-[data-theme='dark'] .sponsor-logo img {
+/* Logos that carry their own background can't be recolored, so exclude them
+   from the dark-mode inversion that transparent single-color logos rely on. */
+[data-theme='dark'] .sponsor-logo img:not(.sponsor-logo-raw) {
   filter: brightness(0) invert(1);
   opacity: 0.9;
 }

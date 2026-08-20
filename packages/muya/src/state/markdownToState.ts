@@ -10,15 +10,11 @@ import type {
     ITaskListState,
     TState,
 } from './types';
+import { firstWordOfInfo } from '../utils';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
 const debug = logger('import markdown: ');
-function restoreTableEscapeCharacters(text: string) {
-    // NOTE: markedjs replaces all escaped "|" ("\|") characters inside a cell with "|".
-    //       We have to re-escape the character to not break the table.
-    return text.replace(/\|/g, '\\|');
-}
 
 interface IMarkdownToStateOptions {
     footnote: boolean;
@@ -408,12 +404,17 @@ export class MarkdownToState {
                     children: [],
                 };
 
+                // Store the cell text as marked emits it (with the table `\|`
+                // escape already resolved to a literal `|`), so the editor shows
+                // `` `|` `` rather than the escaped `` `\|` `` inside inline code
+                // (#4849). `escapeText` re-adds the `\|` escape on serialization,
+                // keeping the markdown round-trip intact.
                 tableState.children.push({
                     name: 'table.row',
                     children: header.map((h, i) => ({
                         name: 'table.cell' as const,
                         meta: { align: align[i] || 'none' },
-                        text: restoreTableEscapeCharacters(h.text),
+                        text: h.text,
                     })),
                 });
 
@@ -423,7 +424,7 @@ export class MarkdownToState {
                         children: row.map((c, i) => ({
                             name: 'table.cell' as const,
                             meta: { align: align[i] || 'none' },
-                            text: restoreTableEscapeCharacters(c.text),
+                            text: c.text,
                         })),
                     })),
                 );
@@ -542,10 +543,10 @@ export class MarkdownToState {
         trimUnnecessaryCodeBlockEmptyLines: boolean,
         fenceLength?: number,
     ): TState {
-        // GH#697, markedjs#1387 — strip everything past the first
-        // whitespace; `\S*` matches the empty string so this is
-        // always non-null even for `infoString === ''`.
-        const lang = (infoString || '').match(/\S*/)?.[0] ?? '';
+        // Keep the whole info string; the language for highlighting / diagram
+        // detection is its first word (CommonMark §4.5).
+        const info = (infoString || '').trim();
+        const lang = firstWordOfInfo(info);
 
         let value = text;
         // Fix: #1265.
@@ -580,7 +581,9 @@ export class MarkdownToState {
             name: 'code-block' as const,
             meta: {
                 type: isFenced ? 'fenced' : 'indented',
-                lang,
+                // The full info string verbatim (empty for indented blocks); the
+                // language is its first word — see `firstWordOfInfo`.
+                lang: info,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
             },
             text: value,

@@ -55,8 +55,10 @@ class LangInputContent extends Content {
 
     override inputHandler() {
         const textContent = this.domNode!.textContent ?? '';
-        const lang = textContent.split(/\s+/)[0];
-        this._updateLanguage(lang);
+        // Store the whole info string; the language is derived as its first word
+        // elsewhere (`firstWordOfInfo`). Previously this truncated at the first
+        // whitespace, which dropped `title="x"` / Pandoc attributes on edit.
+        this._updateLanguage(textContent);
     }
 
     override enterHandler(event: Event) {

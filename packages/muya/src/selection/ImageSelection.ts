@@ -3,6 +3,7 @@ import type { Muya } from '../muya';
 import type Selection from './index';
 import type { IImageSelectionData } from './types';
 import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
+import { LINK_SELECTOR } from '../editor/linkMouseEvents';
 import { isHTMLElement, isKeyboardEvent } from '../utils';
 import { getImageInfo, getImageSrc } from '../utils/image';
 import { findContentDOM } from './dom';
@@ -102,7 +103,17 @@ class ImageSelection {
         }
 
         if (isHTMLElement(target) && target.tagName === 'IMG') {
-            if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey)) {
+            // A linked image (e.g. `[![alt](src)](href)`) renders its image
+            // wrapper inside a link element. On modifier-click the link handler
+            // (linkMouseEvents) opens the URL; don't also emit the image preview,
+            // which would pop a viewer over the navigation (#3835). Reuse
+            // linkMouseEvents' selector so every link variant is covered (plain,
+            // reference, autolink, raw-HTML anchor), not just `mu-link`.
+            if (
+                event instanceof MouseEvent
+                && (event.metaKey || event.ctrlKey)
+                && !imageWrapper.closest(LINK_SELECTOR)
+            ) {
                 const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
                 const src = getImageSrc(tokenSrc).src || target.getAttribute('src') || '';
                 if (src) {

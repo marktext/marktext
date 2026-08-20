@@ -10,7 +10,12 @@ import { CLASS_NAMES } from '../../config';
 import { getImageSrc } from '../../utils/image';
 
 function renderIcon(h: H, className: string, icon: string) {
-    const selector = `a.${className}`;
+    // A `<span>`, not an `<a>`: these hover controls carry no href, and an `<a>`
+    // here nests illegally when the image sits inside a real anchor (e.g. a
+    // reference-linked image `[![alt](img)][ref]`). The HTML parser closes the
+    // outer anchor early on the nested `<a>`, hoisting the image out of the link
+    // (#4865).
+    const selector = `span.${className}`;
     const iconVnode = h(
         'i.icon',
         h(

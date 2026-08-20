@@ -64,12 +64,28 @@ const rebuild = (directory: string): void => {
 
 const watchDirectory = (directory: string): void => {
   if (watchers.has(directory)) return // Do not duplicate watch the same directory
-  const watcher = fs.watch(directory, (eventType, _filename) => {
-    if (eventType === 'rename') {
-      rebuild(directory)
-    }
-  })
-  watchers.set(directory, watcher)
+  try {
+    const watcher = fs.watch(directory, (eventType, _filename) => {
+      if (eventType === 'rename') {
+        rebuild(directory)
+      }
+    })
+    // Some directories become unwatchable after construction (network mounts
+    // dropping, permission changes); swallow the error and stop watching
+    // rather than leaking an uncaught exception into the main process.
+    watcher.on('error', (err) => {
+      log.error('imagePathAutoComplement::watchDirectory:', err)
+      watcher.close()
+      watchers.delete(directory)
+    })
+    watchers.set(directory, watcher)
+  } catch (err) {
+    // `fs.watch` throws synchronously for directories the OS can't watch —
+    // e.g. UNC / \\wsl.localhost network paths on Windows (EISDIR). Image-path
+    // auto-complete must degrade to "not watching" instead of crashing the
+    // main process with an "Unexpected error" dialog (#3779).
+    log.error('imagePathAutoComplement::watchDirectory:', err)
+  }
 }
 
 export const searchFilesAndDir = (directory: string, key: string): Promise<DirOrImageEntry[]> => {

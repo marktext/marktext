@@ -1314,7 +1314,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1340,7 +1340,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)

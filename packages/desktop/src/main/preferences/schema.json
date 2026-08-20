@@ -67,7 +67,7 @@
     "type": "string"
   },
   "language": {
-    "description": "General--The language MarkText use.",
+    "description": "General--The language MarkText uses.",
     "type": "string",
     "default": "en"
   },
@@ -233,7 +233,7 @@
     "default": "-"
   },
   "orderListDelimiter": {
-    "description": "Markdown--The dilimiter used in order list",
+    "description": "Markdown--The delimiter used in order list",
     "enum": [".", ")"],
     "default": "."
   },
