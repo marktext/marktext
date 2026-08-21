@@ -862,6 +862,21 @@ const imagePathAutoComplete = async (src: string) => {
   })
 }
 
+// Convert a `data:` URL (e.g. a screenshot pasted from the clipboard bitmap)
+// back into a `File` so `imageAction` routes it through the copy-to-folder /
+// upload flows. Returns null when the payload is not a base64 image data URL.
+const dataURLToFile = (dataUrl: string): File | null => {
+  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/s.exec(dataUrl)
+  if (!match) return null
+  const mime = match[1]
+  const ext =
+    mime === 'image/svg+xml' ? 'svg' : mime.split('/')[1]?.replace('jpeg', 'jpg') ?? 'png'
+  const binary = atob(match[2])
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return new File([bytes], `image.${ext}`, { type: mime })
+}
+
 const imageAction = async (
   image: string | File,
   id: string | null,
@@ -870,6 +885,16 @@ const imageAction = async (
   // TODO(Refactor): Refactor this method.
   if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
+
+  // A pasted screenshot / bitmap clipboard comes in as a `data:` URL string
+  // rather than a file path. `moveImageToFolder` and `uploadImage` treat any
+  // string as a local path, which would silently keep the base64 inline — so
+  // normalize it back into a `File` up front and let the branches below handle
+  // it as binary.
+  if (typeof image === 'string' && image.startsWith('data:')) {
+    const file = dataURLToFile(image)
+    if (file) image = file
+  }
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
