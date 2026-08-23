@@ -364,6 +364,7 @@
       "items": {
         "autoSave": "Automatically save the content being edited",
         "autoSaveDelay": "The time in ms after a change that the file is saved",
+        "autoReload": "Reload files changed on disk if they have no unsaved edits",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
         "openFolderInNewWindow": "Open folder via menu in a new window",
@@ -435,10 +436,16 @@
     },
     "general": {
       "title": "General",
+      "fileChanges": {
+        "title": "File Changes"
+      },
       "autoSave": {
         "title": "Auto Save",
         "description": "Auto save",
         "delayDescription": "Auto save delay"
+      },
+      "autoReload": {
+        "description": "Reload files changed on disk if they have no unsaved edits"
       },
       "window": {
         "title": "Window",
