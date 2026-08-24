@@ -39,7 +39,11 @@
     background-color: var(--float-hover-color);
 }
 
-.mu-quick-insert:hover .active {
+.mu-quick-insert:not(.mu-keyboard-navigation):hover .active:not(:hover) {
+    background: transparent;
+}
+
+.mu-quick-insert.mu-keyboard-navigation div.item:hover:not(.active) {
     background: transparent;
 }
 
