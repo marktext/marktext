@@ -80,6 +80,7 @@
       "minimize": "Minimizar",
       "zoomIn": "Aumentar Zoom",
       "zoomOut": "Diminuir Zoom",
+      "resetZoom": "Redefinir Zoom",
       "fullScreen": "Tela Cheia",
       "bringAllToFront": "Trazer Todas para Frente",
       "alwaysOnTop": "Sempre no Topo"

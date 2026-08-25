@@ -80,6 +80,7 @@
       "minimize": "Réduire",
       "zoomIn": "Agrandir",
       "zoomOut": "Réduire",
+      "resetZoom": "Réinitialiser le zoom",
       "fullScreen": "Plein écran",
       "bringAllToFront": "Tout amener au premier plan",
       "alwaysOnTop": "Toujours au premier plan"

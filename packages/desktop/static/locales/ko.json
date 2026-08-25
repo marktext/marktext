@@ -80,6 +80,7 @@
       "minimize": "최소화",
       "zoomIn": "확대",
       "zoomOut": "축소",
+      "resetZoom": "줌 초기화",
       "fullScreen": "전체 화면",
       "bringAllToFront": "모든 창 앞으로 가져오기",
       "alwaysOnTop": "항상 위에"

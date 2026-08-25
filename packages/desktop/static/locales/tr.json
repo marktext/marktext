@@ -80,6 +80,7 @@
       "minimize": "Simge Durumuna Küçült",
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
+      "resetZoom": "Yakınlaştırmayı Sıfırla",
       "fullScreen": "Tam Ekran",
       "bringAllToFront": "Tümünü Öne Getir",
       "alwaysOnTop": "Her Zaman Üstte"
