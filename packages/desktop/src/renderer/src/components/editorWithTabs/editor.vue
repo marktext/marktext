@@ -219,6 +219,7 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  mathDelimiter,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
   lineHeight,
@@ -653,6 +654,12 @@ watch(superSubScript, (value, oldValue) => {
 watch(footnote, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ footnote: value }, true)
+  }
+})
+
+watch(mathDelimiter, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ mathDelimiter: value === 'latex' ? 'latex' : 'dollar' })
   }
 })
 
@@ -1749,6 +1756,7 @@ onMounted(() => {
     frontmatterType: frontmatterType.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
+    mathDelimiter: mathDelimiter.value === 'latex' ? 'latex' : 'dollar',
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
     hideQuickInsertHint: hideQuickInsertHint.value,

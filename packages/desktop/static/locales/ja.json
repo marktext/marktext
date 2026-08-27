@@ -405,6 +405,7 @@
         "frontmatterType": "フロントマターのタイプ",
         "superSubScript": "Pandocのmarkdown拡張上付き文字と下付き文字を有効にする",
         "footnote": "Pandocのmarkdown拡張脚注を有効にする",
+        "mathDelimiter": "数式を挿入するときに使用する区切り文字",
         "isHtmlEnabled": "HTMLレンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab互換モードを有効にする",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -629,6 +630,11 @@
           "jsonBrace": "JSON括弧",
           "jsonSemicolon": "JSONセミコロン",
           "title": "フロントマタータイプ"
+        },
+        "mathDelimiter": {
+          "title": "数式の区切り文字",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {

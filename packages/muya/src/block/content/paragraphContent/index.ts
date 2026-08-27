@@ -42,11 +42,14 @@ const debug = logger('paragraph:content');
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
 const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
 const MATH_BLOCK_REG = /^\$\$/;
+// Exact `\[` only: unlike `$$`, a line that already has a formula (`\[ x`)
+// must not convert-on-enter and discard the rest of the text.
+const LATEX_DISPLAY_OPEN_REG = /^\\\[$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
 
 type BlockConversion
-    = | { kind: 'math' }
+    = | { kind: 'math'; mathStyle: string }
         | { kind: 'code'; lang: string }
         | { kind: 'table' }
         | { kind: 'html'; tagName: string };
@@ -57,7 +60,9 @@ type BlockConversion
 // can never drift between the two.
 function matchBlockConversion(text: string): BlockConversion | null {
     if (MATH_BLOCK_REG.test(text))
-        return { kind: 'math' };
+        return { kind: 'math', mathStyle: '' };
+    if (LATEX_DISPLAY_OPEN_REG.test(text))
+        return { kind: 'math', mathStyle: 'latex' };
 
     const codeBlockToken = text.match(CODE_BLOCK_REG);
     if (codeBlockToken)
@@ -267,7 +272,7 @@ class ParagraphContent extends Format {
                     name: 'math-block',
                     text: '',
                     meta: {
-                        mathStyle: '',
+                        mathStyle: match.mathStyle,
                     },
                 };
                 const mathBlock = ScrollPage.loadBlock('math-block').create(

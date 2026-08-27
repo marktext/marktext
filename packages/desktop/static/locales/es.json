@@ -405,6 +405,7 @@
         "frontmatterType": "El tipo de frontmatter",
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
+        "mathDelimiter": "El delimitador usado al insertar fórmulas matemáticas",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
         "sequenceTheme": "Tema del diagrama de secuencia",
@@ -629,6 +630,11 @@
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",
           "title": "Tipo de Metadatos"
+        },
+        "mathDelimiter": {
+          "title": "Delimitador de matemáticas",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {

@@ -267,6 +267,11 @@
     "type": "boolean",
     "default": false
   },
+  "mathDelimiter": {
+    "description": "Markdown--The delimiter used when inserting math formulas.",
+    "enum": ["dollar", "latex"],
+    "default": "dollar"
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

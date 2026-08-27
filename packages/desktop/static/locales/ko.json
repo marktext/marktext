@@ -405,6 +405,7 @@
         "frontmatterType": "프론트매터 유형",
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
+        "mathDelimiter": "수식을 삽입할 때 사용하는 구분자",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "sequenceTheme": "시퀀스 다이어그램 테마",
@@ -629,6 +630,11 @@
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
           "title": "프론트매터 유형"
+        },
+        "mathDelimiter": {
+          "title": "수식 구분자",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {
