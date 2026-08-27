@@ -9,8 +9,9 @@ import ExportMarkdown from '../stateToMarkdown';
 //                into a `multiplemath` token with mathStyle='gitlab', but ONLY
 //                when BOTH `math` AND `isGitlabCompatibilityEnabled` are true.
 //   * serialize: state/stateToMarkdown.ts::_serializeMathBlock picks the fence
-//                purely from meta.mathStyle ('' → $$, 'gitlab' → ```math) — it
-//                does NOT re-read the option, so a block keeps its origin style.
+//                purely from meta.mathStyle ('' → $$, 'gitlab' → ```math,
+//                'latex' → `\[...\]`) — it does NOT re-read the option, so a
+//                block keeps its origin style.
 // The legacy engine (packages/muyajs) detected the same syntax with a dedicated
 // regex (`multiplemathGitlab` in parser/marked/blockRules.js). These specs lock
 // the state round-trip the renderer test (renderToStaticHTML.spec.ts) does not

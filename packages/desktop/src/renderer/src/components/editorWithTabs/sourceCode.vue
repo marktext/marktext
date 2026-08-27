@@ -368,9 +368,9 @@ onMounted(() => {
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
-  // `$$...$$` spans to stex so subscript underscores in math do not flip the
-  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
+  // `markdown-math` wraps the standard Markdown mode and delegates `$...$`,
+  // `$$...$$`, `\(...\)`, and `\[...\]` spans to stex so subscript underscores
+  // in math do not flip the outer mode into emphasis. See markdownMathMode.ts.
   codeMirrorInstance.setOption('mode', 'markdown-math')
 
   codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {

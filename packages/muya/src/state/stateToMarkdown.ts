@@ -42,6 +42,16 @@ function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
 
+// Origin of the block, not a parse-time rewrite of one delimiter into
+// another: '' → `$$`, gitlab → ```math, latex → `\[...\]`.
+function mathBlockFence(mathStyle: string): { open: string; close: string } {
+    if (mathStyle === 'gitlab')
+        return { open: '```math\n', close: '```\n' };
+    if (mathStyle === 'latex')
+        return { open: '\\[\n', close: '\\]\n' };
+    return { open: '$$\n', close: '$$\n' };
+}
+
 export interface IExportMarkdownOptions {
     listIndentation: number | string;
 }
@@ -405,12 +415,13 @@ export default class ExportMarkdown {
             meta: { mathStyle },
         } = state;
         const lines = text.split('\n');
-        result.push(indent + (mathStyle === '' ? '$$\n' : '```math\n'));
+        const { open, close } = mathBlockFence(mathStyle);
+        result.push(indent + open);
 
         for (const line of lines)
             result.push(`${indent}${line}\n`);
 
-        result.push(indent + (mathStyle === '' ? '$$\n' : '```\n'));
+        result.push(indent + close);
 
         return result.join('');
     }

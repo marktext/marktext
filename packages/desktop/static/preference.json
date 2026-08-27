@@ -52,6 +52,7 @@
   "frontmatterType": "-",
   "superSubScript": false,
   "footnote": false,
+  "mathDelimiter": "dollar",
   "isHtmlEnabled": true,
   "isGitlabCompatibilityEnabled": false,
   "sequenceTheme": "hand",

@@ -55,7 +55,11 @@ function flush(): Promise<void> {
 
 // Drive `$$` + Enter on the list item's paragraph content and return the
 // resulting top-level document state (the order-list).
-async function enterDollarsInList(token: string): Promise<{ listChildren: number; itemBlockNames: string[] }> {
+async function enterDollarsInList(token: string): Promise<{
+    listChildren: number;
+    itemBlockNames: string[];
+    firstMathStyle?: string;
+}> {
     const muya = bootMuya('1. x\n');
     const content = muya.editor.scrollPage!.firstContentInDescendant() as unknown as Content;
     content.text = token;
@@ -65,20 +69,36 @@ async function enterDollarsInList(token: string): Promise<{ listChildren: number
     content.enterHandler(keyEvent({ key: 'Enter' }));
     await flush();
 
-    const state = muya.getState() as Array<{ name: string; children?: Array<{ name: string; children?: Array<{ name: string }> }> }>;
+    const state = muya.getState() as Array<{ name: string; children?: Array<{ name: string; children?: Array<{ name: string; meta?: { mathStyle?: string } }> }> }>;
     const list = state[0];
     const items = list.children ?? [];
+    const children = items[0]?.children ?? [];
+    const math = children.find(c => c.name === 'math-block');
     return {
         listChildren: items.length,
-        itemBlockNames: (items[0]?.children ?? []).map(c => c.name),
+        itemBlockNames: children.map(c => c.name),
+        firstMathStyle: math?.meta?.mathStyle,
     };
 }
 
 describe('#2276 — `$$`/code-fence + Enter inside a list converts in place, no extra item', () => {
     it('`$$` converts the list item to a math block without adding a new list item', async () => {
-        const { listChildren, itemBlockNames } = await enterDollarsInList('$$');
+        const { listChildren, itemBlockNames, firstMathStyle } = await enterDollarsInList('$$');
         expect(listChildren).toBe(1); // no unwanted second list item
         expect(itemBlockNames).toContain('math-block');
+        expect(firstMathStyle).toBe('');
+    });
+
+    it('`\\[` converts the list item to a latex-styled math block without adding a new list item', async () => {
+        const { listChildren, itemBlockNames, firstMathStyle } = await enterDollarsInList('\\[');
+        expect(listChildren).toBe(1);
+        expect(itemBlockNames).toContain('math-block');
+        expect(firstMathStyle).toBe('latex');
+    });
+
+    it('`\\[ x` does not convert-on-enter (exact opener only, unlike $$)', async () => {
+        const { itemBlockNames } = await enterDollarsInList('\\[ x');
+        expect(itemBlockNames).not.toContain('math-block');
     });
 
     it('a code fence ```` ``` ```` converts in place without adding a new list item', async () => {

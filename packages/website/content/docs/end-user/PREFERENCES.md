@@ -60,8 +60,9 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | listIndentation              | Mixed   | `1`     | List indentation. Optional values: `dfm`, `tab`, or a number `1`–`4`.                                                                |
 | frontmatterType              | String  | `-`     | Frontmatter delimiter: `-` (YAML), `+` (TOML), `;` (JSON), or `{` (JSON).                                                            |
 | superSubScript               | Boolean | `false` | Enable pandoc's superscript/subscript markdown extension.                                                                            |
-| footnote                     | Boolean | `false` | Enable pandoc's footnote markdown extension.                                                                                         |
-| isHtmlEnabled                | Boolean | `true`  | Enable inline HTML rendering.                                                                                                        |
+| footnote                     | Boolean | `false`  | Enable pandoc's footnote markdown extension.                                                                                         |
+| mathDelimiter                | String  | `dollar` | Delimiter written when inserting math from the Format and Paragraph menus. Optional values: `dollar` (`$…$` / `$$…$$`), `latex` (`\(...\)` / `\[…\]`). Parsing always accepts both. |
+| isHtmlEnabled                | Boolean | `true`   | Enable inline HTML rendering.                                                                                                        |
 | isGitlabCompatibilityEnabled | Boolean | `false` | Enable GitLab compatibility mode.                                                                                                    |
 | sequenceTheme                | String  | `hand`  | Theme for [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/): `hand` or `simple`.                                 |
 

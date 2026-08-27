@@ -407,6 +407,7 @@
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "mathDelimiter": "Matematik formülleri eklerken kullanılan sınırlayıcı",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -633,6 +634,11 @@
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
           "title": "Ön Bilgi Türü"
+        },
+        "mathDelimiter": {
+          "title": "Matematik sınırlayıcısı",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {

@@ -35,8 +35,17 @@ interface IFormatProtoAddFormat {
     ) => void;
 }
 
-function applyAddFormat(text: string, start: number, end: number, type: string) {
-    const fakeThis = { text } as { text: string };
+function applyAddFormat(
+    text: string,
+    start: number,
+    end: number,
+    type: string,
+    mathDelimiter?: string,
+) {
+    const fakeThis = {
+        text,
+        muya: mathDelimiter ? { options: { mathDelimiter } } : undefined,
+    } as { text: string; muya?: { options: { mathDelimiter: string } } };
     const startOffset: IOffset = { offset: start };
     const endOffset: IOffset = { offset: end };
     (Format.prototype as unknown as IFormatProtoAddFormat)._addFormat.call(fakeThis, type, {
@@ -81,6 +90,13 @@ describe('format._addFormat caret/selection placement after wrapping', () => {
             expect(text).toBe('$abc$');
             expect(start).toBe(1);
             expect(end).toBe(4);
+        });
+
+        it('inline_math with mathDelimiter latex: "abc" -> "\\(abc\\)" with "abc" still selected (2..5)', () => {
+            const { text, start, end } = applyAddFormat('abc', 0, 3, 'inline_math', 'latex');
+            expect(text).toBe('\\(abc\\)');
+            expect(start).toBe(2);
+            expect(end).toBe(5);
         });
 
         it('mid-text selection: "hello world" select "world" -> "world" still selected', () => {
