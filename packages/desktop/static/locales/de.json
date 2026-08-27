@@ -403,6 +403,7 @@
         "tabSize": "Tab durch x Leerzeichen ersetzen",
         "listIndentation": "Einrückung der Liste auswählen",
         "frontmatterType": "Der Frontmatter-Typ",
+        "frontmatterDefaultCollapsed": "Eigenschaften standardmäßig einklappen",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
@@ -625,6 +626,7 @@
         "superSubScript": "Hoch-/Tiefgestellt",
         "footnote": "Fußnote",
         "footnoteNotes": "Fußnoten",
+        "frontmatterDefaultCollapsed": "Eigenschaften standardmäßig einklappen",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",

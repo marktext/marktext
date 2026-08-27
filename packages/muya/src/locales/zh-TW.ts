@@ -16,6 +16,7 @@ export const zhTW = {
         'Paragraph': '一般段落',
         'Horizontal Line': '水平分隔線',
         'Front Matter': '頂部資訊區塊',
+        'Properties': '屬性',
         'Heading 1': '標題 1',
         'Heading 2': '標題 2',
         'Heading 3': '標題 3',

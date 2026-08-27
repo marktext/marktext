@@ -16,6 +16,7 @@ export const tr = {
         'Paragraph': 'Paragraf',
         'Horizontal Line': 'Yatay Çizgi',
         'Front Matter': 'Ön Bilgi',
+        'Properties': 'Özellikler',
         'Heading 1': 'Başlık 1',
         'Heading 2': 'Başlık 2',
         'Heading 3': 'Başlık 3',

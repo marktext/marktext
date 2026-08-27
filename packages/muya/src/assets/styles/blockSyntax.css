@@ -235,6 +235,62 @@
     font-family: inherit;
 }
 
+.mu-frontmatter-toggle {
+    display: flex;
+    gap: 0.65em;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+
+    color: var(--editor-color);
+    font-weight: 600;
+    font-size: 1em;
+    font-family: var(--mu-font-family, sans-serif);
+    line-height: 1.4;
+    text-align: left;
+
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.mu-frontmatter-toggle::before {
+    width: 0.45em;
+    height: 0.45em;
+
+    border-right: 1.5px solid currentcolor;
+    border-bottom: 1.5px solid currentcolor;
+    transform: rotate(45deg);
+    transform-origin: center;
+
+    transition: transform 0.15s ease;
+
+    content: '';
+}
+
+.mu-frontmatter-toggle:focus-visible {
+    outline: 2px solid var(--theme-color);
+    outline-offset: 3px;
+}
+
+.mu-frontmatter > .mu-code {
+    display: block;
+    margin-top: 0.75em;
+}
+
+.mu-frontmatter.mu-frontmatter-collapsed > .mu-frontmatter-toggle::before {
+    transform: rotate(-45deg);
+}
+
+.mu-frontmatter.mu-frontmatter-collapsed > .mu-code {
+    display: none;
+}
+
+.mu-frontmatter.mu-frontmatter-collapsed::before,
+.mu-frontmatter.mu-frontmatter-collapsed::after {
+    content: none;
+}
+
 /* wrapCodeBlocks → `.mu-code-wrap`; wraps long lines (overrides prism's `pre`). */
 .mu-code-wrap .mu-code-block .mu-code {
     overflow: hidden;
@@ -971,6 +1027,11 @@ pre.mu-active.mu-fenced-code::after {
 
 .mu-table-cell-content {
     min-width: 10em;
+}
+
+.mu-table-inner tr td.mu-table-cell-selected > .mu-table-cell-content {
+    position: relative;
+    z-index: 2;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`

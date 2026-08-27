@@ -402,6 +402,7 @@
         "tabSize": "Replace the tab with x spaces",
         "listIndentation": "Select the indent of list",
         "frontmatterType": "The frontmatter type",
+        "frontmatterDefaultCollapsed": "Collapse properties by default",
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
         "footnote": "Enable pandoc's markdown extension footnote",
         "isHtmlEnabled": "Enable HTML rendering",
@@ -625,6 +626,7 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Footnote",
         "footnoteNotes": "Footnote notes",
+        "frontmatterDefaultCollapsed": "Collapse properties by default",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",

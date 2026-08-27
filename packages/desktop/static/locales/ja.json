@@ -403,6 +403,7 @@
         "tabSize": "タブをx個のスペースに置き換える",
         "listIndentation": "リストのインデントを選択",
         "frontmatterType": "フロントマターのタイプ",
+        "frontmatterDefaultCollapsed": "プロパティをデフォルトで折りたたむ",
         "superSubScript": "Pandocのmarkdown拡張上付き文字と下付き文字を有効にする",
         "footnote": "Pandocのmarkdown拡張脚注を有効にする",
         "isHtmlEnabled": "HTMLレンダリングを有効にする",
@@ -625,6 +626,7 @@
         "superSubScript": "上付き/下付き文字",
         "footnote": "脚注",
         "footnoteNotes": "脚注",
+        "frontmatterDefaultCollapsed": "プロパティをデフォルトで折りたたむ",
         "frontmatterType": {
           "jsonBrace": "JSON括弧",
           "jsonSemicolon": "JSONセミコロン",

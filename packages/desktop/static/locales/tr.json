@@ -402,6 +402,7 @@
         "tabSize": "Sekmeyi x boşlukla değiştir",
         "listIndentation": "Liste girintisini seçin",
         "frontmatterType": "Ön bilgi türü",
+        "frontmatterDefaultCollapsed": "Özellikleri varsayılan olarak daralt",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
@@ -625,6 +626,7 @@
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
         "footnoteNotes": "Dipnot notları",
+        "frontmatterDefaultCollapsed": "Özellikleri varsayılan olarak daralt",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

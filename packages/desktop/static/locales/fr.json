@@ -403,6 +403,7 @@
         "tabSize": "Remplacer la tabulation par x espaces",
         "listIndentation": "Sélectionner l'indentation de liste",
         "frontmatterType": "Le type de frontmatter",
+        "frontmatterDefaultCollapsed": "Réduire les propriétés par défaut",
         "superSubScript": "Activer l'extension markdown de pandoc pour exposant et indice",
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
         "isHtmlEnabled": "Activer le rendu HTML",
@@ -625,6 +626,7 @@
         "superSubScript": "Exposant/Indice",
         "footnote": "Note de bas de page",
         "footnoteNotes": "Notes de bas de page",
+        "frontmatterDefaultCollapsed": "Réduire les propriétés par défaut",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

@@ -16,6 +16,7 @@ export const zhCN = {
         'Paragraph': '普通段落',
         'Horizontal Line': '水平分割线',
         'Front Matter': '顶部信息块',
+        'Properties': '属性',
         'Heading 1': '标题 1',
         'Heading 2': '标题 2',
         'Heading 3': '标题 3',

@@ -16,6 +16,7 @@ export const es = {
         'Paragraph': 'Párrafo',
         'Horizontal Line': 'Línea horizontal',
         'Front Matter': 'Front Matter',
+        'Properties': 'Propiedades',
         'Heading 1': 'Encabezado 1',
         'Heading 2': 'Encabezado 2',
         'Heading 3': 'Encabezado 3',

@@ -20,6 +20,7 @@ export interface IMuyaOptions {
     listIndentation: number;
     frontMatter: boolean;
     frontmatterType: string; // '-' | '+' | ';' | '{';
+    frontmatterDefaultCollapsed: boolean;
     mermaidTheme: string;
     vegaTheme: string;
     plantumlServer: string;

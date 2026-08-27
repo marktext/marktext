@@ -403,6 +403,7 @@
         "tabSize": "用 x 個空格替換製表符",
         "listIndentation": "選擇清單的縮排",
         "frontmatterType": "前言類型",
+        "frontmatterDefaultCollapsed": "預設折疊屬性",
         "superSubScript": "啟用 Pandoc 的 Markdown 擴充功能上標和下標",
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
         "isHtmlEnabled": "啟用 HTML 轉譯",
@@ -625,6 +626,7 @@
         "superSubScript": "上標/下標",
         "footnote": "腳註",
         "footnoteNotes": "腳註備註",
+        "frontmatterDefaultCollapsed": "預設折疊屬性",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",

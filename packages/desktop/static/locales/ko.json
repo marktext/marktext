@@ -403,6 +403,7 @@
         "tabSize": "탭을 x개의 공백으로 바꾸기",
         "listIndentation": "목록의 들여쓰기 선택",
         "frontmatterType": "프론트매터 유형",
+        "frontmatterDefaultCollapsed": "속성을 기본적으로 접기",
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
         "isHtmlEnabled": "HTML 렌더링 활성화",
@@ -625,6 +626,7 @@
         "superSubScript": "위/아래 첨자",
         "footnote": "각주",
         "footnoteNotes": "각주 노트",
+        "frontmatterDefaultCollapsed": "속성을 기본적으로 접기",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",

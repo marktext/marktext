@@ -70,6 +70,35 @@ test.describe('cross-cell table selection', () => {
         }).toBe(4);
     });
 
+    test('keeps selected cell text painted above the selection tint', async ({ page }) => {
+        await seedTable(page);
+        await dragSelect(page, { row: 0, column: 1 }, { row: 2, column: 1 });
+        await expect.poll(() => selectedCount(page)).toBe(3);
+
+        const paintOrder = await page
+            .locator(`${editor.table} td.mu-table-cell-selected`)
+            .evaluateAll(cells => cells.map((cell) => {
+                const content = cell.querySelector('.mu-table-cell-content');
+                if (!content)
+                    return { text: '', overlayZ: 0, contentZ: 0 };
+
+                const overlayZ = Number.parseInt(getComputedStyle(cell, '::before').zIndex, 10) || 0;
+                const contentStyle = getComputedStyle(content);
+                const contentZ = contentStyle.position === 'static'
+                    ? 0
+                    : Number.parseInt(contentStyle.zIndex, 10) || 0;
+
+                return {
+                    text: content.textContent ?? '',
+                    overlayZ,
+                    contentZ,
+                };
+            }));
+
+        expect(paintOrder.map(item => item.text)).toEqual(['b1', 'b2', 'b3']);
+        expect(paintOrder.every(item => item.contentZ > item.overlayZ)).toBe(true);
+    });
+
     test('copy yields only the selected sub-rectangle as a GFM table', async ({ browserName, context, page }) => {
         test.skip(browserName !== 'chromium', 'clipboard read unreliable on Firefox/WebKit headless — BACKLOG Phase 3.');
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);

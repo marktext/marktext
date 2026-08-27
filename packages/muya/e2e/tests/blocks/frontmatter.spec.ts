@@ -87,4 +87,55 @@ test.describe('frontmatter block', () => {
             expect(md).toContain(styleCase.expectedEnd);
         });
     }
+
+    test('defaults to collapsed and toggles without changing markdown', async ({ page }) => {
+        await page.evaluate(() => {
+            const state: TState[] = [{
+                name: 'frontmatter',
+                meta: { lang: 'yaml', style: '-' },
+                text: 'title: hi\nauthor: me',
+            }, {
+                name: 'paragraph',
+                text: 'body',
+            }];
+            window.muya!.setContent(state);
+        });
+
+        const fm = page.locator(editor.frontmatter);
+        const toggle = fm.locator('.mu-frontmatter-toggle');
+        const code = fm.locator('.mu-code');
+        const markdownBefore = await page.evaluate(() => window.muya!.getMarkdown());
+
+        await expect(fm).toHaveClass(/mu-frontmatter-collapsed/);
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+        await expect(toggle).toContainText('Properties');
+        await expect(code).toBeHidden();
+
+        await toggle.click();
+        await expect(fm).not.toHaveClass(/mu-frontmatter-collapsed/);
+        await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+        await expect(code).toBeVisible();
+        await expect(code).toContainText('title: hi');
+        expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(markdownBefore);
+    });
+
+    test('supports expanded as the configured default', async ({ page }) => {
+        await page.evaluate(() => {
+            window.muya!.setOptions({ frontmatterDefaultCollapsed: false }, true);
+            const state: TState[] = [{
+                name: 'frontmatter',
+                meta: { lang: 'yaml', style: '-' },
+                text: 'title: expanded',
+            }, {
+                name: 'paragraph',
+                text: 'body',
+            }];
+            window.muya!.setContent(state);
+        });
+
+        const fm = page.locator(editor.frontmatter);
+        await expect(fm).not.toHaveClass(/mu-frontmatter-collapsed/);
+        await expect(fm.locator('.mu-frontmatter-toggle')).toHaveAttribute('aria-expanded', 'true');
+        await expect(fm.locator('.mu-code')).toBeVisible();
+    });
 });

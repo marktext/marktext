@@ -403,6 +403,7 @@
         "tabSize": "Reemplazar la tabulación con x espacios",
         "listIndentation": "Seleccionar la sangría de lista",
         "frontmatterType": "El tipo de frontmatter",
+        "frontmatterDefaultCollapsed": "Contraer propiedades de forma predeterminada",
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
         "isHtmlEnabled": "Habilitar renderizado HTML",
@@ -625,6 +626,7 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Nota al pie",
         "footnoteNotes": "Notas al pie",
+        "frontmatterDefaultCollapsed": "Contraer propiedades de forma predeterminada",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",

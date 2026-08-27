@@ -16,6 +16,7 @@ export const ko = {
         'Paragraph': '단락',
         'Horizontal Line': '수평선',
         'Front Matter': '머리말 블록',
+        'Properties': '속성',
         'Heading 1': '제목 1',
         'Heading 2': '제목 2',
         'Heading 3': '제목 3',

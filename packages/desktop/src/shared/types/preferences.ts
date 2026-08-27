@@ -41,6 +41,7 @@ export interface IUserPreferences {
   tabSize?: number
   listIndentation?: number | string
   frontmatterType?: '-' | ';' | '+' | '{'
+  frontmatterDefaultCollapsed?: boolean
   superSubScript?: boolean
   footnote?: boolean
   isHtmlEnabled?: boolean

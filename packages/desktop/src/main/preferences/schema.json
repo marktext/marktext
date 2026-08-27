@@ -257,6 +257,11 @@
     "enum": ["-", "+", ";", "{"],
     "default": "-"
   },
+  "frontmatterDefaultCollapsed": {
+    "description": "Markdown--Whether properties are collapsed by default",
+    "type": "boolean",
+    "default": true
+  },
   "superSubScript": {
     "description": "Markdown-Enable pandoc's markdown extension superscript and subscript.",
     "type": "boolean",

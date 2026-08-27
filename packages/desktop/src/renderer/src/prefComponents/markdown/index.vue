@@ -51,6 +51,11 @@
           :on-change="(value) => onSelectChange('frontmatterType', value)"
         />
         <bool
+          :description="t('preferences.markdown.extensions.frontmatterDefaultCollapsed')"
+          :bool="frontmatterDefaultCollapsed"
+          :on-change="(value) => onSelectChange('frontmatterDefaultCollapsed', value)"
+        />
+        <bool
           :description="t('preferences.markdown.extensions.superSubScript')"
           :bool="superSubScript"
           :on-change="(value) => onSelectChange('superSubScript', value)"
@@ -157,6 +162,7 @@ const {
   preferHeadingStyle,
   listIndentation,
   frontmatterType,
+  frontmatterDefaultCollapsed,
   superSubScript,
   footnote,
   isHtmlEnabled,

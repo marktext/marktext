@@ -16,6 +16,7 @@ export const ja = {
         'Paragraph': '一般段落',
         'Horizontal Line': '水平分割線',
         'Front Matter': '上部情報ブロック',
+        'Properties': 'プロパティ',
         'Heading 1': 'タイトル 1',
         'Heading 2': 'タイトル 2',
         'Heading 3': 'タイトル 3',

@@ -40,12 +40,21 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
-function bootMuya(markdown: string, frontmatterType?: string): Muya {
+function bootMuya(
+    markdown: string,
+    frontmatterType?: string,
+    frontmatterDefaultCollapsed?: boolean,
+): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const options = { markdown } as ConstructorParameters<typeof Muya>[1] & { frontmatterType?: string };
+    const options = { markdown } as ConstructorParameters<typeof Muya>[1] & {
+        frontmatterType?: string;
+        frontmatterDefaultCollapsed?: boolean;
+    };
     if (frontmatterType !== undefined)
         options.frontmatterType = frontmatterType;
+    if (frontmatterDefaultCollapsed !== undefined)
+        options.frontmatterDefaultCollapsed = frontmatterDefaultCollapsed;
     const muya = new Muya(host, options);
     muya.init();
     bootedHosts.push(muya.domNode);
@@ -278,5 +287,50 @@ describe('front matter delimiter marker', () => {
         const pre = await insertFrontMatter('{');
         expect(pre.getAttribute('frontMatterStart')).toBe('{');
         expect(pre.getAttribute('frontMatterEnd')).toBe('}');
+    });
+});
+
+describe('front matter disclosure', () => {
+    const markdown = '---\ntitle: hi\nauthor: me\n---\n\nbody\n';
+
+    function frontmatterPre(muya: Muya): HTMLElement {
+        const block = muya.editor.scrollPage!.find(0) as unknown as Parent;
+        return block.domNode!;
+    }
+
+    it('defaults to collapsed while preserving the markdown content', () => {
+        const muya = bootMuya(markdown);
+        const pre = frontmatterPre(muya);
+        const toggle = pre.querySelector<HTMLButtonElement>('.mu-frontmatter-toggle');
+
+        expect(pre.classList.contains('mu-frontmatter-collapsed')).toBe(true);
+        expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+        expect(toggle?.textContent).toContain('Properties');
+        expect(muya.getMarkdown()).toBe(markdown);
+    });
+
+    it('supports an expanded default through the editor option', () => {
+        const muya = bootMuya(markdown, undefined, false);
+        const pre = frontmatterPre(muya);
+        const toggle = pre.querySelector<HTMLButtonElement>('.mu-frontmatter-toggle');
+
+        expect(pre.classList.contains('mu-frontmatter-collapsed')).toBe(false);
+        expect(toggle?.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('toggles per block without changing document bytes', () => {
+        const muya = bootMuya(markdown);
+        const pre = frontmatterPre(muya);
+        const toggle = pre.querySelector<HTMLButtonElement>('.mu-frontmatter-toggle')!;
+
+        toggle.click();
+        expect(pre.classList.contains('mu-frontmatter-collapsed')).toBe(false);
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        expect(muya.getMarkdown()).toBe(markdown);
+
+        toggle.click();
+        expect(pre.classList.contains('mu-frontmatter-collapsed')).toBe(true);
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+        expect(muya.getMarkdown()).toBe(markdown);
     });
 });

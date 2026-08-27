@@ -16,6 +16,7 @@ export const de = {
         'Paragraph': 'Absatz',
         'Horizontal Line': 'Horizontale Linie',
         'Front Matter': 'Front Matter',
+        'Properties': 'Eigenschaften',
         'Heading 1': 'Überschrift 1',
         'Heading 2': 'Überschrift 2',
         'Heading 3': 'Überschrift 3',

@@ -325,6 +325,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     // bullet/list marker width + listIndentation, tab or Daring Fireball Markdown (4 spaces) --> list indentation
     listIndentation: 1,
     frontmatterType: '-',
+    frontmatterDefaultCollapsed: true,
     mermaidTheme: 'default', // dark / forest / default
     vegaTheme: 'latimes', // excel / ggplot2 / quartz / vox / fivethirtyeight / dark / latimes
     plantumlServer: 'https://www.plantuml.com/plantuml',

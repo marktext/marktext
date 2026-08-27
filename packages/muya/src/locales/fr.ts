@@ -16,6 +16,7 @@ export const fr = {
         'Paragraph': 'Paragraphe',
         'Horizontal Line': 'Ligne horizontale',
         'Front Matter': 'Front Matter',
+        'Properties': 'Propriétés',
         'Heading 1': 'Titre 1',
         'Heading 2': 'Titre 2',
         'Heading 3': 'Titre 3',
