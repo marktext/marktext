@@ -44,8 +44,8 @@ export default function inlineMath(this: Renderer, {
 
     const { loadMathMap } = this;
 
-    const displayMode = false;
-    const key = `${math}_${type}`;
+    const displayMode = marker.length === 2;
+    const key = `${math}_${type}_${displayMode}`;
     let mathVnode = null;
     let previewSelector = `span.${CLASS_NAMES.MU_MATH_RENDER}`;
     // Inline math errors stay compact to keep the surrounding text baseline
@@ -86,8 +86,8 @@ export default function inlineMath(this: Renderer, {
                         ? { contenteditable: 'false', title: errorTitle }
                         : { contenteditable: 'false' },
                     dataset: {
-                        start: String(start + 1), // '$'.length
-                        end: String(end - 1), // '$'.length
+                        start: String(start + marker.length),
+                        end: String(end - marker.length),
                     },
                 },
                 mathVnode,

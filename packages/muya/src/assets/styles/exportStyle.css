@@ -20,6 +20,40 @@
     }
 }
 
+@media print {
+    .markdown-body {
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        break-after: avoid;
+        break-inside: avoid;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+    }
+
+    table, tr, figure, img, svg {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    pre, blockquote {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .katex-display, .mu-math-preview, pre.multiple-math {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    div.plantuml, div.mermaid, div.vega-lite, div.flowchart, div.sequence {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+
 /* Table of contents injected at a `[TOC]` marker by the desktop export
    wrapper (getHtmlToc). Ported from legacy muyajs exportStyle.css so the
    exported TOC keeps the same look: body-colour links (not link-blue) and a

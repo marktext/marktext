@@ -23,4 +23,20 @@ describe('inline math — escaped dollar (#4555)', () => {
     it('still tokenizes a plain $a+b$ unchanged', () => {
         expect(mathContent('$a+b$')).toBe('a+b');
     });
+
+    it('tokenizes double dollar $$x = 1$$', () => {
+        expect(mathContent('$$x = 1$$')).toBe('x = 1');
+    });
+
+    it('tokenizes double dollar with escaped \\$ $$y = \\$10000$$', () => {
+        expect(mathContent('$$y = \\$10000$$')).toBe('y = \\$10000');
+    });
+
+    it('sets correct marker for single and double dollar tokens', () => {
+        const singleToken = tokenizer('$x$').find(t => t.type === 'inline_math') as CodeEmojiMathToken;
+        expect(singleToken.marker).toBe('$');
+
+        const doubleToken = tokenizer('$$x$$').find(t => t.type === 'inline_math') as CodeEmojiMathToken;
+        expect(doubleToken.marker).toBe('$$');
+    });
 });

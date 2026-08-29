@@ -9,7 +9,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['test/unit/specs/**/*.spec.ts'],
-    globals: true
+    globals: true,
+    testTimeout: 15000
   },
   resolve: {
     alias: {

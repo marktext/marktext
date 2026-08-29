@@ -51,6 +51,10 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
     // Keep a heading with the content that follows it, so a page never breaks
     // immediately after a heading, and never split a multi-line heading (#3039).
     output += 'h1,h2,h3,h4,h5,h6{break-after:avoid;break-inside:avoid;}'
+    output += 'table,tr,figure,img,svg{break-inside:avoid;page-break-inside:avoid;}'
+    output += 'pre,blockquote{break-inside:avoid;page-break-inside:avoid;}'
+    output += '.katex-display,.mu-math-preview,pre.multiple-math{break-inside:avoid;page-break-inside:avoid;}'
+    output += 'div.plantuml,div.mermaid,div.vega-lite,div.flowchart,div.sequence{break-inside:avoid;page-break-inside:avoid;}'
   }
 
   // Auto numbering headings via CSS

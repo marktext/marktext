@@ -42,7 +42,7 @@ const HEADER_FOOTER_CSS = `
 table.page-container { width: 100%; border-collapse: collapse; }
 table.page-container > tbody,
 table.page-container > tbody > tr,
-table.page-container > tbody > tr > td { display: block; width: 100vw; }
+table.page-container > tbody > tr > td { display: block; width: 100%; }
 table.page-container > tbody > tr > td { overflow-wrap: anywhere; }
 table.page-container > thead,
 table.page-container > tfoot { display: table-header-group; }
@@ -208,9 +208,9 @@ export const exportStyledHTML = async(
   // back to a raw `[TOC]` if present.
   if (toc) {
     if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, toc)
+      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, () => toc)
     } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, toc)
+      article = article.replace(TOC_REG, () => toc)
     }
   }
 
@@ -230,5 +230,5 @@ export const exportStyledHTML = async(
   }
 
   // Re-emit the engine document shell with the (possibly augmented) body.
-  return fullDoc.replace(/<body>[\s\S]*<\/body>/, `<body>\n  ${bodyHtml}\n</body>`)
+  return fullDoc.replace(/<body>[\s\S]*<\/body>/, () => `<body>\n  ${bodyHtml}\n</body>`)
 }

@@ -281,3 +281,31 @@ describe('exportStyledHTML — relative link paths (#1688)', () => {
     expect(out).not.toContain('file://')
   })
 })
+
+describe('exportStyledHTML — math expressions and dollar safety', () => {
+  it('renders single dollar $x = 1$ and double dollar $$x = 1$$ math in export', async() => {
+    const out = await exportStyledHTML(NO_MUYA, 'Inline $x = 1$ and double $$y = 2$$', {})
+
+    expect(out).toContain('katex')
+    expect(out).not.toContain('Inline $x = 1$')
+    expect(out).not.toContain('double $$y = 2$$')
+  })
+
+  it('renders math enclosed in parentheses ($x > 0$) and quotes "$x = 1$"', async() => {
+    const out = await exportStyledHTML(NO_MUYA, 'Parentheses ($x > 0$) and quotes "$x = 1$"', {})
+
+    expect(out).toContain('katex')
+    expect(out).not.toContain('($x > 0$)')
+    expect(out).not.toContain('"$x = 1$"')
+  })
+
+  it('safely preserves literal dollar amounts and math without regex corruption ($1, $&, $$)', async() => {
+    const out = await exportStyledHTML(NO_MUYA, 'Price: $100 and $200 with $$x = 1$$ and $1 in text', {
+      header: { type: 2, center: 'Header' }
+    })
+
+    expect(out).toContain('Price: $100 and $200 with')
+    expect(out).toContain('and $1 in text')
+    expect(out).toContain('katex')
+  })
+})

@@ -34,4 +34,22 @@ describe('block math — closing $$ with trailing whitespace (#1931)', () => {
         const states = parse('$$\nx = 1\n$$\n\nbar\n');
         expect(states.some(s => s.name === 'math-block')).toBe(true);
     });
+
+    it('parses a single-line math block $$x = 1$$', () => {
+        const states = parse('$$x = 1$$\n');
+        expect(states.some(s => s.name === 'math-block')).toBe(true);
+        expect(states[0].text).toBe('x = 1');
+    });
+
+    it('parses a single-line math block with spaces $$ x = 1 $$', () => {
+        const states = parse('$$ x = 1 $$\n');
+        expect(states.some(s => s.name === 'math-block')).toBe(true);
+        expect(states[0].text).toBe('x = 1');
+    });
+
+    it('parses a multi-line math block at the very start of input (index 0)', () => {
+        const states = parse('$$\nx = 1\n$$');
+        expect(states.some(s => s.name === 'math-block')).toBe(true);
+        expect(states[0].text).toBe('x = 1');
+    });
 });

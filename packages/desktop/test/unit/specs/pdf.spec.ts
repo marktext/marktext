@@ -34,23 +34,19 @@ const loadPdf = async() => {
 describe('getCssForOptions', () => {
   beforeEach(() => {
     vi.resetModules()
-    const w = globalThis as unknown as {
-      window: {
-        marktext: { paths: { userDataPath: string } }
-        fileUtils: { isFile: (p: string) => Promise<boolean>, readFile: (p: string) => Promise<unknown> }
-      }
-    }
-    w.window.marktext = { paths: { userDataPath: '/userData' } }
-    w.window.fileUtils = { isFile: async() => false, readFile: async() => '' }
+    const target = typeof window !== 'undefined' ? window : (globalThis as any).window
+    target.marktext = { paths: { userDataPath: '/userData' } }
+    target.fileUtils = { isFile: async() => false, readFile: async() => '' }
+    target.path = { sep: '/', join: (...parts: string[]) => parts.join('/') }
   })
 
   it('academic/liber take the inline-theme branch (no disk access required)', async() => {
     const { getCssForOptions } = await loadPdf()
     // Remove the disk surfaces entirely: if academic/liber tried a disk read
     // these would throw. They must not.
-    const w = globalThis as unknown as { window: Record<string, unknown> }
-    delete w.window.marktext
-    delete w.window.fileUtils
+    const target = typeof window !== 'undefined' ? window : (globalThis as any).window
+    delete (target as any).marktext
+    delete (target as any).fileUtils
 
     await expect(getCssForOptions({ theme: 'academic' })).resolves.toBeTypeOf('string')
     await expect(getCssForOptions({ theme: 'liber' })).resolves.toBeTypeOf('string')
