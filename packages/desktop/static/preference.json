@@ -25,6 +25,7 @@
   "trimUnnecessaryCodeBlockEmptyLines": true,
   "wrapCodeBlocks": false,
   "editorLineWidth": "",
+  "editorWidthMode": "fixed",
 
   "autoPairBracket": true,
   "autoPairMarkdownSyntax": true,

@@ -30,7 +30,14 @@
           :value="editorFontFamily"
           :on-change="(value) => onSelectChange('editorFontFamily', value)"
         />
+        <cur-select
+          :description="t('preferences.editor.textEditor.widthMode.label')"
+          :value="editorWidthMode"
+          :options="getWidthModeOptions()"
+          :on-change="(value) => onSelectChange('editorWidthMode', value)"
+        />
         <text-box
+          v-if="editorWidthMode !== 'fluid'"
           :description="t('preferences.editor.textEditor.maxWidth')"
           :notes="t('preferences.editor.textEditor.maxWidthNotes')"
           :input="editorLineWidth"
@@ -197,6 +204,7 @@ import {
   tabSizeOptions,
   getEndOfLineOptions,
   getTextDirectionOptions,
+  getWidthModeOptions,
   getTrimTrailingNewlineOptions,
   getDefaultEncodingOptions
 } from './config'
@@ -226,6 +234,7 @@ const {
   autoNormalizeLineEndings,
   wrapCodeBlocks,
   editorLineWidth,
+  editorWidthMode,
   defaultEncoding,
   autoGuessEncoding,
   trimTrailingNewline

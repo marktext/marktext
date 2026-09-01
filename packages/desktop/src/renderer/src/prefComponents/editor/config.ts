@@ -55,6 +55,17 @@ export const getTrimTrailingNewlineOptions = (): PrefSelectOption<number>[] => [
   }
 ]
 
+export const getWidthModeOptions = (): PrefSelectOption<string>[] => [
+  {
+    label: t('preferences.editor.textEditor.widthMode.fixed'),
+    value: 'fixed'
+  },
+  {
+    label: t('preferences.editor.textEditor.widthMode.fluid'),
+    value: 'fluid'
+  }
+]
+
 export const getTextDirectionOptions = (): PrefSelectOption<string>[] => [
   {
     label: t('preferences.editor.misc.textDirection.ltr'),

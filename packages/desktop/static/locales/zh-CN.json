@@ -272,7 +272,9 @@
       "pageMargin": "页面边距（毫米）：",
       "topBottom": "上/下：",
       "leftRight": "左/右：",
-      "widthHeight": "宽度/高度（毫米）："
+      "widthHeight": "宽度/高度（毫米）：",
+      "contentWidth": "内容宽度",
+      "contentWidthNotes": "导出内容的最大宽度。留空使用默认的 980px。"
     },
     "style": {
       "label": "样式",
@@ -510,7 +512,12 @@
         "lineHeight": "行高",
         "fontFamily": "字体系列",
         "maxWidth": "最大宽度",
-        "maxWidthNotes": "编辑器内容的最大宽度"
+        "maxWidthNotes": "编辑器内容的最大宽度",
+        "widthMode": {
+          "label": "宽度模式",
+          "fixed": "固定",
+          "fluid": "流式"
+        }
       },
       "codeBlock": {
         "title": "代码块",

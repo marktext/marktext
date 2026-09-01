@@ -273,7 +273,9 @@
       "pageMargin": "頁面邊距（毫米）：",
       "topBottom": "上/下：",
       "leftRight": "左/右：",
-      "widthHeight": "寬度/高度（毫米）："
+      "widthHeight": "寬度/高度（毫米）：",
+      "contentWidth": "內容寬度",
+      "contentWidthNotes": "匯出內容的最大寬度。留空使用預設 980px。"
     },
     "showFrontMatter": "顯示前置資料",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "行高",
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
-        "maxWidthNotes": "編輯器內容的最大寬度"
+        "maxWidthNotes": "編輯器內容的最大寬度",
+        "widthMode": {
+          "label": "寬度模式",
+          "fixed": "固定",
+          "fluid": "流動"
+        }
       },
       "codeBlock": {
         "title": "程式碼區塊",

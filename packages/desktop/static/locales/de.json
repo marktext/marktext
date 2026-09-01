@@ -273,7 +273,9 @@
       "pageMargin": "Seitenrand (mm):",
       "topBottom": "Oben/Unten:",
       "leftRight": "Links/Rechts:",
-      "widthHeight": "Breite/Höhe (mm):"
+      "widthHeight": "Breite/Höhe (mm):",
+      "contentWidth": "Inhaltsbreite",
+      "contentWidthNotes": "Maximale Breite des exportierten Inhalts. Leer verwendet den Standard 980px."
     },
     "showFrontMatter": "Front Matter anzeigen",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Zeilenhöhe",
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
-        "maxWidthNotes": "Maximale Breite des Editor-Inhalts"
+        "maxWidthNotes": "Maximale Breite des Editor-Inhalts",
+        "widthMode": {
+          "label": "Breitenmodus",
+          "fixed": "Fest",
+          "fluid": "Fließend"
+        }
       },
       "codeBlock": {
         "title": "Code-Block",

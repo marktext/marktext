@@ -162,6 +162,15 @@ const rewriteAnchorHrefs = (html: string): string =>
     return resolved === href ? match : `${pre}${resolved}${post}`
   })
 
+// 守卫：内容宽度必须匹配白名单格式，杜绝任意 CSS 注入导出 <head>
+const EXPORT_WIDTH_RE = /^[0-9]+(?:px|%|ch)$/
+export const exportWidthCss = (value: string): string => {
+  if (value && EXPORT_WIDTH_RE.test(value)) {
+    return `.markdown-body{max-width:${value};}`
+  }
+  return ''
+}
+
 /**
  * Build a styled, standalone HTML document equivalent to legacy muyajs
  * `exportStyledHTML`. Renders markdown through the new engine, injects the TOC

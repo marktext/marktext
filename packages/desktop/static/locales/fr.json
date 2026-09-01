@@ -273,7 +273,9 @@
       "pageMargin": "Marge de page (mm) :",
       "topBottom": "Haut/Bas :",
       "leftRight": "Gauche/Droite :",
-      "widthHeight": "Largeur/Hauteur (mm) :"
+      "widthHeight": "Largeur/Hauteur (mm) :",
+      "contentWidth": "Largeur du contenu",
+      "contentWidthNotes": "Largeur maximale du contenu exporté. Vide utilise 980px par défaut."
     },
     "showFrontMatter": "Afficher les métadonnées",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "Hauteur de ligne",
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
-        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur"
+        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur",
+        "widthMode": {
+          "label": "Mode de largeur",
+          "fixed": "Fixe",
+          "fluid": "Fluide"
+        }
       },
       "codeBlock": {
         "title": "Bloc de code",

@@ -273,7 +273,9 @@
       "pageMargin": "ページ余白 (mm):",
       "topBottom": "上/下:",
       "leftRight": "左/右:",
-      "widthHeight": "幅/高さ (mm):"
+      "widthHeight": "幅/高さ (mm):",
+      "contentWidth": "コンテンツ幅",
+      "contentWidthNotes": "エクスポートされたコンテンツの最大幅。空のデフォルトは980pxです。"
     },
     "showFrontMatter": "フロントマターを表示",
     "style": {
@@ -510,7 +512,12 @@
         "lineHeight": "行の高さ",
         "fontFamily": "フォントファミリー",
         "maxWidth": "最大幅",
-        "maxWidthNotes": "エディターコンテンツの最大幅"
+        "maxWidthNotes": "エディターコンテンツの最大幅",
+        "widthMode": {
+          "label": "幅のモード",
+          "fixed": "固定",
+          "fluid": "流動的"
+        }
       },
       "codeBlock": {
         "title": "コードブロック",

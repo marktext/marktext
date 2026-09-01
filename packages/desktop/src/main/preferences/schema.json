@@ -102,6 +102,12 @@
     "pattern": "^(?:$|[0-9]+(?:ch|px|%)$)",
     "default": ""
   },
+  "editorWidthMode": {
+    "description": "Editor--Width mode of the editor area: fixed centers a configured content column, fluid expands the content to fill the window width.",
+    "type": "string",
+    "enum": ["fixed", "fluid"],
+    "default": "fixed"
+  },
   "codeFontSize": {
     "description": "Editor--Font size in code Block, the range is 12 ~ 18",
     "type": "number",

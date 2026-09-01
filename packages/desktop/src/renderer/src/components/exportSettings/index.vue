@@ -27,6 +27,14 @@
               :emit-time="0"
               :on-change="(value: unknown) => onSelectChange('htmlTitle', value)"
             />
+            <text-box
+              :description="t('exportSettings.page.contentWidth')"
+              :notes="t('exportSettings.page.contentWidthNotes')"
+              :input="exportWidth"
+              :regex-validator="/^(?:$|[0-9]+(?:px|%|ch)$)/"
+              :emit-time="0"
+              :on-change="(value: unknown) => onSelectChange('exportWidth', value)"
+            />
           </div>
 
           <!-- PDF/Print -->
@@ -307,6 +315,7 @@ const isPrintable = ref(true)
 const showExportSettingsDialog = ref(false)
 const activeName = ref('info')
 const htmlTitle = ref('')
+const exportWidth = ref('980px')
 const pageSize = ref('A4')
 const pageSizeWidth = ref(210)
 const pageSizeHeight = ref(297)
@@ -343,6 +352,7 @@ const tocIncludeTopHeading = ref(true)
 // is registered here; changes are saved to localStorage and restored on mount.
 const persistableSettings: Record<string, Ref<unknown>> = {
   htmlTitle,
+  exportWidth,
   pageSize,
   pageSizeWidth,
   pageSizeHeight,
@@ -442,6 +452,7 @@ const handleClicked = () => {
 
   if (!isPrintable.value) {
     options.htmlTitle = htmlTitle.value
+    options.exportWidth = exportWidth.value
   }
 
   if (fontSettingsOverwrite.value) {
@@ -488,6 +499,7 @@ const handleClicked = () => {
 const onSelectChange = (key: string, value: unknown) => {
   const state: Record<string, Ref<unknown>> = {
     htmlTitle,
+    exportWidth,
     pageSize,
     isLandscape,
     fontSettingsOverwrite,
