@@ -484,3 +484,39 @@ describe('replaceBlockByLabel — quick-insert frontmatter serializes the right 
         });
     });
 });
+
+describe('replaceBlockByLabel — math-block delimiter follows mathDelimiter option', () => {
+    it('defaults to dollar-style (empty mathStyle → $$)', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            replaceBlockByLabel({
+                block: makeFakeOriginBlock(),
+                muya: makeFakeMuya(),
+                label: 'math-block',
+            });
+            const math = captured.find(c => c.label === 'math-block')!;
+            expect(math.state.meta?.mathStyle).toBe('');
+        }
+        finally {
+            restore();
+        }
+    });
+
+    it('writes latex mathStyle when mathDelimiter is latex', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            const muya = makeFakeMuya();
+            (muya.options as { mathDelimiter: string }).mathDelimiter = 'latex';
+            replaceBlockByLabel({
+                block: makeFakeOriginBlock(),
+                muya,
+                label: 'math-block',
+            });
+            const math = captured.find(c => c.label === 'math-block')!;
+            expect(math.state.meta?.mathStyle).toBe('latex');
+        }
+        finally {
+            restore();
+        }
+    });
+});

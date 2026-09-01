@@ -39,6 +39,22 @@ export const FORMAT_MARKER_MAP: Record<string, string> = {
     inline_math: '$',
 };
 
+export type TMathDelimiter = 'dollar' | 'latex';
+
+// Markers for Format → Inline Math. `$…$` is the historical default;
+// `latex` writes `\(...\)` instead. Parsing always accepts both.
+export function mathInlineMarkers(delimiter?: string): { open: string; close: string } {
+    if (delimiter === 'latex')
+        return { open: '\\(', close: '\\)' };
+    return { open: '$', close: '$' };
+}
+
+// `mathStyle` for a newly inserted math-block. Existing blocks keep the
+// style they were saved with; this only applies to Format/Paragraph/quick-insert.
+export function mathBlockStyle(delimiter?: string): '' | 'latex' {
+    return delimiter === 'latex' ? 'latex' : '';
+}
+
 export const FORMAT_TAG_MAP: Record<string, ITag> = {
     u: {
         open: '<u>',
@@ -346,6 +362,8 @@ export const MUYA_DEFAULT_OPTIONS = {
     footnote: false,
     // Whether math block is supported.
     math: true,
+    // Delimiter written when inserting math from the UI. Parsing accepts both.
+    mathDelimiter: 'dollar' as const,
     isGitlabCompatibilityEnabled: true,
     // Move checked task list item to the end of task list.
     autoMoveCheckedToEnd: false,

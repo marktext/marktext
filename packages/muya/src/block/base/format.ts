@@ -20,6 +20,7 @@ import {
     FORMAT_MARKER_MAP,
     FORMAT_TAG_MAP,
     FORMAT_TYPES,
+    mathInlineMarkers,
     PARAGRAPH_STATE,
     THEMATIC_BREAK_STATE,
 } from '../../config';
@@ -103,15 +104,19 @@ function getOffset(offset: number, token: Token) {
     switch (type) {
         case 'strong':
 
-        case 'del':
+        case 'del': {
+            return markeredOffset(dis, len, 2, 2);
+        }
 
         case 'em':
 
-        case 'inline_code':
+        case 'inline_code': {
+            return markeredOffset(dis, len, 1, 1);
+        }
 
         case 'inline_math': {
-            const markerLen = type === 'strong' || type === 'del' ? 2 : 1;
-            return markeredOffset(dis, len, markerLen, markerLen);
+            // `$…$` is 1; `\(...\)` / `\[...\]` are 2.
+            return markeredOffset(dis, len, token.marker.length, token.marker.length);
         }
 
         case 'html_tag': {
@@ -1699,15 +1704,31 @@ class Format extends Content {
         { start, end }: { start: IOffset; end: IOffset },
     ) {
         switch (type) {
+            case 'inline_math': {
+                const { open, close } = mathInlineMarkers(this.muya?.options?.mathDelimiter);
+                const oldText = this.text;
+                this.text
+                    = oldText.substring(0, start.offset)
+                        + open
+                        + oldText.substring(start.offset, end.offset)
+                        + close
+                        + oldText.substring(end.offset);
+                // Shift both offsets past the opening marker. A collapsed
+                // cursor stays between the markers (toggle-then-type lands
+                // INSIDE the format); a non-empty selection keeps the
+                // original text selected now that it sits inside the markers.
+                start.offset += open.length;
+                end.offset += open.length;
+                break;
+            }
+
             case 'em':
 
             case 'del':
 
             case 'inline_code':
 
-            case 'strong':
-
-            case 'inline_math': {
+            case 'strong': {
                 const MARKER = FORMAT_MARKER_MAP[type];
                 const oldText = this.text;
                 this.text

@@ -32,6 +32,12 @@ export interface IMuyaOptions {
     superSubScript: boolean;
     footnote: boolean;
     math: boolean;
+    /**
+     * Delimiter written when the user inserts math from the Format /
+     * Paragraph menus. `'dollar'` → `$…$` / `$$…$$` (default); `'latex'` →
+     * `\(...\)` / `\[…\]`. Parsing always accepts both.
+     */
+    mathDelimiter: 'dollar' | 'latex';
     isGitlabCompatibilityEnabled: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;

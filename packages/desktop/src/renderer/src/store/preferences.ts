@@ -14,6 +14,7 @@ export type OrderListDelimiter = '.' | ')'
 export type PreferHeadingStyle = 'atx' | 'setext'
 export type FrontmatterType = '-' | ';' | '{' | '+'
 export type SequenceTheme = 'hand' | 'simple'
+export type MathDelimiter = 'dollar' | 'latex'
 export type ImageInsertAction = 'folder' | 'path' | 'upload'
 export type ImageRelativeDirectoryBase = 'file' | 'root'
 export type FileSortBy = 'created' | 'modified' | 'title'
@@ -77,6 +78,7 @@ export interface PreferencesState {
   frontmatterType: FrontmatterType | string
   superSubScript: boolean
   footnote: boolean
+  mathDelimiter: MathDelimiter | string
   isHtmlEnabled: boolean
   isGitlabCompatibilityEnabled: boolean
   sequenceTheme: SequenceTheme | string
@@ -193,6 +195,7 @@ export const usePreferencesStore = defineStore('preferences', {
     frontmatterType: '-',
     superSubScript: false,
     footnote: false,
+    mathDelimiter: 'dollar',
     isHtmlEnabled: true,
     isGitlabCompatibilityEnabled: false,
     sequenceTheme: 'hand',

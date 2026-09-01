@@ -405,6 +405,7 @@
         "frontmatterType": "前言类型",
         "superSubScript": "启用 Pandoc 的 Markdown 扩展上标和下标",
         "footnote": "启用 Pandoc 的 Markdown 扩展脚注",
+        "mathDelimiter": "插入数学公式时使用的分隔符",
         "isHtmlEnabled": "启用 HTML 渲染",
         "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
         "sequenceTheme": "序列图主题",
@@ -629,6 +630,11 @@
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
           "title": "前置元数据类型"
+        },
+        "mathDelimiter": {
+          "title": "数学分隔符",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {
