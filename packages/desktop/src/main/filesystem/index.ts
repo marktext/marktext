@@ -35,7 +35,14 @@ export const writeFile = async(
 
   // write-file-atomic does not create parent directories; recreate a moved or
   // deleted folder first so an (auto)save into it still succeeds (#3509).
-  await ensureDir(path.dirname(pathname))
+  // Only do this when the parent does not already exist. On Windows fs.mkdir
+  // returns EPERM (not EEXIST) for an existing volume root (e.g. "E:\"), so for
+  // an existing parent — drive roots included — ensureDir would throw and block
+  // saving directly to a drive root instead of being a harmless no-op (#5150).
+  const dir = path.dirname(pathname)
+  if (!isDirectory(dir)) {
+    await ensureDir(dir)
+  }
 
   // Durable atomic save: write to a temp file in the target's directory, fsync
   // it, then rename it over the target. This survives an application crash AND
