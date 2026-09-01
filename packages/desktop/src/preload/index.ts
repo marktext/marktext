@@ -226,6 +226,30 @@ const fontsAPI = {
   list: () => invoke('mt::fonts::list')
 }
 
+const githubAPI = {
+  authStatus: () => invoke('mt::github::auth-status'),
+  authStart: () => invoke('mt::github::auth-start'),
+  signOut: () => invoke('mt::github::sign-out'),
+  listRepos: () => invoke('mt::github::list-repos'),
+  chooseDir: () => invoke('mt::github::choose-dir'),
+  clone: (cloneUrl: string, targetDir: string) => invoke('mt::github::clone', cloneUrl, targetDir),
+  status: (repoPath: string) => invoke('mt::github::status', repoPath),
+  stage: (repoPath: string, files: string[]) => invoke('mt::github::stage', repoPath, files),
+  unstage: (repoPath: string, files: string[]) => invoke('mt::github::unstage', repoPath, files),
+  commit: (repoPath: string, message: string) => invoke('mt::github::commit', repoPath, message),
+  sync: (repoPath: string) => invoke('mt::github::sync', repoPath),
+  repoInfo: (path: string) => invoke('mt::github::repo-info', path),
+  lfsCheck: (repoPath: string) => invoke('mt::github::lfs-check', repoPath),
+  onAuthSuccess: (handler: (status: { signedIn: boolean; username?: string }) => void) =>
+    ipcWrapper.on('mt::github::auth-success', (_e, status) => handler(status)),
+  onAuthError: (handler: (message: string) => void) =>
+    ipcWrapper.on('mt::github::auth-error', (_e, message) => handler(message)),
+  onCloneProgress: (handler: (p: { phase: string; loaded: number; total: number }) => void) =>
+    ipcWrapper.on('mt::github::clone-progress', (_e, p) => handler(p)),
+  onStatusChanged: (handler: (repoPath: string) => void) =>
+    ipcWrapper.on('mt::github::status-changed', (_e, repoPath) => handler(repoPath))
+}
+
 const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
@@ -294,6 +318,7 @@ try {
   contextBridge.exposeInMainWorld('ripgrep', ripgrepAPI)
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
+  contextBridge.exposeInMainWorld('github', githubAPI)
 } catch (error) {
   console.error(error)
 }
