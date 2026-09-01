@@ -15,6 +15,13 @@ test.describe('link tools', () => {
         await expect(page.locator(floats.linkTools)).toBeVisible();
     });
 
+    test('shows the link title before the URL in the hover preview', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('[Docs](https://example.com "Reference")'));
+        await page.locator('span.mu-link').first().hover();
+
+        await expect(page.locator(`${floats.linkTools} .mu-link-preview`)).toHaveText('Reference');
+    });
+
     test('clicking the LinkTools jump button fires the jumpClick callback', async ({ page }) => {
         await page.evaluate(() => {
             window.muya!.setContent('Visit [Example](https://example.com) site.');

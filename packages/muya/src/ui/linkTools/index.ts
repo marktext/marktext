@@ -12,6 +12,7 @@ type LinkToolIcon = typeof iconsConfig[number];
 
 interface ILinkInfo {
     href?: string | null;
+    title?: string | null;
     text?: string;
     raw?: string;
     range?: { start: number; end: number } | null;
@@ -143,7 +144,53 @@ class LinkTools extends BaseFloat {
             );
         });
 
-        const vnode = h('ul', children);
+        const ulNode = h('ul', children);
+
+        const wrapperChildren: VNode[] = [];
+
+        let previewText = this._linkInfo?.title || this._linkInfo?.href;
+
+        if (this._linkInfo?.href?.startsWith('#')) {
+            const anchorId = this._linkInfo.href.slice(1);
+            if (anchorId) {
+                // If it's an internal reference, find the anchor element and display its paragraph text
+                const anchorElement = this.muya.domNode.querySelector<HTMLElement>(
+                    `#${CSS.escape(anchorId)}`,
+                );
+                if (anchorElement) {
+                    const blockElement = anchorElement.closest('.mu-paragraph, [data-role="paragraph"], .mu-block, .mu-html-block');
+                    let rawText = '';
+                    if (blockElement && blockElement.textContent) {
+                        rawText = blockElement.textContent;
+                    }
+                    else if (anchorElement.parentElement && anchorElement.parentElement.textContent) {
+                        rawText = anchorElement.parentElement.textContent;
+                    }
+
+                    if (rawText) {
+                        // Strip HTML tags and leading reference markers like [4]
+                        previewText = rawText
+                            .replace(/<[^>]+>/g, '')
+                            .replace(/^\[.*?\]\s*/, '')
+                            .trim();
+                    }
+                }
+            }
+        }
+
+        if (previewText) {
+            try {
+                previewText = decodeURI(previewText);
+            }
+            catch {
+                // ignore
+            }
+            wrapperChildren.push(h('div.mu-link-preview', previewText));
+        }
+
+        wrapperChildren.push(ulNode);
+
+        const vnode = h('div', wrapperChildren);
 
         if (oldVNode)
             patch(oldVNode, vnode);

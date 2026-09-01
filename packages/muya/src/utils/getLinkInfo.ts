@@ -10,6 +10,7 @@
 
 export interface IExtractedLinkInfo {
     href: string | null;
+    title: string | null;
     raw: string;
     text: string;
     range: { start: number; end: number } | null;
@@ -29,6 +30,13 @@ function readHref(el: HTMLElement): string | null {
     if (typeof prop === 'string' && prop)
         return prop;
 
+    return null;
+}
+
+function readTitle(el: HTMLElement): string | null {
+    const attr = el.getAttribute('title');
+    if (attr)
+        return attr;
     return null;
 }
 
@@ -56,6 +64,7 @@ export function getLinkInfo(el: HTMLElement): IExtractedLinkInfo | null {
 
     return {
         href: readHref(el),
+        title: readTitle(el),
         raw,
         text: el.textContent ?? '',
         range: parseRange(el.dataset.start, el.dataset.end),

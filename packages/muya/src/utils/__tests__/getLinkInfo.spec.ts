@@ -43,6 +43,20 @@ describe('getLinkInfo — markdown `[text](href)` (rendered as span.mu-link)', (
         expect(info!.raw).toBe('[hello](https://x.com)');
         expect(info!.range).toEqual({ start: 0, end: 23 });
     });
+
+    it('extracts an optional title for the hover preview', () => {
+        const el = makeEl(
+            'span',
+            { start: '0', end: '34', raw: '[hello](https://x.com "Preview")' },
+            { title: 'Preview' },
+            { href: 'https://x.com' },
+        );
+
+        expect(getLinkInfo(el)).toMatchObject({
+            href: 'https://x.com',
+            title: 'Preview',
+        });
+    });
 });
 
 describe('getLinkInfo — reference link (rendered as a.mu-reference-link)', () => {
