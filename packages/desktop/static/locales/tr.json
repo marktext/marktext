@@ -404,6 +404,7 @@
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "inlineMath": "Render single-dollar inline math expressions",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -625,6 +626,8 @@
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
         "footnoteNotes": "Dipnot notları",
+        "inlineMath": "Inline math",
+        "inlineMathNotes": "Turn off for finance prose with unescaped dollar amounts",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

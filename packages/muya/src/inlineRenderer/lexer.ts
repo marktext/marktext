@@ -37,6 +37,7 @@ interface ILexState {
     top: boolean;
     superSubScript: boolean;
     footnote: boolean;
+    inlineMath: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -195,6 +196,9 @@ function tryChunks(state: ILexState): boolean {
     const chunks = ['inline_code', 'del', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
+        if (rule === 'inline_math' && !state.inlineMath)
+            continue;
+
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
@@ -809,7 +813,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
-    const { superSubScript, footnote } = options;
+    const { superSubScript, footnote, inlineMath = true } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -823,6 +827,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         top,
         superSubScript,
         footnote,
+        inlineMath,
     };
 
     if (beginRules && state.pos === 0)
@@ -858,6 +863,7 @@ export function tokenizer(src: string, {
     options = {
         superSubScript: true,
         footnote: false,
+        inlineMath: true,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(

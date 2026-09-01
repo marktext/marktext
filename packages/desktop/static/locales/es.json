@@ -405,6 +405,7 @@
         "frontmatterType": "El tipo de frontmatter",
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
+        "inlineMath": "Render single-dollar inline math expressions",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
         "sequenceTheme": "Tema del diagrama de secuencia",
@@ -625,6 +626,8 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Nota al pie",
         "footnoteNotes": "Notas al pie",
+        "inlineMath": "Inline math",
+        "inlineMathNotes": "Turn off for finance prose with unescaped dollar amounts",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",

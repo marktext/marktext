@@ -267,6 +267,11 @@
     "type": "boolean",
     "default": false
   },
+  "inlineMath": {
+    "description": "Markdown--Render single-dollar inline math expressions.",
+    "type": "boolean",
+    "default": true
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

@@ -31,6 +31,8 @@ export interface IMuyaOptions {
     spellcheckHideMarks: boolean;
     superSubScript: boolean;
     footnote: boolean;
+    /** Whether single-dollar inline math (`$...$`) is rendered. */
+    inlineMath: boolean;
     math: boolean;
     isGitlabCompatibilityEnabled: boolean;
     autoMoveCheckedToEnd: boolean;

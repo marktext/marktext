@@ -405,6 +405,7 @@
         "frontmatterType": "前言類型",
         "superSubScript": "啟用 Pandoc 的 Markdown 擴充功能上標和下標",
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
+        "inlineMath": "Render single-dollar inline math expressions",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "sequenceTheme": "序列圖主題",
@@ -625,6 +626,8 @@
         "superSubScript": "上標/下標",
         "footnote": "腳註",
         "footnoteNotes": "腳註備註",
+        "inlineMath": "Inline math",
+        "inlineMathNotes": "Turn off for finance prose with unescaped dollar amounts",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",

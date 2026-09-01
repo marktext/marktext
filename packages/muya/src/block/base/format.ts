@@ -1311,11 +1311,11 @@ class Format extends Content {
 
         // fix: #897 in marktext repo
         const { text } = this;
-        const { footnote, superSubScript } = this.muya.options;
+        const { footnote, superSubScript, inlineMath } = this.muya.options;
         const { labels } = this.inlineRenderer;
         const tokens = tokenizer(text, {
             labels,
-            options: { footnote, superSubScript },
+            options: { footnote, superSubScript, inlineMath },
         });
         // The caret offset is unreliable when it is parked on a
         // `contenteditable=false` inline image; resolve the real offset from the

@@ -12,6 +12,7 @@ export interface IMathToken {
 interface IOptions {
     throwOnError?: boolean;
     useKatexRender?: boolean;
+    inlineMath?: boolean;
 }
 
 const inlineStartRule = /(\s|^)\${1,2}(?!\$)/;
@@ -22,16 +23,19 @@ const blockRule = /^(\${1,2})\n((?:\\[\s\S]|[^\\])+?)\n\1[ \t]*(?:\n|$)/;
 const DEFAULT_OPTIONS = {
     throwOnError: false,
     useKatexRender: false,
+    inlineMath: true,
 };
 
 export default function (options: IOptions = {}) {
     const opts = Object.assign({}, DEFAULT_OPTIONS, options);
 
     return {
-        extensions: [
-            inlineKatex(createRenderer(opts, false)),
-            blockKatex(createRenderer(opts, true)),
-        ],
+        extensions: opts.inlineMath
+            ? [
+                    inlineKatex(createRenderer(opts, false)),
+                    blockKatex(createRenderer(opts, true)),
+                ]
+            : [blockKatex(createRenderer(opts, true))],
     };
 }
 

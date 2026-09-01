@@ -19,6 +19,7 @@ const debug = logger('import markdown: ');
 interface IMarkdownToStateOptions {
     footnote: boolean;
     math: boolean;
+    inlineMath?: boolean;
     isGitlabCompatibilityEnabled: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
@@ -27,6 +28,7 @@ interface IMarkdownToStateOptions {
 const DEFAULT_OPTIONS = {
     footnote: false,
     math: true,
+    inlineMath: true,
     isGitlabCompatibilityEnabled: true,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
@@ -54,6 +56,7 @@ export class MarkdownToState {
         const {
             footnote = false,
             math = true,
+            inlineMath = true,
             isGitlabCompatibilityEnabled = true,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
@@ -65,6 +68,7 @@ export class MarkdownToState {
         const tokens: TBlockToken[] = lexBlock(markdown, {
             footnote,
             math,
+            inlineMath,
             frontMatter,
             isGitlabCompatibilityEnabled,
         });

@@ -3,6 +3,7 @@ import type { MarkedToken, Tokens } from 'marked';
 export interface ILexOption {
     footnote?: boolean;
     math?: boolean;
+    inlineMath?: boolean;
     isGitlabCompatibilityEnabled?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;

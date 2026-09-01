@@ -31,6 +31,7 @@ export type Rules = Record<string, RegExp>;
 export interface ITokenizerFacOptions {
     superSubScript: boolean;
     footnote: boolean;
+    inlineMath?: boolean;
 }
 
 export interface ITokenizerOptions {

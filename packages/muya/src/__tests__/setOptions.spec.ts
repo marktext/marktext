@@ -210,6 +210,41 @@ describe('muya render-affecting options', () => {
         expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
     });
 
+    it('inlineMath:false renders currency-heavy prose literally', async () => {
+        const markdown = 'Revenue rose from $13B to $24B while $x+y$ stayed mathematical.\n';
+        const muya = bootMuyaWith(markdown, { inlineMath: false });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+        expect(muya.domNode.querySelectorAll('.mu-math').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('$13B');
+        expect(muya.domNode.textContent).toContain('$24B');
+        expect(muya.domNode.textContent).toContain('$x+y$');
+        expect(muya.getMarkdown()).toBe(markdown);
+    });
+
+    it('inlineMath:true preserves the existing single-dollar math rendering', async () => {
+        const muya = bootMuyaWith('$x+y$\n', { inlineMath: true });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+        expect(muya.domNode.querySelectorAll('.mu-math').length).toBe(1);
+        expect(muya.getMarkdown()).toBe('$x+y$\n');
+    });
+
+    it('setOptions inlineMath with forceRender toggles inline math live', async () => {
+        const muya = bootMuyaWith('$x+y$\n', { inlineMath: true });
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('.mu-math').length).toBe(1);
+
+        muya.setOptions({ inlineMath: false }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('.mu-math').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('$x+y$');
+
+        muya.setOptions({ inlineMath: true }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('.mu-math').length).toBe(1);
+    });
+
     it('frontmatterType:false drives the option onto muya.options', () => {
         const muya = bootMuyaWith('body\n', {});
         muya.setOptions({ frontmatterType: '+' });

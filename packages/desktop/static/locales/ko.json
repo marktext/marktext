@@ -405,6 +405,7 @@
         "frontmatterType": "프론트매터 유형",
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
+        "inlineMath": "Render single-dollar inline math expressions",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "sequenceTheme": "시퀀스 다이어그램 테마",
@@ -625,6 +626,8 @@
         "superSubScript": "위/아래 첨자",
         "footnote": "각주",
         "footnoteNotes": "각주 노트",
+        "inlineMath": "Inline math",
+        "inlineMathNotes": "Turn off for finance prose with unescaped dollar amounts",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
