@@ -29,6 +29,44 @@ test.describe('slash quick-insert menu', () => {
         await expect(page.locator(editor.atxHeading).first()).toBeVisible();
     });
 
+    test('highlight follows the active mouse or keyboard input', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent(''));
+        await page.locator(editor.paragraph).first().click();
+        await page.keyboard.type('/');
+
+        const menu = page.locator(floats.quickInsert);
+        const heading1 = page.locator(quickInsertItem('atx-heading 1'));
+        await heading1.hover();
+
+        const pointerBackgrounds = await page.evaluate(() => {
+            const paragraph = document.querySelector<HTMLElement>('[data-label="paragraph"]');
+            const heading1 = document.querySelector<HTMLElement>('[data-label="atx-heading 1"]');
+            return {
+                paragraph: paragraph && getComputedStyle(paragraph).backgroundColor,
+                heading1: heading1 && getComputedStyle(heading1).backgroundColor,
+            };
+        });
+        expect(pointerBackgrounds.heading1).not.toBe(pointerBackgrounds.paragraph);
+
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('ArrowDown');
+
+        await expect(menu).toHaveClass(/mu-keyboard-navigation/);
+        await expect(page.locator(quickInsertItem('atx-heading 3'))).toHaveClass(/active/);
+        const keyboardBackgrounds = await page.evaluate(() => {
+            const heading1 = document.querySelector<HTMLElement>('[data-label="atx-heading 1"]');
+            const heading3 = document.querySelector<HTMLElement>('[data-label="atx-heading 3"]');
+            return {
+                heading1: heading1 && getComputedStyle(heading1).backgroundColor,
+                heading3: heading3 && getComputedStyle(heading3).backgroundColor,
+            };
+        });
+        expect(keyboardBackgrounds.heading3).not.toBe(keyboardBackgrounds.heading1);
+
+        await page.keyboard.press('Enter');
+        await expect(page.locator('h3.mu-atx-heading').first()).toBeVisible();
+    });
+
     // EXTEND item 1a — Enter-select inserts a block (keyboard, not click).
     // Typing `/` then narrowing with `quote` filters the menu so `block-quote`
     // becomes the active item (fuse top match); BaseScrollFloat's keydown

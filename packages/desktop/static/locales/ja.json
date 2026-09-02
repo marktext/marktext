@@ -241,7 +241,9 @@
       "openFolder": "フォルダーを開く"
     },
     "toc": {
-      "title": "目次"
+      "title": "目次",
+      "expandAll": "すべて展開",
+      "collapseAll": "すべて折りたたむ"
     },
     "icons": {
       "files": "ファイル",
@@ -497,6 +499,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -579,10 +582,10 @@
       },
       "uploader": {
         "title": "画像アップローダー",
-        "currentUploader": "現在のアップローダー",
-        "picgoNotInstalled": "PicGo がインストールされていません",
-        "picgoInstalled": "PicGo がインストールされています",
-        "picgoDetectionFailed": "PicGo 検出に失敗しました",
+        "currentUploader": "現在のアップローダー: {name}",
+        "picgoNotInstalled": "PicGoがインストールされていません",
+        "picgoInstalled": "PicGoがインストールされています",
+        "picgoDetectionFailed": "PicGo検出に失敗しました",
         "debugInfo": "デバッグ情報",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -699,7 +702,7 @@
       "online": "オンライン",
       "saveError": "キーバインドの保存エラー",
       "shortcutInUse": "ショートカットが使用中",
-      "shortcutInUseMessage": "このショートカットは既に別のコマンドに割り当てられています",
+      "shortcutInUseMessage": "このショートカットは既に {accelerator} に割り当てられています",
       "table": {
         "description": "説明",
         "edit": "編集",
@@ -728,7 +731,7 @@
     }
   },
   "about": {
-    "copyright": "著作権",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "著作権貢献者"
   },
   "commands": {
@@ -881,7 +884,7 @@
     "close": "閉じる",
     "dontSave": "保存しない",
     "file": "ファイル",
-    "fileExists": "ファイルが存在します",
+    "fileExists": "ファイルが既に存在します: {filename}",
     "files": "ファイル",
     "importWarning": "インポート警告",
     "installPandoc": "Pandoc をインストール",
@@ -898,12 +901,12 @@
   "error": {
     "configSchemaViolation": "設定スキーマ違反",
     "copyError": "コピーエラー",
-    "initializationFailed": "初期化に失敗",
-    "otherInstanceDetected": "MarkText の別のインスタンスが既に実行中です",
+    "initializationFailed": "初期化に失敗しました {hint}",
+    "otherInstanceDetected": "MarkTextの別のインスタンスが既に実行中です",
     "report": "報告",
     "startupError": "起動エラー",
     "terminatedDueToError": "エラーにより終了",
-    "unexpectedErrorWithMessage": "予期しないエラーメッセージ",
+    "unexpectedErrorWithMessage": "予期しないエラー: {message}",
     "unexpectedMainProcess": "予期しないメインプロセスエラー",
     "unexpectedRendererProcess": "予期しないレンダラープロセスエラー"
   },
@@ -915,7 +918,7 @@
     "editor": {
       "anchorLinkCopied": "アンカーリンクがコピーされました",
       "tabNotFound": "タブが見つかりません",
-      "tocItemNotFound": "目次項目が見つかりません",
+      "tocItemNotFound": "目次項目 {key} が見つかりません",
       "errorLoadingTabTitle": "タブの読み込みエラー",
       "errorLoadingTabMessage": "ファイル変更の読み込み中にエラーが発生しました。タブが見つかりません。",
       "mixedLineEndingsNormalized": "「{name}」には混在した改行コードが含まれており、{lineEnding} に自動正規化されました。",
@@ -935,8 +938,8 @@
   "editor": {
     "export": {
       "error": "エクスポートエラー",
-      "errorExporting": "ファイルのエクスポート中にエラーが発生しました",
-      "failed": "エクスポートに失敗しました"
+      "errorExporting": "{type} ファイルのエクスポートエラー",
+      "failed": "{type} エクスポートに失敗しました"
     },
     "insertTable": {
       "title": "表を挿入",
@@ -947,7 +950,7 @@
       "notificationNotFound": "通知が見つかりません"
     },
     "print": {
-      "error": "印刷エラー",
+      "error": "\"{title}\" の印刷エラー",
       "failed": "印刷に失敗しました"
     },
     "sourceCode": {
@@ -956,9 +959,9 @@
     },
     "spellcheck": {
       "disabledError": "スペルチェックの無効化エラー",
-      "errorSwitchingLanguage": "スペルチェック言語の切り替えエラー",
-      "languageMissing": "スペルチェック言語が見つかりません",
-      "switchError": "スペルチェックの切り替えエラー",
+      "errorSwitchingLanguage": "スペルチェック言語の切り替えエラー {languageCode}",
+      "languageMissing": "スペルチェック言語が見つかりません {languageCode}",
+      "switchError": "{languageCode} のスペルチェック切り替えエラー、{error}",
       "title": "スペルチェック"
     }
   }

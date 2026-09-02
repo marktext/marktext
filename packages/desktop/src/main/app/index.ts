@@ -165,6 +165,7 @@ class App {
           'fr',
           'de',
           'es',
+          'nl',
           'pt',
           'ru'
         ]
@@ -188,6 +189,9 @@ class App {
           'de-DE': 'de',
           es: 'es',
           'es-ES': 'es',
+          nl: 'nl',
+          'nl-NL': 'nl',
+          'nl-BE': 'nl',
           pt: 'pt',
           'pt-BR': 'pt',
           ru: 'ru',
