@@ -1522,9 +1522,10 @@ class Format extends Content {
 
         const { text: oldText } = this;
         const { start, end } = this.getCursor()!;
+        const breakChar = this.muya.options.softNewlineAsSpace ? '  \n' : '\n';
         this.text
-            = `${oldText.substring(0, start.offset)}\n${oldText.substring(end.offset)}`;
-        this.setCursor(start.offset + 1, end.offset + 1, true);
+            = `${oldText.substring(0, start.offset)}${breakChar}${oldText.substring(end.offset)}`;
+        this.setCursor(start.offset + breakChar.length, end.offset + breakChar.length, true);
     }
 
     override enterHandler(event: KeyboardEvent): void {

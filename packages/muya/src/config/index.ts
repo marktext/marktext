@@ -162,6 +162,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_RUBY_RENDER',
     'MU_SELECTED',
     'MU_SOFT_LINE_BREAK',
+    'MU_SOFT_NEWLINE_AS_SPACE',
     'MU_MATH_ERROR',
     'MU_MATH_MARKER',
     'MU_MATH_RENDER',
@@ -347,6 +348,8 @@ export const MUYA_DEFAULT_OPTIONS = {
     // Whether math block is supported.
     math: true,
     isGitlabCompatibilityEnabled: true,
+    // Render soft line breaks as spaces instead of visual newlines.
+    softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.
     autoMoveCheckedToEnd: false,
     // Whether HTML rendering is disabled or not.

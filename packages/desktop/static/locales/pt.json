@@ -653,6 +653,7 @@
       "compatibility": {
         "enableGitlab": "Habilitar compatibilidade GitLab",
         "enableHtml": "Habilitar suporte HTML",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibilidade"
       },
       "lists": {
