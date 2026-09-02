@@ -47,7 +47,8 @@ test.describe('Editor input and source-mode roundtrip', () => {
 
   test('Typing into the editor appends content', async() => {
     await typeIntoEditor(page, ' typed-token')
-    await expect.poll(async() => await getMarkdownContent(page, app)).toContain('typed-token')
+    await expect.poll(async() => await page.locator('.editor-component').innerText()).toContain('typed-token')
+    expect(await getMarkdownContent(page, app)).toContain('typed-token')
   })
 })
 
