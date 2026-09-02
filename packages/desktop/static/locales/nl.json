@@ -1,0 +1,968 @@
+{
+  "menu": {
+    "counter": {
+      "words": "Woorden",
+      "characters": "Tekens",
+      "paragraphs": "Alinea's"
+    },
+    "file": {
+      "file": "Bestand",
+      "newTab": "Nieuw tabblad",
+      "newWindow": "Nieuw venster",
+      "openFile": "Bestand openen...",
+      "openFolder": "Map openen...",
+      "openRecent": "Recent geopend",
+      "clearRecentlyUsed": "Recent gewist",
+      "save": "Opslaan",
+      "saveAs": "Opslaan als...",
+      "autoSave": "Automatisch opslaan",
+      "moveTo": "Verplaatsen naar",
+      "rename": "Hernoemen",
+      "export": "Exporteren",
+      "exportHtml": "Exporteren als HTML",
+      "exportPdf": "Exporteren als PDF",
+      "import": "Importeren",
+      "print": "Afdrukken",
+      "closeTab": "Tabblad sluiten",
+      "closeWindow": "Venster sluiten",
+      "quit": "Afsluiten",
+      "preferences": "Voorkeuren"
+    },
+    "edit": {
+      "edit": "Bewerken",
+      "undo": "Ongedaan maken",
+      "redo": "Opnieuw",
+      "cut": "Knippen",
+      "copy": "Kopiëren",
+      "paste": "Plakken",
+      "copyAsRich": "Kopiëren als opgemaakte tekst",
+      "copyAsHtml": "Kopiëren als HTML",
+      "pasteAsPlainText": "Plakken als platte tekst",
+      "selectAll": "Alles selecteren",
+      "duplicate": "Dupliceren",
+      "createParagraph": "Alinea aanmaken",
+      "deleteParagraph": "Alinea verwijderen",
+      "find": "Zoeken",
+      "replace": "Vervangen",
+      "findNext": "Volgende zoeken",
+      "findPrevious": "Vorige zoeken",
+      "findInFolder": "Zoeken in map",
+      "screenshot": "Schermafbeelding",
+      "lineEnding": "Regeleinde",
+      "lineEndingCrlf": "CRLF (Windows)",
+      "lineEndingLf": "LF (Linux/Mac)"
+    },
+    "paragraph": {
+      "title": "Alinea",
+      "paragraph": "Alinea",
+      "heading1": "Kop 1",
+      "heading2": "Kop 2",
+      "heading3": "Kop 3",
+      "heading4": "Kop 4",
+      "heading5": "Kop 5",
+      "heading6": "Kop 6",
+      "promoteHeading": "Kop promoveren",
+      "demoteHeading": "Kop degraderen",
+      "table": "Tabel",
+      "codeFences": "Codeblok",
+      "quoteBlock": "Citaatblok",
+      "mathBlock": "Wiskundeblok",
+      "htmlBlock": "HTML-blok",
+      "orderedList": "Genummerde lijst",
+      "bulletList": "Opsommingslijst",
+      "taskList": "Takenlijst",
+      "looseListItem": "Los lijstitem",
+      "horizontalRule": "Horizontale lijn",
+      "frontMatter": "Front Matter"
+    },
+    "window": {
+      "title": "Venster",
+      "minimize": "Minimaliseren",
+      "zoomIn": "Inzoomen",
+      "zoomOut": "Uitzoomen",
+      "fullScreen": "Volledig scherm",
+      "bringAllToFront": "Alles naar voren",
+      "alwaysOnTop": "Altijd bovenaan"
+    },
+    "help": {
+      "help": "Help",
+      "markdownReference": "Markdown-referentie",
+      "changelog": "Wijzigingslog",
+      "askQuestion": "Vraag stellen",
+      "reportBug": "Bug melden",
+      "viewSource": "Broncode bekijken",
+      "followUs": "Volg ons",
+      "support": "Steun MarkText",
+      "license": "Licentie",
+      "about": "Over",
+      "checkUpdates": "Controleer op updates"
+    },
+    "marktext": {
+      "title": "MarkText",
+      "about": "Over MarkText",
+      "checkUpdates": "Controleer op updates...",
+      "preferences": "Voorkeuren",
+      "services": "Diensten",
+      "hide": "Verberg MarkText",
+      "hideOthers": "Verberg overige",
+      "showAll": "Toon alles",
+      "quit": "MarkText afsluiten"
+    },
+    "view": {
+      "view": "Weergave",
+      "toggleSidebar": "Zijbalk in-/uitschakelen",
+      "toggleTabbar": "Tabbalk in-/uitschakelen",
+      "commandPalette": "Opdrachtpalet",
+      "sourceCodeMode": "Broncodeweergave",
+      "typewriterMode": "Typemachinestand",
+      "focusMode": "Focusstand",
+      "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
+      "reloadImages": "Afbeeldingen herladen",
+      "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
+      "reloadWindow": "Venster herladen"
+    },
+    "format": {
+      "format": "Opmaak",
+      "bold": "Vet",
+      "italic": "Cursief",
+      "underline": "Onderstreept",
+      "strikethrough": "Doorgestreept",
+      "image": "Afbeelding",
+      "superscript": "Superscript",
+      "subscript": "Subscript",
+      "highlight": "Markering",
+      "inlineCode": "Inline code",
+      "inlineMath": "Inline wiskunde",
+      "hyperlink": "Hyperlink",
+      "clearFormat": "Opmaak wissen"
+    },
+    "theme": {
+      "theme": "&Thema",
+      "dark": "Donker",
+      "followThemDisabled": "Themaselectie uitgeschakeld bij het volgen van systeemthema",
+      "lightThemes": "— Lichte thema's —",
+      "darkThemes": "— Donkere thema's —",
+      "ayuDark": "Ayu Dark",
+      "ayuLight": "Ayu Light",
+      "ayuMirage": "Ayu Mirage",
+      "cadmiumDark": "Cadmium Dark",
+      "cadmiumLight": "Cadmium Light",
+      "catppuccinLatte": "Catppuccin Latte",
+      "catppuccinMocha": "Catppuccin Mocha",
+      "cyberdream": "cyberdream",
+      "dracula": "Dracula",
+      "everforestDark": "Everforest Dark",
+      "everforestLight": "Everforest Light",
+      "graphiteLight": "Graphite Light",
+      "gruvboxDark": "Gruvbox Dark",
+      "gruvboxLight": "Gruvbox Light",
+      "horizonDark": "Horizon Dark",
+      "kanagawa": "Kanagawa",
+      "materialDark": "Material Dark",
+      "monokaiPro": "Monokai Pro",
+      "nightfox": "Nightfox",
+      "nord": "Nord",
+      "oneDark": "One Dark",
+      "oxocarbonDark": "Oxocarbon Dark",
+      "palenight": "Palenight",
+      "rosePine": "Rosé Pine",
+      "rosePineDawn": "Rosé Pine Dawn",
+      "rosePineMoon": "Rosé Pine Moon",
+      "solarizedDark": "Solarized Dark",
+      "solarizedLight": "Solarized Light",
+      "synthwave84": "Synthwave '84",
+      "tokyoNight": "Tokyo Night",
+      "tokyoNightLight": "Tokyo Night Light",
+      "tokyoNightStorm": "Tokyo Night Storm",
+      "ulyssesLight": "Ulysses Light"
+    }
+  },
+  "contextMenu": {
+    "cut": "Knippen",
+    "copy": "Kopiëren",
+    "paste": "Plakken",
+    "copyAsRich": "Kopiëren als opgemaakte tekst",
+    "copyAsHtml": "Kopiëren als HTML",
+    "pasteAsPlainText": "Plakken als platte tekst",
+    "insertParagraphBefore": "Alinea invoegen vóór",
+    "insertParagraphAfter": "Alinea invoegen na",
+    "spelling": "Spelling...",
+    "changeLanguage": "Taal wijzigen...",
+    "addToDictionary": "Toevoegen aan woordenboek",
+    "editDictionary": "Woordenboek bewerken...",
+    "sideBar": {
+      "newFile": "Nieuw bestand",
+      "newDirectory": "Nieuwe map",
+      "copy": "Kopiëren",
+      "cut": "Knippen",
+      "paste": "Plakken",
+      "rename": "Hernoemen",
+      "moveToTrash": "Naar prullenbak",
+      "showInFolder": "Tonen in map"
+    },
+    "tabs": {
+      "close": "Sluiten",
+      "closeOthers": "Andere sluiten",
+      "closeSavedTabs": "Opgeslagen tabbladen sluiten",
+      "closeAllTabs": "Alle tabbladen sluiten",
+      "rename": "Hernoemen",
+      "copyPath": "Pad kopiëren",
+      "showInFolder": "Tonen in map"
+    }
+  },
+  "search": {
+    "searchPlaceholder": "Zoeken",
+    "caseSensitive": "Hoofdlettergevoelig",
+    "wholeWord": "Heel woord selecteren",
+    "useRegex": "Gebruik als reguliere expressie",
+    "replacementPlaceholder": "Vervanging",
+    "replaceAll": "Alles vervangen",
+    "replaceSingle": "Enkele vervanging",
+    "invalidRegex": "Ongeldige reguliere expressie \"{pattern}\"",
+    "regexMatchEmpty": "Reguliere expressie matcht lege tekenreeks \"{pattern}\"",
+    "searchResultInfo": "{matchCount} resultaten in {fileCount} bestanden",
+    "searchLimited": "Zoeken beperkt tot eerste {count} resultaten"
+  },
+  "sideBar": {
+    "search": {
+      "searchInFolder": "Zoeken in map...",
+      "noFolderOpen": "Geen map geopend",
+      "noResultsFound": "Geen resultaten gevonden.",
+      "cancel": "Annuleren",
+      "openFolder": "Map openen",
+      "showMoreMatches": "Meer resultaten tonen"
+    },
+    "tree": {
+      "openedFiles": "Geopende bestanden",
+      "saveAll": "Alles opslaan",
+      "closeAll": "Alles sluiten",
+      "emptyProject": "Leeg project",
+      "createFile": "Bestand aanmaken",
+      "openFolder": "Map openen"
+    },
+    "toc": {
+      "title": "Inhoudsopgave",
+      "expandAll": "Alles uitklappen",
+      "collapseAll": "Alles inklappen"
+    },
+    "icons": {
+      "files": "Bestanden",
+      "search": "Zoeken",
+      "toc": "Inhoudsopgave",
+      "settings": "Instellingen"
+    }
+  },
+  "commandPalette": {
+    "placeholder": "Typ een opdracht om uit te voeren",
+    "placeholders": {
+      "selectOption": "Selecteer een optie",
+      "searchFileToOpen": "Zoek bestand om te openen",
+      "selectLanguage": "Selecteer een taal om naar te wisselen"
+    }
+  },
+  "exportSettings": {
+    "autoNumberingHeadings": "Automatisch nummeren van koppen",
+    "title": "Exportopties",
+    "info": {
+      "label": "Info",
+      "description": "Pas de pagina-opmaak aan en klik op \"exporteren\" om door te gaan."
+    },
+    "page": {
+      "label": "Pagina",
+      "pageTitle": "Paginatitel:",
+      "pageSize": "Paginaformaat:",
+      "landscapeOrientation": "Liggende oriëntatie:",
+      "pageMargin": "Paginamarge in mm:",
+      "topBottom": "Boven/Onder:",
+      "leftRight": "Links/Rechts:",
+      "widthHeight": "Breedte/Hoogte in mm:"
+    },
+    "showFrontMatter": "Front Matter tonen",
+    "style": {
+      "label": "Stijl",
+      "overwriteThemeFont": "Thema-lettertype overschrijven",
+      "fontFamily": "Lettertypefamilie:",
+      "fontSize": "Lettergrootte",
+      "lineHeight": "Regelhoogte"
+    },
+    "theme": {
+      "label": "Thema",
+      "description": "Je kunt het uiterlijk van het document aanpassen door een thema te kiezen of een eigen thema te maken.",
+      "theme": "Thema"
+    },
+    "headerFooter": {
+      "allowStyled": "Opgemaakte tekst toestaan",
+      "customizeStyle": "Stijl aanpassen",
+      "fontSize": "Lettergrootte",
+      "footerType": "Voetteksttype",
+      "headerType": "Kopteksttype",
+      "label": "Kop- & voettekst",
+      "leftFooterText": "Linker voettekst",
+      "leftHeaderText": "Linker koptekst",
+      "mainFooterText": "Hoofdvoettekst",
+      "mainHeaderText": "Hoofdkoptekst",
+      "rightFooterText": "Rechter voettekst",
+      "rightHeaderText": "Rechter koptekst",
+      "description": "De tekst verschijnt op alle pagina's als kop- en/of voettekst is gedefinieerd."
+    },
+    "toc": {
+      "includeTopHeading": "Bovenste kop opnemen",
+      "includeTopHeadingDetail": "Bovenste kop detail opnemen",
+      "label": "Inhoudsopgave",
+      "title": "Inhoudsopgave"
+    },
+    "export": "Exporteren...",
+    "options": {
+      "pageSizes": {
+        "a3": "A3 (297mm x 420mm)",
+        "a4": "A4 (210mm x 297mm)",
+        "a5": "A5 (148mm x 210mm)",
+        "legal": "US Legal (8,5\" x 13\")",
+        "letter": "US Letter (8,5\" x 11\")",
+        "tabloid": "Tabloid (17\" x 11\")",
+        "custom": "Aangepast"
+      },
+      "headerFooterTypes": {
+        "none": "Geen",
+        "singleCell": "Enkele cel",
+        "threeCells": "Drie cellen"
+      },
+      "headerFooterStyles": {
+        "default": "Standaard",
+        "simple": "Eenvoudig",
+        "styled": "Opgemaakt"
+      },
+      "themes": {
+        "academic": "Academisch",
+        "default": "GitHub (Standaard)",
+        "liber": "Liber"
+      }
+    }
+  },
+  "recent": {
+    "noTabsOpen": "Je hebt geen tabbladen open.",
+    "newFile": "Nieuw bestand"
+  },
+  "import": {
+    "title": "Importeren of openen",
+    "description": "Sleep hier om je bestanden in MarkText te openen"
+  },
+  "preferences": {
+    "title": "Voorkeuren",
+    "search": {
+      "placeholder": "Voorkeuren zoeken...",
+      "categories": {
+        "general": "Algemeen",
+        "editor": "Editor",
+        "markdown": "Markdown",
+        "theme": "Thema",
+        "image": "Afbeelding",
+        "view": "Weergave",
+        "searcher": "Zoeker",
+        "watcher": "Watcher",
+        "spelling": "Spelling",
+        "custom css": "Aangepaste CSS"
+      },
+      "items": {
+        "autoSave": "Automatisch de bewerkte inhoud opslaan",
+        "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
+        "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
+        "openFilesInNewWindow": "Bestanden openen in een nieuw venster",
+        "openFolderInNewWindow": "Map openen via menu in een nieuw venster",
+        "zoom": "Het zoomniveau. Tussen 0,5 en 2,0",
+        "hideScrollbar": "Schuifbalken verbergen",
+        "wordWrapInToc": "Tekstterugloop in inhoudsopgave",
+        "fileSortBy": "Bestanden sorteren op aanmaaktijd, wijzigingstijd of titel",
+        "startUpAction": "De actie na het opstarten van MarkText",
+        "restoreLayoutState": "Vorige editorstatus herstellen bij opstarten",
+        "defaultDirectoryToOpen": "De standaardmap die geopend wordt bij opstarten",
+        "language": "De taal die MarkText gebruikt",
+        "editorFontFamily": "Lettertype van de editor",
+        "fontSize": "Lettergrootte in pixels",
+        "lineHeight": "Regelhoogte",
+        "wrapCodeBlocks": "Tekst terugloop in codeblokken",
+        "editorLineWidth": "Maximale breedte van het editorgebied",
+        "codeFontSize": "Lettergrootte in codeblokken (12-18)",
+        "codeFontFamily": "Lettertype voor codeblokken",
+        "codeBlockLineNumbers": "Regelnummers tonen",
+        "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
+        "autoPairBracket": "Automatisch haakjes aanvullen bij bewerken",
+        "autoPairMarkdownSyntax": "Markdown-syntax automatisch aanvullen",
+        "autoPairQuote": "Automatisch aanhalingstekens aanvullen",
+        "endOfLine": "Het regeleindeteken aan het einde van elke regel",
+        "defaultEncoding": "De standaard bestandscodering",
+        "autoGuessEncoding": "Probeer automatisch de bestandscodering te detecteren",
+        "trimTrailingNewline": "Optie voor afsluitende lege regels",
+        "textDirection": "De schrijfrichting van de tekst",
+        "hideQuickInsertHint": "Hint voor snel invoegen verbergen",
+        "hideLinkPopup": "Link-popup verbergen als cursor op link staat",
+        "autoCheck": "Automatisch gerelateerde taak aanvinken",
+        "preferLooseListItem": "Het voorkeurs lijsttype",
+        "bulletListMarker": "Het teken voor opsommingslijsten",
+        "orderListDelimiter": "Het scheidingsteken voor genummerde lijsten",
+        "preferHeadingStyle": "De voorkeursstijl voor koppen",
+        "tabSize": "Tab vervangen door x spaties",
+        "listIndentation": "Inspringkeuze voor lijsten",
+        "frontmatterType": "Het type Front Matter",
+        "superSubScript": "Pandoc superscript en subscript inschakelen",
+        "footnote": "Pandoc voetnoten inschakelen",
+        "isHtmlEnabled": "HTML-weergave inschakelen",
+        "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
+        "sequenceTheme": "Sequentiediagram thema",
+        "plantumlServer": "PlantUML server-URL",
+        "theme": "Selecteer het thema voor MarkText",
+        "followSystemTheme": "Systeemthema volgen",
+        "lightModeTheme": "Thema voor lichte modus",
+        "darkModeTheme": "Thema voor donkere modus",
+        "spellcheckerEnabled": "Spellingcontrole inschakelen",
+        "spellcheckerNoUnderline": "Spelfouten niet onderstrepen",
+        "spellcheckerLanguage": "Taal voor spellingcontrole",
+        "imageInsertAction": "Standaardgedrag na invoegen van afbeelding",
+        "imagePreferRelativeDirectory": "Relatieve afbeeldingsmap prefereren",
+        "imageRelativeDirectoryBase": "Waar relatieve afbeeldingen worden gekopieerd",
+        "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
+        "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
+        "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+      }
+    },
+    "categories": {
+      "general": "Algemeen",
+      "editor": "Editor",
+      "markdown": "Markdown",
+      "spelling": "Spelling",
+      "theme": "Thema",
+      "image": "Afbeelding",
+      "keybindings": "Sneltoetsen"
+    },
+    "general": {
+      "title": "Algemeen",
+      "autoSave": {
+        "title": "Automatisch opslaan",
+        "description": "Automatisch opslaan",
+        "delayDescription": "Vertraging automatisch opslaan"
+      },
+      "window": {
+        "title": "Venster",
+        "titleBarStyle": {
+          "title": "Titelbalkstijl",
+          "custom": "Aangepast",
+          "native": "Systeem"
+        },
+        "requiresRestart": "Herstart vereist",
+        "hideScrollbars": "Schuifbalken verbergen",
+        "openFilesInNewWindow": "Bestanden in nieuw venster openen",
+        "openFoldersInNewWindow": "Mappen in nieuw venster openen",
+        "zoom": "Zoom"
+      },
+      "startup": {
+        "title": "Opstartopties",
+        "layoutOptions": "Lay-outopties",
+        "startupFilesFolders": "Opstartbestanden/-mappen",
+        "restorePreviousState": "Vorige editorstatus herstellen",
+        "openBlankState": "Lege status openen",
+        "openDefaultDirectory": "Standaardmap openen",
+        "openLastFolder": "Geopende map herstellen",
+        "restoreAll": "Alle geopende bestanden en mappen herstellen",
+        "selectFolder": "Map selecteren",
+        "openBlankPage": "Lege pagina openen"
+      },
+      "sidebar": {
+        "title": "Zijbalk",
+        "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
+        "showOpenedFiles": "Geopende bestanden tonen",
+        "excludePatterns": "Uitsluitpatronen",
+        "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
+        "fileSortBy": {
+          "title": "Bestanden sorteren op",
+          "creationTime": "Aanmaaktijd",
+          "modificationTime": "Wijzigingstijd",
+          "filename": "Bestandsnaam"
+        },
+        "fileSortOrder": {
+          "title": "Sorteervolgorde",
+          "aToZ": "A → Z",
+          "zToA": "Z → A",
+          "oldestFirst": "Oudste eerst",
+          "newestFirst": "Nieuwste eerst"
+        }
+      },
+      "misc": {
+        "title": "Diversen",
+        "language": {
+          "title": "Taal",
+          "english": "English",
+          "chinese": "简体中文",
+          "traditionalChinese": "繁體中文",
+          "spanish": "Español",
+          "french": "Français",
+          "german": "Deutsch",
+          "japanese": "日本語",
+          "korean": "한국어",
+          "dutch": "Nederlands",
+          "portuguese": "Português",
+          "turkish": "Türkçe"
+        }
+      }
+    },
+    "editor": {
+      "title": "Editor",
+      "textEditor": {
+        "title": "Teksteditor",
+        "fontSize": "Lettergrootte",
+        "lineHeight": "Regelhoogte",
+        "fontFamily": "Lettertypefamilie",
+        "maxWidth": "Maximale breedte",
+        "maxWidthNotes": "Maximale breedte van editorinhoud"
+      },
+      "codeBlock": {
+        "title": "Codeblok",
+        "fontSize": "Lettergrootte",
+        "fontFamily": "Lettertypefamilie",
+        "showLineNumbers": "Regelnummers tonen",
+        "removeEmptyLines": "Lege regels verwijderen"
+      },
+      "writingBehavior": {
+        "title": "Schrijfgedrag",
+        "autoCloseBrackets": "Haakjes automatisch sluiten",
+        "autoCompleteMarkdown": "Markdown automatisch aanvullen",
+        "autoCloseQuotes": "Aanhalingstekens automatisch sluiten"
+      },
+      "fileRepresentation": {
+        "title": "Bestandsweergave",
+        "tabWidth": "Tabbreedte",
+        "lineSeparator": "Regelscheidingsteken",
+        "defaultEncoding": "Standaardcodering",
+        "autoDetectEncoding": "Codering automatisch detecteren",
+        "trailingNewlines": {
+          "title": "Afsluitende lege regels",
+          "doNothing": "Niets doen",
+          "ensureOne": "Eén garanderen",
+          "preserve": "Behouden",
+          "trimAll": "Alles verwijderen"
+        },
+        "endOfLine": {
+          "default": "Standaard",
+          "crlf": "CRLF (Windows)",
+          "lf": "LF (Linux/Mac)"
+        }
+      },
+      "misc": {
+        "title": "Diversen",
+        "textDirection": {
+          "title": "Tekstrichting",
+          "ltr": "Links naar rechts",
+          "rtl": "Rechts naar links"
+        },
+        "hideQuickInsertHint": "Hint snel invoegen verbergen",
+        "hideLinkPopup": "Link-popup verbergen",
+        "autoCheck": "Automatisch aanvinken",
+        "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren naar LF bij openen",
+        "wrapCodeBlocks": "Codeblokken terugloopbaar"
+      }
+    },
+    "image": {
+      "title": "Afbeelding",
+      "actions": {
+        "upload": "Uploaden naar cloud",
+        "folder": "Kopiëren naar map",
+        "path": "Absoluut pad gebruiken"
+      },
+      "folderSetting": {
+        "title": "Mapinstelling",
+        "globalFolder": "Globale afbeeldingsmap",
+        "open": "Openen",
+        "showInFolder": "Tonen in map",
+        "preferRelative": "Relatieve map prefereren",
+        "relativeCopyLocation": "Afbeelding kopiëren relatief aan",
+        "copyRelativeToFile": "Relatief aan bestand",
+        "copyRelativeToFolder": "Relatief aan map",
+        "relativeFolderName": "Relatieve mapnaam",
+        "filenameNote": "De bestandsnaam wordt automatisch gegenereerd."
+      },
+      "uploader": {
+        "title": "Afbeeldings-uploader",
+        "currentUploader": "Huidige uploader: {name}",
+        "picgoNotInstalled": "PicGo is niet geïnstalleerd",
+        "picgoInstalled": "PicGo is geïnstalleerd",
+        "picgoDetectionFailed": "PicGo-detectie mislukt",
+        "debugInfo": "Foutopsporingsinformatie",
+        "npmInstallCommand": "npm install picgo -g",
+        "yarnInstallCommand": "yarn global add picgo",
+        "pnpmInstallCommand": "pnpm add -g picgo",
+        "chooseInstallMethod": "Kies installatiemethode:",
+        "retestPicgo": "Opnieuw testen",
+        "lastDetectionTime": "Laatste detectietijd",
+        "picgoDetection": "PicGo-detectie",
+        "usageGuide": {
+          "title": "PicGo basisgebruikshandleiding",
+          "step1": "Uploader configureren",
+          "step1Description": "Gebruik de volgende opdracht om PicGo-uploader te configureren:",
+          "step2": "Afbeeldingen uploaden",
+          "step2Description": "Gebruik de volgende opdracht om afbeeldingen te uploaden:",
+          "step3": "Configuratie bekijken",
+          "step3Description": "Gebruik de volgende opdracht om de huidige configuratie te bekijken:",
+          "documentation": "Volledige documentatie bekijken"
+        },
+        "lastSuccessTime": "Laatste succestijd",
+        "neverDetected": "Nooit gedetecteerd",
+        "neverSuccessful": "Nooit succesvol",
+        "scriptDescription": "Scriptbeschrijving",
+        "scriptLocation": "Scriptlocatie",
+        "save": "Opslaan",
+        "saveConfig": "Configuratie opslaan",
+        "scriptConfigSaved": "Scriptconfiguratie opgeslagen",
+        "services": {
+          "picgo": "PicGo",
+          "cliScript": "CLI-script"
+        },
+        "pleaseInstall": "Installeer a.u.b.",
+        "scriptPath": "Scriptpad"
+      },
+      "defaultBehavior": "Het standaardgedrag na plakken of slepen van een afbeelding naar MarkText"
+    },
+    "markdown": {
+      "title": "Markdown",
+      "extensions": {
+        "title": "Extensies",
+        "superSubScript": "Super-/subscript",
+        "footnote": "Voetnoot",
+        "footnoteNotes": "Voetnoten",
+        "frontmatterType": {
+          "jsonBrace": "JSON met accolades",
+          "jsonSemicolon": "JSON met puntkomma",
+          "title": "Front Matter-type"
+        }
+      },
+      "diagrams": {
+        "title": "Diagrammen",
+        "sequenceTheme": {
+          "title": "Sequentiethema",
+          "handDrawn": "Handgetekend",
+          "simple": "Eenvoudig"
+        },
+        "plantumlServer": {
+          "title": "PlantUML server"
+        }
+      },
+      "misc": {
+        "preferHeadingStyle": {
+          "title": "Voorkeursstijl koppen",
+          "atx": "ATX-stijl",
+          "setext": "Setext-stijl"
+        },
+        "title": "Diversen"
+      },
+      "compatibility": {
+        "enableGitlab": "GitLab-compatibiliteit inschakelen",
+        "enableHtml": "HTML-ondersteuning inschakelen",
+        "title": "Compatibiliteit"
+      },
+      "lists": {
+        "bulletListMarker": "Opsommingsteken",
+        "listIndentation": {
+          "title": "Lijstinspringing",
+          "dfm": "DFM-stijl",
+          "fourSpaces": "Vier spaties",
+          "oneSpace": "Eén spatie",
+          "tab": "Tab",
+          "threeSpaces": "Drie spaties",
+          "twoSpaces": "Twee spaties"
+        },
+        "orderListDelimiter": "Scheidingsteken genummerde lijst",
+        "preferLooseListItem": "Losse lijstitems prefereren",
+        "title": "Lijsten"
+      }
+    },
+    "theme": {
+      "title": "Thema",
+      "followSystemTheme": "Systeemthema volgen",
+      "modeThemes": "Themaselectie",
+      "lightModeTheme": "Thema lichte modus",
+      "darkModeTheme": "Thema donkere modus",
+      "customCss": "Aangepaste CSS",
+      "importCustomThemes": "Aangepaste thema's importeren",
+      "importTheme": "Thema importeren",
+      "openFolder": "Map openen",
+      "openThemesFolder": "Themamap openen"
+    },
+    "keybindings": {
+      "title": "Sneltoetsen",
+      "description": "Sneltoetsen aanpassen",
+      "save": "Opslaan",
+      "restoreDefaults": "Standaardwaarden herstellen",
+      "debugOptions": "Foutopsporingsopties",
+      "dumpKeyboardInfo": "Toetsenbordinformatie exporteren",
+      "failedToSave": "Opslaan van sneltoetsen mislukt",
+      "keyInputDialog": {
+        "instructions": "Druk de gewenste toetscombinatie in",
+        "invalidKeybinding": "Ongeldige toetscombinatie",
+        "placeholder": "Druk toetsen in..."
+      },
+      "online": "Online",
+      "saveError": "Fout bij opslaan sneltoetsen",
+      "shortcutInUse": "Sneltoets in gebruik",
+      "shortcutInUseMessage": "Deze sneltoets is al toegewezen aan {accelerator}",
+      "table": {
+        "description": "Beschrijving",
+        "edit": "Bewerken",
+        "keyCombination": "Toetscombinatie",
+        "options": "Opties",
+        "reset": "Herstellen",
+        "unbind": "Loskoppelen"
+      }
+    },
+    "selectFont": "Lettertype selecteren",
+    "spellchecker": {
+      "autoDetectDescription": "Documenttaal automatisch detecteren",
+      "autoDetectLanguage": "Taal automatisch detecteren",
+      "customDictionary": {
+        "delete": "Verwijderen",
+        "description": "Voeg aangepaste woorden toe aan je persoonlijk woordenboek",
+        "noWordsAvailable": "Geen woorden beschikbaar",
+        "options": "Opties",
+        "title": "Aangepast woordenboek",
+        "word": "Woord"
+      },
+      "defaultLanguage": "Standaardtaal",
+      "enableSpellChecking": "Spellingcontrole inschakelen",
+      "hideMarksForErrors": "Markering voor spelfouten verbergen",
+      "title": "Spellingcontrole"
+    }
+  },
+  "about": {
+    "copyright": "Copyright © Luo Ran 2017-{year}",
+    "copyrightContributors": "Gemaakt met <3 door GitHub-bijdragers"
+  },
+  "commands": {
+    "mt": {
+      "hide": "MarkText verbergen",
+      "hideOthers": "Overige verbergen"
+    },
+    "file": {
+      "newWindow": "Nieuw venster",
+      "newTab": "Nieuw tabblad",
+      "openFile": "Bestand openen",
+      "openFolder": "Map openen",
+      "save": "Opslaan",
+      "saveAs": "Opslaan als",
+      "moveFile": "Bestand verplaatsen",
+      "renameFile": "Bestand hernoemen",
+      "quickOpen": "Snel openen",
+      "changeEncoding": "Codering wijzigen",
+      "changeLineEnding": "Regeleinde wijzigen",
+      "trailingNewline": "Afsluitende lege regel",
+      "print": "Afdrukken",
+      "preferences": "Voorkeuren",
+      "closeTab": "Tabblad sluiten",
+      "closeWindow": "Venster sluiten",
+      "quit": "Afsluiten",
+      "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
+      "importFile": "Bestand importeren",
+      "exportFile": "Bestand exporteren",
+      "exportFilePdf": "Exporteren als PDF",
+      "zoom": "Zoom",
+      "checkUpdate": "Controleer op updates"
+    },
+    "edit": {
+      "undo": "Ongedaan maken",
+      "redo": "Opnieuw",
+      "cut": "Knippen",
+      "copy": "Kopiëren",
+      "paste": "Plakken",
+      "copyAsRich": "Kopiëren als opgemaakte tekst",
+      "copyAsHtml": "Kopiëren als HTML",
+      "pasteAsPlaintext": "Plakken als platte tekst",
+      "selectAll": "Alles selecteren",
+      "duplicate": "Dupliceren",
+      "createParagraph": "Alinea aanmaken",
+      "deleteParagraph": "Alinea verwijderen",
+      "find": "Zoeken",
+      "findNext": "Volgende zoeken",
+      "findPrevious": "Vorige zoeken",
+      "replace": "Vervangen",
+      "findInFolder": "Zoeken in map",
+      "screenshot": "Schermafbeelding"
+    },
+    "paragraph": {
+      "heading1": "Kop 1",
+      "heading2": "Kop 2",
+      "heading3": "Kop 3",
+      "heading4": "Kop 4",
+      "heading5": "Kop 5",
+      "heading6": "Kop 6",
+      "upgradeHeading": "Kop promoveren",
+      "degradeHeading": "Kop degraderen",
+      "table": "Tabel",
+      "codeFence": "Codeblok",
+      "quoteBlock": "Citaatblok",
+      "mathFormula": "Wiskundeformule",
+      "htmlBlock": "HTML-blok",
+      "orderList": "Genummerde lijst",
+      "bulletList": "Opsommingslijst",
+      "taskList": "Takenlijst",
+      "looseListItem": "Los lijstitem",
+      "paragraph": "Alinea",
+      "horizontalLine": "Horizontale lijn",
+      "frontMatter": "Front Matter",
+      "resetParagraph": "Alinea herstellen",
+      "mathBlock": "Wiskundeblok",
+      "horizontalRule": "Horizontale lijn"
+    },
+    "format": {
+      "strong": "Vet",
+      "emphasis": "Cursief",
+      "underline": "Onderstreept",
+      "superscript": "Superscript",
+      "subscript": "Subscript",
+      "highlight": "Markering",
+      "inlineCode": "Inline code",
+      "inlineMath": "Inline wiskunde",
+      "strike": "Doorgestreept",
+      "hyperlink": "Hyperlink",
+      "image": "Afbeelding",
+      "clearFormat": "Opmaak wissen"
+    },
+    "window": {
+      "minimize": "Minimaliseren",
+      "close": "Sluiten",
+      "toggleAlwaysOnTop": "Altijd bovenaan in-/uitschakelen",
+      "zoomIn": "Inzoomen",
+      "zoomOut": "Uitzoomen",
+      "toggleFullScreen": "Volledig scherm in-/uitschakelen",
+      "changeTheme": "Thema wijzigen"
+    },
+    "view": {
+      "commandPalette": "Opdrachtpalet",
+      "sourceCodeMode": "Broncodeweergave",
+      "typewriterMode": "Typemachinestand",
+      "focusMode": "Focusstand",
+      "toggleSourceCodeMode": "Broncodeweergave in-/uitschakelen",
+      "toggleTypewriterMode": "Typemachinestand in-/uitschakelen",
+      "toggleFocusMode": "Focusstand in-/uitschakelen",
+      "toggleSidebar": "Zijbalk in-/uitschakelen",
+      "toggleToc": "Inhoudsopgave in-/uitschakelen",
+      "toggleTabbar": "Tabbalk in-/uitschakelen",
+      "toggleDevTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen",
+      "devReload": "Ontwikkelaar herladen",
+      "reloadImages": "Afbeeldingen herladen",
+      "textDirection": "Tekstrichting",
+      "actualSize": "Werkelijke grootte",
+      "devToggleDeveloperTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen"
+    },
+    "tabs": {
+      "cycleForward": "Volgende tabblad",
+      "cycleBackward": "Vorige tabblad",
+      "switchToLeft": "Naar links wisselen",
+      "switchToRight": "Naar rechts wisselen",
+      "switchToFirst": "Naar eerste wisselen",
+      "switchToSecond": "Naar tweede wisselen",
+      "switchToThird": "Naar derde wisselen",
+      "switchToFourth": "Naar vierde wisselen",
+      "switchToFifth": "Naar vijfde wisselen",
+      "switchToSixth": "Naar zesde wisselen",
+      "switchToSeventh": "Naar zevende wisselen",
+      "switchToEighth": "Naar achtste wisselen",
+      "switchToNinth": "Naar negende wisselen",
+      "switchToTenth": "Naar tiende wisselen"
+    },
+    "docs": {
+      "userGuide": "Gebruikershandleiding",
+      "markdownSyntax": "Markdown-syntax"
+    },
+    "spellchecker": {
+      "switchLanguage": "Taal wisselen"
+    }
+  },
+  "common": {
+    "cancel": "Annuleren",
+    "ok": "OK"
+  },
+  "dialog": {
+    "cancel": "Annuleren",
+    "changesWillBeLost": "Wijzigingen gaan verloren",
+    "close": "Sluiten",
+    "dontSave": "Niet opslaan",
+    "file": "Bestand",
+    "fileExists": "Bestand bestaat al: {filename}",
+    "files": "Bestanden",
+    "importWarning": "Importwaarschuwing",
+    "installPandoc": "Pandoc installeren",
+    "keepOpen": "Open houden",
+    "replace": "Vervangen",
+    "save": "Opslaan",
+    "saveChanges": "Wijzigingen opslaan",
+    "saveFailure": "Opslaan mislukt",
+    "unsafeFileTitle": "Mogelijk onveilig bestand",
+    "unsafeFileMessage": "Deze link opent een bestand dat code kan uitvoeren",
+    "unsafeFileDetail": "\"{name}\" is een uitvoerbaar bestand of script. Het openen kan programma's op je computer uitvoeren. Ga alleen door als je dit document vertrouwt.",
+    "openAnyway": "Toch openen"
+  },
+  "error": {
+    "configSchemaViolation": "Configuratieschemaovertreding",
+    "copyError": "Kopieerfout",
+    "initializationFailed": "Initialisatie mislukt {hint}",
+    "otherInstanceDetected": "Er draait al een andere instantie van MarkText",
+    "report": "Melden",
+    "startupError": "Opstartfout",
+    "terminatedDueToError": "Beëindigd door fout",
+    "unexpectedErrorWithMessage": "Onverwachte fout: {message}",
+    "unexpectedMainProcess": "Onverwachte fout in hoofdproces",
+    "unexpectedRendererProcess": "Onverwachte fout in rendererproces"
+  },
+  "notifications": {
+    "defaultMessage": "Standaardbericht",
+    "defaultTitle": "Melding"
+  },
+  "store": {
+    "editor": {
+      "anchorLinkCopied": "Ankerlink gekopieerd",
+      "tabNotFound": "Tabblad niet gevonden",
+      "tocItemNotFound": "Inhoudsopgave-item {key} niet gevonden",
+      "errorLoadingTabTitle": "Fout bij laden tabblad",
+      "errorLoadingTabMessage": "Er is een fout opgetreden bij het laden van de bestandswijziging omdat het tabblad niet gevonden kan worden.",
+      "mixedLineEndingsNormalized": "\"{name}\" heeft gemengde regeleindes die automatisch genormaliseerd zijn naar {lineEnding}.",
+      "imageDeletionUrlTitle": "Verwijder-URL afbeelding",
+      "imageDeletionUrlMessage": "Klik om de verwijder-URL van de geüploade afbeelding naar het klembord te kopiëren {url}",
+      "errorWhileSaving": "Er is een fout opgetreden bij het opslaan: {msg}",
+      "exportSuccessTitle": "Succesvol geëxporteerd",
+      "exportSuccessMessage": "\"{name}\" is succesvol geëxporteerd!",
+      "fileRemovedOnDisk": "\"{name}\" is verwijderd van schijf.",
+      "fileChangedOnDisk": "\"{name}\" is gewijzigd op schijf. Wil je het opnieuw laden?"
+    }
+  },
+  "spellchecker": {
+    "failedToRemoveWord": "Woord verwijderen uit woordenboek mislukt",
+    "unexpectedError": "Onverwachte fout in spellingcontrole"
+  },
+  "editor": {
+    "export": {
+      "error": "Exportfout",
+      "errorExporting": "Fout bij exporteren van {type}-bestand",
+      "failed": "{type}-export mislukt"
+    },
+    "insertTable": {
+      "title": "Tabel invoegen",
+      "rows": "Rijen",
+      "columns": "Kolommen"
+    },
+    "notifications": {
+      "notificationNotFound": "Melding niet gevonden"
+    },
+    "print": {
+      "error": "Afdrukfout voor \"{title}\"",
+      "failed": "Afdrukken mislukt"
+    },
+    "sourceCode": {
+      "cursorNullComment": "Cursor null opmerking",
+      "imageStructureDeletedComment": "Afbeeldingsstructuur verwijderd opmerking"
+    },
+    "spellcheck": {
+      "disabledError": "Spellingcontrole uitgeschakeld fout",
+      "errorSwitchingLanguage": "Fout bij wisselen van spellingcontroletaal {languageCode}",
+      "languageMissing": "Spellingcontroletaal ontbreekt {languageCode}",
+      "switchError": "Spellingcontrole wisselfout voor {languageCode}, {error}",
+      "title": "Spellingcontrole"
+    }
+  }
+}
