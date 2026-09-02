@@ -73,7 +73,7 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Metadatos"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Ventana",
@@ -242,7 +242,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
-      "title": "Tabla de Contenidos"
+      "title": "Tabla de Contenidos",
+      "expandAll": "Expandir todo",
+      "collapseAll": "Contraer todo"
     },
     "icons": {
       "files": "Archivos",
@@ -498,6 +500,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -802,7 +805,7 @@
       "looseListItem": "Elemento de Lista Suelto",
       "paragraph": "Párrafo",
       "horizontalLine": "Línea Horizontal",
-      "frontMatter": "Metadatos",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Restablecer Párrafo",
       "mathBlock": "Bloque matemático",
       "horizontalRule": "Línea horizontal"
