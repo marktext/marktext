@@ -112,6 +112,31 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
         };
 
         eventCenter.attachDOMEvent(domNode, 'keydown', handleKeydown);
+        eventCenter.attachDOMEvent(this.container!, 'mousemove', (event: Event) => {
+            this.container!.classList.remove('mu-keyboard-navigation');
+            if (!(event.target instanceof Element))
+                return;
+
+            const itemElement = event.target.closest<HTMLElement>('.item');
+            if (!itemElement || !this.container!.contains(itemElement))
+                return;
+
+            const item = this.renderArray.find(({ label }) => {
+                return label === itemElement.dataset.label;
+            });
+            if (item && item !== this.activeItem)
+                this.activeItem = item;
+        });
+    }
+
+    override step(direction: 'previous' | 'next') {
+        this.container!.classList.add('mu-keyboard-navigation');
+        super.step(direction);
+    }
+
+    override hide() {
+        this.container!.classList.remove('mu-keyboard-navigation');
+        super.hide();
     }
 
     render() {
