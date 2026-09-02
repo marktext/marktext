@@ -798,7 +798,7 @@ watch(spellcheckerNoUnderline, (value, oldValue) => {
 
 watch(spellcheckerLanguage, (value, oldValue) => {
   if (value !== oldValue) {
-    spellchecker.lang = value
+    spellchecker.languages = value
   }
 })
 
@@ -1005,7 +1005,7 @@ const setImageViewerVisible = (status: boolean) => {
   }
 }
 
-const switchSpellcheckLanguage = (languageCode: unknown) => {
+const switchSpellcheckLanguage = (languages: unknown) => {
   const { isEnabled } = spellchecker
 
   // This method is also called from bus, so validate state before continuing.
@@ -1013,21 +1013,25 @@ const switchSpellcheckLanguage = (languageCode: unknown) => {
     throw new Error(t('editor.spellcheck.disabledError'))
   }
 
+  if (!Array.isArray(languages) || !languages.every((language) => typeof language === 'string')) {
+    throw new Error('Expected spell checker languages.')
+  }
+
   spellchecker
-    .switchLanguage(languageCode)
-    .then((langCode: string | null | undefined) => {
-      if (!langCode) {
+    .setLanguages(languages)
+    .then((changed: boolean) => {
+      if (!changed) {
         // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
         notice.notify({
           title: t('editor.spellcheck.title'),
           type: 'warning',
-          message: t('editor.spellcheck.languageMissing', { languageCode: languageCode as string })
+          message: t('editor.spellcheck.languageMissing', { languageCode: languages.join(', ') })
         })
       }
     })
     .catch((error: unknown) => {
       log.error(
-        t('editor.spellcheck.errorSwitchingLanguage', { languageCode: languageCode as string })
+        t('editor.spellcheck.errorSwitchingLanguage', { languageCode: languages.join(', ') })
       )
       log.error(error)
 
@@ -1036,7 +1040,7 @@ const switchSpellcheckLanguage = (languageCode: unknown) => {
         title: t('editor.spellcheck.title'),
         type: 'error',
         message: t('editor.spellcheck.switchError', {
-          languageCode: languageCode as string,
+          languageCode: languages.join(', '),
           error: errMsg
         })
       })
