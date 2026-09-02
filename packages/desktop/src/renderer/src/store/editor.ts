@@ -887,6 +887,13 @@ export const useEditorStore = defineStore('editor', {
         }, 100)
       }, 400)
 
+      // Re-broadcast the main process's keybinding map on the renderer bus so
+      // editor.vue can push the format shortcuts into muya (#4687) — the muya
+      // instance lives in the component, out of this store's reach.
+      window.electron.ipcRenderer.on('mt::keybindings-response', (_, keybindingMap) => {
+        bus.emit('keybindings-changed', keybindingMap)
+      })
+
       window.electron.ipcRenderer.on('mt::bootstrap-editor', (_, config) => {
         const {
           addBlankTab,

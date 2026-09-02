@@ -282,6 +282,19 @@ export class Editor {
         this.scrollPage = ScrollPage.create(muya, state);
 
         this._dispatchEvents();
+        // The document model is the only writer of inline formatting: cancel
+        // the browser's native rich-text editing on the contenteditable
+        // (Cmd/Ctrl+B/I/U fire `beforeinput` with a `format*` inputType and
+        // would style the DOM behind the model's back — visible bold that
+        // never reaches the serialized markdown). Reached whenever a format
+        // combo is NOT claimed by an embedder accelerator or the inline
+        // format toolbar's own handler, e.g. after rebinding (#4687).
+        // Cleanup is handled by `muya.destroy()` → `detachAllDomEvents`.
+        muya.eventCenter.attachDOMEvent(muya.domNode, 'beforeinput', (event) => {
+            const { inputType } = event as InputEvent;
+            if (typeof inputType === 'string' && inputType.startsWith('format'))
+                event.preventDefault();
+        });
         // Hovering a rendered link wrapper dispatches `muya-link-tools` so the
         // staged popover lights up. Cleanup is handled by `muya.destroy()` →
         // `detachAllDomEvents`.
