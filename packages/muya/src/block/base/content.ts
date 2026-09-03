@@ -720,11 +720,15 @@ class Content extends TreeNode {
 
         switch (event.key) {
             case EVENT_KEYS.Backspace:
-                this.backspaceHandler(event);
+                if (!this.isComposed)
+                    this.backspaceHandler(event);
+
                 break;
 
             case EVENT_KEYS.Delete:
-                this.deleteHandler(event);
+                if (!this.isComposed)
+                    this.deleteHandler(event);
+
                 break;
 
             case EVENT_KEYS.Enter:
