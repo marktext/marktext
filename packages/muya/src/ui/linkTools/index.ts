@@ -147,6 +147,7 @@ class LinkTools extends BaseFloat {
         const ulNode = h('ul', children);
 
         const wrapperChildren: VNode[] = [];
+        wrapperChildren.push(ulNode);
 
         let previewText = this._linkInfo?.title || this._linkInfo?.href;
 
@@ -185,10 +186,14 @@ class LinkTools extends BaseFloat {
             catch {
                 // ignore
             }
-            wrapperChildren.push(h('div.mu-link-preview', previewText));
+            wrapperChildren.push(
+                h(
+                    'div.mu-link-preview',
+                    { attrs: { title: previewText } },
+                    previewText,
+                ),
+            );
         }
-
-        wrapperChildren.push(ulNode);
 
         const vnode = h('div', wrapperChildren);
 

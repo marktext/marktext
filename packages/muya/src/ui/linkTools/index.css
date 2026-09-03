@@ -13,31 +13,46 @@
 .mu-link-tools {
     position: relative;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 100px;
-    max-width: 300px;
+    box-sizing: border-box;
+    width: max-content;
+    min-width: min(320px, calc(100vw - 24px));
+    max-width: min(560px, calc(100vw - 24px));
     height: auto;
     min-height: 34px;
 }
 
-.mu-link-preview {
-    box-sizing: border-box;
+.mu-link-tools > div {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr);
+    align-items: center;
     width: 100%;
+    min-width: 0;
+    min-height: 34px;
+}
 
-    max-height: 200px;
-    padding: 8px 12px 0;
-    overflow-y: auto;
+.mu-link-preview {
+    display: -webkit-box;
+    grid-column: 2;
+
+    box-sizing: border-box;
+    min-width: 0;
+
+    max-height: calc(2.8em + 16px);
+    padding: 8px 12px;
+    overflow: hidden;
 
     color: var(--editor-color);
     font-size: 12px;
     line-height: 1.4;
+    white-space: normal;
     overflow-wrap: anywhere;
 
     cursor: text;
 
     user-select: text;
+
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .mu-link-tools ul,
@@ -49,6 +64,7 @@
 .mu-link-tools ul {
     display: flex;
     flex-shrink: 0;
+    grid-column: 1;
     align-items: center;
     justify-content: center;
     width: 100px;
@@ -74,7 +90,7 @@
     background: var(--float-hover-color);
 }
 
-.mu-link-tools li.item:last-of-type::before {
+.mu-link-tools li.item + li.item::before {
     position: absolute;
     top: 6px;
     left: -12px;

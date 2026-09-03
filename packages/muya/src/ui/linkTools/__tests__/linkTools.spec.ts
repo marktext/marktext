@@ -23,6 +23,7 @@ interface ILinkToolsView {
     _linkBlock: Format | null;
     _linkInfo: {
         href?: string | null;
+        title?: string | null;
         text?: string;
         raw?: string;
         range?: { start: number; end: number } | null;
@@ -177,5 +178,23 @@ describe('linkTools.render — jump visibility tracks linkInfo.href', () => {
 
         expect(tools.container!.querySelectorAll('li.item.jump').length).toBe(1);
         expect(tools.container!.querySelectorAll('li.item.unlink').length).toBe(1);
+    });
+
+    it('renders the action group before the preview text', () => {
+        const { tools } = bootLinkTools();
+        tools._linkInfo = {
+            href: 'https://example.com',
+            title: 'Reference preview',
+            text: 'Example',
+            raw: '[Example](https://example.com)',
+            range: { start: 0, end: 32 },
+        };
+
+        tools.render();
+
+        const content = tools.container!.firstElementChild;
+        expect(content?.firstElementChild?.tagName).toBe('UL');
+        expect(content?.lastElementChild?.classList.contains('mu-link-preview')).toBe(true);
+        expect(content?.lastElementChild?.getAttribute('title')).toBe('Reference preview');
     });
 });

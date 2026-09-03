@@ -22,6 +22,50 @@ test.describe('link tools', () => {
         await expect(page.locator(`${floats.linkTools} .mu-link-preview`)).toHaveText('Reference');
     });
 
+    test('lays out actions before a preview that grows to at most two lines', async ({ page }) => {
+        await page.setViewportSize({ width: 640, height: 480 });
+        const title = '王晗.W教师编制招聘考试培训机构营销策略研究[D].济南：山东师范大学，2025.这段补充文本用于验证悬浮预览最多显示两行。';
+        await page.evaluate((previewTitle) => {
+            window.muya!.setContent(`[Reference](https://example.com "${previewTitle}")`);
+        }, title);
+        await page.locator(editor.paragraph).first().click({ position: { x: 2, y: 2 } });
+        await page.locator('span.mu-link').first().hover();
+
+        const tools = page.locator(floats.linkTools);
+        const unlink = tools.locator('li.item.unlink');
+        const jump = tools.locator('li.item.jump');
+        const preview = tools.locator('.mu-link-preview');
+        await expect(preview).toHaveText(title);
+
+        const [toolsBox, unlinkBox, jumpBox, previewBox] = await Promise.all([
+            tools.boundingBox(),
+            unlink.boundingBox(),
+            jump.boundingBox(),
+            preview.boundingBox(),
+        ]);
+        expect(toolsBox).not.toBeNull();
+        expect(unlinkBox).not.toBeNull();
+        expect(jumpBox).not.toBeNull();
+        expect(previewBox).not.toBeNull();
+        expect(unlinkBox!.x).toBeLessThan(jumpBox!.x);
+        expect(jumpBox!.x + jumpBox!.width).toBeLessThanOrEqual(previewBox!.x);
+        expect(toolsBox!.width).toBeGreaterThan(toolsBox!.height * 5);
+        expect(toolsBox!.x).toBeGreaterThanOrEqual(8);
+        expect(toolsBox!.x + toolsBox!.width).toBeLessThanOrEqual(632);
+
+        const previewStyle = await preview.evaluate((element) => {
+            const style = getComputedStyle(element);
+            return {
+                lineClamp: style.getPropertyValue('-webkit-line-clamp'),
+                lineHeight: Number.parseFloat(style.lineHeight),
+                paddingBlock: Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom),
+            };
+        });
+        expect(previewStyle.lineClamp).toBe('2');
+        expect(previewBox!.height).toBeGreaterThan(previewStyle.lineHeight + previewStyle.paddingBlock);
+        expect(previewBox!.height).toBeLessThanOrEqual(previewStyle.lineHeight * 2 + previewStyle.paddingBlock + 1);
+    });
+
     test('clicking the LinkTools jump button fires the jumpClick callback', async ({ page }) => {
         await page.evaluate(() => {
             window.muya!.setContent('Visit [Example](https://example.com) site.');
