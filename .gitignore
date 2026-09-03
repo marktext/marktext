@@ -15,6 +15,7 @@ temp/
 logs/
 test-results/
 playwright-report/
+.playwright-mcp/
 *.min.json
 .claude/settings.local.json
 .claude/
