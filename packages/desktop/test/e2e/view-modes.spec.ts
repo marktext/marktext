@@ -169,18 +169,19 @@ test.describe('View modes', () => {
     expect(viewItemOrder.lineNumbers).toBe(viewItemOrder.toc + 1)
 
     await enterSourceMode(page, app)
+    const renderedLineNumbers = page.locator('.CodeMirror-code .CodeMirror-linenumber')
     await expect
-      .poll(() => page.locator('.CodeMirror-linenumber').allTextContents())
+      .poll(() => renderedLineNumbers.allTextContents())
       .toEqual(['1', '2', '3', '4'])
 
     await clickMenuById(app, 'lineNumbersMenuItem')
     expect((await waitForChecked(app, 'lineNumbersMenuItem', false)).checked).toBe(false)
-    await expect(page.locator('.CodeMirror-linenumber')).toHaveCount(0)
+    await expect(renderedLineNumbers).toHaveCount(0)
 
     await clickMenuById(app, 'lineNumbersMenuItem')
     expect((await waitForChecked(app, 'lineNumbersMenuItem', true)).checked).toBe(true)
     await expect
-      .poll(() => page.locator('.CodeMirror-linenumber').allTextContents())
+      .poll(() => renderedLineNumbers.allTextContents())
       .toEqual(['1', '2', '3', '4'])
 
     await exitSourceMode(page, app)
