@@ -18,6 +18,8 @@
     <div
       v-show="imageViewerVisible"
       class="image-viewer"
+      :class="{ 'image-viewer--diagram': imageViewerMode === 'diagram' }"
+      @click.self="setImageViewerVisible(false)"
     >
       <span
         class="icon-close"
@@ -203,6 +205,7 @@ const editor = ref<MuyaInstance>(null)
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
 const imageViewerVisible = ref<boolean | null>(null)
+const imageViewerMode = ref<'image' | 'diagram'>('image')
 const tableChecker = reactive({
   rows: 4,
   columns: 3
@@ -233,7 +236,10 @@ class SimpleImageViewer {
   _onMousemove!: (e: MouseEvent) => void
   _onMouseup!: () => void
 
-  constructor (container: HTMLElement, { url }: { url: string }) {
+  constructor (
+    container: HTMLElement,
+    { url, fitToViewport = false }: { url: string; fitToViewport?: boolean }
+  ) {
     this.container = container
     this.scale = 1
     this.translateX = 0
@@ -241,15 +247,16 @@ class SimpleImageViewer {
     this.isDragging = false
     this.startX = 0
     this.startY = 0
-    this._init(url)
+    this._init(url, fitToViewport)
   }
 
-  _init (url: string) {
+  _init (url: string, fitToViewport: boolean) {
     this.container.innerHTML = ''
     this.img = document.createElement('img')
     this.img.src = url
-    this.img.style.cssText =
-      'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;'
+    this.img.style.cssText = fitToViewport
+      ? 'width:100%;height:100%;object-fit:contain;transform-origin:center center;user-select:none;display:block;background:#fff;'
+      : 'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;'
     this.img.draggable = false
     this.container.appendChild(this.img)
     this._bindEvents()
@@ -706,6 +713,31 @@ const setImageViewerVisible = (status: boolean) => {
   }
 }
 
+const openImageViewer = (url: string, fitToViewport = false) => {
+  setImageViewerVisible(false)
+  if (!imageViewerRef.value) return
+
+  imageViewerMode.value = fitToViewport ? 'diagram' : 'image'
+  imageViewer = new SimpleImageViewer(imageViewerRef.value, { url, fitToViewport })
+  setImageViewerVisible(true)
+}
+
+const handleMermaidPreviewClick = (event: MouseEvent) => {
+  if (!(event.target instanceof Element)) return
+
+  const svg = event.target.closest('figure[data-role="MERMAID"] svg')
+  if (!svg || svg.tagName.toLowerCase() !== 'svg') return
+
+  event.preventDefault()
+  event.stopPropagation()
+
+  const previewSvg = svg.cloneNode(true) as SVGSVGElement
+  previewSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+  const source = new XMLSerializer().serializeToString(previewSvg)
+  const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(source)}`
+  openImageViewer(url, true)
+}
+
 const switchSpellcheckLanguage = (languageCode: unknown) => {
   const { isEnabled } = spellchecker
 
@@ -1137,6 +1169,7 @@ const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 onMounted(() => {
   printer = new Printer()
   const ele = editorRef.value
+  if (!ele) return
 
   // use muya UI plugins
   Muya.use(TablePicker)
@@ -1202,6 +1235,7 @@ onMounted(() => {
   editor.value = new Muya(ele, options)
 
   const { container } = editor.value
+  container.addEventListener('click', handleMermaidPreviewClick, true)
 
   // Listen for language changes and update Muya's translation function
   bus.on('language-changed', handleLanguageChanged)
@@ -1280,25 +1314,13 @@ onMounted(() => {
           dirname: window.DIRNAME
         })
       } else if (formatType === 'image' && ctrlOrMeta) {
-        if (imageViewer) {
-          imageViewer.destroy()
-        }
-        if (imageViewerRef.value) {
-          imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data as string })
-          setImageViewerVisible(true)
-        }
+        openImageViewer(data as string)
       }
     }
   )
 
   editor.value.on('preview-image', ({ data }: { data: string }) => {
-    if (imageViewer) {
-      imageViewer.destroy()
-    }
-    if (imageViewerRef.value) {
-      imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
-      setImageViewerVisible(true)
-    }
+    openImageViewer(data)
   })
 
   editor.value.on('selectionChange', (changes: MuyaChange) => {
@@ -1368,6 +1390,7 @@ onBeforeUnmount(() => {
 
   document.removeEventListener('keyup', keyup)
   if (editor.value) {
+    editor.value.container.removeEventListener('click', handleMermaidPreviewClick, true)
     editor.value.off('change')
     editor.value.off('scroll')
     editor.value.off('heading-copy-link')
@@ -1435,6 +1458,10 @@ onBeforeUnmount(() => {
   overflow-anchor: none !important;
 }
 
+.editor-component figure[data-role='MERMAID'] svg {
+  cursor: zoom-in;
+}
+
 .typewriter .editor-component {
   padding-top: calc(50vh - 136px);
   padding-bottom: calc(50vh - 54px);
@@ -1473,5 +1500,22 @@ onBeforeUnmount(() => {
   justify-content: center;
   cursor: grab;
   overflow: hidden;
+}
+
+.image-viewer--diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-viewer--diagram > div {
+  width: 88vw;
+  height: 84vh;
+  padding: 32px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 6px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
 }
 </style>

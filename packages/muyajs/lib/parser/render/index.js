@@ -1,10 +1,12 @@
 import loadRenderer from '../../renderers'
-import { CLASS_OR_ID, PREVIEW_DOMPURIFY_CONFIG } from '../../config'
-import { conflict, mixins, camelToSnake, sanitize } from '../../utils'
+import { CLASS_OR_ID } from '../../config'
+import { conflict, mixins, camelToSnake } from '../../utils'
 import { patch, toVNode, toHTML, h } from './snabbdom'
 import { beginRules } from '../rules'
 import renderInlines from './renderInlines'
 import renderBlock from './renderBlock'
+
+let mermaidRenderQueue = Promise.resolve()
 
 class StateRender {
   constructor(muya) {
@@ -100,31 +102,37 @@ class StateRender {
     return selector
   }
 
-  async renderMermaid() {
-    if (this.mermaidCache.size) {
-      const mermaid = await loadRenderer('mermaid')
-      mermaid.initialize({
-        securityLevel: 'strict',
-        theme: this.muya.options.mermaidTheme
-      })
-      for (const [key, value] of this.mermaidCache.entries()) {
-        const { code } = value
-        const target = document.querySelector(key)
-        if (!target) {
-          continue
-        }
-        try {
-          mermaid.parse(code)
-          target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
-          mermaid.init(undefined, target)
-        } catch (err) {
-          target.innerHTML = '< Invalid Mermaid Codes >'
-          target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
-        }
-      }
+  renderMermaid() {
+    const entries = Array.from(this.mermaidCache.entries())
+    this.mermaidCache.clear()
+    if (!entries.length) return mermaidRenderQueue
 
-      this.mermaidCache.clear()
-    }
+    mermaidRenderQueue = mermaidRenderQueue
+      .catch(() => undefined)
+      .then(async() => {
+        const mermaid = await loadRenderer('mermaid')
+        mermaid.initialize({
+          securityLevel: 'strict',
+          theme: this.muya.options.mermaidTheme
+        })
+        for (const [key, value] of entries) {
+          const { code } = value
+          const target = document.querySelector(key)
+          if (!target) {
+            continue
+          }
+          try {
+            target.removeAttribute('data-processed')
+            target.textContent = code
+            await mermaid.run({ nodes: [target] })
+          } catch (err) {
+            target.innerHTML = '< Invalid Mermaid Codes >'
+            target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
+          }
+        }
+      })
+
+    return mermaidRenderQueue
   }
 
   async renderDiagram() {

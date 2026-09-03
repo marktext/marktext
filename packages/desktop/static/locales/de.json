@@ -104,25 +104,25 @@
       "reportBug": "Fehler melden",
       "viewSource": "Quellcode anzeigen",
       "followUs": "Folgen Sie uns",
-      "support": "MarkText unterstützen",
+      "support": "MyMarkdownText unterstützen",
       "license": "Lizenz",
       "checkForUpdates": "Nach Updates suchen",
-      "aboutMarkText": "Über MarkText",
+      "aboutMyMarkdownText": "Über MyMarkdownText",
       "about": "Über",
       "checkUpdates": "Updates prüfen"
     },
     "marktext": {
-      "title": "MarkText",
-      "marktext": "MarkText",
-      "about": "Über MarkText",
+      "title": "MyMarkdownText",
+      "marktext": "MyMarkdownText",
+      "about": "Über MyMarkdownText",
       "checkUpdates": "Nach Updates suchen...",
       "preferences": "Einstellungen",
       "services": "Dienste",
-      "hide": "MarkText ausblenden",
-      "hideMarkText": "MarkText ausblenden",
+      "hide": "MyMarkdownText ausblenden",
+      "hideMyMarkdownText": "MyMarkdownText ausblenden",
       "hideOthers": "Andere ausblenden",
       "showAll": "Alle anzeigen",
-      "quit": "MarkText beenden"
+      "quit": "MyMarkdownText beenden"
     },
     "view": {
       "view": "Ansicht",
@@ -388,7 +388,7 @@
   },
   "import": {
     "title": "Importieren oder öffnen",
-    "description": "Hier hineinziehen, um Ihren Inhalt in MarkText zu importieren"
+    "description": "Hier hineinziehen, um Ihren Inhalt in MyMarkdownText zu importieren"
   },
   "preferences": {
     "title": "Einstellungen",
@@ -418,10 +418,10 @@
         "hideScrollbar": "Ob Scrollbalken ausgeblendet werden sollen",
         "wordWrapInToc": "Ob Zeilenumbruch im Inhaltsverzeichnis aktiviert werden soll",
         "fileSortBy": "Dateien im geöffneten Ordner nach Erstellungszeit, Änderungszeit und Titel sortieren",
-        "startUpAction": "Die Aktion nach MarkText-Start, letzten bearbeiteten Inhalt öffnen, angegebenen Ordner öffnen oder leere Seite",
+        "startUpAction": "Die Aktion nach MyMarkdownText-Start, letzten bearbeiteten Inhalt öffnen, angegebenen Ordner öffnen oder leere Seite",
         "restoreLayoutState": "Vorherigen Editorzustand beim Start wiederherstellen",
         "defaultDirectoryToOpen": "Das Standard-Verzeichnis, das beim Start geöffnet werden soll, wenn startUp=folder",
-        "language": "Die Sprache, die MarkText verwendet",
+        "language": "Die Sprache, die MyMarkdownText verwendet",
         "editorFontFamily": "Editor-Schriftfamilie",
         "fontSize": "Schriftgröße in Pixeln",
         "lineHeight": "Zeilenhöhe",
@@ -445,7 +445,7 @@
         "preferLooseListItem": "Der bevorzugte Listentyp",
         "bulletListMarker": "Die Markierung in Aufzählungslisten",
         "orderListDelimiter": "Das Trennzeichen in geordneten Listen",
-        "preferHeadingStyle": "Der bevorzugte Überschriften-Stil in MarkText",
+        "preferHeadingStyle": "Der bevorzugte Überschriften-Stil in MyMarkdownText",
         "tabSize": "Tab durch x Leerzeichen ersetzen",
         "listIndentation": "Einrückung der Liste auswählen",
         "frontmatterType": "Der Frontmatter-Typ",
@@ -454,7 +454,7 @@
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
         "sequenceTheme": "Sequenzdiagramm-Theme",
-        "theme": "Das in MarkText verwendete Theme auswählen",
+        "theme": "Das in MyMarkdownText verwendete Theme auswählen",
         "followSystemTheme": "Systemdesign folgen",
         "lightModeTheme": "Design, das verwendet werden soll, wenn sich das System im hellen Modus befindet",
         "darkModeTheme": "Design, das verwendet werden soll, wenn sich das System im dunklen Modus befindet",
@@ -711,7 +711,7 @@
         "neverDetected": "Nie erkannt",
         "neverSuccessful": "Nie erfolgreich"
       },
-      "defaultBehavior": "Standardverhalten nach dem Einfügen oder Ziehen eines Bildes in MarkText"
+      "defaultBehavior": "Standardverhalten nach dem Einfügen oder Ziehen eines Bildes in MyMarkdownText"
     },
     "markdown": {
       "title": "Markdown",
@@ -890,7 +890,7 @@
   },
   "commands": {
     "mt": {
-      "hide": "MarkText ausblenden",
+      "hide": "MyMarkdownText ausblenden",
       "hideOthers": "Andere ausblenden"
     },
     "file": {
@@ -1061,7 +1061,7 @@
     "configSchemaViolation": "Konfigurationsschema-Verletzung",
     "copyError": "Kopierfehler",
     "initializationFailed": "Initialisierung fehlgeschlagen {hint}",
-    "otherInstanceDetected": "Eine andere Instanz von MarkText läuft bereits",
+    "otherInstanceDetected": "Eine andere Instanz von MyMarkdownText läuft bereits",
     "report": "Melden",
     "startupError": "Startfehler",
     "terminatedDueToError": "Aufgrund eines Fehlers beendet",

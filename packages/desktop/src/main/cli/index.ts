@@ -12,12 +12,12 @@ const cli = (): ParsedArgs => {
   let argv = process.argv.slice(1)
   if (process.env.NODE_ENV === 'development') {
     // Don't pass electron development arguments to MarkText and change user data path.
-    argv = ['--user-data-dir', path.join(getPath('appData'), 'marktext-dev')]
+    argv = ['--user-data-dir', path.join(getPath('appData'), 'mymarkdowntext-dev')]
   }
 
   const args = parseArgs(argv, true)
   if (args['--help']) {
-    write(`Usage: marktext [commands] [path ...]
+    write(`Usage: MyMarkdownText [commands] [path ...]
 
   Available commands:
 
@@ -35,7 +35,7 @@ const cli = (): ParsedArgs => {
   }
 
   if (args['--version']) {
-    writeLine(`MarkText: ${MARKTEXT_VERSION_STRING}`)
+    writeLine(`MyMarkdownText: ${MARKTEXT_VERSION_STRING}`)
     writeLine(`Node.js: ${process.versions.node}`)
     writeLine(`Electron: ${process.versions.electron}`)
     writeLine(`Chromium: ${process.versions.chrome}`)
@@ -46,7 +46,7 @@ const cli = (): ParsedArgs => {
   // Check for portable mode and ensure the user data path is absolute. We assume
   // that the path is writable if not this lead to an application crash.
   if (!args['--user-data-dir']) {
-    const portablePath = path.join(app.getAppPath(), '..', '..', 'marktext-user-data')
+    const portablePath = path.join(app.getAppPath(), '..', '..', 'mymarkdowntext-user-data')
     if (isDirectory(portablePath)) {
       args['--user-data-dir'] = portablePath
     }

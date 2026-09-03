@@ -94,7 +94,7 @@ ${title}.
 
 ### Version
 
-MarkText: ${MARKTEXT_VERSION_STRING}
+MyMarkdownText: ${MARKTEXT_VERSION_STRING}
 Operating system: ${getOSInformation()}`
         )
         break
@@ -127,8 +127,8 @@ const setupExceptionHandler = (): void => {
 
   // start crashReporter to save core dumps to temporary folder
   crashReporter.start({
-    companyName: 'marktext',
-    productName: 'marktext',
+    companyName: 'MyMarkdownText',
+    productName: 'MyMarkdownText',
     submitURL: 'http://0.0.0.0/',
     uploadToServer: false,
     compress: true

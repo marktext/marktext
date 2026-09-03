@@ -104,25 +104,25 @@
       "reportBug": "Reportar Bug",
       "viewSource": "Ver Código Fonte",
       "followUs": "Siga-nos",
-      "support": "Apoiar MarkText",
+      "support": "Apoiar MyMarkdownText",
       "license": "Licença",
       "checkForUpdates": "Verificar Atualizações",
-      "aboutMarkText": "Sobre MarkText",
+      "aboutMyMarkdownText": "Sobre MyMarkdownText",
       "about": "Sobre",
       "checkUpdates": "Verificar Atualizações"
     },
     "marktext": {
-      "title": "MarkText",
-      "marktext": "MarkText",
-      "about": "Sobre MarkText",
+      "title": "MyMarkdownText",
+      "marktext": "MyMarkdownText",
+      "about": "Sobre MyMarkdownText",
       "checkUpdates": "Verificar Atualizações...",
       "preferences": "Preferências",
       "services": "Serviços",
-      "hide": "Ocultar MarkText",
-      "hideMarkText": "Ocultar MarkText",
+      "hide": "Ocultar MyMarkdownText",
+      "hideMyMarkdownText": "Ocultar MyMarkdownText",
       "hideOthers": "Ocultar Outros",
       "showAll": "Mostrar Todos",
-      "quit": "Sair do MarkText"
+      "quit": "Sair do MyMarkdownText"
     },
     "view": {
       "view": "Visualizar",
@@ -389,7 +389,7 @@
   },
   "import": {
     "title": "Importar ou Abrir",
-    "description": "Solte aqui para colocar suas coisas no MarkText"
+    "description": "Solte aqui para colocar suas coisas no MyMarkdownText"
   },
   "preferences": {
     "title": "Preferências",
@@ -419,10 +419,10 @@
         "hideScrollbar": "Se ocultar as barras de rolagem",
         "wordWrapInToc": "Se habilitar a quebra de linha na tabela de conteúdos",
         "fileSortBy": "Ordenar arquivos na pasta aberta por tempo de criação, tempo de modificação e título",
-        "startUpAction": "A ação após a inicialização do MarkText, abrir o último conteúdo editado, abrir a pasta especificada ou página em branco",
+        "startUpAction": "A ação após a inicialização do MyMarkdownText, abrir o último conteúdo editado, abrir a pasta especificada ou página em branco",
         "restoreLayoutState": "Restaurar o estado anterior do editor na inicialização",
         "defaultDirectoryToOpen": "O diretório padrão que deve ser aberto na inicialização quando startUp=folder",
-        "language": "O idioma que o MarkText usa",
+        "language": "O idioma que o MyMarkdownText usa",
         "editorFontFamily": "Família de fonte do editor",
         "fontSize": "Tamanho da fonte em pixels",
         "lineHeight": "Altura da linha",
@@ -446,7 +446,7 @@
         "preferLooseListItem": "O tipo de lista preferido",
         "bulletListMarker": "O marcador usado na lista de marcadores",
         "orderListDelimiter": "O delimitador usado na lista ordenada",
-        "preferHeadingStyle": "O estilo de cabeçalho preferido no MarkText",
+        "preferHeadingStyle": "O estilo de cabeçalho preferido no MyMarkdownText",
         "tabSize": "Substituir a tabulação com x espaços",
         "listIndentation": "Selecionar a indentação da lista",
         "frontmatterType": "O tipo de frontmatter",
@@ -455,7 +455,7 @@
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
         "sequenceTheme": "Tema do diagrama de sequência",
-        "theme": "Selecionar o tema usado no MarkText",
+        "theme": "Selecionar o tema usado no MyMarkdownText",
         "followSystemTheme": "Seguir tema do sistema",
         "lightModeTheme": "Tema a ser usado quando o sistema está no modo claro",
         "darkModeTheme": "Tema a ser usado quando o sistema está no modo escuro",
@@ -713,7 +713,7 @@
         "neverDetected": "Nunca detectado",
         "neverSuccessful": "Nunca bem-sucedido"
       },
-      "defaultBehavior": "O comportamento padrão após colar ou arrastar a imagem para o MarkText"
+      "defaultBehavior": "O comportamento padrão após colar ou arrastar a imagem para o MyMarkdownText"
     },
     "markdown": {
       "title": "Markdown",
@@ -892,7 +892,7 @@
   },
   "commands": {
     "mt": {
-      "hide": "Ocultar MarkText",
+      "hide": "Ocultar MyMarkdownText",
       "hideOthers": "Ocultar Outros"
     },
     "file": {
@@ -1063,7 +1063,7 @@
     "configSchemaViolation": "Violação do esquema de configuração",
     "copyError": "Erro de cópia",
     "initializationFailed": "Falha na inicialização",
-    "otherInstanceDetected": "Outra instância do MarkText já está em execução",
+    "otherInstanceDetected": "Outra instância do MyMarkdownText já está em execução",
     "report": "Reportar",
     "startupError": "Erro de inicialização",
     "terminatedDueToError": "Terminado devido a erro",

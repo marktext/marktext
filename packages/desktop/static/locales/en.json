@@ -104,25 +104,25 @@
       "reportBug": "Report Bug",
       "viewSource": "View Source",
       "followUs": "Follow Us",
-      "support": "Support MarkText",
+      "support": "Support MyMarkdownText",
       "license": "License",
       "checkForUpdates": "Check for Updates",
-      "aboutMarkText": "About MarkText",
+      "aboutMyMarkdownText": "About MyMarkdownText",
       "about": "About",
       "checkUpdates": "Check for Updates"
     },
     "marktext": {
-      "title": "MarkText",
-      "marktext": "MarkText",
-      "about": "About MarkText",
+      "title": "MyMarkdownText",
+      "marktext": "MyMarkdownText",
+      "about": "About MyMarkdownText",
       "checkUpdates": "Check for Updates...",
       "preferences": "Preferences",
       "services": "Services",
-      "hide": "Hide MarkText",
-      "hideMarkText": "Hide MarkText",
+      "hide": "Hide MyMarkdownText",
+      "hideMyMarkdownText": "Hide MyMarkdownText",
       "hideOthers": "Hide Others",
       "showAll": "Show All",
-      "quit": "Quit MarkText"
+      "quit": "Quit MyMarkdownText"
     },
     "view": {
       "view": "View",
@@ -388,7 +388,7 @@
   },
   "import": {
     "title": "Import or Open",
-    "description": "Drop here to get your stuff into MarkText"
+    "description": "Drop here to get your stuff into MyMarkdownText"
   },
   "preferences": {
     "title": "Preferences",
@@ -417,10 +417,10 @@
         "hideScrollbar": "Whether to hide scrollbars",
         "wordWrapInToc": "Whether to enable word wrap in TOC",
         "fileSortBy": "Sort files in opened folder by created time, modified time and title",
-        "startUpAction": "The action after MarkText startup, open the last edited content, open the specified folder or blank page",
+        "startUpAction": "The action after MyMarkdownText startup, open the last edited content, open the specified folder or blank page",
         "restoreLayoutState": "Restore previous editor state on startup",
         "defaultDirectoryToOpen": "The default directory that should be opened on startup when startUp=folder",
-        "language": "The language MarkText use",
+        "language": "The language MyMarkdownText use",
         "editorFontFamily": "Editor font family",
         "fontSize": "Font size in pixels",
         "lineHeight": "Line Height",
@@ -444,7 +444,7 @@
         "preferLooseListItem": "The preferred list type",
         "bulletListMarker": "The marker used in bullet list",
         "orderListDelimiter": "The dilimiter used in order list",
-        "preferHeadingStyle": "The preferred heading style in MarkText",
+        "preferHeadingStyle": "The preferred heading style in MyMarkdownText",
         "tabSize": "Replace the tab with x spaces",
         "listIndentation": "Select the indent of list",
         "frontmatterType": "The frontmatter type",
@@ -453,7 +453,7 @@
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "sequenceTheme": "Sequence diagram theme",
-        "theme": "Select the theme used in MarkText",
+        "theme": "Select the theme used in MyMarkdownText",
         "followSystemTheme": "Follow System Theme",
         "lightModeTheme": "Theme to use when system is in light mode",
         "darkModeTheme": "Theme to use when system is in dark mode",
@@ -710,7 +710,7 @@
         "pleaseInstall": "Please install",
         "scriptPath": "Script path"
       },
-      "defaultBehavior": "The default behavior after pasting or dragging the image to MarkText"
+      "defaultBehavior": "The default behavior after pasting or dragging the image to MyMarkdownText"
     },
     "markdown": {
       "title": "Markdown",
@@ -897,7 +897,7 @@
   },
   "commands": {
     "mt": {
-      "hide": "Hide MarkText",
+      "hide": "Hide MyMarkdownText",
       "hideOthers": "Hide Others"
     },
     "file": {
@@ -1068,7 +1068,7 @@
     "configSchemaViolation": "Configuration schema violation",
     "copyError": "Copy error",
     "initializationFailed": "Initialization failed {hint}",
-    "otherInstanceDetected": "Another instance of MarkText is already running",
+    "otherInstanceDetected": "Another instance of MyMarkdownText is already running",
     "report": "Report",
     "startupError": "Startup error",
     "terminatedDueToError": "Terminated due to error",

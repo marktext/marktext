@@ -53,7 +53,7 @@ initializeLogger(appEnvironment)
 // Handles native level crashes
 crashReporter.start({
   companyName: '',
-  productName: 'marktext',
+  productName: 'MyMarkdownText',
   uploadToServer: false, // collect locally
   compress: true
 })
@@ -83,7 +83,7 @@ if (!process.mas && process.env.NODE_ENV !== 'development') {
 registerSandboxIpcHandlers()
 
 // Windows-specific AppUserModelID
-electronApp.setAppUserModelId('com.electron.marktext')
+electronApp.setAppUserModelId('com.happyelements.mymarkdowntext')
 
 // Dev shortcuts and reload suppression
 app.on('browser-window-created', (_, window) => {

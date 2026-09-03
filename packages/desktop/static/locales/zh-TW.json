@@ -104,25 +104,25 @@
       "reportBug": "回報錯誤",
       "viewSource": "檢視原始碼",
       "followUs": "關注我們",
-      "support": "支持 MarkText",
+      "support": "支持 MyMarkdownText",
       "license": "授權條款",
       "checkForUpdates": "檢查更新",
-      "aboutMarkText": "關於 MarkText",
+      "aboutMyMarkdownText": "關於 MyMarkdownText",
       "about": "關於",
       "checkUpdates": "檢查更新"
     },
     "marktext": {
       "title": "關於",
-      "marktext": "MarkText",
-      "about": "關於 MarkText",
+      "marktext": "MyMarkdownText",
+      "about": "關於 MyMarkdownText",
       "checkUpdates": "檢查更新…",
       "preferences": "偏好設定",
       "services": "服務",
-      "hide": "隱藏 MarkText",
-      "hideMarkText": "隱藏 MarkText",
+      "hide": "隱藏 MyMarkdownText",
+      "hideMyMarkdownText": "隱藏 MyMarkdownText",
       "hideOthers": "隱藏其他",
       "showAll": "顯示全部",
-      "quit": "退出 MarkText"
+      "quit": "退出 MyMarkdownText"
     },
     "view": {
       "view": "檢視",
@@ -389,7 +389,7 @@
   },
   "import": {
     "title": "匯入或開啟",
-    "description": "拖放到這裡將您的內容匯入 MarkText"
+    "description": "拖放到這裡將您的內容匯入 MyMarkdownText"
   },
   "preferences": {
     "title": "偏好設定",
@@ -419,10 +419,10 @@
         "hideScrollbar": "是否隱藏捲軸",
         "wordWrapInToc": "是否在目錄中啟用自動換行",
         "fileSortBy": "按建立時間、修改時間和標題對開啟資料夾中的檔案進行排序",
-        "startUpAction": "MarkText 啟動後的操作，開啟最後編輯的內容、開啟指定資料夾或空白頁面",
+        "startUpAction": "MyMarkdownText 啟動後的操作，開啟最後編輯的內容、開啟指定資料夾或空白頁面",
         "restoreLayoutState": "啟動時還原上次編輯器狀態",
         "defaultDirectoryToOpen": "當 startUp=folder 時啟動時應開啟的預設目錄",
-        "language": "MarkText 使用的語言",
+        "language": "MyMarkdownText 使用的語言",
         "editorFontFamily": "編輯器字型系列",
         "fontSize": "字型大小（像素）",
         "lineHeight": "行高",
@@ -446,7 +446,7 @@
         "preferLooseListItem": "首選清單類型",
         "bulletListMarker": "項目符號清單中使用的標記",
         "orderListDelimiter": "有序清單中使用的分隔符",
-        "preferHeadingStyle": "MarkText 中的首選標題樣式",
+        "preferHeadingStyle": "MyMarkdownText 中的首選標題樣式",
         "tabSize": "用 x 個空格替換製表符",
         "listIndentation": "選擇清單的縮排",
         "frontmatterType": "前言類型",
@@ -455,7 +455,7 @@
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "sequenceTheme": "序列圖主題",
-        "theme": "選擇 MarkText 中使用的主題",
+        "theme": "選擇 MyMarkdownText 中使用的主題",
         "followSystemTheme": "跟隨系統主題",
         "lightModeTheme": "系統處於淺色模式時使用的主題",
         "darkModeTheme": "系統處於深色模式時使用的主題",
@@ -713,7 +713,7 @@
         "neverDetected": "從未偵測",
         "neverSuccessful": "從未成功"
       },
-      "defaultBehavior": "貼上或拖曳圖片到 MarkText 後的預設行為"
+      "defaultBehavior": "貼上或拖曳圖片到 MyMarkdownText 後的預設行為"
     },
     "markdown": {
       "title": "PicGo 設定",
@@ -892,7 +892,7 @@
   },
   "commands": {
     "mt": {
-      "hide": "隱藏 MarkText",
+      "hide": "隱藏 MyMarkdownText",
       "hideOthers": "隱藏其他"
     },
     "file": {
@@ -1063,7 +1063,7 @@
     "configSchemaViolation": "設定結構違規",
     "copyError": "複製錯誤",
     "initializationFailed": "初始化失敗",
-    "otherInstanceDetected": "偵測到另一個 MarkText 實例正在執行",
+    "otherInstanceDetected": "偵測到另一個 MyMarkdownText 實例正在執行",
     "report": "回報",
     "startupError": "啟動錯誤",
     "terminatedDueToError": "因錯誤而終止",

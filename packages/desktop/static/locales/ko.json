@@ -104,25 +104,25 @@
       "reportBug": "버그 신고",
       "viewSource": "소스 보기",
       "followUs": "팔로우하기",
-      "support": "MarkText 후원",
+      "support": "MyMarkdownText 후원",
       "license": "라이선스",
       "checkForUpdates": "업데이트 확인",
-      "aboutMarkText": "MarkText 정보",
+      "aboutMyMarkdownText": "MyMarkdownText 정보",
       "about": "정보",
       "checkUpdates": "업데이트 확인"
     },
     "marktext": {
-      "title": "MarkText",
-      "marktext": "MarkText",
-      "about": "MarkText 정보",
+      "title": "MyMarkdownText",
+      "marktext": "MyMarkdownText",
+      "about": "MyMarkdownText 정보",
       "checkUpdates": "업데이트 확인...",
       "preferences": "환경설정",
       "services": "서비스",
-      "hide": "MarkText 숨기기",
-      "hideMarkText": "MarkText 숨기기",
+      "hide": "MyMarkdownText 숨기기",
+      "hideMyMarkdownText": "MyMarkdownText 숨기기",
       "hideOthers": "다른 앱 숨기기",
       "showAll": "모두 보기",
-      "quit": "MarkText 종료"
+      "quit": "MyMarkdownText 종료"
     },
     "view": {
       "view": "보기",
@@ -389,7 +389,7 @@
   },
   "import": {
     "title": "가져오기 또는 열기",
-    "description": "여기에 드롭하여 MarkText로 가져오세요"
+    "description": "여기에 드롭하여 MyMarkdownText로 가져오세요"
   },
   "preferences": {
     "title": "환경설정",
@@ -419,10 +419,10 @@
         "hideScrollbar": "스크롤바를 숨길지 여부",
         "wordWrapInToc": "목차에서 자동 줄바꿈을 활성화할지 여부",
         "fileSortBy": "열린 폴더의 파일을 생성 시간, 수정 시간, 제목으로 정렬",
-        "startUpAction": "MarkText 시작 후 작업, 마지막으로 편집한 내용 열기, 지정된 폴더 열기 또는 빈 페이지",
+        "startUpAction": "MyMarkdownText 시작 후 작업, 마지막으로 편집한 내용 열기, 지정된 폴더 열기 또는 빈 페이지",
         "restoreLayoutState": "시작 시 이전 편집기 상태 복원",
         "defaultDirectoryToOpen": "startUp=folder일 때 시작 시 열어야 할 기본 디렉터리",
-        "language": "MarkText가 사용하는 언어",
+        "language": "MyMarkdownText가 사용하는 언어",
         "editorFontFamily": "편집기 글꼴 패밀리",
         "fontSize": "픽셀 단위 글꼴 크기",
         "lineHeight": "줄 높이",
@@ -446,7 +446,7 @@
         "preferLooseListItem": "선호하는 목록 유형",
         "bulletListMarker": "글머리 기호 목록에서 사용되는 마커",
         "orderListDelimiter": "순서가 있는 목록에서 사용되는 구분자",
-        "preferHeadingStyle": "MarkText에서 선호하는 제목 스타일",
+        "preferHeadingStyle": "MyMarkdownText에서 선호하는 제목 스타일",
         "tabSize": "탭을 x개의 공백으로 바꾸기",
         "listIndentation": "목록의 들여쓰기 선택",
         "frontmatterType": "프론트매터 유형",
@@ -455,7 +455,7 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "sequenceTheme": "시퀀스 다이어그램 테마",
-        "theme": "MarkText에서 사용할 테마 선택",
+        "theme": "MyMarkdownText에서 사용할 테마 선택",
         "followSystemTheme": "시스템 테마 따르기",
         "lightModeTheme": "시스템이 라이트 모드일 때 사용할 테마",
         "darkModeTheme": "시스템이 다크 모드일 때 사용할 테마",
@@ -713,7 +713,7 @@
         "neverDetected": "감지된 적 없음",
         "neverSuccessful": "성공한 적 없음"
       },
-      "defaultBehavior": "이미지를 MarkText에 붙여넣거나 드래그한 후의 기본 동작"
+      "defaultBehavior": "이미지를 MyMarkdownText에 붙여넣거나 드래그한 후의 기본 동작"
     },
     "markdown": {
       "title": "마크다운",
@@ -892,7 +892,7 @@
   },
   "commands": {
     "mt": {
-      "hide": "MarkText 숨기기",
+      "hide": "MyMarkdownText 숨기기",
       "hideOthers": "다른 앱 숨기기"
     },
     "file": {
@@ -1063,7 +1063,7 @@
     "configSchemaViolation": "구성 스키마 위반",
     "copyError": "복사 오류",
     "initializationFailed": "초기화 실패",
-    "otherInstanceDetected": "MarkText의 다른 인스턴스가 이미 실행 중입니다",
+    "otherInstanceDetected": "MyMarkdownText의 다른 인스턴스가 이미 실행 중입니다",
     "report": "신고",
     "startupError": "시작 오류",
     "terminatedDueToError": "오류로 인해 종료됨",
