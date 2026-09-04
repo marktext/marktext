@@ -286,6 +286,9 @@ let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
+let nativeSelectionChangeHandler: (() => void) | null = null
+let selectionWordCountFrame: number | null = null
+let lastSelectedText = ''
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -388,6 +391,125 @@ interface EngineAffiliationEntry {
 //   - `affiliation` straight through (entries already carry `type` +
 //     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
 //     `functionType` on `pre`/`figure` containers for table / code-fence keys.
+interface TableCellSelectionState {
+  text?: string
+}
+
+interface TableRowSelectionState {
+  children?: TableCellSelectionState[]
+}
+
+interface TableSelectionState {
+  children?: TableRowSelectionState[]
+}
+
+const getTableSelectionText = (): string => {
+  const tableState = editor.value?.editor?.selection?.table?.getStateForCopy?.() as
+    | TableSelectionState
+    | null
+    | undefined
+  if (!tableState?.children) return ''
+
+  return tableState.children
+    .flatMap((row) => row.children?.map((cell) => cell.text ?? '') ?? [])
+    .join('\n')
+}
+
+const getNativeSelectionText = (selection: Selection): string => {
+  let text = ''
+  let shouldUseFragmentText = false
+  for (let i = 0; i < selection.rangeCount; i++) {
+    const fragment = selection.getRangeAt(i).cloneContents()
+    const renderedNodes = fragment.querySelectorAll('.mu-math-render, .mu-ruby-render')
+    if (renderedNodes.length > 0) {
+      shouldUseFragmentText = true
+      renderedNodes.forEach(node => node.remove())
+    }
+    text += fragment.textContent ?? ''
+  }
+  return shouldUseFragmentText ? text : selection.toString()
+}
+
+const getSelectedText = (changes: MuyaChange): string => {
+  const tableText = getTableSelectionText()
+  if (tableText) return tableText
+
+  if (!changes || changes.isCollapsed || changes.type === 'Caret') return ''
+
+  const anchorBlock = changes.anchorBlock as { text?: string } | null | undefined
+  const focusBlock = changes.focusBlock as { text?: string } | null | undefined
+  const anchorOffset = (changes.anchor?.offset ?? 0) as number
+  const focusOffset = (changes.focus?.offset ?? 0) as number
+
+  if (anchorBlock && anchorBlock === focusBlock && typeof anchorBlock.text === 'string') {
+    const start = Math.min(anchorOffset, focusOffset)
+    const end = Math.max(anchorOffset, focusOffset)
+    return anchorBlock.text.substring(start, end)
+  }
+
+  const selection = window.getSelection()
+  const container = getScrollContainer()
+  const { anchorNode, focusNode } = selection ?? {}
+  const nativeText = selection ? getNativeSelectionText(selection) : ''
+  if (
+    nativeText &&
+    container &&
+    anchorNode &&
+    focusNode &&
+    container.contains(anchorNode) &&
+    container.contains(focusNode)
+  ) {
+    return nativeText
+  }
+
+  return ''
+}
+
+const setSelectionWordCountFromText = (selectedText: string) => {
+  const hasSelection = selectedText.trim().length > 0
+  if (selectedText === lastSelectedText) {
+    const hasStoreSelection = editorStore.selectionWordCount != null
+    if (hasSelection === hasStoreSelection) return
+  }
+
+  lastSelectedText = selectedText
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
+}
+
+const updateNativeSelectionWordCount = () => {
+  if (sourceCode.value) return
+
+  const tableText = getTableSelectionText()
+  if (tableText) {
+    setSelectionWordCountFromText(tableText)
+    return
+  }
+
+  const selection = window.getSelection()
+  const container = getScrollContainer()
+  if (!selection || selection.isCollapsed || !container) {
+    setSelectionWordCountFromText('')
+    return
+  }
+
+  const { anchorNode, focusNode } = selection
+  if (!anchorNode || !focusNode || !container.contains(anchorNode) || !container.contains(focusNode)) {
+    setSelectionWordCountFromText('')
+    return
+  }
+
+  setSelectionWordCountFromText(getNativeSelectionText(selection))
+}
+
+const scheduleNativeSelectionWordCount = () => {
+  if (selectionWordCountFrame != null) return
+
+  selectionWordCountFrame = requestAnimationFrame(() => {
+    selectionWordCountFrame = null
+    updateNativeSelectionWordCount()
+  })
+}
+
 const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
   const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
@@ -1970,6 +2092,7 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
+    setSelectionWordCountFromText(getSelectedText(changes))
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
@@ -1979,6 +2102,8 @@ onMounted(() => {
     pushSelectionMenuState(changes)
   })
 
+  nativeSelectionChangeHandler = scheduleNativeSelectionWordCount
+  document.addEventListener('selectionchange', nativeSelectionChangeHandler)
   document.addEventListener('keyup', keyup)
 
   setEditorWidth(editorLineWidth.value)
@@ -2020,6 +2145,16 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
+  if (nativeSelectionChangeHandler) {
+    document.removeEventListener('selectionchange', nativeSelectionChangeHandler)
+  }
+  nativeSelectionChangeHandler = null
+  if (selectionWordCountFrame != null) {
+    cancelAnimationFrame(selectionWordCountFrame)
+  }
+  selectionWordCountFrame = null
+  lastSelectedText = ''
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.

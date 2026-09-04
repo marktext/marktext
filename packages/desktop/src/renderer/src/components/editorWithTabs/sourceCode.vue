@@ -281,6 +281,20 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+let lastSelectedText = ''
+
+const updateSelectionWordCount = (cm: CMInstance) => {
+  const selectedText = cm?.getSelection?.('\n') ?? cm?.getSelection?.() ?? ''
+  const hasSelection = selectedText.trim().length > 0
+  if (selectedText === lastSelectedText) {
+    const hasStoreSelection = editorStore.selectionWordCount != null
+    if (hasSelection === hasStoreSelection) return
+  }
+
+  lastSelectedText = selectedText
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
+}
+
 const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
@@ -304,6 +318,7 @@ const saveContent = (cm: CMInstance) => {
 const listenChange = () => {
   editor.value.on('cursorActivity', (cm: CMInstance) => {
     saveContent(cm)
+    updateSelectionWordCount(cm)
   })
 }
 
@@ -388,6 +403,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  updateSelectionWordCount(codeMirrorInstance)
 
   listenChange()
 })
@@ -403,6 +419,8 @@ onBeforeUnmount(() => {
   bus.off('undo', handleUndo)
   bus.off('redo', handleRedo)
   bus.off('image-action', handleImageAction)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
+  lastSelectedText = ''
   bus.off('scroll-to-header', handleScrollToHeader)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)

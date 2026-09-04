@@ -3,7 +3,10 @@
     "counter": {
       "words": "단어 수",
       "characters": "글자 수",
-      "paragraphs": "단락 수"
+      "paragraphs": "단락 수",
+      "allCharacters": "전체 글자 수",
+      "document": "문서",
+      "documentSelection": "문서 / 선택 영역"
     },
     "file": {
       "file": "파일",
