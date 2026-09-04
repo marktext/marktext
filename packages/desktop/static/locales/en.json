@@ -191,6 +191,7 @@
     "changeLanguage": "Change Language...",
     "addToDictionary": "Add to Dictionary",
     "editDictionary": "Edit Dictionary...",
+    "openImage": "Open Image",
     "sideBar": {
       "newFile": "New File",
       "newDirectory": "New Directory",

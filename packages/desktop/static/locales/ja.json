@@ -191,6 +191,7 @@
     "changeLanguage": "言語の変更...",
     "addToDictionary": "辞書に追加",
     "editDictionary": "辞書の編集...",
+    "openImage": "画像を開く",
     "sideBar": {
       "newFile": "新しいファイル",
       "newDirectory": "新しいフォルダー",
