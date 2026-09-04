@@ -54,6 +54,28 @@ You can integrate the AppImage into the system via [AppImageLauncher](https://gi
 
 You can download the latest `marktext-%version%.tar.gz` package from the [release page](https://github.com/marktext/marktext/releases/latest). You may need to install electron dependencies.
 
+## Homebrew on Linux
+
+The Homebrew cask command shown in the macOS installation instructions is macOS-only:
+
+```bash
+brew install --cask mark-text
+```
+
+It installs the existing `mark-text` cask for macOS application bundles and is separate from Homebrew on Linux.
+
+Linux Homebrew support is being prepared as an experimental formula for a future custom tap. Until maintainers publish a tap, there is no official `brew install marktext` path for Linux. The draft formula template lives at [`packaging/homebrew/marktext.rb`](https://github.com/marktext/marktext/blob/develop/packaging/homebrew/marktext.rb) and is intended to install the Linux `tar.gz` release artifact after a new tagged release is available.
+
+Maintainers testing a future release can update the template URL and SHA256, then run:
+
+```bash
+brew style packaging/homebrew/marktext.rb
+brew audit --strict --online <tap>/marktext
+brew install <tap>/marktext
+```
+
+Source builds from `develop` are not recommended as the default Homebrew path because they require a full pnpm/Electron build and network downloads during installation.
+
 ## Arch User Repository
 
 MarkText is available on the AUR as `marktext-bin` and will automatically install the dependencies: `glibc`, `gtk3`, `nss`, `alsa-lib`, `libxss`, `cups`, `libxkbcommon`, `libxkbfile`, `mesa`, and `hicolor-icon-theme`.

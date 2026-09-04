@@ -139,7 +139,7 @@ Want to see new features of the latest version? Please refer to [CHANGELOG](http
 
 Requires macOS 11 (Big Sur) or later. Universal builds aren't published — pick the matching `arm64` or `x64` installer.
 
-You can either download the latest `marktext-mac-(arm64|x64)-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install MarkText using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
+You can either download the latest `marktext-mac-(arm64|x64)-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install MarkText using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed. This cask is for macOS only; Linux users should follow the Linux installation instructions below.
 
 ```bash
 brew install --cask mark-text
@@ -165,7 +165,7 @@ winget install marktext
 
 #### Linux
 
-Please follow the [Linux installation instructions](https://marktext.me/docs/installation).
+Please follow the [Linux installation instructions](https://marktext.me/docs/installation). Homebrew on Linux support is being prepared separately from the macOS-only `mark-text` cask.
 
 #### Other
 
