@@ -73,7 +73,12 @@
       "taskList": "작업 목록",
       "looseListItem": "느슨한 목록 항목",
       "horizontalRule": "수평선",
-      "frontMatter": "프론트 매터"
+      "frontMatter": "프론트 매터",
+      "documentDirection": "문서 방향",
+      "blockDirection": "블록 방향",
+      "rtl": "오른쪽에서 왼쪽 (RTL)",
+      "ltr": "왼쪽에서 오른쪽 (LTR)",
+      "directionNone": "문서 방향 따르기"
     },
     "window": {
       "title": "창",
@@ -553,7 +558,8 @@
         "textDirection": {
           "title": "텍스트 방향",
           "ltr": "왼쪽에서 오른쪽",
-          "rtl": "오른쪽에서 왼쪽"
+          "rtl": "오른쪽에서 왼쪽",
+          "deprecation": "이제 문서별로 문단 메뉴에서 텍스트 방향을 설정할 수 있습니다."
         },
         "hideQuickInsertHint": "빠른 삽입 힌트 숨기기",
         "hideLinkPopup": "링크 팝업 숨기기",
@@ -808,7 +814,12 @@
       "frontMatter": "프론트 매터",
       "resetParagraph": "단락 재설정",
       "mathBlock": "수식 블록",
-      "horizontalRule": "수평선"
+      "horizontalRule": "수평선",
+      "documentDirection": "문서 방향",
+      "blockDirection": "블록 방향",
+      "rtl": "오른쪽에서 왼쪽 (RTL)",
+      "ltr": "왼쪽에서 오른쪽 (LTR)",
+      "directionNone": "문서 방향 따르기"
     },
     "format": {
       "strong": "굵게",

@@ -73,7 +73,12 @@
       "taskList": "Aufgabenliste",
       "looseListItem": "Lockeres Listenelement",
       "horizontalRule": "Horizontale Linie",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Dokumentenrichtung",
+      "blockDirection": "Blockrichtung",
+      "rtl": "Rechts nach links (RTL)",
+      "ltr": "Links nach rechts (LTR)",
+      "directionNone": "Dokumentenrichtung folgen"
     },
     "window": {
       "title": "Fenster",
@@ -553,7 +558,8 @@
         "textDirection": {
           "title": "Textrichtung",
           "ltr": "Links nach rechts",
-          "rtl": "Rechts nach links"
+          "rtl": "Rechts nach links",
+          "deprecation": "Die Textrichtung wird jetzt für jedes Dokument über das Absatzmenü festgelegt."
         },
         "hideQuickInsertHint": "Schnelleinfügung-Hinweis ausblenden",
         "hideLinkPopup": "Link-Popup ausblenden",
@@ -808,7 +814,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Absatz zurücksetzen",
       "mathBlock": "Mathe-Block",
-      "horizontalRule": "Horizontale Linie"
+      "horizontalRule": "Horizontale Linie",
+      "documentDirection": "Dokumentenrichtung",
+      "blockDirection": "Blockrichtung",
+      "rtl": "Rechts nach links (RTL)",
+      "ltr": "Links nach rechts (LTR)",
+      "directionNone": "Dokumentenrichtung folgen"
     },
     "format": {
       "strong": "Fett",

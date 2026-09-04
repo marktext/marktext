@@ -73,7 +73,12 @@
       "taskList": "Lista de Tarefas",
       "looseListItem": "Item de Lista Solta",
       "horizontalRule": "Linha Horizontal",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Direção do documento",
+      "blockDirection": "Direção do bloco",
+      "rtl": "Da direita para a esquerda (RTL)",
+      "ltr": "Da esquerda para a direita (LTR)",
+      "directionNone": "Seguir a direção do documento"
     },
     "window": {
       "title": "Janela",
@@ -553,7 +558,8 @@
         "textDirection": {
           "title": "Direção do Texto",
           "ltr": "Esquerda para Direita",
-          "rtl": "Direita para Esquerda"
+          "rtl": "Direita para Esquerda",
+          "deprecation": "A direção do texto agora é configurada por documento através do menu Parágrafo."
         },
         "hideQuickInsertHint": "Ocultar dica de inserção rápida",
         "hideLinkPopup": "Ocultar popup de link",
@@ -808,7 +814,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Resetar Parágrafo",
       "mathBlock": "Bloco matemático",
-      "horizontalRule": "Linha horizontal"
+      "horizontalRule": "Linha horizontal",
+      "documentDirection": "Direção do documento",
+      "blockDirection": "Direção do bloco",
+      "rtl": "Da direita para a esquerda (RTL)",
+      "ltr": "Da esquerda para a direita (LTR)",
+      "directionNone": "Seguir a direção do documento"
     },
     "format": {
       "strong": "Negrito",

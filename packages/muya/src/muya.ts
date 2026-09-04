@@ -10,6 +10,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
+import DirectionBlock from './block/commonMark/directionBlock';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -1634,6 +1635,94 @@ export class Muya {
         const newBlock = ScrollPage.loadBlock(label).create(this, newState);
         block.replaceWith(newBlock);
         newBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    get documentDir(): 'ltr' | 'rtl' | null {
+        return this.editor.jsonState.documentDir;
+    }
+
+    getBlockDirection(): 'rtl' | 'ltr' | null {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return null;
+        // The outmost block IS the direction-block (cursor is inside a wrapped block).
+        if (block.blockName === 'direction-block')
+            return (block.attributes?.dir ?? null) as 'rtl' | 'ltr' | null;
+        return null;
+    }
+
+    setDocumentDirection(dir: 'ltr' | 'rtl' | null) {
+        const prevDoc = this.editor.jsonState.getState();
+        this.editor.jsonState.documentDir = dir;
+        this.eventCenter.emit('muya-document-dir-change', dir);
+        // Emit json-change so the renderer marks the document dirty and
+        // re-serializes the markdown with the updated direction wrapper.
+        // The block tree is unchanged; only the serialized output differs.
+        // Use op: [] (empty op list, not null) so the History listener's
+        // `op.length === 0` guard short-circuits cleanly without throwing.
+        this.eventCenter.emit('json-change', {
+            op: [],
+            source: 'user',
+            prevDoc,
+            doc: prevDoc,
+        });
+    }
+
+    setBlockDirection(dir: 'ltr' | 'rtl' | null) {
+        const block = this._outmostBlockAtCursor();
+        if (!block)
+            return;
+
+        const effectiveDocDir = this.documentDir ?? 'ltr';
+
+        // When the outmost block IS itself a direction-block (the cursor sits
+        // inside a wrapped block), operate on that block directly rather than
+        // looking at its parent (which would be ScrollPage, not a direction-block).
+        const existingDirBlock: Parent | null
+            = block.blockName === 'direction-block' ? block : null;
+
+        if (dir === null || dir === effectiveDocDir) {
+            if (existingDirBlock)
+                this.unwrapDirectionBlock(existingDirBlock);
+            return;
+        }
+
+        if (existingDirBlock instanceof DirectionBlock) {
+            existingDirBlock.updateDir(dir);
+            return;
+        }
+
+        if (!block.parent)
+            return;
+
+        const dirState = {
+            name: 'direction-block' as const,
+            meta: { dir },
+            children: [(block as Parent).getState()],
+        };
+        const dirBlock = ScrollPage.loadBlock('direction-block').create(this, dirState);
+        block.replaceWith(dirBlock);
+        dirBlock.firstContentInDescendant()?.setCursor(0, 0, true);
+    }
+
+    unwrapDirectionBlock(dirBlock: Parent) {
+        const grandParent = dirBlock.parent;
+        if (!grandParent)
+            return;
+
+        let firstChild: Parent | null = null;
+        let child = dirBlock.firstChild as Parent | null;
+        while (child) {
+            const next = child.next as Parent | null;
+            grandParent.insertBefore(child, dirBlock);
+            if (!firstChild)
+                firstChild = child;
+
+            child = next;
+        }
+
+        dirBlock.remove();
+        firstChild?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     destroy() {

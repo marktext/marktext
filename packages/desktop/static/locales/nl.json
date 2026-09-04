@@ -73,7 +73,12 @@
       "taskList": "Takenlijst",
       "looseListItem": "Los lijstitem",
       "horizontalRule": "Horizontale lijn",
-      "frontMatter": "Front Matter"
+      "frontMatter": "Front Matter",
+      "documentDirection": "Documentrichting",
+      "blockDirection": "Blokricting",
+      "rtl": "Van rechts naar links (RTL)",
+      "ltr": "Van links naar rechts (LTR)",
+      "directionNone": "Documentrichting volgen"
     },
     "window": {
       "title": "Venster",
@@ -552,7 +557,8 @@
         "textDirection": {
           "title": "Tekstrichting",
           "ltr": "Links naar rechts",
-          "rtl": "Rechts naar links"
+          "rtl": "Rechts naar links",
+          "deprecation": "De tekstrichting wordt nu per document ingesteld via het menu Alinea."
         },
         "hideQuickInsertHint": "Hint snel invoegen verbergen",
         "hideLinkPopup": "Link-popup verbergen",
@@ -807,7 +813,12 @@
       "frontMatter": "Front Matter",
       "resetParagraph": "Alinea herstellen",
       "mathBlock": "Wiskundeblok",
-      "horizontalRule": "Horizontale lijn"
+      "horizontalRule": "Horizontale lijn",
+      "documentDirection": "Documentrichting",
+      "blockDirection": "Blokricting",
+      "rtl": "Van rechts naar links (RTL)",
+      "ltr": "Van links naar rechts (LTR)",
+      "directionNone": "Documentrichting volgen"
     },
     "format": {
       "strong": "Vet",

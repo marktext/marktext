@@ -73,7 +73,12 @@
       "taskList": "タスクリスト",
       "looseListItem": "ルーズリスト項目",
       "horizontalRule": "水平線",
-      "frontMatter": "フロントマター"
+      "frontMatter": "フロントマター",
+      "documentDirection": "ドキュメントの方向",
+      "blockDirection": "ブロックの方向",
+      "rtl": "右から左 (RTL)",
+      "ltr": "左から右 (LTR)",
+      "directionNone": "ドキュメントの方向に従う"
     },
     "window": {
       "title": "ウィンドウ",
@@ -553,7 +558,8 @@
         "textDirection": {
           "title": "テキスト方向",
           "ltr": "左から右",
-          "rtl": "右から左"
+          "rtl": "右から左",
+          "deprecation": "テキストの方向を、段落メニューからドキュメントごとに設定できるようになりました。"
         },
         "hideQuickInsertHint": "クイック挿入ヒントを隠す",
         "hideLinkPopup": "リンクポップアップを隠す",
@@ -808,7 +814,12 @@
       "frontMatter": "フロントマター",
       "resetParagraph": "段落をリセット",
       "mathBlock": "数式ブロック",
-      "horizontalRule": "水平線"
+      "horizontalRule": "水平線",
+      "documentDirection": "ドキュメントの方向",
+      "blockDirection": "ブロックの方向",
+      "rtl": "右から左 (RTL)",
+      "ltr": "左から右 (LTR)",
+      "directionNone": "ドキュメントの方向に従う"
     },
     "format": {
       "strong": "太字",

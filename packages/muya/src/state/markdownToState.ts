@@ -43,14 +43,66 @@ const CONTAINER_TOKEN_TYPES = new Set([
     'footnote',
 ]);
 
+const FULL_DOC_DIR_RE = /^<div\s+dir="(rtl|ltr)"\s*>\n([\s\S]*)\n<\/div>\s*$/;
+// Kept only for the `style="direction:..."` fallback in _handleLeafToken.
+const BLOCK_DIR_STYLE_RE = /^<div\s+style="direction\s*:\s*(rtl|ltr)\s*"\s*>\n([\s\S]*?)\n<\/div>$/;
+
+// Pre-processing: detect `<div dir="...">` on its own line. CommonMark type-6
+// HTML blocks end at blank lines, so any blank line inside a direction wrapper
+// would terminate the html-block token before </div> is reached. We extract
+// direction wrappers ourselves before handing text to marked.
+const DIR_OPEN_LINE_RE = /^<div\s+dir="(rtl|ltr)"\s*>$/;
+// Matches any block-level div opening alone on a line (for depth tracking).
+const DIV_ANY_OPEN_LINE_RE = /^<div\b[^>]*>\s*$/;
+const DIV_CLOSE_LINE_RE = /^<\/div>\s*$/;
+
 export class MarkdownToState {
+    public lastDocumentDir: 'ltr' | 'rtl' | null = null;
+
     constructor(private _options: IMarkdownToStateOptions = DEFAULT_OPTIONS) {}
 
     generate(markdown: string): TState[] {
+        const docMatch = FULL_DOC_DIR_RE.exec(markdown);
+        if (docMatch) {
+            this.lastDocumentDir = docMatch[1] as 'ltr' | 'rtl';
+            return this._convertMarkdownToState(docMatch[2]);
+        }
+        this.lastDocumentDir = null;
         return this._convertMarkdownToState(markdown);
     }
 
     private _convertMarkdownToState(markdown: string): TState[] {
+        // Pre-process: extract direction blocks before the marked lexer sees the text.
+        // Type-6 HTML blocks end at blank lines, so any blank line inside a
+        // <div dir="...">…</div> wrapper would split the html token mid-wrapper.
+        // By splitting on direction-block boundaries here we handle that correctly
+        // and recursively parse the inner content through the same pipeline.
+        const segments = this._splitOnDirectionBlocks(markdown);
+        const states: TState[] = [];
+
+        for (const segment of segments) {
+            if (segment.type === 'direction') {
+                const innerStates = this._convertMarkdownToState(segment.text);
+                const isEmptyParagraph = innerStates.length === 1
+                    && innerStates[0].name === 'paragraph'
+                    && (innerStates[0] as { text?: string }).text === '';
+                if (!isEmptyParagraph) {
+                    states.push({
+                        name: 'direction-block' as const,
+                        meta: { dir: segment.dir },
+                        children: innerStates,
+                    });
+                }
+            }
+            else {
+                states.push(...this._lexMarkdownSegment(segment.text));
+            }
+        }
+
+        return states.length ? states : [{ name: 'paragraph', text: '' }];
+    }
+
+    private _lexMarkdownSegment(markdown: string): TState[] {
         const {
             footnote = false,
             math = true,
@@ -59,9 +111,6 @@ export class MarkdownToState {
             frontMatter = true,
         } = this._options;
 
-        // markdownToState injects synthetic `block-end` markers (see the
-        // blockquote/list/list_item/footnote cases below) to pop the parent
-        // stack, so the working stream is wider than what `lexBlock` returns.
         const tokens: TBlockToken[] = lexBlock(markdown, {
             footnote,
             math,
@@ -81,7 +130,67 @@ export class MarkdownToState {
                 this._handleLeafToken(token, parentList, tokens, trimUnnecessaryCodeBlockEmptyLines);
         }
 
-        return states.length ? states : [{ name: 'paragraph', text: '' }];
+        return states;
+    }
+
+    // Split markdown on direction-block boundaries before lexing. Returns an
+    // array of segments: 'plain' for regular markdown and 'direction' for the
+    // content inside a `<div dir="...">…</div>` wrapper. Direction blocks are
+    // detected line-by-line so blank lines inside them are handled correctly
+    // (the marked lexer would otherwise end the HTML block at each blank line).
+    private _splitOnDirectionBlocks(markdown: string): Array<
+        { type: 'plain'; text: string }
+        | { type: 'direction'; dir: 'rtl' | 'ltr'; text: string }
+    > {
+        const lines = markdown.split('\n');
+        const segments: Array<
+            { type: 'plain'; text: string }
+            | { type: 'direction'; dir: 'rtl' | 'ltr'; text: string }
+        > = [];
+        const plainLines: string[] = [];
+        let i = 0;
+
+        while (i < lines.length) {
+            const openMatch = DIR_OPEN_LINE_RE.exec(lines[i]);
+            if (openMatch) {
+                if (plainLines.length > 0) {
+                    segments.push({ type: 'plain', text: plainLines.join('\n') });
+                    plainLines.splice(0, plainLines.length);
+                }
+                const dir = openMatch[1] as 'rtl' | 'ltr';
+                i++;
+                const innerLines: string[] = [];
+                let depth = 1;
+
+                while (i < lines.length && depth > 0) {
+                    const line = lines[i];
+                    // Track nesting depth: any block-level <div> opens a new level.
+                    if (DIV_ANY_OPEN_LINE_RE.test(line)) {
+                        depth++;
+                    }
+                    else if (DIV_CLOSE_LINE_RE.test(line)) {
+                        depth--;
+                        if (depth === 0) {
+                            i++;
+                            break;
+                        }
+                    }
+                    innerLines.push(line);
+                    i++;
+                }
+
+                segments.push({ type: 'direction', dir, text: innerLines.join('\n') });
+            }
+            else {
+                plainLines.push(lines[i]);
+                i++;
+            }
+        }
+
+        if (plainLines.length > 0)
+            segments.push({ type: 'plain', text: plainLines.join('\n') });
+
+        return segments.length ? segments : [{ type: 'plain', text: markdown }];
     }
 
     private _handleContainerToken(
@@ -335,14 +444,32 @@ export class MarkdownToState {
                         text,
                     };
                     parentList[0].push(state);
+                    break;
                 }
-                else {
-                    state = {
-                        name: 'html-block' as const,
-                        text,
-                    };
-                    parentList[0].push(state);
+
+                // BLOCK_DIR_ATTR_RE is no longer needed here: direction blocks are
+                // extracted in _splitOnDirectionBlocks before lexing, so they never
+                // reach this handler. Only the legacy style-attribute form remains.
+                const dirMatch = BLOCK_DIR_STYLE_RE.exec(text);
+                if (dirMatch) {
+                    const dir = dirMatch[1] as 'ltr' | 'rtl';
+                    const innerContent = dirMatch[2];
+                    const innerStates = this._convertMarkdownToState(innerContent);
+                    if (innerStates.length > 0 && !(innerStates.length === 1 && innerStates[0].name === 'paragraph' && (innerStates[0] as { text: string }).text === '')) {
+                        parentList[0].push({
+                            name: 'direction-block' as const,
+                            meta: { dir },
+                            children: innerStates,
+                        });
+                        break;
+                    }
                 }
+
+                state = {
+                    name: 'html-block' as const,
+                    text,
+                };
+                parentList[0].push(state);
                 break;
             }
 

@@ -130,7 +130,9 @@ export interface IpcSendChannels {
   'mt::open-file-by-window-id': [windowId: number, filePath: string, options?: unknown]
   'mt::open-keybindings-config': []
   'mt::open-setting-window': []
-  'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
+  'mt::rename': [
+    payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }
+  ]
   'mt::request-keybindings': []
   'mt::set-editor-format-menus-enabled': [windowId: number, enabled: boolean]
   'mt::response-export': [
@@ -169,6 +171,10 @@ export interface IpcSendChannels {
   'mt::set-user-preference': [partial: unknown]
   'mt::shell::open-external': [url: string]
   'mt::shell::show-item': [fullPath: string]
+  'mt::update-direction-menu': [
+    windowId: number,
+    state: { documentDir: 'rtl' | 'ltr' | null; blockDir: 'rtl' | 'ltr' | null }
+  ]
   'mt::update-format-menu': [windowId: number, state: Record<string, boolean>]
   'mt::update-line-ending-menu': [windowId: number, lineEnding: LineEnding]
   'mt::update-sidebar-menu': [windowId: number, visible: boolean]
@@ -231,6 +237,9 @@ export interface IpcMainEventChannels {
   'mt::editor-ask-file-save': []
   'mt::editor-ask-file-save-as': []
   'mt::editor-close-tab': [tabId?: string]
+  'mt::editor-direction-action': [
+    payload: { scope: 'document' | 'block'; dir: 'rtl' | 'ltr' | null }
+  ]
   'mt::editor-edit-action': [action: string]
   'mt::editor-format-action': [payload: { type: string }]
   'mt::editor-move-file': []

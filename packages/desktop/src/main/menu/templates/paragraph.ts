@@ -200,6 +200,61 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
         click(_menuItem, focusedWindow) {
           actions.frontMatter(focusedWindow as BrowserWindow | undefined)
         }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        id: 'documentDirectionMenuItem',
+        label: t('menu.paragraph.documentDirection'),
+        submenu: [
+          {
+            id: 'documentDirectionRTLMenuItem',
+            label: t('menu.paragraph.rtl'),
+            type: 'checkbox',
+            click(_menuItem, focusedWindow) {
+              actions.setDocumentDirectionRTL(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'documentDirectionLTRMenuItem',
+            label: t('menu.paragraph.ltr'),
+            type: 'checkbox',
+            click(_menuItem, focusedWindow) {
+              actions.setDocumentDirectionLTR(focusedWindow as BrowserWindow | undefined)
+            }
+          }
+        ]
+      },
+      {
+        id: 'blockDirectionMenuItem',
+        label: t('menu.paragraph.blockDirection'),
+        submenu: [
+          {
+            id: 'blockDirectionRTLMenuItem',
+            label: t('menu.paragraph.rtl'),
+            type: 'checkbox',
+            click(_menuItem, focusedWindow) {
+              actions.setBlockDirectionRTL(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'blockDirectionLTRMenuItem',
+            label: t('menu.paragraph.ltr'),
+            type: 'checkbox',
+            click(_menuItem, focusedWindow) {
+              actions.setBlockDirectionLTR(focusedWindow as BrowserWindow | undefined)
+            }
+          },
+          {
+            id: 'blockDirectionNoneMenuItem',
+            label: t('menu.paragraph.directionNone'),
+            type: 'checkbox',
+            click(_menuItem, focusedWindow) {
+              actions.setBlockDirectionNone(focusedWindow as BrowserWindow | undefined)
+            }
+          }
+        ]
       }
     ]
   }
