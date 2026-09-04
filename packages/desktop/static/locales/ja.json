@@ -80,6 +80,7 @@
       "minimize": "最小化",
       "zoomIn": "拡大",
       "zoomOut": "縮小",
+      "resetZoom": "ズームをリセット",
       "fullScreen": "フルスクリーン",
       "bringAllToFront": "すべてを前面に移動",
       "alwaysOnTop": "常に手前に表示"

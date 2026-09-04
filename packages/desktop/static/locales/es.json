@@ -80,6 +80,7 @@
       "minimize": "Minimizar",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
+      "resetZoom": "Restablecer zoom",
       "fullScreen": "Pantalla Completa",
       "bringAllToFront": "Traer al Frente",
       "alwaysOnTop": "Siempre Encima"

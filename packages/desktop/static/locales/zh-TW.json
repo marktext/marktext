@@ -80,6 +80,7 @@
       "minimize": "最小化",
       "zoomIn": "放大",
       "zoomOut": "縮小",
+      "resetZoom": "重置縮放",
       "fullScreen": "全螢幕",
       "bringAllToFront": "將全部移到前面",
       "alwaysOnTop": "總是在最上層"

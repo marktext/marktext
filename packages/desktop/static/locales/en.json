@@ -80,6 +80,7 @@
       "minimize": "Minimize",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom Out",
+      "resetZoom": "Reset Zoom",
       "fullScreen": "Full Screen",
       "bringAllToFront": "Bring All to Front",
       "alwaysOnTop": "Always on Top"
