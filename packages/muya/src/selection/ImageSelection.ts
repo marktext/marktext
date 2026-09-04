@@ -1,5 +1,6 @@
 import type Format from '../block/base/format';
 import type { Muya } from '../muya';
+import type { IImageInfo } from '../utils/image';
 import type Selection from './index';
 import type { IImageSelectionData } from './types';
 import { BLOCK_DOM_PROPERTY, CLASS_NAMES } from '../config';
@@ -78,6 +79,26 @@ class ImageSelection {
         }
     }
 
+    // `_handleClickInlineImage` preventDefaults the click, and Blink suppresses
+    // the dblclick event when a click's default is prevented, so no dblclick
+    // listener can fire on an image. Read the double click off the click's own
+    // detail count instead and reuse the `preview-image` event the host already
+    // subscribes to for Space-on-a-selected-image (#3202). Modifier-clicks are
+    // skipped: they already open the viewer through the format-click emit.
+    private _emitDblClickPreview(
+        event: MouseEvent,
+        img: HTMLElement,
+        imageInfo: IImageInfo,
+    ): void {
+        if (event.detail !== 2 || event.metaKey || event.ctrlKey)
+            return;
+
+        const tokenSrc = imageInfo.token.src || imageInfo.token.attrs.src || '';
+        const src = getImageSrc(tokenSrc).src || img.getAttribute('src') || '';
+        if (src)
+            this._muya.eventCenter.emit('preview-image', { data: src });
+    }
+
     private _handleClickInlineImage(event: Event, imageWrapper: HTMLElement) {
         event.preventDefault();
         event.stopPropagation();
@@ -124,6 +145,9 @@ class ImageSelection {
                     });
                 }
             }
+
+            if (event instanceof MouseEvent)
+                this._emitDblClickPreview(event, target, imageInfo);
 
             const rect = imageWrapper
                 .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)

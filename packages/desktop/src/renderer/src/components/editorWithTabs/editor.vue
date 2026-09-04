@@ -8,18 +8,25 @@
       ref="editorRef"
       class="editor-component"
     />
-    <div
-      v-show="imageViewerVisible"
-      class="image-viewer"
-    >
-      <span
-        class="icon-close"
-        @click="setImageViewerVisible(false)"
+    <!-- Teleported out of `.editor-wrapper`: that element carries
+         `isolation: isolate`, which traps this overlay's z-index inside the
+         editor's own stacking context, so muya's body-level floats (z-index
+         10000) painted over the full-screen preview even though `.image-viewer`
+         is 10001. -->
+    <Teleport to="body">
+      <div
+        v-show="imageViewerVisible"
+        class="image-viewer"
       >
-        <CloseIcon />
-      </span>
-      <div ref="imageViewerRef" />
-    </div>
+        <span
+          class="icon-close"
+          @click="setImageViewerVisible(false)"
+        >
+          <CloseIcon />
+        </span>
+        <div ref="imageViewerRef" />
+      </div>
+    </Teleport>
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"
@@ -457,6 +464,7 @@ class SimpleImageViewer {
   _onMousedown!: (e: MouseEvent) => void
   _onMousemove!: (e: MouseEvent) => void
   _onMouseup!: () => void
+  _onDblClick!: () => void
 
   constructor (container: HTMLElement, { url }: { url: string }) {
     this.container = container
@@ -488,7 +496,19 @@ class SimpleImageViewer {
     this._onWheel = (e: WheelEvent) => {
       e.preventDefault()
       const factor = e.deltaY < 0 ? 1.1 : 0.9
-      this.scale = Math.max(0.1, Math.min(10, this.scale * factor))
+      const next = Math.max(0.1, Math.min(10, this.scale * factor))
+      if (next === this.scale) return
+      // Zoom about the cursor, not the image centre, so the detail under the
+      // pointer stays under it. The rect is already the transformed box, and
+      // `translate(...) scale(...)` with a centre origin keeps that box's centre
+      // where the untransformed centre lands, so the cursor offset divided by the
+      // current scale is the point in untransformed image space.
+      const rect = this.img.getBoundingClientRect()
+      const offsetX = (e.clientX - (rect.left + rect.width / 2)) / this.scale
+      const offsetY = (e.clientY - (rect.top + rect.height / 2)) / this.scale
+      this.translateX += (this.scale - next) * offsetX
+      this.translateY += (this.scale - next) * offsetY
+      this.scale = next
       this._updateTransform()
     }
     this._onMousedown = (e: MouseEvent) => {
@@ -509,8 +529,17 @@ class SimpleImageViewer {
       this.isDragging = false
       this.container.style.cursor = 'grab'
     }
+    // scale 1 is the fitted view: the img is constrained to 90vw/90vh, so a
+    // double click (the same gesture that opens the preview) returns to it.
+    this._onDblClick = () => {
+      this.scale = 1
+      this.translateX = 0
+      this.translateY = 0
+      this._updateTransform()
+    }
     this.container.addEventListener('wheel', this._onWheel, { passive: false })
     this.container.addEventListener('mousedown', this._onMousedown)
+    this.container.addEventListener('dblclick', this._onDblClick)
     document.addEventListener('mousemove', this._onMousemove)
     document.addEventListener('mouseup', this._onMouseup)
   }
@@ -518,6 +547,7 @@ class SimpleImageViewer {
   destroy () {
     this.container.removeEventListener('wheel', this._onWheel)
     this.container.removeEventListener('mousedown', this._onMousedown)
+    this.container.removeEventListener('dblclick', this._onDblClick)
     document.removeEventListener('mousemove', this._onMousemove)
     document.removeEventListener('mouseup', this._onMouseup)
     this.container.innerHTML = ''
