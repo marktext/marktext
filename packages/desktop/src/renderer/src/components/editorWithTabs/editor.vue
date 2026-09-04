@@ -8,18 +8,25 @@
       ref="editorRef"
       class="editor-component"
     />
-    <div
-      v-show="imageViewerVisible"
-      class="image-viewer"
-    >
-      <span
-        class="icon-close"
-        @click="setImageViewerVisible(false)"
+    <!-- Teleported out of `.editor-wrapper`: that element carries
+         `isolation: isolate`, which traps this overlay's z-index inside the
+         editor's own stacking context, so muya's body-level floats (z-index
+         10000) painted over the full-screen preview even though `.image-viewer`
+         is 10001. -->
+    <Teleport to="body">
+      <div
+        v-show="imageViewerVisible"
+        class="image-viewer"
       >
-        <CloseIcon />
-      </span>
-      <div ref="imageViewerRef" />
-    </div>
+        <span
+          class="icon-close"
+          @click="setImageViewerVisible(false)"
+        >
+          <CloseIcon />
+        </span>
+        <div ref="imageViewerRef" />
+      </div>
+    </Teleport>
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"

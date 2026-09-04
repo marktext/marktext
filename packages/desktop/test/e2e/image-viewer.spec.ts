@@ -291,4 +291,37 @@ test.describe('SimpleImageViewer (Space / double-click to preview, Esc close)', 
 
     await expectNoRendererErrors(app)
   })
+
+  // Selecting an image floats muya's image toolbar, which baseFloat appends to
+  // document.body at z-index 10000. `.image-viewer` is 10001 but lived inside
+  // `.editor-wrapper`, whose `isolation: isolate` traps that z-index in the
+  // editor's own stacking context, so the toolbar painted over the full-screen
+  // preview. The overlay is teleported to the body to escape it.
+  test('the preview overlay paints above the editor image toolbar', async() => {
+    await selectImage(page)
+    await page.keyboard.press('Space')
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(true)
+    await expect.poll(() => viewerImgCount(page), { timeout: 5000 }).toBeGreaterThanOrEqual(1)
+
+    const toolbarCentre = await page.evaluate(() => {
+      const toolbar = document.querySelector('.mu-image-toolbar')
+      if (!toolbar) return null
+      const r = toolbar.getBoundingClientRect()
+      return r.width && r.height ? { x: r.x + r.width / 2, y: r.y + r.height / 2 } : null
+    })
+    // Guard against a vacuous pass: the overlap is only exercised while the
+    // toolbar is actually on screen.
+    if (!toolbarCentre) throw new Error('the image toolbar is not on screen')
+
+    const viewerOnTop = await page.evaluate(
+      ([x, y]) => !!document.elementFromPoint(x, y)?.closest('.image-viewer'),
+      [toolbarCentre.x, toolbarCentre.y] as [number, number]
+    )
+    expect(viewerOnTop).toBe(true)
+
+    await page.keyboard.press('Escape')
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
+
+    await expectNoRendererErrors(app)
+  })
 })
