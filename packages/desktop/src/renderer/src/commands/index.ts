@@ -624,6 +624,11 @@ const commands: CommandDescriptor[] = [
         id: 'view.text-direction-rtl',
         description: 'Right to Left',
         value: 'rtl'
+      },
+      {
+        id: 'view.text-direction-auto',
+        description: 'Auto (detect per paragraph)',
+        value: 'auto'
       }
     ],
     executeSubcommand: async(_, value) => {

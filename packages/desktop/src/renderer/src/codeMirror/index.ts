@@ -178,7 +178,11 @@ export const setMode = (doc: CodeMirrorDoc, text: string): Promise<MatchedMode> 
 }
 
 export const setTextDirection = (cm: CodeMirrorInstance, textDirection: string): void => {
-  cm.setOption('direction', textDirection as 'ltr' | 'rtl')
+  // CodeMirror 5 only understands 'ltr'/'rtl'. The 'auto' preference is a
+  // WYSIWYG per-paragraph feature; the raw-markdown source view falls back to
+  // LTR (bidi runs still render correctly, only alignment stays left).
+  const dir = textDirection === 'rtl' ? 'rtl' : 'ltr'
+  cm.setOption('direction', dir)
 }
 
 export default codeMirror

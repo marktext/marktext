@@ -217,6 +217,33 @@ export const setEditorWidth = (value: string): void => {
   styleEle.innerHTML = result
 }
 
+// Per-paragraph automatic text direction (textDirection === 'auto'). The
+// wrapper carries `dir="auto"`; `unicode-bidi: plaintext` then makes every
+// prose content block derive its own base direction from its first strong
+// character (Persian/Arabic → RTL, Latin → LTR) and align accordingly. Code,
+// math, and frontmatter stay LTR so their ASCII layout is never reordered.
+// Chromium-only behavior, which is fine since MarkText ships on Electron.
+export const setEditorDirectionStyle = (direction: string): void => {
+  const EDITOR_DIRECTION_STYLE_ID = 'editor-text-direction'
+  let styleEle = document.querySelector(
+    `#${EDITOR_DIRECTION_STYLE_ID}`
+  ) as HTMLStyleElement | null
+  if (!styleEle) {
+    styleEle = document.createElement('style')
+    styleEle.id = EDITOR_DIRECTION_STYLE_ID
+    document.head.appendChild(styleEle)
+  }
+
+  styleEle.innerHTML =
+    direction === 'auto'
+      ? `.editor-wrapper[dir="auto"] .mu-content { unicode-bidi: plaintext; }
+.editor-wrapper[dir="auto"] .mu-code-block .mu-content,
+.editor-wrapper[dir="auto"] .mu-math-container .mu-content,
+.editor-wrapper[dir="auto"] .mu-frontmatter .mu-content,
+.editor-wrapper[dir="auto"] .mu-html-container .mu-content { unicode-bidi: normal; }`
+      : ''
+}
+
 export interface CommonStyleOptions {
   codeFontFamily: string
   codeFontSize: number | string

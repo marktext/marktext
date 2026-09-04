@@ -126,7 +126,7 @@ import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
 import { resolveTocHeadingElement } from '@/util/tocNavigation'
-import { addCommonStyle, setEditorWidth } from '@/util/theme'
+import { addCommonStyle, setEditorWidth, setEditorDirectionStyle } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
@@ -583,6 +583,16 @@ watch(editorFontFamily, (value, oldValue) => {
     editor.value.setOptions({ editorFontFamily: resolveEditorFont(value) })
   }
 })
+
+// Toggle the per-paragraph auto-direction stylesheet when the setting changes.
+// The `dir` attribute on `.editor-wrapper` is bound in the template; this only
+// (de)activates the `unicode-bidi: plaintext` rules that key off `dir="auto"`.
+watch(
+  () => props.textDirection,
+  (value) => {
+    setEditorDirectionStyle(value)
+  }
+)
 
 watch(preferLooseListItem, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1704,6 +1714,7 @@ const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
 onMounted(() => {
   printer = new Printer()
+  setEditorDirectionStyle(props.textDirection)
   const ele = editorRef.value
   if (!ele) return
 

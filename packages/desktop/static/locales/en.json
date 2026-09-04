@@ -552,7 +552,8 @@
         "textDirection": {
           "title": "Text Direction",
           "ltr": "Left to Right",
-          "rtl": "Right to Left"
+          "rtl": "Right to Left",
+          "auto": "Auto (detect per paragraph)"
         },
         "hideQuickInsertHint": "Hide quick insert hint",
         "hideLinkPopup": "Hide link popup",
