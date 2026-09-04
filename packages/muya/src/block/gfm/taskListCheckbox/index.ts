@@ -174,6 +174,11 @@ class TaskListCheckbox extends TreeNode {
                 this._checked = checked;
                 this.update(checked, 'user');
             }
+
+            // The control is not editable, so clicking it does not move the
+            // text selection. Seat the caret in this item before the desktop's
+            // selection-follow scroll can reveal a stale off-screen cursor.
+            (this.parent as TaskListItem).firstContentInDescendant()?.setCursor(0, 0, true);
         };
 
         const eventIds = [

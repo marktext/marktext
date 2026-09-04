@@ -85,6 +85,7 @@
       "minimize": "Minimieren",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern",
+      "resetZoom": "Zoom zurücksetzen",
       "fullScreen": "Vollbild",
       "bringAllToFront": "Alle nach vorne bringen",
       "alwaysOnTop": "Immer im Vordergrund"
@@ -246,7 +247,9 @@
       "openFolder": "Ordner öffnen"
     },
     "toc": {
-      "title": "Inhaltsverzeichnis"
+      "title": "Inhaltsverzeichnis",
+      "expandAll": "Alle ausklappen",
+      "collapseAll": "Alle einklappen"
     },
     "icons": {
       "files": "Dateien",
@@ -502,6 +505,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }

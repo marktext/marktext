@@ -85,6 +85,7 @@
       "minimize": "Minimizar",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
+      "resetZoom": "Restablecer zoom",
       "fullScreen": "Pantalla Completa",
       "bringAllToFront": "Traer al Frente",
       "alwaysOnTop": "Siempre Encima"
@@ -246,7 +247,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
-      "title": "Tabla de Contenidos"
+      "title": "Tabla de Contenidos",
+      "expandAll": "Expandir todo",
+      "collapseAll": "Contraer todo"
     },
     "icons": {
       "files": "Archivos",
@@ -502,6 +505,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -806,7 +810,7 @@
       "looseListItem": "Elemento de Lista Suelto",
       "paragraph": "Párrafo",
       "horizontalLine": "Línea Horizontal",
-      "frontMatter": "Metadatos",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Restablecer Párrafo",
       "mathBlock": "Bloque matemático",
       "horizontalRule": "Línea horizontal",

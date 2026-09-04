@@ -108,12 +108,13 @@ Operating system: ${getOSInformation()}`
 }
 
 const setupExceptionHandler = (): void => {
-  // Suppress EPIPE errors when electron-log writes to a closed pipe.
-  const ignoreEpipe = (err: NodeJS.ErrnoException): void => {
-    if (err.code !== 'EPIPE') throw err
+  // macOS reports EIO for revoked terminal descriptors; other platforms
+  // commonly report EPIPE for the same closed-output condition.
+  const ignoreBrokenOutputPipe = (err: NodeJS.ErrnoException): void => {
+    if (err.code !== 'EPIPE' && err.code !== 'EIO') throw err
   }
-  process.stdout.on('error', ignoreEpipe)
-  process.stderr.on('error', ignoreEpipe)
+  process.stdout.on('error', ignoreBrokenOutputPipe)
+  process.stderr.on('error', ignoreBrokenOutputPipe)
 
   // main process error handler
   process.on('uncaughtException', (error: Error) => {

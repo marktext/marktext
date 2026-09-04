@@ -969,8 +969,13 @@ pre.mu-active.mu-fenced-code::after {
     content: attr(empty-hint);
 }
 
+/* Columns size to their content, like GitHub (#4894). The old blanket
+   `min-width: 10em` inflated every column's minimum to ~160px, wasting
+   space on narrow columns and squashing long ones into a sliver. Keep a
+   small floor only so an empty cell still gives the caret a visible,
+   clickable slot. */
 .mu-table-cell-content {
-    min-width: 10em;
+    min-width: 2em;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`

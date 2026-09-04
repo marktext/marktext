@@ -85,6 +85,7 @@
       "minimize": "Simge Durumuna Küçült",
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
+      "resetZoom": "Yakınlaştırmayı Sıfırla",
       "fullScreen": "Tam Ekran",
       "bringAllToFront": "Tümünü Öne Getir",
       "alwaysOnTop": "Her Zaman Üstte"
@@ -246,7 +247,9 @@
       "openFolder": "Klasör Aç"
     },
     "toc": {
-      "title": "İçindekiler"
+      "title": "İçindekiler",
+      "expandAll": "Tümünü genişlet",
+      "collapseAll": "Tümünü daralt"
     },
     "icons": {
       "files": "Dosyalar",
@@ -502,6 +505,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }

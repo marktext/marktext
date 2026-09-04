@@ -85,6 +85,7 @@
       "minimize": "Minimize",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom Out",
+      "resetZoom": "Reset Zoom",
       "fullScreen": "Full Screen",
       "bringAllToFront": "Bring All to Front",
       "alwaysOnTop": "Always on Top"
@@ -246,7 +247,9 @@
       "openFolder": "Open Folder"
     },
     "toc": {
-      "title": "Table Of Contents"
+      "title": "Table Of Contents",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all"
     },
     "icons": {
       "files": "Files",
@@ -502,6 +505,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
