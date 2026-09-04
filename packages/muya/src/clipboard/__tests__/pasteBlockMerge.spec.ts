@@ -118,6 +118,17 @@ describe('paste — paragraph merges inline into a non-empty text block (A3)', (
     });
 });
 
+describe('paste — same-line display math (#4904)', () => {
+    it('renders pasted double-dollar math without rewriting its markdown', async () => {
+        const source = '$$ E=MC^2 $$';
+        const muya = bootMuya('');
+        const block = contentBlocks(muya)[0];
+
+        expect(await paste(muya, block, 0, 0, source)).toBe(`${source}\n`);
+        expect(muya.domNode.querySelector('.katex-display')).not.toBeNull();
+    });
+});
+
 describe('paste — multi-line paragraph into a heading keeps only the first line (A6)', () => {
     it('only the first soft-line lands in the heading, the rest become a paragraph', async () => {
         const muya = bootMuya('# Title\n');

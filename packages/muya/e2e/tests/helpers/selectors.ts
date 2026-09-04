@@ -47,6 +47,7 @@ export const editor = {
     // `$...$` token (KaTeX preview shown, source collapsed); the class drops
     // when the caret is inside, revealing the editable `.mu-math-text` source.
     inlineMath: '.mu-math',
+    displayMath: '.mu-math.mu-display-math',
     inlineMathText: '.mu-math > .mu-math-text',
     katex: '.katex',
     diagramBlock: '.mu-diagram-block',

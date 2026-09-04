@@ -65,6 +65,55 @@ export const gfmRules = {
 
 export type GfmRules = typeof gfmRules;
 
+/**
+ * Single-line `$$...$$` display math. Semantically this is
+ * `/^(\$\$)(?!\$)((?:(?!\1)[^\\\n]|\\.)+)(\\*)\1/`, but that regex backtracks
+ * quadratically on `$$` followed by a long backslash run (the `\\.` content
+ * pairs overlap the `(\\*)` trailing group), which can freeze tokenization
+ * for seconds on a crafted line. This scanner is the linear-time equivalent:
+ * content ends at the first unescaped same-line `$$`, a backslash always
+ * escapes the following character (the regex's greedy pair-first behavior,
+ * so an escaped `$` extends the content past that closer), and a returned
+ * match therefore always has an unescaped closer — the escape-parity group
+ * (`to[3]`) is always empty and passes the lexer's `isLengthEven` check.
+ */
+export function execInlineDisplayMath(src: string): RegExpExecArray | null {
+    if (!src.startsWith('$$') || src[2] === '$')
+        return null;
+
+    const { length } = src;
+    let i = 2;
+    while (i < length) {
+        const char = src[i];
+        if (char === '\n')
+            return null;
+
+        if (char === '$' && src[i + 1] === '$') {
+            const content = src.slice(2, i);
+            const match = [
+                `$$${content}$$`,
+                '$$',
+                content,
+                '',
+            ] as string[] as RegExpExecArray;
+            match.index = 0;
+            match.input = src;
+            return match;
+        }
+
+        if (char === '\\') {
+            if (i + 1 >= length || src[i + 1] === '\n')
+                return null;
+            i += 2;
+        }
+        else {
+            i += 1;
+        }
+    }
+
+    return null;
+}
+
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
     // eslint-disable-next-line regexp/no-super-linear-backtracking
