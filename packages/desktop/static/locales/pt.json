@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "Direção do Texto",
           "ltr": "Esquerda para Direita",
-          "rtl": "Direita para Esquerda"
+          "rtl": "Direita para Esquerda",
+          "deprecation": "A direção do texto agora é configurada por documento através do menu Parágrafo."
         },
         "hideQuickInsertHint": "Ocultar dica de inserção rápida",
         "hideLinkPopup": "Ocultar popup de link",

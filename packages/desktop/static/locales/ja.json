@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "テキスト方向",
           "ltr": "左から右",
-          "rtl": "右から左"
+          "rtl": "右から左",
+          "deprecation": "テキストの方向を、段落メニューからドキュメントごとに設定できるようになりました。"
         },
         "hideQuickInsertHint": "クイック挿入ヒントを隠す",
         "hideLinkPopup": "リンクポップアップを隠す",

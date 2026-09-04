@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "文字方向",
           "ltr": "從左到右",
-          "rtl": "從右到左"
+          "rtl": "從右到左",
+          "deprecation": "現在可以透過「段落」選單為每個文件個別設定文字方向。"
         },
         "hideQuickInsertHint": "隱藏快速插入提示",
         "hideLinkPopup": "隱藏連結彈出視窗",

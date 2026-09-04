@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "Textrichtung",
           "ltr": "Links nach rechts",
-          "rtl": "Rechts nach links"
+          "rtl": "Rechts nach links",
+          "deprecation": "Die Textrichtung wird jetzt für jedes Dokument über das Absatzmenü festgelegt."
         },
         "hideQuickInsertHint": "Schnelleinfügung-Hinweis ausblenden",
         "hideLinkPopup": "Link-Popup ausblenden",

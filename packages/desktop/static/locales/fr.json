@@ -73,7 +73,7 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Métadonnées",
+      "frontMatter": "Front Matter",
       "documentDirection": "Direction du document",
       "blockDirection": "Direction du bloc",
       "rtl": "De droite à gauche (RTL)",
@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "Direction du texte",
           "ltr": "Gauche à droite",
-          "rtl": "Droite à gauche"
+          "rtl": "Droite à gauche",
+          "deprecation": "La direction du texte est désormais configurée pour chaque document via le menu Paragraphe."
         },
         "hideQuickInsertHint": "Masquer l'indice d'insertion rapide",
         "hideLinkPopup": "Masquer la popup de lien",

@@ -73,7 +73,7 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Metadatos",
+      "frontMatter": "Front Matter",
       "documentDirection": "Dirección del documento",
       "blockDirection": "Dirección del bloque",
       "rtl": "De derecha a izquierda (RTL)",
@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "Dirección del Texto",
           "ltr": "Izquierda a Derecha",
-          "rtl": "Derecha a Izquierda"
+          "rtl": "Derecha a Izquierda",
+          "deprecation": "La dirección del texto ahora se configura para cada documento desde el menú Párrafo."
         },
         "hideQuickInsertHint": "Ocultar sugerencia de inserción rápida",
         "hideLinkPopup": "Ocultar popup de enlace",

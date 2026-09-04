@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "텍스트 방향",
           "ltr": "왼쪽에서 오른쪽",
-          "rtl": "오른쪽에서 왼쪽"
+          "rtl": "오른쪽에서 왼쪽",
+          "deprecation": "이제 문서별로 문단 메뉴에서 텍스트 방향을 설정할 수 있습니다."
         },
         "hideQuickInsertHint": "빠른 삽입 힌트 숨기기",
         "hideLinkPopup": "링크 팝업 숨기기",

@@ -558,7 +558,8 @@
         "textDirection": {
           "title": "Metin Yönü",
           "ltr": "Soldan Sağa",
-          "rtl": "Sağdan Sola"
+          "rtl": "Sağdan Sola",
+          "deprecation": "Metin yönü artık Paragraf menüsünden belge bazında yapılandırılıyor."
         },
         "hideQuickInsertHint": "Hızlı ekleme ipucunu gizle",
         "hideLinkPopup": "Bağlantı açılır penceresini gizle",
