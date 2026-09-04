@@ -24,9 +24,30 @@
 const { execSync } = require('child_process')
 const path = require('path')
 const fs = require('fs')
+const os = require('os')
 
 const repoRoot = path.join(__dirname, '..')
 const desktopRoot = path.join(repoRoot, 'packages', 'desktop')
+
+// ── 0. Verify system dependencies (Linux only) ─────────────────────────────
+if (os.platform() === 'linux') {
+  const requiredPkgs = ['libx11-dev', 'libxkbfile-dev', 'libsecret-1-dev', 'pkg-config']
+  const missing = requiredPkgs.filter((pkg) => {
+    try {
+      execSync(`dpkg -s ${pkg}`, { stdio: 'ignore' })
+      return false
+    } catch {
+      return true
+    }
+  })
+  if (missing.length > 0) {
+    console.error('\n\x1b[31m✖ Missing system dependencies:\x1b[0m', missing.join(', '))
+    console.error('\n  Install them with:\n')
+    console.error(`    sudo apt-get install -y ${missing.join(' ')}\n`)
+    console.error('  Then re-run: pnpm install\n')
+    process.exit(1)
+  }
+}
 
 function run(cmd, opts = {}) {
   const { cwd = repoRoot, env = {} } = opts
@@ -62,7 +83,6 @@ const electronInstall = path.join(desktopRoot, 'node_modules', 'electron', 'inst
 if (!fs.existsSync(electronInstall)) {
   console.error('electron/install.js not found — skipping Electron download')
 } else {
-  const os = require('os')
   const plat =
     process.env.ELECTRON_INSTALL_PLATFORM || process.env.npm_config_platform || os.platform()
   const platformBinary =
