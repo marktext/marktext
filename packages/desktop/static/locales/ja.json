@@ -117,6 +117,7 @@
       "sourceCodeMode": "ソースコードモード",
       "typewriterMode": "タイプライターモード",
       "focusMode": "フォーカスモード",
+      "showLineNumbers": "Show Line Numbers",
       "toggleTableOfContents": "目次の切り替え",
       "reloadImages": "画像の再読み込み",
       "showDeveloperTools": "開発者ツールの表示",
@@ -521,7 +522,16 @@
         "fontSize": "フォントサイズ",
         "fontFamily": "フォントファミリー",
         "showLineNumbers": "行番号を表示",
-        "removeEmptyLines": "空行を削除"
+        "removeEmptyLines": "空行を削除",
+        "sourceLineNumbers": {
+          "title": "Source code line numbers",
+          "off": "Off",
+          "everyLine": "Every line",
+          "every5": "Every 5 lines",
+          "every10": "Every 10 lines",
+          "every20": "Every 20 lines",
+          "every50": "Every 50 lines"
+        }
       },
       "writingBehavior": {
         "title": "書き込み動作",

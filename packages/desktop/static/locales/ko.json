@@ -117,6 +117,7 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
+      "showLineNumbers": "Show Line Numbers",
       "toggleTableOfContents": "목차 토글",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
@@ -521,7 +522,16 @@
         "fontSize": "글꼴 크기",
         "fontFamily": "글꼴 패밀리",
         "showLineNumbers": "줄 번호 보기",
-        "removeEmptyLines": "빈 줄 제거"
+        "removeEmptyLines": "빈 줄 제거",
+        "sourceLineNumbers": {
+          "title": "Source code line numbers",
+          "off": "Off",
+          "everyLine": "Every line",
+          "every5": "Every 5 lines",
+          "every10": "Every 10 lines",
+          "every20": "Every 20 lines",
+          "every50": "Every 50 lines"
+        }
       },
       "writingBehavior": {
         "title": "작성 동작",

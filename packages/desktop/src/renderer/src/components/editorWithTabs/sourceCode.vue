@@ -10,6 +10,7 @@ import { ref, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
+import { makeLineNumberFormatter } from '@/util/sourceLineNumbers'
 import { storeToRefs } from 'pinia'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
@@ -43,7 +44,7 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode } = storeToRefs(preferencesStore)
+const { theme, sourceCode, sourceLineNumberFrequency } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -59,6 +60,15 @@ watch(
     }
   }
 )
+
+watch(sourceLineNumberFrequency, (freq) => {
+  if (!editor.value) return
+  editor.value.setOption('lineNumbers', freq !== 0)
+  editor.value.setOption('lineNumberFormatter', makeLineNumberFormatter(freq))
+  // Force the gutter to repaint; toggling `lineNumbers` alone doesn't redraw
+  // existing rows.
+  editor.value.refresh()
+})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -335,19 +345,13 @@ onMounted(() => {
   const container = sourceCodeContainer.value
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
-    lineNumbers: true,
+    lineNumbers: sourceLineNumberFrequency.value !== 0,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
     direction: textDirection,
     viewportMargin: Infinity,
-    lineNumberFormatter (line: number) {
-      if (line % 10 === 0 || line === 1) {
-        return line
-      } else {
-        return ''
-      }
-    }
+    lineNumberFormatter: makeLineNumberFormatter(sourceLineNumberFrequency.value)
   }
 
   if (railscastsThemes.includes(theme.value)) {

@@ -117,6 +117,7 @@
       "sourceCodeMode": "Kaynak Kod Modu",
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
+      "showLineNumbers": "Show Line Numbers",
       "toggleTableOfContents": "İçindekileri Aç/Kapat",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
@@ -521,7 +522,16 @@
         "fontSize": "Yazı tipi boyutu",
         "fontFamily": "Yazı tipi ailesi",
         "showLineNumbers": "Satır numaralarını göster",
-        "removeEmptyLines": "Boş satırları kaldır"
+        "removeEmptyLines": "Boş satırları kaldır",
+        "sourceLineNumbers": {
+          "title": "Source code line numbers",
+          "off": "Off",
+          "everyLine": "Every line",
+          "every5": "Every 5 lines",
+          "every10": "Every 10 lines",
+          "every20": "Every 20 lines",
+          "every50": "Every 50 lines"
+        }
       },
       "writingBehavior": {
         "title": "Yazma Davranışı",
