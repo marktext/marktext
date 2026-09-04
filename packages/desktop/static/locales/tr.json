@@ -184,6 +184,7 @@
     "copyAsRich": "Zengin Metin Olarak Kopyala",
     "copyAsHtml": "HTML Olarak Kopyala",
     "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
+    "lookUp": "\"{selection}\" Ara",
     "insertParagraphBefore": "Önüne Paragraf Ekle",
     "insertParagraphAfter": "Arkasına Paragraf Ekle",
     "spelling": "Yazım...",

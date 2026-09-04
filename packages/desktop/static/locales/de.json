@@ -184,6 +184,7 @@
     "copyAsRich": "Als Rich Text kopieren",
     "copyAsHtml": "Als HTML kopieren",
     "pasteAsPlainText": "Als reinen Text einfügen",
+    "lookUp": "\"{selection}\" nachschlagen",
     "insertParagraphBefore": "Absatz davor einfügen",
     "insertParagraphAfter": "Absatz danach einfügen",
     "spelling": "Rechtschreibung...",

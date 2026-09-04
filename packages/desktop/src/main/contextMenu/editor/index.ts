@@ -6,12 +6,14 @@ import {
   getCopyAsRich,
   getCopyAsHtml,
   getPasteAsPlainText,
+  getLookUp,
   SEPARATOR,
   getInsertBefore,
   getInsertAfter
 } from './menuItems'
 import spellcheckMenuBuilder from './spellcheck'
 import { t } from '../../i18n'
+import { isOsx } from '../../config'
 
 // Electron's ContextMenuParams shape we rely on. Kept narrow — the renderer
 // supplies the full surface so we only annotate the fields we use.
@@ -88,6 +90,11 @@ export const showEditorContextMenu = (
     const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
     const menu = new Menu()
+    if (isOsx && hasText) {
+      menu.append(new MenuItem(getLookUp(selectionText)))
+      menu.append(new MenuItem(SEPARATOR))
+    }
+
     if (isSpellcheckerEnabled) {
       const spellingSubmenu = spellcheckMenuBuilder(
         isMisspelled,
@@ -104,11 +111,16 @@ export const showEditorContextMenu = (
     }
 
     const contextItems = getContextItems()
-    const copyItems = [contextItems[3], contextItems[4], contextItems[8], contextItems[7]] // CUT, COPY, COPY_AS_HTML, COPY_AS_RICH
-    copyItems.forEach((item) => {
-      if (item) item.enabled = canCopy
-    })
+    const copyItemIds = new Set([
+      'cutMenuItem',
+      'copyMenuItem',
+      'copyAsHtmlMenuItem',
+      'copyAsRichMenuItem'
+    ])
     contextItems.forEach((item) => {
+      if (item.id && copyItemIds.has(item.id)) {
+        item.enabled = canCopy
+      }
       menu.append(new MenuItem(item))
     })
     // The original JS passes an array literal here, which Electron treats as
