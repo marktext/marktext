@@ -117,6 +117,7 @@
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
       "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
+      "toggleLineNumbers": "Regelnummers in-/uitschakelen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
       "reloadWindow": "Venster herladen"

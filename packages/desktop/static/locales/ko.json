@@ -117,6 +117,7 @@
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
       "toggleTableOfContents": "목차 토글",
+      "toggleLineNumbers": "줄 번호 토글",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",
       "reloadWindow": "창 새로고침"

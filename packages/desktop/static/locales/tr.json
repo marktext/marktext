@@ -117,6 +117,7 @@
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
       "toggleTableOfContents": "İçindekileri Aç/Kapat",
+      "toggleLineNumbers": "Satır numaralarını aç/kapat",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",
       "reloadWindow": "Pencereyi Yeniden Yükle"

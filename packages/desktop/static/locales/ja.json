@@ -117,6 +117,7 @@
       "typewriterMode": "タイプライターモード",
       "focusMode": "フォーカスモード",
       "toggleTableOfContents": "目次の切り替え",
+      "toggleLineNumbers": "行番号を切り替え",
       "reloadImages": "画像の再読み込み",
       "showDeveloperTools": "開発者ツールの表示",
       "reloadWindow": "ウィンドウの再読み込み"

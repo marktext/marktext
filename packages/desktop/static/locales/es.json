@@ -117,6 +117,7 @@
       "typewriterMode": "Modo Máquina de Escribir",
       "focusMode": "Modo Enfoque",
       "toggleTableOfContents": "Alternar Tabla de Contenidos",
+      "toggleLineNumbers": "Alternar números de línea",
       "reloadImages": "Recargar Imágenes",
       "showDeveloperTools": "Mostrar Herramientas de Desarrollador",
       "reloadWindow": "Recargar Ventana"

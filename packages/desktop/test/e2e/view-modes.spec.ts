@@ -155,6 +155,37 @@ test.describe('View modes', () => {
     await clickMenuById(app, 'focusModeMenuItem')
     expect((await waitForChecked(app, 'focusModeMenuItem', false)).checked).toBe(false)
   })
+
+  test('line-number toggle follows the TOC item and controls every source line', async() => {
+    const viewItemOrder = await app.evaluate(({ Menu }) => {
+      const items = Menu.getApplicationMenu()
+        ?.items.flatMap((item) => item.submenu?.items ?? [])
+        .map((item) => item.id)
+      return {
+        toc: items?.indexOf('tocMenuItem') ?? -1,
+        lineNumbers: items?.indexOf('lineNumbersMenuItem') ?? -1
+      }
+    })
+    expect(viewItemOrder.lineNumbers).toBe(viewItemOrder.toc + 1)
+
+    await enterSourceMode(page, app)
+    const renderedLineNumbers = page.locator('.CodeMirror-code .CodeMirror-linenumber')
+    await expect
+      .poll(() => renderedLineNumbers.allTextContents())
+      .toEqual(['1', '2', '3', '4'])
+
+    await clickMenuById(app, 'lineNumbersMenuItem')
+    expect((await waitForChecked(app, 'lineNumbersMenuItem', false)).checked).toBe(false)
+    await expect(renderedLineNumbers).toHaveCount(0)
+
+    await clickMenuById(app, 'lineNumbersMenuItem')
+    expect((await waitForChecked(app, 'lineNumbersMenuItem', true)).checked).toBe(true)
+    await expect
+      .poll(() => renderedLineNumbers.allTextContents())
+      .toEqual(['1', '2', '3', '4'])
+
+    await exitSourceMode(page, app)
+  })
 })
 
 // Click into a top-level block the way parity-pg1-menu-state.spec.ts:41 does —

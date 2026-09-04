@@ -51,6 +51,7 @@ test.describe('Application menu wiring', () => {
       'sideBarMenuItem',
       'tabBarMenuItem',
       'tocMenuItem',
+      'lineNumbersMenuItem',
       'autoSaveMenuItem',
       'dark',
       'light',
