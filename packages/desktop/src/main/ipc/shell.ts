@@ -56,9 +56,15 @@ export const registerShellHandlers = (): void => {
         return ''
       }
       if (process.platform === 'win32') {
-        const raw = clipboard.read('FileNameW')
-        const filePath = raw ? raw.replace(new RegExp(String.fromCharCode(0), 'g'), '') : ''
-        return typeof filePath === 'string' ? filePath : ''
+        // `FileNameW` is a UTF-16LE, NUL-separated list of file paths.
+        // `clipboard.read(format)` decodes the raw bytes as UTF-8, which garbles
+        // non-ASCII (e.g. Chinese) characters; read the Buffer and decode it as
+        // UTF-16LE instead, then take the first non-empty entry.
+        const buffer = clipboard.readBuffer('FileNameW')
+        if (buffer.length > 0) {
+          return buffer.toString('utf16le').split('\u0000').find(p => p.length > 0) ?? ''
+        }
+        return ''
       }
       return ''
     } catch (err) {
