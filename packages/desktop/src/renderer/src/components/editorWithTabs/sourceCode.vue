@@ -43,7 +43,7 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode } = storeToRefs(preferencesStore)
+const { theme, sourceCode, splitView } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -187,7 +187,7 @@ const handleInvalidateImageCache = () => {
 }
 
 const handleSelectAll = () => {
-  if (!sourceCode.value) {
+  if (!sourceCode.value && !splitView.value) {
     return
   }
 
@@ -206,7 +206,7 @@ const handleSelectAll = () => {
 }
 
 const handleUndo = () => {
-  if (!sourceCode.value) {
+  if (!sourceCode.value && !splitView.value) {
     return
   }
 
@@ -216,7 +216,7 @@ const handleUndo = () => {
 }
 
 const handleRedo = () => {
-  if (!sourceCode.value) {
+  if (!sourceCode.value && !splitView.value) {
     return
   }
 
@@ -416,7 +416,7 @@ onBeforeUnmount(() => {
 
 <style>
 .source-code {
-  height: calc(100vh - var(--titleBarHeight));
+  height: 100%;
   box-sizing: border-box;
   overflow: auto;
 }

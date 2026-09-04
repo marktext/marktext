@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
+    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode || splitView }]"
     :dir="textDirection"
   >
     <div
@@ -72,7 +72,7 @@
         </div>
       </template>
     </el-dialog>
-    <editor-search v-if="!sourceCode" />
+    <editor-search v-if="!sourceCode && !splitView" />
   </div>
 </template>
 
@@ -250,7 +250,8 @@ const {
   // Edit modes
   typewriter,
   focus,
-  sourceCode
+  sourceCode,
+  splitView
 } = storeToRefs(preferencesStore)
 
 // Editor store refs
@@ -551,7 +552,8 @@ watch(focus, (value) => {
 // WYSIWYG engine, so grey them out. On return to WYSIWYG, re-apply the menu
 // state for the CURRENT cursor context (a code block/table still disables some
 // items) rather than blanket-enabling everything (#3531).
-watch(sourceCode, (isSource) => {
+watch([sourceCode, splitView], ([isSourceCode, isSplitView]) => {
+  const isSource = isSourceCode || isSplitView
   const windowId = window.marktext?.env?.windowId ?? -1
   if (isSource) {
     window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, false)
@@ -1074,7 +1076,7 @@ const replaceMisspelling = (payload: unknown) => {
 }
 
 const handleUndo = () => {
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
 
@@ -1084,7 +1086,7 @@ const handleUndo = () => {
 }
 
 const handleRedo = () => {
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
 
@@ -1094,7 +1096,7 @@ const handleRedo = () => {
 }
 
 const handleSelectAll = () => {
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
 
@@ -1129,7 +1131,7 @@ const handleCopyPaste = (type: unknown) => {
 }
 
 const insertImage = (src: unknown) => {
-  if (!sourceCode.value) {
+  if (!sourceCode.value && !splitView.value) {
     editor.value && editor.value.insertImage({ src })
   }
 }
@@ -1404,7 +1406,7 @@ const handleEditParagraph = (type: unknown) => {
   // These commands act on the hidden WYSIWYG engine, so block them in
   // source-code mode (mirrors handleUndo/handleSelectAll) — otherwise e.g. the
   // Insert Table wizard opens and writes to the invisible editor (#3531).
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
   if (type === 'table') {
@@ -1427,7 +1429,7 @@ const handleEditParagraph = (type: unknown) => {
 
 // handle `duplicate`, `delete`, `create paragraph below`
 const handleParagraph = (type: unknown) => {
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
   if (editor.value) {
@@ -1448,7 +1450,7 @@ const handleParagraph = (type: unknown) => {
 }
 
 const handleInlineFormat = (type: unknown) => {
-  if (sourceCode.value) {
+  if (sourceCode.value || splitView.value) {
     return
   }
   editor.value && editor.value.format(type)
