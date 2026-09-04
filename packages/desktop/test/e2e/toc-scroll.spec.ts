@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+import {
+  launchWithMarkdown,
+  clickMenuById,
+  waitForEditor,
+  sendIpcToRenderer
+} from './helpers'
 
 // Build a long document with many top-level headings so the editor content
 // overflows its scroll container. Each heading title is unique so the sidebar
@@ -58,6 +63,17 @@ const isHeadingInViewport = (page: Page, index: number): Promise<boolean> =>
     return hRect.top >= cRect.top - 1 && hRect.top <= cRect.bottom
   }, index)
 
+const headingOffsetFromViewportTop = (page: Page, index: number): Promise<number | null> =>
+  page.evaluate((idx) => {
+    const container = document.querySelector('.editor-component') as HTMLElement | null
+    const sel = '.mu-container > h1, .mu-container > h2, .mu-container > h3, .mu-container > h4, .mu-container > h5, .mu-container > h6'
+    const target = document.querySelectorAll(sel)[idx]
+    if (!container || !target) return null
+    return Math.round(
+      target.getBoundingClientRect().top - container.getBoundingClientRect().top
+    )
+  }, index)
+
 // Locate a TOC tree node label by its EXACT text. Exact matching avoids the
 // substring trap where "Heading Number 1" also matches "Heading Number 18".
 const tocLabel = (page: Page, text: string) =>
@@ -90,6 +106,21 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     app = launched.app
     page = launched.page
     await waitForEditor(page)
+    // Keep two files open so the editor viewport starts below the visible tab
+    // bar. The TOC target must align to that viewport, not to the window.
+    await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '')
+    await page.waitForFunction(
+      () => document.querySelectorAll('.tabs-container > li').length >= 2,
+      null,
+      { timeout: 5000 }
+    )
+    await expect(page.locator('.editor-tabs')).toBeVisible()
+    await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
+    await page.waitForFunction(
+      (count) => document.querySelectorAll('.mu-container > h1').length >= count,
+      HEADING_COUNT,
+      { timeout: 10000 }
+    )
     // Open the sidebar and switch its right column to the ToC (el-tree).
     await showSidebar(app, page)
     await clickMenuById(app, 'tocMenuItem')
@@ -131,6 +162,10 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     await expect
       .poll(() => isHeadingInViewport(page, targetIndex), { timeout: 8000 })
       .toBe(true)
+    await expect
+      .poll(() => headingOffsetFromViewportTop(page, targetIndex), { timeout: 8000 })
+      .toBeGreaterThanOrEqual(20)
+    expect(await headingOffsetFromViewportTop(page, targetIndex)).toBeLessThanOrEqual(28)
   })
 
   test('clicking an earlier heading scrolls back up toward it', async() => {

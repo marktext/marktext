@@ -123,17 +123,21 @@ test.describe('In-document anchor link click scrolls the editor (item 236)', () 
     // meaningful distance toward the off-screen heading.
     await expect.poll(() => scrollTop(page), { timeout: 8000 }).toBeGreaterThan(100)
 
-    // Settle to the final position, then assert the heading is parked near the
-    // top of the viewport (STANDAR_Y = 320 offset), proving the jump landed on
-    // the right element and not at some arbitrary scroll offset.
+    // Settle to the final position, then assert the heading is parked below the
+    // editor viewport's top edge, proving the jump landed on the right element
+    // and accounted for the surrounding window layout.
     await page.waitForTimeout(500)
-    const headingTop = await page.evaluate(() => {
+    const headingOffset = await page.evaluate(() => {
+      const container = document.querySelector('.editor-component')
       const heading = document.querySelector('.mu-container > h2')
-      return heading ? heading.getBoundingClientRect().top : null
+      if (!container || !heading) return null
+      return Math.round(
+        heading.getBoundingClientRect().top - container.getBoundingClientRect().top
+      )
     })
-    expect(headingTop).not.toBeNull()
-    expect(headingTop as number).toBeLessThan(500)
-    expect(headingTop as number).toBeGreaterThan(-200)
+    expect(headingOffset).not.toBeNull()
+    expect(headingOffset as number).toBeGreaterThanOrEqual(20)
+    expect(headingOffset as number).toBeLessThanOrEqual(28)
 
     await expectNoRendererErrors(app)
   })
