@@ -106,8 +106,19 @@ const uploadByPicgo = (localPath: string): Promise<string> =>
 
 const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
   new Promise((resolve, reject) => {
+    if (!cliScript) return reject(new Error('No CLI script specified'))
+    const resolved = path.resolve(cliScript)
+    const tmpPrefixes = [tmpdir(), '/tmp', '/var/tmp'].map((d) => path.resolve(d))
+    if (tmpPrefixes.some((t) => resolved === t || resolved.startsWith(t + path.sep))) {
+      return reject(new Error(`CLI script in temporary directory is not allowed: ${cliScript}`))
+    }
+    try {
+      fs.accessSync(resolved, fs.constants.X_OK)
+    } catch {
+      return reject(new Error(`CLI script not found or not executable: ${cliScript}`))
+    }
     execFile(
-      cliScript,
+      resolved,
       [localPath],
       { env: { ...process.env, PATH: buildPreferredPathEnv() } },
       (err, data) => {
