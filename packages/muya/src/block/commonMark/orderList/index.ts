@@ -8,6 +8,13 @@ import Parent from '../../base/parent';
 import IContainerQueryBlock from '../../mixins/containerQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 
+function cloneOrderListMeta(meta: IOrderListState['meta']): IOrderListState['meta'] {
+    return {
+        ...meta,
+        ...(meta.sourceMarkers ? { sourceMarkers: [...meta.sourceMarkers] } : {}),
+    };
+}
+
 @mixins(IContainerQueryBlock)
 class OrderList extends Parent {
     public override children: LinkedList<Parent> = new LinkedList();
@@ -37,11 +44,11 @@ class OrderList extends Parent {
     constructor(muya: Muya, { meta }: IOrderListState) {
         super(muya);
         this.tagName = 'ol';
-        this.meta = meta;
-        this.attributes = { start: String(meta.start) };
-        this.datasets = { delimiter: meta.delimiter };
+        this.meta = cloneOrderListMeta(meta);
+        this.attributes = { start: String(this.meta.start) };
+        this.datasets = { delimiter: this.meta.delimiter };
         this.classList = [CLASS_NAMES.MU_ORDER_LIST];
-        if (!meta.loose)
+        if (!this.meta.loose)
             this.classList.push('mu-tight-list');
 
         this.createDomNode();
@@ -50,7 +57,7 @@ class OrderList extends Parent {
     override getState(): IOrderListState {
         const state: IOrderListState = {
             name: 'order-list',
-            meta: { ...this.meta },
+            meta: cloneOrderListMeta(this.meta),
             children: this.children.map(child => (child as ListItem).getState()),
         };
 

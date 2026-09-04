@@ -1,4 +1,4 @@
-import type { TBlockToken } from '../utils/marked/types';
+import type { ListItemToken, TBlockToken } from '../utils/marked/types';
 import type {
     IAtxHeadingState,
     IBulletListState,
@@ -32,6 +32,8 @@ const DEFAULT_OPTIONS = {
     frontMatter: true,
 };
 
+const ORDERED_LIST_MARKER_REG = /^ {0,3}(\d{1,9})([.)])(?=[ \t\r\n]|$)/;
+
 // Token types whose handler manipulates the `parentList` stack (push a
 // container and recurse via synthetic `block-end`), as opposed to the leaf
 // tokens that only append a state to the current level.
@@ -48,6 +50,35 @@ export class MarkdownToState {
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);
+    }
+
+    private _orderedListItemMarker(token: ListItemToken): string | undefined {
+        if (token.listItemType !== 'order')
+            return undefined;
+
+        const match = ORDERED_LIST_MARKER_REG.exec(token.raw);
+        if (!match)
+            return undefined;
+
+        return `${match[1]}${match[2]}`;
+    }
+
+    private _orderedListItemMeta(token: ListItemToken): IListItemState['meta'] | undefined {
+        const orderMarker = this._orderedListItemMarker(token);
+        if (!orderMarker)
+            return undefined;
+
+        return {
+            orderMarker,
+        };
+    }
+
+    private _orderedListSourceMarkers(items: ListItemToken[]): string[] | undefined {
+        const markers = items.map(item => this._orderedListItemMarker(item));
+        if (!markers.every((marker): marker is string => !!marker))
+            return undefined;
+
+        return markers;
     }
 
     private _convertMarkdownToState(markdown: string): TState[] {
@@ -129,12 +160,14 @@ export class MarkdownToState {
 
                 let listState: IOrderListState | IBulletListState | ITaskListState;
                 if (listType === 'order') {
+                    const sourceMarkers = this._orderedListSourceMarkers(token.items);
                     listState = {
                         name: 'order-list',
                         meta: {
                             loose,
                             start: /^\d+$/.test(String(start)) ? Number(start) : 1,
                             delimiter: bulletMarkerOrDelimiter || '.',
+                            ...(sourceMarkers ? { sourceMarkers } : {}),
                         },
                         children: [],
                     };
@@ -179,8 +212,10 @@ export class MarkdownToState {
                     };
                 }
                 else {
+                    const meta = this._orderedListItemMeta(token);
                     itemState = {
                         name: 'list-item',
+                        ...(meta ? { meta } : {}),
                         children: [],
                     };
                 }
