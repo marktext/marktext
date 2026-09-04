@@ -21,6 +21,7 @@ vi.mock('@/services/notification', () => ({
 vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
 
 import { useEditorStore } from '@/store/editor'
+import { usePreferencesStore } from '@/store/preferences'
 
 // #1861: a watcher 'change' event fires even when only the file's mtime changed
 // (e.g. a git checkout that left the content byte-identical). The handler then
@@ -70,6 +71,36 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — content-identical change (#1
 
     fire(captureHandler(), 'hello world')
 
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+    expect(tab.isSaved).toBe(false)
+  })
+
+  it('automatically reloads a clean tab when auto reload is enabled', () => {
+    const store = useEditorStore()
+    makeSavedTab(store)
+    usePreferencesStore().autoReload = true
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    const loadSpy = vi.spyOn(store, 'loadChange').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('warns instead of discarding unsaved changes when auto reload is enabled', () => {
+    const store = useEditorStore()
+    const tab = makeSavedTab(store)
+    tab.isSaved = false
+    usePreferencesStore().autoReload = true
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    const loadSpy = vi.spyOn(store, 'loadChange').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(loadSpy).not.toHaveBeenCalled()
     expect(notifySpy).toHaveBeenCalledTimes(1)
     expect(tab.isSaved).toBe(false)
   })
