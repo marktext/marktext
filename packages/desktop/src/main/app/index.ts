@@ -21,6 +21,7 @@ import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
+import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
@@ -56,8 +57,6 @@ class App {
     // this.launchScreenshotWin = null // The window which call the screenshot.
     // this.shortcutCapture = null
 
-    // Initialize main process language
-    this._initializeLanguage()
     this._listenForIpcMain()
     // Initialize theme listener
     this._themeListenerRegistered = false
@@ -144,70 +143,24 @@ class App {
   }
 
   /**
-   * Initialize main process language from preferences
+   * Initialize the main process language from preferences, detecting the
+   * system language on first start. Must run after the app is ready —
+   * `app.getLocale()` returns an empty string before the ready event — and
+   * before the first window is created so menus and the renderer start in
+   * the right language.
    */
-  private async _initializeLanguage(): Promise<void> {
+  private _initializeLanguage(): void {
     try {
       let currentLanguage = this._accessor.preferences.getItem<string>('language')
 
-      // If no language is set, auto-detect based on the system language
+      // If no language is set (first start), auto-detect from the system language
       if (!currentLanguage) {
-        const systemLanguage = app.getLocale()
-        log.info(`System language detected: ${systemLanguage}`)
-
-        // Supported language list (based on languages actually supported by the project)
-        const supportedLanguages = [
-          'en',
-          'zh-CN',
-          'zh-TW',
-          'ja',
-          'ko',
-          'fr',
-          'de',
-          'es',
-          'nl',
-          'pt',
-          'ru'
-        ]
-
-        // Language mapping: system language code -> application language code
-        const languageMap: Record<string, string> = {
-          'zh-CN': 'zh-CN',
-          'zh-TW': 'zh-TW',
-          'zh-HK': 'zh-TW',
-          zh: 'zh-CN',
-          en: 'en',
-          'en-US': 'en',
-          'en-GB': 'en',
-          ja: 'ja',
-          'ja-JP': 'ja',
-          ko: 'ko',
-          'ko-KR': 'ko',
-          fr: 'fr',
-          'fr-FR': 'fr',
-          de: 'de',
-          'de-DE': 'de',
-          es: 'es',
-          'es-ES': 'es',
-          nl: 'nl',
-          'nl-NL': 'nl',
-          'nl-BE': 'nl',
-          pt: 'pt',
-          'pt-BR': 'pt',
-          ru: 'ru',
-          'ru-RU': 'ru'
-        }
-
-        currentLanguage = languageMap[systemLanguage] || 'en'
-
-        // If the detected language is not in the supported list, use English
-        if (!supportedLanguages.includes(currentLanguage)) {
-          currentLanguage = 'en'
-        }
-
-        // Save the detected language setting
+        const systemLocale = app.getLocale()
+        currentLanguage = matchSupportedLanguage(systemLocale) ?? 'en'
         this._accessor.preferences.setItem('language', currentLanguage)
-        log.info(`Auto-detected and set language to: ${currentLanguage}`)
+        log.info(
+          `Auto-detected and set language to: ${currentLanguage} (system locale: ${systemLocale})`
+        )
       }
 
       setLanguage(currentLanguage)
@@ -231,16 +184,13 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences, editorBufferStore } = this._accessor
 
-    // Initialize language settings
-    const { startUpAction, defaultDirectoryToOpen, theme, language } = preferences.getAll()
+    // Initialize language settings (detects the system language on first start)
+    this._initializeLanguage()
+    const { startUpAction, defaultDirectoryToOpen, theme } = preferences.getAll()
     const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
     const lastOpenedFolder = preferences.getItem<string>('lastOpenedFolder')
     const lightModeTheme = preferences.getItem<string>('lightModeTheme')
     const darkModeTheme = preferences.getItem<string>('darkModeTheme')
-
-    if (language) {
-      setLanguage(language)
-    }
 
     if (args._.length) {
       for (const pathname of args._) {

@@ -97,6 +97,35 @@ function isLanguageSupported(language: string): boolean {
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(language)
 }
 
+/**
+ * Maps a system locale (e.g. `zh`, `zh-HK`, `pt-PT`) to a supported language
+ * code: exact match first, then any supported language with the same primary
+ * subtag. Returns null when nothing matches, including for an empty locale —
+ * `app.getLocale()` returns an empty string before the app is ready, and an
+ * empty primary subtag would otherwise match every entry.
+ */
+function matchSupportedLanguage(locale: string): string | null {
+  if (!locale) {
+    return null
+  }
+  if (isLanguageSupported(locale)) {
+    return locale
+  }
+  const primarySubtag = locale.split('-')[0]!.toLowerCase()
+
+  // The zh family splits by script rather than region: traditional characters
+  // are used in TW, HK and MO (zh-Hant), everything else is simplified.
+  if (primarySubtag === 'zh') {
+    const secondSubtag = (locale.split('-')[1] ?? '').toLowerCase()
+    return ['tw', 'hk', 'mo', 'hant'].includes(secondSubtag) ? 'zh-TW' : 'zh-CN'
+  }
+
+  return (
+    getSupportedLanguages().find(lang => lang.split('-')[0]!.toLowerCase() === primarySubtag) ??
+    null
+  )
+}
+
 function clearCache(): void {
   translationsCache = {}
 }
@@ -109,6 +138,7 @@ export {
   getTranslation,
   getSupportedLanguages,
   isLanguageSupported,
+  matchSupportedLanguage,
   clearCache,
   getAllTranslations,
   loadTranslations
