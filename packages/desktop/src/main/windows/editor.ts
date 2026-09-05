@@ -9,11 +9,11 @@ import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
-import { loadMarkdownFile } from '../filesystem/markdown'
+import { loadDocumentFile } from '../filesystem/document'
 import { switchLanguage } from '../spellchecker'
 import fs from 'fs'
 
-type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
+type RawMarkdownDocument = Awaited<ReturnType<typeof loadDocumentFile>>
 
 // The deferred file/markdown to open before the window finishes loading.
 interface PendingFile {
@@ -334,7 +334,7 @@ class EditorWindow extends BaseWindow {
         browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath)
         continue
       }
-      loadMarkdownFile(
+      loadDocumentFile(
         filePath,
         eol,
         autoGuessEncoding,
@@ -531,6 +531,7 @@ class EditorWindow extends BaseWindow {
     const { _accessor, _openedFiles, browserWindow } = this
     const { menu: appMenu } = _accessor
     const { pathname } = rawDocument
+    if (!pathname) return
 
     // Listen for file changed.
     ipcMain.emit('watcher-watch-file', browserWindow, pathname)
@@ -590,7 +591,7 @@ class EditorWindow extends BaseWindow {
         }
 
         fileOpenRequests.push(
-          loadMarkdownFile(
+          loadDocumentFile(
             tab.pathname,
             eol,
             autoGuessEncoding,
@@ -598,6 +599,8 @@ class EditorWindow extends BaseWindow {
             autoNormalizeLineEndings
           )
             .then((rawDocument) => {
+              tab.documentKind = rawDocument.documentKind
+              tab.resourcePath = rawDocument.resourcePath
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {

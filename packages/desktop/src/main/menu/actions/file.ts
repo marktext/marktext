@@ -11,14 +11,20 @@ import {
 } from 'electron'
 import log from 'electron-log'
 import { isDirectory, isFile, exists } from 'common/filesystem'
-import { MARKDOWN_EXTENSIONS, isDangerousExecutableFile, isMarkdownFile } from 'common/filesystem/paths'
+import {
+  DOCUMENT_EXTENSIONS,
+  MARKDOWN_EXTENSIONS,
+  isDangerousExecutableFile,
+  isDocumentFile
+} from 'common/filesystem/paths'
 import { checkUpdates, userSetting } from './marktext'
 import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, writeFile } from '../../filesystem'
-import { writeMarkdownFile } from '../../filesystem/markdown'
+import { writeDocumentFile } from '../../filesystem/document'
+import { moveTextPackSession } from '../../filesystem/textpack'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 import { t } from '../../i18n'
@@ -181,7 +187,11 @@ const handleResponseForSave = async(
 
   if (!filePath) {
     const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
+      defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`),
+      filters: [
+        { name: 'Markdown document', extensions: [...MARKDOWN_EXTENSIONS] },
+        { name: 'TextPack document', extensions: ['textpack'] }
+      ]
     })
 
     if (dialogPath && !canceled) {
@@ -199,18 +209,20 @@ const handleResponseForSave = async(
   filePath = !filePath.endsWith(extension) ? (filePath += extension) : filePath
   // The original JS passed `win` here; writeMarkdownFile only takes 3 args
   // (the 4th was silently ignored). Drop it explicitly under strict mode.
-  // The IPC `SaveOptions` has every field optional, but writeMarkdownFile
-  // requires the strict `MarkdownDocumentOptions` shape — the renderer always
-  // populates every field for the unsaved-file dialog payload, so the cast
-  // is safe at this seam.
-  return writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
-    .then(() => {
+  // The Markdown-only SaveOptions cast is now handled by writeDocumentFile.
+  return writeDocumentFile(filePath, markdown, options, pathname)
+    .then((descriptor) => {
       if (!alreadyExistOnDisk) {
         ipcMain.emit('window-add-file-path', win.id, filePath)
         ipcMain.emit('menu-add-recently-used', filePath)
 
         const newFilename = path.basename(filePath!)
-        win.webContents.send('mt::set-pathname', { id, pathname: filePath, filename: newFilename })
+        win.webContents.send('mt::set-pathname', {
+          id,
+          pathname: filePath,
+          filename: newFilename,
+          ...descriptor
+        })
       } else {
         ipcMain.emit('window-file-saved', win.id, filePath)
         win.webContents.send('mt::tab-saved', id)
@@ -363,13 +375,17 @@ ipcMain.on(
 
     let { filePath, canceled } = await dialog.showSaveDialog(win, {
       defaultPath:
-        pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
+        pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`),
+      filters: [
+        { name: 'Markdown document', extensions: [...MARKDOWN_EXTENSIONS] },
+        { name: 'TextPack document', extensions: ['textpack'] }
+      ]
     })
 
     if (filePath && !canceled) {
       filePath = path.resolve(filePath)
-      writeMarkdownFile(filePath, markdown, options as Parameters<typeof writeMarkdownFile>[2])
-        .then(() => {
+      writeDocumentFile(filePath, markdown, options, pathname)
+        .then((descriptor) => {
           if (!alreadyExistOnDisk) {
             ipcMain.emit('window-add-file-path', win.id, filePath)
             ipcMain.emit('menu-add-recently-used', filePath)
@@ -378,7 +394,8 @@ ipcMain.on(
             win.webContents.send('mt::set-pathname', {
               id,
               pathname: filePath,
-              filename: newFilename
+              filename: newFilename,
+              ...descriptor
             })
           } else if (pathname !== filePath) {
             // Update window file list and watcher.
@@ -388,7 +405,8 @@ ipcMain.on(
             win.webContents.send('mt::set-pathname', {
               id,
               pathname: filePath,
-              filename: newFilename
+              filename: newFilename,
+              ...descriptor
             })
           } else {
             ipcMain.emit('window-file-saved', win.id, filePath)
@@ -467,7 +485,7 @@ ipcMain.on('mt::window::drop', async(e, fileList: string[]) => {
     return
   }
   for (const file of fileList) {
-    if (isMarkdownFile(file)) {
+    if (isDocumentFile(file)) {
       openFileOrFolder(win, file)
       continue
     }
@@ -506,6 +524,7 @@ ipcMain.on('mt::rename', async(e, { id, pathname, newPathname }: RenamePayload) 
       }
 
       ipcMain.emit('window-change-file-path', win.id, newPathname, pathname)
+      moveTextPackSession(pathname, newPathname)
       e.sender.send('mt::set-pathname', {
         id,
         pathname: newPathname,
@@ -553,6 +572,7 @@ ipcMain.on(
         }
 
         ipcMain.emit('window-change-file-path', win.id, filePath, pathname)
+        moveTextPackSession(pathname, filePath)
         e.sender.send('mt::set-pathname', {
           id,
           pathname: filePath,
@@ -623,7 +643,7 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayloa
   if (pathname) {
     // decodeURIComponent() CommonMark #503, allow percent encoded path names to open files. https://github.com/marktext/marktext/issues/57
     pathname = path.normalize(decodeURIComponent(pathname))
-    if (isMarkdownFile(pathname)) {
+    if (isDocumentFile(pathname)) {
       const innerWin = BrowserWindow.fromWebContents(e.sender)
       if (innerWin) {
         openFileOrFolder(innerWin, pathname)
@@ -729,8 +749,8 @@ export const openFile = async(win: BrowserWindow | null): Promise<void> => {
     properties: ['openFile', 'multiSelections'],
     filters: [
       {
-        name: 'Markdown document',
-        extensions: [...MARKDOWN_EXTENSIONS]
+        name: 'Markdown or TextPack document',
+        extensions: [...DOCUMENT_EXTENSIONS]
       }
     ]
   })

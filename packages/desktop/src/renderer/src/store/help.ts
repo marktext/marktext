@@ -20,6 +20,8 @@ const defaultFileStateWithoutId = {
   pathname: '',
   filename: 'Untitled-1',
   markdown: '',
+  documentKind: 'markdown',
+  resourcePath: '',
   encoding: {
     encoding: 'utf8',
     isBom: false
@@ -73,6 +75,8 @@ const documentStateKeys = [
   'pathname',
   'filename',
   'markdown',
+  'documentKind',
+  'resourcePath',
   'encoding',
   'lineEnding',
   'trimTrailingNewline',

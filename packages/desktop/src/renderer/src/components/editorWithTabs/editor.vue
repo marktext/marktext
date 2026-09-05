@@ -882,6 +882,23 @@ const imageAction = async (
     if (file) image = file
   }
 
+  if (currentFile.value.documentKind === 'textpack' && currentFile.value.resourcePath) {
+    const workspaceTextPath = window.path.join(currentFile.value.resourcePath, 'text.md')
+    const result = await moveImageToFolder(
+      currentPathname,
+      image,
+      window.path.join(currentFile.value.resourcePath, 'assets'),
+      true,
+      workspaceTextPath
+    )
+    const destImagePath = result.split(window.path.sep).join('/')
+    window.electron.ipcRenderer.send('mt::textpack-resource-dirty', currentPathname)
+    if (id && sourceCode.value) {
+      bus.emit('image-action', { id, result: destImagePath, alt })
+    }
+    return destImagePath
+  }
+
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
   const isTabSavedOnDisk = !!currentPathname

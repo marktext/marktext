@@ -12,6 +12,11 @@ import type Preference from '../preferences'
 import { WindowType } from '../windows/base'
 import type { WindowTypeValue } from '../windows/base'
 import type EditorWindow from '../windows/editor'
+import {
+  closeTextPackSession,
+  markTextPackResourcesDirty,
+  resolveTextPackReload
+} from '../filesystem/textpack'
 
 class WindowActivityList {
   // Oldest             Newest
@@ -405,8 +410,21 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
       const editor = this.get(win.id) as EditorWindow | undefined
       if (editor) {
         editor.removeFromOpenedFiles(pathname)
+        closeTextPackSession(pathname).catch((error) =>
+          log.warn('Unable to close TextPack session:', error)
+        )
       }
     })
+
+    ipcMain.on('mt::textpack-resource-dirty', (_e, pathname: string) => {
+      markTextPackResourcesDirty(pathname)
+    })
+
+    ipcMain.handle(
+      'mt::resolve-textpack-reload',
+      (_e, pathname: string, token: string, accept: boolean) =>
+        resolveTextPackReload(pathname, token, accept)
+    )
 
     ipcMain.on('mt::window-toggle-always-on-top', (e) => {
       const win = BrowserWindow.fromWebContents(e.sender)

@@ -23,6 +23,15 @@ export const MARKDOWN_INCLUSIONS: readonly string[] = Object.freeze(
   MARKDOWN_EXTENSIONS.map((x) => '*.' + x)
 )
 
+export const TEXTPACK_EXTENSION = 'textpack'
+export const DOCUMENT_EXTENSIONS: readonly string[] = Object.freeze([
+  ...MARKDOWN_EXTENSIONS,
+  TEXTPACK_EXTENSION
+])
+export const DOCUMENT_INCLUSIONS: readonly string[] = Object.freeze(
+  DOCUMENT_EXTENSIONS.map((x) => '*.' + x)
+)
+
 export const IMAGE_EXTENSIONS: readonly string[] = Object.freeze([
   'jpeg',
   'jpg',
@@ -108,6 +117,12 @@ export const hasMarkdownExtension = (filename: string): boolean => {
   return MARKDOWN_EXTENSIONS.some((ext) => filename.toLowerCase().endsWith(`.${ext}`))
 }
 
+export const hasTextPackExtension = (filename: string): boolean =>
+  typeof filename === 'string' && filename.toLowerCase().endsWith(`.${TEXTPACK_EXTENSION}`)
+
+export const hasDocumentExtension = (filename: string): boolean =>
+  hasMarkdownExtension(filename) || hasTextPackExtension(filename)
+
 /**
  * Returns true if the path is an image file.
  */
@@ -128,6 +143,12 @@ export const isMarkdownFile = (filepath: string): boolean => {
   }
   return hasMarkdownExtension(filepath)
 }
+
+export const isTextPackFile = (filepath: string): boolean =>
+  isFile2(filepath) && hasTextPackExtension(filepath)
+
+export const isDocumentFile = (filepath: string): boolean =>
+  isMarkdownFile(filepath) || isTextPackFile(filepath)
 
 /**
  * Check if the both paths point to the same file.

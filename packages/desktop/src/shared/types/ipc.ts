@@ -69,6 +69,10 @@ export interface IpcInvokeChannels {
   }
   'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
+  'mt::resolve-textpack-reload': {
+    args: [pathname: string, token: string, accept: boolean]
+    ret: { accepted: boolean; resourcePath?: string }
+  }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }
   'mt::shell::open-path': { args: [fullPath: string]; ret: string }
@@ -183,6 +187,7 @@ export interface IpcSendChannels {
   'mt::window-add-file-path': [windowId: number, filePath: string]
   'mt::window-initialized': []
   'mt::window-tab-closed': [pathname: string]
+  'mt::textpack-resource-dirty': [pathname: string]
   'mt::window-toggle-always-on-top': []
   'mt::window::drop': [payload: unknown]
   'screen-capture': [payload: unknown]
@@ -261,7 +266,16 @@ export interface IpcMainEventChannels {
   'mt::rg::progress': [payload: unknown]
   'mt::screenshot-captured': [filePath: string]
   'mt::set-line-ending': [lineEnding: LineEnding]
-  'mt::set-pathname': [payload: { id: string; pathname: string; filename: string }]
+  'mt::set-pathname': [
+    payload: {
+      id: string
+      pathname: string
+      filename: string
+      documentKind?: 'markdown' | 'textpack'
+      resourcePath?: string
+      markdown?: string
+    }
+  ]
   'mt::set-view-layout': [layout: unknown]
   'mt::show-command-palette': []
   'mt::show-export-dialog': [type: ExportType]

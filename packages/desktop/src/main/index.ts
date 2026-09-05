@@ -13,6 +13,7 @@ import Accessor from './app/accessor'
 import App from './app'
 import { t } from './i18n'
 import { registerSandboxIpcHandlers } from './ipc'
+import { cleanupStaleTextPackSessions } from './filesystem/textpack'
 
 // Set version strings into global and process.versions
 process.env.MARKTEXT_VERSION = MARKTEXT_VERSION
@@ -113,6 +114,9 @@ try {
 }
 const appController = new App(accessor, args as unknown as { _: string[] })
 appController.init()
+cleanupStaleTextPackSessions().catch((error) =>
+  log.warn('Unable to clean TextPack sessions:', error)
+)
 
 // Quit when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {

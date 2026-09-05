@@ -3,9 +3,9 @@ import fsPromises from 'fs/promises'
 import log from 'electron-log'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { exists } from 'common/filesystem'
-import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
+import { hasDocumentExtension, checkPathExcludePattern } from 'common/filesystem/paths'
 import { getUniqueId } from '../utils'
-import { loadMarkdownFile } from '../filesystem/markdown'
+import { inspectDocumentFile } from '../filesystem/document'
 import { isLinux, isOsx } from '../config'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
@@ -53,7 +53,7 @@ const add = async(
   const stats = await fsPromises.stat(pathname)
   const birthTime = stats.birthtime
   const mtimeMs = stats.mtimeMs
-  const isMarkdown = hasMarkdownExtension(pathname)
+  const isMarkdown = hasDocumentExtension(pathname)
   const file: {
     pathname: string
     name: string
@@ -62,7 +62,7 @@ const add = async(
     birthTime: Date
     mtimeMs: number
     isMarkdown: boolean
-    data?: Awaited<ReturnType<typeof loadMarkdownFile>>
+    data?: Awaited<ReturnType<typeof inspectDocumentFile>>
   } = {
     pathname,
     name: path.basename(pathname),
@@ -75,7 +75,7 @@ const add = async(
   if (isMarkdown) {
     // HACK: But this should be removed completely in #1034/#1035.
     try {
-      const data = await loadMarkdownFile(
+      const data = await inspectDocumentFile(
         pathname,
         endOfLine,
         autoGuessEncoding,
@@ -132,11 +132,18 @@ const change = async(
     return
   }
 
-  const isMarkdown = hasMarkdownExtension(pathname)
+  const isMarkdown = hasDocumentExtension(pathname)
   if (isMarkdown) {
     try {
       const [data, stats] = await Promise.all([
-        loadMarkdownFile(pathname, endOfLine, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings),
+        inspectDocumentFile(
+          pathname,
+          endOfLine,
+          autoGuessEncoding,
+          trimTrailingNewline,
+          autoNormalizeLineEndings,
+          true
+        ),
         fsPromises.stat(pathname)
       ])
       const file = { pathname, data, mtimeMs: stats.mtimeMs }
@@ -225,7 +232,7 @@ class Watcher {
         if (fileInfo.isDirectory()) {
           return false
         }
-        return !hasMarkdownExtension(pathname)
+        return !hasDocumentExtension(pathname)
       },
       ignoreInitial: type === 'file',
       persistent: true,

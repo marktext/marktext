@@ -5,6 +5,7 @@
 // imperfect surface than a placeholder that's wrong.
 
 export type LineEnding = 'lf' | 'crlf'
+export type DocumentKind = 'markdown' | 'textpack'
 
 export interface SerializedStat {
   size: number
@@ -18,11 +19,15 @@ export interface MarkdownDocument {
   markdown: string
   filename: string
   pathname: string | null
-  encoding?: string
+  encoding?: FileEncoding | string
   lineEnding?: LineEnding
   adjustLineEndingOnSave?: boolean
   trimTrailingNewline?: number
   isMixedLineEndings?: boolean
+  documentKind?: DocumentKind
+  resourcePath?: string
+  /** Opaque main-process token for a staged external TextPack reload. */
+  reloadToken?: string
 }
 
 export interface FileHistory {
@@ -72,6 +77,8 @@ export interface IFileState {
   // missing entirely. Always a string at runtime now.
   pathname: string
   markdown: string
+  documentKind: DocumentKind
+  resourcePath: string
   isSaved: boolean
   encoding: FileEncoding
   lineEnding: LineEnding | string
