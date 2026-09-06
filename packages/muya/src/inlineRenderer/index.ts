@@ -14,6 +14,7 @@ const debug = logger('inlineRenderer:');
 class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
+    private _labelsRevision = -1;
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -75,7 +76,15 @@ class InlineRenderer {
     }
 
     private _collectReferenceDefinitions() {
-        const state = this.muya.editor.jsonState.getState();
+        // Every rendered content block asks for the label map, and recollecting
+        // it reads (and clones) the WHOLE document each time — O(blocks ×
+        // document) on open, which freezes large files (#4887). The map only
+        // changes when the JSON state changes, so cache it by revision.
+        const { jsonState } = this.muya.editor;
+        if (this._labelsRevision === jsonState.revision)
+            return;
+
+        const state = jsonState.getState();
         const labels = new Map();
 
         const travel = (sts: TState[]) => {
@@ -96,6 +105,7 @@ class InlineRenderer {
         travel(state);
 
         this.labels = labels;
+        this._labelsRevision = jsonState.revision;
     }
 
     getLabelInfo(blockOrState: ParagraphContent | IParagraphState) {

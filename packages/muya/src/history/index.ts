@@ -133,7 +133,6 @@ class History {
                 op: Nullable<JSONOpList>;
                 source: string;
                 prevDoc: TState[];
-                doc: TState[];
             }) => {
                 if (this._ignoreChange)
                     return;
@@ -154,6 +153,18 @@ class History {
     }
 
     private _change(source: HistoryAction, dest: HistoryAction) {
+        // A same-frame edit may still sit in the rAF op batch. Drain it into
+        // the history FIRST — before the stack check AND before
+        // `_ignoreChange` silences json-change:
+        // - recording the pending edit clears the redo stack, so checking
+        //   length before flushing would let redo() pop an emptied stack;
+        // - anything mid-undo that flushes the batch (e.g. an on-demand
+        //   mount during a progressive mount, #4887) would otherwise apply
+        //   the edit while dropping its history entry;
+        // - and an edit that has not flushed yet becomes undoable
+        //   immediately, even when the stack was empty before it.
+        this._muya.editor.jsonState.flush();
+
         if (this._stack[source].length === 0)
             return;
 

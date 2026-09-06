@@ -1249,6 +1249,12 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
+  // The heading's DOM may not exist yet while a progressive mount is in
+  // flight (#4887) — mount up to it before resolving by document order.
+  const item = editorStore.listToc.find((entry) => entry.slug === slug) as
+    | { index?: unknown }
+    | undefined
+  if (item && typeof item.index === 'number') editor.value?.ensureMountedThrough(item.index)
   scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
 }
 
@@ -1866,7 +1872,8 @@ onMounted(() => {
   bus.on('replace-misspelling', replaceMisspelling)
 
   // The engine emits a low-level `json-change` ({ op, source, prevDoc, doc })
-  // on every document mutation; the desktop's content-change pipeline wants the
+  // on every document mutation (`doc` is a memoized lazy getter — reading it
+  // clones the current state); the desktop's content-change pipeline wants the
   // derived document snapshot (markdown / word count / cursor / history / TOC /
   // block AST), so we compute it here — mirroring the legacy engine's
   // `dispatchChange` payload.

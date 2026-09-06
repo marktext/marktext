@@ -398,6 +398,13 @@ export class Editor {
 
     updateContents(operations: JSONOp, selection: Nullable<IHistorySelection>, source: string) {
         const muya = this._muya;
+        // Mount every top-level block the operation touches BEFORE it reaches
+        // the state: the DOM pick/drop below resolves blocks via queryBlock,
+        // which would otherwise materialize an unmounted target from the
+        // ALREADY-updated state and then drop the same operation onto it a
+        // second time — a permanent state/DOM fork (#4887 review).
+        if (operations !== null)
+            this.scrollPage?.ensureMountedForOperation(operations);
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.
@@ -408,13 +415,20 @@ export class Editor {
             return;
 
         try {
+            // On-demand mounting must not run inside the walk: the state is
+            // post-dispatch here, so a mount would materialize nodes the
+            // walker itself is about to drop (duplicates). Targets were
+            // pre-mounted above; a miss below fails into the rebuild path.
+            this.scrollPage?.suspendOnDemandMount();
             const snapshot = pick(this.scrollPage as BlockNode, operations);
 
             drop(snapshot, operations, muya);
 
+            this.scrollPage?.resumeOnDemandMount();
             this._restoreSelection(selection);
         }
         catch (error) {
+            this.scrollPage?.resumeOnDemandMount();
             // The incremental walk left the live tree half-applied (pick removed
             // blocks drop never re-inserted). The json state is authoritative and
             // already up to date — rebuild from it instead of leaving an empty doc.
@@ -498,6 +512,13 @@ export class Editor {
         const state = this.jsonState.getState();
 
         this.scrollPage!.updateState(state);
+        // The old document's selection must not leak into the new one:
+        // focus() re-resolves the stale anchorPath against the fresh tree,
+        // and during a progressive mount that path query would force-mount
+        // up to (or past) the old caret (#4887 review). Callers restore
+        // carets through their own flows afterwards.
+        this.selection.clear();
+        this.activeContentBlock = null;
         this.history.clear();
         this.searchModule.reset();
 

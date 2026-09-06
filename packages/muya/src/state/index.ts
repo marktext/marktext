@@ -3,8 +3,8 @@ import type { Muya } from '../muya';
 import type { TDiff } from '../utils';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
-import { deepClone } from '../utils';
 import logger from '../utils/logger';
+import { cloneStateTree } from './cloneState';
 import { getTOC } from './getTOC';
 
 import { MarkdownToState } from './markdownToState';
@@ -52,8 +52,17 @@ class JSONState {
 
     private _state: TState[] = [];
 
+    // Monotonic change counter. Consumers that derive expensive values from
+    // the whole document (e.g. reference-definition collection) compare it to
+    // skip recomputation while the state has not changed.
+    private _revision = 0;
+
     constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
         this.setContent(stateOrMarkdown);
+    }
+
+    get revision() {
+        return this._revision;
     }
 
     private _apply(op: JSONOp) {
@@ -63,6 +72,7 @@ class JSONState {
         if (op === null)
             return;
         this._state = asState(json1.type.apply(asDoc(this._state), op));
+        this._revision += 1;
     }
 
     setContent(content: TState[] | string) {
@@ -80,6 +90,8 @@ class JSONState {
             this._setState(content);
         else
             this._setMarkdown(content);
+
+        this._revision += 1;
     }
 
     private _setState(state: TState[]) {
@@ -130,7 +142,7 @@ class JSONState {
     } {
         const prevState = this.getState();
         const nextState
-            = typeof content === 'string' ? this.markdownToState(content) : deepClone(content);
+            = typeof content === 'string' ? this.markdownToState(content) : cloneStateTree(content);
 
         const components: JSONOpList[] = [];
         const max = Math.max(prevState.length, nextState.length);
@@ -208,19 +220,52 @@ class JSONState {
     dispatch(op: JSONOp, source = 'user' /* user, api */) {
         const prevDoc = this.getState();
         this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
         debug.log(JSON.stringify(op));
-        this._muya.eventCenter.emit('json-change', {
+        this._muya.eventCenter.emit(
+            'json-change',
+            this._jsonChangePayload(op, source, prevDoc),
+        );
+    }
+
+    // `doc` stays on the payload for published-API compatibility, but as a
+    // memoized lazy getter: no in-repo listener reads it, and eagerly cloning
+    // the whole document on every change is a large-document cost (#4887).
+    //
+    // The getter must keep the old eager-clone SNAPSHOT semantics: a listener
+    // may store the payload and read `doc` only after later edits. ot-json1's
+    // `apply` is copy-on-write (it returns a new root, `_apply` reassigns
+    // `_state`), so capturing the post-apply root here pins the document as
+    // it was at emit time — and the closure retains only that state root,
+    // not the JSONState/Muya/DOM graph.
+    private _jsonChangePayload(op: JSONOp, source: string, prevDoc: TState[]) {
+        const snapshot = this._state;
+        let doc: TState[] | null = null;
+
+        return {
             op,
             source,
             prevDoc,
-            doc,
-        });
+            get doc() {
+                doc ??= cloneStateTree(snapshot);
+                return doc;
+            },
+        };
+    }
+
+    // The live state root WITHOUT a defensive clone. For read-only,
+    // same-tick consumers (TOC collection, slug identity) that must see the
+    // complete logical document regardless of how much of it is mounted, and
+    // for whom the per-call whole-document clone of `getState()` is the cost
+    // being avoided. Callers must never mutate the returned tree.
+    get rawState(): readonly TState[] {
+        return this._state;
     }
 
     getState(): TState[] {
-        return deepClone(this._state);
+        // The document schema is bounded (scalar metadata plus `children`
+        // arrays); the schema-specific clone avoids structuredClone's high
+        // fixed cost, which multiplies on every whole-document read.
+        return cloneStateTree(this._state);
     }
 
     getMarkdown() {
@@ -280,8 +325,6 @@ class JSONState {
         );
         const prevDoc = this.getState();
         this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
         // Clear before emitting: a listener that edits synchronously then starts
         // a fresh batch instead of mutating the one being flushed.
         this._operationCache = [];
@@ -289,12 +332,10 @@ class JSONState {
         if (op === null)
             return;
 
-        this._muya.eventCenter.emit('json-change', {
-            op,
-            source: 'user',
-            prevDoc,
-            doc,
-        });
+        this._muya.eventCenter.emit(
+            'json-change',
+            this._jsonChangePayload(op, 'user', prevDoc),
+        );
     }
 }
 

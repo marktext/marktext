@@ -510,8 +510,10 @@ class Content extends TreeNode {
         ) {
             event.preventDefault();
             event.stopPropagation();
-            if (nextContentBlock) {
-                cursorBlock = nextContentBlock;
+            const targetContentBlock
+                = nextContentBlock ?? this.resolveNextContentInContext();
+            if (targetContentBlock) {
+                cursorBlock = targetContentBlock;
             }
             // Only append a trailing paragraph when the last block has content.
             // Otherwise ArrowDown in an already-empty last paragraph would keep

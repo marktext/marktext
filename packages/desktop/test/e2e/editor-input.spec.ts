@@ -47,6 +47,11 @@ test.describe('Editor input and source-mode roundtrip', () => {
 
   test('Typing into the editor appends content', async() => {
     await typeIntoEditor(page, ' typed-token')
+    // Wait for the LAST keystroke to land in the live editor before switching
+    // to source mode: on a loaded runner the final `input` event can still be
+    // queued when the mode switch tears the editor down, losing it forever
+    // (observed on CI as `typed-toke`).
+    await expect(page.locator('.editor-component')).toContainText('typed-token')
     await expect.poll(async() => await getMarkdownContent(page, app)).toContain('typed-token')
   })
 })
