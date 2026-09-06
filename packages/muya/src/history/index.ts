@@ -151,6 +151,22 @@ class History {
                     this._transform(op);
             },
         );
+
+        // The first undo entry needs a selection from before the edit.
+        // Input queues its operation before moving the caret, so pending edits
+        // must not replace this baseline with their post-edit selection.
+        this._muya.eventCenter.on('selection-change', () => {
+            if (this._selectionStack.length > 1)
+                return;
+            if (this._muya.editor.jsonState.hasPendingOperations)
+                return;
+
+            const selection = this._selection.getSelection();
+            if (selection == null)
+                return;
+
+            this._selectionStack[0] = selection;
+        });
     }
 
     private _change(source: HistoryAction, dest: HistoryAction) {
