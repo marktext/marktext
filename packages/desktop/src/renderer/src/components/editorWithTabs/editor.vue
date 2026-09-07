@@ -125,7 +125,7 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement } from '@/util/tocNavigation'
+import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -1226,9 +1226,8 @@ const scrollToCords = (y: number) => {
   })
 }
 
-// Smoothly scroll the editor so `anchor` sits at the standard top offset.
-// Shared by the TOC, search-highlight, and any other "reveal this element"
-// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+// Smoothly scroll the editor so `anchor` sits at the standard caret offset.
+// Shared by search highlights and non-heading in-document anchors.
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
@@ -1249,7 +1248,9 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
-  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+  const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
+  if (!heading) return
+  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
