@@ -2,6 +2,37 @@
 
 <h1 align="center">MarkText</h1>
 
+> [!IMPORTANT]
+> This is an unofficial fork of [MarkText](https://github.com/marktext/marktext).
+> It is independently maintained and is not an official MarkText release.
+
+## MarkText TextPack
+
+This fork adds native `.textpack` document support to MarkText while keeping
+the existing editing experience and limiting most integration changes to the
+document and filesystem layers.
+
+### Features
+
+- Open, edit, save, and restore `.textpack` documents.
+- Store pasted and dropped images in the package's `assets/` directory.
+- Convert Markdown documents to TextPack while embedding Base64 and local resources.
+- Export TextPack documents back to Markdown with their assets.
+- Preserve compatible metadata, existing assets, and unknown package files.
+- Detect unsafe archives and external file changes.
+
+### Current scope
+
+- `.textbundle` directories are not supported.
+- No generic attachment insertion UI is added.
+- Remote HTTP/HTTPS resources remain remote.
+- This fork follows MarkText's upstream `develop` branch.
+
+See [TextPack documentation](docs/textpack.md) for compatibility details and
+current limitations.
+
+The implementation was developed with AI assistance and manually reviewed and tested.
+
 <div align="center">
   <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
     <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">

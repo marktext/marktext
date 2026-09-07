@@ -1,0 +1,45 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream-textpack
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out TextPack branch
+        uses: actions/checkout@v4
+        with:
+          ref: textpack
+          fetch-depth: 0
+
+      - name: Rebase onto upstream develop
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/marktext/marktext.git
+          git fetch upstream develop
+          git rebase upstream/develop
+
+      - uses: ./.github/actions/setup
+
+      - name: Run ESLint
+        run: pnpm lint
+
+      - name: Run TypeScript typecheck
+        run: pnpm typecheck
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Update TextPack branch
+        run: git push --force-with-lease origin HEAD:textpack
