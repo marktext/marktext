@@ -125,7 +125,8 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement } from '@/util/tocNavigation'
+import { resolveTocHeadingElement, TOP_LEVEL_HEADINGS_SELECTOR } from '@/util/tocNavigation'
+import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -565,6 +566,15 @@ watch(sourceCode, (isSource) => {
     }
   })
 })
+
+// Rebuild heading-position cache whenever the TOC changes (document edit, tab
+// switch, file load). Uses nextTick so the DOM is settled before measuring.
+watch(
+  () => editorStore.listToc,
+  () => {
+    nextTick(rebuildHeadingCache)
+  }
+)
 
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1189,6 +1199,40 @@ const getCursorY = (): number | null => {
     rects = parent ? parent.getClientRects() : rects
   }
   return rects.length ? rects[0].y : null
+}
+
+// --- Active TOC heading detection ---
+// Cached heading positions, rebuilt whenever the TOC changes. Avoids N DOM
+// queries per keystroke — only one bulk read per TOC rebuild.
+let headingPositionCache: HeadingPosition[] = []
+
+const rebuildHeadingCache = (): void => {
+  const container = getScrollContainer()
+  if (!container || editorStore.listToc.length === 0) {
+    headingPositionCache = []
+    return
+  }
+  const headingEls = container.querySelectorAll(TOP_LEVEL_HEADINGS_SELECTOR)
+  headingPositionCache = editorStore.listToc
+    .map((item, index) => {
+      const el = headingEls[index] as HTMLElement | undefined
+      if (!el) return null
+      return { slug: item.slug!, offsetTop: el.offsetTop }
+    })
+    .filter((entry): entry is HeadingPosition => entry != null)
+}
+
+// Converts the viewport-relative cursor Y into document-relative coordinates
+// (same space as `el.offsetTop`) and finds the active heading.
+const updateActiveHeading = (viewportY: number): void => {
+  const container = getScrollContainer()
+  if (!container || headingPositionCache.length === 0) return
+  // Both offsetTop and cursorTop must be document-relative (distance from
+  // container's content top edge). cursorCoords.y is viewport-relative, so
+  // translate: add scrollTop, subtract the container's own viewport offset.
+  const cursorTop = container.scrollTop + viewportY - container.getBoundingClientRect().top
+  const slug = findActiveHeadingSlug(headingPositionCache, cursorTop)
+  editorStore.SET_ACTIVE_HEADING(slug)
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -1967,6 +2011,8 @@ onMounted(() => {
         // (e.g. Arrow-Up), otherwise the caret leaves the viewport (#3329).
         animatedScrollTo(container, container.scrollTop + (y - 100), 0)
       }
+
+      updateActiveHeading(y)
     }
 
     selectionChange.value = changes

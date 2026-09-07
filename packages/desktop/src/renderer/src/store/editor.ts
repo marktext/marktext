@@ -142,6 +142,9 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
+  // Slug of the heading the cursor is currently inside; drives the TOC sidebar
+  // highlight. Null when there are no headings or cursor is above all of them.
+  activeHeadingSlug: string | null
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
@@ -152,7 +155,8 @@ export const useEditorStore = defineStore('editor', {
     tabs: [],
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
-    toc: []
+    toc: [],
+    activeHeadingSlug: null
   }),
 
   actions: {
@@ -830,6 +834,9 @@ export const useEditorStore = defineStore('editor', {
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
         didUpdateCurrentFile = true
+        // New file activated — clear the stale heading highlight; it will be
+        // re-computed on the first selection-change in the new document.
+        this.activeHeadingSlug = null
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
           this.tabs.push(currentFile)
@@ -1383,6 +1390,15 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_TOC(toc: TocItem[]): void {
       this.listToc = toc ?? []
       this.toc = listToTree<TocItem>(toc ?? [])
+      // A new TOC means the document changed or a new file was loaded; the old
+      // active heading slug is stale.
+      this.activeHeadingSlug = null
+    },
+
+    SET_ACTIVE_HEADING(slug: string | null): void {
+      if (this.activeHeadingSlug !== slug) {
+        this.activeHeadingSlug = slug
+      }
     },
 
     // Content change from realtime preview editor and source code editor
