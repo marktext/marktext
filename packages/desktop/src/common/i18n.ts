@@ -83,7 +83,7 @@ function getTranslation(
 
   let result = probe
   for (const [param, replacement] of Object.entries(params)) {
-    result = result.replace(new RegExp(`\\{${param}\\}`, 'g'), String(replacement))
+    result = result.replace(new RegExp(`\\{${param}\\}`, 'g'), () => String(replacement))
   }
 
   return result
