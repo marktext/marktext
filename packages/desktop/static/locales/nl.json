@@ -185,6 +185,7 @@
     "copyAsRich": "Kopiëren als opgemaakte tekst",
     "copyAsHtml": "Kopiëren als HTML",
     "pasteAsPlainText": "Plakken als platte tekst",
+    "lookUp": "\"{selection}\" opzoeken",
     "insertParagraphBefore": "Alinea invoegen vóór",
     "insertParagraphAfter": "Alinea invoegen na",
     "spelling": "Spelling...",
