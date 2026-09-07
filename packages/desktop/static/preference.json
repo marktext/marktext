@@ -65,7 +65,7 @@
 
   "spellcheckerEnabled": false,
   "spellcheckerNoUnderline": false,
-  "spellcheckerLanguage": "en-US",
+  "spellcheckerLanguage": ["en-US"],
 
   "sideBarVisibility": false,
   "tabBarVisibility": false,

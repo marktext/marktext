@@ -80,7 +80,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | ---------------------- | ------- | ------- | ---------------------------------------------------------------------------- |
 | spellcheckerEnabled    | Boolean | `false` | Whether spell checking is enabled.                                           |
 | spellcheckerNoUnderline | Boolean | `false` | Don't underline spelling mistakes.                                          |
-| spellcheckerLanguage   | String  | `en-US` | The spell-checker language (BCP-47, e.g. `en-US`, `de-DE`, `zh-CN`).         |
+| spellcheckerLanguage   | String[] | `["en-US"]` | The spell-checker languages (BCP-47, e.g. `en-US`, `de-DE`, `zh-CN`).       |
 
 #### Image
 

@@ -329,10 +329,23 @@
     "default": false
   },
   "spellcheckerLanguage": {
-    "description": "Spelling--The spell checker language",
-    "type": "string",
-    "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$",
-    "default": "en-US"
+    "description": "Spelling--The spell checker languages",
+    "oneOf": [
+      {
+        "type": "string",
+        "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$"
+      },
+      {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z]{2,3}(?:[-](?:[0-9]|[a-zA-Z]){2,}){0,2}$"
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    ],
+    "default": ["en-US"]
   },
   "imageInsertAction": {
     "description": "Image--The default behavior after insert image from local folder",

@@ -48,7 +48,7 @@ export interface IUserPreferences {
   theme?: string
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean
-  spellcheckerLanguage?: string
+  spellcheckerLanguage?: string | string[]
   imageInsertAction?: 'upload' | 'folder' | 'path'
   imagePreferRelativePath?: boolean
   imageFolderPath?: string

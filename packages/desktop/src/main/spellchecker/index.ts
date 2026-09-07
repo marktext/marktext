@@ -19,7 +19,7 @@ export const removeFromDictionary = (win: BrowserWindow, word: string): boolean 
 /**
  * Returns a list of all words in the custom dictionary.
  */
-export const getCustomDictionaryWords = async(win: BrowserWindow): Promise<string[]> => {
+export const getCustomDictionaryWords = async (win: BrowserWindow): Promise<string[]> => {
   return win.webContents.session.listWordsInSpellCheckerDictionary()
 }
 
@@ -32,10 +32,23 @@ export const setSpellCheckerEnabled = (win: BrowserWindow, enabled: boolean): bo
 }
 
 /**
- * Switch the spellchecker to the given language and enable the builtin spell checker.
+ * Set the languages used by the builtin spell checker.
  */
-export const switchLanguage = (win: BrowserWindow, lang: string): void => {
-  win.webContents.session.setSpellCheckerLanguages([lang])
+export const setLanguages = (win: BrowserWindow, languages: string[]): void => {
+  const selectedLanguages = [...new Set(languages)]
+  if (selectedLanguages.length === 0) {
+    throw new Error('Expected at least one language for spell checker.')
+  }
+
+  const availableLanguages = new Set(getAvailableDictionaries(win))
+  const unavailableLanguage = selectedLanguages.find(
+    (language) => !availableLanguages.has(language)
+  )
+  if (unavailableLanguage) {
+    throw new Error(`Spell checker language is unavailable: ${unavailableLanguage}`)
+  }
+
+  win.webContents.session.setSpellCheckerLanguages(selectedLanguages)
 }
 
 /**
@@ -56,23 +69,23 @@ export const getAvailableDictionaries = (win: BrowserWindow): string[] => {
 }
 
 const registerSpellcheckerHandlers = (): void => {
-  ipcMain.handle('mt::spellchecker-remove-word', async(e, word: string) => {
+  ipcMain.handle('mt::spellchecker-remove-word', async (e, word: string) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!win) return false
     return removeFromDictionary(win, word)
   })
-  ipcMain.handle('mt::spellchecker-switch-language', async(e, lang: string) => {
+  ipcMain.handle('mt::spellchecker-switch-language', async (e, languages: string[]) => {
     const win = BrowserWindow.fromWebContents(e.sender)
-    if (win) switchLanguage(win, lang)
+    if (win) setLanguages(win, languages)
     return null
   })
-  ipcMain.handle('mt::spellchecker-get-available-dictionaries', async(e) => {
+  ipcMain.handle('mt::spellchecker-get-available-dictionaries', async (e) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!win) return []
     return getAvailableDictionaries(win)
   })
-  // We have to set a language or call `switchLanguage` on Linux and Windows.
-  ipcMain.handle('mt::spellchecker-set-enabled', async(e, enabled: boolean) => {
+  // Linux and Windows require at least one configured language when enabling spellcheck.
+  ipcMain.handle('mt::spellchecker-set-enabled', async (e, enabled: boolean) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!win) return false
     if (!setSpellCheckerEnabled(win, enabled)) {
@@ -81,7 +94,7 @@ const registerSpellcheckerHandlers = (): void => {
     }
     return true
   })
-  ipcMain.handle('mt::spellchecker-get-custom-dictionary-words', async(e) => {
+  ipcMain.handle('mt::spellchecker-get-custom-dictionary-words', async (e) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (!win) return []
     return getCustomDictionaryWords(win)

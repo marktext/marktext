@@ -8,13 +8,13 @@ const win = window as unknown as {
   electron?: { ipcRenderer: { invoke: Mock } }
 }
 
-const loadSpellChecker = async(isOsx: boolean) => {
+const loadSpellChecker = async (isOsx: boolean) => {
   vi.resetModules()
   vi.doMock('@/util', () => ({ isOsx }))
   return (await import('../../../src/renderer/src/spellchecker/index')).SpellChecker
 }
 
-describe('renderer SpellChecker.switchLanguage', () => {
+describe('renderer SpellChecker.setLanguages', () => {
   let invoke: Mock
 
   beforeEach(() => {
@@ -27,49 +27,49 @@ describe('renderer SpellChecker.switchLanguage', () => {
     vi.doUnmock('@/util')
   })
 
-  it('invokes the IPC channel once and records the new language (non-macOS, enabled)', async() => {
+  it('invokes the IPC channel once and records the new languages (non-macOS, enabled)', async () => {
     const SpellChecker = await loadSpellChecker(false)
-    const checker = new SpellChecker(true, 'en-US')
+    const checker = new SpellChecker(true, ['en-US'])
 
-    const result = await checker.switchLanguage('de-DE')
+    const result = await checker.setLanguages(['en-US', 'de-DE'])
 
     expect(result).toBe(true)
     expect(invoke).toHaveBeenCalledTimes(1)
-    expect(invoke).toHaveBeenCalledWith('mt::spellchecker-switch-language', 'de-DE')
-    expect(checker.lang).toBe('de-DE')
-    expect(checker.currentSpellcheckerLanguage).toBe('de-DE')
+    expect(invoke).toHaveBeenCalledWith('mt::spellchecker-switch-language', ['en-US', 'de-DE'])
+    expect(checker.languages).toEqual(['en-US', 'de-DE'])
+    expect(checker.currentSpellcheckerLanguages).toEqual(['en-US', 'de-DE'])
   })
 
-  it('short-circuits to true on macOS without touching IPC', async() => {
+  it('short-circuits to true on macOS without touching IPC', async () => {
     const SpellChecker = await loadSpellChecker(true)
-    const checker = new SpellChecker(true, 'en-US')
+    const checker = new SpellChecker(true, ['en-US'])
 
-    const result = await checker.switchLanguage('de-DE')
+    const result = await checker.setLanguages(['de-DE'])
 
     expect(result).toBe(true)
     expect(invoke).not.toHaveBeenCalled()
     // The OS spell checker auto-detects language, so the stored language is
     // left untouched.
-    expect(checker.currentSpellcheckerLanguage).toBe('en-US')
+    expect(checker.currentSpellcheckerLanguages).toEqual(['en-US'])
   })
 
-  it('returns false without IPC when the spell checker is disabled (non-macOS)', async() => {
+  it('returns false without IPC when the spell checker is disabled (non-macOS)', async () => {
     const SpellChecker = await loadSpellChecker(false)
-    const checker = new SpellChecker(false, 'en-US')
+    const checker = new SpellChecker(false, ['en-US'])
 
-    const result = await checker.switchLanguage('de-DE')
+    const result = await checker.setLanguages(['de-DE'])
 
     expect(result).toBe(false)
     expect(invoke).not.toHaveBeenCalled()
-    expect(checker.currentSpellcheckerLanguage).toBe('en-US')
+    expect(checker.currentSpellcheckerLanguages).toEqual(['en-US'])
   })
 
-  it('throws on an empty language when enabled (non-macOS) and never invokes IPC', async() => {
+  it('throws on an empty language list when enabled (non-macOS) and never invokes IPC', async () => {
     const SpellChecker = await loadSpellChecker(false)
-    const checker = new SpellChecker(true, 'en-US')
+    const checker = new SpellChecker(true, ['en-US'])
 
-    await expect(checker.switchLanguage('')).rejects.toThrow(
-      'Expected non-empty language for spell checker.'
+    await expect(checker.setLanguages([])).rejects.toThrow(
+      'Expected at least one language for spell checker.'
     )
     expect(invoke).not.toHaveBeenCalled()
   })

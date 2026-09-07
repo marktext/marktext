@@ -23,14 +23,30 @@
           :disable="true"
           :on-change="noop"
         />
-        <cur-select
+        <section
           v-show="!isOsx"
-          :description="t('preferences.spellchecker.defaultLanguage')"
-          :value="spellcheckerLanguage"
-          :options="availableDictionaries"
-          :disable="!spellcheckerEnabled"
-          :on-change="handleSpellcheckerLanguage"
-        />
+          class="pref-select-item"
+        >
+          <div class="description">
+            {{ t('preferences.spellchecker.defaultLanguage') }}:
+          </div>
+          <el-select
+            :model-value="spellcheckerLanguage"
+            :disabled="!spellcheckerEnabled"
+            multiple
+            filterable
+            collapse-tags
+            collapse-tags-tooltip
+            @change="handleSpellcheckerLanguages"
+          >
+            <el-option
+              v-for="item in availableDictionaries"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </section>
       </template>
     </compound>
 
@@ -89,7 +105,6 @@ import type { PreferencesState } from '@/store/preferences'
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import Compound from '../common/compound/index.vue'
-import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import { isOsx as checkIsOsx } from '@/util'
 import { SpellChecker } from '@/spellchecker'
@@ -140,13 +155,11 @@ const getAvailableDictionaries = async (): Promise<PrefSelectOption<string>[]> =
   })
 }
 
-const handleSpellcheckerLanguage = async (languageCode: string | number | boolean): Promise<void> => {
-  onSelectChange('spellcheckerLanguage', languageCode)
+const handleSpellcheckerLanguages = async (languages: string[]): Promise<void> => {
+  if (languages.length === 0) return
 
-  await window.electron.ipcRenderer.invoke(
-    'mt::spellchecker-switch-language',
-    String(languageCode)
-  )
+  onSelectChange('spellcheckerLanguage', languages)
+  await window.electron.ipcRenderer.invoke('mt::spellchecker-switch-language', languages)
 }
 
 const handleSpellcheckerEnabled = (isEnabled: boolean): void => {
