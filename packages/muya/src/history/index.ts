@@ -156,6 +156,9 @@ class History {
         // Input queues its operation before moving the caret, so pending edits
         // must not replace this baseline with their post-edit selection.
         this._muya.eventCenter.on('selection-change', () => {
+            // Only the first entry needs a seeded baseline; `_record` maintains the
+            // window after that. Leaving early also keeps `getSelection()`, which
+            // rebuilds the selection from the DOM, off every later caret move.
             if (this._selectionStack.length > 1)
                 return;
             if (this._muya.editor.jsonState.hasPendingOperations)
