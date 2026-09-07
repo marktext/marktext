@@ -42,7 +42,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
         const token = makeToken();
         const out = softLineBreak.call(
             renderer,
-            { h, token } as Parameters<typeof softLineBreak>[1],
+            { h, token } as Parameters<typeof softLineBreak>[0],
         );
 
         expect(getSelector(out)).toBe(`span.${CLASS_NAMES.MU_SOFT_LINE_BREAK}`);
@@ -56,7 +56,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
         const token = makeToken();
         const out = softLineBreak.call(
             renderer,
-            { h, token } as Parameters<typeof softLineBreak>[1],
+            { h, token } as Parameters<typeof softLineBreak>[0],
         );
 
         expect(getSelector(out)).toContain(CLASS_NAMES.MU_SOFT_NEWLINE_AS_SPACE);
@@ -71,7 +71,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
         const token = makeToken({ isAtEnd: true });
         const out = softLineBreak.call(
             renderer,
-            { h, token } as Parameters<typeof softLineBreak>[1],
+            { h, token } as Parameters<typeof softLineBreak>[0],
         );
 
         expect(getSelector(out)).not.toContain(CLASS_NAMES.MU_LINE_END);
@@ -85,7 +85,7 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
         const token = makeToken({ isAtEnd: true });
         const out = softLineBreak.call(
             renderer,
-            { h, token } as Parameters<typeof softLineBreak>[1],
+            { h, token } as Parameters<typeof softLineBreak>[0],
         );
 
         expect(getSelector(out)).toContain(CLASS_NAMES.MU_LINE_END);

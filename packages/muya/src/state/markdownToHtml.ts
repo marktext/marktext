@@ -27,6 +27,17 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
   <!-- https://cdnjs.com/libraries/prism -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
+// Appended after `exportStyle` when `softNewlineAsSpace` is on. Same selector as
+// the soft-break rule in exportStyle.css, but placed later so it wins and resets
+// `white-space` to `normal`, collapsing a bare `\n` in a paragraph or tight list
+// item to a space (CommonMark's soft-break behaviour) instead of a line break.
+const SOFT_NEWLINE_AS_SPACE_OVERRIDE = `
+.markdown-body p,
+.markdown-body li:not(:has(> p)) {
+    white-space: normal;
+}
+`;
+
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
@@ -260,16 +271,12 @@ export class MarkdownToHtml {
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
 
-        // When softNewlineAsSpace is off (default), include the pre-wrap rules
-        // so bare \n characters render as line breaks — matching the editor.
-        // When on, omit them so \n collapses to a space (CommonMark default).
-        const [exportStyleBase, exportStyleSoftBreak] = exportStyle.split(
-            '/* Render soft line breaks',
-        );
-        const exportStyleFinal
-            = this._muya?.options.softNewlineAsSpace
-                ? exportStyleBase
-                : `${exportStyleBase}/* Render soft line breaks${exportStyleSoftBreak}`;
+        // The full export stylesheet always ships; when softNewlineAsSpace is on
+        // a single later override collapses paragraph / tight-list soft breaks to
+        // spaces without disturbing any other export rule.
+        const exportStyleFinal = this._muya?.options.softNewlineAsSpace
+            ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
+            : exportStyle;
 
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
