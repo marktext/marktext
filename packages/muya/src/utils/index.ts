@@ -139,8 +139,54 @@ export function throttle<TArgs extends unknown[], TReturn>(
     };
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+    if (typeof value !== 'object' || value === null)
+        return false;
+    const proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
+}
+
+/**
+ * Deep copy of JSON-shaped data. Arrays and plain objects are walked with an
+ * explicit stack, so the nesting depth of the input never consumes engine
+ * stack: `structuredClone` recurses once per level and throws `RangeError`
+ * on a bullet list a few hundred levels deep, which is still ordinary
+ * Markdown (#4747). Shared references inside `value` stay shared in the
+ * copy. Values that are neither arrays nor plain objects (Date, Map, typed
+ * arrays, ...) are still copied with `structuredClone`, so they keep the
+ * semantics callers relied on before.
+ */
 export function deepClone<T>(value: T): T {
-    return structuredClone(value);
+    if (!Array.isArray(value) && !isPlainObject(value))
+        return structuredClone(value);
+
+    const copies = new Map<object, object>();
+    const stack: object[] = [];
+
+    const copyOf = (source: unknown): unknown => {
+        if (!Array.isArray(source) && !isPlainObject(source)) {
+            return typeof source === 'object' && source !== null
+                ? structuredClone(source)
+                : source;
+        }
+        let copy = copies.get(source);
+        if (copy === undefined) {
+            copy = Array.isArray(source) ? [] : {};
+            copies.set(source, copy);
+            stack.push(source);
+        }
+        return copy;
+    };
+
+    const root = copyOf(value) as T;
+    while (stack.length) {
+        const source = stack.pop() as Record<string, unknown>;
+        const target = copies.get(source) as Record<string, unknown>;
+        for (const key of Object.keys(source))
+            target[key] = copyOf(source[key]);
+    }
+
+    return root;
 }
 
 export function escapeHTML(str: string) {
