@@ -11,6 +11,7 @@ export interface IUserPreferences {
   autoSaveDelay?: number
   titleBarStyle?: 'custom' | 'native'
   openFilesInNewWindow?: boolean
+  preventDuplicateOpenedFiles?: boolean
   openFolderInNewWindow?: boolean
   hideScrollbar?: boolean
   sidebarColumn?: number

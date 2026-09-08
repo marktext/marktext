@@ -425,7 +425,8 @@
         "imageRelativeDirectoryBase": "Onde as imagens relativas são copiadas",
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
-        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral."
+        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "Ocultar barras de rolagem",
         "openFilesInNewWindow": "Abrir arquivos em nova janela",
         "openFoldersInNewWindow": "Abrir pastas em nova janela",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files"
       },
       "startup": {
         "title": "Inicialização",

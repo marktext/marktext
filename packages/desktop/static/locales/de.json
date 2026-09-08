@@ -425,7 +425,8 @@
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
-        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "Bildlaufleisten ausblenden",
         "openFilesInNewWindow": "Dateien in neuem Fenster öffnen",
         "openFoldersInNewWindow": "Ordner in neuem Fenster öffnen",
-        "zoom": "Zoom"
+        "zoom": "Zoom",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files"
       },
       "startup": {
         "title": "Start",

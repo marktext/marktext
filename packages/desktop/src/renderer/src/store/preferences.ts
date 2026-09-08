@@ -25,6 +25,7 @@ export interface PreferencesState {
   autoSaveDelay: number
   titleBarStyle: TitleBarStyle | string
   openFilesInNewWindow: boolean
+  preventDuplicateOpenedFiles: boolean
   openFolderInNewWindow: boolean
   zoom: number
   hideScrollbar: boolean
@@ -143,6 +144,7 @@ export const usePreferencesStore = defineStore('preferences', {
     autoSaveDelay: 5000,
     titleBarStyle: 'custom',
     openFilesInNewWindow: false,
+    preventDuplicateOpenedFiles: true,
     openFolderInNewWindow: false,
     zoom: 1.0,
     hideScrollbar: false,

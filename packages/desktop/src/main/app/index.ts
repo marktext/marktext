@@ -495,6 +495,19 @@ class App {
       }
     }
 
+    // Filter out files that are already opened if preventDuplicateOpenedFiles is enabled.
+    const preventDuplicateOpenedFiles =
+      this._accessor.preferences.getItem<boolean>('preventDuplicateOpenedFiles') ?? true
+    if (preventDuplicateOpenedFiles) {
+      for (const filePath of Array.from(fileSet)) {
+        const existingWindow = _windowManager.findWindowWithFile(filePath)
+        if (existingWindow) {
+          existingWindow.focusAndSwitchToTab(filePath)
+          fileSet.delete(filePath)
+        }
+      }
+    }
+
     const directoriesToOpen: { rootDirectory: string | null; fileList: string[] }[] = Array.from(
       directorySet
     ).map((dir) => ({
@@ -664,6 +677,16 @@ class App {
     })
 
     onInternalChannel('app-open-file-by-id', (windowId: number, filePath: string) => {
+      const preventDuplicateOpenedFiles =
+        this._accessor.preferences.getItem<boolean>('preventDuplicateOpenedFiles') ?? true
+      if (preventDuplicateOpenedFiles) {
+        const existingWindow = this._windowManager.findWindowWithFile(filePath)
+        if (existingWindow) {
+          existingWindow.focusAndSwitchToTab(filePath)
+          return
+        }
+      }
+
       const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [filePath])
@@ -675,14 +698,32 @@ class App {
       }
     })
     onInternalChannel('app-open-files-by-id', (windowId: number, fileList: string[]) => {
+      const preventDuplicateOpenedFiles =
+        this._accessor.preferences.getItem<boolean>('preventDuplicateOpenedFiles') ?? true
+      let filesToProcess = fileList
+      if (preventDuplicateOpenedFiles) {
+        filesToProcess = []
+        for (const filePath of fileList) {
+          const existingWindow = this._windowManager.findWindowWithFile(filePath)
+          if (existingWindow) {
+            existingWindow.focusAndSwitchToTab(filePath)
+          } else {
+            filesToProcess.push(filePath)
+          }
+        }
+      }
+      if (filesToProcess.length === 0) {
+        return
+      }
+
       const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
-        this._createEditorWindow(null, fileList)
+        this._createEditorWindow(null, filesToProcess)
       } else {
         const editor = this._windowManager.get(windowId) as EditorWindow | undefined
         if (editor) {
           editor.openTabsFromPaths(
-            fileList
+            filesToProcess
               .map((p) => normalizeMarkdownPath(p))
               .filter((i): i is PathInfo => i !== null && !i.isDir)
               .map((i) => i.path)
@@ -726,6 +767,16 @@ class App {
 
     ipcMain.on('mt::open-file-by-window-id', (_e, windowId: number, filePath: string) => {
       const resolvedPath = normalizeAndResolvePath(filePath)
+      const preventDuplicateOpenedFiles =
+        this._accessor.preferences.getItem<boolean>('preventDuplicateOpenedFiles') ?? true
+      if (preventDuplicateOpenedFiles) {
+        const existingWindow = this._windowManager.findWindowWithFile(resolvedPath)
+        if (existingWindow) {
+          existingWindow.focusAndSwitchToTab(resolvedPath)
+          return
+        }
+      }
+
       const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {
         this._createEditorWindow(null, [resolvedPath])

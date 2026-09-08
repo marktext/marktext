@@ -425,7 +425,8 @@
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
-        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "スクロールバーを隠す",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
         "openFoldersInNewWindow": "新しいウィンドウでフォルダーを開く",
-        "zoom": "ズーム"
+        "zoom": "ズーム",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files"
       },
       "startup": {
         "title": "起動",

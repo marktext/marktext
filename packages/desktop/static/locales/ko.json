@@ -425,7 +425,8 @@
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
-        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "스크롤바 숨기기",
         "openFilesInNewWindow": "새 창에서 파일 열기",
         "openFoldersInNewWindow": "새 창에서 폴더 열기",
-        "zoom": "확대/축소"
+        "zoom": "확대/축소",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files"
       },
       "startup": {
         "title": "시작",

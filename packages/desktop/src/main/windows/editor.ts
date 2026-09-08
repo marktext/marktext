@@ -329,9 +329,9 @@ class EditorWindow extends BaseWindow {
       preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
-      if (this._openedFiles!.includes(filePath)) {
+      if (this.hasOpenFile(filePath)) {
         // File is already opened - avoid opening it again so we dont have duplicate watchers
-        browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath)
+        this.focusAndSwitchToTab(filePath)
         continue
       }
       loadMarkdownFile(
@@ -516,6 +516,29 @@ class EditorWindow extends BaseWindow {
 
   get openedRootDirectory(): string | null {
     return this._openedRootDirectory
+  }
+
+  get openedFiles(): string[] {
+    return this._openedFiles ? [...this._openedFiles] : []
+  }
+
+  /**
+   * Check if a file is currently opened in this editor window.
+   */
+  hasOpenFile(filePath: string): boolean {
+    if (!this._openedFiles || !filePath) return false
+    return this._openedFiles.some((p) => isSamePathSync(p, filePath))
+  }
+
+  /**
+   * Focus window and switch to the tab containing the file.
+   */
+  focusAndSwitchToTab(filePath: string): void {
+    this.bringToFront()
+    if (this.browserWindow && !this.browserWindow.isDestroyed()) {
+      const matched = this._openedFiles?.find((p) => isSamePathSync(p, filePath)) ?? filePath
+      this.browserWindow.webContents.send('mt::switch-tab-by-file_path', matched)
+    }
   }
 
   // --- private ---------------------------------

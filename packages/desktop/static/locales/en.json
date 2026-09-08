@@ -370,6 +370,7 @@
         "autoSaveDelay": "The time in ms after a change that the file is saved",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files",
         "openFolderInNewWindow": "Open folder via menu in a new window",
         "zoom": "The zoom level. Between 0.5 and 2.0 inclusive",
         "hideScrollbar": "Whether to hide scrollbars",
@@ -454,6 +455,7 @@
         "requiresRestart": "Requires restart",
         "hideScrollbars": "Hide scrollbars",
         "openFilesInNewWindow": "Open files in new window",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files",
         "openFoldersInNewWindow": "Open folders in new window",
         "zoom": "Zoom"
       },

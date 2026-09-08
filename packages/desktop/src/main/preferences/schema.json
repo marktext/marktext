@@ -20,6 +20,11 @@
     "type": "boolean",
     "default": false
   },
+  "preventDuplicateOpenedFiles": {
+    "description": "General--Focus existing window when opening already opened files.",
+    "type": "boolean",
+    "default": true
+  },
   "openFolderInNewWindow": {
     "description": "General--Open folder via menu in a new window.",
     "type": "boolean",

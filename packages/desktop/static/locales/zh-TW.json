@@ -425,7 +425,8 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "preventDuplicateOpenedFiles": "打開已打開的檔案時啟動既有視窗"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "隱藏捲軸",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
         "openFoldersInNewWindow": "在新視窗中開啟資料夾",
-        "zoom": "縮放"
+        "zoom": "縮放",
+        "preventDuplicateOpenedFiles": "打開已存在檔案時啟動既有視窗"
       },
       "startup": {
         "title": "啟動",

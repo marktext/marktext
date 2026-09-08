@@ -51,6 +51,11 @@
           :on-change="(value) => onSelectChange('openFilesInNewWindow', value)"
         />
         <bool
+          :description="t('preferences.general.window.preventDuplicateOpenedFiles')"
+          :bool="preventDuplicateOpenedFiles"
+          :on-change="(value) => onSelectChange('preventDuplicateOpenedFiles', value)"
+        />
+        <bool
           :description="t('preferences.general.window.openFoldersInNewWindow')"
           :bool="openFolderInNewWindow"
           :on-change="(value) => onSelectChange('openFolderInNewWindow', value)"
@@ -212,6 +217,7 @@ const {
   titleBarStyle,
   defaultDirectoryToOpen,
   openFilesInNewWindow,
+  preventDuplicateOpenedFiles,
   openFolderInNewWindow,
   treePathExcludePatterns: projectPaths,
   zoom,
