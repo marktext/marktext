@@ -26,6 +26,35 @@ class AtxHeadingContent extends Format {
         return this.parent;
     }
 
+    // Fold/unfold the current heading's section with the platform "fold"
+    // shortcut (Cmd+Shift+[ on macOS, Ctrl+Shift+[ elsewhere — matching the
+    // VS Code convention). Consumed via the `beforeKeydown` hook so the
+    // keystroke never reaches the arrow/enter routing.
+    override beforeKeydown(event: KeyboardEvent): boolean {
+        if (!this._isFoldShortcut(event))
+            return false;
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.parent?.toggleFold();
+
+        return true;
+    }
+
+    private _isFoldShortcut(event: KeyboardEvent) {
+        // `event.key` is '[' for the bracket key regardless of Shift on the
+        // major browsers; `event.code === 'BracketLeft'` is the layout-stable
+        // fallback.
+        const isBracket = event.key === '[' || event.code === 'BracketLeft';
+
+        return (
+            isBracket
+            && event.shiftKey
+            && (event.metaKey || event.ctrlKey)
+            && !event.altKey
+        );
+    }
+
     override update(cursor?: IRenderCursor, highlights = []) {
         return this.inlineRenderer.patch(this, cursor, highlights);
     }

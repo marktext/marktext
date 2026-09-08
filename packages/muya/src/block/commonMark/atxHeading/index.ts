@@ -1,15 +1,25 @@
 import type { Muya } from '../../../muya';
 import type { IAtxHeadingState } from '../../../state/types';
+import type { Nullable } from '../../../types';
 import type Content from '../../base/content';
+import type Parent from '../../base/parent';
 import type { TBlockPath } from '../../types';
+import type HeadingFoldToggle from '../headingFoldToggle';
+import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
-import Parent from '../../base/parent';
+import { operateClassName } from '../../../utils/dom';
+import ParentBlock from '../../base/parent';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
+import { collectSectionIndices } from './foldSection';
 
 @mixins(LeafQueryBlock)
-class AtxHeading extends Parent {
+class AtxHeading extends ParentBlock {
     public meta: IAtxHeadingState['meta'];
+
+    // Runtime-only UI state — fold is a visual concern and is never serialized
+    // to markdown (see `getState`, which omits it).
+    private _folded = false;
 
     static override blockName = 'atx-heading';
 
@@ -18,6 +28,7 @@ class AtxHeading extends Parent {
 
         heading.appendAttachment(
             ScrollPage.loadBlock('heading-copy-link').create(muya, null),
+            ScrollPage.loadBlock('heading-fold-toggle').create(muya, null),
         );
 
         heading.append(
@@ -40,6 +51,81 @@ class AtxHeading extends Parent {
         this.meta = meta;
         this.classList = ['mu-atx-heading'];
         this.createDomNode();
+    }
+
+    get folded() {
+        return this._folded;
+    }
+
+    // The fold-toggle attachment appended in `create`. Located by block name so
+    // this keeps working regardless of attachment ordering.
+    private get _foldToggle(): Nullable<HeadingFoldToggle> {
+        let node = this.attachments.head as Nullable<Parent>;
+        while (node) {
+            if (node.blockName === 'heading-fold-toggle')
+                return node as unknown as HeadingFoldToggle;
+            node = node.next;
+        }
+
+        return null;
+    }
+
+    // The top-level sibling blocks that follow this heading, in document order.
+    private _followingSiblings(): Parent[] {
+        const siblings: Parent[] = [];
+        let node = this.next;
+        while (node) {
+            siblings.push(node);
+            node = node.next;
+        }
+
+        return siblings;
+    }
+
+    /**
+     * Fold or unfold the section owned by this heading: every following block
+     * up to the next heading of equal-or-higher level. Fold is idempotent, so
+     * calling with the current state is a no-op.
+     */
+    toggleFold(folded: boolean = !this._folded) {
+        if (folded === this._folded)
+            return;
+
+        this._folded = folded;
+        this._applyFold();
+    }
+
+    private _applyFold() {
+        const siblings = this._followingSiblings();
+        const sectionIndices = collectSectionIndices(
+            this.meta.level,
+            siblings.map(sibling => ({
+                blockName: sibling.blockName,
+                level: (sibling as AtxHeading).meta?.level,
+            })),
+        );
+
+        for (const index of sectionIndices) {
+            const dom = siblings[index]?.domNode;
+            if (dom == null)
+                continue;
+
+            operateClassName(
+                dom,
+                this._folded ? 'add' : 'remove',
+                CLASS_NAMES.MU_FOLDED_CONTENT,
+            );
+        }
+
+        if (this.domNode) {
+            operateClassName(
+                this.domNode,
+                this._folded ? 'add' : 'remove',
+                CLASS_NAMES.MU_FOLDED,
+            );
+        }
+
+        this._foldToggle?.reflectFolded(this._folded);
     }
 
     override getState(): IAtxHeadingState {
