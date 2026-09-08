@@ -411,6 +411,7 @@
         "footnote": "Pandoc の markdown 拡張脚注を有効にする",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab 互換モードを有効にする",
+        "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
         "plantumlServer": "PlantUML サーバーの URL",
         "theme": "MarkText で使用するテーマの選択",
@@ -658,7 +659,7 @@
       "compatibility": {
         "enableGitlab": "GitLab互換性を有効",
         "enableHtml": "HTMLサポートを有効",
-        "softNewlineAsSpace": "Treat soft newlines as spaces",
+        "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "title": "互換性"
       },
       "lists": {

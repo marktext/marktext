@@ -410,6 +410,7 @@
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
@@ -658,7 +659,7 @@
       "compatibility": {
         "enableGitlab": "GitLab uyumluluğunu etkinleştir",
         "enableHtml": "HTML desteğini etkinleştir",
-        "softNewlineAsSpace": "Treat soft newlines as spaces",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "title": "Uyumluluk"
       },
       "lists": {

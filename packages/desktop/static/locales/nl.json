@@ -410,6 +410,7 @@
         "footnote": "Pandoc voetnoten inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
+        "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
         "theme": "Selecteer het thema voor MarkText",
@@ -658,6 +659,7 @@
       "compatibility": {
         "enableGitlab": "GitLab-compatibiliteit inschakelen",
         "enableHtml": "HTML-ondersteuning inschakelen",
+        "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "title": "Compatibiliteit"
       },
       "lists": {

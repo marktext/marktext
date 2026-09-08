@@ -411,6 +411,7 @@
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
+        "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
         "theme": "MarkText에서 사용할 테마 선택",
@@ -658,7 +659,7 @@
       "compatibility": {
         "enableGitlab": "GitLab 호환성 활성화",
         "enableHtml": "HTML 지원 활성화",
-        "softNewlineAsSpace": "Treat soft newlines as spaces",
+        "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "title": "호환성"
       },
       "lists": {
