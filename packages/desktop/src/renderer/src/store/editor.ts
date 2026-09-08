@@ -1206,7 +1206,9 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      const nextTabIndex = tabs.findIndex((t) => t.pathname === filePath)
+      const nextTabIndex = tabs.findIndex(
+        (t) => window.fileUtils.isSamePathSync(t.pathname, filePath) || t.pathname === filePath
+      )
       if (nextTabIndex === -1) {
         console.error('Cannot find tab with pathname:', filePath)
         return

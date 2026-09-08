@@ -3,6 +3,7 @@
   "autoSaveDelay": 5000,
   "titleBarStyle": "custom",
   "openFilesInNewWindow": false,
+  "preventDuplicateOpenedFiles": true,
   "openFolderInNewWindow": false,
   "zoom": 1.0,
   "hideScrollbar": false,

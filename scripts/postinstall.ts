@@ -157,4 +157,4 @@ run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')
-run('pnpm tsx scripts/minify-locales.ts')
+run('node -r tsx scripts/minify-locales.ts')

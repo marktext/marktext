@@ -89,6 +89,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
   private _windowActivity: WindowActivityList
   public editorBufferStore: EditorBufferStoreLike
   private _watcher: Watcher
+  private _preferences: Preference
 
   /**
    * @param appMenu The application menu instance.
@@ -103,6 +104,7 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     super()
 
     this._appMenu = appMenu
+    this._preferences = preferences
 
     this._activeWindowId = null
     this._windows = new Map()
@@ -312,6 +314,22 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     return this._windows.size
   }
 
+  /**
+   * Find an editor window that currently has the specified file opened.
+   */
+  findWindowWithFile(filePath: string): EditorWindow | undefined {
+    if (!filePath) return undefined
+    for (const window of this._windows.values()) {
+      if (window.type === WindowType.EDITOR) {
+        const editor = window as EditorWindow
+        if (editor.hasOpenFile(filePath)) {
+          return editor
+        }
+      }
+    }
+    return undefined
+  }
+
   // --- helper ---------------------------------
 
   closeWatcher(): void {
@@ -389,6 +407,16 @@ class WindowManager extends TypedEmitter<WindowManagerEvents> {
     })
 
     ipcMain.on('mt::open-file', (e, filePath: string, options: Record<string, unknown>) => {
+      const preventDuplicateOpenedFiles =
+        this._preferences.getItem<boolean>('preventDuplicateOpenedFiles') ?? true
+      if (preventDuplicateOpenedFiles) {
+        const existingWindow = this.findWindowWithFile(filePath)
+        if (existingWindow) {
+          existingWindow.focusAndSwitchToTab(filePath)
+          return
+        }
+      }
+
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return
       const editor = this.get(win.id) as EditorWindow | undefined

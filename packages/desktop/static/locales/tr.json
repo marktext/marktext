@@ -425,7 +425,8 @@
         "plantumlServer": "PlantUML sunucu URL'si",
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
-        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
+        "preventDuplicateOpenedFiles": "Focus existing window when opening already opened files"
       }
     },
     "categories": {
@@ -455,7 +456,8 @@
         "hideScrollbars": "Kaydırma çubuklarını gizle",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFoldersInNewWindow": "Klasörleri yeni pencerede aç",
-        "zoom": "Yakınlaştırma"
+        "zoom": "Yakınlaştırma",
+        "preventDuplicateOpenedFiles": "Focus existing window on duplicate files"
       },
       "startup": {
         "title": "Başlangıç Seçenekleri",

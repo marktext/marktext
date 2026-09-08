@@ -371,6 +371,7 @@
         "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
         "titleBarStyle": "标题栏样式（仅限 Windows 和 Linux 系统）",
         "openFilesInNewWindow": "在新窗口中打开文件",
+        "preventDuplicateOpenedFiles": "打开已打开的文件时激活已有窗口",
         "openFolderInNewWindow": "通过菜单在新窗口中打开文件夹",
         "zoom": "缩放级别。介于 0.5 和 2.0 之间",
         "hideScrollbar": "是否隐藏滚动条",
@@ -454,6 +455,7 @@
         "requiresRestart": "需要重启",
         "hideScrollbars": "隐藏滚动条",
         "openFilesInNewWindow": "在新窗口中打开文件",
+        "preventDuplicateOpenedFiles": "打开已存在文件时激活已有窗口",
         "openFoldersInNewWindow": "在新窗口中打开文件夹",
         "zoom": "缩放"
       },
