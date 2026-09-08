@@ -82,8 +82,9 @@
     font-size: 1em;
 }
 
-/* heading copy-anchor affordance — revealed on heading hover, sits in the
-   left gutter (matches the legacy `ag-copy-header-link` placement). */
+/* heading copy-anchor affordance — revealed on heading hover. Sits in the far
+   left gutter, just left of the fold chevron (which is at -40px). Both live
+   left of the floating front-button zone (~-14px) so nothing overlaps. */
 .mu-container h1 > .mu-copy-header-link,
 .mu-container h2 > .mu-copy-header-link,
 .mu-container h3 > .mu-copy-header-link,
@@ -92,7 +93,7 @@
 .mu-container h6 > .mu-copy-header-link {
     position: absolute;
     top: 0;
-    left: -40px;
+    left: -64px;
 
     display: inline-flex;
     align-items: center;
@@ -131,6 +132,81 @@
 .mu-container .mu-copy-header-link > .mu-icon-inner {
     width: 14px;
     height: 14px;
+}
+
+/* heading fold toggle — a CSS-drawn chevron in the far-left gutter (the slot
+   the copy-anchor used to occupy). Sitting at -40px keeps it clear of the
+   floating front-button (insert/drag) that hovers around -14px on every block.
+   Revealed on heading hover/focus, and kept visible while the section is
+   folded so the user can unfold it again. */
+.mu-container h1 > .mu-fold-toggle,
+.mu-container h2 > .mu-fold-toggle,
+.mu-container h3 > .mu-fold-toggle,
+.mu-container h4 > .mu-fold-toggle,
+.mu-container h5 > .mu-fold-toggle,
+.mu-container h6 > .mu-fold-toggle {
+    position: absolute;
+    top: 0;
+    left: -40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+
+    cursor: pointer;
+
+    transform: translateY(calc(0.7em - 9px));
+    opacity: 0;
+
+    transition: opacity 0.2s ease;
+
+    user-select: none;
+}
+
+.mu-container h1:hover > .mu-fold-toggle,
+.mu-container h2:hover > .mu-fold-toggle,
+.mu-container h3:hover > .mu-fold-toggle,
+.mu-container h4:hover > .mu-fold-toggle,
+.mu-container h5:hover > .mu-fold-toggle,
+.mu-container h6:hover > .mu-fold-toggle,
+.mu-container .mu-fold-toggle:focus,
+.mu-container .mu-fold-toggle.mu-folded {
+    opacity: 0.6;
+}
+
+.mu-container .mu-fold-toggle:hover,
+.mu-container .mu-fold-toggle.mu-folded:hover {
+    opacity: 1;
+}
+
+/* The chevron itself: a rotated arrow head drawn from two borders. Points
+   down when expanded; the `.mu-folded` state rotates it to point right. */
+.mu-container .mu-fold-toggle > .mu-fold-toggle-chevron {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+
+    border-right: 1.5px solid currentcolor;
+    border-bottom: 1.5px solid currentcolor;
+
+    /* pointing down (expanded) */
+    transform: translateY(-2px) rotate(45deg);
+
+    transition: transform 0.15s ease;
+}
+
+.mu-container .mu-fold-toggle.mu-folded > .mu-fold-toggle-chevron {
+    /* pointing right (folded) */
+    transform: translateX(-2px) rotate(-45deg);
+}
+
+/* Blocks belonging to a folded heading section are hidden entirely. Fold is a
+   visual concern only — the document state is unchanged, so export, copy and
+   search all still see the content. */
+.mu-container .mu-folded-content {
+    display: none;
 }
 
 /* block quote */

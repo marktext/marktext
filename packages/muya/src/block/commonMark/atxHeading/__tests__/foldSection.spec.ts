@@ -1,0 +1,66 @@
+import { describe, expect, it } from 'vitest';
+import { collectSectionIndices, isEmptySection } from '../foldSection';
+import type { IFoldSibling } from '../foldSection';
+
+// Structural fixtures: a heading fold section is every following block up to
+// (but excluding) the next heading of an equal-or-higher level.
+const para = (): IFoldSibling => ({ blockName: 'paragraph' });
+const heading = (level: number): IFoldSibling => ({
+    blockName: 'atx-heading',
+    level,
+});
+
+describe('collectSectionIndices', () => {
+    it('collects trailing non-heading blocks', () => {
+        const siblings = [para(), para(), para()];
+        expect(collectSectionIndices(1, siblings)).toEqual([0, 1, 2]);
+    });
+
+    it('stops at the next heading of the same level', () => {
+        // # A  <- folding this (level 1)
+        //   para, para
+        // # B  <- same level, ends the section
+        const siblings = [para(), para(), heading(1), para()];
+        expect(collectSectionIndices(1, siblings)).toEqual([0, 1]);
+    });
+
+    it('stops at the next heading of a higher level (smaller number)', () => {
+        // ## A (level 2) followed by an h1 ends the section immediately.
+        const siblings = [heading(1)];
+        expect(collectSectionIndices(2, siblings)).toEqual([]);
+    });
+
+    it('includes deeper headings (nested h2/h3 under a folded h1)', () => {
+        // # A (level 1): everything down to the next h1 is part of the section,
+        // including the h2 and its paragraph.
+        const siblings = [para(), heading(2), para(), heading(3), para(), heading(1)];
+        expect(collectSectionIndices(1, siblings)).toEqual([0, 1, 2, 3, 4]);
+    });
+
+    it('returns an empty section when immediately followed by a same-level heading', () => {
+        const siblings = [heading(2), para()];
+        expect(collectSectionIndices(2, siblings)).toEqual([]);
+    });
+
+    it('returns an empty section when there are no following siblings', () => {
+        expect(collectSectionIndices(3, [])).toEqual([]);
+    });
+
+    it('treats a heading with an undefined level as a non-terminating block', () => {
+        // Defensive: a malformed heading sibling without a level must not end
+        // the section (it is simply hidden along with the rest).
+        const siblings: IFoldSibling[] = [{ blockName: 'atx-heading' }, para()];
+        expect(collectSectionIndices(1, siblings)).toEqual([0, 1]);
+    });
+});
+
+describe('isEmptySection', () => {
+    it('is true when the heading owns no content', () => {
+        expect(isEmptySection(1, [heading(1)])).toBe(true);
+        expect(isEmptySection(2, [])).toBe(true);
+    });
+
+    it('is false when the heading owns at least one block', () => {
+        expect(isEmptySection(1, [para(), heading(1)])).toBe(false);
+    });
+});

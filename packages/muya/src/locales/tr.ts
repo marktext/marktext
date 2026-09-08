@@ -42,6 +42,8 @@ export const tr = {
         'Search keyword...': 'Anahtar sözcük ara...',
         'Type / to insert...': 'Eklemek için / yazın...',
         'Copy anchor link to this heading': 'Bu başlığın çapa bağlantısını kopyala',
+        'Fold this section': 'Bu bölümü daralt',
+        'Unfold this section': 'Bu bölümü genişlet',
         'Click to add an image': 'Görsel eklemek için tıklayın',
         'Load image failed': 'Görsel yüklenemedi',
         // formatPicker

@@ -439,6 +439,13 @@ class Content extends TreeNode {
     // Do nothing.
     }
 
+    // Overridable hook invoked at the very start of `keydownHandler`. Subclasses
+    // return `true` to consume the event before the default key routing (used
+    // by heading blocks for the fold shortcut). Default: do not intercept.
+    beforeKeydown(_event: KeyboardEvent): boolean {
+        return false;
+    }
+
     enterHandler(_event: Event): void {
     // Do nothing.
     }
@@ -710,6 +717,11 @@ class Content extends TreeNode {
 
     keydownHandler = (event: Event) => {
         if (!isKeyboardEvent(event))
+            return;
+
+        // Overridable hook for block-specific shortcuts (e.g. heading fold).
+        // Returning `true` consumes the event before the default routing.
+        if (this.beforeKeydown(event))
             return;
 
         if (this.muya.ui.handleContentKeydown(event))
