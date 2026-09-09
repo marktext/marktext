@@ -1,40 +1,15 @@
 // @vitest-environment happy-dom
 
+import type { Muya } from '../../../../muya';
 import type AtxHeading from '../index';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Muya } from '../../../../muya';
+import { describe, expect, it } from 'vitest';
+import { bootMuya, useMuyaHarness } from '../../../../__tests__/muyaHarness';
 
 // Integration coverage for the heading fold affordance on the new engine:
 // the toggle renders as an accessible button, clicking it folds every block
 // down to the next same-or-higher-level heading, and toggling is idempotent.
 
-const bootedMuyas: Muya[] = [];
-let originalVersion: string | undefined;
-let hadVersion = false;
-
-beforeEach(() => {
-    hadVersion = 'MUYA_VERSION' in window;
-    originalVersion = window.MUYA_VERSION;
-    window.MUYA_VERSION = 'test';
-});
-
-afterEach(() => {
-    while (bootedMuyas.length)
-        bootedMuyas.pop()!.destroy();
-    if (hadVersion)
-        window.MUYA_VERSION = originalVersion as string;
-    else
-        delete (window as Partial<Window>).MUYA_VERSION;
-});
-
-function bootMuya(markdown: string): Muya {
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
-    muya.init();
-    bootedMuyas.push(muya);
-    return muya;
-}
+useMuyaHarness();
 
 const FOLD_TOGGLE_SELECTOR = '.mu-fold-toggle';
 const FOLDED_CONTENT_SELECTOR = '.mu-folded-content';
