@@ -52,7 +52,10 @@ class HeadingFoldMarker extends TreeNode {
             'aria-hidden': 'true',
         };
         this.createDomNode();
-        this.domNode!.textContent = '…';
+        // The "…" glyph is drawn in CSS (`.mu-fold-marker::after`), NOT set as
+        // text here: a folded heading's `textContent` must stay equal to the
+        // heading text so consumers that read it (TOC, search, outline) are not
+        // polluted by the marker. The element itself stays clickable.
 
         this._updateLabel();
         this._listen();

@@ -214,6 +214,10 @@
    it). It is a real element (`HeadingFoldMarker` attachment), not a
    pseudo-element, so it can own click + button semantics.
 
+   The "…" glyph is drawn via `::after` content, NOT as element text, so a
+   folded heading's `textContent` stays equal to the heading text (the TOC,
+   search and outline read `textContent` and must not see the marker).
+
    Hidden until the heading is folded. Rendered inline after the heading text
    but WITHOUT giving the heading an intrinsic width (`fit-content`/etc), which
    froze the renderer previously (see docs/design/fold-heading-testing-notes.md).
@@ -239,6 +243,10 @@
     border-radius: 4px;
 
     user-select: none;
+}
+
+.mu-container .mu-fold-marker::after {
+    content: '…';
 }
 
 .mu-container .mu-fold-marker.mu-folded {
