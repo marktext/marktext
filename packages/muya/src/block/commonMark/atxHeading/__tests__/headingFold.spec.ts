@@ -130,6 +130,26 @@ describe('clickable collapsed-section marker', () => {
         expect(muya.domNode.querySelectorAll(FOLDED_CONTENT_SELECTOR).length).toBe(0);
         expect(heading.classList.contains('mu-folded')).toBe(false);
     });
+
+    it('does not pollute the heading textContent when folded', () => {
+        // Regression: the desktop TOC/outline/search read `heading.textContent`
+        // (stripping the leading "# " markers, as toc-scroll's `normalize` does)
+        // and compare it to the heading text. The marker's "…" must come from
+        // CSS (::after), not element text, or a folded heading would read as
+        // "Heading…" and break those consumers (headingIndexByText → -1).
+        const muya = bootMuya('# Heading Number 12\n\nbody\n\n# Next\n');
+        const heading = muya.domNode.querySelector<HTMLElement>('.mu-atx-heading')!;
+        const toggle = heading.querySelector<HTMLElement>(FOLD_TOGGLE_SELECTOR)!;
+        // Mirror the desktop consumer: strip leading markdown hashes/space.
+        const headingText = () => (heading.textContent ?? '').replace(/^[#\s]+/, '').trim();
+
+        expect(headingText()).toBe('Heading Number 12');
+
+        toggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        expect(heading.classList.contains('mu-folded')).toBe(true);
+        // Still exactly the heading text — no "…" leaked into textContent.
+        expect(headingText()).toBe('Heading Number 12');
+    });
 });
 
 describe('document-wide fold operations', () => {
