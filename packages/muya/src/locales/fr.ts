@@ -44,6 +44,9 @@ export const fr = {
         'Copy anchor link to this heading': 'Copier le lien d\'ancrage vers ce titre',
         'Fold this section': 'Replier cette section',
         'Unfold this section': 'Déplier cette section',
+        'Fold all': 'Tout replier',
+        'Unfold all': 'Tout déplier',
+        'Fold to this level': 'Replier jusqu’à ce niveau',
         'Click to add an image': 'Cliquez pour ajouter une image',
         'Load image failed': 'Échec du chargement de l\'image',
         // formatPicker

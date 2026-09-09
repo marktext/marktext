@@ -98,17 +98,24 @@ Avoid: any approach that sets an intrinsic width (`fit-content`, `max-content`,
 Static + unit verification done in this pass:
 
 - `tsc --noEmit` (packages/muya): clean.
-- Fold unit + integration tests: **22 passed** (`foldSection.spec.ts` incl. the
-  new `isFoldShortcut` chord tests; `headingFold.spec.ts` incl. the new
-  folded-heading marker-class test).
+- Fold unit + integration tests: **50 passed** across `foldSection.spec.ts`
+  (`collectSectionIndices`, `isFoldShortcut` chord tests, `foldPlanForLevel`),
+  `headingFold.spec.ts` (toggle, nested fold, clickable marker, document-wide
+  `foldAll`/`unfoldAll`/`foldToLevel`), and
+  `paragraphFrontMenu/__tests__/foldActions.spec.ts` (heading-only fold menu
+  items + action routing).
 - Grep confirms **no** `fit-content`/`max-content`/`min-content` rule remains on
   headings — the only occurrence is the cautionary comment in `blockSyntax.css`.
-- The new collapsed-section marker is a CSS `::after` pseudo-element on
-  `.mu-atx-heading.mu-folded > .mu-content`; it sets no intrinsic width on the
-  heading, so it is not expected to reproduce the freeze.
+- The collapsed-section marker is a **real DOM element** (`HeadingFoldMarker`, a
+  `TreeNode` attachment appended after the heading content), NOT a CSS
+  pseudo-element — a pseudo-element cannot receive the click that unfolds the
+  section. It sets no intrinsic width on the heading (`display:none` until
+  folded, then `inline-block`), so it does not reproduce the `fit-content`
+  freeze.
 
-**Still requires an interactive dev-server reload to confirm (cannot be verified
-headlessly):** the original renderer-thread layout freeze is gone, and the
-marker renders correctly across themes/widths. This is a runtime UI check with
-no console signal (see the diagnostic note above), so it must be eyeballed in a
-running dev build before merge.
+**Runtime confirmation (dev-server reload):** the editor no longer freezes,
+fold/unfold works, the "…" marker renders and unfolds on click, and the
+paragraph front menu shows Fold all / Unfold all / Fold to this level on
+headings. The main-process log was clean during the session. Still worth an
+eyeball across themes (Cadmium Light / Material Dark) and narrow widths before
+merge, since that specific rendering check has not been done.

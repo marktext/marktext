@@ -44,6 +44,9 @@ export const ko = {
         'Copy anchor link to this heading': '이 제목의 앵커 링크 복사',
         'Fold this section': '이 섹션 접기',
         'Unfold this section': '이 섹션 펼치기',
+        'Fold all': '모두 접기',
+        'Unfold all': '모두 펼치기',
+        'Fold to this level': '이 수준까지 접기',
         'Click to add an image': '클릭하여 이미지 추가',
         'Load image failed': '이미지 로드 실패',
         // formatPicker

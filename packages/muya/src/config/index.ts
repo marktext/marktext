@@ -108,6 +108,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_COPY_HEADER_LINK',
     'MU_COPY_REMOVE',
     'MU_FOLD_TOGGLE',
+    'MU_FOLD_MARKER',
     'MU_FOLDED',
     'MU_FOLDED_CONTENT',
     'MU_DISABLE_HTML_RENDER',

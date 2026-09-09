@@ -44,6 +44,9 @@ export const pt = {
         'Copy anchor link to this heading': 'Copiar link de âncora para este título',
         'Fold this section': 'Recolher esta seção',
         'Unfold this section': 'Expandir esta seção',
+        'Fold all': 'Recolher tudo',
+        'Unfold all': 'Expandir tudo',
+        'Fold to this level': 'Recolher até este nível',
         'Click to add an image': 'Clique para adicionar uma imagem',
         'Load image failed': 'Falha ao carregar a imagem',
         // formatPicker

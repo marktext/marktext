@@ -44,6 +44,9 @@ export const en = {
         'Copy anchor link to this heading': 'Copy anchor link to this heading',
         'Fold this section': 'Fold this section',
         'Unfold this section': 'Unfold this section',
+        'Fold all': 'Fold all',
+        'Unfold all': 'Unfold all',
+        'Fold to this level': 'Fold to this level',
         'Click to add an image': 'Click to add an image',
         'Load image failed': 'Load image failed',
         // formatPicker

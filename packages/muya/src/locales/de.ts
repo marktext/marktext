@@ -44,6 +44,9 @@ export const de = {
         'Copy anchor link to this heading': 'Ankerlink zu dieser Überschrift kopieren',
         'Fold this section': 'Diesen Abschnitt einklappen',
         'Unfold this section': 'Diesen Abschnitt ausklappen',
+        'Fold all': 'Alle einklappen',
+        'Unfold all': 'Alle ausklappen',
+        'Fold to this level': 'Auf diese Ebene einklappen',
         'Click to add an image': 'Klicken, um ein Bild hinzuzufügen',
         'Load image failed': 'Bild konnte nicht geladen werden',
         // formatPicker
