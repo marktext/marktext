@@ -1,9 +1,9 @@
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import type AtxHeading from '../../commonMark/atxHeading';
-import { isFoldShortcut } from '../../commonMark/atxHeading/foldSection';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
+import { isFoldShortcut } from '../../commonMark/atxHeading/foldSection';
 import { ScrollPage } from '../../scrollPage';
 
 class AtxHeadingContent extends Format {

@@ -1,10 +1,11 @@
 import type { Muya } from '../../../muya';
-import type AtxHeading from '../atxHeading';
+import type { IFoldableHeading } from '../atxHeading/foldSection';
 import { CLASS_NAMES } from '../../../config';
 import { isKeyboardEvent } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
 import TreeNode from '../../base/treeNode';
+import { isFoldableHeading } from '../atxHeading/foldSection';
 
 const debug = logger('headingFoldToggle:');
 
@@ -102,12 +103,10 @@ class HeadingFoldToggle extends TreeNode {
     // is missing or is not actually a foldable heading — a defensive guard for
     // the brief windows during (un)mounting where `parent` may not yet be a
     // fully wired `AtxHeading`, so a stray click can't throw.
-    private _ownerHeading(): AtxHeading | null {
-        const parent = this.parent as unknown as AtxHeading | null;
-        if (parent == null || typeof parent.toggleFold !== 'function')
-            return null;
-
-        return parent;
+    private _ownerHeading(): IFoldableHeading | null {
+        // Structural guard narrows the generic parent to a foldable heading,
+        // covering the brief (un)mount windows where parent isn't wired yet.
+        return isFoldableHeading(this.parent) ? this.parent : null;
     }
 
     // Reflect the folded state onto the affordance: aria-expanded, an accessible
