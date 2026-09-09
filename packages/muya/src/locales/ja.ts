@@ -44,6 +44,9 @@ export const ja = {
         'Copy anchor link to this heading': 'この見出しへのアンカーリンクをコピー',
         'Fold this section': 'このセクションを折りたたむ',
         'Unfold this section': 'このセクションを展開する',
+        'Fold all': 'すべて折りたたむ',
+        'Unfold all': 'すべて展開する',
+        'Fold to this level': 'このレベルまで折りたたむ',
         'Click to add an image': 'クリックして画像を追加',
         'Load image failed': '画像の読み込みに失敗しました',
         // formatPicker

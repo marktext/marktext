@@ -44,6 +44,9 @@ export const zhTW = {
         'Copy anchor link to this heading': '複製此標題的錨點連結',
         'Fold this section': '摺疊此區段',
         'Unfold this section': '展開此區段',
+        'Fold all': '全部摺疊',
+        'Unfold all': '全部展開',
+        'Fold to this level': '摺疊至此層級',
         'Click to add an image': '點擊新增圖片',
         'Load image failed': '圖片載入失敗',
         // formatPicker

@@ -94,3 +94,32 @@ export function isFoldShortcut(event: IFoldKeyChord): boolean {
         && !event.altKey
     );
 }
+
+/**
+ * Plan a document-wide fold "to a level": decide, for every heading, whether it
+ * should end up folded.
+ *
+ * The rule is intentionally simple and per-heading: a heading folds when its
+ * level is deeper than `targetLevel` (a larger level number), and unfolds when
+ * it is at or above the target. So `foldPlanForLevel(2, ...)` keeps h1/h2 open
+ * and folds h3–h6 — leaving a table-of-contents view down to level 2.
+ *
+ * Callers derive the common actions from this one helper:
+ *   - "Fold all"   → targetLevel 1 (only top-level h1s stay open)
+ *   - "Unfold all" → targetLevel 6 (nothing is deeper than 6, so all open)
+ *   - "Fold to this level" → the level of the heading the user clicked
+ *
+ * Whether a folded heading's own content is actually visible on screen is left
+ * to the section CSS cascade (a folded ancestor hides its descendants); this
+ * function only decides each heading's own fold flag.
+ *
+ * @param targetLevel The deepest level that should remain unfolded (1..6).
+ * @param headingLevels Levels of every heading in the document, in order.
+ * @returns For each heading (same order), `true` = fold, `false` = unfold.
+ */
+export function foldPlanForLevel(
+    targetLevel: number,
+    headingLevels: number[],
+): boolean[] {
+    return headingLevels.map(level => level > targetLevel);
+}
