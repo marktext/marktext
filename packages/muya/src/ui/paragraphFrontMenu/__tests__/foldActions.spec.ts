@@ -3,41 +3,16 @@
 import type Content from '../../../block/base/content';
 import type Parent from '../../../block/base/parent';
 import type AtxHeading from '../../../block/commonMark/atxHeading';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Muya } from '../../../muya';
+import type { Muya } from '../../../muya';
+import { describe, expect, it } from 'vitest';
+import { bootMuya, useMuyaHarness } from '../../../__tests__/muyaHarness';
 import { ParagraphFrontMenu } from '../index';
 
 // The paragraph front menu (the "•" handle left of a block) offers heading-only
 // fold actions: Fold all / Unfold all / Fold to this level. These route to the
 // heading's document-wide fold methods. Non-heading blocks must NOT show them.
 
-const bootedHosts: HTMLElement[] = [];
-let hadVersion = false;
-let originalVersion: string | undefined;
-
-beforeEach(() => {
-    hadVersion = 'MUYA_VERSION' in window;
-    originalVersion = window.MUYA_VERSION;
-    window.MUYA_VERSION = 'test';
-});
-
-afterEach(() => {
-    while (bootedHosts.length)
-        bootedHosts.pop()!.remove();
-    if (hadVersion)
-        window.MUYA_VERSION = originalVersion as string;
-    else
-        delete (window as Partial<Window>).MUYA_VERSION;
-});
-
-function bootMuya(markdown: string): Muya {
-    const host = document.createElement('div');
-    document.body.appendChild(host);
-    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
-    muya.init();
-    bootedHosts.push(muya.domNode);
-    return muya;
-}
+useMuyaHarness();
 
 function firstHeading(muya: Muya): AtxHeading {
     const content = muya.editor.scrollPage!.firstContentInDescendant() as Content;
