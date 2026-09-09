@@ -60,3 +60,37 @@ export function isEmptySection(
 ): boolean {
     return collectSectionIndices(headingLevel, followingSiblings).length === 0;
 }
+
+/** The subset of `KeyboardEvent` the fold shortcut needs — keeps this helper
+ * pure and unit-testable with a plain object instead of a real DOM event. */
+export interface IFoldKeyChord {
+    key: string;
+    code: string;
+    shiftKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    altKey: boolean;
+}
+
+/**
+ * Is this keystroke the "fold this section" shortcut?
+ *
+ * The chord is `Cmd+Shift+[` on macOS and `Ctrl+Shift+[` elsewhere, matching
+ * the VS Code "fold" convention. We accept the bracket either by `key` ('[',
+ * which the major browsers report regardless of Shift) or by the layout-stable
+ * `code` ('BracketLeft'), so it still fires on layouts where Shift+[ produces a
+ * different character. `Alt` must be up so we don't shadow other Alt chords.
+ *
+ * Extracted from the keydown handler so the (easy-to-get-wrong) modifier logic
+ * can be tested directly, without constructing a DOM `KeyboardEvent`.
+ */
+export function isFoldShortcut(event: IFoldKeyChord): boolean {
+    const isBracket = event.key === '[' || event.code === 'BracketLeft';
+
+    return (
+        isBracket
+        && event.shiftKey
+        && (event.metaKey || event.ctrlKey)
+        && !event.altKey
+    );
+}

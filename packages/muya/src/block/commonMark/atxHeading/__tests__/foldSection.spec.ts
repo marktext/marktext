@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { collectSectionIndices, isEmptySection } from '../foldSection';
-import type { IFoldSibling } from '../foldSection';
+import { collectSectionIndices, isEmptySection, isFoldShortcut } from '../foldSection';
+import type { IFoldKeyChord, IFoldSibling } from '../foldSection';
 
 // Structural fixtures: a heading fold section is every following block up to
 // (but excluding) the next heading of an equal-or-higher level.
@@ -62,5 +62,49 @@ describe('isEmptySection', () => {
 
     it('is false when the heading owns at least one block', () => {
         expect(isEmptySection(1, [para(), heading(1)])).toBe(false);
+    });
+});
+
+describe('isFoldShortcut', () => {
+    // Base chord = Ctrl+Shift+[ (the non-mac form). Individual tests flip one
+    // field to prove each condition is actually required.
+    const chord = (over: Partial<IFoldKeyChord> = {}): IFoldKeyChord => ({
+        key: '[',
+        code: 'BracketLeft',
+        shiftKey: true,
+        metaKey: false,
+        ctrlKey: true,
+        altKey: false,
+        ...over,
+    });
+
+    it('matches Ctrl+Shift+[', () => {
+        expect(isFoldShortcut(chord())).toBe(true);
+    });
+
+    it('matches Cmd+Shift+[ (macOS)', () => {
+        expect(isFoldShortcut(chord({ ctrlKey: false, metaKey: true }))).toBe(true);
+    });
+
+    it('matches by layout-stable code when key is not "["', () => {
+        // On layouts where Shift+[ yields another character, `key` differs but
+        // `code` is still BracketLeft.
+        expect(isFoldShortcut(chord({ key: 'è' }))).toBe(true);
+    });
+
+    it('requires Shift', () => {
+        expect(isFoldShortcut(chord({ shiftKey: false }))).toBe(false);
+    });
+
+    it('requires Cmd or Ctrl', () => {
+        expect(isFoldShortcut(chord({ ctrlKey: false, metaKey: false }))).toBe(false);
+    });
+
+    it('rejects when Alt is held (must not shadow Alt chords)', () => {
+        expect(isFoldShortcut(chord({ altKey: true }))).toBe(false);
+    });
+
+    it('rejects an unrelated key', () => {
+        expect(isFoldShortcut(chord({ key: ']', code: 'BracketRight' }))).toBe(false);
     });
 });

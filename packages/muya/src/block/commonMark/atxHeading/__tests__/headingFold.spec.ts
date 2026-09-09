@@ -92,4 +92,21 @@ describe('heading fold affordance', () => {
         // alpha, the "## Sub" heading, and beta are all hidden (3 blocks).
         expect(muya.domNode.querySelectorAll(FOLDED_CONTENT_SELECTOR).length).toBe(3);
     });
+
+    it('marks the folded heading so the collapsed-section indicator can show', () => {
+        // The visible "…" marker is a CSS `::after` on `.mu-atx-heading.mu-folded`
+        // (pseudo-element content isn't queryable in happy-dom, so we assert the
+        // class that drives it — that is the real contract between JS and CSS).
+        const muya = bootMuya('# One\n\nalpha\n\n# Two\n');
+        const heading = muya.domNode.querySelector<HTMLElement>('.mu-atx-heading')!;
+        const toggle = heading.querySelector<HTMLElement>(FOLD_TOGGLE_SELECTOR)!;
+
+        expect(heading.classList.contains('mu-folded')).toBe(false);
+
+        toggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        expect(heading.classList.contains('mu-folded')).toBe(true);
+
+        toggle.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        expect(heading.classList.contains('mu-folded')).toBe(false);
+    });
 });
