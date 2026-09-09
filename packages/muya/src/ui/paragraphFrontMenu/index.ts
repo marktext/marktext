@@ -250,6 +250,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         // Delay hide to avoid dispatch enter handler
         setTimeout(this.hide.bind(this));
     }
+
     // Dispatch a heading fold action to the engine. Guarded on the methods
     // existing so a stray non-heading block can't throw.
     private _applyFoldAction(label: string, block: AtxHeading) {
@@ -268,7 +269,6 @@ export class ParagraphFrontMenu extends BaseFloat {
                 break;
         }
     }
-
 
     private _applyMetaAction(label: string, block: Parent, oldState: TState) {
         const { muya } = this;

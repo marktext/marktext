@@ -11,6 +11,36 @@ export interface IFoldSibling {
     blockName: string;
     /** Heading level 1..6 for headings; undefined for non-heading blocks. */
     level?: number;
+    /** For heading siblings: whether that heading is itself currently folded. */
+    folded?: boolean;
+}
+
+/** The heading capabilities the fold code needs from a tree node. */
+export interface IFoldableHeading {
+    blockName: string;
+    meta: { level: number };
+    folded: boolean;
+    toggleFold: (folded?: boolean) => void;
+    foldAll: () => void;
+    unfoldAll: () => void;
+    foldToLevel: (level: number) => void;
+}
+
+/**
+ * Type guard: is this tree node a foldable ATX heading? Checks the discriminant
+ * (`blockName`) plus the presence of the fold API, so callers can narrow a
+ * generic tree node to a heading without an unsafe double cast. Structural on
+ * purpose — keeps this module free of block-class imports (and import cycles).
+ */
+export function isFoldableHeading(
+    node: unknown,
+): node is IFoldableHeading {
+    return (
+        typeof node === 'object'
+        && node !== null
+        && (node as { blockName?: unknown }).blockName === 'atx-heading'
+        && typeof (node as { toggleFold?: unknown }).toggleFold === 'function'
+    );
 }
 
 /**
@@ -50,6 +80,53 @@ export function collectSectionIndices(
 }
 
 /**
+ * When a heading is UNFOLDED, not every block in its section should become
+ * visible again: any block owned by a nested heading that is still folded must
+ * stay hidden. Given the heading's section blocks in document order (each with
+ * a `folded` flag on heading entries), return, per index, whether that block
+ * must remain hidden.
+ *
+ * Walk the section tracking the shallowest still-folded nested heading we are
+ * "inside": once we pass a folded heading at level L, every following block is
+ * hidden until we reach a heading with level <= L (which closes that folded
+ * region). A folded heading's own line stays visible (you still see the
+ * collapsed heading); only the blocks it owns are hidden.
+ */
+export function hiddenByFoldedDescendant(
+    sectionBlocks: IFoldSibling[],
+): boolean[] {
+    // Level of the active folded region, or null when not inside one.
+    let foldedRegionLevel: number | null = null;
+
+    return sectionBlocks.map((block) => {
+        const isHeading = block.blockName === 'atx-heading';
+        const level = typeof block.level === 'number' ? block.level : undefined;
+
+        // A heading at or above the active region closes it (this heading and
+        // what follows are no longer inside the folded descendant).
+        if (
+            isHeading
+            && foldedRegionLevel !== null
+            && level !== undefined
+            && level <= foldedRegionLevel
+        ) {
+            foldedRegionLevel = null;
+        }
+
+        const hidden = foldedRegionLevel !== null;
+
+        // A still-folded heading opens a new hidden region for the blocks it
+        // owns. Its own line is not hidden by this rule.
+        if (isHeading && block.folded && level !== undefined) {
+            if (foldedRegionLevel === null || level <= foldedRegionLevel)
+                foldedRegionLevel = level;
+        }
+
+        return hidden;
+    });
+}
+
+/**
  * A section is "empty" when the heading is immediately followed by another
  * heading of equal-or-higher level (or by nothing at all) — folding it hides
  * no content, so the affordance should be treated as a no-op.
@@ -61,8 +138,10 @@ export function isEmptySection(
     return collectSectionIndices(headingLevel, followingSiblings).length === 0;
 }
 
-/** The subset of `KeyboardEvent` the fold shortcut needs — keeps this helper
- * pure and unit-testable with a plain object instead of a real DOM event. */
+/**
+ * The subset of `KeyboardEvent` the fold shortcut needs — keeps this helper
+ * pure and unit-testable with a plain object instead of a real DOM event.
+ */
 export interface IFoldKeyChord {
     key: string;
     code: string;

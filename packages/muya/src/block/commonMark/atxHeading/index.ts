@@ -4,25 +4,28 @@ import type { Nullable } from '../../../types';
 import type Content from '../../base/content';
 import type Parent from '../../base/parent';
 import type { TBlockPath } from '../../types';
-import type HeadingFoldToggle from '../headingFoldToggle';
 import type HeadingFoldMarker from '../headingFoldMarker';
-import type { IFoldSibling } from './foldSection';
+import type HeadingFoldToggle from '../headingFoldToggle';
+import type { IFoldableHeading, IFoldSibling } from './foldSection';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import ParentBlock from '../../base/parent';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
-import { collectSectionIndices, foldPlanForLevel } from './foldSection';
+import { collectSectionIndices, foldPlanForLevel, hiddenByFoldedDescendant, isFoldableHeading } from './foldSection';
 
 // Project a live sibling block down to the minimal structural view the pure
 // section-resolution helper needs: its block name and (for headings) its level.
 // Non-heading blocks have no `meta.level`, which resolves to `undefined` — the
 // helper treats that as "not a section boundary".
 function toFoldSibling(sibling: Parent): IFoldSibling {
+    const heading = sibling as AtxHeading;
     return {
         blockName: sibling.blockName,
-        level: (sibling as AtxHeading).meta?.level,
+        level: heading.meta?.level,
+        // Only headings carry a fold flag; `folded` is a getter on AtxHeading.
+        folded: sibling.blockName === 'atx-heading' ? heading.folded : undefined,
     };
 }
 
@@ -163,12 +166,13 @@ class AtxHeading extends ParentBlock {
     // top-level blocks, so they are siblings under this heading's parent (the
     // ScrollPage root). Returning `this`'s cohort keeps the document-wide
     // actions working from whichever heading the menu was opened on.
-    private _siblingHeadings(): AtxHeading[] {
-        const headings: AtxHeading[] = [];
+    private _siblingHeadings(): IFoldableHeading[] {
+        const headings: IFoldableHeading[] = [];
         let node = this.parent?.firstChild as Nullable<Parent>;
         while (node) {
-            if (node.blockName === 'atx-heading')
-                headings.push(node as unknown as AtxHeading);
+            // Structural guard narrows the generic tree node to a heading.
+            if (isFoldableHeading(node))
+                headings.push(node);
             node = node.next;
         }
 
@@ -182,12 +186,27 @@ class AtxHeading extends ParentBlock {
             siblings.map(toFoldSibling),
         );
 
-        // Hide (or reveal) every block that belongs to this heading's section.
-        for (const index of sectionIndices) {
+        // When unfolding, a block owned by a nested heading that is still folded
+        // must stay hidden — otherwise unfolding an ancestor would reveal a
+        // collapsed child's content. Precompute, per section block, whether it
+        // belongs to a still-folded descendant.
+        const sectionBlocks = sectionIndices.map(i => toFoldSibling(siblings[i]));
+        const hiddenByDescendant = hiddenByFoldedDescendant(sectionBlocks);
+
+        sectionIndices.forEach((index, i) => {
             const dom = siblings[index]?.domNode;
-            if (dom != null)
-                this._setFoldedClass(dom, CLASS_NAMES.MU_FOLDED_CONTENT);
-        }
+            if (dom == null)
+                return;
+
+            // Folding hides everything; unfolding reveals everything EXCEPT
+            // blocks still owned by a folded nested heading.
+            const shouldHide = this._folded || hiddenByDescendant[i];
+            operateClassName(
+                dom,
+                shouldHide ? 'add' : 'remove',
+                CLASS_NAMES.MU_FOLDED_CONTENT,
+            );
+        });
 
         // Mark the heading itself so the CSS can style a folded heading (e.g.
         // keep its chevron visible and show the collapsed-section marker).

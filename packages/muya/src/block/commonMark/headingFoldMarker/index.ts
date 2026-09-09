@@ -1,11 +1,12 @@
 import type { Muya } from '../../../muya';
 import type { Nullable } from '../../../types';
-import type AtxHeading from '../atxHeading';
+import type { IFoldableHeading } from '../atxHeading/foldSection';
 import { CLASS_NAMES } from '../../../config';
 import { isKeyboardEvent } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
 import TreeNode from '../../base/treeNode';
+import { isFoldableHeading } from '../atxHeading/foldSection';
 
 const debug = logger('headingFoldMarker:');
 
@@ -94,12 +95,10 @@ class HeadingFoldMarker extends TreeNode {
 
     // The heading this marker is attached to, or null when the parent isn't a
     // fully wired foldable heading (defensive against mount/unmount races).
-    private _ownerHeading(): Nullable<AtxHeading> {
-        const parent = this.parent as unknown as AtxHeading | null;
-        if (parent == null || typeof parent.toggleFold !== 'function')
-            return null;
-
-        return parent;
+    private _ownerHeading(): Nullable<IFoldableHeading> {
+        // Structural guard narrows the generic parent to a foldable heading,
+        // covering the brief (un)mount windows where parent isn't wired yet.
+        return isFoldableHeading(this.parent) ? this.parent : null;
     }
 
     // Reflect the heading's folded state onto the marker: show + expose it to

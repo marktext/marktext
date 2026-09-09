@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 
-import type AtxHeading from '../../../block/commonMark/atxHeading';
 import type Content from '../../../block/base/content';
 import type Parent from '../../../block/base/parent';
+import type AtxHeading from '../../../block/commonMark/atxHeading';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../muya';
 import { ParagraphFrontMenu } from '../index';
@@ -113,11 +113,12 @@ describe('paragraph front menu — heading fold actions', () => {
         const muya = bootMuya('# A\n\n## B\n\n### C\n\nc\n');
         // Reach the h2 (second top-level heading) — folding to its level (2)
         // should fold only the deeper h3.
-        let node: any = muya.editor.scrollPage!.firstChild;
+        interface IWalkNode { blockName: string; next: IWalkNode | null; meta?: { level: number } }
+        let node = muya.editor.scrollPage!.firstChild as unknown as IWalkNode | null;
         let h2: AtxHeading | null = null;
         while (node) {
-            if (node.blockName === 'atx-heading' && node.meta.level === 2)
-                h2 = node as AtxHeading;
+            if (node.blockName === 'atx-heading' && node.meta?.level === 2)
+                h2 = node as unknown as AtxHeading;
             node = node.next;
         }
         expect(h2).toBeTruthy();

@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 
+import type AtxHeading from '../index';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../../../muya';
 
@@ -158,12 +159,20 @@ describe('clickable collapsed-section marker', () => {
 
 describe('document-wide fold operations', () => {
     // Reach the heading blocks through the tree to call the document-wide API.
-    function headingBlocks(muya: Muya) {
-        const heads: any[] = [];
-        let node: any = muya.editor.scrollPage?.firstChild;
+    // The tree exposes a `blockName`/`next` linked list; narrow heading nodes to
+    // AtxHeading (guarded by the blockName check) without `any`.
+    interface IWalkNode {
+        blockName: string;
+        next: IWalkNode | null;
+        meta?: { level: number };
+    }
+
+    function headingBlocks(muya: Muya): AtxHeading[] {
+        const heads: AtxHeading[] = [];
+        let node = muya.editor.scrollPage?.firstChild as unknown as IWalkNode | null;
         while (node) {
             if (node.blockName === 'atx-heading')
-                heads.push(node);
+                heads.push(node as unknown as AtxHeading);
             node = node.next;
         }
         return heads;
@@ -203,5 +212,30 @@ describe('document-wide fold operations', () => {
         );
         expect(folded.length).toBe(1);
         expect(folded[0].tagName.toLowerCase()).toBe('h3');
+    });
+
+    it('keeps a still-folded inner section hidden after unfolding its ancestor', () => {
+        // Regression (CodeRabbit): fold inner ## B, then fold # A, then unfold
+        // # A. B is still folded, so B's own content must stay hidden — unfolding
+        // A must not reveal content owned by a still-folded descendant.
+        const muya = bootMuya('# A\n\na\n\n## B\n\nbeta1\n\nbeta2\n');
+        const [hA, hB] = headingBlocks(muya);
+        expect(hA.meta.level).toBe(1);
+        expect(hB.meta.level).toBe(2);
+
+        // The two paragraphs "beta1"/"beta2" belong to B's section.
+        const bParagraphs = () =>
+            Array.from(muya.domNode.querySelectorAll('p'))
+                .filter(p => /beta/.test(p.textContent ?? ''));
+
+        hB.toggleFold(true); // fold inner
+        expect(bParagraphs().every(p => p.classList.contains('mu-folded-content'))).toBe(true);
+
+        hA.toggleFold(true); // fold ancestor (hides B and its content too)
+        hA.toggleFold(false); // unfold ancestor
+
+        // B is still folded, so its paragraphs must remain hidden.
+        expect(hB.folded).toBe(true);
+        expect(bParagraphs().every(p => p.classList.contains('mu-folded-content'))).toBe(true);
     });
 });

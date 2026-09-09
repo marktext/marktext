@@ -1,14 +1,16 @@
-import { describe, expect, it } from 'vitest';
-import { collectSectionIndices, foldPlanForLevel, isEmptySection, isFoldShortcut } from '../foldSection';
 import type { IFoldKeyChord, IFoldSibling } from '../foldSection';
+import { describe, expect, it } from 'vitest';
+import { collectSectionIndices, foldPlanForLevel, hiddenByFoldedDescendant, isEmptySection, isFoldShortcut } from '../foldSection';
 
 // Structural fixtures: a heading fold section is every following block up to
 // (but excluding) the next heading of an equal-or-higher level.
-const para = (): IFoldSibling => ({ blockName: 'paragraph' });
-const heading = (level: number): IFoldSibling => ({
-    blockName: 'atx-heading',
-    level,
-});
+function para(): IFoldSibling {
+    return { blockName: 'paragraph' };
+}
+
+function heading(level: number, folded = false): IFoldSibling {
+    return { blockName: 'atx-heading', level, folded };
+}
 
 describe('collectSectionIndices', () => {
     it('collects trailing non-heading blocks', () => {
@@ -128,5 +130,31 @@ describe('foldPlanForLevel', () => {
 
     it('returns an empty plan for a document with no headings', () => {
         expect(foldPlanForLevel(1, [])).toEqual([]);
+    });
+});
+
+describe('hiddenByFoldedDescendant', () => {
+    it('hides nothing when no nested heading is folded', () => {
+        // Section of "# A": a paragraph, then an unfolded "## B" and its para.
+        const section = [para(), heading(2, false), para()];
+        expect(hiddenByFoldedDescendant(section)).toEqual([false, false, false]);
+    });
+
+    it('hides blocks owned by a still-folded nested heading (not its own line)', () => {
+        // "## B" is folded: its own line stays visible, its paragraph is hidden.
+        const section = [para(), heading(2, true), para()];
+        expect(hiddenByFoldedDescendant(section)).toEqual([false, false, true]);
+    });
+
+    it('stops hiding at a heading that closes the folded region', () => {
+        // folded ## B, its para (hidden), then ## C at the same level reopens.
+        const section = [heading(2, true), para(), heading(2, false), para()];
+        expect(hiddenByFoldedDescendant(section)).toEqual([false, true, false, false]);
+    });
+
+    it('keeps deeper headings under a folded ancestor hidden', () => {
+        // folded ## B owns everything deeper until the next level <= 2.
+        const section = [heading(2, true), para(), heading(3, false), para()];
+        expect(hiddenByFoldedDescendant(section)).toEqual([false, true, true, true]);
     });
 });
