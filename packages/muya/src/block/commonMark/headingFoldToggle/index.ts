@@ -91,11 +91,23 @@ class HeadingFoldToggle extends TreeNode {
     }
 
     private _activate() {
-        const heading = this.parent as unknown as AtxHeading | null;
-        if (!heading || typeof heading.toggleFold !== 'function')
+        const heading = this._ownerHeading();
+        if (heading == null)
             return;
 
         heading.toggleFold();
+    }
+
+    // The heading this affordance is attached to. Returns null when the parent
+    // is missing or is not actually a foldable heading — a defensive guard for
+    // the brief windows during (un)mounting where `parent` may not yet be a
+    // fully wired `AtxHeading`, so a stray click can't throw.
+    private _ownerHeading(): AtxHeading | null {
+        const parent = this.parent as unknown as AtxHeading | null;
+        if (parent == null || typeof parent.toggleFold !== 'function')
+            return null;
+
+        return parent;
     }
 
     // Reflect the folded state onto the affordance: aria-expanded, an accessible

@@ -5,6 +5,7 @@ import type Content from '../../base/content';
 import type Parent from '../../base/parent';
 import type { TBlockPath } from '../../types';
 import type HeadingFoldToggle from '../headingFoldToggle';
+import type { IFoldSibling } from './foldSection';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
@@ -12,6 +13,17 @@ import ParentBlock from '../../base/parent';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
 import { collectSectionIndices } from './foldSection';
+
+// Project a live sibling block down to the minimal structural view the pure
+// section-resolution helper needs: its block name and (for headings) its level.
+// Non-heading blocks have no `meta.level`, which resolves to `undefined` — the
+// helper treats that as "not a section boundary".
+function toFoldSibling(sibling: Parent): IFoldSibling {
+    return {
+        blockName: sibling.blockName,
+        level: (sibling as AtxHeading).meta?.level,
+    };
+}
 
 @mixins(LeafQueryBlock)
 class AtxHeading extends ParentBlock {
@@ -99,33 +111,28 @@ class AtxHeading extends ParentBlock {
         const siblings = this._followingSiblings();
         const sectionIndices = collectSectionIndices(
             this.meta.level,
-            siblings.map(sibling => ({
-                blockName: sibling.blockName,
-                level: (sibling as AtxHeading).meta?.level,
-            })),
+            siblings.map(toFoldSibling),
         );
 
+        // Hide (or reveal) every block that belongs to this heading's section.
         for (const index of sectionIndices) {
             const dom = siblings[index]?.domNode;
-            if (dom == null)
-                continue;
-
-            operateClassName(
-                dom,
-                this._folded ? 'add' : 'remove',
-                CLASS_NAMES.MU_FOLDED_CONTENT,
-            );
+            if (dom != null)
+                this._setFoldedClass(dom, CLASS_NAMES.MU_FOLDED_CONTENT);
         }
 
-        if (this.domNode) {
-            operateClassName(
-                this.domNode,
-                this._folded ? 'add' : 'remove',
-                CLASS_NAMES.MU_FOLDED,
-            );
-        }
+        // Mark the heading itself so the CSS can style a folded heading (e.g.
+        // keep its chevron visible and show the collapsed-section marker).
+        if (this.domNode != null)
+            this._setFoldedClass(this.domNode, CLASS_NAMES.MU_FOLDED);
 
         this._foldToggle?.reflectFolded(this._folded);
+    }
+
+    // Add the class when folded, remove it when unfolded. Wraps the add/remove
+    // branch so the two call sites above read as intent, not DOM bookkeeping.
+    private _setFoldedClass(dom: HTMLElement, className: string) {
+        operateClassName(dom, this._folded ? 'add' : 'remove', className);
     }
 
     override getState(): IAtxHeadingState {

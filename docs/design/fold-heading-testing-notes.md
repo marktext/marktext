@@ -83,8 +83,32 @@ Avoid: any approach that sets an intrinsic width (`fit-content`, `max-content`,
       left drag/insert front-button.
 - [ ] Chevron folds/unfolds the section; folded state keeps the chevron visible.
 - [ ] `Cmd/Ctrl+Shift+[` on a heading line toggles fold.
+- [ ] A folded heading shows the trailing "…" marker; it disappears on unfold.
+- [ ] The "…" marker does NOT freeze the editor and does not shrink-wrap the
+      heading (regression guard for the `fit-content` hang below).
+- [ ] Clicking near the "…" marker does not trap the caret (it is
+      `user-select: none` and non-interactive; the chevron owns the toggle).
 - [ ] Check across themes (Cadmium Light, Material Dark) — affordance offsets
-      are readable and not clipped at narrow window widths.
+      and the marker border are readable and not clipped at narrow window widths.
 - [ ] Reload / restart dev server so muya CSS + block changes are picked up
-      before judging behavior. (Note: the hang was reverted in source but had
-      not yet been verified via reload at time of writing.)
+      before judging behavior.
+
+## Verification status (2026-09-09)
+
+Static + unit verification done in this pass:
+
+- `tsc --noEmit` (packages/muya): clean.
+- Fold unit + integration tests: **22 passed** (`foldSection.spec.ts` incl. the
+  new `isFoldShortcut` chord tests; `headingFold.spec.ts` incl. the new
+  folded-heading marker-class test).
+- Grep confirms **no** `fit-content`/`max-content`/`min-content` rule remains on
+  headings — the only occurrence is the cautionary comment in `blockSyntax.css`.
+- The new collapsed-section marker is a CSS `::after` pseudo-element on
+  `.mu-atx-heading.mu-folded > .mu-content`; it sets no intrinsic width on the
+  heading, so it is not expected to reproduce the freeze.
+
+**Still requires an interactive dev-server reload to confirm (cannot be verified
+headlessly):** the original renderer-thread layout freeze is gone, and the
+marker renders correctly across themes/widths. This is a runtime UI check with
+no console signal (see the diagnostic note above), so it must be eyeballed in a
+running dev build before merge.

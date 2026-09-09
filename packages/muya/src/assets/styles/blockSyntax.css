@@ -209,6 +209,36 @@
     display: none;
 }
 
+/* Collapsed-section marker: a trailing "…" appended to a folded heading so the
+   hidden content is discoverable — otherwise a folded section is
+   indistinguishable from an empty one and the reader can miss content.
+
+   Drawn as a `::after` pseudo-element (content only, no layout box of its own
+   that constrains the heading). This deliberately does NOT set any intrinsic
+   width (`fit-content`/`max-content`/`inline-block`) on the heading or its
+   content span — doing so froze the renderer previously (see
+   docs/design/fold-heading-testing-notes.md). A pseudo-element in the normal
+   inline flow after the text carries no such risk. */
+.mu-container .mu-atx-heading.mu-folded > .mu-content::after {
+    content: '…';
+
+    margin-left: 0.4em;
+    padding: 0 0.35em;
+
+    color: var(--editor-color-50, currentcolor);
+
+    font-weight: normal;
+    opacity: 0.7;
+
+    /* rounded pill so it reads as an affordance, not punctuation */
+    border: 1px solid var(--editor-color-20, currentcolor);
+    border-radius: 4px;
+
+    /* the heading (not the pseudo) owns the click via its fold toggle; keep the
+       marker itself non-interactive so it never traps the caret */
+    user-select: none;
+}
+
 /* block quote */
 .mu-container blockquote {
     position: relative;

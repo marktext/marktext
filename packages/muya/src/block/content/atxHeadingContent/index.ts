@@ -1,6 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import type AtxHeading from '../../commonMark/atxHeading';
+import { isFoldShortcut } from '../../commonMark/atxHeading/foldSection';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
 import { ScrollPage } from '../../scrollPage';
@@ -29,9 +30,10 @@ class AtxHeadingContent extends Format {
     // Fold/unfold the current heading's section with the platform "fold"
     // shortcut (Cmd+Shift+[ on macOS, Ctrl+Shift+[ elsewhere — matching the
     // VS Code convention). Consumed via the `beforeKeydown` hook so the
-    // keystroke never reaches the arrow/enter routing.
+    // keystroke never reaches the arrow/enter routing. The chord-matching lives
+    // in the pure `isFoldShortcut` helper (unit-tested there).
     override beforeKeydown(event: KeyboardEvent): boolean {
-        if (!this._isFoldShortcut(event))
+        if (!isFoldShortcut(event))
             return false;
 
         event.preventDefault();
@@ -39,20 +41,6 @@ class AtxHeadingContent extends Format {
         this.parent?.toggleFold();
 
         return true;
-    }
-
-    private _isFoldShortcut(event: KeyboardEvent) {
-        // `event.key` is '[' for the bracket key regardless of Shift on the
-        // major browsers; `event.code === 'BracketLeft'` is the layout-stable
-        // fallback.
-        const isBracket = event.key === '[' || event.code === 'BracketLeft';
-
-        return (
-            isBracket
-            && event.shiftKey
-            && (event.metaKey || event.ctrlKey)
-            && !event.altKey
-        );
     }
 
     override update(cursor?: IRenderCursor, highlights = []) {
