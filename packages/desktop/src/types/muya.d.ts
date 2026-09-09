@@ -65,6 +65,11 @@ declare module 'muya/lib/contentState' {
   export default contentState
 }
 
+declare module 'muya/lib/contentState/codeBlockCtrl' {
+  const codeBlockCtrl: (ContentState: any) => void
+  export default codeBlockCtrl
+}
+
 declare module 'muya/lib/eventHandler/event' {
   const event: any
   export default event

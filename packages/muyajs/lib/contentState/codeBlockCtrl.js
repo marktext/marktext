@@ -36,6 +36,13 @@ const codeBlockCtrl = (ContentState) => {
 
   ContentState.prototype.selectLanguage = function(paragraph, lang) {
     const block = this.getBlock(paragraph.id)
+    // The code picker captures `paragraph` when it opens; by the time the user
+    // confirms a language the block may already have been converted or removed
+    // (e.g. Enter turned the paragraph into a code block, GH#4896). Same
+    // detached-block guard as the @muyajs/core selector (GH#4654).
+    if (!block) {
+      return
+    }
     if (lang === 'math' && this.isGitlabCompatibilityEnabled && this.updateMathBlock(block)) {
       return
     }
