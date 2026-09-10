@@ -1,3 +1,5 @@
+import { CLASS_NAMES } from '../config';
+
 // Visible line count for a code block, matching marktext `a028a7c2`:
 //   - each `\n` adds a row
 //   - a trailing `\n` still counts as the next visible (empty) row in
@@ -39,6 +41,56 @@ export function syncLineNumbersSpans(wrapper: HTMLElement, count: number): void 
     }
 }
 
+// Viewport tops of the logical lines in `codeEl`, in order. Lines at the end
+// with nothing to measure are left out.
+function measureLineTops(codeEl: HTMLElement): number[] {
+    const text = codeEl.textContent ?? '';
+
+    // Global character offsets where each logical line begins.
+    const lineStarts: number[] = [0];
+    for (let i = 0; i < text.length; i++) {
+        if (text.charCodeAt(i) === LF)
+            lineStarts.push(i + 1);
+    }
+
+    // Walk all text nodes once, measuring each line where its start falls.
+    const walker = document.createTreeWalker(codeEl, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    const tops: number[] = [];
+
+    let nodeStart = 0;
+    let node = walker.nextNode() as Text | null;
+
+    while (node !== null && tops.length < lineStarts.length) {
+        const nodeEnd = nodeStart + node.data.length;
+
+        // A line start may be INSIDE this node (< nodeEnd); if it equals nodeEnd
+        // it belongs to the next node and will be picked up on the next iteration.
+        while (tops.length < lineStarts.length && lineStarts[tops.length] < nodeEnd) {
+            const offsetInNode = lineStarts[tops.length] - nodeStart;
+            range.setStart(node, offsetInNode);
+            // A caret position on an empty line has no client rect (#5294), so
+            // an empty line is measured by its own newline.
+            if (node.data.charCodeAt(offsetInNode) === LF)
+                range.setEnd(node, offsetInNode + 1);
+            else
+                range.collapse(true);
+            tops.push(range.getBoundingClientRect().top);
+        }
+
+        nodeStart = nodeEnd;
+        node = walker.nextNode() as Text | null;
+    }
+
+    // The line after a final "\n" has no text of its own; CodeBlockContent
+    // renders a trailing break there to give it a line box.
+    const trailingBreak = codeEl.querySelector(`.${CLASS_NAMES.MU_TRAILING_BREAK}`);
+    if (trailingBreak !== null && tops.length === lineStarts.length - 1)
+        tops.push(trailingBreak.getBoundingClientRect().top);
+
+    return tops;
+}
+
 // Measure the actual visual top of every logical line using Range API, then
 // set `top` on each span so line numbers align correctly in wrap mode (where
 // a single logical line can span multiple visual rows).
@@ -52,59 +104,23 @@ export function repositionLineNumberSpans(
     if (spans.length === 0)
         return;
 
-    const text = codeEl.textContent ?? '';
+    const tops = measureLineTops(codeEl);
+    const measuredCount = Math.min(tops.length, spans.length);
+    // Origin = the measured top of the first logical line. A measured top sits
+    // at the text box (below the line-box leading), so subtracting the wrapper
+    // top would offset every number down by that constant leading. Anchoring to
+    // the first line cancels it and keeps line 1 flush with the gutter top,
+    // while preserving correct per-line deltas for wrap mode.
+    for (let i = 0; i < measuredCount; i++)
+        spans[i].style.top = `${tops[i] - tops[0]}px`;
 
-    // Global character offsets where each logical line begins.
-    const lineStarts: number[] = [0];
-    for (let i = 0; i < text.length; i++) {
-        if (text.charCodeAt(i) === LF)
-            lineStarts.push(i + 1);
-    }
-
-    // Walk all text nodes once, positioning each span when we cross a line start.
-    const walker = document.createTreeWalker(codeEl, NodeFilter.SHOW_TEXT);
-    const range = document.createRange();
-
-    let nodeStart = 0;
-    let lineIdx = 0;
-    // Origin = the measured top of the first logical line. A collapsed range's
-    // rect top sits at the text/caret box (below the line-box leading), so
-    // subtracting the wrapper top would offset every number down by that
-    // constant leading. Anchoring to the first line cancels it and keeps line 1
-    // flush with the gutter top, while preserving correct per-line deltas for
-    // wrap mode.
-    let baseTop: number | null = null;
-    let node = walker.nextNode() as Text | null;
-
-    while (node !== null && lineIdx < lineStarts.length) {
-        const nodeLen = (node.textContent ?? '').length;
-        const nodeEnd = nodeStart + nodeLen;
-
-        // A line start may be INSIDE this node (< nodeEnd); if it equals nodeEnd
-        // it belongs to the next node and will be picked up on the next iteration.
-        while (lineIdx < lineStarts.length && lineStarts[lineIdx] < nodeEnd) {
-            const offsetInNode = lineStarts[lineIdx] - nodeStart;
-            range.setStart(node, offsetInNode);
-            range.collapse(true);
-            const measured = range.getBoundingClientRect().top;
-            if (baseTop === null)
-                baseTop = measured;
-            if (lineIdx < spans.length)
-                spans[lineIdx].style.top = `${measured - baseTop}px`;
-            lineIdx++;
-        }
-
-        nodeStart = nodeEnd;
-        node = walker.nextNode() as Text | null;
-    }
-
-    // Lines with no text node to measure from: the trailing empty line after a
-    // final "\n", or the single line of a wholly empty code block. The first
+    // Lines with nothing to measure: the single line of a wholly empty code
+    // block, or a final empty line rendered without a trailing break. The first
     // line is always flush with the top; later ones stack one line-height below
     // their predecessor.
-    if (lineIdx < spans.length) {
+    if (measuredCount < spans.length) {
         const lineH = Number.parseFloat(getComputedStyle(wrapper).lineHeight) || 24;
-        for (let i = lineIdx; i < spans.length; i++) {
+        for (let i = measuredCount; i < spans.length; i++) {
             const prevTop = i > 0 ? Number.parseFloat(spans[i - 1].style.top || '0') : 0;
             spans[i].style.top = i > 0 ? `${prevTop + lineH}px` : '0px';
         }
