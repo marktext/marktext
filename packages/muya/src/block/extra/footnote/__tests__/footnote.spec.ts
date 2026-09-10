@@ -1,8 +1,9 @@
 // @vitest-environment happy-dom
 import type { Muya } from '../../../../muya';
 import type { IFootnoteBlockState } from '../../../../state/types';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import Footnote from '..';
+import { CLASS_NAMES } from '../../../../config';
 import { MarkdownToState } from '../../../../state/markdownToState';
 import ExportMarkdown from '../../../../state/stateToMarkdown';
 import { isFootnoteBlockState } from '../../../../state/types';
@@ -87,6 +88,26 @@ describe('footnote block — class API', () => {
 
         expect(parentDom.contains(block.domNode!)).toBe(false);
         expect(block.parent).toBeNull();
+    });
+});
+
+describe('footnote block — backlink', () => {
+    it.each(['a.b', '锚点链接说明:1'])('scrolls back to the inline reference [^%s] (#5208)', (identifier) => {
+        const block = Footnote.create(makeFakeMuya(), { ...baseState, meta: { identifier } });
+        const reference = document.createElement('sup');
+        reference.id = `noteref-${identifier}`;
+        const scrollIntoView = vi.fn();
+        reference.scrollIntoView = scrollIntoView;
+        document.body.append(reference, block.domNode!);
+
+        try {
+            block.domNode!.querySelector<HTMLElement>(`.${CLASS_NAMES.MU_FOOTNOTE_BACKLINK}`)!.click();
+            expect(scrollIntoView).toHaveBeenCalledOnce();
+        }
+        finally {
+            reference.remove();
+            block.domNode!.remove();
+        }
     });
 });
 
