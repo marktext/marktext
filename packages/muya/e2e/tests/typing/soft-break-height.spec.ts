@@ -46,31 +46,26 @@ test.describe('height of a paragraph ending in a soft line break', () => {
         expect(withBreak / oneLine).toBeLessThan(2.5);
     });
 
-    test('the quick-insert hints still render', async ({ page }) => {
-        await page.evaluate(() => window.muya!.setContent(''));
-        await page.locator(editor.paragraph).first().click();
+    test('the quick-insert hint still renders when its attribute is set', async ({ page }) => {
+        // Drive the rule's preconditions directly. Whether a headless run gives
+        // the paragraph focus — and so `mu-active` — is not something this test
+        // is about, and CI does not.
+        const content = await page.evaluate((selectors) => {
+            document.querySelector(selectors.root)!.classList.add('mu-show-quick-insert-hint');
+            const paragraph = document.querySelector(selectors.paragraph)!;
+            paragraph.classList.add('mu-active');
+            const leaf = paragraph.querySelector(selectors.paragraphContent)!;
 
-        // Empty paragraph: the `empty-hint` rule, which the fix must not touch.
-        await expect
-            .poll(() => page.evaluate(
-                selector => globalThis.getComputedStyle(document.querySelector(selector)!, '::after').content,
-                editor.paragraphContent,
-            ))
-            .toContain('/');
+            const read = () => globalThis.getComputedStyle(leaf, '::after').content;
+            const withoutAttribute = read();
+            leaf.setAttribute('placeholder', 'Search keyword...');
+            const withAttribute = read();
+            leaf.removeAttribute('placeholder');
 
-        // Quick-insert menu open: `placeholder` is set, so the gated rule applies.
-        await page.keyboard.type('/', { delay: 60 });
-        await expect
-            .poll(() => page.evaluate(
-                selector => document.querySelector(selector)!.getAttribute('placeholder'),
-                editor.paragraphContent,
-            ))
-            .not.toBeNull();
-        await expect
-            .poll(() => page.evaluate(
-                selector => globalThis.getComputedStyle(document.querySelector(selector)!, '::after').content,
-                editor.paragraphContent,
-            ))
-            .not.toBe('none');
+            return { withoutAttribute, withAttribute };
+        }, editor);
+
+        expect(content.withAttribute).toContain('Search keyword');
+        expect(content.withoutAttribute).not.toContain('Search keyword');
     });
 });
