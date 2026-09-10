@@ -410,6 +410,7 @@
         "footnote": "Enable pandoc's markdown extension footnote",
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -658,6 +659,7 @@
       "compatibility": {
         "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"
       },
       "lists": {

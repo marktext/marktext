@@ -276,6 +276,11 @@
     "type": "boolean",
     "default": false
   },
+  "softNewlineAsSpace": {
+    "description": "Markdown--Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.",
+    "type": "boolean",
+    "default": false
+  },
   "sequenceTheme": {
     "description": "Markdown--Sequence diagram theme",
     "enum": ["hand", "simple"],

@@ -411,6 +411,7 @@
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
         "theme": "選擇 MarkText 中使用的主題",
@@ -658,6 +659,7 @@
       "compatibility": {
         "enableGitlab": "啟用 GitLab 相容性",
         "enableHtml": "啟用 HTML 支援",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "title": "相容性"
       },
       "lists": {

@@ -411,6 +411,7 @@
         "footnote": "Habilitar extensão markdown do pandoc para nota de rodapé",
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
+        "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "sequenceTheme": "Tema do diagrama de sequência",
         "plantumlServer": "URL do servidor PlantUML",
         "theme": "Selecionar o tema usado no MarkText",
@@ -658,6 +659,7 @@
       "compatibility": {
         "enableGitlab": "Habilitar compatibilidade GitLab",
         "enableHtml": "Habilitar suporte HTML",
+        "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "title": "Compatibilidade"
       },
       "lists": {
