@@ -154,6 +154,8 @@ class History {
     }
 
     private _change(source: HistoryAction, dest: HistoryAction) {
+        this._muya.editor.jsonState.flush();
+
         if (this._stack[source].length === 0)
             return;
 
