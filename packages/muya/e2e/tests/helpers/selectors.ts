@@ -12,6 +12,9 @@ export const editor = {
     // `Muya#setFocusMode` / applied at construction for `focusMode: true`).
     focusModeRoot: '.mu-editor.mu-focus-mode',
     paragraph: '.mu-paragraph',
+    // The editable leaf inside a paragraph. Carries the quick-insert hints as
+    // `::after` content, gated on the `placeholder` / `empty-hint` attributes.
+    paragraphContent: '.mu-paragraph-content',
     atxHeading: '.mu-atx-heading',
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
