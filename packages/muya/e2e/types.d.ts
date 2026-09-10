@@ -13,6 +13,10 @@ declare global {
         // exercise the static markdown → HTML pipeline.
         MarkdownToHtml?: typeof MarkdownToHtml;
 
+        // Installed per-spec by `page.exposeFunction` when a test needs to
+        // count DOM events the page fires on its own.
+        __onCompositionStart?: () => void;
+
         // Test-only globals exposed by host/main.ts. Aggregated under a single
         // namespace so the real Window surface stays clean.
         __e2e?: {

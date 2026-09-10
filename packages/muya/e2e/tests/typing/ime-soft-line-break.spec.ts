@@ -32,11 +32,31 @@ test.describe('soft line break followed by an IME commit', () => {
         await seedFirstLine(page);
 
         const cdp = await page.context().newCDPSession(page);
+        const compositionStarts: number[] = [];
+        await page.exposeFunction('__onCompositionStart', () => {
+            compositionStarts.push(1);
+        });
+        await page.evaluate(() => {
+            document
+                .querySelector('.mu-editor')!
+                .addEventListener('compositionstart', () => window.__onCompositionStart!(), true);
+        });
+
         await cdp.send('Input.imeSetComposition', {
             text: 'dierhang',
             selectionStart: 8,
             selectionEnd: 8,
         });
+
+        // Mid-composition, not just at the end. The commit is rebuilt from the
+        // model plus `event.data`, so it comes out right even when the browser
+        // has eaten the newline — only the live DOM shows whether the newline
+        // survived the composition, and only the newline surviving keeps the
+        // input method's own buffer intact (#3468).
+        await expect
+            .poll(() => page.evaluate(() => window.muya!.editor.activeContentBlock?.domNode?.textContent))
+            .toContain('第一行\n');
+
         await cdp.send('Input.imeSetComposition', {
             text: '第二行',
             selectionStart: 3,
@@ -45,6 +65,9 @@ test.describe('soft line break followed by an IME commit', () => {
         await cdp.send('Input.insertText', { text: '第二行' });
 
         await expect.poll(() => getMarkdown(page)).toBe('第一行\n第二行\n');
+        // A newline the browser overwrites takes the composition down with it,
+        // and the input method restarts — one composition means it never did.
+        expect(compositionStarts).toHaveLength(1);
     });
 
     test('keeps the soft line break when the second line is typed without an IME', async ({ page }) => {
