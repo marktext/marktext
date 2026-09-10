@@ -7,7 +7,7 @@ import type Parent from './parent';
 import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
-import { BACK_HASH, BRACKET_HASH, EVENT_KEYS } from '../../config';
+import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS } from '../../config';
 import Selection from '../../selection';
 import {
     adjustOffset,
@@ -92,6 +92,22 @@ function extractWord(
         right,
         word: text.slice(left, right),
     };
+}
+
+/**
+ * Zero-width space an IME composes into instead of the block's trailing
+ * newline — see `Content._seedCompositionAnchor`.
+ */
+const COMPOSITION_ANCHOR = '\u200B';
+
+function countKeptBefore(text: string, offset: number): number {
+    let kept = 0;
+    for (let i = 0; i < offset; i++) {
+        if (text[i] !== COMPOSITION_ANCHOR)
+            kept++;
+    }
+
+    return kept;
 }
 
 function shouldRemoveClosingChar(
@@ -315,8 +331,9 @@ function lineBreakAutoPair(
         text = blockText + event.data;
         // Re-anchor to the rebuilt text instead of nudging the DOM offset: how
         // far the DOM drifted depends on whether the browser kept the trailing
-        // newline (Firefox does, Chromium overwrites it). The end of the
-        // rebuilt text is the one answer that holds either way.
+        // newline (Firefox does, Chromium overwrites it) and on whether the
+        // caret sat in a composition anchor. The end of the rebuilt text is the
+        // one answer that holds in every case.
         // For more info: https://github.com/marktext/muya/issues/130
         start.offset = text.length;
         end.offset = text.length;
@@ -337,6 +354,8 @@ function lineBreakAutoPair(
 class Content extends TreeNode {
     private _text: string;
     protected isComposed: boolean;
+    private _compositionAnchor: Nullable<Text> = null;
+    private _compositionLineEnd: Nullable<Element> = null;
 
     static override blockName = 'content';
 
@@ -606,12 +625,116 @@ class Content extends TreeNode {
     composeHandler(event: Event) {
         if (event.type === 'compositionstart') {
             this.isComposed = true;
+            this._seedCompositionAnchor();
         }
         else if (event.type === 'compositionend') {
             this.isComposed = false;
+            this._consumeCompositionAnchor();
             // Because the compose event will not cause `input` event, So need call `inputHandler` by ourself
             this.inputHandler(event);
         }
+    }
+
+    /**
+     * Give an IME its own text node to compose in when the caret sits at the
+     * end of a block whose text ends with `\n`.
+     *
+     * That newline is the last thing in the block's DOM, so the caret sits
+     * inside it, and Chromium will not sustain a composition there: it
+     * overwrites the newline and abandons the composition, which costs the
+     * input method the first keystroke of the word (#3468). An appended node
+     * takes the composition instead and the newline is left alone. The node
+     * has to carry a zero-width space — Chromium ignores an empty one.
+     *
+     * Seeded on `compositionstart` and stripped again on `compositionend`, so
+     * it exists only while `inputHandler` is short-circuited by `isComposed`
+     * and is never visible to the DOM ↔ text offset mapping.
+     */
+    private _seedCompositionAnchor() {
+        const { domNode } = this;
+        const cursor = this.getCursor();
+        if (
+            domNode == null
+            || cursor == null
+            || cursor.start.offset !== cursor.end.offset
+            || cursor.start.offset !== this.text.length
+            || !this.text.endsWith('\n')
+        ) {
+            return;
+        }
+
+        const anchor = document.createTextNode(COMPOSITION_ANCHOR);
+        domNode.appendChild(anchor);
+        this._compositionAnchor = anchor;
+
+        // `mu-line-end` makes the trailing newline a block of its own, because
+        // a newline with nothing after it renders no line at all. The anchor is
+        // now that something, so the newline renders on its own — and the class
+        // has to go, or the block keeps a line to itself and the composition
+        // lands one line below the caret.
+        const lineEnd = domNode.querySelector(`.${CLASS_NAMES.MU_LINE_END}`);
+        if (lineEnd != null) {
+            lineEnd.classList.remove(CLASS_NAMES.MU_LINE_END);
+            this._compositionLineEnd = lineEnd;
+        }
+
+        // In front of the zero-width space, not behind it: Chromium composes at
+        // the caret and leaves the caret where it was, so a trailing anchor
+        // keeps the caret on the far side of the text being composed and it
+        // draws to the left of the glyph the user is typing.
+        const range = document.createRange();
+        range.setStart(anchor, 0);
+        range.collapse(true);
+        const selection = document.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    }
+
+    /**
+     * Strip the seeded anchor, keeping the text the IME committed into it and
+     * the caret where the user sees it, so the input handler that runs next
+     * reads an anchor-free block.
+     */
+    private _consumeCompositionAnchor() {
+        const anchor = this._compositionAnchor;
+        const lineEnd = this._compositionLineEnd;
+        this._compositionAnchor = null;
+        this._compositionLineEnd = null;
+        lineEnd?.classList.add(CLASS_NAMES.MU_LINE_END);
+        if (anchor == null)
+            return;
+
+        const selection = document.getSelection();
+        const text = anchor.textContent ?? '';
+        // Capture the caret before touching the node: assigning `textContent`
+        // replaces the text node's data and drops any selection inside it.
+        const caretOffset = selection?.anchorNode === anchor
+            ? countKeptBefore(text, selection.anchorOffset)
+            : null;
+        const stripped = text.split(COMPOSITION_ANCHOR).join('');
+
+        if (stripped === '') {
+            // Composition cancelled, or backspaced away character by character.
+            // The anchor goes with it, and the caret goes with the anchor — so
+            // put the caret back where it was before the composition started,
+            // at the end of the block's own text.
+            anchor.parentNode?.removeChild(anchor);
+            if (caretOffset != null)
+                this.setCursor(this.text.length, this.text.length);
+
+            return;
+        }
+
+        anchor.textContent = stripped;
+
+        if (caretOffset == null || selection == null)
+            return;
+
+        const range = document.createRange();
+        range.setStart(anchor, caretOffset);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
     }
 
     /**
