@@ -950,7 +950,12 @@ pre.mu-active.mu-fenced-code::after {
     content: '\200B';
 }
 
-.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content:first-of-type::after {
+/* `placeholder` is only set while the quick-insert menu is open. Match on it
+   rather than generating an empty ::after the rest of the time: the box still
+   takes part in layout, and a block ending in a soft line break ends with a
+   block-level `mu-line-end` span the inline box cannot share a line with, so
+   it claimed a line of its own (#5282). */
+.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content[placeholder]:first-of-type::after {
     padding-left: 8px;
 
     color: var(--editor-color-30);
