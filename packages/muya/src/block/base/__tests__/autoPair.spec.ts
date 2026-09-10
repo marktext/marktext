@@ -217,10 +217,12 @@ describe('autoPair — 701fb9ae soft-line preservation (in-block branches)', () 
 describe('autoPair — 67e18176 soft-line completion on compositionend', () => {
     it('appends composed text after a trailing \\n when compositionend fires', () => {
         const fakeThis = makeFakeThis('a\n', 2);
-        // compositionend has no inputType; only event.type matches.
+        // No `inputType` key at all — a real CompositionEvent has none, and
+        // `autoPair`'s entry guard branches on exactly that. Stubbing one in
+        // (even as `''`) satisfies `isInputEvent`'s `'inputType' in event`
+        // and makes this test pass while the production path is dead (#5279).
         const event = {
             type: 'compositionend',
-            inputType: '',
             data: '你',
         } as unknown as Event;
 
