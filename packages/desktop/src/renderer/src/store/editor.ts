@@ -406,29 +406,34 @@ export const useEditorStore = defineStore('editor', {
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
       if (data.href && data.href[0] === '#') {
-        const anchorSlug = data.href.substring(1)
-        if (!anchorSlug) return
-
-        // Find the block with the anchor slug from the TOC
-        for (const item of this.listToc) {
-          if (item.githubSlug === anchorSlug) {
-            // Scroll to the corresponding element that matches this github-slug
-            bus.emit('scroll-to-header', item.slug)
-            return
-          }
-        }
-
-        // Fall back to a non-heading target: a custom `<a id="...">` (or any
-        // element with a matching id) rendered in the document.
-        const anchorElement = document.getElementById(anchorSlug)
-        if (anchorElement) {
-          bus.emit('scroll-to-anchor-element', anchorElement)
-        }
-
+        this.SCROLL_TO_ANCHOR(data.href.substring(1))
         return
       }
 
       window.electron.ipcRenderer.send('mt::format-link-click', { data, dirname })
+    },
+
+    SCROLL_TO_ANCHOR(anchor: string): void {
+      let anchorSlug = anchor
+      try {
+        anchorSlug = decodeURIComponent(anchor)
+      } catch {
+        // Not valid percent-encoding (e.g. `#100%`): match it as written.
+      }
+      if (!anchorSlug) return
+
+      const heading = this.listToc.find((item) => item.githubSlug === anchorSlug)
+      if (heading) {
+        bus.emit('scroll-to-header', heading.slug)
+        return
+      }
+
+      // Fall back to a non-heading target: a custom `<a id="...">` (or any
+      // element with a matching id) rendered in the document.
+      const anchorElement = document.getElementById(anchorSlug)
+      if (anchorElement) {
+        bus.emit('scroll-to-anchor-element', anchorElement)
+      }
     },
 
     LISTEN_SCREEN_SHOT(): void {
