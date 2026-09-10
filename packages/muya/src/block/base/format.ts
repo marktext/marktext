@@ -59,6 +59,16 @@ const INLINE_UPDATE_FRAGMENTS = [
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i');
 
+function stripHardBreakMarker(line: string): string {
+    const trimmed = line.replace(/[ \t]+$/, '');
+    if (trimmed !== line)
+        return trimmed;
+
+    const backslashes = /\\*$/.exec(line)![0].length;
+
+    return backslashes % 2 === 1 ? line.slice(0, -1) : line;
+}
+
 // Offset of the cursor relative to a symmetric/asymmetric marker pair
 // (strong/em/code/math/html_tag). `open`/`close` are the opening/closing
 // marker lengths; for the symmetric inline markers they are equal.
@@ -1525,6 +1535,26 @@ class Format extends Content {
         this.text
             = `${oldText.substring(0, start.offset)}\n${oldText.substring(end.offset)}`;
         this.setCursor(start.offset + 1, end.offset + 1, true);
+    }
+
+    // Markdown ends a paragraph at a blank line, so Shift+Enter must not leave an
+    // empty line in the block. When the caret's line is blank up to the caret,
+    // removes that line break and returns true: handle the key as Enter.
+    protected dropSoftBreakBeforeCursor(): boolean {
+        const { text } = this;
+        const { start, end } = this.getCursor()!;
+        const head = text.substring(0, start.offset);
+        const lineStart = head.lastIndexOf('\n');
+        if (lineStart === -1 || /[^ \t]/.test(head.substring(lineStart + 1)))
+            return false;
+
+        this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
+        const before = stripHardBreakMarker(head.substring(0, lineStart));
+        const after = text.substring(end.offset).replace(/^[ \t]*\n/, '');
+        this.text = before + after;
+        this.setCursor(before.length, before.length, true);
+
+        return true;
     }
 
     override enterHandler(event: KeyboardEvent): void {

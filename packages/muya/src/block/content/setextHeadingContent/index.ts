@@ -31,7 +31,7 @@ class SetextHeadingContent extends Format {
         if (!isKeyboardEvent(event))
             return;
 
-        if (event.shiftKey) {
+        if (event.shiftKey && !this.dropSoftBreakBeforeCursor()) {
             event.preventDefault();
             event.stopPropagation();
 
