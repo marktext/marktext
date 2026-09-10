@@ -32,7 +32,7 @@ export const es = {
         'To-do List': 'Lista de tareas',
         'Vega Chart': 'Gráfico Vega',
         'Mermaid': 'Mermaid',
-        'Plantuml': 'Plantuml',
+        'Plantuml': 'PlantUML',
         'basic blocks': 'bloques básicos',
         'headings': 'encabezados',
         'advanced blocks': 'bloques avanzados',

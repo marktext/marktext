@@ -34,7 +34,8 @@ export default function footnoteIdentifier(
 
     return [
         h(
-            `sup#noteref-${token.content}.${CLASS_NAMES.MU_INLINE_FOOTNOTE_IDENTIFIER}.${CLASS_NAMES.MU_INLINE_RULE}`,
+            `sup.${CLASS_NAMES.MU_INLINE_FOOTNOTE_IDENTIFIER}.${CLASS_NAMES.MU_INLINE_RULE}`,
+            { attrs: { id: `noteref-${token.content}` } },
             [
                 h(`span.${className}.${CLASS_NAMES.MU_REMOVE}`, startMarker),
                 h(

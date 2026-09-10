@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 export type FileCreateType = 'file' | 'directory'
 export type PasteType = 'cut' | 'copy'
 export type HashType = 'sha1' | 'sha256' | 'sha512'
@@ -93,15 +91,16 @@ export const moveImageToFolder = async(
     }
   } else {
     const file = image as File
-    const imagePath = window.path.join(
-      outputDir,
-      `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${file.name}`
-    )
-
     const buffer = new Uint8Array(await file.arrayBuffer())
-    await window.fileUtils.writeFile(imagePath, buffer)
+    // Name the persisted file by the SHA-1 hash of its bytes (same dedup scheme
+    // as the string-path branch above) so pasting the same bitmap twice reuses
+    // one file instead of accumulating timestamped copies.
+    const ext = window.path.extname(file.name)
+    const hash = await getHash(buffer, 'binary', 'sha1')
+    const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
+    await window.fileUtils.writeFile(hashFilePath, buffer)
 
-    return toResult(imagePath)
+    return toResult(hashFilePath)
   }
 }
 

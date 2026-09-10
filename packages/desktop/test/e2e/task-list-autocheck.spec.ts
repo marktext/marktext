@@ -31,6 +31,11 @@ import {
 // proven nesting fixture from the unit parity spec.
 const NESTED_TASKS = '- [ ] parent\n\n  - [ ] child1\n  - [ ] child2\n'
 
+const SCROLLED_TASKS = `${Array.from(
+  { length: 80 },
+  (_, index) => `Paragraph before task ${index + 1}`
+).join('\n\n')}\n\n- [ ] review decision\n`
+
 const setAutoCheck = async(app: ElectronApplication, value: boolean): Promise<void> => {
   await sendIpcToRenderer(app, 'mt::user-preference', { autoCheck: value })
 }
@@ -127,5 +132,37 @@ test.describe('Checklist 32 — task list autoCheck cascade via a real checkbox 
     expect(md).toContain('- [x] parent')
 
     await expectNoRendererErrors(app)
+  })
+})
+
+test.describe('Task-list checkbox preserves the viewport', () => {
+  test('clicking a visible checkbox in a long document does not jump to the top', async() => {
+    const { app, page } = await launchWithMarkdown(SCROLLED_TASKS, {
+      suppressErrorDialog: true
+    })
+
+    try {
+      const checkbox = page.locator('.editor-component input[type=checkbox]')
+      await checkbox.scrollIntoViewIfNeeded()
+
+      const before = await page.evaluate(() => {
+        const editor = document.querySelector('.editor-component') as HTMLElement | null
+        return editor?.scrollTop ?? 0
+      })
+      expect(before).toBeGreaterThan(500)
+
+      await checkbox.click()
+      await expect(checkbox).toBeChecked()
+      await page.waitForTimeout(250)
+
+      const after = await page.evaluate(() => {
+        const editor = document.querySelector('.editor-component') as HTMLElement | null
+        return editor?.scrollTop ?? 0
+      })
+      expect(after).toBeGreaterThan(before - 100)
+      await expectNoRendererErrors(app)
+    } finally {
+      await app.close()
+    }
   })
 })

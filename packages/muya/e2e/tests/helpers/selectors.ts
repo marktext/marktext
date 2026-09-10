@@ -12,6 +12,9 @@ export const editor = {
     // `Muya#setFocusMode` / applied at construction for `focusMode: true`).
     focusModeRoot: '.mu-editor.mu-focus-mode',
     paragraph: '.mu-paragraph',
+    // The editable leaf inside a paragraph. Carries the quick-insert hints as
+    // `::after` content, gated on the `placeholder` / `empty-hint` attributes.
+    paragraphContent: '.mu-paragraph-content',
     atxHeading: '.mu-atx-heading',
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
@@ -32,6 +35,9 @@ export const editor = {
     // Source of truth: packages/muya/src/block/content/codeBlockContent/index.ts
     // (classList pushes 'mu-codeblock-content').
     codeContent: '.mu-codeblock-content',
+    // One absolutely positioned span per code line when `codeBlockLineNumbers`
+    // is on; the number is its `::before` counter.
+    lineNumber: '.mu-line-numbers-rows > span',
     languageInput: '.mu-language-input',
     table: 'table',
     tableCell: '.mu-table-cell',

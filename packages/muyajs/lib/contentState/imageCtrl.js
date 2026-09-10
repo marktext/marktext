@@ -1,5 +1,6 @@
 import { URL_REG, DATA_URL_REG } from '../config'
 import { correctImageSrc } from '../utils/getImageInfo'
+import { escapeHTML } from '../utils'
 
 // Browser-friendly replacement for Node's `url.fileURLToPath`. Renderer is
 // sandboxed so we can't reach Node's `url` module.
@@ -133,7 +134,7 @@ const imageCtrl = (ContentState) => {
       if (value && attr === 'src') {
         value = correctImageSrc(value)
       }
-      imageText += `${attr}="${value}" `
+      imageText += `${attr}="${escapeHTML(String(value))}" `
     }
     imageText = imageText.trim()
     imageText += '>'
@@ -179,7 +180,7 @@ const imageCtrl = (ContentState) => {
         if (value && attr === 'src') {
           value = correctImageSrc(value)
         }
-        imageText += `${attr}="${value}" `
+        imageText += `${attr}="${escapeHTML(String(value))}" `
       }
       imageText = imageText.trim()
       imageText += '>'

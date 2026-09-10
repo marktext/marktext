@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 
-// `resolveLocalImageSrc` reads `window.DIRNAME` + `window.path.resolve` for the
+// `resolveLocalImageSrc` reads `window.DIRNAME` + `window.path.join` for the
 // relative-resolve branch. Stub those preload surfaces before the hoisted
 // import runs (copied from exportHtml.spec.ts). The function is otherwise a
 // pure string transform — no Muya/engine needed.
@@ -18,7 +18,8 @@ vi.hoisted(() => {
   w.window ??= {}
   w.window.path ??= {
     sep: '/',
-    join: (...parts: string[]) => parts.join('/'),
+    join: (...parts: string[]) =>
+      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{3,}/g, '//'),
     resolve: (...parts: string[]) =>
       parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
   }
@@ -36,13 +37,20 @@ describe('resolveLocalImageSrc — branch coverage', () => {
     expect(resolveLocalImageSrc('/tmp/b.png')).toBe('file:///tmp/b.png')
   })
 
-  it('(b) Windows drive image path → file:// preserving backslashes', () => {
-    expect(resolveLocalImageSrc('C:\\pics\\b.png')).toBe('file://C:\\pics\\b.png')
+  it('(b) Windows drive image path → file:// with forward slashes', () => {
+    expect(resolveLocalImageSrc('C:\\pics\\b.png')).toBe('file:///C:/pics/b.png')
   })
 
-  it('(c) UNC image path → file:// preserving the \\\\host prefix', () => {
+  it('(c) UNC image path → host-based file:// URL', () => {
     expect(resolveLocalImageSrc('\\\\host\\share\\c.png')).toBe(
-      'file://\\\\host\\share\\c.png'
+      'file://host/share/c.png'
+    )
+  })
+
+  it('resolves relative images from WSL UNC document directories without losing the host', () => {
+    window.DIRNAME = '//wsl.localhost/Ubuntu-24.04/home/me/docs'
+    expect(resolveLocalImageSrc('./img/my_image.png')).toBe(
+      'file://wsl.localhost/Ubuntu-24.04/home/me/docs/img/my_image.png'
     )
   })
 

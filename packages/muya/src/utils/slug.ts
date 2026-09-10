@@ -1,10 +1,9 @@
-// The regex uses ASCII `\w`, so CJK and emoji collapse to hyphens. A
-// Unicode-aware variant would be a separate, opt-in change.
+// Unicode-aware like GitHub, so CJK and accented headings keep an anchor (#5292).
 export function generateGithubSlug(text: string): string {
     return text
         .trim()
         .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
+        .replace(/[^\p{L}\p{M}\p{N}\p{Pc}\s-]/gu, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
 }

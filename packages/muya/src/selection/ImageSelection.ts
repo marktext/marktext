@@ -48,6 +48,11 @@ class ImageSelection {
         if (!selected)
             return;
 
+        if (!selected.block.outMostBlock) {
+            this.selected = null;
+            return;
+        }
+
         if (key === ' ') {
             event.preventDefault();
             this._previewSelectedImage(selected);

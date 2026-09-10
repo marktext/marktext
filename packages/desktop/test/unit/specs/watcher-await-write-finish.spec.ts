@@ -34,7 +34,8 @@ vi.mock('ced', () => ({ default: () => 'UTF-8' }))
 
 import Watcher, {
   WATCHER_STABILITY_THRESHOLD,
-  WATCHER_STABILITY_POLL_INTERVAL
+  WATCHER_STABILITY_POLL_INTERVAL,
+  isUncPath
 } from 'main_renderer/filesystem/watcher'
 
 function optionsForLastWatch(): Record<string, unknown> {
@@ -63,5 +64,17 @@ describe('watcher awaitWriteFinish (#3955)', () => {
       stabilityThreshold: WATCHER_STABILITY_THRESHOLD,
       pollInterval: WATCHER_STABILITY_POLL_INTERVAL
     })
+  })
+
+  it('forces polling for UNC roots because fs.watch does not enumerate WSL shares reliably', () => {
+    watcher.watch(win as never, '\\\\wsl.localhost\\Ubuntu-24.04\\home\\me\\project', 'dir')
+    expect(optionsForLastWatch().usePolling).toBe(true)
+  })
+
+  it('detects both backslash and slash UNC paths', () => {
+    expect(isUncPath('\\\\server\\share\\project')).toBe(true)
+    expect(isUncPath('//server/share/project')).toBe(true)
+    expect(isUncPath('C:\\project')).toBe(false)
+    expect(isUncPath('/home/me/project')).toBe(false)
   })
 })

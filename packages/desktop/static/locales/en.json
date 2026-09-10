@@ -80,6 +80,7 @@
       "minimize": "Minimize",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom Out",
+      "resetZoom": "Reset Zoom",
       "fullScreen": "Full Screen",
       "bringAllToFront": "Bring All to Front",
       "alwaysOnTop": "Always on Top"
@@ -184,6 +185,7 @@
     "copyAsRich": "Copy As Rich Text",
     "copyAsHtml": "Copy As HTML",
     "pasteAsPlainText": "Paste as Plain Text",
+    "lookUp": "Look Up \"{selection}\"",
     "insertParagraphBefore": "Insert Paragraph Before",
     "insertParagraphAfter": "Insert Paragraph After",
     "spelling": "Spelling...",
@@ -241,7 +243,9 @@
       "openFolder": "Open Folder"
     },
     "toc": {
-      "title": "Table Of Contents"
+      "title": "Table Of Contents",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all"
     },
     "icons": {
       "files": "Files",
@@ -406,6 +410,7 @@
         "footnote": "Enable pandoc's markdown extension footnote",
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -497,6 +502,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -653,6 +659,7 @@
       "compatibility": {
         "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"
       },
       "lists": {

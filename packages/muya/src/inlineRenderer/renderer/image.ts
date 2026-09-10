@@ -16,7 +16,7 @@ function renderIcon(h: H, className: string, icon: string) {
     // outer anchor early on the nested `<a>`, hoisting the image out of the link
     // (#4865).
     const selector = `span.${className}`;
-    const iconVnode = h(
+    const iconVNode = h(
         'i.icon',
         h(
             'i.icon-inner',
@@ -30,7 +30,7 @@ function renderIcon(h: H, className: string, icon: string) {
         ),
     );
 
-    return h(selector, iconVnode);
+    return h(selector, iconVNode);
 }
 
 function shouldSyncSelectedImageId(

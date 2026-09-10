@@ -78,7 +78,7 @@ jobs:
       # notice on the PR rather than failing the build.
       - name: Deploy preview
         id: preview
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         working-directory: packages/website
         run: |
           set +e
@@ -122,6 +122,13 @@ jobs:
             echo "Could not parse a preview URL or version ID from wrangler output" >&2
             exit 1
           fi
+
+      # Fork PRs cannot access repository secrets, so the wrangler upload above
+      # is skipped for them. Report why via a notice (which needs no PR-write
+      # token) instead of leaving the run looking silently incomplete.
+      - name: Note preview skipped for forks
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "::notice::Website preview deploy skipped for fork PRs — Cloudflare deploy secrets are not exposed to pull requests from forks. The build, lint, and type-check steps above still validate this change."
 
       - name: Comment preview URL on PR
         if: github.event_name == 'pull_request' && steps.preview.outputs.result == 'ok'

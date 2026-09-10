@@ -19,9 +19,9 @@ vi.hoisted(() => {
   w.window ??= {}
   w.window.path ??= {
     sep: '/',
-    join: (...parts: string[]) => parts.join('/'),
-    // Minimal POSIX-ish resolve good enough for relative image rewriting:
-    // `resolve('/docs', './a.png')` → `/docs/a.png`.
+    join: (...parts: string[]) =>
+      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{3,}/g, '//'),
+    // Some transitive helpers still expect a minimal POSIX-ish `resolve`.
     resolve: (...parts: string[]) =>
       parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
   }

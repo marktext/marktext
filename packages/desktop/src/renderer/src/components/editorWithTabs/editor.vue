@@ -123,8 +123,9 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement } from '@/util/tocNavigation'
+import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -221,6 +222,7 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   lineHeight,
   fontSize,
   codeFontSize,
@@ -668,6 +670,12 @@ watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
   }
 })
 
+watch(softNewlineAsSpace, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ softNewlineAsSpace: value }, true)
+  }
+})
+
 watch(hideQuickInsertHint, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ hideQuickInsertHint: value })
@@ -870,6 +878,16 @@ const imageAction = async (
   // TODO(Refactor): Refactor this method.
   if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
+
+  // A pasted screenshot / bitmap clipboard comes in as a `data:` URL string
+  // rather than a file path. `moveImageToFolder` and `uploadImage` treat any
+  // string as a local path, which would silently keep the base64 inline — so
+  // normalize it back into a `File` up front and let the branches below handle
+  // it as binary.
+  if (typeof image === 'string' && image.startsWith('data:')) {
+    const file = dataURLToFile(image)
+    if (file) image = file
+  }
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
@@ -1215,9 +1233,8 @@ const scrollToCords = (y: number) => {
   })
 }
 
-// Smoothly scroll the editor so `anchor` sits at the standard top offset.
-// Shared by the TOC, search-highlight, and any other "reveal this element"
-// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+// Smoothly scroll the editor so `anchor` sits at the standard caret offset.
+// Shared by search highlights and non-heading in-document anchors.
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
@@ -1238,7 +1255,9 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
-  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+  const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
+  if (!heading) return
+  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1327,7 +1346,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1353,7 +1372,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1751,6 +1770,7 @@ onMounted(() => {
     footnote: footnote.value,
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
+    softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
