@@ -403,6 +403,14 @@ export function isInputEvent(event: Event): event is InputEvent {
     return 'inputType' in event;
 }
 
+// narrowing Event type to the `compositionend` CompositionEvent that
+// `Content.composeHandler` forwards into the input pipeline. It carries the
+// committed text on `data` but, unlike an InputEvent, has no `inputType` —
+// so `isInputEvent` rejects it.
+export function isCompositionEndEvent(event: Event): event is CompositionEvent {
+    return event.type === 'compositionend';
+}
+
 // narrowing Note type to Element.
 export function isElement(node: Node): node is Element {
     return node.nodeType === Node.ELEMENT_NODE;

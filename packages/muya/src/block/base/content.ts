@@ -12,6 +12,7 @@ import Selection from '../../selection';
 import {
     adjustOffset,
     diffToTextOp,
+    isCompositionEndEvent,
     isInputEvent,
     isKeyboardEvent,
     isMouseEvent,
@@ -295,18 +296,20 @@ function collapsedInputAutoPair(
 }
 
 function lineBreakAutoPair(
-    event: InputEvent,
+    event: InputEvent | CompositionEvent,
     text: string,
     start: INodeOffset,
     end: INodeOffset,
     oldStart: INodeOffset,
     blockText: string,
 ) {
+    const inputType = isInputEvent(event) ? event.inputType : '';
+
     // Just work for `Shift + Enter` to create a soft and hard line break.
     if (
         blockText.endsWith('\n')
         && start.offset === text.length
-        && (event.inputType === 'insertText' || event.type === 'compositionend')
+        && (inputType === 'insertText' || event.type === 'compositionend')
     ) {
         text = blockText + event.data;
         // I don't know why firefox don't need to offset++
@@ -319,7 +322,7 @@ function lineBreakAutoPair(
     else if (
         blockText.length === oldStart.offset
         && blockText[oldStart.offset - 2] === '\n'
-        && event.inputType === 'deleteContentBackward'
+        && inputType === 'deleteContentBackward'
     ) {
         text = blockText.substring(0, oldStart.offset - 1);
         start.offset = text.length;
@@ -628,11 +631,15 @@ class Content extends TreeNode {
         let needRender = false;
 
         // The event will not be input event, when click task list item input element.
-        if (!isInputEvent(event) || !oldStart)
+        // `compositionend` is let through as well: `composeHandler` forwards it
+        // straight into `inputHandler`, and it is the only signal an IME commit
+        // ever produces here — rejecting it left the soft-line-break repair
+        // below unreachable for CJK input (#5279).
+        if ((!isInputEvent(event) && !isCompositionEndEvent(event)) || !oldStart)
             return { text, needRender };
 
         if (this.text !== text) {
-            if (start.offset === end.offset && event.type === 'input') {
+            if (isInputEvent(event) && start.offset === end.offset && event.type === 'input') {
                 const collapsed = collapsedInputAutoPair(event, text, start, end, {
                     blockText: this.text,
                     options: this.muya.options,
