@@ -18,9 +18,9 @@ import { Muya } from '../muya';
 //    same slug across multiple invocations on the same document); duplicate
 //    headings keep distinct slugs but share `githubSlug`. The marktext
 //    fix didn't dedupe and we don't either — that is the caller's call.
-//  - `generateGithubSlug` mirrors marktext url.js literally: ASCII `\w`
-//    only, so CJK / emoji collapse to hyphens. Future Unicode-aware
-//    slugging is a separate change.
+//  - `generateGithubSlug` keeps Unicode letters, marks and numbers the way
+//    GitHub does, so `[jump](#中文标题)` resolves (#5292); emoji and
+//    punctuation are stripped.
 
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
@@ -134,16 +134,14 @@ describe('muya.getTOC()', () => {
         expect(toc[0].content).toBe('Tabbed heading');
     });
 
-    it('githubSlug strips non-ASCII letters and emoji and collapses whitespace', () => {
-        // marktext url.js literal behavior: `[^\w\s-]/g` removes CJK and
-        // emoji because JS `\w` is ASCII-only without the `/u` flag.
-        // Future Unicode-aware slugging would be a separate change; this
-        // test locks the marktext-faithful output in place.
-        const md = `# 你好 World 🎉\n\n# API & Usage Examples!`;
+    it('githubSlug keeps non-ASCII letters, strips emoji and punctuation, collapses whitespace', () => {
+        const md = `# 你好 World 🎉\n\n# API & Usage Examples!\n\n## 中文标题\n\n## Café Résumé`;
         const muya = bootMuya(md);
         const toc = muya.getTOC();
-        expect(toc[0].githubSlug).toBe('-world-');
+        expect(toc[0].githubSlug).toBe('你好-world-');
         expect(toc[1].githubSlug).toBe('api-usage-examples');
+        expect(toc[2].githubSlug).toBe('中文标题');
+        expect(toc[3].githubSlug).toBe('café-résumé');
     });
 
     it('duplicate headings share githubSlug but get distinct stable slugs', () => {

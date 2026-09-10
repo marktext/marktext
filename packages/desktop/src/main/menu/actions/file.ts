@@ -17,12 +17,12 @@ import { showTabBar } from './view'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
 import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
-import { normalizeAndResolvePath, writeFile } from '../../filesystem'
+import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc from '../../utils/pandoc'
 import { t } from '../../i18n'
-import type { UnsavedFile } from '@shared/types/files'
+import type { TabOptions, UnsavedFile } from '@shared/types/files'
 
 type Win = BrowserWindow | null | undefined
 
@@ -615,18 +615,12 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayloa
     return
   }
 
-  let pathname = urlCandidate
-  if (dirname && !path.isAbsolute(urlCandidate)) {
-    pathname = path.join(dirname, urlCandidate)
-  }
-
+  const { pathname, anchor } = resolveLocalLinkTarget(urlCandidate, dirname ?? '')
   if (pathname) {
-    // decodeURIComponent() CommonMark #503, allow percent encoded path names to open files. https://github.com/marktext/marktext/issues/57
-    pathname = path.normalize(decodeURIComponent(pathname))
     if (isMarkdownFile(pathname)) {
       const innerWin = BrowserWindow.fromWebContents(e.sender)
       if (innerWin) {
-        openFileOrFolder(innerWin, pathname)
+        openFileOrFolder(innerWin, pathname, { anchor })
       }
     } else {
       // A link in an untrusted document could point at a co-located script or
@@ -753,10 +747,14 @@ export const openFolder = async(win: BrowserWindow | null): Promise<void> => {
   }
 }
 
-export const openFileOrFolder = (win: BrowserWindow, pathname: string): void => {
+export const openFileOrFolder = (
+  win: BrowserWindow,
+  pathname: string,
+  options: TabOptions = {}
+): void => {
   const resolvedPath = normalizeAndResolvePath(pathname)
   if (isFile(resolvedPath)) {
-    ipcMain.emit('app-open-file-by-id', win.id, resolvedPath)
+    ipcMain.emit('app-open-file-by-id', win.id, resolvedPath, options)
   } else if (isDirectory(resolvedPath)) {
     ipcMain.emit('app-open-directory-by-id', win.id, resolvedPath)
   } else {
