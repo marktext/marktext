@@ -256,11 +256,13 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
 
     override selectItem({ label }: IQuickInsertMenuItem['children'][number]) {
         const { _block: block, muya } = this;
-        replaceBlockByLabel({
-            label,
-            block: block!.parent!,
-            muya,
-        });
+        if (block?.outMostBlock) {
+            replaceBlockByLabel({
+                label,
+                block: block.parent!,
+                muya,
+            });
+        }
         // delay hide to avoid dispatch enter handler
         setTimeout(this.hide.bind(this));
     }
