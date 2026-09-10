@@ -113,4 +113,55 @@ test.describe('paragraphs and headings', () => {
         await expect(page.locator(editor.paragraph)).toHaveCount(1);
         await expect(page.locator(editor.softLineBreak)).toHaveCount(0);
     });
+
+    // #5296: a paragraph cannot keep an empty line, so the second press ends it.
+    test('a second Shift+Enter breaks the paragraph', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent(''));
+        await page.locator(editor.paragraph).first().click();
+
+        await slowType(page, 'a');
+        await page.keyboard.press('Shift+Enter');
+        await page.keyboard.press('Shift+Enter');
+        await slowType(page, 'b');
+
+        await expect(page.locator(editor.paragraph)).toHaveCount(2);
+        await expect(page.locator(editor.softLineBreak)).toHaveCount(0);
+        await page.waitForFunction(
+            () => window.muya!.getMarkdown() === 'a\n\nb\n',
+            undefined,
+            { timeout: 5000 },
+        );
+        expect(await getMarkdown(page)).toBe('a\n\nb\n');
+    });
+
+    test('undo after the paragraph break brings back the soft line break', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent(''));
+        await page.locator(editor.paragraph).first().click();
+
+        // History records edits once per frame: wait for each press to reach the
+        // document, or the presses and the undo collapse into one step.
+        await slowType(page, 'a');
+        await page.keyboard.press('Shift+Enter');
+        await page.waitForFunction(
+            () => window.muya!.getMarkdown() === 'a\n\n',
+            undefined,
+            { timeout: 5000 },
+        );
+        await page.keyboard.press('Shift+Enter');
+        await page.waitForFunction(
+            () => window.muya!.getState().length === 2,
+            undefined,
+            { timeout: 5000 },
+        );
+
+        await page.evaluate(() => window.muya!.undo());
+
+        await expect(page.locator(editor.paragraph)).toHaveCount(1);
+        await expect(page.locator(editor.softLineBreak)).toHaveCount(1);
+        await page.waitForFunction(
+            () => window.muya!.getMarkdown() === 'a\n\n',
+            undefined,
+            { timeout: 5000 },
+        );
+    });
 });
