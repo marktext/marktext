@@ -7,7 +7,7 @@ import type Parent from './parent';
 import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
-import { BACK_HASH, BRACKET_HASH, EVENT_KEYS, isFirefox } from '../../config';
+import { BACK_HASH, BRACKET_HASH, EVENT_KEYS } from '../../config';
 import Selection from '../../selection';
 import {
     adjustOffset,
@@ -309,15 +309,17 @@ function lineBreakAutoPair(
     if (
         blockText.endsWith('\n')
         && start.offset === text.length
+        && typeof event.data === 'string'
         && (inputType === 'insertText' || event.type === 'compositionend')
     ) {
         text = blockText + event.data;
-        // I don't know why firefox don't need to offset++
+        // Re-anchor to the rebuilt text instead of nudging the DOM offset: how
+        // far the DOM drifted depends on whether the browser kept the trailing
+        // newline (Firefox does, Chromium overwrites it). The end of the
+        // rebuilt text is the one answer that holds either way.
         // For more info: https://github.com/marktext/muya/issues/130
-        if (!isFirefox) {
-            start.offset++;
-            end.offset++;
-        }
+        start.offset = text.length;
+        end.offset = text.length;
     }
     else if (
         blockText.length === oldStart.offset
