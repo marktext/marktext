@@ -86,6 +86,30 @@ describe('useEditorStore FORMAT_LINK_CLICK (anchor links)', () => {
     getByIdSpy.mockRestore()
   })
 
+  it('matches a percent-encoded anchor against the decoded github-slug (#5292)', () => {
+    const store = useEditorStore()
+    store.listToc = [{ githubSlug: '中文标题', slug: 'uid-1', lvl: 2 }]
+
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    store.FORMAT_LINK_CLICK({
+      data: { href: '#%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98' },
+      dirname: ''
+    })
+
+    expect(emitSpy).toHaveBeenCalledWith('scroll-to-header', 'uid-1')
+  })
+
+  it('falls back to the raw anchor when it is not valid percent-encoding', () => {
+    const store = useEditorStore()
+    store.listToc = [{ githubSlug: '100%', slug: 'uid-1', lvl: 2 }]
+
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    expect(() => store.FORMAT_LINK_CLICK({ data: { href: '#100%' }, dirname: '' })).not.toThrow()
+    expect(emitSpy).toHaveBeenCalledWith('scroll-to-header', 'uid-1')
+  })
+
   it('ignores a bare "#" (empty anchor slug) without emit or IPC', () => {
     const store = useEditorStore()
     store.listToc = [{ githubSlug: 'installation', slug: 'uid-1', lvl: 2 }]
