@@ -35,6 +35,9 @@ export const editor = {
     // Source of truth: packages/muya/src/block/content/codeBlockContent/index.ts
     // (classList pushes 'mu-codeblock-content').
     codeContent: '.mu-codeblock-content',
+    // One absolutely positioned span per code line when `codeBlockLineNumbers`
+    // is on; the number is its `::before` counter.
+    lineNumber: '.mu-line-numbers-rows > span',
     languageInput: '.mu-language-input',
     table: 'table',
     tableCell: '.mu-table-cell',
