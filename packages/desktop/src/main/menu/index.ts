@@ -6,7 +6,11 @@ import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
 import { isLinux, isOsx, isWindows } from '../config'
 import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
-import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
+import {
+  updateDirectionMenu,
+  updateSelectionMenus,
+  type SelectionState
+} from '../menu/actions/paragraph'
 import { onInternalChannel } from '../utils/internalIpc'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
@@ -54,11 +58,7 @@ class AppMenu {
    * @param keybindings The keybindings instances.
    * @param userDataPath The user data path.
    */
-  constructor(
-    preferences: Preference,
-    keybindings: Keybindings,
-    userDataPath: string
-  ) {
+  constructor(preferences: Preference, keybindings: Keybindings, userDataPath: string) {
     this._preferences = preferences
     this._keybindings = keybindings
     this._userDataPath = userDataPath
@@ -476,6 +476,20 @@ class AppMenu {
     ipcMain.on('mt::update-line-ending-menu', (_e, windowId: number, lineEnding: string) => {
       this.updateLineEndingMenu(windowId, lineEnding)
     })
+    ipcMain.on(
+      'mt::update-direction-menu',
+      (
+        _e,
+        windowId: number,
+        state: { documentDir: 'rtl' | 'ltr' | null; blockDir: 'rtl' | 'ltr' | null }
+      ) => {
+        if (!this.has(windowId)) {
+          log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
+          return
+        }
+        updateDirectionMenu(this.getWindowMenuById(windowId), state.documentDir, state.blockDir)
+      }
+    )
     ipcMain.on(
       'mt::update-format-menu',
       (_e, windowId: number, formats: Record<string, boolean>) => {

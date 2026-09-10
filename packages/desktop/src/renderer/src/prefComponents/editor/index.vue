@@ -156,12 +156,9 @@
         </h6>
       </template>
       <template #children>
-        <cur-select
-          :description="t('preferences.editor.misc.textDirection.title')"
-          :value="textDirection"
-          :options="getTextDirectionOptions()"
-          :on-change="(value) => onSelectChange('textDirection', value)"
-        />
+        <p class="pref-note">
+          {{ t('preferences.editor.misc.textDirection.deprecation') }}
+        </p>
         <bool
           :description="t('preferences.editor.misc.hideQuickInsertHint')"
           :bool="hideQuickInsertHint"
@@ -196,7 +193,6 @@ import TextBox from '../common/textBox/index.vue'
 import {
   tabSizeOptions,
   getEndOfLineOptions,
-  getTextDirectionOptions,
   getTrimTrailingNewlineOptions,
   getDefaultEncodingOptions
 } from './config'
@@ -215,7 +211,6 @@ const {
   autoPairQuote,
   tabSize,
   endOfLine,
-  textDirection,
   codeFontSize,
   codeFontFamily,
   codeBlockLineNumbers,
@@ -237,6 +232,12 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
 </script>
 
 <style scoped>
+.pref-note {
+  font-size: 13px;
+  color: var(--editorColor60);
+  margin: 8px 0;
+}
+
 .pref-editor .image-ctrl {
   font-size: 14px;
   user-select: none;

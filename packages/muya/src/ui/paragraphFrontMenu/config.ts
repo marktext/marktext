@@ -41,6 +41,14 @@ export const FRONT_MENU = [
 
 export type FrontMenuIcon = (typeof FRONT_MENU)[number];
 
+export const DIRECTION_MENU = [
+    { label: 'dir-rtl', text: 'RTL Direction' },
+    { label: 'dir-ltr', text: 'LTR Direction' },
+    { label: 'dir-none', text: 'Follow Document' },
+] as const;
+
+export type DirectionMenuItem = (typeof DIRECTION_MENU)[number];
+
 export function canTurnIntoMenu(block: Parent) {
     return ALL_MENU_CONFIG.filter(item => canTurnInto(block, item.label));
 }

@@ -5,6 +5,7 @@ import type {
     IBulletListState,
     ICodeBlockState,
     IDiagramState,
+    IDirectionBlockState,
     IFootnoteBlockState,
     IFrontmatterState,
     IHtmlBlockState,
@@ -60,6 +61,7 @@ export default class ExportMarkdown {
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
+    private _documentDir: 'ltr' | 'rtl' | null = null;
 
     constructor(
         {
@@ -86,8 +88,13 @@ export default class ExportMarkdown {
         }
     }
 
-    generate(states: TState[]) {
-        return this._convertStatesToMarkdown(states);
+    generate(states: TState[], opts?: { documentDir?: 'ltr' | 'rtl' | null }) {
+        this._documentDir = opts?.documentDir ?? null;
+        const inner = this._convertStatesToMarkdown(states);
+        if (this._documentDir === 'rtl')
+            return `<div dir="rtl">\n${inner}</div>\n`;
+
+        return inner;
     }
 
     private _convertStatesToMarkdown(
@@ -194,6 +201,11 @@ export default class ExportMarkdown {
             case 'footnote':
                 this._insertLineBreak(result, indent);
                 result.push(this._serializeFootnote(state, indent));
+                break;
+
+            case 'direction-block':
+                this._insertLineBreak(result, indent);
+                result.push(this._serializeDirectionBlock(state, indent));
                 break;
 
             default: {
@@ -430,6 +442,17 @@ export default class ExportMarkdown {
         result.push(`${indent}\`\`\`\n`);
 
         return result.join('');
+    }
+
+    private _serializeDirectionBlock(state: IDirectionBlockState, indent: string) {
+        const { dir } = state.meta;
+        const effectiveDocDir = this._documentDir ?? 'ltr';
+        // Suppress the wrapper if the block direction matches the document direction.
+        if (dir === effectiveDocDir)
+            return this._convertStatesToMarkdown(state.children, indent);
+
+        const inner = this._convertStatesToMarkdown(state.children, indent);
+        return `${indent}<div dir="${dir}">\n${inner}${indent}</div>\n`;
     }
 
     private _serializeBlockquote(state: IBlockQuoteState, indent: string) {

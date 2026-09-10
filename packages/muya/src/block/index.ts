@@ -5,6 +5,7 @@ import BlockQuote from './commonMark/blockQuote';
 import BulletList from './commonMark/bulletList';
 import CodeBlock from './commonMark/codeBlock';
 import Code from './commonMark/codeBlock/code';
+import DirectionBlock from './commonMark/directionBlock';
 import HeadingCopyLink from './commonMark/headingCopyLink';
 import HTMLBlock from './commonMark/html';
 import HTMLContainer from './commonMark/html/htmlContainer';
@@ -51,6 +52,7 @@ export function registerBlocks() {
     ScrollPage.register(SetextHeadingContent);
     ScrollPage.register(HeadingCopyLink);
     ScrollPage.register(BlockQuote);
+    ScrollPage.register(DirectionBlock);
     ScrollPage.register(ThematicBreak);
     ScrollPage.register(ThematicBreakContent);
     ScrollPage.register(CodeBlock);
