@@ -8,7 +8,7 @@ import type {
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
-import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { CLASS_NAMES, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { adjustOffset, escapeHTML, firstWordOfInfo } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
@@ -169,7 +169,7 @@ class CodeBlockContent extends Content {
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
-        const code = escapeHTML(getHighlightHtml(text, highlights, true, true))
+        const code = escapeHTML(getHighlightHtml(text, highlights, true))
             .replace(new RegExp(MARKER_HASH['<'], 'g'), '<')
             .replace(new RegExp(MARKER_HASH['>'], 'g'), '>')
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
@@ -189,6 +189,18 @@ class CodeBlockContent extends Content {
         }
         else {
             domNode.innerHTML = code;
+        }
+
+        // A final newline lays out no line of its own, so the caret after it had
+        // nowhere to sit (#5114). Added after highlighting: Prism's keep-markup
+        // drops empty elements. Wrapped: Chromium puts the caret just before the
+        // <br>, and (content, childIndex) would read back as text offset
+        // childIndex where (wrapper, 0) reads back as the text length.
+        if (text.endsWith('\n')) {
+            const trailingBreak = document.createElement('span');
+            trailingBreak.classList.add(CLASS_NAMES.MU_TRAILING_BREAK);
+            trailingBreak.appendChild(document.createElement('br'));
+            domNode.appendChild(trailingBreak);
         }
 
         this._updateLineNumbers(text);

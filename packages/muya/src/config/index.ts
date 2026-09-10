@@ -120,6 +120,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_HARD_LINE_BREAK',
     'MU_HARD_LINE_BREAK_SPACE',
     'MU_LINE_END',
+    'MU_TRAILING_BREAK',
     'MU_HEADER_TIGHT_SPACE',
     'MU_HIDE',
     'MU_HIDE_SPELLING_MARKS',
