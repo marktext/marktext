@@ -664,7 +664,9 @@ class Content extends TreeNode {
         }
 
         const anchor = document.createTextNode(COMPOSITION_ANCHOR);
-        domNode.appendChild(anchor);
+        // Ahead of a code block's trailing line break: past it, the composition
+        // would start a line below the caret.
+        domNode.insertBefore(anchor, domNode.querySelector(`:scope > .${CLASS_NAMES.MU_TRAILING_BREAK}`));
         this._compositionAnchor = anchor;
 
         // `mu-line-end` makes the trailing newline a block of its own, because
