@@ -160,6 +160,48 @@ test.describe('code block caret on the empty last line', () => {
     });
 });
 
+test.describe('code block arrow keys on empty lines', () => {
+    test('ArrowUp from the empty last line moves to the line above', async ({ page }) => {
+        await openCodeBlock(page);
+        await slowType(page, 'hello');
+        await page.keyboard.press('Enter');
+        await slowType(page, 'world');
+        await page.keyboard.press('Enter');
+
+        await page.keyboard.press('ArrowUp');
+        await slowType(page, 'X');
+
+        await expect.poll(() => codeText(page)).toMatch(/^hello\n[^\n]*X[^\n]*\n$/);
+    });
+
+    test('ArrowDown from an empty line moves to the line below', async ({ page }) => {
+        await openCodeBlock(page);
+        await slowType(page, 'hello');
+        await page.keyboard.press('Enter');
+        await page.keyboard.press('Enter');
+        await slowType(page, 'world');
+
+        const { left, top, lineHeight } = await codeGeometry(page);
+        await page.mouse.click(left + 40, top + lineHeight * 1.5);
+        await page.keyboard.press('ArrowDown');
+        await slowType(page, 'Y');
+
+        await expect.poll(() => codeText(page)).toMatch(/^hello\n\n[^\n]*Y[^\n]*$/);
+    });
+
+    test('ArrowUp on the first line still leaves the code block', async ({ page }) => {
+        await openCodeBlock(page);
+        await slowType(page, 'hello');
+        await page.keyboard.press('Enter');
+        await slowType(page, 'world');
+        await page.keyboard.press('ArrowUp');
+        await page.keyboard.press('ArrowUp');
+
+        await expect.poll(() => page.evaluate(() => window.muya!.editor.activeContentBlock?.blockName)).not.toBe('codeblock.content');
+        expect(await codeText(page)).toBe('hello\nworld');
+    });
+});
+
 test.describe('code block IME composition on the empty last line', () => {
     test.skip(
         ({ browserName }) => browserName !== 'chromium',
