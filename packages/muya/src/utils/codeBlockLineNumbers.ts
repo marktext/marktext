@@ -1,3 +1,5 @@
+import { CLASS_NAMES } from '../config';
+
 // Visible line count for a code block, matching marktext `a028a7c2`:
 //   - each `\n` adds a row
 //   - a trailing `\n` still counts as the next visible (empty) row in
@@ -65,14 +67,26 @@ function measureLineTops(codeEl: HTMLElement): number[] {
         // A line start may be INSIDE this node (< nodeEnd); if it equals nodeEnd
         // it belongs to the next node and will be picked up on the next iteration.
         while (tops.length < lineStarts.length && lineStarts[tops.length] < nodeEnd) {
-            range.setStart(node, lineStarts[tops.length] - nodeStart);
-            range.collapse(true);
+            const offsetInNode = lineStarts[tops.length] - nodeStart;
+            range.setStart(node, offsetInNode);
+            // A caret position on an empty line has no client rect (#5294), so
+            // an empty line is measured by its own newline.
+            if (node.data.charCodeAt(offsetInNode) === LF)
+                range.setEnd(node, offsetInNode + 1);
+            else
+                range.collapse(true);
             tops.push(range.getBoundingClientRect().top);
         }
 
         nodeStart = nodeEnd;
         node = walker.nextNode() as Text | null;
     }
+
+    // The line after a final "\n" has no text of its own; CodeBlockContent
+    // renders a trailing break there to give it a line box.
+    const trailingBreak = codeEl.querySelector(`.${CLASS_NAMES.MU_TRAILING_BREAK}`);
+    if (trailingBreak !== null && tops.length === lineStarts.length - 1)
+        tops.push(trailingBreak.getBoundingClientRect().top);
 
     return tops;
 }
@@ -92,17 +106,16 @@ export function repositionLineNumberSpans(
 
     const tops = measureLineTops(codeEl);
     const measuredCount = Math.min(tops.length, spans.length);
-    // Origin = the measured top of the first logical line. A collapsed range's
-    // rect top sits at the text/caret box (below the line-box leading), so
-    // subtracting the wrapper top would offset every number down by that
-    // constant leading. Anchoring to the first line cancels it and keeps line 1
-    // flush with the gutter top, while preserving correct per-line deltas for
-    // wrap mode.
+    // Origin = the measured top of the first logical line. A measured top sits
+    // at the text box (below the line-box leading), so subtracting the wrapper
+    // top would offset every number down by that constant leading. Anchoring to
+    // the first line cancels it and keeps line 1 flush with the gutter top,
+    // while preserving correct per-line deltas for wrap mode.
     for (let i = 0; i < measuredCount; i++)
         spans[i].style.top = `${tops[i] - tops[0]}px`;
 
-    // Lines with no text node to measure from: the trailing empty line after a
-    // final "\n", or the single line of a wholly empty code block. The first
+    // Lines with nothing to measure: the single line of a wholly empty code
+    // block, or a final empty line rendered without a trailing break. The first
     // line is always flush with the top; later ones stack one line-height below
     // their predecessor.
     if (measuredCount < spans.length) {
