@@ -663,17 +663,21 @@ class App {
       this._openSettingsWindow(category)
     })
 
-    onInternalChannel('app-open-file-by-id', (windowId: number, filePath: string) => {
-      const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
-      if (openFilesInNewWindow) {
-        this._createEditorWindow(null, [filePath])
-      } else {
-        const editor = this._windowManager.get(windowId) as EditorWindow | undefined
-        if (editor) {
-          editor.openTab(filePath, {}, true)
+    onInternalChannel(
+      'app-open-file-by-id',
+      (windowId: number, filePath: string, options: Record<string, unknown> = {}) => {
+        const openFilesInNewWindow =
+          this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
+        if (openFilesInNewWindow) {
+          this._createEditorWindow(null, [filePath])
+        } else {
+          const editor = this._windowManager.get(windowId) as EditorWindow | undefined
+          if (editor) {
+            editor.openTab(filePath, options, true)
+          }
         }
       }
-    })
+    )
     onInternalChannel('app-open-files-by-id', (windowId: number, fileList: string[]) => {
       const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
       if (openFilesInNewWindow) {

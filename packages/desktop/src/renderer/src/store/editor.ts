@@ -999,8 +999,8 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.on('mt::switch-tab-by-index', (_, index) => {
         this.SWITCH_TAB_BY_INDEX(index)
       })
-      window.electron.ipcRenderer.on('mt::switch-tab-by-file_path', (_, filePath) => {
-        this.SWITCH_TAB_BY_FILEPATH(filePath)
+      window.electron.ipcRenderer.on('mt::switch-tab-by-file_path', (_, filePath, options) => {
+        this.SWITCH_TAB_BY_FILEPATH(filePath, options)
       })
     },
 
@@ -1203,7 +1203,7 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
-    SWITCH_TAB_BY_FILEPATH(filePath: string): void {
+    SWITCH_TAB_BY_FILEPATH(filePath: string, options: TabOptions = {}): void {
       const { tabs } = this
 
       if (!filePath) {
@@ -1217,7 +1217,9 @@ export const useEditorStore = defineStore('editor', {
         return
       }
       const next = tabs[nextTabIndex]
-      if (next) this.UPDATE_CURRENT_FILE(next)
+      if (!next) return
+      this.UPDATE_CURRENT_FILE(next)
+      if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
     },
 
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
@@ -1303,6 +1305,7 @@ export const useEditorStore = defineStore('editor', {
       )
       if (existingTab) {
         this.UPDATE_CURRENT_FILE(existingTab)
+        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
         return
       }
 
@@ -1332,6 +1335,7 @@ export const useEditorStore = defineStore('editor', {
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
         bus.emit('file-loaded', { id, markdown, cursor })
+        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
       } else {
         this.tabs.push(docState)
         this.updateTabIdToIndex()
