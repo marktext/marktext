@@ -68,7 +68,8 @@ export class ImageResizeBar {
                 this._block = block;
                 this._imageInfo = imageInfo;
                 setTimeout(() => {
-                    this._render();
+                    if (this._reference === reference)
+                        this._render();
                 });
             }
             else {
