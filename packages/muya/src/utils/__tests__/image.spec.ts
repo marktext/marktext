@@ -183,6 +183,29 @@ describe('getImageSrc — relative local image paths anchored to window.DIRNAME'
     });
 });
 
+describe('getImageSrc — document directory containing URL-significant characters (#5212)', () => {
+    it.each([
+        ['/home/user/C# notes'],
+        ['/home/user/what? notes'],
+        ['/home/user/50%25 off'],
+    ])('loads the image from the real file under %s', (dirname) => {
+        withDirname(dirname, () => {
+            const url = new URL(getImageSrc('assets/image.jpg').src);
+            expect(url.hash).toBe('');
+            expect(url.search).toBe('');
+            expect(decodeURIComponent(url.pathname)).toBe(`${dirname}/assets/image.jpg`);
+        });
+    });
+
+    it('does not re-encode the already URL-encoded markdown path', () => {
+        withDirname('/home/user/C# notes', () => {
+            expect(getImageSrc('assets/my%20image.jpg').src).toBe(
+                'file:///home/user/C%23 notes/assets/my%20image.jpg',
+            );
+        });
+    });
+});
+
 describe('getImageSrc — non-relative sources are left unchanged', () => {
     it('leaves an absolute POSIX local path as a single `file://`', () => {
         withDirname(DIRNAME, () => {
