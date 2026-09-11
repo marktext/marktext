@@ -113,6 +113,16 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
         expect(content.text).toBe('word');
     });
 
+    it('display math: `$$word$$` removes both markers without shifting the selection', () => {
+        const content = selectInFirstBlock(bootMuya('$$word$$\n'), 2, 6);
+        const setCursor = vi.spyOn(content, 'setCursor');
+
+        content.format('inline_math');
+
+        expect(content.text).toBe('word');
+        expect(setCursor).toHaveBeenLastCalledWith(0, 4, true);
+    });
+
     it('u (html_tag): `<u>word</u>` removes the underline tags', () => {
         // `format('u')` matches the html_tag token whose tag === 'u'.
         const content = caretInFirstBlock(bootMuya('<u>word</u>\n'), 2);

@@ -7,7 +7,7 @@ import type {
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
-import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
+import { beginRules, execInlineDisplayMath, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
     getAttributes,
@@ -195,7 +195,15 @@ function tryChunks(state: ILexState): boolean {
     const chunks = ['inline_code', 'del', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
-        const to = state.inlineRules[rule].exec(state.src);
+        let to: RegExpExecArray | null;
+        if (rule === 'inline_math') {
+            to
+                = execInlineDisplayMath(state.src)
+                    ?? state.inlineRules[rule].exec(state.src);
+        }
+        else {
+            to = state.inlineRules[rule].exec(state.src);
+        }
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
                 // An emoji opener must sit at a word boundary: a ":" glued to a

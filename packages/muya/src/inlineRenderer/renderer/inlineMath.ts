@@ -16,13 +16,15 @@ export default function inlineMath(this: Renderer, {
 }: ISyntaxRenderOptions & { token: CodeEmojiMathToken }) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const { i18n } = this.muya;
-    const mathSelector
+    const { start, end } = token.range;
+    const { marker } = token;
+    const displayMode = marker.length === 2;
+    let mathSelector
         = className === CLASS_NAMES.MU_HIDE
             ? `span.${className}.${CLASS_NAMES.MU_MATH}`
             : `span.${CLASS_NAMES.MU_MATH}`;
-
-    const { start, end } = token.range;
-    const { marker } = token;
+    if (displayMode)
+        mathSelector += `.${CLASS_NAMES.MU_DISPLAY_MATH}`;
 
     const startMarker = this.highlight(
         h,
@@ -44,12 +46,10 @@ export default function inlineMath(this: Renderer, {
 
     const { loadMathMap } = this;
 
-    const displayMode = false;
-    const key = `${math}_${type}`;
+    const key = JSON.stringify([math, type, displayMode]);
     let mathVnode = null;
     let previewSelector = `span.${CLASS_NAMES.MU_MATH_RENDER}`;
-    // Inline math errors stay compact to keep the surrounding text baseline
-    // (#4100, inline-math-align); surface the parse reason via the title.
+    // Single-dollar errors stay compact to preserve the surrounding text baseline (#4100).
     let errorTitle = '';
     if (loadMathMap.has(key)) {
         mathVnode = loadMathMap.get(key);
@@ -86,8 +86,8 @@ export default function inlineMath(this: Renderer, {
                         ? { contenteditable: 'false', title: errorTitle }
                         : { contenteditable: 'false' },
                     dataset: {
-                        start: String(start + 1), // '$'.length
-                        end: String(end - 1), // '$'.length
+                        start: String(start + marker.length),
+                        end: String(end - marker.length),
                     },
                 },
                 mathVnode,
