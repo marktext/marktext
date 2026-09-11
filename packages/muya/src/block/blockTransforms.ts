@@ -1,6 +1,7 @@
 import type { Muya } from '../muya';
 import type { IFrontmatterMeta } from '../state/types';
 import type Parent from './base/parent';
+import { mathBlockStyle } from '../config';
 import emptyStates from '../config/emptyStates';
 import { getCursorReference } from '../selection';
 import { isParagraphState } from '../state/types';
@@ -98,6 +99,9 @@ function buildLeafBlock(label: TLeafReplacementLabel, muya: Muya, text: string) 
     const cloned = deepClone(emptyStates[label]);
     if (cloned.name === 'paragraph') {
         cloned.text = text;
+    }
+    else if (cloned.name === 'math-block') {
+        cloned.meta.mathStyle = mathBlockStyle(muya.options.mathDelimiter);
     }
     else if (cloned.name === 'block-quote') {
         const inner = cloned.children[0];

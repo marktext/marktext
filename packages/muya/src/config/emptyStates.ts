@@ -101,7 +101,7 @@ const emptyStates: IEmptyStates = {
         name: 'math-block',
         text: '',
         meta: {
-            mathStyle: '', // '' for `$$` and 'gitlab' for ```math
+            mathStyle: '', // '' for `$$`, 'gitlab' for ```math, 'latex' for `\[...\]`
         },
     },
     'html-block': {

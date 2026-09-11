@@ -408,6 +408,7 @@
         "frontmatterType": "Het type Front Matter",
         "superSubScript": "Pandoc superscript en subscript inschakelen",
         "footnote": "Pandoc voetnoten inschakelen",
+        "mathDelimiter": "De scheidingstekens bij het invoegen van formules",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
@@ -635,6 +636,11 @@
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
           "title": "Front Matter-type"
+        },
+        "mathDelimiter": {
+          "title": "Scheidingstekens voor formules",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {

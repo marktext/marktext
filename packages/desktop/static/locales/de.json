@@ -409,6 +409,7 @@
         "frontmatterType": "Der Frontmatter-Typ",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
+        "mathDelimiter": "Das Trennzeichen beim Einfügen von mathematischen Formeln",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
@@ -635,6 +636,11 @@
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",
           "title": "Front Matter Typ"
+        },
+        "mathDelimiter": {
+          "title": "Mathematik-Begrenzer",
+          "dollar": "$ … $  ($$ … $$)",
+          "latex": "\\( … \\)  (\\[ … \\])"
         }
       },
       "diagrams": {

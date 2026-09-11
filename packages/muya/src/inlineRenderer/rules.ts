@@ -9,7 +9,7 @@ export const beginRules = {
     /^( {0,3}\[)([^\]]+?)(\\*)(\]: *)(<?)([^\s>]+)(>?)(?:( +)(["'(]?)([^\n"'()]+)\9)?( *)$/,
 
     // extra syntax (not belongs to GFM)
-    multiple_math: /^(\$\$)$/,
+    multiple_math: /^(\$\$|\\\[)$/,
 };
 
 export const endRules = {

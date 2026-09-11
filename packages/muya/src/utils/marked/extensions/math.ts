@@ -1,4 +1,5 @@
 import katex from 'katex';
+import { matchLatexDisplayBlock, matchLatexMath } from '../../matchLatexMath';
 import 'katex/dist/contrib/mhchem.mjs';
 
 export interface IMathToken {
@@ -6,7 +7,7 @@ export interface IMathToken {
     raw: string;
     text: string;
     displayMode: boolean;
-    mathStyle?: '' | 'gitlab';
+    mathStyle?: '' | 'gitlab' | 'latex';
 }
 
 interface IOptions {
@@ -18,6 +19,9 @@ const inlineStartRule = /(\s|^)\${1,2}(?!\$)/;
 const inlineRule
     = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n$]))\1(?=[\s?!.,:]|$)/;
 const blockRule = /^(\${1,2})\n((?:\\[\s\S]|[^\\])+?)\n\1[ \t]*(?:\n|$)/;
+// `\[` / `\(` whose leading backslash is not itself escaped (`\\[` is a
+// literal backslash plus `[`, not a math opener).
+const latexInlineStartRule = /(?<!\\)\\(?:\(|\[)/;
 
 const DEFAULT_OPTIONS = {
     throwOnError: false,
@@ -47,10 +51,13 @@ function createRenderer(options: IOptions, newlineAfter: boolean) {
                 }) + (newlineAfter ? '\n' : '')
             );
         }
+        else if (type === 'inlineMath') {
+            if (mathStyle === 'latex')
+                return displayMode ? `\\[${text}\\]` : `\\(${text}\\)`;
+            return `$${text}$`;
+        }
         else {
-            return type === 'inlineMath'
-                ? `$${text}$`
-                : `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`;
+            return `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`;
         }
     };
 }
@@ -60,15 +67,7 @@ function inlineKatex(renderer: (token: IMathToken) => string) {
         name: 'inlineMath',
         level: 'inline' as const,
         start(src: string) {
-            const match = src.match(inlineStartRule);
-            if (!match)
-                return;
-
-            const index = (match.index || 0) + match[1].length;
-            const possibleKatex = src.substring(index);
-
-            if (inlineRule.test(possibleKatex))
-                return index;
+            return earliestInlineStart(src);
         },
         tokenizer(src: string) {
             const match = src.match(inlineRule);
@@ -80,9 +79,40 @@ function inlineKatex(renderer: (token: IMathToken) => string) {
                     displayMode: match[1].length === 2,
                 };
             }
+            const latex = matchLatexMath(src);
+            if (latex) {
+                return {
+                    type: 'inlineMath',
+                    raw: latex.raw,
+                    text: latex.text.trim(),
+                    displayMode: latex.kind === 'display',
+                    mathStyle: 'latex',
+                };
+            }
         },
         renderer,
     };
+}
+
+function earliestInlineStart(src: string): number | undefined {
+    const dollar = src.match(inlineStartRule);
+    let dollarIndex: number | undefined;
+    if (dollar) {
+        const index = (dollar.index || 0) + dollar[1].length;
+        if (inlineRule.test(src.substring(index)))
+            dollarIndex = index;
+    }
+
+    const latex = latexInlineStartRule.exec(src);
+    let latexIndex: number | undefined;
+    if (latex && matchLatexMath(src.substring(latex.index)))
+        latexIndex = latex.index;
+
+    if (dollarIndex === undefined)
+        return latexIndex;
+    if (latexIndex === undefined)
+        return dollarIndex;
+    return Math.min(dollarIndex, latexIndex);
 }
 
 function blockKatex(renderer: (token: IMathToken) => string) {
@@ -90,9 +120,19 @@ function blockKatex(renderer: (token: IMathToken) => string) {
         name: 'multiplemath',
         level: 'block' as const,
         start(src: string) {
-            return src.indexOf('\n$');
+            return earliestBlockStart(src);
         },
         tokenizer(src: string) {
+            const latex = matchLatexDisplayBlock(src);
+            if (latex) {
+                return {
+                    type: 'multiplemath',
+                    raw: latex.raw,
+                    text: latex.text,
+                    displayMode: true,
+                    mathStyle: 'latex',
+                };
+            }
             const match = src.match(blockRule);
             if (match) {
                 return {
@@ -106,4 +146,17 @@ function blockKatex(renderer: (token: IMathToken) => string) {
         },
         renderer,
     };
+}
+
+function earliestBlockStart(src: string): number | undefined {
+    if (matchLatexDisplayBlock(src) || blockRule.test(src))
+        return 0;
+
+    const dollar = src.indexOf('\n$');
+    const latex = src.search(/\n {0,3}\\\[/);
+    if (dollar < 0)
+        return latex < 0 ? undefined : latex;
+    if (latex < 0)
+        return dollar;
+    return Math.min(dollar, latex);
 }
