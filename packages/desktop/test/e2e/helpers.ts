@@ -255,6 +255,19 @@ export const getMarkdownContent = async(
 export const typeIntoEditor = async(page: Page, text: string): Promise<void> => {
   await page.click('.editor-component', { timeout: 5000 })
   await page.keyboard.type(text, { delay: 0 })
+  // Let queued input events and the engine's rAF-batched op flush run before
+  // callers read the document back or switch modes. On a loaded runner the
+  // final `input` event can still be pending when a mode switch tears the
+  // editor down, permanently losing the last keystroke (seen on CI as
+  // `typed-toke`).
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setTimeout(resolve, 0))
+        })
+      })
+  )
 }
 
 // The @muyajs/core engine wraps editable paragraph text in

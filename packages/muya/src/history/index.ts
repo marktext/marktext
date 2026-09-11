@@ -133,7 +133,6 @@ class History {
                 op: Nullable<JSONOpList>;
                 source: string;
                 prevDoc: TState[];
-                doc: TState[];
             }) => {
                 if (this._ignoreChange)
                     return;
