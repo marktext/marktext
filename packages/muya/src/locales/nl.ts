@@ -95,6 +95,11 @@ export const nl = {
         'Empty Mathematical Formula': 'Lege wiskundeformule',
         // headingCopyLink
         'Copy anchor link to this heading': 'Ankerlink naar deze kop kopiëren',
+        'Fold this section': 'Deze sectie invouwen',
+        'Unfold this section': 'Deze sectie uitvouwen',
+        'Fold all': 'Alles invouwen',
+        'Unfold all': 'Alles uitvouwen',
+        'Fold to this level': 'Tot dit niveau invouwen',
         'Click to add an image': 'Klik om een afbeelding toe te voegen',
         'Load image failed': 'Afbeelding laden mislukt',
     },

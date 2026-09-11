@@ -42,6 +42,11 @@ export const es = {
         'Search keyword...': 'Buscar palabra clave...',
         'Type / to insert...': 'Escribe / para insertar...',
         'Copy anchor link to this heading': 'Copiar enlace de ancla a este encabezado',
+        'Fold this section': 'Plegar esta sección',
+        'Unfold this section': 'Desplegar esta sección',
+        'Fold all': 'Plegar todo',
+        'Unfold all': 'Desplegar todo',
+        'Fold to this level': 'Plegar hasta este nivel',
         'Click to add an image': 'Haz clic para añadir una imagen',
         'Load image failed': 'Error al cargar la imagen',
         // formatPicker
