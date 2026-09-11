@@ -174,9 +174,13 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
   })
 
   test('clicking an earlier heading scrolls back up toward it', async() => {
-    // After the previous test the editor is scrolled down near heading 18.
+    // Start at the bottom so the click must scroll UP to reveal heading 3.
+    await page.evaluate(() => {
+      const el = document.querySelector('.editor-component') as HTMLElement | null
+      if (el) el.scrollTop = el.scrollHeight
+    })
+    await expect.poll(() => getScrollTop(page)).toBeGreaterThan(0)
     const fromTop = await getScrollTop(page)
-    expect(fromTop).toBeGreaterThan(0)
 
     const targetText = 'Heading Number 3'
     const targetIndex = await headingIndexByText(page, targetText)
