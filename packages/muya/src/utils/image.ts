@@ -67,6 +67,16 @@ function resolveRelativePath(base: string, relative: string): string {
     return tail ? `${root}/${tail}` : root;
 }
 
+// `window.DIRNAME` is a raw filesystem path, whereas a markdown image path is
+// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
+// raw, they would read as an escape, a query or a fragment (#5212).
+function encodeDirnameForUrl(dirname: string): string {
+    return dirname
+        .replace(/%/g, '%25')
+        .replace(/\?/g, '%3F')
+        .replace(/#/g, '%23');
+}
+
 function localPathToFileUrl(src: string): string {
     const normalized = src.replace(/\\/g, '/');
 
@@ -107,7 +117,7 @@ export function getImageSrc(src: string) {
         else if (!isAbsoluteLocal && baseUrl) {
             return {
                 isUnknownType: false,
-                src: localPathToFileUrl(resolveRelativePath(baseUrl, src)),
+                src: localPathToFileUrl(resolveRelativePath(encodeDirnameForUrl(baseUrl), src)),
             };
         }
         else {

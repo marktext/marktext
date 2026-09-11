@@ -74,6 +74,14 @@ const headingOffsetFromViewportTop = (page: Page, index: number): Promise<number
     )
   }, index)
 
+// `scrollToHeader` animates for ~300ms, so a heading passes through the
+// viewport before it stops. Poll until it rests at the 24px TOC gap (within
+// ±4px) instead of reading its offset once.
+const expectHeadingAtTocGap = (page: Page, index: number): Promise<void> =>
+  expect
+    .poll(() => headingOffsetFromViewportTop(page, index), { timeout: 8000 })
+    .toBeCloseTo(24, -1)
+
 // Locate a TOC tree node label by its EXACT text. Exact matching avoids the
 // substring trap where "Heading Number 1" also matches "Heading Number 18".
 const tocLabel = (page: Page, text: string) =>
@@ -162,16 +170,17 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
     await expect
       .poll(() => isHeadingInViewport(page, targetIndex), { timeout: 8000 })
       .toBe(true)
-    await expect
-      .poll(() => headingOffsetFromViewportTop(page, targetIndex), { timeout: 8000 })
-      .toBeGreaterThanOrEqual(20)
-    expect(await headingOffsetFromViewportTop(page, targetIndex)).toBeLessThanOrEqual(28)
+    await expectHeadingAtTocGap(page, targetIndex)
   })
 
   test('clicking an earlier heading scrolls back up toward it', async() => {
-    // After the previous test the editor is scrolled down near heading 18.
+    // Start at the bottom so the click must scroll UP to reveal heading 3.
+    await page.evaluate(() => {
+      const el = document.querySelector('.editor-component') as HTMLElement | null
+      if (el) el.scrollTop = el.scrollHeight
+    })
+    await expect.poll(() => getScrollTop(page)).toBeGreaterThan(0)
     const fromTop = await getScrollTop(page)
-    expect(fromTop).toBeGreaterThan(0)
 
     const targetText = 'Heading Number 3'
     const targetIndex = await headingIndexByText(page, targetText)
@@ -196,9 +205,7 @@ test.describe('TOC sidebar click scrolls the live editor', () => {
 
     const label = tocLabel(page, targetText)
     await label.click()
-    await expect
-      .poll(() => isHeadingInViewport(page, targetIndex), { timeout: 8000 })
-      .toBe(true)
+    await expectHeadingAtTocGap(page, targetIndex)
     const firstScroll = await getScrollTop(page)
 
     // Click again — should land on (essentially) the same scroll position.
