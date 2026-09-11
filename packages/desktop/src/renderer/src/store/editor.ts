@@ -1688,8 +1688,8 @@ export const useEditorStore = defineStore('editor', {
                 break
               }
 
-              const { autoSave } = preferencesStore
-              if (autoSave) {
+              const { autoReload, autoSave } = preferencesStore
+              if (autoReload || autoSave) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
                   if (timer) clearTimeout(timer)

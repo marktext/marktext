@@ -4,7 +4,7 @@
     <compound>
       <template #head>
         <h6 class="title">
-          {{ t('preferences.general.autoSave.title') }}
+          {{ t('preferences.general.fileChanges.title') }}
         </h6>
       </template>
       <template #children>
@@ -21,6 +21,11 @@
           unit="ms"
           :step="100"
           :on-change="(value) => onSelectChange('autoSaveDelay', value)"
+        />
+        <bool
+          :description="t('preferences.general.autoReload.description')"
+          :bool="autoReload"
+          :on-change="(value) => onSelectChange('autoReload', value)"
         />
       </template>
     </compound>
@@ -209,6 +214,7 @@ const preferenceStore = usePreferencesStore()
 const {
   autoSave,
   autoSaveDelay,
+  autoReload,
   titleBarStyle,
   defaultDirectoryToOpen,
   openFilesInNewWindow,

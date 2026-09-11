@@ -8,6 +8,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | ---------------------- | ------- | ------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | autoSave               | Boolean | `false`       | Automatically save the content being edited.                                                                               |
 | autoSaveDelay          | Number  | `5000`        | The delay in milliseconds after a change before a file is saved automatically. Minimum `1000`.                             |
+| autoReload             | Boolean | `false`       | Automatically reload files changed on disk when there are no unsaved changes.                                              |
 | titleBarStyle          | String  | `custom`      | The title bar style on Linux and Windows: `custom` or `native`.                                                            |
 | openFilesInNewWindow   | Boolean | `false`       | Open files in a new window.                                                                                                |
 | openFolderInNewWindow  | Boolean | `false`       | Open folder via menu in a new window.                                                                                      |
