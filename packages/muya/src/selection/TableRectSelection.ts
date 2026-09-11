@@ -6,6 +6,7 @@ import type { Nullable } from '../types';
 import { CLASS_NAMES } from '../config';
 import { isMouseEvent } from '../utils';
 import { getBlock } from '../utils/dom';
+import { SelectionType } from './types';
 
 const SELECTED_CLASS = CLASS_NAMES.MU_TABLE_CELL_SELECTED;
 const BORDER_TOP_CLASS = CLASS_NAMES.MU_TABLE_CELL_BORDER_TOP;
@@ -36,7 +37,7 @@ class TableRectSelection {
     constructor(private _muya: Muya) {}
 
     get hasSelection(): boolean {
-        return this._table != null && this._anchor != null && this._focus != null;
+        return this._isSelecting && this._table != null && this._anchor != null && this._focus != null;
     }
 
     isSingleCellSelected(): boolean {
@@ -82,6 +83,7 @@ class TableRectSelection {
         this._isSelecting = true;
         this._freezeNativeSelection();
         this._renderHighlight();
+        this._emitSelectionChange();
     }
 
     selectWholeTable(): void {
@@ -104,6 +106,7 @@ class TableRectSelection {
         this._isSelecting = true;
         this._freezeNativeSelection();
         this._renderHighlight();
+        this._emitSelectionChange();
     }
 
     private _attach(): void {
@@ -164,6 +167,7 @@ class TableRectSelection {
         // cancels the selection rather than freezing a 1×1 anchor-cell range.
         this._focus = overSameTable ? position : null;
         this._renderHighlight();
+        this._emitSelectionChange();
     };
 
     private _onMouseUp = (): void => {
@@ -174,6 +178,12 @@ class TableRectSelection {
         if (!this._isSelecting || this._focus == null)
             this.clear();
     };
+
+    private _emitSelectionChange(): void {
+        this._muya.eventCenter.emit('selection-change', {
+            kind: SelectionType.TABLE,
+        });
+    }
 
     private _freezeNativeSelection(): void {
         document.getSelection()?.removeAllRanges();
