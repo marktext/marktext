@@ -210,6 +210,40 @@ describe('stateToMarkdown — table edge cases', () => {
     });
 });
 
+describe('muya getMarkdown — ordered list source markers', () => {
+    it('preserves repeated ordered markers after the state passes through blocks (#4772)', () => {
+        const md = `Below is the numbered list:
+
+1. One
+1. Two
+1. Three
+
+Text after numbered list.
+`;
+        const muya = bootMuya(md);
+
+        expect(muya.getMarkdown()).toBe(md);
+
+        const list = muya.getState()[1];
+        expect(list.name).toBe('order-list');
+        if (list.name !== 'order-list')
+            throw new Error('expected an order-list state');
+        expect(list.meta.sourceMarkers).toEqual([
+            '1.',
+            '1.',
+            '1.',
+        ]);
+        expect(list.children.map(item => item.meta?.orderMarker)).toEqual([
+            '1.',
+            '1.',
+            '1.',
+        ]);
+
+        list.meta.sourceMarkers![0] = '2.';
+        expect(muya.getMarkdown()).toBe(md);
+    });
+});
+
 describe('markdownToState — indented code block', () => {
     it('parses a 4-space-indented block as a code-block with meta.type "indented"', () => {
         const states = parse('    code\n');

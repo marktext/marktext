@@ -38,6 +38,16 @@ import { isAnyListState } from './types';
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
 
+type TOrderListSerializationMeta = IOrderListState['meta'] & {
+    preserveOrderMarkers?: boolean;
+    orderMarkerIndex?: number;
+};
+
+type TListSerializationMeta
+    = IBulletListState['meta']
+        | ITaskListState['meta']
+        | TOrderListSerializationMeta;
+
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
@@ -51,11 +61,7 @@ export default class ExportMarkdown {
     // descent into bullet/order/task list, pop on ascent). The serializer
     // reads `loose` / `marker` / `delimiter` / `start` from the top entry
     // to render the correct bullet, indentation, and tightness.
-    private _listType: (
-        | IBulletListState['meta']
-        | IOrderListState['meta']
-        | ITaskListState['meta']
-    )[];
+    private _listType: TListSerializationMeta[];
 
     private _isLooseParentList: boolean;
     private _listIndentation: string;
@@ -216,9 +222,14 @@ export default class ExportMarkdown {
     ): string {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
-        const meta = deepClone(state.meta);
+        const meta = deepClone(state.meta) as TListSerializationMeta;
         if (markerOverride && 'marker' in meta)
             meta.marker = markerOverride;
+        if (state.name === 'order-list') {
+            const orderMeta = meta as TOrderListSerializationMeta;
+            orderMeta.preserveOrderMarkers = this._shouldPreserveOrderMarkers(state);
+            orderMeta.orderMarkerIndex = 0;
+        }
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
         const bulletMarkerOrDelimiter
@@ -235,6 +246,16 @@ export default class ExportMarkdown {
         this._listType.pop();
 
         return bulletMarkerOrDelimiter;
+    }
+
+    private _shouldPreserveOrderMarkers(state: IOrderListState) {
+        const { sourceMarkers } = state.meta;
+        if (!sourceMarkers || sourceMarkers.length !== state.children.length)
+            return false;
+
+        return state.children.every((child, index) =>
+            child.meta?.orderMarker === sourceMarkers[index],
+        );
     }
 
     private _startsWithEmptyDashBulletItem(
@@ -569,13 +590,23 @@ export default class ExportMarkdown {
         else if ('start' in listInfo) {
             // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
             //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-            let n = listInfo.start;
-            if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
-                n = 1;
+            const markerIndex = listInfo.orderMarkerIndex ?? 0;
+            const preservedMarker = state.name === 'list-item'
+                && listInfo.preserveOrderMarkers
+                ? listInfo.sourceMarkers?.[markerIndex]
+                : undefined;
+            if (preservedMarker) {
+                itemMarker = `${preservedMarker} `;
+            }
+            else {
+                let n = listInfo.start;
+                if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
+                    n = 1;
 
+                itemMarker = `${n}${delimiter || '.'} `;
+            }
             listInfo.start++;
-
-            itemMarker = `${n}${delimiter || '.'} `;
+            listInfo.orderMarkerIndex = markerIndex + 1;
         }
         else {
             itemMarker = '- ';
@@ -599,7 +630,7 @@ export default class ExportMarkdown {
         let listIndent = '';
         const { _listIndentation: listIndentation } = this;
         if (listIndentation === 'dfm')
-            listIndent = ' '.repeat(4 - itemMarker.length);
+            listIndent = ' '.repeat(Math.max(0, 4 - itemMarker.length));
         else if (listIndentation === 'number')
             listIndent = ' '.repeat(this._listIndentationCount - 1);
 
