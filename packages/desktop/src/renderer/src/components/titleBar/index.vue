@@ -370,9 +370,11 @@ img {
   }
 }
 div.title > span {
-  /* Workaround for GH#339 */
+  /* Workaround for GH#339 — replaced direction: rtl with text-align: right
+     to prevent Unicode Bidi Algorithm from reordering filenames on Windows
+     (e.g. "003_report.md" was displayed as "report.md_003") */
   display: block;
-  direction: rtl;
+  text-align: right;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
