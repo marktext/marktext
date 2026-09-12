@@ -67,6 +67,10 @@ export const showTableOfContents = (win: Win): void => {
   setLayout(win, 'rightColumn', 'toc')
 }
 
+export const toggleLineNumbers = (win: Win): void => {
+  toggleTypeMode(win, 'lineNumbers')
+}
+
 export const toggleTypewriterMode = (win: Win): void => {
   toggleTypeMode(win, 'typewriter')
 }
@@ -134,6 +138,9 @@ export const viewLayoutChanged = (
         break
       case 'focus':
         changeMenuByName(focusModeMenuItemId, value)
+        break
+      case 'lineNumbers':
+        changeMenuByName('lineNumbersMenuItem', value)
         break
     }
   }
