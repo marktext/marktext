@@ -71,6 +71,12 @@ export const toggleTypewriterMode = (win: Win): void => {
   toggleTypeMode(win, 'typewriter')
 }
 
+export const toggleSourceLineNumbers = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::toggle-source-line-numbers')
+  }
+}
+
 export const reloadImageCache = (win: Win): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::invalidate-image-cache')
@@ -134,6 +140,9 @@ export const viewLayoutChanged = (
         break
       case 'focus':
         changeMenuByName(focusModeMenuItemId, value)
+        break
+      case 'sourceLineNumbersEnabled':
+        changeMenuByName('sourceLineNumbersMenuItem', value)
         break
     }
   }

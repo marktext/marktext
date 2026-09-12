@@ -45,6 +45,7 @@ export interface PreferencesState {
   codeFontSize: number
   codeFontFamily: string
   codeBlockLineNumbers: boolean
+  sourceLineNumberFrequency: number
   trimUnnecessaryCodeBlockEmptyLines: boolean
   wrapCodeBlocks: boolean
   editorLineWidth: string
@@ -163,6 +164,7 @@ export const usePreferencesStore = defineStore('preferences', {
     codeFontSize: 14,
     codeFontFamily: 'DejaVu Sans Mono',
     codeBlockLineNumbers: false,
+    sourceLineNumberFrequency: 10,
     trimUnnecessaryCodeBlockEmptyLines: true,
     wrapCodeBlocks: false,
     editorLineWidth: '',
@@ -262,6 +264,12 @@ export const usePreferencesStore = defineStore('preferences', {
       if (lang && lang !== oldLanguage) {
         setLanguage(lang)
       }
+
+      // Sync the View-menu "Show Line Numbers" checkbox with the loaded value.
+      const freq = (preference as { sourceLineNumberFrequency?: number }).sourceLineNumberFrequency
+      if (typeof freq === 'number') {
+        this.DISPATCH_EDITOR_VIEW_STATE({ sourceLineNumbersEnabled: freq !== 0 })
+      }
     },
 
     SET_MODE({ type, checked }: ModeTogglePayload): void {
@@ -315,6 +323,13 @@ export const usePreferencesStore = defineStore('preferences', {
         this.TOGGLE_VIEW_MODE(entryName)
         const target = this as unknown as Record<string, unknown>
         this.DISPATCH_EDITOR_VIEW_STATE({ [entryName]: target[entryName] })
+      })
+      window.electron.ipcRenderer.on('mt::toggle-source-line-numbers', () => {
+        // Off restores the shipped default (every 10 lines) rather than the
+        // previous frequency; the View-menu toggle is a coarse on/off switch.
+        const value = this.sourceLineNumberFrequency === 0 ? 10 : 0
+        this.SET_SINGLE_PREFERENCE({ type: 'sourceLineNumberFrequency', value })
+        this.DISPATCH_EDITOR_VIEW_STATE({ sourceLineNumbersEnabled: value !== 0 })
       })
     },
 

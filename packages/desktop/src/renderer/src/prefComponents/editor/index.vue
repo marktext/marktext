@@ -72,6 +72,12 @@
           :bool="trimUnnecessaryCodeBlockEmptyLines"
           :on-change="(value) => onSelectChange('trimUnnecessaryCodeBlockEmptyLines', value)"
         />
+        <cur-select
+          :description="t('preferences.editor.codeBlock.sourceLineNumbers.title')"
+          :value="sourceLineNumberFrequency"
+          :options="sourceLineNumberOptions"
+          :on-change="(value) => onSelectChange('sourceLineNumberFrequency', value)"
+        />
         <bool
           :description="t('preferences.editor.misc.wrapCodeBlocks')"
           :bool="wrapCodeBlocks"
@@ -195,6 +201,7 @@ import Bool from '../common/bool/index.vue'
 import TextBox from '../common/textBox/index.vue'
 import {
   tabSizeOptions,
+  getSourceLineNumberOptions,
   getEndOfLineOptions,
   getTextDirectionOptions,
   getTrimTrailingNewlineOptions,
@@ -205,6 +212,7 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 const defaultEncodingOptions = getDefaultEncodingOptions()
+const sourceLineNumberOptions = getSourceLineNumberOptions()
 
 const {
   fontSize,
@@ -219,6 +227,7 @@ const {
   codeFontSize,
   codeFontFamily,
   codeBlockLineNumbers,
+  sourceLineNumberFrequency,
   trimUnnecessaryCodeBlockEmptyLines,
   hideQuickInsertHint,
   hideLinkPopup,
