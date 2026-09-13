@@ -506,6 +506,10 @@
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
+      },
+      "autoReloadOnFileChange": {
+        "title": "Auto-reload on file change",
+        "description": "Automatically reload the file content when it is changed on disk by an external process (e.g. server sync, git pull). When disabled, a confirmation dialog is shown."
       }
     },
     "editor": {
