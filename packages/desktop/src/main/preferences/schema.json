@@ -10,6 +10,11 @@
     "minimum": 1000,
     "default": 5000
   },
+  "autoReloadOnFileChange": {
+    "description": "General--Automatically reload files when they are changed on disk by an external process. When disabled, a confirmation dialog is shown.--internal",
+    "type": "boolean",
+    "default": false
+  },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",
     "enum": ["custom", "native"],

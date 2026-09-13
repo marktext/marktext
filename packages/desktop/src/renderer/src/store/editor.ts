@@ -1688,7 +1688,19 @@ export const useEditorStore = defineStore('editor', {
                 break
               }
 
-              const { autoSave } = preferencesStore
+              const { autoSave, autoReloadOnFileChange } = preferencesStore
+
+              // If autoReloadOnFileChange is enabled, always reload without dialog
+              if (autoReloadOnFileChange) {
+                if (autoSave && autoSaveTimers.has(id)) {
+                  const timer = autoSaveTimers.get(id)
+                  if (timer) clearTimeout(timer)
+                  autoSaveTimers.delete(id)
+                }
+                this.loadChange(change as unknown as FileChangePayload)
+                return
+              }
+
               if (autoSave) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
