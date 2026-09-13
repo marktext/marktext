@@ -70,6 +70,15 @@ function pressBackspace(content: Format): Event {
     return event;
 }
 
+function pressBackspaceThroughKeydown(content: Format): KeyboardEvent {
+    const event = new KeyboardEvent('keydown', {
+        key: 'Backspace',
+        cancelable: true,
+    });
+    content.keydownHandler(event);
+    return event;
+}
+
 describe('format.backspaceHandler — closing-marker boundary (muya#113)', () => {
     it('just-outside the closing `**`: removes one marker char, no doubled markers', () => {
         // Caret at offset 14, immediately after the whole `**strong**` close.
@@ -164,6 +173,33 @@ describe('format.backspaceHandler — plain-text boundaries (no markers involved
         const event = pressBackspace(content);
 
         expect(content.text).toBe('oo **strong**');
+        expect(content.getCursor()!.start.offset).toBe(0);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('caret after a trailing astral character: removes the whole code point', () => {
+        const content = caretInFirstBlock(bootMuya('abc\u{1F642}\n'), 5);
+        const event = pressBackspace(content);
+
+        expect(content.text).toBe('abc');
+        expect(content.getCursor()!.start.offset).toBe(3);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('caret inside a trailing astral character: snaps then removes the whole code point', () => {
+        const content = caretInFirstBlock(bootMuya('abc\u{1F642}\n'), 4);
+        const event = pressBackspaceThroughKeydown(content);
+
+        expect(content.text).toBe('abc');
+        expect(content.getCursor()!.start.offset).toBe(3);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('caret after a leading astral character: removes the whole code point', () => {
+        const content = caretInFirstBlock(bootMuya('\u{1F642}abc\n'), 2);
+        const event = pressBackspace(content);
+
+        expect(content.text).toBe('abc');
         expect(content.getCursor()!.start.offset).toBe(0);
         expect(event.defaultPrevented).toBe(true);
     });
