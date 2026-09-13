@@ -9,7 +9,7 @@ import type {
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
 import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML, firstWordOfInfo, isKeyboardEvent } from '../../../utils';
+import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -454,27 +454,33 @@ class CodeBlockContent extends Content {
                 const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
                 let offset = start.offset;
                 let code = '';
-                let needRender = false;
+                // Remove a whole character (grapheme cluster), not one UTF-16
+                // code unit: half of an emoji's surrogate pair left in the text
+                // crashes the next edit with "Invalid offset - splits unicode
+                // bytes" (#4926).
+                let removedLength = 0;
 
                 walkTokens(tokens, (token) => {
-                    if (offset === 1 && token.type === 'temp-text' && typeof token.content === 'string') {
-                        token.content = token.content.substring(1);
-                        needRender = true;
-                    }
-                    else if (offset === token.length && token.type !== 'temp-text' && typeof token.content === 'string') {
-                        token.content = token.content.substring(0, token.length - 1);
-                        needRender = true;
+                    if (typeof token.content === 'string') {
+                        if (token.type === 'temp-text' && offset === firstGraphemeLength(token.content)) {
+                            removedLength = offset;
+                            token.content = token.content.substring(removedLength);
+                        }
+                        else if (token.type !== 'temp-text' && offset === token.length) {
+                            removedLength = lastGraphemeLength(token.content);
+                            token.content = token.content.substring(0, token.length - removedLength);
+                        }
                     }
                     code += token.content;
                     // string and Token both has length property...
                     offset -= token.length;
                 });
 
-                if (needRender) {
+                if (removedLength > 0) {
                     event.preventDefault();
                     this.text = code;
                     this._updatePreviewIfHave(this.text);
-                    return this.setCursor(--start.offset, --end.offset, true);
+                    return this.setCursor(start.offset - removedLength, end.offset - removedLength, true);
                 }
             }
         }
