@@ -234,10 +234,27 @@ export const exitSourceMode = async(page: Page, app: ElectronApplication): Promi
   })
 }
 
-export const getMarkdownContent = async(
-  page: Page,
-  app: ElectronApplication
-): Promise<string> => {
+export const enterSplitMode = async(page: Page, app: ElectronApplication): Promise<void> => {
+  const already = await page.evaluate(() => !!document.querySelector('.split-view'))
+  if (already) return
+  await clickMenuById(app, 'splitViewModeMenuItem')
+  await page.waitForSelector('.split-view', { state: 'attached', timeout: 10000 })
+  await page.waitForSelector('.split-view .source-code .CodeMirror', {
+    state: 'attached',
+    timeout: 10000
+  })
+}
+
+export const exitSplitMode = async(page: Page, app: ElectronApplication): Promise<void> => {
+  const inSplit = await page.evaluate(() => !!document.querySelector('.split-view'))
+  if (!inSplit) return
+  await clickMenuById(app, 'splitViewModeMenuItem')
+  await page.waitForFunction(() => !document.querySelector('.split-view'), null, {
+    timeout: 10000
+  })
+}
+
+export const getMarkdownContent = async(page: Page, app: ElectronApplication): Promise<string> => {
   const wasInSource = await page.evaluate(
     () => !!document.querySelector('.source-code .CodeMirror')
   )
