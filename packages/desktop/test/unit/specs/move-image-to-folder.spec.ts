@@ -22,6 +22,11 @@ beforeEach(() => {
   win.fileUtils = {
     ensureDir: vi.fn(() => Promise.resolve()),
     isImageFile: vi.fn(() => Promise.resolve(true)),
+    isSamePathSync: vi.fn((a: string, b: string) => {
+      const na = path.normalize(a)
+      const nb = path.normalize(b)
+      return na === nb || na.toLowerCase() === nb.toLowerCase()
+    }),
     copy,
     writeFile
   }
