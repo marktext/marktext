@@ -30,6 +30,7 @@ interface ILinkToolsView {
     selectItem: (event: Event, item: { type: string; icon: string }) => void;
     render: () => void;
     container: HTMLElement | null;
+    status: boolean;
     destroy: () => void;
 }
 
@@ -177,5 +178,77 @@ describe('linkTools.render — jump visibility tracks linkInfo.href', () => {
 
         expect(tools.container!.querySelectorAll('li.item.jump').length).toBe(1);
         expect(tools.container!.querySelectorAll('li.item.unlink').length).toBe(1);
+    });
+});
+
+describe('linkTools hover — a pending hide must not close the next link\'s popover', () => {
+    // Regression guard for issue #5313: with consecutive anchor lines, moving
+    // the pointer from one link to the next fires `mouseout` on the old link
+    // before `mouseover` on the new one. The `mouseout` arms a 500ms hide; if
+    // showing the next link does not cancel it, that timer still fires and the
+    // popover vanishes while the pointer sits on a link.
+    function makeReference(): HTMLElement {
+        const reference = document.createElement('a');
+        document.body.appendChild(reference);
+        reference.getBoundingClientRect = () =>
+            ({ top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0 }) as DOMRect;
+        return reference;
+    }
+
+    const linkInfo = {
+        href: 'https://example.com',
+        text: 'hi',
+        raw: '[hi](https://example.com)',
+        range: { start: 0, end: 25 },
+    };
+
+    it('keeps the popover open when the pointer moves straight to another link', () => {
+        vi.useFakeTimers();
+        try {
+            const { muya, tools } = bootLinkTools();
+            const { eventCenter } = muya;
+            const first = makeReference();
+            const second = makeReference();
+
+            eventCenter.emit('muya-link-tools', { reference: first, linkInfo, block: null });
+            vi.runOnlyPendingTimers();
+
+            // Leaving the first link arms the hide, then the second link is
+            // hovered before it can fire.
+            eventCenter.emit('muya-link-tools', { reference: null });
+            eventCenter.emit('muya-link-tools', { reference: second, linkInfo, block: null });
+            vi.advanceTimersByTime(1000);
+
+            expect(tools.status).toBe(true);
+
+            first.remove();
+            second.remove();
+        }
+        finally {
+            vi.useRealTimers();
+        }
+    });
+
+    it('still hides when the pointer leaves a link and goes nowhere', () => {
+        vi.useFakeTimers();
+        try {
+            const { muya, tools } = bootLinkTools();
+            const { eventCenter } = muya;
+            const reference = makeReference();
+
+            eventCenter.emit('muya-link-tools', { reference, linkInfo, block: null });
+            vi.runOnlyPendingTimers();
+            expect(tools.status).toBe(true);
+
+            eventCenter.emit('muya-link-tools', { reference: null });
+            vi.advanceTimersByTime(1000);
+
+            expect(tools.status).toBe(false);
+
+            reference.remove();
+        }
+        finally {
+            vi.useRealTimers();
+        }
     });
 });
