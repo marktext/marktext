@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import os from 'os'
 import path from 'path'
 import { moveImageToFolder } from '@/util/fileSystem'
 
@@ -120,5 +121,17 @@ describe('moveImageToFolder relative-directory persistence', () => {
     expect(writeFile).not.toHaveBeenCalled()
     expect(result).toBe(local)
     expect(path.isAbsolute(result)).toBe(true)
+  })
+
+  it('reuses the image when the path differs only by case', async() => {
+    // On case-insensitive filesystems the OS may hand back a path whose
+    // directory case differs (e.g. drive-letter case or user specified folder name)
+    const dir = path.join(os.tmpdir(), 'marktext-case-test')
+    const doc = path.join(dir, 'a.md')
+    const out = path.join(dir, 'assets')
+    const inPlace = path.join(out.toUpperCase(), 'Already.PNG')
+    const result = await moveImageToFolder(doc, inPlace, out, false, doc)
+    expect(copy).not.toHaveBeenCalled()
+    expect(result).toBe(inPlace)
   })
 })
