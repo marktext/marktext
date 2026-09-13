@@ -762,8 +762,10 @@ class ParagraphContent extends Format {
             // so `meta` resolves without `as any`.
             const listAsList = list as TListBlock;
 
+            // The nested child list only exists to carry the SIBLING LIST
+            // ITEMS that stay indented below the outdented item.
             if (
-                (listItem.next || list.next)
+                listItem.next
                 && newListItem.lastChild!.blockName !== list.blockName
             ) {
                 const state = {
@@ -796,10 +798,12 @@ class ParagraphContent extends Format {
                 const offset = listParent.offset(list);
                 listParent.forEachAt(offset + 1, undefined, (node) => {
                     if (node.isParent()) {
-                        (newListItem.lastChild as Parent).append(
-                            node.clone() as Parent,
-                            'user',
-                        );
+                        // Blocks that followed the nested list are the list
+                        // item's own trailing content (paragraphs etc.), not
+                        // list items — putting them inside a list block
+                        // corrupts the state and the next composed op crashes
+                        // ot-json1 (#4899). Append them to the item itself.
+                        newListItem.append(node.clone() as Parent, 'user');
                     }
                     node.remove();
                 });
