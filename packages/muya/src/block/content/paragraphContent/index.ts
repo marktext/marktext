@@ -249,6 +249,9 @@ class ParagraphContent extends Format {
             case 'paragraph':
                 return this._handleBackspaceInParagraph();
 
+            case 'footnote':
+                return this._handleBackspaceInFootnote();
+
             case 'block-quote':
                 return this._handleBackspaceInBlockQuote();
 
@@ -595,23 +598,21 @@ class ParagraphContent extends Format {
             return;
         }
 
-        let parent: Nullable<Parent> = this.parent;
-        let type = 'paragraph';
+        // Only the container that holds this paragraph counts: the handlers
+        // edit `this.parent.parent` as that container, so a list item or quote
+        // further up (around a footnote) must not decide the handling.
+        const container = this.parent?.parent?.blockName;
 
-        while (parent && !parent.isScrollPage) {
-            if (
-                parent.blockName === 'block-quote'
-                || parent.blockName === 'list-item'
-                || parent.blockName === 'task-list-item'
-            ) {
-                type = parent.blockName;
-                break;
-            }
+        switch (container) {
+            case 'block-quote':
+            case 'list-item':
+            case 'task-list-item':
+            case 'footnote':
+                return container;
 
-            parent = parent.parent;
+            default:
+                return 'paragraph';
         }
-
-        return type;
     }
 
     private _handleBackspaceInParagraph(this: ParagraphContent) {
@@ -625,6 +626,26 @@ class ParagraphContent extends Format {
         previousContentBlock.text += this.text;
         this.parent!.remove();
         previousContentBlock.setCursor(offset, offset, true);
+    }
+
+    // Backspace at the start of a footnote definition removes the definition,
+    // not its text: every block it held takes its place.
+    private _handleBackspaceInFootnote() {
+        const parent = this.parent!;
+        const footnote = parent.parent!;
+
+        if (!parent.isFirstChild())
+            return this._handleBackspaceInParagraph();
+
+        const blocks: Parent[] = [];
+        footnote.forEach((node) => {
+            const block = (node as Parent).clone() as Parent;
+            footnote.parent!.insertBefore(block, footnote);
+            blocks.push(block);
+        });
+
+        footnote.remove();
+        blocks[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _handleBackspaceInBlockQuote() {
