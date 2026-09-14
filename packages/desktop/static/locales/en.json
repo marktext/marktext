@@ -516,7 +516,8 @@
         "lineHeight": "Line height",
         "fontFamily": "Font family",
         "maxWidth": "Max width",
-        "maxWidthNotes": "Maximum width of editor content"
+        "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
       },
       "codeBlock": {
         "title": "Code Block",

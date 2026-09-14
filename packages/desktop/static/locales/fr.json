@@ -516,7 +516,8 @@
         "lineHeight": "Hauteur de ligne",
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
-        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur"
+        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
       },
       "codeBlock": {
         "title": "Bloc de code",

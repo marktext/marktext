@@ -516,7 +516,8 @@
         "lineHeight": "줄 높이",
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
-        "maxWidthNotes": "편집기 콘텐츠의 최대 너비"
+        "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
+        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px)."
       },
       "codeBlock": {
         "title": "코드 블록",
