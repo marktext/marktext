@@ -340,24 +340,6 @@ function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
     }
 }
 
-// The cluster strictly containing `offset`, or `null` when `offset` already sits
-// on a cluster boundary. Callers use this to detect a caret parked *inside* a
-// character, which is never a valid place to delete from (#4926).
-export function graphemeClusterContaining(
-    text: string,
-    offset: number,
-): IGraphemeCluster | null {
-    if (offset <= 0 || offset >= text.length)
-        return null;
-
-    for (const cluster of graphemeClusters(text)) {
-        if (offset < cluster.end)
-            return cluster.start < offset ? cluster : null;
-    }
-
-    return null;
-}
-
 // Length in UTF-16 code units of the first grapheme cluster of `text`, so
 // callers can advance one whole character instead of one code unit.
 export function firstGraphemeLength(text: string): number {
