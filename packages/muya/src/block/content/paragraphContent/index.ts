@@ -935,6 +935,20 @@ class ParagraphContent extends Format {
         return newList.firstChild as Parent;
     }
 
+    // A sublist of the other item kind that shares the marker is still the same
+    // markdown list, so a new list placed after it must share its looseness to
+    // reopen unchanged.
+    private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
+        const meta = { ...list.meta };
+        if (isListBlock(previousChild)) {
+            const sublist = previousChild as TListBlock;
+            if (listMarker(sublist) === listMarker(list))
+                meta.loose = sublist.meta.loose;
+        }
+
+        return meta;
+    }
+
     private _indentListItem() {
         const { parent, muya } = this;
         const listItem = parent?.parent;
@@ -956,7 +970,7 @@ class ParagraphContent extends Format {
         if (!isListBlock(newList) || !holdsItemKind(newList, listItem)) {
             const state = {
                 name: list.blockName,
-                meta: { ...(list as TListBlock).meta },
+                meta: this._indentedListMeta(list as TListBlock, newList),
                 children: [listItem.getState()],
             };
             newList = ScrollPage.loadBlock(state.name).create(muya, state);

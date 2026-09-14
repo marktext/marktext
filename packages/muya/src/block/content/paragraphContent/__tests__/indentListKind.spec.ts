@@ -179,6 +179,14 @@ describe('paragraphContent — Tab into a sublist of the other item kind (#5349)
         ]);
         expectStableAcrossReopen(muya);
     });
+
+    it('stays stable across a reopen when the lists are loose', () => {
+        const muya = bootMuya('- [ ] a\n\n  - b\n\n- [ ] c\n');
+        indent(muya, 'c');
+
+        assertListsHoldTheirOwnItems(muya.editor.jsonState.getState());
+        expectStableAcrossReopen(muya);
+    });
 });
 
 describe('paragraphContent — Tab keeps working where the kinds already match (#5349)', () => {
