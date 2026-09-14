@@ -30,10 +30,8 @@ test.describe('search and replace', () => {
         await page.locator(toolbar.replace).click();
         await slowType(page, 'bar');
         await page.locator(toolbar.single).click();
-        const md = await getMarkdown(page);
-        // After replacing one occurrence: at least one 'foo' becomes 'bar'.
-        expect(md).toContain('bar');
-        expect(md.match(/foo/g)?.length ?? 0).toBeLessThanOrEqual(2);
+        // Replacement reaches the JSON state read by getMarkdown on the next frame.
+        await expect.poll(() => getMarkdown(page)).toBe('bar foo foo\n');
     });
 
     test('#all replaces every occurrence', async ({ page }) => {
@@ -45,8 +43,7 @@ test.describe('search and replace', () => {
         await page.locator(toolbar.replace).click();
         await slowType(page, 'dog');
         await page.locator(toolbar.all).click();
-        const md = await getMarkdown(page);
-        expect(md).not.toContain('cat');
-        expect(md.match(/dog/g)?.length).toBe(3);
+        // Wait for the deferred state update and verify that every match was replaced.
+        await expect.poll(() => getMarkdown(page)).toBe('dog dog dog\n');
     });
 });

@@ -268,8 +268,111 @@ export function getParagraphReference(ele: HTMLElement, id: string) {
     };
 }
 
-function visibleLength(str: string) {
-    return [...new Intl.Segmenter().segment(str)].length;
+// `ot-text-unicode` counts its positions in Unicode code points: both of the
+// offsets it walks a string by advance one or two UTF-16 code units, depending
+// on whether the current unit starts a surrogate pair (`uniToStrPos` /
+// `strPosToUni`). A skipped run of unchanged text therefore has to be measured
+// in code points as well. Measuring it in grapheme clusters drifts as soon as a
+// character is more than one code point — `👨‍👩‍👧` is one cluster but five code
+// points — and the op then edits the wrong offsets, silently desyncing the JSON
+// state from the document (the corruption behind the #4926 family of crashes).
+function codePointLength(str: string) {
+    let length = 0;
+    for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (code >= 0xD800 && code <= 0xDFFF)
+            i++; // Count a surrogate pair as the single code point it encodes.
+
+        length++;
+    }
+
+    return length;
+}
+
+// ---------------------------------------------------------------------------
+// Extended grapheme clusters (UAX #29).
+//
+// One "character" from the user's point of view can be several code points
+// (`👨‍👩‍👧` is 5) and several UTF-16 code units (8). Anything that moves over or
+// deletes "one character" therefore has to work on grapheme cluster boundaries
+// rather than on code units or code points — otherwise it can stop inside a
+// cluster and leave half of it behind. `Intl.Segmenter` applies the same UAX
+// #29 segmentation the browser uses for its own caret movement and for the
+// deletion commands, so the editor stays consistent with it.
+// ---------------------------------------------------------------------------
+
+export interface IGraphemeCluster {
+    /** Offset of the cluster's first UTF-16 code unit. */
+    start: number;
+    /** Offset just past the cluster's last UTF-16 code unit. */
+    end: number;
+}
+
+let graphemeSegmenter: Intl.Segmenter | null | undefined;
+
+function getGraphemeSegmenter(): Intl.Segmenter | null {
+    if (graphemeSegmenter === undefined) {
+        graphemeSegmenter
+            = typeof Intl.Segmenter === 'function'
+                ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+                : null;
+    }
+
+    return graphemeSegmenter;
+}
+
+// The grapheme clusters of `text`, as `[start, end)` code-unit ranges. Engines
+// without `Intl.Segmenter` degrade to code points (surrogate-pair aware), which
+// is the narrowest unit the delete handlers can then rely on.
+function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
+    const segmenter = getGraphemeSegmenter();
+    if (segmenter) {
+        for (const { segment, index } of segmenter.segment(text))
+            yield { start: index, end: index + segment.length };
+
+        return;
+    }
+
+    for (let i = 0; i < text.length;) {
+        const end = i + (text.codePointAt(i)! > 0xFFFF ? 2 : 1);
+        yield { start: i, end };
+        i = end;
+    }
+}
+
+// The cluster strictly containing `offset`, or `null` when `offset` already sits
+// on a cluster boundary. Callers use this to detect a caret parked *inside* a
+// character, which is never a valid place to delete from (#4926).
+export function graphemeClusterContaining(
+    text: string,
+    offset: number,
+): IGraphemeCluster | null {
+    if (offset <= 0 || offset >= text.length)
+        return null;
+
+    for (const cluster of graphemeClusters(text)) {
+        if (offset < cluster.end)
+            return cluster.start < offset ? cluster : null;
+    }
+
+    return null;
+}
+
+// Length in UTF-16 code units of the first grapheme cluster of `text`, so
+// callers can advance one whole character instead of one code unit.
+export function firstGraphemeLength(text: string): number {
+    const [first] = graphemeClusters(text);
+
+    return first ? first.end - first.start : 0;
+}
+
+// Length in UTF-16 code units of the last grapheme cluster of `text`.
+export function lastGraphemeLength(text: string): number {
+    let length = 0;
+    for (const cluster of graphemeClusters(text))
+        length = cluster.end - cluster.start;
+
+    return length;
 }
 
 export type TDiff = (string | number | { d: string });
@@ -288,7 +391,7 @@ export function diffToTextOp(diffs: Diff[]) {
                 break;
 
             case 0:
-                op.push(visibleLength(diff[1]));
+                op.push(codePointLength(diff[1]));
                 break;
 
             case 1:

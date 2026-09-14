@@ -12,6 +12,7 @@ import Selection from '../../selection';
 import {
     adjustOffset,
     diffToTextOp,
+    graphemeClusterContaining,
     isCompositionEndEvent,
     isInputEvent,
     isKeyboardEvent,
@@ -842,6 +843,59 @@ class Content extends TreeNode {
         return true;
     }
 
+    // A collapsed caret can be parked *inside* a character: pasting, and Muya's
+    // own offset arithmetic, can both leave it between the UTF-16 code units of
+    // an emoji. A delete from there is not "remove one character" — the browser
+    // takes an arbitrary piece of the cluster, and that piece can be half of a
+    // surrogate pair, which is a lone surrogate `ot-text-unicode` cannot encode
+    // (#4926). Even when it does not crash, what remains is a fraction of what
+    // the user sees as one character.
+    //
+    // So handle those deletes here, on grapheme cluster boundaries (UAX #29):
+    // one whole character goes away, however many code points or code units it
+    // is made of (`👨‍👩‍👧` is 5 and 8 respectively). A caret that already sits on a
+    // cluster boundary is left to the regular handlers, which keeps the common
+    // case on the browser's own — grapheme aware — deletion path.
+    private _deleteGraphemeClusterContainingCaret(event: KeyboardEvent) {
+        const isBackspace = event.key === EVENT_KEYS.Backspace;
+        if (!isBackspace && event.key !== EVENT_KEYS.Delete)
+            return false;
+
+        // An IME owns the keys while it composes (the Backspace / Delete cases
+        // below carry the same guard): the composing text is not in `this.text`
+        // yet, so there is no cluster here to delete.
+        if (this.isComposed)
+            return false;
+
+        const cursor = this.getCursor();
+        if (!cursor?.isCollapsed)
+            return false;
+
+        const { text } = this;
+        const { offset } = cursor.start;
+        // Cheap out for plain-text editing: a boundary between two ASCII code
+        // units can only fall inside a cluster for CR×LF, and Muya normalises
+        // line endings, so ASCII text never needs the segmentation below.
+        const previousUnit = text.charCodeAt(offset - 1);
+        const nextUnit = text.charCodeAt(offset);
+        if (previousUnit < 0x80 && nextUnit < 0x80 && previousUnit !== 0x0D)
+            return false;
+
+        const cluster = graphemeClusterContaining(text, offset);
+        if (!cluster)
+            return false;
+
+        event.preventDefault();
+        this.muya.editor.history.markInputBoundary(
+            isBackspace ? 'deleteContentBackward' : 'deleteContentForward',
+            null,
+        );
+        this.text = text.substring(0, cluster.start) + text.substring(cluster.end);
+        this.setCursor(cluster.start, cluster.start, true);
+
+        return true;
+    }
+
     keydownHandler = (event: Event) => {
         if (!isKeyboardEvent(event))
             return;
@@ -850,6 +904,9 @@ class Content extends TreeNode {
             return;
 
         if (this._wrapSelectionWithAutoPair(event))
+            return;
+
+        if (this._deleteGraphemeClusterContainingCaret(event))
             return;
 
         switch (event.key) {
