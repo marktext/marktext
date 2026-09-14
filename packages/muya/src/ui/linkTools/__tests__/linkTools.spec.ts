@@ -28,6 +28,7 @@ interface ILinkToolsView {
         range?: { start: number; end: number } | null;
     } | null;
     selectItem: (event: Event, item: { type: string; icon: string }) => void;
+    show: (reference: HTMLElement) => void;
     render: () => void;
     container: HTMLElement | null;
     status: boolean;
@@ -212,9 +213,17 @@ describe('linkTools hover — a pending hide must not close the next link\'s pop
         range: { start: 0, end: 25 },
     };
 
+    const secondLinkInfo = {
+        href: 'https://example.org',
+        text: 'there',
+        raw: '[there](https://example.org)',
+        range: { start: 30, end: 58 },
+    };
+
     it('keeps the popover open when the pointer moves straight to another link', () => {
         const { muya, tools, domNode } = bootLinkTools();
         const { eventCenter } = muya;
+        const show = vi.spyOn(tools, 'show');
         const first = makeReference(domNode);
         const second = makeReference(domNode);
 
@@ -224,10 +233,12 @@ describe('linkTools hover — a pending hide must not close the next link\'s pop
         // Leaving the first link arms the hide, then the second link is
         // hovered before it can fire.
         eventCenter.emit('muya-link-tools', { reference: null });
-        eventCenter.emit('muya-link-tools', { reference: second, linkInfo, block: null });
+        eventCenter.emit('muya-link-tools', { reference: second, linkInfo: secondLinkInfo, block: null });
         vi.advanceTimersByTime(1000);
 
         expect(tools.status).toBe(true);
+        expect(show.mock.lastCall?.[0]).toBe(second);
+        expect(tools._linkInfo).toBe(secondLinkInfo);
     });
 
     it('still hides when the pointer leaves a link and goes nowhere', () => {
