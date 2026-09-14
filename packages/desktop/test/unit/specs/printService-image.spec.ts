@@ -84,3 +84,25 @@ describe('resolveLocalImageSrc — branch coverage', () => {
     expect(resolveLocalImageSrc('')).toBe('')
   })
 })
+
+describe('resolveLocalImageSrc — document directory named with URL delimiters (#5335)', () => {
+  it('escapes #, ? and % in the document directory', () => {
+    window.DIRNAME = '/home/me/C# 100%25 what?'
+    expect(resolveLocalImageSrc('assets/cat.png')).toBe(
+      'file:///home/me/C%23 100%2525 what%3F/assets/cat.png'
+    )
+  })
+
+  it('keeps the query and the already-encoded characters of the image path', () => {
+    window.DIRNAME = '/home/me/C#'
+    expect(resolveLocalImageSrc('my%20cat.png?v=2')).toBe('file:///home/me/C%23/my%20cat.png?v=2')
+  })
+
+  it('parses back to the image file on disk', () => {
+    window.DIRNAME = '/home/me/C# 100%25 what?'
+    const url = new URL(resolveLocalImageSrc('assets/cat.png'))
+    expect(decodeURIComponent(url.pathname)).toBe('/home/me/C# 100%25 what?/assets/cat.png')
+    expect(url.hash).toBe('')
+    expect(url.search).toBe('')
+  })
+})

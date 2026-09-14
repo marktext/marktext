@@ -1,10 +1,4 @@
-// `window.DIRNAME` is a raw filesystem path, whereas a markdown link path is
-// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
-// raw, they would read as an escape, a query or a fragment (same as the muya
-// image fix for #5212).
-function encodeDirnameForUrl(dirname: string): string {
-  return dirname.replace(/%/g, '%25').replace(/\?/g, '%3F').replace(/#/g, '%23')
-}
+import { encodeDirnameForUrl } from './fileUrl'
 
 // Resolve an <a>'s href for export / static print (#1688): a relative local
 // path is resolved to an absolute `file://` URL against the current document
