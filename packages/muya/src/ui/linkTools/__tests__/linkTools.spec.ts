@@ -183,11 +183,8 @@ describe('linkTools.render — jump visibility tracks linkInfo.href', () => {
 });
 
 describe('linkTools hover — a pending hide must not close the next link\'s popover', () => {
-    // Regression guard for issue #5313: with consecutive anchor lines, moving
-    // the pointer from one link to the next fires `mouseout` on the old link
-    // before `mouseover` on the new one. The `mouseout` arms a 500ms hide; if
-    // showing the next link does not cancel it, that timer still fires and the
-    // popover vanishes while the pointer sits on a link.
+    // Regression guard for issue #5313; the event order is explained at the
+    // hide-timer cancel in `LinkTools.listen()`.
     beforeEach(() => {
         vi.useFakeTimers();
     });

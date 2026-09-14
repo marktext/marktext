@@ -68,11 +68,9 @@ class LinkTools extends BaseFloat {
         super.listen();
         eventCenter.subscribe('muya-link-tools', ({ reference, linkInfo, block }: ILinkToolsEventPayload) => {
             if (reference) {
-                // Moving between two links fires `mouseout` on the old one
-                // before `mouseover` on the new one, so the hide scheduled by
-                // the previous link is still pending here. Cancel it, or it
-                // fires 500ms later and closes the popover for the link now
-                // under the cursor (issue #5313 — consecutive anchor lines).
+                // A move straight from one link to another emits the old
+                // link's `reference: null` first; cancel the hide it scheduled
+                // or it closes the popover of the link now hovered (#5313).
                 if (this._hideTimer) {
                     clearTimeout(this._hideTimer);
                     this._hideTimer = null;
