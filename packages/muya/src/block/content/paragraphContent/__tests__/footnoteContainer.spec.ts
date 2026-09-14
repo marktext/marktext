@@ -147,3 +147,62 @@ describe('backspace at the start of a top-level footnote (#5343)', () => {
         expect(flushState(muya)).toBe('p"x", footnote(p"", p"note")');
     });
 });
+
+// Backspace and Enter used the handlers of the nearest list item or quote
+// ancestor, which assume that container holds the paragraph directly. With a
+// footnote in between, Backspace appended a block into the list item's first
+// paragraph and the flush threw "Cannot use numerical key for object
+// container"; Enter nested a list item inside the list item.
+describe('a footnote inside a list item or quote is edited as a footnote (#5340)', () => {
+    it('removes the wrapper inside a list item without breaking the state', () => {
+        const muya = bootMuya('- a\n\n  [^1]: note\n');
+
+        pressAtStart(muya, contentByText(muya, 'note'), 'Backspace');
+
+        expect(flushState(muya)).toBe('bullet-list(list-item(p"a", p"note"))');
+        expect(muya.getMarkdown()).toBe('- a\n\n  note\n');
+        expect(caretOf(muya)).toBe('note@0');
+    });
+
+    it('removes the wrapper inside a task list item', () => {
+        const muya = bootMuya('- [ ] a\n\n  [^1]: note\n');
+
+        pressAtStart(muya, contentByText(muya, 'note'), 'Backspace');
+
+        expect(flushState(muya)).toBe('task-list(task-list-item(p"a", p"note"))');
+    });
+
+    it('keeps every paragraph of a footnote inside a quote', () => {
+        const muya = bootMuya('> a\n>\n> [^1]: note\n>\n>     more\n');
+
+        pressAtStart(muya, contentByText(muya, 'note'), 'Backspace');
+
+        expect(flushState(muya)).toBe('block-quote(p"a", p"note", p"more")');
+    });
+
+    it('keeps Enter inside a footnote that sits in a list item', () => {
+        const muya = bootMuya('- a\n\n  [^1]: note\n');
+
+        pressAtStart(muya, contentByText(muya, 'note'), 'Enter');
+
+        expect(flushState(muya)).toBe('bullet-list(list-item(p"a", footnote(p"", p"note")))');
+    });
+});
+
+describe('paragraphs directly in a list item or quote keep their handling', () => {
+    it.each([
+        ['- a\n\n  > q\n', 'q', 'Backspace', 'bullet-list(list-item(p"a", p"q"))'],
+        ['> - a\n>\n>   c\n', 'c', 'Backspace', 'block-quote(bullet-list(list-item(p"ac")))'],
+        ['> - a\n', 'a', 'Backspace', 'block-quote(p"a")'],
+        ['- a\n  - b\n', 'b', 'Backspace', 'bullet-list(list-item(p"a", p"b"))'],
+        ['- a\n  - b\n', 'b', 'Enter', 'bullet-list(list-item(p"a", bullet-list(list-item(p""), list-item(p"b"))))'],
+        ['- a\n\n  > q\n', 'q', 'Enter', 'bullet-list(list-item(p"a", block-quote(p"", p"q")))'],
+        ['> - a\n>\n>   c\n', 'c', 'Enter', 'block-quote(bullet-list(list-item(p"a", p"", p"c")))'],
+    ] as const)('%j + %s at the start of %s', (markdown, text, key, shape) => {
+        const muya = bootMuya(markdown);
+
+        pressAtStart(muya, contentByText(muya, text), key);
+
+        expect(flushState(muya)).toBe(shape);
+    });
+});
