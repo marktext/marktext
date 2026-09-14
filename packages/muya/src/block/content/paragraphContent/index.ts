@@ -37,6 +37,16 @@ enum UnindentType {
     REPLACEMENT,
 }
 
+function isListItemBlock(block: Nullable<Parent>): block is Parent {
+    return block?.blockName === 'list-item' || block?.blockName === 'task-list-item';
+}
+
+function isListBlock(block: Nullable<Parent>): block is Parent {
+    return block?.blockName === 'bullet-list'
+        || block?.blockName === 'order-list'
+        || block?.blockName === 'task-list';
+}
+
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
@@ -683,15 +693,14 @@ class ParagraphContent extends Format {
         const list = listItem?.parent;
         const listParent = list?.parent;
 
-        if (
-            listParent
-            && (listParent.blockName === 'list-item'
-                || listParent.blockName === 'task-list-item')
-        ) {
-            return list.prev ? UnindentType.INDENT : UnindentType.REPLACEMENT;
-        }
+        // Only a paragraph of a nested list item can be outdented. Checking the
+        // great-grandparent alone also matched `list item > quote > quote`,
+        // and "outdenting" that moved the inner quote into the outer list
+        // (#5342).
+        if (!isListItemBlock(listItem) || !isListBlock(list) || !isListItemBlock(listParent))
+            return null;
 
-        return null;
+        return list.prev ? UnindentType.INDENT : UnindentType.REPLACEMENT;
     }
 
     private _canIndentListItem() {
