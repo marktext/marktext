@@ -174,6 +174,11 @@ export class ParagraphFrontMenu extends BaseFloat {
             children.unshift(this._renderSubMenu(subMenu));
         }
 
+        // Heading-only fold actions. Folding is meaningless on non-heading
+        // blocks, so these appear only for `atx-heading`.
+        if (blockName === 'atx-heading')
+            children.push(...this._renderFoldItems());
+
         const vnode = h('ul', children);
 
         if (oldVNode)
@@ -181,6 +186,33 @@ export class ParagraphFrontMenu extends BaseFloat {
         else patch(frontMenuContainer, vnode);
 
         this._oldVNode = vnode;
+    }
+
+    // The fold section shown for headings: a divider then Fold all / Unfold all
+    // / Fold to this level. "Fold to this level" uses the clicked heading's own
+    // level, so there is no level picker to navigate.
+    private _renderFoldItems(): VNode[] {
+        const { i18n } = this.muya;
+
+        const foldItems: Array<{ label: string; text: string }> = [
+            { label: 'fold-all', text: i18n.t('Fold all') },
+            { label: 'unfold-all', text: i18n.t('Unfold all') },
+            { label: 'fold-to-level', text: i18n.t('Fold to this level') },
+        ];
+
+        const items = foldItems.map(({ label, text }) =>
+            h(
+                `li.item.${label}`,
+                {
+                    on: {
+                        click: (event: Event) => this.selectItem(event, { label }),
+                    },
+                },
+                [h('span.text', text)],
+            ),
+        );
+
+        return [h('li.divider'), ...items];
     }
 
     selectItem(event: Event, { label }: { label: string }) {
@@ -198,6 +230,13 @@ export class ParagraphFrontMenu extends BaseFloat {
         if (!block?.parent)
             return;
 
+        // Fold actions don't transform the block; handle them first and return.
+        if (/^(?:fold-all|unfold-all|fold-to-level)$/.test(label)) {
+            this._applyFoldAction(label, block as AtxHeading);
+            setTimeout(this.hide.bind(this));
+            return;
+        }
+
         const oldState = block.getState();
 
         const cursorBlock = /duplicate|new|delete/.test(label)
@@ -210,6 +249,25 @@ export class ParagraphFrontMenu extends BaseFloat {
         }
         // Delay hide to avoid dispatch enter handler
         setTimeout(this.hide.bind(this));
+    }
+
+    // Dispatch a heading fold action to the engine. Guarded on the methods
+    // existing so a stray non-heading block can't throw.
+    private _applyFoldAction(label: string, block: AtxHeading) {
+        if (typeof block.foldAll !== 'function')
+            return;
+
+        switch (label) {
+            case 'fold-all':
+                block.foldAll();
+                break;
+            case 'unfold-all':
+                block.unfoldAll();
+                break;
+            case 'fold-to-level':
+                block.foldToLevel(block.meta.level);
+                break;
+        }
     }
 
     private _applyMetaAction(label: string, block: Parent, oldState: TState) {
