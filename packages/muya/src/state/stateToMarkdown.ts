@@ -38,16 +38,6 @@ import { isAnyListState } from './types';
 const debug = logger('export markdown: ');
 const SETEXT_SAFE_BULLET_MARKER = '*';
 
-type TOrderListSerializationMeta = IOrderListState['meta'] & {
-    preserveOrderMarkers?: boolean;
-    orderMarkerIndex?: number;
-};
-
-type TListSerializationMeta
-    = IBulletListState['meta']
-        | ITaskListState['meta']
-        | TOrderListSerializationMeta;
-
 function escapeText(str: string) {
     return str.replace(/(?<!\\)\|/g, '\\|');
 }
@@ -59,9 +49,14 @@ export interface IExportMarkdownOptions {
 export default class ExportMarkdown {
     // Stack of currently-open list metas while serializing a tree (push on
     // descent into bullet/order/task list, pop on ascent). The serializer
-    // reads `loose` / `marker` / `delimiter` / `start` from the top entry
-    // to render the correct bullet, indentation, and tightness.
-    private _listType: TListSerializationMeta[];
+    // reads `loose` / `marker` / `delimiter` / `start` / `sourceMarkers` from
+    // the top entry to render the correct bullet, indentation, and tightness.
+    // Entries are clones, so items consume `start` and `sourceMarkers` in place.
+    private _listType: (
+        | IBulletListState['meta']
+        | IOrderListState['meta']
+        | ITaskListState['meta']
+    )[];
 
     private _isLooseParentList: boolean;
     private _listIndentation: string;
@@ -228,14 +223,11 @@ export default class ExportMarkdown {
     ): string {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
-        const meta = deepClone(state.meta) as TListSerializationMeta;
+        const meta = deepClone(state.meta);
         if (markerOverride && 'marker' in meta)
             meta.marker = markerOverride;
-        if (state.name === 'order-list') {
-            const orderMeta = meta as TOrderListSerializationMeta;
-            orderMeta.preserveOrderMarkers = this._shouldPreserveOrderMarkers(state);
-            orderMeta.orderMarkerIndex = 0;
-        }
+        if (state.name === 'order-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
+            delete meta.sourceMarkers;
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
         const bulletMarkerOrDelimiter
@@ -260,6 +252,9 @@ export default class ExportMarkdown {
         return bulletMarkerOrDelimiter;
     }
 
+    // Source markers only hold while the list keeps the items it was parsed
+    // with: an insert, delete or reorder breaks the per-item match, and the
+    // list falls back to numbering from `start`.
     private _shouldPreserveOrderMarkers(state: IOrderListState) {
         const { sourceMarkers } = state.meta;
         if (!sourceMarkers || sourceMarkers.length !== state.children.length)
@@ -600,17 +595,13 @@ export default class ExportMarkdown {
             itemMarker = marker ? `${marker} ` : '- ';
         }
         else if ('start' in listInfo) {
-            // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
-            //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-            const markerIndex = listInfo.orderMarkerIndex ?? 0;
-            const preservedMarker = state.name === 'list-item'
-                && listInfo.preserveOrderMarkers
-                ? listInfo.sourceMarkers?.[markerIndex]
-                : undefined;
+            const preservedMarker = listInfo.sourceMarkers?.shift();
             if (preservedMarker) {
                 itemMarker = `${preservedMarker} `;
             }
             else {
+                // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
+                //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
                 let n = listInfo.start;
                 if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
                     n = 1;
@@ -618,7 +609,6 @@ export default class ExportMarkdown {
                 itemMarker = `${n}${delimiter || '.'} `;
             }
             listInfo.start++;
-            listInfo.orderMarkerIndex = markerIndex + 1;
         }
         else {
             itemMarker = '- ';
