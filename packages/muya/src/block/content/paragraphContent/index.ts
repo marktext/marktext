@@ -32,6 +32,12 @@ import { ScrollPage } from '../../scrollPage';
 // shape. Narrow once instead of casting per access.
 type TListBlock = BulletList | OrderList | TaskList;
 
+// Markdown continues a list only while items keep the same bullet or ordered
+// delimiter.
+function listMarker(list: TListBlock): string {
+    return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
+}
+
 enum UnindentType {
     INDENT,
     REPLACEMENT,
@@ -763,13 +769,11 @@ class ParagraphContent extends Format {
             this._placeCursorIn(paragraph, start.offset, end.offset);
         }
         else if (type === UnindentType.INDENT) {
-            const newListItem = listItem.clone() as Parent;
-            listParent.parent!.insertAfter(newListItem, listParent);
-
             // At runtime, when unindentListItem runs, the surrounding `list`
             // is always one of the three list block kinds — narrow once
             // so `meta` resolves without `as any`.
             const listAsList = list as TListBlock;
+            const newListItem = this._insertOutdentedListItem(listItem, listParent, listAsList);
 
             // The nested child list only exists to carry the SIBLING LIST
             // ITEMS that stay indented below the outdented item.
@@ -834,6 +838,75 @@ class ParagraphContent extends Format {
                 end.offset,
             );
         }
+    }
+
+    // Puts a copy of `listItem` into the list around `parentItem`, right after
+    // it, and returns the copy. A list holds one item kind (plain items in
+    // bullet and ordered lists, task items in task lists), so when the kinds
+    // differ the outer list is split after `parentItem` and the item gets a
+    // list of its own kind, with the items that followed `parentItem` in a
+    // list of the outer kind after it. That is the structure the parser builds
+    // for such a list, so the document stays the same across a reopen (#5341).
+    private _insertOutdentedListItem(listItem: Parent, parentItem: Parent, nestedList: TListBlock): Parent {
+        const outerList = parentItem.parent as TListBlock;
+
+        if (listItem.blockName === parentItem.blockName) {
+            const newListItem = listItem.clone() as Parent;
+            outerList.insertAfter(newListItem, parentItem);
+
+            return newListItem;
+        }
+
+        const { muya } = this;
+        const container = outerList.parent!;
+
+        let tailList: Parent | null = null;
+        if (parentItem.next) {
+            const offset = outerList.offset(parentItem);
+            const tailItems: Parent[] = [];
+            outerList.forEachAt(offset + 1, undefined, node => tailItems.push(node as Parent));
+            const meta = outerList instanceof OrderList
+                ? { ...outerList.meta, start: outerList.meta.start + offset + 1 }
+                : { ...outerList.meta };
+            tailList = ScrollPage.loadBlock(outerList.blockName).create(muya, {
+                name: outerList.blockName,
+                meta,
+                children: tailItems.map(node => node.getState()),
+            });
+            tailItems.forEach(node => node.remove());
+        }
+
+        const following = outerList.next as Nullable<TListBlock>;
+        if (
+            !tailList
+            && following?.blockName === nestedList.blockName
+            && !(nestedList instanceof OrderList)
+            && listMarker(following) === listMarker(nestedList)
+        ) {
+            const newListItem = listItem.clone() as Parent;
+            following.insertBefore(newListItem, following.firstChild as Parent);
+
+            return newListItem;
+        }
+
+        // With the same marker the new list is still part of the outer
+        // markdown list, so it shares that list's looseness.
+        const loose = listMarker(outerList) === listMarker(nestedList)
+            ? outerList.meta.loose
+            : nestedList.meta.loose;
+        const meta = nestedList instanceof OrderList
+            ? { ...nestedList.meta, loose, start: nestedList.meta.start + nestedList.offset(listItem) }
+            : { ...nestedList.meta, loose };
+        const newList: Parent = ScrollPage.loadBlock(nestedList.blockName).create(muya, {
+            name: nestedList.blockName,
+            meta,
+            children: [listItem.getState()],
+        });
+        container.insertAfter(newList, outerList);
+        if (tailList)
+            container.insertAfter(tailList, newList);
+
+        return newList.firstChild as Parent;
     }
 
     private _indentListItem() {
