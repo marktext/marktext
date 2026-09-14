@@ -46,6 +46,7 @@ export interface IpcInvokeChannels {
   'mt::fonts::list': { args: []; ret: string[] }
   'mt::fs-trash-item': { args: [pathname: string]; ret: void }
   'mt::fs::copy': { args: [src: string, dest: string]; ret: void }
+  'mt::fs::copy-with-content-hash': { args: [src: string, outputDir: string]; ret: string }
   'mt::fs::empty-dir': { args: [path: string]; ret: void }
   'mt::fs::ensure-dir': { args: [path: string]; ret: void }
   'mt::fs::is-directory': { args: [path: string]; ret: boolean }
