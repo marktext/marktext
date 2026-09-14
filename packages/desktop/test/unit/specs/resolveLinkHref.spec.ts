@@ -33,3 +33,24 @@ describe('resolveLocalLinkHref — document directory', () => {
     expect(url.search).toBe('')
   })
 })
+
+describe('resolveLocalLinkHref — Windows document directory (#5336)', () => {
+  it('keeps the server of a UNC document directory', () => {
+    window.DIRNAME = pathe.dirname('\\\\server\\share\\docs\\note.md')
+    const url = new URL(resolveLocalLinkHref('./notes.md'))
+    expect(url.host).toBe('server')
+    expect(url.pathname).toBe('/share/docs/notes.md')
+  })
+
+  it('keeps the host of a WSL document directory when the link climbs up', () => {
+    window.DIRNAME = '//wsl.localhost/Ubuntu-24.04/home/me/docs'
+    expect(resolveLocalLinkHref('../notes/todo.md#today')).toBe(
+      'file://wsl.localhost/Ubuntu-24.04/home/me/notes/todo.md#today'
+    )
+  })
+
+  it('gives a drive-letter document directory an empty host', () => {
+    window.DIRNAME = pathe.dirname('C:\\Users\\me\\docs\\note.md')
+    expect(resolveLocalLinkHref('./notes.md')).toBe('file:///C:/Users/me/docs/notes.md')
+  })
+})
