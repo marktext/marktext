@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import os from 'os'
 import path from 'path'
 import { moveImageToFolder } from '@/util/fileSystem'
 
@@ -21,6 +22,11 @@ beforeEach(() => {
   win.fileUtils = {
     ensureDir: vi.fn(() => Promise.resolve()),
     isImageFile: vi.fn(() => Promise.resolve(true)),
+    // Models a case-insensitive filesystem (Windows, default macOS), where the
+    // real helper's stat check finds both spellings to be one file.
+    isSamePathSync: vi.fn(
+      (a: string, b: string) => path.normalize(a).toLowerCase() === path.normalize(b).toLowerCase()
+    ),
     copy,
     writeFile
   }
@@ -62,8 +68,8 @@ describe('moveImageToFolder relative-directory persistence', () => {
   })
 
   it('short-circuits without copying when the image already lives in outputDir', async() => {
-    // The resolved imagePath equals path.join(outputDir, basename) so
-    // noHashPath === imagePath and the copy step is skipped.
+    // The resolved imagePath is already path.join(outputDir, basename), so the
+    // copy step is skipped.
     const inPlace = path.join(assetsDir, 'already.png')
     const result = await moveImageToFolder(docPath, inPlace, assetsDir, false, docPath)
     expect(copy).not.toHaveBeenCalled()
@@ -120,5 +126,28 @@ describe('moveImageToFolder relative-directory persistence', () => {
     expect(writeFile).not.toHaveBeenCalled()
     expect(result).toBe(local)
     expect(path.isAbsolute(result)).toBe(true)
+  })
+
+  describe('image already in outputDir under different casing', () => {
+    // A dropped file carries its on-disk casing, while outputDir carries the
+    // casing of the preference and of the path the document was opened with.
+    const dir = path.join(os.tmpdir(), 'marktext-case-test')
+    const doc = path.join(dir, 'a.md')
+    const out = path.join(dir, 'assets')
+    const inPlace = path.join(out.toUpperCase(), 'Already.PNG')
+
+    it('reuses the image when the path differs only by case', async() => {
+      const result = await moveImageToFolder(doc, inPlace, out, false, doc)
+      expect(copy).not.toHaveBeenCalled()
+      expect(result).toBe(path.join(out, 'Already.PNG'))
+    })
+
+    it('links the reused image through outputDir when an ancestor folder differs by case', async() => {
+      // Relativizing the image's own casing against the document folder would
+      // climb out through the mismatched ancestors instead of into outputDir.
+      const result = await moveImageToFolder(doc, inPlace, out, true, doc)
+      expect(copy).not.toHaveBeenCalled()
+      expect(result).toBe(path.join('assets', 'Already.PNG'))
+    })
   })
 })
