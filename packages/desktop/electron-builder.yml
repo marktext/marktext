@@ -48,8 +48,28 @@ extraResources:
       - '**/*'
       - '!locales/**/!(*.min).json'
 npmRebuild: false
-electronLanguages: # Avoid packaging all chromium locales since our app has in-built locales
+electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText supports
+  # Values must cover both spellings: "xx-YY" .pak files on Windows/Linux and
+  # "xx_YY" .lproj bundles on macOS. Keeping them lets OS-provided strings
+  # (e.g. the macOS Window management items) localize on non-English systems;
+  # the in-built locales are still the source for the app's own UI.
   - en-US
+  - en
+  - de
+  - es
+  - fr
+  - ja
+  - ko
+  - nl
+  - pt-BR
+  - pt-PT
+  - pt_BR
+  - pt_PT
+  - tr
+  - zh-CN
+  - zh-TW
+  - zh_CN
+  - zh_TW
 
 asarUnpack:
   - resources/**

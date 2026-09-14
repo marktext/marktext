@@ -147,6 +147,13 @@ code.mu-inline-rule {
     display: block;
 }
 
+/* When softNewlineAsSpace is on, collapse the \n inside a soft break span
+   to a space. white-space: normal inside a pre-wrap block causes the inner
+   span to ignore the parent's pre-wrap, collapsing the newline to a space. */
+.mu-soft-newline-as-space {
+    white-space: normal;
+}
+
 .mu-hard-line-break-space::after {
     font-family: monospace;
 

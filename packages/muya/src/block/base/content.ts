@@ -7,11 +7,13 @@ import type Parent from './parent';
 import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
-import { BACK_HASH, BRACKET_HASH, EVENT_KEYS, isFirefox } from '../../config';
+import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS } from '../../config';
 import Selection from '../../selection';
 import {
     adjustOffset,
     diffToTextOp,
+    graphemeClusterContaining,
+    isCompositionEndEvent,
     isInputEvent,
     isKeyboardEvent,
     isMouseEvent,
@@ -91,6 +93,22 @@ function extractWord(
         right,
         word: text.slice(left, right),
     };
+}
+
+/**
+ * Zero-width space an IME composes into instead of the block's trailing
+ * newline — see `Content._seedCompositionAnchor`.
+ */
+const COMPOSITION_ANCHOR = '\u200B';
+
+function countKeptBefore(text: string, offset: number): number {
+    let kept = 0;
+    for (let i = 0; i < offset; i++) {
+        if (text[i] !== COMPOSITION_ANCHOR)
+            kept++;
+    }
+
+    return kept;
 }
 
 function shouldRemoveClosingChar(
@@ -295,31 +313,36 @@ function collapsedInputAutoPair(
 }
 
 function lineBreakAutoPair(
-    event: InputEvent,
+    event: InputEvent | CompositionEvent,
     text: string,
     start: INodeOffset,
     end: INodeOffset,
     oldStart: INodeOffset,
     blockText: string,
 ) {
+    const inputType = isInputEvent(event) ? event.inputType : '';
+
     // Just work for `Shift + Enter` to create a soft and hard line break.
     if (
         blockText.endsWith('\n')
         && start.offset === text.length
-        && (event.inputType === 'insertText' || event.type === 'compositionend')
+        && typeof event.data === 'string'
+        && (inputType === 'insertText' || event.type === 'compositionend')
     ) {
         text = blockText + event.data;
-        // I don't know why firefox don't need to offset++
+        // Re-anchor to the rebuilt text instead of nudging the DOM offset: how
+        // far the DOM drifted depends on whether the browser kept the trailing
+        // newline (Firefox does, Chromium overwrites it) and on whether the
+        // caret sat in a composition anchor. The end of the rebuilt text is the
+        // one answer that holds in every case.
         // For more info: https://github.com/marktext/muya/issues/130
-        if (!isFirefox) {
-            start.offset++;
-            end.offset++;
-        }
+        start.offset = text.length;
+        end.offset = text.length;
     }
     else if (
         blockText.length === oldStart.offset
         && blockText[oldStart.offset - 2] === '\n'
-        && event.inputType === 'deleteContentBackward'
+        && inputType === 'deleteContentBackward'
     ) {
         text = blockText.substring(0, oldStart.offset - 1);
         start.offset = text.length;
@@ -332,6 +355,8 @@ function lineBreakAutoPair(
 class Content extends TreeNode {
     private _text: string;
     protected isComposed: boolean;
+    private _compositionAnchor: Nullable<Text> = null;
+    private _compositionLineEnd: Nullable<Element> = null;
 
     static override blockName = 'content';
 
@@ -601,12 +626,118 @@ class Content extends TreeNode {
     composeHandler(event: Event) {
         if (event.type === 'compositionstart') {
             this.isComposed = true;
+            this._seedCompositionAnchor();
         }
         else if (event.type === 'compositionend') {
             this.isComposed = false;
+            this._consumeCompositionAnchor();
             // Because the compose event will not cause `input` event, So need call `inputHandler` by ourself
             this.inputHandler(event);
         }
+    }
+
+    /**
+     * Give an IME its own text node to compose in when the caret sits at the
+     * end of a block whose text ends with `\n`.
+     *
+     * That newline is the last thing in the block's DOM, so the caret sits
+     * inside it, and Chromium will not sustain a composition there: it
+     * overwrites the newline and abandons the composition, which costs the
+     * input method the first keystroke of the word (#3468). An appended node
+     * takes the composition instead and the newline is left alone. The node
+     * has to carry a zero-width space — Chromium ignores an empty one.
+     *
+     * Seeded on `compositionstart` and stripped again on `compositionend`, so
+     * it exists only while `inputHandler` is short-circuited by `isComposed`
+     * and is never visible to the DOM ↔ text offset mapping.
+     */
+    private _seedCompositionAnchor() {
+        const { domNode } = this;
+        const cursor = this.getCursor();
+        if (
+            domNode == null
+            || cursor == null
+            || cursor.start.offset !== cursor.end.offset
+            || cursor.start.offset !== this.text.length
+            || !this.text.endsWith('\n')
+        ) {
+            return;
+        }
+
+        const anchor = document.createTextNode(COMPOSITION_ANCHOR);
+        // Ahead of a code block's trailing line break: past it, the composition
+        // would start a line below the caret.
+        domNode.insertBefore(anchor, domNode.querySelector(`:scope > .${CLASS_NAMES.MU_TRAILING_BREAK}`));
+        this._compositionAnchor = anchor;
+
+        // `mu-line-end` makes the trailing newline a block of its own, because
+        // a newline with nothing after it renders no line at all. The anchor is
+        // now that something, so the newline renders on its own — and the class
+        // has to go, or the block keeps a line to itself and the composition
+        // lands one line below the caret.
+        const lineEnd = domNode.querySelector(`.${CLASS_NAMES.MU_LINE_END}`);
+        if (lineEnd != null) {
+            lineEnd.classList.remove(CLASS_NAMES.MU_LINE_END);
+            this._compositionLineEnd = lineEnd;
+        }
+
+        // In front of the zero-width space, not behind it: Chromium composes at
+        // the caret and leaves the caret where it was, so a trailing anchor
+        // keeps the caret on the far side of the text being composed and it
+        // draws to the left of the glyph the user is typing.
+        const range = document.createRange();
+        range.setStart(anchor, 0);
+        range.collapse(true);
+        const selection = document.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    }
+
+    /**
+     * Strip the seeded anchor, keeping the text the IME committed into it and
+     * the caret where the user sees it, so the input handler that runs next
+     * reads an anchor-free block.
+     */
+    private _consumeCompositionAnchor() {
+        const anchor = this._compositionAnchor;
+        const lineEnd = this._compositionLineEnd;
+        this._compositionAnchor = null;
+        this._compositionLineEnd = null;
+        lineEnd?.classList.add(CLASS_NAMES.MU_LINE_END);
+        if (anchor == null)
+            return;
+
+        const selection = document.getSelection();
+        const text = anchor.textContent ?? '';
+        // Capture the caret before touching the node: assigning `textContent`
+        // replaces the text node's data and drops any selection inside it.
+        const caretOffset = selection?.anchorNode === anchor
+            ? countKeptBefore(text, selection.anchorOffset)
+            : null;
+        const stripped = text.split(COMPOSITION_ANCHOR).join('');
+
+        if (stripped === '') {
+            // Composition cancelled, or backspaced away character by character.
+            // The anchor goes with it, and the caret goes with the anchor — so
+            // put the caret back where it was before the composition started,
+            // at the end of the block's own text.
+            anchor.parentNode?.removeChild(anchor);
+            if (caretOffset != null)
+                this.setCursor(this.text.length, this.text.length);
+
+            return;
+        }
+
+        anchor.textContent = stripped;
+
+        if (caretOffset == null || selection == null)
+            return;
+
+        const range = document.createRange();
+        range.setStart(anchor, caretOffset);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
     }
 
     /**
@@ -628,11 +759,15 @@ class Content extends TreeNode {
         let needRender = false;
 
         // The event will not be input event, when click task list item input element.
-        if (!isInputEvent(event) || !oldStart)
+        // `compositionend` is let through as well: `composeHandler` forwards it
+        // straight into `inputHandler`, and it is the only signal an IME commit
+        // ever produces here — rejecting it left the soft-line-break repair
+        // below unreachable for CJK input (#5279).
+        if ((!isInputEvent(event) && !isCompositionEndEvent(event)) || !oldStart)
             return { text, needRender };
 
         if (this.text !== text) {
-            if (start.offset === end.offset && event.type === 'input') {
+            if (isInputEvent(event) && start.offset === end.offset && event.type === 'input') {
                 const collapsed = collapsedInputAutoPair(event, text, start, end, {
                     blockText: this.text,
                     options: this.muya.options,
@@ -708,6 +843,59 @@ class Content extends TreeNode {
         return true;
     }
 
+    // A collapsed caret can be parked *inside* a character: pasting, and Muya's
+    // own offset arithmetic, can both leave it between the UTF-16 code units of
+    // an emoji. A delete from there is not "remove one character" — the browser
+    // takes an arbitrary piece of the cluster, and that piece can be half of a
+    // surrogate pair, which is a lone surrogate `ot-text-unicode` cannot encode
+    // (#4926). Even when it does not crash, what remains is a fraction of what
+    // the user sees as one character.
+    //
+    // So handle those deletes here, on grapheme cluster boundaries (UAX #29):
+    // one whole character goes away, however many code points or code units it
+    // is made of (`👨‍👩‍👧` is 5 and 8 respectively). A caret that already sits on a
+    // cluster boundary is left to the regular handlers, which keeps the common
+    // case on the browser's own — grapheme aware — deletion path.
+    private _deleteGraphemeClusterContainingCaret(event: KeyboardEvent) {
+        const isBackspace = event.key === EVENT_KEYS.Backspace;
+        if (!isBackspace && event.key !== EVENT_KEYS.Delete)
+            return false;
+
+        // An IME owns the keys while it composes (the Backspace / Delete cases
+        // below carry the same guard): the composing text is not in `this.text`
+        // yet, so there is no cluster here to delete.
+        if (this.isComposed)
+            return false;
+
+        const cursor = this.getCursor();
+        if (!cursor?.isCollapsed)
+            return false;
+
+        const { text } = this;
+        const { offset } = cursor.start;
+        // Cheap out for plain-text editing: a boundary between two ASCII code
+        // units can only fall inside a cluster for CR×LF, and Muya normalises
+        // line endings, so ASCII text never needs the segmentation below.
+        const previousUnit = text.charCodeAt(offset - 1);
+        const nextUnit = text.charCodeAt(offset);
+        if (previousUnit < 0x80 && nextUnit < 0x80 && previousUnit !== 0x0D)
+            return false;
+
+        const cluster = graphemeClusterContaining(text, offset);
+        if (!cluster)
+            return false;
+
+        event.preventDefault();
+        this.muya.editor.history.markInputBoundary(
+            isBackspace ? 'deleteContentBackward' : 'deleteContentForward',
+            null,
+        );
+        this.text = text.substring(0, cluster.start) + text.substring(cluster.end);
+        this.setCursor(cluster.start, cluster.start, true);
+
+        return true;
+    }
+
     keydownHandler = (event: Event) => {
         if (!isKeyboardEvent(event))
             return;
@@ -718,13 +906,20 @@ class Content extends TreeNode {
         if (this._wrapSelectionWithAutoPair(event))
             return;
 
+        if (this._deleteGraphemeClusterContainingCaret(event))
+            return;
+
         switch (event.key) {
             case EVENT_KEYS.Backspace:
-                this.backspaceHandler(event);
+                if (!this.isComposed)
+                    this.backspaceHandler(event);
+
                 break;
 
             case EVENT_KEYS.Delete:
-                this.deleteHandler(event);
+                if (!this.isComposed)
+                    this.deleteHandler(event);
+
                 break;
 
             case EVENT_KEYS.Enter:

@@ -67,9 +67,8 @@
     "type": "string"
   },
   "language": {
-    "description": "General--The language MarkText uses.",
-    "type": "string",
-    "default": "en"
+    "description": "General--The language MarkText uses. No default on purpose: the language is auto-detected from the system locale on first start (after app ready), so a schema default would always win over detection.",
+    "type": "string"
   },
   "editorFontFamily": {
     "description": "Editor--editor font family",
@@ -274,6 +273,11 @@
   },
   "isGitlabCompatibilityEnabled": {
     "description": "Markdown-Enable GitLab compatibility mode.",
+    "type": "boolean",
+    "default": false
+  },
+  "softNewlineAsSpace": {
+    "description": "Markdown--Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.",
     "type": "boolean",
     "default": false
   },

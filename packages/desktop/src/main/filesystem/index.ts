@@ -22,6 +22,29 @@ export const normalizeAndResolvePath = (pathname: string): string => {
   return path.resolve(pathname)
 }
 
+/**
+ * Splits a link destination such as `other.md#setup` into the file path and the
+ * fragment. The path is percent-decoded (CommonMark #503, #57) and resolved
+ * against `dirname` (`''` for an unsaved document); the anchor is returned as
+ * written. A `#` belonging to an existing file name (`C#.md`) stays in the path.
+ */
+export const resolveLocalLinkTarget = (
+  link: string,
+  dirname: string
+): { pathname: string; anchor: string } => {
+  const toPathname = (target: string): string => {
+    const joined = dirname && !path.isAbsolute(target) ? path.join(dirname, target) : target
+    return path.normalize(decodeURIComponent(joined))
+  }
+
+  const pathname = toPathname(link)
+  const hashIndex = link.indexOf('#')
+  if (hashIndex <= 0 || isFile(pathname)) {
+    return { pathname, anchor: '' }
+  }
+  return { pathname: toPathname(link.slice(0, hashIndex)), anchor: link.slice(hashIndex + 1) }
+}
+
 export const writeFile = async(
   pathname: string,
   content: string | Buffer,
@@ -35,7 +58,14 @@ export const writeFile = async(
 
   // write-file-atomic does not create parent directories; recreate a moved or
   // deleted folder first so an (auto)save into it still succeeds (#3509).
-  await ensureDir(path.dirname(pathname))
+  // Only do this when the parent does not already exist. On Windows fs.mkdir
+  // returns EPERM (not EEXIST) for an existing volume root (e.g. "E:\"), so for
+  // an existing parent — drive roots included — ensureDir would throw and block
+  // saving directly to a drive root instead of being a harmless no-op (#5150).
+  const dir = path.dirname(pathname)
+  if (!isDirectory(dir)) {
+    await ensureDir(dir)
+  }
 
   // Durable atomic save: write to a temp file in the target's directory, fsync
   // it, then rename it over the target. This survives an application crash AND

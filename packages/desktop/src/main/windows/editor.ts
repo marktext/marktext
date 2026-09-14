@@ -331,7 +331,7 @@ class EditorWindow extends BaseWindow {
     for (const { filePath, options, selected } of fileList) {
       if (this._openedFiles!.includes(filePath)) {
         // File is already opened - avoid opening it again so we dont have duplicate watchers
-        browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath)
+        browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
         continue
       }
       loadMarkdownFile(

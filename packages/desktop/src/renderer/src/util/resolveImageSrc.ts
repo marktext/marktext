@@ -6,6 +6,20 @@
 // the source folder.
 const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
 
+export function localPathToFileUrl(src: string): string {
+  const normalized = src.replace(/\\/g, '/')
+
+  if (/^\/\/[^/]+\/[^/]+/.test(normalized)) {
+    return `file://${normalized.slice(2)}`
+  }
+
+  if (/^[a-z]:\//i.test(normalized)) {
+    return `file:///${normalized}`
+  }
+
+  return `file://${normalized}`
+}
+
 export function resolveLocalImageSrc(src: string): string {
   if (!src) return src
   // Already a URL or data: URI — leave as-is (avoids `file://file://…`).
@@ -15,8 +29,8 @@ export function resolveLocalImageSrc(src: string): string {
   // server path `/api/image?id=…` must not become `file:///api/image…`.
   if (!IMAGE_EXT_REG.test(src)) return src
   // Absolute local image path (POSIX / UNC / Windows drive) → file://.
-  if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return `file://${src}`
+  if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return localPathToFileUrl(src)
   // Relative local image path — resolve against the document directory.
-  if (window.DIRNAME) return `file://${window.path.resolve(window.DIRNAME, src)}`
+  if (window.DIRNAME) return localPathToFileUrl(window.path.join(window.DIRNAME, src))
   return src
 }

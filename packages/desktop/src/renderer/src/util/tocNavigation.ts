@@ -19,6 +19,9 @@
 export const TOP_LEVEL_HEADINGS_SELECTOR =
   '.mu-container > h1, .mu-container > h2, .mu-container > h3, .mu-container > h4, .mu-container > h5, .mu-container > h6'
 
+/** Clearance in CSS pixels between a revealed heading and the editor viewport. */
+export const TOC_HEADING_TOP_GAP = 24
+
 export const resolveTocHeadingElement = (
   container: Element,
   listToc: ReadonlyArray<{ slug?: unknown }>,
@@ -28,4 +31,16 @@ export const resolveTocHeadingElement = (
   if (index < 0) return null
   const headings = container.querySelectorAll(TOP_LEVEL_HEADINGS_SELECTOR)
   return headings[index] ?? null
+}
+
+/**
+ * Returns the scroll position that places a TOC heading below the editor's
+ * visible top edge. The editor can move down when window chrome such as the tab
+ * bar is shown, so the alignment is relative to the scroll container rather
+ * than a fixed window coordinate.
+ */
+export const getTocHeadingScrollTop = (container: HTMLElement, heading: Element): number => {
+  const containerTop = container.getBoundingClientRect().top
+  const headingTop = heading.getBoundingClientRect().top
+  return container.scrollTop + headingTop - containerTop - TOC_HEADING_TOP_GAP
 }

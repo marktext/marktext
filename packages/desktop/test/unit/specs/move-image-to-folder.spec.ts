@@ -98,13 +98,16 @@ describe('moveImageToFolder relative-directory persistence', () => {
     // No copy for a binary File — it is written, not copied.
     expect(copy).not.toHaveBeenCalled()
     expect(writeFile).toHaveBeenCalledTimes(1)
-    // The written destination is inside the assets dir...
-    expect((writeFile.mock.calls[0] as unknown[])[0] as string).toMatch(/pasted\.png$/)
+    // The written destination is inside the assets dir, named by the SHA-1 of
+    // its bytes (the same dedup scheme as the string-path branch)...
+    expect((writeFile.mock.calls[0] as unknown[])[0] as string).toMatch(
+      /e809c5d1cea47b45e34701d23f608a9a58034dc9\.png$/
+    )
     expect(((writeFile.mock.calls[0] as unknown[])[0] as string).startsWith(assetsDir)).toBe(true)
     // ...and the inserted reference is the portable relative path.
     expect(path.isAbsolute(result)).toBe(false)
     expect(result.startsWith('assets/')).toBe(true)
-    expect(result.endsWith('pasted.png')).toBe(true)
+    expect(result.endsWith('e809c5d1cea47b45e34701d23f608a9a58034dc9.png')).toBe(true)
   })
 
   it('a string local path already inside outputDir is returned verbatim when isRelative is false (path-action string passthrough analog)', async() => {

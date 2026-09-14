@@ -268,7 +268,7 @@ export interface IpcMainEventChannels {
   'mt::show-notification': [payload: unknown]
   'mt::spelling-replace-misspelling': [payload: unknown]
   'mt::spelling-show-switch-language': []
-  'mt::switch-tab-by-file_path': [filePath: string]
+  'mt::switch-tab-by-file_path': [filePath: string, options?: TabOptions]
   'mt::switch-tab-by-index': [index: number]
   'mt::tab-save-failure': [tabId: string, message: string]
   'mt::tab-saved': [tabId: string]

@@ -51,6 +51,9 @@ export class Search {
         }
 
         for (const [block, highlights] of matchesMap.entries()) {
+            if (!block.outMostBlock)
+                continue;
+
             const isActive = highlights.some(h => h.active);
 
             block.update(undefined, isClear ? [] : highlights);
@@ -208,7 +211,7 @@ export class Search {
         // cursor where the highlight was so the user can keep typing there.
         if (selectHighlight) {
             const activeMatch = matches[index] ?? prevActiveMatch;
-            if (activeMatch) {
+            if (activeMatch?.block.outMostBlock) {
                 const { block, start, end } = activeMatch;
                 block.setCursor(start, end, true);
             }

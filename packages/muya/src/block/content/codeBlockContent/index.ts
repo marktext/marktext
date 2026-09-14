@@ -8,8 +8,8 @@ import type {
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
-import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML, firstWordOfInfo } from '../../../utils';
+import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { adjustOffset, escapeHTML, firstWordOfInfo, isKeyboardEvent } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -169,7 +169,7 @@ class CodeBlockContent extends Content {
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
-        const code = escapeHTML(getHighlightHtml(text, highlights, true, true))
+        const code = escapeHTML(getHighlightHtml(text, highlights, true))
             .replace(new RegExp(MARKER_HASH['<'], 'g'), '<')
             .replace(new RegExp(MARKER_HASH['>'], 'g'), '>')
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
@@ -189,6 +189,18 @@ class CodeBlockContent extends Content {
         }
         else {
             domNode.innerHTML = code;
+        }
+
+        // A final newline lays out no line of its own, so the caret after it had
+        // nowhere to sit (#5114). Added after highlighting: Prism's keep-markup
+        // drops empty elements. Wrapped: Chromium puts the caret just before the
+        // <br>, and (content, childIndex) would read back as text offset
+        // childIndex where (wrapper, 0) reads back as the text length.
+        if (text.endsWith('\n')) {
+            const trailingBreak = document.createElement('span');
+            trailingBreak.classList.add(CLASS_NAMES.MU_TRAILING_BREAK);
+            trailingBreak.appendChild(document.createElement('br'));
+            domNode.appendChild(trailingBreak);
         }
 
         this._updateLineNumbers(text);
@@ -305,6 +317,23 @@ class CodeBlockContent extends Content {
             offset += tabSize;
 
         this.setCursor(offset, offset, true);
+    }
+
+    // Content.arrowHandler measures the caret to tell whether it is on the
+    // block's first or last line, and a caret on an empty line has no rect to
+    // measure, so it left the block. A newline on the caret's side settles it.
+    override arrowHandler(event: Event): void {
+        if (isKeyboardEvent(event)) {
+            const { start, end } = this.getCursor()!;
+            if (
+                (event.key === EVENT_KEYS.ArrowUp && this.text.slice(0, start.offset).includes('\n'))
+                || (event.key === EVENT_KEYS.ArrowDown && this.text.slice(end.offset).includes('\n'))
+            ) {
+                return;
+            }
+        }
+
+        super.arrowHandler(event);
     }
 
     override tabHandler(event: KeyboardEvent): void {

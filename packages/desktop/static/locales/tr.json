@@ -83,6 +83,7 @@
       "minimize": "Simge Durumuna Küçült",
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
+      "resetZoom": "Yakınlaştırmayı Sıfırla",
       "fullScreen": "Tam Ekran",
       "bringAllToFront": "Tümünü Öne Getir",
       "alwaysOnTop": "Her Zaman Üstte"
@@ -187,6 +188,7 @@
     "copyAsRich": "Zengin Metin Olarak Kopyala",
     "copyAsHtml": "HTML Olarak Kopyala",
     "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
+    "lookUp": "\"{selection}\" Ara",
     "insertParagraphBefore": "Önüne Paragraf Ekle",
     "insertParagraphAfter": "Arkasına Paragraf Ekle",
     "spelling": "Yazım...",
@@ -244,7 +246,9 @@
       "openFolder": "Klasör Aç"
     },
     "toc": {
-      "title": "İçindekiler"
+      "title": "İçindekiler",
+      "expandAll": "Tümünü genişlet",
+      "collapseAll": "Tümünü daralt"
     },
     "icons": {
       "files": "Dosyalar",
@@ -409,6 +413,7 @@
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
@@ -500,6 +505,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -513,7 +519,8 @@
         "lineHeight": "Satır yüksekliği",
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
-        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği"
+        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
+        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px."
       },
       "codeBlock": {
         "title": "Kod Bloğu",
@@ -656,6 +663,7 @@
       "compatibility": {
         "enableGitlab": "GitLab uyumluluğunu etkinleştir",
         "enableHtml": "HTML desteğini etkinleştir",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "title": "Uyumluluk"
       },
       "lists": {
