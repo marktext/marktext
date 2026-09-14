@@ -1,3 +1,5 @@
+import { localPathToFileUrl } from './fileUrl'
+
 // Resolve an <img>'s src for export / static print (GH#678): a relative local
 // path is resolved to an absolute `file://` URL against the current document
 // directory; URLs, `data:` URIs, and already-absolute / `file://` srcs are left
@@ -5,20 +7,6 @@
 // styled-HTML / PDF document keeps rendering its images after it is moved out of
 // the source folder.
 const IMAGE_EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i
-
-export function localPathToFileUrl(src: string): string {
-  const normalized = src.replace(/\\/g, '/')
-
-  if (/^\/\/[^/]+\/[^/]+/.test(normalized)) {
-    return `file://${normalized.slice(2)}`
-  }
-
-  if (/^[a-z]:\//i.test(normalized)) {
-    return `file:///${normalized}`
-  }
-
-  return `file://${normalized}`
-}
 
 export function resolveLocalImageSrc(src: string): string {
   if (!src) return src
