@@ -1,6 +1,20 @@
 import type { IMatch } from '../../search/types';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildRegexValue, matchString } from '../search';
+
+// A matching loop that never advances past a zero-width match calls `exec`
+// forever. Cap the calls so such a regression fails fast instead of hanging
+// the test runner (`matchString` turns the thrown error into `[]`).
+function capRegExpExec() {
+    let calls = 0;
+    const exec = RegExp.prototype.exec;
+    vi.spyOn(RegExp.prototype, 'exec').mockImplementation(function (this: RegExp, text: string) {
+        if (++calls > 1000)
+            throw new Error('RegExp#exec called more than 1000 times');
+
+        return exec.call(this, text);
+    });
+}
 
 // Defensive coverage for the search helpers migrated from marktext.
 //
@@ -124,5 +138,23 @@ describe('matchString — search option matrix', () => {
             expect(matches[0].index).toBe(2);
             expect(matches[0].subMatches).toEqual(['26', '05']);
         });
+    });
+});
+
+describe('matchString — zero-width regexp matches', () => {
+    beforeEach(capRegExpExec);
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    it('finds every word boundary once', () => {
+        const matches = matchString('ab cd', '\\b', { isRegexp: true });
+        expect(matches.map(m => m.index)).toEqual([0, 2, 3, 5]);
+        expect(matches.every(m => m.match === '')).toBe(true);
+    });
+
+    it('finds every lookahead position once', () => {
+        const matches = matchString('abcb', '(?=b)', { isRegexp: true });
+        expect(matches.map(m => m.index)).toEqual([1, 3]);
     });
 });

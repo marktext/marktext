@@ -1,7 +1,30 @@
 import type { IMatch, ISearchOption } from '../search/types';
-import execAll from 'execall';
 
-export function matchString(text: string, value: string, options: ISearchOption) {
+export interface IStringMatch {
+    match: string;
+    subMatches: string[];
+    index: number;
+}
+
+function execAll(regexp: RegExp, text: string): IStringMatch[] {
+    const matches: IStringMatch[] = [];
+    let result: RegExpExecArray | null;
+
+    // eslint-disable-next-line no-cond-assign
+    while ((result = regexp.exec(text)) !== null) {
+        const [match, ...subMatches] = result;
+        // A zero-width match (`\b`, a lookahead) leaves `lastIndex` in place, so
+        // `exec` would return it forever and freeze the editor.
+        if (match === '')
+            regexp.lastIndex++;
+
+        matches.push({ match, subMatches, index: result.index });
+    }
+
+    return matches;
+}
+
+export function matchString(text: string, value: string, options: ISearchOption): IStringMatch[] {
     const { isCaseSensitive, isWholeWord, isRegexp } = options;
 
     const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+()/]/g;
