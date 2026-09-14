@@ -1417,6 +1417,9 @@ const handlePrintServiceClearup = () => {
 // action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
 // clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
 const pushSelectionMenuState = (changes: MuyaChange) => {
+  // Native selection notifications also arrive when CodeMirror takes focus.
+  // The source-mode watcher owns menu availability while Muya is hidden.
+  if (sourceCode.value) return
   editorStore.SELECTION_CHANGE({
     ...adaptSelectionChange(changes),
     // Read the live block tree (O(1)) rather than getState(), which deep-clones

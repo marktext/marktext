@@ -123,6 +123,10 @@ test.describe('SimpleImageViewer (Space-to-preview + Esc close)', () => {
     const overlaySrc = await page.locator('.image-viewer img').first().getAttribute('src')
     expect(overlaySrc).toBe(SVG_DATA_URI)
 
+    // Preview must leave the source image in the editor, even while the
+    // document-level clipboard key handler processes the same Space event.
+    await expect(page.locator('.editor-component .mu-image-container img')).toHaveCount(1)
+
     await expectNoRendererErrors(app)
   })
 
@@ -136,6 +140,7 @@ test.describe('SimpleImageViewer (Space-to-preview + Esc close)', () => {
     // setImageViewerVisible(false) calls imageViewer.destroy(), which empties
     // the container, so no <img> remains mounted in the overlay.
     await expect.poll(() => viewerImgCount(page), { timeout: 5000 }).toBe(0)
+    await expect(page.locator('.editor-component .mu-image-container img')).toHaveCount(1)
 
     await expectNoRendererErrors(app)
   })

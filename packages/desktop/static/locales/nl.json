@@ -3,7 +3,10 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
-      "paragraphs": "Alinea's"
+      "allCharacters": "Alle tekens",
+      "paragraphs": "Alinea's",
+      "document": "Document",
+      "documentSelection": "Document / Selectie"
     },
     "file": {
       "file": "Bestand",
