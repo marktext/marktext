@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import type Format from '../../../block/base/format';
 import type { Muya } from '../../../muya';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import EventCenter from '../../../event';
 import LinkTools from '../index';
 
@@ -187,9 +187,19 @@ describe('linkTools hover — a pending hide must not close the next link\'s pop
     // before `mouseover` on the new one. The `mouseout` arms a 500ms hide; if
     // showing the next link does not cancel it, that timer still fires and the
     // popover vanishes while the pointer sits on a link.
-    function makeReference(): HTMLElement {
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    // Mounted inside the session's `domNode` so the shared teardown removes it
+    // even when an assertion fails first.
+    function makeReference(domNode: HTMLElement): HTMLElement {
         const reference = document.createElement('a');
-        document.body.appendChild(reference);
+        domNode.appendChild(reference);
         reference.getBoundingClientRect = () =>
             ({ top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0 }) as DOMRect;
         return reference;
@@ -203,52 +213,35 @@ describe('linkTools hover — a pending hide must not close the next link\'s pop
     };
 
     it('keeps the popover open when the pointer moves straight to another link', () => {
-        vi.useFakeTimers();
-        try {
-            const { muya, tools } = bootLinkTools();
-            const { eventCenter } = muya;
-            const first = makeReference();
-            const second = makeReference();
+        const { muya, tools, domNode } = bootLinkTools();
+        const { eventCenter } = muya;
+        const first = makeReference(domNode);
+        const second = makeReference(domNode);
 
-            eventCenter.emit('muya-link-tools', { reference: first, linkInfo, block: null });
-            vi.runOnlyPendingTimers();
+        eventCenter.emit('muya-link-tools', { reference: first, linkInfo, block: null });
+        vi.runOnlyPendingTimers();
 
-            // Leaving the first link arms the hide, then the second link is
-            // hovered before it can fire.
-            eventCenter.emit('muya-link-tools', { reference: null });
-            eventCenter.emit('muya-link-tools', { reference: second, linkInfo, block: null });
-            vi.advanceTimersByTime(1000);
+        // Leaving the first link arms the hide, then the second link is
+        // hovered before it can fire.
+        eventCenter.emit('muya-link-tools', { reference: null });
+        eventCenter.emit('muya-link-tools', { reference: second, linkInfo, block: null });
+        vi.advanceTimersByTime(1000);
 
-            expect(tools.status).toBe(true);
-
-            first.remove();
-            second.remove();
-        }
-        finally {
-            vi.useRealTimers();
-        }
+        expect(tools.status).toBe(true);
     });
 
     it('still hides when the pointer leaves a link and goes nowhere', () => {
-        vi.useFakeTimers();
-        try {
-            const { muya, tools } = bootLinkTools();
-            const { eventCenter } = muya;
-            const reference = makeReference();
+        const { muya, tools, domNode } = bootLinkTools();
+        const { eventCenter } = muya;
+        const reference = makeReference(domNode);
 
-            eventCenter.emit('muya-link-tools', { reference, linkInfo, block: null });
-            vi.runOnlyPendingTimers();
-            expect(tools.status).toBe(true);
+        eventCenter.emit('muya-link-tools', { reference, linkInfo, block: null });
+        vi.runOnlyPendingTimers();
+        expect(tools.status).toBe(true);
 
-            eventCenter.emit('muya-link-tools', { reference: null });
-            vi.advanceTimersByTime(1000);
+        eventCenter.emit('muya-link-tools', { reference: null });
+        vi.advanceTimersByTime(1000);
 
-            expect(tools.status).toBe(false);
-
-            reference.remove();
-        }
-        finally {
-            vi.useRealTimers();
-        }
+        expect(tools.status).toBe(false);
     });
 });
