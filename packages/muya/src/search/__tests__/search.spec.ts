@@ -182,3 +182,20 @@ describe('search.replace() — replace all across multiple blocks', () => {
         expect(search.matches.length).toBe(0);
     });
 });
+
+describe('search.replace() — regexp matches keep emoji whole', () => {
+    it('replaces a whole emoji matched by a negated class', async () => {
+        const muya = bootMuya('abc\u{1F642}\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('[^a-z]', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['\u{1F642}']);
+
+        search.replace('x', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('abcx\n');
+        });
+    });
+});

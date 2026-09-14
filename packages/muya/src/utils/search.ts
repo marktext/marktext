@@ -6,6 +6,19 @@ export interface IStringMatch {
     index: number;
 }
 
+function isHighSurrogate(code: number) {
+    return code >= 0xD800 && code <= 0xDBFF;
+}
+
+function isLowSurrogate(code: number) {
+    return code >= 0xDC00 && code <= 0xDFFF;
+}
+
+// Whether `index` falls between the two halves of a surrogate pair.
+function splitsSurrogatePair(text: string, index: number) {
+    return isHighSurrogate(text.charCodeAt(index - 1)) && isLowSurrogate(text.charCodeAt(index));
+}
+
 function execAll(regexp: RegExp, text: string): IStringMatch[] {
     const matches: IStringMatch[] = [];
     let result: RegExpExecArray | null;
@@ -13,15 +26,39 @@ function execAll(regexp: RegExp, text: string): IStringMatch[] {
     // eslint-disable-next-line no-cond-assign
     while ((result = regexp.exec(text)) !== null) {
         const [match, ...subMatches] = result;
+        const { index } = result;
         // A zero-width match (`\b`, a lookahead) leaves `lastIndex` in place, so
-        // `exec` would return it forever and freeze the editor.
+        // `exec` would return it forever and freeze the editor. A Unicode-mode
+        // RegExp resumes from the start of a pair, so step over the whole pair.
         if (match === '')
-            regexp.lastIndex++;
+            regexp.lastIndex = index + (regexp.unicode && splitsSurrogatePair(text, index + 1) ? 2 : 1);
 
-        matches.push({ match, subMatches, index: result.index });
+        // Replacing a match that starts or ends inside an emoji would leave a lone
+        // surrogate, which the text OT type cannot encode (#4926).
+        if (splitsSurrogatePair(text, index) || splitsSurrogatePair(text, index + match.length))
+            continue;
+
+        matches.push({ match, subMatches, index });
     }
 
     return matches;
+}
+
+// User patterns get the Unicode flag so `.` and character classes match an
+// emoji whole. Patterns that are only valid without it (e.g. `\-`) fall back to
+// the plain flags.
+function createSearchRegExp(source: string, flags: string, isRegexp: boolean): RegExp | null {
+    const candidates = isRegexp ? [`${flags}u`, flags] : [flags];
+    for (const candidate of candidates) {
+        try {
+            return new RegExp(source, candidate);
+        }
+        catch {
+            // Not a valid pattern with these flags; try the next set.
+        }
+    }
+
+    return null;
 }
 
 export function matchString(text: string, value: string, options: ISearchOption): IStringMatch[] {
@@ -29,7 +66,6 @@ export function matchString(text: string, value: string, options: ISearchOption)
 
     const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+()/]/g;
 
-    let SEARCH_REG = null;
     let regStr = value;
     let flag = 'g';
 
@@ -45,15 +81,9 @@ export function matchString(text: string, value: string, options: ISearchOption)
     if (isWholeWord)
         regStr = `\\b${regStr}\\b`;
 
-    try {
-    // Add try catch expression because not all string can generate a valid RegExp. for example `\`.
-        SEARCH_REG = new RegExp(regStr, flag);
+    const regexp = createSearchRegExp(regStr, flag, !!isRegexp);
 
-        return execAll(SEARCH_REG, text);
-    }
-    catch {
-        return [];
-    }
+    return regexp ? execAll(regexp, text) : [];
 }
 
 export function buildRegexValue(match: IMatch, value: string) {

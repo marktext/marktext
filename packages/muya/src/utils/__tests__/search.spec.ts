@@ -4,7 +4,7 @@ import { buildRegexValue, matchString } from '../search';
 
 // A matching loop that never advances past a zero-width match calls `exec`
 // forever. Cap the calls so such a regression fails fast instead of hanging
-// the test runner (`matchString` turns the thrown error into `[]`).
+// the test runner.
 function capRegExpExec() {
     let calls = 0;
     const exec = RegExp.prototype.exec;
@@ -156,5 +156,46 @@ describe('matchString — zero-width regexp matches', () => {
     it('finds every lookahead position once', () => {
         const matches = matchString('abcb', '(?=b)', { isRegexp: true });
         expect(matches.map(m => m.index)).toEqual([1, 3]);
+    });
+
+    it('never stops an empty match between the halves of an emoji', () => {
+        // `\-` forces the non-Unicode fallback, where `(?:)` matches at every
+        // code unit.
+        const matches = matchString('\u{1F642}a', '\\-|(?:)', { isRegexp: true });
+        expect(matches.map(m => m.index)).toEqual([0, 2, 3]);
+    });
+});
+
+// Replacing half of a surrogate pair leaves a lone surrogate in the block text,
+// which `ot-text-unicode` cannot encode: the next state flush throws
+// "Invalid offset - splits unicode bytes".
+describe('matchString — regexp matches keep surrogate pairs whole', () => {
+    const SMILE = '\u{1F642}';
+
+    it('matches an emoji as one character with `.`', () => {
+        const matches = matchString(`abc${SMILE}`, '.', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual(['a', 'b', 'c', SMILE]);
+        expect(matches.map(m => m.index)).toEqual([0, 1, 2, 3]);
+    });
+
+    it('matches an emoji as one character in a negated class', () => {
+        const matches = matchString(`abc${SMILE}`, '[^a-z]', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([SMILE]);
+    });
+
+    it('matches an emoji with a preceding character', () => {
+        const matches = matchString(`abc${SMILE}`, 'c.', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([`c${SMILE}`]);
+    });
+
+    it('still accepts a pattern that is only valid without the Unicode flag', () => {
+        // An identity escape like `\-` is a SyntaxError in Unicode mode.
+        const matches = matchString('a-b', '\\-', { isRegexp: true });
+        expect(matches.map(m => m.index)).toEqual([1]);
+    });
+
+    it('drops matches that split a pair when the Unicode flag cannot be used', () => {
+        const matches = matchString(`a-${SMILE}`, '\\-|.', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual(['a', '-']);
     });
 });
