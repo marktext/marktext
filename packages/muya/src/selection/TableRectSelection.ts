@@ -317,6 +317,9 @@ class TableRectSelection {
             }
         }
 
+        if (hadContent)
+            this._emitSelectionChange();
+
         return hadContent;
     }
 
@@ -333,11 +336,14 @@ class TableRectSelection {
 
     /** Discard the frozen selection and remove every highlight class. */
     clear(): void {
+        const hadSelection = this.hasSelection;
         this._clearHighlight();
         this._table = null;
         this._anchor = null;
         this._focus = null;
         this._isSelecting = false;
+        if (hadSelection)
+            this._emitSelectionChange();
     }
 }
 

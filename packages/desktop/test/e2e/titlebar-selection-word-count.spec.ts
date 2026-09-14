@@ -136,13 +136,37 @@ test.describe('Title bar selection word count', () => {
     await counter.hover()
     const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '5 / 3' }).last()
     await expect(tooltip).toContainText('5 / 3')
+    await expect(tooltip.locator('.title-item .text').nth(1)).toHaveText('26 / 14')
+    await expect(tooltip.locator('.title-item .text').nth(3)).toHaveText('32 / 16')
 
     await placeCaretInEditor(page)
     await expect(counter).toHaveText('W 5')
     await expectNoRendererErrors(app)
   })
 
-  test('restores the same selected count after tab switch clears it', async() => {
+  test('updates selected count during a drag across paragraphs', async() => {
+    const counter = page.locator('.word-count')
+    const paragraphs = page.locator('p.mu-paragraph')
+    const first = await paragraphs.first().boundingBox()
+    const last = await paragraphs.last().boundingBox()
+    if (!first || !last) throw new Error('paragraphs not found')
+
+    await page.mouse.move(first.x + 1, first.y + first.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(first.x + first.width - 1, first.y + first.height / 2, { steps: 8 })
+    await expect(counter).toHaveText('W 5 / 3')
+    await page.mouse.move(last.x + last.width - 1, last.y + last.height / 2, { steps: 8 })
+    await expect(counter).toHaveText('W 5 / 5')
+    await page.mouse.up()
+    await expect(counter).toHaveText('W 5 / 5')
+    await counter.hover()
+    const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '5 / 5' }).last()
+    await expect(tooltip.locator('.title-item .text').nth(2)).toHaveText('2 / 2')
+    await expect(tooltip.locator('.title-item .text').nth(3)).toHaveText('32 / 31')
+    await expectNoRendererErrors(app)
+  })
+
+  test('restores the count with the saved selection when returning to a tab', async() => {
     const counter = page.locator('.word-count')
 
     await selectFirstParagraph(page)
@@ -152,6 +176,10 @@ test.describe('Title bar selection word count', () => {
     await expect(counter).toHaveText('W 3')
 
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
+    await expect.poll(() => page.evaluate(() => window.getSelection()?.toString())).toBe('Alpha beta gamma')
+    await expect(counter).toHaveText('W 5 / 3')
+
+    await placeCaretInEditor(page)
     await expect(counter).toHaveText('W 5')
 
     await selectFirstParagraph(page)
@@ -213,6 +241,26 @@ test('shows selected count for table rectangular selection', async() => {
 
     await dragSelectTableCells(page)
     await expect(counter).toHaveText(/\/ 4$/)
+    await page.keyboard.press('Backspace')
+    await expect(counter).toHaveText(/^W \d+$/)
+    await expectNoRendererErrors(app)
+  } finally {
+    await app.close()
+  }
+})
+
+test('clears a table selection when opening another tab', async() => {
+  const { app, page } = await launchWithMarkdown(TABLE_DOC, { suppressErrorDialog: true })
+  try {
+    await clearRendererErrors(app)
+    const counter = page.locator('.word-count')
+    await dragSelectTableCells(page)
+    await expect(counter).toHaveText(/\/ 4$/)
+
+    await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, 'Alpha beta gamma\n')
+
+    await expect(counter).toHaveText('W 3')
+    await expect(page.locator('p.mu-paragraph')).toHaveText('Alpha beta gamma')
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
@@ -330,6 +378,12 @@ test('uses markdown source text when selecting inline math', async() => {
 
     await dragSelectInlineMathParagraph(page)
     await expect(counter).toHaveText('W 3 / 3')
+    // Both source markers are selected; ignore visual whitespace from the math renderer.
+    await expect.poll(() => page.evaluate(() => window.getSelection()?.toString().replace(/\s+/g, ''))).toBe('$E=mc^2$')
+    await counter.hover()
+    const tooltip = page.locator('.word-count-tooltip').filter({ hasText: '3 / 3' }).last()
+    await expect(tooltip.locator('.title-item .text').nth(1)).toHaveText('8 / 8')
+    await expect(tooltip.locator('.title-item .text').nth(3)).toHaveText('11 / 10')
     await expectNoRendererErrors(app)
   } finally {
     await app.close()
