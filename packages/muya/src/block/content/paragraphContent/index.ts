@@ -53,6 +53,11 @@ function isListBlock(block: Nullable<Parent>): block is Parent {
         || block?.blockName === 'task-list';
 }
 
+// Task lists hold task items; bullet and ordered lists hold plain items.
+function holdsItemKind(list: Parent, listItem: Parent) {
+    return (list.blockName === 'task-list') === (listItem.blockName === 'task-list-item');
+}
+
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
@@ -943,10 +948,12 @@ class ParagraphContent extends Format {
         // Remember the offset of cursor paragraph in listItem
         const offset = listItem.offset(parent);
 
-        // Search for a list in previous block
-        let newList = prevListItem?.lastChild;
+        // Join the previous item's trailing sublist only when it holds this
+        // item's kind; a task item never goes into a bullet list or the other
+        // way round (#5349).
+        let newList = prevListItem?.lastChild as Nullable<Parent>;
 
-        if (!newList || !/ol|ul/.test(newList.tagName)) {
+        if (!isListBlock(newList) || !holdsItemKind(newList, listItem)) {
             const state = {
                 name: list.blockName,
                 meta: { ...(list as TListBlock).meta },
