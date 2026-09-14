@@ -231,6 +231,9 @@ class ParagraphContent extends Format {
 
         switch (type) {
             case 'paragraph':
+                if (this.parent?.parent?.blockName === 'footnote')
+                    return this._handleBackspaceInFootnote();
+
                 return this._handleBackspaceInParagraph();
 
             case 'block-quote':
@@ -609,6 +612,26 @@ class ParagraphContent extends Format {
         previousContentBlock.text += this.text;
         this.parent!.remove();
         previousContentBlock.setCursor(offset, offset, true);
+    }
+
+    // Backspace at the start of a footnote definition removes the definition,
+    // not its text: every block it held takes its place.
+    private _handleBackspaceInFootnote() {
+        const parent = this.parent!;
+        const footnote = parent.parent!;
+
+        if (!parent.isFirstChild())
+            return this._handleBackspaceInParagraph();
+
+        const blocks: Parent[] = [];
+        footnote.forEach((node) => {
+            const block = (node as Parent).clone() as Parent;
+            footnote.parent!.insertBefore(block, footnote);
+            blocks.push(block);
+        });
+
+        footnote.remove();
+        blocks[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _handleBackspaceInBlockQuote() {
