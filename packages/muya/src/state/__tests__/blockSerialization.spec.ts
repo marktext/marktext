@@ -1,4 +1,5 @@
 // @vitest-environment happy-dom
+import type Parent from '../../block/base/parent';
 import type TreeNode from '../../block/base/treeNode';
 import type CodeBlock from '../../block/commonMark/codeBlock';
 import type { Nullable } from '../../types';
@@ -211,7 +212,11 @@ describe('stateToMarkdown — table edge cases', () => {
 });
 
 describe('muya getMarkdown — ordered list source markers', () => {
-    it('preserves repeated ordered markers after the state passes through blocks (#4772)', () => {
+    // `getMarkdown` serializes the JSON state, which only sees block metadata
+    // once an edit re-inserts the list from `block.getState()` (as toggling a
+    // loose list or indenting does). Replacing the list with its clone forces
+    // that path without changing the list's structure.
+    it('preserves repeated ordered markers after the list is rebuilt from its blocks (#4772)', () => {
         const md = `Below is the numbered list:
 
 1. One
@@ -221,25 +226,11 @@ describe('muya getMarkdown — ordered list source markers', () => {
 Text after numbered list.
 `;
         const muya = bootMuya(md);
+        const list = muya.editor.scrollPage!.find(1) as Parent;
 
-        expect(muya.getMarkdown()).toBe(md);
+        list.replaceWith(list.clone());
+        muya.flush();
 
-        const list = muya.getState()[1];
-        expect(list.name).toBe('order-list');
-        if (list.name !== 'order-list')
-            throw new Error('expected an order-list state');
-        expect(list.meta.sourceMarkers).toEqual([
-            '1.',
-            '1.',
-            '1.',
-        ]);
-        expect(list.children.map(item => item.meta?.orderMarker)).toEqual([
-            '1.',
-            '1.',
-            '1.',
-        ]);
-
-        list.meta.sourceMarkers![0] = '2.';
         expect(muya.getMarkdown()).toBe(md);
     });
 });
