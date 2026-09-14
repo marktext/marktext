@@ -69,7 +69,7 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
 
 // `matchString` is the search engine's lexer: it turns the user-facing
 // search options (case sensitivity / whole word / regexp) into a global
-// RegExp and returns the `execall` match shape `{ match, subMatches, index }`.
+// RegExp and returns matches shaped `{ match, subMatches, index }`.
 // Pin the option matrix so a refactor of the regex assembly in
 // `utils/search.ts` can't silently change which substrings are found.
 describe('matchString — search option matrix', () => {
