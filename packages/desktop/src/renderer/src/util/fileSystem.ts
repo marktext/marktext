@@ -55,9 +55,6 @@ export const getHash = async(
   return toHex(digest)
 }
 
-export const getContentHash = (content: string | Uint8Array | ArrayBuffer): Promise<string> =>
-  getHash(content, 'utf8', 'sha1')
-
 export const moveImageToFolder = async(
   pathname: string,
   image: string | File,
@@ -77,15 +74,11 @@ export const moveImageToFolder = async(
     const isImage = await window.fileUtils.isImageFile(imagePath)
     if (isImage) {
       const filename = window.path.basename(imagePath)
-      const ext = window.path.extname(imagePath)
       const noHashPath = window.path.join(outputDir, filename)
       if (window.fileUtils.isSamePathSync(noHashPath, imagePath)) {
         return toResult(noHashPath)
       }
-      const hash = await getContentHash(imagePath)
-      const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
-      await window.fileUtils.copy(imagePath, hashFilePath)
-      return toResult(hashFilePath)
+      return toResult(await window.fileUtils.copyWithContentHash(imagePath, outputDir))
     } else {
       return image as string
     }
