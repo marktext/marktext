@@ -94,14 +94,29 @@ function assertListsHoldTheirOwnItems(state: TState[]): void {
 }
 
 /**
+ * Ordered lists keep the markers they were parsed with (`sourceMarkers`,
+ * `orderMarker`) as serialization hints. An edit leaves them describing the
+ * parsed list, so they are not part of the structure compared across reopen.
+ */
+function structureOf(states: TState[]): TState[] {
+    return JSON.parse(JSON.stringify(states, (key, value) => {
+        if (key === 'sourceMarkers')
+            return undefined;
+        if (key === 'meta' && Object.keys(value).length === 1 && 'orderMarker' in value)
+            return undefined;
+        return value;
+    }));
+}
+
+/**
  * The state after the outdent must be exactly what the parser builds from the
  * markdown it serializes to, or reopening the file would change the document.
  */
 function expectStableAcrossReopen(muya: Muya): TState[] {
-    const state = muya.editor.jsonState.getState();
+    const state = structureOf(muya.editor.jsonState.getState());
     const markdown = muya.getMarkdown();
     muya.setContent(markdown);
-    expect(muya.editor.jsonState.getState()).toEqual(state);
+    expect(structureOf(muya.editor.jsonState.getState())).toEqual(state);
     expect(muya.getMarkdown()).toBe(markdown);
     return state;
 }
