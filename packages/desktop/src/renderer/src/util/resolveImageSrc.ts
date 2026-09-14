@@ -1,4 +1,4 @@
-import { localPathToFileUrl } from './fileUrl'
+import { encodeDirnameForUrl, localPathToFileUrl } from './fileUrl'
 
 // Resolve an <img>'s src for export / static print (GH#678): a relative local
 // path is resolved to an absolute `file://` URL against the current document
@@ -19,6 +19,8 @@ export function resolveLocalImageSrc(src: string): string {
   // Absolute local image path (POSIX / UNC / Windows drive) → file://.
   if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return localPathToFileUrl(src)
   // Relative local image path — resolve against the document directory.
-  if (window.DIRNAME) return localPathToFileUrl(window.path.join(window.DIRNAME, src))
+  if (window.DIRNAME) {
+    return localPathToFileUrl(window.path.join(encodeDirnameForUrl(window.DIRNAME), src))
+  }
   return src
 }
