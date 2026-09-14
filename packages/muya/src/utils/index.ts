@@ -324,7 +324,7 @@ function getGraphemeSegmenter(): Intl.Segmenter | null {
 // The grapheme clusters of `text`, as `[start, end)` code-unit ranges. Engines
 // without `Intl.Segmenter` degrade to code points (surrogate-pair aware), which
 // is the narrowest unit the delete handlers can then rely on.
-function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
+export function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
     const segmenter = getGraphemeSegmenter();
     if (segmenter) {
         for (const { segment, index } of segmenter.segment(text))
@@ -338,24 +338,6 @@ function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
         yield { start: i, end };
         i = end;
     }
-}
-
-// The cluster strictly containing `offset`, or `null` when `offset` already sits
-// on a cluster boundary. Callers use this to detect a caret parked *inside* a
-// character, which is never a valid place to delete from (#4926).
-export function graphemeClusterContaining(
-    text: string,
-    offset: number,
-): IGraphemeCluster | null {
-    if (offset <= 0 || offset >= text.length)
-        return null;
-
-    for (const cluster of graphemeClusters(text)) {
-        if (offset < cluster.end)
-            return cluster.start < offset ? cluster : null;
-    }
-
-    return null;
 }
 
 // Length in UTF-16 code units of the first grapheme cluster of `text`, so

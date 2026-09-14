@@ -68,6 +68,13 @@ class LinkTools extends BaseFloat {
         super.listen();
         eventCenter.subscribe('muya-link-tools', ({ reference, linkInfo, block }: ILinkToolsEventPayload) => {
             if (reference) {
+                // A move straight from one link to another emits the old
+                // link's `reference: null` first; cancel the hide it scheduled
+                // or it closes the popover of the link now hovered (#5313).
+                if (this._hideTimer) {
+                    clearTimeout(this._hideTimer);
+                    this._hideTimer = null;
+                }
                 this._linkInfo = linkInfo ?? null;
                 this._linkBlock = block ?? null;
                 setTimeout(() => {

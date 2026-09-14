@@ -182,3 +182,45 @@ describe('search.replace() — replace all across multiple blocks', () => {
         expect(search.matches.length).toBe(0);
     });
 });
+
+describe('search.replace() — regexp matches keep emoji whole', () => {
+    it('replaces a whole emoji matched by a negated class', async () => {
+        const muya = bootMuya('abc\u{1F642}\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('[^a-z]', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['\u{1F642}']);
+
+        search.replace('x', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('abcx\n');
+        });
+    });
+
+    it('replaces a ZWJ sequence as one character', async () => {
+        const family = '\u{1F9D1}\u200D\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}';
+        const muya = bootMuya(`${family}z\n`);
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('.', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual([family, 'z']);
+
+        search.replace('x', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('xx\n');
+        });
+    });
+
+    it('does not find a code point inside a ZWJ sequence with a literal search', () => {
+        const muya = bootMuya('\u{1F9D1}\u200D\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\u{1F9D1}');
+        expect(search.matches).toHaveLength(0);
+    });
+});

@@ -79,7 +79,6 @@
     "electron-window-state": "^5.0.3",
     "element-plus": "^2.14.2",
     "element-resize-detector": "^1.2.4",
-    "execall": "^3.0.0",
     "flowchart.js": "^1.18.0",
     "font-list": "^2.1.0",
     "fs-extra": "^11.3.5",

@@ -1,10 +1,4 @@
-// `window.DIRNAME` is a raw filesystem path, whereas a markdown link path is
-// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
-// raw, they would read as an escape, a query or a fragment (same as the muya
-// image fix for #5212).
-function encodeDirnameForUrl(dirname: string): string {
-  return dirname.replace(/%/g, '%25').replace(/\?/g, '%3F').replace(/#/g, '%23')
-}
+import { encodeDirnameForUrl, localPathToFileUrl } from './fileUrl'
 
 // Resolve an <a>'s href for export / static print (#1688): a relative local
 // path is resolved to an absolute `file://` URL against the current document
@@ -22,9 +16,10 @@ export function resolveLocalLinkHref(href: string): string {
   if (/^(?:\/|\\\\)/.test(href)) return `file://${href}`
   // Any URL scheme (http:, https:, file:, mailto:, tel:, data:…) — leave as-is.
   if (/^[a-z][a-z\d+.-]*:/i.test(href)) return href
-  // Relative local path — resolve against the document directory.
+  // Relative local path — resolve against the document directory. `join`, not
+  // `resolve`: pathe's `resolve` turns a UNC `//host/share` root into `/host/share`.
   if (window.DIRNAME) {
-    return `file://${window.path.resolve(encodeDirnameForUrl(window.DIRNAME), href)}`
+    return localPathToFileUrl(window.path.join(encodeDirnameForUrl(window.DIRNAME), href))
   }
   return href
 }
