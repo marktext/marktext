@@ -22,11 +22,11 @@ beforeEach(() => {
   win.fileUtils = {
     ensureDir: vi.fn(() => Promise.resolve()),
     isImageFile: vi.fn(() => Promise.resolve(true)),
-    isSamePathSync: vi.fn((a: string, b: string) => {
-      const na = path.normalize(a)
-      const nb = path.normalize(b)
-      return na === nb || na.toLowerCase() === nb.toLowerCase()
-    }),
+    // Models a case-insensitive filesystem (Windows, default macOS), where the
+    // real helper's stat check finds both spellings to be one file.
+    isSamePathSync: vi.fn(
+      (a: string, b: string) => path.normalize(a).toLowerCase() === path.normalize(b).toLowerCase()
+    ),
     copy,
     writeFile
   }
@@ -68,8 +68,8 @@ describe('moveImageToFolder relative-directory persistence', () => {
   })
 
   it('short-circuits without copying when the image already lives in outputDir', async() => {
-    // The resolved imagePath equals path.join(outputDir, basename) so
-    // noHashPath === imagePath and the copy step is skipped.
+    // The resolved imagePath is already path.join(outputDir, basename), so the
+    // copy step is skipped.
     const inPlace = path.join(assetsDir, 'already.png')
     const result = await moveImageToFolder(docPath, inPlace, assetsDir, false, docPath)
     expect(copy).not.toHaveBeenCalled()
@@ -129,8 +129,8 @@ describe('moveImageToFolder relative-directory persistence', () => {
   })
 
   describe('image already in outputDir under different casing', () => {
-    // On case-insensitive filesystems the OS may hand back a path whose
-    // directory case differs (e.g. drive-letter case or user specified folder name)
+    // A dropped file carries its on-disk casing, while outputDir carries the
+    // casing of the preference and of the path the document was opened with.
     const dir = path.join(os.tmpdir(), 'marktext-case-test')
     const doc = path.join(dir, 'a.md')
     const out = path.join(dir, 'assets')
