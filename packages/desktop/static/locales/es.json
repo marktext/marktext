@@ -516,7 +516,8 @@
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
-        "maxWidthNotes": "Ancho máximo del contenido del editor"
+        "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
+        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px."
       },
       "codeBlock": {
         "title": "Bloque de Código",

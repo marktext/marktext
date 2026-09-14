@@ -25,6 +25,12 @@
       @input="handleInput"
     />
     <div
+      v-if="invalidInput && errorMessage"
+      class="error-message"
+    >
+      {{ errorMessage }}
+    </div>
+    <div
       v-if="notes"
       class="notes"
     >
@@ -45,11 +51,13 @@ interface TextBoxProps extends PrefControlBaseProps {
   defaultValue?: string
   emitTime?: number
   regexValidator?: RegExp
+  errorMessage?: string
 }
 
 const props = withDefaults(defineProps<TextBoxProps>(), {
   description: '',
   notes: '',
+  errorMessage: '',
   more: '',
   disable: false,
   defaultValue: '',
@@ -144,6 +152,11 @@ const handleInput = (value: string) => {
   }
 }
 .pref-text-box-item .el-input.error input {
+  color: #f56c6c;
+}
+.pref-text-box-item .error-message {
+  margin: 8px 0 0;
+  font-size: 12px;
   color: #f56c6c;
 }
 </style>
