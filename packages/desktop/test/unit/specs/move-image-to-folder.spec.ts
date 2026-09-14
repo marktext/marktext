@@ -128,15 +128,26 @@ describe('moveImageToFolder relative-directory persistence', () => {
     expect(path.isAbsolute(result)).toBe(true)
   })
 
-  it('reuses the image when the path differs only by case', async() => {
+  describe('image already in outputDir under different casing', () => {
     // On case-insensitive filesystems the OS may hand back a path whose
     // directory case differs (e.g. drive-letter case or user specified folder name)
     const dir = path.join(os.tmpdir(), 'marktext-case-test')
     const doc = path.join(dir, 'a.md')
     const out = path.join(dir, 'assets')
     const inPlace = path.join(out.toUpperCase(), 'Already.PNG')
-    const result = await moveImageToFolder(doc, inPlace, out, false, doc)
-    expect(copy).not.toHaveBeenCalled()
-    expect(result).toBe(inPlace)
+
+    it('reuses the image when the path differs only by case', async() => {
+      const result = await moveImageToFolder(doc, inPlace, out, false, doc)
+      expect(copy).not.toHaveBeenCalled()
+      expect(result).toBe(path.join(out, 'Already.PNG'))
+    })
+
+    it('links the reused image through outputDir when an ancestor folder differs by case', async() => {
+      // Relativizing the image's own casing against the document folder would
+      // climb out through the mismatched ancestors instead of into outputDir.
+      const result = await moveImageToFolder(doc, inPlace, out, true, doc)
+      expect(copy).not.toHaveBeenCalled()
+      expect(result).toBe(path.join('assets', 'Already.PNG'))
+    })
   })
 })
