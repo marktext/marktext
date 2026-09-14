@@ -439,7 +439,13 @@ function collapseLanguageInputCut(
             + endBlock.text.substring(endOffset);
     const codeBlock = startBlock.outMostBlock;
 
-    removeBlocks(startBlock, endBlock);
+    // Ending in this code block's own code leaves nothing between the leaves;
+    // the replacement below removes that code with its block. `removeBlocks`
+    // would detach the inner `code` node, which shares the code block's json
+    // path, so the json state would lose the following block (#4903, #5148).
+    const languageCodeBlock = startBlock.parent;
+    if (languageCodeBlock == null || !endBlock.isInBlock(languageCodeBlock))
+        removeBlocks(startBlock, endBlock);
 
     const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
         name: 'paragraph',
