@@ -1,25 +1,14 @@
-import { describe, it, expect, vi } from 'vitest'
-
-// `resolveLocalLinkHref` reads `window.DIRNAME` + `window.path.resolve` for the
-// relative-resolve branch. Stub those preload surfaces before the hoisted
-// import runs.
-vi.hoisted(() => {
-  const w = globalThis as unknown as {
-    window?: {
-      path?: { sep: string; resolve?: (...parts: string[]) => string }
-      DIRNAME?: string
-    }
-  }
-  w.window ??= {}
-  w.window.path ??= {
-    sep: '/',
-    resolve: (...parts: string[]) =>
-      parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
-  }
-  w.window.DIRNAME = '/docs'
-})
+import pathe from 'pathe'
+import { beforeAll, describe, it, expect } from 'vitest'
 
 import { resolveLocalLinkHref } from '@/util/resolveLinkHref'
+
+// The preload exposes pathe as `window.path`; use the real library rather than
+// a hand-written stub, since the relative branch depends on how it treats
+// drive and UNC roots.
+beforeAll(() => {
+  window.path = pathe as unknown as typeof window.path
+})
 
 describe('resolveLocalLinkHref — document directory', () => {
   it('escapes #, ? and % in the document directory', () => {
