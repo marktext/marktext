@@ -324,7 +324,7 @@ function getGraphemeSegmenter(): Intl.Segmenter | null {
 // The grapheme clusters of `text`, as `[start, end)` code-unit ranges. Engines
 // without `Intl.Segmenter` degrade to code points (surrogate-pair aware), which
 // is the narrowest unit the delete handlers can then rely on.
-function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
+export function* graphemeClusters(text: string): Generator<IGraphemeCluster> {
     const segmenter = getGraphemeSegmenter();
     if (segmenter) {
         for (const { segment, index } of segmenter.segment(text))

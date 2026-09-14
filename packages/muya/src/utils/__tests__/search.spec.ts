@@ -194,8 +194,57 @@ describe('matchString — regexp matches keep surrogate pairs whole', () => {
         expect(matches.map(m => m.index)).toEqual([1]);
     });
 
-    it('drops matches that split a pair when the Unicode flag cannot be used', () => {
+    it('takes the whole emoji for a half-pair match when the Unicode flag cannot be used', () => {
         const matches = matchString(`a-${SMILE}`, '\\-|.', { isRegexp: true });
-        expect(matches.map(m => m.match)).toEqual(['a', '-']);
+        expect(matches.map(m => m.match)).toEqual(['a', '-', SMILE]);
+    });
+});
+
+// One user-visible character — an emoji ZWJ sequence, a letter with a combining
+// mark — is replaced as a unit, never piece by piece.
+describe('matchString — grapheme clusters are one unit', () => {
+    // 🧑‍🧑‍🧒‍🧒: 7 code points / 11 code units, one character on screen.
+    const FAMILY = '\u{1F9D1}\u200D\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}';
+    const PERSON = '\u{1F9D1}';
+    const E_ACUTE = 'e\u0301';
+
+    it('regexp `.` matches a ZWJ sequence as one character', () => {
+        const matches = matchString(`${FAMILY}z`, '.', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([FAMILY, 'z']);
+        expect(matches.map(m => m.index)).toEqual([0, 11]);
+    });
+
+    it('regexp character class matches a ZWJ sequence as one character', () => {
+        const matches = matchString(`${FAMILY}z`, '[^a-z]', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([FAMILY]);
+    });
+
+    it('merges regexp matches that expand into the same character', () => {
+        const matches = matchString(`${FAMILY}z`, '.{2}', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([`${FAMILY}z`]);
+    });
+
+    it('regexp match on a base letter takes its combining mark', () => {
+        const matches = matchString(E_ACUTE, 'e', { isRegexp: true });
+        expect(matches.map(m => m.match)).toEqual([E_ACUTE]);
+    });
+
+    it('drops a zero-width regexp match inside a character', () => {
+        expect(matchString(FAMILY, '(?=\\u200D)', { isRegexp: true })).toEqual([]);
+    });
+
+    it('literal search does not find a code point inside a ZWJ sequence', () => {
+        const matches = matchString(`${FAMILY} ${PERSON}`, PERSON, {});
+        expect(matches.map(m => m.index)).toEqual([12]);
+    });
+
+    it('literal search does not find a base letter that carries a combining mark', () => {
+        const matches = matchString(`${E_ACUTE} e`, 'e', {});
+        expect(matches.map(m => m.index)).toEqual([3]);
+    });
+
+    it('literal search finds the whole ZWJ sequence', () => {
+        const matches = matchString(`a${FAMILY}`, FAMILY, {});
+        expect(matches.map(m => m.index)).toEqual([1]);
     });
 });
