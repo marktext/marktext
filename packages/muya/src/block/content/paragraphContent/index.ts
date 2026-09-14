@@ -53,6 +53,11 @@ function isListBlock(block: Nullable<Parent>): block is Parent {
         || block?.blockName === 'task-list';
 }
 
+// Task lists hold task items; bullet and ordered lists hold plain items.
+function holdsItemKind(list: Parent, listItem: Parent) {
+    return (list.blockName === 'task-list') === (listItem.blockName === 'task-list-item');
+}
+
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
@@ -930,6 +935,20 @@ class ParagraphContent extends Format {
         return newList.firstChild as Parent;
     }
 
+    // A sublist of the other item kind that shares the marker is still the same
+    // markdown list, so a new list placed after it must share its looseness to
+    // reopen unchanged.
+    private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
+        const meta = { ...list.meta };
+        if (isListBlock(previousChild)) {
+            const sublist = previousChild as TListBlock;
+            if (listMarker(sublist) === listMarker(list))
+                meta.loose = sublist.meta.loose;
+        }
+
+        return meta;
+    }
+
     private _indentListItem() {
         const { parent, muya } = this;
         const listItem = parent?.parent;
@@ -943,13 +962,15 @@ class ParagraphContent extends Format {
         // Remember the offset of cursor paragraph in listItem
         const offset = listItem.offset(parent);
 
-        // Search for a list in previous block
-        let newList = prevListItem?.lastChild;
+        // Join the previous item's trailing sublist only when it holds this
+        // item's kind; a task item never goes into a bullet list or the other
+        // way round (#5349).
+        let newList = prevListItem?.lastChild as Nullable<Parent>;
 
-        if (!newList || !/ol|ul/.test(newList.tagName)) {
+        if (!isListBlock(newList) || !holdsItemKind(newList, listItem)) {
             const state = {
                 name: list.blockName,
-                meta: { ...(list as TListBlock).meta },
+                meta: this._indentedListMeta(list as TListBlock, newList),
                 children: [listItem.getState()],
             };
             newList = ScrollPage.loadBlock(state.name).create(muya, state);
