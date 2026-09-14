@@ -130,12 +130,19 @@ class History {
                 source,
                 prevDoc,
             }: {
-                op: JSONOpList;
+                op: Nullable<JSONOpList>;
                 source: string;
                 prevDoc: TState[];
                 doc: TState[];
             }) => {
                 if (this._ignoreChange)
+                    return;
+
+                // The identity op (`null`) carries no change to record or
+                // transform. It can still reach here through `json-change` when
+                // queued ops compose away (e.g. IME edits, #4806); `_record`
+                // would otherwise crash reading `op.length`.
+                if (op == null)
                     return;
 
                 if (!this._options.userOnly || source === 'user')

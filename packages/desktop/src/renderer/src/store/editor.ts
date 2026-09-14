@@ -406,29 +406,34 @@ export const useEditorStore = defineStore('editor', {
     FORMAT_LINK_CLICK({ data, dirname }: FormatLinkClickPayload): void {
       // Check if the link starts with a #, that is a local anchor link.
       if (data.href && data.href[0] === '#') {
-        const anchorSlug = data.href.substring(1)
-        if (!anchorSlug) return
-
-        // Find the block with the anchor slug from the TOC
-        for (const item of this.listToc) {
-          if (item.githubSlug === anchorSlug) {
-            // Scroll to the corresponding element that matches this github-slug
-            bus.emit('scroll-to-header', item.slug)
-            return
-          }
-        }
-
-        // Fall back to a non-heading target: a custom `<a id="...">` (or any
-        // element with a matching id) rendered in the document.
-        const anchorElement = document.getElementById(anchorSlug)
-        if (anchorElement) {
-          bus.emit('scroll-to-anchor-element', anchorElement)
-        }
-
+        this.SCROLL_TO_ANCHOR(data.href.substring(1))
         return
       }
 
       window.electron.ipcRenderer.send('mt::format-link-click', { data, dirname })
+    },
+
+    SCROLL_TO_ANCHOR(anchor: string): void {
+      let anchorSlug = anchor
+      try {
+        anchorSlug = decodeURIComponent(anchor)
+      } catch {
+        // Not valid percent-encoding (e.g. `#100%`): match it as written.
+      }
+      if (!anchorSlug) return
+
+      const heading = this.listToc.find((item) => item.githubSlug === anchorSlug)
+      if (heading) {
+        bus.emit('scroll-to-header', heading.slug)
+        return
+      }
+
+      // Fall back to a non-heading target: a custom `<a id="...">` (or any
+      // element with a matching id) rendered in the document.
+      const anchorElement = document.getElementById(anchorSlug)
+      if (anchorElement) {
+        bus.emit('scroll-to-anchor-element', anchorElement)
+      }
     },
 
     LISTEN_SCREEN_SHOT(): void {
@@ -500,8 +505,18 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // Flush any edit still queued in the engine's rAF batch into the active
+    // tab's `currentFile` before its markdown is read to persist — otherwise an
+    // edit made in the same frame as the read is silently dropped from the
+    // written file (#3803), the way tab switching already guards (#2938). Safe
+    // no-op when nothing is pending.
+    flushActiveEditor(): void {
+      bus.emit('flush-active-editor')
+    },
+
     FILE_SAVE(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -531,6 +546,7 @@ export const useEditorStore = defineStore('editor', {
 
     FILE_SAVE_AS(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -705,6 +721,7 @@ export const useEditorStore = defineStore('editor', {
 
     MOVE_FILE_TO(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -747,6 +764,7 @@ export const useEditorStore = defineStore('editor', {
 
     RESPONSE_FOR_RENAME(): void {
       if (!this.currentFile) return
+      this.flushActiveEditor()
       const projectStore = useProjectStore()
       const { id, filename, pathname, markdown } = this.currentFile
       const options = getOptionsFromState(this.currentFile)
@@ -812,7 +830,7 @@ export const useEditorStore = defineStore('editor', {
         // Must run while `currentFile` still points at the outgoing tab, so its
         // flushed edit is attributed to that tab and not lost on switch (#2938).
         if (oldCurrentFile) {
-          bus.emit('flush-active-editor')
+          this.flushActiveEditor()
         }
         window.DIRNAME = pathname ? window.path.dirname(pathname) : ''
         this.currentFile = currentFile
@@ -981,8 +999,8 @@ export const useEditorStore = defineStore('editor', {
       window.electron.ipcRenderer.on('mt::switch-tab-by-index', (_, index) => {
         this.SWITCH_TAB_BY_INDEX(index)
       })
-      window.electron.ipcRenderer.on('mt::switch-tab-by-file_path', (_, filePath) => {
-        this.SWITCH_TAB_BY_FILEPATH(filePath)
+      window.electron.ipcRenderer.on('mt::switch-tab-by-file_path', (_, filePath, options) => {
+        this.SWITCH_TAB_BY_FILEPATH(filePath, options)
       })
     },
 
@@ -1185,7 +1203,7 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
-    SWITCH_TAB_BY_FILEPATH(filePath: string): void {
+    SWITCH_TAB_BY_FILEPATH(filePath: string, options: TabOptions = {}): void {
       const { tabs } = this
 
       if (!filePath) {
@@ -1199,7 +1217,9 @@ export const useEditorStore = defineStore('editor', {
         return
       }
       const next = tabs[nextTabIndex]
-      if (next) this.UPDATE_CURRENT_FILE(next)
+      if (!next) return
+      this.UPDATE_CURRENT_FILE(next)
+      if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
     },
 
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
@@ -1285,6 +1305,7 @@ export const useEditorStore = defineStore('editor', {
       )
       if (existingTab) {
         this.UPDATE_CURRENT_FILE(existingTab)
+        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
         return
       }
 
@@ -1314,6 +1335,7 @@ export const useEditorStore = defineStore('editor', {
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
         bus.emit('file-loaded', { id, markdown, cursor })
+        if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
       } else {
         this.tabs.push(docState)
         this.updateTabIdToIndex()

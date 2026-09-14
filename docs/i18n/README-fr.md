@@ -90,6 +90,9 @@
   <a href="README-ar.md#readme">
     <span>:saudi_arabia:</span>
   </a>
+  <a href="README-bn.md#readme">
+    <span>:bangladesh:</span>
+  </a>
 </div>
 
 <div align="center">
@@ -110,6 +113,7 @@ MarkText est un éditeur Markdown open-source soutenu par sa communauté. Si Mar
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Extrayez les résultats de Google et d'autres moteurs de recherche grâce à notre API rapide, facile et complète.](https://serpapi.com/?utm_source=marktext) |
 | ------------- |:-------------|
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
 
 ## Captures d'écran
 

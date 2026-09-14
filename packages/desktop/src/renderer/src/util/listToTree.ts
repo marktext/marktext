@@ -15,6 +15,7 @@ export interface TreeNode<T extends ListItem = ListItem> {
   lvl: number | null
   label: unknown
   slug: unknown
+  githubSlug: unknown
   children: Array<TreeNode<T>>
 }
 
@@ -23,6 +24,7 @@ class Node<T extends ListItem> implements TreeNode<T> {
   lvl: number | null
   label: unknown
   slug: unknown
+  githubSlug: unknown
   children: Array<TreeNode<T>>
 
   constructor(item: {
@@ -30,12 +32,16 @@ class Node<T extends ListItem> implements TreeNode<T> {
     lvl: number | null
     content?: unknown
     slug?: unknown
+    githubSlug?: unknown
   }) {
-    const { parent, lvl, content, slug } = item
+    const { parent, lvl, content, slug, githubSlug } = item
     this.parent = parent
     this.lvl = lvl
     this.label = content
     this.slug = slug
+    // Carried through for the TOC: a content-derived id that, unlike `slug`
+    // (a per-render object id), survives a document reload / tab switch (#3791).
+    this.githubSlug = githubSlug
     this.children = []
   }
 

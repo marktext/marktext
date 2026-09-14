@@ -31,8 +31,12 @@ export const commonMarkRules = {
     image: /^(!\[)(.*?)(\\*)\]\((.*)(\\*)\)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/optimal-quantifier-concatenation, regexp/no-misleading-capturing-group
     link: /^(\[)((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\]\((.*)(\\*)\)/, // can nest
+    // Link text can hold balanced brackets — notably an image `![alt](src)` —
+    // so mirror `link`'s nesting-capable anchor group instead of the bracket-
+    // free `[^\]]+?`, which stopped at the image's inner `]` and broke
+    // `[![alt](img)][ref]` (#4865).
     // eslint-disable-next-line regexp/no-super-linear-backtracking
-    reference_link: /^\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
+    reference_link: /^\[((?:\[[^\]]*\]|[^[\]]|\](?=[^[]*\]))*?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     reference_image: /^!\[([^\]]+?)(\\*)\](?:\[([^\]]*?)(\\*)\])?/,
     html_tag:

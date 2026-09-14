@@ -123,8 +123,9 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement } from '@/util/tocNavigation'
+import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -221,6 +222,7 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   lineHeight,
   fontSize,
   codeFontSize,
@@ -546,6 +548,25 @@ watch(focus, (value) => {
   }
 })
 
+// In source-code mode the Paragraph and Format menus operate on the hidden
+// WYSIWYG engine, so grey them out. On return to WYSIWYG, re-apply the menu
+// state for the CURRENT cursor context (a code block/table still disables some
+// items) rather than blanket-enabling everything (#3531).
+watch(sourceCode, (isSource) => {
+  const windowId = window.marktext?.env?.windowId ?? -1
+  if (isSource) {
+    window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, false)
+    return
+  }
+  nextTick(() => {
+    if (selectionChange.value) {
+      pushSelectionMenuState(selectionChange.value as MuyaChange)
+    } else {
+      window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, true)
+    }
+  })
+})
+
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ fontSize: value })
@@ -646,6 +667,12 @@ watch(isHtmlEnabled, (value, oldValue) => {
 watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ isGitlabCompatibilityEnabled: value }, true)
+  }
+})
+
+watch(softNewlineAsSpace, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ softNewlineAsSpace: value }, true)
   }
 })
 
@@ -799,6 +826,14 @@ watch(
     if (value && value !== oldValue) {
       if (editor.value) {
         editor.value.hideAllFloatTools()
+        // Flush the engine's queued rAF-batch ops into the tab before
+        // sourceCode.vue mounts and snapshots `currentFile.markdown` — an edit
+        // made in the same frame as the mode switch (e.g. a task-checkbox
+        // click) would otherwise be missing from the snapshot, and the swap
+        // back out of source mode cancels the scheduled flush, dropping the
+        // edit permanently. Same guard as saving (#3803) and tab switch
+        // (#2938).
+        editor.value.flush()
         // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
         // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
         // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
@@ -851,6 +886,16 @@ const imageAction = async (
   // TODO(Refactor): Refactor this method.
   if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
+
+  // A pasted screenshot / bitmap clipboard comes in as a `data:` URL string
+  // rather than a file path. `moveImageToFolder` and `uploadImage` treat any
+  // string as a local path, which would silently keep the base64 inline — so
+  // normalize it back into a `File` up front and let the branches below handle
+  // it as binary.
+  if (typeof image === 'string' && image.startsWith('data:')) {
+    const file = dataURLToFile(image)
+    if (file) image = file
+  }
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
@@ -1196,9 +1241,8 @@ const scrollToCords = (y: number) => {
   })
 }
 
-// Smoothly scroll the editor so `anchor` sits at the standard top offset.
-// Shared by the TOC, search-highlight, and any other "reveal this element"
-// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+// Smoothly scroll the editor so `anchor` sits at the standard caret offset.
+// Shared by search highlights and non-heading in-document anchors.
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
@@ -1219,7 +1263,9 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
-  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+  const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
+  if (!heading) return
+  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1308,7 +1354,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.EXPORT({ type, pageOptions })
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1334,7 +1380,7 @@ const handleExport = async (options: unknown) => {
           headerFooterStyled: headerFooterStyled as boolean | undefined,
           dir: props.textDirection
         })
-        printer!.renderMarkdown(html, true)
+        printer!.renderMarkdown(html, true, props.textDirection)
         editorStore.PRINT_RESPONSE()
       } catch (err) {
         log.error('Failed to export document:', err)
@@ -1371,6 +1417,12 @@ const pushSelectionMenuState = (changes: MuyaChange) => {
 }
 
 const handleEditParagraph = (type: unknown) => {
+  // These commands act on the hidden WYSIWYG engine, so block them in
+  // source-code mode (mirrors handleUndo/handleSelectAll) — otherwise e.g. the
+  // Insert Table wizard opens and writes to the invisible editor (#3531).
+  if (sourceCode.value) {
+    return
+  }
   if (type === 'table') {
     tableChecker.rows = 4
     tableChecker.columns = 3
@@ -1391,6 +1443,9 @@ const handleEditParagraph = (type: unknown) => {
 
 // handle `duplicate`, `delete`, `create paragraph below`
 const handleParagraph = (type: unknown) => {
+  if (sourceCode.value) {
+    return
+  }
   if (editor.value) {
     switch (type) {
       case 'duplicate': {
@@ -1409,6 +1464,9 @@ const handleParagraph = (type: unknown) => {
 }
 
 const handleInlineFormat = (type: unknown) => {
+  if (sourceCode.value) {
+    return
+  }
   editor.value && editor.value.format(type)
 }
 
@@ -1720,6 +1778,7 @@ onMounted(() => {
     footnote: footnote.value,
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
+    softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,

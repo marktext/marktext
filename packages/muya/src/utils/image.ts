@@ -67,6 +67,28 @@ function resolveRelativePath(base: string, relative: string): string {
     return tail ? `${root}/${tail}` : root;
 }
 
+// `window.DIRNAME` is a raw filesystem path, whereas a markdown image path is
+// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
+// raw, they would read as an escape, a query or a fragment (#5212).
+function encodeDirnameForUrl(dirname: string): string {
+    return dirname
+        .replace(/%/g, '%25')
+        .replace(/\?/g, '%3F')
+        .replace(/#/g, '%23');
+}
+
+function localPathToFileUrl(src: string): string {
+    const normalized = src.replace(/\\/g, '/');
+
+    if (/^\/\/[^/]+\/[^/]+/.test(normalized))
+        return `file://${normalized.slice(2)}`;
+
+    if (/^[a-z]:\//i.test(normalized))
+        return `file:///${normalized}`;
+
+    return `file://${normalized}`;
+}
+
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
     // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
@@ -95,13 +117,13 @@ export function getImageSrc(src: string) {
         else if (!isAbsoluteLocal && baseUrl) {
             return {
                 isUnknownType: false,
-                src: `file://${resolveRelativePath(baseUrl, src)}`,
+                src: localPathToFileUrl(resolveRelativePath(encodeDirnameForUrl(baseUrl), src)),
             };
         }
         else {
             return {
                 isUnknownType: false,
-                src: `file://${src}`,
+                src: localPathToFileUrl(src),
             };
         }
     }
@@ -135,7 +157,10 @@ export async function loadImage(url: string, detectContentType = false): Promise
 }> {
     if (detectContentType) {
         const isImage = await checkImageContentType(url);
-        if (!isImage)
+        // Only bail out when we positively know it is NOT an image. `null`
+        // means we couldn't check (e.g. a cross-origin HEAD blocked by CSP);
+        // fall through to the actual load, which `img-src` permits (#3837).
+        if (isImage === false)
             // eslint-disable-next-line prefer-promise-reject-errors
             return Promise.reject('not an image.');
     }
@@ -157,23 +182,47 @@ export async function loadImage(url: string, detectContentType = false): Promise
     });
 }
 
-export async function checkImageContentType(url: string) {
+// Only a same-origin URL can have its Content-Type read from the renderer: a
+// cross-origin response has its headers stripped by CORS, and the app's CSP
+// (no `connect-src`, so it falls back to `default-src 'self'`) refuses the
+// request outright. Relative/opaque URLs are treated as same-origin so the
+// check is still attempted.
+function isSameOrigin(url: string): boolean {
     try {
-        const res = await fetch(url, { method: 'HEAD' });
-        const contentType = res.headers.get('content-type');
-
-        if (
-            contentType
-            && res.status === 200
-            && /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType)
-        ) {
-            return true;
-        }
-
-        return false;
+        return new URL(url, window.location.href).origin === window.location.origin;
     }
     catch {
-        return false;
+        return true;
+    }
+}
+
+// Returns `true`/`false` when a HEAD response positively identifies the URL as
+// an image (or not), or `null` when that can't be determined. A `null` must NOT
+// be read as "not an image": the actual <img> load is governed by the far more
+// permissive `img-src`, so callers should still attempt it (#3837 — shields.io
+// badges and other extensionless remote images).
+export async function checkImageContentType(url: string): Promise<boolean | null> {
+    // Don't fire a HEAD we could never read: a cross-origin request is refused
+    // by the CSP (logging a console error) and unreadable under CORS anyway.
+    // Report "undetermined" and let the caller fall through to the <img> load.
+    if (!isSameOrigin(url))
+        return null;
+
+    try {
+        const res = await fetch(url, { method: 'HEAD' });
+        if (res.status !== 200)
+            return null;
+
+        // Content-Type can carry parameters (e.g. `image/svg+xml;charset=utf-8`);
+        // match only the MIME type.
+        const contentType = res.headers.get('content-type')?.split(';')[0].trim();
+        if (!contentType)
+            return null;
+
+        return /^image\/(?:jpeg|png|gif|svg\+xml|webp)$/.test(contentType);
+    }
+    catch {
+        return null;
     }
 }
 

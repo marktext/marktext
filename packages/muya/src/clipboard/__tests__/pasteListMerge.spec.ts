@@ -133,4 +133,22 @@ describe('paste — same-type list merges into the enclosing list (A5, muyajs pa
         expect(selection.anchor?.offset).toBe(4);
         expect(selection.focus?.offset).toBe(4);
     });
+
+    // #3549 — pasting into a non-last item must keep the pasted items in order
+    // right after the anchor item, not append them to the end of the list.
+    it('inserts pasted items after the anchor item, not at the list end', async () => {
+        const muya = bootMuya('- Item A\n- \n- Item B\n');
+        const empty = contentBlocks(muya).find(b => b.text === '')!;
+        expect(await paste(muya, empty, 0, 0, '- Item 1\n- Item 2\n- Item 3')).toBe(
+            '- Item A\n- Item 1\n- Item 2\n- Item 3\n- Item B\n',
+        );
+    });
+
+    it('keeps order for an ordered list pasted into the middle', async () => {
+        const muya = bootMuya('1. A\n2. \n3. B\n');
+        const empty = contentBlocks(muya).find(b => b.text === '')!;
+        expect(await paste(muya, empty, 0, 0, '1. one\n2. two')).toBe(
+            '1. A\n2. one\n3. two\n4. B\n',
+        );
+    });
 });

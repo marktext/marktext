@@ -27,6 +27,17 @@ const CDN_STYLESHEET_LINKS = `  <!-- https://cdnjs.com/libraries/github-markdown
   <!-- https://cdnjs.com/libraries/prism -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css" integrity="sha512-/mZ1FHPkg6EKcxo0fKXF51ak6Cr2ocgDi5ytaTBjsQZIH/RNs6GF6+oId/vPe3eJB836T36nXwVh/WBl/cWT4w==" crossorigin="anonymous" referrerpolicy="no-referrer" />`;
 
+// Appended after `exportStyle` when `softNewlineAsSpace` is on. Same selector as
+// the soft-break rule in exportStyle.css, but placed later so it wins and resets
+// `white-space` to `normal`, collapsing a bare `\n` in a paragraph or tight list
+// item to a space (CommonMark's soft-break behaviour) instead of a line break.
+const SOFT_NEWLINE_AS_SPACE_OVERRIDE = `
+.markdown-body p,
+.markdown-body li:not(:has(> p)) {
+    white-space: normal;
+}
+`;
+
 export class MarkdownToHtml {
     private _exportContainer: HTMLDivElement | null = null;
 
@@ -49,6 +60,10 @@ export class MarkdownToHtml {
             mermaidContainer.classList.add('mermaid');
             preEle.replaceWith(mermaidContainer);
         }
+        const nodes = [...this._exportContainer!.querySelectorAll('div.mermaid')];
+        if (nodes.length === 0)
+            return;
+
         const mermaid = await loadRenderer('mermaid');
         // We only export light theme, so set mermaid theme to `default`, in the future, we can choose which theme to export.
         mermaid.initialize({
@@ -56,9 +71,18 @@ export class MarkdownToHtml {
             securityLevel: 'strict',
             theme: 'default',
         });
-        await mermaid.run({
-            nodes: [...this._exportContainer!.querySelectorAll('div.mermaid')],
-        });
+        // Render each diagram in isolation: `mermaid.run` rejects the whole
+        // batch on the first parse error, so one invalid diagram used to abort
+        // the entire export (#4812). Contain the failure to that diagram and
+        // fall back to the same placeholder the other diagram renderers use.
+        for (const node of nodes) {
+            try {
+                await mermaid.run({ nodes: [node] });
+            }
+            catch {
+                node.innerHTML = '< Invalid Diagram >';
+            }
+        }
         if (this._muya) {
             mermaid.initialize({
                 securityLevel: 'strict',
@@ -247,6 +271,13 @@ export class MarkdownToHtml {
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
 
+        // The full export stylesheet always ships; when softNewlineAsSpace is on
+        // a single later override collapses paragraph / tight-list soft breaks to
+        // spaces without disturbing any other export rule.
+        const exportStyleFinal = this._muya?.options.softNewlineAsSpace
+            ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
+            : exportStyle;
+
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
         // stays implicit to keep existing exports byte-identical.
@@ -273,7 +304,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyle}</style>
+  <style>${exportStyleFinal}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

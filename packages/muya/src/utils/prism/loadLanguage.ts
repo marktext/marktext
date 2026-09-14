@@ -1,6 +1,5 @@
 import components from 'prismjs/components.js';
 import getLoader from 'prismjs/dependencies';
-import { getDefer } from '../index';
 
 interface ILangLoadStatus {
     lang: string;
@@ -77,39 +76,43 @@ function initLoadLanguage(Prism: IPrismLike) {
         if (!Array.isArray(langs))
             langs = [langs];
 
-        const promises: Promise<ILangLoadStatus>[] = [];
+        const statuses: ILangLoadStatus[] = [];
         // The user might have loaded languages via some other way or used `prism.js` which already includes some
         // We don't need to validate the ids because `getLoader` will ignore invalid ones
         const loaded = [...loadedLanguages, ...Object.keys(Prism.languages)];
-        getLoader(components, langs, loaded).load(async (lang: string) => {
-            const defer = getDefer<ILangLoadStatus>();
-            promises.push(defer.promise);
+
+        const loadComponent = async (lang: string): Promise<void> => {
             if (!(lang in components.languages)) {
-                defer.resolve({
-                    lang,
-                    status: 'noexist',
-                });
+                statuses.push({ lang, status: 'noexist' });
+                return;
             }
-            else if (loadedLanguages.has(lang)) {
-                defer.resolve({
-                    lang,
-                    status: 'cached',
-                });
+            if (loadedLanguages.has(lang)) {
+                statuses.push({ lang, status: 'cached' });
+                return;
             }
-            else {
-                delete Prism.languages[lang];
-                await import(
-                    `../../../node_modules/prismjs/components/prism-${lang}.js`,
-                );
-                defer.resolve({
-                    lang,
-                    status: 'loaded',
-                });
-                loadedLanguages.add(lang);
-            }
+            delete Prism.languages[lang];
+            await import(
+                `../../../node_modules/prismjs/components/prism-${lang}.js`,
+            );
+            loadedLanguages.add(lang);
+            statuses.push({ lang, status: 'loaded' });
+        };
+
+        // Load in dependency order: a component whose grammar `extend`s another
+        // (e.g. `cpp` extends `c`) must be imported only AFTER its dependency has
+        // registered. The `chainer`'s `series`/`parallel` are Prism's async hooks
+        // (`Promise#then` / `Promise.all`); without it the loader fires the
+        // dependent's import without awaiting the dependency, racing them — if the
+        // dependent evaluates first, `Prism.languages.extend('c', …)` runs on
+        // `undefined` and throws "Cannot set properties of undefined (setting
+        // 'class-name')", which also left the load promise unresolved (a hang).
+        await getLoader(components, langs, loaded).load(loadComponent, {
+            series: (before: Promise<void>, after: () => Promise<void>) =>
+                before.then(after),
+            parallel: (values: Promise<void>[]) => Promise.all(values),
         });
 
-        return Promise.all(promises);
+        return statuses;
     };
 }
 

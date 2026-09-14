@@ -45,6 +45,24 @@ test('a long hidden inline math stays scrollable, not truncated', async ({ page 
   expect(r.scrollable).toBe(true) // content is reachable by scrolling, not cut off
 })
 
+test('a short inline math ending in a subscript shows no scrollbar (#4837)', async ({ page }) => {
+  // KaTeX gives every sub/superscript a 2px `.vlist-s` strut that its
+  // `.vlist-t2` margin cancels visually but not in scrollWidth; the popup's
+  // `overflow: auto` then drew a spurious scrollbar under any short formula
+  // ending in one. The rendered scroll extent must match the visible width.
+  await page.evaluate(() => window.muya!.setContent('inline $x_1$ here'))
+  await page.waitForTimeout(150)
+  const r = await page.evaluate(() => {
+    const render = document.querySelector('.mu-math > .mu-math-render') as HTMLElement
+    return {
+      hidden: render.closest('.mu-math')!.classList.contains('mu-hide'),
+      overflowX: render.scrollWidth - render.clientWidth,
+    }
+  })
+  expect(r.hidden).toBe(true)
+  expect(r.overflowX).toBe(0) // no horizontal overflow, so no scrollbar
+})
+
 test('the inline-math scrollbar is thin (6px, matching code blocks)', async ({ page }) => {
   await page.evaluate(() => window.muya!.setContent('x'))
   await page.waitForTimeout(100)

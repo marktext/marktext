@@ -28,7 +28,7 @@ export default function autoLink(
         token,
     );
 
-    const hyperlink = isLink ? encodeURI(href) : `mailto:${email}`;
+    const hyperlink = isLink ? href : `mailto:${email}`;
 
     return [
         h(`span.${className}`, startMarker),

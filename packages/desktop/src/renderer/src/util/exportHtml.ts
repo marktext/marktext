@@ -81,26 +81,36 @@ const styledClass = (value: boolean | undefined): string => {
   return value ? ' styled' : ' simple'
 }
 
+// Header/footer left/center/right are user-supplied, so sanitize them here.
+// The article body is NOT sanitized again (it was already sanitized by the
+// engine during render); re-sanitizing it strips diagram <foreignObject>
+// labels and drops mermaid content from the export (#3359).
+const hf = (value: string): string => sanitize(value, EXPORT_DOMPURIFY_CONFIG) as string
+
 const createTableHeader = (header: HeaderFooterPart, headerFooterStyled?: boolean): string => {
   const { type, left = '', center = '', right = '' } = header
-  const headerClass = (type === 1 ? 'single' : '') + styledClass(headerFooterStyled)
-  return `<thead class="page-header ${headerClass}"><tr><th>
+  const headerClass = `page-header ${(type === 1 ? 'single' : '') + styledClass(headerFooterStyled)}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return `<thead class="${headerClass}"><tr><th>
   <div class="hf-container">
-    <div class="header-content-left">${left}</div>
-    <div class="header-content">${center}</div>
-    <div class="header-content-right">${right}</div>
+    <div class="header-content-left">${hf(left)}</div>
+    <div class="header-content">${hf(center)}</div>
+    <div class="header-content-right">${hf(right)}</div>
   </div>
 </th></tr></thead>`
 }
 
 const createRealFooter = (footer: HeaderFooterPart, headerFooterStyled?: boolean): string => {
   const { type, left = '', center = '', right = '' } = footer
-  const footerClass = (type === 1 ? 'single' : '') + styledClass(headerFooterStyled)
-  return `<div class="page-footer ${footerClass}">
+  const footerClass = `page-footer ${(type === 1 ? 'single' : '') + styledClass(headerFooterStyled)}`
+    .replace(/\s+/g, ' ')
+    .trim()
+  return `<div class="${footerClass}">
   <div class="hf-container">
-    <div class="footer-content-left">${left}</div>
-    <div class="footer-content">${center}</div>
-    <div class="footer-content-right">${right}</div>
+    <div class="footer-content-left">${hf(left)}</div>
+    <div class="footer-content">${hf(center)}</div>
+    <div class="footer-content-right">${hf(right)}</div>
   </div>
 </div>`
 }
@@ -216,7 +226,7 @@ export const exportStyledHTML = async(
     }
     output += createTableBody(`<article class="markdown-body">${article}</article>`)
     output += HF_TABLE_END
-    bodyHtml = sanitize(output, EXPORT_DOMPURIFY_CONFIG) as string
+    bodyHtml = output
   }
 
   // Re-emit the engine document shell with the (possibly augmented) body.

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
-import { afterEach, describe, expect, it } from 'vitest';
-import { getImageSrc } from '../image';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { checkImageContentType, getImageSrc, loadImage } from '../image';
 
 // Regression tests for the Phase G "G1" blocker: relative-path images stopped
 // rendering after the @muyajs/core migration because `getImageSrc` returned a
@@ -25,6 +25,110 @@ function withDirname(dirname: string | undefined, fn: () => void) {
 
 afterEach(() => {
     window.DIRNAME = undefined;
+});
+
+describe('checkImageContentType (#3837)', () => {
+    // Same-origin URL — the only kind whose HEAD the renderer can actually read.
+    const sameOrigin = (p: string) => new URL(p, window.location.href).href;
+    const CROSS_ORIGIN = 'https://img.shields.io/badge/x-blue';
+
+    function mockFetch(status: number, contentType: string | null) {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                status,
+                headers: {
+                    get: (h: string) =>
+                        h.toLowerCase() === 'content-type' ? contentType : null,
+                },
+            }),
+        );
+        return globalThis.fetch as unknown as ReturnType<typeof vi.fn>;
+    }
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('accepts a same-origin image type carrying a charset parameter', async () => {
+        mockFetch(200, 'image/svg+xml;charset=utf-8');
+        expect(await checkImageContentType(sameOrigin('/badge'))).toBe(true);
+    });
+
+    it('accepts a bare same-origin image content type', async () => {
+        mockFetch(200, 'image/png');
+        expect(await checkImageContentType(sameOrigin('/badge'))).toBe(true);
+    });
+
+    it('reports a same-origin non-image content type as false', async () => {
+        mockFetch(200, 'text/html;charset=utf-8');
+        expect(await checkImageContentType(sameOrigin('/page'))).toBe(false);
+    });
+
+    it('returns null (undetermined) on a non-200 response', async () => {
+        mockFetch(404, 'image/png');
+        expect(await checkImageContentType(sameOrigin('/missing'))).toBeNull();
+    });
+
+    it('returns null when the same-origin HEAD fails (network)', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')));
+        expect(await checkImageContentType(sameOrigin('/x'))).toBeNull();
+    });
+
+    it('skips the HEAD entirely for a cross-origin URL (CSP/CORS can never read it)', async () => {
+        const fetchSpy = mockFetch(200, 'image/png');
+        expect(await checkImageContentType(CROSS_ORIGIN)).toBeNull();
+        // No wasted, guaranteed-to-fail request (and no CSP console error).
+        expect(fetchSpy).not.toHaveBeenCalled();
+    });
+});
+
+describe('loadImage — undetermined content-type still attempts the load (#3837)', () => {
+    // Drive the <img> load deterministically: setting `src` fires onload/onerror.
+    function stubImage(succeeds: boolean) {
+        class FakeImage {
+            width = 10;
+            height = 10;
+            onload: (() => void) | null = null;
+            onerror: ((err: unknown) => void) | null = null;
+            private _src = '';
+            get src(): string {
+                return this._src;
+            }
+
+            set src(v: string) {
+                this._src = v;
+                queueMicrotask(() =>
+                    succeeds ? this.onload?.() : this.onerror?.(new Error('load failed')),
+                );
+            }
+        }
+        vi.stubGlobal('Image', FakeImage);
+    }
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    const sameOrigin = (p: string) => new URL(p, window.location.href).href;
+
+    it('loads a cross-origin extensionless image (its HEAD check is skipped)', async () => {
+        // The shields.io badge's content-type can't be read (CSP/CORS), so the
+        // check is skipped and the badge must still load via the permissive img-src.
+        stubImage(true);
+        await expect(
+            loadImage('https://img.shields.io/badge/example-blue', true),
+        ).resolves.toMatchObject({ width: 10, height: 10 });
+    });
+
+    it('still rejects when a same-origin HEAD positively reports a non-image type', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({ status: 200, headers: { get: () => 'text/html' } }),
+        );
+        stubImage(true);
+        await expect(loadImage(sameOrigin('/page'), true)).rejects.toBe('not an image.');
+    });
 });
 
 describe('getImageSrc — relative local image paths anchored to window.DIRNAME', () => {
@@ -73,7 +177,30 @@ describe('getImageSrc — relative local image paths anchored to window.DIRNAME'
     it('resolves Windows-drive base dirs with forward slashes', () => {
         withDirname('C:\\Users\\me\\docs', () => {
             expect(getImageSrc('assets\\foo.png').src).toBe(
-                'file://C:/Users/me/docs/assets/foo.png',
+                'file:///C:/Users/me/docs/assets/foo.png',
+            );
+        });
+    });
+});
+
+describe('getImageSrc — document directory containing URL-significant characters (#5212)', () => {
+    it.each([
+        ['/home/user/C# notes'],
+        ['/home/user/what? notes'],
+        ['/home/user/50%25 off'],
+    ])('loads the image from the real file under %s', (dirname) => {
+        withDirname(dirname, () => {
+            const url = new URL(getImageSrc('assets/image.jpg').src);
+            expect(url.hash).toBe('');
+            expect(url.search).toBe('');
+            expect(decodeURIComponent(url.pathname)).toBe(`${dirname}/assets/image.jpg`);
+        });
+    });
+
+    it('does not re-encode the already URL-encoded markdown path', () => {
+        withDirname('/home/user/C# notes', () => {
+            expect(getImageSrc('assets/my%20image.jpg').src).toBe(
+                'file:///home/user/C%23 notes/assets/my%20image.jpg',
             );
         });
     });
@@ -91,7 +218,7 @@ describe('getImageSrc — non-relative sources are left unchanged', () => {
 
     it('leaves an absolute Windows-drive path as a single `file://`', () => {
         withDirname(DIRNAME, () => {
-            expect(getImageSrc('C:/img/pic.png').src).toBe('file://C:/img/pic.png');
+            expect(getImageSrc('C:/img/pic.png').src).toBe('file:///C:/img/pic.png');
         });
     });
 
@@ -137,37 +264,53 @@ describe('getImageSrc — non-relative sources are left unchanged', () => {
 describe('getImageSrc — Windows drive + UNC base directories (Phase G review)', () => {
     it('preserves the drive when resolving `..`', () => {
         withDirname('C:/Users/me/docs', () => {
-            expect(getImageSrc('../img/a.png').src).toBe('file://C:/Users/me/img/a.png');
+            expect(getImageSrc('../img/a.png').src).toBe('file:///C:/Users/me/img/a.png');
         });
     });
 
     it('clamps `..` at the drive root so the drive is never lost', () => {
         withDirname('C:/docs', () => {
-            expect(getImageSrc('../../../a.png').src).toBe('file://C:/a.png');
+            expect(getImageSrc('../../../a.png').src).toBe('file:///C:/a.png');
         });
     });
 
     it('normalises a Windows-backslash base dir', () => {
         withDirname('C:\\docs', () => {
-            expect(getImageSrc('a.png').src).toBe('file://C:/docs/a.png');
+            expect(getImageSrc('a.png').src).toBe('file:///C:/docs/a.png');
         });
     });
 
     it('resolves against a UNC share base directory', () => {
         withDirname('//server/share/docs', () => {
-            expect(getImageSrc('a.png').src).toBe('file:////server/share/docs/a.png');
+            expect(getImageSrc('a.png').src).toBe('file://server/share/docs/a.png');
         });
     });
 
     it('normalises a backslash UNC base', () => {
         withDirname('\\\\server\\share', () => {
-            expect(getImageSrc('sub/a.png').src).toBe('file:////server/share/sub/a.png');
+            expect(getImageSrc('sub/a.png').src).toBe('file://server/share/sub/a.png');
         });
     });
 
     it('clamps `..` at the UNC share root', () => {
         withDirname('//server/share/docs', () => {
-            expect(getImageSrc('../../../a.png').src).toBe('file:////server/share/a.png');
+            expect(getImageSrc('../../../a.png').src).toBe('file://server/share/a.png');
+        });
+    });
+
+    it('keeps the UNC host when resolving relative images from WSL paths', () => {
+        withDirname('\\\\wsl.localhost\\Ubuntu-24.04\\home\\me\\docs', () => {
+            expect(getImageSrc('./img/my_image.png').src).toBe(
+                'file://wsl.localhost/Ubuntu-24.04/home/me/docs/img/my_image.png',
+            );
+        });
+    });
+
+    it('normalises an absolute UNC image path to a host-based file URL', () => {
+        withDirname(DIRNAME, () => {
+            expect(getImageSrc('\\\\server\\share\\img\\a.png').src).toBe(
+                'file://server/share/img/a.png',
+            );
         });
     });
 });

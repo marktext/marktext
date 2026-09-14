@@ -79,6 +79,7 @@ export interface PreferencesState {
   footnote: boolean
   isHtmlEnabled: boolean
   isGitlabCompatibilityEnabled: boolean
+  softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
 
@@ -195,6 +196,7 @@ export const usePreferencesStore = defineStore('preferences', {
     footnote: false,
     isHtmlEnabled: true,
     isGitlabCompatibilityEnabled: false,
+    softNewlineAsSpace: false,
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
 

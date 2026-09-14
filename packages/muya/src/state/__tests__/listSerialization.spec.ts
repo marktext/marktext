@@ -683,3 +683,29 @@ Text after numbered list.
         expect(serialize(states)).toBe('5) one\n6) two\n');
     });
 });
+
+// The parser splits one markdown list into a bullet list and a task list
+// wherever items switch between plain and task (utils/marked/compatibleTaskList).
+// Those adjacent lists are still one list in markdown, so a blank line between
+// them turns a tight list loose on the next reopen (#5341).
+describe('stateToMarkdown — adjacent lists split from one markdown list', () => {
+    it('keeps a tight bullet list followed by a task list tight', () => {
+        expect(roundTrip('- a\n- [ ] b\n')).toBe('- a\n- [ ] b\n');
+    });
+
+    it('keeps a tight task list followed by a bullet list tight', () => {
+        expect(roundTrip('- [ ] a\n- b\n- [x] c\n')).toBe('- [ ] a\n- b\n- [x] c\n');
+    });
+
+    it('keeps tight split lists tight inside a list item', () => {
+        expect(roundTrip('- x\n  - a\n  - [ ] b\n')).toBe('- x\n  - a\n  - [ ] b\n');
+    });
+
+    it('still separates the items of a loose split list', () => {
+        expect(roundTrip('- a\n\n- [ ] b\n')).toBe('- a\n\n- [ ] b\n');
+    });
+
+    it('leaves lists with different markers unchanged', () => {
+        expect(roundTrip('- a\n* [ ] b\n')).toBe('- a\n* [ ] b\n');
+    });
+});

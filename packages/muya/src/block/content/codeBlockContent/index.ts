@@ -8,8 +8,8 @@ import type {
 } from '../../../state/types';
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
-import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML } from '../../../utils';
+import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
+import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -97,10 +97,15 @@ class CodeBlockContent extends Content {
         return content;
     }
 
+    // The language word for highlighting / tokenizing — the first word of the
+    // code container's info string (which may carry attributes, e.g.
+    // `js title="x"`). Every consumer of `_lang` wants the language, never the
+    // full info string (that is read from `meta.lang` directly by the language
+    // input), so derive it once here.
     private get _lang() {
         const { _codeContainer: codeContainer } = this;
 
-        return codeContainer ? codeContainer.lang : this._initialLang;
+        return firstWordOfInfo(codeContainer ? codeContainer.lang : this._initialLang);
     }
 
     /**
@@ -164,7 +169,7 @@ class CodeBlockContent extends Content {
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
-        const code = escapeHTML(getHighlightHtml(text, highlights, true, true))
+        const code = escapeHTML(getHighlightHtml(text, highlights, true))
             .replace(new RegExp(MARKER_HASH['<'], 'g'), '<')
             .replace(new RegExp(MARKER_HASH['>'], 'g'), '>')
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
@@ -184,6 +189,18 @@ class CodeBlockContent extends Content {
         }
         else {
             domNode.innerHTML = code;
+        }
+
+        // A final newline lays out no line of its own, so the caret after it had
+        // nowhere to sit (#5114). Added after highlighting: Prism's keep-markup
+        // drops empty elements. Wrapped: Chromium puts the caret just before the
+        // <br>, and (content, childIndex) would read back as text offset
+        // childIndex where (wrapper, 0) reads back as the text length.
+        if (text.endsWith('\n')) {
+            const trailingBreak = document.createElement('span');
+            trailingBreak.classList.add(CLASS_NAMES.MU_TRAILING_BREAK);
+            trailingBreak.appendChild(document.createElement('br'));
+            domNode.appendChild(trailingBreak);
         }
 
         this._updateLineNumbers(text);
@@ -302,6 +319,23 @@ class CodeBlockContent extends Content {
         this.setCursor(offset, offset, true);
     }
 
+    // Content.arrowHandler measures the caret to tell whether it is on the
+    // block's first or last line, and a caret on an empty line has no rect to
+    // measure, so it left the block. A newline on the caret's side settles it.
+    override arrowHandler(event: Event): void {
+        if (isKeyboardEvent(event)) {
+            const { start, end } = this.getCursor()!;
+            if (
+                (event.key === EVENT_KEYS.ArrowUp && this.text.slice(0, start.offset).includes('\n'))
+                || (event.key === EVENT_KEYS.ArrowDown && this.text.slice(end.offset).includes('\n'))
+            ) {
+                return;
+            }
+        }
+
+        super.arrowHandler(event);
+    }
+
     override tabHandler(event: KeyboardEvent): void {
         event.preventDefault();
         const { start, end } = this.getCursor()!;
@@ -417,30 +451,36 @@ class CodeBlockContent extends Content {
             // transform alias to original language
             const fullLengthLang = transformAliasToOrigin([lang])[0];
             if (fullLengthLang && /\S/.test(text) && loadedLanguages.has(fullLengthLang)) {
-                const tokens = prism.tokenize(text, prism.languages[lang]);
+                const tokens = prism.tokenize(text, prism.languages[fullLengthLang]);
                 let offset = start.offset;
                 let code = '';
-                let needRender = false;
+                // Remove a whole character (grapheme cluster), not one UTF-16
+                // code unit: half of an emoji's surrogate pair left in the text
+                // crashes the next edit with "Invalid offset - splits unicode
+                // bytes" (#4926).
+                let removedLength = 0;
 
                 walkTokens(tokens, (token) => {
-                    if (offset === 1 && token.type === 'temp-text' && typeof token.content === 'string') {
-                        token.content = token.content.substring(1);
-                        needRender = true;
-                    }
-                    else if (offset === token.length && token.type !== 'temp-text' && typeof token.content === 'string') {
-                        token.content = token.content.substring(0, token.length - 1);
-                        needRender = true;
+                    if (typeof token.content === 'string') {
+                        if (token.type === 'temp-text' && offset === firstGraphemeLength(token.content)) {
+                            removedLength = offset;
+                            token.content = token.content.substring(removedLength);
+                        }
+                        else if (token.type !== 'temp-text' && offset === token.length) {
+                            removedLength = lastGraphemeLength(token.content);
+                            token.content = token.content.substring(0, token.length - removedLength);
+                        }
                     }
                     code += token.content;
                     // string and Token both has length property...
                     offset -= token.length;
                 });
 
-                if (needRender) {
+                if (removedLength > 0) {
                     event.preventDefault();
                     this.text = code;
                     this._updatePreviewIfHave(this.text);
-                    return this.setCursor(--start.offset, --end.offset, true);
+                    return this.setCursor(start.offset - removedLength, end.offset - removedLength, true);
                 }
             }
         }

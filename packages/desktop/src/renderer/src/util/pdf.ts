@@ -48,6 +48,9 @@ export const getCssForOptions = async(options: PdfCssOptions): Promise<string> =
   if (isPrintable) {
     output += `@media print{@page{
       margin: ${pageMarginTop}mm ${pageMarginRight}mm ${pageMarginBottom}mm ${pageMarginLeft}mm;}`
+    // Keep a heading with the content that follows it, so a page never breaks
+    // immediately after a heading, and never split a multi-line heading (#3039).
+    output += 'h1,h2,h3,h4,h5,h6{break-after:avoid;break-inside:avoid;}'
   }
 
   // Auto numbering headings via CSS

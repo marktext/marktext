@@ -43,6 +43,7 @@ import { ArrowDown } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
 import { useI18n } from 'vue-i18n'
 import type { PrefControlProps } from '../types'
+import { withBundledFonts } from './bundledFonts'
 
 const { t } = useI18n()
 
@@ -96,7 +97,10 @@ const handleMoreClick = () => {
 onMounted(async () => {
   // font-list is a native module; it runs in the main process and is reached via IPC.
   const fonts = await window.fonts.list()
-  fontFamilies.value = (fonts || []).map((f) => f.replace(/"/g, '').trim())
+  const systemFonts = (fonts || []).map((f) => f.replace(/"/g, '').trim())
+  // System fonts don't include the bundled defaults (Open Sans / DejaVu Sans
+  // Mono), so surface them in the picker too (#3021).
+  fontFamilies.value = withBundledFonts(systemFonts, props.onlyMonospace)
 })
 </script>
 

@@ -36,7 +36,7 @@ import { getLinkInfo } from '../utils/getLinkInfo';
 // `mu-raw-html` is added to every inline HTML tag (`<u>`, `<mark>`,
 // `<sub>`, `<sup>`, `<a>` …), so we can't match it loosely — narrow
 // each entry by the actual tag the renderer emits.
-const LINK_SELECTOR = [
+export const LINK_SELECTOR = [
     `span.${CLASS_NAMES.MU_LINK}`,
     `a.${CLASS_NAMES.MU_REFERENCE_LINK}`,
     `a.${CLASS_NAMES.MU_RAW_HTML}`,

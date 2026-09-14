@@ -100,10 +100,10 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
         ],
     },
     {
-        name: 'headers',
+        name: 'headings',
         children: [
             {
-                title: 'Header 1',
+                title: 'Heading 1',
                 subTitle: '# Lorem Ipsum...',
                 label: 'atx-heading 1',
                 shortCut: `${COMMAND_KEY}+1`,
@@ -116,7 +116,7 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: header1Icon,
             },
             {
-                title: 'Header 2',
+                title: 'Heading 2',
                 subTitle: '## Lorem Ipsum...',
                 label: 'atx-heading 2',
                 shortCut: `${COMMAND_KEY}+2`,
@@ -129,7 +129,7 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: header2Icon,
             },
             {
-                title: 'Header 3',
+                title: 'Heading 3',
                 subTitle: '### Lorem Ipsum...',
                 label: 'atx-heading 3',
                 shortCut: `${COMMAND_KEY}+3`,
@@ -142,7 +142,7 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: header3Icon,
             },
             {
-                title: 'Header 4',
+                title: 'Heading 4',
                 subTitle: '#### Lorem Ipsum...',
                 label: 'atx-heading 4',
                 shortCut: `${COMMAND_KEY}+4`,
@@ -155,7 +155,7 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: header4Icon,
             },
             {
-                title: 'Header 5',
+                title: 'Heading 5',
                 subTitle: '##### Lorem Ipsum...',
                 label: 'atx-heading 5',
                 shortCut: `${COMMAND_KEY}+5`,
@@ -168,7 +168,7 @@ export const MENU_CONFIG: IQuickInsertMenuItem[] = [
                 icon: header5Icon,
             },
             {
-                title: 'Header 6',
+                title: 'Heading 6',
                 subTitle: '###### Lorem Ipsum...',
                 label: 'atx-heading 6',
                 shortCut: `${COMMAND_KEY}+6`,

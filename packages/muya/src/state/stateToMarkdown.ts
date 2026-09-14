@@ -122,6 +122,10 @@ export default class ExportMarkdown {
                     && this._startsWithEmptyDashBulletItem(state)
                     ? SETEXT_SAFE_BULLET_MARKER
                     : undefined;
+                const followsTightList = previousState !== undefined
+                    && isAnyListState(previousState)
+                    && !previousState.meta.loose
+                    && !state.meta.loose;
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
@@ -129,6 +133,7 @@ export default class ExportMarkdown {
                     listIndent,
                     lastListBullet,
                     markerOverride,
+                    followsTightList,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -219,6 +224,7 @@ export default class ExportMarkdown {
         listIndent: string,
         lastListBullet: string,
         markerOverride?: string,
+        followsTightList = false,
     ): string {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
@@ -236,6 +242,12 @@ export default class ExportMarkdown {
             = 'delimiter' in meta ? meta.delimiter : meta.marker;
 
         if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+            insertNewLine = false;
+
+        // Adjacent tight lists with the same marker are one markdown list (the
+        // parser splits it where items switch between plain and task), so a
+        // blank line would only make that list loose on the next parse.
+        if (lastListBullet === bulletMarkerOrDelimiter && followsTightList)
             insertNewLine = false;
 
         if (insertNewLine)
@@ -374,6 +386,7 @@ export default class ExportMarkdown {
         const result = [];
         const { text, meta } = state;
         const textList = text.split('\n');
+        // `meta.lang` holds the full info string verbatim, so emit it as-is.
         const { type, lang } = meta;
 
         if (type === 'fenced') {

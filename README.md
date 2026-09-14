@@ -84,6 +84,9 @@
   <a href="docs/i18n/README-kr.md#readme">
     <span>:kr:</span>
   </a>
+  <a href="docs/i18n/README-bn.md#readme">
+    <span>:bangladesh:</span>
+  </a>
 </div>
 
 <div align="center">

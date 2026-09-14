@@ -80,6 +80,7 @@
       "minimize": "Minimize",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom Out",
+      "resetZoom": "Reset Zoom",
       "fullScreen": "Full Screen",
       "bringAllToFront": "Bring All to Front",
       "alwaysOnTop": "Always on Top"
@@ -184,6 +185,7 @@
     "copyAsRich": "Copy As Rich Text",
     "copyAsHtml": "Copy As HTML",
     "pasteAsPlainText": "Paste as Plain Text",
+    "lookUp": "Look Up \"{selection}\"",
     "insertParagraphBefore": "Insert Paragraph Before",
     "insertParagraphAfter": "Insert Paragraph After",
     "spelling": "Spelling...",
@@ -241,7 +243,9 @@
       "openFolder": "Open Folder"
     },
     "toc": {
-      "title": "Table Of Contents"
+      "title": "Table Of Contents",
+      "expandAll": "Expand all",
+      "collapseAll": "Collapse all"
     },
     "icons": {
       "files": "Files",
@@ -374,7 +378,7 @@
         "startUpAction": "The action after MarkText startup, open the last edited content, open the specified folder or blank page",
         "restoreLayoutState": "Restore previous editor state on startup",
         "defaultDirectoryToOpen": "The default directory that should be opened on startup when startUp=folder",
-        "language": "The language MarkText use",
+        "language": "The language MarkText uses",
         "editorFontFamily": "Editor font family",
         "fontSize": "Font size in pixels",
         "lineHeight": "Line Height",
@@ -397,7 +401,7 @@
         "autoCheck": "Whether to automatically check related task",
         "preferLooseListItem": "The preferred list type",
         "bulletListMarker": "The marker used in bullet list",
-        "orderListDelimiter": "The dilimiter used in order list",
+        "orderListDelimiter": "The delimiter used in order list",
         "preferHeadingStyle": "The preferred heading style in MarkText",
         "tabSize": "Replace the tab with x spaces",
         "listIndentation": "Select the indent of list",
@@ -406,6 +410,7 @@
         "footnote": "Enable pandoc's markdown extension footnote",
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -497,6 +502,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -510,7 +516,8 @@
         "lineHeight": "Line height",
         "fontFamily": "Font family",
         "maxWidth": "Max width",
-        "maxWidthNotes": "Maximum width of editor content"
+        "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
       },
       "codeBlock": {
         "title": "Code Block",
@@ -653,6 +660,7 @@
       "compatibility": {
         "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"
       },
       "lists": {
@@ -889,7 +897,11 @@
     "replace": "Replace",
     "save": "Save",
     "saveChanges": "Save changes",
-    "saveFailure": "Save failure"
+    "saveFailure": "Save failure",
+    "unsafeFileTitle": "Potentially unsafe file",
+    "unsafeFileMessage": "This link opens a file that can run code",
+    "unsafeFileDetail": "\"{name}\" is an executable or script file. Opening it may run programs on your computer. Only continue if you trust this document.",
+    "openAnyway": "Open Anyway"
   },
   "error": {
     "configSchemaViolation": "Configuration schema violation",
@@ -913,7 +925,7 @@
       "tabNotFound": "Tab not found",
       "tocItemNotFound": "Table of contents {key} not found",
       "errorLoadingTabTitle": "Error loading tab",
-      "errorLoadingTabMessage": "There was an error while loading the file change because the tab cannot be found.",
+      "errorLoadingTabMessage": "There was an error while loading the file changes because the tab cannot be found.",
       "mixedLineEndingsNormalized": "\"{name}\" has mixed line endings which are automatically normalized to {lineEnding}.",
       "imageDeletionUrlTitle": "Image deletion URL",
       "imageDeletionUrlMessage": "Click to copy the deletion URL of the uploaded image to the clipboard {url}",

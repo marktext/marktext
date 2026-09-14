@@ -272,8 +272,9 @@ class JSONState {
         // (acc, current, index, array) to the callback, but
         // `json1.type.compose` only accepts (op1, op2). Without the
         // wrapper TS rejects the signature mismatch.
-        // `compose` returns JSONOp (= null | JSONOpList); a non-empty cache
-        // (guarded above) always composes to a non-null op.
+        // `compose` returns JSONOp (= null | JSONOpList). Multiple queued
+        // operations may cancel each other out (for example during IME
+        // composition), producing the identity operation (`null`).
         const op = this._operationCache.reduce(
             (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
         );
@@ -284,6 +285,10 @@ class JSONState {
         // Clear before emitting: a listener that edits synchronously then starts
         // a fresh batch instead of mutating the one being flushed.
         this._operationCache = [];
+
+        if (op === null)
+            return;
+
         this._muya.eventCenter.emit('json-change', {
             op,
             source: 'user',

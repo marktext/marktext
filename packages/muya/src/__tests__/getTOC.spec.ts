@@ -10,16 +10,17 @@ import { Muya } from '../muya';
 //
 //  - Only top-level heading blocks are surfaced (matches marktext
 //    iterating `this.blocks`).
-//  - Heading text is the raw inner content — inline markdown markers are
-//    NOT stripped. marktext used `block.children[0].text` for the same
-//    reason.
+//  - Heading text is the rendered plain text: inline markdown markers,
+//    link/image URLs and tags are stripped to what a reader sees (#4811),
+//    and `githubSlug` is derived from that same plain text so it matches
+//    the anchor id the HTML export injects from `heading.textContent`.
 //  - Slug is a stable per-block identifier (so `getTOC()` returns the
 //    same slug across multiple invocations on the same document); duplicate
 //    headings keep distinct slugs but share `githubSlug`. The marktext
 //    fix didn't dedupe and we don't either — that is the caller's call.
-//  - `generateGithubSlug` mirrors marktext url.js literally: ASCII `\w`
-//    only, so CJK / emoji collapse to hyphens. Future Unicode-aware
-//    slugging is a separate change.
+//  - `generateGithubSlug` keeps Unicode letters, marks and numbers the way
+//    GitHub does, so `[jump](#中文标题)` resolves (#5292); emoji and
+//    punctuation are stripped.
 
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
@@ -89,16 +90,32 @@ describe('muya.getTOC()', () => {
         expect(toc[1]).toMatchObject({ lvl: 2, content: 'Title Two' });
     });
 
-    it('keeps raw markdown inline markers in `content` (no inline parsing)', () => {
-        // marktext reads `block.children[0].text` — the raw source of the
-        // heading line — so `**bold**` and `[link](url)` are preserved as
-        // typed. Consumers that want rendered text should run their own
-        // inline tokenizer over `content`.
+    it('strips inline markdown to plain text in `content` (#4811)', () => {
+        // Emphasis markers are dropped and a link renders as its label, not
+        // its URL — matching the visible heading rather than the raw source.
         const md = `## **bold** and [link](https://example.com)`;
         const muya = bootMuya(md);
         const toc = muya.getTOC();
         expect(toc).toHaveLength(1);
-        expect(toc[0].content).toBe('**bold** and [link](https://example.com)');
+        expect(toc[0].content).toBe('bold and link');
+    });
+
+    it('renders an image heading as its alt text, not the raw `![]()`', () => {
+        const md = `## ![Logo](https://example.com/logo.png) Title`;
+        const muya = bootMuya(md);
+        const toc = muya.getTOC();
+        expect(toc).toHaveLength(1);
+        expect(toc[0].content).toBe('Logo Title');
+    });
+
+    it('derives githubSlug from the stripped text so anchors match the export', () => {
+        // The HTML export slugs `heading.textContent` (rendered plain text);
+        // a raw-markdown slug (`linkhttpsexamplecom`) would never resolve.
+        const md = `## a [link](https://example.com) here`;
+        const muya = bootMuya(md);
+        const toc = muya.getTOC();
+        expect(toc[0].content).toBe('a link here');
+        expect(toc[0].githubSlug).toBe('a-link-here');
     });
 
     it('strips the leading hash run robustly (9cb2cbe8 \\s regex fix)', () => {
@@ -117,16 +134,14 @@ describe('muya.getTOC()', () => {
         expect(toc[0].content).toBe('Tabbed heading');
     });
 
-    it('githubSlug strips non-ASCII letters and emoji and collapses whitespace', () => {
-        // marktext url.js literal behavior: `[^\w\s-]/g` removes CJK and
-        // emoji because JS `\w` is ASCII-only without the `/u` flag.
-        // Future Unicode-aware slugging would be a separate change; this
-        // test locks the marktext-faithful output in place.
-        const md = `# 你好 World 🎉\n\n# API & Usage Examples!`;
+    it('githubSlug keeps non-ASCII letters, strips emoji and punctuation, collapses whitespace', () => {
+        const md = `# 你好 World 🎉\n\n# API & Usage Examples!\n\n## 中文标题\n\n## Café Résumé`;
         const muya = bootMuya(md);
         const toc = muya.getTOC();
-        expect(toc[0].githubSlug).toBe('-world-');
+        expect(toc[0].githubSlug).toBe('你好-world-');
         expect(toc[1].githubSlug).toBe('api-usage-examples');
+        expect(toc[2].githubSlug).toBe('中文标题');
+        expect(toc[3].githubSlug).toBe('café-résumé');
     });
 
     it('duplicate headings share githubSlug but get distinct stable slugs', () => {

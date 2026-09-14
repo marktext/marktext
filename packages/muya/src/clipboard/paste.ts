@@ -239,6 +239,39 @@ function itemParaContent(list: Parent, itemIndex: number, paraIndex: number): Nu
     return para?.firstContentInDescendant() ?? null;
 }
 
+interface IListMergeSeam {
+    foldedOnly: boolean;
+    itemIndex: number;
+    paraIndex: number;
+    head: string;
+    sewOffset: number;
+    canFold: boolean;
+    pastedCount: number;
+    trailingStates: TState[];
+}
+
+// Seat the caret after a list-merge rebuilds the list block: inside the folded
+// paragraph, on trailing non-list content, or on the last pasted item (which is
+// spliced in after the anchor, so it is no longer the list's last descendant).
+function seatListMergeCursor(muya: Muya, newList: Parent, seam: IListMergeSeam): void {
+    const { foldedOnly, itemIndex, paraIndex, head, sewOffset, canFold, pastedCount, trailingStates } = seam;
+    if (foldedOnly) {
+        const cursor = itemParaContent(newList, itemIndex, paraIndex);
+        const offset = head.length + sewOffset;
+        cursor?.setCursor(offset, offset, true);
+
+        return;
+    }
+    if (trailingStates.length > 0) {
+        const last = insertStatesAfter(muya, newList, trailingStates);
+        seatCursorAtSeam(last, sewOffset);
+
+        return;
+    }
+    const lastPastedIndex = itemIndex + pastedCount - (canFold ? 1 : 0);
+    seatCursorAtSeam(newList.find(lastPastedIndex) as Nullable<Parent>, sewOffset);
+}
+
 // Same list kind + same bullet marker / order delimiter.
 function listMarkersMatch(a: TState, b: TState): boolean {
     if (a.name === 'order-list' && b.name === 'order-list')
@@ -301,7 +334,7 @@ function tryMergeListPaste(
     if (canFold) {
         anchorPara.text = head + pastedFirst.text;
         currentItem.children = [...currentItem.children, ...pastedItems[0].children.slice(1)];
-        mergedChildren.push(...pastedItems.slice(1));
+        mergedChildren.splice(itemIndex + 1, 0, ...pastedItems.slice(1));
         // The whole paste folded into `anchorPara` (no extra blocks/items): the
         // caret stays in that paragraph at the seam.
         foldedOnly
@@ -311,7 +344,7 @@ function tryMergeListPaste(
     }
     else {
         anchorPara.text = head;
-        mergedChildren.push(...pastedItems);
+        mergedChildren.splice(itemIndex + 1, 0, ...pastedItems);
     }
 
     const loose = listState.meta.loose || firstState.meta.loose;
@@ -327,15 +360,16 @@ function tryMergeListPaste(
     );
     listBlock.replaceWith(newList);
 
-    if (foldedOnly) {
-        const cursor = itemParaContent(newList, itemIndex, paraIndex);
-        const offset = head.length + sewOffset;
-        cursor?.setCursor(offset, offset, true);
-    }
-    else {
-        const last = insertStatesAfter(clipboard.muya, newList, states.slice(1));
-        seatCursorAtSeam(last, sewOffset);
-    }
+    seatListMergeCursor(clipboard.muya, newList as Parent, {
+        foldedOnly,
+        itemIndex,
+        paraIndex,
+        head,
+        sewOffset,
+        canFold,
+        pastedCount: pastedItems.length,
+        trailingStates: states.slice(1),
+    });
 
     return true;
 }

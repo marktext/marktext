@@ -33,6 +33,7 @@ export interface IMuyaOptions {
     footnote: boolean;
     math: boolean;
     isGitlabCompatibilityEnabled: boolean;
+    softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;
     locale: {

@@ -63,6 +63,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | footnote                     | Boolean | `false` | Enable pandoc's footnote markdown extension.                                                                                         |
 | isHtmlEnabled                | Boolean | `true`  | Enable inline HTML rendering.                                                                                                        |
 | isGitlabCompatibilityEnabled | Boolean | `false` | Enable GitLab compatibility mode.                                                                                                    |
+| softNewlineAsSpace           | Boolean | `false` | Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.                               |
 | sequenceTheme                | String  | `hand`  | Theme for [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/): `hand` or `simple`.                                 |
 
 #### Theme

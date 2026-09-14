@@ -160,6 +160,8 @@ const fileUtilsAPI = {
   isDirectory: (p: string) => invoke('mt::fs::is-directory', p),
   emptyDir: (p: string) => invoke('mt::fs::empty-dir', p),
   copy: (src: string, dest: string) => invoke('mt::fs::copy', src, dest),
+  copyWithContentHash: (src: string, outputDir: string) =>
+    invoke('mt::fs::copy-with-content-hash', src, outputDir),
   ensureDir: (p: string) => invoke('mt::fs::ensure-dir', p),
   outputFile: (p: string, data: string | Uint8Array) => invoke('mt::fs::output-file', p, data),
   move: (src: string, dest: string) => invoke('mt::fs::move', src, dest),

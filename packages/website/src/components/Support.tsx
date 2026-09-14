@@ -24,9 +24,11 @@ export default function Support() {
 
         <div className="sponsors-wall reveal d1">
           <span className="sponsors-label">Sponsored by</span>
-          <a className="sponsor-logo" href={DOWNLOAD.serpapi} {...EXT_LINK} title="SerpApi">
-            <img src="/assets/serpapi.png" alt="SerpApi" loading="lazy" />
-          </a>
+          <div className="sponsor-logos">
+            <a className="sponsor-logo" href={DOWNLOAD.serpapi} {...EXT_LINK} title="SerpApi">
+              <img src="/assets/serpapi.png" alt="SerpApi" loading="lazy" />
+            </a>
+          </div>
         </div>
       </div>
     </section>

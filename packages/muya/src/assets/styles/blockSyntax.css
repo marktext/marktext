@@ -643,11 +643,6 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
     margin-bottom: 0;
 }
 
-/* Cross-cell drag selection (port of marktext's `.ag-cell-selected`): the
-   rectangle of cells the user dragged across is tinted via the per-cell
-   `::before` overlay so it reads as one contiguous selection. Every cell
-   (header included) renders as a `td`, and the overlay already paints the cell
-   border, so a translucent accent fill is enough. */
 .mu-table-inner tr td.mu-table-cell-selected::before {
     z-index: 1;
 
@@ -815,6 +810,20 @@ figure.mu-diagram-block .mu-diagram-preview svg path[stroke='#000000'] {
     stroke: var(--editor-color);
 }
 
+/* js-sequence-diagrams creates its <text> with no fill attribute and its
+   note/actor boxes with the 3-char `#fff`, so the attribute-keyed rules above
+   miss them and the labels/boxes stay black-on-white on dark themes (#3047).
+   Recolor the sequence SVG by element, scoped to `svg.sequence` so mermaid /
+   vega / flowchart (which set fills via attributes) are untouched. */
+figure.mu-diagram-block .mu-diagram-preview svg.sequence text {
+    fill: var(--editor-color);
+}
+
+figure.mu-diagram-block .mu-diagram-preview svg.sequence rect[fill='#fff'],
+figure.mu-diagram-block .mu-diagram-preview svg.sequence path[fill='#fff'] {
+    fill: var(--editor-bg-color);
+}
+
 figure.mu-active.mu-math-block > div.mu-math-preview,
 figure.mu-active.mu-diagram-block > div.mu-diagram-preview {
     position: absolute;
@@ -941,7 +950,12 @@ pre.mu-active.mu-fenced-code::after {
     content: '\200B';
 }
 
-.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content:first-of-type::after {
+/* `placeholder` is only set while the quick-insert menu is open. Match on it
+   rather than generating an empty ::after the rest of the time: the box still
+   takes part in layout, and a block ending in a soft line break ends with a
+   block-level `mu-line-end` span the inline box cannot share a line with, so
+   it claimed a line of its own (#5282). */
+.mu-show-quick-insert-hint .mu-paragraph.mu-active > .mu-paragraph-content[placeholder]:first-of-type::after {
     padding-left: 8px;
 
     color: var(--editor-color-30);
@@ -956,7 +970,9 @@ pre.mu-active.mu-fenced-code::after {
 }
 
 .mu-table-cell-content {
-    min-width: 10em;
+    min-width: 2em;
+    position: relative;
+    z-index: 2;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`

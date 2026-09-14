@@ -34,7 +34,9 @@
           :description="t('preferences.editor.textEditor.maxWidth')"
           :notes="t('preferences.editor.textEditor.maxWidthNotes')"
           :input="editorLineWidth"
+          default-value="800px / 80ch / 60%"
           :regex-validator="/^(?:$|[0-9]+(?:ch|px|%)$)/"
+          :error-message="t('preferences.editor.textEditor.maxWidthInvalid')"
           :on-change="(value) => onSelectChange('editorLineWidth', value)"
         />
       </template>

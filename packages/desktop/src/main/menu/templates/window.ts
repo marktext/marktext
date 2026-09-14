@@ -1,6 +1,6 @@
 import { Menu, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import { minimizeWindow, toggleAlwaysOnTop, toggleFullScreen } from '../actions/window'
-import { zoomIn, zoomOut } from '../../windows/utils'
+import { zoomIn, zoomOut, resetZoom } from '../../windows/utils'
 import { isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
@@ -38,6 +38,13 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       accelerator: keybindings.getAccelerator('window.zoomOut') ?? undefined,
       click(_menuItem, browserWindow) {
         zoomOut(browserWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.window.resetZoom'),
+      accelerator: keybindings.getAccelerator('window.resetZoom') ?? undefined,
+      click(_menuItem, browserWindow) {
+        resetZoom(browserWindow as BrowserWindow | undefined)
       }
     },
     {

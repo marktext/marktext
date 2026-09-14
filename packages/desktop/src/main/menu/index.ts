@@ -474,6 +474,7 @@ class AppMenu {
       this.addRecentlyUsedDocument(pathname)
     })
     ipcMain.on('mt::update-line-ending-menu', (_e, windowId: number, lineEnding: string) => {
+      if (!this.has(windowId)) return
       this.updateLineEndingMenu(windowId, lineEnding)
     })
     ipcMain.on(
@@ -509,6 +510,18 @@ class AppMenu {
         return
       }
       updateSelectionMenus(this.getWindowMenuById(windowId), changes)
+    })
+
+    // In source-code mode the Paragraph and Format commands act on the hidden
+    // WYSIWYG engine, so grey them out; on return to WYSIWYG they are re-enabled
+    // and the next selection change refines them (#3531).
+    ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
+      if (!this.has(windowId)) return
+      const menu = this.getWindowMenuById(windowId)
+      for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
+        const entry = menu.getMenuItemById(id)
+        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
+      }
     })
 
     onInternalChannel('menu-add-recently-used', (pathname: string) => {

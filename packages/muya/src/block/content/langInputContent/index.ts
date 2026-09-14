@@ -3,7 +3,10 @@ import type { IRenderCursor } from '../../../selection/types';
 import type { ICodeBlockState } from '../../../state/types';
 import type CodeBlock from '../../commonMark/codeBlock';
 import { CLASS_NAMES } from '../../../config';
+import { firstWordOfInfo } from '../../../utils';
+import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
 import Content from '../../base/content';
+import { ScrollPage } from '../../scrollPage';
 import { escapeLangInputInnerHtml } from './escape';
 
 class LangInputContent extends Content {
@@ -55,8 +58,10 @@ class LangInputContent extends Content {
 
     override inputHandler() {
         const textContent = this.domNode!.textContent ?? '';
-        const lang = textContent.split(/\s+/)[0];
-        this._updateLanguage(lang);
+        // Store the whole info string; the language is derived as its first word
+        // elsewhere (`firstWordOfInfo`). Previously this truncated at the first
+        // whitespace, which dropped `title="x"` / Pandoc attributes on edit.
+        this._updateLanguage(textContent);
     }
 
     override enterHandler(event: Event) {
@@ -65,6 +70,38 @@ class LangInputContent extends Content {
 
         const { parent } = this;
         parent!.lastContentInDescendant()?.setCursor(0, 0);
+    }
+
+    override blurHandler() {
+        super.blurHandler();
+        // Leaving the input commits the language. Deferred: blur runs inside
+        // the editor's active-block setter, which the replacement's setCursor
+        // would re-enter.
+        Promise.resolve().then(() => this._convertToDiagramIfNeeded());
+    }
+
+    // A diagram language makes the block a diagram, as loading its ```lang
+    // fence does (#5060).
+    private _convertToDiagramIfNeeded() {
+        const codeBlock = this.parent;
+        // Detached before the microtask ran, e.g. the document was replaced.
+        if (!codeBlock?.outMostBlock)
+            return;
+
+        const type = diagramTypeOfLang(firstWordOfInfo(codeBlock.lang));
+        if (!type)
+            return;
+
+        const code = codeBlock.lastContentInDescendant()!;
+        const caretInCode = this.muya.editor.activeContentBlock === code;
+        const diagramBlock = ScrollPage.loadBlock('diagram').create(
+            this.muya,
+            createDiagramState(type, code.text),
+        );
+        codeBlock.replaceWith(diagramBlock);
+
+        if (caretInCode)
+            diagramBlock.lastContentInDescendant()?.setCursor(0, 0, true);
     }
 
     override backspaceHandler(event: Event) {

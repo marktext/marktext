@@ -85,7 +85,7 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
         const sectionNames = menu.renderData.map(d => d.name);
         expect(sectionNames).toEqual([
             'basic blocks',
-            'headers',
+            'headings',
             'advanced blocks',
             'list blocks',
             'diagrams',
@@ -98,6 +98,17 @@ describe('paragraphQuickInsertMenu search() — zh-CN localized matching', () =>
             'paragraph',
             'thematic-break',
             'frontmatter',
+        ]);
+
+        // h1-h6 are "headings" in CommonMark, not "headers" (#3811).
+        const headings = menu.renderData.find(d => d.name === 'headings')!;
+        expect(headings.children.map(c => c.title)).toEqual([
+            'Heading 1',
+            'Heading 2',
+            'Heading 3',
+            'Heading 4',
+            'Heading 5',
+            'Heading 6',
         ]);
     });
 

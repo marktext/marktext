@@ -32,9 +32,30 @@ import { ScrollPage } from '../../scrollPage';
 // shape. Narrow once instead of casting per access.
 type TListBlock = BulletList | OrderList | TaskList;
 
+// Markdown continues a list only while items keep the same bullet or ordered
+// delimiter.
+function listMarker(list: TListBlock): string {
+    return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
+}
+
 enum UnindentType {
     INDENT,
     REPLACEMENT,
+}
+
+function isListItemBlock(block: Nullable<Parent>): block is Parent {
+    return block?.blockName === 'list-item' || block?.blockName === 'task-list-item';
+}
+
+function isListBlock(block: Nullable<Parent>): block is Parent {
+    return block?.blockName === 'bullet-list'
+        || block?.blockName === 'order-list'
+        || block?.blockName === 'task-list';
+}
+
+// Task lists hold task items; bullet and ordered lists hold plain items.
+function holdsItemKind(list: Parent, listItem: Parent) {
+    return (list.blockName === 'task-list') === (listItem.blockName === 'task-list-item');
 }
 
 const debug = logger('paragraph:content');
@@ -232,6 +253,9 @@ class ParagraphContent extends Format {
         switch (type) {
             case 'paragraph':
                 return this._handleBackspaceInParagraph();
+
+            case 'footnote':
+                return this._handleBackspaceInFootnote();
 
             case 'block-quote':
                 return this._handleBackspaceInBlockQuote();
@@ -550,7 +574,7 @@ class ParagraphContent extends Format {
         if (!isKeyboardEvent(event))
             return;
 
-        if (event.shiftKey)
+        if (event.shiftKey && !this.dropSoftBreakBeforeCursor())
             return this.shiftEnterHandler(event);
 
         // Any paragraph that would convert to a block (code fence, math block,
@@ -579,23 +603,21 @@ class ParagraphContent extends Format {
             return;
         }
 
-        let parent: Nullable<Parent> = this.parent;
-        let type = 'paragraph';
+        // Only the container that holds this paragraph counts: the handlers
+        // edit `this.parent.parent` as that container, so a list item or quote
+        // further up (around a footnote) must not decide the handling.
+        const container = this.parent?.parent?.blockName;
 
-        while (parent && !parent.isScrollPage) {
-            if (
-                parent.blockName === 'block-quote'
-                || parent.blockName === 'list-item'
-                || parent.blockName === 'task-list-item'
-            ) {
-                type = parent.blockName;
-                break;
-            }
+        switch (container) {
+            case 'block-quote':
+            case 'list-item':
+            case 'task-list-item':
+            case 'footnote':
+                return container;
 
-            parent = parent.parent;
+            default:
+                return 'paragraph';
         }
-
-        return type;
     }
 
     private _handleBackspaceInParagraph(this: ParagraphContent) {
@@ -609,6 +631,26 @@ class ParagraphContent extends Format {
         previousContentBlock.text += this.text;
         this.parent!.remove();
         previousContentBlock.setCursor(offset, offset, true);
+    }
+
+    // Backspace at the start of a footnote definition removes the definition,
+    // not its text: every block it held takes its place.
+    private _handleBackspaceInFootnote() {
+        const parent = this.parent!;
+        const footnote = parent.parent!;
+
+        if (!parent.isFirstChild())
+            return this._handleBackspaceInParagraph();
+
+        const blocks: Parent[] = [];
+        footnote.forEach((node) => {
+            const block = (node as Parent).clone() as Parent;
+            footnote.parent!.insertBefore(block, footnote);
+            blocks.push(block);
+        });
+
+        footnote.remove();
+        blocks[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _handleBackspaceInBlockQuote() {
@@ -683,15 +725,14 @@ class ParagraphContent extends Format {
         const list = listItem?.parent;
         const listParent = list?.parent;
 
-        if (
-            listParent
-            && (listParent.blockName === 'list-item'
-                || listParent.blockName === 'task-list-item')
-        ) {
-            return list.prev ? UnindentType.INDENT : UnindentType.REPLACEMENT;
-        }
+        // Only a paragraph of a nested list item can be outdented. Checking the
+        // great-grandparent alone also matched `list item > quote > quote`,
+        // and "outdenting" that moved the inner quote into the outer list
+        // (#5342).
+        if (!isListItemBlock(listItem) || !isListBlock(list) || !isListItemBlock(listParent))
+            return null;
 
-        return null;
+        return list.prev ? UnindentType.INDENT : UnindentType.REPLACEMENT;
     }
 
     private _canIndentListItem() {
@@ -754,16 +795,16 @@ class ParagraphContent extends Format {
             this._placeCursorIn(paragraph, start.offset, end.offset);
         }
         else if (type === UnindentType.INDENT) {
-            const newListItem = listItem.clone() as Parent;
-            listParent.parent!.insertAfter(newListItem, listParent);
-
             // At runtime, when unindentListItem runs, the surrounding `list`
             // is always one of the three list block kinds — narrow once
             // so `meta` resolves without `as any`.
             const listAsList = list as TListBlock;
+            const newListItem = this._insertOutdentedListItem(listItem, listParent, listAsList);
 
+            // The nested child list only exists to carry the SIBLING LIST
+            // ITEMS that stay indented below the outdented item.
             if (
-                (listItem.next || list.next)
+                listItem.next
                 && newListItem.lastChild!.blockName !== list.blockName
             ) {
                 const state = {
@@ -796,10 +837,12 @@ class ParagraphContent extends Format {
                 const offset = listParent.offset(list);
                 listParent.forEachAt(offset + 1, undefined, (node) => {
                     if (node.isParent()) {
-                        (newListItem.lastChild as Parent).append(
-                            node.clone() as Parent,
-                            'user',
-                        );
+                        // Blocks that followed the nested list are the list
+                        // item's own trailing content (paragraphs etc.), not
+                        // list items — putting them inside a list block
+                        // corrupts the state and the next composed op crashes
+                        // ot-json1 (#4899). Append them to the item itself.
+                        newListItem.append(node.clone() as Parent, 'user');
                     }
                     node.remove();
                 });
@@ -823,6 +866,89 @@ class ParagraphContent extends Format {
         }
     }
 
+    // Puts a copy of `listItem` into the list around `parentItem`, right after
+    // it, and returns the copy. A list holds one item kind (plain items in
+    // bullet and ordered lists, task items in task lists), so when the kinds
+    // differ the outer list is split after `parentItem` and the item gets a
+    // list of its own kind, with the items that followed `parentItem` in a
+    // list of the outer kind after it. That is the structure the parser builds
+    // for such a list, so the document stays the same across a reopen (#5341).
+    private _insertOutdentedListItem(listItem: Parent, parentItem: Parent, nestedList: TListBlock): Parent {
+        const outerList = parentItem.parent as TListBlock;
+
+        if (listItem.blockName === parentItem.blockName) {
+            const newListItem = listItem.clone() as Parent;
+            outerList.insertAfter(newListItem, parentItem);
+
+            return newListItem;
+        }
+
+        const { muya } = this;
+        const container = outerList.parent!;
+
+        let tailList: Parent | null = null;
+        if (parentItem.next) {
+            const offset = outerList.offset(parentItem);
+            const tailItems: Parent[] = [];
+            outerList.forEachAt(offset + 1, undefined, node => tailItems.push(node as Parent));
+            const meta = outerList instanceof OrderList
+                ? { ...outerList.meta, start: outerList.meta.start + offset + 1 }
+                : { ...outerList.meta };
+            tailList = ScrollPage.loadBlock(outerList.blockName).create(muya, {
+                name: outerList.blockName,
+                meta,
+                children: tailItems.map(node => node.getState()),
+            });
+            tailItems.forEach(node => node.remove());
+        }
+
+        const following = outerList.next as Nullable<TListBlock>;
+        if (
+            !tailList
+            && following?.blockName === nestedList.blockName
+            && !(nestedList instanceof OrderList)
+            && listMarker(following) === listMarker(nestedList)
+        ) {
+            const newListItem = listItem.clone() as Parent;
+            following.insertBefore(newListItem, following.firstChild as Parent);
+
+            return newListItem;
+        }
+
+        // With the same marker the new list is still part of the outer
+        // markdown list, so it shares that list's looseness.
+        const loose = listMarker(outerList) === listMarker(nestedList)
+            ? outerList.meta.loose
+            : nestedList.meta.loose;
+        const meta = nestedList instanceof OrderList
+            ? { ...nestedList.meta, loose, start: nestedList.meta.start + nestedList.offset(listItem) }
+            : { ...nestedList.meta, loose };
+        const newList: Parent = ScrollPage.loadBlock(nestedList.blockName).create(muya, {
+            name: nestedList.blockName,
+            meta,
+            children: [listItem.getState()],
+        });
+        container.insertAfter(newList, outerList);
+        if (tailList)
+            container.insertAfter(tailList, newList);
+
+        return newList.firstChild as Parent;
+    }
+
+    // A sublist of the other item kind that shares the marker is still the same
+    // markdown list, so a new list placed after it must share its looseness to
+    // reopen unchanged.
+    private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
+        const meta = { ...list.meta };
+        if (isListBlock(previousChild)) {
+            const sublist = previousChild as TListBlock;
+            if (listMarker(sublist) === listMarker(list))
+                meta.loose = sublist.meta.loose;
+        }
+
+        return meta;
+    }
+
     private _indentListItem() {
         const { parent, muya } = this;
         const listItem = parent?.parent;
@@ -836,13 +962,15 @@ class ParagraphContent extends Format {
         // Remember the offset of cursor paragraph in listItem
         const offset = listItem.offset(parent);
 
-        // Search for a list in previous block
-        let newList = prevListItem?.lastChild;
+        // Join the previous item's trailing sublist only when it holds this
+        // item's kind; a task item never goes into a bullet list or the other
+        // way round (#5349).
+        let newList = prevListItem?.lastChild as Nullable<Parent>;
 
-        if (!newList || !/ol|ul/.test(newList.tagName)) {
+        if (!isListBlock(newList) || !holdsItemKind(newList, listItem)) {
             const state = {
                 name: list.blockName,
-                meta: { ...(list as TListBlock).meta },
+                meta: this._indentedListMeta(list as TListBlock, newList),
                 children: [listItem.getState()],
             };
             newList = ScrollPage.loadBlock(state.name).create(muya, state);

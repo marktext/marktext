@@ -83,10 +83,20 @@ describe('theme.ts style injection helpers', () => {
         setEditorWidth(value)
 
         expect(styleHtml(WIDTH_STYLE_ID)).toBe(
-          `:root { --editorAreaWidth: calc(100px + ${value}); }`
+          `:root { --editorAreaWidth: calc(100px + ${value}); --editor-area-width: calc(100px + ${value}); }`
         )
       }
     )
+
+    it('overrides the active @muyajs/core width variable, not only the legacy one', () => {
+      // The WYSIWYG engine reads the kebab-case `--editor-area-width`
+      // (`.mu-container` max-width); the legacy camelCase `--editorAreaWidth`
+      // only reaches source mode. Both must be set or the preference is a no-op
+      // on the default theme (issue #4828).
+      setEditorWidth('60%')
+
+      expect(styleHtml(WIDTH_STYLE_ID)).toContain('--editor-area-width: calc(100px + 60%);')
+    })
 
     it('clears the override (empty innerHTML) for an empty string', () => {
       setEditorWidth('800px')
