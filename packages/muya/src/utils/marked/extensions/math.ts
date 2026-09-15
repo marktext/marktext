@@ -48,8 +48,9 @@ function createRenderer(options: IOptions, newlineAfter: boolean) {
             );
         }
         else {
+            const marker = displayMode ? '$$' : '$';
             return type === 'inlineMath'
-                ? `$${text}$`
+                ? `${marker}${text}${marker}`
                 : `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`;
         }
     };
