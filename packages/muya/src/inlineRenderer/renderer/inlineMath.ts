@@ -52,7 +52,8 @@ export default function inlineMath(this: Renderer, {
     const key = JSON.stringify([math, type, displayMode]);
     let mathVnode = null;
     let previewSelector = `span.${CLASS_NAMES.MU_MATH_RENDER}`;
-    // Single-dollar errors stay compact to preserve the surrounding text baseline (#4100).
+    // Inline math errors stay compact to keep the surrounding text baseline
+    // (#4100, inline-math-align); surface the parse reason via the title.
     let errorTitle = '';
     if (loadMathMap.has(key)) {
         mathVnode = loadMathMap.get(key);
