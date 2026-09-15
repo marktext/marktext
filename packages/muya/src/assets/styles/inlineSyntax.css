@@ -351,6 +351,12 @@ blockquote .mu-hide.mu-math > .mu-math-render {
     color: var(--editor-color-50);
 }
 
+/* The editor-wide `max-width` of `.mu-math-render` is wider than a display
+   formula inside a nested quote or list item. */
+.mu-hide.mu-math.mu-display-math > .mu-math-render {
+    max-width: 100%;
+}
+
 /* header space */
 .mu-header-tight-space {
     margin-left: -0.3em;

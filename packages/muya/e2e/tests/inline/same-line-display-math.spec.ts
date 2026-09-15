@@ -49,6 +49,25 @@ test.describe('same-line display math (#4904)', () => {
         expect(heights.paragraph - heights.formula).toBeLessThanOrEqual(2);
     });
 
+    test('keeps a long formula inside a nested quote and list, scrolling instead', async ({ page }) => {
+        const formula = Array.from({ length: 60 }, (_, i) => `x_{${i}}`).join('+');
+        await page.evaluate(md => window.muya!.setContent(md), `> - > - $$${formula}$$`);
+
+        const wrapper = page.locator(editor.displayMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+
+        const box = await wrapper.evaluate((wrapper, renderSelector) => {
+            const render = wrapper.querySelector<HTMLElement>(renderSelector)!;
+            return {
+                overflow: render.getBoundingClientRect().right - wrapper.getBoundingClientRect().right,
+                scrollable: render.scrollWidth > render.clientWidth,
+            };
+        }, editor.mathRender);
+
+        expect(box.overflow).toBeLessThanOrEqual(1);
+        expect(box.scrollable).toBe(true);
+    });
+
     test('breaks surrounding sentence text around the display formula', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('Energy is $$E=mc^2$$ conserved.'));
 
