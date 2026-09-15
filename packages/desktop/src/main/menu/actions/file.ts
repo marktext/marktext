@@ -20,9 +20,9 @@ import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
-import pandoc from '../../utils/pandoc'
+import pandoc, { PANDOC_EXPORT_FORMATS } from '../../utils/pandoc'
 import { t } from '../../i18n'
-import type { TabOptions, UnsavedFile } from '@shared/types/files'
+import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
 
 type Win = BrowserWindow | null | undefined
 
@@ -144,6 +144,52 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   }
 }
 
+const handleResponseForPandocExport = async(
+  e: IpcMainEvent,
+  payload: PandocExportPayload
+): Promise<void> => {
+  const win = BrowserWindow.fromWebContents(e.sender)
+  if (!win) {
+    return
+  }
+
+  const format = PANDOC_EXPORT_FORMATS.find((f) => f.id === payload.target)
+  if (!format) {
+    log.error(`Unknown pandoc export target: ${payload.target}`)
+    return
+  }
+
+  const { markdown, title, pathname } = payload
+  const dirname = pathname ? path.dirname(pathname) : getPath('documents')
+  // Strip whatever extension the source file carries so "notes.md" becomes
+  // "notes.docx" rather than "notes.md.docx".
+  const nakedFilename =
+    (pathname ? path.basename(pathname, path.extname(pathname)) : title) || 'Untitled'
+
+  const { filePath, canceled } = await dialog.showSaveDialog(win, {
+    defaultPath: path.join(dirname, `${nakedFilename}${format.extension}`),
+    filters: [{ name: format.label, extensions: [format.extension.slice(1)] }]
+  })
+
+  if (!filePath || canceled) {
+    return
+  }
+
+  try {
+    await pandoc.toFile(format.target, filePath, markdown)
+    win.webContents.send('mt::export-success', { type: format.id, filePath })
+  } catch (err) {
+    log.error('Error while exporting with pandoc:', err)
+    const ERROR_MSG =
+      (err instanceof Error && err.message) || `Error happened when export ${filePath}`
+    win.webContents.send('mt::show-notification', {
+      title: t('dialog.exportWarning'),
+      type: 'error',
+      message: ERROR_MSG
+    })
+  }
+}
+
 const handleResponseForPrint = async(e: IpcMainEvent): Promise<void> => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (!win) {
@@ -256,9 +302,9 @@ const showUnsavedFilesMessage = async(
   }
 }
 
-const noticePandocNotFound = (win: BrowserWindow): void => {
+const noticePandocNotFound = (win: BrowserWindow, titleKey = 'dialog.importWarning'): void => {
   win.webContents.send('mt::pandoc-not-exists', {
-    title: t('dialog.importWarning'),
+    title: t(titleKey),
     type: 'warning',
     message: t('dialog.installPandoc'),
     time: 10000
@@ -458,6 +504,11 @@ ipcMain.on('mt::close-window-confirm', async(e, unsavedFiles: UnsavedFile[]) => 
 ipcMain.on('mt::response-file-save', handleResponseForSave as Parameters<typeof ipcMain.on>[1])
 
 ipcMain.on('mt::response-export', handleResponseForExport as Parameters<typeof ipcMain.on>[1])
+
+ipcMain.on(
+  'mt::response-pandoc-export',
+  handleResponseForPandocExport as Parameters<typeof ipcMain.on>[1]
+)
 
 ipcMain.on('mt::response-print', handleResponseForPrint as Parameters<typeof ipcMain.on>[1])
 
@@ -681,6 +732,25 @@ export const exportFile = (win: Win, type: string): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::show-export-dialog', type)
   }
+}
+
+/**
+ * Convert the current document with pandoc and write the chosen format.
+ *
+ * This cannot ride on `exportFile`: that path renders HTML/PDF inside the
+ * renderer, whereas pandoc wants the markdown source and a file target (binary
+ * writers need `-o`, see `pandoc.toFile`). The renderer replies with the
+ * markdown over `mt::response-pandoc-export`.
+ */
+export const exportWithPandoc = (win: Win, target: string): void => {
+  if (!win || !win.webContents) {
+    return
+  }
+  if (!pandoc.exists()) {
+    noticePandocNotFound(win, 'dialog.exportWarning')
+    return
+  }
+  win.webContents.send('mt::export-with-pandoc', target)
 }
 
 export const importFile = async(win: BrowserWindow | null): Promise<void> => {

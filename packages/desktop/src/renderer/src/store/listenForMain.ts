@@ -34,6 +34,17 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     })
   }
 
+  /**
+   * Main asks for the current document so it can convert it with pandoc. The
+   * markdown itself is produced by the editor component, which owns the live
+   * engine instance.
+   */
+  function LISTEN_FOR_PANDOC_EXPORT(): void {
+    window.electron.ipcRenderer.on('mt::export-with-pandoc', (_e, target) => {
+      bus.emit('exportWithPandoc', target)
+    })
+  }
+
   function LISTEN_FOR_PARAGRAPH_INLINE_STYLE(): void {
     // Pre-migration JS destructured `{ type }` and re-emitted it without a
     // guard. Restore the same shape; bus listeners that expect a payload get
@@ -50,6 +61,7 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
     EDITOR_EDIT_ACTION,
     LISTEN_FOR_EDIT,
     LISTEN_FOR_SHOW_DIALOG,
+    LISTEN_FOR_PANDOC_EXPORT,
     LISTEN_FOR_PARAGRAPH_INLINE_STYLE
   }
 })

@@ -1297,6 +1297,17 @@ interface ExportOptions {
   [key: string]: unknown
 }
 
+/**
+ * pandoc converts the markdown source rather than the rendered HTML, so the
+ * document is handed over as-is. The save dialog and the conversion itself stay
+ * in the main process.
+ */
+const handleExportWithPandoc = (target: unknown) => {
+  const engine = editor.value
+  if (!engine) return
+  editorStore.EXPORT_PANDOC({ target: target as string, markdown: engine.getMarkdown() })
+}
+
 const handleExport = async (options: unknown) => {
   const opts = options as ExportOptions
   const { type, headerFooterStyled, htmlTitle } = opts
@@ -1855,6 +1866,7 @@ onMounted(() => {
   bus.on('redo', handleRedo)
   bus.on('selectAll', handleSelectAll)
   bus.on('export', handleExport)
+  bus.on('exportWithPandoc', handleExportWithPandoc)
   bus.on('print-service-clearup', handlePrintServiceClearup)
   bus.on('paragraph', handleEditParagraph)
   bus.on('format', handleInlineFormat)
@@ -2008,6 +2020,7 @@ onBeforeUnmount(() => {
   bus.off('redo', handleRedo)
   bus.off('selectAll', handleSelectAll)
   bus.off('export', handleExport)
+  bus.off('exportWithPandoc', handleExportWithPandoc)
   bus.off('print-service-clearup', handlePrintServiceClearup)
   bus.off('paragraph', handleEditParagraph)
   bus.off('format', handleInlineFormat)
