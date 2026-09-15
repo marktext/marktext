@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import type Format from '../../../block/base/format';
 import type { Muya } from '../../../muya';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import EventCenter from '../../../event';
 import LinkTools from '../index';
 
@@ -28,8 +28,10 @@ interface ILinkToolsView {
         range?: { start: number; end: number } | null;
     } | null;
     selectItem: (event: Event, item: { type: string; icon: string }) => void;
+    show: (reference: HTMLElement) => void;
     render: () => void;
     container: HTMLElement | null;
+    status: boolean;
     destroy: () => void;
 }
 
@@ -177,5 +179,77 @@ describe('linkTools.render — jump visibility tracks linkInfo.href', () => {
 
         expect(tools.container!.querySelectorAll('li.item.jump').length).toBe(1);
         expect(tools.container!.querySelectorAll('li.item.unlink').length).toBe(1);
+    });
+});
+
+describe('linkTools hover — a pending hide must not close the next link\'s popover', () => {
+    // Regression guard for issue #5313; the event order is explained at the
+    // hide-timer cancel in `LinkTools.listen()`.
+    beforeEach(() => {
+        vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    // Mounted inside the session's `domNode` so the shared teardown removes it
+    // even when an assertion fails first.
+    function makeReference(domNode: HTMLElement): HTMLElement {
+        const reference = document.createElement('a');
+        domNode.appendChild(reference);
+        reference.getBoundingClientRect = () =>
+            ({ top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0 }) as DOMRect;
+        return reference;
+    }
+
+    const linkInfo = {
+        href: 'https://example.com',
+        text: 'hi',
+        raw: '[hi](https://example.com)',
+        range: { start: 0, end: 25 },
+    };
+
+    const secondLinkInfo = {
+        href: 'https://example.org',
+        text: 'there',
+        raw: '[there](https://example.org)',
+        range: { start: 30, end: 58 },
+    };
+
+    it('keeps the popover open when the pointer moves straight to another link', () => {
+        const { muya, tools, domNode } = bootLinkTools();
+        const { eventCenter } = muya;
+        const show = vi.spyOn(tools, 'show');
+        const first = makeReference(domNode);
+        const second = makeReference(domNode);
+
+        eventCenter.emit('muya-link-tools', { reference: first, linkInfo, block: null });
+        vi.runOnlyPendingTimers();
+
+        // Leaving the first link arms the hide, then the second link is
+        // hovered before it can fire.
+        eventCenter.emit('muya-link-tools', { reference: null });
+        eventCenter.emit('muya-link-tools', { reference: second, linkInfo: secondLinkInfo, block: null });
+        vi.advanceTimersByTime(1000);
+
+        expect(tools.status).toBe(true);
+        expect(show.mock.lastCall?.[0]).toBe(second);
+        expect(tools._linkInfo).toBe(secondLinkInfo);
+    });
+
+    it('still hides when the pointer leaves a link and goes nowhere', () => {
+        const { muya, tools, domNode } = bootLinkTools();
+        const { eventCenter } = muya;
+        const reference = makeReference(domNode);
+
+        eventCenter.emit('muya-link-tools', { reference, linkInfo, block: null });
+        vi.runOnlyPendingTimers();
+        expect(tools.status).toBe(true);
+
+        eventCenter.emit('muya-link-tools', { reference: null });
+        vi.advanceTimersByTime(1000);
+
+        expect(tools.status).toBe(false);
     });
 });

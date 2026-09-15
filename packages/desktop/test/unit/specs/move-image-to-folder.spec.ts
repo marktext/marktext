@@ -1,12 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import os from 'os'
 import path from 'path'
 import { moveImageToFolder } from '@/util/fileSystem'
 
 // moveImageToFolder relies on the preload contextBridge surface (window.path,
 // window.fileUtils). Stub them with the real node `path` and in-memory fakes so
-// the relative-path persistence logic can be exercised (real window.crypto is
-// used for the content hash).
-const copy = vi.fn((_src: string, _dest: string) => Promise.resolve())
+// the relative-path persistence logic can be exercised (real window.crypto
+// hashes a pasted File; a path is hashed and copied by the main process).
+const copyWithContentHash = vi.fn((_src: string, outputDir: string) =>
+  Promise.resolve(path.join(outputDir, 'content-hash.png'))
+)
 const writeFile = vi.fn(() => Promise.resolve())
 
 const win = window as unknown as {
@@ -15,13 +18,18 @@ const win = window as unknown as {
 }
 
 beforeEach(() => {
-  copy.mockClear()
+  copyWithContentHash.mockClear()
   writeFile.mockClear()
   win.path = path
   win.fileUtils = {
     ensureDir: vi.fn(() => Promise.resolve()),
     isImageFile: vi.fn(() => Promise.resolve(true)),
-    copy,
+    // Models a case-insensitive filesystem (Windows, default macOS), where the
+    // real helper's stat check finds both spellings to be one file.
+    isSamePathSync: vi.fn(
+      (a: string, b: string) => path.normalize(a).toLowerCase() === path.normalize(b).toLowerCase()
+    ),
+    copyWithContentHash,
     writeFile
   }
 })
@@ -41,32 +49,27 @@ describe('moveImageToFolder relative-directory persistence', () => {
     const source = '/Users/someone/pictures/pic.png'
     const result = await moveImageToFolder(docPath, source, assetsDir, true, docPath)
     // The image must be copied into the assets dir...
-    expect(copy).toHaveBeenCalledTimes(1)
-    expect(copy.mock.calls[0][1].startsWith(assetsDir)).toBe(true)
+    expect(copyWithContentHash).toHaveBeenCalledTimes(1)
+    expect(copyWithContentHash).toHaveBeenCalledWith(source, assetsDir)
     // ...and the inserted reference must be the portable relative path.
-    expect(path.isAbsolute(result)).toBe(false)
-    expect(result.startsWith('assets/')).toBe(true)
+    expect(result).toBe(path.join('assets', 'content-hash.png'))
   })
 
   it('returns the absolute hashed path for a local path string when isRelative is false', async() => {
     const source = '/Users/someone/pictures/pic.png'
     const result = await moveImageToFolder(docPath, source, assetsDir, false, docPath)
-    // copy still lands inside the assets dir...
-    expect(copy).toHaveBeenCalledTimes(1)
-    expect(copy.mock.calls[0][1].startsWith(assetsDir)).toBe(true)
-    // ...and with isRelative=false the returned reference is the absolute
-    // hashed destination path (the second arg passed to copy).
-    expect(path.isAbsolute(result)).toBe(true)
-    expect(result).toBe(copy.mock.calls[0][1])
-    expect(result.startsWith(`${assetsDir}${path.sep}`)).toBe(true)
+    expect(copyWithContentHash).toHaveBeenCalledWith(source, assetsDir)
+    // With isRelative=false the reference is the absolute hashed destination
+    // the main process copied to.
+    expect(result).toBe(path.join(assetsDir, 'content-hash.png'))
   })
 
   it('short-circuits without copying when the image already lives in outputDir', async() => {
-    // The resolved imagePath equals path.join(outputDir, basename) so
-    // noHashPath === imagePath and the copy step is skipped.
+    // The resolved imagePath is already path.join(outputDir, basename), so the
+    // copy step is skipped.
     const inPlace = path.join(assetsDir, 'already.png')
     const result = await moveImageToFolder(docPath, inPlace, assetsDir, false, docPath)
-    expect(copy).not.toHaveBeenCalled()
+    expect(copyWithContentHash).not.toHaveBeenCalled()
     // The original absolute path is returned unchanged (isRelative=false).
     expect(result).toBe(inPlace)
   })
@@ -74,7 +77,7 @@ describe('moveImageToFolder relative-directory persistence', () => {
   it('short-circuits to a relative reference when isRelative is set and the image is in outputDir', async() => {
     const inPlace = path.join(assetsDir, 'already.png')
     const result = await moveImageToFolder(docPath, inPlace, assetsDir, true, docPath)
-    expect(copy).not.toHaveBeenCalled()
+    expect(copyWithContentHash).not.toHaveBeenCalled()
     expect(path.isAbsolute(result)).toBe(false)
     expect(result.startsWith('assets/')).toBe(true)
   })
@@ -96,7 +99,7 @@ describe('moveImageToFolder relative-directory persistence', () => {
       docPath
     )
     // No copy for a binary File — it is written, not copied.
-    expect(copy).not.toHaveBeenCalled()
+    expect(copyWithContentHash).not.toHaveBeenCalled()
     expect(writeFile).toHaveBeenCalledTimes(1)
     // The written destination is inside the assets dir, named by the SHA-1 of
     // its bytes (the same dedup scheme as the string-path branch)...
@@ -116,9 +119,32 @@ describe('moveImageToFolder relative-directory persistence', () => {
     // the absolute reference is preserved unchanged.
     const local = path.join(assetsDir, 'pic.png')
     const result = await moveImageToFolder(docPath, local, assetsDir, false, docPath)
-    expect(copy).not.toHaveBeenCalled()
+    expect(copyWithContentHash).not.toHaveBeenCalled()
     expect(writeFile).not.toHaveBeenCalled()
     expect(result).toBe(local)
     expect(path.isAbsolute(result)).toBe(true)
+  })
+
+  describe('image already in outputDir under different casing', () => {
+    // A dropped file carries its on-disk casing, while outputDir carries the
+    // casing of the preference and of the path the document was opened with.
+    const dir = path.join(os.tmpdir(), 'marktext-case-test')
+    const doc = path.join(dir, 'a.md')
+    const out = path.join(dir, 'assets')
+    const inPlace = path.join(out.toUpperCase(), 'Already.PNG')
+
+    it('reuses the image when the path differs only by case', async() => {
+      const result = await moveImageToFolder(doc, inPlace, out, false, doc)
+      expect(copyWithContentHash).not.toHaveBeenCalled()
+      expect(result).toBe(path.join(out, 'Already.PNG'))
+    })
+
+    it('links the reused image through outputDir when an ancestor folder differs by case', async() => {
+      // Relativizing the image's own casing against the document folder would
+      // climb out through the mismatched ancestors instead of into outputDir.
+      const result = await moveImageToFolder(doc, inPlace, out, true, doc)
+      expect(copyWithContentHash).not.toHaveBeenCalled()
+      expect(result).toBe(path.join('assets', 'Already.PNG'))
+    })
   })
 })

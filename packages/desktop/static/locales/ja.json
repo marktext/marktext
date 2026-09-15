@@ -516,7 +516,8 @@
         "lineHeight": "行の高さ",
         "fontFamily": "フォントファミリー",
         "maxWidth": "最大幅",
-        "maxWidthNotes": "エディターコンテンツの最大幅"
+        "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch（文字数）、% のいずれかを付けて入力します（例: 800px、80ch、60%）。空欄の場合は既定の幅を使用します。",
+        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください（例: 800px）。"
       },
       "codeBlock": {
         "title": "コードブロック",
