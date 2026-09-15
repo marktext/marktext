@@ -80,6 +80,7 @@
       "minimize": "Minimizar",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
+      "resetZoom": "Restablecer zoom",
       "fullScreen": "Pantalla Completa",
       "bringAllToFront": "Traer al Frente",
       "alwaysOnTop": "Siempre Encima"
@@ -185,6 +186,7 @@
     "copyAsRich": "Copiar Como Texto Enriquecido",
     "copyAsHtml": "Copiar Como HTML",
     "pasteAsPlainText": "Pegar como Texto Plano",
+    "lookUp": "Buscar \"{selection}\"",
     "insertParagraphBefore": "Insertar Párrafo Antes",
     "insertParagraphAfter": "Insertar Párrafo Después",
     "spelling": "Ortografía...",
@@ -410,6 +412,7 @@
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
         "plantumlServer": "URL del servidor PlantUML",
         "theme": "Seleccionar el tema usado en MarkText",
@@ -514,7 +517,8 @@
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
-        "maxWidthNotes": "Ancho máximo del contenido del editor"
+        "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
+        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px."
       },
       "codeBlock": {
         "title": "Bloque de Código",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "Habilitar compatibilidad con GitLab",
         "enableHtml": "Habilitar soporte HTML",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "title": "Compatibilidad"
       },
       "lists": {

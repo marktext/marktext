@@ -80,6 +80,7 @@
       "minimize": "最小化",
       "zoomIn": "放大",
       "zoomOut": "缩小",
+      "resetZoom": "重置缩放",
       "fullScreen": "全屏",
       "bringAllToFront": "将所有窗口置于前台",
       "alwaysOnTop": "总是在最前面"
@@ -185,6 +186,7 @@
     "copyAsRich": "复制为富文本",
     "copyAsHtml": "复制为 HTML",
     "pasteAsPlainText": "粘贴为纯文本",
+    "lookUp": "查询“{selection}”",
     "insertParagraphBefore": "在前面插入段落",
     "insertParagraphAfter": "在后面插入段落",
     "spelling": "拼写…",
@@ -410,6 +412,7 @@
         "footnote": "启用 Pandoc 的 Markdown 扩展脚注",
         "isHtmlEnabled": "启用 HTML 渲染",
         "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
+        "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
         "theme": "选择 MarkText 中使用的主题",
@@ -514,7 +517,8 @@
         "lineHeight": "行高",
         "fontFamily": "字体系列",
         "maxWidth": "最大宽度",
-        "maxWidthNotes": "编辑器内容的最大宽度"
+        "maxWidthNotes": "编辑器内容的最大宽度。数字后需带单位 px、ch（字符数）或 %，例如 800px、80ch、60%。留空则使用默认宽度。",
+        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。"
       },
       "codeBlock": {
         "title": "代码块",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "启用 GitLab 兼容性",
         "enableHtml": "启用 HTML 支持",
+        "softNewlineAsSpace": "将软换行符视为空格",
         "title": "兼容性"
       },
       "lists": {

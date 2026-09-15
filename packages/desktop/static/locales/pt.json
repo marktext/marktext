@@ -80,6 +80,7 @@
       "minimize": "Minimizar",
       "zoomIn": "Aumentar Zoom",
       "zoomOut": "Diminuir Zoom",
+      "resetZoom": "Redefinir Zoom",
       "fullScreen": "Tela Cheia",
       "bringAllToFront": "Trazer Todas para Frente",
       "alwaysOnTop": "Sempre no Topo"
@@ -185,6 +186,7 @@
     "copyAsRich": "Copiar como Rich Text",
     "copyAsHtml": "Copiar como HTML",
     "pasteAsPlainText": "Colar como Texto Simples",
+    "lookUp": "Consultar \"{selection}\"",
     "insertParagraphBefore": "Inserir Parágrafo Antes",
     "insertParagraphAfter": "Inserir Parágrafo Depois",
     "spelling": "Ortografia...",
@@ -410,6 +412,7 @@
         "footnote": "Habilitar extensão markdown do pandoc para nota de rodapé",
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
+        "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "sequenceTheme": "Tema do diagrama de sequência",
         "plantumlServer": "URL do servidor PlantUML",
         "theme": "Selecionar o tema usado no MarkText",
@@ -514,7 +517,8 @@
         "lineHeight": "Altura da linha",
         "fontFamily": "Família da fonte",
         "maxWidth": "Largura máxima",
-        "maxWidthNotes": "Largura máxima do conteúdo do editor"
+        "maxWidthNotes": "Largura máxima do conteúdo do editor. Digite um número seguido de px, ch (caracteres) ou %, por exemplo 800px, 80ch ou 60%. Deixe vazio para usar a largura padrão.",
+        "maxWidthInvalid": "Digite um número seguido de px, ch ou %, por exemplo 800px."
       },
       "codeBlock": {
         "title": "Bloco de Código",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "Habilitar compatibilidade GitLab",
         "enableHtml": "Habilitar suporte HTML",
+        "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "title": "Compatibilidade"
       },
       "lists": {

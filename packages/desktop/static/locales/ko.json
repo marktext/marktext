@@ -80,6 +80,7 @@
       "minimize": "최소화",
       "zoomIn": "확대",
       "zoomOut": "축소",
+      "resetZoom": "줌 초기화",
       "fullScreen": "전체 화면",
       "bringAllToFront": "모든 창 앞으로 가져오기",
       "alwaysOnTop": "항상 위에"
@@ -185,6 +186,7 @@
     "copyAsRich": "서식 있는 텍스트로 복사",
     "copyAsHtml": "HTML로 복사",
     "pasteAsPlainText": "일반 텍스트로 붙여넣기",
+    "lookUp": "\"{selection}\" 찾아보기",
     "insertParagraphBefore": "앞에 단락 삽입",
     "insertParagraphAfter": "뒤에 단락 삽입",
     "spelling": "맞춤법...",
@@ -410,6 +412,7 @@
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
+        "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
         "theme": "MarkText에서 사용할 테마 선택",
@@ -514,7 +517,8 @@
         "lineHeight": "줄 높이",
         "fontFamily": "글꼴 패밀리",
         "maxWidth": "최대 너비",
-        "maxWidthNotes": "편집기 콘텐츠의 최대 너비"
+        "maxWidthNotes": "편집기 콘텐츠의 최대 너비입니다. 숫자 뒤에 px, ch(문자 수) 또는 % 단위를 붙여 입력하세요(예: 800px, 80ch, 60%). 비워 두면 기본 너비를 사용합니다.",
+        "maxWidthInvalid": "숫자 뒤에 px, ch 또는 %를 붙여 입력하세요(예: 800px)."
       },
       "codeBlock": {
         "title": "코드 블록",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "GitLab 호환성 활성화",
         "enableHtml": "HTML 지원 활성화",
+        "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "title": "호환성"
       },
       "lists": {

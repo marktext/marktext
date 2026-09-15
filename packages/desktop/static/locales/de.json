@@ -80,6 +80,7 @@
       "minimize": "Minimieren",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern",
+      "resetZoom": "Zoom zurücksetzen",
       "fullScreen": "Vollbild",
       "bringAllToFront": "Alle nach vorne bringen",
       "alwaysOnTop": "Immer im Vordergrund"
@@ -185,6 +186,7 @@
     "copyAsRich": "Als Rich Text kopieren",
     "copyAsHtml": "Als HTML kopieren",
     "pasteAsPlainText": "Als reinen Text einfügen",
+    "lookUp": "\"{selection}\" nachschlagen",
     "insertParagraphBefore": "Absatz davor einfügen",
     "insertParagraphAfter": "Absatz danach einfügen",
     "spelling": "Rechtschreibung...",
@@ -410,6 +412,7 @@
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
+        "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
         "plantumlServer": "PlantUML-Server-URL",
         "theme": "Das in MarkText verwendete Theme auswählen",
@@ -514,7 +517,8 @@
         "lineHeight": "Zeilenhöhe",
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
-        "maxWidthNotes": "Maximale Breite des Editor-Inhalts"
+        "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
+        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px."
       },
       "codeBlock": {
         "title": "Code-Block",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "GitLab-Kompatibilität aktivieren",
         "enableHtml": "HTML-Unterstützung aktivieren",
+        "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "title": "Kompatibilität"
       },
       "lists": {

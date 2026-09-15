@@ -80,6 +80,7 @@
       "minimize": "最小化",
       "zoomIn": "放大",
       "zoomOut": "縮小",
+      "resetZoom": "重置縮放",
       "fullScreen": "全螢幕",
       "bringAllToFront": "將全部移到前面",
       "alwaysOnTop": "總是在最上層"
@@ -185,6 +186,7 @@
     "copyAsRich": "複製為富文本",
     "copyAsHtml": "複製為 HTML",
     "pasteAsPlainText": "貼上為純文字",
+    "lookUp": "查詢「{selection}」",
     "insertParagraphBefore": "在前面插入段落",
     "insertParagraphAfter": "在後面插入段落",
     "spelling": "拼字檢查…",
@@ -410,6 +412,7 @@
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
         "theme": "選擇 MarkText 中使用的主題",
@@ -514,7 +517,8 @@
         "lineHeight": "行高",
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
-        "maxWidthNotes": "編輯器內容的最大寬度"
+        "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
+        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。"
       },
       "codeBlock": {
         "title": "程式碼區塊",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "啟用 GitLab 相容性",
         "enableHtml": "啟用 HTML 支援",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "title": "相容性"
       },
       "lists": {

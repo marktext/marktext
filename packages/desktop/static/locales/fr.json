@@ -80,6 +80,7 @@
       "minimize": "Réduire",
       "zoomIn": "Agrandir",
       "zoomOut": "Réduire",
+      "resetZoom": "Réinitialiser le zoom",
       "fullScreen": "Plein écran",
       "bringAllToFront": "Tout amener au premier plan",
       "alwaysOnTop": "Toujours au premier plan"
@@ -185,6 +186,7 @@
     "copyAsRich": "Copier en texte riche",
     "copyAsHtml": "Copier en HTML",
     "pasteAsPlainText": "Coller en texte brut",
+    "lookUp": "Rechercher \"{selection}\"",
     "insertParagraphBefore": "Insérer un paragraphe avant",
     "insertParagraphAfter": "Insérer un paragraphe après",
     "spelling": "Orthographe...",
@@ -410,6 +412,7 @@
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
         "isHtmlEnabled": "Activer le rendu HTML",
         "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
+        "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
         "theme": "Sélectionner le thème utilisé dans MarkText",
@@ -514,7 +517,8 @@
         "lineHeight": "Hauteur de ligne",
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
-        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur"
+        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
       },
       "codeBlock": {
         "title": "Bloc de code",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "Activer la compatibilité GitLab",
         "enableHtml": "Activer le support HTML",
+        "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "title": "Compatibilité"
       },
       "lists": {

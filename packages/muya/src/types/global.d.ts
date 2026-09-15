@@ -20,9 +20,9 @@ declare global {
     }
 
     // `Intl.Segmenter` (Stage 4, ES2022) is not in the ES2020 TS lib the
-    // package targets. Declare the minimal surface we use so `visibleLength`
-    // can call it without an `as any` escape hatch. The examples app
-    // polyfills it when the runtime engine lacks support.
+    // package targets. Declare the minimal surface the grapheme cluster helpers
+    // in `utils` use, so they can call it without an `as any` escape hatch. The
+    // examples app polyfills it when the runtime engine lacks support.
     namespace Intl {
         interface ISegmenterOptions {
             granularity?: 'grapheme' | 'word' | 'sentence';

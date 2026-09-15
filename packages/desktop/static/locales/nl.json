@@ -80,6 +80,7 @@
       "minimize": "Minimaliseren",
       "zoomIn": "Inzoomen",
       "zoomOut": "Uitzoomen",
+      "resetZoom": "Zoom herstellen",
       "fullScreen": "Volledig scherm",
       "bringAllToFront": "Alles naar voren",
       "alwaysOnTop": "Altijd bovenaan"
@@ -185,6 +186,7 @@
     "copyAsRich": "Kopiëren als opgemaakte tekst",
     "copyAsHtml": "Kopiëren als HTML",
     "pasteAsPlainText": "Plakken als platte tekst",
+    "lookUp": "\"{selection}\" opzoeken",
     "insertParagraphBefore": "Alinea invoegen vóór",
     "insertParagraphAfter": "Alinea invoegen na",
     "spelling": "Spelling...",
@@ -409,6 +411,7 @@
         "footnote": "Pandoc voetnoten inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
+        "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
         "theme": "Selecteer het thema voor MarkText",
@@ -514,7 +517,8 @@
         "lineHeight": "Regelhoogte",
         "fontFamily": "Lettertypefamilie",
         "maxWidth": "Maximale breedte",
-        "maxWidthNotes": "Maximale breedte van editorinhoud"
+        "maxWidthNotes": "Maximale breedte van editorinhoud. Voer een getal in gevolgd door px, ch (tekens) of %, bijvoorbeeld 800px, 80ch of 60%. Laat leeg om de standaardbreedte te gebruiken.",
+        "maxWidthInvalid": "Voer een getal in gevolgd door px, ch of %, bijvoorbeeld 800px."
       },
       "codeBlock": {
         "title": "Codeblok",
@@ -657,6 +661,7 @@
       "compatibility": {
         "enableGitlab": "GitLab-compatibiliteit inschakelen",
         "enableHtml": "HTML-ondersteuning inschakelen",
+        "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "title": "Compatibiliteit"
       },
       "lists": {
