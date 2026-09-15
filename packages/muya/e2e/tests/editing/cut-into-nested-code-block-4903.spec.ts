@@ -95,8 +95,8 @@ test.describe('cross-block cut into a nested code, math or html block (#4903, #5
 
         await placeCaretAtEnd(page, 'tail');
         await page.keyboard.press('Enter');
-        await page.keyboard.press('Backspace');
-        await expect.poll(() => getMarkdown(page)).toBe('inde\n\n- tail\n');
+        await page.keyboard.type('next');
+        await expect.poll(() => getMarkdown(page)).toBe('inde\n\n- tail\n\n- next\n');
         await expectTreeMatchesJson(page);
         expect(errors).toEqual([]);
     });
