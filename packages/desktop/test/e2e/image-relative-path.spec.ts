@@ -22,9 +22,10 @@ const ONE_BY_ONE_PNG_BASE64 =
 
 const createdDirs: string[] = []
 
-const writeDocWithRelativeImage = (): { docPath: string; docDir: string } => {
-  const docDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-e2e-relimg-'))
-  createdDirs.push(docDir)
+const writeDocWithRelativeImage = (folderName = ''): { docPath: string; docDir: string } => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-e2e-relimg-'))
+  createdDirs.push(tempDir)
+  const docDir = path.join(tempDir, folderName)
   const assetsDir = path.join(docDir, 'assets')
   fs.mkdirSync(assetsDir, { recursive: true })
   fs.writeFileSync(path.join(assetsDir, 'cat.png'), Buffer.from(ONE_BY_ONE_PNG_BASE64, 'base64'))
@@ -32,6 +33,16 @@ const writeDocWithRelativeImage = (): { docPath: string; docDir: string } => {
   fs.writeFileSync(docPath, '![a cat](assets/cat.png)\n', 'utf-8')
   return { docPath, docDir }
 }
+
+test.afterAll(() => {
+  for (const dir of createdDirs) {
+    try {
+      fs.rmSync(dir, { recursive: true, force: true })
+    } catch {
+      /* ignore */
+    }
+  }
+})
 
 test.describe('Relative-path image resolves to a DIRNAME-anchored file:// URL', () => {
   let app: ElectronApplication | null = null
@@ -50,13 +61,6 @@ test.describe('Relative-path image resolves to a DIRNAME-anchored file:// URL', 
 
   test.afterAll(async() => {
     if (app) await app.close()
-    for (const dir of createdDirs) {
-      try {
-        fs.rmSync(dir, { recursive: true, force: true })
-      } catch {
-        /* ignore */
-      }
-    }
   })
 
   test('window.DIRNAME tracks the opened document directory', async() => {
@@ -114,5 +118,45 @@ test.describe('Relative-path image resolves to a DIRNAME-anchored file:// URL', 
     const onDiskPath = withoutQuery.replace(/^file:\/\//, '')
     expect(fs.existsSync(onDiskPath)).toBe(true)
     expect(onDiskPath).toBe(path.join(docDir, 'assets', 'cat.png').replace(/\\/g, '/'))
+  })
+})
+
+test.describe('Relative-path image in a directory named with URL delimiters (#5212)', () => {
+  let app: ElectronApplication | null = null
+  let page: Page
+  let docDir: string
+
+  test.beforeAll(async() => {
+    // `?` cannot appear in a Windows file name.
+    const folderName = process.platform === 'win32' ? 'C# 100%25' : 'C# 100%25 what?'
+    const written = writeDocWithRelativeImage(folderName)
+    docDir = written.docDir
+    const launched = await launchElectron([written.docPath])
+    app = launched.app
+    page = launched.page
+    await waitForEditor(page)
+    await waitForMenuReady(app)
+  })
+
+  test.afterAll(async() => {
+    if (app) await app.close()
+  })
+
+  test('loads the image from the file next to the document', async() => {
+    await expect
+      .poll(async() => page.locator('.editor-component .mu-inline-image.mu-image-success').count(), {
+        timeout: 10000
+      })
+      .toBeGreaterThanOrEqual(1)
+
+    const src = await page
+      .locator('.editor-component .mu-image-container img')
+      .first()
+      .getAttribute('src')
+    expect(src).not.toBeNull()
+    const url = new URL(src as string)
+    expect(decodeURIComponent(url.pathname)).toBe(
+      path.join(docDir, 'assets', 'cat.png').replace(/\\/g, '/')
+    )
   })
 })

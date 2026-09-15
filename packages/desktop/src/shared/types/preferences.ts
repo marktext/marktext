@@ -45,6 +45,7 @@ export interface IUserPreferences {
   footnote?: boolean
   isHtmlEnabled?: boolean
   isGitlabCompatibilityEnabled?: boolean
+  softNewlineAsSpace?: boolean
   theme?: string
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean

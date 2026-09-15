@@ -37,9 +37,7 @@ class Footnote extends Parent {
         backlink.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            const target = document.querySelector(
-                `#noteref-${footnote.meta.identifier}`,
-            );
+            const target = document.getElementById(`noteref-${footnote.meta.identifier}`);
             target?.scrollIntoView({ behavior: 'smooth' });
         });
         footnote.domNode!.appendChild(backlink);

@@ -3,6 +3,7 @@ import type LangInputContent from '../../block/content/langInputContent';
 import type ParagraphContent from '../../block/content/paragraphContent';
 import type { Muya } from '../../index';
 import { ScrollPage } from '../../block/scrollPage';
+import { createDiagramState, diagramTypeOfLang } from '../../utils/diagram/fence';
 import { search } from '../../utils/prism';
 
 import { h, patch } from '../../utils/snabbdom';
@@ -21,30 +22,26 @@ const defaultOptions = {
     showArrow: false,
 };
 
-const DIAGRAM_LANGS = new Set(['mermaid', 'vega-lite', 'plantuml', 'flowchart', 'sequence']);
-
 // The language the user actually typed after the ``` fence. The selector's
 // fuzzy search may resolve a non-code language (e.g. `vega-lite`) to an
-// unrelated Prism language, so the diagram check keys off this raw text.
+// unrelated Prism language, so the diagram check tries this raw text before
+// the picked item.
 function typedFenceLang(text: string): string {
     return text.match(/`{3,}\s*([\w-]+)/)?.[1] ?? '';
 }
 
-// Build the state for the block a ```lang fence becomes. Diagram languages
-// (from the typed text) become a diagram block, mirroring markdownToState's
-// file-load path; GitLab math becomes a math-block; everything else a fenced
-// code block highlighted with the selector's matched language.
+// Build the state for the block a ```lang fence becomes. A diagram language,
+// typed in full or picked from a partial query (`mer` → mermaid, #5060),
+// becomes a diagram block, mirroring markdownToState's file-load path; GitLab
+// math becomes a math-block; everything else a fenced code block highlighted
+// with the selector's matched language.
 function newBlockStateForLang(typedLang: string, matchedLang: string, isGitlabMath: boolean) {
     if (isGitlabMath)
         return { name: 'math-block', meta: { mathStyle: 'gitlab' }, text: '' };
 
-    if (DIAGRAM_LANGS.has(typedLang)) {
-        return {
-            name: 'diagram',
-            meta: { type: typedLang, lang: typedLang === 'vega-lite' ? 'json' : 'yaml' },
-            text: '',
-        };
-    }
+    const diagramType = diagramTypeOfLang(typedLang) ?? diagramTypeOfLang(matchedLang);
+    if (diagramType)
+        return createDiagramState(diagramType);
 
     return { name: 'code-block', meta: { lang: matchedLang, type: 'fenced' }, text: '' };
 }

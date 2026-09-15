@@ -73,13 +73,14 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Metadatos"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Ventana",
       "minimize": "Minimizar",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
+      "resetZoom": "Restablecer zoom",
       "fullScreen": "Pantalla Completa",
       "bringAllToFront": "Traer al Frente",
       "alwaysOnTop": "Siempre Encima"
@@ -184,6 +185,7 @@
     "copyAsRich": "Copiar Como Texto Enriquecido",
     "copyAsHtml": "Copiar Como HTML",
     "pasteAsPlainText": "Pegar como Texto Plano",
+    "lookUp": "Buscar \"{selection}\"",
     "insertParagraphBefore": "Insertar Párrafo Antes",
     "insertParagraphAfter": "Insertar Párrafo Después",
     "spelling": "Ortografía...",
@@ -241,7 +243,9 @@
       "openFolder": "Abrir Carpeta"
     },
     "toc": {
-      "title": "Tabla de Contenidos"
+      "title": "Tabla de Contenidos",
+      "expandAll": "Expandir todo",
+      "collapseAll": "Contraer todo"
     },
     "icons": {
       "files": "Archivos",
@@ -384,6 +388,7 @@
         "codeFontSize": "Tamaño de fuente en bloque de código, el rango es 12 ~ 18",
         "codeFontFamily": "Familia de fuente utilizada en bloque de código",
         "codeBlockLineNumbers": "Si mostrar los números de línea",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente",
         "trimUnnecessaryCodeBlockEmptyLines": "Recortar las líneas vacías del principio y final en bloque de código",
         "autoPairBracket": "Paréntesis automáticos al editar",
         "autoPairMarkdownSyntax": "Autocompletar sintaxis de markdown",
@@ -407,6 +412,7 @@
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
         "plantumlServer": "URL del servidor PlantUML",
         "theme": "Seleccionar el tema usado en MarkText",
@@ -497,6 +503,7 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
           "turkish": "Türkçe"
         }
@@ -510,7 +517,8 @@
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
-        "maxWidthNotes": "Ancho máximo del contenido del editor"
+        "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
+        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px."
       },
       "codeBlock": {
         "title": "Bloque de Código",
@@ -555,7 +563,8 @@
         "hideLinkPopup": "Ocultar popup de enlace",
         "autoCheck": "Verificación automática",
         "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea a LF al abrir",
-        "wrapCodeBlocks": "Ajustar bloques de código"
+        "wrapCodeBlocks": "Ajustar bloques de código",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente"
       }
     },
     "image": {
@@ -653,6 +662,7 @@
       "compatibility": {
         "enableGitlab": "Habilitar compatibilidad con GitLab",
         "enableHtml": "Habilitar soporte HTML",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "title": "Compatibilidad"
       },
       "lists": {
@@ -801,7 +811,7 @@
       "looseListItem": "Elemento de Lista Suelto",
       "paragraph": "Párrafo",
       "horizontalLine": "Línea Horizontal",
-      "frontMatter": "Metadatos",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Restablecer Párrafo",
       "mathBlock": "Bloque matemático",
       "horizontalRule": "Línea horizontal"

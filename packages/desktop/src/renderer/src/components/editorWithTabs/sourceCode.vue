@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
@@ -43,7 +43,7 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode } = storeToRefs(preferencesStore)
+const { theme, sourceCode, sourceCodeLineNumbers } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -59,6 +59,10 @@ watch(
     }
   }
 )
+
+watch(sourceCodeLineNumbers, (value) => {
+  editor.value?.setOption('lineNumbers', value)
+})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -335,19 +339,12 @@ onMounted(() => {
   const container = sourceCodeContainer.value
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
-    lineNumbers: true,
+    lineNumbers: sourceCodeLineNumbers.value,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
     direction: textDirection,
-    viewportMargin: Infinity,
-    lineNumberFormatter (line: number) {
-      if (line % 10 === 0 || line === 1) {
-        return line
-      } else {
-        return ''
-      }
-    }
+    viewportMargin: Infinity
   }
 
   if (railscastsThemes.includes(theme.value)) {
@@ -365,9 +362,8 @@ onMounted(() => {
   bus.on('image-action', handleImageAction)
   bus.on('scroll-to-header', handleScrollToHeader)
 
-  // For some reason, code mirror does not seem to play well with Vue's refs if we reference editor.value directly.
-  // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
-  const codeMirrorInstance = codeMirror(container, codeMirrorConfig)
+  // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
+  const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
   // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
   // `$$...$$` spans to stex so subscript underscores in math do not flip the

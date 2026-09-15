@@ -123,8 +123,9 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement } from '@/util/tocNavigation'
+import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -221,6 +222,7 @@ const {
   footnote,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   lineHeight,
   fontSize,
   codeFontSize,
@@ -668,6 +670,12 @@ watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
   }
 })
 
+watch(softNewlineAsSpace, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ softNewlineAsSpace: value }, true)
+  }
+})
+
 watch(hideQuickInsertHint, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ hideQuickInsertHint: value })
@@ -818,6 +826,14 @@ watch(
     if (value && value !== oldValue) {
       if (editor.value) {
         editor.value.hideAllFloatTools()
+        // Flush the engine's queued rAF-batch ops into the tab before
+        // sourceCode.vue mounts and snapshots `currentFile.markdown` — an edit
+        // made in the same frame as the mode switch (e.g. a task-checkbox
+        // click) would otherwise be missing from the snapshot, and the swap
+        // back out of source mode cancels the scheduled flush, dropping the
+        // edit permanently. Same guard as saving (#3803) and tab switch
+        // (#2938).
+        editor.value.flush()
         // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
         // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
         // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
@@ -870,6 +886,16 @@ const imageAction = async (
   // TODO(Refactor): Refactor this method.
   if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
+
+  // A pasted screenshot / bitmap clipboard comes in as a `data:` URL string
+  // rather than a file path. `moveImageToFolder` and `uploadImage` treat any
+  // string as a local path, which would silently keep the base64 inline — so
+  // normalize it back into a `File` up front and let the branches below handle
+  // it as binary.
+  if (typeof image === 'string' && image.startsWith('data:')) {
+    const file = dataURLToFile(image)
+    if (file) image = file
+  }
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
@@ -1215,9 +1241,8 @@ const scrollToCords = (y: number) => {
   })
 }
 
-// Smoothly scroll the editor so `anchor` sits at the standard top offset.
-// Shared by the TOC, search-highlight, and any other "reveal this element"
-// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+// Smoothly scroll the editor so `anchor` sits at the standard caret offset.
+// Shared by search highlights and non-heading in-document anchors.
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
@@ -1238,7 +1263,9 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
-  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+  const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
+  if (!heading) return
+  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1751,6 +1778,7 @@ onMounted(() => {
     footnote: footnote.value,
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
+    softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,

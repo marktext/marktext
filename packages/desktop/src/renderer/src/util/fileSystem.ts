@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 export type FileCreateType = 'file' | 'directory'
 export type PasteType = 'cut' | 'copy'
 export type HashType = 'sha1' | 'sha256' | 'sha512'
@@ -57,9 +55,6 @@ export const getHash = async(
   return toHex(digest)
 }
 
-export const getContentHash = (content: string | Uint8Array | ArrayBuffer): Promise<string> =>
-  getHash(content, 'utf8', 'sha1')
-
 export const moveImageToFolder = async(
   pathname: string,
   image: string | File,
@@ -79,29 +74,26 @@ export const moveImageToFolder = async(
     const isImage = await window.fileUtils.isImageFile(imagePath)
     if (isImage) {
       const filename = window.path.basename(imagePath)
-      const ext = window.path.extname(imagePath)
       const noHashPath = window.path.join(outputDir, filename)
-      if (noHashPath === imagePath) {
-        return toResult(imagePath)
+      if (window.fileUtils.isSamePathSync(noHashPath, imagePath)) {
+        return toResult(noHashPath)
       }
-      const hash = await getContentHash(imagePath)
-      const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
-      await window.fileUtils.copy(imagePath, hashFilePath)
-      return toResult(hashFilePath)
+      return toResult(await window.fileUtils.copyWithContentHash(imagePath, outputDir))
     } else {
       return image as string
     }
   } else {
     const file = image as File
-    const imagePath = window.path.join(
-      outputDir,
-      `${dayjs().format('YYYY-MM-DD-HH-mm-ss')}-${file.name}`
-    )
-
     const buffer = new Uint8Array(await file.arrayBuffer())
-    await window.fileUtils.writeFile(imagePath, buffer)
+    // Name the persisted file by the SHA-1 hash of its bytes (same dedup scheme
+    // as the string-path branch above) so pasting the same bitmap twice reuses
+    // one file instead of accumulating timestamped copies.
+    const ext = window.path.extname(file.name)
+    const hash = await getHash(buffer, 'binary', 'sha1')
+    const hashFilePath = window.path.join(outputDir, `${hash}${ext}`)
+    await window.fileUtils.writeFile(hashFilePath, buffer)
 
-    return toResult(imagePath)
+    return toResult(hashFilePath)
   }
 }
 

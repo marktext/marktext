@@ -273,8 +273,9 @@ class TextSelection {
         };
 
         const handleMouseupOrLeave = () => {
-            if (this._selectInfo.selection)
-                this.setSelection(this._selectInfo.selection.anchor, this._selectInfo.selection.focus);
+            const { selection } = this._selectInfo;
+            if (selection?.anchor.block.outMostBlock && selection.focus.block.outMostBlock)
+                this.setSelection(selection.anchor, selection.focus);
 
             this._selectInfo = {
                 isSelect: false,

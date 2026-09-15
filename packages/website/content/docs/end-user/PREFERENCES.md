@@ -34,6 +34,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | codeFontSize                       | Number  | `14`               | Font size inside code blocks. Range `12`–`28`.                                                                                                                                       |
 | codeFontFamily                     | String  | `DejaVu Sans Mono` | Code-block font family.                                                                                                                                                              |
 | codeBlockLineNumbers               | Boolean | `true`             | Show line numbers inside code blocks.                                                                                                                                                |
+| sourceCodeLineNumbers              | Boolean | `true`             | Show line numbers in source code mode.                                                                                                                                               |
 | trimUnnecessaryCodeBlockEmptyLines | Boolean | `true`             | Trim the beginning and ending empty lines in code blocks.                                                                                                                            |
 | autoPairBracket                    | Boolean | `true`             | Auto-close brackets when editing.                                                                                                                                                    |
 | autoPairMarkdownSyntax             | Boolean | `true`             | Autocomplete markdown syntax.                                                                                                                                                        |
@@ -63,6 +64,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | footnote                     | Boolean | `false` | Enable pandoc's footnote markdown extension.                                                                                         |
 | isHtmlEnabled                | Boolean | `true`  | Enable inline HTML rendering.                                                                                                        |
 | isGitlabCompatibilityEnabled | Boolean | `false` | Enable GitLab compatibility mode.                                                                                                    |
+| softNewlineAsSpace           | Boolean | `false` | Treat a soft line break (a single bare newline within a paragraph) as a space instead of a line break.                               |
 | sequenceTheme                | String  | `hand`  | Theme for [js-sequence-diagrams](https://bramp.github.io/js-sequence-diagrams/): `hand` or `simple`.                                 |
 
 #### Theme

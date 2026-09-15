@@ -41,14 +41,19 @@ export default function loadImageAsync(
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 const img = document.createElement('img');
                 img.src = url;
+
+                const NUM_REG = /^\d+$/;
+
                 if (attrs.alt)
                     img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, '');
+
                 if (attrs.title)
                     img.setAttribute('title', attrs.title);
-                if (attrs.width && typeof attrs.width === 'number')
+
+                if (attrs.width && NUM_REG.test(attrs.width))
                     img.setAttribute('width', attrs.width);
 
-                if (attrs.height && typeof attrs.height === 'number')
+                if (attrs.height && NUM_REG.test(attrs.height))
                     img.setAttribute('height', attrs.height);
 
                 if (imageClass)
