@@ -120,12 +120,7 @@ function getOffset(offset: number, token: Token) {
         case 'inline_code':
 
         case 'inline_math': {
-            const markerLen
-                = type === 'strong' || type === 'del'
-                    ? 2
-                    : type === 'inline_math'
-                        ? token.marker.length
-                        : 1;
+            const markerLen = token.marker.length;
             return markeredOffset(dis, len, markerLen, markerLen);
         }
 
