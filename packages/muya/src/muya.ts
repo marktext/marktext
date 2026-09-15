@@ -574,6 +574,16 @@ export class Muya {
     }
 
     /**
+     * Return the source text in the current text or rectangular table selection.
+     * Paragraph boundaries use blank lines, while code, table and tight-list
+     * content uses single newlines. Rendered previews are not duplicated.
+     * A caret, image selection or selection outside this editor is empty.
+     */
+    getSelectedText(): string {
+        return this.editor.selection.getSelectedText();
+    }
+
+    /**
      * Whether the editor (or one of its descendants) currently holds focus.
      */
     hasFocus() {

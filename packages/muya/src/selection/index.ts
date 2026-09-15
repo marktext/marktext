@@ -119,10 +119,24 @@ class Selection {
     }
 
     getSelection(): ISelection | null {
-        return this._text.getSelection();
+        // A frozen table/image selection may leave a native caret on the editor
+        // container. It must not route keyboard input to a text block.
+        return this.type === SelectionType.TEXT ? this._text.getSelection() : null;
+    }
+
+    getSelectedText(): string {
+        switch (this.type) {
+            case SelectionType.IMAGE:
+                return '';
+            case SelectionType.TABLE:
+                return this._table.getStateForCopy()!.children.flatMap(row => row.children.map(cell => cell.text)).join('\n');
+            default:
+                return this._text.getSelectedText();
+        }
     }
 
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo): void {
+        this.activate(SelectionType.TEXT);
         this._text.setSelection(anchor, focus);
     }
 

@@ -63,7 +63,7 @@ class Clipboard {
         };
 
         const keydownHandler = (event: Event) => {
-            if (!ownsEvent() || !isKeyboardEvent(event))
+            if (!ownsEvent() || !isKeyboardEvent(event) || event.defaultPrevented)
                 return;
             const { key, metaKey } = event;
 
@@ -75,8 +75,10 @@ class Clipboard {
                 return;
             }
 
-            const { isSelectionInSameBlock } = this.selection.getSelection() ?? {};
-            if (isSelectionInSameBlock)
+            // Image selection owns its keys and has no text range. A missing
+            // range must not fall through to cutSelection's image-delete path.
+            const selection = this.selection.getSelection();
+            if (!selection || selection.isSelectionInSameBlock)
                 return;
 
             if (!shouldCrossBlockCut(key, metaKey, event.ctrlKey))

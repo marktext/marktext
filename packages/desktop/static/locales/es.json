@@ -3,7 +3,10 @@
     "counter": {
       "words": "Palabras",
       "characters": "Caracteres",
-      "paragraphs": "Párrafos"
+      "paragraphs": "Párrafos",
+      "allCharacters": "Todos los caracteres",
+      "document": "Documento",
+      "documentSelection": "Documento / Selección"
     },
     "file": {
       "file": "Archivo",

@@ -5,6 +5,7 @@ import type Content from '../base/content';
 import type TreeNode from '../base/treeNode';
 import type { IConstructor, TBlockPath } from '../types';
 import { BLOCK_DOM_PROPERTY } from '../../config';
+import { SelectionType } from '../../selection/types';
 import { isHTMLElement, isMouseEvent } from '../../utils';
 import logger from '../../utils/logger';
 import Parent from '../base/parent';
@@ -95,6 +96,8 @@ export class ScrollPage extends Parent {
 
     updateState(state: TState[]) {
         const { muya } = this;
+        // Rectangles and selected images belong to the tree being replaced.
+        muya.editor.selection.activate(SelectionType.TEXT);
         // Empty scrollPage dom
         this.empty();
         this.append(

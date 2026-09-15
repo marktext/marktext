@@ -48,6 +48,11 @@ export function getTextContent(node: Node, blackList: string[] = []) {
     if (node.nodeType === Node.TEXT_NODE) {
         text += node.textContent;
     }
+    else if (isElement(node) && node.nodeName === 'IMG') {
+        // A native range can end inside the image container, after its <img>.
+        // That child occupies the image's source length, not zero characters.
+        text += node.closest(`.${CLASS_NAMES.MU_INLINE_IMAGE}`)?.getAttribute('data-raw') ?? '';
+    }
     else if (
         isElement(node)
         && node.classList.contains(`${CLASS_NAMES.MU_INLINE_IMAGE}`)

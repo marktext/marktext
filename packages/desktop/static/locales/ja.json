@@ -3,7 +3,10 @@
     "counter": {
       "words": "単語数",
       "characters": "文字数",
-      "paragraphs": "段落数"
+      "paragraphs": "段落数",
+      "allCharacters": "すべての文字数",
+      "document": "文書",
+      "documentSelection": "文書 / 選択範囲"
     },
     "file": {
       "file": "ファイル",

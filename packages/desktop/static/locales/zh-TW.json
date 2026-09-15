@@ -3,7 +3,10 @@
     "counter": {
       "words": "字數",
       "characters": "字元數",
-      "paragraphs": "段落數"
+      "paragraphs": "段落數",
+      "allCharacters": "總字元數",
+      "document": "文件",
+      "documentSelection": "文件 / 選取範圍"
     },
     "file": {
       "file": "檔案",

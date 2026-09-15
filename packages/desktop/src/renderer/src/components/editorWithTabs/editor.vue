@@ -287,6 +287,7 @@ let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
+let lastSelectedText = ''
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -389,6 +390,17 @@ interface EngineAffiliationEntry {
 //   - `affiliation` straight through (entries already carry `type` +
 //     `listType`/`listItemType`/`isLooseListItem`), surfacing a derived
 //     `functionType` on `pre`/`figure` containers for table / code-fence keys.
+const setSelectionWordCountFromText = (selectedText: string) => {
+  const hasSelection = selectedText.trim().length > 0
+  if (selectedText === lastSelectedText) {
+    const hasStoreSelection = editorStore.selectionWordCount != null
+    if (hasSelection === hasStoreSelection) return
+  }
+
+  lastSelectedText = selectedText
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
+}
+
 const adaptSelectionChange = (changes: MuyaChange) => {
   const anchorPath = (changes.anchorPath ?? []) as Array<string | number>
   const focusPath = (changes.focusPath ?? anchorPath) as Array<string | number>
@@ -1405,6 +1417,9 @@ const handlePrintServiceClearup = () => {
 // action (e.g. "Paragraph" inside a list/quote) fires no selection-change, so the
 // clicked checkbox menu item's auto-toggled OS checkmark would otherwise linger.
 const pushSelectionMenuState = (changes: MuyaChange) => {
+  // Native selection notifications also arrive when CodeMirror takes focus.
+  // The source-mode watcher owns menu availability while Muya is hidden.
+  if (sourceCode.value) return
   editorStore.SELECTION_CHANGE({
     ...adaptSelectionChange(changes),
     // Read the live block tree (O(1)) rather than getState(), which deep-clones
@@ -1987,6 +2002,7 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
+    if (!sourceCode.value) setSelectionWordCountFromText(editor.value.getSelectedText())
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
@@ -2037,6 +2053,8 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
+  lastSelectedText = ''
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.
