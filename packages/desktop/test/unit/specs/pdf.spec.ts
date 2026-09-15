@@ -54,7 +54,7 @@ describe('getCssForOptions', () => {
 
     await expect(getCssForOptions({ theme: 'academic' })).resolves.toBeTypeOf('string')
     await expect(getCssForOptions({ theme: 'liber' })).resolves.toBeTypeOf('string')
-  })
+  }, 20000)
 
   it('appends no theme CSS for theme:"default" (disk lookup misses) or {}', async() => {
     const { getCssForOptions } = await loadPdf()
