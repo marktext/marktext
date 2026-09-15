@@ -34,7 +34,7 @@ export default function (options: IOptions = {}) {
             inlineKatex(createRenderer(opts, false)),
             blockKatex(createRenderer(opts, true)),
         ],
-        walkTokens: displayMathWalker(),
+        walkTokens: markDisplayMath,
     };
 }
 
@@ -42,52 +42,28 @@ function isDollarDollarMath(token: Token): token is Token & IMathToken {
     return token.type === 'inlineMath' && (token as Partial<IMathToken>).marker === '$$';
 }
 
-function forEachDescendant(token: Token, callback: (token: Token) => void) {
-    const children = [
-        ...('tokens' in token && Array.isArray(token.tokens) ? token.tokens : []),
-        ...('items' in token && Array.isArray(token.items) ? token.items : []),
-    ];
+// Same rule as the editor: `$$...$$` is display math only in a paragraph that
+// holds nothing but such formulas. A tight list item's paragraph comes as a
+// block-level `text` token; inline `text` tokens carry no `tokens`.
+function markDisplayMath(token: Token) {
+    const children = token.type === 'paragraph' || token.type === 'text' ? token.tokens : undefined;
+    if (!children)
+        return;
+
+    const onlyMath = children.some(isDollarDollarMath)
+        && children.every(child =>
+            isDollarDollarMath(child)
+            || child.type === 'br'
+            || (child.type === 'text' && child.raw.trim() === ''),
+        );
+
+    if (!onlyMath)
+        return;
+
     for (const child of children) {
-        callback(child);
-        forEachDescendant(child, callback);
+        if (isDollarDollarMath(child))
+            child.displayMode = true;
     }
-}
-
-// Same rule as the editor and GitHub: `$$...$$` is display math only in a
-// paragraph that holds nothing but such formulas, and never inside a list item.
-// marked walks a parent before its children, so list items flag their
-// paragraphs before those are visited.
-function displayMathWalker() {
-    const listItemParagraphs = new WeakSet<Token>();
-
-    return (token: Token) => {
-        if (token.type === 'list_item') {
-            forEachDescendant(token, (child) => {
-                if (child.type === 'paragraph')
-                    listItemParagraphs.add(child);
-            });
-            return;
-        }
-
-        if (token.type !== 'paragraph' || listItemParagraphs.has(token))
-            return;
-
-        const children = token.tokens ?? [];
-        const onlyMath = children.some(isDollarDollarMath)
-            && children.every(child =>
-                isDollarDollarMath(child)
-                || child.type === 'br'
-                || (child.type === 'text' && child.raw.trim() === ''),
-            );
-
-        if (!onlyMath)
-            return;
-
-        for (const child of children) {
-            if (isDollarDollarMath(child))
-                child.displayMode = true;
-        }
-    };
 }
 
 function createRenderer(options: IOptions, newlineAfter: boolean) {
