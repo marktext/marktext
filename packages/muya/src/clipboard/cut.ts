@@ -6,6 +6,7 @@ import type TableBodyCell from '../block/gfm/table/cell';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import Format from '../block/base/format';
+import CodeBlockContent from '../block/content/codeBlockContent';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
 import { SelectionDirection, SelectionType } from '../selection/types';
@@ -137,7 +138,11 @@ function removePrecedingSiblings(node: TreeNode): void {
 // below `afterBranch`. Finally remove the on-path direct child itself; later
 // siblings survive.
 function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
-    let onPath: TreeNode = after;
+    // The inner nodes of a code, math, html, diagram or front matter block
+    // share the block's json path, so walking up through them would remove
+    // that json node once per level, taking the siblings after it too
+    // (#4903, #5148). Start the walk at the block.
+    let onPath: TreeNode = after instanceof CodeBlockContent ? after.getAnchor() ?? after : after;
     while (onPath.parent && onPath.parent !== afterBranch) {
         removePrecedingSiblings(onPath);
         const parent = onPath.parent;
@@ -439,7 +444,13 @@ function collapseLanguageInputCut(
             + endBlock.text.substring(endOffset);
     const codeBlock = startBlock.outMostBlock;
 
-    removeBlocks(startBlock, endBlock);
+    // Ending in this code block's own code leaves nothing between the leaves;
+    // the replacement below removes that code with its block. `removeBlocks`
+    // would detach the inner `code` node, which shares the code block's json
+    // path, so the json state would lose the following block (#4903, #5148).
+    const languageCodeBlock = startBlock.parent;
+    if (languageCodeBlock == null || !endBlock.isInBlock(languageCodeBlock))
+        removeBlocks(startBlock, endBlock);
 
     const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
         name: 'paragraph',
