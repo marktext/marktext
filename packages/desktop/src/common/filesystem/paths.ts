@@ -167,7 +167,7 @@ export const isChildOfDirectory = (dir: string, child: string): boolean => {
 
 export const getResourcesPath = (): string => {
   let resPath = process.resourcesPath
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     // Default locations:
     //   Linux/Windows: node_modules/electron/dist/resources/
     //   macOS: node_modules/electron/dist/Electron.app/Contents/Resources

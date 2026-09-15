@@ -24,7 +24,7 @@ function loadTranslations(language: string): Translations | null {
     // In development, prefer the pre-minified file when present, but fall back
     // to the raw .json so `pnpm run dev` works without running minify-locales.
     let localePath: string
-    if (process.env.NODE_ENV === 'development' || process.env.PERF_TESTING === 'true') {
+    if (import.meta.env.DEV || process.env.PERF_TESTING === 'true') {
       const minPath = path.join(process.cwd(), 'static', 'locales', `${language}.min.json`)
       const rawPath = path.join(process.cwd(), 'static', 'locales', `${language}.json`)
       localePath = fs.existsSync(minPath) ? minPath : rawPath
