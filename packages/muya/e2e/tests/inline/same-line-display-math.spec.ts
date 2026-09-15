@@ -35,6 +35,20 @@ test.describe('same-line display math (#4904)', () => {
         expect(await wrapper.evaluate(element => getComputedStyle(element).display)).toBe('inline-block');
     });
 
+    test('adds no blank line above or below a paragraph that only holds the formula', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('$$E=mc^2$$'));
+
+        const wrapper = page.locator(editor.displayMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+
+        const heights = await wrapper.evaluate((wrapper, paragraphSelector) => ({
+            paragraph: wrapper.closest(paragraphSelector)!.getBoundingClientRect().height,
+            formula: wrapper.getBoundingClientRect().height,
+        }), editor.paragraph);
+
+        expect(heights.paragraph - heights.formula).toBeLessThanOrEqual(2);
+    });
+
     test('breaks surrounding sentence text around the display formula', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('Energy is $$E=mc^2$$ conserved.'));
 

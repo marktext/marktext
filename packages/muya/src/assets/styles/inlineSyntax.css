@@ -278,6 +278,12 @@ div .mu-math-error,
     text-align: center;
 }
 
+/* In flow, the zero-size hidden `$$` markers would each get an anonymous line
+   box next to the block formula: a blank line above and below it. */
+.mu-hide.mu-math-marker.mu-display-math {
+    position: absolute;
+}
+
 .mu-hide.mu-ruby,
 .mu-hide.mu-math {
     width: auto;

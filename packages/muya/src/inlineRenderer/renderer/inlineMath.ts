@@ -23,8 +23,11 @@ export default function inlineMath(this: Renderer, {
         = className === CLASS_NAMES.MU_HIDE
             ? `span.${className}.${CLASS_NAMES.MU_MATH}`
             : `span.${CLASS_NAMES.MU_MATH}`;
-    if (displayMode)
+    let markerSelector = `span.${className}.${CLASS_NAMES.MU_MATH_MARKER}`;
+    if (displayMode) {
         mathSelector += `.${CLASS_NAMES.MU_DISPLAY_MATH}`;
+        markerSelector += `.${CLASS_NAMES.MU_DISPLAY_MATH}`;
+    }
 
     const startMarker = this.highlight(
         h,
@@ -70,7 +73,7 @@ export default function inlineMath(this: Renderer, {
     }
 
     return [
-        h(`span.${className}.${CLASS_NAMES.MU_MATH_MARKER}`, startMarker),
+        h(markerSelector, startMarker),
         h(mathSelector, [
             h(
                 `span.${CLASS_NAMES.MU_INLINE_RULE}.${CLASS_NAMES.MU_MATH_TEXT}`,
@@ -93,6 +96,6 @@ export default function inlineMath(this: Renderer, {
                 mathVnode,
             ),
         ]),
-        h(`span.${className}.${CLASS_NAMES.MU_MATH_MARKER}`, endMarker),
+        h(markerSelector, endMarker),
     ];
 }
