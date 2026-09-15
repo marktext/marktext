@@ -672,10 +672,14 @@ export class Muya {
     // The caret leaf's own block. For a table cell or code leaf that is the
     // whole table or code-like block: the cell and the inner code node are not
     // blocks in the document state, so nothing may be inserted beside them.
+    // Null while the caret caches still hold a block that left the document
+    // (e.g. undo removed it), as `_outmostBlockAtCursor` is (#5355).
     private _immediateBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        if (!content?.outMostBlock)
+            return null;
 
-        return content?.getAnchor() ?? null;
+        return content.getAnchor() ?? null;
     }
 
     /**
