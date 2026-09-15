@@ -1,0 +1,13 @@
+diff --git a/node_modules/@hfelix/electron-localshortcut/src/atom-keymap/helpers.js b/node_modules/@hfelix/electron-localshortcut/src/atom-keymap/helpers.js
+index 1111111..2222222 100644
+--- a/node_modules/@hfelix/electron-localshortcut/src/atom-keymap/helpers.js
++++ b/node_modules/@hfelix/electron-localshortcut/src/atom-keymap/helpers.js
+@@ -402,7 +402,7 @@
+   keyInputEvent.ctrl = key === 'ctrl' || !!ctrlKey
+   keyInputEvent.alt = key === 'alt' || !!altKey
+ 
+-  if (key === 'shift' || (shiftKey && (isNonCharacterKey || (isLatinCharacter(key) && isUpperCaseCharacter(key))))) {
++  if (key === 'shift' || (shiftKey && (isNonCharacterKey || ctrlKey || metaKey || (isLatinCharacter(key) && isUpperCaseCharacter(key))))) {
+     keyInputEvent.shift = true
+   }
+ 

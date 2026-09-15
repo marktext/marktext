@@ -19,5 +19,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
+      # The setup action installs with --ignore-scripts, so patch-package never
+      # runs. Apply the dependency patches so unit tests exercise the same
+      # patched libraries the app ships (e.g. the @hfelix keybinding fix).
+      - name: Apply dependency patches
+        run: pnpm -C packages/desktop exec patch-package
+
       - name: Run Unit Tests
         run: pnpm test
