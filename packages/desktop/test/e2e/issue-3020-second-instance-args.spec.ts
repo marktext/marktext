@@ -67,9 +67,13 @@ test('a second instance started with --user-data-dir opens its file in the runni
   const docDir = path.dirname(filePath)
   fs.writeFileSync(path.join(docDir, 'second.md'), '# second\n', 'utf-8')
   const userDataDir = await app.evaluate(({ app }) => app.getPath('userData'))
+  // Playwright adds --no-sandbox when it launches Electron on Linux, where the
+  // CI runner can't use Chromium's SUID sandbox, so start the second instance
+  // the same way.
+  const sandboxArgs = process.platform === 'linux' ? ['--no-sandbox'] : []
   const secondInstance = spawn(
     getElectronPath(),
-    [projectRoot, 'second.md', '--user-data-dir', userDataDir],
+    [projectRoot, 'second.md', '--user-data-dir', userDataDir, ...sandboxArgs],
     { cwd: docDir, env: { ...process.env, PERF_TESTING: 'true' } }
   )
   try {
