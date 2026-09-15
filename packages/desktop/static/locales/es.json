@@ -388,6 +388,7 @@
         "codeFontSize": "Tamaño de fuente en bloque de código, el rango es 12 ~ 18",
         "codeFontFamily": "Familia de fuente utilizada en bloque de código",
         "codeBlockLineNumbers": "Si mostrar los números de línea",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente",
         "trimUnnecessaryCodeBlockEmptyLines": "Recortar las líneas vacías del principio y final en bloque de código",
         "autoPairBracket": "Paréntesis automáticos al editar",
         "autoPairMarkdownSyntax": "Autocompletar sintaxis de markdown",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "Ocultar popup de enlace",
         "autoCheck": "Verificación automática",
         "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea a LF al abrir",
-        "wrapCodeBlocks": "Ajustar bloques de código"
+        "wrapCodeBlocks": "Ajustar bloques de código",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente"
       }
     },
     "image": {

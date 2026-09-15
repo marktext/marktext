@@ -388,6 +388,7 @@
         "codeFontSize": "代码块中的字体大小，范围是 12 ~ 18",
         "codeFontFamily": "代码块中使用的字体系列",
         "codeBlockLineNumbers": "是否显示行号",
+        "sourceCodeLineNumbers": "在源码模式中显示行号",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪代码块开头和结尾的空行",
         "autoPairBracket": "编辑时自动配对括号",
         "autoPairMarkdownSyntax": "自动完成 Markdown 语法",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "隐藏链接弹出窗口",
         "autoCheck": "自动检查",
         "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF",
-        "wrapCodeBlocks": "换行代码块"
+        "wrapCodeBlocks": "换行代码块",
+        "sourceCodeLineNumbers": "在源码模式中显示行号"
       }
     },
     "image": {
