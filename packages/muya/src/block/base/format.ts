@@ -239,6 +239,7 @@ class Format extends Content {
         text: string,
         offset: number,
         type: Token['type'],
+        includeEnd = false,
     ): Nullable<Token> {
         const tokens = tokenizer(text, {
             hasBeginRules: false,
@@ -255,7 +256,7 @@ class Format extends Content {
                 if (
                     token.type === type
                     && offset > token.range.start
-                    && offset < token.range.end
+                    && (offset < token.range.end || (includeEnd && offset === token.range.end))
                 ) {
                     result = token;
                     break;
@@ -629,10 +630,13 @@ class Format extends Content {
             CLASS_NAMES.MU_MATH_RENDER,
             CLASS_NAMES.MU_RUBY_RENDER,
         ]);
+        // Also counts the caret right after the `$` that closed the formula, so
+        // typing `$$x$$` does not pair that `$` into `$$x$$$`.
         const isInInlineMath = !!this._checkCursorInTokenType(
             textContent,
             start.offset,
             'inline_math',
+            true,
         );
         const isInInlineCode = !!this._checkCursorInTokenType(
             textContent,

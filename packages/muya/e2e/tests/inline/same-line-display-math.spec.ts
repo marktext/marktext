@@ -1,4 +1,5 @@
 import { expect, test } from '../fixtures/muya';
+import { slowType } from '../helpers/keyboard';
 import { editor } from '../helpers/selectors';
 
 test.describe('same-line display math (#4904)', () => {
@@ -74,4 +75,18 @@ test.describe('same-line display math (#4904)', () => {
         expect(layout.beforeBottom).toBeLessThanOrEqual(layout.formulaTop + 1);
         expect(layout.afterTop).toBeGreaterThanOrEqual(layout.formulaBottom - 1);
     });
+
+    for (const typed of ['$$x$$', 'a $$x$$ b', '$x$']) {
+        test(`typing ${typed} with auto-pair on leaves no stray dollar`, async ({ page }) => {
+            await page.evaluate(() => {
+                window.muya!.setContent('');
+                window.muya!.focus();
+                window.muya!.domNode.focus();
+            });
+
+            await slowType(page, typed);
+
+            await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe(`${typed}\n`);
+        });
+    }
 });
