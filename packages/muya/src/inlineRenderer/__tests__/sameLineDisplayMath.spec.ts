@@ -6,8 +6,12 @@ import { Muya } from '../../muya';
 import { tokenizer } from '../lexer';
 
 const bootedHosts: HTMLElement[] = [];
+let originalVersion: string | undefined;
+let hadVersion = false;
 
 beforeEach(() => {
+    hadVersion = 'MUYA_VERSION' in window;
+    originalVersion = window.MUYA_VERSION;
     window.MUYA_VERSION = 'test';
 });
 
@@ -15,6 +19,10 @@ afterEach(() => {
     while (bootedHosts.length)
         bootedHosts.pop()!.remove();
     document.getSelection()?.removeAllRanges();
+    if (hadVersion)
+        window.MUYA_VERSION = originalVersion as string;
+    else
+        delete (window as Partial<Window>).MUYA_VERSION;
 });
 
 function bootMuya(markdown: string): Muya {
