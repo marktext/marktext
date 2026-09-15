@@ -10,7 +10,7 @@ import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile } from '../filesystem/markdown'
-import { switchLanguage } from '../spellchecker'
+import { setLanguages } from '../spellchecker'
 import fs from 'fs'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
@@ -148,7 +148,10 @@ class EditorWindow extends BaseWindow {
 
     if (spellcheckerEnabled && !isOsx) {
       try {
-        switchLanguage(win, spellcheckerLanguage as string)
+        const languages = Array.isArray(spellcheckerLanguage)
+          ? spellcheckerLanguage
+          : [spellcheckerLanguage ?? 'en-US']
+        setLanguages(win, languages)
       } catch (error) {
         log.error('Unable to set spell checker language on startup:', error)
       }
@@ -203,7 +206,7 @@ class EditorWindow extends BaseWindow {
       )
     })
 
-    win.webContents.once('render-process-gone', async(_event, { reason }) => {
+    win.webContents.once('render-process-gone', async (_event, { reason }) => {
       if (reason === 'clean-exit') {
         return
       }

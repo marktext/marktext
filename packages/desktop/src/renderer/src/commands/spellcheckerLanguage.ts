@@ -35,7 +35,7 @@ class SpellcheckerLanguageCommand {
     this.subcommandSelectedIndex = -1
   }
 
-  run = async(): Promise<void> => {
+  run = async (): Promise<void> => {
     const langs = await SpellChecker.getAvailableDictionaries()
 
     const finalLangs: string[] = langs.length > 0 ? langs : ['en-US']
@@ -47,22 +47,31 @@ class SpellcheckerLanguageCommand {
         value: lang
       }
     })
-    const currentLanguage = this.spellchecker.lang
-    this.subcommandSelectedIndex = this.subcommands.findIndex(
-      (cmd) => cmd.value === currentLanguage
+    const currentLanguages = this.spellchecker.languages
+    this.subcommandSelectedIndex = this.subcommands.findIndex((cmd) =>
+      currentLanguages.includes(cmd.value)
     )
   }
 
-  execute = async(): Promise<void> => {
+  execute = async (): Promise<void> => {
     // Timeout to hide the command palette and then show again to prevent issues.
     await delay(100)
     bus.emit('show-command-palette', this)
   }
 
-  executeSubcommand = async(id: string): Promise<void> => {
+  executeSubcommand = async (id: string): Promise<void> => {
     const command = this.subcommands.find((cmd) => cmd.id === id)
+    if (!command) return
+
     if (this.spellchecker.isEnabled) {
-      bus.emit('switch-spellchecker-language', command?.value)
+      const currentLanguages = this.spellchecker.languages
+      const languages = currentLanguages.includes(command.value)
+        ? currentLanguages.filter((language) => language !== command.value)
+        : [...currentLanguages, command.value]
+
+      if (languages.length > 0) {
+        bus.emit('switch-spellchecker-language', languages)
+      }
     } else {
       notice.notify({
         title: 'Spelling',
