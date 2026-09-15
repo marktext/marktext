@@ -7,6 +7,7 @@ import type { Nullable } from '../types';
 import type Clipboard from './index';
 import Format from '../block/base/format';
 import CodeBlockContent from '../block/content/codeBlockContent';
+import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
 import { SelectionDirection, SelectionType } from '../selection/types';
@@ -419,14 +420,42 @@ export function cutSelection(clipboard: Clipboard): void {
     // only the structure strictly between the two leaves (and the emptied
     // end-side containers). The start block keeps its container — a list
     // item stays a list item, a quote stays a quote.
-    startBlock.text
-        = startBlock.text.substring(0, startOffset)
-            + endBlock.text.substring(endOffset);
+    const { tail, lastRemoved } = resolveCutEnd(startBlock, endBlock, endOffset);
+    startBlock.text = startBlock.text.substring(0, startOffset) + tail;
 
-    removeBlocks(startBlock, endBlock);
+    if (lastRemoved)
+        removeBlocks(startBlock, lastRemoved);
 
     setCursorAndConvert(startBlock, startOffset);
     resetIfEmpty(clipboard);
+}
+
+interface ICutEnd {
+    // Text after the selection end that joins the start block.
+    tail: string;
+    // The last content leaf whose branch the cut removes; null when nothing
+    // lies between the start block and the end.
+    lastRemoved: Nullable<Content>;
+}
+
+// Where a cross-block cut stops. Normally at the end leaf, whose text after the
+// caret joins the start block. A cut ending inside a code block's language
+// line stops before that code block instead: the code block keeps its code and
+// language input, and loses only the selected start of its language (#5371).
+function resolveCutEnd(startBlock: Content, endBlock: Content, endOffset: number): ICutEnd {
+    if (!(endBlock instanceof LangInputContent))
+        return { tail: endBlock.text.substring(endOffset), lastRemoved: endBlock };
+
+    const language = endBlock.text.substring(endOffset);
+    if (language !== endBlock.text) {
+        endBlock.text = language;
+        endBlock.parent!.lang = language;
+        endBlock.update();
+    }
+
+    const beforeCodeBlock = endBlock.previousContentInContext();
+
+    return { tail: '', lastRemoved: beforeCodeBlock === startBlock ? null : beforeCodeBlock };
 }
 
 // #918: collapse the start code block (whose language line begins the
@@ -439,9 +468,8 @@ function collapseLanguageInputCut(
     startOffset: number,
     endOffset: number,
 ): void {
-    const mergedText
-        = startBlock.text.substring(0, startOffset)
-            + endBlock.text.substring(endOffset);
+    const { tail, lastRemoved } = resolveCutEnd(startBlock, endBlock, endOffset);
+    const mergedText = startBlock.text.substring(0, startOffset) + tail;
     // The code block itself, even inside a list item or quote: replacing the
     // outermost block would take the rest of that list or quote with it (#5368).
     const codeBlock = startBlock.getAnchor();
@@ -450,8 +478,8 @@ function collapseLanguageInputCut(
     // the replacement below removes that code with its block. `removeBlocks`
     // would detach the inner `code` node, which shares the code block's json
     // path, so the json state would lose the following block (#4903, #5148).
-    if (codeBlock == null || !endBlock.isInBlock(codeBlock))
-        removeBlocks(startBlock, endBlock);
+    if (lastRemoved && (codeBlock == null || !lastRemoved.isInBlock(codeBlock)))
+        removeBlocks(startBlock, lastRemoved);
 
     const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
         name: 'paragraph',
