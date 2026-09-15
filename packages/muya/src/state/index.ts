@@ -268,23 +268,32 @@ class JSONState {
         if (!this._operationCache.length)
             return;
 
-        // Wrap compose in a lambda — `Array.prototype.reduce` passes
-        // (acc, current, index, array) to the callback, but
-        // `json1.type.compose` only accepts (op1, op2). Without the
-        // wrapper TS rejects the signature mismatch.
-        // `compose` returns JSONOp (= null | JSONOpList). Multiple queued
-        // operations may cancel each other out (for example during IME
-        // composition), producing the identity operation (`null`).
-        const op = this._operationCache.reduce(
-            (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
-        );
+        // Take the batch out before applying it, so a listener that edits
+        // synchronously starts a fresh batch, and a batch that fails to apply
+        // is not retried with every later edit (#5373).
+        const operations = this._operationCache;
+        this._operationCache = [];
         const prevDoc = this.getState();
-        this._apply(op);
+        let op: JSONOp;
+        try {
+            // Wrap compose in a lambda — `Array.prototype.reduce` passes
+            // (acc, current, index, array) to the callback, but
+            // `json1.type.compose` only accepts (op1, op2). Without the
+            // wrapper TS rejects the signature mismatch.
+            // `compose` returns JSONOp (= null | JSONOpList). Multiple queued
+            // operations may cancel each other out (for example during IME
+            // composition), producing the identity operation (`null`).
+            op = operations.reduce(
+                (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
+            );
+            this._apply(op);
+        }
+        catch (error) {
+            this._syncWithTree();
+            throw error;
+        }
         // TODO: remove doc in future
         const doc = this.getState();
-        // Clear before emitting: a listener that edits synchronously then starts
-        // a fresh batch instead of mutating the one being flushed.
-        this._operationCache = [];
 
         if (op === null)
             return;
@@ -295,6 +304,28 @@ class JSONState {
             prevDoc,
             doc,
         });
+    }
+
+    // The edits of a batch that failed to apply are already in the block tree,
+    // and later ops are built from the tree, so the document takes the tree's
+    // state. Undo steps back over that replacement at once, like
+    // `Muya.replaceContent`.
+    private _syncWithTree() {
+        const { scrollPage, history, selection } = this._muya.editor;
+        if (scrollPage == null)
+            return;
+
+        const treeState: TState[] = [];
+        scrollPage.forEach((block) => {
+            if (block.isParent())
+                treeState.push(block.getState());
+        });
+        const { op, prevState } = this.buildReplaceOp(treeState);
+        if (op.length === 0)
+            return;
+
+        history.recordRebuild(op, prevState, selection.getSelection());
+        history.suppressRecording(() => this.dispatch(op));
     }
 }
 
