@@ -171,3 +171,18 @@ export interface PageOptions {
 }
 
 export type ExportType = 'pdf' | 'html' | 'styledHtml' | 'png' | 'jpeg'
+
+/**
+ * Markdown the renderer hands to the main process for a pandoc export.
+ *
+ * `target` is one of `PANDOC_EXPORT_FORMATS[].id`. The save dialog and the file
+ * path stay in the main process, so the renderer reports only the source it
+ * owns.
+ */
+export interface PandocExportPayload {
+  target: string
+  markdown: string
+  title: string
+  filename: string
+  pathname: string
+}

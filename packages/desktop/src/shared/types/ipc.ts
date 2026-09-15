@@ -28,6 +28,7 @@ import type {
   SerializedStat,
   LineEnding,
   FileChangeDetail,
+  PandocExportPayload,
   UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
@@ -161,6 +162,7 @@ export interface IpcSendChannels {
     options: SaveOptions,
     defaultPath: string
   ]
+  'mt::response-pandoc-export': [payload: PandocExportPayload]
   'mt::response-print': []
   'mt::rg::cancel': [searchId: string]
   'mt::save-and-close-tabs': [tabs: unknown[]]
@@ -239,6 +241,7 @@ export interface IpcMainEventChannels {
   'mt::editor-rename-file': []
   'mt::execute-command-by-id': [commandId: string]
   'mt::export-success': [payload: { type: string; filePath: string }]
+  'mt::export-with-pandoc': [target: string]
   'mt::file-saved': [tabId: string]
   'mt::force-close-tabs-by-id': [tabIds: string[]]
   'mt::invalidate-image-cache': []
