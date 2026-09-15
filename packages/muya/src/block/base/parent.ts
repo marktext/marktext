@@ -282,6 +282,18 @@ class Parent extends TreeNode {
         }
     }
 
+    /**
+     * Contents render as soon as they are created, before they are attached, so
+     * `$$` math cannot yet see whether it sits in a list item (where it is always
+     * inline). A list item calls this once its children are attached.
+     */
+    rerenderDisplayMath(this: Parent) {
+        this.depthFirstTraverse((node) => {
+            if (node.isContent() && node.text.includes('$$'))
+                node.update();
+        });
+    }
+
     depthFirstTraverse(this: Parent, callback: (node: TreeNode) => void) {
         const stack: TreeNode[] = [this];
 

@@ -1,4 +1,5 @@
-import type { CodeEmojiMathToken, ISyntaxRenderOptions } from '../types';
+import type Format from '../../block/base/format';
+import type { CodeEmojiMathToken, ISyntaxRenderOptions, Token } from '../types';
 import type Renderer from './index';
 import katex from 'katex';
 import { CLASS_NAMES } from '../../config';
@@ -6,6 +7,36 @@ import { htmlToVNode } from '../../utils/snabbdom';
 import 'katex/dist/contrib/mhchem.mjs';
 
 import 'katex/dist/katex.min.css';
+
+function isBlankOrDisplayMath(token: Token) {
+    switch (token.type) {
+        case 'inline_math':
+            return token.marker === '$$';
+        case 'text':
+            return token.content.trim() === '';
+        case 'soft_line_break':
+        case 'hard_line_break':
+            return true;
+        default:
+            return false;
+    }
+}
+
+// Same rule as GitHub: `$$...$$` is a block only in a paragraph that holds
+// nothing but such formulas, and never inside a list item.
+function isDisplayMath(token: CodeEmojiMathToken, block: Format) {
+    if (token.marker !== '$$' || block.blockName !== 'paragraph.content')
+        return false;
+
+    if (block.closestBlock('list-item') || block.closestBlock('task-list-item'))
+        return false;
+
+    const siblings = token.parent;
+    const coversParagraph = siblings[0].range.start === 0
+        && siblings[siblings.length - 1].range.end === block.text.length;
+
+    return coversParagraph && siblings.every(isBlankOrDisplayMath);
+}
 
 export default function inlineMath(this: Renderer, {
     h,
@@ -18,7 +49,7 @@ export default function inlineMath(this: Renderer, {
     const { i18n } = this.muya;
     const { start, end } = token.range;
     const { marker } = token;
-    const displayMode = marker.length === 2;
+    const displayMode = isDisplayMath(token, block);
     let mathSelector
         = className === CLASS_NAMES.MU_HIDE
             ? `span.${className}.${CLASS_NAMES.MU_MATH}`

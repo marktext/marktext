@@ -94,17 +94,41 @@ describe('same-line display math (#4904)', () => {
         expect(token.content).toBe('a\nb');
     });
 
-    it('renders double-dollar formulas in display mode and single-dollar formulas inline', () => {
-        const muya = bootMuya('$x$ and $$x$$\n');
-        const previews = muya.domNode.querySelectorAll('.mu-math-render');
-        const wrappers = muya.domNode.querySelectorAll('.mu-math');
+    // Mirrors what GitHub's Markdown API renders as `js-display-math` versus
+    // `js-inline-math` for the same input.
+    const renderCases: Array<[markdown: string, display: boolean[]]> = [
+        ['$$a \\ne b$$', [true]],
+        ['   $$a$$   ', [true]],
+        ['$$a$$ $$b$$', [true, true]],
+        ['$$a$$\n$$b$$', [true, true]],
+        ['$$e\nf$$', [true]],
+        ['> $$a$$', [true]],
+        ['> > $$a$$', [true]],
+        ['text $$a$$ text', [false]],
+        ['$$a$$ text', [false]],
+        ['text $$a$$', [false]],
+        ['line one\n$$a$$\nline three', [false]],
+        ['$x$ and $$x$$', [false, false]],
+        ['**$$a$$**', [false]],
+        ['- $$c$$', [false]],
+        ['- item\n\n  $$c$$', [false]],
+        ['1. $$d$$', [false]],
+        ['- [ ] $$t$$', [false]],
+        ['- > $$x$$', [false]],
+        ['> - $$y$$', [false]],
+        ['# $$a$$', [false]],
+        ['| h |\n| --- |\n| $$d$$ |', [false]],
+    ];
 
-        expect(previews).toHaveLength(2);
-        expect(previews[0].querySelector('.katex-display')).toBeNull();
-        expect(previews[1].querySelector('.katex-display')).not.toBeNull();
-        expect(wrappers[0].classList.contains('mu-display-math')).toBe(false);
-        expect(wrappers[1].classList.contains('mu-display-math')).toBe(true);
-    });
+    for (const [markdown, display] of renderCases) {
+        it(`renders ${JSON.stringify(markdown)} as ${display.map(d => (d ? 'display' : 'inline')).join(', ')} math`, () => {
+            const muya = bootMuya(`${markdown}\n`);
+            const wrappers = [...muya.domNode.querySelectorAll('.mu-math')];
+
+            expect(wrappers.map(wrapper => wrapper.classList.contains('mu-display-math'))).toEqual(display);
+            expect(wrappers.map(wrapper => wrapper.querySelector('.katex-display') !== null)).toEqual(display);
+        });
+    }
 
     it('uses the full double-dollar marker when mapping preview offsets', () => {
         const muya = bootMuya('$$x$$\n');

@@ -28,6 +28,7 @@ class TaskListItem extends Parent {
                 ScrollPage.loadBlock(child.name).create(muya, child),
             ),
         );
+        listItem.rerenderDisplayMath();
 
         return listItem;
     }

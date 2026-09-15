@@ -49,9 +49,9 @@ test.describe('same-line display math (#4904)', () => {
         expect(heights.paragraph - heights.formula).toBeLessThanOrEqual(2);
     });
 
-    test('keeps a long formula inside a nested quote and list, scrolling instead', async ({ page }) => {
+    test('keeps a long formula inside nested quotes, scrolling instead', async ({ page }) => {
         const formula = Array.from({ length: 60 }, (_, i) => `x_{${i}}`).join('+');
-        await page.evaluate(md => window.muya!.setContent(md), `> - > - $$${formula}$$`);
+        await page.evaluate(md => window.muya!.setContent(md), `> > > $$${formula}$$`);
 
         const wrapper = page.locator(editor.displayMath).first();
         await expect(wrapper.locator(editor.katex).first()).toBeVisible();
@@ -68,16 +68,17 @@ test.describe('same-line display math (#4904)', () => {
         expect(box.scrollable).toBe(true);
     });
 
-    test('breaks surrounding sentence text around the display formula', async ({ page }) => {
+    test('keeps a $$ formula inline when its paragraph also holds text', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent('Energy is $$E=mc^2$$ conserved.'));
 
-        const formula = page.locator(`${editor.displayMath} .katex`).first();
-        await expect(formula).toBeVisible();
+        const wrapper = page.locator(editor.inlineMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+        await expect(page.locator(editor.displayMath)).toHaveCount(0);
 
-        const layout = await page.locator(editor.displayMath).evaluate((wrapper, paragraphSelector) => {
+        const layout = await wrapper.evaluate((wrapper, paragraphSelector) => {
             const paragraph = wrapper.closest(paragraphSelector)!;
-            const textRects = new Map<string, DOMRect>();
             const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
+            const textRects = new Map<string, DOMRect>();
             let node: Node | null;
 
             while ((node = walker.nextNode())) {
@@ -94,19 +95,18 @@ test.describe('same-line display math (#4904)', () => {
             }
 
             const wrapperRect = wrapper.getBoundingClientRect();
-            const beforeRect = textRects.get('Energy is ')!;
-            const afterRect = textRects.get(' conserved.')!;
+            const middle = wrapperRect.top + wrapperRect.height / 2;
 
             return {
-                beforeBottom: beforeRect.bottom,
-                formulaTop: wrapperRect.top,
-                formulaBottom: wrapperRect.bottom,
-                afterTop: afterRect.top,
+                display: getComputedStyle(wrapper).display,
+                beforeOnFormulaLine: textRects.get('Energy is ')!.top < middle && textRects.get('Energy is ')!.bottom > middle,
+                afterOnFormulaLine: textRects.get(' conserved.')!.top < middle && textRects.get(' conserved.')!.bottom > middle,
             };
         }, editor.paragraph);
 
-        expect(layout.beforeBottom).toBeLessThanOrEqual(layout.formulaTop + 1);
-        expect(layout.afterTop).toBeGreaterThanOrEqual(layout.formulaBottom - 1);
+        expect(layout.display).toBe('inline-block');
+        expect(layout.beforeOnFormulaLine).toBe(true);
+        expect(layout.afterOnFormulaLine).toBe(true);
     });
 
     for (const typed of ['$$x$$', 'a $$x$$ b', '$x$']) {
