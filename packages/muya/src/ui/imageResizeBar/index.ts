@@ -160,7 +160,7 @@ export class ImageResizeBar {
 
         event.preventDefault();
         const { clientX } = event;
-        let width: number | string = '';
+        let width: number;
         let relativeAnchor: HTMLDivElement;
         const image = this._reference!.querySelector('img');
         if (!image)
@@ -182,6 +182,9 @@ export class ImageResizeBar {
                     50,
                 );
                 break;
+
+            default:
+                return;
         }
         // Image width/height attribute must be an integer.
         width = Number.parseInt(String(width));

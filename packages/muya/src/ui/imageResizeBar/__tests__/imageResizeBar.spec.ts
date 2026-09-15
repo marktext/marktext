@@ -172,6 +172,24 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         expect(reference.querySelector('img')!.hasAttribute('width')).toBe(false);
     });
 
+    it('does not resize the image from a handle without a left or right side', () => {
+        vi.useFakeTimers();
+        const eventCenter = setup();
+        const block = { updateImage: vi.fn() };
+        const reference = imageContainer();
+
+        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        vi.runAllTimers();
+        const handle = document.querySelector<HTMLElement>('.mu-transformer .bar.right')!;
+        handle.removeAttribute('data-position');
+
+        const errors = dragFrom(handle, 200);
+
+        expect(errors).toEqual([]);
+        expect(block.updateImage).not.toHaveBeenCalled();
+        expect(reference.querySelector('img')!.hasAttribute('width')).toBe(false);
+    });
+
     it('still resizes the image from its own handle', () => {
         vi.useFakeTimers();
         const eventCenter = setup();
