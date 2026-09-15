@@ -388,6 +388,7 @@
         "codeFontSize": "程式碼區塊中的字型大小，範圍是 12 ~ 18",
         "codeFontFamily": "程式碼區塊中使用的字型系列",
         "codeBlockLineNumbers": "是否顯示行號",
+        "sourceCodeLineNumbers": "在原始碼模式中顯示行號",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪程式碼區塊開頭和結尾的空行",
         "autoPairBracket": "編輯時自動配對括號",
         "autoPairMarkdownSyntax": "自動完成 Markdown 語法",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "隱藏連結彈出視窗",
         "autoCheck": "自動檢查",
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
-        "wrapCodeBlocks": "換行程式碼區塊"
+        "wrapCodeBlocks": "換行程式碼區塊",
+        "sourceCodeLineNumbers": "在原始碼模式中顯示行號"
       }
     },
     "image": {

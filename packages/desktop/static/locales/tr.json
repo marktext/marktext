@@ -387,6 +387,7 @@
         "codeFontSize": "Kod bloğundaki yazı tipi boyutu, aralık 12 ~ 18",
         "codeFontFamily": "Kod bloğunda kullanılan yazı tipi ailesi",
         "codeBlockLineNumbers": "Satır numaralarının gösterilip gösterilmeyeceği",
+        "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster",
         "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
         "autoPairBracket": "Düzenlerken parantezleri otomatik tamamla",
         "autoPairMarkdownSyntax": "Markdown söz dizimini otomatik tamamla",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "Bağlantı açılır penceresini gizle",
         "autoCheck": "Otomatik işaretle",
         "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
-        "wrapCodeBlocks": "Kod bloklarını kaydır"
+        "wrapCodeBlocks": "Kod bloklarını kaydır",
+        "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster"
       }
     },
     "image": {
