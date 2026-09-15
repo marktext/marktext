@@ -11,30 +11,54 @@ import { getElectronPath, launchWithMarkdown } from './helpers'
 
 const projectRoot = path.resolve(__dirname, '../..')
 
-const waitForExit = (child: ChildProcess, timeout: number): Promise<number | null> =>
-  new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('The second instance did not exit')), timeout)
-    child.on('exit', (code) => {
+interface ExitResult {
+  code: number | null
+  signal: NodeJS.Signals | null
+  output: string
+}
+
+// Resolves once the child has exited and closed its stdio, with everything it
+// printed; rejects if that takes longer than `timeout` ms.
+const waitForExit = (child: ChildProcess, timeout: number): Promise<ExitResult> => {
+  let output = ''
+  child.stdout?.on('data', (chunk: Buffer) => {
+    output += chunk
+  })
+  child.stderr?.on('data', (chunk: Buffer) => {
+    output += chunk
+  })
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`The second instance did not exit. Output:\n${output}`))
+    }, timeout)
+    child.on('close', (code, signal) => {
       clearTimeout(timer)
-      resolve(code)
+      resolve({ code, signal, output })
     })
   })
+}
+
+interface SecondInstanceRecord {
+  received: number
+  errors: string[]
+}
 
 test('a second instance started with --user-data-dir opens its file in the running instance', async() => {
   const { app, page, filePath } = await launchWithMarkdown('# first\n')
   // An exception thrown by a main-process listener hangs an app under
   // Playwright, so record what the app's own second-instance listeners throw.
   await app.evaluate(({ app }) => {
-    const errors: string[] = []
-    ;(globalThis as { __secondInstanceErrors?: string[] }).__secondInstanceErrors = errors
+    const record: SecondInstanceRecord = { received: 0, errors: [] }
+    ;(globalThis as { __secondInstance?: SecondInstanceRecord }).__secondInstance = record
     const listeners = app.listeners('second-instance')
     app.removeAllListeners('second-instance')
     app.on('second-instance', (...args) => {
+      record.received++
       for (const listener of listeners) {
         try {
           listener.apply(app, args)
         } catch (error) {
-          errors.push(String(error))
+          record.errors.push(String(error))
         }
       }
     })
@@ -46,14 +70,18 @@ test('a second instance started with --user-data-dir opens its file in the runni
   const secondInstance = spawn(
     getElectronPath(),
     [projectRoot, 'second.md', '--user-data-dir', userDataDir],
-    { cwd: docDir, env: { ...process.env, PERF_TESTING: 'true' }, stdio: 'ignore' }
+    { cwd: docDir, env: { ...process.env, PERF_TESTING: 'true' } }
   )
   try {
-    expect(await waitForExit(secondInstance, 15000)).toBe(0)
-    const errors = await app.evaluate(
-      () => (globalThis as { __secondInstanceErrors?: string[] }).__secondInstanceErrors
+    const { code, signal, output } = await waitForExit(secondInstance, 15000)
+    expect.soft({ code, signal }, `Output of the second instance:\n${output}`).toEqual({
+      code: 0,
+      signal: null
+    })
+    const record = await app.evaluate(
+      () => (globalThis as { __secondInstance?: SecondInstanceRecord }).__secondInstance
     )
-    expect(errors).toEqual([])
+    expect(record).toEqual({ received: 1, errors: [] })
 
     await expect(page.locator('.tabs-container > li', { hasText: 'second.md' })).toHaveCount(1, {
       timeout: 10000
@@ -63,7 +91,9 @@ test('a second instance started with --user-data-dir opens its file in the runni
     )
     expect(windowCount).toBe(1)
   } finally {
-    if (secondInstance.exitCode === null) secondInstance.kill()
+    if (secondInstance.exitCode === null && secondInstance.signalCode === null) {
+      secondInstance.kill()
+    }
     await app.close()
   }
 })
