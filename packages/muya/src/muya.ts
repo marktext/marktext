@@ -28,7 +28,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
+import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { encodeImageSrc } from './utils/image';
@@ -1514,7 +1514,7 @@ export class Muya {
     /** Cycle the heading level (marktext upgrade/degrade semantics). */
     private _changeHeadingLevel(block: Parent, type: 'upgrade heading' | 'degrade heading') {
         const state = block.getState();
-        const level = isAtxHeadingState(state) ? state.meta.level : 0;
+        const level = isAtxHeadingState(state) || isSetextHeadingState(state) ? state.meta.level : 0;
         let newLevel = level;
 
         if (type === 'upgrade heading' && level !== 1)
