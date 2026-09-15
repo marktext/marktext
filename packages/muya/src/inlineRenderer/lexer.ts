@@ -7,6 +7,7 @@ import type {
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
+import { matchLatexMath } from '../utils/matchLatexMath';
 import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
@@ -113,6 +114,32 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
         state.src = state.src.substring(def[0].length);
         state.pos = state.pos + def[0].length;
     }
+}
+
+function tryLatexMath(state: ILexState): boolean {
+    // Must run before tryBacklash: CommonMark treats `\(` / `\[` as escaped
+    // punctuation, so the generic backslash rule would steal the opener.
+    const latex = matchLatexMath(state.src);
+    if (!latex)
+        return false;
+
+    pushPending(state);
+    state.tokens.push({
+        type: 'inline_math',
+        raw: latex.raw,
+        range: {
+            start: state.pos,
+            end: state.pos + latex.raw.length,
+        },
+        marker: latex.open,
+        parent: state.tokens,
+        content: latex.text,
+        backlash: '',
+    });
+    state.src = state.src.substring(latex.raw.length);
+    state.pos = state.pos + latex.raw.length;
+
+    return true;
 }
 
 function tryBacklash(state: ILexState): boolean {
@@ -790,6 +817,7 @@ function tryTailHeader(state: ILexState): boolean {
 // The fixed, priority-ordered inline-rule handler list the tokenizer loop
 // iterates. This array order IS the rule-precedence contract.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
+    tryLatexMath,
     tryBacklash,
     tryStrongEm,
     tryChunks,

@@ -1,9 +1,10 @@
 // CodeMirror "markdown-math" — a GFM-flavoured Markdown mode that delegates
-// the contents of `$...$` (inline) and `$$...$$` (block) math spans to the
-// stex (LaTeX) mode. Without this wrapper the standard markdown mode highlights
-// `_` as emphasis delimiters even inside math, producing spurious italics for
-// subscript expressions like `$\text{F}_\text{A} = \text{F}_\text{B}$` in the
-// source view. See https://github.com/marktext/marktext/issues/4121.
+// the contents of `$...$` / `\(...\)` (inline) and `$$...$$` / `\[...\]`
+// (block) math spans to the stex (LaTeX) mode. Without this wrapper the
+// standard markdown mode highlights `_` as emphasis delimiters even inside
+// math, producing spurious italics for subscript expressions like
+// `$\text{F}_\text{A} = \text{F}_\text{B}$` in the source view.
+// See https://github.com/marktext/marktext/issues/4121.
 //
 // The outer mode is `gfm` to preserve the tables / autolinks / task lists
 // styling the previous `setMode(cm, 'markdown')` call resolved to via
@@ -46,8 +47,28 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
     // Block math (`$$…$$`) intentionally has no lookahead guard: a matching
     // closer typically lives on a later line, which CodeMirror's per-line
     // tokenizer cannot see from the opener.
+    //
+    // TeX delimiters are additive with `$` / `$$`: `\(...\)` is inline,
+    // `\[...\]` is display. They are registered before the dollar rules so a
+    // `\[` opener is not left to the GFM mode as an escaped `[`. String
+    // openers cannot see a preceding `\`, so a literal `\\[` may still
+    // highlight as math here — the parser itself rejects that case.
     return CodeMirror.multiplexingMode(
       gfmMode,
+      {
+        open: '\\[',
+        close: '\\]',
+        mode: stexMode,
+        delimStyle: 'formatting formatting-math formatting-math-block math-block',
+        innerStyle: 'math math-block'
+      },
+      {
+        open: '\\(',
+        close: '\\)',
+        mode: stexMode,
+        delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
+        innerStyle: 'math math-inline'
+      },
       {
         open: '$$',
         close: '$$',

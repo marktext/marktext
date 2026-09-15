@@ -23,20 +23,21 @@ export default function inlineMath(this: Renderer, {
 
     const { start, end } = token.range;
     const { marker } = token;
+    const markerLen = marker.length;
 
     const startMarker = this.highlight(
         h,
         block,
         start,
-        start + marker.length,
+        start + markerLen,
         token,
     );
-    const endMarker = this.highlight(h, block, end - marker.length, end, token);
+    const endMarker = this.highlight(h, block, end - markerLen, end, token);
     const content = this.highlight(
         h,
         block,
-        start + marker.length,
-        end - marker.length,
+        start + markerLen,
+        end - markerLen,
         token,
     );
 
@@ -44,8 +45,8 @@ export default function inlineMath(this: Renderer, {
 
     const { loadMathMap } = this;
 
-    const displayMode = false;
-    const key = `${math}_${type}`;
+    const displayMode = marker === '\\[';
+    const key = `${math}_${type}_${displayMode}`;
     let mathVnode = null;
     let previewSelector = `span.${CLASS_NAMES.MU_MATH_RENDER}`;
     // Inline math errors stay compact to keep the surrounding text baseline
@@ -86,8 +87,8 @@ export default function inlineMath(this: Renderer, {
                         ? { contenteditable: 'false', title: errorTitle }
                         : { contenteditable: 'false' },
                     dataset: {
-                        start: String(start + 1), // '$'.length
-                        end: String(end - 1), // '$'.length
+                        start: String(start + markerLen),
+                        end: String(end - markerLen),
                     },
                 },
                 mathVnode,

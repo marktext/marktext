@@ -94,3 +94,14 @@ export const getSequenceThemeOptions = (): PrefSelectOption<string>[] => [
     value: 'simple'
   }
 ]
+
+export const getMathDelimiterOptions = (): PrefSelectOption<string>[] => [
+  {
+    label: t('preferences.markdown.extensions.mathDelimiter.dollar'),
+    value: 'dollar'
+  },
+  {
+    label: t('preferences.markdown.extensions.mathDelimiter.latex'),
+    value: 'latex'
+  }
+]

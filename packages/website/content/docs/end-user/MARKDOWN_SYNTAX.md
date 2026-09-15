@@ -724,6 +724,23 @@ m=\frac{b_y-a_y}{b_x-a_x}
 $$
 ```
 
+### TeX delimiters
+
+MarkText also recognizes TeX delimiters — the same pairs [KaTeX auto-render](https://katex.org/docs/autorender.html) and Pandoc's [`tex_math_single_backslash`](https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash) use:
+
+- Inline: <code>\( ... \)</code>
+- Display: <code>\[ ... \]</code>
+
+```markdown
+The Pythagorean theorem is \(a^2 + b^2 = c^2\).
+
+\[
+\int_0^1 x^2 \, dx
+\]
+```
+
+`$` / `$$` and the TeX pairs are both parsed. Which pair the Format and Paragraph menus **insert** is set under **Preferences → Markdown → Math delimiter**. Existing formulas keep the delimiters they were saved with.
+
 <br>
 
 ## Diagrams

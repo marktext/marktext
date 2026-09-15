@@ -63,6 +63,13 @@
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
+        <cur-select
+          :description="t('preferences.markdown.extensions.mathDelimiter.title')"
+          :value="mathDelimiter"
+          :options="getMathDelimiterOptions()"
+          :on-change="(value) => onSelectChange('mathDelimiter', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash"
+        />
       </template>
     </compound>
 
@@ -147,7 +154,8 @@ import {
   getPreferHeadingStyleOptions,
   getListIndentationOptions,
   getFrontmatterTypeOptions,
-  getSequenceThemeOptions
+  getSequenceThemeOptions,
+  getMathDelimiterOptions
 } from './config'
 import { storeToRefs } from 'pinia'
 
@@ -164,6 +172,7 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  mathDelimiter,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
   softNewlineAsSpace,

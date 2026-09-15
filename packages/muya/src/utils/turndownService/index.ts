@@ -270,7 +270,14 @@ export function usePluginsAddRules(turndownService: TurndownService) {
                 && node.classList.contains('multiple-math')
             );
         },
-        replacement(content: string) {
+        replacement(content: string, node: Node) {
+            const style = node instanceof HTMLElement
+                ? node.getAttribute('data-math-style')
+                : '';
+            if (style === 'latex')
+                return `\\[\n${content}\n\\]`;
+            if (style === 'gitlab')
+                return `\`\`\`math\n${content}\n\`\`\``;
             return `$$\n${content}\n$$`;
         },
     });
