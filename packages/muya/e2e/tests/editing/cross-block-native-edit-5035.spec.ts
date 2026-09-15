@@ -10,7 +10,9 @@ import { loadMarkdown, metaKey } from '../helpers/keyboard';
 // The browser removed it while editing a selection that spans blocks on its
 // own. Muya cuts such a selection on keydown, but that keydown cut never runs
 // for text committed without a keydown (an emoji picker commit) or for a
-// deletion bound to a Cmd/Ctrl shortcut.
+// deletion bound to a Cmd/Ctrl shortcut, and does nothing when an end of the
+// selection is not inside a block's text, which is where a triple-click that
+// ends right before a task list leaves it.
 
 function collectPageErrors(page: Page): string[] {
     const errors: string[] = [];
@@ -22,6 +24,26 @@ async function nextFrames(page: Page): Promise<void> {
     await page.evaluate(() => new Promise<void>((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
     }));
+}
+
+// Viewport point on the first character of `text`.
+async function textStart(page: Page, text: string): Promise<{ x: number; y: number }> {
+    const point = await page.evaluate((text) => {
+        const walker = document.createTreeWalker(window.muya!.domNode, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            if (node.nodeValue !== text)
+                continue;
+            const range = document.createRange();
+            range.setStart(node, 0);
+            range.setEnd(node, 1);
+            const rect = range.getBoundingClientRect();
+            return { x: rect.left + 1, y: rect.top + rect.height / 2 };
+        }
+        return null;
+    }, text);
+    if (!point)
+        throw new Error(`no rendered text "${text}"`);
+    return point;
 }
 
 async function selectBetween(page: Page, anchorText: string, anchorOffset: number, focusText: string, focusOffset: number): Promise<void> {
@@ -88,6 +110,33 @@ test.describe('native edits over a selection that spans blocks (#5035)', () => {
         ({ browserName }) => browserName !== 'chromium',
         'Relies on Chromium applying a selection change made in beforeinput; WebKit edits the range it captured before the event',
     );
+
+    for (const { below, markdown } of [
+        { below: 'a task list', markdown: '- [ ] task' },
+        { below: 'a table', markdown: '| a   | b   |\n| --- | --- |\n| 1   | 2   |' },
+    ]) {
+        test(`typing over a triple-clicked line above ${below}, then Enter twice on the list above it`, async ({ page }) => {
+            const errors = collectPageErrors(page);
+            await loadMarkdown(page, `- one\n- two\n\ntext\n\n${markdown}\n`);
+            await nextFrames(page);
+
+            const line = await textStart(page, 'text');
+            await page.mouse.click(line.x, line.y, { clickCount: 3 });
+            await page.keyboard.press('x');
+            await nextFrames(page);
+
+            expect.soft(await detachedBlocks(page)).toEqual([]);
+            await expect.soft.poll(() => getMarkdown(page)).toBe(`- one\n- two\n\nx\n\n${markdown}\n`);
+
+            await placeCaretAtEnd(page, 'two');
+            await pressEnterTwice(page);
+
+            expect(errors).toEqual([]);
+            expect(await detachedBlocks(page)).toEqual([]);
+            await expect.poll(() => getMarkdown(page)).toBe(`- one\n- two\n\n\n\nx\n\n${markdown}\n`);
+            await expectTreeMatchesJson(page);
+        });
+    }
 
     test('text committed without a key press over a selection from a list item into the next paragraph', async ({ page }) => {
         const errors = collectPageErrors(page);

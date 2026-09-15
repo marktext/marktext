@@ -1,6 +1,8 @@
 import type { Muya } from '../muya';
+import type { ISelection } from '../selection/types';
 import type { IClipboardPayload } from './copyData';
 import Format from '../block/base/format';
+import { clampRangeToContent } from '../selection/dom';
 import { isClipboardEvent, isInputEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection } from './cut';
@@ -21,6 +23,21 @@ export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: bool
         return false;
 
     return true;
+}
+
+// Chromium ends a triple-click selection at offset 0 of the next block. When
+// that block does not open with text (a task list's checkbox, a table), no
+// block's text holds that end and `getSelection()` cannot map it. Pull the
+// non-collapsed `domSelection` back onto the text it covers and read it again.
+function clampSelectionToContent(clipboard: Clipboard, domSelection: Selection): ISelection | null {
+    const range = domSelection.getRangeAt(0).cloneRange();
+    if (!clampRangeToContent(range, clipboard.muya.domNode))
+        return null;
+
+    domSelection.removeAllRanges();
+    domSelection.addRange(range);
+
+    return clipboard.selection.getSelection();
 }
 
 class Clipboard {
@@ -118,8 +135,20 @@ class Clipboard {
             if (domSelection == null || domSelection.isCollapsed)
                 return;
 
-            const selection = this.selection.getSelection();
-            if (selection == null || selection.isSelectionInSameBlock)
+            const selection = this.selection.getSelection() ?? clampSelectionToContent(this, domSelection);
+            if (selection == null) {
+                // Nothing but non-text chrome (a checkbox, a rendered preview)
+                // is selected: there is no text to delete, and typed text goes
+                // after it.
+                if (event.inputType.startsWith('delete'))
+                    event.preventDefault();
+                else
+                    domSelection.collapseToEnd();
+
+                return;
+            }
+
+            if (selection.isSelectionInSameBlock)
                 return;
 
             this.cutHandler();

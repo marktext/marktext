@@ -144,6 +144,82 @@ describe('beforeinput over a selection that spans blocks (#5035)', () => {
         expect(flushedMarkdown(muya)).toBe('- one\n- two\n\ntext\n');
     });
 
+    it('leaves a triple-clicked line to the browser once its end is back on the line\'s text', () => {
+        const markdown = '- one\n- two\n\ntext\n\n- [ ] task\n';
+        const muya = bootMuya(markdown);
+        const text = findContent(muya, 'text');
+        const taskItem = findContent(muya, 'task').closestBlock('task-list-item')!;
+        // Where Chromium ends a triple-click on "text": before the checkbox.
+        selectDom(textNodeOf(text), 0, taskItem.domNode!, 0);
+
+        const event = dispatchBeforeInput(text.domNode!, 'insertText', 'x');
+
+        expect(event.defaultPrevented).toBe(false);
+        const selection = muya.editor.selection.getSelection();
+        expect(selection?.isSelectionInSameBlock).toBe(true);
+        expect(selection?.anchor.block).toBe(text);
+        expect([selection?.anchor.offset, selection?.focus.offset]).toEqual([0, 4]);
+        expect(flushedMarkdown(muya)).toBe(markdown);
+    });
+
+    it('cuts a selection that still spans blocks once its end is back on block text', () => {
+        const muya = bootMuya('first\n\nsecond\n\n- [ ] task\n');
+        const first = findContent(muya, 'first');
+        const taskItem = findContent(muya, 'task').closestBlock('task-list-item')!;
+        selectDom(textNodeOf(first), 2, taskItem.domNode!, 0);
+
+        const event = dispatchBeforeInput(first.domNode!, 'insertText', 'x');
+
+        expect(event.defaultPrevented).toBe(false);
+        expect(flushedMarkdown(muya)).toBe('fi\n\n- [ ] task\n');
+        expect(detachedBlocks(muya)).toEqual([]);
+    });
+
+    it('moves typed text after a selection that holds no block text', () => {
+        const markdown = '- one\n- two\n\ntext\n\n- [ ] task\n';
+        const muya = bootMuya(markdown);
+        const task = findContent(muya, 'task');
+        const taskItem = task.closestBlock('task-list-item')!;
+        task.domNode!.focus();
+        // Just the checkbox.
+        document.getSelection()!.setBaseAndExtent(taskItem.domNode!, 0, taskItem.domNode!, 1);
+
+        const event = dispatchBeforeInput(taskItem.domNode!, 'insertText', 'x');
+
+        expect(event.defaultPrevented).toBe(false);
+        const domSelection = document.getSelection()!;
+        expect(domSelection.isCollapsed).toBe(true);
+        expect(domSelection.focusNode).toBe(taskItem.domNode);
+        expect(domSelection.focusOffset).toBe(1);
+        expect(flushedMarkdown(muya)).toBe(markdown);
+    });
+
+    it('cancels a deletion over a selection that holds no block text', () => {
+        const markdown = '- one\n- two\n\ntext\n\n- [ ] task\n';
+        const muya = bootMuya(markdown);
+        const task = findContent(muya, 'task');
+        const taskItem = task.closestBlock('task-list-item')!;
+        task.domNode!.focus();
+        document.getSelection()!.setBaseAndExtent(taskItem.domNode!, 0, taskItem.domNode!, 1);
+
+        const event = dispatchBeforeInput(taskItem.domNode!, 'deleteContentBackward');
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(flushedMarkdown(muya)).toBe(markdown);
+    });
+
+    it('leaves a caret outside every block\'s text to the browser', () => {
+        const muya = bootMuya('- one\n- two\n\ntext\n\n- [ ] task\n');
+        const task = findContent(muya, 'task');
+        const taskItem = task.closestBlock('task-list-item')!;
+        task.domNode!.focus();
+        document.getSelection()!.collapse(taskItem.domNode!, 0);
+
+        const event = dispatchBeforeInput(taskItem.domNode!, 'insertText', 'x');
+
+        expect(event.defaultPrevented).toBe(false);
+    });
+
     it('does not cut for an input that neither inserts nor deletes', () => {
         const muya = bootMuya('- one\n- two\n\ntext\n');
         const two = findContent(muya, 'two');
