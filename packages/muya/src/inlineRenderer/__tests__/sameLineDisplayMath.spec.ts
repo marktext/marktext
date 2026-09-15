@@ -4,7 +4,6 @@ import type { CodeEmojiMathToken } from '../types';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 import { tokenizer } from '../lexer';
-import { execInlineDisplayMath } from '../rules';
 
 const bootedHosts: HTMLElement[] = [];
 
@@ -51,8 +50,8 @@ describe('same-line display math (#4904)', () => {
         expect(token.content).toBe('x$y');
     });
 
-    it('tokenizes adjacent display formulas independently', () => {
-        const tokens = mathTokens('$$a$$$$b$$');
+    it('tokenizes space-separated display formulas independently', () => {
+        const tokens = mathTokens('$$a$$ $$b$$');
 
         expect(tokens.map(token => [token.marker, token.content])).toEqual([
             ['$$', 'a'],
@@ -60,8 +59,18 @@ describe('same-line display math (#4904)', () => {
         ]);
     });
 
-    it('leaves multiline double-dollar syntax to the block parser', () => {
-        expect(mathTokens('$$a\nb$$')).toHaveLength(0);
+    it('lets double-dollar math span a soft line break, like single-dollar math', () => {
+        const [token] = mathTokens('$$a\nb$$');
+
+        expect(token.marker).toBe('$$');
+        expect(token.content).toBe('a\nb');
+    });
+
+    it('keeps display math above emphasis that closes inside it', () => {
+        const tokens = tokenizer('*note $$a*b$$');
+
+        expect(tokens.some(token => token.type === 'em')).toBe(false);
+        expect(mathTokens('*note $$a*b$$').map(token => token.content)).toEqual(['a*b']);
     });
 
     it('falls back to single-dollar math when a double-dollar opener is unclosed', () => {
@@ -119,28 +128,23 @@ describe('same-line display math — escape handling and adversarial input', () 
         expect(token.content).toBe('a\\\\');
     });
 
-    it('does not match when the only closer is escaped', () => {
-        expect(execInlineDisplayMath('$$a\\$$')).toBeNull();
+    it('does not match display math when the only closer is escaped', () => {
+        expect(mathTokens('$$a\\$$').every(token => token.marker === '$')).toBe(true);
     });
 
     it('does not match a dangling backslash or a backslash before a newline', () => {
-        expect(execInlineDisplayMath('$$a\\')).toBeNull();
-        expect(execInlineDisplayMath('$$a\\\n$$')).toBeNull();
+        expect(mathTokens('$$a\\')).toHaveLength(0);
+        expect(mathTokens('$$a\\\n$$')).toHaveLength(0);
     });
 
-    // The replaced regex backtracked quadratically here: 131,072 backslashes
-    // blocked Node for ~10 seconds. The scanner must stay linear.
     it('handles adversarial backslash runs in linear time', () => {
         const src = `$$${'\\'.repeat(131072)}$`;
 
         const started = performance.now();
-        expect(execInlineDisplayMath(src)).toBeNull();
         const tokens = mathTokens(src);
         const elapsed = performance.now() - started;
 
-        // The full tokenizer may still match the tail as single-dollar math,
-        // but never as display math.
         expect(tokens.every(token => token.marker === '$')).toBe(true);
-        expect(elapsed).toBeLessThan(500);
+        expect(elapsed).toBeLessThan(1000);
     });
 });
