@@ -18,7 +18,7 @@ import { isAnyListState, isAtxHeadingState } from '../../state/types';
 import { deepClone, isHTMLElement } from '../../utils';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
-import { canTurnIntoMenu, FRONT_MENU } from './config';
+import { canTurnIntoMenu, DIRECTION_MENU, FRONT_MENU } from './config';
 import './index.css';
 
 function renderIcon({ label, icon }: { label: string; icon: string }) {
@@ -174,6 +174,23 @@ export class ParagraphFrontMenu extends BaseFloat {
             children.unshift(this._renderSubMenu(subMenu));
         }
 
+        children.push(h('li.divider'));
+        for (const { label, text } of DIRECTION_MENU) {
+            children.push(
+                h(
+                    `li.item.direction.${label}`,
+                    {
+                        on: {
+                            click: (event) => {
+                                this.selectItem(event, { label });
+                            },
+                        },
+                    },
+                    [h('span.text', i18n.t(text))],
+                ),
+            );
+        }
+
         const vnode = h('ul', children);
 
         if (oldVNode)
@@ -199,6 +216,13 @@ export class ParagraphFrontMenu extends BaseFloat {
             return;
 
         const oldState = block.getState();
+
+        if (label.startsWith('dir-')) {
+            const dir = label === 'dir-rtl' ? 'rtl' as const : label === 'dir-ltr' ? 'ltr' as const : null;
+            this.muya.setBlockDirection(dir);
+            setTimeout(this.hide.bind(this));
+            return;
+        }
 
         const cursorBlock = /duplicate|new|delete/.test(label)
             ? this._applyMetaAction(label, block, oldState)
