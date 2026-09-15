@@ -113,7 +113,9 @@ function buildHeadingBlock(label: string, muya: Muya, text: string) {
 
     const [blockName, level] = label.split(' ');
     headingState.meta.level = +level;
-    headingState.text = `${'#'.repeat(+level)} ${text}`;
+    // An ATX heading is a single line; a newline left in its text is dropped
+    // with everything after it when the document is saved (#5366).
+    headingState.text = `${'#'.repeat(+level)} ${text.replace(/\n/g, ' ')}`;
 
     return ScrollPage.loadBlock(blockName).create(muya, headingState);
 }
