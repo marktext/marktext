@@ -71,9 +71,15 @@ class App {
       app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true')
     }
 
-    app.on('second-instance', (_event, argv, workingDirectory) => {
+    app.on('second-instance', (_event, argv, workingDirectory, additionalData) => {
       const { _openFilesCache, _windowManager } = this
-      const args = parseArgs(argv.slice(1)) as CliArgs
+      // `argv` lists switches before the other arguments and adds switches of its
+      // own, which separates `--user-data-dir <dir>` from its value (#3020), so
+      // parse the unchanged copy a second instance sends as additional data.
+      // A second instance of a version that doesn't send it falls back to `argv`.
+      const sent = additionalData as { argv?: unknown } | null | undefined
+      const secondArgv = Array.isArray(sent?.argv) ? (sent.argv as string[]) : argv
+      const args = parseArgs(secondArgv.slice(1)) as CliArgs
 
       const buf: PathInfo[] = []
       for (const pathname of args._) {
