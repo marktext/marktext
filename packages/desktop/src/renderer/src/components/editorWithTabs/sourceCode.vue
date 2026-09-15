@@ -44,7 +44,7 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode, lineNumbers } = storeToRefs(preferencesStore)
+const { theme, sourceCode } = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -60,10 +60,6 @@ watch(
     }
   }
 )
-
-watch(lineNumbers, (value) => {
-  editor.value?.setOption('lineNumbers', value)
-})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -340,7 +336,7 @@ onMounted(() => {
   const container = sourceCodeContainer.value
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
-    lineNumbers: lineNumbers.value,
+    lineNumbers: true,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,

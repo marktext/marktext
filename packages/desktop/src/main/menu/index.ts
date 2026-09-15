@@ -298,7 +298,6 @@ class AppMenu {
       updateMenuItem(oldMenu, newMenu, 'focusModeMenuItem')
       updateMenuItem(oldMenu, newMenu, 'sideBarMenuItem')
       updateMenuItem(oldMenu, newMenu, 'tabBarMenuItem')
-      updateMenuItem(oldMenu, newMenu, 'lineNumbersMenuItem')
 
       // update window menu
       value.menu = newMenu
@@ -331,7 +330,6 @@ class AppMenu {
         updateMenuItem(oldMenu, rebuilt, 'focusModeMenuItem')
         updateMenuItem(oldMenu, rebuilt, 'sideBarMenuItem')
         updateMenuItem(oldMenu, rebuilt, 'tabBarMenuItem')
-        updateMenuItem(oldMenu, rebuilt, 'lineNumbersMenuItem')
         newMenu = rebuilt
       } else if (type === MenuType.SETTINGS) {
         newMenu = this._buildSettingMenu().menu
