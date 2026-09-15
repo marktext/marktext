@@ -1,3 +1,4 @@
+import type { Token } from 'marked';
 import katex from 'katex';
 import 'katex/dist/contrib/mhchem.mjs';
 
@@ -6,6 +7,7 @@ export interface IMathToken {
     raw: string;
     text: string;
     displayMode: boolean;
+    marker?: string;
     mathStyle?: '' | 'gitlab';
 }
 
@@ -32,13 +34,66 @@ export default function (options: IOptions = {}) {
             inlineKatex(createRenderer(opts, false)),
             blockKatex(createRenderer(opts, true)),
         ],
+        walkTokens: displayMathWalker(),
+    };
+}
+
+function isDollarDollarMath(token: Token): token is Token & IMathToken {
+    return token.type === 'inlineMath' && (token as Partial<IMathToken>).marker === '$$';
+}
+
+function forEachDescendant(token: Token, callback: (token: Token) => void) {
+    const children = [
+        ...('tokens' in token && Array.isArray(token.tokens) ? token.tokens : []),
+        ...('items' in token && Array.isArray(token.items) ? token.items : []),
+    ];
+    for (const child of children) {
+        callback(child);
+        forEachDescendant(child, callback);
+    }
+}
+
+// Same rule as the editor and GitHub: `$$...$$` is display math only in a
+// paragraph that holds nothing but such formulas, and never inside a list item.
+// marked walks a parent before its children, so list items flag their
+// paragraphs before those are visited.
+function displayMathWalker() {
+    const listItemParagraphs = new WeakSet<Token>();
+
+    return (token: Token) => {
+        if (token.type === 'list_item') {
+            forEachDescendant(token, (child) => {
+                if (child.type === 'paragraph')
+                    listItemParagraphs.add(child);
+            });
+            return;
+        }
+
+        if (token.type !== 'paragraph' || listItemParagraphs.has(token))
+            return;
+
+        const children = token.tokens ?? [];
+        const onlyMath = children.some(isDollarDollarMath)
+            && children.every(child =>
+                isDollarDollarMath(child)
+                || child.type === 'br'
+                || (child.type === 'text' && child.raw.trim() === ''),
+            );
+
+        if (!onlyMath)
+            return;
+
+        for (const child of children) {
+            if (isDollarDollarMath(child))
+                child.displayMode = true;
+        }
     };
 }
 
 function createRenderer(options: IOptions, newlineAfter: boolean) {
     return (token: IMathToken) => {
         const { useKatexRender, ...otherOpts } = options;
-        const { type, text, displayMode, mathStyle } = token;
+        const { type, text, displayMode, marker = '$', mathStyle } = token;
         if (useKatexRender) {
             return (
                 katex.renderToString(text, {
@@ -48,7 +103,6 @@ function createRenderer(options: IOptions, newlineAfter: boolean) {
             );
         }
         else {
-            const marker = displayMode ? '$$' : '$';
             return type === 'inlineMath'
                 ? `${marker}${text}${marker}`
                 : `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`;
@@ -78,7 +132,8 @@ function inlineKatex(renderer: (token: IMathToken) => string) {
                     type: 'inlineMath',
                     raw: match[0],
                     text: match[2].trim(),
-                    displayMode: match[1].length === 2,
+                    marker: match[1],
+                    displayMode: false,
                 };
             }
         },

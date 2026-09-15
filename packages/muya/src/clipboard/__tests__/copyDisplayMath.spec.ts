@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 
 // Copy-as-HTML / copy-as-rich writes inline math back as TeX source, and every
-// span came out as `$...$`, turning same-line display math into inline math.
+// span came out as `$...$`. The authored marker must survive whether the
+// formula renders as display or inline math.
 describe('getClipBoardHtml — inline math markers', () => {
     it('keeps `$$` around same-line display math', () => {
         expect(getClipBoardHtml('$$ E=MC^2 $$')).toContain('$$E=MC^2$$');
