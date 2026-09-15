@@ -133,6 +133,27 @@ function removePrecedingSiblings(node: TreeNode): void {
     }
 }
 
+function removeFollowingSiblings(node: TreeNode): void {
+    let next = node.next;
+    while (next) {
+        const temp = next.next;
+        next.remove();
+        next = temp;
+    }
+}
+
+// The start-side counterpart of `pruneAfterBranch`: the blocks after `before`
+// inside its own containers, below `beforeBranch`, are selected too (#5385).
+// The walk starts at the whole block `before` belongs to, so the inner nodes of
+// a code block (which share its json path) and a table's grid stay intact.
+function pruneBeforeBranch(beforeBranch: TreeNode, before: TreeNode): void {
+    let onPath: Nullable<TreeNode> = before.isContent() ? before.getAnchor() ?? before : before;
+    while (onPath && onPath !== beforeBranch && !onPath.isScrollPage) {
+        removeFollowingSiblings(onPath);
+        onPath = onPath.parent;
+    }
+}
+
 // `after`'s branch is removed but later siblings inside `afterBranch` survive.
 // Walk up from `after` to the direct child of `afterBranch`, removing each
 // on-path node's preceding siblings and any ancestor it leaves empty, stopping
@@ -209,6 +230,9 @@ function removeBlocks(before: TreeNode, after: TreeNode): void {
     const beforeBranch = commonParent
         ? [...beforeAncestors].find(node => node.parent === commonParent)
         : null;
+
+    if (beforeBranch)
+        pruneBeforeBranch(beforeBranch, before);
 
     // Remove every sibling strictly between `beforeBranch` and
     // `afterBranch` inside the shared container.
