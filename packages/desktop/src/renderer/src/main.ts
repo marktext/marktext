@@ -20,6 +20,7 @@ import Main from './Main.vue'
 
 import './assets/styles/index.css'
 import './assets/styles/printService.css'
+import initEditorContextMenu from './contextMenu'
 
 // -----------------------------------------------
 
@@ -57,6 +58,9 @@ app.config.globalProperties.$http = axios
 ;(services as unknown as Array<Record<string, unknown> & { name: string }>).forEach((s) => {
   app.config.globalProperties['$' + s.name] = s[s.name]
 })
+
+// Document-level context menu for the editor surface (no Vue dependency)
+initEditorContextMenu()
 
 // Mount the app
 app.mount('#app')
