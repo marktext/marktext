@@ -22,13 +22,10 @@ function isBlankOrDisplayMath(token: Token) {
     }
 }
 
-// Same rule as GitHub: `$$...$$` is a block only in a paragraph that holds
-// nothing but such formulas, and never inside a list item.
+// `$$...$$` is a block only in a paragraph that holds nothing but such
+// formulas; next to other text, or in a heading or table cell, it stays inline.
 function isDisplayMath(token: CodeEmojiMathToken, block: Format) {
     if (token.marker !== '$$' || block.blockName !== 'paragraph.content')
-        return false;
-
-    if (block.closestBlock('list-item') || block.closestBlock('task-list-item'))
         return false;
 
     const siblings = token.parent;

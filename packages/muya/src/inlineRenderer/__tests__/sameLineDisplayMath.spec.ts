@@ -94,8 +94,6 @@ describe('same-line display math (#4904)', () => {
         expect(token.content).toBe('a\nb');
     });
 
-    // Mirrors what GitHub's Markdown API renders as `js-display-math` versus
-    // `js-inline-math` for the same input.
     const renderCases: Array<[markdown: string, display: boolean[]]> = [
         ['$$a \\ne b$$', [true]],
         ['   $$a$$   ', [true]],
@@ -104,18 +102,19 @@ describe('same-line display math (#4904)', () => {
         ['$$e\nf$$', [true]],
         ['> $$a$$', [true]],
         ['> > $$a$$', [true]],
+        ['- $$c$$', [true]],
+        ['- item\n\n  $$c$$', [true]],
+        ['1. $$d$$', [true]],
+        ['- [ ] $$t$$', [true]],
+        ['- > $$x$$', [true]],
+        ['> - $$y$$', [true]],
         ['text $$a$$ text', [false]],
         ['$$a$$ text', [false]],
         ['text $$a$$', [false]],
         ['line one\n$$a$$\nline three', [false]],
         ['$x$ and $$x$$', [false, false]],
         ['**$$a$$**', [false]],
-        ['- $$c$$', [false]],
-        ['- item\n\n  $$c$$', [false]],
-        ['1. $$d$$', [false]],
-        ['- [ ] $$t$$', [false]],
-        ['- > $$x$$', [false]],
-        ['> - $$y$$', [false]],
+        ['- see $$c$$', [false]],
         ['# $$a$$', [false]],
         ['| h |\n| --- |\n| $$d$$ |', [false]],
     ];
