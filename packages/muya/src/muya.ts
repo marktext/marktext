@@ -119,6 +119,8 @@ const WHOLE_BLOCK_NAMES = new Set([
     'frontmatter',
 ]);
 
+const HEADING_LEVEL_BLOCK_NAMES = new Set(['paragraph', 'atx-heading', 'setext-heading']);
+
 // Options consumed by the markdown→state lexer (markdownToState / lexBlock).
 // Changing any of these re-classifies block structure (e.g. ```math ⇄ code
 // block under GitLab compatibility, front matter, footnote definitions), which
@@ -1196,8 +1198,13 @@ export class Muya {
         if (this._handleCrossBlockParagraph(type))
             return;
 
+        // Only the paragraph or heading holding the caret changes level, even
+        // inside a list or quote; any other block at the caret is left as it is,
+        // as in muyajs (#5360).
         if (type === 'upgrade heading' || type === 'degrade heading') {
-            this._withPreservedOffset(() => this._changeHeadingLevel(block, type));
+            const target = this._immediateBlockAtCursor();
+            if (target && HEADING_LEVEL_BLOCK_NAMES.has(target.blockName))
+                this._withPreservedOffset(() => this._changeHeadingLevel(target, type));
             return;
         }
 
