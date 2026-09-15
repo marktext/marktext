@@ -1,7 +1,7 @@
 import type { Muya } from '../muya';
 import type { IClipboardPayload } from './copyData';
 import Format from '../block/base/format';
-import { isClipboardEvent, isKeyboardEvent } from '../utils';
+import { isClipboardEvent, isInputEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
@@ -99,6 +99,35 @@ class Clipboard {
             this.cutHandler();
         };
 
+        // The browser applies an edit to a selection that spans blocks by
+        // deleting the block elements in between, which leaves those blocks in
+        // the tree with detached DOM nodes (#5035). The keydown cut above never
+        // runs for text committed without a keydown (emoji picker, dictation,
+        // handwriting input), nor for deletions and yank bound to Cmd/Ctrl
+        // shortcuts, which `shouldCrossBlockCut` skips, so cut here too.
+        // Inserted text then lands on the caret the cut leaves; a deletion is
+        // already done. Only Chromium applies the edit to the selection as this
+        // handler leaves it.
+        const beforeInputHandler = (event: Event) => {
+            if (!ownsEvent() || !isInputEvent(event) || !/^(?:insert|delete)/.test(event.inputType))
+                return;
+
+            // A caret never spans blocks, and returning here keeps the model
+            // lookup below off every ordinary keystroke.
+            const domSelection = document.getSelection();
+            if (domSelection == null || domSelection.isCollapsed)
+                return;
+
+            const selection = this.selection.getSelection();
+            if (selection == null || selection.isSelectionInSameBlock)
+                return;
+
+            this.cutHandler();
+
+            if (event.inputType.startsWith('delete'))
+                event.preventDefault();
+        };
+
         const pasteHandler = (event: Event) => {
             if (ownsEvent() && isClipboardEvent(event))
                 this.pasteHandler(event);
@@ -110,6 +139,7 @@ class Clipboard {
         eventCenter.attachDOMEvent(document, 'cut', copyCutHandler);
         eventCenter.attachDOMEvent(document, 'paste', pasteHandler);
         eventCenter.attachDOMEvent(document, 'keydown', keydownHandler);
+        eventCenter.attachDOMEvent(this.muya.domNode, 'beforeinput', beforeInputHandler);
     }
 
     getClipboardData(): IClipboardPayload {
