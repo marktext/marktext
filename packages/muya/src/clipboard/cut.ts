@@ -444,7 +444,7 @@ function collapseLanguageInputCut(
             + endBlock.text.substring(endOffset);
     // The code block itself, even inside a list item or quote: replacing the
     // outermost block would take the rest of that list or quote with it (#5368).
-    const codeBlock = startBlock.parent;
+    const codeBlock = startBlock.getAnchor();
 
     // Ending in this code block's own code leaves nothing between the leaves;
     // the replacement below removes that code with its block. `removeBlocks`
