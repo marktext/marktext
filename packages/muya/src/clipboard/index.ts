@@ -1,7 +1,9 @@
 import type { Muya } from '../muya';
+import type { ISelection } from '../selection/types';
 import type { IClipboardPayload } from './copyData';
 import Format from '../block/base/format';
-import { isClipboardEvent, isKeyboardEvent } from '../utils';
+import { clampRangeToContent } from '../selection/dom';
+import { isClipboardEvent, isInputEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
 import { cutSelection, deleteTableSelection } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
@@ -21,6 +23,21 @@ export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: bool
         return false;
 
     return true;
+}
+
+// Chromium ends a triple-click selection at offset 0 of the next block. When
+// that block does not open with text (a task list's checkbox, a table), no
+// block's text holds that end and `getSelection()` cannot map it. Pull the
+// non-collapsed `domSelection` back onto the text it covers and read it again.
+function clampSelectionToContent(clipboard: Clipboard, domSelection: Selection): ISelection | null {
+    const range = domSelection.getRangeAt(0).cloneRange();
+    if (!clampRangeToContent(range, clipboard.muya.domNode))
+        return null;
+
+    domSelection.removeAllRanges();
+    domSelection.addRange(range);
+
+    return clipboard.selection.getSelection();
 }
 
 class Clipboard {
@@ -99,6 +116,47 @@ class Clipboard {
             this.cutHandler();
         };
 
+        // The browser applies an edit to a selection that spans blocks by
+        // deleting the block elements in between, which leaves those blocks in
+        // the tree with detached DOM nodes (#5035). The keydown cut above never
+        // runs for text committed without a keydown (emoji picker, dictation,
+        // handwriting input), nor for deletions and yank bound to Cmd/Ctrl
+        // shortcuts, which `shouldCrossBlockCut` skips, so cut here too.
+        // Inserted text then lands on the caret the cut leaves; a deletion is
+        // already done. Only Chromium applies the edit to the selection as this
+        // handler leaves it.
+        const beforeInputHandler = (event: Event) => {
+            if (!ownsEvent() || !isInputEvent(event) || !/^(?:insert|delete)/.test(event.inputType))
+                return;
+
+            // A caret never spans blocks, and returning here keeps the model
+            // lookup below off every ordinary keystroke.
+            const domSelection = document.getSelection();
+            if (domSelection == null || domSelection.isCollapsed)
+                return;
+
+            const selection = this.selection.getSelection() ?? clampSelectionToContent(this, domSelection);
+            if (selection == null) {
+                // Nothing but non-text chrome (a checkbox, a rendered preview)
+                // is selected: there is no text to delete, and typed text goes
+                // after it.
+                if (event.inputType.startsWith('delete'))
+                    event.preventDefault();
+                else
+                    domSelection.collapseToEnd();
+
+                return;
+            }
+
+            if (selection.isSelectionInSameBlock)
+                return;
+
+            this.cutHandler();
+
+            if (event.inputType.startsWith('delete'))
+                event.preventDefault();
+        };
+
         const pasteHandler = (event: Event) => {
             if (ownsEvent() && isClipboardEvent(event))
                 this.pasteHandler(event);
@@ -110,6 +168,7 @@ class Clipboard {
         eventCenter.attachDOMEvent(document, 'cut', copyCutHandler);
         eventCenter.attachDOMEvent(document, 'paste', pasteHandler);
         eventCenter.attachDOMEvent(document, 'keydown', keydownHandler);
+        eventCenter.attachDOMEvent(this.muya.domNode, 'beforeinput', beforeInputHandler);
     }
 
     getClipboardData(): IClipboardPayload {

@@ -24,6 +24,38 @@ export function findContentDOM(node: Node | null | undefined) {
     return null;
 }
 
+/**
+ * Move each end of `range` that lies outside every content leaf onto the
+ * nearest leaf edge inside the range: the start onto the first leaf's start,
+ * the end onto the last leaf's end.
+ *
+ * @returns false, leaving `range` untouched, when no leaf lies inside it.
+ */
+export function clampRangeToContent(range: Range, root: HTMLElement): boolean {
+    const leaves = Array.from(root.querySelectorAll<HTMLElement>('span.mu-content'))
+        .filter(leaf => range.intersectsNode(leaf));
+    const first = leaves[0];
+    const last = leaves[leaves.length - 1];
+    if (first == null || last == null)
+        return false;
+
+    if (findContentDOM(range.startContainer) == null) {
+        const { node, offset } = getNodeAndOffset(first, 0);
+        range.setStart(node, offset);
+    }
+
+    if (findContentDOM(range.endContainer) == null) {
+        const textLength = getTextContent(last, [
+            CLASS_NAMES.MU_MATH_RENDER,
+            CLASS_NAMES.MU_RUBY_RENDER,
+        ]).length;
+        const { node, offset } = getNodeAndOffset(last, textLength);
+        range.setEnd(node, offset);
+    }
+
+    return true;
+}
+
 export function compareParagraphsOrder(paragraph1: HTMLElement, paragraph2: HTMLElement) {
     return (
         paragraph1.compareDocumentPosition(paragraph2)
