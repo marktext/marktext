@@ -176,9 +176,7 @@ describe('forward Delete merging a list item that owns a nested sublist (#1845)'
     });
 });
 
-// #5423 — the #1845 move is for list items only. Merging a blockquote's first
-// paragraph also moved the quote's remaining paragraphs out of it, so the quote
-// disappeared.
+// #5423 — the #1845 move applies to list items only.
 describe('forward Delete merging the first paragraph of a blockquote (#5423)', () => {
     it('keeps the rest of the blockquote quoted', () => {
         const muya = bootMuya('a\n\n> p\n>\n> q\n');

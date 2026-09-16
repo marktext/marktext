@@ -3,9 +3,7 @@ import { expect, test } from '../fixtures/muya';
 import { getMarkdown } from '../helpers/api';
 import { loadMarkdown } from '../helpers/keyboard';
 
-// #5423: Delete at the end of a paragraph followed by a blockquote merged the
-// quote's first paragraph and also moved the quote's remaining paragraphs out of
-// it, so the quote disappeared.
+// #5423: the quote's remaining paragraphs were moved out of it.
 
 function collectPageErrors(page: Page): string[] {
     const errors: string[] = [];

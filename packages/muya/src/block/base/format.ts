@@ -1508,13 +1508,10 @@ class Format extends Content {
         this.text = text + nextBlock.text;
         this.setCursor(start.offset, end.offset, true);
 
-        // When the merge crosses a list-item boundary, blocks that followed the
-        // next paragraph inside its item (e.g. a nested sublist) must travel up
-        // with the merged text. Left behind they become the sole child of the
-        // now-empty item and serialize with a doubled bullet (#1845). Other
-        // containers keep them, so a blockquote's later paragraphs stay quoted
-        // (#5423). They land beside the whole table when merging into a cell:
-        // a row holds only cells (#5386).
+        // Blocks after the merged paragraph in a list item (e.g. a nested
+        // sublist) move up with it, or they would serialize with a doubled
+        // bullet (#1845). Other containers keep them (#5423). From a table cell
+        // they go after the table, since a row holds only cells (#5386).
         const hostBlock = this.getAnchor();
         const nextContainer = paragraphBlock.parent;
         const nextContainerIsListItem = nextContainer?.blockName === 'list-item'
