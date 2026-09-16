@@ -99,6 +99,31 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
     });
 });
 
+// Cases from VS Code's find widget tests (replacePattern.test.ts).
+describe('buildRegexValue — two-digit group references', () => {
+    const tenGroups = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+
+    it('reads $10 as group 10 when the pattern has ten groups', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$10]')).toBe('[j]');
+    });
+
+    it('reads $10 as group 1 and a literal 0 when there is no group 10', () => {
+        expect(buildRegexValue(makeMatch('x', ['a']), '[$10]')).toBe('[a0]');
+    });
+
+    it('stops at two digits', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$100]')).toBe('[j0]');
+    });
+
+    it('leaves $20 alone when neither group 20 nor group 2 exists', () => {
+        expect(buildRegexValue(makeMatch('x', ['a']), '[$20]')).toBe('[$20]');
+    });
+
+    it('reads $01 as the whole match and a literal 1', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$01]')).toBe('[x1]');
+    });
+});
+
 // `matchString` is the search engine's lexer: it turns the user-facing
 // search options (case sensitivity / whole word / regexp) into a global
 // RegExp and returns matches shaped `{ match, subMatches, index }`.

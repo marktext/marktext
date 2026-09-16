@@ -141,14 +141,22 @@ export function matchString(text: string, value: string, options: ISearchOption)
     return regexp ? alignToGraphemeClusters(text, execAll(regexp, text), !!isRegexp) : [];
 }
 
-// A replacer function, not a replacement string: the latter would read `$$` and
-// `$&` inside the captured text as patterns instead of inserting them.
+// `$nn` is read as in VS Code's find widget: group nn when the pattern has one,
+// otherwise group n followed by a literal digit. A replacer function, not a
+// replacement string: the latter would read `$$` and `$&` inside the captured
+// text as patterns instead of inserting them.
 export function buildRegexValue(match: IMatch, value: string) {
-    return value.replace(/(?<!\\)\$(\d)/g, (placeholder, digit: string) => {
-        const index = Number.parseInt(digit);
-        if (index === 0)
-            return match.match;
+    const groups = [match.match, ...match.subMatches];
 
-        return index <= match.subMatches.length ? match.subMatches[index - 1] ?? '' : placeholder;
+    return value.replace(/(?<!\\)\$(0|[1-9]\d?)/g, (reference, digits: string) => {
+        const index = Number(digits);
+        if (index < groups.length)
+            return groups[index] ?? '';
+
+        const leading = Number(digits[0]);
+        if (leading < groups.length)
+            return (groups[leading] ?? '') + digits.slice(1);
+
+        return reference;
     });
 }
