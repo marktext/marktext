@@ -98,4 +98,10 @@ describe('#2276 — `$$`/code-fence + Enter inside a list converts in place, no 
         expect(listChildren).toBe(1);
         expect(itemBlockNames).toContain('html-block');
     });
+
+    it('same-line display math `$$a$$ b` splits the item instead of becoming a math block (#5364)', async () => {
+        const { listChildren, itemBlockNames } = await enterDollarsInList('$$a$$ b');
+        expect(listChildren).toBe(2);
+        expect(itemBlockNames).toEqual(['paragraph']);
+    });
 });

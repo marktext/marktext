@@ -67,8 +67,8 @@ export type GfmRules = typeof gfmRules;
 
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
-    // eslint-disable-next-line regexp/no-super-linear-backtracking
-    inline_math: /^(\$)((?:[^$\\]|\\.)+)(\\*)\1(?!\1)/,
+    // `$$...$$` is display math and may contain a lone `$`; `$...$` may not.
+    inline_math: /^(\$\$(?!\$)|\$)((?:(?!\1)[^\\]|\\.)+)\1(?!\1)/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,

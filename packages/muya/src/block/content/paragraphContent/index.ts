@@ -62,7 +62,7 @@ const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
 const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
-const MATH_BLOCK_REG = /^\$\$/;
+const MATH_BLOCK_REG = /^\$\$[ \t]*$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
 
