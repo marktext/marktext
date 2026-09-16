@@ -214,6 +214,22 @@ describe('format.backspaceHandler — edits that change the block type (#5388)',
         expect(muya.editor.scrollPage!.firstContentInDescendant()!.getCursor()!.start.offset).toBe(1);
     });
 
+    it('removing a typed lone `#` turns the heading into an empty paragraph', () => {
+        const muya = bootMuya('x\n');
+        const paragraph = caretInFirstBlock(muya, 1);
+        paragraph.text = '#';
+        paragraph.setCursor(1, 1, true);
+        paragraph.checkInlineUpdate();
+        const heading = caretInFirstBlock(muya, 1);
+        expect(heading.blockName).toBe('atxheading.content');
+
+        pressBackspace(heading);
+
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('\n');
+        expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
+    });
+
     it('removing one `#` of `##` makes the heading level 1', () => {
         const muya = bootMuya('## Heading\n');
         const content = caretInFirstBlock(muya, 1);
