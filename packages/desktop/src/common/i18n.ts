@@ -9,6 +9,20 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
 
 let translationsCache: Record<string, Translations> = {}
 
+// Directory holding `<language>.json` and the minified `<language>.min.json`.
+// The main process points it at the app's resources while bootstrapping (see
+// main/globalSetting.ts); the default suits a run from the package directory.
+let localesDirectory = path.join(process.cwd(), 'static', 'locales')
+
+/**
+ * Sets where the locale files are read from. Translations already read are
+ * dropped so the next lookup uses the new directory.
+ */
+function setLocalesDirectory(directory: string): void {
+  localesDirectory = directory
+  translationsCache = {}
+}
+
 /**
  * Loads the translation file for the specified language. Falls back to English
  * on error; returns null if even the English fallback can't be loaded.
@@ -19,18 +33,11 @@ function loadTranslations(language: string): Translations | null {
   }
 
   try {
-    // Used in both main and preload processes, so we can't lean on
-    // `global.__static`, which is main-only.
-    // In development, prefer the pre-minified file when present, but fall back
-    // to the raw .json so `pnpm run dev` works without running minify-locales.
-    let localePath: string
-    if (import.meta.env.DEV || process.env.PERF_TESTING === 'true') {
-      const minPath = path.join(process.cwd(), 'static', 'locales', `${language}.min.json`)
-      const rawPath = path.join(process.cwd(), 'static', 'locales', `${language}.json`)
-      localePath = fs.existsSync(minPath) ? minPath : rawPath
-    } else {
-      localePath = path.join(process.resourcesPath, 'static', 'locales', `${language}.min.json`)
-    }
+    // Prefer the minified file, which every packaged build ships, but fall back
+    // to the raw .json so a checkout works without running minify-locales.
+    const minPath = path.join(localesDirectory, `${language}.min.json`)
+    const rawPath = path.join(localesDirectory, `${language}.json`)
+    const localePath = fs.existsSync(minPath) ? minPath : rawPath
 
     if (!fs.existsSync(localePath)) {
       throw new Error(`Translation file not found for language: ${language}`)
@@ -141,5 +148,6 @@ export {
   matchSupportedLanguage,
   clearCache,
   getAllTranslations,
-  loadTranslations
+  loadTranslations,
+  setLocalesDirectory
 }

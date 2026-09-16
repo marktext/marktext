@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.hoisted(() => {
-  process.env.PERF_TESTING = 'true'
-})
-
 const { getLookUp, lookUpSelection } = await import('main_renderer/contextMenu/editor/menuItems')
 
 describe('editor context menu Look Up', () => {
