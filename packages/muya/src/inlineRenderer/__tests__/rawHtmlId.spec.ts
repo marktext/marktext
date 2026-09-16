@@ -4,12 +4,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../config';
 import { Muya } from '../../muya';
 
-// An inline raw-HTML tag used to carry its `id` inside the snabbdom selector
-// (`a.mu-inline-rule.mu-raw-html#<id>`). The selector parser stops an id at
-// `.`, `/` and similar characters, so `<a id="v1.2">` rendered as `id="v1"`
-// plus a stray `2` class, and a `[link](#v1.2)` could no longer find its
-// target with `getElementById`.
-
 const bootedMuyas: Muya[] = [];
 
 beforeEach(() => {
@@ -37,7 +31,7 @@ function rawHtmlElement(muya: Muya): HTMLElement {
     return el!;
 }
 
-describe('inline raw HTML id', () => {
+describe('inline raw HTML id (#5419)', () => {
     it.each(['v1.2', 'api/usage', 'a#b', 'note 1'])('keeps the id %j verbatim', (id) => {
         const muya = boot(`text <a id="${id}">anchor</a> text`);
         const el = rawHtmlElement(muya);
