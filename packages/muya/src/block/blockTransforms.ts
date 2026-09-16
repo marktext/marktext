@@ -68,19 +68,34 @@ export function insertFrontMatterAtStart(muya: Muya): boolean {
  *
  * The float anchors to the caret (`getCursorReference`); when the cursor has
  * no coords (e.g. the front-menu took focus) it falls back to the block's DOM
- * node. No-op if neither is available.
+ * node. No-op if neither is available, or if the block is no longer in the
+ * document.
  */
 export function showTablePicker(muya: Muya, block: Parent) {
     const { eventCenter } = muya;
     const reference = getCursorReference() ?? block.domNode;
-    if (!reference)
+    if (!reference || !block.outMostBlock)
         return;
 
+    // The `/` query the grid was opened on, or '' for the front-menu's empty
+    // paragraph.
+    const triggerText = block.firstContentInDescendant()?.text ?? '';
+
     const handler = (row: number, column: number) => {
+        // The grid stays open while typing, undo and redo change the document,
+        // so a pick acts on the line that opened it only while that line is
+        // still in the document holding the text it had then, or nothing
+        // (#5355). Any other pick is ignored and changes nothing at all: it
+        // used to replace whichever block held the caret, or throw on a block
+        // undo had removed.
+        const text = block.firstContentInDescendant()?.text ?? '';
+        if (!block.outMostBlock || (text !== triggerText && text.trim() !== ''))
+            return;
+
         // The picker's trigger block (a `/table` quick-insert line or the empty
         // paragraph the front-menu offers) is disposable, so always replace it
         // rather than inserting the table below it.
-        muya.createTable({ rows: row + 1, columns: column + 1 }, { replace: true });
+        muya.createTable({ rows: row + 1, columns: column + 1 }, { replace: true, block });
     };
 
     eventCenter.emit('muya-table-picker', { row: -1, column: -1 }, reference, handler);

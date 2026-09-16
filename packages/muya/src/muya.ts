@@ -948,9 +948,16 @@ export class Muya {
         cursorBlock?.setCursor(0, 0, true);
     }
 
-    createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
-        const block = this._immediateBlockAtCursor();
-        if (!block)
+    /**
+     * Insert a table at `block` (default: the block holding the caret): in its
+     * place when it is empty or `replace` is set, otherwise directly below it.
+     * No-op when that block is no longer in the document.
+     */
+    createTable(
+        { rows, columns }: { rows: number; columns: number },
+        { replace = false, block = this._immediateBlockAtCursor() }: { replace?: boolean; block?: Parent | null } = {},
+    ) {
+        if (!block?.outMostBlock)
             return;
 
         const safeRows = Math.max(2, Number.isFinite(rows) ? Math.floor(rows) : 0);
