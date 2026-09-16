@@ -141,18 +141,19 @@ export function matchString(text: string, value: string, options: ISearchOption)
     return regexp ? alignToGraphemeClusters(text, execAll(regexp, text), !!isRegexp) : [];
 }
 
+// Expand `$0` / `$N` in the replacement in a single pass. The replacer function
+// matters: `String#replace` given a replacement *string* re-reads `$` patterns
+// in it, so captured text was interpreted instead of inserted — `$$` collapsed
+// to one `$` and `$&` pasted back the placeholder it was replacing. A single
+// pass also stops the substitutions from seeing each other, so an escaped
+// `\$1` is no longer consumed by a later `$1` and inserted text is never
+// rescanned for placeholders.
 export function buildRegexValue(match: IMatch, value: string) {
-    const groups = value.match(/(?<!\\)\$\d/g);
+    return value.replace(/(?<!\\)\$(\d)/g, (placeholder, digit: string) => {
+        const index = Number.parseInt(digit);
+        if (index === 0)
+            return match.match;
 
-    if (Array.isArray(groups) && groups.length) {
-        for (const group of groups) {
-            const index = Number.parseInt(group.replace(/^\$/, ''));
-            if (index === 0)
-                value = value.replace(group, match.match);
-            else if (index > 0 && index <= match.subMatches.length)
-                value = value.replace(group, match.subMatches[index - 1]);
-        }
-    }
-
-    return value;
+        return index <= match.subMatches.length ? match.subMatches[index - 1] : placeholder;
+    });
 }

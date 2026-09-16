@@ -224,3 +224,20 @@ describe('search.replace() — regexp matches keep emoji whole', () => {
         expect(search.matches).toHaveLength(0);
     });
 });
+
+describe('search.replace() — a capture holding a dollar sign', () => {
+    it('writes back a `$$` capture unchanged', async () => {
+        const muya = bootMuya('The shell variable $$ holds the pid.\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('(\\$\\$)', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['$$']);
+
+        search.replace('`$1`', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('The shell variable `$$` holds the pid.\n');
+        });
+    });
+});
