@@ -672,10 +672,14 @@ export class Muya {
     // The caret leaf's own block. For a table cell or code leaf that is the
     // whole table or code-like block: the cell and the inner code node are not
     // blocks in the document state, so nothing may be inserted beside them.
+    // Null while the caret caches still hold a block that left the document
+    // (e.g. undo removed it), as `_outmostBlockAtCursor` is (#5355).
     private _immediateBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        if (!content?.outMostBlock)
+            return null;
 
-        return content?.getAnchor() ?? null;
+        return content.getAnchor() ?? null;
     }
 
     /**
@@ -944,9 +948,16 @@ export class Muya {
         cursorBlock?.setCursor(0, 0, true);
     }
 
-    createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
-        const block = this._immediateBlockAtCursor();
-        if (!block)
+    /**
+     * Insert a table at `block` (default: the block holding the caret): in its
+     * place when it is empty or `replace` is set, otherwise directly below it.
+     * No-op when that block is no longer in the document.
+     */
+    createTable(
+        { rows, columns }: { rows: number; columns: number },
+        { replace = false, block = this._immediateBlockAtCursor() }: { replace?: boolean; block?: Parent | null } = {},
+    ) {
+        if (!block?.outMostBlock)
             return;
 
         const safeRows = Math.max(2, Number.isFinite(rows) ? Math.floor(rows) : 0);
