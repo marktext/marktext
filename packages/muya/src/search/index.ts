@@ -66,7 +66,7 @@ export class Search {
         }
     }
 
-    private _innerReplace(matches: IMatch[], value: string) {
+    private _innerReplace(matches: IMatch[], replacementOf: (match: IMatch) => string) {
         if (!matches.length)
             return;
 
@@ -86,7 +86,7 @@ export class Search {
             }
 
             tempText += block.text.substring(lastEnd, start);
-            tempText += value;
+            tempText += replacementOf(match);
             lastEnd = end;
         }
 
@@ -100,17 +100,10 @@ export class Search {
         const value = this._value;
 
         if (matches.length) {
-            if (isRegexp)
-                replaceValue = buildRegexValue(matches[index], replaceValue);
-
-            if (isSingle) {
-                // replace one
-                this._innerReplace([matches[index]], replaceValue);
-            }
-            else {
-                // replace all
-                this._innerReplace(matches, replaceValue);
-            }
+            this._innerReplace(
+                isSingle ? [matches[index]] : matches,
+                match => (isRegexp ? buildRegexValue(match, replaceValue) : replaceValue),
+            );
             const highlightIndex = index < matches.length - 1 ? index : index - 1;
 
             this.search(value, {

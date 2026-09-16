@@ -3,7 +3,7 @@ import { graphemeClusters } from '.';
 
 export interface IStringMatch {
     match: string;
-    subMatches: string[];
+    subMatches: (string | undefined)[];
     index: number;
 }
 
@@ -141,19 +141,22 @@ export function matchString(text: string, value: string, options: ISearchOption)
     return regexp ? alignToGraphemeClusters(text, execAll(regexp, text), !!isRegexp) : [];
 }
 
-// Expand `$0` / `$N` in the replacement in a single pass. The replacer function
-// matters: `String#replace` given a replacement *string* re-reads `$` patterns
-// in it, so captured text was interpreted instead of inserted — `$$` collapsed
-// to one `$` and `$&` pasted back the placeholder it was replacing. A single
-// pass also stops the substitutions from seeing each other, so an escaped
-// `\$1` is no longer consumed by a later `$1` and inserted text is never
-// rescanned for placeholders.
+// `$nn` is read as in VS Code's find widget: group nn when the pattern has one,
+// otherwise group n followed by a literal digit. A replacer function, not a
+// replacement string: the latter would read `$$` and `$&` inside the captured
+// text as patterns instead of inserting them.
 export function buildRegexValue(match: IMatch, value: string) {
-    return value.replace(/(?<!\\)\$(\d)/g, (placeholder, digit: string) => {
-        const index = Number.parseInt(digit);
-        if (index === 0)
-            return match.match;
+    const groups = [match.match, ...match.subMatches];
 
-        return index <= match.subMatches.length ? match.subMatches[index - 1] : placeholder;
+    return value.replace(/(?<!\\)\$(0|[1-9]\d?)/g, (reference, digits: string) => {
+        const index = Number(digits);
+        if (index < groups.length)
+            return groups[index] ?? '';
+
+        const leading = Number(digits[0]);
+        if (leading < groups.length)
+            return (groups[leading] ?? '') + digits.slice(1);
+
+        return reference;
     });
 }
