@@ -1354,6 +1354,9 @@ class Format extends Content {
             start.offset -= offsetDelta;
             end.offset -= offsetDelta;
             this.setCursor(start.offset, end.offset, true);
+            // The native Backspace this replaces would re-read the block type
+            // in `inputHandler` (#5388).
+            this.checkInlineUpdate();
         }
 
         if (imageToken) {

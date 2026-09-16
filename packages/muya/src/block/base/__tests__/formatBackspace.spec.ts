@@ -198,3 +198,31 @@ describe('format.backspaceHandler — plain-text boundaries (no markers involved
         expect(event.defaultPrevented).toBe(false);
     });
 });
+
+// #5388: the handler replaces the native Backspace, so it never reaches the
+// input handler that re-reads the block type from the edited text.
+describe('format.backspaceHandler — edits that change the block type (#5388)', () => {
+    it('removing the space after `#` turns the heading into a paragraph', () => {
+        const muya = bootMuya('# Heading\n');
+        const content = caretInFirstBlock(muya, 2);
+        const event = pressBackspace(content);
+
+        expect(event.defaultPrevented).toBe(true);
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('#Heading\n');
+        expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
+        expect(muya.editor.scrollPage!.firstContentInDescendant()!.getCursor()!.start.offset).toBe(1);
+    });
+
+    it('removing one `#` of `##` makes the heading level 1', () => {
+        const muya = bootMuya('## Heading\n');
+        const content = caretInFirstBlock(muya, 1);
+        pressBackspace(content);
+
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('# Heading\n');
+        expect(muya.getState()).toEqual([
+            { name: 'atx-heading', meta: { level: 1 }, text: '# Heading' },
+        ]);
+    });
+});
