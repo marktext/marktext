@@ -3,7 +3,7 @@ import { graphemeClusters } from '.';
 
 export interface IStringMatch {
     match: string;
-    subMatches: string[];
+    subMatches: (string | undefined)[];
     index: number;
 }
 
@@ -149,6 +149,6 @@ export function buildRegexValue(match: IMatch, value: string) {
         if (index === 0)
             return match.match;
 
-        return index <= match.subMatches.length ? match.subMatches[index - 1] : placeholder;
+        return index <= match.subMatches.length ? match.subMatches[index - 1] ?? '' : placeholder;
     });
 }

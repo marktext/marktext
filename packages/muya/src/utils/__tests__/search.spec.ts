@@ -23,7 +23,7 @@ function capRegExpExec() {
 // `$N` (N≥1) as the captured subgroups. Pin the contract here so the
 // next refactor in `utils/search.ts` doesn't silently regress group
 // expansion when users rely on regex replace.
-function makeMatch(matchText: string, subMatches: string[]): IMatch {
+function makeMatch(matchText: string, subMatches: (string | undefined)[]): IMatch {
     return {
         // `buildRegexValue` only reads .match / .subMatches; the `block`
         // field is required by the IMatch type but never consulted here.
@@ -91,6 +91,11 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
     it('expands every occurrence of a repeated placeholder', () => {
         const value = buildRegexValue(makeMatch('foo', ['cap']), '$1-$1');
         expect(value).toBe('cap-cap');
+    });
+
+    it('expands a group that did not take part in the match to nothing', () => {
+        const value = buildRegexValue(makeMatch('b', [undefined, 'b']), '[$1][$2]');
+        expect(value).toBe('[][b]');
     });
 });
 

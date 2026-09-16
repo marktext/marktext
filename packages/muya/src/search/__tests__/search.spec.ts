@@ -272,4 +272,18 @@ describe('search.replace() — regexp capture groups', () => {
             expect(muya.getMarkdown()).toBe('a1 2b c3\n');
         });
     });
+
+    it('writes nothing for a group that did not take part in the match', async () => {
+        const muya = bootMuya('color colour\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('colo(u)?r', { isRegexp: true });
+
+        search.replace('colo$1$1r', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('color colouur\n');
+        });
+    });
 });
