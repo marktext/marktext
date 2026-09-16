@@ -72,7 +72,9 @@ if (args['--disable-gpu']) {
 
 // Single instance lock (except macOS & development)
 if (!process.mas && !import.meta.env.DEV) {
-  const gotLock = app.requestSingleInstanceLock()
+  // The running instance reads the files to open from this copy of the command
+  // line; see its `second-instance` handler.
+  const gotLock = app.requestSingleInstanceLock({ argv: process.argv })
   if (!gotLock) {
     process.stdout.write(t('error.otherInstanceDetected'))
     process.exit(0)
