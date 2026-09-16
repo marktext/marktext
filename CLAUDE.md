@@ -156,7 +156,7 @@ pnpm install
 # require restarting `pnpm run dev`.
 pnpm run dev
 
-# Preview the last electron-vite build (no rebuild). PERF_TESTING=true is set automatically.
+# Preview the last electron-vite build (no rebuild).
 pnpm run start
 
 # Build without packaging — fast path for verifying the renderer/main compile
