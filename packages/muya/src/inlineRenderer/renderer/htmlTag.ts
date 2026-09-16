@@ -65,8 +65,7 @@ function buildRawHtmlTag(
     if (tag === 'code' || tag === 'kbd')
         Object.assign(data.attrs, { spellcheck: 'false' });
 
-    // Set the id as an attribute, not in the selector: the selector parser cuts
-    // an id at `.`, `/` or a space, so `<a id="v1.2">` would lose its target.
+    // Not in the selector: its parser truncates an id at `.`, `/` or a space (#5419).
     if (attrs.id)
         data.attrs.id = attrs.id;
 
