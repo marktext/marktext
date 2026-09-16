@@ -65,6 +65,33 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
         const value = buildRegexValue(makeMatch('foo', ['x']), 'plain replacement');
         expect(value).toBe('plain replacement');
     });
+
+    // The captured text comes from the document and is inserted as-is; it is
+    // never a replacement pattern of its own.
+    it('inserts a capture containing `$$` without collapsing it', () => {
+        const value = buildRegexValue(makeMatch('$$100', ['$$100']), '**$1**');
+        expect(value).toBe('**$$100**');
+    });
+
+    it('inserts a capture containing `$&` verbatim', () => {
+        const value = buildRegexValue(makeMatch('$&', ['$&']), '`$1`');
+        expect(value).toBe('`$&`');
+    });
+
+    it('does not expand a placeholder inside already inserted text', () => {
+        const value = buildRegexValue(makeMatch('x', ['$2', 'B']), '$1$2');
+        expect(value).toBe('$2B');
+    });
+
+    it('expands the real $1 and not an escaped one earlier in the value', () => {
+        const value = buildRegexValue(makeMatch('foo', ['cap']), 'literal \\$1 then $1');
+        expect(value).toBe('literal \\$1 then cap');
+    });
+
+    it('expands every occurrence of a repeated placeholder', () => {
+        const value = buildRegexValue(makeMatch('foo', ['cap']), '$1-$1');
+        expect(value).toBe('cap-cap');
+    });
 });
 
 // `matchString` is the search engine's lexer: it turns the user-facing
