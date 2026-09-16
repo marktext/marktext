@@ -119,7 +119,7 @@ function createSearchRegExp(source: string, flags: string, isRegexp: boolean): R
 export function matchString(text: string, value: string, options: ISearchOption): IStringMatch[] {
     const { isCaseSensitive, isWholeWord, isRegexp } = options;
 
-    const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+()/]/g;
+    const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+(){}/]/g;
 
     let regStr = value;
     let flag = 'g';
