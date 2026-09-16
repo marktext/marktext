@@ -1508,9 +1508,11 @@ class Format extends Content {
         // When the merge crosses a list-item boundary, blocks that followed the
         // next paragraph inside its item (e.g. a nested sublist) must travel up
         // with the merged text. Left behind they become the sole child of the
-        // now-empty item and serialize with a doubled bullet (#1845).
-        const paragraph = this.parent;
-        if (paragraph && paragraphBlock.parent !== paragraph.parent) {
+        // now-empty item and serialize with a doubled bullet (#1845). They land
+        // beside the whole table when merging into a cell: a row holds only
+        // cells (#5386).
+        const hostBlock = this.getAnchor();
+        if (hostBlock && paragraphBlock.parent !== hostBlock.parent) {
             const trailing: TreeNode[] = [];
             let sibling = paragraphBlock.next;
             while (sibling) {
@@ -1518,9 +1520,9 @@ class Format extends Content {
                 sibling = sibling.next;
             }
 
-            let anchor: Parent = paragraph;
+            let anchor: Parent = hostBlock;
             for (const block of trailing) {
-                block.insertInto(paragraph.parent!, anchor.next as Nullable<Parent>);
+                block.insertInto(hostBlock.parent!, anchor.next as Nullable<Parent>);
                 anchor = block as Parent;
             }
         }
