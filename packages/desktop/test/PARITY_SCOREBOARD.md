@@ -102,8 +102,7 @@ pnpm -C packages/muya exec vitest run src/state/__tests__/parityExportHtml.spec.
 # desktop parity e2e (needs `pnpm run build:unpack` first; PG14 stays xfail)
 pnpm -C packages/desktop exec playwright test \
   test/e2e/parity-pg1-menu-state.spec.ts \
-  test/e2e/parity-source-undo-saved.spec.ts \
-  --config test/e2e/playwright.config.ts
+  test/e2e/parity-source-undo-saved.spec.ts
 ```
 
 ## Provenance

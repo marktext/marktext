@@ -3,7 +3,7 @@
 MarkText is a TypeScript project. Every file under `src/` (except `src/muya/`),
 the build scripts under `scripts/`, the test specs under `test/`, the
 build config (`electron.vite.config.ts`), and the test configs
-(`vitest.config.ts`, `test/e2e/playwright.config.ts`) are TS.
+(`vitest.config.ts`, `playwright.config.ts`) are TS.
 
 The only JavaScript that ships in the source tree is `src/muya/` — the
 legacy editor engine, which will be replaced by the upstream TS muya at
