@@ -153,8 +153,10 @@ class Selection {
         const anchorOffset = live ? live.anchor.offset : this._text.anchor?.offset;
         const focusOffset = live ? live.focus.offset : this._text.focus?.offset;
 
-        // A caret or selection contained in a single content block.
-        if (anchorBlock && anchorBlock === focusBlock && anchorOffset != null && focusOffset != null) {
+        // A caret or selection contained in a single content block. The cached
+        // block can be one that undo removed from the document, since undoing
+        // the first edit restores no caret (#5387).
+        if (anchorBlock?.outMostBlock && anchorBlock === focusBlock && anchorOffset != null && focusOffset != null) {
             // Inside one table cell: freeze it as a 1x1 rectangle.
             if (anchorBlock.blockName === 'table.cell.content') {
                 const cellBlock = anchorBlock.closestBlock('table.cell') as TableBodyCell | null;
