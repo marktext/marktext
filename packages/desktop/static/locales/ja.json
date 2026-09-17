@@ -388,6 +388,7 @@
         "codeFontSize": "コードブロックのフォントサイズ、範囲は 12〜18",
         "codeFontFamily": "コードブロックで使用されるフォントファミリー",
         "codeBlockLineNumbers": "行番号を表示するかどうか",
+        "sourceCodeLineNumbers": "ソースコードモードで行番号を表示",
         "trimUnnecessaryCodeBlockEmptyLines": "コードブロックの最初と最後の空行をトリミング",
         "autoPairBracket": "編集時に括弧を自動で閉じる",
         "autoPairMarkdownSyntax": "Markdown 構文の自動補完",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "リンクポップアップを隠す",
         "autoCheck": "自動チェック",
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
-        "wrapCodeBlocks": "コードブロックを折り返し"
+        "wrapCodeBlocks": "コードブロックを折り返し",
+        "sourceCodeLineNumbers": "ソースコードモードで行番号を表示"
       }
     },
     "image": {

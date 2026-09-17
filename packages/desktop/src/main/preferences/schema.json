@@ -119,6 +119,11 @@
     "type": "boolean",
     "default": true
   },
+  "sourceCodeLineNumbers": {
+    "description": "Editor--Show line numbers in source code mode",
+    "type": "boolean",
+    "default": true
+  },
   "trimUnnecessaryCodeBlockEmptyLines": {
     "description": "Editor--Trim the beginning and ending empty lines in code block",
     "type": "boolean",

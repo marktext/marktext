@@ -28,7 +28,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { isAnyListState, isAtxHeadingState, isCodeBlockState } from './state/types';
+import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
 import { encodeImageSrc } from './utils/image';
@@ -105,6 +105,21 @@ const TOGGLEABLE_BLOCK_LABELS = new Set([
     'code-block',
     'thematic-break',
 ]);
+
+// Blocks whose content leaves sit on inner nodes (table cells, the code node),
+// so a paragraph command at such a caret acts on the block as a whole. As in
+// muyajs, such a block is never converted into another type, and never
+// replaced just because its first leaf is empty.
+const WHOLE_BLOCK_NAMES = new Set([
+    'table',
+    'code-block',
+    'html-block',
+    'math-block',
+    'diagram',
+    'frontmatter',
+]);
+
+const HEADING_LEVEL_BLOCK_NAMES = new Set(['paragraph', 'atx-heading', 'setext-heading']);
 
 // Options consumed by the markdown→state lexer (markdownToState / lexBlock).
 // Changing any of these re-classifies block structure (e.g. ```math ⇄ code
@@ -654,10 +669,17 @@ export class Muya {
         return content?.outMostBlock ?? null;
     }
 
+    // The caret leaf's own block. For a table cell or code leaf that is the
+    // whole table or code-like block: the cell and the inner code node are not
+    // blocks in the document state, so nothing may be inserted beside them.
+    // Null while the caret caches still hold a block that left the document
+    // (e.g. undo removed it), as `_outmostBlockAtCursor` is (#5355).
     private _immediateBlockAtCursor(): Parent | null {
         const content = this.editor.activeContentBlock ?? this.editor.selection.anchorBlock;
+        if (!content?.outMostBlock)
+            return null;
 
-        return content?.parent ?? null;
+        return content.getAnchor() ?? null;
     }
 
     /**
@@ -883,7 +905,7 @@ export class Muya {
         const block = outMost
             ? this._outmostBlockAtCursor()
             : this._immediateBlockAtCursor();
-        if (!block)
+        if (!block || (location === 'before' && block.blockName === 'frontmatter'))
             return;
 
         const state = deepClone(emptyStates.paragraph);
@@ -926,9 +948,16 @@ export class Muya {
         cursorBlock?.setCursor(0, 0, true);
     }
 
-    createTable({ rows, columns }: { rows: number; columns: number }, { replace = false }: { replace?: boolean } = {}) {
-        const block = this._immediateBlockAtCursor();
-        if (!block)
+    /**
+     * Insert a table at `block` (default: the block holding the caret): in its
+     * place when it is empty or `replace` is set, otherwise directly below it.
+     * No-op when that block is no longer in the document.
+     */
+    createTable(
+        { rows, columns }: { rows: number; columns: number },
+        { replace = false, block = this._immediateBlockAtCursor() }: { replace?: boolean; block?: Parent | null } = {},
+    ) {
+        if (!block?.outMostBlock)
             return;
 
         const safeRows = Math.max(2, Number.isFinite(rows) ? Math.floor(rows) : 0);
@@ -953,7 +982,7 @@ export class Muya {
         // An empty block is disposable, so replace it in place; a block with
         // real content is kept and the table goes directly below it. The picker
         // passes `replace` to always consume its trigger block.
-        if (replace || this._blockLeadingText(block).trim() === '')
+        if (replace || (!WHOLE_BLOCK_NAMES.has(block.blockName) && this._blockLeadingText(block).trim() === ''))
             block.replaceWith(newTable);
         else
             block.parent!.insertAfter(newTable, block);
@@ -1180,8 +1209,13 @@ export class Muya {
         if (this._handleCrossBlockParagraph(type))
             return;
 
+        // Only the paragraph or heading holding the caret changes level, even
+        // inside a list or quote; any other block at the caret is left as it is,
+        // as in muyajs (#5360).
         if (type === 'upgrade heading' || type === 'degrade heading') {
-            this._withPreservedOffset(() => this._changeHeadingLevel(block, type));
+            const target = this._immediateBlockAtCursor();
+            if (target && HEADING_LEVEL_BLOCK_NAMES.has(target.blockName))
+                this._withPreservedOffset(() => this._changeHeadingLevel(target, type));
             return;
         }
 
@@ -1370,7 +1404,7 @@ export class Muya {
      */
     private _convertOrInsertBelow(label: string) {
         const immediate = this._immediateBlockAtCursor();
-        if (!immediate)
+        if (!immediate || WHOLE_BLOCK_NAMES.has(immediate.blockName))
             return;
 
         const leadingText = this._blockLeadingText(immediate);
@@ -1429,7 +1463,7 @@ export class Muya {
      */
     private _convertLeafToParagraph() {
         const leaf = this._immediateBlockAtCursor();
-        if (!leaf || leaf.blockName === 'paragraph')
+        if (!leaf || leaf.blockName === 'paragraph' || WHOLE_BLOCK_NAMES.has(leaf.blockName))
             return;
 
         this._withPreservedOffset(() => replaceBlockByLabel({
@@ -1491,7 +1525,7 @@ export class Muya {
     /** Cycle the heading level (marktext upgrade/degrade semantics). */
     private _changeHeadingLevel(block: Parent, type: 'upgrade heading' | 'degrade heading') {
         const state = block.getState();
-        const level = isAtxHeadingState(state) ? state.meta.level : 0;
+        const level = isAtxHeadingState(state) || isSetextHeadingState(state) ? state.meta.level : 0;
         let newLevel = level;
 
         if (type === 'upgrade heading' && level !== 1)

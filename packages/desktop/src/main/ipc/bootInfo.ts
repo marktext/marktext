@@ -7,7 +7,6 @@ import type { BootInfo } from '@shared/types/ipc'
 
 const ENV_ALLOWLIST = [
   'NODE_ENV',
-  'PERF_TESTING',
   'APPIMAGE',
   'MARKTEXT_VERSION',
   'MARKTEXT_VERSION_STRING',

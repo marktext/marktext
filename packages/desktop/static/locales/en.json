@@ -387,6 +387,7 @@
         "codeFontSize": "Font size in code Block, the range is 12 ~ 18",
         "codeFontFamily": "Font family used in code block",
         "codeBlockLineNumbers": "Whether to show the line numbers",
+        "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
         "autoPairBracket": "Automatically brackets when editing",
         "autoPairMarkdownSyntax": "Autocomplete markdown syntax",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "Hide link popup",
         "autoCheck": "Auto check",
         "autoNormalizeLineEndings": "Auto-normalize line endings to LF on open",
-        "wrapCodeBlocks": "Wrap code blocks"
+        "wrapCodeBlocks": "Wrap code blocks",
+        "sourceCodeLineNumbers": "Show line numbers in source code mode"
       }
     },
     "image": {

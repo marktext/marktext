@@ -65,8 +65,9 @@ function buildRawHtmlTag(
     if (tag === 'code' || tag === 'kbd')
         Object.assign(data.attrs, { spellcheck: 'false' });
 
+    // Not in the selector: its parser truncates an id at `.`, `/` or a space (#5419).
     if (attrs.id)
-        selector += `#${attrs.id}`;
+        data.attrs.id = attrs.id;
 
     if (attrs.class && /\S/.test(attrs.class)) {
         const classNames = attrs.class.split(/\s+/);

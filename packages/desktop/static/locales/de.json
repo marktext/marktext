@@ -388,6 +388,7 @@
         "codeFontSize": "Schriftgröße im Codeblock, der Bereich ist 12 ~ 18",
         "codeFontFamily": "Schriftfamilie im Codeblock",
         "codeBlockLineNumbers": "Ob Zeilennummern angezeigt werden sollen",
+        "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen",
         "trimUnnecessaryCodeBlockEmptyLines": "Leere Zeilen am Anfang und Ende des Codeblocks entfernen",
         "autoPairBracket": "Automatische Klammern beim Bearbeiten",
         "autoPairMarkdownSyntax": "Markdown-Syntax automatisch vervollständigen",
@@ -562,7 +563,8 @@
         "hideLinkPopup": "Link-Popup ausblenden",
         "autoCheck": "Automatische Überprüfung",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
-        "wrapCodeBlocks": "Code-Blöcke umbrechen"
+        "wrapCodeBlocks": "Code-Blöcke umbrechen",
+        "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen"
       }
     },
     "image": {
