@@ -13,6 +13,7 @@ import Accessor from './app/accessor'
 import App from './app'
 import { t } from './i18n'
 import { registerSandboxIpcHandlers } from './ipc'
+import { setUserPreference } from './app/userPreference'
 
 // Set version strings into global and process.versions
 process.env.MARKTEXT_VERSION = MARKTEXT_VERSION
@@ -113,6 +114,12 @@ try {
 }
 const appController = new App(accessor, args as unknown as { _: string[] })
 appController.init()
+
+// The pandoc helper and the menu actions resolve their settings when the user
+// acts rather than at import time, so they are handed the preferences instance
+// now that it exists. Reading it lazily also means a change in the preferences
+// page takes effect without a restart.
+setUserPreference(accessor.preferences)
 
 // Quit when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {

@@ -33,6 +33,10 @@ import type {
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
+import type { PandocCheckResult } from '../pandoc'
+
+/** What the Pandoc preferences page can ask the user to pick. */
+export type PandocPickerKind = 'executable' | 'folder' | 'reference-doc'
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
@@ -70,6 +74,11 @@ export interface IpcInvokeChannels {
     ret: { defaultKeybindings: Map<string, string>; userKeybindings: Map<string, string> }
   }
   'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
+  'mt::pandoc::check': { args: [command: string]; ret: PandocCheckResult }
+  'mt::pandoc::pick-path': {
+    args: [kind: PandocPickerKind, defaultPath?: string]
+    ret: string
+  }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }

@@ -27,7 +27,8 @@
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "pandocDefaultFormat": "{format} (par défaut)"
     },
     "edit": {
       "edit": "Édition",
@@ -415,7 +416,7 @@
         "isHtmlEnabled": "Activer le rendu HTML",
         "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
-        "pandocEnabled": "Activer l'export Pandoc",
+        "pandocEnabled": "Activer l'export / l'import Pandoc",
         "pandocExportFormats": "Formats affichés dans le menu d'exportation",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
-        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
+        "pandocPath": "Chemin de pandoc",
+        "pandocDefaultFormat": "Format par défaut",
+        "pandocExportLocation": "Exporter vers",
+        "pandocExportFolder": "Dossier des fichiers convertis",
+        "pandocStandalone": "Fichier complet",
+        "pandocToc": "Table des matières",
+        "pandocNumberSections": "Numéroter les sections",
+        "pandocReferenceDoc": "Modèle Word"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "Activer l'export / l'import Pandoc",
+      "path": {
+        "label": "Chemin de pandoc",
+        "placeholder": "Vide = le pandoc du PATH",
+        "check": "Vérifier",
+        "browse": "Parcourir",
+        "ok": "Trouvé : {version}",
+        "failed": "Inutilisable : {error}"
+      },
       "export": {
         "title": "Exporter",
-        "enable": "Activer l'export Pandoc",
         "formats": "Formats affichés dans le menu d'exportation",
         "formatsNotes": "Décocher tous les formats masque l'entrée de menu."
       },
+      "defaultFormat": "Format par défaut",
+      "location": {
+        "label": "Exporter vers",
+        "source": "À côté du fichier source",
+        "ask": "Demander à chaque fois",
+        "folder": "Dossier fixe",
+        "folderPlaceholder": "Dossier des fichiers convertis",
+        "pickFolder": "Choisir un dossier"
+      },
+      "options": {
+        "label": "Options d'export",
+        "standalone": "Fichier complet",
+        "toc": "Table des matières",
+        "numberSections": "Numéroter les sections"
+      },
+      "referenceDoc": {
+        "label": "Modèle Word",
+        "placeholder": "Vide = le style intégré de pandoc",
+        "browse": "Choisir un modèle",
+        "clear": "Effacer",
+        "notes": "S'applique uniquement aux exports Word (.docx) et OpenDocument (.odt) ; pandoc y prend ses styles."
+      },
       "requirement": {
         "title": "Prérequis",
-        "text": "MarkText utilise le pandoc que vous installez vous-même ; il n'est pas fourni. Installez-le depuis pandoc.org, ou définissez MARKTEXT_PANDOC sur le chemin complet de l'exécutable s'il n'est pas dans votre PATH."
+        "text": "MarkText utilise le pandoc que vous installez vous-même ; il n'est pas fourni. Installez-le depuis pandoc.org ou indiquez ci-dessus le chemin de l'exécutable."
       }
     },
     "theme": {

@@ -15,7 +15,8 @@ import type {
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  PandocPickerKind
 } from '@shared/types/ipc'
 
 type RendererEventListener<K extends keyof IpcMainEventChannels> = (
@@ -228,6 +229,12 @@ const fontsAPI = {
   list: () => invoke('mt::fonts::list')
 }
 
+const pandocAPI = {
+  check: (command: string) => invoke('mt::pandoc::check', command),
+  pickPath: (kind: PandocPickerKind, defaultPath?: string) =>
+    invoke('mt::pandoc::pick-path', kind, defaultPath)
+}
+
 const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
@@ -296,6 +303,7 @@ try {
   contextBridge.exposeInMainWorld('ripgrep', ripgrepAPI)
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
+  contextBridge.exposeInMainWorld('pandoc', pandocAPI)
 } catch (error) {
   console.error(error)
 }

@@ -27,7 +27,8 @@
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "pandocDefaultFormat": "{format}(기본)"
     },
     "edit": {
       "edit": "편집",
@@ -415,7 +416,7 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
-        "pandocEnabled": "Pandoc 내보내기 사용",
+        "pandocEnabled": "Pandoc 내보내기 / 가져오기 사용",
         "pandocExportFormats": "내보내기 메뉴에 표시할 형식",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
-        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
+        "pandocPath": "pandoc 경로",
+        "pandocDefaultFormat": "기본 형식",
+        "pandocExportLocation": "내보낼 위치",
+        "pandocExportFolder": "변환된 파일을 저장할 폴더",
+        "pandocStandalone": "완전한 파일",
+        "pandocToc": "목차",
+        "pandocNumberSections": "섹션 번호",
+        "pandocReferenceDoc": "Word 템플릿"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "Pandoc 내보내기 / 가져오기 사용",
+      "path": {
+        "label": "pandoc 경로",
+        "placeholder": "비우면 PATH의 pandoc 사용",
+        "check": "확인",
+        "browse": "찾아보기",
+        "ok": "찾음: {version}",
+        "failed": "사용할 수 없음: {error}"
+      },
       "export": {
         "title": "내보내기",
-        "enable": "Pandoc 내보내기 사용",
         "formats": "내보내기 메뉴에 표시할 형식",
         "formatsNotes": "모든 형식을 선택 해제하면 메뉴 항목이 숨겨집니다."
       },
+      "defaultFormat": "기본 형식",
+      "location": {
+        "label": "내보낼 위치",
+        "source": "원본 파일과 같은 폴더",
+        "ask": "매번 묻기",
+        "folder": "고정 폴더",
+        "folderPlaceholder": "변환된 파일을 저장할 폴더",
+        "pickFolder": "폴더 선택"
+      },
+      "options": {
+        "label": "내보내기 옵션",
+        "standalone": "완전한 파일",
+        "toc": "목차",
+        "numberSections": "섹션 번호"
+      },
+      "referenceDoc": {
+        "label": "Word 템플릿",
+        "placeholder": "비우면 pandoc 기본 스타일 사용",
+        "browse": "템플릿 선택",
+        "clear": "지우기",
+        "notes": "Word(.docx)와 OpenDocument(.odt) 내보내기에만 사용되며, pandoc이 여기서 스타일을 가져옵니다."
+      },
       "requirement": {
         "title": "요구 사항",
-        "text": "MarkText는 사용자가 직접 설치한 pandoc을 사용하며 함께 제공되지 않습니다. pandoc.org에서 설치하거나 PATH에 없을 경우 환경 변수 MARKTEXT_PANDOC에 실행 파일의 전체 경로를 지정하세요."
+        "text": "MarkText는 사용자가 직접 설치한 pandoc을 사용하며 함께 제공되지 않습니다. pandoc.org에서 설치하거나 위 경로에 실행 파일을 입력하세요."
       }
     },
     "theme": {

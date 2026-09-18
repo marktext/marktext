@@ -5,31 +5,46 @@ import { isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
-import { getPandocMenuFormats } from '@shared/pandoc'
+import { getPandocDefaultFormat, getPandocMenuFormats } from '@shared/pandoc'
+import type { PandocExportFormat } from '@shared/pandoc'
 
 export default function(
   keybindings: Keybindings,
   userPreference: Preference,
   recentlyUsedFiles: string[]
 ): MenuItemConstructorOptions {
-  const { autoSave, pandocEnabled, pandocExportFormats } = userPreference.getAll() as {
-    autoSave?: boolean
-    pandocEnabled?: boolean
-    pandocExportFormats?: string[]
-  }
+  const { autoSave, pandocEnabled, pandocExportFormats, pandocDefaultFormat } =
+    userPreference.getAll() as {
+      autoSave?: boolean
+      pandocEnabled?: boolean
+      pandocExportFormats?: string[]
+      pandocDefaultFormat?: string
+    }
 
   // The separator belongs to the pandoc entry, so the two are built together and
   // both disappear when the export is switched off or no format is selected —
   // see the "Pandoc" page in the preferences.
   const pandocFormats = getPandocMenuFormats(pandocEnabled, pandocExportFormats)
+  const pandocDefault = getPandocDefaultFormat(pandocFormats, pandocDefaultFormat)
+  // The default format leads the submenu: it is the one an export picks when no
+  // format is named, and putting it first makes that visible without a second
+  // menu structure.
+  const orderedPandocFormats = pandocDefault
+    ? [pandocDefault, ...pandocFormats.filter((format) => format.id !== pandocDefault.id)]
+    : pandocFormats
+  const pandocItemLabel = (format: PandocExportFormat): string =>
+    pandocDefault && format.id === pandocDefault.id
+      ? t('menu.file.pandocDefaultFormat', { format: format.label })
+      : format.label
+
   const pandocMenuItems: MenuItemConstructorOptions[] = []
-  if (pandocFormats.length > 0) {
+  if (orderedPandocFormats.length > 0) {
     pandocMenuItems.push(
       { type: 'separator' },
       {
         label: t('menu.file.convertWithPandoc'),
-        submenu: pandocFormats.map((format) => ({
-          label: format.label,
+        submenu: orderedPandocFormats.map((format) => ({
+          label: pandocItemLabel(format),
           click(_menuItem, browserWindow) {
             actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
           }
@@ -173,6 +188,10 @@ export default function(
     },
     {
       label: t('menu.file.import'),
+      // Importing runs the document through pandoc as well, so the master switch
+      // on the "Pandoc" preferences page hides this entry along with the export
+      // submenu.
+      visible: pandocEnabled !== false,
       click(_menuItem, browserWindow) {
         actions.importFile((browserWindow as BrowserWindow | undefined) ?? null)
       }

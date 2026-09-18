@@ -27,7 +27,8 @@
       "closeTab": "Tab schließen",
       "closeWindow": "Fenster schließen",
       "quit": "Beenden",
-      "preferences": "Einstellungen"
+      "preferences": "Einstellungen",
+      "pandocDefaultFormat": "{format} (Standard)"
     },
     "edit": {
       "edit": "Bearbeiten",
@@ -415,7 +416,7 @@
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
-        "pandocEnabled": "Pandoc-Export aktivieren",
+        "pandocEnabled": "Pandoc-Export / -Import aktivieren",
         "pandocExportFormats": "Im Exportmenü angezeigte Formate",
         "sequenceTheme": "Sequenzdiagramm-Theme",
         "plantumlServer": "PlantUML-Server-URL",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
-        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
+        "pandocPath": "Pandoc-Pfad",
+        "pandocDefaultFormat": "Standardformat",
+        "pandocExportLocation": "Exportieren nach",
+        "pandocExportFolder": "Ordner für die konvertierten Dateien",
+        "pandocStandalone": "Vollständige Datei",
+        "pandocToc": "Inhaltsverzeichnis",
+        "pandocNumberSections": "Abschnitte nummerieren",
+        "pandocReferenceDoc": "Word-Vorlage"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "Pandoc-Export / -Import aktivieren",
+      "path": {
+        "label": "Pandoc-Pfad",
+        "placeholder": "Leer = das pandoc aus dem PATH",
+        "check": "Prüfen",
+        "browse": "Durchsuchen",
+        "ok": "Gefunden: {version}",
+        "failed": "Nicht verwendbar: {error}"
+      },
       "export": {
         "title": "Export",
-        "enable": "Pandoc-Export aktivieren",
         "formats": "Im Exportmenü angezeigte Formate",
         "formatsNotes": "Wenn Sie alle Formate abwählen, wird der Menüeintrag ausgeblendet."
       },
+      "defaultFormat": "Standardformat",
+      "location": {
+        "label": "Exportieren nach",
+        "source": "Neben der Quelldatei",
+        "ask": "Jedes Mal fragen",
+        "folder": "Fester Ordner",
+        "folderPlaceholder": "Ordner für die konvertierten Dateien",
+        "pickFolder": "Ordner wählen"
+      },
+      "options": {
+        "label": "Exportoptionen",
+        "standalone": "Vollständige Datei",
+        "toc": "Inhaltsverzeichnis",
+        "numberSections": "Abschnitte nummerieren"
+      },
+      "referenceDoc": {
+        "label": "Word-Vorlage",
+        "placeholder": "Leer = das eingebaute Format von pandoc",
+        "browse": "Vorlage wählen",
+        "clear": "Zurücksetzen",
+        "notes": "Gilt nur für Exporte nach Word (.docx) und OpenDocument (.odt); pandoc entnimmt ihr die Formatvorlagen."
+      },
       "requirement": {
         "title": "Voraussetzungen",
-        "text": "MarkText verwendet das von Ihnen installierte pandoc; es ist nicht im Lieferumfang enthalten. Installieren Sie es von pandoc.org, oder setzen Sie MARKTEXT_PANDOC auf den vollständigen Pfad der ausführbaren Datei, falls sie nicht in Ihrem PATH liegt."
+        "text": "MarkText verwendet das von Ihnen installierte pandoc; es ist nicht im Lieferumfang enthalten. Installieren Sie es von pandoc.org oder tragen Sie oben den Pfad zur ausführbaren Datei ein."
       }
     },
     "theme": {

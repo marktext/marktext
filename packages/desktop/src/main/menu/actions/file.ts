@@ -1,4 +1,4 @@
-import { rename as fsRename } from 'fs-extra'
+import { rename as fsRename, ensureDir as fsEnsureDir } from 'fs-extra'
 import path from 'path'
 import {
   BrowserWindow,
@@ -21,6 +21,13 @@ import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../.
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc, { PANDOC_EXPORT_FORMATS, getPandocReader } from '../../utils/pandoc'
+import {
+  getPandocDefaultFormat,
+  getPandocExportLocation,
+  getPandocMenuFormats
+} from '@shared/pandoc'
+import type { PandocExportFormat, PandocExportLocation } from '@shared/pandoc'
+import { getUserPreference } from '../../app/userPreference'
 import { t } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
 
@@ -181,6 +188,74 @@ const summarizePandocWarnings = (warnings: string): string => {
   return shown.join('<br>')
 }
 
+/**
+ * "notes.docx", "notes (2).docx", … — never an existing file.
+ *
+ * The automatic export locations write without asking, and a conversion is a
+ * derived file: replacing an earlier one the user may still be working from is
+ * not what clicking a menu entry promises.
+ */
+const uniquePandocOutputPath = (
+  dir: string,
+  nakedFilename: string,
+  extension: string
+): string => {
+  const candidate = path.join(dir, `${nakedFilename}${extension}`)
+  if (!exists(candidate)) {
+    return candidate
+  }
+  for (let index = 2; index < 1000; index++) {
+    const numbered = path.join(dir, `${nakedFilename} (${index})${extension}`)
+    if (!exists(numbered)) {
+      return numbered
+    }
+  }
+  return candidate
+}
+
+/**
+ * Where the converted file is written, or `null` when the user cancels.
+ *
+ * `ask` is the save dialog. `source` writes beside the document being exported
+ * and `folder` into the folder set in the preferences; neither can fall back on
+ * anything — a document that has never been saved has no folder of its own, and
+ * the folder mode needs a folder — so an incomplete configuration asks rather
+ * than guessing.
+ */
+const resolvePandocOutputPath = async(
+  win: BrowserWindow,
+  options: {
+    format: PandocExportFormat
+    nakedFilename: string
+    sourceDir?: string
+    location: PandocExportLocation
+    folder: string
+  }
+): Promise<string | null> => {
+  const { format, nakedFilename, sourceDir, location, folder } = options
+  const targetDir = location === 'source' ? sourceDir : location === 'folder' ? folder : undefined
+
+  if (targetDir) {
+    // The folder may have been moved or deleted since it was chosen; recreating
+    // it is friendlier than failing the export with ENOENT.
+    await fsEnsureDir(targetDir)
+    return uniquePandocOutputPath(targetDir, nakedFilename, format.extension)
+  }
+
+  const { filePath, canceled } = await dialog.showSaveDialog(win, {
+    defaultPath: path.join(
+      sourceDir ?? getPath('documents'),
+      `${nakedFilename}${format.extension}`
+    ),
+    filters: [{ name: format.label, extensions: [format.extension.slice(1)] }]
+  })
+
+  if (canceled || !filePath) {
+    return null
+  }
+  return filePath
+}
+
 const handleResponseForPandocExport = async(
   e: IpcMainEvent,
   payload: PandocExportPayload
@@ -196,19 +271,25 @@ const handleResponseForPandocExport = async(
     return
   }
 
+  const preferences = getUserPreference()
   const { markdown, title, pathname, superSubScript } = payload
-  const dirname = pathname ? path.dirname(pathname) : getPath('documents')
+  // Relative links resolve against the folder holding the document, so it is
+  // needed by both the export location and the conversion itself.
+  const sourceDir = pathname ? path.dirname(pathname) : undefined
   // Strip whatever extension the source file carries so "notes.md" becomes
   // "notes.docx" rather than "notes.md.docx".
   const nakedFilename =
     (pathname ? path.basename(pathname, path.extname(pathname)) : title) || 'Untitled'
 
-  const { filePath, canceled } = await dialog.showSaveDialog(win, {
-    defaultPath: path.join(dirname, `${nakedFilename}${format.extension}`),
-    filters: [{ name: format.label, extensions: [format.extension.slice(1)] }]
+  const filePath = await resolvePandocOutputPath(win, {
+    format,
+    nakedFilename,
+    sourceDir,
+    location: getPandocExportLocation(preferences?.getItem('pandocExportLocation')),
+    folder: (preferences?.getItem<string>('pandocExportFolder') ?? '').trim()
   })
 
-  if (!filePath || canceled) {
+  if (!filePath) {
     return
   }
 
@@ -216,12 +297,18 @@ const handleResponseForPandocExport = async(
   // against the process cwd unless the source folder is passed along — and a
   // link it cannot resolve only produces a warning on stderr while pandoc still
   // exits 0.
-  const cwd = pathname ? path.dirname(pathname) : undefined
+  const cwd = sourceDir
 
   try {
     const { warnings } = await pandoc.toFile(format.target, filePath, markdown, {
       cwd,
-      reader: getPandocReader(superSubScript === true)
+      reader: getPandocReader(superSubScript === true),
+      // Standalone defaults to on, so only an explicit `false` turns it off —
+      // a preferences file written before the option existed behaves as before.
+      standalone: preferences?.getItem<boolean>('pandocStandalone') !== false,
+      toc: preferences?.getItem<boolean>('pandocToc') === true,
+      numberSections: preferences?.getItem<boolean>('pandocNumberSections') === true,
+      referenceDoc: (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim()
     })
     win.webContents.send('mt::export-success', { type: format.id, filePath })
 
@@ -802,20 +889,50 @@ export const exportFile = (win: Win, type: string): void => {
  * renderer, whereas pandoc wants the markdown source and a file target (binary
  * writers need `-o`, see `pandoc.toFile`). The renderer replies with the
  * markdown over `mt::response-pandoc-export`.
+ *
+ * `target` is a format id from the submenu. Omitting it exports the format the
+ * user marked as the default, which is what a caller that is not the submenu
+ * (an accelerator, a command) can use.
  */
-export const exportWithPandoc = (win: Win, target: string): void => {
+export const exportWithPandoc = (win: Win, target?: string): void => {
   if (!win || !win.webContents) {
     return
   }
+
+  const preferences = getUserPreference()
+  const formats = getPandocMenuFormats(
+    preferences?.getItem<boolean>('pandocEnabled'),
+    preferences?.getItem<string[]>('pandocExportFormats')
+  )
+  const format = target
+    ? formats.find((f) => f.id === target)
+    : getPandocDefaultFormat(formats, preferences?.getItem<string>('pandocDefaultFormat'))
+
+  // Empty when the export is switched off in the preferences or every format is
+  // unchecked — both of which hide the menu entry, so this only catches a
+  // caller that did not go through it.
+  if (!format) {
+    if (target) {
+      log.warn(`Ignoring pandoc export request for "${target}": not offered by the preferences.`)
+    }
+    return
+  }
+
   if (!pandoc.exists()) {
     noticePandocNotFound(win, 'dialog.exportWarning')
     return
   }
-  win.webContents.send('mt::export-with-pandoc', target)
+  win.webContents.send('mt::export-with-pandoc', format.id)
 }
 
 export const importFile = async(win: BrowserWindow | null): Promise<void> => {
   if (!win) {
+    return
+  }
+  // The "Pandoc" preferences page switches export and import together, so the
+  // master switch gates this path as well. The menu entry is hidden in that
+  // state; this keeps a stale window from importing anyway.
+  if (getUserPreference()?.getItem<boolean>('pandocEnabled') === false) {
     return
   }
   const existsPandoc = pandoc.exists()

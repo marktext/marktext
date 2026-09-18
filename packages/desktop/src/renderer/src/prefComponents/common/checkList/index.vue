@@ -76,7 +76,6 @@ const handleChange = (item: string, checked: boolean | string | number): void =>
 .pref-check-list {
   font-size: 14px;
   user-select: none;
-  margin: 12px 0;
   color: var(--editorColor);
 
   & .description {
@@ -85,13 +84,16 @@ const handleChange = (item: string, checked: boolean | string | number): void =>
     margin-bottom: 4px;
   }
 
+  /* Wrapped rather than stacked: the format list is seven short items and reads
+     better as a grid than as a column that pushes the rest of the page down. */
   & .options {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    column-gap: 16px;
   }
 
   & .el-checkbox {
-    height: 28px;
+    height: 30px;
     margin-right: 0;
   }
 

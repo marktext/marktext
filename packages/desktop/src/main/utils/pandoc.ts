@@ -3,14 +3,39 @@ import { spawn } from 'child_process'
 import type { Readable } from 'stream'
 import commandExists from 'command-exists'
 import { isFile2 } from 'common/filesystem'
+import { PANDOC_REFERENCE_DOC_TARGETS } from '@shared/pandoc'
+import type { PandocCheckResult } from '@shared/pandoc'
+import { getUserPreference } from '../app/userPreference'
 
 // Re-exported so the menu and the unit tests can keep importing them from here.
 // The definitions moved to `shared`: the renderer's preferences pane renders the
 // same list to let the user pick which formats the menu offers.
 export { PANDOC_EXPORT_FORMATS } from '@shared/pandoc'
-export type { PandocExportFormat } from '@shared/pandoc'
+export type { PandocExportFormat, PandocCheckResult } from '@shared/pandoc'
 
 const pandocCommand = 'pandoc'
+
+/**
+ * Command to spawn.
+ *
+ * Order: the configured path, then `MARKTEXT_PANDOC`, then a bare `pandoc` for
+ * `PATH` to resolve. Each earlier source is skipped when it is set but does not
+ * point at a file, so a stale value cannot make every conversion fail when a
+ * working pandoc is reachable through the next source.
+ *
+ * The preference is read per call rather than cached, so changing it in the
+ * preferences page applies to the next conversion without a restart.
+ */
+export const resolvePandocCommand = (): string => {
+  const configured = (getUserPreference()?.getItem<string>('pandocPath') ?? '').trim()
+  if (configured && isFile2(configured)) {
+    return configured
+  }
+  if (envPathExists()) {
+    return process.env.MARKTEXT_PANDOC as string
+  }
+  return pandocCommand
+}
 
 /**
  * Reader to hand the document to pandoc with.
@@ -30,13 +55,6 @@ const pandocCommand = 'pandoc'
 export const getPandocReader = (superSubScript: boolean): string =>
   superSubScript ? 'gfm+superscript+subscript' : 'gfm'
 
-const getCommand = (): string => {
-  if (envPathExists()) {
-    return process.env.MARKTEXT_PANDOC as string
-  }
-  return pandocCommand
-}
-
 interface PandocConverter {
   (): Promise<string>
   stream: (srcStream: NodeJS.ReadableStream) => Readable | null
@@ -51,10 +69,11 @@ interface PandocFn {
     input: string,
     options?: PandocToFileOptions
   ) => Promise<PandocToFileResult>
+  check: (command?: string) => Promise<PandocCheckResult>
 }
 
 const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter => {
-  const command = getCommand()
+  const command = resolvePandocCommand()
   const option = ['-s', from, '-t', to].concat(args)
 
   const converter = ((): Promise<string> =>
@@ -80,10 +99,65 @@ const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter =
 }) as PandocFn
 
 pandoc.exists = (): boolean => {
-  if (envPathExists()) {
+  const command = resolvePandocCommand()
+  if (command !== pandocCommand) {
     return true
   }
   return commandExists.sync(pandocCommand)
+}
+
+/**
+ * Run `pandoc --version` so the preferences page can tell a working path from a
+ * typo. Checking that the file exists is not enough — a renamed binary, a
+ * script without execute permission, or a 32-bit build on a machine without the
+ * runtime all pass that test and then fail on the first export.
+ *
+ * `command` defaults to the resolved command, so pressing "check" with the field
+ * left empty tests the same pandoc an export would use.
+ */
+pandoc.check = (command?: string): Promise<PandocCheckResult> => {
+  const target = (command ?? '').trim() || resolvePandocCommand()
+  return new Promise((resolve) => {
+    let settled = false
+    const done = (result: PandocCheckResult): void => {
+      if (!settled) {
+        settled = true
+        resolve(result)
+      }
+    }
+
+    let proc: ReturnType<typeof spawn>
+    try {
+      proc = spawn(target, ['--version'])
+    } catch (err) {
+      const error = err as Error
+      return done({ ok: false, error: error.message })
+    }
+
+    let stdout = ''
+    let stderr = ''
+    proc.stdout?.on('data', (chunk: Buffer | string) => {
+      stdout += chunk.toString()
+    })
+    proc.stderr?.on('data', (chunk: Buffer | string) => {
+      stderr += chunk.toString()
+    })
+    // A missing command surfaces here (ENOENT) rather than as a non-zero exit.
+    proc.on('error', (err) => done({ ok: false, error: err.message }))
+    proc.on('close', (code: number | null) => {
+      if (code === 0) {
+        const version = stdout.split('\n')[0]?.trim()
+        done({ ok: true, version: version || target })
+      } else {
+        done({
+          ok: false,
+          error: stderr.trim() || `exit code ${String(code)}`
+        })
+      }
+    })
+    proc.stdin?.on('error', () => {})
+    proc.stdin?.end()
+  })
 }
 
 export interface PandocToFileOptions {
@@ -97,6 +171,17 @@ export interface PandocToFileOptions {
   cwd?: string
   /** Reader used to parse `input`; see `getPandocReader`. */
   reader?: string
+  /** `-s`: emit a complete document instead of a body fragment. */
+  standalone?: boolean
+  /** `--toc`: insert a table of contents. */
+  toc?: boolean
+  /** `--number-sections`: number the headings. */
+  numberSections?: boolean
+  /**
+   * `--reference-doc`: style template for the export. Ignored for writers that
+   * do not take the option — see `PANDOC_REFERENCE_DOC_TARGETS`.
+   */
+  referenceDoc?: string
 }
 
 export interface PandocToFileResult {
@@ -106,6 +191,52 @@ export interface PandocToFileResult {
    * extension) that exit code 0 would hide from the user.
    */
   warnings: string
+}
+
+/**
+ * Arguments for a conversion to `to`, written to `outputPath`.
+ *
+ * Exported because the tests assert the exact argument list: the flag set is
+ * what a user sees the effect of, and a wrong one (a `--reference-doc` on a
+ * writer that rejects it, or a dropped `-s`) fails the export outright rather
+ * than degrading it.
+ */
+export const buildPandocArguments = (options: {
+  reader: string
+  to: string
+  outputPath: string
+  standalone?: boolean
+  toc?: boolean
+  numberSections?: boolean
+  referenceDoc?: string
+}): string[] => {
+  const {
+    reader,
+    to,
+    outputPath,
+    standalone = true,
+    toc = false,
+    numberSections = false,
+    referenceDoc = ''
+  } = options
+
+  const args = ['-f', reader, '-t', to]
+  if (standalone) {
+    args.push('-s')
+  }
+  if (toc) {
+    args.push('--toc')
+  }
+  if (numberSections) {
+    args.push('--number-sections')
+  }
+  // pandoc exits 1 with "The --reference-doc option is not supported for X" on
+  // every other writer, so the template only rides along when it applies.
+  if (referenceDoc && PANDOC_REFERENCE_DOC_TARGETS.includes(to)) {
+    args.push(`--reference-doc=${referenceDoc}`)
+  }
+  args.push('-o', outputPath)
+  return args
 }
 
 /**
@@ -122,10 +253,25 @@ pandoc.toFile = (
   options: PandocToFileOptions = {}
 ): Promise<PandocToFileResult> =>
   new Promise((resolve, reject) => {
-    const { cwd, reader = getPandocReader(false) } = options
-    const option = ['-f', reader, '-t', to, '-s', '-o', outputPath]
+    const {
+      cwd,
+      reader = getPandocReader(false),
+      standalone,
+      toc,
+      numberSections,
+      referenceDoc
+    } = options
+    const args = buildPandocArguments({
+      reader,
+      to,
+      outputPath,
+      standalone,
+      toc,
+      numberSections,
+      referenceDoc
+    })
 
-    const proc = spawn(getCommand(), option, { cwd })
+    const proc = spawn(resolvePandocCommand(), args, { cwd })
     let errorOutput = ''
     proc.on('error', reject)
     proc.stderr.on('data', (chunk: Buffer | string) => {

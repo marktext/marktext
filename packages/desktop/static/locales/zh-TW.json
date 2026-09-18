@@ -27,7 +27,8 @@
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
       "quit": "退出",
-      "preferences": "偏好設定"
+      "preferences": "偏好設定",
+      "pandocDefaultFormat": "{format}（預設）"
     },
     "edit": {
       "edit": "編輯",
@@ -415,7 +416,7 @@
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "softNewlineAsSpace": "將軟換行視為空格",
-        "pandocEnabled": "啟用 Pandoc 匯出",
+        "pandocEnabled": "啟用 Pandoc 匯出 / 匯入",
         "pandocExportFormats": "匯出選單中顯示的格式",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "pandocPath": "pandoc 路徑",
+        "pandocDefaultFormat": "預設格式",
+        "pandocExportLocation": "匯出位置",
+        "pandocExportFolder": "匯出檔案的存放目錄",
+        "pandocStandalone": "完整檔案",
+        "pandocToc": "目錄",
+        "pandocNumberSections": "章節編號",
+        "pandocReferenceDoc": "Word 範本"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "啟用 Pandoc 匯出 / 匯入",
+      "path": {
+        "label": "pandoc 路徑",
+        "placeholder": "留空 = 用 PATH 裡的 pandoc",
+        "check": "檢測",
+        "browse": "瀏覽",
+        "ok": "已找到 {version}",
+        "failed": "無法使用：{error}"
+      },
       "export": {
         "title": "匯出",
-        "enable": "啟用 Pandoc 匯出",
         "formats": "匯出選單中顯示的格式",
         "formatsNotes": "取消勾選全部格式會隱藏該選單項目。"
       },
+      "defaultFormat": "預設格式",
+      "location": {
+        "label": "匯出位置",
+        "source": "來源檔案同目錄",
+        "ask": "每次詢問",
+        "folder": "固定目錄",
+        "folderPlaceholder": "匯出檔案的存放目錄",
+        "pickFolder": "選擇目錄"
+      },
+      "options": {
+        "label": "匯出選項",
+        "standalone": "完整檔案",
+        "toc": "目錄",
+        "numberSections": "章節編號"
+      },
+      "referenceDoc": {
+        "label": "Word 範本",
+        "placeholder": "留空 = 用 pandoc 內建樣式",
+        "browse": "選擇範本",
+        "clear": "清除",
+        "notes": "僅對 Word (.docx) 與 OpenDocument (.odt) 生效，pandoc 會以它作為樣式來源。"
+      },
       "requirement": {
         "title": "使用前提",
-        "text": "MarkText 使用你自己安裝的 pandoc，並未隨附。請從 pandoc.org 安裝；如果它不在 PATH 中，把環境變數 MARKTEXT_PANDOC 設為執行檔的完整路徑即可。"
+        "text": "MarkText 使用你自己安裝的 pandoc，並未隨附。請從 pandoc.org 安裝，或在上面的「pandoc 路徑」指向執行檔。"
       }
     },
     "theme": {

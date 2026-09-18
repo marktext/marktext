@@ -27,7 +27,8 @@
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
       "quit": "Afsluiten",
-      "preferences": "Voorkeuren"
+      "preferences": "Voorkeuren",
+      "pandocDefaultFormat": "{format} (standaard)"
     },
     "edit": {
       "edit": "Bewerken",
@@ -414,7 +415,7 @@
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
-        "pandocEnabled": "Pandoc-export inschakelen",
+        "pandocEnabled": "Pandoc-export / -import inschakelen",
         "pandocExportFormats": "Indelingen in het exportmenu",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
-        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
+        "pandocPath": "Pad naar pandoc",
+        "pandocDefaultFormat": "Standaardindeling",
+        "pandocExportLocation": "Exporteren naar",
+        "pandocExportFolder": "Map voor de geconverteerde bestanden",
+        "pandocStandalone": "Volledig bestand",
+        "pandocToc": "Inhoudsopgave",
+        "pandocNumberSections": "Secties nummeren",
+        "pandocReferenceDoc": "Word-sjabloon"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "Pandoc-export / -import inschakelen",
+      "path": {
+        "label": "Pad naar pandoc",
+        "placeholder": "Leeg = de pandoc uit PATH",
+        "check": "Controleren",
+        "browse": "Bladeren",
+        "ok": "Gevonden: {version}",
+        "failed": "Niet bruikbaar: {error}"
+      },
       "export": {
         "title": "Exporteren",
-        "enable": "Pandoc-export inschakelen",
         "formats": "Indelingen in het exportmenu",
         "formatsNotes": "Als u alle indelingen uitschakelt, wordt het menu-item verborgen."
       },
+      "defaultFormat": "Standaardindeling",
+      "location": {
+        "label": "Exporteren naar",
+        "source": "Naast het bronbestand",
+        "ask": "Elke keer vragen",
+        "folder": "Vaste map",
+        "folderPlaceholder": "Map voor de geconverteerde bestanden",
+        "pickFolder": "Map kiezen"
+      },
+      "options": {
+        "label": "Exportopties",
+        "standalone": "Volledig bestand",
+        "toc": "Inhoudsopgave",
+        "numberSections": "Secties nummeren"
+      },
+      "referenceDoc": {
+        "label": "Word-sjabloon",
+        "placeholder": "Leeg = de ingebouwde stijl van pandoc",
+        "browse": "Sjabloon kiezen",
+        "clear": "Wissen",
+        "notes": "Alleen gebruikt voor exports naar Word (.docx) en OpenDocument (.odt); pandoc haalt daar de stijlen uit."
+      },
       "requirement": {
         "title": "Vereisten",
-        "text": "MarkText gebruikt de pandoc die u zelf installeert; deze wordt niet meegeleverd. Installeer het via pandoc.org, of stel MARKTEXT_PANDOC in op het volledige pad van het programma als het niet in uw PATH staat."
+        "text": "MarkText gebruikt de pandoc die u zelf installeert; deze wordt niet meegeleverd. Installeer het via pandoc.org of vul hierboven het pad naar het programma in."
       }
     },
     "theme": {

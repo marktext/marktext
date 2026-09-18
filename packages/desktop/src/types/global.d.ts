@@ -8,10 +8,12 @@ import type {
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  PandocPickerKind
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
+import type { PandocCheckResult } from '@shared/pandoc'
 
 declare global {
   // ---- Build-time defines (electron-vite `define`) ----
@@ -166,6 +168,13 @@ declare global {
     list(): Promise<string[]>
   }
 
+  interface PandocAPI {
+    /** Runs `pandoc --version`; an empty command checks the one an export would use. */
+    check(command: string): Promise<PandocCheckResult>
+    /** Opens a picker and resolves to the chosen path, or '' when cancelled. */
+    pickPath(kind: PandocPickerKind, defaultPath?: string): Promise<string>
+  }
+
   interface ProcessShim {
     platform: NodeJS.Platform
     arch?: string
@@ -185,6 +194,7 @@ declare global {
     ripgrep: RipgrepAPI
     uploader: UploaderAPI
     fonts: FontsAPI
+    pandoc: PandocAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.

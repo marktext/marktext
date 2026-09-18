@@ -27,7 +27,8 @@
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
       "quit": "Quit",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "pandocDefaultFormat": "{format} (default)"
     },
     "edit": {
       "edit": "Edit",
@@ -414,7 +415,7 @@
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
-        "pandocEnabled": "Enable pandoc export",
+        "pandocEnabled": "Enable Pandoc export / import",
         "pandocExportFormats": "Formats shown in the export menu",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
@@ -431,7 +432,15 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "pandocPath": "Pandoc path",
+        "pandocDefaultFormat": "Default format",
+        "pandocExportLocation": "Export to",
+        "pandocExportFolder": "Folder for the converted files",
+        "pandocStandalone": "Standalone file",
+        "pandocToc": "Table of contents",
+        "pandocNumberSections": "Number sections",
+        "pandocReferenceDoc": "Word template"
       }
     },
     "categories": {
@@ -688,15 +697,45 @@
     },
     "pandoc": {
       "title": "Pandoc",
+      "enable": "Enable Pandoc export / import",
+      "path": {
+        "label": "Pandoc path",
+        "placeholder": "Empty = the pandoc on PATH",
+        "check": "Check",
+        "browse": "Browse",
+        "ok": "Found {version}",
+        "failed": "Not usable: {error}"
+      },
       "export": {
         "title": "Export",
-        "enable": "Enable pandoc export",
         "formats": "Formats shown in the export menu",
         "formatsNotes": "Uncheck every format to hide the menu entry."
       },
+      "defaultFormat": "Default format",
+      "location": {
+        "label": "Export to",
+        "source": "Next to the source file",
+        "ask": "Ask every time",
+        "folder": "Fixed folder",
+        "folderPlaceholder": "Folder for the converted files",
+        "pickFolder": "Choose folder"
+      },
+      "options": {
+        "label": "Export options",
+        "standalone": "Standalone file",
+        "toc": "Table of contents",
+        "numberSections": "Number sections"
+      },
+      "referenceDoc": {
+        "label": "Word template",
+        "placeholder": "Empty = pandoc's built-in style",
+        "browse": "Choose template",
+        "clear": "Clear",
+        "notes": "Used for Word (.docx) and OpenDocument (.odt) exports only; pandoc takes the styles from it."
+      },
       "requirement": {
         "title": "Requirements",
-        "text": "MarkText uses the pandoc installed on your system; it is not bundled. Install it from pandoc.org, or set MARKTEXT_PANDOC to the full path of the executable when it is not on your PATH."
+        "text": "MarkText uses the pandoc installed on your system; it is not bundled. Install it from pandoc.org, or put the path to the executable in the field above."
       }
     },
     "theme": {

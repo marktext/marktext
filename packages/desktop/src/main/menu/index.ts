@@ -543,10 +543,16 @@ class AppMenu {
         setLanguage(prefs.language)
         this.updateAppMenu()
       }
-      if (prefs.pandocEnabled !== undefined || prefs.pandocExportFormats !== undefined) {
-        // Both settings decide what the "Convert with Pandoc" submenu contains,
-        // and the submenu is built from the preferences — without this rebuild
-        // the menu keeps offering the previous format list until a restart.
+      if (
+        prefs.pandocEnabled !== undefined ||
+        prefs.pandocExportFormats !== undefined ||
+        prefs.pandocDefaultFormat !== undefined
+      ) {
+        // These three decide what the "Convert with Pandoc" submenu contains and
+        // which of its entries is marked as the default, and the submenu is
+        // built from the preferences — without this rebuild the menu keeps
+        // offering the previous list until a restart. `pandocEnabled` also
+        // hides "Import".
         this.updateAppMenu()
       }
     })

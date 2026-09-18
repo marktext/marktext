@@ -298,9 +298,19 @@
     "default": "https://www.plantuml.com/plantuml"
   },
   "pandocEnabled": {
-    "description": "Pandoc--Whether the pandoc conversion commands are offered in the export menu.",
+    "description": "Pandoc--Whether pandoc export and import are available.",
     "type": "boolean",
     "default": true
+  },
+  "pandocPath": {
+    "description": "Pandoc--Path of the pandoc executable. Empty uses the one found on PATH.",
+    "type": "string",
+    "default": ""
+  },
+  "pandocDefaultFormat": {
+    "description": "Pandoc--Format presented first and preselected in the export dialog.",
+    "type": "string",
+    "default": "docx"
   },
   "pandocExportFormats": {
     "description": "Pandoc--Formats offered in the pandoc export menu.",
@@ -308,7 +318,38 @@
     "items": {
       "type": "string"
     },
-    "default": ["docx", "odt", "rtf", "epub", "latex", "rst", "org", "mediawiki", "textile", "opml"]
+    "default": ["docx", "html", "epub", "pptx", "odt", "rtf", "txt"]
+  },
+  "pandocExportLocation": {
+    "description": "Pandoc--Where converted files are written.",
+    "type": "string",
+    "enum": ["source", "ask", "folder"],
+    "default": "ask"
+  },
+  "pandocExportFolder": {
+    "description": "Pandoc--Folder converted files are written to when the export location is fixed.",
+    "type": "string",
+    "default": ""
+  },
+  "pandocStandalone": {
+    "description": "Pandoc--Write a complete document instead of a body fragment.",
+    "type": "boolean",
+    "default": true
+  },
+  "pandocToc": {
+    "description": "Pandoc--Insert a table of contents.",
+    "type": "boolean",
+    "default": false
+  },
+  "pandocNumberSections": {
+    "description": "Pandoc--Number the sections automatically.",
+    "type": "boolean",
+    "default": false
+  },
+  "pandocReferenceDoc": {
+    "description": "Pandoc--Word document used as the style template for docx and odt exports.",
+    "type": "string",
+    "default": ""
   },
   "theme": {
     "description": "Theme--Select the theme used in MarkText",

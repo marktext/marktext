@@ -60,18 +60,23 @@
   "plantumlServer": "https://www.plantuml.com/plantuml",
 
   "pandocEnabled": true,
+  "pandocPath": "",
+  "pandocDefaultFormat": "docx",
   "pandocExportFormats": [
     "docx",
+    "html",
+    "epub",
+    "pptx",
     "odt",
     "rtf",
-    "epub",
-    "latex",
-    "rst",
-    "org",
-    "mediawiki",
-    "textile",
-    "opml"
+    "txt"
   ],
+  "pandocExportLocation": "ask",
+  "pandocExportFolder": "",
+  "pandocStandalone": true,
+  "pandocToc": false,
+  "pandocNumberSections": false,
+  "pandocReferenceDoc": "",
 
   "theme": "light",
   "followSystemTheme": true,
