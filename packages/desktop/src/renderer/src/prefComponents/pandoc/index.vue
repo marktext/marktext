@@ -65,19 +65,22 @@
       {{ t('preferences.pandoc.export.title') }}
     </h6>
 
-    <div class="pref-row">
+    <div
+      v-if="menuFormatOptions.length > 0"
+      class="pref-row"
+    >
       <div class="pref-row__label">
         {{ t('preferences.pandoc.defaultFormat') }}
       </div>
       <div class="pref-row__control">
         <el-select
           :model-value="selectedDefaultFormat"
-          :disabled="!pandocEnabled || formatOptions.length === 0"
+          :disabled="!pandocEnabled"
           class="format-select"
           @change="setDefaultFormat"
         >
           <el-option
-            v-for="option in formatOptions"
+            v-for="option in menuFormatOptions"
             :key="option.value"
             :label="option.label"
             :value="option.value"
@@ -93,7 +96,7 @@
       <div class="pref-row__control">
         <check-list
           :value="pandocExportFormats"
-          :options="formatOptions"
+          :options="allFormatOptions"
           :disable="!pandocEnabled"
           :on-change="onFormatsChange"
         />
@@ -216,6 +219,7 @@ import CheckList from '../common/checkList/index.vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import {
+  PANDOC_EXPORT_FORMATS,
   PANDOC_EXPORT_LOCATIONS,
   getPandocDefaultFormat,
   getPandocExportFormats
@@ -267,10 +271,20 @@ const checkResultText = computed(() => {
 })
 
 /**
- * Only the formats the menu actually offers: a default the user has unchecked
- * would be a setting with no effect.
+ * The check list always shows *every* format, ticked or not. Feeding it the
+ * ticked formats instead would make an unticked one vanish from the page the
+ * moment it was unticked, with no way to tick it again.
  */
-const formatOptions = computed(() =>
+const allFormatOptions = PANDOC_EXPORT_FORMATS.map((format) => ({
+  label: format.label,
+  value: format.id
+}))
+
+/**
+ * Only the ticked formats — what the export menu can actually offer, and
+ * therefore the only sensible choices for a default.
+ */
+const menuFormatOptions = computed(() =>
   getPandocExportFormats(pandocExportFormats.value).map((format) => ({
     label: format.label,
     value: format.id
@@ -316,10 +330,13 @@ const onOptionChange = (key: PandocOptionKey, value: unknown): void => update(ke
 /**
  * Unchecking the format that is currently the default would leave the setting
  * pointing outside the menu, so the default follows the remaining formats.
+ *
+ * Unticking everything keeps the stored default as it was, so re-ticking a
+ * format restores the user's earlier choice instead of silently rewriting it.
  */
 const onFormatsChange = (value: string[]): void => {
   update('pandocExportFormats', value)
-  if (!value.includes(pandocDefaultFormat.value) && value.length > 0) {
+  if (value.length > 0 && !value.includes(pandocDefaultFormat.value)) {
     update('pandocDefaultFormat', value[0])
   }
 }
