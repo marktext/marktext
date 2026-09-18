@@ -297,6 +297,19 @@
     "pattern": "^(https?://|$)",
     "default": "https://www.plantuml.com/plantuml"
   },
+  "pandocEnabled": {
+    "description": "Pandoc--Whether the pandoc conversion commands are offered in the export menu.",
+    "type": "boolean",
+    "default": true
+  },
+  "pandocExportFormats": {
+    "description": "Pandoc--Formats offered in the pandoc export menu.",
+    "type": "array",
+    "items": {
+      "type": "string"
+    },
+    "default": ["docx", "odt", "rtf", "epub", "latex", "rst", "org", "mediawiki", "textile", "opml"]
+  },
   "theme": {
     "description": "Theme--Select the theme used in MarkText",
     "type": "string",

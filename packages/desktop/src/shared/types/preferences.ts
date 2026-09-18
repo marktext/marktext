@@ -46,6 +46,10 @@ export interface IUserPreferences {
   isHtmlEnabled?: boolean
   isGitlabCompatibilityEnabled?: boolean
   softNewlineAsSpace?: boolean
+  // Pandoc export (the "Pandoc" preferences page): whether the conversion
+  // commands are shown at all, and which formats the submenu offers.
+  pandocEnabled?: boolean
+  pandocExportFormats?: string[]
   theme?: string
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean

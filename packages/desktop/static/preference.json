@@ -59,6 +59,20 @@
   "sequenceTheme": "hand",
   "plantumlServer": "https://www.plantuml.com/plantuml",
 
+  "pandocEnabled": true,
+  "pandocExportFormats": [
+    "docx",
+    "odt",
+    "rtf",
+    "epub",
+    "latex",
+    "rst",
+    "org",
+    "mediawiki",
+    "textile",
+    "opml"
+  ],
+
   "theme": "light",
   "followSystemTheme": true,
   "lightModeTheme": "light",

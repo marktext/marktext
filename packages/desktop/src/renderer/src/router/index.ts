@@ -7,6 +7,7 @@ import Preference from '@/pages/preference.vue'
 import General from '@/prefComponents/general/index.vue'
 import Editor from '@/prefComponents/editor/index.vue'
 import Markdown from '@/prefComponents/markdown/index.vue'
+import Pandoc from '@/prefComponents/pandoc/index.vue'
 import SpellChecker from '@/prefComponents/spellchecker/index.vue'
 import Theme from '@/prefComponents/theme/index.vue'
 import Image from '@/prefComponents/image/index.vue'
@@ -51,6 +52,11 @@ const routes = (type: string | null | undefined): RouteRecordRaw[] => [
         path: 'markdown',
         component: Markdown,
         name: 'markdown'
+      },
+      {
+        path: 'pandoc',
+        component: Pandoc,
+        name: 'pandoc'
       },
       {
         path: 'spelling',

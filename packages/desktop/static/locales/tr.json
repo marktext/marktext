@@ -358,6 +358,7 @@
         "general": "Genel",
         "editor": "Düzenleyici",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Tema",
         "image": "Görsel",
         "view": "Görünüm",
@@ -413,6 +414,8 @@
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
+        "pandocEnabled": "Pandoc dışa aktarımını etkinleştir",
+        "pandocExportFormats": "Dışa aktarma menüsünde gösterilecek biçimler",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
@@ -435,6 +438,7 @@
       "general": "Genel",
       "editor": "Düzenleyici",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Yazım",
       "theme": "Tema",
       "image": "Görsel",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "Sıralı liste ayracı",
         "preferLooseListItem": "Gevşek liste öğelerini tercih et",
         "title": "Listeler"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "Dışa Aktar",
+        "enable": "Pandoc dışa aktarımını etkinleştir",
+        "formats": "Dışa aktarma menüsünde gösterilecek biçimler",
+        "formatsNotes": "Tüm biçimlerin işaretini kaldırırsanız menü öğesi gizlenir."
+      },
+      "requirement": {
+        "title": "Gereksinimler",
+        "text": "MarkText, kendi kurduğunuz pandoc'u kullanır; birlikte gelmez. pandoc.org adresinden kurun veya PATH'inizde değilse MARKTEXT_PANDOC ortam değişkenini çalıştırılabilir dosyanın tam yolu olarak ayarlayın."
       }
     },
     "theme": {

@@ -358,6 +358,7 @@
         "general": "일반",
         "editor": "편집기",
         "markdown": "마크다운",
+        "pandoc": "Pandoc",
         "theme": "테마",
         "image": "이미지",
         "view": "보기",
@@ -414,6 +415,8 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
+        "pandocEnabled": "Pandoc 내보내기 사용",
+        "pandocExportFormats": "내보내기 메뉴에 표시할 형식",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
         "theme": "MarkText에서 사용할 테마 선택",
@@ -435,6 +438,7 @@
       "general": "일반",
       "editor": "편집기",
       "markdown": "마크다운",
+      "pandoc": "Pandoc",
       "spelling": "맞춤법",
       "theme": "테마",
       "image": "이미지",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "순서 목록 구분자",
         "preferLooseListItem": "느슨한 목록 항목 선호",
         "title": "목록"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "내보내기",
+        "enable": "Pandoc 내보내기 사용",
+        "formats": "내보내기 메뉴에 표시할 형식",
+        "formatsNotes": "모든 형식을 선택 해제하면 메뉴 항목이 숨겨집니다."
+      },
+      "requirement": {
+        "title": "요구 사항",
+        "text": "MarkText는 사용자가 직접 설치한 pandoc을 사용하며 함께 제공되지 않습니다. pandoc.org에서 설치하거나 PATH에 없을 경우 환경 변수 MARKTEXT_PANDOC에 실행 파일의 전체 경로를 지정하세요."
       }
     },
     "theme": {

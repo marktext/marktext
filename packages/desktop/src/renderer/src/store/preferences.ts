@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
+import { PANDOC_EXPORT_FORMAT_IDS } from '@shared/pandoc'
 
 // Finite-value unions where the runtime currently constrains the field.
 // We keep these as plain strings everywhere else to avoid forcing prematurely
@@ -83,6 +84,10 @@ export interface PreferencesState {
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
+
+  // ----- Pandoc export -----
+  pandocEnabled: boolean
+  pandocExportFormats: string[]
 
   // ----- Theme -----
   theme: string
@@ -201,6 +206,11 @@ export const usePreferencesStore = defineStore('preferences', {
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
+
+    // Every format until the user unchecks some. Derived from the shared list so
+    // a format added there is selected by default instead of silently missing.
+    pandocEnabled: true,
+    pandocExportFormats: [...PANDOC_EXPORT_FORMAT_IDS],
 
     theme: 'light',
     followSystemTheme: true,

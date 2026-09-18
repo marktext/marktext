@@ -358,6 +358,7 @@
         "general": "Général",
         "editor": "Éditeur",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Thème",
         "image": "Image",
         "view": "Affichage",
@@ -414,6 +415,8 @@
         "isHtmlEnabled": "Activer le rendu HTML",
         "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
+        "pandocEnabled": "Activer l'export Pandoc",
+        "pandocExportFormats": "Formats affichés dans le menu d'exportation",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
         "theme": "Sélectionner le thème utilisé dans MarkText",
@@ -435,6 +438,7 @@
       "general": "Général",
       "editor": "Éditeur",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Orthographe",
       "theme": "Thème",
       "image": "Image",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "Délimiteur de liste ordonnée",
         "preferLooseListItem": "Préférer les éléments de liste lâches",
         "title": "Listes"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "Exporter",
+        "enable": "Activer l'export Pandoc",
+        "formats": "Formats affichés dans le menu d'exportation",
+        "formatsNotes": "Décocher tous les formats masque l'entrée de menu."
+      },
+      "requirement": {
+        "title": "Prérequis",
+        "text": "MarkText utilise le pandoc que vous installez vous-même ; il n'est pas fourni. Installez-le depuis pandoc.org, ou définissez MARKTEXT_PANDOC sur le chemin complet de l'exécutable s'il n'est pas dans votre PATH."
       }
     },
     "theme": {

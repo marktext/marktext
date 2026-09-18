@@ -358,6 +358,7 @@
         "general": "General",
         "editor": "Editor",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Theme",
         "image": "Image",
         "view": "View",
@@ -413,6 +414,8 @@
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
+        "pandocEnabled": "Enable pandoc export",
+        "pandocExportFormats": "Formats shown in the export menu",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -435,6 +438,7 @@
       "general": "General",
       "editor": "Editor",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Spelling",
       "theme": "Theme",
       "image": "Image",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "Ordered list delimiter",
         "preferLooseListItem": "Prefer loose list items",
         "title": "Lists"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "Export",
+        "enable": "Enable pandoc export",
+        "formats": "Formats shown in the export menu",
+        "formatsNotes": "Uncheck every format to hide the menu entry."
+      },
+      "requirement": {
+        "title": "Requirements",
+        "text": "MarkText uses the pandoc installed on your system; it is not bundled. Install it from pandoc.org, or set MARKTEXT_PANDOC to the full path of the executable when it is not on your PATH."
       }
     },
     "theme": {

@@ -358,6 +358,7 @@
         "general": "通用",
         "editor": "编辑器",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "主题",
         "image": "图片",
         "view": "视图",
@@ -414,6 +415,8 @@
         "isHtmlEnabled": "启用 HTML 渲染",
         "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
         "softNewlineAsSpace": "将软换行符视为空格",
+        "pandocEnabled": "启用 Pandoc 导出",
+        "pandocExportFormats": "导出菜单中显示的格式",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
         "theme": "选择 MarkText 中使用的主题",
@@ -435,6 +438,7 @@
       "general": "通用",
       "editor": "编辑器",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "拼写",
       "theme": "主题",
       "image": "图片",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "有序列表分隔符",
         "preferLooseListItem": "首选宽松列表项",
         "title": "列表"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "导出",
+        "enable": "启用 Pandoc 导出",
+        "formats": "导出菜单中显示的格式",
+        "formatsNotes": "取消勾选全部格式会隐藏该菜单项。"
+      },
+      "requirement": {
+        "title": "使用前提",
+        "text": "MarkText 使用你自己安装的 pandoc，不自带。请从 pandoc.org 安装；如果它不在 PATH 中，把环境变量 MARKTEXT_PANDOC 设为可执行文件的完整路径即可。"
       }
     },
     "theme": {

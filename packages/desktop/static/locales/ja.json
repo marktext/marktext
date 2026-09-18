@@ -358,6 +358,7 @@
         "general": "全般",
         "editor": "エディター",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "テーマ",
         "image": "画像",
         "view": "ビュー",
@@ -414,6 +415,8 @@
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab 互換モードを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
+        "pandocEnabled": "Pandoc エクスポートを有効にする",
+        "pandocExportFormats": "エクスポートメニューに表示する形式",
         "sequenceTheme": "シーケンス図のテーマ",
         "plantumlServer": "PlantUML サーバーの URL",
         "theme": "MarkText で使用するテーマの選択",
@@ -435,6 +438,7 @@
       "general": "全般",
       "editor": "エディター",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "スペルチェック",
       "theme": "テーマ",
       "image": "画像",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "番号付きリスト区切り文字",
         "preferLooseListItem": "ルーズリスト項目を優先",
         "title": "リスト"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "エクスポート",
+        "enable": "Pandoc エクスポートを有効にする",
+        "formats": "エクスポートメニューに表示する形式",
+        "formatsNotes": "すべての形式のチェックを外すと、メニュー項目が非表示になります。"
+      },
+      "requirement": {
+        "title": "動作条件",
+        "text": "MarkText はご自身でインストールした pandoc を使用します（同梱されていません）。pandoc.org からインストールするか、PATH にない場合は環境変数 MARKTEXT_PANDOC に実行ファイルのフルパスを設定してください。"
       }
     },
     "theme": {

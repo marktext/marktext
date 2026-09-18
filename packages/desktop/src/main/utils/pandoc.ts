@@ -4,36 +4,13 @@ import type { Readable } from 'stream'
 import commandExists from 'command-exists'
 import { isFile2 } from 'common/filesystem'
 
+// Re-exported so the menu and the unit tests can keep importing them from here.
+// The definitions moved to `shared`: the renderer's preferences pane renders the
+// same list to let the user pick which formats the menu offers.
+export { PANDOC_EXPORT_FORMATS } from '@shared/pandoc'
+export type { PandocExportFormat } from '@shared/pandoc'
+
 const pandocCommand = 'pandoc'
-
-/**
- * Targets offered by "Export → Convert with Pandoc".
- *
- * `target` is the pandoc writer name (not always the format id — epub maps to
- * `epub3`), `extension` drives the save dialog filter, and `label` is shown
- * verbatim in the menu. The labels stay in English on purpose: they are format
- * names rather than prose, and translating them would add ten keys to keep in
- * sync across every locale file for no reader benefit.
- */
-export interface PandocExportFormat {
-  id: string
-  label: string
-  target: string
-  extension: string
-}
-
-export const PANDOC_EXPORT_FORMATS: readonly PandocExportFormat[] = Object.freeze([
-  { id: 'docx', label: 'Word (.docx)', target: 'docx', extension: '.docx' },
-  { id: 'odt', label: 'OpenDocument (.odt)', target: 'odt', extension: '.odt' },
-  { id: 'rtf', label: 'RTF (.rtf)', target: 'rtf', extension: '.rtf' },
-  { id: 'epub', label: 'EPUB (.epub)', target: 'epub3', extension: '.epub' },
-  { id: 'latex', label: 'LaTeX (.tex)', target: 'latex', extension: '.tex' },
-  { id: 'rst', label: 'reStructuredText (.rst)', target: 'rst', extension: '.rst' },
-  { id: 'org', label: 'Org mode (.org)', target: 'org', extension: '.org' },
-  { id: 'mediawiki', label: 'MediaWiki (.wiki)', target: 'mediawiki', extension: '.wiki' },
-  { id: 'textile', label: 'Textile (.textile)', target: 'textile', extension: '.textile' },
-  { id: 'opml', label: 'OPML (.opml)', target: 'opml', extension: '.opml' }
-])
 
 /**
  * Reader to hand the document to pandoc with.

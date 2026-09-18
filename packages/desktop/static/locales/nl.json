@@ -358,6 +358,7 @@
         "general": "Algemeen",
         "editor": "Editor",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Thema",
         "image": "Afbeelding",
         "view": "Weergave",
@@ -413,6 +414,8 @@
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
+        "pandocEnabled": "Pandoc-export inschakelen",
+        "pandocExportFormats": "Indelingen in het exportmenu",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
         "theme": "Selecteer het thema voor MarkText",
@@ -435,6 +438,7 @@
       "general": "Algemeen",
       "editor": "Editor",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Spelling",
       "theme": "Thema",
       "image": "Afbeelding",
@@ -680,6 +684,19 @@
         "orderListDelimiter": "Scheidingsteken genummerde lijst",
         "preferLooseListItem": "Losse lijstitems prefereren",
         "title": "Lijsten"
+      }
+    },
+    "pandoc": {
+      "title": "Pandoc",
+      "export": {
+        "title": "Exporteren",
+        "enable": "Pandoc-export inschakelen",
+        "formats": "Indelingen in het exportmenu",
+        "formatsNotes": "Als u alle indelingen uitschakelt, wordt het menu-item verborgen."
+      },
+      "requirement": {
+        "title": "Vereisten",
+        "text": "MarkText gebruikt de pandoc die u zelf installeert; deze wordt niet meegeleverd. Installeer het via pandoc.org, of stel MARKTEXT_PANDOC in op het volledige pad van het programma als het niet in uw PATH staat."
       }
     },
     "theme": {
