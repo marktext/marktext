@@ -39,7 +39,7 @@ export interface IMultipleMathToken {
     raw: string;
     text: string;
     displayMode: boolean;
-    mathStyle: '' | 'gitlab';
+    mathStyle: '' | 'gfm';
 }
 
 export interface IFrontmatterToken {

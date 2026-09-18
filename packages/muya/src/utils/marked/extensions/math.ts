@@ -8,7 +8,7 @@ export interface IMathToken {
     text: string;
     displayMode: boolean;
     marker?: string;
-    mathStyle?: '' | 'gitlab';
+    mathStyle?: '' | 'gfm';
 }
 
 interface IOptions {

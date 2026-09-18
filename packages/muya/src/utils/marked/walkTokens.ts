@@ -38,7 +38,7 @@ function walkTokens(options: ILexOption) {
             // After the assignment the old `lang`/`codeBlockStyle` fields no
             // longer belong on the value, so strip them via a structural view.
             token.type = 'multiplemath';
-            token.mathStyle = 'gitlab';
+            token.mathStyle = 'gfm';
             token.displayMode = true;
             const codeFields = token as IMathToken & Partial<{ lang: unknown; codeBlockStyle: unknown }>;
             delete codeFields.lang;

@@ -37,7 +37,7 @@ function typedFenceLang(text: string): string {
 // with the selector's matched language.
 function newBlockStateForLang(typedLang: string, matchedLang: string, isGfmMath: boolean) {
     if (isGfmMath)
-        return { name: 'math-block', meta: { mathStyle: 'gitlab' }, text: '' };
+        return { name: 'math-block', meta: { mathStyle: 'gfm' }, text: '' };
 
     const diagramType = diagramTypeOfLang(typedLang) ?? diagramTypeOfLang(matchedLang);
     if (diagramType)

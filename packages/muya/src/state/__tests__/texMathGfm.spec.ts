@@ -6,10 +6,10 @@ import ExportMarkdown from '../stateToMarkdown';
 // ```math renders as block math and serializes back as ```math, not $$. Both
 // GitHub and GitLab write it this way. The promotion is split across two seams:
 //   * parse:     utils/marked/walkTokens.ts rewrites a `code`/lang=math token
-//                into a `multiplemath` token with mathStyle='gitlab', but ONLY
+//                into a `multiplemath` token with mathStyle='gfm', but ONLY
 //                when BOTH `texMathDollars` AND `texMathGfm` are true.
 //   * serialize: state/stateToMarkdown.ts::_serializeMathBlock picks the fence
-//                purely from meta.mathStyle ('' → $$, 'gitlab' → ```math) — it
+//                purely from meta.mathStyle ('' → $$, 'gfm' → ```math) — it
 //                does NOT re-read the option, so a block keeps its origin style.
 // The legacy engine (packages/muyajs) detected the same syntax with a dedicated
 // regex (`multiplemathGitlab` in parser/marked/blockRules.js). These specs lock
@@ -46,7 +46,7 @@ describe('tex_math_gfm — parse promotion (walkTokens)', () => {
     it('promotes ```math to a gfm-styled math block when texMathDollars + texMathGfm are on', () => {
         const [block] = parse('```math\nx^2\n```\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
         expect(block.text).toBe('x^2');
     });
 
@@ -88,7 +88,7 @@ describe('tex_math_gfm — serialization (stateToMarkdown)', () => {
         // serializer is given a state that originated from $$ — proving the
         // fence choice rides on the stored style, never the runtime flag.
         const states = parse('$$\nx^2\n$$\n');
-        states[0].meta!.mathStyle = 'gitlab';
+        states[0].meta!.mathStyle = 'gfm';
         expect(serialize(states)).toBe('```math\nx^2\n```\n');
     });
 
@@ -122,7 +122,7 @@ describe('tex_math_gfm — consistency with legacy muyajs', () => {
     it('agree — a 3-space indented ```math is still promoted (both engines)', () => {
         const [block] = parse('   ```math\nx^2\n```\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
     it('agree — a 4-space indented fence is an indented code block, not math (both engines)', () => {
@@ -134,7 +134,7 @@ describe('tex_math_gfm — consistency with legacy muyajs', () => {
     it('agree — a 4+ backtick ```math fence is promoted (both engines)', () => {
         const [block] = parse('````math\nx^2\n````\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
     it('agree — an info string after math (```math foo) is NOT promoted (both engines)', () => {
@@ -155,7 +155,7 @@ describe('tex_math_gfm — consistency with legacy muyajs', () => {
         // the block re-serializes with a backtick fence. The legacy regex never
         // matched ~~~, so the same source stayed a plain code block there.
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
         expect(serialize(parse('~~~math\nx^2\n~~~\n'))).toBe('```math\nx^2\n```\n');
     });
 });
