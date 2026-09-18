@@ -32,6 +32,7 @@ export interface ITokenizerFacOptions {
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
+    texMathGfm: boolean;
 }
 
 export interface ITokenizerOptions {
