@@ -25,7 +25,7 @@ describe('GFM 0.29-gfm spec conformance', () => {
                 footnote: false,
                 texMathDollars: false,
                 superSubScript: false,
-                isGitlabCompatibilityEnabled: false,
+                texMathGfm: false,
                 frontMatter: false,
                 // Bypass DOMPurify — see commonmark.spec.ts for rationale.
                 sanitize: false,

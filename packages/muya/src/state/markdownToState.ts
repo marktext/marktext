@@ -19,7 +19,7 @@ const debug = logger('import markdown: ');
 interface IMarkdownToStateOptions {
     footnote: boolean;
     texMathDollars: boolean;
-    isGitlabCompatibilityEnabled: boolean;
+    texMathGfm: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
 };
@@ -27,7 +27,7 @@ interface IMarkdownToStateOptions {
 const DEFAULT_OPTIONS = {
     footnote: false,
     texMathDollars: true,
-    isGitlabCompatibilityEnabled: true,
+    texMathGfm: false,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
 };
@@ -54,7 +54,7 @@ export class MarkdownToState {
         const {
             footnote = false,
             texMathDollars = true,
-            isGitlabCompatibilityEnabled = true,
+            texMathGfm = false,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
         } = this._options;
@@ -66,7 +66,7 @@ export class MarkdownToState {
             footnote,
             texMathDollars,
             frontMatter,
-            isGitlabCompatibilityEnabled,
+            texMathGfm,
         });
 
         const states: TState[] = [];

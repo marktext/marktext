@@ -37,7 +37,7 @@ function highlight(code: string, lang: string) {
 
 export function getHighlightHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, superSubScript }
         = options;
 
     // Build a fresh Marked instance per call. `Marked.use({ walkTokens })`
@@ -47,7 +47,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     const marked = new Marked(markedHighlight({ highlight }));
 
     marked.use({
-        walkTokens: walkTokens({ texMathDollars, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // Treat CJK characters as punctuation for emphasis/strong flanking so

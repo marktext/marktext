@@ -3,7 +3,7 @@ import type { MarkedToken, Tokens } from 'marked';
 export interface ILexOption {
     footnote?: boolean;
     texMathDollars?: boolean;
-    isGitlabCompatibilityEnabled?: boolean;
+    texMathGfm?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;
 }

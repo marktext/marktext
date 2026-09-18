@@ -349,7 +349,9 @@ export const MUYA_DEFAULT_OPTIONS = {
     footnote: false,
     // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
     texMathDollars: true,
-    isGitlabCompatibilityEnabled: true,
+    // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
+    // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
+    texMathGfm: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.

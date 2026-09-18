@@ -32,11 +32,11 @@ function typedFenceLang(text: string): string {
 
 // Build the state for the block a ```lang fence becomes. A diagram language,
 // typed in full or picked from a partial query (`mer` → mermaid, #5060),
-// becomes a diagram block, mirroring markdownToState's file-load path; GitLab
+// becomes a diagram block, mirroring markdownToState's file-load path; gfm
 // math becomes a math-block; everything else a fenced code block highlighted
 // with the selector's matched language.
-function newBlockStateForLang(typedLang: string, matchedLang: string, isGitlabMath: boolean) {
-    if (isGitlabMath)
+function newBlockStateForLang(typedLang: string, matchedLang: string, isGfmMath: boolean) {
+    if (isGfmMath)
         return { name: 'math-block', meta: { mathStyle: 'gitlab' }, text: '' };
 
     const diagramType = diagramTypeOfLang(typedLang) ?? diagramTypeOfLang(matchedLang);
@@ -185,9 +185,9 @@ export class CodeBlockLanguageSelector extends BaseScrollFloat {
         }
 
         if (isParagraphContent(block)) {
-            const isGitlabMath
-                = muya.options.isGitlabCompatibilityEnabled && name === 'math';
-            const state = newBlockStateForLang(typedFenceLang(block.text), name, isGitlabMath);
+            const isGfmMath
+                = muya.options.texMathGfm && name === 'math';
+            const state = newBlockStateForLang(typedFenceLang(block.text), name, isGfmMath);
 
             const newBlock = ScrollPage.loadBlock(state.name).create(
                 this.muya,

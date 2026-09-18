@@ -11,7 +11,7 @@ function gen(markdown: string): Parameters<ExportMarkdown['generate']>[0] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as Parameters<ExportMarkdown['generate']>[0];

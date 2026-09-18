@@ -12,7 +12,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, superSubScript }
         = options;
     let html = '';
 
@@ -23,7 +23,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     const marked = new Marked();
 
     marked.use({
-        walkTokens: walkTokens({ texMathDollars, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
