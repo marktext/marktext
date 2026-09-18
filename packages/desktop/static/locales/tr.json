@@ -1,12 +1,12 @@
 {
   "menu": {
     "counter": {
-      "allCharacters": "Tüm karakterler",
-      "document": "Belge",
-      "documentSelection": "Belge / Seçim",
       "words": "Sözcükler",
       "characters": "Karakterler",
-      "paragraphs": "Paragraflar"
+      "paragraphs": "Paragraflar",
+      "allCharacters": "Tüm karakterler",
+      "document": "Belge",
+      "documentSelection": "Belge / Seçim"
     },
     "file": {
       "file": "Dosya",
