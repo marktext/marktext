@@ -107,8 +107,9 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 **Special Sponsor**
 
-| [<img src="docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext) |
-| ---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| [<img src="docs/assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [Scrape Google and other search engines from our fast, easy, and complete API.](https://serpapi.com/?utm_source=marktext)                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [<img src="docs/assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [Leave your desk. Keep your workflow going. StarDesk is a free remote desktop that lets you access your development PC from anywhere. Access your own computer from iOS, Android, or the web to edit Markdown, run terminal commands, review documents, or pick up where you left off.](https://stardesk.onelink.me/p0R7/kpq1jksx) |
 
 ## Screenshot
 

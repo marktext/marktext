@@ -112,8 +112,9 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 
 **Özel Destekçi**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.](https://serpapi.com/?utm_source=marktext) |
-| -------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.](https://serpapi.com/?utm_source=marktext)                                                                                                                                                                                                                                                |
+| ---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [<img src="../assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [Masanızdan kalkın, iş akışınız devam etsin. StarDesk, geliştirme bilgisayarınıza her yerden erişmenizi sağlayan ücretsiz bir uzak masaüstü çözümüdür. iOS, Android veya web üzerinden kendi bilgisayarınıza bağlanarak Markdown düzenleyin, terminal komutları çalıştırın, belgeleri inceleyin ya da kaldığınız yerden devam edin.](https://stardesk.onelink.me/p0R7/kpq1jksx) |
 
 ## Ekran Görüntüsü
 
