@@ -113,8 +113,8 @@ MarkText는 커뮤니티의 지원으로 운영되는 오픈소스 Markdown 편�
 **특별 후원사**
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [빠르고 쉬우며 완전한 API로 Google 및 기타 검색 엔진에서 데이터를 수집하세요.](https://serpapi.com/?utm_source=marktext) |
-| ------------- |:-------------|
-| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
+| -------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com)                        | [Secure hardware wallet made simple.](https://www.ukey.com)                                                              |
 
 ## 스크린샷
 
@@ -135,8 +135,8 @@ MarkText는 커뮤니티의 지원으로 운영되는 오픈소스 Markdown 편�
 
 ![플랫폼](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                             |                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                             |                                                    ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                    |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
 최신 버전의 새 기능을 확인하고 싶으신가요? [CHANGELOG](../CHANGELOG.md)를 참조하세요.
@@ -185,7 +185,6 @@ MarkText에 관한 질문이 있으면 issue를 작성하세요. 그럴 때는 i
 ## 기여
 
 MarkText는 개발 중입니다. pull request를 하기 전에 반드시 [기여 가이드](../../.github/CONTRIBUTING.md)를 읽어 주세요. MarkText에 기능을 추가하고 싶으신가요? [로드맵](https://github.com/marktext/marktext/projects)과 열린 issue를 참조하세요.
-
 
 ## 기여자
 

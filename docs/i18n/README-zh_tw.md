@@ -113,8 +113,8 @@ MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 Mar
 **特別贊助商**
 
 | [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [透過我們快速、便捷且完整的 API 抓取 Google 及其他搜尋引擎的資料。](https://serpapi.com/?utm_source=marktext) |
-| ------------- |:-------------|
-| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
+| -------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ |
+| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com)                        | [Secure hardware wallet made simple.](https://www.ukey.com)                                                   |
 
 ## 截圖
 
@@ -135,8 +135,8 @@ MarkText 是一款由社群支持驅動的開源 Markdown 編輯器。如果 Mar
 
 ![平台](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                             |                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                             |                                                    ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                    |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
 想瞭解最新版本的新功能？請參閱 [CHANGELOG](../CHANGELOG.md)。
@@ -185,7 +185,6 @@ winget install marktext
 ## 貢獻
 
 MarkText 正在開發中，請在提交 pull request 之前確保閱讀[貢獻指南](../../.github/CONTRIBUTING.md)。想為 MarkText 新增功能？請參閱我們的[路線圖](https://github.com/marktext/marktext/projects)和開放 issue。
-
 
 ## 貢獻者
 
