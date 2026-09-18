@@ -39,7 +39,7 @@ function parse(md: string) {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);

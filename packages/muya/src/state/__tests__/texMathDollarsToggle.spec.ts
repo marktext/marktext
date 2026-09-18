@@ -98,7 +98,7 @@ describe('texMathDollars — live toggle re-parses `$$…$$`', () => {
     it('leaves a ```math block alone — that one belongs to tex_math_gfm', () => {
         const muya = bootMuya('```math\nx^2\n```\n', {
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: true,
+            texMathGfm: true,
         });
         expect(firstBlock(muya).name).toBe('code-block');
     });

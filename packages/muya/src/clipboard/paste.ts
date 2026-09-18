@@ -394,7 +394,7 @@ function applyParsedPaste(
     const {
         footnote,
         texMathDollars,
-        isGitlabCompatibilityEnabled,
+        texMathGfm,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     } = muya.options;
@@ -402,7 +402,7 @@ function applyParsedPaste(
     const states = new MarkdownToState({
         footnote,
         texMathDollars,
-        isGitlabCompatibilityEnabled,
+        texMathGfm,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     }).generate(markdown);

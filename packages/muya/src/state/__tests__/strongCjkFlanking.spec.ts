@@ -39,7 +39,7 @@ const STATIC_OPTIONS = {
     footnote: false,
     texMathDollars: false,
     superSubScript: false,
-    isGitlabCompatibilityEnabled: false,
+    texMathGfm: false,
     frontMatter: false,
     sanitize: false,
 } as const;

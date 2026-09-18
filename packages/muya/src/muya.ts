@@ -123,11 +123,11 @@ const HEADING_LEVEL_BLOCK_NAMES = new Set(['paragraph', 'atx-heading', 'setext-h
 
 // Options consumed by the markdown→state lexer (markdownToState / lexBlock).
 // Changing any of these re-classifies block structure (e.g. ```math ⇄ code
-// block under GitLab compatibility, front matter, footnote definitions), which
+// block under tex_math_gfm, front matter, footnote definitions), which
 // a render-only rebuild from the already-parsed state cannot reflect — the
 // document must be re-parsed from markdown. See setOptions below.
 const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
-    'isGitlabCompatibilityEnabled',
+    'texMathGfm',
     'texMathDollars',
     'footnote',
     'frontMatter',

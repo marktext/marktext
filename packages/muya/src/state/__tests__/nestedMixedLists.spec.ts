@@ -28,7 +28,7 @@ function toState(markdown: string): TState[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: true,
+        texMathGfm: true,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(markdown);
