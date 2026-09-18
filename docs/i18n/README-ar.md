@@ -111,9 +111,16 @@ MarkText هو محرر Markdown مفتوح المصدر يعتمد على دعم
 
 **الراعي المميز**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.](https://serpapi.com/?utm_source=marktext)                                                                                                                                                                |
-| ---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [<img src="../assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [غادر مكتبك وواصل سير عملك. StarDesk هو سطح مكتب بعيد مجاني يتيح لك الوصول إلى حاسوب التطوير الخاص بك من أي مكان. اتصل بحاسوبك من iOS أو Android أو من الويب لتحرير Markdown وتشغيل أوامر الطرفية ومراجعة المستندات أو متابعة عملك من حيث توقفت.](https://stardesk.onelink.me/p0R7/kpq1jksx) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">استخرج نتائج Google ومحركات البحث الأخرى من خلال واجهة برمجية سريعة وسهلة وشاملة.</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">غادر مكتبك وواصل سير عملك. StarDesk هو سطح مكتب بعيد مجاني يتيح لك الوصول إلى حاسوب التطوير الخاص بك من أي مكان. اتصل بحاسوبك من iOS أو Android أو من الويب لتحرير Markdown وتشغيل أوامر الطرفية ومراجعة المستندات أو متابعة عملك من حيث توقفت.</a></td>
+</tr>
+</table>
 
 ## لقطة شاشة
 

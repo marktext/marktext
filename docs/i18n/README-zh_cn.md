@@ -112,9 +112,16 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 
 **特别赞助商**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。](https://serpapi.com/?utm_source=marktext)                                                                                                                                           |
-| ---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [<img src="../assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [离开工位，工作流照常运转。StarDesk 是一款免费的远程桌面工具，让你随时随地访问自己的开发电脑。通过 iOS、Android 或网页端连接自己的电脑，编辑 Markdown、执行终端命令、审阅文档，或是接着上次中断的地方继续。](https://stardesk.onelink.me/p0R7/kpq1jksx) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">离开工位，工作流照常运转。StarDesk 是一款免费的远程桌面工具，让你随时随地访问自己的开发电脑。通过 iOS、Android 或网页端连接自己的电脑，编辑 Markdown、执行终端命令、审阅文档，或是接着上次中断的地方继续。</a></td>
+</tr>
+</table>
 
 ## 截图
 

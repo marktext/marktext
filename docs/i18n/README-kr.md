@@ -112,9 +112,16 @@ MarkText는 커뮤니티의 지원으로 운영되는 오픈소스 Markdown 편�
 
 **특별 후원사**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [빠르고 쉬우며 완전한 API로 Google 및 기타 검색 엔진에서 데이터를 수집하세요.](https://serpapi.com/?utm_source=marktext)                                                                                                                                                                            |
-| ---------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [<img src="../assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [책상을 떠나도 작업 흐름은 계속됩니다. StarDesk는 어디서나 개발 PC에 접속할 수 있는 무료 원격 데스크톱입니다. iOS, Android 또는 웹에서 내 컴퓨터에 연결해 Markdown을 편집하고, 터미널 명령을 실행하고, 문서를 검토하거나 하던 작업을 이어서 진행하세요.](https://stardesk.onelink.me/p0R7/kpq1jksx) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">빠르고 쉬우며 완전한 API로 Google 및 기타 검색 엔진에서 데이터를 수집하세요.</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">책상을 떠나도 작업 흐름은 계속됩니다. StarDesk는 어디서나 개발 PC에 접속할 수 있는 무료 원격 데스크톱입니다. iOS, Android 또는 웹에서 내 컴퓨터에 연결해 Markdown을 편집하고, 터미널 명령을 실행하고, 문서를 검토하거나 하던 작업을 이어서 진행하세요.</a></td>
+</tr>
+</table>
 
 ## 스크린샷
 

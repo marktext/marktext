@@ -111,9 +111,16 @@ MarkText es un editor de Markdown de código abierto impulsado por el apoyo de s
 
 **Patrocinador Especial**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext)   | [Extrae resultados de Google y otros motores de búsqueda con nuestra API rápida, sencilla y completa.](https://serpapi.com/?utm_source=marktext)                                                                                                                                                                                                                                      |
-| ---------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [<img src="../assets/sponsors/stardesk.png" width="150">](https://stardesk.onelink.me/p0R7/kpq1jksx) | [Deja tu escritorio sin interrumpir tu flujo de trabajo. StarDesk es un escritorio remoto gratuito que te permite acceder a tu PC de desarrollo desde cualquier lugar. Conéctate a tu propio ordenador desde iOS, Android o la web para editar Markdown, ejecutar comandos en la terminal, revisar documentos o retomar donde lo dejaste.](https://stardesk.onelink.me/p0R7/kpq1jksx) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">Extrae resultados de Google y otros motores de búsqueda con nuestra API rápida, sencilla y completa.</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">Deja tu escritorio sin interrumpir tu flujo de trabajo. StarDesk es un escritorio remoto gratuito que te permite acceder a tu PC de desarrollo desde cualquier lugar. Conéctate a tu propio ordenador desde iOS, Android o la web para editar Markdown, ejecutar comandos en la terminal, revisar documentos o retomar donde lo dejaste.</a></td>
+</tr>
+</table>
 
 ## Capturas de pantalla
 
