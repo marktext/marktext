@@ -68,7 +68,14 @@ export type GfmRules = typeof gfmRules;
 // Markdown extensions (not belongs to GFM and Commonmark)
 export const inlineExtensionRules = {
     // `$$...$$` is display math and may contain a lone `$`; `$...$` may not.
-    inline_math: /^(\$\$(?!\$)|\$)((?:(?!\1)[^\\]|\\.)+)\1(?!\1)/,
+    // A `$...$` span also carries pandoc's three `tex_math_dollars` rules, so
+    // that prose like "Revenue rose from $13B to $24B." is not a formula
+    // (#5446): a non-space right after the opener, a non-space right before
+    // the closer, and no digit right after the closer. pandoc exempts display
+    // math from all three — hence the leading veto, which starts on a single
+    // `$` and so never engages for `$$`. The veto can read the closer off the
+    // first unescaped `$` because a single-`$` span may not contain one.
+    inline_math: /^(?!\$(?!\$)(?:[^$\\]|\\.)*(?:\s\$|\$\d))(\$\$(?!\$)|\$(?=\S))((?:(?!\1)[^\\]|\\.)+)\1(?!\1)/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
