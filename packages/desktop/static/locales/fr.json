@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Modèle Word",
+        "default": "Style intégré de Pandoc",
+        "wysiwyg": "Comme l'éditeur (intégrée)",
+        "custom": "Fichier personnalisé",
         "placeholder": "Vide = le style intégré de pandoc",
         "browse": "Choisir un modèle",
         "clear": "Effacer",

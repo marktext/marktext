@@ -6,7 +6,7 @@
 // Kept intentionally open with `[key: string]: unknown` until the schema
 // is mechanically derived from schema.json in a follow-up.
 
-import type { PandocExportLocation } from '../pandoc'
+import type { PandocDocxTemplate, PandocExportLocation } from '../pandoc'
 
 export interface IUserPreferences {
   autoSave?: boolean
@@ -59,6 +59,7 @@ export interface IUserPreferences {
   pandocStandalone?: boolean
   pandocToc?: boolean
   pandocNumberSections?: boolean
+  pandocDocxTemplate?: PandocDocxTemplate
   pandocReferenceDoc?: string
   theme?: string
   spellcheckerEnabled?: boolean

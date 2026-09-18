@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word template",
+        "default": "Pandoc's built-in style",
+        "wysiwyg": "Match the editor (built-in)",
+        "custom": "Custom file",
         "placeholder": "Empty = pandoc's built-in style",
         "browse": "Choose template",
         "clear": "Clear",

@@ -52,6 +52,20 @@ export const PANDOC_EXPORT_FORMAT_IDS: readonly string[] = Object.freeze(
  */
 export const PANDOC_REFERENCE_DOC_TARGETS: readonly string[] = Object.freeze(['docx', 'odt'])
 
+/**
+ * Which Word template a docx export takes, in the order the preferences show
+ * them: pandoc's built-in styling, the bundled reference document that mirrors
+ * the editor (ruled tables, shaded code), or a file of the user's own.
+ */
+export type PandocDocxTemplate = 'default' | 'wysiwyg' | 'custom'
+
+/** Valid values of `pandocDocxTemplate`, in the order the preferences show them. */
+export const PANDOC_DOCX_TEMPLATES: readonly PandocDocxTemplate[] = Object.freeze([
+  'default',
+  'wysiwyg',
+  'custom'
+])
+
 /** Where a converted file is written. */
 export type PandocExportLocation = 'source' | 'ask' | 'folder'
 

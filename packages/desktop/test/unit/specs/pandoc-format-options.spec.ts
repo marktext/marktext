@@ -6,6 +6,7 @@ import { parse, compileScript } from 'vue/compiler-sfc'
 import ts from 'typescript'
 import { computed, ref } from 'vue'
 import {
+  PANDOC_DOCX_TEMPLATES,
   PANDOC_EXPORT_FORMATS,
   PANDOC_EXPORT_LOCATIONS,
   getPandocDefaultFormat,
@@ -102,8 +103,8 @@ const loadPanel = (deps: Record<string, unknown>) => {
     'exports',
     'module',
     `const { _defineComponent, ref, computed, useI18n, storeToRefs,
-      usePreferencesStore, CheckList, PANDOC_EXPORT_FORMATS, PANDOC_EXPORT_LOCATIONS,
-      getPandocDefaultFormat, getPandocExportFormats } = __deps
+      usePreferencesStore, CheckList, PANDOC_DOCX_TEMPLATES, PANDOC_EXPORT_FORMATS,
+      PANDOC_EXPORT_LOCATIONS, getPandocDefaultFormat, getPandocExportFormats } = __deps
     ${js}
     return module.exports`
   ) as (deps: Record<string, unknown>, exports: object, module: object) => {
@@ -120,6 +121,7 @@ const makePanel = (overrides: Record<string, unknown> = {}) => {
   const initial: Record<string, unknown> = {
     pandocDefaultFormat: 'docx',
     pandocExportFormats: [...ALL_IDS],
+    pandocDocxTemplate: 'default',
     ...overrides
   }
   const refs: Record<string, { value: unknown }> = {}
@@ -141,6 +143,7 @@ const makePanel = (overrides: Record<string, unknown> = {}) => {
     storeToRefs: () => refs,
     usePreferencesStore: () => store,
     CheckList: {},
+    PANDOC_DOCX_TEMPLATES,
     PANDOC_EXPORT_FORMATS,
     PANDOC_EXPORT_LOCATIONS,
     getPandocDefaultFormat,

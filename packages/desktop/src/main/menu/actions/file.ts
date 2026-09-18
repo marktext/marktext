@@ -361,6 +361,13 @@ const handleResponseForPandocExport = async(
   // exits 0.
   const cwd = sourceDir
 
+  // Which Word template the docx export takes: pandoc's built-in one, the
+  // bundled look-like-the-editor one, or a file of the user's own. The bundled
+  // one is signalled by withholding a template — that is what makes `toFile`
+  // inject `static/pandoc-reference.docx` — while an explicit `''` is what
+  // keeps pandoc's default, so the three choices map onto those two states.
+  const docxTemplate = preferences?.getItem<string>('pandocDocxTemplate') ?? 'default'
+
   try {
     const { warnings } = await pandoc.toFile(format.target, filePath, markdown, {
       cwd,
@@ -376,7 +383,12 @@ const handleResponseForPandocExport = async(
       standalone: preferences?.getItem<boolean>('pandocStandalone') !== false,
       toc: preferences?.getItem<boolean>('pandocToc') === true,
       numberSections: preferences?.getItem<boolean>('pandocNumberSections') === true,
-      referenceDoc: (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim(),
+      referenceDoc:
+        docxTemplate === 'wysiwyg'
+          ? undefined
+          : docxTemplate === 'custom'
+            ? (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim()
+            : '',
       metadata: {
         // A standalone document wants a title and pandoc cannot take one off a
         // document that arrives on stdin: EPUB then ships with no `<dc:title>`

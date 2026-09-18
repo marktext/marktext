@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word-Vorlage",
+        "default": "Pandocs eingebauter Stil",
+        "wysiwyg": "Wie der Editor (eingebaut)",
+        "custom": "Eigene Datei",
         "placeholder": "Leer = das eingebaute Format von pandoc",
         "browse": "Vorlage wählen",
         "clear": "Zurücksetzen",

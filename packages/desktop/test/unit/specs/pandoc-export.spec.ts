@@ -1,4 +1,6 @@
 import { EventEmitter } from 'events'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const spawnMock = vi.fn()
@@ -200,6 +202,75 @@ describe('pandoc export', () => {
       await pending
 
       expect(argsOfLastSpawn().some((arg) => arg.startsWith('--metadata'))).toBe(false)
+    })
+
+    // Pandoc's built-in reference document draws no table borders and defines
+    // no `Source Code` style, so a docx came out with columns that just float
+    // next to each other and code as plain body text — nothing like the ruled
+    // table and shaded block the editor showed. The bundled template closes
+    // that gap and rides along on every docx export that names none of its own.
+    describe('bundled docx template', () => {
+      const here = path.dirname(fileURLToPath(import.meta.url))
+      const staticDir = path.resolve(here, '..', '..', '..', 'static')
+
+      afterEach(() => {
+        delete (globalThis as { __static?: string }).__static
+      })
+
+      it('rides along on a docx export', async() => {
+        const proc = startProcess()
+        ;(globalThis as { __static?: string }).__static = staticDir
+
+        const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x')
+        proc.emit('close', 0)
+        await pending
+
+        expect(argsOfLastSpawn()).toContain(`--reference-doc=${path.join(staticDir, 'pandoc-reference.docx')}`)
+      })
+
+      it('stays out of the writers it cannot style', async() => {
+        const proc = startProcess()
+        ;(globalThis as { __static?: string }).__static = staticDir
+
+        const pending = pandoc.toFile('epub3', '/tmp/x.epub', 'x')
+        proc.emit('close', 0)
+        await pending
+
+        expect(argsOfLastSpawn().some((arg) => arg.startsWith('--reference-doc'))).toBe(false)
+      })
+
+      it('degrades to pandoc\'s default when the template is missing', async() => {
+        const proc = startProcess()
+        ;(globalThis as { __static?: string }).__static = path.join(staticDir, 'nowhere')
+
+        const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x')
+        proc.emit('close', 0)
+        await pending
+
+        expect(argsOfLastSpawn().some((arg) => arg.startsWith('--reference-doc'))).toBe(false)
+      })
+
+      it('yields to a reference document the caller picked', async() => {
+        const proc = startProcess()
+        ;(globalThis as { __static?: string }).__static = staticDir
+
+        const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x', { referenceDoc: '/mine.docx' })
+        proc.emit('close', 0)
+        await pending
+
+        expect(argsOfLastSpawn()).toContain('--reference-doc=/mine.docx')
+      })
+
+      it('lets an empty string force pandoc\'s default', async() => {
+        const proc = startProcess()
+        ;(globalThis as { __static?: string }).__static = staticDir
+
+        const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x', { referenceDoc: '' })
+        proc.emit('close', 0)
+        await pending
+
+        expect(argsOfLastSpawn().some((arg) => arg.startsWith('--reference-doc'))).toBe(false)
+      })
     })
 
     it('reports the warnings pandoc prints on a successful conversion', async() => {

@@ -154,6 +154,27 @@
         {{ t('preferences.pandoc.referenceDoc.label') }}
       </div>
       <div class="pref-row__control">
+        <el-radio-group
+          :model-value="pandocDocxTemplate"
+          @change="setDocxTemplate"
+        >
+          <el-radio-button
+            v-for="template in docxTemplates"
+            :key="template"
+            :value="template"
+          >
+            {{ t(`preferences.pandoc.referenceDoc.${template}`) }}
+          </el-radio-button>
+        </el-radio-group>
+      </div>
+    </div>
+
+    <div
+      v-if="pandocDocxTemplate === 'custom'"
+      class="pref-row"
+    >
+      <div class="pref-row__label" />
+      <div class="pref-row__control">
         <el-input
           class="path-input"
           :model-value="pandocReferenceDoc"
@@ -196,6 +217,7 @@ import CheckList from '../common/checkList/index.vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import {
+  PANDOC_DOCX_TEMPLATES,
   PANDOC_EXPORT_FORMATS,
   PANDOC_EXPORT_LOCATIONS,
   getPandocDefaultFormat,
@@ -217,10 +239,12 @@ const {
   pandocStandalone,
   pandocToc,
   pandocNumberSections,
+  pandocDocxTemplate,
   pandocReferenceDoc
 } = storeToRefs(preferenceStore)
 
 const locations = PANDOC_EXPORT_LOCATIONS
+const docxTemplates = PANDOC_DOCX_TEMPLATES
 
 const checking = ref(false)
 const checkResult = ref<PandocCheckResult | null>(null)
@@ -297,6 +321,7 @@ const setPath = (value: unknown): void => update('pandocPath', value)
 const setDefaultFormat = (value: unknown): void => update('pandocDefaultFormat', value)
 const setExportLocation = (value: unknown): void => update('pandocExportLocation', value)
 const setExportFolder = (value: unknown): void => update('pandocExportFolder', value)
+const setDocxTemplate = (value: unknown): void => update('pandocDocxTemplate', value)
 const setReferenceDoc = (value: unknown): void => update('pandocReferenceDoc', value)
 const clearReferenceDoc = (): void => update('pandocReferenceDoc', '')
 

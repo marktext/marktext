@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word şablonu",
+        "default": "Pandoc gömülü stili",
+        "wysiwyg": "Düzenleyici ile aynı (gömülü)",
+        "custom": "Özel dosya",
         "placeholder": "Boş = pandoc'un yerleşik stili",
         "browse": "Şablon seç",
         "clear": "Temizle",

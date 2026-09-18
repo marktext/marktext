@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word 範本",
+        "default": "Pandoc 內建樣式",
+        "wysiwyg": "與編輯器一致（內建）",
+        "custom": "自訂檔案",
         "placeholder": "留空 = 用 pandoc 內建樣式",
         "browse": "選擇範本",
         "clear": "清除",

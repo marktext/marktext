@@ -4,12 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Electron, log, i18n and pandoc surfaces are stubbed and the registered
 // handler is driven directly. Only the save dialog and the conversion itself
 // are unreachable from a unit test; neither decides what the user is told.
-const { handlers, showSaveDialog, fromWebContents, toFile, getPandocLanguage, getPandocReader, sent } =
+const { handlers, showSaveDialog, fromWebContents, toFile, getPandocLanguage, getPandocReader, prefGet, sent } =
   vi.hoisted(() => ({
     handlers: new Map<string, (...args: unknown[]) => unknown>(),
     showSaveDialog: vi.fn(),
     fromWebContents: vi.fn(),
     toFile: vi.fn(),
+    // Stands in for the preferences store: the handler reads the docx template
+    // choice (and everything else) through `getUserPreference().getItem`.
+    prefGet: vi.fn(),
     // Stands in for the real mapper; `pandoc-export.spec.ts` asserts what it
     // maps, this file only asserts that the locale goes through it.
     getPandocLanguage: vi.fn((locale: string) => locale),
@@ -46,6 +49,10 @@ vi.mock('ced', () => ({ default: () => 'UTF-8' }))
 vi.mock('main_renderer/i18n', () => ({
   t: (key: string, params?: { count?: number }) =>
     params?.count === undefined ? key : `${key}#${params.count}`
+}))
+
+vi.mock('main_renderer/app/userPreference', () => ({
+  getUserPreference: () => ({ getItem: prefGet })
 }))
 
 vi.mock('main_renderer/utils/pandoc', () => ({
@@ -107,6 +114,7 @@ describe('mt::response-pandoc-export notifications', () => {
     showSaveDialog.mockReset()
     fromWebContents.mockReset()
     toFile.mockReset()
+    prefGet.mockReset()
 
     showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.docx', canceled: false })
     fromWebContents.mockReturnValue(FAKE_WIN)
@@ -261,6 +269,7 @@ describe('mt::response-pandoc-export metadata', () => {
     toFile.mockReset()
     getPandocLanguage.mockClear()
     getPandocReader.mockClear()
+    prefGet.mockReset()
 
     showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.docx', canceled: false })
     fromWebContents.mockReturnValue(FAKE_WIN)
@@ -322,5 +331,63 @@ describe('mt::response-pandoc-export without a window', () => {
     await expect(exportWith()).resolves.toBeUndefined()
 
     expect(sent).toEqual([])
+  })
+})
+
+// The docx template choice maps onto two states of `--reference-doc`: the
+// bundled editor-like template is signalled by *withholding* the option (that
+// is what makes `pandoc.toFile` inject `static/pandoc-reference.docx`), while
+// an explicit empty string is what holds pandoc's built-in styling back.
+describe('mt::response-pandoc-export docx template choice', () => {
+  beforeEach(() => {
+    sent.length = 0
+    showSaveDialog.mockReset()
+    fromWebContents.mockReset()
+    toFile.mockReset()
+    prefGet.mockReset()
+
+    showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.docx', canceled: false })
+    fromWebContents.mockReturnValue(FAKE_WIN)
+    toFile.mockResolvedValue({ warnings: '' })
+  })
+
+  it('keeps pandoc\'s default when the choice says so', async() => {
+    prefGet.mockImplementation((key: string) =>
+      key === 'pandocDocxTemplate' ? 'default' : undefined
+    )
+
+    await exportWith()
+
+    expect(optionsOfExport().referenceDoc).toBe('')
+  })
+
+  it('withholds the template so the bundled one rides along', async() => {
+    prefGet.mockImplementation((key: string) =>
+      key === 'pandocDocxTemplate' ? 'wysiwyg' : undefined
+    )
+
+    await exportWith()
+
+    expect(optionsOfExport().referenceDoc).toBeUndefined()
+  })
+
+  it('passes the custom template through', async() => {
+    prefGet.mockImplementation((key: string) =>
+      key === 'pandocDocxTemplate'
+        ? 'custom'
+        : key === 'pandocReferenceDoc'
+          ? ' /mine/thesis.docx '
+          : undefined
+    )
+
+    await exportWith()
+
+    expect(optionsOfExport().referenceDoc).toBe('/mine/thesis.docx')
+  })
+
+  it('treats an untouched preference as pandoc\'s default', async() => {
+    await exportWith()
+
+    expect(optionsOfExport().referenceDoc).toBe('')
   })
 })

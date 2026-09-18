@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word 템플릿",
+        "default": "Pandoc 기본 스타일",
+        "wysiwyg": "에디터와 동일(내장)",
+        "custom": "사용자 지정 파일",
         "placeholder": "비우면 pandoc 기본 스타일 사용",
         "browse": "템플릿 선택",
         "clear": "지우기",

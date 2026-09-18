@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word テンプレート",
+        "default": "Pandoc 組み込みスタイル",
+        "wysiwyg": "エディターに合わせる（組み込み）",
+        "custom": "カスタムファイル",
         "placeholder": "空欄 = pandoc 内蔵のスタイル",
         "browse": "テンプレートを選択",
         "clear": "クリア",

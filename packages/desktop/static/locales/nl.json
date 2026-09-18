@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Word-sjabloon",
+        "default": "Pandocs ingebouwde stijl",
+        "wysiwyg": "Als de editor (ingebouwd)",
+        "custom": "Eigen bestand",
         "placeholder": "Leeg = de ingebouwde stijl van pandoc",
         "browse": "Sjabloon kiezen",
         "clear": "Wissen",

@@ -1,5 +1,6 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
 import { spawn } from 'child_process'
+import path from 'path'
 import type { Readable } from 'stream'
 import commandExists from 'command-exists'
 import { isFile2 } from 'common/filesystem'
@@ -105,6 +106,31 @@ export const getPandocLanguage = (locale: string): string => {
     return 'zh-Hans'
   }
   return CHINESE_TRADITIONAL_REGIONS.has(subtag ?? '') ? 'zh-Hant' : 'zh-Hans'
+}
+
+/**
+ * The Word template shipped in `static/pandoc-reference.docx`.
+ *
+ * Pandoc's built-in reference document styles a docx like a draft: its `Table`
+ * style draws no borders at all — the columns just float next to each other —
+ * and it defines no `Source Code` paragraph style, so a fenced block comes out
+ * as plain body text. The editor shows a ruled table with a shaded header, a
+ * shaded code block, shaded inline code and a barred quote, and the bundled
+ * template closes that gap: it is pandoc's default with the `Table` style
+ * ruled and its header row shaded, a `Source Code` style added, shading on
+ * `Verbatim Char`, a left bar on `Block Text`, and an explicit CJK font so
+ * Chinese stops falling back to a serif face next to the Latin one.
+ *
+ * Returned only when the file is actually there — a broken installation must
+ * degrade to pandoc's default styling rather than fail every docx export.
+ */
+const bundledReferenceDoc = (): string => {
+  const staticDir = (globalThis as { __static?: string }).__static
+  if (!staticDir) {
+    return ''
+  }
+  const reference = path.join(staticDir, 'pandoc-reference.docx')
+  return isFile2(reference) ? reference : ''
 }
 
 interface PandocConverter {
@@ -232,6 +258,12 @@ export interface PandocToFileOptions {
   /**
    * `--reference-doc`: style template for the export. Ignored for writers that
    * do not take the option — see `PANDOC_REFERENCE_DOC_TARGETS`.
+   *
+   * A docx export that does not name one gets the bundled
+   * `static/pandoc-reference.docx` (bordered tables, shaded code blocks), so
+   * the file looks like what the editor showed; a docx template cannot style
+   * the odt writer, so that one keeps pandoc's built-in look. Pass a path to
+   * override, or an empty string to force pandoc's default.
    */
   referenceDoc?: string
   /**
@@ -336,6 +368,10 @@ pandoc.toFile = (
       referenceDoc,
       metadata
     } = options
+    // An explicitly passed `''` keeps pandoc's default, `undefined` picks the
+    // bundled template where one exists for the writer (docx only — the file is
+    // a docx, and an odt writer handed one fails the export).
+    const template = referenceDoc ?? (to === 'docx' ? bundledReferenceDoc() : '')
     const args = buildPandocArguments({
       reader,
       to,
@@ -343,7 +379,7 @@ pandoc.toFile = (
       standalone,
       toc,
       numberSections,
-      referenceDoc,
+      referenceDoc: template,
       metadata
     })
 

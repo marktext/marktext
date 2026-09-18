@@ -341,6 +341,12 @@
     "type": "boolean",
     "default": false
   },
+  "pandocDocxTemplate": {
+    "description": "Pandoc--Which Word template docx exports take: pandoc's built-in styling, the bundled editor-like one, or a custom file.",
+    "type": "string",
+    "enum": ["default", "wysiwyg", "custom"],
+    "default": "default"
+  },
   "pandocReferenceDoc": {
     "description": "Pandoc--Word document used as the style template for docx and odt exports.",
     "type": "string",

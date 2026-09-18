@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Plantilla de Word",
+        "default": "Estilo integrado de Pandoc",
+        "wysiwyg": "Como el editor (integrada)",
+        "custom": "Archivo propio",
         "placeholder": "Vacío = el estilo integrado de pandoc",
         "browse": "Elegir plantilla",
         "clear": "Borrar",

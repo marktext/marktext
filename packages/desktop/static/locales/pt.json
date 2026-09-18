@@ -726,6 +726,9 @@
       },
       "referenceDoc": {
         "label": "Modelo do Word",
+        "default": "Estilo integrado do Pandoc",
+        "wysiwyg": "Como o editor (integrado)",
+        "custom": "Ficheiro personalizado",
         "placeholder": "Vazio = o estilo interno do pandoc",
         "browse": "Escolher modelo",
         "clear": "Limpar",

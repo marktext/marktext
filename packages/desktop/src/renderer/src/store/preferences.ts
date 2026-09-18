@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
-import { PANDOC_EXPORT_FORMAT_IDS, type PandocExportLocation } from '@shared/pandoc'
+import { PANDOC_EXPORT_FORMAT_IDS, type PandocDocxTemplate, type PandocExportLocation } from '@shared/pandoc'
 
 // Finite-value unions where the runtime currently constrains the field.
 // We keep these as plain strings everywhere else to avoid forcing prematurely
@@ -94,6 +94,7 @@ export interface PreferencesState {
   pandocStandalone: boolean
   pandocToc: boolean
   pandocNumberSections: boolean
+  pandocDocxTemplate: PandocDocxTemplate
   pandocReferenceDoc: string
 
   // ----- Theme -----
@@ -226,6 +227,7 @@ export const usePreferencesStore = defineStore('preferences', {
     pandocStandalone: true,
     pandocToc: false,
     pandocNumberSections: false,
+    pandocDocxTemplate: 'default',
     pandocReferenceDoc: '',
 
     theme: 'light',
