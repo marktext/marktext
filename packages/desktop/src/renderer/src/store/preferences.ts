@@ -78,6 +78,7 @@ export interface PreferencesState {
   frontmatterType: FrontmatterType | string
   superSubScript: boolean
   footnote: boolean
+  texMathDollars: boolean
   isHtmlEnabled: boolean
   isGitlabCompatibilityEnabled: boolean
   softNewlineAsSpace: boolean
@@ -196,6 +197,7 @@ export const usePreferencesStore = defineStore('preferences', {
     frontmatterType: '-',
     superSubScript: false,
     footnote: false,
+    texMathDollars: true,
     isHtmlEnabled: true,
     isGitlabCompatibilityEnabled: false,
     softNewlineAsSpace: false,

@@ -63,6 +63,12 @@
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathDollars')"
+          :bool="texMathDollars"
+          :on-change="(value) => onSelectChange('texMathDollars', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_dollars"
+        />
       </template>
     </compound>
 
@@ -164,6 +170,7 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
   softNewlineAsSpace,
