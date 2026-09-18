@@ -28,6 +28,11 @@ const PICKER_FILTERS: Record<PandocPickerKind, Electron.FileFilter[] | undefined
 export const registerPandocHandlers = (): void => {
   // `command` is what the user typed, so an empty string means "check whatever
   // an export would use" rather than "check nothing".
+  //
+  // The outcome deliberately does *not* decide whether the menu offers the
+  // pandoc entries (`app/pandocAvailability`): this answers "is the path in the
+  // field any good", while an export falls back to the pandoc on `PATH` when
+  // that path is not a file, so the two can disagree.
   ipcMain.handle('mt::pandoc::check', (_e, command: string): Promise<PandocCheckResult> =>
     pandoc.check(command)
   )

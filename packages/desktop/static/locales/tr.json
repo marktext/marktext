@@ -415,7 +415,6 @@
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
-        "pandocEnabled": "Pandoc dışa / içe aktarımını etkinleştir",
         "pandocExportFormats": "Dışa aktarma menüsünde gösterilecek biçimler",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "Pandoc dışa / içe aktarımını etkinleştir",
       "path": {
         "label": "pandoc yolu",
         "placeholder": "Boş = PATH'teki pandoc",

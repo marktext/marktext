@@ -416,7 +416,6 @@
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
-        "pandocEnabled": "Ativar a exportação / importação com Pandoc",
         "pandocExportFormats": "Formatos exibidos no menu de exportação",
         "sequenceTheme": "Tema do diagrama de sequência",
         "plantumlServer": "URL do servidor PlantUML",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "Ativar a exportação / importação com Pandoc",
       "path": {
         "label": "Caminho do pandoc",
         "placeholder": "Vazio = o pandoc do PATH",

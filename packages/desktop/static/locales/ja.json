@@ -416,7 +416,6 @@
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab 互換モードを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
-        "pandocEnabled": "Pandoc のエクスポート / インポートを有効にする",
         "pandocExportFormats": "エクスポートメニューに表示する形式",
         "sequenceTheme": "シーケンス図のテーマ",
         "plantumlServer": "PlantUML サーバーの URL",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "Pandoc のエクスポート / インポートを有効にする",
       "path": {
         "label": "pandoc のパス",
         "placeholder": "空欄 = PATH 上の pandoc",

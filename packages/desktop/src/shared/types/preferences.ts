@@ -48,10 +48,9 @@ export interface IUserPreferences {
   isHtmlEnabled?: boolean
   isGitlabCompatibilityEnabled?: boolean
   softNewlineAsSpace?: boolean
-  // Pandoc export (the "Pandoc" preferences page): whether the conversion
-  // commands are offered at all, where the executable is, and how the export
-  // behaves.
-  pandocEnabled?: boolean
+  // Pandoc export (the "Pandoc" preferences page): where the executable is and
+  // how the export behaves. Whether the commands are offered is not a
+  // preference any more — the menu shows them whenever pandoc can be run.
   pandocPath?: string
   pandocDefaultFormat?: string
   pandocExportFormats?: string[]

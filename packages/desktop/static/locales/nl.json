@@ -415,7 +415,6 @@
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
-        "pandocEnabled": "Pandoc-export / -import inschakelen",
         "pandocExportFormats": "Indelingen in het exportmenu",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "Pandoc-export / -import inschakelen",
       "path": {
         "label": "Pad naar pandoc",
         "placeholder": "Leeg = de pandoc uit PATH",

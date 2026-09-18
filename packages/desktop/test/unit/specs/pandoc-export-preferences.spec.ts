@@ -5,8 +5,7 @@ import { describe, expect, it } from 'vitest'
 import {
   PANDOC_EXPORT_FORMATS,
   PANDOC_EXPORT_FORMAT_IDS,
-  getPandocExportFormats,
-  getPandocMenuFormats
+  getPandocExportFormats
 } from '@shared/pandoc'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -53,28 +52,6 @@ describe('pandoc export preferences', () => {
     })
   })
 
-  describe('getPandocMenuFormats', () => {
-    it('offers the selected formats while the export is on', () => {
-      const ids = getPandocMenuFormats(true, ['docx', 'odt']).map((format) => format.id)
-      expect(ids).toEqual(['docx', 'odt'])
-    })
-
-    it('hides the menu when the export is switched off', () => {
-      expect(getPandocMenuFormats(false, PANDOC_EXPORT_FORMAT_IDS)).toEqual([])
-    })
-
-    it('hides the menu when every format is unchecked', () => {
-      expect(getPandocMenuFormats(true, [])).toEqual([])
-    })
-
-    it('stays enabled when the setting is absent', () => {
-      // Only an explicit `false` switches the export off.
-      expect(getPandocMenuFormats(undefined, undefined)).toHaveLength(
-        PANDOC_EXPORT_FORMATS.length
-      )
-    })
-  })
-
   describe('defaults', () => {
     // The three places that carry a default have to agree, otherwise a user
     // upgrading into the new setting gets a different menu than a new install.
@@ -84,9 +61,11 @@ describe('pandoc export preferences', () => {
     >
     const defaultPreferences = readJson('../../../static/preference.json')
 
-    it('defaults to enabled in the schema and in preference.json', () => {
-      expect(schema.pandocEnabled?.default).toBe(true)
-      expect(defaultPreferences.pandocEnabled).toBe(true)
+    it('does not gate the menu on a preference', () => {
+      // Visibility follows whether pandoc was detected, so an old preference
+      // file must not be able to switch the entries off.
+      expect(schema.pandocEnabled).toBeUndefined()
+      expect(defaultPreferences.pandocEnabled).toBeUndefined()
     })
 
     it('selects every format by default in all three places', () => {

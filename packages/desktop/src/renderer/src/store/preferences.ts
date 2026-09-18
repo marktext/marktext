@@ -86,7 +86,6 @@ export interface PreferencesState {
   plantumlServer: string
 
   // ----- Pandoc export -----
-  pandocEnabled: boolean
   pandocPath: string
   pandocDefaultFormat: string
   pandocExportFormats: string[]
@@ -217,7 +216,6 @@ export const usePreferencesStore = defineStore('preferences', {
 
     // Every format until the user unchecks some. Derived from the shared list so
     // a format added there is selected by default instead of silently missing.
-    pandocEnabled: true,
     pandocPath: '',
     pandocDefaultFormat: 'docx',
     pandocExportFormats: [...PANDOC_EXPORT_FORMAT_IDS],

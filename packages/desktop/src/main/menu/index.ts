@@ -8,6 +8,7 @@ import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
 import { onInternalChannel } from '../utils/internalIpc'
+import { isPandocAvailable, refreshPandocAvailability } from '../app/pandocAvailability'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
@@ -48,6 +49,12 @@ class AppMenu {
   public readonly isOsxOrWindows: boolean
   public activeWindowId: number
   public windowMenus: Map<number, WindowMenuEntry>
+  /**
+   * Whether each window has a document open. The renderer reports it over
+   * `mt::update-pandoc-menu`; a window that never reports keeps the pandoc
+   * export submenu enabled rather than greyed out forever.
+   */
+  private readonly _pandocMenuEnabled: Map<number, boolean>
 
   /**
    * @param preferences The preferences instances.
@@ -67,6 +74,7 @@ class AppMenu {
     this.isOsxOrWindows = isOsx || isWindows
     this.activeWindowId = -1
     this.windowMenus = new Map()
+    this._pandocMenuEnabled = new Map()
 
     // Initialize main process language from preferences
     this._initializeLanguage()
@@ -186,6 +194,10 @@ class AppMenu {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
     windowMenus.set(window.id, this._buildEditorMenu())
+    // Align the freshly built menu with the document state last reported for
+    // this window, if any. Until the renderer reports one the entry stays
+    // enabled — see `_applyPandocMenuState`.
+    this._applyPandocMenuState(window.id)
 
     const entry = windowMenus.get(window.id)!
     const menu = entry.menu!
@@ -226,6 +238,7 @@ class AppMenu {
     // NOTE: Shortcut handler is automatically unregistered when window is closed.
     const { activeWindowId } = this
     this.windowMenus.delete(windowId)
+    this._pandocMenuEnabled.delete(windowId)
     if (activeWindowId === windowId) {
       this.activeWindowId = -1
     }
@@ -301,6 +314,7 @@ class AppMenu {
 
       // update window menu
       value.menu = newMenu
+      this._applyPandocMenuState(key)
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
@@ -339,6 +353,7 @@ class AppMenu {
       }
 
       value.menu = newMenu
+      this._applyPandocMenuState(key)
       if (this.activeWindowId === key) {
         this._setApplicationMenu(newMenu)
       }
@@ -423,6 +438,56 @@ class AppMenu {
       }
       autoSaveMenu.checked = autoSave
     })
+  }
+
+  /**
+   * Record whether a window has a document open, and enable or grey out its
+   * pandoc export submenu accordingly.
+   *
+   * The submenu exports the active tab, and the main process cannot see the
+   * renderer's tabs: without this the entries stay clickable while the window
+   * shows the recent-files page, where a click does nothing at all and the user
+   * gets no feedback (#5379).
+   *
+   * @param windowId The window id.
+   * @param hasDocument Whether the window has a document open.
+   */
+  updatePandocMenu(windowId: number, hasDocument: boolean): void {
+    if (!this.has(windowId)) return
+    this._pandocMenuEnabled.set(windowId, hasDocument)
+    this._applyPandocMenuState(windowId)
+  }
+
+  /**
+   * Apply what is known about a window to its two pandoc entries: whether pandoc
+   * can be run at all, and whether this window has a document.
+   *
+   * Menus are rebuilt from the template whenever the preferences change, so this
+   * has to run again after every rebuild. A window that has not reported keeps
+   * the export entry enabled — a renderer that never reports must not be able to
+   * leave the menu permanently greyed out.
+   *
+   * @param windowId The window id.
+   */
+  private _applyPandocMenuState(windowId: number): void {
+    const menu = this.windowMenus.get(windowId)?.menu
+    if (!menu) {
+      return
+    }
+
+    const pandocAvailable = isPandocAvailable()
+
+    // The export submenu acts on the active tab, so it also needs a document
+    // open; import creates the document, so it depends on pandoc alone.
+    const exportItem = menu.getMenuItemById('convertWithPandocMenuItem')
+    if (exportItem) {
+      exportItem.enabled = pandocAvailable && this._pandocMenuEnabled.get(windowId) !== false
+    }
+
+    const importItem = menu.getMenuItemById('importFileMenuItem')
+    if (importItem) {
+      importItem.enabled = pandocAvailable
+    }
   }
 
   _buildEditorMenu(recentUsedDocuments: string[] | null = null): WindowMenuEntry {
@@ -524,6 +589,13 @@ class AppMenu {
       }
     })
 
+    // The renderer owns the tab list and the main process cannot read it, so it
+    // reports here whether this window has a document to export; the pandoc
+    // entry is greyed out when it does not (#5379).
+    ipcMain.on('mt::update-pandoc-menu', (_e, windowId: number, hasDocument: boolean) => {
+      this.updatePandocMenu(windowId, hasDocument)
+    })
+
     onInternalChannel('menu-add-recently-used', (pathname: string) => {
       this.addRecentlyUsedDocument(pathname)
     })
@@ -543,17 +615,17 @@ class AppMenu {
         setLanguage(prefs.language)
         this.updateAppMenu()
       }
-      if (
-        prefs.pandocEnabled !== undefined ||
-        prefs.pandocExportFormats !== undefined ||
-        prefs.pandocDefaultFormat !== undefined
-      ) {
-        // These three decide what the "Convert with Pandoc" submenu contains and
+      if (prefs.pandocExportFormats !== undefined || prefs.pandocDefaultFormat !== undefined) {
+        // These two decide what the "Convert with Pandoc" submenu contains and
         // which of its entries is marked as the default, and the submenu is
         // built from the preferences — without this rebuild the menu keeps
-        // offering the previous list until a restart. `pandocEnabled` also
-        // hides "Import".
+        // offering the previous list until a restart.
         this.updateAppMenu()
+      }
+      if (prefs.pandocPath !== undefined) {
+        // The path decides whether pandoc can be run, which is what enables the
+        // export and import entries; a changed answer rebuilds the menus.
+        refreshPandocAvailability()
       }
     })
   }

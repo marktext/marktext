@@ -107,18 +107,6 @@ export const getPandocExportFormats = (
     : [...PANDOC_EXPORT_FORMATS]
 
 /**
- * Formats the export menu should offer — an empty result means the whole
- * "Convert with Pandoc" entry (and its separator) is left out.
- *
- * `enabled` only counts as off when it is exactly `false`, so a preferences
- * file written before the setting existed behaves like the enabled default.
- */
-export const getPandocMenuFormats = (
-  enabled: boolean | undefined,
-  selected?: readonly string[] | null
-): PandocExportFormat[] => (enabled === false ? [] : getPandocExportFormats(selected))
-
-/**
  * Format used by default — the save dialog's filter and the entry the menu
  * marks.
  *

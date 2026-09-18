@@ -118,7 +118,6 @@ const ALL_IDS = PANDOC_EXPORT_FORMATS.map((format) => format.id)
 /** A preferences store stub: `storeToRefs` hands the page live refs it writes through. */
 const makePanel = (overrides: Record<string, unknown> = {}) => {
   const initial: Record<string, unknown> = {
-    pandocEnabled: true,
     pandocDefaultFormat: 'docx',
     pandocExportFormats: [...ALL_IDS],
     ...overrides

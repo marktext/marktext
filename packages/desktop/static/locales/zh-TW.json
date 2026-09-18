@@ -416,7 +416,6 @@
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "softNewlineAsSpace": "將軟換行視為空格",
-        "pandocEnabled": "啟用 Pandoc 匯出 / 匯入",
         "pandocExportFormats": "匯出選單中顯示的格式",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "啟用 Pandoc 匯出 / 匯入",
       "path": {
         "label": "pandoc 路徑",
         "placeholder": "留空 = 用 PATH 裡的 pandoc",

@@ -297,11 +297,6 @@
     "pattern": "^(https?://|$)",
     "default": "https://www.plantuml.com/plantuml"
   },
-  "pandocEnabled": {
-    "description": "Pandoc--Whether pandoc export and import are available.",
-    "type": "boolean",
-    "default": true
-  },
   "pandocPath": {
     "description": "Pandoc--Path of the pandoc executable. Empty uses the one found on PATH.",
     "type": "string",

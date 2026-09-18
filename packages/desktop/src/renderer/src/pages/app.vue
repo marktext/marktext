@@ -119,6 +119,19 @@ watch(zoom, (zoomValue) => {
   bus.emit('mt::window-zoom', zoomValue)
 })
 
+// The pandoc export submenu acts on the active tab, so it is only meaningful
+// while a document is open. The main process has no view of the renderer's tabs
+// and would otherwise keep offering the entries on the recent-files page, where
+// clicking them does nothing at all — so report the state on every change,
+// including the initial one for a window that opens empty (#5379).
+watch(
+  hasCurrentFile,
+  (value) => {
+    editorStore.UPDATE_PANDOC_MENU(value)
+  },
+  { immediate: true }
+)
+
 const setupDragDropHandler = (): void => {
   window.addEventListener(
     'dragover',

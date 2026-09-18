@@ -23,8 +23,8 @@ import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
 import pandoc, { PANDOC_EXPORT_FORMATS, getPandocReader } from '../../utils/pandoc'
 import {
   getPandocDefaultFormat,
-  getPandocExportLocation,
-  getPandocMenuFormats
+  getPandocExportFormats,
+  getPandocExportLocation
 } from '@shared/pandoc'
 import type { PandocExportFormat, PandocExportLocation } from '@shared/pandoc'
 import { getUserPreference } from '../../app/userPreference'
@@ -900,17 +900,13 @@ export const exportWithPandoc = (win: Win, target?: string): void => {
   }
 
   const preferences = getUserPreference()
-  const formats = getPandocMenuFormats(
-    preferences?.getItem<boolean>('pandocEnabled'),
-    preferences?.getItem<string[]>('pandocExportFormats')
-  )
+  const formats = getPandocExportFormats(preferences?.getItem<string[]>('pandocExportFormats'))
   const format = target
     ? formats.find((f) => f.id === target)
     : getPandocDefaultFormat(formats, preferences?.getItem<string>('pandocDefaultFormat'))
 
-  // Empty when the export is switched off in the preferences or every format is
-  // unchecked — both of which hide the menu entry, so this only catches a
-  // caller that did not go through it.
+  // Empty when every format is unchecked, which hides the menu entry — so this
+  // only catches a caller that did not go through it.
   if (!format) {
     if (target) {
       log.warn(`Ignoring pandoc export request for "${target}": not offered by the preferences.`)
@@ -929,12 +925,8 @@ export const importFile = async(win: BrowserWindow | null): Promise<void> => {
   if (!win) {
     return
   }
-  // The "Pandoc" preferences page switches export and import together, so the
-  // master switch gates this path as well. The menu entry is hidden in that
-  // state; this keeps a stale window from importing anyway.
-  if (getUserPreference()?.getItem<boolean>('pandocEnabled') === false) {
-    return
-  }
+  // The menu entry is greyed out while no pandoc can be run; this keeps a stale
+  // window from importing anyway.
   const existsPandoc = pandoc.exists()
 
   if (!existsPandoc) {

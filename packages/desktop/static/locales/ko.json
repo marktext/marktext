@@ -416,7 +416,6 @@
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
-        "pandocEnabled": "Pandoc 내보내기 / 가져오기 사용",
         "pandocExportFormats": "내보내기 메뉴에 표시할 형식",
         "sequenceTheme": "시퀀스 다이어그램 테마",
         "plantumlServer": "PlantUML 서버 URL",
@@ -697,7 +696,6 @@
     },
     "pandoc": {
       "title": "Pandoc",
-      "enable": "Pandoc 내보내기 / 가져오기 사용",
       "path": {
         "label": "pandoc 경로",
         "placeholder": "비우면 PATH의 pandoc 사용",

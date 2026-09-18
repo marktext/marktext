@@ -505,6 +505,15 @@ export const useEditorStore = defineStore('editor', {
       }
     },
 
+    // The pandoc export submenu acts on the active tab, so with no document open
+    // a click would do nothing at all and the user would get no feedback. The
+    // main process cannot see the renderer's tabs, so it is told here and greys
+    // the entry out (#5379).
+    UPDATE_PANDOC_MENU(hasDocument: boolean): void {
+      const { windowId } = window.marktext?.env ?? { windowId: -1 }
+      window.electron.ipcRenderer.send('mt::update-pandoc-menu', windowId, hasDocument)
+    },
+
     // Flush any edit still queued in the engine's rAF batch into the active
     // tab's `currentFile` before its markdown is read to persist — otherwise an
     // edit made in the same frame as the read is silently dropped from the

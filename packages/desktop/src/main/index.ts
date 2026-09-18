@@ -14,6 +14,10 @@ import App from './app'
 import { t } from './i18n'
 import { registerSandboxIpcHandlers } from './ipc'
 import { setUserPreference } from './app/userPreference'
+import {
+  refreshPandocAvailability,
+  setPandocAvailabilityListener
+} from './app/pandocAvailability'
 
 // Set version strings into global and process.versions
 process.env.MARKTEXT_VERSION = MARKTEXT_VERSION
@@ -120,6 +124,13 @@ appController.init()
 // now that it exists. Reading it lazily also means a change in the preferences
 // page takes effect without a restart.
 setUserPreference(accessor.preferences)
+
+// Whether pandoc can be run decides if the export and import entries are usable,
+// and the menus have to be rebuilt when that answer changes. The check runs in
+// the background rather than on every menu build, so it stays off the startup
+// path.
+setPandocAvailabilityListener(() => accessor.menu.updateAppMenu())
+refreshPandocAvailability()
 
 // Quit when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {

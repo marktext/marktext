@@ -4,18 +4,6 @@
 
     <div class="pref-row">
       <div class="pref-row__label">
-        {{ t('preferences.pandoc.enable') }}
-      </div>
-      <div class="pref-row__control">
-        <el-switch
-          :model-value="pandocEnabled"
-          @update:model-value="setEnabled"
-        />
-      </div>
-    </div>
-
-    <div class="pref-row">
-      <div class="pref-row__label">
         {{ t('preferences.pandoc.path.label') }}
       </div>
       <div class="pref-row__control">
@@ -23,7 +11,6 @@
           class="path-input"
           :model-value="pandocPath"
           :placeholder="t('preferences.pandoc.path.placeholder')"
-          :disabled="!pandocEnabled"
           size="small"
           clearable
           @update:model-value="setPath"
@@ -31,14 +18,12 @@
         <el-button
           size="small"
           :loading="checking"
-          :disabled="!pandocEnabled"
           @click="checkPandoc"
         >
           {{ t('preferences.pandoc.path.check') }}
         </el-button>
         <el-button
           size="small"
-          :disabled="!pandocEnabled"
           @click="pickPath('executable')"
         >
           {{ t('preferences.pandoc.path.browse') }}
@@ -75,7 +60,6 @@
       <div class="pref-row__control">
         <el-select
           :model-value="selectedDefaultFormat"
-          :disabled="!pandocEnabled"
           class="format-select"
           @change="setDefaultFormat"
         >
@@ -97,7 +81,6 @@
         <check-list
           :value="pandocExportFormats"
           :options="allFormatOptions"
-          :disable="!pandocEnabled"
           :on-change="onFormatsChange"
         />
       </div>
@@ -114,7 +97,6 @@
       <div class="pref-row__control">
         <el-radio-group
           :model-value="pandocExportLocation"
-          :disabled="!pandocEnabled"
           @change="setExportLocation"
         >
           <el-radio-button
@@ -138,14 +120,12 @@
           class="path-input"
           :model-value="pandocExportFolder"
           :placeholder="t('preferences.pandoc.location.folderPlaceholder')"
-          :disabled="!pandocEnabled"
           size="small"
           clearable
           @update:model-value="setExportFolder"
         />
         <el-button
           size="small"
-          :disabled="!pandocEnabled"
           @click="pickPath('folder')"
         >
           {{ t('preferences.pandoc.location.pickFolder') }}
@@ -162,7 +142,6 @@
           v-for="option in optionFlags"
           :key="option.key"
           :model-value="option.value"
-          :disabled="!pandocEnabled"
           @update:model-value="onOptionChange(option.key, $event)"
         >
           {{ t(`preferences.pandoc.options.${option.label}`) }}
@@ -179,21 +158,19 @@
           class="path-input"
           :model-value="pandocReferenceDoc"
           :placeholder="t('preferences.pandoc.referenceDoc.placeholder')"
-          :disabled="!pandocEnabled"
           size="small"
           clearable
           @update:model-value="setReferenceDoc"
         />
         <el-button
           size="small"
-          :disabled="!pandocEnabled"
           @click="pickPath('reference-doc')"
         >
           {{ t('preferences.pandoc.referenceDoc.browse') }}
         </el-button>
         <el-button
           size="small"
-          :disabled="!pandocEnabled || !pandocReferenceDoc"
+          :disabled="!pandocReferenceDoc"
           @click="clearReferenceDoc"
         >
           {{ t('preferences.pandoc.referenceDoc.clear') }}
@@ -232,7 +209,6 @@ const { t } = useI18n()
 const preferenceStore = usePreferencesStore()
 
 const {
-  pandocEnabled,
   pandocPath,
   pandocDefaultFormat,
   pandocExportFormats,
@@ -317,7 +293,6 @@ const update = (key: keyof PreferencesState, value: unknown): void => {
 // the template has no signature for the compiler to infer from, so each of its
 // parameters reads as `any`. `unknown` is what the store takes — the control
 // that emitted the value is the only thing that knows its own type.
-const setEnabled = (value: unknown): void => update('pandocEnabled', value)
 const setPath = (value: unknown): void => update('pandocPath', value)
 const setDefaultFormat = (value: unknown): void => update('pandocDefaultFormat', value)
 const setExportLocation = (value: unknown): void => update('pandocExportLocation', value)

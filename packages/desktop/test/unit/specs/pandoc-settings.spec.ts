@@ -184,7 +184,6 @@ describe('pandoc settings', () => {
     const defaultPreferences = readJson('../../../static/preference.json')
 
     const keys = [
-      'pandocEnabled',
       'pandocPath',
       'pandocDefaultFormat',
       'pandocExportFormats',

@@ -59,7 +59,6 @@
   "sequenceTheme": "hand",
   "plantumlServer": "https://www.plantuml.com/plantuml",
 
-  "pandocEnabled": true,
   "pandocPath": "",
   "pandocDefaultFormat": "docx",
   "pandocExportFormats": [
