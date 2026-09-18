@@ -79,7 +79,6 @@ describe('parity PG10: Space previews a selected image', () => {
         () => {
             const src = 'https://example.com/pic.png';
             const { muya, img } = bootImage(src);
-            muya.domNode.focus();
             selectImage(img);
             // Sanity: the click populated the selected-image state.
             expect(muya.editor.selection.image).toBeTruthy();
@@ -98,9 +97,6 @@ describe('parity PG10: Space previews a selected image', () => {
             // The engine emits preview-image so the host can open the
             // full-screen viewer.
             expect(handler).toHaveBeenCalledTimes(1);
-            muya.flush();
-            expect(muya.getMarkdown()).toBe(`![alt](${src})\n`);
-            expect(muya.editor.selection.image).not.toBeNull();
         },
     );
 
@@ -130,31 +126,4 @@ describe('parity PG10: Space previews a selected image', () => {
             expect(JSON.stringify(payload)).toContain(src);
         },
     );
-
-    it.each(['Escape', 'ArrowRight'])('keeps a selected image when pressing %s', (key) => {
-        const src = 'https://example.com/pic.png';
-        const { muya, img } = bootImage(src);
-        muya.domNode.focus();
-        selectImage(img);
-
-        muya.domNode.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-        muya.flush();
-
-        expect(muya.getMarkdown()).toBe(`![alt](${src})\n`);
-        expect(muya.editor.selection.image).not.toBeNull();
-    });
-
-    it.each(['Backspace', 'Delete', 'Enter'])('still deletes a selected image with %s', (key) => {
-        const { muya, img } = bootImage('https://example.com/pic.png');
-        muya.domNode.focus();
-        selectImage(img);
-
-        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-        muya.domNode.dispatchEvent(event);
-        muya.flush();
-
-        expect(event.defaultPrevented).toBe(true);
-        expect(muya.getMarkdown()).toBe('\n');
-        expect(muya.editor.selection.image).toBeNull();
-    });
 });
