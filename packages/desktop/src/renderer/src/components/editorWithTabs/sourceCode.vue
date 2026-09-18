@@ -285,17 +285,28 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
-let lastSelectedText = ''
+// `cursorActivity` fires on every caret move and on every step of a drag, so
+// the ranges — not the selected text — are what decides whether to recount.
+// Reading them is O(ranges); `getSelection()` copies the whole selection.
+let lastSelectionKey = ''
+
+const selectionKey = (cm: CMInstance): string =>
+  (cm?.listSelections?.() ?? [])
+    .map(
+      ({ anchor, head }: { anchor: { line: number; ch: number }; head: { line: number; ch: number } }) =>
+        `${anchor.line}:${anchor.ch}-${head.line}:${head.ch}`
+    )
+    .join(',')
 
 const updateSelectionWordCount = (cm: CMInstance) => {
-  const selectedText = cm?.getSelection?.('\n') ?? cm?.getSelection?.() ?? ''
-  const hasSelection = selectedText.trim().length > 0
-  if (selectedText === lastSelectedText) {
-    const hasStoreSelection = editorStore.selectionWordCount != null
-    if (hasSelection === hasStoreSelection) return
-  }
+  const key = selectionKey(cm)
+  if (key === lastSelectionKey && editorStore.selectionWordCount != null) return
+  lastSelectionKey = key
 
-  lastSelectedText = selectedText
+  const selectedText = cm?.getSelection?.('\n') ?? ''
+  const hasSelection = selectedText.trim().length > 0
+  if (!hasSelection && editorStore.selectionWordCount == null) return
+
   editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
 }
 
@@ -416,7 +427,7 @@ onBeforeUnmount(() => {
   bus.off('redo', handleRedo)
   bus.off('image-action', handleImageAction)
   editorStore.SET_SELECTION_WORD_COUNT(null)
-  lastSelectedText = ''
+  lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
