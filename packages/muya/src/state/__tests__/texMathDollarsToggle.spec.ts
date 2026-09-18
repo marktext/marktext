@@ -100,6 +100,7 @@ describe('texMathDollars — live toggle re-parses `$$…$$`', () => {
             texMathDollars: false,
             texMathGfm: true,
         });
-        expect(firstBlock(muya).name).toBe('code-block');
+        expect(firstBlock(muya).name).toBe('math-block');
+        expect(firstBlock(muya).meta.mathStyle).toBe('gfm');
     });
 });

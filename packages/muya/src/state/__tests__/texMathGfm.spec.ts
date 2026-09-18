@@ -6,8 +6,8 @@ import ExportMarkdown from '../stateToMarkdown';
 // ```math renders as block math and serializes back as ```math, not $$. Both
 // GitHub and GitLab write it this way. The promotion is split across two seams:
 //   * parse:     utils/marked/walkTokens.ts rewrites a `code`/lang=math token
-//                into a `multiplemath` token with mathStyle='gfm', but ONLY
-//                when BOTH `texMathDollars` AND `texMathGfm` are true.
+//                into a `multiplemath` token with mathStyle='gfm', when
+//                `texMathGfm` is on — independently of the dollar syntax.
 //   * serialize: state/stateToMarkdown.ts::_serializeMathBlock picks the fence
 //                purely from meta.mathStyle ('' → $$, 'gfm' → ```math) — it
 //                does NOT re-read the option, so a block keeps its origin style.
@@ -43,7 +43,7 @@ function serialize(states: IMathLike[]): string {
 }
 
 describe('tex_math_gfm — parse promotion (walkTokens)', () => {
-    it('promotes ```math to a gfm-styled math block when texMathDollars + texMathGfm are on', () => {
+    it('promotes ```math to a gfm-styled math block when tex_math_gfm is on', () => {
         const [block] = parse('```math\nx^2\n```\n');
         expect(block.name).toBe('math-block');
         expect(block.meta?.mathStyle).toBe('gfm');
@@ -57,10 +57,10 @@ describe('tex_math_gfm — parse promotion (walkTokens)', () => {
         expect(block.meta?.mathStyle).toBeUndefined();
     });
 
-    it('leaves ```math as a plain code block when texMathDollars is off (both flags required)', () => {
+    it('promotes ```math with texMathDollars off — the display half rides tex_math_gfm alone', () => {
         const [block] = parse('```math\nx^2\n```\n', { texMathDollars: false });
-        expect(block.name).toBe('code-block');
-        expect(block.meta?.lang).toBe('math');
+        expect(block.name).toBe('math-block');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
     it('always parses $$ as a non-gfm math block, independent of the flag', () => {
