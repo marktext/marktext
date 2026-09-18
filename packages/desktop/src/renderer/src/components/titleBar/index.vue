@@ -380,6 +380,9 @@ div.title > span {
   white-space: nowrap;
 }
 
+/* The RTL context above only exists to clip long paths from the left. Isolating
+   each segment keeps an RTL folder name from dragging its separator — or the
+   segments around it — out of order. */
 div.title > span > bdi > span {
   unicode-bidi: isolate;
 }
