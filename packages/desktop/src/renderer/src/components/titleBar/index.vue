@@ -21,29 +21,31 @@
       >
         <span v-if="!filename">MarkText</span>
         <span v-else>
-          <span
-            v-for="(path, index) of paths"
-            :key="index"
-          >
-            {{ path }}
-            <el-icon
-              class="path-arrow"
-              :size="12"
+          <bdi dir="ltr">
+            <span
+              v-for="(path, index) of paths"
+              :key="index"
             >
-              <ArrowRight />
-            </el-icon>
-          </span>
-          <span
-            class="filename"
-            :class="{ isOsx: platform === 'darwin' }"
-            @click="rename"
-          >
-            {{ filename }}
-          </span>
-          <span
-            class="save-dot"
-            :class="{ show: !isSaved }"
-          />
+              {{ path }}
+              <el-icon
+                class="path-arrow"
+                :size="12"
+              >
+                <ArrowRight />
+              </el-icon>
+            </span>
+            <span
+              class="filename"
+              :class="{ isOsx: platform === 'darwin' }"
+              @click="rename"
+            >
+              {{ filename }}
+            </span>
+            <span
+              class="save-dot"
+              :class="{ show: !isSaved }"
+            />
+          </bdi>
         </span>
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
@@ -378,12 +380,19 @@ div.title > span {
   white-space: nowrap;
 }
 
+/* The RTL context above only exists to clip long paths from the left. Isolating
+   each segment keeps an RTL folder name from dragging its separator — or the
+   segments around it — out of order. */
+div.title > span > bdi > span {
+  unicode-bidi: isolate;
+}
+
 .title-bar .title .filename.isOsx:hover {
   color: var(--themeColor);
 }
 
 .active .save-dot {
-  margin-right: 0.25rem;
+  margin-left: 0.25rem;
   width: 8px;
   height: 8px;
   display: inline-block;
