@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mkdtemp, rm, writeFile } from 'fs/promises'
+import os from 'os'
+import path from 'path'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 
 // `menu/actions/file.ts` registers itself on `ipcMain` at module load, so the
 // Electron, log, i18n and pandoc surfaces are stubbed and the registered
@@ -389,5 +392,54 @@ describe('mt::response-pandoc-export docx template choice', () => {
     await exportWith()
 
     expect(optionsOfExport().referenceDoc).toBe('')
+  })
+})
+
+// The automatic locations write without asking, so a second export of the same
+// document has to number itself instead of overwriting the first output — the
+// numbering never ran because `exists` is async and its Promise was tested
+// directly (#5379 review). Real filesystem: the bug lived exactly in how the
+// existence test was awaited.
+describe('mt::response-pandoc-export automatic export locations', () => {
+  let dir: string
+
+  beforeEach(async() => {
+    sent.length = 0
+    showSaveDialog.mockReset()
+    fromWebContents.mockReset()
+    toFile.mockReset()
+    prefGet.mockReset()
+
+    fromWebContents.mockReturnValue(FAKE_WIN)
+    toFile.mockResolvedValue({ warnings: '' })
+    dir = await mkdtemp(path.join(os.tmpdir(), 'marktext-pandoc-'))
+    prefGet.mockImplementation((key: string) =>
+      key === 'pandocExportLocation' ? 'source' : undefined
+    )
+  })
+
+  afterEach(async() => {
+    await rm(dir, { recursive: true, force: true })
+  })
+
+  const exportFromSource = (): Promise<void> =>
+    exportWith({ ...EXPORT_PAYLOAD, pathname: path.join(dir, 'notes.md') })
+
+  it('writes beside the source without showing a dialog', async() => {
+    await exportFromSource()
+
+    expect(showSaveDialog).not.toHaveBeenCalled()
+    const call = toFile.mock.calls[0] as unknown[]
+    expect(call[1]).toBe(path.join(dir, 'notes.docx'))
+  })
+
+  it('numbers the second export instead of overwriting the first', async() => {
+    await exportFromSource()
+    await writeFile(path.join(dir, 'notes.docx'), 'first run', 'utf8')
+
+    await exportFromSource()
+
+    const call = toFile.mock.calls[1] as unknown[]
+    expect(call[1]).toBe(path.join(dir, 'notes (2).docx'))
   })
 })

@@ -7,20 +7,22 @@ import type { PandocPickerKind } from '@shared/types/ipc'
  * What the preferences page can ask the operating system to pick.
  *
  * `executable` is the pandoc binary itself, `folder` the fixed export
- * destination and `reference-doc` the Word template used for the style of
- * docx/odt exports.
+ * destination and `reference-doc` the template used for the style of
+ * docx/odt/pptx exports.
  */
 const PICKER_FILTERS: Record<PandocPickerKind, Electron.FileFilter[] | undefined> = {
   executable: [
     // pandoc ships a single .exe on Windows; elsewhere it has no extension at
     // all, which a filter cannot express — hence `undefined` (no filter) below.
-    { name: 'Executable', extensions: ['exe', 'cmd', 'bat'] }
+    // No `.cmd`/`.bat`: Node refuses to spawn those without `shell: true`, so
+    // inviting them would only set the user up for a failing export.
+    { name: 'Executable', extensions: ['exe'] }
   ],
   folder: undefined,
   'reference-doc': [
     {
       name: 'Reference document',
-      extensions: ['docx', 'dotx', 'odt', 'ott']
+      extensions: ['docx', 'dotx', 'odt', 'ott', 'pptx', 'potx']
     }
   ]
 }

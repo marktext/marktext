@@ -210,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import CheckList from '../common/checkList/index.vue'
@@ -309,20 +309,59 @@ const optionFlags = computed<PandocOptionFlag[]>(() => [
   { label: 'numberSections', key: 'pandocNumberSections', value: pandocNumberSections.value }
 ])
 
+// A preference write is a synchronous electron-store write on the main process
+// plus a broadcast, so writing on every keystroke turns a typed path into a
+// chain of blocking writes and junk intermediate values (#5379 review). The
+// path fields debounce instead — the same 800 ms the common text-box control
+// uses on the other preferences pages.
+const pendingUpdates = new Map<
+  keyof PreferencesState,
+  { timer: ReturnType<typeof setTimeout>, value: unknown }
+>()
+
 const update = (key: keyof PreferencesState, value: unknown): void => {
+  // A direct write (a picked path, a template choice) supersedes a pending
+  // debounced one, never the other way round.
+  const pending = pendingUpdates.get(key)
+  if (pending) {
+    clearTimeout(pending.timer)
+    pendingUpdates.delete(key)
+  }
   preferenceStore.SET_SINGLE_PREFERENCE({ type: key, value })
 }
+
+const updateDebounced = (key: keyof PreferencesState, value: unknown): void => {
+  const pending = pendingUpdates.get(key)
+  if (pending) {
+    clearTimeout(pending.timer)
+  }
+  pendingUpdates.set(key, {
+    timer: setTimeout(() => {
+      pendingUpdates.delete(key)
+      update(key, value)
+    }, 800),
+    value
+  })
+}
+
+onBeforeUnmount(() => {
+  // Leaving the page must not drop a value typed within the last 800 ms.
+  for (const [key, { timer, value }] of pendingUpdates) {
+    clearTimeout(timer)
+    update(key, value)
+  }
+})
 
 // One named handler per control instead of an inline arrow: an arrow written in
 // the template has no signature for the compiler to infer from, so each of its
 // parameters reads as `any`. `unknown` is what the store takes — the control
 // that emitted the value is the only thing that knows its own type.
-const setPath = (value: unknown): void => update('pandocPath', value)
+const setPath = (value: unknown): void => updateDebounced('pandocPath', value)
 const setDefaultFormat = (value: unknown): void => update('pandocDefaultFormat', value)
 const setExportLocation = (value: unknown): void => update('pandocExportLocation', value)
-const setExportFolder = (value: unknown): void => update('pandocExportFolder', value)
+const setExportFolder = (value: unknown): void => updateDebounced('pandocExportFolder', value)
 const setDocxTemplate = (value: unknown): void => update('pandocDocxTemplate', value)
-const setReferenceDoc = (value: unknown): void => update('pandocReferenceDoc', value)
+const setReferenceDoc = (value: unknown): void => updateDebounced('pandocReferenceDoc', value)
 const clearReferenceDoc = (): void => update('pandocReferenceDoc', '')
 
 const onOptionChange = (key: PandocOptionKey, value: unknown): void => update(key, value)

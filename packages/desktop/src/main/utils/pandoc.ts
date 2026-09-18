@@ -17,6 +17,17 @@ export type { PandocExportFormat, PandocCheckResult } from '@shared/pandoc'
 const pandocCommand = 'pandoc'
 
 /**
+ * Windows only: since the CVE-2024-27980 fix Node refuses to spawn a `.bat`/
+ * `.cmd` without `shell: true` (EINVAL), and shelling out would mean quoting
+ * user-supplied paths by hand. A batch shim therefore cannot serve as the
+ * pandoc binary: the resolution below treats it as absent and falls through to
+ * the next source, and the check explains why instead of leaving the button
+ * spinning (#5379 review).
+ */
+const isBatchFile = (command: string): boolean =>
+  process.platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
+
+/**
  * Command to spawn.
  *
  * Order: the configured path, then `MARKTEXT_PANDOC`, then a bare `pandoc` for
@@ -29,7 +40,7 @@ const pandocCommand = 'pandoc'
  */
 export const resolvePandocCommand = (): string => {
   const configured = (getUserPreference()?.getItem<string>('pandocPath') ?? '').trim()
-  if (configured && isFile2(configured)) {
+  if (configured && isFile2(configured) && !isBatchFile(configured)) {
     return configured
   }
   if (envPathExists()) {
@@ -195,6 +206,13 @@ pandoc.exists = (): boolean => {
  */
 pandoc.check = (command?: string): Promise<PandocCheckResult> => {
   const target = (command ?? '').trim() || resolvePandocCommand()
+  // Spawn would fail with EINVAL before any output — say why instead.
+  if (isBatchFile(target)) {
+    return Promise.resolve({
+      ok: false,
+      error: 'a .bat/.cmd file cannot run as the pandoc binary on Windows — point the path at pandoc.exe'
+    })
+  }
   return new Promise((resolve) => {
     let settled = false
     const done = (result: PandocCheckResult): void => {
@@ -328,8 +346,9 @@ export const buildPandocArguments = (options: {
   if (numberSections) {
     args.push('--number-sections')
   }
-  // pandoc exits 1 with "The --reference-doc option is not supported for X" on
-  // every other writer, so the template only rides along when it applies.
+  // Only the writers in `PANDOC_REFERENCE_DOC_TARGETS` make use of the option;
+  // the others exit 0 but ignore it, so the template rides along just for the
+  // ones that read it (#5379 review).
   if (referenceDoc && PANDOC_REFERENCE_DOC_TARGETS.includes(to)) {
     args.push(`--reference-doc=${referenceDoc}`)
   }
@@ -369,8 +388,9 @@ pandoc.toFile = (
       metadata
     } = options
     // An explicitly passed `''` keeps pandoc's default, `undefined` picks the
-    // bundled template where one exists for the writer (docx only — the file is
-    // a docx, and an odt writer handed one fails the export).
+    // bundled template where one exists for the writer. The bundled file is a
+    // docx, so the docx writer is the only one it can style — an odt/pptx
+    // writer handed it would read a reference document of the wrong format.
     const template = referenceDoc ?? (to === 'docx' ? bundledReferenceDoc() : '')
     const args = buildPandocArguments({
       reader,
@@ -407,7 +427,11 @@ pandoc.toFile = (
   })
 
 const envPathExists = (): boolean => {
-  return !!process.env.MARKTEXT_PANDOC && isFile2(process.env.MARKTEXT_PANDOC)
+  return (
+    !!process.env.MARKTEXT_PANDOC &&
+    isFile2(process.env.MARKTEXT_PANDOC) &&
+    !isBatchFile(process.env.MARKTEXT_PANDOC)
+  )
 }
 
 export default pandoc

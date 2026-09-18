@@ -255,18 +255,21 @@ const summarizePandocWarnings = (warnings: string): string => {
  * derived file: replacing an earlier one the user may still be working from is
  * not what clicking a menu entry promises.
  */
-const uniquePandocOutputPath = (
+const uniquePandocOutputPath = async(
   dir: string,
   nakedFilename: string,
   extension: string
-): string => {
+): Promise<string> => {
   const candidate = path.join(dir, `${nakedFilename}${extension}`)
-  if (!exists(candidate)) {
+  // `exists` is async, so a bare `!exists(candidate)` tests a Promise — always
+  // truthy-negated, the numbering below never runs and the second export of a
+  // document silently overwrites the first (#5379 review).
+  if (!(await exists(candidate))) {
     return candidate
   }
   for (let index = 2; index < 1000; index++) {
     const numbered = path.join(dir, `${nakedFilename} (${index})${extension}`)
-    if (!exists(numbered)) {
+    if (!(await exists(numbered))) {
       return numbered
     }
   }
@@ -299,7 +302,7 @@ const resolvePandocOutputPath = async(
     // The folder may have been moved or deleted since it was chosen; recreating
     // it is friendlier than failing the export with ENOENT.
     await fsEnsureDir(targetDir)
-    return uniquePandocOutputPath(targetDir, nakedFilename, format.extension)
+    return await uniquePandocOutputPath(targetDir, nakedFilename, format.extension)
   }
 
   const { filePath, canceled } = await dialog.showSaveDialog(win, {
@@ -341,34 +344,41 @@ const handleResponseForPandocExport = async(
   const nakedFilename =
     (pathname ? path.basename(pathname, path.extname(pathname)) : title) || 'Untitled'
 
-  const filePath = await resolvePandocOutputPath(win, {
-    format,
-    nakedFilename,
-    sourceDir,
-    location: getPandocExportLocation(preferences?.getItem('pandocExportLocation')),
-    folder: (preferences?.getItem<string>('pandocExportFolder') ?? '').trim()
-  })
-
-  if (!filePath || win.isDestroyed()) {
-    // Cancelled, or the window was closed while the dialog was open — either
-    // way there is nothing left to convert for.
-    return
-  }
-
-  // The document comes in over stdin, so pandoc resolves its relative links
-  // against the process cwd unless the source folder is passed along — and a
-  // link it cannot resolve only produces a warning on stderr while pandoc still
-  // exits 0.
-  const cwd = sourceDir
-
-  // Which Word template the docx export takes: pandoc's built-in one, the
-  // bundled look-like-the-editor one, or a file of the user's own. The bundled
-  // one is signalled by withholding a template — that is what makes `toFile`
-  // inject `static/pandoc-reference.docx` — while an explicit `''` is what
-  // keeps pandoc's default, so the three choices map onto those two states.
-  const docxTemplate = preferences?.getItem<string>('pandocDocxTemplate') ?? 'default'
-
+  // The location resolution runs inside the try: `folder` mode recreates the
+  // target directory first, and a volume that is no longer mounted (or a path
+  // whose parent is a regular file) rejects with EACCES/ENOTDIR — the catch
+  // below is what turns that into the error toast, so the rejection must not
+  // escape the handler and leave a click with no reaction at all (#5379
+  // review).
+  let filePath: string | null = null
   try {
+    filePath = await resolvePandocOutputPath(win, {
+      format,
+      nakedFilename,
+      sourceDir,
+      location: getPandocExportLocation(preferences?.getItem('pandocExportLocation')),
+      folder: (preferences?.getItem<string>('pandocExportFolder') ?? '').trim()
+    })
+
+    if (!filePath || win.isDestroyed()) {
+      // Cancelled, or the window was closed while the dialog was open — either
+      // way there is nothing left to convert for.
+      return
+    }
+
+    // The document comes in over stdin, so pandoc resolves its relative links
+    // against the process cwd unless the source folder is passed along — and a
+    // link it cannot resolve only produces a warning on stderr while pandoc still
+    // exits 0.
+    const cwd = sourceDir
+
+    // Which Word template the docx export takes: pandoc's built-in one, the
+    // bundled look-like-the-editor one, or a file of the user's own. The bundled
+    // one is signalled by withholding a template — that is what makes `toFile`
+    // inject `static/pandoc-reference.docx` — while an explicit `''` is what
+    // keeps pandoc's default, so the three choices map onto those two states.
+    const docxTemplate = preferences?.getItem<string>('pandocDocxTemplate') ?? 'default'
+
     const { warnings } = await pandoc.toFile(format.target, filePath, markdown, {
       cwd,
       reader: getPandocReader(

@@ -45,12 +45,19 @@ export const PANDOC_EXPORT_FORMAT_IDS: readonly string[] = Object.freeze(
 )
 
 /**
- * Writers that accept `--reference-doc`.
+ * Writers that use `--reference-doc`.
  *
- * pandoc rejects the option for any other writer, so the export cannot pass it
- * unconditionally when a template is configured.
+ * On pandoc 3.1.3 every writer accepts the option and exits 0 with it — the
+ * earlier assumption that the others reject it is wrong. But only these three
+ * do anything with it (pandoc's manual lists "docx or ODT or PowerPoint"): the
+ * rest ignore it, and a template the user configured being silently unused is
+ * what a switch of the export format should not cause (#5379 review).
  */
-export const PANDOC_REFERENCE_DOC_TARGETS: readonly string[] = Object.freeze(['docx', 'odt'])
+export const PANDOC_REFERENCE_DOC_TARGETS: readonly string[] = Object.freeze([
+  'docx',
+  'odt',
+  'pptx'
+])
 
 /**
  * Which Word template a docx export takes, in the order the preferences show

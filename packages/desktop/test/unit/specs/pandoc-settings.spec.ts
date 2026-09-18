@@ -55,10 +55,11 @@ describe('pandoc settings', () => {
   })
 
   describe('PANDOC_REFERENCE_DOC_TARGETS', () => {
-    // pandoc exits 1 with "The --reference-doc option is not supported for X" on
-    // any other writer, so the template must not ride along for them.
-    it('names only the writers that accept --reference-doc', () => {
-      expect([...PANDOC_REFERENCE_DOC_TARGETS]).toEqual(['docx', 'odt'])
+    // pandoc 3.1.3 accepts the option from every writer (all exit 0), but only
+    // docx/odt/pptx do anything with it — pandoc's manual lists "docx or ODT or
+    // PowerPoint". The others ignore it, so the template must not ride along.
+    it('names the writers that use --reference-doc', () => {
+      expect([...PANDOC_REFERENCE_DOC_TARGETS]).toEqual(['docx', 'odt', 'pptx'])
     })
   })
 
@@ -139,18 +140,21 @@ describe('pandoc settings', () => {
       expect(buildPandocArguments(base)).not.toContain('--number-sections')
     })
 
-    it('passes the template through for docx and odt', () => {
+    it('passes the template through for docx, odt and pptx', () => {
       expect(buildPandocArguments({ ...base, referenceDoc: '/tpl/ref.docx' })).toContain(
         '--reference-doc=/tpl/ref.docx'
       )
       expect(
         buildPandocArguments({ ...base, to: 'odt', referenceDoc: '/tpl/ref.odt' })
       ).toContain('--reference-doc=/tpl/ref.odt')
+      expect(
+        buildPandocArguments({ ...base, to: 'pptx', referenceDoc: '/tpl/ref.pptx' })
+      ).toContain('--reference-doc=/tpl/ref.pptx')
     })
 
     // A template set once in the preferences outlives switching the export to a
-    // writer that rejects the option, so the flag has to be dropped silently.
-    it('withholds the template from writers that reject the option', () => {
+    // writer that ignores the option, so the flag has to be dropped silently.
+    it('withholds the template from writers that ignore the option', () => {
       for (const to of PANDOC_EXPORT_FORMAT_IDS.filter(
         (id) => !PANDOC_REFERENCE_DOC_TARGETS.includes(id)
       )) {
