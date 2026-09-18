@@ -179,22 +179,10 @@ const { t } = useI18n()
 
 const isOsx = isOsxPlatform
 const HASH = {
-  word: {
-    short: 'W',
-    full: 'word'
-  },
-  character: {
-    short: 'C',
-    full: 'character'
-  },
-  paragraph: {
-    short: 'P',
-    full: 'paragraph'
-  },
-  all: {
-    short: 'A',
-    full: '(with space)character'
-  }
+  word: { short: 'W' },
+  character: { short: 'C' },
+  paragraph: { short: 'P' },
+  all: { short: 'A' }
 }
 const windowIconMinimize = minimizePath
 const windowIconRestore = restorePath
