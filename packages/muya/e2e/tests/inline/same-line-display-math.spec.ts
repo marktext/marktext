@@ -1,0 +1,125 @@
+import { expect, test } from '../fixtures/muya';
+import { slowType } from '../helpers/keyboard';
+import { editor } from '../helpers/selectors';
+
+test.describe('same-line display math (#4904)', () => {
+    test('uses a full-width centered preview without changing the editing layout', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('$$E=mc^2$$'));
+
+        const wrapper = page.locator(editor.displayMath).first();
+        const formula = wrapper.locator(editor.katex).first();
+        await expect(formula).toBeVisible();
+
+        const layout = await wrapper.evaluate((wrapper, selectors) => {
+            const paragraph = wrapper.closest(selectors.paragraph)!;
+            const formula = wrapper.querySelector(selectors.katex)!;
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const paragraphRect = paragraph.getBoundingClientRect();
+            const formulaRect = formula.getBoundingClientRect();
+
+            return {
+                display: getComputedStyle(wrapper).display,
+                wrapperWidth: wrapperRect.width,
+                paragraphWidth: paragraphRect.width,
+                formulaCenter: formulaRect.left + formulaRect.width / 2,
+                paragraphCenter: paragraphRect.left + paragraphRect.width / 2,
+            };
+        }, { paragraph: editor.paragraph, katex: editor.katex });
+
+        expect(layout.display).toBe('block');
+        expect(Math.abs(layout.wrapperWidth - layout.paragraphWidth)).toBeLessThanOrEqual(2);
+        expect(Math.abs(layout.formulaCenter - layout.paragraphCenter)).toBeLessThanOrEqual(2);
+
+        await wrapper.locator(editor.mathRender).click();
+        await expect(wrapper).not.toHaveClass(/mu-hide/);
+        expect(await wrapper.evaluate(element => getComputedStyle(element).display)).toBe('inline-block');
+    });
+
+    test('adds no blank line above or below a paragraph that only holds the formula', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('$$E=mc^2$$'));
+
+        const wrapper = page.locator(editor.displayMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+
+        const heights = await wrapper.evaluate((wrapper, paragraphSelector) => ({
+            paragraph: wrapper.closest(paragraphSelector)!.getBoundingClientRect().height,
+            formula: wrapper.getBoundingClientRect().height,
+        }), editor.paragraph);
+
+        expect(heights.paragraph - heights.formula).toBeLessThanOrEqual(2);
+    });
+
+    test('keeps a long formula inside nested quotes, scrolling instead', async ({ page }) => {
+        const formula = Array.from({ length: 60 }, (_, i) => `x_{${i}}`).join('+');
+        await page.evaluate(md => window.muya!.setContent(md), `> > > $$${formula}$$`);
+
+        const wrapper = page.locator(editor.displayMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+
+        const box = await wrapper.evaluate((wrapper, renderSelector) => {
+            const render = wrapper.querySelector<HTMLElement>(renderSelector)!;
+            return {
+                overflow: render.getBoundingClientRect().right - wrapper.getBoundingClientRect().right,
+                scrollable: render.scrollWidth > render.clientWidth,
+            };
+        }, editor.mathRender);
+
+        expect(box.overflow).toBeLessThanOrEqual(1);
+        expect(box.scrollable).toBe(true);
+    });
+
+    test('keeps a $$ formula inline when its paragraph also holds text', async ({ page }) => {
+        await page.evaluate(() => window.muya!.setContent('Energy is $$E=mc^2$$ conserved.'));
+
+        const wrapper = page.locator(editor.inlineMath).first();
+        await expect(wrapper.locator(editor.katex).first()).toBeVisible();
+        await expect(page.locator(editor.displayMath)).toHaveCount(0);
+
+        const layout = await wrapper.evaluate((wrapper, paragraphSelector) => {
+            const paragraph = wrapper.closest(paragraphSelector)!;
+            const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT);
+            const textRects = new Map<string, DOMRect>();
+            let node: Node | null;
+
+            while ((node = walker.nextNode())) {
+                const value = node.textContent ?? '';
+                for (const text of ['Energy is ', ' conserved.']) {
+                    const index = value.indexOf(text);
+                    if (index >= 0) {
+                        const range = document.createRange();
+                        range.setStart(node, index);
+                        range.setEnd(node, index + text.length);
+                        textRects.set(text, range.getBoundingClientRect());
+                    }
+                }
+            }
+
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const middle = wrapperRect.top + wrapperRect.height / 2;
+
+            return {
+                display: getComputedStyle(wrapper).display,
+                beforeOnFormulaLine: textRects.get('Energy is ')!.top < middle && textRects.get('Energy is ')!.bottom > middle,
+                afterOnFormulaLine: textRects.get(' conserved.')!.top < middle && textRects.get(' conserved.')!.bottom > middle,
+            };
+        }, editor.paragraph);
+
+        expect(layout.display).toBe('inline-block');
+        expect(layout.beforeOnFormulaLine).toBe(true);
+        expect(layout.afterOnFormulaLine).toBe(true);
+    });
+
+    for (const typed of ['$$x$$', 'a $$x$$ b', '$x$']) {
+        test(`typing ${typed} with auto-pair on leaves no stray dollar`, async ({ page }) => {
+            await page.evaluate(() => {
+                window.muya!.setContent('');
+                window.muya!.focus();
+                window.muya!.domNode.focus();
+            });
+
+            await slowType(page, typed);
+
+            await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe(`${typed}\n`);
+        });
+    }
+});

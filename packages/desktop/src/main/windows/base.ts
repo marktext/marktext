@@ -118,10 +118,11 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     const { codeFontFamily, codeFontSize, hideScrollbar, theme, titleBarStyle } =
       userPreference.getAll()
 
-    const baseUrl =
-      process.env.NODE_ENV === 'development'
-        ? process.env['ELECTRON_RENDERER_URL']!
-        : `file://${path.join(__dirname, '../renderer/index.html')}` // <-- This points to the path inside the packed ASAR archive, hence it is always correct
+    // Decided at build time: a NODE_ENV inherited from the user's environment
+    // must not point a built app at the dev server URL (#5053).
+    const baseUrl = import.meta.env.DEV
+      ? process.env['ELECTRON_RENDERER_URL']!
+      : `file://${path.join(__dirname, '../renderer/index.html')}` // <-- This points to the path inside the packed ASAR archive, hence it is always correct
 
     const url = new URL(baseUrl)
     url.searchParams.set('udp', paths.userDataPath)

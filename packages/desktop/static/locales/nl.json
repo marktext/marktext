@@ -390,6 +390,7 @@
         "codeFontSize": "Lettergrootte in codeblokken (12-18)",
         "codeFontFamily": "Lettertype voor codeblokken",
         "codeBlockLineNumbers": "Regelnummers tonen",
+        "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave",
         "trimUnnecessaryCodeBlockEmptyLines": "Lege regels aan begin en einde van codeblokken verwijderen",
         "autoPairBracket": "Automatisch haakjes aanvullen bij bewerken",
         "autoPairMarkdownSyntax": "Markdown-syntax automatisch aanvullen",
@@ -565,7 +566,8 @@
         "hideLinkPopup": "Link-popup verbergen",
         "autoCheck": "Automatisch aanvinken",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren naar LF bij openen",
-        "wrapCodeBlocks": "Codeblokken terugloopbaar"
+        "wrapCodeBlocks": "Codeblokken terugloopbaar",
+        "sourceCodeLineNumbers": "Regelnummers tonen in broncodeweergave"
       }
     },
     "image": {

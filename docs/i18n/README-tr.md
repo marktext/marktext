@@ -112,9 +112,16 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 
 **Özel Destekçi**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.](https://serpapi.com/?utm_source=marktext) |
-| ------------- |:-------------|
-| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">Hızlı, kolay ve kapsamlı API'miz ile Google ve diğer arama motorlarından veri çekin.</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">Masanızdan kalkın, iş akışınız devam etsin. StarDesk, geliştirme bilgisayarınıza her yerden erişmenizi sağlayan ücretsiz bir uzak masaüstü çözümüdür. iOS, Android veya web üzerinden kendi bilgisayarınıza bağlanarak Markdown düzenleyin, terminal komutları çalıştırın, belgeleri inceleyin ya da kaldığınız yerden devam edin.</a></td>
+</tr>
+</table>
 
 ## Ekran Görüntüsü
 
@@ -135,8 +142,8 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 
 ![Platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                             |                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                             |                                                    ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                    |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
 En son sürümün yeni özelliklerini görmek ister misiniz? Lütfen [CHANGELOG](../CHANGELOG.md)'a bakın.
@@ -185,7 +192,6 @@ MarkText hakkında sorularınız varsa bir issue yazabilirsiniz. Bunu yaparken i
 ## Katkı
 
 MarkText geliştirme aşamasındadır. Bir pull request oluşturmadan önce [Katkı Kılavuzunu](../../.github/CONTRIBUTING.md) okuduğunuzdan emin olun. MarkText'e özellik eklemek ister misiniz? [Yol haritamıza](https://github.com/marktext/marktext/projects) ve açık issue'lara bakın.
-
 
 ## Katkıda Bulunanlar
 

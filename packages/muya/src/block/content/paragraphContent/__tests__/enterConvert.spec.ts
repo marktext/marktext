@@ -124,6 +124,34 @@ describe('enter on `$$` — converts to a math-block', () => {
 
         expect(event.preventDefault).toHaveBeenCalled();
     });
+
+    it('still converts `$$` followed by trailing spaces', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '$$  ');
+
+        await flush();
+        expect(muya.getState()[0].name).toBe('math-block');
+    });
+});
+
+// #5364: any paragraph that merely started with `$$` became an empty math
+// block, deleting the rest of its text.
+describe('enter on a paragraph that only starts with `$$` — NOT converted (#5364)', () => {
+    for (const text of ['$$ E=MC^2 $$', '$$x', '$$a$$ trailing text']) {
+        it(`keeps ${JSON.stringify(text)} as a paragraph and splits it`, async () => {
+            const muya = bootMuya('seed\n');
+            const content = contentByText(muya, 'seed');
+
+            enterWithText(muya, content, text);
+
+            await flush();
+            const state = muya.getState();
+            expect(state.map(block => block.name)).toEqual(['paragraph', 'paragraph']);
+            expect((state[0] as { text: string }).text).toBe(text);
+        });
+    }
 });
 
 describe('enter on ```` ```js ```` — converts to a fenced code-block', () => {

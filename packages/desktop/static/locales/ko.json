@@ -391,6 +391,7 @@
         "codeFontSize": "코드 블록의 글꼴 크기, 범위는 12~18",
         "codeFontFamily": "코드 블록에서 사용되는 글꼴 패밀리",
         "codeBlockLineNumbers": "줄 번호를 표시할지 여부",
+        "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시",
         "trimUnnecessaryCodeBlockEmptyLines": "코드 블록의 시작과 끝에 있는 빈 줄 제거",
         "autoPairBracket": "편집 시 자동으로 괄호 쌍 만들기",
         "autoPairMarkdownSyntax": "마크다운 구문 자동 완성",
@@ -565,7 +566,8 @@
         "hideLinkPopup": "링크 팝업 숨기기",
         "autoCheck": "자동 확인",
         "autoNormalizeLineEndings": "열 때 줄 바꿈을 자동으로 LF로 정규화",
-        "wrapCodeBlocks": "코드 블록 줄바꿈"
+        "wrapCodeBlocks": "코드 블록 줄바꿈",
+        "sourceCodeLineNumbers": "소스 코드 모드에서 줄 번호 표시"
       }
     },
     "image": {

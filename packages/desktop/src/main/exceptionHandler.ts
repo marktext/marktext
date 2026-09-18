@@ -9,7 +9,7 @@
 import { app, clipboard, crashReporter, dialog, ipcMain } from 'electron'
 import os from 'os'
 import log from 'electron-log'
-import { createAndOpenGitHubIssueUrl } from './utils/createGitHubIssue'
+// import { createAndOpenGitHubIssueUrl } from './utils/createGitHubIssue'
 import { t } from './i18n'
 
 type ErrorType = 'main' | 'renderer'
@@ -39,7 +39,7 @@ const exceptionToString = (error: Error, type: ErrorType): string => {
 }
 
 const handleError = async(title: string, error: Error, type: ErrorType): Promise<void> => {
-  const { message, stack } = error
+  const { stack } = error
 
   // Write error into file
   if (type === 'main') {
@@ -64,7 +64,11 @@ const handleError = async(title: string, error: Error, type: ErrorType): Promise
     // Blocking message box
     const { response } = await dialog.showMessageBox({
       type: 'error',
-      buttons: [t('common.ok'), t('error.copyError'), t('error.report')],
+      buttons: [
+        t('common.ok'),
+        t('error.copyError')
+        // t('error.report')
+      ],
       defaultId: 0,
       noLink: true,
       message: title,
@@ -76,29 +80,32 @@ const handleError = async(title: string, error: Error, type: ErrorType): Promise
         clipboard.writeText(`${title}\n${stack}`)
         break
       }
-      case 2: {
-        const issueTitle = message ? t('error.unexpectedErrorWithMessage', { message }) : title
-        createAndOpenGitHubIssueUrl(
-          issueTitle,
-          `### Description
-
-${title}.
-
-### Minimal Reprouducible Markdown Example (or Steps)
-
-<Add steps or a markdown example to reproduce the problem.>
-
-### Stack Trace
-
-\`\`\`\n${stack}\n\`\`\`
-
-### Version
-
-MarkText: ${MARKTEXT_VERSION_STRING}
-Operating system: ${getOSInformation()}`
-        )
-        break
-      }
+      // The Report button is disabled: the issues it prefilled carried only a
+      // stack trace and no reproduction steps, and flooded the tracker (#5356).
+      // case 2: {
+      //   const { message } = error
+      //   const issueTitle = message ? t('error.unexpectedErrorWithMessage', { message }) : title
+      //   createAndOpenGitHubIssueUrl(
+      //     issueTitle,
+      //     `### Description
+      //
+      // ${title}.
+      //
+      // ### Minimal Reprouducible Markdown Example (or Steps)
+      //
+      // <Add steps or a markdown example to reproduce the problem.>
+      //
+      // ### Stack Trace
+      //
+      // \`\`\`\n${stack}\n\`\`\`
+      //
+      // ### Version
+      //
+      // MarkText: ${MARKTEXT_VERSION_STRING}
+      // Operating system: ${getOSInformation()}`
+      //   )
+      //   break
+      // }
     }
   } else {
     // error during Electron initialization

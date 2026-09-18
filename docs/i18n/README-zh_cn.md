@@ -112,9 +112,16 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 
 **特别赞助商**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。](https://serpapi.com/?utm_source=marktext) |
-| ------------- |:-------------|
-| [<img src="../assets/sponsors/ukey.png" width="150">](https://www.ukey.com) | [Secure hardware wallet made simple.](https://www.ukey.com) |
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">通过我们快速、便捷且完整的 API 抓取 Google 及其他搜索引擎的数据。</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">离开工位，工作流照常运转。StarDesk 是一款免费的远程桌面工具，让你随时随地访问自己的开发电脑。通过 iOS、Android 或网页端连接自己的电脑，编辑 Markdown、执行终端命令、审阅文档，或是接着上次中断的地方继续。</a></td>
+</tr>
+</table>
 
 ## 截图
 
@@ -135,8 +142,8 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 
 ![平台](https://img.shields.io/static/v1.svg?label=Platform&message=Linux-64%20|%20macOS-64%20|%20Win-32%20|%20Win-64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                                  | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                                          | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                                        |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                             |                                             ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                             |                                                    ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                    |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
 想了解最新版本的新功能？请参阅 [CHANGELOG](../CHANGELOG.md)。
@@ -185,7 +192,6 @@ winget install marktext
 ## 贡献
 
 MarkText 正在开发中，请在提交 pull request 之前确保阅读[贡献指南](../../.github/CONTRIBUTING.md)。想为 MarkText 添加新功能？请参阅我们的[路线图](https://github.com/marktext/marktext/projects)和开放 issue。
-
 
 ## 贡献者
 

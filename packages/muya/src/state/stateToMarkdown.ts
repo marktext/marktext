@@ -49,8 +49,9 @@ export interface IExportMarkdownOptions {
 export default class ExportMarkdown {
     // Stack of currently-open list metas while serializing a tree (push on
     // descent into bullet/order/task list, pop on ascent). The serializer
-    // reads `loose` / `marker` / `delimiter` / `start` from the top entry
-    // to render the correct bullet, indentation, and tightness.
+    // reads `loose` / `marker` / `delimiter` / `start` / `sourceMarkers` from
+    // the top entry to render the correct bullet, indentation, and tightness.
+    // Entries are clones, so items consume `start` and `sourceMarkers` in place.
     private _listType: (
         | IBulletListState['meta']
         | IOrderListState['meta']
@@ -116,6 +117,10 @@ export default class ExportMarkdown {
                     && this._startsWithEmptyDashBulletItem(state)
                     ? SETEXT_SAFE_BULLET_MARKER
                     : undefined;
+                const followsTightList = previousState !== undefined
+                    && isAnyListState(previousState)
+                    && !previousState.meta.loose
+                    && !state.meta.loose;
                 lastListBullet = this._serializeListBlock(
                     state,
                     result,
@@ -123,6 +128,7 @@ export default class ExportMarkdown {
                     listIndent,
                     lastListBullet,
                     markerOverride,
+                    followsTightList,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {
@@ -213,18 +219,27 @@ export default class ExportMarkdown {
         listIndent: string,
         lastListBullet: string,
         markerOverride?: string,
+        followsTightList = false,
     ): string {
         let insertNewLine = this._isLooseParentList;
         this._isLooseParentList = true;
         const meta = deepClone(state.meta);
         if (markerOverride && 'marker' in meta)
             meta.marker = markerOverride;
+        if (state.name === 'order-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
+            delete meta.sourceMarkers;
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
         const bulletMarkerOrDelimiter
             = 'delimiter' in meta ? meta.delimiter : meta.marker;
 
         if (lastListBullet && lastListBullet !== bulletMarkerOrDelimiter)
+            insertNewLine = false;
+
+        // Adjacent tight lists with the same marker are one markdown list (the
+        // parser splits it where items switch between plain and task), so a
+        // blank line would only make that list loose on the next parse.
+        if (lastListBullet === bulletMarkerOrDelimiter && followsTightList)
             insertNewLine = false;
 
         if (insertNewLine)
@@ -235,6 +250,19 @@ export default class ExportMarkdown {
         this._listType.pop();
 
         return bulletMarkerOrDelimiter;
+    }
+
+    // Source markers only hold while the list keeps the items it was parsed
+    // with: an insert, delete or reorder breaks the per-item match, and the
+    // list falls back to numbering from `start`.
+    private _shouldPreserveOrderMarkers(state: IOrderListState) {
+        const { sourceMarkers } = state.meta;
+        if (!sourceMarkers || sourceMarkers.length !== state.children.length)
+            return false;
+
+        return state.children.every((child, index) =>
+            child.meta?.orderMarker === sourceMarkers[index],
+        );
     }
 
     private _startsWithEmptyDashBulletItem(
@@ -567,15 +595,20 @@ export default class ExportMarkdown {
             itemMarker = marker ? `${marker} ` : '- ';
         }
         else if ('start' in listInfo) {
-            // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
-            //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
-            let n = listInfo.start;
-            if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
-                n = 1;
+            const preservedMarker = listInfo.sourceMarkers?.shift();
+            if (preservedMarker) {
+                itemMarker = `${preservedMarker} `;
+            }
+            else {
+                // NOTE: GitHub and Bitbucket limit the list count to 99 but this is nowhere defined.
+                //  We limit the number to 99 for Daring Fireball Markdown to prevent indentation issues.
+                let n = listInfo.start;
+                if ((this._listIndentation === 'dfm' && n > 99) || n > 999999999)
+                    n = 1;
 
+                itemMarker = `${n}${delimiter || '.'} `;
+            }
             listInfo.start++;
-
-            itemMarker = `${n}${delimiter || '.'} `;
         }
         else {
             itemMarker = '- ';
@@ -599,7 +632,7 @@ export default class ExportMarkdown {
         let listIndent = '';
         const { _listIndentation: listIndentation } = this;
         if (listIndentation === 'dfm')
-            listIndent = ' '.repeat(4 - itemMarker.length);
+            listIndent = ' '.repeat(Math.max(0, 4 - itemMarker.length));
         else if (listIndentation === 'number')
             listIndent = ' '.repeat(this._listIndentationCount - 1);
 

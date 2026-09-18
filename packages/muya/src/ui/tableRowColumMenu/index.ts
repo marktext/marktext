@@ -99,9 +99,16 @@ export class TableRowColumMenu extends BaseFloat {
         event.preventDefault();
         event.stopPropagation();
 
-        const { table, row } = this._block!;
+        const block = this._block;
+        // The menu stays open while the document changes under it. Once an
+        // Undo has removed the table, its cells are detached and editing one
+        // threw instead of doing nothing.
+        if (!block?.outMostBlock)
+            return this.hide();
+
+        const { table, row } = block;
         const rowCount = (table.firstChild as TableInner).offset(row);
-        const columnCount = row.offset(this._block!);
+        const columnCount = row.offset(block);
         const { location, action, target } = item;
 
         if (action === 'insert') {

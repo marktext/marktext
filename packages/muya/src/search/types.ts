@@ -13,5 +13,5 @@ export interface IMatch {
     end: number;
     block: Content;
     match: string;
-    subMatches: string[];
+    subMatches: (string | undefined)[];
 }

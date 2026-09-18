@@ -113,8 +113,16 @@ MarkText একটি ওপেন-সোর্স Markdown এডিটর, য
 
 **বিশেষ স্পনসর**
 
-| [<img src="../assets/sponsors/serpapi.png" width="150">](https://serpapi.com/?utm_source=marktext) | [আমাদের দ্রুত, সহজ এবং পূর্ণাঙ্গ API দিয়ে Google ও অন্যান্য সার্চ ইঞ্জিন থেকে ফলাফল সংগ্রহ করুন।](https://serpapi.com/?utm_source=marktext) |
-| ------------- |:-------------|
+<table>
+<tr>
+<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="../assets/sponsors/serpapi.png" width="150"></a></td>
+<td align="left"><a href="https://serpapi.com/?utm_source=marktext">আমাদের দ্রুত, সহজ এবং পূর্ণাঙ্গ API দিয়ে Google ও অন্যান্য সার্চ ইঞ্জিন থেকে ফলাফল সংগ্রহ করুন।</a></td>
+</tr>
+<tr>
+<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="../assets/sponsors/stardesk.png" width="150"></a></td>
+<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">ডেস্ক ছেড়ে উঠুন, কাজের ধারা চলতে থাকুক। StarDesk একটি ফ্রি রিমোট ডেস্কটপ, যা দিয়ে যেকোনো জায়গা থেকে আপনার ডেভেলপমেন্ট পিসিতে পৌঁছানো যায়। iOS, Android বা ওয়েব থেকে নিজের কম্পিউটারে যুক্ত হয়ে Markdown সম্পাদনা করুন, টার্মিনাল কমান্ড চালান, ডকুমেন্ট দেখে নিন, কিংবা যেখানে থেমেছিলেন সেখান থেকেই শুরু করুন।</a></td>
+</tr>
+</table>
 
 ## স্ক্রিনশট
 
@@ -135,8 +143,8 @@ MarkText একটি ওপেন-সোর্স Markdown এডিটর, য
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux%20x64%20|%20macOS%20x64%2Farm64%20|%20Windows%20x64%2Farm64&style=for-the-badge)
 
-| ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)                                                                                         | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)                                                                                         | ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)                                                                                                       |
-|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|               ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/mac-pass-sm.png)               |               ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/windows-pass-sm.png)               |              ![](https://raw.githubusercontent.com/wiki/ryanoasis/nerd-fonts/screenshots/v1.0.x/linux-pass-sm.png)              |
+| :-----------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
 | [![Download for macOS](https://img.shields.io/badge/macOS-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Windows](https://img.shields.io/badge/Windows-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Linux](https://img.shields.io/badge/Linux-Download-blue)](https://github.com/marktext/marktext/releases/latest) |
 
 সর্বশেষ সংস্করণের নতুন ফিচারগুলো দেখতে [CHANGELOG](https://marktext.me/docs/changelog) দেখুন।

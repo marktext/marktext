@@ -6,6 +6,9 @@ import type TableBodyCell from '../block/gfm/table/cell';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
 import Format from '../block/base/format';
+import CodeBlockContent from '../block/content/codeBlockContent';
+import LangInputContent from '../block/content/langInputContent';
+import TableCellContent from '../block/content/tableCell';
 import { ScrollPage } from '../block/scrollPage';
 import { CLASS_NAMES } from '../config';
 import { SelectionDirection, SelectionType } from '../selection/types';
@@ -70,56 +73,33 @@ function resetIfEmpty(clipboard: Clipboard): void {
         resetToEmptyParagraph(clipboard);
 }
 
-// Empty every cell content leaf from `start` up to and including `after`,
-// keeping the table grid intact.
-function emptyCellContentsUntil(
-    start: Nullable<Content>,
-    after: TreeNode,
-): void {
+function emptyCell(cell: Content): void {
+    if (cell.text === '')
+        return;
+
+    cell.text = '';
+    // The text setter only updates the json state, so the cell would keep
+    // showing its old text (#5398).
+    cell.update();
+}
+
+// Clear every cell content leaf from `start` up to, but not including, `end` —
+// the cells the selection covers whole. The grid stays: a cut never takes a
+// table apart.
+function emptyCellsBefore(start: Nullable<Content>, end: TreeNode): void {
     let cellContent = start;
-    while (cellContent) {
-        if (cellContent.text !== '')
-            cellContent.text = '';
-
-        if (cellContent === after)
-            break;
-
+    while (cellContent && cellContent !== end) {
+        emptyCell(cellContent);
         cellContent = cellContent.nextContentInContext();
     }
 }
 
 function removeBlocksWithinTable(before: TreeNode, after: TreeNode): void {
-    emptyCellContentsUntil(before.nextContentInContext(), after);
-}
-
-/**
- * Handle a cross-block cut whose end lands inside a table. The table grid is
- * exempt from structural removal: remove
- * the outmost blocks strictly between `before` and the table, then empty —
- * not remove — every cell from the table's first cell up to and including
- * `after`'s cell.
- */
-function removeBlocksIntoTable(
-    before: TreeNode,
-    after: TreeNode,
-    table: Parent,
-): void {
-    const beforeOutMost = before.outMostBlock;
-
-    // Remove every outmost block strictly between `before`'s outmost block
-    // and the table.
-    if (beforeOutMost != null) {
-        let between: Nullable<TreeNode> = beforeOutMost.next;
-        while (between && between !== table) {
-            const temp = between.next;
-            between.remove();
-            between = temp;
-        }
-    }
-
-    // Empty the cell content leaves from the table start through `after`'s
-    // cell, keeping the grid intact.
-    emptyCellContentsUntil(table.firstContentInDescendant(), after);
+    emptyCellsBefore(before.nextContentInContext(), after);
+    // Inside one table the end cell's tail joined the start cell, so that cell
+    // is emptied as well.
+    if (after.isContent())
+        emptyCell(after);
 }
 
 function removePrecedingSiblings(node: TreeNode): void {
@@ -131,13 +111,48 @@ function removePrecedingSiblings(node: TreeNode): void {
     }
 }
 
+function removeFollowingSiblings(node: TreeNode): void {
+    let next = node.next;
+    while (next) {
+        const temp = next.next;
+        next.remove();
+        next = temp;
+    }
+}
+
+// The start-side counterpart of `pruneAfterBranch`: the blocks after `before`
+// inside its own containers, below `beforeBranch`, are selected too (#5385).
+// The walk starts at the whole block `before` belongs to, so the inner nodes of
+// a code block (which share its json path) and a table's grid stay intact.
+function pruneBeforeBranch(beforeBranch: TreeNode, before: TreeNode): void {
+    let onPath: Nullable<TreeNode> = before.isContent() ? before.getAnchor() ?? before : before;
+    while (onPath && onPath !== beforeBranch && !onPath.isScrollPage) {
+        removeFollowingSiblings(onPath);
+        onPath = onPath.parent;
+    }
+}
+
+// The blocks before `node` inside its containers below `branch` are selected;
+// `node` itself survives, unlike in `pruneAfterBranch`.
+function prunePrecedingWithinBranch(branch: TreeNode, node: TreeNode): void {
+    let onPath: Nullable<TreeNode> = node;
+    while (onPath && onPath !== branch) {
+        removePrecedingSiblings(onPath);
+        onPath = onPath.parent;
+    }
+}
+
 // `after`'s branch is removed but later siblings inside `afterBranch` survive.
 // Walk up from `after` to the direct child of `afterBranch`, removing each
 // on-path node's preceding siblings and any ancestor it leaves empty, stopping
 // below `afterBranch`. Finally remove the on-path direct child itself; later
 // siblings survive.
 function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
-    let onPath: TreeNode = after;
+    // The inner nodes of a code, math, html, diagram or front matter block
+    // share the block's json path, so walking up through them would remove
+    // that json node once per level, taking the siblings after it too
+    // (#4903, #5148). Start the walk at the block.
+    let onPath: TreeNode = after instanceof CodeBlockContent ? after.getAnchor() ?? after : after;
     while (onPath.parent && onPath.parent !== afterBranch) {
         removePrecedingSiblings(onPath);
         const parent = onPath.parent;
@@ -160,10 +175,10 @@ function pruneAfterBranch(afterBranch: TreeNode, after: TreeNode): void {
  * `contentState.removeBlocks(before, after)` (`before`'s head + `after`'s
  * tail already live in `before.text`).
  *
- * Nodes are removed children-before-parents so each dispatched json removal
- * targets a still-attached path.
+ * `endsWholeTable` says the selection covers every cell of the table `after`
+ * sits in, so that table goes with the span instead of keeping an emptied grid.
  */
-function removeBlocks(before: TreeNode, after: TreeNode): void {
+function removeBlocks(before: TreeNode, after: TreeNode, endsWholeTable = false): void {
     // A table is exempt from structural removal: empty the spanned cells in
     // place and keep the grid rather than deleting cells/rows.
     const beforeTable = before.closestBlock('table');
@@ -175,60 +190,87 @@ function removeBlocks(before: TreeNode, after: TreeNode): void {
         return;
     }
 
-    // `after` lands inside a table that does not also contain `before`:
-    // remove only the blocks between `before` and the table, then empty the
-    // spanned cells.
+    // `after` lands inside a table that does not also contain `before`: the
+    // span stops at the table, which is then emptied rather than removed —
+    // unless the selection covers all of it (#5405).
     if (afterTable != null) {
-        removeBlocksIntoTable(before, after, afterTable as Parent);
+        removeSpan(before, afterTable, endsWholeTable);
+
+        if (!endsWholeTable)
+            emptyCellsBefore((afterTable as Parent).firstContentInDescendant(), after);
 
         return;
     }
 
+    removeSpan(before, after, true);
+}
+
+/**
+ * Remove the span between `before` and `end`: the blocks after `before` inside
+ * its own containers, the blocks strictly between the two, and the blocks
+ * before `end` inside its own containers. `removeEnd` also removes `end`
+ * itself and the containers it leaves empty; a table that keeps its grid
+ * passes `false` and is emptied by the caller instead.
+ *
+ * Nodes are removed children-before-parents so each dispatched json removal
+ * targets a still-attached path.
+ */
+function removeSpan(before: TreeNode, end: TreeNode, removeEnd: boolean): void {
     const beforeAncestors = new Set<TreeNode>();
     for (let node: Nullable<TreeNode> = before; node; node = node.parent)
         beforeAncestors.add(node);
 
-    // The shared container: the lowest ancestor of `after` that also
+    // The shared container: the lowest ancestor of `end` that also
     // contains `before`.
-    let afterBranch: TreeNode = after;
+    let endBranch: TreeNode = end;
     while (
-        afterBranch.parent
-        && !afterBranch.parent.isScrollPage
-        && !beforeAncestors.has(afterBranch.parent)
+        endBranch.parent
+        && !endBranch.parent.isScrollPage
+        && !beforeAncestors.has(endBranch.parent)
     ) {
-        afterBranch = afterBranch.parent;
+        endBranch = endBranch.parent;
     }
 
-    const commonParent = afterBranch.parent;
+    const commonParent = endBranch.parent;
     const beforeBranch = commonParent
         ? [...beforeAncestors].find(node => node.parent === commonParent)
         : null;
 
+    if (beforeBranch)
+        pruneBeforeBranch(beforeBranch, before);
+
     // Remove every sibling strictly between `beforeBranch` and
-    // `afterBranch` inside the shared container.
-    let between = beforeBranch ? beforeBranch.next : afterBranch.prev;
-    while (between && between !== afterBranch) {
+    // `endBranch` inside the shared container.
+    let between = beforeBranch ? beforeBranch.next : endBranch.prev;
+    while (between && between !== endBranch) {
         const temp = between.next;
         between.remove();
         between = temp;
     }
 
-    // Does any content leaf after `after` survive inside `afterBranch`? If
-    // not, `afterBranch` is fully consumed — remove it once (this also keeps
-    // atomic blocks like code/math/html/diagram/frontmatter, whose inner
-    // tree collapses to a single json node, from being double-removed).
-    const nextContent = after.nextContentInContext();
-    const afterHasSurvivors
-        = nextContent != null && nextContent.isInBlock(afterBranch as Parent);
-
-    if (!afterHasSurvivors) {
-        if (afterBranch.parent)
-            afterBranch.remove();
+    if (!removeEnd) {
+        prunePrecedingWithinBranch(endBranch, end);
 
         return;
     }
 
-    pruneAfterBranch(afterBranch, after);
+    // Does any content leaf after `end` survive inside `endBranch`? If
+    // not, `endBranch` is fully consumed — remove it once (this also keeps
+    // atomic blocks like code/math/html/diagram/frontmatter, whose inner
+    // tree collapses to a single json node, from being double-removed).
+    const endLeaf = end.isParent() ? end.lastContentInDescendant() : (end as Content);
+    const nextContent = endLeaf?.nextContentInContext() ?? null;
+    const endHasSurvivors
+        = nextContent != null && nextContent.isInBlock(endBranch as Parent);
+
+    if (!endHasSurvivors) {
+        if (endBranch.parent)
+            endBranch.remove();
+
+        return;
+    }
+
+    pruneAfterBranch(endBranch, end);
 }
 
 /**
@@ -414,14 +456,76 @@ export function cutSelection(clipboard: Clipboard): void {
     // only the structure strictly between the two leaves (and the emptied
     // end-side containers). The start block keeps its container — a list
     // item stays a list item, a quote stays a quote.
-    startBlock.text
-        = startBlock.text.substring(0, startOffset)
-            + endBlock.text.substring(endOffset);
+    const { tail, lastRemoved, endsWholeTable } = resolveCutEnd(startBlock, endBlock, endOffset);
+    startBlock.text = startBlock.text.substring(0, startOffset) + tail;
 
-    removeBlocks(startBlock, endBlock);
+    if (lastRemoved)
+        removeBlocks(startBlock, lastRemoved, endsWholeTable);
 
     setCursorAndConvert(startBlock, startOffset);
     resetIfEmpty(clipboard);
+}
+
+interface ICutEnd {
+    // Text after the selection end that joins the start block.
+    tail: string;
+    // The last content leaf whose branch the cut removes; null when nothing
+    // lies between the start block and the end.
+    lastRemoved: Nullable<Content>;
+    // The selection covers every cell of the table the end sits in, so the
+    // table is removed instead of kept as an emptied grid (#5405).
+    endsWholeTable: boolean;
+}
+
+// Where a cross-block cut stops. Normally at the end leaf, whose text after the
+// caret joins the start block. A cut ending inside a code block's language
+// line stops before that code block instead: the code block keeps its code and
+// language input, and loses only the selected start of its language (#5371).
+function resolveCutEnd(startBlock: Content, endBlock: Content, endOffset: number): ICutEnd {
+    if (endBlock instanceof TableCellContent)
+        return resolveTableCutEnd(startBlock, endBlock, endOffset);
+
+    if (!(endBlock instanceof LangInputContent))
+        return { tail: endBlock.text.substring(endOffset), lastRemoved: endBlock, endsWholeTable: false };
+
+    const language = endBlock.text.substring(endOffset);
+    if (language !== endBlock.text) {
+        endBlock.text = language;
+        endBlock.parent!.lang = language;
+        endBlock.update();
+    }
+
+    const beforeCodeBlock = endBlock.previousContentInContext();
+
+    return {
+        tail: '',
+        lastRemoved: beforeCodeBlock === startBlock ? null : beforeCodeBlock,
+        endsWholeTable: false,
+    };
+}
+
+// A cut that ends in a table cell leaves what it does not cover where it is:
+// the text after the selection stays in its cell rather than joining the start
+// block, which would move it out of the table (#5405).
+function resolveTableCutEnd(startBlock: Content, endBlock: TableCellContent, endOffset: number): ICutEnd {
+    const { table } = endBlock;
+
+    // Both ends inside one table: the tail joins the start cell, as it does
+    // between any two leaves. Nothing leaves the table that way.
+    if (startBlock.isInBlock(table))
+        return { tail: endBlock.text.substring(endOffset), lastRemoved: endBlock, endsWholeTable: false };
+
+    const endsWholeTable
+        = endOffset === endBlock.text.length
+            && endBlock === table.lastContentInDescendant();
+
+    const rest = endBlock.text.substring(endOffset);
+    if (!endsWholeTable && rest !== endBlock.text) {
+        endBlock.text = rest;
+        endBlock.update();
+    }
+
+    return { tail: '', lastRemoved: endBlock, endsWholeTable };
 }
 
 // #918: collapse the start code block (whose language line begins the
@@ -434,12 +538,18 @@ function collapseLanguageInputCut(
     startOffset: number,
     endOffset: number,
 ): void {
-    const mergedText
-        = startBlock.text.substring(0, startOffset)
-            + endBlock.text.substring(endOffset);
-    const codeBlock = startBlock.outMostBlock;
+    const { tail, lastRemoved, endsWholeTable } = resolveCutEnd(startBlock, endBlock, endOffset);
+    const mergedText = startBlock.text.substring(0, startOffset) + tail;
+    // The code block itself, even inside a list item or quote: replacing the
+    // outermost block would take the rest of that list or quote with it (#5368).
+    const codeBlock = startBlock.getAnchor();
 
-    removeBlocks(startBlock, endBlock);
+    // Ending in this code block's own code leaves nothing between the leaves;
+    // the replacement below removes that code with its block. `removeBlocks`
+    // would detach the inner `code` node, which shares the code block's json
+    // path, so the json state would lose the following block (#4903, #5148).
+    if (lastRemoved && (codeBlock == null || !lastRemoved.isInBlock(codeBlock)))
+        removeBlocks(startBlock, lastRemoved, endsWholeTable);
 
     const paragraph = ScrollPage.loadBlock('paragraph').create(clipboard.muya, {
         name: 'paragraph',

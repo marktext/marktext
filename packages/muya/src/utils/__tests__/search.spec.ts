@@ -23,7 +23,7 @@ function capRegExpExec() {
 // `$N` (N≥1) as the captured subgroups. Pin the contract here so the
 // next refactor in `utils/search.ts` doesn't silently regress group
 // expansion when users rely on regex replace.
-function makeMatch(matchText: string, subMatches: string[]): IMatch {
+function makeMatch(matchText: string, subMatches: (string | undefined)[]): IMatch {
     return {
         // `buildRegexValue` only reads .match / .subMatches; the `block`
         // field is required by the IMatch type but never consulted here.
@@ -64,6 +64,63 @@ describe('buildRegexValue — marktext 4c517b16 group expansion', () => {
     it('returns the value verbatim when there are no $N tokens', () => {
         const value = buildRegexValue(makeMatch('foo', ['x']), 'plain replacement');
         expect(value).toBe('plain replacement');
+    });
+
+    // The captured text comes from the document and is inserted as-is; it is
+    // never a replacement pattern of its own.
+    it('inserts a capture containing `$$` without collapsing it', () => {
+        const value = buildRegexValue(makeMatch('$$100', ['$$100']), '**$1**');
+        expect(value).toBe('**$$100**');
+    });
+
+    it('inserts a capture containing `$&` verbatim', () => {
+        const value = buildRegexValue(makeMatch('$&', ['$&']), '`$1`');
+        expect(value).toBe('`$&`');
+    });
+
+    it('does not expand a placeholder inside already inserted text', () => {
+        const value = buildRegexValue(makeMatch('x', ['$2', 'B']), '$1$2');
+        expect(value).toBe('$2B');
+    });
+
+    it('expands the real $1 and not an escaped one earlier in the value', () => {
+        const value = buildRegexValue(makeMatch('foo', ['cap']), 'literal \\$1 then $1');
+        expect(value).toBe('literal \\$1 then cap');
+    });
+
+    it('expands every occurrence of a repeated placeholder', () => {
+        const value = buildRegexValue(makeMatch('foo', ['cap']), '$1-$1');
+        expect(value).toBe('cap-cap');
+    });
+
+    it('expands a group that did not take part in the match to nothing', () => {
+        const value = buildRegexValue(makeMatch('b', [undefined, 'b']), '[$1][$2]');
+        expect(value).toBe('[][b]');
+    });
+});
+
+// Cases from VS Code's find widget tests (replacePattern.test.ts).
+describe('buildRegexValue — two-digit group references', () => {
+    const tenGroups = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+
+    it('reads $10 as group 10 when the pattern has ten groups', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$10]')).toBe('[j]');
+    });
+
+    it('reads $10 as group 1 and a literal 0 when there is no group 10', () => {
+        expect(buildRegexValue(makeMatch('x', ['a']), '[$10]')).toBe('[a0]');
+    });
+
+    it('stops at two digits', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$100]')).toBe('[j0]');
+    });
+
+    it('leaves $20 alone when neither group 20 nor group 2 exists', () => {
+        expect(buildRegexValue(makeMatch('x', ['a']), '[$20]')).toBe('[$20]');
+    });
+
+    it('reads $01 as the whole match and a literal 1', () => {
+        expect(buildRegexValue(makeMatch('x', tenGroups), '[$01]')).toBe('[x1]');
     });
 });
 

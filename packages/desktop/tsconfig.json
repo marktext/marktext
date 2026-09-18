@@ -17,7 +17,8 @@
     "src/renderer/**/*.ts",
     "test/**/*.ts",
     "electron.vite.config.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "playwright.config.ts"
   ],
   "exclude": [
     "node_modules",

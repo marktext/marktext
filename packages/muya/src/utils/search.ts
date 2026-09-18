@@ -3,7 +3,7 @@ import { graphemeClusters } from '.';
 
 export interface IStringMatch {
     match: string;
-    subMatches: string[];
+    subMatches: (string | undefined)[];
     index: number;
 }
 
@@ -119,7 +119,7 @@ function createSearchRegExp(source: string, flags: string, isRegexp: boolean): R
 export function matchString(text: string, value: string, options: ISearchOption): IStringMatch[] {
     const { isCaseSensitive, isWholeWord, isRegexp } = options;
 
-    const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+()/]/g;
+    const SPECIAL_CHAR_REG = /[[\]\\^$.|?*+(){}/]/g;
 
     let regStr = value;
     let flag = 'g';
@@ -141,18 +141,22 @@ export function matchString(text: string, value: string, options: ISearchOption)
     return regexp ? alignToGraphemeClusters(text, execAll(regexp, text), !!isRegexp) : [];
 }
 
+// `$nn` is read as in VS Code's find widget: group nn when the pattern has one,
+// otherwise group n followed by a literal digit. A replacer function, not a
+// replacement string: the latter would read `$$` and `$&` inside the captured
+// text as patterns instead of inserting them.
 export function buildRegexValue(match: IMatch, value: string) {
-    const groups = value.match(/(?<!\\)\$\d/g);
+    const groups = [match.match, ...match.subMatches];
 
-    if (Array.isArray(groups) && groups.length) {
-        for (const group of groups) {
-            const index = Number.parseInt(group.replace(/^\$/, ''));
-            if (index === 0)
-                value = value.replace(group, match.match);
-            else if (index > 0 && index <= match.subMatches.length)
-                value = value.replace(group, match.subMatches[index - 1]);
-        }
-    }
+    return value.replace(/(?<!\\)\$(0|[1-9]\d?)/g, (reference, digits: string) => {
+        const index = Number(digits);
+        if (index < groups.length)
+            return groups[index] ?? '';
 
-    return value;
+        const leading = Number(digits[0]);
+        if (leading < groups.length)
+            return (groups[leading] ?? '') + digits.slice(1);
+
+        return reference;
+    });
 }

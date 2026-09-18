@@ -26,7 +26,7 @@ const appEnvironment = setupEnvironment(args as Record<string, unknown>)
 
 const initializeLogger = (env: AppEnvironment): void => {
   log.initialize() // allows listening for logs from the renderer process
-  log.transports.console.level = process.env.NODE_ENV === 'development' ? 'info' : 'error'
+  log.transports.console.level = import.meta.env.DEV ? 'info' : 'error'
   log.transports.file.resolvePathFn = (variables) => {
     // electron-log's PathVariables type doesn't model the browserWindow field
     // that's available at runtime for renderer-process logs. Cast through
@@ -71,8 +71,10 @@ if (args['--disable-gpu']) {
 }
 
 // Single instance lock (except macOS & development)
-if (!process.mas && process.env.NODE_ENV !== 'development') {
-  const gotLock = app.requestSingleInstanceLock()
+if (!process.mas && !import.meta.env.DEV) {
+  // The running instance reads the files to open from this copy of the command
+  // line; see its `second-instance` handler.
+  const gotLock = app.requestSingleInstanceLock({ argv: process.argv })
   if (!gotLock) {
     process.stdout.write(t('error.otherInstanceDetected'))
     process.exit(0)

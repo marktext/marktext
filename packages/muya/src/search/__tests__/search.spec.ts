@@ -224,3 +224,66 @@ describe('search.replace() — regexp matches keep emoji whole', () => {
         expect(search.matches).toHaveLength(0);
     });
 });
+
+describe('search.replace() — a capture holding a dollar sign', () => {
+    it('writes back a `$$` capture unchanged', async () => {
+        const muya = bootMuya('The shell variable $$ holds the pid.\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('(\\$\\$)', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['$$']);
+
+        search.replace('`$1`', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('The shell variable `$$` holds the pid.\n');
+        });
+    });
+});
+
+describe('search.replace() — regexp capture groups', () => {
+    it('expands every match with its own groups when replacing all', async () => {
+        const muya = bootMuya('a1 b2\n\nc3\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.find('next');
+
+        search.replace('$2$1', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('1a 2b\n\n3c\n');
+        });
+    });
+
+    it('expands only the active match when replacing one', async () => {
+        const muya = bootMuya('a1 b2 c3\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.find('next');
+
+        search.replace('$2$1', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('a1 2b c3\n');
+        });
+    });
+
+    it('writes nothing for a group that did not take part in the match', async () => {
+        const muya = bootMuya('color colour\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('colo(u)?r', { isRegexp: true });
+
+        search.replace('colo$1$1r', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('color colouur\n');
+        });
+    });
+});

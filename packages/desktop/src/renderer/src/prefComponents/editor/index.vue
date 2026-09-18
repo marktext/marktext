@@ -179,6 +179,11 @@
           :bool="autoCheck"
           :on-change="(value) => onSelectChange('autoCheck', value)"
         />
+        <bool
+          :description="t('preferences.editor.misc.sourceCodeLineNumbers')"
+          :bool="sourceCodeLineNumbers"
+          :on-change="(value) => onSelectChange('sourceCodeLineNumbers', value)"
+        />
       </template>
     </compound>
   </div>
@@ -225,6 +230,7 @@ const {
   hideQuickInsertHint,
   hideLinkPopup,
   autoCheck,
+  sourceCodeLineNumbers,
   autoNormalizeLineEndings,
   wrapCodeBlocks,
   editorLineWidth,
