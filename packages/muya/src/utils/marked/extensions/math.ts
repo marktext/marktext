@@ -16,9 +16,14 @@ interface IOptions {
     useKatexRender?: boolean;
 }
 
-const inlineStartRule = /(\s|^)\${1,2}(?!\$)/;
+// Kept in lockstep with the editor's `inline_math` rule
+// (inlineRenderer/rules.ts) so that a document reads the same while editing and
+// on export (#5446). Same shape, minus bare newlines: math never spans a line
+// on this path. A `$` may open a span mid-word, as pandoc and the editor both
+// allow, so the start hint carries no flanking requirement of its own.
+const inlineStartRule = /\${1,2}(?!\$)/g;
 const inlineRule
-    = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n$]))\1(?=[\s?!.,:]|$)/;
+    = /^(?!\$(?!\$)(?:[^$\\\n]|\\.)*(?:\s\$|\$\d))(\$\$(?!\$)|\$(?=\S))((?:(?!\1)[^\\\n]|\\.)+)\1(?!\1)/;
 const blockRule = /^(\${1,2})\n((?:\\[\s\S]|[^\\])+?)\n\1[ \t]*(?:\n|$)/;
 
 const DEFAULT_OPTIONS = {
@@ -90,16 +95,20 @@ function inlineKatex(renderer: (token: IMathToken) => string) {
     return {
         name: 'inlineMath',
         level: 'inline' as const,
+        // Every `$` is a candidate, not just the first one: marked stops the
+        // surrounding text token here, so returning early on a `$` that turns
+        // out not to open a formula would hide every later formula on the line
+        // — "from $13B to $24B and $x+y$" must still find `$x+y$` (#5446).
         start(src: string) {
-            const match = src.match(inlineStartRule);
-            if (!match)
-                return;
-
-            const index = (match.index || 0) + match[1].length;
-            const possibleKatex = src.substring(index);
-
-            if (inlineRule.test(possibleKatex))
-                return index;
+            inlineStartRule.lastIndex = 0;
+            for (
+                let match = inlineStartRule.exec(src);
+                match;
+                match = inlineStartRule.exec(src)
+            ) {
+                if (inlineRule.test(src.substring(match.index)))
+                    return match.index;
+            }
         },
         tokenizer(src: string) {
             const match = src.match(inlineRule);
