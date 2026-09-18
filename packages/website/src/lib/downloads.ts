@@ -9,5 +9,6 @@ export const DOWNLOAD = {
   sponsor: 'https://github.com/sponsors/marktext',
   twitter:
     'https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText',
-  serpapi: 'https://serpapi.com/?utm_source=marktext'
+  serpapi: 'https://serpapi.com/?utm_source=marktext',
+  stardesk: 'https://stardesk.onelink.me/p0R7/kpq1jksx'
 }
