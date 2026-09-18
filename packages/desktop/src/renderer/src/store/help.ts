@@ -150,6 +150,10 @@ export const createDocumentState = (
 
   return Object.assign(docState, {
     id,
+    // Read `src`, not `docState`: the default count is a zeroed object rather
+    // than a sentinel, so it cannot tell "the caller supplied none" from "the
+    // document really is empty". Without this the title bar shows `W 0` until
+    // the first edit.
     wordCount: src.wordCount ?? getWordCount(docState.markdown),
     // See `getBlankFileState`: the loaded document is its own clean baseline and
     // the engine's baseline undo-stack depth (the synthetic id) is 0.
