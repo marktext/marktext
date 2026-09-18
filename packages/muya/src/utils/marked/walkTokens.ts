@@ -12,7 +12,7 @@ function isMathToken(token: Token | IMathToken): token is IMathToken {
 
 function walkTokens(options: ILexOption) {
     return (token: Token | Heading) => {
-        const { texMathDollars, texMathGfm } = options;
+        const { texMathGfm } = options;
         // marked mixes atx and setext headers, which we distinguish by headingStyle,
         // and markers are unique to setext heading
         if (isHeadingToken(token)) {
@@ -32,7 +32,9 @@ function walkTokens(options: ILexOption) {
                 token.codeBlockStyle = 'fenced';
         }
 
-        if (isMathToken(token) && texMathDollars && texMathGfm) {
+        // ```` ```math ```` is the display half of `tex_math_gfm`, so it rides
+        // that extension alone — the dollar syntax has no say in it (#5446).
+        if (isMathToken(token) && texMathGfm) {
             // Transform the marked code-block token in place into the
             // multiplemath token shape that downstream consumers expect.
             // After the assignment the old `lang`/`codeBlockStyle` fields no

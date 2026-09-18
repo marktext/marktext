@@ -150,8 +150,7 @@ describe('renderToStaticHTML', () => {
         it('honours texMathGfm (promotes ```math fences to math blocks)', () => {
             // GitHub and GitLab let a fenced code block tagged
             // ` ```math ` render as block math. `walkTokens` rewrites the
-            // code-block token to `multiplemath` only when both
-            // `texMathDollars: true` AND `texMathGfm: true`.
+            // code-block token to `multiplemath` when `texMathGfm: true`.
             const src = '```math\nx^2\n```';
 
             const gitlab = renderToStaticHTML(src, {
