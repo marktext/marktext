@@ -10,20 +10,49 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 const { ipcOn, createdMenus, buildFromTemplate } = vi.hoisted(() => {
   interface FakeMenuItem {
     enabled: boolean
+    checked?: boolean
+    submenu?: { items: FakeMenuItem[] }
   }
 
-  const createdMenus: { pandocItem: FakeMenuItem; importItem: FakeMenuItem }[] = []
+  const createdMenus: {
+    pandocItem: FakeMenuItem
+    importItem: FakeMenuItem
+    crlfItem: FakeMenuItem
+    lfItem: FakeMenuItem
+    alwaysOnTopItem: FakeMenuItem
+    paragraphItems: FakeMenuItem[]
+    formatItems: FakeMenuItem[]
+  }[] = []
+
   const buildFromTemplate = vi.fn(() => {
     const pandocItem: FakeMenuItem = { enabled: true }
     const importItem: FakeMenuItem = { enabled: true }
-    createdMenus.push({ pandocItem, importItem })
-    return {
-      getMenuItemById: (id: string) => {
-        if (id === 'convertWithPandocMenuItem') return pandocItem
-        if (id === 'importFileMenuItem') return importItem
-        return null
-      }
+    const crlfItem: FakeMenuItem = { enabled: true, checked: false }
+    const lfItem: FakeMenuItem = { enabled: true, checked: false }
+    const alwaysOnTopItem: FakeMenuItem = { enabled: true, checked: false }
+    const paragraphItems: FakeMenuItem[] = [{ enabled: true }, { enabled: true }]
+    const formatItems: FakeMenuItem[] = [{ enabled: true }, { enabled: true }]
+    createdMenus.push({
+      pandocItem,
+      importItem,
+      crlfItem,
+      lfItem,
+      alwaysOnTopItem,
+      paragraphItems,
+      formatItems
+    })
+
+    const items: Record<string, FakeMenuItem> = {
+      convertWithPandocMenuItem: pandocItem,
+      importFileMenuItem: importItem,
+      crlfLineEndingMenuEntry: crlfItem,
+      lfLineEndingMenuEntry: lfItem,
+      alwaysOnTopMenuItem: alwaysOnTopItem,
+      paragraphMenuEntry: { enabled: true, submenu: { items: paragraphItems } },
+      formatMenuItem: { enabled: true, submenu: { items: formatItems } }
     }
+
+    return { getMenuItemById: (id: string) => items[id] ?? null }
   })
 
   return { ipcOn: vi.fn(), createdMenus, buildFromTemplate }
@@ -58,13 +87,15 @@ import {
   setPandocAvailable,
   setPandocAvailabilityListener
 } from 'main_renderer/app/pandocAvailability'
+import { updateFormatMenu } from 'main_renderer/menu/actions/format'
 import type Preference from 'main_renderer/preferences'
 import type Keybindings from 'main_renderer/keyboard/shortcutHandler'
 
 type PandocListener = (event: unknown, windowId: number, hasDocument: boolean) => void
 
-const lastPandocItem = () => createdMenus[createdMenus.length - 1]?.pandocItem
-const lastImportItem = () => createdMenus[createdMenus.length - 1]?.importItem
+const lastMenu = () => createdMenus[createdMenus.length - 1]
+const lastPandocItem = () => lastMenu()?.pandocItem
+const lastImportItem = () => lastMenu()?.importItem
 
 const setup = () => {
   ipcOn.mockClear()
@@ -78,6 +109,13 @@ const setup = () => {
   if (!call) throw new Error('mt::update-pandoc-menu listener was not registered')
 
   return { appMenu, onPandoc: call[1] as PandocListener }
+}
+
+/** The listener main registered for `channel`, to drive it directly. */
+const listenerFor = (channel: string): ((...args: unknown[]) => void) => {
+  const call = ipcOn.mock.calls.find(([registered]) => registered === channel)
+  if (!call) throw new Error(`${channel} listener was not registered`)
+  return call[1] as (...args: unknown[]) => void
 }
 
 describe('mt::update-pandoc-menu (#5379)', () => {
@@ -167,5 +205,80 @@ describe('pandoc availability (#5379)', () => {
 
     expect(lastPandocItem()?.enabled).toBe(false)
     expect(lastImportItem()?.enabled).toBe(true)
+  })
+})
+
+// `updateAppMenu` rebuilds each editor menu from the template and carries only
+// five entries over, so every other per-window value is lost with the old menu
+// unless it is replayed. The pandoc preferences page writes one preference per
+// checkbox click, which makes that easy to hit: ten clicks, ten rebuilds, and
+// the Paragraph submenu came back enabled while source mode was still on
+// (#5379 review).
+describe('per-window menu state survives a rebuild', () => {
+  it('greys the Paragraph and Format commands in source mode, and restores them after', () => {
+    const { appMenu } = setup()
+    appMenu.addEditorMenu({ id: 1 } as never)
+    const onFormatMenus = listenerFor('mt::set-editor-format-menus-enabled')
+
+    onFormatMenus({}, 1, false)
+    appMenu.updateAppMenu()
+
+    // The rebuilt menu starts out with the template's enabled state, so it is
+    // only greyed again if the value was remembered.
+    expect(lastMenu()?.paragraphItems.every((item) => item.enabled === false)).toBe(true)
+    expect(lastMenu()?.formatItems.every((item) => item.enabled === false)).toBe(true)
+
+    onFormatMenus({}, 1, true)
+    appMenu.updateAppMenu()
+
+    expect(lastMenu()?.paragraphItems.every((item) => item.enabled === true)).toBe(true)
+  })
+
+  it('keeps the line-ending radio', () => {
+    const { appMenu } = setup()
+    appMenu.addEditorMenu({ id: 1 } as never)
+
+    listenerFor('mt::update-line-ending-menu')({}, 1, 'crlf')
+    appMenu.updateAppMenu()
+
+    expect(lastMenu()?.crlfItem.checked).toBe(true)
+  })
+
+  it('keeps the Format check marks', () => {
+    const { appMenu } = setup()
+    appMenu.addEditorMenu({ id: 1 } as never)
+    const formats = { bold: true }
+
+    listenerFor('mt::update-format-menu')({}, 1, formats)
+    vi.mocked(updateFormatMenu).mockClear()
+    appMenu.updateAppMenu()
+
+    expect(updateFormatMenu).toHaveBeenCalledWith(expect.anything(), formats)
+  })
+
+  // Not an IPC channel: the window manager sets this when the window is created
+  // and when the user toggles it.
+  it('keeps "always on top"', () => {
+    const { appMenu } = setup()
+    appMenu.addEditorMenu({ id: 1 } as never)
+
+    appMenu.updateAlwaysOnTopMenu(1, true)
+    appMenu.updateAppMenu()
+
+    expect(lastMenu()?.alwaysOnTopItem.checked).toBe(true)
+  })
+
+  it('forgets a window that is gone', () => {
+    const { appMenu } = setup()
+    appMenu.addEditorMenu({ id: 1 } as never)
+    listenerFor('mt::update-line-ending-menu')({}, 1, 'crlf')
+
+    appMenu.removeWindowMenu(1)
+    appMenu.addEditorMenu({ id: 1 } as never)
+    // A rebuild would replay anything still on file for this id.
+    appMenu.updateAppMenu()
+
+    // A new window reusing the id must not inherit the old window's state.
+    expect(lastMenu()?.crlfItem.checked).toBe(false)
   })
 })

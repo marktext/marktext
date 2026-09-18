@@ -182,6 +182,18 @@ export interface PandocToFileOptions {
    * do not take the option — see `PANDOC_REFERENCE_DOC_TARGETS`.
    */
   referenceDoc?: string
+  /**
+   * `--metadata key:value` pairs for the writer.
+   *
+   * The document arrives on stdin, so pandoc has no source file to take a title
+   * from: a standalone EPUB then comes out with no `<dc:title>` at all and, on
+   * top of it, prints "[WARNING] This document format requires a nonempty
+   * <title> element" — which this feature would show as an export warning on
+   * every single conversion, burying the one warning that matters (a dropped
+   * image). Empty values are dropped rather than passed on: setting the field to
+   * the empty string is exactly what pandoc complains about.
+   */
+  metadata?: Record<string, string>
 }
 
 export interface PandocToFileResult {
@@ -209,6 +221,7 @@ export const buildPandocArguments = (options: {
   toc?: boolean
   numberSections?: boolean
   referenceDoc?: string
+  metadata?: Record<string, string>
 }): string[] => {
   const {
     reader,
@@ -217,7 +230,8 @@ export const buildPandocArguments = (options: {
     standalone = true,
     toc = false,
     numberSections = false,
-    referenceDoc = ''
+    referenceDoc = '',
+    metadata = {}
   } = options
 
   const args = ['-f', reader, '-t', to]
@@ -234,6 +248,14 @@ export const buildPandocArguments = (options: {
   // every other writer, so the template only rides along when it applies.
   if (referenceDoc && PANDOC_REFERENCE_DOC_TARGETS.includes(to)) {
     args.push(`--reference-doc=${referenceDoc}`)
+  }
+  // `--metadata=key:value`; the separator inside the value does not matter,
+  // pandoc splits on the first colon only, so a title such as "Q3: plan" is
+  // passed through unchanged.
+  for (const [key, value] of Object.entries(metadata)) {
+    if (value) {
+      args.push(`--metadata=${key}:${value}`)
+    }
   }
   args.push('-o', outputPath)
   return args
@@ -259,7 +281,8 @@ pandoc.toFile = (
       standalone,
       toc,
       numberSections,
-      referenceDoc
+      referenceDoc,
+      metadata
     } = options
     const args = buildPandocArguments({
       reader,
@@ -268,7 +291,8 @@ pandoc.toFile = (
       standalone,
       toc,
       numberSections,
-      referenceDoc
+      referenceDoc,
+      metadata
     })
 
     const proc = spawn(resolvePandocCommand(), args, { cwd })

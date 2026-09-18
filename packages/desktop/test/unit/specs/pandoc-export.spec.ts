@@ -118,6 +118,42 @@ describe('pandoc export', () => {
       expect(argsOfLastSpawn().slice(0, 2)).toEqual(['-f', 'gfm+superscript+subscript'])
     })
 
+    // A standalone document wants a title, and the document arrives on stdin:
+    // pandoc has no source file name to fall back on, so an EPUB came out with
+    // no `<dc:title>` and warned about it on every export (#5379 review).
+    it('passes metadata on as --metadata key:value', async() => {
+      const proc = startProcess()
+
+      const pending = pandoc.toFile('epub3', '/tmp/x.epub', 'x', {
+        metadata: { title: 'Q3: plan', lang: 'en-US' }
+      })
+      proc.emit('close', 0)
+      await pending
+
+      // The value may contain the separator; pandoc splits on the first colon.
+      expect(argsOfLastSpawn()).toEqual([
+        '-f',
+        'gfm',
+        '-t',
+        'epub3',
+        '-s',
+        '--metadata=title:Q3: plan',
+        '--metadata=lang:en-US',
+        '-o',
+        '/tmp/x.epub'
+      ])
+    })
+
+    it('drops an empty metadata value instead of setting the field to nothing', async() => {
+      const proc = startProcess()
+
+      const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x', { metadata: { title: '' } })
+      proc.emit('close', 0)
+      await pending
+
+      expect(argsOfLastSpawn().some((arg) => arg.startsWith('--metadata'))).toBe(false)
+    })
+
     it('reports the warnings pandoc prints on a successful conversion', async() => {
       const proc = startProcess()
 

@@ -8,6 +8,12 @@
       class="description"
     >
       <span>{{ description }}:</span>
+      <LinkIcon
+        v-if="more"
+        :size="14"
+        class="link-icon"
+        @click="handleMoreClick"
+      />
     </div>
     <div class="options">
       <el-checkbox
@@ -30,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 import type { PrefControlBaseProps, PrefSelectOption } from '../types'
 
 interface CheckListProps extends PrefControlBaseProps {
@@ -45,6 +52,17 @@ const props = withDefaults(defineProps<CheckListProps>(), {
   more: '',
   disable: false
 })
+
+/**
+ * `more` is part of the shared control props and every other control renders it
+ * as a link to the related documentation, so this one does too — declaring it
+ * and dropping it would leave the option silently doing nothing on this page.
+ */
+const handleMoreClick = () => {
+  if (typeof props.more === 'string') {
+    window.electron.shell.openExternal(props.more)
+  }
+}
 
 /**
  * The value comes straight from the persisted preferences, so it is only an
@@ -82,6 +100,17 @@ const handleChange = (item: string, checked: boolean | string | number): void =>
     display: flex;
     align-items: center;
     margin-bottom: 4px;
+
+    & .link-icon {
+      margin-left: 4px;
+      cursor: pointer;
+      opacity: 0.7;
+      color: var(--iconColor);
+    }
+
+    & .link-icon:hover {
+      color: var(--themeColor);
+    }
   }
 
   /* Wrapped rather than stacked: the format list is seven short items and reads

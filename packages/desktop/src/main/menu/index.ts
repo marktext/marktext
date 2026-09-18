@@ -41,6 +41,36 @@ interface ThemeMenuChange {
   followSystemTheme?: boolean
 }
 
+/**
+ * Menu state the renderer set for a window, remembered so it can be replayed.
+ *
+ * `updateAppMenu` and `updateKeybindings` rebuild each editor menu from the
+ * template and only carry five entries over (`updateMenuItem` below). Every
+ * other runtime value lives on the menu object that is thrown away, so it is
+ * lost with it: the Paragraph/Format greying of source-code mode (#3531), the
+ * line-ending radio, "always on top", the Format check marks, and whether the
+ * window has a document at all. A preference change that rebuilds the menus
+ * would then silently re-enable commands that do not apply — measured with a
+ * document in source-code mode, where the Paragraph submenu came back enabled
+ * although it acts on the hidden WYSIWYG engine.
+ *
+ * The gap predates this, but writing a preference is easy now that the pandoc
+ * page sends one `mt::set-user-preference` per checkbox click, so it is worth
+ * closing rather than leaving every tick to reset the menus.
+ */
+interface WindowMenuState {
+  /** `mt::update-pandoc-menu`: whether this window has a document open. */
+  hasDocument?: boolean
+  /** `mt::set-editor-format-menus-enabled`: false in source-code mode. */
+  formatMenusEnabled?: boolean
+  /** `mt::update-line-ending-menu`: the tab's line ending. */
+  lineEnding?: string
+  /** `mt::update-always-on-top-menu`. */
+  alwaysOnTop?: boolean
+  /** `mt::update-format-menu`: the Format check marks. */
+  formats?: Record<string, boolean>
+}
+
 class AppMenu {
   private readonly _preferences: Preference
   private readonly _keybindings: Keybindings
@@ -50,11 +80,11 @@ class AppMenu {
   public activeWindowId: number
   public windowMenus: Map<number, WindowMenuEntry>
   /**
-   * Whether each window has a document open. The renderer reports it over
-   * `mt::update-pandoc-menu`; a window that never reports keeps the pandoc
-   * export submenu enabled rather than greyed out forever.
+   * What the renderer has reported about each window, keyed by window id; see
+   * `WindowMenuState`. A window that never reports keeps the pandoc export
+   * submenu enabled rather than greyed out forever.
    */
-  private readonly _pandocMenuEnabled: Map<number, boolean>
+  private readonly _windowMenuState: Map<number, WindowMenuState>
 
   /**
    * @param preferences The preferences instances.
@@ -74,7 +104,7 @@ class AppMenu {
     this.isOsxOrWindows = isOsx || isWindows
     this.activeWindowId = -1
     this.windowMenus = new Map()
-    this._pandocMenuEnabled = new Map()
+    this._windowMenuState = new Map()
 
     // Initialize main process language from preferences
     this._initializeLanguage()
@@ -194,10 +224,10 @@ class AppMenu {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
     windowMenus.set(window.id, this._buildEditorMenu())
-    // Align the freshly built menu with the document state last reported for
-    // this window, if any. Until the renderer reports one the entry stays
-    // enabled — see `_applyPandocMenuState`.
-    this._applyPandocMenuState(window.id)
+    // Align the freshly built menu with the state last reported for this window,
+    // if any. Until the renderer reports one the pandoc entry stays enabled —
+    // see `_applyWindowMenuState`.
+    this._applyWindowMenuState(window.id)
 
     const entry = windowMenus.get(window.id)!
     const menu = entry.menu!
@@ -238,7 +268,7 @@ class AppMenu {
     // NOTE: Shortcut handler is automatically unregistered when window is closed.
     const { activeWindowId } = this
     this.windowMenus.delete(windowId)
-    this._pandocMenuEnabled.delete(windowId)
+    this._windowMenuState.delete(windowId)
     if (activeWindowId === windowId) {
       this.activeWindowId = -1
     }
@@ -314,7 +344,7 @@ class AppMenu {
 
       // update window menu
       value.menu = newMenu
-      this._applyPandocMenuState(key)
+      this._applyWindowMenuState(key)
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
@@ -353,7 +383,7 @@ class AppMenu {
       }
 
       value.menu = newMenu
-      this._applyPandocMenuState(key)
+      this._applyWindowMenuState(key)
       if (this.activeWindowId === key) {
         this._setApplicationMenu(newMenu)
       }
@@ -367,6 +397,7 @@ class AppMenu {
    * @param lineEnding Either >lf< or >crlf<.
    */
   updateLineEndingMenu(windowId: number, lineEnding: string): void {
+    this._rememberWindowState(windowId, { lineEnding })
     const menus = this.getWindowMenuById(windowId)
     const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
     const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
@@ -384,9 +415,35 @@ class AppMenu {
    * @param flag Always on top.
    */
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void {
+    this._rememberWindowState(windowId, { alwaysOnTop: flag })
     const menus = this.getWindowMenuById(windowId)
     const menu = menus.getMenuItemById('alwaysOnTopMenuItem')
     if (menu) menu.checked = flag
+  }
+
+  /**
+   * Grey out or re-enable the Paragraph and Format commands of a window.
+   *
+   * In source-code mode they act on the hidden WYSIWYG engine, so the renderer
+   * turns them off and back on again (#3531).
+   *
+   * @param windowId The window id.
+   * @param enabled Whether the commands apply to what the window is showing.
+   */
+  updateFormatMenusEnabled(windowId: number, enabled: boolean): void {
+    this._rememberWindowState(windowId, { formatMenusEnabled: enabled })
+    this._applyFormatMenusEnabled(windowId, enabled)
+  }
+
+  /**
+   * Update the Format check marks of a window.
+   *
+   * @param windowId The window id.
+   * @param formats A map of selected formats.
+   */
+  updateFormatMenuState(windowId: number, formats: Record<string, boolean>): void {
+    this._rememberWindowState(windowId, { formats })
+    updateFormatMenu(this.getWindowMenuById(windowId), formats)
   }
 
   /**
@@ -454,18 +511,51 @@ class AppMenu {
    */
   updatePandocMenu(windowId: number, hasDocument: boolean): void {
     if (!this.has(windowId)) return
-    this._pandocMenuEnabled.set(windowId, hasDocument)
+    this._rememberWindowState(windowId, { hasDocument })
+    this._applyWindowMenuState(windowId)
+  }
+
+  /**
+   * Apply everything known about a window to its current menu.
+   *
+   * Called after every rebuild — the menu objects a rebuild produces are new, so
+   * whatever the renderer had set on the previous one is gone. See
+   * `WindowMenuState`.
+   *
+   * @param windowId The window id.
+   */
+  private _applyWindowMenuState(windowId: number): void {
+    // Pandoc availability is not per window and a window that never reported
+    // must still be greyed out when the binary is missing, so this part always
+    // runs; the rest only replays what the window actually reported.
     this._applyPandocMenuState(windowId)
+
+    const state = this._windowMenuState.get(windowId)
+    if (!state) {
+      return
+    }
+
+    if (state.formatMenusEnabled !== undefined) {
+      this._applyFormatMenusEnabled(windowId, state.formatMenusEnabled)
+    }
+    if (state.lineEnding !== undefined) {
+      this.updateLineEndingMenu(windowId, state.lineEnding)
+    }
+    if (state.alwaysOnTop !== undefined) {
+      this.updateAlwaysOnTopMenu(windowId, state.alwaysOnTop)
+    }
+    if (state.formats) {
+      updateFormatMenu(this.getWindowMenuById(windowId), state.formats)
+    }
   }
 
   /**
    * Apply what is known about a window to its two pandoc entries: whether pandoc
    * can be run at all, and whether this window has a document.
    *
-   * Menus are rebuilt from the template whenever the preferences change, so this
-   * has to run again after every rebuild. A window that has not reported keeps
-   * the export entry enabled — a renderer that never reports must not be able to
-   * leave the menu permanently greyed out.
+   * A window that has not reported keeps the export entry enabled — a renderer
+   * that never reports must not be able to leave the menu permanently greyed
+   * out.
    *
    * @param windowId The window id.
    */
@@ -481,12 +571,38 @@ class AppMenu {
     // open; import creates the document, so it depends on pandoc alone.
     const exportItem = menu.getMenuItemById('convertWithPandocMenuItem')
     if (exportItem) {
-      exportItem.enabled = pandocAvailable && this._pandocMenuEnabled.get(windowId) !== false
+      const { hasDocument } = this._windowMenuState.get(windowId) ?? {}
+      exportItem.enabled = pandocAvailable && hasDocument !== false
     }
 
     const importItem = menu.getMenuItemById('importFileMenuItem')
     if (importItem) {
       importItem.enabled = pandocAvailable
+    }
+  }
+
+  /**
+   * Note down what the renderer reported, merging it into whatever the window
+   * had already reported.
+   *
+   * @param windowId The window id.
+   * @param patch The values to remember.
+   */
+  private _rememberWindowState(windowId: number, patch: WindowMenuState): void {
+    this._windowMenuState.set(windowId, { ...this._windowMenuState.get(windowId), ...patch })
+  }
+
+  /**
+   * Grey out or re-enable the Paragraph and Format submenus of a window.
+   *
+   * @param windowId The window id.
+   * @param enabled Whether the commands apply to what the window is showing.
+   */
+  private _applyFormatMenusEnabled(windowId: number, enabled: boolean): void {
+    const menu = this.getWindowMenuById(windowId)
+    for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
+      const entry = menu.getMenuItemById(id)
+      entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
     }
   }
 
@@ -549,7 +665,7 @@ class AppMenu {
           log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
           return
         }
-        updateFormatMenu(this.getWindowMenuById(windowId), formats)
+        this.updateFormatMenuState(windowId, formats)
       }
     )
     ipcMain.on('mt::update-sidebar-menu', (_e, windowId: number, value: unknown) => {
@@ -582,11 +698,7 @@ class AppMenu {
     // and the next selection change refines them (#3531).
     ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
       if (!this.has(windowId)) return
-      const menu = this.getWindowMenuById(windowId)
-      for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
-        const entry = menu.getMenuItemById(id)
-        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
-      }
+      this.updateFormatMenusEnabled(windowId, enabled)
     })
 
     // The renderer owns the tab list and the main process cannot read it, so it

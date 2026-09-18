@@ -90,6 +90,23 @@ interface ExportPayload {
   pageOptions?: PageOptions
 }
 
+/**
+ * Send to a window's renderer unless the window is already gone.
+ *
+ * An export awaits the save dialog and then the conversion itself, and a pandoc
+ * run can take tens of seconds (it blocks on every remote image it cannot
+ * reach). Closing the window meanwhile is normal, and `webContents.send` on a
+ * destroyed window throws "Object has been destroyed" — from an export's own
+ * `catch` that would throw a second time from inside the error handler, losing
+ * the failure message as well. The file itself is already written by then, so
+ * the notification is all that is dropped.
+ */
+const sendToWindow = (win: BrowserWindow, channel: string, ...args: unknown[]): void => {
+  if (!win.isDestroyed()) {
+    win.webContents.send(channel, ...args)
+  }
+}
+
 // Handle the export response from renderer process.
 const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): Promise<void> => {
   const { type, content, pathname, title, pageOptions } = payload
@@ -109,6 +126,12 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
     defaultPath,
     filters: getExportExtensionFilter(type)
   })
+
+  if (win.isDestroyed()) {
+    // The window went away while the dialog was open: there is no renderer to
+    // export for, and nothing has been written yet.
+    return
+  }
 
   if (filePath && !canceled) {
     try {
@@ -132,12 +155,12 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
         }
         await writeFile(filePath, content, extension!, 'utf8')
       }
-      win.webContents.send('mt::export-success', { type, filePath })
+      sendToWindow(win, 'mt::export-success', { type, filePath })
     } catch (err) {
       log.error('Error while exporting:', err)
       const ERROR_MSG =
         (err instanceof Error && err.message) || `Error happened when export ${filePath}`
-      win.webContents.send('mt::show-notification', {
+      sendToWindow(win, 'mt::show-notification', {
         title: 'Export failure',
         type: 'error',
         message: ERROR_MSG
@@ -289,7 +312,9 @@ const handleResponseForPandocExport = async(
     folder: (preferences?.getItem<string>('pandocExportFolder') ?? '').trim()
   })
 
-  if (!filePath) {
+  if (!filePath || win.isDestroyed()) {
+    // Cancelled, or the window was closed while the dialog was open — either
+    // way there is nothing left to convert for.
     return
   }
 
@@ -308,32 +333,51 @@ const handleResponseForPandocExport = async(
       standalone: preferences?.getItem<boolean>('pandocStandalone') !== false,
       toc: preferences?.getItem<boolean>('pandocToc') === true,
       numberSections: preferences?.getItem<boolean>('pandocNumberSections') === true,
-      referenceDoc: (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim()
+      referenceDoc: (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim(),
+      metadata: {
+        // A standalone document wants a title and pandoc cannot take one off a
+        // document that arrives on stdin: EPUB then ships with no `<dc:title>`
+        // and prints a `[WARNING]` on every export, which would turn the export
+        // warning this feature exists to show into background noise. The title
+        // the renderer sent is what names the file, so it is also what the file
+        // should call itself; an untitled document falls back to the file name.
+        title: title || nakedFilename,
+        // The spawn environment's locale reaches the file as the string "C"
+        // (`<dc:language>C</dc:language>`); the app's own locale is the one the
+        // user is actually reading the UI in.
+        lang: app.getLocale()
+      }
     })
-    win.webContents.send('mt::export-success', { type: format.id, filePath })
 
     // Exit code 0 does not mean the conversion was clean: pandoc warns on
     // stderr about images it could not fetch and replaces them with their alt
     // text. Say so, otherwise the export looks perfect. The guard tests the
     // summary rather than `warnings`: a stderr holding only a newline is truthy
-    // but has nothing to show.
+    // but has nothing to show. The warning goes out before the success notice,
+    // because that notice offers to open the file manager and a click would
+    // otherwise dismiss the warning unread.
     const message = summarizePandocWarnings(warnings)
     if (message) {
       log.warn(`pandoc export warnings for ${filePath}:`, warnings)
-      win.webContents.send('mt::show-notification', {
+      sendToWindow(win, 'mt::show-notification', {
         title: t('dialog.exportWarning'),
         type: 'warning',
         message
       })
     }
+    sendToWindow(win, 'mt::export-success', { type: format.id, filePath })
   } catch (err) {
     log.error('Error while exporting with pandoc:', err)
     const ERROR_MSG =
       (err instanceof Error && err.message) || `Error happened when export ${filePath}`
-    win.webContents.send('mt::show-notification', {
+    // pandoc failures are routinely multi-line ("pandoc: …" then
+    // "Error at \"source\" (line 12, column 3): …"), and the notification body
+    // is HTML: without the same breaking and capping the warnings get, the
+    // position of the error would collapse into one run-on line.
+    sendToWindow(win, 'mt::show-notification', {
       title: t('dialog.exportWarning'),
       type: 'error',
-      message: escapeNotificationText(ERROR_MSG)
+      message: summarizePandocWarnings(ERROR_MSG)
     })
   }
 }
@@ -471,7 +515,7 @@ const openPandocFile = async(windowId: number, pathname: string): Promise<void> 
 
 const removePrintServiceFromWindow = (win: BrowserWindow): void => {
   // remove print service content and restore GUI
-  win.webContents.send('mt::print-service-clearup')
+  sendToWindow(win, 'mt::print-service-clearup')
 }
 
 // --- events -----------------------------------
