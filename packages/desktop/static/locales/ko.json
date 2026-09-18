@@ -897,6 +897,7 @@
     "importWarning": "가져오기 경고",
     "installPandoc": "Pandoc 설치",
     "exportWarning": "내보내기 경고",
+    "exportWarningMore": "…외 {count}건",
     "keepOpen": "열어두기",
     "replace": "바꾸기",
     "save": "저장",

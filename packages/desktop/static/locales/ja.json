@@ -897,6 +897,7 @@
     "importWarning": "インポート警告",
     "installPandoc": "Pandoc をインストール",
     "exportWarning": "エクスポートの警告",
+    "exportWarningMore": "…ほか {count} 件",
     "keepOpen": "開いたままにする",
     "replace": "置換",
     "save": "保存",

@@ -897,6 +897,7 @@
     "importWarning": "匯入警告",
     "installPandoc": "安裝 Pandoc",
     "exportWarning": "匯出提示",
+    "exportWarningMore": "…另有 {count} 條",
     "keepOpen": "保持開啟",
     "replace": "取代",
     "save": "儲存",

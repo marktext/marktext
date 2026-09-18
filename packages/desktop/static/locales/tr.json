@@ -897,6 +897,7 @@
     "importWarning": "İçe aktarma uyarısı",
     "installPandoc": "Pandoc'u Yükle",
     "exportWarning": "Dışa aktarma uyarısı",
+    "exportWarningMore": "…ve {count} tane daha",
     "keepOpen": "Açık tut",
     "replace": "Değiştir",
     "save": "Kaydet",

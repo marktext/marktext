@@ -1588,15 +1588,23 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    EXPORT_PANDOC({ target, markdown }: { target: string; markdown: string }): void {
+    // Reads the tab's markdown the way `FILE_SAVE` does rather than asking the
+    // editor for it: in source-code mode CodeMirror writes to
+    // `currentFile.markdown` and the WYSIWYG engine is only synced when source
+    // mode is left, so `engine.getMarkdown()` would export a stale document
+    // (#5379). Flushing first also catches an edit still queued in the engine's
+    // rAF batch.
+    EXPORT_PANDOC(target: string): void {
       if (this.currentFile === null) return
 
-      const { filename, pathname } = this.currentFile
+      this.flushActiveEditor()
+      const { pathname, markdown } = this.currentFile
+      const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.send('mt::response-pandoc-export', {
         target,
         markdown,
+        superSubScript: preferencesStore.superSubScript === true,
         title: this.DOCUMENT_TITLE(),
-        filename,
         pathname
       })
     },

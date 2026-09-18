@@ -897,6 +897,7 @@
     "importWarning": "Avertissement d'importation",
     "installPandoc": "Installer Pandoc",
     "exportWarning": "Avertissement d'exportation",
+    "exportWarningMore": "…et {count} de plus",
     "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",

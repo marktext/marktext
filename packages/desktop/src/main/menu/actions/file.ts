@@ -20,7 +20,7 @@ import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
-import pandoc, { PANDOC_EXPORT_FORMATS } from '../../utils/pandoc'
+import pandoc, { PANDOC_EXPORT_FORMATS, getPandocReader } from '../../utils/pandoc'
 import { t } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
 
@@ -144,6 +144,43 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
   }
 }
 
+/**
+ * Notifications render their message as HTML, and pandoc echoes text taken from
+ * the document (image paths, extension names) into its diagnostics, so escape
+ * before it reaches the notification's innerHTML.
+ */
+const escapeNotificationText = (text: string): string =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+/**
+ * How many warning lines the notification lists before it summarizes the rest.
+ * pandoc emits one per link it could not resolve, so a document with a handful
+ * of bad image paths would otherwise grow the toast past the editor.
+ */
+const MAX_PANDOC_WARNING_LINES = 5
+
+/**
+ * pandoc reports every unresolved link on its own line and still exits 0, so a
+ * document with fifty of them produces fifty lines. Show the first few and say
+ * how many were dropped; the full text reaches the log either way.
+ */
+const summarizePandocWarnings = (warnings: string): string => {
+  const lines = warnings
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+
+  const shown = lines.slice(0, MAX_PANDOC_WARNING_LINES).map(escapeNotificationText)
+  const hidden = lines.length - MAX_PANDOC_WARNING_LINES
+  if (hidden > 0) {
+    shown.push(escapeNotificationText(t('dialog.exportWarningMore', { count: hidden })))
+  }
+
+  // The body is HTML, so pandoc's line-per-warning output would collapse into a
+  // single paragraph without the explicit breaks.
+  return shown.join('<br>')
+}
+
 const handleResponseForPandocExport = async(
   e: IpcMainEvent,
   payload: PandocExportPayload
@@ -159,7 +196,7 @@ const handleResponseForPandocExport = async(
     return
   }
 
-  const { markdown, title, pathname } = payload
+  const { markdown, title, pathname, superSubScript } = payload
   const dirname = pathname ? path.dirname(pathname) : getPath('documents')
   // Strip whatever extension the source file carries so "notes.md" becomes
   // "notes.docx" rather than "notes.md.docx".
@@ -175,9 +212,33 @@ const handleResponseForPandocExport = async(
     return
   }
 
+  // The document comes in over stdin, so pandoc resolves its relative links
+  // against the process cwd unless the source folder is passed along — and a
+  // link it cannot resolve only produces a warning on stderr while pandoc still
+  // exits 0.
+  const cwd = pathname ? path.dirname(pathname) : undefined
+
   try {
-    await pandoc.toFile(format.target, filePath, markdown)
+    const { warnings } = await pandoc.toFile(format.target, filePath, markdown, {
+      cwd,
+      reader: getPandocReader(superSubScript === true)
+    })
     win.webContents.send('mt::export-success', { type: format.id, filePath })
+
+    // Exit code 0 does not mean the conversion was clean: pandoc warns on
+    // stderr about images it could not fetch and replaces them with their alt
+    // text. Say so, otherwise the export looks perfect. The guard tests the
+    // summary rather than `warnings`: a stderr holding only a newline is truthy
+    // but has nothing to show.
+    const message = summarizePandocWarnings(warnings)
+    if (message) {
+      log.warn(`pandoc export warnings for ${filePath}:`, warnings)
+      win.webContents.send('mt::show-notification', {
+        title: t('dialog.exportWarning'),
+        type: 'warning',
+        message
+      })
+    }
   } catch (err) {
     log.error('Error while exporting with pandoc:', err)
     const ERROR_MSG =
@@ -185,7 +246,7 @@ const handleResponseForPandocExport = async(
     win.webContents.send('mt::show-notification', {
       title: t('dialog.exportWarning'),
       type: 'error',
-      message: ERROR_MSG
+      message: escapeNotificationText(ERROR_MSG)
     })
   }
 }

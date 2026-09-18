@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
+import { useEditorStore } from './editor'
 import { useLayoutStore } from './layout'
 
 export const useListenForMainStore = defineStore('listenForMain', () => {
@@ -35,13 +36,13 @@ export const useListenForMainStore = defineStore('listenForMain', () => {
   }
 
   /**
-   * Main asks for the current document so it can convert it with pandoc. The
-   * markdown itself is produced by the editor component, which owns the live
-   * engine instance.
+   * Main asked for the current document so it can convert it with pandoc: the
+   * editor store owns the tab state the export is read from, so reply from
+   * there rather than bouncing through the editor component.
    */
   function LISTEN_FOR_PANDOC_EXPORT(): void {
     window.electron.ipcRenderer.on('mt::export-with-pandoc', (_e, target) => {
-      bus.emit('exportWithPandoc', target)
+      useEditorStore().EXPORT_PANDOC(target as string)
     })
   }
 
