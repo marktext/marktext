@@ -131,7 +131,7 @@ export interface ITaskListState {
 }
 
 export interface IMathMeta {
-    mathStyle: string; // "" | "gitlab";
+    mathStyle: string; // "" | "gfm";
 }
 
 export interface IMathBlockState {

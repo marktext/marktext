@@ -61,7 +61,7 @@ describe('texMathGfm — live toggle re-parses ```math', () => {
         muya.setOptions({ texMathGfm: true }, true);
 
         expect(firstBlock(muya).name).toBe('math-block');
-        expect(firstBlock(muya).meta.mathStyle).toBe('gitlab');
+        expect(firstBlock(muya).meta.mathStyle).toBe('gfm');
     });
 
     it('demotes an existing ```math math block back to a code block when toggled OFF', () => {
