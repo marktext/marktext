@@ -4,13 +4,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Electron, log, i18n and pandoc surfaces are stubbed and the registered
 // handler is driven directly. Only the save dialog and the conversion itself
 // are unreachable from a unit test; neither decides what the user is told.
-const { handlers, showSaveDialog, fromWebContents, toFile, sent } = vi.hoisted(() => ({
-  handlers: new Map<string, (...args: unknown[]) => unknown>(),
-  showSaveDialog: vi.fn(),
-  fromWebContents: vi.fn(),
-  toFile: vi.fn(),
-  sent: [] as Array<{ channel: string, payload: Record<string, unknown> }>
-}))
+const { handlers, showSaveDialog, fromWebContents, toFile, getPandocLanguage, getPandocReader, sent } =
+  vi.hoisted(() => ({
+    handlers: new Map<string, (...args: unknown[]) => unknown>(),
+    showSaveDialog: vi.fn(),
+    fromWebContents: vi.fn(),
+    toFile: vi.fn(),
+    // Stands in for the real mapper; `pandoc-export.spec.ts` asserts what it
+    // maps, this file only asserts that the locale goes through it.
+    getPandocLanguage: vi.fn((locale: string) => locale),
+    // Stands in for the real reader builder for the same reason; this file only
+    // asserts which preferences the handler consults.
+    getPandocReader: vi.fn(() => 'gfm'),
+    sent: [] as Array<{ channel: string, payload: Record<string, unknown> }>
+  }))
 
 vi.mock('electron', () => ({
   ipcMain: {
@@ -44,7 +51,8 @@ vi.mock('main_renderer/i18n', () => ({
 vi.mock('main_renderer/utils/pandoc', () => ({
   default: { toFile },
   PANDOC_EXPORT_FORMATS: [{ id: 'docx', label: 'Word', target: 'docx', extension: '.docx' }],
-  getPandocReader: () => 'gfm'
+  getPandocReader,
+  getPandocLanguage
 }))
 
 await import('main_renderer/menu/actions/file')
@@ -160,6 +168,41 @@ describe('mt::response-pandoc-export notifications', () => {
   // renders. DOMPurify sanitizes on the way in but keeps character references
   // as-is, which means escaping has to happen here in main — and the paths
   // pandoc quotes back come straight from the document.
+  // pandoc has no translation file for `zh-CN` (it carries `zh-Hans`/`zh-Hant`),
+  // so a zh-CN UI was told "Could not load translations for zh-CN" over an EPUB
+  // that came out correctly. The warning, the data file path it echoes back on
+  // the next line and the follow-up about the untranslated term all describe
+  // pandoc's own installation, and a stderr holding nothing else must not raise
+  // a toast at all (#5379 review).
+  it('drops pandoc complaints about its own translation data files', async() => {
+    toFile.mockResolvedValue({
+      warnings: [
+        '[WARNING] Could not load translations for zh-CN',
+        '  translations/zh.yaml: ',
+        '[WARNING] The term Abstract has no translation defined.'
+      ].join('\n')
+    })
+
+    await exportWith()
+
+    expect(sent.map((s) => s.channel)).toEqual(['mt::export-success'])
+  })
+
+  it('keeps the warnings that sit beside them', async() => {
+    toFile.mockResolvedValue({
+      warnings: [
+        '[WARNING] Could not load translations for zh-CN',
+        '  translations/zh.yaml: ',
+        '[WARNING] The term Abstract has no translation defined.',
+        ...warningLines(1)
+      ].join('\n')
+    })
+
+    await exportWith()
+
+    expect(notification().message).toBe(warningLines(1)[0])
+  })
+
   it('escapes HTML pandoc echoed from the document', async() => {
     toFile.mockResolvedValue({
       warnings: '[WARNING] Could not fetch resource pics/<b>a</b>.png: replacing image with description'
@@ -216,6 +259,8 @@ describe('mt::response-pandoc-export metadata', () => {
     showSaveDialog.mockReset()
     fromWebContents.mockReset()
     toFile.mockReset()
+    getPandocLanguage.mockClear()
+    getPandocReader.mockClear()
 
     showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.docx', canceled: false })
     fromWebContents.mockReturnValue(FAKE_WIN)
@@ -226,6 +271,13 @@ describe('mt::response-pandoc-export metadata', () => {
     await exportWith()
 
     expect(optionsOfExport().metadata).toEqual({ title: 'Notes', lang: 'en-US' })
+    // Through the mapper: pandoc files Chinese under a script subtag, so the
+    // locale cannot go straight to `--metadata lang` (#5379 review).
+    expect(getPandocLanguage).toHaveBeenCalledWith('en-US')
+    // The reader is built from the editor's toggles: no sub/superscript in the
+    // payload and no preference store here, so footnotes must come out disabled
+    // — plain `gfm` would parse the `[^1]` the editor shows as literal text.
+    expect(getPandocReader).toHaveBeenCalledWith(false, false)
   })
 
   it('falls back to the file name for a document without a heading', async() => {

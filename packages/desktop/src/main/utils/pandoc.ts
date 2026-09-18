@@ -51,9 +51,61 @@ export const resolvePandocCommand = (): string => {
  * newer is added on purpose: pandoc 3.1.3 (Ubuntu 24.04) exits with
  * "The extension tex_math_gfm is not supported for gfm" (same for `alerts`),
  * and it already enables `tex_math_dollars` for `gfm`.
+ *
+ * `gfm` turns `footnotes` on unconditionally, while MarkText's own `footnote`
+ * preference defaults to false — with the extension on, a `[^1]` the editor
+ * shows as literal text silently becomes a real footnote in the exported file.
+ * Pass the preference and `-footnotes` keeps the two in agreement.
  */
-export const getPandocReader = (superSubScript: boolean): string =>
-  superSubScript ? 'gfm+superscript+subscript' : 'gfm'
+export const getPandocReader = (superSubScript: boolean, footnotes = true): string => {
+  let reader = 'gfm'
+  if (superSubScript) {
+    reader += '+superscript+subscript'
+  }
+  if (!footnotes) {
+    reader += '-footnotes'
+  }
+  return reader
+}
+
+/**
+ * Regions whose Chinese is written in traditional characters. Anything else is
+ * simplified, which is also what a bare `zh` means.
+ */
+const CHINESE_TRADITIONAL_REGIONS = new Set(['tw', 'hk', 'mo'])
+
+/**
+ * The language tag to hand pandoc as `lang` metadata.
+ *
+ * pandoc resolves the tag against the `translations/` data files compiled into
+ * its own binary, and it files Chinese under the script subtag: it ships
+ * `zh-Hans` and `zh-Hant`, and no `zh`, `zh-CN` or `zh-TW`. A tag it cannot
+ * resolve makes every single export print two lines on stderr — "Could not load
+ * translations for zh-CN translations/zh.yaml:" and "The term Abstract has no
+ * translation defined." — which are pandoc complaining about its own data files
+ * on a document that was written correctly. Writing the region subtag the OS
+ * reports as the script subtag is the same language spelled out more precisely
+ * (`zh-Hans` is Chinese in simplified characters; `zh-CN` additionally pins a
+ * country the file has no use for), and the export stops talking about itself.
+ *
+ * Every other locale is passed through untouched: pandoc carries a translation
+ * file for all of them.
+ */
+export const getPandocLanguage = (locale: string): string => {
+  const parts = locale.trim().split(/[-_]/)
+  if (parts[0]?.toLowerCase() !== 'zh') {
+    return locale
+  }
+
+  const subtag = parts[1]?.toLowerCase()
+  if (subtag === 'hant') {
+    return 'zh-Hant'
+  }
+  if (subtag === 'hans') {
+    return 'zh-Hans'
+  }
+  return CHINESE_TRADITIONAL_REGIONS.has(subtag ?? '') ? 'zh-Hant' : 'zh-Hans'
+}
 
 interface PandocConverter {
   (): Promise<string>

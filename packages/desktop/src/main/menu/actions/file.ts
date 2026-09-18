@@ -20,7 +20,11 @@ import { EXTENSION_HASN, PANDOC_EXTENSIONS, URL_REG } from '../../config'
 import { normalizeAndResolvePath, resolveLocalLinkTarget, writeFile } from '../../filesystem'
 import { writeMarkdownFile } from '../../filesystem/markdown'
 import { getPath, getRecommendTitleFromMarkdownString } from '../../utils'
-import pandoc, { PANDOC_EXPORT_FORMATS, getPandocReader } from '../../utils/pandoc'
+import pandoc, {
+  PANDOC_EXPORT_FORMATS,
+  getPandocLanguage,
+  getPandocReader
+} from '../../utils/pandoc'
 import {
   getPandocDefaultFormat,
   getPandocExportFormats,
@@ -190,6 +194,34 @@ const escapeNotificationText = (text: string): string =>
 const MAX_PANDOC_WARNING_LINES = 5
 
 /**
+ * Whether pandoc's line is about its own translation data files rather than the
+ * document.
+ *
+ * `getPandocLanguage` keeps the common case from happening at all, but pandoc
+ * ships translations for a fixed list of languages: a locale outside it (`sw`,
+ * `tl`) still makes the writer report the file it could not load and then the
+ * term it could not look up, as two lines with the path echoed on the second.
+ * Neither says anything about the document, neither can be acted on from the
+ * editor, and an untranslated "Abstract" heading is not a reason to put a
+ * warning over a file that was written correctly. The full stderr still reaches
+ * the log.
+ */
+const isPandocTranslationWarning = (lines: string[], index: number): boolean => {
+  const line = lines[index] ?? ''
+  const couldNotLoad = '[WARNING] Could not load translations for '
+  if (line.startsWith(couldNotLoad)) {
+    return true
+  }
+  if (/^\[WARNING\] The term .+ has no translation defined\.$/.test(line)) {
+    return true
+  }
+  // The data file whose lookup failed, on the line after the warning about it.
+  return (
+    /^translations\/\S+\.ya?ml:/.test(line) && (lines[index - 1] ?? '').startsWith(couldNotLoad)
+  )
+}
+
+/**
  * pandoc reports every unresolved link on its own line and still exits 0, so a
  * document with fifty of them produces fifty lines. Show the first few and say
  * how many were dropped; the full text reaches the log either way.
@@ -200,8 +232,13 @@ const summarizePandocWarnings = (warnings: string): string => {
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
 
-  const shown = lines.slice(0, MAX_PANDOC_WARNING_LINES).map(escapeNotificationText)
-  const hidden = lines.length - MAX_PANDOC_WARNING_LINES
+  // Filtered before the cap, so lines pandoc never should have printed do not
+  // eat into the five the user gets to see — and so a stderr holding nothing
+  // else summarizes to nothing, which keeps the toast away entirely.
+  const relevant = lines.filter((_, index) => !isPandocTranslationWarning(lines, index))
+
+  const shown = relevant.slice(0, MAX_PANDOC_WARNING_LINES).map(escapeNotificationText)
+  const hidden = relevant.length - MAX_PANDOC_WARNING_LINES
   if (hidden > 0) {
     shown.push(escapeNotificationText(t('dialog.exportWarningMore', { count: hidden })))
   }
@@ -327,7 +364,13 @@ const handleResponseForPandocExport = async(
   try {
     const { warnings } = await pandoc.toFile(format.target, filePath, markdown, {
       cwd,
-      reader: getPandocReader(superSubScript === true),
+      reader: getPandocReader(
+        superSubScript === true,
+        // `gfm` enables footnotes on its own, but the editor only renders them
+        // when the preference says so — a `[^1]` shown as literal text must not
+        // turn into a real footnote in the file (#5379 review).
+        preferences?.getItem<boolean>('footnote') === true
+      ),
       // Standalone defaults to on, so only an explicit `false` turns it off —
       // a preferences file written before the option existed behaves as before.
       standalone: preferences?.getItem<boolean>('pandocStandalone') !== false,
@@ -344,8 +387,10 @@ const handleResponseForPandocExport = async(
         title: title || nakedFilename,
         // The spawn environment's locale reaches the file as the string "C"
         // (`<dc:language>C</dc:language>`); the app's own locale is the one the
-        // user is actually reading the UI in.
-        lang: app.getLocale()
+        // user is actually reading the UI in. It goes through the mapper because
+        // pandoc only carries Chinese under a script subtag — see
+        // `getPandocLanguage`.
+        lang: getPandocLanguage(app.getLocale())
       }
     })
 

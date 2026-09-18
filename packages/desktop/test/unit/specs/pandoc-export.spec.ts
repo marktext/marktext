@@ -11,7 +11,11 @@ vi.mock('child_process', () => {
   return { default: { spawn }, spawn }
 })
 
-import pandoc, { PANDOC_EXPORT_FORMATS, getPandocReader } from 'main_renderer/utils/pandoc'
+import pandoc, {
+  PANDOC_EXPORT_FORMATS,
+  getPandocLanguage,
+  getPandocReader
+} from 'main_renderer/utils/pandoc'
 
 /** Stands in for the ChildProcess that `spawn` would hand back. */
 class FakeProcess extends EventEmitter {
@@ -72,6 +76,50 @@ describe('pandoc export', () => {
     // supported for gfm"; anything newer must not be named here.
     it('names no extension beyond the ones pandoc 3.1.3 accepts', () => {
       expect(getPandocReader(true)).not.toMatch(/tex_math_gfm|alerts/)
+    })
+
+    // `gfm` switches `footnotes` on unconditionally while the editor only
+    // renders them when the `footnote` preference says so (#5379 review); the
+    // combined form is valid pandoc syntax and `gfm-footnotes` keeps `[^1]`
+    // as the literal text the editor shows.
+    it('drops footnotes when the editor does not render them', () => {
+      expect(getPandocReader(false, false)).toBe('gfm-footnotes')
+      expect(getPandocReader(true, false)).toBe('gfm+superscript+subscript-footnotes')
+      expect(getPandocReader(false, true)).toBe('gfm')
+      expect(getPandocReader(true, true)).toBe('gfm+superscript+subscript')
+    })
+  })
+
+  describe('getPandocLanguage', () => {
+    // pandoc looks the tag up in the `translations/` data files inside its own
+    // binary, where Chinese is filed under the script subtag: it ships
+    // `zh-Hans`/`zh-Hant` and no `zh`, `zh-CN` or `zh-TW`. Passing `zh-CN`
+    // through made every export print "Could not load translations …" on a file
+    // that came out fine (#5379 review).
+    it('rewrites the Chinese region tags to the script subtag pandoc carries', () => {
+      expect(getPandocLanguage('zh-CN')).toBe('zh-Hans')
+      expect(getPandocLanguage('zh-SG')).toBe('zh-Hans')
+      expect(getPandocLanguage('zh-TW')).toBe('zh-Hant')
+      expect(getPandocLanguage('zh-HK')).toBe('zh-Hant')
+      expect(getPandocLanguage('zh-MO')).toBe('zh-Hant')
+      // A bare `zh` resolves to `translations/zh.yaml`, which does not exist
+      // either; simplified is what the tag overwhelmingly means.
+      expect(getPandocLanguage('zh')).toBe('zh-Hans')
+    })
+
+    it('keeps a script subtag the locale already carries', () => {
+      expect(getPandocLanguage('zh-Hans')).toBe('zh-Hans')
+      expect(getPandocLanguage('zh-Hant-TW')).toBe('zh-Hant')
+      expect(getPandocLanguage('zh-Hans-CN')).toBe('zh-Hans')
+    })
+
+    // Everything else has a translation file, so the tag reaches the file's
+    // `<dc:language>` exactly as the OS reports it.
+    it('passes every other locale through unchanged', () => {
+      expect(getPandocLanguage('en-US')).toBe('en-US')
+      expect(getPandocLanguage('pt-BR')).toBe('pt-BR')
+      expect(getPandocLanguage('ja')).toBe('ja')
+      expect(getPandocLanguage('de')).toBe('de')
     })
   })
 
