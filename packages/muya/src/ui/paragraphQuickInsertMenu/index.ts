@@ -221,6 +221,13 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 ?.children
                 .splice(2, 1);
         }
+
+        // A display-math block writes `$$…$$`, which this editor no longer
+        // reads back once the dollar syntax is off — so stop offering it (#5446).
+        if (!muya.options.texMathDollars) {
+            for (const menu of menuConfig)
+                menu.children = menu.children.filter(child => child.label !== 'math-block');
+        }
         let result = menuConfig;
         if (text !== '') {
             result = [];

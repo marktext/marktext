@@ -76,8 +76,11 @@ type BlockConversion
 // convert into on Enter". Shared by the enterHandler guard (to decide whether
 // to convert in place) and `_enterConvert` (to perform it), so the match rules
 // can never drift between the two.
-function matchBlockConversion(text: string): BlockConversion | null {
-    if (MATH_BLOCK_REG.test(text))
+function matchBlockConversion(text: string, texMathDollars: boolean): BlockConversion | null {
+    // A `$$` paragraph only becomes a math block while the dollar syntax is
+    // recognised; otherwise the block would serialize to markdown this editor
+    // no longer reads back (#5446).
+    if (texMathDollars && MATH_BLOCK_REG.test(text))
         return { kind: 'math' };
 
     const codeBlockToken = text.match(CODE_BLOCK_REG);
@@ -281,7 +284,7 @@ class ParagraphContent extends Format {
         event.preventDefault();
         event.stopPropagation();
 
-        const match = matchBlockConversion(this.text);
+        const match = matchBlockConversion(this.text, this.muya.options.texMathDollars);
         if (!match)
             return super.enterHandler(event);
 
@@ -583,7 +586,7 @@ class ParagraphContent extends Format {
         // (matches muyajs). Otherwise typing the block syntax in a list would
         // split the item and strand an empty list entry (#2276, plus table /
         // HTML block).
-        if (matchBlockConversion(this.text))
+        if (matchBlockConversion(this.text, this.muya.options.texMathDollars))
             return this._enterConvert(event);
 
         const type = this._paragraphParentType();
