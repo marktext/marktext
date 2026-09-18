@@ -4,7 +4,7 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import mathExtension, { gfmMathExtension } from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -33,6 +33,15 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     if (texMathDollars) {
         marked.use(
             mathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathGfm) {
+        marked.use(
+            gfmMathExtension({
                 throwOnError: false,
                 useKatexRender: false,
             }),

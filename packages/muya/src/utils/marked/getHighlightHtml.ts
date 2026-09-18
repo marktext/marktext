@@ -5,7 +5,7 @@ import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import mathExtension, { gfmMathExtension } from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -60,6 +60,15 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     if (texMathDollars) {
         marked.use(
             mathExtension({
+                throwOnError: false,
+                useKatexRender: true,
+            }),
+        );
+    }
+
+    if (texMathGfm) {
+        marked.use(
+            gfmMathExtension({
                 throwOnError: false,
                 useKatexRender: true,
             }),
