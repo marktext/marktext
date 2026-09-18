@@ -198,7 +198,7 @@ export class MarkdownToHtml {
             footnote,
             isGitlabCompatibilityEnabled:
         this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
-            math: this._muya?.options?.math ?? true,
+            texMathDollars: this._muya?.options?.texMathDollars ?? true,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline

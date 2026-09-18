@@ -27,7 +27,7 @@ import StateToMarkdown from '../stateToMarkdown';
 function toState(markdown: string): TState[] {
     return new MarkdownToState({
         footnote: false,
-        math: true,
+        texMathDollars: true,
         isGitlabCompatibilityEnabled: true,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,

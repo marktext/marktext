@@ -16,7 +16,7 @@ import ExportMarkdown from '../stateToMarkdown';
 function roundTrip(md: string, listIndentation: number | string = 1): string {
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
@@ -61,7 +61,7 @@ describe('stateToMarkdown — empty list item serialization', () => {
 function parseMarkdown(md: string): TState[] {
     return new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
@@ -538,7 +538,7 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
         // contract by parsing a canonical loose list and reading the flag back.
         const looseStates = new MarkdownToState({
             footnote: false,
-            math: false,
+            texMathDollars: false,
             isGitlabCompatibilityEnabled: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
@@ -549,7 +549,7 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
 
         const tightStates = new MarkdownToState({
             footnote: false,
-            math: false,
+            texMathDollars: false,
             isGitlabCompatibilityEnabled: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
@@ -648,7 +648,7 @@ Text after numbered list.
     it('parses the start number into order-list meta.start', () => {
         const states = new MarkdownToState({
             footnote: false,
-            math: false,
+            texMathDollars: false,
             isGitlabCompatibilityEnabled: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,

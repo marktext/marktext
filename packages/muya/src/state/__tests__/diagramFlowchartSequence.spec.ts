@@ -17,7 +17,7 @@ interface IStateLike {
 function generate(markdown: string): IStateLike[] {
     return new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

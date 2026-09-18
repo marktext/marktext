@@ -45,7 +45,7 @@ afterEach(() => {
 function bootMuya(markdown: string): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown, math: true, frontMatter: true } as ConstructorParameters<typeof Muya>[1]);
+    const muya = new Muya(host, { markdown, texMathDollars: true, frontMatter: true } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedMuyas.push(muya);
     return muya;

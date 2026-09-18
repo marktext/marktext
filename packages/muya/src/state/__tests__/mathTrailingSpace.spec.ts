@@ -12,7 +12,7 @@ interface IBlock { name: string; text?: string }
 function parse(markdown: string): IBlock[] {
     return new MarkdownToState({
         footnote: false,
-        math: true,
+        texMathDollars: true,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

@@ -347,8 +347,8 @@ export const MUYA_DEFAULT_OPTIONS = {
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
     footnote: false,
-    // Whether math block is supported.
-    math: true,
+    // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
+    texMathDollars: true,
     isGitlabCompatibilityEnabled: true,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,

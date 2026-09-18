@@ -38,7 +38,7 @@ function collectLabels(states: TState[]) {
 function parse(md: string) {
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

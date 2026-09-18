@@ -16,7 +16,7 @@ async function pasteHtmlToState(html: string) {
     const markdown = new HtmlToMarkdown({ bulletListMarker: '-' }).generate(normalized);
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

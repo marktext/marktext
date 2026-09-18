@@ -31,7 +31,7 @@ export interface IMuyaOptions {
     spellcheckHideMarks: boolean;
     superSubScript: boolean;
     footnote: boolean;
-    math: boolean;
+    texMathDollars: boolean;
     isGitlabCompatibilityEnabled: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
