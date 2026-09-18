@@ -143,13 +143,16 @@ export class TableColumnToolbar extends BaseFloat {
         event.stopPropagation();
 
         const { _block: block } = this;
-        // Block is not null, just in case
-        if (!block || !block.parent)
-            return;
+        // The toolbar stays open while the document changes under it. Once an
+        // Undo has removed the table, its cells are detached — and a detached
+        // cell still has its row as a parent, so only `outMostBlock` tells
+        // them apart.
+        if (!block?.outMostBlock)
+            return this.hide();
 
-        const offset = block.parent.offset(block);
+        const offset = block.parent!.offset(block);
         const { table, row } = block;
-        const columnCount = row.offset(this._block!);
+        const columnCount = row.offset(block);
 
         switch (item.type) {
             case 'remove': {
