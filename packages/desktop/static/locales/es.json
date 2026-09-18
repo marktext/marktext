@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "Formato predeterminado",
         "pandocExportLocation": "Exportar a",
         "pandocExportFolder": "Carpeta para los archivos convertidos",
-        "pandocStandalone": "Archivo completo",
+        "pandocStandalone": "Genera un documento completo. Afecta a las exportaciones HTML, RTF y texto plano; Word y otros formatos binarios siempre son completos.",
         "pandocToc": "Tabla de contenido",
         "pandocNumberSections": "Numerar secciones",
         "pandocReferenceDoc": "Plantilla de Word"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "Opciones de exportación",
-        "standalone": "Archivo completo",
+        "standalone": "Archivo completo (HTML, RTF, txt)",
         "toc": "Tabla de contenido",
         "numberSections": "Numerar secciones"
       },
@@ -732,10 +732,9 @@
         "placeholder": "Vacío = el estilo integrado de pandoc",
         "browse": "Elegir plantilla",
         "clear": "Borrar",
-        "notes": "Solo se usa en las exportaciones a Word (.docx) y OpenDocument (.odt); pandoc toma de ella los estilos."
+        "notes": "Solo se usa en las exportaciones a Word (.docx), OpenDocument (.odt) y PowerPoint (.pptx); pandoc toma de ella los estilos."
       },
       "requirement": {
-        "title": "Requisitos",
         "text": "MarkText usa el pandoc que usted instala; no viene incluido. Instálelo desde pandoc.org o escriba arriba la ruta del ejecutable."
       }
     },

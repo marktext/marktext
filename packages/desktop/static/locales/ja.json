@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "既定の形式",
         "pandocExportLocation": "出力先",
         "pandocExportFolder": "変換後のファイルを置くフォルダー",
-        "pandocStandalone": "完全なファイル",
+        "pandocStandalone": "完全なドキュメントを出力します。HTML・RTF・プレーンテキストの出力にのみ作用し、Word などのバイナリ形式は常に完全なファイルになります。",
         "pandocToc": "目次",
         "pandocNumberSections": "セクション番号",
         "pandocReferenceDoc": "Word テンプレート"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "出力オプション",
-        "standalone": "完全なファイル",
+        "standalone": "完全なファイル（HTML、RTF、txt）",
         "toc": "目次",
         "numberSections": "セクション番号"
       },
@@ -732,10 +732,9 @@
         "placeholder": "空欄 = pandoc 内蔵のスタイル",
         "browse": "テンプレートを選択",
         "clear": "クリア",
-        "notes": "Word (.docx) と OpenDocument (.odt) への出力にのみ使用され、pandoc はここからスタイルを取り込みます。"
+        "notes": "Word (.docx)、OpenDocument (.odt)、PowerPoint (.pptx) への出力にのみ使用され、pandoc はここからスタイルを取り込みます。"
       },
       "requirement": {
-        "title": "動作条件",
         "text": "MarkText はご自身でインストールした pandoc を使用します（同梱されていません）。pandoc.org からインストールするか、上の欄に実行ファイルのパスを入力してください。"
       }
     },

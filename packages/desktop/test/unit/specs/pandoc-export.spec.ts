@@ -138,7 +138,9 @@ describe('pandoc export', () => {
       // cannot carry because it decodes stdout into a string.
       expect(spawnMock).toHaveBeenCalledWith(
         'pandoc',
-        ['-f', 'gfm', '-t', 'docx', '-s', '-o', '/tmp/notes.docx'],
+        // No `-s`: the binary writers are standalone regardless, pandoc
+        // ignores the flag there.
+        ['-f', 'gfm', '-t', 'docx', '-o', '/tmp/notes.docx'],
         { cwd: undefined }
       )
       expect(proc.stdin.end).toHaveBeenCalledWith('# Title')
@@ -186,7 +188,6 @@ describe('pandoc export', () => {
         'gfm',
         '-t',
         'epub3',
-        '-s',
         '--metadata=title:Q3: plan',
         '--metadata=lang:en-US',
         '-o',

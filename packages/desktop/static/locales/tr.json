@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "Varsayılan biçim",
         "pandocExportLocation": "Şuraya aktar",
         "pandocExportFolder": "Dönüştürülen dosyaların klasörü",
-        "pandocStandalone": "Tam dosya",
+        "pandocStandalone": "Tam bir belge oluşturur. HTML, RTF ve düz metin dışa aktarımlarını etkiler; Word ve diğer ikili biçimler her zaman tamdır.",
         "pandocToc": "İçindekiler",
         "pandocNumberSections": "Bölümleri numaralandır",
         "pandocReferenceDoc": "Word şablonu"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "Dışa aktarma seçenekleri",
-        "standalone": "Tam dosya",
+        "standalone": "Tam dosya (HTML, RTF, txt)",
         "toc": "İçindekiler",
         "numberSections": "Bölümleri numaralandır"
       },
@@ -732,10 +732,9 @@
         "placeholder": "Boş = pandoc'un yerleşik stili",
         "browse": "Şablon seç",
         "clear": "Temizle",
-        "notes": "Yalnızca Word (.docx) ve OpenDocument (.odt) dışa aktarımlarında kullanılır; pandoc stilleri ondan alır."
+        "notes": "Yalnızca Word (.docx), OpenDocument (.odt) ve PowerPoint (.pptx) dışa aktarımlarında kullanılır; pandoc stilleri ondan alır."
       },
       "requirement": {
-        "title": "Gereksinimler",
         "text": "MarkText, kendi kurduğunuz pandoc’u kullanır; birlikte gelmez. pandoc.org adresinden kurun veya yukarıdaki alana çalıştırılabilir dosyanın yolunu yazın."
       }
     },

@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "Standaardindeling",
         "pandocExportLocation": "Exporteren naar",
         "pandocExportFolder": "Map voor de geconverteerde bestanden",
-        "pandocStandalone": "Volledig bestand",
+        "pandocStandalone": "Maakt een volledig document. Geldt voor HTML-, RTF- en platte-tekstexports; Word en andere binaire formaten zijn altijd volledig.",
         "pandocToc": "Inhoudsopgave",
         "pandocNumberSections": "Secties nummeren",
         "pandocReferenceDoc": "Word-sjabloon"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "Exportopties",
-        "standalone": "Volledig bestand",
+        "standalone": "Volledig bestand (HTML, RTF, txt)",
         "toc": "Inhoudsopgave",
         "numberSections": "Secties nummeren"
       },
@@ -732,10 +732,9 @@
         "placeholder": "Leeg = de ingebouwde stijl van pandoc",
         "browse": "Sjabloon kiezen",
         "clear": "Wissen",
-        "notes": "Alleen gebruikt voor exports naar Word (.docx) en OpenDocument (.odt); pandoc haalt daar de stijlen uit."
+        "notes": "Alleen gebruikt voor exports naar Word (.docx), OpenDocument (.odt) en PowerPoint (.pptx); pandoc haalt daar de stijlen uit."
       },
       "requirement": {
-        "title": "Vereisten",
         "text": "MarkText gebruikt de pandoc die u zelf installeert; deze wordt niet meegeleverd. Installeer het via pandoc.org of vul hierboven het pad naar het programma in."
       }
     },

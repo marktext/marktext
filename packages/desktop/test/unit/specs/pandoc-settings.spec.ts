@@ -113,22 +113,47 @@ describe('pandoc settings', () => {
   describe('buildPandocArguments', () => {
     const base = { reader: 'gfm', to: 'docx', outputPath: '/tmp/notes.docx' }
 
-    it('writes a standalone document by default', () => {
-      // `-s` is not cosmetic for the binary writers: without it docx/odt/epub
-      // come out as fragments pandoc cannot even package.
+    it('leaves -s off the binary writers, which are always standalone', () => {
+      // Verified against pandoc 3.1.3: a docx without `-s` still comes out a
+      // complete document — pandoc ignores the flag there, so passing it would
+      // only make the switch look like it did something it does not.
       expect(buildPandocArguments(base)).toEqual([
         '-f',
         'gfm',
         '-t',
         'docx',
-        '-s',
         '-o',
         '/tmp/notes.docx'
       ])
     })
 
+    it('passes -s to the writers that would otherwise emit a fragment', () => {
+      const html = { ...base, to: 'html5', outputPath: '/tmp/notes.html' }
+      expect(buildPandocArguments(html)).toContain('-s')
+      expect(buildPandocArguments({ ...base, to: 'rtf', outputPath: '/tmp/notes.rtf' })).toContain(
+        '-s'
+      )
+      expect(buildPandocArguments({ ...base, to: 'plain', outputPath: '/tmp/notes.txt' })).toContain(
+        '-s'
+      )
+    })
+
     it('drops -s when the user asked for a fragment', () => {
-      expect(buildPandocArguments({ ...base, standalone: false })).not.toContain('-s')
+      const html = { ...base, to: 'html5', outputPath: '/tmp/notes.html' }
+      expect(buildPandocArguments({ ...html, standalone: false })).not.toContain('-s')
+    })
+
+    // The html5 writer copies image srcs verbatim, so an export written outside
+    // the source folder would show every picture broken — the binary writers
+    // carry the bytes, HTML has to inline them (#5379 review).
+    it('embeds resources into standalone HTML only', () => {
+      const html = { ...base, to: 'html5', outputPath: '/tmp/notes.html' }
+      expect(buildPandocArguments(html)).toContain('--embed-resources')
+      expect(buildPandocArguments({ ...html, standalone: false })).not.toContain(
+        '--embed-resources'
+      )
+      // The binary writers have nothing to embed.
+      expect(buildPandocArguments(base)).not.toContain('--embed-resources')
     })
 
     it('adds the table of contents and section numbering only when asked', () => {

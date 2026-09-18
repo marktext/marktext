@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "Default format",
         "pandocExportLocation": "Export to",
         "pandocExportFolder": "Folder for the converted files",
-        "pandocStandalone": "Standalone file",
+        "pandocStandalone": "Produce a standalone document. Affects HTML, RTF and plain text exports; Word and other binary formats are always standalone.",
         "pandocToc": "Table of contents",
         "pandocNumberSections": "Number sections",
         "pandocReferenceDoc": "Word template"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "Export options",
-        "standalone": "Standalone file",
+        "standalone": "Standalone file (HTML, RTF, txt)",
         "toc": "Table of contents",
         "numberSections": "Number sections"
       },
@@ -732,10 +732,9 @@
         "placeholder": "Empty = pandoc's built-in style",
         "browse": "Choose template",
         "clear": "Clear",
-        "notes": "Used for Word (.docx) and OpenDocument (.odt) exports only; pandoc takes the styles from it."
+        "notes": "Used for Word (.docx), OpenDocument (.odt) and PowerPoint (.pptx) exports only; pandoc takes the styles from it."
       },
       "requirement": {
-        "title": "Requirements",
         "text": "MarkText uses the pandoc installed on your system; it is not bundled. Install it from pandoc.org, or put the path to the executable in the field above."
       }
     },

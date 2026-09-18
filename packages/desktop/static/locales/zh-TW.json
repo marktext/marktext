@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "預設格式",
         "pandocExportLocation": "匯出位置",
         "pandocExportFolder": "匯出檔案的存放目錄",
-        "pandocStandalone": "完整檔案",
+        "pandocStandalone": "產生完整文件。僅對 HTML、RTF 與純文字匯出生效；Word 等二進位格式一律是完整檔案。",
         "pandocToc": "目錄",
         "pandocNumberSections": "章節編號",
         "pandocReferenceDoc": "Word 範本"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "匯出選項",
-        "standalone": "完整檔案",
+        "standalone": "完整檔案（HTML、RTF、txt）",
         "toc": "目錄",
         "numberSections": "章節編號"
       },
@@ -732,10 +732,9 @@
         "placeholder": "留空 = 用 pandoc 內建樣式",
         "browse": "選擇範本",
         "clear": "清除",
-        "notes": "僅對 Word (.docx) 與 OpenDocument (.odt) 生效，pandoc 會以它作為樣式來源。"
+        "notes": "僅對 Word (.docx)、OpenDocument (.odt) 與 PowerPoint (.pptx) 生效，pandoc 會以它作為樣式來源。"
       },
       "requirement": {
-        "title": "使用前提",
         "text": "MarkText 使用你自己安裝的 pandoc，並未隨附。請從 pandoc.org 安裝，或在上面的「pandoc 路徑」指向執行檔。"
       }
     },

@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "默认格式",
         "pandocExportLocation": "导出位置",
         "pandocExportFolder": "导出文件的存放目录",
-        "pandocStandalone": "完整文件",
+        "pandocStandalone": "生成完整文档。仅对 HTML、RTF 和纯文本导出生效；Word 等二进制格式始终是完整文档。",
         "pandocToc": "目录",
         "pandocNumberSections": "章节编号",
         "pandocReferenceDoc": "Word 模板"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "导出选项",
-        "standalone": "完整文件",
+        "standalone": "完整文件（HTML、RTF、txt）",
         "toc": "目录",
         "numberSections": "章节编号"
       },
@@ -732,10 +732,9 @@
         "placeholder": "留空 = 用 pandoc 内置样式",
         "browse": "选择模板",
         "clear": "清除",
-        "notes": "仅对 Word (.docx) 和 OpenDocument (.odt) 生效，pandoc 会以它作为样式来源。"
+        "notes": "仅对 Word (.docx)、OpenDocument (.odt) 和 PowerPoint (.pptx) 生效，pandoc 会以它作为样式来源。"
       },
       "requirement": {
-        "title": "使用前提",
         "text": "MarkText 使用你自己安装的 pandoc，不自带。请从 pandoc.org 安装，或在上面的「pandoc 路径」里指向可执行文件。"
       }
     },

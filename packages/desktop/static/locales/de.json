@@ -436,7 +436,7 @@
         "pandocDefaultFormat": "Standardformat",
         "pandocExportLocation": "Exportieren nach",
         "pandocExportFolder": "Ordner für die konvertierten Dateien",
-        "pandocStandalone": "Vollständige Datei",
+        "pandocStandalone": "Erzeugt ein vollständiges Dokument. Betrifft HTML-, RTF- und Textexporte; Word und andere Binärformate sind immer vollständig.",
         "pandocToc": "Inhaltsverzeichnis",
         "pandocNumberSections": "Abschnitte nummerieren",
         "pandocReferenceDoc": "Word-Vorlage"
@@ -720,7 +720,7 @@
       },
       "options": {
         "label": "Exportoptionen",
-        "standalone": "Vollständige Datei",
+        "standalone": "Vollständige Datei (HTML, RTF, txt)",
         "toc": "Inhaltsverzeichnis",
         "numberSections": "Abschnitte nummerieren"
       },
@@ -732,10 +732,9 @@
         "placeholder": "Leer = das eingebaute Format von pandoc",
         "browse": "Vorlage wählen",
         "clear": "Zurücksetzen",
-        "notes": "Gilt nur für Exporte nach Word (.docx) und OpenDocument (.odt); pandoc entnimmt ihr die Formatvorlagen."
+        "notes": "Gilt nur für Exporte nach Word (.docx), OpenDocument (.odt) und PowerPoint (.pptx); pandoc entnimmt ihr die Formatvorlagen."
       },
       "requirement": {
-        "title": "Voraussetzungen",
         "text": "MarkText verwendet das von Ihnen installierte pandoc; es ist nicht im Lieferumfang enthalten. Installieren Sie es von pandoc.org oder tragen Sie oben den Pfad zur ausführbaren Datei ein."
       }
     },

@@ -3,18 +3,6 @@
     class="pref-check-list"
     :class="{ 'ag-underdevelop': disable }"
   >
-    <div
-      v-if="description"
-      class="description"
-    >
-      <span>{{ description }}:</span>
-      <LinkIcon
-        v-if="more"
-        :size="14"
-        class="link-icon"
-        @click="handleMoreClick"
-      />
-    </div>
     <div class="options">
       <el-checkbox
         v-for="option in options"
@@ -25,30 +13,25 @@
       >
         {{ option.label }}
       </el-checkbox>
-    </div>
-    <div
-      v-if="notes"
-      class="notes"
-    >
-      {{ notes }}
+      <LinkIcon
+        v-if="more"
+        :size="14"
+        class="link-icon"
+        @click="handleMoreClick"
+      />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import LinkIcon from '@/components/icons/LinkIcon.vue'
-import type { PrefControlBaseProps, PrefSelectOption } from '../types'
+import type { PrefControlProps, PrefSelectOption } from '../types'
 
-interface CheckListProps extends PrefControlBaseProps {
-  notes?: string
-  value: string[]
+interface CheckListProps extends PrefControlProps<string[]> {
   options: ReadonlyArray<PrefSelectOption<string>>
-  onChange: (value: string[]) => void
 }
 
 const props = withDefaults(defineProps<CheckListProps>(), {
-  description: '',
-  notes: '',
   more: '',
   disable: false
 })
@@ -96,19 +79,14 @@ const handleChange = (item: string, checked: boolean | string | number): void =>
   user-select: none;
   color: var(--editorColor);
 
-  & .description {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
+  & .link-icon {
+    align-self: center;
+    margin-left: 4px;
+    cursor: pointer;
+    opacity: 0.7;
+    color: var(--iconColor);
 
-    & .link-icon {
-      margin-left: 4px;
-      cursor: pointer;
-      opacity: 0.7;
-      color: var(--iconColor);
-    }
-
-    & .link-icon:hover {
+    &:hover {
       color: var(--themeColor);
     }
   }

@@ -255,6 +255,16 @@ const summarizePandocWarnings = (warnings: string): string => {
  * derived file: replacing an earlier one the user may still be working from is
  * not what clicking a menu entry promises.
  */
+/**
+ * Flatten a document title into something every filesystem accepts as a file
+ * name. For an unsaved document the first heading names the output, and a
+ * heading such as "Q1/Q2 report" would otherwise turn the output path into a
+ * subfolder pandoc cannot write to (ENOENT) — the save dialog would have let
+ * the user fix it, the automatic locations cannot (#5379 review).
+ */
+const sanitizeFilename = (name: string): string =>
+  name.replace(/[/\\:*?"<>|]/g, '-').trim() || 'Untitled'
+
 const uniquePandocOutputPath = async(
   dir: string,
   nakedFilename: string,
@@ -340,9 +350,11 @@ const handleResponseForPandocExport = async(
   // needed by both the export location and the conversion itself.
   const sourceDir = pathname ? path.dirname(pathname) : undefined
   // Strip whatever extension the source file carries so "notes.md" becomes
-  // "notes.docx" rather than "notes.md.docx".
-  const nakedFilename =
+  // "notes.docx" rather than "notes.md.docx"; the sanitizer keeps a heading
+  // reused as a file name from carrying path separators into the output path.
+  const nakedFilename = sanitizeFilename(
     (pathname ? path.basename(pathname, path.extname(pathname)) : title) || 'Untitled'
+  )
 
   // The location resolution runs inside the try: `folder` mode recreates the
   // target directory first, and a volume that is no longer mounted (or a path

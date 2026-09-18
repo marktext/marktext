@@ -4,7 +4,10 @@ import path from 'path'
 import type { Readable } from 'stream'
 import commandExists from 'command-exists'
 import { isFile2 } from 'common/filesystem'
-import { PANDOC_REFERENCE_DOC_TARGETS } from '@shared/pandoc'
+import {
+  PANDOC_REFERENCE_DOC_TARGETS,
+  PANDOC_STANDALONE_TARGETS
+} from '@shared/pandoc'
 import type { PandocCheckResult } from '@shared/pandoc'
 import { getUserPreference } from '../app/userPreference'
 
@@ -337,7 +340,11 @@ export const buildPandocArguments = (options: {
   } = options
 
   const args = ['-f', reader, '-t', to]
-  if (standalone) {
+  // `-s` only matters for the writers that otherwise emit a fragment — pandoc
+  // ignores it for the binary writers, which are always standalone documents
+  // (verified against pandoc 3.1.3: a docx without `-s` is still a valid zip)
+  // (#5379 review).
+  if (standalone && PANDOC_STANDALONE_TARGETS.includes(to)) {
     args.push('-s')
   }
   if (toc) {
@@ -351,6 +358,15 @@ export const buildPandocArguments = (options: {
   // ones that read it (#5379 review).
   if (referenceDoc && PANDOC_REFERENCE_DOC_TARGETS.includes(to)) {
     args.push(`--reference-doc=${referenceDoc}`)
+  }
+  // The html5 writer copies an image `src` verbatim, so an export written
+  // anywhere but the source folder (folder mode, most save-dialog choices)
+  // shows broken pictures where docx/odt/epub/pptx would have carried the
+  // bytes. Embedding them inlines the resources; a source pandoc cannot fetch
+  // still degrades to a warning (#5379 review). Only meaningful on a
+  // standalone document, which is the default.
+  if (to === 'html5' && standalone) {
+    args.push('--embed-resources')
   }
   // `--metadata=key:value`; the separator inside the value does not matter,
   // pandoc splits on the first colon only, so a title such as "Q3: plan" is

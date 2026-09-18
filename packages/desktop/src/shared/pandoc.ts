@@ -60,6 +60,20 @@ export const PANDOC_REFERENCE_DOC_TARGETS: readonly string[] = Object.freeze([
 ])
 
 /**
+ * Writers for which `-s`/`--standalone` actually changes the output.
+ *
+ * pandoc always produces a full document for the binary writers (docx, odt,
+ * epub, pptx) and ignores the flag there, so the preference switch only means
+ * something for the text writers that otherwise emit a fragment: HTML without
+ * a doctype, RTF without its header, plain text (#5379 review).
+ */
+export const PANDOC_STANDALONE_TARGETS: readonly string[] = Object.freeze([
+  'html5',
+  'rtf',
+  'plain'
+])
+
+/**
  * Which Word template a docx export takes, in the order the preferences show
  * them: pandoc's built-in styling, the bundled reference document that mirrors
  * the editor (ruled tables, shaded code), or a file of the user's own.
