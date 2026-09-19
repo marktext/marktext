@@ -79,8 +79,8 @@ export interface PreferencesState {
   superSubScript: boolean
   footnote: boolean
   texMathDollars: boolean
+  texMathGfm: boolean
   isHtmlEnabled: boolean
-  isGitlabCompatibilityEnabled: boolean
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
@@ -198,8 +198,8 @@ export const usePreferencesStore = defineStore('preferences', {
     superSubScript: false,
     footnote: false,
     texMathDollars: true,
+    texMathGfm: false,
     isHtmlEnabled: true,
-    isGitlabCompatibilityEnabled: false,
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
