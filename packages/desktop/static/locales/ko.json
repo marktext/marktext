@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "편집 중인 내용을 자동으로 저장",
         "autoSaveDelay": "변경 후 파일이 저장되기까지의 시간(밀리초)",
+        "autoReload": "디스크에서 파일이 변경되면 파일을 자동으로 다시 로드",
         "autoNormalizeLineEndings": "파일을 열 때 줄 끝을 자동으로 정규화합니다. 비활성화하면 파일을 있는 그대로 엽니다.",
         "titleBarStyle": "제목 표시줄 스타일(Windows 및 Linux 시스템만)",
         "openFilesInNewWindow": "새 창에서 파일 열기",
@@ -446,6 +447,10 @@
         "title": "자동 저장",
         "description": "자동 저장",
         "delayDescription": "자동 저장 지연"
+      },
+      "autoReload": {
+        "title": "자동 다시 로드",
+        "description": "디스크에서 파일이 변경되면 자동으로 다시 로드"
       },
       "window": {
         "title": "창",

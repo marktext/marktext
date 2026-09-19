@@ -1688,8 +1688,12 @@ export const useEditorStore = defineStore('editor', {
                 break
               }
 
-              const { autoSave } = preferencesStore
-              if (autoSave) {
+              // Silent reload only for a clean tab. autoSave already did this;
+              // autoReload is the opt-in for "external editor + MarkText as
+              // preview" (#3652) without turning on autoSave, which would write
+              // our buffer back over the other editor's save.
+              const { autoSave, autoReload } = preferencesStore
+              if (autoSave || autoReload) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
                   if (timer) clearTimeout(timer)

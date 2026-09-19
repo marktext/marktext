@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "Salvar automaticamente o conteúdo sendo editado",
         "autoSaveDelay": "O tempo em ms após uma mudança que o arquivo é salvo",
+        "autoReload": "Recarregar automaticamente o arquivo quando ele for alterado no disco",
         "autoNormalizeLineEndings": "Normalizar automaticamente as quebras de linha ao abrir arquivos. Quando desativado, os arquivos são abertos como estão.",
         "titleBarStyle": "O estilo da barra de título (apenas sistemas Windows e Linux)",
         "openFilesInNewWindow": "Abrir arquivos em uma nova janela",
@@ -446,6 +447,10 @@
         "title": "Salvamento Automático",
         "description": "Salvamento automático",
         "delayDescription": "Atraso do salvamento automático"
+      },
+      "autoReload": {
+        "title": "Recarregar automaticamente",
+        "description": "Recarregar automaticamente quando o arquivo for alterado no disco"
       },
       "window": {
         "title": "Janela",

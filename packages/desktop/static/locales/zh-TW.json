@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "自動儲存正在編輯的內容",
         "autoSaveDelay": "檔案儲存前的延遲時間（毫秒）",
+        "autoReload": "當磁碟上的檔案發生變更時自動重新載入",
         "autoNormalizeLineEndings": "開啟檔案時自動將行尾標準化。停用時，檔案會以原樣開啟",
         "titleBarStyle": "標題欄樣式（僅限 Windows 和 Linux 系統）",
         "openFilesInNewWindow": "在新視窗中開啟檔案",
@@ -446,6 +447,10 @@
         "title": "自動儲存",
         "description": "自動儲存",
         "delayDescription": "自動儲存延遲"
+      },
+      "autoReload": {
+        "title": "自動重載",
+        "description": "當磁碟上的檔案發生變更時自動重新載入"
       },
       "window": {
         "title": "視窗",

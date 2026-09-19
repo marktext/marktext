@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "Automatically save the content being edited",
         "autoSaveDelay": "The time in ms after a change that the file is saved",
+        "autoReload": "Automatically reload the file when it changes on disk",
         "titleBarStyle": "The title bar style (Windows and Linux system only)",
         "openFilesInNewWindow": "Open files in a new window",
         "openFolderInNewWindow": "Open folder via menu in a new window",
@@ -446,6 +447,10 @@
         "title": "Auto Save",
         "description": "Auto save",
         "delayDescription": "Auto save delay"
+      },
+      "autoReload": {
+        "title": "Auto Reload",
+        "description": "Automatically reload when the file changes on disk"
       },
       "window": {
         "title": "Window",

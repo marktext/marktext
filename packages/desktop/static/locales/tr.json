@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "Düzenlenen içeriği otomatik olarak kaydet",
         "autoSaveDelay": "Bir değişiklikten sonra dosyanın kaydedileceği süre (ms)",
+        "autoReload": "Diskteki dosya değiştiğinde dosyayı otomatik olarak yeniden yükle",
         "titleBarStyle": "Başlık çubuğu stili (yalnızca Windows ve Linux)",
         "openFilesInNewWindow": "Dosyaları yeni pencerede aç",
         "openFolderInNewWindow": "Klasörü menü aracılığıyla yeni pencerede aç",
@@ -446,6 +447,10 @@
         "title": "Otomatik Kaydet",
         "description": "Otomatik kaydet",
         "delayDescription": "Otomatik kaydetme gecikmesi"
+      },
+      "autoReload": {
+        "title": "Otomatik Yeniden Yükle",
+        "description": "Dosya diskte değiştiğinde otomatik olarak yeniden yükle"
       },
       "window": {
         "title": "Pencere",

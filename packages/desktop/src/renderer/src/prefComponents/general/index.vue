@@ -28,6 +28,21 @@
     <compound>
       <template #head>
         <h6 class="title">
+          {{ t('preferences.general.autoReload.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <bool
+          :description="t('preferences.general.autoReload.description')"
+          :bool="autoReload"
+          :on-change="(value) => onSelectChange('autoReload', value)"
+        />
+      </template>
+    </compound>
+
+    <compound>
+      <template #head>
+        <h6 class="title">
           {{ t('preferences.general.window.title') }}
         </h6>
       </template>
@@ -209,6 +224,7 @@ const preferenceStore = usePreferencesStore()
 const {
   autoSave,
   autoSaveDelay,
+  autoReload,
   titleBarStyle,
   defaultDirectoryToOpen,
   openFilesInNewWindow,

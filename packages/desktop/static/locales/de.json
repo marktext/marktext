@@ -368,6 +368,7 @@
       "items": {
         "autoSave": "Den bearbeiteten Inhalt automatisch speichern",
         "autoSaveDelay": "Die Zeit in ms nach einer Änderung, bis die Datei gespeichert wird",
+        "autoReload": "Datei automatisch neu laden, wenn sie auf dem Datenträger geändert wurde",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen von Dateien automatisch normalisieren. Wenn deaktiviert, werden Dateien unverändert geöffnet.",
         "titleBarStyle": "Der Titelleisten-Stil (nur Windows und Linux-System)",
         "openFilesInNewWindow": "Dateien in einem neuen Fenster öffnen",
@@ -446,6 +447,10 @@
         "title": "Automatisches Speichern",
         "description": "Automatisches Speichern",
         "delayDescription": "Verzögerung beim automatischen Speichern"
+      },
+      "autoReload": {
+        "title": "Automatisch neu laden",
+        "description": "Automatisch neu laden, wenn die Datei auf dem Datenträger geändert wurde"
       },
       "window": {
         "title": "Fenster",
