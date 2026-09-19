@@ -1,10 +1,10 @@
 import type { Token } from 'marked';
 import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
-import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
 import footnoteExtension from './extensions/footnote';
 import mathExtension from './extensions/math';
 import fm from './frontMatter';
+import { LinearMarked } from './linearMarked';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
 
@@ -19,7 +19,7 @@ export function lexBlock(
     // Use a per-call Marked instance so extensions don't bleed across calls.
     // marked.use() on the global singleton would make math / footnote sticky:
     // any consumer that once passed `texMathDollars: true` would get math parsing forever.
-    const m = new Marked();
+    const m = new LinearMarked();
 
     if (texMathDollars) {
         m.use(

@@ -1,5 +1,4 @@
 import type { ILexOption } from './types';
-import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
@@ -8,6 +7,7 @@ import footnoteExtension from './extensions/footnote';
 import mathExtension from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
+import { LinearMarked } from './linearMarked';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
 
@@ -44,7 +44,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     // chains rather than replaces, so reusing a module-level singleton would
     // cause walkTokens to fire N times after N invocations and corrupt token
     // state (e.g. wiping `lang` on subsequent runs).
-    const marked = new Marked(markedHighlight({ highlight }));
+    const marked = new LinearMarked(markedHighlight({ highlight }));
 
     marked.use({
         walkTokens: walkTokens({ texMathDollars, isGitlabCompatibilityEnabled }),
