@@ -53,6 +53,13 @@
   WriteRegExpandStr SHELL_CONTEXT "Software\Classes\${MT_PROGID}\shell\open\command" \
     "" '"$INSTDIR\marktext.exe" "%1"'
 
+  ; electron-builder writes the command for its own ProgId — `Markdown`, the
+  ; `fileAssociations[].name` in electron-builder.yml — with the executable
+  ; path unquoted, which runs `C:\Program` when the directory the user picked
+  ; during setup contains a space.
+  WriteRegStr SHELL_CONTEXT "Software\Classes\Markdown\shell\open\command" \
+    "" '"$INSTDIR\marktext.exe" "%1"'
+
   ; Explorer serves file types from a cache that a fresh install otherwise
   ; keeps until the next sign-in.
   System::Call 'shell32::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
