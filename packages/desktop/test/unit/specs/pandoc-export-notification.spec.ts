@@ -60,7 +60,11 @@ vi.mock('main_renderer/app/userPreference', () => ({
 
 vi.mock('main_renderer/utils/pandoc', () => ({
   default: { toFile },
-  PANDOC_EXPORT_FORMATS: [{ id: 'docx', label: 'Word', target: 'docx', extension: '.docx' }],
+  PANDOC_EXPORT_FORMATS: [
+    { id: 'docx', label: 'Word', target: 'docx', extension: '.docx' },
+    { id: 'html', label: 'HTML', target: 'html5', extension: '.html' },
+    { id: 'epub', label: 'EPUB', target: 'epub3', extension: '.epub' }
+  ],
   getPandocReader,
   getPandocLanguage
 }))
@@ -260,10 +264,11 @@ describe('mt::response-pandoc-export notifications', () => {
   })
 })
 
-// A standalone document needs a title and the document arrives on stdin, so
-// pandoc has no file name to take one from: the EPUB went out without
-// `<dc:title>` and every export printed a `[WARNING]` that this feature showed
-// as an export warning (#5379 review).
+// Title metadata is per-writer (#5379 round-4 review): a `title` block renders
+// on top of the document's own first heading, so the heading shows twice in
+// docx/odt/rtf/plain — those get none. html5 takes `pagetitle` (fills <title>,
+// no title block) and epub3 takes `title` (fills <dc:title>; its title page is
+// conventional). `lang` stays unconditional.
 describe('mt::response-pandoc-export metadata', () => {
   beforeEach(() => {
     sent.length = 0
@@ -279,10 +284,10 @@ describe('mt::response-pandoc-export metadata', () => {
     toFile.mockResolvedValue({ warnings: '' })
   })
 
-  it('passes the document title and the app locale to pandoc', async() => {
+  it('passes no title to the writers that would repeat the first heading', async() => {
     await exportWith()
 
-    expect(optionsOfExport().metadata).toEqual({ title: 'Notes', lang: 'en-US' })
+    expect(optionsOfExport().metadata).toEqual({ lang: 'en-US' })
     // Through the mapper: pandoc files Chinese under a script subtag, so the
     // locale cannot go straight to `--metadata lang` (#5379 review).
     expect(getPandocLanguage).toHaveBeenCalledWith('en-US')
@@ -292,10 +297,25 @@ describe('mt::response-pandoc-export metadata', () => {
     expect(getPandocReader).toHaveBeenCalledWith(false, false)
   })
 
-  it('falls back to the file name for a document without a heading', async() => {
-    await exportWith({ ...EXPORT_PAYLOAD, title: '' })
+  it('hands html5 a pagetitle instead of a title block', async() => {
+    showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.html', canceled: false })
+    await exportWith({ ...EXPORT_PAYLOAD, target: 'html' })
 
-    expect(optionsOfExport().metadata).toEqual({ title: 'notes', lang: 'en-US' })
+    expect(optionsOfExport().metadata).toEqual({ pagetitle: 'Notes', lang: 'en-US' })
+  })
+
+  it('names the epub via title, whose title page is expected', async() => {
+    showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.epub', canceled: false })
+    await exportWith({ ...EXPORT_PAYLOAD, target: 'epub' })
+
+    expect(optionsOfExport().metadata).toEqual({ title: 'Notes', lang: 'en-US' })
+  })
+
+  it('falls back to the file name for a document without a heading', async() => {
+    showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.html', canceled: false })
+    await exportWith({ ...EXPORT_PAYLOAD, target: 'html', title: '' })
+
+    expect(optionsOfExport().metadata).toEqual({ pagetitle: 'notes', lang: 'en-US' })
   })
 })
 

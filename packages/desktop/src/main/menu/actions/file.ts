@@ -411,14 +411,19 @@ const handleResponseForPandocExport = async(
           : docxTemplate === 'custom'
             ? (preferences?.getItem<string>('pandocReferenceDoc') ?? '').trim()
             : '',
+      // What title metadata a writer wants differs (#5379 round-4 review):
+      // html5 only needs `pagetitle` to fill <title> — a full `title` would
+      // render a title block on top of the document's own first heading, so
+      // the heading shows twice. EPUB's title page is conventional, so it
+      // takes `title` for `<dc:title>`. Every other writer neither warns
+      // without a title nor misses one, so they get none at all. An untitled
+      // document falls back to the file name either way.
       metadata: {
-        // A standalone document wants a title and pandoc cannot take one off a
-        // document that arrives on stdin: EPUB then ships with no `<dc:title>`
-        // and prints a `[WARNING]` on every export, which would turn the export
-        // warning this feature exists to show into background noise. The title
-        // the renderer sent is what names the file, so it is also what the file
-        // should call itself; an untitled document falls back to the file name.
-        title: title || nakedFilename,
+        ...(format.target === 'html5'
+          ? { pagetitle: title || nakedFilename }
+          : format.target === 'epub3'
+            ? { title: title || nakedFilename }
+            : {}),
         // The spawn environment's locale reaches the file as the string "C"
         // (`<dc:language>C</dc:language>`); the app's own locale is the one the
         // user is actually reading the UI in. It goes through the mapper because

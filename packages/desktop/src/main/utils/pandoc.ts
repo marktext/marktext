@@ -218,9 +218,15 @@ pandoc.check = (command?: string): Promise<PandocCheckResult> => {
   }
   return new Promise((resolve) => {
     let settled = false
+
+    // The renderer can hand us any path: a wrapper that never exits would
+    // otherwise spin the Check button forever and leak the child for the life
+    // of the app. Five seconds is generous for a `--version` print.
+    const timerRef: { id?: ReturnType<typeof setTimeout> } = {}
     const done = (result: PandocCheckResult): void => {
       if (!settled) {
         settled = true
+        if (timerRef.id) clearTimeout(timerRef.id)
         resolve(result)
       }
     }
@@ -233,13 +239,21 @@ pandoc.check = (command?: string): Promise<PandocCheckResult> => {
       return done({ ok: false, error: error.message })
     }
 
+    timerRef.id = setTimeout(() => {
+      proc.kill()
+      done({ ok: false, error: `did not exit within 5 seconds — not a pandoc binary? (${target})` })
+    }, 5000)
+
+    // An output cap keeps a chatty impostor from growing these strings without
+    // bound; a `--version` banner is a few hundred bytes.
+    const OUTPUT_CAP = 64 * 1024
     let stdout = ''
     let stderr = ''
     proc.stdout?.on('data', (chunk: Buffer | string) => {
-      stdout += chunk.toString()
+      if (stdout.length < OUTPUT_CAP) stdout += chunk.toString()
     })
     proc.stderr?.on('data', (chunk: Buffer | string) => {
-      stderr += chunk.toString()
+      if (stderr.length < OUTPUT_CAP) stderr += chunk.toString()
     })
     // A missing command surfaces here (ENOENT) rather than as a non-zero exit.
     proc.on('error', (err) => done({ ok: false, error: err.message }))
@@ -268,13 +282,9 @@ export interface PandocToFileOptions {
    * 0 — so docx/odt/epub come out with the pictures missing and no error.
    */
   cwd?: string
-  /** Reader used to parse `input`; see `getPandocReader`. */
   reader?: string
-  /** `-s`: emit a complete document instead of a body fragment. */
   standalone?: boolean
-  /** `--toc`: insert a table of contents. */
   toc?: boolean
-  /** `--number-sections`: number the headings. */
   numberSections?: boolean
   /**
    * `--reference-doc`: style template for the export. Ignored for writers that

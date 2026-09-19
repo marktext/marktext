@@ -24,7 +24,9 @@ class FakeProcess extends EventEmitter {
   // `stdin` is an emitter too: `toFile` has to survive the EPIPE the pipe
   // reports when pandoc exits before draining it.
   stdin = Object.assign(new EventEmitter(), { end: vi.fn() })
+  stdout = new EventEmitter()
   stderr = new EventEmitter()
+  kill = vi.fn()
 }
 
 const startProcess = (): FakeProcess => {
@@ -336,6 +338,39 @@ describe('pandoc export', () => {
       )
       proc.emit('error', failure)
       await pending
+    })
+  })
+
+  // `check` takes a renderer-supplied path, so a wrapper that never exits would
+  // otherwise spin the Check button forever and leak the child (#5379 review).
+  describe('pandoc.check', () => {
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('reports the version of a working binary', async() => {
+      const proc = startProcess()
+
+      const pending = pandoc.check('/usr/bin/pandoc')
+      proc.stdout?.emit('data', Buffer.from('pandoc 3.1.3\nCopyright (C) 2023\n'))
+      proc.emit('close', 0)
+
+      await expect(pending).resolves.toEqual({ ok: true, version: 'pandoc 3.1.3' })
+    })
+
+    it('kills a binary that never exits and says why', async() => {
+      vi.useFakeTimers()
+      const proc = startProcess()
+
+      const pending = pandoc.check('/usr/bin/impostor')
+      const settled = expect(pending).resolves.toMatchObject({
+        ok: false,
+        error: expect.stringContaining('did not exit within 5 seconds')
+      })
+      await vi.advanceTimersByTimeAsync(5000)
+
+      expect(proc.kill).toHaveBeenCalled()
+      await settled
     })
   })
 })
