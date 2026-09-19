@@ -9,6 +9,14 @@ import Parent from '../../base/parent';
 
 const debug = logger('diagramPreview:');
 
+// Mermaid's own `run()` derives the id it stamps on the rendered `<svg>` from
+// `Date.now()`, and its renderers then resolve that id with a document-wide
+// lookup. Two diagrams whose renders begin in the same millisecond therefore
+// draw into a single element: the first block shows both diagrams on top of
+// each other, the second stays empty (#5023). Mint the id here instead —
+// `render()` takes one — so concurrent renders can never share it.
+let mermaidRenderCount = 0;
+
 // Give a fixed-size `<svg>` (one with `width`/`height` px attributes but no
 // `viewBox`) a viewBox derived from those dimensions, so `max-width: 100%`
 // scales it down to fit instead of clipping it. Returns true once applied.
@@ -105,11 +113,13 @@ async function renderDiagram({
             theme: mermaidTheme,
         });
         await render.parse(code);
-        target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true) as string;
-        target.removeAttribute('data-processed');
-        await render.run({
-            nodes: [target],
-        });
+        const { svg, bindFunctions } = await render.render(
+            `mu-mermaid-${++mermaidRenderCount}`,
+            code,
+            target,
+        );
+        target.innerHTML = svg;
+        bindFunctions?.(target);
     }
 }
 
