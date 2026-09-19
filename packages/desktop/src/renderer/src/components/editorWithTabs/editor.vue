@@ -1027,9 +1027,8 @@ const imagePathPicker = () => {
   return editorStore.ASK_FOR_IMAGE_PATH()
 }
 
-// A block commits — and so reports — only a selection it owns both ends of, so
-// growing one across blocks with Shift+arrows fires no `selection-change`.
-// Releasing a navigation key is the other moment the selection can have moved.
+// Growing a selection across blocks fires no `selection-change`.
+// TODO(Selection): drop this and its `keyup` branch once the engine reports it.
 const SELECTION_KEYS = new Set([
   'Shift',
   'ArrowLeft',
