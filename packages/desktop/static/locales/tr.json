@@ -21,12 +21,14 @@
       "export": "Dışa Aktar",
       "exportHtml": "HTML Olarak Dışa Aktar",
       "exportPdf": "PDF Olarak Dışa Aktar",
+      "convertWithPandoc": "Pandoc ile dönüştür",
       "import": "İçe Aktar",
       "print": "Yazdır",
       "closeTab": "Sekmeyi Kapat",
       "closeWindow": "Pencereyi Kapat",
       "quit": "Çıkış",
-      "preferences": "Tercihler"
+      "preferences": "Tercihler",
+      "pandocDefaultFormat": "{format} (varsayılan)"
     },
     "edit": {
       "edit": "Düzen",
@@ -357,6 +359,7 @@
         "general": "Genel",
         "editor": "Düzenleyici",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Tema",
         "image": "Görsel",
         "view": "Görünüm",
@@ -412,6 +415,7 @@
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
+        "pandocExportFormats": "Dışa aktarma menüsünde gösterilecek biçimler",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
@@ -427,13 +431,22 @@
         "plantumlServer": "PlantUML sunucu URL'si",
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
-        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
+        "pandocPath": "pandoc yolu",
+        "pandocDefaultFormat": "Varsayılan biçim",
+        "pandocExportLocation": "Şuraya aktar",
+        "pandocExportFolder": "Dönüştürülen dosyaların klasörü",
+        "pandocStandalone": "Tam bir belge oluşturur. HTML, RTF ve düz metin dışa aktarımlarını etkiler; Word ve diğer ikili biçimler her zaman tamdır.",
+        "pandocToc": "İçindekiler",
+        "pandocNumberSections": "Bölümleri numaralandır",
+        "pandocReferenceDoc": "Word şablonu"
       }
     },
     "categories": {
       "general": "Genel",
       "editor": "Düzenleyici",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Yazım",
       "theme": "Tema",
       "image": "Görsel",
@@ -681,6 +694,50 @@
         "title": "Listeler"
       }
     },
+    "pandoc": {
+      "title": "Pandoc",
+      "path": {
+        "label": "pandoc yolu",
+        "placeholder": "Boş = PATH'teki pandoc",
+        "check": "Denetle",
+        "browse": "Gözat",
+        "ok": "Bulundu: {version}",
+        "failed": "Kullanılamıyor: {error}"
+      },
+      "export": {
+        "title": "Dışa Aktar",
+        "formats": "Dışa aktarma menüsünde gösterilecek biçimler",
+        "formatsNotes": "Tüm biçimlerin işaretini kaldırırsanız menü öğesi gizlenir."
+      },
+      "defaultFormat": "Varsayılan biçim",
+      "location": {
+        "label": "Şuraya aktar",
+        "source": "Kaynak dosyayla aynı klasör",
+        "ask": "Her seferinde sor",
+        "folder": "Sabit klasör",
+        "folderPlaceholder": "Dönüştürülen dosyaların klasörü",
+        "pickFolder": "Klasör seç"
+      },
+      "options": {
+        "label": "Dışa aktarma seçenekleri",
+        "standalone": "Tam dosya (HTML, RTF, txt)",
+        "toc": "İçindekiler",
+        "numberSections": "Bölümleri numaralandır"
+      },
+      "referenceDoc": {
+        "label": "Word şablonu",
+        "default": "Pandoc gömülü stili",
+        "wysiwyg": "Düzenleyici ile aynı (gömülü)",
+        "custom": "Özel dosya",
+        "placeholder": "Boş = pandoc'un yerleşik stili",
+        "browse": "Şablon seç",
+        "clear": "Temizle",
+        "notes": "Yalnızca Word (.docx), OpenDocument (.odt) ve PowerPoint (.pptx) dışa aktarımlarında kullanılır; pandoc stilleri ondan alır."
+      },
+      "requirement": {
+        "text": "MarkText, kendi kurduğunuz pandoc’u kullanır; birlikte gelmez. pandoc.org adresinden kurun veya yukarıdaki alana çalıştırılabilir dosyanın yolunu yazın."
+      }
+    },
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Sistem Temasını Takip Et",
@@ -895,6 +952,8 @@
     "files": "Dosyalar",
     "importWarning": "İçe aktarma uyarısı",
     "installPandoc": "Pandoc'u Yükle",
+    "exportWarning": "Dışa aktarma uyarısı",
+    "exportWarningMore": "…ve {count} tane daha",
     "keepOpen": "Açık tut",
     "replace": "Değiştir",
     "save": "Kaydet",

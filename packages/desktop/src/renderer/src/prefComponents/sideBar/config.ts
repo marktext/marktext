@@ -5,7 +5,8 @@ import {
   Brush as ThemeIcon,
   Picture as ImageIcon,
   Reading as SpellIcon,
-  Operation as KeyBindingIcon
+  Operation as KeyBindingIcon,
+  Download as PandocIcon
 } from '@element-plus/icons-vue'
 
 import preferences from '../../../../main/preferences/schema.json'
@@ -85,6 +86,12 @@ export const getCategory = (): PrefCategory[] => [
     path: '/preference/markdown'
   },
   {
+    name: t('preferences.categories.pandoc'),
+    label: 'pandoc',
+    icon: PandocIcon,
+    path: '/preference/pandoc'
+  },
+  {
     name: t('preferences.categories.spelling'),
     label: 'spelling',
     icon: SpellIcon,
@@ -161,6 +168,7 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
         'general',
         'editor',
         'markdown',
+        'pandoc',
         'spelling',
         'theme',
         'image',

@@ -155,6 +155,31 @@ export const useEditorStore = defineStore('editor', {
     toc: []
   }),
 
+  getters: {
+    /**
+     * Title used when naming an exported file: the shallowest heading among the
+     * first few TOC entries, or an empty string when the document has none.
+     *
+     * Derived state rather than an action — it reads `listToc` and nothing else,
+     * so a plain getter is what both export paths want to call.
+     */
+    documentTitle(state): string {
+      const { listToc } = state
+      if (!listToc || listToc.length === 0) return ''
+
+      let headerRef: TocItem | undefined = listToc[0]
+      const len = Math.min(listToc.length, 6)
+      for (let i = 1; i < len; ++i) {
+        if (headerRef?.lvl === 1) break
+        const header = listToc[i]
+        if (header && headerRef && (headerRef.lvl ?? 0) > (header.lvl ?? 0)) {
+          headerRef = header
+        }
+      }
+      return headerRef?.content ?? ''
+    }
+  },
+
   actions: {
     updateTabIdToIndex(): void {
       this.tabIdToIndex = this.tabs.reduce<Record<string, number>>((map, tab, index) => {
@@ -503,6 +528,15 @@ export const useEditorStore = defineStore('editor', {
           lineEnding as LineEnding
         )
       }
+    },
+
+    // The pandoc export submenu acts on the active tab, so with no document open
+    // a click would do nothing at all and the user would get no feedback. The
+    // main process cannot see the renderer's tabs, so it is told here and greys
+    // the entry out (#5379).
+    UPDATE_PANDOC_MENU(hasDocument: boolean): void {
+      const { windowId } = window.marktext?.env ?? { windowId: -1 }
+      window.electron.ipcRenderer.send('mt::update-pandoc-menu', windowId, hasDocument)
     },
 
     // Flush any edit still queued in the engine's rAF batch into the active
@@ -1557,29 +1591,35 @@ export const useEditorStore = defineStore('editor', {
     EXPORT({ type, content, pageOptions }: ExportPayload): void {
       if (this.currentFile === null) return
 
-      let title = ''
-      const { listToc } = this
-      if (listToc && listToc.length > 0) {
-        let headerRef: TocItem | undefined = listToc[0]
-        const len = Math.min(listToc.length, 6)
-        for (let i = 1; i < len; ++i) {
-          if (headerRef?.lvl === 1) break
-          const header = listToc[i]
-          if (header && headerRef && (headerRef.lvl ?? 0) > (header.lvl ?? 0)) {
-            headerRef = header
-          }
-        }
-        title = headerRef?.content ?? ''
-      }
-
       const { filename, pathname } = this.currentFile
       window.electron.ipcRenderer.send('mt::response-export', {
         type: type as ExportPayload['type'] as never,
-        title,
+        title: this.documentTitle,
         content: content ?? '',
         filename,
         pathname,
         pageOptions: pageOptions ?? {}
+      })
+    },
+
+    // Reads the tab's markdown the way `FILE_SAVE` does rather than asking the
+    // editor for it: in source-code mode CodeMirror writes to
+    // `currentFile.markdown` and the WYSIWYG engine is only synced when source
+    // mode is left, so `engine.getMarkdown()` would export a stale document
+    // (#5379). Flushing first also catches an edit still queued in the engine's
+    // rAF batch.
+    EXPORT_PANDOC(target: string): void {
+      if (this.currentFile === null) return
+
+      this.flushActiveEditor()
+      const { pathname, markdown } = this.currentFile
+      const preferencesStore = usePreferencesStore()
+      window.electron.ipcRenderer.send('mt::response-pandoc-export', {
+        target,
+        markdown,
+        superSubScript: preferencesStore.superSubScript === true,
+        title: this.documentTitle,
+        pathname
       })
     },
 

@@ -21,12 +21,14 @@
       "export": "Exporter",
       "exportHtml": "Exporter en HTML",
       "exportPdf": "Exporter en PDF",
+      "convertWithPandoc": "Convertir avec Pandoc",
       "import": "Importer",
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
       "quit": "Quitter",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "pandocDefaultFormat": "{format} (par défaut)"
     },
     "edit": {
       "edit": "Édition",
@@ -357,6 +359,7 @@
         "general": "Général",
         "editor": "Éditeur",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Thème",
         "image": "Image",
         "view": "Affichage",
@@ -413,6 +416,7 @@
         "isHtmlEnabled": "Activer le rendu HTML",
         "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
+        "pandocExportFormats": "Formats affichés dans le menu d'exportation",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
         "theme": "Sélectionner le thème utilisé dans MarkText",
@@ -427,13 +431,22 @@
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
-        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
+        "pandocPath": "Chemin de pandoc",
+        "pandocDefaultFormat": "Format par défaut",
+        "pandocExportLocation": "Exporter vers",
+        "pandocExportFolder": "Dossier des fichiers convertis",
+        "pandocStandalone": "Produit un document complet. Concerne les exports HTML, RTF et texte brut ; Word et les autres formats binaires sont toujours complets.",
+        "pandocToc": "Table des matières",
+        "pandocNumberSections": "Numéroter les sections",
+        "pandocReferenceDoc": "Modèle Word"
       }
     },
     "categories": {
       "general": "Général",
       "editor": "Éditeur",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Orthographe",
       "theme": "Thème",
       "image": "Image",
@@ -681,6 +694,50 @@
         "title": "Listes"
       }
     },
+    "pandoc": {
+      "title": "Pandoc",
+      "path": {
+        "label": "Chemin de pandoc",
+        "placeholder": "Vide = le pandoc du PATH",
+        "check": "Vérifier",
+        "browse": "Parcourir",
+        "ok": "Trouvé : {version}",
+        "failed": "Inutilisable : {error}"
+      },
+      "export": {
+        "title": "Exporter",
+        "formats": "Formats affichés dans le menu d'exportation",
+        "formatsNotes": "Décocher tous les formats masque l'entrée de menu."
+      },
+      "defaultFormat": "Format par défaut",
+      "location": {
+        "label": "Exporter vers",
+        "source": "À côté du fichier source",
+        "ask": "Demander à chaque fois",
+        "folder": "Dossier fixe",
+        "folderPlaceholder": "Dossier des fichiers convertis",
+        "pickFolder": "Choisir un dossier"
+      },
+      "options": {
+        "label": "Options d'export",
+        "standalone": "Fichier complet (HTML, RTF, txt)",
+        "toc": "Table des matières",
+        "numberSections": "Numéroter les sections"
+      },
+      "referenceDoc": {
+        "label": "Modèle Word",
+        "default": "Style intégré de Pandoc",
+        "wysiwyg": "Comme l'éditeur (intégrée)",
+        "custom": "Fichier personnalisé",
+        "placeholder": "Vide = le style intégré de pandoc",
+        "browse": "Choisir un modèle",
+        "clear": "Effacer",
+        "notes": "S'applique uniquement aux exports Word (.docx), OpenDocument (.odt) et PowerPoint (.pptx) ; pandoc y prend ses styles."
+      },
+      "requirement": {
+        "text": "MarkText utilise le pandoc que vous installez vous-même ; il n'est pas fourni. Installez-le depuis pandoc.org ou indiquez ci-dessus le chemin de l'exécutable."
+      }
+    },
     "theme": {
       "title": "Thème",
       "followSystemTheme": "Suivre le thème du système",
@@ -895,6 +952,8 @@
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
     "installPandoc": "Installer Pandoc",
+    "exportWarning": "Avertissement d'exportation",
+    "exportWarningMore": "…et {count} de plus",
     "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",

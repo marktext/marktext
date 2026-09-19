@@ -171,3 +171,24 @@ export interface PageOptions {
 }
 
 export type ExportType = 'pdf' | 'html' | 'styledHtml' | 'png' | 'jpeg'
+
+/**
+ * Current document handed to the main process for a pandoc export.
+ *
+ * `target` is one of `PANDOC_EXPORT_FORMATS[].id`. The save dialog and the file
+ * path stay in the main process, so the renderer reports only the source it
+ * owns — `pathname` included, because the main process needs the document's
+ * folder to resolve its relative image links.
+ */
+export interface PandocExportPayload {
+  target: string
+  markdown: string
+  /** Document title, used to name the output when the tab has no path yet. */
+  title: string
+  pathname: string
+  /**
+   * Whether the `superSubScript` preference is on. It decides the pandoc reader
+   * (`gfm` vs `gfm+superscript+subscript`), and only the renderer knows it.
+   */
+  superSubScript: boolean
+}

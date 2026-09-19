@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import bus from '../bus'
 import { setLanguage } from '../i18n'
+import { PANDOC_EXPORT_FORMAT_IDS, type PandocDocxTemplate, type PandocExportLocation } from '@shared/pandoc'
 
 // Finite-value unions where the runtime currently constrains the field.
 // We keep these as plain strings everywhere else to avoid forcing prematurely
@@ -83,6 +84,18 @@ export interface PreferencesState {
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
+
+  // ----- Pandoc export -----
+  pandocPath: string
+  pandocDefaultFormat: string
+  pandocExportFormats: string[]
+  pandocExportLocation: PandocExportLocation
+  pandocExportFolder: string
+  pandocStandalone: boolean
+  pandocToc: boolean
+  pandocNumberSections: boolean
+  pandocDocxTemplate: PandocDocxTemplate
+  pandocReferenceDoc: string
 
   // ----- Theme -----
   theme: string
@@ -201,6 +214,21 @@ export const usePreferencesStore = defineStore('preferences', {
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
+
+    // Every format until the user unchecks some. Derived from the shared list so
+    // a format added there is selected by default instead of silently missing.
+    pandocPath: '',
+    pandocDefaultFormat: 'docx',
+    pandocExportFormats: [...PANDOC_EXPORT_FORMAT_IDS],
+    // Leaving the location on "ask" keeps the save dialog, which is what every
+    // version before this setting did.
+    pandocExportLocation: 'ask',
+    pandocExportFolder: '',
+    pandocStandalone: true,
+    pandocToc: false,
+    pandocNumberSections: false,
+    pandocDocxTemplate: 'default',
+    pandocReferenceDoc: '',
 
     theme: 'light',
     followSystemTheme: true,

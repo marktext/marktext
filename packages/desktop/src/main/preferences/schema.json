@@ -297,6 +297,61 @@
     "pattern": "^(https?://|$)",
     "default": "https://www.plantuml.com/plantuml"
   },
+  "pandocPath": {
+    "description": "Pandoc--Path of the pandoc executable. Empty uses the one found on PATH.",
+    "type": "string",
+    "default": ""
+  },
+  "pandocDefaultFormat": {
+    "description": "Pandoc--Format presented first and preselected in the export dialog.",
+    "type": "string",
+    "default": "docx"
+  },
+  "pandocExportFormats": {
+    "description": "Pandoc--Formats offered in the pandoc export menu.",
+    "type": "array",
+    "items": {
+      "type": "string"
+    },
+    "default": ["docx", "html", "epub", "pptx", "odt", "rtf", "txt"]
+  },
+  "pandocExportLocation": {
+    "description": "Pandoc--Where converted files are written.",
+    "type": "string",
+    "enum": ["source", "ask", "folder"],
+    "default": "ask"
+  },
+  "pandocExportFolder": {
+    "description": "Pandoc--Folder converted files are written to when the export location is fixed.",
+    "type": "string",
+    "default": ""
+  },
+  "pandocStandalone": {
+    "description": "Pandoc--Write a complete document instead of a body fragment.",
+    "type": "boolean",
+    "default": true
+  },
+  "pandocToc": {
+    "description": "Pandoc--Insert a table of contents.",
+    "type": "boolean",
+    "default": false
+  },
+  "pandocNumberSections": {
+    "description": "Pandoc--Number the sections automatically.",
+    "type": "boolean",
+    "default": false
+  },
+  "pandocDocxTemplate": {
+    "description": "Pandoc--Which Word template docx exports take: pandoc's built-in styling, the bundled editor-like one, or a custom file.",
+    "type": "string",
+    "enum": ["default", "wysiwyg", "custom"],
+    "default": "default"
+  },
+  "pandocReferenceDoc": {
+    "description": "Pandoc--Word document used as the style template for docx and odt exports.",
+    "type": "string",
+    "default": ""
+  },
   "theme": {
     "description": "Theme--Select the theme used in MarkText",
     "type": "string",

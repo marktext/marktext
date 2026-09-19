@@ -21,12 +21,14 @@
       "export": "匯出",
       "exportHtml": "匯出為 HTML",
       "exportPdf": "匯出為 PDF",
+      "convertWithPandoc": "使用 Pandoc 轉換",
       "import": "匯入",
       "print": "列印",
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
       "quit": "退出",
-      "preferences": "偏好設定"
+      "preferences": "偏好設定",
+      "pandocDefaultFormat": "{format}（預設）"
     },
     "edit": {
       "edit": "編輯",
@@ -357,6 +359,7 @@
         "general": "一般",
         "editor": "編輯器",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "主題",
         "image": "圖片",
         "view": "檢視",
@@ -413,6 +416,7 @@
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "softNewlineAsSpace": "將軟換行視為空格",
+        "pandocExportFormats": "匯出選單中顯示的格式",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
         "theme": "選擇 MarkText 中使用的主題",
@@ -427,13 +431,22 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "pandocPath": "pandoc 路徑",
+        "pandocDefaultFormat": "預設格式",
+        "pandocExportLocation": "匯出位置",
+        "pandocExportFolder": "匯出檔案的存放目錄",
+        "pandocStandalone": "產生完整文件。僅對 HTML、RTF 與純文字匯出生效；Word 等二進位格式一律是完整檔案。",
+        "pandocToc": "目錄",
+        "pandocNumberSections": "章節編號",
+        "pandocReferenceDoc": "Word 範本"
       }
     },
     "categories": {
       "general": "一般",
       "editor": "編輯器",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "拼字",
       "theme": "主題",
       "image": "圖片",
@@ -681,6 +694,50 @@
         "title": "清單"
       }
     },
+    "pandoc": {
+      "title": "Pandoc",
+      "path": {
+        "label": "pandoc 路徑",
+        "placeholder": "留空 = 用 PATH 裡的 pandoc",
+        "check": "檢測",
+        "browse": "瀏覽",
+        "ok": "已找到 {version}",
+        "failed": "無法使用：{error}"
+      },
+      "export": {
+        "title": "匯出",
+        "formats": "匯出選單中顯示的格式",
+        "formatsNotes": "取消勾選全部格式會隱藏該選單項目。"
+      },
+      "defaultFormat": "預設格式",
+      "location": {
+        "label": "匯出位置",
+        "source": "來源檔案同目錄",
+        "ask": "每次詢問",
+        "folder": "固定目錄",
+        "folderPlaceholder": "匯出檔案的存放目錄",
+        "pickFolder": "選擇目錄"
+      },
+      "options": {
+        "label": "匯出選項",
+        "standalone": "完整檔案（HTML、RTF、txt）",
+        "toc": "目錄",
+        "numberSections": "章節編號"
+      },
+      "referenceDoc": {
+        "label": "Word 範本",
+        "default": "Pandoc 內建樣式",
+        "wysiwyg": "與編輯器一致（內建）",
+        "custom": "自訂檔案",
+        "placeholder": "留空 = 用 pandoc 內建樣式",
+        "browse": "選擇範本",
+        "clear": "清除",
+        "notes": "僅對 Word (.docx)、OpenDocument (.odt) 與 PowerPoint (.pptx) 生效，pandoc 會以它作為樣式來源。"
+      },
+      "requirement": {
+        "text": "MarkText 使用你自己安裝的 pandoc，並未隨附。請從 pandoc.org 安裝，或在上面的「pandoc 路徑」指向執行檔。"
+      }
+    },
     "theme": {
       "title": "主題",
       "followSystemTheme": "跟隨系統主題",
@@ -895,6 +952,8 @@
     "files": "檔案",
     "importWarning": "匯入警告",
     "installPandoc": "安裝 Pandoc",
+    "exportWarning": "匯出提示",
+    "exportWarningMore": "…另有 {count} 條",
     "keepOpen": "保持開啟",
     "replace": "取代",
     "save": "儲存",

@@ -5,13 +5,57 @@ import { isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
+import { getPandocDefaultFormat, getPandocExportFormats } from '@shared/pandoc'
+import type { PandocExportFormat } from '@shared/pandoc'
 
 export default function(
   keybindings: Keybindings,
   userPreference: Preference,
   recentlyUsedFiles: string[]
 ): MenuItemConstructorOptions {
-  const { autoSave } = userPreference.getAll() as { autoSave?: boolean }
+  const { autoSave, pandocExportFormats, pandocDefaultFormat } = userPreference.getAll() as {
+    autoSave?: boolean
+    pandocExportFormats?: string[]
+    pandocDefaultFormat?: string
+  }
+
+  // The separator belongs to the pandoc entry, so the two are built together and
+  // both disappear when no format is selected — see the "Pandoc" page in the
+  // preferences. Whether pandoc can actually be run is handled by the entry's
+  // `enabled` state instead (`menu/index.ts`), so the user still sees that the
+  // feature exists.
+  const pandocFormats = getPandocExportFormats(pandocExportFormats)
+  const pandocDefault = getPandocDefaultFormat(pandocFormats, pandocDefaultFormat)
+  // The default format leads the submenu: it is the one an export picks when no
+  // format is named, and putting it first makes that visible without a second
+  // menu structure.
+  const orderedPandocFormats = pandocDefault
+    ? [pandocDefault, ...pandocFormats.filter((format) => format.id !== pandocDefault.id)]
+    : pandocFormats
+  const pandocItemLabel = (format: PandocExportFormat): string =>
+    pandocDefault && format.id === pandocDefault.id
+      ? t('menu.file.pandocDefaultFormat', { format: format.label })
+      : format.label
+
+  const pandocMenuItems: MenuItemConstructorOptions[] = []
+  if (orderedPandocFormats.length > 0) {
+    pandocMenuItems.push(
+      { type: 'separator' },
+      {
+        // Exports the active tab, so `menu/index.ts` greys this entry out while
+        // the window has no document open (#5379).
+        id: 'convertWithPandocMenuItem',
+        label: t('menu.file.convertWithPandoc'),
+        submenu: orderedPandocFormats.map((format) => ({
+          label: pandocItemLabel(format),
+          click(_menuItem, browserWindow) {
+            actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
+          }
+        }))
+      }
+    )
+  }
+
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.file.newTab'),
@@ -146,6 +190,9 @@ export default function(
       type: 'separator'
     },
     {
+      // Runs the document through pandoc, so it shares the state of the export
+      // submenu: greyed out while no usable pandoc was found (`menu/index.ts`).
+      id: 'importFileMenuItem',
       label: t('menu.file.import'),
       click(_menuItem, browserWindow) {
         actions.importFile((browserWindow as BrowserWindow | undefined) ?? null)
@@ -166,7 +213,8 @@ export default function(
           click(_menuItem, browserWindow) {
             actions.exportFile(browserWindow as BrowserWindow | undefined, 'pdf')
           }
-        }
+        },
+        ...pandocMenuItems
       ]
     },
     {

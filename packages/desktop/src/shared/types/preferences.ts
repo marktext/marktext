@@ -6,6 +6,8 @@
 // Kept intentionally open with `[key: string]: unknown` until the schema
 // is mechanically derived from schema.json in a follow-up.
 
+import type { PandocDocxTemplate, PandocExportLocation } from '../pandoc'
+
 export interface IUserPreferences {
   autoSave?: boolean
   autoSaveDelay?: number
@@ -46,6 +48,19 @@ export interface IUserPreferences {
   isHtmlEnabled?: boolean
   isGitlabCompatibilityEnabled?: boolean
   softNewlineAsSpace?: boolean
+  // Pandoc export (the "Pandoc" preferences page): where the executable is and
+  // how the export behaves. Whether the commands are offered is not a
+  // preference any more — the menu shows them whenever pandoc can be run.
+  pandocPath?: string
+  pandocDefaultFormat?: string
+  pandocExportFormats?: string[]
+  pandocExportLocation?: PandocExportLocation
+  pandocExportFolder?: string
+  pandocStandalone?: boolean
+  pandocToc?: boolean
+  pandocNumberSections?: boolean
+  pandocDocxTemplate?: PandocDocxTemplate
+  pandocReferenceDoc?: string
   theme?: string
   spellcheckerEnabled?: boolean
   spellcheckerNoUnderline?: boolean

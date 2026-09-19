@@ -21,12 +21,14 @@
       "export": "エクスポート",
       "exportHtml": "HTML としてエクスポート",
       "exportPdf": "PDF としてエクスポート",
+      "convertWithPandoc": "Pandoc で変換",
       "import": "インポート",
       "print": "印刷",
       "closeTab": "タブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
       "quit": "終了",
-      "preferences": "環境設定"
+      "preferences": "環境設定",
+      "pandocDefaultFormat": "{format}（既定）"
     },
     "edit": {
       "edit": "編集",
@@ -357,6 +359,7 @@
         "general": "全般",
         "editor": "エディター",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "テーマ",
         "image": "画像",
         "view": "ビュー",
@@ -413,6 +416,7 @@
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "isGitlabCompatibilityEnabled": "GitLab 互換モードを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
+        "pandocExportFormats": "エクスポートメニューに表示する形式",
         "sequenceTheme": "シーケンス図のテーマ",
         "plantumlServer": "PlantUML サーバーの URL",
         "theme": "MarkText で使用するテーマの選択",
@@ -427,13 +431,22 @@
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
-        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
+        "pandocPath": "pandoc のパス",
+        "pandocDefaultFormat": "既定の形式",
+        "pandocExportLocation": "出力先",
+        "pandocExportFolder": "変換後のファイルを置くフォルダー",
+        "pandocStandalone": "完全なドキュメントを出力します。HTML・RTF・プレーンテキストの出力にのみ作用し、Word などのバイナリ形式は常に完全なファイルになります。",
+        "pandocToc": "目次",
+        "pandocNumberSections": "セクション番号",
+        "pandocReferenceDoc": "Word テンプレート"
       }
     },
     "categories": {
       "general": "全般",
       "editor": "エディター",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "スペルチェック",
       "theme": "テーマ",
       "image": "画像",
@@ -681,6 +694,50 @@
         "title": "リスト"
       }
     },
+    "pandoc": {
+      "title": "Pandoc",
+      "path": {
+        "label": "pandoc のパス",
+        "placeholder": "空欄 = PATH 上の pandoc",
+        "check": "確認",
+        "browse": "参照",
+        "ok": "見つかりました: {version}",
+        "failed": "使用できません: {error}"
+      },
+      "export": {
+        "title": "エクスポート",
+        "formats": "エクスポートメニューに表示する形式",
+        "formatsNotes": "すべての形式のチェックを外すと、メニュー項目が非表示になります。"
+      },
+      "defaultFormat": "既定の形式",
+      "location": {
+        "label": "出力先",
+        "source": "ソースファイルと同じフォルダー",
+        "ask": "毎回確認する",
+        "folder": "固定フォルダー",
+        "folderPlaceholder": "変換後のファイルを置くフォルダー",
+        "pickFolder": "フォルダーを選択"
+      },
+      "options": {
+        "label": "出力オプション",
+        "standalone": "完全なファイル（HTML、RTF、txt）",
+        "toc": "目次",
+        "numberSections": "セクション番号"
+      },
+      "referenceDoc": {
+        "label": "Word テンプレート",
+        "default": "Pandoc 組み込みスタイル",
+        "wysiwyg": "エディターに合わせる（組み込み）",
+        "custom": "カスタムファイル",
+        "placeholder": "空欄 = pandoc 内蔵のスタイル",
+        "browse": "テンプレートを選択",
+        "clear": "クリア",
+        "notes": "Word (.docx)、OpenDocument (.odt)、PowerPoint (.pptx) への出力にのみ使用され、pandoc はここからスタイルを取り込みます。"
+      },
+      "requirement": {
+        "text": "MarkText はご自身でインストールした pandoc を使用します（同梱されていません）。pandoc.org からインストールするか、上の欄に実行ファイルのパスを入力してください。"
+      }
+    },
     "theme": {
       "title": "テーマ",
       "followSystemTheme": "システムのテーマに従う",
@@ -895,6 +952,8 @@
     "files": "ファイル",
     "importWarning": "インポート警告",
     "installPandoc": "Pandoc をインストール",
+    "exportWarning": "エクスポートの警告",
+    "exportWarningMore": "…ほか {count} 件",
     "keepOpen": "開いたままにする",
     "replace": "置換",
     "save": "保存",

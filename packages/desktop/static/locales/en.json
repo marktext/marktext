@@ -21,12 +21,14 @@
       "export": "Export",
       "exportHtml": "Export as HTML",
       "exportPdf": "Export as PDF",
+      "convertWithPandoc": "Convert with Pandoc",
       "import": "Import",
       "print": "Print",
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
       "quit": "Quit",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "pandocDefaultFormat": "{format} (default)"
     },
     "edit": {
       "edit": "Edit",
@@ -357,6 +359,7 @@
         "general": "General",
         "editor": "Editor",
         "markdown": "Markdown",
+        "pandoc": "Pandoc",
         "theme": "Theme",
         "image": "Image",
         "view": "View",
@@ -412,6 +415,7 @@
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
+        "pandocExportFormats": "Formats shown in the export menu",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -427,13 +431,22 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "pandocPath": "Pandoc path",
+        "pandocDefaultFormat": "Default format",
+        "pandocExportLocation": "Export to",
+        "pandocExportFolder": "Folder for the converted files",
+        "pandocStandalone": "Produce a standalone document. Affects HTML, RTF and plain text exports; Word and other binary formats are always standalone.",
+        "pandocToc": "Table of contents",
+        "pandocNumberSections": "Number sections",
+        "pandocReferenceDoc": "Word template"
       }
     },
     "categories": {
       "general": "General",
       "editor": "Editor",
       "markdown": "Markdown",
+      "pandoc": "Pandoc",
       "spelling": "Spelling",
       "theme": "Theme",
       "image": "Image",
@@ -681,6 +694,50 @@
         "title": "Lists"
       }
     },
+    "pandoc": {
+      "title": "Pandoc",
+      "path": {
+        "label": "Pandoc path",
+        "placeholder": "Empty = the pandoc on PATH",
+        "check": "Check",
+        "browse": "Browse",
+        "ok": "Found {version}",
+        "failed": "Not usable: {error}"
+      },
+      "export": {
+        "title": "Export",
+        "formats": "Formats shown in the export menu",
+        "formatsNotes": "Uncheck every format to hide the menu entry."
+      },
+      "defaultFormat": "Default format",
+      "location": {
+        "label": "Export to",
+        "source": "Next to the source file",
+        "ask": "Ask every time",
+        "folder": "Fixed folder",
+        "folderPlaceholder": "Folder for the converted files",
+        "pickFolder": "Choose folder"
+      },
+      "options": {
+        "label": "Export options",
+        "standalone": "Standalone file (HTML, RTF, txt)",
+        "toc": "Table of contents",
+        "numberSections": "Number sections"
+      },
+      "referenceDoc": {
+        "label": "Word template",
+        "default": "Pandoc's built-in style",
+        "wysiwyg": "Match the editor (built-in)",
+        "custom": "Custom file",
+        "placeholder": "Empty = pandoc's built-in style",
+        "browse": "Choose template",
+        "clear": "Clear",
+        "notes": "Used for Word (.docx), OpenDocument (.odt) and PowerPoint (.pptx) exports only; pandoc takes the styles from it."
+      },
+      "requirement": {
+        "text": "MarkText uses the pandoc installed on your system; it is not bundled. Install it from pandoc.org, or put the path to the executable in the field above."
+      }
+    },
     "theme": {
       "title": "Theme",
       "followSystemTheme": "Follow System Theme",
@@ -895,6 +952,8 @@
     "files": "Files",
     "importWarning": "Import warning",
     "installPandoc": "Install Pandoc",
+    "exportWarning": "Export warning",
+    "exportWarningMore": "…and {count} more",
     "keepOpen": "Keep open",
     "replace": "Replace",
     "save": "Save",

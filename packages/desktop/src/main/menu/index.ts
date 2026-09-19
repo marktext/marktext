@@ -8,6 +8,7 @@ import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
 import { onInternalChannel } from '../utils/internalIpc'
+import { isPandocAvailable, refreshPandocAvailability } from '../app/pandocAvailability'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
@@ -40,6 +41,36 @@ interface ThemeMenuChange {
   followSystemTheme?: boolean
 }
 
+/**
+ * Menu state the renderer set for a window, remembered so it can be replayed.
+ *
+ * `updateAppMenu` and `updateKeybindings` rebuild each editor menu from the
+ * template and only carry five entries over (`updateMenuItem` below). Every
+ * other runtime value lives on the menu object that is thrown away, so it is
+ * lost with it: the Paragraph/Format greying of source-code mode (#3531), the
+ * line-ending radio, "always on top", the Format check marks, and whether the
+ * window has a document at all. A preference change that rebuilds the menus
+ * would then silently re-enable commands that do not apply — measured with a
+ * document in source-code mode, where the Paragraph submenu came back enabled
+ * although it acts on the hidden WYSIWYG engine.
+ *
+ * The gap predates this, but writing a preference is easy now that the pandoc
+ * page sends one `mt::set-user-preference` per checkbox click, so it is worth
+ * closing rather than leaving every tick to reset the menus.
+ */
+interface WindowMenuState {
+  /** `mt::update-pandoc-menu`: whether this window has a document open. */
+  hasDocument?: boolean
+  /** `mt::set-editor-format-menus-enabled`: false in source-code mode. */
+  formatMenusEnabled?: boolean
+  /** `mt::update-line-ending-menu`: the tab's line ending. */
+  lineEnding?: string
+  /** `mt::update-always-on-top-menu`. */
+  alwaysOnTop?: boolean
+  /** `mt::update-format-menu`: the Format check marks. */
+  formats?: Record<string, boolean>
+}
+
 class AppMenu {
   private readonly _preferences: Preference
   private readonly _keybindings: Keybindings
@@ -48,6 +79,12 @@ class AppMenu {
   public readonly isOsxOrWindows: boolean
   public activeWindowId: number
   public windowMenus: Map<number, WindowMenuEntry>
+  /**
+   * What the renderer has reported about each window, keyed by window id; see
+   * `WindowMenuState`. A window that never reports keeps the pandoc export
+   * submenu enabled rather than greyed out forever.
+   */
+  private readonly _windowMenuState: Map<number, WindowMenuState>
 
   /**
    * @param preferences The preferences instances.
@@ -67,6 +104,7 @@ class AppMenu {
     this.isOsxOrWindows = isOsx || isWindows
     this.activeWindowId = -1
     this.windowMenus = new Map()
+    this._windowMenuState = new Map()
 
     // Initialize main process language from preferences
     this._initializeLanguage()
@@ -186,6 +224,10 @@ class AppMenu {
     const isSourceMode = !!options.sourceCodeModeEnabled
     const { windowMenus } = this
     windowMenus.set(window.id, this._buildEditorMenu())
+    // Align the freshly built menu with the state last reported for this window,
+    // if any. Until the renderer reports one the pandoc entry stays enabled —
+    // see `_applyWindowMenuState`.
+    this._applyWindowMenuState(window.id)
 
     const entry = windowMenus.get(window.id)!
     const menu = entry.menu!
@@ -226,6 +268,7 @@ class AppMenu {
     // NOTE: Shortcut handler is automatically unregistered when window is closed.
     const { activeWindowId } = this
     this.windowMenus.delete(windowId)
+    this._windowMenuState.delete(windowId)
     if (activeWindowId === windowId) {
       this.activeWindowId = -1
     }
@@ -301,6 +344,7 @@ class AppMenu {
 
       // update window menu
       value.menu = newMenu
+      this._applyWindowMenuState(key)
       // update application menu if necessary
       const { activeWindowId } = this
       if (activeWindowId === key) {
@@ -339,6 +383,7 @@ class AppMenu {
       }
 
       value.menu = newMenu
+      this._applyWindowMenuState(key)
       if (this.activeWindowId === key) {
         this._setApplicationMenu(newMenu)
       }
@@ -352,6 +397,7 @@ class AppMenu {
    * @param lineEnding Either >lf< or >crlf<.
    */
   updateLineEndingMenu(windowId: number, lineEnding: string): void {
+    this._rememberWindowState(windowId, { lineEnding })
     const menus = this.getWindowMenuById(windowId)
     const crlfMenu = menus.getMenuItemById('crlfLineEndingMenuEntry')
     const lfMenu = menus.getMenuItemById('lfLineEndingMenuEntry')
@@ -369,9 +415,35 @@ class AppMenu {
    * @param flag Always on top.
    */
   updateAlwaysOnTopMenu(windowId: number, flag: boolean): void {
+    this._rememberWindowState(windowId, { alwaysOnTop: flag })
     const menus = this.getWindowMenuById(windowId)
     const menu = menus.getMenuItemById('alwaysOnTopMenuItem')
     if (menu) menu.checked = flag
+  }
+
+  /**
+   * Grey out or re-enable the Paragraph and Format commands of a window.
+   *
+   * In source-code mode they act on the hidden WYSIWYG engine, so the renderer
+   * turns them off and back on again (#3531).
+   *
+   * @param windowId The window id.
+   * @param enabled Whether the commands apply to what the window is showing.
+   */
+  updateFormatMenusEnabled(windowId: number, enabled: boolean): void {
+    this._rememberWindowState(windowId, { formatMenusEnabled: enabled })
+    this._applyFormatMenusEnabled(windowId, enabled)
+  }
+
+  /**
+   * Update the Format check marks of a window.
+   *
+   * @param windowId The window id.
+   * @param formats A map of selected formats.
+   */
+  updateFormatMenuState(windowId: number, formats: Record<string, boolean>): void {
+    this._rememberWindowState(windowId, { formats })
+    updateFormatMenu(this.getWindowMenuById(windowId), formats)
   }
 
   /**
@@ -423,6 +495,115 @@ class AppMenu {
       }
       autoSaveMenu.checked = autoSave
     })
+  }
+
+  /**
+   * Record whether a window has a document open, and enable or grey out its
+   * pandoc export submenu accordingly.
+   *
+   * The submenu exports the active tab, and the main process cannot see the
+   * renderer's tabs: without this the entries stay clickable while the window
+   * shows the recent-files page, where a click does nothing at all and the user
+   * gets no feedback (#5379).
+   *
+   * @param windowId The window id.
+   * @param hasDocument Whether the window has a document open.
+   */
+  updatePandocMenu(windowId: number, hasDocument: boolean): void {
+    if (!this.has(windowId)) return
+    this._rememberWindowState(windowId, { hasDocument })
+    this._applyWindowMenuState(windowId)
+  }
+
+  /**
+   * Apply everything known about a window to its current menu.
+   *
+   * Called after every rebuild — the menu objects a rebuild produces are new, so
+   * whatever the renderer had set on the previous one is gone. See
+   * `WindowMenuState`.
+   *
+   * @param windowId The window id.
+   */
+  private _applyWindowMenuState(windowId: number): void {
+    // Pandoc availability is not per window and a window that never reported
+    // must still be greyed out when the binary is missing, so this part always
+    // runs; the rest only replays what the window actually reported.
+    this._applyPandocMenuState(windowId)
+
+    const state = this._windowMenuState.get(windowId)
+    if (!state) {
+      return
+    }
+
+    if (state.formatMenusEnabled !== undefined) {
+      this._applyFormatMenusEnabled(windowId, state.formatMenusEnabled)
+    }
+    if (state.lineEnding !== undefined) {
+      this.updateLineEndingMenu(windowId, state.lineEnding)
+    }
+    if (state.alwaysOnTop !== undefined) {
+      this.updateAlwaysOnTopMenu(windowId, state.alwaysOnTop)
+    }
+    if (state.formats) {
+      updateFormatMenu(this.getWindowMenuById(windowId), state.formats)
+    }
+  }
+
+  /**
+   * Apply what is known about a window to its two pandoc entries: whether pandoc
+   * can be run at all, and whether this window has a document.
+   *
+   * A window that has not reported keeps the export entry enabled — a renderer
+   * that never reports must not be able to leave the menu permanently greyed
+   * out.
+   *
+   * @param windowId The window id.
+   */
+  private _applyPandocMenuState(windowId: number): void {
+    const menu = this.windowMenus.get(windowId)?.menu
+    if (!menu) {
+      return
+    }
+
+    const pandocAvailable = isPandocAvailable()
+
+    // The export submenu acts on the active tab, so it also needs a document
+    // open; import creates the document, so it depends on pandoc alone.
+    const exportItem = menu.getMenuItemById('convertWithPandocMenuItem')
+    if (exportItem) {
+      const { hasDocument } = this._windowMenuState.get(windowId) ?? {}
+      exportItem.enabled = pandocAvailable && hasDocument !== false
+    }
+
+    const importItem = menu.getMenuItemById('importFileMenuItem')
+    if (importItem) {
+      importItem.enabled = pandocAvailable
+    }
+  }
+
+  /**
+   * Note down what the renderer reported, merging it into whatever the window
+   * had already reported.
+   *
+   * @param windowId The window id.
+   * @param patch The values to remember.
+   */
+  private _rememberWindowState(windowId: number, patch: WindowMenuState): void {
+    this._windowMenuState.set(windowId, { ...this._windowMenuState.get(windowId), ...patch })
+  }
+
+  /**
+   * Grey out or re-enable the Paragraph and Format submenus of a window.
+   *
+   * @param windowId The window id.
+   * @param enabled Whether the commands apply to what the window is showing.
+   */
+  private _applyFormatMenusEnabled(windowId: number, enabled: boolean): void {
+    const menu = this.getWindowMenuById(windowId)
+    for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
+      const entry = menu.getMenuItemById(id)
+      entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
+    }
   }
 
   _buildEditorMenu(recentUsedDocuments: string[] | null = null): WindowMenuEntry {
@@ -484,7 +665,7 @@ class AppMenu {
           log.error(`UpdateApplicationMenu: Cannot find window menu for window id ${windowId}.`)
           return
         }
-        updateFormatMenu(this.getWindowMenuById(windowId), formats)
+        this.updateFormatMenuState(windowId, formats)
       }
     )
     ipcMain.on('mt::update-sidebar-menu', (_e, windowId: number, value: unknown) => {
@@ -517,11 +698,14 @@ class AppMenu {
     // and the next selection change refines them (#3531).
     ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
       if (!this.has(windowId)) return
-      const menu = this.getWindowMenuById(windowId)
-      for (const id of ['paragraphMenuEntry', 'formatMenuItem']) {
-        const entry = menu.getMenuItemById(id)
-        entry?.submenu?.items.forEach((item) => (item.enabled = enabled))
-      }
+      this.updateFormatMenusEnabled(windowId, enabled)
+    })
+
+    // The renderer owns the tab list and the main process cannot read it, so it
+    // reports here whether this window has a document to export; the pandoc
+    // entry is greyed out when it does not (#5379).
+    ipcMain.on('mt::update-pandoc-menu', (_e, windowId: number, hasDocument: boolean) => {
+      this.updatePandocMenu(windowId, hasDocument)
     })
 
     onInternalChannel('menu-add-recently-used', (pathname: string) => {
@@ -542,6 +726,18 @@ class AppMenu {
         // Update main process language and rebuild menu
         setLanguage(prefs.language)
         this.updateAppMenu()
+      }
+      if (prefs.pandocExportFormats !== undefined || prefs.pandocDefaultFormat !== undefined) {
+        // These two decide what the "Convert with Pandoc" submenu contains and
+        // which of its entries is marked as the default, and the submenu is
+        // built from the preferences — without this rebuild the menu keeps
+        // offering the previous list until a restart.
+        this.updateAppMenu()
+      }
+      if (prefs.pandocPath !== undefined) {
+        // The path decides whether pandoc can be run, which is what enables the
+        // export and import entries; a changed answer rebuilds the menus.
+        refreshPandocAvailability()
       }
     })
   }

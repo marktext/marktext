@@ -28,10 +28,15 @@ import type {
   SerializedStat,
   LineEnding,
   FileChangeDetail,
+  PandocExportPayload,
   UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
+import type { PandocCheckResult } from '../pandoc'
+
+/** What the Pandoc preferences page can ask the user to pick. */
+export type PandocPickerKind = 'executable' | 'folder' | 'reference-doc'
 
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
@@ -69,6 +74,11 @@ export interface IpcInvokeChannels {
     ret: { defaultKeybindings: Map<string, string>; userKeybindings: Map<string, string> }
   }
   'mt::keybinding-save-user-keybindings': { args: [bindings: unknown]; ret: boolean }
+  'mt::pandoc::check': { args: [command: string]; ret: PandocCheckResult }
+  'mt::pandoc::pick-path': {
+    args: [kind: PandocPickerKind, defaultPath?: string]
+    ret: string
+  }
   'mt::paths::is-image': { args: [path: string]; ret: boolean }
   'mt::rg::start': { args: [req: unknown]; ret: { searchId: string } }
   'mt::shell::open-external': { args: [url: string]; ret: void }
@@ -161,6 +171,7 @@ export interface IpcSendChannels {
     options: SaveOptions,
     defaultPath: string
   ]
+  'mt::response-pandoc-export': [payload: PandocExportPayload]
   'mt::response-print': []
   'mt::rg::cancel': [searchId: string]
   'mt::save-and-close-tabs': [tabs: unknown[]]
@@ -172,6 +183,7 @@ export interface IpcSendChannels {
   'mt::shell::show-item': [fullPath: string]
   'mt::update-format-menu': [windowId: number, state: Record<string, boolean>]
   'mt::update-line-ending-menu': [windowId: number, lineEnding: LineEnding]
+  'mt::update-pandoc-menu': [windowId: number, hasDocument: boolean]
   'mt::update-sidebar-menu': [windowId: number, visible: boolean]
   'mt::view-layout-changed': [windowId: number, layout: unknown]
   'mt::win::close': []
@@ -239,6 +251,7 @@ export interface IpcMainEventChannels {
   'mt::editor-rename-file': []
   'mt::execute-command-by-id': [commandId: string]
   'mt::export-success': [payload: { type: string; filePath: string }]
+  'mt::export-with-pandoc': [target: string]
   'mt::file-saved': [tabId: string]
   'mt::force-close-tabs-by-id': [tabIds: string[]]
   'mt::invalidate-image-cache': []

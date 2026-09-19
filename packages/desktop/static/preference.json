@@ -59,6 +59,25 @@
   "sequenceTheme": "hand",
   "plantumlServer": "https://www.plantuml.com/plantuml",
 
+  "pandocPath": "",
+  "pandocDefaultFormat": "docx",
+  "pandocExportFormats": [
+    "docx",
+    "html",
+    "epub",
+    "pptx",
+    "odt",
+    "rtf",
+    "txt"
+  ],
+  "pandocExportLocation": "ask",
+  "pandocExportFolder": "",
+  "pandocStandalone": true,
+  "pandocToc": false,
+  "pandocNumberSections": false,
+  "pandocDocxTemplate": "default",
+  "pandocReferenceDoc": "",
+
   "theme": "light",
   "followSystemTheme": true,
   "lightModeTheme": "light",
