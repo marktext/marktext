@@ -21,6 +21,7 @@ vi.mock('@/services/notification', () => ({
 vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
 
 import { useEditorStore } from '@/store/editor'
+import { usePreferencesStore } from '@/store/preferences'
 
 // #1861: a watcher 'change' event fires even when only the file's mtime changed
 // (e.g. a git checkout that left the content byte-identical). The handler then
@@ -70,6 +71,50 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — content-identical change (#1
 
     fire(captureHandler(), 'hello world')
 
+    expect(notifySpy).toHaveBeenCalledTimes(1)
+    expect(tab.isSaved).toBe(false)
+  })
+
+  it('silently reloads when autoSave is on and the tab is saved', () => {
+    const store = useEditorStore()
+    usePreferencesStore().autoSave = true
+    makeSavedTab(store)
+    const loadSpy = vi.spyOn(store, 'loadChange').mockImplementation(() => {})
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('silently reloads when autoReload is on and the tab is saved (#3652)', () => {
+    const store = useEditorStore()
+    usePreferencesStore().autoReload = true
+    makeSavedTab(store)
+    const loadSpy = vi.spyOn(store, 'loadChange').mockImplementation(() => {})
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('still prompts when autoReload is on but the tab has unsaved edits', () => {
+    const store = useEditorStore()
+    usePreferencesStore().autoReload = true
+    const tab = makeSavedTab(store)
+    tab.isSaved = false
+    const loadSpy = vi.spyOn(store, 'loadChange').mockImplementation(() => {})
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(loadSpy).not.toHaveBeenCalled()
     expect(notifySpy).toHaveBeenCalledTimes(1)
     expect(tab.isSaved).toBe(false)
   })

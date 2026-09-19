@@ -371,6 +371,7 @@
       "items": {
         "autoSave": "Automatisch de bewerkte inhoud opslaan",
         "autoSaveDelay": "De tijd in ms na een wijziging voordat het bestand wordt opgeslagen",
+        "autoReload": "Het bestand automatisch herladen wanneer het op schijf is gewijzigd",
         "titleBarStyle": "De titelbalkstijl (alleen Windows en Linux)",
         "openFilesInNewWindow": "Bestanden openen in een nieuw venster",
         "openFolderInNewWindow": "Map openen via menu in een nieuw venster",
@@ -449,6 +450,10 @@
         "title": "Automatisch opslaan",
         "description": "Automatisch opslaan",
         "delayDescription": "Vertraging automatisch opslaan"
+      },
+      "autoReload": {
+        "title": "Automatisch herladen",
+        "description": "Automatisch herladen wanneer het bestand op schijf is gewijzigd"
       },
       "window": {
         "title": "Venster",

@@ -371,6 +371,7 @@
       "items": {
         "autoSave": "編集中のコンテンツを自動保存",
         "autoSaveDelay": "変更後にファイルが保存されるまでの時間 (ミリ秒)",
+        "autoReload": "ディスク上のファイルが変更されたときに自動的に再読み込みする",
         "autoNormalizeLineEndings": "開くときに改行コードを自動的に LF へ統一",
         "titleBarStyle": "タイトルバーのスタイル (Windows および Linux システムのみ)",
         "openFilesInNewWindow": "新しいウィンドウでファイルを開く",
@@ -449,6 +450,10 @@
         "title": "自動保存",
         "description": "自動保存",
         "delayDescription": "自動保存の遅延"
+      },
+      "autoReload": {
+        "title": "自動再読み込み",
+        "description": "ディスク上のファイルが変更されたときに自動的に再読み込みする"
       },
       "window": {
         "title": "ウィンドウ",

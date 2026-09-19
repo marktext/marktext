@@ -371,6 +371,7 @@
       "items": {
         "autoSave": "自动保存正在编辑的内容",
         "autoSaveDelay": "文件保存前的延迟时间（毫秒）",
+        "autoReload": "当磁盘上的文件发生变化时自动重新加载",
         "autoNormalizeLineEndings": "打开文件时自动规范化行尾。禁用时按原样打开文件",
         "titleBarStyle": "标题栏样式（仅限 Windows 和 Linux 系统）",
         "openFilesInNewWindow": "在新窗口中打开文件",
@@ -449,6 +450,10 @@
         "title": "自动保存",
         "description": "自动保存",
         "delayDescription": "自动保存延迟"
+      },
+      "autoReload": {
+        "title": "自动重载",
+        "description": "当磁盘上的文件发生变化时自动重新加载"
       },
       "window": {
         "title": "窗口",

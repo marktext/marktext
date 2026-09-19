@@ -371,6 +371,7 @@
       "items": {
         "autoSave": "Sauvegarder automatiquement le contenu en cours d'édition",
         "autoSaveDelay": "Le temps en ms après un changement avant que le fichier soit sauvegardé",
+        "autoReload": "Recharger automatiquement le fichier lorsqu'il est modifié sur le disque",
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne à l'ouverture des fichiers. Lorsque désactivé, les fichiers sont ouverts tels quels.",
         "titleBarStyle": "Le style de la barre de titre (systèmes Windows et Linux uniquement)",
         "openFilesInNewWindow": "Ouvrir les fichiers dans une nouvelle fenêtre",
@@ -449,6 +450,10 @@
         "title": "Enregistrement automatique",
         "description": "Enregistrement automatique",
         "delayDescription": "Délai d'enregistrement automatique"
+      },
+      "autoReload": {
+        "title": "Rechargement automatique",
+        "description": "Recharger automatiquement lorsque le fichier est modifié sur le disque"
       },
       "window": {
         "title": "Fenêtre",
