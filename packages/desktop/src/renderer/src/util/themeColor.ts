@@ -25,6 +25,7 @@ import oxocarbonDarkTheme from '../assets/themes/oxocarbon-dark.theme.css?inline
 import kanagawaTheme from '../assets/themes/kanagawa.theme.css?inline'
 import nightfoxTheme from '../assets/themes/nightfox.theme.css?inline'
 import cyberdreamTheme from '../assets/themes/cyberdream.theme.css?inline'
+import highContrastTheme from '../assets/themes/high-contrast.theme.css?inline'
 
 // New gogh themes - Light
 import catppuccinLatteTheme from '../assets/themes/catppuccin-latte.theme.css?inline'
@@ -67,6 +68,7 @@ import nightfoxPrismTheme from '../assets/themes/prismjs/nightfox.theme.css?inli
 import cyberdreamPrismTheme from '../assets/themes/prismjs/cyberdream.theme.css?inline'
 import graphitePrismTheme from '../assets/themes/prismjs/graphite.theme.css?inline'
 import ulyssesPrismTheme from '../assets/themes/prismjs/ulysses.theme.css?inline'
+import highContrastPrismTheme from '../assets/themes/prismjs/high-contrast.theme.css?inline'
 
 // Original themes
 export const dark = (): string => {
@@ -168,6 +170,12 @@ export const nightfox = (): string => {
 
 export const cyberdream = (): string => {
   return cyberdreamTheme + '\n' + cyberdreamPrismTheme
+}
+
+// High-contrast dark (#4): pure black surfaces, near-white text, explicit
+// high-visibility focus ring color.
+export const highContrast = (): string => {
+  return highContrastTheme + '\n' + highContrastPrismTheme
 }
 
 // New gogh themes - Light (with matching Prism themes)

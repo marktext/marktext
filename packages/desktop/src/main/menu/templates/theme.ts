@@ -29,6 +29,7 @@ const DARK_THEMES: ReadonlyArray<readonly [string, string]> = [
   ['dracula', 'dracula'],
   ['everforestDark', 'everforest-dark'],
   ['gruvboxDark', 'gruvbox-dark'],
+  ['highContrast', 'high-contrast'],
   ['horizonDark', 'horizon-dark'],
   ['kanagawa', 'kanagawa'],
   ['materialDark', 'material-dark'],

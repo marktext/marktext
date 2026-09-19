@@ -175,7 +175,8 @@
       "tokyoNight": "Tokyo Night",
       "tokyoNightLight": "Tokyo Night 淺色",
       "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses 淺色"
+      "ulyssesLight": "Ulysses 淺色",
+      "highContrast": "高對比度"
     }
   },
   "contextMenu": {
