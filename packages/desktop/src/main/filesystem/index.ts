@@ -112,5 +112,40 @@ export const writeFile = async(
   // write-file-atomic also preserves the target's mode/owner, writes through a
   // symlink to its target, and uses a unique temp name — all of which a plain
   // temp+rename dropped.
-  await writeFileAtomic(pathname, content, options)
+  // The final rename fails with EPERM/EBUSY on Windows when the target is held
+  // open by another process — an antivirus scanner or search indexer latching
+  // onto a freshly written file (every DOCX export), or the user viewing the
+  // previous export in Word. Scanner locks are released within milliseconds,
+  // so retry a few times with backoff before giving up; a persistent lock gets
+  // a message that names the real cause instead of a bare "EPERM: rename".
+  let lastError: Error | null = null
+  for (let attempt = 1; attempt <= LOCK_RETRY_ATTEMPTS; attempt++) {
+    try {
+      await writeFileAtomic(pathname, content, options)
+      return
+    } catch (err) {
+      lastError = err as Error
+      const code = (err as NodeJS.ErrnoException).code
+      if (!code || !RETRYABLE_LOCK_CODES.has(code)) {
+        throw err
+      }
+      if (attempt < LOCK_RETRY_ATTEMPTS) {
+        await delay(LOCK_RETRY_BASE_MS * 2 ** (attempt - 1))
+      }
+    }
+  }
+  throw new Error(
+    `[ERROR] Cannot save "${pathname}": the file is locked by another program ` +
+    '(e.g. open in Word or being scanned by antivirus). Close it and try again.' +
+    (lastError ? `\n${lastError.message}` : '')
+  )
 }
+
+// Error codes reported when a file cannot be replaced because another process
+// holds it open. Retrying is only worthwhile for these.
+const RETRYABLE_LOCK_CODES = new Set(['EPERM', 'EBUSY', 'EACCES', 'ENOTEMPTY'])
+const LOCK_RETRY_ATTEMPTS = 4
+const LOCK_RETRY_BASE_MS = 200
+
+const delay = (ms: number): Promise<void> =>
+  new Promise(resolve => setTimeout(resolve, ms))
