@@ -103,7 +103,7 @@ const loadPanel = (deps: Record<string, unknown>) => {
     'exports',
     'module',
     `const { _defineComponent, ref, computed, onBeforeUnmount, useI18n, storeToRefs,
-      usePreferencesStore, CheckList, PANDOC_DOCX_TEMPLATES, PANDOC_EXPORT_FORMATS,
+      usePreferencesStore, PANDOC_DOCX_TEMPLATES, PANDOC_EXPORT_FORMATS,
       PANDOC_EXPORT_LOCATIONS, getPandocDefaultFormat, getPandocExportFormats } = __deps
     ${js}
     return module.exports`
@@ -143,7 +143,6 @@ const makePanel = (overrides: Record<string, unknown> = {}) => {
     useI18n: () => ({ t: (key: string) => key }),
     storeToRefs: () => refs,
     usePreferencesStore: () => store,
-    CheckList: {},
     PANDOC_DOCX_TEMPLATES,
     PANDOC_EXPORT_FORMATS,
     PANDOC_EXPORT_LOCATIONS,
