@@ -1,0 +1,23 @@
+name: Repro 5119
+
+# Throwaway workflow: reproduce issue #5119 on a real Windows machine.
+# Only fires on repro/** branches, so no other workflow is disturbed.
+on:
+  push:
+    branches:
+      - 'repro/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repro:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe launch methods
+        shell: pwsh
+        run: .github/repro-5119.ps1
