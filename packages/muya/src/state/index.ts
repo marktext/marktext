@@ -3,8 +3,9 @@ import type { Muya } from '../muya';
 import type { TDiff } from '../utils';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
+import { deepClone } from '../utils';
 import logger from '../utils/logger';
-import { cloneStateTree } from './cloneState';
+import { createChangePayload } from './changePayload';
 import { getTOC } from './getTOC';
 
 import { MarkdownToState } from './markdownToState';
@@ -71,7 +72,9 @@ class JSONState {
         // the call site can treat `op` as definitely applied.
         if (op === null)
             return;
-        this._state = asState(json1.type.apply(asDoc(this._state), op));
+        // Inserted values can also belong to mutable blocks or API callers.
+        // Copy the operation, not the document, to own all newly added data.
+        this._state = asState(json1.type.apply(asDoc(this._state), deepClone(op)));
         this._revision += 1;
     }
 
@@ -95,7 +98,7 @@ class JSONState {
     }
 
     private _setState(state: TState[]) {
-        this._state = state;
+        this._state = deepClone(state);
     }
 
     private _setMarkdown(markdown: string) {
@@ -142,7 +145,7 @@ class JSONState {
     } {
         const prevState = this.getState();
         const nextState
-            = typeof content === 'string' ? this.markdownToState(content) : cloneStateTree(content);
+            = typeof content === 'string' ? this.markdownToState(content) : deepClone(content);
 
         const components: JSONOpList[] = [];
         const max = Math.max(prevState.length, nextState.length);
@@ -218,45 +221,25 @@ class JSONState {
     }
 
     dispatch(op: JSONOp, source = 'user' /* user, api */) {
-        const prevDoc = this.getState();
+        const prevDoc = this._state;
         this._apply(op);
         debug.log(JSON.stringify(op));
         this._muya.eventCenter.emit(
             'json-change',
-            this._jsonChangePayload(op, source, prevDoc),
+            createChangePayload(op, source, prevDoc, this._state),
         );
     }
 
-    // `doc` stays on the payload for published-API compatibility, but as a
-    // memoized lazy getter: no in-repo listener reads it, and eagerly cloning
-    // the whole document on every change is a large-document cost (#4887).
-    //
-    // The getter must keep the old eager-clone SNAPSHOT semantics: a listener
-    // may store the payload and read `doc` only after later edits. ot-json1's
-    // `apply` is copy-on-write (it returns a new root, `_apply` reassigns
-    // `_state`), so capturing the post-apply root here pins the document as
-    // it was at emit time — and the closure retains only that state root,
-    // not the JSONState/Muya/DOM graph.
-    private _jsonChangePayload(op: JSONOp, source: string, prevDoc: TState[]) {
-        const snapshot = this._state;
-        let doc: TState[] | null = null;
-
-        return {
-            op,
-            source,
-            prevDoc,
-            get doc() {
-                doc ??= cloneStateTree(snapshot);
-                return doc;
-            },
-        };
+    /**
+     * Complete logical state. Consumers must never mutate this tree.
+     * @internal
+     */
+    get rawState(): readonly TState[] {
+        return this._state;
     }
 
     getState(): TState[] {
-        // The document schema is bounded (scalar metadata plus `children`
-        // arrays); the schema-specific clone avoids structuredClone's high
-        // fixed cost, which multiplies on every whole-document read.
-        return cloneStateTree(this._state);
+        return deepClone(this._state);
     }
 
     getMarkdown() {
@@ -314,8 +297,6 @@ class JSONState {
         const op = this._operationCache.reduce(
             (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
         );
-        const prevDoc = this.getState();
-        this._apply(op);
         // Clear before emitting: a listener that edits synchronously then starts
         // a fresh batch instead of mutating the one being flushed.
         this._operationCache = [];
@@ -323,9 +304,11 @@ class JSONState {
         if (op === null)
             return;
 
+        const prevDoc = this._state;
+        this._apply(op);
         this._muya.eventCenter.emit(
             'json-change',
-            this._jsonChangePayload(op, 'user', prevDoc),
+            createChangePayload(op, 'user', prevDoc, this._state),
         );
     }
 }

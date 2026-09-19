@@ -2,7 +2,7 @@ import type Format from '../block/base/format';
 import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
-import type { IParagraphState, TContainerState, TState } from '../state/types';
+import type { IParagraphState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
@@ -84,25 +84,24 @@ class InlineRenderer {
         if (this._labelsRevision === jsonState.revision)
             return;
 
-        const state = jsonState.getState();
         const labels = new Map();
-
-        const travel = (sts: TState[]) => {
-            if (Array.isArray(sts) && sts.length) {
-                for (const st of sts) {
-                    if (st.name === 'paragraph') {
-                        const { label, info } = this.getLabelInfo(st);
-                        if (label && info)
-                            labels.set(label, info);
-                    }
-                    else if ((st as TContainerState).children) {
-                        travel((st as TContainerState).children);
-                    }
-                }
+        const stack: Iterator<TState>[] = [jsonState.rawState[Symbol.iterator]()];
+        while (stack.length) {
+            const next = stack[stack.length - 1].next();
+            if (next.done) {
+                stack.pop();
+                continue;
             }
-        };
-
-        travel(state);
+            const state = next.value;
+            if (state.name === 'paragraph') {
+                const { label, info } = this.getLabelInfo(state);
+                if (label && info)
+                    labels.set(label, info);
+            }
+            else if ('children' in state && Array.isArray(state.children)) {
+                stack.push(state.children[Symbol.iterator]());
+            }
+        }
 
         this.labels = labels;
         this._labelsRevision = jsonState.revision;

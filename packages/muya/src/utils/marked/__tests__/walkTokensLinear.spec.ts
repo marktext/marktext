@@ -1,6 +1,9 @@
+import type { Token } from 'marked';
 import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
 import { describe, expect, it } from 'vitest';
 import { lexBlock } from '../lexBlock';
+import { LinearMarked } from '../linearMarked';
 
 // lexBlock walks tokens with a local linear driver instead of
 // `Marked.walkTokens`, whose per-token result concat is O(tokens²) (#4887).
@@ -18,31 +21,56 @@ const NESTED = [
     'Paragraph with *em* text.',
 ].join('\n');
 
-function visitedTypes(markdown: string): string[] {
-    const seen: string[] = [];
-    const m = new Marked();
-    const tokens = new m.Lexer(m.defaults).blockTokens(markdown);
-    m.walkTokens(tokens, token => void seen.push(token.type));
-    return seen.sort();
-}
+describe('linear token walk', () => {
+    it('visits the same token objects in the same order and preserves callback results and this', () => {
+        const reference = new Marked();
+        const linear = new LinearMarked();
+        for (const marked of [reference, linear])
+            marked.use({ extensions: [{ name: 'custom', level: 'block', childTokens: ['parts'], tokenizer: () => undefined }] });
+        const tokens = reference.lexer(NESTED);
+        tokens.push({ type: 'custom', raw: '', parts: [[{ type: 'text', raw: 'extra', text: 'extra' }]] });
+        const promise = Promise.resolve();
+        function visit(marked: Marked) {
+            const seen: Token[] = [];
+            const results = marked.walkTokens(tokens, function (this: Marked, token) {
+                expect(this).toBe(marked);
+                seen.push(token);
+                return [undefined, promise];
+            });
+            return { seen, results };
+        }
+        const expected = visit(reference);
+        const actual = visit(linear);
+        expect(actual.seen).toHaveLength(expected.seen.length);
+        actual.seen.forEach((token, i) => expect(token).toBe(expected.seen[i]));
+        expect(actual.results).toEqual(expected.results);
+        expect(actual.seen.map(token => token.type)).toContain('table');
+        expect(actual.seen.map(token => token.type)).toContain('list_item');
+        expect(actual.seen.at(-1)?.raw).toBe('extra');
+    });
 
-describe('lexBlock token walk', () => {
-    it('visits the same token set as Marked.walkTokens', () => {
-        const seen: string[] = [];
-        // lexBlock runs its walker internally; re-walk its output with the
-        // reference driver to compare coverage on identical token trees.
-        const tokens = lexBlock(NESTED, {
-            footnote: false,
-            isGitlabCompatibilityEnabled: true,
-            frontMatter: false,
-            math: false,
+    it('walks deep children iteratively and observes children added by callbacks', () => {
+        let token: Token = { type: 'text', raw: 'leaf', text: 'leaf' };
+        for (let i = 0; i < 10000; i++)
+            token = { type: 'blockquote', raw: '', text: '', tokens: [token] };
+        let visited = 0;
+        new LinearMarked().walkTokens([token], (node) => {
+            visited += 1;
+            if (node.type === 'text' && node.raw === 'leaf')
+                node.tokens = [{ type: 'text', raw: 'added', text: 'added' }];
         });
-        const m = new Marked();
-        m.walkTokens(tokens as never, token => void seen.push(token.type));
+        expect(visited).toBe(10002);
+    });
 
-        expect(seen.sort()).toEqual(visitedTypes(NESTED));
-        expect(seen).toContain('table');
-        expect(seen).toContain('list_item');
+    it.each([false, true])('preserves parse and highlighting with async=%s', async (async) => {
+        const source = '> ```js\n> const value = 1;\n> ```\n';
+        const extension = () => async
+            ? markedHighlight({ async: true, highlight: code => Promise.resolve(`<b>${code}</b>`) })
+            : markedHighlight({ highlight: code => `<b>${code}</b>` });
+        const expected = await new Marked(extension()).parse(source);
+        const actual = await new LinearMarked(extension()).parse(source);
+        expect(actual).toBe(expected);
+        expect(actual).toContain('<b>const value = 1;</b>');
     });
 
     it('applies muya token augmentation to nested tokens', () => {
