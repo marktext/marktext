@@ -61,8 +61,8 @@ test.describe('stability / perf smoke @perf', () => {
         // Wide budget — see file header. Tighten once we have a baseline.
         // Since the chunked mount (#4887) the synchronous call path only
         // parses the document and mounts an over-viewport prefix, so this
-        // now guards the parse path plus first paint rather than the full
-        // tree build.
+        // now guards parsing and prefix construction. It does not measure
+        // first paint or guarantee a bound for an individual large block.
         expect(result.ms, `setContent(${result.n} paragraphs) took ${result.ms.toFixed(0)}ms`).toBeLessThan(60_000);
 
         // The remaining blocks mount in scheduled chunks (#4887), so the

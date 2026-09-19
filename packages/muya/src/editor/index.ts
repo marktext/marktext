@@ -403,8 +403,8 @@ export class Editor {
         // which would otherwise materialize an unmounted target from the
         // ALREADY-updated state and then drop the same operation onto it a
         // second time — a permanent state/DOM fork (#4887 review).
-        if (operations !== null)
-            this.scrollPage?.ensureMountedForOperation(operations);
+        if (operations !== null && this.scrollPage && !this.scrollPage.ensureMountedForOperation(operations))
+            return;
         // ot-json1 no-op (`null`) is forwarded to dispatch — JSONState
         // short-circuits internally so listeners still see a json-change
         // event for the no-op.

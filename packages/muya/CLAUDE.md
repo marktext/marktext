@@ -50,6 +50,8 @@ All blocks extend `TreeNode → Parent → (Content | Format)` in `src/block/bas
 
 Concrete blocks live under `src/block/{commonMark,gfm,extra,content}` and **must be registered** in `src/block/index.ts::registerBlocks()`, which `Editor.init()` calls before constructing the root `ScrollPage`. `ScrollPage` (in `src/block/scrollPage/index.ts`) keeps a static `registeredBlocks` map; lookups go through `ScrollPage.loadBlock(blockName).create(muya, state)`. **Add a new block type → register it here, otherwise `loadBlock` will warn and return undefined.**
 
+Large documents mount a prefix synchronously, then append top-level blocks in scheduled chunks. The full `JSONState.rawState` is available throughout; mounted blocks must receive deep-cloned slices because they own mutable metadata. Flush pending edits before using the mounted child count as a state offset. `ensureMountedThrough` / `flushPendingMount` return `false` if a synchronous callback replaces the document or destroys Muya; callers must abandon the old operation. Pre-mount operation targets before state dispatch and suspend on-demand mounting during the pick/drop walk. Progress/completion events apply only to progressive mounts; canceled mounts and fully synchronous small documents emit no completion. Top-level blocks are atomic: a giant list/table and full-mount consumers can still block the event loop.
+
 `block/mixins/{containerQueryBlock,leafQueryBlock}.ts` are constructor mixins applied to block classes for `queryBlock`/path resolution (the ROADMAP notes this was a deliberate switch away from property mixins).
 
 ### State and markdown round-trip (`src/state/`)

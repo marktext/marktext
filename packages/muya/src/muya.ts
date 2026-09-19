@@ -240,9 +240,10 @@ export class Muya {
      * Synchronously mount top-level blocks up to `index` if a progressive
      * mount is still in flight (#4887). Hosts call this before scrolling to
      * a block whose DOM may not exist yet — e.g. a TOC entry's `index`.
+     * Returns false if the request is invalidated by replacement or destruction.
      */
     ensureMountedThrough(index: number) {
-        this.editor.scrollPage?.ensureMountedThrough(index);
+        return this.editor.scrollPage?.ensureMountedThrough(index) ?? false;
     }
 
     undo() {
@@ -1069,6 +1070,7 @@ export class Muya {
         if (!anchor || !focus)
             return;
 
+        const generation = scrollPage.mountGeneration;
         const { anchorBlock, focusBlock } = this._resolveCursorBlocks(
             cursor,
             scrollPage,
@@ -1076,7 +1078,7 @@ export class Muya {
             focusPath,
         );
 
-        if (anchorBlock == null || !anchorBlock.isContent())
+        if (scrollPage.mountGeneration !== generation || anchorBlock == null || !anchorBlock.isContent())
             return;
 
         if (anchorBlock === focusBlock || focusBlock == null) {
@@ -1157,16 +1159,22 @@ export class Muya {
         const savedHistory = this.getHistory();
 
         this.editor.setContent(sentinelMarkdown);
+        const sentinelGeneration = scrollPage.mountGeneration;
         const cursor = resolveSentinelCursor(this.editor.scrollPage!);
+        // Mount listeners may replace the document or destroy the editor.
+        // In that case the old source and history must not be restored.
+        if (scrollPage.mountGeneration !== sentinelGeneration)
+            return false;
         this.editor.setContent(cleanMarkdown);
         this.setHistory(savedHistory);
 
         if (!cursor)
             return false;
 
+        const cleanGeneration = scrollPage.mountGeneration;
         this.setCursor(cursor);
 
-        return true;
+        return scrollPage.mountGeneration === cleanGeneration;
     }
 
     /**

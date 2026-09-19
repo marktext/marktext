@@ -1268,7 +1268,7 @@ const scrollToHeader = (slug: unknown) => {
   const item = editorStore.listToc.find((entry) => entry.slug === slug) as
     | { index?: unknown }
     | undefined
-  if (item && typeof item.index === 'number') editor.value?.ensureMountedThrough(item.index)
+  if (item && typeof item.index === 'number' && !editor.value?.ensureMountedThrough(item.index)) return
   const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
   if (!heading) return
   animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)

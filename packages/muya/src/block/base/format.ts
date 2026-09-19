@@ -1846,7 +1846,8 @@ class Format extends Content {
         // definition still in the unmounted tail (#4887) resolving as
         // "missing" would make the tool offer Create and duplicate it. Same
         // documented whole-document trade as search.
-        scrollPage.flushPendingMount();
+        if (scrollPage.flushPendingMount() === false)
+            return;
 
         // Collect the first definition for each identifier — duplicates in
         // the document share the same `#fn-{N}` target on the HTML side.

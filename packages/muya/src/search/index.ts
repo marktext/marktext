@@ -168,7 +168,8 @@ export class Search {
             // would silently drop tail matches (#4887). Searching is an
             // explicit user action, so completing the mount here is the
             // documented trade.
-            this._scrollPage?.flushPendingMount();
+            if (this._scrollPage?.flushPendingMount() === false)
+                return this;
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (block.isContent()) {
                     const { text } = block;

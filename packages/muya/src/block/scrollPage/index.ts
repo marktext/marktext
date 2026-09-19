@@ -17,25 +17,27 @@ interface IBlurFocus {
     focus: Nullable<Content>;
 }
 
-// Recursive node count of a state subtree — the unit of mount budgeting.
-function stateWeight(state: TState): number {
-    let weight = 1;
-    if ('children' in state && Array.isArray(state.children)) {
-        for (const child of state.children as TState[])
-            weight += stateWeight(child);
-    }
-    return weight;
-}
-
-// End index (exclusive) after taking blocks from `from` until `budget`
-// weight is consumed. Always takes at least one block so progress is made
-// even when a single block exceeds the whole budget.
-function takeByWeight(state: TState[], from: number, budget: number): number {
+// End index (exclusive) after consuming a state-node budget. Stop counting
+// once the budget is reached; the final top-level block still mounts atomically.
+export function takeByWeight(state: TState[], from: number, budget: number): number {
     let end = from;
     let used = 0;
     while (end < state.length) {
-        used += stateWeight(state[end]);
+        const stack: Iterator<TState>[] = [[state[end]][Symbol.iterator]()];
         end += 1;
+        while (stack.length && used < budget) {
+            const next = stack[stack.length - 1].next();
+            if (next.done) {
+                stack.pop();
+                continue;
+            }
+            used += 1;
+            if (used >= budget)
+                break;
+            const node = next.value;
+            if ('children' in node && Array.isArray(node.children))
+                stack.push(node.children[Symbol.iterator]());
+        }
         if (used >= budget)
             break;
     }
@@ -87,15 +89,13 @@ export class ScrollPage extends Parent {
     // Chunked-mount tuning. The synchronous prefix is budgeted in STATE
     // WEIGHT (the recursive node count of a top-level block, not block
     // count — one list with thousands of items would blow a count budget)
-    // and comfortably overfills any viewport. Background chunks are budgeted
-    // by ELAPSED TIME so a scheduled task stays under half a frame on the
-    // machine actually running it. A single top-level block larger than
+    // to provide an initial visible prefix. Background chunks are budgeted
+    // by ELAPSED TIME between blocks, not a guaranteed frame bound. A block larger than
     // either budget still mounts as one unit — blocks are atomic — which is
     // the documented bound of this scheme.
     // The chunk budget bounds the JS append work only — the browser still
     // styles/lays out each appended chunk after the task, so the observed
-    // event-loop gap is larger than the budget. 4 ms keeps that total gap
-    // small on typical content; the perf smoke guards it end to end.
+    // event-loop gap can be larger than the budget.
     private static readonly _initialMountWeight = 512;
     private static readonly _chunkBudgetMs = 4;
 
@@ -105,6 +105,15 @@ export class ScrollPage extends Parent {
 
     // See suspendOnDemandMount().
     private _onDemandMountSuspended = false;
+    private _mountGeneration = 0;
+
+    /**
+     * Changes when the document is replaced or mounting is canceled.
+     * @internal
+     */
+    get mountGeneration() {
+        return this._mountGeneration;
+    }
 
     override get path() {
         return [];
@@ -147,15 +156,15 @@ export class ScrollPage extends Parent {
     // Building every block's DOM subtree up front is the dominant open cost on
     // large documents (#4887): parse and state are linear, but a 300k-word file
     // still means ~100k block nodes constructed in one synchronous task. Mount
-    // an over-viewport prefix synchronously and append the rest in scheduled
-    // time-budgeted chunks, so the document is visible and editable at once.
+    // an initial prefix synchronously and append the rest in scheduled
+    // time-budgeted chunks to reduce the initial DOM construction cost.
     //
     // The pending tail is NOT a snapshot. Every chunk re-reads
     // `jsonState.rawState` and resumes at the live child count; the invariant
     // is that the mounted prefix always equals `state[0 .. children.length)`.
     // Structural edits (Enter splits, paste, block removal) mutate the live
-    // tree and the state at the SAME index, so the invariant survives them
-    // with no flushing. Whole-tree consumers (`queryBlock` into the tail,
+    // tree immediately; flushing queued operations before mounting aligns
+    // state with that live prefix. Whole-tree consumers (`queryBlock` into the tail,
     // `lastContentInDescendant`, search) mount what they need through
     // `ensureMountedThrough` / `flushPendingMount`.
     private _mountBlocks(state: TState[]) {
@@ -181,11 +190,15 @@ export class ScrollPage extends Parent {
     }
 
     private _scheduleNextChunk() {
-        if (!this._pendingMount)
+        const pending = this._pendingMount;
+        if (!pending || pending.handle !== null)
             return;
 
-        // setTimeout keeps mounting while the tab is backgrounded (rAF stalls).
-        this._pendingMount.handle = setTimeout(() => {
+        // Background tabs may throttle timers, but do not suspend them like rAF.
+        pending.handle = setTimeout(() => {
+            if (this._pendingMount !== pending)
+                return;
+            pending.handle = null;
             this._mountNextChunk();
         }, 0);
     }
@@ -199,10 +212,12 @@ export class ScrollPage extends Parent {
         // state on the next frame; drain them first so the live child count
         // is a valid cursor into `rawState`.
         this.muya.editor.jsonState.flush();
+        if (this._pendingMount !== pending)
+            return;
 
         // Mount block by block until the task budget is spent — actual
-        // elapsed time, not a fixed weight, so one chunk never grows into a
-        // frame-blowing task on heavy content.
+        // elapsed time, not a fixed weight. Individual blocks remain atomic
+        // and may exceed this budget.
         const states = this.muya.editor.jsonState.rawState;
         const started = performance.now();
         let next = this.children.length;
@@ -223,7 +238,8 @@ export class ScrollPage extends Parent {
                 mounted: next,
                 total: states.length,
             });
-            this._scheduleNextChunk();
+            if (this._pendingMount === pending)
+                this._scheduleNextChunk();
         }
     }
 
@@ -233,9 +249,9 @@ export class ScrollPage extends Parent {
      * mounting afterwards would materialize the target from the updated
      * state and then apply the op to it a second time.
      */
-    ensureMountedForOperation(op: JSONOpList) {
+    ensureMountedForOperation(op: JSONOpList): boolean {
         if (!this._pendingMount)
-            return;
+            return true;
 
         // Collect the leading numeric descent of every path in the op —
         // the top-level block indices. Deeper numbers (child indices, text
@@ -261,8 +277,7 @@ export class ScrollPage extends Parent {
         // target out of the live tree and then drops the replacement before
         // the next sibling — that reference sibling must already be mounted,
         // or the drop would materialize it from the post-dispatch state.
-        if (max >= 0)
-            this.ensureMountedThrough(max + 1);
+        return max < 0 || this.ensureMountedThrough(max + 1);
     }
 
     /**
@@ -287,20 +302,24 @@ export class ScrollPage extends Parent {
      * Bounded consumers (offset-based cursor restore, path queries into the
      * tail, TOC click-to-scroll) use this instead of a full flush.
      */
-    ensureMountedThrough(index: number) {
+    ensureMountedThrough(index: number): boolean {
         const pending = this._pendingMount;
         if (!pending || index < this.children.length)
-            return;
+            return true;
+        const generation = this._mountGeneration;
 
         // See _mountNextChunk: pending edit ops must land in the state
         // before the live child count is used as a cursor into it.
         this.muya.editor.jsonState.flush();
+        // Listeners may have destroyed the editor or replaced the document.
+        if (this._mountGeneration !== generation)
+            return false;
+        if (this._pendingMount !== pending)
+            return true;
 
         const states = this.muya.editor.jsonState.rawState;
-        if (index >= states.length - 1) {
-            this.flushPendingMount();
-            return;
-        }
+        if (index >= states.length - 1)
+            return this.flushPendingMount();
 
         if (pending.handle !== null) {
             clearTimeout(pending.handle);
@@ -311,36 +330,48 @@ export class ScrollPage extends Parent {
             mounted: this.children.length,
             total: states.length,
         });
-        this._scheduleNextChunk();
+        if (this._mountGeneration !== generation)
+            return false;
+        if (this._pendingMount === pending)
+            this._scheduleNextChunk();
+        return true;
     }
 
     override lastContentInDescendant() {
         // End-of-document consumers (Ctrl+End, select-all, cursor restore)
         // must see the real last block, not the last mounted chunk.
-        this.flushPendingMount();
+        if (!this.flushPendingMount())
+            return null;
 
         return super.lastContentInDescendant();
     }
 
     /** Synchronously finish a chunked mount that is still in flight. */
-    flushPendingMount() {
+    flushPendingMount(): boolean {
         const pending = this._pendingMount;
         if (!pending)
-            return;
+            return true;
+        const generation = this._mountGeneration;
 
         if (pending.handle !== null)
             clearTimeout(pending.handle);
-        this._pendingMount = null;
+        pending.handle = null;
 
         // See _mountNextChunk: pending edit ops must land in the state
         // before the live child count is used as a cursor into it.
         this.muya.editor.jsonState.flush();
+        if (this._mountGeneration !== generation)
+            return false;
+        if (this._pendingMount !== pending)
+            return true;
+        this._pendingMount = null;
 
         const states = this.muya.editor.jsonState.rawState;
         this._appendFromState(states, this.children.length, states.length);
         this.muya.eventCenter.emit('muya-mount-complete', {
             total: states.length,
         });
+        return this._mountGeneration === generation;
     }
 
     /**
@@ -351,6 +382,7 @@ export class ScrollPage extends Parent {
      * so detached hosts keep mounting (`new Muya(detachedElement)` works).
      */
     cancelPendingMount() {
+        this._mountGeneration += 1;
         if (!this._pendingMount)
             return;
         if (this._pendingMount.handle !== null)
@@ -376,7 +408,8 @@ export class ScrollPage extends Parent {
             && !this._onDemandMountSuspended
             && (path[0] as number) >= this.children.length
         ) {
-            this.ensureMountedThrough(path[0] as number);
+            if (!this.ensureMountedThrough(path[0] as number))
+                return undefined;
         }
 
         const p = path.shift() as number;

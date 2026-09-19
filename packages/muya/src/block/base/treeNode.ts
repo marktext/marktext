@@ -201,7 +201,8 @@ class TreeNode implements ILinkedNode {
         // pending tail as the document end.
         while (!next) {
             const mounted = scrollPage.children.length;
-            scrollPage.ensureMountedThrough(mounted);
+            if (scrollPage.ensureMountedThrough(mounted) === false)
+                return null;
             if (scrollPage.children.length === mounted)
                 break;
 

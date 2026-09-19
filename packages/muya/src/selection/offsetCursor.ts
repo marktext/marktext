@@ -134,7 +134,8 @@ export function resolveSentinelCursor(scrollPage: ScrollPage): IPathCursor | nul
     for (let i = states.length - 1; i >= 0; i--) {
         const raw = JSON.stringify(states[i]);
         if (raw.includes(ANCHOR_SENTINEL) || raw.includes(FOCUS_SENTINEL)) {
-            scrollPage.ensureMountedThrough(i);
+            if (scrollPage.ensureMountedThrough(i) === false)
+                return null;
             break;
         }
     }
