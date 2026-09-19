@@ -410,6 +410,7 @@
         "frontmatterType": "前言類型",
         "superSubScript": "啟用 Pandoc 的 Markdown 擴充功能上標和下標",
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
+        "texMathDollars": "啟用 Pandoc 的 Markdown 擴充 tex_math_dollars",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
         "softNewlineAsSpace": "將軟換行視為空格",
@@ -634,6 +635,7 @@
         "superSubScript": "上標/下標",
         "footnote": "腳註",
         "footnoteNotes": "腳註備註",
+        "texMathDollars": "使用 $ 與 $$ 的 TeX 數學公式",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",

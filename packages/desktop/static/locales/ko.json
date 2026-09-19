@@ -410,6 +410,7 @@
         "frontmatterType": "프론트매터 유형",
         "superSubScript": "Pandoc의 마크다운 확장 위첨자와 아래첨자 활성화",
         "footnote": "Pandoc의 마크다운 확장 각주 활성화",
+        "texMathDollars": "Pandoc의 markdown 확장 tex_math_dollars 활성화",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "isGitlabCompatibilityEnabled": "GitLab 호환 모드 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
@@ -634,6 +635,7 @@
         "superSubScript": "위/아래 첨자",
         "footnote": "각주",
         "footnoteNotes": "각주 노트",
+        "texMathDollars": "$ 및 $$ TeX 수식",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",

@@ -80,7 +80,7 @@ describe('linear token walk', () => {
                 footnote: false,
                 isGitlabCompatibilityEnabled: true,
                 frontMatter: false,
-                math: false,
+                texMathDollars: false,
             },
         );
         const json = JSON.stringify(tokens);

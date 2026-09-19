@@ -24,7 +24,7 @@ describe('CommonMark 0.31 spec conformance', () => {
         (example) => {
             const actual = renderToStaticHTML(example.markdown, {
                 footnote: false,
-                math: false,
+                texMathDollars: false,
                 superSubScript: false,
                 isGitlabCompatibilityEnabled: false,
                 frontMatter: false,

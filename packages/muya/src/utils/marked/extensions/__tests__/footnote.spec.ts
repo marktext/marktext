@@ -48,7 +48,7 @@ function simplify(token: ILexerToken): ISimplifiedToken {
 function parse(markdown: string) {
     return lexBlock(markdown, {
         footnote: true,
-        math: false,
+        texMathDollars: false,
         frontMatter: false,
     })
         .filter(t => t.type !== 'space')
@@ -196,12 +196,12 @@ At vero eos [^foo1]: et accusam.`);
 
     it('propagates extensions (math) into nested footnote content', () => {
         // The tokenizer must re-lex nested content through the same Marked
-        // instance, otherwise `math: true` doesn't reach inside footnotes.
+        // instance, otherwise `texMathDollars: true` doesn't reach inside footnotes.
         const tokens = lexBlock(
             `text[^1]
 
 [^1]: see $a + b$ for the formula`,
-            { footnote: true, math: true, frontMatter: false },
+            { footnote: true, texMathDollars: true, frontMatter: false },
         );
         const footnote = tokens.find(t => t.type === 'footnote') as Extract<typeof tokens[number], { type: 'footnote' }> | undefined;
         expect(footnote).toBeDefined();
@@ -219,7 +219,7 @@ At vero eos [^foo1]: et accusam.`);
             `foo[^1]
 
 [^1]: foo`,
-            { footnote: false, math: false, frontMatter: false },
+            { footnote: false, texMathDollars: false, frontMatter: false },
         ).filter(t => t.type !== 'space');
         // Without the extension the definition stays as a plain paragraph.
         const types = tokens.map(t => t.type);
