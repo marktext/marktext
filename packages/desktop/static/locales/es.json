@@ -411,8 +411,8 @@
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
         "texMathDollars": "Activar la extensión de markdown de pandoc tex_math_dollars",
+        "texMathGfm": "Activar la extensión de markdown de pandoc tex_math_gfm",
         "isHtmlEnabled": "Habilitar renderizado HTML",
-        "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
         "plantumlServer": "URL del servidor PlantUML",
@@ -636,6 +636,7 @@
         "footnote": "Nota al pie",
         "footnoteNotes": "Notas al pie",
         "texMathDollars": "Matemáticas TeX con $ y $$",
+        "texMathGfm": "Matemáticas TeX de GitHub ($`…`$ y ```math)",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",
@@ -662,7 +663,6 @@
         "title": "Misceláneos"
       },
       "compatibility": {
-        "enableGitlab": "Habilitar compatibilidad con GitLab",
         "enableHtml": "Habilitar soporte HTML",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "title": "Compatibilidad"
