@@ -103,7 +103,7 @@ const loadPanel = (deps: Record<string, unknown>) => {
     'exports',
     'module',
     `const { _defineComponent, ref, computed, onBeforeUnmount, useI18n, storeToRefs,
-      usePreferencesStore, PANDOC_DOCX_TEMPLATES, PANDOC_EXPORT_FORMATS,
+      usePreferencesStore, CheckList, PANDOC_DOCX_TEMPLATES, PANDOC_EXPORT_FORMATS,
       PANDOC_EXPORT_LOCATIONS, getPandocDefaultFormat, getPandocExportFormats } = __deps
     ${js}
     return module.exports`
@@ -143,6 +143,7 @@ const makePanel = (overrides: Record<string, unknown> = {}) => {
     useI18n: () => ({ t: (key: string) => key }),
     storeToRefs: () => refs,
     usePreferencesStore: () => store,
+    CheckList: { name: 'CheckList' },
     PANDOC_DOCX_TEMPLATES,
     PANDOC_EXPORT_FORMATS,
     PANDOC_EXPORT_LOCATIONS,
@@ -260,5 +261,39 @@ describe('pandoc preferences template wiring', () => {
     expect(guardAt).toBeLessThan(selectAt)
     // The guard sits on the row wrapper, not on some unrelated element.
     expect(template.slice(template.lastIndexOf('<', guardAt), guardAt).trim()).toBe('<div')
+  })
+})
+
+// The unit runner never mounts the template, and Vue resolves an unknown
+// component tag silently to nothing — which is exactly how the format check
+// list once vanished: the template kept `<check-list>` while the component
+// file and its import were deleted. Guard that every custom tag in the
+// template resolves to an import in the script (Element Plus components are
+// globally registered and native HTML tags need no import).
+describe('pandoc preferences template components resolve', () => {
+  const NATIVE_TAGS = new Set([
+    'div', 'h4', 'h6', 'p', 'span', 'section', 'template', 'style', 'script'
+  ])
+
+  const kebabToPascal = (tag: string): string =>
+    tag.replace(/(^|-)([a-z])/g, (_, _sep, char: string) => char.toUpperCase())
+
+  it('imports every custom component the template uses', () => {
+    const template = templateSource()
+    const tags = new Set<string>()
+    const tagRe = /<\/?([a-z][a-z0-9-]*)/g
+    for (const match of template.matchAll(tagRe)) {
+      tags.add(match[1])
+    }
+
+    const unresolved = [...tags].filter((tag) => {
+      if (NATIVE_TAGS.has(tag) || tag.startsWith('el-')) {
+        return false
+      }
+      const pascal = kebabToPascal(tag)
+      return !new RegExp(`\\bimport ${pascal}\\b`).test(vueSource)
+    })
+
+    expect(unresolved).toEqual([])
   })
 })

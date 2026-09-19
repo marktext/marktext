@@ -213,6 +213,8 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
+
+import CheckList from '../common/checkList/index.vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import {
