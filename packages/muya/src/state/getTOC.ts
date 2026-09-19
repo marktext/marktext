@@ -1,49 +1,50 @@
-import type Content from '../block/base/content';
-import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
+import type { TState } from './types';
 import { tokenizer, tokensToPlainText } from '../inlineRenderer/lexer';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
+import { isAtxHeadingState, isSetextHeadingState } from './types';
 
 export interface ITocItem {
     content: string;
     lvl: number;
     slug: string;
     githubSlug: string;
+    // Top-level state index of the heading. During a progressive mount the
+    // heading's DOM may not exist yet; hosts pass this to
+    // `muya.ensureMountedThrough(index)` before scrolling to it.
+    index: number;
 }
 
-interface IHeadingBlock extends Parent {
-    meta: { level: number };
-}
+// Slugs are keyed on the heading's STATE node, not its block: the TOC is
+// collected from `jsonState` (the complete logical document) so it stays
+// correct even while block mounting is in progress, and block-side consumers
+// (headingCopyLink) resolve their heading to the same state node. ot-json1
+// apply is copy-on-write, so an unedited heading keeps its node — and its
+// slug — across other edits; editing the heading replaces the node, which
+// only re-keys that entry (hosts rebuild their TOC on `json-change` anyway).
+const slugCache = new WeakMap<object, string>();
 
-const slugCache = new WeakMap<Parent, string>();
-
-export function stableSlug(block: Parent): string {
-    let slug = slugCache.get(block);
+export function stableSlug(node: object): string {
+    let slug = slugCache.get(node);
     if (slug == null) {
         slug = getUniqueId();
-        slugCache.set(block, slug);
+        slugCache.set(node, slug);
     }
     return slug;
 }
 
 export function getTOC(muya: Muya): ITocItem[] {
-    const { scrollPage } = muya.editor;
-    if (!scrollPage)
-        return [];
-
+    const states: readonly TState[] = muya.editor.jsonState.rawState;
     const items: ITocItem[] = [];
 
-    for (const node of scrollPage.children.iterator()) {
-        const { blockName } = node;
-        if (blockName !== 'atx-heading' && blockName !== 'setext-heading')
+    for (let index = 0; index < states.length; index++) {
+        const state = states[index];
+        if (!isAtxHeadingState(state) && !isSetextHeadingState(state))
             continue;
 
-        const block = node as IHeadingBlock;
-        const head = block.children.head as Content | null;
-        const text = head?.text ?? '';
-
-        const source = blockName === 'setext-heading'
+        const text = state.text ?? '';
+        const source = isSetextHeadingState(state)
             ? text.trim()
             : text.replace(/^\s*#{1,6}\s+/, '').trim();
 
@@ -62,9 +63,10 @@ export function getTOC(muya: Muya): ITocItem[] {
 
         items.push({
             content,
-            lvl: block.meta.level,
-            slug: stableSlug(block),
+            lvl: state.meta.level,
+            slug: stableSlug(state),
             githubSlug: generateGithubSlug(content),
+            index,
         });
     }
 

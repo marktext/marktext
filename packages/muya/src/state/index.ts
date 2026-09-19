@@ -5,6 +5,7 @@ import type { TState } from './types';
 import * as json1 from 'ot-json1';
 import { deepClone } from '../utils';
 import logger from '../utils/logger';
+import { createChangePayload } from './changePayload';
 import { getTOC } from './getTOC';
 
 import { MarkdownToState } from './markdownToState';
@@ -52,8 +53,17 @@ class JSONState {
 
     private _state: TState[] = [];
 
+    // Monotonic change counter. Consumers that derive expensive values from
+    // the whole document (e.g. reference-definition collection) compare it to
+    // skip recomputation while the state has not changed.
+    private _revision = 0;
+
     constructor(private _muya: Muya, stateOrMarkdown: TState[] | string) {
         this.setContent(stateOrMarkdown);
+    }
+
+    get revision() {
+        return this._revision;
     }
 
     private _apply(op: JSONOp) {
@@ -62,7 +72,10 @@ class JSONState {
         // the call site can treat `op` as definitely applied.
         if (op === null)
             return;
-        this._state = asState(json1.type.apply(asDoc(this._state), op));
+        // Inserted values can also belong to mutable blocks or API callers.
+        // Copy the operation, not the document, to own all newly added data.
+        this._state = asState(json1.type.apply(asDoc(this._state), deepClone(op)));
+        this._revision += 1;
     }
 
     setContent(content: TState[] | string) {
@@ -80,10 +93,12 @@ class JSONState {
             this._setState(content);
         else
             this._setMarkdown(content);
+
+        this._revision += 1;
     }
 
     private _setState(state: TState[]) {
-        this._state = state;
+        this._state = deepClone(state);
     }
 
     private _setMarkdown(markdown: string) {
@@ -206,17 +221,21 @@ class JSONState {
     }
 
     dispatch(op: JSONOp, source = 'user' /* user, api */) {
-        const prevDoc = this.getState();
+        const prevDoc = this._state;
         this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
         debug.log(JSON.stringify(op));
-        this._muya.eventCenter.emit('json-change', {
-            op,
-            source,
-            prevDoc,
-            doc,
-        });
+        this._muya.eventCenter.emit(
+            'json-change',
+            createChangePayload(op, source, prevDoc, this._state),
+        );
+    }
+
+    /**
+     * Complete logical state. Consumers must never mutate this tree.
+     * @internal
+     */
+    get rawState(): readonly TState[] {
+        return this._state;
     }
 
     getState(): TState[] {
@@ -278,10 +297,6 @@ class JSONState {
         const op = this._operationCache.reduce(
             (acc, curr) => json1.type.compose(acc, curr) as JSONOpList,
         );
-        const prevDoc = this.getState();
-        this._apply(op);
-        // TODO: remove doc in future
-        const doc = this.getState();
         // Clear before emitting: a listener that edits synchronously then starts
         // a fresh batch instead of mutating the one being flushed.
         this._operationCache = [];
@@ -289,12 +304,12 @@ class JSONState {
         if (op === null)
             return;
 
-        this._muya.eventCenter.emit('json-change', {
-            op,
-            source: 'user',
-            prevDoc,
-            doc,
-        });
+        const prevDoc = this._state;
+        this._apply(op);
+        this._muya.eventCenter.emit(
+            'json-change',
+            createChangePayload(op, 'user', prevDoc, this._state),
+        );
     }
 }
 

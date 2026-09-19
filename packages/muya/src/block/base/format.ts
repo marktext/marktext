@@ -1494,7 +1494,10 @@ class Format extends Content {
 
         this.muya.editor.history.markInputBoundary('deleteContentForward', null);
 
-        const nextBlock = this.nextContentInContext();
+        // Pending-mount aware: at the frontier the paragraph to merge with
+        // may not be materialized yet (#4887) — a plain context walk would
+        // silently swallow the keystroke.
+        const nextBlock = this.resolveNextContentInContext();
         if (!nextBlock || nextBlock.blockName !== 'paragraph.content') {
             // If the next block is code content or table cell, nothing need to do.
             event.preventDefault();
@@ -1831,6 +1834,19 @@ class Format extends Content {
         const identifier = reference.id.replace(/^noteref-/, '');
         const { scrollPage } = this.muya.editor;
         if (!scrollPage)
+            return;
+
+        // Hosts without a footnote tool never consume the event — skip the
+        // whole-document preparation below instead of freezing a large file
+        // for nothing (#4887).
+        if (!this.muya.eventCenter.hasListeners('muya-footnote-tool'))
+            return;
+
+        // The identifier -> definition map must cover the WHOLE document: a
+        // definition still in the unmounted tail (#4887) resolving as
+        // "missing" would make the tool offer Create and duplicate it. Same
+        // documented whole-document trade as search.
+        if (scrollPage.flushPendingMount() === false)
             return;
 
         // Collect the first definition for each identifier — duplicates in
