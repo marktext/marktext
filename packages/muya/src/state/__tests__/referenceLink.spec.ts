@@ -38,7 +38,7 @@ function collectLabels(states: TState[]) {
 function parse(md: string) {
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
@@ -51,7 +51,7 @@ function tokenize(text: string, labels: Map<string, { href: string; title: strin
     return tokenizer(text, {
         labels,
         hasBeginRules: false,
-        options: { superSubScript: true, footnote: false },
+        options: { superSubScript: true, footnote: false, texMathDollars: true },
     });
 }
 

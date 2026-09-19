@@ -13,15 +13,15 @@ export function lexBlock(
     options: ILexOption = DEFAULT_OPTIONS,
 ): TLexedToken[] {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { math, frontMatter, footnote } = options;
+    const { texMathDollars, frontMatter, footnote } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Use a per-call Marked instance so extensions don't bleed across calls.
     // marked.use() on the global singleton would make math / footnote sticky:
-    // any consumer that once passed `math: true` would get math parsing forever.
+    // any consumer that once passed `texMathDollars: true` would get math parsing forever.
     const m = new LinearMarked();
 
-    if (math) {
+    if (texMathDollars) {
         m.use(
             mathExtension({
                 throwOnError: false,

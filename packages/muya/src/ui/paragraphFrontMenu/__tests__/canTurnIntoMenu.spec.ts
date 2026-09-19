@@ -32,14 +32,20 @@ import { canTurnIntoMenu } from '../config';
 // full Muya bootstrap, but the front-menu gate is enough to demonstrate
 // that the user has no UI path to nest a math-block inside a math-block.
 
-// `canTurnIntoMenu` only reads `blockName` and `firstContentInDescendant()`
-// on the passed-in block; the structural fake covers that surface.
-function fakeBlock(blockName: string, paragraphText: string = ''): Parent {
+// `canTurnIntoMenu` only reads `blockName`, `firstContentInDescendant()` and
+// the markdown-extension options behind each offered block; the structural
+// fake covers that surface.
+function fakeBlock(
+    blockName: string,
+    paragraphText: string = '',
+    options: { texMathDollars?: boolean } = {},
+): Parent {
     return {
         blockName,
         firstContentInDescendant() {
             return { text: paragraphText };
         },
+        muya: { options: { texMathDollars: true, ...options } },
     } as unknown as Parent;
 }
 
@@ -131,5 +137,20 @@ describe('canTurnIntoMenu — no inserting tables inside non-paragraph container
     it('non-empty paragraph excludes table from the turn-into list', () => {
         const items = canTurnIntoMenu(fakeBlock('paragraph', 'typed text'));
         expect(items.some((i: { label: string }) => i.label === 'table')).toBe(false);
+    });
+});
+
+// #5446: turning texMathDollars off takes the display-math block with it —
+// the block would serialize to `$$…$$`, which the editor then reads as text.
+describe('canTurnIntoMenu — math block follows texMathDollars', () => {
+    it('offers a math block on an empty paragraph while the option is on', () => {
+        const items = canTurnIntoMenu(fakeBlock('paragraph', '', { texMathDollars: true }));
+        expect(items.some((i: { label: string }) => i.label === 'math-block')).toBe(true);
+    });
+
+    it('drops it once the option is off, leaving the other blocks alone', () => {
+        const items = canTurnIntoMenu(fakeBlock('paragraph', '', { texMathDollars: false }));
+        expect(items.some((i: { label: string }) => i.label === 'math-block')).toBe(false);
+        expect(items.some((i: { label: string }) => i.label === 'table')).toBe(true);
     });
 });

@@ -409,6 +409,7 @@
         "frontmatterType": "The frontmatter type",
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
         "footnote": "Enable pandoc's markdown extension footnote",
+        "texMathDollars": "Enable pandoc's markdown extension tex_math_dollars",
         "isHtmlEnabled": "Enable HTML rendering",
         "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
@@ -634,6 +635,7 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Footnote",
         "footnoteNotes": "Footnote notes",
+        "texMathDollars": "TeX math with $ and $$",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",

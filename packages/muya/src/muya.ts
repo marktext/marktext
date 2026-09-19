@@ -128,7 +128,7 @@ const HEADING_LEVEL_BLOCK_NAMES = new Set(['paragraph', 'atx-heading', 'setext-h
 // document must be re-parsed from markdown. See setOptions below.
 const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'isGitlabCompatibilityEnabled',
-    'math',
+    'texMathDollars',
     'footnote',
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',

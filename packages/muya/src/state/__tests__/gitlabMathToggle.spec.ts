@@ -50,12 +50,12 @@ const MATH_FENCE = '```math\nx^2\n```\n';
 
 describe('isGitlabCompatibilityEnabled — live toggle re-parses ```math', () => {
     it('starts as a code block when gitlab compatibility is off', () => {
-        const muya = bootMuya(MATH_FENCE, { math: true, isGitlabCompatibilityEnabled: false });
+        const muya = bootMuya(MATH_FENCE, { texMathDollars: true, isGitlabCompatibilityEnabled: false });
         expect(firstBlock(muya).name).toBe('code-block');
     });
 
     it('promotes an existing ```math code block to a math block when toggled ON', () => {
-        const muya = bootMuya(MATH_FENCE, { math: true, isGitlabCompatibilityEnabled: false });
+        const muya = bootMuya(MATH_FENCE, { texMathDollars: true, isGitlabCompatibilityEnabled: false });
         expect(firstBlock(muya).name).toBe('code-block');
 
         muya.setOptions({ isGitlabCompatibilityEnabled: true }, true);
@@ -65,7 +65,7 @@ describe('isGitlabCompatibilityEnabled — live toggle re-parses ```math', () =>
     });
 
     it('demotes an existing ```math math block back to a code block when toggled OFF', () => {
-        const muya = bootMuya(MATH_FENCE, { math: true, isGitlabCompatibilityEnabled: true });
+        const muya = bootMuya(MATH_FENCE, { texMathDollars: true, isGitlabCompatibilityEnabled: true });
         expect(firstBlock(muya).name).toBe('math-block');
 
         muya.setOptions({ isGitlabCompatibilityEnabled: false }, true);
@@ -75,7 +75,7 @@ describe('isGitlabCompatibilityEnabled — live toggle re-parses ```math', () =>
     });
 
     it('leaves $$ math blocks untouched across a toggle', () => {
-        const muya = bootMuya('$$\nx^2\n$$\n', { math: true, isGitlabCompatibilityEnabled: false });
+        const muya = bootMuya('$$\nx^2\n$$\n', { texMathDollars: true, isGitlabCompatibilityEnabled: false });
         expect(firstBlock(muya).name).toBe('math-block');
 
         muya.setOptions({ isGitlabCompatibilityEnabled: true }, true);

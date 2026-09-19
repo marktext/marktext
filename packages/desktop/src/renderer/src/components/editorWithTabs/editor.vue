@@ -220,6 +220,7 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
   isHtmlEnabled,
   isGitlabCompatibilityEnabled,
   softNewlineAsSpace,
@@ -655,6 +656,12 @@ watch(superSubScript, (value, oldValue) => {
 watch(footnote, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ footnote: value }, true)
+  }
+})
+
+watch(texMathDollars, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDollars: value }, true)
   }
 })
 
@@ -1776,6 +1783,7 @@ onMounted(() => {
     frontmatterType: frontmatterType.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
+    texMathDollars: texMathDollars.value,
     disableHtml: !isHtmlEnabled.value,
     isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,

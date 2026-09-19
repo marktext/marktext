@@ -10,7 +10,7 @@ import ExportMarkdown from '../stateToMarkdown';
 function gen(markdown: string): Parameters<ExportMarkdown['generate']>[0] {
     return new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

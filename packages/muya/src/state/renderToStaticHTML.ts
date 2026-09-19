@@ -5,7 +5,7 @@ import { transformFootnotes } from './transformFootnotes';
 
 export interface IRenderToStaticHTMLOptions {
     footnote?: boolean;
-    math?: boolean;
+    texMathDollars?: boolean;
     isGitlabCompatibilityEnabled?: boolean;
     superSubScript?: boolean;
     frontMatter?: boolean;
@@ -51,7 +51,7 @@ export function renderToStaticHTML(
 
     let html = getHighlightHtml(markdown, {
         footnote,
-        math: options.math ?? true,
+        texMathDollars: options.texMathDollars ?? true,
         isGitlabCompatibilityEnabled: options.isGitlabCompatibilityEnabled ?? true,
         superSubScript: options.superSubScript ?? true,
         frontMatter: options.frontMatter ?? false,

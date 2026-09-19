@@ -14,7 +14,7 @@ function makeRenderer(blocks: TState[]) {
             isGitlabCompatibilityEnabled: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
-            math: false,
+            texMathDollars: false,
             listIndentation: 1,
         },
         eventCenter: { emit: () => {} },

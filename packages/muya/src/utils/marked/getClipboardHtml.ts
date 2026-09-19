@@ -12,7 +12,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, isGitlabCompatibilityEnabled, superSubScript }
         = options;
     let html = '';
 
@@ -23,14 +23,14 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     const marked = new LinearMarked();
 
     marked.use({
-        walkTokens: walkTokens({ math, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, isGitlabCompatibilityEnabled }),
     });
 
     // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
     // clipboard HTML consistent with the static / export render path.
     marked.use(cjkEmStrongExtension());
 
-    if (math) {
+    if (texMathDollars) {
         marked.use(
             mathExtension({
                 throwOnError: false,

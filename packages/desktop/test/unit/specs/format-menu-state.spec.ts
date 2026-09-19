@@ -249,8 +249,18 @@ describe('menu template accelerators match the platform keybinding tables (Parag
     ['Darwin', keybindingsDarwin]
   ]
 
+  // The Paragraph template also reads preferences — Math Block is listed only
+  // while `texMathDollars` is on (#5446). These accelerator checks want the
+  // full item set, so hand it a preference that answers with the defaults.
+  const defaultPreference = { getItem: () => undefined }
+  const paragraphWithDefaults: Template = (kb) =>
+    (paragraphTemplate as unknown as (
+      kb: unknown,
+      prefs: unknown
+    ) => MenuItemConstructorOptions)(kb, defaultPreference)
+
   const TEMPLATES: ReadonlyArray<readonly [string, Template]> = [
-    ['paragraph', paragraphTemplate as unknown as Template],
+    ['paragraph', paragraphWithDefaults],
     ['edit', editTemplate as unknown as Template],
     ['view', viewTemplate as unknown as Template]
   ]
@@ -293,8 +303,8 @@ describe('menu template accelerators match the platform keybinding tables (Parag
   // Spot-check the specific ids the checklist calls out, against the real table
   // values, so a wholesale table edit is caught even if the pass-through holds.
   it('binds the checklist-named ids to their documented platform accelerators', () => {
-    expect(referencedIds(paragraphTemplate as unknown as Template)).toContain('paragraph.heading-1')
-    expect(referencedIds(paragraphTemplate as unknown as Template)).toContain('paragraph.front-matter')
+    expect(referencedIds(paragraphWithDefaults)).toContain('paragraph.heading-1')
+    expect(referencedIds(paragraphWithDefaults)).toContain('paragraph.front-matter')
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.duplicate')
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.find-next')
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.find-previous')
