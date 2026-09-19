@@ -24,11 +24,11 @@ interface IMathLike {
 
 function parse(
     markdown: string,
-    options: Partial<{ math: boolean; isGitlabCompatibilityEnabled: boolean }> = {},
+    options: Partial<{ texMathDollars: boolean; isGitlabCompatibilityEnabled: boolean }> = {},
 ): IMathLike[] {
     return new MarkdownToState({
         footnote: false,
-        math: true,
+        texMathDollars: true,
         isGitlabCompatibilityEnabled: true,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
@@ -57,8 +57,8 @@ describe('gitlab math — parse promotion (walkTokens)', () => {
         expect(block.meta?.mathStyle).toBeUndefined();
     });
 
-    it('leaves ```math as a plain code block when math is off (both flags required)', () => {
-        const [block] = parse('```math\nx^2\n```\n', { math: false });
+    it('leaves ```math as a plain code block when texMathDollars is off (both flags required)', () => {
+        const [block] = parse('```math\nx^2\n```\n', { texMathDollars: false });
         expect(block.name).toBe('code-block');
         expect(block.meta?.lang).toBe('math');
     });

@@ -409,6 +409,7 @@
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "texMathDollars": "Pandoc'un markdown uzantısı tex_math_dollars'ı etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
@@ -634,6 +635,7 @@
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
         "footnoteNotes": "Dipnot notları",
+        "texMathDollars": "$ ve $$ ile TeX matematiği",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

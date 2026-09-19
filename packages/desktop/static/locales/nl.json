@@ -409,6 +409,7 @@
         "frontmatterType": "Het type Front Matter",
         "superSubScript": "Pandoc superscript en subscript inschakelen",
         "footnote": "Pandoc voetnoten inschakelen",
+        "texMathDollars": "Pandocs markdown-extensie tex_math_dollars inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
@@ -634,6 +635,7 @@
         "superSubScript": "Super-/subscript",
         "footnote": "Voetnoot",
         "footnoteNotes": "Voetnoten",
+        "texMathDollars": "TeX-wiskunde met $ en $$",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

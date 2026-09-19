@@ -151,18 +151,18 @@ describe('renderToStaticHTML', () => {
             // GitLab-flavoured Markdown lets a fenced code block tagged
             // ` ```math ` render as block math. `walkTokens` rewrites the
             // code-block token to `multiplemath` only when both
-            // `math: true` AND `isGitlabCompatibilityEnabled: true`.
+            // `texMathDollars: true` AND `isGitlabCompatibilityEnabled: true`.
             const src = '```math\nx^2\n```';
 
             const gitlab = renderToStaticHTML(src, {
-                math: true,
+                texMathDollars: true,
                 isGitlabCompatibilityEnabled: true,
             });
             // multiplemath → KaTeX wrapper.
             expect(gitlab).toMatch(/katex|<math/i);
 
             const strict = renderToStaticHTML(src, {
-                math: true,
+                texMathDollars: true,
                 isGitlabCompatibilityEnabled: false,
             });
             // Without GitLab compatibility, the block stays a plain code
@@ -214,8 +214,8 @@ describe('renderToStaticHTML', () => {
             expect(on).not.toMatch(/<div class="footnote-block"/);
         });
 
-        it('honours math option', () => {
-            const html = renderToStaticHTML('$$\nx^2\n$$', { math: true });
+        it('honours the texMathDollars option', () => {
+            const html = renderToStaticHTML('$$\nx^2\n$$', { texMathDollars: true });
             // Math block should be transformed away from a literal `$$` fence.
             // KaTeX output contains class="katex" wrappers when math enabled.
             expect(html).toMatch(/katex|<math/i);

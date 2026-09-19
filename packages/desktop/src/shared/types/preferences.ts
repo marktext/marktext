@@ -43,6 +43,7 @@ export interface IUserPreferences {
   frontmatterType?: '-' | ';' | '+' | '{'
   superSubScript?: boolean
   footnote?: boolean
+  texMathDollars?: boolean
   isHtmlEnabled?: boolean
   isGitlabCompatibilityEnabled?: boolean
   softNewlineAsSpace?: boolean

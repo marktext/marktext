@@ -410,6 +410,7 @@
         "frontmatterType": "O tipo de frontmatter",
         "superSubScript": "Habilitar extensão markdown do pandoc para sobrescrito e subscrito",
         "footnote": "Habilitar extensão markdown do pandoc para nota de rodapé",
+        "texMathDollars": "Ativar a extensão markdown do pandoc tex_math_dollars",
         "isHtmlEnabled": "Habilitar renderização HTML",
         "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
@@ -634,6 +635,7 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Nota de rodapé",
         "footnoteNotes": "Notas de rodapé",
+        "texMathDollars": "Matemática TeX com $ e $$",
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",

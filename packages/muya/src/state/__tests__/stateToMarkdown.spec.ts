@@ -116,7 +116,7 @@ describe('serializeTable — visual column width (#1983)', () => {
 function gen(markdown: string): TStateForExport {
     return new MarkdownToState({
         footnote: false,
-        math: false,
+        texMathDollars: false,
         isGitlabCompatibilityEnabled: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,

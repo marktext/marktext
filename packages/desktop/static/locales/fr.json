@@ -410,6 +410,7 @@
         "frontmatterType": "Le type de frontmatter",
         "superSubScript": "Activer l'extension markdown de pandoc pour exposant et indice",
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
+        "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
         "isHtmlEnabled": "Activer le rendu HTML",
         "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
@@ -634,6 +635,7 @@
         "superSubScript": "Exposant/Indice",
         "footnote": "Note de bas de page",
         "footnoteNotes": "Notes de bas de page",
+        "texMathDollars": "Maths TeX avec $ et $$",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

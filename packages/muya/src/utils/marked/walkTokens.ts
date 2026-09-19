@@ -12,7 +12,7 @@ function isMathToken(token: Token | IMathToken): token is IMathToken {
 
 function walkTokens(options: ILexOption) {
     return (token: Token | Heading) => {
-        const { math, isGitlabCompatibilityEnabled } = options;
+        const { texMathDollars, isGitlabCompatibilityEnabled } = options;
         // marked mixes atx and setext headers, which we distinguish by headingStyle,
         // and markers are unique to setext heading
         if (isHeadingToken(token)) {
@@ -32,7 +32,7 @@ function walkTokens(options: ILexOption) {
                 token.codeBlockStyle = 'fenced';
         }
 
-        if (isMathToken(token) && math && isGitlabCompatibilityEnabled) {
+        if (isMathToken(token) && texMathDollars && isGitlabCompatibilityEnabled) {
             // Transform the marked code-block token in place into the
             // multiplemath token shape that downstream consumers expect.
             // After the assignment the old `lang`/`codeBlockStyle` fields no

@@ -53,6 +53,7 @@
   "frontmatterType": "-",
   "superSubScript": false,
   "footnote": false,
+  "texMathDollars": true,
   "isHtmlEnabled": true,
   "isGitlabCompatibilityEnabled": false,
   "softNewlineAsSpace": false,

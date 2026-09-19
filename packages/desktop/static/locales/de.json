@@ -410,6 +410,7 @@
         "frontmatterType": "Der Frontmatter-Typ",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
+        "texMathDollars": "Pandocs Markdown-Erweiterung tex_math_dollars aktivieren",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
@@ -634,6 +635,7 @@
         "superSubScript": "Hoch-/Tiefgestellt",
         "footnote": "Fußnote",
         "footnoteNotes": "Fußnoten",
+        "texMathDollars": "TeX-Mathematik mit $ und $$",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",

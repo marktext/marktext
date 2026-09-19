@@ -53,7 +53,7 @@ function readFixture(rel: string): string {
 function roundTrip(markdown: string): string {
     const states = new MarkdownToState({
         footnote: false,
-        math: true,
+        texMathDollars: true,
         isGitlabCompatibilityEnabled: true,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,

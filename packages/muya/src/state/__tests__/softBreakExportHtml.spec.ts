@@ -16,7 +16,7 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // rendering itself (and the `:has()` exclusion of loose items) is a CSS
 // concern verified in a real browser against the export stylesheet.
 
-const OPTS = { math: false, superSubScript: false, footnote: false, frontMatter: false };
+const OPTS = { texMathDollars: false, superSubScript: false, footnote: false, frontMatter: false };
 
 describe('#3676 — soft line breaks survive export as a conformant newline', () => {
     it('keeps a paragraph soft break as a newline, never a <br>', () => {

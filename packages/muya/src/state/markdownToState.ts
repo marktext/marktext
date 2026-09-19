@@ -18,7 +18,7 @@ const debug = logger('import markdown: ');
 
 interface IMarkdownToStateOptions {
     footnote: boolean;
-    math: boolean;
+    texMathDollars: boolean;
     isGitlabCompatibilityEnabled: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
@@ -26,7 +26,7 @@ interface IMarkdownToStateOptions {
 
 const DEFAULT_OPTIONS = {
     footnote: false,
-    math: true,
+    texMathDollars: true,
     isGitlabCompatibilityEnabled: true,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
@@ -53,7 +53,7 @@ export class MarkdownToState {
     private _convertMarkdownToState(markdown: string): TState[] {
         const {
             footnote = false,
-            math = true,
+            texMathDollars = true,
             isGitlabCompatibilityEnabled = true,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
@@ -64,7 +64,7 @@ export class MarkdownToState {
         // stack, so the working stream is wider than what `lexBlock` returns.
         const tokens: TBlockToken[] = lexBlock(markdown, {
             footnote,
-            math,
+            texMathDollars,
             frontMatter,
             isGitlabCompatibilityEnabled,
         });

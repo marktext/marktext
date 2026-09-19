@@ -538,6 +538,10 @@ class AppMenu {
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
+      if (prefs.texMathDollars !== undefined) {
+        // The Paragraph menu lists Math Block only while the option is on.
+        this.updateAppMenu()
+      }
       if (prefs.language) {
         // Update main process language and rebuild menu
         setLanguage(prefs.language)
