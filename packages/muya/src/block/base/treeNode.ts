@@ -177,13 +177,14 @@ class TreeNode implements ILinkedNode {
      * materializing until a content appears or the mount stops making
      * progress — a single step is not enough, because the next top-level
      * block can be an empty container with no content descendant. At the
-     * genuine document end this mounts nothing and returns null.
+     * genuine document end this mounts nothing and returns null. A canceled
+     * mount returns false so callers must not run their end-of-document fallback.
      *
      * Call it on a CONTENT receiver (as `nextContentInContext` itself): the
      * sibling walk starts at the receiver's parent, so a top-level Parent
      * receiver would skip its own successors.
      */
-    resolveNextContentInContext(): Nullable<Content> {
+    resolveNextContentInContext(): Nullable<Content> | false {
         let next = this.nextContentInContext();
         if (next)
             return next;
@@ -202,7 +203,7 @@ class TreeNode implements ILinkedNode {
         while (!next) {
             const mounted = scrollPage.children.length;
             if (scrollPage.ensureMountedThrough(mounted) === false)
-                return null;
+                return false;
             if (scrollPage.children.length === mounted)
                 break;
 

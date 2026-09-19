@@ -536,6 +536,8 @@ class Content extends TreeNode {
             event.stopPropagation();
             const targetContentBlock
                 = nextContentBlock ?? this.resolveNextContentInContext();
+            if (targetContentBlock === false)
+                return;
             if (targetContentBlock) {
                 cursorBlock = targetContentBlock;
             }

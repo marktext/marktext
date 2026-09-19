@@ -98,6 +98,8 @@ class TableCellContent extends Format {
         else {
             const lastCellContent = row.lastContentInDescendant();
             const nextContent = lastCellContent?.resolveNextContentInContext();
+            if (nextContent === false)
+                return;
 
             if (nextContent) {
                 cursorBlock = nextContent;
@@ -178,6 +180,8 @@ class TableCellContent extends Format {
                 let cursorBlock = null;
                 const nextContent
                     = tableNextContent ?? this.resolveNextContentInContext();
+                if (nextContent === false)
+                    return;
                 if (nextContent) {
                     cursorBlock = nextContent;
                 }
