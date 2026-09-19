@@ -123,9 +123,8 @@ class Selection {
     }
 
     /**
-     * The source text of the current text selection, or the empty string for a
-     * caret. A frozen rectangular table or image selection reports nothing:
-     * both drop the native range, which is what this reads.
+     * The source text of the current text selection. Empty for a caret, and for
+     * table and image selections — both drop the native range this reads.
      */
     getSelectedText(): string {
         return this._text.getSelectedText();

@@ -574,10 +574,8 @@ export class Muya {
     }
 
     /**
-     * Return the source text of the current text selection. Paragraph
-     * boundaries use blank lines, while code, table and tight-list content uses
-     * single newlines. A caret, a rectangular table selection and an image
-     * selection all report the empty string.
+     * The source text of the current text selection: blank lines between
+     * paragraphs, single newlines inside code, tables and tight lists.
      */
     getSelectedText(): string {
         return this.editor.selection.getSelectedText();

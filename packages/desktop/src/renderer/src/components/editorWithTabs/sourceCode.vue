@@ -285,9 +285,8 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
-// `cursorActivity` fires on every caret move and on every step of a drag, so
-// the ranges — not the selected text — are what decides whether to recount.
-// Reading them is O(ranges); `getSelection()` copies the whole selection.
+// `cursorActivity` fires per drag step, so key the dedup on the ranges rather
+// than on `getSelection()`, which copies the whole selection.
 let lastSelectionKey = ''
 
 const selectionKey = (cm: CMInstance): string =>

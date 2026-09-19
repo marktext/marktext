@@ -427,9 +427,8 @@ const adaptSelectionChange = (changes: MuyaChange) => {
   }
 }
 
-// The engine reports a selection only once it is committed (mouse release, key
-// press), so recomputing the count per notification is cheap. A caret reports
-// no text, which is the common case and never re-enters the counter.
+// The engine reports only committed selections, so recounting per notification
+// is cheap; a caret reports no text and stops here.
 const setSelectionWordCountFromText = (selectedText: string) => {
   const hasSelection = selectedText.trim().length > 0
   if (!hasSelection && editorStore.selectionWordCount == null) return

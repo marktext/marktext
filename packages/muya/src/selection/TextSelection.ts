@@ -27,10 +27,8 @@ import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
 const debug = logger('textselection:');
 
-// Markdown needs a blank line between two blocks to keep them apart, except
-// where the container itself is the separator: code and table content are
-// newline-separated by definition, and a tight list re-parses as a loose one
-// once its items are split by blank lines.
+// Code, table and tight-list content is newline-separated; anything else needs
+// a blank line, which is also what would re-parse a tight list as loose.
 function getTextSeparator(previous: Content, next: Content): string {
     const ancestors = next.getAncestors();
     let container = previous.getAncestors().find(block => ancestors.includes(block));
@@ -243,9 +241,7 @@ class TextSelection {
             return '';
 
         const { anchor, focus, direction } = selection;
-        // `getSelection()` resolves whichever editor the native range landed
-        // in, so a selection in a sibling editor would otherwise be reported
-        // here as this one's.
+        // `getSelection()` resolves whichever editor the range landed in.
         if (anchor.block.muya !== this._muya || focus.block.muya !== this._muya)
             return '';
 
@@ -264,9 +260,8 @@ class TextSelection {
             block = block.nextContentInContext();
         }
 
-        // `direction` orders the endpoints by DOM position while the walk
-        // follows the block tree; the two only disagree for a block that is no
-        // longer in the document, which leaves nothing meaningful to report.
+        // `direction` is DOM order, the walk is tree order: they disagree only
+        // for a block no longer in the document.
         debug.warn('the selection end is not reachable from its start');
 
         return '';
