@@ -18,7 +18,7 @@ function generate(markdown: string): IStateLike[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as IStateLike[];

@@ -39,7 +39,7 @@ function parse(md: string) {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -51,7 +51,7 @@ function tokenize(text: string, labels: Map<string, { href: string; title: strin
     return tokenizer(text, {
         labels,
         hasBeginRules: false,
-        options: { superSubScript: true, footnote: false, texMathDollars: true },
+        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false },
     });
 }
 

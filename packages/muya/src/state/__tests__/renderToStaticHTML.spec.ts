@@ -16,7 +16,7 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 //   4. Forward the same per-render option surface as `getHighlightHtml` —
 //      see `option surface` describe block below for explicit coverage of
 //      each option (footnote, math, superSubScript,
-//      isGitlabCompatibilityEnabled, frontMatter).
+//      texMathGfm, frontMatter).
 //
 // `MarkdownToHtml` (the existing class) already produces wrapped HTML, but its
 // `renderHtml()` path is async (awaits mermaid + diagram renderers) and wraps
@@ -147,25 +147,24 @@ describe('renderToStaticHTML', () => {
             expect(html).toMatch(/<li>[^<]*2<sup>n<\/sup>[^<]*<\/li>/);
         });
 
-        it('honours isGitlabCompatibilityEnabled (promotes ```math fences to math blocks)', () => {
-            // GitLab-flavoured Markdown lets a fenced code block tagged
+        it('honours texMathGfm (promotes ```math fences to math blocks)', () => {
+            // GitHub and GitLab let a fenced code block tagged
             // ` ```math ` render as block math. `walkTokens` rewrites the
-            // code-block token to `multiplemath` only when both
-            // `texMathDollars: true` AND `isGitlabCompatibilityEnabled: true`.
+            // code-block token to `multiplemath` when `texMathGfm: true`.
             const src = '```math\nx^2\n```';
 
             const gitlab = renderToStaticHTML(src, {
                 texMathDollars: true,
-                isGitlabCompatibilityEnabled: true,
+                texMathGfm: true,
             });
             // multiplemath → KaTeX wrapper.
             expect(gitlab).toMatch(/katex|<math/i);
 
             const strict = renderToStaticHTML(src, {
                 texMathDollars: true,
-                isGitlabCompatibilityEnabled: false,
+                texMathGfm: false,
             });
-            // Without GitLab compatibility, the block stays a plain code
+            // Without tex_math_gfm, the block stays a plain code
             // fence with language `math` — no KaTeX.
             expect(strict).not.toMatch(/katex|<math/i);
             expect(strict).toMatch(/<pre><code[^>]*>x\^2/);

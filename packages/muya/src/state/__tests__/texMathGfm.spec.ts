@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { MarkdownToState } from '../markdownToState';
 import ExportMarkdown from '../stateToMarkdown';
 
-// GitLab-flavoured Markdown lets a fenced code block tagged ```math render as
-// block math (display mode), serializing back as ```math instead of $$. In the
-// new engine the promotion is split across two seams:
+// The display half of pandoc's `tex_math_gfm`: a fenced code block tagged
+// ```math renders as block math and serializes back as ```math, not $$. Both
+// GitHub and GitLab write it this way. The promotion is split across two seams:
 //   * parse:     utils/marked/walkTokens.ts rewrites a `code`/lang=math token
-//                into a `multiplemath` token with mathStyle='gitlab', but ONLY
-//                when BOTH `math` AND `isGitlabCompatibilityEnabled` are true.
+//                into a `multiplemath` token with mathStyle='gfm', when
+//                `texMathGfm` is on — independently of the dollar syntax.
 //   * serialize: state/stateToMarkdown.ts::_serializeMathBlock picks the fence
-//                purely from meta.mathStyle ('' → $$, 'gitlab' → ```math) — it
+//                purely from meta.mathStyle ('' → $$, 'gfm' → ```math) — it
 //                does NOT re-read the option, so a block keeps its origin style.
 // The legacy engine (packages/muyajs) detected the same syntax with a dedicated
 // regex (`multiplemathGitlab` in parser/marked/blockRules.js). These specs lock
@@ -24,12 +24,12 @@ interface IMathLike {
 
 function parse(
     markdown: string,
-    options: Partial<{ texMathDollars: boolean; isGitlabCompatibilityEnabled: boolean }> = {},
+    options: Partial<{ texMathDollars: boolean; texMathGfm: boolean }> = {},
 ): IMathLike[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: true,
+        texMathGfm: true,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,
@@ -42,38 +42,38 @@ function serialize(states: IMathLike[]): string {
     );
 }
 
-describe('gitlab math — parse promotion (walkTokens)', () => {
-    it('promotes ```math to a gitlab-styled math block when math + gitlab are on', () => {
+describe('tex_math_gfm — parse promotion (walkTokens)', () => {
+    it('promotes ```math to a gfm-styled math block when tex_math_gfm is on', () => {
         const [block] = parse('```math\nx^2\n```\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
         expect(block.text).toBe('x^2');
     });
 
-    it('leaves ```math as a plain code block when gitlab compatibility is off', () => {
-        const [block] = parse('```math\nx^2\n```\n', { isGitlabCompatibilityEnabled: false });
+    it('leaves ```math as a plain code block when tex_math_gfm is off', () => {
+        const [block] = parse('```math\nx^2\n```\n', { texMathGfm: false });
         expect(block.name).toBe('code-block');
         expect(block.meta?.lang).toBe('math');
         expect(block.meta?.mathStyle).toBeUndefined();
     });
 
-    it('leaves ```math as a plain code block when texMathDollars is off (both flags required)', () => {
+    it('promotes ```math with texMathDollars off — the display half rides tex_math_gfm alone', () => {
         const [block] = parse('```math\nx^2\n```\n', { texMathDollars: false });
-        expect(block.name).toBe('code-block');
-        expect(block.meta?.lang).toBe('math');
+        expect(block.name).toBe('math-block');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
-    it('always parses $$ as a non-gitlab math block, independent of the flag', () => {
-        for (const gitlab of [true, false]) {
-            const [block] = parse('$$\nx^2\n$$\n', { isGitlabCompatibilityEnabled: gitlab });
+    it('always parses $$ as a non-gfm math block, independent of the flag', () => {
+        for (const enabled of [true, false]) {
+            const [block] = parse('$$\nx^2\n$$\n', { texMathGfm: enabled });
             expect(block.name).toBe('math-block');
             expect(block.meta?.mathStyle).toBe('');
         }
     });
 });
 
-describe('gitlab math — serialization (stateToMarkdown)', () => {
-    it('serializes a gitlab-styled math block back to ```math', () => {
+describe('tex_math_gfm — serialization (stateToMarkdown)', () => {
+    it('serializes a gfm-styled math block back to ```math', () => {
         const states = parse('```math\nx^2\n```\n');
         expect(serialize(states)).toBe('```math\nx^2\n```\n');
     });
@@ -84,45 +84,45 @@ describe('gitlab math — serialization (stateToMarkdown)', () => {
     });
 
     it('keys the fence purely on meta.mathStyle, not on the option (mixed mode)', () => {
-        // A block authored in gitlab mode keeps the ```math fence even if the
+        // A block authored under tex_math_gfm keeps the ```math fence even if the
         // serializer is given a state that originated from $$ — proving the
         // fence choice rides on the stored style, never the runtime flag.
         const states = parse('$$\nx^2\n$$\n');
-        states[0].meta!.mathStyle = 'gitlab';
+        states[0].meta!.mathStyle = 'gfm';
         expect(serialize(states)).toBe('```math\nx^2\n```\n');
     });
 
-    it('preserves indentation when a gitlab math block is nested in a list', () => {
+    it('preserves indentation when a gfm math block is nested in a list', () => {
         const md = '- item\n\n  ```math\n  x^2\n  ```\n';
         expect(serialize(parse(md))).toBe(md);
     });
 });
 
-describe('gitlab math — round-trip stability', () => {
-    it('round-trips ```math unchanged with gitlab compatibility on', () => {
+describe('tex_math_gfm — round-trip stability', () => {
+    it('round-trips ```math unchanged with tex_math_gfm on', () => {
         const md = '```math\nx^2\n```\n';
         expect(serialize(parse(md))).toBe(md);
     });
 
     it('round-trips $$ unchanged regardless of the flag', () => {
         const md = '$$\nx^2\n$$\n';
-        expect(serialize(parse(md, { isGitlabCompatibilityEnabled: false }))).toBe(md);
+        expect(serialize(parse(md, { texMathGfm: false }))).toBe(md);
     });
 });
 
 // Characterization of where the new engine (@muyajs/core) agrees with and
 // diverges from the legacy engine (packages/muyajs) for the SAME input under
-// gitlab compatibility. muyajs gated promotion on the regex
+// tex_math_gfm. muyajs gated promotion on the regex
 //   /^ {0,3}(`{3,})math\n.../
 // — backtick-only, `math` immediately before the newline, ≤3 leading spaces.
 // muya instead promotes any marked `code` token whose lang === 'math', so its
 // acceptance set is "whatever marked treats as a fenced code block labelled
 // math". Most cases coincide; the tilde-fence case is the one real divergence.
-describe('gitlab math — consistency with legacy muyajs', () => {
+describe('tex_math_gfm — consistency with legacy muyajs', () => {
     it('agree — a 3-space indented ```math is still promoted (both engines)', () => {
         const [block] = parse('   ```math\nx^2\n```\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
     it('agree — a 4-space indented fence is an indented code block, not math (both engines)', () => {
@@ -134,7 +134,7 @@ describe('gitlab math — consistency with legacy muyajs', () => {
     it('agree — a 4+ backtick ```math fence is promoted (both engines)', () => {
         const [block] = parse('````math\nx^2\n````\n');
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
     });
 
     it('agree — an info string after math (```math foo) is NOT promoted (both engines)', () => {
@@ -155,7 +155,7 @@ describe('gitlab math — consistency with legacy muyajs', () => {
         // the block re-serializes with a backtick fence. The legacy regex never
         // matched ~~~, so the same source stayed a plain code block there.
         expect(block.name).toBe('math-block');
-        expect(block.meta?.mathStyle).toBe('gitlab');
+        expect(block.meta?.mathStyle).toBe('gfm');
         expect(serialize(parse('~~~math\nx^2\n~~~\n'))).toBe('```math\nx^2\n```\n');
     });
 });

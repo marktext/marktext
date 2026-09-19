@@ -17,7 +17,7 @@ function roundTrip(md: string): string {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);
@@ -28,7 +28,7 @@ function parse(md: string) {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);

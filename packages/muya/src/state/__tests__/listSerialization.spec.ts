@@ -17,7 +17,7 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -62,7 +62,7 @@ function parseMarkdown(md: string): TState[] {
     return new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -539,7 +539,7 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
         const looseStates = new MarkdownToState({
             footnote: false,
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n\n- bar\n');
@@ -550,7 +550,7 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
         const tightStates = new MarkdownToState({
             footnote: false,
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n- bar\n');
@@ -649,7 +649,7 @@ Text after numbered list.
         const states = new MarkdownToState({
             footnote: false,
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('3. one\n4. two\n');

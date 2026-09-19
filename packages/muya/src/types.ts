@@ -32,7 +32,7 @@ export interface IMuyaOptions {
     superSubScript: boolean;
     footnote: boolean;
     texMathDollars: boolean;
-    isGitlabCompatibilityEnabled: boolean;
+    texMathGfm: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;

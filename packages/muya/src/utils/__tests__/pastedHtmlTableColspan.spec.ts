@@ -17,7 +17,7 @@ async function pasteHtmlToState(html: string) {
     const states = new MarkdownToState({
         footnote: false,
         texMathDollars: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as IStateLike[];

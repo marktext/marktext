@@ -48,7 +48,7 @@ function firstBlock(muya: Muya): any {
 
 function mathTokenCount(src: string, texMathDollars: boolean): number {
     return tokenizer(src, {
-        options: { superSubScript: true, footnote: false, texMathDollars },
+        options: { superSubScript: true, footnote: false, texMathDollars, texMathGfm: false },
     }).filter(token => token.type === 'inline_math').length;
 }
 
@@ -98,8 +98,9 @@ describe('texMathDollars — live toggle re-parses `$$…$$`', () => {
     it('leaves a ```math block alone — that one belongs to tex_math_gfm', () => {
         const muya = bootMuya('```math\nx^2\n```\n', {
             texMathDollars: false,
-            isGitlabCompatibilityEnabled: true,
+            texMathGfm: true,
         });
-        expect(firstBlock(muya).name).toBe('code-block');
+        expect(firstBlock(muya).name).toBe('math-block');
+        expect(firstBlock(muya).meta.mathStyle).toBe('gfm');
     });
 });

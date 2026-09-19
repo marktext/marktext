@@ -16,7 +16,7 @@ function makeState(blocks: TState[]): JSONState {
     const muya = {
         options: {
             footnote: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
             texMathDollars: false,

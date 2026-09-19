@@ -76,6 +76,11 @@ export const inlineExtensionRules = {
     // `$` and so never engages for `$$`. The veto can read the closer off the
     // first unescaped `$` because a single-`$` span may not contain one.
     inline_math: /^(?!\$(?!\$)(?:[^$\\]|\\.)*(?:\s\$|\$\d))(\$\$(?!\$)|\$(?=\S))((?:(?!\1)[^\\]|\\.)+)\1(?!\1)/,
+    // GitHub's inline math, the other half of pandoc's `tex_math_gfm` (#5446).
+    // Opener and closer are mirror images rather than the same string, but both
+    // are two characters wide, so the marker arithmetic every consumer does off
+    // `marker.length` still lands on the right side of the formula.
+    inline_math_gfm: /^(\$`)((?:[^`\\]|\\.)+)`\$/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
