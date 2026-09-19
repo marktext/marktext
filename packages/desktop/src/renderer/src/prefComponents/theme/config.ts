@@ -23,6 +23,7 @@ export const themes: ReadonlyArray<ThemeDescriptor> = [
   { name: 'dracula' },
   { name: 'everforest-dark' },
   { name: 'gruvbox-dark' },
+  { name: 'high-contrast' },
   { name: 'horizon-dark' },
   { name: 'kanagawa' },
   { name: 'material-dark' },

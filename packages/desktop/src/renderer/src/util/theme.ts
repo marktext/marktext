@@ -32,6 +32,7 @@ import {
   kanagawa,
   nightfox,
   cyberdream,
+  highContrast,
   // New gogh themes - Light
   catppuccinLatte,
   gruvboxLight,
@@ -148,6 +149,9 @@ export const addThemeStyle = (theme: string): void => {
       break
     case 'cyberdream':
       themeStyleEle.innerHTML = patchTheme(cyberdream())
+      break
+    case 'high-contrast':
+      themeStyleEle.innerHTML = patchTheme(highContrast())
       break
     // New gogh themes - Light
     case 'catppuccin-latte':

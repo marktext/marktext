@@ -175,7 +175,8 @@
       "tokyoNight": "Tokyo Night",
       "tokyoNightLight": "Tokyo Night Light",
       "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Light"
+      "ulyssesLight": "Ulysses Light",
+      "highContrast": "Yüksek kontrast"
     }
   },
   "contextMenu": {
