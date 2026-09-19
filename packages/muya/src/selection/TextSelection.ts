@@ -1,5 +1,8 @@
 import type Content from '../block/base/content';
 import type Format from '../block/base/format';
+import type BulletList from '../block/commonMark/bulletList';
+import type OrderList from '../block/commonMark/orderList';
+import type TaskList from '../block/gfm/taskList';
 import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
@@ -7,6 +10,7 @@ import type Selection from './index';
 import type { IAnchorFocusInfo, INodeOffset, ISelection } from './types';
 import { BLOCK_DOM_PROPERTY } from '../config';
 import { isHTMLElement, isMouseEvent } from '../utils';
+import logger from '../utils/logger';
 import {
     buildSelectionAffiliation,
     endpointBlockInfo,
@@ -20,6 +24,27 @@ import {
     getOffsetOfParagraph,
 } from './dom';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
+
+const debug = logger('textselection:');
+
+// Code, table and tight-list content is newline-separated; anything else needs
+// a blank line, which is also what would re-parse a tight list as loose.
+function getTextSeparator(previous: Content, next: Content): string {
+    const ancestors = next.getAncestors();
+    let container = previous.getAncestors().find(block => ancestors.includes(block));
+    if (container?.blockName === 'list-item' || container?.blockName === 'task-list-item')
+        container = container.parent ?? undefined;
+
+    if (container?.blockName === 'code-block' || container?.blockName.startsWith('table'))
+        return '\n';
+
+    if (container && ['bullet-list', 'order-list', 'task-list'].includes(container.blockName)) {
+        const list = container as BulletList | OrderList | TaskList;
+        return list.meta.loose ? '\n\n' : '\n';
+    }
+
+    return '\n\n';
+}
 
 function computeDirection(
     anchorBlock: Content,
@@ -208,6 +233,38 @@ class TextSelection {
             direction,
             type,
         };
+    }
+
+    getSelectedText(): string {
+        const selection = this.getSelection();
+        if (!selection || selection.isCollapsed)
+            return '';
+
+        const { anchor, focus, direction } = selection;
+        // `getSelection()` resolves whichever editor the range landed in.
+        if (anchor.block.muya !== this._muya || focus.block.muya !== this._muya)
+            return '';
+
+        const [start, end] = direction === SelectionDirection.BACKWARD ? [focus, anchor] : [anchor, focus];
+        if (start.block === end.block)
+            return start.block.text.slice(start.offset, end.offset);
+
+        const parts = [start.block.text.slice(start.offset)];
+        let previous = start.block;
+        let block = previous.nextContentInContext();
+        while (block) {
+            parts.push(getTextSeparator(previous, block), block === end.block ? block.text.slice(0, end.offset) : block.text);
+            if (block === end.block)
+                return parts.join('');
+            previous = block;
+            block = block.nextContentInContext();
+        }
+
+        // `direction` is DOM order, the walk is tree order: they disagree only
+        // for a block no longer in the document.
+        debug.warn('the selection end is not reachable from its start');
+
+        return '';
     }
 
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo) {

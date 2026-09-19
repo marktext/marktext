@@ -574,6 +574,14 @@ export class Muya {
     }
 
     /**
+     * The source text of the current text selection: blank lines between
+     * paragraphs, single newlines inside code, tables and tight lists.
+     */
+    getSelectedText(): string {
+        return this.editor.selection.getSelectedText();
+    }
+
+    /**
      * Whether the editor (or one of its descendants) currently holds focus.
      */
     hasFocus() {

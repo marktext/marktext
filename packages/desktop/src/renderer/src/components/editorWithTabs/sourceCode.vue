@@ -285,6 +285,30 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+// `cursorActivity` fires per drag step, so key the dedup on the ranges rather
+// than on `getSelection()`, which copies the whole selection.
+let lastSelectionKey = ''
+
+const selectionKey = (cm: CMInstance): string =>
+  (cm?.listSelections?.() ?? [])
+    .map(
+      ({ anchor, head }: { anchor: { line: number; ch: number }; head: { line: number; ch: number } }) =>
+        `${anchor.line}:${anchor.ch}-${head.line}:${head.ch}`
+    )
+    .join(',')
+
+const updateSelectionWordCount = (cm: CMInstance) => {
+  const key = selectionKey(cm)
+  if (key === lastSelectionKey && editorStore.selectionWordCount != null) return
+  lastSelectionKey = key
+
+  const selectedText = cm?.getSelection?.('\n') ?? ''
+  const hasSelection = selectedText.trim().length > 0
+  if (!hasSelection && editorStore.selectionWordCount == null) return
+
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
+}
+
 const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
@@ -308,6 +332,7 @@ const saveContent = (cm: CMInstance) => {
 const listenChange = () => {
   editor.value.on('cursorActivity', (cm: CMInstance) => {
     saveContent(cm)
+    updateSelectionWordCount(cm)
   })
 }
 
@@ -384,6 +409,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  updateSelectionWordCount(codeMirrorInstance)
 
   listenChange()
 })
@@ -399,6 +425,8 @@ onBeforeUnmount(() => {
   bus.off('undo', handleUndo)
   bus.off('redo', handleRedo)
   bus.off('image-action', handleImageAction)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
+  lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
