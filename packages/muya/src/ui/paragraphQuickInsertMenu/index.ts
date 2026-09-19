@@ -4,7 +4,7 @@ import type {
     IQuickInsertMenuItem,
 } from './config';
 import Fuse from 'fuse.js';
-import { replaceBlockByLabel } from '../../block/blockTransforms';
+import { canInsertLabel, replaceBlockByLabel } from '../../block/blockTransforms';
 import ParagraphContent from '../../block/content/paragraphContent';
 import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
@@ -222,12 +222,8 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 .splice(2, 1);
         }
 
-        // A display-math block writes `$$…$$`, which this editor no longer
-        // reads back once the dollar syntax is off — so stop offering it (#5446).
-        if (!muya.options.texMathDollars) {
-            for (const menu of menuConfig)
-                menu.children = menu.children.filter(child => child.label !== 'math-block');
-        }
+        for (const menu of menuConfig)
+            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya));
         let result = menuConfig;
         if (text !== '') {
             result = [];

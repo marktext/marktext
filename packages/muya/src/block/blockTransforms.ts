@@ -177,7 +177,18 @@ function buildDiagramBlock(label: string, muya: Muya) {
     return ScrollPage.loadBlock(name).create(muya, diagramState);
 }
 
+// A display-math block serializes to `$$…$$`, which this editor no longer reads
+// back once pandoc's tex_math_dollars is off. The single source of truth for
+// "may this block be offered and built at all", consulted by every menu that
+// lists blocks and by the builder every insertion path funnels through (#5446).
+export function canInsertLabel(label: string, muya: Muya): boolean {
+    return label !== 'math-block' || muya.options.texMathDollars;
+}
+
 export function buildReplacementBlock(label: string, muya: Muya, text: string) {
+    if (!canInsertLabel(label, muya))
+        return null;
+
     if (label.startsWith('atx-heading '))
         return buildHeadingBlock(label, muya, text);
     if (label.startsWith('diagram '))
@@ -250,6 +261,10 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     }
 
     const newBlock = buildReplacementBlock(label, muya, text);
+    // An unknown label, or one an option has switched off, yields nothing —
+    // leave the block the user was on alone rather than replacing it with null.
+    if (!newBlock)
+        return;
 
     block.replaceWith(newBlock);
     finishInsertedBlock(newBlock, muya, label);
@@ -305,6 +320,9 @@ export function insertBlockBelowByLabel({ block, muya, label }: {
 // must stay in sync with `MENU_CONFIG`'s labels and `PARAGRAPH_LABEL_MAP`.
 export function canTurnInto(block: Parent, label: string): boolean {
     const { blockName } = block;
+
+    if (!canInsertLabel(label, block.muya))
+        return false;
 
     switch (blockName) {
         case 'paragraph': {
