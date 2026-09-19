@@ -298,6 +298,8 @@ import Range from '@/prefComponents/common/range/index.vue'
 import TextBox from '@/prefComponents/common/textBox/index.vue'
 import { getPageSizeList, getHeaderFooterTypes, getExportThemeList } from './exportOptions'
 import { useI18n } from 'vue-i18n'
+import { useEditorStore } from '@/store/editor'
+import { parseExportFrontmatter } from './frontmatterPreset'
 
 const { t } = useI18n()
 
@@ -411,6 +413,19 @@ const showDialog = (type: unknown) => {
   isPrintable.value = exportTypeValue !== 'styledHtml'
   if (!isPrintable.value && (activeName.value === 'header' || activeName.value === 'page')) {
     activeName.value = 'info'
+  }
+
+  // Apply the document's own `export:` frontmatter preset on top of the
+  // persisted defaults, so a project ships its export preset with its files.
+  // Unknown keys and unparseable values are ignored; every other ref keeps
+  // the persisted value.
+  const editorStore = useEditorStore()
+  const preset = parseExportFrontmatter(editorStore.currentFile?.markdown ?? '')
+  for (const [key, value] of Object.entries(preset)) {
+    const settingRef = persistableSettings[key]
+    if (settingRef && typeof value === typeof settingRef.value) {
+      settingRef.value = value
+    }
   }
 
   showExportSettingsDialog.value = true
