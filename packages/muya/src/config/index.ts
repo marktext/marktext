@@ -347,9 +347,11 @@ export const MUYA_DEFAULT_OPTIONS = {
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
     footnote: false,
-    // Whether math block is supported.
-    math: true,
-    isGitlabCompatibilityEnabled: true,
+    // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
+    texMathDollars: true,
+    // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
+    // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
+    texMathGfm: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.

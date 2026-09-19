@@ -16,8 +16,8 @@ import ExportMarkdown from '../stateToMarkdown';
 function roundTrip(md: string, listIndentation: number | string = 1): string {
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -61,8 +61,8 @@ describe('stateToMarkdown — empty list item serialization', () => {
 function parseMarkdown(md: string): TState[] {
     return new MarkdownToState({
         footnote: false,
-        math: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -538,8 +538,8 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
         // contract by parsing a canonical loose list and reading the flag back.
         const looseStates = new MarkdownToState({
             footnote: false,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathDollars: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n\n- bar\n');
@@ -549,8 +549,8 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
 
         const tightStates = new MarkdownToState({
             footnote: false,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathDollars: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n- bar\n');
@@ -648,8 +648,8 @@ Text after numbered list.
     it('parses the start number into order-list meta.start', () => {
         const states = new MarkdownToState({
             footnote: false,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathDollars: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('3. one\n4. two\n');

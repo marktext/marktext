@@ -16,7 +16,7 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 //   4. Forward the same per-render option surface as `getHighlightHtml` —
 //      see `option surface` describe block below for explicit coverage of
 //      each option (footnote, math, superSubScript,
-//      isGitlabCompatibilityEnabled, frontMatter).
+//      texMathGfm, frontMatter).
 //
 // `MarkdownToHtml` (the existing class) already produces wrapped HTML, but its
 // `renderHtml()` path is async (awaits mermaid + diagram renderers) and wraps
@@ -147,25 +147,24 @@ describe('renderToStaticHTML', () => {
             expect(html).toMatch(/<li>[^<]*2<sup>n<\/sup>[^<]*<\/li>/);
         });
 
-        it('honours isGitlabCompatibilityEnabled (promotes ```math fences to math blocks)', () => {
-            // GitLab-flavoured Markdown lets a fenced code block tagged
+        it('honours texMathGfm (promotes ```math fences to math blocks)', () => {
+            // GitHub and GitLab let a fenced code block tagged
             // ` ```math ` render as block math. `walkTokens` rewrites the
-            // code-block token to `multiplemath` only when both
-            // `math: true` AND `isGitlabCompatibilityEnabled: true`.
+            // code-block token to `multiplemath` when `texMathGfm: true`.
             const src = '```math\nx^2\n```';
 
             const gitlab = renderToStaticHTML(src, {
-                math: true,
-                isGitlabCompatibilityEnabled: true,
+                texMathDollars: true,
+                texMathGfm: true,
             });
             // multiplemath → KaTeX wrapper.
             expect(gitlab).toMatch(/katex|<math/i);
 
             const strict = renderToStaticHTML(src, {
-                math: true,
-                isGitlabCompatibilityEnabled: false,
+                texMathDollars: true,
+                texMathGfm: false,
             });
-            // Without GitLab compatibility, the block stays a plain code
+            // Without tex_math_gfm, the block stays a plain code
             // fence with language `math` — no KaTeX.
             expect(strict).not.toMatch(/katex|<math/i);
             expect(strict).toMatch(/<pre><code[^>]*>x\^2/);
@@ -214,8 +213,8 @@ describe('renderToStaticHTML', () => {
             expect(on).not.toMatch(/<div class="footnote-block"/);
         });
 
-        it('honours math option', () => {
-            const html = renderToStaticHTML('$$\nx^2\n$$', { math: true });
+        it('honours the texMathDollars option', () => {
+            const html = renderToStaticHTML('$$\nx^2\n$$', { texMathDollars: true });
             // Math block should be transformed away from a literal `$$` fence.
             // KaTeX output contains class="katex" wrappers when math enabled.
             expect(html).toMatch(/katex|<math/i);

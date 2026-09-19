@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import os from 'os'
-import path from 'path'
+import path from 'pathe'
 import { moveImageToFolder } from '@/util/fileSystem'
 
 // moveImageToFolder relies on the preload contextBridge surface (window.path,
-// window.fileUtils). Stub them with the real node `path` and in-memory fakes so
-// the relative-path persistence logic can be exercised (real window.crypto
+// window.fileUtils). Stub them with pathe (matching preload) and in-memory fakes
+// so the relative-path persistence logic can be exercised (real window.crypto
 // hashes a pasted File; a path is hashed and copied by the main process).
 const copyWithContentHash = vi.fn((_src: string, outputDir: string) =>
   Promise.resolve(path.join(outputDir, 'content-hash.png'))

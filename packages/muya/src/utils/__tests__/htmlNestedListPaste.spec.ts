@@ -14,8 +14,8 @@ function htmlToState(html: string) {
     const markdown = new HtmlToMarkdown({ bulletListMarker: '-' }).generate(html);
     const states = new MarkdownToState({
         footnote: false,
-        math: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: false,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as IStateLike[];

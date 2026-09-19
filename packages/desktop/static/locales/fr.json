@@ -3,7 +3,10 @@
     "counter": {
       "words": "Mots",
       "characters": "Caractères",
-      "paragraphs": "Paragraphes"
+      "paragraphs": "Paragraphes",
+      "allCharacters": "Tous les caractères",
+      "document": "Document",
+      "documentSelection": "Document / Sélection"
     },
     "file": {
       "file": "Fichier",
@@ -410,8 +413,9 @@
         "frontmatterType": "Le type de frontmatter",
         "superSubScript": "Activer l'extension markdown de pandoc pour exposant et indice",
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
+        "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
+        "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
         "isHtmlEnabled": "Activer le rendu HTML",
-        "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
@@ -634,6 +638,8 @@
         "superSubScript": "Exposant/Indice",
         "footnote": "Note de bas de page",
         "footnoteNotes": "Notes de bas de page",
+        "texMathDollars": "Maths TeX avec $ et $$",
+        "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
@@ -660,7 +666,6 @@
         "title": "Divers"
       },
       "compatibility": {
-        "enableGitlab": "Activer la compatibilité GitLab",
         "enableHtml": "Activer le support HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "title": "Compatibilité"

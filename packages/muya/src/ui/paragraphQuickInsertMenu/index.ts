@@ -4,7 +4,7 @@ import type {
     IQuickInsertMenuItem,
 } from './config';
 import Fuse from 'fuse.js';
-import { replaceBlockByLabel } from '../../block/blockTransforms';
+import { canInsertLabel, replaceBlockByLabel } from '../../block/blockTransforms';
 import ParagraphContent from '../../block/content/paragraphContent';
 import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
@@ -221,6 +221,9 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 ?.children
                 .splice(2, 1);
         }
+
+        for (const menu of menuConfig)
+            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya));
         let result = menuConfig;
         if (text !== '') {
             result = [];

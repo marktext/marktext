@@ -21,29 +21,31 @@
       >
         <span v-if="!filename">MarkText</span>
         <span v-else>
-          <span
-            v-for="(path, index) of paths"
-            :key="index"
-          >
-            {{ path }}
-            <el-icon
-              class="path-arrow"
-              :size="12"
+          <bdi dir="ltr">
+            <span
+              v-for="(path, index) of paths"
+              :key="index"
             >
-              <ArrowRight />
-            </el-icon>
-          </span>
-          <span
-            class="filename"
-            :class="{ isOsx: platform === 'darwin' }"
-            @click="rename"
-          >
-            {{ filename }}
-          </span>
-          <span
-            class="save-dot"
-            :class="{ show: !isSaved }"
-          />
+              {{ path }}
+              <el-icon
+                class="path-arrow"
+                :size="12"
+              >
+                <ArrowRight />
+              </el-icon>
+            </span>
+            <span
+              class="filename"
+              :class="{ isOsx: platform === 'darwin' }"
+              @click="rename"
+            >
+              {{ filename }}
+            </span>
+            <span
+              class="save-dot"
+              :class="{ show: !isSaved }"
+            />
+          </bdi>
         </span>
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
@@ -57,18 +59,24 @@
         <el-tooltip
           v-if="wordCount"
           class="item"
-          :content="`${wordCount[show]} ${HASH[show].full + (wordCount[show] > 1 ? 's' : '')}`"
+          popper-class="word-count-tooltip"
           placement="bottom-end"
         >
           <template #content>
-            <div class="title-item">
-              <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ wordCount['word'] }}</span>
+            <div class="title-section">
+              {{ selectionWordCount ? t('menu.counter.documentSelection') : t('menu.counter.document') }}
             </div>
             <div class="title-item">
-              <span class="front">{{ t('menu.counter.characters') }}:</span><span class="text">{{ wordCount['character'] }}</span>
+              <span class="front">{{ t('menu.counter.words') }}:</span><span class="text">{{ formatCountPair('word') }}</span>
             </div>
             <div class="title-item">
-              <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ wordCount['paragraph'] }}</span>
+              <span class="front">{{ t('menu.counter.characters') }}:</span><span class="text">{{ formatCountPair('character') }}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">{{ t('menu.counter.paragraphs') }}:</span><span class="text">{{ formatCountPair('paragraph') }}</span>
+            </div>
+            <div class="title-item">
+              <span class="front">{{ t('menu.counter.allCharacters') }}:</span><span class="text">{{ formatCountPair('all') }}</span>
             </div>
           </template>
           <div
@@ -76,7 +84,7 @@
             class="word-count"
             @click.stop="handleWordClick"
           >
-            <span class="text-center-vertical">{{ `${HASH[show].short} ${wordCount[show]}` }}</span>
+            <span class="text-center-vertical">{{ wordCountText }}</span>
           </div>
         </el-tooltip>
       </div>
@@ -161,6 +169,7 @@ const props = defineProps<{
   pathname?: string
   active?: boolean
   wordCount?: FileWordCount | null
+  selectionWordCount?: FileWordCount | null
   platform?: string
   isSaved?: boolean
 }>()
@@ -172,22 +181,10 @@ const { t } = useI18n()
 
 const isOsx = isOsxPlatform
 const HASH = {
-  word: {
-    short: 'W',
-    full: 'word'
-  },
-  character: {
-    short: 'C',
-    full: 'character'
-  },
-  paragraph: {
-    short: 'P',
-    full: 'paragraph'
-  },
-  all: {
-    short: 'A',
-    full: '(with space)character'
-  }
+  word: { short: 'W' },
+  character: { short: 'C' },
+  paragraph: { short: 'P' },
+  all: { short: 'A' }
 }
 const windowIconMinimize = minimizePath
 const windowIconRestore = restorePath
@@ -221,6 +218,22 @@ const paths = computed(() => {
 const showCustomTitleBar = computed(() => {
   return titleBarStyle.value === 'custom' && !isOsx
 })
+
+const wordCountText = computed(() => {
+  if (!props.wordCount) return ''
+
+  const value = props.wordCount[show.value]
+  const selectionValue = props.selectionWordCount?.[show.value]
+  return selectionValue == null
+    ? `${HASH[show.value].short} ${value}`
+    : `${HASH[show.value].short} ${value} / ${selectionValue}`
+})
+
+const formatCountPair = (key: keyof FileWordCount) => {
+  const value = props.wordCount?.[key] ?? 0
+  const selectionValue = props.selectionWordCount?.[key]
+  return selectionValue == null ? `${value}` : `${value} / ${selectionValue}`
+}
 
 const showTitleBar = computed(() => {
   return shouldShowInAppTitleBar(titleBarStyle.value, isOsx)
@@ -378,12 +391,19 @@ div.title > span {
   white-space: nowrap;
 }
 
+/* The RTL context above only exists to clip long paths from the left. Isolating
+   each segment keeps an RTL folder name from dragging its separator — or the
+   segments around it — out of order. */
+div.title > span > bdi > span {
+  unicode-bidi: isolate;
+}
+
 .title-bar .title .filename.isOsx:hover {
   color: var(--themeColor);
 }
 
 .active .save-dot {
-  margin-right: 0.25rem;
+  margin-left: 0.25rem;
   width: 8px;
   height: 8px;
   display: inline-block;
@@ -421,6 +441,11 @@ div.title > span {
   & .item {
     margin-right: 10px;
   }
+}
+
+.title-section {
+  font-weight: 600;
+  margin: 2px 0 4px;
 }
 
 .word-count {

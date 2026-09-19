@@ -3,7 +3,10 @@
     "counter": {
       "words": "Woorden",
       "characters": "Tekens",
-      "paragraphs": "Alinea's"
+      "paragraphs": "Alinea's",
+      "allCharacters": "Alle tekens",
+      "document": "Document",
+      "documentSelection": "Document / Selectie"
     },
     "file": {
       "file": "Bestand",
@@ -409,8 +412,9 @@
         "frontmatterType": "Het type Front Matter",
         "superSubScript": "Pandoc superscript en subscript inschakelen",
         "footnote": "Pandoc voetnoten inschakelen",
+        "texMathDollars": "Pandocs markdown-extensie tex_math_dollars inschakelen",
+        "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
-        "isGitlabCompatibilityEnabled": "GitLab-compatibiliteitsmodus inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
         "plantumlServer": "PlantUML server-URL",
@@ -634,6 +638,8 @@
         "superSubScript": "Super-/subscript",
         "footnote": "Voetnoot",
         "footnoteNotes": "Voetnoten",
+        "texMathDollars": "TeX-wiskunde met $ en $$",
+        "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
@@ -660,7 +666,6 @@
         "title": "Diversen"
       },
       "compatibility": {
-        "enableGitlab": "GitLab-compatibiliteit inschakelen",
         "enableHtml": "HTML-ondersteuning inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "title": "Compatibiliteit"

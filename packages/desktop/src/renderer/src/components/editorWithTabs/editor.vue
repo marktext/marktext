@@ -220,8 +220,9 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
+  texMathGfm,
   isHtmlEnabled,
-  isGitlabCompatibilityEnabled,
   softNewlineAsSpace,
   lineHeight,
   fontSize,
@@ -425,6 +426,15 @@ const adaptSelectionChange = (changes: MuyaChange) => {
     },
     affiliation
   }
+}
+
+// The engine reports only committed selections, so recounting per notification
+// is cheap; a caret reports no text and stops here.
+const setSelectionWordCountFromText = (selectedText: string) => {
+  const hasSelection = selectedText.trim().length > 0
+  if (!hasSelection && editorStore.selectionWordCount == null) return
+
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
 }
 
 // Build a JSON-serializable cursor from the engine selection (drop the live
@@ -658,15 +668,21 @@ watch(footnote, (value, oldValue) => {
   }
 })
 
+watch(texMathDollars, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDollars: value }, true)
+  }
+})
+
 watch(isHtmlEnabled, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ disableHtml: !value }, true)
   }
 })
 
-watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
+watch(texMathGfm, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ isGitlabCompatibilityEnabled: value }, true)
+    editor.value.setOptions({ texMathGfm: value }, true)
   }
 })
 
@@ -1017,9 +1033,26 @@ const imagePathPicker = () => {
   return editorStore.ASK_FOR_IMAGE_PATH()
 }
 
+// Growing a selection across blocks fires no `selection-change`.
+// TODO(Selection): drop this and its `keyup` branch once the engine reports it.
+const SELECTION_KEYS = new Set([
+  'Shift',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown'
+])
+
 const keyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     setImageViewerVisible(false)
+  }
+  if (!sourceCode.value && editor.value && SELECTION_KEYS.has(event.key)) {
+    setSelectionWordCountFromText(editor.value.getSelectedText())
   }
 }
 
@@ -1776,8 +1809,9 @@ onMounted(() => {
     frontmatterType: frontmatterType.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
+    texMathDollars: texMathDollars.value,
+    texMathGfm: texMathGfm.value,
     disableHtml: !isHtmlEnabled.value,
-    isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
@@ -1987,6 +2021,7 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
+    if (!sourceCode.value) setSelectionWordCountFromText(editor.value.getSelectedText())
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
@@ -2037,6 +2072,7 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.

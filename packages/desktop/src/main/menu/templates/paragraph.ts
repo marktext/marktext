@@ -2,8 +2,16 @@ import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/paragraph'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
+import type Preference from '../../preferences'
 
-export default function(keybindings: Keybindings): MenuItemConstructorOptions {
+export default function(
+  keybindings: Keybindings,
+  userPreference: Preference
+): MenuItemConstructorOptions {
+  // A math block writes `$$…$$`, which the editor no longer reads back once
+  // pandoc's tex_math_dollars is off — so the entry goes away with it (#5446).
+  const texMathDollars = userPreference.getItem<boolean>('texMathDollars') !== false
+
   return {
     id: 'paragraphMenuEntry',
     label: t('menu.paragraph.title'),
@@ -111,15 +119,19 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
           actions.quoteBlock(focusedWindow as BrowserWindow | undefined)
         }
       },
-      {
-        id: 'mathBlockMenuItem',
-        label: t('menu.paragraph.mathBlock'),
-        type: 'checkbox',
-        accelerator: keybindings.getAccelerator('paragraph.math-formula') ?? undefined,
-        click(_menuItem, focusedWindow) {
-          actions.mathFormula(focusedWindow as BrowserWindow | undefined)
-        }
-      },
+      ...(texMathDollars
+        ? [
+          {
+            id: 'mathBlockMenuItem',
+            label: t('menu.paragraph.mathBlock'),
+            type: 'checkbox' as const,
+            accelerator: keybindings.getAccelerator('paragraph.math-formula') ?? undefined,
+            click(_menuItem: unknown, focusedWindow: unknown) {
+              actions.mathFormula(focusedWindow as BrowserWindow | undefined)
+            }
+          }
+        ]
+        : []),
       {
         id: 'htmlBlockMenuItem',
         label: t('menu.paragraph.htmlBlock'),

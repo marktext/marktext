@@ -122,6 +122,14 @@ class Selection {
         return this._text.getSelection();
     }
 
+    /**
+     * The source text of the current text selection. Empty for a caret, and for
+     * table and image selections — both drop the native range this reads.
+     */
+    getSelectedText(): string {
+        return this._text.getSelectedText();
+    }
+
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo): void {
         this._text.setSelection(anchor, focus);
     }

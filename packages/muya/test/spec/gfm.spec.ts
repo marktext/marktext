@@ -23,9 +23,9 @@ describe('GFM 0.29-gfm spec conformance', () => {
         (example) => {
             const actual = renderToStaticHTML(example.markdown, {
                 footnote: false,
-                math: false,
+                texMathDollars: false,
                 superSubScript: false,
-                isGitlabCompatibilityEnabled: false,
+                texMathGfm: false,
                 frontMatter: false,
                 // Bypass DOMPurify — see commonmark.spec.ts for rationale.
                 sanitize: false,

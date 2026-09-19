@@ -196,9 +196,8 @@ export class MarkdownToHtml {
         let html = getHighlightHtml(this.markdown, {
             superSubScript: this._muya?.options?.superSubScript ?? true,
             footnote,
-            isGitlabCompatibilityEnabled:
-        this._muya?.options?.isGitlabCompatibilityEnabled ?? true,
-            math: this._muya?.options?.math ?? true,
+            texMathGfm: this._muya?.options?.texMathGfm ?? false,
+            texMathDollars: this._muya?.options?.texMathDollars ?? true,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline

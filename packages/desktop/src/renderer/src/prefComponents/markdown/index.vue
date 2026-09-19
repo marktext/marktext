@@ -63,6 +63,18 @@
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathDollars')"
+          :bool="texMathDollars"
+          :on-change="(value) => onSelectChange('texMathDollars', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_dollars"
+        />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathGfm')"
+          :bool="texMathGfm"
+          :on-change="(value) => onSelectChange('texMathGfm', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_gfm"
+        />
       </template>
     </compound>
 
@@ -77,11 +89,6 @@
           :description="t('preferences.markdown.compatibility.enableHtml')"
           :bool="isHtmlEnabled"
           :on-change="(value) => onSelectChange('isHtmlEnabled', value)"
-        />
-        <bool
-          :description="t('preferences.markdown.compatibility.enableGitlab')"
-          :bool="isGitlabCompatibilityEnabled"
-          :on-change="(value) => onSelectChange('isGitlabCompatibilityEnabled', value)"
         />
         <bool
           :description="t('preferences.markdown.compatibility.softNewlineAsSpace')"
@@ -164,8 +171,9 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
+  texMathGfm,
   isHtmlEnabled,
-  isGitlabCompatibilityEnabled,
   softNewlineAsSpace,
   sequenceTheme,
   plantumlServer
