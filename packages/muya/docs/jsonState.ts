@@ -167,7 +167,7 @@ const doc = [
         name: 'math-block',
         text: 'a \ne b',
         meta: {
-            mathStyle: '', // '' for `$$` and 'gitlab' for ```math
+            mathStyle: '', // '' for `$$` and 'gfm' for ```math
         },
     },
     // Front Matter

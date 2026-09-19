@@ -4,7 +4,7 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import mathExtension, { gfmMathExtension } from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -12,7 +12,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, superSubScript }
         = options;
     let html = '';
 
@@ -23,16 +23,25 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     const marked = new Marked();
 
     marked.use({
-        walkTokens: walkTokens({ math, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
     // clipboard HTML consistent with the static / export render path.
     marked.use(cjkEmStrongExtension());
 
-    if (math) {
+    if (texMathDollars) {
         marked.use(
             mathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathGfm) {
+        marked.use(
+            gfmMathExtension({
                 throwOnError: false,
                 useKatexRender: false,
             }),

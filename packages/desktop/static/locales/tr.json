@@ -412,8 +412,9 @@
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "texMathDollars": "Pandoc'un markdown uzantısı tex_math_dollars'ı etkinleştir",
+        "texMathGfm": "Pandoc'un markdown uzantısı tex_math_gfm'i etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
-        "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
@@ -637,6 +638,8 @@
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
         "footnoteNotes": "Dipnot notları",
+        "texMathDollars": "$ ve $$ ile TeX matematiği",
+        "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
@@ -663,7 +666,6 @@
         "title": "Çeşitli"
       },
       "compatibility": {
-        "enableGitlab": "GitLab uyumluluğunu etkinleştir",
         "enableHtml": "HTML desteğini etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "title": "Uyumluluk"

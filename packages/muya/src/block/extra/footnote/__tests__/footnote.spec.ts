@@ -115,8 +115,8 @@ describe('footnote block — markdown round-trip via state', () => {
     function roundTrip(md: string): string {
         const states = new MarkdownToState({
             footnote: true,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathDollars: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);
@@ -145,8 +145,8 @@ describe('footnote block — markdown round-trip via state', () => {
 `;
         const states = new MarkdownToState({
             footnote: true,
-            math: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathDollars: false,
+            texMathGfm: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);

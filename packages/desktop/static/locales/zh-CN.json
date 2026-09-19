@@ -413,8 +413,9 @@
         "frontmatterType": "前言类型",
         "superSubScript": "启用 Pandoc 的 Markdown 扩展上标和下标",
         "footnote": "启用 Pandoc 的 Markdown 扩展脚注",
+        "texMathDollars": "启用 Pandoc 的 Markdown 扩展 tex_math_dollars",
+        "texMathGfm": "启用 Pandoc 的 Markdown 扩展 tex_math_gfm",
         "isHtmlEnabled": "启用 HTML 渲染",
-        "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
         "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
@@ -637,6 +638,8 @@
         "superSubScript": "上标/下标",
         "footnote": "脚注",
         "footnoteNotes": "脚注注释",
+        "texMathDollars": "使用 $ 和 $$ 的 TeX 数学公式",
+        "texMathGfm": "GitHub 的 TeX 数学公式（$`…`$ 和 ```math）",
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
@@ -663,7 +666,6 @@
         "title": "杂项"
       },
       "compatibility": {
-        "enableGitlab": "启用 GitLab 兼容性",
         "enableHtml": "启用 HTML 支持",
         "softNewlineAsSpace": "将软换行符视为空格",
         "title": "兼容性"

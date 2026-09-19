@@ -16,8 +16,8 @@ import ExportMarkdown from '../stateToMarkdown';
 function roundTrip(md: string): string {
     const states = new MarkdownToState({
         footnote: false,
-        math: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: true,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);
@@ -27,8 +27,8 @@ function roundTrip(md: string): string {
 function parse(md: string) {
     return new MarkdownToState({
         footnote: false,
-        math: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: true,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);

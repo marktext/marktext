@@ -12,8 +12,8 @@ interface IBlock { name: string; text?: string }
 function parse(markdown: string): IBlock[] {
     return new MarkdownToState({
         footnote: false,
-        math: true,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: true,
+        texMathGfm: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     } as never).generate(markdown) as unknown as IBlock[];

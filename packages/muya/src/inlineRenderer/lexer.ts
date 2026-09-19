@@ -37,6 +37,8 @@ interface ILexState {
     top: boolean;
     superSubScript: boolean;
     footnote: boolean;
+    texMathDollars: boolean;
+    texMathGfm: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -66,6 +68,9 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     ] as const;
 
     for (const ruleName of beginRuleKeys) {
+        if (ruleName === 'multiple_math' && !state.texMathDollars)
+            continue;
+
         const to = beginRules[ruleName].exec(state.src);
 
         if (to) {
@@ -191,10 +196,18 @@ function tryStrongEm(state: ILexState): boolean {
 }
 
 // emoji | inline_code | del | inline_math
+// `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
+// rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
+// It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_code', 'del', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
+        if (rule === 'inline_math' && !state.texMathDollars)
+            continue;
+        if (rule === 'inline_math_gfm' && !state.texMathGfm)
+            continue;
+
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
@@ -219,9 +232,10 @@ function tryChunks(state: ILexState): boolean {
                 rule === 'inline_code'
                 || rule === 'emoji'
                 || rule === 'inline_math'
+                || rule === 'inline_math_gfm'
             ) {
                 state.tokens.push({
-                    type: rule,
+                    type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
                     raw: to[0],
                     range,
                     marker,
@@ -809,7 +823,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
-    const { superSubScript, footnote } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -823,6 +837,8 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         top,
         superSubScript,
         footnote,
+        texMathDollars,
+        texMathGfm,
     };
 
     if (beginRules && state.pos === 0)
@@ -858,6 +874,8 @@ export function tokenizer(src: string, {
     options = {
         superSubScript: true,
         footnote: false,
+        texMathDollars: true,
+        texMathGfm: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(

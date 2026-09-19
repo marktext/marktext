@@ -412,8 +412,9 @@
         "frontmatterType": "The frontmatter type",
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
         "footnote": "Enable pandoc's markdown extension footnote",
+        "texMathDollars": "Enable pandoc's markdown extension tex_math_dollars",
+        "texMathGfm": "Enable pandoc's markdown extension tex_math_gfm",
         "isHtmlEnabled": "Enable HTML rendering",
-        "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
@@ -637,6 +638,8 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Footnote",
         "footnoteNotes": "Footnote notes",
+        "texMathDollars": "TeX math with $ and $$",
+        "texMathGfm": "GitHub TeX math ($`…`$ and ```math)",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",
@@ -663,7 +666,6 @@
         "title": "Miscellaneous"
       },
       "compatibility": {
-        "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"

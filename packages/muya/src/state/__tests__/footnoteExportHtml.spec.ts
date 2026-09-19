@@ -12,7 +12,7 @@ import { MarkdownToHtml } from '../markdownToHtml';
 // export path now produces the standard GFM / pandoc footnote shape.
 
 const MUYA_FOOTNOTES_ON = {
-    options: { math: true, footnote: true },
+    options: { texMathDollars: true, footnote: true },
 } as unknown as ConstructorParameters<typeof MarkdownToHtml>[1];
 
 async function renderExport(markdown: string): Promise<string> {

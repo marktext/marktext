@@ -98,13 +98,15 @@ function makeFakeOriginBlock(): Parent {
     } as unknown as Parent;
 }
 
-function makeFakeMuya(): Muya {
+function makeFakeMuya(options: { texMathDollars?: boolean } = {}): Muya {
     return {
         options: {
             preferLooseListItem: false,
             bulletListMarker: '-',
             orderListDelimiter: '.',
             frontmatterType: '---',
+            texMathDollars: true,
+            ...options,
         },
     } as unknown as Muya;
 }
@@ -488,5 +490,42 @@ describe('replaceBlockByLabel — quick-insert frontmatter serializes the right 
             expect(fm.meta.lang).toBe('toml');
             expect(fm.meta.style).toBe('+');
         });
+    });
+});
+
+// #5446: the menus stop listing a math block once texMathDollars is off, but
+// the keyboard shortcut and the desktop Paragraph menu reach this function
+// without consulting a list — so the builder refuses too.
+describe('replaceBlockByLabel — math block follows texMathDollars', () => {
+    it('builds one while the option is on', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            replaceBlockByLabel({
+                block: makeFakeOriginBlock(),
+                muya: makeFakeMuya({ texMathDollars: true }),
+                label: 'math-block',
+            });
+            expect(captured.map(c => c.label)).toEqual(['math-block']);
+        }
+        finally {
+            restore();
+        }
+    });
+
+    it('builds nothing once the option is off', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            const block = makeFakeOriginBlock();
+            replaceBlockByLabel({
+                block,
+                muya: makeFakeMuya({ texMathDollars: false }),
+                label: 'math-block',
+            });
+            expect(captured).toEqual([]);
+            expect(block.replaceWith).not.toHaveBeenCalled();
+        }
+        finally {
+            restore();
+        }
     });
 });

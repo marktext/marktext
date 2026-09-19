@@ -35,12 +35,12 @@ function buildHtmlOptions(options: Muya['options']) {
     const {
         footnote,
         frontMatter = true,
-        math,
-        isGitlabCompatibilityEnabled,
+        texMathDollars,
+        texMathGfm,
         superSubScript,
     } = options;
 
-    return { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, superSubScript };
 }
 
 /**

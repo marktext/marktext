@@ -220,8 +220,9 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
+  texMathGfm,
   isHtmlEnabled,
-  isGitlabCompatibilityEnabled,
   softNewlineAsSpace,
   lineHeight,
   fontSize,
@@ -667,15 +668,21 @@ watch(footnote, (value, oldValue) => {
   }
 })
 
+watch(texMathDollars, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDollars: value }, true)
+  }
+})
+
 watch(isHtmlEnabled, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ disableHtml: !value }, true)
   }
 })
 
-watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
+watch(texMathGfm, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ isGitlabCompatibilityEnabled: value }, true)
+    editor.value.setOptions({ texMathGfm: value }, true)
   }
 })
 
@@ -1802,8 +1809,9 @@ onMounted(() => {
     frontmatterType: frontmatterType.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
+    texMathDollars: texMathDollars.value,
+    texMathGfm: texMathGfm.value,
     disableHtml: !isHtmlEnabled.value,
-    isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,

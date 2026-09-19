@@ -413,8 +413,9 @@
         "frontmatterType": "Der Frontmatter-Typ",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
+        "texMathDollars": "Pandocs Markdown-Erweiterung tex_math_dollars aktivieren",
+        "texMathGfm": "Pandocs Markdown-Erweiterung tex_math_gfm aktivieren",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
-        "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
         "plantumlServer": "PlantUML-Server-URL",
@@ -637,6 +638,8 @@
         "superSubScript": "Hoch-/Tiefgestellt",
         "footnote": "Fußnote",
         "footnoteNotes": "Fußnoten",
+        "texMathDollars": "TeX-Mathematik mit $ und $$",
+        "texMathGfm": "GitHub-TeX-Mathematik ($`…`$ und ```math)",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",
@@ -663,7 +666,6 @@
         "title": "Verschiedenes"
       },
       "compatibility": {
-        "enableGitlab": "GitLab-Kompatibilität aktivieren",
         "enableHtml": "HTML-Unterstützung aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "title": "Kompatibilität"

@@ -413,8 +413,9 @@
         "frontmatterType": "O tipo de frontmatter",
         "superSubScript": "Habilitar extensão markdown do pandoc para sobrescrito e subscrito",
         "footnote": "Habilitar extensão markdown do pandoc para nota de rodapé",
+        "texMathDollars": "Ativar a extensão markdown do pandoc tex_math_dollars",
+        "texMathGfm": "Ativar a extensão markdown do pandoc tex_math_gfm",
         "isHtmlEnabled": "Habilitar renderização HTML",
-        "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidade GitLab",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "sequenceTheme": "Tema do diagrama de sequência",
         "plantumlServer": "URL do servidor PlantUML",
@@ -637,6 +638,8 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Nota de rodapé",
         "footnoteNotes": "Notas de rodapé",
+        "texMathDollars": "Matemática TeX com $ e $$",
+        "texMathGfm": "Matemática TeX do GitHub ($`…`$ e ```math)",
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",
@@ -663,7 +666,6 @@
         "title": "Diversos"
       },
       "compatibility": {
-        "enableGitlab": "Habilitar compatibilidade GitLab",
         "enableHtml": "Habilitar suporte HTML",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "title": "Compatibilidade"

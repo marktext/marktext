@@ -1,7 +1,7 @@
 export const DEFAULT_OPTIONS = {
     footnote: false,
-    math: true,
-    isGitlabCompatibilityEnabled: true,
+    texMathDollars: true,
+    texMathGfm: false,
     frontMatter: true,
     superSubScript: true,
 };
