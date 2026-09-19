@@ -199,9 +199,15 @@ code.mu-inline-rule {
 }
 
 /* A long inline-math formula must scroll horizontally (in the editing popup and
-   inline when hidden) instead of overflowing the editor area. */
+   inline when hidden) instead of overflowing the editor area.
+
+   The bound is the text column, measured through `.mu-container`'s container
+   query. A percentage cannot say that here: the popup's containing block is the
+   inline `.mu-math` around the formula, so `--editor-area-width` carrying a
+   percentage — what the Max width preference stores — resolved against the
+   formula's own box and clipped even `$a+b$` (#5034). */
 .mu-math > .mu-math-render {
-    max-width: calc(var(--editor-area-width, 800px) - 100px);
+    max-width: 100cqw;
     overflow: auto hidden;
 
     scrollbar-width: thin;
@@ -314,6 +320,15 @@ div .mu-math-error,
     user-select: auto;
 }
 
+/* A formula that is not being edited sits in the flow, so the block around it —
+   narrower than the text column inside a quote or a list item — is the bound,
+   and the inline-block has to carry it: the render is what gives that box its
+   shrink-to-fit width. */
+.mu-hide.mu-math,
+.mu-hide.mu-math > .mu-math-render {
+    max-width: 100%;
+}
+
 .mu-ruby:not(.mu-hide) > .mu-ruby-render,
 .mu-math:not(.mu-hide) > .mu-math-render {
     z-index: 100;
@@ -349,12 +364,6 @@ div .mu-math-error,
 blockquote .mu-hide.mu-ruby > .mu-ruby-render,
 blockquote .mu-hide.mu-math > .mu-math-render {
     color: var(--editor-color-50);
-}
-
-/* The editor-wide `max-width` of `.mu-math-render` is wider than a display
-   formula inside a nested quote or list item. */
-.mu-hide.mu-math.mu-display-math > .mu-math-render {
-    max-width: 100%;
 }
 
 /* header space */
