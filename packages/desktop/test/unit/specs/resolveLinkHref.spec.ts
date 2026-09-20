@@ -54,3 +54,21 @@ describe('resolveLocalLinkHref — Windows document directory (#5336)', () => {
     expect(resolveLocalLinkHref('./notes.md')).toBe('file:///C:/Users/me/docs/notes.md')
   })
 })
+
+describe('resolveLocalLinkHref — absolute local link paths', () => {
+  it('normalises a Windows drive-absolute link to a valid file:/// URL', () => {
+    // An href that is itself a Windows absolute path must produce file:///C:/…,
+    // not file://C:\… (invalid: the host field would read as "C:").
+    expect(resolveLocalLinkHref('C:\\Users\\me\\notes.md')).toBe(
+      'file:///C:/Users/me/notes.md'
+    )
+  })
+
+  it('normalises a UNC link to a valid file:// URL', () => {
+    // \\server\share\… must produce file://server/share/… with a real host,
+    // not file://\\server\share\… (invalid: extra leading backslashes).
+    expect(resolveLocalLinkHref('\\\\server\\share\\docs\\file.md')).toBe(
+      'file://server/share/docs/file.md'
+    )
+  })
+})
