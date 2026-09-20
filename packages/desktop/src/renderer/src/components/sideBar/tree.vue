@@ -1,11 +1,17 @@
 <template>
-  <div class="tree-view">
+  <div
+    class="tree-view"
+    :class="{ 'files-only': !projectTree && openedFilesInSidebar && showOpenedFiles }"
+  >
     <div class="title">
       <!-- Placeholder -->
     </div>
 
     <!-- Opened tabs -->
-    <div v-if="openedFilesInSidebar" class="opened-files">
+    <div
+      v-if="openedFilesInSidebar"
+      class="opened-files"
+    >
       <div class="title">
         <el-icon
           class="icon-arrow"
@@ -357,18 +363,31 @@ onMounted(() => {
 .opened-files {
   display: flex;
   flex-direction: column;
+  max-height: 50%;
+  min-height: 0;
 }
 .default-cursor {
   cursor: pointer;
 }
 .opened-files .opened-files-list {
-  max-height: 112px;
   overflow: auto;
   flex: 1;
 }
 
 .opened-files .opened-files-list::-webkit-scrollbar:vertical {
   width: 8px;
+}
+
+.files-only .opened-files {
+  flex: 1;
+  max-height: none;
+}
+.opened-files > .title {
+  flex-shrink: 0;
+}
+.files-only .open-project {
+  flex: none;
+  padding: 12px 0 20px;
 }
 
 .project-tree {

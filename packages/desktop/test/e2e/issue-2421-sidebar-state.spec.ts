@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown } from './helpers'
+import { launchWithMarkdown, sendIpcToRenderer } from './helpers'
 
 // #2421 — toggling the sidebar via its left-column icons must not lose state.
 // Two bugs: (1) collapsing to the icon strip persisted the clamped 220px width
@@ -71,6 +71,20 @@ test.describe('#2421 sidebar state survives icon toggle', () => {
     // The widened width must survive the collapse round-trip (it was reset to
     // the clamped 220px before the fix).
     expect(Math.abs(reExpanded - widened)).toBeLessThanOrEqual(3)
+  })
+
+  test('open files use available height while leaving the project visible (#5353)', async() => {
+    for (let i = 0; i < 7; i++) {
+      await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, `Document ${i}\n`)
+    }
+    const list = page.locator('.opened-files-list')
+    await expect(list.locator('.opened-file')).toHaveCount(8)
+    await page.screenshot({ path: test.info().outputPath('sidebar.png') })
+    await expect.poll(() => list.evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0)
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1000, 400))
+    await expect(page.locator('.project-tree > .title')).toBeInViewport()
+    await expect(list).toBeInViewport()
+    await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1200, 800))
   })
 
   test('a collapsed tree section stays collapsed after toggling the sidebar', async() => {
