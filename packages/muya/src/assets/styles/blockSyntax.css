@@ -21,6 +21,12 @@
     padding: 0 50px 100px;
 
     color: var(--editor-color);
+
+    /* `--editor-area-width` may be a percentage (marktext's Max width
+       preference), so the text column's width is only known at layout time.
+       Naming it a query container lets content that must not outgrow the
+       column — the inline-math popup — measure it in `cqw`. */
+    container-type: inline-size;
 }
 
 .mu-container p,
