@@ -12,6 +12,7 @@ overrides:
 
 allowBuilds:
   ced: true
+  electron: true
   electron-winstaller: true
   esbuild: true
   keytar: true
