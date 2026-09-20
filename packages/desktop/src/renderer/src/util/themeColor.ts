@@ -1,3 +1,6 @@
+import holographicLightTheme from '../assets/themes/holographic-light.theme.css?inline'
+import holographicDarkTheme from '../assets/themes/holographic-dark.theme.css?inline'
+import holographicTheme from '../assets/themes/holographic.theme.css?inline'
 import darkTheme from '../assets/themes/dark.theme.css?inline'
 import graphiteTheme from '../assets/themes/graphite.theme.css?inline'
 import materialDarkTheme from '../assets/themes/material-dark.theme.css?inline'
@@ -197,4 +200,12 @@ export const everforestLight = (): string => {
 
 export const rosePineDawn = (): string => {
   return rosePineDawnTheme + '\n' + rosePineDawnPrismTheme
+}
+
+export const holographicLight = (): string => {
+  return graphitePrismTheme + '\n' + holographicLightTheme + '\n' + holographicTheme
+}
+
+export const holographicDark = (): string => {
+  return darkPrismTheme + '\n' + holographicDarkTheme + '\n' + holographicTheme
 }

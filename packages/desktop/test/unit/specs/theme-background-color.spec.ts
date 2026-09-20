@@ -18,10 +18,12 @@ describe('theme launch background colour (#3957)', () => {
     expect(getThemeBackgroundColor('tokyo-night')).toBe('#1a1b26')
     expect(getThemeBackgroundColor('dark')).toBe('#282828')
     expect(getThemeBackgroundColor('one-dark')).toBe('#282c34')
+    expect(getThemeBackgroundColor('holographic-dark')).toBe('#171b26')
   })
 
   it('uses the explicit background for built-in light themes', () => {
     expect(getThemeBackgroundColor('ulysses')).toBe('#f3f3f3')
+    expect(getThemeBackgroundColor('holographic-light')).toBe('#f7f8fc')
     expect(getThemeBackgroundColor('tokyo-night-light')).toBe('#d5d6db')
   })
 

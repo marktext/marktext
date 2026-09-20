@@ -1,0 +1,23 @@
+/* Quiet violet and cyan surfaces, following PocketBridge's panel treatment. */
+:root {
+  color-scheme: light;
+  --themeColor: #6250a7;
+  --editorColor: #283044;
+  --editorBgColor: #f7f8fc;
+  --holographicMutedColor: #59657a;
+  --holographicCodeString: #236b61;
+  --sideBarBgColor: #eef0f8;
+  --floatBgColor: #f5f6fc;
+  --codeBlockBgColor: #edf0f8;
+  --inputBgColor: #e7ebf4;
+  --holographicBorder: #c5cadd;
+  --holographicSheen: linear-gradient(
+    135deg,
+    rgba(122, 88, 198, 0.09),
+    transparent 55%,
+    rgba(31, 152, 174, 0.07)
+  );
+  --buttonPrimaryFontColor: #ffffff;
+  --deleteColor: #b73950;
+  --maskColor: rgba(38, 45, 65, 0.35);
+}

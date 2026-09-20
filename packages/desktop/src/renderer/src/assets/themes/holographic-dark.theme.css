@@ -1,0 +1,23 @@
+/* Opaque reading surface; depth and color stay in the surrounding controls. */
+:root {
+  color-scheme: dark;
+  --themeColor: #b5a4f5;
+  --editorColor: #dce4f4;
+  --editorBgColor: #171b26;
+  --holographicMutedColor: #a8b5ce;
+  --holographicCodeString: #a8d798;
+  --sideBarBgColor: #1d2332;
+  --floatBgColor: #252c3e;
+  --codeBlockBgColor: #202738;
+  --inputBgColor: #202738;
+  --holographicBorder: #48536d;
+  --holographicSheen: linear-gradient(
+    135deg,
+    rgba(173, 132, 244, 0.1),
+    transparent 55%,
+    rgba(99, 211, 229, 0.06)
+  );
+  --buttonPrimaryFontColor: #171b26;
+  --deleteColor: #ff9aa8;
+  --maskColor: rgba(8, 12, 22, 0.65);
+}

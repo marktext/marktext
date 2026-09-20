@@ -1,0 +1,183 @@
+/* Shared by the two holographic palettes. Loaded only inside the active theme. */
+:root {
+  --themeColor90: color-mix(in srgb, var(--themeColor) 90%, transparent);
+  --themeColor80: color-mix(in srgb, var(--themeColor) 80%, transparent);
+  --themeColor70: color-mix(in srgb, var(--themeColor) 70%, transparent);
+  --themeColor60: color-mix(in srgb, var(--themeColor) 60%, transparent);
+  --themeColor50: color-mix(in srgb, var(--themeColor) 50%, transparent);
+  --themeColor40: color-mix(in srgb, var(--themeColor) 40%, transparent);
+  --themeColor30: color-mix(in srgb, var(--themeColor) 30%, transparent);
+  --themeColor20: color-mix(in srgb, var(--themeColor) 20%, transparent);
+  --themeColor10: color-mix(in srgb, var(--themeColor) 10%, transparent);
+  --highlightColor: var(--themeColor30);
+  --selectionColor: var(--themeColor20);
+  --editorColor80: var(--editorColor);
+  --editorColor60: var(--holographicMutedColor);
+  --editorColor50: var(--holographicMutedColor);
+  --editorColor40: var(--holographicMutedColor);
+  --editorColor30: var(--holographicMutedColor);
+  --editorColor10: var(--holographicBorder);
+  --editorColor04: var(--codeBlockBgColor);
+  --iconColor: var(--holographicMutedColor);
+  --codeBgColor: var(--codeBlockBgColor);
+  --footnoteBgColor: var(--codeBlockBgColor);
+  --tableBorderColor: var(--holographicBorder);
+  --blockquoteTextColor: var(--holographicMutedColor);
+  --blockquoteBorderColor: var(--themeColor);
+  --listMarkerColor: var(--holographicMutedColor);
+  --linkColor: var(--themeColor);
+  --buttonFontColor: var(--editorColor);
+  --buttonBgColor: var(--floatBgColor);
+  --buttonBorder: 1px solid var(--holographicBorder);
+  --buttonBgColorHover: var(--inputBgColor);
+  --buttonBorderHover: 1px solid var(--themeColor);
+  --buttonBgColorActive: var(--inputBgColor);
+  --buttonPrimaryBgColorHover: var(--themeColor);
+  --buttonPrimaryShadow: none;
+  --sideBarColor: var(--editorColor);
+  --sideBarTitleColor: var(--editorColor);
+  --sideBarTextColor: var(--holographicMutedColor);
+  --sideBarIconColor: var(--holographicMutedColor);
+  --sideBarItemHoverBgColor: var(--themeColor10);
+  --itemBgColor: var(--codeBlockBgColor);
+  --floatFontColor: var(--editorColor);
+  --floatHoverColor: var(--themeColor10);
+  --floatBorderColor: var(--holographicBorder);
+  --floatShadow: 0 8px 24px rgba(8, 12, 22, 0.18);
+  --theme-color: var(--themeColor);
+  --highlight-color: var(--highlightColor);
+  --selection-color: var(--selectionColor);
+  --editor-color: var(--editorColor);
+  --editor-color-80: var(--editorColor80);
+  --editor-color-50: var(--editorColor50);
+  --editor-color-30: var(--editorColor30);
+  --editor-color-10: var(--editorColor10);
+  --editor-color-04: var(--editorColor04);
+  --editor-bg-color: var(--editorBgColor);
+  --editor-area-width: var(--editorAreaWidth);
+  --delete-color: var(--deleteColor);
+  --icon-color: var(--iconColor);
+  --code-block-bg-color: var(--codeBlockBgColor);
+  --table-border-color: var(--tableBorderColor);
+  --input-bg-color: var(--inputBgColor);
+  --button-font-color: var(--buttonFontColor);
+  --button-bg-color: var(--buttonBgColor);
+  --button-border: var(--buttonBorder);
+  --button-bg-color-hover: var(--buttonBgColorHover);
+  --button-border-hover: var(--buttonBorderHover);
+  --button-bg-color-active: var(--buttonBgColorActive);
+  --button-border-active: var(--buttonBorderActive);
+  --button-border-focus: var(--button-border);
+  --float-bg-color: var(--floatBgColor);
+  --float-hover-color: var(--floatHoverColor);
+  --float-border-color: var(--floatBorderColor);
+  --float-shadow:
+    rgb(15 15 15 / 3%) 0 0 0 1px, rgb(15 15 15 / 4%) 0 3px 6px, rgb(15 15 15 / 5%) 0 9px 24px;
+  --link-color: var(--linkColor);
+  --h1-color: var(--h1Color);
+  --h2-color: var(--h2Color);
+  --h3-color: var(--h3Color);
+  --h4-color: var(--h4Color);
+  --h5-color: var(--h5Color);
+  --h6-color: var(--h6Color);
+  --blockquote-text-color: var(--blockquoteTextColor);
+  --blockquote-border-color: var(--blockquoteBorderColor);
+  --strong-color: var(--strongColor);
+  --em-color: var(--emColor);
+  --list-marker-color: var(--listMarkerColor);
+  --hr-color: var(--hrColor);
+}
+
+:root .side-bar {
+  background-color: var(--sideBarBgColor);
+  background-image: var(--holographicSheen);
+  border-right-color: var(--holographicBorder);
+}
+:root .title-bar,
+:root .editor-tabs {
+  background-color: var(--editorBgColor);
+  background-image: var(--holographicSheen);
+}
+:root .editor-tabs {
+  box-shadow: 0 1px 0 var(--holographicBorder);
+}
+:root .title-bar,
+:root .title-bar .title,
+:root .title-bar .filename,
+:root .title-bar .word-count {
+  transition: none;
+}
+:root .tabs-container > li {
+  transition: background-color 0.14s ease;
+}
+:root .tabs-container > li.active {
+  background: var(--themeColor10);
+  border-radius: 7px 7px 0 0;
+}
+:root .side-bar .opened-file {
+  margin: 2px 8px 2px 0;
+  border-radius: 7px;
+}
+:root .side-bar .opened-file.active {
+  background: var(--themeColor10);
+  box-shadow: inset 2px 0 var(--themeColor);
+}
+:root .side-bar .left-column ul > li.active {
+  background: var(--themeColor10);
+  box-shadow: inset 2px 0 var(--themeColor);
+}
+:root .mu-float-wrapper,
+:root .el-dialog,
+:root .el-select-dropdown {
+  background-color: var(--floatBgColor);
+  background-image: var(--holographicSheen);
+  border: 1px solid var(--holographicBorder);
+  border-radius: 12px;
+  box-shadow: var(--floatShadow);
+}
+:root :is(button, [role='button'], [role='tab'], a, input, textarea, select):focus-visible {
+  outline: 2px solid var(--themeColor);
+  outline-offset: 2px;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--holographicMutedColor);
+}
+.token.keyword,
+.token.boolean,
+.token.number {
+  color: var(--themeColor);
+}
+.token.string,
+.token.char {
+  color: var(--holographicCodeString);
+}
+
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root .side-bar,
+  :root .title-bar,
+  :root .editor-tabs,
+  :root .mu-float-wrapper,
+  :root .el-dialog,
+  :root .el-select-dropdown {
+    background-image: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --holographicBorder: var(--editorColor);
+    --holographicMutedColor: var(--editorColor);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .side-bar *,
+  :root .editor-tabs *,
+  :root .offcial-themes .theme {
+    animation: none !important;
+    transition: none !important;
+  }
+}

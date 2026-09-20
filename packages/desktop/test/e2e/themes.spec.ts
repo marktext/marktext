@@ -10,6 +10,7 @@ test.describe('Theme switching', () => {
     const launched = await launchWithMarkdown('# Theme test\n\nHello theme world.\n')
     app = launched.app
     page = launched.page
+    await app.evaluate(({ ipcMain }) => ipcMain.emit('set-user-preference', { followSystemTheme: false }))
   })
 
   test.afterAll(async() => {
@@ -32,6 +33,57 @@ test.describe('Theme switching', () => {
   test('Switch back to dark theme re-applies body.dark', async() => {
     await clickMenuById(app, 'nord')
     await expect(page.locator('body')).toHaveClass(/(^|\s)dark(\s|$)/)
+  })
+
+  test('holographic palettes switch cleanly and respect accessibility preferences', async() => {
+    await setSourceMarkdown(page, app, '# A clearer place to write\n\nIdeas, notes, and the next good draft.\n\n## In focus\n\n- [x] Gather the important details\n- [ ] Shape the story\n- [ ] Make room for what comes next\n\n> Good tools leave room for your thoughts.\n\n## Working notes\n\n| Detail | Status |\n| --- | --- |\n| Sidebar | More room for open files |\n| Appearance | Light and dark |\n\n```js\nconst draft = "Something worth writing"\n```\n')
+    const session = await page.context().newCDPSession(page)
+    const normalFeatures = [
+      { name: 'prefers-reduced-transparency', value: 'no-preference' },
+      { name: 'prefers-reduced-motion', value: 'no-preference' },
+      { name: 'prefers-contrast', value: 'no-preference' }
+    ]
+    await session.send('Emulation.setEmulatedMedia', { features: normalFeatures })
+    for (const [theme, background] of [
+      ['holographic-dark', 'rgb(23, 27, 38)'],
+      ['holographic-light', 'rgb(247, 248, 252)']
+    ]) {
+      await clickMenuById(app, theme)
+      await expect(page.locator('.editor-with-tabs')).toHaveCSS('background-color', background)
+      await expect(page.locator('.side-bar')).not.toHaveCSS('background-image', 'none')
+      await page.screenshot({ path: test.info().outputPath(`${theme}.png`) })
+      await session.send('Emulation.setEmulatedMedia', {
+        features: [
+          { name: 'prefers-reduced-transparency', value: 'reduce' },
+          { name: 'prefers-reduced-motion', value: 'reduce' },
+          { name: 'prefers-contrast', value: 'more' }
+        ]
+      })
+      await expect(page.locator('.side-bar')).toHaveCSS('background-image', 'none')
+      await expect(page.locator('.side-bar .left-column svg').first()).toHaveCSS('transition-duration', '0s')
+      await session.send('Emulation.setEmulatedMedia', { features: normalFeatures })
+      await page.emulateMedia({ media: 'print' })
+      await expect(page.locator('.editor-with-tabs')).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+      await page.emulateMedia({ media: 'screen' })
+    }
+    await clickMenuById(app, 'light')
+    await expect(page.locator('.side-bar')).toHaveCSS('background-image', 'none')
+    await session.detach()
+  })
+
+  test('theme cards can be selected with the keyboard', async() => {
+    const window = app.waitForEvent('window')
+    await app.evaluate(({ ipcMain }) => ipcMain.emit('app-create-settings-window'))
+    const settings = await window
+    await settings.waitForSelector('.pref-container')
+    await settings.evaluate(() => { location.hash = '#/preference/theme' })
+    const card = settings.getByRole('button', { name: 'holographic-dark', exact: true })
+    await expect(card).toBeVisible()
+    await card.focus()
+    await card.press('Space')
+    await expect(card).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.locator('body')).toHaveClass(/(^|\s)dark(\s|$)/)
+    await settings.close()
   })
 
   // Item 282 — Prism code-block syntax highlighting token colors follow the

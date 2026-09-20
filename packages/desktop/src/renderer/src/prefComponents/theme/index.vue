@@ -6,6 +6,11 @@
         v-for="themeItem of themes"
         :key="themeItem.name"
         class="theme"
+        role="button"
+        :tabindex="followSystemTheme ? -1 : 0"
+        :aria-label="themeItem.name"
+        :aria-pressed="themeItem.name === theme"
+        :aria-disabled="followSystemTheme"
         :class="[
           themeItem.name,
           {
@@ -13,10 +18,16 @@
             disabled: followSystemTheme
           }
         ]"
+        @keydown.enter.prevent="!followSystemTheme && onSelectChange('theme', themeItem.name)"
+        @keydown.space.prevent="!followSystemTheme && onSelectChange('theme', themeItem.name)"
         @click="!followSystemTheme && onSelectChange('theme', themeItem.name)"
       >
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div v-html="themeItem.html" />
+        <!-- eslint-disable vue/no-v-html -->
+        <div
+          inert
+          v-html="themeItem.html"
+        />
+        <!-- eslint-enable vue/no-v-html -->
       </div>
     </section>
     <separator />
@@ -160,6 +171,26 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
     border-radius: 5px;
     transition: opacity 0.2s ease;
 
+    &:focus-visible {
+      outline: 2px solid var(--themeColor);
+      outline-offset: 3px;
+    }
+    &.holographic-light {
+      color: #283044;
+      background: linear-gradient(135deg, #e9e4f6, #f7f8fc 55%, #e4f1f5);
+      border: 1px solid #c5cadd;
+      & a {
+        color: #6250a7;
+      }
+    }
+    &.holographic-dark {
+      color: #dce4f4;
+      background: linear-gradient(135deg, #2e2945, #171b26 55%, #223b43);
+      border: 1px solid #48536d;
+      & a {
+        color: #b5a4f5;
+      }
+    }
     &.dark {
       color: rgba(255, 255, 255, 0.7);
       background: #282828;

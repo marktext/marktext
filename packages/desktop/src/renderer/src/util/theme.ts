@@ -6,6 +6,8 @@ import {
   railscastsThemes
 } from '../config'
 import {
+  holographicLight,
+  holographicDark,
   dark,
   graphite,
   materialDark,
@@ -72,6 +74,12 @@ export const addThemeStyle = (theme: string): void => {
       themeStyleEle.innerHTML = patchTheme(
         ':root {\n  --link-color: var(--linkColor);\n  --blockquote-border-color: var(--blockquoteBorderColor);\n}'
       )
+      break
+    case 'holographic-light':
+      themeStyleEle.innerHTML = patchTheme(holographicLight())
+      break
+    case 'holographic-dark':
+      themeStyleEle.innerHTML = patchTheme(holographicDark())
       break
     case 'dark':
       themeStyleEle.innerHTML = patchTheme(dark())

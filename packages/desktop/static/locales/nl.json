@@ -178,7 +178,9 @@
       "tokyoNight": "Tokyo Night",
       "tokyoNightLight": "Tokyo Night Light",
       "tokyoNightStorm": "Tokyo Night Storm",
-      "ulyssesLight": "Ulysses Light"
+      "ulyssesLight": "Ulysses Light",
+      "holographicLight": "Holographic Light",
+      "holographicDark": "Holographic Dark"
     }
   },
   "contextMenu": {

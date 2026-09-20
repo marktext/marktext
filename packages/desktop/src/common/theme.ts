@@ -1,4 +1,5 @@
 export const railscastsThemes: readonly string[] = Object.freeze([
+  'holographic-dark',
   'dark',
   'material-dark',
   // New gogh dark themes
@@ -52,6 +53,8 @@ const themeBackgroundColors: ReadonlyMap<string, string> = new Map([
   ['graphite', '#f7f7f7'],
   ['gruvbox-dark', '#282828'],
   ['gruvbox-light', '#fbf1c7'],
+  ['holographic-dark', '#171b26'],
+  ['holographic-light', '#f7f8fc'],
   ['horizon-dark', '#1c1e26'],
   ['kanagawa', '#1f1f28'],
   ['material-dark', '#34393f'],
