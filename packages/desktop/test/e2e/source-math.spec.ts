@@ -95,15 +95,8 @@ test.describe('Source view: math tokenization (#4121)', () => {
     expect(lastLineHasMath).toBe(false)
   })
 
-  // pandoc's tex_math_dollars rules, which #5449 gave the editor: the closing
-  // `$` needs a non-space before it and no digit after it. Without them the old
-  // guard opened a span at `$5` / `$13B` — the currency case #2002 and #5243
-  // reported, and the reason the assertion above checks the span contents
-  // rather than merely counting them.
-  // The delimiters are de-emphasised, not hidden: they keep the surrounding
-  // colour at reduced opacity so every theme stays legible without naming a
-  // hue. 3:1 is the floor this sort of punctuation is held to, and one-dark —
-  // whose body text only reaches 6.57:1 — is what sets it.
+  // 3:1 is the floor this sort of de-emphasised punctuation is held to, and
+  // one-dark — whose body text only reaches 6.57:1 — is what sets it.
   test('draws the math delimiters faded but still legible', async() => {
     const seen = await page.evaluate(() => {
       const parse = (c: string): number[] => (c.match(/[\d.]+/g) ?? []).map(Number)
@@ -140,6 +133,8 @@ test.describe('Source view: math tokenization (#4121)', () => {
     expect(seen!.contrast).toBeGreaterThan(3)
   })
 
+  // Without pandoc's constraints (#5449) the old guard opened a span at `$5` /
+  // `$13B`, which is why this checks span contents rather than counting them.
   test('currency amounts do not open a math span', async() => {
     const currencyMath = await page.evaluate(() => {
       const root = document.querySelector('.source-code .CodeMirror')
@@ -177,11 +172,8 @@ const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise
   }, prefs)
 }
 
-// pandoc's tex_math_single_backslash / tex_math_double_backslash, added to the
-// editor by #5481. Both ship disabled, so an ungated region would have the
-// source view calling `\(…\)` a formula while the editor correctly reads it as
-// a CommonMark escape — the reason this file had to learn about preferences
-// before it could learn about these delimiters.
+// Both ship disabled (#5481), so an ungated region would call `\(…\)` a formula
+// here while the editor correctly reads a CommonMark escape.
 test.describe('Source view: backslash TeX math delimiters', () => {
   let app: ElectronApplication
   let page: Page
@@ -242,14 +234,11 @@ test.describe('Source view: backslash TeX math delimiters', () => {
     expect(await mathContains('a_{1}')).toBe(false)
   })
 
-  // The display openers span lines, so they have no closer lookahead to fall
-  // back on. Without a guard against a preceding backslash the single-backslash
-  // region claimed the second character of `\\\\[` and swallowed the block the
-  // other extension owns, highlighted whether or not that extension was on.
+  // Without `(?<!\\)` the single-backslash region claimed the second character
+  // of `\\[` and swallowed the block the other extension owns.
   test('does not claim a display block owned by the other extension', async() => {
-    // Sets its own preferences rather than leaning on the test before it: the
-    // assertion is vacuous with the extension off, which hid the bug from a
-    // first version of this case.
+    // Sets its own preferences: the assertion is vacuous with the extension
+    // off, which hid the bug from a first version of this case.
     await setPreference(page, { texMathSingleBackslash: true, texMathDoubleBackslash: false })
     await expect.poll(() => mathContains('sum_'), { timeout: 10000 }).toBe(true)
 
@@ -283,9 +272,8 @@ test.describe('Source view: backslash TeX math delimiters', () => {
   })
 })
 
-// GitHub's inline math, the other half of pandoc's `tex_math_gfm`. It opens on
-// `$` like the dollar rule, so without its own region the dollar rule claimed
-// the span and painted the backticks as part of the formula.
+// Without its own region the dollar rule claimed the span and painted the
+// backticks as part of the formula.
 test.describe('Source view: GitHub inline math', () => {
   let app: ElectronApplication
   let page: Page
@@ -324,9 +312,7 @@ test.describe('Source view: GitHub inline math', () => {
   })
 })
 
-// The source view delegates to stex only for the syntaxes the editor is
-// actually reading, so the two views cannot disagree about what a formula is
-// (#5446). `texMathDollars` is the one that ships on, and the one #2002 /
+// `texMathDollars` is the one extension that ships on, and the one #2002 /
 // #5243 asked to be able to turn off.
 test.describe('Source view: math highlighting follows texMathDollars', () => {
   let app: ElectronApplication

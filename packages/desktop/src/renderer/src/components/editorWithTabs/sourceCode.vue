@@ -72,10 +72,8 @@ watch(sourceCodeLineNumbers, (value) => {
   editor.value?.setOption('lineNumbers', value)
 })
 
-// Which delimiters `markdown-math` delegates to stex is carried on the mode
-// spec, so the source view highlights exactly the syntaxes the editor is
-// reading (#5446). A fresh instance picks these up at mount; the watch is for
-// a preference changed while the source view is already open.
+// A fresh instance reads these at mount; the watch is for a preference changed
+// while the source view is already open (#5446).
 const markdownMathMode = () => ({
   name: 'markdown-math',
   texMathDollars: texMathDollars.value,
@@ -414,9 +412,7 @@ onMounted(() => {
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // `markdown-math` wraps the standard Markdown mode and delegates math spans
-  // to stex so subscript underscores in math do not flip the outer mode into
-  // emphasis. See src/renderer/src/codeMirror/markdownMathMode.ts.
+  // See src/renderer/src/codeMirror/markdownMathMode.ts.
   codeMirrorInstance.setOption('mode', markdownMathMode())
 
   codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
@@ -483,16 +479,9 @@ onBeforeUnmount(() => {
 .source-code .CodeMirror-activeline-gutter {
   background: var(--floatHoverColor);
 }
-/* Set the math delimiters back from the formula, the way the WYSIWYG view
-   greys its own markers. Fading the inherited colour rather than naming one
-   keeps this legible across all three CodeMirror themes the app ships
-   (default, railscasts, one-dark) and any future palette, which a fixed hue
-   could not.
-
-   0.65 is the lowest value that clears 3:1 — the WCAG threshold this sort of
-   de-emphasised punctuation is held to — in every shipped theme. one-dark sets
-   the floor at 3.67: its body text only reaches 6.57, so anything fainter
-   disappears there long before it does anywhere else. */
+/* Fade the delimiters against the formula. Dimming the inherited colour rather
+   than naming one is what carries across every theme; 0.65 is the lowest value
+   still clearing 3:1 in all of them, with one-dark at 3.67 setting the floor. */
 .source-code .CodeMirror .cm-formatting-math {
   opacity: 0.65;
 }

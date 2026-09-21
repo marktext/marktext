@@ -6,15 +6,11 @@ type CodeMirrorLike = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = any
 
-// Upstream searched a regexp `open` against `string.slice(from)`, which hides
-// everything before the cursor from the pattern. A delimiter that has to know
-// what precedes it — `\\[` must not be read as an escaped backslash followed by
-// `\[` — cannot be expressed that way. Searching the whole string from an
-// offset instead keeps lookbehind working. Cached because `token` runs per
-// character.
-//
-// The one behaviour this changes: `^` in a regexp `open` now anchors to the
-// start of the line rather than to `from`.
+// Upstream ran a regexp `open` against `string.slice(from)`, hiding everything
+// before the cursor — so an opener could not refuse a preceding backslash, and
+// `\\[` was read as an escape plus `\[`. Searching the whole string from an
+// offset keeps lookbehind working; `^` in an opener now anchors to the line
+// start rather than to `from`. Cached because `token` runs per character.
 const searchable = new WeakMap<RegExp, RegExp>()
 
 const fromOffset = (pattern: RegExp): RegExp => {
