@@ -67,8 +67,9 @@ const getByPath = (obj: unknown, dotPath: string): unknown => {
   return current
 }
 
-// Technical terms that must stay in English for Latin-script locales.
-// CJK locales may translate these (different convention).
+// Technical terms that must stay in English for the locales listed in
+// TERM_PRESERVING_LOCALES below. The others (ja, ko, zh-CN, zh-TW, tr)
+// translate them by convention.
 const TECHNICAL_TERMS: Array<{ path: string; mustContain: string }> = [
   { path: 'menu.paragraph.frontMatter', mustContain: 'Front Matter' },
   { path: 'quickInsert.frontMatter.title', mustContain: 'Front Matter' },
@@ -77,7 +78,9 @@ const TECHNICAL_TERMS: Array<{ path: string; mustContain: string }> = [
   { path: 'quickInsert.vegaChart.title', mustContain: 'Vega' },
 ]
 
-const LATIN_SCRIPT_LOCALES = ['de', 'es', 'fr', 'nl', 'pt']
+// Not a script property — ru is Cyrillic and still keeps the English product
+// names — so membership is per-locale convention, not per-alphabet.
+const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'nl', 'pt', 'ru']
 
 const getAvailableLocales = (): string[] =>
   fs.readdirSync(LOCALES_DIR)
@@ -151,9 +154,9 @@ describe('desktop locale validation', () => {
     }
   })
 
-  describe('technical terms stay in English (Latin-script locales)', () => {
-    const latinLocales = locales.filter(l => LATIN_SCRIPT_LOCALES.includes(l))
-    for (const lang of latinLocales) {
+  describe('technical terms stay in English', () => {
+    const termLocales = locales.filter(l => TERM_PRESERVING_LOCALES.includes(l))
+    for (const lang of termLocales) {
       it(`${lang}.json keeps product names untranslated`, () => {
         const locale = loadLocale(lang)
         const violations: string[] = []
