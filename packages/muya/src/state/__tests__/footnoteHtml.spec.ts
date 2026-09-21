@@ -119,4 +119,31 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         // nested inside the preceding <li>.
         expect(html).not.toMatch(/<div class="footnote-block"/);
     });
+
+    it('leaves a backslash-escaped `\\[^x]` as literal text', () => {
+        const html = renderToStaticHTML('foo \\[^1] bar.\n\n[^1]: the note', PROFILE);
+
+        expect(html).toContain('[^1]');
+        expect(html).not.toMatch(/<sup class="footnote-ref"/);
+        // With its only reference escaped the definition is unreferenced, so
+        // it is dropped like any other orphan.
+        expect(html).not.toMatch(/<section class="footnotes">/);
+    });
+
+    it('does not transform a literal `[^x]` that sits inside a code span', () => {
+        const html = renderToStaticHTML('foo `[^1]` bar.\n\n[^1]: the note', PROFILE);
+
+        expect(html).toMatch(/<code>\[\^1\]<\/code>/);
+        expect(html).not.toMatch(/<sup class="footnote-ref"/);
+    });
+
+    it('keeps a `[^x]` written inside a definition body as literal text', () => {
+        // pandoc has no nested references: inside a note the text is literal.
+        const html = renderToStaticHTML('a[^1]\n\n[^1]: see also[^2]\n\n[^2]: second', PROFILE);
+
+        const section = html.match(/<section class="footnotes">[\s\S]*<\/section>/)![0];
+        expect(section).toContain('see also[^2]');
+        // Exactly one reference was made inline, so exactly one entry.
+        expect(section.match(/<li id="fn-\d+">/g)).toEqual(['<li id="fn-1">']);
+    });
 });

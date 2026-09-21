@@ -28,11 +28,24 @@ interface IFootnoteRendererThis {
 // the continuation rule.
 const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|\n\[\^[^^[\]\s]+(?<!\\)\]:|$)/;
 
+// Inline `[^id]` reference. Tokenising it here rather than regexing marked's
+// finished HTML is what makes `\[^id]` stay literal: marked's own escape rule
+// claims the `\[` before this tokenizer is ever offered the position. For the
+// same reason code spans and fenced code need no special handling — marked
+// never runs inline extensions over their contents.
+const INLINE_RULE = /^\[\^([^^[\]\s]+)\]/;
+
 interface IFootnoteToken {
     type: 'footnote';
     raw: string;
     identifier: string;
     tokens: Tokens.Generic[];
+}
+
+interface IFootnoteRefToken {
+    type: 'footnoteRef';
+    raw: string;
+    identifier: string;
 }
 
 export default function footnoteExtension(): MarkedExtension {
@@ -120,6 +133,33 @@ export default function footnoteExtension(): MarkedExtension {
                     const { parser } = this as IFootnoteRendererThis;
                     const inner = parser ? parser.parse(t.tokens) : '';
                     return `<div class="footnote-block" data-identifier="${escapeAttr(t.identifier)}">${inner}</div>\n`;
+                },
+            },
+            {
+                name: 'footnoteRef',
+                level: 'inline',
+                start(src: string) {
+                    const i = src.indexOf('[^');
+                    return i === -1 ? undefined : i;
+                },
+                tokenizer(src: string): IFootnoteRefToken | undefined {
+                    const match = INLINE_RULE.exec(src);
+                    if (!match)
+                        return;
+
+                    return { type: 'footnoteRef', raw: match[0], identifier: match[1] };
+                },
+                renderer(token) {
+                    if (token.type !== 'footnoteRef')
+                        return false;
+                    const t = token as IFootnoteRefToken;
+
+                    // A marker, not the final `<sup>`: numbering depends on
+                    // the order references appear across the whole document,
+                    // which only `transformFootnotes` can see. It rewrites
+                    // every marker — into a link where a definition exists,
+                    // back into literal `[^id]` where none does.
+                    return `<span class="footnote-ref" data-identifier="${escapeAttr(t.identifier)}"></span>`;
                 },
             },
         ],
