@@ -98,20 +98,9 @@ import {
   TableColumnToolbar,
   TableDragBar,
   TableRowColumMenu,
-  wordCount as muyaWordCount,
-  en,
-  de,
-  es,
-  fr,
-  ja,
-  ko,
-  pt,
-  ru,
-  tr,
-  zhCN,
-  zhTW,
-  type ILocale
+  wordCount as muyaWordCount
 } from '@muyajs/core'
+import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
@@ -146,23 +135,6 @@ import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
 const STANDAR_Y = 320
-
-// Map the desktop language preference to the engine's bundled locale objects.
-const MUYA_LOCALES: Record<string, ILocale> = {
-  en,
-  de,
-  es,
-  fr,
-  ja,
-  ko,
-  pt,
-  ru,
-  tr,
-  'zh-CN': zhCN,
-  'zh-TW': zhTW
-}
-
-const getMuyaLocale = (language: string): ILocale => MUYA_LOCALES[language] ?? en
 
 // `Muya.use(...)` appends to the static `Muya.plugins` array, and every
 // `init()` instantiates the full list. Registration is process-global, so guard
