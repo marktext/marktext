@@ -24,6 +24,7 @@
       "export": "Export",
       "exportHtml": "Export as HTML",
       "exportPdf": "Export as PDF",
+      "convertWithPandoc": "Convert with Pandoc",
       "import": "Import",
       "print": "Print",
       "closeTab": "Close Tab",
@@ -903,7 +904,9 @@
     "fileExists": "File exists {filename}",
     "files": "Files",
     "importWarning": "Import warning",
-    "installPandoc": "Install Pandoc",
+    "installPandoc": "Pandoc was not found. Install it, or set the MARKTEXT_PANDOC environment variable to the pandoc binary and restart MarkText.",
+    "exportWarning": "Export warning",
+    "exportWarningMore": "…and {count} more",
     "keepOpen": "Keep open",
     "replace": "Replace",
     "save": "Save",
@@ -943,6 +946,7 @@
       "errorWhileSaving": "There was an error while saving: {msg}",
       "exportSuccessTitle": "Exported successfully",
       "exportSuccessMessage": "Exported \"{name}\" successfully!",
+      "exportLinkedMediaMessage": "Exported \"{name}\". This format links images instead of embedding them, so keep the pictures next to the file and share the whole folder.",
       "fileRemovedOnDisk": "\"{name}\" has been removed on disk.",
       "fileChangedOnDisk": "\"{name}\" has been changed on disk. Do you want to reload it?"
     }

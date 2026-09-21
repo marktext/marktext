@@ -24,6 +24,7 @@
       "export": "エクスポート",
       "exportHtml": "HTML としてエクスポート",
       "exportPdf": "PDF としてエクスポート",
+      "convertWithPandoc": "Pandoc で変換",
       "import": "インポート",
       "print": "印刷",
       "closeTab": "タブを閉じる",
@@ -903,7 +904,9 @@
     "fileExists": "ファイルが既に存在します: {filename}",
     "files": "ファイル",
     "importWarning": "インポート警告",
-    "installPandoc": "Pandoc をインストール",
+    "installPandoc": "Pandoc が見つかりません。インストールするか、環境変数 MARKTEXT_PANDOC に pandoc の実行ファイルのパスを設定して MarkText を再起動してください。",
+    "exportWarning": "エクスポートの警告",
+    "exportWarningMore": "…ほか {count} 件",
     "keepOpen": "開いたままにする",
     "replace": "置換",
     "save": "保存",
@@ -943,6 +946,7 @@
       "errorWhileSaving": "保存中にエラーが発生しました : {msg}",
       "exportSuccessTitle": "エクスポートに成功",
       "exportSuccessMessage": "「{name}」を正常にエクスポートしました！",
+      "exportLinkedMediaMessage": "「{name}」をエクスポートしました。この形式は画像を埋め込まずファイル参照のままにするため、画像をファイルと同じ場所に置き、フォルダごと共有してください。",
       "fileRemovedOnDisk": "「{name}」はディスク上で削除されました。",
       "fileChangedOnDisk": "「{name}」はディスク上で変更されました。再読み込みしますか？"
     }

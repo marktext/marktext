@@ -24,6 +24,7 @@
       "export": "내보내기",
       "exportHtml": "HTML로 내보내기",
       "exportPdf": "PDF로 내보내기",
+      "convertWithPandoc": "Pandoc으로 변환",
       "import": "가져오기",
       "print": "인쇄",
       "closeTab": "탭 닫기",
@@ -903,7 +904,9 @@
     "fileExists": "파일이 이미 존재합니다: {filename}",
     "files": "파일",
     "importWarning": "가져오기 경고",
-    "installPandoc": "Pandoc 설치",
+    "installPandoc": "Pandoc를 찾을 수 없습니다. 설치하거나 환경 변수 MARKTEXT_PANDOC에 pandoc 실행 파일 경로를 설정한 뒤 MarkText를 다시 시작하세요.",
+    "exportWarning": "내보내기 경고",
+    "exportWarningMore": "…외 {count}건",
     "keepOpen": "열어두기",
     "replace": "바꾸기",
     "save": "저장",
@@ -943,6 +946,7 @@
       "errorWhileSaving": "저장 중 오류가 발생했습니다: {msg}",
       "exportSuccessTitle": "내보내기 성공",
       "exportSuccessMessage": "“{name}”을(를) 성공적으로 내보냈습니다!",
+      "exportLinkedMediaMessage": "\"{name}\" 내보내기 완료. 이 형식은 이미지를 포함하지 않고 파일 링크로 유지하므로, 이미지를 파일과 같은 위치에 두고 폴더 전체를 공유하세요.",
       "fileRemovedOnDisk": "“{name}”이(가) 디스크에서 삭제되었습니다.",
       "fileChangedOnDisk": "“{name}”이(가) 디스크에서 변경되었습니다. 다시 로드하시겠습니까?"
     }

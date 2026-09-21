@@ -24,6 +24,7 @@
       "export": "匯出",
       "exportHtml": "匯出為 HTML",
       "exportPdf": "匯出為 PDF",
+      "convertWithPandoc": "使用 Pandoc 轉換",
       "import": "匯入",
       "print": "列印",
       "closeTab": "關閉標籤頁",
@@ -903,7 +904,9 @@
     "fileExists": "檔案已存在：{filename}",
     "files": "檔案",
     "importWarning": "匯入警告",
-    "installPandoc": "安裝 Pandoc",
+    "installPandoc": "找不到 Pandoc。請先安裝，或將環境變數 MARKTEXT_PANDOC 設為 pandoc 執行檔的路徑後重新啟動 MarkText.",
+    "exportWarning": "匯出提示",
+    "exportWarningMore": "…另有 {count} 條",
     "keepOpen": "保持開啟",
     "replace": "取代",
     "save": "儲存",
@@ -943,6 +946,7 @@
       "errorWhileSaving": "儲存時發生錯誤：{msg}",
       "exportSuccessTitle": "匯出成功",
       "exportSuccessMessage": "已成功匯出「{name}」！",
+      "exportLinkedMediaMessage": "已匯出“{name}”。此格式以連結方式引用圖片而不內嵌，請讓圖片與檔案放在一起，分享時一併帶上整個資料夾。",
       "fileRemovedOnDisk": "「{name}」已在磁碟上被刪除。",
       "fileChangedOnDisk": "「{name}」已在磁碟上發生變更。是否重新載入？"
     }
