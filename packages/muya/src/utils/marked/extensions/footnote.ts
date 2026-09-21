@@ -20,7 +20,15 @@ interface IFootnoteRendererThis {
 // footnote with identifier `foo\`. The `:[\s\S]*?` after the marker uses
 // `*` (not `+`) so a bare `[^id]:` followed only by a newline is still
 // recognised as an empty footnote.
-const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|$)/;
+//
+// The body ends at a blank line, at the start of the next column-0
+// definition, or at end of input. That middle terminator is what keeps
+// definitions packed one per line — the shape pandoc and GFM both emit —
+// as siblings; without it the lazy body swallows the following `[^id]:`
+// lines and the nested lexer turns them into children of the first.
+// Indented (4-space) definitions stay body text, matching the
+// continuation rule.
+const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|\n\[\^[^^[\]\s]+(?<!\\)\]:|$)/;
 
 interface IFootnoteToken {
     type: 'footnote';

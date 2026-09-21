@@ -300,6 +300,22 @@ describe('markdownToState — task list nesting (marktext 23435ce6)', () => {
         expect(out).toContain('[^1]: definition');
     });
 
+    it('keeps definitions packed one per line as siblings', () => {
+        const states = generate(
+            `a[^1] b[^2] c[^3]
+
+[^1]: one
+[^2]: two
+[^3]: three`,
+            { footnote: true },
+        );
+        const footnotes = states.filter(s => s.name === 'footnote');
+        expect(footnotes.map(f => f.meta!.identifier)).toEqual(['1', '2', '3']);
+        // None of them may have swallowed a sibling as a nested child.
+        for (const footnote of footnotes)
+            expect(footnote.children!.map(c => c.name)).toEqual(['paragraph']);
+    });
+
     it('keeps tight (no blank lines) nested task lists nested', () => {
         const md = `- [ ] task1
   - [ ] task1_1

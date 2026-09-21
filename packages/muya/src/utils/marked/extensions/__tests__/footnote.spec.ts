@@ -375,4 +375,35 @@ Trailing paragraph that does NOT belong to the footnote.`);
         const footnoteText = JSON.stringify(footnote);
         expect(footnoteText).not.toContain('Sed diam nonumy');
     });
+
+    it('terminates at the next definition on the immediately following line', () => {
+        // Definitions packed one per line with no blank line between them is
+        // the shape pandoc and GFM both produce; each must come out as its
+        // own sibling token rather than nesting inside its predecessor.
+        const tokens = parse(`a[^1] b[^2] c[^3]
+
+[^1]: one
+[^2]: two
+[^3]: three`);
+
+        expect(tokens.filter(t => t.type === 'footnote').map(t => t.identifier)).toEqual([
+            '1',
+            '2',
+            '3',
+        ]);
+        for (const footnote of tokens.filter(t => t.type === 'footnote'))
+            expect(footnote.children?.map(c => c.type)).toEqual(['paragraph']);
+    });
+
+    it('keeps a 4-space indented definition inside the enclosing footnote body', () => {
+        // Below the continuation threshold the `[^2]:` line is body text of
+        // `[^1]`, so it must not terminate the enclosing definition.
+        const tokens = parse(`a[^1]
+
+[^1]: one
+    [^2]: two`);
+
+        const identifiers = tokens.filter(t => t.type === 'footnote').map(t => t.identifier);
+        expect(identifiers).toEqual(['1']);
+    });
 });
