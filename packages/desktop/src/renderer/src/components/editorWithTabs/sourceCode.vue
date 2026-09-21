@@ -43,7 +43,14 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode, sourceCodeLineNumbers } = storeToRefs(preferencesStore)
+const {
+  theme,
+  sourceCode,
+  sourceCodeLineNumbers,
+  texMathDollars,
+  texMathSingleBackslash,
+  texMathDoubleBackslash
+} = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -62,6 +69,21 @@ watch(
 
 watch(sourceCodeLineNumbers, (value) => {
   editor.value?.setOption('lineNumbers', value)
+})
+
+// Which delimiters `markdown-math` delegates to stex is carried on the mode
+// spec, so the source view highlights exactly the syntaxes the editor is
+// reading (#5446). A fresh instance picks these up at mount; the watch is for
+// a preference changed while the source view is already open.
+const markdownMathMode = () => ({
+  name: 'markdown-math',
+  texMathDollars: texMathDollars.value,
+  texMathSingleBackslash: texMathSingleBackslash.value,
+  texMathDoubleBackslash: texMathDoubleBackslash.value
+})
+
+watch([texMathDollars, texMathSingleBackslash, texMathDoubleBackslash], () => {
+  editor.value?.setOption('mode', markdownMathMode())
 })
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
@@ -390,10 +412,10 @@ onMounted(() => {
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
-  // `$$...$$` spans to stex so subscript underscores in math do not flip the
-  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
-  codeMirrorInstance.setOption('mode', 'markdown-math')
+  // `markdown-math` wraps the standard Markdown mode and delegates math spans
+  // to stex so subscript underscores in math do not flip the outer mode into
+  // emphasis. See src/renderer/src/codeMirror/markdownMathMode.ts.
+  codeMirrorInstance.setOption('mode', markdownMathMode())
 
   codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
     event.preventDefault()

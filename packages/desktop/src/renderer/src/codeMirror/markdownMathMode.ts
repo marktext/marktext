@@ -1,9 +1,15 @@
 // CodeMirror "markdown-math" — a GFM-flavoured Markdown mode that delegates
-// the contents of `$...$` (inline) and `$$...$$` (block) math spans to the
-// stex (LaTeX) mode. Without this wrapper the standard markdown mode highlights
-// `_` as emphasis delimiters even inside math, producing spurious italics for
-// subscript expressions like `$\text{F}_\text{A} = \text{F}_\text{B}$` in the
-// source view. See https://github.com/marktext/marktext/issues/4121.
+// the contents of math spans to the stex (LaTeX) mode. Without this wrapper the
+// standard markdown mode highlights `_` as emphasis delimiters even inside math,
+// producing spurious italics for subscript expressions like
+// `$\text{F}_\text{A} = \text{F}_\text{B}$` in the source view.
+// See https://github.com/marktext/marktext/issues/4121.
+//
+// Which delimiters count is not fixed: the mode mirrors whichever of pandoc's
+// TeX math extensions the editor is currently reading (#5446), so the source
+// view and the WYSIWYG view never disagree about what is a formula. The flags
+// arrive on the mode spec — `setOption('mode', { name: 'markdown-math', … })`
+// in sourceCode.vue — which CodeMirror hands to the factory below.
 //
 // The outer mode is `gfm` to preserve the tables / autolinks / task lists
 // styling the previous `setMode(cm, 'markdown')` call resolved to via
@@ -16,9 +22,9 @@ import 'codemirror/mode/gfm/gfm'
 import 'codemirror/mode/stex/stex'
 
 // Open guard for inline `$…$`. Mirrors Muya's `inline_math` rule
-// (`src/muya/lib/parser/rules.js`): require non-empty content with no inner
-// `$`, last char before the closer not being `\`, and the closing `$` not
-// followed by another `$` (which would be block math). This stops a single
+// (`packages/muya/src/inlineRenderer/rules.ts`): require non-empty content with
+// no inner `$`, last char before the closer not being `\`, and the closing `$`
+// not followed by another `$` (which would be block math). This stops a single
 // stray `$` (e.g. "$5 owed") from flipping the inner mode on forever and keeps
 // the source-view tokenization aligned with the inline parse.
 const INLINE_MATH_OPEN = /\$(?!\$)(?=[^$\n]*?[^$\\]\$(?!\$))/
@@ -33,7 +39,12 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
     return
   }
 
-  CodeMirror.defineMode('markdown-math', function(config: AnyObj) {
+  // `parserConfig` is the mode spec the caller passed to `setOption('mode', …)`.
+  // The defaults reproduce what this mode did before it took any flags, so a
+  // caller still passing the bare string `'markdown-math'` is unaffected.
+  CodeMirror.defineMode('markdown-math', function(config: AnyObj, parserConfig: AnyObj) {
+    const { texMathDollars = true } = parserConfig ?? {}
+
     const gfmMode = CodeMirror.getMode(config, {
       name: 'gfm',
       fencedCodeBlocks: true,
@@ -42,27 +53,32 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
     })
     const stexMode = CodeMirror.getMode(config, 'stex')
 
-    // `$$` must come before `$` so the longer delimiter is matched first.
-    // Block math (`$$…$$`) intentionally has no lookahead guard: a matching
-    // closer typically lives on a later line, which CodeMirror's per-line
-    // tokenizer cannot see from the opener.
-    return CodeMirror.multiplexingMode(
-      gfmMode,
-      {
-        open: '$$',
-        close: '$$',
-        mode: stexMode,
-        delimStyle: 'formatting formatting-math formatting-math-block math-block',
-        innerStyle: 'math math-block'
-      },
-      {
-        open: INLINE_MATH_OPEN,
-        close: '$',
-        mode: stexMode,
-        delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
-        innerStyle: 'math math-inline'
-      }
-    )
+    const regions = []
+
+    if (texMathDollars) {
+      // `$$` must come before `$` so the longer delimiter is matched first.
+      // Block math (`$$…$$`) intentionally has no lookahead guard: a matching
+      // closer typically lives on a later line, which CodeMirror's per-line
+      // tokenizer cannot see from the opener.
+      regions.push(
+        {
+          open: '$$',
+          close: '$$',
+          mode: stexMode,
+          delimStyle: 'formatting formatting-math formatting-math-block math-block',
+          innerStyle: 'math math-block'
+        },
+        {
+          open: INLINE_MATH_OPEN,
+          close: '$',
+          mode: stexMode,
+          delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
+          innerStyle: 'math math-inline'
+        }
+      )
+    }
+
+    return CodeMirror.multiplexingMode(gfmMode, ...regions)
   })
 }
 

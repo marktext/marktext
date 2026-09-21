@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, enterSourceMode } from './helpers'
+import { launchWithMarkdown, enterSourceMode, exitSourceMode } from './helpers'
 
 // Regression test for https://github.com/marktext/marktext/issues/4121
 // Underscores inside inline math (`$...$`) and block math (`$$...$$`) must
@@ -91,5 +91,58 @@ test.describe('Source view: math tokenization (#4121)', () => {
       return false
     })
     expect(lastLineHasMath).toBe(false)
+  })
+})
+
+const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise<void> => {
+  await page.evaluate((payload) => {
+    window.electron.ipcRenderer.send('mt::set-user-preference', payload)
+  }, prefs)
+}
+
+// The source view delegates to stex only for the syntaxes the editor is
+// actually reading, so the two views cannot disagree about what a formula is
+// (#5446). `texMathDollars` is the one that ships on, and the one #2002 /
+// #5243 asked to be able to turn off.
+test.describe('Source view: math highlighting follows texMathDollars', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(FIXTURE)
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, { texMathDollars: true })
+      await app.close()
+    }
+  })
+
+  test('stops treating $ as a delimiter while the source view is open', async() => {
+    expect((await readSourceState(page)).mathInline).toBeGreaterThan(0)
+
+    await setPreference(page, { texMathDollars: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
+
+    await setPreference(page, { texMathDollars: true })
+    await expect
+      .poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 })
+      .toBeGreaterThan(0)
+  })
+
+  test('a fresh CodeMirror instance reads the preference on mount too', async() => {
+    await setPreference(page, { texMathDollars: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+
+    await exitSourceMode(page, app)
+    await enterSourceMode(page, app)
+
+    expect((await readSourceState(page)).mathInline).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
   })
 })
