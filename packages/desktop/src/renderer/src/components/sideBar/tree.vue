@@ -378,8 +378,11 @@ onMounted(() => {
   width: 8px;
 }
 
+/* Only the cap is lifted — the list keeps the default `flex: 0 1 auto`, so it
+   grows with its content and shrinks when it runs out of room. Letting it grow
+   instead would push the "Open folder" button onto the panel's bottom edge even
+   with a single file open. */
 .files-only .opened-files {
-  flex: 1;
   max-height: none;
 }
 .opened-files > .title {
