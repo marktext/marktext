@@ -24,10 +24,9 @@ import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import bus from '@/bus'
 
-// #5379: `EXPORT_PANDOC` used to read `engine.getMarkdown()`, which misses source-code mode
-// (CodeMirror writes straight to `currentFile.markdown`); it now flushes and reads the tab the
-// way `FILE_SAVE` does. The assertions are on the sent payload, not the emit order: a flush
-// moved after the read would still emit first while shipping the stale document.
+// #5379: `EXPORT_PANDOC` used to read `engine.getMarkdown()`, which misses source-code mode,
+// so it now flushes and reads the tab the way `FILE_SAVE` does. The assertions are on the
+// payload, not the emit order: a late flush would still emit first, shipping a stale document.
 
 const STALE = 'hello' // what the pre-flush snapshot holds
 const FLUSHED = 'hello world!' // the last keystroke the engine commits on flush
@@ -41,8 +40,7 @@ function seedCurrentFile(store: ReturnType<typeof useEditorStore>) {
   } as any
 }
 
-// Mirror editor.vue's listener: commit the pending keystroke on flush. Returns a
-// detach fn — the bus is a module singleton, so listeners leak across tests.
+// Commits the pending keystroke on flush; the detach fn keeps the shared bus from leaking.
 function onFlushCommit(store: ReturnType<typeof useEditorStore>) {
   const handler = () => {
     if (store.currentFile) store.currentFile.markdown = FLUSHED
@@ -86,8 +84,7 @@ describe('pandoc export payload (#5379)', () => {
     })
   })
 
-  // Only the renderer knows these: without `superSubScript` a `~x~` stays literal, and `gfm`
-  // enables footnotes itself, so the reader has to be told when to stop.
+  // Only the renderer knows these: `gfm` enables footnotes itself, so it must be told to stop.
   it('reports the reader preferences to the main process', () => {
     usePreferencesStore().superSubScript = true
     usePreferencesStore().footnote = false

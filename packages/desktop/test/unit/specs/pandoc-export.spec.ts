@@ -9,9 +9,7 @@ vi.mock('child_process', () => {
   return { default: { spawn }, spawn }
 })
 
-import { tmpdir } from 'os'
 import path from 'path'
-import { mkdtemp, writeFile } from 'fs-extra'
 import pandoc, {
   PANDOC_EXPORT_FORMATS,
   formatLinksMedia,
@@ -19,7 +17,8 @@ import pandoc, {
   getPandocReader,
   isRemoteMedia,
   listLinkedMedia,
-  uniquePandocOutputPath,
+  pandocLocations,
+  shouldMirrorMedia,
   type PandocToFileOptions
 } from 'main_renderer/utils/pandoc'
 
@@ -64,8 +63,7 @@ describe('pandoc export', () => {
     expect(ids).not.toContain('opml')
   })
 
-  // `gfm` is what the editor shows, within pandoc 3.1.3 (Ubuntu 24.04); the extensions
-  // asked for mirror the editor's footnote and super/subscript preferences (#5379).
+  // `gfm` is what the editor shows; the extensions asked for mirror its preferences (#5379).
   it('reads GFM, adding sub/superscript or dropping footnotes only when asked', () => {
     expect(getPandocReader(false)).toBe('gfm')
     expect(getPandocReader(false, false)).toBe('gfm-footnotes')
@@ -83,8 +81,7 @@ describe('pandoc export', () => {
     expect(getPandocLanguage('ja')).toBe('ja')
   })
 
-  // The argv is asserted in full because `cwd` is what makes `![](pics/a.png)` resolve;
-  // the named binary stands in for the portable pandoc — `process.execPath` exists.
+  // The argv is asserted because `cwd` is what makes `![](pics/a.png)` resolve.
   it('spawns the named binary with the reader and target asked for', async() => {
     const { proc, done } = runToFile('docx', '/tmp/notes.docx', {
       input: '# Title',
@@ -93,8 +90,9 @@ describe('pandoc export', () => {
     })
 
     await expect(done).resolves.toEqual({ warnings: '' })
+    // Which binary is used depends on the install, so argv and `cwd` are what this pins.
     expect(spawnMock).toHaveBeenCalledWith(
-      'pandoc',
+      expect.any(String),
       ['-f', 'gfm+superscript+subscript', '-t', 'docx', '-s', '-o', '/tmp/notes.docx'],
       { cwd: '/docs/notes' }
     )
@@ -108,8 +106,7 @@ describe('pandoc export', () => {
     expect(pandoc.exists()).toBe(true)
   })
 
-  // pandoc splits `--metadata` on the first colon only, so "Q3: plan" survives; an
-  // empty value is what pandoc complains about.
+  // pandoc splits `--metadata` on the first colon only, so "Q3: plan" survives.
   it('passes metadata on as --metadata key:value, dropping empty values', async() => {
     const { done } = runToFile('epub3', '/tmp/x.epub', {
       metadata: { title: 'Notes: draft', lang: 'zh-Hans', author: '' }
@@ -123,8 +120,7 @@ describe('pandoc export', () => {
     expect(args.slice(-2)).toEqual(['-o', '/tmp/x.epub'])
   })
 
-  // Exit code 0 is not a clean conversion: stderr holds the warnings it would
-  // otherwise hide, and names the offending source position when pandoc fails.
+  // Exit code 0 is not clean: stderr holds the warnings and names the failing position.
   it('reports the warnings of a run that worked and the stderr of one that did not', async() => {
     const { done } = runToFile('docx', '/tmp/x.docx', {
       stderr: '[WARNING] Could not fetch resource pics/a.png: replacing image with description\n'
@@ -158,20 +154,28 @@ describe('pandoc export', () => {
     await expect(missing).rejects.toThrow('spawn pandoc ENOENT')
   })
 
-  // Exporting one document twice must not replace the first result.
-  it('numbers a taken output path instead of overwriting it', async() => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'marktext-export-'))
-    const taken = path.join(dir, 'notes.rst')
-    await writeFile(taken, 'first')
+  // `pandoc.exe` sits in a `Pandoc` folder of each: the case the `PATH` check misses.
+  it('looks for pandoc where the Windows installers put it', () => {
+    const env = {
+      ProgramFiles: 'C:\\Program Files',
+      'ProgramFiles(x86)': 'C:\\Program Files (x86)',
+      LOCALAPPDATA: 'C:\\Users\\me\\AppData\\Local',
+      ProgramData: 'C:\\ProgramData',
+      USERPROFILE: 'C:\\Users\\me'
+    }
 
-    expect(uniquePandocOutputPath(taken)).toBe(path.join(dir, 'notes (2).rst'))
-    await writeFile(path.join(dir, 'notes (2).rst'), 'second')
-    expect(uniquePandocOutputPath(taken)).toBe(path.join(dir, 'notes (3).rst'))
-    expect(uniquePandocOutputPath(path.join(dir, 'free.rst'))).toBe(path.join(dir, 'free.rst'))
+    expect(pandocLocations('win32', env)).toEqual([
+      path.join(env.ProgramFiles, 'Pandoc', 'pandoc.exe'),
+      path.join(env['ProgramFiles(x86)'], 'Pandoc', 'pandoc.exe'),
+      path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe'),
+      path.join(env.ProgramData, 'chocolatey', 'bin', 'pandoc.exe'),
+      path.join(env.USERPROFILE, 'scoop', 'shims', 'pandoc.exe'),
+      path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'pandoc.exe')
+    ])
+    expect(pandocLocations('linux', env)).toEqual([])
   })
 
-  // The plain-text writers keep `pics/a.png` as a link, so pandoc copies the pictures next to
-  // the export and rewrites the links; both are relative to where it runs, not the output file.
+  // The plain-text writers keep `pics/a.png` as a link, so pandoc copies the pictures along.
   it('mirrors the document images next to the export', async() => {
     const { done } = runToFile('rst', '/tmp/out/notes.rst', {
       cwd: '/docs/notes',
@@ -183,7 +187,7 @@ describe('pandoc export', () => {
     const args = spawnMock.mock.calls.at(-1)?.[1] as string[]
     expect(args).toContain('--extract-media=.')
     expect(args).toContain('--resource-path=/docs/notes')
-    expect(spawnMock).toHaveBeenLastCalledWith('pandoc', args, { cwd: '/tmp/out' })
+    expect(spawnMock).toHaveBeenLastCalledWith(expect.any(String), args, { cwd: '/tmp/out' })
   })
 
   // Only a link pandoc reads from disk is mirrored; one that needs the network is left alone.
@@ -192,14 +196,31 @@ describe('pandoc export', () => {
     expect(isRemoteMedia('//example.com/b.png')).toBe(true)
     expect(isRemoteMedia('pics/a.png')).toBe(false)
     expect(isRemoteMedia('C:/docs/pics/a.png')).toBe(false)
+    // Two backslashes open a file over SMB, they do not fetch a URL.
+    expect(isRemoteMedia('\\\\srv\\pics\\a.png')).toBe(false)
     expect(isRemoteMedia('../outside.png')).toBe(false)
     expect(isRemoteMedia('data:image/png;base64,x')).toBe(false)
     expect(formatLinksMedia('rst')).toBe(true)
     expect(formatLinksMedia('docx')).toBe(false)
   })
 
-  // The list comes from pandoc, whose AST is what the export is written from; a raw
-  // `<img>` is a raw node and never reaches it.
+  // `--extract-media` replaces a link it cannot read with the alt text, which is exactly what
+  // a never-saved document's relative links are — no folder to read them from (#5379).
+  it('mirrors only the links the export is able to read', () => {
+    const dir = path.dirname(path.resolve('/docs/notes.md'))
+    const out = path.resolve('/out/notes.rst')
+
+    expect(shouldMirrorMedia(['pics/a.png'], dir, out)).toBe(true)
+    expect(shouldMirrorMedia([path.resolve('/docs/pics/a.png')], dir, out)).toBe(true)
+    // No path yet: an absolute link needs no folder to be read from, a relative one does.
+    expect(shouldMirrorMedia(['pics/a.png'], undefined, out)).toBe(false)
+    expect(shouldMirrorMedia([path.resolve('/docs/pics/a.png')], undefined, out)).toBe(true)
+    // A download that fails costs the picture, and the document's own folder needs no copy.
+    expect(shouldMirrorMedia(['https://example.com/b.png'], dir, out)).toBe(false)
+    expect(shouldMirrorMedia(['pics/a.png'], dir, path.join(dir, 'notes.rst'))).toBe(false)
+  })
+
+  // The list comes from pandoc's AST; a raw `<img>` is a raw node and never reaches it.
   it('lists the images pandoc found in the document', async() => {
     const proc = startProcess()
     const pending = listLinkedMedia('# Title', 'gfm')
@@ -210,7 +231,7 @@ describe('pandoc export', () => {
     proc.emit('close', 0)
 
     await expect(pending).resolves.toEqual(['pics/a.png'])
-    expect(spawnMock).toHaveBeenCalledWith('pandoc', ['-f', 'gfm', '-t', 'json'])
+    expect(spawnMock).toHaveBeenCalledWith(expect.any(String), ['-f', 'gfm', '-t', 'json'])
     expect(proc.stdin.end).toHaveBeenCalledWith('# Title')
   })
 })

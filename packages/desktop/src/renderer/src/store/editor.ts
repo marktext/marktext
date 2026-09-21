@@ -1587,10 +1587,8 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
-    // Reads `currentFile.markdown` after a flush, the way `FILE_SAVE` does: in
-    // source-code mode CodeMirror writes straight to it and the engine is only
-    // synced when source mode is left, so `engine.getMarkdown()` would export a
-    // stale document (#5379).
+    // Reads `currentFile.markdown` after a flush, the way `FILE_SAVE` does: in source-code
+    // mode CodeMirror writes straight to it, so `engine.getMarkdown()` would be stale (#5379).
     EXPORT_PANDOC(target: string): void {
       if (this.currentFile === null) return
 
@@ -1614,8 +1612,7 @@ export const useEditorStore = defineStore('editor', {
         notice
           .notify({
             title: t('store.editor.exportSuccessTitle'),
-            // The plain-text formats leave images as file links; without a word they
-            // look broken as soon as the file is passed on.
+            // The plain-text formats leave images as links, which look broken once shared.
             message: payload?.linksMedia
               ? t('store.editor.exportLinkedMediaMessage', { name })
               : t('store.editor.exportSuccessMessage', { name }),

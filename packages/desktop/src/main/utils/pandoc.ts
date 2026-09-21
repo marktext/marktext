@@ -27,44 +27,54 @@ export const PANDOC_EXPORT_FORMATS: readonly PandocExportFormat[] = Object.freez
   { id: 'textile', label: 'Textile (.textile)', target: 'textile', extension: '.textile' }
 ])
 
-// These writers have no container to inline an image into: pandoc leaves it as a
-// plain link, so the pictures have to be carried along instead (see `mirrorMedia`).
+// These writers have no container to inline an image into: pandoc leaves a plain link.
 export const formatLinksMedia = (target: string): boolean =>
   ['latex', 'rst', 'org', 'mediawiki', 'textile'].includes(target)
 
-// A link that needs the network to read — `https:` or the protocol-relative and UNC
-// form of the same thing. Mirroring one means downloading it, and a download that
-// fails costs the picture, which pandoc replaces with its alt text.
+// What pandoc fetches over the network instead of opening: `https:` or its protocol-
+// relative form. A path written with backslashes is a file, and mirrors like a local one.
 export const isRemoteMedia = (url: string): boolean => /^(https?:)?\/\//i.test(url)
 
-// `gfm` matches the editor and stays within what pandoc 3.1.3 accepts (no
-// `tex_math_gfm`); `-footnotes` keeps a `[^1]` literal unless the editor's
-// footnote preference renders it.
+// Whether the export should carry the document's pictures along (`--extract-media`). What
+// it cannot read it replaces with the alt text, so mirroring only pays off where every link
+// resolves: a saved document reads its relative links from the document's folder, an
+// absolute link needs no folder at all, and a never-saved one has neither. A remote picture
+// is downloaded instead (a failed fetch costs it); the document's own folder needs no copy.
+export const shouldMirrorMedia = (
+  links: string[],
+  sourceDir: string | undefined,
+  outputPath: string
+): boolean =>
+  !links.some(isRemoteMedia) &&
+  (!!sourceDir || links.every((url) => path.isAbsolute(url))) &&
+  path.dirname(outputPath) !== sourceDir
+
+// `gfm` matches the editor within what pandoc 3.1.3 accepts (no `tex_math_gfm`);
+// `-footnotes` keeps a `[^1]` literal unless the editor's preference renders it.
 export const getPandocReader = (superSubScript: boolean, footnotes = true): string =>
   `gfm${superSubScript ? '+superscript+subscript' : ''}${footnotes ? '' : '-footnotes'}`
 
-// pandoc knows no `zh`/`zh-CN`/`zh-TW` and warns about its own translation files
-// for a tag it cannot resolve, so Chinese is spelled with the script subtag.
+// pandoc knows no `zh`/`zh-CN` and would warn, so Chinese takes the script subtag.
 export const getPandocLanguage = (locale: string): string => {
   const [language, region = ''] = locale.trim().split(/[-_]/)
   if (language?.toLowerCase() !== 'zh') return locale
   return /^(hant|tw|hk|mo)$/i.test(region) ? 'zh-Hant' : 'zh-Hans'
 }
 
-// Windows only: the installer can be told not to touch `PATH` and a portable copy
-// never is. macOS/Linux are covered by `patchEnvPath` (#2751).
-const pandocLocations = (): string[] => {
-  if (process.platform !== 'win32') return []
-  const { env } = process
-  const dirs = [
-    env.ProgramFiles,
-    env['ProgramFiles(x86)'],
-    env.LOCALAPPDATA,
-    env.ProgramData && path.join(env.ProgramData, 'chocolatey', 'bin'),
-    env.USERPROFILE && path.join(env.USERPROFILE, 'scoop', 'shims'),
-    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links')
-  ]
-  return dirs.filter((dir): dir is string => !!dir).map((dir) => path.join(dir, 'pandoc.exe'))
+// Windows only: the installer can be told not to touch `PATH` and a portable copy never is
+// (`patchEnvPath` covers macOS/Linux, #2751). The folder it writes is the one that check
+// cannot reach; the shims on `PATH` (chocolatey, scoop, winget) only set the order. The
+// arguments let a spec pin both.
+export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] => {
+  if (platform !== 'win32') return []
+  return [
+    env.ProgramFiles && path.join(env.ProgramFiles, 'Pandoc', 'pandoc.exe'),
+    env['ProgramFiles(x86)'] && path.join(env['ProgramFiles(x86)'], 'Pandoc', 'pandoc.exe'),
+    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe'),
+    env.ProgramData && path.join(env.ProgramData, 'chocolatey', 'bin', 'pandoc.exe'),
+    env.USERPROFILE && path.join(env.USERPROFILE, 'scoop', 'shims', 'pandoc.exe'),
+    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'pandoc.exe')
+  ].filter((candidate): candidate is string => !!candidate)
 }
 
 /** Node refuses to spawn a `.bat`/`.cmd` without `shell: true` (CVE-2024-27980). */
@@ -74,7 +84,10 @@ const isBatchFile = (command: string): boolean =>
 const getCommand = (): string => {
   const fromEnv = process.env.MARKTEXT_PANDOC
   if (fromEnv && isFile2(fromEnv) && !isBatchFile(fromEnv)) return fromEnv
-  return pandocLocations().find((candidate) => isFile2(candidate)) ?? pandocCommand
+  return (
+    pandocLocations(process.platform, process.env).find((candidate) => isFile2(candidate)) ??
+    pandocCommand
+  )
 }
 
 interface PandocConverter {
@@ -141,8 +154,7 @@ export interface PandocToFileResult {
   warnings: string
 }
 
-// Convert `input` from markdown to `outputPath`. The streaming API above cannot
-// serve binary targets: it decodes stdout, and docx/odt/epub are zip containers.
+// Convert `input` to `outputPath`; the streaming API above cannot serve binary targets.
 pandoc.toFile = (
   to: string,
   outputPath: string,
@@ -157,9 +169,8 @@ pandoc.toFile = (
       if (value) option.push(`--metadata=${key}:${value}`)
     }
     if (mirrorMedia) {
-      // `--extract-media=.` copies every image pandoc can read to the output's folder
-      // — an absolute link included — and rewrites the link to match; a document
-      // without pictures is left alone.
+      // `--extract-media=.` copies every image pandoc can read — an absolute link
+      // included — to the output's folder and rewrites the link to match.
       option.push('--extract-media=.')
       if (resourcePath) option.push(`--resource-path=${resourcePath}`)
     }
@@ -185,20 +196,7 @@ pandoc.toFile = (
     proc.stdin.end(input)
   })
 
-/** Never overwrite: a taken `report.rst` becomes `report (2).rst`. */
-export const uniquePandocOutputPath = (filePath: string): string => {
-  const extension = path.extname(filePath)
-  const stem = path.basename(filePath, extension)
-  const dir = path.dirname(filePath)
-  let candidate = filePath
-  for (let index = 2; isFile2(candidate); index++) {
-    candidate = path.join(dir, `${stem} (${index})${extension}`)
-  }
-  return candidate
-}
-
-// The links pandoc found in the document, which is what an export has to mirror.
-// Raw `<img>` HTML is a raw node in the AST and is not listed; pandoc links it anyway.
+// The links pandoc found, which is what an export mirrors; raw HTML `<img>` is not listed.
 export const listLinkedMedia = (input: string, reader: string): Promise<string[]> =>
   new Promise((resolve) => {
     const proc = spawn(getCommand(), ['-f', reader, '-t', 'json'])

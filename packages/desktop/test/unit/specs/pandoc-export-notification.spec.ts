@@ -1,7 +1,8 @@
+import path from 'path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type * as PandocUtils from 'main_renderer/utils/pandoc'
 
-// `menu/actions/file.ts` registers itself on `ipcMain` at module load, so the
-// electron/log/i18n/pandoc surfaces are stubbed and the handler is driven directly.
+// `menu/actions/file.ts` registers on `ipcMain` at load, so the handler is driven here.
 const { handlers, showSaveDialog, fromWebContents, toFile, listLinkedMedia, sent } = vi.hoisted(
   () => ({
     handlers: new Map<string, (...args: unknown[]) => unknown>(),
@@ -39,20 +40,23 @@ vi.mock('main_renderer/i18n', () => ({
   getCurrentLanguage: () => 'en'
 }))
 
-vi.mock('main_renderer/utils/pandoc', () => ({
-  default: { toFile },
-  PANDOC_EXPORT_FORMATS: [
-    { id: 'docx', label: 'Word', target: 'docx', extension: '.docx' },
-    { id: 'epub', label: 'EPUB', target: 'epub3', extension: '.epub' },
-    { id: 'rst', label: 'RST', target: 'rst', extension: '.rst' }
-  ],
-  getPandocReader: () => 'gfm',
-  getPandocLanguage: (locale: string) => locale,
-  formatLinksMedia: (target: string) => target === 'rst',
-  listLinkedMedia,
-  isRemoteMedia: (url: string) => /^(https?:)?\/\//i.test(url),
-  uniquePandocOutputPath: (filePath: string) => filePath
-}))
+vi.mock('main_renderer/utils/pandoc', async(importOriginal) => {
+  // The mirror rule is kept as the real one: it is part of what this spec pins.
+  const actual = await importOriginal<typeof PandocUtils>()
+  return {
+    default: { toFile },
+    PANDOC_EXPORT_FORMATS: [
+      { id: 'docx', label: 'Word', target: 'docx', extension: '.docx' },
+      { id: 'epub', label: 'EPUB', target: 'epub3', extension: '.epub' },
+      { id: 'rst', label: 'RST', target: 'rst', extension: '.rst' }
+    ],
+    getPandocReader: () => 'gfm',
+    getPandocLanguage: (locale: string) => locale,
+    formatLinksMedia: (target: string) => target === 'rst',
+    listLinkedMedia,
+    shouldMirrorMedia: actual.shouldMirrorMedia
+  }
+})
 
 await import('main_renderer/menu/actions/file')
 
@@ -75,10 +79,13 @@ const EXPORT_PAYLOAD = {
   footnote: false
 }
 
-const exportWith = async(target = 'docx'): Promise<void> => {
+const exportWith = async(
+  target = 'docx',
+  payload: Partial<typeof EXPORT_PAYLOAD> = {}
+): Promise<void> => {
   const handler = handlers.get('mt::response-pandoc-export')
   if (!handler) throw new Error('mt::response-pandoc-export handler was not registered')
-  await handler({ sender: {} } as never, { ...EXPORT_PAYLOAD, target })
+  await handler({ sender: {} } as never, { ...EXPORT_PAYLOAD, ...payload, target })
 }
 
 const channelsSent = (): string[] => sent.map((s) => s.channel)
@@ -107,13 +114,12 @@ describe('mt::response-pandoc-export notifications', () => {
     listLinkedMedia.mockReset()
     listLinkedMedia.mockResolvedValue([])
 
-    showSaveDialog.mockResolvedValue({ filePath: '/docs/notes.docx', canceled: false })
+    showSaveDialog.mockResolvedValue({ filePath: '/out/notes.docx', canceled: false })
     fromWebContents.mockReturnValue(FAKE_WIN)
     toFile.mockResolvedValue({ warnings: '' })
   })
 
-  // A line break alone is truthy yet summarizes to nothing; warnings go first, so one click
-  // dismisses whatever is on top when the success notice arrives (#5379).
+  // A line break alone is truthy yet summarizes to nothing; warnings go first (#5379).
   it('stays quiet when there is nothing to report, and warns before the success notice', async() => {
     await exportWith()
     expect(channelsSent()).toEqual(['mt::export-success'])
@@ -144,8 +150,7 @@ describe('mt::response-pandoc-export notifications', () => {
     expect(notification().message).toBe(warningLines(2).join('<br>'))
   })
 
-  // The body is assigned to `innerHTML` and DOMPurify keeps character references, so escaping
-  // happens in main, on failure bodies too; a failure reads as one and is never left empty.
+  // The body is `innerHTML` and DOMPurify keeps references, so escaping happens in main.
   it('escapes the HTML pandoc echoes back, and titles a failure as a failure', async() => {
     toFile.mockResolvedValue({
       warnings: '[WARNING] Could not fetch resource pics/<b>a</b>.png: replacing image with description'
@@ -173,8 +178,7 @@ describe('mt::response-pandoc-export notifications', () => {
     expect(notification().message.length).toBeGreaterThan(0)
   })
 
-  // The images of a plain-text writer stay links whether or not the pictures had to be
-  // copied along, so the answer is about the format alone (#5379).
+  // The images stay links whether or not they were copied: the answer is the format (#5379).
   it('marks the formats that keep images as links', async() => {
     await exportWith('rst')
     expect(sent.find((s) => s.channel === 'mt::export-success')?.payload.linksMedia).toBe(true)
@@ -184,8 +188,7 @@ describe('mt::response-pandoc-export notifications', () => {
     expect(sent.find((s) => s.channel === 'mt::export-success')?.payload.linksMedia).toBe(false)
   })
 
-  // A mirrored picture is one pandoc reads from disk, so a document that also links
-  // remote media keeps its links instead: a download that fails costs the picture.
+  // A mirrored picture is one pandoc reads from disk, and a failed download costs one.
   it('mirrors the pictures unless the document also links remote media', async() => {
     await exportWith('rst')
     expect(optionsOfLastExport()).toMatchObject({ mirrorMedia: true, resourcePath: '/docs' })
@@ -199,8 +202,19 @@ describe('mt::response-pandoc-export notifications', () => {
     expect(optionsOfLastExport()).toMatchObject({ mirrorMedia: false })
   })
 
-  // EPUB takes `title` for its title page, the others none; `lang` is the app's language,
-  // not the spawn environment's locale, which reaches the file as the string "C".
+  // A never-saved document has no folder for `pics/a.png`, and a mirrored link is rewritten to
+  // a file pandoc never found: the picture becomes its alt text, where the link would survive.
+  it('leaves the links of a never-saved document alone, mirroring the absolute ones', async() => {
+    listLinkedMedia.mockResolvedValue(['pics/a.png'])
+    await exportWith('rst', { pathname: '' })
+    expect(optionsOfLastExport()).toMatchObject({ mirrorMedia: false })
+
+    listLinkedMedia.mockResolvedValue([path.resolve('/docs/pics/a.png')])
+    await exportWith('rst', { pathname: '' })
+    expect(optionsOfLastExport()).toMatchObject({ mirrorMedia: true })
+  })
+
+  // EPUB takes `title` for its title page; `lang` must be the app's, not the spawn locale.
   it('gives EPUB the title metadata and passes the app language', async() => {
     await exportWith('epub')
     expect(metadataOfLastExport()).toMatchObject({ title: 'Notes', lang: 'en' })
