@@ -218,6 +218,8 @@ describe('pandoc export', () => {
     // A download that fails costs the picture, and the document's own folder needs no copy.
     expect(shouldMirrorMedia(['https://example.com/b.png'], dir, out)).toBe(false)
     expect(shouldMirrorMedia(['pics/a.png'], dir, path.join(dir, 'notes.rst'))).toBe(false)
+    // The same folder spelled by hand; `path.join` would resolve the `..` and hide the case.
+    expect(shouldMirrorMedia(['pics/a.png'], dir, `${dir}${path.sep}..${path.sep}${path.basename(dir)}${path.sep}notes.rst`)).toBe(false)
   })
 
   // The list comes from pandoc's AST; a raw `<img>` is a raw node and never reaches it.

@@ -35,11 +35,11 @@ export const formatLinksMedia = (target: string): boolean =>
 // relative form. A path written with backslashes is a file, and mirrors like a local one.
 export const isRemoteMedia = (url: string): boolean => /^(https?:)?\/\//i.test(url)
 
-// Whether the export should carry the document's pictures along (`--extract-media`). What
-// it cannot read it replaces with the alt text, so mirroring only pays off where every link
-// resolves: a saved document reads its relative links from the document's folder, an
-// absolute link needs no folder at all, and a never-saved one has neither. A remote picture
-// is downloaded instead (a failed fetch costs it); the document's own folder needs no copy.
+// Whether the export should carry the document's pictures along (`--extract-media`). It
+// replaces a link it cannot read with the alt text, so mirror only the links that resolve: a
+// saved document reads relative links from its own folder, an absolute link needs no folder,
+// a never-saved one has neither, and a remote picture is downloaded instead (a failed fetch
+// costs it). Its own folder needs no copy either: `C:/a` and `C:\a` are the same folder.
 export const shouldMirrorMedia = (
   links: string[],
   sourceDir: string | undefined,
@@ -47,7 +47,7 @@ export const shouldMirrorMedia = (
 ): boolean =>
   !links.some(isRemoteMedia) &&
   (!!sourceDir || links.every((url) => path.isAbsolute(url))) &&
-  path.dirname(outputPath) !== sourceDir
+  (sourceDir === undefined || path.relative(sourceDir, path.dirname(outputPath)) !== '')
 
 // `gfm` matches the editor within what pandoc 3.1.3 accepts (no `tex_math_gfm`);
 // `-footnotes` keeps a `[^1]` literal unless the editor's preference renders it.
