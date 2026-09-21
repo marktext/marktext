@@ -339,6 +339,7 @@ onMounted(() => {
 .opened-files > .title,
 .project-tree > .title {
   height: 30px;
+  flex-shrink: 0;
   line-height: 30px;
   font-size: 14px;
 }
@@ -396,9 +397,6 @@ onMounted(() => {
 }
 .directories-hidden .project-tree {
   flex: none;
-}
-.opened-files > .title {
-  flex-shrink: 0;
 }
 .files-only .open-project {
   flex: none;
