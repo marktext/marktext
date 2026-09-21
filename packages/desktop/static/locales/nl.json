@@ -414,6 +414,8 @@
         "footnote": "Pandoc voetnoten inschakelen",
         "texMathDollars": "Pandocs markdown-extensie tex_math_dollars inschakelen",
         "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
+        "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
+        "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -640,6 +642,8 @@
         "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
+        "texMathSingleBackslash": "TeX-wiskunde met \\( en \\[",
+        "texMathDoubleBackslash": "TeX-wiskunde met \\\\( en \\\\[",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

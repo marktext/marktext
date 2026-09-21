@@ -414,6 +414,8 @@
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
         "texMathDollars": "Pandoc'un markdown uzantısı tex_math_dollars'ı etkinleştir",
         "texMathGfm": "Pandoc'un markdown uzantısı tex_math_gfm'i etkinleştir",
+        "texMathSingleBackslash": "Pandoc'un markdown uzantısı tex_math_single_backslash'i etkinleştir",
+        "texMathDoubleBackslash": "Pandoc'un markdown uzantısı tex_math_double_backslash'i etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -640,6 +642,8 @@
         "footnoteNotes": "Dipnot notları",
         "texMathDollars": "$ ve $$ ile TeX matematiği",
         "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
+        "texMathSingleBackslash": "\\( ve \\[ ile TeX matematiği",
+        "texMathDoubleBackslash": "\\\\( ve \\\\[ ile TeX matematiği",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

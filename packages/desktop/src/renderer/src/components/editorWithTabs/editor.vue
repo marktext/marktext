@@ -222,6 +222,8 @@ const {
   footnote,
   texMathDollars,
   texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -683,6 +685,18 @@ watch(isHtmlEnabled, (value, oldValue) => {
 watch(texMathGfm, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ texMathGfm: value }, true)
+  }
+})
+
+watch(texMathSingleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathSingleBackslash: value }, true)
+  }
+})
+
+watch(texMathDoubleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDoubleBackslash: value }, true)
   }
 })
 
@@ -1811,6 +1825,8 @@ onMounted(() => {
     footnote: footnote.value,
     texMathDollars: texMathDollars.value,
     texMathGfm: texMathGfm.value,
+    texMathSingleBackslash: texMathSingleBackslash.value,
+    texMathDoubleBackslash: texMathDoubleBackslash.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,

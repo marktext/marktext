@@ -55,6 +55,8 @@
   "footnote": false,
   "texMathDollars": true,
   "texMathGfm": false,
+  "texMathSingleBackslash": false,
+  "texMathDoubleBackslash": false,
   "isHtmlEnabled": true,
   "softNewlineAsSpace": false,
   "sequenceTheme": "hand",

@@ -415,6 +415,8 @@
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
         "texMathDollars": "Activar la extensión de markdown de pandoc tex_math_dollars",
         "texMathGfm": "Activar la extensión de markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activar la extensión de markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activar la extensión de markdown de pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
@@ -640,6 +642,8 @@
         "footnoteNotes": "Notas al pie",
         "texMathDollars": "Matemáticas TeX con $ y $$",
         "texMathGfm": "Matemáticas TeX de GitHub ($`…`$ y ```math)",
+        "texMathSingleBackslash": "Matemáticas TeX con \\( y \\[",
+        "texMathDoubleBackslash": "Matemáticas TeX con \\\\( y \\\\[",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",

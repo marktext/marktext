@@ -415,6 +415,8 @@
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
         "texMathDollars": "啟用 Pandoc 的 Markdown 擴充 tex_math_dollars",
         "texMathGfm": "啟用 Pandoc 的 Markdown 擴充 tex_math_gfm",
+        "texMathSingleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_single_backslash",
+        "texMathDoubleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_double_backslash",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
@@ -640,6 +642,8 @@
         "footnoteNotes": "腳註備註",
         "texMathDollars": "使用 $ 與 $$ 的 TeX 數學公式",
         "texMathGfm": "GitHub 的 TeX 數學公式（$`…`$ 與 ```math）",
+        "texMathSingleBackslash": "使用 \\( 與 \\[ 的 TeX 數學公式",
+        "texMathDoubleBackslash": "使用 \\\\( 與 \\\\[ 的 TeX 數學公式",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",
