@@ -118,6 +118,20 @@ const handleClick = (data: { slug?: unknown }): void => {
   color: var(--sideBarColor);
 }
 
+/* Element Plus wraps every tree label in an `<el-text>`, which sets a color of
+   its own (--el-text-color-regular, #606266). That beats the themed color the
+   label would otherwise inherit from `.el-tree`, leaving the TOC dark gray on
+   dark themes (#5094). Same story for the expand arrow, which Element colors
+   with --el-tree-expand-icon-color; the sidebar's own arrows use
+   --sideBarIconColor. */
+.side-bar-toc .el-tree-node__label {
+  color: inherit;
+}
+
+.side-bar-toc .el-tree-node__expand-icon {
+  color: var(--sideBarIconColor);
+}
+
 .side-bar-toc .el-tree-node:focus > .el-tree-node__content {
   background-color: var(--sideBarItemHoverBgColor);
 }
