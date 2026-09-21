@@ -37,6 +37,7 @@ export function transformFootnotes(html: string): string {
     //    order definitions appear in source. Orphan refs (no matching def)
     //    fall back to literal text; repeats reuse the first-seen number.
     const refNumber = new Map<string, number>();
+    const refCount = new Map<string, number>();
     let nextN = 1;
     body = body.replace(FOOTNOTE_REF_RE, (_, id: string) => {
         if (!definitions.has(id))
@@ -44,7 +45,10 @@ export function transformFootnotes(html: string): string {
         if (!refNumber.has(id))
             refNumber.set(id, nextN++);
         const n = refNumber.get(id)!;
-        return `<sup class="footnote-ref"><a href="#fn-${n}" id="fnref-${n}">${n}</a></sup>`;
+        const occurrence = (refCount.get(id) ?? 0) + 1;
+        refCount.set(id, occurrence);
+
+        return `<sup class="footnote-ref"><a href="#fn-${n}" id="${refAnchor(n, occurrence)}">${n}</a></sup>`;
     });
 
     if (refNumber.size === 0)
@@ -61,7 +65,7 @@ export function transformFootnotes(html: string): string {
         // A note body is not a place references resolve — pandoc has no
         // nested notes — so any marker in there reverts to literal text.
         const inner = unmarkReferences(definitions.get(id) ?? '');
-        items.push(`<li id="fn-${n}">${appendBackref(inner, n)}</li>`);
+        items.push(`<li id="fn-${n}">${appendBackrefs(inner, n, refCount.get(id) ?? 1)}</li>`);
     }
 
     const section = `\n<section class="footnotes">\n<ol>\n${items.join('\n')}\n</ol>\n</section>\n`;
@@ -81,14 +85,30 @@ function unmarkReferences(html: string): string {
     return html.replace(FOOTNOTE_REF_RE, (_, id: string) => literalReference(id));
 }
 
-function appendBackref(definitionHtml: string, n: number): string {
-    const backref = ` <a href="#fnref-${n}" class="footnote-backref">↩</a>`;
-    // Inject the backref inside the trailing `</p>` so the arrow sits next to
+// `id` has to be unique in a document, so only the first reference to a note
+// can own the plain `fnref-N`; later ones take a suffix. GFM numbers them the
+// same way.
+function refAnchor(n: number, occurrence: number): string {
+    return occurrence === 1 ? `fnref-${n}` : `fnref-${n}-${occurrence}`;
+}
+
+function appendBackrefs(definitionHtml: string, n: number, occurrences: number): string {
+    // One arrow per reference, so every occurrence is reachable and not just
+    // the first. The first arrow stays bare — the common single-reference case
+    // then reads as it always has — and the rest are numbered, otherwise they
+    // would be indistinguishable.
+    let backrefs = '';
+    for (let k = 1; k <= occurrences; k++) {
+        const label = k === 1 ? '↩' : `↩${k}`;
+        backrefs += ` <a href="#${refAnchor(n, k)}" class="footnote-backref">${label}</a>`;
+    }
+
+    // Inject the backrefs inside the trailing `</p>` so the arrows sit next to
     // the last word of the last paragraph (pandoc style). If the definition
-    // doesn't end with a paragraph (rare — e.g. ends in a list), tack the
-    // backref on after the block.
+    // doesn't end with a paragraph (rare — e.g. ends in a list), tack them
+    // on after the block.
     const lastClose = definitionHtml.lastIndexOf('</p>');
     if (lastClose >= 0)
-        return `${definitionHtml.slice(0, lastClose)}${backref}${definitionHtml.slice(lastClose)}`;
-    return `${definitionHtml}${backref}`;
+        return `${definitionHtml.slice(0, lastClose)}${backrefs}${definitionHtml.slice(lastClose)}`;
+    return `${definitionHtml}${backrefs}`;
 }
