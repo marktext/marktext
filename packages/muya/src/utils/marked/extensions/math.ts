@@ -2,8 +2,15 @@ import type { Token } from 'marked';
 import katex from 'katex';
 import 'katex/dist/contrib/mhchem.mjs';
 
+// marked resolves a token's renderer by looking its `type` up among the
+// registered extension names, so each inline tokenizer has to emit its own
+// name as the type. Emitting a shared `inlineMath` made the gfm extension
+// depend on the dollar extension being registered too, and parsing threw
+// "Token with inlineMath type was not found" whenever tex_math_dollars was off.
+export type TInlineMathType = 'inlineMath' | 'inlineMathGfm';
+
 export interface IMathToken {
-    type: 'inlineMath' | 'multiplemath';
+    type: TInlineMathType | 'multiplemath';
     raw: string;
     text: string;
     displayMode: boolean;
@@ -102,9 +109,9 @@ function createRenderer(options: IOptions, newlineAfter: boolean) {
             );
         }
         else {
-            return type === 'inlineMath'
-                ? `${marker}${text}${closeMarker}`
-                : `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`;
+            return type === 'multiplemath'
+                ? `<pre class="multiple-math" data-math-style="${mathStyle}">${text}</pre>\n`
+                : `${marker}${text}${closeMarker}`;
         }
     };
 }
@@ -128,7 +135,7 @@ function inlineGfmKatex(renderer: (token: IMathToken) => string) {
             const match = src.match(gfmRule);
             if (match) {
                 return {
-                    type: 'inlineMath',
+                    type: 'inlineMathGfm',
                     raw: match[0],
                     text: match[2].trim(),
                     marker: match[1],

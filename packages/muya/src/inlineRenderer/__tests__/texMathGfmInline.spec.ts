@@ -55,6 +55,12 @@ describe('tex_math_gfm — inline `$`…`$`', () => {
         expect(exportedFormulaCount('cost $5 then $`x+y`$', true)).toBe(1);
     });
 
+    it('stands on its own when the dollar extension is not registered', () => {
+        const html = getHighlightHtml('$`e=mc^2`$', { texMathDollars: false, texMathGfm: true });
+
+        expect(html).toContain('class="katex"');
+    });
+
     it('round-trips the asymmetric markers through the clipboard', () => {
         const html = getClipBoardHtml('$`e=mc^2`$', { texMathDollars: true, texMathGfm: true });
         expect(html).toContain('$`e=mc^2`$');
