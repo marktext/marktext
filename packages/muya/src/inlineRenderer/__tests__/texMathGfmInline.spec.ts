@@ -26,7 +26,7 @@ const cases: Array<[markdown: string, formulas: string[]]> = [
 
 function editorFormulas(src: string, texMathGfm: boolean): string[] {
     return tokenizer(src, {
-        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm },
+        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm, texMathSingleBackslash: false },
     })
         .filter((token): token is CodeEmojiMathToken => token.type === 'inline_math')
         .filter(token => token.marker === '$`')
@@ -66,7 +66,7 @@ describe('tex_math_gfm — off by default, as in pandoc', () => {
         expect(editorFormulas('$`e=mc^2`$', false)).toEqual([]);
 
         const dollarTokens = tokenizer('$`e=mc^2`$', {
-            options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false },
+            options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false },
         }).filter((token): token is CodeEmojiMathToken => token.type === 'inline_math');
 
         expect(dollarTokens).toHaveLength(1);

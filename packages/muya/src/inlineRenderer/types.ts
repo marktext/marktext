@@ -33,6 +33,7 @@ export interface ITokenizerFacOptions {
     footnote: boolean;
     texMathDollars: boolean;
     texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
 }
 
 export interface ITokenizerOptions {

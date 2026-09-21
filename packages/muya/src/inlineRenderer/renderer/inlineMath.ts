@@ -8,10 +8,18 @@ import 'katex/dist/contrib/mhchem.mjs';
 
 import 'katex/dist/katex.min.css';
 
+// The openers pandoc reads as display rather than inline math: `$$` from
+// `tex_math_dollars` and `\[` from `tex_math_single_backslash`.
+const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[']);
+
+function isDisplayMarker(marker: string) {
+    return DISPLAY_MATH_MARKERS.has(marker);
+}
+
 function isBlankOrDisplayMath(token: Token) {
     switch (token.type) {
         case 'inline_math':
-            return token.marker === '$$';
+            return isDisplayMarker(token.marker);
         case 'text':
             return token.content.trim() === '';
         case 'soft_line_break':
@@ -22,10 +30,13 @@ function isBlankOrDisplayMath(token: Token) {
     }
 }
 
-// `$$...$$` is a block only in a paragraph that holds nothing but such
-// formulas; next to other text, or in a heading or table cell, it stays inline.
+// A display formula is drawn in display mode only in a paragraph that holds
+// nothing but such formulas; next to other text, or in a heading or table cell,
+// it stays inline. pandoc instead draws `\[…\]` in display mode wherever it
+// appears, but `.katex-display` is a centred block, which would break the line
+// around it — so muya keeps the rule it already applies to `$$…$$` (#4904).
 function isDisplayMath(token: CodeEmojiMathToken, block: Format) {
-    if (token.marker !== '$$' || block.blockName !== 'paragraph.content')
+    if (!isDisplayMarker(token.marker) || block.blockName !== 'paragraph.content')
         return false;
 
     const siblings = token.parent;

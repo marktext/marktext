@@ -33,6 +33,7 @@ export interface IMuyaOptions {
     footnote: boolean;
     texMathDollars: boolean;
     texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;

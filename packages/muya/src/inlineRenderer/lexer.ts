@@ -39,6 +39,7 @@ interface ILexState {
     footnote: boolean;
     texMathDollars: boolean;
     texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -118,6 +119,47 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
         state.src = state.src.substring(def[0].length);
         state.pos = state.pos + def[0].length;
     }
+}
+
+// pandoc's `tex_math_single_backslash`. This runs ahead of `tryBacklash`
+// because `commonMarkRules.backlash` lists `(` and `[` among the punctuation a
+// backslash escapes, so it would consume the opener before any math rule saw
+// it — the collision the pandoc manual calls out as the extension's drawback.
+// With the option off the handler declines and the escape keeps the span.
+function tryBackslashMath(state: ILexState): boolean {
+    if (!state.texMathSingleBackslash)
+        return false;
+
+    const rules = ['inline_math_single_backslash', 'display_math_single_backslash'] as const;
+
+    for (const rule of rules) {
+        const to = state.inlineRules[rule].exec(state.src);
+        if (!to)
+            continue;
+
+        pushPending(state);
+        // Normalized to `inline_math`: `Renderer.output` dispatches on the token
+        // type and `inlineSyntaxRenderer` carries one math entry, so the
+        // delimiter survives in `marker` rather than in the type.
+        state.tokens.push({
+            type: 'inline_math',
+            raw: to[0],
+            range: {
+                start: state.pos,
+                end: state.pos + to[0].length,
+            },
+            marker: to[1],
+            parent: state.tokens,
+            content: to[2],
+            backlash: to[3],
+        });
+        state.src = state.src.substring(to[0].length);
+        state.pos = state.pos + to[0].length;
+
+        return true;
+    }
+
+    return false;
 }
 
 function tryBacklash(state: ILexState): boolean {
@@ -804,6 +846,7 @@ function tryTailHeader(state: ILexState): boolean {
 // The fixed, priority-ordered inline-rule handler list the tokenizer loop
 // iterates. This array order IS the rule-precedence contract.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
+    tryBackslashMath,
     tryBacklash,
     tryStrongEm,
     tryChunks,
@@ -823,7 +866,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -839,6 +882,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         footnote,
         texMathDollars,
         texMathGfm,
+        texMathSingleBackslash,
     };
 
     if (beginRules && state.pos === 0)
@@ -876,6 +920,7 @@ export function tokenizer(src: string, {
         footnote: false,
         texMathDollars: true,
         texMathGfm: false,
+        texMathSingleBackslash: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(
