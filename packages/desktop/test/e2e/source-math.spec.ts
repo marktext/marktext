@@ -100,6 +100,46 @@ test.describe('Source view: math tokenization (#4121)', () => {
   // guard opened a span at `$5` / `$13B` — the currency case #2002 and #5243
   // reported, and the reason the assertion above checks the span contents
   // rather than merely counting them.
+  // The delimiters are de-emphasised, not hidden: they keep the surrounding
+  // colour at reduced opacity so every theme stays legible without naming a
+  // hue. 3:1 is the floor this sort of punctuation is held to, and one-dark —
+  // whose body text only reaches 6.57:1 — is what sets it.
+  test('draws the math delimiters faded but still legible', async() => {
+    const seen = await page.evaluate(() => {
+      const parse = (c: string): number[] => (c.match(/[\d.]+/g) ?? []).map(Number)
+      const lum = (rgb: number[]): number => {
+        const [r, g, b] = rgb.slice(0, 3).map((v) => {
+          const s = v / 255
+          return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+        })
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+      const root = document.querySelector('.source-code .CodeMirror')
+      const delim = root?.querySelector('.cm-formatting-math')
+      if (!root || !delim) return null
+
+      let bg = [255, 255, 255]
+      for (let node: Element | null = root; node; node = node.parentElement) {
+        const c = parse(getComputedStyle(node).backgroundColor)
+        if (c.length >= 3 && (c[3] === undefined || c[3] > 0)) {
+          bg = c.slice(0, 3)
+          break
+        }
+      }
+
+      const alpha = Number(getComputedStyle(delim).opacity)
+      const fg = parse(getComputedStyle(delim).color).slice(0, 3)
+      const painted = fg.map((v, i) => alpha * v + (1 - alpha) * bg[i])
+      const [hi, lo] = [lum(painted), lum(bg)].sort((x, y) => y - x)
+
+      return { alpha, contrast: (hi + 0.05) / (lo + 0.05) }
+    })
+
+    expect(seen).not.toBeNull()
+    expect(seen!.alpha).toBeLessThan(1)
+    expect(seen!.contrast).toBeGreaterThan(3)
+  })
+
   test('currency amounts do not open a math span', async() => {
     const currencyMath = await page.evaluate(() => {
       const root = document.querySelector('.source-code .CodeMirror')

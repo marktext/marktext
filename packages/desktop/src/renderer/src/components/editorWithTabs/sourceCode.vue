@@ -481,4 +481,17 @@ onBeforeUnmount(() => {
 .source-code .CodeMirror-activeline-gutter {
   background: var(--floatHoverColor);
 }
+/* Set the math delimiters back from the formula, the way the WYSIWYG view
+   greys its own markers. Fading the inherited colour rather than naming one
+   keeps this legible across all three CodeMirror themes the app ships
+   (default, railscasts, one-dark) and any future palette, which a fixed hue
+   could not.
+
+   0.65 is the lowest value that clears 3:1 — the WCAG threshold this sort of
+   de-emphasised punctuation is held to — in every shipped theme. one-dark sets
+   the floor at 3.67: its body text only reaches 6.57, so anything fainter
+   disappears there long before it does anywhere else. */
+.source-code .CodeMirror .cm-formatting-math {
+  opacity: 0.65;
+}
 </style>
