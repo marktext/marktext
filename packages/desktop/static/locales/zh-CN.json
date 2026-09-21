@@ -642,8 +642,8 @@
         "footnoteNotes": "脚注注释",
         "texMathDollars": "使用 $ 和 $$ 的 TeX 数学公式",
         "texMathGfm": "GitHub 的 TeX 数学公式（$`…`$ 和 ```math）",
-        "texMathSingleBackslash": "使用 \\( 和 \\[ 的 TeX 数学公式",
-        "texMathDoubleBackslash": "使用 \\\\( 和 \\\\[ 的 TeX 数学公式",
+        "texMathSingleBackslash": "使用单反斜杠分隔符的 TeX 数学公式",
+        "texMathDoubleBackslash": "使用双反斜杠分隔符的 TeX 数学公式",
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",

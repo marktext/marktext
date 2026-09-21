@@ -642,8 +642,8 @@
         "footnoteNotes": "脚注",
         "texMathDollars": "$ と $$ による TeX 数式",
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
-        "texMathSingleBackslash": "\\( と \\[ による TeX 数式",
-        "texMathDoubleBackslash": "\\\\( と \\\\[ による TeX 数式",
+        "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
+        "texMathDoubleBackslash": "二重バックスラッシュの TeX 数式",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

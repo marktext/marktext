@@ -642,8 +642,8 @@
         "footnoteNotes": "각주 노트",
         "texMathDollars": "$ 및 $$ TeX 수식",
         "texMathGfm": "GitHub TeX 수식($`…`$ 및 ```math)",
-        "texMathSingleBackslash": "\\( 및 \\[ TeX 수식",
-        "texMathDoubleBackslash": "\\\\( 및 \\\\[ TeX 수식",
+        "texMathSingleBackslash": "단일 백슬래시 TeX 수식",
+        "texMathDoubleBackslash": "이중 백슬래시 TeX 수식",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
