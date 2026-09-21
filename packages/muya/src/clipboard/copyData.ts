@@ -38,10 +38,11 @@ function buildHtmlOptions(options: Muya['options']) {
         texMathDollars,
         texMathGfm,
         texMathSingleBackslash,
+        texMathDoubleBackslash,
         superSubScript,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, superSubScript };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript };
 }
 
 /**

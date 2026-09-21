@@ -198,6 +198,7 @@ export class MarkdownToHtml {
             footnote,
             texMathGfm: this._muya?.options?.texMathGfm ?? false,
             texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
+            texMathDoubleBackslash: this._muya?.options?.texMathDoubleBackslash ?? false,
             texMathDollars: this._muya?.options?.texMathDollars ?? true,
         });
 

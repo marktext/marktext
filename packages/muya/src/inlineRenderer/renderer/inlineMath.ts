@@ -9,8 +9,8 @@ import 'katex/dist/contrib/mhchem.mjs';
 import 'katex/dist/katex.min.css';
 
 // The openers pandoc reads as display rather than inline math: `$$` from
-// `tex_math_dollars` and `\[` from `tex_math_single_backslash`.
-const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[']);
+// `tex_math_dollars`, `\[` and `\\[` from the two backslash extensions.
+const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[', '\\\\[']);
 
 function isDisplayMarker(marker: string) {
     return DISPLAY_MATH_MARKERS.has(marker);

@@ -30,6 +30,7 @@ function toState(markdown: string): TState[] {
         texMathDollars: true,
         texMathGfm: true,
         texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(markdown);

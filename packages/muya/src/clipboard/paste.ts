@@ -396,6 +396,7 @@ function applyParsedPaste(
         texMathDollars,
         texMathGfm,
         texMathSingleBackslash,
+        texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     } = muya.options;
@@ -405,6 +406,7 @@ function applyParsedPaste(
         texMathDollars,
         texMathGfm,
         texMathSingleBackslash,
+        texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     }).generate(markdown);

@@ -11,17 +11,21 @@ export type TInlineMathType
     = | 'inlineMath'
         | 'inlineMathGfm'
         | 'inlineMathSingleBackslash'
-        | 'displayMathSingleBackslash';
+        | 'displayMathSingleBackslash'
+        | 'inlineMathDoubleBackslash'
+        | 'displayMathDoubleBackslash';
 
 const INLINE_MATH_TYPES = new Set<string>([
     'inlineMath',
     'inlineMathGfm',
     'inlineMathSingleBackslash',
     'displayMathSingleBackslash',
+    'inlineMathDoubleBackslash',
+    'displayMathDoubleBackslash',
 ]);
 
 // The openers that carry display rather than inline math.
-const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[']);
+const DISPLAY_MATH_MARKERS = new Set(['$$', '\\[', '\\\\[']);
 
 export interface IMathToken {
     type: TInlineMathType | 'multiplemath';
@@ -65,6 +69,14 @@ const singleInlineRule = /^(\\\()((?:[^\\]|\\[^)])+)\\\)/;
 const singleDisplayStartRule = /\\\[/g;
 const singleDisplayRule = /^(\\\[)((?:[^\\]|\\[^\]])+)\\\]/;
 
+// pandoc's `tex_math_double_backslash`. The closer is taken literally, with
+// none of the escape rule above: pandoc ends the span at the first `\\)` it
+// sees, so `\\(a\\)b\\)` holds `a` rather than running on.
+const doubleInlineStartRule = /\\\\\(/g;
+const doubleInlineRule = /^(\\\\\()((?:(?!\\\\\))[\s\S])+)\\\\\)/;
+const doubleDisplayStartRule = /\\\\\[/g;
+const doubleDisplayRule = /^(\\\\\[)((?:(?!\\\\\])[\s\S])+)\\\\\]/;
+
 const DEFAULT_OPTIONS = {
     throwOnError: false,
     useKatexRender: false,
@@ -85,10 +97,19 @@ export default function (options: IOptions = {}) {
 // Registered separately, and after the dollar extension: `Marked.use` unshifts,
 // so the later registration is tried first and `` $`…`$ `` is claimed before
 // `$…$` can take it with the backticks inside.
-// Registered after the dollar extension for the same reason as the gfm one,
-// though the two cannot collide: `\(` and `\[` open on a backslash. It carries
-// its own `markDisplayMath`, because the dollar extension that normally
-// supplies it may not be registered at all.
+export function gfmMathExtension(options: IOptions = {}) {
+    const opts = Object.assign({}, DEFAULT_OPTIONS, options);
+
+    return {
+        extensions: [inlineGfmKatex(createRenderer(opts, false))],
+    };
+}
+
+// The two backslash extensions. Both carry their own `markDisplayMath`,
+// because the dollar extension that normally supplies it may not be registered
+// at all. Nothing here can collide with the dollar or gfm rules — these are the
+// only openers that start on a backslash — nor with each other, `\\(` carrying
+// a backslash where `\(` carries the parenthesis.
 export function singleBackslashMathExtension(options: IOptions = {}) {
     const opts = Object.assign({}, DEFAULT_OPTIONS, options);
 
@@ -113,11 +134,27 @@ export function singleBackslashMathExtension(options: IOptions = {}) {
     };
 }
 
-export function gfmMathExtension(options: IOptions = {}) {
+export function doubleBackslashMathExtension(options: IOptions = {}) {
     const opts = Object.assign({}, DEFAULT_OPTIONS, options);
 
     return {
-        extensions: [inlineGfmKatex(createRenderer(opts, false))],
+        extensions: [
+            backslashKatex(
+                'inlineMathDoubleBackslash',
+                doubleInlineStartRule,
+                doubleInlineRule,
+                '\\\\)',
+                createRenderer(opts, false),
+            ),
+            backslashKatex(
+                'displayMathDoubleBackslash',
+                doubleDisplayStartRule,
+                doubleDisplayRule,
+                '\\\\]',
+                createRenderer(opts, false),
+            ),
+        ],
+        walkTokens: markDisplayMath,
     };
 }
 

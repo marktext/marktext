@@ -3,6 +3,7 @@ export const DEFAULT_OPTIONS = {
     texMathDollars: true,
     texMathGfm: false,
     texMathSingleBackslash: false,
+    texMathDoubleBackslash: false,
     frontMatter: true,
     superSubScript: true,
 };

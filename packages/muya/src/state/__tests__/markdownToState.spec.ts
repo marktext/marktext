@@ -22,6 +22,7 @@ function generate(
         texMathDollars: false,
         texMathGfm: false,
         texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,

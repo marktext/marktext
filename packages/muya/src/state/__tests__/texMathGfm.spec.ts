@@ -31,6 +31,7 @@ function parse(
         texMathDollars: true,
         texMathGfm: true,
         texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,

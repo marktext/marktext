@@ -40,6 +40,7 @@ interface ILexState {
     texMathDollars: boolean;
     texMathGfm: boolean;
     texMathSingleBackslash: boolean;
+    texMathDoubleBackslash: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -121,18 +122,31 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     }
 }
 
-// pandoc's `tex_math_single_backslash`. This runs ahead of `tryBacklash`
-// because `commonMarkRules.backlash` lists `(` and `[` among the punctuation a
-// backslash escapes, so it would consume the opener before any math rule saw
-// it — the collision the pandoc manual calls out as the extension's drawback.
-// With the option off the handler declines and the escape keeps the span.
+// The two backslash math extensions and the option each rule answers to. The
+// double-backslash rules are listed first for intent only: the two openers are
+// mutually exclusive at a given position, `\\(` carrying a backslash where `\(`
+// carries the parenthesis, so neither can shadow the other.
+const BACKSLASH_MATH_RULES = [
+    ['inline_math_double_backslash', 'texMathDoubleBackslash'],
+    ['display_math_double_backslash', 'texMathDoubleBackslash'],
+    ['inline_math_single_backslash', 'texMathSingleBackslash'],
+    ['display_math_single_backslash', 'texMathSingleBackslash'],
+] as const;
+
+// pandoc's `tex_math_single_backslash` and `tex_math_double_backslash`. These
+// run ahead of `tryBacklash` because `commonMarkRules.backlash` lists `(` and
+// `[` among the punctuation a backslash escapes, so it would consume the opener
+// before any math rule saw it — the collision the pandoc manual calls out as
+// the extension's drawback. With both options off the handler declines and the
+// escape keeps the span.
 function tryBackslashMath(state: ILexState): boolean {
-    if (!state.texMathSingleBackslash)
+    if (!state.texMathSingleBackslash && !state.texMathDoubleBackslash)
         return false;
 
-    const rules = ['inline_math_single_backslash', 'display_math_single_backslash'] as const;
+    for (const [rule, option] of BACKSLASH_MATH_RULES) {
+        if (!state[option])
+            continue;
 
-    for (const rule of rules) {
         const to = state.inlineRules[rule].exec(state.src);
         if (!to)
             continue;
@@ -866,7 +880,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -883,6 +897,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         texMathDollars,
         texMathGfm,
         texMathSingleBackslash,
+        texMathDoubleBackslash,
     };
 
     if (beginRules && state.pos === 0)
@@ -921,6 +936,7 @@ export function tokenizer(src: string, {
         texMathDollars: true,
         texMathGfm: false,
         texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(

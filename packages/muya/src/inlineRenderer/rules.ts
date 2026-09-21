@@ -91,6 +91,11 @@ export const inlineExtensionRules = {
     // pandoc reads `\(a\nb\)` as one — so, unlike the `$…$` rule, none is excluded.
     inline_math_single_backslash: /^(\\\()((?:[^\\]|\\[^)])+)\\\)/,
     display_math_single_backslash: /^(\\\[)((?:[^\\]|\\[^\]])+)\\\]/,
+    // pandoc's `tex_math_double_backslash`. The closer is taken literally here,
+    // with none of the escape rule above: pandoc ends the span at the first
+    // `\\)` it sees, so `\\(a\\)b\\)` holds `a` rather than running on.
+    inline_math_double_backslash: /^(\\\\\()((?:(?!\\\\\))[\s\S])+)\\\\\)/,
+    display_math_double_backslash: /^(\\\\\[)((?:(?!\\\\\])[\s\S])+)\\\\\]/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,

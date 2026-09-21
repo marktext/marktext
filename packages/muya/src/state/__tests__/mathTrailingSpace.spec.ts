@@ -15,6 +15,7 @@ function parse(markdown: string): IBlock[] {
         texMathDollars: true,
         texMathGfm: false,
         texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     } as never).generate(markdown) as unknown as IBlock[];

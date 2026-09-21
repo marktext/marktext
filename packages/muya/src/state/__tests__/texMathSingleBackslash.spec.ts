@@ -26,6 +26,7 @@ function parse(markdown: string, options: Record<string, boolean> = {}): IBlockL
         texMathDollars: true,
         texMathGfm: false,
         texMathSingleBackslash: true,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,

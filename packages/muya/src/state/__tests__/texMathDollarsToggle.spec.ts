@@ -48,7 +48,7 @@ function firstBlock(muya: Muya): any {
 
 function mathTokenCount(src: string, texMathDollars: boolean): number {
     return tokenizer(src, {
-        options: { superSubScript: true, footnote: false, texMathDollars, texMathGfm: false, texMathSingleBackslash: false },
+        options: { superSubScript: true, footnote: false, texMathDollars, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false },
     }).filter(token => token.type === 'inline_math').length;
 }
 
