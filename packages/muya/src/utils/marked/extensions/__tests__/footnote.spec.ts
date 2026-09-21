@@ -395,15 +395,19 @@ Trailing paragraph that does NOT belong to the footnote.`);
             expect(footnote.children?.map(c => c.type)).toEqual(['paragraph']);
     });
 
-    it('keeps a 4-space indented definition inside the enclosing footnote body', () => {
+    it('keeps a 4-space indented definition as literal text in the enclosing body', () => {
         // Below the continuation threshold the `[^2]:` line is body text of
-        // `[^1]`, so it must not terminate the enclosing definition.
+        // `[^1]`, so it must neither terminate the enclosing definition nor
+        // become a nested footnote — pandoc leaves it as the literal string.
         const tokens = parse(`a[^1]
 
 [^1]: one
     [^2]: two`);
 
-        const identifiers = tokens.filter(t => t.type === 'footnote').map(t => t.identifier);
-        expect(identifiers).toEqual(['1']);
+        const footnotes = tokens.filter(t => t.type === 'footnote');
+        expect(footnotes.map(t => t.identifier)).toEqual(['1']);
+        const children = footnotes[0].children ?? [];
+        expect(children.map(c => c.type)).not.toContain('footnote');
+        expect(JSON.stringify(children)).toContain('[^2]: two');
     });
 });
