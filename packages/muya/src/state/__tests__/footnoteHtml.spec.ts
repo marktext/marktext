@@ -75,6 +75,29 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         expect(items).toEqual(['<li id="fn-1">']);
     });
 
+    it('gives each repeated reference its own id and its own backref arrow', () => {
+        const md = `First [^x]. Again [^x]. Once more [^x].\n\n[^x]: shared body`;
+        const html = renderToStaticHTML(md, PROFILE);
+
+        // `id` must be unique in a document, so occurrences after the first
+        // are suffixed (GFM convention).
+        const ids = [...html.matchAll(/id="(fnref-[^"]+)"/g)].map(m => m[1]);
+        expect(ids).toEqual(['fnref-1', 'fnref-1-2', 'fnref-1-3']);
+
+        // One arrow per occurrence, each reaching its own reference, so every
+        // one of them is navigable — not just the first.
+        const backrefs = [...html.matchAll(/<a href="#(fnref-[^"]+)" class="footnote-backref">([^<]*)<\/a>/g)];
+        expect(backrefs.map(m => m[1])).toEqual(['fnref-1', 'fnref-1-2', 'fnref-1-3']);
+        expect(backrefs.map(m => m[2])).toEqual(['↩', '↩2', '↩3']);
+    });
+
+    it('keeps the plain single arrow when a note is referenced once', () => {
+        const html = renderToStaticHTML('foo[^1]\n\n[^1]: bar', PROFILE);
+
+        const backrefs = [...html.matchAll(/class="footnote-backref">([^<]*)<\/a>/g)];
+        expect(backrefs.map(m => m[1])).toEqual(['↩']);
+    });
+
     it('preserves a footnote definition that contains a nested bullet list inside the <li>', () => {
         const md = `text[^n]\n\n[^n]: intro\n\n    - item a\n    - item b\n`;
         const html = renderToStaticHTML(md, PROFILE);
