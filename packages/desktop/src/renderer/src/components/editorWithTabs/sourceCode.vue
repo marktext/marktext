@@ -48,6 +48,7 @@ const {
   sourceCode,
   sourceCodeLineNumbers,
   texMathDollars,
+  texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash
 } = storeToRefs(preferencesStore)
@@ -78,11 +79,12 @@ watch(sourceCodeLineNumbers, (value) => {
 const markdownMathMode = () => ({
   name: 'markdown-math',
   texMathDollars: texMathDollars.value,
+  texMathGfm: texMathGfm.value,
   texMathSingleBackslash: texMathSingleBackslash.value,
   texMathDoubleBackslash: texMathDoubleBackslash.value
 })
 
-watch([texMathDollars, texMathSingleBackslash, texMathDoubleBackslash], () => {
+watch([texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash], () => {
   editor.value?.setOption('mode', markdownMathMode())
 })
 

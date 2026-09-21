@@ -283,6 +283,47 @@ test.describe('Source view: backslash TeX math delimiters', () => {
   })
 })
 
+// GitHub's inline math, the other half of pandoc's `tex_math_gfm`. It opens on
+// `$` like the dollar rule, so without its own region the dollar rule claimed
+// the span and painted the backticks as part of the formula.
+test.describe('Source view: GitHub inline math', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  const mathText = (): Promise<string> =>
+    page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll('.source-code .CodeMirror .cm-math-inline:not(.cm-formatting-math)')
+      )
+        .map((span) => span.textContent ?? '')
+        .join('')
+    )
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown('gfm $`e=mc^2`$ here\n')
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, { texMathGfm: false })
+      await app.close()
+    }
+  })
+
+  test('hands stex the formula alone, without the backticks', async() => {
+    await setPreference(page, { texMathGfm: true })
+    await expect.poll(mathText, { timeout: 10000 }).toBe('e=mc^2')
+  })
+
+  test('leaves the span to the dollar rule when the extension is off', async() => {
+    await setPreference(page, { texMathGfm: false })
+    await expect.poll(mathText, { timeout: 10000 }).toBe('`e=mc^2`')
+  })
+})
+
 // The source view delegates to stex only for the syntaxes the editor is
 // actually reading, so the two views cannot disagree about what a formula is
 // (#5446). `texMathDollars` is the one that ships on, and the one #2002 /

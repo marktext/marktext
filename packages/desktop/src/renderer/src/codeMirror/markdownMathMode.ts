@@ -32,6 +32,12 @@ const INLINE_MATH_OPEN = /\$(?!\$)(?=\S)(?=[^$\n]*?[^\s$\\]\$(?!\$|\d))/
 // than the inline ones: spanning lines, they carry no closer lookahead to fall
 // back on, and without it `\\[…\\]` highlighted whenever the single-backslash
 // extension was on.
+// GitHub's inline math, pandoc's `tex_math_gfm` — mirrors Muya's
+// `inline_math_gfm` rule with the same-line closer. It opens on `$` like the
+// dollar rule, so it has to be offered first or `$` would take the span with
+// the backticks inside it, which is what the source view used to show.
+const GFM_INLINE_MATH_OPEN = /\$`(?=(?:[^`\\\n]|\\.)+`\$)/
+
 const SINGLE_INLINE_MATH_OPEN = /(?<!\\)\\\((?=(?:[^\\\n]|\\[^)\n])+\\\))/
 const SINGLE_DISPLAY_MATH_OPEN = /(?<!\\)\\\[/
 const DOUBLE_INLINE_MATH_OPEN = /(?<!\\)\\\\\((?=(?:(?!\\\\\))[^\n])+\\\\\))/
@@ -42,30 +48,23 @@ type CodeMirrorLike = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = any
 
+const inlineRegion = (stexMode: AnyObj, open: string | RegExp, close: string): AnyObj => ({
+  open,
+  close,
+  mode: stexMode,
+  delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
+  innerStyle: 'math math-inline'
+})
+
 // Display math legitimately spans lines, so it carries no lookahead guard —
 // a per-line tokenizer cannot see its closer from the opener.
-const mathRegions = (
-  stexMode: AnyObj,
-  displayOpen: string | RegExp,
-  displayClose: string,
-  inlineOpen: string | RegExp,
-  inlineClose: string
-): AnyObj[] => [
-  {
-    open: displayOpen,
-    close: displayClose,
-    mode: stexMode,
-    delimStyle: 'formatting formatting-math formatting-math-block math-block',
-    innerStyle: 'math math-block'
-  },
-  {
-    open: inlineOpen,
-    close: inlineClose,
-    mode: stexMode,
-    delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
-    innerStyle: 'math math-inline'
-  }
-]
+const displayRegion = (stexMode: AnyObj, open: string | RegExp, close: string): AnyObj => ({
+  open,
+  close,
+  mode: stexMode,
+  delimStyle: 'formatting formatting-math formatting-math-block math-block',
+  innerStyle: 'math math-block'
+})
 
 const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
   if (CodeMirror.modes && Object.prototype.hasOwnProperty.call(CodeMirror.modes, 'markdown-math')) {
@@ -77,6 +76,7 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
   CodeMirror.defineMode('markdown-math', function(config: AnyObj, parserConfig: AnyObj) {
     const {
       texMathDollars = true,
+      texMathGfm = false,
       texMathSingleBackslash = false,
       texMathDoubleBackslash = false
     } = parserConfig ?? {}
@@ -90,27 +90,37 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
     const stexMode = CodeMirror.getMode(config, 'stex')
 
     // The multiplexer takes the first region matching at the cursor, so the
-    // longer opener of each pair has to come first: `$$` before `$`, and `\\(`
-    // before `\(`, which would otherwise match at its second character.
-    const regions = []
+    // longer opener has to come first: `` $` `` before `$`, `$$` before `$`,
+    // and `\\(` before `\(`, which would otherwise match at its second
+    // character.
+    const regions: AnyObj[] = []
+
+    if (texMathGfm) {
+      regions.push(inlineRegion(stexMode, GFM_INLINE_MATH_OPEN, '`$'))
+    }
 
     if (texMathDollars) {
-      regions.push(mathRegions(stexMode, '$$', '$$', INLINE_MATH_OPEN, '$'))
+      regions.push(
+        displayRegion(stexMode, '$$', '$$'),
+        inlineRegion(stexMode, INLINE_MATH_OPEN, '$')
+      )
     }
 
     if (texMathDoubleBackslash) {
       regions.push(
-        mathRegions(stexMode, DOUBLE_DISPLAY_MATH_OPEN, '\\\\]', DOUBLE_INLINE_MATH_OPEN, '\\\\)')
+        displayRegion(stexMode, DOUBLE_DISPLAY_MATH_OPEN, '\\\\]'),
+        inlineRegion(stexMode, DOUBLE_INLINE_MATH_OPEN, '\\\\)')
       )
     }
 
     if (texMathSingleBackslash) {
       regions.push(
-        mathRegions(stexMode, SINGLE_DISPLAY_MATH_OPEN, '\\]', SINGLE_INLINE_MATH_OPEN, '\\)')
+        displayRegion(stexMode, SINGLE_DISPLAY_MATH_OPEN, '\\]'),
+        inlineRegion(stexMode, SINGLE_INLINE_MATH_OPEN, '\\)')
       )
     }
 
-    return CodeMirror.multiplexingMode(gfmMode, ...regions.flat())
+    return CodeMirror.multiplexingMode(gfmMode, ...regions)
   })
 }
 
