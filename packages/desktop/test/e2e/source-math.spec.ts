@@ -14,6 +14,8 @@ const FIXTURE = [
   '$$',
   '',
   'I owe $5 and you owe $10 only.',
+  '',
+  'Revenue rose from $13B to $24B.',
   ''
 ].join('\n')
 
@@ -91,6 +93,22 @@ test.describe('Source view: math tokenization (#4121)', () => {
       return false
     })
     expect(lastLineHasMath).toBe(false)
+  })
+
+  // pandoc's tex_math_dollars rules, which #5449 gave the editor: the closing
+  // `$` needs a non-space before it and no digit after it. Without them the old
+  // guard opened a span at `$5` / `$13B` — the currency case #2002 and #5243
+  // reported, and the reason the assertion above checks the span contents
+  // rather than merely counting them.
+  test('currency amounts do not open a math span', async() => {
+    const currencyMath = await page.evaluate(() => {
+      const root = document.querySelector('.source-code .CodeMirror')
+      if (!root) return []
+      return Array.from(root.querySelectorAll('.cm-math-inline, .cm-math-block'))
+        .map((span) => span.textContent ?? '')
+        .filter((text) => /owe|Revenue|13B|24B|only/.test(text))
+    })
+    expect(currencyMath).toEqual([])
   })
 })
 

@@ -21,13 +21,20 @@ import 'codemirror/mode/markdown/markdown'
 import 'codemirror/mode/gfm/gfm'
 import 'codemirror/mode/stex/stex'
 
-// Open guard for inline `$…$`. Mirrors Muya's `inline_math` rule
-// (`packages/muya/src/inlineRenderer/rules.ts`): require non-empty content with
-// no inner `$`, last char before the closer not being `\`, and the closing `$`
-// not followed by another `$` (which would be block math). This stops a single
-// stray `$` (e.g. "$5 owed") from flipping the inner mode on forever and keeps
-// the source-view tokenization aligned with the inline parse.
-const INLINE_MATH_OPEN = /\$(?!\$)(?=[^$\n]*?[^$\\]\$(?!\$))/
+// Open guard for inline `$…$`, mirroring Muya's `inline_math` rule
+// (`packages/muya/src/inlineRenderer/rules.ts`) so the source view and the
+// editor agree on what is a formula. It carries pandoc's three
+// `tex_math_dollars` constraints, which #5449 gave the editor: a non-space
+// right after the opener, a non-space right before the closer, and no digit
+// right after the closer — so "Revenue rose from $13B to $24B." is prose in
+// both views. Requiring a closer on this line is on top of those, and stops a
+// stray `$` (e.g. "$5 owed") from flipping the inner mode on forever.
+//
+// The guard only decides whether to *enter* stex. The region's closer is the
+// plain string `$`, so it leaves on the next one without re-checking those
+// constraints; a closer regexp would need the text before it, which
+// `StringStream.match` does not expose.
+const INLINE_MATH_OPEN = /\$(?!\$)(?=\S)(?=[^$\n]*?[^\s$\\]\$(?!\$|\d))/
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CodeMirrorLike = any
