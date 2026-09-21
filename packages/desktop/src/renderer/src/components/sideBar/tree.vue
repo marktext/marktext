@@ -1,7 +1,10 @@
 <template>
   <div
     class="tree-view"
-    :class="{ 'files-only': !projectTree && openedFilesInSidebar && showOpenedFiles }"
+    :class="{
+      'directories-hidden': directoriesHidden,
+      'files-only': !projectTree && openedFilesInSidebar && showOpenedFiles
+    }"
   >
     <div class="title">
       <!-- Placeholder -->
@@ -211,6 +214,11 @@ const createCacheDirname = computed<string | undefined>(() => {
   return cache.dirname
 })
 
+// True while the directory section claims no height of its own — either no
+// folder is open or the section is collapsed to its header. The opened-files
+// list is otherwise capped at half the panel so the two sections can share it.
+const directoriesHidden = computed(() => !props.projectTree || !showDirectories.value)
+
 // Methods
 const openFolder = (): void => {
   projectStore.ASK_FOR_OPEN_PROJECT()
@@ -378,12 +386,16 @@ onMounted(() => {
   width: 8px;
 }
 
-/* Only the cap is lifted — the list keeps the default `flex: 0 1 auto`, so it
+/* Nothing else is competing for the height, so the list may use all of it.
+   Only the cap is lifted — the list keeps the default `flex: 0 1 auto`, so it
    grows with its content and shrinks when it runs out of room. Letting it grow
    instead would push the "Open folder" button onto the panel's bottom edge even
    with a single file open. */
-.files-only .opened-files {
+.directories-hidden .opened-files {
   max-height: none;
+}
+.directories-hidden .project-tree {
+  flex: none;
 }
 .opened-files > .title {
   flex-shrink: 0;
