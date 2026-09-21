@@ -26,14 +26,16 @@ const INLINE_MATH_OPEN = /\$(?!\$)(?=\S)(?=[^$\n]*?[^\s$\\]\$(?!\$|\d))/
 // no use here — it requires the character before the closer not to be a
 // backslash, and for `\)` it is one.
 //
-// Known limit: `\\(x\)` is read as single-backslash math when only that
-// extension is on, where the editor sees an escaped backslash. The multiplexer
-// matches a regexp against the rest of the line, so no guard can see the
-// backslash in front of the opener. The shape is invalid in both dialects, and
-// well-formed `\\(x\\)` is unaffected — its closer reads as an escaped
-// backslash under the single-backslash rule, leaving the span unclosed.
-const SINGLE_INLINE_MATH_OPEN = /\\\((?=(?:[^\\\n]|\\[^)\n])+\\\))/
-const DOUBLE_INLINE_MATH_OPEN = /\\\\\((?=(?:(?!\\\\\))[^\n])+\\\\\))/
+// Every opener refuses a preceding backslash, so the single-backslash rules
+// cannot claim the second character of `\\(` / `\\[`, where the editor reads an
+// escaped backslash and no formula. The display openers need that guard more
+// than the inline ones: spanning lines, they carry no closer lookahead to fall
+// back on, and without it `\\[…\\]` highlighted whenever the single-backslash
+// extension was on.
+const SINGLE_INLINE_MATH_OPEN = /(?<!\\)\\\((?=(?:[^\\\n]|\\[^)\n])+\\\))/
+const SINGLE_DISPLAY_MATH_OPEN = /(?<!\\)\\\[/
+const DOUBLE_INLINE_MATH_OPEN = /(?<!\\)\\\\\((?=(?:(?!\\\\\))[^\n])+\\\\\))/
+const DOUBLE_DISPLAY_MATH_OPEN = /(?<!\\)\\\\\[/
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CodeMirrorLike = any
@@ -44,7 +46,7 @@ type AnyObj = any
 // a per-line tokenizer cannot see its closer from the opener.
 const mathRegions = (
   stexMode: AnyObj,
-  displayOpen: string,
+  displayOpen: string | RegExp,
   displayClose: string,
   inlineOpen: string | RegExp,
   inlineClose: string
@@ -97,11 +99,15 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
     }
 
     if (texMathDoubleBackslash) {
-      regions.push(mathRegions(stexMode, '\\\\[', '\\\\]', DOUBLE_INLINE_MATH_OPEN, '\\\\)'))
+      regions.push(
+        mathRegions(stexMode, DOUBLE_DISPLAY_MATH_OPEN, '\\\\]', DOUBLE_INLINE_MATH_OPEN, '\\\\)')
+      )
     }
 
     if (texMathSingleBackslash) {
-      regions.push(mathRegions(stexMode, '\\[', '\\]', SINGLE_INLINE_MATH_OPEN, '\\)'))
+      regions.push(
+        mathRegions(stexMode, SINGLE_DISPLAY_MATH_OPEN, '\\]', SINGLE_INLINE_MATH_OPEN, '\\)')
+      )
     }
 
     return CodeMirror.multiplexingMode(gfmMode, ...regions.flat())

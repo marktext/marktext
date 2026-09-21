@@ -6,6 +6,26 @@ type CodeMirrorLike = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = any
 
+// Upstream searched a regexp `open` against `string.slice(from)`, which hides
+// everything before the cursor from the pattern. A delimiter that has to know
+// what precedes it — `\\[` must not be read as an escaped backslash followed by
+// `\[` — cannot be expressed that way. Searching the whole string from an
+// offset instead keeps lookbehind working. Cached because `token` runs per
+// character.
+//
+// The one behaviour this changes: `^` in a regexp `open` now anchors to the
+// start of the line rather than to `from`.
+const searchable = new WeakMap<RegExp, RegExp>()
+
+const fromOffset = (pattern: RegExp): RegExp => {
+  let cached = searchable.get(pattern)
+  if (!cached) {
+    cached = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g')
+    searchable.set(pattern, cached)
+  }
+  return cached
+}
+
 const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
   CodeMirror.multiplexingMode = function(outer: AnyObj /*, others */): AnyObj {
     // Others should be {open, close, mode [, delimStyle] [, innerStyle]} objects
@@ -22,8 +42,10 @@ const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
         const found = string.indexOf(pattern, from)
         return returnEnd && found > -1 ? found + pattern.length : found
       }
-      const m = pattern.exec(from ? string.slice(from) : string)
-      return m ? m.index + from + (returnEnd ? m[0].length : 0) : -1
+      const search = fromOffset(pattern)
+      search.lastIndex = from
+      const m = search.exec(string)
+      return m ? m.index + (returnEnd ? m[0].length : 0) : -1
     }
 
     return {

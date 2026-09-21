@@ -124,6 +124,10 @@ const BACKSLASH_FIXTURE = [
   'Unclosed \\(x and then some prose.',
   '',
   '- \\[TODO\\] item',
+  '',
+  '\\\\[',
+  'E = mc^2',
+  '\\\\]',
   ''
 ].join('\n')
 
@@ -196,6 +200,20 @@ test.describe('Source view: backslash TeX math delimiters', () => {
 
   test('leaves the double-backslash form to its own extension', async() => {
     expect(await mathContains('a_{1}')).toBe(false)
+  })
+
+  // The display openers span lines, so they have no closer lookahead to fall
+  // back on. Without a guard against a preceding backslash the single-backslash
+  // region claimed the second character of `\\\\[` and swallowed the block the
+  // other extension owns, highlighted whether or not that extension was on.
+  test('does not claim a display block owned by the other extension', async() => {
+    // Sets its own preferences rather than leaning on the test before it: the
+    // assertion is vacuous with the extension off, which hid the bug from a
+    // first version of this case.
+    await setPreference(page, { texMathSingleBackslash: true, texMathDoubleBackslash: false })
+    await expect.poll(() => mathContains('sum_'), { timeout: 10000 }).toBe(true)
+
+    expect(await mathContains('E = mc^2')).toBe(false)
   })
 
   test('reads an escaped bracket as a formula, as pandoc does', async() => {
