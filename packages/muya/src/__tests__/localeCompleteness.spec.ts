@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { de, en, es, fr, ja, ko, nl, pt, ru, zhCN, zhTW } from '../locales';
+import * as locales from '../locales';
 
 // CHARACTERIZATION: every shipped locale must carry the exact same translation
 // keys as the canonical `en` locale (no missing/extra keys), and expose a
 // `name` tag identifying it. Missing keys would surface untranslated strings;
 // extra keys are dead weight. `en` is the source of truth.
 
+const { de, en, es, fr, ja, ko, nl, pt, ru, tr, zhCN, zhTW } = locales;
+
+// Spelled out rather than derived from `locales` so the name-tag suite below
+// asserts against an independent expectation instead of the value it checks.
+// `covers every locale the package exports` keeps the two in sync.
 const nonEnLocales: Array<[string, typeof en]> = [
     ['de', de],
     ['es', es],
@@ -15,6 +20,7 @@ const nonEnLocales: Array<[string, typeof en]> = [
     ['nl', nl],
     ['pt', pt],
     ['ru', ru],
+    ['tr', tr],
     ['zh-CN', zhCN],
     ['zh-TW', zhTW],
 ];
@@ -51,8 +57,10 @@ describe('locale completeness', () => {
         expect(enKeys.length).toBeGreaterThan(0);
     });
 
-    it('ships exactly eleven built-in locales (en + 10 translations)', () => {
-        expect(nonEnLocales).toHaveLength(10);
+    it('covers every locale the package exports', () => {
+        const exported = Object.values(locales).map(locale => locale.name).sort();
+        const covered = ['en', ...nonEnLocales.map(([tag]) => tag)].sort();
+        expect(covered).toEqual(exported);
     });
 
     describe('key parity with en', () => {
@@ -73,6 +81,7 @@ describe('locale completeness', () => {
             'nl': 'nl',
             'pt': 'pt',
             'ru': 'ru',
+            'tr': 'tr',
             'zh-CN': 'zh-CN',
             'zh-TW': 'zh-TW',
         };
