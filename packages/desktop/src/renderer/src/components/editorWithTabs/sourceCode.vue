@@ -43,7 +43,15 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode, sourceCodeLineNumbers } = storeToRefs(preferencesStore)
+const {
+  theme,
+  sourceCode,
+  sourceCodeLineNumbers,
+  texMathDollars,
+  texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash
+} = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -62,6 +70,20 @@ watch(
 
 watch(sourceCodeLineNumbers, (value) => {
   editor.value?.setOption('lineNumbers', value)
+})
+
+// A fresh instance reads these at mount; the watch is for a preference changed
+// while the source view is already open (#5446).
+const markdownMathMode = () => ({
+  name: 'markdown-math',
+  texMathDollars: texMathDollars.value,
+  texMathGfm: texMathGfm.value,
+  texMathSingleBackslash: texMathSingleBackslash.value,
+  texMathDoubleBackslash: texMathDoubleBackslash.value
+})
+
+watch([texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash], () => {
+  editor.value?.setOption('mode', markdownMathMode())
 })
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
@@ -390,10 +412,8 @@ onMounted(() => {
   // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
   const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
-  // `$$...$$` spans to stex so subscript underscores in math do not flip the
-  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
-  codeMirrorInstance.setOption('mode', 'markdown-math')
+  // See src/renderer/src/codeMirror/markdownMathMode.ts.
+  codeMirrorInstance.setOption('mode', markdownMathMode())
 
   codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
     event.preventDefault()
@@ -458,5 +478,11 @@ onBeforeUnmount(() => {
 .source-code .CodeMirror-activeline-background,
 .source-code .CodeMirror-activeline-gutter {
   background: var(--floatHoverColor);
+}
+/* Fade the delimiters against the formula. Dimming the inherited colour rather
+   than naming one is what carries across every theme; 0.65 is the lowest value
+   still clearing 3:1 in all of them, with one-dark at 3.67 setting the floor. */
+.source-code .CodeMirror .cm-formatting-math {
+  opacity: 0.65;
 }
 </style>

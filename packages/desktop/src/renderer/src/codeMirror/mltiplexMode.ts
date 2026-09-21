@@ -6,6 +6,22 @@ type CodeMirrorLike = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = any
 
+// Upstream ran a regexp `open` against `string.slice(from)`, hiding everything
+// before the cursor — so an opener could not refuse a preceding backslash, and
+// `\\[` was read as an escape plus `\[`. Searching the whole string from an
+// offset keeps lookbehind working; `^` in an opener now anchors to the line
+// start rather than to `from`. Cached because `token` runs per character.
+const searchable = new WeakMap<RegExp, RegExp>()
+
+const fromOffset = (pattern: RegExp): RegExp => {
+  let cached = searchable.get(pattern)
+  if (!cached) {
+    cached = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g')
+    searchable.set(pattern, cached)
+  }
+  return cached
+}
+
 const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
   CodeMirror.multiplexingMode = function(outer: AnyObj /*, others */): AnyObj {
     // Others should be {open, close, mode [, delimStyle] [, innerStyle]} objects
@@ -22,8 +38,10 @@ const multiplexMode = (CodeMirror: CodeMirrorLike): void => {
         const found = string.indexOf(pattern, from)
         return returnEnd && found > -1 ? found + pattern.length : found
       }
-      const m = pattern.exec(from ? string.slice(from) : string)
-      return m ? m.index + from + (returnEnd ? m[0].length : 0) : -1
+      const search = fromOffset(pattern)
+      search.lastIndex = from
+      const m = search.exec(string)
+      return m ? m.index + (returnEnd ? m[0].length : 0) : -1
     }
 
     return {

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, enterSourceMode } from './helpers'
+import { launchWithMarkdown, enterSourceMode, exitSourceMode } from './helpers'
 
 // Regression test for https://github.com/marktext/marktext/issues/4121
 // Underscores inside inline math (`$...$`) and block math (`$$...$$`) must
@@ -14,6 +14,8 @@ const FIXTURE = [
   '$$',
   '',
   'I owe $5 and you owe $10 only.',
+  '',
+  'Revenue rose from $13B to $24B.',
   ''
 ].join('\n')
 
@@ -91,5 +93,266 @@ test.describe('Source view: math tokenization (#4121)', () => {
       return false
     })
     expect(lastLineHasMath).toBe(false)
+  })
+
+  // 3:1 is the floor this sort of de-emphasised punctuation is held to, and
+  // one-dark — whose body text only reaches 6.57:1 — is what sets it.
+  test('draws the math delimiters faded but still legible', async() => {
+    const seen = await page.evaluate(() => {
+      const parse = (c: string): number[] => (c.match(/[\d.]+/g) ?? []).map(Number)
+      const lum = (rgb: number[]): number => {
+        const [r, g, b] = rgb.slice(0, 3).map((v) => {
+          const s = v / 255
+          return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+        })
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+      const root = document.querySelector('.source-code .CodeMirror')
+      const delim = root?.querySelector('.cm-formatting-math')
+      if (!root || !delim) return null
+
+      let bg = [255, 255, 255]
+      for (let node: Element | null = root; node; node = node.parentElement) {
+        const c = parse(getComputedStyle(node).backgroundColor)
+        if (c.length >= 3 && (c[3] === undefined || c[3] > 0)) {
+          bg = c.slice(0, 3)
+          break
+        }
+      }
+
+      const alpha = Number(getComputedStyle(delim).opacity)
+      const fg = parse(getComputedStyle(delim).color).slice(0, 3)
+      const painted = fg.map((v, i) => alpha * v + (1 - alpha) * bg[i])
+      const [hi, lo] = [lum(painted), lum(bg)].sort((x, y) => y - x)
+
+      return { alpha, contrast: (hi + 0.05) / (lo + 0.05) }
+    })
+
+    expect(seen).not.toBeNull()
+    expect(seen!.alpha).toBeLessThan(1)
+    expect(seen!.contrast).toBeGreaterThan(3)
+  })
+
+  // Without pandoc's constraints (#5449) the old guard opened a span at `$5` /
+  // `$13B`, which is why this checks span contents rather than counting them.
+  test('currency amounts do not open a math span', async() => {
+    const currencyMath = await page.evaluate(() => {
+      const root = document.querySelector('.source-code .CodeMirror')
+      if (!root) return []
+      return Array.from(root.querySelectorAll('.cm-math-inline, .cm-math-block'))
+        .map((span) => span.textContent ?? '')
+        .filter((text) => /owe|Revenue|13B|24B|only/.test(text))
+    })
+    expect(currencyMath).toEqual([])
+  })
+})
+
+const BACKSLASH_FIXTURE = [
+  'Inline \\(\\text{F}_\\text{A} = \\text{F}_\\text{B}\\) here.',
+  '',
+  '\\[',
+  '\\sum_{i=1}^{n} a_{i} = b_{i}',
+  '\\]',
+  '',
+  'Double \\\\(a_{1} + b_{2}\\\\) here.',
+  '',
+  'Unclosed \\(x and then some prose.',
+  '',
+  '- \\[TODO\\] item',
+  '',
+  '\\\\[',
+  'E = mc^2',
+  '\\\\]',
+  ''
+].join('\n')
+
+const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise<void> => {
+  await page.evaluate((payload) => {
+    window.electron.ipcRenderer.send('mt::set-user-preference', payload)
+  }, prefs)
+}
+
+// Both ship disabled (#5481), so an ungated region would call `\(…\)` a formula
+// here while the editor correctly reads a CommonMark escape.
+test.describe('Source view: backslash TeX math delimiters', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  // stex splits a formula across spans — `\text{F}` alone becomes four — so the
+  // spans are joined before searching rather than matched one by one.
+  const mathText = (): Promise<string> =>
+    page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll('.source-code .CodeMirror .cm-math-inline, .source-code .CodeMirror .cm-math-block')
+      )
+        .map((span) => span.textContent ?? '')
+        .join('')
+    )
+
+  const mathContains = async(needle: string): Promise<boolean> => (await mathText()).includes(needle)
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(BACKSLASH_FIXTURE)
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, {
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false
+      })
+      await app.close()
+    }
+  })
+
+  test('highlights nothing at the shipped defaults', async() => {
+    const { mathInline, mathBlock } = await readSourceState(page)
+    expect(mathInline).toBe(0)
+    expect(mathBlock).toBe(0)
+  })
+
+  test('delegates \\(…\\) and \\[…\\] to stex once the preference is on', async() => {
+    await setPreference(page, { texMathSingleBackslash: true })
+    await expect.poll(() => mathContains('text{F}'), { timeout: 10000 }).toBe(true)
+
+    const { emTexts, mathBlock } = await readSourceState(page)
+    // The fixture's only underscores are subscripts inside formulas, so a
+    // `.cm-em` span is the #4121 bug in its backslash spelling.
+    expect(emTexts).toEqual([])
+    expect(mathBlock).toBeGreaterThan(0)
+    expect(await mathContains('sum_')).toBe(true)
+  })
+
+  test('an unclosed opener does not swallow the rest of the document', async() => {
+    expect(await mathContains('prose')).toBe(false)
+  })
+
+  test('leaves the double-backslash form to its own extension', async() => {
+    expect(await mathContains('a_{1}')).toBe(false)
+  })
+
+  // Without `(?<!\\)` the single-backslash region claimed the second character
+  // of `\\[` and swallowed the block the other extension owns.
+  test('does not claim a display block owned by the other extension', async() => {
+    // Sets its own preferences: the assertion is vacuous with the extension
+    // off, which hid the bug from a first version of this case.
+    await setPreference(page, { texMathSingleBackslash: true, texMathDoubleBackslash: false })
+    await expect.poll(() => mathContains('sum_'), { timeout: 10000 }).toBe(true)
+
+    expect(await mathContains('E = mc^2')).toBe(false)
+  })
+
+  test('reads an escaped bracket as a formula, as pandoc does', async() => {
+    // pandoc's documented drawback: the extension "precludes escaping `(` and
+    // `[`", so `- \[TODO\]` is a formula once it is on. The editor agrees —
+    // which is the whole point — and it is why both ship disabled.
+    expect(await mathContains('TODO')).toBe(true)
+  })
+
+  test('the double-backslash form rides its own preference', async() => {
+    await setPreference(page, { texMathDoubleBackslash: true })
+    await expect.poll(() => mathContains('a_{1}'), { timeout: 10000 }).toBe(true)
+
+    await setPreference(page, { texMathDoubleBackslash: false })
+    await expect.poll(() => mathContains('a_{1}'), { timeout: 10000 }).toBe(false)
+  })
+
+  test('a fresh CodeMirror instance reads the preferences on mount too', async() => {
+    await setPreference(page, { texMathSingleBackslash: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+
+    await exitSourceMode(page, app)
+    await enterSourceMode(page, app)
+
+    expect((await readSourceState(page)).mathInline).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
+  })
+})
+
+// Without its own region the dollar rule claimed the span and painted the
+// backticks as part of the formula.
+test.describe('Source view: GitHub inline math', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  const mathText = (): Promise<string> =>
+    page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll('.source-code .CodeMirror .cm-math-inline:not(.cm-formatting-math)')
+      )
+        .map((span) => span.textContent ?? '')
+        .join('')
+    )
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown('gfm $`e=mc^2`$ here\n')
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, { texMathGfm: false })
+      await app.close()
+    }
+  })
+
+  test('hands stex the formula alone, without the backticks', async() => {
+    await setPreference(page, { texMathGfm: true })
+    await expect.poll(mathText, { timeout: 10000 }).toBe('e=mc^2')
+  })
+
+  test('leaves the span to the dollar rule when the extension is off', async() => {
+    await setPreference(page, { texMathGfm: false })
+    await expect.poll(mathText, { timeout: 10000 }).toBe('`e=mc^2`')
+  })
+})
+
+// `texMathDollars` is the one extension that ships on, and the one #2002 /
+// #5243 asked to be able to turn off.
+test.describe('Source view: math highlighting follows texMathDollars', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(FIXTURE)
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, { texMathDollars: true })
+      await app.close()
+    }
+  })
+
+  test('stops treating $ as a delimiter while the source view is open', async() => {
+    expect((await readSourceState(page)).mathInline).toBeGreaterThan(0)
+
+    await setPreference(page, { texMathDollars: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
+
+    await setPreference(page, { texMathDollars: true })
+    await expect
+      .poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 })
+      .toBeGreaterThan(0)
+  })
+
+  test('a fresh CodeMirror instance reads the preference on mount too', async() => {
+    await setPreference(page, { texMathDollars: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+
+    await exitSourceMode(page, app)
+    await enterSourceMode(page, app)
+
+    expect((await readSourceState(page)).mathInline).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
   })
 })
