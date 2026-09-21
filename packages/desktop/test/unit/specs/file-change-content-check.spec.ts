@@ -21,21 +21,26 @@ vi.mock('@/services/notification', () => ({
 vi.mock('@/store/bufferedState', () => ({ debouncedSendBufferedState: vi.fn() }))
 
 import { useEditorStore } from '@/store/editor'
+import { usePreferencesStore } from '@/store/preferences'
 
-// #1861: a watcher 'change' event fires even when only the file's mtime changed
-// (e.g. a git checkout that left the content byte-identical). The handler then
-// marked the tab unsaved and showed a "file changed on disk" prompt for a
-// no-op change. Skip the handling when the new on-disk content equals the
-// tab's current content.
-describe('useEditorStore LISTEN_FOR_FILE_CHANGE — content-identical change (#1861)', () => {
+describe('useEditorStore LISTEN_FOR_FILE_CHANGE — a file changed on disk', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     ;(window.electron.ipcRenderer.on as Mock).mockReset()
   })
 
-  const makeSavedTab = (store: ReturnType<typeof useEditorStore>) => {
-    const tab = { id: 'tab-1', filename: 'a.md', pathname: '/x/a.md', markdown: 'hello', isSaved: true }
+  const makeTab = (store: ReturnType<typeof useEditorStore>, isSaved = true) => {
+    const tab = {
+      id: 'tab-1',
+      filename: 'a.md',
+      pathname: '/x/a.md',
+      markdown: 'hello',
+      isSaved,
+      scrollTop: 120,
+      notifications: [],
+      history: { stack: [], index: -1 }
+    }
     store.tabs = [tab] as unknown as typeof store.tabs
     store.tabIdToIndex = { 'tab-1': 0 }
     return tab
@@ -48,11 +53,27 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — content-identical change (#1
   }
 
   const fire = (handler: ReturnType<typeof captureHandler>, markdown: string) =>
-    handler(null, { type: 'change', change: { pathname: '/x/a.md', data: { markdown } } })
+    handler(null, {
+      type: 'change',
+      change: {
+        pathname: '/x/a.md',
+        data: {
+          markdown,
+          filename: 'a.md',
+          encoding: 'utf8',
+          lineEnding: 'lf',
+          adjustLineEndingOnSave: false,
+          trimTrailingNewline: 2,
+          isMixedLineEndings: false
+        }
+      }
+    })
 
-  it('ignores a change whose content matches the tab (mtime-only change)', () => {
+  // #1861: a watcher 'change' event fires even when only the file's mtime
+  // changed (e.g. a git checkout that left the content byte-identical).
+  it('ignores a change whose content matches the tab', () => {
     const store = useEditorStore()
-    const tab = makeSavedTab(store)
+    const tab = makeTab(store)
     const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
     store.LISTEN_FOR_FILE_CHANGE()
 
@@ -62,15 +83,45 @@ describe('useEditorStore LISTEN_FOR_FILE_CHANGE — content-identical change (#1
     expect(tab.isSaved).toBe(true)
   })
 
-  it('still warns when the on-disk content actually changed', () => {
+  // #3652: MarkText as a preview window beside another editor. Reloading a tab
+  // the user never touched discards nothing, so it must not depend on autoSave,
+  // which writes in the opposite direction and would overwrite the other editor.
+  it('reloads a tab without unsaved edits silently, with autoSave off', () => {
     const store = useEditorStore()
-    const tab = makeSavedTab(store)
+    usePreferencesStore().autoSave = false
+    const tab = makeTab(store)
     const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
     store.LISTEN_FOR_FILE_CHANGE()
 
     fire(captureHandler(), 'hello world')
 
+    expect(tab.markdown).toBe('hello world')
+    expect(tab.isSaved).toBe(true)
+    expect(notifySpy).not.toHaveBeenCalled()
+  })
+
+  it('asks first when the tab has unsaved edits', () => {
+    const store = useEditorStore()
+    const tab = makeTab(store, false)
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(tab.markdown).toBe('hello')
     expect(notifySpy).toHaveBeenCalledTimes(1)
-    expect(tab.isSaved).toBe(false)
+  })
+
+  it('still asks when the tab has unsaved edits and autoSave is on', () => {
+    const store = useEditorStore()
+    usePreferencesStore().autoSave = true
+    const tab = makeTab(store, false)
+    const notifySpy = vi.spyOn(store, 'pushTabNotification').mockImplementation(() => {})
+    store.LISTEN_FOR_FILE_CHANGE()
+
+    fire(captureHandler(), 'hello world')
+
+    expect(tab.markdown).toBe('hello')
+    expect(notifySpy).toHaveBeenCalledTimes(1)
   })
 })
