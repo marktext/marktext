@@ -17,6 +17,7 @@ function makeState(blocks: TState[]): JSONState {
         options: {
             footnote: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
             texMathDollars: false,

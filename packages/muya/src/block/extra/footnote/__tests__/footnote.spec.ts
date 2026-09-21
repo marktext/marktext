@@ -117,6 +117,7 @@ describe('footnote block — markdown round-trip via state', () => {
             footnote: true,
             texMathDollars: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);
@@ -147,6 +148,7 @@ describe('footnote block — markdown round-trip via state', () => {
             footnote: true,
             texMathDollars: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate(md);

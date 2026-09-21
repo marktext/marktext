@@ -55,6 +55,7 @@ function roundTrip(markdown: string): string {
         footnote: false,
         texMathDollars: true,
         texMathGfm: true,
+        texMathSingleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(markdown);

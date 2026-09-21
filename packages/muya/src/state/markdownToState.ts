@@ -20,6 +20,7 @@ interface IMarkdownToStateOptions {
     footnote: boolean;
     texMathDollars: boolean;
     texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
 };
@@ -28,6 +29,7 @@ const DEFAULT_OPTIONS = {
     footnote: false,
     texMathDollars: true,
     texMathGfm: false,
+    texMathSingleBackslash: false,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
 };
@@ -55,6 +57,7 @@ export class MarkdownToState {
             footnote = false,
             texMathDollars = true,
             texMathGfm = false,
+            texMathSingleBackslash = false,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
         } = this._options;
@@ -67,6 +70,7 @@ export class MarkdownToState {
             texMathDollars,
             frontMatter,
             texMathGfm,
+            texMathSingleBackslash,
         });
 
         const states: TState[] = [];

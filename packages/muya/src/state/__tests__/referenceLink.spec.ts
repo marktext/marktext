@@ -40,6 +40,7 @@ function parse(md: string) {
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);

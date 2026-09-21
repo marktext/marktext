@@ -197,6 +197,7 @@ export class MarkdownToHtml {
             superSubScript: this._muya?.options?.superSubScript ?? true,
             footnote,
             texMathGfm: this._muya?.options?.texMathGfm ?? false,
+            texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
             texMathDollars: this._muya?.options?.texMathDollars ?? true,
         });
 

@@ -12,6 +12,7 @@ function gen(markdown: string): Parameters<ExportMarkdown['generate']>[0] {
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as Parameters<ExportMarkdown['generate']>[0];

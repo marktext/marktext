@@ -42,3 +42,32 @@ describe('getHighlightHtml — display versus inline `$$` math', () => {
         });
     }
 });
+
+// `\[…\]` follows the same rule, deliberately: pandoc calls it display math
+// wherever it appears, but a centred block mid-sentence would break the line.
+// `\(…\)` is inline math and never promotes.
+const backslashCases: Array<[markdown: string, display: boolean[]]> = [
+    ['\\[a \\ne b\\]', [true]],
+    ['\\[\na\n\\]', [true]],
+    ['   \\[a\\]   ', [true]],
+    ['\\[a\\] \\[b\\]', [true, true]],
+    ['> \\[a\\]', [true]],
+    ['- \\[c\\]', [true]],
+    ['\\(a\\)', [false]],
+    ['text \\[a\\] text', [false]],
+    ['\\[a\\] text', [false]],
+    ['$$a$$ \\[b\\]', [true, true]],
+    ['# \\[a\\]', [false]],
+    ['| h |\n| --- |\n| \\[d\\] |', [false]],
+];
+
+describe('getHighlightHtml — display versus inline backslash math', () => {
+    for (const [markdown, display] of backslashCases) {
+        it(`exports ${JSON.stringify(markdown)} as ${display.map(d => (d ? 'display' : 'inline')).join(', ')} math`, () => {
+            const html = getHighlightHtml(markdown, { texMathSingleBackslash: true });
+
+            expect(count(html, /class="katex"/g)).toBe(display.length);
+            expect(count(html, /class="katex-display"/g)).toBe(display.filter(Boolean).length);
+        });
+    }
+});
