@@ -5,43 +5,43 @@ Markdown is a easy-to-use markup language for writing and this document contains
 ## Table of contents
 
 - [Markdown Syntax](#markdown-syntax)
-  * [Headings](#headings)
-  * [Paragraphs](#paragraphs)
-  * [Breaks](#breaks)
-  * [Horizontal Rule](#horizontal-rule)
-  * [Emphasis](#emphasis)
-    + [Bold](#bold)
-    + [Italics](#italics)
-    + [Strikethrough](#strikethrough)
-  * [Links](#links)
-    + [Autolinks](#autolinks)
-    + [Inline links](#inline-links)
-    + [Link titles](#link-titles)
-    + [Named Anchors](#named-anchors)
-  * [Images](#images)
-  * [Blockquotes](#blockquotes)
-  * [Lists](#lists)
-    + [Unordered](#unordered)
-    + [Ordered](#ordered)
-    + [Time-saving Tip](#time-saving-tip)
-  * [Todo List](#todo-list)
-  * [Tables](#tables)
-    + [Aligning cells](#aligning-cells)
-  * [Code](#code)
-    + [Inline code](#inline-code)
-    + ["Fenced" code block](#fenced-code-block)
-    + [Indented code](#indented-code)
-    + [Syntax highlighting](#syntax-highlighting)
-  * [Keyboard Keys](#keyboard-keys)
-  * [Emojis](#emojis)
-  * [Front Matter](#front-matter)
-  * [Math Formulas](#math-formulas)
-    + [Inline Math Formulas](#inline-math-formulas)
-    + [Block Math Formulas](#block-math-formulas)
-  * [Diagrams](#diagrams)
-  * [Raw HTML](#raw-html)
-  * [Escaping with backslashes](#escaping-with-backslashes)
-  * [Credits](#credits)
+  - [Headings](#headings)
+  - [Paragraphs](#paragraphs)
+  - [Breaks](#breaks)
+  - [Horizontal Rule](#horizontal-rule)
+  - [Emphasis](#emphasis)
+    - [Bold](#bold)
+    - [Italics](#italics)
+    - [Strikethrough](#strikethrough)
+  - [Links](#links)
+    - [Autolinks](#autolinks)
+    - [Inline links](#inline-links)
+    - [Link titles](#link-titles)
+    - [Named Anchors](#named-anchors)
+  - [Images](#images)
+  - [Blockquotes](#blockquotes)
+  - [Lists](#lists)
+    - [Unordered](#unordered)
+    - [Ordered](#ordered)
+    - [Time-saving Tip](#time-saving-tip)
+  - [Todo List](#todo-list)
+  - [Tables](#tables)
+    - [Aligning cells](#aligning-cells)
+  - [Code](#code)
+    - [Inline code](#inline-code)
+    - ["Fenced" code block](#fenced-code-block)
+    - [Indented code](#indented-code)
+    - [Syntax highlighting](#syntax-highlighting)
+  - [Keyboard Keys](#keyboard-keys)
+  - [Emojis](#emojis)
+  - [Front Matter](#front-matter)
+  - [Math Formulas](#math-formulas)
+    - [Inline Math Formulas](#inline-math-formulas)
+    - [Block Math Formulas](#block-math-formulas)
+  - [Diagrams](#diagrams)
+  - [Raw HTML](#raw-html)
+  - [Escaping with backslashes](#escaping-with-backslashes)
+  - [Credits](#credits)
 
 <br>
 
@@ -51,37 +51,43 @@ Headings from `h1` through `h6` are constructed with a `#` for each level:
 
 ```markdown
 # H1
+
 ## H2
+
 ### H3
+
 #### H4
+
 ##### H5
+
 ###### H6
 
 Alternatively you can use ATX headings:
 
-H1
-======
+# H1
 
-H2
-------
+## H2
 ```
 
 Renders to:
 
 # h1 Heading
+
 ## h2 Heading
+
 ### h3 Heading
+
 #### h4 Heading
+
 ##### h5 Heading
+
 ###### h6 Heading
 
 Alternatively you can use underlines:
 
-H1
-======
+# H1
 
-H2
-------
+## H2
 
 <br>
 
@@ -105,17 +111,17 @@ Alternatively you can add **two spaces** spaces at the end of your paragraph to 
 
 The HTML `<hr>` element is for creating a "thematic break" between paragraph-level elements. In markdown, you can use of the following for this purpose:
 
-* `___`: three consecutive underscores
-* `---`: three consecutive dashes
-* `***`: three consecutive asterisks
+- `___`: three consecutive underscores
+- `---`: three consecutive dashes
+- `***`: three consecutive asterisks
 
 Renders to:
 
-___
+---
 
 ---
 
-***
+---
 
 <br>
 
@@ -179,7 +185,6 @@ Renders to:
 
 URIs or email addresses that are not wrapped in angle brackets are not recognized as valid autolinks by markdown parsers.
 
-
 ### Inline links
 
 ```markdown
@@ -193,12 +198,12 @@ Renders to (hover over the link, there is no tooltip):
 ### Link titles
 
 ```markdown
-[Upstage](https://github.com/upstage/ "Visit Upstage!")
+[Upstage](https://github.com/upstage/ 'Visit Upstage!')
 ```
 
 Renders to (hover over the link, there should be a tooltip):
 
-[Upstage](https://github.com/upstage/ "Visit Upstage!")
+[Upstage](https://github.com/upstage/ 'Visit Upstage!')
 
 ### Named Anchors
 
@@ -206,21 +211,25 @@ Named anchors enable you to jump to the specified anchor point on the same page.
 
 ```markdown
 # Table of Contents
-  * [Chapter 1](#chapter-1)
-  * [Chapter 2](#chapter-2)
-  * [Chapter 3](#chapter-3)
+
+- [Chapter 1](#chapter-1)
+- [Chapter 2](#chapter-2)
+- [Chapter 3](#chapter-3)
 ```
 
 will jump to these sections:
 
 ```markdown
 ## Chapter 1
+
 Content for chapter one.
 
 ## Chapter 2
+
 Content for chapter one.
 
 ## Chapter 3 <a name="chapter-3"></a>
+
 Content for chapter one.
 ```
 
@@ -243,10 +252,10 @@ Images have a similar syntax to links but include a preceding exclamation point.
 or
 
 ```markdown
-![Alt text](hhttps://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "MarkText logo")
+![Alt text](hhttps://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo')
 ```
 
-![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png "MarkText logo")
+![Alt text](https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo')
 
 Like links, Images also have a footnote style syntax
 
@@ -258,10 +267,10 @@ Like links, Images also have a footnote style syntax
 
 With a reference later in the document defining the URL location:
 
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "MarkText logo"
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo'
 
 ```markdown
-[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png  "MarkText logo"
+[id]: https://raw.githubusercontent.com/marktext/marktext/develop/resources/icons/256x256/marktext.png 'MarkText logo'
 ```
 
 <br>
@@ -284,21 +293,25 @@ Blockquotes can also be nested:
 
 ```markdown
 > Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
-Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
->> Sed adipiscing elit vitae augue consectetur a gravida nunc vehicula. Donec auctor
-odio non est accumsan facilisis. Aliquam id turpis in dolor tincidunt mollis ac eu diam.
->>> Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
-Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
+> Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
+>
+> > Sed adipiscing elit vitae augue consectetur a gravida nunc vehicula. Donec auctor
+> > odio non est accumsan facilisis. Aliquam id turpis in dolor tincidunt mollis ac eu diam.
+> >
+> > > Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
+> > > Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
 ```
 
 Renders to:
 
 > Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
-Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
->> Sed adipiscing elit vitae augue consectetur a gravida nunc vehicula. Donec auctor
-odio non est accumsan facilisis. Aliquam id turpis in dolor tincidunt mollis ac eu diam.
->>> Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
-Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
+> Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
+>
+> > Sed adipiscing elit vitae augue consectetur a gravida nunc vehicula. Donec auctor
+> > odio non est accumsan facilisis. Aliquam id turpis in dolor tincidunt mollis ac eu diam.
+> >
+> > > Donec massa lacus, ultricies a ullamcorper in, fermentum sed augue.
+> > > Nunc augue augue, aliquam non hendrerit ac, commodo vel nisi.
 
 <br>
 
@@ -311,42 +324,44 @@ A list of items in which the order of the items does not explicitly matter.
 You may use any of the following symbols to denote bullets for each list item:
 
 ```markdown
-* valid bullet
 - valid bullet
-+ valid bullet
+
+* valid bullet
+
+- valid bullet
 ```
 
 For example
 
 ```markdown
-+ Lorem ipsum dolor sit amet
-+ Consectetur adipiscing elit
-+ Integer molestie lorem at massa
-+ Facilisis in pretium nisl aliquet
-+ Nulla volutpat aliquam velit
+- Lorem ipsum dolor sit amet
+- Consectetur adipiscing elit
+- Integer molestie lorem at massa
+- Facilisis in pretium nisl aliquet
+- Nulla volutpat aliquam velit
   - Phasellus iaculis neque
   - Purus sodales ultricies
   - Vestibulum laoreet porttitor sem
   - Ac tristique libero volutpat at
-+ Faucibus porta lacus fringilla vel
-+ Aenean sit amet erat nunc
-+ Eget porttitor lorem
+- Faucibus porta lacus fringilla vel
+- Aenean sit amet erat nunc
+- Eget porttitor lorem
 ```
 
 Renders to:
 
-+ Lorem ipsum dolor sit amet
-+ Consectetur adipiscing elit
-+ Integer molestie lorem at massa
-+ Facilisis in pretium nisl aliquet
-+ Nulla volutpat aliquam velit
+- Lorem ipsum dolor sit amet
+- Consectetur adipiscing elit
+- Integer molestie lorem at massa
+- Facilisis in pretium nisl aliquet
+- Nulla volutpat aliquam velit
   - Phasellus iaculis neque
   - Purus sodales ultricies
   - Vestibulum laoreet porttitor sem
   - Ac tristique libero volutpat at
-+ Faucibus porta lacus fringilla vel
-+ Aenean sit amet erat nunc
-+ Eget porttitor lorem
+- Faucibus porta lacus fringilla vel
+- Aenean sit amet erat nunc
+- Eget porttitor lorem
 
 ### Ordered
 
@@ -373,7 +388,6 @@ Renders to:
 6. Faucibus porta lacus fringilla vel
 7. Aenean sit amet erat nunc
 8. Eget porttitor lorem
-
 
 ### Time-saving Tip
 
@@ -446,20 +460,20 @@ Tables are created by adding pipes as dividers between each cell, and by adding 
 Example:
 
 ```markdown
-| Option | Description |
-| ------ | ----------- |
+| Option | Description                                                               |
+| ------ | ------------------------------------------------------------------------- |
 | data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| engine | engine to be used for processing templates. Handlebars is the default.    |
+| ext    | extension to be used for dest files.                                      |
 ```
 
 Renders to:
 
-| Option | Description |
-| ------ | ----------- |
+| Option | Description                                                               |
+| ------ | ------------------------------------------------------------------------- |
 | data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| engine | engine to be used for processing templates. Handlebars is the default.    |
+| ext    | extension to be used for dest files.                                      |
 
 ### Aligning cells
 
@@ -468,39 +482,38 @@ Renders to:
 To center the text in a column, add a colon to the left and right of the dashes in the row beneath the header.
 
 ```markdown
-| Option | Description |
-| :-: | :-: |
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| Option |                                Description                                |
+| :----: | :-----------------------------------------------------------------------: |
+|  data  | path to data files to supply the data that will be passed into templates. |
+| engine |  engine to be used for processing templates. Handlebars is the default.   |
+|  ext   |                   extension to be used for dest files.                    |
 ```
 
-| Option | Description |
-| :-: | :-: |
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
-
+| Option |                                Description                                |
+| :----: | :-----------------------------------------------------------------------: |
+|  data  | path to data files to supply the data that will be passed into templates. |
+| engine |  engine to be used for processing templates. Handlebars is the default.   |
+|  ext   |                   extension to be used for dest files.                    |
 
 **Right-align the text in a column**
 
 To right-align the text in a column, add a colon to the right of the dashes in the row beneath the header.
 
 ```markdown
-| Option | Description |
-| ------:| -----------:|
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| Option |                                                               Description |
+| -----: | ------------------------------------------------------------------------: |
+|   data | path to data files to supply the data that will be passed into templates. |
+| engine |    engine to be used for processing templates. Handlebars is the default. |
+|    ext |                                      extension to be used for dest files. |
 ```
 
 Renders to:
 
-| Option | Description |
-| ------:| -----------:|
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default. |
-| ext    | extension to be used for dest files. |
+| Option |                                                               Description |
+| -----: | ------------------------------------------------------------------------: |
+|   data | path to data files to supply the data that will be passed into templates. |
+| engine |    engine to be used for processing templates. Handlebars is the default. |
+|    ext |                                      extension to be used for dest files. |
 
 <br>
 
@@ -552,7 +565,6 @@ Example:
     line 2 of code
     line 3 of code
 
-
 ### Syntax highlighting
 
 To activate the correct styling for the language inside the code block, simply add the file extension of the language you want to use directly after the first code "fence": <code>```js</code>, and syntax highlighting will automatically be applied in the rendered HTML (if supported by the parser). For example, to apply syntax highlighting to JavaScript code:
@@ -600,7 +612,7 @@ grunt.initConfig({
       }
     }
   }
-});
+})
 ```
 
 <br>
@@ -681,8 +693,8 @@ JSON front matter blocks are identified by an opening and closing `;;;` line or 
 {
 "title": YAML front matter example
 "key": {
-  "subkey1": "value 1",
-  "subkey2": "value 2"
+"subkey1": "value 1",
+"subkey2": "value 2"
 }
 }
 
@@ -882,12 +894,12 @@ Any ASCII punctuation character may be escaped using a single backslash.
 Example:
 
 ```markdown
-\*this is not italic*
+\*this is not italic\*
 ```
 
 Renders to:
 
-\*this is not italic*
+\*this is not italic\*
 
 <br>
 
