@@ -375,4 +375,39 @@ Trailing paragraph that does NOT belong to the footnote.`);
         const footnoteText = JSON.stringify(footnote);
         expect(footnoteText).not.toContain('Sed diam nonumy');
     });
+
+    it('terminates at the next definition on the immediately following line', () => {
+        // Definitions packed one per line with no blank line between them is
+        // the shape pandoc and GFM both produce; each must come out as its
+        // own sibling token rather than nesting inside its predecessor.
+        const tokens = parse(`a[^1] b[^2] c[^3]
+
+[^1]: one
+[^2]: two
+[^3]: three`);
+
+        expect(tokens.filter(t => t.type === 'footnote').map(t => t.identifier)).toEqual([
+            '1',
+            '2',
+            '3',
+        ]);
+        for (const footnote of tokens.filter(t => t.type === 'footnote'))
+            expect(footnote.children?.map(c => c.type)).toEqual(['paragraph']);
+    });
+
+    it('keeps a 4-space indented definition as literal text in the enclosing body', () => {
+        // Below the continuation threshold the `[^2]:` line is body text of
+        // `[^1]`, so it must neither terminate the enclosing definition nor
+        // become a nested footnote — pandoc leaves it as the literal string.
+        const tokens = parse(`a[^1]
+
+[^1]: one
+    [^2]: two`);
+
+        const footnotes = tokens.filter(t => t.type === 'footnote');
+        expect(footnotes.map(t => t.identifier)).toEqual(['1']);
+        const children = footnotes[0].children ?? [];
+        expect(children.map(c => c.type)).not.toContain('footnote');
+        expect(JSON.stringify(children)).toContain('[^2]: two');
+    });
 });

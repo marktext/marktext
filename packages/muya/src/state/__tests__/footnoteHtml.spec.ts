@@ -104,4 +104,19 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         expect(html).not.toMatch(/<sup class="footnote-ref"[^>]*>[^<]*code-only/);
         expect(html).not.toMatch(/<section class="footnotes">/);
     });
+
+    it('gives every definition its own <li> when they are packed one per line', () => {
+        const md = 'a[^1] b[^2] c[^3]\n\n[^1]: one\n[^2]: two\n[^3]: three\n';
+        const html = renderToStaticHTML(md, PROFILE);
+
+        for (const n of [1, 2, 3]) {
+            expect(html).toContain(`<li id="fn-${n}">`);
+            expect(html).toMatch(
+                new RegExp(`<sup class="footnote-ref"><a href="#fn-${n}" id="fnref-${n}">${n}</a></sup>`),
+            );
+        }
+        // A swallowed definition would survive as its raw extension output
+        // nested inside the preceding <li>.
+        expect(html).not.toMatch(/<div class="footnote-block"/);
+    });
 });
