@@ -642,8 +642,8 @@
         "footnoteNotes": "Fußnoten",
         "texMathDollars": "TeX-Mathematik mit $ und $$",
         "texMathGfm": "GitHub-TeX-Mathematik ($`…`$ und ```math)",
-        "texMathSingleBackslash": "TeX-Mathematik mit \\( und \\[",
-        "texMathDoubleBackslash": "TeX-Mathematik mit \\\\( und \\\\[",
+        "texMathSingleBackslash": "TeX-Mathematik mit einfachem Backslash",
+        "texMathDoubleBackslash": "TeX-Mathematik mit doppeltem Backslash",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",

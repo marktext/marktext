@@ -642,8 +642,8 @@
         "footnoteNotes": "Notes de bas de page",
         "texMathDollars": "Maths TeX avec $ et $$",
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
-        "texMathSingleBackslash": "Maths TeX avec \\( et \\[",
-        "texMathDoubleBackslash": "Maths TeX avec \\\\( et \\\\[",
+        "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
+        "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

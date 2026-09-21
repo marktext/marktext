@@ -642,8 +642,8 @@
         "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
-        "texMathSingleBackslash": "TeX-wiskunde met \\( en \\[",
-        "texMathDoubleBackslash": "TeX-wiskunde met \\\\( en \\\\[",
+        "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
+        "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

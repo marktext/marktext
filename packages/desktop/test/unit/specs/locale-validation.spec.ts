@@ -176,6 +176,34 @@ describe('desktop locale validation', () => {
     }
   })
 
+  // vue-i18n compiles every message before displaying it, and its compiler
+  // reads `\\` as an escaped backslash and collapses it to one. A label that
+  // told two preferences apart by backslash count alone therefore rendered
+  // identically — `texMathSingleBackslash` and `texMathDoubleBackslash` shipped
+  // that way. Locale values here are plain labels, never templates that need
+  // escaping, so the safe rule is to keep backslashes out of them entirely.
+  // Unlike the checks above this one is not a comparison against en.json, so
+  // it has to cover en.json as well.
+  describe('no backslashes in translated values', () => {
+    for (const lang of ['en', ...locales]) {
+      it(`${lang}.json keeps backslashes out of its values`, () => {
+        const locale = loadLocale(lang)
+        const offenders = collectKeys(locale).filter(k => {
+          const val = getByPath(locale, k)
+          return typeof val === 'string' && val.includes('\\')
+        })
+
+        expect(
+          offenders.length,
+          `\n  Backslashes in ${lang}.json — vue-i18n collapses them, so the\n` +
+          '  rendered text will not be what you typed. Describe the syntax in\n' +
+          '  words instead:\n' +
+          offenders.map(k => `    "${k}": ${JSON.stringify(getByPath(locale, k))}`).join('\n')
+        ).toBe(0)
+      })
+    }
+  })
+
   describe('no empty values', () => {
     for (const lang of locales) {
       it(`${lang}.json has no empty strings`, () => {
