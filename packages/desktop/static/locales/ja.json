@@ -415,6 +415,8 @@
         "footnote": "Pandoc の markdown 拡張脚注を有効にする",
         "texMathDollars": "Pandoc の markdown 拡張 tex_math_dollars を有効にする",
         "texMathGfm": "Pandoc の markdown 拡張 tex_math_gfm を有効にする",
+        "texMathSingleBackslash": "Pandoc の markdown 拡張 tex_math_single_backslash を有効にする",
+        "texMathDoubleBackslash": "Pandoc の markdown 拡張 tex_math_double_backslash を有効にする",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -640,6 +642,8 @@
         "footnoteNotes": "脚注",
         "texMathDollars": "$ と $$ による TeX 数式",
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
+        "texMathSingleBackslash": "\\( と \\[ による TeX 数式",
+        "texMathDoubleBackslash": "\\\\( と \\\\[ による TeX 数式",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

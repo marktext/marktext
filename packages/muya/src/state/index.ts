@@ -97,6 +97,8 @@ class JSONState {
         const {
             footnote,
             texMathGfm,
+            texMathSingleBackslash,
+            texMathDoubleBackslash,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             texMathDollars,
@@ -105,6 +107,8 @@ class JSONState {
         return new MarkdownToState({
             footnote,
             texMathGfm,
+            texMathSingleBackslash,
+            texMathDoubleBackslash,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
             texMathDollars,

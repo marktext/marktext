@@ -21,6 +21,8 @@ function generate(
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,

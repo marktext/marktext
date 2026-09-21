@@ -415,6 +415,8 @@
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
         "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
         "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Activer le rendu HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
@@ -640,6 +642,8 @@
         "footnoteNotes": "Notes de bas de page",
         "texMathDollars": "Maths TeX avec $ et $$",
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
+        "texMathSingleBackslash": "Maths TeX avec \\( et \\[",
+        "texMathDoubleBackslash": "Maths TeX avec \\\\( et \\\\[",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

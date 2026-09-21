@@ -395,6 +395,8 @@ function applyParsedPaste(
         footnote,
         texMathDollars,
         texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     } = muya.options;
@@ -403,6 +405,8 @@ function applyParsedPaste(
         footnote,
         texMathDollars,
         texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
     }).generate(markdown);

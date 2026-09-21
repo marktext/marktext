@@ -40,6 +40,8 @@ function parse(md: string) {
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -51,7 +53,7 @@ function tokenize(text: string, labels: Map<string, { href: string; title: strin
     return tokenizer(text, {
         labels,
         hasBeginRules: false,
-        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false },
+        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false },
     });
 }
 

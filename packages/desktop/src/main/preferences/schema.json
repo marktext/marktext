@@ -281,6 +281,16 @@
     "type": "boolean",
     "default": false
   },
+  "texMathSingleBackslash": {
+    "description": "Markdown-Enable pandoc's markdown extension tex_math_single_backslash.",
+    "type": "boolean",
+    "default": false
+  },
+  "texMathDoubleBackslash": {
+    "description": "Markdown-Enable pandoc's markdown extension tex_math_double_backslash.",
+    "type": "boolean",
+    "default": false
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

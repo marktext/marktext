@@ -4,6 +4,8 @@ export interface ILexOption {
     footnote?: boolean;
     texMathDollars?: boolean;
     texMathGfm?: boolean;
+    texMathSingleBackslash?: boolean;
+    texMathDoubleBackslash?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;
 }
