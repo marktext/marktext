@@ -112,11 +112,118 @@ test.describe('Source view: math tokenization (#4121)', () => {
   })
 })
 
+const BACKSLASH_FIXTURE = [
+  'Inline \\(\\text{F}_\\text{A} = \\text{F}_\\text{B}\\) here.',
+  '',
+  '\\[',
+  '\\sum_{i=1}^{n} a_{i} = b_{i}',
+  '\\]',
+  '',
+  'Double \\\\(a_{1} + b_{2}\\\\) here.',
+  '',
+  'Unclosed \\(x and then some prose.',
+  '',
+  '- \\[TODO\\] item',
+  ''
+].join('\n')
+
 const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise<void> => {
   await page.evaluate((payload) => {
     window.electron.ipcRenderer.send('mt::set-user-preference', payload)
   }, prefs)
 }
+
+// pandoc's tex_math_single_backslash / tex_math_double_backslash, added to the
+// editor by #5481. Both ship disabled, so an ungated region would have the
+// source view calling `\(…\)` a formula while the editor correctly reads it as
+// a CommonMark escape — the reason this file had to learn about preferences
+// before it could learn about these delimiters.
+test.describe('Source view: backslash TeX math delimiters', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  // stex splits a formula across spans — `\text{F}` alone becomes four — so the
+  // spans are joined before searching rather than matched one by one.
+  const mathText = (): Promise<string> =>
+    page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll('.source-code .CodeMirror .cm-math-inline, .source-code .CodeMirror .cm-math-block')
+      )
+        .map((span) => span.textContent ?? '')
+        .join('')
+    )
+
+  const mathContains = async(needle: string): Promise<boolean> => (await mathText()).includes(needle)
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(BACKSLASH_FIXTURE)
+    app = launched.app
+    page = launched.page
+    await enterSourceMode(page, app)
+  })
+
+  test.afterAll(async() => {
+    if (app) {
+      await setPreference(page, {
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false
+      })
+      await app.close()
+    }
+  })
+
+  test('highlights nothing at the shipped defaults', async() => {
+    const { mathInline, mathBlock } = await readSourceState(page)
+    expect(mathInline).toBe(0)
+    expect(mathBlock).toBe(0)
+  })
+
+  test('delegates \\(…\\) and \\[…\\] to stex once the preference is on', async() => {
+    await setPreference(page, { texMathSingleBackslash: true })
+    await expect.poll(() => mathContains('text{F}'), { timeout: 10000 }).toBe(true)
+
+    const { emTexts, mathBlock } = await readSourceState(page)
+    // The fixture's only underscores are subscripts inside formulas, so a
+    // `.cm-em` span is the #4121 bug in its backslash spelling.
+    expect(emTexts).toEqual([])
+    expect(mathBlock).toBeGreaterThan(0)
+    expect(await mathContains('sum_')).toBe(true)
+  })
+
+  test('an unclosed opener does not swallow the rest of the document', async() => {
+    expect(await mathContains('prose')).toBe(false)
+  })
+
+  test('leaves the double-backslash form to its own extension', async() => {
+    expect(await mathContains('a_{1}')).toBe(false)
+  })
+
+  test('reads an escaped bracket as a formula, as pandoc does', async() => {
+    // pandoc's documented drawback: the extension "precludes escaping `(` and
+    // `[`", so `- \[TODO\]` is a formula once it is on. The editor agrees —
+    // which is the whole point — and it is why both ship disabled.
+    expect(await mathContains('TODO')).toBe(true)
+  })
+
+  test('the double-backslash form rides its own preference', async() => {
+    await setPreference(page, { texMathDoubleBackslash: true })
+    await expect.poll(() => mathContains('a_{1}'), { timeout: 10000 }).toBe(true)
+
+    await setPreference(page, { texMathDoubleBackslash: false })
+    await expect.poll(() => mathContains('a_{1}'), { timeout: 10000 }).toBe(false)
+  })
+
+  test('a fresh CodeMirror instance reads the preferences on mount too', async() => {
+    await setPreference(page, { texMathSingleBackslash: false })
+    await expect.poll(async() => (await readSourceState(page)).mathInline, { timeout: 10000 }).toBe(0)
+
+    await exitSourceMode(page, app)
+    await enterSourceMode(page, app)
+
+    expect((await readSourceState(page)).mathInline).toBe(0)
+    expect((await readSourceState(page)).mathBlock).toBe(0)
+  })
+})
 
 // The source view delegates to stex only for the syntaxes the editor is
 // actually reading, so the two views cannot disagree about what a formula is

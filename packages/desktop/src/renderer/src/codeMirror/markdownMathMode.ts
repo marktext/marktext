@@ -36,10 +36,57 @@ import 'codemirror/mode/stex/stex'
 // `StringStream.match` does not expose.
 const INLINE_MATH_OPEN = /\$(?!\$)(?=\S)(?=[^$\n]*?[^\s$\\]\$(?!\$|\d))/
 
+// Open guards for the inline backslash forms, mirroring Muya's
+// `inline_math_single_backslash` / `inline_math_double_backslash` rules with
+// the same-line closer this view needs. The two escape rules differ, as they
+// do in pandoc: inside `\(…\)` a backslash consumes the character behind it,
+// so `\\` does not close the span, while `\\(…\\)` takes its closer
+// literally and ends at the first `\\)`.
+//
+// `INLINE_MATH_OPEN` cannot be reused here: part of it requires the character
+// before the closer not to be a backslash, and for `\)` that character is one.
+//
+// A `\\(` opener paired with a `\)` closer is read as single-backslash math
+// when only that extension is on, where the editor sees an escaped backslash
+// and no formula. The multiplexer searches a regexp against the rest of the
+// line (`mltiplexMode.ts`), so a guard cannot see the backslash in front of it;
+// the shape is invalid in both dialects and is not worth reworking shared code
+// for. The well-formed `\\(…\\)` is unaffected — its closer reads as an
+// escaped backslash under the single-backslash rule, leaving the span unclosed.
+const SINGLE_INLINE_MATH_OPEN = /\\\((?=(?:[^\\\n]|\\[^)\n])+\\\))/
+const DOUBLE_INLINE_MATH_OPEN = /\\\\\((?=(?:(?!\\\\\))[^\n])+\\\\\))/
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CodeMirrorLike = any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyObj = any
+
+// The display and inline regions of one backslash extension, in the order the
+// multiplexer must try them: the display opener `\[` and the inline opener `\(`
+// differ in their second character, so either order works, but keeping display
+// first matches how `$$` precedes `$`.
+const backslashRegions = (
+  stexMode: AnyObj,
+  displayOpen: string,
+  displayClose: string,
+  inlineOpen: RegExp,
+  inlineClose: string
+): AnyObj[] => [
+  {
+    open: displayOpen,
+    close: displayClose,
+    mode: stexMode,
+    delimStyle: 'formatting formatting-math formatting-math-block math-block',
+    innerStyle: 'math math-block'
+  },
+  {
+    open: inlineOpen,
+    close: inlineClose,
+    mode: stexMode,
+    delimStyle: 'formatting formatting-math formatting-math-inline math-inline',
+    innerStyle: 'math math-inline'
+  }
+]
 
 const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
   if (CodeMirror.modes && Object.prototype.hasOwnProperty.call(CodeMirror.modes, 'markdown-math')) {
@@ -50,7 +97,11 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
   // The defaults reproduce what this mode did before it took any flags, so a
   // caller still passing the bare string `'markdown-math'` is unaffected.
   CodeMirror.defineMode('markdown-math', function(config: AnyObj, parserConfig: AnyObj) {
-    const { texMathDollars = true } = parserConfig ?? {}
+    const {
+      texMathDollars = true,
+      texMathSingleBackslash = false,
+      texMathDoubleBackslash = false
+    } = parserConfig ?? {}
 
     const gfmMode = CodeMirror.getMode(config, {
       name: 'gfm',
@@ -85,7 +136,20 @@ const registerMarkdownMathMode = (CodeMirror: CodeMirrorLike): void => {
       )
     }
 
-    return CodeMirror.multiplexingMode(gfmMode, ...regions)
+    // The double-backslash regions go first: the literal `\(` would otherwise
+    // match at the second character of `\\(` and claim it for the single form.
+    // Display math spans lines, so like `$$` it carries no lookahead guard.
+    if (texMathDoubleBackslash) {
+      regions.push(
+        backslashRegions(stexMode, '\\\\[', '\\\\]', DOUBLE_INLINE_MATH_OPEN, '\\\\)')
+      )
+    }
+
+    if (texMathSingleBackslash) {
+      regions.push(backslashRegions(stexMode, '\\[', '\\]', SINGLE_INLINE_MATH_OPEN, '\\)'))
+    }
+
+    return CodeMirror.multiplexingMode(gfmMode, ...regions.flat())
   })
 }
 
