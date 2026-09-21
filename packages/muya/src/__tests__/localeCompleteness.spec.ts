@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { de, en, es, fr, ja, ko, nl, pt, zhCN, zhTW } from '../locales';
+import { de, en, es, fr, ja, ko, nl, pt, ru, zhCN, zhTW } from '../locales';
 
 // CHARACTERIZATION: every shipped locale must carry the exact same translation
 // keys as the canonical `en` locale (no missing/extra keys), and expose a
@@ -14,13 +14,14 @@ const nonEnLocales: Array<[string, typeof en]> = [
     ['ko', ko],
     ['nl', nl],
     ['pt', pt],
+    ['ru', ru],
     ['zh-CN', zhCN],
     ['zh-TW', zhTW],
 ];
 
 // Technical terms that MUST NOT be translated — they are product names,
 // standards, or widely-recognized English terms used as-is in all locales.
-// Note: CJK locales (ja, ko, zh-CN, zh-TW) and Turkish conventionally
+// Note: CJK locales (ja, ko, zh-CN, zh-TW), Turkish and Russian conventionally
 // translate these terms. We only enforce this for Latin-script locales.
 //
 // Canonical spelling of product/standard names (for reference):
@@ -50,8 +51,8 @@ describe('locale completeness', () => {
         expect(enKeys.length).toBeGreaterThan(0);
     });
 
-    it('ships exactly ten built-in locales (en + 9 translations)', () => {
-        expect(nonEnLocales).toHaveLength(9);
+    it('ships exactly eleven built-in locales (en + 10 translations)', () => {
+        expect(nonEnLocales).toHaveLength(10);
     });
 
     describe('key parity with en', () => {
@@ -71,6 +72,7 @@ describe('locale completeness', () => {
             'ko': 'ko',
             'nl': 'nl',
             'pt': 'pt',
+            'ru': 'ru',
             'zh-CN': 'zh-CN',
             'zh-TW': 'zh-TW',
         };

@@ -41,7 +41,7 @@ describe('common/i18n matchSupportedLanguage', () => {
   })
 
   it('returns null for languages without a supported translation', () => {
-    expect(matchSupportedLanguage('ru-RU')).toBeNull()
+    expect(matchSupportedLanguage('pl-PL')).toBeNull()
     expect(matchSupportedLanguage('it')).toBeNull()
     expect(matchSupportedLanguage('xx-YY')).toBeNull()
   })
