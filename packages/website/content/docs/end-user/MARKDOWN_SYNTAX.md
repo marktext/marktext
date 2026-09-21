@@ -38,6 +38,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
   - [Math Formulas](#math-formulas)
     - [Inline Math Formulas](#inline-math-formulas)
     - [Block Math Formulas](#block-math-formulas)
+    - [TeX Delimiters](#tex-delimiters)
   - [Diagrams](#diagrams)
   - [Raw HTML](#raw-html)
   - [Escaping with backslashes](#escaping-with-backslashes)
@@ -735,6 +736,27 @@ $$
 m=\frac{b_y-a_y}{b_x-a_x}
 $$
 ```
+
+### TeX Delimiters
+
+Documents written for Pandoc, MathJax or KaTeX auto-render often delimit their
+formulas with backslashes instead of dollar signs. MarkText reads both
+spellings, each behind its own switch under **Preferences → Markdown →
+Extensions**:
+
+| Preference               | Inline    | Display   |
+| ------------------------ | --------- | --------- |
+| `texMathSingleBackslash` | `\(…\)`   | `\[…\]`   |
+| `texMathDoubleBackslash` | `\\(…\\)` | `\\[…\\]` |
+
+Both are **off by default**, as they are in Pandoc. Turning the first one on
+costs you the ability to escape `(` and `[`, so a line such as `- \[TODO\]`
+starts reading as a formula rather than as literal brackets — which is why you
+have to ask for it.
+
+A formula written this way is saved the way you wrote it: MarkText does not
+rewrite `\[…\]` into `$$…$$`, and the spacing inside the delimiters is left
+alone.
 
 <br>
 
