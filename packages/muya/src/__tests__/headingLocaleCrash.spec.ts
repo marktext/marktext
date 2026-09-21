@@ -2,8 +2,10 @@
 
 import type Content from '../block/base/content';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { de, en, es, fr, ja, ko, pt, ru, zhCN, zhTW } from '../locales';
+import * as locales from '../locales';
 import { Muya } from '../muya';
+
+const { en, zhCN } = locales;
 
 // REGRESSION GUARD — #4424 / #4427 (Phase-G migration crash).
 //
@@ -176,8 +178,7 @@ describe('typing `#` to create a heading under a non-en locale (#4424 / #4427)',
         // crash before the optional-chaining guard). This is the whole point of
         // the guard — typing `#` must not crash under ANY shipped locale — so
         // exercise the real conversion path for every one of them.
-        const shippedLocales = [de, en, es, fr, ja, ko, pt, ru, zhCN, zhTW];
-        for (const locale of shippedLocales) {
+        for (const locale of Object.values(locales)) {
             const muya = bootMuya('\n', locale);
             typeHeading(muya, '# Heading');
             // The HeadingCopyLink attachment renders on the next frame.
