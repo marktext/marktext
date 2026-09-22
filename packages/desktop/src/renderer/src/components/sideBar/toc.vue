@@ -126,6 +126,7 @@ const handleClick = (data: { slug?: unknown }): void => {
   list-style: none;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .side-bar-toc .title {
@@ -134,15 +135,20 @@ const handleClick = (data: { slug?: unknown }): void => {
   font-size: 16px;
   margin: 37px 0 10px 0;
   padding-left: 25px;
+  flex-shrink: 0;
 }
 
 .side-bar-toc .el-tree-node {
   margin-top: 8px;
 }
 
+/* The outline scrolls, the panel title does not — same split the file tree
+   (`.tree-wrapper`) and the search results already use. */
 .side-bar-toc .el-tree {
   background: transparent;
   color: var(--sideBarColor);
+  flex: 1;
+  min-height: 0;
 }
 
 /* Element Plus wraps every tree label in an `<el-text>`, which sets a color of
@@ -179,10 +185,10 @@ const handleClick = (data: { slug?: unknown }): void => {
   margin-bottom: 15px;
   cursor: pointer;
 }
-.side-bar-toc-overflow {
+.side-bar-toc-overflow .el-tree {
   overflow: auto;
 }
-.side-bar-toc-wordwrap {
+.side-bar-toc-wordwrap .el-tree {
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -191,5 +197,14 @@ const handleClick = (data: { slug?: unknown }): void => {
   white-space: normal;
   height: auto;
   min-height: 26px;
+}
+
+/* Element Plus renders every label as `<el-text truncated>`, which declares
+   `white-space: nowrap` on the label itself — the `normal` above only reaches
+   it by inheritance, which a declaration always beats (#5094, other property). */
+.side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
+  white-space: normal;
+  text-overflow: clip;
+  overflow: visible;
 }
 </style>
