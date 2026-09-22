@@ -434,7 +434,8 @@
         "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
-        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件"
+        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
+        "showPandocConvert": "显示 Pandoc 转换菜单。需要先安装 Pandoc。"
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "恢复所有已打开的文件和文件夹",
         "selectFolder": "选择文件夹",
         "openBlankPage": "打开空白页"
+      },
+      "pandoc": {
+        "title": "Pandoc 转换",
+        "description": "显示 Pandoc 转换菜单。需要先安装 Pandoc。",
+        "found": "已找到：{path}",
+        "foundOnPath": "已在 PATH 中找到",
+        "notFound": "未找到"
       },
       "sidebar": {
         "title": "侧边栏",

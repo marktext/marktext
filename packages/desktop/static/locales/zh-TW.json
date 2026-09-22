@@ -434,7 +434,8 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "showPandocConvert": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。"
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "還原所有已開啟的檔案和資料夾",
         "selectFolder": "選擇資料夾",
         "openBlankPage": "開啟空白頁面"
+      },
+      "pandoc": {
+        "title": "Pandoc 轉換",
+        "description": "顯示 Pandoc 轉換選單。需要先安裝 Pandoc。",
+        "found": "已找到：{path}",
+        "foundOnPath": "已在 PATH 中找到",
+        "notFound": "未找到"
       },
       "sidebar": {
         "title": "側邊欄",

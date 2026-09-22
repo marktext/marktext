@@ -398,6 +398,11 @@
     "type": "boolean",
     "default": true
   },
+  "showPandocConvert": {
+    "description": "General--Show the Pandoc conversion menu. Requires Pandoc to be installed.",
+    "type": "boolean",
+    "default": false
+  },
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.--internal",
     "type": "array",

@@ -434,7 +434,8 @@
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
-        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
+        "showPandocConvert": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。"
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "開いていたすべてのファイルとフォルダーを復元",
         "selectFolder": "フォルダーの選択",
         "openBlankPage": "空白ページを開く"
+      },
+      "pandoc": {
+        "title": "Pandoc 変換",
+        "description": "Pandoc 変換メニューを表示します。Pandoc がインストールされている必要があります。",
+        "found": "検出: {path}",
+        "foundOnPath": "PATH 上で検出",
+        "notFound": "見つかりません"
       },
       "sidebar": {
         "title": "サイドバー",

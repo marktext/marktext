@@ -1,6 +1,7 @@
 import fs from 'fs-extra'
 import { ipcMain } from 'electron'
 import commandExists from 'command-exists'
+import { resolvePandocCommand } from '../utils/pandoc'
 
 export const registerCmdHandlers = (): void => {
   ipcMain.handle('mt::cmd::exists', async(_event, name: string) => {
@@ -24,4 +25,7 @@ export const registerCmdHandlers = (): void => {
       return false
     }
   })
+
+  // Report the binary an export would spawn: `mt::cmd::exists` only asks `PATH` (#2751).
+  ipcMain.handle('mt::pandoc::command', () => resolvePandocCommand())
 }

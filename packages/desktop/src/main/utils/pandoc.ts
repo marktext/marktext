@@ -90,6 +90,21 @@ const getCommand = (): string => {
   )
 }
 
+/** Which pandoc would run; `exists()` can only answer yes or no. */
+export interface PandocCommandInfo {
+  command: string | null
+  /** True when `command` is the bare name resolved through `PATH`, not a file. */
+  onPath: boolean
+}
+
+export const resolvePandocCommand = (): PandocCommandInfo => {
+  const command = getCommand()
+  if (command !== pandocCommand) return { command, onPath: false }
+  return commandExists.sync(pandocCommand)
+    ? { command: pandocCommand, onPath: true }
+    : { command: null, onPath: false }
+}
+
 interface PandocConverter {
   (): Promise<string>
   stream: (srcStream: NodeJS.ReadableStream) => Readable | null
@@ -132,10 +147,7 @@ const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter =
   return converter
 }) as PandocFn
 
-pandoc.exists = (): boolean => {
-  const command = getCommand()
-  return command !== pandocCommand || commandExists.sync(pandocCommand)
-}
+pandoc.exists = (): boolean => resolvePandocCommand().command !== null
 
 export interface PandocToFileOptions {
   /** Folder the document's relative links resolve against, or pandoc uses cwd. */

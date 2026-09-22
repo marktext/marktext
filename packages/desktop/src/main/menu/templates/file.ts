@@ -12,7 +12,10 @@ export default function(
   userPreference: Preference,
   recentlyUsedFiles: string[]
 ): MenuItemConstructorOptions {
-  const { autoSave } = userPreference.getAll() as { autoSave?: boolean }
+  const { autoSave, showPandocConvert } = userPreference.getAll() as {
+    autoSave?: boolean
+    showPandocConvert?: boolean
+  }
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.file.newTab'),
@@ -167,18 +170,18 @@ export default function(
           click(_menuItem, browserWindow) {
             actions.exportFile(browserWindow as BrowserWindow | undefined, 'pdf')
           }
-        },
-        { type: 'separator' },
-        {
-          label: t('menu.file.convertWithPandoc'),
-          submenu: PANDOC_EXPORT_FORMATS.map((format) => ({
-            label: format.label,
-            click(_menuItem, browserWindow) {
-              actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
-            }
-          }))
         }
       ]
+    },
+    {
+      label: t('menu.file.convertWithPandoc'),
+      visible: !!showPandocConvert,
+      submenu: PANDOC_EXPORT_FORMATS.map((format) => ({
+        label: format.label,
+        click(_menuItem, browserWindow) {
+          actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
+        }
+      }))
     },
     {
       label: t('menu.file.print'),

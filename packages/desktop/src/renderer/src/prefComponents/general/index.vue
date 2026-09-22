@@ -167,6 +167,22 @@
     <compound>
       <template #head>
         <h6 class="title">
+          {{ t('preferences.general.pandoc.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <bool
+          :description="t('preferences.general.pandoc.description')"
+          :notes="pandocStatus"
+          :bool="showPandocConvert"
+          :on-change="(value) => onSelectChange('showPandocConvert', value)"
+        />
+      </template>
+    </compound>
+
+    <compound>
+      <template #head>
+        <h6 class="title">
           {{ t('preferences.general.misc.title') }}
         </h6>
       </template>
@@ -183,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -220,8 +236,25 @@ const {
   fileSortBy,
   fileSortOrder,
   language,
-  openedFilesInSidebar
+  openedFilesInSidebar,
+  showPandocConvert
 } = storeToRefs(preferenceStore)
+
+const pandocCommand = ref<string | null>(null)
+const pandocOnPath = ref(false)
+
+const pandocStatus = computed<string>(() => {
+  if (!pandocCommand.value) return t('preferences.general.pandoc.notFound')
+  return pandocOnPath.value
+    ? t('preferences.general.pandoc.foundOnPath')
+    : t('preferences.general.pandoc.found', { path: pandocCommand.value })
+})
+
+onMounted(async () => {
+  const { command, onPath } = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
+  pandocCommand.value = command
+  pandocOnPath.value = onPath
+})
 
 const startUpAction = computed<string>({
   get: () => preferenceStore.startUpAction,
