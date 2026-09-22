@@ -117,12 +117,18 @@ const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
     )
   })
 
+// The file is written into a directory of its own: two clipboard images pasted
+// in the same millisecond would otherwise land on the same `Date.now()` path,
+// so one upload would send the other's bytes and the first one to finish would
+// delete the file the second still needs. The basename stays timestamped
+// because uploaders derive the remote filename from it.
 const writeBinaryToTmp = async(
   data: Uint8Array | number[] | null | undefined,
   suffix: string = ''
 ): Promise<string> => {
   const buf = data instanceof Uint8Array ? Buffer.from(data) : Buffer.from(data || [])
-  const tmpPath = path.join(tmpdir(), `${Date.now()}${suffix}`)
+  const dir = await fs.mkdtemp(path.join(tmpdir(), 'marktext-upload-'))
+  const tmpPath = path.join(dir, `${Date.now()}${suffix}`)
   await fs.writeFile(tmpPath, buf)
   return tmpPath
 }
@@ -153,7 +159,7 @@ const uploadFromBuffer = async(
   const suffix = path.extname(name || '') || ''
   const localPath = await writeBinaryToTmp(data, suffix)
   const cleanup = () =>
-    fs.unlink(localPath).catch(() => {
+    fs.remove(path.dirname(localPath)).catch(() => {
       /* ignore */
     })
   try {
