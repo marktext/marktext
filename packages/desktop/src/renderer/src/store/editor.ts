@@ -143,8 +143,7 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
-  // Slug of the heading the cursor is currently inside; drives the TOC sidebar
-  // highlight. Null when there are no headings or cursor is above all of them.
+  // Heading the cursor is inside, for the TOC highlight; null above the first.
   activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
 }
@@ -867,8 +866,7 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile = currentFile
         this.selectionWordCount = null
         didUpdateCurrentFile = true
-        // New file activated — clear the stale heading highlight; it will be
-        // re-computed on the first selection-change in the new document.
+        // Slugs belong to the old document; the next selection-change re-seeds.
         this.activeHeadingSlug = null
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
@@ -1430,8 +1428,7 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_TOC(toc: TocItem[]): void {
       this.listToc = toc ?? []
       this.toc = listToTree<TocItem>(toc ?? [])
-      // A new TOC means the document changed or a new file was loaded; the old
-      // active heading slug is stale.
+      // Every caller replaces the whole document, so the old slug is gone.
       this.activeHeadingSlug = null
     },
 

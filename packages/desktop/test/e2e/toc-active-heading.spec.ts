@@ -38,7 +38,6 @@ const DOC = [
   ''
 ].join('\n')
 
-// Returns the text of the TOC node that has the `.is-current` highlight class.
 const getHighlightedTocLabel = (page: Page): Promise<string | null> =>
   page.evaluate(() => {
     const current = document.querySelector(
@@ -47,14 +46,11 @@ const getHighlightedTocLabel = (page: Page): Promise<string | null> =>
     return current ? current.textContent!.trim() : null
   })
 
-// Click inside a heading's content in the editor by matching the ATX heading
-// text. The rendered heading includes the `# ` markers as separate spans, so
-// we target the `.mu-atxheading-content` child that carries the visible text.
+// A rendered ATX heading keeps its `# ` markers in separate spans, so match the
+// `.mu-atxheading-content` child that carries the visible text.
 const clickHeadingInEditor = async(page: Page, text: string): Promise<void> => {
-  // First try the muya atx heading content span
   let el = page.locator('.mu-atxheading-content').filter({ hasText: text }).first()
   if (await el.count() === 0) {
-    // Fallback: click the heading element directly
     el = page.locator('.mu-container h1, .mu-container h2, .mu-container h3')
       .filter({ hasText: text }).first()
   }
@@ -145,10 +141,8 @@ test.describe('TOC active heading highlight', () => {
     expect(labelColor).toBe(themeColor)
   })
 
-  // Runs last: it grows the document. The heading positions used to be measured
-  // once per TOC change, and typing body text changes no TOC entry — so the
-  // measurements went stale while the headings below the caret moved down, and
-  // the highlight ran ahead into the next section.
+  // Runs last: it grows the document. Regression — heading positions were
+  // measured once per TOC change, and typing body text changes no TOC entry.
   test('the highlight stays on the section being typed into', async() => {
     await page.locator('.mu-container p', { hasText: 'Some intro text here.' }).first().click()
     await expect

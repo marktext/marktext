@@ -586,9 +586,7 @@ watch(sourceCode, (isSource) => {
   })
 })
 
-// Re-pair TOC entries with their heading elements whenever the TOC changes
-// (document edit, tab switch, file load). nextTick so the new headings are in
-// the DOM before we look for them.
+// nextTick: the rebuilt headings have to be in the DOM before we pair them up.
 watch(
   () => editorStore.listToc,
   () => {
@@ -1270,12 +1268,9 @@ const getCursorY = (): number | null => {
   return rects.length ? rects[0].y : null
 }
 
-// --- Active TOC heading detection ---
-// The slug-to-element pairing is the expensive half (a DOM query plus the
-// index walk `resolveTocHeadingElement` also does), and it only changes when
-// the TOC does. The positions are NOT cached: typing body text moves every
-// later heading down the page without touching the TOC, so a cached offset goes
-// stale within a keystroke and the highlight lands on the wrong section.
+// Only the slug-to-element pairing is cached. Positions are not: typing body
+// text moves every later heading without changing the TOC, so a stored offset
+// is stale within a keystroke and the highlight lands a section ahead.
 interface CachedHeading {
   slug: string
   el: HTMLElement
@@ -1299,10 +1294,9 @@ const rebuildHeadingCache = (): void => {
     .filter((entry): entry is CachedHeading => entry != null)
 }
 
-// Both sides are measured in viewport coordinates within the one event, which
-// keeps them comparable with no scroll arithmetic — and keeps the caret's
-// fractional position comparable with the headings'. `offsetTop` would round to
-// whole pixels and report the heading the caret sits in as the one above it.
+// Measured with `getBoundingClientRect`, not `offsetTop`: the caret's position
+// is fractional, and rounding the headings to whole pixels reports the one the
+// caret sits in as the heading above it.
 const updateActiveHeading = (viewportY: number): void => {
   if (headingElementCache.length === 0) return
   const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
@@ -2073,8 +2067,8 @@ onMounted(() => {
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null
     if (y != null) {
-      // Before the scrolling below: `animatedScrollTo` with duration 0 assigns
-      // `scrollTop` synchronously, which moves the headings out from under `y`.
+      // Before the scrolling below: a 0-duration `animatedScrollTo` assigns
+      // `scrollTop` at once, moving the headings out from under `y`.
       updateActiveHeading(y)
 
       if (typewriter.value) {

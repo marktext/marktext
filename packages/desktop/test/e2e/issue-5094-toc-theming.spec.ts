@@ -19,8 +19,7 @@ interface Probe {
   themedIconColor: string
 }
 
-// Sampled off a row the caret is NOT in: the active row is painted --themeColor
-// on purpose (the TOC highlight), which would mask what this guards.
+// Not the caret's row: that one is painted --themeColor on purpose.
 const INACTIVE_ROW = '.side-bar-toc .el-tree-node:not(.is-current) > .el-tree-node__content'
 
 const readColors = (page: Page): Promise<Probe> =>

@@ -88,9 +88,8 @@ const expandedKeys = computed<string[]>(() => {
   return keys
 })
 
-// The store tracks the heading the caret is in by engine slug; el-tree keys its
-// nodes by the content-derived githubSlug. Both live on the same node, so the
-// slug resolves to the key the tree can highlight.
+// The store names the caret's heading by engine slug; el-tree keys its nodes by
+// githubSlug. Both sit on the same node, so one resolves to the other.
 const activeNodeKey = computed<string>(() => {
   const slug = editorStore.activeHeadingSlug
   if (typeof slug !== 'string') return ''
@@ -105,8 +104,7 @@ const activeNodeKey = computed<string>(() => {
   return findKey(keyedToc.value)
 })
 
-// `current-node-key` only seeds the value el-tree mounts with; every later
-// change has to go through the imperative setter.
+// `current-node-key` only seeds el-tree at mount; later changes need the setter.
 watch(activeNodeKey, (key) => {
   tocTreeRef.value?.setCurrentKey(key || undefined)
 })
@@ -169,9 +167,8 @@ const handleClick = (data: { slug?: unknown }): void => {
   background: var(--sideBarItemHoverBgColor);
 }
 
-/* The row the caret is in. Element Plus paints `.is-current` transparent from a
-   selector that includes `.el-tree--highlight-current`, so overriding it needs
-   that class too — a `.side-bar-toc`-prefixed rule alone loses. */
+/* Element Plus paints `.is-current` from a selector carrying
+   `.el-tree--highlight-current`, so overriding it needs that class too. */
 .side-bar-toc .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
   background-color: var(--sideBarItemHoverBgColor);
   color: var(--themeColor);
