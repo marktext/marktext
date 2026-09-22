@@ -5,7 +5,7 @@ export interface PandocProbe {
 }
 
 export interface PandocSwitch {
-  /** i18n key of the note beside the switch. */
+  /** i18n key of the note beside the switch, empty while detection has not answered. */
   note: string
   /** `{path}` for the note, empty when it does not name a file. */
   path: string
@@ -14,18 +14,18 @@ export interface PandocSwitch {
 
 /**
  * A machine without pandoc gets the switch greyed out, unless it is already on — that
- * switch is the only way back out once the binary goes away. `null` means detection has
- * not answered yet, and nothing is greyed until it does.
+ * switch is the only way back out once the binary goes away.
  */
 export const pandocSwitchState = (probe: PandocProbe | null, switchOn: boolean): PandocSwitch => {
-  const path = probe?.command ?? ''
-  const onPath = Boolean(probe?.onPath)
-  let note = 'preferences.general.pandoc.found'
-  if (onPath) note = 'preferences.general.pandoc.foundOnPath'
-  else if (!path) note = 'preferences.general.pandoc.notFound'
+  // `null` means detection has not answered: claim nothing and grey nothing.
+  if (!probe) return { note: '', path: '', disabled: false }
+  if (probe.onPath) {
+    return { note: 'preferences.general.pandoc.foundOnPath', path: '', disabled: false }
+  }
+  const path = probe.command ?? ''
   return {
-    note,
-    path: onPath ? '' : path,
-    disabled: probe !== null && !path && !switchOn
+    note: path ? 'preferences.general.pandoc.found' : 'preferences.general.pandoc.notFound',
+    path,
+    disabled: !path && !switchOn
   }
 }

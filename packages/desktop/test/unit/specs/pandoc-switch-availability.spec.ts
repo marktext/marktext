@@ -13,6 +13,13 @@ const INSTALLED: PandocProbe = { command: 'C:\\Program Files\\Pandoc\\pandoc.exe
 const ON_PATH: PandocProbe = { command: 'pandoc', onPath: true }
 const MISSING: PandocProbe = { command: null, onPath: false }
 
+/** The `<compound>` the switch sits in, so template bindings stay checked. */
+const pandocBlock = (): string => {
+  const src = readFileSync(pane, 'utf8')
+  const title = src.indexOf('preferences.general.pandoc.title')
+  return src.slice(src.lastIndexOf('<compound', title), src.indexOf('</compound>', title))
+}
+
 describe('Pandoc switch availability', () => {
   it('names the binary when pandoc sits outside PATH', () => {
     expect(pandocSwitchState(INSTALLED, false)).toEqual({
@@ -40,25 +47,26 @@ describe('Pandoc switch availability', () => {
     expect(pandocSwitchState(MISSING, true).disabled).toBe(false)
   })
 
-  it('does not flash grey before the answer arrives', () => {
-    expect(pandocSwitchState(null, false).disabled).toBe(false)
+  it('claims nothing and greys nothing before the answer arrives', () => {
+    expect(pandocSwitchState(null, false)).toEqual({ note: '', path: '', disabled: false })
   })
 
   it('only refers to messages the locale files define', () => {
     const messages = JSON.parse(readFileSync(join(pkg, 'static/locales/en.json'), 'utf8'))
     const general = messages.preferences.general.pandoc as Record<string, string>
-    for (const probe of [INSTALLED, ON_PATH, MISSING, null]) {
+    for (const probe of [INSTALLED, ON_PATH, MISSING]) {
       const { note } = pandocSwitchState(probe, false)
       expect(general[note.split('.').pop() as string]).toBeTypeOf('string')
     }
   })
 
-  it('is wired to the switch row', () => {
-    const src = readFileSync(pane, 'utf8')
-    const row = src.slice(src.indexOf('preferences.general.pandoc.title'))
-    const bool = row.slice(row.indexOf('<bool'), row.indexOf('/>') + 2)
+  it('keeps the note off the switch, which dims its whole row when disabled', () => {
+    const block = pandocBlock()
+    const bool = block.slice(block.indexOf('<bool'))
+    const switchTag = bool.slice(0, bool.indexOf('/>') + 2)
 
-    expect(bool).toContain(':disable="pandocDisabled"')
-    expect(bool).toContain(':notes="pandocStatus"')
+    expect(switchTag).toContain(':disable="pandocDisabled"')
+    expect(switchTag).not.toContain(':notes=')
+    expect(block.slice(0, block.indexOf('<template #head>'))).toContain(':notes="pandocStatus"')
   })
 })

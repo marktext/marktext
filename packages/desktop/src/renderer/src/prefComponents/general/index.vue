@@ -164,7 +164,9 @@
       </template>
     </compound>
 
-    <compound>
+    <!-- The note lives on the group, not on the switch: a disabled `bool` dims its whole
+         section, which would fade the very line that explains why it is disabled. -->
+    <compound :notes="pandocStatus">
       <template #head>
         <h6 class="title">
           {{ t('preferences.general.pandoc.title') }}
@@ -173,7 +175,6 @@
       <template #children>
         <bool
           :description="t('preferences.general.pandoc.description')"
-          :notes="pandocStatus"
           :bool="showPandocConvert"
           :disable="pandocDisabled"
           :on-change="(value) => onSelectChange('showPandocConvert', value)"
@@ -249,6 +250,7 @@ const pandocSwitch = computed(() => pandocSwitchState(pandocProbe.value, showPan
 
 const pandocStatus = computed<string>(() => {
   const { note, path } = pandocSwitch.value
+  if (!note) return ''
   return path ? t(note, { path }) : t(note)
 })
 
