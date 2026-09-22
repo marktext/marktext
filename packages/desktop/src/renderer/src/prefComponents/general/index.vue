@@ -210,6 +210,8 @@ import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import textBox from '../common/textBox/index.vue'
+import { pandocSwitchState } from './pandoc'
+import type { PandocProbe } from './pandoc'
 import { isOsx } from '@/util'
 
 import {
@@ -241,29 +243,19 @@ const {
   showPandocConvert
 } = storeToRefs(preferenceStore)
 
-const pandocCommand = ref<string | null>(null)
-const pandocOnPath = ref(false)
-// Nothing is known until the answer arrives: grey the switch only after it does.
-const pandocChecked = ref(false)
+const pandocProbe = ref<PandocProbe | null>(null)
+
+const pandocSwitch = computed(() => pandocSwitchState(pandocProbe.value, showPandocConvert.value))
 
 const pandocStatus = computed<string>(() => {
-  if (!pandocCommand.value) return t('preferences.general.pandoc.notFound')
-  return pandocOnPath.value
-    ? t('preferences.general.pandoc.foundOnPath')
-    : t('preferences.general.pandoc.found', { path: pandocCommand.value })
+  const { note, path } = pandocSwitch.value
+  return path ? t(note, { path }) : t(note)
 })
 
-// Pandoc can also disappear between runs, so an already enabled switch stays
-// reachable — it is the only way back out.
-const pandocDisabled = computed<boolean>(
-  () => pandocChecked.value && !pandocCommand.value && !showPandocConvert.value
-)
+const pandocDisabled = computed<boolean>(() => pandocSwitch.value.disabled)
 
 onMounted(async () => {
-  const { command, onPath } = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
-  pandocCommand.value = command
-  pandocOnPath.value = onPath
-  pandocChecked.value = true
+  pandocProbe.value = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
 })
 
 const startUpAction = computed<string>({
