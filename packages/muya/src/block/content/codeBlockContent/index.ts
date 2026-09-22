@@ -33,6 +33,21 @@ function getIndentSpace(text: string, offset: number) {
 }
 
 /**
+ * Write `html` only when it differs from what the node already holds.
+ *
+ * Assigning `innerHTML` always destroys and recreates the child nodes, even for
+ * a byte-identical string — so every keystroke in a code block tore down the
+ * text node the caret was sitting in and built a new one, taking the native
+ * selection and any IME composition anchored to it along. `Format.inputHandler`
+ * has the same guard via `checkNeedRender`, which is why paragraphs never paid
+ * this cost.
+ */
+function replaceIfChanged(domNode: HTMLElement, html: string) {
+    if (domNode.innerHTML !== html)
+        domNode.innerHTML = html;
+}
+
+/**
  * parseSelector
  * div#id.className => {tag: 'div', id: 'id', className: 'className', isVoid: false}
  */
@@ -175,6 +190,16 @@ class CodeBlockContent extends Content {
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
             .replace(new RegExp(MARKER_HASH['\''], 'g'), '\'');
 
+        // A final newline lays out no line of its own, so the caret after it has
+        // nowhere to sit (#5114). Appended after highlighting: Prism's
+        // keep-markup drops empty elements. Wrapped: Chromium puts the caret
+        // just before the <br>, and (content, childIndex) would read back as
+        // text offset childIndex where (wrapper, 0) reads back as the text
+        // length.
+        const trailingBreak = text.endsWith('\n')
+            ? `<span class="${CLASS_NAMES.MU_TRAILING_BREAK}"><br></span>`
+            : '';
+
         if (
             fullLengthLang
             && /\S/.test(code)
@@ -184,23 +209,11 @@ class CodeBlockContent extends Content {
             wrapper.classList.add(`language-${fullLengthLang}`);
             wrapper.innerHTML = code;
             prism.highlightElement(wrapper, false, function (this: HTMLElement) {
-                domNode.innerHTML = this.innerHTML;
+                replaceIfChanged(domNode, this.innerHTML + trailingBreak);
             });
         }
         else {
-            domNode.innerHTML = code;
-        }
-
-        // A final newline lays out no line of its own, so the caret after it had
-        // nowhere to sit (#5114). Added after highlighting: Prism's keep-markup
-        // drops empty elements. Wrapped: Chromium puts the caret just before the
-        // <br>, and (content, childIndex) would read back as text offset
-        // childIndex where (wrapper, 0) reads back as the text length.
-        if (text.endsWith('\n')) {
-            const trailingBreak = document.createElement('span');
-            trailingBreak.classList.add(CLASS_NAMES.MU_TRAILING_BREAK);
-            trailingBreak.appendChild(document.createElement('br'));
-            domNode.appendChild(trailingBreak);
+            replaceIfChanged(domNode, code + trailingBreak);
         }
 
         this._updateLineNumbers(text);
@@ -248,7 +261,7 @@ class CodeBlockContent extends Content {
 
         const textContent = this.domNode!.textContent!;
         const { start, end } = this.getCursor()!;
-        const { needRender, text } = this.autoPair(
+        const { text } = this.autoPair(
             event,
             textContent,
             start,
@@ -261,13 +274,7 @@ class CodeBlockContent extends Content {
 
         this._updatePreviewIfHave(text);
 
-        if (needRender) {
-            this.setCursor(start!.offset, end!.offset, true);
-        }
-        else {
-            // TODO: throttle render
-            this.setCursor(start!.offset, end!.offset, true);
-        }
+        this.setCursor(start!.offset, end!.offset, true);
     }
 
     override enterHandler(event: KeyboardEvent): void {
