@@ -98,4 +98,32 @@ describe('resolveLocalLinkTarget percent-encoding (#4749)', () => {
       anchor: ''
     })
   })
+
+  it('keeps a malformed escape in the target as literal path text', () => {
+    expect(resolveLocalLinkTarget('bad%zz.md', root)).toEqual({
+      pathname: path.join(root, 'bad%zz.md'),
+      anchor: ''
+    })
+  })
+
+  it('keeps a bare "%" target as literal path text', () => {
+    expect(resolveLocalLinkTarget('%.md', root)).toEqual({
+      pathname: path.join(root, '%.md'),
+      anchor: ''
+    })
+  })
+
+  it('keeps an incomplete UTF-8 escape as literal path text', () => {
+    expect(resolveLocalLinkTarget('%E0%A4%A.md', root)).toEqual({
+      pathname: path.join(root, '%E0%A4%A.md'),
+      anchor: ''
+    })
+  })
+
+  it('splits the fragment off even when the fragment is not valid escaping', () => {
+    expect(resolveLocalLinkTarget('other.md#100%', root)).toEqual({
+      pathname: path.join(root, 'other.md'),
+      anchor: '100%'
+    })
+  })
 })

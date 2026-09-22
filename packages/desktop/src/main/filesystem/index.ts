@@ -31,6 +31,7 @@ export const normalizeAndResolvePath = (pathname: string): string => {
  * fragment. The path is percent-decoded (CommonMark #503, #57) and resolved
  * against `dirname` (`''` for an unsaved document); the anchor is returned as
  * written. A `#` belonging to an existing file name (`C#.md`) stays in the path.
+ * A target that is not valid percent-encoding is used as written (#4749).
  */
 export const resolveLocalLinkTarget = (
   link: string,
@@ -41,7 +42,14 @@ export const resolveLocalLinkTarget = (
     // whereas `dirname` is a raw filesystem path that may legally contain `%`. This
     // mirrors the renderer's `encodeDirnameForUrl` (#5212). `isAbsolute` still tests
     // the encoded target so a `%2F` cannot turn a relative link into an absolute one.
-    const decoded = decodeURIComponent(target)
+    let decoded = target
+    try {
+      decoded = decodeURIComponent(target)
+    } catch {
+      // Not valid percent-encoding (e.g. `bad%zz.md`): `%` is a legal filename
+      // character, so use the target as written instead of throwing out of the
+      // `mt::format-link-click` handler (#4749).
+    }
     const joined = dirname && !path.isAbsolute(target) ? path.join(dirname, decoded) : decoded
     return path.normalize(joined)
   }
