@@ -37,8 +37,13 @@ export const resolveLocalLinkTarget = (
   dirname: string
 ): { pathname: string; anchor: string } => {
   const toPathname = (target: string): string => {
-    const joined = dirname && !path.isAbsolute(target) ? path.join(dirname, target) : target
-    return path.normalize(decodeURIComponent(joined))
+    // Only the target is decoded: it comes from the document as URL-encoded text,
+    // whereas `dirname` is a raw filesystem path that may legally contain `%`. This
+    // mirrors the renderer's `encodeDirnameForUrl` (#5212). `isAbsolute` still tests
+    // the encoded target so a `%2F` cannot turn a relative link into an absolute one.
+    const decoded = decodeURIComponent(target)
+    const joined = dirname && !path.isAbsolute(target) ? path.join(dirname, decoded) : decoded
+    return path.normalize(joined)
   }
 
   const pathname = toPathname(link)

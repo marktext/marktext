@@ -53,3 +53,49 @@ describe('resolveLocalLinkTarget (#5292)', () => {
     })
   })
 })
+
+describe('resolveLocalLinkTarget percent-encoding (#4749)', () => {
+  let root: string
+  let percentDir: string
+  let escapeLikeDir: string
+
+  beforeAll(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'mt-link-percent-'))
+
+    // A folder name may legally contain a bare '%', which is not a valid escape.
+    percentDir = path.join(root, '50%off')
+    fs.mkdirSync(percentDir)
+    fs.writeFileSync(path.join(percentDir, 'plain.md'), '')
+    fs.writeFileSync(path.join(percentDir, 'bad name.md'), '')
+
+    // A folder name may also look like an escape without being one.
+    escapeLikeDir = path.join(root, 'my%20docs')
+    fs.mkdirSync(escapeLikeDir)
+    fs.writeFileSync(path.join(escapeLikeDir, 'plain.md'), '')
+  })
+
+  afterAll(() => {
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+
+  it('resolves a link in a document folder whose name contains a bare "%"', () => {
+    expect(resolveLocalLinkTarget('plain.md', percentDir)).toEqual({
+      pathname: path.join(percentDir, 'plain.md'),
+      anchor: ''
+    })
+  })
+
+  it('decodes the link target inside such a folder', () => {
+    expect(resolveLocalLinkTarget('bad%20name.md', percentDir)).toEqual({
+      pathname: path.join(percentDir, 'bad name.md'),
+      anchor: ''
+    })
+  })
+
+  it('leaves an escape-looking document folder name untouched', () => {
+    expect(resolveLocalLinkTarget('plain.md', escapeLikeDir)).toEqual({
+      pathname: path.join(escapeLikeDir, 'plain.md'),
+      anchor: ''
+    })
+  })
+})
