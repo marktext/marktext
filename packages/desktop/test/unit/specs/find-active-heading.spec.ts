@@ -3,10 +3,10 @@ import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHe
 
 describe('findActiveHeadingSlug', () => {
   const headings: HeadingPosition[] = [
-    { slug: 'intro', offsetTop: 0 },
-    { slug: 'setup', offsetTop: 200 },
-    { slug: 'usage', offsetTop: 500 },
-    { slug: 'advanced', offsetTop: 900 }
+    { slug: 'intro', top: 0 },
+    { slug: 'setup', top: 200 },
+    { slug: 'usage', top: 500 },
+    { slug: 'advanced', top: 900 }
   ]
 
   it('returns null for an empty headings array', () => {
@@ -15,13 +15,13 @@ describe('findActiveHeadingSlug', () => {
 
   it('returns null when cursor is above all headings', () => {
     const raised: HeadingPosition[] = [
-      { slug: 'first', offsetTop: 100 },
-      { slug: 'second', offsetTop: 300 }
+      { slug: 'first', top: 100 },
+      { slug: 'second', top: 300 }
     ]
     expect(findActiveHeadingSlug(raised, 50)).toBeNull()
   })
 
-  it('returns the first heading when cursor is exactly at its offsetTop', () => {
+  it('returns the first heading when cursor is exactly at its top', () => {
     expect(findActiveHeadingSlug(headings, 0)).toBe('intro')
   })
 
@@ -33,12 +33,12 @@ describe('findActiveHeadingSlug', () => {
     expect(findActiveHeadingSlug(headings, 1200)).toBe('advanced')
   })
 
-  it('returns the heading whose offsetTop equals cursorTop exactly', () => {
+  it('returns the heading whose top equals cursorTop exactly', () => {
     expect(findActiveHeadingSlug(headings, 500)).toBe('usage')
   })
 
   it('works with a single heading', () => {
-    const single: HeadingPosition[] = [{ slug: 'only', offsetTop: 50 }]
+    const single: HeadingPosition[] = [{ slug: 'only', top: 50 }]
     expect(findActiveHeadingSlug(single, 100)).toBe('only')
     expect(findActiveHeadingSlug(single, 50)).toBe('only')
     expect(findActiveHeadingSlug(single, 10)).toBeNull()

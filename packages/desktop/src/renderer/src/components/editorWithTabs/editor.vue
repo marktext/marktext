@@ -586,8 +586,9 @@ watch(sourceCode, (isSource) => {
   })
 })
 
-// Rebuild heading-position cache whenever the TOC changes (document edit, tab
-// switch, file load). Uses nextTick so the DOM is settled before measuring.
+// Re-pair TOC entries with their heading elements whenever the TOC changes
+// (document edit, tab switch, file load). nextTick so the new headings are in
+// the DOM before we look for them.
 watch(
   () => editorStore.listToc,
   () => {
@@ -1270,37 +1271,45 @@ const getCursorY = (): number | null => {
 }
 
 // --- Active TOC heading detection ---
-// Cached heading positions, rebuilt whenever the TOC changes. Avoids N DOM
-// queries per keystroke — only one bulk read per TOC rebuild.
-let headingPositionCache: HeadingPosition[] = []
+// The slug-to-element pairing is the expensive half (a DOM query plus the
+// index walk `resolveTocHeadingElement` also does), and it only changes when
+// the TOC does. The positions are NOT cached: typing body text moves every
+// later heading down the page without touching the TOC, so a cached offset goes
+// stale within a keystroke and the highlight lands on the wrong section.
+interface CachedHeading {
+  slug: string
+  el: HTMLElement
+}
+
+let headingElementCache: CachedHeading[] = []
 
 const rebuildHeadingCache = (): void => {
   const container = getScrollContainer()
   if (!container || editorStore.listToc.length === 0) {
-    headingPositionCache = []
+    headingElementCache = []
     return
   }
   const headingEls = container.querySelectorAll(TOP_LEVEL_HEADINGS_SELECTOR)
-  headingPositionCache = editorStore.listToc
+  headingElementCache = editorStore.listToc
     .map((item, index) => {
       const el = headingEls[index] as HTMLElement | undefined
-      if (!el) return null
-      return { slug: item.slug!, offsetTop: el.offsetTop }
+      if (!el || typeof item.slug !== 'string') return null
+      return { slug: item.slug, el }
     })
-    .filter((entry): entry is HeadingPosition => entry != null)
+    .filter((entry): entry is CachedHeading => entry != null)
 }
 
-// Converts the viewport-relative cursor Y into document-relative coordinates
-// (same space as `el.offsetTop`) and finds the active heading.
+// Both sides are measured in viewport coordinates within the one event, which
+// keeps them comparable with no scroll arithmetic — and keeps the caret's
+// fractional position comparable with the headings'. `offsetTop` would round to
+// whole pixels and report the heading the caret sits in as the one above it.
 const updateActiveHeading = (viewportY: number): void => {
-  const container = getScrollContainer()
-  if (!container || headingPositionCache.length === 0) return
-  // Both offsetTop and cursorTop must be document-relative (distance from
-  // container's content top edge). cursorCoords.y is viewport-relative, so
-  // translate: add scrollTop, subtract the container's own viewport offset.
-  const cursorTop = container.scrollTop + viewportY - container.getBoundingClientRect().top
-  const slug = findActiveHeadingSlug(headingPositionCache, cursorTop)
-  editorStore.SET_ACTIVE_HEADING(slug)
+  if (headingElementCache.length === 0) return
+  const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
+    slug,
+    top: el.getBoundingClientRect().top
+  }))
+  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -2064,6 +2073,10 @@ onMounted(() => {
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null
     if (y != null) {
+      // Before the scrolling below: `animatedScrollTo` with duration 0 assigns
+      // `scrollTop` synchronously, which moves the headings out from under `y`.
+      updateActiveHeading(y)
+
       if (typewriter.value) {
         const startPosition = container.scrollTop
         const toPosition = startPosition + y - STANDAR_Y
@@ -2084,8 +2097,6 @@ onMounted(() => {
         // (e.g. Arrow-Up), otherwise the caret leaves the viewport (#3329).
         animatedScrollTo(container, container.scrollTop + (y - 100), 0)
       }
-
-      updateActiveHeading(y)
     }
 
     selectionChange.value = changes

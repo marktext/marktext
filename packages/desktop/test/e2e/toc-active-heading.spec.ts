@@ -123,4 +123,26 @@ test.describe('TOC active heading highlight', () => {
       .poll(() => getHighlightedTocLabel(page), { timeout: 5000 })
       .toBe('Configuration')
   })
+
+  // Runs last: it grows the document. The heading positions used to be measured
+  // once per TOC change, and typing body text changes no TOC entry — so the
+  // measurements went stale while the headings below the caret moved down, and
+  // the highlight ran ahead into the next section.
+  test('the highlight stays on the section being typed into', async() => {
+    await page.locator('.mu-container p', { hasText: 'Some intro text here.' }).first().click()
+    await expect
+      .poll(() => getHighlightedTocLabel(page), { timeout: 5000 })
+      .toBe('Introduction')
+
+    // Enough lines to push `## Getting Started` well past where it started.
+    await page.keyboard.press('End')
+    for (let i = 0; i < 14; i++) {
+      await page.keyboard.press('Enter')
+      await page.keyboard.type(`filler line ${i}`)
+    }
+
+    await expect
+      .poll(() => getHighlightedTocLabel(page), { timeout: 5000 })
+      .toBe('Introduction')
+  })
 })
