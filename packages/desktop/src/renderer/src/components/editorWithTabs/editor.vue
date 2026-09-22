@@ -115,7 +115,12 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
+import {
+  getTocHeadingScrollTop,
+  resolveTocHeadingElement,
+  TOP_LEVEL_HEADINGS_SELECTOR
+} from '@/util/tocNavigation'
+import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -552,6 +557,14 @@ watch(sourceCode, (isSource) => {
     }
   })
 })
+
+// nextTick: the rebuilt headings have to be in the DOM before we pair them up.
+watch(
+  () => editorStore.listToc,
+  () => {
+    nextTick(rebuildHeadingCache)
+  }
+)
 
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
@@ -1225,6 +1238,44 @@ const getCursorY = (): number | null => {
     rects = parent ? parent.getClientRects() : rects
   }
   return rects.length ? rects[0].y : null
+}
+
+// Only the slug-to-element pairing is cached. Positions are not: typing body
+// text moves every later heading without changing the TOC, so a stored offset
+// is stale within a keystroke and the highlight lands a section ahead.
+interface CachedHeading {
+  slug: string
+  el: HTMLElement
+}
+
+let headingElementCache: CachedHeading[] = []
+
+const rebuildHeadingCache = (): void => {
+  const container = getScrollContainer()
+  if (!container || editorStore.listToc.length === 0) {
+    headingElementCache = []
+    return
+  }
+  const headingEls = container.querySelectorAll(TOP_LEVEL_HEADINGS_SELECTOR)
+  headingElementCache = editorStore.listToc
+    .map((item, index) => {
+      const el = headingEls[index] as HTMLElement | undefined
+      if (!el || typeof item.slug !== 'string') return null
+      return { slug: item.slug, el }
+    })
+    .filter((entry): entry is CachedHeading => entry != null)
+}
+
+// Measured with `getBoundingClientRect`, not `offsetTop`: the caret's position
+// is fractional, and rounding the headings to whole pixels reports the one the
+// caret sits in as the heading above it.
+const updateActiveHeading = (viewportY: number): void => {
+  if (headingElementCache.length === 0) return
+  const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
+    slug,
+    top: el.getBoundingClientRect().top
+  }))
+  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -1988,6 +2039,10 @@ onMounted(() => {
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null
     if (y != null) {
+      // Before the scrolling below: a 0-duration `animatedScrollTo` assigns
+      // `scrollTop` at once, moving the headings out from under `y`.
+      updateActiveHeading(y)
+
       if (typewriter.value) {
         const startPosition = container.scrollTop
         const toPosition = startPosition + y - STANDAR_Y

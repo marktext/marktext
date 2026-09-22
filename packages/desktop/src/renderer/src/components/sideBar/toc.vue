@@ -8,9 +8,12 @@
     </div>
     <el-tree
       v-if="keyedToc.length"
+      ref="tocTreeRef"
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
+      :current-node-key="activeNodeKey"
+      highlight-current
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
@@ -23,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
@@ -31,11 +34,14 @@ import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import type { TreeInstance } from 'element-plus'
 
 const { t } = useI18n()
 
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
+
+const tocTreeRef = ref<TreeInstance | null>(null)
 
 const defaultProps = {
   children: 'children',
@@ -82,10 +88,31 @@ const expandedKeys = computed<string[]>(() => {
   return keys
 })
 
+// The store names the caret's heading by engine slug; el-tree keys its nodes by
+// githubSlug. Both sit on the same node, so one resolves to the other.
+const activeNodeKey = computed<string>(() => {
+  const slug = editorStore.activeHeadingSlug
+  if (typeof slug !== 'string') return ''
+  const findKey = (nodes: KeyedTocNode[]): string => {
+    for (const node of nodes) {
+      if (node.slug === slug) return node.key
+      const found = findKey(node.children)
+      if (found) return found
+    }
+    return ''
+  }
+  return findKey(keyedToc.value)
+})
+
+// `current-node-key` only seeds el-tree at mount; later changes need the setter.
+watch(activeNodeKey, (key) => {
+  tocTreeRef.value?.setCurrentKey(key || undefined)
+})
+
 const handleClick = (data: { slug?: unknown }): void => {
-  // editor.vue builds a CSS selector with `#${slug}` — bail out if the
-  // node has no slug (e.g. unsluggable headings) to avoid emitting
-  // `undefined` / non-string payloads and producing `#undefined` selectors.
+  // editor.vue resolves the slug to a heading by document order — bail out if
+  // the node has no slug (e.g. unsluggable headings) rather than emitting an
+  // `undefined` / non-string payload it cannot match.
   if (typeof data.slug !== 'string' || data.slug.length === 0) return
   bus.emit('scroll-to-header', data.slug)
 }
@@ -138,6 +165,13 @@ const handleClick = (data: { slug?: unknown }): void => {
 
 .side-bar-toc .el-tree-node__content:hover {
   background: var(--sideBarItemHoverBgColor);
+}
+
+/* Element Plus paints `.is-current` from a selector carrying
+   `.el-tree--highlight-current`, so overriding it needs that class too. */
+.side-bar-toc .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background-color: var(--sideBarItemHoverBgColor);
+  color: var(--themeColor);
 }
 
 .side-bar-toc > li {

@@ -143,6 +143,8 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
+  // Heading the cursor is inside, for the TOC highlight; null above the first.
+  activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
 }
 
@@ -155,6 +157,7 @@ export const useEditorStore = defineStore('editor', {
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: [],
+    activeHeadingSlug: null,
     selectionWordCount: null
   }),
 
@@ -863,6 +866,8 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile = currentFile
         this.selectionWordCount = null
         didUpdateCurrentFile = true
+        // Slugs belong to the old document; the next selection-change re-seeds.
+        this.activeHeadingSlug = null
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
           this.tabs.push(currentFile)
@@ -1423,6 +1428,14 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_TOC(toc: TocItem[]): void {
       this.listToc = toc ?? []
       this.toc = listToTree<TocItem>(toc ?? [])
+      // Every caller replaces the whole document, so the old slug is gone.
+      this.activeHeadingSlug = null
+    },
+
+    SET_ACTIVE_HEADING(slug: string | null): void {
+      if (this.activeHeadingSlug !== slug) {
+        this.activeHeadingSlug = slug
+      }
     },
 
     // Content change from realtime preview editor and source code editor
