@@ -91,17 +91,29 @@ const uploadByPicgo = (localPath: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const cmd = resolvePicgoBinary()
     if (!cmd) return reject(new Error('PicGo command not found in PATH'))
-    exec(
-      `${cmd} u "${localPath}"`,
-      { env: { ...process.env, PATH: buildPreferredPathEnv() } },
-      (err, stdout, stderr) => {
-        if (err) return reject(err)
-        const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
-        const url = parsePicgoOutput(text)
-        if (url) resolve(url)
-        else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
-      }
-    )
+    const env = { ...process.env, PATH: buildPreferredPathEnv() }
+    const done = (err: Error | null, stdout: string | Buffer, stderr: string | Buffer) => {
+      if (err) return reject(err)
+      const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
+      const url = parsePicgoOutput(text)
+      if (url) resolve(url)
+      else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
+    }
+    if (process.platform === 'win32') {
+      // Left exactly as it was, and still a shell: `picgo` here is a .cmd shim,
+      // which execFile cannot start without a shell, and `shell: true` would be
+      // worse (node joins argv with spaces and escapes nothing). A Windows
+      // filename cannot contain `"`, so the quoting holds against the injection
+      // this branch's POSIX sibling had; `%VAR%` still expands inside quotes
+      // though, so a name like `%TEMP%.png` is mangled. Fixing that needs real
+      // .exe-vs-.cmd resolution and a Windows machine to verify on.
+      exec(`${cmd} u "${localPath}"`, { env }, done)
+    } else {
+      // Elsewhere the path goes through as its own argv entry, so quotes, `$`
+      // and backticks in a filename reach picgo verbatim instead of being
+      // re-interpreted by the shell.
+      execFile(cmd, ['u', localPath], { env }, done)
+    }
   })
 
 const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
@@ -117,12 +129,18 @@ const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
     )
   })
 
+// The file is written into a directory of its own: two clipboard images pasted
+// in the same millisecond would otherwise land on the same `Date.now()` path,
+// so one upload would send the other's bytes and the first one to finish would
+// delete the file the second still needs. The basename stays timestamped
+// because uploaders derive the remote filename from it.
 const writeBinaryToTmp = async(
   data: Uint8Array | number[] | null | undefined,
   suffix: string = ''
 ): Promise<string> => {
   const buf = data instanceof Uint8Array ? Buffer.from(data) : Buffer.from(data || [])
-  const tmpPath = path.join(tmpdir(), `${Date.now()}${suffix}`)
+  const dir = await fs.mkdtemp(path.join(tmpdir(), 'marktext-upload-'))
+  const tmpPath = path.join(dir, `${Date.now()}${suffix}`)
   await fs.writeFile(tmpPath, buf)
   return tmpPath
 }
@@ -153,7 +171,7 @@ const uploadFromBuffer = async(
   const suffix = path.extname(name || '') || ''
   const localPath = await writeBinaryToTmp(data, suffix)
   const cleanup = () =>
-    fs.unlink(localPath).catch(() => {
+    fs.remove(path.dirname(localPath)).catch(() => {
       /* ignore */
     })
   try {
