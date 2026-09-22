@@ -175,6 +175,7 @@
           :description="t('preferences.general.pandoc.description')"
           :notes="pandocStatus"
           :bool="showPandocConvert"
+          :disable="pandocDisabled"
           :on-change="(value) => onSelectChange('showPandocConvert', value)"
         />
       </template>
@@ -242,6 +243,8 @@ const {
 
 const pandocCommand = ref<string | null>(null)
 const pandocOnPath = ref(false)
+// Nothing is known until the answer arrives: grey the switch only after it does.
+const pandocChecked = ref(false)
 
 const pandocStatus = computed<string>(() => {
   if (!pandocCommand.value) return t('preferences.general.pandoc.notFound')
@@ -250,10 +253,17 @@ const pandocStatus = computed<string>(() => {
     : t('preferences.general.pandoc.found', { path: pandocCommand.value })
 })
 
+// Pandoc can also disappear between runs, so an already enabled switch stays
+// reachable — it is the only way back out.
+const pandocDisabled = computed<boolean>(
+  () => pandocChecked.value && !pandocCommand.value && !showPandocConvert.value
+)
+
 onMounted(async () => {
   const { command, onPath } = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
   pandocCommand.value = command
   pandocOnPath.value = onPath
+  pandocChecked.value = true
 })
 
 const startUpAction = computed<string>({
