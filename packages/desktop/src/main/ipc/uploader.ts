@@ -100,10 +100,14 @@ const uploadByPicgo = (localPath: string): Promise<string> =>
       else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
     }
     if (process.platform === 'win32') {
-      // `picgo` on Windows is a .cmd shim, which only a shell can start, so the
-      // path has to be quoted rather than passed as an argv entry. A Windows
-      // filename cannot contain a double quote, so quoting is sufficient there.
-      exec(`"${cmd}" u "${localPath}"`, { env }, done)
+      // Left exactly as it was, and still a shell: `picgo` here is a .cmd shim,
+      // which execFile cannot start without a shell, and `shell: true` would be
+      // worse (node joins argv with spaces and escapes nothing). A Windows
+      // filename cannot contain `"`, so the quoting holds against the injection
+      // this branch's POSIX sibling had; `%VAR%` still expands inside quotes
+      // though, so a name like `%TEMP%.png` is mangled. Fixing that needs real
+      // .exe-vs-.cmd resolution and a Windows machine to verify on.
+      exec(`${cmd} u "${localPath}"`, { env }, done)
     } else {
       // Elsewhere the path goes through as its own argv entry, so quotes, `$`
       // and backticks in a filename reach picgo verbatim instead of being
