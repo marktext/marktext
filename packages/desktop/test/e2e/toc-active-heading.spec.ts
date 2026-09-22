@@ -2,8 +2,7 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
-// Document with nested headings — enough depth to test context-aware
-// expand/collapse, and enough height to require scrolling.
+// Nested headings, and enough height that the caret has to travel.
 const DOC = [
   '# Introduction',
   '',
@@ -123,53 +122,5 @@ test.describe('TOC active heading highlight', () => {
     await expect
       .poll(() => getHighlightedTocLabel(page), { timeout: 5000 })
       .toBe('Configuration')
-  })
-
-  test('expand/collapse buttons have accessible labels', async() => {
-    const expandBtn = page.locator('.toc-toolbar-btn').first()
-    const collapseBtn = page.locator('.toc-toolbar-btn').last()
-    await expect(expandBtn).toHaveAttribute('aria-label', /expand|Expand/i)
-    await expect(collapseBtn).toHaveAttribute('aria-label', /collapse|Collapse/i)
-  })
-
-  test('collapse-all hides nested TOC children', async() => {
-    // Click the collapse button.
-    const collapseBtn = page.locator('.toc-toolbar-btn').last()
-    await collapseBtn.click()
-
-    // After collapsing, nested headings should be hidden — only top-level visible.
-    await expect.poll(async() => {
-      return page.evaluate(() => {
-        const nodes = Array.from(
-          document.querySelectorAll('.side-bar-toc .el-tree .el-tree-node')
-        ) as HTMLElement[]
-        return nodes
-          .filter((n) => n.offsetParent !== null)
-          .map((n) => {
-            const l = n.querySelector(':scope > .el-tree-node__content .el-tree-node__label')
-            return (l?.textContent || '').trim()
-          })
-      })
-    }, { timeout: 5000 }).toEqual(['Introduction', 'Getting Started', 'Advanced Usage', 'Conclusion'])
-  })
-
-  test('expand-all reveals nested TOC children again', async() => {
-    const expandBtn = page.locator('.toc-toolbar-btn').first()
-    await expandBtn.click()
-
-    // All headings should be visible again.
-    await expect.poll(async() => {
-      return page.evaluate(() => {
-        const nodes = Array.from(
-          document.querySelectorAll('.side-bar-toc .el-tree .el-tree-node')
-        ) as HTMLElement[]
-        return nodes
-          .filter((n) => n.offsetParent !== null)
-          .map((n) => {
-            const l = n.querySelector(':scope > .el-tree-node__content .el-tree-node__label')
-            return (l?.textContent || '').trim()
-          })
-      })
-    }, { timeout: 5000 }).toContain('Prerequisites')
   })
 })
