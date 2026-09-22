@@ -70,12 +70,17 @@ const getByPath = (obj: unknown, dotPath: string): unknown => {
 // Technical terms that must stay in English for the locales listed in
 // TERM_PRESERVING_LOCALES below. The others (ja, ko, zh-CN, zh-TW, tr)
 // translate them by convention.
+//
+// Every path here must exist in en.json — `every technical term path exists in
+// en.json` below enforces that, because a path that has gone stale is skipped
+// silently by the `typeof value === 'string'` guard and the check it belongs to
+// stops running (#5501). The quick-insert menu strings are NOT among these:
+// they live in the engine's own locales, guarded by muya's
+// localeCompleteness.spec.ts.
 const TECHNICAL_TERMS: Array<{ path: string; mustContain: string }> = [
   { path: 'menu.paragraph.frontMatter', mustContain: 'Front Matter' },
-  { path: 'quickInsert.frontMatter.title', mustContain: 'Front Matter' },
-  { path: 'quickInsert.mermaid.title', mustContain: 'Mermaid' },
-  { path: 'quickInsert.plantUMLChart.title', mustContain: 'PlantUML' },
-  { path: 'quickInsert.vegaChart.title', mustContain: 'Vega' },
+  { path: 'commands.paragraph.frontMatter', mustContain: 'Front Matter' },
+  { path: 'preferences.markdown.diagrams.plantumlServer.title', mustContain: 'PlantUML' },
 ]
 
 // Not a script property — ru is Cyrillic and still keeps the English product
@@ -155,6 +160,17 @@ describe('desktop locale validation', () => {
   })
 
   describe('technical terms stay in English', () => {
+    it('every technical term path exists in en.json', () => {
+      const stale = TECHNICAL_TERMS.filter(({ path: keyPath }) => typeof getByPath(en, keyPath) !== 'string')
+        .map(({ path: keyPath }) => keyPath)
+
+      expect(
+        stale,
+        '\n  These TECHNICAL_TERMS paths are not in en.json, so the checks below' +
+        `\n  skip them and enforce nothing. Repoint or remove them:\n    ${stale.join('\n    ')}\n`
+      ).toEqual([])
+    })
+
     const termLocales = locales.filter(l => TERM_PRESERVING_LOCALES.includes(l))
     for (const lang of termLocales) {
       it(`${lang}.json keeps product names untranslated`, () => {
