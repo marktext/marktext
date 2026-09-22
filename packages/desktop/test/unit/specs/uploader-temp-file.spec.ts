@@ -24,6 +24,11 @@ let argvLog: string
 let copyPath: string
 let originalPath: string | undefined
 
+// The stand-in uploader below is a POSIX shell script, and the argv-vs-shell
+// behaviour under test is the non-Windows branch of uploadByPicgo, so the whole
+// file is a no-op on Windows.
+const skipOnWindows = process.platform === 'win32'
+
 // A stand-in for the picgo / cli-script executable: it appends the path it was
 // handed to argvLog and prints picgo's real success format (URL on the line
 // after the marker, which is what the output parser has to cope with).
@@ -78,7 +83,7 @@ const upload = async(req: unknown) => {
 const uploadedPaths = async() =>
   (await fs.readFile(argvLog, 'utf8')).split('\n').filter(Boolean)
 
-describe('uploader: clipboard image handed to the uploader as a temp file (#2915/#3360)', () => {
+describe.skipIf(skipOnWindows)('uploader: clipboard image handed to the uploader as a temp file (#2915/#3360)', () => {
   it('names the temp file with the image extension so the uploader can infer the type', async() => {
     const url = await upload({
       pathname: '/tmp/notes/a.md',
@@ -136,7 +141,7 @@ describe('uploader: clipboard image handed to the uploader as a temp file (#2915
   })
 })
 
-describe('uploader: local image path handed to picgo (#3360)', () => {
+describe.skipIf(skipOnWindows)('uploader: local image path handed to picgo (#3360)', () => {
   it('passes a path containing shell metacharacters through unmangled', async() => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mt-uploader-src-'))
     // Legal on macOS/Linux, and the kind of name a screenshot tool or a
