@@ -135,3 +135,24 @@ describe('uploader: clipboard image handed to the uploader as a temp file (#2915
     expect(new Set(handed).size, `both uploads used the same temp path: ${handed}`).toBe(2)
   })
 })
+
+describe('uploader: local image path handed to picgo (#3360)', () => {
+  it('passes a path containing shell metacharacters through unmangled', async() => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mt-uploader-src-'))
+    // Legal on macOS/Linux, and the kind of name a screenshot tool or a
+    // download can produce.
+    const weird = path.join(dir, 'a "quoted" $name `x`.png')
+    await fs.writeFile(weird, PNG)
+
+    await upload({
+      pathname: path.join(dir, 'note.md'),
+      image: weird,
+      isPath: true,
+      preferences: { currentUploader: 'picgo', cliScript: '' }
+    })
+
+    const [handed] = await uploadedPaths()
+    expect(handed).toBe(weird)
+    await fs.remove(dir)
+  })
+})

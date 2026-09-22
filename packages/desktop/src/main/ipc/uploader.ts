@@ -91,17 +91,25 @@ const uploadByPicgo = (localPath: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const cmd = resolvePicgoBinary()
     if (!cmd) return reject(new Error('PicGo command not found in PATH'))
-    exec(
-      `${cmd} u "${localPath}"`,
-      { env: { ...process.env, PATH: buildPreferredPathEnv() } },
-      (err, stdout, stderr) => {
-        if (err) return reject(err)
-        const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
-        const url = parsePicgoOutput(text)
-        if (url) resolve(url)
-        else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
-      }
-    )
+    const env = { ...process.env, PATH: buildPreferredPathEnv() }
+    const done = (err: Error | null, stdout: string | Buffer, stderr: string | Buffer) => {
+      if (err) return reject(err)
+      const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
+      const url = parsePicgoOutput(text)
+      if (url) resolve(url)
+      else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
+    }
+    if (process.platform === 'win32') {
+      // `picgo` on Windows is a .cmd shim, which only a shell can start, so the
+      // path has to be quoted rather than passed as an argv entry. A Windows
+      // filename cannot contain a double quote, so quoting is sufficient there.
+      exec(`"${cmd}" u "${localPath}"`, { env }, done)
+    } else {
+      // Elsewhere the path goes through as its own argv entry, so quotes, `$`
+      // and backticks in a filename reach picgo verbatim instead of being
+      // re-interpreted by the shell.
+      execFile(cmd, ['u', localPath], { env }, done)
+    }
   })
 
 const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
