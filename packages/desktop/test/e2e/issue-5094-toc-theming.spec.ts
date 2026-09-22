@@ -19,12 +19,16 @@ interface Probe {
   themedIconColor: string
 }
 
+// Sampled off a row the caret is NOT in: the active row is painted --themeColor
+// on purpose (the TOC highlight), which would mask what this guards.
+const INACTIVE_ROW = '.side-bar-toc .el-tree-node:not(.is-current) > .el-tree-node__content'
+
 const readColors = (page: Page): Promise<Probe> =>
-  page.evaluate(() => {
-    const label = document.querySelector('.side-bar-toc .el-tree-node__label') as HTMLElement
+  page.evaluate((row) => {
+    const label = document.querySelector(`${row} .el-tree-node__label`) as HTMLElement
     // `.el-tree` carries the panel's themed color; the label is supposed to inherit it.
     const tree = document.querySelector('.side-bar-toc .el-tree') as HTMLElement
-    const icon = document.querySelector('.side-bar-toc .el-tree-node__expand-icon') as HTMLElement
+    const icon = document.querySelector(`${row} .el-tree-node__expand-icon`) as HTMLElement
     // The file tree's own arrow, i.e. the reference the report points at.
     const probe = document.createElement('span')
     probe.style.color = 'var(--sideBarIconColor)'
@@ -37,7 +41,7 @@ const readColors = (page: Page): Promise<Probe> =>
       iconColor: getComputedStyle(icon).color,
       themedIconColor
     }
-  })
+  }, INACTIVE_ROW)
 
 test.describe('#5094 TOC follows the active theme', () => {
   let app: ElectronApplication

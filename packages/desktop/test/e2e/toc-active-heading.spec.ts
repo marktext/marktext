@@ -124,6 +124,27 @@ test.describe('TOC active heading highlight', () => {
       .toBe('Configuration')
   })
 
+  test('the highlighted entry is painted with the theme color', async() => {
+    await clickHeadingInEditor(page, 'Getting Started')
+    await expect
+      .poll(() => getHighlightedTocLabel(page), { timeout: 5000 })
+      .toBe('Getting Started')
+
+    const { labelColor, themeColor } = await page.evaluate(() => {
+      const content = document.querySelector(
+        '.side-bar-toc .el-tree-node.is-current > .el-tree-node__content'
+      ) as HTMLElement
+      const probe = document.createElement('span')
+      probe.style.color = 'var(--themeColor)'
+      content.appendChild(probe)
+      const themed = getComputedStyle(probe).color
+      probe.remove()
+      const label = content.querySelector('.el-tree-node__label') as HTMLElement
+      return { labelColor: getComputedStyle(label).color, themeColor: themed }
+    })
+    expect(labelColor).toBe(themeColor)
+  })
+
   // Runs last: it grows the document. The heading positions used to be measured
   // once per TOC change, and typing body text changes no TOC entry — so the
   // measurements went stale while the headings below the caret moved down, and
