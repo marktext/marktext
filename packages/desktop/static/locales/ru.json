@@ -39,7 +39,7 @@
       "cut": "Вырезать",
       "copy": "Копировать",
       "paste": "Вставить",
-      "copyAsRich": "Копировать как форматированный текст",
+      "copyAsRich": "Копировать с форматированием",
       "copyAsHtml": "Копировать как HTML",
       "pasteAsPlainText": "Вставить как обычный текст",
       "selectAll": "Выделить всё",
@@ -115,7 +115,7 @@
     },
     "view": {
       "view": "Вид",
-      "toggleSidebar": "Показать/скрыть боковую панель",
+      "toggleSidebar": "Боковая панель",
       "toggleTabbar": "Показать/скрыть панель вкладок",
       "commandPalette": "Палитра команд",
       "sourceCodeMode": "Режим исходного кода",
@@ -186,7 +186,7 @@
     "cut": "Вырезать",
     "copy": "Копировать",
     "paste": "Вставить",
-    "copyAsRich": "Копировать как форматированный текст",
+    "copyAsRich": "Копировать с форматированием",
     "copyAsHtml": "Копировать как HTML",
     "pasteAsPlainText": "Вставить как обычный текст",
     "lookUp": "Найти \"{selection}\"",
@@ -219,8 +219,8 @@
   "search": {
     "searchPlaceholder": "Поиск",
     "caseSensitive": "Учитывать регистр",
-    "wholeWord": "Выделять слово целиком",
-    "useRegex": "Использовать запрос как регулярное выражение",
+    "wholeWord": "Только целые слова",
+    "useRegex": "Регулярное выражение",
     "replacementPlaceholder": "Замена",
     "replaceAll": "Заменить всё",
     "replaceSingle": "Заменить",
@@ -236,12 +236,12 @@
       "noResultsFound": "Ничего не найдено.",
       "cancel": "Отмена",
       "openFolder": "Открыть папку",
-      "showMoreMatches": "Показать больше совпадений"
+      "showMoreMatches": "Показать ещё"
     },
     "tree": {
       "openedFiles": "Открытые файлы",
-      "saveAll": "Сохранить все",
-      "closeAll": "Закрыть все",
+      "saveAll": "Сохранить всё",
+      "closeAll": "Закрыть всё",
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
       "openFolder": "Открыть папку"
@@ -259,11 +259,11 @@
     }
   },
   "commandPalette": {
-    "placeholder": "Введите команду для выполнения",
+    "placeholder": "Введите команду",
     "placeholders": {
       "selectOption": "Выберите вариант",
       "searchFileToOpen": "Поиск файла для открытия",
-      "selectLanguage": "Выберите язык для переключения"
+      "selectLanguage": "Выберите язык"
     }
   },
   "exportSettings": {
@@ -788,7 +788,7 @@
       "cut": "Вырезать",
       "copy": "Копировать",
       "paste": "Вставить",
-      "copyAsRich": "Копировать как форматированный текст",
+      "copyAsRich": "Копировать с форматированием",
       "copyAsHtml": "Копировать как HTML",
       "pasteAsPlaintext": "Вставить как обычный текст",
       "selectAll": "Выделить всё",
@@ -855,9 +855,9 @@
       "sourceCodeMode": "Режим исходного кода",
       "typewriterMode": "Режим печатной машинки",
       "focusMode": "Режим фокусировки",
-      "toggleSourceCodeMode": "Переключить режим исходного кода",
-      "toggleTypewriterMode": "Переключить режим печатной машинки",
-      "toggleFocusMode": "Переключить режим фокусировки",
+      "toggleSourceCodeMode": "Режим исходного кода",
+      "toggleTypewriterMode": "Режим печатной машинки",
+      "toggleFocusMode": "Режим фокусировки",
       "toggleSidebar": "Переключить боковую панель",
       "toggleToc": "Переключить оглавление",
       "toggleTabbar": "Переключить панель вкладок",
@@ -869,20 +869,20 @@
       "devToggleDeveloperTools": "Переключить инструменты разработчика"
     },
     "tabs": {
-      "cycleForward": "Вперёд по кругу",
-      "cycleBackward": "Назад по кругу",
-      "switchToLeft": "Переключиться влево",
-      "switchToRight": "Переключиться вправо",
-      "switchToFirst": "Переключиться на первую",
-      "switchToSecond": "Переключиться на вторую",
-      "switchToThird": "Переключиться на третью",
-      "switchToFourth": "Переключиться на четвёртую",
-      "switchToFifth": "Переключиться на пятую",
-      "switchToSixth": "Переключиться на шестую",
-      "switchToSeventh": "Переключиться на седьмую",
-      "switchToEighth": "Переключиться на восьмую",
-      "switchToNinth": "Переключиться на девятую",
-      "switchToTenth": "Переключиться на десятую"
+      "cycleForward": "Следующая вкладка",
+      "cycleBackward": "Предыдущая вкладка",
+      "switchToLeft": "Перейти на вкладку слева",
+      "switchToRight": "Перейти на вкладку справа",
+      "switchToFirst": "Перейти на 1-ю вкладку",
+      "switchToSecond": "Перейти на 2-ю вкладку",
+      "switchToThird": "Перейти на 3-ю вкладку",
+      "switchToFourth": "Перейти на 4-ю вкладку",
+      "switchToFifth": "Перейти на 5-ю вкладку",
+      "switchToSixth": "Перейти на 6-ю вкладку",
+      "switchToSeventh": "Перейти на 7-ю вкладку",
+      "switchToEighth": "Перейти на 8-ю вкладку",
+      "switchToNinth": "Перейти на 9-ю вкладку",
+      "switchToTenth": "Перейти на 10-ю вкладку"
     },
     "docs": {
       "userGuide": "Руководство пользователя",
