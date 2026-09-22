@@ -39,8 +39,13 @@ describe('deepClone', () => {
 
         const copy = deepClone(state);
 
-        expect(copy).not.toBe(state);
-        expect(copy[0]).not.toBe(state[0]);
+        // Compare identity OUTSIDE the matcher: `expect(deepValue)` recurses
+        // once per level while Vitest inspects its argument, which overflows
+        // the stack at ~900 levels of this shape — barely above the 600 here,
+        // so on CI it landed on the wrong side about half the time (#5504).
+        // `deepClone` itself is iterative and handles 100k levels.
+        expect(copy === state).toBe(false);
+        expect(copy[0] === state[0]).toBe(false);
         const source = innermostLeaf(state);
         const cloned = innermostLeaf(copy);
         expect(cloned.levels).toBe(600);
