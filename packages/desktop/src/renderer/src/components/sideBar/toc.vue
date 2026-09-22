@@ -198,4 +198,13 @@ const handleClick = (data: { slug?: unknown }): void => {
   height: auto;
   min-height: 26px;
 }
+
+/* Element Plus renders every label as `<el-text truncated>`, which declares
+   `white-space: nowrap` on the label itself — the `normal` above only reaches
+   it by inheritance, which a declaration always beats (#5094, other property). */
+.side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
+  white-space: normal;
+  text-overflow: clip;
+  overflow: visible;
+}
 </style>
