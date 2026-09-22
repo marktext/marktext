@@ -106,6 +106,7 @@ import {
   ja,
   ko,
   pt,
+  ru,
   tr,
   zhCN,
   zhTW,
@@ -155,6 +156,7 @@ const MUYA_LOCALES: Record<string, ILocale> = {
   ja,
   ko,
   pt,
+  ru,
   tr,
   'zh-CN': zhCN,
   'zh-TW': zhTW

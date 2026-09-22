@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { de, en, es, fr, ja, ko, nl, pt, zhCN, zhTW } from '../locales';
+import * as locales from '../locales';
 
 // CHARACTERIZATION: every shipped locale must carry the exact same translation
 // keys as the canonical `en` locale (no missing/extra keys), and expose a
 // `name` tag identifying it. Missing keys would surface untranslated strings;
 // extra keys are dead weight. `en` is the source of truth.
 
+const { de, en, es, fr, ja, ko, nl, pt, ru, tr, zhCN, zhTW } = locales;
+
+// Spelled out rather than derived from `locales` so the name-tag suite below
+// asserts against an independent expectation instead of the value it checks.
+// `covers every locale the package exports` keeps the two in sync.
 const nonEnLocales: Array<[string, typeof en]> = [
     ['de', de],
     ['es', es],
@@ -14,14 +19,17 @@ const nonEnLocales: Array<[string, typeof en]> = [
     ['ko', ko],
     ['nl', nl],
     ['pt', pt],
+    ['ru', ru],
+    ['tr', tr],
     ['zh-CN', zhCN],
     ['zh-TW', zhTW],
 ];
 
 // Technical terms that MUST NOT be translated — they are product names,
 // standards, or widely-recognized English terms used as-is in all locales.
-// Note: CJK locales (ja, ko, zh-CN, zh-TW) and Turkish conventionally
-// translate these terms. We only enforce this for Latin-script locales.
+// Enforced only for the locales listed in TERM_PRESERVING_LOCALES below; the
+// others (ja, ko, zh-CN, zh-TW, tr) do translate them by convention, e.g.
+// tr.ts renders Front Matter as "Ön Bilgi".
 //
 // Canonical spelling of product/standard names (for reference):
 //   - PlantUML   (not "Plantuml") — https://plantuml.com
@@ -40,7 +48,10 @@ const TECHNICAL_TERMS: Record<string, string> = {
     'Plantuml': 'PlantUML', // key is misspelled upstream; display value uses correct casing
 };
 
-const LATIN_SCRIPT_LOCALES = ['de', 'es', 'fr', 'nl', 'pt'];
+// Locales that keep the English product names as-is. Not a script property —
+// ru is Cyrillic and still spells Front Matter, Mermaid and PlantUML the
+// English way — so membership is per-locale convention, not per-alphabet.
+const TERM_PRESERVING_LOCALES = ['de', 'es', 'fr', 'nl', 'pt', 'ru'];
 
 describe('locale completeness', () => {
     const enKeys = Object.keys(en.resource).sort();
@@ -50,8 +61,10 @@ describe('locale completeness', () => {
         expect(enKeys.length).toBeGreaterThan(0);
     });
 
-    it('ships exactly ten built-in locales (en + 9 translations)', () => {
-        expect(nonEnLocales).toHaveLength(9);
+    it('covers every locale the package exports', () => {
+        const exported = Object.values(locales).map(locale => locale.name).sort();
+        const covered = ['en', ...nonEnLocales.map(([tag]) => tag)].sort();
+        expect(covered).toEqual(exported);
     });
 
     describe('key parity with en', () => {
@@ -71,6 +84,8 @@ describe('locale completeness', () => {
             'ko': 'ko',
             'nl': 'nl',
             'pt': 'pt',
+            'ru': 'ru',
+            'tr': 'tr',
             'zh-CN': 'zh-CN',
             'zh-TW': 'zh-TW',
         };
@@ -92,9 +107,9 @@ describe('locale completeness', () => {
         }
     });
 
-    describe('technical terms are not translated (Latin-script locales)', () => {
-        const latinLocales = nonEnLocales.filter(([tag]) => LATIN_SCRIPT_LOCALES.includes(tag));
-        for (const [tag, locale] of latinLocales) {
+    describe('technical terms are not translated', () => {
+        const termLocales = nonEnLocales.filter(([tag]) => TERM_PRESERVING_LOCALES.includes(tag));
+        for (const [tag, locale] of termLocales) {
             for (const [key, expectedValue] of Object.entries(TECHNICAL_TERMS)) {
                 it(`${tag} keeps "${key}" untranslated`, () => {
                     const resource = locale.resource as Record<string, string>;
