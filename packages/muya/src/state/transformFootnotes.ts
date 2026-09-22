@@ -9,22 +9,11 @@
 
 const FOOTNOTE_DEF_RE = /<div class="footnote-block" data-identifier="([^"]*)">([\s\S]*?)<\/div>\s*/g;
 
-// Inline `[^id]` syntax. Identifier matches the marked footnote extension's
-// block rule (utils/marked/extensions/footnote.ts: `[^^[\]\s]+`) so any id
-// the block accepts as a definition can also be picked up as a reference.
-const FOOTNOTE_REF_RE = /\[\^([^[\]\s]+)\]/g;
-
-// Pre/code blocks need to opt out: `[^id]` inside `<code>` or `<pre>` is
-// content, not a reference. We blank them out before scanning for refs and
-// restore them afterwards. The non-greedy match is enough since neither
-// element supports nesting itself in valid HTML.
-const CODE_GUARD_RE = /<(code|pre)\b[^>]*>[\s\S]*?<\/\1>/g;
-
-// Placeholder used to mask code spans / blocks while we scan for inline
-// `[^id]` references. The mid-string `_MUYA_FN_GUARD_` token can't appear in
-// marked's HTML output (no rule emits it), so the restore step is unambiguous.
-const CODE_PLACEHOLDER_PREFIX = '_MUYA_FN_GUARD_';
-const CODE_PLACEHOLDER_RESTORE_RE = /_MUYA_FN_GUARD_(\d+)_/g;
+// Inline reference markers, emitted by the same extension's inline rule. The
+// extension resolves what is and isn't a reference while the source is still
+// tokenisable — escapes, code spans and fenced code are all settled there —
+// so this pass only has to number what survived.
+const FOOTNOTE_REF_RE = /<span class="footnote-ref" data-identifier="([^"]*)"><\/span>/g;
 
 export function transformFootnotes(html: string): string {
     // 1. Lift every footnote-block out of the body, remembering the rendered
@@ -41,32 +30,26 @@ export function transformFootnotes(html: string): string {
     });
 
     if (definitions.size === 0)
-        return html;
+        return unmarkReferences(html);
 
-    // 2. Stash code spans / blocks so step 3 only scans live prose.
-    const codeSlots: string[] = [];
-    body = body.replace(CODE_GUARD_RE, (m) => {
-        codeSlots.push(m);
-        return `${CODE_PLACEHOLDER_PREFIX}${codeSlots.length - 1}_`;
-    });
-
-    // 3. Find inline `[^id]` references in source order. Numbering follows
-    //    inline order (pandoc / GFM convention), not the order definitions
-    //    appear in source. Orphan refs (no matching def) stay as plain text;
-    //    repeats reuse the first-seen number.
+    // 2. Number the surviving reference markers in the order they appear.
+    //    Numbering follows inline order (pandoc / GFM convention), not the
+    //    order definitions appear in source. Orphan refs (no matching def)
+    //    fall back to literal text; repeats reuse the first-seen number.
     const refNumber = new Map<string, number>();
+    const refCount = new Map<string, number>();
     let nextN = 1;
-    body = body.replace(FOOTNOTE_REF_RE, (match, id: string) => {
+    body = body.replace(FOOTNOTE_REF_RE, (_, id: string) => {
         if (!definitions.has(id))
-            return match;
+            return literalReference(id);
         if (!refNumber.has(id))
             refNumber.set(id, nextN++);
         const n = refNumber.get(id)!;
-        return `<sup class="footnote-ref"><a href="#fn-${n}" id="fnref-${n}">${n}</a></sup>`;
-    });
+        const occurrence = (refCount.get(id) ?? 0) + 1;
+        refCount.set(id, occurrence);
 
-    // 4. Restore the protected code regions.
-    body = body.replace(CODE_PLACEHOLDER_RESTORE_RE, (_, i) => codeSlots[Number(i)]);
+        return `<sup class="footnote-ref"><a href="#fn-${n}" id="${refAnchor(n, occurrence)}">${n}</a></sup>`;
+    });
 
     if (refNumber.size === 0)
         return body;
@@ -79,22 +62,53 @@ export function transformFootnotes(html: string): string {
     );
     const items: string[] = [];
     for (const [id, n] of orderedRefs) {
-        const inner = definitions.get(id) ?? '';
-        items.push(`<li id="fn-${n}">${appendBackref(inner, n)}</li>`);
+        // A note body is not a place references resolve — pandoc has no
+        // nested notes — so any marker in there reverts to literal text.
+        const inner = unmarkReferences(definitions.get(id) ?? '');
+        items.push(`<li id="fn-${n}">${appendBackrefs(inner, n, refCount.get(id) ?? 1)}</li>`);
     }
 
     const section = `\n<section class="footnotes">\n<ol>\n${items.join('\n')}\n</ol>\n</section>\n`;
     return `${body.replace(/\s+$/, '')}\n${section}`;
 }
 
-function appendBackref(definitionHtml: string, n: number): string {
-    const backref = ` <a href="#fnref-${n}" class="footnote-backref">↩</a>`;
-    // Inject the backref inside the trailing `</p>` so the arrow sits next to
+// Undo the extension's marker, restoring the `[^id]` the author typed. An
+// identifier may hold `&`, `<` or `>` (the rule only bars `^`, `[`, `]` and
+// whitespace), and it arrives already entity-escaped from the marker's
+// attribute. Entities read the same as text, so it is re-emitted untouched
+// rather than unescaped into markup.
+function literalReference(escapedIdentifier: string): string {
+    return `[^${escapedIdentifier}]`;
+}
+
+function unmarkReferences(html: string): string {
+    return html.replace(FOOTNOTE_REF_RE, (_, id: string) => literalReference(id));
+}
+
+// `id` has to be unique in a document, so only the first reference to a note
+// can own the plain `fnref-N`; later ones take a suffix. GFM numbers them the
+// same way.
+function refAnchor(n: number, occurrence: number): string {
+    return occurrence === 1 ? `fnref-${n}` : `fnref-${n}-${occurrence}`;
+}
+
+function appendBackrefs(definitionHtml: string, n: number, occurrences: number): string {
+    // One arrow per reference, so every occurrence is reachable and not just
+    // the first. The first arrow stays bare — the common single-reference case
+    // then reads as it always has — and the rest are numbered, otherwise they
+    // would be indistinguishable.
+    let backrefs = '';
+    for (let k = 1; k <= occurrences; k++) {
+        const label = k === 1 ? '↩' : `↩${k}`;
+        backrefs += ` <a href="#${refAnchor(n, k)}" class="footnote-backref">${label}</a>`;
+    }
+
+    // Inject the backrefs inside the trailing `</p>` so the arrows sit next to
     // the last word of the last paragraph (pandoc style). If the definition
-    // doesn't end with a paragraph (rare — e.g. ends in a list), tack the
-    // backref on after the block.
+    // doesn't end with a paragraph (rare — e.g. ends in a list), tack them
+    // on after the block.
     const lastClose = definitionHtml.lastIndexOf('</p>');
     if (lastClose >= 0)
-        return `${definitionHtml.slice(0, lastClose)}${backref}${definitionHtml.slice(lastClose)}`;
-    return `${definitionHtml}${backref}`;
+        return `${definitionHtml.slice(0, lastClose)}${backrefs}${definitionHtml.slice(lastClose)}`;
+    return `${definitionHtml}${backrefs}`;
 }

@@ -54,7 +54,7 @@ export const getLogLevel = (): LogLevel => {
   const verbose = (globalThis as typeof globalThis & { MARKTEXT_DEBUG_VERBOSE?: number })
     .MARKTEXT_DEBUG_VERBOSE
   if (!verbose || typeof verbose !== 'number' || verbose <= 0) {
-    return process.env.NODE_ENV === 'development' ? 'debug' : 'info'
+    return import.meta.env.DEV ? 'debug' : 'info'
   } else if (verbose === 1) {
     return 'verbose'
   } else if (verbose === 2) {

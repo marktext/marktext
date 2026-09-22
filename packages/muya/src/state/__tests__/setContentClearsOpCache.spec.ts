@@ -16,10 +16,12 @@ function makeState(blocks: TState[]): JSONState {
     const muya = {
         options: {
             footnote: false,
-            isGitlabCompatibilityEnabled: false,
+            texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
-            math: false,
+            texMathDollars: false,
             listIndentation: 1,
         },
         eventCenter: { emit: () => {} },

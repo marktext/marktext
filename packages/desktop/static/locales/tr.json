@@ -3,7 +3,10 @@
     "counter": {
       "words": "Sözcükler",
       "characters": "Karakterler",
-      "paragraphs": "Paragraflar"
+      "paragraphs": "Paragraflar",
+      "allCharacters": "Tüm karakterler",
+      "document": "Belge",
+      "documentSelection": "Belge / Seçim"
     },
     "file": {
       "file": "Dosya",
@@ -21,6 +24,7 @@
       "export": "Dışa Aktar",
       "exportHtml": "HTML Olarak Dışa Aktar",
       "exportPdf": "PDF Olarak Dışa Aktar",
+      "convertWithPandoc": "Pandoc ile dönüştür",
       "import": "İçe Aktar",
       "print": "Yazdır",
       "closeTab": "Sekmeyi Kapat",
@@ -80,6 +84,7 @@
       "minimize": "Simge Durumuna Küçült",
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
+      "resetZoom": "Yakınlaştırmayı Sıfırla",
       "fullScreen": "Tam Ekran",
       "bringAllToFront": "Tümünü Öne Getir",
       "alwaysOnTop": "Her Zaman Üstte"
@@ -184,6 +189,7 @@
     "copyAsRich": "Zengin Metin Olarak Kopyala",
     "copyAsHtml": "HTML Olarak Kopyala",
     "pasteAsPlainText": "Düz Metin Olarak Yapıştır",
+    "lookUp": "\"{selection}\" Ara",
     "insertParagraphBefore": "Önüne Paragraf Ekle",
     "insertParagraphAfter": "Arkasına Paragraf Ekle",
     "spelling": "Yazım...",
@@ -385,6 +391,7 @@
         "codeFontSize": "Kod bloğundaki yazı tipi boyutu, aralık 12 ~ 18",
         "codeFontFamily": "Kod bloğunda kullanılan yazı tipi ailesi",
         "codeBlockLineNumbers": "Satır numaralarının gösterilip gösterilmeyeceği",
+        "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster",
         "trimUnnecessaryCodeBlockEmptyLines": "Kod bloğundaki baştaki ve sondaki boş satırları kırp",
         "autoPairBracket": "Düzenlerken parantezleri otomatik tamamla",
         "autoPairMarkdownSyntax": "Markdown söz dizimini otomatik tamamla",
@@ -406,8 +413,12 @@
         "frontmatterType": "Ön bilgi türü",
         "superSubScript": "Pandoc'un markdown uzantısı üst simge ve alt simgeyi etkinleştir",
         "footnote": "Pandoc'un markdown uzantısı dipnotu etkinleştir",
+        "texMathDollars": "Pandoc'un markdown uzantısı tex_math_dollars'ı etkinleştir",
+        "texMathGfm": "Pandoc'un markdown uzantısı tex_math_gfm'i etkinleştir",
+        "texMathSingleBackslash": "Pandoc'un markdown uzantısı tex_math_single_backslash'i etkinleştir",
+        "texMathDoubleBackslash": "Pandoc'un markdown uzantısı tex_math_double_backslash'i etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
-        "isGitlabCompatibilityEnabled": "GitLab uyumluluk modunu etkinleştir",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
         "theme": "MarkText'te kullanılan temayı seçin",
         "followSystemTheme": "Sistem Temasını Takip Et",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "Satır yüksekliği",
         "fontFamily": "Yazı tipi ailesi",
         "maxWidth": "Maksimum genişlik",
-        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği"
+        "maxWidthNotes": "Düzenleyici içeriğinin maksimum genişliği. Bir sayının ardından px, ch (karakter) veya % girin, örneğin 800px, 80ch veya 60%. Varsayılan genişliği kullanmak için boş bırakın.",
+        "maxWidthInvalid": "Bir sayının ardından px, ch veya % girin, örneğin 800px."
       },
       "codeBlock": {
         "title": "Kod Bloğu",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "Bağlantı açılır penceresini gizle",
         "autoCheck": "Otomatik işaretle",
         "autoNormalizeLineEndings": "Açılışta satır sonlarını LF'ye otomatik normalleştir",
-        "wrapCodeBlocks": "Kod bloklarını kaydır"
+        "wrapCodeBlocks": "Kod bloklarını kaydır",
+        "sourceCodeLineNumbers": "Kaynak kod modunda satır numaralarını göster"
       }
     },
     "image": {
@@ -627,6 +642,10 @@
         "superSubScript": "Üst/Alt Simge",
         "footnote": "Dipnot",
         "footnoteNotes": "Dipnot notları",
+        "texMathDollars": "$ ve $$ ile TeX matematiği",
+        "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
+        "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",
+        "texMathDoubleBackslash": "Çift ters eğik çizgili TeX matematiği",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",
@@ -653,8 +672,8 @@
         "title": "Çeşitli"
       },
       "compatibility": {
-        "enableGitlab": "GitLab uyumluluğunu etkinleştir",
         "enableHtml": "HTML desteğini etkinleştir",
+        "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "title": "Uyumluluk"
       },
       "lists": {
@@ -886,7 +905,9 @@
     "fileExists": "Dosya zaten var: {filename}",
     "files": "Dosyalar",
     "importWarning": "İçe aktarma uyarısı",
-    "installPandoc": "Pandoc'u Yükle",
+    "installPandoc": "Pandoc bulunamadı. Yükleyin veya MARKTEXT_PANDOC ortam değişkenini pandoc çalıştırılabilir dosyasının yolu olarak ayarlayıp MarkText'i yeniden başlatın.",
+    "exportWarning": "Dışa aktarma uyarısı",
+    "exportWarningMore": "…ve {count} tane daha",
     "keepOpen": "Açık tut",
     "replace": "Değiştir",
     "save": "Kaydet",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "Kaydedilirken bir hata oluştu: {msg}",
       "exportSuccessTitle": "Başarıyla dışa aktarıldı",
       "exportSuccessMessage": "\"{name}\" başarıyla dışa aktarıldı!",
+      "exportLinkedMediaMessage": "\"{name}\" dışa aktarıldı. Bu biçim görselleri gömmez, dosya bağlantısı olarak bırakır — görselleri dosyanın yanında tutun ve klasörün tamamını paylaşın.",
       "fileRemovedOnDisk": "\"{name}\" diskten kaldırıldı.",
       "fileChangedOnDisk": "\"{name}\" dosyasında değişiklikler var, yeniden yüklensin mi?"
     }

@@ -27,8 +27,10 @@ import StateToMarkdown from '../stateToMarkdown';
 function toState(markdown: string): TState[] {
     return new MarkdownToState({
         footnote: false,
-        math: true,
-        isGitlabCompatibilityEnabled: true,
+        texMathDollars: true,
+        texMathGfm: true,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(markdown);

@@ -3,7 +3,10 @@
     "counter": {
       "words": "Words",
       "characters": "Characters",
-      "paragraphs": "Paragraphs"
+      "paragraphs": "Paragraphs",
+      "allCharacters": "All characters",
+      "document": "Document",
+      "documentSelection": "Document / Selection"
     },
     "file": {
       "file": "File",
@@ -21,6 +24,7 @@
       "export": "Export",
       "exportHtml": "Export as HTML",
       "exportPdf": "Export as PDF",
+      "convertWithPandoc": "Convert with Pandoc",
       "import": "Import",
       "print": "Print",
       "closeTab": "Close Tab",
@@ -80,6 +84,7 @@
       "minimize": "Minimize",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom Out",
+      "resetZoom": "Reset Zoom",
       "fullScreen": "Full Screen",
       "bringAllToFront": "Bring All to Front",
       "alwaysOnTop": "Always on Top"
@@ -184,6 +189,7 @@
     "copyAsRich": "Copy As Rich Text",
     "copyAsHtml": "Copy As HTML",
     "pasteAsPlainText": "Paste as Plain Text",
+    "lookUp": "Look Up \"{selection}\"",
     "insertParagraphBefore": "Insert Paragraph Before",
     "insertParagraphAfter": "Insert Paragraph After",
     "spelling": "Spelling...",
@@ -385,6 +391,7 @@
         "codeFontSize": "Font size in code Block, the range is 12 ~ 18",
         "codeFontFamily": "Font family used in code block",
         "codeBlockLineNumbers": "Whether to show the line numbers",
+        "sourceCodeLineNumbers": "Show line numbers in source code mode",
         "trimUnnecessaryCodeBlockEmptyLines": "Trim the beginning and ending empty lines in code block",
         "autoPairBracket": "Automatically brackets when editing",
         "autoPairMarkdownSyntax": "Autocomplete markdown syntax",
@@ -406,8 +413,12 @@
         "frontmatterType": "The frontmatter type",
         "superSubScript": "Enable pandoc's markdown extension superscript and subscript",
         "footnote": "Enable pandoc's markdown extension footnote",
+        "texMathDollars": "Enable pandoc's markdown extension tex_math_dollars",
+        "texMathGfm": "Enable pandoc's markdown extension tex_math_gfm",
+        "texMathSingleBackslash": "Enable pandoc's markdown extension tex_math_single_backslash",
+        "texMathDoubleBackslash": "Enable pandoc's markdown extension tex_math_double_backslash",
         "isHtmlEnabled": "Enable HTML rendering",
-        "isGitlabCompatibilityEnabled": "Enable GitLab compatibility mode",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
         "plantumlServer": "PlantUML server URL",
         "theme": "Select the theme used in MarkText",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "Line height",
         "fontFamily": "Font family",
         "maxWidth": "Max width",
-        "maxWidthNotes": "Maximum width of editor content"
+        "maxWidthNotes": "Maximum width of editor content. Enter a number followed by px, ch (characters) or %, e.g. 800px, 80ch or 60%. Leave empty to use the default width.",
+        "maxWidthInvalid": "Enter a number followed by px, ch or %, e.g. 800px."
       },
       "codeBlock": {
         "title": "Code Block",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "Hide link popup",
         "autoCheck": "Auto check",
         "autoNormalizeLineEndings": "Auto-normalize line endings to LF on open",
-        "wrapCodeBlocks": "Wrap code blocks"
+        "wrapCodeBlocks": "Wrap code blocks",
+        "sourceCodeLineNumbers": "Show line numbers in source code mode"
       }
     },
     "image": {
@@ -627,6 +642,10 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Footnote",
         "footnoteNotes": "Footnote notes",
+        "texMathDollars": "TeX math with $ and $$",
+        "texMathGfm": "GitHub TeX math ($`…`$ and ```math)",
+        "texMathSingleBackslash": "TeX math with single-backslash delimiters",
+        "texMathDoubleBackslash": "TeX math with double-backslash delimiters",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",
@@ -653,8 +672,8 @@
         "title": "Miscellaneous"
       },
       "compatibility": {
-        "enableGitlab": "Enable GitLab compatibility",
         "enableHtml": "Enable HTML support",
+        "softNewlineAsSpace": "Treat soft newlines as spaces",
         "title": "Compatibility"
       },
       "lists": {
@@ -886,7 +905,9 @@
     "fileExists": "File exists {filename}",
     "files": "Files",
     "importWarning": "Import warning",
-    "installPandoc": "Install Pandoc",
+    "installPandoc": "Pandoc was not found. Install it, or set the MARKTEXT_PANDOC environment variable to the pandoc binary and restart MarkText.",
+    "exportWarning": "Export warning",
+    "exportWarningMore": "…and {count} more",
     "keepOpen": "Keep open",
     "replace": "Replace",
     "save": "Save",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "There was an error while saving: {msg}",
       "exportSuccessTitle": "Exported successfully",
       "exportSuccessMessage": "Exported \"{name}\" successfully!",
+      "exportLinkedMediaMessage": "Exported \"{name}\". This format links images instead of embedding them, so keep the pictures next to the file and share the whole folder.",
       "fileRemovedOnDisk": "\"{name}\" has been removed on disk.",
       "fileChangedOnDisk": "\"{name}\" has been changed on disk. Do you want to reload it?"
     }

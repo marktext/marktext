@@ -93,6 +93,7 @@ function normalizeEmptyTaskItem(item: ListItemToken) {
 // Add `listType` to token, it's type: "order" | "bullet" | "task".
 // Add `listItemType` to list_item token. it's type: "order" | "bullet" | "task".
 // Add `bulletMarkerOrDelimiter` to list_item token. it's type: "." | ")" | "*" | "+" | "-"
+// Add `orderMarker` to ordered list_item token, the number and delimiter as written, e.g. "1." | "007." | "10)"
 function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) {
     const results = [];
 
@@ -105,6 +106,7 @@ function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) 
                     item.listItemType = 'order';
                     const matches = BULL_REG.exec(item.raw);
                     item.bulletMarkerOrDelimiter = matches ? matches[1].slice(-1) as ListItemToken['bulletMarkerOrDelimiter'] : '';
+                    item.orderMarker = matches?.[1];
                 }
                 results.push(token);
             }

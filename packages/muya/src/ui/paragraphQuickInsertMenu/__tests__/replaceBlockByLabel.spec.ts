@@ -98,13 +98,15 @@ function makeFakeOriginBlock(): Parent {
     } as unknown as Parent;
 }
 
-function makeFakeMuya(): Muya {
+function makeFakeMuya(options: { texMathDollars?: boolean } = {}): Muya {
     return {
         options: {
             preferLooseListItem: false,
             bulletListMarker: '-',
             orderListDelimiter: '.',
             frontmatterType: '---',
+            texMathDollars: true,
+            ...options,
         },
     } as unknown as Muya;
 }
@@ -324,12 +326,17 @@ function makeTableMuya(): {
 }
 
 function makeTableBlock(): Parent {
-    return {
+    const block = {
         replaceWith: vi.fn(),
         // `showTablePicker` falls back to the block's DOM node when the cursor
         // has no coords (the happy-dom test env has no real selection).
         domNode: document.createElement('div'),
-    } as unknown as Parent;
+        firstContentInDescendant: () => ({ text: '/table' }),
+        outMostBlock: null as unknown,
+    };
+    // A top-level block is its own outmost block, i.e. it is in the document.
+    block.outMostBlock = block;
+    return block as unknown as Parent;
 }
 
 describe('replaceBlockByLabel — in-editor "table" shows the grid picker (revert #4435)', () => {
@@ -363,9 +370,10 @@ describe('replaceBlockByLabel — in-editor "table" shows the grid picker (rever
 
     it('the picker handler creates a table at (row + 1) × (column + 1)', () => {
         const { muya, emit, createTable } = makeTableMuya();
+        const block = makeTableBlock();
 
         replaceBlockByLabel({
-            block: makeTableBlock(),
+            block,
             muya,
             label: 'table',
         });
@@ -377,7 +385,7 @@ describe('replaceBlockByLabel — in-editor "table" shows the grid picker (rever
 
         expect(createTable).toHaveBeenCalledTimes(1);
         // The picker always replaces its disposable trigger block.
-        expect(createTable).toHaveBeenCalledWith({ rows: 3, columns: 4 }, { replace: true });
+        expect(createTable).toHaveBeenCalledWith({ rows: 3, columns: 4 }, { replace: true, block });
     });
 
     it('falls back to the block DOM node as the reference when the cursor has no coords', () => {
@@ -482,5 +490,42 @@ describe('replaceBlockByLabel — quick-insert frontmatter serializes the right 
             expect(fm.meta.lang).toBe('toml');
             expect(fm.meta.style).toBe('+');
         });
+    });
+});
+
+// #5446: the menus stop listing a math block once texMathDollars is off, but
+// the keyboard shortcut and the desktop Paragraph menu reach this function
+// without consulting a list — so the builder refuses too.
+describe('replaceBlockByLabel — math block follows texMathDollars', () => {
+    it('builds one while the option is on', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            replaceBlockByLabel({
+                block: makeFakeOriginBlock(),
+                muya: makeFakeMuya({ texMathDollars: true }),
+                label: 'math-block',
+            });
+            expect(captured.map(c => c.label)).toEqual(['math-block']);
+        }
+        finally {
+            restore();
+        }
+    });
+
+    it('builds nothing once the option is off', () => {
+        const { captured, restore } = setupCreateSpy();
+        try {
+            const block = makeFakeOriginBlock();
+            replaceBlockByLabel({
+                block,
+                muya: makeFakeMuya({ texMathDollars: false }),
+                label: 'math-block',
+            });
+            expect(captured).toEqual([]);
+            expect(block.replaceWith).not.toHaveBeenCalled();
+        }
+        finally {
+            restore();
+        }
     });
 });

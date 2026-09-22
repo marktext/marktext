@@ -68,7 +68,8 @@ export class ImageResizeBar {
                 this._block = block;
                 this._imageInfo = imageInfo;
                 setTimeout(() => {
-                    this._render();
+                    if (this._reference === reference)
+                        this._render();
                 });
             }
             else {
@@ -128,12 +129,15 @@ export class ImageResizeBar {
     }
 
     private _mouseDown = (event: Event) => {
-        if (!isHTMLElement(event.target) || !event.target.closest('.bar'))
+        const { target } = event;
+        const handle = isHTMLElement(target) ? target.closest('.bar') : null;
+        // Document content can carry its own `.bar` elements (raw HTML, a
+        // mermaid `classDef bar`); only this bar's handles start a resize (#5116).
+        if (!handle || !this._container.contains(handle))
             return;
 
-        const target = event.target;
         const { eventCenter } = this.muya;
-        this._movingAnchor = target.getAttribute('data-position');
+        this._movingAnchor = handle.getAttribute('data-position');
         const mouseMoveId = eventCenter.attachDOMEvent(
             document.body,
             'mousemove',
@@ -156,7 +160,7 @@ export class ImageResizeBar {
 
         event.preventDefault();
         const { clientX } = event;
-        let width: number | string = '';
+        let width: number;
         let relativeAnchor: HTMLDivElement;
         const image = this._reference!.querySelector('img');
         if (!image)
@@ -178,6 +182,9 @@ export class ImageResizeBar {
                     50,
                 );
                 break;
+
+            default:
+                return;
         }
         // Image width/height attribute must be an integer.
         width = Number.parseInt(String(width));
@@ -188,13 +195,7 @@ export class ImageResizeBar {
 
     private _mouseUp = (event: Event) => {
         event.preventDefault();
-        const { eventCenter } = this.muya;
-        if (this._eventId.length) {
-            for (const id of this._eventId)
-                eventCenter.detachDOMEvent(id);
-
-            this._eventId = [];
-        }
+        this._detachResizeListeners();
 
         if (typeof this._width === 'number' && this._block && this._imageInfo) {
             this._block.updateImage(this._imageInfo, 'width', String(this._width));
@@ -206,10 +207,22 @@ export class ImageResizeBar {
         this._movingAnchor = null;
     };
 
+    private _detachResizeListeners() {
+        const { eventCenter } = this.muya;
+        for (const id of this._eventId)
+            eventCenter.detachDOMEvent(id);
+
+        this._eventId = [];
+    }
+
     hide() {
         const { eventCenter } = this.muya;
         this._cleanup?.();
         this._cleanup = null;
+        this._detachResizeListeners();
+        this._width = null;
+        this._resizing = false;
+        this._movingAnchor = null;
         const circles = this._container.querySelectorAll('.bar');
         Array.from(circles).forEach(c => c.remove());
         this._status = false;

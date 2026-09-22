@@ -287,3 +287,76 @@ describe('image renderer — fail / empty wrapper classes', () => {
         expect(renderer.loadImageAsync).not.toHaveBeenCalled();
     });
 });
+
+// Regression for #4991: the width `loadImageAsync` pins on the first load is
+// lost on every re-render (each keystroke rewrites the block's innerHTML from
+// these vnodes), so a `viewBox`-only SVG would collapse to 0 again. The
+// rendered <img> carries the same pinned width whenever the cached size is the
+// browser's default object size.
+describe('image renderer — pins a width for images with no intrinsic size', () => {
+    function findImgStyle(vnodes: VNode | VNode[]): Record<string, string> | undefined {
+        const arr = Array.isArray(vnodes) ? vnodes : [vnodes];
+        let found: Record<string, string> | undefined;
+        const walk = (node: unknown) => {
+            if (!node || typeof node !== 'object')
+                return;
+            const vnode = node as VNode;
+            if (vnode.sel === 'img') {
+                found = vnode.data?.style as Record<string, string> | undefined;
+                return;
+            }
+            if (Array.isArray(vnode.children))
+                vnode.children.forEach(walk);
+        };
+        arr.forEach(walk);
+        return found;
+    }
+
+    it('renders the pinned width when the cached size is the default object size', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-11',
+            isSuccess: true,
+            width: 300,
+            height: 136,
+        });
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token: makeImageToken(), cursor: fakeCursor },
+        );
+
+        expect(findImgStyle(out)?.width).toBe('300px');
+    });
+
+    it('renders no pinned width for an image with an intrinsic size', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-12',
+            isSuccess: true,
+            width: 800,
+            height: 600,
+        });
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token: makeImageToken(), cursor: fakeCursor },
+        );
+
+        expect(findImgStyle(out)?.width).toBeUndefined();
+    });
+
+    it('leaves a width stated by the image attributes in charge', () => {
+        const renderer = makeRenderer({
+            id: 'mu-image-13',
+            isSuccess: true,
+            width: 300,
+            height: 136,
+        });
+
+        const out = image.call(
+            asRenderer(renderer),
+            { h, block: fakeBlock, token: makeImageToken({ width: '80' }), cursor: fakeCursor },
+        );
+
+        expect(findImgStyle(out)?.width).toBeUndefined();
+    });
+});

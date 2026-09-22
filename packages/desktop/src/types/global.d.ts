@@ -101,6 +101,7 @@ declare global {
     isDirectory(p: string): Promise<boolean>
     emptyDir(p: string): Promise<void>
     copy(src: string, dest: string): Promise<void>
+    copyWithContentHash(src: string, outputDir: string): Promise<string>
     ensureDir(p: string): Promise<void>
     outputFile(p: string, data: string | Uint8Array): Promise<void>
     move(src: string, dest: string): Promise<void>

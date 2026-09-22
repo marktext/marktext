@@ -51,6 +51,9 @@ export class Search {
         }
 
         for (const [block, highlights] of matchesMap.entries()) {
+            if (!block.outMostBlock)
+                continue;
+
             const isActive = highlights.some(h => h.active);
 
             block.update(undefined, isClear ? [] : highlights);
@@ -63,7 +66,7 @@ export class Search {
         }
     }
 
-    private _innerReplace(matches: IMatch[], value: string) {
+    private _innerReplace(matches: IMatch[], replacementOf: (match: IMatch) => string) {
         if (!matches.length)
             return;
 
@@ -83,7 +86,7 @@ export class Search {
             }
 
             tempText += block.text.substring(lastEnd, start);
-            tempText += value;
+            tempText += replacementOf(match);
             lastEnd = end;
         }
 
@@ -97,17 +100,10 @@ export class Search {
         const value = this._value;
 
         if (matches.length) {
-            if (isRegexp)
-                replaceValue = buildRegexValue(matches[index], replaceValue);
-
-            if (isSingle) {
-                // replace one
-                this._innerReplace([matches[index]], replaceValue);
-            }
-            else {
-                // replace all
-                this._innerReplace(matches, replaceValue);
-            }
+            this._innerReplace(
+                isSingle ? [matches[index]] : matches,
+                match => (isRegexp ? buildRegexValue(match, replaceValue) : replaceValue),
+            );
             const highlightIndex = index < matches.length - 1 ? index : index - 1;
 
             this.search(value, {
@@ -208,7 +204,7 @@ export class Search {
         // cursor where the highlight was so the user can keep typing there.
         if (selectHighlight) {
             const activeMatch = matches[index] ?? prevActiveMatch;
-            if (activeMatch) {
+            if (activeMatch?.block.outMostBlock) {
                 const { block, start, end } = activeMatch;
                 block.setCursor(start, end, true);
             }

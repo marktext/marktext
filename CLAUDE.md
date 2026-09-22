@@ -63,6 +63,8 @@ root holds only shared tooling and CI-facing scripts.
       electron-builder.yml  directories.output points at ../../dist.
       tsconfig.json / tsconfig.base.json
       vitest.config.ts
+      playwright.config.ts  Must stay here, not in test/e2e/ — Playwright only
+                            auto-loads a config from the directory it runs in.
       patches/              pnpm patches consumed by patch-package.
       build/                electron-builder resources (icons, entitlements,
                             NSIS scripts).
@@ -71,8 +73,7 @@ root holds only shared tooling and CI-facing scripts.
       out/                  electron-vite output (git-ignored).
       test/
         unit/               Vitest specs → pnpm test / pnpm test:unit
-        e2e/                Playwright specs + playwright.config.ts
-                            → pnpm test:e2e
+        e2e/                Playwright specs → pnpm test:e2e
       src/
         common/             Pure Node.js utilities usable from main, preload,
                             and renderer.
@@ -156,7 +157,7 @@ pnpm install
 # require restarting `pnpm run dev`.
 pnpm run dev
 
-# Preview the last electron-vite build (no rebuild). PERF_TESTING=true is set automatically.
+# Preview the last electron-vite build (no rebuild).
 pnpm run start
 
 # Build without packaging — fast path for verifying the renderer/main compile
@@ -204,7 +205,8 @@ pnpm run typecheck     # vue-tsc --noEmit (CI enforces)
 pnpm -C packages/desktop exec vitest run test/unit/specs/markdown-basic.spec.ts
 pnpm -C packages/desktop exec vitest run -t 'partial test name'
 
-# Single Playwright spec (playwright.config.ts lives in test/e2e/)
+# Single Playwright spec (playwright.config.ts sits at packages/desktop/, so it
+# is picked up automatically — run these from that package, not the repo root)
 pnpm -C packages/desktop exec playwright test test/e2e/launch.spec.ts
 pnpm -C packages/desktop exec playwright test -g 'partial test name'
 ```

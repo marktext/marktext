@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
@@ -43,7 +43,15 @@ const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
 
-const { theme, sourceCode } = storeToRefs(preferencesStore)
+const {
+  theme,
+  sourceCode,
+  sourceCodeLineNumbers,
+  texMathDollars,
+  texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash
+} = storeToRefs(preferencesStore)
 const { currentFile: currentTab } = storeToRefs(editorStore)
 
 const isValidMuyaIndexCursor = (cursor: unknown): cursor is MuyaIndexCursorLike => {
@@ -59,6 +67,24 @@ watch(
     }
   }
 )
+
+watch(sourceCodeLineNumbers, (value) => {
+  editor.value?.setOption('lineNumbers', value)
+})
+
+// A fresh instance reads these at mount; the watch is for a preference changed
+// while the source view is already open (#5446).
+const markdownMathMode = () => ({
+  name: 'markdown-math',
+  texMathDollars: texMathDollars.value,
+  texMathGfm: texMathGfm.value,
+  texMathSingleBackslash: texMathSingleBackslash.value,
+  texMathDoubleBackslash: texMathDoubleBackslash.value
+})
+
+watch([texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash], () => {
+  editor.value?.setOption('mode', markdownMathMode())
+})
 
 const getMarkdownAndCursor = (cm: CMInstance) => {
   let focus = cm.getCursor('head')
@@ -281,6 +307,30 @@ const handleImageAction = (payload: unknown) => {
   }
 }
 
+// `cursorActivity` fires per drag step, so key the dedup on the ranges rather
+// than on `getSelection()`, which copies the whole selection.
+let lastSelectionKey = ''
+
+const selectionKey = (cm: CMInstance): string =>
+  (cm?.listSelections?.() ?? [])
+    .map(
+      ({ anchor, head }: { anchor: { line: number; ch: number }; head: { line: number; ch: number } }) =>
+        `${anchor.line}:${anchor.ch}-${head.line}:${head.ch}`
+    )
+    .join(',')
+
+const updateSelectionWordCount = (cm: CMInstance) => {
+  const key = selectionKey(cm)
+  if (key === lastSelectionKey && editorStore.selectionWordCount != null) return
+  lastSelectionKey = key
+
+  const selectedText = cm?.getSelection?.('\n') ?? ''
+  const hasSelection = selectedText.trim().length > 0
+  if (!hasSelection && editorStore.selectionWordCount == null) return
+
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
+}
+
 const saveContent = (cm: CMInstance) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
@@ -304,6 +354,7 @@ const saveContent = (cm: CMInstance) => {
 const listenChange = () => {
   editor.value.on('cursorActivity', (cm: CMInstance) => {
     saveContent(cm)
+    updateSelectionWordCount(cm)
   })
 }
 
@@ -335,19 +386,12 @@ onMounted(() => {
   const container = sourceCodeContainer.value
   const codeMirrorConfig: Record<string, unknown> = {
     value: markdown,
-    lineNumbers: true,
+    lineNumbers: sourceCodeLineNumbers.value,
     autofocus: true,
     lineWrapping: true,
     styleActiveLine: true,
     direction: textDirection,
-    viewportMargin: Infinity,
-    lineNumberFormatter (line: number) {
-      if (line % 10 === 0 || line === 1) {
-        return line
-      } else {
-        return ''
-      }
-    }
+    viewportMargin: Infinity
   }
 
   if (railscastsThemes.includes(theme.value)) {
@@ -365,14 +409,11 @@ onMounted(() => {
   bus.on('image-action', handleImageAction)
   bus.on('scroll-to-header', handleScrollToHeader)
 
-  // For some reason, code mirror does not seem to play well with Vue's refs if we reference editor.value directly.
-  // See https://github.com/codemirror/codemirror5/issues/6886 - hence, we need to use a local variable first.
-  const codeMirrorInstance = codeMirror(container, codeMirrorConfig)
+  // CodeMirror's line tree relies on object identity and must not be proxied by Vue.
+  const codeMirrorInstance = markRaw(codeMirror(container, codeMirrorConfig))
 
-  // `markdown-math` wraps the standard Markdown mode and delegates `$...$` and
-  // `$$...$$` spans to stex so subscript underscores in math do not flip the
-  // outer mode into emphasis. See src/renderer/src/codeMirror/markdownMathMode.js.
-  codeMirrorInstance.setOption('mode', 'markdown-math')
+  // See src/renderer/src/codeMirror/markdownMathMode.ts.
+  codeMirrorInstance.setOption('mode', markdownMathMode())
 
   codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
     event.preventDefault()
@@ -388,6 +429,7 @@ onMounted(() => {
 
   editor.value = codeMirrorInstance
   tabId.value = id
+  updateSelectionWordCount(codeMirrorInstance)
 
   listenChange()
 })
@@ -403,6 +445,8 @@ onBeforeUnmount(() => {
   bus.off('undo', handleUndo)
   bus.off('redo', handleRedo)
   bus.off('image-action', handleImageAction)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
+  lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
 
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
@@ -434,5 +478,11 @@ onBeforeUnmount(() => {
 .source-code .CodeMirror-activeline-background,
 .source-code .CodeMirror-activeline-gutter {
   background: var(--floatHoverColor);
+}
+/* Fade the delimiters against the formula. Dimming the inherited colour rather
+   than naming one is what carries across every theme; 0.65 is the lowest value
+   still clearing 3:1 in all of them, with one-dark at 3.67 setting the floor. */
+.source-code .CodeMirror .cm-formatting-math {
+  opacity: 0.65;
 }
 </style>

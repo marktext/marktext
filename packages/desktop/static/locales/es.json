@@ -3,7 +3,10 @@
     "counter": {
       "words": "Palabras",
       "characters": "Caracteres",
-      "paragraphs": "Párrafos"
+      "paragraphs": "Párrafos",
+      "allCharacters": "Todos los caracteres",
+      "document": "Documento",
+      "documentSelection": "Documento / Selección"
     },
     "file": {
       "file": "Archivo",
@@ -21,6 +24,7 @@
       "export": "Exportar",
       "exportHtml": "Exportar como HTML",
       "exportPdf": "Exportar como PDF",
+      "convertWithPandoc": "Convertir con Pandoc",
       "import": "Importar",
       "print": "Imprimir",
       "closeTab": "Cerrar Pestaña",
@@ -73,13 +77,14 @@
       "taskList": "Lista de Tareas",
       "looseListItem": "Elemento de Lista Suelto",
       "horizontalRule": "Regla Horizontal",
-      "frontMatter": "Metadatos"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Ventana",
       "minimize": "Minimizar",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
+      "resetZoom": "Restablecer zoom",
       "fullScreen": "Pantalla Completa",
       "bringAllToFront": "Traer al Frente",
       "alwaysOnTop": "Siempre Encima"
@@ -184,6 +189,7 @@
     "copyAsRich": "Copiar Como Texto Enriquecido",
     "copyAsHtml": "Copiar Como HTML",
     "pasteAsPlainText": "Pegar como Texto Plano",
+    "lookUp": "Buscar \"{selection}\"",
     "insertParagraphBefore": "Insertar Párrafo Antes",
     "insertParagraphAfter": "Insertar Párrafo Después",
     "spelling": "Ortografía...",
@@ -386,6 +392,7 @@
         "codeFontSize": "Tamaño de fuente en bloque de código, el rango es 12 ~ 18",
         "codeFontFamily": "Familia de fuente utilizada en bloque de código",
         "codeBlockLineNumbers": "Si mostrar los números de línea",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente",
         "trimUnnecessaryCodeBlockEmptyLines": "Recortar las líneas vacías del principio y final en bloque de código",
         "autoPairBracket": "Paréntesis automáticos al editar",
         "autoPairMarkdownSyntax": "Autocompletar sintaxis de markdown",
@@ -407,8 +414,12 @@
         "frontmatterType": "El tipo de frontmatter",
         "superSubScript": "Habilitar extensión markdown de pandoc superíndice y subíndice",
         "footnote": "Habilitar extensión markdown de pandoc nota al pie",
+        "texMathDollars": "Activar la extensión de markdown de pandoc tex_math_dollars",
+        "texMathGfm": "Activar la extensión de markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activar la extensión de markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activar la extensión de markdown de pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Habilitar renderizado HTML",
-        "isGitlabCompatibilityEnabled": "Habilitar modo de compatibilidad GitLab",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
         "plantumlServer": "URL del servidor PlantUML",
         "theme": "Seleccionar el tema usado en MarkText",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "Altura de línea",
         "fontFamily": "Familia de fuente",
         "maxWidth": "Ancho máximo",
-        "maxWidthNotes": "Ancho máximo del contenido del editor"
+        "maxWidthNotes": "Ancho máximo del contenido del editor. Introduce un número seguido de px, ch (caracteres) o %, por ejemplo 800px, 80ch o 60%. Déjalo vacío para usar el ancho predeterminado.",
+        "maxWidthInvalid": "Introduce un número seguido de px, ch o %, por ejemplo 800px."
       },
       "codeBlock": {
         "title": "Bloque de Código",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "Ocultar popup de enlace",
         "autoCheck": "Verificación automática",
         "autoNormalizeLineEndings": "Normalizar automáticamente los finales de línea a LF al abrir",
-        "wrapCodeBlocks": "Ajustar bloques de código"
+        "wrapCodeBlocks": "Ajustar bloques de código",
+        "sourceCodeLineNumbers": "Mostrar números de línea en el modo código fuente"
       }
     },
     "image": {
@@ -627,6 +642,10 @@
         "superSubScript": "Super/Sub script",
         "footnote": "Nota al pie",
         "footnoteNotes": "Notas al pie",
+        "texMathDollars": "Matemáticas TeX con $ y $$",
+        "texMathGfm": "Matemáticas TeX de GitHub ($`…`$ y ```math)",
+        "texMathSingleBackslash": "Matemáticas TeX con barra invertida simple",
+        "texMathDoubleBackslash": "Matemáticas TeX con barra invertida doble",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",
@@ -653,8 +672,8 @@
         "title": "Misceláneos"
       },
       "compatibility": {
-        "enableGitlab": "Habilitar compatibilidad con GitLab",
         "enableHtml": "Habilitar soporte HTML",
+        "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "title": "Compatibilidad"
       },
       "lists": {
@@ -803,7 +822,7 @@
       "looseListItem": "Elemento de Lista Suelto",
       "paragraph": "Párrafo",
       "horizontalLine": "Línea Horizontal",
-      "frontMatter": "Metadatos",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Restablecer Párrafo",
       "mathBlock": "Bloque matemático",
       "horizontalRule": "Línea horizontal"
@@ -886,7 +905,9 @@
     "fileExists": "El archivo {filename} ya existe",
     "files": "Archivos",
     "importWarning": "Advertencia de importación",
-    "installPandoc": "Instalar Pandoc",
+    "installPandoc": "No se encontró Pandoc. Instálalo, o define la variable de entorno MARKTEXT_PANDOC con la ruta del ejecutable de pandoc y reinicia MarkText.",
+    "exportWarning": "Advertencia de exportación",
+    "exportWarningMore": "…y {count} más",
     "keepOpen": "Mantener abierto",
     "replace": "Reemplazar",
     "save": "Guardar",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "Se produjo un error al guardar: {msg}",
       "exportSuccessTitle": "Exportado correctamente",
       "exportSuccessMessage": "¡Se exportó «{name}» correctamente!",
+      "exportLinkedMediaMessage": "Se exportó \"{name}\". Este formato enlaza las imágenes en lugar de incrustarlas: mantén las imágenes junto al archivo y comparte la carpeta completa.",
       "fileRemovedOnDisk": "«{name}» ha sido eliminado del disco.",
       "fileChangedOnDisk": "«{name}» ha cambiado en el disco. ¿Deseas recargarlo?"
     }

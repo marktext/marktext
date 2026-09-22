@@ -3,7 +3,10 @@
     "counter": {
       "words": "Wörter",
       "characters": "Zeichen",
-      "paragraphs": "Absätze"
+      "paragraphs": "Absätze",
+      "allCharacters": "Alle Zeichen",
+      "document": "Dokument",
+      "documentSelection": "Dokument / Auswahl"
     },
     "file": {
       "file": "Datei",
@@ -21,6 +24,7 @@
       "export": "Exportieren",
       "exportHtml": "Als HTML exportieren",
       "exportPdf": "Als PDF exportieren",
+      "convertWithPandoc": "Mit Pandoc konvertieren",
       "import": "Importieren",
       "print": "Drucken",
       "closeTab": "Tab schließen",
@@ -80,6 +84,7 @@
       "minimize": "Minimieren",
       "zoomIn": "Vergrößern",
       "zoomOut": "Verkleinern",
+      "resetZoom": "Zoom zurücksetzen",
       "fullScreen": "Vollbild",
       "bringAllToFront": "Alle nach vorne bringen",
       "alwaysOnTop": "Immer im Vordergrund"
@@ -184,6 +189,7 @@
     "copyAsRich": "Als Rich Text kopieren",
     "copyAsHtml": "Als HTML kopieren",
     "pasteAsPlainText": "Als reinen Text einfügen",
+    "lookUp": "\"{selection}\" nachschlagen",
     "insertParagraphBefore": "Absatz davor einfügen",
     "insertParagraphAfter": "Absatz danach einfügen",
     "spelling": "Rechtschreibung...",
@@ -386,6 +392,7 @@
         "codeFontSize": "Schriftgröße im Codeblock, der Bereich ist 12 ~ 18",
         "codeFontFamily": "Schriftfamilie im Codeblock",
         "codeBlockLineNumbers": "Ob Zeilennummern angezeigt werden sollen",
+        "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen",
         "trimUnnecessaryCodeBlockEmptyLines": "Leere Zeilen am Anfang und Ende des Codeblocks entfernen",
         "autoPairBracket": "Automatische Klammern beim Bearbeiten",
         "autoPairMarkdownSyntax": "Markdown-Syntax automatisch vervollständigen",
@@ -407,8 +414,12 @@
         "frontmatterType": "Der Frontmatter-Typ",
         "superSubScript": "Pandocs Markdown-Erweiterung für hoch- und tiefgestellte Zeichen aktivieren",
         "footnote": "Pandocs Markdown-Erweiterung für Fußnoten aktivieren",
+        "texMathDollars": "Pandocs Markdown-Erweiterung tex_math_dollars aktivieren",
+        "texMathGfm": "Pandocs Markdown-Erweiterung tex_math_gfm aktivieren",
+        "texMathSingleBackslash": "Pandocs Markdown-Erweiterung tex_math_single_backslash aktivieren",
+        "texMathDoubleBackslash": "Pandocs Markdown-Erweiterung tex_math_double_backslash aktivieren",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
-        "isGitlabCompatibilityEnabled": "GitLab-Kompatibilitätsmodus aktivieren",
+        "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
         "plantumlServer": "PlantUML-Server-URL",
         "theme": "Das in MarkText verwendete Theme auswählen",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "Zeilenhöhe",
         "fontFamily": "Schriftfamilie",
         "maxWidth": "Maximale Breite",
-        "maxWidthNotes": "Maximale Breite des Editor-Inhalts"
+        "maxWidthNotes": "Maximale Breite des Editor-Inhalts. Geben Sie eine Zahl gefolgt von px, ch (Zeichen) oder % ein, z. B. 800px, 80ch oder 60%. Leer lassen, um die Standardbreite zu verwenden.",
+        "maxWidthInvalid": "Geben Sie eine Zahl gefolgt von px, ch oder % ein, z. B. 800px."
       },
       "codeBlock": {
         "title": "Code-Block",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "Link-Popup ausblenden",
         "autoCheck": "Automatische Überprüfung",
         "autoNormalizeLineEndings": "Zeilenenden beim Öffnen automatisch auf LF normalisieren",
-        "wrapCodeBlocks": "Code-Blöcke umbrechen"
+        "wrapCodeBlocks": "Code-Blöcke umbrechen",
+        "sourceCodeLineNumbers": "Zeilennummern im Quellcode-Modus anzeigen"
       }
     },
     "image": {
@@ -627,6 +642,10 @@
         "superSubScript": "Hoch-/Tiefgestellt",
         "footnote": "Fußnote",
         "footnoteNotes": "Fußnoten",
+        "texMathDollars": "TeX-Mathematik mit $ und $$",
+        "texMathGfm": "GitHub-TeX-Mathematik ($`…`$ und ```math)",
+        "texMathSingleBackslash": "TeX-Mathematik mit einfachem Backslash",
+        "texMathDoubleBackslash": "TeX-Mathematik mit doppeltem Backslash",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",
@@ -653,8 +672,8 @@
         "title": "Verschiedenes"
       },
       "compatibility": {
-        "enableGitlab": "GitLab-Kompatibilität aktivieren",
         "enableHtml": "HTML-Unterstützung aktivieren",
+        "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "title": "Kompatibilität"
       },
       "lists": {
@@ -886,7 +905,9 @@
     "fileExists": "Datei existiert bereits: {filename}",
     "files": "Dateien",
     "importWarning": "Import-Warnung",
-    "installPandoc": "Pandoc installieren",
+    "installPandoc": "Pandoc wurde nicht gefunden. Installieren Sie es, oder setzen Sie die Umgebungsvariable MARKTEXT_PANDOC auf den Pfad zur pandoc-Binary und starten Sie MarkText neu.",
+    "exportWarning": "Export-Warnung",
+    "exportWarningMore": "…und {count} weitere",
     "keepOpen": "Offen halten",
     "replace": "Ersetzen",
     "save": "Speichern",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "Beim Speichern ist ein Fehler aufgetreten: {msg}",
       "exportSuccessTitle": "Erfolgreich exportiert",
       "exportSuccessMessage": "„{name}“ wurde erfolgreich exportiert!",
+      "exportLinkedMediaMessage": "\"{name}\" exportiert. Dieses Format verlinkt Bilder, statt sie einzubetten — legen Sie die Bilder zur Datei und geben Sie den ganzen Ordner weiter.",
       "fileRemovedOnDisk": "„{name}“ wurde auf dem Datenträger gelöscht.",
       "fileChangedOnDisk": "„{name}“ wurde auf dem Datenträger geändert. Möchten Sie neu laden?"
     }

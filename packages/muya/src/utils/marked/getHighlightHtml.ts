@@ -5,7 +5,7 @@ import Prism from 'prismjs';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
@@ -37,7 +37,7 @@ function highlight(code: string, lang: string) {
 
 export function getHighlightHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, math, isGitlabCompatibilityEnabled, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript }
         = options;
 
     // Build a fresh Marked instance per call. `Marked.use({ walkTokens })`
@@ -47,7 +47,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     const marked = new Marked(markedHighlight({ highlight }));
 
     marked.use({
-        walkTokens: walkTokens({ math, isGitlabCompatibilityEnabled }),
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // Treat CJK characters as punctuation for emphasis/strong flanking so
@@ -57,9 +57,36 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
 
     marked.use(emojiExtension({ isRenderEmoji: true }));
 
-    if (math) {
+    if (texMathDollars) {
         marked.use(
             mathExtension({
+                throwOnError: false,
+                useKatexRender: true,
+            }),
+        );
+    }
+
+    if (texMathGfm) {
+        marked.use(
+            gfmMathExtension({
+                throwOnError: false,
+                useKatexRender: true,
+            }),
+        );
+    }
+
+    if (texMathSingleBackslash) {
+        marked.use(
+            singleBackslashMathExtension({
+                throwOnError: false,
+                useKatexRender: true,
+            }),
+        );
+    }
+
+    if (texMathDoubleBackslash) {
+        marked.use(
+            doubleBackslashMathExtension({
                 throwOnError: false,
                 useKatexRender: true,
             }),

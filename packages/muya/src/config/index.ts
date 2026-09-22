@@ -120,6 +120,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_HARD_LINE_BREAK',
     'MU_HARD_LINE_BREAK_SPACE',
     'MU_LINE_END',
+    'MU_TRAILING_BREAK',
     'MU_HEADER_TIGHT_SPACE',
     'MU_HIDE',
     'MU_HIDE_SPELLING_MARKS',
@@ -154,6 +155,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_LINK_IN_BRACKET',
     'MU_LIST_ITEM',
     'MU_LOOSE_LIST_ITEM',
+    'MU_DISPLAY_MATH',
     'MU_MATH',
     'MU_MATH_TEXT',
     'MU_MATH_RENDER',
@@ -162,6 +164,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_RUBY_RENDER',
     'MU_SELECTED',
     'MU_SOFT_LINE_BREAK',
+    'MU_SOFT_NEWLINE_AS_SPACE',
     'MU_MATH_ERROR',
     'MU_MATH_MARKER',
     'MU_MATH_RENDER',
@@ -344,9 +347,22 @@ export const MUYA_DEFAULT_OPTIONS = {
     frontMatter: true, // Whether to support frontmatter.
     superSubScript: true,
     footnote: false,
-    // Whether math block is supported.
-    math: true,
-    isGitlabCompatibilityEnabled: true,
+    // pandoc's `tex_math_dollars`: `$…$` and `$$…$$`.
+    texMathDollars: true,
+    // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
+    // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
+    texMathGfm: false,
+    // pandoc's `tex_math_single_backslash`: `\(…\)` inline and `\[…\]` display.
+    // Off by default, as in pandoc, where it is a non-default extension: turning
+    // it on precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula.
+    texMathSingleBackslash: false,
+    // pandoc's `tex_math_double_backslash`: `\\(…\\)` inline and `\\[…\\]`
+    // display. Off by default, as in pandoc. Combinable with the single-backslash
+    // extension: the two openers cannot collide, `\\(` carrying a backslash where
+    // `\(` carries the parenthesis.
+    texMathDoubleBackslash: false,
+    // Render soft line breaks as spaces instead of visual newlines.
+    softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.
     autoMoveCheckedToEnd: false,
     // Whether HTML rendering is disabled or not.

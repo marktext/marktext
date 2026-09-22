@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import { statSync, constants, type Stats } from 'fs'
 import { ipcMain } from 'electron'
 import { isFile as commonIsFile, isDirectory as commonIsDirectory } from 'common/filesystem'
+import { copyFileWithContentHash } from '../filesystem'
 
 interface SerializedStat {
   size: number
@@ -42,6 +43,9 @@ export const registerFsHandlers = (): void => {
   ipcMain.handle('mt::fs::is-directory', (_e, p: string) => commonIsDirectory(p))
   ipcMain.handle('mt::fs::empty-dir', (_e, p: string) => fs.emptyDir(p))
   ipcMain.handle('mt::fs::copy', (_e, src: string, dest: string) => fs.copy(src, dest))
+  ipcMain.handle('mt::fs::copy-with-content-hash', (_e, src: string, outputDir: string) =>
+    copyFileWithContentHash(src, outputDir)
+  )
   ipcMain.handle('mt::fs::ensure-dir', (_e, p: string) => fs.ensureDir(p))
 
   ipcMain.handle('mt::fs::output-file', (_e, p: string, data: unknown) =>

@@ -20,7 +20,20 @@ interface IFootnoteRendererThis {
 // footnote with identifier `foo\`. The `:[\s\S]*?` after the marker uses
 // `*` (not `+`) so a bare `[^id]:` followed only by a newline is still
 // recognised as an empty footnote.
-const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|$)/;
+//
+// The body ends at a blank line, at the start of the next column-0
+// definition, or at end of input. That middle terminator is what keeps
+// definitions packed one per line — the shape pandoc and GFM both emit —
+// as siblings. Indented (4-space) definitions stay body text, matching
+// the continuation rule.
+const BLOCK_RULE = /^\[\^([^^[\]\s]+)(?<!\\)\]:([\s\S]*?)(?=\n *\n {0,3}[^ ]|\n\[\^[^^[\]\s]+(?<!\\)\]:|$)/;
+
+// Inline `[^id]` reference. Tokenising it here rather than regexing marked's
+// finished HTML is what makes `\[^id]` stay literal: marked's own escape rule
+// claims the `\[` before this tokenizer is ever offered the position. For the
+// same reason code spans and fenced code need no special handling — marked
+// never runs inline extensions over their contents.
+const INLINE_RULE = /^\[\^([^^[\]\s]+)\]/;
 
 interface IFootnoteToken {
     type: 'footnote';
@@ -29,13 +42,29 @@ interface IFootnoteToken {
     tokens: Tokens.Generic[];
 }
 
+interface IFootnoteRefToken {
+    type: 'footnoteRef';
+    raw: string;
+    identifier: string;
+}
+
 export default function footnoteExtension(): MarkedExtension {
+    // pandoc: a footnote "may appear anywhere except inside other block
+    // elements", which rules out a definition nested in another note's body.
+    // Both hooks stand down while the body below is being lexed, so an
+    // indented `[^id]:` line stays literal text instead of becoming a child
+    // footnote. Scoped to this extension instance, so concurrent Marked
+    // instances don't see each other's state.
+    let inFootnoteBody = false;
+
     return {
         extensions: [
             {
                 name: 'footnote',
                 level: 'block',
                 start(src: string) {
+                    if (inFootnoteBody)
+                        return;
                     // Marked calls start() with `src.slice(1)` to look for the
                     // earliest position the paragraph should terminate at.
                     // Only signal a match when `[^id]:` follows an actual
@@ -46,6 +75,8 @@ export default function footnoteExtension(): MarkedExtension {
                     return m ? m.index + 1 : undefined;
                 },
                 tokenizer(src: string): IFootnoteToken | undefined {
+                    if (inFootnoteBody)
+                        return;
                     const match = BLOCK_RULE.exec(src);
                     if (!match)
                         return;
@@ -76,9 +107,16 @@ export default function footnoteExtension(): MarkedExtension {
                     // parsing. Project this context once per hook.
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IFootnoteTokenizerThis;
-                    const tokens = cleaned
-                        ? (lexer.blockTokens(cleaned, []) as Tokens.Generic[])
-                        : [];
+                    inFootnoteBody = true;
+                    let tokens: Tokens.Generic[];
+                    try {
+                        tokens = cleaned
+                            ? (lexer.blockTokens(cleaned, []) as Tokens.Generic[])
+                            : [];
+                    }
+                    finally {
+                        inFootnoteBody = false;
+                    }
 
                     return {
                         type: 'footnote',
@@ -95,6 +133,33 @@ export default function footnoteExtension(): MarkedExtension {
                     const { parser } = this as IFootnoteRendererThis;
                     const inner = parser ? parser.parse(t.tokens) : '';
                     return `<div class="footnote-block" data-identifier="${escapeAttr(t.identifier)}">${inner}</div>\n`;
+                },
+            },
+            {
+                name: 'footnoteRef',
+                level: 'inline',
+                start(src: string) {
+                    const i = src.indexOf('[^');
+                    return i === -1 ? undefined : i;
+                },
+                tokenizer(src: string): IFootnoteRefToken | undefined {
+                    const match = INLINE_RULE.exec(src);
+                    if (!match)
+                        return;
+
+                    return { type: 'footnoteRef', raw: match[0], identifier: match[1] };
+                },
+                renderer(token) {
+                    if (token.type !== 'footnoteRef')
+                        return false;
+                    const t = token as IFootnoteRefToken;
+
+                    // A marker, not the final `<sup>`: numbering depends on
+                    // the order references appear across the whole document,
+                    // which only `transformFootnotes` can see. It rewrites
+                    // every marker — into a link where a definition exists,
+                    // back into literal `[^id]` where none does.
+                    return `<span class="footnote-ref" data-identifier="${escapeAttr(t.identifier)}"></span>`;
                 },
             },
         ],

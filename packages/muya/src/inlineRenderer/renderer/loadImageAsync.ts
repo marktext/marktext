@@ -2,7 +2,7 @@ import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { getUniqueId } from '../../utils';
 import { insertAfter, operateClassName } from '../../utils/dom';
-import { loadImage } from '../../utils/image';
+import { loadImage, usesDefaultObjectSize } from '../../utils/image';
 
 export default function loadImageAsync(
     this: Renderer,
@@ -41,15 +41,31 @@ export default function loadImageAsync(
                 const imageText: HTMLElement | null = document.querySelector(`#${id}`);
                 const img = document.createElement('img');
                 img.src = url;
+
+                const NUM_REG = /^\d+$/;
+
                 if (attrs.alt)
                     img.alt = attrs.alt.replace(/[`*{}[\]()#+\-.!_>~:|<$]/g, '');
+
                 if (attrs.title)
                     img.setAttribute('title', attrs.title);
-                if (attrs.width && typeof attrs.width === 'number')
+
+                if (attrs.width && NUM_REG.test(attrs.width))
                     img.setAttribute('width', attrs.width);
 
-                if (attrs.height && typeof attrs.height === 'number')
+                if (attrs.height && NUM_REG.test(attrs.height))
                     img.setAttribute('height', attrs.height);
+
+                // An image with no intrinsic size — an SVG carrying only a
+                // `viewBox` — resolves its used width against the containing
+                // block, and `.mu-image-container` is shrink-to-fit: the width
+                // depends on the image, the image on the width, and Chromium
+                // settles on 0, rendering nothing (#4991). Pinning the width
+                // the browser fell back to gives the container something to
+                // shrink to; the height stays automatic, so `max-width: 100%`
+                // still scales the image by its ratio.
+                if (!attrs.width && !attrs.height && usesDefaultObjectSize(width, height))
+                    img.style.width = `${width}px`;
 
                 if (imageClass)
                     img.classList.add(imageClass);

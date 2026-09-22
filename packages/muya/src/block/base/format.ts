@@ -27,7 +27,7 @@ import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
-import { conflict, isHTMLElement, isMouseEvent } from '../../utils';
+import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
@@ -58,6 +58,16 @@ const INLINE_UPDATE_FRAGMENTS = [
 ];
 
 const INLINE_UPDATE_REG = new RegExp(INLINE_UPDATE_FRAGMENTS.join('|'), 'i');
+
+function stripHardBreakMarker(line: string): string {
+    const trimmed = line.replace(/[ \t]+$/, '');
+    if (trimmed !== line)
+        return trimmed;
+
+    const backslashes = /\\*$/.exec(line)![0].length;
+
+    return backslashes % 2 === 1 ? line.slice(0, -1) : line;
+}
 
 // Offset of the cursor relative to a symmetric/asymmetric marker pair
 // (strong/em/code/math/html_tag). `open`/`close` are the opening/closing
@@ -110,7 +120,7 @@ function getOffset(offset: number, token: Token) {
         case 'inline_code':
 
         case 'inline_math': {
-            const markerLen = type === 'strong' || type === 'del' ? 2 : 1;
+            const markerLen = token.marker.length;
             return markeredOffset(dis, len, markerLen, markerLen);
         }
 
@@ -224,6 +234,7 @@ class Format extends Content {
         text: string,
         offset: number,
         type: Token['type'],
+        includeEnd = false,
     ): Nullable<Token> {
         const tokens = tokenizer(text, {
             hasBeginRules: false,
@@ -240,7 +251,7 @@ class Format extends Content {
                 if (
                     token.type === type
                     && offset > token.range.start
-                    && offset < token.range.end
+                    && (offset < token.range.end || (includeEnd && offset === token.range.end))
                 ) {
                     result = token;
                     break;
@@ -390,7 +401,7 @@ class Format extends Content {
                 if (value && attr === 'src')
                     value = correctImageSrc(value);
 
-                imageText += `${attr}="${value}" `;
+                imageText += `${attr}="${escapeHTML(String(value))}" `;
             }
             imageText = imageText.trim();
             imageText += ' />';
@@ -421,7 +432,7 @@ class Format extends Content {
             if (value && attr === 'src')
                 value = correctImageSrc(value);
 
-            imageText += `${attr}="${value}" `;
+            imageText += `${attr}="${escapeHTML(String(value))}" `;
         }
         imageText = imageText.trim();
         imageText += ' />';
@@ -614,10 +625,13 @@ class Format extends Content {
             CLASS_NAMES.MU_MATH_RENDER,
             CLASS_NAMES.MU_RUBY_RENDER,
         ]);
+        // Also counts the caret right after the `$` that closed the formula, so
+        // typing `$$x$$` does not pair that `$` into `$$x$$$`.
         const isInInlineMath = !!this._checkCursorInTokenType(
             textContent,
             start.offset,
             'inline_math',
+            true,
         );
         const isInInlineCode = !!this._checkCursorInTokenType(
             textContent,
@@ -1311,17 +1325,17 @@ class Format extends Content {
 
         // fix: #897 in marktext repo
         const { text } = this;
-        const { footnote, superSubScript } = this.muya.options;
+        const { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = this.muya.options;
         const { labels } = this.inlineRenderer;
         const tokens = tokenizer(text, {
             labels,
-            options: { footnote, superSubScript },
+            options: { footnote, superSubScript, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash },
         });
         // The caret offset is unreliable when it is parked on a
         // `contenteditable=false` inline image; resolve the real offset from the
         // DOM so the scan can match the image token like any other caret.
         const offset = this._caretOffsetOnInlineImage() ?? start.offset;
-        const { needRender, imageToken, referenceImageToken }
+        const { needRender, imageToken, referenceImageToken, offsetDelta }
             = this._scanBackspaceTokens(tokens, offset);
 
         if (referenceImageToken) {
@@ -1337,9 +1351,12 @@ class Format extends Content {
             event.preventDefault();
             this.text = generator(tokens);
 
-            start.offset--;
-            end.offset--;
+            start.offset -= offsetDelta;
+            end.offset -= offsetDelta;
             this.setCursor(start.offset, end.offset, true);
+            // The native Backspace this replaces would re-read the block type
+            // in `inputHandler` (#5388).
+            this.checkInlineUpdate();
         }
 
         if (imageToken) {
@@ -1365,6 +1382,7 @@ class Format extends Content {
         needRender: boolean;
         imageToken: Token | null;
         referenceImageToken: Token | null;
+        offsetDelta: number;
     } {
         for (const token of tokens) {
             // An inline image followed by other content: the caret lands on the
@@ -1374,31 +1392,36 @@ class Format extends Content {
                 = token.type === 'image'
                     || (token.type === 'html_tag' && token.tag === 'img');
             if (token.range.end === offset && isImageToken)
-                return { needRender: false, imageToken: token, referenceImageToken: null };
+                return { needRender: false, imageToken: token, referenceImageToken: null, offsetDelta: 0 };
 
             // A reference image (`![alt][ref]`) is editable marked text, so it has
             // no inline-image wrapper to select. Delete the whole token at once.
             if (token.range.end === offset && token.type === 'reference_image')
-                return { needRender: false, imageToken: null, referenceImageToken: token };
+                return { needRender: false, imageToken: null, referenceImageToken: token, offsetDelta: 0 };
 
             // handle delete the second marker(et:*、$) in inline syntax.(Firefox compatible)
             // Fix: https://github.com/marktext/muya/issues/113
             // for example: foo **strong**|
             if (token.range.end === offset) {
-                token.raw = token.raw.substring(0, token.raw.length - 1);
-                return { needRender: true, imageToken: null, referenceImageToken: null };
+                // Remove a whole trailing character — a grapheme cluster, so an
+                // emoji is deleted in one piece instead of losing one code unit
+                // (or one code point) of it (#4926).
+                const removedLength = lastGraphemeLength(token.raw);
+                token.raw = token.raw.substring(0, token.raw.length - removedLength);
+                return { needRender: true, imageToken: null, referenceImageToken: null, offsetDelta: removedLength };
             }
 
-            // If preToken is a syntax token, the the cursor is at offset 1, need to set the cursor manually.(Firefox compatible)
-            // // Fix: https://github.com/marktext/muya/issues/113
-            // for example: foo **strong**w|
-            if (token.range.start + 1 === offset) {
-                token.raw = token.raw.substring(1);
-                return { needRender: true, imageToken: null, referenceImageToken: null };
+            // When the caret is just after a token's first character, remove
+            // that character and place the cursor manually (Firefox parity).
+            // Fix: https://github.com/marktext/muya/issues/113
+            const removedLength = firstGraphemeLength(token.raw);
+            if (token.range.start + removedLength === offset) {
+                token.raw = token.raw.substring(removedLength);
+                return { needRender: true, imageToken: null, referenceImageToken: null, offsetDelta: removedLength };
             }
         }
 
-        return { needRender: false, imageToken: null, referenceImageToken: null };
+        return { needRender: false, imageToken: null, referenceImageToken: null, offsetDelta: 0 };
     }
 
     // Resolve the real caret offset when the collapsed caret is parked on a
@@ -1485,12 +1508,15 @@ class Format extends Content {
         this.text = text + nextBlock.text;
         this.setCursor(start.offset, end.offset, true);
 
-        // When the merge crosses a list-item boundary, blocks that followed the
-        // next paragraph inside its item (e.g. a nested sublist) must travel up
-        // with the merged text. Left behind they become the sole child of the
-        // now-empty item and serialize with a doubled bullet (#1845).
-        const paragraph = this.parent;
-        if (paragraph && paragraphBlock.parent !== paragraph.parent) {
+        // Blocks after the merged paragraph in a list item (e.g. a nested
+        // sublist) move up with it, or they would serialize with a doubled
+        // bullet (#1845). Other containers keep them (#5423). From a table cell
+        // they go after the table, since a row holds only cells (#5386).
+        const hostBlock = this.getAnchor();
+        const nextContainer = paragraphBlock.parent;
+        const nextContainerIsListItem = nextContainer?.blockName === 'list-item'
+            || nextContainer?.blockName === 'task-list-item';
+        if (hostBlock && nextContainer !== hostBlock.parent && nextContainerIsListItem) {
             const trailing: TreeNode[] = [];
             let sibling = paragraphBlock.next;
             while (sibling) {
@@ -1498,9 +1524,9 @@ class Format extends Content {
                 sibling = sibling.next;
             }
 
-            let anchor: Parent = paragraph;
+            let anchor: Parent = hostBlock;
             for (const block of trailing) {
-                block.insertInto(paragraph.parent!, anchor.next as Nullable<Parent>);
+                block.insertInto(hostBlock.parent!, anchor.next as Nullable<Parent>);
                 anchor = block as Parent;
             }
         }
@@ -1525,6 +1551,26 @@ class Format extends Content {
         this.text
             = `${oldText.substring(0, start.offset)}\n${oldText.substring(end.offset)}`;
         this.setCursor(start.offset + 1, end.offset + 1, true);
+    }
+
+    // Markdown ends a paragraph at a blank line, so Shift+Enter must not leave an
+    // empty line in the block. When the caret's line is blank up to the caret,
+    // removes that line break and returns true: handle the key as Enter.
+    protected dropSoftBreakBeforeCursor(): boolean {
+        const { text } = this;
+        const { start, end } = this.getCursor()!;
+        const head = text.substring(0, start.offset);
+        const lineStart = head.lastIndexOf('\n');
+        if (lineStart === -1 || /[^ \t]/.test(head.substring(lineStart + 1)))
+            return false;
+
+        this.muya.editor.history.markInputBoundary('insertParagraph', '\n');
+        const before = stripHardBreakMarker(head.substring(0, lineStart));
+        const after = text.substring(end.offset).replace(/^[ \t]*\n/, '');
+        this.text = before + after;
+        this.setCursor(before.length, before.length, true);
+
+        return true;
     }
 
     override enterHandler(event: KeyboardEvent): void {

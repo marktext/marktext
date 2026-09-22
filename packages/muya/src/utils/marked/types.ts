@@ -2,8 +2,10 @@ import type { MarkedToken, Tokens } from 'marked';
 
 export interface ILexOption {
     footnote?: boolean;
-    math?: boolean;
-    isGitlabCompatibilityEnabled?: boolean;
+    texMathDollars?: boolean;
+    texMathGfm?: boolean;
+    texMathSingleBackslash?: boolean;
+    texMathDoubleBackslash?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;
 }
@@ -16,6 +18,7 @@ export type Heading = Tokens.Heading & {
 export type ListItemToken = Tokens.ListItem & {
     listItemType: 'order' | 'bullet' | 'task';
     bulletMarkerOrDelimiter: '.' | ')' | '*' | '+' | '-' | '';
+    orderMarker?: string;
 };
 
 export type ListToken = Tokens.List & {
@@ -38,7 +41,7 @@ export interface IMultipleMathToken {
     raw: string;
     text: string;
     displayMode: boolean;
-    mathStyle: '' | 'gitlab';
+    mathStyle: '' | 'gfm';
 }
 
 export interface IFrontmatterToken {

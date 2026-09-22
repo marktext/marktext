@@ -24,9 +24,11 @@ describe('CommonMark 0.31 spec conformance', () => {
         (example) => {
             const actual = renderToStaticHTML(example.markdown, {
                 footnote: false,
-                math: false,
+                texMathDollars: false,
                 superSubScript: false,
-                isGitlabCompatibilityEnabled: false,
+                texMathGfm: false,
+                texMathSingleBackslash: false,
+                texMathDoubleBackslash: false,
                 frontMatter: false,
                 // Bypass DOMPurify: spec tests verify the *parser's* output
                 // (§6.9 "Raw HTML" explicitly tests that unknown tags like

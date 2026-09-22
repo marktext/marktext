@@ -68,12 +68,6 @@ class AtxHeadingContent extends Format {
             this.text = this.text.replace(/^ {0,3}#{1,6} */, '');
             this.convertToParagraph();
         }
-        else if (start.offset === 1 && end.offset === 1 && this.text === '#') {
-            event.preventDefault();
-            this.text = '';
-            this.setCursor(0, 0);
-            this.convertToParagraph();
-        }
         else {
             super.backspaceHandler(event);
         }

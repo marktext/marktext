@@ -3,7 +3,10 @@
     "counter": {
       "words": "字数",
       "characters": "字符数",
-      "paragraphs": "段落数"
+      "paragraphs": "段落数",
+      "allCharacters": "总字符数",
+      "document": "文档",
+      "documentSelection": "文档 / 选区"
     },
     "file": {
       "file": "文件",
@@ -21,6 +24,7 @@
       "export": "导出",
       "exportHtml": "导出为 HTML",
       "exportPdf": "导出为 PDF",
+      "convertWithPandoc": "使用 Pandoc 转换",
       "import": "导入",
       "print": "打印",
       "closeTab": "关闭标签页",
@@ -80,6 +84,7 @@
       "minimize": "最小化",
       "zoomIn": "放大",
       "zoomOut": "缩小",
+      "resetZoom": "重置缩放",
       "fullScreen": "全屏",
       "bringAllToFront": "将所有窗口置于前台",
       "alwaysOnTop": "总是在最前面"
@@ -184,6 +189,7 @@
     "copyAsRich": "复制为富文本",
     "copyAsHtml": "复制为 HTML",
     "pasteAsPlainText": "粘贴为纯文本",
+    "lookUp": "查询“{selection}”",
     "insertParagraphBefore": "在前面插入段落",
     "insertParagraphAfter": "在后面插入段落",
     "spelling": "拼写…",
@@ -386,6 +392,7 @@
         "codeFontSize": "代码块中的字体大小，范围是 12 ~ 18",
         "codeFontFamily": "代码块中使用的字体系列",
         "codeBlockLineNumbers": "是否显示行号",
+        "sourceCodeLineNumbers": "在源码模式中显示行号",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪代码块开头和结尾的空行",
         "autoPairBracket": "编辑时自动配对括号",
         "autoPairMarkdownSyntax": "自动完成 Markdown 语法",
@@ -407,8 +414,12 @@
         "frontmatterType": "前言类型",
         "superSubScript": "启用 Pandoc 的 Markdown 扩展上标和下标",
         "footnote": "启用 Pandoc 的 Markdown 扩展脚注",
+        "texMathDollars": "启用 Pandoc 的 Markdown 扩展 tex_math_dollars",
+        "texMathGfm": "启用 Pandoc 的 Markdown 扩展 tex_math_gfm",
+        "texMathSingleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_single_backslash",
+        "texMathDoubleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_double_backslash",
         "isHtmlEnabled": "启用 HTML 渲染",
-        "isGitlabCompatibilityEnabled": "启用 GitLab 兼容模式",
+        "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
         "plantumlServer": "PlantUML 服务器 URL",
         "theme": "选择 MarkText 中使用的主题",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "行高",
         "fontFamily": "字体系列",
         "maxWidth": "最大宽度",
-        "maxWidthNotes": "编辑器内容的最大宽度"
+        "maxWidthNotes": "编辑器内容的最大宽度。数字后需带单位 px、ch（字符数）或 %，例如 800px、80ch、60%。留空则使用默认宽度。",
+        "maxWidthInvalid": "请输入数字并带上单位 px、ch 或 %，例如 800px。"
       },
       "codeBlock": {
         "title": "代码块",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "隐藏链接弹出窗口",
         "autoCheck": "自动检查",
         "autoNormalizeLineEndings": "打开时自动将行尾规范化为 LF",
-        "wrapCodeBlocks": "换行代码块"
+        "wrapCodeBlocks": "换行代码块",
+        "sourceCodeLineNumbers": "在源码模式中显示行号"
       }
     },
     "image": {
@@ -581,7 +596,7 @@
       },
       "uploader": {
         "title": "图片上传器",
-        "currentUploader": "当前上传器",
+        "currentUploader": "当前上传器：{name}",
         "picgoNotInstalled": "PicGo 未安装",
         "picgoInstalled": "PicGo 已安装",
         "picgoDetectionFailed": "PicGo 检测失败",
@@ -627,6 +642,10 @@
         "superSubScript": "上标/下标",
         "footnote": "脚注",
         "footnoteNotes": "脚注注释",
+        "texMathDollars": "使用 $ 和 $$ 的 TeX 数学公式",
+        "texMathGfm": "GitHub 的 TeX 数学公式（$`…`$ 和 ```math）",
+        "texMathSingleBackslash": "使用单反斜杠分隔符的 TeX 数学公式",
+        "texMathDoubleBackslash": "使用双反斜杠分隔符的 TeX 数学公式",
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",
@@ -653,8 +672,8 @@
         "title": "杂项"
       },
       "compatibility": {
-        "enableGitlab": "启用 GitLab 兼容性",
         "enableHtml": "启用 HTML 支持",
+        "softNewlineAsSpace": "将软换行符视为空格",
         "title": "兼容性"
       },
       "lists": {
@@ -701,7 +720,7 @@
       "online": "在线",
       "saveError": "保存快捷键时出错",
       "shortcutInUse": "快捷键正在使用",
-      "shortcutInUseMessage": "此快捷键已分配给另一个命令",
+      "shortcutInUseMessage": "此快捷键已分配给 {accelerator}",
       "table": {
         "description": "描述",
         "edit": "编辑",
@@ -730,7 +749,7 @@
     }
   },
   "about": {
-    "copyright": "版权",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "版权贡献者"
   },
   "commands": {
@@ -883,10 +902,12 @@
     "close": "关闭",
     "dontSave": "放弃保存",
     "file": "文件",
-    "fileExists": "文件已存在",
+    "fileExists": "文件已存在：{filename}",
     "files": "文件",
     "importWarning": "导入警告",
-    "installPandoc": "安装 Pandoc",
+    "installPandoc": "未找到 Pandoc。请先安装，或将环境变量 MARKTEXT_PANDOC 设为 pandoc 可执行文件的路径后重启 MarkText。",
+    "exportWarning": "导出提示",
+    "exportWarningMore": "…另有 {count} 条",
     "keepOpen": "保持打开",
     "replace": "替换",
     "save": "保存",
@@ -900,12 +921,12 @@
   "error": {
     "configSchemaViolation": "配置架构违规",
     "copyError": "复制错误",
-    "initializationFailed": "初始化失败",
+    "initializationFailed": "初始化失败 {hint}",
     "otherInstanceDetected": "检测到 MarkText 的另一个实例正在运行",
     "report": "报告",
     "startupError": "启动错误",
     "terminatedDueToError": "由于错误而终止",
-    "unexpectedErrorWithMessage": "意外错误消息",
+    "unexpectedErrorWithMessage": "意外错误：{message}",
     "unexpectedMainProcess": "意外的主进程错误",
     "unexpectedRendererProcess": "意外的渲染进程错误"
   },
@@ -917,7 +938,7 @@
     "editor": {
       "anchorLinkCopied": "锚点链接已复制",
       "tabNotFound": "未找到标签页",
-      "tocItemNotFound": "未找到目录项",
+      "tocItemNotFound": "目录项 {key} 未找到",
       "errorLoadingTabTitle": "加载标签页出错",
       "errorLoadingTabMessage": "加载文件变更时发生错误，因为找不到该标签页。",
       "mixedLineEndingsNormalized": "“{name}” 含有混合换行符，已自动规范化为 {lineEnding}。",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "保存时发生错误：{msg}",
       "exportSuccessTitle": "导出成功",
       "exportSuccessMessage": "已成功导出“{name}”！",
+      "exportLinkedMediaMessage": "已导出“{name}”。该格式以链接方式引用图片而不内嵌，请让图片与文件放在一起，分享时带上整个文件夹。",
       "fileRemovedOnDisk": "“{name}” 已在磁盘上被删除。",
       "fileChangedOnDisk": "“{name}” 已在磁盘上发生变更。是否重新加载？"
     }
@@ -949,19 +971,19 @@
     },
     "export": {
       "error": "导出错误",
-      "errorExporting": "导出文件时出错",
-      "failed": "导出失败"
+      "errorExporting": "导出 {type} 文件时出错",
+      "failed": "{type} 导出失败"
     },
     "print": {
-      "error": "打印错误",
+      "error": "打印 \"{title}\" 时出错",
       "failed": "打印失败"
     },
     "spellcheck": {
       "title": "拼写检查",
       "disabledError": "拼写检查已禁用错误",
-      "errorSwitchingLanguage": "切换拼写检查语言时出错",
-      "languageMissing": "拼写检查语言缺失",
-      "switchError": "拼写检查切换错误"
+      "errorSwitchingLanguage": "切换拼写检查语言时出错 {languageCode}",
+      "languageMissing": "拼写检查语言缺失 {languageCode}",
+      "switchError": "{languageCode} 拼写检查切换错误，{error}"
     }
   }
 }

@@ -86,6 +86,30 @@ describe('useEditorStore FORMAT_LINK_CLICK (anchor links)', () => {
     getByIdSpy.mockRestore()
   })
 
+  it('matches a percent-encoded anchor against the decoded github-slug (#5292)', () => {
+    const store = useEditorStore()
+    store.listToc = [{ githubSlug: '中文标题', slug: 'uid-1', lvl: 2 }]
+
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    store.FORMAT_LINK_CLICK({
+      data: { href: '#%E4%B8%AD%E6%96%87%E6%A0%87%E9%A2%98' },
+      dirname: ''
+    })
+
+    expect(emitSpy).toHaveBeenCalledWith('scroll-to-header', 'uid-1')
+  })
+
+  it('falls back to the raw anchor when it is not valid percent-encoding', () => {
+    const store = useEditorStore()
+    store.listToc = [{ githubSlug: '100%', slug: 'uid-1', lvl: 2 }]
+
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    expect(() => store.FORMAT_LINK_CLICK({ data: { href: '#100%' }, dirname: '' })).not.toThrow()
+    expect(emitSpy).toHaveBeenCalledWith('scroll-to-header', 'uid-1')
+  })
+
   it('ignores a bare "#" (empty anchor slug) without emit or IPC', () => {
     const store = useEditorStore()
     store.listToc = [{ githubSlug: 'installation', slug: 'uid-1', lvl: 2 }]
@@ -114,6 +138,79 @@ describe('useEditorStore FORMAT_LINK_CLICK (anchor links)', () => {
       data: { href: 'http://x' },
       dirname: '/docs'
     })
+  })
+})
+
+// The TOC only becomes the target document's once editor.vue handles the
+// tab-activation events; `seedTocOn` stands in for that.
+describe('useEditorStore cross-file anchor links (#5292)', () => {
+  const targetToc = [{ githubSlug: 'english-section', slug: 'uid-9', lvl: 2 }]
+  const seedTocOn = (event: 'file-changed' | 'file-loaded') => {
+    const store = useEditorStore()
+    const handler = () => {
+      store.listToc = targetToc
+    }
+    bus.on(event, handler)
+    return () => bus.off(event, handler)
+  }
+
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+  })
+
+  it('scrolls to the anchor after switching to the already-open target tab', () => {
+    const store = useEditorStore()
+    store.tabs = [
+      { id: 'tab-2', pathname: '/docs/other.md', markdown: '# Other' }
+    ] as unknown as typeof store.tabs
+    store.listToc = [{ githubSlug: 'english-section', slug: 'stale', lvl: 2 }]
+    const off = seedTocOn('file-changed')
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    store.SWITCH_TAB_BY_FILEPATH('/docs/other.md', { anchor: 'english-section' })
+    off()
+
+    expect(emitSpy).toHaveBeenCalledWith('file-changed', expect.objectContaining({ id: 'tab-2' }))
+    expect(emitSpy).toHaveBeenLastCalledWith('scroll-to-header', 'uid-9')
+  })
+
+  it('does not scroll when the switch carries no anchor', () => {
+    const store = useEditorStore()
+    store.tabs = [
+      { id: 'tab-2', pathname: '/docs/other.md', markdown: '# Other' }
+    ] as unknown as typeof store.tabs
+    const off = seedTocOn('file-changed')
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    store.SWITCH_TAB_BY_FILEPATH('/docs/other.md')
+    off()
+
+    expect(emitSpy).not.toHaveBeenCalledWith('scroll-to-header', expect.anything())
+  })
+
+  it('scrolls to the anchor once a newly opened tab has loaded', () => {
+    const w = window as unknown as {
+      fileUtils?: { isSamePathSync: (a: string, b: string) => boolean }
+    }
+    w.fileUtils ??= { isSamePathSync: (a, b) => a === b }
+    const store = useEditorStore()
+    const off = seedTocOn('file-loaded')
+    const emitSpy = vi.spyOn(bus, 'emit')
+
+    store.NEW_TAB_WITH_CONTENT({
+      markdownDocument: {
+        markdown: '# Other',
+        filename: 'other.md',
+        pathname: '/docs/other.md'
+      } as unknown as Parameters<typeof store.NEW_TAB_WITH_CONTENT>[0]['markdownDocument'],
+      options: { anchor: 'english-section' },
+      selected: true
+    })
+    off()
+
+    expect(emitSpy).toHaveBeenLastCalledWith('scroll-to-header', 'uid-9')
+    expect(store.currentFile).not.toHaveProperty('anchor')
   })
 })
 

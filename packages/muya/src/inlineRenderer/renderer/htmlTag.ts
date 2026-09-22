@@ -47,7 +47,7 @@ function buildRawHtmlTag(
 
     // if  tag is a block level element, use a inline element `span` to instead.
     // Because we can not nest a block level element in span element(line is span element)
-    // we also recommand user not use block level element in paragraph. use block element in html block.
+    // we also recommend user not use block level element in paragraph. use block element in html block.
     // Use code !sanitize(`<${tag}>`) to filter some malicious tags. for example: <embed>.
     let selector
         = BLOCK_TYPE6.includes(tag) || !sanitize(`<${tag}>`) ? 'span' : tag;
@@ -65,8 +65,9 @@ function buildRawHtmlTag(
     if (tag === 'code' || tag === 'kbd')
         Object.assign(data.attrs, { spellcheck: 'false' });
 
+    // Not in the selector: its parser truncates an id at `.`, `/` or a space (#5419).
     if (attrs.id)
-        selector += `#${attrs.id}`;
+        data.attrs.id = attrs.id;
 
     if (attrs.class && /\S/.test(attrs.class)) {
         const classNames = attrs.class.split(/\s+/);

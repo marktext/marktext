@@ -67,6 +67,28 @@ function resolveRelativePath(base: string, relative: string): string {
     return tail ? `${root}/${tail}` : root;
 }
 
+// `window.DIRNAME` is a raw filesystem path, whereas a markdown image path is
+// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
+// raw, they would read as an escape, a query or a fragment (#5212).
+function encodeDirnameForUrl(dirname: string): string {
+    return dirname
+        .replace(/%/g, '%25')
+        .replace(/\?/g, '%3F')
+        .replace(/#/g, '%23');
+}
+
+function localPathToFileUrl(src: string): string {
+    const normalized = src.replace(/\\/g, '/');
+
+    if (/^\/\/[^/]+\/[^/]+/.test(normalized))
+        return `file://${normalized.slice(2)}`;
+
+    if (/^[a-z]:\//i.test(normalized))
+        return `file:///${normalized}`;
+
+    return `file://${normalized}`;
+}
+
 export function getImageSrc(src: string) {
     const EXT_REG = /\.(?:jpeg|jpg|png|gif|svg|webp)(?=\?|$)/i;
     // http[s] (domain or IPv4 or localhost or IPv6) [port] /not-white-space
@@ -95,13 +117,13 @@ export function getImageSrc(src: string) {
         else if (!isAbsoluteLocal && baseUrl) {
             return {
                 isUnknownType: false,
-                src: `file://${resolveRelativePath(baseUrl, src)}`,
+                src: localPathToFileUrl(resolveRelativePath(encodeDirnameForUrl(baseUrl), src)),
             };
         }
         else {
             return {
                 isUnknownType: false,
-                src: `file://${src}`,
+                src: localPathToFileUrl(src),
             };
         }
     }
@@ -126,6 +148,26 @@ export function getImageSrc(src: string) {
             };
         }
     }
+}
+
+// The CSS default object size (CSS Images 3 §5.4) a browser falls back to for
+// an image that states no size of its own. An image that carries an aspect
+// ratio is contained inside that box, so one of its two dimensions always
+// lands on the box.
+const DEFAULT_OBJECT_WIDTH = 300;
+const DEFAULT_OBJECT_HEIGHT = 150;
+
+/**
+ * Whether a loaded image's measured size is that fallback rather than a size of
+ * its own — true for an SVG carrying only a `viewBox`. An image that really is
+ * 300px wide (or 150px tall) answers `true` as well; that costs nothing, since
+ * the width callers pin for it is its own intrinsic width.
+ */
+export function usesDefaultObjectSize(width?: number, height?: number): boolean {
+    if (typeof width !== 'number' || typeof height !== 'number')
+        return false;
+
+    return width === DEFAULT_OBJECT_WIDTH || height === DEFAULT_OBJECT_HEIGHT;
 }
 
 export async function loadImage(url: string, detectContentType = false): Promise<{

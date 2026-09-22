@@ -116,8 +116,10 @@ describe('serializeTable — visual column width (#1983)', () => {
 function gen(markdown: string): TStateForExport {
     return new MarkdownToState({
         footnote: false,
-        math: false,
-        isGitlabCompatibilityEnabled: false,
+        texMathDollars: false,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(markdown) as unknown as TStateForExport;

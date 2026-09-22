@@ -474,6 +474,7 @@ class AppMenu {
       this.addRecentlyUsedDocument(pathname)
     })
     ipcMain.on('mt::update-line-ending-menu', (_e, windowId: number, lineEnding: string) => {
+      if (!this.has(windowId)) return
       this.updateLineEndingMenu(windowId, lineEnding)
     })
     ipcMain.on(
@@ -536,6 +537,10 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.texMathDollars !== undefined) {
+        // The Paragraph menu lists Math Block only while the option is on.
+        this.updateAppMenu()
       }
       if (prefs.language) {
         // Update main process language and rebuild menu

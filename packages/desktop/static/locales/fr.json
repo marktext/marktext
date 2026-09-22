@@ -3,7 +3,10 @@
     "counter": {
       "words": "Mots",
       "characters": "Caractères",
-      "paragraphs": "Paragraphes"
+      "paragraphs": "Paragraphes",
+      "allCharacters": "Tous les caractères",
+      "document": "Document",
+      "documentSelection": "Document / Sélection"
     },
     "file": {
       "file": "Fichier",
@@ -21,6 +24,7 @@
       "export": "Exporter",
       "exportHtml": "Exporter en HTML",
       "exportPdf": "Exporter en PDF",
+      "convertWithPandoc": "Convertir avec Pandoc",
       "import": "Importer",
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
@@ -73,13 +77,14 @@
       "taskList": "Liste de tâches",
       "looseListItem": "Élément de liste lâche",
       "horizontalRule": "Règle horizontale",
-      "frontMatter": "Métadonnées"
+      "frontMatter": "Front Matter"
     },
     "window": {
       "title": "Fenêtre",
       "minimize": "Réduire",
       "zoomIn": "Agrandir",
       "zoomOut": "Réduire",
+      "resetZoom": "Réinitialiser le zoom",
       "fullScreen": "Plein écran",
       "bringAllToFront": "Tout amener au premier plan",
       "alwaysOnTop": "Toujours au premier plan"
@@ -184,6 +189,7 @@
     "copyAsRich": "Copier en texte riche",
     "copyAsHtml": "Copier en HTML",
     "pasteAsPlainText": "Coller en texte brut",
+    "lookUp": "Rechercher \"{selection}\"",
     "insertParagraphBefore": "Insérer un paragraphe avant",
     "insertParagraphAfter": "Insérer un paragraphe après",
     "spelling": "Orthographe...",
@@ -386,6 +392,7 @@
         "codeFontSize": "Taille de police dans le bloc de code, la plage est de 12 ~ 18",
         "codeFontFamily": "Famille de police utilisée dans le bloc de code",
         "codeBlockLineNumbers": "Afficher les numéros de ligne",
+        "sourceCodeLineNumbers": "Afficher les numéros de ligne en mode code source",
         "trimUnnecessaryCodeBlockEmptyLines": "Supprimer les lignes vides au début et à la fin du bloc de code",
         "autoPairBracket": "Parenthèses automatiques lors de l'édition",
         "autoPairMarkdownSyntax": "Complétion automatique de la syntaxe markdown",
@@ -407,8 +414,12 @@
         "frontmatterType": "Le type de frontmatter",
         "superSubScript": "Activer l'extension markdown de pandoc pour exposant et indice",
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
+        "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
+        "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Activer le rendu HTML",
-        "isGitlabCompatibilityEnabled": "Activer le mode de compatibilité GitLab",
+        "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
         "plantumlServer": "URL du serveur PlantUML",
         "theme": "Sélectionner le thème utilisé dans MarkText",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "Hauteur de ligne",
         "fontFamily": "Famille de police",
         "maxWidth": "Largeur maximale",
-        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur"
+        "maxWidthNotes": "Largeur maximale du contenu de l'éditeur. Saisissez un nombre suivi de px, ch (caractères) ou %, par exemple 800px, 80ch ou 60%. Laissez vide pour utiliser la largeur par défaut.",
+        "maxWidthInvalid": "Saisissez un nombre suivi de px, ch ou %, par exemple 800px."
       },
       "codeBlock": {
         "title": "Bloc de code",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "Masquer la popup de lien",
         "autoCheck": "Vérification automatique",
         "autoNormalizeLineEndings": "Normaliser automatiquement les fins de ligne en LF à l'ouverture",
-        "wrapCodeBlocks": "Retour à la ligne des blocs de code"
+        "wrapCodeBlocks": "Retour à la ligne des blocs de code",
+        "sourceCodeLineNumbers": "Afficher les numéros de ligne en mode code source"
       }
     },
     "image": {
@@ -581,7 +596,7 @@
       },
       "uploader": {
         "title": "Téléchargeur d'images",
-        "currentUploader": "Téléchargeur actuel",
+        "currentUploader": "Téléverseur actuel : {name}",
         "picgoNotInstalled": "PicGo non installé",
         "picgoInstalled": "PicGo installé",
         "picgoDetectionFailed": "Échec de la détection PicGo",
@@ -627,6 +642,10 @@
         "superSubScript": "Exposant/Indice",
         "footnote": "Note de bas de page",
         "footnoteNotes": "Notes de bas de page",
+        "texMathDollars": "Maths TeX avec $ et $$",
+        "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
+        "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
+        "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
@@ -653,8 +672,8 @@
         "title": "Divers"
       },
       "compatibility": {
-        "enableGitlab": "Activer la compatibilité GitLab",
         "enableHtml": "Activer le support HTML",
+        "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "title": "Compatibilité"
       },
       "lists": {
@@ -701,7 +720,7 @@
       "online": "En ligne",
       "saveError": "Erreur lors de l'enregistrement des raccourcis clavier",
       "shortcutInUse": "Raccourci en cours d'utilisation",
-      "shortcutInUseMessage": "Ce raccourci est déjà assigné à une autre commande",
+      "shortcutInUseMessage": "Ce raccourci est déjà assigné à {accelerator}",
       "table": {
         "description": "Description",
         "edit": "Modifier",
@@ -730,7 +749,7 @@
     }
   },
   "about": {
-    "copyright": "Droits d'auteur",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "Contributeurs aux droits d'auteur"
   },
   "commands": {
@@ -803,7 +822,7 @@
       "looseListItem": "Élément de liste lâche",
       "paragraph": "Paragraphe",
       "horizontalLine": "Ligne horizontale",
-      "frontMatter": "Métadonnées",
+      "frontMatter": "Front Matter",
       "resetParagraph": "Réinitialiser le paragraphe",
       "mathBlock": "Bloc mathématique",
       "horizontalRule": "Ligne horizontale"
@@ -883,10 +902,12 @@
     "close": "Fermer",
     "dontSave": "Ne pas enregistrer",
     "file": "Fichier",
-    "fileExists": "Le fichier existe",
+    "fileExists": "Le fichier existe déjà : {filename}",
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
-    "installPandoc": "Installer Pandoc",
+    "installPandoc": "Pandoc est introuvable. Installez-le, ou définissez la variable d'environnement MARKTEXT_PANDOC sur le chemin du binaire pandoc, puis redémarrez MarkText.",
+    "exportWarning": "Avertissement d'exportation",
+    "exportWarningMore": "…et {count} de plus",
     "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",
@@ -900,12 +921,12 @@
   "error": {
     "configSchemaViolation": "Violation du schéma de configuration",
     "copyError": "Erreur de copie",
-    "initializationFailed": "Échec de l'initialisation",
+    "initializationFailed": "Échec de l'initialisation {hint}",
     "otherInstanceDetected": "Une autre instance de MarkText détectée en cours d'exécution",
     "report": "Signaler",
     "startupError": "Erreur de démarrage",
     "terminatedDueToError": "Terminé en raison d'une erreur",
-    "unexpectedErrorWithMessage": "Message d'erreur inattendue",
+    "unexpectedErrorWithMessage": "Erreur inattendue : {message}",
     "unexpectedMainProcess": "Erreur inattendue du processus principal",
     "unexpectedRendererProcess": "Erreur inattendue du processus de rendu"
   },
@@ -917,7 +938,7 @@
     "editor": {
       "anchorLinkCopied": "Lien d'ancrage copié",
       "tabNotFound": "Onglet introuvable",
-      "tocItemNotFound": "Élément de table des matières introuvable",
+      "tocItemNotFound": "Élément de la table des matières {key} introuvable",
       "errorLoadingTabTitle": "Erreur lors du chargement de l’onglet",
       "errorLoadingTabMessage": "Une erreur s’est produite lors du chargement de la modification du fichier car l’onglet est introuvable.",
       "mixedLineEndingsNormalized": "« {name} » contient des fins de ligne mixtes qui ont été automatiquement normalisées en {lineEnding}.",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement : {msg}",
       "exportSuccessTitle": "Exportation réussie",
       "exportSuccessMessage": "« {name} » a été exporté avec succès !",
+      "exportLinkedMediaMessage": "« {name} » a été exporté. Ce format lie les images au lieu de les intégrer : gardez les images à côté du fichier et partagez le dossier entier.",
       "fileRemovedOnDisk": "« {name} » a été supprimé du disque.",
       "fileChangedOnDisk": "« {name} » a été modifié sur le disque. Voulez-vous le recharger ?"
     }
@@ -937,8 +959,8 @@
   "editor": {
     "export": {
       "error": "Erreur d'exportation",
-      "errorExporting": "Erreur lors de l'exportation du fichier",
-      "failed": "Échec de l'exportation"
+      "errorExporting": "Erreur lors de l'exportation du fichier {type}",
+      "failed": "Échec de l'exportation {type}"
     },
     "insertTable": {
       "title": "Insérer un tableau",
@@ -949,7 +971,7 @@
       "notificationNotFound": "Notification introuvable"
     },
     "print": {
-      "error": "Erreur d'impression",
+      "error": "Erreur d'impression pour \"{title}\"",
       "failed": "Échec de l'impression"
     },
     "sourceCode": {
@@ -958,9 +980,9 @@
     },
     "spellcheck": {
       "disabledError": "Erreur de désactivation de la vérification orthographique",
-      "errorSwitchingLanguage": "Erreur lors du changement de langue de vérification orthographique",
-      "languageMissing": "Langue de vérification orthographique manquante",
-      "switchError": "Erreur de changement de vérification orthographique",
+      "errorSwitchingLanguage": "Erreur lors du changement de langue du correcteur {languageCode}",
+      "languageMissing": "Langue du correcteur manquante {languageCode}",
+      "switchError": "Erreur de changement du correcteur pour {languageCode}, {error}",
       "title": "Vérification orthographique"
     }
   }

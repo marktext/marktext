@@ -96,18 +96,22 @@ class JSONState {
     markdownToState(markdown: string): TState[] {
         const {
             footnote,
-            isGitlabCompatibilityEnabled,
+            texMathGfm,
+            texMathSingleBackslash,
+            texMathDoubleBackslash,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
-            math,
+            texMathDollars,
         } = this._muya.options;
 
         return new MarkdownToState({
             footnote,
-            isGitlabCompatibilityEnabled,
+            texMathGfm,
+            texMathSingleBackslash,
+            texMathDoubleBackslash,
             trimUnnecessaryCodeBlockEmptyLines,
             frontMatter,
-            math,
+            texMathDollars,
         }).generate(markdown);
     }
 

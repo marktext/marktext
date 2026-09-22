@@ -3,7 +3,10 @@
     "counter": {
       "words": "字數",
       "characters": "字元數",
-      "paragraphs": "段落數"
+      "paragraphs": "段落數",
+      "allCharacters": "總字元數",
+      "document": "文件",
+      "documentSelection": "文件 / 選取範圍"
     },
     "file": {
       "file": "檔案",
@@ -21,6 +24,7 @@
       "export": "匯出",
       "exportHtml": "匯出為 HTML",
       "exportPdf": "匯出為 PDF",
+      "convertWithPandoc": "使用 Pandoc 轉換",
       "import": "匯入",
       "print": "列印",
       "closeTab": "關閉標籤頁",
@@ -80,6 +84,7 @@
       "minimize": "最小化",
       "zoomIn": "放大",
       "zoomOut": "縮小",
+      "resetZoom": "重置縮放",
       "fullScreen": "全螢幕",
       "bringAllToFront": "將全部移到前面",
       "alwaysOnTop": "總是在最上層"
@@ -184,6 +189,7 @@
     "copyAsRich": "複製為富文本",
     "copyAsHtml": "複製為 HTML",
     "pasteAsPlainText": "貼上為純文字",
+    "lookUp": "查詢「{selection}」",
     "insertParagraphBefore": "在前面插入段落",
     "insertParagraphAfter": "在後面插入段落",
     "spelling": "拼字檢查…",
@@ -386,6 +392,7 @@
         "codeFontSize": "程式碼區塊中的字型大小，範圍是 12 ~ 18",
         "codeFontFamily": "程式碼區塊中使用的字型系列",
         "codeBlockLineNumbers": "是否顯示行號",
+        "sourceCodeLineNumbers": "在原始碼模式中顯示行號",
         "trimUnnecessaryCodeBlockEmptyLines": "修剪程式碼區塊開頭和結尾的空行",
         "autoPairBracket": "編輯時自動配對括號",
         "autoPairMarkdownSyntax": "自動完成 Markdown 語法",
@@ -407,8 +414,12 @@
         "frontmatterType": "前言類型",
         "superSubScript": "啟用 Pandoc 的 Markdown 擴充功能上標和下標",
         "footnote": "啟用 Pandoc 的 Markdown 擴充功能腳註",
+        "texMathDollars": "啟用 Pandoc 的 Markdown 擴充 tex_math_dollars",
+        "texMathGfm": "啟用 Pandoc 的 Markdown 擴充 tex_math_gfm",
+        "texMathSingleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_single_backslash",
+        "texMathDoubleBackslash": "啟用 Pandoc 的 Markdown 擴充 tex_math_double_backslash",
         "isHtmlEnabled": "啟用 HTML 轉譯",
-        "isGitlabCompatibilityEnabled": "啟用 GitLab 相容模式",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
         "plantumlServer": "PlantUML 伺服器 URL",
         "theme": "選擇 MarkText 中使用的主題",
@@ -499,8 +510,10 @@
           "german": "Deutsch",
           "japanese": "日本語",
           "korean": "한국어",
+          "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -512,7 +525,8 @@
         "lineHeight": "行高",
         "fontFamily": "字型系列",
         "maxWidth": "最大寬度",
-        "maxWidthNotes": "編輯器內容的最大寬度"
+        "maxWidthNotes": "編輯器內容的最大寬度。數字後需帶單位 px、ch（字元數）或 %，例如 800px、80ch、60%。留空則使用預設寬度。",
+        "maxWidthInvalid": "請輸入數字並帶上單位 px、ch 或 %，例如 800px。"
       },
       "codeBlock": {
         "title": "程式碼區塊",
@@ -557,7 +571,8 @@
         "hideLinkPopup": "隱藏連結彈出視窗",
         "autoCheck": "自動檢查",
         "autoNormalizeLineEndings": "開啟時自動將行尾標準化為 LF",
-        "wrapCodeBlocks": "換行程式碼區塊"
+        "wrapCodeBlocks": "換行程式碼區塊",
+        "sourceCodeLineNumbers": "在原始碼模式中顯示行號"
       }
     },
     "image": {
@@ -581,7 +596,7 @@
       },
       "uploader": {
         "title": "圖片上傳器",
-        "currentUploader": "目前上傳器",
+        "currentUploader": "目前上傳器：{name}",
         "picgoNotInstalled": "PicGo 未安裝",
         "picgoInstalled": "PicGo 已安裝",
         "picgoDetectionFailed": "PicGo 偵測失敗",
@@ -627,6 +642,10 @@
         "superSubScript": "上標/下標",
         "footnote": "腳註",
         "footnoteNotes": "腳註備註",
+        "texMathDollars": "使用 $ 與 $$ 的 TeX 數學公式",
+        "texMathGfm": "GitHub 的 TeX 數學公式（$`…`$ 與 ```math）",
+        "texMathSingleBackslash": "使用單反斜線分隔符的 TeX 數學公式",
+        "texMathDoubleBackslash": "使用雙反斜線分隔符的 TeX 數學公式",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",
@@ -653,8 +672,8 @@
         "title": "其他"
       },
       "compatibility": {
-        "enableGitlab": "啟用 GitLab 相容性",
         "enableHtml": "啟用 HTML 支援",
+        "softNewlineAsSpace": "將軟換行視為空格",
         "title": "相容性"
       },
       "lists": {
@@ -701,7 +720,7 @@
       "online": "線上",
       "saveError": "儲存按鍵綁定時發生錯誤",
       "shortcutInUse": "快捷鍵使用中",
-      "shortcutInUseMessage": "此快捷鍵已指派給另一個命令",
+      "shortcutInUseMessage": "此快捷鍵已指派給 {accelerator}",
       "table": {
         "description": "描述",
         "edit": "編輯",
@@ -730,7 +749,7 @@
     }
   },
   "about": {
-    "copyright": "版權",
+    "copyright": "Copyright © Luo Ran 2017-{year}",
     "copyrightContributors": "版權貢獻者"
   },
   "commands": {
@@ -883,10 +902,12 @@
     "close": "關閉",
     "dontSave": "不儲存",
     "file": "檔案",
-    "fileExists": "檔案已存在",
+    "fileExists": "檔案已存在：{filename}",
     "files": "檔案",
     "importWarning": "匯入警告",
-    "installPandoc": "安裝 Pandoc",
+    "installPandoc": "找不到 Pandoc。請先安裝，或將環境變數 MARKTEXT_PANDOC 設為 pandoc 執行檔的路徑後重新啟動 MarkText.",
+    "exportWarning": "匯出提示",
+    "exportWarningMore": "…另有 {count} 條",
     "keepOpen": "保持開啟",
     "replace": "取代",
     "save": "儲存",
@@ -900,12 +921,12 @@
   "error": {
     "configSchemaViolation": "設定結構違規",
     "copyError": "複製錯誤",
-    "initializationFailed": "初始化失敗",
+    "initializationFailed": "初始化失敗 {hint}",
     "otherInstanceDetected": "偵測到另一個 MarkText 實例正在執行",
     "report": "回報",
     "startupError": "啟動錯誤",
     "terminatedDueToError": "因錯誤而終止",
-    "unexpectedErrorWithMessage": "意外錯誤訊息",
+    "unexpectedErrorWithMessage": "意外錯誤：{message}",
     "unexpectedMainProcess": "意外的主程序錯誤",
     "unexpectedRendererProcess": "意外的渲染程序錯誤"
   },
@@ -917,7 +938,7 @@
     "editor": {
       "anchorLinkCopied": "錨點連結已複製",
       "tabNotFound": "找不到標籤頁",
-      "tocItemNotFound": "找不到目錄項目",
+      "tocItemNotFound": "目錄項目 {key} 未找到",
       "errorLoadingTabTitle": "載入標籤頁發生錯誤",
       "errorLoadingTabMessage": "載入檔案變更時發生錯誤，因為找不到該標籤頁。",
       "mixedLineEndingsNormalized": "「{name}」含有混合換行字元，已自動正規化為 {lineEnding}。",
@@ -926,6 +947,7 @@
       "errorWhileSaving": "儲存時發生錯誤：{msg}",
       "exportSuccessTitle": "匯出成功",
       "exportSuccessMessage": "已成功匯出「{name}」！",
+      "exportLinkedMediaMessage": "已匯出“{name}”。此格式以連結方式引用圖片而不內嵌，請讓圖片與檔案放在一起，分享時一併帶上整個資料夾。",
       "fileRemovedOnDisk": "「{name}」已在磁碟上被刪除。",
       "fileChangedOnDisk": "「{name}」已在磁碟上發生變更。是否重新載入？"
     }
@@ -937,8 +959,8 @@
   "editor": {
     "export": {
       "error": "匯出錯誤",
-      "errorExporting": "匯出檔案時發生錯誤",
-      "failed": "匯出失敗"
+      "errorExporting": "匯出 {type} 檔案時發生錯誤",
+      "failed": "{type} 匯出失敗"
     },
     "insertTable": {
       "title": "插入表格",
@@ -949,7 +971,7 @@
       "notificationNotFound": "找不到通知"
     },
     "print": {
-      "error": "列印錯誤",
+      "error": "列印 \"{title}\" 時發生錯誤",
       "failed": "列印失敗"
     },
     "sourceCode": {
@@ -958,9 +980,9 @@
     },
     "spellcheck": {
       "disabledError": "拼字檢查停用錯誤",
-      "errorSwitchingLanguage": "切換拼字檢查語言時發生錯誤",
-      "languageMissing": "拼字檢查語言遺失",
-      "switchError": "拼字檢查切換錯誤",
+      "errorSwitchingLanguage": "切換拼字檢查語言時發生錯誤 {languageCode}",
+      "languageMissing": "拼字檢查語言缺失 {languageCode}",
+      "switchError": "{languageCode} 拼字檢查切換錯誤，{error}",
       "title": "拼字檢查"
     }
   }

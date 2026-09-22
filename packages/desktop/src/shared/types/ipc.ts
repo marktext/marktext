@@ -28,6 +28,7 @@ import type {
   SerializedStat,
   LineEnding,
   FileChangeDetail,
+  PandocExportPayload,
   UnsavedFile
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
@@ -46,6 +47,7 @@ export interface IpcInvokeChannels {
   'mt::fonts::list': { args: []; ret: string[] }
   'mt::fs-trash-item': { args: [pathname: string]; ret: void }
   'mt::fs::copy': { args: [src: string, dest: string]; ret: void }
+  'mt::fs::copy-with-content-hash': { args: [src: string, outputDir: string]; ret: string }
   'mt::fs::empty-dir': { args: [path: string]; ret: void }
   'mt::fs::ensure-dir': { args: [path: string]; ret: void }
   'mt::fs::is-directory': { args: [path: string]; ret: boolean }
@@ -160,6 +162,7 @@ export interface IpcSendChannels {
     options: SaveOptions,
     defaultPath: string
   ]
+  'mt::response-pandoc-export': [payload: PandocExportPayload]
   'mt::response-print': []
   'mt::rg::cancel': [searchId: string]
   'mt::save-and-close-tabs': [tabs: unknown[]]
@@ -237,7 +240,8 @@ export interface IpcMainEventChannels {
   'mt::editor-paragraph-action': [payload: { type: string }]
   'mt::editor-rename-file': []
   'mt::execute-command-by-id': [commandId: string]
-  'mt::export-success': [payload: { type: string; filePath: string }]
+  'mt::export-success': [payload: { type: string; filePath: string; linksMedia?: boolean }]
+  'mt::export-with-pandoc': [target: string]
   'mt::file-saved': [tabId: string]
   'mt::force-close-tabs-by-id': [tabIds: string[]]
   'mt::invalidate-image-cache': []
@@ -268,7 +272,7 @@ export interface IpcMainEventChannels {
   'mt::show-notification': [payload: unknown]
   'mt::spelling-replace-misspelling': [payload: unknown]
   'mt::spelling-show-switch-language': []
-  'mt::switch-tab-by-file_path': [filePath: string]
+  'mt::switch-tab-by-file_path': [filePath: string, options?: TabOptions]
   'mt::switch-tab-by-index': [index: number]
   'mt::tab-save-failure': [tabId: string, message: string]
   'mt::tab-saved': [tabId: string]

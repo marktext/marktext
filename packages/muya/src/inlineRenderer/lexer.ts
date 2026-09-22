@@ -37,6 +37,10 @@ interface ILexState {
     top: boolean;
     superSubScript: boolean;
     footnote: boolean;
+    texMathDollars: boolean;
+    texMathGfm: boolean;
+    texMathSingleBackslash: boolean;
+    texMathDoubleBackslash: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -66,6 +70,9 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     ] as const;
 
     for (const ruleName of beginRuleKeys) {
+        if (ruleName === 'multiple_math' && !state.texMathDollars)
+            continue;
+
         const to = beginRules[ruleName].exec(state.src);
 
         if (to) {
@@ -113,6 +120,60 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
         state.src = state.src.substring(def[0].length);
         state.pos = state.pos + def[0].length;
     }
+}
+
+// The two backslash math extensions and the option each rule answers to. The
+// double-backslash rules are listed first for intent only: the two openers are
+// mutually exclusive at a given position, `\\(` carrying a backslash where `\(`
+// carries the parenthesis, so neither can shadow the other.
+const BACKSLASH_MATH_RULES = [
+    ['inline_math_double_backslash', 'texMathDoubleBackslash'],
+    ['display_math_double_backslash', 'texMathDoubleBackslash'],
+    ['inline_math_single_backslash', 'texMathSingleBackslash'],
+    ['display_math_single_backslash', 'texMathSingleBackslash'],
+] as const;
+
+// pandoc's `tex_math_single_backslash` and `tex_math_double_backslash`. These
+// run ahead of `tryBacklash` because `commonMarkRules.backlash` lists `(` and
+// `[` among the punctuation a backslash escapes, so it would consume the opener
+// before any math rule saw it — the collision the pandoc manual calls out as
+// the extension's drawback. With both options off the handler declines and the
+// escape keeps the span.
+function tryBackslashMath(state: ILexState): boolean {
+    if (!state.texMathSingleBackslash && !state.texMathDoubleBackslash)
+        return false;
+
+    for (const [rule, option] of BACKSLASH_MATH_RULES) {
+        if (!state[option])
+            continue;
+
+        const to = state.inlineRules[rule].exec(state.src);
+        if (!to)
+            continue;
+
+        pushPending(state);
+        // Normalized to `inline_math`: `Renderer.output` dispatches on the token
+        // type and `inlineSyntaxRenderer` carries one math entry, so the
+        // delimiter survives in `marker` rather than in the type.
+        state.tokens.push({
+            type: 'inline_math',
+            raw: to[0],
+            range: {
+                start: state.pos,
+                end: state.pos + to[0].length,
+            },
+            marker: to[1],
+            parent: state.tokens,
+            content: to[2],
+            backlash: to[3],
+        });
+        state.src = state.src.substring(to[0].length);
+        state.pos = state.pos + to[0].length;
+
+        return true;
+    }
+
+    return false;
 }
 
 function tryBacklash(state: ILexState): boolean {
@@ -191,10 +252,18 @@ function tryStrongEm(state: ILexState): boolean {
 }
 
 // emoji | inline_code | del | inline_math
+// `inline_math_gfm` goes first: both math forms open on `$`, and the dollar
+// rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
+// It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_code', 'del', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
+        if (rule === 'inline_math' && !state.texMathDollars)
+            continue;
+        if (rule === 'inline_math_gfm' && !state.texMathGfm)
+            continue;
+
         const to = state.inlineRules[rule].exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
@@ -219,9 +288,10 @@ function tryChunks(state: ILexState): boolean {
                 rule === 'inline_code'
                 || rule === 'emoji'
                 || rule === 'inline_math'
+                || rule === 'inline_math_gfm'
             ) {
                 state.tokens.push({
-                    type: rule,
+                    type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
                     raw: to[0],
                     range,
                     marker,
@@ -790,6 +860,7 @@ function tryTailHeader(state: ILexState): boolean {
 // The fixed, priority-ordered inline-rule handler list the tokenizer loop
 // iterates. This array order IS the rule-precedence contract.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
+    tryBackslashMath,
     tryBacklash,
     tryStrongEm,
     tryChunks,
@@ -809,7 +880,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
-    const { superSubScript, footnote } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -823,6 +894,10 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         top,
         superSubScript,
         footnote,
+        texMathDollars,
+        texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
     };
 
     if (beginRules && state.pos === 0)
@@ -858,6 +933,10 @@ export function tokenizer(src: string, {
     options = {
         superSubScript: true,
         footnote: false,
+        texMathDollars: true,
+        texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(

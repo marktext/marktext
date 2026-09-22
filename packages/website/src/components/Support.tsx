@@ -28,8 +28,8 @@ export default function Support() {
             <a className="sponsor-logo" href={DOWNLOAD.serpapi} {...EXT_LINK} title="SerpApi">
               <img src="/assets/serpapi.png" alt="SerpApi" loading="lazy" />
             </a>
-            <a className="sponsor-logo" href={DOWNLOAD.ukey} {...EXT_LINK} title="UKey Wallet">
-              <img className="sponsor-logo-raw" src="/assets/ukey.png" alt="UKey Wallet" loading="lazy" />
+            <a className="sponsor-logo" href={DOWNLOAD.stardesk} {...EXT_LINK} title="StarDesk">
+              <img src="/assets/stardesk.png" alt="StarDesk" loading="lazy" />
             </a>
           </div>
         </div>

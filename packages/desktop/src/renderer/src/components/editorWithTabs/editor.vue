@@ -106,6 +106,7 @@ import {
   ja,
   ko,
   pt,
+  ru,
   tr,
   zhCN,
   zhTW,
@@ -123,8 +124,13 @@ import { SpellChecker } from '@/spellchecker'
 import { isOsx, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
+import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { resolveTocHeadingElement, TOP_LEVEL_HEADINGS_SELECTOR } from '@/util/tocNavigation'
+import {
+  getTocHeadingScrollTop,
+  resolveTocHeadingElement,
+  TOP_LEVEL_HEADINGS_SELECTOR
+} from '@/util/tocNavigation'
 import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
@@ -155,6 +161,7 @@ const MUYA_LOCALES: Record<string, ILocale> = {
   ja,
   ko,
   pt,
+  ru,
   tr,
   'zh-CN': zhCN,
   'zh-TW': zhTW
@@ -220,8 +227,12 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
+  texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash,
   isHtmlEnabled,
-  isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   lineHeight,
   fontSize,
   codeFontSize,
@@ -424,6 +435,15 @@ const adaptSelectionChange = (changes: MuyaChange) => {
     },
     affiliation
   }
+}
+
+// The engine reports only committed selections, so recounting per notification
+// is cheap; a caret reports no text and stops here.
+const setSelectionWordCountFromText = (selectedText: string) => {
+  const hasSelection = selectedText.trim().length > 0
+  if (!hasSelection && editorStore.selectionWordCount == null) return
+
+  editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? muyaWordCount(selectedText) : null)
 }
 
 // Build a JSON-serializable cursor from the engine selection (drop the live
@@ -666,15 +686,39 @@ watch(footnote, (value, oldValue) => {
   }
 })
 
+watch(texMathDollars, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDollars: value }, true)
+  }
+})
+
 watch(isHtmlEnabled, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ disableHtml: !value }, true)
   }
 })
 
-watch(isGitlabCompatibilityEnabled, (value, oldValue) => {
+watch(texMathGfm, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ isGitlabCompatibilityEnabled: value }, true)
+    editor.value.setOptions({ texMathGfm: value }, true)
+  }
+})
+
+watch(texMathSingleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathSingleBackslash: value }, true)
+  }
+})
+
+watch(texMathDoubleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDoubleBackslash: value }, true)
+  }
+})
+
+watch(softNewlineAsSpace, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ softNewlineAsSpace: value }, true)
   }
 })
 
@@ -828,6 +872,14 @@ watch(
     if (value && value !== oldValue) {
       if (editor.value) {
         editor.value.hideAllFloatTools()
+        // Flush the engine's queued rAF-batch ops into the tab before
+        // sourceCode.vue mounts and snapshots `currentFile.markdown` — an edit
+        // made in the same frame as the mode switch (e.g. a task-checkbox
+        // click) would otherwise be missing from the snapshot, and the swap
+        // back out of source mode cancels the scheduled flush, dropping the
+        // edit permanently. Same guard as saving (#3803) and tab switch
+        // (#2938).
+        editor.value.flush()
         // Compute the WYSIWYG caret as a source-markdown `{ line, ch }` index
         // cursor JUST-IN-TIME, only when entering source mode (Phase G — G7),
         // and write it to the tab before sourceCode.vue mounts (`flush: 'sync'`
@@ -880,6 +932,16 @@ const imageAction = async (
   // TODO(Refactor): Refactor this method.
   if (!currentFile.value) return ''
   const { filename, pathname: currentPathname } = currentFile.value
+
+  // A pasted screenshot / bitmap clipboard comes in as a `data:` URL string
+  // rather than a file path. `moveImageToFolder` and `uploadImage` treat any
+  // string as a local path, which would silently keep the base64 inline — so
+  // normalize it back into a `File` up front and let the branches below handle
+  // it as binary.
+  if (typeof image === 'string' && image.startsWith('data:')) {
+    const file = dataURLToFile(image)
+    if (file) image = file
+  }
 
   // Figure out the current working directory.
   // Save an image relative to the file, otherwise use the project root when available.
@@ -1001,9 +1063,26 @@ const imagePathPicker = () => {
   return editorStore.ASK_FOR_IMAGE_PATH()
 }
 
+// Growing a selection across blocks fires no `selection-change`.
+// TODO(Selection): drop this and its `keyup` branch once the engine reports it.
+const SELECTION_KEYS = new Set([
+  'Shift',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown'
+])
+
 const keyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
     setImageViewerVisible(false)
+  }
+  if (!sourceCode.value && editor.value && SELECTION_KEYS.has(event.key)) {
+    setSelectionWordCountFromText(editor.value.getSelectedText())
   }
 }
 
@@ -1259,9 +1338,8 @@ const scrollToCords = (y: number) => {
   })
 }
 
-// Smoothly scroll the editor so `anchor` sits at the standard top offset.
-// Shared by the TOC, search-highlight, and any other "reveal this element"
-// caller so the getBoundingClientRect + animatedScrollTo math lives once.
+// Smoothly scroll the editor so `anchor` sits at the standard caret offset.
+// Shared by search highlights and non-heading in-document anchors.
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
@@ -1282,7 +1360,9 @@ const scrollToHighlight = () => {
 const scrollToHeader = (slug: unknown) => {
   const container = getScrollContainer()
   if (!container) return
-  scrollElementIntoView(resolveTocHeadingElement(container, editorStore.listToc, slug))
+  const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
+  if (!heading) return
+  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1793,8 +1873,12 @@ onMounted(() => {
     frontmatterType: frontmatterType.value,
     superSubScript: superSubScript.value,
     footnote: footnote.value,
+    texMathDollars: texMathDollars.value,
+    texMathGfm: texMathGfm.value,
+    texMathSingleBackslash: texMathSingleBackslash.value,
+    texMathDoubleBackslash: texMathDoubleBackslash.value,
     disableHtml: !isHtmlEnabled.value,
-    isGitlabCompatibilityEnabled: isGitlabCompatibilityEnabled.value,
+    softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
@@ -2005,6 +2089,7 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
+    if (!sourceCode.value) setSelectionWordCountFromText(editor.value.getSelectedText())
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.
@@ -2055,6 +2140,7 @@ onBeforeUnmount(() => {
   bus.off('language-changed', handleLanguageChanged)
 
   document.removeEventListener('keyup', keyup)
+  editorStore.SET_SELECTION_WORD_COUNT(null)
 
   // Remove the manual scroll listener; engine `on(...)` listeners are torn down
   // by `destroy()` → `eventCenter.unsubscribeAll()`.

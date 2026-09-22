@@ -213,8 +213,9 @@ class QuickOpenCommand {
   }
 
   _getPath = (pathname: string): { title?: string; description: string } => {
-    const rootPath: string = this._folderState.projectTree!.pathname
-    if (!window.fileUtils.isChildOfDirectory(rootPath, pathname)) {
+    // Files can be open without a folder; show their full path then.
+    const rootPath = this._folderState.projectTree?.pathname
+    if (!rootPath || !window.fileUtils.isChildOfDirectory(rootPath, pathname)) {
       return { title: pathname, description: pathname }
     }
 

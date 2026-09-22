@@ -63,6 +63,30 @@
           :on-change="(value) => onSelectChange('footnote', value)"
           more="https://pandoc.org/MANUAL.html#footnotes"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathDollars')"
+          :bool="texMathDollars"
+          :on-change="(value) => onSelectChange('texMathDollars', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_dollars"
+        />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathGfm')"
+          :bool="texMathGfm"
+          :on-change="(value) => onSelectChange('texMathGfm', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_gfm"
+        />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathSingleBackslash')"
+          :bool="texMathSingleBackslash"
+          :on-change="(value) => onSelectChange('texMathSingleBackslash', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_single_backslash"
+        />
+        <bool
+          :description="t('preferences.markdown.extensions.texMathDoubleBackslash')"
+          :bool="texMathDoubleBackslash"
+          :on-change="(value) => onSelectChange('texMathDoubleBackslash', value)"
+          more="https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash"
+        />
       </template>
     </compound>
 
@@ -79,9 +103,9 @@
           :on-change="(value) => onSelectChange('isHtmlEnabled', value)"
         />
         <bool
-          :description="t('preferences.markdown.compatibility.enableGitlab')"
-          :bool="isGitlabCompatibilityEnabled"
-          :on-change="(value) => onSelectChange('isGitlabCompatibilityEnabled', value)"
+          :description="t('preferences.markdown.compatibility.softNewlineAsSpace')"
+          :bool="softNewlineAsSpace"
+          :on-change="(value) => onSelectChange('softNewlineAsSpace', value)"
         />
       </template>
     </compound>
@@ -159,8 +183,12 @@ const {
   frontmatterType,
   superSubScript,
   footnote,
+  texMathDollars,
+  texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash,
   isHtmlEnabled,
-  isGitlabCompatibilityEnabled,
+  softNewlineAsSpace,
   sequenceTheme,
   plantumlServer
 } = storeToRefs(preferenceStore)

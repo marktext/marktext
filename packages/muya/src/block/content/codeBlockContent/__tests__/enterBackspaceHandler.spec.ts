@@ -135,6 +135,55 @@ describe('codeBlockContent.backspaceHandler — offset-0 converts to paragraph',
     });
 });
 
+describe('codeBlockContent.backspaceHandler — caret at the end of a highlighted token', () => {
+    // A lone surrogate left in the text cannot be encoded by ot-text-unicode,
+    // so the next op on this block crashed the renderer with "Invalid offset -
+    // splits unicode bytes" (#4926).
+    it('removes a trailing astral emoji as one character', async () => {
+        const muya = bootMuya('```js\n// ship \u{1F680}\n```\n');
+        const content = codeContent(muya);
+        muya.editor.activeContentBlock = content;
+        const offset = content.text.length;
+        content.setCursor(offset, offset, true);
+
+        const event = keyEvent({ key: 'Backspace' });
+        content.backspaceHandler(event);
+
+        expect(content.text).toBe('// ship ');
+        expect(content.getCursor()!.start.offset).toBe(8);
+        expect(event.preventDefault).toHaveBeenCalledTimes(1);
+
+        await flush();
+        expect((muya.getState()[0] as { text: string }).text).toBe('// ship ');
+    });
+
+    it('removes a trailing emoji with a skin tone modifier as one character', async () => {
+        const muya = bootMuya('```js\n// ok \u{1F44D}\u{1F3FD}\n```\n');
+        const content = codeContent(muya);
+        muya.editor.activeContentBlock = content;
+        const offset = content.text.length;
+        content.setCursor(offset, offset, true);
+
+        content.backspaceHandler(keyEvent({ key: 'Backspace' }));
+
+        expect(content.text).toBe('// ok ');
+        expect(content.getCursor()!.start.offset).toBe(6);
+    });
+
+    it('still removes a single trailing ASCII character', () => {
+        const muya = bootMuya('```js\n// done\n```\n');
+        const content = codeContent(muya);
+        muya.editor.activeContentBlock = content;
+        const offset = content.text.length;
+        content.setCursor(offset, offset, true);
+
+        content.backspaceHandler(keyEvent({ key: 'Backspace' }));
+
+        expect(content.text).toBe('// don');
+        expect(content.getCursor()!.start.offset).toBe(6);
+    });
+});
+
 describe('codeBlockContent.enterHandler — plain Enter inserts newline + indent', () => {
     it('keeps the 2-space indent and advances the caret by 1 + indent.length', () => {
         const muya = bootMuya('```js\nfoo\n```\n');

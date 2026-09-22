@@ -9,6 +9,7 @@
         :filename="filename"
         :active="windowActive"
         :word-count="wordCount"
+        :selection-word-count="selectionWordCount"
         :platform="platform"
         :is-saved="isSaved"
       />
@@ -78,7 +79,7 @@ const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar } = storeToRefs(layoutStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
-const { currentFile } = storeToRefs(editorStore)
+const { currentFile, selectionWordCount } = storeToRefs(editorStore)
 
 const pathname = computed(() => currentFile.value?.pathname)
 const filename = computed(() => currentFile.value?.filename)
@@ -166,6 +167,7 @@ onMounted(async () => {
   listenForMainStore.LISTEN_FOR_EDIT()
   preferencesStore.LISTEN_FOR_VIEW()
   listenForMainStore.LISTEN_FOR_SHOW_DIALOG()
+  listenForMainStore.LISTEN_FOR_PANDOC_EXPORT()
   listenForMainStore.LISTEN_FOR_PARAGRAPH_INLINE_STYLE()
   projectStore.LISTEN_FOR_UPDATE_PROJECT()
   projectStore.LISTEN_FOR_LOAD_PROJECT()

@@ -6,7 +6,6 @@ declare module 'flowchart.js'
 declare module 'joplin-turndown-plugin-gfm'
 declare module 'snapsvg-cjs'
 declare module '@hfelix/electron-localshortcut'
-declare module 'execall'
 declare module 'iso-639-1'
 declare module 'fuzzaldrin'
 declare module 'underscore' {
@@ -31,9 +30,6 @@ declare module 'codemirror/addon/*'
 declare module 'electron-window-state'
 declare module 'plist'
 declare module 'webfontloader'
-declare module 'minimatch' {
-  export function minimatch(target: string, pattern: string, options?: unknown): boolean
-}
 
 declare module '@marktext/file-icons' {
   interface FileIcon {

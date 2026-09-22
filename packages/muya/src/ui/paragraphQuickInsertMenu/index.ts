@@ -4,7 +4,7 @@ import type {
     IQuickInsertMenuItem,
 } from './config';
 import Fuse from 'fuse.js';
-import { replaceBlockByLabel } from '../../block/blockTransforms';
+import { canInsertLabel, replaceBlockByLabel } from '../../block/blockTransforms';
 import ParagraphContent from '../../block/content/paragraphContent';
 import { deepClone } from '../../utils';
 import { query } from '../../utils/dom';
@@ -112,6 +112,31 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
         };
 
         eventCenter.attachDOMEvent(domNode, 'keydown', handleKeydown);
+        eventCenter.attachDOMEvent(this.container!, 'mousemove', (event: Event) => {
+            this.container!.classList.remove('mu-keyboard-navigation');
+            if (!(event.target instanceof Element))
+                return;
+
+            const itemElement = event.target.closest<HTMLElement>('.item');
+            if (!itemElement || !this.container!.contains(itemElement))
+                return;
+
+            const item = this.renderArray.find(({ label }) => {
+                return label === itemElement.dataset.label;
+            });
+            if (item && item !== this.activeItem)
+                this.activeItem = item;
+        });
+    }
+
+    override step(direction: 'previous' | 'next') {
+        this.container!.classList.add('mu-keyboard-navigation');
+        super.step(direction);
+    }
+
+    override hide() {
+        this.container!.classList.remove('mu-keyboard-navigation');
+        super.hide();
     }
 
     render() {
@@ -196,6 +221,9 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
                 ?.children
                 .splice(2, 1);
         }
+
+        for (const menu of menuConfig)
+            menu.children = menu.children.filter(child => canInsertLabel(child.label, muya));
         let result = menuConfig;
         if (text !== '') {
             result = [];
@@ -231,11 +259,13 @@ export class ParagraphQuickInsertMenu extends BaseScrollFloat {
 
     override selectItem({ label }: IQuickInsertMenuItem['children'][number]) {
         const { _block: block, muya } = this;
-        replaceBlockByLabel({
-            label,
-            block: block!.parent!,
-            muya,
-        });
+        if (block?.outMostBlock) {
+            replaceBlockByLabel({
+                label,
+                block: block.parent!,
+                muya,
+            });
+        }
         // delay hide to avoid dispatch enter handler
         setTimeout(this.hide.bind(this));
     }

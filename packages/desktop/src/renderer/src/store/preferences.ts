@@ -45,6 +45,7 @@ export interface PreferencesState {
   codeFontSize: number
   codeFontFamily: string
   codeBlockLineNumbers: boolean
+  sourceCodeLineNumbers: boolean
   trimUnnecessaryCodeBlockEmptyLines: boolean
   wrapCodeBlocks: boolean
   editorLineWidth: string
@@ -77,8 +78,12 @@ export interface PreferencesState {
   frontmatterType: FrontmatterType | string
   superSubScript: boolean
   footnote: boolean
+  texMathDollars: boolean
+  texMathGfm: boolean
+  texMathSingleBackslash: boolean
+  texMathDoubleBackslash: boolean
   isHtmlEnabled: boolean
-  isGitlabCompatibilityEnabled: boolean
+  softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
   plantumlServer: string
 
@@ -162,6 +167,7 @@ export const usePreferencesStore = defineStore('preferences', {
     codeFontSize: 14,
     codeFontFamily: 'DejaVu Sans Mono',
     codeBlockLineNumbers: false,
+    sourceCodeLineNumbers: true,
     trimUnnecessaryCodeBlockEmptyLines: true,
     wrapCodeBlocks: false,
     editorLineWidth: '',
@@ -193,8 +199,12 @@ export const usePreferencesStore = defineStore('preferences', {
     frontmatterType: '-',
     superSubScript: false,
     footnote: false,
+    texMathDollars: true,
+    texMathGfm: false,
+    texMathSingleBackslash: false,
+    texMathDoubleBackslash: false,
     isHtmlEnabled: true,
-    isGitlabCompatibilityEnabled: false,
+    softNewlineAsSpace: false,
     sequenceTheme: 'hand',
     plantumlServer: 'https://www.plantuml.com/plantuml',
 

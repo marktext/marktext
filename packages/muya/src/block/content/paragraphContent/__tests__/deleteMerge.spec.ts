@@ -165,6 +165,36 @@ describe('forward Delete merging a list item that owns a nested sublist (#1845)'
             text: 'D',
         });
     });
+
+    it('moves the nested sublist of a task list item as well', () => {
+        const muya = bootMuya('- [ ] a\n- [ ] C\n  - D\n');
+
+        emptyFirstItemThenDelete(muya);
+
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('- [ ] C\n  - D\n');
+    });
+});
+
+// #5423 — the #1845 move applies to list items only.
+describe('forward Delete merging the first paragraph of a blockquote (#5423)', () => {
+    it('keeps the rest of the blockquote quoted', () => {
+        const muya = bootMuya('a\n\n> p\n>\n> q\n');
+
+        deleteAtEnd(muya, contentByText(muya, 'a'));
+
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('ap\n\n> q\n');
+    });
+
+    it('keeps the rest of a blockquote nested in a list item quoted', () => {
+        const muya = bootMuya('- a\n\n  > p\n  >\n  > q\n');
+
+        deleteAtEnd(muya, contentByText(muya, 'a'));
+
+        muya.flush();
+        expect(muya.getMarkdown()).toBe('- ap\n\n  > q\n');
+    });
 });
 
 describe('forward Delete at end of a code block — no merge', () => {

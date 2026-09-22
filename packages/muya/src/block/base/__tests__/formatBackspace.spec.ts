@@ -168,6 +168,24 @@ describe('format.backspaceHandler — plain-text boundaries (no markers involved
         expect(event.defaultPrevented).toBe(true);
     });
 
+    it('caret after a trailing astral character: removes the whole code point', () => {
+        const content = caretInFirstBlock(bootMuya('abc\u{1F642}\n'), 5);
+        const event = pressBackspace(content);
+
+        expect(content.text).toBe('abc');
+        expect(content.getCursor()!.start.offset).toBe(3);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('caret after a leading astral character: removes the whole code point', () => {
+        const content = caretInFirstBlock(bootMuya('\u{1F642}abc\n'), 2);
+        const event = pressBackspace(content);
+
+        expect(content.text).toBe('abc');
+        expect(content.getCursor()!.start.offset).toBe(0);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
     it('caret mid-run, off any marker boundary (offset 6): no-op, defers to default', () => {
         // Offset 6 is the first char of `strong`; it matches no token boundary
         // (`range.end` 4/14, `range.start + 1` 1/5), so the handler leaves the
@@ -178,5 +196,49 @@ describe('format.backspaceHandler — plain-text boundaries (no markers involved
         expect(content.text).toBe('foo **strong**');
         expect(content.getCursor()!.start.offset).toBe(6);
         expect(event.defaultPrevented).toBe(false);
+    });
+});
+
+// #5388: the handler replaces the native Backspace, so it never reaches the
+// input handler that re-reads the block type from the edited text.
+describe('format.backspaceHandler — edits that change the block type (#5388)', () => {
+    it('removing the space after `#` turns the heading into a paragraph', () => {
+        const muya = bootMuya('# Heading\n');
+        const content = caretInFirstBlock(muya, 2);
+        const event = pressBackspace(content);
+
+        expect(event.defaultPrevented).toBe(true);
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('#Heading\n');
+        expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
+        expect(muya.editor.scrollPage!.firstContentInDescendant()!.getCursor()!.start.offset).toBe(1);
+    });
+
+    it('removing a typed lone `#` turns the heading into an empty paragraph', () => {
+        const muya = bootMuya('x\n');
+        const paragraph = caretInFirstBlock(muya, 1);
+        paragraph.text = '#';
+        paragraph.setCursor(1, 1, true);
+        paragraph.checkInlineUpdate();
+        const heading = caretInFirstBlock(muya, 1);
+        expect(heading.blockName).toBe('atxheading.content');
+
+        pressBackspace(heading);
+
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('\n');
+        expect(muya.editor.scrollPage!.firstChild?.blockName).toBe('paragraph');
+    });
+
+    it('removing one `#` of `##` makes the heading level 1', () => {
+        const muya = bootMuya('## Heading\n');
+        const content = caretInFirstBlock(muya, 1);
+        pressBackspace(content);
+
+        muya.editor.jsonState.flush();
+        expect(muya.getMarkdown()).toBe('# Heading\n');
+        expect(muya.getState()).toEqual([
+            { name: 'atx-heading', meta: { level: 1 }, text: '# Heading' },
+        ]);
     });
 });

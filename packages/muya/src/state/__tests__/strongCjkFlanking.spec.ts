@@ -37,9 +37,9 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 
 const STATIC_OPTIONS = {
     footnote: false,
-    math: false,
+    texMathDollars: false,
     superSubScript: false,
-    isGitlabCompatibilityEnabled: false,
+    texMathGfm: false,
     frontMatter: false,
     sanitize: false,
 } as const;

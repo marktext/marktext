@@ -182,3 +182,108 @@ describe('search.replace() — replace all across multiple blocks', () => {
         expect(search.matches.length).toBe(0);
     });
 });
+
+describe('search.replace() — regexp matches keep emoji whole', () => {
+    it('replaces a whole emoji matched by a negated class', async () => {
+        const muya = bootMuya('abc\u{1F642}\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('[^a-z]', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['\u{1F642}']);
+
+        search.replace('x', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('abcx\n');
+        });
+    });
+
+    it('replaces a ZWJ sequence as one character', async () => {
+        const family = '\u{1F9D1}\u200D\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}';
+        const muya = bootMuya(`${family}z\n`);
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('.', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual([family, 'z']);
+
+        search.replace('x', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('xx\n');
+        });
+    });
+
+    it('does not find a code point inside a ZWJ sequence with a literal search', () => {
+        const muya = bootMuya('\u{1F9D1}\u200D\u{1F9D1}\u200D\u{1F9D2}\u200D\u{1F9D2}\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\u{1F9D1}');
+        expect(search.matches).toHaveLength(0);
+    });
+});
+
+describe('search.replace() — a capture holding a dollar sign', () => {
+    it('writes back a `$$` capture unchanged', async () => {
+        const muya = bootMuya('The shell variable $$ holds the pid.\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('(\\$\\$)', { isRegexp: true });
+        expect(search.matches.map(m => m.match)).toEqual(['$$']);
+
+        search.replace('`$1`', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('The shell variable `$$` holds the pid.\n');
+        });
+    });
+});
+
+describe('search.replace() — regexp capture groups', () => {
+    it('expands every match with its own groups when replacing all', async () => {
+        const muya = bootMuya('a1 b2\n\nc3\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.find('next');
+
+        search.replace('$2$1', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('1a 2b\n\n3c\n');
+        });
+    });
+
+    it('expands only the active match when replacing one', async () => {
+        const muya = bootMuya('a1 b2 c3\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('([a-z])(\\d)', { isRegexp: true });
+        search.find('next');
+
+        search.replace('$2$1', { isSingle: true, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('a1 2b c3\n');
+        });
+    });
+
+    it('writes nothing for a group that did not take part in the match', async () => {
+        const muya = bootMuya('color colour\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('colo(u)?r', { isRegexp: true });
+
+        search.replace('colo$1$1r', { isSingle: false, isRegexp: true });
+
+        await vi.waitFor(() => {
+            expect(muya.getMarkdown()).toBe('color colouur\n');
+        });
+    });
+});

@@ -3,7 +3,7 @@ import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
 import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
 import footnoteExtension from './extensions/footnote';
-import mathExtension from './extensions/math';
+import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import fm from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
@@ -13,17 +13,44 @@ export function lexBlock(
     options: ILexOption = DEFAULT_OPTIONS,
 ): TLexedToken[] {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { math, frontMatter, footnote } = options;
+    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Use a per-call Marked instance so extensions don't bleed across calls.
     // marked.use() on the global singleton would make math / footnote sticky:
-    // any consumer that once passed `math: true` would get math parsing forever.
+    // any consumer that once passed `texMathDollars: true` would get math parsing forever.
     const m = new Marked();
 
-    if (math) {
+    if (texMathDollars) {
         m.use(
             mathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathGfm) {
+        m.use(
+            gfmMathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathSingleBackslash) {
+        m.use(
+            singleBackslashMathExtension({
+                throwOnError: false,
+                useKatexRender: false,
+            }),
+        );
+    }
+
+    if (texMathDoubleBackslash) {
+        m.use(
+            doubleBackslashMathExtension({
                 throwOnError: false,
                 useKatexRender: false,
             }),
