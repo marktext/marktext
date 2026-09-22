@@ -434,7 +434,8 @@
         "imageRelativeDirectoryBase": "Dónde se copian las imágenes relativas",
         "imageRelativeDirectoryName": "El nombre de la carpeta de imagen relativa",
         "fileSortOrder": "El orden de clasificación de los archivos en las carpetas abiertas: ascendente o descendente",
-        "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral"
+        "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral",
+        "showPandocConvert": "Mostrar el menú de conversión de Pandoc. Requiere tener Pandoc instalado."
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "Restaurar todos los archivos y carpetas abiertos",
         "selectFolder": "Seleccionar Carpeta",
         "openBlankPage": "Abrir página en blanco"
+      },
+      "pandoc": {
+        "title": "Conversión con Pandoc",
+        "description": "Mostrar el menú de conversión de Pandoc. Requiere tener Pandoc instalado.",
+        "found": "Encontrado: {path}",
+        "foundOnPath": "Encontrado en PATH",
+        "notFound": "No encontrado"
       },
       "sidebar": {
         "title": "Barra Lateral",

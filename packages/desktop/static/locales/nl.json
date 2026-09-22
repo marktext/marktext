@@ -434,7 +434,8 @@
         "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
-        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
+        "showPandocConvert": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc."
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "Alle geopende bestanden en mappen herstellen",
         "selectFolder": "Map selecteren",
         "openBlankPage": "Lege pagina openen"
+      },
+      "pandoc": {
+        "title": "Pandoc-conversie",
+        "description": "Het Pandoc-conversiemenu tonen. Vereist een installatie van Pandoc.",
+        "found": "Gevonden: {path}",
+        "foundOnPath": "Gevonden in PATH",
+        "notFound": "Niet gevonden"
       },
       "sidebar": {
         "title": "Zijbalk",

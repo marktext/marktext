@@ -72,6 +72,7 @@ export interface IUserPreferences {
   autoNormalizeLineEndings?: boolean
   watcherUsePolling?: boolean
   treePathExcludePatterns?: string[]
+  showPandocConvert?: boolean
   [key: string]: unknown
 }
 

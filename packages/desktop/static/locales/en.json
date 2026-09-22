@@ -434,7 +434,8 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "showPandocConvert": "Show the Pandoc conversion menu. Requires Pandoc to be installed."
       }
     },
     "categories": {
@@ -477,6 +478,13 @@
         "restoreAll": "Restore all opened files and folders",
         "selectFolder": "Select Folder",
         "openBlankPage": "Open blank page"
+      },
+      "pandoc": {
+        "title": "Pandoc Conversion",
+        "description": "Show the Pandoc conversion menu. Requires Pandoc to be installed.",
+        "found": "Found: {path}",
+        "foundOnPath": "Found on PATH",
+        "notFound": "Not found"
       },
       "sidebar": {
         "title": "Sidebar",

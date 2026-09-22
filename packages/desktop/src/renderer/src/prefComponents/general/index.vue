@@ -164,6 +164,24 @@
       </template>
     </compound>
 
+    <!-- The note lives on the group, not on the switch: a disabled `bool` dims its whole
+         section, which would fade the very line that explains why it is disabled. -->
+    <compound :notes="pandocStatus">
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.general.pandoc.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <bool
+          :description="t('preferences.general.pandoc.description')"
+          :bool="showPandocConvert"
+          :disable="pandocDisabled"
+          :on-change="(value) => onSelectChange('showPandocConvert', value)"
+        />
+      </template>
+    </compound>
+
     <compound>
       <template #head>
         <h6 class="title">
@@ -183,7 +201,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -193,6 +211,8 @@ import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import textBox from '../common/textBox/index.vue'
+import { pandocSwitchState } from './pandoc'
+import type { PandocProbe } from './pandoc'
 import { isOsx } from '@/util'
 
 import {
@@ -220,8 +240,25 @@ const {
   fileSortBy,
   fileSortOrder,
   language,
-  openedFilesInSidebar
+  openedFilesInSidebar,
+  showPandocConvert
 } = storeToRefs(preferenceStore)
+
+const pandocProbe = ref<PandocProbe | null>(null)
+
+const pandocSwitch = computed(() => pandocSwitchState(pandocProbe.value, showPandocConvert.value))
+
+const pandocStatus = computed<string>(() => {
+  const { note, path } = pandocSwitch.value
+  if (!note) return ''
+  return path ? t(note, { path }) : t(note)
+})
+
+const pandocDisabled = computed<boolean>(() => pandocSwitch.value.disabled)
+
+onMounted(async () => {
+  pandocProbe.value = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
+})
 
 const startUpAction = computed<string>({
   get: () => preferenceStore.startUpAction,

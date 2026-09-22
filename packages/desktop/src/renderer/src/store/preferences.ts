@@ -37,6 +37,7 @@ export interface PreferencesState {
   lastOpenedFolder: string
   treePathExcludePatterns: string[]
   language: string
+  showPandocConvert: boolean
 
   // ----- Editor / typography -----
   editorFontFamily: string
@@ -160,6 +161,7 @@ export const usePreferencesStore = defineStore('preferences', {
     lastOpenedFolder: '',
     treePathExcludePatterns: [],
     language: 'en',
+    showPandocConvert: false,
 
     editorFontFamily: 'Open Sans',
     fontSize: 16,
