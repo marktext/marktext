@@ -42,9 +42,9 @@ export default [
   js.recommended,
   ...neostandard(),
 
-  // 2. typescript-eslint recommended — scoped to TS files only.
-  // .vue files are added to this scope in Commit 8 (when they convert to
-  // lang="ts"). Until then they're treated as JS by section 5.
+  // 2. typescript-eslint recommended — scoped to TS files only. `.vue` cannot
+  // join this scope: it needs `vue-eslint-parser` as the top-level parser, so
+  // section 5 sets that up and opts in to the rules it wants.
   ...tseslint.configs.recommended.map((config) => ({
     ...config,
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts']

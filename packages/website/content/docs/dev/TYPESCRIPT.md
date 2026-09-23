@@ -1,15 +1,14 @@
 # TypeScript
 
-MarkText is a TypeScript project. Every file under `src/` (except `src/muya/`),
-the build scripts under `scripts/`, the test specs under `test/`, the
-build config (`electron.vite.config.ts`), and the test configs
-(`vitest.config.ts`, `playwright.config.ts`) are TS.
+MarkText is a TypeScript project. Every file under `src/`, the build
+scripts under `scripts/`, the test specs under `test/`, the build config
+(`electron.vite.config.ts`), and the test configs (`vitest.config.ts`,
+`playwright.config.ts`) are TS.
 
-The only JavaScript that ships in the source tree is `src/muya/` — the
-legacy editor engine, which will be replaced by the upstream TS muya at
-https://github.com/marktext/muya. The migration's `src/types/muya.d.ts`
-ambient declaration is the bridge; consumers always go through that file,
-never the underlying `src/muya/lib/*.js`.
+So is the editor engine: `@muyajs/core` (`packages/muya`). The legacy
+JavaScript engine it replaced is no longer reachable from here — its
+`muya/*` alias and the `src/types/muya.d.ts` ambient bridge were removed
+once nothing imported them (#4257).
 
 ## tsconfig layout
 
@@ -34,9 +33,7 @@ Relevant settings (`tsconfig.base.json`):
 - `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
   restore path (which carries optional fields through JSON serialization)
   tolerant of `undefined` ≡ "key not present"
-- `allowJs: false, checkJs: false` — every directory under `src/` is
-  now `.ts` except `src/muya/`, which the rest of the tree reaches
-  through the ambient declarations in `src/types/muya.d.ts`
+- `allowJs: false, checkJs: false` — every directory under `src/` is `.ts`
 - `noEmit: true` — vue-tsc only type-checks; electron-vite handles the
   actual bundling
 
@@ -49,7 +46,6 @@ two must stay in sync):
 | ----------- | --------------------- |
 | `@/*`       | `src/renderer/src/*`  |
 | `common/*`  | `src/common/*`        |
-| `muya/*`    | `src/muya/*` (legacy) |
 | `@shared/*` | `src/shared/*`        |
 
 `vitest.config.ts` carries the same aliases plus `main_renderer` →
@@ -71,7 +67,7 @@ through the `exports` map.
   shapes, preferences, menu, bus, TypedEmitter helper). Pure type
   artefacts, no runtime. Importable from any process via `@shared/types/*`.
 - **`src/types/`** — ambient declarations (`global.d.ts`, `renderer.d.ts`,
-  `muya.d.ts`, `shims.d.ts`). `.d.ts` only; no runtime.
+  `shims.d.ts`). `.d.ts` only; no runtime.
 - **Co-located** — domain types specific to one feature live next to the
   code (e.g. `src/main/ipc/ripgrep.ts` defines its own `SearchOptions`).
 
@@ -88,13 +84,13 @@ The preload bridge (`src/preload/index.ts`) consumes these as generics:
 
 ```ts
 const ipcWrapper = {
+  // … one entry per channel group
   send: <K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]) =>
     ipcRenderer.send(channel, ...args),
   invoke: <K extends keyof IpcInvokeChannels>(
     channel: K,
     ...args: IpcInvokeChannels[K]['args']
   ): Promise<IpcInvokeChannels[K]['ret']> => ipcRenderer.invoke(channel, ...args)
-  // ...
 }
 ```
 
@@ -107,16 +103,6 @@ To add a new channel:
 1. Add an entry to the appropriate interface in `src/shared/types/ipc.ts`.
 2. Wire the handler in `src/main/ipc/*.ts` via `ipcMain.handle`/`ipcMain.on`.
 3. Use it from the renderer via `window.electron.ipcRenderer.{invoke,send,…}`.
-
-## muya boundary
-
-`src/muya/` stays JavaScript. The `src/types/muya.d.ts` ambient
-declaration covers the ~21 import paths the rest of the codebase
-actually uses (`muya/lib/utils`, `muya/lib/utils/dompurify`,
-`muya/lib/parser/marked/slugger`, the dozen-plus `muya/lib/ui/*` overlay
-components, etc.). Most entries are `any`-typed shims — good enough for
-the consumer side, and they delete cleanly the day upstream TS muya
-lands.
 
 ## TypedEmitter
 
@@ -176,12 +162,10 @@ PRs #4249–#4255:
 - Preference page SFCs (#4254)
 - `@typescript-eslint/no-explicit-any` flipped from `warn` to `error` (#4255)
 
-The only remaining `any` is the file-level disable in
-`src/types/muya.d.ts` (intentional — bridge to the legacy JS muya tree,
-deleted when upstream TS muya lands) and a single targeted
-`eslint-disable-next-line` in `src/main/filesystem/watcher.ts` for
-chokidar's `ignored` callback options bag whose typed signature varies
-between chokidar versions.
+A handful of targeted `eslint-disable-next-line` directives remain, each
+with its own justification — most of them in the CodeMirror 5 mode
+plumbing under `src/renderer/src/codeMirror/`, whose `@types/codemirror`
+surface does not describe the mode API.
 
 The rule covers `.vue` files as well, and no SFC needs an exemption: the
 CodeMirror handles in `sourceCode.vue` use `@types/codemirror` and the

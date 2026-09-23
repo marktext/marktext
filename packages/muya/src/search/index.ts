@@ -2,7 +2,7 @@ import type Content from '../block/base/content';
 import type TreeNode from '../block/base/treeNode';
 import type { IHighlight } from '../inlineRenderer/types';
 import type { Muya } from '../muya';
-import type { IMatch } from './types';
+import type { IMatch, IReplaceOption, ISearchOption } from './types';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { buildRegexValue, matchString } from '../utils/search';
 
@@ -93,7 +93,7 @@ export class Search {
         lastBlock.text = tempText + lastBlock.text.substring(lastEnd);
     }
 
-    replace(replaceValue: string, opt = { isSingle: true, isRegexp: false }) {
+    replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
         const { isSingle, isRegexp, ...rest } = opt;
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, rest);
         const { matches, index } = this;
@@ -148,7 +148,7 @@ export class Search {
      * @param {string} value
      * @param {object} opts
      */
-    search(value: string, opts = {}) {
+    search(value: string, opts: ISearchOption = {}) {
         const matches: IMatch[] = [];
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
         const { highlightIndex, selectHighlight } = options;

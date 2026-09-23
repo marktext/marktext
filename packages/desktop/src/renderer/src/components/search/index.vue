@@ -67,7 +67,7 @@
         <div class="button-group">
           <button
             class="button right"
-            @click="find('prev')"
+            @click="find('previous')"
           >
             <el-icon :size="14">
               <ArrowUp />
@@ -269,7 +269,7 @@ const listenFindNext = () => {
 }
 
 const listenFindPrev = () => {
-  find('prev')
+  find('previous')
 }
 
 const docKeyup = (event: KeyboardEvent) => {
@@ -298,11 +298,8 @@ const toggleSearchType = () => {
   type.value = type.value === 'search' ? 'replace' : 'search'
 }
 
-/**
- * Find the previous or next search result.
- * action: prev or next
- */
-const find = (action: 'prev' | 'next') => {
+/** Find the previous or next search result. */
+const find = (action: 'previous' | 'next') => {
   bus.emit('find-action', action)
 }
 
