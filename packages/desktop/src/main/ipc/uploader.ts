@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 import { ipcMain } from 'electron'
 import { isImageFile } from 'common/filesystem/paths'
 import { ensureShellEnvPath } from '../app/envPath'
-import { resolveCommandPath } from '../utils/resolveCommand'
+import { resolveCommand } from '../utils/resolveCommand'
 
 // Strip ANSI SGR color codes (CSI parameter ... 'm') from picgo output before
 // trying to parse it. \x1b is the ESC byte.
@@ -51,10 +51,10 @@ const parsePicgoOutput = (text: unknown): string | null => {
   return null
 }
 
-const uploadByPicgo = (localPath: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const cmd = resolveCommandPath('picgo')
-    if (!cmd) return reject(new Error('PicGo command not found in PATH'))
+const uploadByPicgo = async(localPath: string): Promise<string> => {
+  const cmd = await resolveCommand('picgo')
+  if (!cmd) throw new Error('PicGo command not found in PATH')
+  return new Promise((resolve, reject) => {
     const done = (err: Error | null, stdout: string | Buffer, stderr: string | Buffer) => {
       if (err) return reject(err)
       const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
@@ -78,14 +78,19 @@ const uploadByPicgo = (localPath: string): Promise<string> =>
       execFile(cmd, ['u', localPath], done)
     }
   })
+}
 
-const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
-  new Promise((resolve, reject) => {
+const uploadByCli = async(cliScript: string, localPath: string): Promise<string> => {
+  // The script is the user's own and is free to call tools that only their
+  // login shell can reach, so it gets the same PATH picgo would (#5518).
+  await ensureShellEnvPath()
+  return new Promise((resolve, reject) => {
     execFile(cliScript, [localPath], (err, data) => {
       if (err) return reject(err)
       resolve(String(data || '').trim())
     })
   })
+}
 
 // The file is written into a directory of its own: two clipboard images pasted
 // in the same millisecond would otherwise land on the same `Date.now()` path,
@@ -150,9 +155,6 @@ interface UploadRequest {
 
 export const registerUploaderHandlers = (): void => {
   ipcMain.handle('mt::uploader::upload', async(_event, req: UploadRequest) => {
-    // The uploader is a command the user installed, so it may live somewhere
-    // only their login shell knows about (#5518).
-    await ensureShellEnvPath()
     const { pathname, image, isPath, preferences } = req
     if (isPath) {
       const dir = path.dirname(pathname)

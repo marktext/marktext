@@ -1,12 +1,10 @@
 import { ipcMain } from 'electron'
-import { ensureShellEnvPath } from '../app/envPath'
-import { resolveCommandPath } from '../utils/resolveCommand'
+import { resolveCommand } from '../utils/resolveCommand'
 
 export const registerCmdHandlers = (): void => {
   ipcMain.handle('mt::cmd::exists', async(_event, name: string) => {
     try {
-      await ensureShellEnvPath()
-      return resolveCommandPath(name) !== null
+      return (await resolveCommand(name)) !== null
     } catch {
       return false
     }
