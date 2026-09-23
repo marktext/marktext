@@ -101,8 +101,12 @@ export default [
   ...pluginVue.configs['flat/recommended'],
 
   // 5. Vue files: vue-eslint-parser with delegated TS sub-parser for <script lang="ts">
+  // The plugin has to be registered here too: flat config only exposes a
+  // plugin's rules to files matched by the config object that declares it, and
+  // section 2 is scoped to `.ts`.
   {
     files: ['**/*.vue'],
+    plugins: { '@typescript-eslint': tseslint.plugin },
     languageOptions: {
       parser: vueParser,
       parserOptions: {
@@ -120,6 +124,7 @@ export default [
       globals: { ...globals.browser }
     },
     rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
       'vue/multi-word-component-names': 'off',
       'vue/require-default-prop': 'off'
     }

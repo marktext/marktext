@@ -152,6 +152,7 @@ let muyaPluginsRegistered = false
 // The `@muyajs/core` `Muya` surface is deliberately permissive (`[key: string]:
 // any` in muya-core.d.ts); everything that crosses the editor boundary leans on
 // it, so the instance handle stays `any` until the engine ships built typings.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- #4257: blocked on @muyajs/core shipping resolvable typings
 type MuyaInstance = any
 
 // The engine's `selection-change` / `json-change` payload. The consumed
