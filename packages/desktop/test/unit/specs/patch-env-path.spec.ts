@@ -73,6 +73,21 @@ describe('extraPathDirs: where a user-level package manager puts its global bins
     expect(dirs).toContain(path.join('/opt/node', 'bin'))
   })
 
+  it('lists an npm prefix that is already covered only once', () => {
+    // Its three common values are all dirs the lists above already carry.
+    for (const prefix of ['/usr/local', '/opt/homebrew', '/home/someone/.npm-global']) {
+      const dirs = extraPathDirs('linux', { HOME: '/home/someone', npm_config_prefix: prefix })
+      const wanted = path.join(prefix, 'bin')
+      expect(dirs.filter((dir) => dir === wanted), `duplicated ${wanted}`).toHaveLength(1)
+    }
+  })
+
+  it('drops an npm prefix that no process can look in', () => {
+    // npm leaves `~` unexpanded when it is set that way in .npmrc.
+    const dirs = extraPathDirs('linux', { HOME: '/home/someone', npm_config_prefix: '~/.npm-glob' })
+    expect(dirs.every((dir) => path.isAbsolute(dir))).toBe(true)
+  })
+
   it('yields nothing without a home dir to anchor on', () => {
     const dirs = extraPathDirs('darwin', {})
     expect(dirs.every((dir) => path.isAbsolute(dir))).toBe(true)

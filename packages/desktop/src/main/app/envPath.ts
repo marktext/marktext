@@ -32,15 +32,20 @@ const userBinDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[
 }
 
 /**
- * Bin dirs to add to a PATH that came from a desktop launcher. Empty on
- * Windows, whose GUI apps are started with the user's own environment.
- * The arguments let a spec pin both.
+ * Bin dirs to add to a PATH that came from a desktop launcher, deduplicated and
+ * absolute. Empty on Windows, whose GUI apps are started with the user's own
+ * environment. The arguments let a spec pin both.
  */
 export const extraPathDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] => {
   const system = SYSTEM_BIN_DIRS[platform]
   if (!system) return []
+  // The configured npm prefix is routinely one of the dirs already listed —
+  // `~/.npm-global`, `/usr/local` and `/opt/homebrew` are its three common
+  // values. It can also be a literal `~/…` that nothing expanded, which is not
+  // a dir this process can look in.
   const npmPrefix = env.npm_config_prefix ? [path.join(env.npm_config_prefix, 'bin')] : []
-  return [...system, ...userBinDirs(platform, env), ...npmPrefix]
+  const dirs = [...system, ...userBinDirs(platform, env), ...npmPrefix]
+  return [...new Set(dirs.filter((dir) => path.isAbsolute(dir)))]
 }
 
 const appendToEnvPath = (dirs: string[]): void => {
