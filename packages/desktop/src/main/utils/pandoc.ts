@@ -79,25 +79,25 @@ export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEn
 const isBatchFile = (command: string): boolean =>
   process.platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
 
-/** Where pandoc may sit besides PATH, most specific first. */
-const preferredLocations = (): string[] => {
-  const fromEnv = process.env.MARKTEXT_PANDOC
-  const locations = pandocLocations(process.platform, process.env)
-  return (fromEnv ? [fromEnv, ...locations] : locations).filter(
-    (candidate) => !isBatchFile(candidate)
-  )
+/**
+ * The one resolution `exists` and every spawn share — a bare name means PATH
+ * found it, which a caller must not confuse with the miss fallback below.
+ */
+const findCommand = async(): Promise<string | null> => {
+  const override = process.env.MARKTEXT_PANDOC
+  // Naming a batch file is as unusable as naming one that is not there.
+  if (override && isBatchFile(override)) return null
+  return resolveCommand(pandocCommand, {
+    override,
+    preferred: pandocLocations(process.platform, process.env)
+  })
 }
 
 /** The bare name is the fallback, so a miss still spawns and reports why. */
-const getCommand = async(): Promise<string> =>
-  (await resolveCommand(pandocCommand, { preferred: preferredLocations() })) ?? pandocCommand
-
-interface PandocConverter {
-  (): Promise<string>
-}
+const getCommand = async(): Promise<string> => (await findCommand()) ?? pandocCommand
 
 interface PandocFn {
-  (from: string, to: string, ...args: string[]): PandocConverter
+  (from: string, to: string, ...args: string[]): Promise<string>
   exists: () => Promise<boolean>
   toFile: (
     to: string,
@@ -107,27 +107,23 @@ interface PandocFn {
   ) => Promise<PandocToFileResult>
 }
 
-const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter => {
+const pandoc = (async(from: string, to: string, ...args: string[]): Promise<string> => {
+  const command = await getCommand()
   const option = ['-s', from, '-t', to].concat(args)
-
-  return (async(): Promise<string> => {
-    const command = await getCommand()
-    return new Promise((resolve, reject) => {
-      const proc = spawn(command, option)
-      proc.on('error', reject)
-      let data = ''
-      proc.stdout.on('data', (chunk: Buffer | string) => {
-        data += chunk.toString()
-      })
-      proc.stdout.on('end', () => resolve(data))
-      proc.stdout.on('error', reject)
-      proc.stdin.end()
+  return new Promise((resolve, reject) => {
+    const proc = spawn(command, option)
+    proc.on('error', reject)
+    let data = ''
+    proc.stdout.on('data', (chunk: Buffer | string) => {
+      data += chunk.toString()
     })
-  }) as PandocConverter
+    proc.stdout.on('end', () => resolve(data))
+    proc.stdout.on('error', reject)
+    proc.stdin.end()
+  })
 }) as PandocFn
 
-pandoc.exists = async(): Promise<boolean> =>
-  (await resolveCommand(pandocCommand, { preferred: preferredLocations() })) !== null
+pandoc.exists = async(): Promise<boolean> => (await findCommand()) !== null
 
 export interface PandocToFileOptions {
   /** Folder the document's relative links resolve against, or pandoc uses cwd. */

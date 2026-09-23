@@ -76,6 +76,21 @@ describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
     await expect(pandoc.exists()).resolves.toBe(false)
   })
 
+  it('does not quietly run another pandoc when the override cannot', async() => {
+    // A pandoc on PATH used to win here, so the setting was ignored and a
+    // binary the user did not name ran instead.
+    const notExecutable = path.join(tmpDir, 'pandoc-not-a-binary')
+    await fs.writeFile(notExecutable, 'text\n', { mode: 0o644 })
+    process.env.MARKTEXT_PANDOC = notExecutable
+    process.env.SHELL = '/usr/sbin/nologin'
+    process.env.PATH = `${binDir}:/usr/bin:/bin`
+    process.env.HOME = tmpDir
+    setPlatform('freebsd')
+
+    const pandoc = await loadPandoc()
+    await expect(pandoc.exists()).resolves.toBe(false)
+  })
+
   it('ignores an override it could not run', async() => {
     // The old check accepted any file, so a non-executable override reported
     // present and then failed at spawn.

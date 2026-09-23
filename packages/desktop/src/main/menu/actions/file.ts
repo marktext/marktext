@@ -368,8 +368,7 @@ const noticePandocNotFound = (win: BrowserWindow, titleKey = 'dialog.importWarni
 
 const openPandocFile = async(windowId: number, pathname: string): Promise<void> => {
   try {
-    const converter = pandoc(pathname, 'markdown')
-    const data = await converter()
+    const data = await pandoc(pathname, 'markdown')
     ipcMain.emit('app-open-markdown-by-id', windowId, data)
   } catch (err) {
     log.error('Error while converting file:', err)
