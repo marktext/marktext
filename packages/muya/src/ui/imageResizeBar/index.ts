@@ -24,6 +24,10 @@ export class ImageResizeBar {
     private _movingAnchor: string | null = null;
     private _status: boolean = false;
     private _width: number | null = null;
+    // Pointer position and image width as of mousedown. Writing a width moves
+    // the image's own edges, so live geometry is not a usable reference while
+    // dragging — only this snapshot is (#5392).
+    private _dragStart: { clientX: number; width: number } | null = null;
     private _eventId: string[] = [];
     private _lastScrollTop: number | null = null;
     private _resizing: boolean = false;
@@ -138,6 +142,10 @@ export class ImageResizeBar {
 
         const { eventCenter } = this.muya;
         this._movingAnchor = handle.getAttribute('data-position');
+        const image = this._reference?.querySelector('img');
+        this._dragStart = isMouseEvent(event) && image
+            ? { clientX: event.clientX, width: image.getBoundingClientRect().width }
+            : null;
         // A pointer dragged past the window's edge keeps driving the resize,
         // but those out-of-viewport coordinates hit test to `<html>`, whose
         // bubble path skips `<body>`. Listening on the document keeps the
@@ -165,27 +173,21 @@ export class ImageResizeBar {
 
         event.preventDefault();
         const { clientX } = event;
+        const dragStart = this._dragStart;
         let width: number;
-        let relativeAnchor: HTMLDivElement;
         const image = this._reference!.querySelector('img');
-        if (!image)
+        if (!image || !dragStart)
             return;
 
+        // Each handle moves the edge it sits on, so the image grows by however
+        // far the pointer has travelled away from where it was grabbed.
         switch (this._movingAnchor) {
             case 'left':
-                relativeAnchor = this._container.querySelector('.right')!;
-                width = Math.max(
-                    relativeAnchor.getBoundingClientRect().left + CIRCLE_RADIO - clientX,
-                    50,
-                );
+                width = Math.max(dragStart.width + dragStart.clientX - clientX, 50);
                 break;
 
             case 'right':
-                relativeAnchor = this._container.querySelector('.left')!;
-                width = Math.max(
-                    clientX - relativeAnchor.getBoundingClientRect().left - CIRCLE_RADIO,
-                    50,
-                );
+                width = Math.max(dragStart.width + clientX - dragStart.clientX, 50);
                 break;
 
             default:
@@ -208,6 +210,7 @@ export class ImageResizeBar {
         }
 
         this._width = null;
+        this._dragStart = null;
         this._resizing = false;
         this._movingAnchor = null;
     };
@@ -226,6 +229,7 @@ export class ImageResizeBar {
         this._cleanup = null;
         this._detachResizeListeners();
         this._width = null;
+        this._dragStart = null;
         this._resizing = false;
         this._movingAnchor = null;
         const circles = this._container.querySelectorAll('.bar');
