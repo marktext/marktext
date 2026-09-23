@@ -9,7 +9,7 @@ import type {
 import type Code from '../../commonMark/codeBlock/code';
 import type HTMLPreview from '../../commonMark/html/htmlPreview';
 import { CLASS_NAMES, EVENT_KEYS, HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
-import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength } from '../../../utils';
+import { adjustOffset, escapeHTML, firstGraphemeLength, firstWordOfInfo, isKeyboardEvent, lastGraphemeLength, lineBounds } from '../../../utils';
 import { computeLineCount, repositionLineNumberSpans, syncLineNumbersSpans } from '../../../utils/codeBlockLineNumbers';
 import { getHighlightHtml, MARKER_HASH } from '../../../utils/highlightHTML';
 import prism, { loadedLanguages, transformAliasToOrigin, walkTokens } from '../../../utils/prism/index';
@@ -23,10 +23,7 @@ function checkAutoIndent(text: string, offset: number) {
 }
 
 function getIndentSpace(text: string, offset: number) {
-    const lineStart = text.lastIndexOf('\n', offset - 1) + 1;
-    let lineEnd = text.indexOf('\n', lineStart);
-    if (lineEnd === -1)
-        lineEnd = text.length;
+    const [lineStart, lineEnd] = lineBounds(text, offset);
     const match = /^(\s*)\S/.exec(text.slice(lineStart, lineEnd));
 
     return match ? match[1] : '';
