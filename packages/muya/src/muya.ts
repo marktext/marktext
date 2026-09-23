@@ -3,6 +3,7 @@ import type Parent from './block/base/parent';
 import type { TBlockPath } from './block/types';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
+import type { IReplaceOption, ISearchOption } from './search/types';
 import type { IIndexCursor } from './selection/offsetCursor';
 import type { IHistorySelection, IPublicCursorInput } from './selection/types';
 import type { ITocItem } from './state/getTOC';
@@ -264,7 +265,7 @@ export class Muya {
      * @param {string} value
      * @param {object} opts
      */
-    search(value: string, opts = {}) {
+    search(value: string, opts: ISearchOption = {}) {
         return this.editor.searchModule.search(value, opts);
     }
 
@@ -276,7 +277,7 @@ export class Muya {
         return this.editor.searchModule.find(action);
     }
 
-    replace(replaceValue: string, opt = { isSingle: true, isRegexp: false }) {
+    replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
         return this.editor.searchModule.replace(replaceValue, opt);
     }
 
