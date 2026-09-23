@@ -152,6 +152,25 @@ test.describe('typing over a triple-clicked line (#5389)', () => {
         expect(errors).toEqual([]);
     });
 
+    test('a shift-held click streak is a paragraph select too, and keeps the block below', async ({ page }) => {
+        await loadMarkdown(page, 'alpha beta\n\n***\n');
+        await nextFrames(page);
+
+        const start = await edgeOf(page, 'alpha beta', 'start');
+        const end = await edgeOf(page, 'alpha beta', 'end');
+        await page.mouse.click(start.x, start.y);
+        await page.keyboard.down('Shift');
+        await page.mouse.move(end.x, end.y);
+        for (const clickCount of [1, 2, 3]) {
+            await page.mouse.down({ clickCount });
+            await page.mouse.up();
+        }
+        await page.keyboard.up('Shift');
+        await page.keyboard.type('x');
+
+        await expect.poll(() => getMarkdown(page)).toBe('x\n\n***\n');
+    });
+
     test.describe('dragging on from the triple-click', () => {
         const DRAGS: Array<{ name: string; markdown: string; from: string; to: string; expected: string }> = [
             { name: 'downwards across blocks', markdown: 'one one\n\ntwo two\n\nthree three\n\nfour four\n', from: 'one one', to: 'three three', expected: 'x\n\ntwo two\n\nthree three\n\nfour four\n' },
