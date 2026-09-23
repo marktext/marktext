@@ -7,7 +7,6 @@ export interface ListItem {
   lvl: number | null
   content?: unknown
   slug?: unknown
-  [key: string]: unknown
 }
 
 export interface TreeNode<T extends ListItem = ListItem> {

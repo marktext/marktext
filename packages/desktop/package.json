@@ -49,8 +49,8 @@
     "test": "vitest run",
     "test:unit": "vitest run test/unit",
     "test:e2e": "playwright test test/e2e",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
-    "typecheck:watch": "vue-tsc --noEmit -p tsconfig.json --watch"
+    "typecheck": "pnpm --filter @muyajs/core build:types && vue-tsc --noEmit -p tsconfig.json",
+    "typecheck:watch": "pnpm --filter @muyajs/core build:types && vue-tsc --noEmit -p tsconfig.json --watch"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
