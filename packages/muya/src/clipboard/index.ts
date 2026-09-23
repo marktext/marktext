@@ -1,9 +1,11 @@
 import type { Muya } from '../muya';
+import type { Nullable } from '../types';
 import type { IClipboardPayload } from './copyData';
 import Format from '../block/base/format';
-import { isClipboardEvent, isKeyboardEvent } from '../utils';
+import { classifyInputKind } from '../history';
+import { isClipboardEvent, isInputEvent, isKeyboardEvent } from '../utils';
 import { getClipboardData, writeClipboardData } from './copyData';
-import { cutSelection, deleteTableSelection } from './cut';
+import { cutSelection, deleteTableSelection, insertTextAtCursor } from './cut';
 import { pastePlainText, pasteSelection } from './paste';
 import { pasteImageSrc } from './pasteImage';
 import { CopyType, PasteType } from './types';
@@ -21,6 +23,32 @@ export function shouldCrossBlockCut(key: string, metaKey: boolean, ctrlKey: bool
         return false;
 
     return true;
+}
+
+const FOREIGN_INPUT_TYPES = new Set([
+    'deleteByCut',
+    'deleteByDrag',
+    'deleteCompositionText',
+    'insertCompositionText',
+    'insertFromDrop',
+    'insertFromPaste',
+    'insertFromPasteAsQuotation',
+    'insertLineBreak',
+    'insertParagraph',
+]);
+
+export function crossBlockReplacement(inputType: string, data: Nullable<string>): Nullable<string> {
+    if (FOREIGN_INPUT_TYPES.has(inputType))
+        return null;
+
+    switch (classifyInputKind(inputType)) {
+        case 'delete':
+            return '';
+        case 'insert':
+            return data ?? '';
+        default:
+            return null;
+    }
 }
 
 class Clipboard {
@@ -99,6 +127,24 @@ class Clipboard {
             this.cutHandler();
         };
 
+        const beforeInputHandler = (event: Event) => {
+            if (!ownsEvent() || !isInputEvent(event) || !event.cancelable)
+                return;
+
+            const replacement = crossBlockReplacement(event.inputType, event.data);
+            if (replacement == null || document.getSelection()?.isCollapsed !== false)
+                return;
+
+            if (this.selection.getSelection()?.isSelectionInSameBlock !== false)
+                return;
+
+            event.preventDefault();
+            this.cutHandler();
+
+            if (replacement)
+                insertTextAtCursor(this, replacement);
+        };
+
         const pasteHandler = (event: Event) => {
             if (ownsEvent() && isClipboardEvent(event))
                 this.pasteHandler(event);
@@ -110,6 +156,7 @@ class Clipboard {
         eventCenter.attachDOMEvent(document, 'cut', copyCutHandler);
         eventCenter.attachDOMEvent(document, 'paste', pasteHandler);
         eventCenter.attachDOMEvent(document, 'keydown', keydownHandler);
+        eventCenter.attachDOMEvent(document, 'beforeinput', beforeInputHandler);
     }
 
     getClipboardData(): IClipboardPayload {
