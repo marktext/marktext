@@ -297,6 +297,19 @@ export class Editor {
         const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
+            // A selected image owns the keyboard: ImageSelection's handler turns
+            // Backspace/Delete/Enter into "delete the image" and Space into a
+            // preview. It listens on `document`, so this dispatch — on the
+            // editor root — gets the key first, and muya's text selection is
+            // collapsed in that state while the browser still reports a range at
+            // the top of the document. Routing the key here therefore spent it
+            // on the first block: Backspace demoted the first heading (#5395),
+            // and Enter inserted a paragraph above it and stopped propagating,
+            // so the image was never deleted (#5396). Clicks still pass through
+            // — a click is how the image selection is left.
+            if (event.type !== 'click' && this.selection.image)
+                return;
+
             const selectionResult = this.selection.getSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
