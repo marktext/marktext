@@ -1,5 +1,5 @@
 import AppPaths, { ensureAppDirectoriesSync } from './paths'
-import { ensureShellEnvPath, patchEnvPath } from './envPath'
+import { patchEnvPath } from './envPath'
 
 let envId = 0
 
@@ -70,12 +70,6 @@ export class AppEnvironment {
  */
 const setupEnvironment = (args: Record<string, unknown>): AppEnvironment => {
   patchEnvPath()
-  // Started here rather than on first use so the half-second the login shell
-  // takes is spent while the window is still opening; whoever needs it awaits
-  // this same run.
-  ensureShellEnvPath().catch(() => {
-    /* the dirs patched in above stay the fallback */
-  })
 
   // Development mode is decided when the app is built (#5407); a NODE_ENV in
   // the user's environment used to turn every release into a debug run.
