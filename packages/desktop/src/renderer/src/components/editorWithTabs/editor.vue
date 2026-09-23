@@ -243,6 +243,11 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 const { projectTree } = storeToRefs(projectStore)
 
 // Component state
+// The preferences store keeps `sequenceTheme` a free-form string because it is
+// read back from disk; the engine accepts only its two known values.
+const toSequenceTheme = (value: string): IMuyaOptions['sequenceTheme'] =>
+  value as IMuyaOptions['sequenceTheme']
+
 const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
 const resolveEditorFont = (family: string): string =>
   family ? `${family}, ${defaultFontFamily}` : defaultFontFamily
@@ -625,7 +630,7 @@ watch(theme, (value, oldValue) => {
 
 watch(sequenceTheme, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ sequenceTheme: value as IMuyaOptions['sequenceTheme'] }, true)
+    editor.value.setOptions({ sequenceTheme: toSequenceTheme(value) }, true)
   }
 })
 
@@ -1831,7 +1836,7 @@ onMounted(() => {
     Muya.use(TableRowColumMenu)
   }
 
-  const options: Record<string, unknown> = {
+  const options: Partial<IMuyaOptions> = {
     focusMode: focus.value,
     markdown: props.markdown,
     locale: getMuyaLocale(language.value),
@@ -1863,7 +1868,7 @@ onMounted(() => {
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
-    sequenceTheme: sequenceTheme.value,
+    sequenceTheme: toSequenceTheme(sequenceTheme.value),
     plantumlServer: preferencesStore.plantumlServer,
     spellcheckEnabled: spellcheckerEnabled.value,
     spellcheckHideMarks: spellcheckerNoUnderline.value,
