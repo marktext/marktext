@@ -1,5 +1,5 @@
 import { access } from 'fs/promises'
-import { lstatSync, readlinkSync } from 'fs'
+import { accessSync, constants, lstatSync, readlinkSync, statSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { ensureDirSync as fsExtraEnsureDirSync } from 'fs-extra'
 
@@ -83,6 +83,22 @@ export const isFile2 = (filepath: string): boolean => {
       return isFile(targetPath)
     }
     return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Whether `filepath` is a file this process can execute. `access` rather than
+ * the mode bits: only the owner bits count for the owner, so a file carrying
+ * just the "other" bit looks executable to a bit test and gets EACCES at spawn.
+ * On Windows `X_OK` has no effect, leaving the `isFile` half doing the work.
+ */
+export const isExecutableFile = (filepath: string): boolean => {
+  try {
+    if (!statSync(filepath).isFile()) return false
+    accessSync(filepath, constants.X_OK)
+    return true
   } catch {
     return false
   }

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const spawnMock = vi.fn()
 
@@ -22,19 +22,31 @@ import pandoc, {
   type PandocToFileOptions
 } from 'main_renderer/utils/pandoc'
 
-/** The ChildProcess `spawn` would hand back; stdin is an emitter so the EPIPE is testable. */
+/**
+ * The ChildProcess `spawn` would hand back; stdin is an emitter so the EPIPE is
+ * testable. The command is resolved before the spawn, so `spawned` says when
+ * the stub is actually in use rather than polling for it.
+ */
 const startProcess = () => {
+  let inUse!: () => void
+  const spawned = new Promise<void>((resolve) => {
+    inUse = resolve
+  })
   const proc = Object.assign(new EventEmitter(), {
     stdin: Object.assign(new EventEmitter(), { end: vi.fn() }),
     stderr: new EventEmitter(),
-    stdout: new EventEmitter()
+    stdout: new EventEmitter(),
+    spawned: () => spawned
   })
-  spawnMock.mockReturnValue(proc)
+  spawnMock.mockImplementation(() => {
+    inUse()
+    return proc
+  })
   return proc
 }
 
 /** The spawn stub plus the pending conversion, stderr emitted before the exit included. */
-const runToFile = (
+const runToFile = async(
   to: string,
   outputPath: string,
   { input = 'x', stderr = '', code = 0, ...options }: PandocToFileOptions & {
@@ -45,12 +57,19 @@ const runToFile = (
 ) => {
   const proc = startProcess()
   const done = pandoc.toFile(to, outputPath, input, options)
+  await proc.spawned()
   if (stderr) proc.stderr.emit('data', Buffer.from(stderr))
   proc.emit('close', code)
   return { proc, done }
 }
 
 describe('pandoc export', () => {
+  beforeEach(() => {
+    // A real executable, so resolution stops at the override. child_process is
+    // mocked here, and a fall-through to the login shell would hang on it.
+    process.env.MARKTEXT_PANDOC = process.execPath
+  })
+
   afterEach(() => {
     spawnMock.mockReset()
     delete process.env.MARKTEXT_PANDOC
@@ -83,32 +102,26 @@ describe('pandoc export', () => {
 
   // The argv is asserted because `cwd` is what makes `![](pics/a.png)` resolve.
   it('spawns the named binary with the reader and target asked for', async() => {
-    const { proc, done } = runToFile('docx', '/tmp/notes.docx', {
+    const { proc, done } = await runToFile('docx', '/tmp/notes.docx', {
       input: '# Title',
       cwd: '/docs/notes',
       reader: getPandocReader(true)
     })
 
     await expect(done).resolves.toEqual({ warnings: '' })
-    // Which binary is used depends on the install, so argv and `cwd` are what this pins.
     expect(spawnMock).toHaveBeenCalledWith(
-      expect.any(String),
+      process.execPath,
       ['-f', 'gfm+superscript+subscript', '-t', 'docx', '-s', '-o', '/tmp/notes.docx'],
       { cwd: '/docs/notes' }
     )
     expect(proc.stdin.end).toHaveBeenCalledWith('# Title')
 
-    spawnMock.mockReset()
-    process.env.MARKTEXT_PANDOC = process.execPath
-    await runToFile('docx', '/tmp/x.docx').done
-
-    expect(spawnMock).toHaveBeenCalledWith(process.execPath, expect.any(Array), expect.anything())
-    expect(pandoc.exists()).toBe(true)
+    await expect(pandoc.exists()).resolves.toBe(true)
   })
 
   // pandoc splits `--metadata` on the first colon only, so "Q3: plan" survives.
   it('passes metadata on as --metadata key:value, dropping empty values', async() => {
-    const { done } = runToFile('epub3', '/tmp/x.epub', {
+    const { done } = await runToFile('epub3', '/tmp/x.epub', {
       metadata: { title: 'Notes: draft', lang: 'zh-Hans', author: '' }
     })
     await done
@@ -122,20 +135,20 @@ describe('pandoc export', () => {
 
   // Exit code 0 is not clean: stderr holds the warnings and names the failing position.
   it('reports the warnings of a run that worked and the stderr of one that did not', async() => {
-    const { done } = runToFile('docx', '/tmp/x.docx', {
+    const { done } = await runToFile('docx', '/tmp/x.docx', {
       stderr: '[WARNING] Could not fetch resource pics/a.png: replacing image with description\n'
     })
     await expect(done).resolves.toEqual({
       warnings: '[WARNING] Could not fetch resource pics/a.png: replacing image with description'
     })
 
-    const { done: broken } = runToFile('docx', '/tmp/x.docx', {
+    const { done: broken } = await runToFile('docx', '/tmp/x.docx', {
       code: 1,
       stderr: 'pandoc: Unknown output format docx\n'
     })
     await expect(broken).rejects.toThrow('Unknown output format docx')
 
-    const { done: quiet } = runToFile('docx', '/tmp/x.docx', { code: 3 })
+    const { done: quiet } = await runToFile('docx', '/tmp/x.docx', { code: 3 })
     await expect(quiet).rejects.toThrow('pandoc exited with code 3')
   })
 
@@ -143,6 +156,7 @@ describe('pandoc export', () => {
   it('survives an EPIPE on stdin and a binary that cannot be spawned', async() => {
     const proc = startProcess()
     const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x'.repeat(70 * 1024))
+    await proc.spawned()
     expect(() => proc.stdin.emit('error', new Error('write EPIPE'))).not.toThrow()
     proc.stderr.emit('data', Buffer.from('pandoc: Unknown output format broke\n'))
     proc.emit('close', 1)
@@ -150,6 +164,7 @@ describe('pandoc export', () => {
 
     const failing = startProcess()
     const missing = pandoc.toFile('docx', '/tmp/x.docx', 'x')
+    await failing.spawned()
     failing.emit('error', new Error('spawn pandoc ENOENT'))
     await expect(missing).rejects.toThrow('spawn pandoc ENOENT')
   })
@@ -164,20 +179,19 @@ describe('pandoc export', () => {
       USERPROFILE: 'C:\\Users\\me'
     }
 
+    // The package-manager shim dirs are not here: they serve every tool and
+    // live in extraPathDirs.
     expect(pandocLocations('win32', env)).toEqual([
       path.join(env.ProgramFiles, 'Pandoc', 'pandoc.exe'),
       path.join(env['ProgramFiles(x86)'], 'Pandoc', 'pandoc.exe'),
-      path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe'),
-      path.join(env.ProgramData, 'chocolatey', 'bin', 'pandoc.exe'),
-      path.join(env.USERPROFILE, 'scoop', 'shims', 'pandoc.exe'),
-      path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'pandoc.exe')
+      path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe')
     ])
     expect(pandocLocations('linux', env)).toEqual([])
   })
 
   // The plain-text writers keep `pics/a.png` as a link, so pandoc copies the pictures along.
   it('mirrors the document images next to the export', async() => {
-    const { done } = runToFile('rst', '/tmp/out/notes.rst', {
+    const { done } = await runToFile('rst', '/tmp/out/notes.rst', {
       cwd: '/docs/notes',
       resourcePath: '/docs/notes',
       mirrorMedia: true
@@ -226,6 +240,7 @@ describe('pandoc export', () => {
   it('lists the images pandoc found in the document', async() => {
     const proc = startProcess()
     const pending = listLinkedMedia('# Title', 'gfm')
+    await proc.spawned()
     proc.stdout.emit('data', Buffer.from(JSON.stringify([
       { t: 'Para', c: [{ t: 'Image', c: [[], [], ['pics/a.png', 'fig:']] }] },
       { t: 'RawInline', c: ['html', '<img src="pics/b.png">'] }

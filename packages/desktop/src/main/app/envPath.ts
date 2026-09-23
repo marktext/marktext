@@ -36,10 +36,18 @@ const userBinDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[
   ]
 }
 
+// Windows GUI apps do start with the user's own PATH, so there is nothing to
+// repair — but a package manager's shim dir is not on it to begin with.
+const windowsShimDirs = (env: NodeJS.ProcessEnv): string[] =>
+  [
+    env.ProgramData && path.join(env.ProgramData, 'chocolatey', 'bin'),
+    env.USERPROFILE && path.join(env.USERPROFILE, 'scoop', 'shims'),
+    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links')
+  ].filter((dir): dir is string => !!dir)
+
 /** The arguments let a spec pin both. */
 export const extraPathDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] => {
-  // Windows GUI apps are started with the user's own environment.
-  if (platform === 'win32') return []
+  if (platform === 'win32') return [...new Set(windowsShimDirs(env))]
   // Keyed off win32 rather than off this table, or the BSDs would get no
   // fallback at all while still paying for the shell spawn.
   const system = SYSTEM_BIN_DIRS[platform] ?? []

@@ -64,6 +64,47 @@ describe.skipIf(skipOnWindows)('resolveCommand fallback dirs (#5518)', () => {
     await expect(resolveCommand('   ')).resolves.toBeNull()
   })
 
+  it('takes a preferred location over anything on PATH', async() => {
+    // What an installer writes outside PATH, and what MARKTEXT_PANDOC names.
+    const preferred = path.join(home, 'Preferred', 'ls')
+    await fs.ensureDir(path.dirname(preferred))
+    await fs.writeFile(preferred, '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+
+    await expect(resolveCommand('ls')).resolves.toBe('ls')
+    await expect(resolveCommand('ls', { preferred: [preferred] })).resolves.toBe(preferred)
+  })
+
+  it('skips a preferred location it could not run', async() => {
+    const notExecutable = path.join(home, 'Preferred', 'mt-unrunnable')
+    await fs.writeFile(notExecutable, 'data\n', { mode: 0o644 })
+
+    const options = { preferred: [notExecutable, '/no/such/file'] }
+    await expect(resolveCommand('mt-nothing-5518', options)).resolves.toBeNull()
+  })
+
+  it('falls back to PATH when no preferred location exists', async() => {
+    await expect(resolveCommand('ls', { preferred: ['/no/such/file'] })).resolves.toBe('ls')
+  })
+
+  it('takes an override as an instruction, not as one more guess', async() => {
+    // Falling through to another copy would run something the user did not ask
+    // for, and report success while their setting is quietly ignored.
+    const unusable = path.join(home, 'Preferred', 'mt-bad-override')
+    await fs.ensureDir(path.dirname(unusable))
+    await fs.writeFile(unusable, 'data\n', { mode: 0o644 })
+
+    await expect(resolveCommand('ls', { override: unusable })).resolves.toBeNull()
+    await expect(resolveCommand('ls', { override: '/no/such/file' })).resolves.toBeNull()
+  })
+
+  it('uses an override that can run', async() => {
+    const usable = path.join(home, 'Preferred', 'mt-good-override')
+    await fs.ensureDir(path.dirname(usable))
+    await fs.writeFile(usable, '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+
+    await expect(resolveCommand('ls', { override: usable })).resolves.toBe(usable)
+  })
+
   it('refuses a name that would walk out of the dirs it searches', async() => {
     // These join their way to a real executable outside every dir searched.
     await expect(resolveCommand('../../bin/sh')).resolves.toBeNull()
