@@ -19,9 +19,9 @@ import {
     compareParagraphsOrder,
     getLegalOffset,
     getNodeAndOffset,
+    lineAtPoint,
     resolveEndpoint,
 } from './dom';
-import { paragraphSelectLine } from './paragraphSelect';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
 const debug = logger('textselection:');
@@ -187,39 +187,30 @@ class TextSelection {
         if (!anchorNode || !focusNode)
             return null;
 
-        const resolvedAnchor = resolveEndpoint(anchorNode, anchorOffset);
-        const resolvedFocus = resolveEndpoint(focusNode, focusOffset);
+        const anchor = resolveEndpoint(anchorNode, anchorOffset);
+        const focus = resolveEndpoint(focusNode, focusOffset);
 
-        if (!resolvedAnchor || !resolvedFocus)
+        if (!anchor || !focus)
             return null;
 
-        const anchorBlock = resolvedAnchor.block;
-        const focusBlock = resolvedFocus.block;
-        const anchorPath = anchorBlock.path;
-        const focusPath = focusBlock.path;
-
-        const anchor = { offset: resolvedAnchor.offset };
-        const focus = { offset: resolvedFocus.offset };
-
+        const anchorBlock = anchor.block;
+        const focusBlock = focus.block;
         const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;
 
-        const direction = computeDirection(
-            anchorBlock,
-            focusBlock,
-            anchor.offset,
-            focus.offset,
-            isSelectionInSameBlock,
-        );
-        const type = computeCaretType(anchorBlock, focusBlock, isCollapsed);
-
         return {
-            anchor: { offset: anchor.offset, block: anchorBlock, path: anchorPath },
-            focus: { offset: focus.offset, block: focusBlock, path: focusPath },
+            anchor,
+            focus,
             isCollapsed,
             isSelectionInSameBlock,
-            direction,
-            type,
+            direction: computeDirection(
+                anchorBlock,
+                focusBlock,
+                anchor.offset,
+                focus.offset,
+                isSelectionInSameBlock,
+            ),
+            type: computeCaretType(anchorBlock, focusBlock, isCollapsed),
         };
     }
 
@@ -319,12 +310,13 @@ class TextSelection {
             if (!isMouseEvent(event) || event.button !== 0 || event.detail < 3)
                 return;
 
-            const line = paragraphSelectLine(this._doc, event.clientX, event.clientY);
+            const line = lineAtPoint(this._doc, event.clientX, event.clientY);
             if (!line)
                 return;
 
             event.preventDefault();
-            this.setSelection(line.anchor, line.focus);
+            this._selectInfo.isSelect = false;
+            line.block.setCursor(line.start, line.end);
         };
 
         const handleMouseupOrLeave = () => {

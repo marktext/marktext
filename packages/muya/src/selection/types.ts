@@ -55,9 +55,7 @@ export interface ISelectionEndpoints {
 }
 
 // Only used for selection.getSelection return type.
-export interface ISelection {
-    anchor: IAnchorFocusInfo;
-    focus: IAnchorFocusInfo;
+export interface ISelection extends ISelectionEndpoints {
     isCollapsed: boolean;
     isSelectionInSameBlock: boolean;
     direction: SelectionDirection;

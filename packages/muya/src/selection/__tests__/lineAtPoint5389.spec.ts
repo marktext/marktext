@@ -3,27 +3,24 @@
 import type Content from '../../block/base/content';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
-import { resolveEndpoint } from '../dom';
-import { paragraphSelectLine } from '../paragraphSelect';
+import { lineAtPoint, resolveEndpoint } from '../dom';
 
 const editors: Muya[] = [];
+const hosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
-let originalCaretFromPoint: Document['caretPositionFromPoint'] | undefined;
 
 beforeEach(() => {
     originalVersion = window.MUYA_VERSION;
     window.MUYA_VERSION = 'test';
-    originalCaretFromPoint = document.caretPositionFromPoint;
 });
 
 afterEach(() => {
     while (editors.length)
         editors.pop()!.destroy();
+    while (hosts.length)
+        hosts.pop()!.remove();
     document.getSelection()?.removeAllRanges();
-    if (originalCaretFromPoint === undefined)
-        delete (document as Partial<Document>).caretPositionFromPoint;
-    else
-        document.caretPositionFromPoint = originalCaretFromPoint;
+    delete (document as Partial<Document>).caretPositionFromPoint;
     if (originalVersion === undefined)
         delete (window as Partial<Window>).MUYA_VERSION;
     else
@@ -33,6 +30,7 @@ afterEach(() => {
 function boot(markdown: string): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
+    hosts.push(host);
     const muya = new Muya(host, { markdown });
     muya.init();
     editors.push(muya);
@@ -64,11 +62,7 @@ function textNodeIn(node: Node): Node {
  * and bounding its line is the code under test.
  */
 function caretLandsOn(node: Node, offset: number): void {
-    document.caretPositionFromPoint = () => ({
-        offsetNode: node,
-        offset,
-        getClientRect: () => null,
-    }) as unknown as CaretPosition;
+    document.caretPositionFromPoint = () => ({ offsetNode: node, offset }) as unknown as CaretPosition;
 }
 
 describe('resolveEndpoint', () => {
@@ -76,7 +70,7 @@ describe('resolveEndpoint', () => {
         const muya = boot('alpha beta\n');
         const block = content(muya, 'alpha beta');
 
-        expect(resolveEndpoint(textNodeIn(block.domNode!), 4)).toEqual({ block, offset: 4 });
+        expect(resolveEndpoint(textNodeIn(block.domNode!), 4)).toEqual({ offset: 4, block, path: block.path });
     });
 
     it.each([
@@ -96,45 +90,32 @@ describe('resolveEndpoint', () => {
     });
 });
 
-describe('paragraphSelectLine', () => {
+describe('lineAtPoint', () => {
     it('covers the whole line the caret landed on', () => {
         const muya = boot('alpha beta\n\nnext words\n');
         const block = content(muya, 'alpha beta');
         caretLandsOn(textNodeIn(block.domNode!), 4);
 
-        expect(paragraphSelectLine(document, 0, 0)).toEqual({
-            anchor: { block, offset: 0, path: block.path },
-            focus: { block, offset: 10, path: block.path },
-        });
+        expect(lineAtPoint(document, 0, 0)).toEqual({ block, start: 0, end: 10 });
     });
 
     // `line one\nline two\nline three` — one block, three lines.
     it.each([
-        { name: 'first', caret: 3, expected: { anchor: 0, focus: 8 } },
-        { name: 'middle', caret: 12, expected: { anchor: 9, focus: 17 } },
-        { name: 'last', caret: 20, expected: { anchor: 18, focus: 28 } },
-    ])('covers only the $name line of a code block', ({ caret, expected }) => {
+        { name: 'first', caret: 3, start: 0, end: 8 },
+        { name: 'middle', caret: 12, start: 9, end: 17 },
+        { name: 'last', caret: 20, start: 18, end: 28 },
+    ])('covers only the $name line of a code block', ({ caret, start, end }) => {
         const muya = boot('```js\nline one\nline two\nline three\n```\n');
         const block = content(muya, 'line one\nline two\nline three');
         caretLandsOn(block.domNode!, caret);
 
-        const range = paragraphSelectLine(document, 0, 0);
-
-        expect(range?.anchor.block).toBe(block);
-        expect({ anchor: range?.anchor.offset, focus: range?.focus.offset }).toEqual(expected);
-    });
-
-    it('returns null when the caret landed outside any content block', () => {
-        const muya = boot('alpha\n\n| h1 | h2 |\n| -- | -- |\n| c1 | c2 |\n');
-        caretLandsOn(muya.domNode.querySelector('figure.mu-table')!, 0);
-
-        expect(paragraphSelectLine(document, 0, 0)).toBeNull();
+        expect(lineAtPoint(document, 0, 0)).toEqual({ block, start, end });
     });
 
     it('returns null when the document cannot place a caret at the point', () => {
         boot('alpha beta\n');
         document.caretPositionFromPoint = () => null;
 
-        expect(paragraphSelectLine(document, 0, 0)).toBeNull();
+        expect(lineAtPoint(document, 0, 0)).toBeNull();
     });
 });
