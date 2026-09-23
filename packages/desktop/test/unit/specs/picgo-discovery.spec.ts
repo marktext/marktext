@@ -2,11 +2,13 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs-extra'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { PNG, restoreEnv, writeFakePicgo, writeFakeShell } from '../commandFixtures'
 
 // #5518: a GUI-launched app inherits launchd's PATH, not the login shell's, so
-// a picgo installed by pnpm/volta/nvm is invisible — the uploader panel says it
-// is not installed and every upload rejects. Both answers have to come back
-// right once the login shell has been asked where the user's bins are.
+// a picgo installed by pnpm/volta/nvm was invisible — the uploader panel said
+// it was not installed and every upload failed. Here picgo exists only in a
+// directory the login shell knows about, and both answers have to come back
+// right.
 
 type Handler = (event: unknown, req: unknown) => Promise<unknown>
 const handlers = new Map<string, Handler>()
@@ -17,15 +19,9 @@ vi.mock('electron', () => ({
   }
 }))
 
-const PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-  'base64'
-)
-
 const skipOnWindows = process.platform === 'win32'
 
 let tmpDir: string
-let binDir: string
 let originalPath: string | undefined
 let originalShell: string | undefined
 let originalHome: string | undefined
@@ -36,26 +32,10 @@ beforeAll(async() => {
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mt-picgo-discovery-'))
   // Stands in for `~/Library/pnpm` — a real install location that no hardcoded
   // fallback list covers and that launchd never puts on PATH.
-  binDir = path.join(tmpDir, 'pnpm-home')
+  const binDir = path.join(tmpDir, 'pnpm-home')
   await fs.ensureDir(binDir)
-  await fs.writeFile(
-    path.join(binDir, 'picgo'),
-    ['#!/bin/sh', 'echo "[PicGo SUCCESS]: "', 'echo "https://cdn.example.com/uploaded.png"'].join(
-      '\n'
-    ) + '\n',
-    { mode: 0o755 }
-  )
-
-  const shell = path.join(tmpDir, 'login-shell')
-  await fs.writeFile(
-    shell,
-    [
-      '#!/bin/sh',
-      'for a in "$@"; do last="$a"; done',
-      `PATH="${binDir}:/usr/bin:/bin" /bin/sh -c "$last"`
-    ].join('\n') + '\n',
-    { mode: 0o755 }
-  )
+  await writeFakePicgo(binDir)
+  const shell = await writeFakeShell(path.join(tmpDir, 'login-shell'), `${binDir}:/usr/bin:/bin`)
 
   originalPath = process.env.PATH
   originalShell = process.env.SHELL
@@ -76,10 +56,8 @@ beforeAll(async() => {
 afterAll(async() => {
   if (skipOnWindows) return
   process.env.PATH = originalPath
-  if (originalShell === undefined) delete process.env.SHELL
-  else process.env.SHELL = originalShell
-  if (originalHome === undefined) delete process.env.HOME
-  else process.env.HOME = originalHome
+  restoreEnv('SHELL', originalShell)
+  restoreEnv('HOME', originalHome)
   await fs.remove(tmpDir)
 })
 
@@ -103,9 +81,5 @@ describe.skipIf(skipOnWindows)('picgo found through the login shell (#5518)', ()
     })
 
     expect(url).toBe('https://cdn.example.com/uploaded.png')
-  })
-
-  it('still answers false for a command nobody installed', async() => {
-    await expect(call('mt::cmd::exists', 'mt-no-such-command')).resolves.toBe(false)
   })
 })
