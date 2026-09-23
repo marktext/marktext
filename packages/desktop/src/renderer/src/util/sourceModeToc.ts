@@ -1,12 +1,7 @@
-/** Minimal CodeMirror surface `scrollSourceEditorToLine` needs. */
-interface ISourceEditor {
-  setCursor: (
-    pos: { line: number, ch: number },
-    ch?: number,
-    options?: { scroll?: boolean }
-  ) => void
-  heightAtLine: (line: number, mode: 'local' | 'page' | 'div') => number
-}
+import type CodeMirror from 'codemirror'
+
+/** The CodeMirror surface `scrollSourceEditorToLine` needs. */
+type ISourceEditor = Pick<CodeMirror.Editor, 'setCursor' | 'heightAtLine'>
 
 /**
  * Scroll the Source Code editor so `line` sits at the TOP of the viewport,
