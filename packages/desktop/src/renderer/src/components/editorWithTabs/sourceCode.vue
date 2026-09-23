@@ -18,12 +18,9 @@ import { adjustCursor } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
-type CMInstance = CodeMirror.Editor
-type CMCursor = CodeMirror.Position
-
 interface MuyaIndexCursorLike {
-  anchor: CMCursor
-  focus: CMCursor
+  anchor: CodeMirror.Position
+  focus: CodeMirror.Position
 }
 
 const props = defineProps<{
@@ -37,7 +34,7 @@ const preferencesStore = usePreferencesStore()
 
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
-const editor = ref<CMInstance | null>(null)
+const editor = ref<CodeMirror.Editor | null>(null)
 const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
@@ -85,12 +82,12 @@ watch([texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslas
   editor.value?.setOption('mode', markdownMathMode())
 })
 
-const getMarkdownAndCursor = (cm: CMInstance) => {
+const getMarkdownAndCursor = (cm: CodeMirror.Editor) => {
   let focus = cm.getCursor('head')
   let anchor = cm.getCursor('anchor')
 
   const markdown: string = cm.getValue()
-  const convertToMuyaCursor = (cursor: CMCursor) => {
+  const convertToMuyaCursor = (cursor: CodeMirror.Position) => {
     const line = cm.getLine(cursor.line)
     const preLine = cm.getLine(cursor.line - 1)
     const nextLine = cm.getLine(cursor.line + 1)
@@ -277,7 +274,7 @@ const handleImageAction = (payload: unknown) => {
     }
     const delta = alt.length + result.length + 5 - match[1].length
 
-    const adjustPointer = (pointer: CMCursor) => {
+    const adjustPointer = (pointer: CodeMirror.Position) => {
       if (!pointer) {
         return
       }
@@ -307,27 +304,25 @@ const handleImageAction = (payload: unknown) => {
 // than on `getSelection()`, which copies the whole selection.
 let lastSelectionKey = ''
 
-const selectionKey = (cm: CMInstance): string =>
-  (cm?.listSelections?.() ?? [])
-    .map(
-      ({ anchor, head }: { anchor: { line: number; ch: number }; head: { line: number; ch: number } }) =>
-        `${anchor.line}:${anchor.ch}-${head.line}:${head.ch}`
-    )
+const selectionKey = (cm: CodeMirror.Editor): string =>
+  cm
+    .listSelections()
+    .map(({ anchor, head }) => `${anchor.line}:${anchor.ch}-${head.line}:${head.ch}`)
     .join(',')
 
-const updateSelectionWordCount = (cm: CMInstance) => {
+const updateSelectionWordCount = (cm: CodeMirror.Editor) => {
   const key = selectionKey(cm)
   if (key === lastSelectionKey && editorStore.selectionWordCount != null) return
   lastSelectionKey = key
 
-  const selectedText = cm?.getSelection?.() ?? ''
+  const selectedText = cm.getSelection()
   const hasSelection = selectedText.trim().length > 0
   if (!hasSelection && editorStore.selectionWordCount == null) return
 
   editorStore.SET_SELECTION_WORD_COUNT(hasSelection ? getWordCount(selectedText) : null)
 }
 
-const saveContent = (cm: CMInstance) => {
+const saveContent = (cm: CodeMirror.Editor) => {
   const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(cm)
   // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
   const wordCount = getWordCount(newMarkdown)
@@ -347,8 +342,8 @@ const saveContent = (cm: CMInstance) => {
   }
 }
 
-const listenChange = (cm: CMInstance) => {
-  cm.on('cursorActivity', (instance: CMInstance) => {
+const listenChange = (cm: CodeMirror.Editor) => {
+  cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
     saveContent(instance)
     updateSelectionWordCount(instance)
   })
@@ -410,7 +405,7 @@ onMounted(() => {
   // See src/renderer/src/codeMirror/markdownMathMode.ts.
   codeMirrorInstance.setOption('mode', markdownMathMode())
 
-  codeMirrorInstance.on('contextmenu', (_cm: CMInstance, event: Event) => {
+  codeMirrorInstance.on('contextmenu', (_cm: CodeMirror.Editor, event: Event) => {
     event.preventDefault()
     event.stopPropagation()
   })
