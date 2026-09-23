@@ -86,6 +86,25 @@ describe.skipIf(skipOnWindows)('resolveCommand fallback dirs (#5518)', () => {
     await expect(resolveCommand('ls', { preferred: ['/no/such/file'] })).resolves.toBe('ls')
   })
 
+  it('takes an override as an instruction, not as one more guess', async() => {
+    // Falling through to another copy would run something the user did not ask
+    // for, and report success while their setting is quietly ignored.
+    const unusable = path.join(home, 'Preferred', 'mt-bad-override')
+    await fs.ensureDir(path.dirname(unusable))
+    await fs.writeFile(unusable, 'data\n', { mode: 0o644 })
+
+    await expect(resolveCommand('ls', { override: unusable })).resolves.toBeNull()
+    await expect(resolveCommand('ls', { override: '/no/such/file' })).resolves.toBeNull()
+  })
+
+  it('uses an override that can run', async() => {
+    const usable = path.join(home, 'Preferred', 'mt-good-override')
+    await fs.ensureDir(path.dirname(usable))
+    await fs.writeFile(usable, '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+
+    await expect(resolveCommand('ls', { override: usable })).resolves.toBe(usable)
+  })
+
   it('refuses a name that would walk out of the dirs it searches', async() => {
     // These join their way to a real executable outside every dir searched.
     await expect(resolveCommand('../../bin/sh')).resolves.toBeNull()

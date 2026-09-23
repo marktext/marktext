@@ -33,8 +33,10 @@ const lookup = (name: string): string | null => {
   return null
 }
 
-export interface ResolveCommandOptions {
-  /** Absolute paths to try first — an installer's own folder, a user override. */
+interface ResolveCommandOptions {
+  /** A path the user told us to use. Set but unusable resolves to null. */
+  override?: string
+  /** Absolute paths to try before PATH — an installer's own folder. */
   preferred?: string[]
 }
 
@@ -46,11 +48,12 @@ export interface ResolveCommandOptions {
  */
 export const resolveCommand = async(
   name: string,
-  { preferred = [] }: ResolveCommandOptions = {}
+  { override, preferred = [] }: ResolveCommandOptions = {}
 ): Promise<string | null> => {
-  const override = preferred.find(isRunnable)
-  if (override) return override
-  const found = lookup(name)
+  // An override is an instruction. Falling through to a copy the user did not
+  // name would run the wrong binary and call it success.
+  if (override) return isRunnable(override) ? override : null
+  const found = preferred.find(isRunnable) ?? lookup(name)
   if (found) return found
   await ensureShellEnvPath()
   return lookup(name)
