@@ -30,10 +30,8 @@ class ImageSelection {
         const { eventCenter, domNode } = this._muya;
         eventCenter.attachDOMEvent(domNode, 'click', this._handleClick);
         eventCenter.attachDOMEvent(document, 'click', this._handleDocClick);
-        // Capture phase: the editor's own key dispatch listens on the editor
-        // root, which is inside `document`, so a bubble listener here would see
-        // the keys this handler owns only after a block had already acted on
-        // them — that is how Enter reached the first block in #5396.
+        // Capture, so the editor's dispatch (listening inside `document`) can't
+        // act on a key this handler owns first.
         eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown, true);
     }
 
@@ -89,12 +87,6 @@ class ImageSelection {
             return;
         }
 
-        // Typing over a selected image replaces it, the way typing over any
-        // other selection does. Doing it here rather than leaving it to the
-        // browser keeps the two image shapes alike: an image alone in its
-        // paragraph is the whole of a `contenteditable="false"` element, and
-        // Chromium declines to edit that at all — it raises no input event —
-        // while an inline image sits beside editable text and would be replaced.
         if (isTypedCharacter(event)) {
             this._claim(event);
             const { block, ...imageInfo } = selected;
@@ -104,17 +96,11 @@ class ImageSelection {
         }
     };
 
-    // Take the key for the image selection alone. Stopping propagation from the
-    // capture phase is what keeps the editor's dispatch — and any block handler
-    // it would reach — out of a key this handler has already spent.
     private _claim(event: Event): void {
         event.preventDefault();
         event.stopPropagation();
     }
 
-    // Hand the keyboard back to a plain caret parked after the image, leaving
-    // the image itself alone. Every other way out of an image selection is a
-    // click, which leaves someone working from the keyboard stuck.
     private _releaseToCaret({ block, token }: IImageSelectionData): void {
         const { eventCenter } = this._muya;
         const { end } = token.range;

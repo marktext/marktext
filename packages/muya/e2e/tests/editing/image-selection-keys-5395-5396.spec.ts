@@ -3,10 +3,6 @@ import { editor } from '../helpers/selectors';
 
 const DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII=';
 
-// The two shapes an image comes in. They take different paths through the
-// browser — an image alone in its paragraph is the whole of a
-// `contenteditable="false"` element, an inline one sits beside editable text —
-// so every behaviour here is pinned for both.
 const SHAPES = {
     'block image': {
         doc: `# Title\n\nBefore.\n\n![](${DATA_URI})\n\nAfter.\n`,
@@ -27,9 +23,6 @@ async function selectImage(page: import('@playwright/test').Page, doc: string) {
 }
 
 for (const [shape, { doc, withoutImage }] of Object.entries(SHAPES)) {
-    // Backspace used to demote the document's first heading on its way through
-    // (#5395); Enter inserted a paragraph above it and left the image in place
-    // (#5396), because the editor's dispatch reached a block first.
     for (const key of ['Backspace', 'Delete', 'Enter']) {
         test(`#5395/#5396 ${shape}: ${key} removes only the image`, async ({ page }) => {
             const errors: string[] = [];

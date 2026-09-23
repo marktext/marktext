@@ -88,16 +88,8 @@ class Selection {
     }
 
     /**
-     * Select an image by selecting the text its `![…](…)` source occupies, so
-     * the editor keeps a real selection while the image is "the selection".
-     *
-     * Dropping the selection instead (what `activate(IMAGE)` does for the other
-     * non-text kinds) left the editor focused with nowhere for an edit to land:
-     * the browser aimed the next key at the start of the first block, where it
-     * corrupted the view without reaching the document (#5390), and muya's own
-     * key dispatch followed the stray range there too (#5395, #5396). With the
-     * source range selected, typing replaces the image and Backspace deletes it
-     * because that is what those keys do to any selection.
+     * Select the text the image's `![…](…)` source occupies, so the editor keeps
+     * a real selection while the image is "the selection" (#5390, #5395, #5396).
      */
     selectImage(data: IImageSelectionData): void {
         const { block, token } = data;
@@ -108,8 +100,8 @@ class Selection {
             { offset: token.range.start, block, path: block.path },
             { offset: token.range.end, block, path: block.path },
         );
-        // Last, so a listener that reads the kind sees `image` rather than the
-        // text selection the line above announced.
+        // Last, so a listener reading the kind sees `image`, not the text
+        // selection `setSelection` just announced.
         this._muya.eventCenter.emit('selection-change', {
             kind: SelectionType.IMAGE,
         });
@@ -146,10 +138,7 @@ class Selection {
 
     /**
      * The source text of the current text selection. Empty for a caret, and for
-     * table and image selections: a table selection drops the native range this
-     * reads, and a selected image, though it spans its `![…](…)` source, is an
-     * object the reader picked out rather than text — the desktop shell counts
-     * this for its selected-word display.
+     * table and image selections.
      */
     getSelectedText(): string {
         if (this._image.selected)

@@ -753,10 +753,8 @@ class Content extends TreeNode {
         type = 'format',
     ) {
     // TODO: @JOCS, remove use this selection directly.
-        // No recorded caret yet — `clickHandler` defers `setCursor` by a frame,
-        // and a non-text selection clears it outright. The `!oldStart` bail-out
-        // below is what handles that; reading `.offset` here first threw before
-        // it could (#5390).
+        // No recorded caret yet: `clickHandler` defers `setCursor` by a frame.
+        // The `!oldStart` bail-out below handles it (#5390).
         const { anchor, focus } = this.selection;
         const oldStart = anchor && focus
             ? (anchor.offset <= focus.offset ? anchor : focus)

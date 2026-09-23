@@ -473,12 +473,9 @@ class Format extends Content {
     }
 
     /**
-     * Swap the image's whole `![…](…)` source range for `text` and leave the
-     * caret after it, as one edit. `text` is inserted verbatim, so the caller
-     * owns any escaping.
-     *
-     * Distinct from `replaceImage`, which keeps the image and rewrites its
-     * alt/src/title.
+     * Swap the image's whole `![…](…)` source range for `text`, inserted
+     * verbatim. Distinct from `replaceImage`, which keeps the image and
+     * rewrites its alt/src/title.
      */
     replaceImageWithText({ token }: IImageInfo, text: string) {
         const oldText = this.text;
@@ -528,10 +525,8 @@ class Format extends Content {
                 return;
             }
 
-            // A click that selected an image has already placed the selection,
-            // over the image's source. Re-rendering for it would rebuild the
-            // block's DOM and strand the image tools, which hold the element
-            // they were handed a moment ago.
+            // Re-rendering would rebuild the block's DOM and strand the image
+            // tools, which hold the element they were just handed.
             if (this.muya.editor.selection.image)
                 return;
 
@@ -559,13 +554,8 @@ class Format extends Content {
         });
     }
 
-    /**
-     * Offer the inline format toolbar for a selection worth formatting.
-     *
-     * A selected image is a selection of its `![…](…)` source, so the
-     * non-collapsed test alone would pop a bold/italic toolbar over the image —
-     * none of which applies to it.
-     */
+    // A selected image is a selection of its source, so the non-collapsed test
+    // alone would pop a bold/italic toolbar over it.
     private _emitFormatPicker(isCollapsed: boolean): void {
         if (isCollapsed || this.muya.editor.selection.image)
             return;

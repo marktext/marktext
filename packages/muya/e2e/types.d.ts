@@ -44,8 +44,6 @@ declare global {
             rebuildMuya: (options?: Partial<IMuyaOptions>) => void;
         };
 
-        // Installed by tests/editing/image-selection-keys-5395-5396.spec.ts to
-        // count the `preview-image` events Space fires on a selected image.
         __previewCount?: number;
 
         // XSS canary used by tests/security/sanitize.spec.ts. If a malicious
