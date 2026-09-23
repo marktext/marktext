@@ -77,9 +77,6 @@ importers:
       '@marktext/file-icons':
         specifier: ^1.0.6
         version: 1.0.6
-      '@marktext/muyajs':
-        specifier: workspace:*
-        version: link:../muyajs
       '@muyajs/core':
         specifier: workspace:*
         version: link:../muya
