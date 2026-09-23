@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
@@ -34,7 +34,7 @@ const preferencesStore = usePreferencesStore()
 
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
-const editor = ref<CodeMirror.Editor | null>(null)
+const editor = shallowRef<CodeMirror.Editor | null>(null)
 const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
