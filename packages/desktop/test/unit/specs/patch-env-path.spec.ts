@@ -1,6 +1,6 @@
 import path from 'path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { patchEnvPath } from 'main_renderer/app/envPath'
+import { extraPathDirs, patchEnvPath } from 'main_renderer/app/envPath'
 
 const origPlatform = process.platform
 const origPath = process.env.PATH
@@ -47,5 +47,34 @@ describe('patchEnvPath (#2751)', () => {
     process.env.PATH = 'C:\\Windows'
     patchEnvPath()
     expect(process.env.PATH).toBe('C:\\Windows')
+  })
+})
+
+describe('extraPathDirs: where a user-level package manager puts its global bins (#5518)', () => {
+  it('covers pnpm and ~/.local/bin on darwin', () => {
+    const dirs = extraPathDirs('darwin', { HOME: '/Users/someone' })
+    expect(dirs).toContain('/Users/someone/Library/pnpm')
+    expect(dirs).toContain('/Users/someone/.local/bin')
+    expect(dirs).toContain('/opt/homebrew/bin')
+  })
+
+  it('covers pnpm and ~/.local/bin on linux', () => {
+    const dirs = extraPathDirs('linux', { HOME: '/home/someone' })
+    expect(dirs).toContain('/home/someone/.local/share/pnpm')
+    expect(dirs).toContain('/home/someone/.local/bin')
+  })
+
+  it('covers the npm prefix the user configured', () => {
+    const dirs = extraPathDirs('linux', { HOME: '/home/someone', npm_config_prefix: '/opt/node' })
+    expect(dirs).toContain('/opt/node/bin')
+  })
+
+  it('yields nothing without a home dir to anchor on', () => {
+    expect(extraPathDirs('darwin', {}).every((dir) => path.isAbsolute(dir))).toBe(true)
+    expect(extraPathDirs('darwin', {})).not.toContain('undefined/Library/pnpm')
+  })
+
+  it('is empty on win32, whose GUI apps do inherit the user PATH', () => {
+    expect(extraPathDirs('win32', { HOME: 'C:\\Users\\someone' })).toEqual([])
   })
 })
