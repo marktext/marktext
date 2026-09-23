@@ -206,12 +206,6 @@ const handleFileChange = (payload: unknown) => {
   }
 }
 
-const handleInvalidateImageCache = () => {
-  if (editor.value) {
-    editor.value.invalidateImageCache()
-  }
-}
-
 const handleSelectAll = () => {
   if (!sourceCode.value) {
     return
@@ -401,7 +395,6 @@ onMounted(() => {
   }
 
   bus.on('file-loaded', handleFileChange)
-  bus.on('invalidate-image-cache', handleInvalidateImageCache)
   bus.on('file-changed', handleFileChange)
   bus.on('selectAll', handleSelectAll)
   bus.on('undo', handleUndo)
@@ -439,7 +432,6 @@ onBeforeUnmount(() => {
   if (commitTimer.value) clearTimeout(commitTimer.value)
 
   bus.off('file-loaded', handleFileChange)
-  bus.off('invalidate-image-cache', handleInvalidateImageCache)
   bus.off('file-changed', handleFileChange)
   bus.off('selectAll', handleSelectAll)
   bus.off('undo', handleUndo)
