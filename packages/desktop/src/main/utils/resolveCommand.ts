@@ -1,19 +1,7 @@
 import path from 'path'
-import fs from 'fs'
 import commandExists from 'command-exists'
+import { isExecutableFile } from 'common/filesystem'
 import { ensureShellEnvPath, extraPathDirs } from '../app/envPath'
-
-// The same bar a PATH lookup holds, or the check passes and the spawn fails
-// with EISDIR/EACCES.
-const isRunnable = (candidate: string): boolean => {
-  try {
-    if (!fs.statSync(candidate).isFile()) return false
-    fs.accessSync(candidate, fs.constants.X_OK)
-    return true
-  } catch {
-    return false
-  }
-}
 
 // The name comes from the renderer over IPC. `commandExists.sync('')` answers
 // true, and `../../bin/sh` would join its way out of the dirs searched below.
@@ -28,7 +16,7 @@ const lookup = (name: string): string | null => {
   // only does work when PATH was never patched.
   for (const dir of extraPathDirs(process.platform, process.env)) {
     const candidate = path.join(dir, name)
-    if (isRunnable(candidate)) return candidate
+    if (isExecutableFile(candidate)) return candidate
   }
   return null
 }
@@ -52,8 +40,8 @@ export const resolveCommand = async(
 ): Promise<string | null> => {
   // An override is an instruction. Falling through to a copy the user did not
   // name would run the wrong binary and call it success.
-  if (override) return isRunnable(override) ? override : null
-  const found = preferred.find(isRunnable) ?? lookup(name)
+  if (override) return isExecutableFile(override) ? override : null
+  const found = preferred.find(isExecutableFile) ?? lookup(name)
   if (found) return found
   await ensureShellEnvPath()
   return lookup(name)
