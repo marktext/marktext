@@ -3,13 +3,14 @@ import { tmpdir } from 'os'
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// #5322: on a Windows SMB share, MoveFileEx(REPLACE_EXISTING) — what fs.rename
-// compiles to, and the last step of the atomic save — is refused with
-// ACCESS_DENIED (surfaced as EPERM) whenever ANY handle is open on the target.
-// MarkText's own file watcher stats the open document, so a save races its own
-// watcher and the edit is lost. Measured on a Windows SMB share: one open read
-// handle fails 50/50 renames; watcher polling fails ~1/200 and rises with the
-// stat rate. The window is short, so retrying the save clears it.
+// #5322: on Windows, MoveFileEx(REPLACE_EXISTING) — what fs.rename compiles to,
+// and the last step of the atomic save — is refused with ACCESS_DENIED
+// (surfaced as EPERM) whenever ANY handle is open on the target. MarkText's own
+// file watcher stats the open document, so a save races its own watcher and the
+// edit is lost. A stat costs microseconds locally but a network round trip over
+// SMB, which is why only shares lose the race in practice: measured over SMB,
+// one open read handle fails 50/50 renames and watcher polling fails ~1/200,
+// rising with the stat rate. The window is short, so retrying the save clears it.
 
 const writeFileAtomicMock = vi.fn()
 

@@ -129,13 +129,17 @@ export const writeFile = async(
 }
 
 // Windows refuses MoveFileEx(REPLACE_EXISTING) — what the atomic save's rename
-// compiles to — with ACCESS_DENIED, surfaced as EPERM, while any handle is open
-// on the target. On an SMB share that includes the stat our own file watcher
-// runs against the open document, so a save can lose the race with its own
-// watcher and the edit is dropped (#5322). Measured on a Windows SMB share: one
-// open read handle fails every rename; watcher polling fails ~1 save in 200 and
-// worse the faster it stats. The handle is released within milliseconds, so a
-// short backoff clears it. Local filesystems never reach this path.
+// compiles to — with ACCESS_DENIED, surfaced as EPERM, whenever ANY handle is
+// open on the target. Measured: that holds on local NTFS as much as on a share,
+// and whether or not the holder asked for FILE_SHARE_DELETE. What decides
+// whether it bites is how long the handle stays open: our own file watcher
+// stats the open document, and a stat over SMB is a network round trip instead
+// of the microseconds it costs locally, so on a share the save keeps losing the
+// race with its own watcher (#5322). Measured over SMB: watcher polling loses
+// ~1 save in 200, worse the faster it stats; a handle held open loses every
+// one. That handle is released within milliseconds, so a short backoff clears
+// the race. A process holding the file open continuously (a scanner, a sync
+// client) is out of reach of any retry — on a local disk as much as a share.
 const RENAME_RACE_CODES = new Set(['EPERM', 'EACCES', 'EBUSY'])
 const RENAME_RETRY_DELAYS_MS = [50, 150, 300]
 
