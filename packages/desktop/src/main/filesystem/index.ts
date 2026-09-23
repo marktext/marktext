@@ -141,7 +141,16 @@ export const writeFile = async(
 // the race. A process holding the file open continuously (a scanner, a sync
 // client) is out of reach of any retry — on a local disk as much as a share.
 const RENAME_RACE_CODES = new Set(['EPERM', 'EACCES', 'EBUSY'])
-const RENAME_RETRY_DELAYS_MS = [50, 150, 300]
+
+// The watcher stats on a fixed period (chokidar's `interval`, 100ms, and
+// awaitWriteFinish's `pollInterval`, 150ms), so what decides whether a retry
+// helps is the phase its CUMULATIVE offset lands on, not how long it waits:
+// an offset that is a multiple of the period re-tests the phase that just
+// failed. These delays accumulate to 50/125/175ms — three different phases
+// against both periods — which clears every first failure while a stat holds
+// the file for up to ~70ms. Backing off further (e.g. 50/150/300 => 50/200/500)
+// is strictly worse: the last two land on the failing phase again.
+const RENAME_RETRY_DELAYS_MS = [50, 75, 50]
 
 const writeFileAtomicWithRetry = async(
   pathname: string,
