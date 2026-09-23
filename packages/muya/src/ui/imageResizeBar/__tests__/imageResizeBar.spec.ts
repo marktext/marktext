@@ -88,11 +88,16 @@ function contentBar(): HTMLElement {
     return bar;
 }
 
-// happy-dom's MouseEvent has no `x`, and `_mouseMove` ignores events without it.
-function mouseMove(clientX: number): MouseEvent {
-    const event = new MouseEvent('mousemove', { bubbles: true, clientX });
+// happy-dom's MouseEvent has no `x`, which is how the bar recognises a mouse
+// event; real browsers always set it, on mousedown as much as on mousemove.
+function mouseEvent(type: string, clientX: number): MouseEvent {
+    const event = new MouseEvent(type, { bubbles: true, clientX });
     Object.defineProperty(event, 'x', { value: clientX });
     return event;
+}
+
+function mouseMove(clientX: number): MouseEvent {
+    return mouseEvent('mousemove', clientX);
 }
 
 // happy-dom rethrows listener errors from dispatchEvent; collect them per
@@ -100,7 +105,7 @@ function mouseMove(clientX: number): MouseEvent {
 function dragFrom(target: HTMLElement, clientX = 40): unknown[] {
     const listenerErrors: unknown[] = [];
     const steps: Array<[EventTarget, Event]> = [
-        [target, new MouseEvent('mousedown', { bubbles: true })],
+        [target, mouseEvent('mousedown', 0)],
         [document.body, mouseMove(clientX)],
         [document.body, new MouseEvent('mouseup', { bubbles: true })],
     ];
@@ -202,8 +207,9 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         const errors = dragFrom(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
 
         expect(errors).toEqual([]);
-        // happy-dom has no layout, so the left handle sits at x 0: 200 - 0 - CIRCLE_RADIO.
-        expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '195');
+        // The width grows by the pointer's travel since mousedown. happy-dom
+        // has no layout, so the image starts at width 0 and the press at x 0.
+        expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '200');
     });
 });
 
@@ -216,7 +222,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
 function dragOutsideWindow(handle: HTMLElement, clientX: number): unknown[] {
     const listenerErrors: unknown[] = [];
     const steps: Array<[EventTarget, Event]> = [
-        [handle, new MouseEvent('mousedown', { bubbles: true })],
+        [handle, mouseEvent('mousedown', 0)],
         [document.body, mouseMove(clientX / 2)],
         [document.documentElement, mouseMove(clientX)],
         [document.documentElement, new MouseEvent('mouseup', { bubbles: true })],
@@ -250,8 +256,8 @@ describe('image resize released outside the window (#5393)', () => {
         );
 
         expect(errors).toEqual([]);
-        expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '195');
-        expect(reference.querySelector('img')!.getAttribute('width')).toBe('195');
+        expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '200');
+        expect(reference.querySelector('img')!.getAttribute('width')).toBe('200');
     });
 
     it('leaves no drag listeners behind', () => {
