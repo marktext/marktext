@@ -32,7 +32,7 @@ afterAll(async() => {
 
 afterEach(async() => {
   setPlatform(origPlatform)
-  process.env.PATH = origPath
+  restoreEnv('PATH', origPath)
   restoreEnv('SHELL', origShell)
   await fs.writeFile(runLog, '')
 })
@@ -51,7 +51,7 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
     expect(pathDirs()).toContain(toolDir)
   })
 
-  it('keeps the dirs the process already had, in their original order', async() => {
+  it('puts the shell dirs in front, in the shell order, keeping the rest', async() => {
     const toolDir = path.join(tmpDir, 'pnpm-home')
     process.env.SHELL = await fakeShell('login-shell', `${toolDir}:/usr/bin`)
     process.env.PATH = '/first:/usr/bin'
@@ -60,8 +60,95 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
     await ensureShellEnvPath()
 
     const dirs = pathDirs()
-    expect(dirs[0]).toBe('/first')
+    expect(dirs[0]).toBe(toolDir)
+    expect(dirs).toContain('/first')
     expect(dirs.filter((d) => d === '/usr/bin')).toHaveLength(1)
+  })
+
+  it('outranks a static guess that names the same dir later', async() => {
+    // The reported failure: a stale /opt/homebrew/bin/picgo shadowing a working
+    // ~/Library/pnpm/picgo. The terminal resolves the pnpm one because the
+    // shell puts it first, so this process has to as well.
+    const toolDir = path.join(tmpDir, 'pnpm-home')
+    process.env.SHELL = await fakeShell('login-shell', `${toolDir}:/usr/bin`)
+    setPlatform('darwin')
+    process.env.PATH = '/usr/bin'
+
+    const { ensureShellEnvPath, patchEnvPath } = await loadEnvPath()
+    patchEnvPath()
+    await ensureShellEnvPath()
+
+    const dirs = pathDirs()
+    expect(dirs.indexOf(toolDir)).toBeLessThan(dirs.indexOf('/opt/homebrew/bin'))
+  })
+
+  it('ignores output that was cut off before the closing marker', async() => {
+    // What a maxBuffer truncation or a killed shell leaves behind. Half a PATH
+    // is worse than none.
+    const file = path.join(tmpDir, 'truncated-shell')
+    await fs.writeFile(file, '#!/bin/sh\nprintf \'__MARKTEXT_PATH_BEGIN__\\n/half\'\n', {
+      mode: 0o755
+    })
+    process.env.SHELL = file
+    process.env.PATH = '/usr/bin'
+
+    const { ensureShellEnvPath } = await loadEnvPath()
+    await ensureShellEnvPath()
+
+    expect(process.env.PATH).toBe('/usr/bin')
+  })
+
+  it('steps over what a per-command hook prints inside the fence', async() => {
+    // p10k's instant prompt, shell-integration hooks, a user precmd — they can
+    // land between the opening marker and the PATH, and they are exactly what
+    // the users who need this fix have installed.
+    const toolDir = path.join(tmpDir, 'hooked-home')
+    const file = path.join(tmpDir, 'hooked-shell')
+    await fs.writeFile(
+      file,
+      [
+        '#!/bin/sh',
+        "printf '__MARKTEXT_PATH_BEGIN__\\n'",
+        "printf 'p10k: instant prompt active\\n'",
+        `printf '${toolDir}:/usr/bin\\n'`,
+        "printf '__MARKTEXT_PATH_END__\\n'"
+      ].join('\n') + '\n',
+      { mode: 0o755 }
+    )
+    process.env.SHELL = file
+    process.env.PATH = '/usr/bin'
+
+    const { ensureShellEnvPath } = await loadEnvPath()
+    await ensureShellEnvPath()
+
+    expect(pathDirs()).toContain(toolDir)
+  })
+
+  it('lets a later caller retry after a run that could not be read', async() => {
+    // A shell that timed out because the machine was busy at launch answers
+    // fine a moment later, and the preferences panel re-asks every 30s.
+    const flag = path.join(tmpDir, 'first-run-done')
+    const toolDir = path.join(tmpDir, 'retry-home')
+    const file = path.join(tmpDir, 'flaky-shell')
+    await fs.writeFile(
+      file,
+      [
+        '#!/bin/sh',
+        `if [ ! -f "${flag}" ]; then : > "${flag}"; exit 1; fi`,
+        'for a in "$@"; do last="$a"; done',
+        `PATH="${toolDir}:/usr/bin" /bin/sh -c "$last"`
+      ].join('\n') + '\n',
+      { mode: 0o755 }
+    )
+    process.env.SHELL = file
+    process.env.PATH = '/usr/bin'
+
+    const { ensureShellEnvPath } = await loadEnvPath()
+    await ensureShellEnvPath()
+    expect(pathDirs(), 'first run failed, so nothing was added').not.toContain(toolDir)
+
+    await ensureShellEnvPath()
+    expect(pathDirs()).toContain(toolDir)
   })
 
   it('runs the login shell once however many callers ask', async() => {
