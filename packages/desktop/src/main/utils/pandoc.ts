@@ -60,18 +60,14 @@ export const getPandocLanguage = (locale: string): string => {
 }
 
 // Windows only: the installer can be told not to touch `PATH` and a portable copy never is
-// (`patchEnvPath` covers macOS/Linux, #2751). The folder it writes is the one that check
-// cannot reach; the shims on `PATH` (chocolatey, scoop, winget) only set the order. The
-// arguments let a spec pin both.
+// (#2751). These are the folders it writes — the package-manager shim dirs are every
+// tool's business and live in `extraPathDirs`. The arguments let a spec pin both.
 export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv): string[] => {
   if (platform !== 'win32') return []
   return [
     env.ProgramFiles && path.join(env.ProgramFiles, 'Pandoc', 'pandoc.exe'),
     env['ProgramFiles(x86)'] && path.join(env['ProgramFiles(x86)'], 'Pandoc', 'pandoc.exe'),
-    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe'),
-    env.ProgramData && path.join(env.ProgramData, 'chocolatey', 'bin', 'pandoc.exe'),
-    env.USERPROFILE && path.join(env.USERPROFILE, 'scoop', 'shims', 'pandoc.exe'),
-    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'pandoc.exe')
+    env.LOCALAPPDATA && path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe')
   ].filter((candidate): candidate is string => !!candidate)
 }
 

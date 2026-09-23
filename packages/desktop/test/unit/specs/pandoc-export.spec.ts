@@ -179,13 +179,12 @@ describe('pandoc export', () => {
       USERPROFILE: 'C:\\Users\\me'
     }
 
+    // The package-manager shim dirs are not here: they serve every tool and
+    // live in extraPathDirs.
     expect(pandocLocations('win32', env)).toEqual([
       path.join(env.ProgramFiles, 'Pandoc', 'pandoc.exe'),
       path.join(env['ProgramFiles(x86)'], 'Pandoc', 'pandoc.exe'),
-      path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe'),
-      path.join(env.ProgramData, 'chocolatey', 'bin', 'pandoc.exe'),
-      path.join(env.USERPROFILE, 'scoop', 'shims', 'pandoc.exe'),
-      path.join(env.LOCALAPPDATA, 'Microsoft', 'WinGet', 'Links', 'pandoc.exe')
+      path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe')
     ])
     expect(pandocLocations('linux', env)).toEqual([])
   })

@@ -94,7 +94,20 @@ describe('extraPathDirs: where a user-level package manager puts its global bins
     expect(dirs.some((dir) => dir.includes('undefined'))).toBe(false)
   })
 
-  it('is empty on win32, whose GUI apps do inherit the user PATH', () => {
-    expect(extraPathDirs('win32', { HOME: 'C:\\Users\\someone' })).toEqual([])
+  it('covers the Windows package-manager shim dirs, which are on no PATH', () => {
+    const dirs = extraPathDirs('win32', {
+      ProgramData: 'C:\\ProgramData',
+      USERPROFILE: 'C:\\Users\\someone',
+      LOCALAPPDATA: 'C:\\Users\\someone\\AppData\\Local'
+    })
+    expect(dirs).toContain(path.join('C:\\ProgramData', 'chocolatey', 'bin'))
+    expect(dirs).toContain(path.join('C:\\Users\\someone', 'scoop', 'shims'))
+    expect(dirs).toContain(
+      path.join('C:\\Users\\someone\\AppData\\Local', 'Microsoft', 'WinGet', 'Links')
+    )
+  })
+
+  it('yields nothing on win32 without the folders to anchor on', () => {
+    expect(extraPathDirs('win32', {})).toEqual([])
   })
 })
