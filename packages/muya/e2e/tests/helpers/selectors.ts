@@ -16,6 +16,7 @@ export const editor = {
     // The editable leaf inside a paragraph. Carries the quick-insert hints as
     // `::after` content, gated on the `placeholder` / `empty-hint` attributes.
     paragraphContent: '.mu-paragraph-content',
+    listItem: '.mu-list-item',
     atxHeading: '.mu-atx-heading',
     setextHeading: '.mu-setext-heading',
     // A Shift+Enter soft line break inside a Format leaf renders as a
