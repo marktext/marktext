@@ -33,9 +33,7 @@ Relevant settings (`tsconfig.base.json`):
 - `exactOptionalPropertyTypes: false` — kept off to keep the buffered-state
   restore path (which carries optional fields through JSON serialization)
   tolerant of `undefined` ≡ "key not present"
-- `allowJs: false, checkJs: false` — every directory under `src/` is
-  now `.ts` except `src/muya/`, which the rest of the tree reaches
-  through the ambient declarations in `src/types/muya.d.ts`
+- `allowJs: false, checkJs: false` — every directory under `src/` is `.ts`
 - `noEmit: true` — vue-tsc only type-checks; electron-vite handles the
   actual bundling
 
@@ -69,7 +67,7 @@ through the `exports` map.
   shapes, preferences, menu, bus, TypedEmitter helper). Pure type
   artefacts, no runtime. Importable from any process via `@shared/types/*`.
 - **`src/types/`** — ambient declarations (`global.d.ts`, `renderer.d.ts`,
-  `muya.d.ts`, `shims.d.ts`). `.d.ts` only; no runtime.
+  `shims.d.ts`). `.d.ts` only; no runtime.
 - **Co-located** — domain types specific to one feature live next to the
   code (e.g. `src/main/ipc/ripgrep.ts` defines its own `SearchOptions`).
 
@@ -86,13 +84,13 @@ The preload bridge (`src/preload/index.ts`) consumes these as generics:
 
 ```ts
 const ipcWrapper = {
+  // … one entry per channel group
   send: <K extends keyof IpcSendChannels>(channel: K, ...args: IpcSendChannels[K]) =>
     ipcRenderer.send(channel, ...args),
   invoke: <K extends keyof IpcInvokeChannels>(
     channel: K,
     ...args: IpcInvokeChannels[K]['args']
   ): Promise<IpcInvokeChannels[K]['ret']> => ipcRenderer.invoke(channel, ...args)
-  // ...
 }
 ```
 
@@ -105,12 +103,6 @@ To add a new channel:
 1. Add an entry to the appropriate interface in `src/shared/types/ipc.ts`.
 2. Wire the handler in `src/main/ipc/*.ts` via `ipcMain.handle`/`ipcMain.on`.
 3. Use it from the renderer via `window.electron.ipcRenderer.{invoke,send,…}`.
-
-## muya boundary
-
-The engine is consumed as `@muyajs/core` and typed from its own emitted
-declarations — see the type-resolution note under "Path aliases" above.
-There is no hand-written shim in between any more.
 
 ## TypedEmitter
 
