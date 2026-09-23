@@ -1,7 +1,7 @@
 import path from 'path'
 import os from 'os'
 import fs from 'fs-extra'
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { restoreEnv, setPlatform, writeFakeShell } from '../commandFixtures'
 
 // #2751 was the same gap as #5518, and pandoc kept its own resolver through it:
@@ -36,6 +36,16 @@ beforeAll(async() => {
   originalOverride = process.env.MARKTEXT_PANDOC
 })
 
+beforeEach(() => {
+  if (skipOnWindows) return
+  // No shell, nothing on PATH, no override: each case opts into one difference.
+  process.env.SHELL = '/usr/sbin/nologin'
+  process.env.PATH = '/usr/bin:/bin'
+  process.env.HOME = tmpDir
+  delete process.env.MARKTEXT_PANDOC
+  setPlatform('freebsd')
+})
+
 afterEach(() => {
   if (skipOnWindows) return
   setPlatform(origPlatform)
@@ -52,11 +62,7 @@ afterAll(async() => {
 
 describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
   it('remembers a hit, so one export does not resolve three times', async() => {
-    process.env.SHELL = '/usr/sbin/nologin'
     process.env.PATH = `${binDir}:/usr/bin:/bin`
-    process.env.HOME = tmpDir
-    delete process.env.MARKTEXT_PANDOC
-    setPlatform('freebsd')
 
     const pandoc = await loadPandoc()
     await expect(pandoc.exists()).resolves.toBe(true)
@@ -67,12 +73,6 @@ describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
   })
 
   it('asks again after a miss, so installing it does not need a restart', async() => {
-    process.env.SHELL = '/usr/sbin/nologin'
-    process.env.PATH = '/usr/bin:/bin'
-    process.env.HOME = tmpDir
-    delete process.env.MARKTEXT_PANDOC
-    setPlatform('freebsd')
-
     const pandoc = await loadPandoc()
     await expect(pandoc.exists()).resolves.toBe(false)
 
@@ -85,22 +85,12 @@ describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
       path.join(tmpDir, 'login-shell'),
       `${binDir}:/usr/bin:/bin`
     )
-    process.env.PATH = '/usr/bin:/bin'
-    process.env.HOME = tmpDir
-    delete process.env.MARKTEXT_PANDOC
-    setPlatform('freebsd')
 
     const pandoc = await loadPandoc()
     await expect(pandoc.exists()).resolves.toBe(true)
   })
 
   it('reports missing when no shell and no PATH entry has it', async() => {
-    process.env.SHELL = '/usr/sbin/nologin'
-    process.env.PATH = '/usr/bin:/bin'
-    process.env.HOME = tmpDir
-    delete process.env.MARKTEXT_PANDOC
-    setPlatform('freebsd')
-
     const pandoc = await loadPandoc()
     await expect(pandoc.exists()).resolves.toBe(false)
   })
@@ -111,25 +101,7 @@ describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
     const notExecutable = path.join(tmpDir, 'pandoc-not-a-binary')
     await fs.writeFile(notExecutable, 'text\n', { mode: 0o644 })
     process.env.MARKTEXT_PANDOC = notExecutable
-    process.env.SHELL = '/usr/sbin/nologin'
     process.env.PATH = `${binDir}:/usr/bin:/bin`
-    process.env.HOME = tmpDir
-    setPlatform('freebsd')
-
-    const pandoc = await loadPandoc()
-    await expect(pandoc.exists()).resolves.toBe(false)
-  })
-
-  it('ignores an override it could not run', async() => {
-    // The old check accepted any file, so a non-executable override reported
-    // present and then failed at spawn.
-    const notExecutable = path.join(tmpDir, 'pandoc-text')
-    await fs.writeFile(notExecutable, 'not a binary\n', { mode: 0o644 })
-    process.env.MARKTEXT_PANDOC = notExecutable
-    process.env.SHELL = '/usr/sbin/nologin'
-    process.env.PATH = '/usr/bin:/bin'
-    process.env.HOME = tmpDir
-    setPlatform('freebsd')
 
     const pandoc = await loadPandoc()
     await expect(pandoc.exists()).resolves.toBe(false)

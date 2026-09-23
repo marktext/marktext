@@ -22,20 +22,28 @@ import pandoc, {
   type PandocToFileOptions
 } from 'main_renderer/utils/pandoc'
 
-/** The ChildProcess `spawn` would hand back; stdin is an emitter so the EPIPE is testable. */
+/**
+ * The ChildProcess `spawn` would hand back; stdin is an emitter so the EPIPE is
+ * testable. The command is resolved before the spawn, so `spawned` says when
+ * the stub is actually in use rather than polling for it.
+ */
 const startProcess = () => {
+  let inUse!: () => void
+  const spawned = new Promise<void>((resolve) => {
+    inUse = resolve
+  })
   const proc = Object.assign(new EventEmitter(), {
     stdin: Object.assign(new EventEmitter(), { end: vi.fn() }),
     stderr: new EventEmitter(),
-    stdout: new EventEmitter()
+    stdout: new EventEmitter(),
+    spawned: () => spawned
   })
-  spawnMock.mockReturnValue(proc)
+  spawnMock.mockImplementation(() => {
+    inUse()
+    return proc
+  })
   return proc
 }
-
-/** Resolves the command before the spawn, so the stub has to be awaited into place. */
-const spawned = (before: number) =>
-  vi.waitFor(() => expect(spawnMock.mock.calls.length).toBeGreaterThan(before))
 
 /** The spawn stub plus the pending conversion, stderr emitted before the exit included. */
 const runToFile = async(
@@ -47,10 +55,9 @@ const runToFile = async(
     code?: number
   } = {}
 ) => {
-  const before = spawnMock.mock.calls.length
   const proc = startProcess()
   const done = pandoc.toFile(to, outputPath, input, options)
-  await spawned(before)
+  await proc.spawned()
   if (stderr) proc.stderr.emit('data', Buffer.from(stderr))
   proc.emit('close', code)
   return { proc, done }
@@ -102,19 +109,13 @@ describe('pandoc export', () => {
     })
 
     await expect(done).resolves.toEqual({ warnings: '' })
-    // Which binary is used depends on the install, so argv and `cwd` are what this pins.
     expect(spawnMock).toHaveBeenCalledWith(
-      expect.any(String),
+      process.execPath,
       ['-f', 'gfm+superscript+subscript', '-t', 'docx', '-s', '-o', '/tmp/notes.docx'],
       { cwd: '/docs/notes' }
     )
     expect(proc.stdin.end).toHaveBeenCalledWith('# Title')
 
-    spawnMock.mockReset()
-    process.env.MARKTEXT_PANDOC = process.execPath
-    await (await runToFile('docx', '/tmp/x.docx')).done
-
-    expect(spawnMock).toHaveBeenCalledWith(process.execPath, expect.any(Array), expect.anything())
     await expect(pandoc.exists()).resolves.toBe(true)
   })
 
@@ -155,16 +156,15 @@ describe('pandoc export', () => {
   it('survives an EPIPE on stdin and a binary that cannot be spawned', async() => {
     const proc = startProcess()
     const pending = pandoc.toFile('docx', '/tmp/x.docx', 'x'.repeat(70 * 1024))
-    await spawned(0)
+    await proc.spawned()
     expect(() => proc.stdin.emit('error', new Error('write EPIPE'))).not.toThrow()
     proc.stderr.emit('data', Buffer.from('pandoc: Unknown output format broke\n'))
     proc.emit('close', 1)
     await expect(pending).rejects.toThrow('Unknown output format broke')
 
-    const spawnsSoFar = spawnMock.mock.calls.length
     const failing = startProcess()
     const missing = pandoc.toFile('docx', '/tmp/x.docx', 'x')
-    await spawned(spawnsSoFar)
+    await failing.spawned()
     failing.emit('error', new Error('spawn pandoc ENOENT'))
     await expect(missing).rejects.toThrow('spawn pandoc ENOENT')
   })
@@ -240,7 +240,7 @@ describe('pandoc export', () => {
   it('lists the images pandoc found in the document', async() => {
     const proc = startProcess()
     const pending = listLinkedMedia('# Title', 'gfm')
-    await spawned(0)
+    await proc.spawned()
     proc.stdout.emit('data', Buffer.from(JSON.stringify([
       { t: 'Para', c: [{ t: 'Image', c: [[], [], ['pics/a.png', 'fig:']] }] },
       { t: 'RawInline', c: ['html', '<img src="pics/b.png">'] }
