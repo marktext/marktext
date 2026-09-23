@@ -75,17 +75,32 @@ export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEn
 const isBatchFile = (command: string): boolean =>
   process.platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
 
-/**
- * The one resolution `exists` and every spawn share — a bare name means PATH
- * found it, which a caller must not confuse with the miss fallback below.
- */
-const findCommand = async(): Promise<string | null> => {
+const resolve = async(): Promise<string | null> => {
   const override = process.env.MARKTEXT_PANDOC
   // Naming a batch file is as unusable as naming one that is not there.
   if (override && isBatchFile(override)) return null
   return resolveCommand(pandocCommand, {
     override,
     preferred: pandocLocations(process.platform, process.env)
+  })
+}
+
+let found: Promise<string> | undefined
+
+/**
+ * The one resolution `exists` and every spawn share — a bare name means PATH
+ * found it, which a caller must not confuse with the miss fallback below.
+ *
+ * A hit is remembered: resolution costs a blocking `command -v`, and one
+ * export asks three times (the gate, the media listing, the conversion). A
+ * miss is not, or the notice inviting the user to install pandoc would be
+ * unanswerable without a restart.
+ */
+const findCommand = (): Promise<string | null> => {
+  found ??= resolve().then((command) => command ?? Promise.reject(new Error('pandoc missing')))
+  return found.catch(() => {
+    found = undefined
+    return null
   })
 }
 

@@ -51,6 +51,35 @@ afterAll(async() => {
 })
 
 describe.skipIf(skipOnWindows)('pandoc discovery (#2751)', () => {
+  it('remembers a hit, so one export does not resolve three times', async() => {
+    process.env.SHELL = '/usr/sbin/nologin'
+    process.env.PATH = `${binDir}:/usr/bin:/bin`
+    process.env.HOME = tmpDir
+    delete process.env.MARKTEXT_PANDOC
+    setPlatform('freebsd')
+
+    const pandoc = await loadPandoc()
+    await expect(pandoc.exists()).resolves.toBe(true)
+
+    // Out of reach now — only a remembered answer can still say yes.
+    process.env.PATH = '/usr/bin:/bin'
+    await expect(pandoc.exists()).resolves.toBe(true)
+  })
+
+  it('asks again after a miss, so installing it does not need a restart', async() => {
+    process.env.SHELL = '/usr/sbin/nologin'
+    process.env.PATH = '/usr/bin:/bin'
+    process.env.HOME = tmpDir
+    delete process.env.MARKTEXT_PANDOC
+    setPlatform('freebsd')
+
+    const pandoc = await loadPandoc()
+    await expect(pandoc.exists()).resolves.toBe(false)
+
+    process.env.PATH = `${binDir}:/usr/bin:/bin`
+    await expect(pandoc.exists()).resolves.toBe(true)
+  })
+
   it('finds a pandoc only the login shell knows about', async() => {
     process.env.SHELL = await writeFakeShell(
       path.join(tmpDir, 'login-shell'),
