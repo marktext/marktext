@@ -330,3 +330,22 @@ describe('autoPair — #3573 absorb manually typed closing markdown marker', () 
         expect(text).not.toBe('**');
     });
 });
+
+// ── #5390 no recorded caret ───────────────────────────────────────────────
+// `selection.anchor`/`focus` are null between the event that clears the caret
+// and the one that records the next one — `clickHandler` defers `setCursor` by
+// a frame, and selecting an image clears it outright. autoPair already bails
+// out in that case, but the bail-out sat one line below a dereference of the
+// null anchor, so it threw instead.
+describe('autoPair — #5390 no recorded caret', () => {
+    it('passes the text through untouched instead of throwing', () => {
+        const fakeThis = makeFakeThis('# Title', 0);
+        fakeThis.selection.anchor = null as never;
+        fakeThis.selection.focus = null as never;
+        const event = makeInputEvent('insertText', '(');
+        const { text, needRender } = invokeAutoPair(fakeThis, event, '(# Title', 1);
+
+        expect(text).toBe('(# Title');
+        expect(needRender).toBe(false);
+    });
+});
