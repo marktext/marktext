@@ -1,9 +1,7 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
 import { spawn } from 'child_process'
 import path from 'path'
-import type { Readable } from 'stream'
-import commandExists from 'command-exists'
-import { isFile2 } from 'common/filesystem'
+import { resolveCommand } from './resolveCommand'
 
 const pandocCommand = 'pandoc'
 
@@ -81,23 +79,26 @@ export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEn
 const isBatchFile = (command: string): boolean =>
   process.platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
 
-const getCommand = (): string => {
+/** Where pandoc may sit besides PATH, most specific first. */
+const preferredLocations = (): string[] => {
   const fromEnv = process.env.MARKTEXT_PANDOC
-  if (fromEnv && isFile2(fromEnv) && !isBatchFile(fromEnv)) return fromEnv
-  return (
-    pandocLocations(process.platform, process.env).find((candidate) => isFile2(candidate)) ??
-    pandocCommand
+  const locations = pandocLocations(process.platform, process.env)
+  return (fromEnv ? [fromEnv, ...locations] : locations).filter(
+    (candidate) => !isBatchFile(candidate)
   )
 }
 
+/** The bare name is the fallback, so a miss still spawns and reports why. */
+const getCommand = async(): Promise<string> =>
+  (await resolveCommand(pandocCommand, { preferred: preferredLocations() })) ?? pandocCommand
+
 interface PandocConverter {
   (): Promise<string>
-  stream: (srcStream: NodeJS.ReadableStream) => Readable | null
 }
 
 interface PandocFn {
   (from: string, to: string, ...args: string[]): PandocConverter
-  exists: () => boolean
+  exists: () => Promise<boolean>
   toFile: (
     to: string,
     outputPath: string,
@@ -107,11 +108,11 @@ interface PandocFn {
 }
 
 const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter => {
-  const command = getCommand()
   const option = ['-s', from, '-t', to].concat(args)
 
-  const converter = ((): Promise<string> =>
-    new Promise((resolve, reject) => {
+  return (async(): Promise<string> => {
+    const command = await getCommand()
+    return new Promise((resolve, reject) => {
       const proc = spawn(command, option)
       proc.on('error', reject)
       let data = ''
@@ -121,21 +122,12 @@ const pandoc = ((from: string, to: string, ...args: string[]): PandocConverter =
       proc.stdout.on('end', () => resolve(data))
       proc.stdout.on('error', reject)
       proc.stdin.end()
-    })) as PandocConverter
-
-  converter.stream = (srcStream: NodeJS.ReadableStream): Readable | null => {
-    const proc = spawn(command, option)
-    srcStream.pipe(proc.stdin)
-    return proc.stdout
-  }
-
-  return converter
+    })
+  }) as PandocConverter
 }) as PandocFn
 
-pandoc.exists = (): boolean => {
-  const command = getCommand()
-  return command !== pandocCommand || commandExists.sync(pandocCommand)
-}
+pandoc.exists = async(): Promise<boolean> =>
+  (await resolveCommand(pandocCommand, { preferred: preferredLocations() })) !== null
 
 export interface PandocToFileOptions {
   /** Folder the document's relative links resolve against, or pandoc uses cwd. */
@@ -154,14 +146,15 @@ export interface PandocToFileResult {
   warnings: string
 }
 
-// Convert `input` to `outputPath`; the streaming API above cannot serve binary targets.
-pandoc.toFile = (
+/** Convert `input` to `outputPath`; the converter above cannot serve binary targets. */
+pandoc.toFile = async(
   to: string,
   outputPath: string,
   input: string,
   options: PandocToFileOptions = {}
-): Promise<PandocToFileResult> =>
-  new Promise((resolve, reject) => {
+): Promise<PandocToFileResult> => {
+  const command = await getCommand()
+  return new Promise((resolve, reject) => {
     const { cwd, reader = getPandocReader(false), metadata = {}, resourcePath, mirrorMedia } = options
     const option = ['-f', reader, '-t', to, '-s']
     // pandoc splits `--metadata` on the first colon only, so "Q3: plan" survives.
@@ -177,7 +170,7 @@ pandoc.toFile = (
     option.push('-o', outputPath)
     // The links pandoc writes are relative to where it runs, so a mirrored export has
     // to run in the folder it is written to.
-    const proc = spawn(getCommand(), option, { cwd: mirrorMedia ? path.dirname(outputPath) : cwd })
+    const proc = spawn(command, option, { cwd: mirrorMedia ? path.dirname(outputPath) : cwd })
     let errorOutput = ''
     proc.on('error', reject)
     proc.stderr.on('data', (chunk: Buffer | string) => {
@@ -195,11 +188,13 @@ pandoc.toFile = (
     })
     proc.stdin.end(input)
   })
+}
 
 // The links pandoc found, which is what an export mirrors; raw HTML `<img>` is not listed.
-export const listLinkedMedia = (input: string, reader: string): Promise<string[]> =>
-  new Promise((resolve) => {
-    const proc = spawn(getCommand(), ['-f', reader, '-t', 'json'])
+export const listLinkedMedia = async(input: string, reader: string): Promise<string[]> => {
+  const command = await getCommand()
+  return new Promise((resolve) => {
+    const proc = spawn(command, ['-f', reader, '-t', 'json'])
     let ast = ''
     proc.stdout.on('data', (chunk: Buffer | string) => {
       ast += chunk.toString()
@@ -223,5 +218,6 @@ export const listLinkedMedia = (input: string, reader: string): Promise<string[]
     })
     proc.stdin.end(input)
   })
+}
 
 export default pandoc

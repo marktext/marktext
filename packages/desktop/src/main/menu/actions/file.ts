@@ -577,7 +577,7 @@ ipcMain.on('mt::window::drop', async(e, fileList: string[]) => {
 
     // Try to import the file
     if (PANDOC_EXTENSIONS.some((ext: string) => file.endsWith(ext))) {
-      const existsPandoc = pandoc.exists()
+      const existsPandoc = await pandoc.exists()
       if (!existsPandoc) {
         noticePandocNotFound(win)
       } else {
@@ -788,9 +788,9 @@ export const exportFile = (win: Win, type: string): void => {
 
 // Convert the current document with pandoc. Unlike `exportFile` (HTML/PDF in the renderer)
 // this needs the markdown source and a file target, which the reply carries.
-export const exportWithPandoc = (win: Win, target: string): void => {
+export const exportWithPandoc = async(win: Win, target: string): Promise<void> => {
   if (!win || !win.webContents) return
-  if (!pandoc.exists()) return noticePandocNotFound(win, 'dialog.exportWarning')
+  if (!(await pandoc.exists())) return noticePandocNotFound(win, 'dialog.exportWarning')
   win.webContents.send('mt::export-with-pandoc', target)
 }
 
@@ -798,7 +798,7 @@ export const importFile = async(win: BrowserWindow | null): Promise<void> => {
   if (!win) {
     return
   }
-  const existsPandoc = pandoc.exists()
+  const existsPandoc = await pandoc.exists()
 
   if (!existsPandoc) {
     noticePandocNotFound(win)
