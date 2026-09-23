@@ -1,13 +1,18 @@
 {
-    // Declaration-only build. `pnpm build` emits the same `lib/types` through
-    // vite-plugin-dts; this config is the standalone path consumers use when
-    // they need the typings without paying for the bundle (see the desktop
-    // package's `typecheck` script).
+    // Declaration-only build, for consumers that need the typings without the
+    // bundle (see the desktop package's `typecheck` script). `pnpm build`
+    // emits into the same directory through vite-plugin-dts.
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "noEmit": false,
         "emitDeclarationOnly": true,
         "declaration": true,
-        "outDir": "lib/types"
-    }
+        // Keep the cache inside `lib/`, which `vite build` empties: a build
+        // that wipes the declarations wipes the cache that claims they exist.
+        "incremental": true,
+        "tsBuildInfoFile": "lib/types/.tsbuildinfo"
+    },
+    // The specs are type-checked by `lint:types`; emitting declarations for
+    // them only pads the output (and `files: ["lib"]` would publish them).
+    "exclude": ["src/**/__tests__/**"]
 }
