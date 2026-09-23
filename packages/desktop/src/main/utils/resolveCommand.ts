@@ -3,10 +3,8 @@ import fs from 'fs'
 import commandExists from 'command-exists'
 import { ensureShellEnvPath, extraPathDirs } from '../app/envPath'
 
-// A PATH lookup answers "no such command" for anything it could not run, so
-// the fallback below has to hold the same bar: a directory bearing the name, or
-// a file without the executable bit, would otherwise pass the check and then
-// fail the spawn with EACCES/EISDIR.
+// The same bar a PATH lookup holds, or the check passes and the spawn fails
+// with EISDIR/EACCES.
 const isRunnable = (candidate: string): boolean => {
   try {
     if (!fs.statSync(candidate).isFile()) return false
@@ -17,10 +15,8 @@ const isRunnable = (candidate: string): boolean => {
   }
 }
 
-// The name arrives over IPC from the renderer. `commandExists.sync('')` answers
-// true, and a name carrying a separator would `path.join` its way out of the
-// dirs below — `../../bin/sh` resolves to a real executable outside every dir
-// searched, which the returned path is supposed to be inside of.
+// The name comes from the renderer over IPC. `commandExists.sync('')` answers
+// true, and `../../bin/sh` would join its way out of the dirs searched below.
 const isCommandName = (name: string): boolean =>
   !!name.trim() && !name.includes('/') && !name.includes(path.sep)
 
@@ -28,10 +24,8 @@ const lookup = (name: string): string | null => {
   if (!isCommandName(name)) return null
   if (commandExists.sync(name)) return name
 
-  // Second layer. `patchEnvPath` has normally put these on PATH already, so the
-  // lookup above covers them — this still stands if PATH was never patched, and
-  // is what the specs exercise. Empty on Windows, whose GUI apps inherit the
-  // user's own PATH.
+  // Second layer: `patchEnvPath` normally has these on PATH already, so this
+  // only does work when PATH was never patched.
   for (const dir of extraPathDirs(process.platform, process.env)) {
     const candidate = path.join(dir, name)
     if (isRunnable(candidate)) return candidate
@@ -40,15 +34,10 @@ const lookup = (name: string): string | null => {
 }
 
 /**
- * How `name` should be spawned on this machine, or null when it is not
- * installed. A bare name means PATH already resolves it; otherwise it is the
- * absolute path within a bin dir PATH does not cover. The "is it installed?"
- * check and the spawn share this one answer so they cannot disagree (#5518).
- *
- * Asking the login shell where the user's tools live is part of the answer, so
- * it is awaited here rather than left to each caller to remember — but only
- * once PATH as it stands has already missed, which costs nothing in the common
- * case.
+ * How `name` should be spawned, or null when it is not installed. The "is it
+ * installed?" check and the spawn share this one answer so they cannot
+ * disagree (#5518). The login shell is awaited here rather than left to each
+ * caller to remember, and only once PATH as it stands has missed.
  */
 export const resolveCommand = async(name: string): Promise<string | null> => {
   const found = lookup(name)

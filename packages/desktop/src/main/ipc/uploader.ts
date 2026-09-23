@@ -81,8 +81,7 @@ const uploadByPicgo = async(localPath: string): Promise<string> => {
 }
 
 const uploadByCli = async(cliScript: string, localPath: string): Promise<string> => {
-  // The script is the user's own and is free to call tools that only their
-  // login shell can reach, so it gets the same PATH picgo would (#5518).
+  // The script may call tools only the user's login shell can reach (#5518).
   await ensureShellEnvPath()
   return new Promise((resolve, reject) => {
     execFile(cliScript, [localPath], (err, data) => {

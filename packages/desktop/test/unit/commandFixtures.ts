@@ -1,20 +1,15 @@
 import path from 'path'
 import fs from 'fs-extra'
 
-// Fixtures shared by the #5518 specs. This file sits outside test/unit/specs/
-// so vitest's include glob does not collect it as a suite.
+// Outside test/unit/specs/ so the vitest glob does not collect it as a suite.
 
-/** A 1x1 PNG, enough for an uploader to be handed real image bytes. */
+/** A 1x1 PNG. */
 export const PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
   'base64'
 )
 
-/**
- * A stand-in for the user's login shell: it evaluates the command it is handed
- * with `shellPath`, which is how a dir the GUI process cannot see still reaches
- * the code under test. `record`, when given, gets a line per run.
- */
+/** A login shell that evaluates the command with `shellPath`. */
 export const writeFakeShell = async(
   file: string,
   shellPath: string,
@@ -35,7 +30,7 @@ export const writeFakeShell = async(
   return file
 }
 
-/** An executable that prints picgo's success format and exits. */
+/** An executable that prints picgo's success format. */
 export const writeFakePicgo = async(dir: string, name = 'picgo'): Promise<string> => {
   const file = path.join(dir, name)
   await fs.writeFile(
@@ -48,12 +43,12 @@ export const writeFakePicgo = async(dir: string, name = 'picgo'): Promise<string
   return file
 }
 
-/** Swap `process.platform`, which is read-only, for the length of a spec. */
+/** `process.platform` is read-only, so it takes a defineProperty. */
 export const setPlatform = (value: string): void => {
   Object.defineProperty(process, 'platform', { value, configurable: true })
 }
 
-/** Restore an env var, including the case where it was not set to begin with. */
+/** Plain assignment would write the string 'undefined' when it was unset. */
 export const restoreEnv = (name: string, original: string | undefined): void => {
   if (original === undefined) delete process.env[name]
   else process.env[name] = original

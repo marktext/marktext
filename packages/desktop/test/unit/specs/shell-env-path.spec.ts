@@ -66,9 +66,8 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
   })
 
   it('outranks a static guess that names the same dir later', async() => {
-    // The reported failure: a stale /opt/homebrew/bin/picgo shadowing a working
-    // ~/Library/pnpm/picgo. The terminal resolves the pnpm one because the
-    // shell puts it first, so this process has to as well.
+    // A stale /opt/homebrew/bin/picgo must not shadow ~/Library/pnpm/picgo
+    // here when it does not in the user's terminal.
     const toolDir = path.join(tmpDir, 'pnpm-home')
     process.env.SHELL = await fakeShell('login-shell', `${toolDir}:/usr/bin`)
     setPlatform('darwin')
@@ -83,8 +82,7 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
   })
 
   it('ignores output that was cut off before the closing marker', async() => {
-    // What a maxBuffer truncation or a killed shell leaves behind. Half a PATH
-    // is worse than none.
+    // What a maxBuffer truncation or a killed shell leaves behind.
     const file = path.join(tmpDir, 'truncated-shell')
     await fs.writeFile(file, '#!/bin/sh\nprintf \'__MARKTEXT_PATH_BEGIN__\\n/half\'\n', {
       mode: 0o755
@@ -99,9 +97,7 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
   })
 
   it('steps over what a per-command hook prints inside the fence', async() => {
-    // p10k's instant prompt, shell-integration hooks, a user precmd — they can
-    // land between the opening marker and the PATH, and they are exactly what
-    // the users who need this fix have installed.
+    // p10k's instant prompt and friends land between the marker and the PATH.
     const toolDir = path.join(tmpDir, 'hooked-home')
     const file = path.join(tmpDir, 'hooked-shell')
     await fs.writeFile(
@@ -125,8 +121,7 @@ describe.skipIf(skipOnWindows)('ensureShellEnvPath (#5518)', () => {
   })
 
   it('lets a later caller retry after a run that could not be read', async() => {
-    // A shell that timed out because the machine was busy at launch answers
-    // fine a moment later, and the preferences panel re-asks every 30s.
+    // A shell that timed out on a busy machine answers fine a moment later.
     const flag = path.join(tmpDir, 'first-run-done')
     const toolDir = path.join(tmpDir, 'retry-home')
     const file = path.join(tmpDir, 'flaky-shell')

@@ -4,11 +4,8 @@ import fs from 'fs-extra'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { PNG, restoreEnv, setPlatform, writeFakePicgo, writeFakeShell } from '../commandFixtures'
 
-// #5518: a GUI-launched app inherits launchd's PATH, not the login shell's, so
-// a picgo installed by pnpm/volta/nvm was invisible — the uploader panel said
-// it was not installed and every upload failed. Here picgo exists only in a
-// directory the login shell knows about, and both answers have to come back
-// right.
+// #5518. picgo exists only in a dir the login shell knows about, and both the
+// detection and the upload have to find it.
 
 type Handler = (event: unknown, req: unknown) => Promise<unknown>
 const handlers = new Map<string, Handler>()
@@ -31,8 +28,7 @@ beforeAll(async() => {
   if (skipOnWindows) return
 
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'mt-picgo-discovery-'))
-  // Stands in for `~/Library/pnpm` — a real install location that no hardcoded
-  // fallback list covers and that launchd never puts on PATH.
+  // Stands in for ~/Library/pnpm.
   const binDir = path.join(tmpDir, 'pnpm-home')
   await fs.ensureDir(binDir)
   await writeFakePicgo(binDir)
@@ -43,11 +39,9 @@ beforeAll(async() => {
   originalHome = process.env.HOME
   process.env.SHELL = shell
   process.env.PATH = '/usr/bin:/bin'
-  // The stand-in has to be the only picgo reachable, or the upload test hands a
-  // real image to whatever host the developer has configured. HOME alone is not
-  // enough: the system half of the fallback dirs (/opt/homebrew/bin,
-  // /usr/local/bin) ignores HOME. A platform with no system table leaves only
-  // the dirs under this temp HOME — and exercises the BSD case while it is here.
+  // The stand-in must be the only picgo reachable, or the upload test hands a
+  // real image to the developer's own host. HOME alone is not enough — the
+  // system dirs ignore it — so pick a platform with no system table.
   process.env.HOME = tmpDir
   setPlatform('freebsd')
 

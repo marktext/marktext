@@ -5,8 +5,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { resolveCommand } from 'main_renderer/utils/resolveCommand'
 import { restoreEnv } from '../commandFixtures'
 
-// The fallback dirs are reached through HOME, so pointing HOME at a temp dir
-// puts the developer's real tools out of reach and makes this deterministic.
+// The fallback dirs hang off HOME, so a temp HOME puts the developer's own
+// tools out of reach.
 let home: string
 let binDir: string
 let originalHome: string | undefined
@@ -25,8 +25,7 @@ beforeAll(async() => {
   originalShell = process.env.SHELL
   process.env.HOME = home
   process.env.PATH = '/usr/bin:/bin'
-  // No login shell to consult, so a miss stays a miss instead of costing a
-  // spawn — these cases are about the fallback dirs alone.
+  // No shell to consult: these cases are about the fallback dirs alone.
   process.env.SHELL = '/usr/sbin/nologin'
 })
 
@@ -46,8 +45,7 @@ describe.skipIf(skipOnWindows)('resolveCommand fallback dirs (#5518)', () => {
   })
 
   it('ignores a file it could not run', async() => {
-    // A PATH lookup answers "no such command" for this, so the fallback has to
-    // agree — otherwise the check passes and the spawn fails with EACCES.
+    // A PATH lookup says "no such command" here, so the fallback must agree.
     await fs.writeFile(path.join(binDir, 'mt-not-executable'), 'data\n', { mode: 0o644 })
     await expect(resolveCommand('mt-not-executable')).resolves.toBeNull()
   })
@@ -67,9 +65,7 @@ describe.skipIf(skipOnWindows)('resolveCommand fallback dirs (#5518)', () => {
   })
 
   it('refuses a name that would walk out of the dirs it searches', async() => {
-    // `path.join('/usr/local/bin', '../../bin/sh')` is a real executable, and
-    // returning it would break the promise that the answer sits in a bin dir
-    // this function searched. The name comes from the renderer over IPC.
+    // These join their way to a real executable outside every dir searched.
     await expect(resolveCommand('../../bin/sh')).resolves.toBeNull()
     await expect(resolveCommand('../bin/ls')).resolves.toBeNull()
     await expect(resolveCommand('/bin/sh')).resolves.toBeNull()

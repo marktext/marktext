@@ -5,11 +5,8 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { launchElectron } from './helpers'
 
-// #5518: launched from Finder/Dock the app gets launchd's PATH, not the login
-// shell's, so an uploader the user installed with pnpm/volta/nvm was reported
-// as not installed and every upload failed. The stand-in below carries a name
-// no machine can already have, so the login shell is the only way to reach it —
-// a real `picgo` in one of the static fallback dirs cannot turn this green.
+// #5518. The name is one no machine can already have, so a real picgo in a
+// static fallback dir cannot turn this green.
 const UPLOADER = 'mt-e2e-uploader-5518'
 
 let app: ElectronApplication
@@ -36,10 +33,8 @@ test.describe('a command only the login shell knows about (#5518)', () => {
       { mode: 0o755 }
     )
 
-    // launchElectron copies the whole environment before applying this, so
-    // without an explicit PATH the app would inherit the runner's login-shell
-    // one and never be in the situation #5518 describes. This is what launchd
-    // hands a Dock launch: /etc/paths and nothing of the user's own.
+    // launchElectron copies the whole environment first, so without this the
+    // app would get the runner's login-shell PATH. These are /etc/paths.
     const launched = await launchElectron([], {
       env: { PATH: '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin', SHELL: shell }
     })
