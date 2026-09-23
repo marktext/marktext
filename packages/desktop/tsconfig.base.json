@@ -27,6 +27,7 @@
       "@/*": ["./src/renderer/src/*"],
       "common/*": ["./src/common/*"],
       "@muyajs/core": ["../muya/lib/types/index.d.ts"],
+      "@muyajs/core/*": ["../muya/lib/types/*"],
       "@shared/*": ["./src/shared/*"],
       "main_renderer/*": ["./src/main/*"]
     }
