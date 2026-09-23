@@ -7,8 +7,7 @@ import type { TBlockPath } from '../block/types';
 import type { Muya } from '../muya';
 import type { Nullable } from '../types';
 import type Selection from './index';
-import type { IAnchorFocusInfo, INodeOffset, ISelection } from './types';
-import { BLOCK_DOM_PROPERTY } from '../config';
+import type { IAnchorFocusInfo, INodeOffset, ISelection, ISelectionEndpoints } from './types';
 import { isHTMLElement, isMouseEvent } from '../utils';
 import logger from '../utils/logger';
 import {
@@ -18,10 +17,9 @@ import {
 import { getCursorCoords } from './cursorCoords';
 import {
     compareParagraphsOrder,
-    findContentDOM,
     getLegalOffset,
     getNodeAndOffset,
-    getOffsetOfParagraph,
+    resolveEndpoint,
 } from './dom';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
@@ -87,7 +85,7 @@ class TextSelection {
 
     private _selectInfo: {
         isSelect: boolean;
-        selection: { anchor: IAnchorFocusInfo; focus: IAnchorFocusInfo } | null;
+        selection: ISelectionEndpoints | null;
     } = {
         isSelect: false,
         selection: null,
@@ -188,30 +186,19 @@ class TextSelection {
         if (!anchorNode || !focusNode)
             return null;
 
-        const anchorDomNode = findContentDOM(anchorNode);
-        const focusDomNode = findContentDOM(focusNode);
+        const resolvedAnchor = resolveEndpoint(anchorNode, anchorOffset);
+        const resolvedFocus = resolveEndpoint(focusNode, focusOffset);
 
-        if (!anchorDomNode || !focusDomNode)
+        if (!resolvedAnchor || !resolvedFocus)
             return null;
 
-        const anchorBlock = anchorDomNode[BLOCK_DOM_PROPERTY] as Content | undefined;
-        const focusBlock = focusDomNode[BLOCK_DOM_PROPERTY] as Content | undefined;
-        // An `mu-content` span cloned by the browser's native edit
-        // behavior is not linked back to a block. Bail out instead of
-        // crashing — the caller treats null the same as "no selection".
-        if (!anchorBlock || !focusBlock)
-            return null;
-
-        if (!anchorBlock.outMostBlock || !focusBlock.outMostBlock)
-            return null;
-
+        const anchorBlock = resolvedAnchor.block;
+        const focusBlock = resolvedFocus.block;
         const anchorPath = anchorBlock.path;
         const focusPath = focusBlock.path;
 
-        const aOffset = getOffsetOfParagraph(anchorNode, anchorDomNode) + anchorOffset;
-        const fOffset = getOffsetOfParagraph(focusNode, focusDomNode) + focusOffset;
-        const anchor = { offset: aOffset };
-        const focus = { offset: fOffset };
+        const anchor = { offset: resolvedAnchor.offset };
+        const focus = { offset: resolvedFocus.offset };
 
         const isCollapsed = anchorBlock === focusBlock && anchor.offset === focus.offset;
         const isSelectionInSameBlock = anchorBlock === focusBlock;

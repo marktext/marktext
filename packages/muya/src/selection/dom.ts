@@ -1,6 +1,8 @@
 // utils used in selection/index.js
+import type Content from '../block/base/content';
 import { CLASS_NAMES } from '../config';
 import { isElement } from '../utils';
+import { getBlock } from '../utils/dom';
 
 export function isContentDOM(element: HTMLElement) {
     return (
@@ -22,6 +24,21 @@ export function findContentDOM(node: Node | null | undefined) {
     } while (node);
 
     return null;
+}
+
+export function resolveEndpoint(
+    node: Node,
+    offset: number,
+): { block: Content; offset: number } | null {
+    const contentDOM = findContentDOM(node);
+    if (!contentDOM)
+        return null;
+
+    const block = getBlock(contentDOM);
+    if (!block?.isContent() || !block.outMostBlock)
+        return null;
+
+    return { block, offset: getOffsetOfParagraph(node, contentDOM) + offset };
 }
 
 export function compareParagraphsOrder(paragraph1: HTMLElement, paragraph2: HTMLElement) {

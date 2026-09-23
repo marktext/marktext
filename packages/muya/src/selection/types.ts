@@ -49,6 +49,11 @@ export interface IAnchorFocusInfo {
     path: TBlockPath;
 }
 
+export interface ISelectionEndpoints {
+    anchor: IAnchorFocusInfo;
+    focus: IAnchorFocusInfo;
+}
+
 // Only used for selection.getSelection return type.
 export interface ISelection {
     anchor: IAnchorFocusInfo;
