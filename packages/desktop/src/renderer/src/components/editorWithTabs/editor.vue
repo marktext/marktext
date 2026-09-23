@@ -807,16 +807,16 @@ watch(hideScrollbar, (value, oldValue) => {
 })
 
 watch(spellcheckerEnabled, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    // Set Muya's spellcheck container attribute.
-    editor.value.setOptions({ spellcheckEnabled: value })
+  if (value === oldValue) return
 
-    // Disable native spell checker
-    if (value) {
-      spellchecker?.activateSpellchecker(spellcheckerLanguage.value)
-    } else {
-      spellchecker?.deactivateSpellchecker()
-    }
+  // Set Muya's spellcheck container attribute.
+  editor.value?.setOptions({ spellcheckEnabled: value })
+
+  // Disable native spell checker
+  if (value) {
+    spellchecker?.activateSpellchecker(spellcheckerLanguage.value)
+  } else {
+    spellchecker?.deactivateSpellchecker()
   }
 })
 
