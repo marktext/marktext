@@ -143,7 +143,7 @@
     },
     "theme": {
       "theme": "&Tema",
-      "dark": "Scuro,
+      "dark": "Scuro",
       "followThemDisabled": "Non si puó selezionare un tema quando si segue quello di sistema",
       "lightThemes": "— Temi Chiari —",
       "darkThemes": "— Temi Scuri —",
@@ -457,7 +457,7 @@
         "title": "Finestra",
         "titleBarStyle": {
           "title": "Stile barra del titolo",
-          "custom": "Personalizzato,
+          "custom": "Personalizzato",
           "native": "Originale"
         },
         "requiresRestart": "Richiede il riavvio",
@@ -537,7 +537,7 @@
         "removeEmptyLines": "Rimozione linee vuote"
       },
       "writingBehavior": {
-        "title": "Comportamento in scrittura,
+        "title": "Comportamento in scrittura",
         "autoCloseBrackets": "Chiusura automatica delle parentesi",
         "autoCompleteMarkdown": "Autocompletamento Markdown",
         "autoCloseQuotes": "Chiusura automatica delle virgolette",
@@ -886,7 +886,7 @@
       "switchToTenth": "Va alla decima"
     },
     "docs": {
-      "userGuide": Guida utente",
+      "userGuide": "Guida utente",
       "markdownSyntax": "Sintassi Markdown"
     },
     "spellchecker": {
