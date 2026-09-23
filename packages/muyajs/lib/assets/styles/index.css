@@ -1310,3 +1310,45 @@ i.ag-footnote-backlink {
   cursor: pointer;
   z-index: 100;
 }
+
+.ag-container-preview {
+  position: relative !important;
+}
+
+.ag-diagram-zoom-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  z-index: 50;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #93c5fd;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  user-select: none;
+}
+
+.ag-container-preview:hover .ag-diagram-zoom-btn,
+.ag-container-block:hover .ag-diagram-zoom-btn,
+.ag-diagram-zoom-btn:hover {
+  opacity: 0.85;
+  pointer-events: auto;
+}
+
+.ag-diagram-zoom-btn:hover {
+  opacity: 1;
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #3b82f6;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}

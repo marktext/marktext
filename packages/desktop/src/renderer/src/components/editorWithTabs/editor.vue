@@ -11,6 +11,7 @@
     <div
       v-show="imageViewerVisible"
       class="image-viewer"
+      @click.self="setImageViewerVisible(false)"
     >
       <span
         class="icon-close"
@@ -450,7 +451,14 @@ class SimpleImageViewer {
   _onMousemove!: (e: MouseEvent) => void
   _onMouseup!: () => void
 
-  constructor (container: HTMLElement, { url }: { url: string }) {
+  constructor (
+    container: HTMLElement,
+    {
+      url,
+      isDiagram = false,
+      isDark = false
+    }: { url: string; isDiagram?: boolean; isDark?: boolean }
+  ) {
     this.container = container
     this.scale = 1
     this.translateX = 0
@@ -458,15 +466,22 @@ class SimpleImageViewer {
     this.isDragging = false
     this.startX = 0
     this.startY = 0
-    this._init(url)
+    this._init(url, isDiagram, isDark)
   }
 
-  _init (url: string) {
+  _init (url: string, isDiagram: boolean, isDark: boolean) {
     this.container.innerHTML = ''
     this.img = document.createElement('img')
     this.img.src = url
+    let extraStyle = ''
+    if (isDiagram) {
+      extraStyle = isDark
+        ? 'background:#1e1e2e;padding:20px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.12);'
+        : 'background:#ffffff;padding:20px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.25);border:1px solid rgba(0,0,0,0.1);'
+    }
     this.img.style.cssText =
-      'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;'
+      'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;' +
+      extraStyle
     this.img.draggable = false
     this.container.appendChild(this.img)
     this._bindEvents()
@@ -2035,6 +2050,32 @@ onMounted(() => {
       setImageViewerVisible(true)
     }
   })
+
+  editor.value.on(
+    'preview-diagram',
+    ({ target }: { target: SVGElement | HTMLImageElement }) => {
+      if (imageViewer) {
+        imageViewer.destroy()
+      }
+      if (imageViewerRef.value) {
+        let dataUrl: string
+        if (target.tagName.toLowerCase() === 'img') {
+          dataUrl = (target as HTMLImageElement).src
+        } else {
+          const svgClone = target.cloneNode(true) as SVGElement
+          svgClone.removeAttribute('style')
+          const svgString = new XMLSerializer().serializeToString(svgClone)
+          dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString)
+        }
+        imageViewer = new SimpleImageViewer(imageViewerRef.value, {
+          url: dataUrl,
+          isDiagram: true,
+          isDark: /dark|night|dracula|black|mocha/i.test(theme.value)
+        })
+        setImageViewerVisible(true)
+      }
+    }
+  )
 
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null

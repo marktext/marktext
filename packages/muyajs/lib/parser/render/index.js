@@ -117,6 +117,7 @@ class StateRender {
           mermaid.parse(code)
           target.innerHTML = sanitize(code, PREVIEW_DOMPURIFY_CONFIG, true)
           mermaid.init(undefined, target)
+          this.attachDiagramZoom(target)
         } catch (err) {
           target.innerHTML = '< Invalid Mermaid Codes >'
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
@@ -125,6 +126,25 @@ class StateRender {
 
       this.mermaidCache.clear()
     }
+  }
+
+  attachDiagramZoom(target) {
+    if (!target || target.querySelector('.ag-diagram-zoom-btn')) return
+    const btn = document.createElement('div')
+    btn.className = 'ag-diagram-zoom-btn'
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>'
+    btn.title = 'Zoom'
+    btn.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      const svg = target.querySelector('svg')
+      const img = target.querySelector('img')
+      const el = svg || img
+      if (el) {
+        this.muya.eventCenter.dispatch('preview-diagram', { target: el })
+      }
+    })
+    target.appendChild(btn)
   }
 
   async renderDiagram() {
@@ -167,6 +187,7 @@ class StateRender {
           } else if (functionType === 'vega-lite') {
             await render(key, JSON.parse(code), options)
           }
+          this.attachDiagramZoom(target)
         } catch (err) {
           target.innerHTML = `< Invalid ${functionType === 'flowchart' ? 'Flow Chart' : 'Sequence'} Codes >`
           target.classList.add(CLASS_OR_ID.AG_MATH_ERROR)
