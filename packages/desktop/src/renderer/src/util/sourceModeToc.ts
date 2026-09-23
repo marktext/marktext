@@ -2,7 +2,7 @@
 interface ISourceEditor {
   setCursor: (
     pos: { line: number, ch: number },
-    ch?: number | null,
+    ch?: number,
     options?: { scroll?: boolean }
   ) => void
   heightAtLine: (line: number, mode: 'local' | 'page' | 'div') => number
@@ -27,7 +27,8 @@ export function scrollSourceEditorToLine(
   line: number,
   scrollContainer: HTMLElement | null | undefined
 ): void {
-  editor.setCursor({ line, ch: 0 }, null, { scroll: false })
+  // `ch` is a positional filler: CodeMirror ignores it when `pos` is an object.
+  editor.setCursor({ line, ch: 0 }, undefined, { scroll: false })
 
   if (!scrollContainer) return
   const top = editor.heightAtLine(line, 'local')

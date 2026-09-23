@@ -11,16 +11,15 @@ import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
+import type CodeMirror from 'codemirror'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
 import { wordCount as getWordCount } from '@muyajs/core'
 import { adjustCursor } from '../../util'
 import bus from '../../bus'
 import { oneDarkThemes, railscastsThemes } from '@/config'
 
-// CodeMirror 5 ships no first-party types; the wrapper in src/renderer/src/
-// codeMirror/index.ts also keeps the surface intentionally loose.
-type CMInstance = any
-type CMCursor = any
+type CMInstance = CodeMirror.Editor
+type CMCursor = CodeMirror.Position
 
 interface MuyaIndexCursorLike {
   anchor: CMCursor
@@ -38,7 +37,7 @@ const preferencesStore = usePreferencesStore()
 
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
-const editor = ref<CMInstance>(null)
+const editor = ref<CMInstance | null>(null)
 const commitTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 const viewDestroyed = ref(false)
 const tabId = ref<string | null>(null)
@@ -126,7 +125,7 @@ const getMarkdownAndCursor = (cm: CMInstance) => {
  */
 const prepareTabSwitch = () => {
   if (commitTimer.value) clearTimeout(commitTimer.value)
-  if (tabId.value) {
+  if (tabId.value && editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
     editorStore.LISTEN_FOR_CONTENT_CHANGE({
       id: tabId.value,
@@ -252,10 +251,13 @@ interface ImageActionPayload {
 }
 
 const handleImageAction = (payload: unknown) => {
+  const cm = editor.value
+  if (!cm) return
+
   const { id, result, alt } = payload as ImageActionPayload
-  const value: string = editor.value.getValue()
-  const focus = editor.value.getCursor('focus')
-  const anchor = editor.value.getCursor('anchor')
+  const value: string = cm.getValue()
+  const focus = cm.getCursor('focus')
+  const anchor = cm.getCursor('anchor')
   const lines: string[] = value.split('\n')
   const index = lines.findIndex((line: string) => line.indexOf(id) > 0)
 
@@ -263,7 +265,7 @@ const handleImageAction = (payload: unknown) => {
     const oldLine = lines[index]
     lines[index] = oldLine.replace(new RegExp(`!\\[${id}\\]\\(.*\\)`), `![${alt}](${result})`)
     const newValue = lines.join('\n')
-    editor.value.setValue(newValue)
+    cm.setValue(newValue)
     const match = /(!\[.*\]\(.*\))/.exec(oldLine)
     if (!match) {
       // t('editor.sourceCode.imageStructureDeletedComment')
@@ -294,9 +296,9 @@ const handleImageAction = (payload: unknown) => {
     adjustPointer(focus)
     adjustPointer(anchor)
     if (focus && anchor) {
-      editor.value.setSelection(anchor, focus, { scroll: true })
+      cm.setSelection(anchor, focus, { scroll: true })
     } else {
-      setCursorAtFirstLine(editor.value)
+      setCursorAtFirstLine(cm)
     }
   }
 }
@@ -318,7 +320,7 @@ const updateSelectionWordCount = (cm: CMInstance) => {
   if (key === lastSelectionKey && editorStore.selectionWordCount != null) return
   lastSelectionKey = key
 
-  const selectedText = cm?.getSelection?.('\n') ?? ''
+  const selectedText = cm?.getSelection?.() ?? ''
   const hasSelection = selectedText.trim().length > 0
   if (!hasSelection && editorStore.selectionWordCount == null) return
 
@@ -345,10 +347,10 @@ const saveContent = (cm: CMInstance) => {
   }
 }
 
-const listenChange = () => {
-  editor.value.on('cursorActivity', (cm: CMInstance) => {
-    saveContent(cm)
-    updateSelectionWordCount(cm)
+const listenChange = (cm: CMInstance) => {
+  cm.on('cursorActivity', (instance: CMInstance) => {
+    saveContent(instance)
+    updateSelectionWordCount(instance)
   })
 }
 
@@ -424,7 +426,7 @@ onMounted(() => {
   tabId.value = id
   updateSelectionWordCount(codeMirrorInstance)
 
-  listenChange()
+  listenChange(codeMirrorInstance)
 })
 
 onBeforeUnmount(() => {
@@ -441,13 +443,15 @@ onBeforeUnmount(() => {
   lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
 
-  const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
-  bus.emit('file-changed', {
-    id: tabId.value,
-    markdown: newMarkdown,
-    muyaIndexCursor: cursor,
-    renderCursor: true
-  })
+  if (editor.value) {
+    const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
+    bus.emit('file-changed', {
+      id: tabId.value,
+      markdown: newMarkdown,
+      muyaIndexCursor: cursor,
+      renderCursor: true
+    })
+  }
 })
 </script>
 

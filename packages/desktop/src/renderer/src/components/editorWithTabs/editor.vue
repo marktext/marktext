@@ -264,7 +264,7 @@ const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
 let printer: Printer | null = null
-let spellchecker: any = null
+let spellchecker: SpellChecker | null = null
 let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
@@ -806,9 +806,9 @@ watch(spellcheckerEnabled, (value, oldValue) => {
 
     // Disable native spell checker
     if (value) {
-      spellchecker.activateSpellchecker(spellcheckerLanguage.value)
+      spellchecker?.activateSpellchecker(spellcheckerLanguage.value)
     } else {
-      spellchecker.deactivateSpellchecker()
+      spellchecker?.deactivateSpellchecker()
     }
   }
 })
@@ -822,7 +822,7 @@ watch(spellcheckerNoUnderline, (value, oldValue) => {
 })
 
 watch(spellcheckerLanguage, (value, oldValue) => {
-  if (value !== oldValue) {
+  if (value !== oldValue && spellchecker) {
     spellchecker.lang = value
   }
 })
@@ -1066,29 +1066,27 @@ const setImageViewerVisible = (status: boolean) => {
 }
 
 const switchSpellcheckLanguage = (languageCode: unknown) => {
-  const { isEnabled } = spellchecker
-
   // This method is also called from bus, so validate state before continuing.
-  if (!isEnabled) {
+  if (!spellchecker?.isEnabled) {
     throw new Error(t('editor.spellcheck.disabledError'))
   }
 
+  const lang = languageCode as string
+
   spellchecker
-    .switchLanguage(languageCode)
-    .then((langCode: string | null | undefined) => {
-      if (!langCode) {
+    .switchLanguage(lang)
+    .then((switched: boolean) => {
+      if (!switched) {
         // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
         notice.notify({
           title: t('editor.spellcheck.title'),
           type: 'warning',
-          message: t('editor.spellcheck.languageMissing', { languageCode: languageCode as string })
+          message: t('editor.spellcheck.languageMissing', { languageCode: lang })
         })
       }
     })
     .catch((error: unknown) => {
-      log.error(
-        t('editor.spellcheck.errorSwitchingLanguage', { languageCode: languageCode as string })
-      )
+      log.error(t('editor.spellcheck.errorSwitchingLanguage', { languageCode: lang }))
       log.error(error)
 
       const errMsg = (error as { message?: string } | null | undefined)?.message ?? String(error)
@@ -1096,7 +1094,7 @@ const switchSpellcheckLanguage = (languageCode: unknown) => {
         title: t('editor.spellcheck.title'),
         type: 'error',
         message: t('editor.spellcheck.switchError', {
-          languageCode: languageCode as string,
+          languageCode: lang,
           error: errMsg
         })
       })
