@@ -83,6 +83,12 @@ class ImageSelection {
         }
     }
 
+    private _imageWrappers(contentDom: HTMLElement): HTMLElement[] {
+        return Array.from(
+            contentDom.querySelectorAll<HTMLElement>(`.${CLASS_NAMES.MU_INLINE_IMAGE}`),
+        );
+    }
+
     private _handleClickInlineImage(event: Event, imageWrapper: HTMLElement) {
         event.preventDefault();
         event.stopPropagation();
@@ -130,37 +136,43 @@ class ImageSelection {
                 }
             }
 
-            const rect = imageWrapper
-                .querySelector(`.${CLASS_NAMES.MU_IMAGE_CONTAINER}`)
-                ?.getBoundingClientRect();
-            const reference = {
-                getBoundingClientRect: () => rect,
-                width: imageWrapper.offsetWidth,
-                height: imageWrapper.offsetHeight,
-            };
+            // Identify the clicked image by its position among the paragraph's
+            // images, which survives the re-render below — the node does not,
+            // and ids are not unique (images sharing a src and paragraph offset
+            // render with the same id, so a `#id` lookup finds the first one).
+            const imageIndex = this._imageWrappers(contentDom).indexOf(imageWrapper);
+
+            // Selecting the image blurs the paragraph, and `Format.blurHandler`
+            // re-renders it whenever the caret sat on a token's markers — which
+            // a caret on the image's own line always does. The re-render
+            // reassigns the paragraph's `innerHTML`, detaching `imageWrapper`,
+            // and the markers it hides can shift the image sideways. So select
+            // first and take both references off the live DOM afterwards: from
+            // the detached node the resize bar reads a zero rect and draws its
+            // handles in the window's corner, and the toolbar a stale one (#5391).
+            this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
+
+            const liveWrapper = this._imageWrappers(contentDom)[imageIndex] ?? imageWrapper;
+            const imageContainer = liveWrapper.querySelector(
+                `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
+            );
+            const rect = imageContainer?.getBoundingClientRect();
 
             eventCenter.emit('muya-image-toolbar', {
                 block: contentBlock,
-                reference,
+                reference: {
+                    getBoundingClientRect: () => rect,
+                    width: liveWrapper.offsetWidth,
+                    height: liveWrapper.offsetHeight,
+                },
                 imageInfo,
             });
-
-            // Resolve the image container from the clicked wrapper directly.
-            // Images that share the same src (and paragraph offset) render with
-            // duplicate DOM ids, so a `document.querySelector('#id ...')` lookup
-            // would resolve to the first occurrence and place the resize bar on
-            // the wrong image.
-            const imageContainer = imageWrapper.querySelector(
-                `.${CLASS_NAMES.MU_IMAGE_CONTAINER}`,
-            );
 
             eventCenter.emit('muya-transformer', {
                 block: contentBlock,
                 reference: imageContainer,
                 imageInfo,
             });
-
-            this._selection.selectImage(Object.assign({}, imageInfo, { block: contentBlock }));
 
             return;
         }
