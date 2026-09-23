@@ -33,13 +33,23 @@ const lookup = (name: string): string | null => {
   return null
 }
 
+export interface ResolveCommandOptions {
+  /** Absolute paths to try first — an installer's own folder, a user override. */
+  preferred?: string[]
+}
+
 /**
  * How `name` should be spawned, or null when it is not installed. The "is it
  * installed?" check and the spawn share this one answer so they cannot
  * disagree (#5518). The login shell is awaited here rather than left to each
  * caller to remember, and only once PATH as it stands has missed.
  */
-export const resolveCommand = async(name: string): Promise<string | null> => {
+export const resolveCommand = async(
+  name: string,
+  { preferred = [] }: ResolveCommandOptions = {}
+): Promise<string | null> => {
+  const override = preferred.find(isRunnable)
+  if (override) return override
   const found = lookup(name)
   if (found) return found
   await ensureShellEnvPath()
