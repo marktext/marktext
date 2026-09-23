@@ -125,5 +125,48 @@ export const writeFile = async(
   // write-file-atomic also preserves the target's mode/owner, writes through a
   // symlink to its target, and uses a unique temp name — all of which a plain
   // temp+rename dropped.
-  await writeFileAtomic(pathname, content, options)
+  await writeFileAtomicWithRetry(pathname, content, options)
+}
+
+// Windows refuses MoveFileEx(REPLACE_EXISTING) — what the atomic save's rename
+// compiles to — with ACCESS_DENIED, surfaced as EPERM, whenever ANY handle is
+// open on the target. Measured: that holds on local NTFS as much as on a share,
+// and whether or not the holder asked for FILE_SHARE_DELETE. What decides
+// whether it bites is how long the handle stays open: our own file watcher
+// stats the open document, and a stat over SMB is a network round trip instead
+// of the microseconds it costs locally, so on a share the save keeps losing the
+// race with its own watcher (#5322). Measured over SMB: watcher polling loses
+// ~1 save in 200, worse the faster it stats; a handle held open loses every
+// one. That handle is released within milliseconds, so a short backoff clears
+// the race. A process holding the file open continuously (a scanner, a sync
+// client) is out of reach of any retry — on a local disk as much as a share.
+const RENAME_RACE_CODES = new Set(['EPERM', 'EACCES', 'EBUSY'])
+
+// The watcher stats on a fixed period (chokidar's `interval`, 100ms, and
+// awaitWriteFinish's `pollInterval`, 150ms), so what decides whether a retry
+// helps is the phase its CUMULATIVE offset lands on, not how long it waits:
+// an offset that is a multiple of the period re-tests the phase that just
+// failed. These delays accumulate to 50/125/175ms — three different phases
+// against both periods — which clears every first failure while a stat holds
+// the file for up to ~70ms. Backing off further (e.g. 50/150/300 => 50/200/500)
+// is strictly worse: the last two land on the failing phase again.
+const RENAME_RETRY_DELAYS_MS = [50, 75, 50]
+
+const writeFileAtomicWithRetry = async(
+  pathname: string,
+  content: string | Buffer,
+  options: BufferEncoding | undefined
+): Promise<void> => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await writeFileAtomic(pathname, content, options)
+      return
+    } catch (error) {
+      const { code } = error as NodeJS.ErrnoException
+      if (attempt >= RENAME_RETRY_DELAYS_MS.length || !code || !RENAME_RACE_CODES.has(code)) {
+        throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, RENAME_RETRY_DELAYS_MS[attempt]))
+    }
+  }
 }
