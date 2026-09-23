@@ -92,6 +92,25 @@ test('#5390 typing over a selected inline image replaces only the image', async 
     );
 });
 
+test('#5390 an IME keydown is left to the composition, not typed literally', async ({ page }) => {
+    await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
+    await selectFirstImage(page);
+
+    // Chromium marks the keydown an IME owns with keyCode 229, one keydown
+    // before `isComposing` turns true. Taking it inserts the raw letter and the
+    // IME then commits its character after it, e.g. `wo` -> `w我`.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.dispatchKeyEvent', {
+        type: 'rawKeyDown',
+        windowsVirtualKeyCode: 229,
+        key: 'w',
+    });
+    await page.waitForTimeout(200);
+
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(INLINE_DOC);
+    expect(await page.evaluate(() => window.muya!.editor.selection.image != null)).toBe(true);
+});
+
 test('#5390 a replaced image comes back with one undo', async ({ page }) => {
     await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
     await selectFirstImage(page);
