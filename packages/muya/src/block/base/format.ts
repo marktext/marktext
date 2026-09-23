@@ -468,13 +468,26 @@ class Format extends Content {
         this.muya.eventCenter.emit('muya-link-tools', { reference: null });
     }
 
-    deleteImage({ token }: IImageInfo) {
+    deleteImage(imageInfo: IImageInfo) {
+        this.replaceImageWithText(imageInfo, '');
+    }
+
+    /**
+     * Swap the image's whole `![…](…)` source range for `text` and leave the
+     * caret after it, as one edit. `text` is inserted verbatim, so the caller
+     * owns any escaping.
+     *
+     * Distinct from `replaceImage`, which keeps the image and rewrites its
+     * alt/src/title.
+     */
+    replaceImageWithText({ token }: IImageInfo, text: string) {
         const oldText = this.text;
         const { start, end } = token.range;
         const { eventCenter } = this.muya;
 
-        this.text = oldText.substring(0, start) + oldText.substring(end);
-        this.setCursor(start, start, true);
+        this.text = oldText.substring(0, start) + text + oldText.substring(end);
+        const offset = start + text.length;
+        this.setCursor(offset, offset, true);
 
         // Hide image toolbar and image transformer
         eventCenter.emit('muya-transformer', { reference: null });

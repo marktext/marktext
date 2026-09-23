@@ -57,6 +57,53 @@ test('#5390 selecting an image does not offer the inline format toolbar', async 
     expect(shown).toBe('0');
 });
 
+test('#5390 typing over a selected block image replaces it, at the image', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', err => errors.push(String(err?.message ?? err)));
+
+    await page.evaluate(md => window.muya!.setContent(md), BLOCK_DOC);
+    await selectFirstImage(page);
+
+    await page.keyboard.type('xyz', { delay: 50 });
+    await page.waitForTimeout(200);
+
+    // The letters used to land in the collapsed `# ` marker at the top of the
+    // document, one "Unexpected renderer process error" dialog per key, and
+    // never reach the document at all.
+    expect(errors, `renderer pageerrors: ${errors.join(' | ')}`).toEqual([]);
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(
+        '# Title\n\nSome text before the image.\n\nxyz\n\nText after the image.\n',
+    );
+});
+
+test('#5390 typing over a selected inline image replaces only the image', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', err => errors.push(String(err?.message ?? err)));
+
+    await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
+    await selectFirstImage(page);
+
+    await page.keyboard.type('xyz', { delay: 50 });
+    await page.waitForTimeout(200);
+
+    expect(errors, `renderer pageerrors: ${errors.join(' | ')}`).toEqual([]);
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(
+        'Before text xyz after text.\n\nAnother paragraph.\n',
+    );
+});
+
+test('#5390 a replaced image comes back with one undo', async ({ page }) => {
+    await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
+    await selectFirstImage(page);
+
+    await page.keyboard.type('x', { delay: 50 });
+    await page.waitForTimeout(200);
+    await page.evaluate(() => window.muya!.undo());
+    await page.waitForTimeout(200);
+
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(INLINE_DOC);
+});
+
 test('#5390 the caret still types normally after the image selection is dropped', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', err => errors.push(String(err?.message ?? err)));

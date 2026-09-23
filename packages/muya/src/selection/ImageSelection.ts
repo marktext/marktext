@@ -68,6 +68,23 @@ class ImageSelection {
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
             this._selection.activate(SelectionType.TEXT);
+            return;
+        }
+
+        // Typing over a selected image replaces it, the way typing over any
+        // other selection does. Doing it here rather than leaving it to the
+        // browser keeps the two image shapes alike: an image alone in its
+        // paragraph is the whole of a `contenteditable="false"` element, and
+        // Chromium declines to edit that at all — it raises no input event —
+        // while an inline image sits beside editable text and would be replaced.
+        // Modified and dead keys are not text, and IME composition never reaches
+        // keydown, so both are left to the browser and land on the selection.
+        if (key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            this._claim(event);
+            const { block, ...imageInfo } = selected;
+            this._muya.editor.history.markInputBoundary('insertText', key);
+            block.replaceImageWithText(imageInfo, key);
+            this._selection.activate(SelectionType.TEXT);
         }
     };
 
