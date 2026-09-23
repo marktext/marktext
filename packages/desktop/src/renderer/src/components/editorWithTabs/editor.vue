@@ -99,7 +99,11 @@ import {
   TableDragBar,
   TableRowColumMenu,
   wordCount as muyaWordCount,
-  type IMuyaOptions
+  type IHistorySelection,
+  type IMuyaOptions,
+  type IReplaceOption,
+  type ISearchOption,
+  type ISerializedHistory
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
@@ -273,7 +277,7 @@ let scrollHandler: ((e: Event) => void) | null = null
 // is migrated separately). We therefore keep the real engine history in a
 // per-tab map here for restoration across in-session tab switches, and feed the
 // store a SYNTHETIC desktop-shaped history.
-const engineHistoryByTab = new Map<string, ReturnType<Muya['getHistory']>>()
+const engineHistoryByTab = new Map<string, ISerializedHistory>()
 
 // The WYSIWYG caret captured the instant the user switches INTO source mode.
 // Focus moves to CodeMirror while source mode is up, so by the time the tab is
@@ -281,7 +285,7 @@ const engineHistoryByTab = new Map<string, ReturnType<Muya['getHistory']>>()
 // the muya tree. We stash the pre-source caret here and feed it to
 // `replaceContent` as the rebuild boundary's restore-selection, so the first
 // undo after the handoff returns the caret to where source mode was entered.
-let preSourceModeSelection: Parameters<Muya['replaceContent']>[1] = null
+let preSourceModeSelection: IHistorySelection | null = null
 
 // Per-tab monotonic save-tracking id allocator. The synthetic history entry id
 // is a MONOTONIC, never-reused id keyed on the live document content (see
@@ -1198,14 +1202,14 @@ const toSearchMatches = (result: unknown) => {
 
 const handleSearch = (payload: unknown) => {
   if (!editor.value) return
-  const { value, opt } = payload as { value: string; opt?: Parameters<Muya['search']>[1] }
+  const { value, opt } = payload as { value: string; opt?: ISearchOption }
   editorStore.SEARCH(toSearchMatches(editor.value.search(value, opt)))
   scrollToHighlight()
 }
 
 const handReplace = (payload: unknown) => {
   if (!editor.value) return
-  const { value, opt } = payload as { value: string; opt?: Parameters<Muya['replace']>[1] }
+  const { value, opt } = payload as { value: string; opt?: IReplaceOption }
   editorStore.SEARCH(toSearchMatches(editor.value.replace(value, opt)))
 }
 
