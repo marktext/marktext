@@ -63,6 +63,12 @@ class ImageSelection {
             return;
         }
 
+        if (key === 'Escape') {
+            this._claim(event);
+            this._releaseToCaret(selected);
+            return;
+        }
+
         if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
             this._claim(event);
             const { block, ...imageInfo } = selected;
@@ -94,6 +100,20 @@ class ImageSelection {
     private _claim(event: Event): void {
         event.preventDefault();
         event.stopPropagation();
+    }
+
+    // Hand the keyboard back to a plain caret parked after the image, leaving
+    // the image itself alone. Every other way out of an image selection is a
+    // click, which leaves someone working from the keyboard stuck.
+    private _releaseToCaret({ block, token }: IImageSelectionData): void {
+        const { eventCenter } = this._muya;
+        const { end } = token.range;
+
+        this._selection.activate(SelectionType.TEXT);
+        block.setCursor(end, end, true);
+
+        eventCenter.emit('muya-transformer', { reference: null });
+        eventCenter.emit('muya-image-toolbar', { reference: null });
     }
 
     private _previewSelectedImage(selected: IImageSelectionData) {

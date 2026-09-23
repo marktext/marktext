@@ -104,6 +104,22 @@ test('#5390 a replaced image comes back with one undo', async ({ page }) => {
     expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(INLINE_DOC);
 });
 
+test('#5390 Escape hands the keyboard back to the caret without touching the image', async ({ page }) => {
+    await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
+    await selectFirstImage(page);
+
+    await page.keyboard.press('Escape');
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.selection.image == null)).toBe(true);
+
+    // The caret sits just after the image, so typing continues from there.
+    await page.keyboard.type('!', { delay: 50 });
+    await page.waitForTimeout(200);
+
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(
+        `Before text ![](${DATA_URI})! after text.\n\nAnother paragraph.\n`,
+    );
+});
+
 test('#5390 the caret still types normally after the image selection is dropped', async ({ page }) => {
     const errors: string[] = [];
     page.on('pageerror', err => errors.push(String(err?.message ?? err)));
