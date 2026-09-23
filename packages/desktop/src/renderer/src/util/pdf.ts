@@ -121,7 +121,6 @@ export interface TocEntry {
   lvl: number
   content: string
   slug?: string
-  [key: string]: unknown
 }
 
 export interface HtmlTocOptions {
