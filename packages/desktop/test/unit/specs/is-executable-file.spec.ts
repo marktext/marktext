@@ -27,8 +27,10 @@ describe('isExecutableFile', () => {
     expect(isExecutableFile(await write('runnable', 0o755))).toBe(true)
   })
 
-  it('refuses a file without the bit', async() => {
-    expect(isExecutableFile(await write('plain', 0o644))).toBe(false)
+  it('refuses a file without the bit, where there is one', async() => {
+    // Windows has no execute bit and X_OK degrades to "exists" there, which is
+    // what the mode-bit check this replaces also did on that platform.
+    expect(isExecutableFile(await write('plain', 0o644))).toBe(skipOnWindows)
   })
 
   it('refuses a directory and a path that is not there', async() => {

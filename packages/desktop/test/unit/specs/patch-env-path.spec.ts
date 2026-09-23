@@ -1,6 +1,7 @@
 import path from 'path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { extraPathDirs, patchEnvPath } from 'main_renderer/app/envPath'
+import { restoreEnv } from '../commandFixtures'
 
 const origPlatform = process.platform
 const origPath = process.env.PATH
@@ -42,11 +43,37 @@ describe('patchEnvPath (#2751)', () => {
     expect(homebrew).toHaveLength(1)
   })
 
-  it('leaves PATH untouched on win32', () => {
+  it('appends the shim dirs on win32', () => {
+    // Set here rather than read from the runner, or this asserts nothing on a
+    // platform where ProgramData does not exist. No drive letter: `:` is the
+    // POSIX path delimiter, so one would split this PATH on a mac runner.
+    const saved = process.env.ProgramData
+    process.env.ProgramData = `${path.sep}ProgramData`
     setPlatform('win32')
-    process.env.PATH = 'C:\\Windows'
+    process.env.PATH = `${path.sep}Windows`
+
     patchEnvPath()
-    expect(process.env.PATH).toBe('C:\\Windows')
+
+    expect((process.env.PATH ?? '').split(path.delimiter)).toContain(
+      path.join(`${path.sep}ProgramData`, 'chocolatey', 'bin')
+    )
+    restoreEnv('ProgramData', saved)
+  })
+
+  it('leaves PATH untouched on win32 when no shim dir can be located', () => {
+    const saved = {
+      ProgramData: process.env.ProgramData,
+      USERPROFILE: process.env.USERPROFILE,
+      LOCALAPPDATA: process.env.LOCALAPPDATA
+    }
+    for (const key of Object.keys(saved)) delete process.env[key]
+    setPlatform('win32')
+    process.env.PATH = `${path.sep}Windows`
+
+    patchEnvPath()
+
+    expect(process.env.PATH).toBe(`${path.sep}Windows`)
+    for (const [key, value] of Object.entries(saved)) restoreEnv(key, value)
   })
 })
 
