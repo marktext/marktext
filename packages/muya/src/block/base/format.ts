@@ -515,6 +515,13 @@ class Format extends Content {
                 return;
             }
 
+            // A click that selected an image has already placed the selection,
+            // over the image's source. Re-rendering for it would rebuild the
+            // block's DOM and strand the image tools, which hold the element
+            // they were handed a moment ago.
+            if (this.muya.editor.selection.image)
+                return;
+
             const currentCursor = this.getCursor();
 
             if (!currentCursor)
@@ -535,15 +542,24 @@ class Format extends Content {
 
             this.setCursor(currentCursor.anchor.offset, currentCursor.focus.offset);
 
-            // Check and show format picker
-            if (cursor.start.offset !== cursor.end.offset) {
-                const reference = getCursorReference();
+            this._emitFormatPicker(cursor.start.offset === cursor.end.offset);
+        });
+    }
 
-                this.muya.eventCenter.emit('muya-format-picker', {
-                    reference,
-                    block: this,
-                });
-            }
+    /**
+     * Offer the inline format toolbar for a selection worth formatting.
+     *
+     * A selected image is a selection of its `![…](…)` source, so the
+     * non-collapsed test alone would pop a bold/italic toolbar over the image —
+     * none of which applies to it.
+     */
+    private _emitFormatPicker(isCollapsed: boolean): void {
+        if (isCollapsed || this.muya.editor.selection.image)
+            return;
+
+        this.muya.eventCenter.emit('muya-format-picker', {
+            reference: getCursorReference(),
+            block: this,
         });
     }
 
@@ -593,15 +609,7 @@ class Format extends Content {
             });
         }
 
-        // Check and show format picker
-        if (anchor.offset !== focus.offset) {
-            const reference = getCursorReference();
-
-            this.muya.eventCenter.emit('muya-format-picker', {
-                reference,
-                block: this,
-            });
-        }
+        this._emitFormatPicker(anchor.offset === focus.offset);
     }
 
     override inputHandler(event: Event): void {

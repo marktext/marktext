@@ -64,7 +64,7 @@ describe('selection facade', () => {
         });
 
         muya.editor.selection.selectImage({
-            token: {},
+            token: { range: { start: 0, end: 5 } },
             imageId: 'image-1',
             block: first,
         } as unknown as IImageSelectionData);
@@ -79,7 +79,7 @@ describe('selection facade', () => {
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
 
         muya.editor.selection.selectImage({
-            token: {},
+            token: { range: { start: 0, end: 5 } },
             imageId: 'image-1',
             block: first,
         } as unknown as IImageSelectionData);

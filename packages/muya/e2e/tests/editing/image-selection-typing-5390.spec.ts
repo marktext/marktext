@@ -1,0 +1,73 @@
+import { expect, test } from '../fixtures/muya';
+import { editor } from '../helpers/selectors';
+
+const DATA_URI = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII=';
+
+const BLOCK_DOC = `# Title\n\nSome text before the image.\n\n![](${DATA_URI})\n\nText after the image.\n`;
+const INLINE_DOC = `Before text ![](${DATA_URI}) after text.\n\nAnother paragraph.\n`;
+
+async function selectFirstImage(page: import('@playwright/test').Page) {
+    const image = page.locator(editor.image).first();
+    await expect.poll(() => image.evaluate(el => el.classList.contains('mu-image-success'))).toBe(true);
+    await image.locator('img').first().click();
+    await expect.poll(() => page.evaluate(() => window.muya!.editor.selection.image != null)).toBe(true);
+}
+
+test('#5390 a selected image keeps a real selection over its markdown source', async ({ page }) => {
+    await page.evaluate(md => window.muya!.setContent(md), BLOCK_DOC);
+    await selectFirstImage(page);
+
+    const state = await page.evaluate(() => {
+        const block = window.muya!.editor.selection.anchorBlock!;
+        return {
+            anchor: window.muya!.editor.selection.anchor?.offset,
+            focus: window.muya!.editor.selection.focus?.offset,
+            blockTextLength: block.text.length,
+            domRangeCount: document.getSelection()?.rangeCount ?? -1,
+            // Selecting the source must not drop the block back to raw markdown.
+            renderedImages: document.querySelectorAll('.mu-inline-image img').length,
+            // An object selection, not text the reader picked out — the desktop
+            // shell counts this for its selected-word display.
+            selectedText: window.muya!.editor.selection.getSelectedText(),
+        };
+    });
+
+    // The whole `![](…)` source, and nothing else, is what is selected.
+    expect(state.anchor).toBe(0);
+    expect(state.focus).toBe(state.blockTextLength);
+    // The editor used to be left with no range at all, which is what sent edits
+    // to the top of the document.
+    expect(state.domRangeCount).toBe(1);
+    expect(state.renderedImages).toBe(1);
+    expect(state.selectedText).toBe('');
+});
+
+test('#5390 selecting an image does not offer the inline format toolbar', async ({ page }) => {
+    await page.evaluate(md => window.muya!.setContent(md), BLOCK_DOC);
+    await selectFirstImage(page);
+    await page.waitForTimeout(400);
+
+    // Bold/italic mean nothing for an image, but the source-range selection is
+    // non-collapsed, which is the toolbar's usual cue.
+    const shown = await page.evaluate(() => {
+        const el = document.querySelector('.mu-format-picker');
+        const wrapper = el?.closest('.mu-float-wrapper') ?? el?.parentElement;
+        return wrapper ? getComputedStyle(wrapper).opacity : 'missing';
+    });
+    expect(shown).toBe('0');
+});
+
+test('#5390 the caret still types normally after the image selection is dropped', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', err => errors.push(String(err?.message ?? err)));
+
+    await page.evaluate(md => window.muya!.setContent(md), INLINE_DOC);
+    await selectFirstImage(page);
+
+    await page.locator(editor.paragraph).last().click();
+    await page.keyboard.type('!', { delay: 50 });
+    await page.waitForTimeout(200);
+
+    expect(errors, `renderer pageerrors: ${errors.join(' | ')}`).toEqual([]);
+    expect(await page.evaluate(() => window.muya!.getMarkdown())).toContain('Another paragraph.!');
+});

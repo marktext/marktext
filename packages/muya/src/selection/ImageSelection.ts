@@ -18,7 +18,11 @@ class ImageSelection {
         const { eventCenter, domNode } = this._muya;
         eventCenter.attachDOMEvent(domNode, 'click', this._handleClick);
         eventCenter.attachDOMEvent(document, 'click', this._handleDocClick);
-        eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown);
+        // Capture phase: the editor's own key dispatch listens on the editor
+        // root, which is inside `document`, so a bubble listener here would see
+        // the keys this handler owns only after a block had already acted on
+        // them — that is how Enter reached the first block in #5396.
+        eventCenter.attachDOMEvent(document, 'keydown', this._handleKeydown, true);
     }
 
     clear(): void {
@@ -54,18 +58,26 @@ class ImageSelection {
         }
 
         if (key === ' ') {
-            event.preventDefault();
+            this._claim(event);
             this._previewSelectedImage(selected);
             return;
         }
 
         if (/^(?:Backspace|Delete|Enter)$/.test(key)) {
-            event.preventDefault();
+            this._claim(event);
             const { block, ...imageInfo } = selected;
             block.deleteImage(imageInfo);
             this._selection.activate(SelectionType.TEXT);
         }
     };
+
+    // Take the key for the image selection alone. Stopping propagation from the
+    // capture phase is what keeps the editor's dispatch — and any block handler
+    // it would reach — out of a key this handler has already spent.
+    private _claim(event: Event): void {
+        event.preventDefault();
+        event.stopPropagation();
+    }
 
     private _previewSelectedImage(selected: IImageSelectionData) {
         const { token, imageId } = selected;
