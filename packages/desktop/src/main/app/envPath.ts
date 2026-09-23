@@ -49,6 +49,9 @@ export const extraPathDirs = (platform: NodeJS.Platform, env: NodeJS.ProcessEnv)
 }
 
 const appendToEnvPath = (dirs: string[]): void => {
+  // Rewriting PATH with nothing to add would still normalise it, and a spec
+  // pins that an untouched platform leaves it byte-identical.
+  if (!dirs.length) return
   const current = (process.env.PATH ?? '').split(path.delimiter).filter(Boolean)
   for (const dir of dirs) {
     if (!current.includes(dir)) current.push(dir)
@@ -57,8 +60,7 @@ const appendToEnvPath = (dirs: string[]): void => {
 }
 
 export const patchEnvPath = (): void => {
-  const extras = extraPathDirs(process.platform, process.env)
-  if (extras.length) appendToEnvPath(extras)
+  appendToEnvPath(extraPathDirs(process.platform, process.env))
 }
 
 // The list above can only hold the install locations that sit at a fixed path.
@@ -92,16 +94,10 @@ const readLoginShellPath = (shell: string): Promise<string[]> =>
       { timeout: SHELL_TIMEOUT, encoding: 'utf8' },
       (error, stdout) => {
         if (error && !stdout) return resolve([])
-        const lines = String(stdout).split(/\r?\n/)
-        let marker = -1
-        for (let i = lines.length - 1; i >= 0; i -= 1) {
-          if (lines[i].includes(PATH_MARKER)) {
-            marker = i
-            break
-          }
-        }
-        if (marker < 0) return resolve([])
-        const reported = lines.slice(marker + 1).find((line) => line.trim().length > 0) ?? ''
+        const text = String(stdout)
+        const afterMarker = text.split(PATH_MARKER).pop() ?? ''
+        if (afterMarker === text) return resolve([])
+        const reported = afterMarker.split(/\r?\n/).find((line) => line.trim()) ?? ''
         resolve(reported.trim().split(path.delimiter).filter((dir) => path.isAbsolute(dir)))
       }
     )
@@ -113,19 +109,15 @@ const importShellEnvPath = async(): Promise<void> => {
   if (process.platform === 'win32') return
   const shell = loginShell()
   if (!shell) return
-  const dirs = await readLoginShellPath(shell)
-  if (dirs.length) appendToEnvPath(dirs)
+  appendToEnvPath(await readLoginShellPath(shell))
 }
 
-let shellEnvPath: Promise<void> | null = null
+let shellEnvPath: Promise<void> | undefined
 
 /**
- * Resolves once the login shell's PATH has been merged into this process's.
- * The shell is spawned at most once per run — it costs half a second on a
- * normal setup — and every caller after the first awaits that same answer.
- * Anything that looks for a user-installed command should await this first.
+ * Resolves once the dirs the login shell reports are reachable on this
+ * process's PATH — appended, so they rank below what the launcher provided.
+ * The shell is spawned at most once per run (half a second on a normal setup)
+ * and every caller after the first awaits that same answer.
  */
-export const ensureShellEnvPath = (): Promise<void> => {
-  shellEnvPath ??= importShellEnvPath()
-  return shellEnvPath
-}
+export const ensureShellEnvPath = (): Promise<void> => (shellEnvPath ??= importShellEnvPath())
