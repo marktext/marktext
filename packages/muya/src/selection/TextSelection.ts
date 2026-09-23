@@ -21,6 +21,7 @@ import {
     getNodeAndOffset,
     resolveEndpoint,
 } from './dom';
+import { paragraphSelectLine } from './paragraphSelect';
 import { SelectionCaretType, SelectionDirection, SelectionType } from './types';
 
 const debug = logger('textselection:');
@@ -309,11 +310,21 @@ class TextSelection {
     private _listenSelectActions() {
         const { eventCenter, domNode } = this._muya;
 
-        const handleMousedown = () => {
+        const handleMousedown = (event: Event) => {
             this._selectInfo = {
                 isSelect: true,
                 selection: null,
             };
+
+            if (!isMouseEvent(event) || event.button !== 0 || event.detail < 3)
+                return;
+
+            const line = paragraphSelectLine(this._doc, event.clientX, event.clientY);
+            if (!line)
+                return;
+
+            event.preventDefault();
+            this.setSelection(line.anchor, line.focus);
         };
 
         const handleMouseupOrLeave = () => {
