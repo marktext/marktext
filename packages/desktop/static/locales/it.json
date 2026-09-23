@@ -12,12 +12,12 @@
       "file": "File",
       "newTab": "Nuova scheda",
       "newWindow": "Nuova finestra",
-      "openFile": "Apri file...",
-      "openFolder": "Apri cartella...",
+      "openFile": "Apri file…",
+      "openFolder": "Apri cartella…",
       "openRecent": "Documenti recenti",
       "clearRecentlyUsed": "Pulisci elenco dei file recenti",
       "save": "Salva",
-      "saveAs": "Salva con nome...",
+      "saveAs": "Salva con nome…",
       "autoSave": "Salvataggio automatico",
       "moveTo": "Sposta in",
       "rename": "Rinomina",
@@ -105,7 +105,7 @@
     "marktext": {
       "title": "MarkText",
       "about": "Info su MarkText",
-      "checkUpdates": "Controllo aggiornamenti...",
+      "checkUpdates": "Controllo aggiornamenti…",
       "preferences": "Preferenze",
       "services": "Servizi",
       "hide": "Nascondi MarkText",
@@ -192,10 +192,10 @@
     "lookUp": "Cerca \"{selection}\"",   
     "insertParagraphBefore": "Inserisci paragrafo prima",
     "insertParagraphAfter": "Inserisci paragrafo dopo",
-    "spelling": "Controllo ortografico...",
-    "changeLanguage": "Cambia lingua...",
+    "spelling": "Controllo ortografico…",
+    "changeLanguage": "Cambia lingua…",
     "addToDictionary": "Aggiungi al dizionario",
-    "editDictionary": "Modifica il dizionario...",
+    "editDictionary": "Modifica il dizionario…",
       "sideBar": {
       "newFile": "Nuovo file",
       "newDirectory": "Nuova cartella",
@@ -231,7 +231,7 @@
   },
   "sideBar": {
     "search": {
-      "searchInFolder": "Cerca nella cartella...",
+      "searchInFolder": "Cerca nella cartella…",
       "noFolderOpen": "Nessuna cartella aperta",
       "noResultsFound": "Nessun risultato trovato",
       "cancel": "Annulla",
@@ -317,7 +317,7 @@
       "label": "Sommario",
       "title": "Sommario"
     },
-    "export": "Esporta...",
+    "export": "Esporta…",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",
@@ -356,7 +356,7 @@
   "preferences": {
     "title": "Preferenze",
     "search": {
-      "placeholder": "Cerca preferenze...",
+      "placeholder": "Cerca preferenze…",
       "categories": {
         "general": "Generali",
         "editor": "Editor (?)",
@@ -421,7 +421,7 @@
         "softNewlineAsSpace": "Tratta i caratteri di fine riga 'morbidi' (soft newlines) come spazi",
         "sequenceTheme": "Tema del diagramma di sequenza",
         "plantumlServer": "URL del server PlantUML",
-        "theme": Seleziona il tema da usare in MarkText",
+        "theme": "Seleziona il tema da usare in MarkText",
         "followSystemTheme": "Segui il tema di sistema",
         "lightModeTheme": "Tema da usare quando il sistema è in modalità chiara",
         "darkModeTheme": "Tema da usare quando il sistema è in modalità scura",
@@ -524,7 +524,7 @@
         "title": "Editor di testo",
         "fontSize": "Dimensione caratteri",
         "lineHeight": "Altezza linea",
-        "fontFamily": "Famiglia di caratteri,
+        "fontFamily": "Famiglia di caratteri",
         "maxWidth": "Max ampiezza",
         "maxWidthNotes": "Max ampiezza del contenuto delle Note. Inserire un numero seguito da px (pixels), ch (characters) o da % (percentuale). Per esempio: 800px, 80ch, 60%. Se viene lasciato vuoto viene usata l'ampiezza predefinita"
         "maxWidthInvalid": "Inserire un numero seguito da px, ch o %. Per esempio: 800px"
@@ -532,7 +532,7 @@
       "codeBlock": {
         "title": "Blocco di codice",
         "fontSize": "Dimensione caratteri",
-        "fontFamily": "Famiglia di caratteri,
+        "fontFamily": "Famiglia di caratteri",
         "showLineNumbers": "Mostra il numero della linea",
         "removeEmptyLines": "Rimozione linee vuote"
       },
@@ -644,7 +644,7 @@
         "footnote": "Nota a piè di pagina",
         "footnoteNotes": "Note alle note a piè di pagina",
         "texMathDollars": "Espressione matematica TeX con $ e $$",
-        "texMathGfm": ""Espressione matematica TeX di GitHub ($`…`$ e ```math)",
+        "texMathGfm": "Espressione matematica TeX di GitHub ($`…`$ e ```math)",
         "texMathSingleBackslash": "Delimitatori a singola barra rovesciata per espressione matematica TeX",
         "texMathDoubleBackslash": "Delimitatori a doppia barra rovesciata per espressione matematica TeX",
         "frontmatterType": {
@@ -657,7 +657,7 @@
         "title": "Diagrammi",
         "sequenceTheme": {
           "title": "Tema Sequenza",
-          "handDrawn": "Disegnato a mano,
+          "handDrawn": "Disegnato a mano",
           "simple": "Semplice"
         },
         "plantumlServer": {
@@ -716,7 +716,7 @@
       "keyInputDialog": {
         "instructions": "Premere la combinazione di tasti che si vuol assegnare",
         "invalidKeybinding": "Combinazione di tasti non valida",
-        "placeholder": "Premere i tasti..."
+        "placeholder": "Premere i tasti…"
       },
       "online": "Online",
       "saveError": "Errore durante il salvataggio della combinazione di tasti",
