@@ -45,12 +45,12 @@ Relevant settings (`tsconfig.base.json`):
 Defined in both `tsconfig.base.json` and `electron.vite.config.ts` (the
 two must stay in sync):
 
-| Alias       | Maps to                |
-|-------------|------------------------|
-| `@/*`       | `src/renderer/src/*`   |
-| `common/*`  | `src/common/*`         |
-| `muya/*`    | `src/muya/*` (legacy)  |
-| `@shared/*` | `src/shared/*`         |
+| Alias       | Maps to               |
+| ----------- | --------------------- |
+| `@/*`       | `src/renderer/src/*`  |
+| `common/*`  | `src/common/*`        |
+| `muya/*`    | `src/muya/*` (legacy) |
+| `@shared/*` | `src/shared/*`        |
 
 `vitest.config.ts` carries the same aliases plus `main_renderer` →
 `src/main` for the few unit specs that reach into main-process code.
@@ -83,8 +83,7 @@ const ipcWrapper = {
   invoke: <K extends keyof IpcInvokeChannels>(
     channel: K,
     ...args: IpcInvokeChannels[K]['args']
-  ): Promise<IpcInvokeChannels[K]['ret']> =>
-    ipcRenderer.invoke(channel, ...args),
+  ): Promise<IpcInvokeChannels[K]['ret']> => ipcRenderer.invoke(channel, ...args)
   // ...
 }
 ```
@@ -94,6 +93,7 @@ call is type-checked: wrong channel name, wrong arg arity, wrong arg
 types, all surface at compile time.
 
 To add a new channel:
+
 1. Add an entry to the appropriate interface in `src/shared/types/ipc.ts`.
 2. Wire the handler in `src/main/ipc/*.ts` via `ipcMain.handle`/`ipcMain.on`.
 3. Use it from the renderer via `window.electron.ipcRenderer.{invoke,send,…}`.
@@ -173,13 +173,13 @@ deleted when upstream TS muya lands) and a single targeted
 chokidar's `ignored` callback options bag whose typed signature varies
 between chokidar versions.
 
-A small number of `: any` annotations remain inside `.vue` `<script
-setup lang="ts">` blocks — mostly for muya / CodeMirror handles
-(`MuyaInstance`, `CMInstance`, etc.) kept as file-local aliases on
-purpose, parallel to `src/types/muya.d.ts`. The rule is currently
-configured on `.ts` files only; extending it to the `.vue` scope is a
-separate cleanup once the upstream TS muya replaces those handles with
-real types.
+The rule covers `.vue` files as well. The CodeMirror handles in
+`sourceCode.vue` now use `@types/codemirror`, so the only `any` left in
+an SFC is `MuyaInstance` in `editor.vue`, which carries a targeted
+`eslint-disable-next-line`: `@muyajs/core` resolves to the hand-written
+`src/types/muya-core.d.ts` shim (its `exports` map points at TS source
+and it ships no built `lib/types/`), and that shim's editor surface is
+deliberately permissive. See #4257.
 
 ## Type-checking
 
