@@ -28,6 +28,7 @@ let tmpDir: string
 let binDir: string
 let originalPath: string | undefined
 let originalShell: string | undefined
+let originalHome: string | undefined
 
 beforeAll(async() => {
   if (skipOnWindows) return
@@ -58,8 +59,13 @@ beforeAll(async() => {
 
   originalPath = process.env.PATH
   originalShell = process.env.SHELL
+  originalHome = process.env.HOME
   process.env.SHELL = shell
   process.env.PATH = '/usr/bin:/bin'
+  // A developer running this has a real picgo under their own HOME, which the
+  // static fallback dirs would find — and then the upload test would hand a
+  // file to their real image host. The stand-in must be the only one reachable.
+  process.env.HOME = tmpDir
 
   const { registerCmdHandlers } = await import('main_renderer/ipc/cmd')
   const { registerUploaderHandlers } = await import('main_renderer/ipc/uploader')
@@ -72,6 +78,8 @@ afterAll(async() => {
   process.env.PATH = originalPath
   if (originalShell === undefined) delete process.env.SHELL
   else process.env.SHELL = originalShell
+  if (originalHome === undefined) delete process.env.HOME
+  else process.env.HOME = originalHome
   await fs.remove(tmpDir)
 })
 

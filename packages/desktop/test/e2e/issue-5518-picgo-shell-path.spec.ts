@@ -36,9 +36,9 @@ test.describe('a command only the login shell knows about (#5518)', () => {
       { mode: 0o755 }
     )
 
-    const launched = await launchElectron([], {
-      env: { PATH: '/usr/bin:/bin', SHELL: shell }
-    })
+    // PATH is left as the launcher gave it: binDir is a fresh temp dir, so the
+    // fake login shell stays the only way to reach the command inside it.
+    const launched = await launchElectron([], { env: { SHELL: shell } })
     app = launched.app
     page = launched.page
   })

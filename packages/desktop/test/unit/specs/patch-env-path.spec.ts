@@ -50,28 +50,33 @@ describe('patchEnvPath (#2751)', () => {
   })
 })
 
+// The dirs are built with path.join, so a Windows runner spells them with
+// backslashes; the expectations have to be built the same way.
 describe('extraPathDirs: where a user-level package manager puts its global bins (#5518)', () => {
   it('covers pnpm and ~/.local/bin on darwin', () => {
-    const dirs = extraPathDirs('darwin', { HOME: '/Users/someone' })
-    expect(dirs).toContain('/Users/someone/Library/pnpm')
-    expect(dirs).toContain('/Users/someone/.local/bin')
+    const home = '/Users/someone'
+    const dirs = extraPathDirs('darwin', { HOME: home })
+    expect(dirs).toContain(path.join(home, 'Library', 'pnpm'))
+    expect(dirs).toContain(path.join(home, '.local', 'bin'))
     expect(dirs).toContain('/opt/homebrew/bin')
   })
 
   it('covers pnpm and ~/.local/bin on linux', () => {
-    const dirs = extraPathDirs('linux', { HOME: '/home/someone' })
-    expect(dirs).toContain('/home/someone/.local/share/pnpm')
-    expect(dirs).toContain('/home/someone/.local/bin')
+    const home = '/home/someone'
+    const dirs = extraPathDirs('linux', { HOME: home })
+    expect(dirs).toContain(path.join(home, '.local', 'share', 'pnpm'))
+    expect(dirs).toContain(path.join(home, '.local', 'bin'))
   })
 
   it('covers the npm prefix the user configured', () => {
     const dirs = extraPathDirs('linux', { HOME: '/home/someone', npm_config_prefix: '/opt/node' })
-    expect(dirs).toContain('/opt/node/bin')
+    expect(dirs).toContain(path.join('/opt/node', 'bin'))
   })
 
   it('yields nothing without a home dir to anchor on', () => {
-    expect(extraPathDirs('darwin', {}).every((dir) => path.isAbsolute(dir))).toBe(true)
-    expect(extraPathDirs('darwin', {})).not.toContain('undefined/Library/pnpm')
+    const dirs = extraPathDirs('darwin', {})
+    expect(dirs.every((dir) => path.isAbsolute(dir))).toBe(true)
+    expect(dirs.some((dir) => dir.includes('undefined'))).toBe(false)
   })
 
   it('is empty on win32, whose GUI apps do inherit the user PATH', () => {
