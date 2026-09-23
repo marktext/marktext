@@ -55,6 +55,16 @@ two must stay in sync):
 `vitest.config.ts` carries the same aliases plus `main_renderer` →
 `src/main` for the few unit specs that reach into main-process code.
 
+`tsconfig.base.json` carries one more entry that is a type-resolution
+redirect rather than a module alias: `@muyajs/core` →
+`../muya/lib/types/index.d.ts`. The package's `exports` map points `.` at
+its TypeScript source, so without the redirect vue-tsc would pull the whole
+muya tree into the desktop's program under the desktop's compiler options.
+`pnpm typecheck` and `postinstall` both run `pnpm --filter @muyajs/core
+build:types` to produce that directory (it is ignored build output).
+electron-vite and Vitest are unaffected — they resolve the runtime module
+through the `exports` map.
+
 ## Where types live
 
 - **`src/shared/types/`** — cross-process types (IPC contract, file/tab
@@ -173,13 +183,10 @@ deleted when upstream TS muya lands) and a single targeted
 chokidar's `ignored` callback options bag whose typed signature varies
 between chokidar versions.
 
-The rule covers `.vue` files as well. The CodeMirror handles in
-`sourceCode.vue` now use `@types/codemirror`, so the only `any` left in
-an SFC is `MuyaInstance` in `editor.vue`, which carries a targeted
-`eslint-disable-next-line`: `@muyajs/core` resolves to the hand-written
-`src/types/muya-core.d.ts` shim (its `exports` map points at TS source
-and it ships no built `lib/types/`), and that shim's editor surface is
-deliberately permissive. See #4257.
+The rule covers `.vue` files as well, and no SFC needs an exemption: the
+CodeMirror handles in `sourceCode.vue` use `@types/codemirror` and the
+editor handle in `editor.vue` is a `shallowRef<Muya | null>` typed from
+the engine's own declarations (#4257).
 
 ## Type-checking
 

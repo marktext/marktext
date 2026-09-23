@@ -49,6 +49,7 @@ function isOrderOrBulletList(block: Parent): block is OrderList | BulletList {
 }
 
 export class ParagraphFrontButton {
+    static pluginName = 'paragraphFrontButton';
     public name: string = 'mu-front-button';
     private _resizeObserver: ResizeObserver | null = null;
     private _options: IBaseOptions;

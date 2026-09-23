@@ -105,7 +105,7 @@ export class ImageEditTool extends BaseFloat {
      * @param muya - Muya editor instance
      * @param options - Tool options including image picker and upload handler
      */
-    constructor(muya: Muya, options: Options = { ...defaultOptions }) {
+    constructor(muya: Muya, options: Partial<Options> = {}) {
         const name = 'mu-image-selector';
         super(muya, name, Object.assign({}, defaultOptions, options));
         this.options = Object.assign({}, defaultOptions, options);
