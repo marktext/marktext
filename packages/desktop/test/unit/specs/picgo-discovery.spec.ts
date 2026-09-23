@@ -2,7 +2,7 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs-extra'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
-import { PNG, restoreEnv, writeFakePicgo, writeFakeShell } from '../commandFixtures'
+import { PNG, restoreEnv, setPlatform, writeFakePicgo, writeFakeShell } from '../commandFixtures'
 
 // #5518: a GUI-launched app inherits launchd's PATH, not the login shell's, so
 // a picgo installed by pnpm/volta/nvm was invisible — the uploader panel said
@@ -20,6 +20,7 @@ vi.mock('electron', () => ({
 }))
 
 const skipOnWindows = process.platform === 'win32'
+const origPlatform = process.platform
 
 let tmpDir: string
 let originalPath: string | undefined
@@ -42,10 +43,13 @@ beforeAll(async() => {
   originalHome = process.env.HOME
   process.env.SHELL = shell
   process.env.PATH = '/usr/bin:/bin'
-  // A developer running this has a real picgo under their own HOME, which the
-  // static fallback dirs would find — and then the upload test would hand a
-  // file to their real image host. The stand-in must be the only one reachable.
+  // The stand-in has to be the only picgo reachable, or the upload test hands a
+  // real image to whatever host the developer has configured. HOME alone is not
+  // enough: the system half of the fallback dirs (/opt/homebrew/bin,
+  // /usr/local/bin) ignores HOME. A platform with no system table leaves only
+  // the dirs under this temp HOME — and exercises the BSD case while it is here.
   process.env.HOME = tmpDir
+  setPlatform('freebsd')
 
   const { registerCmdHandlers } = await import('main_renderer/ipc/cmd')
   const { registerUploaderHandlers } = await import('main_renderer/ipc/uploader')
@@ -55,7 +59,8 @@ beforeAll(async() => {
 
 afterAll(async() => {
   if (skipOnWindows) return
-  process.env.PATH = originalPath
+  setPlatform(origPlatform)
+  restoreEnv('PATH', originalPath)
   restoreEnv('SHELL', originalShell)
   restoreEnv('HOME', originalHome)
   await fs.remove(tmpDir)

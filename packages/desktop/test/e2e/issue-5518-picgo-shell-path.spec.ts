@@ -36,9 +36,13 @@ test.describe('a command only the login shell knows about (#5518)', () => {
       { mode: 0o755 }
     )
 
-    // PATH is left as the launcher gave it: binDir is a fresh temp dir, so the
-    // fake login shell stays the only way to reach the command inside it.
-    const launched = await launchElectron([], { env: { SHELL: shell } })
+    // launchElectron copies the whole environment before applying this, so
+    // without an explicit PATH the app would inherit the runner's login-shell
+    // one and never be in the situation #5518 describes. This is what launchd
+    // hands a Dock launch: /etc/paths and nothing of the user's own.
+    const launched = await launchElectron([], {
+      env: { PATH: '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin', SHELL: shell }
+    })
     app = launched.app
     page = launched.page
   })
