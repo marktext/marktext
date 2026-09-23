@@ -62,7 +62,7 @@ describe('image resize bar after its image is removed', () => {
 
         eventCenter.emit('muya-transformer', { reference: null });
 
-        expect(eventCenter.events.some(e => e.target === document.body && e.event === 'mousemove')).toBe(false);
+        expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
 
         const listenerErrors: unknown[] = [];
         const onError = (event: ErrorEvent) => listenerErrors.push(event.error ?? event.message);
@@ -168,7 +168,7 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         contentBar().dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 2 }));
         document.body.dispatchEvent(mouseMove(200));
 
-        expect(eventCenter.events.some(e => e.target === document.body && e.event === 'mousemove')).toBe(false);
+        expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
         expect(reference.querySelector('img')!.hasAttribute('width')).toBe(false);
     });
 
@@ -204,5 +204,64 @@ describe('image resize bar and document content with class "bar" (#5116)', () =>
         expect(errors).toEqual([]);
         // happy-dom has no layout, so the left handle sits at x 0: 200 - 0 - CIRCLE_RADIO.
         expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '195');
+    });
+});
+
+// A pointer that leaves the window keeps driving the drag, but Chromium hit
+// tests those out-of-viewport coordinates to `<html>`: the moves and the
+// release are dispatched on the document element, whose bubble path is
+// html → document → window and therefore never passes through `<body>`.
+// The release is followed by a click on the press/release common ancestor,
+// which is again `<html>`, and the bar hides on any document click.
+function dragOutsideWindow(handle: HTMLElement, clientX: number): unknown[] {
+    const listenerErrors: unknown[] = [];
+    const steps: Array<[EventTarget, Event]> = [
+        [handle, new MouseEvent('mousedown', { bubbles: true })],
+        [document.body, mouseMove(clientX / 2)],
+        [document.documentElement, mouseMove(clientX)],
+        [document.documentElement, new MouseEvent('mouseup', { bubbles: true })],
+        [document.documentElement, new MouseEvent('click', { bubbles: true })],
+    ];
+    for (const [eventTarget, event] of steps) {
+        try {
+            eventTarget.dispatchEvent(event);
+        }
+        catch (error) {
+            listenerErrors.push(error);
+        }
+    }
+    return listenerErrors;
+}
+
+describe('image resize released outside the window (#5393)', () => {
+    it('commits the dragged width', () => {
+        vi.useFakeTimers();
+        const eventCenter = setup();
+        const block = { updateImage: vi.fn() };
+        const imageInfo = {};
+        const reference = imageContainer();
+
+        eventCenter.emit('muya-transformer', { block, reference, imageInfo });
+        vi.runAllTimers();
+
+        const errors = dragOutsideWindow(
+            document.querySelector<HTMLElement>('.mu-transformer .bar.right')!,
+            200,
+        );
+
+        expect(errors).toEqual([]);
+        expect(block.updateImage).toHaveBeenCalledWith(imageInfo, 'width', '195');
+        expect(reference.querySelector('img')!.getAttribute('width')).toBe('195');
+    });
+
+    it('leaves no drag listeners behind', () => {
+        vi.useFakeTimers();
+        const eventCenter = setup();
+
+        eventCenter.emit('muya-transformer', { block: { updateImage: vi.fn() }, reference: imageContainer(), imageInfo: {} });
+        vi.runAllTimers();
+        dragOutsideWindow(document.querySelector<HTMLElement>('.mu-transformer .bar.right')!, 200);
+
+        expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
     });
 });

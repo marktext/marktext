@@ -138,13 +138,18 @@ export class ImageResizeBar {
 
         const { eventCenter } = this.muya;
         this._movingAnchor = handle.getAttribute('data-position');
+        // A pointer dragged past the window's edge keeps driving the resize,
+        // but those out-of-viewport coordinates hit test to `<html>`, whose
+        // bubble path skips `<body>`. Listening on the document keeps the
+        // release outside the window a normal release instead of a silently
+        // dropped width (#5393).
         const mouseMoveId = eventCenter.attachDOMEvent(
-            document.body,
+            document,
             'mousemove',
             this._mouseMove,
         );
         const mouseUpId = eventCenter.attachDOMEvent(
-            document.body,
+            document,
             'mouseup',
             this._mouseUp,
         );
