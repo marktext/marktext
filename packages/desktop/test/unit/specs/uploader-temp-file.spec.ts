@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vites
 import fs from 'fs-extra'
 import os from 'os'
 import path from 'path'
+import { restoreEnv } from '../commandFixtures'
 
 // Capture the handler ipcMain.handle() registers so the spec can invoke the
 // real upload path instead of re-implementing it.
@@ -66,7 +67,7 @@ beforeAll(async() => {
 })
 
 afterAll(async() => {
-  process.env.PATH = originalPath
+  restoreEnv('PATH', originalPath)
   await fs.remove(binDir)
 })
 
