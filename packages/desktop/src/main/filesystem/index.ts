@@ -125,5 +125,35 @@ export const writeFile = async(
   // write-file-atomic also preserves the target's mode/owner, writes through a
   // symlink to its target, and uses a unique temp name — all of which a plain
   // temp+rename dropped.
-  await writeFileAtomic(pathname, content, options)
+  await writeFileAtomicWithRetry(pathname, content, options)
+}
+
+// Windows refuses MoveFileEx(REPLACE_EXISTING) — what the atomic save's rename
+// compiles to — with ACCESS_DENIED, surfaced as EPERM, while any handle is open
+// on the target. On an SMB share that includes the stat our own file watcher
+// runs against the open document, so a save can lose the race with its own
+// watcher and the edit is dropped (#5322). Measured on a Windows SMB share: one
+// open read handle fails every rename; watcher polling fails ~1 save in 200 and
+// worse the faster it stats. The handle is released within milliseconds, so a
+// short backoff clears it. Local filesystems never reach this path.
+const RENAME_RACE_CODES = new Set(['EPERM', 'EACCES', 'EBUSY'])
+const RENAME_RETRY_DELAYS_MS = [50, 150, 300]
+
+const writeFileAtomicWithRetry = async(
+  pathname: string,
+  content: string | Buffer,
+  options: BufferEncoding | undefined
+): Promise<void> => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await writeFileAtomic(pathname, content, options)
+      return
+    } catch (error) {
+      const { code } = error as NodeJS.ErrnoException
+      if (attempt >= RENAME_RETRY_DELAYS_MS.length || !code || !RENAME_RACE_CODES.has(code)) {
+        throw error
+      }
+      await new Promise((resolve) => setTimeout(resolve, RENAME_RETRY_DELAYS_MS[attempt]))
+    }
+  }
 }
