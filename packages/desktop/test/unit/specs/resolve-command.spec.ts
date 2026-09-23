@@ -34,7 +34,7 @@ afterAll(async() => {
   if (skipOnWindows) return
   restoreEnv('HOME', originalHome)
   restoreEnv('SHELL', originalShell)
-  process.env.PATH = originalPath
+  restoreEnv('PATH', originalPath)
   await fs.remove(home)
 })
 
@@ -64,5 +64,14 @@ describe.skipIf(skipOnWindows)('resolveCommand fallback dirs (#5518)', () => {
   it('answers null for an empty name, which a PATH lookup calls present', async() => {
     await expect(resolveCommand('')).resolves.toBeNull()
     await expect(resolveCommand('   ')).resolves.toBeNull()
+  })
+
+  it('refuses a name that would walk out of the dirs it searches', async() => {
+    // `path.join('/usr/local/bin', '../../bin/sh')` is a real executable, and
+    // returning it would break the promise that the answer sits in a bin dir
+    // this function searched. The name comes from the renderer over IPC.
+    await expect(resolveCommand('../../bin/sh')).resolves.toBeNull()
+    await expect(resolveCommand('../bin/ls')).resolves.toBeNull()
+    await expect(resolveCommand('/bin/sh')).resolves.toBeNull()
   })
 })

@@ -17,10 +17,15 @@ const isRunnable = (candidate: string): boolean => {
   }
 }
 
+// The name arrives over IPC from the renderer. `commandExists.sync('')` answers
+// true, and a name carrying a separator would `path.join` its way out of the
+// dirs below — `../../bin/sh` resolves to a real executable outside every dir
+// searched, which the returned path is supposed to be inside of.
+const isCommandName = (name: string): boolean =>
+  !!name.trim() && !name.includes('/') && !name.includes(path.sep)
+
 const lookup = (name: string): string | null => {
-  // `commandExists.sync('')` answers true, and the name reaches us from the
-  // renderer.
-  if (!name.trim()) return null
+  if (!isCommandName(name)) return null
   if (commandExists.sync(name)) return name
 
   // Second layer. `patchEnvPath` has normally put these on PATH already, so the
