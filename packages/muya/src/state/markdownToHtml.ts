@@ -217,18 +217,24 @@ export class MarkdownToHtml {
         exportContainer.innerHTML = html;
         document.body.appendChild(exportContainer);
 
-        // render only render the light theme of mermaid and diagram...
-        await this._renderMermaid();
-        await this._renderDiagram();
+        let result: string;
+        try {
+            // render only render the light theme of mermaid and diagram...
+            await this._renderMermaid();
+            await this._renderDiagram();
 
-        // Inject github-compatible slug ids onto exported headings so the
-        // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
-        // resolve. Scoped to this export DOM path — the conformance
-        // renderer (`renderToStaticHTML`) is deliberately left untouched.
-        this._injectHeadingIds(exportContainer);
+            // Inject github-compatible slug ids onto exported headings so the
+            // exported document's [TOC] / `getHtmlToc` `href="#slug"` anchors
+            // resolve. Scoped to this export DOM path — the conformance
+            // renderer (`renderToStaticHTML`) is deliberately left untouched.
+            this._injectHeadingIds(exportContainer);
 
-        let result = exportContainer.innerHTML;
-        exportContainer.remove();
+            result = exportContainer.innerHTML;
+        }
+        finally {
+            exportContainer.remove();
+            this._exportContainer = null;
+        }
 
         // hack to add arrow marker to output html
         // TODO: JOCS, are these codes still needed?
@@ -241,8 +247,6 @@ export class MarkdownToHtml {
 
             return `${def}${str}`;
         });
-
-        this._exportContainer = null;
 
         return `<article class="markdown-body">${result}</article>`;
     }
