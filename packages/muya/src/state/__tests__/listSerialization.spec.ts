@@ -18,6 +18,8 @@ function roundTrip(md: string, listIndentation: number | string = 1): string {
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -63,6 +65,8 @@ function parseMarkdown(md: string): TState[] {
         footnote: false,
         texMathDollars: false,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
     }).generate(md);
@@ -540,6 +544,8 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
             footnote: false,
             texMathDollars: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n\n- bar\n');
@@ -551,6 +557,8 @@ describe('stateToMarkdown — list looseness (preferLooseListItem)', () => {
             footnote: false,
             texMathDollars: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('- foo\n- bar\n');
@@ -650,6 +658,8 @@ Text after numbered list.
             footnote: false,
             texMathDollars: false,
             texMathGfm: false,
+            texMathSingleBackslash: false,
+            texMathDoubleBackslash: false,
             trimUnnecessaryCodeBlockEmptyLines: false,
             frontMatter: false,
         }).generate('3. one\n4. two\n');

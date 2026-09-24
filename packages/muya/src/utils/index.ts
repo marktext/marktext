@@ -394,6 +394,13 @@ export function diffToTextOp(diffs: Diff[]) {
     return op;
 }
 
+export function lineBounds(text: string, offset: number): [number, number] {
+    const start = text.lastIndexOf('\n', offset - 1) + 1;
+    const end = text.indexOf('\n', start);
+
+    return [start, end === -1 ? text.length : end];
+}
+
 // If the next block is header, put cursor after the `#{1,6} *`
 export function adjustOffset<T extends Content>(offset: number, block: T, event: KeyboardEvent) {
     if (

@@ -1,6 +1,9 @@
 // utils used in selection/index.js
+import type Content from '../block/base/content';
+import type { IAnchorFocusInfo } from './types';
 import { CLASS_NAMES } from '../config';
-import { isElement } from '../utils';
+import { isElement, lineBounds } from '../utils';
+import { getBlock } from '../utils/dom';
 
 export function isContentDOM(element: HTMLElement) {
     return (
@@ -22,6 +25,48 @@ export function findContentDOM(node: Node | null | undefined) {
     } while (node);
 
     return null;
+}
+
+export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | null {
+    const contentDOM = findContentDOM(node);
+    if (!contentDOM)
+        return null;
+
+    const block = getBlock(contentDOM);
+    if (!block?.isContent() || !block.outMostBlock)
+        return null;
+
+    return {
+        offset: getOffsetOfParagraph(node, contentDOM) + offset,
+        block,
+        path: block.path,
+    };
+}
+
+function caretAt(doc: Document, x: number, y: number): { node: Node; offset: number } | null {
+    const position = doc.caretPositionFromPoint?.(x, y);
+    if (position)
+        return { node: position.offsetNode, offset: position.offset };
+
+    const range = doc.caretRangeFromPoint?.(x, y);
+
+    return range ? { node: range.startContainer, offset: range.startOffset } : null;
+}
+
+export function lineAtPoint(
+    doc: Document,
+    x: number,
+    y: number,
+): { block: Content; start: number; end: number } | null {
+    const caret = caretAt(doc, x, y);
+    const clicked = caret && resolveEndpoint(caret.node, caret.offset);
+    if (!clicked)
+        return null;
+
+    const { block, offset } = clicked;
+    const [start, end] = lineBounds(block.text, offset);
+
+    return { block, start, end };
 }
 
 export function compareParagraphsOrder(paragraph1: HTMLElement, paragraph2: HTMLElement) {

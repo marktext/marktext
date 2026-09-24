@@ -143,6 +143,8 @@ export interface EditorState {
   tabIdToIndex: Record<string, number>
   listToc: TocItem[]
   toc: TocTreeNode[]
+  // Heading the cursor is inside, for the TOC highlight; null above the first.
+  activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
 }
 
@@ -155,8 +157,28 @@ export const useEditorStore = defineStore('editor', {
     tabIdToIndex: {},
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: [],
+    activeHeadingSlug: null,
     selectionWordCount: null
   }),
+
+  getters: {
+    /** Title for an exported file: the shallowest of the first few headings. */
+    documentTitle(state): string {
+      const { listToc } = state
+      if (!listToc || listToc.length === 0) return ''
+
+      let headerRef: TocItem | undefined = listToc[0]
+      const len = Math.min(listToc.length, 6)
+      for (let i = 1; i < len; ++i) {
+        if (headerRef?.lvl === 1) break
+        const header = listToc[i]
+        if (header && headerRef && (headerRef.lvl ?? 0) > (header.lvl ?? 0)) {
+          headerRef = header
+        }
+      }
+      return headerRef?.content ?? ''
+    }
+  },
 
   actions: {
     SET_SELECTION_WORD_COUNT(wordCount: FileWordCount | null): void {
@@ -844,6 +866,8 @@ export const useEditorStore = defineStore('editor', {
         this.currentFile = currentFile
         this.selectionWordCount = null
         didUpdateCurrentFile = true
+        // Slugs belong to the old document; the next selection-change re-seeds.
+        this.activeHeadingSlug = null
 
         if (!this.tabs.some((file) => file.id === currentFile.id)) {
           this.tabs.push(currentFile)
@@ -1404,6 +1428,14 @@ export const useEditorStore = defineStore('editor', {
     UPDATE_TOC(toc: TocItem[]): void {
       this.listToc = toc ?? []
       this.toc = listToTree<TocItem>(toc ?? [])
+      // Every caller replaces the whole document, so the old slug is gone.
+      this.activeHeadingSlug = null
+    },
+
+    SET_ACTIVE_HEADING(slug: string | null): void {
+      if (this.activeHeadingSlug !== slug) {
+        this.activeHeadingSlug = slug
+      }
     },
 
     // Content change from realtime preview editor and source code editor
@@ -1569,25 +1601,10 @@ export const useEditorStore = defineStore('editor', {
     EXPORT({ type, content, pageOptions }: ExportPayload): void {
       if (this.currentFile === null) return
 
-      let title = ''
-      const { listToc } = this
-      if (listToc && listToc.length > 0) {
-        let headerRef: TocItem | undefined = listToc[0]
-        const len = Math.min(listToc.length, 6)
-        for (let i = 1; i < len; ++i) {
-          if (headerRef?.lvl === 1) break
-          const header = listToc[i]
-          if (header && headerRef && (headerRef.lvl ?? 0) > (header.lvl ?? 0)) {
-            headerRef = header
-          }
-        }
-        title = headerRef?.content ?? ''
-      }
-
       const { filename, pathname } = this.currentFile
       window.electron.ipcRenderer.send('mt::response-export', {
         type: type as ExportPayload['type'] as never,
-        title,
+        title: this.documentTitle,
         content: content ?? '',
         filename,
         pathname,
@@ -1595,15 +1612,35 @@ export const useEditorStore = defineStore('editor', {
       })
     },
 
+    // Reads `currentFile.markdown` after a flush, the way `FILE_SAVE` does: in source-code
+    // mode CodeMirror writes straight to it, so `engine.getMarkdown()` would be stale (#5379).
+    EXPORT_PANDOC(target: string): void {
+      if (this.currentFile === null) return
+
+      this.flushActiveEditor()
+      const { pathname, markdown } = this.currentFile
+      const preferencesStore = usePreferencesStore()
+      window.electron.ipcRenderer.send('mt::response-pandoc-export', {
+        target,
+        markdown,
+        superSubScript: preferencesStore.superSubScript === true,
+        footnote: preferencesStore.footnote === true,
+        title: this.documentTitle,
+        pathname
+      })
+    },
+
     LISTEN_FOR_EXPORT_SUCCESS(): void {
       window.electron.ipcRenderer.on('mt::export-success', (_, payload) => {
         const filePath = payload?.filePath ?? ''
+        const name = window.path.basename(filePath)
         notice
           .notify({
             title: t('store.editor.exportSuccessTitle'),
-            message: t('store.editor.exportSuccessMessage', {
-              name: window.path.basename(filePath)
-            }),
+            // The plain-text formats leave images as links, which look broken once shared.
+            message: payload?.linksMedia
+              ? t('store.editor.exportLinkedMediaMessage', { name })
+              : t('store.editor.exportSuccessMessage', { name }),
             showConfirm: true
           })
           .then(() => {
@@ -1669,7 +1706,6 @@ export const useEditorStore = defineStore('editor', {
     },
 
     LISTEN_FOR_FILE_CHANGE(): void {
-      const preferencesStore = usePreferencesStore()
       window.electron.ipcRenderer.on('mt::update-file', (_, payload) => {
         const { type, change } = payload
         const { tabs } = this
@@ -1700,21 +1736,21 @@ export const useEditorStore = defineStore('editor', {
                 break
               }
 
-              const { autoSave } = preferencesStore
-              if (autoSave) {
+              // The tab holds no local edits, so reloading discards nothing and
+              // needs no confirmation (#3652). Deliberately independent of
+              // autoSave: that writes our buffer back to disk and would
+              // overwrite whichever editor produced this change.
+              if (isSaved) {
                 if (autoSaveTimers.has(id)) {
                   const timer = autoSaveTimers.get(id)
                   if (timer) clearTimeout(timer)
                   autoSaveTimers.delete(id)
                 }
 
-                if (isSaved) {
-                  this.loadChange(change as unknown as FileChangePayload)
-                  return
-                }
+                this.loadChange(change as unknown as FileChangePayload)
+                return
               }
 
-              tab.isSaved = false
               this.pushTabNotification({
                 tabId: id,
                 msg: t('store.editor.fileChangedOnDisk', { name: filename }),

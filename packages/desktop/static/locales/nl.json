@@ -24,6 +24,7 @@
       "export": "Exporteren",
       "exportHtml": "Exporteren als HTML",
       "exportPdf": "Exporteren als PDF",
+      "convertWithPandoc": "Converteren met Pandoc",
       "import": "Importeren",
       "print": "Afdrukken",
       "closeTab": "Tabblad sluiten",
@@ -414,6 +415,8 @@
         "footnote": "Pandoc voetnoten inschakelen",
         "texMathDollars": "Pandocs markdown-extensie tex_math_dollars inschakelen",
         "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
+        "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
+        "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -509,7 +512,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -640,6 +644,8 @@
         "footnoteNotes": "Voetnoten",
         "texMathDollars": "TeX-wiskunde met $ en $$",
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
+        "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
+        "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",
@@ -899,7 +905,9 @@
     "fileExists": "Bestand bestaat al: {filename}",
     "files": "Bestanden",
     "importWarning": "Importwaarschuwing",
-    "installPandoc": "Pandoc installeren",
+    "installPandoc": "Pandoc is niet gevonden. Installeer het, of stel de omgevingsvariabele MARKTEXT_PANDOC in op het pad naar het pandoc-programma en herstart MarkText.",
+    "exportWarning": "Exportwaarschuwing",
+    "exportWarningMore": "…en nog {count}",
     "keepOpen": "Open houden",
     "replace": "Vervangen",
     "save": "Opslaan",
@@ -939,6 +947,7 @@
       "errorWhileSaving": "Er is een fout opgetreden bij het opslaan: {msg}",
       "exportSuccessTitle": "Succesvol geëxporteerd",
       "exportSuccessMessage": "\"{name}\" is succesvol geëxporteerd!",
+      "exportLinkedMediaMessage": "\"{name}\" is geëxporteerd. Deze indeling verwijst naar afbeeldingen in plaats van ze in te sluiten — houd de afbeeldingen bij het bestand en deel de hele map.",
       "fileRemovedOnDisk": "\"{name}\" is verwijderd van schijf.",
       "fileChangedOnDisk": "\"{name}\" is gewijzigd op schijf. Wil je het opnieuw laden?"
     }

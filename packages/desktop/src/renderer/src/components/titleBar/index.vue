@@ -21,31 +21,33 @@
       >
         <span v-if="!filename">MarkText</span>
         <span v-else>
-          <bdi dir="ltr">
-            <span
-              v-for="(path, index) of paths"
-              :key="index"
-            >
-              {{ path }}
-              <el-icon
-                class="path-arrow"
-                :size="12"
+          <span
+            class="save-dot"
+            :class="{ show: !isSaved }"
+          />
+          <span class="path">
+            <bdi dir="ltr">
+              <span
+                v-for="(path, index) of paths"
+                :key="index"
               >
-                <ArrowRight />
-              </el-icon>
-            </span>
-            <span
-              class="filename"
-              :class="{ isOsx: platform === 'darwin' }"
-              @click="rename"
-            >
-              {{ filename }}
-            </span>
-            <span
-              class="save-dot"
-              :class="{ show: !isSaved }"
-            />
-          </bdi>
+                {{ path }}
+                <el-icon
+                  class="path-arrow"
+                  :size="12"
+                >
+                  <ArrowRight />
+                </el-icon>
+              </span>
+              <span
+                class="filename"
+                :class="{ isOsx: platform === 'darwin' }"
+                @click="rename"
+              >
+                {{ filename }}
+              </span>
+            </bdi>
+          </span>
         </span>
       </div>
       <div :class="showCustomTitleBar ? 'left-toolbar title-no-drag' : 'right-toolbar'">
@@ -383,18 +385,26 @@ img {
   }
 }
 div.title > span {
-  /* Workaround for GH#339 */
-  display: block;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+/* Workaround for GH#339: the RTL context clips an over-long path from the left
+   so the filename stays visible. The save dot is a sibling rather than a child
+   so that clipping can never swallow it. */
+div.title > span > .path {
   direction: rtl;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
+  min-width: 0;
 }
 
 /* The RTL context above only exists to clip long paths from the left. Isolating
    each segment keeps an RTL folder name from dragging its separator — or the
    segments around it — out of order. */
-div.title > span > bdi > span {
+div.title > span > .path > bdi > span {
   unicode-bidi: isolate;
 }
 
@@ -403,7 +413,8 @@ div.title > span > bdi > span {
 }
 
 .active .save-dot {
-  margin-left: 0.25rem;
+  flex: none;
+  margin-right: 0.25rem;
   width: 8px;
   height: 8px;
   display: inline-block;

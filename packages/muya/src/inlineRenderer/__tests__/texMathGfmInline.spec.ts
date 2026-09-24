@@ -26,7 +26,7 @@ const cases: Array<[markdown: string, formulas: string[]]> = [
 
 function editorFormulas(src: string, texMathGfm: boolean): string[] {
     return tokenizer(src, {
-        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm },
+        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm, texMathSingleBackslash: false, texMathDoubleBackslash: false },
     })
         .filter((token): token is CodeEmojiMathToken => token.type === 'inline_math')
         .filter(token => token.marker === '$`')
@@ -55,6 +55,12 @@ describe('tex_math_gfm — inline `$`…`$`', () => {
         expect(exportedFormulaCount('cost $5 then $`x+y`$', true)).toBe(1);
     });
 
+    it('stands on its own when the dollar extension is not registered', () => {
+        const html = getHighlightHtml('$`e=mc^2`$', { texMathDollars: false, texMathGfm: true });
+
+        expect(html).toContain('class="katex"');
+    });
+
     it('round-trips the asymmetric markers through the clipboard', () => {
         const html = getClipBoardHtml('$`e=mc^2`$', { texMathDollars: true, texMathGfm: true });
         expect(html).toContain('$`e=mc^2`$');
@@ -66,7 +72,7 @@ describe('tex_math_gfm — off by default, as in pandoc', () => {
         expect(editorFormulas('$`e=mc^2`$', false)).toEqual([]);
 
         const dollarTokens = tokenizer('$`e=mc^2`$', {
-            options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false },
+            options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false },
         }).filter((token): token is CodeEmojiMathToken => token.type === 'inline_math');
 
         expect(dollarTokens).toHaveLength(1);

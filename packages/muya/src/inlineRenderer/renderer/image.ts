@@ -7,7 +7,7 @@ import DeleteIcon from '../../assets/icons/delete/2.png';
 import ImageIcon from '../../assets/icons/image/2.png';
 import ImageFailIcon from '../../assets/icons/image_fail/2.png';
 import { CLASS_NAMES } from '../../config';
-import { getImageSrc } from '../../utils/image';
+import { getImageSrc, usesDefaultObjectSize } from '../../utils/image';
 
 function renderIcon(h: H, className: string, icon: string) {
     // A `<span>`, not an `<a>`: these hover controls carry no href, and an `<a>`
@@ -211,6 +211,12 @@ export default function image(
 
             if (typeof height === 'string' && height)
                 Object.assign(data.props, { height });
+
+            // Re-renders rewrite the block from these vnodes, so the width
+            // `loadImageAsync` pinned on the first load has to be restated
+            // here or a size-less image collapses again (#4991).
+            if (!width && !height && usesDefaultObjectSize(naturalWidth, naturalHeight))
+                Object.assign(data, { style: { width: `${naturalWidth}px` } });
 
             return h('img', data);
         };

@@ -30,6 +30,8 @@ function parse(
         footnote: false,
         texMathDollars: true,
         texMathGfm: true,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: false,
         ...options,

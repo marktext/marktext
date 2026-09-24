@@ -77,9 +77,6 @@ importers:
       '@marktext/file-icons':
         specifier: ^1.0.6
         version: 1.0.6
-      '@marktext/muyajs':
-        specifier: workspace:*
-        version: link:../muyajs
       '@muyajs/core':
         specifier: workspace:*
         version: link:../muya
@@ -173,6 +170,9 @@ importers:
       mermaid:
         specifier: ^11.15.0
         version: 11.15.0
+      minimatch:
+        specifier: ^9.0.9
+        version: 9.0.9
       mitt:
         specifier: ^3.0.1
         version: 3.0.1

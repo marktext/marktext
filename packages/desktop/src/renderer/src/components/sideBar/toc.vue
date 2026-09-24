@@ -8,9 +8,12 @@
     </div>
     <el-tree
       v-if="keyedToc.length"
+      ref="tocTreeRef"
       :data="keyedToc"
       node-key="key"
       :default-expanded-keys="expandedKeys"
+      :current-node-key="activeNodeKey"
+      highlight-current
       :props="defaultProps"
       :expand-on-click-node="false"
       :indent="10"
@@ -23,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
@@ -31,11 +34,14 @@ import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import type { TreeInstance } from 'element-plus'
 
 const { t } = useI18n()
 
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
+
+const tocTreeRef = ref<TreeInstance | null>(null)
 
 const defaultProps = {
   children: 'children',
@@ -82,10 +88,31 @@ const expandedKeys = computed<string[]>(() => {
   return keys
 })
 
+// The store names the caret's heading by engine slug; el-tree keys its nodes by
+// githubSlug. Both sit on the same node, so one resolves to the other.
+const activeNodeKey = computed<string>(() => {
+  const slug = editorStore.activeHeadingSlug
+  if (typeof slug !== 'string') return ''
+  const findKey = (nodes: KeyedTocNode[]): string => {
+    for (const node of nodes) {
+      if (node.slug === slug) return node.key
+      const found = findKey(node.children)
+      if (found) return found
+    }
+    return ''
+  }
+  return findKey(keyedToc.value)
+})
+
+// `current-node-key` only seeds el-tree at mount; later changes need the setter.
+watch(activeNodeKey, (key) => {
+  tocTreeRef.value?.setCurrentKey(key || undefined)
+})
+
 const handleClick = (data: { slug?: unknown }): void => {
-  // editor.vue builds a CSS selector with `#${slug}` — bail out if the
-  // node has no slug (e.g. unsluggable headings) to avoid emitting
-  // `undefined` / non-string payloads and producing `#undefined` selectors.
+  // editor.vue resolves the slug to a heading by document order — bail out if
+  // the node has no slug (e.g. unsluggable headings) rather than emitting an
+  // `undefined` / non-string payload it cannot match.
   if (typeof data.slug !== 'string' || data.slug.length === 0) return
   bus.emit('scroll-to-header', data.slug)
 }
@@ -99,6 +126,7 @@ const handleClick = (data: { slug?: unknown }): void => {
   list-style: none;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .side-bar-toc .title {
@@ -107,15 +135,34 @@ const handleClick = (data: { slug?: unknown }): void => {
   font-size: 16px;
   margin: 37px 0 10px 0;
   padding-left: 25px;
+  flex-shrink: 0;
 }
 
 .side-bar-toc .el-tree-node {
   margin-top: 8px;
 }
 
+/* The outline scrolls, the panel title does not — same split the file tree
+   (`.tree-wrapper`) and the search results already use. */
 .side-bar-toc .el-tree {
   background: transparent;
   color: var(--sideBarColor);
+  flex: 1;
+  min-height: 0;
+}
+
+/* Element Plus wraps every tree label in an `<el-text>`, which sets a color of
+   its own (--el-text-color-regular, #606266). That beats the themed color the
+   label would otherwise inherit from `.el-tree`, leaving the TOC dark gray on
+   dark themes (#5094). Same story for the expand arrow, which Element colors
+   with --el-tree-expand-icon-color; the sidebar's own arrows use
+   --sideBarIconColor. */
+.side-bar-toc .el-tree-node__label {
+  color: inherit;
+}
+
+.side-bar-toc .el-tree-node__expand-icon {
+  color: var(--sideBarIconColor);
 }
 
 .side-bar-toc .el-tree-node:focus > .el-tree-node__content {
@@ -126,15 +173,22 @@ const handleClick = (data: { slug?: unknown }): void => {
   background: var(--sideBarItemHoverBgColor);
 }
 
+/* Element Plus paints `.is-current` from a selector carrying
+   `.el-tree--highlight-current`, so overriding it needs that class too. */
+.side-bar-toc .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background-color: var(--sideBarItemHoverBgColor);
+  color: var(--themeColor);
+}
+
 .side-bar-toc > li {
   font-size: 14px;
   margin-bottom: 15px;
   cursor: pointer;
 }
-.side-bar-toc-overflow {
+.side-bar-toc-overflow .el-tree {
   overflow: auto;
 }
-.side-bar-toc-wordwrap {
+.side-bar-toc-wordwrap .el-tree {
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -143,5 +197,14 @@ const handleClick = (data: { slug?: unknown }): void => {
   white-space: normal;
   height: auto;
   min-height: 26px;
+}
+
+/* Element Plus renders every label as `<el-text truncated>`, which declares
+   `white-space: nowrap` on the label itself — the `normal` above only reaches
+   it by inheritance, which a declaration always beats (#5094, other property). */
+.side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
+  white-space: normal;
+  text-overflow: clip;
+  overflow: visible;
 }
 </style>

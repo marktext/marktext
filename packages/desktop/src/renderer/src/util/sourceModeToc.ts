@@ -1,12 +1,7 @@
-/** Minimal CodeMirror surface `scrollSourceEditorToLine` needs. */
-interface ISourceEditor {
-  setCursor: (
-    pos: { line: number, ch: number },
-    ch?: number | null,
-    options?: { scroll?: boolean }
-  ) => void
-  heightAtLine: (line: number, mode: 'local' | 'page' | 'div') => number
-}
+import type CodeMirror from 'codemirror'
+
+/** The CodeMirror surface `scrollSourceEditorToLine` needs. */
+type ISourceEditor = Pick<CodeMirror.Editor, 'setCursor' | 'heightAtLine'>
 
 /**
  * Scroll the Source Code editor so `line` sits at the TOP of the viewport,
@@ -27,7 +22,8 @@ export function scrollSourceEditorToLine(
   line: number,
   scrollContainer: HTMLElement | null | undefined
 ): void {
-  editor.setCursor({ line, ch: 0 }, null, { scroll: false })
+  // `ch` is a positional filler: CodeMirror ignores it when `pos` is an object.
+  editor.setCursor({ line, ch: 0 }, undefined, { scroll: false })
 
   if (!scrollContainer) return
   const top = editor.heightAtLine(line, 'local')

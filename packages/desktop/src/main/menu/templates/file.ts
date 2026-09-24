@@ -5,6 +5,7 @@ import { isOsx } from '../../config'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
+import { PANDOC_EXPORT_FORMATS } from '../../utils/pandoc'
 
 export default function(
   keybindings: Keybindings,
@@ -166,6 +167,16 @@ export default function(
           click(_menuItem, browserWindow) {
             actions.exportFile(browserWindow as BrowserWindow | undefined, 'pdf')
           }
+        },
+        { type: 'separator' },
+        {
+          label: t('menu.file.convertWithPandoc'),
+          submenu: PANDOC_EXPORT_FORMATS.map((format) => ({
+            label: format.label,
+            click(_menuItem, browserWindow) {
+              actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
+            }
+          }))
         }
       ]
     },

@@ -384,6 +384,19 @@ function cutTableStructure(clipboard: Clipboard): boolean {
     return removeEmptyTableStructure(clipboard);
 }
 
+function replaceRange(block: Content, start: number, end: number, text: string): void {
+    block.text = block.text.substring(0, start) + text + block.text.substring(end);
+    setCursorAndConvert(block, start + text.length);
+}
+
+export function insertTextAtCursor(clipboard: Clipboard, text: string): void {
+    const { anchor, isCollapsed } = clipboard.selection.getSelection() ?? {};
+    if (anchor == null || !isCollapsed)
+        return;
+
+    replaceRange(anchor.block, anchor.offset, anchor.offset, text);
+}
+
 export function cutSelection(clipboard: Clipboard): void {
     // Cut a selected image: the copy half wrote its raw markdown; remove it here.
     const selectedImage = clipboard.selection.image;
@@ -417,15 +430,11 @@ export function cutSelection(clipboard: Clipboard): void {
 
     // Handler `cut` event in the same block.
     if (isSelectionInSameBlock) {
-        const { text } = anchorBlock;
         const startOffset
             = direction === SelectionDirection.FORWARD ? anchor.offset : focus.offset;
         const endOffset = direction === SelectionDirection.FORWARD ? focus.offset : anchor.offset;
 
-        anchorBlock.text
-            = text.substring(0, startOffset) + text.substring(endOffset);
-
-        setCursorAndConvert(anchorBlock, startOffset);
+        replaceRange(anchorBlock, startOffset, endOffset, '');
 
         return;
     }

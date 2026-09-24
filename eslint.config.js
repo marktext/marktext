@@ -42,9 +42,9 @@ export default [
   js.recommended,
   ...neostandard(),
 
-  // 2. typescript-eslint recommended — scoped to TS files only.
-  // .vue files are added to this scope in Commit 8 (when they convert to
-  // lang="ts"). Until then they're treated as JS by section 5.
+  // 2. typescript-eslint recommended — scoped to TS files only. `.vue` cannot
+  // join this scope: it needs `vue-eslint-parser` as the top-level parser, so
+  // section 5 sets that up and opts in to the rules it wants.
   ...tseslint.configs.recommended.map((config) => ({
     ...config,
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts']
@@ -101,8 +101,12 @@ export default [
   ...pluginVue.configs['flat/recommended'],
 
   // 5. Vue files: vue-eslint-parser with delegated TS sub-parser for <script lang="ts">
+  // The plugin has to be registered here too: flat config only exposes a
+  // plugin's rules to files matched by the config object that declares it, and
+  // section 2 is scoped to `.ts`.
   {
     files: ['**/*.vue'],
+    plugins: { '@typescript-eslint': tseslint.plugin },
     languageOptions: {
       parser: vueParser,
       parserOptions: {
@@ -120,6 +124,7 @@ export default [
       globals: { ...globals.browser }
     },
     rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
       'vue/multi-word-component-names': 'off',
       'vue/require-default-prop': 'off'
     }

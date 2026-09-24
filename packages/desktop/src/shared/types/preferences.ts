@@ -45,6 +45,8 @@ export interface IUserPreferences {
   footnote?: boolean
   texMathDollars?: boolean
   texMathGfm?: boolean
+  texMathSingleBackslash?: boolean
+  texMathDoubleBackslash?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string

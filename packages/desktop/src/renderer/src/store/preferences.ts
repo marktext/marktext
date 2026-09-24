@@ -80,6 +80,8 @@ export interface PreferencesState {
   footnote: boolean
   texMathDollars: boolean
   texMathGfm: boolean
+  texMathSingleBackslash: boolean
+  texMathDoubleBackslash: boolean
   isHtmlEnabled: boolean
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
@@ -199,6 +201,8 @@ export const usePreferencesStore = defineStore('preferences', {
     footnote: false,
     texMathDollars: true,
     texMathGfm: false,
+    texMathSingleBackslash: false,
+    texMathDoubleBackslash: false,
     isHtmlEnabled: true,
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',

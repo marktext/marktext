@@ -150,6 +150,26 @@ export function getImageSrc(src: string) {
     }
 }
 
+// The CSS default object size (CSS Images 3 §5.4) a browser falls back to for
+// an image that states no size of its own. An image that carries an aspect
+// ratio is contained inside that box, so one of its two dimensions always
+// lands on the box.
+const DEFAULT_OBJECT_WIDTH = 300;
+const DEFAULT_OBJECT_HEIGHT = 150;
+
+/**
+ * Whether a loaded image's measured size is that fallback rather than a size of
+ * its own — true for an SVG carrying only a `viewBox`. An image that really is
+ * 300px wide (or 150px tall) answers `true` as well; that costs nothing, since
+ * the width callers pin for it is its own intrinsic width.
+ */
+export function usesDefaultObjectSize(width?: number, height?: number): boolean {
+    if (typeof width !== 'number' || typeof height !== 'number')
+        return false;
+
+    return width === DEFAULT_OBJECT_WIDTH || height === DEFAULT_OBJECT_HEIGHT;
+}
+
 export async function loadImage(url: string, detectContentType = false): Promise<{
     url: string;
     width: number;

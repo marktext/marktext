@@ -37,10 +37,12 @@ function buildHtmlOptions(options: Muya['options']) {
         frontMatter = true,
         texMathDollars,
         texMathGfm,
+        texMathSingleBackslash,
+        texMathDoubleBackslash,
         superSubScript,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, superSubScript };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript };
 }
 
 /**

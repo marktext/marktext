@@ -75,6 +75,29 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         expect(items).toEqual(['<li id="fn-1">']);
     });
 
+    it('gives each repeated reference its own id and its own backref arrow', () => {
+        const md = `First [^x]. Again [^x]. Once more [^x].\n\n[^x]: shared body`;
+        const html = renderToStaticHTML(md, PROFILE);
+
+        // `id` must be unique in a document, so occurrences after the first
+        // are suffixed (GFM convention).
+        const ids = [...html.matchAll(/id="(fnref-[^"]+)"/g)].map(m => m[1]);
+        expect(ids).toEqual(['fnref-1', 'fnref-1-2', 'fnref-1-3']);
+
+        // One arrow per occurrence, each reaching its own reference, so every
+        // one of them is navigable — not just the first.
+        const backrefs = [...html.matchAll(/<a href="#(fnref-[^"]+)" class="footnote-backref">([^<]*)<\/a>/g)];
+        expect(backrefs.map(m => m[1])).toEqual(['fnref-1', 'fnref-1-2', 'fnref-1-3']);
+        expect(backrefs.map(m => m[2])).toEqual(['↩', '↩2', '↩3']);
+    });
+
+    it('keeps the plain single arrow when a note is referenced once', () => {
+        const html = renderToStaticHTML('foo[^1]\n\n[^1]: bar', PROFILE);
+
+        const backrefs = [...html.matchAll(/class="footnote-backref">([^<]*)<\/a>/g)];
+        expect(backrefs.map(m => m[1])).toEqual(['↩']);
+    });
+
     it('preserves a footnote definition that contains a nested bullet list inside the <li>', () => {
         const md = `text[^n]\n\n[^n]: intro\n\n    - item a\n    - item b\n`;
         const html = renderToStaticHTML(md, PROFILE);
@@ -103,5 +126,47 @@ describe('renderToStaticHTML — footnote backref list (PR-8c)', () => {
         expect(html).toMatch(/\[\^code-only\]/);
         expect(html).not.toMatch(/<sup class="footnote-ref"[^>]*>[^<]*code-only/);
         expect(html).not.toMatch(/<section class="footnotes">/);
+    });
+
+    it('gives every definition its own <li> when they are packed one per line', () => {
+        const md = 'a[^1] b[^2] c[^3]\n\n[^1]: one\n[^2]: two\n[^3]: three\n';
+        const html = renderToStaticHTML(md, PROFILE);
+
+        for (const n of [1, 2, 3]) {
+            expect(html).toContain(`<li id="fn-${n}">`);
+            expect(html).toMatch(
+                new RegExp(`<sup class="footnote-ref"><a href="#fn-${n}" id="fnref-${n}">${n}</a></sup>`),
+            );
+        }
+        // A swallowed definition would survive as its raw extension output
+        // nested inside the preceding <li>.
+        expect(html).not.toMatch(/<div class="footnote-block"/);
+    });
+
+    it('leaves a backslash-escaped `\\[^x]` as literal text', () => {
+        const html = renderToStaticHTML('foo \\[^1] bar.\n\n[^1]: the note', PROFILE);
+
+        expect(html).toContain('[^1]');
+        expect(html).not.toMatch(/<sup class="footnote-ref"/);
+        // With its only reference escaped the definition is unreferenced, so
+        // it is dropped like any other orphan.
+        expect(html).not.toMatch(/<section class="footnotes">/);
+    });
+
+    it('does not transform a literal `[^x]` that sits inside a code span', () => {
+        const html = renderToStaticHTML('foo `[^1]` bar.\n\n[^1]: the note', PROFILE);
+
+        expect(html).toMatch(/<code>\[\^1\]<\/code>/);
+        expect(html).not.toMatch(/<sup class="footnote-ref"/);
+    });
+
+    it('keeps a `[^x]` written inside a definition body as literal text', () => {
+        // pandoc has no nested references: inside a note the text is literal.
+        const html = renderToStaticHTML('a[^1]\n\n[^1]: see also[^2]\n\n[^2]: second', PROFILE);
+
+        const section = html.match(/<section class="footnotes">[\s\S]*<\/section>/)![0];
+        expect(section).toContain('see also[^2]');
+        // Exactly one reference was made inline, so exactly one entry.
+        expect(section.match(/<li id="fn-\d+">/g)).toEqual(['<li id="fn-1">']);
     });
 });

@@ -81,6 +81,21 @@ export const inlineExtensionRules = {
     // are two characters wide, so the marker arithmetic every consumer does off
     // `marker.length` still lands on the right side of the formula.
     inline_math_gfm: /^(\$`)((?:[^`\\]|\\.)+)`\$/,
+    // pandoc's `tex_math_single_backslash` (#5446). One rule per delimiter pair,
+    // because opener and closer are different strings and so cannot be closed by
+    // a `\1` backreference. Both are two characters wide, so the marker
+    // arithmetic every consumer does off `marker.length` still lands on the far
+    // side of the formula. `\\[^)]` is pandoc's escape rule inside a formula: a
+    // backslash consumes the character behind it, so `\\` is a literal backslash
+    // and `\\)` does not close the span. A newline may sit inside a formula —
+    // pandoc reads `\(a\nb\)` as one — so, unlike the `$…$` rule, none is excluded.
+    inline_math_single_backslash: /^(\\\()((?:[^\\]|\\[^)])+)\\\)/,
+    display_math_single_backslash: /^(\\\[)((?:[^\\]|\\[^\]])+)\\\]/,
+    // pandoc's `tex_math_double_backslash`. The closer is taken literally here,
+    // with none of the escape rule above: pandoc ends the span at the first
+    // `\\)` it sees, so `\\(a\\)b\\)` holds `a` rather than running on.
+    inline_math_double_backslash: /^(\\\\\()((?:(?!\\\\\))[\s\S])+)\\\\\)/,
+    display_math_double_backslash: /^(\\\\\[)((?:(?!\\\\\])[\s\S])+)\\\\\]/,
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,

@@ -65,6 +65,7 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
   - pt-PT
   - pt_BR
   - pt_PT
+  - ru
   - tr
   - zh-CN
   - zh-TW

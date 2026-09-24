@@ -246,3 +246,62 @@ test.describe('diagram via quick-insert menu', () => {
         expect(md.trim().endsWith('```')).toBe(true);
     });
 });
+
+/**
+ * #5023 — a document holding several mermaid blocks renders them concurrently:
+ * every `DiagramPreview` starts its own render as the document mounts. Mermaid
+ * derives the id it stamps on the `<svg>` from `Date.now()` and its renderers
+ * then look that `<svg>` up document-wide, so two diagrams whose renders start
+ * in the same millisecond draw into one element — the earlier block ends up
+ * holding both diagrams superimposed while the later one stays empty.
+ *
+ * Twelve blocks make the millisecond collision near-certain; the assertions are
+ * per-preview so a partial failure names both the victim and the intruder.
+ */
+test.describe('concurrent mermaid diagrams', () => {
+    const DIAGRAM_COUNT = 12;
+
+    const diagramCode = (i: number) =>
+        `flowchart TD\n    A${i}["N${i}-one"] --> B${i}["N${i}-two"]\n    B${i} --> C${i}["N${i}-three"]`;
+
+    test('every diagram renders into its own preview', async ({ page }) => {
+        await page.evaluate((codes) => {
+            window.muya!.setContent(
+                codes.map(text => ({
+                    name: 'diagram',
+                    text,
+                    meta: { lang: 'yaml', type: 'mermaid' },
+                })) as TState[],
+            );
+        }, Array.from({ length: DIAGRAM_COUNT }, (_, i) => diagramCode(i)));
+
+        await expect(page.locator(editor.diagramPreview)).toHaveCount(DIAGRAM_COUNT);
+
+        // Poll until every preview owns its three nodes, so a slow render is
+        // not mistaken for a dropped one.
+        await expect
+            .poll(
+                () => page.evaluate(() =>
+                    Array.from(document.querySelectorAll('.mu-diagram-preview'))
+                        .filter(preview => preview.querySelectorAll('g.node').length === 3)
+                        .length),
+                { timeout: 30_000 },
+            )
+            .toBe(DIAGRAM_COUNT);
+
+        const previews = await page.evaluate(() =>
+            Array.from(document.querySelectorAll('.mu-diagram-preview')).map(preview => ({
+                svgIds: Array.from(preview.querySelectorAll('svg')).map(svg => svg.id),
+                labels: Array.from(preview.querySelectorAll('.nodeLabel'))
+                    .map(label => label.textContent?.trim())
+                    .filter(Boolean),
+            })));
+
+        previews.forEach((preview, i) => {
+            expect(preview.labels.sort()).toEqual([`N${i}-one`, `N${i}-three`, `N${i}-two`]);
+        });
+
+        const svgIds = previews.flatMap(preview => preview.svgIds);
+        expect(new Set(svgIds).size).toBe(svgIds.length);
+    });
+});

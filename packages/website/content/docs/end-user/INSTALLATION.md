@@ -46,14 +46,12 @@ Arch Linux users can install MarkText from the AUR (`marktext-bin`).
 
 ## Verify the download
 
-Every release contains a `latest-<platform>.yml` file with SHA-512 hashes. To verify:
+All artifacts are listed with their SHA-256 in `SHA256SUMS.txt`. Verify with:
 
 ```sh
 # Example on macOS / Linux
-shasum -a 512 marktext-linux-<version>.AppImage
+sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
-
-Compare the value to the entry in `latest-linux.yml` on the release page.
 
 ## Build from source
 

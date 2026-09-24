@@ -3,45 +3,9 @@ import { tmpdir } from 'os'
 import { exec, execFile } from 'child_process'
 import fs from 'fs-extra'
 import { ipcMain } from 'electron'
-import commandExists from 'command-exists'
 import { isImageFile } from 'common/filesystem/paths'
-
-const buildPreferredPathEnv = (): string => {
-  const extras =
-    process.platform === 'darwin'
-      ? ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin', '/bin']
-      : process.platform === 'linux'
-        ? ['/usr/local/bin', '/usr/bin', '/bin']
-        : []
-  const cur = (process.env.PATH || '').split(path.delimiter)
-  const merged = [...cur]
-  for (const p of extras) if (p && !merged.includes(p)) merged.push(p)
-  return merged.filter(Boolean).join(path.delimiter)
-}
-
-const resolvePicgoBinary = (): string | null => {
-  const candidates =
-    process.platform === 'win32'
-      ? ['picgo', 'picgo.exe']
-      : [
-        'picgo',
-        '/opt/homebrew/bin/picgo',
-        '/usr/local/bin/picgo',
-        '/usr/bin/picgo',
-        `${process.env.HOME}/.npm-global/bin/picgo`,
-        `${process.env.HOME}/.npm/bin/picgo`,
-        '/usr/local/lib/node_modules/.bin/picgo'
-      ]
-  for (const c of candidates) {
-    try {
-      if (commandExists.sync(c)) return c
-      if (c.startsWith('/') && fs.pathExistsSync(c)) return c
-    } catch {
-      /* not found */
-    }
-  }
-  return null
-}
+import { ensureShellEnvPath } from '../app/envPath'
+import { resolveCommand } from '../utils/resolveCommand'
 
 // Strip ANSI SGR color codes (CSI parameter ... 'm') from picgo output before
 // trying to parse it. \x1b is the ESC byte.
@@ -87,42 +51,58 @@ const parsePicgoOutput = (text: unknown): string | null => {
   return null
 }
 
-const uploadByPicgo = (localPath: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const cmd = resolvePicgoBinary()
-    if (!cmd) return reject(new Error('PicGo command not found in PATH'))
-    exec(
-      `${cmd} u "${localPath}"`,
-      { env: { ...process.env, PATH: buildPreferredPathEnv() } },
-      (err, stdout, stderr) => {
-        if (err) return reject(err)
-        const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
-        const url = parsePicgoOutput(text)
-        if (url) resolve(url)
-        else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
-      }
-    )
+const uploadByPicgo = async(localPath: string): Promise<string> => {
+  const cmd = await resolveCommand('picgo')
+  if (!cmd) throw new Error('PicGo command not found in PATH')
+  return new Promise((resolve, reject) => {
+    const done = (err: Error | null, stdout: string | Buffer, stderr: string | Buffer) => {
+      if (err) return reject(err)
+      const text = String(stdout || '') + (stderr ? `\n${String(stderr)}` : '')
+      const url = parsePicgoOutput(text)
+      if (url) resolve(url)
+      else reject(new Error(`PicGo upload error: cannot parse output\n${text.slice(0, 400)}`))
+    }
+    if (process.platform === 'win32') {
+      // Left exactly as it was, and still a shell: `picgo` here is a .cmd shim,
+      // which execFile cannot start without a shell, and `shell: true` would be
+      // worse (node joins argv with spaces and escapes nothing). A Windows
+      // filename cannot contain `"`, so the quoting holds against the injection
+      // this branch's POSIX sibling had; `%VAR%` still expands inside quotes
+      // though, so a name like `%TEMP%.png` is mangled. Fixing that needs real
+      // .exe-vs-.cmd resolution and a Windows machine to verify on.
+      exec(`${cmd} u "${localPath}"`, done)
+    } else {
+      // Elsewhere the path goes through as its own argv entry, so quotes, `$`
+      // and backticks in a filename reach picgo verbatim instead of being
+      // re-interpreted by the shell.
+      execFile(cmd, ['u', localPath], done)
+    }
   })
+}
 
-const uploadByCli = (cliScript: string, localPath: string): Promise<string> =>
-  new Promise((resolve, reject) => {
-    execFile(
-      cliScript,
-      [localPath],
-      { env: { ...process.env, PATH: buildPreferredPathEnv() } },
-      (err, data) => {
-        if (err) return reject(err)
-        resolve(String(data || '').trim())
-      }
-    )
+const uploadByCli = async(cliScript: string, localPath: string): Promise<string> => {
+  // The script may call tools only the user's login shell can reach (#5518).
+  await ensureShellEnvPath()
+  return new Promise((resolve, reject) => {
+    execFile(cliScript, [localPath], (err, data) => {
+      if (err) return reject(err)
+      resolve(String(data || '').trim())
+    })
   })
+}
 
+// The file is written into a directory of its own: two clipboard images pasted
+// in the same millisecond would otherwise land on the same `Date.now()` path,
+// so one upload would send the other's bytes and the first one to finish would
+// delete the file the second still needs. The basename stays timestamped
+// because uploaders derive the remote filename from it.
 const writeBinaryToTmp = async(
   data: Uint8Array | number[] | null | undefined,
   suffix: string = ''
 ): Promise<string> => {
   const buf = data instanceof Uint8Array ? Buffer.from(data) : Buffer.from(data || [])
-  const tmpPath = path.join(tmpdir(), `${Date.now()}${suffix}`)
+  const dir = await fs.mkdtemp(path.join(tmpdir(), 'marktext-upload-'))
+  const tmpPath = path.join(dir, `${Date.now()}${suffix}`)
   await fs.writeFile(tmpPath, buf)
   return tmpPath
 }
@@ -153,7 +133,7 @@ const uploadFromBuffer = async(
   const suffix = path.extname(name || '') || ''
   const localPath = await writeBinaryToTmp(data, suffix)
   const cleanup = () =>
-    fs.unlink(localPath).catch(() => {
+    fs.remove(path.dirname(localPath)).catch(() => {
       /* ignore */
     })
   try {

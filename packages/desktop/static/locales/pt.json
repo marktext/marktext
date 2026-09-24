@@ -24,6 +24,7 @@
       "export": "Exportar",
       "exportHtml": "Exportar como HTML",
       "exportPdf": "Exportar como PDF",
+      "convertWithPandoc": "Converter com o Pandoc",
       "import": "Importar",
       "print": "Imprimir",
       "closeTab": "Fechar Aba",
@@ -415,6 +416,8 @@
         "footnote": "Habilitar extensão markdown do pandoc para nota de rodapé",
         "texMathDollars": "Ativar a extensão markdown do pandoc tex_math_dollars",
         "texMathGfm": "Ativar a extensão markdown do pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Ativar a extensão markdown do pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Ativar a extensão markdown do pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Habilitar renderização HTML",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "sequenceTheme": "Tema do diagrama de sequência",
@@ -509,7 +512,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -640,6 +644,8 @@
         "footnoteNotes": "Notas de rodapé",
         "texMathDollars": "Matemática TeX com $ e $$",
         "texMathGfm": "Matemática TeX do GitHub ($`…`$ e ```math)",
+        "texMathSingleBackslash": "Matemática TeX com barra invertida simples",
+        "texMathDoubleBackslash": "Matemática TeX com barra invertida dupla",
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",
@@ -899,7 +905,9 @@
     "fileExists": "O arquivo já existe: {filename}",
     "files": "Arquivos",
     "importWarning": "Aviso de importação",
-    "installPandoc": "Instalar Pandoc",
+    "installPandoc": "Pandoc não foi encontrado. Instale-o, ou defina a variável de ambiente MARKTEXT_PANDOC com o caminho do executável do pandoc e reinicie o MarkText.",
+    "exportWarning": "Aviso de exportação",
+    "exportWarningMore": "…e mais {count}",
     "keepOpen": "Manter aberto",
     "replace": "Substituir",
     "save": "Salvar",
@@ -939,6 +947,7 @@
       "errorWhileSaving": "Ocorreu um erro ao salvar: {msg}",
       "exportSuccessTitle": "Exportado com sucesso",
       "exportSuccessMessage": "“{name}” foi exportado com sucesso!",
+      "exportLinkedMediaMessage": "\"{name}\" foi exportado. Este formato liga as imagens em vez de incorporá-las: mantenha as imagens junto do arquivo e compartilhe a pasta inteira.",
       "fileRemovedOnDisk": "“{name}” foi removido no disco.",
       "fileChangedOnDisk": "“{name}” foi alterado no disco. Deseja recarregar?"
     }

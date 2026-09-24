@@ -26,6 +26,8 @@ describe('GFM 0.29-gfm spec conformance', () => {
                 texMathDollars: false,
                 superSubScript: false,
                 texMathGfm: false,
+                texMathSingleBackslash: false,
+                texMathDoubleBackslash: false,
                 frontMatter: false,
                 // Bypass DOMPurify — see commonmark.spec.ts for rationale.
                 sanitize: false,

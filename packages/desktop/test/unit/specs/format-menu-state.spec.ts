@@ -23,7 +23,6 @@ vi.mock('main_renderer/i18n', () => ({ t: (key: string) => key }))
 
 import { createSelectionFormatState } from '@/store/editor'
 import { updateFormatMenu } from 'main_renderer/menu/actions/format'
-// @ts-expect-error deep @muyajs/core subpath resolves at runtime (vite) but exposes no types
 import inlineFormatIcons from '@muyajs/core/ui/inlineFormatToolbar/config'
 import keybindingsWindows from 'main_renderer/keyboard/keybindingsWindows'
 import keybindingsLinux from 'main_renderer/keyboard/keybindingsLinux'

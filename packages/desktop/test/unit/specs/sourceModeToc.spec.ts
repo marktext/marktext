@@ -73,13 +73,13 @@ describe('scrollSourceEditorToLine', () => {
     // the OUTER container is scrolled so that Y sits at the top, animated
     expect(containerScrollTo).toHaveBeenCalledWith({ top: 480, behavior: 'smooth' })
     // caret moved without its native scroll fighting the animation
-    expect(setCursor).toHaveBeenCalledWith({ line: 12, ch: 0 }, null, { scroll: false })
+    expect(setCursor).toHaveBeenCalledWith({ line: 12, ch: 0 }, undefined, { scroll: false })
   })
 
   it('still places the caret but does not throw when no container is given', () => {
     const { editor, setCursor, heightAtLine } = makeEditor()
     scrollSourceEditorToLine(editor, 5, null)
-    expect(setCursor).toHaveBeenCalledWith({ line: 5, ch: 0 }, null, { scroll: false })
+    expect(setCursor).toHaveBeenCalledWith({ line: 5, ch: 0 }, undefined, { scroll: false })
     expect(heightAtLine).not.toHaveBeenCalled()
   })
 })

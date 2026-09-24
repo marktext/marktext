@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick, markRaw } from 'vue'
+import { ref, shallowRef, reactive, watch, onMounted, onBeforeUnmount, nextTick, markRaw } from 'vue'
 import log from 'electron-log'
 import {
   Muya,
@@ -99,18 +99,13 @@ import {
   TableDragBar,
   TableRowColumMenu,
   wordCount as muyaWordCount,
-  en,
-  de,
-  es,
-  fr,
-  ja,
-  ko,
-  pt,
-  tr,
-  zhCN,
-  zhTW,
-  type ILocale
+  type IHistorySelection,
+  type IMuyaOptions,
+  type IReplaceOption,
+  type ISearchOption,
+  type ISerializedHistory
 } from '@muyajs/core'
+import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
@@ -125,7 +120,12 @@ import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
 import { getCssForOptions, getHtmlToc, type PdfCssOptions, type HtmlTocOptions } from '@/util/pdf'
-import { getTocHeadingScrollTop, resolveTocHeadingElement } from '@/util/tocNavigation'
+import {
+  getTocHeadingScrollTop,
+  resolveTocHeadingElement,
+  TOP_LEVEL_HEADINGS_SELECTOR
+} from '@/util/tocNavigation'
+import { findActiveHeadingSlug, type HeadingPosition } from '@/util/findActiveHeading'
 import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
@@ -146,22 +146,6 @@ import { type InputNumberInstance } from 'element-plus'
 const { t } = useI18n()
 const STANDAR_Y = 320
 
-// Map the desktop language preference to the engine's bundled locale objects.
-const MUYA_LOCALES: Record<string, ILocale> = {
-  en,
-  de,
-  es,
-  fr,
-  ja,
-  ko,
-  pt,
-  tr,
-  'zh-CN': zhCN,
-  'zh-TW': zhTW
-}
-
-const getMuyaLocale = (language: string): ILocale => MUYA_LOCALES[language] ?? en
-
 // `Muya.use(...)` appends to the static `Muya.plugins` array, and every
 // `init()` instantiates the full list. Registration is process-global, so guard
 // it with a module-level flag — otherwise remounting this component in the same
@@ -169,11 +153,6 @@ const getMuyaLocale = (language: string): ILocale => MUYA_LOCALES[language] ?? e
 // duplicate UI handlers. The per-plugin option closures (imageAction/jumpClick)
 // only read app-singleton Pinia stores, so capturing them once is correct.
 let muyaPluginsRegistered = false
-
-// The `@muyajs/core` `Muya` surface is deliberately permissive (`[key: string]:
-// any` in muya-core.d.ts); everything that crosses the editor boundary leans on
-// it, so the instance handle stays `any` until the engine ships built typings.
-type MuyaInstance = any
 
 // The engine's `selection-change` / `json-change` payload. The consumed
 // `@muyajs/core` declaration does not re-export this shape, so describe the
@@ -222,6 +201,8 @@ const {
   footnote,
   texMathDollars,
   texMathGfm,
+  texMathSingleBackslash,
+  texMathDoubleBackslash,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -262,12 +243,19 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 const { projectTree } = storeToRefs(projectStore)
 
 // Component state
+// The preferences store keeps `sequenceTheme` a free-form string because it is
+// read back from disk; the engine accepts only its two known values.
+const toSequenceTheme = (value: string): IMuyaOptions['sequenceTheme'] =>
+  value as IMuyaOptions['sequenceTheme']
+
 const defaultFontFamily = DEFAULT_EDITOR_FONT_FAMILY
 const resolveEditorFont = (family: string): string =>
   family ? `${family}, ${defaultFontFamily}` : defaultFontFamily
 const resolveCodeFont = (family: string): string => `${family}, ${DEFAULT_CODE_FONT_FAMILY}`
 const selectionChange = ref<unknown>(null)
-const editor = ref<MuyaInstance>(null)
+// `shallowRef`: the engine instance is `markRaw`d anyway, and a deep ref
+// would map `Muya` through `UnwrapRef` and lose the class's own type.
+const editor = shallowRef<Muya | null>(null)
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
 const imageViewerVisible = ref<boolean | null>(null)
@@ -283,7 +271,7 @@ const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
 let printer: Printer | null = null
-let spellchecker: any = null
+let spellchecker: SpellChecker | null = null
 let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
@@ -294,7 +282,7 @@ let scrollHandler: ((e: Event) => void) | null = null
 // is migrated separately). We therefore keep the real engine history in a
 // per-tab map here for restoration across in-session tab switches, and feed the
 // store a SYNTHETIC desktop-shaped history.
-const engineHistoryByTab = new Map<string, unknown>()
+const engineHistoryByTab = new Map<string, ISerializedHistory>()
 
 // The WYSIWYG caret captured the instant the user switches INTO source mode.
 // Focus moves to CodeMirror while source mode is up, so by the time the tab is
@@ -302,7 +290,7 @@ const engineHistoryByTab = new Map<string, unknown>()
 // the muya tree. We stash the pre-source caret here and feed it to
 // `replaceContent` as the rebuild boundary's restore-selection, so the first
 // undo after the handoff returns the caret to where source mode was entered.
-let preSourceModeSelection: unknown = null
+let preSourceModeSelection: IHistorySelection | null = null
 
 // Per-tab monotonic save-tracking id allocator. The synthetic history entry id
 // is a MONOTONIC, never-reused id keyed on the live document content (see
@@ -577,6 +565,14 @@ watch(sourceCode, (isSource) => {
   })
 })
 
+// nextTick: the rebuilt headings have to be in the DOM before we pair them up.
+watch(
+  () => editorStore.listToc,
+  () => {
+    nextTick(rebuildHeadingCache)
+  }
+)
+
 watch(fontSize, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ fontSize: value })
@@ -634,7 +630,7 @@ watch(theme, (value, oldValue) => {
 
 watch(sequenceTheme, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ sequenceTheme: value }, true)
+    editor.value.setOptions({ sequenceTheme: toSequenceTheme(value) }, true)
   }
 })
 
@@ -683,6 +679,18 @@ watch(isHtmlEnabled, (value, oldValue) => {
 watch(texMathGfm, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ texMathGfm: value }, true)
+  }
+})
+
+watch(texMathSingleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathSingleBackslash: value }, true)
+  }
+})
+
+watch(texMathDoubleBackslash, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ texMathDoubleBackslash: value }, true)
   }
 })
 
@@ -799,21 +807,21 @@ watch(hideScrollbar, (value, oldValue) => {
 })
 
 watch(spellcheckerEnabled, (value, oldValue) => {
-  if (value !== oldValue) {
-    // Set Muya's spellcheck container attribute.
-    editor.value.setOptions({ spellcheckEnabled: value })
+  if (value === oldValue) return
 
-    // Disable native spell checker
-    if (value) {
-      spellchecker.activateSpellchecker(spellcheckerLanguage.value)
-    } else {
-      spellchecker.deactivateSpellchecker()
-    }
+  // Set Muya's spellcheck container attribute.
+  editor.value?.setOptions({ spellcheckEnabled: value })
+
+  // Disable native spell checker
+  if (value) {
+    spellchecker?.activateSpellchecker(spellcheckerLanguage.value)
+  } else {
+    spellchecker?.deactivateSpellchecker()
   }
 })
 
 watch(spellcheckerNoUnderline, (value, oldValue) => {
-  if (value !== oldValue) {
+  if (value !== oldValue && editor.value) {
     // Hide only the spelling squiggle; the native checker (and its right-click
     // suggestions) stays controlled by `spellcheckerEnabled`.
     editor.value.setOptions({ spellcheckHideMarks: value })
@@ -821,7 +829,7 @@ watch(spellcheckerNoUnderline, (value, oldValue) => {
 })
 
 watch(spellcheckerLanguage, (value, oldValue) => {
-  if (value !== oldValue) {
+  if (value !== oldValue && spellchecker) {
     spellchecker.lang = value
   }
 })
@@ -1065,29 +1073,27 @@ const setImageViewerVisible = (status: boolean) => {
 }
 
 const switchSpellcheckLanguage = (languageCode: unknown) => {
-  const { isEnabled } = spellchecker
-
   // This method is also called from bus, so validate state before continuing.
-  if (!isEnabled) {
+  if (!spellchecker?.isEnabled) {
     throw new Error(t('editor.spellcheck.disabledError'))
   }
 
+  const lang = languageCode as string
+
   spellchecker
-    .switchLanguage(languageCode)
-    .then((langCode: string | null | undefined) => {
-      if (!langCode) {
+    .switchLanguage(lang)
+    .then((switched: boolean) => {
+      if (!switched) {
         // Unable to switch language due to missing dictionary. The spell checker is now in an invalid state.
         notice.notify({
           title: t('editor.spellcheck.title'),
           type: 'warning',
-          message: t('editor.spellcheck.languageMissing', { languageCode: languageCode as string })
+          message: t('editor.spellcheck.languageMissing', { languageCode: lang })
         })
       }
     })
     .catch((error: unknown) => {
-      log.error(
-        t('editor.spellcheck.errorSwitchingLanguage', { languageCode: languageCode as string })
-      )
+      log.error(t('editor.spellcheck.errorSwitchingLanguage', { languageCode: lang }))
       log.error(error)
 
       const errMsg = (error as { message?: string } | null | undefined)?.message ?? String(error)
@@ -1095,7 +1101,7 @@ const switchSpellcheckLanguage = (languageCode: unknown) => {
         title: t('editor.spellcheck.title'),
         type: 'error',
         message: t('editor.spellcheck.switchError', {
-          languageCode: languageCode as string,
+          languageCode: lang,
           error: errMsg
         })
       })
@@ -1178,7 +1184,7 @@ const handleCopyPaste = (type: unknown) => {
 
 const insertImage = (src: unknown) => {
   if (!sourceCode.value) {
-    editor.value && editor.value.insertImage({ src })
+    editor.value && editor.value.insertImage({ src: src as string })
   }
 }
 
@@ -1200,13 +1206,15 @@ const toSearchMatches = (result: unknown) => {
 }
 
 const handleSearch = (payload: unknown) => {
-  const { value, opt } = payload as { value: string; opt: unknown }
+  if (!editor.value) return
+  const { value, opt } = payload as { value: string; opt?: ISearchOption }
   editorStore.SEARCH(toSearchMatches(editor.value.search(value, opt)))
   scrollToHighlight()
 }
 
 const handReplace = (payload: unknown) => {
-  const { value, opt } = payload as { value: string; opt: unknown }
+  if (!editor.value) return
+  const { value, opt } = payload as { value: string; opt?: IReplaceOption }
   editorStore.SEARCH(toSearchMatches(editor.value.replace(value, opt)))
 }
 
@@ -1237,6 +1245,44 @@ const getCursorY = (): number | null => {
     rects = parent ? parent.getClientRects() : rects
   }
   return rects.length ? rects[0].y : null
+}
+
+// Only the slug-to-element pairing is cached. Positions are not: typing body
+// text moves every later heading without changing the TOC, so a stored offset
+// is stale within a keystroke and the highlight lands a section ahead.
+interface CachedHeading {
+  slug: string
+  el: HTMLElement
+}
+
+let headingElementCache: CachedHeading[] = []
+
+const rebuildHeadingCache = (): void => {
+  const container = getScrollContainer()
+  if (!container || editorStore.listToc.length === 0) {
+    headingElementCache = []
+    return
+  }
+  const headingEls = container.querySelectorAll(TOP_LEVEL_HEADINGS_SELECTOR)
+  headingElementCache = editorStore.listToc
+    .map((item, index) => {
+      const el = headingEls[index] as HTMLElement | undefined
+      if (!el || typeof item.slug !== 'string') return null
+      return { slug: item.slug, el }
+    })
+    .filter((entry): entry is CachedHeading => entry != null)
+}
+
+// Measured with `getBoundingClientRect`, not `offsetTop`: the caret's position
+// is fractional, and rounding the headings to whole pixels reports the one the
+// caret sits in as the heading above it.
+const updateActiveHeading = (viewportY: number): void => {
+  if (headingElementCache.length === 0) return
+  const positions: HeadingPosition[] = headingElementCache.map(({ slug, el }) => ({
+    slug,
+    top: el.getBoundingClientRect().top
+  }))
+  editorStore.SET_ACTIVE_HEADING(findActiveHeadingSlug(positions, viewportY))
 }
 
 const scrollToCursor = (duration = 300) => {
@@ -1313,7 +1359,8 @@ const scrollToElement = (selector: string) => {
 }
 
 const handleFindAction = (action: unknown) => {
-  editorStore.SEARCH(toSearchMatches(editor.value.find(action)))
+  if (!editor.value) return
+  editorStore.SEARCH(toSearchMatches(editor.value.find(action as Parameters<Muya['find']>[0])))
   scrollToHighlight()
 }
 
@@ -1338,16 +1385,19 @@ const handleExport = async (options: unknown) => {
     throw new Error(`Invalid type to export: "${type}".`)
   }
 
+  const muya = editor.value
+  if (!muya) return
+
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
-  const htmlToc = getHtmlToc(editor.value.getTOC(), opts as unknown as HtmlTocOptions)
-  const markdown = editor.value.getMarkdown()
+  const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
+  const markdown = muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
   switch (type) {
     case 'styledHtml': {
       try {
-        const content = await exportStyledHTML(editor.value, markdown, {
+        const content = await exportStyledHTML(muya, markdown, {
           title: htmlTitle || '',
           printOptimization: false,
           extraCss,
@@ -1377,7 +1427,7 @@ const handleExport = async (options: unknown) => {
           isLandscape
         }
 
-        const html = await exportStyledHTML(editor.value, markdown, {
+        const html = await exportStyledHTML(muya, markdown, {
           title: '',
           printOptimization: true,
           extraCss,
@@ -1403,7 +1453,7 @@ const handleExport = async (options: unknown) => {
     case 'print': {
       // NOTE: Print doesn't support page size or orientation.
       try {
-        const html = await exportStyledHTML(editor.value, markdown, {
+        const html = await exportStyledHTML(muya, markdown, {
           title: '',
           printOptimization: true,
           extraCss,
@@ -1464,7 +1514,7 @@ const handleEditParagraph = (type: unknown) => {
       rowInput.value?.focus()
     })
   } else if (editor.value) {
-    editor.value.updateParagraph(type)
+    editor.value.updateParagraph(type as string)
     // Re-sync the menu so a no-op action (e.g. "Paragraph" inside a list/quote)
     // does not leave the clicked checkbox item checked. A real conversion fires
     // its own selection-change, which resyncs again.
@@ -1500,7 +1550,7 @@ const handleInlineFormat = (type: unknown) => {
   if (sourceCode.value) {
     return
   }
-  editor.value && editor.value.format(type)
+  editor.value && editor.value.format(type as string)
 }
 
 const handleDialogTableConfirm = () => {
@@ -1675,7 +1725,7 @@ const handleFileChange = (payload: unknown) => {
 }
 
 const handleInsertParagraph = (location: unknown) => {
-  editor.value && editor.value.insertParagraph(location)
+  editor.value && editor.value.insertParagraph(location as Parameters<Muya['insertParagraph']>[0])
 }
 
 const blurEditor = () => {
@@ -1786,7 +1836,7 @@ onMounted(() => {
     Muya.use(TableRowColumMenu)
   }
 
-  const options: Record<string, unknown> = {
+  const options: Partial<IMuyaOptions> = {
     focusMode: focus.value,
     markdown: props.markdown,
     locale: getMuyaLocale(language.value),
@@ -1811,12 +1861,14 @@ onMounted(() => {
     footnote: footnote.value,
     texMathDollars: texMathDollars.value,
     texMathGfm: texMathGfm.value,
+    texMathSingleBackslash: texMathSingleBackslash.value,
+    texMathDoubleBackslash: texMathDoubleBackslash.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
     hideLinkPopup: hideLinkPopup.value,
     autoCheck: autoCheck.value,
-    sequenceTheme: sequenceTheme.value,
+    sequenceTheme: toSequenceTheme(sequenceTheme.value),
     plantumlServer: preferencesStore.plantumlServer,
     spellcheckEnabled: spellcheckerEnabled.value,
     spellcheckHideMarks: spellcheckerNoUnderline.value,
@@ -1998,6 +2050,10 @@ onMounted(() => {
   editor.value.on('selection-change', (changes: MuyaChange) => {
     const y = (changes.cursorCoords?.y ?? null) as number | null
     if (y != null) {
+      // Before the scrolling below: a 0-duration `animatedScrollTo` assigns
+      // `scrollTop` at once, moving the headings out from under `y`.
+      updateActiveHeading(y)
+
       if (typewriter.value) {
         const startPosition = container.scrollTop
         const toPosition = startPosition + y - STANDAR_Y
@@ -2021,7 +2077,9 @@ onMounted(() => {
     }
 
     selectionChange.value = changes
-    if (!sourceCode.value) setSelectionWordCountFromText(editor.value.getSelectedText())
+    if (!sourceCode.value && editor.value) {
+      setSelectionWordCountFromText(editor.value.getSelectedText())
+    }
     // Persist the caret so a click/arrow-key move (which never fires
     // `json-change`) survives an in-session tab switch — `tab.cursor` is what
     // `handleFileChange` replays on re-activation. Cheap: serialized caret only.

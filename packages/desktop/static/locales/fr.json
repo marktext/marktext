@@ -24,6 +24,7 @@
       "export": "Exporter",
       "exportHtml": "Exporter en HTML",
       "exportPdf": "Exporter en PDF",
+      "convertWithPandoc": "Convertir avec Pandoc",
       "import": "Importer",
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
@@ -415,6 +416,8 @@
         "footnote": "Activer l'extension markdown de pandoc pour note de bas de page",
         "texMathDollars": "Activer l'extension markdown de pandoc tex_math_dollars",
         "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
+        "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
+        "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
         "isHtmlEnabled": "Activer le rendu HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
@@ -509,7 +512,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -640,6 +644,8 @@
         "footnoteNotes": "Notes de bas de page",
         "texMathDollars": "Maths TeX avec $ et $$",
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
+        "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
+        "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",
@@ -899,7 +905,9 @@
     "fileExists": "Le fichier existe déjà : {filename}",
     "files": "Fichiers",
     "importWarning": "Avertissement d'importation",
-    "installPandoc": "Installer Pandoc",
+    "installPandoc": "Pandoc est introuvable. Installez-le, ou définissez la variable d'environnement MARKTEXT_PANDOC sur le chemin du binaire pandoc, puis redémarrez MarkText.",
+    "exportWarning": "Avertissement d'exportation",
+    "exportWarningMore": "…et {count} de plus",
     "keepOpen": "Garder ouvert",
     "replace": "Remplacer",
     "save": "Enregistrer",
@@ -939,6 +947,7 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement : {msg}",
       "exportSuccessTitle": "Exportation réussie",
       "exportSuccessMessage": "« {name} » a été exporté avec succès !",
+      "exportLinkedMediaMessage": "« {name} » a été exporté. Ce format lie les images au lieu de les intégrer : gardez les images à côté du fichier et partagez le dossier entier.",
       "fileRemovedOnDisk": "« {name} » a été supprimé du disque.",
       "fileChangedOnDisk": "« {name} » a été modifié sur le disque. Voulez-vous le recharger ?"
     }

@@ -18,6 +18,8 @@ function roundTrip(md: string): string {
         footnote: false,
         texMathDollars: true,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);
@@ -29,6 +31,8 @@ function parse(md: string) {
         footnote: false,
         texMathDollars: true,
         texMathGfm: false,
+        texMathSingleBackslash: false,
+        texMathDoubleBackslash: false,
         trimUnnecessaryCodeBlockEmptyLines: false,
         frontMatter: true,
     }).generate(md);

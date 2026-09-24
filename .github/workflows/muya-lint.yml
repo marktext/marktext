@@ -26,3 +26,14 @@ jobs:
 
       - name: Run TypeScript typecheck (muya)
         run: pnpm -C packages/muya lint:types
+
+      # The desktop package type-checks against these emitted declarations, so
+      # a change that only breaks declaration emit has to fail here.
+      - name: Check declaration emit (muya)
+        run: pnpm -C packages/muya build:types
+
+      # Lint.yml skips the desktop typecheck on muya-only PRs (paths-ignore),
+      # which is exactly the PR that can break this consumer. Run it here, on
+      # the declarations emitted above.
+      - name: Typecheck the desktop against those declarations
+        run: pnpm --filter marktext exec vue-tsc --noEmit -p tsconfig.json

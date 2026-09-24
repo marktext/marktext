@@ -352,6 +352,15 @@ export const MUYA_DEFAULT_OPTIONS = {
     // pandoc's `tex_math_gfm`: GitHub's `` $`…`$ `` and ```` ```math ````.
     // Off by default, as in pandoc, where only tex_math_dollars ships enabled.
     texMathGfm: false,
+    // pandoc's `tex_math_single_backslash`: `\(…\)` inline and `\[…\]` display.
+    // Off by default, as in pandoc, where it is a non-default extension: turning
+    // it on precludes escaping `(` and `[`, so `- \[TODO\]` reads as a formula.
+    texMathSingleBackslash: false,
+    // pandoc's `tex_math_double_backslash`: `\\(…\\)` inline and `\\[…\\]`
+    // display. Off by default, as in pandoc. Combinable with the single-backslash
+    // extension: the two openers cannot collide, `\\(` carrying a backslash where
+    // `\(` carries the parenthesis.
+    texMathDoubleBackslash: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.

@@ -24,6 +24,7 @@
       "export": "エクスポート",
       "exportHtml": "HTML としてエクスポート",
       "exportPdf": "PDF としてエクスポート",
+      "convertWithPandoc": "Pandoc で変換",
       "import": "インポート",
       "print": "印刷",
       "closeTab": "タブを閉じる",
@@ -415,6 +416,8 @@
         "footnote": "Pandoc の markdown 拡張脚注を有効にする",
         "texMathDollars": "Pandoc の markdown 拡張 tex_math_dollars を有効にする",
         "texMathGfm": "Pandoc の markdown 拡張 tex_math_gfm を有効にする",
+        "texMathSingleBackslash": "Pandoc の markdown 拡張 tex_math_single_backslash を有効にする",
+        "texMathDoubleBackslash": "Pandoc の markdown 拡張 tex_math_double_backslash を有効にする",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -509,7 +512,8 @@
           "korean": "한국어",
           "dutch": "Nederlands",
           "portuguese": "Português",
-          "turkish": "Türkçe"
+          "turkish": "Türkçe",
+          "russian": "Русский"
         }
       }
     },
@@ -640,6 +644,8 @@
         "footnoteNotes": "脚注",
         "texMathDollars": "$ と $$ による TeX 数式",
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
+        "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
+        "texMathDoubleBackslash": "二重バックスラッシュの TeX 数式",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",
@@ -899,7 +905,9 @@
     "fileExists": "ファイルが既に存在します: {filename}",
     "files": "ファイル",
     "importWarning": "インポート警告",
-    "installPandoc": "Pandoc をインストール",
+    "installPandoc": "Pandoc が見つかりません。インストールするか、環境変数 MARKTEXT_PANDOC に pandoc の実行ファイルのパスを設定して MarkText を再起動してください。",
+    "exportWarning": "エクスポートの警告",
+    "exportWarningMore": "…ほか {count} 件",
     "keepOpen": "開いたままにする",
     "replace": "置換",
     "save": "保存",
@@ -939,6 +947,7 @@
       "errorWhileSaving": "保存中にエラーが発生しました : {msg}",
       "exportSuccessTitle": "エクスポートに成功",
       "exportSuccessMessage": "「{name}」を正常にエクスポートしました！",
+      "exportLinkedMediaMessage": "「{name}」をエクスポートしました。この形式は画像を埋め込まずファイル参照のままにするため、画像をファイルと同じ場所に置き、フォルダごと共有してください。",
       "fileRemovedOnDisk": "「{name}」はディスク上で削除されました。",
       "fileChangedOnDisk": "「{name}」はディスク上で変更されました。再読み込みしますか？"
     }

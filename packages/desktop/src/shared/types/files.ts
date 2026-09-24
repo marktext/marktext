@@ -171,3 +171,17 @@ export interface PageOptions {
 }
 
 export type ExportType = 'pdf' | 'html' | 'styledHtml' | 'png' | 'jpeg'
+
+/** Current document handed to the main process for a pandoc export. */
+export interface PandocExportPayload {
+  /** One of `PANDOC_EXPORT_FORMATS[].id`. */
+  target: string
+  markdown: string
+  /** Names the output when the tab has no path yet. */
+  title: string
+  /** Folder pandoc resolves the document's relative links against. */
+  pathname: string
+  /** Reader preferences only the renderer knows; see `getPandocReader`. */
+  superSubScript: boolean
+  footnote: boolean
+}

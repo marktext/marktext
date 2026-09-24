@@ -5,15 +5,37 @@ import diff from 'fast-diff';
 import { diffToTextOp, firstWordOfInfo } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import logger from '../../../utils/logger';
-import { loadLanguage } from '../../../utils/prism';
+import { loadedLanguages, loadLanguage, transformAliasToOrigin } from '../../../utils/prism';
 import Parent from '../../base/parent';
 import { ScrollPage } from '../../scrollPage';
 
 const debug = logger('codeblock:');
 
+/**
+ * The grammar a block with this info string will actually be highlighted with,
+ * or `''` when it will render as plain text.
+ *
+ * Mirrors the lookup in `CodeBlockContent.update()` — the two have to agree, or
+ * the setter's "did the rendering change" check reads a different answer than
+ * the renderer acts on.
+ */
+function renderedGrammarFor(infoString: string): string {
+    const language = firstWordOfInfo(infoString);
+    if (!language)
+        return '';
+    const resolved = transformAliasToOrigin([language])[0];
+
+    return resolved && loadedLanguages.has(resolved) ? resolved : '';
+}
+
 class CodeBlock extends Parent {
     public meta: ICodeBlockState['meta'];
     static override blockName = 'code-block';
+
+    // The grammar the content was last rendered with, so a language change that
+    // does not change the rendering skips the rebuild. Undefined until the
+    // first render, which therefore always happens.
+    private _renderedGrammar: string | undefined;
 
     static create(muya: Muya, state: ICodeBlockState) {
         const codeBlock = new CodeBlock(muya, state);
@@ -72,24 +94,39 @@ class CodeBlock extends Parent {
             operateClassName(this.domNode!, 'add', 'mu-fenced-code');
         }
 
+        // Render when the grammar the block is drawn with changes — including
+        // to none, which is what clearing the language or naming one Prism does
+        // not have amounts to. Those two used to render nothing at all and left
+        // the previous grammar's markup on screen (#5515).
+        //
+        // The load `status` cannot stand in for this. It reports whether the
+        // grammar reached `loadedLanguages`, i.e. whether the block *will*
+        // highlight — not whether that differs from what it already shows. The
+        // language input calls this setter on every keystroke, so typing a name
+        // Prism does not have walks a run of unknown prefixes that must render
+        // once, not once each.
+        const rerenderIfGrammarChanged = () => {
+            const grammar = renderedGrammarFor(this.meta.lang ?? '');
+            if (grammar === this._renderedGrammar)
+                return;
+
+            this._renderedGrammar = grammar;
+            this.lastContentInDescendant()?.update();
+        };
+
         // `value` is the full info string; load Prism for its first word only.
         const language = firstWordOfInfo(value);
-        !!language
-        && loadLanguage(language)
-            .then((infoList) => {
-                if (!Array.isArray(infoList))
-                    return;
-                // There are three status `loaded`, `noexist` and `cached`.
-                // if the status is `loaded`, indicated that it's a new loaded language
-                const needRender = infoList.some(
-                    ({ status }) => status === 'loaded' || status === 'cached',
-                );
-                if (needRender)
-                    this.lastContentInDescendant()?.update();
-            })
+        if (!language) {
+            rerenderIfGrammarChanged();
+
+            return;
+        }
+
+        loadLanguage(language)
+            .then(rerenderIfGrammarChanged)
             .catch((err) => {
-                // if no parameter provided, will cause error.
                 debug.warn(err);
+                rerenderIfGrammarChanged();
             });
     }
 

@@ -49,6 +49,7 @@
         "lint:types": "tsc --noEmit",
         "check-circular": "madge --circular src/index.ts",
         "build": "tsc && vite build",
+        "build:types": "tsc -p tsconfig.build.json",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:spec": "vitest run --config vitest.spec.config.ts",

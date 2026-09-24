@@ -30,9 +30,6 @@ declare module 'codemirror/addon/*'
 declare module 'electron-window-state'
 declare module 'plist'
 declare module 'webfontloader'
-declare module 'minimatch' {
-  export function minimatch(target: string, pattern: string, options?: unknown): boolean
-}
 
 declare module '@marktext/file-icons' {
   interface FileIcon {
