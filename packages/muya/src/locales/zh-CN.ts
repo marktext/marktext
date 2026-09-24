@@ -42,6 +42,11 @@ export const zhCN = {
         'Search keyword...': '搜索关键字...',
         'Type / to insert...': '输入 / 插入段落',
         'Copy anchor link to this heading': '复制此标题的锚点链接',
+        'Fold this section': '折叠此部分',
+        'Unfold this section': '展开此部分',
+        'Fold all': '全部折叠',
+        'Unfold all': '全部展开',
+        'Fold to this level': '折叠到此级别',
         'Click to add an image': '点击添加图片',
         'Load image failed': '图片加载失败',
         // formatPicker
