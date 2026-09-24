@@ -743,6 +743,18 @@ figure.mu-math-block .mu-math-preview .katex-display::-webkit-scrollbar {
     height: 6px;
 }
 
+.katex-display > .katex > .katex-html:has(> .tag) {
+    width: max-content;
+    min-width: 100%;
+}
+
+.katex-display > .katex > .katex-html > .tag {
+    position: static;
+
+    float: right;
+    margin-left: 1em;
+}
+
 /* to prevent plantuml img overflow */
 figure.mu-diagram-block .mu-diagram-preview img {
     max-width: 100%;
