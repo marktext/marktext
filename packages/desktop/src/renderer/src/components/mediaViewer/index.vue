@@ -253,6 +253,10 @@ const copy = async () => {
     const written = await window.electron.clipboard.writeImage(image.data)
     if (!written) throw new Error('The clipboard rejected the image')
 
+    // The export is asynchronous, so the button this would tick may by now
+    // belong to a different diagram — or to none.
+    if (diagram.value !== source) return
+
     // The cursor is already on the button, so confirm there rather than in a
     // notification the reader has to look away for.
     copied.value = true
