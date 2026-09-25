@@ -83,6 +83,13 @@ export class PreviewToolBar extends BaseFloat {
         eventCenter.attachDOMEvent(document.body, 'mousemove', handler);
     }
 
+    // The float outlives the hover, and the block it was built for can be
+    // deleted while this reference is the only thing still holding its DOM.
+    override hide() {
+        super.hide();
+        this._block = null;
+    }
+
     // `right-start` puts the float's left edge on the block's right edge; a
     // negative mainAxis pulls it back inside the block's top-right corner.
     // Measured after `render()` and before `show()`, so the first
