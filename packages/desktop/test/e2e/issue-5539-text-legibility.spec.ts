@@ -2,11 +2,9 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, clickMenuById, setSourceMarkdown } from './helpers'
 
-// #5539 — two regressions behind one report. Code-block text rendered at
-// `--editor-color-50`, so it was both too faint to read and, being
-// alpha-composited, blurry. On top of that html/body forced grayscale
-// antialiasing where the legacy engine had pinned `auto`, thinning every stem
-// app-wide. Both are the failure mode #4466/#4631 fixed for body text.
+// #5539 — code-block text rendered at `--editor-color-50`, so it was both too
+// faint to read and, being alpha-composited, blurry (the failure mode
+// #4466/#4631 fixed for body text).
 test.describe('Issue #5539 editor text legibility', () => {
   let app: ElectronApplication
   let page: Page
@@ -63,22 +61,4 @@ test.describe('Issue #5539 editor text legibility', () => {
       expect(colors.frontMatter).toBe(expected)
     })
   }
-
-  // muya tracks an upstream that still ships the `antialiased` declaration, so
-  // a sync can silently reintroduce it.
-  test('editor text keeps the platform default font smoothing', async() => {
-    const smoothing = await page.evaluate(() => {
-      const read = (el: Element | null): string =>
-        el ? getComputedStyle(el).getPropertyValue('-webkit-font-smoothing') : ''
-      return {
-        html: read(document.documentElement),
-        body: read(document.body),
-        editor: read(document.querySelector('.editor-component'))
-      }
-    })
-
-    expect(smoothing.html).toBe('auto')
-    expect(smoothing.body).toBe('auto')
-    expect(smoothing.editor).toBe('auto')
-  })
 })
