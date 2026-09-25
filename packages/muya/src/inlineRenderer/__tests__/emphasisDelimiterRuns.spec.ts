@@ -115,9 +115,13 @@ function renderTokens(tokens: Token[]): string {
     return html;
 }
 
-function renderInline(markdown: string) {
+function renderInline(markdown: string, labels = new Map()) {
     return renderTokens(
-        tokenizer(markdown.replace(/\n$/, ''), { hasBeginRules: false, options: OPTIONS }),
+        tokenizer(markdown.replace(/\n$/, ''), {
+            hasBeginRules: false,
+            labels,
+            options: OPTIONS,
+        }),
     );
 }
 
@@ -223,7 +227,7 @@ describe('delimiter runs spent from both ends', () => {
             for (let i = 1 + Math.floor(random() * 14); i > 0; i--)
                 src += alphabet[Math.floor(random() * alphabet.length)];
 
-            const found = [...scanEmphasisSpans(src, 0, inlineRules, new Map(), OPTIONS).values()]
+            const found = [...scanEmphasisSpans(src, 0, inlineRules, new Map(), OPTIONS, true).values()]
                 .sort((a, b) => a.start - b.start || b.end - a.end);
 
             for (const [i, span] of found.entries()) {
@@ -296,6 +300,23 @@ describe('constructs that outrank emphasis', () => {
         });
 
         expect(tokens.map(token => token.type)).toEqual(expected);
+    });
+
+    // …and only when nothing tighter overruns it. `tryReferenceLink` defers to
+    // the code span here, so the scan has to as well, or the `*` inside the
+    // brackets is hidden from the pairing that should have used it.
+    it('a code span overrunning a reference link keeps its delimiters visible', () => {
+        expect(renderInline('*a [`x][ref]` b*', new Map([['ref', { href: '/uri', title: '' }]])))
+            .toBe('<em>a [<code>x][ref]</code> b</em>');
+    });
+
+    // An extended autolink is a top-level-only construct, so below the top
+    // level its characters are ordinary text and the delimiters in them count.
+    it.each([
+        ['*www.x.com/a*b*c*', '<em>www.x.com/a*b*c</em>'],
+        ['~~www.x.com/a*b*c~~', '<del>www.x.com/a<em>b</em>c</del>'],
+    ])('%s', (markdown, expected) => {
+        expect(renderInline(markdown)).toBe(expected);
     });
 });
 

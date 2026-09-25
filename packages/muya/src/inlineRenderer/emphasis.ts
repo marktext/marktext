@@ -1,15 +1,15 @@
 import type { InlineRules } from './rules';
 import type { ITokenizerFacOptions, Labels } from './types';
-import { isLengthEven } from '../utils';
-import { linkValidateRules } from './rules';
+import { BACKSLASH_MATH_RULES, linkValidateRules } from './rules';
 import {
     CJK_REG,
     codePointBefore,
     codePointCharAt,
-    correctUrl,
-    lowerPriority,
+    matchAt,
+    matchBracketed,
+    matchExtendedAutoLink,
+    matchReference,
     PUNCTUATION_REG,
-    trimAutoLinkExtent,
     UNICODE_WHITESPACE_REG,
 } from './utils';
 
@@ -37,6 +37,14 @@ interface IDelimiterRun {
     canClose: boolean;
 }
 
+// What the whole scan needs to know about its input beyond the string itself.
+interface IScanContext {
+    rules: InlineRules;
+    labels: Labels;
+    options: ITokenizerFacOptions;
+    top: boolean;
+}
+
 function isWhitespace(char: string) {
     return UNICODE_WHITESPACE_REG.test(char);
 }
@@ -57,99 +65,37 @@ function charAfter(src: string, index: number) {
     return codePointCharAt(src, index) ?? '\n';
 }
 
-// The inline rules are `^`-anchored, so matching one at position `i` would mean
-// copying the rest of the paragraph. A sticky clone matches at an index
-// instead, with identical semantics and no allocation.
-const stickyPatterns = new WeakMap<RegExp, RegExp>();
-
-function matchAt(pattern: RegExp, src: string, index: number) {
-    let sticky = stickyPatterns.get(pattern);
-    if (!sticky) {
-        sticky = new RegExp(pattern.source.replace(/^\^/, ''), `${pattern.flags}y`);
-        stickyPatterns.set(pattern, sticky);
-    }
-    sticky.lastIndex = index;
-
-    return sticky.exec(src);
+function lengthOf(to: RegExpExecArray | null) {
+    return to?.[0].length ?? 0;
 }
 
-function lengthAt(pattern: RegExp, src: string, index: number) {
-    return matchAt(pattern, src, index)?.[0].length ?? 0;
-}
-
-// An inline link / image counts only when its destination's brackets balance
-// and neither bracket is escaped, and — for a link — when nothing that binds
-// even tighter overruns it. The same gates `tryImage` / `tryLink` apply, so the
-// scan and the tokenizer agree on where one starts and ends.
-function inlineBracketLength(
-    pattern: RegExp,
-    src: string,
-    index: number,
-    validate: boolean,
-) {
-    const to = matchAt(pattern, src, index);
-    correctUrl(to);
-    if (!to || !isLengthEven(to[3]) || !isLengthEven(to[5]))
-        return 0;
-
-    if (validate && !lowerPriority(src.substring(index), to[0].length, linkValidateRules))
-        return 0;
-
-    return to[0].length;
-}
-
-// A reference link / image counts only when its label resolves; otherwise the
-// tokenizer leaves the brackets as text and the delimiters between them are real.
-function referenceBracketLength(
-    pattern: RegExp,
-    src: string,
-    index: number,
-    labels: Labels,
-) {
-    const to = matchAt(pattern, src, index);
-
-    return to
-        && labels.has((to[3] || to[1]).toLowerCase())
-        && isLengthEven(to[2])
-        && isLengthEven(to[4])
-        ? to[0].length
-        : 0;
-}
-
-// A GFM extended autolink is recognised only at a boundary, and its greedy
-// `\S+` tail has to be trimmed back the way `tryAutoLinkExtension` trims it —
-// otherwise `*see http://x.com*` would swallow its own closing delimiter.
-function extendedAutoLinkLength(src: string, index: number, rules: InlineRules) {
-    if (index > 0 && !/[* _~(]/.test(src[index - 1]))
-        return 0;
-
-    const to = matchAt(rules.auto_link_extension, src, index);
-    if (!to)
-        return 0;
-
-    // Group 3 is the email form, whose extent the domain regexp already fixes.
-    return to[3] ? to[0].length : trimAutoLinkExtent(to[0]).length;
-}
-
-function mathLength(
-    src: string,
-    index: number,
-    rules: InlineRules,
-    options: ITokenizerFacOptions,
-) {
-    if (options.texMathDoubleBackslash) {
-        const length = lengthAt(rules.inline_math_double_backslash, src, index)
-            || lengthAt(rules.display_math_double_backslash, src, index);
+function backslashMathLength(src: string, index: number, { rules, options }: IScanContext) {
+    for (const [rule, option] of BACKSLASH_MATH_RULES) {
+        const length = options[option] ? lengthOf(matchAt(rules[rule], src, index)) : 0;
         if (length)
             return length;
     }
 
-    if (options.texMathSingleBackslash) {
-        return lengthAt(rules.inline_math_single_backslash, src, index)
-            || lengthAt(rules.display_math_single_backslash, src, index);
-    }
-
     return 0;
+}
+
+function dollarMathLength(src: string, index: number, { rules, options }: IScanContext) {
+    const gfm = options.texMathGfm
+        ? lengthOf(matchAt(rules.inline_math_gfm, src, index))
+        : 0;
+
+    return gfm || (options.texMathDollars
+        ? lengthOf(matchAt(rules.inline_math, src, index))
+        : 0);
+}
+
+function autoLinkLength(src: string, index: number, context: IScanContext) {
+    if (!/[a-z0-9]/i.test(src[index]))
+        return 0;
+
+    return lengthOf(
+        matchExtendedAutoLink(context.rules.auto_link_extension, src, index, context.top),
+    );
 }
 
 // How many characters from `index` can hold no emphasis delimiter, because they
@@ -160,50 +106,38 @@ function mathLength(
 // right, not a span emphasis has to step over. Backslash-delimited math comes
 // before the plain escape, as in `INLINE_HANDLERS`: `backlash` matches `\(` and
 // would otherwise eat the formula's opener.
-function inertRunLength(
-    src: string,
-    index: number,
-    rules: InlineRules,
-    labels: Labels,
-    options: ITokenizerFacOptions,
-): number {
+function inertRunLength(src: string, index: number, context: IScanContext): number {
+    const { rules, labels } = context;
+
     switch (src[index]) {
         case '\\':
-            return mathLength(src, index, rules, options)
-                || lengthAt(rules.backlash, src, index);
+            return backslashMathLength(src, index, context)
+                || lengthOf(matchAt(rules.backlash, src, index));
 
         case '`':
-            return lengthAt(rules.inline_code, src, index);
+            return lengthOf(matchAt(rules.inline_code, src, index));
 
         case '$':
-            return (options.texMathGfm ? lengthAt(rules.inline_math_gfm, src, index) : 0)
-                || (options.texMathDollars ? lengthAt(rules.inline_math, src, index) : 0);
+            return dollarMathLength(src, index, context);
 
         case '<':
-            return lengthAt(rules.auto_link, src, index)
-                || lengthAt(rules.html_tag, src, index);
+            return lengthOf(matchAt(rules.auto_link, src, index))
+                || lengthOf(matchAt(rules.html_tag, src, index));
 
         case '!':
-            return inlineBracketLength(rules.image, src, index, false)
-                || referenceBracketLength(rules.reference_image, src, index, labels);
+            return lengthOf(matchBracketed(rules.image, src, index, null))
+                || lengthOf(matchReference(rules.reference_image, src, index, labels, null));
 
         case '[':
-            return inlineBracketLength(rules.link, src, index, true)
-                || referenceBracketLength(rules.reference_link, src, index, labels);
+            return lengthOf(matchBracketed(rules.link, src, index, linkValidateRules))
+                || lengthOf(matchReference(rules.reference_link, src, index, labels, linkValidateRules));
 
         default:
-            return /[a-z0-9]/i.test(src[index])
-                ? extendedAutoLinkLength(src, index, rules)
-                : 0;
+            return autoLinkLength(src, index, context);
     }
 }
 
-function collectRuns(
-    src: string,
-    rules: InlineRules,
-    labels: Labels,
-    options: ITokenizerFacOptions,
-): IDelimiterRun[] {
+function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     const runs: IDelimiterRun[] = [];
     let i = 0;
 
@@ -238,7 +172,7 @@ function collectRuns(
             continue;
         }
 
-        const inert = inertRunLength(src, i, rules, labels, options);
+        const inert = inertRunLength(src, i, context);
         i += inert > 0 ? inert : 1;
     }
 
@@ -281,8 +215,9 @@ export function scanEmphasisSpans(
     rules: InlineRules,
     labels: Labels,
     options: ITokenizerFacOptions,
+    top: boolean,
 ): Map<number, IEmphasisSpan> {
-    const runs = collectRuns(src, rules, labels, options);
+    const runs = collectRuns(src, { rules, labels, options, top });
     const spans = new Map<number, IEmphasisSpan>();
     // Indices into `runs` of the openers still available, innermost last.
     const openers: number[] = [];

@@ -1,5 +1,8 @@
-import type { Rules } from './types';
+import type { Labels, Rules } from './types';
+import { isLengthEven } from '../utils';
 import { findClosingBracket } from '../utils/marked/utils';
+
+const AUTO_LINK_BOUNDARY = /[* _~(]/;
 
 // ASCII PUNCTUATION character
 // export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
@@ -291,4 +294,101 @@ export function correctUrl(token: string[] | null) {
             }
         }
     }
+}
+
+// The inline rules are `^`-anchored, so asking one "do you match at `i`?" would
+// otherwise mean slicing the paragraph first. A sticky clone answers at an
+// index, which is what lets the tokenizer — walking a `src` it has already
+// sliced down to the cursor — and the emphasis scan — walking the whole string
+// — share the predicates below instead of each spelling the gate out again.
+const stickyPatterns = new WeakMap<RegExp, RegExp>();
+
+export function matchAt(pattern: RegExp, src: string, index: number) {
+    let sticky = stickyPatterns.get(pattern);
+    if (!sticky) {
+        sticky = new RegExp(pattern.source.replace(/^\^/, ''), `${pattern.flags}y`);
+        stickyPatterns.set(pattern, sticky);
+    }
+    sticky.lastIndex = index;
+
+    return sticky.exec(src);
+}
+
+// One tentative `[text](dest)` / `![alt](src)` at `index`, its destination
+// already trimmed to the balanced closing paren — or null when a bracket is
+// escaped, or when something binding even tighter overruns it. Only links carry
+// that last check (CommonMark §6.6: code spans, raw HTML and autolinks outrank
+// a link); images pass `veto` as null.
+export function matchBracketed(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    veto: Rules | null,
+) {
+    const to = matchAt(pattern, src, index);
+    correctUrl(to);
+    if (!to || !isLengthEven(to[3]) || !isLengthEven(to[5]))
+        return null;
+
+    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+        return null;
+
+    return to;
+}
+
+// One tentative `[text][label]` / `![alt][label]` at `index` whose label
+// resolves against the collected definitions. Same `veto` contract as
+// `matchBracketed`.
+export function matchReference(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    labels: Labels,
+    veto: Rules | null,
+) {
+    const to = matchAt(pattern, src, index);
+    if (
+        !to
+        // CommonMark §6.5: link labels match case-insensitively, and `labels`
+        // is keyed lowercased by `collectReferenceDefinitions`.
+        || !labels.has((to[3] || to[1]).toLowerCase())
+        || !isLengthEven(to[2])
+        || !isLengthEven(to[4])
+    ) {
+        return null;
+    }
+
+    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+        return null;
+
+    return to;
+}
+
+// One GFM extended autolink at `index`, groups 0-2 already trimmed of the
+// trailing characters §6.9 excludes from the link. Recognised only at the top
+// level and only after one of `* _~(` — the boundary cmark-gfm requires.
+export function matchExtendedAutoLink(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    top: boolean,
+) {
+    if (!top || (index > 0 && !AUTO_LINK_BOUNDARY.test(src[index - 1])))
+        return null;
+
+    const to = matchAt(pattern, src, index);
+    // Group 3 is the email form, whose extent the domain regexp already fixes.
+    if (!to || to[3])
+        return to;
+
+    const trimmed = trimAutoLinkExtent(to[0]);
+    if (trimmed.length !== to[0].length) {
+        to[0] = trimmed;
+        if (to[1])
+            to[1] = trimmed;
+        if (to[2])
+            to[2] = trimmed;
+    }
+
+    return to;
 }
