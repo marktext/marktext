@@ -979,7 +979,6 @@
       "savePng": "Enregistrer en PNG",
       "copyImage": "Copier l'image",
       "copied": "Image copiée dans le presse-papiers",
-      "saved": "Enregistré dans {path}",
       "saveFailed": "Impossible d'enregistrer l'image : {error}",
       "copyFailed": "Impossible de copier l'image : {error}"
     },

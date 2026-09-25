@@ -979,7 +979,6 @@
       "savePng": "Als PNG speichern",
       "copyImage": "Bild kopieren",
       "copied": "Bild in die Zwischenablage kopiert",
-      "saved": "Gespeichert unter {path}",
       "saveFailed": "Bild konnte nicht gespeichert werden: {error}",
       "copyFailed": "Bild konnte nicht kopiert werden: {error}"
     },

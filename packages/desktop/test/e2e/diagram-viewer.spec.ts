@@ -273,6 +273,40 @@ test.describe('diagram viewer', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('the save notice offers to reveal the file', async() => {
+    const target = join(savePath, 'reveal.svg')
+    await stubSaveDialog(app, target)
+    await app.evaluate(({ shell }) => {
+      const g = globalThis as typeof globalThis & { __revealed?: string[] }
+      g.__revealed = []
+      ;(shell as unknown as { showItemInFolder: unknown }).showItemInFolder = (p: string) => {
+        g.__revealed!.push(p)
+      }
+    })
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+
+    const notice = page.locator('.mt-notification').first()
+    await expect(notice).toBeVisible({ timeout: 15000 })
+    await expect(notice).toHaveClass(/mt-confirm/)
+    expect((await notice.innerText()).trim().length).toBeGreaterThan(0)
+
+    await notice.locator('.confirm').click()
+
+    await expect
+      .poll(
+        () =>
+          app.evaluate(
+            () => (globalThis as typeof globalThis & { __revealed?: string[] }).__revealed ?? []
+          ),
+        { timeout: 10000 }
+      )
+      .toContain(target)
+
+    await expectNoRendererErrors(app)
+  })
+
   test('a sequence diagram carries its colours into the exported SVG', async() => {
     const target = join(savePath, 'sequence.svg')
     await stubSaveDialog(app, target)

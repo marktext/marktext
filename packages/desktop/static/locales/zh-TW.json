@@ -979,7 +979,6 @@
       "savePng": "另存為 PNG",
       "copyImage": "複製圖片",
       "copied": "圖片已複製到剪貼簿",
-      "saved": "已儲存至 {path}",
       "saveFailed": "無法儲存圖片：{error}",
       "copyFailed": "無法複製圖片：{error}"
     },

@@ -979,7 +979,6 @@
       "savePng": "Guardar como PNG",
       "copyImage": "Copiar imagen",
       "copied": "Imagen copiada al portapapeles",
-      "saved": "Guardado en {path}",
       "saveFailed": "No se pudo guardar la imagen: {error}",
       "copyFailed": "No se pudo copiar la imagen: {error}"
     },

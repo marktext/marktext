@@ -222,10 +222,20 @@ const save = async (format: ExportFormat) => {
     if (!filePath) return
 
     await window.fileUtils.writeFile(filePath, image.data)
-    notice.notify({
-      type: 'primary',
-      message: t('editor.mediaViewer.saved', { path: filePath })
-    })
+    notice
+      .notify({
+        type: 'primary',
+        title: t('store.editor.exportSuccessTitle'),
+        message: t('store.editor.exportSuccessMessage', {
+          name: window.path.basename(filePath)
+        }),
+        showConfirm: true
+      })
+      .then(() => {
+        window.electron.shell.showItemInFolder(filePath)
+      })
+      // Dismissing the notice rejects; that is not a failure.
+      .catch(() => {})
   } catch (error) {
     notice.notify({
       type: 'error',

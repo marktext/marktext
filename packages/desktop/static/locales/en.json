@@ -979,7 +979,6 @@
       "savePng": "Save as PNG",
       "copyImage": "Copy image",
       "copied": "Image copied to the clipboard",
-      "saved": "Saved to {path}",
       "saveFailed": "Could not save the image: {error}",
       "copyFailed": "Could not copy the image: {error}"
     },

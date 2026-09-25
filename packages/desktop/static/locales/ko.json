@@ -979,7 +979,6 @@
       "savePng": "PNG로 저장",
       "copyImage": "이미지 복사",
       "copied": "이미지를 클립보드에 복사했습니다",
-      "saved": "{path}에 저장했습니다",
       "saveFailed": "이미지를 저장하지 못했습니다: {error}",
       "copyFailed": "이미지를 복사하지 못했습니다: {error}"
     },
