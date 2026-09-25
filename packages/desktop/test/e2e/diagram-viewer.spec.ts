@@ -218,6 +218,35 @@ test.describe('diagram viewer', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('dismissing the save notice leaves no unhandled rejection', async() => {
+    const target = join(savePath, 'dismissed.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+    const notice = page.locator('.mt-notification').first()
+    await expect(notice).toBeVisible({ timeout: 15000 })
+
+    // `notify()` rejects when the notice is closed rather than confirmed, and
+    // the app's own handler logs an unhandled rejection to the console.
+    const consoleErrors: string[] = []
+    const listener = (message: { type: () => string; text: () => string }): void => {
+      if (message.type() === 'error') consoleErrors.push(message.text())
+    }
+    page.on('console', listener)
+
+    // The close affordance only materialises while the notice is hovered.
+    await notice.hover()
+    await notice.locator('.close').click()
+    await expect(notice).toBeHidden({ timeout: 5000 })
+    await page.waitForTimeout(500)
+    page.off('console', listener)
+
+    expect(consoleErrors).toEqual([])
+
+    await expectNoRendererErrors(app)
+  })
+
   test('a notification raised by the viewer paints above it', async() => {
     const target = join(savePath, 'stacking.svg')
     await stubSaveDialog(app, target)
