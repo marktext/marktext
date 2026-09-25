@@ -186,6 +186,7 @@ let controller: ZoomPanController | null = null
 let restoreFocusTo: HTMLElement | null = null
 let copiedTimer = 0
 let fitting = false
+let copyRequest = 0
 
 const zoomIn = () => controller?.zoomBy(ZOOM_STEP)
 const zoomOut = () => controller?.zoomBy(1 / ZOOM_STEP)
@@ -267,13 +268,19 @@ const copy = async () => {
   const source = diagram.value
   if (!source) return
 
+  const request = ++copyRequest
+
   try {
     const image = await exportDiagram(source, 'png', canvasBackground())
+    // Exports take as long as the diagram is complex, so they can finish out of
+    // order. Whoever the reader asked last owns the clipboard.
+    if (request !== copyRequest) return
+
     const written = await window.electron.clipboard.writeImage(image.data)
     if (!written) throw new Error('The clipboard rejected the image')
 
-    // The export is asynchronous, so the button this would tick may by now
-    // belong to a different diagram — or to none.
+    // The button this would tick may by now belong to a different diagram — or
+    // to none.
     if (diagram.value !== source) return
 
     // The cursor is already on the button, so confirm there rather than in a
