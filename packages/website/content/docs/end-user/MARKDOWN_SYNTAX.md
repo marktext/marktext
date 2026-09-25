@@ -764,6 +764,15 @@ alone.
 
 MarkText support class, flow chart, gantt and sequence diagrams powered by flowchart.js, mermaid and Vega-Lite. [Code](#code) blocks with special language identifiers are used for diagrams.
 
+Hover a rendered diagram to get its toolbar. The magnifier opens the diagram
+full-screen, where you can zoom with the scroll wheel, the `+` / `-` keys or the
+toolbar buttons, drag (or use the arrow keys) to pan, fit it back to the window
+with `0`, and return to its original size with `1`. `Esc` closes it.
+
+From that view a diagram can also be saved as SVG, saved as PNG, or copied to
+the clipboard as an image — handy for pasting a diagram into a chat or a slide
+without exporting the whole document.
+
 For example, this:
 
 <pre>

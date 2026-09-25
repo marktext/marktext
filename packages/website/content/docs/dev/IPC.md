@@ -23,12 +23,12 @@ always use `mt::`.
 
 `src/shared/types/ipc.ts` defines four interfaces:
 
-| Interface              | Direction          | Semantics                                  |
-| ---------------------- | ------------------ | ------------------------------------------ |
-| `IpcInvokeChannels`    | renderer → main    | `Promise<T>` round-trip (`ipcMain.handle`) |
-| `IpcSendChannels`      | renderer → main    | fire-and-forget (`ipcMain.on`)             |
-| `IpcSyncChannels`      | renderer → main    | synchronous reply (`event.returnValue`)    |
-| `IpcMainEventChannels` | main → renderer    | push event (`webContents.send` / on)       |
+| Interface              | Direction       | Semantics                                  |
+| ---------------------- | --------------- | ------------------------------------------ |
+| `IpcInvokeChannels`    | renderer → main | `Promise<T>` round-trip (`ipcMain.handle`) |
+| `IpcSendChannels`      | renderer → main | fire-and-forget (`ipcMain.on`)             |
+| `IpcSyncChannels`      | renderer → main | synchronous reply (`event.returnValue`)    |
+| `IpcMainEventChannels` | main → renderer | push event (`webContents.send` / on)       |
 
 Each entry tells you the args tuple and (for invoke/sync) the return
 type:
@@ -83,6 +83,17 @@ ipcMain.on('mt::format-link-click', (_event, { data, dirname }) => {
 // Push to a specific renderer window:
 window.webContents.send('mt::open-new-tab', tabPayload, options, selected)
 ```
+
+## Channels that exist because the renderer is sandboxed
+
+A few capabilities are main-only, and the renderer reaches them through a
+narrow channel rather than a general one:
+
+| Channel                       | Purpose                            | Note                                                                                                                                                                                                                    |
+| ----------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mt::dialog::show-save`       | Ask the user where to write a file | Only `title`, `defaultPath` and `filters` cross the bridge; the write itself goes through `mt::fs::write-file`.                                                                                                         |
+| `mt::clipboard::write-image`  | Put a PNG on the system clipboard  | `clipboard` can otherwise carry only text.                                                                                                                                                                              |
+| `mt::diagram::fetch-plantuml` | Retrieve a PlantUML render         | The renderer's CSP allows no outbound connection, and a cross-origin image taints the canvas. It sends the server and the encoded diagram separately and **main composes the URL** — a free-form URL is never accepted. |
 
 ## Adding a new channel
 
