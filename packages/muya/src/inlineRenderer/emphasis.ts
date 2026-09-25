@@ -43,6 +43,14 @@ interface IScanContext {
     labels: Labels;
     options: ITokenizerFacOptions;
     top: boolean;
+    // Whether an extended autolink can occur at all. Its regexp needs one of
+    // three literals, so one pass over the string spares a match attempt at
+    // every word start.
+    mayAutoLink: boolean;
+}
+
+function unspent(run: IDelimiterRun) {
+    return run.right - run.left;
 }
 
 function isWhitespace(char: string) {
@@ -58,11 +66,19 @@ function isBoundary(char: string) {
 
 // The beginning and the end of the line count as whitespace (CommonMark §6.2).
 function charBefore(src: string, index: number) {
-    return index <= 0 ? '\n' : codePointBefore(src, index);
+    return codePointBefore(src, index) || '\n';
 }
 
 function charAfter(src: string, index: number) {
     return codePointCharAt(src, index) ?? '\n';
+}
+
+function isAsciiAlphanumeric(code: number) {
+    return (
+        (code >= 48 && code <= 57)
+        || (code >= 65 && code <= 90)
+        || (code >= 97 && code <= 122)
+    );
 }
 
 function lengthOf(to: RegExpExecArray | null) {
@@ -90,7 +106,7 @@ function dollarMathLength(src: string, index: number, { rules, options }: IScanC
 }
 
 function autoLinkLength(src: string, index: number, context: IScanContext) {
-    if (!/[a-z0-9]/i.test(src[index]))
+    if (!context.mayAutoLink || !isAsciiAlphanumeric(src.charCodeAt(index)))
         return 0;
 
     return lengthOf(
@@ -192,6 +208,14 @@ function violatesRuleOfThree(opener: IDelimiterRun, closer: IDelimiterRun) {
     return opener.length % 3 !== 0 || closer.length % 3 !== 0;
 }
 
+function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
+    return (
+        opener.char === closer.char
+        && unspent(opener) > 0
+        && !violatesRuleOfThree(opener, closer)
+    );
+}
+
 /**
  * Pair up the `*` / `_` delimiter runs of one inline string the way
  * CommonMark §6.2 does, keyed by the position the opening delimiter starts at.
@@ -217,7 +241,15 @@ export function scanEmphasisSpans(
     options: ITokenizerFacOptions,
     top: boolean,
 ): Map<number, IEmphasisSpan> {
-    const runs = collectRuns(src, { rules, labels, options, top });
+    const runs = collectRuns(src, {
+        rules,
+        labels,
+        options,
+        top,
+        mayAutoLink:
+            top
+            && (src.includes('www.') || src.includes('http') || src.includes('@')),
+    });
     const spans = new Map<number, IEmphasisSpan>();
     // Indices into `runs` of the openers still available, innermost last.
     const openers: number[] = [];
@@ -225,19 +257,10 @@ export function scanEmphasisSpans(
     for (let i = 0; i < runs.length; i++) {
         const closer = runs[i];
 
-        while (closer.canClose && closer.right > closer.left) {
+        while (closer.canClose && unspent(closer) > 0) {
             let top = openers.length - 1;
-            while (top >= 0) {
-                const candidate = runs[openers[top]];
-                if (
-                    candidate.char === closer.char
-                    && candidate.right > candidate.left
-                    && !violatesRuleOfThree(candidate, closer)
-                ) {
-                    break;
-                }
+            while (top >= 0 && !canPair(runs[openers[top]], closer))
                 top--;
-            }
 
             if (top < 0)
                 break;
@@ -247,10 +270,7 @@ export function scanEmphasisSpans(
             // closer has reached past them.
             openers.length = top + 1;
 
-            const markerLen
-                = opener.right - opener.left >= 2 && closer.right - closer.left >= 2
-                    ? 2
-                    : 1;
+            const markerLen = unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;
             opener.right -= markerLen;
             closer.left += markerLen;
             spans.set(base + opener.right, {
@@ -259,11 +279,11 @@ export function scanEmphasisSpans(
                 markerLen,
             });
 
-            if (opener.right === opener.left)
+            if (unspent(opener) === 0)
                 openers.pop();
         }
 
-        if (closer.canOpen && closer.right > closer.left)
+        if (closer.canOpen && unspent(closer) > 0)
             openers.push(i);
     }
 
