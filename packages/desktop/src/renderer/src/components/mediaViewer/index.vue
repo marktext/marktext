@@ -253,10 +253,13 @@ const save = async (format: ExportFormat) => {
       // Dismissing the notice rejects; that is not a failure.
       .catch(() => {})
   } catch (error) {
-    notice.notify({
-      type: 'error',
-      message: t('editor.mediaViewer.saveFailed', { error: reason(error) })
-    })
+    notice
+      .notify({
+        type: 'error',
+        message: t('editor.mediaViewer.saveFailed', { error: reason(error) })
+      })
+      // Dismissing the notice rejects; that is not a failure.
+      .catch(() => {})
   }
 }
 
@@ -281,10 +284,12 @@ const copy = async () => {
       copied.value = false
     }, COPIED_FEEDBACK_MS)
   } catch (error) {
-    notice.notify({
-      type: 'error',
-      message: t('editor.mediaViewer.copyFailed', { error: reason(error) })
-    })
+    notice
+      .notify({
+        type: 'error',
+        message: t('editor.mediaViewer.copyFailed', { error: reason(error) })
+      })
+      .catch(() => {})
   }
 }
 

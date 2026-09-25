@@ -345,6 +345,36 @@ test.describe('diagram viewer', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('dismissing a failure notice leaves no unhandled rejection either', async() => {
+    // Writing into a directory that is not there fails in main and rejects the
+    // invoke, which is what puts the viewer on its error branch. That notice
+    // rejects on dismissal just as the success one does.
+    await stubSaveDialog(app, join(savePath, 'not-a-directory', 'x.svg'))
+    await openDiagram(page)
+
+    try {
+      await page.locator('.media-viewer-toolbar button').nth(4).click()
+      const notice = page.locator('.mt-notification').first()
+      await expect(notice).toBeVisible({ timeout: 20000 })
+
+      const consoleErrors: string[] = []
+      const listener = (message: { type: () => string; text: () => string }): void => {
+        if (message.type() === 'error') consoleErrors.push(message.text())
+      }
+      page.on('console', listener)
+
+      await notice.hover()
+      await notice.locator('.close').click()
+      await expect(notice).toBeHidden({ timeout: 5000 })
+      await page.waitForTimeout(500)
+      page.off('console', listener)
+
+      expect(consoleErrors).toEqual([])
+    } finally {
+      await restoreSaveDialog(app)
+    }
+  })
+
   test('a notification raised by the viewer paints above it', async() => {
     const target = join(savePath, 'stacking.svg')
     await stubSaveDialog(app, target)
