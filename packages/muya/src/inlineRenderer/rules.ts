@@ -18,8 +18,6 @@ export const endRules = {
 
 export type BeginRules = typeof beginRules;
 
-// `strong` and `em` are absent: which run closes a delimiter run depends on
-// the runs between them, which no single pattern can express. See ./emphasis.ts.
 export const commonMarkRules = {
     // Hand-tuned CommonMark/GFM patterns. Disabling the ReDoS-class regexp/*
     // rules here on each line they fire: rewriting these patterns to please
@@ -124,12 +122,6 @@ export const inlineRules = {
 
 export type InlineRules = typeof inlineRules;
 
-// Veto set for a tentative `:shortcode:` — every inline rule but the five that
-// cannot outrank one. Named after its single caller since the emphasis rewrite:
-// it used to answer "what binds tighter than emphasis" too, and that question
-// now lives in `emphasis.ts::inertRunLength`. The membership is inherited from
-// that era and is wider than an emoji guard strictly needs; narrowing it is a
-// behaviour change, so it is left as-is.
 const EXCLUDE_KEYS = [
     'tail_header',
     'backlash',

@@ -34,9 +34,6 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
-    // Emphasis pairings keyed by absolute position. Inherited from the
-    // enclosing em/strong when there is one, otherwise scanned on first use —
-    // most inline strings hold no `*` or `_` at all.
     emphasisSpans: Map<number, IEmphasisSpan> | null;
     basePos: number;
     inlineRules: InlineRules;
@@ -563,9 +560,6 @@ function tryHtmlEscape(state: ILexState): boolean {
 }
 
 function tryAutoLinkExtension(state: ILexState): boolean {
-    // Matched against `originSrc` rather than the already-sliced `src` because
-    // the boundary rule looks at the character *before* the link. `top` implies
-    // `basePos === 0`, so `pos` indexes `originSrc` directly.
     const autoLinkExtTo = matchExtendedAutoLink(
         state.inlineRules.auto_link_extension,
         state.originSrc,
@@ -764,11 +758,8 @@ function tryTailHeader(state: ILexState): boolean {
     return true;
 }
 
-// The fixed order in which the tokenizer loop consults the inline-rule
-// handlers. For every rule but emphasis this order IS the precedence contract.
-// `tryStrongEm` is the exception: it sits third but defers to the constructs
-// `emphasis.ts::inertRunLength` steps over, several of which are handled
-// further down this list.
+// The fixed, priority-ordered inline-rule handler list the tokenizer loop
+// iterates. This array order IS the rule-precedence contract.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
@@ -789,13 +780,6 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-// `emphasisSpans` is passed only by `tryStrongEm`, and only because its child
-// lies strictly inside a pair the parent's scan already closed, so the parent's
-// map describes it. Every other recursion must leave it null and let the child
-// scan its own string: a link, reference link or html tag is inert to the
-// parent scan, which therefore holds no spans inside it, while `~~` is *not*
-// inert, so a parent span may straddle the del boundary and its `end` would
-// fall outside the child's string.
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {

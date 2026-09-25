@@ -14,38 +14,25 @@ import {
 } from './utils';
 
 export interface IEmphasisSpan {
-    // Index of the first character of the opening delimiter.
     start: number;
-    // Index one past the last character of the closing delimiter.
     end: number;
-    // 1 for `em`, 2 for `strong`.
     markerLen: number;
 }
 
 interface IDelimiterRun {
     char: string;
-    // Length of the whole run, which rule-of-three is defined on.
     length: number;
-    // The run's unspent characters, `[left, right)`. A closer spends them from
-    // the left and an opener from the right, so a run that does both — the
-    // `***` in `*foo***bar*` — keeps its two pairings properly nested. A single
-    // "remaining" counter cannot express that: it would hand out the same
-    // character twice and emit overlapping spans.
     left: number;
     right: number;
     canOpen: boolean;
     canClose: boolean;
 }
 
-// What the whole scan needs to know about its input beyond the string itself.
 interface IScanContext {
     rules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
     top: boolean;
-    // Whether an extended autolink can occur at all. Its regexp needs one of
-    // three literals, so one pass over the string spares a match attempt at
-    // every word start.
     mayAutoLink: boolean;
 }
 
@@ -57,14 +44,10 @@ function isWhitespace(char: string) {
     return UNICODE_WHITESPACE_REG.test(char);
 }
 
-// CommonMark §6.2 counts only whitespace and Unicode punctuation as flanking
-// boundaries. `CJK_REG` widens that additively — see the long note on the
-// regexp in ./utils.ts (marktext#4307).
 function isBoundary(char: string) {
     return isWhitespace(char) || PUNCTUATION_REG.test(char) || CJK_REG.test(char);
 }
 
-// The beginning and the end of the line count as whitespace (CommonMark §6.2).
 function charBefore(src: string, index: number) {
     return codePointBefore(src, index) || '\n';
 }
@@ -114,14 +97,6 @@ function autoLinkLength(src: string, index: number, context: IScanContext) {
     );
 }
 
-// How many characters from `index` can hold no emphasis delimiter, because they
-// belong to a backslash escape or to a construct that binds more tightly than
-// emphasis (CommonMark §6.4 rule 17) — 0 when none starts here. This is what
-// makes `*a `*`*` one em around a code span instead of two stray asterisks.
-// `~~` is deliberately absent: GFM strikethrough is a delimiter run in its own
-// right, not a span emphasis has to step over. Backslash-delimited math comes
-// before the plain escape, as in `INLINE_HANDLERS`: `backlash` matches `\(` and
-// would otherwise eat the formula's opener.
 function inertRunLength(src: string, index: number, context: IScanContext): number {
     const { rules, labels } = context;
 
@@ -179,8 +154,6 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
                 length,
                 left: i,
                 right: i + length,
-                // The intraword rule: `_` additionally needs a boundary on the
-                // side facing away from the text it would emphasise.
                 canOpen: leftFlanking && (char === '*' || isBoundary(before)),
                 canClose: rightFlanking && (char === '*' || isBoundary(after)),
             });
@@ -195,9 +168,6 @@ function collectRuns(src: string, context: IScanContext): IDelimiterRun[] {
     return runs;
 }
 
-// CommonMark §6.2: when either delimiter can both open and close, the two run
-// lengths may not sum to a multiple of three unless both are themselves
-// multiples of three.
 function violatesRuleOfThree(opener: IDelimiterRun, closer: IDelimiterRun) {
     if (!opener.canClose && !closer.canOpen)
         return false;
@@ -216,23 +186,6 @@ function canPair(opener: IDelimiterRun, closer: IDelimiterRun) {
     );
 }
 
-/**
- * Pair up the `*` / `_` delimiter runs of one inline string the way
- * CommonMark §6.2 does, keyed by the position the opening delimiter starts at.
- * `base` is where `src` sits in the enclosing document, so the keys line up
- * with the tokenizer's own offsets.
- *
- * A closer always binds to the *nearest* still-open opener, which is what a
- * left-to-right regexp cannot express: in `*a *b* c*` the middle `*` is
- * preceded by a space, so it can only open, and it takes the third `*` as its
- * partner — leaving the outer pair to span the whole line (marktext#2086).
- *
- * Nested pairs get their own entry, so one scan describes the whole tree and
- * the tokenizer hands the same map down to the children it recurses into.
- * Rescanning a span's content on its own would decide its edge runs against
- * the string boundary rather than against the markers now around them, and
- * could pair runs this scan deliberately left alone.
- */
 export function scanEmphasisSpans(
     src: string,
     base: number,
@@ -251,7 +204,6 @@ export function scanEmphasisSpans(
             && (src.includes('www.') || src.includes('http') || src.includes('@')),
     });
     const spans = new Map<number, IEmphasisSpan>();
-    // Indices into `runs` of the openers still available, innermost last.
     const openers: number[] = [];
 
     for (let i = 0; i < runs.length; i++) {
@@ -266,8 +218,6 @@ export function scanEmphasisSpans(
                 break;
 
             const opener = runs[openers[top]];
-            // Openers skipped over can never find a partner now that this
-            // closer has reached past them.
             openers.length = top + 1;
 
             const markerLen = unspent(opener) >= 2 && unspent(closer) >= 2 ? 2 : 1;

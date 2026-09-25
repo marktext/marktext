@@ -1,7 +1,5 @@
 // @vitest-environment happy-dom
 /* eslint-disable test/prefer-lowercase-title */
-// The per-example titles carry CommonMark's own section heading and example
-// numbers so failures line up with the upstream spec.
 
 import type { StrongEmToken, Token } from '../types';
 // @ts-expect-error commonmark-spec is plain CommonJS w/o types
@@ -13,23 +11,7 @@ import { scanEmphasisSpans } from '../emphasis';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
 
-// The live editor tokenizes inline markdown with muya's own lexer, NOT with
-// the marked-based static/export path that `test/spec/` measures. Emphasis is
-// where the two used to disagree the most: the lexer paired every `*` / `_`
-// run with the first plausible partner to its right, so `*a *b* c*` came out
-// as `<em>a *b</em> c*` instead of the nested pair CommonMark asks for
-// (marktext#2086). `inlineRenderer/emphasis.ts` now runs the spec's delimiter
-// algorithm, and this suite holds that line by replaying the whole
-// "Emphasis and strong emphasis" section through the lexer.
-
-// Examples the lexer still gets wrong, with the reason. Same contract as
-// `test/spec/expected-failures.json`: an example listed here that starts
-// passing fails the suite, so compliance can only go up.
 const EXPECTED_FAILURES = new Map<number, string>([
-    // CommonMark 0.30 widened "Unicode punctuation" to the S (symbol)
-    // categories; PUNCTUATION_REG still carries the 0.29 list, so `£` and `€`
-    // are not flanking boundaries and `*£*bravo.` italicises. Unrelated to
-    // delimiter pairing — `*$*alpha.`, the ASCII third of this example, passes.
     [354, 'PUNCTUATION_REG predates CommonMark 0.30 Unicode-symbol punctuation'],
 ]);
 
@@ -42,11 +24,6 @@ const OPTIONS = {
     texMathDoubleBackslash: false,
 };
 
-// Render the token tree the way a reader sees it — markers dropped — so the
-// lexer's output can be compared against the spec's reference HTML. Only the
-// token kinds the emphasis section actually produces have a case; anything else
-// falls through to its raw source, which is what the spec expects of a
-// construct the lexer left alone.
 function renderTokens(tokens: Token[]): string {
     let html = '';
 
@@ -120,8 +97,6 @@ describe('inline lexer — CommonMark 0.31 emphasis and strong emphasis', () => 
     });
 
     it.each(examples)('CM 0.31 §$section #$number', (example) => {
-        // The spec wraps every one of these in a single paragraph; the inline
-        // lexer is handed that paragraph's content, so unwrap it.
         const expected = example.html.replace(/^<p>/, '').replace(/<\/p>\n$/, '');
         const actual = renderInline(example.markdown);
         const knownGap = EXPECTED_FAILURES.get(example.number);
@@ -139,10 +114,6 @@ describe('inline lexer — CommonMark 0.31 emphasis and strong emphasis', () => 
 });
 
 describe('nested emphasis delimiters (#2086)', () => {
-    // The two lines from the issue report. A closer binds to the *nearest*
-    // opener still on the stack, so the middle `*` — which can only open,
-    // being preceded by a space — takes the third one as its partner and the
-    // outer pair spans the whole line.
     it('`*a *b* c*` nests one em inside another', () => {
         expect(renderInline('*a *b* c*')).toBe('<em>a <em>b</em> c</em>');
     });
@@ -157,9 +128,6 @@ describe('nested emphasis delimiters (#2086)', () => {
         expect(renderInline('_a _b_ c_')).toBe('<em>a <em>b</em> c</em>');
     });
 
-    // The outer em's token must still describe its own source exactly — the
-    // renderer draws the markers from `marker` and `range`, and `format()`
-    // rebuilds the span from `children`.
     it('the outer token spans the whole run', () => {
         const [token] = tokenizer('*a *b* c*', { hasBeginRules: false });
 
@@ -176,10 +144,6 @@ describe('nested emphasis delimiters (#2086)', () => {
 });
 
 describe('delimiter runs spent from both ends', () => {
-    // A run that closes one pair and then opens the next spends characters
-    // from opposite ends. Tracking a single "how many are left" counter hands
-    // the same character to both pairings, which at best shifts a marker and
-    // at worst emits overlapping spans and drops a whole token.
     it('`*foo***bar*` keeps the leftover asterisk between the two pairs', () => {
         expect(renderInline('*foo***bar*')).toBe('<em>foo</em>*<em>bar</em>');
     });
@@ -188,9 +152,6 @@ describe('delimiter runs spent from both ends', () => {
         expect(renderInline('**foo***bar**')).toBe('<strong>foo</strong><em>bar</em>*');
     });
 
-    // Randomised guard for the invariant the spec examples do not pin down: no
-    // two spans may partially overlap, and a span's two markers must be the
-    // same characters. Fixed seed, so a failure is reproducible.
     it('never emits overlapping or malformed spans', () => {
         const alphabet = [...'*_~`ab. []()!<>\\$:'];
         let seed = 42;
@@ -238,7 +199,6 @@ describe('delimiter runs spent from both ends', () => {
 });
 
 describe('constructs that outrank emphasis', () => {
-    // The scan walks over these, so a delimiter inside one is never collected.
     it.each([
         ['*a `x*y` b*', '<em>a <code>x*y</code> b</em>'],
         ['*a <http://x.com/y*z> b*', '<em>a <a href="http://x.com/y*z">http://x.com/y*z</a> b</em>'],
@@ -249,8 +209,6 @@ describe('constructs that outrank emphasis', () => {
         expect(renderInline(markdown)).toBe(expected);
     });
 
-    // `backlash` matches `\(`, so trying it before the math rules would eat
-    // the formula's own opener and leave the `*` inside it as a delimiter.
     it('backslash-delimited math shields its delimiters', () => {
         const tokens = tokenizer('*a \\(x*y\\) b*', {
             hasBeginRules: false,
@@ -265,8 +223,6 @@ describe('constructs that outrank emphasis', () => {
         ]);
     });
 
-    // A reference outranks emphasis only once its label resolves; without a
-    // definition the brackets are literal text and the delimiters are real.
     it.each([
         ['resolved', new Map([['ref', { href: '/uri', title: '' }]]), ['text', 'reference_link']],
         ['undefined', new Map(), ['em', 'text']],
@@ -280,16 +236,11 @@ describe('constructs that outrank emphasis', () => {
         expect(tokens.map(token => token.type)).toEqual(expected);
     });
 
-    // …and only when nothing tighter overruns it. `tryReferenceLink` defers to
-    // the code span here, so the scan has to as well, or the `*` inside the
-    // brackets is hidden from the pairing that should have used it.
     it('a code span overrunning a reference link keeps its delimiters visible', () => {
         expect(renderInline('*a [`x][ref]` b*', new Map([['ref', { href: '/uri', title: '' }]])))
             .toBe('<em>a [<code>x][ref]</code> b</em>');
     });
 
-    // An extended autolink is a top-level-only construct, so below the top
-    // level its characters are ordinary text and the delimiters in them count.
     it.each([
         ['*www.x.com/a*b*c*', '<em>www.x.com/a*b*c</em>'],
         ['~~www.x.com/a*b*c~~', '<del>www.x.com/a<em>b</em>c</del>'],
@@ -299,10 +250,6 @@ describe('constructs that outrank emphasis', () => {
 });
 
 describe('one scan for the whole tree', () => {
-    // Re-scanning a span's content on its own judges the content's outermost
-    // runs against the string boundary instead of the markers now wrapped
-    // around them, and can pair runs the enclosing scan deliberately left
-    // alone — here `__` is left-flanking only because the outer `*` follows it.
     it('does not re-decide a nested run out of context', () => {
         expect(renderInline('*_b.__*')).toBe('<em>_b.__</em>');
     });
