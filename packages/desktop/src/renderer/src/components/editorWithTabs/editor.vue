@@ -8,18 +8,7 @@
       ref="editorRef"
       class="editor-component"
     />
-    <div
-      v-show="imageViewerVisible"
-      class="image-viewer"
-    >
-      <span
-        class="icon-close"
-        @click="setImageViewerVisible(false)"
-      >
-        <CloseIcon />
-      </span>
-      <div ref="imageViewerRef" />
-    </div>
+    <media-viewer ref="mediaViewer" />
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"
@@ -108,8 +97,8 @@ import {
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
-import { ZoomPanController } from '@/util/zoomPan'
 import EditorSearch from '../search/index.vue'
+import MediaViewer from '../mediaViewer/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
 import notice from '@/services/notification'
@@ -141,7 +130,6 @@ import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
 // differences against the new `mu-*` DOM are expected.
 import '@muyajs/core'
 import '@/assets/themes/codemirror/one-dark.css'
-import { Close as CloseIcon } from '@element-plus/icons-vue'
 import { type InputNumberInstance } from 'element-plus'
 
 const { t } = useI18n()
@@ -259,7 +247,6 @@ const selectionChange = ref<unknown>(null)
 const editor = shallowRef<Muya | null>(null)
 const isShowClose = ref(false)
 const dialogTableVisible = ref(false)
-const imageViewerVisible = ref<boolean | null>(null)
 const tableChecker = reactive({
   rows: 4,
   columns: 3
@@ -267,14 +254,13 @@ const tableChecker = reactive({
 
 // Template refs
 const editorRef = ref<HTMLDivElement | null>(null)
-const imageViewerRef = ref<HTMLDivElement | null>(null)
+const mediaViewer = ref<InstanceType<typeof MediaViewer> | null>(null)
 const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
 let printer: Printer | null = null
 let spellchecker: SpellChecker | null = null
 let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
-let imageViewer: SimpleImageViewer | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
 
@@ -441,33 +427,6 @@ const serializeCursor = (
     focus: selection.focus ? { offset: selection.focus.offset } : null,
     anchorPath: selection.anchor?.path,
     focusPath: selection.focus?.path
-  }
-}
-
-class SimpleImageViewer {
-  container: HTMLElement
-  img!: HTMLImageElement
-  private controller!: ZoomPanController
-
-  constructor (container: HTMLElement, { url }: { url: string }) {
-    this.container = container
-    this._init(url)
-  }
-
-  _init (url: string) {
-    this.container.innerHTML = ''
-    this.img = document.createElement('img')
-    this.img.src = url
-    this.img.style.cssText =
-      'max-width:90vw;max-height:90vh;object-fit:contain;user-select:none;display:block;'
-    this.img.draggable = false
-    this.container.appendChild(this.img)
-    this.controller = new ZoomPanController(this.container, this.img)
-  }
-
-  destroy () {
-    this.controller.destroy()
-    this.container.innerHTML = ''
   }
 }
 
@@ -1005,18 +964,10 @@ const SELECTION_KEYS = new Set([
 
 const keyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
-    setImageViewerVisible(false)
+    mediaViewer.value?.close()
   }
   if (!sourceCode.value && editor.value && SELECTION_KEYS.has(event.key)) {
     setSelectionWordCountFromText(editor.value.getSelectedText())
-  }
-}
-
-const setImageViewerVisible = (status: boolean) => {
-  imageViewerVisible.value = status
-  if (!status && imageViewer) {
-    imageViewer.destroy()
-    imageViewer = null
   }
 }
 
@@ -1974,25 +1925,13 @@ onMounted(() => {
           dirname: window.DIRNAME
         })
       } else if (formatType === 'image' && ctrlOrMeta) {
-        if (imageViewer) {
-          imageViewer.destroy()
-        }
-        if (imageViewerRef.value) {
-          imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data as string })
-          setImageViewerVisible(true)
-        }
+        mediaViewer.value?.openImage(data as string)
       }
     }
   )
 
   editor.value.on('preview-image', ({ data }: { data: string }) => {
-    if (imageViewer) {
-      imageViewer.destroy()
-    }
-    if (imageViewerRef.value) {
-      imageViewer = new SimpleImageViewer(imageViewerRef.value, { url: data })
-      setImageViewerVisible(true)
-    }
+    mediaViewer.value?.openImage(data)
   })
 
   editor.value.on('selection-change', (changes: MuyaChange) => {
@@ -2090,11 +2029,6 @@ onBeforeUnmount(() => {
 
   resizeObserverForEditor.disconnect()
 
-  if (imageViewer) {
-    imageViewer.destroy()
-    imageViewer = null
-  }
-
   if (editor.value) {
     editor.value.destroy()
     editor.value = null
@@ -2166,38 +2100,4 @@ onBeforeUnmount(() => {
   padding-bottom: calc(50vh - 54px);
 }
 
-.image-viewer {
-  position: fixed;
-  backdrop-filter: blur(5px);
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 11;
-  & .icon-close {
-    z-index: 1000;
-    width: 30px;
-    height: 30px;
-    position: absolute;
-    top: 50px;
-    left: 50px;
-    display: block;
-    color: #efefef;
-    & svg {
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-.image-viewer > div {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  overflow: hidden;
-}
 </style>
