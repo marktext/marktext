@@ -85,6 +85,24 @@ export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: stri
     setTimeout(() => observer.disconnect(), 5000);
 }
 
+const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;
+
+/**
+ * Prefix `code` with a mermaid `%%{init}%%` directive so the config applies to
+ * this one render. Mermaid's `initialize()` is process-global, and the live
+ * preview re-initializes before every render, so mutating it around an export
+ * would race whatever else is rendering.
+ */
+export function withMermaidInit(code: string, config: Record<string, unknown>): string {
+    const directive = `%%{init: ${JSON.stringify(config)}}%%`;
+    const frontmatter = FRONTMATTER.exec(code)?.[0] ?? '';
+    const body = code.slice(frontmatter.length);
+
+    return body.startsWith(directive)
+        ? code
+        : `${frontmatter}${directive}\n${body}`;
+}
+
 export interface IRenderOptions {
     type: string;
     code: string;
@@ -93,6 +111,27 @@ export interface IRenderOptions {
     mermaidTheme: string;
     plantumlServer: string;
     sequenceTheme: 'hand' | 'simple';
+}
+
+export interface IExportRenderOptions extends IRenderOptions {
+    /**
+     * Mermaid draws node labels into a `<foreignObject>` by default, and
+     * Chromium refuses to paint one when the svg is loaded as an `<img>` —
+     * rasterising such a diagram loses every label. Pass false to get a
+     * `<text>`-only svg.
+     */
+    htmlLabels: boolean;
+}
+
+export async function renderDiagramForExport({
+    htmlLabels,
+    ...options
+}: IExportRenderOptions): Promise<void> {
+    const code = options.type === 'mermaid' && !htmlLabels
+        ? withMermaidInit(options.code, { htmlLabels: false })
+        : options.code;
+
+    await renderDiagram({ ...options, code });
 }
 
 export async function renderDiagram({

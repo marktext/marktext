@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it } from 'vitest';
-import { finalizeRenderedDiagram } from '../render';
+import { finalizeRenderedDiagram, withMermaidInit } from '../render';
 
 const hosts: HTMLElement[] = [];
 
@@ -135,5 +135,38 @@ describe('finalizeRenderedDiagram — accessible name', () => {
         finalizeRenderedDiagram(target, FALLBACK);
 
         expect(target.getAttribute('aria-label')).toBe(FALLBACK);
+    });
+});
+
+describe('withMermaidInit', () => {
+    it('puts the directive in front of plain diagram code', () => {
+        expect(withMermaidInit('graph TD\n  A-->B', { htmlLabels: false }))
+            .toBe('%%{init: {"htmlLabels":false}}%%\ngraph TD\n  A-->B');
+    });
+
+    it('puts the directive after a YAML frontmatter block', () => {
+        const code = '---\nconfig:\n  theme: forest\n---\ngraph TD\n  A-->B';
+
+        expect(withMermaidInit(code, { htmlLabels: false })).toBe(
+            '---\nconfig:\n  theme: forest\n---\n%%{init: {"htmlLabels":false}}%%\ngraph TD\n  A-->B',
+        );
+    });
+
+    it('survives CRLF frontmatter', () => {
+        const code = '---\r\nconfig:\r\n---\r\ngraph TD';
+
+        expect(withMermaidInit(code, { htmlLabels: false }))
+            .toBe('---\r\nconfig:\r\n---\r\n%%{init: {"htmlLabels":false}}%%\ngraph TD');
+    });
+
+    it('is idempotent', () => {
+        const once = withMermaidInit('graph TD', { htmlLabels: false });
+
+        expect(withMermaidInit(once, { htmlLabels: false })).toBe(once);
+    });
+
+    it('leaves a `---` that is not frontmatter alone', () => {
+        expect(withMermaidInit('graph TD\n---\n', { htmlLabels: false }))
+            .toBe('%%{init: {"htmlLabels":false}}%%\ngraph TD\n---\n');
     });
 });
