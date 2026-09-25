@@ -4,7 +4,8 @@ import {
   launchWithMarkdown,
   getMarkdownContent,
   expectNoRendererErrors,
-  sendIpcToRenderer
+  sendIpcToRenderer,
+  enterSourceMode
 } from './helpers'
 
 const SVG_DATA_URI =
@@ -88,6 +89,18 @@ test.describe('media viewer is modal to the keyboard', () => {
     await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 
     await expect.poll(() => editorPointerEvents(page), { timeout: 5000 }).not.toBe('none')
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('switching to source mode closes the viewer', async() => {
+    await openViewer(page)
+
+    await enterSourceMode(page, app)
+
+    // Otherwise the overlay keeps showing a rendering of a document that is no
+    // longer on screen, over an editor it is holding inert.
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 
     await expectNoRendererErrors(app)
   })

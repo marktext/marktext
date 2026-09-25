@@ -763,6 +763,9 @@ watch(
   sourceCode,
   (value, oldValue) => {
     if (value && value !== oldValue) {
+      // The viewer holds a rendering of a document that is about to stop being
+      // shown, and holds the editor behind it inert while it is up.
+      mediaViewer.value?.close()
       if (editor.value) {
         editor.value.hideAllFloatTools()
         // Flush the engine's queued rAF-batch ops into the tab before
