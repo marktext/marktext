@@ -302,6 +302,11 @@ const onKeydown = (event: KeyboardEvent) => {
       controller?.panBy(0, -step)
       break
     default:
+      // Everything else is swallowed rather than acted on. The editor's own
+      // listeners sit on `document` too, so focus being inside the overlay does
+      // not keep keys away from them: Backspace would delete the very image on
+      // screen, Space would re-open the viewer over itself.
+      event.stopPropagation()
       return
   }
   event.preventDefault()
@@ -316,6 +321,8 @@ const open = async (
   const stage = stageRef.value
   if (!stage) return
 
+  const reopening = visible.value
+
   clearStage()
   diagram.value = source
   label.value = name
@@ -327,7 +334,9 @@ const open = async (
   })
   scale.value = 1
 
-  restoreFocusTo = document.activeElement as HTMLElement | null
+  // Re-opening while open would capture the overlay itself as the element to
+  // hand focus back to, and closing would then drop focus on the floor.
+  if (!reopening) restoreFocusTo = document.activeElement as HTMLElement | null
   visible.value = true
   emit('openChange', true)
   // The overlay is modal, so the keys belong to it wherever focus ended up.
