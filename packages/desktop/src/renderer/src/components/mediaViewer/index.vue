@@ -397,10 +397,9 @@ const close = () => {
   restoreFocusTo = null
 }
 
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onKeydown, true)
-  clearStage()
-})
+// One teardown path: the two used to drift, and unmounting while open left
+// the parent's `viewer-open` latch set.
+onBeforeUnmount(close)
 
 defineExpose({ openImage, openDiagram, close })
 </script>
