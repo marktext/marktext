@@ -167,10 +167,12 @@ const rasterize = async(svg: SerializedSvg, background: string): Promise<Uint8Ar
   return new Uint8Array(await blob.arrayBuffer())
 }
 
-// Mermaid puts node labels in a `<foreignObject>`, which Chromium refuses to
-// paint when the svg is loaded as an `<img>` — the only route to a canvas.
-// Re-render the same code with plain `<text>` labels for the raster path.
-const renderWithoutHtmlLabels = async(source: DiagramSource): Promise<SVGSVGElement> => {
+// Mermaid puts node labels in a `<foreignObject>`, which only a browser will
+// paint. Re-render the same code with plain `<text>` labels.
+const serializeWithoutHtmlLabels = async(
+  source: DiagramSource,
+  options: SerializeOptions
+): Promise<SerializedSvg> => {
   const host = document.createElement('figure')
   host.className = 'mu-diagram-block'
   host.setAttribute('aria-hidden', 'true')
@@ -195,7 +197,9 @@ const renderWithoutHtmlLabels = async(source: DiagramSource): Promise<SVGSVGElem
     const svg = target.querySelector('svg')
     if (!svg) throw new Error('The diagram could not be re-rendered for export')
 
-    return svg.cloneNode(true) as SVGSVGElement
+    // While it is still in the document: a detached node measures as nothing
+    // and has no computed style to read.
+    return serializeSvg(svg, options)
   } finally {
     host.remove()
   }
@@ -229,8 +233,10 @@ export const exportDiagram = async(
     return { data: toBytes(svg.markup), mime: 'image/svg+xml', extension: 'svg' }
   }
 
-  const target = source.type === 'mermaid' ? await renderWithoutHtmlLabels(source) : live
-  const svg = serializeSvg(target, options)
+  const svg =
+    source.type === 'mermaid'
+      ? await serializeWithoutHtmlLabels(source, options)
+      : serializeSvg(live, options)
 
   return { data: await rasterize(svg, background), mime: 'image/png', extension: 'png' }
 }
