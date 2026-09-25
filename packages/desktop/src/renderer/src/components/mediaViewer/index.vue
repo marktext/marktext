@@ -103,15 +103,17 @@
             </button>
           </el-tooltip>
           <el-tooltip
-            :content="t('editor.mediaViewer.copyImage')"
+            :content="copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')"
             v-bind="TOOLTIP"
           >
             <button
               type="button"
-              :aria-label="t('editor.mediaViewer.copyImage')"
+              :class="{ 'is-done': copied }"
+              :aria-label="copied ? t('editor.mediaViewer.copied') : t('editor.mediaViewer.copyImage')"
               @click="copy"
             >
-              <CopyIcon />
+              <CheckIcon v-if="copied" />
+              <CopyIcon v-else />
             </button>
           </el-tooltip>
         </template>
@@ -120,6 +122,11 @@
         ref="stageRef"
         class="media-viewer-stage"
       />
+      <span
+        class="visually-hidden"
+        role="status"
+        aria-live="polite"
+      >{{ copied ? t('editor.mediaViewer.copied') : '' }}</span>
     </div>
   </Teleport>
 </template>
@@ -128,6 +135,7 @@
 import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
+  Check as CheckIcon,
   Close as CloseIcon,
   DocumentCopy as CopyIcon,
   Download as DownloadIcon,
@@ -143,6 +151,7 @@ import notice from '@/services/notification'
 const PAN_STEP = 40
 const PAN_STEP_FAST = 160
 const ZOOM_STEP = 1.25
+const COPIED_FEEDBACK_MS = 3000
 const TOOLTIP = {
   effect: 'dark',
   placement: 'bottom',
@@ -168,9 +177,11 @@ const stageRef = ref<HTMLElement | null>(null)
 const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
 const diagram = ref<DiagramSource | null>(null)
+const copied = ref(false)
 
 let controller: ZoomPanController | null = null
 let restoreFocusTo: HTMLElement | null = null
+let copiedTimer = 0
 
 const zoomIn = () => controller?.zoomBy(ZOOM_STEP)
 const zoomOut = () => controller?.zoomBy(1 / ZOOM_STEP)
@@ -181,6 +192,8 @@ const clearStage = () => {
   controller?.destroy()
   controller = null
   diagram.value = null
+  window.clearTimeout(copiedTimer)
+  copied.value = false
   if (stageRef.value) stageRef.value.innerHTML = ''
 }
 
@@ -230,7 +243,13 @@ const copy = async () => {
     const written = await window.electron.clipboard.writeImage(image.data)
     if (!written) throw new Error('The clipboard rejected the image')
 
-    notice.notify({ type: 'primary', message: t('editor.mediaViewer.copied') })
+    // The cursor is already on the button, so confirm there rather than in a
+    // notification the reader has to look away for.
+    copied.value = true
+    window.clearTimeout(copiedTimer)
+    copiedTimer = window.setTimeout(() => {
+      copied.value = false
+    }, COPIED_FEEDBACK_MS)
   } catch (error) {
     notice.notify({
       type: 'error',
@@ -434,11 +453,25 @@ defineExpose({ openImage, openDiagram, close })
   & .zoom-level {
     font-variant-numeric: tabular-nums;
   }
+  & button.is-done {
+    color: var(--themeColor);
+  }
   & .separator {
     width: 1px;
     height: 18px;
     background: rgba(255, 255, 255, 0.25);
   }
+}
+
+.image-viewer .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .image-viewer > .media-viewer-stage {

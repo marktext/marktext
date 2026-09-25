@@ -195,6 +195,29 @@ test.describe('diagram viewer', () => {
     expect(buttons).toBe(4)
   })
 
+  test('copying confirms on the button, not behind the overlay', async() => {
+    await app.evaluate(({ clipboard }) => clipboard.clear())
+    await openDiagram(page)
+
+    const copyButton = page.locator('.media-viewer-toolbar button').nth(6)
+    const beforeLabel = await copyButton.getAttribute('aria-label')
+
+    await copyButton.click()
+
+    await expect(copyButton).toHaveClass(/is-done/, { timeout: 20000 })
+    const afterLabel = await copyButton.getAttribute('aria-label')
+    expect(afterLabel).not.toBe(beforeLabel)
+    expect((afterLabel ?? '').length).toBeGreaterThan(0)
+
+    // A notification would land under the overlay, which is the whole point.
+    await expect(page.locator('.mt-notification')).toHaveCount(0)
+
+    // The state is transient.
+    await expect(copyButton).not.toHaveClass(/is-done/, { timeout: 10000 })
+
+    await expectNoRendererErrors(app)
+  })
+
   test('a notification raised by the viewer paints above it', async() => {
     const target = join(savePath, 'stacking.svg')
     await stubSaveDialog(app, target)
