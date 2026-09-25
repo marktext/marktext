@@ -68,14 +68,26 @@ const leaveDiagrams = async(page: Page): Promise<void> => {
   await page.waitForTimeout(120)
 }
 
+// baseFloat hides a float by parking it at -9999px with `opacity: 0` rather
+// than by unmounting it, so Playwright still calls it visible — the inline
+// opacity is the only reliable shown signal.
+const toolbarShown = (page: Page): Promise<boolean> =>
+  page.evaluate(() => {
+    const item = document.querySelector('.mu-preview-tools li.item.view')
+    const wrapper = item?.closest('.mu-float-wrapper') as HTMLElement | null
+    return !!wrapper && Number.parseFloat(wrapper.style.opacity || '0') === 1
+  })
+
 const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   await leaveDiagrams(page)
   const block = page.locator('.editor-component figure.mu-diagram-block').nth(index)
   await block.waitFor({ state: 'visible', timeout: 20000 })
+  await block.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(150)
   const box = await block.boundingBox()
   if (!box) throw new Error('diagram block has no box')
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
-  await expect(page.locator('.mu-preview-tools li.item.view')).toBeVisible({ timeout: 5000 })
+  await expect.poll(() => toolbarShown(page), { timeout: 10000 }).toBe(true)
 }
 
 const openDiagram = async(page: Page, index = 0): Promise<void> => {
