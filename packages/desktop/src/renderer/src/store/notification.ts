@@ -23,8 +23,12 @@ export const useNotificationStore = defineStore('notification', () => {
       const options: NotifyOptions = Object.assign({ ...DEFAULT_OPTS }, opts as Partial<NotifyOptions>, {
         showConfirm: true
       })
-      await notice.notify(options)
-      window.electron.shell.openExternal('http://pandoc.org')
+      // Dismissing the notice rejects; only the confirm button means "yes".
+      const confirmed = await notice
+        .notify(options)
+        .then(() => true)
+        .catch(() => false)
+      if (confirmed) window.electron.shell.openExternal('http://pandoc.org')
     })
   }
 

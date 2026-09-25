@@ -519,6 +519,8 @@ export const useEditorStore = defineStore('editor', {
         .then(() => {
           window.electron.clipboard.writeText(deletionUrl)
         })
+        // Dismissing the notice rejects; declining to copy is not a failure.
+        .catch(() => {})
     },
 
     // We need to update line endings menu when changing tabs.
@@ -1646,6 +1648,8 @@ export const useEditorStore = defineStore('editor', {
           .then(() => {
             window.electron.shell.showItemInFolder(filePath)
           })
+          // Dismissing the notice rejects; declining to reveal is not a failure.
+          .catch(() => {})
       })
     },
 
