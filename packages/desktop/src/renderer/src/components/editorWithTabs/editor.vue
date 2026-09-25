@@ -108,6 +108,7 @@ import {
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
+import { ZoomPanController } from '@/util/zoomPan'
 import EditorSearch from '../search/index.vue'
 import bus from '@/bus'
 import { DEFAULT_EDITOR_FONT_FAMILY, DEFAULT_CODE_FONT_FAMILY } from '@/config'
@@ -445,26 +446,11 @@ const serializeCursor = (
 
 class SimpleImageViewer {
   container: HTMLElement
-  scale: number
-  translateX: number
-  translateY: number
-  isDragging: boolean
-  startX: number
-  startY: number
   img!: HTMLImageElement
-  _onWheel!: (e: WheelEvent) => void
-  _onMousedown!: (e: MouseEvent) => void
-  _onMousemove!: (e: MouseEvent) => void
-  _onMouseup!: () => void
+  private controller!: ZoomPanController
 
   constructor (container: HTMLElement, { url }: { url: string }) {
     this.container = container
-    this.scale = 1
-    this.translateX = 0
-    this.translateY = 0
-    this.isDragging = false
-    this.startX = 0
-    this.startY = 0
     this._init(url)
   }
 
@@ -473,52 +459,14 @@ class SimpleImageViewer {
     this.img = document.createElement('img')
     this.img.src = url
     this.img.style.cssText =
-      'max-width:90vw;max-height:90vh;object-fit:contain;transform-origin:center center;user-select:none;display:block;'
+      'max-width:90vw;max-height:90vh;object-fit:contain;user-select:none;display:block;'
     this.img.draggable = false
     this.container.appendChild(this.img)
-    this._bindEvents()
-  }
-
-  _updateTransform () {
-    this.img.style.transform = `translate(${this.translateX}px,${this.translateY}px) scale(${this.scale})`
-  }
-
-  _bindEvents () {
-    this._onWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      const factor = e.deltaY < 0 ? 1.1 : 0.9
-      this.scale = Math.max(0.1, Math.min(10, this.scale * factor))
-      this._updateTransform()
-    }
-    this._onMousedown = (e: MouseEvent) => {
-      if (e.button !== 0) return
-      this.isDragging = true
-      this.startX = e.clientX - this.translateX
-      this.startY = e.clientY - this.translateY
-      this.container.style.cursor = 'grabbing'
-      e.preventDefault()
-    }
-    this._onMousemove = (e: MouseEvent) => {
-      if (!this.isDragging) return
-      this.translateX = e.clientX - this.startX
-      this.translateY = e.clientY - this.startY
-      this._updateTransform()
-    }
-    this._onMouseup = () => {
-      this.isDragging = false
-      this.container.style.cursor = 'grab'
-    }
-    this.container.addEventListener('wheel', this._onWheel, { passive: false })
-    this.container.addEventListener('mousedown', this._onMousedown)
-    document.addEventListener('mousemove', this._onMousemove)
-    document.addEventListener('mouseup', this._onMouseup)
+    this.controller = new ZoomPanController(this.container, this.img)
   }
 
   destroy () {
-    this.container.removeEventListener('wheel', this._onWheel)
-    this.container.removeEventListener('mousedown', this._onMousedown)
-    document.removeEventListener('mousemove', this._onMousemove)
-    document.removeEventListener('mouseup', this._onMouseup)
+    this.controller.destroy()
     this.container.innerHTML = ''
   }
 }
