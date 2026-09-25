@@ -19,7 +19,15 @@ export const fetchPlantumlImage = async(
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
   try {
-    const response = await fetchImpl(url, { signal: controller.signal })
+    const response = await fetchImpl(url, {
+      signal: controller.signal,
+      // The URL was checked against the configured server; a redirect would
+      // reach a host that check never saw — a render server could use one to
+      // probe the loopback interface or an intranet the renderer cannot.
+      redirect: 'error',
+      // Rendering a diagram has no use for the session's cookies.
+      credentials: 'omit'
+    })
     if (!response.ok) return { ok: false, error: `HTTP ${response.status}` }
 
     const mime = response.headers.get('content-type') ?? ''
