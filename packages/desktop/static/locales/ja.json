@@ -967,6 +967,14 @@
       "rows": "行",
       "columns": "列"
     },
+    "mediaViewer": {
+      "title": "プレビュー",
+      "close": "閉じる",
+      "zoomIn": "拡大",
+      "zoomOut": "縮小",
+      "fit": "ウィンドウに合わせる",
+      "actualSize": "実際のサイズ"
+    },
     "notifications": {
       "notificationNotFound": "通知が見つかりません"
     },

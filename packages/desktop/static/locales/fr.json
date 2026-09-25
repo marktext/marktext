@@ -967,6 +967,14 @@
       "rows": "Lignes",
       "columns": "Colonnes"
     },
+    "mediaViewer": {
+      "title": "Aperçu",
+      "close": "Fermer",
+      "zoomIn": "Zoom avant",
+      "zoomOut": "Zoom arrière",
+      "fit": "Ajuster à la fenêtre",
+      "actualSize": "Taille réelle"
+    },
     "notifications": {
       "notificationNotFound": "Notification introuvable"
     },

@@ -967,6 +967,14 @@
       "rows": "Filas",
       "columns": "Columnas"
     },
+    "mediaViewer": {
+      "title": "Vista previa",
+      "close": "Cerrar",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "fit": "Ajustar a la ventana",
+      "actualSize": "Tamaño real"
+    },
     "notifications": {
       "notificationNotFound": "Notificación no encontrada"
     },

@@ -967,6 +967,14 @@
       "rows": "Rijen",
       "columns": "Kolommen"
     },
+    "mediaViewer": {
+      "title": "Voorbeeld",
+      "close": "Sluiten",
+      "zoomIn": "Inzoomen",
+      "zoomOut": "Uitzoomen",
+      "fit": "Passend maken",
+      "actualSize": "Werkelijke grootte"
+    },
     "notifications": {
       "notificationNotFound": "Melding niet gevonden"
     },

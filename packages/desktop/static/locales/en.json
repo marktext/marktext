@@ -967,6 +967,14 @@
       "rows": "Rows",
       "columns": "Columns"
     },
+    "mediaViewer": {
+      "title": "Preview",
+      "close": "Close",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit to window",
+      "actualSize": "Actual size"
+    },
     "notifications": {
       "notificationNotFound": "Notification not found"
     },

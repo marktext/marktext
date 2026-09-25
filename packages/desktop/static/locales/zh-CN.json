@@ -962,6 +962,14 @@
       "rows": "行",
       "columns": "列"
     },
+    "mediaViewer": {
+      "title": "预览",
+      "close": "关闭",
+      "zoomIn": "放大",
+      "zoomOut": "缩小",
+      "fit": "适应窗口",
+      "actualSize": "实际大小"
+    },
     "notifications": {
       "notificationNotFound": "未找到通知"
     },

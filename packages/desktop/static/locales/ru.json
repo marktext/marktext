@@ -967,6 +967,14 @@
       "rows": "Строки",
       "columns": "Столбцы"
     },
+    "mediaViewer": {
+      "title": "Просмотр",
+      "close": "Закрыть",
+      "zoomIn": "Увеличить",
+      "zoomOut": "Уменьшить",
+      "fit": "Вписать в окно",
+      "actualSize": "Реальный размер"
+    },
     "notifications": {
       "notificationNotFound": "Уведомление не найдено"
     },

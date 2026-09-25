@@ -967,6 +967,14 @@
       "rows": "Satırlar",
       "columns": "Sütunlar"
     },
+    "mediaViewer": {
+      "title": "Önizleme",
+      "close": "Kapat",
+      "zoomIn": "Yakınlaştır",
+      "zoomOut": "Uzaklaştır",
+      "fit": "Pencereye sığdır",
+      "actualSize": "Gerçek boyut"
+    },
     "notifications": {
       "notificationNotFound": "Bildirim bulunamadı"
     },

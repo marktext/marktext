@@ -967,6 +967,14 @@
       "rows": "列",
       "columns": "欄"
     },
+    "mediaViewer": {
+      "title": "預覽",
+      "close": "關閉",
+      "zoomIn": "放大",
+      "zoomOut": "縮小",
+      "fit": "符合視窗",
+      "actualSize": "實際大小"
+    },
     "notifications": {
       "notificationNotFound": "找不到通知"
     },

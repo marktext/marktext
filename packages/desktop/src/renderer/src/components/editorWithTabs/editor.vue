@@ -1,14 +1,17 @@
 <template>
   <div
     class="editor-wrapper"
-    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode }]"
+    :class="[{ typewriter: typewriter, focus: focus, source: sourceCode, 'viewer-open': viewerOpen }]"
     :dir="textDirection"
   >
     <div
       ref="editorRef"
       class="editor-component"
     />
-    <media-viewer ref="mediaViewer" />
+    <media-viewer
+      ref="mediaViewer"
+      @open-change="viewerOpen = $event"
+    />
     <el-dialog
       v-model="dialogTableVisible"
       :show-close="isShowClose"
@@ -255,6 +258,7 @@ const tableChecker = reactive({
 // Template refs
 const editorRef = ref<HTMLDivElement | null>(null)
 const mediaViewer = ref<InstanceType<typeof MediaViewer> | null>(null)
+const viewerOpen = ref(false)
 const rowInput = ref<InputNumberInstance | null>(null)
 
 // Non-reactive variables
@@ -963,9 +967,6 @@ const SELECTION_KEYS = new Set([
 ])
 
 const keyup = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    mediaViewer.value?.close()
-  }
   if (!sourceCode.value && editor.value && SELECTION_KEYS.has(event.key)) {
     setSelectionWordCountFromText(editor.value.getSelectedText())
   }
@@ -2079,6 +2080,12 @@ onBeforeUnmount(() => {
      ignores stacking, so muya's mousemove-driven float tools (front button/menu,
      table drag/column toolbars, preview toolbar) still re-trigger over the source
      editor. Drop the subtree from hit-testing too so they cannot (#4731). */
+  pointer-events: none;
+}
+
+/* `document.elementsFromPoint` ignores stacking, so muya's mousemove-driven
+   float tools would keep re-triggering under the open viewer (#4731 again). */
+.editor-wrapper.viewer-open .editor-component {
   pointer-events: none;
 }
 

@@ -967,6 +967,14 @@
       "rows": "Zeilen",
       "columns": "Spalten"
     },
+    "mediaViewer": {
+      "title": "Vorschau",
+      "close": "Schließen",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "fit": "An Fenster anpassen",
+      "actualSize": "Originalgröße"
+    },
     "notifications": {
       "notificationNotFound": "Benachrichtigung nicht gefunden"
     },
