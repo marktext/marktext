@@ -753,6 +753,9 @@ watch(currentFile, (value, oldValue) => {
     if (editor.value) {
       editor.value.hideAllFloatTools()
     }
+    // The viewer holds a node from the outgoing document, and keeps the
+    // incoming one at `pointer-events: none` while it is up.
+    mediaViewer.value?.close()
   }
 })
 

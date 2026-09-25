@@ -1,6 +1,11 @@
 import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
-import { launchWithMarkdown, getMarkdownContent, expectNoRendererErrors } from './helpers'
+import {
+  launchWithMarkdown,
+  getMarkdownContent,
+  expectNoRendererErrors,
+  sendIpcToRenderer
+} from './helpers'
 
 const SVG_DATA_URI =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmMDAiLz48L3N2Zz4='
@@ -61,6 +66,29 @@ test.describe('media viewer is modal to the keyboard', () => {
       await expectNoRendererErrors(app)
     })
   }
+
+  test('switching to another document closes the viewer', async() => {
+    await openViewer(page)
+
+    await sendIpcToRenderer(app, 'mt::new-untitled-tab', true, '')
+    await page.waitForFunction(
+      () => document.querySelectorAll('.tabs-container > li').length > 1,
+      undefined,
+      { timeout: 5000 }
+    )
+
+    // Otherwise the overlay keeps showing the previous document's image while
+    // holding the new one at `pointer-events: none`.
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
+
+    const blocked = await page.evaluate(
+      () =>
+        getComputedStyle(document.querySelector('.editor-component') as HTMLElement).pointerEvents
+    )
+    expect(blocked).not.toBe('none')
+
+    await expectNoRendererErrors(app)
+  })
 
   test('Space does not re-open the viewer over itself', async() => {
     await openViewer(page)
