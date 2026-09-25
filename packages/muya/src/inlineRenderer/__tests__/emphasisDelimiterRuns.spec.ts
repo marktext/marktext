@@ -8,7 +8,7 @@ import type { StrongEmToken, Token } from '../types';
 import cms from 'commonmark-spec';
 
 import { describe, expect, it } from 'vitest';
-import escapeCharactersMap from '../../config/escapeCharacter';
+import { escapeHTML } from '../../utils';
 import { scanEmphasisSpans } from '../emphasis';
 import { tokenizer } from '../lexer';
 import { inlineRules } from '../rules';
@@ -42,26 +42,18 @@ const OPTIONS = {
     texMathDoubleBackslash: false,
 };
 
-function escapeHtml(text: string) {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-
 // Render the token tree the way a reader sees it — markers dropped — so the
 // lexer's output can be compared against the spec's reference HTML. Only the
-// token kinds the emphasis section produces need a case; anything else falls
-// through to its raw source, which is what the spec expects of a construct
-// the lexer left alone.
+// token kinds the emphasis section actually produces have a case; anything else
+// falls through to its raw source, which is what the spec expects of a
+// construct the lexer left alone.
 function renderTokens(tokens: Token[]): string {
     let html = '';
 
     for (const token of tokens) {
         switch (token.type) {
             case 'text':
-                html += escapeHtml(token.content);
+                html += escapeHTML(token.content);
                 break;
 
             case 'em':
@@ -71,39 +63,25 @@ function renderTokens(tokens: Token[]): string {
                 break;
 
             case 'inline_code':
-                html += `<code>${escapeHtml(token.content)}</code>`;
+                html += `<code>${escapeHTML(token.content)}</code>`;
                 break;
 
             case 'link': {
-                const title = token.title ? ` title="${escapeHtml(token.title)}"` : '';
-                html += `<a href="${escapeHtml(token.href)}"${title}>${renderTokens(token.children)}</a>`;
-                break;
-            }
-
-            case 'image': {
-                const title = token.title ? ` title="${escapeHtml(token.title)}"` : '';
-                html += `<img src="${escapeHtml(token.src)}" alt="${escapeHtml(token.alt)}"${title} />`;
+                const title = token.title ? ` title="${escapeHTML(token.title)}"` : '';
+                html += `<a href="${escapeHTML(token.href)}"${title}>${renderTokens(token.children)}</a>`;
                 break;
             }
 
             case 'auto_link':
-                html += `<a href="${escapeHtml(token.href)}">${escapeHtml(token.raw.replace(/^<|>$/g, ''))}</a>`;
+                html += `<a href="${escapeHTML(token.href)}">${escapeHTML(token.raw.replace(/^<|>$/g, ''))}</a>`;
                 break;
 
             case 'backlash':
-                html += escapeHtml(token.raw.replace(/^\\/, ''));
-                break;
-
-            case 'html_escape':
-                html += escapeHtml(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+                html += escapeHTML(token.raw.replace(/^\\/, ''));
                 break;
 
             case 'soft_line_break':
                 html += '\n';
-                break;
-
-            case 'hard_line_break':
-                html += '<br />\n';
                 break;
 
             default:
