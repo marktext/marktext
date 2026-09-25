@@ -92,6 +92,7 @@ export const ru = {
         'Loading...': 'Загрузка...',
         'Invalid Diagram Code': 'Ошибка в коде диаграммы',
         'Empty Diagram': 'Пустая диаграмма',
+        'Diagram': 'Диаграмма',
         'Input Mathematical Formula...': 'Введите формулу...',
         'Input Front Matter...': 'Введите Front Matter...',
         'Invalid Mathematical Formula': 'Ошибка в формуле',

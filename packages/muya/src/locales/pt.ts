@@ -92,6 +92,7 @@ export const pt = {
         'Loading...': 'Carregando...',
         'Invalid Diagram Code': 'Código de diagrama inválido',
         'Empty Diagram': 'Diagrama vazio',
+        'Diagram': 'Diagrama',
         'Input Mathematical Formula...': 'Inserir fórmula matemática...',
         'Input Front Matter...': 'Inserir Front Matter...',
         'Invalid Mathematical Formula': 'Fórmula matemática inválida',

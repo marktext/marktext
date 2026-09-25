@@ -92,6 +92,7 @@ export const zhCN = {
         'Loading...': '加载中...',
         'Invalid Diagram Code': '图表渲染失败',
         'Empty Diagram': '空图表',
+        'Diagram': '图表',
         'Input Mathematical Formula...': '输入数学公式...',
         'Input Front Matter...': '输入页眉...',
         'Invalid Mathematical Formula': '数学公式错误',

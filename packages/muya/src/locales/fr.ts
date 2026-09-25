@@ -92,6 +92,7 @@ export const fr = {
         'Loading...': 'Chargement...',
         'Invalid Diagram Code': 'Code de diagramme invalide',
         'Empty Diagram': 'Diagramme vide',
+        'Diagram': 'Diagramme',
         'Input Mathematical Formula...': 'Saisir la formule mathématique...',
         'Input Front Matter...': 'Saisir le Front Matter...',
         'Invalid Mathematical Formula': 'Formule mathématique invalide',

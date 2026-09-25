@@ -89,6 +89,7 @@ export const nl = {
         'Loading...': 'Laden...',
         'Invalid Diagram Code': 'Ongeldige diagramcode',
         'Empty Diagram': 'Leeg diagram',
+        'Diagram': 'Diagram',
         'Input Mathematical Formula...': 'Voer wiskundeformule in...',
         'Input Front Matter...': 'Voer Front Matter in...',
         'Invalid Mathematical Formula': 'Ongeldige wiskundeformule',

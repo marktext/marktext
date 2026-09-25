@@ -92,6 +92,7 @@ export const de = {
         'Loading...': 'Wird geladen...',
         'Invalid Diagram Code': 'Ungültiger Diagramm-Code',
         'Empty Diagram': 'Leeres Diagramm',
+        'Diagram': 'Diagramm',
         'Input Mathematical Formula...': 'Mathematische Formel eingeben...',
         'Input Front Matter...': 'Front Matter eingeben...',
         'Invalid Mathematical Formula': 'Ungültige mathematische Formel',

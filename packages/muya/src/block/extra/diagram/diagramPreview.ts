@@ -3,7 +3,7 @@ import type { IDiagramState, TState } from '../../../state/types';
 import { fromEvent } from 'rxjs';
 import { CLASS_NAMES, PREVIEW_DOMPURIFY_CONFIG } from '../../../config';
 import { sanitize } from '../../../utils';
-import { renderDiagram } from '../../../utils/diagram/render';
+import { finalizeRenderedDiagram, renderDiagram } from '../../../utils/diagram/render';
 import logger from '../../../utils/logger';
 import Parent from '../../base/parent';
 
@@ -66,6 +66,9 @@ class DiagramPreview extends Parent {
         if (this._code !== code)
             this._code = code;
 
+        this.domNode!.removeAttribute('role');
+        this.domNode!.removeAttribute('aria-label');
+
         if (code) {
             this.domNode!.innerHTML = i18n.t('Loading...');
             const { mermaidTheme, vegaTheme, plantumlServer, sequenceTheme } = this.muya.options;
@@ -81,6 +84,7 @@ class DiagramPreview extends Parent {
                     plantumlServer,
                     sequenceTheme,
                 });
+                finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
             }
             catch (error) {
                 const detail

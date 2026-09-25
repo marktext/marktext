@@ -92,6 +92,7 @@ export const tr = {
         'Loading...': 'Yükleniyor...',
         'Invalid Diagram Code': 'Geçersiz Diyagram Kodu',
         'Empty Diagram': 'Boş Diyagram',
+        'Diagram': 'Diyagram',
         'Input Mathematical Formula...': 'Matematiksel Formülü girin...',
         'Input Front Matter...': 'Ön Bilgiyi girin...',
         'Invalid Mathematical Formula': 'Geçersiz Matematiksel Formül',
