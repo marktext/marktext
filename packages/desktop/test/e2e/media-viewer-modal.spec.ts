@@ -92,6 +92,65 @@ test.describe('media viewer is modal to the keyboard', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('Tab cycles the viewer\'s own controls and never leaves it', async() => {
+    await openViewer(page)
+
+    const controls = await page.evaluate(
+      () => document.querySelectorAll('.image-viewer .icon-close, .media-viewer-toolbar button').length
+    )
+    expect(controls).toBeGreaterThan(1)
+
+    const seen = new Set<string>()
+    // One turn past a full cycle: focus has to come back round, not walk out
+    // into the editor the overlay is covering.
+    for (let i = 0; i <= controls; i++) {
+      await page.keyboard.press('Tab')
+      const where = await page.evaluate(() => {
+        const active = document.activeElement as HTMLElement | null
+        return {
+          inside: !!active?.closest('.image-viewer'),
+          label: active?.getAttribute('aria-label') ?? active?.tagName ?? ''
+        }
+      })
+      expect(where.inside).toBe(true)
+      seen.add(where.label)
+    }
+    expect(seen.size).toBe(controls)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('Shift+Tab walks the controls backwards', async() => {
+    await openViewer(page)
+
+    await page.keyboard.press('Tab')
+    const first = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))
+
+    await page.keyboard.press('Shift+Tab')
+    const wrapped = await page.evaluate(() => ({
+      inside: !!document.activeElement?.closest('.image-viewer'),
+      label: document.activeElement?.getAttribute('aria-label')
+    }))
+
+    expect(wrapped.inside).toBe(true)
+    expect(wrapped.label).not.toBe(first)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('Enter activates the focused control instead of being swallowed', async() => {
+    await openViewer(page)
+
+    // Tab to the close control, which is the first thing in the overlay.
+    await page.keyboard.press('Tab')
+    expect(await page.evaluate(() => document.activeElement?.className)).toContain('icon-close')
+
+    await page.keyboard.press('Enter')
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
+
+    await expectNoRendererErrors(app)
+  })
+
   test('Space does not re-open the viewer over itself', async() => {
     await openViewer(page)
 

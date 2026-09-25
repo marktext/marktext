@@ -14,17 +14,14 @@
         v-bind="TOOLTIP"
         placement="bottom-start"
       >
-        <span
+        <button
+          type="button"
           class="icon-close"
-          role="button"
-          tabindex="0"
           :aria-label="t('editor.mediaViewer.close')"
           @click="close"
-          @keydown.enter.prevent="close"
-          @keydown.space.prevent="close"
         >
           <CloseIcon />
-        </span>
+        </button>
       </el-tooltip>
       <div class="media-viewer-toolbar">
         <el-tooltip
@@ -291,6 +288,20 @@ const copy = async () => {
   }
 }
 
+// Every control the reader can reach, in the order Tab should visit them.
+const CONTROLS = '.icon-close, .media-viewer-toolbar button'
+
+const moveFocus = (delta: number) => {
+  const controls = [...(rootRef.value?.querySelectorAll<HTMLElement>(CONTROLS) ?? [])]
+  if (!controls.length) return
+
+  const at = controls.indexOf(document.activeElement as HTMLElement)
+  // From the dialog itself, Tab enters at the first control and Shift+Tab at
+  // the last.
+  const next = at === -1 ? (delta > 0 ? 0 : controls.length - 1) : at + delta
+  controls[(next + controls.length) % controls.length].focus()
+}
+
 const onKeydown = (event: KeyboardEvent) => {
   if (!visible.value) return
 
@@ -324,6 +335,23 @@ const onKeydown = (event: KeyboardEvent) => {
     case 'ArrowDown':
       controller?.panBy(0, -step)
       break
+    case 'Tab':
+      // `aria-modal` is a claim to assistive tech, not something the browser
+      // enforces: without this, Tab walks straight into the editor underneath.
+      moveFocus(event.shiftKey ? -1 : 1)
+      break
+    case 'Enter':
+    case ' ':
+      // A control the reader has focused has to be operable. Stopping the
+      // event here keeps it from the editor; not preventing it leaves the
+      // browser to fire the click.
+      if (rootRef.value !== document.activeElement) {
+        event.stopPropagation()
+        return
+      }
+      event.stopPropagation()
+      event.preventDefault()
+      return
     default:
       // Everything else is swallowed rather than acted on. The editor's own
       // listeners sit on `document` too, so focus being inside the overlay does
@@ -463,6 +491,9 @@ defineExpose({ openImage, openDiagram, close })
     top: 50px;
     left: 50px;
     display: block;
+    padding: 0;
+    border: none;
+    background: transparent;
     color: #efefef;
     cursor: pointer;
     & svg {
