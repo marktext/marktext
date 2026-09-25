@@ -1652,14 +1652,16 @@ if (typeof Snap != 'undefined') {
       this.beginGroup()
 
       // TODO Perhaps only include the markers if we actually use them.
+      // Upstream pinned these markers to the fixed ids `markerArrowBlock` /
+      // `markerArrowOpen`. PDF export renders a second copy of the diagram into
+      // the live editor document, where `url(#…)` then bound to the editor's
+      // hidden marker and drew nothing; Snap's own marker ids are unique (#2423).
       var a = (this.arrowMarkers_ = {})
       var arrow = this.paper_.path('M 0 0 L 5 2.5 L 0 5 z')
-      a[ARROWTYPE.FILLED] = arrow.marker(0, 0, 5, 5, 5, 2.5).attr({ id: 'markerArrowBlock' })
+      a[ARROWTYPE.FILLED] = arrow.marker(0, 0, 5, 5, 5, 2.5)
 
       arrow = this.paper_.path('M 9.6,8 1.92,16 0,13.7 5.76,8 0,2.286 1.92,0 9.6,8 z')
-      a[ARROWTYPE.OPEN] = arrow
-        .marker(0, 0, 9.6, 16, 9.6, 8)
-        .attr({ markerWidth: '4', id: 'markerArrowOpen' })
+      a[ARROWTYPE.OPEN] = arrow.marker(0, 0, 9.6, 16, 9.6, 8).attr({ markerWidth: '4' })
     },
 
     layout: function () {
