@@ -8,7 +8,9 @@ import type {
   IpcSendChannels,
   IpcSyncChannels,
   IpcMainEventChannels,
-  BootInfo
+  BootInfo,
+  PlantumlFetchResult,
+  SaveDialogRequest
 } from '@shared/types/ipc'
 import type { MenuTemplate, MenuPopupPosition } from '@shared/types/menu'
 import type { SerializedStat } from '@shared/types/files'
@@ -52,6 +54,11 @@ declare global {
     writeText(text: string): void
     readText(): Promise<string>
     guessFilePath(): Promise<string | null>
+    writeImage(png: Uint8Array): Promise<boolean>
+  }
+
+  interface ElectronDialogAPI {
+    showSave(request: SaveDialogRequest): Promise<string | null>
   }
 
   interface ElectronWebFrameAPI {
@@ -94,6 +101,15 @@ declare global {
     paths: Partial<BootInfo['paths']>
     isUpdatable: boolean
     windowControl: ElectronWindowControlAPI
+    dialog: ElectronDialogAPI
+  }
+
+  interface DiagramAPI {
+    fetchPlantuml(
+      server: string,
+      encoded: string,
+      format: 'svg' | 'png'
+    ): Promise<PlantumlFetchResult>
   }
 
   interface FileUtilsAPI {
@@ -185,6 +201,7 @@ declare global {
     ripgrep: RipgrepAPI
     uploader: UploaderAPI
     fonts: FontsAPI
+    diagram: DiagramAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.
