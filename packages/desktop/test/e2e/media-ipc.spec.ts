@@ -38,7 +38,31 @@ test.describe('media IPC bridge', () => {
     })
 
     for (const result of refusals) {
-      expect(result.ok).toBe(false)
+      // Refused outright, not attempted and failed: a network error would
+      // satisfy `ok: false` just as well and mean the opposite.
+      expect(result).toEqual({ ok: false, error: 'Invalid PlantUML request' })
+    }
+  })
+
+  test('main refuses a well-formed host the user never configured', async() => {
+    const refusals = await page.evaluate(async() => {
+      // Each of these passes every shape check: https or http, no credentials,
+      // no query, a valid PlantUML encoding. Only their identity is wrong.
+      const elsewhere = [
+        'http://127.0.0.1:8080/plantuml',
+        'http://169.254.169.254/latest/meta-data',
+        'https://www.plantuml.com.evil.test/plantuml'
+      ]
+
+      return Promise.all(
+        elsewhere.map((server) =>
+          window.diagram.fetchPlantuml(server, 'SyfFKj2rKt3CoKnELR1Io4ZDoSa70000', 'svg')
+        )
+      )
+    })
+
+    for (const result of refusals) {
+      expect(result).toEqual({ ok: false, error: 'Invalid PlantUML request' })
     }
   })
 
