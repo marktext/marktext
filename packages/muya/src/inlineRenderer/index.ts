@@ -2,7 +2,7 @@ import type Format from '../block/base/format';
 import type ParagraphContent from '../block/content/paragraphContent';
 import type { Muya } from '../muya';
 import type { IRenderCursor } from '../selection/types';
-import type { IParagraphState, TContainerState, TState } from '../state/types';
+import type { IParagraphState, TState } from '../state/types';
 import type { IHighlight, Labels } from './types';
 import logger from '../utils/logger';
 import { tokenizer } from './lexer';
@@ -14,6 +14,7 @@ const debug = logger('inlineRenderer:');
 class InlineRenderer {
     public labels: Labels = new Map();
     public renderer: Renderer;
+    private _labelsRevision = -1;
 
     constructor(public muya: Muya) {
         this.renderer = new Renderer(muya, this);
@@ -75,27 +76,35 @@ class InlineRenderer {
     }
 
     private _collectReferenceDefinitions() {
-        const state = this.muya.editor.jsonState.getState();
+        // Every rendered content block asks for the label map, and recollecting
+        // it reads (and clones) the WHOLE document each time — O(blocks ×
+        // document) on open, which freezes large files (#4887). The map only
+        // changes when the JSON state changes, so cache it by revision.
+        const { jsonState } = this.muya.editor;
+        if (this._labelsRevision === jsonState.revision)
+            return;
+
         const labels = new Map();
-
-        const travel = (sts: TState[]) => {
-            if (Array.isArray(sts) && sts.length) {
-                for (const st of sts) {
-                    if (st.name === 'paragraph') {
-                        const { label, info } = this.getLabelInfo(st);
-                        if (label && info)
-                            labels.set(label, info);
-                    }
-                    else if ((st as TContainerState).children) {
-                        travel((st as TContainerState).children);
-                    }
-                }
+        const stack: Iterator<TState>[] = [jsonState.rawState[Symbol.iterator]()];
+        while (stack.length) {
+            const next = stack[stack.length - 1].next();
+            if (next.done) {
+                stack.pop();
+                continue;
             }
-        };
-
-        travel(state);
+            const state = next.value;
+            if (state.name === 'paragraph') {
+                const { label, info } = this.getLabelInfo(state);
+                if (label && info)
+                    labels.set(label, info);
+            }
+            else if ('children' in state && Array.isArray(state.children)) {
+                stack.push(state.children[Symbol.iterator]());
+            }
+        }
 
         this.labels = labels;
+        this._labelsRevision = jsonState.revision;
     }
 
     getLabelInfo(blockOrState: ParagraphContent | IParagraphState) {
