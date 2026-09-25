@@ -196,12 +196,15 @@ describe('inline lexer — CommonMark 0.31 inline links and images', () => {
 // every token accounts for exactly the source it covers, and a link's token
 // still spells out its own raw text.
 describe('lexer invariants around the link tail', () => {
-    // Fixed seed, so a failure is reproducible.
+    // Fixed seed, so a failure is reproducible. `Math.imul` keeps the multiply
+    // inside 32 bits — a plain `*` overflows 2^53, and the generator then
+    // repeats after ~10k draws, yielding a thousand distinct samples instead
+    // of twenty thousand and never reaching an escaped `\)` in a destination.
     function eachSample(check: (src: string, label: string) => void) {
         const alphabet = [...'[]()<>"\'\\ abc.*_`!#~$:/'];
         let seed = 20260925;
         const random = () => {
-            seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+            seed = (Math.imul(seed, 1103515245) + 12345) & 0x7FFFFFFF;
             return seed / 0x7FFFFFFF;
         };
 
