@@ -195,6 +195,41 @@ test.describe('diagram viewer', () => {
     expect(buttons).toBe(4)
   })
 
+  test('a notification raised by the viewer paints above it', async() => {
+    const target = join(savePath, 'stacking.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+
+    const notice = page.locator('.mt-notification').first()
+    await expect(notice).toBeVisible({ timeout: 15000 })
+
+    // `.mt-notification` transitions `all`, and z-index is an integer the
+    // browser will happily interpolate — sample mid-flight and you read a
+    // number that belongs to neither the stylesheet nor the inline style.
+    // Wait for the re-stack to land and the transition to settle.
+    await expect
+      .poll(
+        () =>
+          notice.evaluate((el) => {
+            const inline = (el as HTMLElement).style.zIndex
+            return inline !== '' && getComputedStyle(el).zIndex === inline
+          }),
+        { timeout: 5000 }
+      )
+      .toBe(true)
+
+    const onTop = await notice.evaluate((el) => {
+      const { left, top, width, height } = el.getBoundingClientRect()
+      const hit = document.elementFromPoint(left + width / 2, top + height / 2)
+      return !!hit && el.contains(hit)
+    })
+    expect(onTop).toBe(true)
+
+    await expectNoRendererErrors(app)
+  })
+
   test('saving as SVG writes a standalone, readable file', async() => {
     const target = join(savePath, 'flowchart.svg')
     await stubSaveDialog(app, target)
