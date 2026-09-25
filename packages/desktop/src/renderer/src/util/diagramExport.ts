@@ -94,11 +94,19 @@ export const naturalSvgSize = (svg: SVGSVGElement): { width: number; height: num
   }
 }
 
-export const serializeSvg = (svg: SVGSVGElement, inlineStyles: boolean): SerializedSvg => {
+export interface SerializeOptions {
+  inlineStyles: boolean
+  /** Painted behind the drawing, since an exported file has no editor under it. */
+  background: string
+}
+
+export const serializeSvg = (svg: SVGSVGElement, options: SerializeOptions): SerializedSvg => {
   const { width, height } = naturalSvgSize(svg)
 
   const clone = svg.cloneNode(true) as SVGSVGElement
-  if (inlineStyles) inlineComputedStyles(svg, clone)
+  // Before anything is added to the clone: the walk pairs the two trees up by
+  // position and gives up if their shapes differ.
+  if (options.inlineStyles) inlineComputedStyles(svg, clone)
 
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
   clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
@@ -108,6 +116,18 @@ export const serializeSvg = (svg: SVGSVGElement, inlineStyles: boolean): Seriali
   // Mermaid caps its root at the width it was measured in; a standalone file
   // has no such container.
   clone.style.removeProperty('max-width')
+
+  // A dark theme draws pale strokes and pale text. On the transparent canvas an
+  // svg defaults to, that is invisible wherever the file is opened.
+  const box = svg.viewBox?.baseVal
+  const backdrop = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+  backdrop.setAttribute('x', String(Math.floor(box?.x ?? 0)))
+  backdrop.setAttribute('y', String(Math.floor(box?.y ?? 0)))
+  backdrop.setAttribute('width', String(width))
+  backdrop.setAttribute('height', String(height))
+  // Inline, so a stylesheet the renderer embedded cannot repaint it.
+  backdrop.setAttribute('style', `fill:${options.background}`)
+  clone.insertBefore(backdrop, clone.firstChild)
 
   const markup = `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(clone)}`
 
@@ -202,14 +222,15 @@ export const exportDiagram = async(
   const live = source.preview.querySelector('svg')
   if (!live) throw new Error('The diagram has not rendered')
 
+  const options = { inlineStyles: NEEDS_INLINE_STYLES.has(source.type), background }
+
   if (format === 'svg') {
-    const svg = serializeSvg(live, NEEDS_INLINE_STYLES.has(source.type))
+    const svg = serializeSvg(live, options)
     return { data: toBytes(svg.markup), mime: 'image/svg+xml', extension: 'svg' }
   }
 
-  const target =
-    source.type === 'mermaid' ? await renderWithoutHtmlLabels(source) : live
-  const svg = serializeSvg(target, NEEDS_INLINE_STYLES.has(source.type))
+  const target = source.type === 'mermaid' ? await renderWithoutHtmlLabels(source) : live
+  const svg = serializeSvg(target, options)
 
   return { data: await rasterize(svg, background), mime: 'image/png', extension: 'png' }
 }

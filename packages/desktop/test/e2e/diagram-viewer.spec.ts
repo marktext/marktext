@@ -163,6 +163,35 @@ const closeViewer = async(page: Page): Promise<void> => {
   await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 }
 
+/** Pixels of `under` still showing after the svg is painted over it. */
+const showsThrough = (page: Page, markup: string, under: string): Promise<number> =>
+  page.evaluate(
+    async([svg, colour]) => {
+      const image = new Image()
+      await new Promise((resolve, reject) => {
+        image.onload = resolve
+        image.onerror = reject
+        image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+      })
+
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
+      const context = canvas.getContext('2d')!
+      context.fillStyle = colour
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(image, 0, 0)
+
+      const { data } = context.getImageData(0, 0, canvas.width, canvas.height)
+      let through = 0
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i] > 250 && data[i + 1] < 5 && data[i + 2] > 250) through++
+      }
+      return through
+    },
+    [markup, under] as const
+  )
+
 /** Pixels that are neither transparent nor the page background. */
 const inkedPixels = (page: Page, dataUrl: string): Promise<number> =>
   page.evaluate(async(url) => {
@@ -442,6 +471,25 @@ test.describe('diagram viewer', () => {
     // js-sequence-diagrams emits <text> with no fill attribute; the editor
     // stylesheet supplies it, so the export has to inline it.
     expect(svg).toMatch(/<text[^>]*style="[^"]*fill:/)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('an exported SVG brings its own background', async() => {
+    const target = join(savePath, 'opaque.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+    await expect
+      .poll(async() => (await readFile(target, 'utf8').catch(() => '')).length, { timeout: 15000 })
+      .toBeGreaterThan(200)
+
+    // A dark theme draws pale text, which on the transparent canvas an svg
+    // defaults to is invisible wherever the file is opened. Nothing underneath
+    // may show through.
+    const svg = await readFile(target, 'utf8')
+    expect(await showsThrough(page, svg, '#ff00ff')).toBe(0)
 
     await expectNoRendererErrors(app)
   })
