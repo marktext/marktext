@@ -384,6 +384,9 @@ const open = async (
   label.value = name
   const content = mount(stage)
   controller = new ZoomPanController(stage, content, {
+    // The toolbar and the close control are layered over the stage, and are
+    // where the pointer sits after using them.
+    wheelSurface: rootRef.value ?? undefined,
     onChange: (state) => {
       scale.value = state.scale
       if (!fitting) touched.value = true

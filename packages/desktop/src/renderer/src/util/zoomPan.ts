@@ -59,6 +59,12 @@ export function toTransform(state: ZoomState): string {
 
 export interface ZoomPanOptions {
   onChange?: (state: ZoomState) => void
+  /**
+   * Where wheel events are listened for. Defaults to the viewport, which is
+   * wrong wherever something is layered on top of it: the wheel would then be
+   * dead over exactly the controls the pointer tends to rest on.
+   */
+  wheelSurface?: HTMLElement
 }
 
 /**
@@ -70,6 +76,7 @@ export class ZoomPanController {
   private _dragging = false
   private _originX = 0
   private _originY = 0
+  private readonly _wheelSurface: HTMLElement
   private readonly _onWheel: (event: WheelEvent) => void
   private readonly _onMouseDown: (event: MouseEvent) => void
   private readonly _onMouseMove: (event: MouseEvent) => void
@@ -81,6 +88,7 @@ export class ZoomPanController {
     private readonly options: ZoomPanOptions = {}
   ) {
     this.content.style.transformOrigin = 'center center'
+    this._wheelSurface = options.wheelSurface ?? viewport
 
     this._onWheel = (event) => {
       event.preventDefault()
@@ -106,7 +114,7 @@ export class ZoomPanController {
     }
     this._onMouseUp = () => this._endDrag()
 
-    this.viewport.addEventListener('wheel', this._onWheel, { passive: false })
+    this._wheelSurface.addEventListener('wheel', this._onWheel, { passive: false })
     this.viewport.addEventListener('mousedown', this._onMouseDown)
     // A drag released outside the window still has to finish (#5393): once the
     // pointer hit-tests <html>, `document.body` stops seeing these events.
@@ -143,7 +151,7 @@ export class ZoomPanController {
     // A drag can outlive the controller — the viewport element is reused by
     // the next open, and `grabbing` would be stuck on it.
     this._endDrag()
-    this.viewport.removeEventListener('wheel', this._onWheel)
+    this._wheelSurface.removeEventListener('wheel', this._onWheel)
     this.viewport.removeEventListener('mousedown', this._onMouseDown)
     document.removeEventListener('mousemove', this._onMouseMove)
     document.removeEventListener('mouseup', this._onMouseUp)

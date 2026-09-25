@@ -139,6 +139,26 @@ test.describe('media viewer controls', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('the wheel zooms over the toolbar as well as the stage', async() => {
+    await openViewer(page)
+    expect(await zoomLabel(page)).toBe('100%')
+
+    // The toolbar and the close control sit on top of the stage, so a wheel
+    // over either of them never reached a listener bound to the stage alone.
+    for (const selector of ['.media-viewer-toolbar', '.image-viewer .icon-close']) {
+      await page.locator('.media-viewer-toolbar .zoom-level').click()
+      await expect.poll(() => zoomLabel(page), { timeout: 5000 }).toBe('100%')
+
+      const box = (await page.locator(selector).boundingBox())!
+      await page.mouse.move(box.x + 2, box.y + box.height / 2)
+      await page.mouse.wheel(0, -120)
+
+      await expect.poll(() => zoomLabel(page), { timeout: 5000 }).not.toBe('100%')
+    }
+
+    await expectNoRendererErrors(app)
+  })
+
   test('every control names itself with a localized tooltip', async() => {
     await openViewer(page)
 
