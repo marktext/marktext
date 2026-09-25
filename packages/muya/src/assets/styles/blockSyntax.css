@@ -213,7 +213,7 @@
     margin-top: 1.5em;
     padding: 1em;
 
-    color: var(--editor-color-50);
+    color: var(--code-block-color, var(--editor-color));
     font-size: 90%;
     font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
     line-height: 1.6;
