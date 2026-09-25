@@ -1,9 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import { app, Menu, ipcMain, type BrowserWindow } from 'electron'
+import { app, Menu, ipcMain, BrowserWindow } from 'electron'
 import log from 'electron-log'
 import { ensureDirSync, isDirectory2, isFile2 } from 'common/filesystem'
-import { isLinux, isOsx, isWindows } from '../config'
+import { isOsx, isWindows } from '../config'
 import { updateSidebarMenu } from '../menu/actions/edit'
 import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
@@ -174,6 +174,7 @@ class AppMenu {
     const { windowMenus } = this
     const menu = this._buildSettingMenu()
     windowMenus.set(window.id, menu)
+    this._applyWindowMenu(window.id, menu.menu)
   }
 
   /**
@@ -202,6 +203,8 @@ class AppMenu {
       if (typewriterModeMenuItem) typewriterModeMenuItem.enabled = false
       if (focusModeMenuItem) focusModeMenuItem.enabled = false
     }
+
+    this._applyWindowMenu(window.id, menu)
 
     const { _keybindings } = this
     _keybindings.registerEditorKeyHandlers(window)
@@ -264,8 +267,15 @@ class AppMenu {
    */
   setActiveWindow(windowId: number): void {
     if (this.activeWindowId !== windowId) {
-      // Change application menu to the current window menu.
-      this._setApplicationMenu(this.getWindowMenuById(windowId))
+      // Off macOS the application menu is every window's menu bar, so a window
+      // without a menu of its own must not be pushed there — it would strip the
+      // menu bar off the editor windows behind it (#2245).
+      const menu = this.getWindowMenuById(windowId)
+      if (menu) {
+        this._setApplicationMenu(menu)
+      } else {
+        this._applyWindowMenus()
+      }
       this.activeWindowId = windowId
     }
   }
@@ -285,7 +295,7 @@ class AppMenu {
     // application menu each time.
 
     // rebuild all window menus
-    this.windowMenus.forEach((value, key) => {
+    this.windowMenus.forEach((value) => {
       const { menu: oldMenu, type } = value
       if (type !== MenuType.EDITOR || !oldMenu) return
 
@@ -301,12 +311,9 @@ class AppMenu {
 
       // update window menu
       value.menu = newMenu
-      // update application menu if necessary
-      const { activeWindowId } = this
-      if (activeWindowId === key) {
-        this._setApplicationMenu(newMenu)
-      }
     })
+
+    this._reapplyMenus()
   }
 
   /**
@@ -316,7 +323,7 @@ class AppMenu {
    */
   updateKeybindings(): void {
     const recentUsedDocuments = this.getRecentlyUsedDocuments()
-    this.windowMenus.forEach((value, key) => {
+    this.windowMenus.forEach((value) => {
       const { menu: oldMenu, type } = value
 
       let newMenu: Menu | null = null
@@ -339,10 +346,9 @@ class AppMenu {
       }
 
       value.menu = newMenu
-      if (this.activeWindowId === key) {
-        this._setApplicationMenu(newMenu)
-      }
     })
+
+    this._reapplyMenus()
   }
 
   /**
@@ -444,13 +450,45 @@ class AppMenu {
     return { menu: null, type: MenuType.SETTINGS }
   }
 
-  _setApplicationMenu(menu: Menu | null): void {
-    if (isLinux && !menu) {
-      // WORKAROUND for Electron#16521: We cannot hide the (application) menu on Linux.
-      const dummyMenu = Menu.buildFromTemplate([])
-      Menu.setApplicationMenu(dummyMenu)
+  _setApplicationMenu(menu: Menu): void {
+    Menu.setApplicationMenu(menu)
+    this._applyWindowMenus()
+  }
+
+  _reapplyMenus(): void {
+    const active = this.windowMenus.get(this.activeWindowId)
+    if (active?.menu && active.menu !== Menu.getApplicationMenu()) {
+      this._setApplicationMenu(active.menu)
     } else {
-      Menu.setApplicationMenu(menu)
+      this._applyWindowMenus()
+    }
+  }
+
+  /**
+   * Off macOS `Menu.setApplicationMenu` is `getAllWindows().map(w =>
+   * w.setMenu(menu))`, and a window created afterwards inherits the application
+   * menu as well, so windows that must differ have to be set back by hand.
+   */
+  _applyWindowMenus(): void {
+    if (isOsx) return
+
+    const applicationMenu = Menu.getApplicationMenu()
+    this.windowMenus.forEach(({ menu }, windowId) => {
+      if (menu === applicationMenu) return
+      this._applyWindowMenu(windowId, menu)
+    })
+  }
+
+  _applyWindowMenu(windowId: number, menu: Menu | null): void {
+    if (isOsx) return
+
+    const window = BrowserWindow.fromId(windowId)
+    if (!window || window.isDestroyed()) return
+
+    if (menu) {
+      window.setMenu(menu)
+    } else {
+      window.removeMenu()
     }
   }
 
