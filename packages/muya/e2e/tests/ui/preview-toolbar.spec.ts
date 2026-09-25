@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/muya';
-import { editor, floats } from '../helpers/selectors';
+import { editor, floats, previewToolBarItem } from '../helpers/selectors';
 
 async function hoverBlock(page: Page, selector: string): Promise<void> {
     const box = await page.locator(selector).first().boundingBox();
@@ -36,6 +36,18 @@ async function showMathBlock(page: Page): Promise<void> {
     await expect(page.locator(editor.katex).first()).toBeVisible({ timeout: 10_000 });
 }
 
+async function showMermaidBlock(page: Page): Promise<void> {
+    await page.evaluate(() => {
+        window.muya!.setContent([{
+            name: 'diagram',
+            text: 'graph TD\n    A-->B',
+            meta: { lang: 'yaml', type: 'mermaid' },
+        }] as unknown as Parameters<NonNullable<typeof window.muya>['setContent']>[0]);
+    });
+    await expect(page.locator(`${editor.diagramPreview} svg`).first())
+        .toBeVisible({ timeout: 15_000 });
+}
+
 test.describe('preview toolbar', () => {
     test('hovering a math block shows the edit + delete actions', async ({ page }) => {
         await showMathBlock(page);
@@ -52,5 +64,78 @@ test.describe('preview toolbar', () => {
 
         const gap = await rightEdgeGap(page, editor.mathBlock);
         expect(Math.abs(gap - 5)).toBeLessThanOrEqual(1);
+    });
+});
+
+test.describe('preview toolbar — diagram blocks', () => {
+    test('hovering a mermaid diagram adds a view action', async ({ page }) => {
+        await showMermaidBlock(page);
+        await hoverBlock(page, editor.diagramBlock);
+
+        await expect.poll(() => toolbarOpacity(page), { timeout: 5_000 }).toBe(1);
+        await expect(page.locator(`${floats.previewToolBar} li.item`)).toHaveCount(3);
+        await expect(page.locator(previewToolBarItem('view'))).toHaveCount(1);
+    });
+
+    test('the wider toolbar still sits inside the block', async ({ page }) => {
+        await showMermaidBlock(page);
+        await hoverBlock(page, editor.diagramBlock);
+        await expect.poll(() => toolbarOpacity(page), { timeout: 5_000 }).toBe(1);
+
+        const gap = await rightEdgeGap(page, editor.diagramBlock);
+        expect(Math.abs(gap - 5)).toBeLessThanOrEqual(1);
+    });
+
+    test('clicking view hands the host the rendered diagram', async ({ page }) => {
+        await page.evaluate(() => {
+            (window as unknown as { __diagrams: unknown[] }).__diagrams = [];
+            window.muya!.on('preview-diagram', (payload: unknown) => {
+                (window as unknown as { __diagrams: unknown[] }).__diagrams.push(payload);
+            });
+        });
+        await showMermaidBlock(page);
+        await hoverBlock(page, editor.diagramBlock);
+        await expect.poll(() => toolbarOpacity(page), { timeout: 5_000 }).toBe(1);
+
+        await page.locator(previewToolBarItem('view')).click();
+
+        const emitted = await page.evaluate(() => {
+            const [payload] = (window as unknown as {
+                __diagrams: Array<{ type: string; code: string; preview: HTMLElement; label: string | null }>
+            }).__diagrams;
+            return payload
+                ? {
+                        type: payload.type,
+                        code: payload.code,
+                        previewClass: payload.preview.className,
+                        svgCount: payload.preview.querySelectorAll('svg').length,
+                        label: payload.label,
+                    }
+                : null;
+        });
+
+        expect(emitted).not.toBeNull();
+        expect(emitted!.type).toBe('mermaid');
+        expect(emitted!.code).toContain('graph TD');
+        expect(emitted!.previewClass).toContain('mu-diagram-preview');
+        expect(emitted!.svgCount).toBe(1);
+        expect(emitted!.label).toBeTruthy();
+    });
+
+    test('a diagram that failed to render offers no view action', async ({ page }) => {
+        await page.evaluate(() => {
+            window.muya!.setContent([{
+                name: 'diagram',
+                text: 'graph TD\n    A--->',
+                meta: { lang: 'yaml', type: 'mermaid' },
+            }] as unknown as Parameters<NonNullable<typeof window.muya>['setContent']>[0]);
+        });
+        await expect(page.locator(editor.diagramError).first()).toBeVisible({ timeout: 15_000 });
+
+        await hoverBlock(page, editor.diagramBlock);
+        await expect.poll(() => toolbarOpacity(page), { timeout: 5_000 }).toBe(1);
+
+        await expect(page.locator(`${floats.previewToolBar} li.item`)).toHaveCount(2);
+        await expect(page.locator(previewToolBarItem('view'))).toHaveCount(0);
     });
 });

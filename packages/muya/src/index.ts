@@ -28,6 +28,7 @@ export { ParagraphFrontButton } from './ui/paragraphFrontButton';
 export { ParagraphFrontMenu } from './ui/paragraphFrontMenu';
 export { ParagraphQuickInsertMenu } from './ui/paragraphQuickInsertMenu';
 export { PreviewToolBar } from './ui/previewToolBar';
+export type { IPreviewDiagramPayload } from './ui/previewToolBar';
 export { default as TableChessboard } from './ui/tableChessboard';
 export { TableColumnToolbar } from './ui/tableColumnToolbar';
 export { TableDragBar } from './ui/tableDragBar';
