@@ -308,6 +308,14 @@ describe('link destinations (#2377)', () => {
         expect(firstToken('[link](foo\\(and\\(bar\\))', 'link')?.href).toBe('foo(and(bar)');
     });
 
+    // A backslash escapes a backslash, so the `)` after `\\` closes the link
+    // rather than being escaped itself. Miss that and the run stops being a
+    // link at all — while the export path still renders one.
+    it('treats `\\\\` as one escaped backslash', () => {
+        expect(firstToken('[a](foo\\\\bar)', 'link')?.href).toBe('foo\\bar');
+        expect(firstToken('[a](foo\\\\) bar)', 'link')?.raw).toBe('[a](foo\\\\)');
+    });
+
     it('a bare destination with unbalanced parens is not a link', () => {
         expect(firstToken('[link](foo(and(bar))', 'link')).toBeUndefined();
     });

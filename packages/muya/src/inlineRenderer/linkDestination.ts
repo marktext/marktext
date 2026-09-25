@@ -7,8 +7,9 @@
 
 // The characters a backslash may escape: CommonMark only recognises an escape
 // before ASCII punctuation, so `my\ file` keeps its backslash *and* still ends
-// at the space.
-const ASCII_PUNCTUATION_REG = /[!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~]/;
+// at the space. The backslash itself is in the set, which is what makes `\\`
+// one escaped backslash rather than an escape of whatever follows it.
+const ASCII_PUNCTUATION_REG = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
 
 const TITLE_CLOSERS: Record<string, string> = {
     '"': '"',
@@ -45,8 +46,19 @@ function skipSpaces(text: string, index: number) {
     return i;
 }
 
+// Drops the backslash of every escape the scan above recognised. Sharing
+// `isEscape` rather than spelling the punctuation set a second time keeps the
+// two from drifting apart.
 function unescapePunctuation(text: string) {
-    return text.replace(/\\([!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~])/g, '$1');
+    let unescaped = '';
+
+    for (let i = 0; i < text.length; i++) {
+        if (isEscape(text, i))
+            i++;
+        unescaped += text[i];
+    }
+
+    return unescaped;
 }
 
 /**
