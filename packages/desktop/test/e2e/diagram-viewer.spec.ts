@@ -70,13 +70,25 @@ const leaveDiagrams = async(page: Page): Promise<void> => {
 
 // baseFloat hides a float by parking it at -9999px with `opacity: 0` rather
 // than by unmounting it, so Playwright still calls it visible — the inline
-// opacity is the only reliable shown signal.
-const toolbarShown = (page: Page): Promise<boolean> =>
-  page.evaluate(() => {
+// opacity is the only reliable shown signal. The toolbar is also a singleton
+// that lingers on the block it last served, so "shown" alone would let a click
+// land on the previous test's diagram; it counts only when tucked inside the
+// block being hovered.
+const toolbarShownFor = (page: Page, index: number): Promise<boolean> =>
+  page.evaluate((i) => {
     const item = document.querySelector('.mu-preview-tools li.item.view')
     const wrapper = item?.closest('.mu-float-wrapper') as HTMLElement | null
-    return !!wrapper && Number.parseFloat(wrapper.style.opacity || '0') === 1
-  })
+    if (!wrapper || Number.parseFloat(wrapper.style.opacity || '0') !== 1) return false
+
+    const block = document.querySelectorAll('.editor-component figure.mu-diagram-block')[i]
+    if (!block) return false
+
+    const tools = wrapper.getBoundingClientRect()
+    const box = block.getBoundingClientRect()
+    const x = tools.left + tools.width / 2
+    const y = tools.top + tools.height / 2
+    return x >= box.left - 4 && x <= box.right + 4 && y >= box.top - 4 && y <= box.bottom + 4
+  }, index)
 
 const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   await leaveDiagrams(page)
@@ -86,8 +98,15 @@ const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   await page.waitForTimeout(150)
   const box = await block.boundingBox()
   if (!box) throw new Error('diagram block has no box')
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
-  await expect.poll(() => toolbarShown(page), { timeout: 10000 }).toBe(true)
+  // A block taller or wider than the window has its centre off-screen, and the
+  // pointer would then land outside the viewport entirely.
+  const view = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }))
+  const clamp = (lo: number, mid: number, hi: number): number => Math.min(Math.max(mid, lo), hi)
+  await page.mouse.move(
+    clamp(20, box.x + box.width / 2, view.w - 20),
+    clamp(20, box.y + box.height / 2, view.h - 20)
+  )
+  await expect.poll(() => toolbarShownFor(page, index), { timeout: 10000 }).toBe(true)
 }
 
 const openDiagram = async(page: Page, index = 0): Promise<void> => {
