@@ -157,13 +157,20 @@ test.describe('media viewer controls', () => {
       expect(text).not.toContain('editor.mediaViewer')
 
       // The overlay sits at z-index 10002 and the popper is teleported out to
-      // <body>, so "visible" is not enough — it has to paint above it.
-      const onTop = await tip.evaluate((el) => {
-        const { left, top, width, height } = el.getBoundingClientRect()
-        const hit = document.elementFromPoint(left + width / 2, top + height / 2)
-        return !!hit && (el === hit || el.contains(hit))
-      })
-      expect(onTop).toBe(true)
+      // <body>, so "visible" is not enough — it has to paint above it. A popper
+      // is visible before floating-ui has placed it, and measuring it in that
+      // window hit-tests the overlay's top-left corner instead.
+      await expect
+        .poll(
+          () =>
+            tip.evaluate((el) => {
+              const { left, top, width, height } = el.getBoundingClientRect()
+              const hit = document.elementFromPoint(left + width / 2, top + height / 2)
+              return !!hit && (el === hit || el.contains(hit))
+            }),
+          { timeout: 5000 }
+        )
+        .toBe(true)
 
       await page.mouse.move(0, 0)
     }
