@@ -62,3 +62,41 @@ describe('fetchPlantumlImage', () => {
     })
   })
 })
+
+describe('fetchPlantumlImage size cap', () => {
+  const MEGABYTE = 1024 * 1024
+
+  /** A chunked response: no content-length, so only counting as it arrives can stop it. */
+  const endless = (pulls: { count: number }): Response =>
+    new Response(
+      new ReadableStream<Uint8Array>({
+        pull(controller) {
+          pulls.count++
+          controller.enqueue(new Uint8Array(MEGABYTE))
+        }
+      }),
+      { status: 200, headers: { 'content-type': 'image/png' } }
+    )
+
+  it('stops reading a body that never declares its length', async() => {
+    const pulls = { count: 0 }
+    const fetchImpl = vi.fn<FetchLike>(async() => endless(pulls))
+
+    const result = await fetchPlantumlImage(URL, fetchImpl)
+
+    expect(result).toEqual({ ok: false, error: 'Response too large' })
+    // It gave up at the cap rather than buffering whatever the server sends.
+    expect(pulls.count).toBeLessThanOrEqual(MAX_BYTES / MEGABYTE + 2)
+  })
+
+  it('keeps a body that stays under the cap', async() => {
+    const fetchImpl = vi.fn<FetchLike>(async() =>
+      respond(new Uint8Array(MEGABYTE), { 'content-type': 'image/png' })
+    )
+
+    const result = await fetchPlantumlImage(URL, fetchImpl)
+
+    expect(result.ok).toBe(true)
+    expect(result.ok && result.data.byteLength).toBe(MEGABYTE)
+  })
+})
