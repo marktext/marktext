@@ -167,6 +167,51 @@ describe('attachDragDropImageHandlers — local image FILE', () => {
         expect(createdBlocks[0].text).toBe('![shot.png](/abs/shot.png)');
     });
 
+    // A dropped file's path is whatever the filesystem holds — spaces, `#` and
+    // parentheses included — and a markdown destination cannot carry those
+    // raw. Left unencoded, the inserted text is not an image at all, so the
+    // placeholder never renders and `imageAction`'s result has nothing to
+    // replace.
+    it('percent-encodes a dropped path that markdown cannot carry raw', async () => {
+        const imageAction = vi.fn().mockResolvedValue('assets/shot.png');
+        const getPathForFile = vi.fn().mockReturnValue('/abs/My Photos (2024)/shot.png');
+        const muya = makeMuya({ imageAction, getPathForFile });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        const file = new File(['x'], 'shot.png', { type: 'image/png' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+        await Promise.resolve();
+
+        expect(createdBlocks[0].text).toMatch(
+            /^!\[loading-[^\]]+\]\(\/abs\/My%20Photos%20%282024%29\/shot\.png\)$/,
+        );
+        // The hook still receives the real path, not the markdown spelling.
+        expect(imageAction).toHaveBeenCalledWith({
+            src: '/abs/My Photos (2024)/shot.png',
+            alt: 'shot.png',
+            title: '',
+        });
+    });
+
+    it('percent-encodes a dropped path with no imageAction configured', () => {
+        const getPathForFile = vi.fn().mockReturnValue('/abs/My Photos/shot.png');
+        const muya = makeMuya({ getPathForFile });
+        const contentDom = makeDropTarget(muya);
+        attachDragDropImageHandlers(muya as unknown as Muya);
+
+        const file = new File(['x'], 'shot.png', { type: 'image/png' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+
+        muya.domNode.dispatchEvent(dropEvent(contentDom, dt));
+
+        expect(createdBlocks[0].text).toBe('![shot.png](/abs/My%20Photos/shot.png)');
+    });
+
     it('does nothing when getPathForFile yields no path', () => {
         const imageAction = vi.fn().mockResolvedValue('x');
         const getPathForFile = vi.fn().mockReturnValue('');

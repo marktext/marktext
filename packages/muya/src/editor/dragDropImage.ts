@@ -6,7 +6,7 @@ import { IMAGE_EXT_REG, URL_REG } from '../config';
 import { findContentDOM } from '../selection/dom';
 import { getUniqueId } from '../utils';
 import { getBlock, query } from '../utils/dom';
-import { checkImageContentType, getImageInfo, getImageSrc } from '../utils/image';
+import { checkImageContentType, encodeImageSrc, getImageInfo, getImageSrc } from '../utils/image';
 import logger from '../utils/logger';
 
 const debug = logger('editor:dragDropImage:');
@@ -231,10 +231,15 @@ async function persistDroppedImage(
 // When an `imageAction` hook is configured we insert a `![loading-id](path)`
 // placeholder and let `persistDroppedImage` swap in the persisted src once the
 // hook resolves (copy-to-assets / upload). Without the hook there is nothing to
-// persist to, so we insert a clean `![name](path)` with the raw path verbatim —
+// persist to, so we insert a clean `![name](path)` —
 // matching the documented `imageAction` contract and the imageEditTool's
 // direct-replacement behaviour (a permanent `loading-*` alt would otherwise be
 // left behind).
+//
+// Either way the path goes into the markdown percent-encoded: a destination
+// cannot carry a raw space, `#` or paren, and an unencoded one does not parse
+// as an image — leaving the drop as literal text with nothing for
+// `persistDroppedImage` to find. The hook itself still gets the real path.
 function handleFileImage(
     muya: Muya,
     event: DragEvent,
@@ -250,14 +255,15 @@ function handleFileImage(
         return false;
 
     const { name } = image;
+    const encodedPath = encodeImageSrc(path);
 
     if (!muya.options.imageAction) {
-        insertImageParagraph(muya, target, `![${name}](${path})`);
+        insertImageParagraph(muya, target, `![${name}](${encodedPath})`);
         return true;
     }
 
     const loadingId = `loading-${getUniqueId()}`;
-    insertImageParagraph(muya, target, `![${loadingId}](${path})`);
+    insertImageParagraph(muya, target, `![${loadingId}](${encodedPath})`);
 
     void persistDroppedImage(muya, path, name, loadingId);
 
