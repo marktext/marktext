@@ -6,11 +6,21 @@ import { buildPlantumlUrl, type PlantumlFormat } from './plantumlUrl'
 const TIMEOUT_MS = 15_000
 const MAX_BYTES = 20 * 1024 * 1024
 
+// These handlers are registered before preferences exist, so the server the
+// fetch is allowed to reach is wired in once they do.
+let configuredServer: (() => string) | null = null
+
+export const setPlantumlServerSource = (source: () => string): void => {
+  configuredServer = source
+}
+
 export const registerDiagramHandlers = (): void => {
   ipcMain.handle(
     'mt::diagram::fetch-plantuml',
     async(_e, server: string, encoded: string, format: PlantumlFormat): Promise<PlantumlFetchResult> => {
-      const url = buildPlantumlUrl(server, encoded, format)
+      if (!configuredServer) return { ok: false, error: 'Invalid PlantUML request' }
+
+      const url = buildPlantumlUrl(server, encoded, format, configuredServer())
       if (!url) return { ok: false, error: 'Invalid PlantUML request' }
 
       const controller = new AbortController()
