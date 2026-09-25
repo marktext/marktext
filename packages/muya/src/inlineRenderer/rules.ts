@@ -124,6 +124,12 @@ export const inlineRules = {
 
 export type InlineRules = typeof inlineRules;
 
+// Veto set for a tentative `:shortcode:` — every inline rule but the five that
+// cannot outrank one. Named after its single caller since the emphasis rewrite:
+// it used to answer "what binds tighter than emphasis" too, and that question
+// now lives in `emphasis.ts::inertRunLength`. The membership is inherited from
+// that era and is wider than an emoji guard strictly needs; narrowing it is a
+// behaviour change, so it is left as-is.
 const EXCLUDE_KEYS = [
     'tail_header',
     'backlash',
@@ -134,11 +140,11 @@ const EXCLUDE_KEYS = [
 
 type InlineRuleKeys = keyof InlineRules;
 
-type ValidateRules = {
+type EmojiValidateRules = {
     [keys in Exclude<InlineRuleKeys, typeof EXCLUDE_KEYS[number]>]: RegExp
 };
 
-export const validateRules: ValidateRules = (Object.keys(inlineRules) as InlineRuleKeys[]).reduce((acc, key) => {
+export const emojiValidateRules: EmojiValidateRules = (Object.keys(inlineRules) as InlineRuleKeys[]).reduce((acc, key) => {
     // work around with TypeScript type: https://stackoverflow.com/questions/56565528/typescript-const-assertions-how-to-use-array-prototype-includes
     if ((EXCLUDE_KEYS as ReadonlyArray<string>).includes(key)) {
         return acc;
@@ -149,7 +155,7 @@ export const validateRules: ValidateRules = (Object.keys(inlineRules) as InlineR
             [key]: inlineRules[key],
         };
     }
-}, {} as ValidateRules);
+}, {} as EmojiValidateRules);
 
 // Veto set used when validating a tentative `[text](url)` / reference link.
 // Per CommonMark §6.6 only code spans, raw HTML tags and `<...>` autolinks bind

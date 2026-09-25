@@ -9,7 +9,7 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
 import { scanEmphasisSpans } from './emphasis';
-import { BACKSLASH_MATH_RULES, beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
+import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import {
     getAttributes,
     lowerPriority,
@@ -272,7 +272,7 @@ function tryChunks(state: ILexState): boolean {
                 const prevChar = state.originSrc[state.pos - 1];
                 if (
                     (prevChar && /\w/.test(prevChar))
-                    || !lowerPriority(state.src, to[0].length, validateRules)
+                    || !lowerPriority(state.src, to[0].length, emojiValidateRules)
                 ) {
                     return false;
                 }
@@ -764,8 +764,11 @@ function tryTailHeader(state: ILexState): boolean {
     return true;
 }
 
-// The fixed, priority-ordered inline-rule handler list the tokenizer loop
-// iterates. This array order IS the rule-precedence contract.
+// The fixed order in which the tokenizer loop consults the inline-rule
+// handlers. For every rule but emphasis this order IS the precedence contract.
+// `tryStrongEm` is the exception: it sits third but defers to the constructs
+// `emphasis.ts::inertRunLength` steps over, several of which are handled
+// further down this list.
 const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBackslashMath,
     tryBacklash,
@@ -786,6 +789,13 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
+// `emphasisSpans` is passed only by `tryStrongEm`, and only because its child
+// lies strictly inside a pair the parent's scan already closed, so the parent's
+// map describes it. Every other recursion must leave it null and let the child
+// scan its own string: a link, reference link or html tag is inert to the
+// parent scan, which therefore holds no spans inside it, while `~~` is *not*
+// inert, so a parent span may straddle the del boundary and its `end` would
+// fall outside the child's string.
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {
