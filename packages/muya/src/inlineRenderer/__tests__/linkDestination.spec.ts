@@ -189,6 +189,79 @@ describe('inline lexer — CommonMark 0.31 inline links and images', () => {
     });
 });
 
+// The parse decides where a link stops, and `correctUrl` rewrites the pattern's
+// captured groups to match. Get that bookkeeping wrong by one character and the
+// renderer draws a link's markers at the wrong offsets, which no single example
+// is likely to catch — so assert the two invariants over a corpus instead:
+// every token accounts for exactly the source it covers, and a link's token
+// still spells out its own raw text.
+describe('lexer invariants around the link tail', () => {
+    // Fixed seed, so a failure is reproducible.
+    function eachSample(check: (src: string, label: string) => void) {
+        const alphabet = [...'[]()<>"\'\\ abc.*_`!#~$:/'];
+        let seed = 20260925;
+        const random = () => {
+            seed = (seed * 1103515245 + 12345) & 0x7FFFFFFF;
+            return seed / 0x7FFFFFFF;
+        };
+
+        for (let i = 0; i < 20000; i++) {
+            const length = 4 + Math.floor(random() * 20);
+            let src = '';
+            for (let j = 0; j < length; j++)
+                src += alphabet[Math.floor(random() * alphabet.length)];
+            check(src, 'random');
+        }
+
+        // Every line of the spec, not just the link sections: a link's tail can
+        // run into any other construct.
+        for (const example of cms.tests as ISpecExample[]) {
+            for (const line of example.markdown.split('\n'))
+                check(line, `CM #${example.number}`);
+        }
+    }
+
+    it('reassembles the input from the token raws', () => {
+        const broken: string[] = [];
+
+        eachSample((src, label) => {
+            const joined = tokenizer(src, { hasBeginRules: false })
+                .map(token => token.raw ?? '')
+                .join('');
+            if (joined !== src)
+                broken.push(`${label} ${JSON.stringify(src)} -> ${JSON.stringify(joined)}`);
+        });
+
+        expect(broken.slice(0, 5)).toEqual([]);
+    });
+
+    it('keeps a link or image token spelling out its own raw text', () => {
+        const broken: string[] = [];
+
+        const walk = (tokens: Token[], src: string, label: string) => {
+            for (const token of tokens) {
+                if (token.type === 'link' || token.type === 'image') {
+                    const anchor = token.type === 'link' ? token.anchor : token.alt;
+                    const tail = token.type === 'link' ? token.hrefAndTitle : token.srcAndTitle;
+                    const rebuilt = `${token.marker}${anchor}${token.backlash.first}](${tail}${token.backlash.second})`;
+                    if (rebuilt !== token.raw)
+                        broken.push(`${label} ${JSON.stringify(src)}: raw ${JSON.stringify(token.raw)} vs ${JSON.stringify(rebuilt)}`);
+                    if (token.range.end - token.range.start !== token.raw.length)
+                        broken.push(`${label} ${JSON.stringify(src)}: range ${token.range.start}..${token.range.end} over ${JSON.stringify(token.raw)}`);
+                }
+                if ('children' in token && Array.isArray(token.children))
+                    walk(token.children, src, label);
+            }
+        };
+
+        eachSample((src, label) => {
+            walk(tokenizer(src, { hasBeginRules: false }), src, label);
+        });
+
+        expect(broken.slice(0, 5)).toEqual([]);
+    });
+});
+
 describe('link destinations (#2377)', () => {
     // The two lines from the issue report.
     it('a bare destination may not contain spaces', () => {
