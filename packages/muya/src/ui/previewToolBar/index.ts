@@ -11,11 +11,13 @@ import ICONS from './config';
 
 import './index.css';
 
+const INSET = 5;
+
 const defaultOptions = {
     placement: 'right-start' as const,
     offsetOptions: {
-        mainAxis: -95,
-        crossAxis: 5,
+        mainAxis: 0,
+        crossAxis: INSET,
         alignmentAxis: 0,
     },
     showArrow: false,
@@ -58,8 +60,9 @@ export class PreviewToolBar extends BaseFloat {
                     return this.hide();
 
                 this._block = block;
-                this.show(container);
                 this.render();
+                this._tuckInsideBlock();
+                this.show(container);
             }
             else {
                 this.hide();
@@ -67,6 +70,21 @@ export class PreviewToolBar extends BaseFloat {
         }, 300);
 
         eventCenter.attachDOMEvent(document.body, 'mousemove', handler);
+    }
+
+    // `right-start` puts the float's left edge on the block's right edge; a
+    // negative mainAxis pulls it back inside the block's top-right corner.
+    // Measured after `render()` and before `show()`, so the first
+    // `computePosition` already sees the width this toolbar will have.
+    private _tuckInsideBlock() {
+        const width = this.container?.offsetWidth ?? 0;
+        if (this.floatBox)
+            this.floatBox.style.width = `${width}px`;
+        this.options.offsetOptions = {
+            mainAxis: -(width + INSET),
+            crossAxis: INSET,
+            alignmentAxis: 0,
+        };
     }
 
     render() {
