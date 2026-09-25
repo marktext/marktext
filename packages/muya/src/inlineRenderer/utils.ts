@@ -218,6 +218,60 @@ export function parseSrcAndTitle(text = '') {
     return { src, title };
 }
 
+// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
+// www/url autolink's extent to drop characters that are not part of the link.
+// The match is greedy (`\S+`), so these are applied after the regex, mirroring
+// cmark-gfm's `autolink_delim`:
+//   - a `<` ends the autolink;
+//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
+//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
+//     autolink can sit inside parentheses;
+//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
+// The last three rules interleave and are applied repeatedly (e.g. `).`).
+export function trimAutoLinkExtent(raw: string): string {
+    let end = raw.length;
+
+    const lt = raw.indexOf('<');
+    if (lt !== -1)
+        end = lt;
+
+    let changed = true;
+    while (changed && end > 0) {
+        changed = false;
+        const c = raw[end - 1];
+
+        if ('?!.,:*_~'.includes(c)) {
+            end -= 1;
+            changed = true;
+        }
+        else if (c === ')') {
+            let opening = 0;
+            let closing = 0;
+            for (let i = 0; i < end; i++) {
+                if (raw[i] === '(')
+                    opening += 1;
+                else if (raw[i] === ')')
+                    closing += 1;
+            }
+            if (closing > opening) {
+                end -= 1;
+                changed = true;
+            }
+        }
+        else if (c === ';') {
+            let entityStart = end - 2;
+            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
+                entityStart -= 1;
+            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
+                end = entityStart;
+                changed = true;
+            }
+        }
+    }
+
+    return raw.slice(0, end);
+}
+
 export function correctUrl(token: string[] | null) {
     if (token && typeof token[4] === 'string') {
         const lastParenIndex = findClosingBracket(token[4], '()');

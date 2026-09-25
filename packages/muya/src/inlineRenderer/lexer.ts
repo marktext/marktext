@@ -15,6 +15,7 @@ import {
     getAttributes,
     lowerPriority,
     parseSrcAndTitle,
+    trimAutoLinkExtent,
 } from './utils';
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -32,9 +33,11 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
-    // Emphasis pairings over `originSrc`, computed on first use because most
-    // inline strings hold no `*` or `_` at all.
+    // Emphasis pairings keyed by absolute position. Inherited from the
+    // enclosing em/strong when there is one, otherwise scanned on first use —
+    // most inline strings hold no `*` or `_` at all.
     emphasisSpans: Map<number, IEmphasisSpan> | null;
+    basePos: number;
     inlineRules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
@@ -211,21 +214,18 @@ function tryStrongEm(state: ILexState): boolean {
 
     state.emphasisSpans ??= scanEmphasisSpans(
         state.originSrc,
+        state.basePos,
         state.inlineRules,
+        state.labels,
         state.options,
     );
 
-    const span = state.emphasisSpans.get(state.originSrc.length - state.src.length);
+    const span = state.emphasisSpans.get(state.pos);
     if (!span)
         return false;
 
     const length = span.end - span.start;
     const raw = state.src.substring(0, length);
-    // CommonMark §6.4 rule 17: an inline that binds more tightly and reaches
-    // past the span wins over it, e.g. `*[foo*](bar)` is a link, not emphasis.
-    if (!lowerPriority(state.src, length, validateRules))
-        return false;
-
     const marker = raw.substring(0, span.markerLen);
     const inner = raw.substring(span.markerLen, length - span.markerLen);
     const backlash = /(\\*)$/.exec(inner)![1];
@@ -249,6 +249,7 @@ function tryStrongEm(state: ILexState): boolean {
             false,
             state.labels,
             state.options,
+            state.emphasisSpans,
         ),
         backlash,
     });
@@ -592,60 +593,6 @@ function tryHtmlEscape(state: ILexState): boolean {
     return true;
 }
 
-// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
-// www/url autolink's extent to drop characters that are not part of the link.
-// The match is greedy (`\S+`), so these are applied after the regex, mirroring
-// cmark-gfm's `autolink_delim`:
-//   - a `<` ends the autolink;
-//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
-//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
-//     autolink can sit inside parentheses;
-//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
-// The last three rules interleave and are applied repeatedly (e.g. `).`).
-function trimAutoLinkExtent(raw: string): string {
-    let end = raw.length;
-
-    const lt = raw.indexOf('<');
-    if (lt !== -1)
-        end = lt;
-
-    let changed = true;
-    while (changed && end > 0) {
-        changed = false;
-        const c = raw[end - 1];
-
-        if ('?!.,:*_~'.includes(c)) {
-            end -= 1;
-            changed = true;
-        }
-        else if (c === ')') {
-            let opening = 0;
-            let closing = 0;
-            for (let i = 0; i < end; i++) {
-                if (raw[i] === '(')
-                    opening += 1;
-                else if (raw[i] === ')')
-                    closing += 1;
-            }
-            if (closing > opening) {
-                end -= 1;
-                changed = true;
-            }
-        }
-        else if (c === ';') {
-            let entityStart = end - 2;
-            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
-                entityStart -= 1;
-            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
-                end = entityStart;
-                changed = true;
-            }
-        }
-    }
-
-    return raw.slice(0, end);
-}
-
 function tryAutoLinkExtension(state: ILexState): boolean {
     const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
     if (
@@ -886,7 +833,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {
         originSrc: src,
@@ -895,7 +842,8 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         pending: '',
         pendingStartPos: pos,
         tokens: [],
-        emphasisSpans: null,
+        emphasisSpans,
+        basePos: pos,
         inlineRules,
         labels,
         options,
