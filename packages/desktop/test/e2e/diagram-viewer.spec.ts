@@ -17,6 +17,22 @@ const DOC = [
   'Alice->Bob: Hello Bob',
   'Bob-->Alice: Hi Alice',
   '```',
+  '',
+  '```mermaid',
+  'flowchart TD',
+  ...Array.from(
+    { length: 30 },
+    (_, i) => `    N${i}["A fairly long label number ${i}"] --> N${i + 1}["Label ${i + 1}"]`
+  ),
+  '```',
+  '',
+  '```mermaid',
+  'flowchart LR',
+  ...Array.from(
+    { length: 20 },
+    (_, i) => `    W${i}["A fairly long label number ${i}"] --> W${i + 1}["Label ${i + 1}"]`
+  ),
+  '```',
   ''
 ].join('\n')
 
@@ -50,6 +66,31 @@ const restoreSaveDialog = async(app: ElectronApplication): Promise<void> => {
     }
   })
 }
+
+interface Measurement {
+  scale: number
+  contentW: number
+  contentH: number
+  viewportW: number
+  viewportH: number
+}
+
+const measure = (page: Page): Promise<Measurement> =>
+  page.evaluate(() => {
+    const stage = document.querySelector('.media-viewer-stage') as HTMLElement
+    const content = stage.firstElementChild as HTMLElement
+    const box = content.getBoundingClientRect()
+    return {
+      scale: Number.parseFloat(/scale\(([\d.]+)\)/.exec(content.style.transform)?.[1] ?? '1'),
+      contentW: Math.round(box.width),
+      contentH: Math.round(box.height),
+      viewportW: stage.clientWidth,
+      viewportH: stage.clientHeight
+    }
+  })
+
+const zoomLabel = (page: Page): Promise<string> =>
+  page.locator('.media-viewer-toolbar .zoom-level').innerText()
 
 const viewerVisible = (page: Page): Promise<boolean> =>
   page.evaluate(() => {
@@ -101,7 +142,8 @@ const hoverDiagram = async(page: Page, index: number): Promise<void> => {
   // A block taller or wider than the window has its centre off-screen, and the
   // pointer would then land outside the viewport entirely.
   const view = await page.evaluate(() => ({ w: window.innerWidth, h: window.innerHeight }))
-  const clamp = (lo: number, mid: number, hi: number): number => Math.min(Math.max(mid, lo), hi)
+  const clamp = (lo: number, mid: number, hi: number): number =>
+    Math.min(Math.max(mid, lo), hi)
   await page.mouse.move(
     clamp(20, box.x + box.width / 2, view.w - 20),
     clamp(20, box.y + box.height / 2, view.h - 20)
@@ -300,6 +342,35 @@ test.describe('diagram viewer', () => {
 
     await expectNoRendererErrors(app)
   })
+
+  // A diagram too big to read is the case the viewer exists for, and either axis
+  // can be the binding one.
+  for (const [label, index, axis] of [
+    ['taller', 2, 'contentH'],
+    ['wider', 3, 'contentW']
+  ] as const) {
+    test(`a diagram ${label} than the window opens fitted, and 1 undoes it`, async() => {
+      await openDiagram(page, index)
+
+      const fitted = await measure(page)
+      expect(fitted.scale).toBeLessThan(1)
+      expect(fitted.contentW).toBeLessThanOrEqual(fitted.viewportW + 1)
+      expect(fitted.contentH).toBeLessThanOrEqual(fitted.viewportH + 1)
+
+      await page.keyboard.press('1')
+      await expect.poll(() => zoomLabel(page), { timeout: 5000 }).toBe('100%')
+      const actual = await measure(page)
+      const viewport = axis === 'contentW' ? actual.viewportW : actual.viewportH
+      expect(actual[axis]).toBeGreaterThan(viewport)
+
+      await page.keyboard.press('0')
+      await expect
+        .poll(async() => (await measure(page)).scale, { timeout: 5000 })
+        .toBeCloseTo(fitted.scale, 3)
+
+      await expectNoRendererErrors(app)
+    })
+  }
 
   test('saving as SVG writes a standalone, readable file', async() => {
     const target = join(savePath, 'flowchart.svg')

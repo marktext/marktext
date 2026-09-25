@@ -80,11 +80,22 @@ export interface SerializedSvg {
   height: number
 }
 
-export const serializeSvg = (svg: SVGSVGElement, inlineStyles: boolean): SerializedSvg => {
+/**
+ * The size a diagram was drawn at, which is what its `viewBox` records — the
+ * laid-out size is whatever the editor column happened to squeeze it into.
+ */
+export const naturalSvgSize = (svg: SVGSVGElement): { width: number; height: number } => {
   const box = svg.viewBox?.baseVal
   const rect = svg.getBoundingClientRect()
-  const width = Math.max(1, Math.round(box?.width || rect.width))
-  const height = Math.max(1, Math.round(box?.height || rect.height))
+
+  return {
+    width: Math.max(1, Math.round(box?.width || rect.width)),
+    height: Math.max(1, Math.round(box?.height || rect.height))
+  }
+}
+
+export const serializeSvg = (svg: SVGSVGElement, inlineStyles: boolean): SerializedSvg => {
+  const { width, height } = naturalSvgSize(svg)
 
   const clone = svg.cloneNode(true) as SVGSVGElement
   if (inlineStyles) inlineComputedStyles(svg, clone)

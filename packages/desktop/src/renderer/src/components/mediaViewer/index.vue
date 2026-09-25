@@ -145,7 +145,12 @@ import {
   ZoomOut as ZoomOutIcon
 } from '@element-plus/icons-vue'
 import { ZoomPanController } from '@/util/zoomPan'
-import { exportDiagram, type DiagramSource, type ExportFormat } from '@/util/diagramExport'
+import {
+  exportDiagram,
+  naturalSvgSize,
+  type DiagramSource,
+  type ExportFormat
+} from '@/util/diagramExport'
 import notice from '@/services/notification'
 
 const PAN_STEP = 40
@@ -178,14 +183,28 @@ const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
 const diagram = ref<DiagramSource | null>(null)
 const copied = ref(false)
+const touched = ref(false)
 
 let controller: ZoomPanController | null = null
 let restoreFocusTo: HTMLElement | null = null
 let copiedTimer = 0
+let fitting = false
 
 const zoomIn = () => controller?.zoomBy(ZOOM_STEP)
 const zoomOut = () => controller?.zoomBy(1 / ZOOM_STEP)
-const fit = () => controller?.fit()
+const fit = () => {
+  if (!controller) return
+  // A fit is not a gesture: it must not switch off the auto-fit below.
+  fitting = true
+  controller.fit()
+  fitting = false
+}
+
+// An image is only measurable once it loads, which can land after the reader
+// has already zoomed — their gesture wins.
+const fitIfUntouched = () => {
+  if (!touched.value) fit()
+}
 const actualSize = () => controller?.actualSize()
 
 const clearStage = () => {
@@ -334,9 +353,11 @@ const open = async (
   controller = new ZoomPanController(stage, content, {
     onChange: (state) => {
       scale.value = state.scale
+      if (!fitting) touched.value = true
     }
   })
   scale.value = 1
+  touched.value = false
 
   // Re-opening while open would capture the overlay itself as the element to
   // hand focus back to, and closing would then drop focus on the floor.
@@ -347,6 +368,7 @@ const open = async (
   document.addEventListener('keydown', onKeydown, true)
 
   await nextTick()
+  fitIfUntouched()
   rootRef.value?.focus()
 }
 
@@ -354,9 +376,10 @@ const openImage = (url: string) =>
   open((stage) => {
     const img = document.createElement('img')
     img.src = url
-    img.style.cssText =
-      'max-width:90vw;max-height:90vh;object-fit:contain;user-select:none;display:block;'
+    img.style.cssText = 'user-select:none;display:block;'
     img.draggable = false
+    // Only measurable once the bytes are in.
+    img.addEventListener('load', fitIfUntouched, { once: true })
     stage.appendChild(img)
     return img
   }, t('editor.mediaViewer.title'))
@@ -370,13 +393,28 @@ const openDiagram = (source: DiagramSource, name: string | null) =>
       // the overlay's dark scrim the edges would vanish. Give them the
       // editor's own background, which is what they were drawn against.
       figure.style.cssText =
-        'max-width:90vw;max-height:90vh;margin:0;padding:16px;border-radius:4px;' +
-        'background:var(--editorBgColor);'
+        'margin:0;padding:16px;border-radius:4px;background:var(--editorBgColor);'
 
       const preview = source.preview.cloneNode(true) as HTMLElement
       // The dialog already carries this name; announcing it twice helps nobody.
       preview.removeAttribute('role')
       preview.removeAttribute('aria-label')
+
+      const live = source.preview.querySelector('svg')
+      const clone = preview.querySelector('svg')
+      // Renderers leave their root at `width="100%"`, which has no intrinsic
+      // size to shrink-to-fit against — the clone would lay out at the CSS
+      // default 300px however large the diagram is, and there would be nothing
+      // for `fit` to scale down.
+      if (live && clone) {
+        const { width, height } = naturalSvgSize(live)
+        clone.setAttribute('width', String(width))
+        clone.setAttribute('height', String(height))
+        clone.style.removeProperty('max-width')
+      }
+      // A PlantUML preview is a remote <img>, measurable only once it decodes.
+      preview.querySelector('img')?.addEventListener('load', fitIfUntouched, { once: true })
+
       figure.appendChild(preview)
       stage.appendChild(figure)
 
@@ -504,5 +542,12 @@ defineExpose({ openImage, openDiagram, close })
   justify-content: center;
   cursor: grab;
   overflow: hidden;
+}
+
+/* The content is measured to compute the fit scale, so it has to lay out at
+   its natural size — flex would otherwise shrink a wide one to the stage and
+   report that it already fits. */
+.image-viewer > .media-viewer-stage > * {
+  flex: none;
 }
 </style>

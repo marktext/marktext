@@ -126,7 +126,8 @@ test.describe('media viewer controls', () => {
 
   test('the arrow keys pan the content', async() => {
     await openViewer(page)
-    expect(await contentTransform(page)).toBe('')
+    // The fixture image fits, so opening leaves it untransformed.
+    expect(await contentTransform(page)).toBe('translate(0px, 0px) scale(1)')
 
     await page.keyboard.press('ArrowRight')
     const moved = await contentTransform(page)
