@@ -67,9 +67,9 @@ function applyFinalizations(target: HTMLElement, fallback: string): boolean {
 // asynchronously — it's drawn from a theme callback after its font loads — so
 // neither the element nor its `width`/`height` attributes are there
 // synchronously. Try once, then observe `target` until the diagram lands.
-export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: string): void {
+export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: string): () => void {
     if (applyFinalizations(target, fallbackLabel))
-        return;
+        return () => {};
 
     const observer = new MutationObserver(() => {
         if (applyFinalizations(target, fallbackLabel))
@@ -82,7 +82,14 @@ export function finalizeRenderedDiagram(target: HTMLElement, fallbackLabel: stri
         attributeFilter: ['width', 'height'],
     });
     // Safety net so the observer can't leak if the diagram never renders.
-    setTimeout(() => observer.disconnect(), 5000);
+    const timer = setTimeout(() => observer.disconnect(), 5000);
+
+    // The caller owns this render: it must be able to give up on one that is
+    // still waiting, rather than let it describe what replaced it.
+    return () => {
+        clearTimeout(timer);
+        observer.disconnect();
+    };
 }
 
 const FRONTMATTER = /^---\r?\n[\s\S]*?\r?\n---\r?\n/;

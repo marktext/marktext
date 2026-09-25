@@ -55,6 +55,31 @@ describe('finalizeRenderedDiagram — viewBox', () => {
     });
 });
 
+describe('finalizeRenderedDiagram — giving up on a render', () => {
+    it('stops describing a diagram once the caller cancels', async () => {
+        const target = makeTarget();
+
+        const cancel = finalizeRenderedDiagram(target, FALLBACK);
+        cancel();
+
+        // What arrives now belongs to whatever replaced that render.
+        target.innerHTML = '<svg width="300" height="150"></svg>';
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        expect(target.getAttribute('role')).toBeNull();
+        expect(target.getAttribute('aria-label')).toBeNull();
+    });
+
+    it('is safe to cancel a render that already finished', () => {
+        const target = makeTarget('<svg viewBox="0 0 1 1"></svg>');
+
+        const cancel = finalizeRenderedDiagram(target, FALLBACK);
+        cancel();
+
+        expect(target.getAttribute('role')).toBe('img');
+    });
+});
+
 describe('finalizeRenderedDiagram — accessible name', () => {
     it('marks the target as an image', () => {
         const target = makeTarget('<svg viewBox="0 0 1 1"></svg>');

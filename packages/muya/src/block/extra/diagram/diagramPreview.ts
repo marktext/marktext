@@ -12,6 +12,7 @@ const debug = logger('diagramPreview:');
 class DiagramPreview extends Parent {
     private _code: string;
     private _type: string;
+    private _cancelFinalize: (() => void) | null = null;
     static override blockName = 'diagram-preview';
 
     static create(muya: Muya, state: IDiagramState) {
@@ -66,6 +67,10 @@ class DiagramPreview extends Parent {
         if (this._code !== code)
             this._code = code;
 
+        // A previous render may still be waiting for its `<svg>`; it must not
+        // describe whatever this one puts in its place.
+        this._cancelFinalize?.();
+        this._cancelFinalize = null;
         this.domNode!.removeAttribute('role');
         this.domNode!.removeAttribute('aria-label');
 
@@ -84,7 +89,7 @@ class DiagramPreview extends Parent {
                     plantumlServer,
                     sequenceTheme,
                 });
-                finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
+                this._cancelFinalize = finalizeRenderedDiagram(this.domNode!, i18n.t('Diagram'));
             }
             catch (error) {
                 const detail
