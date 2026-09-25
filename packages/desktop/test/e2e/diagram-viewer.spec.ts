@@ -163,6 +163,25 @@ test.describe('diagram viewer', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('the export controls name themselves with localized tooltips', async() => {
+    await openDiagram(page)
+
+    const controls = page.locator('.media-viewer-toolbar button')
+    for (const index of [4, 5, 6]) {
+      await controls.nth(index).hover()
+
+      const tip = page.locator('.el-popper[role="tooltip"]:visible').first()
+      await expect(tip).toBeVisible({ timeout: 5000 })
+      const text = (await tip.innerText()).trim()
+      expect(text.length).toBeGreaterThan(0)
+      expect(text).not.toContain('editor.mediaViewer')
+
+      await page.mouse.move(0, 0)
+    }
+
+    await expectNoRendererErrors(app)
+  })
+
   test('closing the viewer drops the export controls again', async() => {
     await openDiagram(page)
     await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(7)

@@ -132,6 +132,71 @@ test.describe('media viewer controls', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('every control names itself with a localized tooltip', async() => {
+    await openViewer(page)
+
+    const controls = page.locator('.media-viewer-toolbar button')
+    const count = await controls.count()
+    expect(count).toBe(4)
+
+    for (let i = 0; i < count; i++) {
+      await controls.nth(i).hover()
+
+      const tip = page.locator('.el-popper[role="tooltip"]:visible').first()
+      await expect(tip).toBeVisible({ timeout: 5000 })
+
+      const text = (await tip.innerText()).trim()
+      expect(text.length).toBeGreaterThan(0)
+      // A missing key renders as the key itself.
+      expect(text).not.toContain('editor.mediaViewer')
+
+      // The overlay sits at z-index 10002 and the popper is teleported out to
+      // <body>, so "visible" is not enough — it has to paint above it.
+      const onTop = await tip.evaluate((el) => {
+        const { left, top, width, height } = el.getBoundingClientRect()
+        const hit = document.elementFromPoint(left + width / 2, top + height / 2)
+        return !!hit && (el === hit || el.contains(hit))
+      })
+      expect(onTop).toBe(true)
+
+      await page.mouse.move(0, 0)
+    }
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('moving along the toolbar leaves only one tooltip up', async() => {
+    await openViewer(page)
+
+    const controls = page.locator('.media-viewer-toolbar button')
+    await controls.nth(0).hover()
+    await expect(page.locator('.el-popper[role="tooltip"]:visible')).toHaveCount(1, {
+      timeout: 5000
+    })
+
+    // The default hide delay used to leave the previous bubble up while the
+    // next one opened.
+    for (let i = 1; i < (await controls.count()); i++) {
+      await controls.nth(i).hover()
+      await expect(page.locator('.el-popper[role="tooltip"]:visible')).toHaveCount(1, {
+        timeout: 5000
+      })
+    }
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('the close control has a tooltip too', async() => {
+    await openViewer(page)
+    await page.locator('.image-viewer .icon-close').hover()
+
+    const tip = page.locator('.el-popper[role="tooltip"]:visible').first()
+    await expect(tip).toBeVisible({ timeout: 5000 })
+    expect((await tip.innerText()).trim().length).toBeGreaterThan(0)
+
+    await expectNoRendererErrors(app)
+  })
+
   test('the editor behind the viewer stops taking pointer events', async() => {
     await openViewer(page)
 

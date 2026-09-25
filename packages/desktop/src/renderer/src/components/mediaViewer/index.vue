@@ -9,78 +9,111 @@
       :aria-label="label"
       tabindex="-1"
     >
-      <span
-        class="icon-close"
-        role="button"
-        tabindex="0"
-        :title="t('editor.mediaViewer.close')"
-        :aria-label="t('editor.mediaViewer.close')"
-        @click="close"
-        @keydown.enter.prevent="close"
-        @keydown.space.prevent="close"
+      <el-tooltip
+        :content="t('editor.mediaViewer.close')"
+        v-bind="TOOLTIP"
+        placement="bottom-start"
       >
-        <CloseIcon />
-      </span>
+        <span
+          class="icon-close"
+          role="button"
+          tabindex="0"
+          :aria-label="t('editor.mediaViewer.close')"
+          @click="close"
+          @keydown.enter.prevent="close"
+          @keydown.space.prevent="close"
+        >
+          <CloseIcon />
+        </span>
+      </el-tooltip>
       <div class="media-viewer-toolbar">
-        <button
-          type="button"
-          :title="t('editor.mediaViewer.zoomOut')"
-          :aria-label="t('editor.mediaViewer.zoomOut')"
-          @click="zoomOut"
+        <el-tooltip
+          :content="t('editor.mediaViewer.zoomOut')"
+          v-bind="TOOLTIP"
         >
-          <ZoomOutIcon />
-        </button>
-        <button
-          type="button"
-          class="zoom-level"
-          :title="t('editor.mediaViewer.actualSize')"
-          :aria-label="t('editor.mediaViewer.actualSize')"
-          @click="actualSize"
+          <button
+            type="button"
+            :aria-label="t('editor.mediaViewer.zoomOut')"
+            @click="zoomOut"
+          >
+            <ZoomOutIcon />
+          </button>
+        </el-tooltip>
+        <el-tooltip
+          :content="t('editor.mediaViewer.actualSize')"
+          v-bind="TOOLTIP"
         >
-          {{ zoomPercent }}
-        </button>
-        <button
-          type="button"
-          :title="t('editor.mediaViewer.zoomIn')"
-          :aria-label="t('editor.mediaViewer.zoomIn')"
-          @click="zoomIn"
+          <button
+            type="button"
+            class="zoom-level"
+            :aria-label="t('editor.mediaViewer.actualSize')"
+            @click="actualSize"
+          >
+            {{ zoomPercent }}
+          </button>
+        </el-tooltip>
+        <el-tooltip
+          :content="t('editor.mediaViewer.zoomIn')"
+          v-bind="TOOLTIP"
         >
-          <ZoomInIcon />
-        </button>
-        <button
-          type="button"
-          :title="t('editor.mediaViewer.fit')"
-          :aria-label="t('editor.mediaViewer.fit')"
-          @click="fit"
+          <button
+            type="button"
+            :aria-label="t('editor.mediaViewer.zoomIn')"
+            @click="zoomIn"
+          >
+            <ZoomInIcon />
+          </button>
+        </el-tooltip>
+        <el-tooltip
+          :content="t('editor.mediaViewer.fit')"
+          v-bind="TOOLTIP"
         >
-          <FitIcon />
-        </button>
+          <button
+            type="button"
+            :aria-label="t('editor.mediaViewer.fit')"
+            @click="fit"
+          >
+            <FitIcon />
+          </button>
+        </el-tooltip>
         <template v-if="diagram">
           <span class="separator" />
-          <button
-            type="button"
-            :title="t('editor.mediaViewer.saveSvg')"
-            :aria-label="t('editor.mediaViewer.saveSvg')"
-            @click="save('svg')"
+          <el-tooltip
+            :content="t('editor.mediaViewer.saveSvg')"
+            v-bind="TOOLTIP"
           >
-            <DownloadIcon />
-          </button>
-          <button
-            type="button"
-            :title="t('editor.mediaViewer.savePng')"
-            :aria-label="t('editor.mediaViewer.savePng')"
-            @click="save('png')"
+            <button
+              type="button"
+              :aria-label="t('editor.mediaViewer.saveSvg')"
+              @click="save('svg')"
+            >
+              <DownloadIcon />
+            </button>
+          </el-tooltip>
+          <el-tooltip
+            :content="t('editor.mediaViewer.savePng')"
+            v-bind="TOOLTIP"
           >
-            <PictureIcon />
-          </button>
-          <button
-            type="button"
-            :title="t('editor.mediaViewer.copyImage')"
-            :aria-label="t('editor.mediaViewer.copyImage')"
-            @click="copy"
+            <button
+              type="button"
+              :aria-label="t('editor.mediaViewer.savePng')"
+              @click="save('png')"
+            >
+              <PictureIcon />
+            </button>
+          </el-tooltip>
+          <el-tooltip
+            :content="t('editor.mediaViewer.copyImage')"
+            v-bind="TOOLTIP"
           >
-            <CopyIcon />
-          </button>
+            <button
+              type="button"
+              :aria-label="t('editor.mediaViewer.copyImage')"
+              @click="copy"
+            >
+              <CopyIcon />
+            </button>
+          </el-tooltip>
         </template>
       </div>
       <div
@@ -110,6 +143,17 @@ import notice from '@/services/notification'
 const PAN_STEP = 40
 const PAN_STEP_FAST = 160
 const ZOOM_STEP = 1.25
+const TOOLTIP = {
+  effect: 'dark',
+  placement: 'bottom',
+  // Element Plus teleports the popper to <body> and numbers it from 2000,
+  // which the overlay at 10002 would bury.
+  zIndex: 10003,
+  // Sweeping across the toolbar should not flash a bubble per button, and
+  // the default 200ms hide delay leaves the old one up while the next opens.
+  showAfter: 150,
+  hideAfter: 0
+} as const
 
 const emit = defineEmits<{ (event: 'openChange', open: boolean): void }>()
 
