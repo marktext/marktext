@@ -10,6 +10,12 @@ import {
 const SVG_DATA_URI =
   'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxIiBoZWlnaHQ9IjEiPjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiNmMDAiLz48L3N2Zz4='
 
+const editorPointerEvents = (page: Page): Promise<string> =>
+  page.evaluate(
+    () =>
+      getComputedStyle(document.querySelector('.editor-component') as HTMLElement).pointerEvents
+  )
+
 const viewerVisible = (page: Page): Promise<boolean> =>
   page.evaluate(() => {
     const el = document.querySelector('.image-viewer') as HTMLElement | null
@@ -81,11 +87,7 @@ test.describe('media viewer is modal to the keyboard', () => {
     // holding the new one at `pointer-events: none`.
     await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 
-    const blocked = await page.evaluate(
-      () =>
-        getComputedStyle(document.querySelector('.editor-component') as HTMLElement).pointerEvents
-    )
-    expect(blocked).not.toBe('none')
+    await expect.poll(() => editorPointerEvents(page), { timeout: 5000 }).not.toBe('none')
 
     await expectNoRendererErrors(app)
   })

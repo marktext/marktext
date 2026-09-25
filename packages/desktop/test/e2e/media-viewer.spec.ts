@@ -12,6 +12,12 @@ const viewerVisible = (page: Page): Promise<boolean> =>
     return getComputedStyle(el).display !== 'none'
   })
 
+const editorPointerEvents = (page: Page): Promise<string> =>
+  page.evaluate(
+    () =>
+      getComputedStyle(document.querySelector('.editor-component') as HTMLElement).pointerEvents
+  )
+
 const zoomLabel = (page: Page): Promise<string> =>
   page.locator('.media-viewer-toolbar .zoom-level').innerText()
 
@@ -223,22 +229,12 @@ test.describe('media viewer controls', () => {
   test('the editor behind the viewer stops taking pointer events', async() => {
     await openViewer(page)
 
-    const blocked = await page.evaluate(
-      () =>
-        getComputedStyle(document.querySelector('.editor-component') as HTMLElement)
-          .pointerEvents
-    )
-    expect(blocked).toBe('none')
+    await expect.poll(() => editorPointerEvents(page), { timeout: 5000 }).toBe('none')
 
     await page.keyboard.press('Escape')
     await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 
-    const restored = await page.evaluate(
-      () =>
-        getComputedStyle(document.querySelector('.editor-component') as HTMLElement)
-          .pointerEvents
-    )
-    expect(restored).not.toBe('none')
+    await expect.poll(() => editorPointerEvents(page), { timeout: 5000 }).not.toBe('none')
 
     await expectNoRendererErrors(app)
   })
