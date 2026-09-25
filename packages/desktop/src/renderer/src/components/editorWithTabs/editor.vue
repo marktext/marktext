@@ -92,6 +92,7 @@ import {
   TableRowColumMenu,
   wordCount as muyaWordCount,
   type IHistorySelection,
+  type IPreviewDiagramPayload,
   type IMuyaOptions,
   type IReplaceOption,
   type ISearchOption,
@@ -1933,6 +1934,22 @@ onMounted(() => {
 
   editor.value.on('preview-image', ({ data }: { data: string }) => {
     mediaViewer.value?.openImage(data)
+  })
+
+  editor.value.on('preview-diagram', (payload: IPreviewDiagramPayload) => {
+    const options = editor.value?.options
+    mediaViewer.value?.openDiagram(
+      {
+        type: payload.type,
+        code: payload.code,
+        preview: payload.preview,
+        mermaidTheme: options?.mermaidTheme ?? 'default',
+        vegaTheme: options?.vegaTheme ?? 'latimes',
+        plantumlServer: options?.plantumlServer ?? '',
+        sequenceTheme: toSequenceTheme(sequenceTheme.value)
+      },
+      payload.label
+    )
   })
 
   editor.value.on('selection-change', (changes: MuyaChange) => {

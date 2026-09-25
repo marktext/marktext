@@ -968,7 +968,15 @@
       "zoomIn": "放大",
       "zoomOut": "缩小",
       "fit": "适应窗口",
-      "actualSize": "实际大小"
+      "actualSize": "实际大小",
+      "saveTitle": "保存图表",
+      "saveSvg": "另存为 SVG",
+      "savePng": "另存为 PNG",
+      "copyImage": "复制图片",
+      "copied": "图片已复制到剪贴板",
+      "saved": "已保存到 {path}",
+      "saveFailed": "无法保存图片：{error}",
+      "copyFailed": "无法复制图片：{error}"
     },
     "notifications": {
       "notificationNotFound": "未找到通知"

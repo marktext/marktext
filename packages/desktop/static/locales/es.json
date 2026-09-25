@@ -973,7 +973,15 @@
       "zoomIn": "Acercar",
       "zoomOut": "Alejar",
       "fit": "Ajustar a la ventana",
-      "actualSize": "Tamaño real"
+      "actualSize": "Tamaño real",
+      "saveTitle": "Guardar diagrama",
+      "saveSvg": "Guardar como SVG",
+      "savePng": "Guardar como PNG",
+      "copyImage": "Copiar imagen",
+      "copied": "Imagen copiada al portapapeles",
+      "saved": "Guardado en {path}",
+      "saveFailed": "No se pudo guardar la imagen: {error}",
+      "copyFailed": "No se pudo copiar la imagen: {error}"
     },
     "notifications": {
       "notificationNotFound": "Notificación no encontrada"

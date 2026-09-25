@@ -1,0 +1,256 @@
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { mkdtemp, readFile, rm } from 'fs/promises'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import { launchWithMarkdown, expectNoRendererErrors, clearRendererErrors } from './helpers'
+
+const DOC = [
+  'Diagrams below.',
+  '',
+  '```mermaid',
+  'flowchart TD',
+  '    A["Ada Lovelace"] --> B["Charles Babbage"]',
+  '```',
+  '',
+  '```sequence',
+  'Alice->Bob: Hello Bob',
+  'Bob-->Alice: Hi Alice',
+  '```',
+  ''
+].join('\n')
+
+const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47]
+
+let savePath = ''
+
+const stubSaveDialog = async(app: ElectronApplication, filePath: string): Promise<void> => {
+  await app.evaluate(async({ dialog }, target) => {
+    const g = globalThis as typeof globalThis & {
+      __mt_orig_showSaveDialog__?: typeof dialog.showSaveDialog
+    }
+    if (!g.__mt_orig_showSaveDialog__) {
+      g.__mt_orig_showSaveDialog__ = dialog.showSaveDialog.bind(dialog)
+    }
+    ;(dialog as unknown as { showSaveDialog: unknown }).showSaveDialog = async() => ({
+      canceled: false,
+      filePath: target
+    })
+  }, filePath)
+}
+
+const restoreSaveDialog = async(app: ElectronApplication): Promise<void> => {
+  await app.evaluate(({ dialog }) => {
+    const g = globalThis as typeof globalThis & {
+      __mt_orig_showSaveDialog__?: typeof dialog.showSaveDialog
+    }
+    if (g.__mt_orig_showSaveDialog__) {
+      ;(dialog as unknown as { showSaveDialog: unknown }).showSaveDialog =
+        g.__mt_orig_showSaveDialog__
+    }
+  })
+}
+
+const viewerVisible = (page: Page): Promise<boolean> =>
+  page.evaluate(() => {
+    const el = document.querySelector('.image-viewer') as HTMLElement | null
+    return !!el && getComputedStyle(el).display !== 'none'
+  })
+
+// A diagram block that holds the caret shows its source instead of a toolbar,
+// so park the caret in the leading paragraph first.
+const leaveDiagrams = async(page: Page): Promise<void> => {
+  await page
+    .locator('.editor-component .mu-paragraph-content')
+    .first()
+    .click({ position: { x: 2, y: 2 }, timeout: 5000 })
+    .catch(() => {})
+  await page.waitForTimeout(120)
+}
+
+const hoverDiagram = async(page: Page, index: number): Promise<void> => {
+  await leaveDiagrams(page)
+  const block = page.locator('.editor-component figure.mu-diagram-block').nth(index)
+  await block.waitFor({ state: 'visible', timeout: 20000 })
+  const box = await block.boundingBox()
+  if (!box) throw new Error('diagram block has no box')
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+  await expect(page.locator('.mu-preview-tools li.item.view')).toBeVisible({ timeout: 5000 })
+}
+
+const openDiagram = async(page: Page, index = 0): Promise<void> => {
+  await hoverDiagram(page, index)
+  await page.locator('.mu-preview-tools li.item.view').click({ timeout: 5000 })
+  await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(true)
+}
+
+const closeViewer = async(page: Page): Promise<void> => {
+  if (!(await viewerVisible(page))) return
+  await page.keyboard.press('Escape')
+  await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
+}
+
+/** Pixels that are neither transparent nor the page background. */
+const inkedPixels = (page: Page, dataUrl: string): Promise<number> =>
+  page.evaluate(async(url) => {
+    const image = new Image()
+    await new Promise((resolve, reject) => {
+      image.onload = resolve
+      image.onerror = reject
+      image.src = url
+    })
+    const canvas = document.createElement('canvas')
+    canvas.width = image.naturalWidth
+    canvas.height = image.naturalHeight
+    const context = canvas.getContext('2d')!
+    context.drawImage(image, 0, 0)
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height)
+
+    let inked = 0
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] < 8) continue
+      if (data[i] > 240 && data[i + 1] > 240 && data[i + 2] > 240) continue
+      inked++
+    }
+    return inked
+  }, dataUrl)
+
+test.describe('diagram viewer', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    savePath = await mkdtemp(join(tmpdir(), 'mt-diagram-'))
+    const launched = await launchWithMarkdown(DOC, { suppressErrorDialog: true })
+    app = launched.app
+    page = launched.page
+    await page.waitForSelector('.editor-component figure.mu-diagram-block .mu-diagram-preview svg', {
+      state: 'attached',
+      timeout: 30000
+    })
+  })
+
+  test.afterAll(async() => {
+    await restoreSaveDialog(app).catch(() => {})
+    if (app) await app.close()
+    if (savePath) await rm(savePath, { recursive: true, force: true })
+  })
+
+  test.beforeEach(async() => {
+    await closeViewer(page)
+    await clearRendererErrors(app)
+  })
+
+  test('the view action opens the diagram in the viewer with export controls', async() => {
+    await openDiagram(page)
+
+    await expect(page.locator('.image-viewer .mu-diagram-preview svg')).toHaveCount(1)
+    // zoom out / readout / zoom in / fit + save svg / save png / copy
+    await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(7)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('closing the viewer drops the export controls again', async() => {
+    await openDiagram(page)
+    await expect(page.locator('.media-viewer-toolbar button')).toHaveCount(7)
+    await closeViewer(page)
+
+    // The viewer is shared with images, which have nothing to export.
+    const buttons = await page.evaluate(() => {
+      const el = document.querySelector('.image-viewer') as HTMLElement | null
+      return el ? el.querySelectorAll('.media-viewer-toolbar button').length : -1
+    })
+    expect(buttons).toBe(4)
+  })
+
+  test('saving as SVG writes a standalone, readable file', async() => {
+    const target = join(savePath, 'flowchart.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+    await expect
+      .poll(async() => (await readFile(target, 'utf8').catch(() => '')).length, {
+        timeout: 15000
+      })
+      .toBeGreaterThan(200)
+
+    const svg = await readFile(target, 'utf8')
+    expect(svg).toContain('<?xml version="1.0"')
+    expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"')
+    expect(svg).toContain('Ada Lovelace')
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('a sequence diagram carries its colours into the exported SVG', async() => {
+    const target = join(savePath, 'sequence.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page, 1)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+    await expect
+      .poll(async() => (await readFile(target, 'utf8').catch(() => '')).length, {
+        timeout: 15000
+      })
+      .toBeGreaterThan(200)
+
+    const svg = await readFile(target, 'utf8')
+    // js-sequence-diagrams emits <text> with no fill attribute; the editor
+    // stylesheet supplies it, so the export has to inline it.
+    expect(svg).toMatch(/<text[^>]*style="[^"]*fill:/)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('saving as PNG keeps the labels mermaid draws in a foreignObject', async() => {
+    const target = join(savePath, 'flowchart.png')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(5).click()
+    await expect
+      .poll(async() => (await readFile(target).catch(() => Buffer.alloc(0))).length, {
+        timeout: 20000
+      })
+      .toBeGreaterThan(1000)
+
+    const png = await readFile(target)
+    expect([...png.subarray(0, 4)]).toEqual(PNG_MAGIC)
+
+    const exported = await inkedPixels(page, `data:image/png;base64,${png.toString('base64')}`)
+
+    // Rasterising the live svg takes the foreignObject route Chromium refuses
+    // to paint, so it loses every label. Ours must carry more ink than that.
+    const naive = await page.evaluate(async() => {
+      const svg = document.querySelector('.image-viewer .mu-diagram-preview svg')!
+      const clone = svg.cloneNode(true) as SVGSVGElement
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+      const box = (svg as SVGSVGElement).viewBox.baseVal
+      clone.setAttribute('width', String(Math.round(box.width)))
+      clone.setAttribute('height', String(Math.round(box.height)))
+      const markup = new XMLSerializer().serializeToString(clone)
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`
+    })
+    const naiveInk = await inkedPixels(page, naive)
+
+    expect(exported).toBeGreaterThan(naiveInk)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('copying puts the diagram on the clipboard as an image', async() => {
+    await app.evaluate(({ clipboard }) => clipboard.clear())
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(6).click()
+    await expect
+      .poll(() => app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty()), {
+        timeout: 20000
+      })
+      .toBe(true)
+
+    await expectNoRendererErrors(app)
+  })
+})

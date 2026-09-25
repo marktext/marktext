@@ -973,7 +973,15 @@
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
       "fit": "Pencereye sığdır",
-      "actualSize": "Gerçek boyut"
+      "actualSize": "Gerçek boyut",
+      "saveTitle": "Diyagramı kaydet",
+      "saveSvg": "SVG olarak kaydet",
+      "savePng": "PNG olarak kaydet",
+      "copyImage": "Görseli kopyala",
+      "copied": "Görsel panoya kopyalandı",
+      "saved": "{path} konumuna kaydedildi",
+      "saveFailed": "Görsel kaydedilemedi: {error}",
+      "copyFailed": "Görsel kopyalanamadı: {error}"
     },
     "notifications": {
       "notificationNotFound": "Bildirim bulunamadı"

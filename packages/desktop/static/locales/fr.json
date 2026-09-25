@@ -973,7 +973,15 @@
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière",
       "fit": "Ajuster à la fenêtre",
-      "actualSize": "Taille réelle"
+      "actualSize": "Taille réelle",
+      "saveTitle": "Enregistrer le diagramme",
+      "saveSvg": "Enregistrer en SVG",
+      "savePng": "Enregistrer en PNG",
+      "copyImage": "Copier l'image",
+      "copied": "Image copiée dans le presse-papiers",
+      "saved": "Enregistré dans {path}",
+      "saveFailed": "Impossible d'enregistrer l'image : {error}",
+      "copyFailed": "Impossible de copier l'image : {error}"
     },
     "notifications": {
       "notificationNotFound": "Notification introuvable"

@@ -55,6 +55,33 @@
         >
           <FitIcon />
         </button>
+        <template v-if="diagram">
+          <span class="separator" />
+          <button
+            type="button"
+            :title="t('editor.mediaViewer.saveSvg')"
+            :aria-label="t('editor.mediaViewer.saveSvg')"
+            @click="save('svg')"
+          >
+            <DownloadIcon />
+          </button>
+          <button
+            type="button"
+            :title="t('editor.mediaViewer.savePng')"
+            :aria-label="t('editor.mediaViewer.savePng')"
+            @click="save('png')"
+          >
+            <PictureIcon />
+          </button>
+          <button
+            type="button"
+            :title="t('editor.mediaViewer.copyImage')"
+            :aria-label="t('editor.mediaViewer.copyImage')"
+            @click="copy"
+          >
+            <CopyIcon />
+          </button>
+        </template>
       </div>
       <div
         ref="stageRef"
@@ -69,11 +96,16 @@ import { ref, computed, nextTick, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   Close as CloseIcon,
+  DocumentCopy as CopyIcon,
+  Download as DownloadIcon,
   FullScreen as FitIcon,
+  Picture as PictureIcon,
   ZoomIn as ZoomInIcon,
   ZoomOut as ZoomOutIcon
 } from '@element-plus/icons-vue'
 import { ZoomPanController } from '@/util/zoomPan'
+import { exportDiagram, type DiagramSource, type ExportFormat } from '@/util/diagramExport'
+import notice from '@/services/notification'
 
 const PAN_STEP = 40
 const PAN_STEP_FAST = 160
@@ -91,6 +123,8 @@ const stageRef = ref<HTMLElement | null>(null)
 
 const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
+const diagram = ref<DiagramSource | null>(null)
+
 let controller: ZoomPanController | null = null
 let restoreFocusTo: HTMLElement | null = null
 
@@ -102,7 +136,63 @@ const actualSize = () => controller?.actualSize()
 const clearStage = () => {
   controller?.destroy()
   controller = null
+  diagram.value = null
   if (stageRef.value) stageRef.value.innerHTML = ''
+}
+
+const reason = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error)
+
+const canvasBackground = (): string =>
+  getComputedStyle(document.body).getPropertyValue('--editorBgColor').trim() || '#ffffff'
+
+const save = async (format: ExportFormat) => {
+  const source = diagram.value
+  if (!source) return
+
+  try {
+    const image = await exportDiagram(source, format, canvasBackground())
+    const filePath = await window.electron.dialog.showSave({
+      title: t('editor.mediaViewer.saveTitle'),
+      defaultPath: `${source.type}-diagram.${image.extension}`,
+      filters: [
+        {
+          name: image.extension === 'svg' ? 'Scalable Vector Graphics' : 'Portable Network Graphics',
+          extensions: [image.extension]
+        }
+      ]
+    })
+    if (!filePath) return
+
+    await window.fileUtils.writeFile(filePath, image.data)
+    notice.notify({
+      type: 'primary',
+      message: t('editor.mediaViewer.saved', { path: filePath })
+    })
+  } catch (error) {
+    notice.notify({
+      type: 'error',
+      message: t('editor.mediaViewer.saveFailed', { error: reason(error) })
+    })
+  }
+}
+
+const copy = async () => {
+  const source = diagram.value
+  if (!source) return
+
+  try {
+    const image = await exportDiagram(source, 'png', canvasBackground())
+    const written = await window.electron.clipboard.writeImage(image.data)
+    if (!written) throw new Error('The clipboard rejected the image')
+
+    notice.notify({ type: 'primary', message: t('editor.mediaViewer.copied') })
+  } catch (error) {
+    notice.notify({
+      type: 'error',
+      message: t('editor.mediaViewer.copyFailed', { error: reason(error) })
+    })
+  }
 }
 
 const onKeydown = (event: KeyboardEvent) => {
@@ -145,11 +235,16 @@ const onKeydown = (event: KeyboardEvent) => {
   event.stopPropagation()
 }
 
-const open = async (mount: (stage: HTMLElement) => HTMLElement, name: string) => {
+const open = async (
+  mount: (stage: HTMLElement) => HTMLElement,
+  name: string,
+  source: DiagramSource | null = null
+) => {
   const stage = stageRef.value
   if (!stage) return
 
   clearStage()
+  diagram.value = source
   label.value = name
   const content = mount(stage)
   controller = new ZoomPanController(stage, content, {
@@ -180,6 +275,31 @@ const openImage = (url: string) =>
     return img
   }, t('editor.mediaViewer.title'))
 
+const openDiagram = (source: DiagramSource, name: string | null) =>
+  open(
+    (stage) => {
+      const figure = document.createElement('figure')
+      figure.className = 'mu-diagram-block'
+      // Diagram renderers draw dark strokes on an assumed light canvas, so on
+      // the overlay's dark scrim the edges would vanish. Give them the
+      // editor's own background, which is what they were drawn against.
+      figure.style.cssText =
+        'max-width:90vw;max-height:90vh;margin:0;padding:16px;border-radius:4px;' +
+        'background:var(--editorBgColor);'
+
+      const preview = source.preview.cloneNode(true) as HTMLElement
+      // The dialog already carries this name; announcing it twice helps nobody.
+      preview.removeAttribute('role')
+      preview.removeAttribute('aria-label')
+      figure.appendChild(preview)
+      stage.appendChild(figure)
+
+      return figure
+    },
+    name || t('editor.mediaViewer.title'),
+    source
+  )
+
 const close = () => {
   if (!visible.value) return
 
@@ -196,7 +316,7 @@ onBeforeUnmount(() => {
   clearStage()
 })
 
-defineExpose({ openImage, close })
+defineExpose({ openImage, openDiagram, close })
 </script>
 
 <style>
@@ -269,6 +389,11 @@ defineExpose({ openImage, close })
   }
   & .zoom-level {
     font-variant-numeric: tabular-nums;
+  }
+  & .separator {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.25);
   }
 }
 

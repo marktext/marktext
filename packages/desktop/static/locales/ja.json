@@ -973,7 +973,15 @@
       "zoomIn": "拡大",
       "zoomOut": "縮小",
       "fit": "ウィンドウに合わせる",
-      "actualSize": "実際のサイズ"
+      "actualSize": "実際のサイズ",
+      "saveTitle": "図を保存",
+      "saveSvg": "SVG として保存",
+      "savePng": "PNG として保存",
+      "copyImage": "画像をコピー",
+      "copied": "画像をクリップボードにコピーしました",
+      "saved": "{path} に保存しました",
+      "saveFailed": "画像を保存できませんでした: {error}",
+      "copyFailed": "画像をコピーできませんでした: {error}"
     },
     "notifications": {
       "notificationNotFound": "通知が見つかりません"
