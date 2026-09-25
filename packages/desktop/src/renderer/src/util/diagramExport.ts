@@ -227,16 +227,14 @@ export const exportDiagram = async(
   if (!live) throw new Error('The diagram has not rendered')
 
   const options = { inlineStyles: NEEDS_INLINE_STYLES.has(source.type), background }
-
-  if (format === 'svg') {
-    const svg = serializeSvg(live, options)
-    return { data: toBytes(svg.markup), mime: 'image/svg+xml', extension: 'svg' }
-  }
-
   const svg =
     source.type === 'mermaid'
       ? await serializeWithoutHtmlLabels(source, options)
       : serializeSvg(live, options)
+
+  if (format === 'svg') {
+    return { data: toBytes(svg.markup), mime: 'image/svg+xml', extension: 'svg' }
+  }
 
   return { data: await rasterize(svg, background), mime: 'image/png', extension: 'png' }
 }

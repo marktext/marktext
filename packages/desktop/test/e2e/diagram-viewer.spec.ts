@@ -163,6 +163,14 @@ const closeViewer = async(page: Page): Promise<void> => {
   await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
 }
 
+/** What a reader of the file sees, rather than how the markup is split up. */
+const svgText = (page: Page, markup: string): Promise<string> =>
+  page.evaluate(
+    (svg) =>
+      new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement.textContent ?? '',
+    markup
+  )
+
 /** Pixels of `under` still showing after the svg is painted over it. */
 const showsThrough = (page: Page, markup: string, under: string): Promise<number> =>
   page.evaluate(
@@ -416,7 +424,7 @@ test.describe('diagram viewer', () => {
     const svg = await readFile(target, 'utf8')
     expect(svg).toContain('<?xml version="1.0"')
     expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"')
-    expect(svg).toContain('Ada Lovelace')
+    expect(await svgText(page, svg)).toContain('Ada Lovelace')
 
     await expectNoRendererErrors(app)
   })
@@ -471,6 +479,26 @@ test.describe('diagram viewer', () => {
     // js-sequence-diagrams emits <text> with no fill attribute; the editor
     // stylesheet supplies it, so the export has to inline it.
     expect(svg).toMatch(/<text[^>]*style="[^"]*fill:/)
+
+    await expectNoRendererErrors(app)
+  })
+
+  test('a saved mermaid SVG keeps its labels outside a foreignObject', async() => {
+    const target = join(savePath, 'labels.svg')
+    await stubSaveDialog(app, target)
+    await openDiagram(page)
+
+    await page.locator('.media-viewer-toolbar button').nth(4).click()
+    await expect
+      .poll(async() => (await readFile(target, 'utf8').catch(() => '')).length, { timeout: 20000 })
+      .toBeGreaterThan(200)
+
+    // Only a browser paints a foreignObject. Everything else that reads an svg
+    // — an <img> embed, Preview, Inkscape — drops it, labels and all.
+    const svg = await readFile(target, 'utf8')
+    expect(svg).not.toContain('<foreignObject')
+    // Mermaid breaks a label into one tspan per word, so read it back as text.
+    expect(await svgText(page, svg)).toContain('Ada Lovelace')
 
     await expectNoRendererErrors(app)
   })
