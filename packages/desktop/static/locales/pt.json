@@ -974,12 +974,12 @@
       "zoomOut": "Reduzir",
       "fit": "Ajustar à janela",
       "actualSize": "Tamanho real",
-      "saveTitle": "Guardar diagrama",
-      "saveSvg": "Guardar como SVG",
-      "savePng": "Guardar como PNG",
+      "saveTitle": "Salvar diagrama",
+      "saveSvg": "Salvar como SVG",
+      "savePng": "Salvar como PNG",
       "copyImage": "Copiar imagem",
       "copied": "Imagem copiada para a área de transferência",
-      "saveFailed": "Não foi possível guardar a imagem: {error}",
+      "saveFailed": "Não foi possível salvar a imagem: {error}",
       "copyFailed": "Não foi possível copiar a imagem: {error}"
     },
     "notifications": {
