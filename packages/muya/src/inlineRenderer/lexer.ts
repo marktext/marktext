@@ -1,3 +1,4 @@
+import type { IEmphasisSpan } from './emphasis';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     ITokenizerFacOptions,
@@ -7,13 +8,13 @@ import type {
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
+import { scanEmphasisSpans } from './emphasis';
 import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
 import {
     correctUrl,
     getAttributes,
     lowerPriority,
     parseSrcAndTitle,
-    validateEmphasize,
 } from './utils';
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -31,6 +32,9 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
+    // Emphasis pairings over `originSrc`, computed on first use because most
+    // inline strings hold no `*` or `_` at all.
+    emphasisSpans: Map<number, IEmphasisSpan> | null;
     inlineRules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
@@ -202,53 +206,56 @@ function tryBacklash(state: ILexState): boolean {
 }
 
 function tryStrongEm(state: ILexState): boolean {
-    const emRules = ['strong', 'em'] as const;
+    if (state.src[0] !== '*' && state.src[0] !== '_')
+        return false;
 
-    for (const rule of emRules) {
-        const to = state.inlineRules[rule].exec(state.src);
-        if (to && isLengthEven(to[3])) {
-            const isValid = validateEmphasize(
-                state.src,
-                to[0].length,
-                to[1],
-                state.pending,
-                validateRules,
-            );
-            if (isValid) {
-                pushPending(state);
-                const range = {
-                    start: state.pos,
-                    end: state.pos + to[0].length,
-                };
-                const marker = to[1];
-                state.tokens.push({
-                    type: rule,
-                    raw: to[0],
-                    range,
-                    marker,
-                    parent: state.tokens,
-                    children: tokenizerFac(
-                        to[2],
-                        null,
-                        state.inlineRules,
-                        state.pos + to[1].length,
-                        false,
-                        state.labels,
-                        state.options,
-                    ),
-                    backlash: to[3],
-                });
-                state.src = state.src.substring(to[0].length);
-                state.pos = state.pos + to[0].length;
+    state.emphasisSpans ??= scanEmphasisSpans(
+        state.originSrc,
+        state.inlineRules,
+        state.options,
+    );
 
-                return true;
-            }
+    const span = state.emphasisSpans.get(state.originSrc.length - state.src.length);
+    if (!span)
+        return false;
 
-            return false;
-        }
-    }
+    const length = span.end - span.start;
+    const raw = state.src.substring(0, length);
+    // CommonMark §6.4 rule 17: an inline that binds more tightly and reaches
+    // past the span wins over it, e.g. `*[foo*](bar)` is a link, not emphasis.
+    if (!lowerPriority(state.src, length, validateRules))
+        return false;
 
-    return false;
+    const marker = raw.substring(0, span.markerLen);
+    const inner = raw.substring(span.markerLen, length - span.markerLen);
+    const backlash = /(\\*)$/.exec(inner)![1];
+    const content = inner.substring(0, inner.length - backlash.length);
+
+    pushPending(state);
+    state.tokens.push({
+        type: span.markerLen === 2 ? 'strong' : 'em',
+        raw,
+        range: {
+            start: state.pos,
+            end: state.pos + length,
+        },
+        marker,
+        parent: state.tokens,
+        children: tokenizerFac(
+            content,
+            null,
+            state.inlineRules,
+            state.pos + span.markerLen,
+            false,
+            state.labels,
+            state.options,
+        ),
+        backlash,
+    });
+    state.src = state.src.substring(length);
+    state.pos = state.pos + length;
+
+    return true;
 }
 
 // emoji | inline_code | del | inline_math
@@ -888,6 +895,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         pending: '',
         pendingStartPos: pos,
         tokens: [],
+        emphasisSpans: null,
         inlineRules,
         labels,
         options,

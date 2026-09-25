@@ -18,9 +18,9 @@ export const endRules = {
 
 export type BeginRules = typeof beginRules;
 
+// `strong` and `em` are absent: which run closes a delimiter run depends on
+// the runs between them, which no single pattern can express. See ./emphasis.ts.
 export const commonMarkRules = {
-    strong: /^(\*\*|__)(?=\S)([\s\S]*?[^\s\\])(\\*)\1(?!(\*|_))/, // can nest
-    em: /^(\*|_)(?=\S)([\s\S]*?[^\s*\\])(\\*)\1(?!\1)/, // can nest
     // Hand-tuned CommonMark/GFM patterns. Disabling the ReDoS-class regexp/*
     // rules here on each line they fire: rewriting these patterns to please
     // the linter would risk parser regressions, and the input is the user's
@@ -114,8 +114,6 @@ export const inlineRules = {
 export type InlineRules = typeof inlineRules;
 
 const EXCLUDE_KEYS = [
-    'em',
-    'strong',
     'tail_header',
     'backlash',
     'superscript',
