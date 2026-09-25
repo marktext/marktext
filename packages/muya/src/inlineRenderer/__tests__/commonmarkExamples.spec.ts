@@ -157,8 +157,9 @@ describe('inline lexer — auto link (marktext c0853f64)', () => {
 
 // Defensive regression for marktext commit ad5ddbf9 (GFM example 558, PR #917):
 // the legacy muya parser used to drop the `"title"` portion of a link or image
-// destination. The new muya's `parseSrcAndTitle` in inlineRenderer/utils.ts
-// already splits these, so this test locks the behaviour in.
+// destination. The new muya's `parseSrcAndTitle` in
+// inlineRenderer/linkDestination.ts already splits these, so this test locks
+// the behaviour in.
 describe('inline lexer — GFM link/image title (marktext ad5ddbf9)', () => {
     it('extracts title from a link with double-quoted title', () => {
         const tokens = tokenizer('[text](http://example.com "Example title")');
