@@ -197,6 +197,29 @@ test.describe('media viewer controls', () => {
     await expectNoRendererErrors(app)
   })
 
+  test('closing mid-drag does not leave the grabbing cursor behind', async() => {
+    await openViewer(page)
+
+    const stage = page.locator('.media-viewer-stage')
+    const box = (await stage.boundingBox())!
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await expect
+      .poll(() => stage.evaluate((el) => (el as HTMLElement).style.cursor), { timeout: 5000 })
+      .toBe('grabbing')
+
+    // Escape while still holding the button: the mouseup that would reset the
+    // cursor is delivered to a listener the controller has already dropped.
+    await page.keyboard.press('Escape')
+    await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(false)
+    await page.mouse.up()
+
+    await openViewer(page)
+    expect(await stage.evaluate((el) => (el as HTMLElement).style.cursor)).not.toBe('grabbing')
+
+    await expectNoRendererErrors(app)
+  })
+
   test('the editor behind the viewer stops taking pointer events', async() => {
     await openViewer(page)
 

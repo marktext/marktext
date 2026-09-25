@@ -104,10 +104,7 @@ export class ZoomPanController {
         y: event.clientY - this._originY
       })
     }
-    this._onMouseUp = () => {
-      this._dragging = false
-      this.viewport.style.cursor = 'grab'
-    }
+    this._onMouseUp = () => this._endDrag()
 
     this.viewport.addEventListener('wheel', this._onWheel, { passive: false })
     this.viewport.addEventListener('mousedown', this._onMouseDown)
@@ -143,10 +140,18 @@ export class ZoomPanController {
   }
 
   destroy(): void {
+    // A drag can outlive the controller — the viewport element is reused by
+    // the next open, and `grabbing` would be stuck on it.
+    this._endDrag()
     this.viewport.removeEventListener('wheel', this._onWheel)
     this.viewport.removeEventListener('mousedown', this._onMouseDown)
     document.removeEventListener('mousemove', this._onMouseMove)
     document.removeEventListener('mouseup', this._onMouseUp)
+  }
+
+  private _endDrag(): void {
+    this._dragging = false
+    this.viewport.style.cursor = 'grab'
   }
 
   private _centre(): [number, number] {
