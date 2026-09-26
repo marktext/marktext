@@ -471,8 +471,12 @@ test.describe('diagram viewer', () => {
     })
     await openDiagram(page)
 
+    const priorNotices = await page.locator('.mt-notification').count()
     await page.locator('.media-viewer-toolbar button').nth(4).click()
 
+    await expect(page.locator('.mt-notification')).toHaveCount(priorNotices + 1, {
+      timeout: 15000
+    })
     const notice = page.locator('.mt-notification').first()
     await expect(notice).toBeVisible({ timeout: 15000 })
     await expect(notice).toHaveClass(/mt-confirm/)
