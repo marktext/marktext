@@ -1,3 +1,4 @@
+import type { IEmphasisSpan } from './emphasis';
 import type { BeginRules, InlineRules } from './rules';
 import type {
     ITokenizerFacOptions,
@@ -7,13 +8,15 @@ import type {
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
-import { beginRules, inlineRules, linkValidateRules, validateRules } from './rules';
+import { scanEmphasisSpans } from './emphasis';
+import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import {
-    correctUrl,
     getAttributes,
     lowerPriority,
+    matchBracketed,
+    matchExtendedAutoLink,
+    matchReference,
     parseSrcAndTitle,
-    validateEmphasize,
 } from './utils';
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -31,6 +34,8 @@ interface ILexState {
     pending: string;
     pendingStartPos: number;
     tokens: Token[];
+    emphasisSpans: Map<number, IEmphasisSpan> | null;
+    basePos: number;
     inlineRules: InlineRules;
     labels: Labels;
     options: ITokenizerFacOptions;
@@ -122,17 +127,6 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     }
 }
 
-// The two backslash math extensions and the option each rule answers to. The
-// double-backslash rules are listed first for intent only: the two openers are
-// mutually exclusive at a given position, `\\(` carrying a backslash where `\(`
-// carries the parenthesis, so neither can shadow the other.
-const BACKSLASH_MATH_RULES = [
-    ['inline_math_double_backslash', 'texMathDoubleBackslash'],
-    ['display_math_double_backslash', 'texMathDoubleBackslash'],
-    ['inline_math_single_backslash', 'texMathSingleBackslash'],
-    ['display_math_single_backslash', 'texMathSingleBackslash'],
-] as const;
-
 // pandoc's `tex_math_single_backslash` and `tex_math_double_backslash`. These
 // run ahead of `tryBacklash` because `commonMarkRules.backlash` lists `(` and
 // `[` among the punctuation a backslash escapes, so it would consume the opener
@@ -202,53 +196,55 @@ function tryBacklash(state: ILexState): boolean {
 }
 
 function tryStrongEm(state: ILexState): boolean {
-    const emRules = ['strong', 'em'] as const;
+    if (state.src[0] !== '*' && state.src[0] !== '_')
+        return false;
 
-    for (const rule of emRules) {
-        const to = state.inlineRules[rule].exec(state.src);
-        if (to && isLengthEven(to[3])) {
-            const isValid = validateEmphasize(
-                state.src,
-                to[0].length,
-                to[1],
-                state.pending,
-                validateRules,
-            );
-            if (isValid) {
-                pushPending(state);
-                const range = {
-                    start: state.pos,
-                    end: state.pos + to[0].length,
-                };
-                const marker = to[1];
-                state.tokens.push({
-                    type: rule,
-                    raw: to[0],
-                    range,
-                    marker,
-                    parent: state.tokens,
-                    children: tokenizerFac(
-                        to[2],
-                        null,
-                        state.inlineRules,
-                        state.pos + to[1].length,
-                        false,
-                        state.labels,
-                        state.options,
-                    ),
-                    backlash: to[3],
-                });
-                state.src = state.src.substring(to[0].length);
-                state.pos = state.pos + to[0].length;
+    state.emphasisSpans ??= scanEmphasisSpans(
+        state.originSrc,
+        state.basePos,
+        state.inlineRules,
+        state.labels,
+        state.options,
+        state.top,
+    );
 
-                return true;
-            }
+    const span = state.emphasisSpans.get(state.pos);
+    if (!span)
+        return false;
 
-            return false;
-        }
-    }
+    const length = span.end - span.start;
+    const raw = state.src.substring(0, length);
+    const marker = raw.substring(0, span.markerLen);
+    const inner = raw.substring(span.markerLen, length - span.markerLen);
+    const backlash = /(\\*)$/.exec(inner)![1];
+    const content = inner.substring(0, inner.length - backlash.length);
 
-    return false;
+    pushPending(state);
+    state.tokens.push({
+        type: span.markerLen === 2 ? 'strong' : 'em',
+        raw,
+        range: {
+            start: state.pos,
+            end: state.pos + length,
+        },
+        marker,
+        parent: state.tokens,
+        children: tokenizerFac(
+            content,
+            null,
+            state.inlineRules,
+            state.pos + span.markerLen,
+            false,
+            state.labels,
+            state.options,
+            state.emphasisSpans,
+        ),
+        backlash,
+    });
+    state.src = state.src.substring(length);
+    state.pos = state.pos + length;
+
+    return true;
 }
 
 // emoji | inline_code | del | inline_math
@@ -273,7 +269,7 @@ function tryChunks(state: ILexState): boolean {
                 const prevChar = state.originSrc[state.pos - 1];
                 if (
                     (prevChar && /\w/.test(prevChar))
-                    || !lowerPriority(state.src, to[0].length, validateRules)
+                    || !lowerPriority(state.src, to[0].length, emojiValidateRules)
                 ) {
                     return false;
                 }
@@ -383,9 +379,8 @@ function tryFootnote(state: ILexState): boolean {
 }
 
 function tryImage(state: ILexState): boolean {
-    const imageTo = state.inlineRules.image.exec(state.src);
-    correctUrl(imageTo);
-    if (!(imageTo && isLengthEven(imageTo[3]) && isLengthEven(imageTo[5])))
+    const imageTo = matchBracketed(state.inlineRules.image, state.src, 0, null);
+    if (!imageTo)
         return false;
 
     const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4]);
@@ -421,22 +416,9 @@ function tryImage(state: ILexState): boolean {
 }
 
 function tryLink(state: ILexState): boolean {
-    const linkTo = state.inlineRules.link.exec(state.src);
-    correctUrl(linkTo);
-    if (
-        !(
-            linkTo
-            && isLengthEven(linkTo[3])
-            && isLengthEven(linkTo[5])
-            // CommonMark §6.6: code spans, HTML tags, etc. group more tightly
-            // than links. If a higher-priority inline rule matches a span
-            // that extends past the tentative link's range, defer to it.
-            // Covers CM 0.29 examples 520 (HTML tag) and 521 (code span).
-            && lowerPriority(state.src, linkTo[0].length, linkValidateRules)
-        )
-    ) {
+    const linkTo = matchBracketed(state.inlineRules.link, state.src, 0, linkValidateRules);
+    if (!linkTo)
         return false;
-    }
 
     const { src: href, title } = parseSrcAndTitle(linkTo[4]);
     pushPending(state);
@@ -475,21 +457,15 @@ function tryLink(state: ILexState): boolean {
 }
 
 function tryReferenceLink(state: ILexState): boolean {
-    const rLinkTo = state.inlineRules.reference_link.exec(state.src);
-    if (
-        !(
-            rLinkTo
-            // CommonMark §6.5: link labels match case-insensitively. The
-            // labels Map is populated by `collectReferenceDefinitions` with
-            // lowercased keys, so normalize the candidate before lookup.
-            && state.labels.has((rLinkTo[3] || rLinkTo[1]).toLowerCase())
-            && isLengthEven(rLinkTo[2])
-            && isLengthEven(rLinkTo[4])
-            && lowerPriority(state.src, rLinkTo[0].length, linkValidateRules)
-        )
-    ) {
+    const rLinkTo = matchReference(
+        state.inlineRules.reference_link,
+        state.src,
+        0,
+        state.labels,
+        linkValidateRules,
+    );
+    if (!rLinkTo)
         return false;
-    }
 
     pushPending(state);
     state.tokens.push({
@@ -525,17 +501,15 @@ function tryReferenceLink(state: ILexState): boolean {
 }
 
 function tryReferenceImage(state: ILexState): boolean {
-    const rImageTo = state.inlineRules.reference_image.exec(state.src);
-    if (
-        !(
-            rImageTo
-            && state.labels.has((rImageTo[3] || rImageTo[1]).toLowerCase())
-            && isLengthEven(rImageTo[2])
-            && isLengthEven(rImageTo[4])
-        )
-    ) {
+    const rImageTo = matchReference(
+        state.inlineRules.reference_image,
+        state.src,
+        0,
+        state.labels,
+        null,
+    );
+    if (!rImageTo)
         return false;
-    }
 
     pushPending(state);
 
@@ -585,90 +559,17 @@ function tryHtmlEscape(state: ILexState): boolean {
     return true;
 }
 
-// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
-// www/url autolink's extent to drop characters that are not part of the link.
-// The match is greedy (`\S+`), so these are applied after the regex, mirroring
-// cmark-gfm's `autolink_delim`:
-//   - a `<` ends the autolink;
-//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
-//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
-//     autolink can sit inside parentheses;
-//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
-// The last three rules interleave and are applied repeatedly (e.g. `).`).
-function trimAutoLinkExtent(raw: string): string {
-    let end = raw.length;
-
-    const lt = raw.indexOf('<');
-    if (lt !== -1)
-        end = lt;
-
-    let changed = true;
-    while (changed && end > 0) {
-        changed = false;
-        const c = raw[end - 1];
-
-        if ('?!.,:*_~'.includes(c)) {
-            end -= 1;
-            changed = true;
-        }
-        else if (c === ')') {
-            let opening = 0;
-            let closing = 0;
-            for (let i = 0; i < end; i++) {
-                if (raw[i] === '(')
-                    opening += 1;
-                else if (raw[i] === ')')
-                    closing += 1;
-            }
-            if (closing > opening) {
-                end -= 1;
-                changed = true;
-            }
-        }
-        else if (c === ';') {
-            let entityStart = end - 2;
-            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
-                entityStart -= 1;
-            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
-                end = entityStart;
-                changed = true;
-            }
-        }
-    }
-
-    return raw.slice(0, end);
-}
-
 function tryAutoLinkExtension(state: ILexState): boolean {
-    const autoLinkExtTo = state.inlineRules.auto_link_extension.exec(state.src);
-    if (
-        !(
-            autoLinkExtTo
-            && state.top
-            && (state.pos === 0 || /[* _~(]/.test(state.originSrc[state.pos - 1]))
-        )
-    ) {
+    const autoLinkExtTo = matchExtendedAutoLink(
+        state.inlineRules.auto_link_extension,
+        state.originSrc,
+        state.pos,
+        state.top,
+    );
+    if (!autoLinkExtTo)
         return false;
-    }
 
-    let raw = autoLinkExtTo[0];
-    let www = autoLinkExtTo[1];
-    let url = autoLinkExtTo[2];
-    const email = autoLinkExtTo[3];
-
-    // GFM §6.9: trim characters that are not part of a www/url autolink so the
-    // leftover renders as plain text instead (#2096). Email autolinks are
-    // unaffected (their extent is fixed by the domain regex).
-    if (!email) {
-        const trimmed = trimAutoLinkExtent(raw);
-        if (trimmed.length !== raw.length) {
-            raw = trimmed;
-            if (www)
-                www = trimmed;
-            if (url)
-                url = trimmed;
-        }
-    }
+    const [raw, www, url, email] = autoLinkExtTo;
 
     pushPending(state);
     state.tokens.push({
@@ -879,7 +780,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryTailHeader,
 ];
 
-function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions) {
+function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
     const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash } = options;
     const state: ILexState = {
         originSrc: src,
@@ -888,6 +789,8 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         pending: '',
         pendingStartPos: pos,
         tokens: [],
+        emphasisSpans,
+        basePos: pos,
         inlineRules,
         labels,
         options,

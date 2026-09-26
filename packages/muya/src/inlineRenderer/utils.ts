@@ -1,5 +1,8 @@
-import type { Rules } from './types';
+import type { Labels, Rules } from './types';
+import { isLengthEven } from '../utils';
 import { findClosingBracket } from '../utils/marked/utils';
+
+const AUTO_LINK_BOUNDARY = /[* _~(]/;
 
 // ASCII PUNCTUATION character
 // export const punctuation = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~']
@@ -63,7 +66,7 @@ export const WHITELIST_ATTRIBUTES = [
 //   '\u000C' // form feed
 // ]
 
-const UNICODE_WHITESPACE_REG = /^\s/;
+export const UNICODE_WHITESPACE_REG = /^\s/;
 
 // NON-STANDARD EXTENSION — a deliberate divergence from CommonMark.
 //
@@ -94,30 +97,28 @@ const UNICODE_WHITESPACE_REG = /^\s/;
 //
 // Tracking: marktext/marktext#4307.
 // eslint-disable-next-line regexp/no-obscure-range
-const CJK_REG = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯ｦ-ﾝ]|[\uD840-\uD87F][\uDC00-\uDFFF]/;
+export const CJK_REG = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯ｦ-ﾝ]|[\uD840-\uD87F][\uDC00-\uDFFF]/;
 
-// Extract the trailing Unicode code point of `s` as a 1- or 2-char string, or
-// '' when `s` is empty. Bracket indexing / charAt return a single UTF-16 code
+// The Unicode code point ending at `i` as a 1- or 2-char string, or '' at the
+// start of the string. Bracket indexing / charAt return a single UTF-16 code
 // unit, splitting a non-BMP code point into raw surrogate halves that never
 // match PUNCTUATION_REG / CJK_REG / UNICODE_WHITESPACE_REG. Reading the full
 // code point keeps CJK_REG's surrogate-pair branch live for Ext-B ideographs.
-function lastCodePointChar(s: string): string {
-    if (!s)
+export function codePointBefore(s: string, i: number): string {
+    if (i <= 0)
         return '';
-    const len = s.length;
-    const lastUnit = s.charCodeAt(len - 1);
-    if (lastUnit >= 0xDC00 && lastUnit <= 0xDFFF && len >= 2) {
-        const prevUnit = s.charCodeAt(len - 2);
+    const lastUnit = s.charCodeAt(i - 1);
+    if (lastUnit >= 0xDC00 && lastUnit <= 0xDFFF && i >= 2) {
+        const prevUnit = s.charCodeAt(i - 2);
         if (prevUnit >= 0xD800 && prevUnit <= 0xDBFF)
-            return s.slice(len - 2);
+            return s.slice(i - 2, i);
     }
-    return s.charAt(len - 1);
+    return s.charAt(i - 1);
 }
 
-// Same idea at an arbitrary index. Returns undefined past the end so the
-// existing `|| '\n'` / `UNICODE_WHITESPACE_REG.test(undefined)` semantics at
-// callers are preserved verbatim.
-function codePointCharAt(s: string, i: number): string | undefined {
+// Same idea forwards: the code point starting at `i`, or undefined past the
+// end of the string.
+export function codePointCharAt(s: string, i: number): string | undefined {
     if (i >= s.length)
         return undefined;
     const unit = s.charCodeAt(i);
@@ -220,122 +221,58 @@ export function parseSrcAndTitle(text = '') {
     return { src, title };
 }
 
-function canOpenEmphasis(src: string, marker: string, pending: string) {
-    // CommonMark §6.4 emphasis runs are atomic: once the FULL `_` or `*`
-    // run has been rejected as an opener (because the surrounding chars
-    // make it both left- and right-flanking), the lexer must not try to
-    // re-open from the second char of the same run. Without this guard,
-    // `пристаням__стремятся__` opens em starting at the second `_` because
-    // `pending` then ends with `_` (a punctuation char) and the regular
-    // flanking rule is satisfied — that's CommonMark example 387.
-    const markerChar = marker.charAt(0);
-    if (pending.length > 0 && pending.charAt(pending.length - 1) === markerChar)
-        return false;
+// GFM §6.9 (https://github.github.com/gfm/#autolinks-extension-): trim a
+// www/url autolink's extent to drop characters that are not part of the link.
+// The match is greedy (`\S+`), so these are applied after the regex, mirroring
+// cmark-gfm's `autolink_delim`:
+//   - a `<` ends the autolink;
+//   - trailing punctuation `?!.,:*_~` is excluded (interior is kept);
+//   - a trailing `)` is excluded when the link has more `)` than `(`, so an
+//     autolink can sit inside parentheses;
+//   - a trailing `;` closing an `&entity;`-looking reference is excluded.
+// The last three rules interleave and are applied repeatedly (e.g. `).`).
+export function trimAutoLinkExtent(raw: string): string {
+    let end = raw.length;
 
-    const precededChar = lastCodePointChar(pending) || '\n';
-    // Past end of src → '' (matches neither whitespace nor punctuation),
-    // preserving the `RegExp.test(undefined)` semantics type-safely.
-    const followedChar = codePointCharAt(src, marker.length) ?? '';
-    // not followed by Unicode whitespace,
-    if (UNICODE_WHITESPACE_REG.test(followedChar))
-        return false;
+    const lt = raw.indexOf('<');
+    if (lt !== -1)
+        end = lt;
 
-    // and either (2a) not followed by a punctuation character,
-    // or (2b) followed by a punctuation character and preceded by Unicode whitespace or a punctuation character.
-    // For purposes of this definition, the beginning and the end of the line count as Unicode whitespace.
-    // CJK widening (see CJK_REG above) — additive: a preceding CJK character is
-    // accepted as a boundary on top of the CommonMark whitespace/punctuation set.
-    if (
-        PUNCTUATION_REG.test(followedChar)
-        && !(
-            UNICODE_WHITESPACE_REG.test(precededChar)
-            || PUNCTUATION_REG.test(precededChar)
-            || CJK_REG.test(precededChar)
-        )
-    ) {
-        return false;
+    let changed = true;
+    while (changed && end > 0) {
+        changed = false;
+        const c = raw[end - 1];
+
+        if ('?!.,:*_~'.includes(c)) {
+            end -= 1;
+            changed = true;
+        }
+        else if (c === ')') {
+            let opening = 0;
+            let closing = 0;
+            for (let i = 0; i < end; i++) {
+                if (raw[i] === '(')
+                    opening += 1;
+                else if (raw[i] === ')')
+                    closing += 1;
+            }
+            if (closing > opening) {
+                end -= 1;
+                changed = true;
+            }
+        }
+        else if (c === ';') {
+            let entityStart = end - 2;
+            while (entityStart >= 0 && /[a-z0-9]/i.test(raw[entityStart]))
+                entityStart -= 1;
+            if (entityStart >= 0 && entityStart < end - 2 && raw[entityStart] === '&') {
+                end = entityStart;
+                changed = true;
+            }
+        }
     }
 
-    if (
-        /_/.test(marker)
-        && !(
-            UNICODE_WHITESPACE_REG.test(precededChar)
-            || PUNCTUATION_REG.test(precededChar)
-            || CJK_REG.test(precededChar)
-        )
-    ) {
-        return false;
-    }
-
-    return true;
-}
-
-function canCloseEmphasis(src: string, offset: number, marker: string) {
-    const precededChar = lastCodePointChar(src.substring(0, offset - marker.length));
-    const followedChar = codePointCharAt(src, offset) || '\n';
-    // not preceded by Unicode whitespace,
-    if (UNICODE_WHITESPACE_REG.test(precededChar))
-        return false;
-
-    // either (2a) not preceded by a punctuation character,
-    // or (2b) preceded by a punctuation character and followed by Unicode whitespace or a punctuation character.
-    // CJK widening: symmetric to canOpenEmphasis — a following CJK character is
-    // accepted as a boundary on top of the CommonMark whitespace/punctuation set.
-    if (
-        PUNCTUATION_REG.test(precededChar)
-        && !(
-            UNICODE_WHITESPACE_REG.test(followedChar)
-            || PUNCTUATION_REG.test(followedChar)
-            || CJK_REG.test(followedChar)
-        )
-    ) {
-        return false;
-    }
-
-    if (
-        /_/.test(marker)
-        && !(
-            UNICODE_WHITESPACE_REG.test(followedChar)
-            || PUNCTUATION_REG.test(followedChar)
-            || CJK_REG.test(followedChar)
-        )
-    ) {
-        return false;
-    }
-
-    return true;
-}
-
-export function validateEmphasize(src: string, offset: number, marker: string, pending: string, rules: Rules) {
-    if (!canOpenEmphasis(src, marker, pending))
-        return false;
-
-    if (!canCloseEmphasis(src, offset, marker))
-        return false;
-
-    /**
-     * 16.When there are two potential emphasis or strong emphasis spans with the same closing delimiter,
-     * the shorter one (the one that opens later) takes precedence. Thus, for example, **foo **bar baz**
-     * is parsed as **foo <strong>bar baz</strong> rather than <strong>foo **bar baz</strong>.
-     */
-    const mLen = marker.length;
-    const emphasizeText = src.substring(mLen, offset - mLen);
-    const SHORTER_REG = new RegExp(
-        ` \\${marker.split('').join('\\')}[^\\${marker.charAt(0)}]`,
-    );
-    const CLOSE_REG = new RegExp(
-        `[^\\${marker.charAt(0)}]\\${marker.split('').join('\\')}`,
-    );
-    if (SHORTER_REG.test(emphasizeText) && !CLOSE_REG.test(emphasizeText))
-        return false;
-
-    /**
-     * 17.Inline code spans, links, images, and HTML tags group more tightly than emphasis.
-     * So, when there is a choice between an interpretation that contains one of these elements
-     * and one that does not, the former always wins. Thus, for example, *[foo*](bar) is parsed
-     * as *<a href="bar">foo*</a> rather than as <em>[foo</em>](bar).
-     */
-    return lowerPriority(src, offset, rules);
+    return raw.slice(0, end);
 }
 
 export function correctUrl(token: string[] | null) {
@@ -357,4 +294,82 @@ export function correctUrl(token: string[] | null) {
             }
         }
     }
+}
+
+const stickyPatterns = new WeakMap<RegExp, RegExp>();
+
+export function matchAt(pattern: RegExp, src: string, index: number) {
+    let sticky = stickyPatterns.get(pattern);
+    if (!sticky) {
+        sticky = new RegExp(pattern.source.replace(/^\^/, ''), `${pattern.flags}y`);
+        stickyPatterns.set(pattern, sticky);
+    }
+    sticky.lastIndex = index;
+
+    return sticky.exec(src);
+}
+
+export function matchBracketed(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    veto: Rules | null,
+) {
+    const to = matchAt(pattern, src, index);
+    correctUrl(to);
+    if (!to || !isLengthEven(to[3]) || !isLengthEven(to[5]))
+        return null;
+
+    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+        return null;
+
+    return to;
+}
+
+export function matchReference(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    labels: Labels,
+    veto: Rules | null,
+) {
+    const to = matchAt(pattern, src, index);
+    if (
+        !to
+        || !labels.has((to[3] || to[1]).toLowerCase())
+        || !isLengthEven(to[2])
+        || !isLengthEven(to[4])
+    ) {
+        return null;
+    }
+
+    if (veto && !lowerPriority(src.substring(index), to[0].length, veto))
+        return null;
+
+    return to;
+}
+
+export function matchExtendedAutoLink(
+    pattern: RegExp,
+    src: string,
+    index: number,
+    top: boolean,
+) {
+    if (!top || (index > 0 && !AUTO_LINK_BOUNDARY.test(src[index - 1])))
+        return null;
+
+    const to = matchAt(pattern, src, index);
+    if (!to || to[3])
+        return to;
+
+    const trimmed = trimAutoLinkExtent(to[0]);
+    if (trimmed.length !== to[0].length) {
+        to[0] = trimmed;
+        if (to[1])
+            to[1] = trimmed;
+        if (to[2])
+            to[2] = trimmed;
+    }
+
+    return to;
 }

@@ -23,12 +23,12 @@ import { renderToStaticHTML } from '../renderToStaticHTML';
 //   so the run is not left-flanking and the `**` stays literal.
 //
 //   Legacy marktext (muyajs) shipped a custom inline tokenizer whose
-//   `canOpen/canCloseEmphasis` flanking helpers treat CJK as punctuation. We
-//   restore that, additively, in both of muya's paths:
+//   flanking helpers treat CJK as punctuation. We restore that, additively,
+//   in both of muya's paths:
 //     - Static / export path  — marked@16, via the `cjkEmStrong` tokenizer
 //       override registered in `getHighlightHtml` / `getClipboardHtml`.
 //     - Live editor path       — muya's own inline lexer, via the CJK widening
-//       in `inlineRenderer/utils.ts` (`canOpen/canCloseEmphasis`).
+//       `isBoundary` applies in `inlineRenderer/emphasis.ts`.
 //
 //   The widening is additive: it never bolds anything CommonMark accepts as
 //   non-emphasis, so the CommonMark / GFM conformance suites are unaffected.
