@@ -120,6 +120,11 @@ export function quickInsertItem(label: string): string {
     return `${floats.quickInsert} [data-label="${label}"]`;
 }
 
+/** Preview toolbar action locator: `edit` / `delete` / `view`. */
+export function previewToolBarItem(type: string): string {
+    return `${floats.previewToolBar} li.item.${type}`;
+}
+
 /**
  * Table grid picker cell locator (zero-based row/column). Hovering and
  * clicking the `(row, column)` cell creates a `(row + 1) × (column + 1)`

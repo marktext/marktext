@@ -1,6 +1,8 @@
 .mt-notification {
   position: fixed;
-  z-index: 10000;
+  /* Above every overlay in the app. `rePositionNotices` in index.ts overwrites
+     this inline as notices stack up — keep the two in step. */
+  z-index: 10100;
   overflow: hidden;
   border-radius: 5px;
   max-width: 350px;

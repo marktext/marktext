@@ -220,3 +220,75 @@ describe('diagramPreview — renderer theme pass-through', () => {
         });
     });
 });
+
+describe('diagramPreview — accessible name', () => {
+    it('marks a rendered diagram as an image named by its <title>', async () => {
+        loadRendererMock.mockResolvedValue({
+            parse: () => ({
+                drawSVG: (target: HTMLElement) => {
+                    target.innerHTML = '<svg width="10" height="10"><title>Order flow</title></svg>';
+                },
+            }),
+        });
+
+        const { preview } = makePreview('st=>start: go', 'flowchart');
+        await preview.update('st=>start: go');
+
+        expect(preview.domNode!.getAttribute('role')).toBe('img');
+        expect(preview.domNode!.getAttribute('aria-label')).toBe('Order flow');
+    });
+
+    it('falls back to the localized diagram label', async () => {
+        loadRendererMock.mockResolvedValue({
+            parse: () => ({
+                drawSVG: (target: HTMLElement) => {
+                    target.innerHTML = '<svg width="10" height="10"></svg>';
+                },
+            }),
+        });
+
+        const { preview, i18n } = makePreview('st=>start: go', 'flowchart', zhCN);
+        await preview.update('st=>start: go');
+
+        expect(preview.domNode!.getAttribute('aria-label')).toBe(i18n.t('Diagram'));
+        expect(i18n.t('Diagram')).not.toBe('Diagram');
+    });
+
+    it('leaves the error state readable instead of hiding it behind role="img"', async () => {
+        loadRendererMock.mockRejectedValue(new Error('boom'));
+
+        const { preview } = makePreview('graph TD', 'mermaid');
+        await preview.update('graph TD');
+
+        expect(preview.domNode!.getAttribute('role')).toBeNull();
+        expect(preview.domNode!.getAttribute('aria-label')).toBeNull();
+    });
+
+    it('leaves the empty state readable', async () => {
+        const { preview } = makePreview('', 'mermaid');
+        await preview.update('');
+
+        expect(preview.domNode!.getAttribute('role')).toBeNull();
+        expect(preview.domNode!.getAttribute('aria-label')).toBeNull();
+    });
+
+    it('drops a stale name when a working diagram is edited into a broken one', async () => {
+        loadRendererMock.mockResolvedValue({
+            parse: () => ({
+                drawSVG: (target: HTMLElement) => {
+                    target.innerHTML = '<svg width="10" height="10"><title>Order flow</title></svg>';
+                },
+            }),
+        });
+
+        const { preview } = makePreview('st=>start: go', 'flowchart');
+        await preview.update('st=>start: go');
+        expect(preview.domNode!.getAttribute('aria-label')).toBe('Order flow');
+
+        loadRendererMock.mockRejectedValue(new Error('boom'));
+        await preview.update('nonsense');
+
+        expect(preview.domNode!.getAttribute('role')).toBeNull();
+        expect(preview.domNode!.getAttribute('aria-label')).toBeNull();
+    });
+});
