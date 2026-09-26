@@ -1,51 +1,85 @@
-; installer.nsh — include via electron-builder’s nsis.include
+; installer.nsh — include via electron-builder's nsis.include
+
+; Windows remembers an "Open with" choice as a UserChoice naming this ProgId,
+; and that pin outlives any reinstall, so the name must stay as it is.
+!define MT_PROGID "MarkText.Document"
+
+;======================================================================
+; Markdown file associations.
+;
+; These must be written on every install and removed only on a real uninstall.
+; electron-builder runs the previous version's uninstaller before it installs,
+; and electron-updater runs the installer with /S, where a MessageBox answers
+; its own /SD default: registering behind a prompt while unregistering
+; unconditionally left every updated install with a UserChoice pointing at a
+; ProgId that no longer existed, so Explorer's double-click did nothing at all
+; (#4966).
+
+; The "Open with" dialog builds its UserChoice from OpenWithProgids, so
+; without that entry Windows pins the ProgId electron-builder registers from
+; `fileAssociations` rather than this one.
+!macro mtAssociateExtension EXT
+  WriteRegStr SHELL_CONTEXT "Software\Classes\${EXT}" "" "${MT_PROGID}"
+  WriteRegNone SHELL_CONTEXT "Software\Classes\${EXT}\OpenWithProgids" "${MT_PROGID}"
+!macroend
+
+; The extension key also carries the OpenWithProgids entries of every other
+; Markdown editor the user has installed, so only MarkText's own values go.
+!macro mtUnassociateExtension EXT
+  DeleteRegValue SHELL_CONTEXT "Software\Classes\${EXT}\OpenWithProgids" "${MT_PROGID}"
+  Push $0
+  ReadRegStr $0 SHELL_CONTEXT "Software\Classes\${EXT}" ""
+  ${if} $0 == "${MT_PROGID}"
+    DeleteRegValue SHELL_CONTEXT "Software\Classes\${EXT}" ""
+  ${endIf}
+  Pop $0
+!macroend
 
 ;======================================================================
 ; customInstall macro is invoked by electron-builder after files are in $INSTDIR
 !macro customInstall
-  ; Ask the user if they want to register file associations
-  MessageBox MB_YESNO|MB_ICONQUESTION \
-  "Do you want to associate Markdown files (.md, .markdown, .mmd, .mdown, .mdtext, .mdx) with MarkText?" /SD IDNO IDNO SkipAssoc
+  !insertmacro mtAssociateExtension ".md"
+  !insertmacro mtAssociateExtension ".markdown"
+  !insertmacro mtAssociateExtension ".mmd"
+  !insertmacro mtAssociateExtension ".mdown"
+  !insertmacro mtAssociateExtension ".mdtxt"
+  !insertmacro mtAssociateExtension ".mdtext"
+  !insertmacro mtAssociateExtension ".mdx"
 
-  ;— User clicked YES, perform the registry writes —
-  WriteRegStr HKCU "Software\Classes\.md"       "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.markdown" "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.mmd"      "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.mdown"    "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.mdtxt"    "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.mdtext"   "" "MarkText.Document"
-  WriteRegStr HKCU "Software\Classes\.mdx"      "" "MarkText.Document"
-
-  WriteRegStr HKCU "Software\Classes\MarkText.Document" \
+  WriteRegStr SHELL_CONTEXT "Software\Classes\${MT_PROGID}" \
     "" "MarkText Markdown Document"
-  WriteRegExpandStr HKCU "Software\Classes\MarkText.Document\DefaultIcon" \
+  WriteRegExpandStr SHELL_CONTEXT "Software\Classes\${MT_PROGID}\DefaultIcon" \
     "" "$INSTDIR\resources\icons\md.ico,0"
-  WriteRegExpandStr HKCU "Software\Classes\MarkText.Document\shell\open\command" \
+  WriteRegExpandStr SHELL_CONTEXT "Software\Classes\${MT_PROGID}\shell\open\command" \
     "" '"$INSTDIR\marktext.exe" "%1"'
 
-SkipAssoc:
+  ; electron-builder writes the command for its own ProgId — `Markdown`, the
+  ; `fileAssociations[].name` in electron-builder.yml — with the executable
+  ; path unquoted, which runs `C:\Program` when the directory the user picked
+  ; during setup contains a space.
+  WriteRegStr SHELL_CONTEXT "Software\Classes\Markdown\shell\open\command" \
+    "" '"$INSTDIR\marktext.exe" "%1"'
+
+  ; Explorer serves file types from a cache that a fresh install otherwise
+  ; keeps until the next sign-in.
+  System::Call 'shell32::SHChangeNotify(i, i, i, i) v (0x08000000, 0, 0, 0)'
 !macroend
 
 ;======================================================================
 ; customUnInstall macro cleans up on uninstall
 !macro customUnInstall
-  ; Delete the open command subtree
-  DeleteRegKey HKCU "Software\Classes\MarkText.Document\shell\open\command"
-  DeleteRegKey HKCU "Software\Classes\MarkText.Document\shell\open"
-  DeleteRegKey HKCU "Software\Classes\MarkText.Document\shell"
-
-  ; Delete the DefaultIcon and ProgID
-  DeleteRegKey HKCU "Software\Classes\MarkText.Document\DefaultIcon"
-  DeleteRegKey HKCU "Software\Classes\MarkText.Document"
-
-  ; Delete each extension mapping
-  DeleteRegKey HKCU "Software\Classes\.md"
-  DeleteRegKey HKCU "Software\Classes\.markdown"
-  DeleteRegKey HKCU "Software\Classes\.mmd"
-  DeleteRegKey HKCU "Software\Classes\.mdown"
-  DeleteRegKey HKCU "Software\Classes\.mdtxt"
-  DeleteRegKey HKCU "Software\Classes\.mdtext"
-  DeleteRegKey HKCU "Software\Classes\.mdx"
+  ; An update reaches here through the old uninstaller, right before the new
+  ; version registers the association again.
+  ${ifNot} ${isUpdated}
+    !insertmacro mtUnassociateExtension ".md"
+    !insertmacro mtUnassociateExtension ".markdown"
+    !insertmacro mtUnassociateExtension ".mmd"
+    !insertmacro mtUnassociateExtension ".mdown"
+    !insertmacro mtUnassociateExtension ".mdtxt"
+    !insertmacro mtUnassociateExtension ".mdtext"
+    !insertmacro mtUnassociateExtension ".mdx"
+    DeleteRegKey SHELL_CONTEXT "Software\Classes\${MT_PROGID}"
+  ${endIf}
 
   MessageBox MB_YESNO "Do you want to delete user settings?" /SD IDNO IDNO SkipRemoval
     SetShellVarContext current
