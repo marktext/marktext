@@ -9,6 +9,7 @@ import type {
 import escapeCharactersMap from '../config/escapeCharacter';
 import { isLengthEven, union } from '../utils';
 import { scanEmphasisSpans } from './emphasis';
+import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
 import {
     getAttributes,
@@ -16,7 +17,6 @@ import {
     matchBracketed,
     matchExtendedAutoLink,
     matchReference,
-    parseSrcAndTitle,
 } from './utils';
 
 // const CAN_NEST_RULES = ['strong', 'em', 'link', 'del', 'a_link', 'reference_link', 'html_tag']
@@ -383,7 +383,11 @@ function tryImage(state: ILexState): boolean {
     if (!imageTo)
         return false;
 
-    const { src: imageSrc, title } = parseSrcAndTitle(imageTo[4]);
+    const tail = parseSrcAndTitle(imageTo[4]);
+    if (!tail)
+        return false;
+
+    const { src: imageSrc, title } = tail;
     pushPending(state);
     state.tokens.push({
         type: 'image',
@@ -420,7 +424,11 @@ function tryLink(state: ILexState): boolean {
     if (!linkTo)
         return false;
 
-    const { src: href, title } = parseSrcAndTitle(linkTo[4]);
+    const tail = parseSrcAndTitle(linkTo[4]);
+    if (!tail)
+        return false;
+
+    const { src: href, title } = tail;
     pushPending(state);
     state.tokens.push({
         type: 'link',

@@ -157,8 +157,9 @@ describe('inline lexer — auto link (marktext c0853f64)', () => {
 
 // Defensive regression for marktext commit ad5ddbf9 (GFM example 558, PR #917):
 // the legacy muya parser used to drop the `"title"` portion of a link or image
-// destination. The new muya's `parseSrcAndTitle` in inlineRenderer/utils.ts
-// already splits these, so this test locks the behaviour in.
+// destination. The new muya's `parseSrcAndTitle` in
+// inlineRenderer/linkDestination.ts already splits these, so this test locks
+// the behaviour in.
 describe('inline lexer — GFM link/image title (marktext ad5ddbf9)', () => {
     it('extracts title from a link with double-quoted title', () => {
         const tokens = tokenizer('[text](http://example.com "Example title")');
@@ -224,10 +225,10 @@ describe('inline lexer — repeated bold + inline_code (marktext d937fac0 / #107
 
 // Defensive regression for marktext commit 57af8304 (issue #1169, PR #1170):
 // link / image destinations containing parens used to consume too much,
-// eating past the real closing `)`. The fix calls `findClosingBracket` to
-// pick the matching `)` and rewrites the captured groups so `\` escapes
-// land in the right slot. The new muya's `correctUrl` (utils.ts) ports the
-// same algorithm.
+// eating past the real closing `)`. The new muya's `correctUrl` (utils.ts)
+// cuts the tentative link back to where CommonMark's destination/title
+// grammar ends and rewrites the captured groups so `\` escapes land in the
+// right slot.
 describe('inline lexer — link / image dest with parens (marktext 57af8304 / #1169)', () => {
     it('parses image dest containing balanced parens correctly', () => {
         const tokens = tokenizer('![alt](path/to/(file).png)');
@@ -246,9 +247,9 @@ describe('inline lexer — link / image dest with parens (marktext 57af8304 / #1
     it('stops at the FIRST matching `)` when more `)` appear later on the line', () => {
         // This is the real shape of the marktext regression: greedy `(.*)` in
         // the image regexp would gobble all the way to the LAST `)`, swallowing
-        // both `first.png` and the `(parens)` text. `correctUrl` /
-        // `findClosingBracket` walks the destination to the matching `)` so
-        // the image stops at `first.png` and the rest stays as following text.
+        // both `first.png` and the `(parens)` text. `correctUrl` walks the
+        // destination to the `)` that closes it so the image stops at
+        // `first.png` and the rest stays as following text.
         const tokens = tokenizer('see ![alt](first.png) and also (parens) here');
         const image = findByType(tokens, 'image') as ImageToken;
         expect(image, `tokens: ${JSON.stringify(tokens.map(t => t.type))}`).toBeDefined();
