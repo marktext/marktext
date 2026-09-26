@@ -5,7 +5,7 @@
 // parser that ignores the grammar gets `[link](/my uri)` and
 // `[link](</my uri>)` exactly backwards (marktext#2377).
 
-// The characters a backslash may escape: CommonMark only recognises an escape
+// The characters a backslash may escape: CommonMark only recognizes an escape
 // before ASCII punctuation, so `my\ file` keeps its backslash *and* still ends
 // at the space. The backslash itself is in the set, which is what makes `\\`
 // one escaped backslash rather than an escape of whatever follows it.
@@ -46,7 +46,7 @@ function skipSpaces(text: string, index: number) {
     return i;
 }
 
-// Drops the backslash of every escape the scan above recognised. Sharing
+// Drops the backslash of every escape the scan above recognized. Sharing
 // `isEscape` rather than spelling the punctuation set a second time keeps the
 // two from drifting apart.
 function unescapePunctuation(text: string) {

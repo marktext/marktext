@@ -32,7 +32,7 @@ const OPTIONS = {
 // Examples the lexer still gets wrong, with the reason. Same contract as
 // `test/spec/expected-failures.json`: an example listed here that starts
 // passing fails the suite, so compliance can only go up. None of these are
-// destination bugs — they are pre-existing gaps in neighbouring inline rules.
+// destination bugs — they are pre-existing gaps in neighboring inline rules.
 const EXPECTED_FAILURES = new Map<number, string>([
     [491, 'html_tag: the spec allows a tag to span a line ending, `html_tag` does not'],
     [493, 'html_tag: `<foo\\>` is not a valid tag, but `html_tag` accepts any `[^\\n<>]*` attribute run'],
@@ -45,7 +45,6 @@ const EXPECTED_FAILURES = new Map<number, string>([
     [518, 'link text: an inner link should veto the outer one (CommonMark §6.3 "links may not contain other links")'],
     [519, 'link text: same nesting veto as #518'],
     [520, 'link text: same nesting veto as #518, for an image label'],
-    [523, 'emphasis and links bind in the wrong order — tracked separately in marktext#2086'],
     [574, 'image label: an inner image should still render its own alt text'],
     [575, 'image label: same as #574 for an inner link'],
 ]);
