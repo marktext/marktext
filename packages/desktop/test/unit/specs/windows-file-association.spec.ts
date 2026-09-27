@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url'
 // The NSIS script cannot be executed here, so assert the properties that keep
 // the Windows Markdown association alive across an update (#4966).
 // electron-builder runs the previous version's uninstaller with `--updated`
-// before it installs, and electron-updater runs the new installer with `/S`.
-// Registering behind a prompt while unregistering unconditionally therefore
-// left the ProgId deleted after every update: an "Open with" choice pinned to
-// it pointed at nothing and Explorer's double-click silently did nothing.
+// before it installs. Registering behind a prompt while unregistering
+// unconditionally therefore left the ProgId deleted after any update answered
+// "No": an "Open with" choice pinned to it pointed at nothing and Explorer's
+// double-click silently did nothing.
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const script = readFileSync(
@@ -35,7 +35,7 @@ describe('Windows Markdown file association (build/windows/installer.nsh)', () =
     expect(script).toMatch(/!define\s+MT_PROGID\s+"MarkText\.Document"/)
   })
 
-  it('registers without prompting, so an update run with /S still restores it', () => {
+  it('registers without prompting, so no answer can leave the ProgId deleted', () => {
     expect(customInstall).not.toMatch(/MessageBox/)
   })
 

@@ -8,12 +8,11 @@
 ; Markdown file associations.
 ;
 ; These must be written on every install and removed only on a real uninstall.
-; electron-builder runs the previous version's uninstaller before it installs,
-; and electron-updater runs the installer with /S, where a MessageBox answers
-; its own /SD default: registering behind a prompt while unregistering
-; unconditionally left every updated install with a UserChoice pointing at a
-; ProgId that no longer existed, so Explorer's double-click did nothing at all
-; (#4966).
+; electron-builder runs the previous version's uninstaller silently before it
+; installs, so unregistering there unconditionally while registering only
+; behind a prompt left any update or reinstall answered "No" with a UserChoice
+; pointing at a ProgId that no longer existed, and Explorer's double-click did
+; nothing at all (#4966).
 
 ; The "Open with" dialog builds its UserChoice from OpenWithProgids, so
 ; without that entry Windows pins the ProgId electron-builder registers from
