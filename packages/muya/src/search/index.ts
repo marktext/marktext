@@ -140,8 +140,8 @@ export class Search {
         if (index >= len)
             index = 0;
 
-        // Only the blocks holding the previous and the new active match change,
-        // so re-render just those instead of every block with a match.
+        // Moving the active match only changes the blocks holding the old and
+        // the new one.
         const changed = new Set<Content>([matches[index].block]);
         const prev = matches[this.index];
         if (prev)
