@@ -112,7 +112,8 @@ The `Muya` instance returned from `new Muya(el, options)` exposes:
 | `find('previous' \| 'next')` | Move the active match. |
 | `replace(value, { isSingle, isRegexp })` | Replace the active match or all matches. |
 | `selectAll()` | Select the entire document. |
-| `getTOC()` | Snapshot the current heading outline as `Array<{ level, text, slug }>`. |
+| `getTOC()` | Snapshot the complete heading outline as `Array<{ lvl, content, slug, githubSlug, index }>`. `index` is the top-level state index. |
+| `ensureMountedThrough(index)` | Synchronously mount through a top-level state index; returns `false` if a callback replaces the document or destroys the editor during the request. |
 | `on(event, fn)` / `off(event, fn)` / `once(event, fn)` | Subscribe to editor events. |
 | `destroy()` | Tear down the editor and free DOM listeners. |
 
@@ -130,6 +131,16 @@ Useful events emitted on the editor:
 | `json-change` | OT operations describing the latest document mutation. The full state can be read back via `muya.getState()` or serialized to Markdown via `muya.getMarkdown()`. |
 | `selection-change` | New selection (`{ anchor, focus, path }`). |
 | `focus` / `blur` | Fired when the contenteditable surface gains or loses focus. |
+| `muya-mount-progress` | `{ mounted, total }`, measured in top-level blocks, while a progressive mount has a remaining tail. |
+| `muya-mount-complete` | `{ total }` when a progressive mount finishes. |
+
+### Large documents
+
+Muya parses the full document synchronously, then mounts an initial prefix of blocks and schedules the remaining DOM work in chunks. `getState()`, `getMarkdown()`, reference definitions, and `getTOC()` use the complete logical document even while only a prefix is mounted. Direct DOM queries see only mounted blocks. Before scrolling to a TOC entry, call `ensureMountedThrough(entry.index)` and stop if it returns `false`.
+
+Mount events describe progressive DOM work, not document changes. Small or empty documents mount synchronously without these events. Replacing a document or destroying the editor cancels its pending work without a completion event. Event callbacks run synchronously and may invalidate the request that triggered them.
+
+Chunks yield between top-level blocks. A single large list, table, or other block remains atomic and can exceed the time budget. Parsing, search, select-all, and other operations that need the full document can still perform substantial synchronous work; progressive mounting is not block-internal virtualization.
 
 The full set of constructor options (font size, list defaults, math/footnote toggles, front matter delimiters, Mermaid/Vega themes, etc.) is described by `IMuyaOptions` in [`packages/core/src/types.ts`](./packages/core/src/types.ts); defaults live in `MUYA_DEFAULT_OPTIONS` in [`packages/core/src/config/index.ts`](./packages/core/src/config/index.ts).
 

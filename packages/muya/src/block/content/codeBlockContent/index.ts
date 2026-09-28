@@ -280,7 +280,9 @@ class CodeBlockContent extends Content {
         // Shift + Enter to jump out of code block.
         if (event.shiftKey) {
             let cursorBlock;
-            const nextContentBlock = this.nextContentInContext();
+            const nextContentBlock = this.resolveNextContentInContext();
+            if (nextContentBlock === false)
+                return;
             if (nextContentBlock) {
                 cursorBlock = nextContentBlock;
             }

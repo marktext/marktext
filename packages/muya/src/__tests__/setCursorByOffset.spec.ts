@@ -135,4 +135,24 @@ describe('muya.setCursorByOffset() (PG2)', () => {
         const after = muya.getHistory();
         expect(after.stack.undo.length).toBe(before.stack.undo.length);
     });
+
+    it('PG2: restores a caret beyond the progressive-mount prefix (review repro 2)', () => {
+        // 600 one-line paragraphs; markdown line 1100 is paragraph 550 —
+        // beyond the 512-weight synchronous prefix, so its mount chunk has
+        // not run at init time (#4887).
+        const markdown = `${Array.from({ length: 600 }, (_, i) => `line ${i}`).join('\n\n')}\n`;
+        const muya = bootMuya(markdown);
+        expect(muya.domNode.querySelectorAll('p.mu-paragraph').length).toBeLessThan(600);
+
+        const restored = muya.setCursorByOffset({
+            anchor: { line: 1100, ch: 3 },
+            focus: { line: 1100, ch: 3 },
+        });
+
+        expect(restored).toBe(true);
+        // The restore mounted only up to its target, not the whole remainder.
+        const mounted = muya.domNode.querySelectorAll('p.mu-paragraph').length;
+        expect(mounted).toBeGreaterThanOrEqual(551);
+        expect(mounted).toBeLessThan(600);
+    });
 });

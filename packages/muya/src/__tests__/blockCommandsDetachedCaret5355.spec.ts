@@ -6,9 +6,9 @@ import { Muya } from '../muya';
 
 // Undoing the first edit after `setContent` restores no caret (its undo entry
 // has no selection), and `setContent` without autoFocus rebuilds the tree
-// under the caret. Both leave the caret caches on a block that is no longer in
-// the document; commands anchored to that block must do nothing rather than
-// throw on its missing parent (#5355).
+// under the caret. Commands must do nothing when the cached block is detached
+// or the replacement has cleared the caret, rather than throw on a missing
+// parent (#5355).
 
 const bootedMuyas: Muya[] = [];
 
@@ -58,8 +58,10 @@ const DETACHING_SETUPS: [string, () => { muya: Muya; markdown: string }][] = [
     }],
     ['setContent without autoFocus replaced the document', () => {
         const muya = bootMuya('Hello\n\nWorld\n');
-        placeCaretAtEnd(muya, 'World');
+        const oldCaret = placeCaretAtEnd(muya, 'World');
         muya.setContent('Other\n\nDoc\n');
+        expect(oldCaret.outMostBlock).toBeNull();
+        expect(muya.editor.activeContentBlock).toBeNull();
         return { muya, markdown: 'Other\n\nDoc\n' };
     }],
 ];
@@ -75,7 +77,7 @@ describe('block commands while the caret caches point at a detached block (#5355
         for (const [commandName, run] of COMMANDS) {
             it(`${commandName} is a no-op after ${setupName}`, () => {
                 const { muya, markdown } = setup();
-                expect(muya.editor.activeContentBlock?.outMostBlock).toBeNull();
+                expect(muya.editor.activeContentBlock?.outMostBlock ?? null).toBeNull();
 
                 expect(() => run(muya)).not.toThrow();
                 muya.editor.jsonState.flush();
