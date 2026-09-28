@@ -1,8 +1,10 @@
 import { createI18n } from 'vue-i18n'
 import { compile, type MessageCompiler } from '@intlify/core-base'
 import bus from '../bus'
+import { registerPackMuyaResource } from '@/util/muyaLocale'
 // Directly import translation files
 import enTranslations from '../../../../static/locales/en.json'
+import zhCNTranslations from '../../../../static/locales/zh-CN.json'
 
 // vue-i18n compiles each translation lazily on first use, and its compiler
 // throws a SyntaxError on any value it can't parse — e.g. a literal `{{x}}`
@@ -28,9 +30,9 @@ const safeMessageCompiler: MessageCompiler = (message, context) => {
 // at the call site rather than spreading `any` further.
 const i18n = createI18n({
   legacy: false,
-  locale: 'en', // default is en
+  locale: 'zh-CN',
   fallbackLocale: 'en',
-  messages: { en: enTranslations }, // Load en by default only
+  messages: { en: enTranslations, 'zh-CN': zhCNTranslations },
   // Disable linking to avoid '@' symbols being misinterpreted
   modifiers: {
     '@': () => '@'
@@ -85,7 +87,12 @@ export const setLanguage = async(locale: string): Promise<void> => {
     if (!translation) return // Failed to load locale file
 
     if (!globalI18n.availableLocales.includes(locale)) {
-      globalI18n.setLocaleMessage(locale, translation)
+      // Language-pack extras: `$meta` is display metadata, `$muya` feeds the editor engine.
+      const { $meta: _meta, $muya: muya, ...messages } = translation as Record<string, unknown>
+      if (muya && typeof muya === 'object') {
+        registerPackMuyaResource(locale, muya as Record<string, string>)
+      }
+      globalI18n.setLocaleMessage(locale, messages)
       console.log(`🌐 Loaded and set new locale: ${locale}`)
     }
   }
@@ -103,6 +110,19 @@ export default i18n
 
 // Listen for language changes
 if (window.electron && window.electron.ipcRenderer) {
+  // Surface drop-in language packs in Preferences → Language.
+  window.i18nUtils
+    .listLanguageCatalog()
+    .then(catalog => {
+      return import('../prefComponents/general/config').then(mod => {
+        mod.setLanguageCatalog(catalog)
+        bus.emit('language-catalog-loaded', catalog)
+      })
+    })
+    .catch(() => {
+      /* catalog is optional before first paint */
+    })
+
   window.electron.ipcRenderer.on('language-changed', (_event, newLocale) => {
     setLanguage(newLocale)
     bus.emit('language-changed', newLocale)

@@ -30,7 +30,22 @@
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
       "quit": "종료",
-      "preferences": "환경설정"
+      "preferences": "환경설정",
+      "pandoc": {
+        "docx": "Word (.docx)",
+        "odt": "OpenDocument (.odt)",
+        "rtf": "RTF (.rtf)",
+        "epub": "EPUB (.epub)",
+        "latex": "LaTeX (.tex)",
+        "rst": "reStructuredText (.rst)",
+        "org": "Org mode (.org)",
+        "mediawiki": "MediaWiki (.wiki)",
+        "textile": "Textile (.textile)"
+      },
+      "linkSpacesTitle": "Links cannot contain spaces",
+      "linkSpacesMessage": "Either URI encode: <code>My%20Link.md</code> <br> or wrap it in brackets: <br> <code><./My Link.md></code>. <br> See CommonMark #488 for details.",
+      "newWindowTask": "New Window",
+      "newWindowTaskDescription": "Opens a new window"
     },
     "edit": {
       "edit": "편집",
@@ -180,6 +195,10 @@
       "tokyoNightLight": "Tokyo Night 라이트",
       "tokyoNightStorm": "Tokyo Night Storm",
       "ulyssesLight": "율리시스 라이트"
+    },
+    "dock": {
+      "open": "Open...",
+      "clearRecent": "Clear Recent"
     }
   },
   "contextMenu": {
@@ -244,7 +263,8 @@
       "closeAll": "모두 닫기",
       "emptyProject": "빈 프로젝트",
       "createFile": "파일 만들기",
-      "openFolder": "폴더 열기"
+      "openFolder": "폴더 열기",
+      "enterMdFileName": "Enter .md file name"
     },
     "toc": {
       "title": "목차",
@@ -476,7 +496,8 @@
         "openLastFolder": "열린 폴더 복원",
         "restoreAll": "열려 있던 모든 파일과 폴더 복원",
         "selectFolder": "폴더 선택",
-        "openBlankPage": "빈 페이지 열기"
+        "openBlankPage": "빈 페이지 열기",
+        "restoreLastSession": "Restore last editor session"
       },
       "sidebar": {
         "title": "사이드바",
@@ -746,6 +767,9 @@
       "enableSpellChecking": "맞춤법 검사 활성화",
       "hideMarksForErrors": "맞춤법 오류 표시 숨기기",
       "title": "맞춤법 검사기"
+    },
+    "sidebar": {
+      "loadingDebugInfo": "Loading debug info..."
     }
   },
   "about": {
@@ -894,7 +918,9 @@
   },
   "common": {
     "cancel": "취소",
-    "ok": "확인"
+    "ok": "확인",
+    "file": "file",
+    "directory": "directory"
   },
   "dialog": {
     "cancel": "취소",
@@ -928,7 +954,20 @@
     "terminatedDueToError": "오류로 인해 종료됨",
     "unexpectedErrorWithMessage": "예기치 않은 오류: {message}",
     "unexpectedMainProcess": "예상치 못한 메인 프로세스 오류",
-    "unexpectedRendererProcess": "예상치 못한 렌더러 프로세스 오류"
+    "unexpectedRendererProcess": "예상치 못한 렌더러 프로세스 오류",
+    "crashTitle": "MarkText has crashed",
+    "crashDetail": "The renderer process has crashed unexpected or is killed ({reason}).",
+    "crashClose": "Close",
+    "crashReload": "Reload",
+    "crashKeepOpen": "Keep It Open",
+    "cannotOpenTab": "Cannot open tab",
+    "fileNotFoundOnDisk": "Could not find file {name} on disk, please save your work.",
+    "restoreBufferFailed": "Failed to restore buffered state",
+    "exportFailure": "Export failure",
+    "exportError": "Error happened when export {path}",
+    "inotifyTitle": "inotify limit reached",
+    "inotifyMessage": "Cannot watch all files and file changes because too many file descriptors are opened.",
+    "watcherIoTitle": "Watcher I/O error"
   },
   "notifications": {
     "defaultMessage": "기본 메시지",
@@ -950,11 +989,29 @@
       "exportLinkedMediaMessage": "\"{name}\" 내보내기 완료. 이 형식은 이미지를 포함하지 않고 파일 링크로 유지하므로, 이미지를 파일과 같은 위치에 두고 폴더 전체를 공유하세요.",
       "fileRemovedOnDisk": "“{name}”이(가) 디스크에서 삭제되었습니다.",
       "fileChangedOnDisk": "“{name}”이(가) 디스크에서 변경되었습니다. 다시 로드하시겠습니까?"
+    },
+    "project": {
+      "deleteErrorTitle": "Error while deleting",
+      "pasteForbiddenTitle": "Paste Forbidden",
+      "samePath": "Source and destination must not be the same.",
+      "tooManyCopiesTitle": "Too many copies",
+      "tooManyCopiesMessage": "Maximum of {max} copies reached. Please clean up first.",
+      "pasteErrorTitle": "Error while pasting",
+      "sidebarErrorTitle": "Error in Side Bar",
+      "existsMessage": "A {type} named \"{name}\" already exists in this folder."
+    },
+    "autoUpdate": {
+      "update": "Update",
+      "notAvailable": "Update not Available",
+      "downloaded": "Update Downloaded",
+      "available": "Update Available"
     }
   },
   "spellchecker": {
     "failedToRemoveWord": "사전에서 단어 제거 실패",
-    "unexpectedError": "예상치 못한 맞춤법 검사 오류"
+    "unexpectedError": "예상치 못한 맞춤법 검사 오류",
+    "spelling": "Spelling",
+    "disabledLanguageChange": "Cannot change language because spellchecker is disabled."
   },
   "editor": {
     "export": {
@@ -984,6 +1041,7 @@
       "languageMissing": "맞춤법 검사 언어 누락 {languageCode}",
       "switchError": "{languageCode} 맞춤법 검사 전환 오류, {error}",
       "title": "맞춤법 검사"
-    }
+    },
+    "uploadImage": "Upload Image"
   }
 }

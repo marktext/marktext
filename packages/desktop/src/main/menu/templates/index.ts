@@ -12,7 +12,7 @@ import theme from './theme'
 import type Keybindings from '../../keyboard/shortcutHandler'
 import type Preference from '../../preferences'
 
-export { default as dockMenu } from './dock'
+export { createDockMenu, default as dockMenu } from './dock'
 
 /**
  * Create the setting window menu.

@@ -1,5 +1,6 @@
 import { t } from '../../i18n'
 import type { PrefSelectOption } from '../common/types'
+import type { LanguageCatalogEntry } from '@shared/types/i18n'
 
 export const getTitleBarStyleOptions = (): PrefSelectOption<string>[] => [
   {
@@ -95,53 +96,44 @@ export const getFileSortOrderOptions = (sortBy: string = 'title'): PrefSelectOpt
   ]
 }
 
-export const getLanguageOptions = (): PrefSelectOption<string>[] => [
-  {
-    label: t('preferences.general.misc.language.english'),
-    value: 'en'
-  },
-  {
-    label: t('preferences.general.misc.language.chinese'),
-    value: 'zh-CN'
-  },
-  {
-    label: t('preferences.general.misc.language.traditionalChinese'),
-    value: 'zh-TW'
-  },
-  {
-    label: t('preferences.general.misc.language.spanish'),
-    value: 'es'
-  },
-  {
-    label: t('preferences.general.misc.language.french'),
-    value: 'fr'
-  },
-  {
-    label: t('preferences.general.misc.language.german'),
-    value: 'de'
-  },
-  {
-    label: t('preferences.general.misc.language.japanese'),
-    value: 'ja'
-  },
-  {
-    label: t('preferences.general.misc.language.korean'),
-    value: 'ko'
-  },
-  {
-    label: t('preferences.general.misc.language.dutch'),
-    value: 'nl'
-  },
-  {
-    label: t('preferences.general.misc.language.portuguese'),
-    value: 'pt'
-  },
-  {
-    label: t('preferences.general.misc.language.turkish'),
-    value: 'tr'
-  },
-  {
-    label: t('preferences.general.misc.language.russian'),
-    value: 'ru'
+const BUILTIN_LANGUAGE_LABEL_KEYS: Record<string, string> = {
+  en: 'preferences.general.misc.language.english',
+  'zh-CN': 'preferences.general.misc.language.chinese',
+  'zh-TW': 'preferences.general.misc.language.traditionalChinese',
+  es: 'preferences.general.misc.language.spanish',
+  fr: 'preferences.general.misc.language.french',
+  de: 'preferences.general.misc.language.german',
+  ja: 'preferences.general.misc.language.japanese',
+  ko: 'preferences.general.misc.language.korean',
+  nl: 'preferences.general.misc.language.dutch',
+  pt: 'preferences.general.misc.language.portuguese',
+  tr: 'preferences.general.misc.language.turkish',
+  ru: 'preferences.general.misc.language.russian'
+}
+
+const FALLBACK_LANGUAGE_OPTIONS: PrefSelectOption<string>[] = Object.entries(
+  BUILTIN_LANGUAGE_LABEL_KEYS
+).map(([value, labelKey]) => ({ label: t(labelKey), value }))
+
+// Catalog from built-in locales + drop-in language packs. Loaded at startup
+// via i18nUtils.listLanguageCatalog(); the built-in label map is the fallback
+// before that resolves (and in unit tests without IPC).
+let cachedCatalog: LanguageCatalogEntry[] | null = null
+
+export const setLanguageCatalog = (catalog: LanguageCatalogEntry[]): void => {
+  cachedCatalog = catalog
+}
+
+export const getLanguageOptions = (): PrefSelectOption<string>[] => {
+  if (!cachedCatalog) {
+    return FALLBACK_LANGUAGE_OPTIONS
   }
-]
+  return cachedCatalog.map(entry => {
+    const labelKey = BUILTIN_LANGUAGE_LABEL_KEYS[entry.id]
+    return {
+      label:
+        entry.source === 'builtin' && labelKey ? t(labelKey) : entry.nativeName || entry.name || entry.id,
+      value: entry.id
+    }
+  })
+}

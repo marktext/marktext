@@ -30,7 +30,22 @@
       "closeTab": "Fechar Aba",
       "closeWindow": "Fechar Janela",
       "quit": "Sair",
-      "preferences": "Preferências"
+      "preferences": "Preferências",
+      "pandoc": {
+        "docx": "Word (.docx)",
+        "odt": "OpenDocument (.odt)",
+        "rtf": "RTF (.rtf)",
+        "epub": "EPUB (.epub)",
+        "latex": "LaTeX (.tex)",
+        "rst": "reStructuredText (.rst)",
+        "org": "Org mode (.org)",
+        "mediawiki": "MediaWiki (.wiki)",
+        "textile": "Textile (.textile)"
+      },
+      "linkSpacesTitle": "Links cannot contain spaces",
+      "linkSpacesMessage": "Either URI encode: <code>My%20Link.md</code> <br> or wrap it in brackets: <br> <code><./My Link.md></code>. <br> See CommonMark #488 for details.",
+      "newWindowTask": "New Window",
+      "newWindowTaskDescription": "Opens a new window"
     },
     "edit": {
       "edit": "Editar",
@@ -180,6 +195,10 @@
       "tokyoNightLight": "Tokyo Night Claro",
       "tokyoNightStorm": "Tokyo Night Storm",
       "ulyssesLight": "Ulysses Claro"
+    },
+    "dock": {
+      "open": "Open...",
+      "clearRecent": "Clear Recent"
     }
   },
   "contextMenu": {
@@ -244,7 +263,8 @@
       "closeAll": "Fechar Todos",
       "emptyProject": "Projeto vazio",
       "createFile": "Criar Arquivo",
-      "openFolder": "Abrir Pasta"
+      "openFolder": "Abrir Pasta",
+      "enterMdFileName": "Enter .md file name"
     },
     "toc": {
       "title": "Índice",
@@ -476,7 +496,8 @@
         "openLastFolder": "Restaurar pasta aberta",
         "restoreAll": "Restaurar todos os arquivos e pastas abertos",
         "selectFolder": "Selecionar Pasta",
-        "openBlankPage": "Abrir página em branco"
+        "openBlankPage": "Abrir página em branco",
+        "restoreLastSession": "Restore last editor session"
       },
       "sidebar": {
         "title": "Barra Lateral",
@@ -746,6 +767,9 @@
       "enableSpellChecking": "Habilitar verificação ortográfica",
       "hideMarksForErrors": "Ocultar marcas para erros ortográficos",
       "title": "Corretor Ortográfico"
+    },
+    "sidebar": {
+      "loadingDebugInfo": "Loading debug info..."
     }
   },
   "about": {
@@ -894,7 +918,9 @@
   },
   "common": {
     "cancel": "Cancelar",
-    "ok": "OK"
+    "ok": "OK",
+    "file": "file",
+    "directory": "directory"
   },
   "dialog": {
     "cancel": "Cancelar",
@@ -928,7 +954,20 @@
     "terminatedDueToError": "Terminado devido a erro",
     "unexpectedErrorWithMessage": "Erro inesperado: {message}",
     "unexpectedMainProcess": "Erro inesperado do processo principal",
-    "unexpectedRendererProcess": "Erro inesperado do processo de renderização"
+    "unexpectedRendererProcess": "Erro inesperado do processo de renderização",
+    "crashTitle": "MarkText has crashed",
+    "crashDetail": "The renderer process has crashed unexpected or is killed ({reason}).",
+    "crashClose": "Close",
+    "crashReload": "Reload",
+    "crashKeepOpen": "Keep It Open",
+    "cannotOpenTab": "Cannot open tab",
+    "fileNotFoundOnDisk": "Could not find file {name} on disk, please save your work.",
+    "restoreBufferFailed": "Failed to restore buffered state",
+    "exportFailure": "Export failure",
+    "exportError": "Error happened when export {path}",
+    "inotifyTitle": "inotify limit reached",
+    "inotifyMessage": "Cannot watch all files and file changes because too many file descriptors are opened.",
+    "watcherIoTitle": "Watcher I/O error"
   },
   "notifications": {
     "defaultMessage": "Mensagem padrão",
@@ -950,11 +989,29 @@
       "exportLinkedMediaMessage": "\"{name}\" foi exportado. Este formato liga as imagens em vez de incorporá-las: mantenha as imagens junto do arquivo e compartilhe a pasta inteira.",
       "fileRemovedOnDisk": "“{name}” foi removido no disco.",
       "fileChangedOnDisk": "“{name}” foi alterado no disco. Deseja recarregar?"
+    },
+    "project": {
+      "deleteErrorTitle": "Error while deleting",
+      "pasteForbiddenTitle": "Paste Forbidden",
+      "samePath": "Source and destination must not be the same.",
+      "tooManyCopiesTitle": "Too many copies",
+      "tooManyCopiesMessage": "Maximum of {max} copies reached. Please clean up first.",
+      "pasteErrorTitle": "Error while pasting",
+      "sidebarErrorTitle": "Error in Side Bar",
+      "existsMessage": "A {type} named \"{name}\" already exists in this folder."
+    },
+    "autoUpdate": {
+      "update": "Update",
+      "notAvailable": "Update not Available",
+      "downloaded": "Update Downloaded",
+      "available": "Update Available"
     }
   },
   "spellchecker": {
     "failedToRemoveWord": "Falha ao remover palavra do dicionário",
-    "unexpectedError": "Erro inesperado do corretor ortográfico"
+    "unexpectedError": "Erro inesperado do corretor ortográfico",
+    "spelling": "Spelling",
+    "disabledLanguageChange": "Cannot change language because spellchecker is disabled."
   },
   "editor": {
     "export": {
@@ -984,6 +1041,7 @@
       "languageMissing": "Idioma do corretor não encontrado {languageCode}",
       "switchError": "Erro ao alternar corretor para {languageCode}, {error}",
       "title": "Verificação Ortográfica"
-    }
+    },
+    "uploadImage": "Upload Image"
   }
 }

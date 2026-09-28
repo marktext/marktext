@@ -2,15 +2,31 @@ import { shell, ipcMain } from 'electron'
 import log from 'electron-log'
 import EventEmitter from 'events'
 import fsPromises from 'fs/promises'
-import {
-  getCurrentKeyboardLayout,
-  getKeyMap,
-  onDidChangeKeyboardLayout,
-  type IKeyboardLayoutInfo,
-  type IKeyboardMapping
-} from 'native-keymap'
+import type { IKeyboardLayoutInfo, IKeyboardMapping } from 'native-keymap'
+import { tryRequire } from '../utils/optionalNative'
 import os from 'os'
 import path from 'path'
+
+type NativeKeymap = {
+  getCurrentKeyboardLayout(): IKeyboardLayoutInfo
+  getKeyMap(): IKeyboardMapping
+  onDidChangeKeyboardLayout(callback: () => void): void
+}
+
+const nativeKeymap = tryRequire<NativeKeymap>('native-keymap')
+
+const stubLayout: IKeyboardLayoutInfo = {
+  id: 'en-US',
+  text: 'English (US)',
+  language: 'en'
+} as unknown as IKeyboardLayoutInfo
+
+const getCurrentKeyboardLayout = (): IKeyboardLayoutInfo =>
+  nativeKeymap ? nativeKeymap.getCurrentKeyboardLayout() : stubLayout
+const getKeyMap = (): IKeyboardMapping => (nativeKeymap ? nativeKeymap.getKeyMap() : ({} as IKeyboardMapping))
+const onDidChangeKeyboardLayout = (callback: () => void): void => {
+  if (nativeKeymap) nativeKeymap.onDidChangeKeyboardLayout(callback)
+}
 
 export interface KeyboardInfo {
   layout: IKeyboardLayoutInfo

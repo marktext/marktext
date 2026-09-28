@@ -64,6 +64,18 @@ export interface IpcInvokeChannels {
   'mt::i18n::is-supported': { args: [lang: string]; ret: boolean }
   'mt::i18n::load': { args: [language: string]; ret: Record<string, unknown> }
   'mt::i18n::supported': { args: []; ret: string[] }
+  'mt::i18n::catalog': {
+    args: []
+    ret: Array<{
+      id: string
+      name: string
+      nativeName: string
+      author?: string
+      version?: string
+      source: 'builtin' | 'user' | 'cwd'
+      hasMuya: boolean
+    }>
+  }
   'mt::keybinding-get-keyboard-info': { args: []; ret: KeyboardInfo }
   'mt::keybinding-get-pref-keybindings': {
     args: []

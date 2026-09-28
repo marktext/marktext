@@ -419,7 +419,7 @@ export const debugLanguageState = (): void => {
   }
 
   // Clear and populate debug information
-  debugContent.innerHTML = '<div id="debugDetails">Loading debug info...</div>'
+  debugContent.innerHTML = `<div id="debugDetails">${t('preferences.sidebar.loadingDebugInfo')}</div>`
 
   // Populate debug details
   const details = debugContent.querySelector('#debugDetails') as HTMLDivElement | null

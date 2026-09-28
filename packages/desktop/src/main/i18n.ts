@@ -2,7 +2,7 @@ import { getTranslation } from 'common/i18n'
 import { BrowserWindow } from 'electron'
 
 // Current language setting (can be obtained from config file or user settings)
-let currentLanguage = 'en'
+let currentLanguage = 'zh-CN'
 
 /**
  * Gets the translated text.

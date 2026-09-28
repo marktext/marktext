@@ -1,5 +1,8 @@
-import ced from 'ced'
 import type { Encoding } from 'common/encoding'
+import { tryRequire } from '../utils/optionalNative'
+
+type Ced = (buffer: Buffer) => string
+const ced = tryRequire<Ced>('ced')
 
 const CED_ICONV_ENCODINGS: Record<string, string> = {
   'BIG5-CP950': 'big5',
@@ -70,7 +73,7 @@ export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encod
     if (isLikelyUtf8(buffer)) {
       return { encoding: 'utf8', isBom }
     }
-    encoding = ced(buffer)
+    encoding = ced ? ced(buffer) : 'utf8'
     if (CED_ICONV_ENCODINGS[encoding]) {
       encoding = CED_ICONV_ENCODINGS[encoding]
     } else {

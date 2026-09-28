@@ -166,7 +166,7 @@ describe('mt::response-pandoc-export notifications', () => {
     await exportWith()
 
     const failure = notification()
-    expect(failure.title).toBe('editor.export.failed#Word')
+    expect(failure.title).toBe('editor.export.failed#menu.file.pandoc.docx')
     expect(failure.type).toBe('error')
     expect(failure.message).toContain('&lt;script&gt;')
     expect(failure.message).not.toContain('<script>')

@@ -8,7 +8,7 @@ import './assets/symbolIcon'
 // Element Plus instead of Element UI for Vue 3
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import en from 'element-plus/es/locale/lang/en'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 // I18n translation system
 import i18nPlugin from './i18n'
@@ -34,7 +34,7 @@ const app: App<Element> = createApp(Main)
 
 // Configure Element Plus with locale
 app.use(ElementPlus, {
-  locale: en
+  locale: zhCn
 })
 
 const envType = window.marktext?.env?.type as string | undefined

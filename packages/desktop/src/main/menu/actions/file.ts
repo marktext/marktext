@@ -137,9 +137,9 @@ const handleResponseForExport = async(e: IpcMainEvent, payload: ExportPayload): 
     } catch (err) {
       log.error('Error while exporting:', err)
       const ERROR_MSG =
-        (err instanceof Error && err.message) || `Error happened when export ${filePath}`
+        (err instanceof Error && err.message) || t('error.exportError', { path: filePath })
       win.webContents.send('mt::show-notification', {
-        title: 'Export failure',
+        title: t('error.exportFailure'),
         type: 'error',
         message: ERROR_MSG
       })
@@ -238,7 +238,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
       (err instanceof Error && err.message) || `Error happened when export ${filePath}`
     // pandoc errors run several lines and the body is HTML, so the raw text is the fallback.
     win.webContents.send('mt::show-notification', {
-      title: t('editor.export.failed', { type: format.label }),
+      title: t('editor.export.failed', { type: t(`menu.file.pandoc.${format.id}`) }),
       type: 'error',
       message: summarizePandocWarnings(ERROR_MSG) || escapeNotificationText(ERROR_MSG)
     })
@@ -701,10 +701,9 @@ ipcMain.on('mt::format-link-click', async(e, { data, dirname }: FormatLinkPayloa
     // No <> found, no spaces should be allowed
     if (/\s/.test(rawUrl)) {
       win.webContents.send('mt::show-notification', {
-        title: 'Links cannot contain spaces',
+        title: t('menu.file.linkSpacesTitle'),
         type: 'error',
-        message:
-          'Either URI encode: <code>My%20Link.md</code> <br> or wrap it in brackets: <br> <code><./My Link.md></code>. <br> See CommonMark #488 for details.'
+        message: t('menu.file.linkSpacesMessage')
       })
       return
     }

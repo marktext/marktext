@@ -7,6 +7,7 @@ import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux, isOsx } from '../config'
+import { t } from '../i18n'
 import type { BrowserWindow } from 'electron'
 import type { LineEnding } from '@shared/types/files'
 import type Preference from '../preferences'
@@ -87,7 +88,7 @@ const add = async(
       // Only notify user about opened files.
       if (type === 'file') {
         win.webContents.send('mt::show-notification', {
-          title: 'Watcher I/O error',
+          title: t('error.watcherIoTitle'),
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
@@ -147,7 +148,7 @@ const change = async(
     } catch (err) {
       if (type === 'file') {
         win.webContents.send('mt::show-notification', {
-          title: 'Watcher I/O error',
+          title: t('error.watcherIoTitle'),
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
@@ -334,10 +335,9 @@ class Watcher {
             log.warn('inotify limit reached: Too many file descriptors are opened.')
 
             win.webContents.send('mt::show-notification', {
-              title: 'inotify limit reached',
+              title: t('error.inotifyTitle'),
               type: 'warning',
-              message:
-                'Cannot watch all files and file changes because too many file descriptors are opened.'
+              message: t('error.inotifyMessage')
             })
           }
         } else {

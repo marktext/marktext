@@ -952,7 +952,7 @@ const imageAction = async (
         )) as string
       } catch (err) {
         notice.notify({
-          title: 'Upload Image',
+          title: t('editor.uploadImage'),
           type: 'warning',
           message: err as string
         })

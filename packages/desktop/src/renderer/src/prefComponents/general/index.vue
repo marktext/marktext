@@ -134,7 +134,7 @@
           >
             <!--
               Hide "lastState" for now (#2064).
-            <el-radio class="ag-underdevelop" label="lastState">Restore last editor session</el-radio>
+            <el-radio class="ag-underdevelop" label="lastState">{{ t('preferences.general.startup.restoreLastSession') }}</el-radio>
             -->
             <el-radio label="restoreAll">
               {{ t('preferences.general.startup.restoreAll') }}

@@ -11,6 +11,7 @@ import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
+import { t } from '../i18n'
 import fs from 'fs'
 
 type RawMarkdownDocument = Awaited<ReturnType<typeof loadMarkdownFile>>
@@ -208,7 +209,7 @@ class EditorWindow extends BaseWindow {
         return
       }
 
-      const msg = `The renderer process has crashed unexpected or is killed (${reason}).`
+      const msg = t('error.crashDetail', { reason })
       log.error(msg)
 
       if (reason === 'abnormal-exit') {
@@ -217,8 +218,8 @@ class EditorWindow extends BaseWindow {
 
       const { response } = await dialog.showMessageBox(win!, {
         type: 'warning',
-        buttons: ['Close', 'Reload', 'Keep It Open'],
-        message: 'MarkText has crashed',
+        buttons: [t('error.crashClose'), t('error.crashReload'), t('error.crashKeepOpen')],
+        message: t('error.crashTitle'),
         detail: msg
       })
 
@@ -352,7 +353,7 @@ class EditorWindow extends BaseWindow {
           const { message, stack } = err
           log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
           browserWindow!.webContents.send('mt::show-notification', {
-            title: 'Cannot open tab',
+            title: t('error.cannotOpenTab'),
             type: 'error',
             message: err.message
           })
@@ -615,7 +616,7 @@ class EditorWindow extends BaseWindow {
               tab.isSaved = false // Set to false as base file could not be found, needs saving
               log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)
               browserWindow!.webContents.send('mt::show-notification', {
-                title: `Could not find file ${tab.filename} on disk, please save your work.`,
+                title: t('error.fileNotFoundOnDisk', { name: tab.filename ?? '' }),
                 type: 'error',
                 message: err.message
               })
@@ -631,7 +632,7 @@ class EditorWindow extends BaseWindow {
         .catch((err: Error) => {
           log.error('Failed to load files for restoring editor state:', err)
           browserWindow!.webContents.send('mt::show-notification', {
-            title: 'Failed to restore buffered state',
+            title: t('error.restoreBufferFailed'),
             type: 'error',
             message: err.message
           })

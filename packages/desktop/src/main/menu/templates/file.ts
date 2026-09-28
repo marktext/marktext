@@ -172,7 +172,7 @@ export default function(
         {
           label: t('menu.file.convertWithPandoc'),
           submenu: PANDOC_EXPORT_FORMATS.map((format) => ({
-            label: format.label,
+            label: t(`menu.file.pandoc.${format.id}`),
             click(_menuItem, browserWindow) {
               actions.exportWithPandoc(browserWindow as BrowserWindow | undefined, format.id)
             }

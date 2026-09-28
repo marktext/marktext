@@ -30,7 +30,22 @@
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
       "quit": "退出",
-      "preferences": "偏好設定"
+      "preferences": "偏好設定",
+      "pandoc": {
+        "docx": "Word 文件 (.docx)",
+        "odt": "OpenDocument (.odt)",
+        "rtf": "RTF (.rtf)",
+        "epub": "EPUB 電子書 (.epub)",
+        "latex": "LaTeX (.tex)",
+        "rst": "reStructuredText (.rst)",
+        "org": "Org 模式 (.org)",
+        "mediawiki": "MediaWiki (.wiki)",
+        "textile": "Textile (.textile)"
+      },
+      "linkSpacesTitle": "連結不能包含空格",
+      "linkSpacesMessage": "可以進行 URI 編碼：<code>My%20Link.md</code> <br> 或用尖括號包裹：<br> <code><./My Link.md></code>。<br> 詳情參見 CommonMark #488。",
+      "newWindowTask": "新增視窗",
+      "newWindowTaskDescription": "開啟一個新視窗"
     },
     "edit": {
       "edit": "編輯",
@@ -180,6 +195,10 @@
       "tokyoNightLight": "Tokyo Night 淺色",
       "tokyoNightStorm": "Tokyo Night Storm",
       "ulyssesLight": "Ulysses 淺色"
+    },
+    "dock": {
+      "open": "開啟…",
+      "clearRecent": "清除最近使用"
     }
   },
   "contextMenu": {
@@ -244,7 +263,8 @@
       "closeAll": "全部關閉",
       "emptyProject": "空專案",
       "createFile": "建立檔案",
-      "openFolder": "開啟資料夾"
+      "openFolder": "開啟資料夾",
+      "enterMdFileName": "輸入 .md 檔名"
     },
     "toc": {
       "title": "目錄",
@@ -476,7 +496,8 @@
         "openLastFolder": "恢復開啟的資料夾",
         "restoreAll": "還原所有已開啟的檔案和資料夾",
         "selectFolder": "選擇資料夾",
-        "openBlankPage": "開啟空白頁面"
+        "openBlankPage": "開啟空白頁面",
+        "restoreLastSession": "還原上次編輯器工作階段"
       },
       "sidebar": {
         "title": "側邊欄",
@@ -746,6 +767,9 @@
       "enableSpellChecking": "啟用拼字檢查",
       "hideMarksForErrors": "隱藏拼字錯誤標記",
       "title": "拼字檢查"
+    },
+    "sidebar": {
+      "loadingDebugInfo": "正在載入除錯資訊…"
     }
   },
   "about": {
@@ -894,7 +918,9 @@
   },
   "common": {
     "cancel": "取消",
-    "ok": "確定"
+    "ok": "確定",
+    "file": "檔案",
+    "directory": "資料夾"
   },
   "dialog": {
     "cancel": "取消",
@@ -928,7 +954,20 @@
     "terminatedDueToError": "因錯誤而終止",
     "unexpectedErrorWithMessage": "意外錯誤：{message}",
     "unexpectedMainProcess": "意外的主程序錯誤",
-    "unexpectedRendererProcess": "意外的渲染程序錯誤"
+    "unexpectedRendererProcess": "意外的渲染程序錯誤",
+    "crashTitle": "MarkText 已崩潰",
+    "crashDetail": "渲染行程意外崩潰或被終止（{reason}）。",
+    "crashClose": "關閉",
+    "crashReload": "重新載入",
+    "crashKeepOpen": "保持開啟",
+    "cannotOpenTab": "無法開啟分頁",
+    "fileNotFoundOnDisk": "在磁碟上找不到檔案 {name}，請儲存您的工作。",
+    "restoreBufferFailed": "還原緩衝狀態失敗",
+    "exportFailure": "匯出失敗",
+    "exportError": "匯出 {path} 時發生錯誤",
+    "inotifyTitle": "已達到 inotify 上限",
+    "inotifyMessage": "由於開啟的檔案描述符過多，無法監視所有檔案和檔案變更。",
+    "watcherIoTitle": "檔案監視器 I/O 錯誤"
   },
   "notifications": {
     "defaultMessage": "預設訊息",
@@ -950,11 +989,29 @@
       "exportLinkedMediaMessage": "已匯出“{name}”。此格式以連結方式引用圖片而不內嵌，請讓圖片與檔案放在一起，分享時一併帶上整個資料夾。",
       "fileRemovedOnDisk": "「{name}」已在磁碟上被刪除。",
       "fileChangedOnDisk": "「{name}」已在磁碟上發生變更。是否重新載入？"
+    },
+    "project": {
+      "deleteErrorTitle": "刪除出錯",
+      "pasteForbiddenTitle": "禁止貼上",
+      "samePath": "來源路徑和目標路徑不能相同。",
+      "tooManyCopiesTitle": "副本過多",
+      "tooManyCopiesMessage": "已達到最大副本數 {max}。請先清理。",
+      "pasteErrorTitle": "貼上出錯",
+      "sidebarErrorTitle": "側邊欄錯誤",
+      "existsMessage": "此資料夾中已存在名為「{name}」的{type}。"
+    },
+    "autoUpdate": {
+      "update": "更新",
+      "notAvailable": "無可用更新",
+      "downloaded": "更新已下載",
+      "available": "有可用更新"
     }
   },
   "spellchecker": {
     "failedToRemoveWord": "從字典中移除單字失敗",
-    "unexpectedError": "意外的拼字檢查錯誤"
+    "unexpectedError": "意外的拼字檢查錯誤",
+    "spelling": "拼字檢查",
+    "disabledLanguageChange": "拼字檢查已停用，無法變更語言。"
   },
   "editor": {
     "export": {
@@ -984,6 +1041,7 @@
       "languageMissing": "拼字檢查語言缺失 {languageCode}",
       "switchError": "{languageCode} 拼字檢查切換錯誤，{error}",
       "title": "拼字檢查"
-    }
+    },
+    "uploadImage": "上傳圖片"
   }
 }

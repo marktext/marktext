@@ -1,0 +1,28 @@
+{
+  "$meta": {
+    "id": "xx",
+    "name": "Sample Language Pack",
+    "nativeName": "示例语言包",
+    "author": "MarkText",
+    "version": "1.0.0"
+  },
+  "muya": {
+    "Code Block": "示例：代码块",
+    "Paragraph": "示例：段落"
+  },
+  "common": {
+    "ok": "示例：确定",
+    "cancel": "示例：取消",
+    "file": "示例：文件",
+    "directory": "示例：文件夹"
+  },
+  "menu": {
+    "file": {
+      "file": "示例：文件",
+      "save": "示例：保存"
+    }
+  },
+  "dialog": {
+    "cancel": "示例：取消"
+  }
+}

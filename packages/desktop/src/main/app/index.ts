@@ -13,15 +13,15 @@ import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
 import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
-import { dockMenu } from '../menu/templates'
+import { createDockMenu } from '../menu/templates'
 import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
 import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
-import { setLanguage } from '../i18n'
-import { matchSupportedLanguage } from 'common/i18n'
+import { setLanguage, t } from '../i18n'
+import { discoverLanguagePacks } from '../langPacks'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
 import type WindowManager from './windowManager'
@@ -159,22 +159,18 @@ class App {
     try {
       let currentLanguage = this._accessor.preferences.getItem<string>('language')
 
-      // If no language is set (first start), auto-detect from the system language
+      // First start defaults to Simplified Chinese; only keep an explicit user choice.
       if (!currentLanguage) {
-        const systemLocale = app.getLocale()
-        currentLanguage = matchSupportedLanguage(systemLocale) ?? 'en'
+        currentLanguage = 'zh-CN'
         this._accessor.preferences.setItem('language', currentLanguage)
-        log.info(
-          `Auto-detected and set language to: ${currentLanguage} (system locale: ${systemLocale})`
-        )
+        log.info(`Defaulted language to: ${currentLanguage}`)
       }
 
       setLanguage(currentLanguage)
       log.info(`Main process language initialized to: ${currentLanguage}`)
     } catch (error) {
       log.error('Failed to initialize main process language:', error)
-      // If an error occurs, use English as the default language
-      setLanguage('en')
+      setLanguage('zh-CN')
     }
   }
 
@@ -190,7 +186,10 @@ class App {
     const { _args: args, _openFilesCache } = this
     const { preferences, editorBufferStore } = this._accessor
 
-    // Initialize language settings (detects the system language on first start)
+    // Drop-in language packs must be registered before menus/dialogs resolve text.
+    discoverLanguagePacks()
+
+    // Initialize language settings (defaults to zh-CN on first start)
     this._initializeLanguage()
     const { startUpAction, defaultDirectoryToOpen, theme } = preferences.getAll()
     const followSystemTheme = preferences.getItem<boolean>('followSystemTheme')
@@ -320,7 +319,7 @@ class App {
     }
 
     if (isOsx) {
-      app.dock?.setMenu(dockMenu)
+      app.dock?.setMenu(createDockMenu())
     } else if (isWindows) {
       app.setJumpList([
         {
@@ -331,8 +330,8 @@ class App {
           items: [
             {
               type: 'task',
-              title: 'New Window',
-              description: 'Opens a new window',
+              title: t('menu.file.newWindowTask'),
+              description: t('menu.file.newWindowTaskDescription'),
               program: process.execPath,
               args: '--new-window',
               iconPath: process.execPath,
@@ -622,7 +621,7 @@ class App {
     // Handle language setting requests
     ipcMain.on('mt::get-current-language', (event) => {
       const { language } = this._accessor.preferences.getAll()
-      event.reply('mt::current-language', language || 'en')
+      event.reply('mt::current-language', language || 'zh-CN')
     })
 
     ipcMain.on('app-create-editor-window', () => {

@@ -6,6 +6,7 @@ import bus from '../bus'
 import { create, paste, rename, type FileCreateType, type PasteOptions } from '../util/fileSystem'
 import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
+import { t } from '../i18n'
 import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
@@ -223,7 +224,7 @@ export const useProjectStore = defineStore('project', () => {
       const { pathname } = activeItem.value
       window.electron.ipcRenderer.invoke('mt::fs-trash-item', pathname).catch((err) => {
         notice.notify({
-          title: 'Error while deleting',
+          title: t('store.project.deleteErrorTitle'),
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
@@ -243,9 +244,9 @@ export const useProjectStore = defineStore('project', () => {
         if (window.path.normalize(cb.src) === window.path.normalize(dest)) {
           if (cb.type === 'cut') {
             notice.notify({
-              title: 'Paste Forbidden',
+              title: t('store.project.pasteForbiddenTitle'),
               type: 'warning',
-              message: 'Source and destination must not be the same.'
+              message: t('store.project.samePath')
             })
             return
           }
@@ -259,9 +260,9 @@ export const useProjectStore = defineStore('project', () => {
             suffix++
             if (suffix > MAX_COPIES) {
               notice.notify({
-                title: 'Too many copies',
+                title: t('store.project.tooManyCopiesTitle'),
                 type: 'warning',
-                message: `Maximum of ${MAX_COPIES} copies reached. Please clean up first.`
+                message: t('store.project.tooManyCopiesMessage', { max: MAX_COPIES })
               })
               return
             }
@@ -277,7 +278,7 @@ export const useProjectStore = defineStore('project', () => {
           })
           .catch((err) => {
             notice.notify({
-              title: 'Error while pasting',
+              title: t('store.project.pasteErrorTitle'),
               type: 'error',
               message: err instanceof Error ? err.message : String(err)
             })
@@ -306,9 +307,12 @@ export const useProjectStore = defineStore('project', () => {
     if (await window.fileUtils.pathExists(fullName)) {
       createCache.value = {}
       notice.notify({
-        title: 'Error in Side Bar',
+        title: t('store.project.sidebarErrorTitle'),
         type: 'error',
-        message: `A ${type} named "${name}" already exists in this folder.`
+        message: t('store.project.existsMessage', {
+          type: type === 'file' ? t('common.file') : t('common.directory'),
+          name
+        })
       })
       return
     }
@@ -322,7 +326,7 @@ export const useProjectStore = defineStore('project', () => {
       })
       .catch((err) => {
         notice.notify({
-          title: 'Error in Side Bar',
+          title: t('store.project.sidebarErrorTitle'),
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })

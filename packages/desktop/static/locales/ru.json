@@ -30,7 +30,22 @@
       "closeTab": "Закрыть вкладку",
       "closeWindow": "Закрыть окно",
       "quit": "Выход",
-      "preferences": "Настройки"
+      "preferences": "Настройки",
+      "pandoc": {
+        "docx": "Word (.docx)",
+        "odt": "OpenDocument (.odt)",
+        "rtf": "RTF (.rtf)",
+        "epub": "EPUB (.epub)",
+        "latex": "LaTeX (.tex)",
+        "rst": "reStructuredText (.rst)",
+        "org": "Org mode (.org)",
+        "mediawiki": "MediaWiki (.wiki)",
+        "textile": "Textile (.textile)"
+      },
+      "linkSpacesTitle": "Links cannot contain spaces",
+      "linkSpacesMessage": "Either URI encode: <code>My%20Link.md</code> <br> or wrap it in brackets: <br> <code><./My Link.md></code>. <br> See CommonMark #488 for details.",
+      "newWindowTask": "New Window",
+      "newWindowTaskDescription": "Opens a new window"
     },
     "edit": {
       "edit": "Правка",
@@ -180,6 +195,10 @@
       "tokyoNightLight": "Tokyo Night Light",
       "tokyoNightStorm": "Tokyo Night Storm",
       "ulyssesLight": "Ulysses Light"
+    },
+    "dock": {
+      "open": "Open...",
+      "clearRecent": "Clear Recent"
     }
   },
   "contextMenu": {
@@ -244,7 +263,8 @@
       "closeAll": "Закрыть всё",
       "emptyProject": "Пустой проект",
       "createFile": "Создать файл",
-      "openFolder": "Открыть папку"
+      "openFolder": "Открыть папку",
+      "enterMdFileName": "Enter .md file name"
     },
     "toc": {
       "title": "Оглавление",
@@ -476,7 +496,8 @@
         "openLastFolder": "Восстановить открытую папку",
         "restoreAll": "Восстановить все открытые файлы и папки",
         "selectFolder": "Выбрать папку",
-        "openBlankPage": "Открыть пустую страницу"
+        "openBlankPage": "Открыть пустую страницу",
+        "restoreLastSession": "Restore last editor session"
       },
       "sidebar": {
         "title": "Боковая панель",
@@ -746,6 +767,9 @@
       "enableSpellChecking": "Включить проверку орфографии",
       "hideMarksForErrors": "Скрывать пометки орфографических ошибок",
       "title": "Проверка орфографии"
+    },
+    "sidebar": {
+      "loadingDebugInfo": "Loading debug info..."
     }
   },
   "about": {
@@ -894,7 +918,9 @@
   },
   "common": {
     "cancel": "Отмена",
-    "ok": "ОК"
+    "ok": "ОК",
+    "file": "file",
+    "directory": "directory"
   },
   "dialog": {
     "cancel": "Отмена",
@@ -928,7 +954,20 @@
     "terminatedDueToError": "Завершено из-за ошибки",
     "unexpectedErrorWithMessage": "Непредвиденная ошибка с сообщением {message}",
     "unexpectedMainProcess": "Непредвиденная ошибка главного процесса",
-    "unexpectedRendererProcess": "Непредвиденная ошибка процесса отрисовки"
+    "unexpectedRendererProcess": "Непредвиденная ошибка процесса отрисовки",
+    "crashTitle": "MarkText has crashed",
+    "crashDetail": "The renderer process has crashed unexpected or is killed ({reason}).",
+    "crashClose": "Close",
+    "crashReload": "Reload",
+    "crashKeepOpen": "Keep It Open",
+    "cannotOpenTab": "Cannot open tab",
+    "fileNotFoundOnDisk": "Could not find file {name} on disk, please save your work.",
+    "restoreBufferFailed": "Failed to restore buffered state",
+    "exportFailure": "Export failure",
+    "exportError": "Error happened when export {path}",
+    "inotifyTitle": "inotify limit reached",
+    "inotifyMessage": "Cannot watch all files and file changes because too many file descriptors are opened.",
+    "watcherIoTitle": "Watcher I/O error"
   },
   "notifications": {
     "defaultMessage": "Сообщение по умолчанию",
@@ -950,11 +989,29 @@
       "exportLinkedMediaMessage": "\"{name}\" экспортирован. Этот формат связывает изображения вместо их встраивания, поэтому держите изображения рядом с файлом и делитесь всей папкой.",
       "fileRemovedOnDisk": "\"{name}\" был удалён с диска.",
       "fileChangedOnDisk": "\"{name}\" был изменён на диске. Перезагрузить его?"
+    },
+    "project": {
+      "deleteErrorTitle": "Error while deleting",
+      "pasteForbiddenTitle": "Paste Forbidden",
+      "samePath": "Source and destination must not be the same.",
+      "tooManyCopiesTitle": "Too many copies",
+      "tooManyCopiesMessage": "Maximum of {max} copies reached. Please clean up first.",
+      "pasteErrorTitle": "Error while pasting",
+      "sidebarErrorTitle": "Error in Side Bar",
+      "existsMessage": "A {type} named \"{name}\" already exists in this folder."
+    },
+    "autoUpdate": {
+      "update": "Update",
+      "notAvailable": "Update not Available",
+      "downloaded": "Update Downloaded",
+      "available": "Update Available"
     }
   },
   "spellchecker": {
     "failedToRemoveWord": "Не удалось удалить слово из словаря",
-    "unexpectedError": "Непредвиденная ошибка проверки орфографии"
+    "unexpectedError": "Непредвиденная ошибка проверки орфографии",
+    "spelling": "Spelling",
+    "disabledLanguageChange": "Cannot change language because spellchecker is disabled."
   },
   "editor": {
     "export": {
@@ -984,6 +1041,7 @@
       "languageMissing": "Язык проверки орфографии отсутствует {languageCode}",
       "switchError": "Ошибка переключения проверки орфографии для {languageCode}, {error}",
       "title": "Проверка орфографии"
-    }
+    },
+    "uploadImage": "Upload Image"
   }
 }

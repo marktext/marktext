@@ -80,11 +80,21 @@ describe('renderer i18n language loading', () => {
   it('loads an unavailable locale only once', async() => {
     const { setLanguage } = await import('../../../src/renderer/src/i18n')
 
-    setLanguage('zh-CN')
-    setLanguage('zh-CN')
+    // ja is not preloaded (only en + zh-CN are), so it must go through IPC once.
+    setLanguage('ja')
+    setLanguage('ja')
 
     expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledTimes(1)
-    expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledWith('zh-CN')
+    expect(win.i18nUtils!.loadTranslations).toHaveBeenCalledWith('ja')
+  })
+
+  it('does not reload the preloaded Simplified Chinese locale', async() => {
+    const { setLanguage, getCurrentLanguage } = await import('../../../src/renderer/src/i18n')
+
+    setLanguage('zh-CN')
+
+    expect(win.i18nUtils!.loadTranslations).not.toHaveBeenCalled()
+    expect(getCurrentLanguage()).to.equal('zh-CN')
   })
 })
 

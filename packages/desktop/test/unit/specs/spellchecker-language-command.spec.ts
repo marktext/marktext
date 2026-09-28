@@ -88,9 +88,9 @@ describe('SpellcheckerLanguageCommand', () => {
       )
       expect(notice.notify).toHaveBeenCalledTimes(1)
       expect(notice.notify).toHaveBeenCalledWith({
-        title: 'Spelling',
+        title: '拼写检查',
         type: 'warning',
-        message: 'Cannot change language because spellchecker is disabled.'
+        message: '拼写检查已禁用，无法更改语言。'
       })
     })
   })

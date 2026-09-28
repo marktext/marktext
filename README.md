@@ -3,14 +3,9 @@
 <h1 align="center">MarkText</h1>
 
 <div align="center">
-  <a href="https://twitter.com/intent/tweet?via=marktextme&url=https://github.com/marktext/marktext/&text=What%20do%20you%20want%20to%20say%20to%20app?&hashtags=happyMarkText">
-    <img src="https://img.shields.io/twitter/url/https/github.com/marktext/marktext.svg?style=for-the-badge" alt="twitter">
-  </a>
-</div>
-<div align="center">
-  <strong>:high_brightness: Next generation markdown editor :crescent_moon:</strong><br>
-  A simple and elegant open-source markdown editor that focused on speed and usability.<br>
-  <sub>Available for Linux, macOS and Windows.</sub>
+  <strong>:high_brightness: 下一代 Markdown 编辑器 :crescent_moon:</strong><br>
+  一款简洁优雅的开源 Markdown 编辑器，专注速度与易用性。<br>
+  <sub>支持 Linux、macOS 和 Windows。</sub>
 </div>
 
 <br>
@@ -28,112 +23,84 @@
   <a href="https://github.com/marktext/marktext/releases/latest">
     <img src="https://img.shields.io/github/downloads/marktext/marktext/latest/total.svg" alt="latest download">
   </a>
-  <!-- sponsors -->
-  <a href="https://opencollective.com/marktext">
-    <img src="https://opencollective.com/marktext/tiers/silver-sponsors/badge.svg?label=SilverSponsors&color=brightgreen" alt="sponsors">
-  </a>
 </div>
 
 <div align="center">
   <h3>
-    <a href="https://github.com/marktext/marktext">
-      Website
+    <a href="docs/i18n/README-zh_cn.md#readme">
+      中文说明
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#features">
-      Features
+      功能特性
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#download-and-installation">
-      Downloads
+      下载安装
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#development">
-      Development
+      开发构建
     </a>
     <span> | </span>
     <a href="https://github.com/marktext/marktext#contribution">
-      Contribution
+      参与贡献
     </a>
   </h3>
 </div>
 
 <div align="center">
-  <sub>Translations:</sub>
-  <a href="docs/i18n/README-zh_cn.md#readme">
-    <span>:cn:</span>
+  <sub>其他语言：</sub>
+  <a href="https://github.com/marktext/marktext/blob/master/README.md">
+    <span>English</span>
   </a>
+  <span> · </span>
   <a href="docs/i18n/README-zh_tw.md#readme">
-    <span>:taiwan:</span>
+    <span>繁體中文</span>
   </a>
+  <span> · </span>
   <a href="docs/i18n/README-jp.md#readme">
-    <span>:jp:</span>
+    <span>日本語</span>
   </a>
+  <span> · </span>
   <a href="docs/i18n/README-fr.md#readme">
-    <span>:fr:</span>
+    <span>Français</span>
   </a>
-  <a href="docs/i18n/README-tr.md#readme">
-    <span>:tr:</span>
-  </a>
+  <span> · </span>
   <a href="docs/i18n/README-es.md#readme">
-    <span>:es:</span>
-  </a>
-  <a href="docs/i18n/README-pt.md#readme">
-    <span>:portugal:</span>
-  </a>
-  <a href="docs/i18n/README-kr.md#readme">
-    <span>:kr:</span>
-  </a>
-  <a href="docs/i18n/README-bn.md#readme">
-    <span>:bangladesh:</span>
+    <span>Español</span>
   </a>
 </div>
 
 <div align="center">
-  <sub>This Markdown editor that could. Built with ❤︎ by
-    <a href="https://github.com/Jocs">Jocs</a> and
+  <sub>这款 Markdown 编辑器，值得拥有。由
+    <a href="https://github.com/Jocs">Jocs</a> 与
     <a href="https://github.com/marktext/marktext/graphs/contributors">
-      contributors
+      贡献者们
     </a>
-    .
+    用 ❤︎ 构建。
   </sub>
 </div>
 
 <br />
 
-<h2 align="center">Sponsors</h2>
-
-MarkText is an open-source Markdown editor powered by the support of its community. If MarkText improves your workflow, please consider [sponsoring the project](https://github.com/sponsors/marktext). Thank you to all the sponsors ❤️
-
-**Special Sponsor**
-
-<table>
-<tr>
-<td width="182"><a href="https://serpapi.com/?utm_source=marktext"><img src="docs/assets/sponsors/serpapi.png" width="150"></a></td>
-<td align="left"><a href="https://serpapi.com/?utm_source=marktext">Scrape Google and other search engines from our fast, easy, and complete API.</a></td>
-</tr>
-<tr>
-<td width="182"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx"><img src="docs/assets/sponsors/stardesk.png" width="150"></a></td>
-<td align="left"><a href="https://stardesk.onelink.me/p0R7/kpq1jksx">Leave your desk. Keep your workflow going. StarDesk is a free remote desktop that lets you access your development PC from anywhere. Access your own computer from iOS, Android, or the web to edit Markdown, run terminal commands, review documents, or pick up where you left off.</a></td>
-</tr>
-</table>
-
-## Screenshot
+## 界面截图
 
 ![](docs/assets/marktext.png?raw=true)
 
-## Features
+## 功能特性
 
-- Realtime preview (WYSIWYG) and a clean and simple interface to get a distraction-free writing experience.
-- Support [CommonMark Spec](https://spec.commonmark.org), [GitHub Flavored Markdown Spec](https://github.github.com/gfm/) and selective support [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown).
-- Markdown extensions such as math expressions (KaTeX), front matter and emojis.
-- Support paragraphs and inline style shortcuts to improve your writing efficiency.
-- Output **HTML** and **PDF** files.
-- Various [themes](https://marktext.me/docs/themes): **Cadmium Light**, **Material Dark** etc.
-- Various editing modes: **Source Code mode**, **Typewriter mode**, **Focus mode**.
-- Paste images directly from clipboard.
+- 实时预览（所见即所得），界面简洁，专注写作。
+- 支持 [CommonMark 规范](https://spec.commonmark.org)、[GitHub Flavored Markdown 规范](https://github.github.com/gfm/)，并选择性支持 [Pandoc markdown](https://pandoc.org/MANUAL.html#pandocs-markdown)。
+- Markdown 扩展：数学公式（KaTeX）、前置元数据（Front Matter）、表情符号等。
+- 支持段落与行内样式快捷键，提升写作效率。
+- 可导出 **HTML** 与 **PDF**。
+- 多种[主题](https://marktext.me/docs/themes)：**Cadmium Light**、**Material Dark** 等。
+- 多种编辑模式：**源码模式**、**打字机模式**、**专注模式**。
+- 支持直接从剪贴板粘贴图片。
+- **默认界面语言为简体中文**（可在偏好设置中切换其他语言）。
 
-## Download and Installation
+## 下载与安装
 
 ![platform](https://img.shields.io/static/v1.svg?label=Platform&message=Linux%20x64%20|%20macOS%20x64%2Farm64%20|%20Windows%20x64%2Farm64&style=for-the-badge)
 
@@ -141,13 +108,13 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 | :-----------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
 | [![Download for macOS](https://img.shields.io/badge/macOS-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Windows](https://img.shields.io/badge/Windows-Download-blue)](https://github.com/marktext/marktext/releases/latest) | [![Download for Linux](https://img.shields.io/badge/Linux-Download-blue)](https://github.com/marktext/marktext/releases/latest) |
 
-Want to see new features of the latest version? Please refer to [CHANGELOG](https://marktext.me/docs/changelog).
+想了解最新版本的新功能？请查看 [CHANGELOG](https://marktext.me/docs/changelog)。
 
 #### macOS
 
-Requires macOS 11 (Big Sur) or later. Universal builds aren't published — pick the matching `arm64` or `x64` installer.
+需要 macOS 11（Big Sur）或更高版本。官方不提供通用二进制，请按芯片选择对应的 `arm64` 或 `x64` 安装包。
 
-You can either download the latest `marktext-mac-(arm64|x64)-%version%.dmg` from the [release page](https://github.com/marktext/marktext/releases/latest) or install MarkText using [**homebrew cask**](https://github.com/caskroom/homebrew-cask). To use Homebrew-Cask you just need to have [Homebrew](https://brew.sh/) installed.
+可从[发布页](https://github.com/marktext/marktext/releases/latest)下载最新的 `marktext-mac-(arm64|x64)-%version%.dmg`，或使用 [**homebrew cask**](https://github.com/caskroom/homebrew-cask) 安装：
 
 ```bash
 brew install --cask mark-text
@@ -155,17 +122,13 @@ brew install --cask mark-text
 
 #### Windows
 
-Requires Windows 10 or 11. Both x64 and arm64 installers are published — pick the architecture that matches your machine.
+需要 Windows 10 或 11。提供 x64 与 arm64 安装包，请选择与本机架构匹配的版本。
 
-Simply download and install MarkText via the setup wizard (`marktext-win-(x64|arm64)-%version%-setup.exe`) and choose whether to install per-user or machine wide. Alternatively, install MarkText using a package manager such as [Chocolatey](https://chocolatey.org/) or [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/).
-
-To use Chocolatey, you need to have [Chocolatey](https://chocolatey.org/install) installed:
+可下载安装向导（`marktext-win-(x64|arm64)-%version%-setup.exe`）并选择“仅当前用户”或“本机全部用户”安装；也可用 [Chocolatey](https://chocolatey.org/) 或 [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/) 安装：
 
 ```bash
 choco install marktext
 ```
-
-To use Winget, you need to have [Winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/#install-winget) installed:
 
 ```bash
 winget install marktext
@@ -173,31 +136,31 @@ winget install marktext
 
 #### Linux
 
-Please follow the [Linux installation instructions](https://marktext.me/docs/installation).
+请参考 [Linux 安装说明](https://marktext.me/docs/installation)。
 
-#### Other
+#### 其他平台
 
-All binaries for Linux, macOS and Windows can be downloaded from the [release page](https://github.com/marktext/marktext/releases/latest). If a version is unavailable for your system, then please open an [issue](https://github.com/marktext/marktext/issues).
+Linux、macOS、Windows 的全部二进制包都可在[发布页](https://github.com/marktext/marktext/releases/latest)下载。若你的系统没有对应版本，请提交 [issue](https://github.com/marktext/marktext/issues)。
 
-## Development
+## 开发
 
-If you wish to build MarkText yourself, please check out our [build instructions](https://marktext.me/docs/dev/build).
+如果你想自行构建 MarkText，请查看[构建说明](https://marktext.me/docs/dev/build)。
 
-- [User documentation](https://marktext.me/docs/introduction)
-- [Developer documentation](https://marktext.me/docs/dev/overview)
+- [用户文档](https://marktext.me/docs/introduction)
+- [开发者文档](https://marktext.me/docs/dev/overview)
 
-If you have any questions regarding MarkText, you are welcome to write an issue. When doing so please use the default format found when opening an issue. Of course, if you submit a PR directly, it will be greatly appreciated.
+如有任何问题，欢迎提交 issue，并尽量使用默认模板。若能直接提交 PR，我们不胜感激。
 
-## Contribution
+## 参与贡献
 
-MarkText is in development, please make sure to read the [Contributing Guide](.github/CONTRIBUTING.md) before making a pull request. Want to add some features to MarkText? Refer to our [roadmap](https://github.com/marktext/marktext/projects) and open issues.
+MarkText 仍在持续开发中，提交 Pull Request 前请先阅读[贡献指南]((.github/CONTRIBUTING.md))。想为 MarkText 增加功能？可参考 [roadmap](https://github.com/marktext/marktext/projects) 与未关闭的 issues。
 
-## Contributors
+## 贡献者
 
-Thank you to all the people who have already contributed to MarkText[[contributors](https://github.com/marktext/marktext/graphs/contributors)].
+感谢所有为 MarkText 做出贡献的人们[[contributors](https://github.com/marktext/marktext/graphs/contributors)]。
 
 <a href="https://github.com/marktext/marktext/graphs/contributors"><img src="https://opencollective.com/marktext/contributors.svg?width=890" /></a>
 
-## License
+## 许可证
 
-[**MIT**](LICENSE).
+[**MIT**](LICENSE)。

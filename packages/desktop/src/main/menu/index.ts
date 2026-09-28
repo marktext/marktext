@@ -11,6 +11,7 @@ import { onInternalChannel } from '../utils/internalIpc'
 import { viewLayoutChanged } from '../menu/actions/view'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
+import { createDockMenu } from './templates'
 import type Preference from '../preferences'
 import type Keybindings from '../keyboard/shortcutHandler'
 import type { IUserPreferences } from '@shared/types/preferences'
@@ -546,6 +547,9 @@ class AppMenu {
         // Update main process language and rebuild menu
         setLanguage(prefs.language)
         this.updateAppMenu()
+        if (isOsx) {
+          app.dock?.setMenu(createDockMenu())
+        }
       }
     })
   }
