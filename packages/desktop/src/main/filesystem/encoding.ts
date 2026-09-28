@@ -10,13 +10,19 @@ const CED_ICONV_ENCODINGS: Record<string, string> = {
 
   Unicode: 'utf8',
 
-  // Map ASCII / subsets of UTF-8 to UTF-8.
+  // ISO-2022-JP is 7-bit, so decoding it as UTF-8 at least keeps the bytes
+  // intact on save; iconv-lite has no ISO-2022-JP codec.
   JIS: 'utf8',
-  SJS: 'utf8',
-  shiftjis: 'utf8',
-  'ASCII-7-bit': 'utf8',
-  ASCII: 'utf8',
-  MACINTOSH: 'utf8'
+
+  // ced is only consulted once the buffer failed UTF-8 validation, so these
+  // must never map back to utf8: decoding would replace the non-UTF-8 bytes
+  // with U+FFFD and the next save would lose them. ced reports Latin-1 and
+  // Windows-1252 text as ASCII; cp1252 is a superset of both.
+  SJS: 'shiftjis',
+  shiftjis: 'shiftjis',
+  'ASCII-7-bit': 'cp1252',
+  ASCII: 'cp1252',
+  MACINTOSH: 'macintosh'
 }
 
 // Byte Order Marks to detect endianness and encoding.
@@ -74,7 +80,7 @@ export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encod
     if (CED_ICONV_ENCODINGS[encoding]) {
       encoding = CED_ICONV_ENCODINGS[encoding]
     } else {
-      encoding = encoding.toLowerCase().replace(/-_/g, '')
+      encoding = encoding.toLowerCase().replace(/[-_]/g, '')
     }
   }
   return { encoding, isBom }
