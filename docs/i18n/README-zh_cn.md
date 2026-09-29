@@ -134,7 +134,7 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 - 支持数学表达式（KaTeX）、Front Matter 和表情符号等 Markdown 扩展。
 - 支持段落和内联样式快捷方式，提升写作效率。
 - 可导出 **HTML** 和 **PDF** 文件。
-- 多种[主题](../end-user/THEMES.md)：**Cadmium Light**、**Material Dark** 等。
+- 多种[主题](https://marktext.me/docs/themes)：**Cadmium Light**、**Material Dark** 等。
 - 多种编辑模式：**源代码模式**、**打字机模式**、**专注模式**。
 - 支持直接从剪贴板粘贴图片。
 
@@ -146,7 +146,7 @@ MarkText 是一款由社区支持驱动的开源 Markdown 编辑器。如果 Mar
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-想了解最新版本的新功能？请参阅 [CHANGELOG](../CHANGELOG.md)。
+想了解最新版本的新功能？请参阅 [CHANGELOG](https://marktext.me/docs/changelog)。
 
 #### macOS
 
@@ -174,7 +174,7 @@ winget install marktext
 
 #### Linux
 
-请参阅 [Linux 安装说明](../end-user/LINUX.md)。
+请参阅 [Linux 安装说明](https://marktext.me/docs/installation)。
 
 #### 其他
 
@@ -182,10 +182,10 @@ winget install marktext
 
 ## 开发
 
-如果你希望自行构建 MarkText，请参阅我们的[构建说明](../dev/BUILD.md)。
+如果你希望自行构建 MarkText，请参阅我们的[构建说明](https://marktext.me/docs/dev/build)。
 
-- [用户文档](../README.md)
-- [开发者文档](../dev/README.md)
+- [用户文档](https://marktext.me/docs/introduction)
+- [开发者文档](https://marktext.me/docs/dev/overview)
 
 如果你对 MarkText 有任何疑问，欢迎提交 issue。提交时请使用打开 issue 时的默认格式。当然，如果你直接提交 PR，将不胜感激。
 
