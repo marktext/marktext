@@ -160,8 +160,20 @@ declare global {
     exists(name: string): Promise<boolean>
   }
 
+  interface LanguageCatalogEntry {
+    id: string
+    name: string
+    nativeName: string
+    author?: string
+    version?: string
+    source: 'builtin' | 'user' | 'cwd'
+    hasMuya: boolean
+  }
+
   interface I18nUtilsAPI {
     loadTranslations(language: string): Promise<Record<string, unknown>>
+    listLanguages(): Promise<string[]>
+    listLanguageCatalog(): Promise<LanguageCatalogEntry[]>
   }
 
   interface RipgrepAPI {

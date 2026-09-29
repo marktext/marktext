@@ -21,6 +21,7 @@ import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
 import { setLanguage } from '../i18n'
+import { discoverLanguagePacks } from '../langPacks'
 import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
 import type Accessor from './accessor'
@@ -189,6 +190,9 @@ class App {
   ready = (): void => {
     const { _args: args, _openFilesCache } = this
     const { preferences, editorBufferStore } = this._accessor
+
+    // Discover drop-in language packs before menus/dialogs resolve text.
+    discoverLanguagePacks()
 
     // Initialize language settings (detects the system language on first start)
     this._initializeLanguage()

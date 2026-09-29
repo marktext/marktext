@@ -188,7 +188,9 @@ const commandAPI = {
 }
 
 const i18nAPI = {
-  loadTranslations: (language: string) => invoke('mt::i18n::load', language)
+  loadTranslations: (language: string) => invoke('mt::i18n::load', language),
+  listLanguages: () => invoke('mt::i18n::supported'),
+  listLanguageCatalog: () => invoke('mt::i18n::catalog')
 }
 
 type RipgrepHandler = (payload: unknown) => void

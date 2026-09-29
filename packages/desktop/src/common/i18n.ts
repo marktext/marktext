@@ -1,31 +1,75 @@
 import fs from 'fs'
 import path from 'path'
+import {
+  getBuiltinLanguageIds,
+  getLanguageCatalog,
+  getLanguagePack,
+  getMuyaResource,
+  getSupportedLanguageIds,
+  isLanguageRegistered,
+  reloadLanguagePacks,
+  type LanguageCatalogEntry,
+  type LanguagePackSource
+} from './langPacks'
 
 export type Translations = Record<string, unknown>
+export type { LanguageCatalogEntry, LanguagePackSource }
 
-const SUPPORTED_LANGUAGES = ['en', 'zh-CN', 'zh-TW', 'es', 'fr', 'de', 'ja', 'ko', 'nl', 'pt', 'tr', 'ru'] as const
-
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]
+/** Fallback before any directory has been scanned (e.g. bare unit tests). */
+const FALLBACK_LANGUAGES = [
+  'en',
+  'zh-CN',
+  'zh-TW',
+  'es',
+  'fr',
+  'de',
+  'ja',
+  'ko',
+  'nl',
+  'pt',
+  'tr',
+  'ru'
+] as const
 
 let translationsCache: Record<string, Translations> = {}
 
-// Directory holding `<language>.json` and the minified `<language>.min.json`.
+// Directory holding built-in `<language>.json` and `<language>.min.json`.
 // The main process points it at the app's resources while bootstrapping (see
 // main/globalSetting.ts); the default suits a run from the package directory.
 let localesDirectory = path.join(process.cwd(), 'static', 'locales')
 
-/**
- * Sets where the locale files are read from. Translations already read are
- * dropped so the next lookup uses the new directory.
- */
-function setLocalesDirectory(directory: string): void {
-  localesDirectory = directory
+// Extra plugin directories (user data, portable cwd, …), scanned after the
+// built-in pack so a drop-in can override a shipped translation.
+let packDirs: Array<{ directory: string; source: LanguagePackSource }> = []
+
+function rebuildRegistry(): void {
   translationsCache = {}
+  reloadLanguagePacks([{ directory: localesDirectory, source: 'builtin' }, ...packDirs])
 }
 
 /**
- * Loads the translation file for the specified language. Falls back to English
+ * Sets where the built-in locale files are read from and rescans plugins.
+ */
+function setLocalesDirectory(directory: string): void {
+  localesDirectory = directory
+  rebuildRegistry()
+}
+
+/**
+ * Registers additional language-pack directories (user / portable). Later
+ * calls replace the previous plugin list; built-in packs stay first.
+ */
+function setLanguagePackDirectories(directories: Array<{ directory: string; source: LanguagePackSource }>): void {
+  packDirs = directories.filter(d => !!d.directory)
+  rebuildRegistry()
+}
+
+/**
+ * Loads the translation tree for the specified language. Falls back to English
  * on error; returns null if even the English fallback can't be loaded.
+ *
+ * The returned object includes `$meta` / `$muya` when the pack defines them so
+ * the renderer can show pack metadata and feed the editor engine.
  */
 function loadTranslations(language: string): Translations | null {
   if (translationsCache[language]) {
@@ -33,8 +77,25 @@ function loadTranslations(language: string): Translations | null {
   }
 
   try {
-    // Prefer the minified file, which every packaged build ships, but fall back
-    // to the raw .json so a checkout works without running minify-locales.
+    const pack = getLanguagePack(language)
+    if (pack) {
+      const payload: Translations = { ...pack.messages }
+      if (pack.muya) payload.$muya = pack.muya
+      payload.$meta = {
+        id: pack.id,
+        name: pack.name,
+        nativeName: pack.nativeName,
+        author: pack.author,
+        version: pack.version,
+        source: pack.source,
+        hasMuya: pack.hasMuya
+      }
+      translationsCache[language] = payload
+      return payload
+    }
+
+    // Legacy path: a bare file next to the built-in locales that was not
+    // registered (registry not rebuilt yet).
     const minPath = path.join(localesDirectory, `${language}.min.json`)
     const rawPath = path.join(localesDirectory, `${language}.json`)
     const localePath = fs.existsSync(minPath) ? minPath : rawPath
@@ -44,7 +105,6 @@ function loadTranslations(language: string): Translations | null {
     }
 
     const content = fs.readFileSync(localePath, 'utf8')
-
     const translationData: Translations = JSON.parse(content)
 
     translationsCache[language] = translationData
@@ -64,12 +124,17 @@ function loadTranslations(language: string): Translations | null {
  */
 function getTranslation(
   key: string,
-  language: string = 'en',
+  language: string = 'zh-CN',
   params: Record<string, string | number> = {}
 ): string {
   const translations = loadTranslations(language)
 
   if (!translations) {
+    return key
+  }
+
+  // `$meta` / `$muya` are pack bookkeeping, never UI copy.
+  if (key.startsWith('$')) {
     return key
   }
 
@@ -80,11 +145,16 @@ function getTranslation(
     if (probe && typeof probe === 'object' && segment in (probe as Record<string, unknown>)) {
       probe = (probe as Record<string, unknown>)[segment]
     } else {
-      return key
+      probe = undefined
+      break
     }
   }
 
   if (typeof probe !== 'string') {
+    // Fall back to English before giving up, so a partial locale still shows text.
+    if (language !== 'en') {
+      return getTranslation(key, 'en', params)
+    }
     return key
   }
 
@@ -97,11 +167,30 @@ function getTranslation(
 }
 
 function getSupportedLanguages(): string[] {
-  return [...SUPPORTED_LANGUAGES]
+  const ids = getSupportedLanguageIds()
+  return ids.length ? ids : [...FALLBACK_LANGUAGES]
+}
+
+function getBuiltinLanguages(): string[] {
+  const ids = getBuiltinLanguageIds()
+  return ids.length ? ids : [...FALLBACK_LANGUAGES]
+}
+
+function getLanguageCatalogEntries(): LanguageCatalogEntry[] {
+  const catalog = getLanguageCatalog()
+  if (catalog.length) return catalog
+  return FALLBACK_LANGUAGES.map(id => ({
+    id,
+    name: id,
+    nativeName: id,
+    source: 'builtin' as const,
+    hasMuya: false
+  }))
 }
 
 function isLanguageSupported(language: string): boolean {
-  return (SUPPORTED_LANGUAGES as readonly string[]).includes(language)
+  if (isLanguageRegistered(language)) return true
+  return (FALLBACK_LANGUAGES as readonly string[]).includes(language)
 }
 
 /**
@@ -124,7 +213,8 @@ function matchSupportedLanguage(locale: string): string | null {
   // are used in TW, HK and MO (zh-Hant), everything else is simplified.
   if (primarySubtag === 'zh') {
     const secondSubtag = (locale.split('-')[1] ?? '').toLowerCase()
-    return ['tw', 'hk', 'mo', 'hant'].includes(secondSubtag) ? 'zh-TW' : 'zh-CN'
+    const zhTarget = ['tw', 'hk', 'mo', 'hant'].includes(secondSubtag) ? 'zh-TW' : 'zh-CN'
+    return isLanguageSupported(zhTarget) ? zhTarget : null
   }
 
   return (
@@ -144,10 +234,14 @@ function getAllTranslations(language: string): Translations | null {
 export {
   getTranslation,
   getSupportedLanguages,
+  getBuiltinLanguages,
+  getLanguageCatalogEntries,
+  getMuyaResource,
   isLanguageSupported,
   matchSupportedLanguage,
   clearCache,
   getAllTranslations,
   loadTranslations,
-  setLocalesDirectory
+  setLocalesDirectory,
+  setLanguagePackDirectories
 }
