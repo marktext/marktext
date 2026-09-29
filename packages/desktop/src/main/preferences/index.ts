@@ -12,6 +12,47 @@ import schema from './schema.json'
 
 const PREFERENCES_FILE_NAME = 'preferences'
 
+/**
+ * electron-store validates against the schema on construction, before any
+ * registered migration runs. A leftover enum value from another MarkText
+ * build (e.g. old `startUpAction: "lastState"`, or a value this schema no
+ * longer lists) therefore aborts startup with "Config schema violation"
+ * instead of being migrated. Repair the file first so upgrades and
+ * side-by-side installs can share one config.
+ */
+function sanitizePreferencesFile(preferencesPath: string): void {
+  const file = path.join(preferencesPath, `${PREFERENCES_FILE_NAME}.json`)
+  if (!fs.existsSync(file)) return
+
+  try {
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>
+    if (!raw || typeof raw !== 'object') return
+    let changed = false
+
+    // Historical value shipped by older releases (see migrations['0.18.6']).
+    if (raw.startUpAction === 'lastState') {
+      raw.startUpAction = 'openLastFolder'
+      changed = true
+    }
+
+    for (const [key, definition] of Object.entries(schema as Record<string, unknown>)) {
+      const def = definition as { enum?: unknown[]; default?: unknown }
+      if (!Array.isArray(def.enum) || !(key in raw)) continue
+      if (def.enum.includes(raw[key])) continue
+      raw[key] = def.default !== undefined ? def.default : def.enum[0]
+      changed = true
+      log.warn(`Preferences: coerced invalid "${key}" to ${JSON.stringify(raw[key])}`)
+    }
+
+    if (changed) {
+      fs.writeFileSync(file, JSON.stringify(raw, null, '\t'), 'utf8')
+      log.info('Repaired preferences.json before schema validation')
+    }
+  } catch (err) {
+    log.error('Failed to sanitize preferences.json:', err)
+  }
+}
+
 // The Preference class extends EventEmitter but does not currently emit any
 // events itself — keep the event map empty until concrete events are added.
 type PreferenceEvents = Record<string, unknown[]>
@@ -41,6 +82,7 @@ class Preference extends TypedEmitter<PreferenceEvents> {
     this.hasPreferencesFile = fs.existsSync(
       path.join(this.preferencesPath, `./${PREFERENCES_FILE_NAME}.json`)
     )
+    sanitizePreferencesFile(preferencesPath)
     this.store = new Store<IUserPreferences>({
       schema: schema as unknown as Schema<IUserPreferences>,
       name: PREFERENCES_FILE_NAME,

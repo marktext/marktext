@@ -74,6 +74,9 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
 
 asarUnpack:
   - resources/**
+  # ripgrep's platform binary is an executable — keep it out of the asar so
+  # `@vscode/ripgrep` can require.resolve and spawn it at runtime.
+  - '**/node_modules/@vscode/ripgrep*/**'
 fileAssociations:
   - ext: md
     name: Markdown

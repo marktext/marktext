@@ -110,6 +110,7 @@
     "write-file-atomic": "^7.0.1"
   },
   "optionalDependencies": {
+    "@vscode/ripgrep-win32-x64": "1.18.0",
     "native-keymap": "^3.3.9"
   },
   "devDependencies": {

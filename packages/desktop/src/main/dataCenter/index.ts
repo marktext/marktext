@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
-import keytar from 'keytar'
+import { tryRequire } from '../utils/optionalNative'
 import schema from './schema.json'
 import Store, { type Schema } from 'electron-store'
 import log from 'electron-log'
@@ -10,6 +10,12 @@ import { IMAGE_EXTENSIONS } from 'common/filesystem/paths'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 
 const DATA_CENTER_NAME = 'dataCenter'
+
+type Keytar = {
+  getPassword(service: string, account: string): Promise<string | null>
+  setPassword(service: string, account: string, password: string): Promise<void>
+}
+const keytar = tryRequire<Keytar>('keytar')
 
 // No events emitted directly on `this`. ipcMain.emit is used for cross-
 // process broadcasts but those don't fire through this instance.
@@ -75,7 +81,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     try {
       const encryptData = await Promise.all(
         encryptKeys.map((key) => {
-          return keytar.getPassword(serviceName, key)
+          return keytar ? keytar.getPassword(serviceName, key) : Promise.resolve(null)
         })
       )
       const encryptObj = encryptKeys.reduce<Record<string, string | null>>((acc, k, i) => {
@@ -121,7 +127,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
   getItem(key: string): Promise<unknown> {
     const { encryptKeys, serviceName } = this
     if (encryptKeys.includes(key)) {
-      return keytar.getPassword(serviceName, key)
+      return keytar ? keytar.getPassword(serviceName, key) : Promise.resolve(null)
     } else {
       const value = this.store.get(key)
       return Promise.resolve(value)
@@ -136,6 +142,7 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
     ipcMain.emit('broadcast-user-data-changed', { [key]: value })
     if (encryptKeys.includes(key)) {
       try {
+        if (!keytar) return
         return await keytar.setPassword(serviceName, key, value as string)
       } catch (err) {
         log.error('Keytar error:', err)
