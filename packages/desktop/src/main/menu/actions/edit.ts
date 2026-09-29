@@ -1,8 +1,9 @@
 import path from 'path'
-import { BrowserWindow, ipcMain, type Menu, type MenuItem } from 'electron'
+import { BrowserWindow, ipcMain, Menu, type MenuItem } from 'electron'
 import log from 'electron-log'
 import { COMMANDS } from '../../commands'
 import type { CommandManager } from '../../commands'
+import { isOsx } from '../../config'
 import { searchFilesAndDir } from '../../utils/imagePathAutoComplement'
 
 type Win = BrowserWindow | null | undefined
@@ -41,11 +42,35 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
 
 // --- Menu actions -------------------------------------------------------------
 
+/**
+ * macOS native panels (Open/Save, "Go to Folder") are not `BrowserWindow`s, so
+ * the Edit menu's handlers are invoked without a `win` and the shortcut would
+ * otherwise be swallowed by MarkText. Forward the standard edit selector to
+ * the panel's first responder instead. When a MarkText window is focused this
+ * is a no-op and the usual editor action runs (the editor keeps its own
+ * undo/redo history and selection semantics, so a plain `role` can't be used).
+ *
+ * @returns `true` when the action was forwarded and the caller should stop.
+ */
+const forwardToNativeResponder = (win: Win, selector: string): boolean => {
+  if (win || !isOsx) {
+    return false
+  }
+  Menu.sendActionToFirstResponder(selector)
+  return true
+}
+
 export const editorUndo = (win: Win): void => {
+  if (forwardToNativeResponder(win, 'undo:')) {
+    return
+  }
   edit(win, 'undo')
 }
 
 export const editorRedo = (win: Win): void => {
+  if (forwardToNativeResponder(win, 'redo:')) {
+    return
+  }
   edit(win, 'redo')
 }
 
@@ -62,6 +87,9 @@ export const editorPasteAsPlainText = (win: Win): void => {
 }
 
 export const editorSelectAll = (win: Win): void => {
+  if (forwardToNativeResponder(win, 'selectAll:')) {
+    return
+  }
   edit(win, 'selectAll')
 }
 
