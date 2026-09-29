@@ -24,6 +24,7 @@ export const editor = {
     // packages/muya/src/inlineRenderer/renderer/softLineBreak.ts +
     // CLASS_NAMES.MU_SOFT_LINE_BREAK in packages/muya/src/config/index.ts.
     softLineBreak: '.mu-soft-line-break',
+    hardLineBreakSpace: '.mu-hard-line-break-space',
     blockQuote: '.mu-block-quote',
     bulletList: '.mu-bullet-list',
     orderList: '.mu-order-list',
@@ -117,6 +118,11 @@ export const floats = {
 /** Slash-menu item locator: `[data-label="atx-heading 1"]` etc. */
 export function quickInsertItem(label: string): string {
     return `${floats.quickInsert} [data-label="${label}"]`;
+}
+
+/** Preview toolbar action locator: `edit` / `delete` / `view`. */
+export function previewToolBarItem(type: string): string {
+    return `${floats.previewToolBar} li.item.${type}`;
 }
 
 /**

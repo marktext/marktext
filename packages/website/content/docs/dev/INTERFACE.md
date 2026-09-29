@@ -14,8 +14,8 @@ The titlebar is located at the top of the window and shows the current opened fi
 
 ### Sidebar
 
-The sidebar is an optional feature of MarkText that contains three panels and has a variable width. The first panel is a tree view of the opened root directory; it also hosts a collapsible *Opened Files* subsection (toggle via the `openedFilesInSidebar` preference). The latter two panels are a folder searcher (find in files) that is powered by ripgrep and a table of contents of the currently opened document.
+The sidebar is an optional feature of MarkText that contains three panels and has a variable width. The first panel is a tree view of the opened root directory; it also hosts a collapsible _Opened Files_ subsection (toggle via the `openedFilesInSidebar` preference). The latter two panels are a folder searcher (find in files) that is powered by ripgrep and a table of contents of the currently opened document.
 
 ### Editor
 
-The editor is the core element that hosts the realtime preview editor called Muya and consists of three parts. Tabs are located at the top and at the bottom the per-tab notification bar is located for events like file changed or deleted. The main part is the editor that is either provided by Muya or CodeMirror for the source-code editor. There are multiple overlays available like inline toolbar, emoji picker, quick insert or image tools.
+The editor is the core element that hosts the realtime preview editor called Muya and consists of three parts. Tabs are located at the top and at the bottom the per-tab notification bar is located for events like file changed or deleted. The main part is the editor that is either provided by Muya or CodeMirror for the source-code editor. There are multiple overlays available like inline toolbar, emoji picker, quick insert or image tools. Hovering a rendered diagram, math block or HTML block shows a small toolbar in its top-right corner; for a diagram it also offers a view action that opens the diagram full-screen in the media viewer, which is shared with the image preview and adds zoom, pan and image export.

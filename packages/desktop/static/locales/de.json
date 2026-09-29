@@ -967,6 +967,21 @@
       "rows": "Zeilen",
       "columns": "Spalten"
     },
+    "mediaViewer": {
+      "title": "Vorschau",
+      "close": "Schließen",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "fit": "An Fenster anpassen",
+      "actualSize": "Originalgröße",
+      "saveTitle": "Diagramm speichern",
+      "saveSvg": "Als SVG speichern",
+      "savePng": "Als PNG speichern",
+      "copyImage": "Bild kopieren",
+      "copied": "Bild in die Zwischenablage kopiert",
+      "saveFailed": "Bild konnte nicht gespeichert werden: {error}",
+      "copyFailed": "Bild konnte nicht kopiert werden: {error}"
+    },
     "notifications": {
       "notificationNotFound": "Benachrichtigung nicht gefunden"
     },

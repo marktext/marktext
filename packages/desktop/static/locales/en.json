@@ -967,6 +967,21 @@
       "rows": "Rows",
       "columns": "Columns"
     },
+    "mediaViewer": {
+      "title": "Preview",
+      "close": "Close",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "fit": "Fit to window",
+      "actualSize": "Actual size",
+      "saveTitle": "Save diagram",
+      "saveSvg": "Save as SVG",
+      "savePng": "Save as PNG",
+      "copyImage": "Copy image",
+      "copied": "Image copied to the clipboard",
+      "saveFailed": "Could not save the image: {error}",
+      "copyFailed": "Could not copy the image: {error}"
+    },
     "notifications": {
       "notificationNotFound": "Notification not found"
     },

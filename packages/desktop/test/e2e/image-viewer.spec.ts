@@ -7,27 +7,6 @@ import {
   clearRendererErrors
 } from './helpers'
 
-// Item 124 — Space on a selected image opens the desktop SimpleImageViewer;
-// Esc closes it (desktop e2e).
-//
-// The engine half (the `preview-image` emit on Space, and `format-click` on a
-// Cmd/Ctrl-click) is unit-covered in:
-//   packages/muya/src/selection/__tests__/parityPreviewImage.spec.ts
-//   packages/muya/src/__tests__/formatClickEvents.spec.ts
-// The UNTESTED half is the desktop SimpleImageViewer wired up in
-// editor.vue: the `.image-viewer` overlay container (template line 20), the
-// SimpleImageViewer class (line 450), opened from the `preview-image`
-// (line 1859) and `format-click` (line 1838) bus handlers, and closed by the
-// document-level `keyup` Escape handler (line 966) / the close affordance.
-//
-// We drive the REAL built Electron app: render an SVG data-URI image, click it
-// to select, press Space, assert `.image-viewer` becomes visible with an
-// `<img>` mounted, press Escape, assert it is hidden and the viewer DOM is
-// destroyed. We also assert Space did NOT insert a literal space into the
-// markdown (the engine `preventDefault`s the Space keydown for a selected
-// image), and exercise the Cmd/Ctrl-click path (item 130) that opens the same
-// viewer.
-
 // 1x1 red SVG, base64-encoded. `getImageSrc` (packages/muya/src/utils/image.ts)
 // recognises this via DATA_URL_REG so the preview path resolves a real src.
 const SVG_DATA_URI =
@@ -57,7 +36,7 @@ const selectImage = async(page: Page): Promise<void> => {
   await img.click({ timeout: 5000 })
 }
 
-test.describe('SimpleImageViewer (Space-to-preview + Esc close)', () => {
+test.describe('image preview (Space-to-preview + Esc close)', () => {
   let app: ElectronApplication
   let page: Page
 
@@ -116,8 +95,6 @@ test.describe('SimpleImageViewer (Space-to-preview + Esc close)', () => {
     await page.keyboard.press('Space')
 
     await expect.poll(() => viewerVisible(page), { timeout: 5000 }).toBe(true)
-    // The SimpleImageViewer mounts an <img> with the selected src into the
-    // overlay container.
     await expect.poll(() => viewerImgCount(page), { timeout: 5000 }).toBeGreaterThanOrEqual(1)
 
     const overlaySrc = await page.locator('.image-viewer img').first().getAttribute('src')
@@ -160,8 +137,6 @@ test.describe('SimpleImageViewer (Space-to-preview + Esc close)', () => {
     await expectNoRendererErrors(app)
   })
 
-  // Item 130 — Cmd/Ctrl-click on an image opens the same SimpleImageViewer via
-  // the `format-click` bus handler (editor.vue:1847).
   test('Cmd/Ctrl-click on an image opens the same viewer', async() => {
     const img = page
       .locator('.editor-component .mu-inline-image .mu-image-container img')

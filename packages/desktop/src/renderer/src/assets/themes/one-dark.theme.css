@@ -27,6 +27,7 @@
   --iconColor: rgba(255, 255, 255, 0.56);
   --codeBgColor: #3a3f4b;
   --codeBlockBgColor: #3a3f4b;
+  --codeBlockColor: #abb2bf;
   --footnoteBgColor: rgba(66, 67, 68, 0.5);
   --inputBgColor: rgba(0, 0, 0, 0.1);
   --focusColor: #568af2;
@@ -109,6 +110,7 @@
   --delete-color: var(--deleteColor);
   --icon-color: var(--iconColor);
   --code-block-bg-color: var(--codeBlockBgColor);
+  --code-block-color: var(--codeBlockColor);
   --table-border-color: var(--tableBorderColor);
   --input-bg-color: var(--inputBgColor);
   --button-font-color: var(--buttonFontColor);

@@ -154,12 +154,23 @@ code.mu-inline-rule {
     white-space: normal;
 }
 
-.mu-hard-line-break-space::after {
+.mu-hard-line-break-space {
+    position: relative;
+}
+
+/* `::before`, out of flow: preserved trailing spaces hang over the right margin
+   only while nothing follows them on the line, so a glyph generated after them
+   both revoked the hang and asked for width a full line had none of — it wrapped
+   onto a line of its own (#2094). */
+.mu-hard-line-break-space::before {
+    position: absolute;
+
     font-family: monospace;
 
     opacity: 0.5;
 
     content: '↩';
+    inset-inline-start: 100%;
 }
 
 /* ruby and inline math */

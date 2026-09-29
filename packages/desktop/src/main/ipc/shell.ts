@@ -1,4 +1,4 @@
-import { ipcMain, shell, clipboard } from 'electron'
+import { ipcMain, shell, clipboard, nativeImage } from 'electron'
 import log from 'electron-log'
 import * as plist from 'plist'
 
@@ -38,6 +38,18 @@ export const registerShellHandlers = (): void => {
       log.error('clipboard.writeText failed:', err)
     }
   })
+  ipcMain.handle('mt::clipboard::write-image', (_e, png: Uint8Array) => {
+    try {
+      const image = nativeImage.createFromBuffer(Buffer.from(png))
+      if (image.isEmpty()) return false
+      clipboard.writeImage(image)
+      return true
+    } catch (err) {
+      log.error('clipboard.writeImage failed:', err)
+      return false
+    }
+  })
+
   ipcMain.handle('mt::clipboard::read-text', () => {
     try {
       return clipboard.readText()

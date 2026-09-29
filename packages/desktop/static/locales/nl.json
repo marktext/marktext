@@ -967,6 +967,21 @@
       "rows": "Rijen",
       "columns": "Kolommen"
     },
+    "mediaViewer": {
+      "title": "Voorbeeld",
+      "close": "Sluiten",
+      "zoomIn": "Inzoomen",
+      "zoomOut": "Uitzoomen",
+      "fit": "Passend maken",
+      "actualSize": "Werkelijke grootte",
+      "saveTitle": "Diagram opslaan",
+      "saveSvg": "Opslaan als SVG",
+      "savePng": "Opslaan als PNG",
+      "copyImage": "Afbeelding kopiëren",
+      "copied": "Afbeelding naar het klembord gekopieerd",
+      "saveFailed": "Kan de afbeelding niet opslaan: {error}",
+      "copyFailed": "Kan de afbeelding niet kopiëren: {error}"
+    },
     "notifications": {
       "notificationNotFound": "Melding niet gevonden"
     },

@@ -22,6 +22,7 @@ import {
     ParagraphQuickInsertMenu,
     PreviewToolBar,
     pt,
+    renderDiagramForExport,
     TableChessboard,
     TableColumnToolbar,
     TableDragBar,
@@ -127,6 +128,7 @@ window.__e2e = {
     INITIAL_MARKDOWN,
     PICKED_IMAGE_URL,
     UPLOADED_IMAGE_URL,
+    renderDiagramForExport,
     rebuildMuya: (options: Partial<IMuyaOptions> = {}) => {
         muya.destroy();
         const fresh = makeEditorNode();

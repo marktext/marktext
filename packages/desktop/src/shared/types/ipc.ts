@@ -34,6 +34,16 @@ import type {
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
 
+export interface SaveDialogRequest {
+  title?: string
+  defaultPath?: string
+  filters?: Array<{ name: string; extensions: string[] }>
+}
+
+export type PlantumlFetchResult =
+  | { ok: true; mime: string; data: Uint8Array }
+  | { ok: false; error: string }
+
 // =================================================================
 // Invoke channels (renderer → main, returns Promise<T>)
 // =================================================================
@@ -43,7 +53,13 @@ export interface IpcInvokeChannels {
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
   'mt::clipboard::read-text': { args: []; ret: string }
+  'mt::clipboard::write-image': { args: [png: Uint8Array]; ret: boolean }
   'mt::cmd::exists': { args: [name: string]; ret: boolean }
+  'mt::diagram::fetch-plantuml': {
+    args: [server: string, encoded: string, format: 'svg' | 'png']
+    ret: PlantumlFetchResult
+  }
+  'mt::dialog::show-save': { args: [request: SaveDialogRequest]; ret: string | null }
   'mt::fonts::list': { args: []; ret: string[] }
   'mt::fs-trash-item': { args: [pathname: string]; ret: void }
   'mt::fs::copy': { args: [src: string, dest: string]; ret: void }

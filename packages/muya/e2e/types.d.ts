@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { IMuyaOptions, MarkdownToHtml, Muya } from '@muyajs/core';
+import type { IExportRenderOptions, IMuyaOptions, MarkdownToHtml, Muya } from '@muyajs/core';
 
 declare global {
     // eslint-disable-next-line ts/naming-convention -- augmenting the global Window must keep its name
@@ -42,6 +42,7 @@ declare global {
              * `IMuyaOptions` than the host's default boot.
              */
             rebuildMuya: (options?: Partial<IMuyaOptions>) => void;
+            renderDiagramForExport: (options: IExportRenderOptions) => Promise<void>;
         };
 
         // XSS canary used by tests/security/sanitize.spec.ts. If a malicious

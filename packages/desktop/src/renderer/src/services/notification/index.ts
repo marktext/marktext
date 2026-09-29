@@ -5,6 +5,8 @@ import './index.css'
 
 export type NotificationType = 'primary' | 'error' | 'warning' | 'info'
 
+const BASE_Z_INDEX = 10100
+
 const INON_HASH: Record<NotificationType, string> = {
   primary: 'icon-message',
   error: 'icon-error',
@@ -131,6 +133,9 @@ const notification: NotificationService = {
       if (rj) rj()
     }
 
+    // Newest on top, and the whole stack above every overlay in the app — a
+    // notification is the only channel for reporting a failure. Keep in step
+    // with `.mt-notification` in index.css.
     const rePositionNotices = (): void => {
       const notices = document.querySelectorAll('.mt-notification')
       let i
@@ -139,7 +144,7 @@ const notification: NotificationService = {
       for (i = 0; i < len; i++) {
         const el = notices[i] as HTMLElement
         el.style.transform = `translate(0, -${hx}px)`
-        el.style.zIndex = String(10000 - i)
+        el.style.zIndex = String(BASE_Z_INDEX - i)
         hx += el.offsetHeight + 10
       }
     }

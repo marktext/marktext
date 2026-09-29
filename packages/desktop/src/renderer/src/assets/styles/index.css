@@ -421,10 +421,6 @@ button.button-primary:not(.custom):focus,
   box-shadow: none;
 }
 
-.image-viewer {
-  z-index: 10001;
-}
-
 .el-tabs__active-bar {
   background-color: var(--themeColor);
 }
