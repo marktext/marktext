@@ -1,10 +1,12 @@
 import type { JSONOpList } from 'ot-json1';
 import type { Muya } from '../muya';
 import type { IAnchorFocusInfo, IHistorySelection } from '../selection/types';
+import type { IJSONChangePayload } from '../state/changePayload';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import * as json1 from 'ot-json1';
 import { asDoc } from '../state';
+import { getPreviousDoc } from '../state/changePayload';
 import { deepClone } from '../utils';
 
 interface IOptions {
@@ -125,16 +127,8 @@ class History {
     private _listen() {
         this._muya.eventCenter.on(
             'json-change',
-            ({
-                op,
-                source,
-                prevDoc,
-            }: {
-                op: Nullable<JSONOpList>;
-                source: string;
-                prevDoc: TState[];
-                doc: TState[];
-            }) => {
+            (payload: IJSONChangePayload) => {
+                const { op, source } = payload;
                 if (this._ignoreChange)
                     return;
 
@@ -146,7 +140,7 @@ class History {
                     return;
 
                 if (!this._options.userOnly || source === 'user')
-                    this._record(op, prevDoc);
+                    this._record(op, getPreviousDoc(payload));
                 else
                     this._transform(op);
             },
@@ -154,6 +148,10 @@ class History {
     }
 
     private _change(source: HistoryAction, dest: HistoryAction) {
+        // A pending first edit must be undoable. Recording a pending edit may
+        // also clear redo, so flush before checking either stack or muting events.
+        this._muya.editor.jsonState.flush();
+
         if (this._stack[source].length === 0)
             return;
 
