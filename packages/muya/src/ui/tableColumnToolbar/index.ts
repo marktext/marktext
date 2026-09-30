@@ -52,14 +52,29 @@ export class TableColumnToolbar extends BaseFloat {
             const { x, y } = event;
             const eles = [...document.elementsFromPoint(x, y)];
 
+            // No need to show (or keep) the table column tools while the
+            // format toolbar is shown, or they would sit on top of it. Check
+            // this before the hover guard below: the format picker covers
+            // part of the cell, and `elementsFromPoint` also returns the
+            // toolbar stacked *behind* it, so the pointer being "on the
+            // toolbar" must not keep it alive while the picker is up.
+            const { ui } = this.muya;
+            for (const { name, status } of ui.shownFloat) {
+                if (name === 'mu-format-picker' && status)
+                    return this.hide();
+            }
+
             // The toolbar is 160px wide and overhangs the (possibly narrow)
             // column it is anchored to. While the pointer is on the toolbar,
             // the cell under (x, y + OFFSET) can therefore belong to a
             // *neighbouring* column — re-resolving the anchor from there
             // would retarget that column and make the toolbar jump sideways
             // right as the user reaches for an icon (#5574). Keep the
-            // current anchor until the pointer leaves the toolbar.
-            if (this.status && eles.some(ele => this.floatBox?.contains(ele)))
+            // current anchor until the pointer leaves the toolbar. Only the
+            // topmost hit counts, so a toolbar obscured by another float is
+            // not mistaken for a hover target.
+            const topmost = document.elementFromPoint(x, y);
+            if (this.status && topmost && this.floatBox?.contains(topmost))
                 return;
 
             const bellowEles = [...document.elementsFromPoint(x, y + OFFSET)];
@@ -72,12 +87,6 @@ export class TableColumnToolbar extends BaseFloat {
             };
 
             if (!hasTableCell(eles) && hasTableCell(bellowEles)) {
-                // No need to show table column tools when format tool bar is shown. or the table column tools will show on the top of format toolbar.
-                const { ui } = this.muya;
-                for (const { name, status } of ui.shownFloat) {
-                    if (name === 'mu-format-picker' && status)
-                        return this.hide();
-                }
                 const tableCellEle = bellowEles.find(
                     ele =>
                         ele[BLOCK_DOM_PROPERTY]

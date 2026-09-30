@@ -222,4 +222,38 @@ test.describe('TableColumnToolbar (per-column alignment popup)', () => {
             })
             .toBe(0);
     });
+
+    test('the toolbar hides when the format picker opens while the pointer is still on it', async ({ page }) => {
+        const table = await makeThreeColumnTable(page);
+
+        // Open the column toolbar; the pointer ends up resting on it.
+        await revealColumnToolbar(page, table, 0);
+        await expectShown(page, floats.tableColumnTools);
+
+        // Put a collapsed caret in a body cell, then extend it by keyboard.
+        // The keyup opens the inline format picker without moving the mouse,
+        // so the column toolbar is still visible underneath.
+        await page.evaluate(() => {
+            let block = window.muya!.editor.scrollPage!.firstContentInDescendant();
+            while (block && !(block.blockName === 'table.cell.content' && block.text === 'alpha'))
+                block = block.nextContentInContext() ?? null;
+            block!.setCursor(0, 0, true);
+        });
+        await page.keyboard.press('Shift+ArrowRight');
+        await expectShown(page, floats.inlineFormatToolbar);
+
+        // Nudge the pointer (still inside the toolbar) so the throttled
+        // handler re-evaluates. The format picker must win: the column
+        // toolbar must hide even though the pointer is over it.
+        const toolbarBox = (await page.locator(floats.tableColumnTools).first().boundingBox())!;
+        await page.mouse.move(toolbarBox.x + toolbarBox.width / 2, toolbarBox.y + toolbarBox.height / 2);
+        await page.waitForTimeout(400);
+
+        await expect
+            .poll(async () => wrapperOpacity(page, floats.tableColumnTools), {
+                timeout: 5_000,
+                intervals: [50, 100, 250, 500],
+            })
+            .toBe(0);
+    });
 });
