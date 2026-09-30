@@ -68,6 +68,18 @@ describe('htmlToMarkdown - task-list HTML paste', () => {
         expect(firstTask(states)).toEqual({ checked: true, text: 'done' });
     });
 
+    it('keeps an ordered task list ordered when pasting HTML', () => {
+        const { markdown, states } = htmlToState(
+            '<ol><li><input type="checkbox" checked="" disabled="">a</li><li><input type="checkbox" disabled="">b</li></ol>',
+        );
+
+        expect(markdown).toContain('1. [x] a');
+        expect(markdown).toContain('2. [ ] b');
+        expect(states[0].name).toBe('task-list');
+        expect((states[0] as { meta: { ordered?: boolean } }).meta.ordered).toBe(true);
+        expect(firstTask(states)).toEqual({ checked: true, text: 'a' });
+    });
+
     it('does not normalize a parent list item only because a nested child item has a checkbox', () => {
         const { markdown, states } = htmlToState(
             '<ul><li>[x]&nbsp;parent<ul><li><input type="checkbox" disabled=""><span>&nbsp;</span>child</li></ul></li></ul>',

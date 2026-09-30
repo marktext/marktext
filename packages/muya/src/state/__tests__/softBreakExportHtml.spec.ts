@@ -67,6 +67,7 @@ describe('softNewlineAsSpace export CSS', () => {
         expect(html).toContain('.markdown-body table {');
         expect(html).toContain('.markdown-body img[data-align=\'right\'] {');
         expect(html).toContain('.markdown-body li:has(input[type=\'checkbox\']) {');
+        expect(html).toContain('.markdown-body li input[type=\'checkbox\'] {');
         expect(html).toContain('.markdown-body div.mermaid,');
     });
 

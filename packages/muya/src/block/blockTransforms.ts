@@ -151,7 +151,8 @@ function buildListBlock(label: 'bullet-list' | 'task-list', muya: Muya, text: st
     const { preferLooseListItem, bulletListMarker } = muya.options;
     const listState = deepClone(emptyStates[label]);
     listState.meta.loose = preferLooseListItem;
-    listState.meta.marker = bulletListMarker;
+    if ('marker' in listState.meta)
+        listState.meta.marker = bulletListMarker;
     const firstChild = listState.children[0].children[0];
     if (text && isParagraphState(firstChild))
         firstChild.text = text;

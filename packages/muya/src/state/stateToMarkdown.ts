@@ -226,7 +226,8 @@ export default class ExportMarkdown {
         const meta = deepClone(state.meta);
         if (markerOverride && 'marker' in meta)
             meta.marker = markerOverride;
-        if (state.name === 'order-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
+        // Ordered task lists carry `sourceMarkers` too.
+        if (state.name !== 'bullet-list' && 'sourceMarkers' in meta && !this._shouldPreserveOrderMarkers(state))
             delete meta.sourceMarkers;
 
         // Start a new list without separation due changing the bullet or ordered list delimiter starts a new list.
@@ -255,8 +256,10 @@ export default class ExportMarkdown {
     // Source markers only hold while the list keeps the items it was parsed
     // with: an insert, delete or reorder breaks the per-item match, and the
     // list falls back to numbering from `start`.
-    private _shouldPreserveOrderMarkers(state: IOrderListState) {
-        const { sourceMarkers } = state.meta;
+    private _shouldPreserveOrderMarkers(state: IOrderListState | ITaskListState) {
+        const sourceMarkers = 'sourceMarkers' in state.meta
+            ? state.meta.sourceMarkers
+            : undefined;
         if (!sourceMarkers || sourceMarkers.length !== state.children.length)
             return false;
 
