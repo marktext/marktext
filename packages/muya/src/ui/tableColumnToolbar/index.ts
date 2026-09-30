@@ -51,6 +51,17 @@ export class TableColumnToolbar extends BaseFloat {
 
             const { x, y } = event;
             const eles = [...document.elementsFromPoint(x, y)];
+
+            // The toolbar is 160px wide and overhangs the (possibly narrow)
+            // column it is anchored to. While the pointer is on the toolbar,
+            // the cell under (x, y + OFFSET) can therefore belong to a
+            // *neighbouring* column — re-resolving the anchor from there
+            // would retarget that column and make the toolbar jump sideways
+            // right as the user reaches for an icon (#5574). Keep the
+            // current anchor until the pointer leaves the toolbar.
+            if (this.status && eles.some(ele => this.floatBox?.contains(ele)))
+                return;
+
             const bellowEles = [...document.elementsFromPoint(x, y + OFFSET)];
             const hasTableCell = (eles: Element[]) => {
                 return eles.some(
