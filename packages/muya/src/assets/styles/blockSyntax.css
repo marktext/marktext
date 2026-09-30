@@ -485,8 +485,10 @@ ol.mu-order-list ol.mu-order-list ul.mu-bullet-list {
     opacity: 1;
 }
 
-/* task list */
-ul.mu-task-list {
+/* task list — GitHub hides a task item's marker and pulls its checkbox into the
+   marker gutter, numbered or not (`li.task-list-item` in github-markdown-css). */
+ul.mu-task-list,
+ol.mu-task-list {
     padding-inline-start: 30px;
 }
 

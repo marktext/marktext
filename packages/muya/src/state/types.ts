@@ -111,6 +111,7 @@ export interface ITableState {
 
 export interface ITaskListItemMeta {
     checked: boolean;
+    orderMarker?: string; // e.g. "1.", "007.", "10)"
 }
 
 export interface ITaskListItemState {
@@ -119,9 +120,21 @@ export interface ITaskListItemState {
     children: TState[];
 }
 
-export interface ITaskListMeta {
+/** A task list is unordered (`marker`) or ordered (`start`/`delimiter`). */
+export type ITaskListMeta = ITaskListMetaUnordered | ITaskListMetaOrdered;
+
+export interface ITaskListMetaUnordered {
+    ordered?: false;
     marker: string; // "-" | "+" | "*";
     loose: boolean;
+}
+
+export interface ITaskListMetaOrdered {
+    ordered: true;
+    start: number;
+    delimiter: string; // "." | ")";
+    loose: boolean;
+    sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
 }
 
 export interface ITaskListState {

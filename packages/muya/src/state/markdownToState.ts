@@ -131,46 +131,7 @@ export class MarkdownToState {
             }
 
             case 'list': {
-                const { listType, loose, start } = token;
-                const bulletMarkerOrDelimiter
-                    = token.items[0].bulletMarkerOrDelimiter;
-
-                let listState: IOrderListState | IBulletListState | ITaskListState;
-                if (listType === 'order') {
-                    const sourceMarkers = token.items.map((item: ListItemToken) => item.orderMarker);
-                    listState = {
-                        name: 'order-list',
-                        meta: {
-                            loose,
-                            start: /^\d+$/.test(String(start)) ? Number(start) : 1,
-                            delimiter: bulletMarkerOrDelimiter || '.',
-                            ...(sourceMarkers.every((marker): marker is string => !!marker) ? { sourceMarkers } : {}),
-                        },
-                        children: [],
-                    };
-                }
-                else if (listType === 'task') {
-                    listState = {
-                        name: 'task-list',
-                        meta: {
-                            loose,
-                            marker: bulletMarkerOrDelimiter || '-',
-                        },
-                        children: [],
-                    };
-                }
-                else {
-                    listState = {
-                        name: 'bullet-list',
-                        meta: {
-                            loose,
-                            marker: bulletMarkerOrDelimiter || '-',
-                        },
-                        children: [],
-                    };
-                }
-
-                state = listState;
+                state = this._buildListState(token);
                 parentList[0].push(state);
                 parentList.unshift(state.children);
                 tokens.unshift({ type: 'block-end', tokenType: 'list' });
@@ -184,7 +145,10 @@ export class MarkdownToState {
                 if (listItemType === 'task') {
                     itemState = {
                         name: 'task-list-item',
-                        meta: { checked: Boolean(checked) },
+                        meta: {
+                            checked: Boolean(checked),
+                            ...(orderMarker ? { orderMarker } : {}),
+                        },
                         children: [],
                     };
                 }
@@ -222,6 +186,61 @@ export class MarkdownToState {
                 break;
             }
         }
+    }
+
+    // `token` is one run of same-kind items (see compatibleTaskList).
+    private _buildListState(
+        token: Extract<TBlockToken, { type: 'list' }>,
+    ): IOrderListState | IBulletListState | ITaskListState {
+        const { listType, loose, start } = token;
+        const bulletMarkerOrDelimiter = token.items[0].bulletMarkerOrDelimiter;
+        const ordered = token.ordered === true;
+        // Resolved by `compatibleTaskList` (list's first marker + run offset).
+        const orderStart
+            = typeof start === 'number' && Number.isFinite(start) ? start : 1;
+        const sourceMarkers = token.items.map((item: ListItemToken) => item.orderMarker);
+        const markers = sourceMarkers.every((marker): marker is string => !!marker)
+            ? { sourceMarkers }
+            : {};
+
+        if (listType === 'order') {
+            return {
+                name: 'order-list',
+                meta: {
+                    loose,
+                    start: orderStart,
+                    delimiter: bulletMarkerOrDelimiter || '.',
+                    ...markers,
+                },
+                children: [],
+            };
+        }
+
+        if (listType === 'task') {
+            return ordered
+                ? {
+                        name: 'task-list',
+                        meta: {
+                            ordered: true,
+                            loose,
+                            start: orderStart,
+                            delimiter: bulletMarkerOrDelimiter || '.',
+                            ...markers,
+                        },
+                        children: [],
+                    }
+                : {
+                        name: 'task-list',
+                        meta: { loose, marker: bulletMarkerOrDelimiter || '-' },
+                        children: [],
+                    };
+        }
+
+        return {
+            name: 'bullet-list',
+            meta: { loose, marker: bulletMarkerOrDelimiter || '-' },
+            children: [],
+        };
     }
 
     private _handleLeafToken(

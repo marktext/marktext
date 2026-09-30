@@ -38,6 +38,19 @@ function listMarker(list: TListBlock): string {
     return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
 }
 
+// The number an ordered list numbers from, or `undefined` for the unordered
+// kinds; the split paths below have to rebase it for task lists as well.
+function orderedListStart(list: TListBlock): number | undefined {
+    if (list instanceof OrderList)
+        return list.meta.start;
+
+    if (list.blockName !== 'task-list')
+        return undefined;
+
+    const { meta } = list as TaskList;
+    return meta.ordered ? meta.start : undefined;
+}
+
 enum UnindentType {
     INDENT,
     REPLACEMENT,
@@ -894,8 +907,9 @@ class ParagraphContent extends Format {
             const offset = outerList.offset(parentItem);
             const tailItems: Parent[] = [];
             outerList.forEachAt(offset + 1, undefined, node => tailItems.push(node as Parent));
-            const meta = outerList instanceof OrderList
-                ? { ...outerList.meta, start: outerList.meta.start + offset + 1 }
+            const outerStart = orderedListStart(outerList);
+            const meta = outerStart !== undefined
+                ? { ...outerList.meta, start: outerStart + offset + 1 }
                 : { ...outerList.meta };
             tailList = ScrollPage.loadBlock(outerList.blockName).create(muya, {
                 name: outerList.blockName,
@@ -909,7 +923,7 @@ class ParagraphContent extends Format {
         if (
             !tailList
             && following?.blockName === nestedList.blockName
-            && !(nestedList instanceof OrderList)
+            && orderedListStart(nestedList) === undefined
             && listMarker(following) === listMarker(nestedList)
         ) {
             const newListItem = listItem.clone() as Parent;
@@ -923,8 +937,9 @@ class ParagraphContent extends Format {
         const loose = listMarker(outerList) === listMarker(nestedList)
             ? outerList.meta.loose
             : nestedList.meta.loose;
-        const meta = nestedList instanceof OrderList
-            ? { ...nestedList.meta, loose, start: nestedList.meta.start + nestedList.offset(listItem) }
+        const nestedStart = orderedListStart(nestedList);
+        const meta = nestedStart !== undefined
+            ? { ...nestedList.meta, loose, start: nestedStart + nestedList.offset(listItem) }
             : { ...nestedList.meta, loose };
         const newList: Parent = ScrollPage.loadBlock(nestedList.blockName).create(muya, {
             name: nestedList.blockName,

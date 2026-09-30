@@ -119,6 +119,8 @@
     margin: 0 0 0 auto;
 }
 
+/* GitHub drops a task item's marker (bullet or number) and pulls the checkbox
+   into the gutter, so an ordered task list shows no `1.`/`1)`. */
 .markdown-body li:has(input[type='checkbox']) {
     list-style-type: none;
 }

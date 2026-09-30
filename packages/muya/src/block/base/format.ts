@@ -5,11 +5,12 @@ import type {
     Token,
 } from '../../inlineRenderer/types';
 import type { IContentCursor, IRenderCursor } from '../../selection/types';
-import type { IBulletListState, IListItemState, IOrderListState, IParagraphState } from '../../state/types';
+import type { IBulletListState, IListItemState, IOrderListState, IParagraphState, ITaskListState } from '../../state/types';
 import type { Nullable } from '../../types';
 import type { IImageInfo } from '../../utils/image';
 import type AtxHeading from '../commonMark/atxHeading';
 import type BulletList from '../commonMark/bulletList';
+import type OrderList from '../commonMark/orderList';
 import type SetextHeading from '../commonMark/setextHeading';
 import type Parent from './parent';
 import type TreeNode from './treeNode';
@@ -905,28 +906,39 @@ class Format extends Content {
             firstContent._convertToTaskList();
     }
 
+    // The item becomes a task item; an ordered list keeps its numbering.
     private _convertToTaskList() {
         const { text, parent, muya, hasSelection } = this;
         const { preferLooseListItem } = muya.options;
         const listItem = parent!.parent!;
-        const list = listItem?.parent as BulletList;
+        const list = listItem?.parent as BulletList | OrderList;
         const matches = text.match(/^\[([x ])\] {1,4}([\s\S]*)$/i);
 
         if (
             !list
-            || list.blockName !== 'bullet-list'
+            || (list.blockName !== 'bullet-list' && list.blockName !== 'order-list')
             || !parent!.isFirstChild()
             || matches == null
         ) {
             return;
         }
 
-        const listState = {
+        const offset = list.offset(listItem);
+        const ordered = list.blockName === 'order-list';
+        const meta: ITaskListState['meta'] = ordered
+            ? {
+                    ordered: true,
+                    loose: preferLooseListItem,
+                    start: (list.meta as IOrderListState['meta']).start + offset,
+                    delimiter: (list.meta as IOrderListState['meta']).delimiter,
+                }
+            : {
+                    loose: preferLooseListItem,
+                    marker: (list.meta as IBulletListState['meta']).marker,
+                };
+        const listState: ITaskListState = {
             name: 'task-list',
-            meta: {
-                loose: preferLooseListItem,
-                marker: list.meta.marker,
-            },
+            meta,
             children: [
                 {
                     name: 'task-list-item',
@@ -967,6 +979,22 @@ class Format extends Content {
             case listItem.isFirstChild():
                 list.parent!.insertBefore(newTaskList, list);
                 listItem.remove();
+                // Dropping the leading item shifts the tail's numbers up by one.
+                if (ordered) {
+                    const listMeta = list.meta as IOrderListState['meta'];
+                    const oldStart = listMeta.start;
+                    listMeta.start = oldStart + 1;
+                    list.domNode!.setAttribute('start', String(listMeta.start));
+                    // `path` ends at the children array; the meta sits one level up.
+                    const path = list.path;
+                    path.pop();
+                    path.push('meta', 'start');
+                    list.jsonState.replaceOperation(
+                        path,
+                        oldStart,
+                        listMeta.start,
+                    );
+                }
                 break;
 
             case listItem.isLastChild():
@@ -975,30 +1003,40 @@ class Format extends Content {
                 break;
 
             default: {
-                const bulletListState: IBulletListState = {
-                    name: 'bullet-list',
-                    meta: {
-                        loose: preferLooseListItem,
-                        marker: list.meta.marker,
-                    },
-                    children: [],
-                };
-                const offset = list.offset(listItem);
-                list.forEachAt(offset + 1, undefined, (node) => {
+                // The tail keeps the same list kind, numbered past the converted item.
+                const tailState: IBulletListState | IOrderListState = ordered
+                    ? {
+                            name: 'order-list',
+                            meta: {
+                                loose: preferLooseListItem,
+                                start: (list.meta as IOrderListState['meta']).start + offset + 1,
+                                delimiter: (list.meta as IOrderListState['meta']).delimiter,
+                            },
+                            children: [],
+                        }
+                    : {
+                            name: 'bullet-list',
+                            meta: {
+                                loose: preferLooseListItem,
+                                marker: (list.meta as IBulletListState['meta']).marker,
+                            },
+                            children: [],
+                        };
+                list.forEachAt(offset + 1, undefined, (node: TreeNode) => {
                     if (node.isParent()) {
                         const childState = node.getState();
                         if (isListItemState(childState))
-                            bulletListState.children.push(childState);
+                            tailState.children.push(childState);
                     }
                     node.remove();
                 });
 
-                const bulletList = ScrollPage.loadBlock(bulletListState.name).create(
+                const tailList = ScrollPage.loadBlock(tailState.name).create(
                     muya,
-                    bulletListState,
+                    tailState,
                 );
                 list.parent!.insertAfter(newTaskList, list);
-                newTaskList.parent.insertAfter(bulletList, newTaskList);
+                newTaskList.parent.insertAfter(tailList, newTaskList);
                 listItem.remove();
                 break;
             }
