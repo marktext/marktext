@@ -89,6 +89,26 @@ Confirm:
 1. Mark the tracking PR from step 5 ready for review and merge into `develop`
 2. Open a follow-up PR bumping `develop`'s `package.json` to the next dev version (e.g. `0.20.0-dev`)
 
+## Homebrew on Linux
+
+The Homebrew on Linux formula in [`packaging/homebrew/marktext.rb`](https://github.com/marktext/marktext/blob/develop/packaging/homebrew/marktext.rb) is an experimental template for a future custom tap. It should not be published until a tagged release includes a Linux `tar.gz` artifact.
+
+After publishing a release:
+
+1. Confirm the release contains `marktext-linux-<version>.tar.gz`.
+2. Update `packaging/homebrew/marktext.rb` with the release URL and SHA256.
+3. Copy `marktext.rb` into the tap's `Formula/` directory.
+4. Run:
+
+   ```bash
+   brew style packaging/homebrew/marktext.rb
+   brew audit --strict --online <tap>/marktext
+   brew install <tap>/marktext
+   brew test <tap>/marktext
+   ```
+
+Keep this separate from the existing `mark-text` Homebrew cask, which is macOS-only.
+
 ---
 
 For hotfixes off a previously-released tag, see [RELEASE_HOTFIX.md](RELEASE_HOTFIX.md). Once the hotfix branch is ready, steps 2–7 above apply.
