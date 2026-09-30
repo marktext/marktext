@@ -1,5 +1,5 @@
 appId: com.github.marktext.marktext
-productName: marktext
+productName: MarkText
 directories:
   buildResources: build
   output: ../../dist
