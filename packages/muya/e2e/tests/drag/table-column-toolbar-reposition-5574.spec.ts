@@ -4,17 +4,10 @@ import { getMarkdown } from '../helpers/api';
 import { editor, floats } from '../helpers/selectors';
 
 /**
- * #5574 — the column toolbar re-anchored itself to whichever column sat under
- * the cursor. The toolbar is 160px wide, so over a narrow column it overhangs
- * into the neighbour: moving the pointer onto the toolbar (e.g. toward the
- * right-most "remove column" icon) re-resolved the anchor to that neighbour
- * and the toolbar jumped sideways out from under the cursor, making the menu
- * almost impossible to click.
- *
- * Source of truth: `packages/muya/src/ui/tableColumnToolbar/index.ts` — the
- * throttled `mousemove` handler derived `_block` from
- * `elementsFromPoint(x, y + OFFSET)`. The fix keeps the current anchor while
- * the pointer is over the toolbar itself.
+ * #5574 — the toolbar is 160px wide, so over a narrow column it overhangs into
+ * the neighbour. `elementsFromPoint(x, y + OFFSET)` then resolved the anchor
+ * to that neighbour while the pointer was on the toolbar, making it jump
+ * sideways out from under the cursor. It must now keep its anchor.
  */
 
 // Short cells => ~58px columns, so the 160px toolbar spans a neighbour.

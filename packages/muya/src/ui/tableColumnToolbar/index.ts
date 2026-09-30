@@ -52,27 +52,18 @@ export class TableColumnToolbar extends BaseFloat {
             const { x, y } = event;
             const eles = [...document.elementsFromPoint(x, y)];
 
-            // No need to show (or keep) the table column tools while the
-            // format toolbar is shown, or they would sit on top of it. Check
-            // this before the hover guard below: the format picker covers
-            // part of the cell, and `elementsFromPoint` also returns the
-            // toolbar stacked *behind* it, so the pointer being "on the
-            // toolbar" must not keep it alive while the picker is up.
+            // Never show (or keep) the column tools while the inline format
+            // picker is up — check before the hover guard below, which would
+            // otherwise keep them alive behind the picker.
             const { ui } = this.muya;
             for (const { name, status } of ui.shownFloat) {
                 if (name === 'mu-format-picker' && status)
                     return this.hide();
             }
 
-            // The toolbar is 160px wide and overhangs the (possibly narrow)
-            // column it is anchored to. While the pointer is on the toolbar,
-            // the cell under (x, y + OFFSET) can therefore belong to a
-            // *neighbouring* column — re-resolving the anchor from there
-            // would retarget that column and make the toolbar jump sideways
-            // right as the user reaches for an icon (#5574). Keep the
-            // current anchor until the pointer leaves the toolbar. Only the
-            // topmost hit counts, so a toolbar obscured by another float is
-            // not mistaken for a hover target.
+            // The toolbar overhangs narrow columns, so (x, y + OFFSET) can
+            // land on a neighbour while the pointer is on the toolbar. Keep
+            // the current anchor until the pointer leaves it (#5574).
             const topmost = document.elementFromPoint(x, y);
             if (this.status && topmost && this.floatBox?.contains(topmost))
                 return;
