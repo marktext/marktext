@@ -88,7 +88,7 @@ export interface PandocReaderExtensions {
  */
 export const getPandocReader = (
   options: PandocReaderOptions,
-  extensions?: PandocReaderExtensions
+  extensions?: PandocReaderExtensions | null
 ): string => {
   const {
     superSubScript,
@@ -148,11 +148,13 @@ export const getPandocReader = (
 /**
  * The extensions a reader lists, each with whether it enables them by default, from
  * `--list-extensions=<format>`. The listing marks every line (`+tex_math_dollars`,
- * `-smart`). An empty map is the answer a pandoc that cannot list gives.
+ * `-smart`). `null` is the answer a pandoc that cannot list gives — a spawn that fails,
+ * a non-zero exit, or no line at all. It is never an empty map: that would read as "this
+ * reader carries nothing" and strip the reader down to bare math flags.
  */
 export const listReaderExtensions = async(
   format: string
-): Promise<ReaderExtensionDefaults> => {
+): Promise<ReaderExtensionDefaults | null> => {
   const command = await getCommand()
   return new Promise((resolve) => {
     const proc = spawn(command, [`--list-extensions=${format}`])
@@ -161,29 +163,37 @@ export const listReaderExtensions = async(
       output += chunk.toString()
     })
     proc.stdin.on('error', () => {})
-    proc.on('error', () => resolve(new Map()))
-    proc.on('close', () => {
+    proc.on('error', () => resolve(null))
+    proc.on('close', (code: number | null) => {
       const defaults = new Map<string, boolean>()
-      for (const line of output.split('\n')) {
-        // Lines end in `\r\n` on Windows, which `.` would not cross.
-        const match = line.trim().match(/^([+-])(.+)$/)
-        if (match) defaults.set(match[2].trim(), match[1] === '+')
+      if (code === 0) {
+        for (const line of output.split('\n')) {
+          // Lines end in `\r\n` on Windows, which `.` would not cross.
+          const match = line.trim().match(/^([+-])(.+)$/)
+          if (match) defaults.set(match[2].trim(), match[1] === '+')
+        }
       }
-      resolve(defaults)
+      resolve(defaults.size > 0 ? defaults : null)
     })
     proc.stdin.end()
   })
 }
 
-let readerExtensions: Promise<PandocReaderExtensions> | undefined
+let readerExtensions: Promise<PandocReaderExtensions | null> | undefined
 
-/** The probe is remembered: it is two spawns, and each export asks the same question. */
-export const getReaderExtensions = (): Promise<PandocReaderExtensions> => {
+/**
+ * Both listings, or `null` when either is unavailable. A hit is remembered — it is two
+ * spawns and each export asks the same question — but a miss is not, so a pandoc
+ * installed or repaired later is not stuck behind the first failure.
+ */
+export const getReaderExtensions = async(): Promise<PandocReaderExtensions | null> => {
   readerExtensions ??= Promise.all([
     listReaderExtensions('gfm'),
     listReaderExtensions('markdown')
-  ]).then(([gfm, markdown]) => ({ gfm, markdown }))
-  return readerExtensions
+  ]).then(([gfm, markdown]) => (gfm && markdown ? { gfm, markdown } : null))
+  const extensions = await readerExtensions
+  if (extensions === null) readerExtensions = undefined
+  return extensions
 }
 
 // pandoc knows no `zh`/`zh-CN` and would warn, so Chinese takes the script subtag.

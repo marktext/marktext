@@ -15,6 +15,7 @@ import pandoc, {
   formatLinksMedia,
   getPandocLanguage,
   getPandocReader,
+  getReaderExtensions,
   isRemoteMedia,
   listLinkedMedia,
   listReaderExtensions,
@@ -164,8 +165,12 @@ describe('pandoc export', () => {
     // `markdown` enables sub/superscript itself, so an enabled preference adds no flag.
     expect(reader).toContain('-superscript')
 
-    // No listing: only the math flags can be named, the rest keeps markdown's defaults.
+    // No listing, or one that failed (`null`): only the math flags can be named, so a
+    // backslash document still exports its formulas instead of bare `markdown`.
     expect(getPandocReader({ superSubScript: false, texMathSingleBackslash: true })).toBe(
+      'markdown+tex_math_single_backslash'
+    )
+    expect(getPandocReader({ superSubScript: false, texMathSingleBackslash: true }, null)).toBe(
       'markdown+tex_math_single_backslash'
     )
     expect(
@@ -337,12 +342,69 @@ describe('pandoc export', () => {
     )
     expect(spawnMock).toHaveBeenCalledWith(expect.any(String), ['--list-extensions=gfm'])
 
-    // A pandoc that cannot list offers no names, and the reader keeps its own defaults.
+    // A probe that fails, exits non-zero or names nothing is `null`, not an empty
+    // listing: the reader then falls back instead of reading as "carries nothing".
     const failing = startProcess()
     const missing = listReaderExtensions('markdown')
     await failing.spawned()
     failing.emit('error', new Error('spawn pandoc ENOENT'))
-    await expect(missing).resolves.toEqual(new Map())
+    await expect(missing).resolves.toBeNull()
+
+    const broken = startProcess()
+    const exited = listReaderExtensions('markdown')
+    await broken.spawned()
+    broken.emit('close', 2)
+    await expect(exited).resolves.toBeNull()
+
+    const empty = startProcess()
+    const nothing = listReaderExtensions('markdown')
+    await empty.spawned()
+    empty.emit('close', 0)
+    await expect(nothing).resolves.toBeNull()
+  })
+
+  // A miss must not be remembered: a pandoc installed or repaired after a failed probe is
+  // picked up by the next export instead of riding the empty listing forever.
+  it('retries both probes after a miss and caches the hit', async() => {
+    const procs = [0, 1, 2, 3].map(() =>
+      Object.assign(new EventEmitter(), {
+        stdin: Object.assign(new EventEmitter(), { end: vi.fn() }),
+        stderr: new EventEmitter(),
+        stdout: new EventEmitter()
+      })
+    )
+    let next = 0
+    spawnMock.mockImplementation(() => procs[next++])
+
+    const first = getReaderExtensions()
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalledTimes(2))
+    procs[0].emit('error', new Error('spawn pandoc ENOENT'))
+    procs[1].emit('error', new Error('spawn pandoc ENOENT'))
+    await expect(first).resolves.toBeNull()
+
+    const second = getReaderExtensions()
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalledTimes(4))
+    procs[2].stdout.emit('data', Buffer.from('+tex_math_gfm\n'))
+    procs[2].emit('close', 0)
+    procs[3].stdout.emit('data', Buffer.from('+tex_math_dollars\n-tex_math_single_backslash\n'))
+    procs[3].emit('close', 0)
+    await expect(second).resolves.toEqual({
+      gfm: new Map([['tex_math_gfm', true]]),
+      markdown: new Map([
+        ['tex_math_dollars', true],
+        ['tex_math_single_backslash', false]
+      ])
+    })
+
+    // The hit is remembered: a third call spawns nothing more.
+    await expect(getReaderExtensions()).resolves.toEqual({
+      gfm: new Map([['tex_math_gfm', true]]),
+      markdown: new Map([
+        ['tex_math_dollars', true],
+        ['tex_math_single_backslash', false]
+      ])
+    })
+    expect(spawnMock).toHaveBeenCalledTimes(4)
   })
 
   // The list comes from pandoc's AST; a raw `<img>` is a raw node and never reaches it.
