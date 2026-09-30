@@ -9,8 +9,8 @@ export const nl = {
         'Align Left': 'Links uitlijnen',
         'Align Center': 'Centreren',
         'Align Right': 'Rechts uitlijnen',
-        'Insert Column left': 'Kolom invoegen links',
-        'Insert Column right': 'Kolom invoegen rechts',
+        'Insert Column Left': 'Kolom invoegen links',
+        'Insert Column Right': 'Kolom invoegen rechts',
         'Remove Column': 'Kolom verwijderen',
         // quickInsert
         'Paragraph': 'Alinea',

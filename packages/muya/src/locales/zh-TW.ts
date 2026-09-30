@@ -9,8 +9,8 @@ export const zhTW = {
         'Align Left': '靠左對齊',
         'Align Center': '置中對齊',
         'Align Right': '靠右對齊',
-        'Insert Column left': '在左邊插入欄',
-        'Insert Column right': '在右邊插入欄',
+        'Insert Column Left': '在左邊插入欄',
+        'Insert Column Right': '在右邊插入欄',
         'Remove Column': '刪除所在欄',
         // quickInsert
         'Paragraph': '一般段落',
