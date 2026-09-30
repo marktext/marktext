@@ -25,6 +25,7 @@ import pandoc, {
   formatLinksMedia,
   getPandocLanguage,
   getPandocReader,
+  getReaderExtensions,
   listLinkedMedia,
   shouldMirrorMedia
 } from '../../utils/pandoc'
@@ -184,11 +185,20 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     return
   }
 
-  const { markdown, title, pathname, superSubScript, footnote } = payload
+  const {
+    markdown,
+    title,
+    pathname,
+    superSubScript,
+    footnote,
+    texMathDollars,
+    texMathGfm,
+    texMathSingleBackslash,
+    texMathDoubleBackslash
+  } = payload
   // The save dialog and pandoc's link resolution both need the document's folder.
   const sourceDir = pathname ? path.dirname(pathname) : undefined
   const stem = sanitizeFilename(pathname ? path.basename(pathname, path.extname(pathname)) : title)
-  const reader = getPandocReader(superSubScript === true, footnote === true)
   let filePath = ''
   // Awaited inside the try, so a save the OS refuses becomes a notification.
   try {
@@ -199,6 +209,19 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     if (canceled || !chosen || win.isDestroyed()) return
     // What comes back is the user's answer, "replace this one" included.
     filePath = chosen
+    // The reader is built once the export is certain: naming `tex_math_gfm` needs pandoc
+    // to have answered `--list-extensions`, and a cancelled dialog should not pay for it.
+    const reader = getPandocReader(
+      {
+        superSubScript: superSubScript === true,
+        footnotes: footnote === true,
+        texMathDollars: texMathDollars === true,
+        texMathGfm: texMathGfm === true,
+        texMathSingleBackslash: texMathSingleBackslash === true,
+        texMathDoubleBackslash: texMathDoubleBackslash === true
+      },
+      await getReaderExtensions()
+    )
     // The plain-text writers keep images as links, so the pictures are mirrored along.
     const linksMedia = formatLinksMedia(format.target)
     const media = linksMedia ? await listLinkedMedia(markdown, reader) : []
