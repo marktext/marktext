@@ -1627,6 +1627,10 @@ export const useEditorStore = defineStore('editor', {
         markdown,
         superSubScript: preferencesStore.superSubScript === true,
         footnote: preferencesStore.footnote === true,
+        texMathDollars: preferencesStore.texMathDollars === true,
+        texMathGfm: preferencesStore.texMathGfm === true,
+        texMathSingleBackslash: preferencesStore.texMathSingleBackslash === true,
+        texMathDoubleBackslash: preferencesStore.texMathDoubleBackslash === true,
         title: this.documentTitle,
         pathname
       })

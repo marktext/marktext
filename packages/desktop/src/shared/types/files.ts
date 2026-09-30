@@ -184,4 +184,8 @@ export interface PandocExportPayload {
   /** Reader preferences only the renderer knows; see `getPandocReader`. */
   superSubScript: boolean
   footnote: boolean
+  texMathDollars: boolean
+  texMathGfm: boolean
+  texMathSingleBackslash: boolean
+  texMathDoubleBackslash: boolean
 }

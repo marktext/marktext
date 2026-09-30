@@ -17,10 +17,37 @@ import pandoc, {
   getPandocReader,
   isRemoteMedia,
   listLinkedMedia,
+  listReaderExtensions,
   pandocLocations,
   shouldMirrorMedia,
+  type PandocReaderExtensions,
   type PandocToFileOptions
 } from 'main_renderer/utils/pandoc'
+
+/** A stand-in for `--list-extensions`: gfm's set plus the extras `markdown` turns on. */
+const EXTENSIONS: PandocReaderExtensions = {
+  gfm: new Map([
+    ['pipe_tables', true],
+    ['strikeout', true],
+    ['footnotes', true],
+    ['tex_math_dollars', true],
+    ['tex_math_gfm', true],
+    ['superscript', false],
+    ['subscript', false]
+  ]),
+  markdown: new Map([
+    ['pipe_tables', true],
+    ['strikeout', true],
+    ['footnotes', true],
+    ['tex_math_dollars', true],
+    ['tex_math_single_backslash', false],
+    ['tex_math_double_backslash', false],
+    ['superscript', true],
+    ['subscript', true],
+    ['smart', true],
+    ['fenced_divs', true]
+  ])
+}
 
 /**
  * The ChildProcess `spawn` would hand back; stdin is an emitter so the EPIPE is
@@ -83,11 +110,67 @@ describe('pandoc export', () => {
   })
 
   // `gfm` is what the editor shows; the extensions asked for mirror its preferences (#5379).
+  // `gfm` enables `tex_math_dollars` and `footnotes`, so the defaults are already the
+  // editor's, and only the prefs that diverge or opt in add a flag.
   it('reads GFM, adding sub/superscript or dropping footnotes only when asked', () => {
-    expect(getPandocReader(false)).toBe('gfm')
-    expect(getPandocReader(false, false)).toBe('gfm-footnotes')
-    expect(getPandocReader(true)).toBe('gfm+superscript+subscript')
-    expect(getPandocReader(true)).not.toMatch(/tex_math_gfm|alerts/)
+    expect(getPandocReader({ superSubScript: false })).toBe('gfm')
+    expect(getPandocReader({ superSubScript: false, footnotes: false })).toBe('gfm-footnotes')
+    expect(getPandocReader({ superSubScript: true })).toBe('gfm+superscript+subscript')
+  })
+
+  // #5566: the Preferences → Markdown math toggles must reach the reader, or an export
+  // silently parses the delimiters the editor turns on — or leaves on — differently.
+  it('forwards the dollar and gfm math toggles to the gfm reader', () => {
+    expect(getPandocReader({ superSubScript: false, texMathDollars: false })).toBe(
+      'gfm-tex_math_dollars'
+    )
+    expect(getPandocReader({ superSubScript: false, texMathGfm: true }, EXTENSIONS)).toBe(
+      'gfm+tex_math_gfm'
+    )
+    expect(getPandocReader({ superSubScript: false, texMathGfm: false }, EXTENSIONS)).toBe(
+      'gfm-tex_math_gfm'
+    )
+    // No listing, or one without the name: `gfm`'s own default is the only safe answer.
+    expect(getPandocReader({ superSubScript: false, texMathGfm: true })).toBe('gfm')
+  })
+
+  // pandoc's `gfm` rejects the backslash math extensions, so one switches the reader to
+  // `markdown` — told to read every non-math extension the way `gfm` does (#5566).
+  it('reads the backslash math from a gfm-shaped markdown reader', () => {
+    const reader = getPandocReader({ superSubScript: false, texMathSingleBackslash: true }, EXTENSIONS)
+    expect(reader.startsWith('markdown')).toBe(true)
+    expect(reader).toContain('+tex_math_single_backslash')
+    expect(reader).not.toContain('tex_math_double_backslash')
+    // The extensions `gfm` does not carry come off, so the quote/dash `smart` rewrite and
+    // the definition-list and fenced-div syntaxes cannot change the document.
+    expect(reader).toContain('-smart')
+    expect(reader).toContain('-fenced_divs')
+    // `pipe_tables` is on in both, so it needs no flag either way.
+    expect(reader).not.toMatch(/[+-]pipe_tables/)
+    // commonmark-only: no pandoc reader carries it beside the backslash extensions.
+    expect(reader).not.toContain('tex_math_gfm')
+
+    expect(
+      getPandocReader(
+        {
+          superSubScript: true,
+          footnotes: false,
+          texMathSingleBackslash: true,
+          texMathDoubleBackslash: true
+        },
+        EXTENSIONS
+      )
+    ).toContain('+tex_math_single_backslash+tex_math_double_backslash')
+    // `markdown` enables sub/superscript itself, so an enabled preference adds no flag.
+    expect(reader).toContain('-superscript')
+
+    // No listing: only the math flags can be named, the rest keeps markdown's defaults.
+    expect(getPandocReader({ superSubScript: false, texMathSingleBackslash: true })).toBe(
+      'markdown+tex_math_single_backslash'
+    )
+    expect(
+      getPandocReader({ superSubScript: false, texMathDollars: false, texMathDoubleBackslash: true })
+    ).toBe('markdown-tex_math_dollars+tex_math_double_backslash')
   })
 
   // pandoc ships no `zh`/`zh-CN`/`zh-TW`, and an unresolvable `lang` warns on every export (#5379).
@@ -105,7 +188,7 @@ describe('pandoc export', () => {
     const { proc, done } = await runToFile('docx', '/tmp/notes.docx', {
       input: '# Title',
       cwd: '/docs/notes',
-      reader: getPandocReader(true)
+      reader: getPandocReader({ superSubScript: true })
     })
 
     await expect(done).resolves.toEqual({ warnings: '' })
@@ -234,6 +317,32 @@ describe('pandoc export', () => {
     expect(shouldMirrorMedia(['pics/a.png'], dir, path.join(dir, 'notes.rst'))).toBe(false)
     // The same folder spelled by hand; `path.join` would resolve the `..` and hide the case.
     expect(shouldMirrorMedia(['pics/a.png'], dir, `${dir}${path.sep}..${path.sep}${path.basename(dir)}${path.sep}notes.rst`)).toBe(false)
+  })
+
+  // The listing is the authority on which names the installed pandoc accepts and whether
+  // it enables each one; the reader is built from exactly what it reports.
+  it('reads the extension names pandoc lists, with their default state', async() => {
+    const proc = startProcess()
+    const pending = listReaderExtensions('gfm')
+    await proc.spawned()
+    proc.stdout.emit('data', Buffer.from('+tex_math_dollars\r\n-smart\n+tex_math_gfm\n'))
+    proc.emit('close', 0)
+
+    await expect(pending).resolves.toEqual(
+      new Map([
+        ['tex_math_dollars', true],
+        ['smart', false],
+        ['tex_math_gfm', true]
+      ])
+    )
+    expect(spawnMock).toHaveBeenCalledWith(expect.any(String), ['--list-extensions=gfm'])
+
+    // A pandoc that cannot list offers no names, and the reader keeps its own defaults.
+    const failing = startProcess()
+    const missing = listReaderExtensions('markdown')
+    await failing.spawned()
+    failing.emit('error', new Error('spawn pandoc ENOENT'))
+    await expect(missing).resolves.toEqual(new Map())
   })
 
   // The list comes from pandoc's AST; a raw `<img>` is a raw node and never reaches it.
