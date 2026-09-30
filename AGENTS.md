@@ -1,8 +1,6 @@
-# CLAUDE.md
+# Development Rules
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-# MarkText
+This file provides guidance to AI agents when working with code in this repository.
 
 ## Project Overview
 
@@ -10,25 +8,25 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 
 - **Version**: see `package.json`
 - **License**: MIT
-- **Repository**: https://github.com/marktext/marktext
+- **Repository**: <https://github.com/marktext/marktext>
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Language | TypeScript 5.9 (strict mode) — `packages/muyajs/` is legacy JS, no longer referenced |
-| Desktop shell | Electron 42 |
-| Build system | electron-vite 5 |
-| Packaging | electron-builder 26 |
-| Frontend framework | Vue 3 |
-| State management | Pinia 3 |
-| Routing | Vue Router 4 |
-| UI library | Element Plus |
-| Unit tests | Vitest 4 |
-| E2E tests | Playwright |
-| Package manager | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`) |
-| Repo layout | pnpm monorepo — see Directory Structure |
-| Node.js minimum | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1) |
+| Layer              | Technology                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| Language           | TypeScript 5.9 (strict mode) — `packages/muyajs/` is legacy JS, no longer referenced |
+| Desktop shell      | Electron 42                                                                          |
+| Build system       | electron-vite 5                                                                      |
+| Packaging          | electron-builder 26                                                                  |
+| Frontend framework | Vue 3                                                                                |
+| State management   | Pinia 3                                                                              |
+| Routing            | Vue Router 4                                                                         |
+| UI library         | Element Plus                                                                         |
+| Unit tests         | Vitest 4                                                                             |
+| E2E tests          | Playwright                                                                           |
+| Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)                                 |
+| Repo layout        | pnpm monorepo — see Directory Structure                                              |
+| Node.js minimum    | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1)                           |
 
 ## Directory Structure
 
@@ -120,7 +118,7 @@ root holds only shared tooling and CI-facing scripts.
                             (antfu), own stylelint, own madge, own vitest
                             spec suites (CommonMark + GFM). The editor
                             engine the desktop renderer consumes. See
-                            packages/muya/CLAUDE.md for layout and commands.
+                            packages/muya/AGENTS.md for layout and commands.
       src/                  TS source. Public entrypoint src/index.ts.
       test/spec/            CommonMark 0.31 + GFM 0.29-gfm conformance.
       examples/             muya-examples — vite vanilla-TS dev demo
@@ -266,7 +264,7 @@ See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 
 ## Further Reading
 
-`packages/website/content/docs/dev/` contains the deeper developer documentation referenced by this guide. Same files are published as the developer docs section on https://marktext.me/docs/dev/overview:
+`packages/website/content/docs/dev/` contains the deeper developer documentation referenced by this guide. Same files are published as the developer docs section on <https://marktext.me/docs/dev/overview>:
 
 - `ARCHITECTURE.md` — process/module layering beyond the summary above
 - `BUILD.md` — full platform build prerequisites (including the Arch Linux deps added recently)

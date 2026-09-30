@@ -74,7 +74,7 @@ test.describe('TableDragBar column reorder', () => {
         // The bar is a baseFloat — its wrapper (`.mu-float-wrapper`) is
         // parked at opacity:0 + left/top:-9999px until shown. `toBeVisible()`
         // reads "hidden" because the wrapper has display:flex but opacity:0;
-        // poll the wrapper's opacity instead (CLAUDE.md convention).
+        // poll the wrapper's opacity instead (AGENTS.md convention).
         const dragBar = page.locator(floats.tableDragBar);
         await expect.poll(async () => dragBar.evaluate((el) => {
             const wrapper = el.closest('.mu-float-wrapper') as HTMLElement | null;

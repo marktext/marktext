@@ -1,6 +1,6 @@
-# CLAUDE.md (packages/muya)
+# Development Rules (packages/muya)
 
-This file provides guidance to Claude Code when working inside `packages/muya`.
+This file provides guidance to AI agents when working inside `packages/muya`.
 
 > **Location.** `packages/muya` is the TypeScript rewrite of muya (upstream: <https://github.com/marktext/muya>), migrated into this marktext monorepo and published as `@muyajs/core`. The desktop renderer now consumes `@muyajs/core` as its editor engine; the legacy JS engine `packages/muyajs` (`@marktext/muyajs`, the `muya/` alias) is being retired and only a handful of call sites still reference it. `packages/muya` keeps its own toolchain (ESLint/antfu, stylelint, madge, vitest), and the marktext-root ESLint ignores `packages/muya/**` — treat it as a self-contained package with its own conventions.
 
@@ -81,7 +81,7 @@ bundled stylesheets; each has a default baked into the CSS, so passing nothing
 renders the standalone defaults.
 
 | Option (`IMuyaOptions`) | CSS variable | Default | Applies to |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `fontSize` (number, px) | `--mu-font-size` | `16px` | `.mu-editor` base text |
 | `lineHeight` (number) | `--mu-line-height` | `1.6` | `.mu-editor` base text |
 | `editorFontFamily` (string) | `--mu-font-family` | Open Sans stack | `.mu-editor` base text |
@@ -98,11 +98,11 @@ through `muya.setOptions({...})`.
 ## Conventions enforced by tooling
 
 - **ESLint** (`eslint.config.mjs`, antfu base) adds:
-    - `complexity` ≤ 20 and `max-lines-per-function` ≤ 200 (warnings) for non-test TS.
-    - Interface names **must** start with `I[A-Z0-9]` (e.g. `IMuyaOptions`, `IPlugin`). The naming-convention rule will flag interfaces that don't.
-    - Private class members **must** be prefixed with `_` (e.g. `_uiPlugins`, `_activeContentBlock`).
-    - Style: 4-space indent, semicolons required, React rules disabled, Markdown linting disabled.
-    - Bans `value as unknown as X` double-casts outside audited boundary helpers — use type guards or named helpers instead.
+  - `complexity` ≤ 20 and `max-lines-per-function` ≤ 200 (warnings) for non-test TS.
+  - Interface names **must** start with `I[A-Z0-9]` (e.g. `IMuyaOptions`, `IPlugin`). The naming-convention rule will flag interfaces that don't.
+  - Private class members **must** be prefixed with `_` (e.g. `_uiPlugins`, `_activeContentBlock`).
+  - Style: 4-space indent, semicolons required, React rules disabled, Markdown linting disabled.
+  - Bans `value as unknown as X` double-casts outside audited boundary helpers — use type guards or named helpers instead.
 - **Madge** circular-dep check (`pnpm -C packages/muya check-circular`) runs in CI — adding a circular import will fail the build.
 - Test files (`*.test.ts`, `*.spec.ts`) and `vite.config.ts` are excluded from the strict TS lint rules above.
 
