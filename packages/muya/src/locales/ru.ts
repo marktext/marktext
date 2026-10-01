@@ -9,8 +9,8 @@ export const ru = {
         'Align Left': 'По левому краю',
         'Align Center': 'По центру',
         'Align Right': 'По правому краю',
-        'Insert Column left': 'Вставить столбец слева',
-        'Insert Column right': 'Вставить столбец справа',
+        'Insert Column Left': 'Вставить столбец слева',
+        'Insert Column Right': 'Вставить столбец справа',
         'Remove Column': 'Удалить столбец',
         // quickInsert
         'Paragraph': 'Абзац',

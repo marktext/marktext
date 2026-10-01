@@ -9,8 +9,8 @@ export const pt = {
         'Align Left': 'Alinhar à esquerda',
         'Align Center': 'Centralizar',
         'Align Right': 'Alinhar à direita',
-        'Insert Column left': 'Inserir coluna à esquerda',
-        'Insert Column right': 'Inserir coluna à direita',
+        'Insert Column Left': 'Inserir coluna à esquerda',
+        'Insert Column Right': 'Inserir coluna à direita',
         'Remove Column': 'Remover coluna',
         // quickInsert
         'Paragraph': 'Parágrafo',
