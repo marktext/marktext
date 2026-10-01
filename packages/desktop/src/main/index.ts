@@ -54,7 +54,7 @@ initializeLogger(appEnvironment)
 // Handles native level crashes
 crashReporter.start({
   companyName: '',
-  productName: 'marktext',
+  productName: 'MarkText',
   uploadToServer: false, // collect locally
   compress: true
 })
