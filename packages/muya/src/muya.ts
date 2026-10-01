@@ -876,7 +876,7 @@ export class Muya {
         this._wrapSelectedBlocks(
             blocks => ({
                 name: 'code-block',
-                meta: { type: 'fenced', lang: '' },
+                meta: { type: 'fenced', lang: '', fenceChar: '`' },
                 text: this.editor.jsonState
                     .getMarkdownFromState(blocks.map(b => b.getState()))
                     .replace(/\n+$/, ''),

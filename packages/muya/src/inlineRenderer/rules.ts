@@ -2,7 +2,12 @@ import { escapeCharacters } from '../config/escapeCharacter';
 
 export const beginRules = {
     hr: /^(\*{3,}|-{3,}|_{3,})$/,
-    code_fence: /^(`{3,})([^`]*)$/,
+    // Backtick fences may not carry a backtick in their info string, while
+    // tilde fences may carry either fence character (CommonMark §4.5) — hence
+    // the asymmetric info-string classes. `consumeBeginRules` reads the marker
+    // and content from whichever alternative matched.
+    // eslint-disable-next-line regexp/no-super-linear-backtracking
+    code_fence: /^(`{3,})([^`]*)$|^(~{3,})(.*)$/,
     header: /(^ {0,3}#{1,6}(\s+|$))/,
     reference_definition:
     // eslint-disable-next-line regexp/no-super-linear-backtracking, regexp/no-misleading-capturing-group

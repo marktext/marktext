@@ -66,6 +66,16 @@ function pushPending(state: ILexState) {
     state.pending = '';
 }
 
+// The `code_fence` rule alternates between a backtick and a tilde fence, so its
+// marker and info string land in the second alternative's capture slots; every
+// other begin rule keeps its original single-alternative shape.
+function beginRuleParts(ruleName: string, to: RegExpExecArray) {
+    if (ruleName !== 'code_fence')
+        return { marker: to[1], content: to[2] || '', backlash: to[3] || '' };
+
+    return { marker: to[1] || to[3], content: to[2] || to[4] || '', backlash: '' };
+}
+
 function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
     const beginRuleKeys = [
         'header',
@@ -81,13 +91,14 @@ function consumeBeginRules(state: ILexState, beginRules: BeginRules) {
         const to = beginRules[ruleName].exec(state.src);
 
         if (to) {
+            const { marker, content, backlash } = beginRuleParts(ruleName, to);
             const token = {
                 type: ruleName,
                 raw: to[0],
                 parent: state.tokens,
-                marker: to[1],
-                content: to[2] || '',
-                backlash: to[3] || '',
+                marker,
+                content,
+                backlash,
                 range: {
                     start: state.pos,
                     end: state.pos + to[0].length,
