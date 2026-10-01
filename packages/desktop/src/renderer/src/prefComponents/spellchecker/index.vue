@@ -266,8 +266,8 @@ const handleDeleteClick = (selectedItem: CustomDictionaryWord): void => {
   color: var(--editorColor);
   height: 30px;
 }
-.pref-spellchecker li.el-select-dropdown__item.hover,
-li.el-select-dropdown__item:hover {
+.pref-spellchecker li.el-select-dropdown__item.is-hovering,
+.pref-spellchecker li.el-select-dropdown__item:hover {
   background: var(--floatHoverColor);
 }
 .pref-spellchecker div.el-select-dropdown {
