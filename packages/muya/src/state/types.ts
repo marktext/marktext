@@ -34,6 +34,10 @@ export interface ICodeBlockState {
         // first word — derive via `firstWordOfInfo()`, never assume a single word.
         lang: string;
         fenceLength?: number;
+        // Fence character for fenced blocks. Always written for `fenced`
+        // blocks; omitted only for `indented` ones, which have no fence.
+        // Older persisted state may still lack it — readers treat that as '`'.
+        fenceChar?: '`' | '~';
     };
     text: string;
 }

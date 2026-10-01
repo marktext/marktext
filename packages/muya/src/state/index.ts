@@ -209,6 +209,16 @@ class JSONState {
         this._emitStateChange();
     }
 
+    // Adds a key that is not present yet. `editOperation` cannot be used for
+    // that: a text-unicode op against an absent member fails in ot-json1.
+    insertValueOperation(path: Path, value: Doc) {
+        const operation = json1.insertOp(path, value)!;
+
+        this._operationCache.push(operation);
+
+        this._emitStateChange();
+    }
+
     dispatch(op: JSONOp, source = 'user' /* user, api */) {
         const prevDoc = this.getState();
         this._apply(op);

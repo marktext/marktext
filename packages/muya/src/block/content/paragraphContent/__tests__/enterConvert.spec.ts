@@ -342,3 +342,45 @@ describe('enter on `|a\\|b|c|` (odd escaped pipe) — NOT converted', () => {
         expect((state[0] as { text: string }).text).toBe('|a\\|b|c|');
     });
 });
+
+describe('enter on a tilde fence — converts to a fenced code-block', () => {
+    it('replaces the paragraph with a code-block and records fenceChar === "~"', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '~~~js');
+
+        await flush();
+        const state = muya.getState();
+        expect(state.length).toBe(1);
+        expect(state[0].name).toBe('code-block');
+        const meta = (state[0] as { meta: { lang: string; type: string; fenceChar?: string } }).meta;
+        expect(meta.lang).toBe('js');
+        expect(meta.type).toBe('fenced');
+        expect(meta.fenceChar).toBe('~');
+    });
+
+    it('converts a bare `~~~` fence and records fenceChar === "~"', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '~~~');
+
+        await flush();
+        const state = muya.getState();
+        expect(state[0].name).toBe('code-block');
+        const meta = (state[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('~');
+    });
+
+    it('records fenceChar === "`" on the backtick path', async () => {
+        const muya = bootMuya('seed\n');
+        const content = contentByText(muya, 'seed');
+
+        enterWithText(muya, content, '```js');
+
+        await flush();
+        const meta = (muya.getState()[0] as { meta: { fenceChar?: string } }).meta;
+        expect(meta.fenceChar).toBe('`');
+    });
+});

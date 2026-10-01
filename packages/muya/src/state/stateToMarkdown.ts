@@ -388,7 +388,14 @@ export default class ExportMarkdown {
         const { type, lang } = meta;
 
         if (type === 'fenced') {
-            const fence = '`'.repeat(this._codeFenceLength(text, meta.fenceLength));
+            // A backtick fence's info string may not contain a backtick
+            // (CommonMark §4.5), so fall back to a tilde fence rather than emit
+            // markdown that would not read back as a code block.
+            const fenceChar: '`' | '~'
+                = meta.fenceChar === '~' || lang.includes('`') ? '~' : '`';
+            const fence = fenceChar.repeat(
+                this._codeFenceLength(text, meta.fenceLength, fenceChar),
+            );
             result.push(`${indent}${lang ? `${fence}${lang}\n` : `${fence}\n`}`);
             textList.forEach((text) => {
                 result.push(`${indent}${text}\n`);
@@ -404,14 +411,16 @@ export default class ExportMarkdown {
         return result.join('');
     }
 
-    // The opening fence must be longer than any all-backtick line in the body
-    // (else that line closes the block early), at least as long as the original
-    // fence, and never shorter than the markdown minimum of 3.
-    private _codeFenceLength(text: string, stored?: number): number {
+    // The opening fence must be longer than any interior line made only of the
+    // same fence character (else that line closes the block early), at least as
+    // long as the original fence, and never shorter than the markdown minimum
+    // of 3.
+    private _codeFenceLength(text: string, stored: number | undefined, fenceChar: '`' | '~'): number {
+        const fenceRun = fenceChar === '`' ? /^`+$/ : /^~+$/;
         let longestInterior = 0;
         for (const line of text.split('\n')) {
             const trimmed = line.trim();
-            if (/^`+$/.test(trimmed))
+            if (fenceRun.test(trimmed))
                 longestInterior = Math.max(longestInterior, trimmed.length);
         }
 

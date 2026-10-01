@@ -403,7 +403,7 @@ span.mu-language-input {
 }
 
 .mu-code-block.mu-fenced-code.mu-active .mu-language-input {
-    left: 20px;
+    left: 30px;
 }
 
 /* loose tight list */
@@ -904,6 +904,12 @@ pre.mu-active.mu-fenced-code::after,
 pre.mu-active[data-role='mermaid']::after,
 pre.mu-active[data-role='vega-lite']::after {
     content: '```';
+}
+
+/* A tilde-fenced code block draws its own fence character in the marker. */
+pre.mu-active.mu-fenced-code.mu-tilde-fence::before,
+pre.mu-active.mu-fenced-code.mu-tilde-fence::after {
+    content: '~~~';
 }
 
 pre.mu-active.mu-frontmatter::before,
