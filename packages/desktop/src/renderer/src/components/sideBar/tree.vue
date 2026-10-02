@@ -164,6 +164,7 @@ import bus from '../../bus'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import { PATH_SEPARATOR } from '@/config'
 import { isEditableTarget, isMuyaEditorTarget, shouldTrashSelection } from './trashKey'
 import type { TreeNode, TabDescriptor } from './types'
 
@@ -263,8 +264,7 @@ const isMac = window.electron.process.platform === 'darwin'
 const handleDocumentClick = (event: MouseEvent): void => {
   const target = event.target as HTMLElement | null
   if (!target || target.tagName === 'INPUT') return
-  projectStore.createCache = {}
-  projectStore.renameCache = null
+  projectStore.CLEAR_NAME_INPUT_STATE()
   // Clicks inside the project tree keep the selection; anything else (editor,
   // sidebar chrome, opened-files list) clears it.
   if (!target.closest('.project-tree')) {
@@ -275,14 +275,8 @@ const handleDocumentClick = (event: MouseEvent): void => {
 const handleDocumentContextMenu = (event: MouseEvent): void => {
   const target = event.target as HTMLElement | null
   if (target && target.tagName !== 'INPUT') {
-    projectStore.createCache = {}
-    projectStore.renameCache = null
+    projectStore.CLEAR_NAME_INPUT_STATE()
   }
-}
-
-const clearRenameState = (): void => {
-  projectStore.createCache = {}
-  projectStore.renameCache = null
 }
 
 const handleDocumentKeydown = (event: KeyboardEvent): void => {
@@ -290,7 +284,7 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
   const editableTarget = isEditableTarget(target)
 
   if (event.key === 'Escape') {
-    clearRenameState()
+    projectStore.CLEAR_NAME_INPUT_STATE()
   }
 
   const shouldTrash = shouldTrashSelection({
@@ -299,6 +293,7 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     isMac,
     selection: activeItem.value,
     projectRootPath: props.projectTree?.pathname,
+    pathSeparator: PATH_SEPARATOR,
     isEditingName: !!renameCache.value || !!createCacheDirname.value,
     editableTarget,
     allowEditableTarget: isMuyaEditorTarget(target)

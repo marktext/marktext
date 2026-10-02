@@ -105,6 +105,10 @@ export const useProjectStore = defineStore('project', () => {
     if (!tree) return
 
     projectTree.value = tree
+    // A new project root invalidates both the sidebar selection and any
+    // in-progress rename/create target, which belonged to the old tree.
+    activeItem.value = {}
+    CLEAR_NAME_INPUT_STATE()
 
     const layout = {
       rightColumn: 'files',
@@ -139,6 +143,8 @@ export const useProjectStore = defineStore('project', () => {
     } else {
       projectTree.value = null
       pendingTreeEvents.value = []
+      activeItem.value = {}
+      CLEAR_NAME_INPUT_STATE()
     }
   }
 
@@ -202,6 +208,13 @@ export const useProjectStore = defineStore('project', () => {
 
   function CHANGE_CLIPBOARD(data: ClipboardEntry | null): void {
     clipboard.value = data
+  }
+
+  // Rename and create share the same "an input is open" UI state; callers clear
+  // both together so one cannot outlive the other.
+  function CLEAR_NAME_INPUT_STATE(): void {
+    createCache.value = {}
+    renameCache.value = null
   }
 
   function ASK_FOR_OPEN_PROJECT(): void {
@@ -367,6 +380,7 @@ export const useProjectStore = defineStore('project', () => {
     LISTEN_FOR_UPDATE_PROJECT,
     CHANGE_ACTIVE_ITEM,
     CHANGE_CLIPBOARD,
+    CLEAR_NAME_INPUT_STATE,
     ASK_FOR_OPEN_PROJECT,
     LISTEN_FOR_SIDEBAR_CONTEXT_MENU,
     CREATE_FILE_DIRECTORY,

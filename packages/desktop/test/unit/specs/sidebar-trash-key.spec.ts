@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isEditableTarget,
   isMuyaEditorTarget,
+  isPathWithinRoot,
   isTrashShortcut,
   shouldTrashSelection
 } from '@/components/sideBar/trashKey'
@@ -15,6 +16,7 @@ const base = {
   isMac: false,
   selection: file,
   projectRootPath: '/docs',
+  pathSeparator: '/',
   isEditingName: false,
   editableTarget: false,
   allowEditableTarget: false
@@ -61,6 +63,25 @@ describe('sidebar trash keyboard rules', () => {
     expect(shouldTrashSelection({ ...base, selection: { pathname: '/docs', isDirectory: true } })).toBe(
       false
     )
+  })
+
+  it('classifies paths against the project root', () => {
+    expect(isPathWithinRoot('/docs/a.md', '/docs', '/')).toBe(true)
+    expect(isPathWithinRoot('/docs/sub/a.md', '/docs', '/')).toBe(true)
+    expect(isPathWithinRoot('/docs', '/docs', '/')).toBe(true)
+    expect(isPathWithinRoot('/docs2/a.md', '/docs', '/')).toBe(false)
+    expect(isPathWithinRoot('/other/a.md', '/docs', '/')).toBe(false)
+    expect(isPathWithinRoot('/docs/a.md', undefined, '/')).toBe(false)
+  })
+
+  it('ignores a stale selection left over from another project', () => {
+    expect(
+      shouldTrashSelection({
+        ...base,
+        projectRootPath: '/project-b',
+        selection: { pathname: '/project-a/notes.md', isFile: true }
+      })
+    ).toBe(false)
   })
 
   it('ignores empty selections and unknown node shapes', () => {

@@ -19,6 +19,7 @@ export interface TrashKeyContext {
   isMac: boolean
   selection: TrashSelection | null | undefined
   projectRootPath?: string
+  pathSeparator: string
   isEditingName: boolean
   // Whether the keystroke landed on an editable surface, and whether that
   // surface is the WYSIWYG editor specifically.
@@ -46,6 +47,17 @@ export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): 
   return isMac && metaKey && key === 'Backspace'
 }
 
+export const isPathWithinRoot = (
+  pathname: string,
+  rootPath: string | undefined,
+  separator: string
+): boolean => {
+  if (!rootPath) return false
+  if (pathname === rootPath) return true
+  const prefix = rootPath.endsWith(separator) ? rootPath : rootPath + separator
+  return pathname.startsWith(prefix)
+}
+
 export const shouldTrashSelection = (context: TrashKeyContext): boolean => {
   const {
     key,
@@ -53,6 +65,7 @@ export const shouldTrashSelection = (context: TrashKeyContext): boolean => {
     isMac,
     selection,
     projectRootPath,
+    pathSeparator,
     isEditingName,
     editableTarget,
     allowEditableTarget
@@ -61,6 +74,9 @@ export const shouldTrashSelection = (context: TrashKeyContext): boolean => {
   if (editableTarget && !allowEditableTarget) return false
   if (isEditingName) return false
   if (!selection || typeof selection.pathname !== 'string' || selection.pathname === '') return false
+  // A selection that is not inside the current project is stale — e.g. the tree
+  // was swapped for another folder without a click to clear the selection.
+  if (!isPathWithinRoot(selection.pathname, projectRootPath, pathSeparator)) return false
   // The project root is a tree node too; a keystroke must not trash the whole
   // folder. Deleting it stays an explicit context-menu action.
   if (selection.pathname === projectRootPath) return false
