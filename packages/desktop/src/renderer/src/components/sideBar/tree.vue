@@ -304,12 +304,9 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     // the listener runs in the capture phase; stop the event here so the
     // editor does not also act on it.
     event.stopPropagation()
-    // Commit to the selection: a cancelled dialog must not re-arm on the next
-    // Delete, and clicking elsewhere is required to pick a new target. Emit
-    // first — the store reads `activeItem` synchronously, so clearing it here
-    // would leave the handler without a pathname.
+    // The store drops the selection once the item is actually in the trash, so
+    // a cancelled dialog stays retryable with the same key.
     bus.emit('SIDEBAR::remove')
-    projectStore.CHANGE_ACTIVE_ITEM({})
     return
   }
 

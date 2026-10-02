@@ -89,15 +89,19 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await page.keyboard.press('Delete')
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)
+    // Cancelling must not drop the selection, otherwise the second attempt
+    // silently does nothing.
+    await expect(file).toHaveClass(/active/)
 
-    // Same selection, but now the dialog confirms.
+    // Same selection, no re-click, but now the dialog confirms.
     await app.evaluate(() => {
       ;(global as unknown as TrashGlobals).__mt_trash_response__ = 0
     })
-    await file.click()
     await page.keyboard.press('Delete')
 
+    await expect.poll(() => trashDialogs(app)).toHaveLength(2)
     await expect.poll(() => trashCount(app)).toBe(1)
+    await expect(file).not.toHaveClass(/active/)
     const dialogs = await trashDialogs(app)
     expect(String(dialogs[dialogs.length - 1]?.message)).toContain(String(pathname).split('/').pop())
   })
