@@ -105,8 +105,7 @@ export const useProjectStore = defineStore('project', () => {
     if (!tree) return
 
     projectTree.value = tree
-    // A new project root invalidates both the sidebar selection and any
-    // in-progress rename/create target, which belonged to the old tree.
+    // The old tree's selection and in-progress name inputs do not survive a new root.
     activeItem.value = {}
     CLEAR_NAME_INPUT_STATE()
 
@@ -210,8 +209,7 @@ export const useProjectStore = defineStore('project', () => {
     clipboard.value = data
   }
 
-  // Rename and create share the same "an input is open" UI state; callers clear
-  // both together so one cannot outlive the other.
+  // Rename and create share one "input is open" state, so they clear together.
   function CLEAR_NAME_INPUT_STATE(): void {
     createCache.value = {}
     renameCache.value = null
@@ -237,8 +235,7 @@ export const useProjectStore = defineStore('project', () => {
       if (typeof pathname !== 'string' || !pathname) return
       try {
         const trashed = await window.electron.ipcRenderer.invoke('mt::fs-trash-item', pathname)
-        // The deleted node disappears from the tree; drop the stale selection
-        // so a second Delete cannot target a path that no longer exists.
+        // The node is gone; drop the selection so Delete cannot retarget it.
         if (trashed && activeItem.value?.pathname === pathname) {
           activeItem.value = {}
         }

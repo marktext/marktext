@@ -262,12 +262,10 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
-// The key labelled "delete" on Mac laptops reports as Backspace, so the trash
-// shortcut is `Delete` everywhere plus `Cmd+Backspace` on macOS only.
+// macOS reports the key labelled "delete" as Backspace, so accept Cmd+Backspace.
 const isMac = window.electron.process.platform === 'darwin'
 
-// Hide rename / create inputs on outside clicks. Buttons that open these
-// inputs must use @click.stop so their click never reaches this listener.
+// Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
 const handleDocumentClick = (event: MouseEvent): void => {
   const target = event.target as HTMLElement | null
   if (!target) return
@@ -304,21 +302,17 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
   })
   if (shouldTrash) {
     event.preventDefault()
-    // The WYSIWYG engine stops keydown propagation when it handles Delete, so
-    // the listener runs in the capture phase; stop the event here so the
-    // editor does not also act on it.
+    // Stop the event so the WYSIWYG engine does not also act on this Delete.
     event.stopPropagation()
-    // Commit to the selection: a cancelled dialog must not re-arm on the next
-    // Delete, and clicking elsewhere is required to pick a new target. Emit
-    // first — the store reads `activeItem` synchronously, so clearing it here
-    // would leave the handler without a pathname.
+    // Emit before clearing: the store reads `activeItem` synchronously. Clearing
+    // on attempt keeps a cancelled dialog from re-arming on the next Delete.
     bus.emit('SIDEBAR::remove')
     projectStore.CHANGE_ACTIVE_ITEM({})
     return
   }
 
-  // Any other interaction with the editor/search/rename input ends the sidebar
-  // selection, so a later Delete edits text instead of trashing a stale node.
+  // Any other interaction with the editor/search/rename input ends the selection,
+  // so a later Delete edits text instead of trashing a stale node.
   const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
   if (!isModifierKey(event.key) && editableTarget && hasSelection) {
     projectStore.CHANGE_ACTIVE_ITEM({})

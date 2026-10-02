@@ -1,11 +1,6 @@
-// Keyboard rules for trashing the sidebar selection.
-//
-// The editor is a `contenteditable` in the same document as the sidebar, so a
-// plain global Delete listener would fight the editor for keystrokes. These
-// helpers keep the shortcut explorer-shaped: `Delete` everywhere, plus
-// `Cmd+Backspace` on macOS (where the key labelled "delete" reports as
-// Backspace, while forward-delete reports as Delete). A bare Backspace never
-// trashes anything.
+// Keyboard rules for trashing the sidebar selection. `Delete` fires on every
+// platform; macOS also accepts `Cmd+Backspace`, where the key labelled "delete"
+// reports as Backspace. A bare Backspace never trashes.
 
 export interface TrashSelection {
   pathname?: unknown
@@ -21,8 +16,7 @@ export interface TrashKeyContext {
   projectRootPath?: string
   pathSeparator: string
   isEditingName: boolean
-  // Whether the keystroke landed on an editable surface, and whether that
-  // surface is the WYSIWYG editor specifically.
+  // Editable surfaces defer the shortcut to the editor, except the WYSIWYG one.
   editableTarget: boolean
   allowEditableTarget: boolean
 }
@@ -33,24 +27,20 @@ export const isEditableTarget = (target: EventTarget | null): boolean => {
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable === true
 }
 
-// The WYSIWYG engine's contenteditable root (`CLASS_NAMES.MU_EDITOR`). Opening a
-// file from the sidebar autofocuses it, so the trash shortcut must still fire
-// there; other editable surfaces (search, rename, command palette) keep Delete.
+// Opening a file autofocuses the WYSIWYG contenteditable, so the shortcut must
+// still fire there; search, rename and the command palette keep their Delete.
 export const isMuyaEditorTarget = (target: EventTarget | null): boolean => {
   const el = target as { closest?: (selector: string) => unknown } | null
   if (!el || typeof el.closest !== 'function') return false
   return !!el.closest('.mu-editor')
 }
 
-// A chord arrives as one keydown per key, so holding Cmd before Backspace fires
-// a `Meta` keydown first. That press is part of the shortcut, not typing.
+// Cmd fires a `Meta` keydown before Backspace; it is part of the chord, not typing.
 const MODIFIER_KEYS = new Set(['Meta', 'Shift', 'Control', 'Alt', 'CapsLock'])
 
 export const isModifierKey = (key: string): boolean => MODIFIER_KEYS.has(key)
 
-// A tree row owns the selection; the pending new-file input belongs to the row
-// that spawned it. Everywhere else — editor, sidebar chrome, other inputs —
-// ends the selection.
+// Tree rows own the selection; the new-file input belongs to the row that spawned it.
 const SELECTION_OWNERS = '.side-bar-file, .side-bar-folder, .new-input'
 
 export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
@@ -59,8 +49,7 @@ export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
   return !!el.closest(SELECTION_OWNERS)
 }
 
-// The inline rename / new-file boxes. Clicks inside them must leave their
-// target alone, or the input unmounts itself mid-edit.
+// Clicks inside these must not drop their own target, or the input unmounts mid-edit.
 const NAME_INPUTS = 'input.rename, input.new-input'
 
 export const isNameInput = (target: EventTarget | null): boolean => {
@@ -101,11 +90,10 @@ export const shouldTrashSelection = (context: TrashKeyContext): boolean => {
   if (editableTarget && !allowEditableTarget) return false
   if (isEditingName) return false
   if (!selection || typeof selection.pathname !== 'string' || selection.pathname === '') return false
-  // A selection that is not inside the current project is stale — e.g. the tree
-  // was swapped for another folder without a click to clear the selection.
+  // A selection outside the current project is stale: the tree was swapped
+  // without a click to clear it.
   if (!isPathWithinRoot(selection.pathname, projectRootPath, pathSeparator)) return false
-  // The project root is a tree node too; a keystroke must not trash the whole
-  // folder. Deleting it stays an explicit context-menu action.
+  // The root is a tree node too; trashing the whole project stays a context-menu action.
   if (selection.pathname === projectRootPath) return false
   return selection.isFile === true || selection.isDirectory === true
 }

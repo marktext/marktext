@@ -5,10 +5,9 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import { launchElectron } from './helpers'
 
-// #3148 — a file selected in the sidebar should move to the trash on Delete,
-// after a native confirmation. The native dialog is stubbed in the main
-// process: a real `showMessageBox` would block the headless run, and a real
-// `shell.trashItem` would delete repository files.
+// #3148 — Delete on the sidebar selection moves it to the trash after a native
+// confirmation. Both native calls are stubbed: a real dialog would block the run
+// and a real `shell.trashItem` would delete repository files.
 
 type TrashGlobals = {
   __mt_trash_dialogs__?: Array<Record<string, unknown>>
@@ -86,8 +85,8 @@ test.describe('Sidebar Delete key (#3148)', () => {
       true
     )
 
-    // macOS fires a `Meta` keydown the moment Cmd goes down — before the
-    // chord's second key. It must not end the selection.
+    // macOS fires a `Meta` keydown before the chord's second key; it must not
+    // end the selection.
     await page.keyboard.press('Meta')
     await expect(file).toHaveClass(/active/)
 
@@ -95,8 +94,8 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)
 
-    // The selection only survives clicks that land on a row: tree chrome such
-    // as the project title ends it instead of leaving a stale target behind.
+    // Only clicks on a row keep the selection; tree chrome ends it instead of
+    // leaving a stale target behind.
     await file.click()
     await expect(file).toHaveClass(/active/)
     await page.locator('.project-tree > .title').dispatchEvent('click')

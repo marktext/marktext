@@ -3,15 +3,12 @@ import { dialog, shell } from 'electron'
 import type { BrowserWindow } from 'electron'
 import { t } from '../i18n'
 
-// A destructive action should not be the dialog's default button, so the
-// cancel index doubles as `defaultId` and `cancelId` (Esc cancels).
+// A destructive action must not be the default button, so cancel doubles as
+// `defaultId` and `cancelId` (Esc cancels).
 const CONFIRM_BUTTON_ID = 0
 const CANCEL_BUTTON_ID = 1
 
-/**
- * Asks the user before moving `fullPath` to the OS trash. Returns `true` only
- * when the item was actually trashed.
- */
+/** Asks first; returns true only when the item was actually trashed. */
 export const confirmAndTrashItem = async(
   win: BrowserWindow | null,
   fullPath: string
