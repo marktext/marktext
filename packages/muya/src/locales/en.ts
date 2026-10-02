@@ -42,6 +42,8 @@ export const en = {
         'Search keyword...': 'Search keyword...',
         'Type / to insert...': 'Type / to insert...',
         'Copy anchor link to this heading': 'Copy anchor link to this heading',
+        'Fold this section': 'Fold this section',
+        'Unfold this section': 'Unfold this section',
         'Click to add an image': 'Click to add an image',
         'Load image failed': 'Load image failed',
         // formatPicker
