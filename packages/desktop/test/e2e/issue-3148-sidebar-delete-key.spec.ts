@@ -95,6 +95,13 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)
 
+    // The selection only survives clicks that land on a row: tree chrome such
+    // as the project title ends it instead of leaving a stale target behind.
+    await file.click()
+    await expect(file).toHaveClass(/active/)
+    await page.locator('.project-tree > .title').dispatchEvent('click')
+    await expect(file).not.toHaveClass(/active/)
+
     // Same selection, but now the dialog confirms.
     await app.evaluate(() => {
       ;(global as unknown as TrashGlobals).__mt_trash_response__ = 0

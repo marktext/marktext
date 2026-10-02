@@ -165,7 +165,13 @@ import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
-import { isEditableTarget, isModifierKey, isMuyaEditorTarget, shouldTrashSelection } from './trashKey'
+import {
+  isEditableTarget,
+  isModifierKey,
+  isMuyaEditorTarget,
+  keepsSidebarSelection,
+  shouldTrashSelection
+} from './trashKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -263,13 +269,14 @@ const isMac = window.electron.process.platform === 'darwin'
 // inputs must use @click.stop so their click never reaches this listener.
 const handleDocumentClick = (event: MouseEvent): void => {
   const target = event.target as HTMLElement | null
-  if (!target || target.tagName === 'INPUT') return
-  projectStore.CLEAR_NAME_INPUT_STATE()
-  // Clicks inside the project tree keep the selection; anything else (editor,
-  // sidebar chrome, opened-files list) clears it.
-  if (!target.closest('.project-tree')) {
+  if (!target) return
+  if (!keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
+  // Clicks inside an input must not drop the rename / create target, or the
+  // input would unmount itself.
+  if (target.tagName === 'INPUT') return
+  projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleDocumentContextMenu = (event: MouseEvent): void => {

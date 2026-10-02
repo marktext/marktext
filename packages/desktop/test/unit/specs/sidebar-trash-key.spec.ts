@@ -4,6 +4,7 @@ import {
   isModifierKey,
   isMuyaEditorTarget,
   isPathWithinRoot,
+  keepsSidebarSelection,
   isTrashShortcut,
   shouldTrashSelection
 } from '@/components/sideBar/trashKey'
@@ -62,6 +63,18 @@ describe('sidebar trash keyboard rules', () => {
     expect(isMuyaEditorTarget(null)).toBe(false)
     expect(isMuyaEditorTarget(inside as unknown as EventTarget)).toBe(true)
     expect(isMuyaEditorTarget(outside as unknown as EventTarget)).toBe(false)
+  })
+
+  it('keeps the selection only for tree rows and the pending new-file input', () => {
+    const owner = (token: string) =>
+      ({
+        closest: (selector: string) => (selector.includes(token) ? {} : null)
+      }) as unknown as EventTarget
+    expect(keepsSidebarSelection(owner('.side-bar-file'))).toBe(true)
+    expect(keepsSidebarSelection(owner('.side-bar-folder'))).toBe(true)
+    expect(keepsSidebarSelection(owner('.new-input'))).toBe(true)
+    expect(keepsSidebarSelection({ closest: () => null } as unknown as EventTarget)).toBe(false)
+    expect(keepsSidebarSelection(null)).toBe(false)
   })
 
   it('trashes a selected file or folder', () => {

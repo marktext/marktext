@@ -48,6 +48,17 @@ const MODIFIER_KEYS = new Set(['Meta', 'Shift', 'Control', 'Alt', 'CapsLock'])
 
 export const isModifierKey = (key: string): boolean => MODIFIER_KEYS.has(key)
 
+// A tree row owns the selection; the pending new-file input belongs to the row
+// that spawned it. Everywhere else — editor, sidebar chrome, other inputs —
+// ends the selection.
+const SELECTION_OWNERS = '.side-bar-file, .side-bar-folder, .new-input'
+
+export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
+  const el = target as { closest?: (selector: string) => unknown } | null
+  if (!el || typeof el.closest !== 'function') return false
+  return !!el.closest(SELECTION_OWNERS)
+}
+
 export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): boolean => {
   if (key === 'Delete') return true
   return isMac && metaKey && key === 'Backspace'
