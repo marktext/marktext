@@ -51,6 +51,11 @@ export type SessionLine =
     stopReason: TurnStopReason
     changedPaths: string[]
     missingReplyThreadIds: string[]
+    /** Present when the line is the persisted `TurnRecord`. */
+    file?: string | null
+    threadIds?: string[]
+    startedAt?: string
+    finishedAt?: string
   }
 
 interface RepoEntry {

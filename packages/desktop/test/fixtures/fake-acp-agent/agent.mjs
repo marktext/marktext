@@ -6,7 +6,7 @@
  */
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { appendFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const mode = process.env.FAKE_ACP_MODE || 'happy'
@@ -187,6 +187,15 @@ const askPermission = (sessionId) => new Promise((resolve) => {
   })
 })
 
+const writeRequested = () => {
+  const rel = process.env.FAKE_ACP_WRITE
+  if (!rel) return null
+  const target = path.resolve(root, rel)
+  mkdirSync(path.dirname(target), { recursive: true })
+  writeFileSync(target, process.env.FAKE_ACP_WRITE_BODY ?? 'edited\n')
+  return target
+}
+
 const happyUpdates = (sessionId) => {
   update(sessionId, {
     sessionUpdate: 'agent_message_chunk',
@@ -282,11 +291,36 @@ const handle = async (message) => {
     }
     if (mode === 'cancel') {
       promptId = id
+      writeRequested()
       update(sessionId, {
         sessionUpdate: 'agent_message_chunk',
         messageId: 'agent-1',
         content: { type: 'text', text: 'working' }
       })
+      return
+    }
+    if (mode === 'turn') {
+      const delay = Number(process.env.FAKE_ACP_DELAY_MS || 0)
+      if (delay > 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, delay))
+      const written = writeRequested()
+      if (written) {
+        update(sessionId, {
+          sessionUpdate: 'tool_call',
+          toolCallId: 'tool-1',
+          title: 'Edit',
+          status: 'completed',
+          kind: 'edit',
+          locations: [{ path: written }]
+        })
+      }
+      const block = process.env.FAKE_ACP_BLOCK
+      const text = block ? `\`\`\`marktext-replies\n${block}\n\`\`\`` : 'done'
+      update(sessionId, {
+        sessionUpdate: 'agent_message_chunk',
+        messageId: 'agent-1',
+        content: { type: 'text', text }
+      })
+      reply(id, { stopReason: 'end_turn' })
       return
     }
     if (mode === 'mcp-reply') {

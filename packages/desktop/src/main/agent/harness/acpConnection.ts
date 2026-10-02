@@ -69,6 +69,12 @@ export class AcpAuthRequiredError extends Error {
   }
 }
 
+export interface TurnEndNotice {
+  turnId: string
+  stopReason: TurnStopReason
+  message?: string
+}
+
 export interface AcpConnectionOptions {
   command: string
   args: readonly string[]
@@ -76,6 +82,11 @@ export interface AcpConnectionOptions {
   harness: HarnessId
   quirks: HarnessQuirks
   onEvent: (event: ChatEvent) => void
+  /**
+   * When set, the caller owns `turn_started`, the prompt text, and
+   * `turn_finished`. The connection only reports that the ACP turn ended.
+   */
+  onTurnEnd?: (notice: TurnEndNotice) => void
   log?: (line: string) => void
   /** How long SIGTERM is given before SIGKILL. Windows uses `taskkill /T /F` at once. */
   killGraceMs?: number
@@ -242,18 +253,20 @@ export class AcpConnection {
     })
   }
 
-  async prompt(sessionId: string, text: string): Promise<{ stopReason: TurnStopReason }> {
+  async prompt(sessionId: string, text: string, turnId?: string): Promise<{ stopReason: TurnStopReason }> {
     await this.ensureOpen()
     if (this.turn) throw new Error('a turn is already running')
-    const turnId = randomUUID()
-    this.turn = { id: turnId, changed: [] }
-    this.options.onEvent({ type: 'turn_started', turnId })
-    this.options.onEvent({
-      type: 'message_chunk',
-      role: 'user',
-      messageId: turnId,
-      text
-    })
+    const id = turnId ?? randomUUID()
+    this.turn = { id, changed: [] }
+    if (!this.options.onTurnEnd) {
+      this.options.onEvent({ type: 'turn_started', turnId: id })
+      this.options.onEvent({
+        type: 'message_chunk',
+        role: 'user',
+        messageId: id,
+        text
+      })
+    }
     try {
       const result = await this.requireAgent().request(methods.agent.session.prompt, {
         sessionId,
@@ -523,6 +536,10 @@ export class AcpConnection {
     const turn = this.turn
     if (!turn) return
     this.turn = null
+    if (this.options.onTurnEnd) {
+      this.options.onTurnEnd({ turnId: turn.id, stopReason, message })
+      return
+    }
     if (stopReason === 'error' && message) {
       this.options.onEvent({ type: 'error', message })
     }

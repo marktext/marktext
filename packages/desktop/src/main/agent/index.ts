@@ -19,9 +19,26 @@ import { listModels } from './harness/modelProbe'
 import { answerPermission } from './harness/permissionGate'
 import { getUserName } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
+import { recordEditorSave } from './turn/changeTracker'
+import { TurnRunner } from './turn/turnRunner'
+import type { ThreadPlacement } from './turn/messageBuilder'
+import { setWindowAgentHost } from './windowAgentHost'
 import { onInternalChannel } from '../utils/internalIpc'
 
 let harnessStatuses: HarnessStatus[] = []
+let editorSavesHooked = false
+
+/** First save, overwrite, and save-as all write a file the user asked for. */
+const hookEditorSaves = (): void => {
+  if (editorSavesHooked) return
+  editorSavesHooked = true
+  const note = (windowId: number, pathname: string): void => {
+    recordEditorSave(windowId, pathname)
+  }
+  onInternalChannel('window-file-saved', note)
+  onInternalChannel('window-add-file-path', note)
+  onInternalChannel('window-change-file-path', note)
+}
 
 /** Statuses last published to windows. Empty until the first probe finishes. */
 export const currentHarnessStatuses = (): HarnessStatus[] => harnessStatuses
@@ -43,6 +60,35 @@ const publishHarnessStatus = (statuses: HarnessStatus[]): void => {
 export interface AgentIpcDeps {
   harnessPath: (key: string) => unknown
   userDataPath?: string
+  appPath?: string
+}
+
+const turnRunners = new Map<number, TurnRunner>()
+
+const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
+  const existing = turnRunners.get(windowId)
+  if (existing) return existing
+  const runner = new TurnRunner({
+    modeEnabled: () => deps?.harnessPath('agentModeEnabled') !== false,
+    preference: (key) => deps?.harnessPath(key),
+    userDataPath: deps?.userDataPath || os.tmpdir(),
+    appPath: deps?.appPath || process.cwd(),
+    now: () => new Date().toISOString(),
+    newId: () => randomUUID(),
+    onEvent: (targetId, event) => {
+      const win = BrowserWindow.fromId(targetId)
+      if (!win || win.isDestroyed()) return
+      win.webContents.send('mt::agent::event', event)
+    }
+  })
+  turnRunners.set(windowId, runner)
+  setWindowAgentHost(windowId, {
+    hasActiveTurn: () => runner.hasActiveTurn(),
+    cancelTurn: () => runner.cancelTurn(),
+    disposeHarness: () => runner.disposeHarness(),
+    disposePty: () => Promise.resolve()
+  })
+  return runner
 }
 
 const repoOf = (windowId: number): string | null => {
@@ -51,6 +97,7 @@ const repoOf = (windowId: number): string | null => {
 }
 
 export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
+  hookEditorSaves()
   bindCommentsService({
     now: () => new Date().toISOString(),
     newId: () => randomUUID(),
@@ -124,6 +171,24 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     const root = repoOf(win.id)
     if (!root) return { kind: 'ok' as const, file: { version: COMMENTS_FILE_VERSION, file, threads: [] } }
     return load(root, file)
+  })
+
+  ipcMain.handle('mt::agent::send-threads', (event, file: string, threadIds: string[], anchors: ThreadPlacement[]) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    return turnRunnerFor(win.id, deps).sendThreads(win.id, file, threadIds ?? [], anchors ?? [])
+  })
+
+  ipcMain.handle('mt::agent::send-message', (event, text: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    return turnRunnerFor(win.id, deps).sendMessage(win.id, text)
+  })
+
+  ipcMain.handle('mt::agent::cancel-turn', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.resolve()
+    return turnRunnerFor(win.id, deps).cancelTurn()
   })
 
   ipcMain.handle('mt::comments::mutate', async(event, mutation: CommentsMutation) => {
