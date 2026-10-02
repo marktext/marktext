@@ -55,9 +55,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
-    "@intlify/core-base": "^11.4.6",
     "@element-plus/icons-vue": "^2.3.2",
     "@hfelix/electron-localshortcut": "^4.0.1",
+    "@intlify/core-base": "^11.4.6",
     "@marktext/file-icons": "^1.0.6",
     "@muyajs/core": "workspace:*",
     "@popperjs/core": "^2.11.8",
@@ -109,9 +109,6 @@
     "webfontloader": "^1.6.28",
     "write-file-atomic": "^7.0.1"
   },
-  "optionalDependencies": {
-    "native-keymap": "^3.3.9"
-  },
   "devDependencies": {
     "@electron/rebuild": "^4.0.4",
     "@playwright/test": "^1.61.0",
@@ -134,6 +131,7 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "jsdom": "^29.1.1",
+    "native-keymap": "^3.3.9",
     "patch-package": "^8.0.1",
     "postcss-preset-env": "^11.3.1",
     "tsx": "^4.22.4",

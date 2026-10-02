@@ -33,6 +33,17 @@ import type {
 } from './files'
 import type { BufferedState as BufferedStateType } from './bufferedState'
 import type { MenuTemplate, MenuPopupPosition } from './menu'
+import type {
+  AgentSelection,
+  ChatEvent,
+  HarnessId,
+  HarnessStatus,
+  ListModelsResult,
+  RepoState,
+  SessionSnapshot,
+  SessionSummary
+} from './agent'
+import type { CommentsFile, CommentsLoadResult, CommentsMutation } from './comments'
 
 export interface SaveDialogRequest {
   title?: string
@@ -49,12 +60,31 @@ export type PlantumlFetchResult =
 // =================================================================
 
 export interface IpcInvokeChannels {
+  'mt::agent::answer-permission': { args: [requestId: string, optionId: string | 'cancelled']; ret: void }
+  'mt::agent::cancel-turn': { args: []; ret: void }
+  'mt::agent::get-harness-status': { args: []; ret: HarnessStatus[] }
+  'mt::agent::get-repo-state': { args: []; ret: RepoState }
+  'mt::agent::get-selection': { args: []; ret: AgentSelection | null }
+  'mt::agent::list-models': {
+    args: [harness: HarnessId, options: { refresh?: boolean }]
+    ret: ListModelsResult
+  }
+  'mt::agent::list-sessions': { args: [harness: HarnessId]; ret: SessionSummary[] }
+  'mt::agent::open-session': {
+    args: [harness: HarnessId, sessionId: string | 'last' | 'new']
+    ret: SessionSnapshot
+  }
+  'mt::agent::send-message': { args: [text: string]; ret: { turnId: string } }
+  'mt::agent::send-threads': { args: [file: string, threadIds: string[]]; ret: { turnId: string } }
+  'mt::agent::set-selection': { args: [harness: HarnessId, model: string]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
   'mt::clipboard::read-text': { args: []; ret: string }
   'mt::clipboard::write-image': { args: [png: Uint8Array]; ret: boolean }
   'mt::cmd::exists': { args: [name: string]; ret: boolean }
+  'mt::comments::load': { args: [file: string]; ret: CommentsLoadResult }
+  'mt::comments::mutate': { args: [mutation: CommentsMutation]; ret: CommentsFile }
   'mt::diagram::fetch-plantuml': {
     args: [server: string, encoded: string, format: 'svg' | 'png']
     ret: PlantumlFetchResult
@@ -77,6 +107,7 @@ export interface IpcInvokeChannels {
   'mt::fs::stat': { args: [path: string]; ret: SerializedStat }
   'mt::fs::unlink': { args: [path: string]; ret: void }
   'mt::fs::write-file': { args: [path: string, data: string | Uint8Array]; ret: void }
+  'mt::git::diff': { args: [request: { paths?: string[] }]; ret: { patch: string } }
   'mt::i18n::is-supported': { args: [lang: string]; ret: boolean }
   'mt::i18n::load': { args: [language: string]; ret: Record<string, unknown> }
   'mt::i18n::supported': { args: []; ret: string[] }
@@ -95,6 +126,8 @@ export interface IpcInvokeChannels {
   'mt::spellchecker-remove-word': { args: [word: string]; ret: boolean }
   'mt::spellchecker-set-enabled': { args: [enabled: boolean]; ret: void }
   'mt::spellchecker-switch-language': { args: [language: string]; ret: void }
+  'mt::term::create': { args: [size: { cols: number; rows: number }]; ret: { termId: string } }
+  'mt::term::kill': { args: [termId: string]; ret: void }
   'mt::uploader::upload': { args: [req: unknown]; ret: unknown }
   'mt::win::is-fullscreen': { args: []; ret: boolean }
   'mt::win::is-maximized': { args: []; ret: boolean }
@@ -188,6 +221,8 @@ export interface IpcSendChannels {
   'mt::set-user-preference': [partial: unknown]
   'mt::shell::open-external': [url: string]
   'mt::shell::show-item': [fullPath: string]
+  'mt::term::input': [termId: string, data: string]
+  'mt::term::resize': [termId: string, cols: number, rows: number]
   'mt::update-format-menu': [windowId: number, state: Record<string, boolean>]
   'mt::update-line-ending-menu': [windowId: number, lineEnding: LineEnding]
   'mt::update-sidebar-menu': [windowId: number, visible: boolean]
@@ -240,12 +275,15 @@ export interface IpcMainEventChannels {
   'mt::UPDATE_ERROR': [error: unknown]
   'mt::UPDATE_NOT_AVAILABLE': [info?: unknown]
   'mt::about-dialog': []
+  'mt::agent::event': [event: ChatEvent]
+  'mt::agent::harness-status-changed': [statuses: HarnessStatus[]]
   'mt::ask-for-close': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
   'mt::cm-copy-as-html': []
   'mt::cm-copy-as-rich': []
   'mt::cm-insert-paragraph': [direction: 'before' | 'after']
   'mt::cm-paste-as-plain-text': []
+  'mt::comments::changed': [payload: { file: string }]
   'mt::current-language': [language: string]
   'mt::editor-ask-file-save': []
   'mt::editor-ask-file-save-as': []
@@ -294,6 +332,8 @@ export interface IpcMainEventChannels {
   'mt::tab-saved': [tabId: string]
   'mt::tabs-cycle-left': []
   'mt::tabs-cycle-right': []
+  'mt::term::data': [termId: string, data: string]
+  'mt::term::exit': [termId: string, code: number | null]
   'mt::toggle-view-layout-entry': [entry: string]
   'mt::toggle-view-mode-entry': [entry: string]
   'mt::update-file': [payload: { type: 'add' | 'change' | 'unlink'; change: FileChangeDetail }]

@@ -11,6 +11,9 @@ overrides:
 importers:
   .:
     devDependencies:
+      '@agentclientprotocol/sdk':
+        specifier: ^1.7.0
+        version: 1.7.0(zod@4.6.5)
       '@babel/eslint-parser':
         specifier: ^7.29.7
         version: 7.29.7(@babel/core@7.29.6)(eslint@9.39.4(jiti@2.7.0))
@@ -56,6 +59,9 @@ importers:
       vue-eslint-parser:
         specifier: ^10.4.1
         version: 10.4.1(eslint@9.39.4(jiti@2.7.0))
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/desktop:
     dependencies:
@@ -288,6 +294,9 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@2.2.0)
+      native-keymap:
+        specifier: ^3.3.9
+        version: 3.3.9
       patch-package:
         specifier: ^8.0.1
         version: 8.0.1
@@ -315,10 +324,6 @@ importers:
       vue-tsc:
         specifier: ^3.3.5
         version: 3.3.5(typescript@6.0.3)
-    optionalDependencies:
-      native-keymap:
-        specifier: ^3.3.9
-        version: 3.3.9
 
   packages/muya:
     dependencies:
@@ -666,6 +671,14 @@ importers:
         version: 4.103.0
 
 packages:
+  '@agentclientprotocol/sdk@1.7.0':
+    resolution:
+      {
+        integrity: sha512-ZORuxsuEnLjRly7t6Ad7zAsWitjWsyprswyPUHz/yycPb+tTm3DGa8XheaHhRXqX8LS9snuxaYavXSRA50TlHw==
+      }
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+
   '@alloc/quick-lru@5.2.0':
     resolution:
       {
@@ -15751,6 +15764,12 @@ packages:
         integrity: sha512-rLfVLB4FgQneDr0dv1oddCVZmKjcJ6yX6mS4pU82Mq/Dt9a3cLZQ62pDBL4AUO+uVrCvtWz3ZFUL2HFAFJ/BXQ==
       }
 
+  zod@4.6.5:
+    resolution:
+      {
+        integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==
+      }
+
   zwitch@2.0.4:
     resolution:
       {
@@ -15758,6 +15777,10 @@ packages:
       }
 
 snapshots:
+  '@agentclientprotocol/sdk@1.7.0(zod@4.6.5)':
+    dependencies:
+      zod: 4.6.5
+
   '@alloc/quick-lru@5.2.0': {}
 
   '@antfu/eslint-config@9.0.0(@next/eslint-plugin-next@15.5.19)(@typescript-eslint/rule-tester@8.60.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@typescript-eslint/typescript-estree@8.61.1(typescript@6.0.3))(@typescript-eslint/utils@8.61.1(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.38)(eslint-plugin-format@2.0.1(eslint@10.5.0(jiti@2.7.0)))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.5.0(jiti@2.7.0)))(eslint@10.5.0(jiti@2.7.0))(ts-declaration-location@1.0.7(typescript@6.0.3))(typescript@6.0.3)(vitest@4.1.9)':
@@ -26328,5 +26351,7 @@ snapshots:
       '@speed-highlight/core': 1.2.17
       cookie: 1.1.1
       youch-core: 0.3.3
+
+  zod@4.6.5: {}
 
   zwitch@2.0.4: {}

@@ -1,4 +1,6 @@
+export * from './agent'
 export * from './bufferedState'
+export * from './comments'
 export * from './bus'
 export * from './files'
 export * from './ipc'

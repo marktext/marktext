@@ -50,6 +50,7 @@
     ]
   },
   "devDependencies": {
+    "@agentclientprotocol/sdk": "^1.7.0",
     "@babel/eslint-parser": "^7.29.7",
     "electron": "~42.1.0",
     "eslint": "^9.39.4",
@@ -64,6 +65,7 @@
     "prettier": "^3.8.4",
     "tsx": "^4.22.4",
     "typescript-eslint": "^8.61.1",
-    "vue-eslint-parser": "^10.4.1"
+    "vue-eslint-parser": "^10.4.1",
+    "zod": "^4.6.5"
   }
 }
