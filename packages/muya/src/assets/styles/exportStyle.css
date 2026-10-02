@@ -109,6 +109,11 @@
     display: table;
 }
 
+.markdown-body table th,
+.markdown-body table td {
+    overflow-wrap: anywhere;
+}
+
 .markdown-body img[data-align='center'] {
     display: block;
     margin: 0 auto;
