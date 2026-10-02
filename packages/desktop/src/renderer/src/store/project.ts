@@ -219,15 +219,23 @@ export const useProjectStore = defineStore('project', () => {
       createCache.value = { dirname, type: String(type) }
       bus.emit('SIDEBAR::show-new-input')
     })
-    bus.on('SIDEBAR::remove', () => {
+    bus.on('SIDEBAR::remove', async() => {
       const { pathname } = activeItem.value
-      window.electron.ipcRenderer.invoke('mt::fs-trash-item', pathname).catch((err) => {
+      if (typeof pathname !== 'string' || !pathname) return
+      try {
+        const trashed = await window.electron.ipcRenderer.invoke('mt::fs-trash-item', pathname)
+        // The deleted node disappears from the tree; drop the stale selection
+        // so a second Delete cannot target a path that no longer exists.
+        if (trashed && activeItem.value?.pathname === pathname) {
+          activeItem.value = {}
+        }
+      } catch (err) {
         notice.notify({
           title: 'Error while deleting',
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
-      })
+      }
     })
     bus.on('SIDEBAR::copy-cut', (type: unknown) => {
       const { pathname: src } = activeItem.value

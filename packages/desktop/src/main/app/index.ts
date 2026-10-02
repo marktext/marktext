@@ -3,7 +3,7 @@ import fsPromises from 'fs/promises'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, clipboard, dialog, nativeTheme, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, nativeTheme, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { IUserPreferences } from '@shared/types/preferences'
@@ -11,6 +11,7 @@ import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
 import { normalizeMarkdownPath } from '../filesystem/markdown'
+import { confirmAndTrashItem } from '../filesystem/trash'
 import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
@@ -808,8 +809,9 @@ class App {
       return saved
     })
 
-    ipcMain.handle('mt::fs-trash-item', async(_event, fullPath: string) => {
-      return shell.trashItem(fullPath)
+    ipcMain.handle('mt::fs-trash-item', async(event, fullPath: string) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      return confirmAndTrashItem(win, fullPath)
     })
   }
 }

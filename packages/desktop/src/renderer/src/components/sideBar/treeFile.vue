@@ -52,6 +52,9 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 
 // from fileMixins
 const handleFileClick = (): void => {
+  // A plain left-click selects the row for keyboard actions (`Delete`) before
+  // the open-file branch runs, so non-markdown files are selectable too.
+  projectStore.CHANGE_ACTIVE_ITEM(props.file)
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))

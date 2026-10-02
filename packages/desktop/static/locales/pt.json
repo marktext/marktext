@@ -897,6 +897,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Tem certeza de que deseja mover \"{name}\" para a lixeira?",
     "cancel": "Cancelar",
     "changesWillBeLost": "As alterações serão perdidas",
     "close": "Fechar",

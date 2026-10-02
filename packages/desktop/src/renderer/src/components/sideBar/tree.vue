@@ -5,7 +5,10 @@
     </div>
 
     <!-- Opened tabs -->
-    <div v-if="openedFilesInSidebar" class="opened-files">
+    <div
+      v-if="openedFilesInSidebar"
+      class="opened-files"
+    >
       <div class="title">
         <el-icon
           class="icon-arrow"
@@ -149,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -161,6 +164,7 @@ import bus from '../../bus'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import { isEditableTarget, isMuyaEditorTarget, shouldTrashSelection } from './trashKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -195,6 +199,8 @@ const preferencesStore = usePreferencesStore()
 // Computed properties
 const { createCache } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
+const { activeItem } = storeToRefs(projectStore)
+const { renameCache } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
 // The createCache state is `{ dirname, type }` while an input is shown, and
@@ -248,34 +254,90 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
+// The key labelled "delete" on Mac laptops reports as Backspace, so the trash
+// shortcut is `Delete` everywhere plus `Cmd+Backspace` on macOS only.
+const isMac = window.electron.process.platform === 'darwin'
+
+// Hide rename / create inputs on outside clicks. Buttons that open these
+// inputs must use @click.stop so their click never reaches this listener.
+const handleDocumentClick = (event: MouseEvent): void => {
+  const target = event.target as HTMLElement | null
+  if (!target || target.tagName === 'INPUT') return
+  projectStore.createCache = {}
+  projectStore.renameCache = null
+  // Clicks inside the project tree keep the selection; anything else (editor,
+  // sidebar chrome, opened-files list) clears it.
+  if (!target.closest('.project-tree')) {
+    projectStore.CHANGE_ACTIVE_ITEM({})
+  }
+}
+
+const handleDocumentContextMenu = (event: MouseEvent): void => {
+  const target = event.target as HTMLElement | null
+  if (target && target.tagName !== 'INPUT') {
+    projectStore.createCache = {}
+    projectStore.renameCache = null
+  }
+}
+
+const clearRenameState = (): void => {
+  projectStore.createCache = {}
+  projectStore.renameCache = null
+}
+
+const handleDocumentKeydown = (event: KeyboardEvent): void => {
+  const target = event.target as HTMLElement | null
+  const editableTarget = isEditableTarget(target)
+
+  if (event.key === 'Escape') {
+    clearRenameState()
+  }
+
+  const shouldTrash = shouldTrashSelection({
+    key: event.key,
+    metaKey: event.metaKey,
+    isMac,
+    selection: activeItem.value,
+    projectRootPath: props.projectTree?.pathname,
+    isEditingName: !!renameCache.value || !!createCacheDirname.value,
+    editableTarget,
+    allowEditableTarget: isMuyaEditorTarget(target)
+  })
+  if (shouldTrash) {
+    event.preventDefault()
+    // The WYSIWYG engine stops keydown propagation when it handles Delete, so
+    // the listener runs in the capture phase; stop the event here so the
+    // editor does not also act on it.
+    event.stopPropagation()
+    // Commit to the selection: a cancelled dialog must not re-arm on the next
+    // Delete, and clicking elsewhere is required to pick a new target. Emit
+    // first — the store reads `activeItem` synchronously, so clearing it here
+    // would leave the handler without a pathname.
+    bus.emit('SIDEBAR::remove')
+    projectStore.CHANGE_ACTIVE_ITEM({})
+    return
+  }
+
+  // Any other interaction with the editor/search/rename input ends the sidebar
+  // selection, so a later Delete edits text instead of trashing a stale node.
+  if (editableTarget && activeItem.value && Object.keys(activeItem.value).length) {
+    projectStore.CHANGE_ACTIVE_ITEM({})
+  }
+}
+
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
+  document.addEventListener('click', handleDocumentClick)
+  document.addEventListener('contextmenu', handleDocumentContextMenu)
+  // Capture phase: muya stops keydown propagation for keys it handles.
+  document.addEventListener('keydown', handleDocumentKeydown, true)
+})
 
-  // Hide rename / create inputs on outside clicks. Buttons that open these
-  // inputs must use @click.stop so their click never reaches this listener.
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement | null
-    if (target && target.tagName !== 'INPUT') {
-      projectStore.CHANGE_ACTIVE_ITEM({})
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
-
-  document.addEventListener('contextmenu', (event) => {
-    const target = event.target as HTMLElement | null
-    if (target && target.tagName !== 'INPUT') {
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
+onUnmounted(() => {
+  bus.off('SIDEBAR::show-new-input', handleInputFocus)
+  document.removeEventListener('click', handleDocumentClick)
+  document.removeEventListener('contextmenu', handleDocumentContextMenu)
+  document.removeEventListener('keydown', handleDocumentKeydown, true)
 })
 </script>
 

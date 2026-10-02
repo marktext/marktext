@@ -111,6 +111,7 @@ const handleInputEnter = (): void => {
 }
 
 const folderNameClick = (): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(props.folder)
   isCollapsed.value = !isCollapsed.value
 }
 

@@ -897,6 +897,7 @@
     "ok": "ОК"
   },
   "dialog": {
+    "moveToTrash": "Переместить \"{name}\" в корзину?",
     "cancel": "Отмена",
     "changesWillBeLost": "Изменения будут потеряны",
     "close": "Закрыть",

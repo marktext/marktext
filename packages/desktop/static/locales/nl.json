@@ -897,6 +897,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Weet je zeker dat je \"{name}\" naar de prullenbak wilt verplaatsen?",
     "cancel": "Annuleren",
     "changesWillBeLost": "Wijzigingen gaan verloren",
     "close": "Sluiten",
