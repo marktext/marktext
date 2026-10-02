@@ -916,7 +916,10 @@
     "unsafeFileTitle": "Mogelijk onveilig bestand",
     "unsafeFileMessage": "Deze link opent een bestand dat code kan uitvoeren",
     "unsafeFileDetail": "\"{name}\" is een uitvoerbaar bestand of script. Het openen kan programma's op je computer uitvoeren. Ga alleen door als je dit document vertrouwt.",
-    "openAnyway": "Toch openen"
+    "openAnyway": "Toch openen",
+    "agentReplaceFolder": "Open another folder?",
+    "agentReplaceFolderDetail": "A turn is in progress. Opening this folder cancels the turn and closes the agent and terminals for this window.",
+    "agentReplaceFolderConfirm": "Open Folder"
   },
   "error": {
     "configSchemaViolation": "Configuratieschemaovertreding",

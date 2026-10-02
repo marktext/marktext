@@ -916,7 +916,10 @@
     "unsafeFileTitle": "安全でない可能性のあるファイル",
     "unsafeFileMessage": "このリンクはコードを実行できるファイルを開きます",
     "unsafeFileDetail": "「{name}」は実行可能ファイルまたはスクリプトファイルです。開くとコンピューター上でプログラムが実行される可能性があります。この文書を信頼できる場合のみ続行してください。",
-    "openAnyway": "それでも開く"
+    "openAnyway": "それでも開く",
+    "agentReplaceFolder": "Open another folder?",
+    "agentReplaceFolderDetail": "A turn is in progress. Opening this folder cancels the turn and closes the agent and terminals for this window.",
+    "agentReplaceFolderConfirm": "Open Folder"
   },
   "error": {
     "configSchemaViolation": "設定スキーマ違反",

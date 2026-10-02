@@ -916,7 +916,10 @@
     "unsafeFileTitle": "Archivo potencialmente peligroso",
     "unsafeFileMessage": "Este enlace abre un archivo que puede ejecutar código",
     "unsafeFileDetail": "«{name}» es un archivo ejecutable o de script. Abrirlo podría ejecutar programas en tu equipo. Continúa solo si confías en este documento.",
-    "openAnyway": "Abrir de todos modos"
+    "openAnyway": "Abrir de todos modos",
+    "agentReplaceFolder": "Open another folder?",
+    "agentReplaceFolderDetail": "A turn is in progress. Opening this folder cancels the turn and closes the agent and terminals for this window.",
+    "agentReplaceFolderConfirm": "Open Folder"
   },
   "error": {
     "configSchemaViolation": "Violación del esquema de configuración",

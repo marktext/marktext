@@ -4,6 +4,15 @@ import type { BrowserWindowConstructorOptions } from 'electron'
 import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
+import { sendHarnessStatus } from '../agent'
+import { repoRegistry } from '../agent/repo/repoRegistry'
+import { resolveFolderRepo } from '../agent/repo/resolveFolderRepo'
+import {
+  agentHostFor,
+  clearWindowAgentHost,
+  shutdownWindowAgent
+} from '../agent/windowAgentHost'
+import { t } from '../i18n'
 import BaseWindow, { WindowLifecycle, WindowType } from './base'
 import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
@@ -50,6 +59,7 @@ interface RestoredBufferState {
 class EditorWindow extends BaseWindow {
   // Root directory and file list to open when the window is ready.
   private _directoryToOpen: string | null
+  private _folderQueue: Promise<void> = Promise.resolve()
   private _filesToOpen: PendingFile[] | null
   private _markdownToOpen: string[] | null
   // Root directory and file list that are currently opened. These lists are
@@ -377,33 +387,15 @@ class EditorWindow extends BaseWindow {
 
   /**
    * Open a (new) directory and replaces the old one.
+   * Folder opens on one window run one after another, so a confirmation dialog
+   * cannot overlap a second claim of the same repository.
    */
   openFolder(pathname: string): void {
-    // TODO: Don't allow new files if quitting.
-    if (
-      !pathname ||
-      this.lifecycle === WindowLifecycle.QUITTED ||
-      isSamePathSync(pathname, this._openedRootDirectory ?? '')
-    ) {
-      return
-    }
-
-    if (this.lifecycle === WindowLifecycle.READY) {
-      const { browserWindow } = this
-      const { menu: appMenu, preferences } = this._accessor
-
-      if (this._openedRootDirectory) {
-        ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
-      }
-
-      preferences.setItems({ lastOpenedFolder: pathname })
-      appMenu.addRecentlyUsedDocument(pathname)
-      this._openedRootDirectory = pathname
-      ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
-      browserWindow!.webContents.send('mt::open-directory', pathname)
-    } else {
-      this._directoryToOpen = pathname
-    }
+    this._folderQueue = this._folderQueue
+      .then(() => this._openFolder(pathname))
+      .catch((err: unknown) => {
+        log.error('Failed to open folder:', err)
+      })
   }
 
   /**
@@ -503,6 +495,17 @@ class EditorWindow extends BaseWindow {
   }
 
   override destroy(): void {
+    const windowId = this.id
+    if (windowId != null) {
+      // The browser window is destroyed immediately afterwards. cancelTurn has to
+      // signal the harness before it yields.
+      shutdownWindowAgent(windowId).catch((err: unknown) => {
+        log.error('Failed to stop the agent for a closing window:', err)
+      })
+      clearWindowAgentHost(windowId)
+      repoRegistry.release(windowId)
+    }
+
     super.destroy()
 
     // Watchers are freed from WindowManager.
@@ -519,6 +522,97 @@ class EditorWindow extends BaseWindow {
   }
 
   // --- private ---------------------------------
+
+  private async _openFolder(pathname: string): Promise<void> {
+    // TODO: Don't allow new files if quitting.
+    if (
+      !pathname ||
+      this.lifecycle === WindowLifecycle.QUITTED ||
+      isSamePathSync(pathname, this._openedRootDirectory ?? '')
+    ) {
+      return
+    }
+
+    const binding = await resolveFolderRepo(pathname)
+    if (this._hasQuit() || isSamePathSync(pathname, this._openedRootDirectory ?? '')) return
+
+    const windowId = this.id
+    if (windowId == null) {
+      this._directoryToOpen = pathname
+      return
+    }
+
+    if (binding.kind === 'repo' && this._focusOtherOwner(windowId, binding.root)) return
+
+    if (agentHostFor(windowId).hasActiveTurn()) {
+      const win = this.browserWindow
+      if (!win || win.isDestroyed()) return
+      const { response } = await dialog.showMessageBox(win, {
+        type: 'warning',
+        buttons: [t('dialog.agentReplaceFolderConfirm'), t('dialog.cancel')],
+        defaultId: 1,
+        cancelId: 1,
+        noLink: true,
+        message: t('dialog.agentReplaceFolder'),
+        detail: t('dialog.agentReplaceFolderDetail')
+      })
+      if (response !== 0 || this._hasQuit()) return
+      if (isSamePathSync(pathname, this._openedRootDirectory ?? '')) return
+      await shutdownWindowAgent(windowId)
+      if (this._hasQuit()) return
+      if (binding.kind === 'repo' && this._focusOtherOwner(windowId, binding.root)) return
+    }
+
+    const claimed = repoRegistry.claim(windowId, binding)
+    if (!claimed.ok) {
+      this._focusOwnedRepo(claimed.ownerWindowId)
+      return
+    }
+
+    if (this.lifecycle !== WindowLifecycle.READY) {
+      this._directoryToOpen = pathname
+      return
+    }
+
+    this._publishOpenedFolder(pathname)
+  }
+
+  // The window can close while git or the confirmation dialog is in flight.
+  private _hasQuit(): boolean {
+    return this.lifecycle === WindowLifecycle.QUITTED
+  }
+
+  /** True when another window already has `root` and has been focused. */
+  private _focusOtherOwner(windowId: number, root: string): boolean {
+    const owner = repoRegistry.owner(root)
+    if (owner == null || owner === windowId) return false
+    this._focusOwnedRepo(owner)
+    return true
+  }
+
+  private _focusOwnedRepo(windowId: number): void {
+    const win = this._accessor.windowManager.getBrowserWindow(windowId)
+    if (!win || win.isDestroyed()) return
+    win.show()
+    win.focus()
+  }
+
+  private _publishOpenedFolder(pathname: string): void {
+    const { browserWindow } = this
+    const { menu: appMenu, preferences } = this._accessor
+    if (!browserWindow || browserWindow.isDestroyed()) return
+
+    if (this._openedRootDirectory) {
+      ipcMain.emit('watcher-unwatch-directory', browserWindow, this._openedRootDirectory)
+    }
+
+    preferences.setItems({ lastOpenedFolder: pathname })
+    appMenu.addRecentlyUsedDocument(pathname)
+    this._openedRootDirectory = pathname
+    ipcMain.emit('watcher-watch-directory', browserWindow, pathname)
+    browserWindow.webContents.send('mt::open-directory', pathname)
+    sendHarnessStatus(browserWindow)
+  }
 
   /**
    * Open a new new tab from the markdown document.

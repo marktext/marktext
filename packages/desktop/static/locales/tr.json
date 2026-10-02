@@ -916,7 +916,10 @@
     "unsafeFileTitle": "Güvenli olmayabilecek dosya",
     "unsafeFileMessage": "Bu bağlantı, kod çalıştırabilen bir dosyayı açar",
     "unsafeFileDetail": "\"{name}\" bir yürütülebilir veya betik dosyasıdır. Açmak, bilgisayarınızda program çalıştırabilir. Yalnızca bu belgeye güveniyorsanız devam edin.",
-    "openAnyway": "Yine de aç"
+    "openAnyway": "Yine de aç",
+    "agentReplaceFolder": "Open another folder?",
+    "agentReplaceFolderDetail": "A turn is in progress. Opening this folder cancels the turn and closes the agent and terminals for this window.",
+    "agentReplaceFolderConfirm": "Open Folder"
   },
   "error": {
     "configSchemaViolation": "Yapılandırma şeması ihlali",

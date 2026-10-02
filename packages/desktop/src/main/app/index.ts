@@ -20,6 +20,9 @@ import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
 import SettingWindow from '../windows/setting'
+import { registerAgentIpc } from '../agent'
+import { repoRegistry } from '../agent/repo/repoRegistry'
+import { resolveFolderRepo } from '../agent/repo/resolveFolderRepo'
 import { setLanguage } from '../i18n'
 import { matchSupportedLanguage } from 'common/i18n'
 import { getNativeThemeSource, isDarkApplicationTheme } from './nativeTheme'
@@ -432,6 +435,51 @@ class App {
   // --- private --------------------------------
 
   /**
+   * Open `rootDirectory` in a new window unless its repository is already open.
+   * `rootDirectory` null creates a window with only `fileList`.
+   */
+  private _openDirectoryInNewWindow(rootDirectory: string | null, fileList: string[] = []): void {
+    if (!rootDirectory) {
+      this._createEditorWindow(null, fileList)
+      return
+    }
+    this._openDirectoryWindow(rootDirectory, fileList).catch((err: unknown) => {
+      log.error('Failed to open directory:', err)
+    })
+  }
+
+  private async _openDirectoryWindow(rootDirectory: string, fileList: string[]): Promise<void> {
+    const binding = await resolveFolderRepo(rootDirectory)
+    if (binding.kind === 'repo') {
+      const ownerId = repoRegistry.owner(binding.root)
+      if (ownerId != null) {
+        this._focusRepoWindow(ownerId)
+        const editor = this._windowManager.get(ownerId) as EditorWindow | undefined
+        if (editor && fileList.length) editor.openTabsFromPaths(fileList)
+        return
+      }
+    }
+
+    const editor = this._createEditorWindow(rootDirectory, fileList)
+    if (binding.kind === 'repo' && editor.id != null) {
+      const claimed = repoRegistry.claim(editor.id, binding)
+      if (!claimed.ok) {
+        this._focusRepoWindow(claimed.ownerWindowId)
+        if (this._windowManager.windowCount > 1 && editor.browserWindow) {
+          this._windowManager.forceClose(editor.browserWindow)
+        }
+      }
+    }
+  }
+
+  private _focusRepoWindow(windowId: number): void {
+    const win = this._windowManager.getBrowserWindow(windowId)
+    if (!win || win.isDestroyed()) return
+    win.show()
+    win.focus()
+  }
+
+  /**
    * Creates a new editor window.
    */
   private _createEditorWindow(
@@ -577,10 +625,10 @@ class App {
         }
       }
 
-      // Directores are always opened in a new window if not already opened.
+      // Directories are always opened in a new window if not already opened.
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList)
+        this._openDirectoryInNewWindow(rootDirectory, fileList)
       }
     } else {
       // Open each file and directory in a new window.
@@ -591,7 +639,7 @@ class App {
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList)
+        this._openDirectoryInNewWindow(rootDirectory, fileList)
       }
     }
 
@@ -618,6 +666,7 @@ class App {
   private _listenForIpcMain(): void {
     registerKeyboardListeners()
     registerSpellcheckerListeners()
+    registerAgentIpc()
 
     // Handle language setting requests
     ipcMain.on('mt::get-current-language', (event) => {
@@ -724,7 +773,7 @@ class App {
             return
           }
         }
-        this._createEditorWindow(pathname)
+        this._openDirectoryInNewWindow(pathname)
       }
     )
 
