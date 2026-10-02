@@ -69,9 +69,16 @@ const noop = (): void => {}
 
 const focusRenameInput = (): void => {
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
+    const input = renameInput.value
+    if (input) {
       newName.value = props.file.name
+      nextTick(() => {
+        input.focus()
+        // If filename has extension, only select before extension
+        const dotIndex = newName.value.lastIndexOf('.')
+        const nameEnd = dotIndex > 0 ? dotIndex : newName.value.length
+        input.setSelectionRange(0, nameEnd)
+      })
     }
   })
 }
