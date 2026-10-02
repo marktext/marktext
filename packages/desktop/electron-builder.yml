@@ -74,6 +74,8 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
 
 asarUnpack:
   - resources/**
+  # Spawned with ELECTRON_RUN_AS_NODE, which cannot read the asar archive.
+  - out/main/agentMcpBridge.js
 fileAssociations:
   - ext: md
     name: Markdown

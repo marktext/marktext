@@ -5,6 +5,7 @@ import log from 'electron-log'
 import windowStateKeeper from 'electron-window-state'
 import { isChildOfDirectory, isSamePathSync } from 'common/filesystem/paths'
 import { sendHarnessStatus } from '../agent'
+import { releaseWindowBridge } from '../agent/mcpBridge/bridgeServer'
 import { repoRegistry } from '../agent/repo/repoRegistry'
 import { resolveFolderRepo } from '../agent/repo/resolveFolderRepo'
 import {
@@ -503,6 +504,7 @@ class EditorWindow extends BaseWindow {
         log.error('Failed to stop the agent for a closing window:', err)
       })
       clearWindowAgentHost(windowId)
+      releaseWindowBridge(windowId)
       repoRegistry.release(windowId)
     }
 

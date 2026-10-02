@@ -60,6 +60,7 @@
     "@hfelix/electron-localshortcut": "^4.0.1",
     "@intlify/core-base": "^11.4.6",
     "@marktext/file-icons": "^1.0.6",
+    "@modelcontextprotocol/sdk": "^1.31.0",
     "@muyajs/core": "workspace:*",
     "@popperjs/core": "^2.11.8",
     "@vscode/ripgrep": "^1.18.0",

@@ -4,6 +4,7 @@
  * yet: `FAKE_ACP_MODE` selects the behaviour those tests need.
  * `FAKE_ACP_MODELS` is `id:Label,id:Label` for the model catalog.
  */
+import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
 import { appendFileSync } from 'node:fs'
 import path from 'node:path'
@@ -48,7 +49,82 @@ const update = (sessionId, body) => {
 let authed = false
 let sessions = 0
 let promptId = null
+let mcpServers = []
 const permissionWaiters = new Map()
+
+const callReplyTool = (threadId, text) => new Promise((resolve, reject) => {
+  const server = mcpServers[0]
+  if (!server?.command) {
+    reject(new Error('no mcp server'))
+    return
+  }
+  const env = { ...process.env }
+  for (const item of server.env ?? []) env[item.name] = item.value
+  const child = spawn(server.command, server.args ?? [], { env, stdio: ['pipe', 'pipe', 'pipe'] })
+  let buffer = ''
+  let stderr = ''
+  const pending = new Map()
+  let settled = false
+  const finish = (error, result) => {
+    if (settled) return
+    settled = true
+    clearTimeout(timer)
+    child.kill()
+    if (error) reject(error)
+    else resolve(result)
+  }
+  const timer = setTimeout(() => {
+    finish(new Error(`mcp bridge timed out: ${stderr}`))
+  }, 10_000)
+  child.stderr.on('data', (chunk) => {
+    stderr += chunk
+  })
+  child.on('error', (error) => finish(error))
+  child.stdout.on('data', (chunk) => {
+    buffer += chunk
+    let newline = buffer.indexOf('\n')
+    while (newline !== -1) {
+      const line = buffer.slice(0, newline)
+      buffer = buffer.slice(newline + 1)
+      newline = buffer.indexOf('\n')
+      if (!line.trim()) continue
+      let message
+      try {
+        message = JSON.parse(line)
+      } catch {
+        continue
+      }
+      const resolveLine = pending.get(message.id)
+      if (message.id != null && resolveLine) {
+        pending.delete(message.id)
+        resolveLine(message)
+      }
+    }
+  })
+  const request = (id, method, params) => new Promise((resolveLine) => {
+    pending.set(id, resolveLine)
+    child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`)
+  })
+  request(1, 'initialize', {
+    protocolVersion: '2025-03-26',
+    capabilities: {},
+    clientInfo: { name: 'fake-acp', version: '1.2.3' }
+  }).then((initialized) => {
+    if (initialized.error) {
+      finish(new Error(initialized.error.message ?? 'initialize failed'))
+      return
+    }
+    child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' })}\n`)
+    return request(2, 'tools/call', {
+      name: 'reply_to_thread',
+      arguments: { threadId, text }
+    })
+  }).then((called) => {
+    if (!called || settled) return
+    note({ event: 'mcp-reply', result: called.result ?? null, error: called.error ?? null })
+    finish(null, called)
+  }).catch((error) => finish(error))
+})
 
 const capabilities = () => {
   if (mode === 'no-resume') return { loadSession: false, sessionCapabilities: {} }
@@ -182,6 +258,7 @@ const handle = async (message) => {
       fail(id, -32000, 'Authentication required')
       return
     }
+    if (method === 'session/new') mcpServers = params?.mcpServers ?? []
     reply(id, sessionResult(method, params ?? {}))
     return
   }
@@ -210,6 +287,22 @@ const handle = async (message) => {
         messageId: 'agent-1',
         content: { type: 'text', text: 'working' }
       })
+      return
+    }
+    if (mode === 'mcp-reply') {
+      const threadId = process.env.FAKE_ACP_REPLY_THREAD
+      const text = process.env.FAKE_ACP_REPLY_TEXT ?? ''
+      if (!threadId) {
+        fail(id, -32602, 'FAKE_ACP_REPLY_THREAD is required')
+        return
+      }
+      await callReplyTool(threadId, text)
+      update(sessionId, {
+        sessionUpdate: 'agent_message_chunk',
+        messageId: 'agent-1',
+        content: { type: 'text', text: 'replied' }
+      })
+      reply(id, { stopReason: 'end_turn' })
       return
     }
     if (mode === 'permission') {

@@ -1,5 +1,6 @@
+import { builtinModules } from 'node:module'
 import { resolve, dirname } from 'path'
-import type { PluginOption } from 'vite'
+import { build, type PluginOption } from 'vite'
 import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
@@ -10,8 +11,51 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const bridgeEntry = resolve(__dirname, 'src/main/agent/mcpBridge/bridgeEntry.ts')
+const nodeBuiltins = [...builtinModules, ...builtinModules.map((name) => `node:${name}`)]
+
+/**
+ * The stdio bridge is a second main entry. Its npm imports stay external in
+ * this build so they are not shared chunks of `index.js`. `closeBundle` then
+ * writes one self-contained `agentMcpBridge.js` for `ELECTRON_RUN_AS_NODE`.
+ */
+const agentMcpBridgePlugin = (): PluginOption => ({
+  name: 'agent-mcp-bridge',
+  enforce: 'pre',
+  resolveId(source, importer) {
+    if (!importer?.includes('bridgeEntry.ts')) return null
+    if (source === 'zod' || source.startsWith('@modelcontextprotocol/sdk')) {
+      return { id: source, external: true }
+    }
+    return null
+  },
+  async closeBundle() {
+    await build({
+      configFile: false,
+      logLevel: 'warn',
+      build: {
+        ssr: true,
+        outDir: resolve(__dirname, 'out/main'),
+        emptyOutDir: false,
+        minify: false,
+        rollupOptions: {
+          input: { agentMcpBridge: bridgeEntry },
+          external: ['electron', ...nodeBuiltins],
+          output: {
+            format: 'cjs',
+            entryFileNames: 'agentMcpBridge.js',
+            inlineDynamicImports: true
+          }
+        }
+      },
+      ssr: { noExternal: true }
+    })
+  }
+})
+
 export default defineConfig({
   main: {
+    plugins: [agentMcpBridgePlugin()],
     // --> Bundled as CommonJS
     // externalizeDepsPlugin() basically externises all the dependencies from being bundled during build - treating them as runtime dependencies
     // electron-vite still builds the main and preload processes into commonJS
@@ -25,6 +69,12 @@ export default defineConfig({
         // ERR_PACKAGE_PATH_NOT_EXPORTED at startup.
         exclude: ['electron-store', 'plist', '@agentclientprotocol/sdk', 'zod'],
         include: ['native-keymap']
+      },
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/main/index.ts'),
+          agentMcpBridge: bridgeEntry
+        }
       }
     },
     define: {
