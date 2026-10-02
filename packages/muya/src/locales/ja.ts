@@ -9,8 +9,8 @@ export const ja = {
         'Align Left': '左揃え',
         'Align Center': '中央揃え',
         'Align Right': '右揃え',
-        'Insert Column left': '左側へ列を挿入する',
-        'Insert Column right': '右側へ列を挿入する',
+        'Insert Column Left': '左側へ列を挿入する',
+        'Insert Column Right': '右側へ列を挿入する',
         'Remove Column': '列を削除する',
         // quickInsert
         'Paragraph': '一般段落',

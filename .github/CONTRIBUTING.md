@@ -1,97 +1,65 @@
 # MarkText Contributing Guide
 
-We are really excited that you are interested in contributing to MarkText :tada:. Before submitting your contribution, please make sure to take a moment and read through the following guidelines.
-
-- [Code of Conduct](../packages/website/content/docs/dev/CODE_OF_CONDUCT.md)
-- [Philosophy](#philosophy)
-- [Issue reporting guidelines](#issue-reporting-guidelines)
-- [Pull request guidelines](#pull-request-guidelines)
-  - [Where should I start?](#where-should-i-start)
-- [Quick start](#quick-start)
-  - [Build instructions](#build-instructions)
-  - [Style guide](#style-guide)
-  - [Commenting guidelines](#commenting-guidelines)
-- [Developer documentation](#developer-documentation)
+Thank you very much for your interest in contributing to MarkText. Before submitting your contribution, please take a moment to read the following guidelines.
 
 ## Philosophy
 
-🔑 Our philosophy is to keep things clean, simple and minimal. 
-MarkText is constantly changing and we want these improvements to align with our philosophy. For example, look at the side bar and tabs; these two panels provide awesome functionality *and* aren't distracting to the user. We'll continue adding more features (like plugins) that can be activated via 'settings' to improve MarkText. This will allow everyone to customize MarkText for their needs and provide a minimal default interface.
+Our philosophy is to keep things clean, clear, and minimal.
 
-## Issue Reporting Guidelines
+MarkText is constantly evolving, and we want these improvements to stay aligned with this philosophy. For example, the sidebar and tabs provide useful functionality without distracting users, while keeping the default interface clean and minimal. In the future, we hope to expand MarkText's capabilities through a plugin system.
 
-Please search for similar issues before opening an issue and always follow the [issue template](.github/ISSUE_TEMPLATE/). Please review the following Pull Request guidelines before making your own PR. 
+## The One Rule
 
-## Pull Request Guidelines
+**You must understand the code you submit.** If you cannot explain what your changes do and how they interact with the rest of the system, your PR will be closed.
 
-**In *all* Pull Requests:** provide a detailed description of the problem, as well as a demonstration with screen recordings and/or screenshots.
+Using AI to write code is fine. Submitting AI-generated code that you do not understand is not.
 
-Please make sure the following is done before submitting a PR:
+If you use an agent, run it from the MarkText root directory so that it can automatically pick up `AGENTS.md`. Your agent must follow the rules and guidelines in that file.
+
+## Issue and PR Guidelines
+
+Before opening an Issue or PR, please search for similar Issues and PRs first. Always follow the [Issue template](./ISSUE_TEMPLATE/) and [PR template](./PULL_REQUEST_TEMPLATE.md) when submitting them.
+
+Issues and PRs should follow the single-purpose principle: **one Issue should address one problem, and one PR should fix one issue or a set of closely related changes.** Do not submit multiple unrelated problems in a single Issue or multiple unrelated fixes in a single PR.
+
+Issues and PRs that do not follow these requirements may be closed without further review.
+
+All PRs must provide a detailed description of the problem and demonstrate the issue or the changes with screen recordings and/or screenshots.
+
+When submitting a PR, please keep the following in mind:
 
 - Submit PRs directly to the `develop` branch.
-- Reference the related issue in the PR comment.
-- Utilize [JSDoc](https://github.com/jsdoc/jsdoc) for better code documentation.
+- Reference the related Issue in the PR description.
+- Follow our [Commenting Guidelines](./COMMENTING-GUIDELINES.md).
 - Ensure all tests pass.
-- Please lint (`pnpm run lint`) your PR.
-- All PRs need to pass the **CI** before merged. If it fails, please try to solve the issue(s) and feel free to ask for any help.
+- Run `pnpm run lint` to lint your PR.
+- All PRs must pass **CI** before they can be merged. If CI fails, please try to resolve the issue. If you need help, feel free to ask.
 
-If you add new feature:
+If you are adding a new feature:
 
-- Open a suggestion issue first.
-- Provide your reasoning on why you want to add this feature.
-- Submit your PR.
+- Open a feature request Issue first.
+- Explain why you want to add the feature, and confirm the final solution with MarkText members before submitting a PR.
 
-If you fix a bug:
+If you are fixing a bug:
 
-- If you are resolving a special issue, please add `fix: #<issue number> <short message>` in your PR title (e.g.`fix: #3899 update entities encoding/decoding`).
-- Provide a detailed description of the bug in your PR and/or link to the issue. 
+- If you are fixing a specific Issue, include `fix: #<issue number> <short message>` in the PR title. For example: `fix: #3899 update entities encoding/decoding`.
+- Provide a detailed description of the cause of the bug in the PR and/or reference the related Issue.
 
-### Where should I start?
+## Where Should I Start?
 
-A good way to start is to find an [issue](https://github.com/marktext/marktext/issues) labeled as `bug`, `help wanted` or `feature request`. The `good first issue` issues are good for newcomers. Please discuss the solution for larger issues first and after the final solution is approved by the MarkText members, you can submit/work on the PR. For small changes you can directly open a PR.
+A good way to get started is to look for Issues labeled `bug`, `help wanted`, or `feature request` in the [Issue tracker](https://github.com/marktext/marktext/issues). Issues labeled `good first issue` are especially suitable for newcomers.
 
-Other ways to help:
+For larger Issues, please discuss the proposed solution first. Once the final solution has been approved by MarkText members, you can submit or start working on a PR. For smaller changes, you can open a PR directly.
 
-- Documentation
-- Translation (currently unavailable)
+There are also other ways you can help MarkText:
+
+- Improve the documentation
+- Translate MarkText (currently unavailable)
 - Design icons and logos
 - Improve the UI
 - Write tests for MarkText
-- Share your thoughts! We want to hear about features you think are missing, any bugs you find, and why you :heart: MarkText.
-
-## Quick start
-
-1. Fork the repository.
-2. Clone your fork: `git clone git@github.com:<username>/marktext.git`
-3. Create a feature branch: `git checkout -b feature`
-4. Make your changes and push your branch.
-5. Create a PR against `develop` and describe your changes.
-
-**Rebase your PR:**
-
-If there are conflicts or you want to update your local branch, please do the following:
-
-1. `git fetch upstream`
-2. `git rebase upstream/develop`
-3. Please [resolve](https://help.github.com/articles/resolving-merge-conflicts-after-a-git-rebase/) all conflicts and force push your feature branch: `git push -f`
-
-### Build Instructions
-
-🔗 [Build Instructions](https://marktext.me/docs/dev/build)
-
-### Style Guide
-
-You can run ESLint (`pnpm run lint`) to help you to follow the style guide.
-
-- ES6 and "best practices"
-- 2 space indent
-- no semicolons
-- documentation: [JSDoc](https://github.com/jsdoc/jsdoc) 
-
-### Commenting Guidelines
-
-When writing comments, please follow our [Commenting Guidelines](./COMMENTING-GUIDELINES.md). In short: a comment should describe what isn't obvious from the code — the rationale, units, invariants, and abstractions — rather than restating it. Reviewers check new and changed comments against these guidelines.
+- Share your thoughts! We want to hear about features you think MarkText is missing, bugs you find, and why you ❤️ MarkText.
 
 ## Developer Documentation
 
-Please [click here](https://marktext.me/docs/dev/overview) for more details.
+For more details, please [visit the developer documentation](https://marktext.me/docs/dev/overview).

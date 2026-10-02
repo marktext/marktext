@@ -144,6 +144,18 @@ test.describe('code-block language selector', () => {
         await expect(picker.locator('li.item[data-label="python"]')).toHaveCount(1);
     });
 
+    test('a whitespace-separated fence still opens the picker', async ({ page }) => {
+        // `~~~ pyth` — CommonMark trims the info string, so the language is
+        // `pyth` even though the fence is separated by a space (and the fence
+        // itself may be tildes).
+        await page.evaluate(() => window.muya!.setContent(''));
+        await page.locator(editor.paragraph).first().click();
+        await slowType(page, '~~~ pyth');
+        const picker = page.locator(floats.codeBlockLanguageSelector);
+        await expect(picker).toBeVisible();
+        await expect(picker.locator('li.item[data-label="python"]')).toHaveCount(1);
+    });
+
     test('selecting from the paragraph fence picker creates a fenced code block', async ({ page }) => {
         await page.evaluate(() => window.muya!.setContent(''));
         await page.locator(editor.paragraph).first().click();

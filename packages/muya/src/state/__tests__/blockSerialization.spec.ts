@@ -3,6 +3,7 @@ import type Parent from '../../block/base/parent';
 import type TreeNode from '../../block/base/treeNode';
 import type CodeBlock from '../../block/commonMark/codeBlock';
 import type { Nullable } from '../../types';
+import type { ICodeBlockState } from '../types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../muya';
 import { MarkdownToState } from '../markdownToState';
@@ -136,6 +137,60 @@ line 3
 \`\`\`
 `;
         expect(roundTrip(md)).toBe(md);
+    });
+
+    it('round-trips a tilde-fenced code block with a language tag', () => {
+        const md = `~~~js
+const x = 1;
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('round-trips a tilde-fenced code block without a language tag', () => {
+        const md = `~~~
+plain code
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('keeps the tilde fence when its info string contains backticks', () => {
+        // CommonMark §4.5 Example 146: a tilde info string may contain
+        // backticks and tildes; the fence character must not be rewritten.
+        const md = `~~~aa \`\`\` ~~~
+foo
+~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('always records fenceChar for fenced blocks', () => {
+        const tilde = parse('~~~js\nx\n~~~\n')[0] as ICodeBlockState;
+        expect(tilde.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '~' });
+
+        const backtick = parse('```js\nx\n```\n')[0] as ICodeBlockState;
+        expect(backtick.meta).toEqual({ type: 'fenced', lang: 'js', fenceChar: '`' });
+
+        // Indented blocks have no fence, so they never carry the field.
+        const indented = parse('    x\n')[0] as ICodeBlockState;
+        expect(indented.meta.fenceChar).toBeUndefined();
+    });
+
+    it('grows the tilde fence past an interior run of the same character', () => {
+        const md = `~~~~
+~~~
+~~~~
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('switches to a tilde fence when a backtick fence carries a backtick in its info string', () => {
+        const out = new ExportMarkdown({ listIndentation: 1 }).generate([
+            { name: 'code-block', meta: { type: 'fenced', lang: 'a`b', fenceChar: '`' }, text: 'x' },
+        ]);
+        expect(out).toContain('~~~a`b');
+        expect(out).toContain('~~~\n');
     });
 });
 
@@ -290,6 +345,7 @@ describe('codeBlock — setting lang promotes an indented block to fenced', () =
             if (state.name !== 'code-block')
                 throw new Error('expected a code-block state');
             expect(state.meta.type).toBe('fenced');
+            expect(state.meta.fenceChar).toBe('`');
         });
     });
 

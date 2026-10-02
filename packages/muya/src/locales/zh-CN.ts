@@ -9,8 +9,8 @@ export const zhCN = {
         'Align Left': '左对齐',
         'Align Center': '居中对齐',
         'Align Right': '右对齐',
-        'Insert Column left': '在左边插入列',
-        'Insert Column right': '在右边插入列',
+        'Insert Column Left': '在左边插入列',
+        'Insert Column Right': '在右边插入列',
         'Remove Column': '删除所在列',
         // quickInsert
         'Paragraph': '普通段落',

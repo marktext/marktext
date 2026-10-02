@@ -50,7 +50,19 @@ vi.mock('main_renderer/utils/pandoc', async(importOriginal) => {
       { id: 'epub', label: 'EPUB', target: 'epub3', extension: '.epub' },
       { id: 'rst', label: 'RST', target: 'rst', extension: '.rst' }
     ],
-    getPandocReader: () => 'gfm',
+    getPandocReader: actual.getPandocReader,
+    // A stand-in listing: `gfm` carries `tex_math_gfm`, `markdown` the backslash pair.
+    getReaderExtensions: async() => ({
+      gfm: new Map([
+        ['tex_math_dollars', true],
+        ['tex_math_gfm', true]
+      ]),
+      markdown: new Map([
+        ['tex_math_dollars', true],
+        ['tex_math_single_backslash', false],
+        ['tex_math_double_backslash', false]
+      ])
+    }),
     getPandocLanguage: (locale: string) => locale,
     formatLinksMedia: (target: string) => target === 'rst',
     listLinkedMedia,
@@ -76,7 +88,11 @@ const EXPORT_PAYLOAD = {
   title: 'Notes',
   pathname: '/docs/notes.md',
   superSubScript: false,
-  footnote: false
+  footnote: false,
+  texMathDollars: true,
+  texMathGfm: false,
+  texMathSingleBackslash: false,
+  texMathDoubleBackslash: false
 }
 
 const exportWith = async(
@@ -212,6 +228,19 @@ describe('mt::response-pandoc-export notifications', () => {
     listLinkedMedia.mockResolvedValue([path.resolve('/docs/pics/a.png')])
     await exportWith('rst', { pathname: '' })
     expect(optionsOfLastExport()).toMatchObject({ mirrorMedia: true })
+  })
+
+  // #5566: the Preferences → Markdown math toggles reach the reader the export spawns with,
+  // or a `\(…\)` document is read as escaped punctuation and stays raw LaTeX in Word.
+  it('builds the reader from the math preferences in the payload', async() => {
+    // A backslash extension moves the reader off `gfm`, which cannot name it.
+    await exportWith('rst', { texMathSingleBackslash: true })
+    expect(optionsOfLastExport().reader).toBe('markdown+tex_math_single_backslash')
+
+    // GFM math stays on the `gfm` reader.
+    toFile.mockClear()
+    await exportWith('docx', { texMathGfm: true })
+    expect(optionsOfLastExport().reader).toBe('gfm-footnotes+tex_math_gfm')
   })
 
   // EPUB takes `title` for its title page; `lang` must be the app's, not the spawn locale.

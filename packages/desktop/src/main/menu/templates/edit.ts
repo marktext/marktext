@@ -26,26 +26,27 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       {
         type: 'separator'
       },
+      // NOTE: Cut/Copy/Paste must stay native roles (no custom `click`). On
+      //       macOS Electron then forwards the action to the native first
+      //       responder (i.e. `Menu.sendActionToFirstResponder('paste:')`)
+      //       instead of pasting into a MarkText webContents. This is what
+      //       allows Cmd+V to reach editable controls in native Open/Save
+      //       panels (e.g. the "Go to Folder" sheet) while a MarkText window is
+      //       focused it still pastes into the editor (#5582).
       {
         label: t('menu.edit.cut'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_CUT) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.nativeCut(browserWindow as BrowserWindow | undefined)
-        }
+        role: 'cut'
       },
       {
         label: t('menu.edit.copy'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_COPY) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.nativeCopy(browserWindow as BrowserWindow | undefined)
-        }
+        role: 'copy'
       },
       {
         label: t('menu.edit.paste'),
         accelerator: keybindings.getAccelerator(COMMANDS.EDIT_PASTE) ?? undefined,
-        click(_menuItem, browserWindow) {
-          actions.nativePaste(browserWindow as BrowserWindow | undefined)
-        }
+        role: 'paste'
       },
       {
         type: 'separator'

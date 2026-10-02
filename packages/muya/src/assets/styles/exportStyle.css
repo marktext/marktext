@@ -109,6 +109,11 @@
     display: table;
 }
 
+.markdown-body table th,
+.markdown-body table td {
+    overflow-wrap: anywhere;
+}
+
 .markdown-body img[data-align='center'] {
     display: block;
     margin: 0 auto;
@@ -119,6 +124,8 @@
     margin: 0 0 0 auto;
 }
 
+/* GitHub drops a task item's marker (bullet or number) and pulls the checkbox
+   into the gutter, so an ordered task list shows no `1.`/`1)`. */
 .markdown-body li:has(input[type='checkbox']) {
     list-style-type: none;
 }

@@ -4,7 +4,6 @@ import type { IRenderCursor } from '../../../selection/types';
 import type {
     IBlockQuoteState,
     IBulletListState,
-    IDiagramMeta,
     IListItemState,
     IOrderListState,
     IParagraphState,
@@ -19,7 +18,8 @@ import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
 import { isListItemState, isTaskListItemState } from '../../../state/types';
-import { isKeyboardEvent, isLengthEven } from '../../../utils';
+import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
+import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
 import OrderList from '../../commonMark/orderList';
@@ -36,6 +36,19 @@ type TListBlock = BulletList | OrderList | TaskList;
 // delimiter.
 function listMarker(list: TListBlock): string {
     return 'delimiter' in list.meta ? list.meta.delimiter : list.meta.marker;
+}
+
+// The number an ordered list numbers from, or `undefined` for the unordered
+// kinds; the split paths below have to rebase it for task lists as well.
+function orderedListStart(list: TListBlock): number | undefined {
+    if (list instanceof OrderList)
+        return list.meta.start;
+
+    if (list.blockName !== 'task-list')
+        return undefined;
+
+    const { meta } = list as TaskList;
+    return meta.ordered ? meta.start : undefined;
 }
 
 enum UnindentType {
@@ -61,14 +74,13 @@ function holdsItemKind(list: Parent, listItem: Parent) {
 const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
-const CODE_BLOCK_REG = /(^ {0,3}`{3,})([^` ]*)/;
 const MATH_BLOCK_REG = /^\$\$[ \t]*$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
 
 type BlockConversion
     = | { kind: 'math' }
-        | { kind: 'code'; lang: string }
+        | { kind: 'code'; lang: string; fenceChar: '`' | '~' }
         | { kind: 'table' }
         | { kind: 'html'; tagName: string };
 
@@ -83,9 +95,9 @@ function matchBlockConversion(text: string, texMathDollars: boolean): BlockConve
     if (texMathDollars && MATH_BLOCK_REG.test(text))
         return { kind: 'math' };
 
-    const codeBlockToken = text.match(CODE_BLOCK_REG);
-    if (codeBlockToken)
-        return { kind: 'code', lang: codeBlockToken[2] };
+    const fence = parseFenceLine(text);
+    if (fence)
+        return { kind: 'code', lang: firstWordOfInfo(fence.info), fenceChar: fence.fenceChar };
 
     const tableMatch = TABLE_BLOCK_REG.exec(text);
     if (tableMatch && isLengthEven(tableMatch[1]) && isLengthEven(tableMatch[2]))
@@ -307,21 +319,13 @@ class ParagraphContent extends Format {
             }
 
             case 'code': {
-                const { lang } = match;
+                const { lang, fenceChar } = match;
                 // Diagram fences (```mermaid etc.) become diagram blocks,
                 // mirroring the file-load path in markdownToState; everything
                 // else is a fenced code block.
-                const diagramMatch = /^(?:mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
-                if (diagramMatch) {
-                    const type = lang as IDiagramMeta['type'];
-                    const state = {
-                        name: 'diagram',
-                        text: '',
-                        meta: {
-                            type,
-                            lang: type === 'vega-lite' ? 'json' : 'yaml',
-                        },
-                    };
+                const diagramType = diagramTypeOfLang(lang);
+                if (diagramType) {
+                    const state = createDiagramState(diagramType);
                     const diagramBlock = ScrollPage.loadBlock(state.name).create(
                         this.muya,
                         state,
@@ -337,6 +341,7 @@ class ParagraphContent extends Format {
                         meta: {
                             lang,
                             type: 'fenced',
+                            fenceChar,
                         },
                         text: '',
                     };
@@ -894,8 +899,9 @@ class ParagraphContent extends Format {
             const offset = outerList.offset(parentItem);
             const tailItems: Parent[] = [];
             outerList.forEachAt(offset + 1, undefined, node => tailItems.push(node as Parent));
-            const meta = outerList instanceof OrderList
-                ? { ...outerList.meta, start: outerList.meta.start + offset + 1 }
+            const outerStart = orderedListStart(outerList);
+            const meta = outerStart !== undefined
+                ? { ...outerList.meta, start: outerStart + offset + 1 }
                 : { ...outerList.meta };
             tailList = ScrollPage.loadBlock(outerList.blockName).create(muya, {
                 name: outerList.blockName,
@@ -909,7 +915,7 @@ class ParagraphContent extends Format {
         if (
             !tailList
             && following?.blockName === nestedList.blockName
-            && !(nestedList instanceof OrderList)
+            && orderedListStart(nestedList) === undefined
             && listMarker(following) === listMarker(nestedList)
         ) {
             const newListItem = listItem.clone() as Parent;
@@ -923,8 +929,9 @@ class ParagraphContent extends Format {
         const loose = listMarker(outerList) === listMarker(nestedList)
             ? outerList.meta.loose
             : nestedList.meta.loose;
-        const meta = nestedList instanceof OrderList
-            ? { ...nestedList.meta, loose, start: nestedList.meta.start + nestedList.offset(listItem) }
+        const nestedStart = orderedListStart(nestedList);
+        const meta = nestedStart !== undefined
+            ? { ...nestedList.meta, loose, start: nestedStart + nestedList.offset(listItem) }
             : { ...nestedList.meta, loose };
         const newList: Parent = ScrollPage.loadBlock(nestedList.blockName).create(muya, {
             name: nestedList.blockName,

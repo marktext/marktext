@@ -10,7 +10,8 @@ import type {
     ITaskListState,
     TState,
 } from './types';
-import { firstWordOfInfo } from '../utils';
+import { firstWordOfInfo, parseFenceLine } from '../utils';
+import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -131,46 +132,7 @@ export class MarkdownToState {
             }
 
             case 'list': {
-                const { listType, loose, start } = token;
-                const bulletMarkerOrDelimiter
-                    = token.items[0].bulletMarkerOrDelimiter;
-
-                let listState: IOrderListState | IBulletListState | ITaskListState;
-                if (listType === 'order') {
-                    const sourceMarkers = token.items.map((item: ListItemToken) => item.orderMarker);
-                    listState = {
-                        name: 'order-list',
-                        meta: {
-                            loose,
-                            start: /^\d+$/.test(String(start)) ? Number(start) : 1,
-                            delimiter: bulletMarkerOrDelimiter || '.',
-                            ...(sourceMarkers.every((marker): marker is string => !!marker) ? { sourceMarkers } : {}),
-                        },
-                        children: [],
-                    };
-                }
-                else if (listType === 'task') {
-                    listState = {
-                        name: 'task-list',
-                        meta: {
-                            loose,
-                            marker: bulletMarkerOrDelimiter || '-',
-                        },
-                        children: [],
-                    };
-                }
-                else {
-                    listState = {
-                        name: 'bullet-list',
-                        meta: {
-                            loose,
-                            marker: bulletMarkerOrDelimiter || '-',
-                        },
-                        children: [],
-                    };
-                }
-
-                state = listState;
+                state = this._buildListState(token);
                 parentList[0].push(state);
                 parentList.unshift(state.children);
                 tokens.unshift({ type: 'block-end', tokenType: 'list' });
@@ -184,7 +146,10 @@ export class MarkdownToState {
                 if (listItemType === 'task') {
                     itemState = {
                         name: 'task-list-item',
-                        meta: { checked: Boolean(checked) },
+                        meta: {
+                            checked: Boolean(checked),
+                            ...(orderMarker ? { orderMarker } : {}),
+                        },
                         children: [],
                     };
                 }
@@ -222,6 +187,61 @@ export class MarkdownToState {
                 break;
             }
         }
+    }
+
+    // `token` is one run of same-kind items (see compatibleTaskList).
+    private _buildListState(
+        token: Extract<TBlockToken, { type: 'list' }>,
+    ): IOrderListState | IBulletListState | ITaskListState {
+        const { listType, loose, start } = token;
+        const bulletMarkerOrDelimiter = token.items[0].bulletMarkerOrDelimiter;
+        const ordered = token.ordered === true;
+        // Resolved by `compatibleTaskList` (list's first marker + run offset).
+        const orderStart
+            = typeof start === 'number' && Number.isFinite(start) ? start : 1;
+        const sourceMarkers = token.items.map((item: ListItemToken) => item.orderMarker);
+        const markers = sourceMarkers.every((marker): marker is string => !!marker)
+            ? { sourceMarkers }
+            : {};
+
+        if (listType === 'order') {
+            return {
+                name: 'order-list',
+                meta: {
+                    loose,
+                    start: orderStart,
+                    delimiter: bulletMarkerOrDelimiter || '.',
+                    ...markers,
+                },
+                children: [],
+            };
+        }
+
+        if (listType === 'task') {
+            return ordered
+                ? {
+                        name: 'task-list',
+                        meta: {
+                            ordered: true,
+                            loose,
+                            start: orderStart,
+                            delimiter: bulletMarkerOrDelimiter || '.',
+                            ...markers,
+                        },
+                        children: [],
+                    }
+                : {
+                        name: 'task-list',
+                        meta: { loose, marker: bulletMarkerOrDelimiter || '-' },
+                        children: [],
+                    };
+        }
+
+        return {
+            name: 'bullet-list',
+            meta: { loose, marker: bulletMarkerOrDelimiter || '-' },
+            children: [],
+        };
     }
 
     private _handleLeafToken(
@@ -292,9 +312,13 @@ export class MarkdownToState {
                 // marked >=17 appends a trailing newline to indented code text
                 // (fenced text has none); strip it so indented blocks round-trip.
                 const codeText = codeBlockStyle === 'indented' ? text.replace(/\n$/, '') : text;
-                const fenceLength = /^ {0,3}([`~]{3,})/.exec(raw)?.[1].length;
+                // Read the opening fence itself so its character (` or ~) and
+                // run length both survive the round trip (CommonMark §4.5).
+                const fence = parseFenceLine(raw);
+                const fenceLength = fence?.fenceLength;
+                const fenceChar = fence?.fenceChar;
                 parentList[0].push(
-                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines, fenceLength),
+                    this._buildCodeState(codeText, infoString, codeBlockStyle, trimUnnecessaryCodeBlockEmptyLines, fenceLength, fenceChar),
                 );
                 break;
             }
@@ -426,6 +450,7 @@ export class MarkdownToState {
         codeBlockStyle: 'indented' | undefined,
         trimUnnecessaryCodeBlockEmptyLines: boolean,
         fenceLength?: number,
+        fenceChar?: '`' | '~',
     ): TState {
         // Keep the whole info string; the language for highlighting / diagram
         // detection is its first word (CommonMark §4.5).
@@ -441,18 +466,9 @@ export class MarkdownToState {
             value = value.replace(/\n+$/, '').replace(/^\n+/, '');
         }
 
-        const diagramMatch = /^(mermaid|vega-lite|plantuml|flowchart|sequence)$/.exec(lang);
-        if (diagramMatch) {
-            const diagramType = diagramMatch[1] as 'mermaid' | 'vega-lite' | 'plantuml' | 'flowchart' | 'sequence';
-            return {
-                name: 'diagram' as const,
-                text: value,
-                meta: {
-                    type: diagramType,
-                    lang: diagramType === 'vega-lite' ? 'json' : 'yaml',
-                },
-            };
-        }
+        const diagramType = diagramTypeOfLang(lang);
+        if (diagramType)
+            return createDiagramState(diagramType, value);
 
         // walkTokens (utils/marked/walkTokens.ts) writes
         // codeBlockStyle = 'fenced' for fenced blocks and
@@ -469,6 +485,7 @@ export class MarkdownToState {
                 // language is its first word — see `firstWordOfInfo`.
                 lang: info,
                 ...(isFenced && fenceLength && fenceLength > 3 ? { fenceLength } : {}),
+                ...(isFenced ? { fenceChar: fenceChar ?? '`' } : {}),
             },
             text: value,
         };

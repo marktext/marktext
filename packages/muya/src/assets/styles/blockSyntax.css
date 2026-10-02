@@ -403,7 +403,7 @@ span.mu-language-input {
 }
 
 .mu-code-block.mu-fenced-code.mu-active .mu-language-input {
-    left: 20px;
+    left: 30px;
 }
 
 /* loose tight list */
@@ -485,8 +485,10 @@ ol.mu-order-list ol.mu-order-list ul.mu-bullet-list {
     opacity: 1;
 }
 
-/* task list */
-ul.mu-task-list {
+/* task list — GitHub hides a task item's marker and pulls its checkbox into the
+   marker gutter, numbered or not (`li.task-list-item` in github-markdown-css). */
+ul.mu-task-list,
+ol.mu-task-list {
     padding-inline-start: 30px;
 }
 
@@ -904,6 +906,12 @@ pre.mu-active[data-role='vega-lite']::after {
     content: '```';
 }
 
+/* A tilde-fenced code block draws its own fence character in the marker. */
+pre.mu-active.mu-fenced-code.mu-tilde-fence::before,
+pre.mu-active.mu-fenced-code.mu-tilde-fence::after {
+    content: '~~~';
+}
+
 pre.mu-active.mu-frontmatter::before,
 pre.mu-active.mu-frontmatter::after,
 pre.mu-active[data-role='mermaid']::before,
@@ -991,9 +999,12 @@ pre.mu-active.mu-fenced-code::after {
 }
 
 .mu-table-cell-content {
-    min-width: 2em;
     position: relative;
     z-index: 2;
+
+    min-width: 2em;
+
+    overflow-wrap: anywhere;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`

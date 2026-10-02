@@ -34,11 +34,16 @@ class TaskList extends Parent {
 
     constructor(muya: Muya, { meta }: ITaskListState) {
         super(muya);
-        this.tagName = 'ul';
         this.meta = meta;
-        this.datasets = {
-            marker: meta.marker,
-        };
+        if (meta.ordered) {
+            this.tagName = 'ol';
+            this.attributes = { start: String(meta.start) };
+            this.datasets = { delimiter: meta.delimiter };
+        }
+        else {
+            this.tagName = 'ul';
+            this.datasets = { marker: meta.marker };
+        }
         this.classList = [CLASS_NAMES.MU_TASK_LIST];
         if (!meta.loose)
             this.classList.push('mu-tight-list');
@@ -48,10 +53,12 @@ class TaskList extends Parent {
 
     /**
      * Auto move checked list item to the end of task list.
+     *
+     * Ordered task lists keep the source order, so checked items stay put.
      */
     orderIfNecessary() {
         const { autoMoveCheckedToEnd } = this.muya.options;
-        if (!autoMoveCheckedToEnd)
+        if (!autoMoveCheckedToEnd || this.meta.ordered)
             return;
 
         let first = this.firstChild as TaskListItem;

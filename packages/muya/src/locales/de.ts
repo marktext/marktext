@@ -9,8 +9,8 @@ export const de = {
         'Align Left': 'Linksbündig',
         'Align Center': 'Zentriert',
         'Align Right': 'Rechtsbündig',
-        'Insert Column left': 'Spalte links einfügen',
-        'Insert Column right': 'Spalte rechts einfügen',
+        'Insert Column Left': 'Spalte links einfügen',
+        'Insert Column Right': 'Spalte rechts einfügen',
         'Remove Column': 'Spalte entfernen',
         // quickInsert
         'Paragraph': 'Absatz',

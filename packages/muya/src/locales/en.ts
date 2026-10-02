@@ -9,8 +9,8 @@ export const en = {
         'Align Left': 'Align Left',
         'Align Center': 'Align Center',
         'Align Right': 'Align Right',
-        'Insert Column left': 'Insert Column left',
-        'Insert Column right': 'Insert Column right',
+        'Insert Column Left': 'Insert Column Left',
+        'Insert Column Right': 'Insert Column Right',
         'Remove Column': 'Remove Column',
         // quickInsert
         'Paragraph': 'Paragraph',

@@ -51,7 +51,15 @@ function onFlushCommit(store: ReturnType<typeof useEditorStore>) {
 
 const sentPayload = (sendSpy: { mock: { calls: unknown[][] } }) =>
   sendSpy.mock.calls.find((c) => c[0] === 'mt::response-pandoc-export')?.[1] as {
-    markdown: string; pathname: string; target: string; superSubScript: boolean; footnote: boolean
+    markdown: string
+    pathname: string
+    target: string
+    superSubScript: boolean
+    footnote: boolean
+    texMathDollars: boolean
+    texMathGfm: boolean
+    texMathSingleBackslash: boolean
+    texMathDoubleBackslash: boolean
   }
 
 describe('pandoc export payload (#5379)', () => {
@@ -84,14 +92,26 @@ describe('pandoc export payload (#5379)', () => {
     })
   })
 
-  // Only the renderer knows these: `gfm` enables footnotes itself, so it must be told to stop.
+  // Only the renderer knows these: `gfm` enables footnotes itself, so it must be told to stop,
+  // and the math delimiters the editor reads are preferences pandoc does not know (#5566).
   it('reports the reader preferences to the main process', () => {
     usePreferencesStore().superSubScript = true
     usePreferencesStore().footnote = false
+    usePreferencesStore().texMathDollars = false
+    usePreferencesStore().texMathGfm = true
+    usePreferencesStore().texMathSingleBackslash = true
+    usePreferencesStore().texMathDoubleBackslash = true
 
     store.EXPORT_PANDOC('docx')
 
-    expect(sentPayload(sendSpy)).toMatchObject({ superSubScript: true, footnote: false })
+    expect(sentPayload(sendSpy)).toMatchObject({
+      superSubScript: true,
+      footnote: false,
+      texMathDollars: false,
+      texMathGfm: true,
+      texMathSingleBackslash: true,
+      texMathDoubleBackslash: true
+    })
   })
 
   it('does nothing when no tab is open', () => {
