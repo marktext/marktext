@@ -76,6 +76,8 @@ asarUnpack:
   - resources/**
   # Spawned with ELECTRON_RUN_AS_NODE, which cannot read the asar archive.
   - out/main/agentMcpBridge.js
+  # The pty addon is a native binary; Electron cannot load it from inside asar.
+  - node_modules/node-pty/**/*
 fileAssociations:
   - ext: md
     name: Markdown

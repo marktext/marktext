@@ -152,8 +152,12 @@ console.log('Applying patches...')
 run(`"${patchPackageBin}"`, { cwd: desktopRoot })
 
 // ── 4. Rebuild native modules for Electron ABI ──────────────────────────────
-console.log('Rebuilding native modules for Electron...')
-run(`"${electronRebuildBin}" -f`, { cwd: desktopRoot })
+// `-w` adds modules that must be built for Electron even when the default
+// prod/optional walk would skip them. node-pty ships Node prebuilds; the
+// packaged app needs the Electron ABI instead.
+const nativeModules = ['node-pty', 'native-keymap']
+console.log(`Rebuilding native modules for Electron (${nativeModules.join(', ')})...`)
+run(`"${electronRebuildBin}" -f -w ${nativeModules.join(',')}`, { cwd: desktopRoot })
 
 // ── 5. Generate minified locale files ───────────────────────────────────────
 console.log('Minifying locales...')

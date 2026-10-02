@@ -16,6 +16,7 @@ allowBuilds:
   esbuild: true
   keytar: true
   native-keymap: true
+  node-pty: true
   sharp: true
   unrs-resolver: true
   workerd: true

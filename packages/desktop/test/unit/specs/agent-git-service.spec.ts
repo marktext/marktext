@@ -4,11 +4,13 @@ import os from 'os'
 import path from 'path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+  clipPatch,
   diffHead,
   getRepoRoot,
   getUserName,
   hashFiles,
-  statusSnapshot
+  statusSnapshot,
+  worktreeDiff
 } from 'main_renderer/agent/repo/gitService'
 
 const dirs: string[] = []
@@ -122,6 +124,40 @@ describe('gitService', () => {
     const patch = await diffHead(empty, ['a.txt'])
     expect(patch).toContain('a.txt')
     expect(patch).toContain('+only')
+  })
+
+  it('diffs the whole worktree, including untracked files and excluding ignored ones', async() => {
+    const dir = tempDir()
+    await initRepo(dir, 'Tester')
+    fs.writeFileSync(path.join(dir, 'note.md'), 'base\n')
+    fs.writeFileSync(path.join(dir, '.gitignore'), 'secret.md\n')
+    await git(dir, ['add', '--', 'note.md', '.gitignore'])
+    await git(dir, ['commit', '-qm', 'init'])
+    fs.appendFileSync(path.join(dir, 'note.md'), 'edit\n')
+    fs.writeFileSync(path.join(dir, 'draft.md'), 'visible\n')
+    fs.writeFileSync(path.join(dir, 'secret.md'), 'hidden\n')
+
+    const patch = await diffHead(dir)
+    expect(patch).toContain('+edit')
+    expect(patch).toContain('visible')
+    expect(patch).not.toContain('hidden')
+
+    const limited = await diffHead(dir, ['note.md'])
+    expect(limited).toContain('+edit')
+    expect(limited).not.toContain('visible')
+
+    const whole = await worktreeDiff(dir)
+    expect(whole.truncated).toBeUndefined()
+    expect(whole.patch).toContain('visible')
+  })
+
+  it('cuts a patch on a UTF-8 boundary and marks it truncated', () => {
+    expect(clipPatch('abc', 3)).toEqual({ patch: 'abc' })
+    expect(clipPatch('abcd', 3)).toEqual({ patch: 'abc', truncated: true })
+    const letter = 'я'
+    expect(Buffer.byteLength(letter)).toBe(2)
+    expect(clipPatch(letter + letter, 3)).toEqual({ patch: letter, truncated: true })
+    expect(clipPatch(letter, 2)).toEqual({ patch: letter })
   })
 
   it('throws git_not_found when git is absent from PATH', async() => {

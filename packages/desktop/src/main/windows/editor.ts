@@ -571,6 +571,10 @@ class EditorWindow extends BaseWindow {
       return
     }
 
+    // The folder changed. Terminals still running in the previous root must stop.
+    await agentHostFor(windowId).disposePty()
+    if (this._hasQuit()) return
+
     if (this.lifecycle !== WindowLifecycle.READY) {
       this._directoryToOpen = pathname
       return

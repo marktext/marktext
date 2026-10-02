@@ -17,9 +17,10 @@ import {
 } from './harness/harnessRegistry'
 import { listModels } from './harness/modelProbe'
 import { answerPermission } from './harness/permissionGate'
-import { getUserName } from './repo/gitService'
+import { GitDiffError, getUserName, worktreeDiff } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
 import { recordEditorSave } from './turn/changeTracker'
+import { PtyManager } from './terminal/ptyManager'
 import { TurnRunner } from './turn/turnRunner'
 import type { ThreadPlacement } from './turn/messageBuilder'
 import { setWindowAgentHost } from './windowAgentHost'
@@ -64,6 +65,7 @@ export interface AgentIpcDeps {
 }
 
 const turnRunners = new Map<number, TurnRunner>()
+let terms: PtyManager | null = null
 
 const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
   const existing = turnRunners.get(windowId)
@@ -86,7 +88,7 @@ const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
     hasActiveTurn: () => runner.hasActiveTurn(),
     cancelTurn: () => runner.cancelTurn(),
     disposeHarness: () => runner.disposeHarness(),
-    disposePty: () => Promise.resolve()
+    disposePty: () => terms?.disposeWindow(windowId) ?? Promise.resolve()
   })
   return runner
 }
@@ -98,6 +100,21 @@ const repoOf = (windowId: number): string | null => {
 
 export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   hookEditorSaves()
+  terms = new PtyManager({
+    shellPreference: () => deps?.harnessPath('agentTerminalShell'),
+    repoRoot: repoOf,
+    newId: () => randomUUID(),
+    onData: (windowId, termId, data) => {
+      const win = BrowserWindow.fromId(windowId)
+      if (!win || win.isDestroyed()) return
+      win.webContents.send('mt::term::data', termId, data)
+    },
+    onExit: (windowId, termId, code) => {
+      const win = BrowserWindow.fromId(windowId)
+      if (!win || win.isDestroyed()) return
+      win.webContents.send('mt::term::exit', termId, code)
+    }
+  })
   bindCommentsService({
     now: () => new Date().toISOString(),
     newId: () => randomUUID(),
@@ -163,6 +180,39 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { kind: 'none' as const }
     return repoRegistry.state(win.id)
+  })
+
+  ipcMain.handle('mt::git::diff', (event, request: { paths?: string[] } | undefined) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    const root = repoOf(win.id)
+    if (!root) return Promise.reject(new GitDiffError())
+    return worktreeDiff(root, request?.paths)
+  })
+
+  ipcMain.handle('mt::term::create', (event, size: { cols?: number, rows?: number } | undefined) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    turnRunnerFor(win.id, deps)
+    return terms?.create(win.id, { cols: size?.cols ?? 80, rows: size?.rows ?? 24 })
+  })
+
+  ipcMain.handle('mt::term::kill', (event, termId: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win || typeof termId !== 'string') return
+    terms?.kill(win.id, termId)
+  })
+
+  ipcMain.on('mt::term::input', (event, termId: unknown, data: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win || typeof termId !== 'string' || typeof data !== 'string') return
+    terms?.input(win.id, termId, data)
+  })
+
+  ipcMain.on('mt::term::resize', (event, termId: unknown, cols: unknown, rows: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win || typeof termId !== 'string' || typeof cols !== 'number' || typeof rows !== 'number') return
+    terms?.resize(win.id, termId, cols, rows)
   })
 
   ipcMain.handle('mt::comments::load', async(event, file: string) => {

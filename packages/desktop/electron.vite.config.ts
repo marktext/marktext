@@ -68,7 +68,7 @@ export default defineConfig({
         // it externalized makes the main process `require('plist')` throw
         // ERR_PACKAGE_PATH_NOT_EXPORTED at startup.
         exclude: ['electron-store', 'plist', '@agentclientprotocol/sdk', 'zod'],
-        include: ['native-keymap']
+        include: ['native-keymap', 'node-pty']
       },
       rollupOptions: {
         input: {

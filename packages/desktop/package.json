@@ -32,7 +32,7 @@
   },
   "scripts": {
     "minify-locales": "tsx ../../scripts/minify-locales.ts",
-    "rebuild-native": "electron-rebuild -f",
+    "rebuild-native": "electron-rebuild -f -w node-pty,native-keymap",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
@@ -95,6 +95,7 @@
     "minimatch": "^9.0.9",
     "mitt": "^3.0.1",
     "ms": "^2.1.3",
+    "node-pty": "^1.1.0",
     "pako": "^2.1.0",
     "pathe": "^2.0.3",
     "pinia": "^3.0.4",
@@ -109,8 +110,8 @@
     "vue-i18n": "^11.4.6",
     "vue-router": "^4.6.4",
     "webfontloader": "^1.6.28",
-    "zod": "^4.6.5",
-    "write-file-atomic": "^7.0.1"
+    "write-file-atomic": "^7.0.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.4",

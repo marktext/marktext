@@ -4,6 +4,18 @@ import { HUMAN_FALLBACK_NAME } from '@shared/types/comments'
 
 const GIT_EXEC_TIMEOUT_MS = 30_000
 const GIT_MAX_BUFFER_BYTES = 64 * 1024 * 1024
+/** Unified patch returned to the renderer. Longer output is cut on a UTF-8 boundary. */
+export const DIFF_PATCH_MAX_BYTES = 5 * 1024 * 1024
+
+/** The diff channel was asked for a window that has no repository. */
+export class GitDiffError extends Error {
+  readonly code = 'no_repo' as const
+
+  constructor(message = 'the window has no repository') {
+    super(message)
+    this.name = 'GitDiffError'
+  }
+}
 
 /**
  * `git` missing from `PATH` (`git_not_found`). Any other failure is `git_failed`.
@@ -185,12 +197,39 @@ const diffBase = async(root: string): Promise<string> => {
 const joinPatches = (parts: string[]): string =>
   parts.filter(part => part.length > 0).map(part => part.endsWith('\n') ? part : `${part}\n`).join('')
 
+export interface GitDiffPatch {
+  patch: string
+  /** Set when `patch` is only the first `DIFF_PATCH_MAX_BYTES` of the full diff. */
+  truncated?: true
+}
+
+const utf8Width = (lead: number): number => {
+  if ((lead & 0x80) === 0) return 1
+  if ((lead & 0xe0) === 0xc0) return 2
+  if ((lead & 0xf0) === 0xe0) return 3
+  if ((lead & 0xf8) === 0xf0) return 4
+  return 1
+}
+
+/** Keeps a leading prefix that is valid UTF-8 and no longer than `limit` bytes. */
+export const clipPatch = (patch: string, limit = DIFF_PATCH_MAX_BYTES): GitDiffPatch => {
+  const bytes = Buffer.from(patch, 'utf8')
+  if (bytes.length <= limit) return { patch }
+  let end = limit
+  let lead = end - 1
+  while (lead >= 0 && ((bytes[lead] ?? 0) & 0xc0) === 0x80) lead -= 1
+  const leadByte = lead >= 0 ? bytes[lead] : undefined
+  if (leadByte !== undefined && lead + utf8Width(leadByte) > limit) end = lead
+  return { patch: bytes.subarray(0, end).toString('utf8'), truncated: true }
+}
+
 /**
  * Diff against `HEAD` (or the empty tree when there is no commit).
  * Exit code 1 is a difference, not a failure.
- * Untracked paths are omitted by `git diff`, so each untracked path in `paths`
- * is compared with `diff --no-index` against the null device (`NUL` on Windows).
- * Omitting `paths` diffs every tracked change.
+ * Untracked paths are omitted by `git diff`, so each one is compared with
+ * `diff --no-index` against the null device (`NUL` on Windows).
+ * Omitting `paths` diffs the whole worktree: tracked changes plus every
+ * untracked file from `status` (ignored paths are not in that list).
  */
 export const diffHead = async(root: string, paths?: readonly string[]): Promise<string> => {
   const base = await diffBase(root)
@@ -200,7 +239,17 @@ export const diffHead = async(root: string, paths?: readonly string[]): Promise<
     return args
   }
   if (paths === undefined) {
-    return execGit(root, diffArgs([]), { acceptStatus: [1] })
+    const untracked = (await statusSnapshot(root))
+      .filter(entry => entry.xy === '??')
+      .map(entry => entry.path)
+    const trackedPatch = await execGit(root, diffArgs([]), { acceptStatus: [1] })
+    const parts = [trackedPatch]
+    for (const filePath of untracked) {
+      parts.push(await execGit(root, [
+        'diff', '--no-color', '--no-ext-diff', '--no-index', '--', nullDevice(), filePath
+      ], { acceptStatus: [1] }))
+    }
+    return joinPatches(parts)
   }
   if (paths.length === 0) return ''
 
@@ -226,3 +275,7 @@ export const diffHead = async(root: string, paths?: readonly string[]): Promise<
   }
   return joinPatches(parts)
 }
+
+/** `diffHead`, then the 5 MB cap the diff panel shows. */
+export const worktreeDiff = async(root: string, paths?: readonly string[]): Promise<GitDiffPatch> =>
+  clipPatch(await diffHead(root, paths))

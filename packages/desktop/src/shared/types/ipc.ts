@@ -107,7 +107,10 @@ export interface IpcInvokeChannels {
   'mt::fs::stat': { args: [path: string]; ret: SerializedStat }
   'mt::fs::unlink': { args: [path: string]; ret: void }
   'mt::fs::write-file': { args: [path: string, data: string | Uint8Array]; ret: void }
-  'mt::git::diff': { args: [request: { paths?: string[] }]; ret: { patch: string } }
+  'mt::git::diff': {
+    args: [request: { paths?: string[] }]
+    ret: { patch: string, truncated?: true }
+  }
   'mt::i18n::is-supported': { args: [lang: string]; ret: boolean }
   'mt::i18n::load': { args: [language: string]; ret: Record<string, unknown> }
   'mt::i18n::supported': { args: []; ret: string[] }
