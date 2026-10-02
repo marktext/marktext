@@ -431,5 +431,20 @@
     "description": "Watcher--Whether to use polling. Polling may leads to high CPU utilization but is necessary to watch files over a network.--internal",
     "type": "boolean",
     "default": false
+  },
+  "agentOpencodePath": {
+    "description": "Agent--Path to the OpenCode executable. Empty searches PATH.--internal",
+    "type": "string",
+    "default": ""
+  },
+  "agentPiPath": {
+    "description": "Agent--Path to the Pi executable. Empty searches PATH.--internal",
+    "type": "string",
+    "default": ""
+  },
+  "agentCursorPath": {
+    "description": "Agent--Path to the Cursor agent executable. Empty searches PATH.--internal",
+    "type": "string",
+    "default": ""
   }
 }

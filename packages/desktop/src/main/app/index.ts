@@ -666,7 +666,9 @@ class App {
   private _listenForIpcMain(): void {
     registerKeyboardListeners()
     registerSpellcheckerListeners()
-    registerAgentIpc()
+    registerAgentIpc({
+      harnessPath: (key) => this._accessor.preferences.getItem(key)
+    })
 
     // Handle language setting requests
     ipcMain.on('mt::get-current-language', (event) => {

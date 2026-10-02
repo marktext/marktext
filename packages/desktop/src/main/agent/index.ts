@@ -1,16 +1,24 @@
 import { randomUUID } from 'crypto'
 import { BrowserWindow, ipcMain } from 'electron'
+import log from 'electron-log'
 import type { HarnessStatus } from '@shared/types/agent'
 import { COMMENTS_FILE_VERSION, type CommentsMutation } from '@shared/types/comments'
 import { bindCommentsService, CommentsServiceError, commentsService } from './comments/commentsService'
 import { load } from './comments/commentsStore'
 import { windowTurn } from './comments/windowTurn'
+import {
+  changedHarnessIds,
+  getHarnessStatus,
+  harnessPathsFromPreferences,
+  invalidateHarnessStatus
+} from './harness/harnessRegistry'
 import { getUserName } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
+import { onInternalChannel } from '../utils/internalIpc'
 
 let harnessStatuses: HarnessStatus[] = []
 
-/** Statuses last published by the harness registry. Empty until that registry exists. */
+/** Statuses last published to windows. Empty until the first probe finishes. */
 export const currentHarnessStatuses = (): HarnessStatus[] => harnessStatuses
 
 export const replaceHarnessStatuses = (next: HarnessStatus[]): void => {
@@ -22,12 +30,21 @@ export const sendHarnessStatus = (win: BrowserWindow): void => {
   win.webContents.send('mt::agent::harness-status-changed', currentHarnessStatuses())
 }
 
+const publishHarnessStatus = (statuses: HarnessStatus[]): void => {
+  replaceHarnessStatuses(statuses)
+  for (const win of BrowserWindow.getAllWindows()) sendHarnessStatus(win)
+}
+
+export interface AgentIpcDeps {
+  harnessPath: (key: string) => unknown
+}
+
 const repoOf = (windowId: number): string | null => {
   const state = repoRegistry.state(windowId)
   return state.kind === 'repo' ? state.root : null
 }
 
-export const registerAgentIpc = (): void => {
+export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   bindCommentsService({
     now: () => new Date().toISOString(),
     newId: () => randomUUID(),
@@ -42,6 +59,34 @@ export const registerAgentIpc = (): void => {
       win.webContents.send('mt::comments::changed', { file })
     }
   })
+
+  const readHarnessPaths = (): ReturnType<typeof harnessPathsFromPreferences> | Record<string, never> =>
+    deps ? harnessPathsFromPreferences(deps.harnessPath) : {}
+
+  ipcMain.handle('mt::agent::get-harness-status', async() => {
+    const statuses = await getHarnessStatus(readHarnessPaths())
+    replaceHarnessStatuses(statuses)
+    return statuses
+  })
+
+  onInternalChannel('broadcast-preferences-changed', (change: object) => {
+    const ids = changedHarnessIds(change)
+    if (ids.length === 0) return
+    invalidateHarnessStatus(ids)
+    getHarnessStatus(readHarnessPaths())
+      .then(publishHarnessStatus)
+      .catch((err: unknown) => {
+        log.error(err)
+      })
+  })
+
+  if (deps) {
+    getHarnessStatus(readHarnessPaths())
+      .then(publishHarnessStatus)
+      .catch((err: unknown) => {
+        log.error(err)
+      })
+  }
 
   ipcMain.handle('mt::agent::get-repo-state', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender)

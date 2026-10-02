@@ -72,6 +72,12 @@ export interface IUserPreferences {
   autoNormalizeLineEndings?: boolean
   watcherUsePolling?: boolean
   treePathExcludePatterns?: string[]
+  /** Empty searches PATH for `opencode`. */
+  agentOpencodePath?: string
+  /** Empty searches PATH for `pi-acp`. */
+  agentPiPath?: string
+  /** Empty searches PATH for `agent`. */
+  agentCursorPath?: string
   [key: string]: unknown
 }
 
