@@ -4,16 +4,15 @@ import type { Nullable } from '../../../types';
 import type Content from '../../base/content';
 import type Parent from '../../base/parent';
 import type { TBlockPath } from '../../types';
-import type HeadingFoldMarker from '../headingFoldMarker';
 import type HeadingFoldToggle from '../headingFoldToggle';
-import type { IFoldableHeading, IFoldSibling } from './foldSection';
+import type { IFoldSibling } from './foldSection';
 import { CLASS_NAMES } from '../../../config';
 import { mixins } from '../../../utils';
 import { operateClassName } from '../../../utils/dom';
 import ParentBlock from '../../base/parent';
 import LeafQueryBlock from '../../mixins/leafQueryBlock';
 import { ScrollPage } from '../../scrollPage';
-import { collectSectionIndices, foldPlanForLevel, hiddenByFoldedDescendant, isFoldableHeading } from './foldSection';
+import { collectSectionIndices, hiddenByFoldedDescendant } from './foldSection';
 
 // Project a live sibling block down to the minimal structural view the pure
 // section-resolution helper needs: its block name and (for headings) its level.
@@ -51,12 +50,6 @@ class AtxHeading extends ParentBlock {
             ScrollPage.loadBlock('atxheading.content').create(muya, state.text),
         );
 
-        // The "…" collapsed-section marker sits AFTER the content in the DOM so
-        // it renders just past the heading text; it is only shown while folded.
-        heading.appendAttachment(
-            ScrollPage.loadBlock('heading-fold-marker').create(muya, null),
-        );
-
         return heading;
     }
 
@@ -83,11 +76,6 @@ class AtxHeading extends ParentBlock {
     // this keeps working regardless of attachment ordering.
     private get _foldToggle(): Nullable<HeadingFoldToggle> {
         return this._attachmentByName('heading-fold-toggle') as Nullable<HeadingFoldToggle>;
-    }
-
-    // The clickable "…" marker attachment shown after the text while folded.
-    private get _foldMarker(): Nullable<HeadingFoldMarker> {
-        return this._attachmentByName('heading-fold-marker') as Nullable<HeadingFoldMarker>;
     }
 
     // Find an attachment by its block name. Located by name (not index) so the
@@ -128,57 +116,6 @@ class AtxHeading extends ParentBlock {
         this._applyFold();
     }
 
-    /**
-     * Fold every heading in the document — each section collapses, leaving only
-     * the heading lines (the full outline). A document-wide action reachable
-     * from the heading context menu.
-     *
-     * Note this is NOT `foldToLevel(1)`: folding "to level 1" keeps h1s open and
-     * only folds their descendants, whereas "fold all" collapses every heading
-     * including the h1s.
-     */
-    foldAll() {
-        this._siblingHeadings().forEach(heading => heading.toggleFold(true));
-    }
-
-    /** Unfold every heading in the document — reveals all content. */
-    unfoldAll() {
-        this._siblingHeadings().forEach(heading => heading.toggleFold(false));
-    }
-
-    /**
-     * Fold the document to `targetLevel`: headings deeper than the target fold,
-     * headings at or above it unfold. `foldToLevel(2)` from a click on an h2
-     * gives a table-of-contents view down to h2. The per-heading decision is
-     * made by the pure `foldPlanForLevel` helper.
-     */
-    foldToLevel(targetLevel: number) {
-        const headings = this._siblingHeadings();
-        const plan = foldPlanForLevel(
-            targetLevel,
-            headings.map(heading => heading.meta.level),
-        );
-
-        headings.forEach((heading, i) => heading.toggleFold(plan[i]));
-    }
-
-    // Every heading block in the document, in document order. ATX headings are
-    // top-level blocks, so they are siblings under this heading's parent (the
-    // ScrollPage root). Returning `this`'s cohort keeps the document-wide
-    // actions working from whichever heading the menu was opened on.
-    private _siblingHeadings(): IFoldableHeading[] {
-        const headings: IFoldableHeading[] = [];
-        let node = this.parent?.firstChild as Nullable<Parent>;
-        while (node) {
-            // Structural guard narrows the generic tree node to a heading.
-            if (isFoldableHeading(node))
-                headings.push(node);
-            node = node.next;
-        }
-
-        return headings;
-    }
-
     private _applyFold() {
         const siblings = this._followingSiblings();
         const sectionIndices = collectSectionIndices(
@@ -208,13 +145,12 @@ class AtxHeading extends ParentBlock {
             );
         });
 
-        // Mark the heading itself so the CSS can style a folded heading (e.g.
-        // keep its chevron visible and show the collapsed-section marker).
+        // Mark the heading itself so the CSS can style a folded heading (keep
+        // its chevron visible and rotated).
         if (this.domNode != null)
             this._setFoldedClass(this.domNode, CLASS_NAMES.MU_FOLDED);
 
         this._foldToggle?.reflectFolded(this._folded);
-        this._foldMarker?.reflectFolded(this._folded);
     }
 
     // Add the class when folded, remove it when unfolded. Wraps the add/remove

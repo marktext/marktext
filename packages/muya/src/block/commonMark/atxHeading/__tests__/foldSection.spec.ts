@@ -1,6 +1,6 @@
 import type { IFoldKeyChord, IFoldSibling } from '../foldSection';
 import { describe, expect, it } from 'vitest';
-import { collectSectionIndices, foldPlanForLevel, hiddenByFoldedDescendant, isEmptySection, isFoldShortcut } from '../foldSection';
+import { collectSectionIndices, hiddenByFoldedDescendant, isEmptySection, isFoldShortcut } from '../foldSection';
 
 // Structural fixtures: a heading fold section is every following block up to
 // (but excluding) the next heading of an equal-or-higher level.
@@ -108,28 +108,6 @@ describe('isFoldShortcut', () => {
 
     it('rejects an unrelated key', () => {
         expect(isFoldShortcut(chord({ key: ']', code: 'BracketRight' }))).toBe(false);
-    });
-});
-
-describe('foldPlanForLevel', () => {
-    // Document outline: h1, h2, h3, h1, h2 → levels [1,2,3,1,2].
-    const levels = [1, 2, 3, 1, 2];
-
-    it('fold all (level 1): folds everything deeper than h1', () => {
-        // Only the h1s stay unfolded.
-        expect(foldPlanForLevel(1, levels)).toEqual([false, true, true, false, true]);
-    });
-
-    it('fold to level 2: keeps h1/h2 open, folds h3+', () => {
-        expect(foldPlanForLevel(2, levels)).toEqual([false, false, true, false, false]);
-    });
-
-    it('unfold all (level 6): nothing is deeper, so all open', () => {
-        expect(foldPlanForLevel(6, levels)).toEqual([false, false, false, false, false]);
-    });
-
-    it('returns an empty plan for a document with no headings', () => {
-        expect(foldPlanForLevel(1, [])).toEqual([]);
     });
 });
 

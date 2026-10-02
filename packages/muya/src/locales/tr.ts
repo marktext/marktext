@@ -44,9 +44,6 @@ export const tr = {
         'Copy anchor link to this heading': 'Bu başlığın çapa bağlantısını kopyala',
         'Fold this section': 'Bu bölümü daralt',
         'Unfold this section': 'Bu bölümü genişlet',
-        'Fold all': 'Tümünü daralt',
-        'Unfold all': 'Tümünü genişlet',
-        'Fold to this level': 'Bu düzeye kadar daralt',
         'Click to add an image': 'Görsel eklemek için tıklayın',
         'Load image failed': 'Görsel yüklenemedi',
         // formatPicker
