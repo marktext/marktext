@@ -120,7 +120,7 @@ li.el-select-dropdown__item {
   color: var(--editorColor);
   height: 30px;
 }
-li.el-select-dropdown__item.hover,
+li.el-select-dropdown__item.is-hovering,
 li.el-select-dropdown__item:hover {
   background: var(--floatHoverColor);
 }
