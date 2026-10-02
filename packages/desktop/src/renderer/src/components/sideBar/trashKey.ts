@@ -59,6 +59,16 @@ export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
   return !!el.closest(SELECTION_OWNERS)
 }
 
+// The inline rename / new-file boxes. Clicks inside them must leave their
+// target alone, or the input unmounts itself mid-edit.
+const NAME_INPUTS = 'input.rename, input.new-input'
+
+export const isNameInput = (target: EventTarget | null): boolean => {
+  const el = target as { closest?: (selector: string) => unknown } | null
+  if (!el || typeof el.closest !== 'function') return false
+  return !!el.closest(NAME_INPUTS)
+}
+
 export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): boolean => {
   if (key === 'Delete') return true
   return isMac && metaKey && key === 'Backspace'

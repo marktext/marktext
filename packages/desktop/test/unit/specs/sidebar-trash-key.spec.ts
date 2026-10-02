@@ -4,6 +4,7 @@ import {
   isModifierKey,
   isMuyaEditorTarget,
   isPathWithinRoot,
+  isNameInput,
   keepsSidebarSelection,
   isTrashShortcut,
   shouldTrashSelection
@@ -75,6 +76,17 @@ describe('sidebar trash keyboard rules', () => {
     expect(keepsSidebarSelection(owner('.new-input'))).toBe(true)
     expect(keepsSidebarSelection({ closest: () => null } as unknown as EventTarget)).toBe(false)
     expect(keepsSidebarSelection(null)).toBe(false)
+  })
+
+  it('only treats the inline rename / new-file boxes as name inputs', () => {
+    const input = (token: string) =>
+      ({
+        closest: (selector: string) => (selector.includes(token) ? {} : null)
+      }) as unknown as EventTarget
+    expect(isNameInput(input('input.rename'))).toBe(true)
+    expect(isNameInput(input('input.new-input'))).toBe(true)
+    expect(isNameInput({ closest: () => null } as unknown as EventTarget)).toBe(false)
+    expect(isNameInput(null)).toBe(false)
   })
 
   it('trashes a selected file or folder', () => {

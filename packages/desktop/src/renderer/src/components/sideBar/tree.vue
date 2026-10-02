@@ -169,6 +169,7 @@ import {
   isEditableTarget,
   isModifierKey,
   isMuyaEditorTarget,
+  isNameInput,
   keepsSidebarSelection,
   shouldTrashSelection
 } from './trashKey'
@@ -273,17 +274,13 @@ const handleDocumentClick = (event: MouseEvent): void => {
   if (!keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
-  // Clicks inside an input must not drop the rename / create target, or the
-  // input would unmount itself.
-  if (target.tagName === 'INPUT') return
+  if (isNameInput(target)) return
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleDocumentContextMenu = (event: MouseEvent): void => {
-  const target = event.target as HTMLElement | null
-  if (target && target.tagName !== 'INPUT') {
-    projectStore.CLEAR_NAME_INPUT_STATE()
-  }
+  if (isNameInput(event.target as HTMLElement | null)) return
+  projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleDocumentKeydown = (event: KeyboardEvent): void => {
