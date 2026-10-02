@@ -1,6 +1,6 @@
 {
   "name": "marktext-monorepo",
-  "version": "0.20.0-dev",
+  "version": "0.20.0",
   "description": "MarkText monorepo root",
   "private": true,
   "homepage": "https://github.com/marktext/marktext",
