@@ -157,6 +157,13 @@ export class AcpConnection {
   readonly cwd: string
   agentVersion: string | null = null
 
+  /** OS pid of the harness process, or null after it has exited. */
+  get pid(): number | null {
+    const child = this.child
+    if (!child || child.exitCode != null || child.signalCode != null) return null
+    return child.pid ?? null
+  }
+
   private readonly options: AcpConnectionOptions
   private readonly writeLog: (line: string) => void
   private child: ChildProcess | null = null
@@ -192,12 +199,7 @@ export class AcpConnection {
     configOptions: SessionConfigSnapshot[]
   }> {
     await this.ensureOpen()
-    this.mcpServers = input.mcpServers.map((server) => ({
-      name: server.name,
-      command: server.command,
-      args: server.args,
-      env: server.env ?? []
-    }))
+    this.useMcpServers(input.mcpServers)
     const created = await this.requestNew({
       cwd: input.cwd,
       mcpServers: this.mcpServers
@@ -215,12 +217,24 @@ export class AcpConnection {
   }
 
   /**
+   * True when `initialize` advertised `session/resume` or `session/load`
+   * and this harness does not opt out.
+   */
+  supportsResume(): boolean {
+    if (this.options.quirks.resume === 'none') return false
+    if (this.capabilities?.sessionCapabilities?.resume != null) return true
+    return this.capabilities?.loadSession === true
+  }
+
+  /**
    * `session/resume` when the agent advertises it, otherwise `session/load`
    * when `loadSession` is set. `quirks.resume: 'none'` skips both.
+   * `mcpServers` replaces the list sent with the resume request.
    */
-  async resumeSession(acpSessionId: string): Promise<ResumeResult> {
+  async resumeSession(acpSessionId: string, mcpServers?: AcpMcpServer[]): Promise<ResumeResult> {
     await this.ensureOpen()
-    if (this.options.quirks.resume === 'none') return { kind: 'unsupported' }
+    if (mcpServers) this.useMcpServers(mcpServers)
+    if (!this.supportsResume()) return { kind: 'unsupported' }
     const agent = this.requireAgent()
     const sessionCapabilities = this.capabilities?.sessionCapabilities
     if (sessionCapabilities?.resume != null) {
@@ -325,6 +339,15 @@ export class AcpConnection {
     if (this.child.exitCode != null || this.child.signalCode != null) return false
     if (this.link.signal.aborted) return false
     return true
+  }
+
+  private useMcpServers(servers: AcpMcpServer[]): void {
+    this.mcpServers = servers.map((server) => ({
+      name: server.name,
+      command: server.command,
+      args: server.args,
+      env: server.env ?? []
+    }))
   }
 
   private requireAgent(): ClientConnection['agent'] {

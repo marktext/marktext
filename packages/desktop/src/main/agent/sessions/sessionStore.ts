@@ -253,8 +253,8 @@ export class SessionStore {
   }
 
   /**
-   * Stores the pair on the repository. `used` writes `last-selection.json`:
-   * the turn runner sets it after a successful turn, not when the pair is only picked.
+   * Stores the pair on the repository. `used` also writes `last-selection.json`.
+   * A finished turn calls `rememberUsed` instead, so a later header choice stays put.
    */
   setSelection(root: string, pair: AgentSelection, options?: { used?: boolean }): Promise<void> {
     if (!isSelection(pair)) throw new SessionStoreError('bad_selection', 'the harness and model are required')
@@ -265,6 +265,30 @@ export class SessionStore {
       repos[key] = { ...current, selection: pair }
       await this.writeJson(this.reposFile(), repos)
       if (options?.used) await this.writeJson(this.lastSelectionFile(), pair)
+    })
+  }
+
+  /** Pair that completed a turn. Does not replace the repository's header pair. */
+  rememberUsed(pair: AgentSelection): Promise<void> {
+    if (!isSelection(pair)) throw new SessionStoreError('bad_selection', 'the harness and model are required')
+    return this.enqueue(async() => {
+      await this.writeJson(this.lastSelectionFile(), pair)
+    })
+  }
+
+  setAcpSessionId(
+    root: string,
+    harness: HarnessId,
+    sessionId: string,
+    acpSessionId: string | null
+  ): Promise<void> {
+    this.requireHarness(harness)
+    return this.enqueue(async() => {
+      const index = await this.readIndex(root, harness)
+      const summary = index.find((item) => item.id === sessionId)
+      if (!summary) throw new SessionStoreError('not_found', `session ${sessionId} was not found`)
+      summary.acpSessionId = acpSessionId
+      await this.writeJson(this.indexFile(root, harness), index)
     })
   }
 

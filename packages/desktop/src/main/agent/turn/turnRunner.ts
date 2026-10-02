@@ -10,15 +10,18 @@ import { marktextMcpServer } from '../mcpBridge/marktextMcpServer'
 import { load } from '../comments/commentsStore'
 import { setWindowTurn } from '../comments/windowTurn'
 import { repoRegistry } from '../repo/repoRegistry'
-import { SessionStore } from '../sessions/sessionStore'
+import { SessionStore, SessionStoreError } from '../sessions/sessionStore'
 import type { SessionLine } from '../sessions/sessionStore'
 import { ChangeTracker, attachChangeTracker, detachChangeTracker } from './changeTracker'
+import { historyReplay } from './historyReplay'
 import { buildThreadsMessage } from './messageBuilder'
 import type { ThreadPlacement } from './messageBuilder'
 import type {
   AgentSelection,
   ChatEvent,
-  HarnessId
+  HarnessId,
+  SessionSnapshot,
+  SessionSummary
 } from '@shared/types/agent'
 import type { Message, Thread } from '@shared/types/comments'
 
@@ -29,6 +32,7 @@ export type TurnRunnerCode =
   | 'no_model'
   | 'turn_in_progress'
   | 'no_threads'
+  | 'session_not_found'
 
 export class TurnRunnerError extends Error {
   readonly code: TurnRunnerCode
@@ -144,6 +148,12 @@ export class TurnRunner {
   private connection: AcpConnection | null = null
   private acpSessionId: string | null = null
   private boundHarness: HarnessId | null = null
+  private chatSessionId: string | null = null
+  private sessionModel: string | null = null
+  /** Prefixed to the next user prompt when the harness could not resume. */
+  private pendingReplay: string | null = null
+  private liveResumable = false
+  private switching = false
   private active: ActiveTurn | null = null
   private ended: Promise<void> = Promise.resolve()
   private settling: Promise<void> | null = null
@@ -155,6 +165,51 @@ export class TurnRunner {
 
   hasActiveTurn(): boolean {
     return this.active != null
+  }
+
+  agentPid(): number | null {
+    return this.connection?.pid ?? null
+  }
+
+  async getSelection(windowId: number): Promise<AgentSelection | null> {
+    const state = repoRegistry.state(windowId)
+    if (state.kind !== 'repo') return null
+    return this.store.getSelection(state.root)
+  }
+
+  /** Header pair only. The open ACP session keeps the model it was created with. */
+  async setSelection(windowId: number, harness: HarnessId, model: string): Promise<void> {
+    const root = this.rootOf(windowId)
+    await this.store.setSelection(root, { harness, model })
+  }
+
+  listSessions(windowId: number, harness: HarnessId): Promise<SessionSummary[]> {
+    return this.store.listSessions(this.rootOf(windowId), harness)
+  }
+
+  /**
+   * Opens the chat for a harness. A different harness replaces the process
+   * when no turn is running. `'new'` starts an ACP session; an existing chat
+   * is resumed, or replayed on the next user message when resume is unavailable.
+   */
+  async openSession(windowId: number, harness: HarnessId, target: string): Promise<SessionSnapshot> {
+    if (!this.deps.modeEnabled()) {
+      throw new TurnRunnerError('agent_mode_disabled', 'agent mode is off')
+    }
+    if (this.active || this.switching) {
+      throw new TurnRunnerError('turn_in_progress', 'a turn is already running')
+    }
+    const root = this.rootOf(windowId)
+    this.switching = true
+    try {
+      await this.prepareSpawn(harness)
+      const summary = await this.resolveOpened(root, harness, target)
+      await this.bindAcp(windowId, root, harness, summary.id)
+      const snapshot = await this.store.readSession(root, harness, summary.id)
+      return { ...snapshot, resumable: this.liveResumable }
+    } finally {
+      this.switching = false
+    }
   }
 
   /** `session/cancel`, then reject a permission that is still waiting. Does not revert files. */
@@ -170,6 +225,10 @@ export class TurnRunner {
     this.connection = null
     this.acpSessionId = null
     this.boundHarness = null
+    this.chatSessionId = null
+    this.sessionModel = null
+    this.pendingReplay = null
+    this.liveResumable = false
     if (connection) await connection.dispose()
   }
 
@@ -237,7 +296,9 @@ export class TurnRunner {
     if (state.kind !== 'repo') {
       throw new TurnRunnerError('no_repo', 'the window has no repository')
     }
-    if (this.active) throw new TurnRunnerError('turn_in_progress', 'a turn is already running')
+    if (this.active || this.switching) {
+      throw new TurnRunnerError('turn_in_progress', 'a turn is already running')
+    }
     const turn: ActiveTurn = {
       id: this.deps.newId(),
       windowId,
@@ -265,20 +326,59 @@ export class TurnRunner {
     detachChangeTracker(turn.windowId)
   }
 
+  private rootOf(windowId: number): string {
+    const state = repoRegistry.state(windowId)
+    if (state.kind !== 'repo') throw new TurnRunnerError('no_repo', 'the window has no repository')
+    return state.root
+  }
+
   private async prepare(turn: ActiveTurn): Promise<void> {
-    const selection = await this.requireSelection(turn.root)
-    turn.harness = selection.harness
-    turn.model = selection.model
-    const harness = harnessOf(selection.harness)
-    turn.quirks = harness.quirks
-    const configured = this.deps.preference(pathKey[selection.harness])
+    if (this.boundHarness && this.sessionModel) {
+      turn.harness = this.boundHarness
+      turn.model = this.sessionModel
+    } else {
+      const selection = await this.requireSelection(turn.root)
+      turn.harness = selection.harness
+      turn.model = selection.model
+    }
+    turn.quirks = harnessOf(turn.harness).quirks
+    await this.prepareSpawn(turn.harness)
+  }
+
+  private async prepareSpawn(harness: HarnessId): Promise<void> {
+    const spec = harnessOf(harness)
+    const configured = this.deps.preference(pathKey[harness])
     const resolved = resolveHarnessCommand(
-      harness.command,
-      harness.args,
+      spec.command,
+      spec.args,
       typeof configured === 'string' ? configured : ''
     )
     if (!resolved.ok) throw new TurnRunnerError('harness_not_found', 'the harness was not found')
     this.spawn = { command: resolved.command, args: resolved.args }
+  }
+
+  private async resolveOpened(root: string, harness: HarnessId, target: string): Promise<SessionSummary> {
+    if (target === 'new') return this.createOpened(root, harness)
+    const sessionId = target === 'last' ? await this.store.getLastSession(root, harness) : target
+    if (!sessionId) return this.createOpened(root, harness)
+    try {
+      const snapshot = await this.store.readSession(root, harness, sessionId)
+      if (target !== 'last') await this.store.setLastSession(root, harness, snapshot.summary.id)
+      return snapshot.summary
+    } catch (error) {
+      if (error instanceof SessionStoreError && error.code === 'not_found') {
+        throw new TurnRunnerError('session_not_found', 'the session was not found')
+      }
+      throw error
+    }
+  }
+
+  private async createOpened(root: string, harness: HarnessId): Promise<SessionSummary> {
+    const selection = await this.requireSelection(root)
+    if (selection.harness !== harness) throw new TurnRunnerError('no_model', 'no model is selected')
+    const created = await this.store.createSession(root, harness, selection.model)
+    await this.store.setLastSession(root, harness, created.id)
+    return created
   }
 
   private async requireSelection(root: string): Promise<AgentSelection> {
@@ -314,6 +414,7 @@ export class TurnRunner {
     model: string,
     file: string | null
   ): Promise<string> {
+    if (this.chatSessionId && this.boundHarness === harness) return this.chatSessionId
     const existing = await this.store.getLastSession(root, harness)
     if (existing) return existing
     const created = await this.store.createSession(root, harness, model, file ? { file } : undefined)
@@ -328,36 +429,85 @@ export class TurnRunner {
   }
 
   private async ensureAgent(turn: ActiveTurn): Promise<void> {
-    if (this.connection && this.acpSessionId && this.boundHarness === turn.harness) return
-    await this.disposeHarness()
+    if (
+      this.connection &&
+      this.acpSessionId &&
+      this.boundHarness === turn.harness &&
+      this.chatSessionId === turn.sessionId
+    ) return
+    const opened = await this.store.readSession(turn.root, turn.harness, turn.sessionId)
+    turn.model = opened.model
+    await this.bindAcp(turn.windowId, turn.root, turn.harness, turn.sessionId)
+  }
+
+  private async bindAcp(windowId: number, root: string, harness: HarnessId, sessionId: string): Promise<void> {
+    if (!this.connection || this.boundHarness !== harness) {
+      await this.disposeHarness()
+      await this.startProcess(root, harness)
+    }
+    const connection = this.connection
+    if (!connection) throw new TurnRunnerError('harness_not_found', 'the harness was not found')
+    const snapshot = await this.store.readSession(root, harness, sessionId)
+    const bridge = await bridgeForWindow(this.deps.userDataPath, windowId)
+    const servers = [marktextMcpServer(this.deps.appPath, bridge.address, bridge.token)]
+    if (snapshot.summary.acpSessionId && connection.supportsResume()) {
+      try {
+        const resumed = await connection.resumeSession(snapshot.summary.acpSessionId, servers)
+        if (resumed.kind === 'resumed') {
+          this.rememberLive(harness, sessionId, snapshot.model, resumed.sessionId, true)
+          this.pendingReplay = null
+          return
+        }
+      } catch {
+        // The stored ACP id is gone. A new session carries the transcript instead.
+      }
+    }
+    const created = await connection.newSession({ cwd: root, mcpServers: servers })
+    await connection.setModel(created.sessionId, snapshot.model)
+    const resumable = connection.supportsResume()
+    await this.store.setAcpSessionId(root, harness, sessionId, resumable ? created.sessionId : null)
+    this.rememberLive(harness, sessionId, snapshot.model, created.sessionId, resumable)
+    this.pendingReplay = resumable ? null : historyReplay(snapshot.events)
+  }
+
+  private rememberLive(
+    harness: HarnessId,
+    sessionId: string,
+    model: string,
+    acpSessionId: string,
+    resumable: boolean
+  ): void {
+    this.boundHarness = harness
+    this.chatSessionId = sessionId
+    this.sessionModel = model
+    this.acpSessionId = acpSessionId
+    this.liveResumable = resumable
+  }
+
+  private async startProcess(root: string, harness: HarnessId): Promise<void> {
     const spawn = this.spawn
     if (!spawn) throw new TurnRunnerError('harness_not_found', 'the harness was not found')
-    const bridge = await bridgeForWindow(this.deps.userDataPath, turn.windowId)
     this.connection = await AcpConnection.start({
       command: spawn.command,
       args: spawn.args,
-      cwd: turn.root,
-      harness: turn.harness,
-      quirks: turn.quirks,
+      cwd: root,
+      harness,
+      quirks: harnessOf(harness).quirks,
       onEvent: (event) => this.onAgentEvent(event),
       onTurnEnd: (notice) => {
         this.ended = this.finalize(notice)
       },
       log: () => undefined
     })
-    const created = await this.connection.newSession({
-      cwd: turn.root,
-      mcpServers: [marktextMcpServer(this.deps.appPath, bridge.address, bridge.token)]
-    })
-    await this.connection.setModel(created.sessionId, turn.model)
-    this.acpSessionId = created.sessionId
-    this.boundHarness = turn.harness
   }
 
   private async speak(turn: ActiveTurn, text: string): Promise<void> {
     const connection = this.connection
     const sessionId = this.acpSessionId
     if (!connection || !sessionId) throw new TurnRunnerError('harness_not_found', 'the harness was not found')
+    const replay = this.pendingReplay
+    const delivered = replay ? `${replay}\n\n${text}` : text
+    this.pendingReplay = null
     this.publish(turn, { type: 'turn_started', turnId: turn.id })
     this.publish(turn, { type: 'message_chunk', role: 'user', messageId: turn.id, text })
     await this.store.appendEvent(turn.root, turn.harness, turn.sessionId, { type: 'turn_started', turnId: turn.id })
@@ -367,7 +517,12 @@ export class TurnRunner {
       text
     })
     this.ended = Promise.resolve()
-    await connection.prompt(sessionId, text, turn.id)
+    try {
+      await connection.prompt(sessionId, delivered, turn.id)
+    } catch (error) {
+      this.pendingReplay = replay
+      throw error
+    }
   }
 
   private onAgentEvent(event: ChatEvent): void {
@@ -459,7 +614,7 @@ export class TurnRunner {
       finishedAt
     })
     if (notice.stopReason === 'end_turn') {
-      await this.store.setSelection(turn.root, { harness: turn.harness, model: turn.model }, { used: true })
+      await this.store.rememberUsed({ harness: turn.harness, model: turn.model })
     }
   }
 

@@ -191,6 +191,37 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     return turnRunnerFor(win.id, deps).cancelTurn()
   })
 
+  ipcMain.handle('mt::agent::get-selection', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return null
+    return turnRunnerFor(win.id, deps).getSelection(win.id)
+  })
+
+  ipcMain.handle('mt::agent::set-selection', (event, harness: unknown, model: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    if (!isHarnessId(harness) || typeof model !== 'string') {
+      return Promise.reject(new Error('bad selection'))
+    }
+    return turnRunnerFor(win.id, deps).setSelection(win.id, harness, model)
+  })
+
+  ipcMain.handle('mt::agent::list-sessions', (event, harness: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    if (!isHarnessId(harness)) return Promise.reject(new Error('bad harness'))
+    return turnRunnerFor(win.id, deps).listSessions(win.id, harness)
+  })
+
+  ipcMain.handle('mt::agent::open-session', (event, harness: unknown, sessionId: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win) return Promise.reject(new Error('no window'))
+    if (!isHarnessId(harness) || typeof sessionId !== 'string') {
+      return Promise.reject(new Error('bad session'))
+    }
+    return turnRunnerFor(win.id, deps).openSession(win.id, harness, sessionId)
+  })
+
   ipcMain.handle('mt::comments::mutate', async(event, mutation: CommentsMutation) => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) throw new CommentsServiceError('not_a_repo', 'no window')
