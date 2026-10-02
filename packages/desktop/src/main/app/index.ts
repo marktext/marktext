@@ -667,7 +667,8 @@ class App {
     registerKeyboardListeners()
     registerSpellcheckerListeners()
     registerAgentIpc({
-      harnessPath: (key) => this._accessor.preferences.getItem(key)
+      harnessPath: (key) => this._accessor.preferences.getItem(key),
+      userDataPath: this._accessor.paths.userDataPath
     })
 
     // Handle language setting requests

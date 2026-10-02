@@ -65,6 +65,9 @@ importers:
 
   packages/desktop:
     dependencies:
+      '@agentclientprotocol/sdk':
+        specifier: ^1.7.0
+        version: 1.7.0(zod@4.6.5)
       '@electron-toolkit/preload':
         specifier: ^3.0.2
         version: 3.0.2(electron@42.1.0)
@@ -230,6 +233,9 @@ importers:
       write-file-atomic:
         specifier: ^7.0.1
         version: 7.0.1
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@electron/rebuild':
         specifier: ^4.0.4

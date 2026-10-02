@@ -23,7 +23,7 @@ export default defineConfig({
         // output. plist 5 ships ESM-only (no CJS `exports` entry), so leaving
         // it externalized makes the main process `require('plist')` throw
         // ERR_PACKAGE_PATH_NOT_EXPORTED at startup.
-        exclude: ['electron-store', 'plist'],
+        exclude: ['electron-store', 'plist', '@agentclientprotocol/sdk', 'zod'],
         include: ['native-keymap']
       }
     },

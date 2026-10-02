@@ -1,7 +1,10 @@
 import { randomUUID } from 'crypto'
+import os from 'os'
+import path from 'path'
 import { BrowserWindow, ipcMain } from 'electron'
 import log from 'electron-log'
 import type { HarnessStatus } from '@shared/types/agent'
+import { isHarnessId } from '@shared/types/agent'
 import { COMMENTS_FILE_VERSION, type CommentsMutation } from '@shared/types/comments'
 import { bindCommentsService, CommentsServiceError, commentsService } from './comments/commentsService'
 import { load } from './comments/commentsStore'
@@ -12,6 +15,8 @@ import {
   harnessPathsFromPreferences,
   invalidateHarnessStatus
 } from './harness/harnessRegistry'
+import { listModels } from './harness/modelProbe'
+import { answerPermission } from './harness/permissionGate'
 import { getUserName } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
 import { onInternalChannel } from '../utils/internalIpc'
@@ -37,6 +42,7 @@ const publishHarnessStatus = (statuses: HarnessStatus[]): void => {
 
 export interface AgentIpcDeps {
   harnessPath: (key: string) => unknown
+  userDataPath?: string
 }
 
 const repoOf = (windowId: number): string | null => {
@@ -62,6 +68,24 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
 
   const readHarnessPaths = (): ReturnType<typeof harnessPathsFromPreferences> | Record<string, never> =>
     deps ? harnessPathsFromPreferences(deps.harnessPath) : {}
+
+  ipcMain.handle('mt::agent::answer-permission', (_event, requestId: string, optionId: string) => {
+    answerPermission(requestId, optionId)
+  })
+
+  ipcMain.handle('mt::agent::list-models', async(event, harness: unknown, options: { refresh?: boolean }) => {
+    if (!isHarnessId(harness)) return { ok: false as const, reason: 'init_failed' as const }
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const paths = readHarnessPaths()
+    const cacheFile = path.join(deps?.userDataPath || os.tmpdir(), 'agent', 'model-cache.json')
+    return listModels({
+      harness,
+      refresh: options?.refresh === true,
+      repoRoot: win ? repoOf(win.id) : null,
+      configuredPath: paths[harness] ?? '',
+      cacheFile
+    })
+  })
 
   ipcMain.handle('mt::agent::get-harness-status', async() => {
     const statuses = await getHarnessStatus(readHarnessPaths())

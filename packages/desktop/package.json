@@ -53,6 +53,7 @@
     "typecheck:watch": "pnpm --filter @muyajs/core build:types && vue-tsc --noEmit -p tsconfig.json --watch"
   },
   "dependencies": {
+    "@agentclientprotocol/sdk": "^1.7.0",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@element-plus/icons-vue": "^2.3.2",
@@ -107,6 +108,7 @@
     "vue-i18n": "^11.4.6",
     "vue-router": "^4.6.4",
     "webfontloader": "^1.6.28",
+    "zod": "^4.6.5",
     "write-file-atomic": "^7.0.1"
   },
   "devDependencies": {
