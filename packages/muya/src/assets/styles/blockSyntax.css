@@ -999,9 +999,12 @@ pre.mu-active.mu-fenced-code::after {
 }
 
 .mu-table-cell-content {
-    min-width: 2em;
     position: relative;
     z-index: 2;
+
+    min-width: 2em;
+
+    overflow-wrap: anywhere;
 }
 
 /* Footnote definition block — port of marktext's `figure[data-role='FOOTNOTE']`
