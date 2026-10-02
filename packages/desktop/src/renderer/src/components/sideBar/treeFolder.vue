@@ -167,6 +167,10 @@ onMounted(() => {
     &:hover {
       background: var(--sideBarItemHoverBgColor);
     }
+    /* After :hover so the selection stays visible while the pointer is over it. */
+    &.active {
+      background: var(--themeColor20);
+    }
   }
 }
 .new-input,
