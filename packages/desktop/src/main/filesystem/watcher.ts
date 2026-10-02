@@ -4,6 +4,8 @@ import log from 'electron-log'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { exists } from 'common/filesystem'
 import { hasMarkdownExtension, checkPathExcludePattern } from 'common/filesystem/paths'
+import { markdownPathFromStoreFile } from '../agent/comments/commentsStore'
+import { isOwnCommentsWrite } from '../agent/comments/commentsWriteMark'
 import { getUniqueId } from '../utils'
 import { loadMarkdownFile } from '../filesystem/markdown'
 import { isLinux, isOsx } from '../config'
@@ -39,6 +41,15 @@ interface WatcherEntry {
   pathname: string
   type: WatchType
   close: () => void
+}
+
+const dispatchCommentsWatch = (win: BrowserWindow, pathname: string): boolean => {
+  const file = markdownPathFromStoreFile(pathname)
+  if (!file) return false
+  if (!isOwnCommentsWrite(pathname) && !win.isDestroyed()) {
+    win.webContents.send('mt::comments::changed', { file })
+  }
+  return true
 }
 
 const add = async(
@@ -225,6 +236,7 @@ class Watcher {
         if (fileInfo.isDirectory()) {
           return false
         }
+        if (markdownPathFromStoreFile(pathname)) return false
         return !hasMarkdownExtension(pathname)
       },
       ignoreInitial: type === 'file',
@@ -258,6 +270,7 @@ class Watcher {
 
     watcher
       .on('add', async(pathname: string) => {
+        if (dispatchCommentsWatch(win, pathname)) return
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
@@ -278,6 +291,7 @@ class Watcher {
         }
       })
       .on('change', async(pathname: string) => {
+        if (dispatchCommentsWatch(win, pathname)) return
         if (!(await this._shouldIgnoreEvent(win.id, pathname, type, usePolling))) {
           const { _preferences } = this
           const eol = _preferences.getPreferredEol() as LineEnding
@@ -297,7 +311,10 @@ class Watcher {
           )
         }
       })
-      .on('unlink', (pathname: string) => unlink(win, pathname, type))
+      .on('unlink', (pathname: string) => {
+        if (dispatchCommentsWatch(win, pathname)) return
+        unlink(win, pathname, type)
+      })
       .on('addDir', (pathname: string) => addDir(win, pathname, type))
       .on('unlinkDir', (pathname: string) => unlinkDir(win, pathname, type))
       .on('raw', (event: string, subpath: string, details: unknown) => {

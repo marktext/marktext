@@ -31,6 +31,7 @@ import pandoc, {
 } from '../../utils/pandoc'
 import { t, getCurrentLanguage } from '../../i18n'
 import type { PandocExportPayload, TabOptions, UnsavedFile } from '@shared/types/files'
+import { moveMarkdownComments } from '../../agent/comments/commentsService'
 
 type Win = BrowserWindow | null | undefined
 
@@ -636,6 +637,9 @@ ipcMain.on('mt::rename', async(e, { id, pathname, newPathname }: RenamePayload) 
         pathname: newPathname,
         filename: path.basename(newPathname)
       })
+      moveMarkdownComments(win.id, pathname, newPathname).catch((error: unknown) => {
+        log.error('Failed to move comments with the renamed file:', error)
+      })
     })
   }
 
@@ -682,6 +686,9 @@ ipcMain.on(
           id,
           pathname: filePath,
           filename: path.basename(filePath)
+        })
+        moveMarkdownComments(win.id, pathname, filePath).catch((error: unknown) => {
+          log.error('Failed to move comments with the moved file:', error)
         })
       })
     }
