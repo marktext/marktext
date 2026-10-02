@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   isEditableTarget,
+  isModifierKey,
   isMuyaEditorTarget,
   isPathWithinRoot,
   isTrashShortcut,
@@ -36,6 +37,15 @@ describe('sidebar trash keyboard rules', () => {
   it('rejects a bare Backspace everywhere', () => {
     expect(isTrashShortcut('Backspace', false, true)).toBe(false)
     expect(isTrashShortcut('Backspace', false, false)).toBe(false)
+  })
+
+  it('recognises modifier presses that belong to a chord', () => {
+    for (const key of ['Meta', 'Shift', 'Control', 'Alt', 'CapsLock']) {
+      expect(isModifierKey(key)).toBe(true)
+    }
+    expect(isModifierKey('Backspace')).toBe(false)
+    expect(isModifierKey('Delete')).toBe(false)
+    expect(isModifierKey('a')).toBe(false)
   })
 
   it('detects editable targets', () => {

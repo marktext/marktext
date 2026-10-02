@@ -42,6 +42,12 @@ export const isMuyaEditorTarget = (target: EventTarget | null): boolean => {
   return !!el.closest('.mu-editor')
 }
 
+// A chord arrives as one keydown per key, so holding Cmd before Backspace fires
+// a `Meta` keydown first. That press is part of the shortcut, not typing.
+const MODIFIER_KEYS = new Set(['Meta', 'Shift', 'Control', 'Alt', 'CapsLock'])
+
+export const isModifierKey = (key: string): boolean => MODIFIER_KEYS.has(key)
+
 export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): boolean => {
   if (key === 'Delete') return true
   return isMac && metaKey && key === 'Backspace'

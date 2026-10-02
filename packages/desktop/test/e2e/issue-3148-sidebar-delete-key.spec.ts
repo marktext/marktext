@@ -86,6 +86,11 @@ test.describe('Sidebar Delete key (#3148)', () => {
       true
     )
 
+    // macOS fires a `Meta` keydown the moment Cmd goes down — before the
+    // chord's second key. It must not end the selection.
+    await page.keyboard.press('Meta')
+    await expect(file).toHaveClass(/active/)
+
     await page.keyboard.press('Delete')
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)

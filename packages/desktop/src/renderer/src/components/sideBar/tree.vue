@@ -165,7 +165,7 @@ import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
-import { isEditableTarget, isMuyaEditorTarget, shouldTrashSelection } from './trashKey'
+import { isEditableTarget, isModifierKey, isMuyaEditorTarget, shouldTrashSelection } from './trashKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -315,7 +315,8 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
 
   // Any other interaction with the editor/search/rename input ends the sidebar
   // selection, so a later Delete edits text instead of trashing a stale node.
-  if (editableTarget && activeItem.value && Object.keys(activeItem.value).length) {
+  const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
+  if (!isModifierKey(event.key) && editableTarget && hasSelection) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
 }
