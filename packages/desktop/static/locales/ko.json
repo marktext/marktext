@@ -897,6 +897,7 @@
     "ok": "확인"
   },
   "dialog": {
+    "moveToTrash": "\"{name}\"을(를) 휴지통으로 이동하시겠습니까?",
     "cancel": "취소",
     "changesWillBeLost": "변경 사항이 손실됩니다",
     "close": "닫기",

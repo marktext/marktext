@@ -109,7 +109,7 @@ import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
-import { isOsx, animatedScrollTo } from '@/util'
+import { isMac, animatedScrollTo } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
@@ -1022,7 +1022,7 @@ const handleInvalidateImageCache = () => {
 }
 
 const openSpellcheckerLanguageCommand = () => {
-  if (!isOsx) {
+  if (!isMac) {
     bus.emit('show-command-palette', switchLanguageCommand)
   }
 }
@@ -1926,7 +1926,7 @@ onMounted(() => {
   editor.value.on(
     'format-click',
     ({ event, formatType, data }: { event: MouseEvent; formatType: string; data: unknown }) => {
-      const ctrlOrMeta = (isOsx && event.metaKey) || (!isOsx && event.ctrlKey)
+      const ctrlOrMeta = (isMac && event.metaKey) || (!isMac && event.ctrlKey)
       if (formatType === 'link' && ctrlOrMeta) {
         editorStore.FORMAT_LINK_CLICK({
           data: data as { href: string; [key: string]: unknown },

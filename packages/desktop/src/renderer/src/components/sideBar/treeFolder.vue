@@ -111,6 +111,7 @@ const handleInputEnter = (): void => {
 }
 
 const folderNameClick = (): void => {
+  projectStore.CHANGE_ACTIVE_ITEM(props.folder)
   isCollapsed.value = !isCollapsed.value
 }
 
@@ -165,6 +166,10 @@ onMounted(() => {
     }
     &:hover {
       background: var(--sideBarItemHoverBgColor);
+    }
+    /* After :hover so the selection stays visible while the pointer is over it. */
+    &.active {
+      background: var(--themeColor20);
     }
   }
 }

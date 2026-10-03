@@ -5,7 +5,10 @@
     </div>
 
     <!-- Opened tabs -->
-    <div v-if="openedFilesInSidebar" class="opened-files">
+    <div
+      v-if="openedFilesInSidebar"
+      class="opened-files"
+    >
       <div class="title">
         <el-icon
           class="icon-arrow"
@@ -149,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -161,6 +164,16 @@ import bus from '../../bus'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
+import { PATH_SEPARATOR } from '@/config'
+import { isMac } from '@/util'
+import {
+  isEditableTarget,
+  isModifierKey,
+  isMuyaEditorTarget,
+  isNameInput,
+  keepsSidebarSelection,
+  shouldTrashSelection
+} from './trashKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -195,6 +208,8 @@ const preferencesStore = usePreferencesStore()
 // Computed properties
 const { createCache } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
+const { activeItem } = storeToRefs(projectStore)
+const { renameCache } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
 // The createCache state is `{ dirname, type }` while an input is shown, and
@@ -248,34 +263,76 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
+// Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
+const handleDocumentClick = (event: MouseEvent): void => {
+  const { target } = event
+  if (!target) return
+
+  if (!keepsSidebarSelection(target)) {
+    projectStore.CHANGE_ACTIVE_ITEM({})
+  }
+
+  if (isNameInput(target)) return
+  projectStore.CLEAR_NAME_INPUT_STATE()
+}
+
+const handleDocumentContextMenu = (event: MouseEvent): void => {
+  const { target } = event
+  if (isNameInput(target)) return
+
+  projectStore.CLEAR_NAME_INPUT_STATE()
+}
+
+const handleDocumentKeydown = (event: KeyboardEvent): void => {
+  const { target, key, metaKey } = event
+  const editableTarget = isEditableTarget(target)
+
+  if (key === 'Escape') {
+    projectStore.CLEAR_NAME_INPUT_STATE()
+  }
+
+  const shouldTrash = shouldTrashSelection({
+    key,
+    metaKey,
+    isMac,
+    selection: activeItem.value,
+    projectRootPath: props.projectTree?.pathname,
+    pathSeparator: PATH_SEPARATOR,
+    isEditingName: !!renameCache.value || !!createCacheDirname.value,
+    editableTarget,
+    allowEditableTarget: isMuyaEditorTarget(target)
+  })
+  if (shouldTrash) {
+    event.preventDefault()
+    // Stop the event so the WYSIWYG engine does not also act on this Delete.
+    event.stopPropagation()
+    // The store drops the selection once the item is really trashed, so a
+    // cancelled dialog leaves the target in place for a retry.
+    bus.emit('SIDEBAR::remove')
+    return
+  }
+
+  // Any other key ends the selection, so a later Delete edits text instead of
+  // trashing a stale node.
+  const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
+  if (!isModifierKey(key) && hasSelection) {
+    projectStore.CHANGE_ACTIVE_ITEM({})
+  }
+}
+
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
+  document.addEventListener('click', handleDocumentClick)
+  document.addEventListener('contextmenu', handleDocumentContextMenu)
+  // Capture phase: muya stops keydown propagation for keys it handles.
+  document.addEventListener('keydown', handleDocumentKeydown, true)
+})
 
-  // Hide rename / create inputs on outside clicks. Buttons that open these
-  // inputs must use @click.stop so their click never reaches this listener.
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement | null
-    if (target && target.tagName !== 'INPUT') {
-      projectStore.CHANGE_ACTIVE_ITEM({})
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
-
-  document.addEventListener('contextmenu', (event) => {
-    const target = event.target as HTMLElement | null
-    if (target && target.tagName !== 'INPUT') {
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      projectStore.createCache = {}
-      projectStore.renameCache = null
-    }
-  })
+onUnmounted(() => {
+  bus.off('SIDEBAR::show-new-input', handleInputFocus)
+  document.removeEventListener('click', handleDocumentClick)
+  document.removeEventListener('contextmenu', handleDocumentContextMenu)
+  document.removeEventListener('keydown', handleDocumentKeydown, true)
 })
 </script>
 

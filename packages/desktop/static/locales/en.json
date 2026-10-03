@@ -897,6 +897,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "Are you sure you want to move \"{name}\" to trash?",
     "cancel": "Cancel",
     "changesWillBeLost": "Changes will be lost",
     "close": "Close",

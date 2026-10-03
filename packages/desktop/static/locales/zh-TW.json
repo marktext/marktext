@@ -897,6 +897,7 @@
     "ok": "確定"
   },
   "dialog": {
+    "moveToTrash": "確定要將「{name}」移到垃圾桶嗎？",
     "cancel": "取消",
     "changesWillBeLost": "變更將遺失",
     "close": "關閉",

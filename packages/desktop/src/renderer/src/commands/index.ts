@@ -1,6 +1,6 @@
 // List of all static commands that are loaded into command center.
 import bus from '../bus'
-import { delay, isOsx } from '@/util'
+import { delay, isMac } from '@/util'
 import { isUpdatable } from './utils'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
@@ -468,7 +468,7 @@ const commands: CommandDescriptor[] = [
 
   {
     id: 'file.zoom',
-    shortcut: [isOsx ? 'Cmd' : 'Ctrl', 'Scroll'],
+    shortcut: [isMac ? 'Cmd' : 'Ctrl', 'Scroll'],
     subcommands: [
       {
         id: 'file.zoom-0',
@@ -693,7 +693,7 @@ if (isUpdatable()) {
   })
 }
 
-if (isOsx) {
+if (isMac) {
   commands.push({
     id: 'edit.screenshot',
     execute: async() => {

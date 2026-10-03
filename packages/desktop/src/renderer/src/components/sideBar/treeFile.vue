@@ -52,6 +52,8 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 
 // from fileMixins
 const handleFileClick = (): void => {
+  // Select before the open-file branch runs, so non-markdown rows select too.
+  projectStore.CHANGE_ACTIVE_ITEM(props.file)
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
@@ -131,6 +133,10 @@ onMounted(() => {
 }
 .side-bar-file.current > span {
   color: var(--themeColor);
+}
+/* After :hover so the selection stays visible while the pointer is over it. */
+.side-bar-file.active {
+  background: var(--themeColor20);
 }
 .side-bar-file.active > span {
   color: var(--sideBarTitleColor);
