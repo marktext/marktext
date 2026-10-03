@@ -75,7 +75,6 @@ const focusRenameInput = (): void => {
       newName.value = props.file.name
       nextTick(() => {
         input.focus()
-        // If filename has extension, only select before extension
         const dotIndex = newName.value.lastIndexOf('.')
         const nameEnd = dotIndex > 0 ? dotIndex : newName.value.length
         input.setSelectionRange(0, nameEnd)
