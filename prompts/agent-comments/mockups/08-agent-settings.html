@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 8 — Настройки «Агент»</title>
+<style>
+  /* Tokens copied from MarkText light and dark themes.
+     A failed harness uses --tagReadFg. --deleteColor is blue in the dark theme. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor10: rgba(33, 181, 111, 0.1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor10: #e6e6e6;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.04);
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --tagReadFg: #7a1e1e;
+    --diffInsFg: #146c3a;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor10: rgba(64, 158, 255, 0.16);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.06);
+    --floatBorderColor: rgba(255, 255, 255, 0.08);
+    --tagReadFg: #ffc1c1;
+    --diffInsFg: #8fd4a8;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(980px, 100%); height: 700px; display: flex;
+    background: var(--editorBgColor); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28); overflow: hidden;
+  }
+  .pref-sidebar {
+    width: 220px; flex: none; display: flex; flex-direction: column;
+    background: var(--sideBarBgColor); padding-top: 24px; min-height: 0;
+  }
+  .pref-sidebar h3 {
+    margin: 0; font-size: 20px; font-weight: normal; text-align: center; color: var(--sideBarColor);
+  }
+  .search-wrap { padding: 0 16px; margin: 18px 0; }
+  .search-wrap input {
+    width: 100%; height: 28px; border: none; border-bottom: 1px solid var(--floatBorderColor);
+    background: transparent; font-size: 13px; padding: 0 4px;
+  }
+  .cats { overflow: auto; min-height: 0; }
+  .cat {
+    width: 100%; height: 38px; display: flex; align-items: center; gap: 12px;
+    padding: 0 16px; border: none; background: none; color: var(--sideBarColor);
+    font-size: 16px; cursor: pointer; position: relative; text-align: left;
+  }
+  .cat svg { width: 18px; height: 18px; flex: none; }
+  .cat:hover { background: var(--sideBarItemHoverBgColor); }
+  .cat.active { color: var(--sideBarTitleColor); }
+  .cat.active::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--themeColor); border-top-right-radius: 3px; border-bottom-right-radius: 3px;
+  }
+  .none { margin: 0; padding: 8px 16px; color: var(--sideBarColor); font-size: 13px; }
+  .pref-content { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .drag { height: 32px; flex: none; }
+  .pref-setting { flex: 1; min-height: 0; overflow: auto; padding: 8px 40px 40px; }
+  .pref-setting h4 { margin: 0 0 8px; font-size: 18px; font-weight: 500; color: var(--editorColor); }
+  .pref-setting h6 { margin: 0; font-size: 15px; font-weight: 500; color: var(--editorColor); }
+  .switch-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0 4px;
+  }
+  .switch-label { font-size: 14px; }
+  .switch-note { margin: 0 0 8px; font-size: 12px; font-style: italic; color: var(--editorColor80); }
+  .switch {
+    width: 36px; height: 18px; border-radius: 9px; border: 2px solid var(--iconColor);
+    background: transparent; position: relative; cursor: pointer; padding: 0; flex: none;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 1px; left: 2px; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--iconColor);
+  }
+  .switch[aria-checked="true"] { border-color: var(--themeColor); background: var(--themeColor); }
+  .switch[aria-checked="true"]::after { left: 18px; background: #fff; }
+  .section { margin: 28px 0; }
+  .section > h6 { padding-bottom: 6px; }
+  .turn-note, .live {
+    margin: 0 0 12px; padding: 8px 10px; font-size: 13px;
+    background: var(--themeColor10); color: var(--editorColor80);
+  }
+  .card {
+    margin: 0 0 12px; padding: 12px; border: 1px solid var(--editorColor10); background: var(--editorBgColor);
+  }
+  .card.used { box-shadow: inset 3px 0 0 var(--themeColor); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .use { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .use input { accent-color: var(--themeColor); }
+  .card.locked .use { opacity: 0.4; cursor: default; }
+  .field { display: block; margin: 0 0 4px; font-size: 13px; color: var(--editorColor80); }
+  .pathrow { display: flex; gap: 8px; align-items: center; }
+  .pathrow input, .shell-input {
+    flex: 1; min-width: 0; height: 28px; padding: 0 8px;
+    border: 1px solid var(--editorColor10); background: var(--editorBgColor); font-size: 13px;
+  }
+  .textbtn {
+    background: none; border: 1px solid var(--editorColor10); padding: 3px 8px;
+    font-size: 12px; cursor: pointer; color: var(--editorColor80); flex: none;
+  }
+  .st { margin: 8px 0 0; font-size: 13px; }
+  .st.ok { color: var(--diffInsFg); }
+  .st.bad { color: var(--tagReadFg); }
+  .models { margin-top: 10px; }
+  .models-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .models-head span { font-size: 13px; color: var(--editorColor80); }
+  .models ul { margin: 6px 0 0; padding: 0; list-style: none; }
+  .models li {
+    padding: 3px 0; font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 12px; color: var(--editorColor);
+  }
+  .help { margin: 8px 0 0; font-size: 12px; font-style: italic; color: var(--editorColor80); line-height: 1.5; }
+  .stub p { margin: 8px 0 0; color: var(--editorColor50); }
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 8 — Настройки «Агент»</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru">RU</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="sceneGroup" aria-label="Состояние">
+    <button type="button" data-scene="ready" data-i18n="scReady">Готов</button>
+    <button type="button" data-scene="missing" data-i18n="scMissing">Не найден</button>
+    <button type="button" data-scene="nomodels" data-i18n="scNoModels">Нет моделей</button>
+    <button type="button" data-scene="turn" data-i18n="scTurn">Ход</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="stage">
+  <div class="window">
+    <aside class="pref-sidebar">
+      <h3 id="pref-title">Настройки</h3>
+      <div class="search-wrap">
+        <input id="q" type="search" aria-label="Поиск">
+      </div>
+      <div class="cats" id="cats"></div>
+    </aside>
+    <div class="pref-content">
+      <div class="drag"></div>
+      <div class="pref-setting" id="setting"></div>
+    </div>
+  </div>
+</div>
+<section class="notes">
+  <h2 data-i18n="notesTitle">Ошибка без действия — плохая ошибка</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+  </ol>
+</section>
+<script>
+const CATS = [
+  { id: 'general', ru: 'Общие', en: 'General' },
+  { id: 'editor', ru: 'Редактор', en: 'Editor' },
+  { id: 'markdown', ru: 'Markdown', en: 'Markdown' },
+  { id: 'spelling', ru: 'Орфография', en: 'Spelling' },
+  { id: 'theme', ru: 'Тема', en: 'Theme' },
+  { id: 'image', ru: 'Изображение', en: 'Image' },
+  { id: 'keybindings', ru: 'Сочетания клавиш', en: 'Key Bindings' },
+  { id: 'agent', ru: 'Агент', en: 'Agent' }
+]
+const META = {
+  opencode: { title: 'OpenCode', cmd: 'opencode' },
+  pi: { title: 'Pi', cmd: 'pi-acp' },
+  cursor: { title: 'Cursor', cmd: 'agent' }
+}
+const ICONS = {
+  general: '<circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.7v1.5M8 12.8v1.5M1.7 8h1.5M12.8 8h1.5M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  editor: '<path d="M3 13.2l1-3.2L11.2 2.8l2 2L6 12.2 3 13.2z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  markdown: '<path d="M2.5 4.5h11v7h-11zM4 9.5V6.5l1.6 2 1.6-2v3M10 6.5v3l1.6-1.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  spelling: '<path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>',
+  theme: '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M8 3v10a5 5 0 0 0 0-10z" fill="currentColor"/>',
+  image: '<rect x="2.5" y="3.5" width="11" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="7" r="1" fill="currentColor"/><path d="M3.5 11l3-2.5 2 1.5 2-2.2 2.5 2.2" fill="none" stroke="currentColor" stroke-width="1.2"/>',
+  keybindings: '<rect x="2" y="4" width="12" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h1M7.5 6.5h1M10.5 6.5h1M5.5 9h5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  agent: '<path d="M8 2.2l1.2 3.2H12.6L10 7.4l1 3.2L8 8.6 4.9 10.6l1-3.2L3.4 5.4h3.4z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'
+}
+
+function card(status, bin, models) {
+  return { path: '', status: status, bin: bin, models: models.slice() }
+}
+const PRESETS = {
+  ready: {
+    active: 'opencode', turning: false,
+    cards: {
+      opencode: card('found', '/usr/bin/opencode', ['opencode/big-pickle', 'opencode/claude-sonnet']),
+      pi: card('found', '/usr/bin/pi-acp', ['pi/gpt-4.1']),
+      cursor: card('login', '', [])
+    }
+  },
+  missing: {
+    active: 'opencode', turning: false,
+    cards: {
+      opencode: card('missing', '', []),
+      pi: card('found', '/usr/bin/pi-acp', ['pi/gpt-4.1']),
+      cursor: card('login', '', [])
+    }
+  },
+  nomodels: {
+    active: 'opencode', turning: false,
+    cards: {
+      opencode: card('nomodels', '/usr/bin/opencode', []),
+      pi: card('found', '/usr/bin/pi-acp', ['pi/gpt-4.1']),
+      cursor: card('login', '', [])
+    }
+  },
+  turn: {
+    active: 'opencode', turning: true,
+    cards: {
+      opencode: card('found', '/usr/bin/opencode', ['opencode/big-pickle', 'opencode/claude-sonnet']),
+      pi: card('found', '/usr/bin/pi-acp', ['pi/gpt-4.1']),
+      cursor: card('login', '', [])
+    }
+  }
+}
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог', protoTitle: 'Промпт 8 — Настройки «Агент»', light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', sceneGroup: 'Состояние',
+    scReady: 'Готов', scMissing: 'Не найден', scNoModels: 'Нет моделей', scTurn: 'Ход',
+    prefTitle: 'Настройки', search: 'Поиск', searchLabel: 'Поиск настроек', noHits: 'Ничего не найдено',
+    pageTitle: 'Агент', mode: 'Агентский режим', modeNote: 'Работает только в папке git-репозитория',
+    modeOff: 'Выключен: панели агента и терминал скрыты, редактор работает как раньше.',
+    modeSwitch: 'Агентский режим',
+    harnessTitle: 'Harness', use: 'Использовать', useNamed: 'Использовать {name}',
+    radios: 'Активный harness',
+    turnNote: 'Агент уже работает — дождитесь окончания или отмените ход в чате. Сменить harness сейчас нельзя.',
+    path: 'Путь к программе', pathPh: 'пусто — поиск {cmd} в PATH', browse: 'Обзор', browseNamed: 'Выбрать файл для {name}',
+    check: 'Проверить', checkNamed: 'Проверить {name}',
+    found: 'Найден: {bin}, ACP v1',
+    missing: 'Не найден. Укажите путь кнопкой «Обзор» или положите {cmd} в PATH, затем нажмите «Проверить».',
+    login: 'Требуется вход: выполните `agent login`. Команда запускается в терминале в корне репозитория, затем нажмите «Проверить».',
+    nomodels: 'Нет настроенных моделей. Добавьте их в настройках {name} — ключи MarkText не хранит — и нажмите «Обновить».',
+    models: 'Модели', modelsLabel: 'Модели {name}, только чтение', refresh: 'Обновить', refreshNamed: 'Обновить модели {name}',
+    shellTitle: 'Терминал', shell: 'Shell терминала', shellPh: 'пусто — $SHELL или PowerShell',
+    help: 'Harness выбирается здесь. Модель для репозитория — в шапке чата. Ключи и адреса провайдеров (например LiteLLM) настраиваются в самом harness — MarkText их не хранит.',
+    livePicked: 'Путь выбран. Нажмите «Проверить».',
+    liveLogin: 'Вход всё ещё требуется. Выполните `agent login` в терминале и нажмите «Проверить» снова.',
+    liveStillNoModels: 'Программа {name} на месте, моделей по-прежнему нет. Добавьте их в настройках harness и нажмите «Обновить».',
+    liveStillMissing: '{cmd} по-прежнему не найден. Укажите путь или установите программу в PATH.',
+    liveFound: 'Программа найдена.',
+    liveChecked: 'Проверено.',
+    liveNoModels: 'Список {name} пуст. Добавьте модели в настройках harness и нажмите «Обновить» снова.',
+    liveRefreshed: 'Список моделей обновлён.',
+    stub: 'В этом макете спроектирована только страница «Агент».',
+    notesTitle: 'Ошибка без действия — плохая ошибка',
+    note1: '«Не найден» сразу говорит, что делать: «Обзор» или PATH, затем «Проверить». «Требуется вход» называет команду `agent login` и терминал в корне репозитория. «Нет настроенных моделей» отправляет в настройки самого harness и к «Обновить»: ключи MarkText не хранит.',
+    note2: '«Использовать» включён ровно у одного harness. Пока идёт ход, переключатели неактивны, и страница говорит, что ход нужно дождаться или отменить в чате.',
+    note3: 'Список моделей только для чтения. Модель репозитория выбирается в шапке чата. Справка внизу — дословно про harness, модель и ключи провайдеров.',
+    note4: '«Агентский режим» по умолчанию включён и работает только в папке git-репозитория. Выключенный режим скрывает панели, настройки на странице остаются.',
+    note5: '«Обзор» здесь подставляет путь вместо системного диалога. Статус меняется по «Проверить», а не в момент выбора файла. Цвет ошибки — не --deleteColor.',
+    stReady: 'OpenCode найден', stMissing: 'OpenCode не найден', stNoModels: 'нет моделей', stTurn: 'ход идёт, harness не сменить'
+  },
+  en: {
+    catalog: 'Catalog', protoTitle: 'Prompt 8 — Agent settings', light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', sceneGroup: 'State',
+    scReady: 'Ready', scMissing: 'Not found', scNoModels: 'No models', scTurn: 'Turn',
+    prefTitle: 'Preferences', search: 'Search', searchLabel: 'Search settings', noHits: 'No matches',
+    pageTitle: 'Agent', mode: 'Agent mode', modeNote: 'Works only in a git repository folder.',
+    modeOff: 'Off: the agent panels and the terminal are hidden, and the editor works as before.',
+    modeSwitch: 'Agent mode',
+    harnessTitle: 'Harness', use: 'Use', useNamed: 'Use {name}',
+    radios: 'Active harness',
+    turnNote: 'The agent is already working — wait for the turn to finish or cancel it in the chat. The harness cannot be changed now.',
+    path: 'Program path', pathPh: 'empty — search {cmd} on PATH', browse: 'Browse', browseNamed: 'Choose a file for {name}',
+    check: 'Check', checkNamed: 'Check {name}',
+    found: 'Found: {bin}, ACP v1',
+    missing: 'Not found. Set the path with Browse or put {cmd} on PATH, then press Check.',
+    login: 'Sign-in required: run `agent login`. The command runs in the terminal at the repository root, then press Check.',
+    nomodels: 'No models configured. Add them in {name}’s own settings — MarkText does not store keys — then press Refresh.',
+    models: 'Models', modelsLabel: 'Models for {name}, read only', refresh: 'Refresh', refreshNamed: 'Refresh models for {name}',
+    shellTitle: 'Terminal', shell: 'Terminal shell', shellPh: 'empty — $SHELL or PowerShell',
+    help: 'The harness is chosen here. The model for the repository is in the chat header. Provider keys and addresses (for example LiteLLM) are configured in the harness itself — MarkText does not store them.',
+    livePicked: 'Path selected. Press Check.',
+    liveLogin: 'Sign-in is still required. Run `agent login` in the terminal and press Check again.',
+    liveStillNoModels: '{name} is present, and there are still no models. Add them in the harness settings and press Refresh.',
+    liveStillMissing: '{cmd} is still not found. Set the path or install the program on PATH.',
+    liveFound: 'Program found.',
+    liveChecked: 'Checked.',
+    liveNoModels: 'The {name} list is empty. Add models in the harness settings and press Refresh again.',
+    liveRefreshed: 'Model list refreshed.',
+    stub: 'This mockup only designs the Agent page.',
+    notesTitle: 'An error without an action is a bad error',
+    note1: '“Not found” says what to do: Browse or PATH, then Check. “Sign-in required” names `agent login` and the terminal at the repository root. “No models configured” sends you to the harness’s own settings and to Refresh: MarkText does not store keys.',
+    note2: 'Use is on for exactly one harness. While a turn is running the switches are inactive, and the page says to wait or cancel the turn in the chat.',
+    note3: 'The model list is read only. The repository model is chosen in the chat header. The help at the bottom is the sentence about the harness, the model, and provider keys.',
+    note4: 'Agent mode is on by default and works only in a git repository folder. Turning it off hides the panels; the settings on this page stay.',
+    note5: 'Browse fills a path in place of the system file dialog. The status changes on Check, not when the file is chosen. The error color is not --deleteColor.',
+    stReady: 'OpenCode found', stMissing: 'OpenCode not found', stNoModels: 'no models', stTurn: 'turn running, harness locked'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function tr(key) { return I18N[state.lang][key] }
+function fill(key, map) {
+  return tr(key).replace(/\{(\w+)\}/g, (_, name) => map[name] == null ? '' : String(map[name]))
+}
+function el(tag, cls, text) {
+  const node = document.createElement(tag)
+  if (cls) node.className = cls
+  if (text != null) node.textContent = text
+  return node
+}
+function svg(name) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  node.setAttribute('viewBox', '0 0 16 16')
+  node.setAttribute('aria-hidden', 'true')
+  node.innerHTML = ICONS[name]
+  return node
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'ready',
+  page: 'agent',
+  query: '',
+  enabled: true,
+  shell: '',
+  active: 'opencode',
+  turning: false,
+  cards: {},
+  live: ''
+}
+
+function applyI18n() {
+  document.documentElement.lang = state.lang
+  document.title = tr('protoTitle')
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    node.textContent = tr(node.getAttribute('data-i18n'))
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+    node.setAttribute('aria-label', tr(node.getAttribute('data-i18n-aria')))
+  })
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((node) => {
+    node.setAttribute('aria-pressed', String(node.getAttribute('data-scene') === state.scene))
+  })
+  $('pref-title').textContent = tr('prefTitle')
+  $('q').placeholder = tr('search')
+  $('q').setAttribute('aria-label', tr('searchLabel'))
+}
+
+function renderCats() {
+  const box = $('cats')
+  box.replaceChildren()
+  const q = state.query.trim().toLowerCase()
+  const hits = CATS.filter((cat) => !q || cat.ru.toLowerCase().includes(q) || cat.en.toLowerCase().includes(q))
+  if (!hits.length) {
+    box.appendChild(el('p', 'none', tr('noHits')))
+    return
+  }
+  hits.forEach((cat) => {
+    const button = el('button', 'cat' + (state.page === cat.id ? ' active' : ''))
+    button.type = 'button'
+    button.appendChild(svg(cat.id))
+    button.appendChild(document.createTextNode(state.lang === 'ru' ? cat.ru : cat.en))
+    button.addEventListener('click', () => {
+      state.page = cat.id
+      apply()
+    })
+    box.appendChild(button)
+  })
+}
+
+function statusNode(id, card) {
+  const meta = META[id]
+  if (card.status === 'found') {
+    return el('p', 'st ok', fill('found', { bin: card.bin }))
+  }
+  const key = card.status === 'login' ? 'login' : card.status === 'nomodels' ? 'nomodels' : 'missing'
+  return el('p', 'st bad', fill(key, { cmd: '`' + meta.cmd + '`', name: meta.title }))
+}
+
+function renderCard(id) {
+  const meta = META[id]
+  const data = state.cards[id]
+  const cardNode = el('section', 'card' + (state.active === id ? ' used' : '') + (state.turning ? ' locked' : ''))
+  const head = el('div', 'card-head')
+  head.appendChild(el('h6', '', meta.title))
+  const use = el('label', 'use')
+  const radio = document.createElement('input')
+  radio.type = 'radio'
+  radio.name = 'harness'
+  radio.checked = state.active === id
+  radio.disabled = state.turning
+  radio.setAttribute('aria-label', fill('useNamed', { name: meta.title }))
+  radio.addEventListener('change', () => {
+    if (state.turning) return
+    state.active = id
+    apply()
+  })
+  use.appendChild(radio)
+  use.appendChild(document.createTextNode(tr('use')))
+  head.appendChild(use)
+  cardNode.appendChild(head)
+
+  const pathLabel = el('label', 'field', tr('path'))
+  pathLabel.htmlFor = 'path-' + id
+  cardNode.appendChild(pathLabel)
+  const row = el('div', 'pathrow')
+  const input = document.createElement('input')
+  input.id = 'path-' + id
+  input.type = 'text'
+  input.value = data.path
+  input.placeholder = fill('pathPh', { cmd: meta.cmd })
+  input.spellcheck = false
+  input.addEventListener('input', () => { state.cards[id].path = input.value })
+  const browse = el('button', 'textbtn', tr('browse'))
+  browse.type = 'button'
+  browse.setAttribute('aria-label', fill('browseNamed', { name: meta.title }))
+  browse.addEventListener('click', () => {
+    state.cards[id].path = '/usr/local/bin/' + meta.cmd
+    state.live = tr('livePicked')
+    apply()
+  })
+  row.append(input, browse)
+  cardNode.appendChild(row)
+  cardNode.appendChild(statusNode(id, data))
+
+  const check = el('button', 'textbtn', tr('check'))
+  check.type = 'button'
+  check.style.marginTop = '8px'
+  check.setAttribute('aria-label', fill('checkNamed', { name: meta.title }))
+  check.addEventListener('click', () => checkCard(id))
+  cardNode.appendChild(check)
+
+  const models = el('div', 'models')
+  const modelsHead = el('div', 'models-head')
+  modelsHead.appendChild(el('span', '', tr('models')))
+  const refresh = el('button', 'textbtn', tr('refresh'))
+  refresh.type = 'button'
+  refresh.setAttribute('aria-label', fill('refreshNamed', { name: meta.title }))
+  refresh.addEventListener('click', () => refreshCard(id))
+  modelsHead.appendChild(refresh)
+  models.appendChild(modelsHead)
+  const list = el('ul')
+  list.setAttribute('aria-label', fill('modelsLabel', { name: meta.title }))
+  data.models.forEach((model) => list.appendChild(el('li', '', model)))
+  if (data.models.length) models.appendChild(list)
+  cardNode.appendChild(models)
+  return cardNode
+}
+
+function checkCard(id) {
+  const data = state.cards[id]
+  const meta = META[id]
+  if (data.status === 'login') state.live = tr('liveLogin')
+  else if (data.status === 'nomodels') state.live = fill('liveStillNoModels', { name: meta.title })
+  else if (data.status === 'missing' && !data.path.trim()) state.live = fill('liveStillMissing', { cmd: meta.cmd })
+  else if (data.status === 'missing') {
+    data.status = 'found'
+    data.bin = data.path.trim()
+    data.models = id === 'pi' ? ['pi/gpt-4.1'] : id === 'cursor' ? ['cursor/auto'] : ['opencode/big-pickle']
+    state.live = tr('liveFound')
+  } else state.live = tr('liveChecked')
+  apply()
+}
+
+function refreshCard(id) {
+  const data = state.cards[id]
+  const meta = META[id]
+  state.live = data.models.length ? tr('liveRefreshed') : fill('liveNoModels', { name: meta.title })
+  apply()
+}
+
+function renderPage() {
+  const root = $('setting')
+  root.replaceChildren()
+  if (state.page !== 'agent') {
+    const cat = CATS.find((item) => item.id === state.page)
+    const stub = el('div', 'stub')
+    stub.appendChild(el('h4', '', cat ? (state.lang === 'ru' ? cat.ru : cat.en) : ''))
+    stub.appendChild(el('p', '', tr('stub')))
+    root.appendChild(stub)
+    return
+  }
+  root.appendChild(el('h4', '', tr('pageTitle')))
+  const row = el('div', 'switch-row')
+  row.appendChild(el('span', 'switch-label', tr('mode')))
+  const toggle = el('button', 'switch')
+  toggle.type = 'button'
+  toggle.id = 'mode'
+  toggle.setAttribute('role', 'switch')
+  toggle.setAttribute('aria-checked', String(state.enabled))
+  toggle.setAttribute('aria-label', tr('modeSwitch'))
+  toggle.addEventListener('click', () => {
+    state.enabled = !state.enabled
+    apply()
+  })
+  row.appendChild(toggle)
+  root.appendChild(row)
+  root.appendChild(el('p', 'switch-note', tr('modeNote')))
+  if (!state.enabled) root.appendChild(el('p', 'switch-note', tr('modeOff')))
+  if (state.live) root.appendChild(el('p', 'live', state.live))
+
+  const harness = el('section', 'section')
+  harness.appendChild(el('h6', '', tr('harnessTitle')))
+  if (state.turning) harness.appendChild(el('p', 'turn-note', tr('turnNote')))
+  const group = el('div')
+  group.setAttribute('role', 'radiogroup')
+  group.setAttribute('aria-label', tr('radios'))
+  ;['opencode', 'pi', 'cursor'].forEach((id) => group.appendChild(renderCard(id)))
+  harness.appendChild(group)
+  root.appendChild(harness)
+
+  const shell = el('section', 'section')
+  shell.appendChild(el('h6', '', tr('shellTitle')))
+  const shellLabel = el('label', 'field', tr('shell'))
+  shellLabel.htmlFor = 'shell'
+  shell.appendChild(shellLabel)
+  const shellInput = document.createElement('input')
+  shellInput.id = 'shell'
+  shellInput.className = 'shell-input'
+  shellInput.type = 'text'
+  shellInput.value = state.shell
+  shellInput.placeholder = tr('shellPh')
+  shellInput.spellcheck = false
+  shellInput.addEventListener('input', () => { state.shell = shellInput.value })
+  shell.appendChild(shellInput)
+  root.appendChild(shell)
+  root.appendChild(el('p', 'help', tr('help')))
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  applyI18n()
+  renderCats()
+  renderPage()
+  const key = { ready: 'stReady', missing: 'stMissing', nomodels: 'stNoModels', turn: 'stTurn' }[state.scene]
+  $('status').textContent = tr(key)
+}
+
+function setScene(name) {
+  const preset = JSON.parse(JSON.stringify(PRESETS[name]))
+  state.scene = name
+  state.page = 'agent'
+  state.enabled = true
+  state.shell = ''
+  state.active = preset.active
+  state.turning = preset.turning
+  state.cards = preset.cards
+  state.live = ''
+  apply()
+}
+
+document.querySelectorAll('[data-scene]').forEach((node) => {
+  node.addEventListener('click', () => setScene(node.getAttribute('data-scene')))
+})
+$('theme-light').addEventListener('click', () => {
+  state.theme = 'light'
+  persist('mt-mockup-theme', 'light')
+  apply()
+})
+$('theme-dark').addEventListener('click', () => {
+  state.theme = 'dark'
+  persist('mt-mockup-theme', 'dark')
+  apply()
+})
+$('lang-ru').addEventListener('click', () => {
+  state.lang = 'ru'
+  persist('mt-mockup-lang', 'ru')
+  apply()
+})
+$('lang-en').addEventListener('click', () => {
+  state.lang = 'en'
+  persist('mt-mockup-lang', 'en')
+  apply()
+})
+$('q').addEventListener('input', () => {
+  state.query = $('q').value
+  renderCats()
+})
+
+setScene('ready')
+</script>
+</body>
+</html>
