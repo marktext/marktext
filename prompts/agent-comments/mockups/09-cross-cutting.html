@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сквозные элементы</title>
+<style>
+  /* Tokens copied from MarkText light and dark themes.
+     Badges and errors use their own foregrounds. --deleteColor is blue in the dark theme. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor10: #e6e6e6;
+    --editorColor04: rgba(0, 0, 0, 0.04);
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.04);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --floatBgColor: #fff;
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --h1Color: var(--editorColor80);
+    --buttonPrimaryFontColor: #fff;
+    --tagOrphanFg: #6d4e0c;
+    --tagOrphanBg: rgba(214, 168, 32, 0.28);
+    --tagReadFg: #7a1e1e;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+    --commentMarkBg: rgba(214, 168, 32, 0.28);
+    --commentMarkUnderline: #8a6410;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.06);
+    --itemBgColor: #3f3f3f;
+    --floatBgColor: #3f3f3f;
+    --floatBorderColor: rgba(255, 255, 255, 0.08);
+    --h1Color: var(--editorColor80);
+    --tagOrphanFg: #ffe08a;
+    --tagOrphanBg: rgba(240, 196, 60, 0.22);
+    --tagReadFg: #ffc1c1;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+    --commentMarkBg: rgba(240, 196, 60, 0.28);
+    --commentMarkUnderline: #e2c15a;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+  code, kbd { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(960px, 100%); height: 560px; display: flex; flex-direction: column;
+    background: var(--editorBgColor); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28); overflow: hidden;
+    position: relative;
+  }
+  .titlebar {
+    height: 32px; flex: none; display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; background: var(--sideBarBgColor); color: var(--sideBarColor); font-size: 12px;
+  }
+  .titlebar .path { margin-left: auto; color: var(--sideBarTextColor); }
+  .body { flex: 1; min-height: 0; display: flex; }
+  .editor { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .tabs {
+    height: 28px; flex: none; display: flex; align-items: stretch; gap: 2px; padding: 0 8px;
+    background: var(--itemBgColor); font-size: 12px;
+  }
+  .tabs button {
+    border: none; background: transparent; color: var(--editorColor); padding: 0 10px; cursor: pointer;
+  }
+  .tabs button[aria-pressed="true"] { box-shadow: inset 0 -2px 0 var(--themeColor); color: var(--editorColor80); }
+  .doc { flex: 1; min-height: 0; overflow: auto; }
+  .doc-inner { max-width: 640px; margin: 0 auto; padding: 28px 16px; font-size: 16px; line-height: 1.7; }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .mark { background: var(--commentMarkBg); box-shadow: inset 0 -1px 0 var(--commentMarkUnderline); }
+  .panel {
+    width: 280px; flex: none; display: flex; flex-direction: column; min-height: 0;
+    background: var(--sideBarBgColor); color: var(--sideBarColor); border-left: 1px solid var(--itemBgColor);
+  }
+  .ptabs { height: 28px; flex: none; display: flex; }
+  .ptabs button {
+    position: relative; flex: 1; border: none; background: none; color: var(--sideBarColor);
+    font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .ptabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .ptabs button[aria-selected="true"]::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--themeColor);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--themeColor);
+  }
+  .count-badge, .tag {
+    display: inline-block; font-size: 11px; font-weight: 600; line-height: 16px;
+  }
+  .count-badge {
+    min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; text-align: center;
+    background: var(--themeColor20); color: var(--editorColor80);
+  }
+  .tag { padding: 0 6px; border-radius: 2px; line-height: 18px; }
+  .tag-orphan { color: var(--tagOrphanFg); background: var(--tagOrphanBg); }
+  .tag-noreply { color: var(--editorColor80); background: var(--editorColor10); }
+  .tag-closed { color: var(--editorColor); background: var(--editorColor04); box-shadow: inset 0 0 0 1px var(--editorColor10); }
+  .tag-read { color: var(--tagReadFg); background: var(--tagReadBg); }
+  .pbody { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .hint, .block { margin: 0; font-size: 13px; line-height: 1.45; color: var(--sideBarColor); }
+  .block { color: var(--tagReadFg); }
+  .row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .field, .select {
+    width: 100%; margin-top: 8px; height: 28px; padding: 0 8px;
+    border: 1px solid var(--editorColor10); background: var(--editorBgColor); font-size: 13px;
+  }
+  .select:disabled { opacity: 0.7; }
+  .primary, .btn, .danger {
+    border: none; border-radius: 2px; padding: 6px 10px; font-size: 13px; cursor: pointer;
+  }
+  .primary { background: var(--themeColor); color: var(--buttonPrimaryFontColor); }
+  .primary:disabled, .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn { background: transparent; border: 1px solid var(--editorColor10); color: var(--editorColor80); }
+  .danger { background: var(--tagReadBg); color: var(--tagReadFg); }
+  .term {
+    height: 28px; flex: none; display: flex; align-items: center; padding: 0 10px;
+    border-top: 1px solid var(--itemBgColor); background: var(--sideBarBgColor);
+    color: var(--sideBarTextColor); font-size: 12px;
+  }
+  .shade {
+    position: absolute; inset: 32px 0 0; background: rgba(0, 0, 0, 0.35);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .dialog {
+    width: min(420px, 100%); padding: 16px; background: var(--floatBgColor);
+    color: var(--editorColor); border: 1px solid var(--floatBorderColor);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  .dialog p { margin: 0 0 14px; line-height: 1.45; }
+  .dialog .actions { display: flex; justify-content: flex-end; gap: 8px; }
+  .closed {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 24px; text-align: center; color: var(--editorColor80);
+  }
+  .keys { flex: 1; min-height: 0; display: flex; }
+  .side {
+    width: 220px; flex: none; background: var(--sideBarBgColor); padding-top: 16px;
+  }
+  .side h3 { margin: 0 0 12px; font-size: 18px; font-weight: normal; text-align: center; color: var(--sideBarColor); }
+  .side .item {
+    height: 38px; display: flex; align-items: center; padding: 0 16px;
+    color: var(--sideBarTitleColor); font-size: 16px; box-shadow: inset 4px 0 0 var(--themeColor);
+  }
+  .keymain { flex: 1; min-width: 0; overflow: auto; padding: 16px 20px 24px; }
+  .keymain h4 { margin: 0 0 8px; font-size: 18px; font-weight: 500; }
+  .keymain .lead { margin: 0 0 12px; font-size: 13px; color: var(--editorColor50); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--editorColor10); vertical-align: middle; }
+  th { color: var(--editorColor50); font-weight: 500; }
+  .iconbtn {
+    width: 28px; height: 28px; padding: 0; border: none; background: none;
+    color: var(--iconColor); cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .iconbtn svg { width: 14px; height: 14px; display: block; }
+  .iconbtn:disabled { opacity: 0.35; cursor: default; }
+  .ring, .iconbtn:focus, .dialog button:focus, .dialog input:focus {
+    outline: 1px solid var(--themeColor); outline-offset: 1px;
+  }
+  .saved { margin: 8px 0 0; font-size: 12px; color: var(--editorColor50); }
+  .badges { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 28px 32px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .icon-row { display: flex; gap: 8px; }
+  .matrix { max-width: 760px; margin: 0 auto; padding: 8px 24px 0; line-height: 1.5; }
+  .matrix p { margin: 0 0 0.4em; }
+  .matrix strong { color: var(--editorColor80); }
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Сквозные элементы</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru">RU</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="stateGroup" aria-label="Состояние">
+    <button type="button" data-scene="off" data-i18n="scOff">Выключен</button>
+    <button type="button" data-scene="nogit" data-i18n="scNogit">Не git</button>
+    <button type="button" data-scene="missing" data-i18n="scMissing">Нет программы</button>
+    <button type="button" data-scene="nomodels" data-i18n="scNoModels">Нет моделей</button>
+    <button type="button" data-scene="turn" data-i18n="scTurn">Ход</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="moreGroup" aria-label="Ещё">
+    <button type="button" data-scene="del" data-i18n="scDel">Удалить тред</button>
+    <button type="button" data-scene="folder" data-i18n="scFolder">Смена папки</button>
+    <button type="button" data-scene="close" data-i18n="scClose">Закрыть окно</button>
+    <button type="button" data-scene="keys" data-i18n="scKeys">Клавиши</button>
+    <button type="button" data-scene="badges" data-i18n="scBadges">Бейджи</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="stage">
+  <div class="window" id="app"></div>
+</div>
+<section class="matrix" id="matrix"></section>
+<section class="notes">
+  <h2 data-i18n="notesTitle">Одни и те же правила на всех экранах</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+  </ol>
+</section>
+<script>
+const KEYS = [
+  { id: 'comment', def: 'Ctrl+Alt+C' },
+  { id: 'sendThread', def: 'Ctrl+Shift+Enter' },
+  { id: 'sendAllCmd', def: 'Ctrl+Alt+Enter' },
+  { id: 'agentPanel', def: 'Ctrl+\\' },
+  { id: 'terminal', def: 'Ctrl+Alt+\\' },
+  { id: 'nextThread', def: 'Alt+Down' },
+  { id: 'prevThread', def: 'Alt+Up' }
+]
+const ICONS = {
+  edit: '<path d="M3 13.2l1-3.2L11.2 2.8l2 2L6 12.2 3 13.2z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  reset: '<path d="M3.2 8a4.8 4.8 0 1 0 1.2-3.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M3 2.8v2.6h2.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>',
+  unbind: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>',
+  comment: '<path d="M3 3.5h10v7H8l-3 2.2V10.5H3z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'
+}
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог', protoTitle: 'Сквозные элементы', light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', stateGroup: 'Состояние', moreGroup: 'Ещё',
+    scOff: 'Выключен', scNogit: 'Не git', scMissing: 'Нет программы', scNoModels: 'Нет моделей', scTurn: 'Ход',
+    scDel: 'Удалить тред', scFolder: 'Смена папки', scClose: 'Закрыть окно', scKeys: 'Клавиши', scBadges: 'Бейджи',
+    comments: 'Комментарии', chat: 'Чат', file: 'guide.md',
+    docTitle: 'Руководство',
+    doc: 'Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там.',
+    term: 'Терминал · ~/Git/agentic-marktext',
+    nogit: 'Агентский режим работает только в папке git-репозитория.',
+    missing: 'Программа `opencode` не найдена. Укажите путь в Настройки → Агент.',
+    noModels: 'Нет настроенных моделей. Выбрать модель нельзя, пока harness их не отдаст. Ключи MarkText не хранит — обновите список после настройки harness.',
+    noModelsOpt: 'Нет моделей', model: 'Модель', refresh: 'Обновить список',
+    turnHint: 'Агент уже работает — дождитесь окончания или отмените ход.',
+    sendAll: 'Отправить все неразобранные (2)', sendOne: 'Отправить выбранный тред', stop: 'Остановить',
+    quote: 'Команды запускаются из корня репозитория',
+    delTitle: 'Удалить тред',
+    delText: 'Тред и все реплики будут удалены из .marktext/comments',
+    delYes: 'Удалить', cancel: 'Отмена', deleted: 'Тред удалён. Подсветка в тексте снята.',
+    folderText: 'Идёт ход агента. Смена папки отменит ход и закроет терминалы этого репозитория. Продолжить?',
+    folderYes: 'Сменить папку', folderDone: 'Папка сменена. Ход отменён, терминалы прежнего репозитория закрыты.',
+    closeText: 'Идёт ход агента. Закрытие окна отменит ход. Закрыть?',
+    closeYes: 'Закрыть окно', closed: 'Окно закрыто. Ход отменён.',
+    path: '~/Git/agentic-marktext', pathNext: '~/Git/other',
+    pref: 'Настройки', keyPage: 'Сочетания клавиш',
+    keyLead: 'Новые команды агента в существующей таблице. Сочетание меняется, сбрасывается и снимается здесь.',
+    colCmd: 'Команда', colKey: 'Сочетание', colOpt: 'Действия',
+    unbound: 'Не назначено',
+    comment: 'Комментировать', sendThread: 'Отправить выбранный тред', sendAllCmd: 'Отправить все неразобранные',
+    agentPanel: 'Панель агента', terminal: 'Терминал', nextThread: 'Следующий тред', prevThread: 'Предыдущий тред',
+    edit: 'Изменить {name}', reset: 'Сбросить {name}', unbind: 'Снять {name}',
+    keyPrompt: 'Нажмите новое сочетание', keyHelp: 'Нужны модификатор и клавиша. Esc отменяет.',
+    keyBad: 'Сочетание неполное.', keyUsed: 'Сочетание уже используется: {name}.',
+    save: 'Сохранить', saved: 'Сочетания сохранены.', restore: 'Восстановить умолчания',
+    badgeOrphan: 'оторван', badgeNo: 'нет ответа агента', badgeClosed: 'закрыт', badgeRead: 'ошибка чтения',
+    commentBtn: 'Комментировать', closeBtn: 'Закрыть',
+    turnDot: 'Ход идёт',
+    hid: 'Скрыто', idle: 'Неактивно', tip: 'Подсказка',
+    offH: 'Правая панель, терминал, вкладка diff, кнопка «Комментировать» и подсветка комментариев.',
+    offI: 'Ничего: команд агента на экране нет.',
+    offT: 'Подсказки нет. Окно выглядит как MarkText без агента.',
+    gitH: 'Имя файла, счётчик, «Показать закрытые», отправка, поле чата, выбор модели, терминал и diff.',
+    gitI: 'Вкладки панели на месте, команд нет.',
+    missH: 'Список моделей, сессии и поле сообщения.',
+    missI: '«Отправить», «Отправить все неразобранные» и «Отправить выбранный тред». Комментарий создать можно, терминал работает.',
+    modelH: 'Поле сообщения.',
+    modelI: 'Выбор модели неактивен, отправка тоже. «Обновить список» остаётся.',
+    turnH: 'Панели не скрываются.',
+    turnI: 'Отправка тредов и смена harness. В чате вместо «Отправить» — «Остановить». Новую реплику и комментарий создать можно.',
+    delH: 'Диалог закрывает панель, пока человек не ответит.',
+    delI: 'Кнопки треда под диалогом не нажимаются. Фокус на «Отмена».',
+    delT: 'Тред и все реплики будут удалены из .marktext/comments',
+    folderH: 'Редактор остаётся на месте, действия под диалогом не нажимаются.',
+    folderI: 'Смена папки не начинается, пока диалог открыт. Фокус на «Отмена».',
+    closeH: 'Это отдельный вопрос, не диалог несохранённых файлов.',
+    closeI: 'Окно не закрывается, пока человек не подтвердит. Фокус на «Отмена».',
+    keysH: 'Страница «Сочетания клавиш» уже есть. Здесь только новые команды.',
+    keysI: 'Занятое сочетание не сохраняется. Снятое показывает «Не назначено».',
+    keysT: 'Все команды из этого списка переназначаются. Ctrl+Enter по-прежнему добавляет реплику и отправляет сообщение чата — он в макетах треда и чата.',
+    badgeH: 'Ничего: это образцы тех же бейджей, что в списке тредов.',
+    badgeI: 'Кнопки-иконки без подписи получают aria-label и кольцо фокуса цветом --themeColor.',
+    badgeT: 'Счётчик — текст --editorColor80 на --themeColor20. «Ошибка чтения» — --tagReadFg, не --deleteColor.',
+    notesTitle: 'Одни и те же правила на всех экранах',
+    note1: 'Пять состояний не придумывают новых экранов. Выключенный режим убирает панели целиком. Не git-папка оставляет панель с одной фразой и без команд. Нет программы и нет моделей блокируют отправку и говорят, куда идти. Во время хода отправка тредов неактивна, в чате на её месте «Остановить».',
+    note2: 'Удаление треда спрашивает дословную фразу из макета треда. Смена папки во время хода предупреждает, что ход будет отменён и терминалы этого репозитория закроются. Закрытие окна во время хода спрашивает отдельно от уже существующего диалога несохранённых файлов. Во всех трёх фокус сначала на «Отмена».',
+    note3: 'Семь команд живут в существующей таблице «Сочетания клавиш»: комментировать, отправить выбранный тред, отправить все, панель агента, терминал, следующий и предыдущий тред. У строки есть изменить, сбросить и снять. Занятое сочетание не подменяется молча.',
+    note4: 'У кнопок-иконок есть подпись для чтения с экрана и видимый фокус. Бейджи «оторван», «нет ответа агента», «закрыт» и «ошибка чтения» читаются в обеих темах. Ошибка не красится в --deleteColor.',
+    note5: 'Подписи макетов есть на русском и английском. Из них потом соберутся ключи agent.*, comments.*, terminal.*, diff.* и preferences.agent.*.',
+    stOff: 'режим выключен', stNogit: 'не git-репозиторий', stMissing: 'программа не найдена',
+    stNoModels: 'нет моделей', stTurn: 'ход идёт', stDel: 'подтверждение удаления',
+    stFolder: 'подтверждение смены папки', stClose: 'подтверждение закрытия',
+    stKeys: 'сочетания клавиш', stBadges: 'бейджи и фокус'
+  },
+  en: {
+    catalog: 'Catalog', protoTitle: 'Cross-cutting', light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', stateGroup: 'State', moreGroup: 'More',
+    scOff: 'Off', scNogit: 'Not git', scMissing: 'No program', scNoModels: 'No models', scTurn: 'Turn',
+    scDel: 'Delete thread', scFolder: 'Change folder', scClose: 'Close window', scKeys: 'Keys', scBadges: 'Badges',
+    comments: 'Comments', chat: 'Chat', file: 'guide.md',
+    docTitle: 'Guide',
+    doc: 'Commands run from the repository root, because the lockfile and the workspace scripts live only there.',
+    term: 'Terminal · ~/Git/agentic-marktext',
+    nogit: 'Agent mode works only in a git repository folder.',
+    missing: 'Program `opencode` was not found. Set the path in Settings → Agent.',
+    noModels: 'No models are configured. A model cannot be chosen until the harness returns some. MarkText does not store keys — refresh the list after configuring the harness.',
+    noModelsOpt: 'No models', model: 'Model', refresh: 'Refresh list',
+    turnHint: 'The agent is already working — wait for it to finish or cancel the turn.',
+    sendAll: 'Send all unresolved (2)', sendOne: 'Send selected thread', stop: 'Stop',
+    quote: 'Commands run from the repository root',
+    delTitle: 'Delete thread',
+    delText: 'The thread and all replies will be deleted from .marktext/comments',
+    delYes: 'Delete', cancel: 'Cancel', deleted: 'Thread deleted. The highlight was removed.',
+    folderText: 'The agent is in a turn. Changing the folder will cancel the turn and close this repository’s terminals. Continue?',
+    folderYes: 'Change folder', folderDone: 'Folder changed. The turn was cancelled and the previous repository’s terminals were closed.',
+    closeText: 'The agent is in a turn. Closing the window will cancel the turn. Close?',
+    closeYes: 'Close window', closed: 'Window closed. The turn was cancelled.',
+    path: '~/Git/agentic-marktext', pathNext: '~/Git/other',
+    pref: 'Preferences', keyPage: 'Key Bindings',
+    keyLead: 'The new agent commands in the existing table. A shortcut is changed, reset, and cleared here.',
+    colCmd: 'Command', colKey: 'Shortcut', colOpt: 'Actions',
+    unbound: 'Not assigned',
+    comment: 'Comment', sendThread: 'Send selected thread', sendAllCmd: 'Send all unresolved',
+    agentPanel: 'Agent panel', terminal: 'Terminal', nextThread: 'Next thread', prevThread: 'Previous thread',
+    edit: 'Edit {name}', reset: 'Reset {name}', unbind: 'Unbind {name}',
+    keyPrompt: 'Press a new shortcut', keyHelp: 'A modifier and a key are required. Esc cancels.',
+    keyBad: 'The shortcut is incomplete.', keyUsed: 'Shortcut already used: {name}.',
+    save: 'Save', saved: 'Shortcuts saved.', restore: 'Restore defaults',
+    badgeOrphan: 'detached', badgeNo: 'no agent reply', badgeClosed: 'closed', badgeRead: 'read error',
+    commentBtn: 'Comment', closeBtn: 'Close',
+    turnDot: 'Turn in progress',
+    hid: 'Hidden', idle: 'Inactive', tip: 'Hint',
+    offH: 'The right panel, the terminal, the diff tab, the Comment button, and comment highlights.',
+    offI: 'Nothing: no agent commands are on screen.',
+    offT: 'There is no hint. The window looks like MarkText without the agent.',
+    gitH: 'The file name, the count, Show closed, send, the chat composer, the model picker, the terminal, and the diff.',
+    gitI: 'The panel tabs stay, and there are no commands.',
+    missH: 'The model list, sessions, and the message field.',
+    missI: 'Send, Send all unresolved, and Send selected thread. A comment can still be created, and the terminal still works.',
+    modelH: 'The message field.',
+    modelI: 'The model picker is inactive, and so is send. Refresh list stays.',
+    turnH: 'The panels stay visible.',
+    turnI: 'Sending threads and switching harness. In the chat, Stop replaces Send. A new reply and a new comment can still be created.',
+    delH: 'The dialog covers the panel until the person answers.',
+    delI: 'Thread buttons under the dialog do not press. Focus starts on Cancel.',
+    delT: 'The thread and all replies will be deleted from .marktext/comments',
+    folderH: 'The editor stays, and actions under the dialog do not press.',
+    folderI: 'The folder does not change while the dialog is open. Focus starts on Cancel.',
+    closeH: 'This question is separate from the unsaved-files dialog.',
+    closeI: 'The window does not close until the person confirms. Focus starts on Cancel.',
+    keysH: 'The Key Bindings page already exists. Only the new commands are shown.',
+    keysI: 'A shortcut that is already taken is not saved. A cleared one says Not assigned.',
+    keysT: 'Every command in this list can be rebound. Ctrl+Enter still adds a reply and sends a chat message — it lives on the thread and chat mockups.',
+    badgeH: 'Nothing: these are the same badges as in the thread list.',
+    badgeI: 'Icon buttons without a visible name get an aria-label and a focus ring in --themeColor.',
+    badgeT: 'The count is --editorColor80 on --themeColor20. Read error uses --tagReadFg, not --deleteColor.',
+    notesTitle: 'The same rules on every screen',
+    note1: 'The five states do not invent new screens. Off removes the panels entirely. A non-git folder keeps the panel with one sentence and no commands. A missing program and a missing model list block sending and say where to go. During a turn, sending threads is inactive, and Stop takes the place of Send in the chat.',
+    note2: 'Deleting a thread asks the exact sentence from the thread mockup. Changing the folder during a turn warns that the turn will be cancelled and this repository’s terminals will close. Closing the window during a turn asks separately from the existing unsaved-files dialog. In all three, focus starts on Cancel.',
+    note3: 'Seven commands live in the existing Key Bindings table: comment, send the selected thread, send all, the agent panel, the terminal, and next and previous thread. A row can be edited, reset, and unbound. A taken shortcut is not replaced silently.',
+    note4: 'Icon buttons have a name for screen readers and a visible focus ring. The detached, no agent reply, closed, and read error badges stay readable in both themes. An error is not painted with --deleteColor.',
+    note5: 'Mockup labels exist in Russian and English. They later become the keys agent.*, comments.*, terminal.*, diff.*, and preferences.agent.*.',
+    stOff: 'mode off', stNogit: 'not a git repository', stMissing: 'program not found',
+    stNoModels: 'no models', stTurn: 'turn in progress', stDel: 'delete confirmation',
+    stFolder: 'folder-change confirmation', stClose: 'close confirmation',
+    stKeys: 'key bindings', stBadges: 'badges and focus'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function tr(key) { return I18N[state.lang][key] }
+function fill(key, map) {
+  return tr(key).replace(/\{(\w+)\}/g, (_, name) => map[name] == null ? '' : String(map[name]))
+}
+function el(tag, cls, text) {
+  const node = document.createElement(tag)
+  if (cls) node.className = cls
+  if (text != null) node.textContent = text
+  return node
+}
+function svg(name) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  node.setAttribute('viewBox', '0 0 16 16')
+  node.setAttribute('aria-hidden', 'true')
+  node.innerHTML = ICONS[name]
+  return node
+}
+function defaults() {
+  const map = {}
+  KEYS.forEach((row) => { map[row.id] = row.def })
+  return map
+}
+function showKey(value) {
+  if (!value) return tr('unbound')
+  if (state.lang === 'ru') return value.replace('Down', '↓').replace('Up', '↑')
+  return value
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'off',
+  panel: 'comments',
+  resolved: '',
+  path: '',
+  keys: defaults(),
+  editing: '',
+  pending: '',
+  keyError: '',
+  saved: false,
+  focusCancel: false,
+  focusIcon: false
+}
+
+function applyI18n() {
+  document.documentElement.lang = state.lang
+  document.title = tr('protoTitle')
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    node.textContent = tr(node.getAttribute('data-i18n'))
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+    node.setAttribute('aria-label', tr(node.getAttribute('data-i18n-aria')))
+  })
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((node) => {
+    node.setAttribute('aria-pressed', String(node.getAttribute('data-scene') === state.scene))
+  })
+}
+
+function tabs(bar, withFile) {
+  if (withFile) {
+    const file = el('button', '', tr('file'))
+    file.type = 'button'
+    file.setAttribute('aria-pressed', 'true')
+    bar.appendChild(file)
+  }
+}
+
+function doc(mark) {
+  const box = el('div', 'doc')
+  const inner = el('div', 'doc-inner')
+  inner.appendChild(el('h1', '', tr('docTitle')))
+  const p = el('p')
+  if (mark) {
+    const span = el('span', 'mark', tr('doc'))
+    p.appendChild(span)
+  } else p.textContent = tr('doc')
+  inner.appendChild(p)
+  box.appendChild(inner)
+  return box
+}
+
+function panelShell() {
+  const panel = el('aside', 'panel')
+  const tabs = el('div', 'ptabs')
+  tabs.setAttribute('role', 'tablist')
+  ;['comments', 'chat'].forEach((id) => {
+    const button = el('button', '', tr(id))
+    button.type = 'button'
+    button.setAttribute('role', 'tab')
+    button.setAttribute('aria-selected', String(state.panel === id))
+    if (id === 'comments' && state.scene !== 'nogit') {
+      button.appendChild(document.createTextNode(' '))
+      button.appendChild(el('span', 'count-badge', '2'))
+    }
+    if (id === 'chat' && state.scene === 'turn') {
+      const dot = el('span', 'dot')
+      dot.setAttribute('aria-hidden', 'true')
+      button.appendChild(dot)
+      button.setAttribute('aria-label', tr('chat') + ', ' + tr('turnDot'))
+    }
+    button.addEventListener('click', () => { state.panel = id; apply() })
+    tabs.appendChild(button)
+  })
+  panel.appendChild(tabs)
+  return panel
+}
+
+function renderEditor(root) {
+  const scene = state.scene
+  const title = el('div', 'titlebar')
+  title.appendChild(document.createTextNode('MarkText'))
+  if (scene !== 'off' && scene !== 'nogit') title.appendChild(el('span', 'path', state.path || tr('path')))
+  root.appendChild(title)
+  if (scene === 'close' && state.resolved === 'closed') {
+    root.appendChild(el('div', 'closed', tr('closed')))
+    return
+  }
+  const body = el('div', 'body')
+  const editor = el('div', 'editor')
+  const bar = el('div', 'tabs')
+  tabs(bar, true)
+  editor.appendChild(bar)
+  const showMark = scene !== 'off' && scene !== 'nogit' && state.resolved !== 'deleted'
+  editor.appendChild(doc(showMark))
+  body.appendChild(editor)
+  if (scene !== 'off') body.appendChild(renderPanel())
+  root.appendChild(body)
+  let term = null
+  if (scene !== 'off' && scene !== 'nogit' && !(scene === 'folder' && state.resolved === 'switched')) {
+    term = el('div', 'term', tr('term'))
+    root.appendChild(term)
+  }
+  if ((scene === 'del' || scene === 'folder' || scene === 'close') && !state.resolved) {
+    body.inert = true
+    if (term) term.inert = true
+    root.appendChild(renderDialog())
+  }
+}
+
+function renderPanel() {
+  const panel = panelShell()
+  const body = el('div', 'pbody')
+  const scene = state.scene
+  if (scene === 'nogit') body.appendChild(el('p', 'hint', tr('nogit')))
+  else if (scene === 'missing' && state.panel === 'chat') body.appendChild(el('p', 'block', tr('missing')))
+  else if (scene === 'nomodels' && state.panel === 'chat') {
+    const label = el('label', 'hint', tr('model'))
+    label.htmlFor = 'model'
+    body.appendChild(label)
+    const select = el('select', 'select')
+    select.id = 'model'
+    select.disabled = true
+    select.setAttribute('aria-label', tr('model'))
+    select.appendChild(el('option', '', tr('noModelsOpt')))
+    body.appendChild(select)
+    const refresh = el('button', 'btn', tr('refresh'))
+    refresh.type = 'button'
+    refresh.style.marginTop = '8px'
+    body.appendChild(refresh)
+    body.appendChild(el('p', 'block', tr('noModels')))
+  } else if (scene === 'turn' && state.panel === 'chat') {
+    const stop = el('button', 'danger', tr('stop'))
+    stop.type = 'button'
+    body.appendChild(stop)
+    body.appendChild(el('p', 'hint', tr('turnHint')))
+  } else if (state.resolved === 'deleted' && scene === 'del') {
+    body.appendChild(el('p', 'hint', tr('deleted')))
+  } else if (state.resolved === 'switched' && scene === 'folder') {
+    body.appendChild(el('p', 'hint', tr('folderDone')))
+  } else {
+    body.appendChild(el('p', 'hint', tr('quote')))
+    const blocked = scene === 'missing' || scene === 'nomodels' || scene === 'turn'
+    const all = el('button', 'primary', tr('sendAll'))
+    all.type = 'button'
+    all.disabled = blocked
+    all.style.marginTop = '10px'
+    const one = el('button', 'btn', tr('sendOne'))
+    one.type = 'button'
+    one.disabled = blocked
+    one.style.marginTop = '8px'
+    body.appendChild(all)
+    body.appendChild(one)
+    if (blocked) body.appendChild(el('p', 'hint', scene === 'missing' ? tr('missing') : scene === 'nomodels' ? tr('noModels') : tr('turnHint')))
+  }
+  panel.appendChild(body)
+  return panel
+}
+
+function renderDialog() {
+  const scene = state.scene
+  const shade = el('div', 'shade')
+  const dialog = el('div', 'dialog')
+  dialog.setAttribute('role', 'dialog')
+  dialog.setAttribute('aria-modal', 'true')
+  const text = scene === 'del' ? tr('delText') : scene === 'folder' ? tr('folderText') : tr('closeText')
+  const p = el('p', '', text)
+  p.id = 'dlg-text'
+  dialog.setAttribute('aria-labelledby', 'dlg-text')
+  dialog.appendChild(p)
+  const actions = el('div', 'actions')
+  const yes = el('button', scene === 'del' ? 'danger' : 'primary', scene === 'del' ? tr('delYes') : scene === 'folder' ? tr('folderYes') : tr('closeYes'))
+  yes.type = 'button'
+  yes.addEventListener('click', () => {
+    state.resolved = scene === 'del' ? 'deleted' : scene === 'folder' ? 'switched' : 'closed'
+    if (scene === 'folder') state.path = tr('pathNext')
+    apply()
+  })
+  const no = el('button', 'btn ring', tr('cancel'))
+  no.type = 'button'
+  no.id = 'dlg-cancel'
+  no.addEventListener('click', () => { state.resolved = 'cancelled'; apply() })
+  actions.append(yes, no)
+  dialog.appendChild(actions)
+  dialog.addEventListener('focusin', (event) => {
+    const target = event.target.closest && event.target.closest('button, input')
+    if (!target) return
+    dialog.querySelectorAll('.ring').forEach((node) => node.classList.remove('ring'))
+    target.classList.add('ring')
+  })
+  shade.appendChild(dialog)
+  return shade
+}
+
+function renderKeys(root) {
+  const wrap = el('div', 'keys')
+  const side = el('aside', 'side')
+  side.appendChild(el('h3', '', tr('pref')))
+  side.appendChild(el('div', 'item', tr('keyPage')))
+  wrap.appendChild(side)
+  const main = el('div', 'keymain')
+  main.appendChild(el('h4', '', tr('keyPage')))
+  main.appendChild(el('p', 'lead', tr('keyLead')))
+  const table = el('table')
+  const head = el('tr')
+  ;['colCmd', 'colKey', 'colOpt'].forEach((key) => head.appendChild(el('th', '', tr(key))))
+  table.appendChild(head)
+  KEYS.forEach((row) => {
+    const trRow = el('tr')
+    trRow.appendChild(el('td', '', tr(row.id)))
+    trRow.appendChild(el('td', '', showKey(state.keys[row.id])))
+    const actions = el('td')
+    ;[
+      ['edit', () => { state.editing = row.id; state.pending = ''; state.keyError = ''; state.saved = false; apply() }],
+      ['reset', () => { state.keys[row.id] = row.def; state.saved = false; apply() }],
+      ['unbind', () => { state.keys[row.id] = ''; state.saved = false; apply() }]
+    ].forEach(([icon, onClick]) => {
+      const button = el('button', 'iconbtn')
+      button.type = 'button'
+      button.appendChild(svg(icon))
+      button.setAttribute('aria-label', fill(icon, { name: tr(row.id) }))
+      button.addEventListener('click', onClick)
+      actions.appendChild(button)
+    })
+    trRow.appendChild(actions)
+    table.appendChild(trRow)
+  })
+  main.appendChild(table)
+  const save = el('button', 'primary', tr('save'))
+  save.type = 'button'
+  save.style.marginTop = '12px'
+  save.addEventListener('click', () => { state.saved = true; apply() })
+  const restore = el('button', 'btn', tr('restore'))
+  restore.type = 'button'
+  restore.style.marginLeft = '8px'
+  restore.addEventListener('click', () => { state.keys = defaults(); state.saved = false; apply() })
+  main.appendChild(save)
+  main.appendChild(restore)
+  if (state.saved) main.appendChild(el('p', 'saved', tr('saved')))
+  wrap.appendChild(main)
+  root.appendChild(wrap)
+  if (state.editing) {
+    wrap.inert = true
+    root.appendChild(renderKeyDialog())
+  }
+}
+
+function renderKeyDialog() {
+  const shade = el('div', 'shade')
+  const dialog = el('div', 'dialog')
+  dialog.setAttribute('role', 'dialog')
+  dialog.setAttribute('aria-modal', 'true')
+  dialog.appendChild(el('p', '', tr('keyPrompt')))
+  const input = document.createElement('input')
+  input.className = 'field'
+  input.id = 'key-input'
+  input.readOnly = true
+  input.value = state.pending
+  input.setAttribute('aria-label', tr('keyPrompt'))
+  dialog.appendChild(input)
+  dialog.appendChild(el('p', 'hint', state.keyError || tr('keyHelp')))
+  const actions = el('div', 'actions')
+  const save = el('button', 'primary', tr('save'))
+  save.type = 'button'
+  save.disabled = !state.pending || !!state.keyError
+  save.addEventListener('click', () => {
+    state.keys[state.editing] = state.pending
+    state.editing = ''
+    state.pending = ''
+    state.saved = false
+    apply()
+  })
+  const cancel = el('button', 'btn', tr('cancel'))
+  cancel.type = 'button'
+  cancel.addEventListener('click', () => { state.editing = ''; state.pending = ''; state.keyError = ''; apply() })
+  actions.append(save, cancel)
+  dialog.appendChild(actions)
+  shade.appendChild(dialog)
+  return shade
+}
+
+function renderBadges(root) {
+  const box = el('div', 'badges')
+  const row = el('div', 'badge-row')
+  row.appendChild(el('span', 'count-badge', '6'))
+  row.appendChild(el('span', 'tag tag-orphan', tr('badgeOrphan')))
+  row.appendChild(el('span', 'tag tag-noreply', tr('badgeNo')))
+  row.appendChild(el('span', 'tag tag-closed', tr('badgeClosed')))
+  row.appendChild(el('span', 'tag tag-read', tr('badgeRead')))
+  box.appendChild(row)
+  const icons = el('div', 'icon-row')
+  const comment = el('button', 'iconbtn')
+  comment.type = 'button'
+  comment.id = 'focus-icon'
+  comment.classList.add('ring')
+  comment.appendChild(svg('comment'))
+  comment.setAttribute('aria-label', tr('commentBtn'))
+  const close = el('button', 'iconbtn')
+  close.type = 'button'
+  close.appendChild(svg('unbind'))
+  close.setAttribute('aria-label', tr('closeBtn'))
+  icons.append(comment, close)
+  icons.addEventListener('focusin', (event) => {
+    icons.querySelectorAll('.ring').forEach((node) => node.classList.remove('ring'))
+    if (event.target.classList && event.target.classList.contains('iconbtn')) event.target.classList.add('ring')
+  })
+  box.appendChild(icons)
+  root.appendChild(box)
+}
+
+function renderMatrix() {
+  const map = {
+    off: ['offH', 'offI', 'offT'],
+    nogit: ['gitH', 'gitI', 'nogit'],
+    missing: ['missH', 'missI', 'missing'],
+    nomodels: ['modelH', 'modelI', 'noModels'],
+    turn: ['turnH', 'turnI', 'turnHint'],
+    del: ['delH', 'delI', 'delT'],
+    folder: ['folderH', 'folderI', 'folderText'],
+    close: ['closeH', 'closeI', 'closeText'],
+    keys: ['keysH', 'keysI', 'keysT'],
+    badges: ['badgeH', 'badgeI', 'badgeT']
+  }
+  const [hidden, idle, tip] = map[state.scene]
+  const box = $('matrix')
+  box.replaceChildren()
+  ;[['hid', hidden], ['idle', idle], ['tip', tip]].forEach(([label, text]) => {
+    const p = el('p')
+    p.appendChild(el('strong', '', tr(label) + ': '))
+    p.appendChild(document.createTextNode(tr(text)))
+    box.appendChild(p)
+  })
+}
+
+function render() {
+  const root = $('app')
+  root.replaceChildren()
+  if (state.scene === 'keys') renderKeys(root)
+  else if (state.scene === 'badges') renderBadges(root)
+  else renderEditor(root)
+  renderMatrix()
+  if (state.focusCancel) {
+    const cancel = $('dlg-cancel')
+    if (cancel) cancel.focus({ focusVisible: true })
+    state.focusCancel = false
+  }
+  if (state.focusIcon) {
+    const icon = $('focus-icon')
+    if (icon) icon.focus({ focusVisible: true })
+    state.focusIcon = false
+  }
+  if (state.editing) {
+    const input = $('key-input')
+    if (input) input.focus({ focusVisible: true })
+  }
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  applyI18n()
+  render()
+  const names = {
+    off: 'stOff', nogit: 'stNogit', missing: 'stMissing', nomodels: 'stNoModels', turn: 'stTurn',
+    del: 'stDel', folder: 'stFolder', close: 'stClose', keys: 'stKeys', badges: 'stBadges'
+  }
+  $('status').textContent = tr(names[state.scene])
+}
+
+function setScene(scene) {
+  state.scene = scene
+  state.resolved = ''
+  state.path = tr('path')
+  state.editing = ''
+  state.pending = ''
+  state.keyError = ''
+  state.saved = false
+  state.panel = scene === 'missing' || scene === 'nomodels' ? 'chat' : 'comments'
+  state.focusCancel = scene === 'del' || scene === 'folder' || scene === 'close'
+  state.focusIcon = scene === 'badges'
+  apply()
+}
+
+function onKey(e) {
+  if (!state.editing) return
+  if (e.key === 'Escape') {
+    state.editing = ''
+    state.pending = ''
+    state.keyError = ''
+    apply()
+    return
+  }
+  if (e.key === 'Tab') return
+  e.preventDefault()
+  const mods = []
+  if (e.ctrlKey || e.metaKey) mods.push('Ctrl')
+  if (e.altKey) mods.push('Alt')
+  if (e.shiftKey) mods.push('Shift')
+  if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+    state.pending = mods.join('+')
+    state.keyError = tr('keyBad')
+    apply()
+    return
+  }
+  let key = e.key
+  if (key === 'ArrowDown') key = 'Down'
+  else if (key === 'ArrowUp') key = 'Up'
+  else if (key === 'ArrowLeft') key = 'Left'
+  else if (key === 'ArrowRight') key = 'Right'
+  else if (key === ' ') key = 'Space'
+  else if (key.length === 1) key = key.toUpperCase()
+  const accel = mods.concat(key).join('+')
+  const taken = KEYS.find((row) => row.id !== state.editing && state.keys[row.id] === accel)
+  state.pending = accel
+  state.keyError = mods.length === 0 ? tr('keyBad') : taken ? fill('keyUsed', { name: tr(taken.id) }) : ''
+  apply()
+}
+
+document.querySelectorAll('[data-scene]').forEach((node) => {
+  node.addEventListener('click', () => setScene(node.getAttribute('data-scene')))
+})
+$('theme-light').addEventListener('click', () => {
+  state.theme = 'light'
+  persist('mt-mockup-theme', 'light')
+  apply()
+})
+$('theme-dark').addEventListener('click', () => {
+  state.theme = 'dark'
+  persist('mt-mockup-theme', 'dark')
+  apply()
+})
+$('lang-ru').addEventListener('click', () => {
+  state.lang = 'ru'
+  persist('mt-mockup-lang', 'ru')
+  apply()
+})
+$('lang-en').addEventListener('click', () => {
+  state.lang = 'en'
+  persist('mt-mockup-lang', 'en')
+  apply()
+})
+document.addEventListener('keydown', onKey)
+
+setScene('off')
+</script>
+</body>
+</html>
