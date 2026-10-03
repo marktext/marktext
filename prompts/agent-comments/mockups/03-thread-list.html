@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 3 — Список тредов</title>
+<style>
+  /* Tokens copied from MarkText:
+     light — packages/desktop/src/renderer/src/assets/styles/index.css
+     dark  — packages/desktop/src/renderer/src/assets/themes/dark.theme.css
+     Comment marks reuse the prompt 2 tokens (yellow wash + underline).
+     State badges do not use --deleteColor: in the dark theme that token is the theme blue. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --highlightColor: rgba(33, 181, 111, 0.4);
+    --selectionColor: rgba(0, 0, 0, 0.1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorColor04: #f7f7f7;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --inputBgColor: rgba(0, 0, 0, 0.06);
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.03);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --floatFontColor: rgba(0, 0, 0, 0.6);
+    --floatBgColor: #fff;
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --buttonPrimaryFontColor: #fff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --editorAreaWidth: 750px;
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --commentMarkBg: rgba(214, 168, 32, 0.28);
+    --commentMarkUnderline: #8a6410;
+    --commentMarkBgActive: rgba(214, 168, 32, 0.5);
+    --commentMarkUnderlineActive: #6d4e0c;
+    --tagOrphanFg: #6d4e0c;
+    --tagOrphanBg: rgba(214, 168, 32, 0.28);
+    --tagReadFg: #7a1e1e;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --highlightColor: rgba(102, 177, 255, 0.6);
+    --selectionColor: rgba(102, 177, 255, 0.3);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --inputBgColor: #2f3336;
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
+    --itemBgColor: #3f3f3f;
+    --floatFontColor: rgba(255, 255, 255, 0.7);
+    --floatBgColor: #3f3f3f;
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --commentMarkBg: rgba(240, 196, 60, 0.28);
+    --commentMarkUnderline: #e2c15a;
+    --commentMarkBgActive: rgba(240, 196, 60, 0.48);
+    --commentMarkUnderlineActive: #ffe08a;
+    --tagOrphanFg: #ffe08a;
+    --tagOrphanBg: rgba(240, 196, 60, 0.22);
+    --tagReadFg: #ffc1c1;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+
+  .proto {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 14px;
+    background: #ececec;
+    color: #222;
+    border-bottom: 1px solid #ccc;
+    font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(1080px, 100%);
+    height: 680px;
+    display: flex;
+    flex-direction: column;
+    background: var(--editorBgColor);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+  }
+  .tabbar {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--editorColor);
+    background: var(--itemBgColor);
+    box-shadow: inset 0 -2px 0 var(--themeColor);
+    flex: none;
+  }
+  .work { flex: 1; min-height: 0; display: flex; }
+  .editor {
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+    background: var(--editorBgColor);
+  }
+  .doc-inner {
+    max-width: var(--editorAreaWidth);
+    margin: 0 auto;
+    padding: 28px 16px 80px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--editorColor);
+  }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner h2 { font-size: 1.25em; font-weight: 600; color: var(--h2Color); margin: 1.1em 0 0.4em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+  .mark {
+    background: var(--commentMarkBg);
+    border-bottom: 1px solid var(--commentMarkUnderline);
+    color: var(--editorColor);
+    box-decoration-break: clone;
+    cursor: pointer;
+  }
+  .mark.is-active {
+    background: var(--commentMarkBgActive);
+    border-bottom: 2px solid var(--commentMarkUnderlineActive);
+  }
+
+  .panel {
+    width: 320px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarColor);
+    border-left: 1px solid var(--itemBgColor);
+    min-width: 0;
+  }
+  .panel-tabs {
+    height: 28px;
+    display: flex;
+    border-bottom: 1px solid var(--editorColor10);
+    flex: none;
+  }
+  .panel-tabs button {
+    position: relative;
+    height: 28px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--sideBarColor);
+    cursor: pointer;
+  }
+  .panel-tabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .panel-tabs button[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: var(--themeColor);
+  }
+  .count-badge {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--themeColor20);
+    color: var(--editorColor80);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+  }
+  .panel-main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .panel-scroll { flex: 1; min-height: 0; overflow: auto; }
+  .panel-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .chead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 10px 12px 8px;
+    background: #f2f2f2;
+    border-bottom: 1px solid var(--editorColor10);
+  }
+  html[data-theme="dark"] .chead { background: #232323; }
+  .file { font-size: 13px; font-weight: 600; color: var(--sideBarTitleColor); }
+  .count { margin-top: 2px; font-size: 12px; color: var(--sideBarTextColor); }
+  .switch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--sideBarColor);
+    cursor: pointer;
+  }
+  .send-foot {
+    flex: none;
+    padding: 8px 12px 10px;
+    background: #f2f2f2;
+    border-top: 1px solid var(--editorColor10);
+  }
+  html[data-theme="dark"] .send-foot { background: #232323; }
+  #send-head { margin-top: 8px; }
+  .primary {
+    width: 100%;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 2px;
+    background: var(--buttonPrimaryBgColor);
+    color: var(--buttonPrimaryFontColor);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .primary:disabled { opacity: 0.4; cursor: default; }
+  .hint { margin: 6px 0 0; font-size: 12px; color: var(--sideBarTextColor); line-height: 1.4; }
+  .empty-msg { margin: 0; padding: 12px; font-size: 13px; line-height: 1.45; color: var(--sideBarColor); }
+  .group {
+    margin: 0;
+    padding: 12px 12px 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sideBarTextColor);
+  }
+  .card {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 12px 8px 10px;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--editorColor10);
+    cursor: pointer;
+  }
+  .card:hover { background: var(--sideBarItemHoverBgColor); }
+  .card[aria-current="true"] {
+    background: var(--sideBarItemHoverBgColor);
+    box-shadow: inset 2px 0 0 var(--themeColor);
+  }
+  .quote {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--sideBarTitleColor);
+  }
+  .meta { display: block; margin-top: 4px; font-size: 12px; color: var(--sideBarTextColor); }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .card .tags { margin-top: 6px; }
+  .tag {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+  }
+  .tag-orphan { color: var(--tagOrphanFg); background: var(--tagOrphanBg); }
+  .tag-noreply { color: var(--editorColor80); background: var(--editorColor10); }
+  .tag-closed {
+    color: var(--editorColor);
+    background: var(--editorColor04);
+    box-shadow: inset 0 0 0 1px var(--editorColor10);
+  }
+  .tag-read { color: var(--tagReadFg); background: var(--tagReadBg); }
+  .read-card { padding: 12px; }
+  .path {
+    margin: 0 0 8px;
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--sideBarTitleColor);
+    word-break: break-all;
+  }
+
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 3 — Список тредов</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" aria-pressed="true" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" aria-pressed="false" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru" aria-pressed="true">RU</button>
+    <button type="button" id="lang-en" aria-pressed="false">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="sceneGroup" aria-label="Состояние">
+    <button type="button" data-scene="list" aria-pressed="true" data-i18n="sceneList">Список</button>
+    <button type="button" data-scene="empty" data-i18n="sceneEmpty">Пусто</button>
+    <button type="button" data-scene="nogit" data-i18n="sceneNogit">Не репозиторий</button>
+    <button type="button" data-scene="readerr" data-i18n="sceneRead">Ошибка чтения</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="placeGroup" aria-label="Место кнопки">
+    <button type="button" data-place="head" aria-pressed="true" data-i18n="placeHead">В шапке</button>
+    <button type="button" data-place="foot" data-i18n="placeFoot">Снизу</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+
+<div class="stage">
+  <div class="window" id="window">
+    <div class="tabbar">guide.md</div>
+    <div class="work">
+      <div class="editor" id="editor">
+        <div class="doc-inner">
+          <h1>Руководство</h1>
+          <p>Проект использует <span data-thread="strict">строгий режим</span> TypeScript и ESLint. Сборка описана ниже, проверка типов не отключается.</p>
+          <h2>Сборка</h2>
+          <p><span data-thread="root">Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там, а не в пакете desktop.</span></p>
+          <p>Корень ставит зависимости один раз. Пакеты desktop, muya и website берут их из общего lockfile и не держат своих копий.</p>
+          <p>После установки postinstall патчит native-keymap, скачивает Electron и собирает нативные модули. Минификация локалей нужна только production-сборке.</p>
+          <h2>Проверка</h2>
+          <p>Тесты лежат в каталоге <span data-thread="unit">test/unit</span> и запускаются командой <span data-thread="tests">pnpm test</span>. Отдельный прогон одного файла идёт через vitest из пакета desktop.</p>
+          <p>Линтер и проверка типов обязательны перед коммитом. CI гоняет их на каждой сборке pull request и не мержит красную ветку.</p>
+          <p>Сквозные сценарии лежат в Playwright. Конфиг остаётся в пакете desktop, потому что Playwright читает его из каталога запуска.</p>
+          <h2>Упаковка</h2>
+          <p>Установщики собирает <span data-thread="pack">electron-builder</span>: AppImage, deb и rpm. Готовые файлы попадают в dist корня, туда же смотрит CI.</p>
+          <p>Иконки и скрипты NSIS лежат в build пакета desktop. Локали перед упаковкой минифицируются, в dev-запуске этот шаг пропускается.</p>
+          <p>Смена версии Electron требует пересборки нативных модулей. Без этого окно не поднимается: keymap и проверка орфографии собраны под прошлый ABI.</p>
+        </div>
+      </div>
+      <aside class="panel">
+        <div class="panel-tabs" role="tablist">
+          <button type="button" id="tab-comments" role="tab" aria-selected="true">
+            <span data-i18n="comments">Комментарии</span>
+            <span class="count-badge" id="tab-badge" hidden>6</span>
+          </button>
+          <button type="button" id="tab-chat" role="tab" data-i18n="chat">Чат</button>
+        </div>
+        <div class="panel-main" id="comments-main">
+          <div class="panel-scroll" id="panel-scroll">
+            <header class="chead" id="chead">
+              <div class="file">guide.md</div>
+              <div class="count" id="count"></div>
+              <label class="switch" id="switch-row">
+                <input type="checkbox" id="show-closed">
+                <span data-i18n="showClosed">Показать закрытые</span>
+              </label>
+              <div id="send-head">
+                <div id="send-wrap">
+                  <button type="button" class="primary" id="btn-send"></button>
+                  <p class="hint" id="send-hint"></p>
+                  <p class="hint" id="sent-note" hidden></p>
+                </div>
+              </div>
+            </header>
+            <div id="clist"></div>
+            <p class="empty-msg" id="empty-msg" hidden data-i18n="empty">Выделите фрагмент текста и нажмите „Комментировать“.</p>
+            <div class="read-card" id="read-msg" hidden>
+              <p class="path">.marktext/comments/docs/guide.md.json</p>
+              <p class="hint" data-i18n="readBody">Файл комментариев повреждён. Он не перезаписывается, запись заблокирована, пока его не исправят вручную.</p>
+              <span class="tag tag-read" data-i18n="badgeRead">ошибка чтения</span>
+            </div>
+          </div>
+          <div class="send-foot" id="send-foot" hidden></div>
+        </div>
+        <div class="panel-body" id="nogit-msg" hidden>
+          <p class="hint" data-i18n="nogit">Агентский режим работает только в папке git-репозитория.</p>
+        </div>
+        <div class="panel-body" id="chat-msg" hidden>
+          <p class="hint" data-i18n="chatLater">Макет чата — промпт 5.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<section class="notes">
+  <h2 data-i18n="notesTitle">Где стоит «Отправить все»</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+    <li data-i18n="note6"></li>
+    <li data-i18n="note7"></li>
+    <li data-i18n="note8"></li>
+  </ol>
+</section>
+
+<script>
+const THREADS = [
+  { id: 'strict', quote: 'строгий режим', author: 'Evgeniy', time: { ru: '2 окт, 15:04', en: 'Oct 2, 15:04' }, replies: 2, status: 'open', orphan: false, noAgent: false },
+  { id: 'root', quote: 'Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там, а не в пакете desktop.', author: 'Evgeniy', time: { ru: '2 окт, 16:20', en: 'Oct 2, 16:20' }, replies: 1, status: 'open', orphan: false, noAgent: true },
+  { id: 'unit', quote: 'test/unit', author: 'Evgeniy', time: { ru: '2 окт, 17:01', en: 'Oct 2, 17:01' }, replies: 4, status: 'open', orphan: false, noAgent: false },
+  { id: 'pack', quote: 'electron-builder', author: 'Evgeniy', time: { ru: '2 окт, 18:12', en: 'Oct 2, 18:12' }, replies: 1, status: 'open', orphan: false, noAgent: true },
+  { id: 'tests', quote: 'pnpm test', author: 'Evgeniy', time: { ru: '1 окт, 11:40', en: 'Oct 1, 11:40' }, replies: 3, status: 'closed', orphan: false, noAgent: false },
+  { id: 'webpack', quote: 'конфигурация webpack в корне', author: 'Evgeniy', time: { ru: '28 сен, 09:15', en: 'Sep 28, 09:15' }, replies: 2, status: 'open', orphan: true, noAgent: false },
+  { id: 'postinstall', quote: 'scripts/postinstall.ts больше не качает Electron и не минифицирует локали при каждой установке зависимостей.', author: 'Evgeniy', time: { ru: '28 сен, 09:18', en: 'Sep 28, 09:18' }, replies: 1, status: 'open', orphan: true, noAgent: true }
+]
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог',
+    protoTitle: 'Промпт 3 — Список тредов',
+    light: 'Светлая',
+    dark: 'Тёмная',
+    themeGroup: 'Тема',
+    langGroup: 'Язык',
+    sceneGroup: 'Состояние',
+    placeGroup: 'Место кнопки',
+    sceneList: 'Список',
+    sceneEmpty: 'Пусто',
+    sceneNogit: 'Не репозиторий',
+    sceneRead: 'Ошибка чтения',
+    placeHead: 'В шапке',
+    placeFoot: 'Снизу',
+    comments: 'Комментарии',
+    chat: 'Чат',
+    showClosed: 'Показать закрытые',
+    empty: 'Выделите фрагмент текста и нажмите „Комментировать“.',
+    nogit: 'Агентский режим работает только в папке git-репозитория.',
+    readBody: 'Файл комментариев повреждён. Он не перезаписывается, запись заблокирована, пока его не исправят вручную.',
+    badgeRead: 'ошибка чтения',
+    chatLater: 'Макет чата — промпт 5.',
+    sendHint: 'Ctrl+Alt+Enter',
+    sent: 'Неразобранные отправлены агенту.',
+    orphanGroup: 'Оторваны от текста',
+    badgeOrphan: 'оторван',
+    badgeNoAgent: 'нет ответа агента',
+    badgeClosed: 'закрыт',
+    notesTitle: 'Где стоит «Отправить все»',
+    note1: 'Выбрана липкая шапка. Счётчик «N неразобранных» и кнопка с тем же N стоят рядом и не уезжают при прокрутке списка. Переключатель «Снизу» показывает второй вариант: полоса тоже остаётся на экране, но занимает низ панели — туда в промпте 4 встанут поле ответа и «Отправить агенту».',
+    note2: 'Порядок — положение цитаты в документе. Оторванные не имеют позиции, поэтому идут отдельной группой в конце. Закрытые скрыты, пока не включён переключатель; вместе с карточкой появляется и подсветка в тексте.',
+    note3: 'N считает открытые треды, включая оторванные: их всё ещё можно отправить. Закрытые в N не входят.',
+    note4: 'Клик по карточке прокручивает редактор к подсветке и делает её активной (плотнее и с линией 2px). Клик по подсветке выбирает карточку. У оторванного треда подсветки нет, редактор не прокручивается.',
+    note5: 'Не git-репозиторий: на панели только фраза про папку репозитория. Нет имени файла, счётчика, переключателя и кнопки отправки.',
+    note6: 'Ошибка чтения — это весь JSON файла (§3.2), не один тред. Показан путь, бейдж и запрет записи. Кнопки отправки нет: разбирать нечего и файл не перезаписывается.',
+    note7: 'Бейджи: «оторван» — тёмное золото на жёлтой заливке, «нет ответа агента» — нейтральный, «закрыт» — приглушённый, «ошибка чтения» — красный с тёмным или светлым текстом. Белый текст на --deleteColor не используется: в тёмной теме этот токен совпадает с цветом темы.',
+    note8: 'Сочетания свободны в keybindingsLinux.ts и переназначаются: Alt+↓ и Alt+↑ — следующий и предыдущий видимый тред, Ctrl+Alt+Enter — отправить все неразобранные.',
+    statusList: 'список',
+    statusEmpty: 'пусто',
+    statusNogit: 'не репозиторий',
+    statusRead: 'ошибка чтения',
+    statusClosedOff: 'закрытые скрыты',
+    statusClosedOn: 'закрытые показаны',
+    statusHead: 'кнопка в шапке',
+    statusFoot: 'кнопка снизу, для сравнения',
+    statusNoButton: 'команд нет',
+    statusChat: 'открыт чат',
+    unresolved0: '0 неразобранных',
+    sentStatus: 'отправлено'
+  },
+  en: {
+    catalog: 'Catalog',
+    protoTitle: 'Prompt 3 — Thread list',
+    light: 'Light',
+    dark: 'Dark',
+    themeGroup: 'Theme',
+    langGroup: 'Language',
+    sceneGroup: 'State',
+    placeGroup: 'Button place',
+    sceneList: 'List',
+    sceneEmpty: 'Empty',
+    sceneNogit: 'Not a repo',
+    sceneRead: 'Read error',
+    placeHead: 'In header',
+    placeFoot: 'At bottom',
+    comments: 'Comments',
+    chat: 'Chat',
+    showClosed: 'Show closed',
+    empty: 'Select a fragment and choose Comment.',
+    nogit: 'Agent mode works only in a git repository folder.',
+    readBody: 'The comments file is damaged. It is not overwritten, and writing stays blocked until it is fixed by hand.',
+    badgeRead: 'read error',
+    chatLater: 'Chat mockup — prompt 5.',
+    sendHint: 'Ctrl+Alt+Enter',
+    sent: 'Unresolved threads were sent to the agent.',
+    orphanGroup: 'Detached from the text',
+    badgeOrphan: 'detached',
+    badgeNoAgent: 'no agent reply',
+    badgeClosed: 'closed',
+    notesTitle: 'Where “Send all” sits',
+    note1: 'The sticky header is the chosen place. The “N unresolved” count and the button that carries the same N stay together and stay on screen while the list scrolls. “At bottom” shows the other option: that bar also stays put, but it takes the bottom of the panel, where prompt 4 puts the reply field and “Send to agent”.',
+    note2: 'Order follows the quote’s position in the document. Detached threads have no position, so they form a separate group at the end. Closed threads stay hidden until the switch is on; the highlight in the text appears with the card.',
+    note3: 'N counts open threads, including detached ones: they can still be sent. Closed threads are not part of N.',
+    note4: 'Clicking a card scrolls the editor to the highlight and makes it active (denser, 2px line). Clicking a highlight selects the card. A detached thread has no highlight, so the editor does not scroll.',
+    note5: 'Not a git repository: the panel shows only the sentence about a repository folder. No file name, count, switch, or send button.',
+    note6: 'A read error is the whole comments JSON (§3.2), not one thread. The path, the badge, and the write block are shown. There is no send button: nothing parsed, and the file is not overwritten.',
+    note7: 'Badges: “detached” is dark gold on a yellow wash, “no agent reply” is neutral, “closed” is muted, “read error” is red with dark or light text. White on --deleteColor is not used: in the dark theme that token is the theme blue.',
+    note8: 'Shortcuts are free in keybindingsLinux.ts and can be rebound: Alt+Down and Alt+Up move to the next and previous visible thread, Ctrl+Alt+Enter sends all unresolved.',
+    statusList: 'list',
+    statusEmpty: 'empty',
+    statusNogit: 'not a repo',
+    statusRead: 'read error',
+    statusClosedOff: 'closed hidden',
+    statusClosedOn: 'closed shown',
+    statusHead: 'button in the header',
+    statusFoot: 'button at the bottom, for comparison',
+    statusNoButton: 'no commands',
+    statusChat: 'chat open',
+    unresolved0: '0 unresolved',
+    sentStatus: 'sent'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function t(key) { return I18N[state.lang][key] }
+
+function ruPlural(n, one, few, many) {
+  const n10 = n % 10
+  const n100 = n % 100
+  if (n10 === 1 && n100 !== 11) return one
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few
+  return many
+}
+function unresolvedLabel(n) {
+  if (state.lang === 'ru') {
+    if (n === 0) return t('unresolved0')
+    const word = ruPlural(n, 'неразобранный', 'неразобранных', 'неразобранных')
+    return n + ' ' + word
+  }
+  return n === 1 ? '1 unresolved' : n + ' unresolved'
+}
+function replyLabel(n) {
+  if (state.lang === 'ru') return n + ' ' + ruPlural(n, 'реплика', 'реплики', 'реплик')
+  return n === 1 ? '1 reply' : n + ' replies'
+}
+function sendLabel(n) {
+  return state.lang === 'ru'
+    ? 'Отправить все неразобранные (' + n + ')'
+    : 'Send all unresolved (' + n + ')'
+}
+function openCount() {
+  return THREADS.filter((th) => th.status === 'open').length
+}
+function visibleThreads() {
+  const pass = (th) => state.showClosed || th.status === 'open'
+  return {
+    anchored: THREADS.filter((th) => !th.orphan && pass(th)),
+    orphans: THREADS.filter((th) => th.orphan && pass(th))
+  }
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'list',
+  place: 'head',
+  panel: 'comments',
+  showClosed: false,
+  selected: null,
+  sent: false
+}
+let listKey = ''
+
+function applyI18n() {
+  const pack = I18N[state.lang]
+  document.documentElement.lang = state.lang
+  document.title = pack.protoTitle
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const value = pack[el.dataset.i18n]
+    if (value) el.textContent = value
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    el.setAttribute('aria-label', pack[el.dataset.i18nAria])
+  })
+  listKey = ''
+}
+
+function cardButton(th) {
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.className = 'card'
+  btn.dataset.card = th.id
+  const quote = document.createElement('span')
+  quote.className = 'quote'
+  quote.textContent = th.quote
+  const meta = document.createElement('span')
+  meta.className = 'meta'
+  meta.textContent = th.author + ' · ' + th.time[state.lang] + ' · ' + replyLabel(th.replies)
+  btn.append(quote, meta)
+  const tags = document.createElement('span')
+  tags.className = 'tags'
+  if (th.orphan) tags.append(tag('tag-orphan', t('badgeOrphan')))
+  if (th.noAgent) tags.append(tag('tag-noreply', t('badgeNoAgent')))
+  if (th.status === 'closed') tags.append(tag('tag-closed', t('badgeClosed')))
+  if (tags.childNodes.length) btn.append(tags)
+  return btn
+}
+function tag(cls, text) {
+  const el = document.createElement('span')
+  el.className = 'tag ' + cls
+  el.textContent = text
+  return el
+}
+function renderList() {
+  const root = $('clist')
+  root.replaceChildren()
+  if (state.scene !== 'list') return
+  const { anchored, orphans } = visibleThreads()
+  anchored.forEach((th) => root.append(cardButton(th)))
+  if (orphans.length) {
+    const label = document.createElement('p')
+    label.className = 'group'
+    label.textContent = t('orphanGroup')
+    root.append(label)
+    orphans.forEach((th) => root.append(cardButton(th)))
+  }
+}
+
+function scrollInside(container, el, topInset) {
+  const c = container.getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  const viewTop = c.top + topInset
+  const viewBottom = c.bottom
+  if (r.top >= viewTop + 4 && r.bottom <= viewBottom - 4) return
+  const viewH = viewBottom - viewTop
+  container.scrollTop += r.top - viewTop - Math.max(0, (viewH - r.height) / 2)
+}
+function select(id, source) {
+  const th = THREADS.find((item) => item.id === id)
+  if (!th) return
+  if (th.status === 'closed' && !state.showClosed) return
+  state.selected = id
+  apply()
+  const mark = document.querySelector('.mark[data-thread="' + id + '"]')
+  if (mark && source !== 'mark') scrollInside($('editor'), mark, 0)
+  const card = document.querySelector('[data-card="' + id + '"]')
+  if (card) {
+    const headH = $('chead').hidden ? 0 : $('chead').offsetHeight
+    if (source !== 'card') scrollInside($('panel-scroll'), card, headH)
+    if (source !== 'card') card.focus({ preventScroll: true })
+  }
+}
+function cycle(step) {
+  if (state.scene !== 'list' || state.panel !== 'comments') return
+  const ids = [...visibleThreads().anchored, ...visibleThreads().orphans].map((th) => th.id)
+  if (!ids.length) return
+  const at = ids.indexOf(state.selected)
+  const next = at === -1 ? (step > 0 ? 0 : ids.length - 1) : (at + step + ids.length) % ids.length
+  select(ids[next], 'key')
+}
+function sendAll() {
+  if (state.scene !== 'list' || state.panel !== 'comments') return
+  if (openCount() === 0 || $('btn-send').disabled) return
+  state.sent = true
+  apply()
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-lang', state.lang)
+  persist('mt-mockup-theme', state.theme)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((el) => {
+    el.setAttribute('aria-pressed', String(el.dataset.scene === state.scene))
+  })
+  document.querySelectorAll('[data-place]').forEach((el) => {
+    el.setAttribute('aria-pressed', String(el.dataset.place === state.place))
+  })
+
+  const comments = state.panel === 'comments'
+  const nogit = comments && state.scene === 'nogit'
+  const list = comments && state.scene === 'list'
+  const empty = comments && state.scene === 'empty'
+  const readerr = comments && state.scene === 'readerr'
+  const showSend = list || empty
+
+  $('tab-comments').setAttribute('aria-selected', String(comments))
+  $('tab-chat').setAttribute('aria-selected', String(!comments))
+  $('comments-main').hidden = !comments || nogit
+  $('nogit-msg').hidden = !nogit
+  $('chat-msg').hidden = comments
+  $('show-closed').checked = state.showClosed
+
+  $('count').hidden = readerr
+  $('switch-row').hidden = readerr
+  $('clist').hidden = !list
+  $('empty-msg').hidden = !empty
+  $('read-msg').hidden = !readerr
+
+  const n = state.scene === 'list' ? openCount() : 0
+  $('count').textContent = unresolvedLabel(n)
+  $('tab-badge').hidden = state.scene !== 'list' || n === 0
+  $('tab-badge').textContent = String(n)
+  const tabName = t('comments') + (state.scene === 'list' && n ? ', ' + unresolvedLabel(n) : '')
+  $('tab-comments').setAttribute('aria-label', tabName)
+
+  $('btn-send').textContent = sendLabel(n)
+  $('btn-send').disabled = n === 0
+  $('send-hint').textContent = t('sendHint')
+  $('sent-note').hidden = !(state.sent && list)
+  $('sent-note').textContent = t('sent')
+
+  const foot = showSend && state.place === 'foot'
+  $('send-head').hidden = !showSend || foot
+  $('send-foot').hidden = !foot
+  const slot = foot ? $('send-foot') : $('send-head')
+  if ($('send-wrap').parentElement !== slot) slot.appendChild($('send-wrap'))
+
+  const key = state.scene + '|' + state.lang + '|' + state.showClosed
+  if (key !== listKey) {
+    renderList()
+    listKey = key
+  }
+  document.querySelectorAll('[data-card]').forEach((el) => {
+    if (el.dataset.card === state.selected) el.setAttribute('aria-current', 'true')
+    else el.removeAttribute('aria-current')
+  })
+  document.querySelectorAll('[data-thread]').forEach((el) => {
+    const th = THREADS.find((item) => item.id === el.dataset.thread)
+    const shown = list && th && (state.showClosed || th.status === 'open')
+    el.classList.toggle('mark', shown)
+    el.classList.toggle('is-active', shown && state.selected === el.dataset.thread)
+    if (shown) {
+      el.setAttribute('role', 'button')
+      el.tabIndex = 0
+      el.setAttribute('aria-pressed', String(state.selected === el.dataset.thread))
+    } else {
+      el.removeAttribute('role')
+      el.removeAttribute('tabindex')
+      el.removeAttribute('aria-pressed')
+    }
+  })
+
+  const sceneKey = { list: 'statusList', empty: 'statusEmpty', nogit: 'statusNogit', readerr: 'statusRead' }[state.scene]
+  const parts = [t(sceneKey)]
+  if (!comments) parts.push(t('statusChat'))
+  else if (nogit || readerr) parts.push(t('statusNoButton'))
+  else {
+    parts.push(unresolvedLabel(n))
+    parts.push(state.showClosed ? t('statusClosedOn') : t('statusClosedOff'))
+    parts.push(state.place === 'head' ? t('statusHead') : t('statusFoot'))
+  }
+  if (state.sent && list) parts.push(t('sentStatus'))
+  if (state.selected && list) {
+    const th = THREADS.find((item) => item.id === state.selected)
+    if (th) parts.push(th.quote.slice(0, 24))
+  }
+  $('status').textContent = parts.join(' · ')
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+document.querySelectorAll('[data-scene]').forEach((el) => {
+  el.addEventListener('click', () => {
+    state.scene = el.dataset.scene
+    state.panel = 'comments'
+    state.selected = null
+    apply()
+  })
+})
+document.querySelectorAll('[data-place]').forEach((el) => {
+  el.addEventListener('click', () => { state.place = el.dataset.place; apply() })
+})
+$('tab-comments').addEventListener('click', () => { state.panel = 'comments'; apply() })
+$('tab-chat').addEventListener('click', () => { state.panel = 'chat'; apply() })
+$('show-closed').addEventListener('change', () => {
+  state.showClosed = $('show-closed').checked
+  if (state.selected) {
+    const th = THREADS.find((item) => item.id === state.selected)
+    if (th && th.status === 'closed' && !state.showClosed) state.selected = null
+  }
+  apply()
+})
+$('btn-send').addEventListener('click', sendAll)
+$('clist').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-card]')
+  if (!card) return
+  select(card.dataset.card, 'card')
+})
+$('editor').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-thread]')
+  if (!el || !el.classList.contains('mark')) return
+  select(el.dataset.thread, 'mark')
+})
+$('editor').addEventListener('keydown', (e) => {
+  const el = e.target.closest('[data-thread]')
+  if (!el || !el.classList.contains('mark')) return
+  if (e.key !== 'Enter' && e.key !== ' ') return
+  e.preventDefault()
+  select(el.dataset.thread, 'mark')
+})
+window.addEventListener('keydown', (e) => {
+  if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault()
+    cycle(e.key === 'ArrowDown' ? 1 : -1)
+  }
+  if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey && e.key === 'Enter') {
+    e.preventDefault()
+    sendAll()
+  }
+})
+
+applyI18n()
+apply()
+</script>
+</body>
+</html>
