@@ -17,7 +17,7 @@ import { lexBlock } from '../utils/marked';
 
 const debug = logger('import markdown: ');
 
-interface IMarkdownToStateOptions {
+export interface IMarkdownToStateOptions {
     footnote: boolean;
     texMathDollars: boolean;
     texMathGfm: boolean;
@@ -25,7 +25,7 @@ interface IMarkdownToStateOptions {
     texMathDoubleBackslash: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
-};
+}
 
 const DEFAULT_OPTIONS = {
     footnote: false,
@@ -49,7 +49,11 @@ const CONTAINER_TOKEN_TYPES = new Set([
 ]);
 
 export class MarkdownToState {
-    constructor(private _options: IMarkdownToStateOptions = DEFAULT_OPTIONS) {}
+    private _options: IMarkdownToStateOptions;
+
+    constructor(options: Partial<IMarkdownToStateOptions> = {}) {
+        this._options = { ...DEFAULT_OPTIONS, ...options };
+    }
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);

@@ -15,7 +15,14 @@ export interface ISyntaxRenderOptions {
 export interface IHighlight {
     start: number;
     end: number;
-    active: boolean | undefined;
+    // Search: current match vs the rest. Comment: selected thread. Omitted on
+    // a clipped fragment that carries its classes in `className` instead.
+    active?: boolean;
+    // Set for comment marks. Search highlights leave this empty and are painted
+    // from `active` (`mu-highlight` / `mu-selection`).
+    className?: string;
+    // `data-comment-id` on the painted span. Absent for search highlights.
+    dataId?: string;
 }
 
 export type Labels = Map<

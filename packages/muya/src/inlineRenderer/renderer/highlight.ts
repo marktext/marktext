@@ -2,6 +2,7 @@ import type Format from '../../block/base/format';
 import type { H, Token } from '../types';
 import type Renderer from './index';
 import { union } from '../../utils';
+import { highlightVNode } from '../highlightClass';
 
 // change text to highlight vnode
 export default function highlight(
@@ -28,13 +29,12 @@ export default function highlight(
 
     if (unions.length) {
         for (const u of unions) {
-            const { start, end, active } = u;
-            const className = this.getHighlightClassName(!!active);
+            const { start, end } = u;
 
             if (pos < start)
                 result.push(text.substring(pos, start));
 
-            result.push(h(`span.${className}`, text.substring(start, end)));
+            result.push(highlightVNode(h, u, text.substring(start, end)));
             pos = end;
         }
 

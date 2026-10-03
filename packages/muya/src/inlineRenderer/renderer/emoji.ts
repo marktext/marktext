@@ -3,6 +3,7 @@ import type { CodeEmojiMathToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { validEmoji } from '../../utils/emoji';
+import { highlightClassSelector, highlightVNode } from '../highlightClass';
 
 // render token of emoji to vnode
 export default function emoji(
@@ -27,16 +28,15 @@ export default function emoji(
         content = [];
 
         for (const light of token.highlights) {
-            const { active } = light;
             let { start, end } = light;
-            const HIGHLIGHT_CLASS_NAME = this.getHighlightClassName(!!active);
+            const highlightClass = highlightClassSelector(light);
             if (start === rStart) {
-                startMarkerSelector += `.${HIGHLIGHT_CLASS_NAME}`;
+                startMarkerSelector += `.${highlightClass}`;
                 start++;
             }
 
             if (end === rEnd) {
-                endMarkerSelector += `.${HIGHLIGHT_CLASS_NAME}`;
+                endMarkerSelector += `.${highlightClass}`;
                 end--;
             }
 
@@ -44,9 +44,7 @@ export default function emoji(
                 content.push(block.text.substring(pos, start));
 
             if (start < end) {
-                content.push(
-                    h(`span.${HIGHLIGHT_CLASS_NAME}`, block.text.substring(start, end)),
-                );
+                content.push(highlightVNode(h, light, block.text.substring(start, end)));
             }
             pos = end;
         }

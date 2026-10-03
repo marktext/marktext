@@ -11,6 +11,7 @@ import { registerBlocks } from '../block';
 import { ScrollPage } from '../block/scrollPage';
 import Clipboard from '../clipboard';
 import { CLASS_NAMES, isFirefox } from '../config';
+import { Decorations } from '../decoration';
 import History from '../history';
 import InlineRenderer from '../inlineRenderer';
 import { Search } from '../search';
@@ -240,6 +241,7 @@ export class Editor {
     inlineRenderer: InlineRenderer;
     selection: Selection;
     searchModule: Search;
+    decorations: Decorations;
     clipboard: Clipboard;
     history: History;
     scrollPage: Nullable<ScrollPage> = null;
@@ -253,6 +255,7 @@ export class Editor {
         this.inlineRenderer = new InlineRenderer(_muya);
         this.selection = new Selection(_muya);
         this.searchModule = new Search(_muya);
+        this.decorations = new Decorations(_muya);
         this.clipboard = Clipboard.create(_muya);
         this.history = new History(_muya);
     }
@@ -297,6 +300,9 @@ export class Editor {
         const { domNode } = this._muya;
 
         const eventHandler = (event: Event) => {
+            if (event.type === 'click')
+                this._emitDecorationClick(event);
+
             const selectionResult = this.selection.getSelection();
             const anchorBlock = selectionResult?.anchor.block;
             const isSelectionInSameBlock = selectionResult?.isSelectionInSameBlock;
@@ -352,6 +358,23 @@ export class Editor {
             fromEvent(domNode, 'compositionend'),
             fromEvent(domNode, 'compositionstart'),
         ).subscribe(eventHandler);
+    }
+
+    private _emitDecorationClick(event: Event) {
+        if (!isHTMLElement(event.target))
+            return;
+
+        const mark = event.target.closest(`.${CLASS_NAMES.MU_COMMENT}`);
+
+        if (!mark || !this._muya.domNode.contains(mark))
+            return;
+
+        const id = mark.getAttribute('data-comment-id');
+
+        if (!id)
+            return;
+
+        this._muya.eventCenter.emit('decoration-click', { id });
     }
 
     focus() {
@@ -497,6 +520,11 @@ export class Editor {
         this.jsonState.setContent(content);
         const state = this.jsonState.getState();
 
+        // Marks are keyed by block index in the document being replaced, and
+        // `update()` paints them while the new tree is built. Clear first —
+        // search can wait until after, because nothing paints its matches
+        // unless `search()` runs.
+        this.decorations.reset();
         this.scrollPage!.updateState(state);
         this.history.clear();
         this.searchModule.reset();

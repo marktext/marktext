@@ -13,6 +13,10 @@
 
   --highlightColor: rgba(102, 177, 255, 0.6);
   --selectionColor: rgba(102, 177, 255, 0.3);
+  --commentMarkBg: rgba(240, 196, 60, 0.28);
+  --commentMarkUnderline: #e2c15a;
+  --commentMarkBgActive: rgba(240, 196, 60, 0.48);
+  --commentMarkUnderlineActive: #ffe08a;
   --editorColor: rgba(255, 255, 255, 0.7);
   --editorColor80: rgba(255, 255, 255, 0.8);
   --editorColor60: rgba(255, 255, 255, 0.6);
@@ -98,6 +102,10 @@
   --theme-color: var(--themeColor);
   --highlight-color: var(--highlightColor);
   --selection-color: var(--selectionColor);
+  --comment-mark-bg: var(--commentMarkBg);
+  --comment-mark-underline: var(--commentMarkUnderline);
+  --comment-mark-bg-active: var(--commentMarkBgActive);
+  --comment-mark-underline-active: var(--commentMarkUnderlineActive);
   --editor-color: var(--editorColor);
   --editor-color-80: var(--editorColor80);
   --editor-color-50: var(--editorColor50);

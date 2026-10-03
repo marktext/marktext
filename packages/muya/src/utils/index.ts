@@ -8,6 +8,8 @@ interface IUnion {
     start: number;
     end: number;
     active?: boolean;
+    className?: string;
+    dataId?: string;
 }
 
 // `never[]` in the contravariant arg-tuple position lets the @methodMixins
@@ -91,25 +93,28 @@ export function conflict(arr1: [number, number], arr2: [number, number]) {
     return !(arr1[1] < arr2[0] || arr2[1] < arr1[0]);
 }
 
-export function union({ start: tStart, end: tEnd }: IUnion, { start: lStart, end: lEnd, active }: IUnion) {
-    if (!(tEnd <= lStart || lEnd <= tStart)) {
-        if (lStart < tStart) {
-            return {
-                start: tStart,
-                end: tEnd < lEnd ? tEnd : lEnd,
-                active,
-            };
-        }
-        else {
-            return {
-                start: lStart,
-                end: tEnd < lEnd ? tEnd : lEnd,
-                active,
-            };
-        }
-    }
+export function union(range: IUnion, light: IUnion): IUnion | null {
+    const { start: tStart, end: tEnd } = range;
+    const { start: lStart, end: lEnd, active, className, dataId } = light;
 
-    return null;
+    if (tEnd <= lStart || lEnd <= tStart)
+        return null;
+
+    const hit: IUnion = {
+        start: lStart < tStart ? tStart : lStart,
+        end: tEnd < lEnd ? tEnd : lEnd,
+        active,
+    };
+
+    // Clipping a highlight to a token must keep the comment class and id.
+    // Dropping them paints the overlap as a search mark.
+    if (className)
+        hit.className = className;
+
+    if (dataId)
+        hit.dataId = dataId;
+
+    return hit;
 }
 
 // https://github.com/jashkenas/underscore

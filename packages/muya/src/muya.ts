@@ -1,6 +1,7 @@
 import type Content from './block/base/content';
 import type Parent from './block/base/parent';
 import type { TBlockPath } from './block/types';
+import type { IDecoration, ITextBlockInfo, ITextBlockSelection } from './decoration/types';
 import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IReplaceOption, ISearchOption } from './search/types';
@@ -20,6 +21,7 @@ import {
     URL_REG,
 } from './config/index';
 
+import { collectLiveTextBlocks, selectionInTextBlock } from './decoration/textBlocks';
 import { Editor } from './editor/index';
 import EventCenter from './event/index';
 import I18n from './i18n/index';
@@ -279,6 +281,23 @@ export class Muya {
 
     replace(replaceValue: string, opt: IReplaceOption = { isSingle: true, isRegexp: false }) {
         return this.editor.searchModule.replace(replaceValue, opt);
+    }
+
+    getTextBlocks(): ITextBlockInfo[] {
+        return collectLiveTextBlocks(this).map(({ index, type, text }) => ({ index, type, text }));
+    }
+
+    // Null when the caret is collapsed or the two ends sit in different text blocks.
+    getSelectionInBlock(): ITextBlockSelection | null {
+        return selectionInTextBlock(this);
+    }
+
+    setDecorations(decorations: IDecoration[]) {
+        this.editor.decorations.set(decorations);
+    }
+
+    scrollToDecoration(id: string) {
+        this.editor.decorations.scrollTo(id);
     }
 
     setContent(content: TState[] | string, autoFocus = false) {

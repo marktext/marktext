@@ -65,7 +65,10 @@ class InlineRenderer {
         if (block.isParent())
             debug.error('Patch can only handle content block');
 
-        const tokens = this._tokenizer(block, highlights);
+        const tokens = this._tokenizer(
+            block,
+            this.muya.editor.decorations.highlightsFor(block, highlights),
+        );
         const html = this.renderer.output(
             tokens,
             block,

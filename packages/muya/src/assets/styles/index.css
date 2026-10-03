@@ -3,6 +3,15 @@
     --theme-color: rgb(33 181 111 / 100%);
     --highlight-color: rgb(33 181 111 / 40%);
     --selection-color: rgb(45 170 219 / 30%);
+
+    /* Comment marks from the agent-comments mockups: a yellow wash plus an
+       underline, distinct from the search pill and the selection wash.
+       `body.dark` carries the dark swatch. Desktop themes override these
+       under the same names (aliased from --commentMarkBg and friends). */
+    --comment-mark-bg: rgb(214 168 32 / 28%);
+    --comment-mark-underline: #8a6410;
+    --comment-mark-bg-active: rgb(214 168 32 / 50%);
+    --comment-mark-underline-active: #6d4e0c;
     --editor-color: #4d4d4d;
     --editor-color-80: #333;
     --editor-color-50: #808080;
@@ -233,6 +242,26 @@ body {
 
     background: var(--selection-color);
     border-radius: 2px;
+}
+
+body.dark {
+    --comment-mark-bg: rgb(240 196 60 / 28%);
+    --comment-mark-underline: #e2c15a;
+    --comment-mark-bg-active: rgb(240 196 60 / 48%);
+    --comment-mark-underline-active: #ffe08a;
+}
+
+.mu-comment {
+    color: var(--editor-color);
+
+    background: var(--comment-mark-bg);
+    border-bottom: 1px solid var(--comment-mark-underline);
+    box-decoration-break: clone;
+}
+
+.mu-comment.mu-comment-active {
+    background: var(--comment-mark-bg-active);
+    border-bottom: 2px solid var(--comment-mark-underline-active);
 }
 
 .mu-hide::selection {

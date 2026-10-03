@@ -1,3 +1,5 @@
+export { markdownToTextBlocks } from './decoration/textBlocks';
+export type { IDecoration, ITextBlockInfo, ITextBlockSelection } from './decoration/types';
 export type { ISerializedHistory } from './history';
 export type { ILocale } from './i18n/types';
 
@@ -8,6 +10,7 @@ export type { IIndexCursor } from './selection/offsetCursor';
 export type { IHistorySelection, IPublicCursorInput } from './selection/types';
 export type { ITocItem } from './state/getTOC';
 export { MarkdownToHtml } from './state/markdownToHtml';
+export type { IMarkdownToStateOptions } from './state/markdownToState';
 export { renderToStaticHTML } from './state/renderToStaticHTML';
 export type { IRenderToStaticHTMLOptions } from './state/renderToStaticHTML';
 export type { TState } from './state/types';

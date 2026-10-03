@@ -1,3 +1,4 @@
+import type { IHighlight } from '../../../inlineRenderer/types';
 import type { Muya } from '../../../muya';
 import type { IRenderCursor } from '../../../selection/types';
 import type {
@@ -176,12 +177,13 @@ class CodeBlockContent extends Content {
             (this.outContainer?.attachments?.head as HTMLPreview).update(text);
     }
 
-    override update(_cursor?: IRenderCursor, highlights = []) {
+    override update(_cursor?: IRenderCursor, highlights: IHighlight[] = []) {
         const { _lang: lang, text } = this;
+        const painted = this.muya.editor.decorations.highlightsFor(this, highlights);
         // transform alias to original language
         const fullLengthLang = transformAliasToOrigin([lang])[0];
         const domNode = this.domNode!;
-        const code = escapeHTML(getHighlightHtml(text, highlights, true))
+        const code = escapeHTML(getHighlightHtml(text, painted, true))
             .replace(new RegExp(MARKER_HASH['<'], 'g'), '<')
             .replace(new RegExp(MARKER_HASH['>'], 'g'), '>')
             .replace(new RegExp(MARKER_HASH['"'], 'g'), '"')
