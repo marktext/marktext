@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 7 — Вкладка diff</title>
+<style>
+  /* Tokens copied from MarkText light and dark themes.
+     Additions and deletions use their own washes. --deleteColor is blue in the
+     dark theme, and --themeColor is the accent, so neither can paint a diff. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor10: rgba(33, 181, 111, 0.1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --h1Color: var(--editorColor80);
+    --tagReadFg: #7a1e1e;
+    --diffInsBg: rgba(33, 181, 111, 0.16);
+    --diffDelBg: rgba(180, 48, 48, 0.12);
+    --diffInfoBg: rgba(0, 0, 0, 0.04);
+    --diffInsFg: #146c3a;
+    --diffDelFg: #7a1e1e;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor10: rgba(64, 158, 255, 0.16);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --itemBgColor: #3f3f3f;
+    --h1Color: var(--editorColor80);
+    --tagReadFg: #ffc1c1;
+    --diffInsBg: rgba(80, 180, 120, 0.22);
+    --diffDelBg: rgba(220, 90, 90, 0.2);
+    --diffInfoBg: rgba(255, 255, 255, 0.06);
+    --diffInsFg: #8fd4a8;
+    --diffDelFg: #ffc1c1;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(1120px, 100%); height: 680px; display: flex; flex-direction: column;
+    background: var(--editorBgColor); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28); overflow: hidden;
+  }
+  .edittabs {
+    height: 28px; display: flex; align-items: stretch; gap: 2px; padding: 0 8px;
+    font-size: 12px; background: var(--itemBgColor); flex: none;
+  }
+  .filetab {
+    display: flex; align-items: center; border: none; background: transparent;
+    color: var(--editorColor); padding: 0 10px; cursor: pointer; height: 28px;
+  }
+  .diff-tab { padding: 0; gap: 0; }
+  .filetab[aria-selected="true"], .diff-tab[aria-selected="true"] {
+    box-shadow: inset 0 -2px 0 var(--themeColor); color: var(--editorColor80);
+  }
+  .tab-name {
+    display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 2px 0 10px;
+    background: none; border: none; cursor: pointer; color: inherit; font-size: 12px;
+  }
+  .tab-name svg { width: 14px; height: 14px; display: block; flex: none; color: var(--iconColor); }
+  .tab-x {
+    width: 22px; height: 22px; padding: 0; display: flex; align-items: center; justify-content: center;
+    background: none; border: none; color: var(--iconColor); cursor: pointer;
+  }
+  .tab-x svg { width: 12px; height: 12px; display: block; }
+  .editor, .diffview { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--editorBgColor); }
+  .doc-inner { max-width: 750px; margin: 0 auto; padding: 28px 16px 24px; font-size: 16px; line-height: 1.7; }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+  .diffhead {
+    flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 12px; border-bottom: 1px solid var(--editorColor10); background: var(--editorBgColor);
+  }
+  .hint { flex: 1 0 100%; margin: 0; font-size: 12px; color: var(--editorColor50); }
+  .choices { display: inline-flex; flex-wrap: wrap; gap: 0; }
+  .choice {
+    background: transparent; border: 1px solid var(--editorColor10); color: var(--editorColor);
+    padding: 3px 8px; font-size: 12px; cursor: pointer;
+  }
+  .choices .choice + .choice { margin-left: -1px; }
+  .choice[aria-pressed="true"] {
+    color: var(--editorColor80); background: var(--themeColor10);
+    box-shadow: inset 0 -2px 0 var(--themeColor); position: relative; z-index: 1;
+  }
+  .refresh {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--sideBarTitleColor); font-size: 12px; padding: 3px 6px;
+  }
+  .fresh { font-size: 12px; color: var(--editorColor50); }
+  .banner {
+    flex: none; margin: 0; padding: 6px 12px; font-size: 12px;
+    background: var(--themeColor10); color: var(--editorColor80);
+  }
+  .split { flex: 1; min-height: 0; display: flex; }
+  .files {
+    width: 240px; flex: none; overflow: auto; border-right: 1px solid var(--editorColor10);
+    background: var(--sideBarBgColor); color: var(--sideBarColor);
+  }
+  .file {
+    width: 100%; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto;
+    gap: 6px; align-items: center; padding: 6px 8px; border: none; background: none;
+    color: inherit; text-align: left; cursor: pointer; font-size: 13px;
+  }
+  .file[aria-current="true"] { box-shadow: inset 2px 0 0 var(--themeColor); color: var(--sideBarTitleColor); }
+  .badge { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .badge[data-kind="A"] { color: var(--diffInsFg); }
+  .badge[data-kind="D"] { color: var(--diffDelFg); }
+  .badge[data-kind="M"], .badge[data-kind="R"] { color: var(--sideBarTitleColor); }
+  .path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stat { font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .plus { color: var(--diffInsFg); }
+  .minus { color: var(--diffDelFg); margin-left: 4px; }
+  .pane { flex: 1; min-width: 0; overflow: auto; position: relative; padding: 12px; }
+  .empty {
+    margin: auto; padding: 48px 16px; text-align: center; color: var(--editorColor50); font-size: 14px;
+  }
+  .d2h-file-wrapper { border: 1px solid var(--editorColor10); margin: 0 0 12px; background: var(--editorBgColor); }
+  .d2h-file-header {
+    padding: 6px 10px; background: var(--sideBarBgColor); color: var(--sideBarTitleColor); font-size: 12px;
+  }
+  .d2h-file-name { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; }
+  .d2h-tag { margin-left: 8px; color: var(--editorColor50); }
+  .d2h-diff-table { border-collapse: collapse; width: 100%; }
+  .d2h-side { width: max-content; min-width: 100%; }
+  .d2h-code-linenumber, .d2h-code-side-linenumber {
+    width: 1%; padding: 0 8px; text-align: right; vertical-align: top;
+    color: var(--editorColor50); background: var(--diffInfoBg);
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 12px; line-height: 1.45; user-select: none; white-space: nowrap;
+  }
+  .d2h-code-line, .d2h-info-line {
+    padding: 0 8px; white-space: pre; vertical-align: top;
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 12px; line-height: 1.45;
+  }
+  .d2h-del { background: var(--diffDelBg); }
+  .d2h-ins { background: var(--diffInsBg); }
+  .d2h-info, .d2h-cntx { background: transparent; }
+  .d2h-info .d2h-code-line, .d2h-info-line { color: var(--editorColor50); background: var(--diffInfoBg); }
+  .d2h-empty { background: var(--editorBgColor); }
+  .d2h-code-line-prefix { display: inline-block; width: 1.2em; color: var(--editorColor50); }
+  .d2h-del .d2h-code-line-prefix { color: var(--diffDelFg); }
+  .d2h-ins .d2h-code-line-prefix { color: var(--diffInsFg); }
+  .cut-line { color: var(--editorColor50); }
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 7 — Вкладка diff</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru">RU</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="sceneGroup" aria-label="Состояние">
+    <button type="button" data-scene="turn" data-i18n="scTurn">Ход</button>
+    <button type="button" data-scene="work" data-i18n="scWork">Копия</button>
+    <button type="button" data-scene="empty" data-i18n="scEmpty">Пусто</button>
+    <button type="button" data-scene="big" data-i18n="scBig">5 МБ</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="stage">
+  <div class="window">
+    <div class="edittabs" id="edittabs" role="tablist" data-i18n-aria="tabsLabel" aria-label="Вкладки редактора"></div>
+    <div class="editor" id="editor" hidden>
+      <div class="doc-inner">
+        <h1>Руководство</h1>
+        <p>Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там.</p>
+      </div>
+    </div>
+    <div class="diffview" id="diffview">
+      <div class="diffhead">
+        <p class="hint" id="hint"></p>
+        <div class="choices" role="group" id="scope-group" data-i18n-aria="scopeGroup" aria-label="Область"></div>
+        <div class="choices" role="group" id="view-group" data-i18n-aria="viewGroup" aria-label="Вид"></div>
+        <button type="button" class="refresh" id="refresh" data-i18n="refresh">Обновить</button>
+        <span class="fresh" id="fresh" hidden></span>
+      </div>
+      <p class="banner" id="banner" hidden></p>
+      <div class="split" id="split">
+        <nav class="files" id="files" data-i18n-aria="filesLabel" aria-label="Файлы"></nav>
+        <div class="pane" id="pane"></div>
+      </div>
+      <p class="empty" id="empty" hidden></p>
+    </div>
+  </div>
+</div>
+<section class="notes">
+  <h2 data-i18n="notesTitle">Относительно HEAD, без различения правок</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+  </ol>
+</section>
+<script>
+const X = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
+const DIFF_ICON = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.75 2.25h5.2v11.5h-5.2zM9.05 2.25h5.2v11.5h-5.2z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.2 8h2.2M10.3 6.4v3.2M9.5 8h2.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>'
+
+const GUIDE = {
+  id: 'guide', path: 'docs/guide.md', kind: 'M',
+  hunks: [{
+    header: '@@ -4,6 +4,9 @@',
+    lines: [
+      { type: 'ctx', old: 4, neu: 4, text: '# Руководство' },
+      { type: 'ctx', old: 5, neu: 5, text: '' },
+      { type: 'ctx', old: 6, neu: 6, text: 'Команды запускаются из корня репозитория.' },
+      { type: 'del', old: 7, text: 'Скрипты лежат в packages/desktop.' },
+      { type: 'add', neu: 7, text: 'Скрипты workspace лежат в корне.' },
+      { type: 'add', neu: 8, text: '' },
+      { type: 'add', neu: 9, text: 'Агент пишет ответ в тред, а не в файл.' },
+      { type: 'ctx', old: 8, neu: 10, text: '' },
+      { type: 'ctx', old: 9, neu: 11, text: 'Сборка описана в документации пакета.' },
+      { type: 'ctx', old: 10, neu: 12, text: 'Тесты запускаются из корня.' },
+      { type: 'ctx', old: 11, neu: 13, text: 'Окно настроек открывается отдельно.' },
+      { type: 'ctx', old: 12, neu: 14, text: 'Комментарии лежат в .marktext/comments.' },
+      { type: 'ctx', old: 13, neu: 15, text: 'Терминал стартует в корне репозитория.' },
+      { type: 'ctx', old: 14, neu: 16, text: 'Локали лежат в static/locales.' },
+      { type: 'ctx', old: 15, neu: 17, text: 'Темы редактора лежат в static/themes.' },
+      { type: 'ctx', old: 16, neu: 18, text: 'Математика рисуется через KaTeX.' },
+      { type: 'ctx', old: 17, neu: 19, text: 'Диаграммы рисуются через Mermaid.' },
+      { type: 'ctx', old: 18, neu: 20, text: 'Исходный режим использует CodeMirror.' },
+      { type: 'ctx', old: 19, neu: 21, text: 'Визуальный режим использует Muya.' },
+      { type: 'ctx', old: 20, neu: 22, text: 'Сохранение файла не создаёт коммит.' },
+      { type: 'ctx', old: 21, neu: 23, text: 'История правок остаётся в редакторе.' }
+    ]
+  }]
+}
+const GUIDE_WORK = {
+  id: 'guide', path: 'docs/guide.md', kind: 'M',
+  hunks: GUIDE.hunks.concat([{
+    header: '@@ -18,3 +21,4 @@',
+    lines: [
+      { type: 'ctx', old: 18, neu: 21, text: 'См. также настройки.' },
+      { type: 'add', neu: 22, text: 'Черновик абзаца, набранный в редакторе.' }
+    ]
+  }])
+}
+const SETUP = {
+  id: 'setup', path: 'docs/setup.md', oldPath: 'docs/intro.md', kind: 'R',
+  hunks: [{
+    header: '@@ -1,3 +1,3 @@',
+    lines: [
+      { type: 'del', old: 1, text: '# Введение' },
+      { type: 'add', neu: 1, text: '# Установка' },
+      { type: 'ctx', old: 2, neu: 2, text: '' },
+      { type: 'ctx', old: 3, neu: 3, text: 'Клонируйте репозиторий.' }
+    ]
+  }]
+}
+const NOTES = {
+  id: 'notes', path: 'docs/agent-notes.md', kind: 'A',
+  hunks: [{
+    header: '@@ -0,0 +1,4 @@',
+    lines: [
+      { type: 'add', neu: 1, text: '# Заметки хода' },
+      { type: 'add', neu: 2, text: '' },
+      { type: 'add', neu: 3, text: 'Пути хода сравниваются с HEAD.' },
+      { type: 'add', neu: 4, text: 'Чужие правки в том же файле не помечаются.' }
+    ]
+  }]
+}
+const README = {
+  id: 'readme', path: 'README.md', kind: 'M',
+  hunks: [{
+    header: '@@ -1,3 +1,4 @@',
+    lines: [
+      { type: 'ctx', old: 1, neu: 1, text: '# agentic-marktext' },
+      { type: 'ctx', old: 2, neu: 2, text: '' },
+      { type: 'del', old: 3, text: 'Форк MarkText.' },
+      { type: 'add', neu: 3, text: 'Форк MarkText с агентом.' }
+    ]
+  }]
+}
+const DRAFT = {
+  id: 'draft', path: 'archive/draft.md', kind: 'D',
+  hunks: [{
+    header: '@@ -1,3 +0,0 @@',
+    lines: [
+      { type: 'del', old: 1, text: '# Черновик' },
+      { type: 'del', old: 2, text: '' },
+      { type: 'del', old: 3, text: 'Этот файл больше не нужен.' }
+    ]
+  }]
+}
+const TURN = [GUIDE, SETUP, NOTES]
+const WORK = [GUIDE_WORK, SETUP, NOTES, README, DRAFT]
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог', protoTitle: 'Промпт 7 — Вкладка diff', light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', sceneGroup: 'Состояние',
+    scTurn: 'Ход', scWork: 'Копия', scEmpty: 'Пусто', scBig: '5 МБ',
+    tabsLabel: 'Вкладки редактора', closeDiff: 'Закрыть вкладку diff',
+    hint: 'Только просмотр. Откат и коммит — в терминале.',
+    scopeGroup: 'Область', viewGroup: 'Вид', filesLabel: 'Файлы',
+    refresh: 'Обновить', fresh: 'Пересчитано по диску',
+    unified: 'Единый', side: 'Рядом',
+    tabTurn: 'Изменения хода', tabWork: 'Рабочая копия',
+    empty: 'Нет изменений относительно HEAD',
+    banner: 'Показаны первые 5 МБ',
+    kindA: 'Добавлен', kindM: 'Изменён', kindD: 'Удалён', kindR: 'Переименован',
+    fileLabel: '{kind}, {path}, +{add} −{del}',
+    notesTitle: 'Относительно HEAD, без различения правок',
+    note1: 'Обе подписи области говорят «относительно HEAD». В v1 строки человека и агента в одном файле не различаются: у рабочей копии того же docs/guide.md просто больше строк, без пометок.',
+    note2: 'Кнопок «принять» и «отклонить» нет. Сверху мелким шрифтом: «Только просмотр. Откат и коммит — в терминале».',
+    note3: 'Слева список с типом A, M, D, R и счётчиками +/−. Клик прокручивает правую часть к файлу. «Единый» и «Рядом» — два режима diff2html. Зелёный и красный залив строк не берутся из --deleteColor и не из --themeColor.',
+    note4: '«Обновить» пересчитывает diff по текущему диску. Пустой список — «Нет изменений относительно HEAD». Обрезанный patch — «Показаны первые 5 МБ».',
+    note5: 'Diff — вкладка редактора с иконкой, не файл. Заголовок «Изменения хода» или «Рабочая копия» следует за областью. Переключение на guide.md оставляет документ на месте.',
+    stTurn: 'ход, относительно HEAD', stWork: 'рабочая копия, относительно HEAD',
+    stEmpty: 'нет изменений относительно HEAD', stBig: 'показаны первые 5 МБ',
+    stDoc: 'вкладка файла', stClosed: 'вкладка diff закрыта'
+  },
+  en: {
+    catalog: 'Catalog', protoTitle: 'Prompt 7 — Diff tab', light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', sceneGroup: 'State',
+    scTurn: 'Turn', scWork: 'Copy', scEmpty: 'Empty', scBig: '5 MB',
+    tabsLabel: 'Editor tabs', closeDiff: 'Close diff tab',
+    hint: 'Read only. Revert and commit are in the terminal.',
+    scopeGroup: 'Scope', viewGroup: 'View', filesLabel: 'Files',
+    refresh: 'Refresh', fresh: 'Recalculated from disk',
+    unified: 'Unified', side: 'Side by side',
+    tabTurn: 'Turn changes', tabWork: 'Working copy',
+    empty: 'No changes relative to HEAD',
+    banner: 'First 5 MB shown',
+    kindA: 'Added', kindM: 'Modified', kindD: 'Deleted', kindR: 'Renamed',
+    fileLabel: '{kind}, {path}, +{add} −{del}',
+    notesTitle: 'Relative to HEAD, edits not distinguished',
+    note1: 'Both scope labels say “relative to HEAD”. v1 does not mark which lines a person typed and which the agent wrote: the working copy of the same docs/guide.md simply has more lines, with no tags.',
+    note2: 'There are no accept or reject buttons. A small line at the top says “Read only. Revert and commit are in the terminal.”',
+    note3: 'The left list shows A, M, D, R and +/− counts. A click scrolls the right side to that file. Unified and Side by side are diff2html’s two modes. Green and red line washes are not --deleteColor and not --themeColor.',
+    note4: 'Refresh recalculates the diff from the current disk. An empty list says “No changes relative to HEAD”. A truncated patch says “First 5 MB shown”.',
+    note5: 'The diff is an editor tab with an icon, not a file. The title “Turn changes” or “Working copy” follows the scope. Switching to guide.md leaves the document in place.',
+    stTurn: 'turn, relative to HEAD', stWork: 'working copy, relative to HEAD',
+    stEmpty: 'no changes relative to HEAD', stBig: 'first 5 MB shown',
+    stDoc: 'file tab', stClosed: 'diff tab closed'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function tr(key) { return I18N[state.lang][key] }
+function el(tag, cls, text) {
+  const node = document.createElement(tag)
+  if (cls) node.className = cls
+  if (text != null) node.textContent = text
+  return node
+}
+function filesWord(n) {
+  if (state.lang === 'en') return n === 1 ? 'file' : 'files'
+  const n10 = n % 10
+  const n100 = n % 100
+  if (n10 === 1 && n100 !== 11) return 'файл'
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return 'файла'
+  return 'файлов'
+}
+function stats(file) {
+  let add = 0
+  let del = 0
+  for (const hunk of file.hunks) {
+    for (const line of hunk.lines) {
+      if (line.type === 'add') add += 1
+      if (line.type === 'del') del += 1
+    }
+  }
+  return { add, del }
+}
+function sourceFiles() {
+  if (state.scene === 'empty') return []
+  return state.scope === 'turn' ? TURN : WORK
+}
+function shownFiles() {
+  const files = sourceFiles()
+  if (state.scene !== 'big') return files
+  return files.map((file, index) => (index === 0 ? file : { ...file, hunks: [], cut: true }))
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'turn',
+  scope: 'turn',
+  view: 'unified',
+  diffOpen: true,
+  editorTab: 'diff',
+  current: 'guide',
+  fresh: false
+}
+
+function applyI18n() {
+  document.documentElement.lang = state.lang
+  document.title = tr('protoTitle')
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    node.textContent = tr(node.getAttribute('data-i18n'))
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+    node.setAttribute('aria-label', tr(node.getAttribute('data-i18n-aria')))
+  })
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((node) => {
+    node.setAttribute('aria-pressed', String(node.getAttribute('data-scene') === state.scene))
+  })
+}
+
+function scopeLabel(which, count) {
+  const word = filesWord(count)
+  const head = state.lang === 'ru' ? 'относительно HEAD' : 'relative to HEAD'
+  if (which === 'turn') {
+    const lead = state.lang === 'ru' ? 'Ход: 15:08' : 'Turn: 15:08'
+    return lead + ', ' + count + ' ' + word + ', ' + head
+  }
+  const lead = state.lang === 'ru' ? 'Вся рабочая копия' : 'Entire working copy'
+  return lead + ', ' + count + ' ' + word + ', ' + head
+}
+
+function renderTabs() {
+  const bar = $('edittabs')
+  bar.replaceChildren()
+  const doc = el('button', 'filetab')
+  doc.type = 'button'
+  doc.id = 'tab-doc'
+  doc.setAttribute('role', 'tab')
+  doc.setAttribute('aria-selected', String(state.editorTab === 'doc'))
+  doc.textContent = 'guide.md'
+  doc.addEventListener('click', () => {
+    state.editorTab = 'doc'
+    apply()
+  })
+  bar.appendChild(doc)
+  if (!state.diffOpen) return
+  const tab = el('div', 'diff-tab filetab')
+  tab.id = 'tab-diff'
+  tab.setAttribute('role', 'tab')
+  tab.setAttribute('aria-selected', String(state.editorTab === 'diff'))
+  const name = el('button', 'tab-name')
+  name.type = 'button'
+  name.id = 'diff-title'
+  name.innerHTML = DIFF_ICON
+  name.appendChild(document.createTextNode(
+    state.scope === 'turn' ? tr('tabTurn') : tr('tabWork')
+  ))
+  name.addEventListener('click', () => {
+    state.editorTab = 'diff'
+    apply()
+  })
+  const close = el('button', 'tab-x')
+  close.type = 'button'
+  close.innerHTML = X
+  close.setAttribute('aria-label', tr('closeDiff'))
+  close.addEventListener('click', () => {
+    state.diffOpen = false
+    state.editorTab = 'doc'
+    apply()
+  })
+  tab.appendChild(name)
+  tab.appendChild(close)
+  bar.appendChild(tab)
+}
+
+function renderChoices() {
+  const scope = $('scope-group')
+  scope.replaceChildren()
+  const turnCount = state.scene === 'empty' ? 0 : TURN.length
+  const workCount = state.scene === 'empty' ? 0 : WORK.length
+  ;[
+    ['turn', scopeLabel('turn', turnCount)],
+    ['work', scopeLabel('work', workCount)]
+  ].forEach(([id, label]) => {
+    const button = el('button', 'choice', label)
+    button.type = 'button'
+    button.setAttribute('aria-pressed', String(state.scope === id))
+    button.addEventListener('click', () => {
+      state.scope = id
+      const files = sourceFiles()
+      if (!files.some((file) => file.id === state.current)) state.current = files[0] ? files[0].id : ''
+      apply()
+    })
+    scope.appendChild(button)
+  })
+  const view = $('view-group')
+  view.replaceChildren()
+  ;[
+    ['unified', tr('unified')],
+    ['side', tr('side')]
+  ].forEach(([id, label]) => {
+    const button = el('button', 'choice', label)
+    button.type = 'button'
+    button.setAttribute('aria-pressed', String(state.view === id))
+    button.addEventListener('click', () => {
+      state.view = id
+      apply()
+    })
+    view.appendChild(button)
+  })
+}
+
+function renderFiles(files) {
+  const nav = $('files')
+  nav.replaceChildren()
+  files.forEach((file) => {
+    const count = stats(file)
+    const button = el('button', 'file')
+    button.type = 'button'
+    button.dataset.id = file.id
+    if (file.id === state.current) button.setAttribute('aria-current', 'true')
+    const kindName = tr('kind' + file.kind)
+    button.setAttribute('aria-label', tr('fileLabel')
+      .replace('{kind}', kindName)
+      .replace('{path}', file.path)
+      .replace('{add}', String(count.add))
+      .replace('{del}', String(count.del)))
+    const badge = el('span', 'badge', file.kind)
+    badge.dataset.kind = file.kind
+    badge.setAttribute('aria-hidden', 'true')
+    const path = el('span', 'path', file.path)
+    const stat = el('span', 'stat')
+    stat.appendChild(el('span', 'plus', '+' + count.add))
+    stat.appendChild(el('span', 'minus', '−' + count.del))
+    button.append(badge, path, stat)
+    button.addEventListener('click', () => selectFile(file.id))
+    nav.appendChild(button)
+  })
+}
+
+function lineCell(line, side) {
+  const num = el('td', 'd2h-code-linenumber' + (side ? ' d2h-code-side-linenumber' : ''))
+  const code = el('td')
+  if (!line) {
+    num.className += ' d2h-empty'
+    code.className = 'd2h-empty'
+    return [num, code]
+  }
+  const kind = line.type === 'add' ? 'ins' : line.type === 'del' ? 'del' : line.type === 'hunk' ? 'info' : 'cntx'
+  num.classList.add('d2h-' + kind)
+  code.classList.add('d2h-' + kind)
+  const number = line.type === 'add' ? line.neu : line.type === 'del' ? line.old : (side === 'right' ? line.neu : line.old)
+  if (line.type !== 'hunk' && number != null) num.textContent = String(number)
+  const body = el('div', line.type === 'hunk' ? 'd2h-info-line' : 'd2h-code-line')
+  if (line.type !== 'hunk') {
+    const prefix = el('span', 'd2h-code-line-prefix', line.type === 'add' ? '+' : line.type === 'del' ? '-' : ' ')
+    body.appendChild(prefix)
+  }
+  body.appendChild(document.createTextNode(line.text))
+  code.appendChild(body)
+  return [num, code]
+}
+
+function pair(lines) {
+  const rows = []
+  let index = 0
+  while (index < lines.length) {
+    const line = lines[index]
+    if (line.type === 'ctx') {
+      rows.push({ left: line, right: line })
+      index += 1
+      continue
+    }
+    const dels = []
+    const adds = []
+    while (index < lines.length && lines[index].type === 'del') dels.push(lines[index++])
+    while (index < lines.length && lines[index].type === 'add') adds.push(lines[index++])
+    const count = Math.max(dels.length, adds.length)
+    for (let cursor = 0; cursor < count; cursor += 1) {
+      rows.push({ left: dels[cursor] || null, right: adds[cursor] || null })
+    }
+  }
+  return rows
+}
+
+function renderBlock(file) {
+  const wrap = el('div', 'd2h-file-wrapper')
+  wrap.id = 'blk-' + file.id
+  const header = el('div', 'd2h-file-header')
+  const name = el('span', 'd2h-file-name', file.oldPath ? file.oldPath + ' → ' + file.path : file.path)
+  header.appendChild(name)
+  const tag = el('span', 'd2h-tag', file.kind)
+  header.appendChild(tag)
+  wrap.appendChild(header)
+  if (file.cut) {
+    const table = el('table', 'd2h-diff-table')
+    const row = el('tr')
+    const cell = el('td', 'd2h-info cut-line', '…')
+    cell.colSpan = state.view === 'side' ? 4 : 2
+    row.appendChild(cell)
+    table.appendChild(row)
+    wrap.appendChild(table)
+    return wrap
+  }
+  const table = el('table', 'd2h-diff-table' + (state.view === 'side' ? ' d2h-side' : ''))
+  file.hunks.forEach((hunk) => {
+    const info = el('tr')
+    const cell = el('td', 'd2h-info')
+    cell.colSpan = state.view === 'side' ? 4 : 2
+    cell.appendChild(el('div', 'd2h-info-line', hunk.header))
+    info.appendChild(cell)
+    table.appendChild(info)
+    if (state.view === 'unified') {
+      hunk.lines.forEach((line) => {
+        const row = el('tr')
+        lineCell(line, '').forEach((node) => row.appendChild(node))
+        table.appendChild(row)
+      })
+      return
+    }
+    pair(hunk.lines).forEach((paired) => {
+      const row = el('tr')
+      lineCell(paired.left, 'left').forEach((node) => row.appendChild(node))
+      lineCell(paired.right, 'right').forEach((node) => row.appendChild(node))
+      table.appendChild(row)
+    })
+  })
+  wrap.appendChild(table)
+  return wrap
+}
+
+function renderPane(files) {
+  const pane = $('pane')
+  pane.replaceChildren()
+  files.forEach((file) => pane.appendChild(renderBlock(file)))
+}
+
+function scrollToCurrent() {
+  const pane = $('pane')
+  const target = document.getElementById('blk-' + state.current)
+  if (!pane || !target) return
+  pane.scrollTop = target.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop
+}
+
+function selectFile(id) {
+  state.current = id
+  document.querySelectorAll('.file').forEach((node) => {
+    if (node.dataset.id === id) node.setAttribute('aria-current', 'true')
+    else node.removeAttribute('aria-current')
+  })
+  scrollToCurrent()
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  applyI18n()
+  renderTabs()
+  const showDiff = state.diffOpen && state.editorTab === 'diff'
+  $('editor').hidden = showDiff
+  $('diffview').hidden = !showDiff
+  $('hint').textContent = tr('hint')
+  $('refresh').textContent = tr('refresh')
+  $('fresh').textContent = tr('fresh')
+  $('fresh').hidden = !state.fresh
+  $('banner').textContent = tr('banner')
+  $('banner').hidden = state.scene !== 'big'
+  $('empty').textContent = tr('empty')
+  renderChoices()
+  const files = shownFiles()
+  const empty = files.length === 0
+  $('split').hidden = empty
+  $('empty').hidden = !empty
+  if (!empty) {
+    renderFiles(sourceFiles())
+    renderPane(files)
+    scrollToCurrent()
+  }
+  let key = 'stTurn'
+  if (!state.diffOpen) key = 'stClosed'
+  else if (state.editorTab === 'doc') key = 'stDoc'
+  else if (state.scene === 'empty') key = 'stEmpty'
+  else if (state.scene === 'big') key = 'stBig'
+  else if (state.scope === 'work') key = 'stWork'
+  $('status').textContent = tr(key)
+}
+
+function setScene(scene) {
+  state.scene = scene
+  state.scope = scene === 'work' || scene === 'empty' ? 'work' : 'turn'
+  state.view = 'unified'
+  state.diffOpen = true
+  state.editorTab = 'diff'
+  state.fresh = false
+  state.current = scene === 'empty' ? '' : 'guide'
+  apply()
+}
+
+document.querySelectorAll('[data-scene]').forEach((node) => {
+  node.addEventListener('click', () => setScene(node.getAttribute('data-scene')))
+})
+$('theme-light').addEventListener('click', () => {
+  state.theme = 'light'
+  persist('mt-mockup-theme', 'light')
+  apply()
+})
+$('theme-dark').addEventListener('click', () => {
+  state.theme = 'dark'
+  persist('mt-mockup-theme', 'dark')
+  apply()
+})
+$('lang-ru').addEventListener('click', () => {
+  state.lang = 'ru'
+  persist('mt-mockup-lang', 'ru')
+  apply()
+})
+$('lang-en').addEventListener('click', () => {
+  state.lang = 'en'
+  persist('mt-mockup-lang', 'en')
+  apply()
+})
+$('refresh').addEventListener('click', () => {
+  state.fresh = true
+  apply()
+})
+
+setScene('turn')
+</script>
+</body>
+</html>
