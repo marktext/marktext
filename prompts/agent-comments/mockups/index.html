@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Макеты — агент и комментарии</title>
+<style>
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorBgColor: rgba(255, 255, 255, 1);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --linkColor: var(--themeColor);
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorBgColor: #282828;
+    --sideBarBgColor: #232323;
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --linkColor: #409eff;
+  }
+  * { box-sizing: border-box; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    margin: 0;
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarColor);
+    border-bottom: 1px solid var(--floatBorderColor);
+  }
+  .bar button {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--floatBorderColor);
+    border-radius: 3px;
+    padding: 2px 8px;
+    cursor: pointer;
+  }
+  .bar button[aria-pressed="true"] { color: var(--themeColor); border-color: var(--themeColor); }
+  main { max-width: 640px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1 { font-size: 20px; font-weight: 600; color: var(--editorColor80); margin: 0 0 8px; }
+  p { margin: 0 0 16px; }
+  ol { margin: 0; padding: 0; list-style: none; }
+  li {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 8px 0;
+    border-top: 1px solid var(--floatBorderColor);
+  }
+  .num { width: 1.6em; color: var(--editorColor50); font-variant-numeric: tabular-nums; }
+  a { color: var(--linkColor); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .soon { color: var(--editorColor50); }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <button type="button" id="theme-light" aria-pressed="true" data-i18n="light">Светлая</button>
+  <button type="button" id="theme-dark" aria-pressed="false" data-i18n="dark">Тёмная</button>
+  <button type="button" id="lang-ru" aria-pressed="true">RU</button>
+  <button type="button" id="lang-en" aria-pressed="false">EN</button>
+</header>
+<main>
+  <h1 data-i18n="title">Макеты: агент и комментарии</h1>
+  <p data-i18n="lead">Статические HTML-прототипы из 02_UI_MOCKUP_PROMPTS.md. В приложение не встроены.</p>
+  <ol id="list"></ol>
+</main>
+<script>
+const ITEMS = [
+  { n: '01', href: '01-window-shell.html', ru: 'Каркас окна', en: 'Window shell' },
+  { n: '02', ru: 'Создание комментария из выделения', en: 'Comment from a selection' },
+  { n: '03', ru: 'Список тредов', en: 'Thread list' },
+  { n: '04', ru: 'Тред', en: 'Thread' },
+  { n: '05', ru: 'Чат', en: 'Chat' },
+  { n: '06', ru: 'Терминал', en: 'Terminal' },
+  { n: '07', ru: 'Вкладка diff', en: 'Diff tab' },
+  { n: '08', ru: 'Страница настроек «Агент»', en: 'Agent settings page' }
+]
+const I18N = {
+  ru: {
+    title: 'Макеты: агент и комментарии',
+    lead: 'Статические HTML-прототипы из 02_UI_MOCKUP_PROMPTS.md. В приложение не встроены.',
+    light: 'Светлая',
+    dark: 'Тёмная',
+    soon: 'ещё нет'
+  },
+  en: {
+    title: 'Mockups: agent and comments',
+    lead: 'Static HTML prototypes from 02_UI_MOCKUP_PROMPTS.md. Not wired into the app.',
+    light: 'Light',
+    dark: 'Dark',
+    soon: 'not yet'
+  }
+}
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light'
+}
+function render() {
+  const pack = I18N[state.lang]
+  document.documentElement.lang = state.lang
+  document.documentElement.dataset.theme = state.theme
+  document.title = pack.title
+  persist('mt-mockup-lang', state.lang)
+  persist('mt-mockup-theme', state.theme)
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = pack[el.dataset.i18n] })
+  document.getElementById('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  document.getElementById('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  document.getElementById('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  document.getElementById('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  const list = document.getElementById('list')
+  list.replaceChildren()
+  ITEMS.forEach((item) => {
+    const li = document.createElement('li')
+    const num = document.createElement('span')
+    num.className = 'num'
+    num.textContent = item.n
+    li.appendChild(num)
+    if (item.href) {
+      const a = document.createElement('a')
+      a.href = item.href
+      a.textContent = item[state.lang]
+      li.appendChild(a)
+    } else {
+      const span = document.createElement('span')
+      span.className = 'soon'
+      span.textContent = item[state.lang] + ' — ' + pack.soon
+      li.appendChild(span)
+    }
+    list.appendChild(li)
+  })
+}
+document.getElementById('theme-light').addEventListener('click', () => { state.theme = 'light'; render() })
+document.getElementById('theme-dark').addEventListener('click', () => { state.theme = 'dark'; render() })
+document.getElementById('lang-ru').addEventListener('click', () => { state.lang = 'ru'; render() })
+document.getElementById('lang-en').addEventListener('click', () => { state.lang = 'en'; render() })
+render()
+</script>
+</body>
+</html>

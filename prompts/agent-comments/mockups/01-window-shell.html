@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 1 — Каркас окна</title>
+<style>
+  /* Token values copied from MarkText so rules can move into the app:
+     light — packages/desktop/src/renderer/src/assets/styles/index.css
+     dark  — packages/desktop/src/renderer/src/assets/themes/dark.theme.css */
+  :root {
+    --titleBarHeight: 32px;
+    --editorAreaWidth: 750px;
+
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor90: rgba(33, 181, 111, 0.9);
+    --themeColor80: rgba(33, 181, 111, 0.8);
+    --themeColor70: rgba(33, 181, 111, 0.7);
+    --themeColor60: rgba(33, 181, 111, 0.6);
+    --themeColor50: rgba(33, 181, 111, 0.5);
+    --themeColor40: rgba(33, 181, 111, 0.4);
+    --themeColor30: rgba(33, 181, 111, 0.3);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --themeColor10: rgba(33, 181, 111, 0.1);
+    --highlightThemeColor: var(--themeColor);
+
+    --highlightColor: rgba(33, 181, 111, 0.4);
+    --selectionColor: rgba(0, 0, 0, 0.1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor60: #666666;
+    --editorColor50: #808080;
+    --editorColor40: #999999;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorColor04: #f7f7f7;
+    --editorBgColor: rgba(255, 255, 255, 1);
+    --deleteColor: #ff6969;
+    --iconColor: #6b737b;
+    --codeBgColor: #d8d8d869;
+    --codeBlockBgColor: rgba(0, 0, 0, 0.03);
+    --footnoteBgColor: rgba(0, 0, 0, 0.03);
+    --inputBgColor: rgba(0, 0, 0, 0.06);
+    --focusColor: var(--themeColor);
+
+    --buttonFontColor: var(--editorColor);
+    --buttonBgColor: #ffffff;
+    --buttonBorder: 1px solid #dcdfe6;
+    --buttonShadow: none;
+    --buttonFontColorHover: var(--buttonFontColor);
+    --buttonBgColorHover: linear-gradient(#f9f9f9, #f2f2f2);
+    --buttonBorderHover: var(--buttonBorder);
+    --buttonFontColorActive: var(--buttonFontColor);
+    --buttonBgColorActive: #f0f0f0;
+    --buttonBorderActive: var(--buttonBorder);
+    --buttonFocusBorder: 1px solid var(--themeColor);
+
+    --buttonPrimaryFontColor: #ffffff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --buttonPrimaryBorder: none;
+    --buttonPrimaryShadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
+    --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+    --buttonPrimaryBgColorHover: var(--buttonPrimaryBgColor);
+    --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+    --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+    --buttonPrimaryBgColorActive: var(--buttonPrimaryBgColor);
+    --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+    --buttonPrimaryFocusBorder: none;
+    --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(13, 91, 55, 0.5), 0 0 0 1px var(--themeColor);
+    --tableBorderColor: #e5e5e5;
+
+    --headingColor: var(--editorColor80);
+    --h1Color: var(--headingColor);
+    --h2Color: var(--headingColor);
+    --h3Color: var(--headingColor);
+    --h4Color: var(--headingColor);
+    --h5Color: var(--headingColor);
+    --h6Color: var(--headingColor);
+    --blockquoteTextColor: var(--editorColor50);
+    --blockquoteBorderColor: var(--themeColor);
+    --hrColor: var(--editorColor10);
+    --linkColor: var(--themeColor);
+    --strongColor: var(--editorColor);
+    --emColor: var(--editorColor);
+    --listMarkerColor: var(--editorColor50);
+
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarIconColor: var(--iconColor);
+    --sideBarTitleColor: rgba(0, 0, 0, 1);
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.03);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+
+    --floatFontColor: rgba(0, 0, 0, 0.6);
+    --floatBgColor: #fff;
+    --floatHoverColor: rgba(0, 0, 0, 0.04);
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --floatShadow:
+      rgba(15, 15, 15, 0.03) 0px 0px 0px 1px, rgba(15, 15, 15, 0.04) 0px 3px 6px,
+      rgba(15, 15, 15, 0.05) 0px 9px 24px;
+    --maskColor: rgba(232, 232, 232, 0.8);
+
+    --notificationPrimaryColor: #ffffff;
+    --notificationPrimaryBg: var(--themeColor);
+    --notificationInfoColor: #ffffff;
+    --notificationInfoBg: #909399;
+    --notificationWarningColor: #ffffff;
+    --notificationWarningBg: #ff8800;
+    --notificationErrorColor: #ffffff;
+    --notificationErrorBg: #ff6969;
+  }
+
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor90: rgba(64, 158, 255, 0.9);
+    --themeColor80: rgba(64, 158, 255, 0.8);
+    --themeColor70: rgba(64, 158, 255, 0.7);
+    --themeColor60: rgba(64, 158, 255, 0.6);
+    --themeColor50: rgba(64, 158, 255, 0.5);
+    --themeColor40: rgba(64, 158, 255, 0.4);
+    --themeColor30: rgba(64, 158, 255, 0.3);
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --themeColor10: rgba(64, 158, 255, 0.1);
+
+    --highlightColor: rgba(102, 177, 255, 0.6);
+    --selectionColor: rgba(102, 177, 255, 0.3);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor60: rgba(255, 255, 255, 0.6);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor40: rgba(255, 255, 255, 0.4);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --deleteColor: #409eff;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --codeBgColor: #424344;
+    --codeBlockBgColor: #424344;
+    --codeBlockColor: #f8f8f2;
+    --footnoteBgColor: rgba(66, 67, 68, 0.3);
+    --inputBgColor: #2f3336;
+    --focusColor: var(--themeColor);
+
+    --buttonFontColor: rgba(255, 255, 255, 0.6);
+    --buttonBgColor: #424344;
+    --buttonBorder: 1px solid rgba(0, 0, 0, 0.2);
+    --buttonShadow: none;
+    --buttonFontColorHover: var(--buttonFontColor);
+    --buttonBgColorHover: #4f5051;
+    --buttonBorderHover: 1px solid rgba(0, 0, 0, 0.3);
+    --buttonFontColorActive: var(--buttonFontColor);
+    --buttonBgColorActive: #333434;
+    --buttonBorderActive: var(--buttonBorder);
+
+    --buttonPrimaryFontColor: #ffffff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --buttonPrimaryBorder: none;
+    --buttonPrimaryShadow: none;
+    --buttonPrimaryFontColorHover: var(--buttonPrimaryFontColor);
+    --buttonPrimaryBgColorHover: #5aabff;
+    --buttonPrimaryBorderHover: var(--buttonPrimaryBorder);
+    --buttonPrimaryFontColorActive: var(--buttonPrimaryFontColor);
+    --buttonPrimaryBgColorActive: #2791ff;
+    --buttonPrimaryBorderActive: var(--buttonPrimaryBorder);
+    --buttonPrimaryFocusBorder: none;
+    --buttonPrimaryFocusShadow: inset 0 0 0 1px rgba(24, 26, 31, 0.5), 0 0 0 1px var(--themeColor);
+    --tableBorderColor: #363839;
+
+    --headingColor: rgba(255, 255, 255, 0.8);
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --h3Color: var(--editorColor80);
+    --h4Color: var(--editorColor80);
+    --h5Color: var(--editorColor80);
+    --h6Color: var(--editorColor80);
+    --blockquoteTextColor: rgba(255, 255, 255, 0.5);
+    --blockquoteBorderColor: #409eff;
+    --hrColor: rgba(255, 255, 255, 0.1);
+    --linkColor: #409eff;
+    --strongColor: rgba(255, 255, 255, 0.8);
+    --emColor: #66b1ff;
+    --listMarkerColor: #409eff;
+
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarIconColor: var(--iconColor);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
+    --itemBgColor: #3f3f3f;
+
+    --floatFontColor: rgba(255, 255, 255, 0.7);
+    --floatBgColor: #3f3f3f;
+    --floatHoverColor: rgba(255, 255, 255, 0.04);
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --floatShadow: rgba(0, 0, 0, 0.2);
+    --maskColor: rgba(0, 0, 0, 0.7);
+    --editorAreaWidth: 750px;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: -1px; }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  /* Prototype chrome — not part of the MarkText window. */
+  .proto {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding: 8px 14px;
+    background: #ececec;
+    color: #222;
+    border-bottom: 1px solid #ccc;
+    font-size: 13px;
+  }
+  html[data-theme="dark"] .proto {
+    background: #1a1a1a;
+    color: #ddd;
+    border-bottom-color: #333;
+  }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; margin-right: 4px; }
+  .seg { display: inline-flex; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button, .check {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .check { display: inline-flex; align-items: center; gap: 6px; padding: 0; }
+  .status {
+    flex: 1 0 100%;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    color: #444;
+  }
+  html[data-theme="dark"] .status { color: #aaa; }
+
+  .stage {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: #c5c5c5;
+    overflow: auto;
+  }
+  html[data-theme="dark"] .stage { background: #101010; }
+  body.frame-fluid .stage { padding: 0; background: var(--editorBgColor); }
+
+  .window {
+    position: relative;
+    width: 1366px;
+    height: 768px;
+    background: var(--editorBgColor);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    --sideW: 280px;
+    --agentW: 45px;
+    --termH: 0px;
+  }
+  body.frame-1100 .window { width: 1100px; height: 700px; }
+  body.frame-1366 .window { width: 1366px; height: 768px; }
+  body.frame-1600 .window { width: 1600px; height: 900px; }
+  body.frame-fluid .window {
+    width: 100%;
+    height: calc(100vh - 78px);
+    min-height: 560px;
+    box-shadow: none;
+  }
+  body.is-dragging, body.is-dragging * { user-select: none !important; }
+  body.is-dragging-col, body.is-dragging-col * { cursor: col-resize !important; }
+  body.is-dragging-row, body.is-dragging-row * { cursor: row-resize !important; }
+
+  .window button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+  }
+  .icon { width: 18px; height: 18px; display: block; }
+  .icon use { pointer-events: none; }
+
+  .title-bar {
+    position: absolute;
+    z-index: 5;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--titleBarHeight);
+    display: flex;
+    align-items: center;
+    color: var(--editorColor);
+    user-select: none;
+  }
+  .title-left, .win-controls {
+    display: flex;
+    align-items: center;
+    flex: none;
+    height: 100%;
+  }
+  .title-left { padding-left: 4px; gap: 2px; }
+  .hamburger, .word-count {
+    height: 24px;
+    padding: 0 8px;
+    color: var(--editorColor50);
+    font-size: 13px;
+  }
+  .hamburger { width: 32px; font-size: 16px; }
+  .hamburger:hover, .word-count:hover { color: var(--sideBarTitleColor); }
+  .title-path {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 14px;
+    line-height: var(--titleBarHeight);
+    padding: 0 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .title-path .sep { color: var(--editorColor30); margin: 0 4px; }
+  .title-path .filename { color: var(--editorColor); }
+  .save-dot {
+    display: none;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: var(--highlightThemeColor);
+    vertical-align: middle;
+  }
+  .save-dot.show { display: inline-block; }
+  .win-controls { margin-left: auto; }
+  .win-btn {
+    width: 46px;
+    height: var(--titleBarHeight);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--editorColor);
+  }
+  .win-btn svg { width: 10px; height: 10px; }
+  .win-btn:hover { background: var(--sideBarItemHoverBgColor); }
+  .win-close:hover { background: rgb(228, 79, 79); color: #fff; }
+
+  .menu {
+    position: absolute;
+    z-index: 6;
+    top: var(--titleBarHeight);
+    left: 8px;
+    min-width: 260px;
+    padding: 4px 0;
+    background: var(--floatBgColor);
+    color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
+  }
+  .menu-title {
+    padding: 4px 12px 6px;
+    font-size: 11px;
+    color: var(--editorColor50);
+  }
+  .menu button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 12px;
+    text-align: left;
+    font-size: 13px;
+    color: var(--floatFontColor);
+  }
+  .menu button:hover { background: var(--floatHoverColor); }
+  .menu button.is-on { box-shadow: inset 2px 0 0 var(--themeColor); }
+  .menu kbd { font-family: inherit; font-size: 12px; color: var(--editorColor50); }
+
+  .editor-container {
+    display: flex;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .side-bar {
+    width: var(--sideW);
+    flex: none;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarColor);
+    border-right: 1px solid var(--itemBgColor);
+    user-select: none;
+    overflow: hidden;
+  }
+  .is-side-hidden .side-bar { border-right: none; }
+  .left-column {
+    width: 45px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 32px;
+  }
+  .left-column ul { list-style: none; margin: 0; padding: 0; }
+  .left-column button {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sideBarIconColor);
+  }
+  .left-column button[aria-pressed="true"] { color: var(--themeColor); }
+  .side-tree {
+    flex: 1;
+    min-width: 0;
+    display: none;
+    flex-direction: column;
+    padding-top: 32px;
+    overflow: hidden;
+  }
+  .is-side-open .side-tree { display: flex; }
+  .tree-title {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 10px;
+    font-size: 14px;
+    color: var(--sideBarColor);
+    flex: none;
+  }
+  .tree-title .chev, .chev.is-open { width: 12px; height: 12px; color: var(--sideBarTextColor); transform: rotate(90deg); }
+  .file-row, .folder-row {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 0 8px 0 10px;
+    text-align: left;
+    font-size: 14px;
+    color: var(--sideBarColor);
+    position: relative;
+  }
+  .file-row:hover, .folder-row:hover { background: var(--sideBarItemHoverBgColor); }
+  .file-row.current { color: var(--themeColor); }
+  .file-row.current::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--themeColor);
+  }
+  .file-ico { width: 14px; height: 14px; flex: none; }
+  .depth-1 { padding-left: 16px; }
+  .depth-2 { padding-left: 28px; }
+  .side-pane { display: none; flex: 1; min-height: 0; overflow: auto; }
+  .side-pane.is-on { display: block; }
+  .search-input {
+    display: block;
+    width: calc(100% - 16px);
+    margin: 8px;
+    height: 28px;
+    border: none;
+    border-radius: 3px;
+    background: var(--inputBgColor);
+    color: var(--sideBarTitleColor);
+    padding: 0 8px;
+    font: inherit;
+    font-size: 13px;
+  }
+  .toc-row {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: var(--sideBarColor);
+  }
+  .toc-row.h2 { padding-left: 22px; }
+  .toc-row:hover { background: var(--sideBarItemHoverBgColor); }
+  .hint {
+    margin: 8px 12px;
+    font-size: 12px;
+    color: var(--sideBarTextColor);
+  }
+
+  .drag-v {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    z-index: 3;
+    cursor: col-resize;
+  }
+  .side-bar .drag-v { right: 0; }
+  .agent .drag-v { left: 0; }
+  .drag-v:hover::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--iconColor);
+  }
+  .side-bar .drag-v:hover::after { right: 0; }
+  .agent .drag-v:hover::after { left: 0; }
+  .is-side-rail .side-bar .drag-v,
+  .is-side-hidden .side-bar .drag-v,
+  .is-agent-rail .agent .drag-v,
+  .is-agent-hidden .agent .drag-v,
+  .is-agent-off .agent .drag-v { display: none; }
+
+  .workspace {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .work-row {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    min-width: 0;
+  }
+  .editor-middle {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--editorBgColor);
+  }
+  .title-spacer { height: var(--titleBarHeight); flex: none; }
+  .agent .title-spacer { background: var(--sideBarBgColor); }
+
+  .editor-tabs {
+    height: 28px;
+    flex: none;
+    display: flex;
+    align-items: stretch;
+    user-select: none;
+    box-shadow: 0 0 9px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+  }
+  .tabs {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .tabs li { display: flex; }
+  .tabs button.tab {
+    max-width: 220px;
+    height: 28px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--editorColor50);
+    position: relative;
+  }
+  .tabs button.tab span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tabs button.tab:hover { background: var(--floatBgColor); }
+  .tabs button.tab[aria-selected="true"] {
+    background: var(--itemBgColor);
+    color: var(--editorColor);
+  }
+  .tabs button.tab[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--themeColor);
+  }
+  .tab-ico { width: 14px; height: 14px; flex: none; }
+  .unsaved-dot {
+    display: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--themeColor);
+    flex: none;
+  }
+  .tabs li.unsaved button.tab:not([aria-selected="true"]) .unsaved-dot { display: block; }
+  .new-file {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--editorColor50);
+    flex: none;
+  }
+  .new-file:hover { color: var(--themeColor); }
+  .tab-spacer { flex: 1; }
+  .tab-actions { display: flex; flex: none; }
+  .is-agent-off .tab-actions { display: none; }
+  .tab-action {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--editorColor50);
+  }
+  .tab-action svg { width: 16px; height: 16px; }
+  .tab-action:hover, .tab-action[aria-pressed="true"] { color: var(--themeColor); }
+  .tab-action .badge { position: absolute; top: 0; right: -2px; }
+  .tab-action .turn-dot { position: absolute; bottom: 3px; right: 3px; }
+
+  .editor-pane { flex: 1; min-height: 0; overflow: auto; position: relative; }
+  .doc { display: none; }
+  .doc.is-on { display: block; }
+  .doc-inner {
+    max-width: var(--editorAreaWidth);
+    margin: 0 auto;
+    padding: 28px 8px 80px;
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--editorColor);
+  }
+  .doc h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc h2 { font-size: 1.25em; font-weight: 600; color: var(--h2Color); margin: 1.2em 0 0.4em; }
+  .doc p { margin: 0 0 0.9em; }
+  .doc code {
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 0.88em;
+    background: var(--codeBgColor);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  .doc a { color: var(--linkColor); }
+  .diff-placeholder {
+    display: none;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: var(--editorColor50);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+  }
+  .diff-placeholder.is-on { display: flex; }
+
+  .agent {
+    width: var(--agentW);
+    flex: none;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarColor);
+    border-left: 1px solid var(--itemBgColor);
+    overflow: hidden;
+  }
+  .is-agent-hidden .agent, .is-agent-off .agent { border-left: none; }
+  .agent-tabs, .agent-rail, .agent-body { display: none; }
+  .is-agent-open .agent-tabs { display: flex; }
+  .is-agent-open .agent-body { display: flex; }
+  .is-agent-rail .agent-rail { display: flex; }
+  .agent-tabs {
+    height: 28px;
+    flex: none;
+    align-items: stretch;
+    border-bottom: 1px solid var(--editorColor10);
+    user-select: none;
+  }
+  .agent-tabs button {
+    position: relative;
+    height: 28px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--sideBarColor);
+  }
+  .agent-tabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .agent-tabs button[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--themeColor);
+  }
+  .badge {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--themeColor20);
+    color: var(--editorColor80);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .turn-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--editorColor50);
+    border-top-color: var(--themeColor);
+    flex: none;
+    animation: turn-spin 0.8s linear infinite;
+  }
+  @keyframes turn-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .turn-dot { animation: none; border-color: var(--themeColor); }
+  }
+
+  .agent-rail {
+    flex-direction: column;
+    padding-top: 0;
+  }
+  .agent-rail button {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sideBarIconColor);
+  }
+  .agent-rail button[aria-pressed="true"] { color: var(--themeColor); }
+  .agent-rail .badge { position: absolute; top: 6px; right: 4px; }
+  .agent-rail .turn-dot { position: absolute; right: 7px; bottom: 7px; top: auto; }
+
+  .agent-body { flex: 1; min-height: 0; flex-direction: column; }
+  .pane { display: none; flex: 1; min-height: 0; overflow: auto; }
+  .pane.is-on { display: block; }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--sideBarTextColor);
+  }
+  .panel-head strong {
+    color: var(--sideBarTitleColor);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .thread {
+    padding: 6px 12px 8px;
+    border-top: 1px solid var(--editorColor10);
+  }
+  .thread .quote {
+    margin: 0;
+    font-size: 13px;
+    color: var(--sideBarTitleColor);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .thread .meta { margin: 2px 0 0; font-size: 12px; color: var(--sideBarTextColor); }
+  .chat-line { padding: 8px 12px; }
+  .who { margin: 0 0 2px; font-size: 12px; color: var(--sideBarTextColor); }
+  .chat-line p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--sideBarColor); }
+  .streaming { display: flex; align-items: center; gap: 6px; }
+  .model-line {
+    padding: 8px 12px 0;
+    font-size: 12px;
+    color: var(--sideBarTextColor);
+  }
+
+  .term-handle {
+    flex: none;
+    height: 6px;
+    cursor: ns-resize;
+    position: relative;
+    z-index: 2;
+  }
+  .is-agent-off .term-handle { display: none; }
+  .term-handle::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2px;
+    height: 2px;
+    background: transparent;
+  }
+  .term-handle:hover::after, .is-term-open .term-handle::after { background: var(--iconColor); }
+
+  .terminal {
+    height: var(--termH);
+    flex: none;
+    display: none;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    border-top: 1px solid var(--itemBgColor);
+  }
+  .is-term-open .terminal { display: flex; }
+  .term-tabs {
+    height: 28px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    background: var(--sideBarBgColor);
+    user-select: none;
+  }
+  .term-tab {
+    height: 28px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: var(--sideBarTitleColor);
+    box-shadow: inset 0 -2px 0 var(--themeColor);
+  }
+  .term-cwd {
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--sideBarTextColor);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .term-collapse {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sideBarIconColor);
+  }
+  .term-collapse svg { width: 14px; height: 14px; }
+  .term-body {
+    flex: 1;
+    margin: 0;
+    padding: 8px 12px;
+    overflow: auto;
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+  .term-body .pr { color: var(--themeColor); }
+
+  .tip { position: relative; }
+  .tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 6px);
+    right: 0;
+    width: max-content;
+    max-width: 260px;
+    white-space: normal;
+    background: var(--floatBgColor);
+    color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    padding: 4px 8px;
+    text-align: left;
+    pointer-events: none;
+  }
+  .agent-rail .tip:hover::after {
+    top: 8px;
+    left: auto;
+    right: calc(100% + 6px);
+    width: 220px;
+  }
+  .term-handle.tip:hover::after {
+    top: auto;
+    bottom: calc(100% + 4px);
+    right: 8px;
+  }
+
+  .notes {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 8px 24px 64px;
+    color: var(--editorColor);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  .notes pre {
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    background: var(--editorColor04);
+    color: var(--editorColor);
+    border: 1px solid var(--editorColor10);
+    padding: 10px 12px;
+    overflow: auto;
+  }
+  .notes kbd {
+    font-family: inherit;
+    font-size: 12px;
+    border: 1px solid var(--editorColor10);
+    border-radius: 3px;
+    padding: 0 4px;
+  }
+</style>
+</head>
+<body class="frame-1366">
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round">
+    <path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5v-10z"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+    <circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>
+  </symbol>
+  <symbol id="i-toc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+    <path d="M9 7h11M9 12h11M9 17h11"/><path d="M4.5 7h.01M4.5 12h.01M4.5 17h.01"/>
+  </symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M5.8 5.8l1.4 1.4M16.8 16.8l1.4 1.4M18.2 5.8l-1.4 1.4M7.2 16.8l-1.4 1.4"/>
+  </symbol>
+  <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round">
+    <path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5V8h4"/>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 6l6 6-6 6"/>
+  </symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 9l6 6 6-6"/>
+  </symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+  <symbol id="i-comments" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round">
+    <path d="M6 6h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H11l-4 3v-3H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/>
+  </symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M4.5 6.5h15a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H9L5.5 19v-2.5H4.5A1.5 1.5 0 0 1 3 15V8a1.5 1.5 0 0 1 1.5-1.5z"/>
+    <path d="M8 11h8M8 14h5"/>
+  </symbol>
+  <symbol id="i-diff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+    <path d="M4 5h7v14H4zM13 5h7v14h-7z"/>
+  </symbol>
+  <symbol id="i-panel-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M15 4.5v15"/>
+  </symbol>
+  <symbol id="i-panel-bottom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 15h17"/>
+  </symbol>
+  <symbol id="i-min" viewBox="0 0 10 10" fill="currentColor"><path d="M1 5h8v1H1z"/></symbol>
+  <symbol id="i-max" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><rect x="1.5" y="1.5" width="7" height="7"/></symbol>
+  <symbol id="i-close" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M2 2l6 6M8 2L2 8"/></symbol>
+</svg>
+
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 1 — Каркас окна</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" aria-pressed="true" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" aria-pressed="false" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru" aria-pressed="true">RU</button>
+    <button type="button" id="lang-en" aria-pressed="false">EN</button>
+  </div>
+  <label class="check"><input type="checkbox" id="opt-agent" checked> <span data-i18n="agentMode">Режим агента</span></label>
+  <label class="check"><input type="checkbox" id="opt-turn" checked> <span data-i18n="turnOn">Ход идёт</span></label>
+  <div class="seg" role="group" data-i18n-aria="widthGroup" aria-label="Ширина">
+    <button type="button" data-frame="1100">1100</button>
+    <button type="button" data-frame="1366" aria-pressed="true">1366</button>
+    <button type="button" data-frame="1600">1600</button>
+    <button type="button" data-frame="fluid" data-i18n="fluid">Окно</button>
+  </div>
+  <p class="status" id="status" aria-live="polite"></p>
+</header>
+
+<div class="stage">
+  <div class="window is-side-open is-agent-rail" id="window">
+    <div class="title-bar">
+      <div class="title-left">
+        <button type="button" class="hamburger" id="btn-menu" aria-haspopup="menu" aria-expanded="false" aria-controls="menu" data-i18n-aria="menu" aria-label="Меню">&#9776;</button>
+        <div class="word-count" id="word-count">812 <span data-i18n="words">слов</span></div>
+      </div>
+      <div class="title-path" id="title-path">
+        <span class="save-dot" id="save-dot"></span><span>docs</span><span class="sep">›</span><span class="filename">guide.md</span>
+      </div>
+      <div class="win-controls" aria-hidden="true">
+        <div class="win-btn"><svg><use href="#i-min"/></svg></div>
+        <div class="win-btn"><svg><use href="#i-max"/></svg></div>
+        <div class="win-btn win-close"><svg><use href="#i-close"/></svg></div>
+      </div>
+    </div>
+
+    <div class="menu" id="menu" role="menu" hidden>
+      <div class="menu-title" data-i18n="view">Вид</div>
+      <button type="button" role="menuitem" data-act="side" id="menu-side">
+        <span data-i18n="toggleSide">Боковая панель</span><kbd>Ctrl+J</kbd>
+      </button>
+      <button type="button" role="menuitem" data-act="agent" id="menu-agent">
+        <span data-i18n="toggleAgent">Панель агента</span><kbd>Ctrl+\</kbd>
+      </button>
+      <button type="button" role="menuitem" data-act="term" id="menu-term">
+        <span data-i18n="toggleTerm">Терминал</span><kbd>Ctrl+Alt+\</kbd>
+      </button>
+    </div>
+
+    <div class="editor-container">
+      <aside class="side-bar" id="side-bar">
+        <div class="left-column">
+          <ul>
+            <li><button type="button" data-side="files" aria-pressed="true" data-i18n-aria="files" aria-label="Файлы"><svg class="icon"><use href="#i-folder"/></svg></button></li>
+            <li><button type="button" data-side="search" aria-pressed="false" data-i18n-aria="search" aria-label="Поиск"><svg class="icon"><use href="#i-search"/></svg></button></li>
+            <li><button type="button" data-side="toc" aria-pressed="false" data-i18n-aria="toc" aria-label="Оглавление"><svg class="icon"><use href="#i-toc"/></svg></button></li>
+          </ul>
+          <ul>
+            <li><button type="button" id="btn-settings" data-i18n-aria="settings" aria-label="Настройки"><svg class="icon"><use href="#i-settings"/></svg></button></li>
+          </ul>
+        </div>
+        <div class="side-tree" id="side-tree">
+          <div class="side-pane is-on" data-side-pane="files">
+            <div class="tree-title"><svg class="chev icon"><use href="#i-chevron"/></svg><span data-i18n="opened">Открытые файлы</span></div>
+            <button type="button" class="file-row current" data-file="guide"><svg class="file-ico"><use href="#i-file"/></svg>guide.md</button>
+            <button type="button" class="file-row" data-file="readme"><svg class="file-ico"><use href="#i-file"/></svg>README.md</button>
+            <button type="button" class="file-row" data-file="api"><svg class="file-ico"><use href="#i-file"/></svg>api.md</button>
+            <div class="tree-title"><svg class="chev icon"><use href="#i-chevron"/></svg><span>agentic-marktext</span></div>
+            <button type="button" class="folder-row depth-1"><svg class="chev icon is-open"><use href="#i-chevron"/></svg>docs</button>
+            <button type="button" class="file-row depth-2" data-file="guide"><svg class="file-ico"><use href="#i-file"/></svg>guide.md</button>
+            <button type="button" class="file-row depth-2" data-file="api"><svg class="file-ico"><use href="#i-file"/></svg>api.md</button>
+            <button type="button" class="file-row depth-1" data-file="readme"><svg class="file-ico"><use href="#i-file"/></svg>README.md</button>
+            <div class="file-row depth-1" style="padding-left:16px"><svg class="file-ico"><use href="#i-file"/></svg>AGENTS.md</div>
+          </div>
+          <div class="side-pane" data-side-pane="search">
+            <input class="search-input" id="search-input" data-i18n-placeholder="search" placeholder="Поиск">
+            <p class="hint" data-i18n="searchHint">Поиск по папке — существующая панель.</p>
+          </div>
+          <div class="side-pane" data-side-pane="toc">
+            <button type="button" class="toc-row" data-file="guide">Руководство</button>
+            <button type="button" class="toc-row h2" data-file="guide">Сборка</button>
+            <p class="hint" data-i18n="tocHint">Оглавление текущего файла.</p>
+          </div>
+        </div>
+        <div class="drag-v" id="side-drag" role="separator" aria-orientation="vertical" data-i18n-aria="resizeSide" aria-label="Ширина боковой панели"></div>
+      </aside>
+
+      <div class="workspace">
+        <div class="work-row">
+          <div class="editor-middle">
+            <div class="title-spacer"></div>
+            <div class="editor-tabs">
+              <ul class="tabs" id="editor-tabs" role="tablist">
+                <li><button type="button" class="tab" role="tab" data-tab="guide" aria-selected="true">guide.md</button></li>
+                <li class="unsaved"><button type="button" class="tab" role="tab" data-tab="readme" aria-selected="false">README.md<span class="unsaved-dot"></span></button></li>
+                <li><button type="button" class="tab" role="tab" data-tab="api" aria-selected="false">api.md</button></li>
+                <li id="diff-tab"><button type="button" class="tab" role="tab" data-tab="diff" aria-selected="false"><svg class="tab-ico"><use href="#i-diff"/></svg><span data-i18n="changes">Изменения</span></button></li>
+              </ul>
+              <button type="button" class="new-file tip" id="btn-new" data-i18n-tip="newTab" data-tip="Новая вкладка" data-i18n-aria="newTab" aria-label="Новая вкладка"><svg class="icon"><use href="#i-plus"/></svg></button>
+              <div class="tab-spacer"></div>
+              <div class="tab-actions">
+                <button type="button" class="tab-action tip" id="btn-agent" aria-pressed="true" aria-keyshortcuts="Control+\" data-i18n-aria="toggleAgent" aria-label="Панель агента">
+                  <svg><use href="#i-panel-right"/></svg>
+                  <span class="badge" id="badge-toggle" hidden>3</span>
+                  <i class="turn-dot" id="dot-toggle" hidden></i>
+                </button>
+                <button type="button" class="tab-action tip" id="btn-term" aria-pressed="false" aria-keyshortcuts="Control+Alt+\" data-i18n-aria="toggleTerm" aria-label="Терминал">
+                  <svg><use href="#i-panel-bottom"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="editor-pane">
+              <article class="doc is-on" data-doc="guide">
+                <div class="doc-inner">
+                  <h1>Руководство</h1>
+                  <p>Проект использует строгий режим TypeScript и ESLint.</p>
+                  <h2>Сборка</h2>
+                  <p>Команды запускаются из корня репозитория.</p>
+                  <p><code>pnpm run dev</code></p>
+                </div>
+              </article>
+              <article class="doc" data-doc="readme">
+                <div class="doc-inner">
+                  <h1>MarkText</h1>
+                  <p>MarkText is a WYSIWYG markdown editor.</p>
+                </div>
+              </article>
+              <article class="doc" data-doc="api">
+                <div class="doc-inner">
+                  <h1>API</h1>
+                  <p>Public types live in <code>src/shared/types</code>.</p>
+                </div>
+              </article>
+              <div class="diff-placeholder" data-doc="diff" data-i18n="diffHint">Только просмотр. Макет diff — промпт 7.</div>
+            </div>
+          </div>
+
+          <aside class="agent" id="agent" aria-label="Agent">
+            <div class="title-spacer"></div>
+            <div class="agent-tabs" role="tablist" id="agent-tabs">
+              <button type="button" role="tab" id="tab-comments" data-right="comments" aria-selected="true">
+                <span data-i18n="comments">Комментарии</span>
+                <span class="badge" id="badge-tab">3</span>
+              </button>
+              <button type="button" role="tab" id="tab-chat" data-right="chat" aria-selected="false">
+                <span data-i18n="chat">Чат</span>
+                <i class="turn-dot" id="dot-tab" hidden></i>
+              </button>
+            </div>
+            <div class="agent-rail" id="agent-rail">
+              <button type="button" class="tip" id="rail-comments" data-right="comments" aria-pressed="true">
+                <svg class="icon"><use href="#i-comments"/></svg>
+                <span class="badge" id="badge-rail">3</span>
+              </button>
+              <button type="button" class="tip" id="rail-chat" data-right="chat" aria-pressed="false">
+                <svg class="icon"><use href="#i-chat"/></svg>
+                <i class="turn-dot" id="dot-rail"></i>
+              </button>
+            </div>
+            <div class="agent-body">
+              <div class="pane is-on" data-right-pane="comments">
+                <div class="panel-head"><strong id="comments-file">guide.md</strong><span id="comments-count"></span></div>
+                <div data-threads="guide">
+                  <div class="thread"><p class="quote">строгий режим TypeScript</p><p class="meta">Evgeniy · 2</p></div>
+                  <div class="thread"><p class="quote">Команды запускаются из корня репозитория.</p><p class="meta">Evgeniy · 1</p></div>
+                  <div class="thread"><p class="quote">pnpm run dev</p><p class="meta">Evgeniy · 1</p></div>
+                </div>
+                <div data-threads="readme" hidden>
+                  <div class="thread"><p class="quote">MarkText is a WYSIWYG markdown editor.</p><p class="meta">Evgeniy · 1</p></div>
+                </div>
+                <div data-threads="api" hidden>
+                  <p class="hint" data-i18n="noneOpen">Нет неразобранных тредов.</p>
+                </div>
+                <div data-threads="diff" hidden>
+                  <p class="hint" data-i18n="diffNoThreads">У вкладки diff нет тредов.</p>
+                </div>
+              </div>
+              <div class="pane" data-right-pane="chat">
+                <div class="model-line">OpenCode · anthropic/claude-sonnet-4-5</div>
+                <div class="chat-line">
+                  <p class="who">Evgeniy</p>
+                  <p data-i18n="userMsg">Проверь открытые комментарии в docs/guide.md.</p>
+                </div>
+                <div class="chat-line" id="chat-live">
+                  <p class="who">OpenCode</p>
+                  <p class="streaming"><i class="turn-dot"></i><span data-i18n="streaming">Читает docs/guide.md</span></p>
+                </div>
+                <div class="chat-line" id="chat-done" hidden>
+                  <p class="who">OpenCode</p>
+                  <p data-i18n="turnDone">Ход завершён. Файлы не изменены.</p>
+                </div>
+              </div>
+            </div>
+            <div class="drag-v" id="agent-drag" role="separator" aria-orientation="vertical" data-i18n-aria="resizeAgent" aria-label="Ширина панели агента"></div>
+          </aside>
+        </div>
+        <div class="term-handle tip" id="term-drag" role="separator" aria-orientation="horizontal" data-i18n-aria="resizeTerm" aria-label="Высота терминала"></div>
+        <section class="terminal" id="terminal" aria-label="Terminal">
+          <div class="term-tabs">
+            <div class="term-tab">bash</div>
+            <div class="term-cwd">~/Git/agentic-marktext</div>
+            <button type="button" class="term-collapse" id="term-collapse" data-i18n-aria="collapseTerm" aria-label="Свернуть"><svg><use href="#i-chevron-down"/></svg></button>
+          </div>
+          <pre class="term-body"><span class="pr">~/Git/agentic-marktext$</span> git status
+On branch develop
+<span class="pr">~/Git/agentic-marktext$</span> </pre>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<article class="notes">
+  <h2 data-i18n="notesTitle">Как устроен каркас</h2>
+  <ol id="notes"></ol>
+  <h2 data-i18n="layoutsTitle">Что прячется первым</h2>
+  <pre id="layouts"></pre>
+</article>
+
+<script>
+const EDITOR_MIN = 820
+const TEXT_COL = 750
+const AGENT_MIN = 280
+const RAIL = 45
+const SIDE_MIN = 220
+
+const FILES = {
+  guide: { threads: 3, name: 'guide.md', crumbs: ['docs', 'guide.md'], words: 812, unsaved: false },
+  readme: { threads: 1, name: 'README.md', crumbs: ['README.md'], words: 240, unsaved: true },
+  api: { threads: 0, name: 'api.md', crumbs: ['docs', 'api.md'], words: 96, unsaved: false },
+  diff: { threads: null, name: '', crumbs: [], words: null, unsaved: false }
+}
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог',
+    protoTitle: 'Промпт 1 — Каркас окна',
+    light: 'Светлая',
+    dark: 'Тёмная',
+    agentMode: 'Режим агента',
+    turnOn: 'Ход идёт',
+    fluid: 'Окно',
+    themeGroup: 'Тема',
+    langGroup: 'Язык',
+    widthGroup: 'Ширина окна',
+    menu: 'Меню',
+    view: 'Вид',
+    files: 'Файлы',
+    search: 'Поиск',
+    toc: 'Оглавление',
+    settings: 'Настройки',
+    opened: 'Открытые файлы',
+    comments: 'Комментарии',
+    chat: 'Чат',
+    changes: 'Изменения',
+    words: 'слов',
+    toggleSide: 'Боковая панель',
+    toggleAgent: 'Панель агента',
+    toggleTerm: 'Терминал',
+    newTab: 'Новая вкладка',
+    resizeSide: 'Ширина боковой панели',
+    resizeAgent: 'Ширина панели агента',
+    resizeTerm: 'Высота терминала',
+    collapseTerm: 'Свернуть терминал',
+    searchHint: 'Поиск по папке — существующая панель.',
+    tocHint: 'Оглавление текущего файла.',
+    noneOpen: 'Нет неразобранных тредов.',
+    diffNoThreads: 'У вкладки diff нет тредов.',
+    diffHint: 'Только просмотр. Макет diff — промпт 7.',
+    userMsg: 'Проверь открытые комментарии в docs/guide.md.',
+    streaming: 'Читает docs/guide.md',
+    turnDone: 'Ход завершён. Файлы не изменены.',
+    notesTitle: 'Как устроен каркас',
+    layoutsTitle: 'Что прячется первым',
+    shortcutAgent: 'Панель агента (Ctrl+\\)',
+    shortcutTerm: 'Терминал (Ctrl+Alt+\\)',
+    railTip: 'Полоса: для панели не хватает {n} px. Сузьте дерево файлов или расширьте окно.',
+    turnTip: 'Идёт ход',
+    tree: 'дерево',
+    treeRail: 'дерево скрыто в полосу',
+    treeOff: 'сайдбар скрыт',
+    editor: 'редактор',
+    text: 'текст',
+    agentRail: 'агент: полоса',
+    agentOpen: 'агент',
+    agentHidden: 'агент скрыт',
+    agentOff: 'режим агента выключен',
+    termOpen: 'терминал открыт',
+    termClosed: 'терминал свёрнут',
+    shortOf: 'до панели не хватает {n} px',
+    layouts: '1366  [иконки | дерево 280] [текст 750] [полоса 45]\n1600  [иконки | дерево 280] [текст 750] [панель 320]\n1100  [иконки 45] [текст 750] [полоса 45]\nвыкл  [иконки | дерево 280] [текст 750]',
+    notes: [
+      'Кнопки правой панели и терминала стоят в конце строки вкладок. Заголовок уже занят путём, счётчиком слов и кнопками окна. Те же команды есть в меню «Вид».',
+      'Сочетания по умолчанию свободны в keybindingsLinux.ts: Ctrl+\\ — панель агента, Ctrl+Alt+\\ — терминал. Обратная кавычка не используется: на Linux это мёртвая клавиша. Оба сочетания переназначаются.',
+      'На 1366 px при дереве 280 px панель 280 px не помещается рядом с колонкой текста 750 px (--editorAreaWidth) и полями (минимум области редактора 820 px). Панель сжимается в полосу 45 px — как колонка иконок слева. Дерево остаётся.',
+      'Если места ещё меньше, следом в полосу сжимается дерево файлов. Колонка текста сужается последней.',
+      'Бейдж — число открытых тредов текущего файла. Ноль и вкладка diff бейдж прячут. Текст бейджа — --editorColor80 на --themeColor20: белый на --themeColor не проходит контраст мелкого шрифта.',
+      'Вращающаяся точка стоит на вкладке «Чат», только пока идёт ход и чат не на переднем плане. На полосе она остаётся на иконке чата. Если панель скрыта, точка переходит на кнопку в строке вкладок.',
+      'Терминал свёрнут: ручка 4 px по нижнему краю редактора и правой панели, без подписи. Тянется вверх. Панель не заходит под дерево файлов.',
+      'Режим агента выключен — нет кнопок, правой панели и терминала. Окно выглядит как MarkText сейчас.'
+    ]
+  },
+  en: {
+    catalog: 'Index',
+    protoTitle: 'Prompt 1 — Window shell',
+    light: 'Light',
+    dark: 'Dark',
+    agentMode: 'Agent mode',
+    turnOn: 'Turn running',
+    fluid: 'Fit',
+    themeGroup: 'Theme',
+    langGroup: 'Language',
+    widthGroup: 'Window width',
+    menu: 'Menu',
+    view: 'View',
+    files: 'Files',
+    search: 'Search',
+    toc: 'TOC',
+    settings: 'Settings',
+    opened: 'Opened Files',
+    comments: 'Comments',
+    chat: 'Chat',
+    changes: 'Changes',
+    words: 'words',
+    toggleSide: 'Sidebar',
+    toggleAgent: 'Agent panel',
+    toggleTerm: 'Terminal',
+    newTab: 'New tab',
+    resizeSide: 'Sidebar width',
+    resizeAgent: 'Agent panel width',
+    resizeTerm: 'Terminal height',
+    collapseTerm: 'Collapse terminal',
+    searchHint: 'Folder search — the existing panel.',
+    tocHint: 'Table of contents for the current file.',
+    noneOpen: 'No open threads.',
+    diffNoThreads: 'The diff tab has no threads.',
+    diffHint: 'Read-only. The diff layout is prompt 7.',
+    userMsg: 'Review the open comments in docs/guide.md.',
+    streaming: 'Reading docs/guide.md',
+    turnDone: 'Turn finished. Files unchanged.',
+    notesTitle: 'How the shell is put together',
+    layoutsTitle: 'What gives way first',
+    shortcutAgent: 'Agent panel (Ctrl+\\)',
+    shortcutTerm: 'Terminal (Ctrl+Alt+\\)',
+    railTip: 'Rail: the panel needs {n} px more. Narrow the file tree or widen the window.',
+    turnTip: 'Turn in progress',
+    tree: 'tree',
+    treeRail: 'tree collapsed to a rail',
+    treeOff: 'sidebar hidden',
+    editor: 'editor',
+    text: 'text',
+    agentRail: 'agent: rail',
+    agentOpen: 'agent',
+    agentHidden: 'agent hidden',
+    agentOff: 'agent mode off',
+    termOpen: 'terminal open',
+    termClosed: 'terminal collapsed',
+    shortOf: '{n} px short of the panel',
+    layouts: '1366  [icons | tree 280] [text 750] [rail 45]\n1600  [icons | tree 280] [text 750] [panel 320]\n1100  [icons 45] [text 750] [rail 45]\noff   [icons | tree 280] [text 750]',
+    notes: [
+      'The agent-panel and terminal buttons sit at the trailing end of the editor tab bar. The title bar already holds the path, the word count, and the window controls. The same commands are in the View menu.',
+      'Default shortcuts are free in keybindingsLinux.ts: Ctrl+\\ toggles the agent panel, Ctrl+Alt+\\ toggles the terminal. Backtick is avoided because it is a dead key on Linux. Both are reassigned on the Key Bindings page.',
+      'At 1366 px, with the file tree at 280 px, a 280 px panel does not fit beside a 750 px text column (--editorAreaWidth) plus air (editor pane minimum 820 px). The panel collapses to a 45 px rail — the same width as the existing icon column. The file tree stays.',
+      'Narrower still, the file tree collapses to its icon rail next. The text column is the last thing to shrink.',
+      'The badge is the number of open threads on the current file. It hides at zero and on the diff tab. Badge text uses --editorColor80 on --themeColor20: white on --themeColor fails small-text contrast.',
+      'The spinning dot sits on the Chat tab only while a turn is running and Chat is not in front. On the rail it stays on the chat icon. If the panel is hidden, the dot moves to the tab-bar button.',
+      'The terminal starts collapsed: a 4 px handle along the bottom of the editor and the agent panel, with no label. Drag it upward. It does not run under the file tree.',
+      'Agent mode off: no buttons, no right panel, no terminal. The window matches MarkText as it is today.'
+    ]
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// may block storage */ }
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  frame: '1366',
+  agentMode: true,
+  turn: true,
+  sideUser: 'open',
+  sideWidth: 280,
+  sideView: 'files',
+  agentUser: 'shown',
+  agentWidth: 320,
+  termOpen: false,
+  termHeight: 220,
+  rightTab: 'comments',
+  editorTab: 'guide',
+  menu: false
+}
+
+const windowEl = document.getElementById('window')
+const $ = (id) => document.getElementById(id)
+
+function t(key) {
+  return I18N[state.lang][key]
+}
+
+function clamp(n, a, b) {
+  return Math.max(a, Math.min(b, n))
+}
+
+function unresolvedPhrase(n) {
+  if (state.lang === 'en') return n === 1 ? '1 unresolved' : n + ' unresolved'
+  const n10 = n % 10
+  const n100 = n % 100
+  if (n10 === 1 && n100 !== 11) return n + ' неразобранный'
+  return n + ' неразобранных'
+}
+
+function layout(W) {
+  const agentShown = state.agentMode && state.agentUser === 'shown'
+  const sideHidden = state.sideUser === 'hidden'
+  let sideRail = state.sideUser === 'rail'
+  let sideW = sideHidden ? 0 : sideRail ? RAIL : state.sideWidth
+  let agentRail = false
+  let agentW = 0
+  const editorWidth = () => W - sideW - agentW
+
+  if (agentShown) {
+    agentW = state.agentWidth
+    if (editorWidth() < EDITOR_MIN) {
+      const room = W - sideW - EDITOR_MIN
+      if (room >= AGENT_MIN) agentW = Math.min(state.agentWidth, room)
+      else {
+        agentRail = true
+        agentW = RAIL
+      }
+    }
+  }
+
+  let sideAuto = false
+  if (!sideHidden && state.sideUser === 'open' && editorWidth() < EDITOR_MIN) {
+    sideAuto = true
+    sideRail = true
+    sideW = RAIL
+    if (agentShown) {
+      const room = W - RAIL - EDITOR_MIN
+      if (room >= state.agentWidth) {
+        agentRail = false
+        agentW = state.agentWidth
+      } else if (room >= AGENT_MIN) {
+        agentRail = false
+        agentW = room
+      } else {
+        agentRail = true
+        agentW = RAIL
+      }
+    }
+  }
+
+  const editorW = Math.max(0, W - sideW - agentW)
+  const deficit = agentShown && agentRail
+    ? Math.max(0, sideW + EDITOR_MIN + state.agentWidth - W)
+    : 0
+  return { W, sideW, sideRail, sideHidden, sideAuto, agentW, agentRail, agentShown, editorW, deficit }
+}
+
+function applyI18n() {
+  document.documentElement.lang = state.lang
+  document.title = t('protoTitle')
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    el.textContent = t(el.dataset.i18n)
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAria))
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder))
+  })
+  document.querySelectorAll('[data-i18n-tip]').forEach((el) => {
+    el.dataset.tip = t(el.dataset.i18nTip)
+  })
+  const notes = $('notes')
+  notes.replaceChildren()
+  t('notes').forEach((text) => {
+    const li = document.createElement('li')
+    li.textContent = text
+    notes.appendChild(li)
+  })
+  $('layouts').textContent = t('layouts')
+}
+
+function fileOf(tab) {
+  return FILES[tab]
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-theme', state.theme)
+  persist('mt-mockup-lang', state.lang)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  $('opt-agent').checked = state.agentMode
+  $('opt-turn').checked = state.turn
+
+  document.body.classList.remove('frame-1100', 'frame-1366', 'frame-1600', 'frame-fluid')
+  document.body.classList.add('frame-' + state.frame)
+  document.querySelectorAll('[data-frame]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.frame === state.frame))
+  })
+
+  const W = windowEl.clientWidth || (state.frame === 'fluid' ? 1200 : Number(state.frame))
+  const L = layout(W)
+  windowEl.style.setProperty('--sideW', L.sideW + 'px')
+  windowEl.style.setProperty('--agentW', L.agentW + 'px')
+  windowEl.style.setProperty('--termH', state.agentMode && state.termOpen ? state.termHeight + 'px' : '0px')
+
+  windowEl.classList.toggle('is-side-hidden', L.sideHidden)
+  windowEl.classList.toggle('is-side-rail', !L.sideHidden && L.sideRail)
+  windowEl.classList.toggle('is-side-open', !L.sideHidden && !L.sideRail)
+  windowEl.classList.toggle('is-agent-off', !state.agentMode)
+  windowEl.classList.toggle('is-agent-hidden', state.agentMode && !L.agentShown)
+  windowEl.classList.toggle('is-agent-rail', state.agentMode && L.agentShown && L.agentRail)
+  windowEl.classList.toggle('is-agent-open', state.agentMode && L.agentShown && !L.agentRail)
+  windowEl.classList.toggle('is-term-open', state.agentMode && state.termOpen)
+
+  document.querySelectorAll('[data-side]').forEach((btn) => {
+    const pressed = !L.sideHidden && !L.sideRail && state.sideView === btn.dataset.side
+    btn.setAttribute('aria-pressed', String(pressed))
+  })
+  document.querySelectorAll('[data-side-pane]').forEach((pane) => {
+    pane.classList.toggle('is-on', pane.dataset.sidePane === state.sideView)
+  })
+
+  if (!state.agentMode && state.editorTab === 'diff') state.editorTab = 'guide'
+  $('diff-tab').hidden = !state.agentMode
+
+  const file = fileOf(state.editorTab)
+  document.querySelectorAll('[data-tab]').forEach((tab) => {
+    tab.setAttribute('aria-selected', String(tab.dataset.tab === state.editorTab))
+  })
+  document.querySelectorAll('[data-doc]').forEach((doc) => {
+    doc.classList.toggle('is-on', doc.dataset.doc === state.editorTab)
+  })
+  document.querySelectorAll('[data-file]').forEach((row) => {
+    row.classList.toggle('current', row.dataset.file === state.editorTab)
+  })
+
+  const path = $('title-path')
+  path.replaceChildren()
+  const dot = document.createElement('span')
+  dot.className = 'save-dot' + (file.unsaved ? ' show' : '')
+  path.appendChild(dot)
+  const crumbs = state.editorTab === 'diff' ? [t('changes')] : file.crumbs
+  crumbs.forEach((part, i) => {
+    if (i) {
+      const sep = document.createElement('span')
+      sep.className = 'sep'
+      sep.textContent = '›'
+      path.appendChild(sep)
+    }
+    const span = document.createElement('span')
+    if (i === crumbs.length - 1) span.className = 'filename'
+    span.textContent = part
+    path.appendChild(span)
+  })
+  const words = $('word-count')
+  if (file.words == null) words.hidden = true
+  else {
+    words.hidden = false
+    words.textContent = file.words.toLocaleString(state.lang === 'ru' ? 'ru' : 'en') + ' ' + t('words')
+  }
+
+  const count = file.threads
+  const showBadge = typeof count === 'number' && count > 0
+  ;['badge-tab', 'badge-rail', 'badge-toggle'].forEach((id) => {
+    const el = $(id)
+    el.textContent = showBadge ? String(count) : ''
+  })
+  $('badge-tab').hidden = !showBadge
+  $('badge-rail').hidden = !showBadge
+  const panelHidden = state.agentMode && !L.agentShown
+  $('badge-toggle').hidden = !(showBadge && panelHidden)
+  $('comments-file').textContent = state.editorTab === 'diff' ? t('changes') : file.name
+  $('comments-count').textContent = showBadge ? unresolvedPhrase(count) : ''
+  document.querySelectorAll('[data-threads]').forEach((block) => {
+    block.hidden = block.dataset.threads !== state.editorTab
+  })
+
+  const chatInFront = L.agentShown && !L.agentRail && state.rightTab === 'chat'
+  const showDot = state.agentMode && state.turn && !chatInFront
+  $('dot-tab').hidden = !(showDot && L.agentShown && !L.agentRail)
+  $('dot-rail').hidden = !(showDot && L.agentRail)
+  $('dot-toggle').hidden = !(showDot && panelHidden)
+  $('chat-live').hidden = !state.turn
+  $('chat-done').hidden = state.turn
+
+  document.querySelectorAll('[data-right]').forEach((btn) => {
+    const on = btn.dataset.right === state.rightTab
+    if (btn.getAttribute('role') === 'tab' || btn.closest('.agent-rail')) {
+      btn.setAttribute('aria-selected', String(on))
+      btn.setAttribute('aria-pressed', String(on))
+    }
+  })
+  document.querySelectorAll('[data-right-pane]').forEach((pane) => {
+    pane.classList.toggle('is-on', pane.dataset.rightPane === state.rightTab)
+  })
+
+  const commentsLabel = t('comments') + (showBadge ? ', ' + unresolvedPhrase(count) : '')
+  const chatLabel = t('chat') + (state.turn && !chatInFront ? ', ' + t('turnTip') : '')
+  $('tab-comments').setAttribute('aria-label', commentsLabel)
+  $('rail-comments').setAttribute('aria-label', commentsLabel)
+  $('tab-chat').setAttribute('aria-label', chatLabel)
+  $('rail-chat').setAttribute('aria-label', chatLabel)
+
+  $('btn-agent').setAttribute('aria-pressed', String(state.agentMode && L.agentShown))
+  $('btn-term').setAttribute('aria-pressed', String(state.agentMode && state.termOpen))
+  $('btn-agent').dataset.tip = t('shortcutAgent') + (panelHidden && showBadge ? ' · ' + unresolvedPhrase(count) : '') + (panelHidden && state.turn ? ' · ' + t('turnTip') : '')
+  $('btn-term').dataset.tip = t('shortcutTerm')
+  $('term-drag').dataset.tip = t('resizeTerm')
+  const railTip = L.deficit ? t('railTip').replace('{n}', String(L.deficit)) : t('comments')
+  $('rail-comments').dataset.tip = showBadge ? commentsLabel + '. ' + railTip : railTip
+  $('rail-chat').dataset.tip = (state.turn ? t('turnTip') + '. ' : '') + (L.deficit ? t('railTip').replace('{n}', String(L.deficit)) : t('chat'))
+
+  $('menu').hidden = !state.menu
+  $('btn-menu').setAttribute('aria-expanded', String(state.menu))
+  $('menu-agent').hidden = !state.agentMode
+  $('menu-term').hidden = !state.agentMode
+  $('menu-side').classList.toggle('is-on', !L.sideHidden)
+  $('menu-agent').classList.toggle('is-on', state.agentMode && L.agentShown)
+  $('menu-term').classList.toggle('is-on', state.agentMode && state.termOpen)
+  $('agent').setAttribute('aria-hidden', String(!L.agentShown))
+  $('side-bar').setAttribute('aria-hidden', String(L.sideHidden))
+
+  const textW = Math.min(TEXT_COL, L.editorW)
+  let sideLabel = t('tree') + ' ' + L.sideW
+  if (L.sideHidden) sideLabel = t('treeOff')
+  else if (L.sideRail) sideLabel = t('treeRail')
+  let agentLabel = t('agentOff')
+  if (state.agentMode && !L.agentShown) agentLabel = t('agentHidden')
+  else if (L.agentRail) agentLabel = t('agentRail') + ' ' + L.agentW
+  else if (L.agentShown) agentLabel = t('agentOpen') + ' ' + L.agentW
+  const termLabel = state.agentMode ? (state.termOpen ? t('termOpen') : t('termClosed')) : ''
+  const short = L.deficit ? ' · ' + t('shortOf').replace('{n}', String(L.deficit)) : ''
+  $('status').textContent = [L.W + ' px', sideLabel, t('editor') + ' ' + L.editorW + ' (' + t('text') + ' ' + textW + ')', agentLabel, termLabel].filter(Boolean).join(' · ') + short
+}
+
+function setRight(tab) {
+  state.rightTab = tab
+  if (!state.agentMode) state.agentMode = true
+  state.agentUser = 'shown'
+  apply()
+}
+
+function toggleAgent() {
+  if (!state.agentMode) return
+  state.agentUser = state.agentUser === 'shown' ? 'hidden' : 'shown'
+  apply()
+}
+
+function toggleTerm() {
+  if (!state.agentMode) return
+  state.termOpen = !state.termOpen
+  apply()
+}
+
+function toggleSide() {
+  state.sideUser = state.sideUser === 'hidden' ? 'open' : 'hidden'
+  apply()
+}
+
+function bindDrag(el, axis, onMove) {
+  el.addEventListener('mousedown', (event) => {
+    if (event.button !== 0) return
+    event.preventDefault()
+    const origin = axis === 'x' ? event.clientX : event.clientY
+    const start = onMove.start()
+    const move = (ev) => {
+      const delta = (axis === 'x' ? ev.clientX : ev.clientY) - origin
+      onMove.move(delta, start)
+    }
+    const up = () => {
+      document.removeEventListener('mousemove', move)
+      document.removeEventListener('mouseup', up)
+      document.body.classList.remove('is-dragging', 'is-dragging-col', 'is-dragging-row')
+    }
+    document.body.classList.add('is-dragging', axis === 'x' ? 'is-dragging-col' : 'is-dragging-row')
+    document.addEventListener('mousemove', move)
+    document.addEventListener('mouseup', up)
+  })
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+$('opt-agent').addEventListener('change', () => {
+  state.agentMode = $('opt-agent').checked
+  if (!state.agentMode) state.menu = false
+  apply()
+})
+$('opt-turn').addEventListener('change', () => { state.turn = $('opt-turn').checked; apply() })
+document.querySelectorAll('[data-frame]').forEach((btn) => {
+  btn.addEventListener('click', () => { state.frame = btn.dataset.frame; apply() })
+})
+
+$('btn-menu').addEventListener('click', (event) => {
+  event.stopPropagation()
+  state.menu = !state.menu
+  apply()
+})
+$('menu').addEventListener('click', (event) => {
+  const item = event.target.closest('[data-act]')
+  if (!item) return
+  state.menu = false
+  if (item.dataset.act === 'side') toggleSide()
+  else if (item.dataset.act === 'agent') toggleAgent()
+  else toggleTerm()
+})
+document.addEventListener('click', () => {
+  if (!state.menu) return
+  state.menu = false
+  apply()
+})
+$('menu').addEventListener('click', (event) => event.stopPropagation())
+
+document.querySelectorAll('[data-side]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.side
+    if (state.sideUser === 'open' && state.sideView === view) state.sideUser = 'rail'
+    else {
+      state.sideUser = 'open'
+      state.sideView = view
+    }
+    apply()
+  })
+})
+
+document.getElementById('side-tree').addEventListener('click', (event) => {
+  const row = event.target.closest('[data-file]')
+  if (!row) return
+  state.editorTab = row.dataset.file
+  apply()
+})
+$('editor-tabs').addEventListener('click', (event) => {
+  const tab = event.target.closest('[data-tab]')
+  if (!tab) return
+  state.editorTab = tab.dataset.tab
+  apply()
+})
+document.querySelectorAll('[data-right]').forEach((btn) => {
+  btn.addEventListener('click', () => setRight(btn.dataset.right))
+})
+$('btn-agent').addEventListener('click', toggleAgent)
+$('btn-term').addEventListener('click', toggleTerm)
+$('term-collapse').addEventListener('click', () => { state.termOpen = false; apply() })
+
+bindDrag($('side-drag'), 'x', {
+  start: () => state.sideWidth,
+  move: (delta, start) => {
+    state.sideUser = 'open'
+    state.sideWidth = clamp(start + delta, SIDE_MIN, 480)
+    apply()
+  }
+})
+bindDrag($('agent-drag'), 'x', {
+  start: () => state.agentWidth,
+  move: (delta, start) => {
+    state.agentUser = 'shown'
+    state.agentWidth = clamp(start - delta, AGENT_MIN, 480)
+    apply()
+  }
+})
+bindDrag($('term-drag'), 'y', {
+  start: () => (state.termOpen ? state.termHeight : 0),
+  move: (delta, start) => {
+    const next = start - delta
+    if (next < 48) state.termOpen = false
+    else {
+      state.termOpen = true
+      state.termHeight = clamp(next, 120, Math.round(windowEl.clientHeight * 0.55))
+    }
+    apply()
+  }
+})
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    state.menu = false
+    apply()
+    return
+  }
+  const ctrl = event.ctrlKey || event.metaKey
+  if (!ctrl || event.shiftKey) return
+  if (!event.altKey && event.key === '\\') {
+    event.preventDefault()
+    toggleAgent()
+  } else if (event.altKey && event.key === '\\') {
+    event.preventDefault()
+    toggleTerm()
+  } else if (!event.altKey && (event.key === 'j' || event.key === 'J')) {
+    event.preventDefault()
+    toggleSide()
+  }
+})
+
+applyI18n()
+apply()
+new ResizeObserver(() => apply()).observe(windowEl)
+</script>
+</body>
+</html>
