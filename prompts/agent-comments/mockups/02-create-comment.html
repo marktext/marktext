@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 2 — Создание комментария</title>
+<style>
+  /* Tokens copied from MarkText:
+     light — packages/desktop/src/renderer/src/assets/styles/index.css
+     dark  — packages/desktop/src/renderer/src/assets/themes/dark.theme.css
+     Search mark uses --highlightColor (mu-highlight). Selection uses --selectionColor
+     (mu-selection). Comment marks are new tokens: yellow wash + underline, so they
+     are not the green/blue search pill and not the flat selection wash. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --highlightColor: rgba(33, 181, 111, 0.4);
+    --selectionColor: rgba(0, 0, 0, 0.1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorColor04: #f7f7f7;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --inputBgColor: rgba(0, 0, 0, 0.06);
+    --codeBgColor: #d8d8d869;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarIconColor: var(--iconColor);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.03);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --floatFontColor: rgba(0, 0, 0, 0.6);
+    --floatBgColor: #fff;
+    --floatHoverColor: rgba(0, 0, 0, 0.04);
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --floatShadow: rgba(15, 15, 15, 0.03) 0 0 0 1px, rgba(15, 15, 15, 0.04) 0 3px 6px, rgba(15, 15, 15, 0.05) 0 9px 24px;
+    --buttonPrimaryFontColor: #fff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --editorAreaWidth: 750px;
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --linkColor: var(--themeColor);
+    --blockquoteBorderColor: var(--themeColor);
+    --commentMarkBg: rgba(214, 168, 32, 0.28);
+    --commentMarkUnderline: #8a6410;
+    --commentMarkBgActive: rgba(214, 168, 32, 0.5);
+    --commentMarkUnderlineActive: #6d4e0c;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --highlightColor: rgba(102, 177, 255, 0.6);
+    --selectionColor: rgba(102, 177, 255, 0.3);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --inputBgColor: #2f3336;
+    --codeBgColor: #424344;
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
+    --itemBgColor: #3f3f3f;
+    --floatFontColor: rgba(255, 255, 255, 0.7);
+    --floatBgColor: #3f3f3f;
+    --floatHoverColor: rgba(255, 255, 255, 0.04);
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --floatShadow: rgba(0, 0, 0, 0.2);
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --linkColor: #409eff;
+    --blockquoteBorderColor: #409eff;
+    --commentMarkBg: rgba(240, 196, 60, 0.28);
+    --commentMarkUnderline: #e2c15a;
+    --commentMarkBgActive: rgba(240, 196, 60, 0.48);
+    --commentMarkUnderlineActive: #ffe08a;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+
+  .proto {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 8px 14px;
+    background: #ececec;
+    color: #222;
+    border-bottom: 1px solid #ccc;
+    font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button {
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(1080px, 100%);
+    height: 640px;
+    display: flex;
+    flex-direction: column;
+    background: var(--editorBgColor);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+  }
+  .tabbar {
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 12px;
+    color: var(--editorColor);
+    background: var(--itemBgColor);
+    box-shadow: inset 0 -2px 0 var(--themeColor);
+    flex: none;
+  }
+  .work { flex: 1; min-height: 0; display: flex; }
+  .editor {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    overflow: auto;
+    background: var(--editorBgColor);
+  }
+  .doc-inner {
+    max-width: var(--editorAreaWidth);
+    margin: 0 auto;
+    padding: 28px 16px 64px;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--editorColor);
+  }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner h2 { font-size: 1.25em; font-weight: 600; color: var(--h2Color); margin: 1.1em 0 0.4em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+
+  /* mu-highlight: search. Pill, no underline. */
+  .mu-highlight {
+    background: var(--highlightColor);
+    color: var(--editorColor80);
+    border-radius: 1px;
+    padding: 0 2px;
+  }
+  /* mu-selection: ordinary selection. Flat wash, no underline. */
+  .sel {
+    background: var(--selectionColor);
+    color: var(--editorColor);
+    border-radius: 2px;
+    padding: 0 0.15em;
+  }
+  .comment-saved {
+    background: var(--commentMarkBg);
+    border-bottom: 1px solid var(--commentMarkUnderline);
+    color: var(--editorColor);
+    box-decoration-break: clone;
+  }
+  .comment-draft {
+    background: var(--commentMarkBg);
+    border-bottom: 1px dashed var(--commentMarkUnderline);
+    color: var(--editorColor);
+    box-decoration-break: clone;
+  }
+  .comment-active {
+    background: var(--commentMarkBgActive);
+    border-bottom: 2px solid var(--commentMarkUnderlineActive);
+    color: var(--editorColor);
+    box-decoration-break: clone;
+  }
+  .target { cursor: pointer; }
+
+  .cm { padding: 12px 0 32px; font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 14px; line-height: 1.55; }
+  .cm-row { display: flex; min-height: 1.55em; }
+  .ln {
+    width: 42px;
+    flex: none;
+    text-align: right;
+    padding-right: 12px;
+    color: var(--sideBarTextColor);
+    user-select: none;
+  }
+  .cm-code { flex: 1; padding-right: 16px; white-space: pre-wrap; color: var(--editorColor); }
+  .cm-row.is-sel .cm-code { background: var(--selectionColor); }
+  .tok-h { color: var(--editorColor50); }
+
+  .fmt {
+    position: absolute;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 6px;
+    background: var(--floatBgColor);
+    border-radius: 2px;
+    box-shadow: var(--floatShadow);
+    user-select: none;
+  }
+  .fmt button {
+    position: relative;
+    width: 32px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--iconColor);
+    font-size: 13px;
+  }
+  .fmt button:hover:not(:disabled) { background: var(--floatHoverColor); }
+  .fmt button:disabled { opacity: 0.38; cursor: not-allowed; }
+  .fmt .split { margin-left: 6px; }
+  .fmt .split::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 6px;
+    width: 1px;
+    height: 16px;
+    background: var(--editorColor10);
+  }
+  .fmt svg { width: 16px; height: 16px; display: block; }
+  .fmt button[data-tip]:hover::after, .fmt button.show-tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    z-index: 6;
+    top: calc(100% + 6px);
+    left: 0;
+    width: max-content;
+    max-width: 280px;
+    white-space: normal;
+    text-align: left;
+    background: var(--floatBgColor);
+    color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    padding: 4px 8px;
+    pointer-events: none;
+  }
+
+  .menu {
+    position: fixed;
+    z-index: 40;
+    min-width: 240px;
+    padding: 4px 0;
+    background: var(--floatBgColor);
+    color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
+  }
+  .menu button {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 12px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 13px;
+    color: var(--floatFontColor);
+    cursor: pointer;
+  }
+  .menu button:hover:not(:disabled) { background: var(--floatHoverColor); }
+  .menu button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .menu kbd { font-family: inherit; font-size: 12px; color: var(--editorColor50); }
+  .menu .sep { height: 1px; margin: 4px 0; background: var(--editorColor10); }
+  .menu button.tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    z-index: 6;
+    left: calc(100% + 6px);
+    top: 0;
+    width: 240px;
+    white-space: normal;
+    text-align: left;
+    background: var(--floatBgColor);
+    color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor);
+    box-shadow: var(--floatShadow);
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 4px 8px;
+    pointer-events: none;
+  }
+
+  .panel {
+    width: 320px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    background: var(--sideBarBgColor);
+    color: var(--sideBarColor);
+    border-left: 1px solid var(--itemBgColor);
+    min-width: 0;
+  }
+  .panel-tabs {
+    height: 28px;
+    display: flex;
+    border-bottom: 1px solid var(--editorColor10);
+    flex: none;
+  }
+  .panel-tabs button {
+    position: relative;
+    height: 28px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--sideBarColor);
+    cursor: pointer;
+  }
+  .panel-tabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .panel-tabs button[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: var(--themeColor);
+  }
+  .badge {
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--themeColor20);
+    color: var(--editorColor80);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+  }
+  .panel-body { flex: 1; min-height: 0; overflow: auto; padding: 10px 12px 16px; }
+  .hint { margin: 8px 0 0; font-size: 12px; color: var(--sideBarTextColor); line-height: 1.4; }
+  .composer-title, .who { margin: 0 0 8px; font-size: 12px; color: var(--sideBarTextColor); }
+  .quote {
+    margin: 0 0 10px;
+    padding: 6px 8px;
+    border-left: 2px solid var(--blockquoteBorderColor);
+    background: var(--editorColor04);
+    color: var(--sideBarTitleColor);
+    font-size: 13px;
+  }
+  textarea {
+    display: block;
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    background: var(--inputBgColor);
+    color: var(--editorColor);
+    border: 1px solid var(--editorColor10);
+    border-radius: 3px;
+    padding: 6px 8px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  textarea:focus { outline: none; box-shadow: 0 0 0 1px var(--themeColor) inset; }
+  .actions { display: flex; gap: 8px; margin-top: 8px; }
+  .actions button {
+    background: var(--floatBgColor);
+    color: var(--editorColor);
+    border: 1px solid var(--editorColor10);
+    border-radius: 3px;
+    padding: 4px 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .actions button.primary {
+    background: var(--buttonPrimaryBgColor);
+    color: var(--buttonPrimaryFontColor);
+    border: none;
+  }
+  .actions button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .saved-body { margin: 0; font-size: 13px; color: var(--sideBarColor); line-height: 1.45; }
+
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 8px 0 0; font-size: 15px; }
+  .swatches span { padding: 2px 4px; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 2 — Создание комментария</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" aria-pressed="true" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" aria-pressed="false" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru" aria-pressed="true">RU</button>
+    <button type="button" id="lang-en" aria-pressed="false">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="modeGroup" aria-label="Режим">
+    <button type="button" data-mode="wysiwyg" aria-pressed="true" data-i18n="wysiwyg">Редактор</button>
+    <button type="button" data-mode="source" aria-pressed="false" data-i18n="source">Исходник</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="phaseGroup" aria-label="Шаг">
+    <button type="button" data-phase="inside" data-i18n="phaseInside">В блоке</button>
+    <button type="button" data-phase="cross" data-i18n="phaseCross">Через границу</button>
+    <button type="button" data-phase="draft" data-i18n="phaseDraft">Черновик</button>
+    <button type="button" data-phase="saved" data-i18n="phaseSaved">Сохранено</button>
+  </div>
+  <p class="status" id="status" aria-live="polite"></p>
+</header>
+
+<div class="stage">
+  <div class="window" id="window">
+    <div class="tabbar">guide.md</div>
+    <div class="work">
+      <div class="editor" id="editor">
+        <div id="wysiwyg">
+          <div class="doc-inner">
+            <h1>Руководство</h1>
+            <p>Проект использует <span class="target" id="phrase" data-pick="inside">строгий режим</span> <span class="mu-highlight">TypeScript</span> <span class="target" id="tail" data-pick="cross">и ESLint.</span></p>
+            <h2><span class="target" id="heading" data-pick="cross">Сборка</span></h2>
+            <p>Команды запускаются из <span class="comment-saved">корня репозитория</span>.</p>
+          </div>
+        </div>
+        <div class="cm" id="source" hidden>
+          <div class="cm-row"><span class="ln">1</span><span class="cm-code"><span class="tok-h"># </span>Руководство</span></div>
+          <div class="cm-row"><span class="ln">2</span><span class="cm-code"></span></div>
+          <div class="cm-row"><span class="ln">3</span><span class="cm-code">Проект использует <span class="target" id="src-phrase" data-pick="inside">строгий режим</span> <span class="mu-highlight">TypeScript</span> <span class="target" id="src-tail" data-pick="cross">и ESLint.</span></span></div>
+          <div class="cm-row" id="src-blank"><span class="ln">4</span><span class="cm-code"></span></div>
+          <div class="cm-row"><span class="ln">5</span><span class="cm-code"><span class="tok-h">## </span><span class="target" id="src-heading" data-pick="cross">Сборка</span></span></div>
+          <div class="cm-row"><span class="ln">6</span><span class="cm-code"></span></div>
+          <div class="cm-row"><span class="ln">7</span><span class="cm-code">Команды запускаются из <span class="comment-saved">корня репозитория</span>.</span></div>
+        </div>
+        <div class="fmt" id="fmt" role="toolbar" hidden>
+          <button type="button" tabindex="-1" data-i18n-tip="tipBold" data-tip="Жирный (Ctrl+B)"><b>B</b></button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipItalic" data-tip="Курсив (Ctrl+I)"><i>I</i></button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipUnder" data-tip="Подчёркивание (Ctrl+U)"><u>U</u></button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipStrike" data-tip="Зачёркивание (Ctrl+D)"><s>S</s></button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipMark" data-tip="Выделение (Ctrl+Shift+H)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 16l8-8 4 4-8 8H4v-4zM13 7l3-3 4 4-3 3"/></svg>
+          </button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipCode" data-tip="Код (Ctrl+Y)">&lt;/&gt;</button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipMath" data-tip="Формула (Ctrl+Shift+M)">∑</button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipLink" data-tip="Ссылка (Ctrl+L)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>
+          </button>
+          <button type="button" tabindex="-1" data-i18n-tip="tipImage" data-tip="Изображение (Ctrl+Shift+I)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="5" width="16" height="14" rx="1.5"/><circle cx="9" cy="10" r="1.4"/><path d="M5 16l4-3 3 2 3-4 4 5"/></svg>
+          </button>
+          <button type="button" class="split" tabindex="-1" data-i18n-tip="tipClear" data-tip="Очистить формат (Ctrl+Shift+R)">Tx</button>
+          <button type="button" id="btn-comment" aria-keyshortcuts="Control+Alt+C">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"><path d="M6 6h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H11l-4 3v-3H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
+          </button>
+        </div>
+      </div>
+      <aside class="panel" aria-label="Comments">
+        <div class="panel-tabs" role="tablist">
+          <button type="button" id="tab-comments" role="tab" aria-selected="true">
+            <span data-i18n="comments">Комментарии</span>
+            <span class="badge" id="badge" hidden>1</span>
+          </button>
+          <button type="button" id="tab-chat" role="tab" data-i18n="chat">Чат</button>
+        </div>
+        <div class="panel-body">
+          <div id="pane-empty">
+            <p class="hint" data-i18n="empty">Выделите фрагмент текста и нажмите „Комментировать“.</p>
+          </div>
+          <div id="pane-chat" hidden>
+            <p class="hint" data-i18n="chatLater">Макет чата — промпт 5.</p>
+          </div>
+          <div id="pane-draft" hidden>
+            <p class="composer-title" data-i18n="newComment">Новый комментарий</p>
+            <blockquote class="quote" id="quote"></blockquote>
+            <textarea id="reply" data-i18n-placeholder="replyPh" placeholder="Первая реплика"></textarea>
+            <div class="actions">
+              <button type="button" class="primary" id="btn-save" data-i18n="save">Сохранить</button>
+              <button type="button" id="btn-cancel" data-i18n="cancel">Отмена</button>
+            </div>
+            <p class="hint" data-i18n="saveHint">Ctrl+Enter — сохранить, Esc — отмена.</p>
+          </div>
+          <div id="pane-saved" hidden>
+            <p class="composer-title" data-i18n="created">Тред создан</p>
+            <blockquote class="quote">строгий режим</blockquote>
+            <p class="who">Evgeniy</p>
+            <p class="saved-body" id="saved-text"></p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="menu" id="menu" role="menu" hidden>
+  <button type="button" role="menuitem" id="menu-comment" aria-keyshortcuts="Control+Alt+C">
+    <span data-i18n="comment">Комментировать</span><kbd>Ctrl+Alt+C</kbd>
+  </button>
+  <div class="sep"></div>
+  <button type="button" role="menuitem" tabindex="-1"><span data-i18n="cut">Вырезать</span><kbd>Ctrl+X</kbd></button>
+  <button type="button" role="menuitem" tabindex="-1"><span data-i18n="copy">Копировать</span><kbd>Ctrl+C</kbd></button>
+  <button type="button" role="menuitem" tabindex="-1"><span data-i18n="paste">Вставить</span><kbd>Ctrl+V</kbd></button>
+</div>
+
+<article class="notes">
+  <h2 data-i18n="swatchTitle">Четыре подсветки рядом</h2>
+  <p class="swatches">
+    <span class="mu-highlight" data-i18n="swatchSearch">поиск</span>
+    <span class="sel" data-i18n="swatchSel">выделение</span>
+    <span class="comment-draft" data-i18n="swatchDraft">черновик</span>
+    <span class="comment-saved" data-i18n="swatchSaved">сохранённый тред</span>
+    <span class="comment-active" data-i18n="swatchActive">активный тред</span>
+  </p>
+  <h2 data-i18n="notesTitle">Как оставляется комментарий</h2>
+  <ol id="notes"></ol>
+</article>
+
+<script>
+const I18N = {
+  ru: {
+    catalog: 'Каталог',
+    protoTitle: 'Промпт 2 — Создание комментария',
+    light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', modeGroup: 'Режим редактора', phaseGroup: 'Шаг сценария',
+    wysiwyg: 'Редактор', source: 'Исходник',
+    phaseInside: 'В блоке', phaseCross: 'Через границу', phaseDraft: 'Черновик', phaseSaved: 'Сохранено',
+    tipBold: 'Жирный (Ctrl+B)', tipItalic: 'Курсив (Ctrl+I)', tipUnder: 'Подчёркивание (Ctrl+U)',
+    tipStrike: 'Зачёркивание (Ctrl+D)', tipMark: 'Выделение (Ctrl+Shift+H)', tipCode: 'Код (Ctrl+Y)',
+    tipMath: 'Формула (Ctrl+Shift+M)', tipLink: 'Ссылка (Ctrl+L)', tipImage: 'Изображение (Ctrl+Shift+I)',
+    tipClear: 'Очистить формат (Ctrl+Shift+R)',
+    comment: 'Комментировать',
+    commentTip: 'Комментировать (Ctrl+Alt+C)',
+    blocked: 'Комментарий можно оставить к фрагменту внутри одного абзаца, заголовка или пункта списка.',
+    comments: 'Комментарии', chat: 'Чат',
+    empty: 'Выделите фрагмент текста и нажмите „Комментировать“.',
+    chatLater: 'Макет чата — промпт 5.',
+    newComment: 'Новый комментарий',
+    replyPh: 'Первая реплика',
+    save: 'Сохранить', cancel: 'Отмена',
+    saveHint: 'Ctrl+Enter — сохранить, Esc — отмена.',
+    needText: 'Введите реплику',
+    created: 'Тред создан',
+    sampleReply: 'Проверь tsconfig.',
+    cut: 'Вырезать', copy: 'Копировать', paste: 'Вставить',
+    swatchTitle: 'Четыре подсветки рядом',
+    swatchSearch: 'поиск', swatchSel: 'выделение', swatchDraft: 'черновик',
+    swatchSaved: 'сохранённый тред', swatchActive: 'активный тред',
+    notesTitle: 'Как оставляется комментарий',
+    stInsideW: 'Выделение внутри абзаца. В панели форматирования кнопка «Комментировать» активна. Рядом зелёная подсветка поиска — это другое.',
+    stInsideS: 'То же выделение в исходнике, поверх текста markdown. Панели форматирования нет: правый клик или Ctrl+Alt+C.',
+    stCrossW: 'Выделение захватывает конец абзаца и заголовок. Кнопка «Комментировать» неактивна, остальные кнопки формата на месте.',
+    stCrossS: 'В исходнике выделение переходит через пустую строку на следующий блок. Команда недоступна — та же подсказка.',
+    stDraft: 'Временная подсветка: жёлтый фон и пунктирное подчёркивание. Сохранить — Ctrl+Enter, отмена — Esc.',
+    stSaved: 'Тред сохранён. Подсветка стала активной: фон насыщеннее, подчёркивание сплошное. Рядом — уже существующий тихий тред.',
+    notes: [
+      'Кнопка с пузырём стоит в конце панели форматирования Muya, после разделителя у «Очистить формат». Это действие, а не начертание.',
+      'Если выделение выходит за блок, неактивна только эта кнопка. Подсказка — про абзац, заголовок или пункт списка (D8). То же в контекстном меню.',
+      'Сочетание Ctrl+Alt+C свободно в keybindingsLinux.ts и переназначается. В режиме исходника панели форматирования нет, остаются меню и сочетание.',
+      'Черновик — жёлтая заливка и пунктир. Поиск (mu-highlight) — зелёная или синяя плашка без линии. Обычное выделение (mu-selection) — серая или синяя заливка без линии.',
+      'После сохранения пунктир становится сплошным. Выбранный тред насыщеннее: --commentMarkBgActive и более светлая или тёмная линия. Цвет текста остаётся --editorColor.',
+      'Пустую реплику сохранить нельзя: createThread требует первый текст. Esc и «Отмена» снимают временную подсветку и не создают тред.',
+      'Новые переменные, их ещё нет в темах: --commentMarkBg, --commentMarkUnderline, --commentMarkBgActive, --commentMarkUnderlineActive.'
+    ]
+  },
+  en: {
+    catalog: 'Index',
+    protoTitle: 'Prompt 2 — Comment from a selection',
+    light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', modeGroup: 'Editor mode', phaseGroup: 'Scenario step',
+    wysiwyg: 'Editor', source: 'Source',
+    phaseInside: 'In a block', phaseCross: 'Across blocks', phaseDraft: 'Draft', phaseSaved: 'Saved',
+    tipBold: 'Bold (Ctrl+B)', tipItalic: 'Italic (Ctrl+I)', tipUnder: 'Underline (Ctrl+U)',
+    tipStrike: 'Strikethrough (Ctrl+D)', tipMark: 'Highlight (Ctrl+Shift+H)', tipCode: 'Code (Ctrl+Y)',
+    tipMath: 'Math (Ctrl+Shift+M)', tipLink: 'Link (Ctrl+L)', tipImage: 'Image (Ctrl+Shift+I)',
+    tipClear: 'Clear format (Ctrl+Shift+R)',
+    comment: 'Comment',
+    commentTip: 'Comment (Ctrl+Alt+C)',
+    blocked: 'A comment can only be left on a fragment inside one paragraph, heading, or list item.',
+    comments: 'Comments', chat: 'Chat',
+    empty: 'Select a fragment and choose Comment.',
+    chatLater: 'The chat layout is prompt 5.',
+    newComment: 'New comment',
+    replyPh: 'First reply',
+    save: 'Save', cancel: 'Cancel',
+    saveHint: 'Ctrl+Enter saves, Esc cancels.',
+    needText: 'Write a reply',
+    created: 'Thread created',
+    sampleReply: 'Check tsconfig.',
+    cut: 'Cut', copy: 'Copy', paste: 'Paste',
+    swatchTitle: 'Four marks side by side',
+    swatchSearch: 'search', swatchSel: 'selection', swatchDraft: 'draft',
+    swatchSaved: 'saved thread', swatchActive: 'active thread',
+    notesTitle: 'How a comment is created',
+    stInsideW: 'The selection stays inside one paragraph. Comment in the format toolbar is enabled. The green mark next to it is search, a different highlight.',
+    stInsideS: 'The same selection in source mode, painted on the markdown text. There is no format toolbar: right-click or Ctrl+Alt+C.',
+    stCrossW: 'The selection runs from the end of the paragraph into the heading. Only Comment is disabled; the other format buttons stay.',
+    stCrossS: 'In source mode the selection crosses the blank line into the next block. The command is unavailable, with the same hint.',
+    stDraft: 'Temporary mark: yellow wash and a dashed underline. Ctrl+Enter saves, Esc cancels.',
+    stSaved: 'The thread is saved. The mark is now the active one: a stronger wash and a solid underline. A quieter existing thread sits nearby.',
+    notes: [
+      'The bubble button is the last item in the Muya format toolbar, after the divider by Clear format. It is an action, not a character style.',
+      'When the selection crosses a block, only that button is disabled. The hint names a paragraph, heading, or list item (D8). The context menu does the same.',
+      'Ctrl+Alt+C is free in keybindingsLinux.ts and can be rebound. Source mode has no format toolbar; the menu and the shortcut remain.',
+      'A draft is a yellow wash with a dashed underline. Search (mu-highlight) is a green or blue pill with no line. A normal selection (mu-selection) is a gray or blue wash with no line.',
+      'After save the dash becomes solid. The selected thread is stronger: --commentMarkBgActive and a lighter or darker line. The text color stays --editorColor.',
+      'An empty reply cannot be saved: createThread requires the first text. Esc and Cancel remove the temporary mark and do not create a thread.',
+      'New variables, not in the themes yet: --commentMarkBg, --commentMarkUnderline, --commentMarkBgActive, --commentMarkUnderlineActive.'
+    ]
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  mode: 'wysiwyg',
+  phase: 'inside',
+  panel: 'comments',
+  reply: '',
+  menu: false,
+  menuX: 80,
+  menuY: 80,
+  hint: false
+}
+
+const $ = (id) => document.getElementById(id)
+function t(key) { return I18N[state.lang][key] }
+
+function applyI18n() {
+  document.documentElement.lang = state.lang
+  document.title = t('protoTitle')
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n) })
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAria)) })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder)) })
+  document.querySelectorAll('[data-i18n-tip]').forEach((el) => { el.dataset.tip = t(el.dataset.i18nTip) })
+  const notes = $('notes')
+  notes.replaceChildren()
+  t('notes').forEach((text) => {
+    const li = document.createElement('li')
+    li.textContent = text
+    notes.appendChild(li)
+  })
+}
+
+function phraseClass() {
+  if (state.phase === 'draft') return 'comment-draft'
+  if (state.phase === 'saved') return 'comment-active'
+  if (state.phase === 'inside') return 'sel'
+  return ''
+}
+
+function applyMarks() {
+  const cls = phraseClass()
+  ;['phrase', 'src-phrase'].forEach((id) => {
+    const el = $(id)
+    el.className = 'target ' + cls
+  })
+  const cross = state.phase === 'cross'
+  ;['tail', 'src-tail', 'heading', 'src-heading'].forEach((id) => {
+    $(id).className = 'target' + (cross ? ' sel' : '')
+  })
+  $('src-blank').classList.toggle('is-sel', cross)
+}
+
+function placeToolbar() {
+  const fmt = $('fmt')
+  const show = state.mode === 'wysiwyg' && (state.phase === 'inside' || state.phase === 'cross')
+  fmt.hidden = !show
+  if (!show) return
+  const anchor = $(state.phase === 'cross' ? 'tail' : 'phrase')
+  const pane = $('editor')
+  const a = anchor.getBoundingClientRect()
+  const p = pane.getBoundingClientRect()
+  const width = fmt.offsetWidth || 380
+  let left = a.left - p.left + pane.scrollLeft
+  left = Math.max(8, Math.min(left, pane.clientWidth - width - 8))
+  fmt.style.left = left + 'px'
+  fmt.style.top = (a.top - p.top + pane.scrollTop - 36) + 'px'
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-theme', state.theme)
+  persist('mt-mockup-lang', state.lang)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-mode]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.mode === state.mode))
+  })
+  document.querySelectorAll('[data-phase]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.phase === state.phase))
+  })
+
+  $('wysiwyg').hidden = state.mode !== 'wysiwyg'
+  $('source').hidden = state.mode !== 'source'
+  applyMarks()
+
+  const blocked = state.phase === 'cross'
+  const commentTip = blocked ? t('blocked') : t('commentTip')
+  const btn = $('btn-comment')
+  btn.disabled = blocked
+  btn.classList.toggle('show-tip', state.hint && blocked)
+  btn.dataset.tip = commentTip
+  btn.setAttribute('aria-label', commentTip)
+  const menuItem = $('menu-comment')
+  menuItem.disabled = blocked
+  menuItem.dataset.tip = blocked ? t('blocked') : ''
+  menuItem.classList.toggle('tip', blocked)
+
+  const menu = $('menu')
+  menu.hidden = !state.menu
+  if (state.menu) {
+    menu.style.left = state.menuX + 'px'
+    menu.style.top = state.menuY + 'px'
+  }
+
+  const showDraft = state.phase === 'draft' && state.panel === 'comments'
+  const showSaved = state.phase === 'saved' && state.panel === 'comments'
+  const showChat = state.panel === 'chat'
+  $('pane-draft').hidden = !showDraft
+  $('pane-saved').hidden = !showSaved
+  $('pane-chat').hidden = !showChat
+  $('pane-empty').hidden = showDraft || showSaved || showChat
+  $('tab-comments').setAttribute('aria-selected', String(state.panel === 'comments'))
+  $('tab-chat').setAttribute('aria-selected', String(state.panel === 'chat'))
+  $('badge').hidden = state.phase !== 'saved'
+  $('quote').textContent = 'строгий режим'
+  const area = $('reply')
+  if (document.activeElement !== area && area.value !== state.reply) area.value = state.reply
+  const save = $('btn-save')
+  save.disabled = !state.reply.trim()
+  save.dataset.tip = state.reply.trim() ? '' : t('needText')
+  $('saved-text').textContent = state.reply
+
+  const key = 'st' + (state.phase === 'inside' ? 'Inside' : state.phase === 'cross' ? 'Cross' : state.phase === 'draft' ? 'Draft' : 'Saved') + (state.phase === 'inside' || state.phase === 'cross' ? (state.mode === 'wysiwyg' ? 'W' : 'S') : '')
+  $('status').textContent = t(key)
+
+  placeToolbar()
+}
+
+function go(phase) {
+  if (phase === 'saved' && !state.reply.trim()) state.reply = t('sampleReply')
+  if (phase === 'inside' || phase === 'cross') state.reply = phase === state.phase ? state.reply : ''
+  state.phase = phase
+  state.menu = false
+  state.hint = false
+  if (phase === 'draft' || phase === 'saved') state.panel = 'comments'
+  applyI18n()
+  apply()
+  if (phase === 'draft') $('reply').focus()
+}
+
+function tryComment() {
+  state.menu = false
+  if (state.phase === 'inside') {
+    state.phase = 'draft'
+    state.panel = 'comments'
+    state.hint = false
+    apply()
+    $('reply').focus()
+    return
+  }
+  if (state.phase === 'cross') {
+    state.hint = true
+    apply()
+  }
+}
+
+function save() {
+  if (state.phase !== 'draft' || !state.reply.trim()) return
+  state.phase = 'saved'
+  state.menu = false
+  state.hint = false
+  apply()
+}
+
+function cancel() {
+  if (state.phase !== 'draft') return
+  state.phase = 'inside'
+  state.reply = ''
+  state.menu = false
+  apply()
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+document.querySelectorAll('[data-mode]').forEach((btn) => {
+  btn.addEventListener('click', () => { state.mode = btn.dataset.mode; state.menu = false; apply() })
+})
+document.querySelectorAll('[data-phase]').forEach((btn) => {
+  btn.addEventListener('click', () => go(btn.dataset.phase))
+})
+document.querySelectorAll('[data-pick]').forEach((el) => {
+  el.addEventListener('click', () => go(el.dataset.pick))
+})
+$('btn-comment').addEventListener('click', tryComment)
+$('menu-comment').addEventListener('click', tryComment)
+$('btn-save').addEventListener('click', save)
+$('btn-cancel').addEventListener('click', cancel)
+$('reply').addEventListener('input', () => {
+  state.reply = $('reply').value
+  $('btn-save').disabled = !state.reply.trim()
+})
+$('tab-comments').addEventListener('click', () => { state.panel = 'comments'; apply() })
+$('tab-chat').addEventListener('click', () => { state.panel = 'chat'; apply() })
+
+$('editor').addEventListener('contextmenu', (event) => {
+  if (state.phase !== 'inside' && state.phase !== 'cross') return
+  event.preventDefault()
+  state.menu = true
+  state.menuX = Math.min(event.clientX, window.innerWidth - 260)
+  state.menuY = Math.min(event.clientY, window.innerHeight - 160)
+  apply()
+})
+$('menu').addEventListener('click', (event) => event.stopPropagation())
+document.addEventListener('click', () => {
+  if (!state.menu) return
+  state.menu = false
+  apply()
+})
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    if (state.menu) { state.menu = false; apply(); return }
+    cancel()
+    return
+  }
+  const ctrl = event.ctrlKey || event.metaKey
+  if (!ctrl || event.shiftKey) return
+  if (event.altKey && (event.key === 'c' || event.key === 'C')) {
+    event.preventDefault()
+    tryComment()
+  } else if (!event.altKey && event.key === 'Enter') {
+    event.preventDefault()
+    save()
+  }
+})
+
+window.addEventListener('resize', () => placeToolbar())
+applyI18n()
+apply()
+</script>
+</body>
+</html>
