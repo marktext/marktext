@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 5 — Чат</title>
+<style>
+  /* Tokens copied from MarkText light and dark themes.
+     Harness text uses --harnessFg so it is not --themeColor (accent blue in the dark theme).
+     Error text uses --tagReadFg, not --deleteColor. */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorColor04: #f7f7f7;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --inputBgColor: rgba(0, 0, 0, 0.06);
+    --codeBgColor: #d8d8d869;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.03);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --floatFontColor: rgba(0, 0, 0, 0.6);
+    --floatBgColor: #fff;
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --floatShadow: rgba(15, 15, 15, 0.03) 0 0 0 1px, rgba(15, 15, 15, 0.04) 0 3px 6px, rgba(15, 15, 15, 0.05) 0 9px 24px;
+    --buttonPrimaryFontColor: #fff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --editorAreaWidth: 750px;
+    --h1Color: var(--editorColor80);
+    --linkColor: var(--themeColor);
+    --commentMarkBg: rgba(214, 168, 32, 0.28);
+    --commentMarkUnderline: #8a6410;
+    --tagReadFg: #7a1e1e;
+    --harnessFg: #4a3d6b;
+    --panelSolid: #f2f2f2;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --inputBgColor: #2f3336;
+    --codeBgColor: #424344;
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
+    --itemBgColor: #3f3f3f;
+    --floatFontColor: rgba(255, 255, 255, 0.7);
+    --floatBgColor: #3f3f3f;
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --floatShadow: rgba(0, 0, 0, 0.35) 0 8px 24px;
+    --h1Color: var(--editorColor80);
+    --linkColor: #8ec5ff;
+    --commentMarkBg: rgba(240, 196, 60, 0.28);
+    --commentMarkUnderline: #e2c15a;
+    --tagReadFg: #ffc1c1;
+    --harnessFg: #ddc9ff;
+    --panelSolid: #232323;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, textarea, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(1080px, 100%); height: 720px; display: flex; flex-direction: column;
+    background: var(--editorBgColor); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28); overflow: hidden;
+  }
+  .tabbar {
+    height: 28px; display: flex; align-items: stretch; gap: 2px; padding: 0 8px;
+    font-size: 12px; background: var(--itemBgColor); flex: none;
+  }
+  .tabbar button {
+    border: none; background: transparent; color: var(--editorColor); padding: 0 10px; cursor: pointer;
+  }
+  .tabbar button[aria-pressed="true"] { box-shadow: inset 0 -2px 0 var(--themeColor); color: var(--editorColor80); }
+  .work { flex: 1; min-height: 0; display: flex; }
+  .editor { flex: 1; min-width: 0; overflow: auto; background: var(--editorBgColor); }
+  .doc-inner { max-width: var(--editorAreaWidth); margin: 0 auto; padding: 28px 16px 48px; font-size: 16px; line-height: 1.7; }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+  .mark { background: var(--commentMarkBg); border-bottom: 1px solid var(--commentMarkUnderline); }
+  .diff-note { max-width: 640px; margin: 48px auto; padding: 0 16px; color: var(--editorColor50); font-size: 14px; }
+  .panel {
+    width: 320px; flex: none; display: flex; flex-direction: column; min-width: 0;
+    background: var(--sideBarBgColor); color: var(--sideBarColor); border-left: 1px solid var(--itemBgColor);
+  }
+  .panel-tabs { height: 28px; display: flex; border-bottom: 1px solid var(--editorColor10); flex: none; }
+  .panel-tabs button {
+    position: relative; height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px;
+    background: none; border: none; font-size: 12px; color: var(--sideBarColor); cursor: pointer;
+  }
+  .panel-tabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .panel-tabs button[aria-selected="true"]::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--themeColor);
+  }
+  .count-badge {
+    min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+    background: var(--themeColor20); color: var(--editorColor80);
+    font-size: 11px; font-weight: 600; line-height: 16px; text-align: center;
+  }
+  .turn-dot {
+    width: 8px; height: 8px; border-radius: 50%; box-sizing: border-box;
+    border: 1.5px solid var(--editorColor50); border-top-color: var(--themeColor);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .turn-dot, .caret { animation: none; } }
+  .panel-main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .panel-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .head { flex: none; padding: 8px 10px; background: var(--panelSolid); border-bottom: 1px solid var(--editorColor10); }
+  .harness-label { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--sideBarTitleColor); }
+  .hrow { display: flex; gap: 4px; }
+  .hrow + .hrow, .banner { margin-top: 6px; }
+  select {
+    flex: 1; min-width: 0; height: 26px; padding: 0 4px;
+    border: 1px solid var(--editorColor10); border-radius: 2px; background: var(--inputBgColor); font-size: 12px;
+  }
+  .iconbtn {
+    flex: none; width: 26px; height: 26px; padding: 0; display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--editorColor10); border-radius: 2px; color: var(--iconColor); cursor: pointer;
+  }
+  .iconbtn svg { width: 14px; height: 14px; display: block; }
+  .textbtn, .linkish {
+    flex: none; padding: 0 4px; background: none; border: none; color: var(--linkColor); font-size: 12px; cursor: pointer;
+  }
+  .banner {
+    padding: 6px 8px; background: var(--editorColor04); border: 1px solid var(--editorColor10);
+    font-size: 12px; line-height: 1.4; color: var(--sideBarColor);
+  }
+  .banner .textbtn { display: inline; padding: 0; margin-left: 4px; }
+  .log { flex: 1; min-height: 0; overflow: auto; padding: 10px 10px 12px; }
+  .block { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .block p, .empty, .sys { margin: 0 0 8px; font-size: 12px; line-height: 1.45; color: var(--sideBarTextColor); }
+  .block p { font-size: 13px; color: var(--sideBarColor); }
+  .block code, .sys code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+  .turn { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--editorColor10); }
+  .user, .tcard, .fold, .tool {
+    display: block; width: 100%; text-align: left; border: none; background: var(--editorColor04);
+    color: var(--sideBarTitleColor); font-size: 13px; line-height: 1.4; cursor: pointer;
+  }
+  .user { padding: 6px 8px; margin: 0 0 8px; cursor: default; }
+  .tcard, .fold, .tool { padding: 4px 6px; margin: 0 0 4px; }
+  .fold { color: var(--editorColor50); background: var(--editorColor04); }
+  .tool { display: flex; align-items: center; gap: 6px; color: var(--editorColor); background: transparent; }
+  .tool .path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tool .st { flex: none; font-size: 11px; color: var(--editorColor50); }
+  .tool .st.err { color: var(--tagReadFg); }
+  .ico { flex: none; width: 14px; height: 14px; color: var(--iconColor); }
+  .ico svg { display: block; width: 14px; height: 14px; }
+  .detail, .thought, .sent {
+    margin: 0 0 6px; padding: 6px 8px; background: var(--codeBgColor); color: var(--editorColor);
+    font-size: 12px; line-height: 1.4; white-space: pre-wrap;
+  }
+  .thought { color: var(--editorColor); background: var(--editorColor04); }
+  .sent { background: transparent; padding: 2px 8px 6px; }
+  .sent p { margin: 0 0 6px; }
+  .sent .q { color: var(--sideBarTitleColor); }
+  .answer { font-size: 13px; line-height: 1.45; color: var(--editorColor); margin: 6px 0; }
+  .answer p { margin: 0 0 0.4em; }
+  .answer ul { margin: 0 0 0.4em; padding-left: 1.15em; }
+  .plan-label { margin: 8px 0 4px; font-size: 12px; font-weight: 600; color: var(--sideBarTitleColor); }
+  .plan { list-style: none; margin: 0 0 6px; padding: 0; font-size: 13px; color: var(--editorColor); }
+  .plan li { display: flex; gap: 6px; align-items: flex-start; margin: 0 0 3px; }
+  .box { flex: none; width: 12px; height: 12px; margin-top: 3px; border: 1px solid var(--editorColor50); }
+  .box.on { background: var(--themeColor); border-color: var(--themeColor); }
+  .reply { display: flex; gap: 6px; align-items: baseline; margin: 0 0 4px; font-size: 12px; color: var(--harnessFg); }
+  .caret {
+    display: inline-block; width: 7px; margin-left: 2px; border-bottom: 2px solid var(--harnessFg);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .permit {
+    margin: 8px 0; padding: 8px; background: var(--floatBgColor); color: var(--floatFontColor);
+    border-left: 2px solid var(--themeColor); box-shadow: var(--floatShadow);
+  }
+  .permit h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+  .permit p { margin: 0; font-size: 12px; line-height: 1.4; }
+  .permit .opt { display: block; width: 100%; margin-top: 6px; }
+  .sys.err { color: var(--tagReadFg); }
+  .foot {
+    flex: none; padding: 8px 10px 10px; background: var(--panelSolid); border-top: 1px solid var(--editorColor10);
+  }
+  .composer {
+    width: 100%; resize: vertical; min-height: 56px; padding: 6px 8px;
+    border: 1px solid var(--editorColor10); border-radius: 2px;
+    background: var(--inputBgColor); color: var(--editorColor); font-size: 13px; line-height: 1.4;
+  }
+  .hint { margin: 6px 0 0; font-size: 12px; color: var(--sideBarTextColor); line-height: 1.4; }
+  .primary, .btn {
+    width: 100%; margin-top: 8px; padding: 6px 10px; border-radius: 2px; font-size: 13px; cursor: pointer;
+  }
+  .primary { border: none; background: var(--buttonPrimaryBgColor); color: var(--buttonPrimaryFontColor); }
+  .primary:disabled { opacity: 0.4; cursor: default; }
+  .btn { background: transparent; color: var(--sideBarColor); border: 1px solid var(--editorColor30); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 5 — Чат</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru">RU</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="sceneGroup" aria-label="Состояние">
+    <button type="button" data-scene="feed" data-i18n="scFeed">Лента</button>
+    <button type="button" data-scene="permit" data-i18n="scPermit">Разрешение</button>
+    <button type="button" data-scene="stream" data-i18n="scStream">Поток</button>
+    <button type="button" data-scene="missing" data-i18n="scMissing">Нет программы</button>
+    <button type="button" data-scene="nomodels" data-i18n="scNoModels">Нет моделей</button>
+    <button type="button" data-scene="login" data-i18n="scLogin">Вход</button>
+    <button type="button" data-scene="crash" data-i18n="scCrash">Процесс</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="stage">
+  <div class="window">
+    <div class="tabbar">
+      <button type="button" id="tab-doc" aria-pressed="true">guide.md</button>
+      <button type="button" id="tab-diff" hidden data-i18n="diffTab">Изменения</button>
+    </div>
+    <div class="work">
+      <div class="editor" id="editor">
+        <div class="doc-inner" id="doc">
+          <h1>Руководство</h1>
+          <p>Проект использует <span class="mark">строгий режим</span> TypeScript. Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там.</p>
+        </div>
+        <p class="diff-note" id="diffview" hidden data-i18n="diffNote">Вкладка diff по изменениям хода. Макет самой вкладки — промпт 7.</p>
+      </div>
+      <aside class="panel">
+        <div class="panel-tabs" role="tablist">
+          <button type="button" id="tab-comments" role="tab">
+            <span data-i18n="comments">Комментарии</span>
+            <span class="count-badge">6</span>
+          </button>
+          <button type="button" id="tab-chat" role="tab" aria-selected="true">
+            <span data-i18n="chat">Чат</span>
+            <span class="turn-dot" id="tab-dot" hidden></span>
+          </button>
+        </div>
+        <div class="panel-main" id="chat-main">
+          <div class="head">
+            <p class="harness-label" id="harness-label">OpenCode</p>
+            <div class="hrow" id="model-row">
+              <select id="model"></select>
+              <button type="button" class="iconbtn" id="refresh" data-i18n-aria="refresh" aria-label="Обновить список">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M13 2.5V5.5H10" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div class="hrow" id="session-row">
+              <select id="session"></select>
+              <button type="button" class="textbtn" id="new-chat" data-i18n="newChat">Новый чат</button>
+            </div>
+            <div class="banner" id="banner" hidden>
+              <span id="banner-text"></span>
+              <button type="button" class="textbtn" id="banner-new" data-i18n="newChat">Новый чат</button>
+            </div>
+          </div>
+          <div class="log" id="log"></div>
+          <div class="block" id="block" hidden><p id="block-text"></p></div>
+          <footer class="foot" id="foot">
+            <textarea class="composer" id="draft" rows="2"></textarea>
+            <p class="hint" id="draft-hint"></p>
+            <button type="button" class="primary" id="btn-send" data-i18n="send">Отправить</button>
+            <button type="button" class="btn" id="btn-stop" hidden data-i18n="stop">Остановить</button>
+          </footer>
+        </div>
+        <div class="panel-body" id="comments-stub" hidden>
+          <p class="hint" data-i18n="commentsStub">Макет списка — промпт 3.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<section class="notes">
+  <h2 data-i18n="notesTitle">Что в чате видно сразу</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+    <li data-i18n="note6"></li>
+    <li data-i18n="note7"></li>
+    <li data-i18n="note8"></li>
+  </ol>
+</section>
+<script>
+const MODELS = ['anthropic/claude-sonnet-4-5', 'anthropic/claude-haiku-4-5', 'openai/gpt-5']
+const ICONS = {
+  read: '<path d="M3.5 2.5h6l3 3V13.5h-9z" fill="none" stroke="currentColor" stroke-width="1.2"/>',
+  edit: '<path d="M9.2 2.8l3 3L6.2 12H3.2V9z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>',
+  command: '<rect x="2.2" y="3" width="11.6" height="10" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  search: '<circle cx="7" cy="7" r="3.1" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.4 9.4L13 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  mcp: '<circle cx="4.5" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="11.5" cy="8" r="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 8h3" stroke="currentColor" stroke-width="1.2"/>'
+}
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог', protoTitle: 'Промпт 5 — Чат', light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', sceneGroup: 'Состояние',
+    scFeed: 'Лента', scPermit: 'Разрешение', scStream: 'Поток', scMissing: 'Нет программы',
+    scNoModels: 'Нет моделей', scLogin: 'Вход', scCrash: 'Процесс',
+    comments: 'Комментарии', chat: 'Чат', commentsStub: 'Макет списка — промпт 3.',
+    diffTab: 'Изменения', diffNote: 'Вкладка diff по изменениям хода. Макет самой вкладки — промпт 7.',
+    refresh: 'Обновить список', newChat: 'Новый чат', modelLabel: 'Модель', sessionLabel: 'Сессия',
+    send: 'Отправить', stop: 'Остановить', draftPh: 'Сообщение в эту сессию', draftHint: 'Ctrl+Enter — отправить',
+    noModelsOpt: 'Нет моделей',
+    missing: 'Программа `opencode` не найдена. Укажите путь в Настройки → Агент.',
+    piMissing: 'Программа `pi-acp` не найдена. Укажите путь в Настройки → Агент.',
+    login: 'Требуется вход: выполните `agent login`.',
+    noModels: 'Нет настроенных моделей. Выбрать модель нельзя, пока harness их не отдаст. Ключи MarkText не хранит — обновите список после настройки harness.',
+    crash: 'Процесс OpenCode завершился неожиданно. Ход прерван.',
+    retry: 'Повторить',
+    banner: 'Текущая сессия останется на модели {model}. Новая модель будет использована в новом чате.',
+    threadCard: 'Комментарии: 3 треда из docs/guide.md',
+    thought: 'Рассуждения',
+    plan: 'План',
+    replyTo: 'Ответ в тред:',
+    missingReplies: 'Агент не ответил в треды:',
+    unchanged: 'Файлы не изменены',
+    changes: 'Изменения хода ({n})',
+    statusDone: 'готово', statusRun: 'идёт', statusErr: 'ошибка',
+    permTitle: 'Выполнить команду',
+    permOnce: 'Разрешить один раз', permAlways: 'Разрешить всегда', permReject: 'Отклонить',
+    permChosen: 'Выбрано: {label}',
+    permWait: 'Ход стоит, пока нет ответа на запрос.',
+    stopped: 'Ход остановлен.',
+    empty: 'Сессия пуста. Напишите сообщение или отправьте треды из вкладки «Комментарии».',
+    newTitle: 'Новый чат',
+    refreshed: 'Список моделей обновлён',
+    openedDiff: 'Открыта вкладка изменений',
+    openedThread: 'Тред «{q}» — макет в промпте 4',
+    typeRead: 'Чтение', typeEdit: 'Правка', typeCommand: 'Команда', typeSearch: 'Поиск', typeMcp: 'MCP',
+    notesTitle: 'Что в чате видно сразу',
+    note1: 'Сразу видны реплика человека, план, ответ агента, строки «Ответ в тред», запрос разрешения и итог хода. Инструменты — одна строка с иконкой, статусом и путём; подробности по нажатию. Рассуждения — серая строка. Полный текст отправленных тредов спрятан в карточке «Комментарии: 3 треда…».',
+    note2: 'В шапке чата harness не переключается: имя агента, выбранного в Настройках → Агент, — подпись. Модель выбирается один раз, рядом «Обновить список». Список сессий — название и дата, без второй модели. Если harness недоступен, панель показывает причину и отсылает в настройки.',
+    note3: 'Смена модели не переписывает открытую сессию. Баннер называет модель сессии и предлагает «Новый чат» — новая сессия уже на выбранной модели. Старые сессии не удаляются.',
+    note4: 'Кнопки разрешения приходят от harness и равноправны. Пока вариант не выбран, вместо «Отправить» стоит «Остановить», и ход ждёт.',
+    note5: 'marktext.reply_to_thread — отдельная строка со ссылкой на тред, не общая строка инструмента. Треды без ответа — системная пометка со ссылками (D12).',
+    note6: 'Завершённый ход с правками заканчивается ссылкой «Изменения хода (N)»: она открывает вкладку diff (промпт 7). Ход без правок пишет «Файлы не изменены» и ссылки не показывает.',
+    note7: 'Нет программы — дословная фраза про opencode и Настройки → Агент. Пустой список моделей оставляет «Обновить список». Cursor без входа просит `agent login`. Упавший ход остаётся в ленте: под ошибкой «Повторить» отправляет тот же текст в эту сессию ещё раз. Поле сообщения не блокируется, само ничего не переотправляется.',
+    note8: 'Ctrl+Enter отправляет сообщение в текущую сессию. Во время хода кнопка — «Остановить». Точка хода на вкладке «Чат» видна, только когда чат не на переднем плане, как в каркасе окна.',
+    stFeed: 'лента', stPermit: 'разрешение', stStream: 'поток', stMissing: 'нет программы',
+    stNoModels: 'нет моделей', stLogin: 'нужен вход', stCrash: 'процесс упал', stPi: 'Pi недоступен'
+  },
+  en: {
+    catalog: 'Catalog', protoTitle: 'Prompt 5 — Chat', light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', sceneGroup: 'State',
+    scFeed: 'Transcript', scPermit: 'Permission', scStream: 'Stream', scMissing: 'No program',
+    scNoModels: 'No models', scLogin: 'Sign-in', scCrash: 'Process',
+    comments: 'Comments', chat: 'Chat', commentsStub: 'Thread list mockup — prompt 3.',
+    diffTab: 'Changes', diffNote: 'Diff tab for this turn’s changes. The tab itself is prompt 7.',
+    refresh: 'Refresh list', newChat: 'New chat', modelLabel: 'Model', sessionLabel: 'Session',
+    send: 'Send', stop: 'Stop', draftPh: 'Message in this session', draftHint: 'Ctrl+Enter — send',
+    noModelsOpt: 'No models',
+    missing: 'Program `opencode` was not found. Set the path in Settings → Agent.',
+    piMissing: 'Program `pi-acp` was not found. Set the path in Settings → Agent.',
+    login: 'Sign-in required: run `agent login`.',
+    noModels: 'No models are configured. A model cannot be chosen until the harness returns some. MarkText does not store keys — refresh the list after configuring the harness.',
+    crash: 'The OpenCode process exited unexpectedly. The turn was interrupted.',
+    retry: 'Retry',
+    banner: 'This session stays on model {model}. The new model will be used in a new chat.',
+    threadCard: 'Comments: 3 threads from docs/guide.md',
+    thought: 'Reasoning',
+    plan: 'Plan',
+    replyTo: 'Reply to thread:',
+    missingReplies: 'The agent did not reply to threads:',
+    unchanged: 'No files changed',
+    changes: 'Turn changes ({n})',
+    statusDone: 'done', statusRun: 'running', statusErr: 'error',
+    permTitle: 'Run command',
+    permOnce: 'Allow once', permAlways: 'Allow always', permReject: 'Reject',
+    permChosen: 'Chosen: {label}',
+    permWait: 'The turn waits until the request is answered.',
+    stopped: 'Turn stopped.',
+    empty: 'The session is empty. Write a message or send threads from the Comments tab.',
+    newTitle: 'New chat',
+    refreshed: 'Model list refreshed',
+    openedDiff: 'Changes tab opened',
+    openedThread: 'Thread “{q}” — mockup in prompt 4',
+    typeRead: 'Read', typeEdit: 'Edit', typeCommand: 'Command', typeSearch: 'Search', typeMcp: 'MCP',
+    notesTitle: 'What the chat shows first',
+    note1: 'A person’s message, the plan, the agent’s answer, “Reply to thread” lines, a permission request, and the turn outcome stay open. A tool is one row — icon, status, path — and its details open on click. Reasoning is one gray line. The full text of the sent threads stays inside the “Comments: 3 threads…” card.',
+    note2: 'The chat header does not switch harness. The name is a label for the agent chosen in Settings → Agent. The model is chosen once, next to Refresh list. The session list is title and date, with no second model. If that harness is unavailable, the panel shows the reason and points to settings.',
+    note3: 'Changing the model does not retarget the open session. The banner names the session’s model and offers New chat, which starts a session on the newly chosen model. Older sessions are kept.',
+    note4: 'Permission buttons come from the harness and are peers. Until one is chosen, Stop replaces Send and the turn waits.',
+    note5: 'marktext.reply_to_thread is its own line with a link to the thread, not a generic tool row. Threads without a reply are a system note with links (D12).',
+    note6: 'A finished turn that edited files ends with “Turn changes (N)”, which opens the diff tab (prompt 7). A turn that edited nothing says “No files changed” and shows no link.',
+    note7: 'No program uses the opencode sentence and Settings → Agent. An empty model list keeps Refresh list. Cursor without a sign-in asks for `agent login`. A failed turn stays in the transcript: Retry under the error sends the same text into this session again. The composer stays usable, and nothing is resent on its own.',
+    note8: 'Ctrl+Enter sends into the current session. During a turn the button is Stop. The turn dot on the Chat tab shows only when chat is not the front tab, as in the window shell.',
+    stFeed: 'transcript', stPermit: 'permission', stStream: 'stream', stMissing: 'program missing',
+    stNoModels: 'no models', stLogin: 'sign-in required', stCrash: 'process crashed', stPi: 'Pi unavailable'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function t(key) { return I18N[state.lang][key] }
+function el(tag, cls, text) {
+  const node = document.createElement(tag)
+  if (cls) node.className = cls
+  if (text != null) node.textContent = text
+  return node
+}
+function icon(name) {
+  const span = el('span', 'ico')
+  span.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true">' + ICONS[name] + '</svg>'
+  return span
+}
+function blocks(parent, items) {
+  items.forEach((block) => {
+    if (block.t === 'p') parent.append(el('p', '', block.text))
+    else {
+      const ul = document.createElement('ul')
+      block.items.forEach((item) => ul.append(el('li', '', item)))
+      parent.append(ul)
+    }
+  })
+}
+
+const MAIN = [
+  {
+    user: { kind: 'text', text: 'Откуда запускаются команды сборки?' },
+    answer: [{ t: 'p', text: 'Из корня репозитория: там lockfile и workspace-скрипты. В пакете desktop только тонкие обёртки.' }],
+    unchanged: true
+  },
+  {
+    user: {
+      kind: 'threads',
+      threads: [
+        { quote: 'строгий режим', text: 'Скрипты лежат не только в корне — проверь desktop.' },
+        { quote: 'Команды запускаются из корня репозитория…', text: 'Уточни, что именно обязано жить в корне.' },
+        { quote: 'конфигурация webpack в корне', text: 'Эта цитата, кажется, уже не в файле.' }
+      ]
+    },
+    thought: 'Сверяю tsconfig пакета с базой. strict включён в tsconfig.base.json и повторно выключен в пакете. Цитата про webpack в файле не находится.',
+    tools: [
+      { id: 'r1', type: 'read', path: 'docs/guide.md', status: 'done', detail: '# Руководство\nПроект использует строгий режим TypeScript.' },
+      { id: 'r2', type: 'read', path: 'packages/desktop/tsconfig.json', status: 'done', detail: '{\n  "extends": "../../tsconfig.base.json",\n  "compilerOptions": { "strict": false }\n}' },
+      { id: 'e1', type: 'edit', path: 'packages/desktop/tsconfig.json', status: 'done', detail: '- "strict": false\n+ "strict": true' },
+      { id: 'c1', type: 'command', path: 'pnpm typecheck', status: 'done', detail: 'Done in 4.2s' },
+      { id: 's1', type: 'search', path: 'webpack', status: 'done', detail: 'Совпадений в docs/guide.md нет.' }
+    ],
+    plan: [
+      { text: 'Прочитать конфиг и руководство', done: true },
+      { text: 'Убрать перекрытие strict', done: true },
+      { text: 'Ответить в треды, где цитата нашлась', done: true }
+    ],
+    answer: [
+      { t: 'p', text: 'Проверил. strict включён в базе, пакет desktop его перекрывал — перекрытие убрал.' },
+      { t: 'ul', items: ['флаг strict снова наследуется', 'ответ ушёл в тред про корень', 'цитата про webpack в файле не нашлась'] }
+    ],
+    replies: [{ quote: 'строгий режим' }, { quote: 'Команды запускаются из корня…' }],
+    missing: [{ quote: 'конфигурация webpack в корне' }],
+    changes: 2
+  }
+]
+const SHORT = [{
+  user: { kind: 'text', text: 'Где лежит lockfile?' },
+  answer: [{ t: 'p', text: 'В корне репозитория, рядом с pnpm-workspace.yaml.' }],
+  unchanged: true
+}]
+const PERMIT = [{
+  user: { kind: 'text', text: 'Проверь типы в пакете desktop.' },
+  tools: [{ id: 'c2', type: 'command', path: 'pnpm typecheck', status: 'run', detail: 'Ожидает разрешения.' }],
+  permission: { detail: 'pnpm typecheck' }
+}]
+const STREAM = [{
+  user: { kind: 'text', text: 'Поправь формулировку про корень репозитория.' },
+  tools: [{ id: 'r3', type: 'read', path: 'docs/guide.md', status: 'run', detail: 'Читает файл…' }],
+  stream: 'Команды остаются в корне, потому что lockfile один на весь workspace'
+}]
+const CRASH = [
+  MAIN[0],
+  {
+    user: MAIN[1].user,
+    tools: [{ id: 'r4', type: 'read', path: 'docs/guide.md', status: 'err', detail: 'Процесс завершился во время чтения.' }],
+    failed: true
+  }
+]
+
+function baseSessions() {
+  return [
+    { id: 's1', title: { ru: 'Правка tsconfig', en: 'Fix tsconfig' }, model: 'anthropic/claude-sonnet-4-5', date: { ru: '2 окт, 15:08', en: 'Oct 2, 15:08' }, feed: 'main' },
+    { id: 's2', title: { ru: 'Сборка из корня', en: 'Build from root' }, model: 'anthropic/claude-sonnet-4-5', date: { ru: '1 окт, 11:40', en: 'Oct 1, 11:40' }, feed: 'short' }
+  ]
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'feed',
+  headerModel: 'anthropic/claude-sonnet-4-5',
+  sessionId: 's1',
+  sessions: baseSessions(),
+  open: {},
+  perm: null,
+  diff: false,
+  turn: false,
+  stopped: false,
+  draft: '',
+  local: null,
+  notice: '',
+  panel: 'chat',
+  stick: true
+}
+let seq = 3
+let feedKey = ''
+
+function view() {
+  if (state.scene === 'missing') return 'missing'
+  if (state.scene === 'nomodels') return 'nomodels'
+  if (state.scene === 'login') return 'login'
+  if (state.scene === 'crash') return 'crash'
+  if (state.scene === 'permit') return 'permit'
+  if (state.scene === 'stream') return 'stream'
+  return 'feed'
+}
+function agentLabel() {
+  return state.scene === 'login' ? 'Cursor' : 'OpenCode'
+}
+function session() {
+  return state.sessions.find((item) => item.id === state.sessionId) || state.sessions[0]
+}
+function running() {
+  if (state.stopped) return false
+  const v = view()
+  if (v === 'permit' || v === 'stream') return true
+  return state.turn
+}
+function blocked() {
+  const v = view()
+  return v === 'missing' || v === 'nomodels' || v === 'login'
+}
+function turnsFor() {
+  const v = view()
+  if (v === 'permit') return PERMIT
+  if (v === 'stream') return STREAM
+  if (v === 'crash') return CRASH
+  if (v === 'feed' && session().feed === 'main') return MAIN
+  if (v === 'feed' && session().feed === 'short') return SHORT
+  return []
+}
+
+function applyI18n() {
+  const pack = I18N[state.lang]
+  document.documentElement.lang = state.lang
+  document.title = pack.protoTitle
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const value = pack[node.dataset.i18n]
+    if (value) node.textContent = value
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+    node.setAttribute('aria-label', pack[node.dataset.i18nAria])
+  })
+  $('draft').placeholder = pack.draftPh
+  feedKey = ''
+}
+
+function toggleBtn(key, label) {
+  const btn = el('button', 'fold')
+  btn.type = 'button'
+  btn.dataset.toggle = key
+  btn.textContent = (state.open[key] ? '▾ ' : '▸ ') + label
+  btn.setAttribute('aria-expanded', String(!!state.open[key]))
+  return btn
+}
+function toolRow(tool) {
+  const btn = el('button', 'tool')
+  btn.type = 'button'
+  btn.dataset.toggle = 'tool-' + tool.id
+  btn.append(icon(tool.type))
+  btn.append(el('span', 'path', tool.path))
+  const st = tool.status === 'run' ? 'statusRun' : tool.status === 'err' ? 'statusErr' : 'statusDone'
+  const mark = el('span', 'st' + (tool.status === 'err' ? ' err' : ''), t(st))
+  btn.append(mark)
+  btn.setAttribute('aria-label', t('type' + tool.type[0].toUpperCase() + tool.type.slice(1)) + ' ' + tool.path)
+  btn.setAttribute('aria-expanded', String(!!state.open['tool-' + tool.id]))
+  return btn
+}
+function answerNode(items, stream) {
+  const box = el('div', 'answer')
+  if (items) blocks(box, items)
+  if (stream) {
+    const p = el('p')
+    p.append(document.createTextNode(stream))
+    p.append(el('span', 'caret'))
+    box.append(p)
+  }
+  return box
+}
+function renderTurn(turn) {
+  const wrap = el('section', 'turn')
+  if (turn.user.kind === 'text') wrap.append(el('div', 'user', turn.user.text))
+  else {
+    const card = el('button', 'tcard', t('threadCard'))
+    card.type = 'button'
+    card.dataset.toggle = 'card'
+    card.setAttribute('aria-expanded', String(!!state.open.card))
+    wrap.append(card)
+    if (state.open.card) {
+      const body = el('div', 'sent')
+      turn.user.threads.forEach((th) => {
+        const p = el('p')
+        p.append(el('span', 'q', '«' + th.quote + '» '))
+        p.append(document.createTextNode(th.text))
+        body.append(p)
+      })
+      wrap.append(body)
+    }
+  }
+  if (turn.thought) {
+    wrap.append(toggleBtn('thought', t('thought')))
+    if (state.open.thought) wrap.append(el('div', 'thought', turn.thought))
+  }
+  ;(turn.tools || []).forEach((tool) => {
+    wrap.append(toolRow(tool))
+    if (state.open['tool-' + tool.id]) wrap.append(el('pre', 'detail', tool.detail))
+  })
+  if (turn.plan) {
+    wrap.append(el('p', 'plan-label', t('plan')))
+    const list = el('ul', 'plan')
+    turn.plan.forEach((item) => {
+      const li = document.createElement('li')
+      li.append(el('span', 'box' + (item.done ? ' on' : '')))
+      li.append(el('span', '', item.text))
+      list.append(li)
+    })
+    wrap.append(list)
+  }
+  if (turn.answer || turn.stream) wrap.append(answerNode(turn.answer, turn.stream))
+  ;(turn.replies || []).forEach((reply) => {
+    const row = el('div', 'reply')
+    row.append(icon('mcp'))
+    const link = el('button', 'linkish', t('replyTo') + ' ' + reply.quote)
+    link.type = 'button'
+    link.dataset.thread = reply.quote
+    row.append(link)
+    wrap.append(row)
+  })
+  if (turn.permission && !state.perm) {
+    const card = el('div', 'permit')
+    card.append(el('h3', '', t('permTitle')))
+    card.append(el('p', '', turn.permission.detail))
+    ;[['once', 'permOnce'], ['always', 'permAlways'], ['reject', 'permReject']].forEach((pair) => {
+      const btn = el('button', 'btn opt', t(pair[1]))
+      btn.type = 'button'
+      btn.dataset.perm = pair[0]
+      card.append(btn)
+    })
+    wrap.append(card)
+    wrap.append(el('p', 'sys', t('permWait')))
+  } else if (turn.permission && state.perm) {
+    const label = { once: 'permOnce', always: 'permAlways', reject: 'permReject' }[state.perm]
+    wrap.append(el('p', 'sys', t('permChosen').replace('{label}', t(label))))
+  }
+  if (turn.missing && turn.missing.length) {
+    const p = el('p', 'sys')
+    p.append(document.createTextNode(t('missingReplies') + ' '))
+    turn.missing.forEach((item, index) => {
+      if (index) p.append(document.createTextNode(', '))
+      const link = el('button', 'linkish', item.quote)
+      link.type = 'button'
+      link.dataset.thread = item.quote
+      p.append(link)
+    })
+    wrap.append(p)
+  }
+  if (turn.unchanged) wrap.append(el('p', 'sys', t('unchanged')))
+  if (turn.changes) {
+    const link = el('button', 'linkish', t('changes').replace('{n}', String(turn.changes)))
+    link.type = 'button'
+    link.dataset.diff = String(turn.changes)
+    wrap.append(link)
+  }
+  if (turn.failed) {
+    wrap.append(el('p', 'sys err', t('crash')))
+    const again = el('button', 'btn', t('retry'))
+    again.type = 'button'
+    again.dataset.retry = '1'
+    again.disabled = running()
+    wrap.append(again)
+  }
+  return wrap
+}
+function renderLog() {
+  const log = $('log')
+  log.replaceChildren()
+  const turns = turnsFor()
+  if (!turns.length && !state.local) {
+    log.append(el('p', 'empty', t('empty')))
+    return
+  }
+  turns.forEach((turn) => log.append(renderTurn(turn)))
+  if (state.local) {
+    if (state.local.threads) {
+      const card = el('button', 'tcard', t('threadCard'))
+      card.type = 'button'
+      card.disabled = true
+      log.append(card)
+    } else log.append(el('div', 'user', state.local.text))
+    if (state.local.stopped) log.append(el('p', 'sys', t('stopped')))
+    else if (state.turn) log.append(answerNode(null, ''))
+  }
+  if (state.stopped && (state.scene === 'permit' || state.scene === 'stream')) {
+    log.append(el('p', 'sys', t('stopped')))
+  }
+}
+
+function fillSelect(node, options, value) {
+  node.replaceChildren()
+  options.forEach((opt) => {
+    const o = el('option', '', opt.label)
+    o.value = opt.value
+    node.append(o)
+  })
+  node.value = value
+  node.disabled = options.length === 0 || options.every((opt) => opt.disabled)
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-lang', state.lang)
+  persist('mt-mockup-theme', state.theme)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((node) => {
+    node.setAttribute('aria-pressed', String(node.dataset.scene === state.scene))
+  })
+
+  const v = view()
+  const chat = state.panel === 'chat'
+  $('tab-comments').setAttribute('aria-selected', String(!chat))
+  $('tab-chat').setAttribute('aria-selected', String(chat))
+  $('chat-main').hidden = !chat
+  $('comments-stub').hidden = chat
+  $('tab-dot').hidden = !(running() && !chat)
+  $('tab-dot').setAttribute('aria-label', t('scStream'))
+
+  $('harness-label').textContent = agentLabel()
+
+  const showModel = v !== 'missing' && v !== 'login'
+  $('model-row').hidden = !showModel
+  $('session-row').hidden = blocked()
+  const models = v === 'nomodels' ? [] : MODELS
+  fillSelect($('model'), models.length ? models.map((id) => ({ value: id, label: id })) : [{ value: '', label: t('noModelsOpt'), disabled: true }], v === 'nomodels' ? '' : state.headerModel)
+  $('model').setAttribute('aria-label', t('modelLabel'))
+  $('session').setAttribute('aria-label', t('sessionLabel'))
+  $('refresh').setAttribute('aria-label', t('refresh'))
+  fillSelect($('session'), state.sessions.map((item) => ({
+    value: item.id,
+    label: item.title[state.lang] + ' · ' + item.date[state.lang]
+  })), state.sessionId)
+
+  const mismatch = !blocked() && session() && state.headerModel && session().model !== state.headerModel
+  $('banner').hidden = !mismatch
+  $('banner-text').textContent = t('banner').replace('{model}', session() ? session().model : '')
+
+  const showLog = !blocked()
+  $('log').hidden = !showLog
+  $('block').hidden = showLog
+  const blockKey = { missing: 'missing', pi: 'piMissing', login: 'login', nomodels: 'noModels' }[v]
+  if (blockKey) $('block-text').textContent = t(blockKey)
+  $('foot').hidden = blocked()
+  const live = running()
+  $('btn-send').hidden = live
+  $('btn-stop').hidden = !live
+  $('btn-send').disabled = !state.draft.trim()
+  $('draft').disabled = false
+  $('draft-hint').hidden = live
+  $('draft-hint').textContent = t('draftHint')
+  if (document.activeElement !== $('draft') && $('draft').value !== state.draft) $('draft').value = state.draft
+
+  const key = [v, state.sessionId, state.lang, JSON.stringify(state.open), state.perm, state.stopped, state.turn, state.local && state.local.text, state.local && state.local.stopped].join('|')
+  if (showLog && key !== feedKey) {
+    renderLog()
+    feedKey = key
+    if (state.stick) {
+      $('log').scrollTop = $('log').scrollHeight
+      state.stick = false
+    }
+  }
+
+  $('doc').hidden = state.diff
+  $('diffview').hidden = !state.diff
+  $('tab-diff').hidden = !state.diff
+  $('tab-doc').setAttribute('aria-pressed', String(!state.diff))
+  $('tab-diff').setAttribute('aria-pressed', String(state.diff))
+
+  const names = { feed: 'stFeed', permit: 'stPermit', stream: 'stStream', missing: 'stMissing', nomodels: 'stNoModels', login: 'stLogin', crash: 'stCrash', pi: 'stPi' }
+  $('status').textContent = t(names[v]) + (state.notice ? ' · ' + state.notice : '')
+}
+
+function setScene(scene) {
+  state.scene = scene
+  state.open = {}
+  state.perm = null
+  state.stopped = false
+  state.turn = false
+  state.local = null
+  state.notice = ''
+  state.stick = true
+  state.panel = 'chat'
+  if (scene === 'feed' || scene === 'stream' || scene === 'permit' || scene === 'crash') {
+    state.headerModel = session().model
+  }
+  feedKey = ''
+  apply()
+}
+function newChat() {
+  const id = 's' + (++seq)
+  state.sessions.unshift({
+    id: id,
+    title: { ru: 'Новый чат', en: 'New chat' },
+    model: state.headerModel || MODELS[0],
+    date: { ru: 'сейчас', en: 'now' },
+    feed: 'empty'
+  })
+  state.sessionId = id
+  state.scene = 'feed'
+  state.open = {}
+  state.perm = null
+  state.stopped = false
+  state.turn = false
+  state.local = null
+  state.notice = ''
+  state.stick = true
+  feedKey = ''
+  apply()
+}
+function retryFailed() {
+  if (running() || blocked()) return
+  state.local = { threads: true, stopped: false }
+  state.turn = true
+  state.stick = true
+  feedKey = ''
+  apply()
+}
+function sendDraft() {
+  const text = state.draft.trim()
+  if (!text || running() || blocked()) return
+  state.local = { text: text, stopped: false }
+  state.draft = ''
+  state.turn = true
+  state.stick = true
+  feedKey = ''
+  apply()
+}
+function stopTurn() {
+  state.stopped = true
+  state.turn = false
+  if (state.local) state.local.stopped = true
+  state.stick = true
+  feedKey = ''
+  apply()
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+document.querySelectorAll('[data-scene]').forEach((node) => {
+  node.addEventListener('click', () => setScene(node.dataset.scene))
+})
+$('model').addEventListener('change', () => {
+  if (!$('model').value) return
+  state.headerModel = $('model').value
+  apply()
+})
+$('session').addEventListener('change', () => {
+  state.sessionId = $('session').value
+  state.local = null
+  state.turn = false
+  state.open = {}
+  state.stick = true
+  feedKey = ''
+  apply()
+})
+$('refresh').addEventListener('click', () => { state.notice = t('refreshed'); apply() })
+$('new-chat').addEventListener('click', newChat)
+$('banner-new').addEventListener('click', newChat)
+$('tab-comments').addEventListener('click', () => { state.panel = 'comments'; apply() })
+$('tab-chat').addEventListener('click', () => { state.panel = 'chat'; apply() })
+$('tab-doc').addEventListener('click', () => { state.diff = false; apply() })
+$('tab-diff').addEventListener('click', () => { state.diff = true; apply() })
+$('btn-send').addEventListener('click', sendDraft)
+$('btn-stop').addEventListener('click', stopTurn)
+$('draft').addEventListener('input', () => { state.draft = $('draft').value; $('btn-send').disabled = !state.draft.trim() })
+$('draft').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+    e.preventDefault()
+    sendDraft()
+  }
+})
+$('log').addEventListener('click', (e) => {
+  const toggle = e.target.closest('[data-toggle]')
+  if (toggle) {
+    const key = toggle.dataset.toggle
+    state.open[key] = !state.open[key]
+    feedKey = ''
+    apply()
+    return
+  }
+  const perm = e.target.closest('[data-perm]')
+  if (perm) {
+    state.perm = perm.dataset.perm
+    feedKey = ''
+    apply()
+    return
+  }
+  const thread = e.target.closest('[data-thread]')
+  if (thread) {
+    state.notice = t('openedThread').replace('{q}', thread.dataset.thread)
+    apply()
+    return
+  }
+  const diff = e.target.closest('[data-diff]')
+  if (diff) {
+    state.diff = true
+    state.notice = t('openedDiff')
+    apply()
+    return
+  }
+  if (e.target.closest('[data-retry]')) retryFailed()
+})
+
+applyI18n()
+apply()
+</script>
+</body>
+</html>
