@@ -1,5 +1,5 @@
 {
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "eslint.format.enable": true,
   "[javascript][typescript][vue]": {
@@ -8,6 +8,7 @@
   "cSpell.words": [
     "commonmark",
     "contenteditable",
+    "eslintcache",
     "execall",
     "frontmatter",
     "Häusler",
@@ -18,12 +19,15 @@
     "marktext",
     "mathblock",
     "muya",
+    "pinia",
     "ranluo",
+    "retarget",
     "Setext",
     "snabbdom",
     "snapsvg",
     "Tkaixiang",
     "TOGGLEABLE",
+    "trae",
     "webfontloader"
   ]
 }
