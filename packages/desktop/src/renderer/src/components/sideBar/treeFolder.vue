@@ -23,6 +23,7 @@
         class="rename"
         @click.stop="noop"
         @keypress.enter="rename"
+        @focusout="rename"
       >
       <span
         v-else
@@ -118,9 +119,13 @@ const noop = (): void => {}
 
 const focusRenameInput = (): void => {
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
+    const input = renameInput.value
+    if (input) {
       newName.value = props.folder.name
+      nextTick(() => {
+        input.focus()
+        input.select()
+      })
     }
   })
 }

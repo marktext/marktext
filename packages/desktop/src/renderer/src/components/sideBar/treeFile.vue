@@ -18,6 +18,7 @@
       class="rename"
       @click.stop="noop"
       @keypress.enter="rename"
+      @focusout="rename"
     >
     <span v-else>{{ file.name }}</span>
   </div>
@@ -69,9 +70,15 @@ const noop = (): void => {}
 
 const focusRenameInput = (): void => {
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
+    const input = renameInput.value
+    if (input) {
       newName.value = props.file.name
+      nextTick(() => {
+        input.focus()
+        const dotIndex = newName.value.lastIndexOf('.')
+        const nameEnd = dotIndex > 0 ? dotIndex : newName.value.length
+        input.setSelectionRange(0, nameEnd)
+      })
     }
   })
 }
