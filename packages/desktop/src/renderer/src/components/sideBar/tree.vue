@@ -265,31 +265,35 @@ const handleInputEnter = (): void => {
 
 // Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
 const handleDocumentClick = (event: MouseEvent): void => {
-  const target = event.target as HTMLElement | null
+  const { target } = event
   if (!target) return
+
   if (!keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
+
   if (isNameInput(target)) return
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleDocumentContextMenu = (event: MouseEvent): void => {
-  if (isNameInput(event.target as HTMLElement | null)) return
+  const { target } = event
+  if (isNameInput(target)) return
+
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleDocumentKeydown = (event: KeyboardEvent): void => {
-  const target = event.target as HTMLElement | null
+  const { target, key, metaKey } = event
   const editableTarget = isEditableTarget(target)
 
-  if (event.key === 'Escape') {
+  if (key === 'Escape') {
     projectStore.CLEAR_NAME_INPUT_STATE()
   }
 
   const shouldTrash = shouldTrashSelection({
-    key: event.key,
-    metaKey: event.metaKey,
+    key,
+    metaKey,
     isMac,
     selection: activeItem.value,
     projectRootPath: props.projectTree?.pathname,
@@ -302,17 +306,16 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     event.preventDefault()
     // Stop the event so the WYSIWYG engine does not also act on this Delete.
     event.stopPropagation()
-    // Emit before clearing: the store reads `activeItem` synchronously. Clearing
-    // on attempt keeps a cancelled dialog from re-arming on the next Delete.
+    // The store drops the selection once the item is really trashed, so a
+    // cancelled dialog leaves the target in place for a retry.
     bus.emit('SIDEBAR::remove')
-    projectStore.CHANGE_ACTIVE_ITEM({})
     return
   }
 
-  // Any other interaction with the editor/search/rename input ends the selection,
-  // so a later Delete edits text instead of trashing a stale node.
+  // Any other key ends the selection, so a later Delete edits text instead of
+  // trashing a stale node.
   const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
-  if (!isModifierKey(event.key) && editableTarget && hasSelection) {
+  if (!isModifierKey(key) && hasSelection) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
 }
