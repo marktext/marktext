@@ -1,3 +1,4 @@
+import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -6,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     environment: 'jsdom',
     include: ['test/unit/specs/**/*.spec.ts'],

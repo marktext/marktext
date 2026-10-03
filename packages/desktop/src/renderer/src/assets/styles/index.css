@@ -27,6 +27,12 @@
   --comment-mark-underline: var(--commentMarkUnderline);
   --comment-mark-bg-active: var(--commentMarkBgActive);
   --comment-mark-underline-active: var(--commentMarkUnderlineActive);
+  --tagOrphanFg: #6d4e0c;
+  --tagOrphanBg: rgba(214, 168, 32, 0.28);
+  --tagReadFg: #7a1e1e;
+  --tagReadBg: rgba(255, 105, 105, 0.22);
+  --harnessFg: #4a3d6b;
+  --panelSolid: #f2f2f2;
   --editorColor: #4d4d4d;
   --editorColor80: #333333;
   --editorColor60: #666666;

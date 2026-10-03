@@ -1,0 +1,492 @@
+.mt-comments {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  user-select: text;
+  color: var(--sideBarColor);
+}
+
+.mt-comments .chead {
+  flex: none;
+  padding: 10px 12px 8px;
+  background: var(--panelSolid);
+  border-bottom: 1px solid var(--editorColor10);
+}
+
+.mt-comments .file {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sideBarTitleColor);
+}
+
+.mt-comments .count {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--sideBarTextColor);
+}
+
+.mt-comments .switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--sideBarColor);
+  cursor: pointer;
+}
+
+.mt-comments .primary,
+.mt-comments .btn,
+.mt-comments .danger,
+.mt-comments .textbtn,
+.mt-comments .linkish,
+.mt-comments .card,
+.mt-comments .kebab {
+  font: inherit;
+}
+
+.mt-comments .primary {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 2px;
+  background: var(--buttonPrimaryBgColor);
+  color: var(--buttonPrimaryFontColor);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mt-comments .primary:disabled,
+.mt-comments .btn:disabled,
+.mt-comments .textbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.mt-comments .hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--sideBarTextColor);
+  line-height: 1.4;
+}
+
+.mt-comments .empty-msg,
+.mt-comments > .hint {
+  margin: 0;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--sideBarColor);
+}
+
+.mt-comments .list,
+.mt-comments .thread-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.mt-comments .group {
+  margin: 0;
+  padding: 12px 12px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sideBarTextColor);
+}
+
+.mt-comments .card {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px 8px 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--editorColor10);
+  cursor: pointer;
+  color: inherit;
+}
+
+.mt-comments .card:hover,
+.mt-comments .card[aria-current='true'] {
+  background: var(--sideBarItemHoverBgColor);
+}
+
+.mt-comments .card[aria-current='true'] {
+  box-shadow: inset 2px 0 0 var(--themeColor);
+}
+
+.mt-comments .card .quote {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--sideBarTitleColor);
+}
+
+.mt-comments .meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--sideBarTextColor);
+}
+
+.mt-comments .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.mt-comments .card .tags {
+  margin-top: 6px;
+}
+
+.mt-comments .tag {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.mt-comments .tag-orphan {
+  color: var(--tagOrphanFg);
+  background: var(--tagOrphanBg);
+}
+
+.mt-comments .tag-noreply {
+  color: var(--editorColor80);
+  background: var(--editorColor10);
+}
+
+.mt-comments .tag-closed {
+  color: var(--editorColor);
+  background: var(--editorColor04);
+  box-shadow: inset 0 0 0 1px var(--editorColor10);
+}
+
+.mt-comments .tag-read {
+  color: var(--tagReadFg);
+  background: var(--tagReadBg);
+}
+
+.mt-comments .read-card {
+  padding: 12px;
+}
+
+.mt-comments .path {
+  margin: 0 0 8px;
+  font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--sideBarTitleColor);
+  word-break: break-all;
+}
+
+.mt-comments .thread-pane {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mt-comments .thread-scroll {
+  padding: 10px 12px 12px;
+}
+
+.mt-comments .thread-foot {
+  flex: none;
+  padding: 8px 12px 10px;
+  background: var(--panelSolid);
+  border-top: 1px solid var(--editorColor10);
+}
+
+.mt-comments blockquote.quote {
+  margin: 0;
+  padding: 6px 8px;
+  border: none;
+  border-left: 2px solid var(--commentMarkUnderline);
+  background: var(--commentMarkBg);
+  color: var(--sideBarTitleColor);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.mt-comments .linkish {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--linkColor);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mt-comments .warn {
+  margin: 8px 0 0;
+  padding: 6px 8px;
+  background: var(--tagOrphanBg);
+  color: var(--tagOrphanFg);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mt-comments .msg {
+  position: relative;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--editorColor10);
+}
+
+.mt-comments .msg-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.mt-comments .who {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--sideBarTitleColor);
+}
+
+.mt-comments .who.agent {
+  color: var(--harnessFg);
+}
+
+.mt-comments .harness {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--harnessFg);
+}
+
+.mt-comments .harness svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.mt-comments .when,
+.mt-comments .edited {
+  color: var(--sideBarTextColor);
+  font-weight: 400;
+}
+
+.mt-comments .when {
+  display: block;
+}
+
+.mt-comments .kebab {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 2px;
+  color: var(--iconColor);
+  cursor: pointer;
+}
+
+.mt-comments .kebab:hover,
+.mt-comments .menu button:hover:not([aria-disabled='true']) {
+  background: var(--sideBarItemHoverBgColor);
+}
+
+.mt-comments .kebab svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.mt-comments .msg-body {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--editorColor);
+}
+
+.mt-comments .msg-body p {
+  margin: 0 0 0.45em;
+}
+
+.mt-comments .msg-body ul {
+  margin: 0 0 0.45em;
+  padding-left: 1.15em;
+}
+
+.mt-comments .plain {
+  white-space: pre-wrap;
+}
+
+.mt-comments .msg-body pre {
+  margin: 0;
+  padding: 6px 8px;
+  overflow: auto;
+  background: var(--codeBgColor);
+  color: var(--editorColor80);
+  font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.mt-comments .clamp {
+  max-height: 7.5em;
+  overflow: hidden;
+  position: relative;
+}
+
+.mt-comments .clamp::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.6em;
+  background: linear-gradient(transparent, var(--panelSolid));
+}
+
+.mt-comments .edit-area,
+.mt-comments .composer {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 64px;
+  padding: 6px 8px;
+  border: 1px solid var(--editorColor10);
+  border-radius: 2px;
+  background: var(--inputBgColor);
+  color: var(--editorColor);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mt-comments .edit-actions,
+.mt-comments .actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.mt-comments .actions .btn,
+.mt-comments .actions .danger {
+  flex: 1;
+}
+
+.mt-comments .btn {
+  padding: 5px 8px;
+  background: transparent;
+  color: var(--sideBarColor);
+  border: 1px solid var(--editorColor30);
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mt-comments .danger {
+  padding: 5px 8px;
+  background: var(--tagReadBg);
+  color: var(--tagReadFg);
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mt-comments .turn-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mt-comments .textbtn {
+  flex: none;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--linkColor);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mt-comments .menu {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  top: 28px;
+  min-width: 210px;
+  padding: 4px 0;
+  background: var(--floatBgColor);
+  color: var(--floatFontColor);
+  border: 1px solid var(--floatBorderColor);
+  box-shadow: var(--floatShadow);
+}
+
+.mt-comments .menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13px;
+  color: var(--floatFontColor);
+  cursor: pointer;
+}
+
+.mt-comments .menu button[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.mt-comments .confirm-back {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.mt-comments .confirm {
+  width: 100%;
+  padding: 12px;
+  background: var(--floatBgColor);
+  color: var(--floatFontColor);
+  box-shadow: var(--floatShadow);
+}
+
+.mt-comments .confirm p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.mt-comments .back {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--linkColor);
+  font-size: 12px;
+  cursor: pointer;
+}

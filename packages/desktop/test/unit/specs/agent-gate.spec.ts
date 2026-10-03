@@ -145,7 +145,8 @@ describe('agent mode gate', () => {
     emitChanged?.({ file: 'docs/guide.md' })
     emitExit?.('t1', 0)
     expect(agent.events).toHaveLength(1)
-    expect(comments.changedFile).toBe('docs/guide.md')
+    expect(comments.availability).toEqual({ kind: 'unavailable', reason: 'untitled' })
+    expect(comments.threads).toEqual([])
     expect(terminal.exits).toEqual([{ termId: 't1', code: 0 }])
 
     window.dispatchEvent(new Event('pagehide'))

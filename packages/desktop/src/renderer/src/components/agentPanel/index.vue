@@ -86,12 +86,7 @@
       v-show="!agentPanelRail"
       class="agent-body"
     >
-      <p
-        v-show="agentPanelTab === 'comments'"
-        class="hint"
-      >
-        {{ t('agent.noOpenThreads') }}
-      </p>
+      <CommentsTab v-show="agentPanelTab === 'comments'" />
       <p
         v-show="agentPanelTab === 'chat'"
         class="hint"
@@ -117,6 +112,7 @@ import { useI18n } from 'vue-i18n'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
 import { useLayoutStore } from '@/store/layout'
+import CommentsTab from './commentsTab.vue'
 
 const { t } = useI18n()
 const layoutStore = useLayoutStore()
@@ -279,7 +275,9 @@ const onDragStart = (event: MouseEvent): void => {
 .agent-body {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .hint {

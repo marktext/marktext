@@ -17,6 +17,12 @@
   --commentMarkUnderline: #e2c15a;
   --commentMarkBgActive: rgba(240, 196, 60, 0.48);
   --commentMarkUnderlineActive: #ffe08a;
+  --tagOrphanFg: #ffe08a;
+  --tagOrphanBg: rgba(240, 196, 60, 0.22);
+  --tagReadFg: #ffc1c1;
+  --tagReadBg: rgba(255, 105, 105, 0.22);
+  --harnessFg: #ddc9ff;
+  --panelSolid: #232323;
   --editorColor: rgba(255, 255, 255, 0.7);
   --editorColor80: rgba(255, 255, 255, 0.8);
   --editorColor60: rgba(255, 255, 255, 0.6);
