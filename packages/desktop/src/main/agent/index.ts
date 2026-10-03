@@ -15,15 +15,15 @@ import {
   harnessPathsFromPreferences,
   invalidateHarnessStatus
 } from './harness/harnessRegistry'
-import { listModels } from './harness/modelProbe'
+import { forgetCachedModels, listModels } from './harness/modelProbe'
 import { answerPermission } from './harness/permissionGate'
 import { GitDiffError, getUserName, worktreeDiff } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
 import { recordEditorSave } from './turn/changeTracker'
 import { PtyManager } from './terminal/ptyManager'
-import { TurnRunner } from './turn/turnRunner'
+import { TurnRunner, TurnRunnerError } from './turn/turnRunner'
 import type { ThreadPlacement } from './turn/messageBuilder'
-import { setWindowAgentHost } from './windowAgentHost'
+import { setWindowAgentHost, shutdownWindowAgent } from './windowAgentHost'
 import { onInternalChannel } from '../utils/internalIpc'
 
 let harnessStatuses: HarnessStatus[] = []
@@ -71,7 +71,7 @@ const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
   const existing = turnRunners.get(windowId)
   if (existing) return existing
   const runner = new TurnRunner({
-    modeEnabled: () => deps?.harnessPath('agentModeEnabled') !== false,
+    modeEnabled: () => agentModeEnabled(deps),
     preference: (key) => deps?.harnessPath(key),
     userDataPath: deps?.userDataPath || os.tmpdir(),
     appPath: deps?.appPath || process.cwd(),
@@ -96,6 +96,24 @@ const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
 const repoOf = (windowId: number): string | null => {
   const state = repoRegistry.state(windowId)
   return state.kind === 'repo' ? state.root : null
+}
+
+const agentModeEnabled = (deps?: AgentIpcDeps): boolean =>
+  deps?.harnessPath('agentModeEnabled') !== false
+
+const requireAgentMode = (deps?: AgentIpcDeps): void => {
+  if (!agentModeEnabled(deps)) {
+    throw new TurnRunnerError('agent_mode_disabled', 'agent mode is off')
+  }
+}
+
+const stopAllAgents = (): Promise<void> => {
+  const ids = [...turnRunners.keys()]
+  return Promise.all(ids.map((windowId) =>
+    shutdownWindowAgent(windowId).catch((err: unknown) => {
+      log.error(err)
+    })
+  )).then(() => undefined)
 }
 
 export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
@@ -133,42 +151,10 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   const readHarnessPaths = (): ReturnType<typeof harnessPathsFromPreferences> | Record<string, never> =>
     deps ? harnessPathsFromPreferences(deps.harnessPath) : {}
 
-  ipcMain.handle('mt::agent::answer-permission', (_event, requestId: string, optionId: string) => {
-    answerPermission(requestId, optionId)
-  })
+  const modelCachePath = (): string =>
+    path.join(deps?.userDataPath || os.tmpdir(), 'agent', 'model-cache.json')
 
-  ipcMain.handle('mt::agent::list-models', async(event, harness: unknown, options: { refresh?: boolean }) => {
-    if (!isHarnessId(harness)) return { ok: false as const, reason: 'init_failed' as const }
-    const win = BrowserWindow.fromWebContents(event.sender)
-    const paths = readHarnessPaths()
-    const cacheFile = path.join(deps?.userDataPath || os.tmpdir(), 'agent', 'model-cache.json')
-    return listModels({
-      harness,
-      refresh: options?.refresh === true,
-      repoRoot: win ? repoOf(win.id) : null,
-      configuredPath: paths[harness] ?? '',
-      cacheFile
-    })
-  })
-
-  ipcMain.handle('mt::agent::get-harness-status', async() => {
-    const statuses = await getHarnessStatus(readHarnessPaths())
-    replaceHarnessStatuses(statuses)
-    return statuses
-  })
-
-  onInternalChannel('broadcast-preferences-changed', (change: object) => {
-    const ids = changedHarnessIds(change)
-    if (ids.length === 0) return
-    invalidateHarnessStatus(ids)
-    getHarnessStatus(readHarnessPaths())
-      .then(publishHarnessStatus)
-      .catch((err: unknown) => {
-        log.error(err)
-      })
-  })
-
-  if (deps) {
+  const publishProbe = (): void => {
     getHarnessStatus(readHarnessPaths())
       .then(publishHarnessStatus)
       .catch((err: unknown) => {
@@ -176,13 +162,60 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
       })
   }
 
+  ipcMain.handle('mt::agent::answer-permission', (_event, requestId: string, optionId: string) => {
+    requireAgentMode(deps)
+    answerPermission(requestId, optionId)
+  })
+
+  ipcMain.handle('mt::agent::list-models', async(event, harness: unknown, options: { refresh?: boolean }) => {
+    requireAgentMode(deps)
+    if (!isHarnessId(harness)) return { ok: false as const, reason: 'init_failed' as const }
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const paths = readHarnessPaths()
+    return listModels({
+      harness,
+      refresh: options?.refresh === true,
+      repoRoot: win ? repoOf(win.id) : null,
+      configuredPath: paths[harness] ?? '',
+      cacheFile: modelCachePath()
+    })
+  })
+
+  ipcMain.handle('mt::agent::get-harness-status', async() => {
+    requireAgentMode(deps)
+    const statuses = await getHarnessStatus(readHarnessPaths())
+    replaceHarnessStatuses(statuses)
+    return statuses
+  })
+
+  onInternalChannel('broadcast-preferences-changed', (change: object) => {
+    const record = change as Record<string, unknown>
+    if (record.agentModeEnabled === false) {
+      stopAllAgents().catch((err: unknown) => {
+        log.error(err)
+      })
+    }
+    const ids = changedHarnessIds(change)
+    if (ids.length > 0) {
+      invalidateHarnessStatus(ids)
+      forgetCachedModels(modelCachePath(), ids)
+    }
+    const turnedOn = record.agentModeEnabled === true
+    if (!agentModeEnabled(deps) || (ids.length === 0 && !turnedOn)) return
+    publishProbe()
+  })
+
+  if (deps && agentModeEnabled(deps)) publishProbe()
+
   ipcMain.handle('mt::agent::get-repo-state', (event) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { kind: 'none' as const }
     return repoRegistry.state(win.id)
   })
 
   ipcMain.handle('mt::git::diff', (event, request: { paths?: string[] } | undefined) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     const root = repoOf(win.id)
@@ -191,6 +224,7 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   })
 
   ipcMain.handle('mt::term::create', (event, size: { cols?: number, rows?: number } | undefined) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     turnRunnerFor(win.id, deps)
@@ -198,18 +232,21 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   })
 
   ipcMain.handle('mt::term::kill', (event, termId: string) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win || typeof termId !== 'string') return
     terms?.kill(win.id, termId)
   })
 
   ipcMain.on('mt::term::input', (event, termId: unknown, data: unknown) => {
+    if (!agentModeEnabled(deps)) return
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win || typeof termId !== 'string' || typeof data !== 'string') return
     terms?.input(win.id, termId, data)
   })
 
   ipcMain.on('mt::term::resize', (event, termId: unknown, cols: unknown, rows: unknown) => {
+    if (!agentModeEnabled(deps)) return
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win || typeof termId !== 'string' || typeof cols !== 'number' || typeof rows !== 'number') return
     terms?.resize(win.id, termId, cols, rows)
@@ -224,30 +261,35 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   })
 
   ipcMain.handle('mt::agent::send-threads', (event, file: string, threadIds: string[], anchors: ThreadPlacement[]) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     return turnRunnerFor(win.id, deps).sendThreads(win.id, file, threadIds ?? [], anchors ?? [])
   })
 
   ipcMain.handle('mt::agent::send-message', (event, text: string) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     return turnRunnerFor(win.id, deps).sendMessage(win.id, text)
   })
 
   ipcMain.handle('mt::agent::cancel-turn', (event) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.resolve()
     return turnRunnerFor(win.id, deps).cancelTurn()
   })
 
   ipcMain.handle('mt::agent::get-selection', (event) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return null
     return turnRunnerFor(win.id, deps).getSelection(win.id)
   })
 
   ipcMain.handle('mt::agent::set-selection', (event, harness: unknown, model: unknown) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     if (!isHarnessId(harness) || typeof model !== 'string') {
@@ -257,6 +299,7 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   })
 
   ipcMain.handle('mt::agent::list-sessions', (event, harness: unknown) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     if (!isHarnessId(harness)) return Promise.reject(new Error('bad harness'))
@@ -264,6 +307,7 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
   })
 
   ipcMain.handle('mt::agent::open-session', (event, harness: unknown, sessionId: unknown) => {
+    requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
     if (!isHarnessId(harness) || typeof sessionId !== 'string') {

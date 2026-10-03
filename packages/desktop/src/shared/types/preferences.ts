@@ -78,6 +78,13 @@ export interface IUserPreferences {
   agentPiPath?: string
   /** Empty searches PATH for `agent`. */
   agentCursorPath?: string
+  /**
+   * `false` refuses `mt::agent::*`, `mt::term::*`, and `mt::git::*`
+   * and stops harness and pty processes. Unset means on.
+   */
+  agentModeEnabled?: boolean
+  /** Empty uses `$SHELL`, or `powershell.exe` on Windows. */
+  agentTerminalShell?: string
   [key: string]: unknown
 }
 

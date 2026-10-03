@@ -68,6 +68,62 @@ const ipcWrapper = {
   }
 }
 
+const bindInvoke = <K extends keyof IpcInvokeChannels>(channel: K) =>
+  (...args: IpcInvokeChannels[K]['args']): Promise<IpcInvokeChannels[K]['ret']> =>
+    invoke(channel, ...args)
+
+const bindSend = <K extends keyof IpcSendChannels>(channel: K) =>
+  (...args: IpcSendChannels[K]): void => {
+    send(channel, ...args)
+  }
+
+/** The Electron event stays in the preload. The returned function unsubscribes. */
+const onPayload = <K extends keyof IpcMainEventChannels>(
+  channel: K,
+  listener: (...args: IpcMainEventChannels[K]) => void
+): (() => void) =>
+  ipcWrapper.on(channel, (_event, ...args) => {
+    listener(...(args as IpcMainEventChannels[K]))
+  })
+
+const agentAPI = {
+  getRepoState: bindInvoke('mt::agent::get-repo-state'),
+  getHarnessStatus: bindInvoke('mt::agent::get-harness-status'),
+  listModels: bindInvoke('mt::agent::list-models'),
+  getSelection: bindInvoke('mt::agent::get-selection'),
+  setSelection: bindInvoke('mt::agent::set-selection'),
+  listSessions: bindInvoke('mt::agent::list-sessions'),
+  openSession: bindInvoke('mt::agent::open-session'),
+  sendThreads: bindInvoke('mt::agent::send-threads'),
+  sendMessage: bindInvoke('mt::agent::send-message'),
+  cancelTurn: bindInvoke('mt::agent::cancel-turn'),
+  answerPermission: bindInvoke('mt::agent::answer-permission'),
+  gitDiff: bindInvoke('mt::git::diff'),
+  onEvent: (listener: (...args: IpcMainEventChannels['mt::agent::event']) => void) =>
+    onPayload('mt::agent::event', listener),
+  onHarnessStatusChanged: (
+    listener: (...args: IpcMainEventChannels['mt::agent::harness-status-changed']) => void
+  ) => onPayload('mt::agent::harness-status-changed', listener)
+}
+
+const commentsAPI = {
+  load: bindInvoke('mt::comments::load'),
+  mutate: bindInvoke('mt::comments::mutate'),
+  onChanged: (listener: (...args: IpcMainEventChannels['mt::comments::changed']) => void) =>
+    onPayload('mt::comments::changed', listener)
+}
+
+const termAPI = {
+  create: bindInvoke('mt::term::create'),
+  kill: bindInvoke('mt::term::kill'),
+  input: bindSend('mt::term::input'),
+  resize: bindSend('mt::term::resize'),
+  onData: (listener: (...args: IpcMainEventChannels['mt::term::data']) => void) =>
+    onPayload('mt::term::data', listener),
+  onExit: (listener: (...args: IpcMainEventChannels['mt::term::exit']) => void) =>
+    onPayload('mt::term::exit', listener)
+}
+
 const shellAPI = {
   openExternal: (url: string) => invoke('mt::shell::open-external', url),
   showItemInFolder: (fullPath: string) => send('mt::shell::show-item', fullPath),
@@ -309,6 +365,9 @@ try {
   contextBridge.exposeInMainWorld('uploader', uploaderAPI)
   contextBridge.exposeInMainWorld('fonts', fontsAPI)
   contextBridge.exposeInMainWorld('diagram', diagramAPI)
+  contextBridge.exposeInMainWorld('agent', agentAPI)
+  contextBridge.exposeInMainWorld('comments', commentsAPI)
+  contextBridge.exposeInMainWorld('term', termAPI)
 } catch (error) {
   console.error(error)
 }

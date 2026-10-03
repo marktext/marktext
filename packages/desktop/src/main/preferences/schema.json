@@ -446,5 +446,15 @@
     "description": "Agent--Path to the Cursor agent executable. Empty searches PATH.--internal",
     "type": "string",
     "default": ""
+  },
+  "agentModeEnabled": {
+    "description": "Agent--Whether agent mode is on. When off, agent, terminal, and git diff channels refuse and running processes stop.--internal",
+    "type": "boolean",
+    "default": true
+  },
+  "agentTerminalShell": {
+    "description": "Agent--Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows.--internal",
+    "type": "string",
+    "default": ""
   }
 }

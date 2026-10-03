@@ -25,6 +25,19 @@ test.describe('Renderer sandboxing', () => {
     // contextBridge produced window.electron with a working ipcRenderer
     expect(await page.evaluate(() => typeof window.electron?.ipcRenderer?.invoke)).toBe('function')
 
+    // Agent surfaces are methods, not a raw ipcRenderer.
+    expect(await page.evaluate(() => typeof window.agent?.getHarnessStatus)).toBe('function')
+    expect(await page.evaluate(() => typeof window.agent?.listModels)).toBe('function')
+    expect(await page.evaluate(() => typeof window.comments?.load)).toBe('function')
+    expect(await page.evaluate(() => typeof window.term?.create)).toBe('function')
+    expect(await page.evaluate(() => 'ipcRenderer' in window.agent)).toBe(false)
+    expect(await page.evaluate(() => {
+      const unsubscribe = window.agent.onHarnessStatusChanged(() => undefined)
+      const kind = typeof unsubscribe
+      unsubscribe()
+      return kind
+    })).toBe('function')
+
     // nodeIntegration: false — no require, no global, no Buffer
     expect(await page.evaluate(() => typeof require)).toBe('undefined')
     expect(await page.evaluate(() => typeof global)).toBe('undefined')

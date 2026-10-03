@@ -4,6 +4,17 @@
 // survived the sandbox migration.
 
 import type {
+  AgentSelection,
+  ChatEvent,
+  HarnessId,
+  HarnessStatus,
+  ListModelsResult,
+  RepoState,
+  SessionSnapshot,
+  SessionSummary
+} from '@shared/types/agent'
+import type { CommentsFile, CommentsLoadResult, CommentsMutation } from '@shared/types/comments'
+import type {
   IpcInvokeChannels,
   IpcSendChannels,
   IpcSyncChannels,
@@ -182,6 +193,38 @@ declare global {
     list(): Promise<string[]>
   }
 
+  interface AgentAPI {
+    getRepoState(): Promise<RepoState>
+    getHarnessStatus(): Promise<HarnessStatus[]>
+    listModels(harness: HarnessId, options: { refresh?: boolean }): Promise<ListModelsResult>
+    getSelection(): Promise<AgentSelection | null>
+    setSelection(harness: HarnessId, model: string): Promise<void>
+    listSessions(harness: HarnessId): Promise<SessionSummary[]>
+    openSession(harness: HarnessId, sessionId: string | 'last' | 'new'): Promise<SessionSnapshot>
+    sendThreads(file: string, threadIds: string[]): Promise<{ turnId: string }>
+    sendMessage(text: string): Promise<{ turnId: string }>
+    cancelTurn(): Promise<void>
+    answerPermission(requestId: string, optionId: string | 'cancelled'): Promise<void>
+    gitDiff(request: { paths?: string[] }): Promise<{ patch: string; truncated?: true }>
+    onEvent(listener: (event: ChatEvent) => void): () => void
+    onHarnessStatusChanged(listener: (statuses: HarnessStatus[]) => void): () => void
+  }
+
+  interface CommentsAPI {
+    load(file: string): Promise<CommentsLoadResult>
+    mutate(mutation: CommentsMutation): Promise<CommentsFile>
+    onChanged(listener: (payload: { file: string }) => void): () => void
+  }
+
+  interface TermAPI {
+    create(size: { cols: number; rows: number }): Promise<{ termId: string }>
+    kill(termId: string): Promise<void>
+    input(termId: string, data: string): void
+    resize(termId: string, cols: number, rows: number): void
+    onData(listener: (termId: string, data: string) => void): () => void
+    onExit(listener: (termId: string, code: number | null) => void): () => void
+  }
+
   interface ProcessShim {
     platform: NodeJS.Platform
     arch?: string
@@ -202,6 +245,9 @@ declare global {
     uploader: UploaderAPI
     fonts: FontsAPI
     diagram: DiagramAPI
+    agent: AgentAPI
+    comments: CommentsAPI
+    term: TermAPI
     process: ProcessShim
     rgPath: string
     // Set by the legacy editor store at runtime; consumed by muya internals.

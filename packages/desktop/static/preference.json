@@ -87,5 +87,7 @@
 
   "agentOpencodePath": "",
   "agentPiPath": "",
-  "agentCursorPath": ""
+  "agentCursorPath": "",
+  "agentModeEnabled": true,
+  "agentTerminalShell": ""
 }

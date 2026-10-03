@@ -114,6 +114,12 @@ export interface PreferencesState {
 
   watcherUsePolling: boolean
 
+  agentModeEnabled: boolean
+  agentOpencodePath: string
+  agentPiPath: string
+  agentCursorPath: string
+  agentTerminalShell: string
+
   // ----- Edit modes (per-window, not persisted) -----
   typewriter: boolean
   focus: boolean
@@ -231,6 +237,12 @@ export const usePreferencesStore = defineStore('preferences', {
     searchFollowSymlinks: true,
 
     watcherUsePolling: false,
+
+    agentModeEnabled: true,
+    agentOpencodePath: '',
+    agentPiPath: '',
+    agentCursorPath: '',
+    agentTerminalShell: '',
 
     // --------------------------------------------------------------------------
 

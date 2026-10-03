@@ -5,6 +5,7 @@ import { electronLocalshortcut } from '@hfelix/electron-localshortcut'
 import BaseWindow, { WindowLifecycle, WindowType, type EnvLike, type PreferenceLike } from './base'
 import type Accessor from '../app/accessor'
 import { centerWindowOptions } from './utils'
+import { sendHarnessStatus } from '../agent'
 import { TITLE_BAR_HEIGHT, preferencesWinOptions, isLinux, isOsx } from '../config'
 import log from 'electron-log'
 
@@ -71,6 +72,8 @@ class SettingWindow extends BaseWindow {
     win.once('ready-to-show', () => {
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
+      // The Agent page reads harness status before any repository is open.
+      if (win && !win.isDestroyed()) sendHarnessStatus(win)
     })
 
     win.on('focus', () => {

@@ -51,13 +51,30 @@ const cachedModels = (cache: ModelCacheFile, harness: HarnessId): ModelOption[] 
   return models.length > 0 ? models : null
 }
 
-const writeCache = (cacheFile: string, harness: HarnessId, models: ModelOption[], now: string): void => {
-  const next = readCache(cacheFile)
-  next[harness] = { fetchedAt: now, models }
+const writeCacheFile = (cacheFile: string, next: ModelCacheFile): void => {
   fs.mkdirSync(path.dirname(cacheFile), { recursive: true })
   const tmp = `${cacheFile}.${process.pid}.tmp`
   fs.writeFileSync(tmp, `${JSON.stringify(next, null, 2)}\n`)
   fs.renameSync(tmp, cacheFile)
+}
+
+const writeCache = (cacheFile: string, harness: HarnessId, models: ModelOption[], now: string): void => {
+  const next = readCache(cacheFile)
+  next[harness] = { fetchedAt: now, models }
+  writeCacheFile(cacheFile, next)
+}
+
+/** A new binary must not keep the previous catalog. Other harnesses stay. */
+export const forgetCachedModels = (cacheFile: string, ids: readonly HarnessId[]): void => {
+  if (ids.length === 0) return
+  const next = readCache(cacheFile)
+  let dropped = false
+  for (const id of ids) {
+    if (next[id] == null) continue
+    delete next[id]
+    dropped = true
+  }
+  if (dropped) writeCacheFile(cacheFile, next)
 }
 
 const flattenOptions = (options: unknown): { value: string, name: string }[] => {
