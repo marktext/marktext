@@ -59,6 +59,26 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       }
     },
     {
+      label: t('menu.view.toggleAgentPanel'),
+      id: 'agentPanelMenuItem',
+      accelerator: keybindings.getAccelerator('view.toggle-agent-panel') ?? undefined,
+      type: 'checkbox',
+      checked: false,
+      click(_item, focusedWindow) {
+        actions.toggleAgentPanel(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      label: t('menu.view.toggleTerminal'),
+      id: 'terminalPanelMenuItem',
+      accelerator: keybindings.getAccelerator('view.toggle-terminal') ?? undefined,
+      type: 'checkbox',
+      checked: false,
+      click(_item, focusedWindow) {
+        actions.toggleTerminalPanel(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
       label: t('menu.view.toggleTabbar'),
       id: 'tabBarMenuItem',
       accelerator: keybindings.getAccelerator('view.toggle-tabbar') ?? undefined,

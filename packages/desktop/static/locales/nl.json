@@ -124,7 +124,9 @@
       "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",
-      "reloadWindow": "Venster herladen"
+      "reloadWindow": "Venster herladen",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "format": {
       "format": "Opmaak",
@@ -904,7 +906,9 @@
       "reloadImages": "Afbeeldingen herladen",
       "textDirection": "Tekstrichting",
       "actualSize": "Werkelijke grootte",
-      "devToggleDeveloperTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen"
+      "devToggleDeveloperTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "tabs": {
       "cycleForward": "Volgende tabblad",
@@ -928,6 +932,13 @@
     },
     "spellchecker": {
       "switchLanguage": "Taal wisselen"
+    },
+    "comments": {
+      "comment": "Comment",
+      "sendSelected": "Send selected thread",
+      "sendAll": "Send all unresolved",
+      "nextThread": "Next thread",
+      "previousThread": "Previous thread"
     }
   },
   "common": {

@@ -432,3 +432,40 @@ button.button-primary:not(.custom):focus,
 .el-tabs__active-bar {
   background-color: var(--themeColor);
 }
+
+.mt-agent-badge {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--themeColor20);
+  color: var(--editorColor80);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.mt-agent-turn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--editorColor50);
+  border-top-color: var(--themeColor);
+  flex: none;
+  animation: mt-agent-turn-spin 0.8s linear infinite;
+}
+
+@keyframes mt-agent-turn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mt-agent-turn-dot {
+    animation: none;
+    border-color: var(--themeColor);
+  }
+}

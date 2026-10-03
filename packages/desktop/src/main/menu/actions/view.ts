@@ -59,6 +59,14 @@ export const toggleTabBar = (win: Win): void => {
   toggleLayout(win, 'showTabBar')
 }
 
+export const toggleAgentPanel = (win: Win): void => {
+  toggleLayout(win, 'showAgentPanel')
+}
+
+export const toggleTerminalPanel = (win: Win): void => {
+  toggleLayout(win, 'showTerminalPanel')
+}
+
 export const showTabBar = (win: Win): void => {
   setLayout(win, 'showTabBar', true)
 }
@@ -86,6 +94,8 @@ export const loadViewCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.VIEW_SOURCE_CODE_MODE, toggleSourceCodeMode)
   commandManager.add(COMMANDS.VIEW_TOGGLE_SIDEBAR, toggleSidebar)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TABBAR, toggleTabBar)
+  commandManager.add(COMMANDS.VIEW_TOGGLE_AGENT_PANEL, toggleAgentPanel)
+  commandManager.add(COMMANDS.VIEW_TOGGLE_TERMINAL, toggleTerminalPanel)
   commandManager.add(COMMANDS.VIEW_TOGGLE_TOC, showTableOfContents)
   commandManager.add(COMMANDS.VIEW_TYPEWRITER_MODE, toggleTypewriterMode)
 
@@ -123,6 +133,16 @@ export const viewLayoutChanged = (
         break
       case 'showTabBar':
         changeMenuByName('tabBarMenuItem', value)
+        break
+      case 'showAgentPanel':
+        changeMenuByName('agentPanelMenuItem', value)
+        break
+      case 'showTerminalPanel':
+        changeMenuByName('terminalPanelMenuItem', value)
+        break
+      case 'agentAvailable':
+        disableMenuByName('agentPanelMenuItem', !!value)
+        disableMenuByName('terminalPanelMenuItem', !!value)
         break
       case 'sourceCode':
         changeMenuByName('sourceCodeModeMenuItem', !!value)

@@ -3,7 +3,7 @@
     v-if="currentNotification"
     class="editor-notifications"
     :class="currentNotification.style"
-    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth}px)` }"
+    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth + effectiveAgentWidth}px)` }"
   >
     <div class="msg">
       {{ currentNotification.msg }}
@@ -45,7 +45,7 @@ const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 
 const { currentFile } = storeToRefs(editorStore)
-const { effectiveSideBarWidth } = storeToRefs(layoutStore)
+const { effectiveSideBarWidth, effectiveAgentWidth } = storeToRefs(layoutStore)
 
 const currentNotification = computed(() => {
   const notifications = currentFile.value?.notifications

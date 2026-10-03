@@ -18,6 +18,15 @@ export const useAgentStore = defineStore('agent', () => {
     return usePreferencesStore().agentModeEnabled && repoState.value.kind === 'repo'
   })
 
+  const turnInProgress = computed(() => {
+    let running = false
+    for (const event of events.value) {
+      if (event.type === 'turn_started') running = true
+      else if (event.type === 'turn_finished') running = false
+    }
+    return running
+  })
+
   function refreshRepoState(): void {
     const run = async(): Promise<void> => {
       if (!window.agent || !usePreferencesStore().agentModeEnabled) {
@@ -74,6 +83,7 @@ export const useAgentStore = defineStore('agent', () => {
     harnessStatuses,
     events,
     agentAvailable,
+    turnInProgress,
     refreshRepoState,
     listen,
     stop: bag.stop

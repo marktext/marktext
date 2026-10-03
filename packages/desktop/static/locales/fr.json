@@ -124,7 +124,9 @@
       "toggleTableOfContents": "Basculer la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
-      "reloadWindow": "Recharger la fenêtre"
+      "reloadWindow": "Recharger la fenêtre",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "format": {
       "format": "Format",
@@ -904,7 +906,9 @@
       "reloadImages": "Recharger les images",
       "textDirection": "Direction du texte",
       "actualSize": "Taille réelle",
-      "devToggleDeveloperTools": "Basculer les outils de développement"
+      "devToggleDeveloperTools": "Basculer les outils de développement",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "tabs": {
       "cycleForward": "Cycle vers l'avant",
@@ -928,6 +932,13 @@
     },
     "spellchecker": {
       "switchLanguage": "Changer de langue"
+    },
+    "comments": {
+      "comment": "Comment",
+      "sendSelected": "Send selected thread",
+      "sendAll": "Send all unresolved",
+      "nextThread": "Next thread",
+      "previousThread": "Previous thread"
     }
   },
   "common": {

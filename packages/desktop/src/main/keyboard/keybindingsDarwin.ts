@@ -96,6 +96,8 @@ const keybindings: Map<string, string> = new Map([
   ['view.typewriter-mode', 'Command+Option+T'],
   ['view.focus-mode', 'Command+Shift+J'],
   ['view.toggle-sidebar', 'Command+J'],
+  ['view.toggle-agent-panel', 'Command+\\'],
+  ['view.toggle-terminal', 'Command+Option+\\'],
   ['view.toggle-toc', 'Command+K'],
   ['view.toggle-tabbar', 'Command+Option+B'],
   ['view.toggle-dev-tools', 'Command+Option+I'],
@@ -117,7 +119,12 @@ const keybindings: Map<string, string> = new Map([
   ['tabs.switchToEighth', 'Ctrl+8'],
   ['tabs.switchToNinth', 'Ctrl+9'],
   ['tabs.switchToTenth', 'Ctrl+0'],
-  ['file.quick-open', 'Command+P']
+  ['file.quick-open', 'Command+P'],
+  ['comments.comment', 'Command+Option+G'],
+  ['comments.send-selected', 'Command+Shift+Enter'],
+  ['comments.send-all', 'Command+Option+Enter'],
+  ['comments.next-thread', 'Option+Down'],
+  ['comments.previous-thread', 'Option+Up']
 ])
 
 export default keybindings

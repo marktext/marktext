@@ -90,14 +90,22 @@ const COMMANDS = Object.freeze({
   TABS_SWITCH_TO_TENTH: 'tabs.switchToTenth',
   TABS_SWITCH_TO_THIRD: 'tabs.switchToThird',
 
+  COMMENTS_COMMENT: 'comments.comment',
+  COMMENTS_NEXT_THREAD: 'comments.next-thread',
+  COMMENTS_PREVIOUS_THREAD: 'comments.previous-thread',
+  COMMENTS_SEND_ALL: 'comments.send-all',
+  COMMENTS_SEND_SELECTED: 'comments.send-selected',
+
   VIEW_COMMAND_PALETTE: 'view.command-palette',
   VIEW_DEV_RELOAD: 'view.dev-reload',
   VIEW_FOCUS_MODE: 'view.focus-mode',
   VIEW_FORCE_RELOAD_IMAGES: 'view.reload-images',
   VIEW_SOURCE_CODE_MODE: 'view.source-code-mode',
+  VIEW_TOGGLE_AGENT_PANEL: 'view.toggle-agent-panel',
   VIEW_TOGGLE_DEV_TOOLS: 'view.toggle-dev-tools',
   VIEW_TOGGLE_SIDEBAR: 'view.toggle-sidebar',
   VIEW_TOGGLE_TABBAR: 'view.toggle-tabbar',
+  VIEW_TOGGLE_TERMINAL: 'view.toggle-terminal',
   VIEW_TOGGLE_TOC: 'view.toggle-toc',
   VIEW_TYPEWRITER_MODE: 'view.typewriter-mode',
 

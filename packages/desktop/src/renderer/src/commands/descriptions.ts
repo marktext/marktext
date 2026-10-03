@@ -161,6 +161,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   // ============================================
   // UI toggles
   'view.toggle-sidebar': 'commands.view.toggleSidebar',
+  'view.toggle-agent-panel': 'commands.view.toggleAgentPanel',
+  'view.toggle-terminal': 'commands.view.toggleTerminal',
   'view.toggle-tabbar': 'commands.view.toggleTabbar',
   'view.toggle-toc': 'commands.view.toggleToc',
 
@@ -184,6 +186,12 @@ const COMMAND_KEY_MAP: Record<string, string> = {
 
   // Menu items
   'view.reload-images': 'commands.view.reloadImages',
+
+  'comments.comment': 'commands.comments.comment',
+  'comments.send-selected': 'commands.comments.sendSelected',
+  'comments.send-all': 'commands.comments.sendAll',
+  'comments.next-thread': 'commands.comments.nextThread',
+  'comments.previous-thread': 'commands.comments.previousThread',
 
   // ============================================
   // # Tab Management

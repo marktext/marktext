@@ -124,7 +124,9 @@
       "toggleTableOfContents": "Показать/скрыть оглавление",
       "reloadImages": "Обновить изображения",
       "showDeveloperTools": "Инструменты разработчика",
-      "reloadWindow": "Перезагрузить окно"
+      "reloadWindow": "Перезагрузить окно",
+      "toggleAgentPanel": "Панель агента",
+      "toggleTerminal": "Терминал"
     },
     "format": {
       "format": "Формат",
@@ -904,7 +906,9 @@
       "reloadImages": "Обновить изображения",
       "textDirection": "Направление текста",
       "actualSize": "Реальный размер",
-      "devToggleDeveloperTools": "Переключить инструменты разработчика"
+      "devToggleDeveloperTools": "Переключить инструменты разработчика",
+      "toggleAgentPanel": "Панель агента",
+      "toggleTerminal": "Терминал"
     },
     "tabs": {
       "cycleForward": "Следующая вкладка",
@@ -928,6 +932,13 @@
     },
     "spellchecker": {
       "switchLanguage": "Переключить язык"
+    },
+    "comments": {
+      "comment": "Комментировать",
+      "sendSelected": "Отправить выбранный тред",
+      "sendAll": "Отправить все неразобранные",
+      "nextThread": "Следующий тред",
+      "previousThread": "Предыдущий тред"
     }
   },
   "common": {

@@ -124,7 +124,9 @@
       "toggleTableOfContents": "Alternar Índice",
       "reloadImages": "Recarregar Imagens",
       "showDeveloperTools": "Mostrar Ferramentas de Desenvolvedor",
-      "reloadWindow": "Recarregar Janela"
+      "reloadWindow": "Recarregar Janela",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "format": {
       "format": "Formato",
@@ -904,7 +906,9 @@
       "reloadImages": "Recarregar Imagens",
       "textDirection": "Direção do Texto",
       "actualSize": "Tamanho real",
-      "devToggleDeveloperTools": "Alternar ferramentas de desenvolvedor"
+      "devToggleDeveloperTools": "Alternar ferramentas de desenvolvedor",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "tabs": {
       "cycleForward": "Ciclar para Frente",
@@ -928,6 +932,13 @@
     },
     "spellchecker": {
       "switchLanguage": "Alterar Idioma"
+    },
+    "comments": {
+      "comment": "Comment",
+      "sendSelected": "Send selected thread",
+      "sendAll": "Send all unresolved",
+      "nextThread": "Next thread",
+      "previousThread": "Previous thread"
     }
   },
   "common": {

@@ -1,7 +1,7 @@
 <template>
   <div
     class="editor-with-tabs"
-    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth}px)` }"
+    :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth + effectiveAgentWidth}px)` }"
   >
     <tabs v-show="showTabBar" />
     <div class="container">
@@ -43,7 +43,7 @@ defineProps<{
   platform: string
 }>()
 
-const { effectiveSideBarWidth } = storeToRefs(useLayoutStore())
+const { effectiveSideBarWidth, effectiveAgentWidth } = storeToRefs(useLayoutStore())
 </script>
 
 <style scoped>

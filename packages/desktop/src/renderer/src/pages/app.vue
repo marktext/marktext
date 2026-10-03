@@ -14,27 +14,31 @@
         :is-saved="isSaved"
       />
 
-      <div
-        v-if="!init"
-        class="editor-placeholder"
-      />
-      <recent v-if="!hasCurrentFile && init" />
-      <editor-with-tabs
-        v-if="hasCurrentFile && init"
-        :markdown="markdown"
-        :cursor="cursor"
-        :muya-index-cursor="muyaIndexCursor"
-        :source-code="sourceCode"
-        :show-tab-bar="showTabBar"
-        :text-direction="textDirection"
-        :platform="platform"
-      />
+      <div class="editor-stack">
+        <div
+          v-if="!init"
+          class="editor-placeholder"
+        />
+        <recent v-if="!hasCurrentFile && init" />
+        <editor-with-tabs
+          v-if="hasCurrentFile && init"
+          :markdown="markdown"
+          :cursor="cursor"
+          :muya-index-cursor="muyaIndexCursor"
+          :source-code="sourceCode"
+          :show-tab-bar="showTabBar"
+          :text-direction="textDirection"
+          :platform="platform"
+        />
+      </div>
+      <terminal-panel v-if="agentAvailable" />
       <command-palette />
       <about-dialog />
       <export-setting-dialog />
       <rename />
       <import-modal />
     </div>
+    <agent-panel v-if="agentAvailable && showAgentPanel" />
   </div>
 </template>
 
@@ -47,6 +51,8 @@ import Recent from '@/components/recent/index.vue'
 import EditorWithTabs from '@/components/editorWithTabs/index.vue'
 import TitleBar from '@/components/titleBar/index.vue'
 import SideBar from '@/components/sideBar/index.vue'
+import AgentPanel from '@/components/agentPanel/index.vue'
+import TerminalPanel from '@/components/terminalPanel/index.vue'
 import AboutDialog from '@/components/about/index.vue'
 import CommandPalette from '@/components/commandPalette/index.vue'
 import ExportSettingDialog from '@/components/exportSettings/index.vue'
@@ -82,7 +88,8 @@ const notificationStore = useNotificationStore()
 const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const { windowActive, platform, init } = storeToRefs(mainStore)
-const { showTabBar } = storeToRefs(layoutStore)
+const { showTabBar, showAgentPanel } = storeToRefs(layoutStore)
+const { agentAvailable } = storeToRefs(agentStore)
 const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
@@ -255,10 +262,19 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 100vh;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
   position: relative;
   & > .editor {
     flex: 1;
   }
+}
+.editor-stack {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 </style>

@@ -124,7 +124,9 @@
       "toggleTableOfContents": "Toggle Table of Contents",
       "reloadImages": "Reload Images",
       "showDeveloperTools": "Show Developer Tools",
-      "reloadWindow": "Reload Window"
+      "reloadWindow": "Reload Window",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "format": {
       "format": "Format",
@@ -904,7 +906,9 @@
       "reloadImages": "Reload Images",
       "textDirection": "Text Direction",
       "actualSize": "Actual Size",
-      "devToggleDeveloperTools": "Toggle Developer Tools"
+      "devToggleDeveloperTools": "Toggle Developer Tools",
+      "toggleAgentPanel": "Agent panel",
+      "toggleTerminal": "Terminal"
     },
     "tabs": {
       "cycleForward": "Cycle Forward",
@@ -928,6 +932,13 @@
     },
     "spellchecker": {
       "switchLanguage": "Switch Language"
+    },
+    "comments": {
+      "comment": "Comment",
+      "sendSelected": "Send selected thread",
+      "sendAll": "Send all unresolved",
+      "nextThread": "Next thread",
+      "previousThread": "Previous thread"
     }
   },
   "common": {

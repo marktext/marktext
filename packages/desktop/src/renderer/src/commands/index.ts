@@ -4,6 +4,7 @@ import { delay, isOsx } from '@/util'
 import { isUpdatable } from './utils'
 import getCommandDescriptionById from './descriptions'
 import { t } from '../i18n'
+import { useAgentStore } from '@/store/agent'
 
 export { default as FileEncodingCommand } from './fileEncoding'
 export { default as LineEndingCommand } from './lineEnding'
@@ -606,9 +607,56 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'view.toggle-agent-panel',
+    execute: async() => {
+      bus.emit('view:toggle-layout-entry', 'showAgentPanel')
+    }
+  },
+  {
+    id: 'view.toggle-terminal',
+    execute: async() => {
+      bus.emit('view:toggle-layout-entry', 'showTerminalPanel')
+    }
+  },
+  {
     id: 'view.toggle-tabbar',
     execute: async() => {
       bus.emit('view:toggle-layout-entry', 'showTabBar')
+    }
+  },
+  {
+    id: 'comments.comment',
+    execute: async() => {
+      if (!useAgentStore().agentAvailable) return
+      bus.emit('agent:comment')
+    }
+  },
+  {
+    id: 'comments.send-selected',
+    execute: async() => {
+      if (!useAgentStore().agentAvailable) return
+      bus.emit('agent:send-selected')
+    }
+  },
+  {
+    id: 'comments.send-all',
+    execute: async() => {
+      if (!useAgentStore().agentAvailable) return
+      bus.emit('agent:send-all')
+    }
+  },
+  {
+    id: 'comments.next-thread',
+    execute: async() => {
+      if (!useAgentStore().agentAvailable) return
+      bus.emit('agent:next-thread')
+    }
+  },
+  {
+    id: 'comments.previous-thread',
+    execute: async() => {
+      if (!useAgentStore().agentAvailable) return
+      bus.emit('agent:previous-thread')
     }
   },
 

@@ -38,25 +38,111 @@
         <Plus />
       </el-icon>
     </div>
+    <template v-if="agentAvailable">
+      <div class="tab-spacer" />
+      <div class="tab-actions">
+        <button
+          type="button"
+          class="tab-action"
+          :aria-pressed="showAgentPanel"
+          :aria-label="agentButtonLabel"
+          :title="agentButtonLabel"
+          @click.stop="toggleAgentPanel"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <rect
+              x="3.5"
+              y="4.5"
+              width="17"
+              height="15"
+              rx="1.5"
+            />
+            <path d="M15 4.5v15" />
+          </svg>
+          <span
+            v-if="!showAgentPanel && unresolvedCount > 0"
+            class="mt-agent-badge"
+          >{{ unresolvedCount }}</span>
+          <i
+            v-if="!showAgentPanel && turnInProgress"
+            class="mt-agent-turn-dot"
+            :aria-label="t('agent.turnInProgress')"
+          />
+        </button>
+        <button
+          type="button"
+          class="tab-action"
+          :aria-pressed="showTerminalPanel"
+          :aria-label="t('terminal.title')"
+          :title="t('terminal.title')"
+          @click.stop="toggleTerminalPanel"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <rect
+              x="3.5"
+              y="4.5"
+              width="17"
+              height="15"
+              rx="1.5"
+            />
+            <path d="M3.5 15h17" />
+          </svg>
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, nextTick, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
+import { useAgentStore } from '@/store/agent'
+import { useCommentsStore } from '@/store/comments'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
 import { Plus, Close } from '@element-plus/icons-vue'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
+import { useI18n } from 'vue-i18n'
 import type { IFileState } from '@shared/types/files'
 
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
+const { t } = useI18n()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
+const { showAgentPanel, showTerminalPanel } = storeToRefs(layoutStore)
+const { agentAvailable, turnInProgress } = storeToRefs(useAgentStore())
+const { unresolvedCount } = storeToRefs(useCommentsStore())
+
+const agentButtonLabel = computed(() => {
+  const parts = [t('agent.panel')]
+  if (!showAgentPanel.value && unresolvedCount.value > 0) {
+    parts.push(t('comments.unresolvedCount', { n: unresolvedCount.value }))
+  }
+  if (!showAgentPanel.value && turnInProgress.value) {
+    parts.push(t('agent.turnInProgress'))
+  }
+  return parts.join(' · ')
+})
+
+const toggleAgentPanel = (): void => {
+  layoutStore.TOGGLE_LAYOUT_ENTRY('showAgentPanel')
+  layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
+}
+
+const toggleTerminalPanel = (): void => {
+  layoutStore.TOGGLE_LAYOUT_ENTRY('showTerminalPanel')
+  layoutStore.DISPATCH_LAYOUT_MENU_ITEMS()
+}
 
 interface AutoScroller {
   readonly down: boolean
@@ -413,6 +499,58 @@ onBeforeUnmount(() => {
   & > svg {
     fill: var(--focusColor);
   }
+}
+
+.tab-spacer {
+  flex: 1;
+}
+
+.tab-actions {
+  display: flex;
+  flex: none;
+}
+
+.tab-action {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--editorColor50);
+  cursor: pointer;
+}
+
+.tab-action svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+}
+
+.tab-action:hover,
+.tab-action[aria-pressed='true'] {
+  color: var(--themeColor);
+}
+
+.tab-action:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
+}
+
+.tab-action .mt-agent-badge {
+  position: absolute;
+  top: 0;
+  right: -2px;
+}
+
+.tab-action .mt-agent-turn-dot {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
 }
 
 /* dragula effects */
