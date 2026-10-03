@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 4 — Тред</title>
+<style>
+  /* Tokens copied from MarkText:
+     light — packages/desktop/src/renderer/src/assets/styles/index.css
+     dark  — packages/desktop/src/renderer/src/assets/themes/dark.theme.css
+     Comment marks reuse the prompt 2 tokens. Harness color is separate from
+     --themeColor: in the dark theme that token is already the accent blue.
+     Danger uses its own red, not --deleteColor (theme blue in the dark theme). */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --themeColor20: rgba(33, 181, 111, 0.2);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorColor04: #f7f7f7;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --inputBgColor: rgba(0, 0, 0, 0.06);
+    --codeBgColor: #d8d8d869;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --sideBarItemHoverBgColor: rgba(0, 0, 0, 0.03);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --floatFontColor: rgba(0, 0, 0, 0.6);
+    --floatBgColor: #fff;
+    --floatBorderColor: rgba(0, 0, 0, 0.1);
+    --floatShadow: rgba(15, 15, 15, 0.03) 0 0 0 1px, rgba(15, 15, 15, 0.04) 0 3px 6px, rgba(15, 15, 15, 0.05) 0 9px 24px;
+    --buttonPrimaryFontColor: #fff;
+    --buttonPrimaryBgColor: var(--themeColor);
+    --editorAreaWidth: 750px;
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --linkColor: var(--themeColor);
+    --commentMarkBg: rgba(214, 168, 32, 0.28);
+    --commentMarkUnderline: #8a6410;
+    --commentMarkBgActive: rgba(214, 168, 32, 0.5);
+    --commentMarkUnderlineActive: #6d4e0c;
+    --tagOrphanFg: #6d4e0c;
+    --tagOrphanBg: rgba(214, 168, 32, 0.28);
+    --tagReadFg: #7a1e1e;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+    --harnessFg: #4a3d6b;
+    --panelSolid: #f2f2f2;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --themeColor20: rgba(64, 158, 255, 0.2);
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorColor04: rgba(255, 255, 255, 0.04);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --inputBgColor: #2f3336;
+    --codeBgColor: #424344;
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --sideBarItemHoverBgColor: rgba(255, 255, 255, 0.03);
+    --itemBgColor: #3f3f3f;
+    --floatFontColor: rgba(255, 255, 255, 0.7);
+    --floatBgColor: #3f3f3f;
+    --floatBorderColor: rgba(0, 0, 0, 0.05);
+    --floatShadow: rgba(0, 0, 0, 0.35) 0 8px 24px;
+    --h1Color: var(--editorColor80);
+    --h2Color: var(--editorColor80);
+    --linkColor: #8ec5ff;
+    --commentMarkBg: rgba(240, 196, 60, 0.28);
+    --commentMarkUnderline: #e2c15a;
+    --commentMarkBgActive: rgba(240, 196, 60, 0.48);
+    --commentMarkUnderlineActive: #ffe08a;
+    --tagOrphanFg: #ffe08a;
+    --tagOrphanBg: rgba(240, 196, 60, 0.22);
+    --tagReadFg: #ffc1c1;
+    --tagReadBg: rgba(255, 105, 105, 0.22);
+    --harnessFg: #ddc9ff;
+    --panelSolid: #232323;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor);
+    color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(1080px, 100%); height: 700px;
+    display: flex; flex-direction: column;
+    background: var(--editorBgColor);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+  }
+  .tabbar {
+    height: 28px; display: flex; align-items: center; padding: 0 8px;
+    font-size: 12px; color: var(--editorColor); background: var(--itemBgColor);
+    box-shadow: inset 0 -2px 0 var(--themeColor); flex: none;
+  }
+  .work { flex: 1; min-height: 0; display: flex; }
+  .editor { flex: 1; min-width: 0; overflow: auto; background: var(--editorBgColor); }
+  .doc-inner {
+    max-width: var(--editorAreaWidth); margin: 0 auto;
+    padding: 28px 16px 80px; font-size: 16px; line-height: 1.7; color: var(--editorColor);
+  }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner h2 { font-size: 1.25em; font-weight: 600; color: var(--h2Color); margin: 1.1em 0 0.4em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+  .mark {
+    background: var(--commentMarkBgActive);
+    border-bottom: 2px solid var(--commentMarkUnderlineActive);
+    color: var(--editorColor);
+    box-decoration-break: clone;
+  }
+
+  .panel {
+    position: relative; width: 320px; flex: none;
+    display: flex; flex-direction: column;
+    background: var(--sideBarBgColor); color: var(--sideBarColor);
+    border-left: 1px solid var(--itemBgColor); min-width: 0;
+  }
+  .panel-tabs {
+    height: 28px; display: flex; border-bottom: 1px solid var(--editorColor10); flex: none;
+  }
+  .panel-tabs button {
+    position: relative; height: 28px; padding: 0 10px;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; font-size: 12px; color: var(--sideBarColor); cursor: pointer;
+  }
+  .panel-tabs button[aria-selected="true"] { color: var(--sideBarTitleColor); background: var(--itemBgColor); }
+  .panel-tabs button[aria-selected="true"]::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--themeColor);
+  }
+  .count-badge {
+    min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+    background: var(--themeColor20); color: var(--editorColor80);
+    font-size: 11px; font-weight: 600; line-height: 16px; text-align: center;
+  }
+  .panel-main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .panel-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+  .chead {
+    flex: none; padding: 10px 12px 8px; background: var(--panelSolid);
+    border-bottom: 1px solid var(--editorColor10);
+  }
+  .file { font-size: 13px; font-weight: 600; color: var(--sideBarTitleColor); }
+  .count { margin-top: 2px; font-size: 12px; color: var(--sideBarTextColor); }
+  .chead .btn { margin-top: 8px; width: 100%; }
+  .thread-scroll { flex: 1; min-height: 0; overflow: auto; padding: 10px 12px 12px; }
+  .thread-foot {
+    flex: none; padding: 8px 12px 10px; background: var(--panelSolid);
+    border-top: 1px solid var(--editorColor10);
+  }
+  .quote {
+    margin: 0; padding: 6px 8px;
+    border-left: 2px solid var(--commentMarkUnderline);
+    background: var(--commentMarkBg);
+    color: var(--sideBarTitleColor);
+    font-size: 13px; line-height: 1.45;
+  }
+  .linkish {
+    display: inline-block; margin-top: 6px; padding: 0;
+    background: none; border: none; color: var(--linkColor);
+    font-size: 12px; cursor: pointer;
+  }
+  .warn {
+    margin: 8px 0 0; padding: 6px 8px;
+    background: var(--tagOrphanBg); color: var(--tagOrphanFg);
+    font-size: 12px; line-height: 1.4;
+  }
+  .tag {
+    display: inline-block; margin-top: 6px; padding: 0 6px; border-radius: 2px;
+    font-size: 11px; font-weight: 600; line-height: 18px;
+    color: var(--editorColor); background: var(--editorColor04);
+    box-shadow: inset 0 0 0 1px var(--editorColor10);
+  }
+  .msg { padding: 10px 0; border-bottom: 1px solid var(--editorColor10); }
+  .msg-head { display: flex; align-items: flex-start; gap: 6px; }
+  .who { flex: 1; min-width: 0; font-size: 12px; line-height: 1.35; color: var(--sideBarTitleColor); }
+  .who.agent { color: var(--harnessFg); }
+  .harness {
+    flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--harnessFg);
+  }
+  .harness svg { display: block; width: 16px; height: 16px; }
+  .when { display: block; color: var(--sideBarTextColor); font-weight: 400; }
+  .edited { color: var(--sideBarTextColor); }
+  .kebab {
+    flex: none; width: 22px; height: 22px; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; border-radius: 2px; color: var(--iconColor); cursor: pointer;
+  }
+  .kebab:hover { background: var(--sideBarItemHoverBgColor); }
+  .kebab svg { width: 14px; height: 14px; display: block; }
+  .msg-body { margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--editorColor); }
+  .msg-body p { margin: 0 0 0.45em; }
+  .msg-body ul { margin: 0 0 0.45em; padding-left: 1.15em; }
+  .msg-body li { margin: 0 0 0.15em; }
+  .msg-body pre {
+    margin: 0; padding: 6px 8px; overflow: auto;
+    background: var(--codeBgColor); color: var(--editorColor80);
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 11px; line-height: 1.45; white-space: pre;
+  }
+  .plain { white-space: pre-wrap; }
+  .clamp { max-height: 7.5em; overflow: hidden; position: relative; }
+  .clamp::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1.6em;
+    background: linear-gradient(transparent, var(--panelSolid));
+  }
+  .edit-area, .composer {
+    width: 100%; resize: vertical; min-height: 64px; padding: 6px 8px;
+    border: 1px solid var(--editorColor10); border-radius: 2px;
+    background: var(--inputBgColor); color: var(--editorColor); font-size: 13px; line-height: 1.4;
+  }
+  .edit-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .hint { margin: 6px 0 0; font-size: 12px; color: var(--sideBarTextColor); line-height: 1.4; }
+  .gone { margin: 0; font-size: 13px; line-height: 1.45; color: var(--sideBarColor); }
+  .primary, .btn, .danger {
+    border-radius: 2px; font-size: 13px; cursor: pointer;
+  }
+  .primary {
+    width: 100%; margin-top: 8px; padding: 6px 10px; border: none;
+    background: var(--buttonPrimaryBgColor); color: var(--buttonPrimaryFontColor);
+  }
+  .primary:disabled, .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn {
+    padding: 5px 8px; background: transparent; color: var(--sideBarColor);
+    border: 1px solid var(--editorColor30);
+  }
+  .actions { display: flex; gap: 6px; margin-top: 6px; }
+  .actions .btn { flex: 1; }
+  .danger {
+    padding: 5px 8px; background: var(--tagReadBg); color: var(--tagReadFg);
+    border: 1px solid transparent; font-weight: 600;
+  }
+  .turn-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .textbtn {
+    flex: none; padding: 0; background: none; border: none;
+    color: var(--linkColor); font-size: 12px; cursor: pointer;
+  }
+  .textbtn:disabled { opacity: 0.4; cursor: default; }
+  .menu {
+    position: fixed; z-index: 40; min-width: 210px; padding: 4px 0;
+    background: var(--floatBgColor); color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor); box-shadow: var(--floatShadow);
+  }
+  .menu button {
+    position: relative; display: block; width: 100%; padding: 6px 12px;
+    background: none; border: none; text-align: left; font-size: 13px;
+    color: var(--floatFontColor); cursor: pointer;
+  }
+  .menu button:hover:not([aria-disabled="true"]) { background: var(--sideBarItemHoverBgColor); }
+  .menu button[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+  .menu button[data-tip]:hover::after {
+    content: attr(data-tip); position: absolute; z-index: 6; right: calc(100% + 6px); top: 0;
+    width: 220px; padding: 4px 8px;
+    background: var(--floatBgColor); color: var(--floatFontColor);
+    border: 1px solid var(--floatBorderColor); box-shadow: var(--floatShadow);
+    font-size: 12px; line-height: 1.4; white-space: normal; text-align: left;
+  }
+  .confirm-back {
+    position: absolute; inset: 0; z-index: 6;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+  .confirm {
+    width: 100%; padding: 12px; background: var(--floatBgColor); color: var(--floatFontColor);
+    box-shadow: var(--floatShadow);
+  }
+  .confirm p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; }
+  .confirm .actions { margin-top: 0; }
+
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 4 — Тред</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" aria-pressed="true" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" aria-pressed="false" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru" aria-pressed="true">RU</button>
+    <button type="button" id="lang-en" aria-pressed="false">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="anchorGroup" aria-label="Якорь">
+    <button type="button" data-anchor="anchored" aria-pressed="true" data-i18n="anchorIn">В тексте</button>
+    <button type="button" data-anchor="orphan" data-i18n="anchorOut">Оторван</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="turnGroup" aria-label="Ход">
+    <button type="button" id="turn-toggle" aria-pressed="false" data-i18n="turnToggle">Ход идёт</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+
+<div class="stage">
+  <div class="window">
+    <div class="tabbar">guide.md</div>
+    <div class="work">
+      <div class="editor" id="editor">
+        <div class="doc-inner">
+          <h1>Руководство</h1>
+          <p>Редактор открывает папку как есть. Если это git-репозиторий, рядом с текстом доступны комментарии и чат.</p>
+          <p>Обычный вид документа не меняется: подсветка треда — жёлтая заливка и линия, поиск и выделение остаются своими цветами.</p>
+          <h2>Зависимости</h2>
+          <p>Корень ставит зависимости один раз. Пакеты desktop, muya и website берут их из общего lockfile и не держат своих копий.</p>
+          <p>После установки postinstall патчит native-keymap и собирает нативные модули. Минификация локалей нужна только production-сборке.</p>
+          <p>Линтер и проверка типов обязательны перед коммитом. CI гоняет их на каждой сборке pull request и не мержит красную ветку.</p>
+          <p>Сквозные сценарии лежат в Playwright. Конфиг остаётся в пакете desktop, потому что Playwright читает его из каталога запуска.</p>
+          <p>Смена версии Electron требует пересборки нативных модулей. Без этого окно не поднимается: keymap собран под прошлый ABI.</p>
+          <h2>Сборка</h2>
+          <p><span id="mark">Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там, а не в пакете desktop.</span></p>
+          <p>Запуск из каталога пакета дублирует эти команды тонкими обёртками. Второй источник правды здесь не нужен.</p>
+          <p>Установщики собирает electron-builder. Готовые файлы попадают в dist корня, туда же смотрит CI.</p>
+        </div>
+      </div>
+      <aside class="panel">
+        <div class="panel-tabs" role="tablist">
+          <button type="button" id="tab-comments" role="tab" aria-selected="true">
+            <span data-i18n="comments">Комментарии</span>
+            <span class="count-badge" id="tab-badge">6</span>
+          </button>
+          <button type="button" id="tab-chat" role="tab" data-i18n="chat">Чат</button>
+        </div>
+        <div class="panel-main" id="comments-main">
+          <header class="chead">
+            <div class="file">guide.md</div>
+            <div class="count" id="count"></div>
+            <button type="button" class="btn" id="btn-all"></button>
+          </header>
+          <div class="thread-scroll" id="thread-scroll">
+            <blockquote class="quote" id="quote"></blockquote>
+            <button type="button" class="linkish" id="show-text" data-i18n="showText">Показать в тексте</button>
+            <p class="warn" id="orphan-warn" hidden></p>
+            <span class="tag" id="closed-tag" hidden data-i18n="badgeClosed">закрыт</span>
+            <div id="feed"></div>
+            <p class="gone" id="gone" hidden data-i18n="gone">Тред удалён из .marktext/comments.</p>
+          </div>
+          <footer class="thread-foot" id="thread-foot">
+            <textarea class="composer" id="reply" rows="3"></textarea>
+            <div class="turn-row">
+              <p class="hint" id="add-hint"></p>
+              <button type="button" class="textbtn" id="btn-add" data-i18n="add">Добавить</button>
+            </div>
+            <button type="button" class="primary" id="btn-send"></button>
+            <div class="actions">
+              <button type="button" class="btn" id="btn-close"></button>
+              <button type="button" class="btn" id="btn-delete" data-i18n="deleteThread">Удалить</button>
+            </div>
+            <div class="turn-row" id="turn-row" hidden>
+              <p class="hint" id="turn-hint"></p>
+              <button type="button" class="textbtn" id="btn-cancel-turn" data-i18n="cancelTurn">Отменить ход</button>
+            </div>
+          </footer>
+        </div>
+        <div class="panel-body" id="chat-msg" hidden>
+          <p class="hint" data-i18n="chatLater">Макет чата — промпт 5. Отмена хода живёт и там.</p>
+        </div>
+        <div class="confirm-back" id="confirm" hidden>
+          <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-text">
+            <p id="confirm-text"></p>
+            <div class="actions">
+              <button type="button" class="danger" id="confirm-del" data-i18n="deleteThread">Удалить</button>
+              <button type="button" class="btn" id="confirm-cancel" data-i18n="cancel">Отмена</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="menu" id="msg-menu" role="menu" hidden>
+  <button type="button" id="menu-edit" role="menuitem"></button>
+  <button type="button" id="menu-del" role="menuitem"></button>
+</div>
+
+<section class="notes">
+  <h2 data-i18n="notesTitle">Как устроен раскрытый тред</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+    <li data-i18n="note6"></li>
+    <li data-i18n="note7"></li>
+    <li data-i18n="note8"></li>
+  </ol>
+</section>
+
+<script>
+const QUOTE = 'Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там, а не в пакете desktop.'
+const ORPHAN_QUOTE = 'конфигурация webpack в корне'
+const AGENT_BLOCKS = [
+  { t: 'p', text: 'Проверил корень. Lockfile один, но часть скриптов всё же лежит в пакете desktop.' },
+  { t: 'ul', items: [
+    'pnpm-workspace.yaml только в корне',
+    'scripts/postinstall.ts тоже в корне',
+    'packages/desktop/package.json держит свои dev, build и test'
+  ] },
+  { t: 'p', text: 'Запуск из пакета дублирует эти команды:' },
+  { t: 'pre', text: '{\n  "scripts": {\n    "dev": "pnpm --dir ../.. dev"\n  }\n}' }
+]
+
+function freshMessages() {
+  return [
+    { id: 'h1', kind: 'human', author: 'Evgeniy', time: { ru: '2 окт, 15:04', en: 'Oct 2, 15:04' }, text: 'Скрипты лежат не только в корне — проверь desktop.', edited: true },
+    { id: 'a1', kind: 'agent', harness: 'OpenCode', model: 'anthropic/claude-sonnet-4-5', time: { ru: '2 окт, 15:08', en: 'Oct 2, 15:08' }, blocks: AGENT_BLOCKS },
+    { id: 'h2', kind: 'human', author: 'Evgeniy', time: { ru: '2 окт, 15:11', en: 'Oct 2, 15:11' }, text: 'И пакет website тоже глянь.', edited: false }
+  ]
+}
+
+const I18N = {
+  ru: {
+    catalog: 'Каталог',
+    protoTitle: 'Промпт 4 — Тред',
+    light: 'Светлая',
+    dark: 'Тёмная',
+    themeGroup: 'Тема',
+    langGroup: 'Язык',
+    anchorGroup: 'Якорь',
+    turnGroup: 'Ход',
+    anchorIn: 'В тексте',
+    anchorOut: 'Оторван',
+    turnToggle: 'Ход идёт',
+    comments: 'Комментарии',
+    chat: 'Чат',
+    showText: 'Показать в тексте',
+    badgeClosed: 'закрыт',
+    orphanWarn: 'Цитата не найдена в файле — тред можно отправить, агент получит пометку.',
+    gone: 'Тред удалён из .marktext/comments.',
+    chatLater: 'Макет чата — промпт 5. Отмена хода живёт и там.',
+    deleteThread: 'Удалить',
+    cancel: 'Отмена',
+    cancelTurn: 'Отменить ход',
+    replyPh: 'Новая реплика, markdown',
+    add: 'Добавить',
+    addHint: 'Ctrl+Enter — добавить',
+    send: 'Отправить агенту',
+    sendAll: 'Отправить все неразобранные',
+    close: 'Закрыть',
+    reopen: 'Открыть снова',
+    turnHint: 'Агент уже работает — дождитесь окончания или отмените ход.',
+    confirm: 'Тред и все реплики будут удалены из .marktext/comments',
+    edit: 'Изменить',
+    delMsg: 'Удалить',
+    lastTip: 'Последнюю реплику человека можно убрать только вместе с тредом.',
+    save: 'Сохранить',
+    edited: 'изменено',
+    expand: 'Показать полностью',
+    collapse: 'Свернуть',
+    menuLabel: 'Действия реплики',
+    justNow: 'только что',
+    sent: 'Тред отправлен агенту.',
+    unresolved0: '0 неразобранных',
+    notesTitle: 'Как устроен раскрытый тред',
+    note1: 'Цитата показана целиком: в списке она была обрезана двумя строками. «Показать в тексте» прокручивает редактор к активной подсветке. У оторванного треда ссылки нет — якоря в файле нет.',
+    note2: 'Человек подписан именем из git config user.name. Если имя пустое, подпись — me; здесь это Evgeniy. Агент — цвет harness и иконка, строка «OpenCode · anthropic/claude-sonnet-4-5». Меню у реплики агента нет (D13).',
+    note3: 'Меню реплики человека: «Изменить» и «Удалить». Удалить нельзя последнюю реплику человека — для этого удаляют тред. После правки рядом со временем стоит «изменено».',
+    note4: 'Длинная реплика агента свёрнута: абзац и начало списка видны, код спрятан за «Показать полностью». Короткие реплики не сворачиваются. Markdown рисуется в теле реплики, не как исходник.',
+    note5: 'Поле новой реплики — markdown-текст. Пустую реплику добавить нельзя. Ctrl+Enter добавляет её в ленту.',
+    note6: 'Главное действие этого экрана — «Отправить агенту», оно закреплено под полем. «Отправить все» остаётся в шапке вторичной кнопкой: в списке оно было главным, здесь не спорит со вторым primary.',
+    note7: 'Пока идёт ход, обе отправки неактивны, и фраза про ожидание видна сразу: у неактивной кнопки подсказка по наведению ненадёжна. «Отменить ход» снимает этот запрет. Оторванный тред отправить можно — предупреждение говорит, что агент получит пометку.',
+    note8: '«Удалить» спрашивает подтверждение дословной фразой и затем снимает подсветку. «Открыть снова» — это D13. Сочетания переназначаются и свободны в keybindingsLinux.ts: Ctrl+Enter добавляет реплику, Ctrl+Shift+Enter отправляет этот тред, Ctrl+Alt+Enter отправляет все.',
+    statusAnchored: 'цитата в тексте',
+    statusOrphan: 'оторван',
+    statusOpen: 'открыт',
+    statusClosed: 'закрыт',
+    statusTurn: 'ход идёт',
+    statusIdle: 'ход не идёт',
+    statusDeleted: 'тред удалён'
+  },
+  en: {
+    catalog: 'Catalog',
+    protoTitle: 'Prompt 4 — Thread',
+    light: 'Light',
+    dark: 'Dark',
+    themeGroup: 'Theme',
+    langGroup: 'Language',
+    anchorGroup: 'Anchor',
+    turnGroup: 'Turn',
+    anchorIn: 'In the text',
+    anchorOut: 'Detached',
+    turnToggle: 'Turn running',
+    comments: 'Comments',
+    chat: 'Chat',
+    showText: 'Show in text',
+    badgeClosed: 'closed',
+    orphanWarn: 'Quote was not found in the file — the thread can still be sent, and the agent will get a mark.',
+    gone: 'The thread was deleted from .marktext/comments.',
+    chatLater: 'Chat mockup — prompt 5. Canceling the turn lives there too.',
+    deleteThread: 'Delete',
+    cancel: 'Cancel',
+    cancelTurn: 'Cancel turn',
+    replyPh: 'New reply, markdown',
+    add: 'Add',
+    addHint: 'Ctrl+Enter — add',
+    send: 'Send to agent',
+    sendAll: 'Send all unresolved',
+    close: 'Close',
+    reopen: 'Reopen',
+    turnHint: 'The agent is already working — wait for it to finish or cancel the turn.',
+    confirm: 'The thread and all replies will be deleted from .marktext/comments',
+    edit: 'Edit',
+    delMsg: 'Delete',
+    lastTip: 'The last human reply can only be removed together with the thread.',
+    save: 'Save',
+    edited: 'edited',
+    expand: 'Show all',
+    collapse: 'Collapse',
+    menuLabel: 'Reply actions',
+    justNow: 'just now',
+    sent: 'The thread was sent to the agent.',
+    unresolved0: '0 unresolved',
+    notesTitle: 'How the open thread is built',
+    note1: 'The quote is shown in full: the list clamped it to two lines. “Show in text” scrolls the editor to the active highlight. A detached thread has no link — there is no anchor in the file.',
+    note2: 'A person is signed with git config user.name. An empty name falls back to me; here it is Evgeniy. The agent has a harness color and icon, and the line “OpenCode · anthropic/claude-sonnet-4-5”. Agent replies have no menu (D13).',
+    note3: 'A human reply’s menu is Edit and Delete. Delete is unavailable on the last human reply — that requires deleting the thread. After an edit, “edited” sits next to the time.',
+    note4: 'A long agent reply starts collapsed: the paragraph and the start of the list are visible, the code sits behind “Show all”. Short replies are not collapsed. Markdown is rendered in the reply, not shown as source.',
+    note5: 'The new-reply field is markdown text. An empty reply cannot be added. Ctrl+Enter appends it to the thread.',
+    note6: 'The primary action on this screen is “Send to agent”, pinned under the field. “Send all” stays in the header as a secondary button: it was primary on the list, and here it does not compete with a second primary.',
+    note7: 'While a turn is running, both sends are inactive and the wait sentence is visible: a tooltip on a disabled button is unreliable. “Cancel turn” lifts the block. A detached thread can still be sent — the warning says the agent will get a mark.',
+    note8: 'Delete asks for confirmation with the exact sentence, then removes the highlight. Reopen is D13. Shortcuts can be rebound and are free in keybindingsLinux.ts: Ctrl+Enter adds a reply, Ctrl+Shift+Enter sends this thread, Ctrl+Alt+Enter sends all.',
+    statusAnchored: 'quote in the text',
+    statusOrphan: 'detached',
+    statusOpen: 'open',
+    statusClosed: 'closed',
+    statusTurn: 'turn running',
+    statusIdle: 'turn idle',
+    statusDeleted: 'thread deleted'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function t(key) { return I18N[state.lang][key] }
+function ruPlural(n, one, few, many) {
+  const n10 = n % 10
+  const n100 = n % 100
+  if (n10 === 1 && n100 !== 11) return one
+  if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return few
+  return many
+}
+function unresolvedLabel(n) {
+  if (state.lang === 'ru') {
+    if (n === 0) return t('unresolved0')
+    return n + ' ' + ruPlural(n, 'неразобранный', 'неразобранных', 'неразобранных')
+  }
+  return n === 1 ? '1 unresolved' : n + ' unresolved'
+}
+
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  panel: 'comments',
+  orphan: false,
+  turn: false,
+  closed: false,
+  deleted: false,
+  expanded: false,
+  menu: null,
+  editing: null,
+  editDraft: '',
+  draft: '',
+  confirm: false,
+  sentNote: false,
+  messages: freshMessages()
+}
+let seq = 3
+let focusCancel = false
+
+function unresolvedCount() {
+  return state.deleted || state.closed ? 5 : 6
+}
+function lastHumanId() {
+  const humans = state.messages.filter((m) => m.kind === 'human')
+  return humans.length ? humans[humans.length - 1].id : null
+}
+function sendsBlocked() {
+  return state.turn || state.deleted
+}
+
+function applyI18n() {
+  const pack = I18N[state.lang]
+  document.documentElement.lang = state.lang
+  document.title = pack.protoTitle
+  document.querySelectorAll('[data-i18n]').forEach((el) => {
+    const value = pack[el.dataset.i18n]
+    if (value) el.textContent = value
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    el.setAttribute('aria-label', pack[el.dataset.i18nAria])
+  })
+  $('reply').placeholder = pack.replyPh
+}
+
+function iconHarness() {
+  const span = document.createElement('span')
+  span.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.25" y="1.75" width="13.5" height="12.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.25"/><path d="M4 6.5h5.5M4 9.25h3.5" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>'
+  return span.firstChild
+}
+function iconKebab() {
+  const span = document.createElement('span')
+  span.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="3.5" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="12.5" r="1.15" fill="currentColor"/></svg>'
+  return span.firstChild
+}
+function agentBody(blocks, clamp) {
+  const body = document.createElement('div')
+  body.className = 'msg-body' + (clamp ? ' clamp' : '')
+  blocks.forEach((block) => {
+    if (block.t === 'p') {
+      const p = document.createElement('p')
+      p.textContent = block.text
+      body.append(p)
+    } else if (block.t === 'ul') {
+      const ul = document.createElement('ul')
+      block.items.forEach((item) => {
+        const li = document.createElement('li')
+        li.textContent = item
+        ul.append(li)
+      })
+      body.append(ul)
+    } else if (block.t === 'pre') {
+      const pre = document.createElement('pre')
+      pre.textContent = block.text
+      body.append(pre)
+    }
+  })
+  return body
+}
+function renderFeed() {
+  const feed = $('feed')
+  feed.replaceChildren()
+  if (state.deleted) return
+  state.messages.forEach((msg) => {
+    const row = document.createElement('article')
+    row.className = 'msg'
+    row.dataset.id = msg.id
+    const head = document.createElement('div')
+    head.className = 'msg-head'
+    if (msg.kind === 'agent') {
+      const icon = document.createElement('span')
+      icon.className = 'harness'
+      icon.append(iconHarness())
+      head.append(icon)
+    }
+    const who = document.createElement('div')
+    who.className = 'who' + (msg.kind === 'agent' ? ' agent' : '')
+    if (msg.kind === 'agent') who.append(document.createTextNode(msg.harness + ' · ' + msg.model))
+    else who.append(document.createTextNode(msg.author))
+    const when = document.createElement('span')
+    when.className = 'when'
+    when.textContent = msg.time.key ? t(msg.time.key) : msg.time[state.lang]
+    if (msg.edited) {
+      const mark = document.createElement('span')
+      mark.className = 'edited'
+      mark.textContent = ' · ' + t('edited')
+      when.append(mark)
+    }
+    who.append(when)
+    head.append(who)
+    if (msg.kind === 'human') {
+      const kebab = document.createElement('button')
+      kebab.type = 'button'
+      kebab.className = 'kebab'
+      kebab.dataset.id = msg.id
+      kebab.setAttribute('aria-label', t('menuLabel'))
+      kebab.setAttribute('aria-expanded', String(state.menu === msg.id))
+      kebab.append(iconKebab())
+      head.append(kebab)
+    }
+    row.append(head)
+    if (state.editing === msg.id) {
+      const area = document.createElement('textarea')
+      area.className = 'edit-area'
+      area.value = state.editDraft
+      const actions = document.createElement('div')
+      actions.className = 'edit-actions'
+      const save = document.createElement('button')
+      save.type = 'button'
+      save.className = 'btn'
+      save.dataset.saveEdit = msg.id
+      save.textContent = t('save')
+      const cancel = document.createElement('button')
+      cancel.type = 'button'
+      cancel.className = 'btn'
+      cancel.dataset.cancelEdit = msg.id
+      cancel.textContent = t('cancel')
+      actions.append(save, cancel)
+      row.append(area, actions)
+    } else if (msg.kind === 'agent') {
+      const clamp = msg.id === 'a1' && !state.expanded
+      row.append(agentBody(msg.blocks, clamp))
+      if (msg.id === 'a1') {
+        const more = document.createElement('button')
+        more.type = 'button'
+        more.className = 'linkish'
+        more.dataset.expand = 'a1'
+        more.textContent = state.expanded ? t('collapse') : t('expand')
+        row.append(more)
+      }
+    } else {
+      const body = document.createElement('div')
+      body.className = 'msg-body plain'
+      body.textContent = msg.text
+      row.append(body)
+    }
+    feed.append(row)
+  })
+}
+
+function placeMenu() {
+  const menu = $('msg-menu')
+  if (!state.menu) {
+    menu.hidden = true
+    return
+  }
+  const btn = document.querySelector('.kebab[data-id="' + state.menu + '"]')
+  if (!btn) {
+    menu.hidden = true
+    state.menu = null
+    return
+  }
+  const last = state.menu === lastHumanId()
+  $('menu-edit').textContent = t('edit')
+  $('menu-del').textContent = t('delMsg')
+  $('menu-del').dataset.tip = last ? t('lastTip') : ''
+  if (last) $('menu-del').setAttribute('aria-disabled', 'true')
+  else $('menu-del').removeAttribute('aria-disabled')
+  menu.hidden = false
+  const r = btn.getBoundingClientRect()
+  const panel = document.querySelector('.panel').getBoundingClientRect()
+  const width = menu.offsetWidth
+  const height = menu.offsetHeight
+  let left = r.right - width
+  if (left < panel.left + 8) left = panel.left + 8
+  let top = r.bottom + 4
+  if (top + height > panel.bottom - 8) top = r.top - height - 4
+  menu.style.left = left + 'px'
+  menu.style.top = top + 'px'
+}
+
+function scrollInside(container, el) {
+  const c = container.getBoundingClientRect()
+  const r = el.getBoundingClientRect()
+  if (r.top >= c.top + 24 && r.bottom <= c.bottom - 24) return
+  container.scrollTop += r.top - c.top - Math.max(0, (c.height - r.height) / 2)
+}
+function showInText() {
+  if (state.orphan || state.deleted) return
+  scrollInside($('editor'), $('mark'))
+}
+
+function addReply() {
+  const text = state.draft.trim()
+  if (!text || state.deleted) return
+  state.messages.push({
+    id: 'h' + (++seq),
+    kind: 'human',
+    author: 'Evgeniy',
+    time: { key: 'justNow' },
+    text: text,
+    edited: false
+  })
+  state.draft = ''
+  apply()
+  const feed = $('feed').lastElementChild
+  if (feed) scrollInside($('thread-scroll'), feed)
+}
+function saveEdit() {
+  const msg = state.messages.find((item) => item.id === state.editing)
+  const text = state.editDraft.trim()
+  if (!msg || !text) return
+  msg.text = text
+  msg.edited = true
+  state.editing = null
+  apply()
+}
+function deleteMessage(id) {
+  if (id === lastHumanId()) return
+  state.messages = state.messages.filter((item) => item.id !== id)
+  state.menu = null
+  if (state.editing === id) state.editing = null
+  apply()
+}
+function sendThread() {
+  if (sendsBlocked()) return
+  state.turn = true
+  state.sentNote = true
+  apply()
+}
+function sendAll() {
+  if (sendsBlocked()) return
+  state.turn = true
+  state.sentNote = true
+  apply()
+}
+function confirmDelete() {
+  state.deleted = true
+  state.confirm = false
+  state.menu = null
+  state.editing = null
+  state.messages = []
+  $('thread-scroll').scrollTop = 0
+  apply()
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-lang', state.lang)
+  persist('mt-mockup-theme', state.theme)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-anchor]').forEach((el) => {
+    const on = el.dataset.anchor === 'orphan' ? state.orphan : !state.orphan
+    el.setAttribute('aria-pressed', String(on))
+  })
+  $('turn-toggle').setAttribute('aria-pressed', String(state.turn))
+
+  const comments = state.panel === 'comments'
+  $('tab-comments').setAttribute('aria-selected', String(comments))
+  $('tab-chat').setAttribute('aria-selected', String(!comments))
+  $('comments-main').hidden = !comments
+  $('chat-msg').hidden = comments
+  $('confirm').hidden = !state.confirm || !comments
+  $('confirm-text').textContent = t('confirm')
+
+  const n = unresolvedCount()
+  $('count').textContent = unresolvedLabel(n)
+  $('tab-badge').textContent = String(n)
+  $('tab-badge').hidden = n === 0
+  $('tab-comments').setAttribute('aria-label', t('comments') + (n ? ', ' + unresolvedLabel(n) : ''))
+  $('btn-all').textContent = t('sendAll') + ' (' + n + ')'
+  $('btn-all').disabled = sendsBlocked()
+  $('btn-send').textContent = t('send')
+  $('btn-send').disabled = sendsBlocked()
+  $('btn-close').textContent = state.closed ? t('reopen') : t('close')
+  $('add-hint').textContent = t('addHint')
+  $('btn-add').disabled = !state.draft.trim()
+  $('turn-hint').textContent = t('turnHint')
+  $('turn-row').hidden = !state.turn || state.deleted
+  $('btn-all').setAttribute('title', state.turn ? t('turnHint') : '')
+  $('btn-send').setAttribute('title', state.turn ? t('turnHint') : '')
+  if (state.sentNote && state.turn) $('turn-hint').textContent = t('sent') + ' ' + t('turnHint')
+
+  $('quote').textContent = state.orphan ? ORPHAN_QUOTE : QUOTE
+  $('show-text').hidden = state.orphan || state.deleted
+  $('orphan-warn').hidden = !state.orphan || state.deleted
+  $('orphan-warn').textContent = t('orphanWarn')
+  $('closed-tag').hidden = !state.closed || state.deleted
+  $('gone').hidden = !state.deleted
+  $('quote').hidden = state.deleted
+  $('thread-foot').hidden = state.deleted
+  $('btn-close').disabled = state.deleted
+  $('btn-delete').disabled = state.deleted
+
+  const mark = $('mark')
+  const shown = !state.orphan && !state.deleted
+  mark.classList.toggle('mark', shown)
+  if (shown) {
+    mark.setAttribute('role', 'button')
+    mark.tabIndex = 0
+  } else {
+    mark.removeAttribute('role')
+    mark.removeAttribute('tabindex')
+  }
+
+  const reply = $('reply')
+  if (document.activeElement !== reply && reply.value !== state.draft) reply.value = state.draft
+  renderFeed()
+  placeMenu()
+  if (focusCancel) {
+    focusCancel = false
+    $('confirm-cancel').focus()
+  }
+
+  const parts = [
+    state.deleted ? t('statusDeleted') : (state.orphan ? t('statusOrphan') : t('statusAnchored')),
+    state.closed ? t('statusClosed') : t('statusOpen'),
+    state.turn ? t('statusTurn') : t('statusIdle')
+  ]
+  $('status').textContent = parts.join(' · ')
+}
+
+function restoreThread() {
+  state.messages = freshMessages()
+  state.deleted = false
+  state.closed = false
+  state.expanded = false
+  state.menu = null
+  state.editing = null
+  state.editDraft = ''
+  state.draft = ''
+  state.confirm = false
+  state.sentNote = false
+  $('thread-scroll').scrollTop = 0
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+document.querySelectorAll('[data-anchor]').forEach((el) => {
+  el.addEventListener('click', () => {
+    state.orphan = el.dataset.anchor === 'orphan'
+    state.turn = false
+    state.panel = 'comments'
+    restoreThread()
+    apply()
+  })
+})
+$('turn-toggle').addEventListener('click', () => {
+  state.turn = !state.turn
+  if (!state.turn) state.sentNote = false
+  apply()
+})
+$('tab-comments').addEventListener('click', () => { state.panel = 'comments'; apply() })
+$('tab-chat').addEventListener('click', () => { state.panel = 'chat'; state.menu = null; state.confirm = false; apply() })
+$('show-text').addEventListener('click', showInText)
+$('mark').addEventListener('click', showInText)
+$('btn-send').addEventListener('click', sendThread)
+$('btn-all').addEventListener('click', sendAll)
+$('btn-close').addEventListener('click', () => { state.closed = !state.closed; apply() })
+$('btn-delete').addEventListener('click', () => { state.confirm = true; focusCancel = true; state.menu = null; apply() })
+$('confirm-cancel').addEventListener('click', () => { state.confirm = false; apply() })
+$('confirm-del').addEventListener('click', confirmDelete)
+$('btn-cancel-turn').addEventListener('click', () => { state.turn = false; state.sentNote = false; apply() })
+$('btn-add').addEventListener('click', addReply)
+$('reply').addEventListener('input', () => {
+  state.draft = $('reply').value
+  $('btn-add').disabled = !state.draft.trim()
+})
+$('reply').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+    e.preventDefault()
+    addReply()
+  }
+})
+$('feed').addEventListener('click', (e) => {
+  const kebab = e.target.closest('.kebab')
+  if (kebab) {
+    e.stopPropagation()
+    state.menu = state.menu === kebab.dataset.id ? null : kebab.dataset.id
+    state.confirm = false
+    apply()
+    return
+  }
+  if (e.target.closest('[data-expand]')) {
+    state.expanded = !state.expanded
+    apply()
+    return
+  }
+  const save = e.target.closest('[data-save-edit]')
+  if (save) { saveEdit(); return }
+  if (e.target.closest('[data-cancel-edit]')) {
+    state.editing = null
+    apply()
+  }
+})
+$('feed').addEventListener('input', (e) => {
+  if (e.target.classList.contains('edit-area')) state.editDraft = e.target.value
+})
+$('feed').addEventListener('keydown', (e) => {
+  if (!e.target.classList.contains('edit-area')) return
+  if (e.key === 'Enter' && e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+    e.preventDefault()
+    saveEdit()
+  }
+})
+$('menu-edit').addEventListener('click', () => {
+  const msg = state.messages.find((item) => item.id === state.menu)
+  if (!msg) return
+  state.editing = msg.id
+  state.editDraft = msg.text
+  state.menu = null
+  apply()
+  const area = document.querySelector('.edit-area')
+  if (area) area.focus()
+})
+$('menu-del').addEventListener('click', () => {
+  if ($('menu-del').getAttribute('aria-disabled') === 'true') return
+  deleteMessage(state.menu)
+})
+document.addEventListener('click', (e) => {
+  if (!state.menu) return
+  if (e.target.closest('#msg-menu') || e.target.closest('.kebab')) return
+  state.menu = null
+  apply()
+})
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (state.confirm) { state.confirm = false; apply(); return }
+    if (state.menu) { state.menu = null; apply(); return }
+    if (state.editing) { state.editing = null; apply(); return }
+  }
+  if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && e.key === 'Enter') {
+    e.preventDefault()
+    sendThread()
+  }
+  if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey && e.key === 'Enter') {
+    e.preventDefault()
+    sendAll()
+  }
+})
+
+applyI18n()
+apply()
+</script>
+</body>
+</html>
