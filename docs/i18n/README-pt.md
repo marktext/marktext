@@ -133,7 +133,7 @@ MarkText é um editor Markdown de código aberto impulsionado pelo apoio de sua 
 - Extensões Markdown como expressões matemáticas (KaTeX), front matter e emojis.
 - Suporte a atalhos de parágrafo e estilo inline para melhorar sua eficiência de escrita.
 - Exportação de arquivos **HTML** e **PDF**.
-- Vários [temas](../end-user/THEMES.md): **Cadmium Light**, **Material Dark** etc.
+- Vários [temas](https://marktext.me/docs/themes): **Cadmium Light**, **Material Dark** etc.
 - Vários modos de edição: **Modo Código-Fonte**, **Modo Máquina de Escrever**, **Modo Foco**.
 - Cole imagens diretamente da área de transferência.
 
@@ -145,7 +145,7 @@ MarkText é um editor Markdown de código aberto impulsionado pelo apoio de sua 
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-Quer ver os novos recursos da última versão? Consulte o [CHANGELOG](../CHANGELOG.md).
+Quer ver os novos recursos da última versão? Consulte o [CHANGELOG](https://marktext.me/docs/changelog).
 
 #### macOS
 
@@ -173,7 +173,7 @@ winget install marktext
 
 #### Linux
 
-Por favor siga as [instruções de instalação do Linux](../end-user/LINUX.md).
+Por favor siga as [instruções de instalação do Linux](https://marktext.me/docs/installation).
 
 #### Outros
 
@@ -181,10 +181,10 @@ Todos os binários para Linux, macOS e Windows podem ser baixados da [página de
 
 ## Desenvolvimento
 
-Se você deseja compilar o MarkText, por favor consulte nossas [instruções de compilação](../dev/BUILD.md).
+Se você deseja compilar o MarkText, por favor consulte nossas [instruções de compilação](https://marktext.me/docs/dev/build).
 
-- [Documentação do usuário](../README.md)
-- [Documentação do desenvolvedor](../dev/README.md)
+- [Documentação do usuário](https://marktext.me/docs/introduction)
+- [Documentação do desenvolvedor](https://marktext.me/docs/dev/overview)
 
 Se você tiver alguma dúvida sobre o MarkText, fique à vontade para abrir um issue. Ao fazê-lo, use o formato padrão encontrado ao abrir um issue. Claro, se você enviar um PR diretamente, será muito apreciado.
 

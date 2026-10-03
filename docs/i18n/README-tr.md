@@ -134,7 +134,7 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 - Matematiksel ifadeler (KaTeX), front matter ve emoji gibi Markdown uzantıları.
 - Yazma verimliliğinizi artırmak için paragraf ve satır içi stil kısayolları.
 - **HTML** ve **PDF** dosyası çıktısı.
-- Çeşitli [temalar](../end-user/THEMES.md): **Cadmium Light**, **Material Dark** vb.
+- Çeşitli [temalar](https://marktext.me/docs/themes): **Cadmium Light**, **Material Dark** vb.
 - Çeşitli düzenleme modları: **Kaynak Kodu modu**, **Daktilo modu**, **Odak modu**.
 - Görüntüleri doğrudan panodan yapıştırın.
 
@@ -146,7 +146,7 @@ MarkText, topluluğunun desteğiyle hayata geçirilmiş açık kaynaklı bir Mar
 | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x64.dmg.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x64.dmg) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-setup.exe.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-setup.exe) | [![latest version](https://img.shields.io/github/downloads/marktext/marktext/latest/marktext-x86_64.AppImage.svg)](https://github.com/marktext/marktext/releases/download/v0.17.1/marktext-x86_64.AppImage) |
 
-En son sürümün yeni özelliklerini görmek ister misiniz? Lütfen [CHANGELOG](../CHANGELOG.md)'a bakın.
+En son sürümün yeni özelliklerini görmek ister misiniz? Lütfen [CHANGELOG](https://marktext.me/docs/changelog)'a bakın.
 
 #### macOS
 
@@ -174,7 +174,7 @@ winget install marktext
 
 #### Linux
 
-Lütfen [Linux kurulum talimatlarını](../end-user/LINUX.md) takip edin.
+Lütfen [Linux kurulum talimatlarını](https://marktext.me/docs/installation) takip edin.
 
 #### Diğer
 
@@ -182,10 +182,10 @@ Linux, macOS ve Windows için tüm ikili dosyalar [sürümler sayfasından](http
 
 ## Geliştirme
 
-MarkText'i kendiniz derlemek istiyorsanız lütfen [derleme talimatlarımıza](../dev/BUILD.md) bakın.
+MarkText'i kendiniz derlemek istiyorsanız lütfen [derleme talimatlarımıza](https://marktext.me/docs/dev/build) bakın.
 
-- [Kullanıcı belgeleri](../README.md)
-- [Geliştirici belgeleri](../dev/README.md)
+- [Kullanıcı belgeleri](https://marktext.me/docs/introduction)
+- [Geliştirici belgeleri](https://marktext.me/docs/dev/overview)
 
 MarkText hakkında sorularınız varsa bir issue yazabilirsiniz. Bunu yaparken issue açarken görünen varsayılan formatı kullanın. Elbette doğrudan bir PR gönderirseniz çok memnun oluruz.
 
