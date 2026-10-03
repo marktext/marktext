@@ -201,6 +201,14 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
       forgetCachedModels(modelCachePath(), ids)
     }
     const turnedOn = record.agentModeEnabled === true
+    if (isHarnessId(record.agentHarness)) {
+      const next = record.agentHarness
+      for (const runner of turnRunners.values()) {
+        runner.applyHarnessPreference(next).catch((err: unknown) => {
+          log.error(err)
+        })
+      }
+    }
     if (!agentModeEnabled(deps) || (ids.length === 0 && !turnedOn)) return
     publishProbe()
   })
@@ -288,14 +296,14 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     return turnRunnerFor(win.id, deps).getSelection(win.id)
   })
 
-  ipcMain.handle('mt::agent::set-selection', (event, harness: unknown, model: unknown) => {
+  ipcMain.handle('mt::agent::set-selection', (event, model: unknown) => {
     requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return Promise.reject(new Error('no window'))
-    if (!isHarnessId(harness) || typeof model !== 'string') {
+    if (typeof model !== 'string' || model.length === 0) {
       return Promise.reject(new Error('bad selection'))
     }
-    return turnRunnerFor(win.id, deps).setSelection(win.id, harness, model)
+    return turnRunnerFor(win.id, deps).setSelection(win.id, model)
   })
 
   ipcMain.handle('mt::agent::list-sessions', (event, harness: unknown) => {

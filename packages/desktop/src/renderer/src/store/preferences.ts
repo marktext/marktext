@@ -115,6 +115,7 @@ export interface PreferencesState {
   watcherUsePolling: boolean
 
   agentModeEnabled: boolean
+  agentHarness: 'opencode' | 'pi' | 'cursor'
   agentOpencodePath: string
   agentPiPath: string
   agentCursorPath: string
@@ -239,6 +240,7 @@ export const usePreferencesStore = defineStore('preferences', {
     watcherUsePolling: false,
 
     agentModeEnabled: true,
+    agentHarness: 'opencode',
     agentOpencodePath: '',
     agentPiPath: '',
     agentCursorPath: '',

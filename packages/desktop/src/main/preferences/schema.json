@@ -452,6 +452,12 @@
     "type": "boolean",
     "default": true
   },
+  "agentHarness": {
+    "description": "Agent--Active harness. The chat header does not switch it.--internal",
+    "type": "string",
+    "enum": ["opencode", "pi", "cursor"],
+    "default": "opencode"
+  },
   "agentTerminalShell": {
     "description": "Agent--Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows.--internal",
     "type": "string",

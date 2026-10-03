@@ -30,7 +30,7 @@ describe('sessionStore', () => {
     expect(repoHash(root)).toMatch(/^[0-9a-f]{16}$/)
     expect(fs.existsSync(logFile(agentDir, root, 'opencode', session.id))).toBe(true)
     const repos = JSON.parse(fs.readFileSync(path.join(agentDir, 'repos.json'), 'utf8')) as Record<string, unknown>
-    expect(repos[path.resolve(root)]).toEqual({ selection: null, lastSession: {} })
+    expect(repos[path.resolve(root)]).toEqual({ model: null, lastSession: {} })
     expect(session).toMatchObject({ model: 'claude', title: '', acpSessionId: null })
   })
 
@@ -137,19 +137,24 @@ describe('sessionStore', () => {
     ])
   })
 
-  it('offers the last successful pair only when that model is still listed', async() => {
+  it('offers the last successful model only when it is still listed', async() => {
     const agentDir = tempDir()
     const root = tempDir()
     const other = tempDir()
     const store = new SessionStore(agentDir)
-    await store.setSelection(root, { harness: 'pi', model: 'alpha' })
-    expect(await store.getSelection(other, { pi: ['alpha'] })).toBeNull()
+    await store.setSelection(root, 'alpha')
+    expect(await store.getSelection(other, ['alpha'])).toBeNull()
     expect(fs.existsSync(path.join(agentDir, 'last-selection.json'))).toBe(false)
 
-    await store.setSelection(root, { harness: 'pi', model: 'alpha' }, { used: true })
-    expect(await store.getSelection(other, { pi: ['alpha', 'beta'] })).toEqual({ harness: 'pi', model: 'alpha' })
-    expect(await store.getSelection(other, { pi: ['beta'] })).toBeNull()
-    expect(await store.getSelection(other, { opencode: ['alpha'] })).toBeNull()
-    expect(await store.getSelection(root, { pi: [] })).toEqual({ harness: 'pi', model: 'alpha' })
+    await store.setSelection(root, 'alpha', { used: true })
+    expect(await store.getSelection(other, ['alpha', 'beta'])).toEqual({ model: 'alpha' })
+    expect(await store.getSelection(other, ['beta'])).toBeNull()
+    expect(await store.getSelection(root, [])).toEqual({ model: 'alpha' })
+
+    const legacy = tempDir()
+    fs.writeFileSync(path.join(agentDir, 'repos.json'), `${JSON.stringify({
+      [path.resolve(legacy)]: { selection: { harness: 'pi', model: 'beta' }, lastSession: {} }
+    }, null, 2)}\n`)
+    expect(await store.getSelection(legacy)).toEqual({ model: 'beta' })
   })
 })

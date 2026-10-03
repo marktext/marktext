@@ -233,7 +233,7 @@
 
 **Шаги реализации:**
 
-1. Состояние: `harnessStatuses`, `selection { harness, model }`, `models[harness]`, `sessions`,
+1. Состояние: `harnessStatuses`, `selection { model }` (harness — `agentHarness`), `models[harness]`, `sessions`,
    `activeSession`, `events` (нормализованные `ChatEvent`), `turn { id, state }`,
    `pendingPermissions`, `lastTurnChanges`.
 2. При показе панели: прочитать `agentHarness` и `get-selection` → `list-models` →

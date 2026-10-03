@@ -6,6 +6,8 @@
 // Kept intentionally open with `[key: string]: unknown` until the schema
 // is mechanically derived from schema.json in a follow-up.
 
+import type { HarnessId } from './agent'
+
 export interface IUserPreferences {
   autoSave?: boolean
   autoSaveDelay?: number
@@ -83,6 +85,8 @@ export interface IUserPreferences {
    * and stops harness and pty processes. Unset means on.
    */
   agentModeEnabled?: boolean
+  /** Active harness. The chat header does not switch it. */
+  agentHarness?: HarnessId
   /** Empty uses `$SHELL`, or `powershell.exe` on Windows. */
   agentTerminalShell?: string
   [key: string]: unknown

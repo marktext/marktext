@@ -59,7 +59,7 @@ export type SessionLine =
   }
 
 interface RepoEntry {
-  selection: AgentSelection | null
+  model: string | null
   lastSession: Partial<Record<HarnessId, string>>
 }
 
@@ -99,11 +99,20 @@ const titleFromMessage = (text: string): string =>
 
 const commentsTitle = (file: string): string => `${COMMENTS_TITLE}${file}`
 
-const emptyRepo = (): RepoEntry => ({ selection: null, lastSession: {} })
+const emptyRepo = (): RepoEntry => ({ model: null, lastSession: {} })
 
-const isSelection = (value: unknown): value is AgentSelection => {
-  if (!isRecord(value)) return false
-  return isHarnessId(value.harness) && typeof value.model === 'string' && value.model.length > 0
+const modelText = (value: unknown): string | null =>
+  typeof value === 'string' && value.length > 0 ? value : null
+
+/**
+ * `repos.json` used to store `{ selection: { harness, model } }`. The harness
+ * moved to the `agentHarness` preference, so only the model is kept.
+ */
+const modelFromRepo = (value: Record<string, unknown>): string | null => {
+  const direct = modelText(value.model)
+  if (direct) return direct
+  if (!isRecord(value.selection)) return null
+  return modelText(value.selection.model)
 }
 
 const parseRepos = (raw: string): ReposFile => {
@@ -121,7 +130,7 @@ const parseRepos = (raw: string): ReposFile => {
       }
     }
     repos[key] = {
-      selection: isSelection(value.selection) ? value.selection : null,
+      model: modelFromRepo(value),
       lastSession
     }
   }
@@ -234,45 +243,40 @@ export class SessionStore {
   ) {}
 
   /**
-   * The pair saved for this repository. A repository that has none yet takes
+   * The model saved for this repository. A repository that has none yet takes
    * `last-selection.json` only when that model is still in `available`.
    */
-  getSelection(
-    root: string,
-    available?: Partial<Record<HarnessId, readonly string[]>>
-  ): Promise<AgentSelection | null> {
+  getSelection(root: string, available?: readonly string[]): Promise<AgentSelection | null> {
     return this.enqueue(async() => {
-      const saved = (await this.readRepos())[rootKey(root)]?.selection
-      if (saved) return saved
+      const saved = (await this.readRepos())[rootKey(root)]?.model
+      if (saved) return { model: saved }
       const remembered = await this.readLastSelection()
-      if (!remembered || !available) return null
-      const models = available[remembered.harness]
-      if (!models?.includes(remembered.model)) return null
-      return remembered
+      if (!remembered || !available?.includes(remembered)) return null
+      return { model: remembered }
     })
   }
 
   /**
-   * Stores the pair on the repository. `used` also writes `last-selection.json`.
+   * Stores the model on the repository. `used` also writes `last-selection.json`.
    * A finished turn calls `rememberUsed` instead, so a later header choice stays put.
    */
-  setSelection(root: string, pair: AgentSelection, options?: { used?: boolean }): Promise<void> {
-    if (!isSelection(pair)) throw new SessionStoreError('bad_selection', 'the harness and model are required')
+  setSelection(root: string, model: string, options?: { used?: boolean }): Promise<void> {
+    if (!modelText(model)) throw new SessionStoreError('bad_selection', 'the model is required')
     return this.enqueue(async() => {
       const key = rootKey(root)
       const repos = await this.readRepos()
       const current = repos[key] ?? emptyRepo()
-      repos[key] = { ...current, selection: pair }
+      repos[key] = { ...current, model }
       await this.writeJson(this.reposFile(), repos)
-      if (options?.used) await this.writeJson(this.lastSelectionFile(), pair)
+      if (options?.used) await this.writeJson(this.lastSelectionFile(), { model })
     })
   }
 
-  /** Pair that completed a turn. Does not replace the repository's header pair. */
-  rememberUsed(pair: AgentSelection): Promise<void> {
-    if (!isSelection(pair)) throw new SessionStoreError('bad_selection', 'the harness and model are required')
+  /** Model that completed a turn. Does not replace the repository's header model. */
+  rememberUsed(model: string): Promise<void> {
+    if (!modelText(model)) throw new SessionStoreError('bad_selection', 'the model is required')
     return this.enqueue(async() => {
-      await this.writeJson(this.lastSelectionFile(), pair)
+      await this.writeJson(this.lastSelectionFile(), { model })
     })
   }
 
@@ -457,10 +461,12 @@ export class SessionStore {
     }
   }
 
-  private async readLastSelection(): Promise<AgentSelection | null> {
+  private async readLastSelection(): Promise<string | null> {
     try {
       const parsed: unknown = JSON.parse(await fs.readFile(this.lastSelectionFile(), 'utf8'))
-      return isSelection(parsed) ? parsed : null
+      if (typeof parsed === 'string') return modelText(parsed)
+      if (!isRecord(parsed)) return null
+      return modelText(parsed.model)
     } catch {
       return null
     }

@@ -92,7 +92,10 @@ const ready = (options?: { modeEnabled?: boolean, onEvent?: (event: ChatEvent) =
   let ids = 0
   const deps: TurnRunnerDeps = {
     modeEnabled: () => options?.modeEnabled !== false,
-    preference: (key) => key === 'agentPiPath' ? script : '',
+    preference: (key) => {
+      if (key === 'agentHarness') return 'pi'
+      return key === 'agentPiPath' ? script : ''
+    },
     userDataPath: userData,
     appPath: process.cwd(),
     now: () => new Date(Date.UTC(2026, 9, 2, 12, 0, tick++)).toISOString(),
@@ -172,7 +175,7 @@ describe('turnRunner', () => {
     await expect(noModel.runner.sendMessage(windowId, 'hi')).rejects.toMatchObject({ code: 'no_model' })
 
     const noHarness = ready()
-    await noHarness.store.setSelection(noHarness.root, { harness: 'pi', model: 'alpha' })
+    await noHarness.store.setSelection(noHarness.root, 'alpha')
     fs.rmSync(path.join(noHarness.root, 'fake-harness'))
     await expect(noHarness.runner.sendMessage(windowId, 'hi')).rejects.toMatchObject({ code: 'harness_not_found' })
   })
@@ -186,7 +189,7 @@ describe('turnRunner', () => {
       }
     })
     await initRepo(root)
-    await store.setSelection(root, { harness: 'pi', model: 'alpha' })
+    await store.setSelection(root, 'alpha')
     const first = await createThread(root, 'docs/guide.md', 'alpha quote')
     const second = await createThread(root, 'docs/guide.md', 'beta quote')
     const closed = await createThread(root, 'docs/guide.md', 'closed quote')
@@ -232,7 +235,7 @@ describe('turnRunner', () => {
   it('lists the thread the agent did not answer', async() => {
     const { runner, root, events, store } = ready()
     await initRepo(root)
-    await store.setSelection(root, { harness: 'pi', model: 'alpha' })
+    await store.setSelection(root, 'alpha')
     const first = await createThread(root, 'docs/guide.md', 'alpha quote')
     const second = await createThread(root, 'docs/guide.md', 'beta quote')
     arm(root, 'one-reply-missing', [{ threadId: first, text: 'only first' }])
@@ -249,7 +252,7 @@ describe('turnRunner', () => {
   it('cancels the running turn and rejects another send until it ends', async() => {
     const { runner, root, userData, events, store } = ready()
     await initRepo(root)
-    await store.setSelection(root, { harness: 'pi', model: 'alpha' })
+    await store.setSelection(root, 'alpha')
     const first = await createThread(root, 'docs/guide.md', 'alpha quote')
     arm(root, 'cancel-mid-turn', [])
 
@@ -273,5 +276,28 @@ describe('turnRunner', () => {
     expect(finished(events).stopReason).toBe('cancelled')
     expect(fs.readFileSync(path.join(root, 'docs/guide.md'), 'utf8')).toBe('after\n')
     expect(fs.existsSync(path.join(userData, 'agent', 'last-selection.json'))).toBe(false)
+  })
+
+  it('sends the same text again in the same session after the process exits', async() => {
+    const { runner, root, events, store } = ready()
+    await initRepo(root)
+    await store.setSelection(root, 'alpha')
+    arm(root, 'crash', [])
+
+    const first = await runner.sendMessage(windowId, 'again')
+    expect(finished(events).turnId).toBe(first.turnId)
+    expect(finished(events).stopReason).toBe('error')
+    expect(runner.agentPid()).toBeNull()
+    const sessions = await store.listSessions(root, 'pi')
+    expect(sessions).toHaveLength(1)
+
+    delete process.env.FAKE_ACP_SCENARIO
+    process.env.FAKE_ACP_MODE = 'happy'
+    events.length = 0
+    const second = await runner.sendMessage(windowId, 'again')
+    expect(second.turnId).not.toBe(first.turnId)
+    expect(finished(events).stopReason).toBe('end_turn')
+    expect((await store.listSessions(root, 'pi')).map((item) => item.id)).toEqual([sessions[0]?.id])
+    expect(runner.agentPid()).not.toBeNull()
   })
 })

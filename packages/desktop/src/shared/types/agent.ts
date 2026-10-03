@@ -49,9 +49,8 @@ export type RepoState =
   | { kind: 'none' }
   | { kind: 'repo'; root: string; userName: string }
 
-/** Pair stored for the current repository, not in preferences. */
+/** Model for the current repository. The harness is the `agentHarness` preference. */
 export interface AgentSelection {
-  harness: HarnessId
   model: string
 }
 

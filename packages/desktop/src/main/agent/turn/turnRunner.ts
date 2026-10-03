@@ -16,6 +16,7 @@ import { ChangeTracker, attachChangeTracker, detachChangeTracker } from './chang
 import { historyReplay } from './historyReplay'
 import { buildThreadsMessage } from './messageBuilder'
 import type { ThreadPlacement } from './messageBuilder'
+import { isHarnessId } from '@shared/types/agent'
 import type {
   AgentSelection,
   ChatEvent,
@@ -177,10 +178,24 @@ export class TurnRunner {
     return this.store.getSelection(state.root)
   }
 
-  /** Header pair only. The open ACP session keeps the model it was created with. */
-  async setSelection(windowId: number, harness: HarnessId, model: string): Promise<void> {
-    const root = this.rootOf(windowId)
-    await this.store.setSelection(root, { harness, model })
+  /** Header model only. The open ACP session keeps the model it was created with. */
+  async setSelection(windowId: number, model: string): Promise<void> {
+    if (model.length === 0) throw new TurnRunnerError('no_model', 'no model is selected')
+    await this.store.setSelection(this.rootOf(windowId), model)
+  }
+
+  /** Harness the live process belongs to, or null before the first session. */
+  boundHarnessId(): HarnessId | null {
+    return this.boundHarness
+  }
+
+  /**
+   * Settings changed the harness. A running turn keeps its process; the next
+   * send picks up the preference. An idle process for the old harness stops.
+   */
+  async applyHarnessPreference(next: HarnessId): Promise<void> {
+    if (this.active || this.switching) return
+    if (this.boundHarness && this.boundHarness !== next) await this.disposeHarness()
   }
 
   listSessions(windowId: number, harness: HarnessId): Promise<SessionSummary[]> {
@@ -332,13 +347,21 @@ export class TurnRunner {
     return state.root
   }
 
+  /** Preference, not the chat header. An unknown value stays on OpenCode. */
+  private activeHarness(): HarnessId {
+    const value = this.deps.preference('agentHarness')
+    return isHarnessId(value) ? value : 'opencode'
+  }
+
   private async prepare(turn: ActiveTurn): Promise<void> {
+    const preferred = this.activeHarness()
+    if (this.boundHarness && this.boundHarness !== preferred) await this.disposeHarness()
     if (this.boundHarness && this.sessionModel) {
       turn.harness = this.boundHarness
       turn.model = this.sessionModel
     } else {
       const selection = await this.requireSelection(turn.root)
-      turn.harness = selection.harness
+      turn.harness = preferred
       turn.model = selection.model
     }
     turn.quirks = harnessOf(turn.harness).quirks
@@ -375,7 +398,6 @@ export class TurnRunner {
 
   private async createOpened(root: string, harness: HarnessId): Promise<SessionSummary> {
     const selection = await this.requireSelection(root)
-    if (selection.harness !== harness) throw new TurnRunnerError('no_model', 'no model is selected')
     const created = await this.store.createSession(root, harness, selection.model)
     await this.store.setLastSession(root, harness, created.id)
     return created
@@ -429,8 +451,10 @@ export class TurnRunner {
   }
 
   private async ensureAgent(turn: ActiveTurn): Promise<void> {
+    // A crash leaves the connection object in place with a dead pid. Prompting
+    // that id fails; the same chat has to be opened on a new process.
     if (
-      this.connection &&
+      this.connection?.pid != null &&
       this.acpSessionId &&
       this.boundHarness === turn.harness &&
       this.chatSessionId === turn.sessionId
@@ -441,7 +465,7 @@ export class TurnRunner {
   }
 
   private async bindAcp(windowId: number, root: string, harness: HarnessId, sessionId: string): Promise<void> {
-    if (!this.connection || this.boundHarness !== harness) {
+    if (this.connection?.pid == null || this.boundHarness !== harness) {
       await this.disposeHarness()
       await this.startProcess(root, harness)
     }
@@ -614,7 +638,7 @@ export class TurnRunner {
       finishedAt
     })
     if (notice.stopReason === 'end_turn') {
-      await this.store.rememberUsed({ harness: turn.harness, model: turn.model })
+      await this.store.rememberUsed(turn.model)
     }
   }
 

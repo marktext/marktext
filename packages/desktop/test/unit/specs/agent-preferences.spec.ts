@@ -116,6 +116,7 @@ beforeAll(() => {
   paths.agentPiPath = path.join(root, 'missing-pi')
   paths.agentCursorPath = path.join(root, 'missing-cursor')
   paths.agentTerminalShell = ''
+  paths.agentHarness = 'pi'
   delete process.env.FAKE_ACP_SCENARIO
   process.env.FAKE_ACP_MODE = 'happy'
   registerAgentIpc({
@@ -161,9 +162,11 @@ describe('agent preference keys', () => {
     )) as Record<string, unknown>
 
     expect(schema.agentModeEnabled).toMatchObject({ type: 'boolean', default: true })
+    expect(schema.agentHarness).toMatchObject({ type: 'string', default: 'opencode' })
     expect(schema.agentTerminalShell).toMatchObject({ type: 'string', default: '' })
     expect(schema.agentPiPath).toMatchObject({ type: 'string', default: '' })
     expect(defaults.agentModeEnabled).toBe(true)
+    expect(defaults.agentHarness).toBe('opencode')
     expect(defaults.agentTerminalShell).toBe('')
     expect(defaults.agentOpencodePath).toBe('')
     expect(defaults.agentCursorPath).toBe('')
@@ -204,7 +207,7 @@ describe('agent mode off', () => {
     ['mt::agent::open-session', 'pi', 'new'],
     ['mt::agent::send-message', 'hi'],
     ['mt::agent::send-threads', 'docs/guide.md', [], []],
-    ['mt::agent::set-selection', 'pi', 'alpha'],
+    ['mt::agent::set-selection', 'alpha'],
     ['mt::git::diff', {}],
     ['mt::term::create', { cols: 80, rows: 24 }],
     ['mt::term::kill', 'term-1']
@@ -236,7 +239,7 @@ describe('agent mode off', () => {
     repoRegistry.claim(windowId, { kind: 'repo', root, userName: 'Ada' })
     ipc.sent.length = 0
 
-    await invoke('mt::agent::set-selection', 'pi', 'alpha')
+    await invoke('mt::agent::set-selection', 'alpha')
     await invoke('mt::agent::send-message', 'hi')
     const harness = childCommands().find((child) => child.command.includes('agent.mjs'))
     if (!harness) throw new Error('harness did not start')
@@ -256,5 +259,35 @@ describe('agent mode off', () => {
     expect(alive(harness.pid)).toBe(false)
     expect(ipc.sent.some((args) => args[0] === 'mt::term::exit' && args[1] === created.termId)).toBe(true)
     await expect(invoke('mt::git::diff', {})).rejects.toMatchObject({ code: 'agent_mode_disabled' })
+  })
+})
+
+describe('agent harness preference', () => {
+  it('stops an idle process when settings switch the harness', async() => {
+    const script = path.join(root, 'fake-harness')
+    fs.writeFileSync(
+      script,
+      `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(fixture)} "$@"\n`,
+      { mode: 0o755 }
+    )
+    fs.chmodSync(script, 0o755)
+    paths.agentPiPath = script
+    paths.agentHarness = 'pi'
+    execFileSync('git', ['init', '-q'], { cwd: root })
+    repoRegistry.claim(windowId, { kind: 'repo', root, userName: 'Ada' })
+
+    await invoke('mt::agent::set-selection', 'alpha')
+    await invoke('mt::agent::send-message', 'hi')
+    const harness = childCommands().find((child) => child.command.includes('agent.mjs'))
+    if (!harness) throw new Error('harness did not start')
+
+    paths.agentHarness = 'cursor'
+    emitPrefs({ agentHarness: 'cursor' })
+    const started = Date.now()
+    while (alive(harness.pid)) {
+      if (Date.now() - started > 5000) break
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+    expect(alive(harness.pid)).toBe(false)
   })
 })

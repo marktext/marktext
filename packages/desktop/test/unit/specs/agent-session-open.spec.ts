@@ -136,6 +136,7 @@ const makeRunner = (
   const deps: TurnRunnerDeps = {
     modeEnabled: () => true,
     preference: (key) => {
+      if (key === 'agentHarness') return 'pi'
       if (key === 'agentPiPath') return script
       if (paths === 'both' && key === 'agentCursorPath') return script
       return ''
@@ -163,7 +164,7 @@ describe('openSession', () => {
     const opened = await boot()
     delete process.env.FAKE_ACP_SCENARIO
     process.env.FAKE_ACP_MODE = 'happy'
-    await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
+    await opened.store.setSelection(opened.root, 'alpha')
     const first = await opened.runner.openSession(windowId, 'pi', 'new')
     expect(first.model).toBe('alpha')
     expect(first.resumable).toBe(true)
@@ -171,7 +172,7 @@ describe('openSession', () => {
     expect(prompts(opened.logPath)).toEqual([])
 
     await opened.runner.sendMessage(windowId, 'remember-me')
-    await opened.runner.setSelection(windowId, 'pi', 'beta')
+    await opened.runner.setSelection(windowId, 'beta')
     const pid = opened.runner.agentPid()
     expect(pid).not.toBeNull()
     expect(configValues(opened.logPath)).toEqual(['alpha'])
@@ -179,7 +180,7 @@ describe('openSession', () => {
     await opened.runner.sendMessage(windowId, 'still-alpha')
     expect(configValues(opened.logPath)).toEqual(['alpha'])
     expect(opened.runner.agentPid()).toBe(pid)
-    expect(await opened.runner.getSelection(windowId)).toEqual({ harness: 'pi', model: 'beta' })
+    expect(await opened.runner.getSelection(windowId)).toEqual({ model: 'beta' })
     const saved = await opened.store.readSession(opened.root, 'pi', first.summary.id)
     expect(saved.model).toBe('alpha')
     expect(saved.summary.acpSessionId).toBeTruthy()
@@ -205,7 +206,7 @@ describe('openSession', () => {
     const opened = await boot()
     delete process.env.FAKE_ACP_MODE
     process.env.FAKE_ACP_SCENARIO = path.join(process.cwd(), 'test/fixtures/fake-acp-agent/scenarios/no-resume.json')
-    await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
+    await opened.store.setSelection(opened.root, 'alpha')
     const first = await opened.runner.openSession(windowId, 'pi', 'new')
     expect(first.resumable).toBe(false)
     await opened.runner.sendMessage(windowId, 'remember-me')
@@ -214,7 +215,7 @@ describe('openSession', () => {
       messageId: 'huge',
       text: 'Z'.repeat(50_000)
     })
-    await opened.runner.setSelection(windowId, 'pi', 'beta')
+    await opened.runner.setSelection(windowId, 'beta')
     await opened.runner.disposeHarness()
     fs.writeFileSync(opened.logPath, '')
 
@@ -240,18 +241,18 @@ describe('openSession', () => {
     expect(prompts(opened.logPath)[1]).toBe('after')
     const stored = await opened.store.readSession(opened.root, 'pi', first.summary.id)
     expect(userTexts(stored.events).some((text) => text.includes(HISTORY_REPLAY_LABEL))).toBe(false)
-    expect(await restarted.getSelection(windowId)).toEqual({ harness: 'pi', model: 'beta' })
+    expect(await restarted.getSelection(windowId)).toEqual({ model: 'beta' })
   })
 
   it('stops the previous harness process when the harness changes', async() => {
     const opened = await boot('both')
     delete process.env.FAKE_ACP_SCENARIO
     process.env.FAKE_ACP_MODE = 'happy'
-    await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
+    await opened.store.setSelection(opened.root, 'alpha')
     await opened.runner.openSession(windowId, 'pi', 'new')
     const firstPid = opened.runner.agentPid()
     if (firstPid == null) throw new Error('missing pid')
-    await opened.runner.setSelection(windowId, 'cursor', 'beta')
+    await opened.runner.setSelection(windowId, 'beta')
     expect(alive(firstPid)).toBe(true)
     expect(opened.runner.agentPid()).toBe(firstPid)
 

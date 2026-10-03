@@ -198,7 +198,7 @@ declare global {
     getHarnessStatus(): Promise<HarnessStatus[]>
     listModels(harness: HarnessId, options: { refresh?: boolean }): Promise<ListModelsResult>
     getSelection(): Promise<AgentSelection | null>
-    setSelection(harness: HarnessId, model: string): Promise<void>
+    setSelection(model: string): Promise<void>
     listSessions(harness: HarnessId): Promise<SessionSummary[]>
     openSession(harness: HarnessId, sessionId: string | 'last' | 'new'): Promise<SessionSnapshot>
     sendThreads(file: string, threadIds: string[]): Promise<{ turnId: string }>

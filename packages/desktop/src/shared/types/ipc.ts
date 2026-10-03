@@ -76,7 +76,7 @@ export interface IpcInvokeChannels {
   }
   'mt::agent::send-message': { args: [text: string]; ret: { turnId: string } }
   'mt::agent::send-threads': { args: [file: string, threadIds: string[]]; ret: { turnId: string } }
-  'mt::agent::set-selection': { args: [harness: HarnessId, model: string]; ret: void }
+  'mt::agent::set-selection': { args: [model: string]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }

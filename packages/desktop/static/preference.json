@@ -89,5 +89,6 @@
   "agentPiPath": "",
   "agentCursorPath": "",
   "agentModeEnabled": true,
+  "agentHarness": "opencode",
   "agentTerminalShell": ""
 }
