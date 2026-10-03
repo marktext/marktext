@@ -165,6 +165,7 @@ import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
+import { isMac } from '@/util'
 import {
   isEditableTarget,
   isModifierKey,
@@ -261,9 +262,6 @@ const handleInputFocus = (): void => {
 const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
-
-// macOS reports the key labelled "delete" as Backspace, so accept Cmd+Backspace.
-const isMac = window.electron.process.platform === 'darwin'
 
 // Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
 const handleDocumentClick = (event: MouseEvent): void => {
