@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Промпт 6 — Терминал</title>
+<style>
+  /* Tokens copied from MarkText light and dark themes.
+     The terminal uses the editor background and text. The prompt is --themeColor.
+     A non-zero exit uses --tagReadFg, not --deleteColor (blue in the dark theme). */
+  :root {
+    --themeColor: rgba(33, 181, 111, 1);
+    --editorColor: #4d4d4d;
+    --editorColor80: #333333;
+    --editorColor50: #808080;
+    --editorColor30: #b3b3b3;
+    --editorColor10: #e6e6e6;
+    --editorBgColor: #fff;
+    --iconColor: #6b737b;
+    --sideBarColor: rgba(0, 0, 0, 0.6);
+    --sideBarTitleColor: #000;
+    --sideBarTextColor: rgba(0, 0, 0, 0.4);
+    --sideBarBgColor: rgba(242, 242, 242, 0.9);
+    --itemBgColor: rgba(255, 255, 255, 0.6);
+    --h1Color: var(--editorColor80);
+    --tagReadFg: #7a1e1e;
+    --panelSolid: #f2f2f2;
+  }
+  html[data-theme="dark"] {
+    --themeColor: #409eff;
+    --editorColor: rgba(255, 255, 255, 0.7);
+    --editorColor80: rgba(255, 255, 255, 0.8);
+    --editorColor50: rgba(255, 255, 255, 0.5);
+    --editorColor30: rgba(255, 255, 255, 0.3);
+    --editorColor10: rgba(255, 255, 255, 0.1);
+    --editorBgColor: #282828;
+    --iconColor: rgba(255, 255, 255, 0.56);
+    --sideBarColor: rgba(255, 255, 255, 0.6);
+    --sideBarTitleColor: rgba(255, 255, 255, 0.8);
+    --sideBarTextColor: rgba(255, 255, 255, 0.4);
+    --sideBarBgColor: #232323;
+    --itemBgColor: #3f3f3f;
+    --h1Color: var(--editorColor80);
+    --tagReadFg: #ffc1c1;
+    --panelSolid: #232323;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html[data-theme="light"] { color-scheme: light; }
+  html[data-theme="dark"] { color-scheme: dark; }
+  body {
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 1px solid var(--themeColor); outline-offset: 1px; }
+  .proto {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    padding: 8px 14px; background: #ececec; color: #222;
+    border-bottom: 1px solid #ccc; font-size: 13px;
+  }
+  html[data-theme="dark"] .proto { background: #1a1a1a; color: #ddd; border-bottom-color: #333; }
+  .proto a { color: inherit; }
+  .proto-title { font-weight: 600; }
+  .seg { display: inline-flex; flex-wrap: wrap; border: 1px solid #bbb; border-radius: 3px; overflow: hidden; }
+  html[data-theme="dark"] .seg { border-color: #555; }
+  .seg button { background: transparent; border: none; color: inherit; padding: 3px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; }
+  html[data-theme="dark"] .seg button[aria-pressed="true"] { background: #333; }
+  .status { flex: 1 0 100%; margin: 0; color: #444; }
+  html[data-theme="dark"] .status { color: #aaa; }
+  .stage { display: flex; justify-content: center; padding: 20px; background: #c5c5c5; }
+  html[data-theme="dark"] .stage { background: #101010; }
+  .window {
+    width: min(960px, 100%); height: 640px; display: flex; flex-direction: column;
+    background: var(--editorBgColor); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28); overflow: hidden;
+  }
+  .tabbar {
+    height: 28px; display: flex; align-items: stretch; gap: 2px; padding: 0 8px;
+    font-size: 12px; background: var(--itemBgColor); flex: none;
+  }
+  .tabbar button {
+    border: none; background: transparent; color: var(--editorColor); padding: 0 10px; cursor: pointer;
+  }
+  .tabbar button[aria-pressed="true"] { box-shadow: inset 0 -2px 0 var(--themeColor); color: var(--editorColor80); }
+  .editor { flex: 1; min-height: 0; overflow: auto; background: var(--editorBgColor); }
+  .doc-inner { max-width: 750px; margin: 0 auto; padding: 28px 16px 24px; font-size: 16px; line-height: 1.7; }
+  .doc-inner h1 { font-size: 1.6em; font-weight: 600; color: var(--h1Color); margin: 0 0 0.6em; }
+  .doc-inner p { margin: 0 0 0.8em; }
+  .term-handle {
+    flex: none; height: 6px; cursor: ns-resize; position: relative; background: var(--editorBgColor);
+  }
+  .term-handle::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 2px; background: var(--iconColor);
+  }
+  .terminal {
+    height: 280px; flex: none; display: flex; flex-direction: column; min-height: 0;
+    background: var(--editorBgColor); color: var(--editorColor);
+    border-top: 1px solid var(--itemBgColor);
+  }
+  .termbar {
+    height: 28px; flex: none; display: flex; align-items: center; gap: 4px;
+    padding: 0 4px 0 0; background: var(--sideBarBgColor); color: var(--sideBarColor);
+  }
+  .tabs { display: flex; align-items: stretch; min-width: 0; overflow: auto; }
+  .tab {
+    height: 28px; display: flex; align-items: center; flex: none;
+    color: var(--sideBarColor);
+  }
+  .tab[aria-selected="true"] { color: var(--sideBarTitleColor); box-shadow: inset 0 -2px 0 var(--themeColor); }
+  .tab-name, .iconbtn, .textbtn, .plus {
+    background: none; border: none; cursor: pointer; color: inherit;
+  }
+  .tab-name { height: 28px; padding: 0 2px 0 10px; font-size: 12px; }
+  .tab-x {
+    width: 22px; height: 22px; padding: 0; display: flex; align-items: center; justify-content: center;
+    background: none; border: none; color: var(--iconColor); cursor: pointer;
+  }
+  .tab-x svg, .plus svg { width: 12px; height: 12px; display: block; }
+  .plus {
+    width: 28px; height: 28px; flex: none; display: flex; align-items: center; justify-content: center;
+    color: var(--iconColor);
+  }
+  .cwd {
+    min-width: 0; margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-size: 11px; color: var(--sideBarTextColor);
+  }
+  .textbtn { flex: none; padding: 0 6px; font-size: 12px; color: var(--sideBarTitleColor); }
+  .textbtn:disabled { opacity: 0.4; cursor: default; }
+  .screen {
+    flex: 1; min-height: 0; margin: 0; padding: 8px 12px; overflow: auto;
+    background: var(--editorBgColor); color: var(--editorColor);
+    font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace;
+    font-size: 13px; line-height: 1.45; white-space: pre-wrap;
+  }
+  .screen:focus { outline: none; box-shadow: inset 0 0 0 1px var(--themeColor); }
+  .row { min-height: 1.45em; }
+  .pr { color: var(--themeColor); }
+  .caret {
+    display: inline-block; width: 7px; border-bottom: 2px solid var(--themeColor);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  .exit {
+    flex: none; display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-top: 1px solid var(--editorColor10);
+    background: var(--panelSolid); color: var(--tagReadFg); font-size: 12px;
+  }
+  .exit .textbtn { margin-left: auto; color: var(--sideBarTitleColor); }
+  .notes { max-width: 760px; margin: 0 auto; padding: 8px 24px 64px; line-height: 1.55; }
+  .notes h2 { font-size: 16px; font-weight: 600; color: var(--editorColor80); margin: 24px 0 8px; }
+  .notes ol { margin: 0; padding-left: 1.2em; }
+  .notes li { margin: 0 0 0.55em; }
+  code { font-family: "DejaVu Sans Mono", "Source Code Pro", "Droid Sans Mono", monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<header class="proto">
+  <a href="index.html" data-i18n="catalog">Каталог</a>
+  <span class="proto-title" data-i18n="protoTitle">Промпт 6 — Терминал</span>
+  <div class="seg" role="group" data-i18n-aria="themeGroup" aria-label="Тема">
+    <button type="button" id="theme-light" data-i18n="light">Светлая</button>
+    <button type="button" id="theme-dark" data-i18n="dark">Тёмная</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="langGroup" aria-label="Язык">
+    <button type="button" id="lang-ru">RU</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+  <div class="seg" role="group" data-i18n-aria="sceneGroup" aria-label="Состояние">
+    <button type="button" data-scene="live" data-i18n="scLive">Сессия</button>
+    <button type="button" data-scene="exit" data-i18n="scExit">Завершён</button>
+    <button type="button" data-scene="collapsed" data-i18n="scCollapsed">Свёрнут</button>
+  </div>
+  <p class="status" id="status"></p>
+</header>
+<div class="stage">
+  <div class="window">
+    <div class="tabbar">
+      <button type="button" aria-pressed="true">guide.md</button>
+    </div>
+    <div class="editor">
+      <div class="doc-inner">
+        <h1>Руководство</h1>
+        <p>Команды запускаются из корня репозитория, потому что lockfile и workspace-скрипты лежат только там.</p>
+      </div>
+    </div>
+    <div class="term-handle" id="term-handle" role="separator" aria-orientation="horizontal" data-i18n-aria="resizeTerm" aria-label="Высота терминала"></div>
+    <section class="terminal" id="terminal" aria-label="Terminal">
+      <div class="termbar">
+        <div class="tabs" id="tabs" role="tablist" data-i18n-aria="tabsLabel" aria-label="Терминалы"></div>
+        <button type="button" class="plus" id="plus" data-i18n-aria="newTerm" aria-label="Новый терминал">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3.5v9M3.5 8h9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </button>
+        <span class="cwd" id="cwd">~/Git/agentic-marktext</span>
+        <button type="button" class="textbtn" id="clear" data-i18n="clear">Очистить</button>
+        <button type="button" class="textbtn" id="collapse" data-i18n="collapse">Свернуть</button>
+      </div>
+      <div class="screen" id="screen" tabindex="0" role="log" data-i18n-aria="screenLabel" aria-label="Экран терминала"></div>
+      <div class="exit" id="exit" hidden>
+        <span id="exit-text"></span>
+        <button type="button" class="textbtn" id="restart" data-i18n="restart">Перезапустить</button>
+      </div>
+    </section>
+  </div>
+</div>
+<section class="notes">
+  <h2 data-i18n="notesTitle">Терминал без шпаргалки</h2>
+  <ol>
+    <li data-i18n="note1"></li>
+    <li data-i18n="note2"></li>
+    <li data-i18n="note3"></li>
+    <li data-i18n="note4"></li>
+    <li data-i18n="note5"></li>
+  </ol>
+</section>
+<script>
+const CWD = '~/Git/agentic-marktext'
+const X = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
+const I18N = {
+  ru: {
+    catalog: 'Каталог', protoTitle: 'Промпт 6 — Терминал', light: 'Светлая', dark: 'Тёмная',
+    themeGroup: 'Тема', langGroup: 'Язык', sceneGroup: 'Состояние',
+    scLive: 'Сессия', scExit: 'Завершён', scCollapsed: 'Свёрнут',
+    resizeTerm: 'Высота терминала', tabsLabel: 'Терминалы', newTerm: 'Новый терминал',
+    screenLabel: 'Экран терминала', clear: 'Очистить', collapse: 'Свернуть', restart: 'Перезапустить',
+    close: 'Закрыть {name}', exited: 'Процесс завершился (код {n})',
+    notesTitle: 'Терминал без шпаргалки',
+    note1: 'Пустой терминал не подсказывает команды git. В полосе вкладок виден корень репозитория — все оболочки стартуют там. Строка приглашения повторяет этот путь, это не список команд.',
+    note2: 'Вкладки независимы: «+» открывает ещё одну оболочку в том же корне. Закрытие последней вкладки сворачивает панель. Имя вкладки — имя оболочки и номер, в этом макете bash.',
+    note3: '«Очистить» стирает прокрутку и оставляет приглашение. У завершившегося процесса кнопка неактивна: экран уже не принимает ввод.',
+    note4: 'Выход процесса оставляет текст на экране и пишет «Процесс завершился (код N)». Ненулевой код — цветом ошибки, не --deleteColor. «Перезапустить» поднимает новую оболочку в той же вкладке.',
+    note5: 'Фон и текст терминала — фон и текст редактора, приглашение — --themeColor. Ctrl+Alt+\\ сворачивает и открывает панель. Сочетание переназначается на странице «Сочетания клавиш».',
+    stLive: 'сессия', stExit: 'процесс завершился', stCollapsed: 'свёрнут'
+  },
+  en: {
+    catalog: 'Catalog', protoTitle: 'Prompt 6 — Terminal', light: 'Light', dark: 'Dark',
+    themeGroup: 'Theme', langGroup: 'Language', sceneGroup: 'State',
+    scLive: 'Session', scExit: 'Exited', scCollapsed: 'Collapsed',
+    resizeTerm: 'Terminal height', tabsLabel: 'Terminals', newTerm: 'New terminal',
+    screenLabel: 'Terminal screen', clear: 'Clear', collapse: 'Collapse', restart: 'Restart',
+    close: 'Close {name}', exited: 'Process exited (code {n})',
+    notesTitle: 'A terminal without a crib sheet',
+    note1: 'An empty terminal does not list git commands. The tab bar shows the repository root — every shell starts there. The prompt repeats that path; it is not a command list.',
+    note2: 'Tabs are independent. “+” opens another shell in the same root. Closing the last tab collapses the panel. A tab’s name is the shell and a number; this mockup uses bash.',
+    note3: 'Clear wipes the scrollback and leaves the prompt. On a dead process the button is inactive: the screen no longer takes input.',
+    note4: 'When the process exits, the transcript stays and the bar says “Process exited (code N)”. A non-zero code uses the error color, not --deleteColor. Restart starts a new shell in the same tab.',
+    note5: 'The terminal background and text are the editor’s. The prompt is --themeColor. Ctrl+Alt+\\ collapses and opens the panel. The shortcut is reassigned on the Key Bindings page.',
+    stLive: 'session', stExit: 'process exited', stCollapsed: 'collapsed'
+  }
+}
+
+function stored(key) {
+  try { return sessionStorage.getItem(key) } catch (e) { return null }
+}
+function persist(key, value) {
+  try { sessionStorage.setItem(key, value) } catch (e) { /* file:// */ }
+}
+function $(id) { return document.getElementById(id) }
+function t(key) { return I18N[state.lang][key] }
+function el(tag, cls, text) {
+  const node = document.createElement(tag)
+  if (cls) node.className = cls
+  if (text != null) node.textContent = text
+  return node
+}
+
+const prompt = () => ({ kind: 'prompt', text: '' })
+const GIT = [
+  { kind: 'in', text: 'git status' },
+  { kind: 'out', text: 'On branch develop' },
+  { kind: 'out', text: 'Changes not staged for commit:' },
+  { kind: 'out', text: '  modified:   docs/guide.md' },
+  prompt()
+]
+const PUSH = [
+  { kind: 'in', text: 'git push' },
+  { kind: 'out', text: 'error: failed to push some refs to origin' }
+]
+
+let seq = 2
+const state = {
+  lang: stored('mt-mockup-lang') || 'ru',
+  theme: stored('mt-mockup-theme') || 'light',
+  scene: 'live',
+  open: true,
+  tabs: [],
+  active: 1,
+  focus: false
+}
+
+function freshTabs(scene) {
+  seq = 2
+  if (scene === 'exit') {
+    return [
+      { id: 1, name: 'bash 1', lines: PUSH.map((line) => ({ ...line })), exited: 1 },
+      { id: 2, name: 'bash 2', lines: [prompt()], exited: null }
+    ]
+  }
+  return [
+    { id: 1, name: 'bash 1', lines: GIT.map((line) => ({ ...line })), exited: null },
+    { id: 2, name: 'bash 2', lines: [prompt()], exited: null }
+  ]
+}
+function active() {
+  return state.tabs.find((tab) => tab.id === state.active) || null
+}
+function inputLine(tab) {
+  const line = tab.lines[tab.lines.length - 1]
+  return line && line.kind === 'prompt' ? line : null
+}
+
+function applyI18n() {
+  const pack = I18N[state.lang]
+  document.documentElement.lang = state.lang
+  document.title = pack.protoTitle
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const value = pack[node.dataset.i18n]
+    if (value) node.textContent = value
+  })
+  document.querySelectorAll('[data-i18n-aria]').forEach((node) => {
+    node.setAttribute('aria-label', pack[node.dataset.i18nAria])
+  })
+}
+
+function renderTabs() {
+  const list = $('tabs')
+  list.replaceChildren()
+  state.tabs.forEach((tab) => {
+    const item = el('div', 'tab')
+    item.setAttribute('role', 'tab')
+    item.setAttribute('aria-selected', String(tab.id === state.active))
+    const name = el('button', 'tab-name', tab.name)
+    name.type = 'button'
+    name.dataset.tab = String(tab.id)
+    const close = el('button', 'tab-x')
+    close.type = 'button'
+    close.dataset.close = String(tab.id)
+    close.setAttribute('aria-label', t('close').replace('{name}', tab.name))
+    close.innerHTML = X
+    item.append(name, close)
+    list.append(item)
+  })
+}
+
+function renderScreen() {
+  const tab = active()
+  const screen = $('screen')
+  screen.replaceChildren()
+  if (!tab) return
+  tab.lines.forEach((line, index) => {
+    const row = el('div', 'row')
+    if (line.kind === 'out') row.textContent = line.text
+    else {
+      row.append(el('span', 'pr', CWD + '$ '))
+      row.append(document.createTextNode(line.text))
+      const last = index === tab.lines.length - 1
+      if (last && !tab.exited && state.focus) row.append(el('span', 'caret'))
+    }
+    screen.append(row)
+  })
+  $('exit').hidden = tab.exited == null
+  if (tab.exited != null) $('exit-text').textContent = t('exited').replace('{n}', String(tab.exited))
+  $('clear').disabled = tab.exited != null
+}
+
+function apply() {
+  document.documentElement.dataset.theme = state.theme
+  persist('mt-mockup-lang', state.lang)
+  persist('mt-mockup-theme', state.theme)
+  $('theme-light').setAttribute('aria-pressed', String(state.theme === 'light'))
+  $('theme-dark').setAttribute('aria-pressed', String(state.theme === 'dark'))
+  $('lang-ru').setAttribute('aria-pressed', String(state.lang === 'ru'))
+  $('lang-en').setAttribute('aria-pressed', String(state.lang === 'en'))
+  document.querySelectorAll('[data-scene]').forEach((node) => {
+    node.setAttribute('aria-pressed', String(node.dataset.scene === state.scene))
+  })
+  $('terminal').hidden = !state.open
+  $('cwd').textContent = CWD
+  renderTabs()
+  renderScreen()
+  const dead = active() && active().exited != null
+  const key = !state.open ? 'stCollapsed' : (dead ? 'stExit' : 'stLive')
+  $('status').textContent = t(key)
+}
+
+function setScene(scene) {
+  state.scene = scene
+  state.tabs = freshTabs(scene)
+  state.active = 1
+  state.open = scene !== 'collapsed'
+  state.focus = false
+  apply()
+}
+function toggleOpen() {
+  if (state.open) {
+    state.open = false
+    state.focus = false
+  } else {
+    if (state.tabs.length === 0) {
+      seq = 1
+      state.tabs = [{ id: 1, name: 'bash 1', lines: [prompt()], exited: null }]
+      state.active = 1
+    }
+    state.open = true
+    state.scene = active() && active().exited != null ? 'exit' : 'live'
+  }
+  apply()
+}
+function selectTab(id) {
+  state.active = id
+  state.focus = false
+  apply()
+}
+function closeTab(id) {
+  const index = state.tabs.findIndex((tab) => tab.id === id)
+  if (index < 0) return
+  state.tabs.splice(index, 1)
+  if (state.tabs.length === 0) {
+    state.open = false
+    state.active = 0
+    state.scene = 'collapsed'
+  } else if (state.active === id) {
+    const next = state.tabs[Math.max(0, index - 1)]
+    state.active = next.id
+  }
+  apply()
+}
+function addTab() {
+  const id = ++seq
+  state.tabs.push({ id: id, name: 'bash ' + id, lines: [prompt()], exited: null })
+  state.active = id
+  state.open = true
+  state.focus = true
+  apply()
+  $('screen').focus()
+}
+function clearTab() {
+  const tab = active()
+  if (!tab || tab.exited != null) return
+  tab.lines = [prompt()]
+  renderScreen()
+}
+function restartTab() {
+  const tab = active()
+  if (!tab || tab.exited == null) return
+  tab.exited = null
+  tab.lines = [prompt()]
+  state.scene = 'live'
+  state.focus = true
+  apply()
+  $('screen').focus()
+}
+
+$('theme-light').addEventListener('click', () => { state.theme = 'light'; apply() })
+$('theme-dark').addEventListener('click', () => { state.theme = 'dark'; apply() })
+$('lang-ru').addEventListener('click', () => { state.lang = 'ru'; applyI18n(); apply() })
+$('lang-en').addEventListener('click', () => { state.lang = 'en'; applyI18n(); apply() })
+document.querySelectorAll('[data-scene]').forEach((node) => {
+  node.addEventListener('click', () => setScene(node.dataset.scene))
+})
+$('term-handle').addEventListener('click', () => { if (!state.open) toggleOpen() })
+$('plus').addEventListener('click', addTab)
+$('clear').addEventListener('click', clearTab)
+$('collapse').addEventListener('click', () => { state.open = false; state.focus = false; apply() })
+$('restart').addEventListener('click', restartTab)
+$('tabs').addEventListener('click', (e) => {
+  const close = e.target.closest('[data-close]')
+  if (close) {
+    closeTab(Number(close.dataset.close))
+    return
+  }
+  const tab = e.target.closest('[data-tab]')
+  if (tab) selectTab(Number(tab.dataset.tab))
+})
+$('screen').addEventListener('focus', () => { state.focus = true; renderScreen() })
+$('screen').addEventListener('blur', () => { state.focus = false; renderScreen() })
+$('screen').addEventListener('keydown', (e) => {
+  const tab = active()
+  if (!tab || tab.exited != null) return
+  const line = inputLine(tab)
+  if (!line) return
+  if (e.key === 'Enter') {
+    tab.lines.push(prompt())
+    e.preventDefault()
+  } else if (e.key === 'Backspace') {
+    line.text = Array.from(line.text).slice(0, -1).join('')
+    e.preventDefault()
+  } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    line.text += e.key
+    e.preventDefault()
+  } else return
+  renderScreen()
+  $('screen').scrollTop = $('screen').scrollHeight
+})
+document.addEventListener('keydown', (e) => {
+  if (e.key === '\\' && e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey) {
+    e.preventDefault()
+    toggleOpen()
+  }
+})
+
+applyI18n()
+setScene('live')
+</script>
+</body>
+</html>
