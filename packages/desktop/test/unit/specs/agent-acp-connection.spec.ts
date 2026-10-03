@@ -28,17 +28,28 @@ const tempDir = (): string => {
 
 const quirks: HarnessQuirks = { repliesVia: 'block', resume: 'auto' }
 
+const scenarioFile = (name: string): string =>
+  path.join(process.cwd(), 'test/fixtures/fake-acp-agent/scenarios', `${name}.json`)
+
 const start = async(
   mode: string,
   harness: HarnessId = 'pi',
   extra?: Partial<HarnessQuirks>,
-  killGraceMs?: number
+  killGraceMs?: number,
+  permissionChoice = 'allow-once'
 ): Promise<{ connection: AcpConnection, events: ChatEvent[], logs: string[], logPath: string }> => {
   const cwd = tempDir()
   const logPath = path.join(cwd, 'agent.log')
   const events: ChatEvent[] = []
   const logs: string[] = []
-  process.env.FAKE_ACP_MODE = mode
+  const scenario = scenarioFile(mode)
+  if (fs.existsSync(scenario)) {
+    delete process.env.FAKE_ACP_MODE
+    process.env.FAKE_ACP_SCENARIO = scenario
+  } else {
+    delete process.env.FAKE_ACP_SCENARIO
+    process.env.FAKE_ACP_MODE = mode
+  }
   process.env.FAKE_ACP_LOG = logPath
   process.env.FAKE_ACP_CWD = cwd
   const connection = await AcpConnection.start({
@@ -49,7 +60,7 @@ const start = async(
     quirks: { ...quirks, ...extra },
     onEvent: (event) => {
       events.push(event)
-      if (event.type === 'permission_request') answerPermission(event.request.requestId, 'allow-once')
+      if (event.type === 'permission_request') answerPermission(event.request.requestId, permissionChoice)
     },
     log: (line) => {
       logs.push(line)
@@ -109,7 +120,7 @@ describe('AcpConnection', () => {
   })
 
   it('forwards a permission request and returns the chosen option to the agent', async() => {
-    const { connection, events, logPath } = await start('permission')
+    const { connection, events, logPath } = await start('permission-allow')
     const created = await connection.newSession({ cwd: connection.cwd, mcpServers: [] })
     const turn = await connection.prompt(created.sessionId, 'go')
 
@@ -137,7 +148,8 @@ describe('AcpConnection', () => {
     const cwd = tempDir()
     const logPath = path.join(cwd, 'agent.log')
     const events: ChatEvent[] = []
-    process.env.FAKE_ACP_MODE = 'permission'
+    delete process.env.FAKE_ACP_MODE
+    process.env.FAKE_ACP_SCENARIO = scenarioFile('permission-allow')
     process.env.FAKE_ACP_LOG = logPath
     process.env.FAKE_ACP_CWD = cwd
     const connection = await AcpConnection.start({
@@ -165,8 +177,18 @@ describe('AcpConnection', () => {
     expect(outcome).toMatchObject({ outcome: { outcome: 'cancelled' } })
   })
 
+  it('finishes with the reject branch when the user rejects the permission', async() => {
+    const { connection, events } = await start('permission-reject', 'pi', undefined, undefined, 'reject-once')
+    const created = await connection.newSession({ cwd: connection.cwd, mcpServers: [] })
+    const turn = await connection.prompt(created.sessionId, 'go')
+
+    expect(turn.stopReason).toBe('end_turn')
+    const agentChunk = events.find((event) => event.type === 'message_chunk' && event.role === 'agent')
+    expect(agentChunk).toMatchObject({ text: 'rejected' })
+  })
+
   it('finishes a cancelled turn with stopReason cancelled', async() => {
-    const { connection, events, logPath } = await start('cancel')
+    const { connection, events, logPath } = await start('cancel-mid-turn')
     const created = await connection.newSession({ cwd: connection.cwd, mcpServers: [] })
     const pending = connection.prompt(created.sessionId, 'go')
     const started = Date.now()
@@ -195,6 +217,7 @@ describe('AcpConnection', () => {
     expect(events.some((event) => event.type === 'error')).toBe(true)
     expect(events.some((event) => event.type === 'turn_finished' && event.stopReason === 'error')).toBe(true)
 
+    delete process.env.FAKE_ACP_SCENARIO
     process.env.FAKE_ACP_MODE = 'happy'
     const again = await connection.newSession({ cwd: connection.cwd, mcpServers: [] })
     expect(again.sessionId).toBe('sess-1')
@@ -254,6 +277,19 @@ describe('AcpConnection', () => {
     expect(readLog(bare.logPath).some((entry) =>
       typeof entry === 'object' && entry !== null && 'method' in entry && entry.method === 'session/close'
     )).toBe(false)
+  })
+
+  it('emits a marktext-replies block from the scenario', async() => {
+    const { connection, events } = await start('block-replies')
+    const created = await connection.newSession({ cwd: connection.cwd, mcpServers: [] })
+    const turn = await connection.prompt(created.sessionId, 'go')
+
+    expect(turn.stopReason).toBe('end_turn')
+    const agentChunk = events.find((event) => event.type === 'message_chunk' && event.role === 'agent')
+    const text = agentChunk && agentChunk.type === 'message_chunk' ? agentChunk.text : ''
+    expect(text).toContain('```marktext-replies')
+    expect(text).toContain('thread-a')
+    expect(text).toContain('fixed the line')
   })
 
   it('kills an agent that ignores SIGTERM', async() => {

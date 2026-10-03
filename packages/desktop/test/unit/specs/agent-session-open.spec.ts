@@ -25,7 +25,7 @@ afterEach(async() => {
   detachChangeTracker(windowId)
   clearWindowAgentHost(windowId)
   repoRegistry.release(windowId)
-  for (const key of ['FAKE_ACP_MODE', 'FAKE_ACP_CWD', 'FAKE_ACP_LOG']) delete process.env[key]
+  for (const key of ['FAKE_ACP_MODE', 'FAKE_ACP_SCENARIO', 'FAKE_ACP_CWD', 'FAKE_ACP_LOG']) delete process.env[key]
   for (const dir of dirs.splice(0)) fs.rmSync(dir, { recursive: true, force: true })
 })
 
@@ -161,6 +161,7 @@ const userTexts = (events: ChatEvent[]): string[] =>
 describe('openSession', () => {
   it('reopens the last session by resume and keeps its model after the header changes', async() => {
     const opened = await boot()
+    delete process.env.FAKE_ACP_SCENARIO
     process.env.FAKE_ACP_MODE = 'happy'
     await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
     const first = await opened.runner.openSession(windowId, 'pi', 'new')
@@ -202,7 +203,8 @@ describe('openSession', () => {
 
   it('puts a bounded transcript into the first prompt when resume is unavailable', async() => {
     const opened = await boot()
-    process.env.FAKE_ACP_MODE = 'no-resume'
+    delete process.env.FAKE_ACP_MODE
+    process.env.FAKE_ACP_SCENARIO = path.join(process.cwd(), 'test/fixtures/fake-acp-agent/scenarios/no-resume.json')
     await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
     const first = await opened.runner.openSession(windowId, 'pi', 'new')
     expect(first.resumable).toBe(false)
@@ -243,6 +245,7 @@ describe('openSession', () => {
 
   it('stops the previous harness process when the harness changes', async() => {
     const opened = await boot('both')
+    delete process.env.FAKE_ACP_SCENARIO
     process.env.FAKE_ACP_MODE = 'happy'
     await opened.store.setSelection(opened.root, { harness: 'pi', model: 'alpha' })
     await opened.runner.openSession(windowId, 'pi', 'new')

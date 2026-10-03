@@ -1,0 +1,26 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true,
+    "mcpCapabilities": { "http": false, "sse": false }
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    { "type": "delay", "env": "FAKE_ACP_DELAY_MS" },
+    { "type": "write_env" },
+    {
+      "type": "tool_call",
+      "toolCallId": "tool-1",
+      "title": "Edit",
+      "status": "completed",
+      "kind": "edit",
+      "location": "$written"
+    },
+    { "type": "thought_chunk", "messageId": "thought-1", "text": "checking both threads" },
+    { "type": "replies_block", "env": "FAKE_ACP_BLOCK" }
+  ]
+}

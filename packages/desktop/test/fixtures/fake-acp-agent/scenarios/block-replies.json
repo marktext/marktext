@@ -1,0 +1,17 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    {
+      "type": "replies_block",
+      "replies": [{ "threadId": "thread-a", "text": "fixed the line" }]
+    }
+  ]
+}

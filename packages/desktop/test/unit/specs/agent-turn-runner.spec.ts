@@ -30,6 +30,7 @@ afterEach(async() => {
   repoRegistry.release(windowId)
   for (const key of [
     'FAKE_ACP_MODE',
+    'FAKE_ACP_SCENARIO',
     'FAKE_ACP_CWD',
     'FAKE_ACP_WRITE',
     'FAKE_ACP_WRITE_BODY',
@@ -136,12 +137,17 @@ const createThread = async(root: string, file: string, quote: string): Promise<s
   return thread.id
 }
 
-const arm = (root: string, mode: string, block: { threadId: string, text: string }[]): void => {
-  process.env.FAKE_ACP_MODE = mode
+const scenarioFile = (name: string): string =>
+  path.join(process.cwd(), 'test/fixtures/fake-acp-agent/scenarios', `${name}.json`)
+
+const arm = (root: string, scenario: string, block: { threadId: string, text: string }[]): void => {
+  delete process.env.FAKE_ACP_MODE
+  process.env.FAKE_ACP_SCENARIO = scenarioFile(scenario)
   process.env.FAKE_ACP_CWD = root
   process.env.FAKE_ACP_WRITE = 'docs/guide.md'
   process.env.FAKE_ACP_WRITE_BODY = 'after\n'
   if (block.length > 0) process.env.FAKE_ACP_BLOCK = JSON.stringify(block)
+  else delete process.env.FAKE_ACP_BLOCK
 }
 
 const finished = (events: ChatEvent[]): Extract<ChatEvent, { type: 'turn_finished' }> => {
@@ -186,7 +192,7 @@ describe('turnRunner', () => {
     const closed = await createThread(root, 'docs/guide.md', 'closed quote')
     await commentsService().apply(windowId, root, { op: 'setStatus', threadId: closed, status: 'closed' })
     const other = await createThread(root, 'other.md', 'other quote')
-    arm(root, 'turn', [
+    arm(root, 'happy-two-threads', [
       { threadId: first, text: 'fixed first' },
       { threadId: second, text: 'fixed second' }
     ])
@@ -229,7 +235,7 @@ describe('turnRunner', () => {
     await store.setSelection(root, { harness: 'pi', model: 'alpha' })
     const first = await createThread(root, 'docs/guide.md', 'alpha quote')
     const second = await createThread(root, 'docs/guide.md', 'beta quote')
-    arm(root, 'turn', [{ threadId: first, text: 'only first' }])
+    arm(root, 'one-reply-missing', [{ threadId: first, text: 'only first' }])
 
     await runner.sendThreads(windowId, 'docs/guide.md', [first, second], [
       { threadId: first, orphaned: false, lines: { start: 1, end: 1 } },
@@ -245,7 +251,7 @@ describe('turnRunner', () => {
     await initRepo(root)
     await store.setSelection(root, { harness: 'pi', model: 'alpha' })
     const first = await createThread(root, 'docs/guide.md', 'alpha quote')
-    arm(root, 'cancel', [])
+    arm(root, 'cancel-mid-turn', [])
 
     const pending = runner.sendThreads(windowId, 'docs/guide.md', [first], [
       { threadId: first, orphaned: false, lines: { start: 1, end: 1 } }

@@ -1,0 +1,16 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    { "type": "write_env" },
+    { "type": "message_chunk", "messageId": "agent-1", "text": "working" },
+    { "type": "wait_cancel" }
+  ]
+}

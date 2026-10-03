@@ -1,0 +1,9 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true
+  },
+  "models": [],
+  "steps": [{ "type": "message_chunk", "messageId": "agent-1", "text": "done" }]
+}

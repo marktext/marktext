@@ -1,0 +1,12 @@
+{
+  "capabilities": {
+    "loadSession": false,
+    "resume": false,
+    "close": false
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [{ "type": "message_chunk", "messageId": "agent-1", "text": "hello" }]
+}

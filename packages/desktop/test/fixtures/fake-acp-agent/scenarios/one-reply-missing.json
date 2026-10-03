@@ -1,0 +1,23 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    { "type": "write_env" },
+    {
+      "type": "tool_call",
+      "toolCallId": "tool-1",
+      "title": "Edit",
+      "status": "completed",
+      "kind": "edit",
+      "location": "$written"
+    },
+    { "type": "replies_block", "env": "FAKE_ACP_BLOCK" }
+  ]
+}

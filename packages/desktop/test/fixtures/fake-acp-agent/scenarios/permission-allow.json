@@ -1,0 +1,28 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    {
+      "type": "permission",
+      "toolCallId": "tool-1",
+      "title": "Run tests",
+      "kind": "execute",
+      "options": [
+        { "optionId": "allow-once", "name": "Allow once", "kind": "allow_once" },
+        { "optionId": "reject-once", "name": "Reject once", "kind": "reject_once" }
+      ],
+      "branches": {
+        "allow-once": [{ "type": "message_chunk", "messageId": "agent-1", "text": "allowed" }],
+        "reject-once": [{ "type": "message_chunk", "messageId": "agent-1", "text": "rejected" }],
+        "cancelled": "cancel"
+      }
+    }
+  ]
+}

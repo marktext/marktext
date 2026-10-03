@@ -9,6 +9,7 @@ const dirs: string[] = []
 
 afterEach(() => {
   delete process.env.FAKE_ACP_MODE
+  delete process.env.FAKE_ACP_SCENARIO
   delete process.env.FAKE_ACP_LOG
   delete process.env.FAKE_ACP_CWD
   delete process.env.FAKE_ACP_MODELS
@@ -96,7 +97,8 @@ describe('listModels', () => {
     const script = path.join(dir, 'agent.mjs')
     fs.copyFileSync(fixture, script)
     fs.chmodSync(script, 0o755)
-    process.env.FAKE_ACP_MODE = 'no-models'
+    delete process.env.FAKE_ACP_MODE
+    process.env.FAKE_ACP_SCENARIO = path.join(process.cwd(), 'test/fixtures/fake-acp-agent/scenarios/no-models.json')
     process.env.FAKE_ACP_LOG = path.join(dir, 'agent.log')
     const repo = path.join(dir, 'repo')
     fs.mkdirSync(repo)

@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
- * Scripted ACP agent for connection tests. Scenario JSON (B-11) is not wired
- * yet: `FAKE_ACP_MODE` selects the behaviour those tests need.
+ * Scripted ACP agent. `FAKE_ACP_SCENARIO` is a JSON file of initialize
+ * capabilities, models, and prompt steps. Without it, `FAKE_ACP_MODE` selects
+ * the built-in behaviours the older specs still use.
  * `FAKE_ACP_MODELS` is `id:Label,id:Label` for the model catalog.
  */
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const mode = process.env.FAKE_ACP_MODE || 'happy'
@@ -14,13 +15,22 @@ const logPath = process.env.FAKE_ACP_LOG
 const root = process.env.FAKE_ACP_CWD || process.cwd()
 const filePath = path.join(root, 'docs', 'guide.md')
 
+const loadScenario = () => {
+  const file = process.env.FAKE_ACP_SCENARIO
+  if (!file) return null
+  const full = path.isAbsolute(file) ? file : path.resolve(file)
+  return JSON.parse(readFileSync(full, 'utf8'))
+}
+
+const scenario = loadScenario()
+
 const note = (event) => {
   if (logPath) appendFileSync(logPath, `${JSON.stringify(event)}\n`)
 }
 
-note({ event: 'start', mode })
+note({ event: 'start', mode: scenario ? 'scenario' : mode })
 
-if (mode === 'ignore-term') {
+if (mode === 'ignore-term' || scenario?.ignoreSigterm) {
   process.on('SIGTERM', () => {
     note({ event: 'sigterm' })
   })
@@ -126,7 +136,21 @@ const callReplyTool = (threadId, text) => new Promise((resolve, reject) => {
   }).catch((error) => finish(error))
 })
 
+const scenarioCapabilities = (spec) => {
+  const caps = spec.capabilities ?? {}
+  const sessionCapabilities = {}
+  if (caps.resume !== false) sessionCapabilities.resume = {}
+  if (caps.close !== false) sessionCapabilities.close = {}
+  const result = {
+    loadSession: caps.loadSession !== false,
+    sessionCapabilities
+  }
+  if (caps.mcpCapabilities !== undefined) result.mcpCapabilities = caps.mcpCapabilities
+  return result
+}
+
 const capabilities = () => {
+  if (scenario) return scenarioCapabilities(scenario)
   if (mode === 'no-resume') return { loadSession: false, sessionCapabilities: {} }
   if (mode === 'load-only') return { loadSession: true, sessionCapabilities: {} }
   if (mode === 'no-close') return { loadSession: true, sessionCapabilities: { resume: {} } }
@@ -134,6 +158,12 @@ const capabilities = () => {
 }
 
 const modelOptions = () => {
+  if (scenario && Array.isArray(scenario.models)) {
+    return scenario.models.map((model) => ({
+      value: model.id,
+      name: model.label || model.id
+    }))
+  }
   if (mode === 'no-models') return []
   const raw = process.env.FAKE_ACP_MODELS
   if (!raw) {
@@ -169,7 +199,7 @@ const sessionResult = (method, params) => {
   }
 }
 
-const askPermission = (sessionId) => new Promise((resolve) => {
+const askPermission = (sessionId, step) => new Promise((resolve) => {
   const id = sessions + 100
   permissionWaiters.set(id, resolve)
   send({
@@ -178,14 +208,142 @@ const askPermission = (sessionId) => new Promise((resolve) => {
     method: 'session/request_permission',
     params: {
       sessionId,
-      toolCall: { toolCallId: 'tool-1', title: 'Run tests', kind: 'execute' },
-      options: [
+      toolCall: {
+        toolCallId: step?.toolCallId ?? 'tool-1',
+        title: step?.title ?? 'Run tests',
+        kind: step?.kind ?? 'execute'
+      },
+      options: step?.options ?? [
         { optionId: 'allow-once', name: 'Allow once', kind: 'allow_once' },
         { optionId: 'reject-once', name: 'Reject once', kind: 'reject_once' }
       ]
     }
   })
 })
+
+const agentText = (sessionId, messageId, text) => {
+  update(sessionId, {
+    sessionUpdate: 'agent_message_chunk',
+    messageId,
+    content: { type: 'text', text }
+  })
+}
+
+const runSteps = async (promptRpcId, sessionId, steps) => {
+  let written = null
+  const run = async (list) => {
+    for (const step of list ?? []) {
+      if (step.type === 'delay') {
+        const ms = step.env ? Number(process.env[step.env] || 0) : Number(step.ms || 0)
+        if (ms > 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, ms))
+        continue
+      }
+      if (step.type === 'write_env') {
+        written = writeRequested()
+        continue
+      }
+      if (step.type === 'write') {
+        const target = path.resolve(root, step.path)
+        mkdirSync(path.dirname(target), { recursive: true })
+        writeFileSync(target, step.body ?? '')
+        written = target
+        continue
+      }
+      if (step.type === 'tool_call') {
+        const loc = step.location === '$written' ? written : step.location
+        if (step.location === '$written' && !loc) continue
+        const locations = loc
+          ? [{ path: loc }]
+          : (step.locations ?? []).map((item) => ({ path: path.resolve(root, item) }))
+        update(sessionId, {
+          sessionUpdate: 'tool_call',
+          toolCallId: step.toolCallId ?? 'tool-1',
+          title: step.title ?? 'Edit',
+          status: step.status ?? 'completed',
+          kind: step.kind ?? 'edit',
+          locations
+        })
+        continue
+      }
+      if (step.type === 'tool_call_update') {
+        update(sessionId, {
+          sessionUpdate: 'tool_call_update',
+          toolCallId: step.toolCallId ?? 'tool-1',
+          title: step.title ?? 'Edit',
+          status: step.status ?? 'completed',
+          kind: step.kind ?? 'edit',
+          content: step.diffPath
+            ? [{ type: 'diff', path: path.resolve(root, step.diffPath), oldText: 'a', newText: 'b' }]
+            : []
+        })
+        continue
+      }
+      if (step.type === 'message_chunk') {
+        agentText(sessionId, step.messageId ?? 'agent-1', step.text ?? '')
+        continue
+      }
+      if (step.type === 'thought_chunk') {
+        update(sessionId, {
+          sessionUpdate: 'agent_thought_chunk',
+          messageId: step.messageId ?? 'thought-1',
+          content: { type: 'text', text: step.text ?? '' }
+        })
+        continue
+      }
+      if (step.type === 'plan') {
+        update(sessionId, {
+          sessionUpdate: 'plan',
+          entries: [{ content: step.text ?? '', priority: 'high', status: 'pending' }]
+        })
+        continue
+      }
+      if (step.type === 'permission') {
+        const outcome = await askPermission(sessionId, step)
+        note({ event: 'permission-outcome', outcome: outcome?.outcome ?? outcome })
+        const selected = outcome?.outcome?.optionId
+        const cancelled = outcome?.outcome?.outcome === 'cancelled'
+        const branch = cancelled ? step.branches?.cancelled : step.branches?.[selected]
+        if (branch === 'cancel' || cancelled) {
+          reply(promptRpcId, { stopReason: 'cancelled' })
+          return 'stop'
+        }
+        if (Array.isArray(branch)) {
+          const nested = await run(branch)
+          if (nested === 'stop') return 'stop'
+        }
+        continue
+      }
+      if (step.type === 'mcp_reply') {
+        const threadId = step.env ? process.env[step.env] : step.threadId
+        const text = step.textEnv ? (process.env[step.textEnv] ?? '') : (step.text ?? '')
+        if (!threadId) {
+          fail(promptRpcId, -32602, 'FAKE_ACP_REPLY_THREAD is required')
+          return 'stop'
+        }
+        await callReplyTool(threadId, text)
+        continue
+      }
+      if (step.type === 'replies_block') {
+        const raw = step.env ? process.env[step.env] : ''
+        if (!raw && !step.replies) {
+          agentText(sessionId, 'agent-1', 'done')
+          continue
+        }
+        const replies = raw ? JSON.parse(raw) : step.replies
+        agentText(sessionId, step.messageId ?? 'agent-1', `\`\`\`marktext-replies\n${JSON.stringify(replies)}\n\`\`\``)
+        continue
+      }
+      if (step.type === 'crash') process.exit(1)
+      if (step.type === 'wait_cancel') {
+        promptId = promptRpcId
+        return 'stop'
+      }
+    }
+    return 'continue'
+  }
+  const result = await run(steps)
+  if (result !== 'stop') reply(promptRpcId, { stopReason: 'end_turn' })
+}
 
 const writeRequested = () => {
   const rel = process.env.FAKE_ACP_WRITE
@@ -281,6 +439,10 @@ const handle = async (message) => {
   }
   if (method === 'session/prompt') {
     const sessionId = params.sessionId
+    if (scenario) {
+      await runSteps(id, sessionId, scenario.steps ?? [])
+      return
+    }
     if (mode === 'crash') {
       update(sessionId, {
         sessionUpdate: 'agent_message_chunk',

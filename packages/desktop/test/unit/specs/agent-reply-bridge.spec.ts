@@ -50,6 +50,7 @@ beforeAll(() => {
 
 afterEach(async() => {
   delete process.env.FAKE_ACP_MODE
+  delete process.env.FAKE_ACP_SCENARIO
   delete process.env.FAKE_ACP_LOG
   delete process.env.FAKE_ACP_CWD
   delete process.env.FAKE_ACP_REPLY_THREAD
