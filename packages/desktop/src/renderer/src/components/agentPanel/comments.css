@@ -490,3 +490,24 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+.mt-comments .draft {
+  padding: 12px;
+  overflow: auto;
+}
+
+.mt-comments .composer-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sideBarTitleColor);
+}
+
+.mt-comments .draft .quote {
+  margin-bottom: 8px;
+}
+
+.mt-comments .draft .composer {
+  display: block;
+  margin-top: 8px;
+}

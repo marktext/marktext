@@ -208,6 +208,23 @@ describe('decorations', () => {
         expect(mark!.classList.contains('mu-comment-active')).toBe(true);
     });
 
+    it('paints a draft mark with a dashed class and without the active class', () => {
+        const muya = boot('Hello world\n');
+        muya.setDecorations([{
+            id: 'comment-draft',
+            blockIndex: 0,
+            start: 0,
+            end: 5,
+            active: true,
+            draft: true,
+        }]);
+
+        const mark = muya.domNode.querySelector('.mu-comment');
+        expect(mark).not.toBeNull();
+        expect(mark!.classList.contains('mu-comment-draft')).toBe(true);
+        expect(mark!.classList.contains('mu-comment-active')).toBe(false);
+    });
+
     it('drops marks when the document is replaced', () => {
         const muya = boot('Hello world\n');
         muya.setDecorations([{ id: 'c1', blockIndex: 0, start: 0, end: 5, active: false }]);

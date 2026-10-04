@@ -86,6 +86,9 @@ export const launchElectron = async(
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
+  // A parent shell that launched Electron as Node leaves this set. The real
+  // Electron binary then rejects Playwright's Chromium switches.
+  delete env.ELECTRON_RUN_AS_NODE
   if (options.suppressErrorDialog) env.MARKTEXT_ERROR_INTERACTION = '1'
   Object.assign(env, options.env)
   const app = await _electron.launch({

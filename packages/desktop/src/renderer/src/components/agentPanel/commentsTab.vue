@@ -22,6 +22,44 @@
         <span class="tag tag-read">{{ t('comments.badgeRead') }}</span>
       </div>
     </template>
+    <section
+      v-else-if="draft"
+      class="draft"
+    >
+      <p class="composer-title">
+        {{ t('comments.newComment') }}
+      </p>
+      <blockquote class="quote">
+        {{ draft.quote }}
+      </blockquote>
+      <textarea
+        v-model="draft.text"
+        class="composer"
+        :placeholder="t('comments.firstReply')"
+        @keydown="onDraftKey"
+      />
+      <div class="actions">
+        <button
+          type="button"
+          class="primary"
+          :disabled="!draft.text.trim()"
+          :title="draft.text.trim() ? undefined : t('comments.needText')"
+          @click="saveDraft"
+        >
+          {{ t('comments.save') }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          @click="comments.cancelDraft()"
+        >
+          {{ t('comments.cancel') }}
+        </button>
+      </div>
+      <p class="hint">
+        {{ t('comments.saveHint') }}
+      </p>
+    </section>
     <ThreadView v-else-if="selected" />
     <template v-else>
       <header class="chead">
@@ -103,12 +141,33 @@ import ThreadView from './threadView.vue'
 import './comments.css'
 
 const { t } = useI18n()
+
+async function saveDraft (): Promise<void> {
+  try {
+    await comments.saveDraft()
+  } catch {
+    // A failed write leaves the draft so the reply is not discarded.
+  }
+}
+
+function onDraftKey (event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    comments.cancelDraft()
+    return
+  }
+  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault()
+    saveDraft().catch(() => undefined)
+  }
+}
 const comments = useCommentsStore()
 const {
   threads,
   resolved,
   showClosed,
   selectedThreadId,
+  draft,
   parseError,
   hintKey,
   unresolvedCount,

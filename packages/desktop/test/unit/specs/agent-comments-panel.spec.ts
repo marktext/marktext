@@ -240,4 +240,57 @@ describe('comments panel', () => {
       text: 'hello'
     })
   })
+
+  it('saves a draft on Ctrl+Enter and drops it on Escape', async() => {
+    const comments = useCommentsStore()
+    comments.openDraft({
+      anchor: {
+        quote: 'strict',
+        prefix: '',
+        suffix: '',
+        blockHint: { type: 'paragraph', index: 0 }
+      },
+      quote: 'strict',
+      text: ''
+    })
+    const created = thread('t-new', 'strict', 'open', [human('h-new', 'look here')])
+    mutate.mockResolvedValue({
+      version: 1,
+      file: 'docs/guide.md',
+      threads: [created]
+    })
+
+    const wrapper = mountPanel(CommentsTab)
+    expect(wrapper.text()).toContain('New comment')
+    expect(wrapper.text()).toContain('strict')
+    expect(wrapper.get('button.primary').attributes('disabled')).toBeDefined()
+
+    const field = wrapper.get('textarea')
+    await field.setValue('look here')
+    await field.trigger('keydown', { key: 'Enter', ctrlKey: true })
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({ op: 'createThread', firstText: 'look here' })
+    )
+    await vi.waitFor(() => {
+      expect(comments.selectedThreadId).toBe('t-new')
+    })
+    expect(comments.draft).toBeNull()
+
+    comments.openDraft({
+      anchor: {
+        quote: 'strict',
+        prefix: '',
+        suffix: '',
+        blockHint: { type: 'paragraph', index: 0 }
+      },
+      quote: 'strict',
+      text: 'drop me'
+    })
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain('New comment')
+    })
+    await wrapper.get('textarea').trigger('keydown', { key: 'Escape' })
+    expect(comments.draft).toBeNull()
+    expect(mutate).toHaveBeenCalledTimes(1)
+  })
 })

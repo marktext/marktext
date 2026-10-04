@@ -1,5 +1,6 @@
 import { Menu, MenuItem, type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import {
+  getComment,
   getCUT,
   getCOPY,
   getPASTE,
@@ -43,6 +44,19 @@ type ContextMenuEvent = {
   preventDefault?: () => void
   readonly defaultPrevented?: boolean
 }
+
+// The renderer publishes this on selection change. The menu is built in the
+// main process, which cannot ask muya whether the selection sits in one block.
+const commentable = new WeakMap<BrowserWindow, boolean>()
+
+export const setEditorCommentAvailable = (win: BrowserWindow, available: boolean): void => {
+  commentable.set(win, available)
+  // Read by the editor e2e. The menu item itself is a native popup, so the
+  // page has no element whose enabled state the test can see.
+  ;(win as unknown as { mtCommentAvailable?: boolean }).mtCommentAvailable = available
+}
+
+const isEditorCommentAvailable = (win: BrowserWindow): boolean => commentable.get(win) === true
 
 // Dynamically fetch menu items to ensure correct translation
 const getContextItems = (): MenuItemConstructorOptions[] => [
@@ -90,6 +104,8 @@ export const showEditorContextMenu = (
     const isMisspelled = isEditable && !!selectionText && !!misspelledWord
 
     const menu = new Menu()
+    menu.append(new MenuItem(getComment(isEditorCommentAvailable(win))))
+    menu.append(new MenuItem(SEPARATOR))
     if (isOsx && hasText) {
       menu.append(new MenuItem(getLookUp(selectionText)))
       menu.append(new MenuItem(SEPARATOR))

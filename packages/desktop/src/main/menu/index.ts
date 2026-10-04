@@ -9,6 +9,7 @@ import { updateFormatMenu } from '../menu/actions/format'
 import { updateSelectionMenus, type SelectionState } from '../menu/actions/paragraph'
 import { onInternalChannel } from '../utils/internalIpc'
 import { viewLayoutChanged } from '../menu/actions/view'
+import { setEditorCommentAvailable } from '../contextMenu/editor'
 import configureMenu, { configSettingMenu } from '../menu/templates'
 import { setLanguage } from '../i18n.js'
 import type Preference from '../preferences'
@@ -553,6 +554,11 @@ class AppMenu {
     // In source-code mode the Paragraph and Format commands act on the hidden
     // WYSIWYG engine, so grey them out; on return to WYSIWYG they are re-enabled
     // and the next selection change refines them (#3531).
+    ipcMain.on('mt::editor-comment-available', (event, available: boolean) => {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (win) setEditorCommentAvailable(win, available)
+    })
+
     ipcMain.on('mt::set-editor-format-menus-enabled', (_e, windowId: number, enabled: boolean) => {
       if (!this.has(windowId)) return
       const menu = this.getWindowMenuById(windowId)

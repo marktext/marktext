@@ -124,6 +124,16 @@ import { addCommonStyle, setEditorWidth } from '@/util/theme'
 import { usePreferencesStore } from '@/store/preferences'
 import { useEditorStore } from '@/store/editor'
 import { useProjectStore } from '@/store/project'
+import { useAgentStore } from '@/store/agent'
+import { useCommandCenterStore } from '@/store/commandCenter'
+import { useCommentsStore } from '@/store/comments'
+import { useLayoutStore } from '@/store/layout'
+import { resolveAnchor } from '@/agent/anchoring'
+import {
+  commentDecorations,
+  DRAFT_DECORATION_ID,
+  startCommentDraft
+} from './commentSession'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { SyntheticHistory, type IFileHistoryLike } from './syntheticHistory'
@@ -469,13 +479,135 @@ watch(sourceCode, (isSource) => {
     return
   }
   nextTick(() => {
+    // Leaving source mode rebuilds the WYSIWYG tree and drops painted marks.
+    syncCommentDecorations()
     if (selectionChange.value) {
       pushSelectionMenuState(selectionChange.value as MuyaChange)
     } else {
       window.electron.ipcRenderer.send('mt::set-editor-format-menus-enabled', windowId, true)
     }
+    publishCommentable()
   })
 })
+
+const agentStore = useAgentStore()
+const commentsStore = useCommentsStore()
+const layoutStore = useLayoutStore()
+let scrollFromDecoration = false
+let stopCommentMenu: (() => void) | null = null
+
+const commentShortcutLabel = (): string => {
+  const entry = useCommandCenterStore().rootCommand.subcommands.find(
+    (command) => command.id === 'comments.comment'
+  )
+  if (entry?.shortcut?.length) return entry.shortcut.join('+')
+  return isOsx ? '⌘⌥G' : 'Ctrl+Alt+C'
+}
+
+const publishCommentable = (): void => {
+  // Source mode publishes from its own selection. A hidden WYSIWYG caret
+  // would otherwise grey the comment item out while CodeMirror has a range.
+  if (sourceCode.value) return
+  const available = agentStore.agentAvailable && editor.value?.getSelectionInBlock() != null
+  window.electron.ipcRenderer.send('mt::editor-comment-available', available)
+}
+
+const syncCommentDecorations = (): void => {
+  const muya = editor.value
+  if (!muya) return
+  const pending = commentsStore.draft
+  let draftRange: { index: number; start: number; end: number } | null = null
+  if (pending) {
+    const resolution = resolveAnchor(muya.getTextBlocks(), pending.anchor)
+    if (resolution.status === 'anchored') {
+      draftRange = {
+        index: resolution.index,
+        start: resolution.start,
+        end: resolution.end
+      }
+    }
+  }
+  muya.setDecorations(
+    commentDecorations({
+      threads: commentsStore.threads,
+      resolved: commentsStore.resolved,
+      selectedThreadId: commentsStore.selectedThreadId,
+      showClosed: commentsStore.showClosed,
+      draft: draftRange
+    })
+  )
+}
+
+const openCommentsTab = (): void => {
+  layoutStore.SET_LAYOUT({ showAgentPanel: true, agentPanelTab: 'comments' })
+}
+
+const onAgentComment = (): void => {
+  if (sourceCode.value || !editor.value) return
+  const result = startCommentDraft(editor.value)
+  if (result.kind === 'blocked') {
+    notice.notify({
+      title: t('comments.comment'),
+      type: 'warning',
+      message: t('comments.blocked'),
+      time: 4000
+    })
+    return
+  }
+  syncCommentDecorations()
+}
+
+const onShowInText = (): void => {
+  if (sourceCode.value) return
+  const id = commentsStore.selectedThreadId
+  if (!id || !editor.value) return
+  const resolution = commentsStore.resolved.get(id)
+  if (resolution?.status === 'anchored') editor.value.scrollToDecoration(id)
+}
+
+const onDecorationClick = (payload: { id?: string }): void => {
+  const id = payload?.id
+  if (!id || id === DRAFT_DECORATION_ID) return
+  if (commentsStore.selectedThreadId !== id) {
+    scrollFromDecoration = true
+    commentsStore.selectedThreadId = id
+  }
+  openCommentsTab()
+}
+
+watch(
+  () =>
+    [
+      commentsStore.threads,
+      commentsStore.resolved,
+      commentsStore.selectedThreadId,
+      commentsStore.showClosed,
+      commentsStore.draft
+    ] as const,
+  () => {
+    syncCommentDecorations()
+  }
+)
+
+watch(
+  () => commentsStore.selectedThreadId,
+  (id) => {
+    if (scrollFromDecoration) {
+      scrollFromDecoration = false
+      return
+    }
+    if (sourceCode.value || !id || !editor.value) return
+    const resolution = commentsStore.resolved.get(id)
+    if (resolution?.status === 'anchored') editor.value.scrollToDecoration(id)
+  }
+)
+
+watch(
+  () => agentStore.agentAvailable,
+  () => {
+    publishCommentable()
+  }
+)
 
 // nextTick: the rebuilt headings have to be in the DOM before we pair them up.
 watch(
@@ -1730,7 +1862,14 @@ onMounted(() => {
     })
     Muya.use(ImageResizeBar)
     Muya.use(ImageToolBar)
-    Muya.use(InlineFormatToolbar)
+    Muya.use(InlineFormatToolbar, {
+      comment: {
+        label: () => t('comments.comment'),
+        shortcut: commentShortcutLabel,
+        blocked: () => t('comments.blocked'),
+        onClick: () => bus.emit('agent:comment')
+      }
+    })
     Muya.use(ParagraphFrontButton)
     Muya.use(ParagraphFrontMenu)
     Muya.use(PreviewToolBar)
@@ -1998,7 +2137,15 @@ onMounted(() => {
       editorStore.PERSIST_CURSOR(currentFile.value.id, serializeCursor(editor.value.getSelection()))
     }
     pushSelectionMenuState(changes)
+    publishCommentable()
   })
+
+  editor.value.on('decoration-click', onDecorationClick)
+  bus.on('agent:comment', onAgentComment)
+  bus.on('agent:show-in-text', onShowInText)
+  stopCommentMenu = window.electron.ipcRenderer.on('mt::cm-comment', onAgentComment)
+  syncCommentDecorations()
+  publishCommentable()
 
   document.addEventListener('keyup', keyup)
 
@@ -2039,6 +2186,9 @@ onBeforeUnmount(() => {
   bus.off('open-command-spellchecker-switch-language', openSpellcheckerLanguageCommand)
   bus.off('replace-misspelling', replaceMisspelling)
   bus.off('language-changed', handleLanguageChanged)
+  bus.off('agent:comment', onAgentComment)
+  bus.off('agent:show-in-text', onShowInText)
+  stopCommentMenu?.()
 
   document.removeEventListener('keyup', keyup)
   editorStore.SET_SELECTION_WORD_COUNT(null)

@@ -264,6 +264,10 @@ body.dark {
     border-bottom: 2px solid var(--comment-mark-underline-active);
 }
 
+.mu-comment.mu-comment-draft {
+    border-bottom-style: dashed;
+}
+
 .mu-hide::selection {
     color: transparent;
 

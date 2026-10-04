@@ -5,7 +5,8 @@
 }
 
 .mu-format-picker {
-    width: 265px;
+    width: max-content;
+    min-width: 265px;
     height: 28px;
 }
 
@@ -37,11 +38,11 @@
     background: var(--float-hover-color);
 }
 
-.mu-format-picker li.item:last-of-type {
+.mu-format-picker li.item.clear {
     margin-left: 6px;
 }
 
-.mu-format-picker li.item:last-of-type::before {
+.mu-format-picker li.item.clear::before {
     position: absolute;
     top: 6px;
     left: -3px;
@@ -56,6 +57,21 @@
 
 .mu-format-picker li.item .icon-wrapper {
     display: flex;
+    width: 16px;
+    height: 16px;
+}
+
+.mu-format-picker li.item.disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+.mu-format-picker li.item.disabled:hover {
+    background: none;
+}
+
+.mu-format-picker li.item.comment svg {
+    display: block;
     width: 16px;
     height: 16px;
 }

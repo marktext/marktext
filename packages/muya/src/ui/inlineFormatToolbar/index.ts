@@ -2,7 +2,6 @@ import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
 import type { Token } from '../../inlineRenderer/types';
 import type { IBaseOptions } from '../types';
-
 import type { FormatToolIcon } from './config';
 import Format from '../../block/base/format';
 import { isKeyboardEvent } from '../../utils';
@@ -10,6 +9,18 @@ import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import icons from './config';
 import './index.css';
+
+/** Host hook. Comment is not a format, so it never goes through `block.format`. */
+export interface ICommentTool {
+    label: () => string;
+    shortcut: () => string;
+    blocked: () => string;
+    onClick: () => void;
+}
+
+type IFormatToolbarOptions = Partial<IBaseOptions> & {
+    comment?: ICommentTool;
+};
 
 /** Default float options for inline format toolbar */
 const defaultOptions = {
@@ -75,6 +86,8 @@ export class InlineFormatToolbar extends BaseFloat {
     /** Format tool icons configuration */
     private _icons: FormatToolIcon[] = icons;
 
+    private _comment?: ICommentTool;
+
     /** Container element for the format toolbar */
     private _formatContainer: HTMLDivElement = document.createElement('div');
 
@@ -83,11 +96,12 @@ export class InlineFormatToolbar extends BaseFloat {
      * @param muya - Muya editor instance
      * @param options - Toolbar options
      */
-    constructor(muya: Muya, options = {}) {
+    constructor(muya: Muya, options: IFormatToolbarOptions = {}) {
         const name = 'mu-format-picker';
         const opts = Object.assign({}, defaultOptions, options);
         super(muya, name, opts);
         this.options = opts;
+        this._comment = options.comment;
         this.container!.appendChild(this._formatContainer);
         this.floatBox!.classList.add('mu-format-picker-container');
         this.listen();
@@ -119,8 +133,17 @@ export class InlineFormatToolbar extends BaseFloat {
         // command / shortcut) light up their buttons. Single-block tool, so
         // ignore collapsed / cross-block selections.
         eventCenter.subscribe('selection-change', ({ formats, isCollapsed, isSelectionInSameBlock }) => {
-            if (!this.status || isCollapsed || !isSelectionInSameBlock)
+            if (!this.status)
                 return;
+
+            if (isCollapsed || !isSelectionInSameBlock) {
+                // Format highlights stay put, but an already-open comment
+                // button has to go inactive once the selection leaves one block.
+                if (this._comment && this._oldVNode)
+                    this._render();
+
+                return;
+            }
 
             this._formats = formats;
             this._render();
@@ -207,6 +230,10 @@ export class InlineFormatToolbar extends BaseFloat {
         const { i18n } = this.muya;
 
         const children = icons.map(icon => this._createIconItem(icon, formats, i18n));
+
+        if (this._comment)
+            children.push(this._createCommentItem(this._comment));
+
         const vnode = h('ul', children);
 
         patch(oldVNode || formatContainer, vnode);
@@ -253,6 +280,53 @@ export class InlineFormatToolbar extends BaseFloat {
                 },
             },
             [iconWrapper],
+        );
+    }
+
+    private _createCommentItem(comment: ICommentTool) {
+        const enabled = this.muya.getSelectionInBlock() !== null;
+        const icon = h(
+            'svg',
+            {
+                attrs: {
+                    'viewBox': '0 0 24 24',
+                    'fill': 'none',
+                    'stroke': 'currentColor',
+                    'stroke-width': '1.75',
+                    'stroke-linejoin': 'round',
+                },
+            },
+            [
+                h('path', {
+                    attrs: {
+                        d: 'M6 6h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H11l-4 3v-3H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z',
+                    },
+                }),
+            ],
+        );
+
+        return h(
+            `li.item.comment${enabled ? '' : '.disabled'}`,
+            {
+                attrs: {
+                    title: enabled
+                        ? `${comment.label()}\n${comment.shortcut()}`
+                        : comment.blocked(),
+                },
+                on: {
+                    click: (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        if (this.muya.getSelectionInBlock() === null)
+                            return;
+
+                        comment.onClick();
+                        this.hide();
+                    },
+                },
+            },
+            [h('div.icon-wrapper', [icon])],
         );
     }
 

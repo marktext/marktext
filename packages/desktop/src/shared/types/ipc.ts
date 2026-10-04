@@ -186,6 +186,7 @@ export interface IpcSendChannels {
   'mt::open-setting-window': []
   'mt::rename': [payload: { id: string; pathname: string; newPathname: string; currentFile?: unknown }]
   'mt::request-keybindings': []
+  'mt::editor-comment-available': [available: boolean]
   'mt::set-editor-format-menus-enabled': [windowId: number, enabled: boolean]
   'mt::response-export': [
     payload: {
@@ -282,6 +283,7 @@ export interface IpcMainEventChannels {
   'mt::agent::harness-status-changed': [statuses: HarnessStatus[]]
   'mt::ask-for-close': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
+  'mt::cm-comment': []
   'mt::cm-copy-as-html': []
   'mt::cm-copy-as-rich': []
   'mt::cm-insert-paragraph': [direction: 'before' | 'after']

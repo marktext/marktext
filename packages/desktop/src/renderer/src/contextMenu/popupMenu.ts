@@ -15,6 +15,7 @@ export interface ContextMenuItem {
   // literals without `as const`. The serializer only special-cases 'separator'.
   type?: string
   accelerator?: string
+  role?: string
   enabled?: boolean
   checked?: boolean
   submenu?: ContextMenuItem[]
@@ -42,6 +43,7 @@ const serialize = (
       label: item.label,
       type: item.type as MenuTemplateItem['type'],
       accelerator: item.accelerator,
+      role: item.role,
       enabled: item.enabled !== false,
       checked: !!item.checked,
       submenu: item.submenu ? serialize(item.submenu, handlers) : undefined

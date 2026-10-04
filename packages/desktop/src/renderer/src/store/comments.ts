@@ -27,6 +27,13 @@ export interface CommentsParseError {
   message: string
 }
 
+/** Unsaved comment. It is not a thread until Save calls `createThread`. */
+export interface CommentDraft {
+  anchor: Anchor
+  quote: string
+  text: string
+}
+
 const HINT_KEY: Record<CommentsUnavailableReason, string> = {
   untitled: 'comments.unavailableUntitled',
   outside: 'comments.unavailableOutside',
@@ -84,6 +91,7 @@ export const useCommentsStore = defineStore('comments', () => {
   const resolved = ref<Map<string, AnchorResolution>>(new Map())
   const selectedThreadId = ref<string | null>(null)
   const showClosed = ref(false)
+  const draft = ref<CommentDraft | null>(null)
   const parseError = ref<CommentsParseError | null>(null)
   const missingReply = ref<Set<string>>(new Set())
   const availability = ref<CommentsAvailability>({ kind: 'unavailable', reason: 'untitled' })
@@ -114,6 +122,7 @@ export const useCommentsStore = defineStore('comments', () => {
     threads.value = []
     resolved.value = new Map()
     selectedThreadId.value = null
+    draft.value = null
     parseError.value = null
     loadedFor = null
   }
@@ -152,6 +161,7 @@ export const useCommentsStore = defineStore('comments', () => {
     threads.value = []
     resolved.value = new Map()
     selectedThreadId.value = null
+    draft.value = null
     loadedFor = null
   }
 
@@ -196,7 +206,10 @@ export const useCommentsStore = defineStore('comments', () => {
     if (parseError.value) throw new Error('comments file is unreadable')
     if (!window.comments) throw new Error('comments bridge is missing')
 
-    const file = await window.comments.mutate(mutation)
+    // The draft anchor sits on a reactive store object. Electron's structured
+    // clone rejects that proxy, so the payload has to be plain JSON first.
+    const payload = JSON.parse(JSON.stringify(mutation)) as CommentsMutation
+    const file = await window.comments.mutate(payload)
     if (availability.value.kind === 'ready' && availability.value.file === file.file) {
       adopt(file, true)
     }
@@ -262,6 +275,26 @@ export const useCommentsStore = defineStore('comments', () => {
     loadCurrent().catch(() => undefined)
   }
 
+  function openDraft(next: CommentDraft): void {
+    draft.value = next
+    selectedThreadId.value = null
+  }
+
+  function cancelDraft(): void {
+    draft.value = null
+  }
+
+  async function saveDraft(): Promise<void> {
+    const current = draft.value
+    if (!current || !current.text.trim()) return
+    const before = new Set(threads.value.map((item) => item.id))
+    const file = await createThread(current.anchor, current.text.trim())
+    if (draft.value !== current) return
+    draft.value = null
+    const created = file.threads.find((item) => !before.has(item.id))
+    if (created) selectedThreadId.value = created.id
+  }
+
   async function createThread(anchor: Anchor, firstText: string): Promise<CommentsFile> {
     if (availability.value.kind !== 'ready') {
       throw new Error('comments are unavailable for this file')
@@ -306,6 +339,7 @@ export const useCommentsStore = defineStore('comments', () => {
     resolved,
     selectedThreadId,
     showClosed,
+    draft,
     parseError,
     missingReply,
     availability,
@@ -313,6 +347,9 @@ export const useCommentsStore = defineStore('comments', () => {
     unresolvedCount,
     listen,
     stop: bag.stop,
+    openDraft,
+    cancelDraft,
+    saveDraft,
     createThread,
     addHumanMessage,
     editHumanMessage,

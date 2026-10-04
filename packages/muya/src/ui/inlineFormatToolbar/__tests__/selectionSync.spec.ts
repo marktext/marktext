@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
 import { InlineFormatToolbar } from '../index';
 
@@ -98,5 +98,68 @@ describe('inlineFormatToolbar self-syncs its highlight on selection-change', () 
 
         emitSelectionChange(muya, [{ type: 'strong' }], { isSelectionInSameBlock: false });
         expect(toolbar.container!.querySelector('li.item.strong')).toBeNull();
+    });
+});
+
+describe('inlineFormatToolbar comment tool', () => {
+    it('stays inactive until the selection is inside one text block', () => {
+        const muya = bootMuya('hello world\n');
+        const onClick = vi.fn();
+        vi.spyOn(muya, 'getSelectionInBlock').mockReturnValue(null);
+        const toolbar = new InlineFormatToolbar(muya, {
+            comment: {
+                label: () => 'Comment',
+                shortcut: () => 'Ctrl+Alt+C',
+                blocked: () => 'One block only',
+                onClick,
+            },
+        });
+        toolbar.status = true;
+
+        emitSelectionChange(muya, []);
+        const disabled = toolbar.container!.querySelector('li.item.comment');
+        expect(disabled).toBeTruthy();
+        expect(disabled!.classList.contains('disabled')).toBe(true);
+        expect(disabled!.getAttribute('title')).toBe('One block only');
+        disabled!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(onClick).not.toHaveBeenCalled();
+        expect(toolbar.container!.querySelector('li.item.strong')).toBeTruthy();
+
+        vi.mocked(muya.getSelectionInBlock).mockReturnValue({
+            index: 0,
+            start: 0,
+            end: 5,
+            text: 'hello',
+        });
+        emitSelectionChange(muya, []);
+        const enabled = toolbar.container!.querySelector('li.item.comment')!;
+        expect(enabled.classList.contains('disabled')).toBe(false);
+        enabled.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(onClick).toHaveBeenCalledOnce();
+    });
+
+    it('turns the comment button off when the selection leaves the block', () => {
+        const muya = bootMuya('hello world\n');
+        vi.spyOn(muya, 'getSelectionInBlock').mockReturnValue({
+            index: 0,
+            start: 0,
+            end: 5,
+            text: 'hello',
+        });
+        const toolbar = new InlineFormatToolbar(muya, {
+            comment: {
+                label: () => 'Comment',
+                shortcut: () => 'Ctrl+Alt+C',
+                blocked: () => 'One block only',
+                onClick: () => {},
+            },
+        });
+        toolbar.status = true;
+        emitSelectionChange(muya, []);
+        expect(toolbar.container!.querySelector('li.item.comment')!.classList.contains('disabled')).toBe(false);
+
+        vi.mocked(muya.getSelectionInBlock).mockReturnValue(null);
+        emitSelectionChange(muya, [], { isSelectionInSameBlock: false });
+        expect(toolbar.container!.querySelector('li.item.comment')!.classList.contains('disabled')).toBe(true);
     });
 });

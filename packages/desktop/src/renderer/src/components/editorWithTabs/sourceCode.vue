@@ -9,14 +9,24 @@
 import { ref, shallowRef, markRaw, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
+import { useAgentStore } from '@/store/agent'
+import { useCommentsStore } from '@/store/comments'
+import { useLayoutStore } from '@/store/layout'
 import { findMarkdownHeadingLine, scrollSourceEditorToLine } from '@/util/sourceModeToc'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import type CodeMirror from 'codemirror'
 import codeMirror, { setCursorAtFirstLine, setTextDirection } from '../../codeMirror'
-import { wordCount as getWordCount } from '@muyajs/core'
+import { resolveAnchor } from '@/agent/anchoring'
+import { markdownToTextBlocks, wordCount as getWordCount } from '@muyajs/core'
+import { REANCHOR_DEBOUNCE_MS } from '@shared/types/comments'
 import { adjustCursor } from '../../util'
 import bus from '../../bus'
+import notice from '@/services/notification'
+import { popupContextMenu } from '@/contextMenu/popupMenu'
 import { oneDarkThemes, railscastsThemes } from '@/config'
+import { DRAFT_DECORATION_ID, startCommentFromRange } from './commentSession'
+import { sourceCommentMarks, sourceSelectionRange } from './sourceComments'
 
 interface MuyaIndexCursorLike {
   anchor: CodeMirror.Position
@@ -29,8 +39,12 @@ const props = defineProps<{
   textDirection: string
 }>()
 
+const { t } = useI18n()
 const editorStore = useEditorStore()
 const preferencesStore = usePreferencesStore()
+const agentStore = useAgentStore()
+const commentsStore = useCommentsStore()
+const layoutStore = useLayoutStore()
 
 const sourceCodeContainer = ref<HTMLDivElement | null>(null)
 
@@ -200,6 +214,7 @@ const handleFileChange = (payload: unknown) => {
   } else {
     setCursorAtFirstLine(editor.value)
   }
+  paintCommentMarks()
 }
 
 const handleSelectAll = () => {
@@ -342,16 +357,179 @@ const saveContent = (cm: CodeMirror.Editor) => {
   }
 }
 
+const commentMarkers = new Map<string, CodeMirror.TextMarker>()
+let paintTimer: ReturnType<typeof setTimeout> | null = null
+let scrollFromMark = false
+let stopCommentMenu: (() => void) | null = null
+
+const currentSourceRange = (cm: CodeMirror.Editor) =>
+  sourceSelectionRange(cm.getValue(), cm.getCursor('anchor'), cm.getCursor('head'))
+
+const publishCommentable = (cm: CodeMirror.Editor): void => {
+  const available = agentStore.agentAvailable && currentSourceRange(cm) !== null
+  window.electron.ipcRenderer.send('mt::editor-comment-available', available)
+}
+
+const clearCommentMarks = (): void => {
+  for (const marker of commentMarkers.values()) marker.clear()
+  commentMarkers.clear()
+}
+
+const paintCommentMarks = (): void => {
+  const cm = editor.value
+  if (!cm) return
+  clearCommentMarks()
+
+  const markdown = cm.getValue()
+  const pending = commentsStore.draft
+  let draftRange: { index: number; start: number; end: number } | null = null
+  if (pending) {
+    const resolution = resolveAnchor(markdownToTextBlocks(markdown), pending.anchor)
+    if (resolution.status === 'anchored') {
+      draftRange = {
+        index: resolution.index,
+        start: resolution.start,
+        end: resolution.end
+      }
+    }
+  }
+
+  for (const mark of sourceCommentMarks(
+    {
+      threads: commentsStore.threads,
+      resolved: commentsStore.resolved,
+      selectedThreadId: commentsStore.selectedThreadId,
+      showClosed: commentsStore.showClosed,
+      draft: draftRange
+    },
+    markdown
+  )) {
+    commentMarkers.set(
+      mark.id,
+      cm.markText(mark.from, mark.to, {
+        className: mark.className,
+        attributes: { 'data-comment-id': mark.id },
+        inclusiveLeft: false,
+        inclusiveRight: false
+      })
+    )
+  }
+}
+
+const scheduleCommentMarks = (): void => {
+  if (paintTimer) clearTimeout(paintTimer)
+  paintTimer = setTimeout(() => {
+    paintTimer = null
+    paintCommentMarks()
+  }, REANCHOR_DEBOUNCE_MS)
+}
+
+const scrollToThread = (id: string): void => {
+  const found = commentMarkers.get(id)?.find()
+  const cm = editor.value
+  const container = sourceCodeContainer.value
+  if (!found || !('from' in found) || !cm || !container) return
+  const top = cm.heightAtLine(found.from.line, 'local')
+  container.scrollTo({ top: Math.max(top - 80, 0), behavior: 'smooth' })
+}
+
+const openCommentsTab = (): void => {
+  layoutStore.SET_LAYOUT({ showAgentPanel: true, agentPanelTab: 'comments' })
+}
+
+const onAgentComment = (): void => {
+  const cm = editor.value
+  if (!cm) return
+  const markdown = cm.getValue()
+  const range = currentSourceRange(cm)
+  const result = startCommentFromRange(markdownToTextBlocks(markdown), range)
+  if (result.kind === 'blocked') {
+    notice.notify({
+      title: t('comments.comment'),
+      type: 'warning',
+      message: t('comments.blocked'),
+      time: 4000
+    })
+    return
+  }
+  paintCommentMarks()
+}
+
+const onShowInText = (): void => {
+  const id = commentsStore.selectedThreadId
+  if (id) scrollToThread(id)
+}
+
+const onCommentMouseDown = (_cm: CodeMirror.Editor, event: Event): void => {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  const id = target.closest('.mt-comment')?.getAttribute('data-comment-id')
+  if (!id || id === DRAFT_DECORATION_ID) return
+  if (commentsStore.selectedThreadId !== id) {
+    scrollFromMark = true
+    commentsStore.selectedThreadId = id
+  }
+  openCommentsTab()
+}
+
+const showSourceContextMenu = (cm: CodeMirror.Editor, event: MouseEvent): void => {
+  const commentable = agentStore.agentAvailable && currentSourceRange(cm) !== null
+  popupContextMenu(
+    [
+      {
+        label: t('comments.comment'),
+        enabled: commentable,
+        click: () => onAgentComment()
+      },
+      { type: 'separator' },
+      { role: 'cut', label: t('contextMenu.cut') },
+      { role: 'copy', label: t('contextMenu.copy') },
+      { role: 'paste', label: t('contextMenu.paste') }
+    ],
+    { x: event.clientX, y: event.clientY }
+  )
+}
+
 const listenChange = (cm: CodeMirror.Editor) => {
   cm.on('cursorActivity', (instance: CodeMirror.Editor) => {
     saveContent(instance)
     updateSelectionWordCount(instance)
+    publishCommentable(instance)
   })
+  cm.on('change', () => {
+    scheduleCommentMarks()
+  })
+  cm.on('mousedown', onCommentMouseDown)
 }
 
 // #3580: in Source Code mode the WYSIWYG container is hidden, so the
 // `scroll-to-header` bus event (emitted when a TOC entry is clicked) must scroll
 // CodeMirror instead. Resolve the TOC entry to its heading line in the source.
+watch(
+  () =>
+    [
+      commentsStore.threads,
+      commentsStore.resolved,
+      commentsStore.selectedThreadId,
+      commentsStore.showClosed,
+      commentsStore.draft
+    ] as const,
+  () => {
+    paintCommentMarks()
+  }
+)
+
+watch(
+  () => commentsStore.selectedThreadId,
+  (id) => {
+    if (scrollFromMark) {
+      scrollFromMark = false
+      return
+    }
+    if (id) scrollToThread(id)
+  }
+)
+
 const handleScrollToHeader = (slug: unknown) => {
   if (!editor.value) return
   const index = editorStore.listToc.findIndex(item => item.slug === slug)
@@ -405,9 +583,10 @@ onMounted(() => {
   // See src/renderer/src/codeMirror/markdownMathMode.ts.
   codeMirrorInstance.setOption('mode', markdownMathMode())
 
-  codeMirrorInstance.on('contextmenu', (_cm: CodeMirror.Editor, event: Event) => {
+  codeMirrorInstance.on('contextmenu', (cm: CodeMirror.Editor, event: Event) => {
     event.preventDefault()
     event.stopPropagation()
+    if (event instanceof MouseEvent) showSourceContextMenu(cm, event)
   })
 
   if (isValidMuyaIndexCursor(muyaIndexCursor)) {
@@ -422,6 +601,11 @@ onMounted(() => {
   updateSelectionWordCount(codeMirrorInstance)
 
   listenChange(codeMirrorInstance)
+  bus.on('agent:comment', onAgentComment)
+  bus.on('agent:show-in-text', onShowInText)
+  stopCommentMenu = window.electron.ipcRenderer.on('mt::cm-comment', onAgentComment)
+  paintCommentMarks()
+  publishCommentable(codeMirrorInstance)
 })
 
 onBeforeUnmount(() => {
@@ -437,6 +621,11 @@ onBeforeUnmount(() => {
   editorStore.SET_SELECTION_WORD_COUNT(null)
   lastSelectionKey = ''
   bus.off('scroll-to-header', handleScrollToHeader)
+  bus.off('agent:comment', onAgentComment)
+  bus.off('agent:show-in-text', onShowInText)
+  stopCommentMenu?.()
+  if (paintTimer) clearTimeout(paintTimer)
+  clearCommentMarks()
 
   if (editor.value) {
     const { cursor, markdown: newMarkdown } = getMarkdownAndCursor(editor.value)
@@ -475,5 +664,16 @@ onBeforeUnmount(() => {
    still clearing 3:1 in all of them, with one-dark at 3.67 setting the floor. */
 .source-code .CodeMirror .cm-formatting-math {
   opacity: 0.65;
+}
+.source-code .mt-comment {
+  background: var(--commentMarkBg);
+  border-bottom: 1px solid var(--commentMarkUnderline);
+}
+.source-code .mt-comment.mt-comment-active {
+  background: var(--commentMarkBgActive);
+  border-bottom: 2px solid var(--commentMarkUnderlineActive);
+}
+.source-code .mt-comment.mt-comment-draft {
+  border-bottom-style: dashed;
 }
 </style>

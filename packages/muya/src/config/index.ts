@@ -127,6 +127,7 @@ export const CLASS_NAMES = genUpper2LowerKeyHash([
     'MU_HIGHLIGHT',
     'MU_COMMENT',
     'MU_COMMENT_ACTIVE',
+    'MU_COMMENT_DRAFT',
     'MU_HTML_BLOCK',
     'MU_HTML_ESCAPE',
     'MU_HTML_ESCAPE_MARKER',

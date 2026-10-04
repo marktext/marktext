@@ -25,24 +25,24 @@ const buildMenu = (template: MenuTemplate | undefined, windowId: number): Menu =
       continue
     }
     const id = item.id
-    menu.append(
-      new MenuItem({
-        label: item.label,
-        type: item.type as 'normal' | 'submenu' | 'checkbox' | 'radio' | undefined,
-        accelerator: item.accelerator,
-        enabled: item.enabled !== false,
-        checked: !!item.checked,
-        click: () => {
-          const sender = popups.get(windowId)?.sender
-          try {
-            sender?.send('mt::menu::click', { windowId, id })
-          } catch {
-            /* sender destroyed */
-          }
-        },
-        submenu: item.submenu ? buildMenu(item.submenu as MenuTemplateItem[], windowId) : undefined
-      })
-    )
+    const spec: Electron.MenuItemConstructorOptions = {
+      label: item.label,
+      type: item.type as 'normal' | 'submenu' | 'checkbox' | 'radio' | undefined,
+      accelerator: item.accelerator,
+      enabled: item.enabled !== false,
+      checked: !!item.checked,
+      click: () => {
+        const sender = popups.get(windowId)?.sender
+        try {
+          sender?.send('mt::menu::click', { windowId, id })
+        } catch {
+          /* sender destroyed */
+        }
+      },
+      submenu: item.submenu ? buildMenu(item.submenu as MenuTemplateItem[], windowId) : undefined
+    }
+    if (item.role) spec.role = item.role as Electron.MenuItemConstructorOptions['role']
+    menu.append(new MenuItem(spec))
   }
   return menu
 }

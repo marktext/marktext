@@ -318,4 +318,33 @@ describe('comments store', () => {
     await nextTick()
     expect(store.missingReply.size).toBe(0)
   })
+
+  it('saves a draft as a thread and selects it', async() => {
+    const store = useCommentsStore()
+    store.availability = { kind: 'ready', file: 'docs/guide.md' }
+    store.openDraft({
+      anchor: {
+        quote: 'hello',
+        prefix: '',
+        suffix: '',
+        blockHint: { type: 'paragraph', index: 0 }
+      },
+      quote: 'hello',
+      text: 'note'
+    })
+    const created = thread('t-new', 'hello')
+    mutate.mockResolvedValue(commentsFile('docs/guide.md', [created]))
+
+    await store.saveDraft()
+
+    expect(mutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        op: 'createThread',
+        file: 'docs/guide.md',
+        firstText: 'note'
+      })
+    )
+    expect(store.draft).toBeNull()
+    expect(store.selectedThreadId).toBe('t-new')
+  })
 })

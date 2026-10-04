@@ -74,8 +74,12 @@ export class Decorations {
             extras.push({
                 start,
                 end,
-                active: decoration.active,
-                className: CLASS_NAMES.MU_COMMENT,
+                // A draft is not a selected thread, so it never takes the
+                // solid active underline.
+                active: decoration.draft ? false : decoration.active,
+                className: decoration.draft
+                    ? `${CLASS_NAMES.MU_COMMENT} ${CLASS_NAMES.MU_COMMENT_DRAFT}`
+                    : CLASS_NAMES.MU_COMMENT,
                 dataId: decoration.id,
             });
         }

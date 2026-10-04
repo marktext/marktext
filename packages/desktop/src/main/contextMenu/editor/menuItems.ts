@@ -4,6 +4,17 @@ import { type BaseWindow, type BrowserWindow, type MenuItemConstructorOptions } 
 import { t } from '../../i18n'
 
 // Use function form to avoid calling the translation function during module load
+export const getComment = (enabled: boolean): MenuItemConstructorOptions => ({
+  label: t('comments.comment'),
+  id: 'commentMenuItem',
+  enabled,
+  click(_menuItem, targetWindow) {
+    if (targetWindow) {
+      ;(targetWindow as BrowserWindow).webContents.send('mt::cm-comment')
+    }
+  }
+})
+
 export const getCUT = (): MenuItemConstructorOptions => ({
   label: t('contextMenu.cut'),
   id: 'cutMenuItem',

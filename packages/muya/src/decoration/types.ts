@@ -19,10 +19,12 @@ export interface ITextBlockSelection {
 
 // A comment mark painted on one text block. `start`/`end` use the same
 // offsets as `ITextBlockSelection`. `active` is the selected thread.
+// `draft` is the unsaved mark: dashed underline, never the active style.
 export interface IDecoration {
     id: string;
     blockIndex: number;
     start: number;
     end: number;
     active: boolean;
+    draft?: boolean;
 }
