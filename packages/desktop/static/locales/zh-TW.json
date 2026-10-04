@@ -246,12 +246,16 @@
       "createFile": "建立檔案",
       "openFolder": "開啟資料夾"
     },
+    "tabs": {
+      "title": "分頁"
+    },
     "toc": {
       "title": "目錄",
       "expandAll": "全部展開",
       "collapseAll": "全部折疊"
     },
     "icons": {
+      "tabs": "分頁",
       "files": "檔案",
       "search": "搜尋",
       "toc": "目錄",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "tabBarVertical": "是否在側邊欄中以列的形式顯示分頁列，而非顯示在視窗頂端。"
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
         "showOpenedFiles": "顯示已開啟的檔案",
+        "showTabBarVertically": "垂直顯示分頁列",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（備註）",
         "fileSortBy": {

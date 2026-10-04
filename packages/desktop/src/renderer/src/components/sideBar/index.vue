@@ -8,7 +8,7 @@
     <div class="left-column">
       <ul>
         <li
-          v-for="(c, index) of sideBarIcons"
+          v-for="(c, index) of visibleSideBarIcons"
           :key="index"
           :class="{ active: c.id === rightColumn }"
           @click="handleLeftIconClick(c.id)"
@@ -30,8 +30,9 @@
       v-show="rightColumn"
       class="right-column"
     >
+      <side-bar-tabs v-if="rightColumn === 'tabs'" />
       <tree
-        v-if="rightColumn === 'files'"
+        v-else-if="rightColumn === 'files'"
         :project-tree="projectTree"
         :opened-files="openedFiles"
         :tabs="tabs"
@@ -48,12 +49,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useLayoutStore } from '@/store/layout'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
+import { usePreferencesStore } from '@/store/preferences'
 
 import { sideBarIcons, sideBarBottomIcons } from './help'
+import SideBarTabs from './tabs.vue'
 import Tree from './tree.vue'
 import SideBarSearch from './search.vue'
 import Toc from './toc.vue'
@@ -74,6 +77,19 @@ const { rightColumn, showSideBar, sideBarWidth } = storeToRefs(layoutStore)
 
 const { projectTree } = storeToRefs(projectStore)
 const { tabs } = storeToRefs(editorStore)
+const { tabBarVertical } = storeToRefs(usePreferencesStore())
+
+const visibleSideBarIcons = computed(() =>
+  tabBarVertical.value ? sideBarIcons : sideBarIcons.filter((c) => c.id !== 'tabs')
+)
+
+// Turning the setting off removes the tabs icon; don't leave its panel open
+// with no way to switch back to it.
+watch(tabBarVertical, (vertical) => {
+  if (!vertical && rightColumn.value === 'tabs') {
+    layoutStore.SET_LAYOUT({ rightColumn: 'files' })
+  }
+})
 
 const finalSideBarWidth = computed<number>(() => {
   if (!showSideBar.value) return 0

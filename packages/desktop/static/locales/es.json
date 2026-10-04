@@ -246,12 +246,16 @@
       "createFile": "Crear Archivo",
       "openFolder": "Abrir Carpeta"
     },
+    "tabs": {
+      "title": "Pestañas"
+    },
     "toc": {
       "title": "Tabla de Contenidos",
       "expandAll": "Expandir todo",
       "collapseAll": "Contraer todo"
     },
     "icons": {
+      "tabs": "Pestañas",
       "files": "Archivos",
       "search": "Buscar",
       "toc": "Tabla de Contenidos",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "Dónde se copian las imágenes relativas",
         "imageRelativeDirectoryName": "El nombre de la carpeta de imagen relativa",
         "fileSortOrder": "El orden de clasificación de los archivos en las carpetas abiertas: ascendente o descendente",
-        "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral"
+        "openedFilesInSidebar": "Si mostrar los archivos abiertos en la barra lateral",
+        "tabBarVertical": "Si se muestra la barra de pestañas como filas en la barra lateral en lugar de en la parte superior de la ventana."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Barra Lateral",
         "wrapTextInToc": "Ajustar texto en tabla de contenidos",
         "showOpenedFiles": "Mostrar archivos abiertos",
+        "showTabBarVertically": "Mostrar barra de pestañas verticalmente",
         "excludePatterns": "Patrones de exclusión",
         "excludePatternsNotes": "Patrones de exclusión (Notas)",
         "fileSortBy": {

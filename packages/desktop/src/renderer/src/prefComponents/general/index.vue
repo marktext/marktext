@@ -81,6 +81,11 @@
           :bool="openedFilesInSidebar"
           :on-change="(value) => onSelectChange('openedFilesInSidebar', value)"
         />
+        <bool
+          :description="t('preferences.general.sidebar.showTabBarVertically')"
+          :bool="tabBarVertical"
+          :on-change="(value) => onSelectChange('tabBarVertical', value)"
+        />
 
         <text-box
           :description="t('preferences.general.sidebar.excludePatterns')"
@@ -220,7 +225,8 @@ const {
   fileSortBy,
   fileSortOrder,
   language,
-  openedFilesInSidebar
+  openedFilesInSidebar,
+  tabBarVertical
 } = storeToRefs(preferenceStore)
 
 const startUpAction = computed<string>({

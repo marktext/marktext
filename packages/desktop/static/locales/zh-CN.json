@@ -246,12 +246,16 @@
       "createFile": "创建文件",
       "openFolder": "打开文件夹"
     },
+    "tabs": {
+      "title": "标签页"
+    },
     "toc": {
       "title": "目录",
       "expandAll": "全部展开",
       "collapseAll": "全部折叠"
     },
     "icons": {
+      "tabs": "标签页",
       "files": "文件",
       "search": "搜索",
       "toc": "目录",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
-        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件"
+        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
+        "tabBarVertical": "是否在侧边栏中以行的形式显示标签栏，而不是显示在窗口顶部。"
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
         "showOpenedFiles": "显示已打开文件",
+        "showTabBarVertically": "垂直显示标签栏",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（注释）",
         "fileSortBy": {

@@ -21,6 +21,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | language               | String  | `en`         | The display language MarkText uses.                                                                    |
 | restoreLayoutState     | Boolean | `true`       | Restore the previous editor state (open tabs, layout) on startup.                                      |
 | openedFilesInSidebar   | Boolean | `true`       | Whether to show the _Opened Files_ subsection inside the sidebar file tree.                            |
+| tabBarVertical         | Boolean | `false`      | Show open tabs as rows in a sidebar panel instead of the tab bar across the top of the window.         |
 
 #### Editor
 

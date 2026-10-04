@@ -246,12 +246,16 @@
       "createFile": "Create File",
       "openFolder": "Open Folder"
     },
+    "tabs": {
+      "title": "Tabs"
+    },
     "toc": {
       "title": "Table Of Contents",
       "expandAll": "Expand all",
       "collapseAll": "Collapse all"
     },
     "icons": {
+      "tabs": "Tabs",
       "files": "Files",
       "search": "Search",
       "toc": "Table of Contents",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryName": "The relative image folder name",
         "autoNormalizeLineEndings": "Automatically normalize line endings when opening files. When disabled, files are opened as-is.",
         "fileSortOrder": "Sort order for files in opened folders: ascending or descending.",
-        "openedFilesInSidebar": "Whether to show opened files in the sidebar."
+        "openedFilesInSidebar": "Whether to show opened files in the sidebar.",
+        "tabBarVertical": "Whether to show the tab bar as rows in the sidebar instead of across the top of the window."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
+        "showTabBarVertically": "Show tabbar vertically",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {

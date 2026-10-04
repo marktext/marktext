@@ -246,12 +246,16 @@
       "createFile": "Datei erstellen",
       "openFolder": "Ordner öffnen"
     },
+    "tabs": {
+      "title": "Tabs"
+    },
     "toc": {
       "title": "Inhaltsverzeichnis",
       "expandAll": "Alle ausklappen",
       "collapseAll": "Alle einklappen"
     },
     "icons": {
+      "tabs": "Tabs",
       "files": "Dateien",
       "search": "Suchen",
       "toc": "Inhaltsverzeichnis",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
-        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
+        "tabBarVertical": "Ob die Tableiste als Zeilen in der Seitenleiste statt oben im Fenster angezeigt werden soll."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Seitenleiste",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
+        "showTabBarVertically": "Tableiste vertikal anzeigen",
         "excludePatterns": "Ausschlussmuster",
         "excludePatternsNotes": "Hinweise zu Ausschlussmustern",
         "fileSortBy": {

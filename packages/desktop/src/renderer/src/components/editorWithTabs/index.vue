@@ -3,7 +3,7 @@
     class="editor-with-tabs"
     :style="{ 'max-width': `calc(100vw - ${effectiveSideBarWidth}px)` }"
   >
-    <tabs v-show="showTabBar" />
+    <tabs v-show="showTabBar && !tabBarVertical" />
     <div class="container">
       <editor
         :markdown="markdown"
@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { useLayoutStore } from '@/store/layout'
+import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import Tabs from './tabs.vue'
 import Editor from './editor.vue'
@@ -44,6 +45,7 @@ defineProps<{
 }>()
 
 const { effectiveSideBarWidth } = storeToRefs(useLayoutStore())
+const { tabBarVertical } = storeToRefs(usePreferencesStore())
 </script>
 
 <style scoped>

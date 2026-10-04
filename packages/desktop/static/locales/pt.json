@@ -246,12 +246,16 @@
       "createFile": "Criar Arquivo",
       "openFolder": "Abrir Pasta"
     },
+    "tabs": {
+      "title": "Abas"
+    },
     "toc": {
       "title": "Índice",
       "expandAll": "Expandir tudo",
       "collapseAll": "Recolher tudo"
     },
     "icons": {
+      "tabs": "Abas",
       "files": "Arquivos",
       "search": "Pesquisar",
       "toc": "Índice",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "Onde as imagens relativas são copiadas",
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
-        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral."
+        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
+        "tabBarVertical": "Se a barra de abas deve ser exibida como linhas na barra lateral em vez de no topo da janela."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Barra Lateral",
         "wrapTextInToc": "Quebrar texto no índice",
         "showOpenedFiles": "Mostrar arquivos abertos",
+        "showTabBarVertically": "Mostrar barra de abas verticalmente",
         "excludePatterns": "Padrões de exclusão",
         "excludePatternsNotes": "Padrões de exclusão (Notas)",
         "fileSortBy": {

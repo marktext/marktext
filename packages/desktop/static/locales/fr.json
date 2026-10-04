@@ -246,12 +246,16 @@
       "createFile": "Créer un fichier",
       "openFolder": "Ouvrir un dossier"
     },
+    "tabs": {
+      "title": "Onglets"
+    },
     "toc": {
       "title": "Table des matières",
       "expandAll": "Tout développer",
       "collapseAll": "Tout réduire"
     },
     "icons": {
+      "tabs": "Onglets",
       "files": "Fichiers",
       "search": "Rechercher",
       "toc": "Table des matières",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "Où les images relatives sont copiées",
         "imageRelativeDirectoryName": "Le nom du dossier d'image relatif",
         "fileSortOrder": "Ordre de tri des fichiers dans les dossiers ouverts : croissant ou décroissant.",
-        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale."
+        "openedFilesInSidebar": "Afficher ou non les fichiers ouverts dans la barre latérale.",
+        "tabBarVertical": "Afficher la barre d'onglets sous forme de lignes dans la barre latérale plutôt qu'en haut de la fenêtre."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
+        "showTabBarVertically": "Afficher la barre d'onglets verticalement",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {

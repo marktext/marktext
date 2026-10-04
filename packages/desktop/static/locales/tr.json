@@ -246,12 +246,16 @@
       "createFile": "Dosya Oluştur",
       "openFolder": "Klasör Aç"
     },
+    "tabs": {
+      "title": "Sekmeler"
+    },
     "toc": {
       "title": "İçindekiler",
       "expandAll": "Tümünü genişlet",
       "collapseAll": "Tümünü daralt"
     },
     "icons": {
+      "tabs": "Sekmeler",
       "files": "Dosyalar",
       "search": "Ara",
       "toc": "İçindekiler",
@@ -434,7 +438,8 @@
         "plantumlServer": "PlantUML sunucu URL'si",
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
-        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
+        "tabBarVertical": "Sekme çubuğunun pencerenin üstü yerine kenar çubuğunda satırlar olarak gösterilip gösterilmeyeceği."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Kenar Çubuğu",
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "showOpenedFiles": "Açık dosyaları göster",
+        "showTabBarVertically": "Sekme çubuğunu dikey göster",
         "excludePatterns": "Hariç tutma desenleri",
         "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
         "fileSortBy": {

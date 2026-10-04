@@ -398,6 +398,11 @@
     "type": "boolean",
     "default": true
   },
+  "tabBarVertical": {
+    "description": "General--Whether to show the tab bar as rows in the sidebar instead of across the top of the window.",
+    "type": "boolean",
+    "default": false
+  },
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.--internal",
     "type": "array",

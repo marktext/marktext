@@ -246,12 +246,16 @@
       "createFile": "Bestand aanmaken",
       "openFolder": "Map openen"
     },
+    "tabs": {
+      "title": "Tabbladen"
+    },
     "toc": {
       "title": "Inhoudsopgave",
       "expandAll": "Alles uitklappen",
       "collapseAll": "Alles inklappen"
     },
     "icons": {
+      "tabs": "Tabbladen",
       "files": "Bestanden",
       "search": "Zoeken",
       "toc": "Inhoudsopgave",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryName": "Naam van de relatieve afbeeldingsmap",
         "autoNormalizeLineEndings": "Regeleindes automatisch normaliseren bij het openen van bestanden. Indien uitgeschakeld worden bestanden ongewijzigd geopend.",
         "fileSortOrder": "Sorteervolgorde voor bestanden in geopende mappen: oplopend of aflopend.",
-        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk."
+        "openedFilesInSidebar": "Geopende bestanden tonen in de zijbalk.",
+        "tabBarVertical": "Of de tabbalk als rijen in de zijbalk wordt weergegeven in plaats van bovenaan het venster."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "Zijbalk",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
+        "showTabBarVertically": "Tabbalk verticaal weergeven",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {

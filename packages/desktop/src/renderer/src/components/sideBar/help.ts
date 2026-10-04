@@ -1,4 +1,5 @@
 import {
+  CopyDocument as TabsIcon,
   Folder as FilesIcon,
   Search as SearchIcon,
   Memo as TocIcon,
@@ -13,6 +14,11 @@ export interface SideBarIconEntry {
 }
 
 export const sideBarIcons: SideBarIconEntry[] = [
+  {
+    id: 'tabs',
+    name: () => t('sideBar.icons.tabs'),
+    icon: TabsIcon
+  },
   {
     id: 'files',
     name: () => t('sideBar.icons.files'),

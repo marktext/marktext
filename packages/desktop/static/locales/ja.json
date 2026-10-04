@@ -246,12 +246,16 @@
       "createFile": "ファイルの作成",
       "openFolder": "フォルダーを開く"
     },
+    "tabs": {
+      "title": "タブ"
+    },
     "toc": {
       "title": "目次",
       "expandAll": "すべて展開",
       "collapseAll": "すべて折りたたむ"
     },
     "icons": {
+      "tabs": "タブ",
       "files": "ファイル",
       "search": "検索",
       "toc": "目次",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "相対画像のコピー先",
         "imageRelativeDirectoryName": "相対画像フォルダー名",
         "fileSortOrder": "開いたフォルダー内のファイルの並べ替え順、昇順または降順",
-        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか"
+        "openedFilesInSidebar": "開いているファイルをサイドバーに表示するかどうか",
+        "tabBarVertical": "タブバーをウィンドウ上部ではなくサイドバーの行として表示するかどうか。"
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "サイドバー",
         "wrapTextInToc": "目次でテキストを折り返し",
         "showOpenedFiles": "開いているファイルを表示",
+        "showTabBarVertically": "タブバーを縦に表示",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {

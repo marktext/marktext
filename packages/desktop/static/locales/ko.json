@@ -246,12 +246,16 @@
       "createFile": "파일 만들기",
       "openFolder": "폴더 열기"
     },
+    "tabs": {
+      "title": "탭"
+    },
     "toc": {
       "title": "목차",
       "expandAll": "모두 펼치기",
       "collapseAll": "모두 접기"
     },
     "icons": {
+      "tabs": "탭",
       "files": "파일",
       "search": "검색",
       "toc": "목차",
@@ -434,7 +438,8 @@
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
-        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
+        "tabBarVertical": "탭 표시줄을 창 상단 대신 사이드바에 행으로 표시할지 여부입니다."
       }
     },
     "categories": {
@@ -482,6 +487,7 @@
         "title": "사이드바",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "showOpenedFiles": "열린 파일 표시",
+        "showTabBarVertically": "탭 표시줄을 세로로 표시",
         "excludePatterns": "제외 패턴",
         "excludePatternsNotes": "제외 패턴 (참고)",
         "fileSortBy": {
