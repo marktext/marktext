@@ -161,6 +161,26 @@ class EditorWindow extends BaseWindow {
       showEditorContextMenu(win!, event, params, preferences.getItem('spellcheckerEnabled'))
     })
 
+    // Word-style shortcut: Right Ctrl+Shift = RTL, Left Ctrl+Shift = LTR
+    let pendingDirection: 'ltr' | 'rtl' | null = null
+    win.webContents.on('before-input-event', (_event, input) => {
+      const isMod = input.key === 'Shift' || input.key === 'Control'
+      if (input.type === 'keyDown') {
+        if (!isMod) {
+          pendingDirection = null
+        } else if (input.key === 'Shift' && input.control && !input.alt && !input.meta) {
+          pendingDirection = input.code === 'ShiftRight' ? 'rtl' : 'ltr'
+        } else if (input.key === 'Control' && input.shift && !input.alt && !input.meta) {
+          pendingDirection = input.code === 'ControlRight' ? 'rtl' : 'ltr'
+        }
+      } else if (input.type === 'keyUp' && isMod && pendingDirection) {
+        if (preferences.getItem('textDirection') !== pendingDirection) {
+          preferences.setItem('textDirection', pendingDirection)
+        }
+        pendingDirection = null
+      }
+    })
+
     win.webContents.once('did-finish-load', () => {
       this.lifecycle = WindowLifecycle.READY
       this.emit('window-ready')
