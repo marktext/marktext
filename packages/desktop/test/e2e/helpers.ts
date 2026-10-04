@@ -64,6 +64,8 @@ export interface LaunchOptions {
   // Preferences seeded into the throwaway user data directory before launch.
   // Preference.init() fills in every key that is left out.
   preferences?: Record<string, unknown>
+  // Reuse a user-data directory, so a second launch sees the same sessions.
+  userDataDir?: string
 }
 
 export const launchElectron = async(
@@ -74,7 +76,7 @@ export const launchElectron = async(
   const executablePath = getElectronPath()
   // Pass project root as entry so Electron reads package.json and getAppPath() returns project root.
   // Passing out/main/index.js directly bypasses package.json and breaks __static path resolution.
-  const userDataDir = trackTempDir(getTempPath())
+  const userDataDir = options.userDataDir ?? trackTempDir(getTempPath())
   if (options.preferences) {
     fs.mkdirSync(userDataDir, { recursive: true })
     fs.writeFileSync(

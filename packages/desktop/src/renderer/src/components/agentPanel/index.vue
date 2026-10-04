@@ -87,12 +87,7 @@
       class="agent-body"
     >
       <CommentsTab v-show="agentPanelTab === 'comments'" />
-      <p
-        v-show="agentPanelTab === 'chat'"
-        class="hint"
-      >
-        {{ t('agent.emptySession') }}
-      </p>
+      <ChatTab v-show="agentPanelTab === 'chat'" />
     </div>
     <div
       v-show="!agentPanelRail"
@@ -106,18 +101,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
 import { useLayoutStore } from '@/store/layout'
+import ChatTab from './chatTab.vue'
 import CommentsTab from './commentsTab.vue'
 
 const { t } = useI18n()
 const layoutStore = useLayoutStore()
 const { unresolvedCount } = storeToRefs(useCommentsStore())
-const { turnInProgress } = storeToRefs(useAgentStore())
+const agentStore = useAgentStore()
+const { turnInProgress } = storeToRefs(agentStore)
+
+onMounted(() => {
+  agentStore.attachPanel().catch(() => undefined)
+})
+onUnmounted(() => {
+  agentStore.detachPanel()
+})
 const {
   agentPanelTab,
   agentPanelWidth,

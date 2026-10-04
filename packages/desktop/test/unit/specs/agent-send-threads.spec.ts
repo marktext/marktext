@@ -71,7 +71,7 @@ describe('sending comment threads', () => {
       reason: null,
       message: null
     }]
-    agent.selectionModel = 'alpha'
+    agent.selection = { model: 'alpha' }
     agent.selectionKnown = true
   })
 
@@ -113,11 +113,11 @@ describe('sending comment threads', () => {
       reason: null,
       message: null
     }]
-    useAgentStore().selectionModel = null
+    useAgentStore().selection = null
     expect(sendUnavailableReason()).toBe('model')
 
-    useAgentStore().selectionModel = 'alpha'
-    useAgentStore().events = [{ type: 'turn_started', turnId: 'turn-1' }]
+    useAgentStore().selection = { model: 'alpha' }
+    useAgentStore().turn = { id: 'turn-1', state: 'running' }
     expect(sendUnavailableReason()).toBe('turn')
   })
 

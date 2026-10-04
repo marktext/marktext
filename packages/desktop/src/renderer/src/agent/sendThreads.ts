@@ -189,8 +189,10 @@ export async function sendCommentThreads(scope: 'all' | 'selected'): Promise<voi
 
     const markdown = useEditorStore().currentFile?.markdown ?? ''
     const anchors = threadPlacements(markdown, batch)
+    const threadIds = batch.map((thread) => thread.id)
+    useAgentStore().rememberThreads(file, threadIds, anchors)
     useLayoutStore().SET_LAYOUT({ showAgentPanel: true, agentPanelTab: 'chat' })
-    await window.agent.sendThreads(file, batch.map((thread) => thread.id), anchors)
+    await window.agent.sendThreads(file, threadIds, anchors)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     notice.notify({
