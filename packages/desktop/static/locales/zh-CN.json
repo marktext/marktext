@@ -121,6 +121,8 @@
       "sourceCodeMode": "源码模式",
       "typewriterMode": "打字机模式",
       "focusMode": "专注模式",
+      "textDirectionLtr": "从左到右",
+      "textDirectionRtl": "从右到左",
       "toggleTableOfContents": "切换目录",
       "reloadImages": "重新加载图片",
       "showDeveloperTools": "显示开发者工具",

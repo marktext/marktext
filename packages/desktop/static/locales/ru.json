@@ -121,6 +121,8 @@
       "sourceCodeMode": "Режим исходного кода",
       "typewriterMode": "Режим печатной машинки",
       "focusMode": "Режим фокусировки",
+      "textDirectionLtr": "Слева направо",
+      "textDirectionRtl": "Справа налево",
       "toggleTableOfContents": "Показать/скрыть оглавление",
       "reloadImages": "Обновить изображения",
       "showDeveloperTools": "Инструменты разработчика",

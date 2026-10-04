@@ -121,6 +121,8 @@
       "sourceCodeMode": "ソースコードモード",
       "typewriterMode": "タイプライターモード",
       "focusMode": "フォーカスモード",
+      "textDirectionLtr": "左から右",
+      "textDirectionRtl": "右から左",
       "toggleTableOfContents": "目次の切り替え",
       "reloadImages": "画像の再読み込み",
       "showDeveloperTools": "開発者ツールの表示",

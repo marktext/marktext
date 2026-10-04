@@ -121,6 +121,8 @@
       "sourceCodeMode": "소스 코드 모드",
       "typewriterMode": "타자기 모드",
       "focusMode": "집중 모드",
+      "textDirectionLtr": "왼쪽에서 오른쪽",
+      "textDirectionRtl": "오른쪽에서 왼쪽",
       "toggleTableOfContents": "목차 토글",
       "reloadImages": "이미지 새로고침",
       "showDeveloperTools": "개발자 도구 보기",

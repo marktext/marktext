@@ -99,18 +99,20 @@ MarkText key bindings for Windows. Please see [general key bindings](KEYBINDINGS
 
 #### View menu
 
-| Id                      | Default                                       | Description                              |
-| ----------------------- | --------------------------------------------- | ---------------------------------------- |
-| `view.command-palette`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
-| `view.source-code-mode` | <kbd>Ctrl</kbd>+<kbd>E</kbd>                  | Switch to source code mode               |
-| `view.typewriter-mode`  | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> | Enable typewriter mode                   |
-| `view.focus-mode`       | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
-| `view.toggle-sidebar`   | <kbd>Ctrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
-| `view.toggle-tabbar`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
-| `view.toggle-toc` .     | <kbd>Ctrl</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
-| `view.toggle-dev-tools` | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
-| `view.dev-reload`       | <kbd>Ctrl</kbd>+<kbd>F5</kbd>                 | Reload window (debug mode only)          |
-| `view.reload-images`    | <kbd>F5</kbd>                                 | Reload images                            |
+| Id                        | Default                                       | Description                              |
+| ------------------------- | --------------------------------------------- | ---------------------------------------- |
+| `view.command-palette`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> | Toggle command palette                   |
+| `view.source-code-mode`   | <kbd>Ctrl</kbd>+<kbd>E</kbd>                  | Switch to source code mode               |
+| `view.typewriter-mode`    | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> | Enable typewriter mode                   |
+| `view.focus-mode`         | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> | Enable focus mode                        |
+| `view.text-direction-ltr` | -                                             | Set text direction to left to right      |
+| `view.text-direction-rtl` | -                                             | Set text direction to right to left      |
+| `view.toggle-sidebar`     | <kbd>Ctrl</kbd>+<kbd>J</kbd>                  | Toggle sidebar                           |
+| `view.toggle-tabbar`      | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
+| `view.toggle-toc` .       | <kbd>Ctrl</kbd>+<kbd>K</kbd>                  | Toggle table of contents                 |
+| `view.toggle-dev-tools`   | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>I</kbd>   | Toggle developer tools (debug mode only) |
+| `view.dev-reload`         | <kbd>Ctrl</kbd>+<kbd>F5</kbd>                 | Reload window (debug mode only)          |
+| `view.reload-images`      | <kbd>F5</kbd>                                 | Reload images                            |
 
 ## Available key bindings
 

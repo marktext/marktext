@@ -121,6 +121,8 @@
       "sourceCodeMode": "Broncodeweergave",
       "typewriterMode": "Typemachinestand",
       "focusMode": "Focusstand",
+      "textDirectionLtr": "Links naar rechts",
+      "textDirectionRtl": "Rechts naar links",
       "toggleTableOfContents": "Inhoudsopgave in-/uitschakelen",
       "reloadImages": "Afbeeldingen herladen",
       "showDeveloperTools": "Ontwikkelaarshulpmiddelen tonen",

@@ -2,8 +2,13 @@ import { type BrowserWindow, type MenuItemConstructorOptions } from 'electron'
 import * as actions from '../actions/view'
 import { t } from '../../i18n'
 import type Keybindings from '../../keyboard/shortcutHandler'
+import type Preference from '../../preferences'
 
-export default function(keybindings: Keybindings): MenuItemConstructorOptions {
+export default function(
+  keybindings: Keybindings,
+  userPreference: Preference
+): MenuItemConstructorOptions {
+  const textDirection = userPreference.getItem('textDirection')
   const submenu: MenuItemConstructorOptions[] = [
     {
       label: t('menu.view.commandPalette'),
@@ -43,6 +48,29 @@ export default function(keybindings: Keybindings): MenuItemConstructorOptions {
       checked: false,
       click(_item, focusedWindow) {
         actions.toggleFocusMode(focusedWindow as BrowserWindow | undefined)
+      }
+    },
+    {
+      type: 'separator'
+    },
+    {
+      id: 'textDirectionLtrMenuItem',
+      label: t('menu.view.textDirectionLtr'),
+      accelerator: keybindings.getAccelerator('view.text-direction-ltr') ?? undefined,
+      type: 'radio',
+      checked: textDirection === 'ltr',
+      click() {
+        actions.setTextDirection('ltr')
+      }
+    },
+    {
+      id: 'textDirectionRtlMenuItem',
+      label: t('menu.view.textDirectionRtl'),
+      accelerator: keybindings.getAccelerator('view.text-direction-rtl') ?? undefined,
+      type: 'radio',
+      checked: textDirection === 'rtl',
+      click() {
+        actions.setTextDirection('rtl')
       }
     },
     {

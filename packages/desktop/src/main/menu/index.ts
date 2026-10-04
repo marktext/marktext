@@ -431,6 +431,23 @@ class AppMenu {
     })
   }
 
+  /**
+   * Update the text direction radio items of all editor menus.
+   */
+  updateTextDirectionMenu = (textDirection: string): void => {
+    this.windowMenus.forEach((value) => {
+      const { menu, type } = value
+      if (type !== MenuType.EDITOR || !menu) {
+        return
+      }
+
+      const ltrMenu = menu.getMenuItemById('textDirectionLtrMenuItem')
+      const rtlMenu = menu.getMenuItemById('textDirectionRtlMenuItem')
+      if (ltrMenu) ltrMenu.checked = textDirection === 'ltr'
+      if (rtlMenu) rtlMenu.checked = textDirection === 'rtl'
+    })
+  }
+
   _buildEditorMenu(recentUsedDocuments: string[] | null = null): WindowMenuEntry {
     if (!recentUsedDocuments) {
       recentUsedDocuments = this.getRecentlyUsedDocuments()
@@ -575,6 +592,9 @@ class AppMenu {
       }
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
+      }
+      if (prefs.textDirection !== undefined) {
+        this.updateTextDirectionMenu(prefs.textDirection)
       }
       if (prefs.texMathDollars !== undefined) {
         // The Paragraph menu lists Math Block only while the option is on.

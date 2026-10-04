@@ -107,18 +107,20 @@ MarkText key bindings for macOS. Please see [general key bindings](KEYBINDINGS.m
 
 #### View menu
 
-| Id                      | Default                                           | Description                              |
-| ----------------------- | ------------------------------------------------- | ---------------------------------------- |
-| `view.command-palette`  | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>  | Toggle command palette                   |
-| `view.source-code-mode` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>S</kbd> | Switch to source code mode               |
-| `view.typewriter-mode`  | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>T</kbd> | Enable typewriter mode                   |
-| `view.focus-mode`       | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>  | Enable focus mode                        |
-| `view.toggle-sidebar`   | <kbd>Command</kbd>+<kbd>J</kbd>                   | Toggle sidebar                           |
-| `view.toggle-tabbar`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
-| `view.toggle-toc` .     | <kbd>Command</kbd>+<kbd>K</kbd>                   | Toggle table of contents                 |
-| `view.toggle-dev-tools` | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>I</kbd> | Toggle developer tools (debug mode only) |
-| `view.dev-reload`       | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>R</kbd> | Reload window (debug mode only)          |
-| `view.reload-images`    | <kbd>Command</kbd>+<kbd>R</kbd>                   | Reload images                            |
+| Id                        | Default                                           | Description                              |
+| ------------------------- | ------------------------------------------------- | ---------------------------------------- |
+| `view.command-palette`    | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>  | Toggle command palette                   |
+| `view.source-code-mode`   | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>S</kbd> | Switch to source code mode               |
+| `view.typewriter-mode`    | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>T</kbd> | Enable typewriter mode                   |
+| `view.focus-mode`         | <kbd>Command</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd>  | Enable focus mode                        |
+| `view.text-direction-ltr` | -                                                 | Set text direction to left to right      |
+| `view.text-direction-rtl` | -                                                 | Set text direction to right to left      |
+| `view.toggle-sidebar`     | <kbd>Command</kbd>+<kbd>J</kbd>                   | Toggle sidebar                           |
+| `view.toggle-tabbar`      | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>B</kbd> | Toggle tabbar                            |
+| `view.toggle-toc` .       | <kbd>Command</kbd>+<kbd>K</kbd>                   | Toggle table of contents                 |
+| `view.toggle-dev-tools`   | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>I</kbd> | Toggle developer tools (debug mode only) |
+| `view.dev-reload`         | <kbd>Command</kbd>+<kbd>Option</kbd>+<kbd>R</kbd> | Reload window (debug mode only)          |
+| `view.reload-images`      | <kbd>Command</kbd>+<kbd>R</kbd>                   | Reload images                            |
 
 ## Available key bindings
 

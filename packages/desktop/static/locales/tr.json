@@ -121,6 +121,8 @@
       "sourceCodeMode": "Kaynak Kod Modu",
       "typewriterMode": "Daktilo Modu",
       "focusMode": "Odak Modu",
+      "textDirectionLtr": "Soldan Sağa",
+      "textDirectionRtl": "Sağdan Sola",
       "toggleTableOfContents": "İçindekileri Aç/Kapat",
       "reloadImages": "Görselleri Yeniden Yükle",
       "showDeveloperTools": "Geliştirici Araçlarını Göster",

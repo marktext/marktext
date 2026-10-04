@@ -258,10 +258,17 @@ describe('menu template accelerators match the platform keybinding tables (Parag
       prefs: unknown
     ) => MenuItemConstructorOptions)(kb, defaultPreference)
 
+  // The View template reads `textDirection` for its radio items.
+  const viewWithDefaults: Template = (kb) =>
+    (viewTemplate as unknown as (
+      kb: unknown,
+      prefs: unknown
+    ) => MenuItemConstructorOptions)(kb, defaultPreference)
+
   const TEMPLATES: ReadonlyArray<readonly [string, Template]> = [
     ['paragraph', paragraphWithDefaults],
     ['edit', editTemplate as unknown as Template],
-    ['view', viewTemplate as unknown as Template]
+    ['view', viewWithDefaults]
   ]
 
   for (const [tName, template] of TEMPLATES) {
@@ -307,9 +314,11 @@ describe('menu template accelerators match the platform keybinding tables (Parag
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.duplicate')
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.find-next')
     expect(referencedIds(editTemplate as unknown as Template)).toContain('edit.find-previous')
-    expect(referencedIds(viewTemplate as unknown as Template)).toContain('view.source-code-mode')
-    expect(referencedIds(viewTemplate as unknown as Template)).toContain('view.typewriter-mode')
-    expect(referencedIds(viewTemplate as unknown as Template)).toContain('view.focus-mode')
+    expect(referencedIds(viewWithDefaults)).toContain('view.source-code-mode')
+    expect(referencedIds(viewWithDefaults)).toContain('view.typewriter-mode')
+    expect(referencedIds(viewWithDefaults)).toContain('view.focus-mode')
+    expect(referencedIds(viewWithDefaults)).toContain('view.text-direction-ltr')
+    expect(referencedIds(viewWithDefaults)).toContain('view.text-direction-rtl')
 
     expect(isEqualAccelerator(accel(keybindingsDarwin, 'paragraph.heading-1'), 'Command+1')).toBe(true)
     expect(keybindingsWindows.get('paragraph.heading-1')).toBe('')

@@ -98,6 +98,8 @@ const keybindings: Map<string, string> = new Map([
   ['view.source-code-mode', 'Ctrl+E'],
   ['view.typewriter-mode', 'Ctrl+Shift+G'],
   ['view.focus-mode', 'Ctrl+Shift+J'],
+  ['view.text-direction-ltr', ''],
+  ['view.text-direction-rtl', ''],
   ['view.toggle-sidebar', 'Ctrl+J'],
   ['view.toggle-toc', 'Ctrl+K'],
   ['view.toggle-tabbar', 'Ctrl+Shift+B'],

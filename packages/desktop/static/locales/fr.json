@@ -121,6 +121,8 @@
       "sourceCodeMode": "Mode code source",
       "typewriterMode": "Mode machine à écrire",
       "focusMode": "Mode focus",
+      "textDirectionLtr": "Gauche à droite",
+      "textDirectionRtl": "Droite à gauche",
       "toggleTableOfContents": "Basculer la table des matières",
       "reloadImages": "Recharger les images",
       "showDeveloperTools": "Afficher les outils de développement",
