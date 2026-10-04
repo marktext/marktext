@@ -65,7 +65,7 @@ export interface IpcInvokeChannels {
   'mt::agent::cancel-turn': { args: []; ret: void }
   'mt::agent::get-harness-status': { args: []; ret: HarnessStatus[] }
   'mt::agent::get-turn-active': { args: []; ret: boolean }
-  'mt::agent::get-repo-state': { args: []; ret: RepoState }
+  'mt::agent::get-repo-state': { args: [hint?: string]; ret: RepoState }
   'mt::agent::get-selection': { args: []; ret: AgentSelection | null }
   'mt::agent::list-models': {
     args: [harness: HarnessId, options: { refresh?: boolean }]

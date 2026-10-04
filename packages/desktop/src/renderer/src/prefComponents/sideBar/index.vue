@@ -165,8 +165,10 @@ onUnmounted(() => {
   background: var(--sideBarBgColor);
   width: var(--prefSideBarWidth);
   height: 100vh;
+  min-height: 0;
   padding-top: 24px;
   box-sizing: border-box;
+  overflow: hidden;
   & h3 {
     margin: 0;
     font-size: 20px;
@@ -227,6 +229,10 @@ onUnmounted(() => {
 }
 .category {
   -webkit-app-region: no-drag;
+  /* The list is the scrolling region. Without a bounded height the last
+     categories, including Agent, are clipped when the window is short. */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   & .item {
     width: 100%;

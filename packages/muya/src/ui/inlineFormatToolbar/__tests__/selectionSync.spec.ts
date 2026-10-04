@@ -138,6 +138,33 @@ describe('inlineFormatToolbar comment tool', () => {
         expect(onClick).toHaveBeenCalledOnce();
     });
 
+    it('puts the cached range back when the press has already collapsed the live selection', () => {
+        const muya = bootMuya('hello world\n');
+        const content = muya.editor.scrollPage!.firstContentInDescendant()!;
+        content.setCursor(0, 5);
+        const onClick = vi.fn();
+        const range = { index: 0, start: 0, end: 5, text: 'hello' };
+        let live: typeof range | null = range;
+        vi.spyOn(muya, 'getSelectionInBlock').mockImplementation(() => live);
+        const toolbar = new InlineFormatToolbar(muya, {
+            comment: {
+                label: () => 'Comment',
+                shortcut: () => 'Ctrl+Alt+C',
+                blocked: () => 'One block only',
+                onClick,
+            },
+        });
+        toolbar.status = true;
+        emitSelectionChange(muya, []);
+
+        live = null;
+        vi.spyOn(muya.editor.selection, 'setSelection').mockImplementation(() => {
+            live = range;
+        });
+        toolbar.container!.querySelector('li.item.comment')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(onClick).toHaveBeenCalledOnce();
+    });
+
     it('turns the comment button off when the selection leaves the block', () => {
         const muya = bootMuya('hello world\n');
         vi.spyOn(muya, 'getSelectionInBlock').mockReturnValue({

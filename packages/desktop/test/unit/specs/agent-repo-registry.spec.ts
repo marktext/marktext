@@ -54,6 +54,9 @@ describe('repoRegistry', () => {
     expect(registry.owner(fromB)).toBe(1)
     expect(registry.state(1)).toEqual({ kind: 'repo', root: fromA, userName: 'Ada' })
     expect(registry.state(2)).toEqual({ kind: 'none' })
+    registry.adopt(2, { kind: 'repo', root: fromB, userName: 'Ada' })
+    expect(registry.owner(fromB)).toBe(1)
+    expect(registry.state(2)).toEqual({ kind: 'repo', root: fromA, userName: 'Ada' })
   })
 
   it('treats a folder outside a work tree as none and lets another window do the same', async() => {

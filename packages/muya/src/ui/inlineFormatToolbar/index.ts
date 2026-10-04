@@ -314,9 +314,13 @@ export class InlineFormatToolbar extends BaseFloat {
                         : comment.blocked(),
                 },
                 on: {
+                    mousedown: (event) => {
+                        event.preventDefault();
+                    },
                     click: (event) => {
                         event.preventDefault();
                         event.stopPropagation();
+                        this._restoreTextSelection();
 
                         if (this.muya.getSelectionInBlock() === null)
                             return;
@@ -327,6 +331,26 @@ export class InlineFormatToolbar extends BaseFloat {
                 },
             },
             [h('div.icon-wrapper', [icon])],
+        );
+    }
+
+    /**
+     * The toolbar lives outside the editor, so the press collapses the DOM
+     * range before click. The cached endpoints are the selection it opened
+     * on; without putting them back the click sees a caret and returns.
+     */
+    private _restoreTextSelection(): void {
+        const { selection } = this.muya.editor;
+        const { anchor, focus, anchorBlock, anchorPath, focusBlock, focusPath } = selection;
+
+        if (!anchor || !focus || !anchorBlock || !focusBlock)
+            return;
+        if (anchorBlock !== focusBlock || anchor.offset === focus.offset)
+            return;
+
+        selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
+            { offset: focus.offset, block: focusBlock, path: focusPath },
         );
     }
 

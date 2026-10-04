@@ -66,11 +66,16 @@
         class="hrow"
       >
         <select
+          v-model="sessionId"
           :aria-label="t('agent.session')"
-          :value="activeSession?.id ?? ''"
           :disabled="running"
-          @change="onSession"
         >
+          <option
+            v-if="orphanSession"
+            :value="orphanSession.id"
+          >
+            {{ sessionLabel(orphanSession) }}
+          </option>
           <option
             v-for="session in sessions"
             :key="session.id"
@@ -204,6 +209,20 @@ const running = computed(() => agent.turn.state === 'running')
 const turns = computed(() => groupTurns(agent.events))
 const sessions = computed(() => agent.sessions)
 const activeSession = computed(() => agent.activeSession)
+// The list arrives after the open session. A plain `:value` is written before
+// the options exist and is not written again, so the control stays blank.
+const sessionId = computed({
+  get: () => activeSession.value?.id ?? '',
+  set: (id: string) => {
+    if (!id) return
+    agent.selectSession(id).catch(() => undefined)
+  }
+})
+const orphanSession = computed(() => {
+  const current = activeSession.value
+  if (!current || sessions.value.some((session) => session.id === current.id)) return null
+  return current
+})
 const sessionStaysOnModel = computed(() => agent.sessionStaysOnModel)
 const modelValue = computed(() => agent.selection?.model ?? '')
 
@@ -242,11 +261,6 @@ const onModel = (event: Event): void => {
   const value = (event.target as HTMLSelectElement).value
   if (!value) return
   agent.setModel(value).catch(() => undefined)
-}
-
-const onSession = (event: Event): void => {
-  const value = (event.target as HTMLSelectElement).value
-  agent.selectSession(value).catch(() => undefined)
 }
 
 const startNew = (): void => {

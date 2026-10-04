@@ -19,6 +19,7 @@ import { forgetCachedModels, listModels } from './harness/modelProbe'
 import { answerPermission } from './harness/permissionGate'
 import { GitDiffError, getUserName, worktreeDiff } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
+import { resolveFolderRepo } from './repo/resolveFolderRepo'
 import { recordEditorSave } from './turn/changeTracker'
 import { PtyManager } from './terminal/ptyManager'
 import { clearTerminalFocus, setTerminalFocused } from './terminal/terminalFocus'
@@ -64,6 +65,8 @@ export interface AgentIpcDeps {
   harnessPath: (key: string) => unknown
   userDataPath?: string
   appPath?: string
+  /** Opened project folder for the window, or null when only files are open. */
+  directoryForWindow?: (windowId: number) => string | null
 }
 
 const turnRunners = new Map<number, TurnRunner>()
@@ -231,10 +234,34 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
 
   if (deps && agentModeEnabled(deps)) publishProbe()
 
-  ipcMain.handle('mt::agent::get-repo-state', (event) => {
+  ipcMain.handle('mt::agent::get-repo-state', async(event, hint: unknown) => {
     requireAgentMode(deps)
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { kind: 'none' as const }
+    const current = repoRegistry.state(win.id)
+    if (current.kind === 'repo') return current
+
+    const opened = deps?.directoryForWindow?.(win.id) ?? null
+    // A chosen folder is the directory that counts. The file directory is used
+    // only when the window has no folder, so a document inside a work tree is
+    // not reported as a non-repository.
+    const hinted = typeof hint === 'string' && hint.trim() ? hint : null
+    const dir = opened || hinted
+    if (!dir) return { kind: 'none' as const }
+
+    const binding = await resolveFolderRepo(dir)
+    if (binding.kind !== 'repo') return { kind: 'none' as const }
+    const claimed = repoRegistry.claim(win.id, binding)
+    if (!claimed.ok) {
+      if (opened) {
+        // The window that opened the folder keeps the repository.
+        repoRegistry.release(claimed.ownerWindowId)
+        repoRegistry.claim(win.id, binding)
+        for (const other of BrowserWindow.getAllWindows()) sendHarnessStatus(other)
+      } else {
+        repoRegistry.adopt(win.id, binding)
+      }
+    }
     return repoRegistry.state(win.id)
   })
 

@@ -195,7 +195,7 @@ declare global {
   }
 
   interface AgentAPI {
-    getRepoState(): Promise<RepoState>
+    getRepoState(hint?: string): Promise<RepoState>
     getHarnessStatus(): Promise<HarnessStatus[]>
     getTurnActive(): Promise<boolean>
     listModels(harness: HarnessId, options: { refresh?: boolean }): Promise<ListModelsResult>

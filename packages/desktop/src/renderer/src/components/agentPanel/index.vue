@@ -116,6 +116,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
+import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import ChatTab from './chatTab.vue'
 import CommentsTab from './commentsTab.vue'
@@ -134,6 +135,13 @@ watch(
     else agentStore.detachPanel()
   },
   { immediate: true }
+)
+watch(
+  () => useEditorStore().currentFile?.pathname ?? '',
+  (pathname) => {
+    const hint = pathname && window.path?.dirname ? window.path.dirname(pathname) : ''
+    agentStore.refreshRepoState(hint)
+  }
 )
 onUnmounted(() => {
   agentStore.detachPanel()

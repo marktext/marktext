@@ -669,7 +669,12 @@ class App {
     registerAgentIpc({
       harnessPath: (key) => this._accessor.preferences.getItem(key),
       userDataPath: this._accessor.paths.userDataPath,
-      appPath: app.getAppPath()
+      appPath: app.getAppPath(),
+      directoryForWindow: (windowId) => {
+        const editor = this._windowManager.get(windowId)
+        if (!editor || editor.type !== WindowType.EDITOR) return null
+        return (editor as EditorWindow).openedRootDirectory || null
+      }
     })
 
     // Handle language setting requests

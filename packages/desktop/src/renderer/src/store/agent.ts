@@ -312,16 +312,25 @@ export const useAgentStore = defineStore('agent', () => {
     })
   }
 
-  function refreshRepoState(): void {
+  let repoProbe = 0
+
+  function refreshRepoState(hint?: string): void {
+    const id = ++repoProbe
     const run = async(): Promise<void> => {
       if (!window.agent || !usePreferencesStore().agentModeEnabled) {
+        if (id !== repoProbe) return
         repoState.value = NONE
         return
       }
 
+      const directory = hint || (typeof window.DIRNAME === 'string' ? window.DIRNAME : '')
       try {
-        repoState.value = await window.agent.getRepoState()
+        const next = await window.agent.getRepoState(directory || undefined)
+        // A slower reply from an earlier probe must not cover the later one.
+        if (id !== repoProbe) return
+        repoState.value = next
       } catch {
+        if (id !== repoProbe) return
         // Main rejects the probe while agent mode is off, and a failed probe
         // must not leave the previous repository in place.
         repoState.value = NONE

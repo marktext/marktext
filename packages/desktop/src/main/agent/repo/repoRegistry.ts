@@ -52,6 +52,15 @@ export class RepoRegistry {
     return { ok: true }
   }
 
+  /**
+   * Use a root that another window already owns. `owner` stays with that window,
+   * so a document opened beside the folder window is still inside the repository.
+   */
+  adopt(windowId: number, binding: Extract<RepoBinding, { kind: 'repo' }>): void {
+    const root = canonicalRoot(binding.root)
+    this.byWindow.set(windowId, { kind: 'repo', root, userName: binding.userName })
+  }
+
   release(windowId: number): void {
     const current = this.byWindow.get(windowId)
     if (current?.kind === 'repo') {
