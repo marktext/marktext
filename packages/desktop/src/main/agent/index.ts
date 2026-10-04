@@ -21,6 +21,7 @@ import { GitDiffError, getUserName, worktreeDiff } from './repo/gitService'
 import { repoRegistry } from './repo/repoRegistry'
 import { recordEditorSave } from './turn/changeTracker'
 import { PtyManager } from './terminal/ptyManager'
+import { clearTerminalFocus, setTerminalFocused } from './terminal/terminalFocus'
 import { TurnRunner, TurnRunnerError } from './turn/turnRunner'
 import type { ThreadPlacement } from './turn/messageBuilder'
 import { setWindowAgentHost, shutdownWindowAgent } from './windowAgentHost'
@@ -88,7 +89,10 @@ const turnRunnerFor = (windowId: number, deps?: AgentIpcDeps): TurnRunner => {
     hasActiveTurn: () => runner.hasActiveTurn(),
     cancelTurn: () => runner.cancelTurn(),
     disposeHarness: () => runner.disposeHarness(),
-    disposePty: () => terms?.disposeWindow(windowId) ?? Promise.resolve()
+    disposePty: () => {
+      clearTerminalFocus(windowId)
+      return terms?.disposeWindow(windowId) ?? Promise.resolve()
+    }
   })
   return runner
 }
@@ -251,6 +255,12 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win || typeof termId !== 'string' || typeof data !== 'string') return
     terms?.input(win.id, termId, data)
+  })
+
+  ipcMain.on('mt::term::set-focused', (event, focused: unknown) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    if (!win || typeof focused !== 'boolean') return
+    setTerminalFocused(win.id, focused)
   })
 
   ipcMain.on('mt::term::resize', (event, termId: unknown, cols: unknown, rows: unknown) => {

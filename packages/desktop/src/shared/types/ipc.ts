@@ -133,7 +133,7 @@ export interface IpcInvokeChannels {
   'mt::spellchecker-remove-word': { args: [word: string]; ret: boolean }
   'mt::spellchecker-set-enabled': { args: [enabled: boolean]; ret: void }
   'mt::spellchecker-switch-language': { args: [language: string]; ret: void }
-  'mt::term::create': { args: [size: { cols: number; rows: number }]; ret: { termId: string } }
+  'mt::term::create': { args: [size: { cols: number; rows: number }]; ret: { termId: string; shell: string } }
   'mt::term::kill': { args: [termId: string]; ret: void }
   'mt::uploader::upload': { args: [req: unknown]; ret: unknown }
   'mt::win::is-fullscreen': { args: []; ret: boolean }
@@ -231,6 +231,7 @@ export interface IpcSendChannels {
   'mt::shell::show-item': [fullPath: string]
   'mt::term::input': [termId: string, data: string]
   'mt::term::resize': [termId: string, cols: number, rows: number]
+  'mt::term::set-focused': [focused: boolean]
   'mt::update-format-menu': [windowId: number, state: Record<string, boolean>]
   'mt::update-line-ending-menu': [windowId: number, lineEnding: LineEnding]
   'mt::update-sidebar-menu': [windowId: number, visible: boolean]

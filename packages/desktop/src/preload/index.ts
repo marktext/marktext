@@ -118,6 +118,7 @@ const termAPI = {
   kill: bindInvoke('mt::term::kill'),
   input: bindSend('mt::term::input'),
   resize: bindSend('mt::term::resize'),
+  setFocused: bindSend('mt::term::set-focused'),
   onData: (listener: (...args: IpcMainEventChannels['mt::term::data']) => void) =>
     onPayload('mt::term::data', listener),
   onExit: (listener: (...args: IpcMainEventChannels['mt::term::exit']) => void) =>

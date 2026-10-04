@@ -65,6 +65,7 @@ describe('ptyManager', () => {
     const { manager, output, exits } = open(root)
     const created = manager.create(windowId, { cols: 80, rows: 24 })
     expect(created.termId).toBe('term-1')
+    expect(created.shell.includes('/') || created.shell.includes('\\')).toBe(false)
 
     const command = process.platform === 'win32' ? 'echo $PWD\r' : 'echo $PWD\n'
     manager.input(windowId, created.termId, command)

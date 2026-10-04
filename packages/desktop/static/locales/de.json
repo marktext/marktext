@@ -1202,6 +1202,7 @@
     "title": "Terminal",
     "height": "Terminal height",
     "tabs": "Terminals",
+    "root": "Repository root",
     "new": "New terminal",
     "screen": "Terminal screen",
     "clear": "Clear",

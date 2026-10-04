@@ -6,15 +6,17 @@ import log from 'electron-log'
 import { electronLocalshortcut, isValidElectronAccelerator } from '@hfelix/electron-localshortcut'
 import { isFile2 } from 'common/filesystem'
 import { isEqualAccelerator } from 'common/keybinding'
+import { isTerminalFocused } from '../agent/terminal/terminalFocus'
 import { isLinux, isOsx } from '../config'
 import { getKeyboardInfo, keyboardLayoutMonitor, type KeyboardInfo } from '../keyboard'
+import { claimEditorShortcut } from './terminalFocusGate'
 import keybindingsDarwin from './keybindingsDarwin'
 import keybindingsLinux from './keybindingsLinux'
 import keybindingsWindows from './keybindingsWindows'
 import type { CommandManager } from '../commands'
 import type { AppEnvironment } from '../app/env'
 
-type ShortcutCallback = (win: BrowserWindow) => void
+type ShortcutCallback = (win: BrowserWindow) => void | boolean
 
 class Keybindings {
   configPath: string
@@ -67,8 +69,8 @@ class Keybindings {
     // can handle reserved Chromium shortcuts. Afterwards prevent the default action of
     // the event so the native menu is not triggered.
     electronLocalshortcut.register(win, accelerator, () => {
-      callback(win)
-      return true // prevent default action
+      // A false return leaves the key for the page. Anything else swallows it.
+      return callback(win) !== false
     })
   }
 
@@ -80,7 +82,9 @@ class Keybindings {
     for (const [id, accelerator] of this.keys) {
       if (accelerator && accelerator.length > 1) {
         this.registerAccelerator(win, accelerator, () => {
+          if (!claimEditorShortcut(isTerminalFocused(win.id), id)) return false
           this.commandManager.execute(id, win)
+          return true
         })
       }
     }

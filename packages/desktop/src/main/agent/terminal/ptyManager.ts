@@ -41,6 +41,12 @@ const dimension = (value: number, fallback: number): number => {
   return Math.floor(value)
 }
 
+/** Tab label: the program name, without the directory. */
+export const shellBaseName = (shell: string): string => {
+  const parts = shell.split(/[/\\]/)
+  return parts[parts.length - 1] || shell
+}
+
 const defaultShell = (): string => {
   if (process.platform === 'win32') return 'powershell.exe'
   const shell = process.env.SHELL?.trim()
@@ -67,7 +73,7 @@ export class PtyManager {
 
   constructor(private readonly deps: PtyManagerDeps) {}
 
-  create(windowId: number, size: { cols: number, rows: number }): { termId: string } {
+  create(windowId: number, size: { cols: number, rows: number }): { termId: string, shell: string } {
     const root = this.deps.repoRoot(windowId)
     if (!root) throw new PtyManagerError()
     const configured = this.deps.shellPreference()
@@ -112,7 +118,7 @@ export class PtyManager {
     const ids = this.byWindow.get(windowId) ?? new Set<string>()
     ids.add(termId)
     this.byWindow.set(windowId, ids)
-    return { termId }
+    return { termId, shell: shellBaseName(shell) }
   }
 
   input(windowId: number, termId: string, data: string): void {
