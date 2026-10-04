@@ -369,7 +369,8 @@
         "searcher": "搜索器",
         "watcher": "监听器",
         "spelling": "拼写",
-        "custom css": "自定义 CSS"
+        "custom css": "自定义 CSS",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "自动保存正在编辑的内容",
@@ -436,7 +437,13 @@
         "imageRelativeDirectoryBase": "相对图片的复制位置",
         "imageRelativeDirectoryName": "相对图片文件夹名称",
         "fileSortOrder": "打开文件夹中文件的排序顺序：升序或降序",
-        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件"
+        "openedFilesInSidebar": "是否在侧边栏中显示已打开文件",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "拼写",
       "theme": "主题",
       "image": "图片",
-      "keybindings": "快捷键"
+      "keybindings": "快捷键",
+      "agent": "Agent"
     },
     "general": {
       "title": "通用",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {

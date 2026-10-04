@@ -433,33 +433,33 @@
     "default": false
   },
   "agentOpencodePath": {
-    "description": "Agent--Path to the OpenCode executable. Empty searches PATH.--internal",
+    "description": "Agent--Path to the OpenCode executable. Empty searches PATH.",
     "type": "string",
     "default": ""
   },
   "agentPiPath": {
-    "description": "Agent--Path to the Pi executable. Empty searches PATH.--internal",
+    "description": "Agent--Path to the Pi executable. Empty searches PATH.",
     "type": "string",
     "default": ""
   },
   "agentCursorPath": {
-    "description": "Agent--Path to the Cursor agent executable. Empty searches PATH.--internal",
+    "description": "Agent--Path to the Cursor agent executable. Empty searches PATH.",
     "type": "string",
     "default": ""
   },
   "agentModeEnabled": {
-    "description": "Agent--Whether agent mode is on. When off, agent, terminal, and git diff channels refuse and running processes stop.--internal",
+    "description": "Agent--Whether agent mode is on. When off, agent, terminal, and git diff channels refuse and running processes stop.",
     "type": "boolean",
     "default": true
   },
   "agentHarness": {
-    "description": "Agent--Active harness. The chat header does not switch it.--internal",
+    "description": "Agent--Active harness. The chat header does not switch it.",
     "type": "string",
     "enum": ["opencode", "pi", "cursor"],
     "default": "opencode"
   },
   "agentTerminalShell": {
-    "description": "Agent--Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows.--internal",
+    "description": "Agent--Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows.",
     "type": "string",
     "default": ""
   }

@@ -89,6 +89,7 @@ const onPayload = <K extends keyof IpcMainEventChannels>(
 const agentAPI = {
   getRepoState: bindInvoke('mt::agent::get-repo-state'),
   getHarnessStatus: bindInvoke('mt::agent::get-harness-status'),
+  getTurnActive: bindInvoke('mt::agent::get-turn-active'),
   listModels: bindInvoke('mt::agent::list-models'),
   getSelection: bindInvoke('mt::agent::get-selection'),
   setSelection: bindInvoke('mt::agent::set-selection'),
@@ -103,7 +104,9 @@ const agentAPI = {
     onPayload('mt::agent::event', listener),
   onHarnessStatusChanged: (
     listener: (...args: IpcMainEventChannels['mt::agent::harness-status-changed']) => void
-  ) => onPayload('mt::agent::harness-status-changed', listener)
+  ) => onPayload('mt::agent::harness-status-changed', listener),
+  onTurnActive: (listener: (...args: IpcMainEventChannels['mt::agent::turn-active']) => void) =>
+    onPayload('mt::agent::turn-active', listener)
 }
 
 const commentsAPI = {

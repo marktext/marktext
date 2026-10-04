@@ -8,7 +8,7 @@ import { isHarnessId } from '@shared/types/agent'
 import { COMMENTS_FILE_VERSION, type CommentsMutation } from '@shared/types/comments'
 import { bindCommentsService, CommentsServiceError, commentsService } from './comments/commentsService'
 import { load } from './comments/commentsStore'
-import { windowTurn } from './comments/windowTurn'
+import { anyTurnRunning, onAnyTurnChange, windowTurn } from './comments/windowTurn'
 import {
   changedHarnessIds,
   getHarnessStatus,
@@ -29,6 +29,7 @@ import { onInternalChannel } from '../utils/internalIpc'
 
 let harnessStatuses: HarnessStatus[] = []
 let editorSavesHooked = false
+let turnPresenceHooked = false
 
 /** First save, overwrite, and save-as all write a file the user asked for. */
 const hookEditorSaves = (): void => {
@@ -191,6 +192,17 @@ export const registerAgentIpc = (deps?: AgentIpcDeps): void => {
     replaceHarnessStatuses(statuses)
     return statuses
   })
+
+  ipcMain.handle('mt::agent::get-turn-active', () => anyTurnRunning())
+
+  if (!turnPresenceHooked) {
+    turnPresenceHooked = true
+    onAnyTurnChange((active) => {
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) win.webContents.send('mt::agent::turn-active', active)
+      }
+    })
+  }
 
   onInternalChannel('broadcast-preferences-changed', (change: object) => {
     const record = change as Record<string, unknown>

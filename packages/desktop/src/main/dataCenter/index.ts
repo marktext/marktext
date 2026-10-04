@@ -191,6 +191,15 @@ class DataCenter extends TypedEmitter<DataCenterEvents> {
       this.setItems(userData)
     })
 
+    ipcMain.handle('mt::ask-for-file-path', async(e) => {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      if (!win) return ''
+      const { filePaths } = await dialog.showOpenDialog(win, {
+        properties: ['openFile']
+      })
+      return filePaths && filePaths[0] ? filePaths[0] : ''
+    })
+
     ipcMain.handle('mt::ask-for-image-path', async(e) => {
       const win = BrowserWindow.fromWebContents(e.sender)
       if (!win) return ''

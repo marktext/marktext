@@ -369,7 +369,8 @@
         "searcher": "搜尋器",
         "watcher": "監聽器",
         "spelling": "拼字",
-        "custom css": "自訂 CSS"
+        "custom css": "自訂 CSS",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "自動儲存正在編輯的內容",
@@ -436,7 +437,13 @@
         "imageRelativeDirectoryBase": "相對圖片的複製位置",
         "imageRelativeDirectoryName": "相對圖片資料夾名稱",
         "fileSortOrder": "開啟資料夾中檔案的排序順序：遞增或遞減",
-        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案"
+        "openedFilesInSidebar": "是否在側邊欄中顯示已開啟的檔案",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "拼字",
       "theme": "主題",
       "image": "圖片",
-      "keybindings": "按鍵綁定"
+      "keybindings": "按鍵綁定",
+      "agent": "Agent"
     },
     "general": {
       "title": "一般",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {

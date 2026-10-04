@@ -369,7 +369,8 @@
         "searcher": "Arayıcı",
         "watcher": "İzleyici",
         "spelling": "Yazım",
-        "custom css": "Özel CSS"
+        "custom css": "Özel CSS",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "Düzenlenen içeriği otomatik olarak kaydet",
@@ -436,7 +437,13 @@
         "plantumlServer": "PlantUML sunucu URL'si",
         "autoNormalizeLineEndings": "Dosyaları açarken yeni satır karakterlerini otomatik olarak normalleştir. Devre dışı bırakıldığında dosyalar olduğu gibi açılır.",
         "fileSortOrder": "Açık klasörlerdeki dosyaların sıralama düzeni: artan veya azalan.",
-        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği."
+        "openedFilesInSidebar": "Açık dosyaların kenar çubuğunda gösterilip gösterilmeyeceği.",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "Yazım",
       "theme": "Tema",
       "image": "Görsel",
-      "keybindings": "Kısayol Tuşları"
+      "keybindings": "Kısayol Tuşları",
+      "agent": "Agent"
     },
     "general": {
       "title": "Genel",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {

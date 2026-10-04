@@ -369,7 +369,8 @@
         "searcher": "Pesquisador",
         "watcher": "Observador",
         "spelling": "Ortografia",
-        "custom css": "CSS personalizado"
+        "custom css": "CSS personalizado",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "Salvar automaticamente o conteúdo sendo editado",
@@ -436,7 +437,13 @@
         "imageRelativeDirectoryBase": "Onde as imagens relativas são copiadas",
         "imageRelativeDirectoryName": "O nome da pasta de imagem relativa",
         "fileSortOrder": "Ordem de classificação dos arquivos nas pastas abertas: ascendente ou descendente.",
-        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral."
+        "openedFilesInSidebar": "Se os arquivos abertos são mostrados na barra lateral.",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "Ortografia",
       "theme": "Tema",
       "image": "Imagem",
-      "keybindings": "Atalhos de Teclado"
+      "keybindings": "Atalhos de Teclado",
+      "agent": "Agent"
     },
     "general": {
       "title": "Geral",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {

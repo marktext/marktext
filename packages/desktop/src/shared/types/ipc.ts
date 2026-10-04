@@ -64,6 +64,7 @@ export interface IpcInvokeChannels {
   'mt::agent::answer-permission': { args: [requestId: string, optionId: string | 'cancelled']; ret: void }
   'mt::agent::cancel-turn': { args: []; ret: void }
   'mt::agent::get-harness-status': { args: []; ret: HarnessStatus[] }
+  'mt::agent::get-turn-active': { args: []; ret: boolean }
   'mt::agent::get-repo-state': { args: []; ret: RepoState }
   'mt::agent::get-selection': { args: []; ret: AgentSelection | null }
   'mt::agent::list-models': {
@@ -81,6 +82,7 @@ export interface IpcInvokeChannels {
     ret: { turnId: string }
   }
   'mt::agent::set-selection': { args: [model: string]; ret: void }
+  'mt::ask-for-file-path': { args: []; ret: string }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
   'mt::clipboard::guess-file-path': { args: []; ret: string | null }
@@ -286,6 +288,7 @@ export interface IpcMainEventChannels {
   'mt::about-dialog': []
   'mt::agent::event': [event: ChatEvent]
   'mt::agent::harness-status-changed': [statuses: HarnessStatus[]]
+  'mt::agent::turn-active': [active: boolean]
   'mt::ask-for-close': []
   'mt::bootstrap-editor': [config: BootstrapEditorConfig]
   'mt::cm-comment': []

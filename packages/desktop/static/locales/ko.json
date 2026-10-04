@@ -369,7 +369,8 @@
         "searcher": "검색기",
         "watcher": "감시자",
         "spelling": "맞춤법",
-        "custom css": "사용자 정의 CSS"
+        "custom css": "사용자 정의 CSS",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "편집 중인 내용을 자동으로 저장",
@@ -436,7 +437,13 @@
         "imageRelativeDirectoryBase": "상대 이미지가 복사되는 위치",
         "imageRelativeDirectoryName": "상대 이미지 폴더 이름",
         "fileSortOrder": "열린 폴더의 파일 정렬 순서: 오름차순 또는 내림차순",
-        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부"
+        "openedFilesInSidebar": "사이드바에 열린 파일을 표시할지 여부",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "맞춤법",
       "theme": "테마",
       "image": "이미지",
-      "keybindings": "키 바인딩"
+      "keybindings": "키 바인딩",
+      "agent": "Agent"
     },
     "general": {
       "title": "일반",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {

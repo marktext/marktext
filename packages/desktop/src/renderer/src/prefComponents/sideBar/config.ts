@@ -5,7 +5,8 @@ import {
   Brush as ThemeIcon,
   Picture as ImageIcon,
   Reading as SpellIcon,
-  Operation as KeyBindingIcon
+  Operation as KeyBindingIcon,
+  Star as AgentIcon
 } from '@element-plus/icons-vue'
 
 import preferences from '../../../../main/preferences/schema.json'
@@ -107,6 +108,12 @@ export const getCategory = (): PrefCategory[] => [
     label: 'keybindings',
     icon: KeyBindingIcon,
     path: '/preference/keybindings'
+  },
+  {
+    name: t('preferences.categories.agent'),
+    label: 'agent',
+    icon: AgentIcon,
+    path: '/preference/agent'
   }
 ]
 
@@ -150,6 +157,7 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
       else if (categoryName === 'Watcher') mappedCategory = 'watcher'
       else if (categoryName === 'Spelling') mappedCategory = 'spelling'
       else if (categoryName === 'Custom CSS') mappedCategory = 'custom css'
+      else if (categoryName === 'Agent') mappedCategory = 'agent'
       else {
         // Handle special category names
         mappedCategory = categoryName.toLowerCase().replace(/\s+/g, '-')
@@ -164,7 +172,8 @@ export const getTranslatedSearchContent: CachedTranslator = (() => {
         'spelling',
         'theme',
         'image',
-        'keybindings'
+        'keybindings',
+        'agent'
       ]
       if (!validRoutes.includes(routeCategory)) routeCategory = 'general'
 

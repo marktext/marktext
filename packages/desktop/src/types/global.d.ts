@@ -197,6 +197,7 @@ declare global {
   interface AgentAPI {
     getRepoState(): Promise<RepoState>
     getHarnessStatus(): Promise<HarnessStatus[]>
+    getTurnActive(): Promise<boolean>
     listModels(harness: HarnessId, options: { refresh?: boolean }): Promise<ListModelsResult>
     getSelection(): Promise<AgentSelection | null>
     setSelection(model: string): Promise<void>
@@ -213,6 +214,7 @@ declare global {
     gitDiff(request: { paths?: string[] }): Promise<{ patch: string; truncated?: true }>
     onEvent(listener: (event: ChatEvent) => void): () => void
     onHarnessStatusChanged(listener: (statuses: HarnessStatus[]) => void): () => void
+    onTurnActive(listener: (active: boolean) => void): () => void
   }
 
   interface CommentsAPI {

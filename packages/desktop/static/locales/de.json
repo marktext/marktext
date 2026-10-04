@@ -369,7 +369,8 @@
         "searcher": "Suche",
         "watcher": "Watcher",
         "spelling": "Rechtschreibung",
-        "custom css": "Benutzerdefiniertes CSS"
+        "custom css": "Benutzerdefiniertes CSS",
+        "agent": "Agent"
       },
       "items": {
         "autoSave": "Den bearbeiteten Inhalt automatisch speichern",
@@ -436,7 +437,13 @@
         "imageRelativeDirectoryBase": "Wohin relative Bilder kopiert werden",
         "imageRelativeDirectoryName": "Der relative Bildordner-Name",
         "fileSortOrder": "Sortierreihenfolge für Dateien in geöffneten Ordnern: aufsteigend oder absteigend.",
-        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen."
+        "openedFilesInSidebar": "Ob geöffnete Dateien in der Seitenleiste angezeigt werden sollen.",
+        "agentModeEnabled": "Whether agent mode is on. When off, the agent panels and the terminal are hidden.",
+        "agentHarness": "Active harness. The chat header does not switch it.",
+        "agentOpencodePath": "Path to the OpenCode executable. Empty searches PATH.",
+        "agentPiPath": "Path to the Pi executable. Empty searches PATH.",
+        "agentCursorPath": "Path to the Cursor agent executable. Empty searches PATH.",
+        "agentTerminalShell": "Shell for the agent terminal. Empty uses $SHELL, or powershell.exe on Windows."
       }
     },
     "categories": {
@@ -446,7 +453,8 @@
       "spelling": "Rechtschreibung",
       "theme": "Design",
       "image": "Bild",
-      "keybindings": "Tastenkürzel"
+      "keybindings": "Tastenkürzel",
+      "agent": "Agent"
     },
     "general": {
       "title": "Allgemein",
@@ -785,7 +793,8 @@
       "programFound": "Program found.",
       "checked": "Checked.",
       "listEmpty": "The {name} list is empty. Add models in the harness settings and press Refresh again.",
-      "listRefreshed": "Model list refreshed."
+      "listRefreshed": "Model list refreshed.",
+      "initFailed": "The program did not start{detail}. Press Check after fixing it."
     }
   },
   "about": {
