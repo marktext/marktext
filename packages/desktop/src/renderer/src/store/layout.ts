@@ -117,7 +117,7 @@ export const useLayoutStore = defineStore('layout', () => {
       windowWidth: viewportWidth.value,
       sideBarWidth: effectiveSideBarWidth.value,
       requestedWidth: agentPanelWidth.value,
-      shown: useAgentStore().agentAvailable && showAgentPanel.value
+      shown: usePreferencesStore().agentModeEnabled && showAgentPanel.value
     })
   })
 
@@ -195,12 +195,9 @@ export const useLayoutStore = defineStore('layout', () => {
   }
 
   function TOGGLE_LAYOUT_ENTRY(entryName: LayoutToggle): void {
-    if (
-      (entryName === 'showAgentPanel' || entryName === 'showTerminalPanel') &&
-      !useAgentStore().agentAvailable
-    ) {
-      return
-    }
+    const agent = useAgentStore()
+    if (entryName === 'showAgentPanel' && !usePreferencesStore().agentModeEnabled) return
+    if (entryName === 'showTerminalPanel' && !agent.agentAvailable) return
 
     if (entryName === 'showSideBar') {
       showSideBar.value = !showSideBar.value
@@ -270,7 +267,7 @@ export const useLayoutStore = defineStore('layout', () => {
     window.addEventListener('resize', onResize)
 
     watch(
-      () => useAgentStore().agentAvailable,
+      () => [useAgentStore().agentAvailable, usePreferencesStore().agentModeEnabled] as const,
       () => {
         DISPATCH_LAYOUT_MENU_ITEMS()
       },
@@ -313,7 +310,8 @@ export const useLayoutStore = defineStore('layout', () => {
       showSideBar: showSideBar.value,
       showAgentPanel: showAgentPanel.value,
       showTerminalPanel: showTerminalPanel.value,
-      agentAvailable: useAgentStore().agentAvailable
+      agentAvailable: useAgentStore().agentAvailable,
+      agentPanelEnabled: usePreferencesStore().agentModeEnabled
     })
   }
 

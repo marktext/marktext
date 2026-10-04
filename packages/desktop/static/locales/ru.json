@@ -977,7 +977,8 @@
     "openAnyway": "Всё равно открыть",
     "agentReplaceFolder": "Открыть другую папку?",
     "agentReplaceFolderDetail": "Сейчас идёт ход агента. Открытие этой папки отменит ход и закроет агента и терминалы этого окна.",
-    "agentReplaceFolderConfirm": "Открыть папку"
+    "agentReplaceFolderConfirm": "Открыть папку",
+    "agentCloseWindowConfirm": "Закрыть окно"
   },
   "error": {
     "configSchemaViolation": "Нарушение схемы конфигурации",

@@ -18,6 +18,7 @@ import {
 } from '@/agent/chrome/fit'
 import { useAgentStore } from '@/store/agent'
 import { useLayoutStore } from '@/store/layout'
+import { usePreferencesStore } from '@/store/preferences'
 
 const win = window as unknown as {
   electron?: { ipcRenderer: { on: Mock; send: Mock; invoke: Mock } }
@@ -132,16 +133,26 @@ describe('agent layout buffer', () => {
     expect(localStorage.getItem('terminal-panel-height')).toBe('180')
   })
 
-  it('ignores agent panel toggles until the agent is available', () => {
+  it('toggles the agent panel while mode is on, and the terminal only in a repository', () => {
     const layout = useLayoutStore()
+    const preferences = usePreferencesStore()
     expect(layout.showAgentPanel).toBe(true)
 
-    layout.TOGGLE_LAYOUT_ENTRY('showAgentPanel')
-    expect(layout.showAgentPanel).toBe(true)
-
-    useAgentStore().repoState = { kind: 'repo', root: '/repo', userName: 'Ada' }
     layout.TOGGLE_LAYOUT_ENTRY('showAgentPanel')
     expect(layout.showAgentPanel).toBe(false)
+    layout.TOGGLE_LAYOUT_ENTRY('showAgentPanel')
+    expect(layout.showAgentPanel).toBe(true)
+
+    preferences.agentModeEnabled = false
+    layout.TOGGLE_LAYOUT_ENTRY('showAgentPanel')
+    expect(layout.showAgentPanel).toBe(true)
+    layout.TOGGLE_LAYOUT_ENTRY('showTerminalPanel')
+    expect(layout.showTerminalPanel).toBe(false)
+
+    preferences.agentModeEnabled = true
+    useAgentStore().repoState = { kind: 'repo', root: '/repo', userName: 'Ada' }
+    layout.TOGGLE_LAYOUT_ENTRY('showTerminalPanel')
+    expect(layout.showTerminalPanel).toBe(true)
   })
 })
 

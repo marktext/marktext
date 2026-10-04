@@ -977,7 +977,8 @@
     "openAnyway": "Abrir mesmo assim",
     "agentReplaceFolder": "Open another folder?",
     "agentReplaceFolderDetail": "A turn is in progress. Opening this folder cancels the turn and closes the agent and terminals for this window.",
-    "agentReplaceFolderConfirm": "Open Folder"
+    "agentReplaceFolderConfirm": "Open Folder",
+    "agentCloseWindowConfirm": "Close Window"
   },
   "error": {
     "configSchemaViolation": "Violação do esquema de configuração",
@@ -1165,8 +1166,6 @@
     "badgeNoAgent": "no agent reply",
     "badgeClosed": "closed",
     "unresolvedCount": "{n} unresolved",
-    "replyCount": "{n} replies",
-    "allThreads": "All threads",
     "replyCount": "{n} replies",
     "allThreads": "All threads",
     "showInText": "Show in text",

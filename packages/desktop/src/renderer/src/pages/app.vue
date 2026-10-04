@@ -38,7 +38,7 @@
       <rename />
       <import-modal />
     </div>
-    <agent-panel v-if="agentAvailable && showAgentPanel" />
+    <agent-panel v-if="agentModeEnabled && showAgentPanel" />
   </div>
 </template>
 
@@ -90,7 +90,7 @@ const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 const { windowActive, platform, init } = storeToRefs(mainStore)
 const { showTabBar, showAgentPanel } = storeToRefs(layoutStore)
 const { agentAvailable } = storeToRefs(agentStore)
-const { sourceCode, theme, customCss, textDirection, zoom } = storeToRefs(preferencesStore)
+const { sourceCode, theme, customCss, textDirection, zoom, agentModeEnabled } = storeToRefs(preferencesStore)
 const { projectTree } = storeToRefs(projectStore)
 const { currentFile, selectionWordCount } = storeToRefs(editorStore)
 

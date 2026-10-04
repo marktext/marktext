@@ -1,6 +1,6 @@
 import type { HarnessId } from '@shared/types/agent'
 
-/** The turn whose replies this window may append. Later epics publish it for the life of the turn. */
+/** The turn whose replies this window may append. */
 export interface WindowTurn {
   turnId: string
   file: string

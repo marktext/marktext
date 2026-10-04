@@ -82,13 +82,23 @@
         />
       </button>
     </div>
-    <div
-      v-show="!agentPanelRail"
-      class="agent-body"
-    >
-      <CommentsTab v-show="agentPanelTab === 'comments'" />
-      <ChatTab v-show="agentPanelTab === 'chat'" />
-    </div>
+    <template v-if="!agentAvailable">
+      <p
+        v-show="!agentPanelRail"
+        class="hint"
+      >
+        {{ t('agent.notRepo') }}
+      </p>
+    </template>
+    <template v-else>
+      <div
+        v-show="!agentPanelRail"
+        class="agent-body"
+      >
+        <CommentsTab v-show="agentPanelTab === 'comments'" />
+        <ChatTab v-show="agentPanelTab === 'chat'" />
+      </div>
+    </template>
     <div
       v-show="!agentPanelRail"
       class="drag-bar"
@@ -101,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useAgentStore } from '@/store/agent'
@@ -114,11 +124,17 @@ const { t } = useI18n()
 const layoutStore = useLayoutStore()
 const { unresolvedCount } = storeToRefs(useCommentsStore())
 const agentStore = useAgentStore()
-const { turnInProgress } = storeToRefs(agentStore)
+const { agentAvailable, turnInProgress } = storeToRefs(agentStore)
 
-onMounted(() => {
-  agentStore.attachPanel().catch(() => undefined)
-})
+// A non-repo folder still shows the panel, but there is no session to attach.
+watch(
+  agentAvailable,
+  (ready) => {
+    if (ready) agentStore.attachPanel().catch(() => undefined)
+    else agentStore.detachPanel()
+  },
+  { immediate: true }
+)
 onUnmounted(() => {
   agentStore.detachPanel()
 })

@@ -2,6 +2,7 @@
   <section
     v-if="thread"
     class="mt-comments thread-pane"
+    tabindex="-1"
   >
     <header class="chead">
       <button
@@ -259,13 +260,18 @@
     <div
       v-if="confirming"
       class="confirm-back"
+      @keydown.esc="confirming = false"
     >
       <div
         class="confirm"
         role="dialog"
         aria-modal="true"
+        aria-labelledby="thread-delete-title"
+        @keydown="trapDeleteFocus"
       >
-        <p>{{ t('comments.confirmDelete') }}</p>
+        <p id="thread-delete-title">
+          {{ t('comments.confirmDelete') }}
+        </p>
         <div class="actions">
           <button
             type="button"
@@ -275,6 +281,7 @@
             {{ t('comments.delete') }}
           </button>
           <button
+            ref="cancelDelete"
             type="button"
             class="btn"
             @click="confirming = false"
@@ -289,7 +296,7 @@
 
 <script setup lang="ts">
 import type { HumanMessage, Message } from '@shared/types/comments'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { sendCommentThreads, sendPending, sendReasonTitle, sendUnavailableReason } from '@/agent/sendThreads'
@@ -310,6 +317,27 @@ const menuId = ref<string | null>(null)
 const editingId = ref<string | null>(null)
 const editDraft = ref('')
 const confirming = ref(false)
+const cancelDelete = ref<HTMLButtonElement | null>(null)
+
+watch(confirming, (open) => {
+  if (!open) return
+  nextTick(() => cancelDelete.value?.focus()).catch(() => undefined)
+})
+
+const trapDeleteFocus = (event: KeyboardEvent): void => {
+  if (event.key !== 'Tab') return
+  const dialog = event.currentTarget
+  if (!(dialog instanceof HTMLElement)) return
+  const buttons = [...dialog.querySelectorAll('button')]
+  const first = buttons[0]
+  const last = buttons[buttons.length - 1]
+  if (!first || !last) return
+  const backward = event.shiftKey && document.activeElement === first
+  const forward = !event.shiftKey && document.activeElement === last
+  if (!backward && !forward) return
+  event.preventDefault()
+  ;(backward ? last : first).focus()
+}
 const expanded = ref(new Set<string>())
 
 const thread = computed(() =>

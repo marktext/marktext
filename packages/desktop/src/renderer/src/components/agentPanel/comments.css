@@ -511,3 +511,10 @@
   display: block;
   margin-top: 8px;
 }
+
+.mt-comments button:focus-visible,
+.mt-comments .card:focus-visible,
+.mt-comments .thread-pane:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
+}

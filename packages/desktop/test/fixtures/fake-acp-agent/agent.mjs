@@ -111,8 +111,8 @@ const callReplyTool = (threadId, text) => new Promise((resolve, reject) => {
       }
     }
   })
-  const request = (id, method, params) => new Promise((resolveLine) => {
-    pending.set(id, resolveLine)
+  const request = (id, method, params) => new Promise((resolve) => {
+    pending.set(id, resolve)
     child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', id, method, params })}\n`)
   })
   request(1, 'initialize', {
@@ -235,7 +235,7 @@ const runSteps = async (promptRpcId, sessionId, steps) => {
     for (const step of list ?? []) {
       if (step.type === 'delay') {
         const ms = step.env ? Number(process.env[step.env] || 0) : Number(step.ms || 0)
-        if (ms > 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, ms))
+        if (ms > 0) await new Promise((resolve) => setTimeout(resolve, ms))
         continue
       }
       if (step.type === 'write_env') {
@@ -463,7 +463,7 @@ const handle = async (message) => {
     }
     if (mode === 'turn') {
       const delay = Number(process.env.FAKE_ACP_DELAY_MS || 0)
-      if (delay > 0) await new Promise((resolveDelay) => setTimeout(resolveDelay, delay))
+      if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay))
       const written = writeRequested()
       if (written) {
         update(sessionId, {

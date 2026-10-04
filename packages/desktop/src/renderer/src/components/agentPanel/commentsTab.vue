@@ -1,5 +1,8 @@
 <template>
-  <div class="mt-comments">
+  <div
+    class="mt-comments"
+    @keydown="onThreadKey"
+  >
     <p
       v-if="hintKey"
       class="hint"
@@ -129,7 +132,7 @@
 
 <script setup lang="ts">
 import type { Thread } from '@shared/types/comments'
-import { computed, onMounted, onScopeDispose } from 'vue'
+import { computed, nextTick, onMounted, onScopeDispose } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { sendCommentThreads, sendPending, sendReasonTitle, sendUnavailableReason } from '@/agent/sendThreads'
@@ -223,6 +226,15 @@ const selected = computed(() =>
 
 const visibleIds = (): string[] => [...anchored.value, ...orphans.value].map((item) => item.id)
 
+const focusThread = (id: string): void => {
+  nextTick(() => {
+    const card = document.querySelector(`[data-thread="${CSS.escape(id)}"]`)
+    const pane = document.querySelector('.thread-pane')
+    const target = card instanceof HTMLElement ? card : pane
+    if (target instanceof HTMLElement) target.focus()
+  }).catch(() => undefined)
+}
+
 const step = (direction: 1 | -1): void => {
   const ids = visibleIds()
   if (!ids.length) return
@@ -231,7 +243,25 @@ const step = (direction: 1 | -1): void => {
     ? (direction > 0 ? 0 : ids.length - 1)
     : (at + direction + ids.length) % ids.length
   const id = ids[next]
-  if (id) selectedThreadId.value = id
+  if (!id) return
+  selectedThreadId.value = id
+  focusThread(id)
+}
+
+const onThreadKey = (event: KeyboardEvent): void => {
+  if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+  if (event.altKey || event.metaKey || event.ctrlKey) return
+  const target = event.target
+  if (target instanceof HTMLElement && target.closest('.confirm-back')) return
+  if (
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLInputElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  ) {
+    return
+  }
+  event.preventDefault()
+  step(event.key === 'ArrowDown' ? 1 : -1)
 }
 
 const onNext = (): void => {

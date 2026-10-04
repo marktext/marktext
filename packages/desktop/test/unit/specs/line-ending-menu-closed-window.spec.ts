@@ -36,7 +36,7 @@ vi.mock('main_renderer/menu/actions/format', () => ({ updateFormatMenu: vi.fn() 
 vi.mock('main_renderer/menu/actions/paragraph', () => ({ updateSelectionMenus: vi.fn() }))
 vi.mock('main_renderer/menu/actions/view', () => ({ viewLayoutChanged: vi.fn() }))
 vi.mock('main_renderer/utils/internalIpc', () => ({ onInternalChannel: vi.fn() }))
-vi.mock('main_renderer/i18n.js', () => ({ setLanguage: vi.fn() }))
+vi.mock('main_renderer/i18n.js', () => ({ setLanguage: vi.fn(), t: (key: string) => key }))
 vi.mock('main_renderer/menu/templates', () => ({
   default: vi.fn(() => []),
   configSettingMenu: vi.fn(() => [])

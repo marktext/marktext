@@ -548,4 +548,9 @@ watch(
 .mt-diff :deep(.d2h-ins .d2h-code-line-prefix) {
   color: var(--diffInsFg);
 }
+
+.mt-diff button:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
+}
 </style>

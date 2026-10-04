@@ -141,8 +141,10 @@ export const viewLayoutChanged = (
         changeMenuByName('terminalPanelMenuItem', value)
         break
       case 'agentAvailable':
-        disableMenuByName('agentPanelMenuItem', !!value)
         disableMenuByName('terminalPanelMenuItem', !!value)
+        break
+      case 'agentPanelEnabled':
+        disableMenuByName('agentPanelMenuItem', !!value)
         break
       case 'sourceCode':
         changeMenuByName('sourceCodeModeMenuItem', !!value)

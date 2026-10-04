@@ -71,7 +71,7 @@
         <Plus />
       </el-icon>
     </div>
-    <template v-if="agentAvailable">
+    <template v-if="agentModeEnabled">
       <div class="tab-spacer" />
       <div class="tab-actions">
         <button
@@ -106,6 +106,7 @@
           />
         </button>
         <button
+          v-if="agentAvailable"
           type="button"
           class="tab-action"
           :aria-pressed="showTerminalPanel"
@@ -139,6 +140,7 @@ import { useLayoutStore } from '@/store/layout'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
 import { useDiffStore } from '@/store/diff'
+import { usePreferencesStore } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
@@ -160,6 +162,7 @@ const diffTitle = computed(() =>
 )
 const { showAgentPanel, showTerminalPanel } = storeToRefs(layoutStore)
 const { agentAvailable, turnInProgress } = storeToRefs(useAgentStore())
+const { agentModeEnabled } = storeToRefs(usePreferencesStore())
 const { unresolvedCount } = storeToRefs(useCommentsStore())
 
 const agentButtonLabel = computed(() => {

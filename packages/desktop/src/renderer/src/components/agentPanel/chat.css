@@ -336,3 +336,10 @@
   opacity: 0.4;
   cursor: default;
 }
+
+.mt-chat button:focus-visible,
+.mt-chat select:focus-visible,
+.mt-chat textarea:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
+}

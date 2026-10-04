@@ -61,6 +61,7 @@ class EditorWindow extends BaseWindow {
   // Root directory and file list to open when the window is ready.
   private _directoryToOpen: string | null
   private _folderQueue: Promise<void> = Promise.resolve()
+  private _closePrompt = false
   private _filesToOpen: PendingFile[] | null
   private _markdownToOpen: string[] | null
   // Root directory and file list that are currently opened. These lists are
@@ -266,11 +267,8 @@ class EditorWindow extends BaseWindow {
     // Before closed. We cancel the action and ask the editor further instructions.
     win.on('close', (event) => {
       this.emit('window-close')
-
       event.preventDefault()
-      win!.webContents.send('mt::ask-for-close')
-
-      // TODO: Close all watchers etc. Should we do this manually or listen to 'quit' event?
+      this._confirmClose().catch(() => undefined)
     })
 
     // The window is now destroyed.
@@ -384,6 +382,34 @@ class EditorWindow extends BaseWindow {
     } else {
       this._markdownToOpen!.push(markdown)
     }
+  }
+
+  /**
+   * A running turn is a separate question from unsaved files. Cancel leaves the window open.
+   * A confirmed close continues into the existing unsaved-files check.
+   */
+  private async _confirmClose(): Promise<void> {
+    if (this._closePrompt || this._hasQuit()) return
+    const win = this.browserWindow
+    const windowId = this.id
+    if (!win || win.isDestroyed() || windowId == null) return
+    if (agentHostFor(windowId).hasActiveTurn()) {
+      this._closePrompt = true
+      try {
+        const { response } = await dialog.showMessageBox(win, {
+          type: 'warning',
+          buttons: [t('dialog.agentCloseWindowConfirm'), t('dialog.cancel')],
+          defaultId: 1,
+          cancelId: 1,
+          noLink: true,
+          message: t('agent.confirmCloseWindow')
+        })
+        if (response !== 0 || this._hasQuit()) return
+      } finally {
+        this._closePrompt = false
+      }
+    }
+    if (!win.isDestroyed()) win.webContents.send('mt::ask-for-close')
   }
 
   /**
