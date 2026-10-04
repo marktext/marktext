@@ -370,6 +370,32 @@ export const launchWithMarkdown = async(
   return { app, page, filePath }
 }
 
+export const fakeAcpAgentPath = path.resolve(__dirname, '../fixtures/fake-acp-agent/agent.mjs')
+
+export const fakeAcpScenario = (name: string): string =>
+  path.resolve(__dirname, '../fixtures/fake-acp-agent/scenarios', name)
+
+// A shell wrapper so the packaged app spawns the fake ACP agent with this
+// process's Node, which is what B-11 requires on Linux and Windows.
+export const writeFakeHarness = (dir: string): string => {
+  const script = path.join(dir, 'fake-harness')
+  fs.writeFileSync(
+    script,
+    `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(fakeAcpAgentPath)} "$@"\n`,
+    { mode: 0o755 }
+  )
+  fs.chmodSync(script, 0o755)
+  return script
+}
+
+// Written into preferences.json before launch. The harness is chosen here;
+// the chat header only picks a model from the list this program reports.
+export const agentHarnessPreferences = (harnessPath: string): Record<string, unknown> => ({
+  agentModeEnabled: true,
+  agentHarness: 'opencode',
+  agentOpencodePath: harnessPath
+})
+
 export const sendIpcToRenderer = async(
   app: ElectronApplication,
   channel: string,

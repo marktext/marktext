@@ -40,5 +40,7 @@ jobs:
       - name: Build app
         run: pnpm build
 
+      # F-12: agent acceptance (test/e2e/agent-*.spec.ts, TZ scenarios) runs in
+      # this Linux job. Windows CI covers the bridge, pty, and path unit tests.
       - name: Run E2E Tests
         run: xvfb-run --auto-servernum pnpm test:e2e
