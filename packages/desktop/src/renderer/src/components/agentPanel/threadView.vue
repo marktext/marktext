@@ -21,6 +21,7 @@
         type="button"
         class="btn"
         :disabled="sendBlocked"
+        :title="sendTitle"
         @click="sendAll"
       >
         {{ t('comments.sendAllCount', { n: unresolvedCount }) }}
@@ -217,8 +218,8 @@
       <button
         type="button"
         class="primary"
-        :disabled="turnInProgress"
-        :title="turnInProgress ? t('agent.turnWait') : undefined"
+        :disabled="sendOneBlocked"
+        :title="sendOneTitle"
         @click="sendSelected"
       >
         {{ t('comments.send') }}
@@ -291,6 +292,7 @@ import type { HumanMessage, Message } from '@shared/types/comments'
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { sendCommentThreads, sendPending, sendReasonTitle, sendUnavailableReason } from '@/agent/sendThreads'
 import bus from '@/bus'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
@@ -333,7 +335,19 @@ const fileLabel = computed(() => {
   return slash === -1 ? file : file.slice(slash + 1)
 })
 
-const sendBlocked = computed(() => turnInProgress.value || unresolvedCount.value === 0)
+const unavailable = computed(() => sendUnavailableReason())
+const sendBlocked = computed(() =>
+  sendPending.value || unavailable.value != null || unresolvedCount.value === 0
+)
+const sendTitle = computed(() => sendReasonTitle(unavailable.value))
+const sendOneBlocked = computed(() =>
+  sendPending.value || unavailable.value != null || thread.value?.status !== 'open'
+)
+const sendOneTitle = computed(() => {
+  if (unavailable.value) return sendReasonTitle(unavailable.value)
+  if (thread.value?.status === 'closed') return t('comments.sendOpenOnly')
+  return undefined
+})
 
 const lastHumanId = computed(() => {
   const messages = thread.value?.messages ?? []
@@ -416,13 +430,11 @@ const confirmDelete = (): void => {
 }
 
 const sendAll = (): void => {
-  if (sendBlocked.value) return
-  bus.emit('agent:send-all')
+  sendCommentThreads('all').catch(() => undefined)
 }
 
 const sendSelected = (): void => {
-  if (turnInProgress.value) return
-  bus.emit('agent:send-selected')
+  sendCommentThreads('selected').catch(() => undefined)
 }
 
 const showInText = (): void => {

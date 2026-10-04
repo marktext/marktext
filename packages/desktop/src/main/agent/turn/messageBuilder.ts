@@ -1,14 +1,7 @@
+import type { ThreadPlacement } from '@shared/types/agent'
 import { REPLY_BLOCK_LANG, type Message, type Thread } from '@shared/types/comments'
 
-/**
- * Where the renderer found the quote. Line numbers are inclusive and are
- * printed as given. `orphaned` is not stored on the thread.
- */
-export interface ThreadPlacement {
-  threadId: string
-  orphaned: boolean
-  lines?: { start: number; end: number }
-}
+export type { ThreadPlacement }
 
 export interface BuildThreadsMessageInput {
   file: string

@@ -80,13 +80,13 @@
           type="button"
           class="primary"
           :disabled="sendBlocked"
-          :title="turnInProgress ? t('agent.turnWait') : undefined"
+          :title="sendTitle"
           @click="sendAll"
         >
           {{ t('comments.sendAllCount', { n: unresolvedCount }) }}
         </button>
         <p class="hint">
-          {{ turnInProgress ? t('agent.turnWait') : t('comments.sendShortcut') }}
+          {{ sendTitle || t('comments.sendShortcut') }}
         </p>
       </header>
       <div class="list">
@@ -132,6 +132,7 @@ import type { Thread } from '@shared/types/comments'
 import { computed, onMounted, onScopeDispose } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
+import { sendCommentThreads, sendPending, sendReasonTitle, sendUnavailableReason } from '@/agent/sendThreads'
 import bus from '@/bus'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
@@ -174,7 +175,10 @@ const {
   missingReply,
   availability
 } = storeToRefs(comments)
-const { turnInProgress } = storeToRefs(useAgentStore())
+const sendBlocked = computed(() =>
+  sendPending.value || sendUnavailableReason() != null || unresolvedCount.value === 0
+)
+const sendTitle = computed(() => sendReasonTitle(sendUnavailableReason()))
 
 const userName = computed(() => {
   const repo = useAgentStore().repoState
@@ -217,8 +221,6 @@ const selected = computed(() =>
   threads.value.some((item) => item.id === selectedThreadId.value)
 )
 
-const sendBlocked = computed(() => turnInProgress.value || unresolvedCount.value === 0)
-
 const visibleIds = (): string[] => [...anchored.value, ...orphans.value].map((item) => item.id)
 
 const step = (direction: 1 | -1): void => {
@@ -241,8 +243,7 @@ const onPrevious = (): void => {
 }
 
 const sendAll = (): void => {
-  if (sendBlocked.value) return
-  bus.emit('agent:send-all')
+  sendCommentThreads('all').catch(() => undefined)
 }
 
 onMounted(() => {

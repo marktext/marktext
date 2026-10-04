@@ -6,6 +6,7 @@
 import type {
   AgentSelection,
   ChatEvent,
+  ThreadPlacement,
   HarnessId,
   HarnessStatus,
   ListModelsResult,
@@ -201,7 +202,11 @@ declare global {
     setSelection(model: string): Promise<void>
     listSessions(harness: HarnessId): Promise<SessionSummary[]>
     openSession(harness: HarnessId, sessionId: string | 'last' | 'new'): Promise<SessionSnapshot>
-    sendThreads(file: string, threadIds: string[]): Promise<{ turnId: string }>
+    sendThreads(
+      file: string,
+      threadIds: string[],
+      anchors: ThreadPlacement[]
+    ): Promise<{ turnId: string }>
     sendMessage(text: string): Promise<{ turnId: string }>
     cancelTurn(): Promise<void>
     answerPermission(requestId: string, optionId: string | 'cancelled'): Promise<void>

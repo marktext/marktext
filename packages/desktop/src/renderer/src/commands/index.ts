@@ -634,15 +634,15 @@ const commands: CommandDescriptor[] = [
   {
     id: 'comments.send-selected',
     execute: async() => {
-      if (!useAgentStore().agentAvailable) return
-      bus.emit('agent:send-selected')
+      const { sendCommentThreads } = await import('@/agent/sendThreads')
+      await sendCommentThreads('selected')
     }
   },
   {
     id: 'comments.send-all',
     execute: async() => {
-      if (!useAgentStore().agentAvailable) return
-      bus.emit('agent:send-all')
+      const { sendCommentThreads } = await import('@/agent/sendThreads')
+      await sendCommentThreads('all')
     }
   },
   {

@@ -10,6 +10,9 @@ export const useAgentStore = defineStore('agent', () => {
   const repoState = ref<RepoState>(NONE)
   const harnessStatuses = ref<HarnessStatus[]>([])
   const events = ref<ChatEvent[]>([])
+  /** Empty until `getSelection` answers. A missing model blocks sending. */
+  const selectionModel = ref<string | null>(null)
+  const selectionKnown = ref(false)
   const bag = createUnloadBag()
 
   // D25: agent chrome mounts only while this is true. A disabled mode or a
@@ -26,6 +29,18 @@ export const useAgentStore = defineStore('agent', () => {
     }
     return running
   })
+
+  function refreshSelection(): void {
+    const agent = window.agent
+    if (!agent?.getSelection) return
+    agent.getSelection().then((next) => {
+      selectionModel.value = next?.model || null
+      selectionKnown.value = true
+    }).catch(() => {
+      selectionModel.value = null
+      selectionKnown.value = true
+    })
+  }
 
   function refreshRepoState(): void {
     const run = async(): Promise<void> => {
@@ -65,6 +80,7 @@ export const useAgentStore = defineStore('agent', () => {
         add(window.agent.onHarnessStatusChanged((statuses) => {
           harnessStatuses.value = statuses
           refreshRepoState()
+          refreshSelection()
         }))
       }
 
@@ -76,15 +92,19 @@ export const useAgentStore = defineStore('agent', () => {
     })
 
     refreshRepoState()
+    refreshSelection()
   }
 
   return {
     repoState,
     harnessStatuses,
     events,
+    selectionModel,
+    selectionKnown,
     agentAvailable,
     turnInProgress,
     refreshRepoState,
+    refreshSelection,
     listen,
     stop: bag.stop
   }

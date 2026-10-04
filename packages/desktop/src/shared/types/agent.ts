@@ -54,6 +54,16 @@ export interface AgentSelection {
   model: string
 }
 
+/**
+ * Where the renderer found the quote when it asked to send threads.
+ * Line numbers are inclusive and 1-based. `orphaned` is not stored on the thread.
+ */
+export interface ThreadPlacement {
+  threadId: string
+  orphaned: boolean
+  lines?: { start: number; end: number }
+}
+
 export interface SessionSummary {
   id: string
   title: string

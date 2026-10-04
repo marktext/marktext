@@ -36,6 +36,7 @@ import type { MenuTemplate, MenuPopupPosition } from './menu'
 import type {
   AgentSelection,
   ChatEvent,
+  ThreadPlacement,
   HarnessId,
   HarnessStatus,
   ListModelsResult,
@@ -75,7 +76,10 @@ export interface IpcInvokeChannels {
     ret: SessionSnapshot
   }
   'mt::agent::send-message': { args: [text: string]; ret: { turnId: string } }
-  'mt::agent::send-threads': { args: [file: string, threadIds: string[]]; ret: { turnId: string } }
+  'mt::agent::send-threads': {
+    args: [file: string, threadIds: string[], anchors: ThreadPlacement[]]
+    ret: { turnId: string }
+  }
   'mt::agent::set-selection': { args: [model: string]; ret: void }
   'mt::ask-for-image-path': { args: []; ret: string[] }
   'mt::boot-info-async': { args: []; ret: BootInfo }
