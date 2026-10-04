@@ -318,9 +318,6 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@2.2.0)
-      native-keymap:
-        specifier: ^3.3.9
-        version: 3.3.9
       patch-package:
         specifier: ^8.0.1
         version: 8.0.1
@@ -348,6 +345,10 @@ importers:
       vue-tsc:
         specifier: ^3.3.5
         version: 3.3.5(typescript@6.0.3)
+    optionalDependencies:
+      native-keymap:
+        specifier: ^3.3.9
+        version: 3.3.9
 
   packages/muya:
     dependencies:
@@ -23825,7 +23826,8 @@ snapshots:
 
   napi-postinstall@0.3.4: {}
 
-  native-keymap@3.3.9: {}
+  native-keymap@3.3.9:
+    optional: true
 
   natural-compare@1.4.0: {}
 
