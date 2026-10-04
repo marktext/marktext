@@ -12,6 +12,7 @@ import type {
 } from '@shared/types/agent'
 import { computed, ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import bus from '../bus'
 import { usePreferencesStore } from './preferences'
 import { createUnloadBag } from './releaseOnUnload'
 
@@ -149,6 +150,13 @@ export const useAgentStore = defineStore('agent', () => {
       turn.value = { id: event.turnId, state: 'idle' }
       pendingPermissions.value = []
       lastTurnChanges.value = { turnId: event.turnId, paths: [...event.changedPaths] }
+      // A restored session replays through applySnapshot and must not pop the tab.
+      if (event.changedPaths.length > 0) {
+        bus.emit('agent:show-turn-diff', {
+          turnId: event.turnId,
+          paths: [...event.changedPaths]
+        })
+      }
       if (reloadWhenIdle && panelOpen.value) {
         reloadWhenIdle = false
         loadChat().catch(() => undefined)

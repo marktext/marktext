@@ -12,6 +12,7 @@ vi.hoisted(() => {
   w.window.path = { sep: '/' }
 })
 
+import bus from '@/bus'
 import { useAgentStore } from '@/store/agent'
 import { usePreferencesStore } from '@/store/preferences'
 
@@ -178,6 +179,48 @@ describe('agent chat store', () => {
       missingReplyThreadIds: []
     })
     await vi.waitFor(() => expect(openSession).toHaveBeenCalledWith('pi', 'last'))
+  })
+
+  it('opens the diff for a live turn with paths and leaves a restored transcript alone', async() => {
+    const opened: unknown[] = []
+    const onDiff = (payload: unknown): void => {
+      opened.push(payload)
+    }
+    bus.on('agent:show-turn-diff', onDiff)
+    try {
+      openSession.mockResolvedValue(snapshot('s-old', 'alpha', [{
+        type: 'turn_finished',
+        turnId: 'turn-old',
+        stopReason: 'end_turn',
+        changedPaths: ['notes.md'],
+        missingReplyThreadIds: []
+      }]))
+      const agent = useAgentStore()
+      await agent.attachPanel()
+      expect(agent.lastTurnChanges).toEqual({ turnId: 'turn-old', paths: ['notes.md'] })
+      expect(opened).toEqual([])
+
+      agent.listen()
+      emit({
+        type: 'turn_finished',
+        turnId: 'turn-empty',
+        stopReason: 'end_turn',
+        changedPaths: [],
+        missingReplyThreadIds: []
+      })
+      expect(opened).toEqual([])
+
+      emit({
+        type: 'turn_finished',
+        turnId: 'turn-live',
+        stopReason: 'end_turn',
+        changedPaths: ['notes.md'],
+        missingReplyThreadIds: []
+      })
+      expect(opened).toEqual([{ turnId: 'turn-live', paths: ['notes.md'] }])
+    } finally {
+      bus.off('agent:show-turn-diff', onDiff)
+    }
   })
 
   it('joins stream chunks of one message on the next frame and keeps a later message after it', async() => {

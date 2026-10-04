@@ -12,7 +12,7 @@
           v-for="file of tabs"
           :key="file.id"
           :title="file.pathname"
-          :class="{ active: currentFile?.id === file.id, unsaved: !file.isSaved }"
+          :class="{ active: !diffActive && currentFile?.id === file.id, unsaved: !file.isSaved }"
           :data-id="file.id"
           @click.stop="selectFile(file)"
           @click.middle="closeTab(file.id)"
@@ -29,6 +29,39 @@
           </el-icon>
         </li>
       </ul>
+    </div>
+    <!-- Save, the window buffer, and close-saved only walk the file list. -->
+    <div
+      v-if="diffOpen"
+      class="diff-tab"
+      :class="{ active: diffActive }"
+    >
+      <button
+        type="button"
+        class="diff-tab-name"
+        role="tab"
+        :aria-selected="diffActive"
+        @click.stop="diffStore.activate()"
+      >
+        <svg
+          viewBox="0 0 16 16"
+          aria-hidden="true"
+        >
+          <path d="M1.75 2.25h5.2v11.5h-5.2zM9.05 2.25h5.2v11.5h-5.2z" />
+          <path d="M3.2 8h2.2M10.3 6.4v3.2M9.5 8h2.4" />
+        </svg>
+        <span>{{ diffTitle }}</span>
+      </button>
+      <button
+        type="button"
+        class="diff-tab-x"
+        :aria-label="t('diff.close')"
+        @click.stop="diffStore.close()"
+      >
+        <el-icon :size="12">
+          <Close />
+        </el-icon>
+      </button>
     </div>
     <div
       class="new-file"
@@ -105,6 +138,7 @@ import { useEditorStore } from '@/store/editor'
 import { useLayoutStore } from '@/store/layout'
 import { useAgentStore } from '@/store/agent'
 import { useCommentsStore } from '@/store/comments'
+import { useDiffStore } from '@/store/diff'
 import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
@@ -119,6 +153,11 @@ const layoutStore = useLayoutStore()
 const { t } = useI18n()
 
 const { currentFile, tabs } = storeToRefs(editorStore)
+const diffStore = useDiffStore()
+const { open: diffOpen, active: diffActive, scope: diffScope } = storeToRefs(diffStore)
+const diffTitle = computed(() =>
+  diffScope.value === 'worktree' ? t('diff.workingCopy') : t('diff.turn')
+)
 const { showAgentPanel, showTerminalPanel } = storeToRefs(layoutStore)
 const { agentAvailable, turnInProgress } = storeToRefs(useAgentStore())
 const { unresolvedCount } = storeToRefs(useCommentsStore())
@@ -163,6 +202,7 @@ let drake: dragula.Drake | null = null
 
 // Methods incorporated from tabsMixins
 const selectFile = (file: IFileState) => {
+  diffStore.showFile()
   if (file.id !== currentFile.value?.id) {
     editorStore.UPDATE_CURRENT_FILE(file)
   }
@@ -499,6 +539,58 @@ onBeforeUnmount(() => {
   & > svg {
     fill: var(--focusColor);
   }
+}
+
+.diff-tab {
+  display: flex;
+  align-items: stretch;
+  flex: none;
+  height: 28px;
+  color: var(--editorColor50);
+  font-size: 12px;
+}
+
+.diff-tab.active {
+  background: var(--itemBgColor);
+  box-shadow: inset 0 -2px 0 var(--themeColor);
+  color: var(--editorColor80);
+}
+
+.diff-tab-name,
+.diff-tab-x {
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.diff-tab-name {
+  gap: 6px;
+  padding: 0 4px 0 10px;
+  font: inherit;
+}
+
+.diff-tab-name svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+
+.diff-tab-x {
+  width: 22px;
+  padding: 0;
+  justify-content: center;
+}
+
+.diff-tab-name:focus-visible,
+.diff-tab-x:focus-visible {
+  outline: 1px solid var(--themeColor);
+  outline-offset: -1px;
 }
 
 .tab-spacer {

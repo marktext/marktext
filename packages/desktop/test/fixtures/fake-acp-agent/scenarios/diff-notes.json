@@ -1,0 +1,24 @@
+{
+  "capabilities": {
+    "loadSession": true,
+    "resume": true,
+    "close": true,
+    "mcpCapabilities": { "http": false, "sse": false }
+  },
+  "models": [
+    { "id": "alpha", "label": "Alpha" },
+    { "id": "beta", "label": "Beta" }
+  ],
+  "steps": [
+    { "type": "write", "path": "notes.md", "body": "agent line\n" },
+    {
+      "type": "tool_call",
+      "toolCallId": "tool-1",
+      "title": "Edit",
+      "status": "completed",
+      "kind": "edit",
+      "location": "$written"
+    },
+    { "type": "message_chunk", "messageId": "agent-1", "text": "wrote notes" }
+  ]
+}
