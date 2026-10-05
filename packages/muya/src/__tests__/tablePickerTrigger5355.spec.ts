@@ -86,7 +86,7 @@ function caretOf(muya: Muya) {
     };
 }
 
-const TABLE_2X2 = '|     |     |\n| --- | --- |\n|     |     |\n';
+const TABLE_2X2 = '|  |  |\n| --- | --- |\n|  |  |\n';
 
 describe('table grid pick (#5355)', () => {
     it('replaces the empty paragraph that opened the grid, not the paragraph holding the caret', () => {

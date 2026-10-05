@@ -42,7 +42,7 @@ test.describe('paragraph commands with the caret in a table or code block (#4944
             window.muya!.insertParagraph('after');
         });
         await page.keyboard.type('below');
-        await expect.poll(() => getMarkdown(page)).toBe('| a   | b   |\n| --- | --- |\n| 1   | 2   |\n\nbelow\n');
+        await expect.poll(() => getMarkdown(page)).toBe('| a | b |\n| --- | --- |\n| 1 | 2 |\n\nbelow\n');
         expect(errors).toEqual([]);
     });
 

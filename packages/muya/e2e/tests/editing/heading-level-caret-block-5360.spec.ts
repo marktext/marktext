@@ -55,7 +55,7 @@ test.describe('promote / demote heading change the caret\'s paragraph (#5360)', 
         await placeCaretAtEnd(page, '2');
         await page.evaluate(() => window.muya!.updateParagraph('upgrade heading'));
         await page.keyboard.type('x');
-        await expect.poll(() => getMarkdown(page)).toBe('| a   | b   |\n| --- | --- |\n| 1   | 2x  |\n');
+        await expect.poll(() => getMarkdown(page)).toBe('| a | b |\n| --- | --- |\n| 1 | 2x |\n');
         expect(errors).toEqual([]);
     });
 });

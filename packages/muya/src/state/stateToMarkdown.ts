@@ -32,7 +32,6 @@ import type {
 import { deepClone } from '../utils';
 
 import logger from '../utils/logger';
-import stringWidth from '../utils/stringWidth';
 import { isAnyListState } from './types';
 
 const debug = logger('export markdown: ');
@@ -499,80 +498,31 @@ export default class ExportMarkdown {
 
     private _serializeTable(state: ITableState, indent: string) {
         const result: string[] = [];
-        const row = state.children.length;
-        const tableData = [];
+        const tableData = state.children.map(rowState =>
+            rowState.children.map(cell => escapeText(cell.text.trim())),
+        );
+        const aligns = state.children[0].children.map(cell => cell.meta.align);
 
-        for (const rowState of state.children) {
-            tableData.push(
-                rowState.children.map(cell => escapeText(cell.text.trim())),
-            );
-        }
-
-        const columnWidth = state.children[0].children.map(th => ({
-            width: 5,
-            align: th.meta.align,
-        }));
-
-        let i;
-        let j;
-
-        for (i = 0; i < row; i++) {
-            const cells = Math.min(tableData[i].length, columnWidth.length);
-            for (j = 0; j < cells; j++) {
-                columnWidth[j].width = Math.max(
-                    columnWidth[j].width,
-                    stringWidth(tableData[i][j]) + 2,
-                ); // add 2, because have two space around text
+        // One space on each side, and a three-dash rule. Stretching every cell
+        // to the longest one rewrites untouched rows, so a single-cell edit
+        // shows up as a change to the whole table.
+        const rule = (align: string | undefined) => {
+            switch (align) {
+                case 'left':
+                    return ':--- ';
+                case 'center':
+                    return ':---:';
+                case 'right':
+                    return ' ---:';
+                default:
+                    return ' --- ';
             }
-        }
+        };
 
-        tableData.forEach((r, i) => {
-            const rs
-                = `${indent
-                }|${
-                    r
-                        .slice(0, columnWidth.length)
-                        .map((cell, j) => {
-                            // Pad by visual column width, not code-unit length,
-                            // so combining marks and wide characters stay
-                            // aligned (#1983). One leading space + cell + fill.
-                            const fill = columnWidth[j].width - 1 - stringWidth(cell);
-
-                            return ` ${cell}${' '.repeat(Math.max(fill, 0))}`;
-                        })
-                        .join('|')
-                }|`;
-            result.push(rs);
-            if (i === 0) {
-                const cutOff
-                    = `${indent
-                    }|${
-                        columnWidth
-                            .map(({ width, align }) => {
-                                let raw = '-'.repeat(width - 2);
-                                switch (align) {
-                                    case 'left':
-                                        raw = `:${raw} `;
-                                        break;
-
-                                    case 'center':
-                                        raw = `:${raw}:`;
-                                        break;
-
-                                    case 'right':
-                                        raw = ` ${raw}:`;
-                                        break;
-                                    default:
-                                        raw = ` ${raw} `;
-                                        break;
-                                }
-
-                                return raw;
-                            })
-                            .join('|')
-                    }|`;
-                result.push(cutOff);
-            }
+        tableData.forEach((row, index) => {
+            result.push(`${indent}|${row.slice(0, aligns.length).map(cell => ` ${cell} `).join('|')}|`);
+            if (index === 0)
+                result.push(`${indent}|${aligns.map(rule).join('|')}|`);
         });
 
         return `${result.join('\n')}\n`;

@@ -74,38 +74,37 @@ describe('serializeTable — row width mismatch', () => {
     });
 });
 
-// Regression for #1983. Column padding used String.prototype.length, so a
-// cell containing a combining mark (its code units exceed its visual width)
-// was over-measured and broke alignment. Padding must use visual column width.
-describe('serializeTable — visual column width (#1983)', () => {
-    it('aligns a column whose cells contain combining marks', () => {
+// Cells are written with one space on each side. Stretching a column to the
+// longest cell rewrites every row of the table, so combining marks and wide
+// characters must not change the padding of the other cells (#1983).
+describe('serializeTable — no column stretching (#1983)', () => {
+    it('emits combining marks without padding the other cells', () => {
         const state = table([
             row([cell('A')]),
             row([cell('nɔx')]),
-            row([cell('aʊ̯x')]), // a, ʊ, U+032F combining mark, x — 4 code units, 3 columns
+            row([cell('aʊ̯x')]), // a, ʊ, U+032F combining mark, x
         ]);
 
         const md = new ExportMarkdown().generate([state]);
         const lines = md.split('\n');
 
-        expect(lines[0]).toBe('| A   |');
+        expect(lines[0]).toBe('| A |');
         expect(lines[1]).toBe('| --- |');
         expect(lines[2]).toBe('| nɔx |');
         expect(lines[3]).toBe('| aʊ̯x |');
     });
 
-    it('widens a column to fit East-Asian wide characters', () => {
+    it('emits East-Asian wide characters without widening the header', () => {
         const state = table([
             row([cell('id')]),
-            row([cell('中文')]), // two wide characters → 4 columns
+            row([cell('中文')]),
         ]);
 
         const md = new ExportMarkdown().generate([state]);
         const lines = md.split('\n');
 
-        // Column width is max(visual): 'id' = 2, '中文' = 4 → inner width 4.
-        expect(lines[0]).toBe('| id   |');
-        expect(lines[1]).toBe('| ---- |');
+        expect(lines[0]).toBe('| id |');
+        expect(lines[1]).toBe('| --- |');
         expect(lines[2]).toBe('| 中文 |');
     });
 });

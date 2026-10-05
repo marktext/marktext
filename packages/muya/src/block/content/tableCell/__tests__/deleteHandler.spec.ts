@@ -75,7 +75,7 @@ describe('forward Delete at the end of a table\'s last cell (#5386)', () => {
 
         expect(() => muya.flush()).not.toThrow();
         expect(muya.getMarkdown()).toBe(
-            '| x   | y   |\n| --- | --- |\n| 1   | 2p  |\n\nq\n',
+            '| x | y |\n| --- | --- |\n| 1 | 2p |\n\nq\n',
         );
     });
 
@@ -89,7 +89,7 @@ describe('forward Delete at the end of a table\'s last cell (#5386)', () => {
 
         expect(() => muya.flush()).not.toThrow();
         expect(muya.getMarkdown()).toBe(
-            '| xw  | y   |\n| --- | --- |\n| 1   | 2p  |\n\nq\n',
+            '| xw | y |\n| --- | --- |\n| 1 | 2p |\n\nq\n',
         );
     });
 
@@ -101,7 +101,7 @@ describe('forward Delete at the end of a table\'s last cell (#5386)', () => {
 
         expect(() => muya.flush()).not.toThrow();
         expect(muya.getMarkdown()).toBe(
-            '- a\n\n  | x   | y   |\n  | --- | --- |\n  | 1   | 2b  |\n\n  - c\n',
+            '- a\n\n  | x | y |\n  | --- | --- |\n  | 1 | 2b |\n\n  - c\n',
         );
     });
 });

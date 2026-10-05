@@ -115,7 +115,7 @@ test.describe('table tools whose table left the document (#5442)', () => {
         await openRowMenu(page);
 
         await page.locator(`${floats.tableRowColumMenu} li.item`).nth(2).click();
-        await expect.poll(() => getMarkdown(page)).toBe('| a   | b   |\n| --- | --- |\n| e   | f   |\n');
+        await expect.poll(() => getMarkdown(page)).toBe('| a | b |\n| --- | --- |\n| e | f |\n');
         expect(errors, `renderer pageerrors: ${errors.join(' | ')}`).toEqual([]);
     });
 });

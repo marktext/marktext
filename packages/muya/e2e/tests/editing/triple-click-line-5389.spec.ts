@@ -58,7 +58,7 @@ const NEXT_BLOCK_KEPT: Array<{ name: string; markdown: string; expected: string 
     { name: 'an ordered list', markdown: 'alpha beta\n\n1. item one\n2. item two\n', expected: 'x\n\n1. item one\n2. item two\n' },
     { name: 'a block quote', markdown: 'alpha beta\n\n> quoted words\n', expected: 'x\n\n> quoted words\n' },
     { name: 'a paragraph', markdown: 'alpha beta\n\nnext words\n', expected: 'x\n\nnext words\n' },
-    { name: 'a table', markdown: 'alpha beta\n\n| h1 | h2 |\n| -- | -- |\n| c1 | c2 |\n', expected: 'x\n\n| h1  | h2  |\n| --- | --- |\n| c1  | c2  |\n' },
+    { name: 'a table', markdown: 'alpha beta\n\n| h1 | h2 |\n| -- | -- |\n| c1 | c2 |\n', expected: 'x\n\n| h1 | h2 |\n| --- | --- |\n| c1 | c2 |\n' },
     { name: 'a task list', markdown: 'alpha beta\n\n- [ ] task one\n', expected: 'x\n\n- [ ] task one\n' },
     { name: 'an atx heading', markdown: 'alpha beta\n\n# next heading\n', expected: 'x\n\n# next heading\n' },
     { name: 'a setext heading', markdown: 'alpha beta\n\nNext heading\n===\n', expected: 'x\n\nNext heading\n===\n' },

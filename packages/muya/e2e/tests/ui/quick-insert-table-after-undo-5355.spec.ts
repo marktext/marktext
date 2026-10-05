@@ -12,7 +12,7 @@ import { editor, floats, quickInsertItem, tablePickerCell, toolbar } from '../he
 // Undo left the caret on the removed line, so the table dialog and Insert
 // Paragraph threw on it.
 
-const TABLE_2X2 = '|     |     |\n| --- | --- |\n|     |     |\n';
+const TABLE_2X2 = '|  |  |\n| --- | --- |\n|  |  |\n';
 
 function collectPageErrors(page: Page): string[] {
     const errors: string[] = [];

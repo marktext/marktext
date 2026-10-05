@@ -229,20 +229,26 @@ $$
 });
 
 describe('stateToMarkdown — table round-trip', () => {
-    // The column width emitted by stateToMarkdown is `max(5, cell+2)`, so a
-    // table with single-character cells canonicalises to width-5 columns.
     it('round-trips a simple 2x2 table with default alignment', () => {
-        const md = `| a   | b   |
+        const md = `| a | b |
 | --- | --- |
-| 1   | 2   |
+| 1 | 2 |
 `;
         expect(roundTrip(md)).toBe(md);
     });
 
     it('round-trips a table with explicit left/center/right alignment', () => {
-        const md = `| a   | b   | c   |
+        const md = `| a | b | c |
 |:--- |:---:| ---:|
-| 1   | 2   | 3   |
+| 1 | 2 | 3 |
+`;
+        expect(roundTrip(md)).toBe(md);
+    });
+
+    it('does not widen every row when one cell is longer', () => {
+        const md = `| a | longer cell |
+| --- | --- |
+| 1 | 2 |
 `;
         expect(roundTrip(md)).toBe(md);
     });
@@ -252,19 +258,18 @@ describe('stateToMarkdown — table edge cases', () => {
     it('round-trips a cell containing an escaped pipe', () => {
         // Pipes inside cells must be `\|`-escaped both at parse time
         // (markdownToState.restoreTableEscapeCharacters) and at serialize
-        // time. Column width is `max(5, longestCell + 2)`, so col 1 (one
-        // char `a`) gets width 5 and col 2 (`b \|piped`, 9 chars) gets 11.
-        const md = `| a   | b \\|piped |
-| --- | --------- |
-| 1   | 2         |
+        // time.
+        const md = `| a | b \\|piped |
+| --- | --- |
+| 1 | 2 |
 `;
         expect(roundTrip(md)).toBe(md);
     });
 
     it('serialises an empty trailing cell as a blank cell, not nothing', () => {
-        const md = `| a   | b   |
+        const md = `| a | b |
 | --- | --- |
-| 1   |     |
+| 1 |  |
 `;
         expect(roundTrip(md)).toBe(md);
     });

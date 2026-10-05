@@ -30,7 +30,7 @@ test.describe('forward Delete at the end of a table\'s last cell (#5386)', () =>
         await clickEndOfCell(page, 'x');
         await page.keyboard.type('w');
 
-        await expect.poll(() => getMarkdown(page)).toBe('| xw  | y   |\n| --- | --- |\n| 1   | 2zp |\n\nq\n');
+        await expect.poll(() => getMarkdown(page)).toBe('| xw | y |\n| --- | --- |\n| 1 | 2zp |\n\nq\n');
         expect(errors).toEqual([]);
     });
 
@@ -42,7 +42,7 @@ test.describe('forward Delete at the end of a table\'s last cell (#5386)', () =>
         await page.keyboard.press('Delete');
         await page.keyboard.type('z');
 
-        await expect.poll(() => getMarkdown(page)).toBe('- a\n\n  | x   | y   |\n  | --- | --- |\n  | 1   | 2zb |\n\n  - c\n');
+        await expect.poll(() => getMarkdown(page)).toBe('- a\n\n  | x | y |\n  | --- | --- |\n  | 1 | 2zb |\n\n  - c\n');
         expect(errors).toEqual([]);
     });
 });
