@@ -1,5 +1,9 @@
 <template>
-  <div class="tree-view">
+  <div
+    ref="treeView"
+    class="tree-view"
+  >
+    <!-- Opened tabs -->
     <div
       v-if="openedFilesInSidebar"
       class="opened-files"
@@ -52,7 +56,9 @@
       </div>
       <div
         v-show="showOpenedFiles"
+        ref="openedFilesList"
         class="opened-files-list"
+        :style="{ maxHeight: `${openedFilesMaxHeight}px` }"
       >
         <transition-group name="list">
           <opened-file
@@ -62,6 +68,11 @@
           />
         </transition-group>
       </div>
+      <div
+        v-if="showOpenedFiles && tabCount > MIN_VISIBLE_ROWS"
+        class="opened-files-resize"
+        @mousedown.prevent="startResize"
+      />
     </div>
 
     <div
@@ -201,6 +212,23 @@ const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
 const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
+
+// Must match the `.opened-file` row height in treeOpenedTab.vue.
+const ROW_HEIGHT_PX = 28
+// The list shows this many rows before it scrolls and offers a resize handle.
+const MIN_VISIBLE_ROWS = 4
+const MIN_LIST_HEIGHT_PX = MIN_VISIBLE_ROWS * ROW_HEIGHT_PX
+// Space always left below the list for the project tree, including when the
+// window shrinks after the list was dragged taller.
+const PROJECT_TREE_RESERVE_PX = 150
+const OPENED_FILES_HEIGHT_KEY = 'side-bar-opened-files-height'
+const storedListHeight = Number(localStorage.getItem(OPENED_FILES_HEIGHT_KEY))
+const listHeight = ref(storedListHeight > 0 ? storedListHeight : MIN_LIST_HEIGHT_PX)
+const treeView = ref<HTMLElement | null>(null)
+const openedFilesList = ref<HTMLElement | null>(null)
+// Tallest the list may be in the current window; the stored height is kept
+// as-is so the list grows back when the window does.
+const listHeightLimit = ref(Infinity)
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
 
@@ -223,6 +251,18 @@ const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 const createCacheDirname = computed<string | undefined>(() => {
   const cache = createCache.value as { dirname?: string }
   return cache.dirname
+})
+
+const tabCount = computed(() => props.tabs?.length ?? 0)
+
+// Never taller than the rows themselves, so closing tabs leaves no gap.
+const openedFilesMaxHeight = computed(() => {
+  if (tabCount.value <= MIN_VISIBLE_ROWS) return MIN_LIST_HEIGHT_PX
+  const contentHeight = tabCount.value * ROW_HEIGHT_PX
+  return Math.max(
+    MIN_LIST_HEIGHT_PX,
+    Math.min(listHeight.value, contentHeight, listHeightLimit.value)
+  )
 })
 
 const openFolder = (): void => {
@@ -309,6 +349,44 @@ const revealPath = async (
 const handleRevealPath = (pathname: unknown): void => {
   revealPath(typeof pathname === 'string' ? pathname : null, { force: true })
 }
+
+let resizeStartY = 0
+let resizeStartHeight = 0
+
+const updateListHeightLimit = (): void => {
+  const view = treeView.value
+  const list = openedFilesList.value
+  if (!view || !list || list.offsetParent === null) {
+    listHeightLimit.value = Infinity
+    return
+  }
+  const listTop = list.getBoundingClientRect().top - view.getBoundingClientRect().top
+  listHeightLimit.value = view.clientHeight - listTop - PROJECT_TREE_RESERVE_PX
+}
+
+const treeViewObserver = new ResizeObserver(updateListHeightLimit)
+
+const handleResizeMove = (event: MouseEvent): void => {
+  const height = resizeStartHeight + event.clientY - resizeStartY
+  listHeight.value = Math.max(MIN_LIST_HEIGHT_PX, Math.min(height, listHeightLimit.value))
+}
+
+const stopResize = (): void => {
+  document.removeEventListener('mousemove', handleResizeMove)
+  document.removeEventListener('mouseup', stopResize)
+  localStorage.setItem(OPENED_FILES_HEIGHT_KEY, String(listHeight.value))
+}
+
+const startResize = (event: MouseEvent): void => {
+  resizeStartY = event.clientY
+  // Start from the rendered height: the stored one may exceed the content.
+  resizeStartHeight = openedFilesMaxHeight.value
+  updateListHeightLimit()
+  document.addEventListener('mousemove', handleResizeMove)
+  document.addEventListener('mouseup', stopResize)
+}
+
+// From createFileOrDirectoryMixins
 
 const handleInputFocus = (): void => {
   nextTick(() => {
@@ -427,6 +505,7 @@ watch(
 )
 
 onMounted(() => {
+  if (treeView.value) treeViewObserver.observe(treeView.value)
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
   bus.on('SIDEBAR::focus-tree', focusTree)
   bus.on('SIDEBAR::reveal-path', handleRevealPath)
@@ -439,6 +518,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  treeViewObserver.disconnect()
+  document.removeEventListener('mousemove', handleResizeMove)
+  document.removeEventListener('mouseup', stopResize)
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   bus.off('SIDEBAR::focus-tree', focusTree)
   bus.off('SIDEBAR::reveal-path', handleRevealPath)
@@ -517,13 +599,22 @@ onUnmounted(() => {
   cursor: pointer;
 }
 .opened-files .opened-files-list {
-  max-height: 112px;
   overflow: auto;
   flex: 1;
 }
 
 .opened-files .opened-files-list::-webkit-scrollbar:vertical {
   width: 8px;
+}
+
+.opened-files-resize {
+  height: 4px;
+  flex-shrink: 0;
+  cursor: row-resize;
+}
+
+.opened-files-resize:hover {
+  border-bottom: 2px solid var(--iconColor);
 }
 
 .project-tree {
