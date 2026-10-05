@@ -264,4 +264,17 @@ describe('openSession', () => {
     expect(next.model).toBe('beta')
     expect((await opened.runner.listSessions(windowId, 'pi')).map((item) => item.model)).toEqual(['alpha'])
   })
+
+  it('rebinds a session saved with another harness model onto the current selection', async() => {
+    const opened = await boot('both')
+    await opened.store.setSelection(opened.root, 'beta')
+    const created = await opened.store.createSession(opened.root, 'cursor', 'opencode/big-pickle')
+    await opened.store.setLastSession(opened.root, 'cursor', created.id)
+
+    const snapshot = await opened.runner.openSession(windowId, 'cursor', 'last')
+
+    expect(snapshot.model).toBe('beta')
+    expect(configValues(opened.logPath)).toEqual(['beta'])
+    expect((await opened.store.readSession(opened.root, 'cursor', created.id)).model).toBe('beta')
+  })
 })

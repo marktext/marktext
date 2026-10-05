@@ -1,8 +1,9 @@
 import path from 'path'
 import { HARNESS_DESCRIPTORS } from '../harness/harnessRegistry'
 import type { HarnessQuirks } from '../harness/harnessRegistry'
-import { AcpConnection } from '../harness/acpConnection'
+import { AcpConnection, type SessionConfigSnapshot } from '../harness/acpConnection'
 import type { TurnEndNotice } from '../harness/acpConnection'
+import { modelsFromSessionConfig } from '../harness/modelProbe'
 import { resolveHarnessCommand } from '../harness/resolveHarnessCommand'
 import { applyBlockReplies } from '../harness/replyBlockParser'
 import { bridgeForWindow } from '../mcpBridge/bridgeServer'
@@ -487,11 +488,35 @@ export class TurnRunner {
       }
     }
     const created = await connection.newSession({ cwd: root, mcpServers: servers })
-    await connection.setModel(created.sessionId, snapshot.model)
+    const model = await this.modelOffered(root, snapshot.model, created.configOptions)
+    if (model) await connection.setModel(created.sessionId, model)
+    if (model && model !== snapshot.model) {
+      await this.store.setSessionModel(root, harness, sessionId, model)
+    }
     const resumable = connection.supportsResume()
     await this.store.setAcpSessionId(root, harness, sessionId, resumable ? created.sessionId : null)
-    this.rememberLive(harness, sessionId, snapshot.model, created.sessionId, resumable)
+    this.rememberLive(harness, sessionId, model ?? snapshot.model, created.sessionId, resumable)
     this.pendingReplay = resumable ? null : historyReplay(snapshot.events)
+  }
+
+  /**
+   * The header model is one value for every harness. A chat saved under another
+   * harness can carry an id this process does not offer; sending it makes
+   * `session/set_config_option` fail and the session list never loads.
+   * Returns null when neither the stored id nor the header selection is offered,
+   * so the harness keeps its own default.
+   */
+  private async modelOffered(
+    root: string,
+    requested: string,
+    configOptions: readonly SessionConfigSnapshot[]
+  ): Promise<string | null> {
+    const offered = modelsFromSessionConfig(configOptions)
+    if (!offered) return requested
+    if (offered.some((model) => model.id === requested)) return requested
+    const picked = (await this.store.getSelection(root))?.model
+    if (picked && offered.some((model) => model.id === picked)) return picked
+    return null
   }
 
   private rememberLive(

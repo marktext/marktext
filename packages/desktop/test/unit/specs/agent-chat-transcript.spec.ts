@@ -47,6 +47,31 @@ describe('chat transcript', () => {
     expect(turns[0]?.finished?.stopReason).toBe('end_turn')
   })
 
+  it('joins token-sized reasoning into one block and a token-sized answer into one message', () => {
+    const turns = groupTurns([
+      user('Review this'),
+      { type: 'thought_chunk', messageId: 't1', text: 'Фор' },
+      { type: 'thought_chunk', messageId: 't2', text: 'мули' },
+      { type: 'thought_chunk', messageId: 't3', text: 'ровка' },
+      {
+        type: 'tool_call',
+        toolCallId: 'tool-1',
+        title: 'Read',
+        status: 'completed',
+        locations: []
+      },
+      { type: 'thought_chunk', messageId: 't4', text: 'Дальше' },
+      { type: 'message_chunk', role: 'agent', messageId: 'a1', text: 'сред' },
+      { type: 'message_chunk', role: 'agent', messageId: 'a2', text: ' разработки' },
+      { type: 'message_chunk', role: 'agent', messageId: 'a3', text: '.' }
+    ])
+    expect(turns).toHaveLength(1)
+    const body = turns[0]?.body ?? []
+    expect(body.map((item) => item.type)).toEqual(['thought', 'tool', 'agent'])
+    expect(body[0]).toMatchObject({ type: 'thought', text: 'Формулировка\n\nДальше' })
+    expect(body[2]).toMatchObject({ type: 'agent', text: 'сред разработки.' })
+  })
+
   it('recognizes a comments send and hides the replies fence from the prose', () => {
     const text = 'Rules:\n\nFile: docs/guide.md\n\n### Thread t-1\nQuote:\n> strict\n'
     expect(commentsCard(text)).toEqual({ file: 'docs/guide.md', count: 1 })

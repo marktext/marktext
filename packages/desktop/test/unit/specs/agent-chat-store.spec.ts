@@ -134,6 +134,16 @@ describe('agent chat store', () => {
     expect(agent.turn).toEqual({ id: null, state: 'idle' })
   })
 
+  it('still lists sessions when the last chat cannot be opened', async() => {
+    openSession.mockRejectedValue(new Error('Invalid model value: opencode/big-pickle'))
+    const agent = useAgentStore()
+    await agent.attachPanel()
+
+    expect(listSessions).toHaveBeenCalledWith('opencode')
+    expect(agent.activeSession).toBeNull()
+    expect(agent.sessions.map((item) => item.id)).toEqual(['s-old'])
+  })
+
   it('keeps an open session on its model and starts a new chat without dropping the old one', async() => {
     const agent = useAgentStore()
     await agent.attachPanel()
@@ -246,6 +256,20 @@ describe('agent chat store', () => {
       { type: 'message_chunk', role: 'agent', messageId: 'm1', text: 'Hello' },
       { type: 'thought_chunk', messageId: 't1', text: 'hmm!' },
       { type: 'message_chunk', role: 'agent', messageId: 'm2', text: 'Next' }
+    ])
+  })
+
+  it('joins a token stream that uses a new id for every chunk', async() => {
+    const agent = useAgentStore()
+    agent.listen()
+    emit({ type: 'thought_chunk', messageId: 't1', text: 'Фор' })
+    emit({ type: 'thought_chunk', messageId: 't2', text: 'мули' })
+    emit({ type: 'message_chunk', role: 'agent', messageId: 'a1', text: 'сред' })
+    emit({ type: 'message_chunk', role: 'agent', messageId: 'a2', text: ' разработки' })
+    flushFrame()
+    expect(agent.events).toEqual([
+      { type: 'thought_chunk', messageId: 't1', text: 'Формули' },
+      { type: 'message_chunk', role: 'agent', messageId: 'a1', text: 'сред разработки' }
     ])
   })
 

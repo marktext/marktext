@@ -51,6 +51,14 @@ export const replyThreadId = (title: string): string | null => {
   return match?.[0] ?? null
 }
 
+/** A later reasoning burst is a new paragraph; a token glued to the previous one is not. */
+const joinParagraph = (base: string, extra: string): string => {
+  if (!base) return extra
+  if (!extra) return base
+  if (base.endsWith('\n') || extra.startsWith('\n')) return base + extra
+  return `${base}\n\n${extra}`
+}
+
 const blankTurn = (key: string): ChatTurn => ({
   key,
   userText: null,
@@ -93,11 +101,21 @@ export const groupTurns = (events: readonly ChatEvent[]): ChatTurn[] => {
       continue
     }
     if (event.type === 'message_chunk') {
-      ensure().body.push({ type: 'agent', messageId: event.messageId, text: event.text })
+      const turn = ensure()
+      const last = turn.body[turn.body.length - 1]
+      if (last?.type === 'agent') last.text += event.text
+      else turn.body.push({ type: 'agent', messageId: event.messageId, text: event.text })
       continue
     }
     if (event.type === 'thought_chunk') {
-      ensure().body.push({ type: 'thought', messageId: event.messageId, text: event.text })
+      const turn = ensure()
+      const prior = turn.body.find((item) => item.type === 'thought')
+      if (prior?.type === 'thought') {
+        const adjacent = turn.body[turn.body.length - 1] === prior
+        prior.text = adjacent ? prior.text + event.text : joinParagraph(prior.text, event.text)
+      } else {
+        turn.body.push({ type: 'thought', messageId: event.messageId, text: event.text })
+      }
       continue
     }
     if (event.type === 'plan') {

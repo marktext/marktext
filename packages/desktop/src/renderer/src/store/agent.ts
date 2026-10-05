@@ -34,25 +34,34 @@ export type OutboundSend =
 
 const IDLE_TURN: AgentTurn = { id: null, state: 'idle' }
 
+const sameChunkStream = (prior: ChatEvent, event: ChatEvent): boolean => {
+  if (prior.type !== event.type) return false
+  if (prior.type === 'message_chunk' && event.type === 'message_chunk') return prior.role === event.role
+  return prior.type === 'thought_chunk'
+}
+
 /**
- * One visible message per `messageId`. Chunks arrive as separate events and
- * append in the order they were produced; a later id stays after an earlier one.
+ * One visible message per contiguous run. Chunks of one ACP message share a
+ * `messageId`, but some harnesses mint a new id per token. Those still append
+ * to the run in progress. A later id that arrives after another event stays
+ * its own message, and an earlier id still receives its own continuation.
  */
 export const foldChatEvents = (existing: readonly ChatEvent[], incoming: readonly ChatEvent[]): ChatEvent[] => {
   const next = existing.slice()
   for (const event of incoming) {
     if (event.type === 'message_chunk' || event.type === 'thought_chunk') {
+      const last = next[next.length - 1]
+      if (last && sameChunkStream(last, event)) {
+        next[next.length - 1] = { ...last, text: last.text + event.text }
+        continue
+      }
       const index = next.findIndex((item) =>
         item.type === event.type &&
         item.messageId === event.messageId &&
         (item.type !== 'message_chunk' || event.type !== 'message_chunk' || item.role === event.role)
       )
       const prior = index >= 0 ? next[index] : undefined
-      if (
-        prior &&
-        (prior.type === 'message_chunk' || prior.type === 'thought_chunk') &&
-        (event.type === 'message_chunk' || event.type === 'thought_chunk')
-      ) {
+      if (prior && sameChunkStream(prior, event)) {
         next[index] = { ...prior, text: prior.text + event.text }
         continue
       }
@@ -216,14 +225,25 @@ export const useAgentStore = defineStore('agent', () => {
     if (token !== loadToken) return
     models.value = { ...models.value, [harness]: listed.ok ? listed.models : [] }
 
-    const snapshot = await agent.openSession(harness, 'last')
+    // A failed open used to skip the list, so the session control stayed blank
+    // even when chats were already stored.
+    let opened: SessionSnapshot | null = null
+    try {
+      opened = await agent.openSession(harness, 'last')
+    } catch {
+      opened = null
+    }
     if (token !== loadToken) return
-    applySnapshot(snapshot)
+    if (opened) applySnapshot(opened)
 
     if (!agent.listSessions) return
-    const rows = await agent.listSessions(harness)
-    if (token !== loadToken) return
-    sessions.value = rows
+    try {
+      const rows = await agent.listSessions(harness)
+      if (token !== loadToken) return
+      sessions.value = rows
+    } catch {
+      // Keep the list already on screen when the index cannot be read.
+    }
   }
 
   async function openTarget(target: string | 'last' | 'new'): Promise<void> {

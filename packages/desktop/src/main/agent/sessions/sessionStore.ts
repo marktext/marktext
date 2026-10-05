@@ -280,6 +280,23 @@ export class SessionStore {
     })
   }
 
+  /**
+   * The session keeps the model it was opened with. A stored id from another
+   * harness is replaced when that harness rejects it, so the next open does
+   * not fail the same way.
+   */
+  setSessionModel(root: string, harness: HarnessId, sessionId: string, model: string): Promise<void> {
+    this.requireHarness(harness)
+    if (!modelText(model)) throw new SessionStoreError('bad_selection', 'the model is required')
+    return this.enqueue(async() => {
+      const index = await this.readIndex(root, harness)
+      const summary = index.find((item) => item.id === sessionId)
+      if (!summary) throw new SessionStoreError('not_found', `session ${sessionId} was not found`)
+      summary.model = model
+      await this.writeJson(this.indexFile(root, harness), index)
+    })
+  }
+
   setAcpSessionId(
     root: string,
     harness: HarnessId,
