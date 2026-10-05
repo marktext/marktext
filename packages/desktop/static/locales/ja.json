@@ -225,7 +225,7 @@
     "replaceAll": "すべて置換",
     "replaceSingle": "単一置換",
     "invalidRegex": "無効な正規表現 \"{pattern}\"",
-    "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" にマッチ",
+    "regexMatchEmpty": "正規表現が空文字列 \"{pattern}\" に一致",
     "searchResultInfo": "{fileCount} 個のファイルで {matchCount} 件一致",
     "searchLimited": "最初の {count} 件まで表示しています"
   },
@@ -323,9 +323,9 @@
         "a3": "A3",
         "a4": "A4",
         "a5": "A5",
-        "legal": "Legal",
-        "letter": "Letter",
-        "tabloid": "Tabloid",
+        "legal": "リーガル",
+        "letter": "レター",
+        "tabloid": "タブロイド",
         "custom": "カスタム"
       },
       "headerFooterTypes": {
@@ -359,7 +359,7 @@
       "placeholder": "設定の検索...",
       "categories": {
         "general": "全般",
-        "editor": "エディター",
+        "editor": "エディタ",
         "markdown": "Markdown",
         "theme": "テーマ",
         "image": "画像",
@@ -439,7 +439,7 @@
     },
     "categories": {
       "general": "全般",
-      "editor": "エディター",
+      "editor": "エディタ",
       "markdown": "Markdown",
       "spelling": "スペルチェック",
       "theme": "テーマ",
@@ -518,15 +518,15 @@
       }
     },
     "editor": {
-      "title": "エディター",
+      "title": "エディタ",
       "textEditor": {
-        "title": "テキストエディター",
+        "title": "テキストエディタ",
         "fontSize": "フォントサイズ",
         "lineHeight": "行の高さ",
         "fontFamily": "フォントファミリー",
         "maxWidth": "最大幅",
-        "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch（文字数）、% のいずれかを付けて入力します（例: 800px、80ch、60%）。空欄の場合は既定の幅を使用します。",
-        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください（例: 800px）。"
+        "maxWidthNotes": "エディターコンテンツの最大幅。数値の後に単位 px、ch (文字数)、% のいずれかを付けて入力します (例 : 800px、80ch、60%)。空欄の場合は既定の幅を使用します。",
+        "maxWidthInvalid": "数値の後に px、ch、% のいずれかを付けて入力してください (例 : 800px)。"
       },
       "codeBlock": {
         "title": "コードブロック",
@@ -597,9 +597,9 @@
       "uploader": {
         "title": "画像アップローダー",
         "currentUploader": "現在のアップローダー: {name}",
-        "picgoNotInstalled": "PicGoがインストールされていません",
-        "picgoInstalled": "PicGoがインストールされています",
-        "picgoDetectionFailed": "PicGo検出に失敗しました",
+        "picgoNotInstalled": "PicGo がインストールされていません",
+        "picgoInstalled": "PicGo がインストールされています",
+        "picgoDetectionFailed": "PicGo 検出に失敗しました",
         "debugInfo": "デバッグ情報",
         "npmInstallCommand": "npm install picgo -g",
         "yarnInstallCommand": "yarn global add picgo",
@@ -672,7 +672,7 @@
         "title": "その他"
       },
       "compatibility": {
-        "enableHtml": "HTMLサポートを有効",
+        "enableHtml": "HTML サポートを有効",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "title": "互換性"
       },
@@ -803,12 +803,12 @@
       "screenshot": "スクリーンショット"
     },
     "paragraph": {
-      "heading1": "見出し1",
-      "heading2": "見出し2",
-      "heading3": "見出し3",
-      "heading4": "見出し4",
-      "heading5": "見出し5",
-      "heading6": "見出し6",
+      "heading1": "見出し 1",
+      "heading2": "見出し 2",
+      "heading3": "見出し 3",
+      "heading4": "見出し 4",
+      "heading5": "見出し 5",
+      "heading6": "見出し 6",
       "upgradeHeading": "見出しレベルを上げる",
       "degradeHeading": "見出しレベルを下げる",
       "table": "表",
@@ -897,7 +897,6 @@
     "ok": "OK"
   },
   "dialog": {
-    "moveToTrash": "「{name}」をゴミ箱に移動しますか？",
     "cancel": "キャンセル",
     "changesWillBeLost": "変更が失われます",
     "close": "閉じる",
@@ -923,11 +922,11 @@
     "configSchemaViolation": "設定スキーマ違反",
     "copyError": "コピーエラー",
     "initializationFailed": "初期化に失敗しました {hint}",
-    "otherInstanceDetected": "MarkTextの別のインスタンスが既に実行中です",
+    "otherInstanceDetected": "MarkText の別のインスタンスが既に実行中です",
     "report": "報告",
     "startupError": "起動エラー",
     "terminatedDueToError": "エラーにより終了",
-    "unexpectedErrorWithMessage": "予期しないエラー: {message}",
+    "unexpectedErrorWithMessage": "予期しないエラー : {message}",
     "unexpectedMainProcess": "予期しないメインプロセスエラー",
     "unexpectedRendererProcess": "予期しないレンダラープロセスエラー"
   },
@@ -980,8 +979,8 @@
       "savePng": "PNG として保存",
       "copyImage": "画像をコピー",
       "copied": "画像をクリップボードにコピーしました",
-      "saveFailed": "画像を保存できませんでした: {error}",
-      "copyFailed": "画像をコピーできませんでした: {error}"
+      "saveFailed": "画像を保存できませんでした : {error}",
+      "copyFailed": "画像をコピーできませんでした : {error}"
     },
     "notifications": {
       "notificationNotFound": "通知が見つかりません"
