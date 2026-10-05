@@ -897,6 +897,7 @@
     "ok": "OK"
   },
   "dialog": {
+    "moveToTrash": "「{name}」をごみ箱に移動しますか？",
     "cancel": "キャンセル",
     "changesWillBeLost": "変更が失われます",
     "close": "閉じる",
