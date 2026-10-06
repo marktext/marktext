@@ -255,11 +255,10 @@ export interface CustomStyleOptions {
 
 export const addCustomStyle = (options: CustomStyleOptions): void => {
   const { customCss } = options
-  if (customCss === '') {
+  if (!customCss) {
     document.querySelector('#custom-styles')?.remove()
     return
   }
-  if (!customCss) return
 
   let customStyleEle = document.querySelector('#custom-styles') as HTMLStyleElement | null
   if (!customStyleEle) {
