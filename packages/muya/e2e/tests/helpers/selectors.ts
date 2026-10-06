@@ -84,6 +84,7 @@ export const editor = {
     // Inline html tags wrap their children with `.mu-raw-html`. The tag itself
     // is the actual `<u>`, `<mark>`, `<sup>`, `<sub>` or `<ruby>` element.
     rawHtml: '.mu-raw-html',
+    htmlTagMarker: 'span.mu-html-tag',
 } as const;
 
 // Float root class names confirmed against the `const name = 'mu-...'` lines
