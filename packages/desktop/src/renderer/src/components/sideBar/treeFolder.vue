@@ -118,11 +118,13 @@ const folderNameClick = (): void => {
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  newName.value = props.folder.name
+  // The `v-if` input mounts on the next tick; selecting before that hits an
+  // empty box, and the value must be set first so the range matches the DOM.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.folder.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, props.folder.name.length)
   })
 }
 

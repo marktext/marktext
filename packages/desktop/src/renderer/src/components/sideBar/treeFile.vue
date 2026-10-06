@@ -31,6 +31,7 @@ import { useEditorStore } from '@/store/editor'
 import FileIcon from './icon.vue'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
+import { renameSelectionEnd } from './renameKey'
 import type { TreeFileNode } from './types'
 
 const props = defineProps<{
@@ -70,11 +71,13 @@ const handleFileClick = (): void => {
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  newName.value = props.file.name
+  // The `v-if` input mounts on the next tick; selecting before that hits an
+  // empty box, and the value must be set first so the range matches the DOM.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.file.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, renameSelectionEnd(props.file.name))
   })
 }
 

@@ -174,6 +174,7 @@ import {
   keepsSidebarSelection,
   shouldTrashSelection
 } from './trashKey'
+import { shouldRenameSelection } from './renameKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -291,6 +292,25 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     projectStore.CLEAR_NAME_INPUT_STATE()
   }
 
+  const isEditingName = !!renameCache.value || !!createCacheDirname.value
+  const shouldRename = shouldRenameSelection({
+    key,
+    selection: activeItem.value,
+    projectRootPath: props.projectTree?.pathname,
+    pathSeparator: PATH_SEPARATOR,
+    isEditingName,
+    editableTarget,
+    // F2 is free in the WYSIWYG editor, so it reaches the sidebar selection
+    // even while the editor has focus; Enter must stay a line break there.
+    allowEditableTarget: key === 'F2' && isMuyaEditorTarget(target)
+  })
+  if (shouldRename) {
+    event.preventDefault()
+    event.stopPropagation()
+    bus.emit('SIDEBAR::rename')
+    return
+  }
+
   const shouldTrash = shouldTrashSelection({
     key,
     metaKey,
@@ -298,7 +318,7 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     selection: activeItem.value,
     projectRootPath: props.projectTree?.pathname,
     pathSeparator: PATH_SEPARATOR,
-    isEditingName: !!renameCache.value || !!createCacheDirname.value,
+    isEditingName,
     editableTarget,
     allowEditableTarget: isMuyaEditorTarget(target)
   })
