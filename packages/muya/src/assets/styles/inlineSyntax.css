@@ -29,6 +29,12 @@
     white-space: nowrap;
 }
 
+span.mu-html-tag {
+    color: var(--editor-color-50);
+    font-weight: 200;
+    font-family: monospace;
+}
+
 /* link and auto-link and reference link */
 a.mu-inline-rule,
 span.mu-inline-rule.mu-link {

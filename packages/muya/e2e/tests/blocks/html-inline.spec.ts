@@ -1,4 +1,5 @@
 import { expect, test } from '../fixtures/muya';
+import { editor } from '../helpers/selectors';
 
 /**
  * Inline HTML tags (`<u>`, `<mark>`, `<sup>`, `<sub>`, `<ruby>`) render via
@@ -77,5 +78,19 @@ test.describe('inline html tags', () => {
         expect(md).toContain('<ruby>');
         expect(md).toContain('</ruby>');
         expect(md).toContain('<rt>kan</rt>');
+    });
+
+    test('the <br/> marker hides once the caret leaves it (#5634)', async ({ page }) => {
+        await page.evaluate(() => {
+            window.muya!.setContent('Line 1<br/>Line 2');
+        });
+        await page.locator(editor.paragraph).first().click();
+        await page.evaluate(() => {
+            window.muya!.editor.scrollPage!.firstContentInDescendant()!.setCursor(14, 14, true);
+        });
+
+        const marker = page.locator(`${editor.htmlTagMarker} .mu-hide`);
+        await expect(marker).toBeHidden();
+        await expect(page.locator(`${editor.htmlTagMarker} br`)).toBeAttached();
     });
 });
