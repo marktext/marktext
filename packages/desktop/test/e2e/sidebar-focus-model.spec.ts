@@ -25,6 +25,8 @@ test.describe('Sidebar tree focus scope', () => {
     projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-focus-'))
     fs.writeFileSync(path.join(projectDir, 'alpha.md'), '# Alpha\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'beta.md'), '# Beta\n', 'utf-8')
+    fs.writeFileSync(path.join(projectDir, 'gamma.md'), '# Gamma\n', 'utf-8')
+    fs.writeFileSync(path.join(projectDir, 'delta.md'), '# Delta\n', 'utf-8')
 
     const launched = await launchElectron([projectDir])
     app = launched.app
@@ -58,6 +60,44 @@ test.describe('Sidebar tree focus scope', () => {
     await expect.poll(() => treeHasFocus(page)).toBe(true)
     await expect.poll(() => editorHasFocus(page)).toBe(false)
     await expect(file).toHaveClass(/active/)
+  })
+
+  test('clicking a second file keeps tree focus', async() => {
+    const first = page.locator('.side-bar-file[title$="alpha.md"]').first()
+    const second = page.locator('.side-bar-file[title$="gamma.md"]').first()
+
+    await first.click()
+    await expect.poll(() => treeHasFocus(page)).toBe(true)
+
+    await second.click()
+    await expect.poll(() => treeHasFocus(page)).toBe(true)
+  })
+
+  test('clicking another file while the editor has focus keeps tree focus', async() => {
+    const focused = page.locator('.side-bar-file[title$="beta.md"]').first()
+    const target = page.locator('.side-bar-file[title$="delta.md"]').first()
+
+    // Put focus in the editor first, then pick a file from the tree.
+    await focused.dblclick()
+    await expect.poll(() => editorHasFocus(page)).toBe(true)
+
+    await target.click()
+    await expect.poll(() => treeHasFocus(page)).toBe(true)
+    await expect.poll(() => editorHasFocus(page)).toBe(false)
+  })
+
+  test('clicking an already open, non-current file keeps tree focus', async() => {
+    const first = page.locator('.side-bar-file[title$="alpha.md"]').first()
+    const second = page.locator('.side-bar-file[title$="beta.md"]').first()
+
+    await first.click()
+    await second.click()
+    await expect.poll(() => treeHasFocus(page)).toBe(true)
+
+    // Switching back to an open tab goes through UPDATE_CURRENT_FILE, which
+    // restores the caret; the tree must keep focus.
+    await first.click()
+    await expect.poll(() => treeHasFocus(page)).toBe(true)
   })
 
   test('clicking the editor keeps the selection but moves focus out', async() => {

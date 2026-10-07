@@ -67,6 +67,9 @@ const handleFileClick = (event: MouseEvent): void => {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
+    // Restoring the target tab's caret can pull DOM focus into the editor;
+    // ask the tree to take it back so the keyboard scope stays here.
+    bus.emit('SIDEBAR::focus-tree')
   } else {
     // Keep DOM focus in the tree; the double-click handler hands it to the
     // editor when the user wants to start typing.

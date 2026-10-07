@@ -281,6 +281,13 @@ const handleTreeMouseDown = (event: MouseEvent): void => {
   treeWrapper.value?.focus()
 }
 
+// Switching to an already-open tab restores that tab's caret, and setting a
+// DOM selection inside the contenteditable pulls focus into the editor. Rows
+// ask for the focus back so the tree keeps the keyboard scope.
+const focusTree = (): void => {
+  treeWrapper.value?.focus()
+}
+
 // When an inline input closes (rename commit / Escape) focus falls to <body>.
 // Hand it back to the tree so the next shortcut still applies; a real move to
 // another element leaves activeElement elsewhere, so nothing is restored.
@@ -374,12 +381,14 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
 
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
+  bus.on('SIDEBAR::focus-tree', focusTree)
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('contextmenu', handleDocumentContextMenu)
 })
 
 onUnmounted(() => {
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
+  bus.off('SIDEBAR::focus-tree', focusTree)
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('contextmenu', handleDocumentContextMenu)
 })
