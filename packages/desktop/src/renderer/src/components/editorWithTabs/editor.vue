@@ -565,22 +565,27 @@ watch(frontmatterType, (value, oldValue) => {
   }
 })
 
+// `setOptions(..., true)` re-renders headings in place without emitting a
+// `json-change`, so the outline would otherwise keep the parse from before the
+// toggle. Re-seed it after any option that changes how a heading's inline
+// markdown is tokenized (#3110).
+const applyOutlineAffectingOption = (options: Partial<IMuyaOptions>): void => {
+  const muya = editor.value
+  if (!muya) return
+  muya.setOptions(options, true)
+  editorStore.REFRESH_TOC(muya.getTOC())
+}
+
 watch(superSubScript, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ superSubScript: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ superSubScript: value })
 })
 
 watch(footnote, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ footnote: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ footnote: value })
 })
 
 watch(texMathDollars, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathDollars: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathDollars: value })
 })
 
 watch(isHtmlEnabled, (value, oldValue) => {
@@ -590,27 +595,19 @@ watch(isHtmlEnabled, (value, oldValue) => {
 })
 
 watch(texMathGfm, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathGfm: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathGfm: value })
 })
 
 watch(texMathSingleBackslash, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathSingleBackslash: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathSingleBackslash: value })
 })
 
 watch(texMathDoubleBackslash, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ texMathDoubleBackslash: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ texMathDoubleBackslash: value })
 })
 
 watch(highlightSyntax, (value, oldValue) => {
-  if (value !== oldValue && editor.value) {
-    editor.value.setOptions({ highlightSyntax: value }, true)
-  }
+  if (value !== oldValue) applyOutlineAffectingOption({ highlightSyntax: value })
 })
 
 watch(softNewlineAsSpace, (value, oldValue) => {
