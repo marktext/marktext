@@ -303,7 +303,11 @@ const handleDocumentContextMenu = (event: MouseEvent): void => {
   const { target } = event
   if (isNameInput(target)) return
 
-  projectStore.COMMIT_NAME_INPUT()
+  // Right-clicking opens a native menu whose actions read the selection when
+  // clicked, so a rename committed here could leave the menu targeting the old
+  // path. Cancel the pending input instead (the pre-#3207 behaviour); the
+  // click-away path above still commits.
+  projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
 const handleTreeKeydown = (event: KeyboardEvent): void => {
