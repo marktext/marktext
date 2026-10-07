@@ -1475,12 +1475,18 @@ export const useEditorStore = defineStore('editor', {
      * a render-affecting option re-renders in place without emitting
      * `json-change`, so nothing else would refresh the outline.
      *
-     * Keeps `activeHeadingSlug`: unlike UPDATE_TOC, a preference toggle does
-     * not replace the document.
+     * `setOptions` also rebuilds every block, so each heading gets a fresh
+     * per-instance `slug`; the highlighted one is remapped by document position
+     * (a preference toggle does not reorder or drop headings).
      */
     REFRESH_TOC(toc: TocItem[]): void {
-      this.listToc = toc ?? []
-      this.toc = listToTree<TocItem>(toc ?? [])
+      const activeIndex = this.activeHeadingSlug
+        ? this.listToc.findIndex((item) => item.slug === this.activeHeadingSlug)
+        : -1
+      const nextToc = toc ?? []
+      this.listToc = nextToc
+      this.toc = listToTree<TocItem>(nextToc)
+      this.activeHeadingSlug = activeIndex >= 0 ? (nextToc[activeIndex]?.slug ?? null) : null
     },
 
     SET_ACTIVE_HEADING(slug: string | null): void {

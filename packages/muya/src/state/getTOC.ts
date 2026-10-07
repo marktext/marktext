@@ -33,6 +33,11 @@ export function getTOC(muya: Muya): ITocItem[] {
     if (!scrollPage)
         return [];
 
+    // Headings are tokenized outside a rendered block, so the reference
+    // definitions a heading may link to (`[text][ref]`) have to be collected
+    // here instead of from the block's own inline renderer.
+    const labels = muya.editor.inlineRenderer.collectReferenceDefinitions();
+
     const items: ITocItem[] = [];
 
     for (const node of scrollPage.children.iterator()) {
@@ -54,6 +59,7 @@ export function getTOC(muya: Muya): ITocItem[] {
         const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = muya.options;
         const tokens = tokenizer(source, {
             hasBeginRules: false,
+            labels,
             options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax },
         });
 

@@ -24,6 +24,14 @@ const tocHasLiteralMarkers = (page: Page): Promise<boolean> =>
     )
   )
 
+const highlightedTocLabel = (page: Page): Promise<string | null> =>
+  page.evaluate(() => {
+    const current = document.querySelector(
+      '.side-bar-toc .el-tree-node.is-current > .el-tree-node__content .el-tree-node__label'
+    ) as HTMLElement | null
+    return current ? (current.textContent || '').trim() : null
+  })
+
 test.describe('TOC updates live when a markdown preference changes', () => {
   let app: ElectronApplication
   let page: Page
@@ -64,5 +72,21 @@ test.describe('TOC updates live when a markdown preference changes', () => {
     await setPreference(page, { superSubScript: false })
     await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual([])
     await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(true)
+  })
+
+  test('keeps the active outline entry highlighted across a toggle', async() => {
+    await setPreference(page, { superSubScript: false })
+    await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(true)
+
+    await page.locator('.mu-atxheading-content').filter({ hasText: 'Water is' }).first().click()
+    await expect
+      .poll(() => highlightedTocLabel(page), { timeout: 5000 })
+      .toContain('Water is')
+
+    await setPreference(page, { superSubScript: true })
+    await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual(['2'])
+    await expect
+      .poll(() => highlightedTocLabel(page), { timeout: 5000 })
+      .toContain('Water is')
   })
 })

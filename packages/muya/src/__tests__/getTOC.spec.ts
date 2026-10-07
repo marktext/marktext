@@ -160,6 +160,19 @@ describe('muya.getTOC()', () => {
         expect(toc[0].contentHtml).not.toContain('<img');
     });
 
+    it('resolves reference-style links and images against the document definitions', () => {
+        const md = [
+            '## [Title][ref] and ![Alt][img]',
+            '',
+            '[ref]: https://example.com',
+            '[img]: https://example.com/i.png',
+        ].join('\n');
+        const muya = bootMuya(md);
+        const toc = muya.getTOC();
+        expect(toc[0].content).toBe('Title and Alt');
+        expect(toc[0].contentHtml).toBe('Title and Alt');
+    });
+
     it('escapes raw text in `contentHtml`', () => {
         const muya = bootMuya('## a < b & c');
         expect(muya.getTOC()[0].contentHtml).toBe('a &lt; b &amp; c');
