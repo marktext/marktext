@@ -419,6 +419,8 @@
         "texMathSingleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_single_backslash",
         "texMathDoubleBackslash": "启用 Pandoc 的 Markdown 扩展 tex_math_double_backslash",
         "highlightSyntax": "启用非标准的 ==文本== 高亮语法",
+        "inlineDiff": "启用非标准的行内差异语法 {+ … +} / [- … -]",
+        "multilineBlockquote": "启用非标准的多行引用块语法 >>> … >>>",
         "isHtmlEnabled": "启用 HTML 渲染",
         "softNewlineAsSpace": "将软换行符视为空格",
         "sequenceTheme": "序列图主题",
@@ -648,6 +650,8 @@
         "texMathSingleBackslash": "使用单反斜杠分隔符的 TeX 数学公式",
         "texMathDoubleBackslash": "使用双反斜杠分隔符的 TeX 数学公式",
         "highlightSyntax": "高亮 (==文本==)",
+        "inlineDiff": "行内差异 ({+ … +})",
+        "multilineBlockquote": "多行引用块 (>>>)",
         "frontmatterType": {
           "jsonBrace": "带大括号的 JSON",
           "jsonSemicolon": "带分号的 JSON",

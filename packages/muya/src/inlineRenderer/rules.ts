@@ -104,6 +104,12 @@ export const inlineExtensionRules = {
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     mark: /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/,
+    // GitLab Flavored Markdown inline diffs. The opener is `{+`/`[+`/`{-`/`[-`
+    // and the closer mirrors it with the same sign, so `{+ … -]` never matches:
+    // the sign is back-referenced and the bracket pairing is checked in
+    // `tryInlineDiff` (the group can hold either bracket). Content is taken
+    // literally — GitLab renders it as plain text, not nested markdown.
+    inline_diff: /^([{[])([+-])([^\n]*?)\2([}\]])/,
     footnote_identifier: /^(\[\^)([^^[\]\s]+)(?<!\\)\]/,
 };
 

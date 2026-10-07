@@ -4,6 +4,7 @@ import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
 import footnoteExtension from './extensions/footnote';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
+import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import fm from './frontMatter';
 import { DEFAULT_OPTIONS } from './options';
 import walkTokens from './walkTokens';
@@ -13,7 +14,7 @@ export function lexBlock(
     options: ILexOption = DEFAULT_OPTIONS,
 ): TLexedToken[] {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote } = options;
+    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Use a per-call Marked instance so extensions don't bleed across calls.
@@ -59,6 +60,10 @@ export function lexBlock(
 
     if (footnote) {
         m.use(footnoteExtension());
+    }
+
+    if (multilineBlockquote) {
+        m.use(multilineBlockquoteExtension());
     }
 
     if (frontMatter) {

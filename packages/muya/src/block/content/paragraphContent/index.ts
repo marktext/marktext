@@ -17,7 +17,7 @@ import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
-import { isListItemState, isTaskListItemState } from '../../../state/types';
+import { isBlockQuoteState, isListItemState, isTaskListItemState } from '../../../state/types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
 import logger from '../../../utils/logger';
@@ -75,6 +75,8 @@ const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
 const MATH_BLOCK_REG = /^\$\$[ \t]*$/;
+// GitLab multiline-blockquote opener: `>>>` alone on the line.
+const MULTILINE_BLOCKQUOTE_REG = /^>>>[ \t]*$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
 
@@ -82,13 +84,21 @@ type BlockConversion
     = | { kind: 'math' }
         | { kind: 'code'; lang: string; fenceChar: '`' | '~' }
         | { kind: 'table' }
-        | { kind: 'html'; tagName: string };
+        | { kind: 'html'; tagName: string }
+        | { kind: 'multiline-blockquote' };
 
 // Single source of truth for "what block, if any, does this paragraph text
 // convert into on Enter". Shared by the enterHandler guard (to decide whether
 // to convert in place) and `_enterConvert` (to perform it), so the match rules
 // can never drift between the two.
-function matchBlockConversion(text: string, texMathDollars: boolean): BlockConversion | null {
+function matchBlockConversion(
+    text: string,
+    texMathDollars: boolean,
+    multilineBlockquote: boolean,
+): BlockConversion | null {
+    if (multilineBlockquote && MULTILINE_BLOCKQUOTE_REG.test(text))
+        return { kind: 'multiline-blockquote' };
+
     // A `$$` paragraph only becomes a math block while the dollar syntax is
     // recognised; otherwise the block would serialize to markdown this editor
     // no longer reads back (#5446).
@@ -296,7 +306,11 @@ class ParagraphContent extends Format {
         event.preventDefault();
         event.stopPropagation();
 
-        const match = matchBlockConversion(this.text, this.muya.options.texMathDollars);
+        const match = matchBlockConversion(
+            this.text,
+            this.muya.options.texMathDollars,
+            this.muya.options.multilineBlockquote,
+        );
         if (!match)
             return super.enterHandler(event);
 
@@ -396,6 +410,24 @@ class ParagraphContent extends Format {
                 htmlBlock.firstContentInDescendant().setCursor(offset, offset);
                 break;
             }
+
+            case 'multiline-blockquote': {
+                // GitLab's `>>>` fence, typed alone on a line, opens a fenced
+                // blockquote holding a single empty paragraph. The `meta.style`
+                // keeps the fence when the document is exported to markdown.
+                const state: IBlockQuoteState = {
+                    name: 'block-quote',
+                    meta: { style: 'fenced' },
+                    children: [{ name: 'paragraph', text: '' }],
+                };
+                const blockQuote = ScrollPage.loadBlock('block-quote').create(
+                    this.muya,
+                    state,
+                );
+                this.parent!.replaceWith(blockQuote);
+                blockQuote.firstContentInDescendant().setCursor(0, 0, true);
+                break;
+            }
         }
     }
 
@@ -427,8 +459,14 @@ class ParagraphContent extends Format {
                 break;
 
             default: {
+                // Splitting a fenced (`>>>`) quote in the middle keeps the
+                // fence on both halves, so neither silently downgrades to `>`.
+                const quoteState = blockQuote!.getState();
+                const fenced = isBlockQuoteState(quoteState)
+                    && quoteState.meta?.style === 'fenced';
                 const newBlockState: IBlockQuoteState = {
                     name: 'block-quote',
+                    ...(fenced ? { meta: { style: 'fenced' as const } } : {}),
                     children: [],
                 };
                 const offset = blockQuote!.offset(parent!);
@@ -591,7 +629,12 @@ class ParagraphContent extends Format {
         // (matches muyajs). Otherwise typing the block syntax in a list would
         // split the item and strand an empty list entry (#2276, plus table /
         // HTML block).
-        if (matchBlockConversion(this.text, this.muya.options.texMathDollars))
+        const conversion = matchBlockConversion(
+            this.text,
+            this.muya.options.texMathDollars,
+            this.muya.options.multilineBlockquote,
+        );
+        if (conversion)
             return this._enterConvert(event);
 
         const type = this._paragraphParentType();

@@ -62,6 +62,14 @@ export interface ILinkReferenceDefinitionState {
 
 export interface IBlockQuoteState {
     name: 'block-quote';
+    /**
+     * `fenced` marks a GitLab multiline blockquote (`>>>` … `>>>`). It renders
+     * identically to a `>` blockquote; the flag only drives markdown
+     * serialization so the fence round-trips.
+     */
+    meta?: {
+        style?: 'fenced';
+    };
     children: TState[];
 }
 

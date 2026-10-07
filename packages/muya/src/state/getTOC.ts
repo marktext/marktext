@@ -56,11 +56,11 @@ export function getTOC(muya: Muya): ITocItem[] {
         // One token pass feeds both serializations so the outline's shown text
         // and its slug stay in step; `githubSlug` has to match the anchor id the
         // HTML export injects from `heading.textContent`.
-        const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = muya.options;
+        const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = muya.options;
         const tokens = tokenizer(source, {
             hasBeginRules: false,
             labels,
-            options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax },
+            options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff },
         });
 
         const content = tokensToPlainText(tokens).trim();

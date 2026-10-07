@@ -36,6 +36,7 @@ export interface ITokenizerFacOptions {
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
     highlightSyntax: boolean;
+    inlineDiff?: boolean;
 }
 
 export interface ITokenizerOptions {
@@ -59,6 +60,7 @@ export type Token
         | CodeEmojiMathToken
         | DelToken
         | MarkToken
+        | InlineDiffToken
         | SuperSubScriptToken
         | FootnoteIdentifierToken
         | ImageToken
@@ -137,6 +139,15 @@ export type DelToken = IBaseToken & {
 export type MarkToken = IBaseToken & {
     type: 'mark';
     marker: string;
+    children: Token[];
+    backlash: string;
+};
+
+export type InlineDiffToken = IBaseToken & {
+    type: 'inline_diff';
+    marker: string;
+    closer: string;
+    kind: 'ins' | 'del';
     children: Token[];
     backlash: string;
 };

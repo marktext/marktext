@@ -1,6 +1,7 @@
 import type { VNode } from 'snabbdom';
 import type {
     DelToken,
+    InlineDiffToken,
     ISyntaxRenderOptions,
     MarkToken,
     StrongEmToken,
@@ -10,24 +11,27 @@ import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
 import { snakeToCamel } from '../../utils';
 
-// render factory of `del`,`mark`,`em`,`strong`
+// render factory of `ins`,`del`,`mark`,`em`,`strong`
 export default function delEmStrongFac(
     this: Renderer,
-    type: 'del' | 'mark' | 'em' | 'strong',
+    type: 'ins' | 'del' | 'mark' | 'em' | 'strong',
     {
         h,
         cursor,
         block,
         token,
         outerClass,
-    }: ISyntaxRenderOptions & { token: StrongEmToken | DelToken | MarkToken },
+    }: ISyntaxRenderOptions & { token: StrongEmToken | DelToken | MarkToken | InlineDiffToken },
 ) {
     const className = this.getClassName(outerClass, block, token, cursor);
     const COMMON_MARKER = `span.${className}.${CLASS_NAMES.MU_REMOVE}`;
     const { marker } = token;
     const { start, end } = token.range;
+    // Inline diffs close on a mirrored marker of the same width (`{+` → `+}`),
+    // so the closing marker must be measured by `closer`, not `marker`.
+    const closeMarker = token.type === 'inline_diff' ? token.closer : marker;
     const backlashStart
-        = end - marker.length - token.backlash.length;
+        = end - closeMarker.length - token.backlash.length;
     const content: VNode[] = [
         ...token.children.reduce((acc: VNode[], to: Token) => {
             // The original passed a `className` field here too, but receivers
@@ -57,7 +61,7 @@ export default function delEmStrongFac(
         start + marker.length,
         token,
     );
-    const endMarker = this.highlight(h, block, end - marker.length, end, token);
+    const endMarker = this.highlight(h, block, end - closeMarker.length, end, token);
 
     return [
         h(COMMON_MARKER, startMarker),

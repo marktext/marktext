@@ -49,6 +49,7 @@ interface ILexState {
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
     highlightSyntax: boolean;
+    inlineDiff: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -339,6 +340,59 @@ function tryChunks(state: ILexState): boolean {
     }
 
     return false;
+}
+
+// GitLab Flavored Markdown inline diffs: `{+ add +}` / `[+ add +]` (insertion)
+// and `{- del -}` / `[- del -]` (deletion). This runs before the link and
+// reference-link rules so `[+ … +]` binds as a diff rather than a shortcut
+// reference. The body is stored as a single literal text child — GitLab renders
+// the span as plain text, so nested markdown inside it stays literal.
+function tryInlineDiff(state: ILexState): boolean {
+    if (!state.inlineDiff)
+        return false;
+
+    const to = state.inlineRules.inline_diff.exec(state.src);
+    if (!to)
+        return false;
+
+    const [raw, open, sign, content, close] = to;
+    // The opener and closer brackets must pair: `{+ … -]` is not a diff.
+    if (!((open === '{' && close === '}') || (open === '[' && close === ']')))
+        return false;
+
+    pushPending(state);
+    const marker = `${open}${sign}`;
+    const closer = `${sign}${close}`;
+    const range = {
+        start: state.pos,
+        end: state.pos + raw.length,
+    };
+    const children: Token[] = [];
+    children.push({
+        type: 'text',
+        parent: children,
+        raw: content,
+        content,
+        range: {
+            start: range.start + marker.length,
+            end: range.end - closer.length,
+        },
+    });
+    state.tokens.push({
+        type: 'inline_diff',
+        raw,
+        range,
+        marker,
+        closer,
+        kind: sign === '+' ? 'ins' : 'del',
+        parent: state.tokens,
+        children,
+        backlash: '',
+    });
+    state.src = state.src.substring(raw.length);
+    state.pos = state.pos + raw.length;
+
+    return true;
 }
 
 function trySuperSubScript(state: ILexState): boolean {
@@ -789,6 +843,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBacklash,
     tryStrongEm,
     tryChunks,
+    tryInlineDiff,
     trySuperSubScript,
     tryFootnote,
     tryImage,
@@ -805,7 +860,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -826,6 +881,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         texMathSingleBackslash,
         texMathDoubleBackslash,
         highlightSyntax,
+        inlineDiff: inlineDiff ?? false,
     };
 
     if (beginRules && state.pos === 0)
@@ -866,6 +922,7 @@ export function tokenizer(src: string, {
         texMathSingleBackslash: false,
         texMathDoubleBackslash: false,
         highlightSyntax: false,
+        inlineDiff: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(
@@ -912,6 +969,9 @@ function rebuildWrapperToken(token: Token): string {
         case 'del':
         case 'mark':
             return token.marker + generator(token.children, true) + token.backlash + token.marker;
+
+        case 'inline_diff':
+            return token.marker + generator(token.children, true) + token.closer;
 
         case 'html_tag':
             if (token.openTag != null && token.closeTag != null && token.children != null)
@@ -963,6 +1023,7 @@ export function tokensToPlainText(tokens: Token[]): string {
             case 'em':
             case 'del':
             case 'mark':
+            case 'inline_diff':
             case 'link':
             case 'reference_link':
                 result += tokensToPlainText(token.children);
@@ -1037,6 +1098,10 @@ export function tokensToInlineHtml(tokens: Token[]): string {
             case 'del':
             case 'mark':
                 result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
+                break;
+
+            case 'inline_diff':
+                result += `<${token.kind}>${tokensToInlineHtml(token.children)}</${token.kind}>`;
                 break;
 
             case 'inline_code':

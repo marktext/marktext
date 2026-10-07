@@ -1,4 +1,5 @@
 import type { MarkedToken, Tokens } from 'marked';
+import type { IMultilineBlockquoteToken } from './extensions/multilineBlockquote';
 
 export interface ILexOption {
     footnote?: boolean;
@@ -9,6 +10,8 @@ export interface ILexOption {
     frontMatter?: boolean;
     superSubScript?: boolean;
     highlightSyntax?: boolean;
+    inlineDiff?: boolean;
+    multilineBlockquote?: boolean;
 }
 
 export type Heading = Tokens.Heading & {
@@ -55,7 +58,7 @@ export interface IFrontmatterToken {
 
 export interface IBlockEndToken {
     type: 'block-end';
-    tokenType: 'blockquote' | 'list' | 'list-item' | 'footnote';
+    tokenType: 'blockquote' | 'multilineBlockquote' | 'list' | 'list-item' | 'footnote';
 }
 
 // Tokens the lexer (lexBlock) emits. Replace marked's default
@@ -72,7 +75,8 @@ export type TLexedToken
         | ListItemToken
         | IFootnoteToken
         | IMultipleMathToken
-        | IFrontmatterToken;
+        | IFrontmatterToken
+        | IMultilineBlockquoteToken;
 
 // The working token stream `markdownToState` walks: lexer output plus the
 // synthetic `block-end` markers it injects to pop the parent stack.

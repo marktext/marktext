@@ -418,6 +418,8 @@
         "texMathSingleBackslash": "Pandoc'un markdown uzantısı tex_math_single_backslash'i etkinleştir",
         "texMathDoubleBackslash": "Pandoc'un markdown uzantısı tex_math_double_backslash'i etkinleştir",
         "highlightSyntax": "Standart olmayan ==metin== vurgu söz dizimini etkinleştir",
+        "inlineDiff": "Standart olmayan satır içi fark söz dizimini {+ … +} / [- … -] etkinleştir",
+        "multilineBlockquote": "Standart olmayan çok satırlı alıntı söz dizimini >>> … >>> etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -648,6 +650,8 @@
         "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",
         "texMathDoubleBackslash": "Çift ters eğik çizgili TeX matematiği",
         "highlightSyntax": "Vurgu (==metin==)",
+        "inlineDiff": "Satır içi fark ({+ … +})",
+        "multilineBlockquote": "Çok satırlı alıntı (>>>)",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

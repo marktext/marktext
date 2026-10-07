@@ -296,6 +296,16 @@
     "type": "boolean",
     "default": false
   },
+  "inlineDiff": {
+    "description": "Markdown-Enable the non-standard {+ … +} / [- … -] inline diff syntax.",
+    "type": "boolean",
+    "default": false
+  },
+  "multilineBlockquote": {
+    "description": "Markdown-Enable the non-standard >>> … >>> multiline blockquote syntax.",
+    "type": "boolean",
+    "default": false
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

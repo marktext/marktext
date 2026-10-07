@@ -419,6 +419,8 @@
         "texMathSingleBackslash": "Activar la extensión de markdown de pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Activar la extensión de markdown de pandoc tex_math_double_backslash",
         "highlightSyntax": "Habilitar la sintaxis de resaltado no estándar ==texto==",
+        "inlineDiff": "Habilitar la sintaxis de diff en línea no estándar {+ … +} / [- … -]",
+        "multilineBlockquote": "Habilitar la sintaxis de cita de varias líneas no estándar >>> … >>>",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
@@ -648,6 +650,8 @@
         "texMathSingleBackslash": "Matemáticas TeX con barra invertida simple",
         "texMathDoubleBackslash": "Matemáticas TeX con barra invertida doble",
         "highlightSyntax": "Resaltado (==texto==)",
+        "inlineDiff": "Diff en línea ({+ … +})",
+        "multilineBlockquote": "Cita de varias líneas (>>>)",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",

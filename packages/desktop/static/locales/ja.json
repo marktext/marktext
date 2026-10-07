@@ -419,6 +419,8 @@
         "texMathSingleBackslash": "Pandoc の markdown 拡張 tex_math_single_backslash を有効にする",
         "texMathDoubleBackslash": "Pandoc の markdown 拡張 tex_math_double_backslash を有効にする",
         "highlightSyntax": "非標準の ==テキスト== ハイライト構文を有効にする",
+        "inlineDiff": "非標準のインライン差分構文 {+ … +} / [- … -] を有効にする",
+        "multilineBlockquote": "非標準の複数行引用構文 >>> … >>> を有効にする",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -648,6 +650,8 @@
         "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
         "texMathDoubleBackslash": "二重バックスラッシュの TeX 数式",
         "highlightSyntax": "ハイライト (==テキスト==)",
+        "inlineDiff": "インライン差分 ({+ … +})",
+        "multilineBlockquote": "複数行引用 (>>>)",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

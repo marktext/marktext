@@ -197,6 +197,8 @@ const {
   texMathSingleBackslash,
   texMathDoubleBackslash,
   highlightSyntax,
+  inlineDiff,
+  multilineBlockquote,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -606,6 +608,14 @@ watch(texMathDoubleBackslash, (value, oldValue) => {
 
 watch(highlightSyntax, (value, oldValue) => {
   if (value !== oldValue) applyOutlineAffectingOption({ highlightSyntax: value })
+})
+
+watch(inlineDiff, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ inlineDiff: value })
+})
+
+watch(multilineBlockquote, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ multilineBlockquote: value })
 })
 
 watch(softNewlineAsSpace, (value, oldValue) => {
@@ -1778,6 +1788,8 @@ onMounted(() => {
     texMathSingleBackslash: texMathSingleBackslash.value,
     texMathDoubleBackslash: texMathDoubleBackslash.value,
     highlightSyntax: highlightSyntax.value,
+    inlineDiff: inlineDiff.value,
+    multilineBlockquote: multilineBlockquote.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,

@@ -63,6 +63,7 @@ export const FORMAT_TYPES = [
     'em',
     'del',
     'mark',
+    'inline_diff',
     'inline_code',
     'link',
     'image',
@@ -363,6 +364,13 @@ export const MUYA_DEFAULT_OPTIONS = {
     // `\(` carries the parenthesis.
     texMathDoubleBackslash: false,
     highlightSyntax: false,
+    // GitLab Flavored Markdown inline diffs: `{+ … +}` / `[+ … +]` additions
+    // and `{- … -}` / `[- … -]` deletions. Off by default, like the other
+    // non-standard extensions.
+    inlineDiff: false,
+    // GitLab Flavored Markdown multiline blockquotes fenced by `>>>`. Off by
+    // default; a `>>>` fence stays plain nested blockquotes while off.
+    multilineBlockquote: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.
