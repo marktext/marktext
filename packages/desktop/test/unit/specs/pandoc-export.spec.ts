@@ -9,9 +9,12 @@ vi.mock('child_process', () => {
   return { default: { spawn }, spawn }
 })
 
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
 import path from 'path'
 import pandoc, {
   PANDOC_EXPORT_FORMATS,
+  findOnPath,
   formatLinksMedia,
   getPandocLanguage,
   getPandocReader,
@@ -91,6 +94,15 @@ const runToFile = async(
   return { proc, done }
 }
 
+/** Throwaway folders the command-lookup specs put a file in; removed after each one. */
+const lookupFolders: string[] = []
+
+const makeLookupFolder = (): string => {
+  const folder = mkdtempSync(path.join(tmpdir(), 'marktext-pandoc-lookup-'))
+  lookupFolders.push(folder)
+  return folder
+}
+
 describe('pandoc export', () => {
   beforeEach(() => {
     // A real executable, so resolution stops at the override. child_process is
@@ -101,6 +113,9 @@ describe('pandoc export', () => {
   afterEach(() => {
     spawnMock.mockReset()
     delete process.env.MARKTEXT_PANDOC
+    for (const folder of lookupFolders.splice(0)) {
+      rmSync(folder, { recursive: true, force: true })
+    }
   })
 
   // The formats of #2103/#3917 minus OPML, whose writer puts the document in one attribute.
@@ -275,6 +290,23 @@ describe('pandoc export', () => {
       path.join(env.LOCALAPPDATA, 'Pandoc', 'pandoc.exe')
     ])
     expect(pandocLocations('linux', env)).toEqual([])
+  })
+
+  // `resolveCommand` names the bare command when PATH holds it, so the pane needs this to
+  // turn that name into the file it stands for (#2751). `platform` and `env` pin it, rather
+  // than whatever the machine running the suite happens to have installed.
+  it('names the file PATH would run for pandoc', () => {
+    const folder = makeLookupFolder()
+    const binary = path.join(folder, 'pandoc.exe')
+    writeFileSync(binary, '')
+    chmodSync(binary, 0o755)
+    writeFileSync(path.join(folder, 'pandoc.bat'), '')
+
+    expect(findOnPath('pandoc', 'win32', { PATH: folder, PATHEXT: '.exe' })).toBe(binary)
+    // A batch file cannot be spawned without a shell, so it is no path to offer.
+    expect(findOnPath('pandoc', 'win32', { PATH: folder, PATHEXT: '.BAT' })).toBeNull()
+    expect(findOnPath('pandoc', 'win32', { PATH: 'C:\\nowhere' })).toBeNull()
+    expect(findOnPath('pandoc', 'win32', {})).toBeNull()
   })
 
   // The plain-text writers keep `pics/a.png` as a link, so pandoc copies the pictures along.
