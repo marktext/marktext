@@ -18,16 +18,16 @@ test.describe('search and replace', () => {
 
         const result = await page.evaluate(() => {
             const content = document.querySelector('.mu-paragraph-content') as HTMLElement;
+            const bands = Array.from(content.querySelectorAll('.mu-soft-line-break > span'));
             return {
                 breaks: content.querySelectorAll('.mu-soft-line-break').length,
-                bands: content.querySelectorAll(
-                    '.mu-soft-line-break .mu-highlight, .mu-soft-line-break .mu-selection',
-                ).length,
+                bands: bands.length,
                 lines: (content.textContent ?? '').split('\n').length,
+                bandsVisible: bands.every(el => el.getBoundingClientRect().height > 0),
             };
         });
 
-        expect(result).toEqual({ breaks: 2, bands: 2, lines: 3 });
+        expect(result).toEqual({ breaks: 2, bands: 2, lines: 3, bandsVisible: true });
     });
 
     test('a \\n band never wraps a full-width line onto a row of its own (#3261)', async ({ page }) => {

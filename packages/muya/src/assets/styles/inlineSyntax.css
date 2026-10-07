@@ -189,6 +189,10 @@ del.mu-inline-diff-deletion {
     position: absolute;
     inset-inline-start: 0;
     top: 0;
+
+    /* `.mu-selection` is normally inline and takes its height from the line
+       box; blockified by `position: absolute` it would collapse to zero. */
+    height: 1.3em;
 }
 
 /* When softNewlineAsSpace is on, collapse the \n inside a soft break span
