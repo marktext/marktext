@@ -146,9 +146,7 @@ export type MarkToken = IBaseToken & {
 export type InlineDiffToken = IBaseToken & {
     type: 'inline_diff';
     marker: string;
-    closer: string;
-    kind: 'ins' | 'del';
-    children: Token[];
+    content: string;
     backlash: string;
 };
 

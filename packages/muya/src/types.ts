@@ -36,9 +36,7 @@ export interface IMuyaOptions {
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
     highlightSyntax: boolean;
-    // GitLab Flavored Markdown `{+ … +}` / `[- … -]` inline diffs.
     inlineDiff: boolean;
-    // GitLab Flavored Markdown `>>>` … `>>>` fenced blockquotes.
     multilineBlockquote: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;

@@ -475,9 +475,6 @@ export default class ExportMarkdown {
     private _serializeBlockquote(state: IBlockQuoteState, indent: string) {
         const { children, meta } = state;
 
-        // GitLab multiline blockquote: fence the body with `>>>` instead of
-        // prefixing each line with `> `. The children keep their own
-        // indentation, so a fenced quote round-trips losslessly.
         if (meta?.style === 'fenced') {
             const inner = this._convertStatesToMarkdown(children, indent);
             return `${indent}>>>\n${inner}${indent}>>>\n`;

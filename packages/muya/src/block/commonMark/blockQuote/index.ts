@@ -9,9 +9,6 @@ import { ScrollPage } from '../../scrollPage';
 class BlockQuote extends Parent {
     static override blockName = 'block-quote';
 
-    // Set for fenced (GitLab `>>>`) quotes only; plain `>` quotes leave it
-    // undefined. It carries no DOM effect — the block renders the same either
-    // way — and exists purely so `getState` can round-trip the fence.
     private _meta?: IBlockQuoteState['meta'];
 
     static create(muya: Muya, state: IBlockQuoteState) {

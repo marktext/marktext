@@ -1,22 +1,22 @@
 import type { MarkedExtension } from 'marked';
 
-// GitLab Flavored Markdown inline diffs, kept in lockstep with the editor
-// (inlineRenderer/rules.ts `inline_diff`). The opener is `{+`/`[+`/`{-`/`[-`
-// and the closer mirrors it with the same sign; the `\2` back-reference plus
-// the bracket check below reject the mixed `{+ … -]` form GitLab also rejects.
-const RULE = /^([{[])([+-])([^\n]*?)\2([}\]])/;
+// Mirrors the editor's `inline_diff` rule (inlineRenderer/rules.ts): one
+// pattern per delimiter pair, so a mixed `{+ … +]` cannot match.
+const RULES = [
+    /^(\{\+)(?!\s*\+\})([^\n]+?)\+\}/,
+    /^(\[\+)(?!\s*\+\])([^\n]+?)\+\]/,
+    /^(\{-)(?!\s*-\})([^\n]+?)-\}/,
+    /^(\[-)(?!\s*-\])([^\n]+?)-\]/,
+];
 const START = /\{[+-]|\[[+-]/;
 
 interface IInlineDiffToken {
     type: 'inlineDiff';
     raw: string;
+    marker: string;
     text: string;
-    kind: 'ins' | 'del';
 }
 
-// The body is rendered as literal text — GitLab's diff tag is a text-node
-// filter, so nested markdown inside the span does not apply. Escaping here
-// keeps `{+ <b> +}` literal, matching the editor's plain-text rendering.
 function escapeText(value: string): string {
     return value.replace(/[&<>"]/g, (c) => {
         switch (c) {
@@ -39,26 +39,24 @@ export default function inlineDiffExtension(): MarkedExtension {
                     return i === -1 ? undefined : i;
                 },
                 tokenizer(src: string): IInlineDiffToken | undefined {
-                    const match = RULE.exec(src);
+                    const match = RULES.map(rule => rule.exec(src)).find(Boolean);
                     if (!match)
-                        return;
-
-                    const [, open, sign, content, close] = match;
-                    if (!((open === '{' && close === '}') || (open === '[' && close === ']')))
                         return;
 
                     return {
                         type: 'inlineDiff',
                         raw: match[0],
-                        text: content,
-                        kind: sign === '+' ? 'ins' : 'del',
+                        marker: match[1],
+                        text: match[2],
                     };
                 },
                 renderer(token) {
-                    const { kind, text } = token as IInlineDiffToken;
-                    const tag = kind === 'ins' ? 'ins' : 'del';
+                    const { marker, text } = token as IInlineDiffToken;
+                    const addition = marker[1] === '+';
+                    const tag = addition ? 'ins' : 'del';
+                    const variant = addition ? 'addition' : 'deletion';
 
-                    return `<${tag}>${escapeText(text)}</${tag}>`;
+                    return `<${tag} class="idiff ${variant}">${escapeText(text)}</${tag}>`;
                 },
             },
         ],

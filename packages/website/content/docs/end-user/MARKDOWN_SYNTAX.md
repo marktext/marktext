@@ -192,8 +192,8 @@ Renders to:
 GitLab writes tracked additions and deletions with inline diff tags. MarkText
 reads this non-standard syntax when **Preferences → Markdown → Inline diff
 ({+ … +})** is enabled; it stays literal text otherwise, so documents are
-unaffected until you opt in. Additions render as `<ins>` and deletions as
-`<del>`, in the editor and in the HTML/PDF exports.
+unaffected until you opt in. As in GitLab, additions get a green wash and
+deletions a red one, in the editor and in the HTML/PDF exports.
 
 ```markdown
 - {+ addition 1 +}
@@ -211,7 +211,8 @@ Renders to:
 
 The wrapping tags can be either curly braces or square brackets, but the opener
 and closer must match: `{+ … +]` is not recognized. The tagged text is rendered
-literally, so nested markdown and code spans inside the tags are not parsed.
+literally, so nested markdown and code spans inside the tags are not parsed. An
+empty or whitespace-only body (`{++}`) stays literal, as it does for `**`.
 
 <br>
 

@@ -1,10 +1,6 @@
 import type { Lexer, MarkedExtension, Tokens } from 'marked';
 
-// GitLab Flavored Markdown multiline blockquotes, fenced by `>>>` on both ends
-// (GitLab's `BlockquoteFenceFilter` uses `^>>>\ *\n…\n>>>\ *$`). The fence must
-// sit at column 0, so an indented `>>>` stays an indented code block and a
-// fenced code block that merely contains `>>>` is never re-interpreted — those
-// are consumed before this rule runs.
+// GitLab's `BlockquoteFenceFilter` shape: `^>>>\ *\n…\n>>>\ *$`.
 const RULE = /^>>>[ \t]*\n([\s\S]*?)\n>>>[ \t]*(?=\n|$)/;
 
 interface IMultilineBlockquoteTokenizerThis {
@@ -28,8 +24,7 @@ export default function multilineBlockquoteExtension(): MarkedExtension {
                 name: 'multilineBlockquote',
                 level: 'block',
                 start(src: string) {
-                    // Marked calls this with `src.slice(1)` to find where a
-                    // paragraph must stop so the fence below is not swallowed.
+                    // Marked calls this with `src.slice(1)`.
                     const m = /\n>>>[ \t]*(?:\n|$)/.exec(src);
                     return m ? m.index + 1 : undefined;
                 },
@@ -39,9 +34,6 @@ export default function multilineBlockquoteExtension(): MarkedExtension {
                         return;
 
                     const [raw, text] = match;
-                    // Lex the body with the bound lexer so nested content sees
-                    // the same extensions (math, footnotes, …). A bare
-                    // `new Lexer()` would fall back to global defaults.
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IMultilineBlockquoteTokenizerThis;
 

@@ -141,9 +141,6 @@ export class MarkdownToState {
             }
 
             case 'multilineBlockquote': {
-                // Same block tree as a `>` blockquote; the `meta.style` flag
-                // only changes how it serializes back to markdown so a `>>>`
-                // fence round-trips instead of collapsing to `>`.
                 state = {
                     name: 'block-quote' as const,
                     meta: { style: 'fenced' as const },

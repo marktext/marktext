@@ -156,9 +156,7 @@ function clearFormat(token: Token, cursor: IContentCursor) {
 
         case 'em':
 
-        case 'mark':
-
-        case 'inline_diff': {
+        case 'mark': {
             const { parent, children, backlash } = token;
             const index = parent.indexOf(token);
             const replacement: Token[] = [...(children as Token[])];
@@ -207,7 +205,9 @@ function clearFormat(token: Token, cursor: IContentCursor) {
 
         case 'inline_math':
 
-        case 'inline_code': {
+        case 'inline_code':
+
+        case 'inline_diff': {
             const { parent, range } = token;
             const index = parent.indexOf(token);
             const newToken: TextToken = {
@@ -734,6 +734,11 @@ class Format extends Content {
 
     private _convertIfNeeded() {
         const { text } = this;
+        // A run of `>` with nothing else is the prefix of a GitLab `>>>` fence,
+        // so hold off promoting it to a blockquote until the user types more
+        // (a space, or the rest of the quote).
+        const pendingFence
+            = this.muya.options.multilineBlockquote && /^ {0,3}>+$/.test(text);
 
         const [
             match,
@@ -773,7 +778,7 @@ class Format extends Content {
                 this._convertToSetextHeading(setextHeading);
                 break;
 
-            case !!blockquote:
+            case !!blockquote && !pendingFence:
                 this._convertToBlockQuote();
                 break;
 

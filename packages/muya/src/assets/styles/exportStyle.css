@@ -8,6 +8,23 @@
     font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
 }
 
+/* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */
+.markdown-body .idiff.addition {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    background-color: #c7f0d2;
+    border-radius: 2px;
+}
+
+.markdown-body .idiff.deletion {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    background-color: #fac5cd;
+    border-radius: 2px;
+}
+
 @media not print {
     .markdown-body {
         padding: 45px;

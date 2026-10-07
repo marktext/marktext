@@ -75,7 +75,6 @@ const debug = logger('paragraph:content');
 
 const HTML_BLOCK_REG = /^<([a-z\d-]+)(?=\s|>)[^<>]*>$/i;
 const MATH_BLOCK_REG = /^\$\$[ \t]*$/;
-// GitLab multiline-blockquote opener: `>>>` alone on the line.
 const MULTILINE_BLOCKQUOTE_REG = /^>>>[ \t]*$/;
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const TABLE_BLOCK_REG = /^\|.*?(\\*)\|.*?(\\*)\|/;
@@ -412,9 +411,6 @@ class ParagraphContent extends Format {
             }
 
             case 'multiline-blockquote': {
-                // GitLab's `>>>` fence, typed alone on a line, opens a fenced
-                // blockquote holding a single empty paragraph. The `meta.style`
-                // keeps the fence when the document is exported to markdown.
                 const state: IBlockQuoteState = {
                     name: 'block-quote',
                     meta: { style: 'fenced' },
@@ -459,8 +455,6 @@ class ParagraphContent extends Format {
                 break;
 
             default: {
-                // Splitting a fenced (`>>>`) quote in the middle keeps the
-                // fence on both halves, so neither silently downgrades to `>`.
                 const quoteState = blockQuote!.getState();
                 const fenced = isBlockQuoteState(quoteState)
                     && quoteState.meta?.style === 'fenced';

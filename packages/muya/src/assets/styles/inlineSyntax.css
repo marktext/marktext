@@ -75,6 +75,25 @@ code.mu-inline-rule {
     border-radius: 3px;
 }
 
+/* GitLab inline diff, matching GitLab's own `.idiff` rendering: a coloured
+   wash instead of underline / strikethrough. `mu-inline-diff-*` keeps GFM
+   `~~del~~` (also a plain `del.mu-inline-rule`) unaffected. */
+ins.mu-inline-diff-addition,
+del.mu-inline-diff-deletion {
+    color: #1f1f1f;
+    text-decoration: none;
+
+    border-radius: 2px;
+}
+
+ins.mu-inline-diff-addition {
+    background-color: var(--code-new-inline-diff-background-color);
+}
+
+del.mu-inline-diff-deletion {
+    background-color: var(--code-old-inline-diff-background-color);
+}
+
 /* emoji */
 .mu-emoji-marked-text {
     position: relative;

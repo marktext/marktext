@@ -267,7 +267,7 @@ function tryStrongEm(state: ILexState): boolean {
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
@@ -276,8 +276,13 @@ function tryChunks(state: ILexState): boolean {
             continue;
         if (rule === 'mark' && !state.highlightSyntax)
             continue;
+        if (rule === 'inline_diff' && !state.inlineDiff)
+            continue;
 
-        const to = state.inlineRules[rule].exec(state.src);
+        const ruleValue = state.inlineRules[rule];
+        const to = Array.isArray(ruleValue)
+            ? ruleValue.map(rule => rule.exec(state.src)).find(Boolean)
+            : ruleValue.exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
                 // An emoji opener must sit at a word boundary: a ":" glued to a
@@ -302,6 +307,7 @@ function tryChunks(state: ILexState): boolean {
                 || rule === 'emoji'
                 || rule === 'inline_math'
                 || rule === 'inline_math_gfm'
+                || rule === 'inline_diff'
             ) {
                 state.tokens.push({
                     type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
@@ -340,59 +346,6 @@ function tryChunks(state: ILexState): boolean {
     }
 
     return false;
-}
-
-// GitLab Flavored Markdown inline diffs: `{+ add +}` / `[+ add +]` (insertion)
-// and `{- del -}` / `[- del -]` (deletion). This runs before the link and
-// reference-link rules so `[+ … +]` binds as a diff rather than a shortcut
-// reference. The body is stored as a single literal text child — GitLab renders
-// the span as plain text, so nested markdown inside it stays literal.
-function tryInlineDiff(state: ILexState): boolean {
-    if (!state.inlineDiff)
-        return false;
-
-    const to = state.inlineRules.inline_diff.exec(state.src);
-    if (!to)
-        return false;
-
-    const [raw, open, sign, content, close] = to;
-    // The opener and closer brackets must pair: `{+ … -]` is not a diff.
-    if (!((open === '{' && close === '}') || (open === '[' && close === ']')))
-        return false;
-
-    pushPending(state);
-    const marker = `${open}${sign}`;
-    const closer = `${sign}${close}`;
-    const range = {
-        start: state.pos,
-        end: state.pos + raw.length,
-    };
-    const children: Token[] = [];
-    children.push({
-        type: 'text',
-        parent: children,
-        raw: content,
-        content,
-        range: {
-            start: range.start + marker.length,
-            end: range.end - closer.length,
-        },
-    });
-    state.tokens.push({
-        type: 'inline_diff',
-        raw,
-        range,
-        marker,
-        closer,
-        kind: sign === '+' ? 'ins' : 'del',
-        parent: state.tokens,
-        children,
-        backlash: '',
-    });
-    state.src = state.src.substring(raw.length);
-    state.pos = state.pos + raw.length;
-
-    return true;
 }
 
 function trySuperSubScript(state: ILexState): boolean {
@@ -843,7 +796,6 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
     tryBacklash,
     tryStrongEm,
     tryChunks,
-    tryInlineDiff,
     trySuperSubScript,
     tryFootnote,
     tryImage,
@@ -970,9 +922,6 @@ function rebuildWrapperToken(token: Token): string {
         case 'mark':
             return token.marker + generator(token.children, true) + token.backlash + token.marker;
 
-        case 'inline_diff':
-            return token.marker + generator(token.children, true) + token.closer;
-
         case 'html_tag':
             if (token.openTag != null && token.closeTag != null && token.children != null)
                 return token.openTag + generator(token.children, true) + token.closeTag;
@@ -1009,6 +958,7 @@ export function tokensToPlainText(tokens: Token[]): string {
         switch (token.type) {
             case 'text':
             case 'inline_code':
+            case 'inline_diff':
             case 'inline_math':
             case 'super_sub_script':
             case 'footnote_identifier':
@@ -1023,7 +973,6 @@ export function tokensToPlainText(tokens: Token[]): string {
             case 'em':
             case 'del':
             case 'mark':
-            case 'inline_diff':
             case 'link':
             case 'reference_link':
                 result += tokensToPlainText(token.children);
@@ -1081,6 +1030,14 @@ function emojiDisplayText(token: CodeEmojiMathToken): string {
     return validEmoji(token.content)?.emoji ?? token.raw;
 }
 
+function inlineDiffHtml(marker: string, content: string): string {
+    const addition = marker[1] === '+';
+    const tag = addition ? 'ins' : 'del';
+    const variant = addition ? 'addition' : 'deletion';
+
+    return `<${tag} class="idiff ${variant}">${escapeHTML(content)}</${tag}>`;
+}
+
 // HTML twin of `tokensToPlainText`, for the outline. Must keep the same text
 // content as its plain counterpart so the shown heading and its slug stay in
 // step, which is why links, images and math stay flattened to text.
@@ -1101,7 +1058,7 @@ export function tokensToInlineHtml(tokens: Token[]): string {
                 break;
 
             case 'inline_diff':
-                result += `<${token.kind}>${tokensToInlineHtml(token.children)}</${token.kind}>`;
+                result += inlineDiffHtml(token.marker, token.content);
                 break;
 
             case 'inline_code':

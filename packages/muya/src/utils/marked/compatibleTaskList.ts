@@ -216,8 +216,6 @@ function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) 
             results.push(token);
         }
         else if (token.type === 'multilineBlockquote') {
-            // Same as `blockquote`: the fence's body lives under `tokens`, and
-            // a nested list there needs its `listType` classified too.
             const bq = token as { tokens?: (Token | ListToken | ListItemToken)[] };
             bq.tokens = compatibleTaskList(bq.tokens);
             results.push(token);

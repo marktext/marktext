@@ -2,6 +2,7 @@
 
 import type { Muya as MuyaType } from '../../../../muya';
 import type Content from '../../../base/content';
+import type Format from '../../../base/format';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../../muya';
 
@@ -46,6 +47,13 @@ function typeAndEnter(muya: MuyaType, content: Content, text: string): void {
     } as unknown as KeyboardEvent);
 }
 
+function typeInto(muya: MuyaType, content: Content, text: string): void {
+    muya.editor.activeContentBlock = content;
+    content.text = text;
+    content.update();
+    (content as unknown as Format).checkInlineUpdate();
+}
+
 function flush(): Promise<void> {
     return new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 }
@@ -68,5 +76,31 @@ describe('enter on `>>>` — opens a fenced blockquote', () => {
         await flush();
 
         expect(muya.getState()[0].name).toBe('paragraph');
+    });
+});
+
+describe('typing a `>` run — a GitLab fence is not stolen by the blockquote rule', () => {
+    it('stays a paragraph while multilineBlockquote is on', async () => {
+        const muya = bootMuya('', true);
+        typeInto(muya, firstContent(muya), '>>>');
+        await flush();
+
+        expect(muya.getState()[0].name).toBe('paragraph');
+    });
+
+    it('still promotes a normal `> text` quote while the option is on', async () => {
+        const muya = bootMuya('', true);
+        typeInto(muya, firstContent(muya), '> quoted');
+        await flush();
+
+        expect(muya.getState()[0].name).toBe('block-quote');
+    });
+
+    it('promotes `>>` to a nested quote while the option is off', async () => {
+        const muya = bootMuya('', false);
+        typeInto(muya, firstContent(muya), '>>');
+        await flush();
+
+        expect(muya.getState()[0].name).toBe('block-quote');
     });
 });

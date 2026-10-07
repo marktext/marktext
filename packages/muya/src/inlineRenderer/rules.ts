@@ -104,12 +104,16 @@ export const inlineExtensionRules = {
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     mark: /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/,
-    // GitLab Flavored Markdown inline diffs. The opener is `{+`/`[+`/`{-`/`[-`
-    // and the closer mirrors it with the same sign, so `{+ … -]` never matches:
-    // the sign is back-referenced and the bracket pairing is checked in
-    // `tryInlineDiff` (the group can hold either bracket). Content is taken
-    // literally — GitLab renders it as plain text, not nested markdown.
-    inline_diff: /^([{[])([+-])([^\n]*?)\2([}\]])/,
+    // One pattern per valid GitLab inline-diff delimiter pair, so the opener
+    // and closer can only match as a pair — JS regex has no branch-reset groups
+    // to back-reference `{` to `}`. The lookahead rejects an empty or
+    // whitespace-only body, so `{++}` stays literal the way `**` does.
+    inline_diff: [
+        /^(\{\+)(?!\s*\+\})([^\n]+?)\+\}/,
+        /^(\[\+)(?!\s*\+\])([^\n]+?)\+\]/,
+        /^(\{-)(?!\s*-\})([^\n]+?)-\}/,
+        /^(\[-)(?!\s*-\])([^\n]+?)-\]/,
+    ],
     footnote_identifier: /^(\[\^)([^^[\]\s]+)(?<!\\)\]/,
 };
 
@@ -141,6 +145,7 @@ const EXCLUDE_KEYS = [
     'superscript',
     'subscript',
     'footnote_identifier',
+    'inline_diff',
 ] as const;
 
 type InlineRuleKeys = keyof InlineRules;
