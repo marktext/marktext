@@ -4,7 +4,7 @@ import type { MarkToken } from '../types';
 import { describe, expect, it } from 'vitest';
 import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
-import { tokenizer } from '../lexer';
+import { generator, tokenizer } from '../lexer';
 
 // `==text==` highlight (marktext/marktext#2552). The extension is off by
 // default; when on, the editor lexer, the HTML/PDF export path and the
@@ -67,6 +67,23 @@ describe('mark syntax — editor lexer', () => {
     it('does not claim a code span', () => {
         expect(types('`==x==`')).toEqual(['inline_code']);
     });
+
+    it('keeps an even backslash run inside the span', () => {
+        // Source `==a\\==`: `\\` escapes to a single visible backslash, and it
+        // has to survive a source-preserving rebuild (`generator`).
+        const src = '==a\\\\==';
+        const tokens = tokenizer(src, { hasBeginRules: false, options: OPTIONS });
+        const mark = tokens[0] as MarkToken;
+
+        expect(tokens.map(token => token.type)).toEqual(['mark']);
+        expect(mark.backlash).toBe('\\\\');
+        expect(generator(tokens, true)).toBe(src);
+    });
+
+    it('treats an odd backslash run as an escaped closer (literal text)', () => {
+        // Source `==a\==`: the lone `\` escapes the closer, so no highlight.
+        expect(types('==a\\==')).toEqual(['text']);
+    });
 });
 
 describe('mark syntax — HTML export', () => {
@@ -92,5 +109,17 @@ describe('mark syntax — HTML export', () => {
         expect(getClipBoardHtml('==hi==', { highlightSyntax: true })).toBe(
             '<p><mark>hi</mark></p>\n',
         );
+    });
+
+    it('renders the escaped backslash inside <mark> for an even run', () => {
+        // `\\` is one literal backslash once escaped, matching the editor.
+        expect(getHighlightHtml('==a\\\\==', { highlightSyntax: true })).toBe(
+            '<p><mark>a\\</mark></p>\n',
+        );
+    });
+
+    it('leaves an oddly-escaped closer as literal text, as the editor does', () => {
+        const html = getHighlightHtml('==a\\==', { highlightSyntax: true });
+        expect(html).not.toContain('<mark>');
     });
 });

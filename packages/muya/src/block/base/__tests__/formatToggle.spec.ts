@@ -155,6 +155,15 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
         expect(content.text).toBe('word');
     });
 
+    it('mark (== syntax): unwrapping keeps the trailing backslash run', () => {
+        const content = caretInFirstBlock(
+            bootMuya('==a\\\\==\n', { highlightSyntax: true }),
+            2,
+        );
+        content.format('mark');
+        expect(content.text).toBe('a\\\\');
+    });
+
     it('sup (html_tag): `<sup>word</sup>` removes the superscript tags', () => {
         // `format('sup')` matches the html_tag token whose tag === 'sup'.
         const content = caretInFirstBlock(bootMuya('<sup>word</sup>\n'), 2);
@@ -206,6 +215,18 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
         await vi.waitFor(() => {
             expect(muya.getMarkdown()).toContain('**abc**');
         });
+    });
+
+    it('applying bold elsewhere keeps a highlight\'s trailing backslash run', () => {
+        // `format()` rebuilds the whole block from tokens, so an unwrapped
+        // `mark` token must re-emit its `backlash` or the source loses it.
+        const content = selectInFirstBlock(
+            bootMuya('==a\\\\== b\n', { highlightSyntax: true }),
+            8,
+            9,
+        );
+        content.format('strong');
+        expect(content.text).toBe('==a\\\\== **b**');
     });
 
     it('em: selecting `abc` and applying wraps it in `*…*`', async () => {
