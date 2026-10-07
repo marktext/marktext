@@ -49,12 +49,9 @@ export default function highlight(
     return result;
 }
 
-// A search match on a line break can't be wrapped like ordinary text: the `\n`
-// must stay a bare text node so the line still breaks, and a background on an
-// inline box whose only content is a forced break paints nothing. So the match
-// renders as an empty inline box placed just before the break — the highlight
-// classes give it width, height and a background, the end-of-line band a `\n`
-// find should show.
+// Empty and out of flow: the `\n` has to stay raw text or the line stops
+// breaking, and a background on a box whose only content is a break paints
+// nothing, so the band is drawn by the box itself (see the line-break CSS).
 export function lineBreakHighlights(
     this: Renderer,
     h: H,

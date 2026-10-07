@@ -93,9 +93,6 @@ describe('search.search()', () => {
     });
 });
 
-// A regexp `\n` match lands on a soft/hard line-break token, whose renderer has
-// to keep the `\n` as bare text so the line still breaks (#3261). The match is
-// drawn as an empty highlight band just before the break.
 describe('search.search() — regexp \\n matches on line breaks', () => {
     it('bands every soft line break and keeps the lines split', () => {
         const muya = bootMuya('line one\nline two\nline three\n');
@@ -110,8 +107,6 @@ describe('search.search() — regexp \\n matches on line breaks', () => {
 
         const breaks = muya.domNode.querySelectorAll('span.mu-soft-line-break');
         expect(breaks.length).toBe(2);
-        // The `\n` survives as a text node inside each break span; without it
-        // the three source lines would collapse onto one.
         expect(Array.from(breaks).every(el => el.textContent === '\n')).toBe(true);
         expect((muya.domNode.textContent ?? '').split('\n').length).toBe(3);
     });

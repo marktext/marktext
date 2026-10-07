@@ -172,6 +172,25 @@ del.mu-inline-diff-deletion {
     display: block;
 }
 
+/* The search band for a line break is an empty box drawn just before the break.
+   Out of flow: in flow its ~4px width wraps a full line onto its own row. */
+.mu-soft-line-break,
+.mu-hard-line-break,
+.mu-line-end {
+    position: relative;
+}
+
+.mu-soft-line-break > .mu-highlight,
+.mu-soft-line-break > .mu-selection,
+.mu-hard-line-break > .mu-highlight,
+.mu-hard-line-break > .mu-selection,
+.mu-line-end > .mu-highlight,
+.mu-line-end > .mu-selection {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+}
+
 /* When softNewlineAsSpace is on, collapse the \n inside a soft break span
    to a space. white-space: normal inside a pre-wrap block causes the inner
    span to ignore the parent's pre-wrap, collapsing the newline to a space. */

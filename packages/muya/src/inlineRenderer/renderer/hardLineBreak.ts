@@ -20,14 +20,13 @@ export default function hardLineBreak(
     if (isAtEnd) {
         return [
             h(`span.${className}`, h(`span.${spaceClass}`, spaces)),
-            ...bands,
-            h(`span.${CLASS_NAMES.MU_LINE_END}`, lineBreak),
+            h(`span.${CLASS_NAMES.MU_LINE_END}`, bands.length ? [...bands, lineBreak] : lineBreak),
         ];
     }
     else {
         return [
             h(`span.${className}`, bands.length
-                ? [h(`span.${spaceClass}`, spaces), ...bands, lineBreak]
+                ? [...bands, h(`span.${spaceClass}`, spaces), lineBreak]
                 : [h(`span.${spaceClass}`, spaces), lineBreak]),
         ];
     }
