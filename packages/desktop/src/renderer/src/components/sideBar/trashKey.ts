@@ -25,33 +25,25 @@ export const isEditableTarget = (target: EventTarget | null): boolean => {
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable === true
 }
 
-// Cmd fires a `Meta` keydown before Backspace; it is part of the chord, not typing.
-const MODIFIER_KEYS = new Set(['Meta', 'Shift', 'Control', 'Alt', 'CapsLock'])
-
-export const isModifierKey = (key: string): boolean => MODIFIER_KEYS.has(key)
-
 // Tree rows own the selection; the new-file input belongs to the row that spawned it.
 const SELECTION_OWNERS = '.side-bar-file, .side-bar-folder, .new-input'
 
 export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
-  const el = target as { closest?: (selector: string) => unknown } | null
-  if (!el || typeof el.closest !== 'function') return false
-  return !!el.closest(SELECTION_OWNERS)
+  if (!target) return false
+  return !!(target as Element)?.closest?.(SELECTION_OWNERS)
 }
 
 export const isInsideTreeScope = (target: EventTarget | null): boolean => {
-  const el = target as { closest?: (selector: string) => unknown } | null
-  if (!el || typeof el.closest !== 'function') return false
-  return !!el.closest('.tree-wrapper')
+  if (!target) return false
+  return !!(target as Element)?.closest?.('.tree-wrapper')
 }
 
 // Clicks inside these must not drop their own target, or the input unmounts mid-edit.
 const NAME_INPUTS = 'input.rename, input.new-input'
 
 export const isNameInput = (target: EventTarget | null): boolean => {
-  const el = target as { closest?: (selector: string) => unknown } | null
-  if (!el || typeof el.closest !== 'function') return false
-  return !!el.closest(NAME_INPUTS)
+  if (!target) return false
+  return !!(target as Element)?.closest?.(NAME_INPUTS)
 }
 
 export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): boolean => {

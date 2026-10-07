@@ -52,7 +52,6 @@ const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { currentFile, tabs } = storeToRefs(editorStore)
 
-// from fileMixins
 const handleFileClick = (event: MouseEvent): void => {
   // Select before the open-file branch runs, so non-markdown rows select too.
   projectStore.CHANGE_ACTIVE_ITEM(props.file)

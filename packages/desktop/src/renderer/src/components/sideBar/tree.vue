@@ -165,8 +165,8 @@ import { usePreferencesStore } from '@/store/preferences'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
-import bus from '../../bus'
-import { showContextMenu } from '../../contextMenu/sideBar'
+import bus from '../../bus/index.js'
+import { showContextMenu } from '../../contextMenu/sideBar/index.js'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
@@ -174,13 +174,12 @@ import { isMac } from '@/util'
 import {
   isEditableTarget,
   isInsideTreeScope,
-  isModifierKey,
   isNameInput,
   keepsSidebarSelection,
   shouldTrashSelection
-} from './trashKey'
-import { shouldRenameSelection } from './renameKey'
-import type { TreeNode, TabDescriptor } from './types'
+} from './trashKey.js'
+import { shouldRenameSelection } from './renameKey.js'
+import type { TreeNode, TabDescriptor } from './types.js'
 
 const { t } = useI18n()
 
@@ -314,9 +313,8 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
 
   if (key === 'Escape') {
     projectStore.CLEAR_NAME_INPUT_STATE()
+    projectStore.CHANGE_ACTIVE_ITEM({})
   }
-
-  if (isNameInput(target) && key !== 'Escape') return
 
   const isEditingName = !!renameCache.value || !!createCacheDirname.value
   const shouldRename = shouldRenameSelection({
@@ -330,8 +328,7 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
   if (shouldRename) {
     event.preventDefault()
     event.stopPropagation()
-    bus.emit('SIDEBAR::rename')
-    return
+    return bus.emit('SIDEBAR::rename')
   }
 
   const shouldTrash = shouldTrashSelection({
@@ -346,19 +343,8 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
   })
   if (shouldTrash) {
     event.preventDefault()
-    // Stop the event so the WYSIWYG engine does not also act on this Delete.
     event.stopPropagation()
-    // The store drops the selection once the item is really trashed, so a
-    // cancelled dialog leaves the target in place for a retry.
-    bus.emit('SIDEBAR::remove')
-    return
-  }
-
-  // Any other key ends the selection, so a later Delete edits text instead of
-  // trashing a stale node.
-  const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
-  if (!isModifierKey(key) && hasSelection) {
-    projectStore.CHANGE_ACTIVE_ITEM({})
+    return bus.emit('SIDEBAR::remove')
   }
 }
 
@@ -559,8 +545,6 @@ onUnmounted(() => {
 .tree-wrapper {
   position: relative;
 }
-/* VS Code's list.focusOutline / inactiveSelection: ring while focused, dim the
-   selection once focus moves away. */
 .tree-wrapper:focus-visible {
   outline: none;
 }

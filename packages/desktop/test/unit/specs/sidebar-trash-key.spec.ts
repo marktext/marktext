@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   isInsideTreeScope,
-  isModifierKey,
   isNameInput,
   isPathWithinRoot,
   isTrashShortcut,
@@ -31,13 +30,6 @@ describe('sidebar trash keyboard rules', () => {
     expect(isTrashShortcut('Backspace', true, false)).toBe(false)
     expect(isTrashShortcut('Backspace', false, true)).toBe(false)
     expect(isTrashShortcut('Backspace', false, false)).toBe(false)
-  })
-
-  it('does not treat the Meta keydown of a chord as typing', () => {
-    expect(isModifierKey('Meta')).toBe(true)
-    expect(isModifierKey('Control')).toBe(true)
-    expect(isModifierKey('Backspace')).toBe(false)
-    expect(isModifierKey('a')).toBe(false)
   })
 
   it('keeps the selection on tree rows and the new-file input only', () => {
