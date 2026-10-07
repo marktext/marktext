@@ -17,7 +17,7 @@ export interface IMultilineBlockquoteToken {
     tokens: Tokens.Generic[];
 }
 
-export default function multilineBlockquoteExtension(): MarkedExtension {
+export default function multilineBlockquoteExtension(enabled: boolean): MarkedExtension {
     return {
         extensions: [
             {
@@ -28,7 +28,7 @@ export default function multilineBlockquoteExtension(): MarkedExtension {
                     const m = /\n>>>[ \t]*(?:\n|$)/.exec(src);
                     return m ? m.index + 1 : undefined;
                 },
-                tokenizer(src: string): IMultilineBlockquoteToken | undefined {
+                tokenizer(src: string): Tokens.Generic | undefined {
                     const match = RULE.exec(src);
                     if (!match)
                         return;
@@ -36,6 +36,18 @@ export default function multilineBlockquoteExtension(): MarkedExtension {
                     const [raw, text] = match;
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IMultilineBlockquoteTokenizerThis;
+
+                    // With the preference off the fence is kept verbatim rather
+                    // than left to CommonMark's nested-blockquote reading, so it
+                    // round-trips and turning the preference on can pick it up.
+                    if (!enabled) {
+                        return {
+                            type: 'paragraph',
+                            raw,
+                            text: raw,
+                            tokens: lexer.inlineTokens(raw),
+                        };
+                    }
 
                     return {
                         type: 'multilineBlockquote',

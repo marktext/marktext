@@ -365,9 +365,9 @@ Renders to:
 GitLab fences a multi-line quote with `>>>` on its own line at both ends, so you
 do not have to prepend `>` to every line. MarkText reads this non-standard
 syntax when **Preferences → Markdown → Multiline blockquote (>>>)** is enabled;
-with the setting off the fence is parsed as nested `>` quotes instead. The quote
-renders like any other blockquote, and the `>>>` fence is kept verbatim when the
-document is saved or exported to markdown.
+with the setting off the fence stays literal text, so a document keeps its `>>>`
+lines until you opt in. The quote renders like any other blockquote, and the
+`>>>` fence is kept verbatim when the document is saved or exported to markdown.
 
 <!-- prettier-ignore -->
 ```markdown

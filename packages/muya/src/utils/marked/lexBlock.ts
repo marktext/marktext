@@ -62,9 +62,7 @@ export function lexBlock(
         m.use(footnoteExtension());
     }
 
-    if (multilineBlockquote) {
-        m.use(multilineBlockquoteExtension());
-    }
+    m.use(multilineBlockquoteExtension(multilineBlockquote === true));
 
     if (frontMatter) {
         const { token, src: newSrc } = fm(src);

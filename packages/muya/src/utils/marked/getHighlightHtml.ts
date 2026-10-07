@@ -105,8 +105,7 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     if (inlineDiff)
         marked.use(inlineDiffExtension());
 
-    if (multilineBlockquote)
-        marked.use(multilineBlockquoteExtension());
+    marked.use(multilineBlockquoteExtension(multilineBlockquote === true));
 
     if (footnote)
         marked.use(footnoteExtension());

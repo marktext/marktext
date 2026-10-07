@@ -70,10 +70,22 @@ describe('multiline blockquote — parse and serialize', () => {
         expect(roundTrip(task)).toBe(task);
     });
 
-    it('stays a plain block-quote when the option is off', () => {
+    it('keeps the fence as literal text when the option is off', () => {
         const states = toState(MD, false);
-        expect(states[0].name).toBe('block-quote');
-        expect(states[0]).not.toHaveProperty('meta');
+        expect(states).toHaveLength(1);
+        expect(states[0]).toMatchObject({ name: 'paragraph', text: '>>>\nline one\n\nline two\n>>>' });
+        expect(new ExportMarkdown({ listIndentation: 1 }).generate(states)).toBe(MD);
+    });
+
+    it('recognises a fence on an off → on live toggle', () => {
+        // Loaded with the preference off, the fence survives as literal text…
+        const off = bootMuya(MD, false);
+        expect(off.getMarkdown()).toBe(MD);
+
+        // …so flipping it on re-parses that text into a fenced block-quote.
+        off.setOptions({ multilineBlockquote: true }, true);
+        expect(off.getState()[0].name).toBe('block-quote');
+        expect(off.getMarkdown()).toBe(MD);
     });
 
     it('preserves the fence through an editor round-trip', () => {
@@ -91,9 +103,9 @@ describe('multiline blockquote — HTML export', () => {
         );
     });
 
-    it('falls back to nested blockquotes when disabled', () => {
-        const html = getHighlightHtml(MD, { multilineBlockquote: false });
-        // `>>>` is three nested `>` markers when the extension is off.
-        expect(html).toContain('<blockquote>\n<blockquote>\n<blockquote>');
+    it('keeps the fence literal when disabled', () => {
+        expect(getHighlightHtml(MD, { multilineBlockquote: false })).toBe(
+            '<p>&gt;&gt;&gt;\nline one\n\nline two\n&gt;&gt;&gt;</p>\n',
+        );
     });
 });
