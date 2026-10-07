@@ -565,10 +565,8 @@ watch(frontmatterType, (value, oldValue) => {
   }
 })
 
-// `setOptions(..., true)` re-renders headings in place without emitting a
-// `json-change`, so the outline would otherwise keep the parse from before the
-// toggle. Re-seed it after any option that changes how a heading's inline
-// markdown is tokenized (#3110).
+// `setOptions(..., true)` re-renders headings in place without emitting
+// `json-change`, so nothing else refreshes the outline after a toggle.
 const applyOutlineAffectingOption = (options: Partial<IMuyaOptions>): void => {
   const muya = editor.value
   if (!muya) return

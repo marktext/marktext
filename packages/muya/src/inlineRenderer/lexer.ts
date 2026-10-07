@@ -1015,23 +1015,14 @@ export function tokensToPlainText(tokens: Token[]): string {
     return result;
 }
 
-// The glyph a reader sees for an emoji token: the shortcode's emoji when the
-// alias is known, else the raw `:code:` — which is what the editor shows for an
-// unknown alias too. Shared by both serializers so a heading's visible text is
-// identical whether it is rendered plain (`tokensToPlainText`) or to HTML.
+// Unknown shortcodes fall back to the raw `:code:`, matching the editor.
 function emojiDisplayText(token: CodeEmojiMathToken): string {
     return validEmoji(token.content)?.emoji ?? token.raw;
 }
 
-// The TOC's display form of the same tokens: reader-facing text carrying the
-// emphasis / code / emoji styling the editor shows, as an HTML string. Mirrors
-// `tokensToPlainText` case for case so `tokensToInlineHtml(tokens)` always has
-// the same `textContent` as `tokensToPlainText(tokens)` — the TOC relies on
-// that to keep the slug, the outline key and the shown text in step.
-//
-// Links and images flatten to their label / alt text (a TOC row is already a
-// click-to-scroll control, so an inner `<a>` or `<img>` would fight it), and
-// math keeps its source text (the outline does not run KaTeX).
+// HTML twin of `tokensToPlainText`, for the outline. Must keep the same text
+// content as its plain counterpart so the shown heading and its slug stay in
+// step, which is why links, images and math stay flattened to text.
 export function tokensToInlineHtml(tokens: Token[]): string {
     let result = '';
 
@@ -1105,8 +1096,6 @@ export function tokensToInlineHtml(tokens: Token[]): string {
                 result += ' ';
                 break;
 
-            // Begin markers, the reference-definition line and an atx heading's
-            // tail `#`s carry no reader-facing text.
             default:
                 break;
         }

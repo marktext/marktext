@@ -123,8 +123,7 @@ describe('muya.getTOC()', () => {
     });
 
     it('keeps `contentHtml` textContent equal to `content`', () => {
-        // The TOC shows `contentHtml` but slugs `content`; if they ever disagree
-        // the anchor / outline key drifts from what the reader sees (#3110).
+        // The outline key and slug derive from `content`, so it must not diverge.
         const samples = [
             '## **bold** and [link](https://example.com)',
             '## ![Logo](https://example.com/logo.png) Title',
@@ -142,9 +141,8 @@ describe('muya.getTOC()', () => {
     });
 
     it('renders an emoji shortcode as its glyph and slugs the rendered text (#3110)', () => {
-        // The editor and the HTML export both show `🆗` for `:ok:`, so the TOC
-        // must too — and slug the same visible text so `#done`-style anchors
-        // resolve against the export's injected heading id.
+        // The export slugs the same rendered text, so the TOC must show the
+        // glyph rather than the shortcode to keep their anchor ids aligned.
         const muya = bootMuya('## :ok: Done');
         const toc = muya.getTOC();
         expect(toc[0].content).toBe('🆗 Done');

@@ -41,8 +41,6 @@ class Node<T extends ListItem> implements TreeNode<T> {
     this.parent = parent
     this.lvl = lvl
     this.label = content
-    // The engine's inline-rendered heading HTML, for the outline panel to show
-    // emphasis / code / emoji instead of plain text (#3110).
     this.labelHtml = contentHtml
     this.slug = slug
     // Carried through for the TOC: a content-derived id that, unlike `slug`

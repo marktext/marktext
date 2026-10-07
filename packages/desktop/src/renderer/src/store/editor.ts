@@ -1471,15 +1471,12 @@ export const useEditorStore = defineStore('editor', {
     },
 
     /**
-     * Re-seeds the table of contents after a preference change that alters how
-     * the engine renders headings (superscript/subscript, highlight, math,
-     * footnotes). `setOptions(..., true)` re-renders in place without emitting
-     * `json-change`, so no content-change path refreshes the outline.
+     * Re-seeds the table of contents after a preference change. `setOptions` on
+     * a render-affecting option re-renders in place without emitting
+     * `json-change`, so nothing else would refresh the outline.
      *
-     * Unlike {@link UPDATE_TOC} this keeps `activeHeadingSlug`: a preference
-     * toggle does not move the caret, and render-only options leave the heading
-     * blocks (and their stable slugs) in place so the highlight still resolves.
-     * @param toc Flat list of headings returned by `muya.getTOC()`.
+     * Keeps `activeHeadingSlug`: unlike UPDATE_TOC, a preference toggle does
+     * not replace the document.
      */
     REFRESH_TOC(toc: TocItem[]): void {
       this.listToc = toc ?? []

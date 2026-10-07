@@ -2,13 +2,6 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
-// #3110 — the outline panel renders each heading's inline markdown (emphasis,
-// code, emoji) instead of showing marker text, while links and images flatten
-// to their label / alt so an outline row stays a plain click-to-scroll control.
-//
-// Flow under test: engine `getTOC()` -> `contentHtml` (tokensToInlineHtml) ->
-// LISTEN_FOR_CONTENT_CHANGE -> listToTree labelHtml -> toc.vue scoped slot.
-
 const DOC = [
   '# **Bold** and *italic*',
   '',
@@ -74,9 +67,7 @@ test.describe('TOC renders inline markdown', () => {
     expect(rendered.strong).toEqual(['Bold'])
     expect(rendered.em).toEqual(['italic'])
     expect(rendered.code).toEqual(['code'])
-    // Emoji shortcodes render as their glyph, not the raw `:ok:`.
     expect(rendered.emojiHtml).toContain('🆗')
-    // Links and images flatten to text — no interactive / image nodes leak in.
     expect(rendered.flattened).toBe('a link and alt')
     expect(rendered.anchors).toBe(0)
     expect(rendered.images).toBe(0)

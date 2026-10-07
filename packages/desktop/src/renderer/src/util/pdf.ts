@@ -171,8 +171,6 @@ const generateHtmlToc = (
   const shifted = tocList.shift() as TocEntry
   const { content, contentHtml, lvl, slug } = shifted
 
-  // Prefer the engine's inline-rendered heading HTML (#3110); fall back to the
-  // plain text for callers that only supply `content`.
   const label = contentHtml ?? content
   let html = `<li><span><a class="toc-h${lvl}" href="#${slug}">${label}</a><span class="dots"></span></span>`
 

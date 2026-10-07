@@ -48,14 +48,9 @@ export function getTOC(muya: Muya): ITocItem[] {
             ? text.trim()
             : text.replace(/^\s*#{1,6}\s+/, '').trim();
 
-        // Tokenize the heading source once and derive both serializations from
-        // it: `content` is the reader-facing plain text (inline markdown
-        // stripped, for the slug, the document title and the exported TOC), and
-        // `contentHtml` is that same text with emphasis / code / emoji rendered
-        // for the outline panel (#3110). Sharing one token pass keeps the shown
-        // text and the slug in step — `githubSlug` must match the anchor id the
-        // HTML export injects from `heading.textContent`
-        // (state/markdownToHtml.ts, #4811).
+        // One token pass feeds both serializations so the outline's shown text
+        // and its slug stay in step; `githubSlug` has to match the anchor id the
+        // HTML export injects from `heading.textContent`.
         const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = muya.options;
         const tokens = tokenizer(source, {
             hasBeginRules: false,

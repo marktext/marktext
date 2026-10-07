@@ -2,11 +2,6 @@ import { expect, test } from '@playwright/test'
 import type { ElectronApplication, Page } from 'playwright'
 import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
 
-// Follow-up to #3110: toggling a render-affecting preference (superscript /
-// subscript here) re-renders the headings inside `setOptions(..., true)`
-// without emitting a `json-change`, so the outline used to keep the parse from
-// before the toggle. It must refresh live.
-
 const DOC = ['# Outline', '', '## Water is H^2^O and x~i~', '', 'Body.', ''].join('\n')
 
 const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise<void> => {

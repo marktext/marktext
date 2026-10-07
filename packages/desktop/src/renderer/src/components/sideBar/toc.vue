@@ -22,10 +22,9 @@
       @node-expand="onExpand"
       @node-collapse="onCollapse"
     >
-      <!-- Element Plus escapes `data.label` as plain text. Showing the engine's
-           inline heading HTML needs a scoped slot; we re-add the
-           `el-tree-node__label` wrapper the default renderer would have made so
-           the outline's color / word-wrap CSS keeps applying. -->
+      <!-- Element Plus escapes `data.label`, so showing the heading HTML needs a
+           scoped slot; re-add the label wrapper the default renderer would have
+           made so the outline CSS keeps applying. -->
       <template #default="{ data }">
         <!-- eslint-disable vue/no-v-html -- sanitized by labelHtmlOf -->
         <span
@@ -68,16 +67,12 @@ interface TocNodeData {
   labelHtml?: unknown
 }
 
-// `label` is the heading's reader-facing plain text (kept as the hover title);
-// `labelHtml` is the engine's pre-rendered inline HTML for display.
 const plainLabel = (data: TocNodeData): string =>
   typeof data.label === 'string' ? data.label : ''
 
 const escapeHtml = (text: string): string =>
   text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
-// Sanitize the engine HTML before `v-html`, falling back to the escaped plain
-// label so a payload without `labelHtml` shows text instead of markup.
 const labelHtmlOf = (data: TocNodeData): string => {
   const html = typeof data.labelHtml === 'string' ? data.labelHtml : ''
   return html ? sanitize(html, TOC_DOMPURIFY_CONFIG) : escapeHtml(plainLabel(data))
@@ -186,13 +181,9 @@ const handleClick = (data: { slug?: unknown }): void => {
   min-height: 0;
 }
 
-/* The scoped slot above replaces Element Plus's `<el-text truncated>` label, so
-   the truncation that element provided (nowrap + ellipsis + 100% max width) is
-   re-declared here. `color: inherit` is deliberate: `el-text` set a color of
-   its own (--el-text-color-regular, #606266) that beat the themed color the
-   label inherits from `.el-tree`, leaving the TOC dark gray on dark themes
-   (#5094). Same story for the expand arrow, which Element colors with
-   --el-tree-expand-icon-color; the sidebar's own arrows use --sideBarIconColor. */
+/* The scoped slot replaced Element Plus's `<el-text truncated>` label, so its
+   truncation is re-declared here. `color: inherit` overrides the gray that
+   `el-text` imposed, which beat the themed color from `.el-tree` (#5094). */
 .side-bar-toc .el-tree-node__label {
   display: inline-block;
   max-width: 100%;
@@ -242,18 +233,12 @@ const handleClick = (data: { slug?: unknown }): void => {
   min-height: 26px;
 }
 
-/* Element Plus renders every label as `<el-text truncated>`, which declares
-   `white-space: nowrap` on the label itself — the `normal` above only reaches
-   it by inheritance, which a declaration always beats (#5094, other property). */
 .side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
   white-space: normal;
   text-overflow: clip;
   overflow: visible;
 }
 
-/* Inline markdown the engine renders into each outline label (#3110). Bold and
-   italic ride the browser defaults; the rest need theme-aware styling. The
-   sup/sub line-height keeps a raised glyph from enlarging the row. */
 .side-bar-toc .el-tree-node__label strong {
   font-weight: 700;
 }
@@ -285,6 +270,7 @@ const handleClick = (data: { slug?: unknown }): void => {
 
 .side-bar-toc .el-tree-node__label sup,
 .side-bar-toc .el-tree-node__label sub {
+  /* Keeps a raised superscript from growing the row. */
   line-height: 0;
 }
 </style>
