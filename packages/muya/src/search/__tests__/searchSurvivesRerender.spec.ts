@@ -111,3 +111,54 @@ describe('search highlight survives a full re-render (#5651)', () => {
         expect(highlightCount(muya)).toBe(1);
     });
 });
+
+// Toggling the parse-affecting `multilineBlockquote` stops `>>>` being text, so
+// it changes the result set of an open search.
+describe('search refresh after a parse-affecting toggle', () => {
+    it('drops the active index when the parse removed every match', () => {
+        const muya = bootMuya('>>>\nquote\n>>>\n');
+        const search = muya.editor.searchModule;
+        search.search('>>>');
+        expect(search.matches.length).toBe(2);
+        expect(search.index).toBe(0);
+
+        muya.setOptions({ multilineBlockquote: true }, true);
+
+        expect(search.matches.length).toBe(0);
+        expect(search.index).toBe(-1);
+        expect(highlightCount(muya)).toBe(0);
+    });
+
+    it('clamps an active index the new parse no longer has', () => {
+        const muya = bootMuya('>>>\nquote\n>>>\n\nplain >>> here\n');
+        const search = muya.editor.searchModule;
+        search.search('>>>');
+        expect(search.matches.length).toBe(3);
+        search.find('next');
+        search.find('next');
+        expect(search.index).toBe(2);
+
+        muya.setOptions({ multilineBlockquote: true }, true);
+
+        // Only the plain paragraph still holds a `>>>`; the active match has to
+        // land inside the refreshed result set instead of past its end.
+        expect(search.matches.length).toBe(1);
+        expect(search.index).toBe(0);
+        expect(highlightCount(muya)).toBe(1);
+    });
+
+    it('notifies consumers with the refreshed result', () => {
+        const muya = bootMuya('>>>\nquote\n>>>\n');
+        const search = muya.editor.searchModule;
+        search.search('>>>');
+
+        const refreshed: unknown[] = [];
+        muya.on('search-refreshed', payload => refreshed.push(payload));
+
+        muya.setOptions({ multilineBlockquote: true }, true);
+
+        expect(refreshed).toHaveLength(1);
+        expect(refreshed[0]).toBe(search);
+        expect(search.value).toBe('>>>');
+    });
+});

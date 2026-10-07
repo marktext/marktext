@@ -244,21 +244,30 @@ export class Search {
 
     /** Re-run the active query on the blocks a full re-render just rebuilt. */
     refresh(cursor?: IRenderCursor): this {
-        if (this._value) {
-            const { _value: value, index, matches } = this;
+        const hadQuery = !!this._value;
+
+        if (hadQuery) {
+            const { _value: value, index: previous } = this;
             // Stale matches point at the discarded blocks; clear them first so
             // `search()` does not render into those detached nodes.
             this.matches = [];
             this.index = -1;
-            this.search(value, {
-                ...this._options,
-                highlightIndex: index >= 0 && index < matches.length ? index : -1,
-                selectHighlight: false,
-            });
+            this.search(value, { ...this._options, highlightIndex: -1, selectHighlight: false });
+
+            // A parse-affecting toggle can drop the match the old index pointed
+            // at, so move it back only when the new parse still has it.
+            if (previous > 0 && previous < this.matches.length) {
+                this.index = previous;
+                this._updateMatches();
+            }
         }
 
         if (cursor?.block)
             cursor.block.update(cursor, this._highlightsFor(cursor.block));
+
+        // The find bar keeps its own snapshot, which a rebuild can invalidate.
+        if (hadQuery)
+            this._muya.eventCenter.emit('search-refreshed', this);
 
         return this;
     }

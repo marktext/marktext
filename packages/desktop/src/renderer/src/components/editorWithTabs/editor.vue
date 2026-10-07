@@ -1962,6 +1962,13 @@ onMounted(() => {
     mediaViewer.value?.openImage(data)
   })
 
+  // A preference toggle can change the result set under an open find bar; its
+  // count/index come from a snapshot the search handlers own.
+  editor.value.on('search-refreshed', (result: unknown) => {
+    editorStore.SEARCH(toSearchMatches(result))
+    scrollToHighlight()
+  })
+
   editor.value.on('preview-diagram', (payload: IPreviewDiagramPayload) => {
     const options = editor.value?.options
     mediaViewer.value?.openDiagram(
