@@ -165,8 +165,8 @@ import { usePreferencesStore } from '@/store/preferences'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
 import OpenedFile from './treeOpenedTab.vue'
-import bus from '../../bus/index.js'
-import { showContextMenu } from '../../contextMenu/sideBar/index.js'
+import bus from '../../bus'
+import { showContextMenu } from '../../contextMenu/sideBar'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
@@ -177,9 +177,9 @@ import {
   isNameInput,
   keepsSidebarSelection,
   shouldTrashSelection
-} from './trashKey.js'
-import { shouldRenameSelection } from './renameKey.js'
-import type { TreeNode, TabDescriptor } from './types.js'
+} from './trashKey'
+import { shouldRenameSelection } from './renameKey'
+import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
 
