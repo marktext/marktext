@@ -218,8 +218,6 @@ describe('format.format() apply-ON over a non-collapsed selection', () => {
     });
 
     it('applying bold elsewhere keeps a highlight\'s trailing backslash run', () => {
-        // `format()` rebuilds the whole block from tokens, so an unwrapped
-        // `mark` token must re-emit its `backlash` or the source loses it.
         const content = selectInFirstBlock(
             bootMuya('==a\\\\== b\n', { highlightSyntax: true }),
             8,

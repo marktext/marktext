@@ -909,9 +909,6 @@ function rebuildWrapperToken(token: Token): string {
         case 'em':
         case 'del':
         case 'mark':
-            // `backlash` is the escaped run between the children and the
-            // closing marker; it is not part of `children`, so re-emit it here
-            // or a format applied elsewhere in the block would drop it.
             return token.marker + generator(token.children, true) + token.backlash + token.marker;
 
         case 'html_tag':

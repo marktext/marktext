@@ -219,7 +219,6 @@ describe('muya render-affecting options', () => {
         muya.setOptions({ highlightSyntax: true }, true);
         await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
         expect(muya.domNode.querySelectorAll('mark').length).toBe(1);
-        // The source keeps its `==` markers — the option only governs rendering.
         expect(muya.getMarkdown()).toBe('==hi==\n');
 
         muya.setOptions({ highlightSyntax: false }, true);

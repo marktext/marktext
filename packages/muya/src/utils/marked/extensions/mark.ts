@@ -1,9 +1,5 @@
 import type { Lexer, MarkedExtension, Tokens } from 'marked';
 
-// Marked's inline extension hooks are bound to a context exposing the active
-// `lexer` (nested inline tokenisation) and `parser` (nested rendering), which
-// the public hook typings do not surface. Narrow `this` once per hook, as the
-// footnote extension does.
 interface IMarkTokenizerThis {
     lexer: Lexer;
 }
@@ -11,9 +7,6 @@ interface IMarkRendererThis {
     parser?: { parseInline: (tokens: Tokens.Generic[]) => string };
 }
 
-// Non-standard `==text==` highlight, also read by Obsidian, Typora, Logseq and
-// Joplin. Mirrors the engine's `mark` inline rule (`rules.ts`); applied only
-// when `highlightSyntax` is on.
 // eslint-disable-next-line regexp/no-super-linear-backtracking
 const MARK_RULE = /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/;
 const MARK_START = /={2}(?=\S)/;
@@ -33,8 +26,7 @@ export default function markExtension(): MarkedExtension {
                 name: 'mark',
                 level: 'inline',
                 start(src: string) {
-                    // Marked passes `src.slice(1)`, so the index found here is
-                    // one short of the opener and lands the scan on `==`.
+                    // `src` is `originalSrc.slice(1)` in marked's inline scan.
                     const match = src.match(MARK_START);
                     return match ? match.index : undefined;
                 },
@@ -43,18 +35,12 @@ export default function markExtension(): MarkedExtension {
                     if (!match)
                         return;
 
-                    // Mirror the engine's `isLengthEven` guard (`lexer.ts`): a
-                    // run of backslashes with an odd length escapes the closing
-                    // marker, so the span stays literal text.
                     const backslashes = match[3];
                     if (backslashes.length % 2 !== 0)
                         return;
 
                     // eslint-disable-next-line no-restricted-syntax
                     const { lexer } = this as unknown as IMarkTokenizerThis;
-                    // Run the trailing backslashes through the inline lexer as
-                    // well, so `\\` renders as the same single literal
-                    // backslash the editor shows.
                     const content = match[2] + backslashes;
 
                     return {

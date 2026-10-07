@@ -6,12 +6,6 @@ import { getClipBoardHtml } from '../../utils/marked/getClipboardHtml';
 import { getHighlightHtml } from '../../utils/marked/getHighlightHtml';
 import { generator, tokenizer } from '../lexer';
 
-// `==text==` highlight (marktext/marktext#2552). The extension is off by
-// default; when on, the editor lexer, the HTML/PDF export path and the
-// clipboard HTML path must all agree that `==…==` is a `<mark>` span. The
-// editor token is typed `mark` (not `highlight`) so it maps onto the existing
-// Highlight format button/menu, which keys off `mark`.
-
 const OPTIONS = {
     superSubScript: false,
     footnote: false,
@@ -69,8 +63,6 @@ describe('mark syntax — editor lexer', () => {
     });
 
     it('keeps an even backslash run inside the span', () => {
-        // Source `==a\\==`: `\\` escapes to a single visible backslash, and it
-        // has to survive a source-preserving rebuild (`generator`).
         const src = '==a\\\\==';
         const tokens = tokenizer(src, { hasBeginRules: false, options: OPTIONS });
         const mark = tokens[0] as MarkToken;
@@ -81,7 +73,6 @@ describe('mark syntax — editor lexer', () => {
     });
 
     it('treats an odd backslash run as an escaped closer (literal text)', () => {
-        // Source `==a\==`: the lone `\` escapes the closer, so no highlight.
         expect(types('==a\\==')).toEqual(['text']);
     });
 });
@@ -112,7 +103,6 @@ describe('mark syntax — HTML export', () => {
     });
 
     it('renders the escaped backslash inside <mark> for an even run', () => {
-        // `\\` is one literal backslash once escaped, matching the editor.
         expect(getHighlightHtml('==a\\\\==', { highlightSyntax: true })).toBe(
             '<p><mark>a\\</mark></p>\n',
         );

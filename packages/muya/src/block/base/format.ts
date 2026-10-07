@@ -155,9 +155,6 @@ function clearFormat(token: Token, cursor: IContentCursor) {
         case 'em':
 
         case 'mark': {
-            // `backlash` is the escaped run that sits before the closing
-            // marker and is kept outside `children`, so unwrapping has to
-            // carry it over as text or the source silently loses it.
             const { parent, children, backlash } = token;
             const index = parent.indexOf(token);
             const replacement: Token[] = [...(children as Token[])];

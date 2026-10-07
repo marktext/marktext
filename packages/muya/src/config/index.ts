@@ -362,9 +362,6 @@ export const MUYA_DEFAULT_OPTIONS = {
     // extension: the two openers cannot collide, `\\(` carrying a backslash where
     // `\(` carries the parenthesis.
     texMathDoubleBackslash: false,
-    // Non-standard `==text==` highlight (Obsidian, Typora, Logseq, Joplin).
-    // Off by default so `==` keeps reading as literal text; `<mark>` is always
-    // supported independently.
     highlightSyntax: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
