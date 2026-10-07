@@ -146,9 +146,24 @@ export interface EditorState {
   // Heading the cursor is inside, for the TOC highlight; null above the first.
   activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
+  // One-shot: the open that (re)mounted the editor asked to keep focus in the
+  // sidebar, so the engine's initial focus must be skipped.
+  preserveFocusOnMount: boolean
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+// Path of a file that should take editor DOM focus as soon as its
+// already-requested open completes. A sidebar double-click sets it; the single
+// click that preceded it issued the open with `preserveFocus`.
+let pendingFocusPath: string | null = null
+
+const takePendingFocus = (pathname: string | null | undefined): boolean => {
+  if (!pathname || !pendingFocusPath) return false
+  if (!window.fileUtils.isSamePathSync(pendingFocusPath, pathname)) return false
+  pendingFocusPath = null
+  return true
+}
 
 export const useEditorStore = defineStore('editor', {
   state: (): EditorState => ({
@@ -158,7 +173,8 @@ export const useEditorStore = defineStore('editor', {
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: [],
     activeHeadingSlug: null,
-    selectionWordCount: null
+    selectionWordCount: null,
+    preserveFocusOnMount: false
   }),
 
   getters: {
@@ -1260,6 +1276,27 @@ export const useEditorStore = defineStore('editor', {
       if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
     },
 
+    // A sidebar double-click: switch to the file when it is already open, then
+    // hand DOM focus to the editor. When the open is still in flight the
+    // pending path lets `NEW_TAB_WITH_CONTENT` focus on arrival.
+    FOCUS_FILE(pathname: string): void {
+      const existing = this.tabs.find((t) => window.fileUtils.isSamePathSync(t.pathname, pathname))
+      if (existing) {
+        this.UPDATE_CURRENT_FILE(existing)
+        bus.emit('editor-focus')
+        return
+      }
+      pendingFocusPath = pathname
+    },
+
+    // Reads and clears the mount-time focus request written by
+    // `NEW_TAB_WITH_CONTENT`, so it applies to exactly one editor mount.
+    CONSUME_PRESERVE_FOCUS_ON_MOUNT(): boolean {
+      const value = this.preserveFocusOnMount
+      this.preserveFocusOnMount = false
+      return value
+    },
+
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
       const { tabs, currentFile } = this
       if (nextTabIndex < 0 || nextTabIndex >= tabs.length) {
@@ -1372,7 +1409,13 @@ export const useEditorStore = defineStore('editor', {
 
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
-        bus.emit('file-loaded', { id, markdown, cursor })
+        // The sidebar opens with `preserveFocus` so the tree keeps focus; a
+        // double-click sets `pendingFocusPath` to override that on arrival. The
+        // editor pane may mount only after this emit, so the flag also lives in
+        // state for the component to read then.
+        const preserveFocus = options.preserveFocus === true && !takePendingFocus(pathname)
+        this.preserveFocusOnMount = preserveFocus
+        bus.emit('file-loaded', { id, markdown, cursor, preserveFocus })
         if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
       } else {
         this.tabs.push(docState)

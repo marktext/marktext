@@ -1469,11 +1469,20 @@ interface FileLoadedPayload {
   id?: string
   markdown?: string
   cursor?: unknown
+  preserveFocus?: boolean
 }
 
 // listen for `open-single-file` event, it will call this method only when open a new file.
 const setMarkdownToEditor = (payload: unknown) => {
-  const { id, markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
+  const {
+    id,
+    markdown: newMarkdown,
+    cursor: newCursor,
+    preserveFocus
+  } = (payload ?? {}) as FileLoadedPayload
+  // The pane may have mounted for this very open; drop the one-shot flag so it
+  // cannot leak into a later mount.
+  editorStore.CONSUME_PRESERVE_FOCUS_ON_MOUNT()
   if (editor.value) {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
@@ -1499,8 +1508,9 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `json-change`, so seed the TOC explicitly (otherwise it stays empty until
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
-    // A freshly created/opened tab should be ready to type into.
-    focusFreshEditor()
+    // A freshly created/opened tab should be ready to type into — unless the
+    // open came from a sidebar click that wants to keep tree focus.
+    if (!preserveFocus) focusFreshEditor()
   }
 }
 
@@ -1643,8 +1653,13 @@ const flushActiveEditor = () => {
   editor.value?.flush()
 }
 
+// The engine's `focus()` only sets the selection range; the contenteditable
+// also needs DOM focus or no caret blinks.
 const focusEditor = () => {
-  editor.value?.focus()
+  const ed = editor.value
+  if (!ed) return
+  ed.domNode.focus()
+  ed.focus()
 }
 
 // Focus a freshly opened/created tab's editor. The sibling `file-changed`
@@ -1810,7 +1825,9 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   // The new engine requires an explicit init() after construction (it builds
   // the document tree and instantiates the registered UI plugins).
-  muya.init()
+  // A sidebar open that asked to preserve focus skips the initial caret so the
+  // tree keeps DOM focus; the user focuses the editor afterwards.
+  muya.init({ focus: !editorStore.CONSUME_PRESERVE_FOCUS_ON_MOUNT() })
   editor.value = muya
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.

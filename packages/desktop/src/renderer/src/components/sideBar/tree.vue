@@ -89,7 +89,12 @@
       </div>
       <div
         v-show="showDirectories"
+        ref="treeWrapper"
         class="tree-wrapper"
+        tabindex="0"
+        @mousedown="handleTreeMouseDown"
+        @focusout="handleTreeFocusOut"
+        @keydown="handleTreeKeydown"
       >
         <folder
           v-for="folder of projectTree.folders"
@@ -168,8 +173,8 @@ import { PATH_SEPARATOR } from '@/config'
 import { isMac } from '@/util'
 import {
   isEditableTarget,
+  isInsideTreeScope,
   isModifierKey,
-  isMuyaEditorTarget,
   isNameInput,
   keepsSidebarSelection,
   shouldTrashSelection
@@ -201,6 +206,7 @@ const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const createName = ref('')
 const input = ref<HTMLInputElement | null>(null)
+const treeWrapper = ref<HTMLDivElement | null>(null)
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -264,16 +270,40 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
-// Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
+// Take DOM focus for the whole tree on any press that isn't meant for an inline
+// input. preventDefault keeps the browser from moving focus back to <body>
+// after the mousedown default action runs.
+const handleTreeMouseDown = (event: MouseEvent): void => {
+  if (isEditableTarget(event.target)) return
+  // Only the primary button needs the default focus move suppressed; leaving
+  // the others alone keeps right-click behaviour untouched.
+  if (event.button === 0) event.preventDefault()
+  treeWrapper.value?.focus()
+}
+
+// When an inline input closes (rename commit / Escape) focus falls to <body>.
+// Hand it back to the tree so the next shortcut still applies; a real move to
+// another element leaves activeElement elsewhere, so nothing is restored.
+const handleTreeFocusOut = (event: FocusEvent): void => {
+  if (!isNameInput(event.target)) return
+  nextTick(() => {
+    if (document.activeElement === document.body && treeWrapper.value) {
+      treeWrapper.value.focus()
+    }
+  })
+}
+
+// Clicking the tree's empty space clears the selection; clicking outside the
+// tree keeps it and only moves focus away, matching VS Code's explorer. Rename
+// and the new-file input opt out so they don't unmount mid-edit.
 const handleDocumentClick = (event: MouseEvent): void => {
   const { target } = event
   if (!target) return
+  if (isNameInput(target)) return
 
-  if (!keepsSidebarSelection(target)) {
+  if (isInsideTreeScope(target) && !keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
-
-  if (isNameInput(target)) return
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
@@ -284,13 +314,19 @@ const handleDocumentContextMenu = (event: MouseEvent): void => {
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
-const handleDocumentKeydown = (event: KeyboardEvent): void => {
+// Scoped to the tree container: keys only reach this handler while the tree
+// owns DOM focus, so the editor never has to be special-cased.
+const handleTreeKeydown = (event: KeyboardEvent): void => {
   const { target, key, metaKey } = event
   const editableTarget = isEditableTarget(target)
 
   if (key === 'Escape') {
     projectStore.CLEAR_NAME_INPUT_STATE()
   }
+
+  // While an inline name input is focused it owns every other key; Enter
+  // commits through the input's own handler.
+  if (isNameInput(target) && key !== 'Escape') return
 
   const isEditingName = !!renameCache.value || !!createCacheDirname.value
   const shouldRename = shouldRenameSelection({
@@ -299,10 +335,7 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     projectRootPath: props.projectTree?.pathname,
     pathSeparator: PATH_SEPARATOR,
     isEditingName,
-    editableTarget,
-    // F2 is free in the WYSIWYG editor, so it reaches the sidebar selection
-    // even while the editor has focus; Enter must stay a line break there.
-    allowEditableTarget: key === 'F2' && isMuyaEditorTarget(target)
+    editableTarget
   })
   if (shouldRename) {
     event.preventDefault()
@@ -319,8 +352,7 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     projectRootPath: props.projectTree?.pathname,
     pathSeparator: PATH_SEPARATOR,
     isEditingName,
-    editableTarget,
-    allowEditableTarget: isMuyaEditorTarget(target)
+    editableTarget
   })
   if (shouldTrash) {
     event.preventDefault()
@@ -344,15 +376,12 @@ onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('contextmenu', handleDocumentContextMenu)
-  // Capture phase: muya stops keydown propagation for keys it handles.
-  document.addEventListener('keydown', handleDocumentKeydown, true)
 })
 
 onUnmounted(() => {
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('contextmenu', handleDocumentContextMenu)
-  document.removeEventListener('keydown', handleDocumentKeydown, true)
 })
 </script>
 
@@ -530,13 +559,28 @@ onUnmounted(() => {
   margin: 5px 0;
   padding: 0 6px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--inputBgColor);
   width: calc(100% - 45px);
   border-radius: 3px;
 }
 .tree-wrapper {
   position: relative;
+}
+/* VS Code draws the focus outline on the focused row and only while the tree
+   owns DOM focus; the selection stays but dims once focus moves away
+   (list.focusOutline / list.inactiveSelectionBackground). */
+.tree-wrapper:focus-visible {
+  outline: none;
+}
+.tree-wrapper:focus-within :deep(.side-bar-file.active),
+.tree-wrapper:focus-within :deep(.folder-name.active) {
+  outline: 1px solid var(--focusColor);
+  outline-offset: -1px;
+}
+.tree-wrapper:not(:focus-within) :deep(.side-bar-file.active),
+.tree-wrapper:not(:focus-within) :deep(.folder-name.active) {
+  background: color-mix(in srgb, var(--themeColor20) 55%, transparent);
 }
 .empty-project {
   font-size: 14px;

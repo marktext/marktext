@@ -10,8 +10,7 @@ const base = {
   projectRootPath: '/docs',
   pathSeparator: '/',
   isEditingName: false,
-  editableTarget: false,
-  allowEditableTarget: false
+  editableTarget: false
 }
 
 describe('sidebar rename keyboard rules', () => {
@@ -48,25 +47,9 @@ describe('sidebar rename keyboard rules', () => {
     expect(shouldRenameSelection({ ...base, isEditingName: true })).toBe(false)
   })
 
-  it('defers to editable surfaces unless the key is free there', () => {
+  it('ignores editable surfaces', () => {
     expect(shouldRenameSelection({ ...base, editableTarget: true })).toBe(false)
     expect(shouldRenameSelection({ ...base, key: 'Enter', editableTarget: true })).toBe(false)
-    // The WYSIWYG editor allows F2 through (no editor meaning) but keeps Enter.
-    expect(
-      shouldRenameSelection({
-        ...base,
-        editableTarget: true,
-        allowEditableTarget: true
-      })
-    ).toBe(true)
-    expect(
-      shouldRenameSelection({
-        ...base,
-        key: 'Enter',
-        editableTarget: true,
-        allowEditableTarget: true
-      })
-    ).toBe(true)
   })
 
   it('preselects the file stem but keeps dotfiles whole', () => {

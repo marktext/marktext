@@ -46,15 +46,18 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     if (projectDir) fs.rmSync(projectDir, { recursive: true, force: true })
   })
 
-  test('F2 renames the selected file and preselects only the stem', async() => {
+  test('single click keeps tree focus, then F2 renames and preselects the stem', async() => {
     const file = page.locator('.side-bar-file[title$="second.md"]').first()
     await file.click()
 
-    // Clicking a markdown file opens it and focuses the WYSIWYG editor; F2 has
-    // no editor meaning, so the sidebar rename must still fire from there.
+    // One click opens the file but hands DOM focus to the tree, so the keys
+    // below act on the sidebar instead of the editor.
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
+      .toBe(true)
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.mu-editor')))
-      .toBe(true)
+      .toBe(false)
 
     await page.keyboard.press('F2')
     const input = file.locator('input.rename')
@@ -74,11 +77,16 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     await page.keyboard.press('Enter')
     await expect.poll(() => fs.existsSync(path.join(projectDir, 'renamed.md'))).toBe(true)
     expect(fs.existsSync(path.join(projectDir, 'second.md'))).toBe(false)
+    // Committing an inline rename hands focus back to the tree, so the next
+    // shortcut keeps working without another click.
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
+      .toBe(true)
   })
 
-  test('Enter stays a line break in the editor instead of renaming', async() => {
+  test('double click focuses the editor, where Enter stays a line break', async() => {
     const file = page.locator('.side-bar-file[title$="first.md"]').first()
-    await file.click()
+    await file.dblclick()
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.mu-editor')))
       .toBe(true)
@@ -94,6 +102,9 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
       .locator('.side-bar-folder .folder-name[title$="docs"]')
       .first()
     await folderName.click()
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
+      .toBe(true)
 
     await page.keyboard.press('Enter')
     const input = folderName.locator('input.rename')

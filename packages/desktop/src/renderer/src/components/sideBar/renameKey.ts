@@ -16,11 +16,9 @@ export interface RenameKeyContext {
   projectRootPath?: string
   pathSeparator: string
   isEditingName: boolean
-  // The WYSIWYG editor is a contenteditable surface that owns Enter for line
-  // breaks. Callers allow a key through it only when the editor has no use for
-  // it (F2), so Enter keeps its editor meaning.
+  // Rename and the new-file input live inside the tree, so their keydown
+  // bubbles back here; typing a name must not re-open the rename box.
   editableTarget: boolean
-  allowEditableTarget: boolean
 }
 
 export const isRenameShortcut = (key: string): boolean => key === 'F2' || key === 'Enter'
@@ -32,11 +30,10 @@ export const shouldRenameSelection = (context: RenameKeyContext): boolean => {
     projectRootPath,
     pathSeparator,
     isEditingName,
-    editableTarget,
-    allowEditableTarget
+    editableTarget
   } = context
   if (!isRenameShortcut(key)) return false
-  if (editableTarget && !allowEditableTarget) return false
+  if (editableTarget) return false
   if (isEditingName) return false
   if (!selection || typeof selection.pathname !== 'string' || selection.pathname === '') return false
   // A selection outside the current project is stale: the tree was swapped

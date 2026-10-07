@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  isInsideTreeScope,
   isModifierKey,
   isNameInput,
   isPathWithinRoot,
@@ -19,8 +20,7 @@ const base = {
   projectRootPath: '/docs',
   pathSeparator: '/',
   isEditingName: false,
-  editableTarget: false,
-  allowEditableTarget: false
+  editableTarget: false
 }
 
 describe('sidebar trash keyboard rules', () => {
@@ -61,6 +61,14 @@ describe('sidebar trash keyboard rules', () => {
     expect(isNameInput({ closest: () => null } as unknown as EventTarget)).toBe(false)
   })
 
+  it('recognises clicks inside the tree focus scope', () => {
+    const scope = (found: boolean) =>
+      ({ closest: () => (found ? {} : null) }) as unknown as EventTarget
+    expect(isInsideTreeScope(scope(true))).toBe(true)
+    expect(isInsideTreeScope(scope(false))).toBe(false)
+    expect(isInsideTreeScope(null)).toBe(false)
+  })
+
   it('trashes a selected file or folder, but never the project root', () => {
     expect(shouldTrashSelection(base)).toBe(true)
     expect(shouldTrashSelection({ ...base, selection: folder })).toBe(true)
@@ -89,11 +97,8 @@ describe('sidebar trash keyboard rules', () => {
     expect(shouldTrashSelection({ ...base, selection: { pathname: '/docs/a' } })).toBe(false)
   })
 
-  it('defers to editable surfaces, except the WYSIWYG editor', () => {
+  it('ignores editable surfaces', () => {
     expect(shouldTrashSelection({ ...base, editableTarget: true })).toBe(false)
-    expect(shouldTrashSelection({ ...base, editableTarget: true, allowEditableTarget: true })).toBe(
-      true
-    )
   })
 
   it('does not fire while renaming or creating', () => {

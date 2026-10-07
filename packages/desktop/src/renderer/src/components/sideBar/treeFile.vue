@@ -8,6 +8,7 @@
       { current: currentFile?.pathname === file.pathname, active: file.id === activeItem.id }
     ]"
     @click="handleFileClick"
+    @dblclick="handleFileDblClick"
   >
     <file-icon :name="file.name" />
     <input
@@ -52,9 +53,12 @@ const { clipboard } = storeToRefs(projectStore)
 const { currentFile, tabs } = storeToRefs(editorStore)
 
 // from fileMixins
-const handleFileClick = (): void => {
+const handleFileClick = (event: MouseEvent): void => {
   // Select before the open-file branch runs, so non-markdown rows select too.
   projectStore.CHANGE_ACTIVE_ITEM(props.file)
+  // The second click of a double-click must not re-issue the open request; the
+  // dblclick handler upgrades the open that the first click already started.
+  if (event.detail === 2) return
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
@@ -64,8 +68,15 @@ const handleFileClick = (): void => {
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
   } else {
-    window.electron.ipcRenderer.send('mt::open-file', pathname, {})
+    // Keep DOM focus in the tree; the double-click handler hands it to the
+    // editor when the user wants to start typing.
+    window.electron.ipcRenderer.send('mt::open-file', pathname, { preserveFocus: true })
   }
+}
+
+const handleFileDblClick = (): void => {
+  if (!props.file.isMarkdown) return
+  editorStore.FOCUS_FILE(props.file.pathname)
 }
 
 const noop = (): void => {}
@@ -150,7 +161,7 @@ input.rename {
   margin: 5px 0;
   padding: 0 8px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--floatBorderColor);
   width: 100%;
   border-radius: 3px;

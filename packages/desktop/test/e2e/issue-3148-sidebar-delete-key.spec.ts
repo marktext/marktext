@@ -72,18 +72,18 @@ test.describe('Sidebar Delete key (#3148)', () => {
     if (projectDir) fs.rmSync(projectDir, { recursive: true, force: true })
   })
 
-  test('Delete trashes only after the confirmation is accepted', async() => {
+  test('Delete trashes the tree selection only after the confirmation is accepted', async() => {
     const file = page.locator('.side-bar-file[title$=".md"]').first()
     const pathname = await file.getAttribute('title')
     expect(pathname).toBeTruthy()
 
     await file.click()
 
-    // Clicking a markdown file opens it and the editor takes focus; the
-    // shortcut must still reach the sidebar selection.
-    await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest('.mu-editor'))).toBe(
-      true
-    )
+    // One click opens the file but leaves DOM focus in the tree, which is what
+    // makes the sidebar shortcut active.
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
+      .toBe(true)
 
     // macOS fires a `Meta` keydown before the chord's second key; it must not
     // end the selection.
@@ -93,13 +93,6 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await page.keyboard.press('Delete')
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)
-
-    // Only clicks on a row keep the selection; tree chrome ends it instead of
-    // leaving a stale target behind.
-    await file.click()
-    await expect(file).toHaveClass(/active/)
-    await page.locator('.project-tree > .title').dispatchEvent('click')
-    await expect(file).not.toHaveClass(/active/)
 
     // Same selection, but now the dialog confirms.
     await app.evaluate(() => {
@@ -111,5 +104,25 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await expect.poll(() => trashCount(app)).toBe(1)
     const dialogs = await trashDialogs(app)
     expect(String(dialogs[dialogs.length - 1]?.message)).toContain(String(pathname).split('/').pop())
+  })
+
+  test('Delete inside the editor edits text instead of trashing the selection', async() => {
+    const file = page.locator('.side-bar-file[title$=".md"]').first()
+    const pathname = await file.getAttribute('title')
+    expect(pathname).toBeTruthy()
+
+    // Double click hands focus to the editor while the row stays selected.
+    await file.dblclick()
+    await expect
+      .poll(() => page.evaluate(() => !!document.activeElement?.closest('.mu-editor')))
+      .toBe(true)
+
+    const before = (await trashDialogs(app)).length
+    await page.keyboard.press('Delete')
+    // Give a stray trash request time to surface before asserting it never did.
+    await page.waitForTimeout(300)
+
+    expect((await trashDialogs(app)).length).toBe(before)
+    expect(fs.existsSync(String(pathname))).toBe(true)
   })
 })
