@@ -37,6 +37,16 @@ function boot(markdown: string): Muya {
     return muya;
 }
 
+function bootState(json: unknown[]): Muya {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    hosts.push(host);
+    const muya = new Muya(host, { json } as ConstructorParameters<typeof Muya>[1]);
+    muya.init();
+    editors.push(muya);
+    return muya;
+}
+
 function content(muya: Muya, text: string): Content {
     let result: Content | undefined;
     muya.editor.scrollPage!.breadthFirstTraverse((block) => {
@@ -87,6 +97,15 @@ describe('resolveEndpoint', () => {
         const block = content(muya, 'alpha beta');
 
         expect(resolveEndpoint(block.domNode!.cloneNode(true), 0)).toBeNull();
+    });
+
+    it('snaps a caret inside the trailing line-break span to the block end (#3203)', () => {
+        const muya = bootState([{ name: 'paragraph', text: 'test\n' }]);
+        const block = content(muya, 'test\n');
+        const lineBreak = block.domNode!.querySelector('.mu-line-end')!.firstChild!;
+
+        expect(resolveEndpoint(lineBreak, 0)).toEqual({ offset: 5, block, path: block.path });
+        expect(resolveEndpoint(lineBreak, 1)).toEqual({ offset: 5, block, path: block.path });
     });
 });
 

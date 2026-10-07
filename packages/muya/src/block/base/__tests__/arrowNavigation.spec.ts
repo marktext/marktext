@@ -538,3 +538,49 @@ describe('content arrowHandler — column-preserving cross-block navigation (#34
         expect(alpha.getCursor()!.start.offset).toBe('alpha'.length);
     });
 });
+
+describe('content arrowHandler — trailing soft line break (#3203)', () => {
+    function paragraphWithTrailingSoftBreak(): TState[] {
+        return [
+            { name: 'paragraph', text: 'alpha' },
+            { name: 'paragraph', text: 'test\n' },
+        ];
+    }
+
+    it('leaves arrowUp on the blank line to the browser instead of crossing the block', async () => {
+        const muya = bootMuyaState(paragraphWithTrailingSoftBreak());
+        const beta = contentByText(muya, 'test\n');
+
+        const event = arrowAt(muya, beta, 'ArrowUp', 'test\n'.length);
+        await flush();
+
+        expect(contentByText(muya, 'alpha').getCursor()).toBeNull();
+        expect(event.preventDefault).not.toHaveBeenCalled();
+        expect(event.stopPropagation).not.toHaveBeenCalled();
+    });
+
+    it('moves arrowDown onto the blank line instead of leaving it to the browser', async () => {
+        const muya = bootMuyaState(paragraphWithTrailingSoftBreak());
+        const beta = contentByText(muya, 'test\n');
+
+        const event = arrowAt(muya, beta, 'ArrowDown', 0);
+        await flush();
+
+        expect(beta.getCursor()!.start.offset).toBe('test\n'.length);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
+    });
+
+    it('arrowUp on the text line still crosses to the previous block', async () => {
+        const muya = bootMuyaState(paragraphWithTrailingSoftBreak());
+        const beta = contentByText(muya, 'test\n');
+
+        const event = arrowAt(muya, beta, 'ArrowUp', 0);
+        await flush();
+
+        const alpha = contentByText(muya, 'alpha');
+        expect(alpha.getCursor()).not.toBeNull();
+        expect(alpha.getCursor()!.start.offset).toBe('alpha'.length);
+        expect(event.preventDefault).toHaveBeenCalled();
+    });
+});

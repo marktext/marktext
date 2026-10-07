@@ -36,6 +36,20 @@ export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | 
     if (!block?.isContent() || !block.outMostBlock)
         return null;
 
+    // The extra line a trailing break paints has no offset of its own — a caret
+    // inside the span would read as the end of the line above (#3203).
+    const trailingLineEnd = contentDOM.lastElementChild;
+    if (
+        trailingLineEnd
+        && trailingLineEnd.classList.contains(CLASS_NAMES.MU_LINE_END)
+        // An IME replaces the newline with its composing string; that path needs
+        // the raw offset.
+        && trailingLineEnd.textContent === '\n'
+        && trailingLineEnd.contains(node)
+    ) {
+        return { offset: block.text.length, block, path: block.path };
+    }
+
     return {
         offset: getOffsetOfParagraph(node, contentDOM) + offset,
         block,
