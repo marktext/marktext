@@ -69,6 +69,38 @@ export function lineAtPoint(
     return { block, start, end };
 }
 
+/**
+ * Nearest offset on `block`'s first (`top`) or last (`bottom`) visual line at
+ * viewport x `x`; `null` when no caret can be placed there.
+ */
+export function offsetInBlockAtPoint(
+    doc: Document,
+    block: Content,
+    x: number,
+    edge: 'top' | 'bottom',
+): number | null {
+    const dom = block.domNode;
+    if (!dom?.isConnected)
+        return null;
+
+    const rect = dom.getBoundingClientRect();
+    if (rect.height === 0)
+        return null;
+
+    // One pixel inside the first/last line box keeps the probe on that line
+    // without depending on a numeric line-height (`normal` has none).
+    const y = edge === 'top' ? rect.top + 1 : rect.bottom - 1;
+    const caret = caretAt(doc, x, y);
+    if (!caret)
+        return null;
+
+    const resolved = resolveEndpoint(caret.node, caret.offset);
+    if (!resolved || resolved.block !== block)
+        return null;
+
+    return Math.min(Math.max(resolved.offset, 0), block.text.length);
+}
+
 export function compareParagraphsOrder(paragraph1: HTMLElement, paragraph2: HTMLElement) {
     return (
         paragraph1.compareDocumentPosition(paragraph2)
