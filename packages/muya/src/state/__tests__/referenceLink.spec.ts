@@ -53,7 +53,7 @@ function tokenize(text: string, labels: Map<string, { href: string; title: strin
     return tokenizer(text, {
         labels,
         hasBeginRules: false,
-        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false },
+        options: { superSubScript: true, footnote: false, texMathDollars: true, texMathGfm: false, texMathSingleBackslash: false, texMathDoubleBackslash: false, highlightSyntax: false },
     });
 }
 

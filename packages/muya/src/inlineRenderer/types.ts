@@ -35,6 +35,7 @@ export interface ITokenizerFacOptions {
     texMathGfm: boolean;
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
+    highlightSyntax: boolean;
 }
 
 export interface ITokenizerOptions {
@@ -57,6 +58,7 @@ export type Token
         | StrongEmToken
         | CodeEmojiMathToken
         | DelToken
+        | MarkToken
         | SuperSubScriptToken
         | FootnoteIdentifierToken
         | ImageToken
@@ -127,6 +129,13 @@ export type CodeEmojiMathToken = IBaseToken & {
 
 export type DelToken = IBaseToken & {
     type: 'del';
+    marker: string;
+    children: Token[];
+    backlash: string;
+};
+
+export type MarkToken = IBaseToken & {
+    type: 'mark';
     marker: string;
     children: Token[];
     backlash: string;

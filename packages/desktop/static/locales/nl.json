@@ -417,6 +417,7 @@
         "texMathGfm": "Pandocs markdown-extensie tex_math_gfm inschakelen",
         "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
         "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
+        "highlightSyntax": "De niet-standaard ==tekst==-markeringssyntaxis inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -646,6 +647,7 @@
         "texMathGfm": "GitHub TeX-wiskunde ($`…`$ en ```math)",
         "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
         "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
+        "highlightSyntax": "Markeren (==tekst==)",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

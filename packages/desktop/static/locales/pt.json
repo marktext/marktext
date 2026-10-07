@@ -418,6 +418,7 @@
         "texMathGfm": "Ativar a extensão markdown do pandoc tex_math_gfm",
         "texMathSingleBackslash": "Ativar a extensão markdown do pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Ativar a extensão markdown do pandoc tex_math_double_backslash",
+        "highlightSyntax": "Ativar a sintaxe de realce não padrão ==texto==",
         "isHtmlEnabled": "Habilitar renderização HTML",
         "softNewlineAsSpace": "Tratar quebras de linha suaves como espaços",
         "sequenceTheme": "Tema do diagrama de sequência",
@@ -646,6 +647,7 @@
         "texMathGfm": "Matemática TeX do GitHub ($`…`$ e ```math)",
         "texMathSingleBackslash": "Matemática TeX com barra invertida simples",
         "texMathDoubleBackslash": "Matemática TeX com barra invertida dupla",
+        "highlightSyntax": "Realce (==texto==)",
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",

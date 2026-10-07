@@ -51,6 +51,7 @@ function mathTokens(src: string, texMathSingleBackslash = true): CodeEmojiMathTo
             texMathGfm: false,
             texMathSingleBackslash,
             texMathDoubleBackslash: false,
+            highlightSyntax: false,
         },
     }).filter((token): token is CodeEmojiMathToken => token.type === 'inline_math');
 }
@@ -98,6 +99,7 @@ describe('tex_math_single_backslash — off by default, as in pandoc', () => {
                 texMathGfm: false,
                 texMathSingleBackslash: false,
                 texMathDoubleBackslash: false,
+                highlightSyntax: false,
             },
         });
 

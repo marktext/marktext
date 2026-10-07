@@ -35,6 +35,11 @@ export interface IMuyaOptions {
     texMathGfm: boolean;
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
+    /**
+     * Treat `==text==` as highlighted text (mark) in inline content and in the
+     * HTML export. Non-standard extension used by Obsidian / Typora / Logseq.
+     */
+    highlightSyntax: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;

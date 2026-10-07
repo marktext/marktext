@@ -418,6 +418,7 @@
         "texMathGfm": "Activer l'extension markdown de pandoc tex_math_gfm",
         "texMathSingleBackslash": "Activer l'extension markdown de pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Activer l'extension markdown de pandoc tex_math_double_backslash",
+        "highlightSyntax": "Activer la syntaxe de surlignage non standard ==texte==",
         "isHtmlEnabled": "Activer le rendu HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
@@ -646,6 +647,7 @@
         "texMathGfm": "Maths TeX de GitHub ($`…`$ et ```math)",
         "texMathSingleBackslash": "Maths TeX avec barre oblique inverse simple",
         "texMathDoubleBackslash": "Maths TeX avec barre oblique inverse double",
+        "highlightSyntax": "Surlignage (==texte==)",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

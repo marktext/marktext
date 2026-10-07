@@ -40,10 +40,10 @@ afterEach(() => {
         delete (window as Partial<Window>).MUYA_VERSION;
 });
 
-function bootMuya(markdown: string): Muya {
+function bootMuya(markdown: string, options: Record<string, unknown> = {}): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown } as ConstructorParameters<typeof Muya>[1]);
+    const muya = new Muya(host, { markdown, ...options } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedHosts.push(muya.domNode);
     return muya;
@@ -142,6 +142,15 @@ describe('format.format() toggle-off with the caret inside the formatted run', (
 
     it('mark (html_tag): `<mark>word</mark>` removes the highlight tags', () => {
         const content = caretInFirstBlock(bootMuya('<mark>word</mark>\n'), 2);
+        content.format('mark');
+        expect(content.text).toBe('word');
+    });
+
+    it('mark (== syntax): `==word==` removes the highlight markers', () => {
+        const content = caretInFirstBlock(
+            bootMuya('==word==\n', { highlightSyntax: true }),
+            2,
+        );
         content.format('mark');
         expect(content.text).toBe('word');
     });

@@ -102,6 +102,10 @@ export const inlineExtensionRules = {
     // This is not the best regexp, because it not support `2^2\\^`.
     superscript: /^(\^)((?:[^^\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
+    // `==text==` highlight, mirroring the `del` rule's shape. Not part of
+    // CommonMark/GFM — off unless `highlightSyntax` is set.
+    // eslint-disable-next-line regexp/no-super-linear-backtracking
+    mark: /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/,
     footnote_identifier: /^(\[\^)([^^[\]\s]+)(?<!\\)\]/,
 };
 

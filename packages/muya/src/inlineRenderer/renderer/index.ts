@@ -30,6 +30,7 @@ import inlineCode from './inlineCode';
 import inlineMath from './inlineMath';
 import link from './link';
 import loadImageAsync from './loadImageAsync';
+import mark from './mark';
 import multipleMath from './multipleMath';
 import referenceDefinition from './referenceDefinition';
 import referenceImage from './referenceImage';
@@ -62,6 +63,7 @@ const inlineSyntaxRenderer = {
     inlineCode,
     text,
     del,
+    mark,
     em,
     strong,
     htmlEscape,

@@ -27,6 +27,7 @@ const OPTIONS = {
     texMathGfm: false,
     texMathSingleBackslash: false,
     texMathDoubleBackslash: false,
+    highlightSyntax: false,
 };
 
 // Examples the lexer still gets wrong, with the reason. Same contract as

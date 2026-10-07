@@ -417,6 +417,7 @@
         "texMathGfm": "Pandoc'un markdown uzantısı tex_math_gfm'i etkinleştir",
         "texMathSingleBackslash": "Pandoc'un markdown uzantısı tex_math_single_backslash'i etkinleştir",
         "texMathDoubleBackslash": "Pandoc'un markdown uzantısı tex_math_double_backslash'i etkinleştir",
+        "highlightSyntax": "Standart olmayan ==metin== vurgu söz dizimini etkinleştir",
         "isHtmlEnabled": "HTML işlemeyi etkinleştir",
         "softNewlineAsSpace": "Yumuşak satır sonlarını boşluk olarak değerlendir",
         "sequenceTheme": "Dizi diyagramı teması",
@@ -646,6 +647,7 @@
         "texMathGfm": "GitHub TeX matematiği ($`…`$ ve ```math)",
         "texMathSingleBackslash": "Tek ters eğik çizgili TeX matematiği",
         "texMathDoubleBackslash": "Çift ters eğik çizgili TeX matematiği",
+        "highlightSyntax": "Vurgu (==metin==)",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

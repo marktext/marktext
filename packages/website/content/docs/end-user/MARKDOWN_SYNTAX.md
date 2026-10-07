@@ -13,6 +13,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
     - [Bold](#bold)
     - [Italics](#italics)
     - [Strikethrough](#strikethrough)
+    - [Highlight](#highlight)
   - [Links](#links)
     - [Autolinks](#autolinks)
     - [Inline links](#inline-links)
@@ -167,6 +168,22 @@ In GFM you can do strickthroughs by wrapping the text with double tildes.
 Which renders to:
 
 ~~Strike through this text.~~
+
+## Highlight
+
+Some editors write highlighted text as `==text==`. MarkText reads this
+non-standard syntax when **Preferences → Markdown → Highlight (==text==)** is
+enabled; it stays literal text otherwise, so documents are unaffected until you
+opt in. Both the editor and the HTML/PDF export render it as `<mark>`, the same
+as an explicit `<mark>text</mark>` tag.
+
+```markdown
+==Highlight this text.==
+```
+
+Renders to:
+
+<mark>Highlight this text.</mark>
 
 <br>
 
