@@ -114,8 +114,6 @@ export interface TabOptions {
   selected?: boolean
   /** Link fragment to reveal once the tab is active, e.g. `setup` from `other.md#setup`. */
   anchor?: string
-  /** Keep DOM focus where it is instead of handing it to the editor. */
-  preserveFocus?: boolean
   [key: string]: unknown
 }
 

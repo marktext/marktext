@@ -1469,19 +1469,11 @@ interface FileLoadedPayload {
   id?: string
   markdown?: string
   cursor?: unknown
-  preserveFocus?: boolean
 }
 
 // listen for `open-single-file` event, it will call this method only when open a new file.
 const setMarkdownToEditor = (payload: unknown) => {
-  const {
-    id,
-    markdown: newMarkdown,
-    cursor: newCursor,
-    preserveFocus
-  } = (payload ?? {}) as FileLoadedPayload
-  // Drop the flag so it cannot leak into a later mount.
-  editorStore.CONSUME_PRESERVE_FOCUS_ON_MOUNT()
+  const { id, markdown: newMarkdown, cursor: newCursor } = (payload ?? {}) as FileLoadedPayload
   if (editor.value) {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
@@ -1508,7 +1500,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
     // A freshly created/opened tab should be ready to type into.
-    if (!preserveFocus) focusFreshEditor()
+    if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
   }
 }
 
@@ -1823,8 +1815,7 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   // The new engine requires an explicit init() after construction (it builds
   // the document tree and instantiates the registered UI plugins).
-  // Skip the initial caret when the open asked to keep focus in the sidebar.
-  muya.init({ focus: !editorStore.CONSUME_PRESERVE_FOCUS_ON_MOUNT() })
+  muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.

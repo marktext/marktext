@@ -69,7 +69,8 @@ const handleFileClick = (event: MouseEvent): void => {
     // Restoring the tab's caret pulls DOM focus into the editor.
     bus.emit('SIDEBAR::focus-tree')
   } else {
-    window.electron.ipcRenderer.send('mt::open-file', pathname, { preserveFocus: true })
+    editorStore.SET_OPEN_INTENT(pathname, false)
+    window.electron.ipcRenderer.send('mt::open-file', pathname)
   }
 }
 

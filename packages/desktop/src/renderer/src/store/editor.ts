@@ -146,21 +146,13 @@ export interface EditorState {
   // Heading the cursor is inside, for the TOC highlight; null above the first.
   activeHeadingSlug: string | null
   selectionWordCount: FileWordCount | null
-  preserveFocusOnMount: boolean
 }
 
 const autoSaveTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-// Set by a sidebar double-click so the already-requested open takes focus when
-// it completes.
-let pendingFocusPath: string | null = null
-
-const takePendingFocus = (pathname: string | null | undefined): boolean => {
-  if (!pathname || !pendingFocusPath) return false
-  if (!window.fileUtils.isSamePathSync(pendingFocusPath, pathname)) return false
-  pendingFocusPath = null
-  return true
-}
+// Sidebar opens record whether the editor should take focus once that pathname
+// finishes loading. Keyed by pathname so concurrent opens keep their own intent.
+const openIntents = new Map<string, boolean>()
 
 export const useEditorStore = defineStore('editor', {
   state: (): EditorState => ({
@@ -170,8 +162,7 @@ export const useEditorStore = defineStore('editor', {
     listToc: [], // Used for equal check and for searching for the correct github-slug to jump to
     toc: [],
     activeHeadingSlug: null,
-    selectionWordCount: null,
-    preserveFocusOnMount: false
+    selectionWordCount: null
   }),
 
   getters: {
@@ -1254,6 +1245,24 @@ export const useEditorStore = defineStore('editor', {
       this.UPDATE_CURRENT_FILE(nextTab)
     },
 
+    // The sidebar records what should happen to focus when this open lands:
+    // `false` keeps it in the tree, `true` hands it to the editor.
+    SET_OPEN_INTENT(pathname: string, focus: boolean): void {
+      openIntents.set(pathname, focus)
+    },
+
+    // Reads and clears the intent for this pathname; `null` means no opinion.
+    TAKE_OPEN_INTENT(pathname: string | null | undefined): boolean | null {
+      if (!pathname) return null
+      for (const [key, focus] of openIntents) {
+        if (window.fileUtils.isSamePathSync(key, pathname)) {
+          openIntents.delete(key)
+          return focus
+        }
+      }
+      return null
+    },
+
     SWITCH_TAB_BY_FILEPATH(filePath: string, options: TabOptions = {}): void {
       const { tabs } = this
 
@@ -1270,6 +1279,9 @@ export const useEditorStore = defineStore('editor', {
       const next = tabs[nextTabIndex]
       if (!next) return
       this.UPDATE_CURRENT_FILE(next)
+      const focus = this.TAKE_OPEN_INTENT(filePath)
+      if (focus === true) bus.emit('editor-focus')
+      else if (focus === false) bus.emit('SIDEBAR::focus-tree')
       if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
     },
 
@@ -1280,13 +1292,7 @@ export const useEditorStore = defineStore('editor', {
         bus.emit('editor-focus')
         return
       }
-      pendingFocusPath = pathname
-    },
-
-    CONSUME_PRESERVE_FOCUS_ON_MOUNT(): boolean {
-      const value = this.preserveFocusOnMount
-      this.preserveFocusOnMount = false
-      return value
+      this.SET_OPEN_INTENT(pathname, true)
     },
 
     SWITCH_TAB_BY_INDEX(nextTabIndex: number): void {
@@ -1401,11 +1407,7 @@ export const useEditorStore = defineStore('editor', {
 
       if (selected) {
         this.UPDATE_CURRENT_FILE(docState)
-        // The editor pane may mount only after this emit, so the flag also
-        // lives in state for the component to read then.
-        const preserveFocus = options.preserveFocus === true && !takePendingFocus(pathname)
-        this.preserveFocusOnMount = preserveFocus
-        bus.emit('file-loaded', { id, markdown, cursor, preserveFocus })
+        bus.emit('file-loaded', { id, markdown, cursor })
         if (options.anchor) this.SCROLL_TO_ANCHOR(options.anchor)
       } else {
         this.tabs.push(docState)
