@@ -21,7 +21,21 @@
       @node-click="handleClick"
       @node-expand="onExpand"
       @node-collapse="onCollapse"
-    />
+    >
+      <!-- Element Plus escapes `data.label` as plain text. Showing the engine's
+           inline heading HTML needs a scoped slot; we re-add the
+           `el-tree-node__label` wrapper the default renderer would have made so
+           the outline's color / word-wrap CSS keeps applying. -->
+      <template #default="{ data }">
+        <!-- eslint-disable vue/no-v-html -- sanitized by labelHtmlOf -->
+        <span
+          class="el-tree-node__label"
+          :title="plainLabel(data)"
+          v-html="labelHtmlOf(data)"
+        />
+        <!-- eslint-enable vue/no-v-html -->
+      </template>
+    </el-tree>
   </div>
 </template>
 
@@ -30,6 +44,7 @@ import { computed, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
+import { sanitize, TOC_DOMPURIFY_CONFIG } from '@/util/dompurify'
 import bus from '../../bus'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -46,6 +61,26 @@ const tocTreeRef = ref<TreeInstance | null>(null)
 const defaultProps = {
   children: 'children',
   label: 'label'
+}
+
+interface TocNodeData {
+  label?: unknown
+  labelHtml?: unknown
+}
+
+// `label` is the heading's reader-facing plain text (kept as the hover title);
+// `labelHtml` is the engine's pre-rendered inline HTML for display.
+const plainLabel = (data: TocNodeData): string =>
+  typeof data.label === 'string' ? data.label : ''
+
+const escapeHtml = (text: string): string =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+// Sanitize the engine HTML before `v-html`, falling back to the escaped plain
+// label so a payload without `labelHtml` shows text instead of markup.
+const labelHtmlOf = (data: TocNodeData): string => {
+  const html = typeof data.labelHtml === 'string' ? data.labelHtml : ''
+  return html ? sanitize(html, TOC_DOMPURIFY_CONFIG) : escapeHtml(plainLabel(data))
 }
 
 const { toc } = storeToRefs(editorStore)
@@ -151,14 +186,22 @@ const handleClick = (data: { slug?: unknown }): void => {
   min-height: 0;
 }
 
-/* Element Plus wraps every tree label in an `<el-text>`, which sets a color of
-   its own (--el-text-color-regular, #606266). That beats the themed color the
-   label would otherwise inherit from `.el-tree`, leaving the TOC dark gray on
-   dark themes (#5094). Same story for the expand arrow, which Element colors
-   with --el-tree-expand-icon-color; the sidebar's own arrows use
-   --sideBarIconColor. */
+/* The scoped slot above replaces Element Plus's `<el-text truncated>` label, so
+   the truncation that element provided (nowrap + ellipsis + 100% max width) is
+   re-declared here. `color: inherit` is deliberate: `el-text` set a color of
+   its own (--el-text-color-regular, #606266) that beat the themed color the
+   label inherits from `.el-tree`, leaving the TOC dark gray on dark themes
+   (#5094). Same story for the expand arrow, which Element colors with
+   --el-tree-expand-icon-color; the sidebar's own arrows use --sideBarIconColor. */
 .side-bar-toc .el-tree-node__label {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
   color: inherit;
+  align-self: center;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .side-bar-toc .el-tree-node__expand-icon {
@@ -206,5 +249,42 @@ const handleClick = (data: { slug?: unknown }): void => {
   white-space: normal;
   text-overflow: clip;
   overflow: visible;
+}
+
+/* Inline markdown the engine renders into each outline label (#3110). Bold and
+   italic ride the browser defaults; the rest need theme-aware styling. The
+   sup/sub line-height keeps a raised glyph from enlarging the row. */
+.side-bar-toc .el-tree-node__label strong {
+  font-weight: 700;
+}
+
+.side-bar-toc .el-tree-node__label em {
+  font-style: italic;
+}
+
+.side-bar-toc .el-tree-node__label del {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.side-bar-toc .el-tree-node__label mark {
+  padding: 0 2px;
+  color: inherit;
+  background: var(--highlightColor);
+  border-radius: 2px;
+}
+
+.side-bar-toc .el-tree-node__label code {
+  padding: 0 3px;
+  font-family: 'DejaVu Sans Mono', 'Source Code Pro', 'Droid Sans Mono', Consolas, monospace;
+  font-size: 0.9em;
+  color: var(--codeBlockColor);
+  background: var(--codeBgColor);
+  border-radius: 3px;
+}
+
+.side-bar-toc .el-tree-node__label sup,
+.side-bar-toc .el-tree-node__label sub {
+  line-height: 0;
 }
 </style>

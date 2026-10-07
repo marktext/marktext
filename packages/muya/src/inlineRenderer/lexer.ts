@@ -1,13 +1,15 @@
 import type { IEmphasisSpan } from './emphasis';
 import type { BeginRules, InlineRules } from './rules';
 import type {
+    CodeEmojiMathToken,
     ITokenizerFacOptions,
     ITokenizerOptions,
     Labels,
     Token,
 } from './types';
 import escapeCharactersMap from '../config/escapeCharacter';
-import { isLengthEven, union } from '../utils';
+import { escapeHTML, isLengthEven, union } from '../utils';
+import { validEmoji } from '../utils/emoji';
 import { scanEmphasisSpans } from './emphasis';
 import { parseSrcAndTitle } from './linkDestination';
 import { BACKSLASH_MATH_RULES, beginRules, emojiValidateRules, inlineRules, linkValidateRules } from './rules';
@@ -948,10 +950,13 @@ export function tokensToPlainText(tokens: Token[]): string {
             case 'text':
             case 'inline_code':
             case 'inline_math':
-            case 'emoji':
             case 'super_sub_script':
             case 'footnote_identifier':
                 result += token.content;
+                break;
+
+            case 'emoji':
+                result += emojiDisplayText(token);
                 break;
 
             case 'strong':
@@ -1002,6 +1007,106 @@ export function tokensToPlainText(tokens: Token[]): string {
             // header / hr / code_fence / multiple_math begin markers, the
             // reference_definition line, and an atx heading's tail `#`s carry no
             // reader-facing text.
+            default:
+                break;
+        }
+    }
+
+    return result;
+}
+
+// The glyph a reader sees for an emoji token: the shortcode's emoji when the
+// alias is known, else the raw `:code:` — which is what the editor shows for an
+// unknown alias too. Shared by both serializers so a heading's visible text is
+// identical whether it is rendered plain (`tokensToPlainText`) or to HTML.
+function emojiDisplayText(token: CodeEmojiMathToken): string {
+    return validEmoji(token.content)?.emoji ?? token.raw;
+}
+
+// The TOC's display form of the same tokens: reader-facing text carrying the
+// emphasis / code / emoji styling the editor shows, as an HTML string. Mirrors
+// `tokensToPlainText` case for case so `tokensToInlineHtml(tokens)` always has
+// the same `textContent` as `tokensToPlainText(tokens)` — the TOC relies on
+// that to keep the slug, the outline key and the shown text in step.
+//
+// Links and images flatten to their label / alt text (a TOC row is already a
+// click-to-scroll control, so an inner `<a>` or `<img>` would fight it), and
+// math keeps its source text (the outline does not run KaTeX).
+export function tokensToInlineHtml(tokens: Token[]): string {
+    let result = '';
+
+    for (const token of tokens) {
+        switch (token.type) {
+            case 'text':
+                result += escapeHTML(token.content);
+                break;
+
+            case 'strong':
+            case 'em':
+            case 'del':
+            case 'mark':
+                result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
+                break;
+
+            case 'inline_code':
+                result += `<code>${escapeHTML(token.content)}</code>`;
+                break;
+
+            case 'emoji':
+                result += escapeHTML(emojiDisplayText(token));
+                break;
+
+            case 'super_sub_script': {
+                const tag = token.marker === '^' ? 'sup' : 'sub';
+                result += `<${tag}>${escapeHTML(token.content)}</${tag}>`;
+                break;
+            }
+
+            case 'inline_math':
+            case 'footnote_identifier':
+                result += escapeHTML(token.content);
+                break;
+
+            case 'link':
+            case 'reference_link':
+                result += tokensToInlineHtml(token.children);
+                break;
+
+            case 'image':
+            case 'reference_image':
+                result += escapeHTML(token.alt);
+                break;
+
+            case 'html_tag':
+                if (token.children)
+                    result += tokensToInlineHtml(token.children);
+                else if (token.content)
+                    result += escapeHTML(token.content);
+                break;
+
+            case 'backlash':
+                result += escapeHTML(token.raw.replace(/^\\/, ''));
+                break;
+
+            case 'html_escape':
+                result += escapeHTML(escapeCharactersMap[token.escapeCharacter] ?? token.raw);
+                break;
+
+            case 'auto_link':
+                result += escapeHTML(token.raw.replace(/^<|>$/g, ''));
+                break;
+
+            case 'auto_link_extension':
+                result += escapeHTML(token.raw);
+                break;
+
+            case 'soft_line_break':
+            case 'hard_line_break':
+                result += ' ';
+                break;
+
+            // Begin markers, the reference-definition line and an atx heading's
+            // tail `#`s carry no reader-facing text.
             default:
                 break;
         }

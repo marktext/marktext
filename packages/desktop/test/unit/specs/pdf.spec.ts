@@ -243,6 +243,16 @@ describe('getHtmlToc', () => {
     expect(html).toContain('href="#installation-1"')
   })
 
+  it('renders the engine `contentHtml` for entries when present (#3110)', async() => {
+    const { getHtmlToc } = await loadPdf()
+    const html = getHtmlToc(
+      [{ lvl: 2, content: 'Sub', contentHtml: '<strong>Sub</strong>' }],
+      { tocIncludeTopHeading: true }
+    )
+
+    expect(html).toContain('<strong>Sub</strong>')
+  })
+
   it('returns an empty string when the TOC has no qualifying entries', async() => {
     const { getHtmlToc } = await loadPdf()
     // A lone top-level H1 is shifted away by the default (exclude-top) path,

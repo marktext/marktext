@@ -40,6 +40,7 @@ interface TocItem extends ListItem {
   slug?: string
   githubSlug?: string
   content?: string
+  contentHtml?: string
   lvl: number | null
 }
 

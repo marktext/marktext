@@ -55,4 +55,17 @@ describe('deriveKeyedToc', () => {
     expect(keyed[0].slug).toBe('uid-42')
     expect(keyed[0].key).toBe('a')
   })
+
+  it('carries the rendered heading HTML through for display (#3110)', () => {
+    const keyed = deriveKeyedToc([
+      {
+        label: 'Bold',
+        labelHtml: '<strong>Bold</strong>',
+        slug: 'uid-1',
+        githubSlug: 'bold',
+        children: []
+      }
+    ])
+    expect(keyed[0].labelHtml).toBe('<strong>Bold</strong>')
+  })
 })

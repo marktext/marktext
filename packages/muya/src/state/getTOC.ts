@@ -1,12 +1,13 @@
 import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type { Muya } from '../muya';
-import { tokenizer, tokensToPlainText } from '../inlineRenderer/lexer';
+import { tokenizer, tokensToInlineHtml, tokensToPlainText } from '../inlineRenderer/lexer';
 import { getUniqueId } from '../utils';
 import { generateGithubSlug } from '../utils/slug';
 
 export interface ITocItem {
     content: string;
+    contentHtml: string;
     lvl: number;
     slug: string;
     githubSlug: string;
@@ -47,21 +48,26 @@ export function getTOC(muya: Muya): ITocItem[] {
             ? text.trim()
             : text.replace(/^\s*#{1,6}\s+/, '').trim();
 
-        // Show and slug the heading by its rendered text — inline markdown
-        // (`**bold**`, `[label](url)`, images) stripped to what a reader sees —
-        // instead of the raw source (#4811). Slugging the same plain text keeps
-        // `githubSlug` in step with the anchor id the HTML export injects from
-        // `heading.textContent` (state/markdownToHtml.ts).
+        // Tokenize the heading source once and derive both serializations from
+        // it: `content` is the reader-facing plain text (inline markdown
+        // stripped, for the slug, the document title and the exported TOC), and
+        // `contentHtml` is that same text with emphasis / code / emoji rendered
+        // for the outline panel (#3110). Sharing one token pass keeps the shown
+        // text and the slug in step — `githubSlug` must match the anchor id the
+        // HTML export injects from `heading.textContent`
+        // (state/markdownToHtml.ts, #4811).
         const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = muya.options;
-        const content = tokensToPlainText(
-            tokenizer(source, {
-                hasBeginRules: false,
-                options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax },
-            }),
-        ).trim();
+        const tokens = tokenizer(source, {
+            hasBeginRules: false,
+            options: { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax },
+        });
+
+        const content = tokensToPlainText(tokens).trim();
+        const contentHtml = tokensToInlineHtml(tokens).trim();
 
         items.push({
             content,
+            contentHtml,
             lvl: block.meta.level,
             slug: stableSlug(block),
             githubSlug: generateGithubSlug(content),
