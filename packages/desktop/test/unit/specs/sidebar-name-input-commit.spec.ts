@@ -121,6 +121,44 @@ describe('sidebar name input commit', () => {
     expect(store.createCache).toEqual({})
   })
 
+  it('submits a rename only once per input session', async() => {
+    const store = useProjectStore()
+    store.renameCache = '/docs/notes.md'
+    store.nameInputValue = 'renamed.md'
+
+    // Two click-away events before the first move resolves must not fire twice.
+    store.COMMIT_NAME_INPUT()
+    store.COMMIT_NAME_INPUT()
+
+    await vi.waitFor(() => expect(store.renameCache).toBeNull())
+    expect(window.fileUtils.move).toHaveBeenCalledTimes(1)
+  })
+
+  it('submits a create only once per input session', async() => {
+    const store = useProjectStore()
+    store.createCache = { dirname: '/docs', type: 'file' }
+    store.nameInputValue = 'note'
+
+    store.COMMIT_NAME_INPUT()
+    store.COMMIT_NAME_INPUT()
+
+    await vi.waitFor(() => expect(window.fileUtils.outputFile).toHaveBeenCalledTimes(1))
+    expect(window.fileUtils.outputFile).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the selection on the renamed path', async() => {
+    const store = useProjectStore()
+    const node = { pathname: '/docs/notes.md', name: 'notes.md', id: 'f1', isFile: true }
+    store.CHANGE_ACTIVE_ITEM(node)
+    store.renameCache = '/docs/notes.md'
+    store.nameInputValue = 'renamed.md'
+
+    store.COMMIT_NAME_INPUT()
+
+    await vi.waitFor(() => expect(store.activeItem.pathname).toBe('/docs/renamed.md'))
+    expect(store.activeItem.name).toBe('renamed.md')
+  })
+
   it('is a no-op when no name input is open', () => {
     const store = useProjectStore()
     store.nameInputValue = 'stale'

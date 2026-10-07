@@ -350,14 +350,17 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
   bus.on('SIDEBAR::focus-tree', focusTree)
-  document.addEventListener('click', handleDocumentClick)
+  // Capture phase: several click targets (project/collapse headings, editor
+  // tabs) call `@click.stop`, which would otherwise keep the click-away commit
+  // from running.
+  document.addEventListener('click', handleDocumentClick, true)
   document.addEventListener('contextmenu', handleDocumentContextMenu)
 })
 
 onUnmounted(() => {
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   bus.off('SIDEBAR::focus-tree', focusTree)
-  document.removeEventListener('click', handleDocumentClick)
+  document.removeEventListener('click', handleDocumentClick, true)
   document.removeEventListener('contextmenu', handleDocumentContextMenu)
 })
 </script>

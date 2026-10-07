@@ -84,6 +84,9 @@ export const useProjectStore = defineStore('project', () => {
   // Text of whichever inline rename/create input is open. It lives here (not in
   // the row components) so the click-away handler can commit the edit.
   const nameInputValue = ref<string>('')
+  // A commit is in flight. The caches are only cleared once the filesystem work
+  // resolves, so a second click would submit the same edit again.
+  let nameInputPending = false
   const clipboard = ref<ClipboardEntry | null>(null)
   const projectTree = ref<ProjectTree | null>(null)
   const pendingTreeEvents = ref<PendingEvent[]>([])
@@ -330,6 +333,8 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   async function CREATE_FILE_DIRECTORY(name: string): Promise<void> {
+    if (nameInputPending) return
+    nameInputPending = true
     const cache = createCache.value as CreateCacheEntry
     const { dirname, type } = cache
 
@@ -339,38 +344,40 @@ export const useProjectStore = defineStore('project', () => {
 
     const fullName = `${dirname}/${name}`
 
-    // Creating over an existing path would silently overwrite it (outputFile
-    // truncates). Refuse instead of destroying the existing file (#1946).
-    if (await window.fileUtils.pathExists(fullName)) {
-      createCache.value = {}
-      notice.notify({
-        title: 'Error in Side Bar',
-        type: 'error',
-        message: `A ${type} named "${name}" already exists in this folder.`
-      })
-      return
-    }
-
-    create(fullName, type as FileCreateType)
-      .then(() => {
+    try {
+      // Creating over an existing path would silently overwrite it (outputFile
+      // truncates). Refuse instead of destroying the existing file (#1946).
+      if (await window.fileUtils.pathExists(fullName)) {
         createCache.value = {}
-        if (type === 'file') {
-          newFileNameCache.value = fullName
-        }
-      })
-      .catch((err) => {
         notice.notify({
           title: 'Error in Side Bar',
           type: 'error',
-          message: err instanceof Error ? err.message : String(err)
+          message: `A ${type} named "${name}" already exists in this folder.`
         })
+        return
+      }
+
+      await create(fullName, type as FileCreateType)
+      createCache.value = {}
+      if (type === 'file') {
+        newFileNameCache.value = fullName
+      }
+    } catch (err) {
+      notice.notify({
+        title: 'Error in Side Bar',
+        type: 'error',
+        message: err instanceof Error ? err.message : String(err)
       })
+    } finally {
+      nameInputPending = false
+    }
   }
 
   function RENAME_IN_SIDEBAR(name: string): void {
     const editorStore = useEditorStore()
     const src = renameCache.value
     if (!src) return
+    if (nameInputPending) return
     // An empty name would move the node onto its parent directory.
     if (!name) {
       CLEAR_NAME_INPUT_STATE()
@@ -382,10 +389,20 @@ export const useProjectStore = defineStore('project', () => {
       CLEAR_NAME_INPUT_STATE()
       return
     }
+    nameInputPending = true
     rename(src, dest)
       .then(() => {
         // A stale cache would keep `isEditingName` true and block later shortcuts.
         CLEAR_NAME_INPUT_STATE()
+        // Follow-up actions (a context menu opened at commit time, F2) must
+        // target the new path, not the one that no longer exists.
+        if (activeItem.value?.pathname === src) {
+          activeItem.value = {
+            ...activeItem.value,
+            pathname: dest,
+            name: window.path.basename(dest)
+          }
+        }
         editorStore.RENAME_IF_NEEDED({ src, dest })
       })
       .catch((err) => {
@@ -394,6 +411,9 @@ export const useProjectStore = defineStore('project', () => {
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
+      })
+      .finally(() => {
+        nameInputPending = false
       })
   }
 

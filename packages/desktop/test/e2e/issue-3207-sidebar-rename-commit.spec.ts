@@ -18,6 +18,7 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
     projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'marktext-3207-'))
     fs.writeFileSync(path.join(projectDir, 'first.md'), '# First\n', 'utf-8')
     fs.writeFileSync(path.join(projectDir, 'second.md'), '# Second\n', 'utf-8')
+    fs.writeFileSync(path.join(projectDir, 'third.md'), '# Third\n', 'utf-8')
     fs.mkdirSync(path.join(projectDir, 'docs'))
 
     const launched = await launchElectron([projectDir])
@@ -133,5 +134,23 @@ test.describe('Sidebar name input commits on click-away (#3207)', () => {
       .poll(() => fs.existsSync(path.join(projectDir, 'renamed-two.md')))
       .toBe(true)
     expect(fs.existsSync(path.join(projectDir, 'second.md'))).toBe(false)
+  })
+
+  test('clicking a @click.stop target (project heading) still commits', async() => {
+    const target = page.locator('.side-bar-file[title$="third.md"]').first()
+    await target.click()
+    await page.keyboard.press('F2')
+
+    const input = target.locator('input.rename')
+    await expect(input).toBeVisible()
+    await input.pressSequentially('renamed-three', { delay: 20 })
+
+    // The project heading's collapse arrow calls event.stopPropagation().
+    await page.locator('.project-tree > .title .icon-arrow').first().click()
+
+    await expect
+      .poll(() => fs.existsSync(path.join(projectDir, 'renamed-three.md')))
+      .toBe(true)
+    expect(fs.existsSync(path.join(projectDir, 'third.md'))).toBe(false)
   })
 })
