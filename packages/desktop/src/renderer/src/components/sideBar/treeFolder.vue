@@ -18,7 +18,7 @@
       <input
         v-if="renameCache === folder.pathname"
         ref="renameInput"
-        v-model="newName"
+        v-model="nameInputValue"
         type="text"
         class="rename"
         @click.stop="noop"
@@ -42,7 +42,7 @@
       <input
         v-if="createCache.dirname === folder.pathname"
         ref="input"
-        v-model="createName"
+        v-model="nameInputValue"
         type="text"
         class="new-input"
         :style="{ 'margin-left': `${depth * 5 + 15}px` }"
@@ -75,9 +75,6 @@ const props = defineProps<{
 
 const projectStore = useProjectStore()
 
-const createName = ref('')
-const newName = ref('')
-
 const folderEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
@@ -87,6 +84,7 @@ const isCollapsed = ref<boolean>(!!props.folder.isCollapsed)
 
 const { renameCache } = storeToRefs(projectStore)
 const { createCache } = storeToRefs(projectStore)
+const { nameInputValue } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 
@@ -101,13 +99,12 @@ const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {
       input.value.focus()
-      createName.value = ''
     }
   })
 }
 
 const handleInputEnter = (): void => {
-  projectStore.CREATE_FILE_DIRECTORY(createName.value)
+  projectStore.CREATE_FILE_DIRECTORY(nameInputValue.value)
 }
 
 const folderNameClick = (): void => {
@@ -118,8 +115,7 @@ const folderNameClick = (): void => {
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
-  newName.value = props.folder.name
-  // The `v-if` input mounts on the next tick with this value.
+  // The `v-if` input mounts on the next tick; the store seeds its value.
   nextTick(() => {
     if (!renameInput.value) return
     renameInput.value.focus()
@@ -128,9 +124,7 @@ const focusRenameInput = (): void => {
 }
 
 const rename = (): void => {
-  if (newName.value) {
-    projectStore.RENAME_IN_SIDEBAR(newName.value)
-  }
+  projectStore.RENAME_IN_SIDEBAR(nameInputValue.value)
 }
 
 onMounted(() => {

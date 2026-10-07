@@ -81,6 +81,9 @@ export const useProjectStore = defineStore('project', () => {
   const createCache = ref<CreateCacheEntry | Record<string, never>>({})
   const newFileNameCache = ref<string>('')
   const renameCache = ref<string | null>(null)
+  // Text of whichever inline rename/create input is open. It lives here (not in
+  // the row components) so the click-away handler can commit the edit.
+  const nameInputValue = ref<string>('')
   const clipboard = ref<ClipboardEntry | null>(null)
   const projectTree = ref<ProjectTree | null>(null)
   const pendingTreeEvents = ref<PendingEvent[]>([])
@@ -213,6 +216,21 @@ export const useProjectStore = defineStore('project', () => {
   function CLEAR_NAME_INPUT_STATE(): void {
     createCache.value = {}
     renameCache.value = null
+    nameInputValue.value = ''
+  }
+
+  // Clicking or blurring away accepts the edit, mirroring the Enter key and the
+  // Finder / Windows Explorer gesture instead of discarding it (#3207, #3385).
+  function COMMIT_NAME_INPUT(): void {
+    const value = nameInputValue.value
+    if (renameCache.value) {
+      RENAME_IN_SIDEBAR(value)
+      return
+    }
+    const { dirname } = createCache.value as CreateCacheEntry
+    if (!dirname) return
+    if (value) CREATE_FILE_DIRECTORY(value)
+    else CLEAR_NAME_INPUT_STATE()
   }
 
   function ASK_FOR_OPEN_PROJECT(): void {
@@ -228,6 +246,7 @@ export const useProjectStore = defineStore('project', () => {
       const { pathname, isDirectory } = activeItem.value
       const dirname = isDirectory ? pathname : window.path.dirname(pathname)
       createCache.value = { dirname, type: String(type) }
+      nameInputValue.value = ''
       bus.emit('SIDEBAR::show-new-input')
     })
     bus.on('SIDEBAR::remove', async() => {
@@ -305,6 +324,7 @@ export const useProjectStore = defineStore('project', () => {
     bus.on('SIDEBAR::rename', () => {
       const { pathname } = activeItem.value
       renameCache.value = pathname
+      nameInputValue.value = typeof pathname === 'string' ? window.path.basename(pathname) : ''
       bus.emit('SIDEBAR::show-rename-input')
     })
   }
@@ -312,6 +332,11 @@ export const useProjectStore = defineStore('project', () => {
   async function CREATE_FILE_DIRECTORY(name: string): Promise<void> {
     const cache = createCache.value as CreateCacheEntry
     const { dirname, type } = cache
+    // A second call after the input closed (or with no create target) is a no-op.
+    if (!dirname) return
+    // Close the input before the async work: a later click then sees no open
+    // input and cannot submit the same edit twice.
+    CLEAR_NAME_INPUT_STATE()
 
     if (type === 'file' && !window.fileUtils.hasMarkdownExtension(name)) {
       name += '.md'
@@ -319,53 +344,54 @@ export const useProjectStore = defineStore('project', () => {
 
     const fullName = `${dirname}/${name}`
 
-    // Creating over an existing path would silently overwrite it (outputFile
-    // truncates). Refuse instead of destroying the existing file (#1946).
-    if (await window.fileUtils.pathExists(fullName)) {
-      createCache.value = {}
-      notice.notify({
-        title: 'Error in Side Bar',
-        type: 'error',
-        message: `A ${type} named "${name}" already exists in this folder.`
-      })
-      return
-    }
-
-    create(fullName, type as FileCreateType)
-      .then(() => {
-        createCache.value = {}
-        if (type === 'file') {
-          newFileNameCache.value = fullName
-        }
-      })
-      .catch((err) => {
+    try {
+      // Creating over an existing path would silently overwrite it (outputFile
+      // truncates). Refuse instead of destroying the existing file (#1946).
+      if (await window.fileUtils.pathExists(fullName)) {
         notice.notify({
           title: 'Error in Side Bar',
           type: 'error',
-          message: err instanceof Error ? err.message : String(err)
+          message: `A ${type} named "${name}" already exists in this folder.`
         })
+        return
+      }
+
+      await create(fullName, type as FileCreateType)
+      if (type === 'file') {
+        newFileNameCache.value = fullName
+      }
+    } catch (err) {
+      notice.notify({
+        title: 'Error in Side Bar',
+        type: 'error',
+        message: err instanceof Error ? err.message : String(err)
       })
+    }
   }
 
   function RENAME_IN_SIDEBAR(name: string): void {
     const editorStore = useEditorStore()
     const src = renameCache.value
     if (!src) return
+    // Close the input before the async work: a later click then sees no open
+    // input and cannot submit the same rename twice.
+    CLEAR_NAME_INPUT_STATE()
     // An empty name would move the node onto its parent directory.
-    if (!name) {
-      CLEAR_NAME_INPUT_STATE()
-      return
-    }
+    if (!name) return
     const dirname = window.path.dirname(src)
     const dest = dirname + PATH_SEPARATOR + name
-    if (window.path.normalize(dest) === window.path.normalize(src)) {
-      CLEAR_NAME_INPUT_STATE()
-      return
-    }
+    if (window.path.normalize(dest) === window.path.normalize(src)) return
     rename(src, dest)
       .then(() => {
-        // A stale cache would keep `isEditingName` true and block later shortcuts.
-        CLEAR_NAME_INPUT_STATE()
+        // Keep the selection on the new path so a following F2 / Delete acts on
+        // the renamed node instead of the one that no longer exists.
+        if (activeItem.value?.pathname === src) {
+          activeItem.value = {
+            ...activeItem.value,
+            pathname: dest,
+            name: window.path.basename(dest)
+          }
+        }
         editorStore.RENAME_IF_NEEDED({ src, dest })
       })
       .catch((err) => {
@@ -386,6 +412,7 @@ export const useProjectStore = defineStore('project', () => {
     createCache,
     newFileNameCache,
     renameCache,
+    nameInputValue,
     clipboard,
     projectTree,
     pendingTreeEvents,
@@ -397,6 +424,7 @@ export const useProjectStore = defineStore('project', () => {
     CHANGE_ACTIVE_ITEM,
     CHANGE_CLIPBOARD,
     CLEAR_NAME_INPUT_STATE,
+    COMMIT_NAME_INPUT,
     ASK_FOR_OPEN_PROJECT,
     LISTEN_FOR_SIDEBAR_CONTEXT_MENU,
     CREATE_FILE_DIRECTORY,
