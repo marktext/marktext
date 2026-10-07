@@ -57,6 +57,7 @@
   "texMathGfm": false,
   "texMathSingleBackslash": false,
   "texMathDoubleBackslash": false,
+  "highlightSyntax": false,
   "isHtmlEnabled": true,
   "softNewlineAsSpace": false,
   "sequenceTheme": "hand",
