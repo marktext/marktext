@@ -72,6 +72,12 @@ electronLanguages: # Keep Chromium/AppKit locales for the UI languages MarkText 
   - zh_CN
   - zh_TW
 
+electronFuses:
+  # Node's CLI parser inside Electron rejects `--debug` (DEP0062, exit 9) before
+  # MarkText can read it (#5409). With this fuse off the packaged app ignores
+  # Node's inspector flags, so `--debug` reaches MarkText.
+  enableNodeCliInspectArguments: false
+
 asarUnpack:
   - resources/**
 fileAssociations:
