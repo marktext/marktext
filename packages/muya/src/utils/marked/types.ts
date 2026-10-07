@@ -8,6 +8,7 @@ export interface ILexOption {
     texMathDoubleBackslash?: boolean;
     frontMatter?: boolean;
     superSubScript?: boolean;
+    highlightSyntax?: boolean;
 }
 
 export type Heading = Tokens.Heading & {

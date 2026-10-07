@@ -87,6 +87,12 @@
           :on-change="(value) => onSelectChange('texMathDoubleBackslash', value)"
           more="https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.highlightSyntax')"
+          :bool="highlightSyntax"
+          :on-change="(value) => onSelectChange('highlightSyntax', value)"
+          more="https://www.markdownguide.org/extended-syntax/#highlight"
+        />
       </template>
     </compound>
 
@@ -187,6 +193,7 @@ const {
   texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash,
+  highlightSyntax,
   isHtmlEnabled,
   softNewlineAsSpace,
   sequenceTheme,

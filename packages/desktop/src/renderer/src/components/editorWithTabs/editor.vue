@@ -196,6 +196,7 @@ const {
   texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash,
+  highlightSyntax,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -603,6 +604,12 @@ watch(texMathSingleBackslash, (value, oldValue) => {
 watch(texMathDoubleBackslash, (value, oldValue) => {
   if (value !== oldValue && editor.value) {
     editor.value.setOptions({ texMathDoubleBackslash: value }, true)
+  }
+})
+
+watch(highlightSyntax, (value, oldValue) => {
+  if (value !== oldValue && editor.value) {
+    editor.value.setOptions({ highlightSyntax: value }, true)
   }
 })
 
@@ -1775,6 +1782,7 @@ onMounted(() => {
     texMathGfm: texMathGfm.value,
     texMathSingleBackslash: texMathSingleBackslash.value,
     texMathDoubleBackslash: texMathDoubleBackslash.value,
+    highlightSyntax: highlightSyntax.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,

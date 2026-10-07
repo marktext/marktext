@@ -35,6 +35,7 @@ export interface IMuyaOptions {
     texMathGfm: boolean;
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
+    highlightSyntax: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;

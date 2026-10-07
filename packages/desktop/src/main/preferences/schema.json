@@ -291,6 +291,11 @@
     "type": "boolean",
     "default": false
   },
+  "highlightSyntax": {
+    "description": "Markdown-Enable the non-standard ==highlight== markdown syntax.",
+    "type": "boolean",
+    "default": false
+  },
   "isHtmlEnabled": {
     "description": "Markdown-Enable HTML rendering",
     "type": "boolean",

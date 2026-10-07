@@ -170,6 +170,15 @@ describe('renderToStaticHTML', () => {
             expect(strict).toMatch(/<pre><code[^>]*>x\^2/);
         });
 
+        it('honours highlightSyntax (==text== as <mark>, off by default)', () => {
+            const off = renderToStaticHTML('a ==hi== b');
+            expect(off).toContain('a ==hi== b');
+            expect(off).not.toContain('<mark>');
+
+            const on = renderToStaticHTML('a ==hi== b', { highlightSyntax: true });
+            expect(on).toContain('a <mark>hi</mark> b');
+        });
+
         it('honours frontMatter option (renders YAML front matter when enabled)', () => {
             const src = '---\ntitle: Hello\n---\n\n# Body';
             const off = renderToStaticHTML(src);

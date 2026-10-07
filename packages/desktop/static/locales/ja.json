@@ -418,6 +418,7 @@
         "texMathGfm": "Pandoc の markdown 拡張 tex_math_gfm を有効にする",
         "texMathSingleBackslash": "Pandoc の markdown 拡張 tex_math_single_backslash を有効にする",
         "texMathDoubleBackslash": "Pandoc の markdown 拡張 tex_math_double_backslash を有効にする",
+        "highlightSyntax": "非標準の ==テキスト== ハイライト構文を有効にする",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -646,6 +647,7 @@
         "texMathGfm": "GitHub の TeX 数式（$`…`$ と ```math）",
         "texMathSingleBackslash": "単一バックスラッシュの TeX 数式",
         "texMathDoubleBackslash": "二重バックスラッシュの TeX 数式",
+        "highlightSyntax": "ハイライト (==テキスト==)",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

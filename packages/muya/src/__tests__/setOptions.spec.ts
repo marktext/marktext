@@ -210,6 +210,22 @@ describe('muya render-affecting options', () => {
         expect(muya.domNode.querySelectorAll('sup').length).toBe(1);
     });
 
+    it('setOptions highlightSyntax toggles ==text== → <mark> live', async () => {
+        const muya = bootMuyaWith('==hi==\n', {});
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(0);
+        expect(muya.domNode.textContent).toContain('==hi==');
+
+        muya.setOptions({ highlightSyntax: true }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(1);
+        expect(muya.getMarkdown()).toBe('==hi==\n');
+
+        muya.setOptions({ highlightSyntax: false }, true);
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        expect(muya.domNode.querySelectorAll('mark').length).toBe(0);
+    });
+
     it('frontmatterType:false drives the option onto muya.options', () => {
         const muya = bootMuyaWith('body\n', {});
         muya.setOptions({ frontmatterType: '+' });

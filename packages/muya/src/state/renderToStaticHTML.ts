@@ -11,6 +11,7 @@ export interface IRenderToStaticHTMLOptions {
     texMathDoubleBackslash?: boolean;
     superSubScript?: boolean;
     frontMatter?: boolean;
+    highlightSyntax?: boolean;
     /**
      * Skip DOMPurify sanitization. **Unsafe with untrusted input** — drops
      * the XSS guarantees of the default export path. Only intended for
@@ -59,6 +60,7 @@ export function renderToStaticHTML(
         texMathDoubleBackslash: options.texMathDoubleBackslash ?? false,
         superSubScript: options.superSubScript ?? true,
         frontMatter: options.frontMatter ?? false,
+        highlightSyntax: options.highlightSyntax ?? false,
     });
 
     // Post-process footnotes into the standard GFM / pandoc shape (inline

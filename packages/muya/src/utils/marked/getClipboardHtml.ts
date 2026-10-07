@@ -4,6 +4,7 @@ import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
+import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import superSubScriptExtension from './extensions/superSubscript';
 import fm, { frontMatterRender } from './frontMatter';
@@ -12,7 +13,7 @@ import walkTokens from './walkTokens';
 
 export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript }
+    const { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax }
         = options;
     let html = '';
 
@@ -68,6 +69,9 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
 
     if (superSubScript)
         marked.use(superSubScriptExtension());
+
+    if (highlightSyntax)
+        marked.use(markExtension());
 
     if (footnote)
         marked.use(footnoteExtension());

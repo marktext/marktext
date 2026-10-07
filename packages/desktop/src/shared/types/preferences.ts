@@ -47,6 +47,7 @@ export interface IUserPreferences {
   texMathGfm?: boolean
   texMathSingleBackslash?: boolean
   texMathDoubleBackslash?: boolean
+  highlightSyntax?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string

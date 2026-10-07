@@ -200,6 +200,7 @@ export class MarkdownToHtml {
             texMathSingleBackslash: this._muya?.options?.texMathSingleBackslash ?? false,
             texMathDoubleBackslash: this._muya?.options?.texMathDoubleBackslash ?? false,
             texMathDollars: this._muya?.options?.texMathDollars ?? true,
+            highlightSyntax: this._muya?.options?.highlightSyntax ?? false,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline

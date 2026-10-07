@@ -417,6 +417,7 @@
         "texMathGfm": "Включить расширение markdown pandoc tex_math_gfm",
         "texMathSingleBackslash": "Включить расширение markdown pandoc tex_math_single_backslash",
         "texMathDoubleBackslash": "Включить расширение markdown pandoc tex_math_double_backslash",
+        "highlightSyntax": "Включить нестандартный синтаксис выделения ==текст==",
         "isHtmlEnabled": "Включить рендеринг HTML",
         "softNewlineAsSpace": "Считать мягкие переносы строк пробелами",
         "sequenceTheme": "Тема диаграмм последовательностей",
@@ -646,6 +647,7 @@
         "texMathGfm": "GitHub TeX-формулы ($`…`$ и ```math)",
         "texMathSingleBackslash": "TeX-формулы с одинарным обратным слешем",
         "texMathDoubleBackslash": "TeX-формулы с двойным обратным слешем",
+        "highlightSyntax": "Выделение (==текст==)",
         "frontmatterType": {
           "jsonBrace": "JSON с фигурными скобками",
           "jsonSemicolon": "JSON с точкой с запятой",
