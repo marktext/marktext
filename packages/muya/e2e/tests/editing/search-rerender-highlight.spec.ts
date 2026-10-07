@@ -34,8 +34,6 @@ test('caret and highlight share the block without clobbering each other (#5651)'
     await page.waitForTimeout(150);
     await page.evaluate(() => {
         window.muya!.editor.searchModule.search('line');
-        // Caret inside the first block, which also holds the active match.
-        // needUpdate=false so placing it does not itself re-render the block.
         (window.muya!.editor.scrollPage!.firstContentInDescendant() as unknown as {
             setCursor: (begin: number, end: number) => void;
         }).setCursor(2, 2);
