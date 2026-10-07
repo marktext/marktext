@@ -90,4 +90,26 @@ describe('softLineBreak renderer — softNewlineAsSpace', () => {
 
         expect(getSelector(out)).toContain(CLASS_NAMES.MU_LINE_END);
     });
+
+    it('renders an empty highlight band before the raw \\n when the token is matched', () => {
+        const renderer = asRenderer({
+            muya: { options: { softNewlineAsSpace: false } },
+            getHighlightClassName: (active: boolean) =>
+                active ? CLASS_NAMES.MU_HIGHLIGHT : CLASS_NAMES.MU_SELECTION,
+        });
+        const token = makeToken({
+            highlights: [{ start: 0, end: 1, active: true }],
+        });
+        const out = softLineBreak.call(
+            renderer,
+            { h, token } as Parameters<typeof softLineBreak>[0],
+        );
+
+        const children = out[0].children as Array<{ sel?: string; text?: string }>;
+        // Empty band first (background draws the match), newline last so the
+        // line still breaks.
+        expect((children[0] as { sel: string }).sel).toBe(`span.${CLASS_NAMES.MU_HIGHLIGHT}`);
+        expect(children[0].text).toBeUndefined();
+        expect(children[1].text).toBe('\n');
+    });
 });

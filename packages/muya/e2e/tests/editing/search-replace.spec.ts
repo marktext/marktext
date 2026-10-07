@@ -8,6 +8,30 @@ async function highlightCount(page: import('@playwright/test').Page) {
 }
 
 test.describe('search and replace', () => {
+    test('regex \\n highlights each soft line break without collapsing the lines (#3261)', async ({ page }) => {
+        await page.evaluate(() => {
+            window.muya!.setContent('line one\nline two\nline three\n');
+        });
+        await page.evaluate(() => {
+            window.muya!.editor.searchModule.search('\\n', { isRegexp: true });
+        });
+
+        const result = await page.evaluate(() => {
+            const content = document.querySelector('.mu-paragraph-content') as HTMLElement;
+            return {
+                breaks: content.querySelectorAll('.mu-soft-line-break').length,
+                bands: content.querySelectorAll(
+                    '.mu-soft-line-break .mu-highlight, .mu-soft-line-break .mu-selection',
+                ).length,
+                lines: (content.textContent ?? '').split('\n').length,
+            };
+        });
+
+        // Both line breaks are found and drawn, and the `\n` text is still there
+        // so the three source lines stay on separate rows.
+        expect(result).toEqual({ breaks: 2, bands: 2, lines: 3 });
+    });
+
     test('typing into #search records matches in editor.searchModule', async ({ page }) => {
         await page.evaluate(() => {
             window.muya!.setContent('apple banana apple cherry');

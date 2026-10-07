@@ -1,23 +1,34 @@
 import type { HardLineBreakToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
+import { lineBreakHighlights } from './highlight';
 
 export default function hardLineBreak(
     this: Renderer,
     { h, token }: ISyntaxRenderOptions & { token: HardLineBreakToken },
 ) {
     const { spaces, lineBreak, isAtEnd } = token;
+    const bands = lineBreakHighlights.call(
+        this,
+        h,
+        token,
+        token.range.end - lineBreak.length,
+        token.range.end,
+    );
     const className = CLASS_NAMES.MU_HARD_LINE_BREAK;
     const spaceClass = CLASS_NAMES.MU_HARD_LINE_BREAK_SPACE;
     if (isAtEnd) {
         return [
             h(`span.${className}`, h(`span.${spaceClass}`, spaces)),
+            ...bands,
             h(`span.${CLASS_NAMES.MU_LINE_END}`, lineBreak),
         ];
     }
     else {
         return [
-            h(`span.${className}`, [h(`span.${spaceClass}`, spaces), lineBreak]),
+            h(`span.${className}`, bands.length
+                ? [h(`span.${spaceClass}`, spaces), ...bands, lineBreak]
+                : [h(`span.${spaceClass}`, spaces), lineBreak]),
         ];
     }
 }
