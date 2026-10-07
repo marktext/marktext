@@ -28,6 +28,14 @@ export const EXPORT_DOMPURIFY_CONFIG = Object.freeze({
     /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
 })
 
+// Outline labels render user-authored headings through `v-html`, so allow only
+// the inline tags `tokensToInlineHtml` emits.
+export const TOC_DOMPURIFY_CONFIG = Object.freeze({
+  ALLOWED_TAGS: ['strong', 'em', 'code', 'del', 's', 'mark', 'sup', 'sub', 'span', 'br'],
+  ALLOWED_ATTR: [],
+  RETURN_TRUSTED_TYPE: false
+})
+
 // The legacy `muya/lib/utils/dompurify` default export was simply
 // `DOMPurify.sanitize`, so we vendor `dompurify` directly (already a desktop
 // dependency) to keep behavior identical: this is the RAW sanitizer that does

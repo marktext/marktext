@@ -1,0 +1,92 @@
+import { expect, test } from '@playwright/test'
+import type { ElectronApplication, Page } from 'playwright'
+import { launchWithMarkdown, clickMenuById, waitForEditor } from './helpers'
+
+const DOC = ['# Outline', '', '## Water is H^2^O and x~i~', '', 'Body.', ''].join('\n')
+
+const setPreference = async(page: Page, prefs: Record<string, unknown>): Promise<void> => {
+  await page.evaluate((p) => {
+    window.electron.ipcRenderer.send('mt::set-user-preference', p)
+  }, prefs)
+}
+
+const tocSupContent = (page: Page): Promise<string[]> =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('.side-bar-toc .el-tree-node__label sup')).map((el) =>
+      (el.textContent || '').trim()
+    )
+  )
+
+const tocHasLiteralMarkers = (page: Page): Promise<boolean> =>
+  page.evaluate(() =>
+    Array.from(document.querySelectorAll('.side-bar-toc .el-tree-node__label')).some((el) =>
+      (el.textContent || '').includes('^2^')
+    )
+  )
+
+const highlightedTocLabel = (page: Page): Promise<string | null> =>
+  page.evaluate(() => {
+    const current = document.querySelector(
+      '.side-bar-toc .el-tree-node.is-current > .el-tree-node__content .el-tree-node__label'
+    ) as HTMLElement | null
+    return current ? (current.textContent || '').trim() : null
+  })
+
+test.describe('TOC updates live when a markdown preference changes', () => {
+  let app: ElectronApplication
+  let page: Page
+
+  test.beforeAll(async() => {
+    const launched = await launchWithMarkdown(DOC)
+    app = launched.app
+    page = launched.page
+    await waitForEditor(page)
+    const sidebarVisible = await page.evaluate(() => {
+      const el = document.querySelector('.side-bar') as HTMLElement | null
+      return !!(el && el.offsetParent !== null)
+    })
+    if (!sidebarVisible) await clickMenuById(app, 'sideBarMenuItem')
+    await clickMenuById(app, 'tocMenuItem')
+    await page.waitForSelector('.side-bar-toc .el-tree', { state: 'visible', timeout: 15000 })
+    await page.waitForFunction(
+      () => document.querySelectorAll('.side-bar-toc .el-tree-node__label').length >= 2,
+      null,
+      { timeout: 15000 }
+    )
+  })
+
+  test.afterAll(async() => {
+    if (app) await app.close()
+  })
+
+  test('toggling superscript/subscript re-renders its outline entry', async() => {
+    // The default preference is off, so the outline shows the raw `^2^` markers.
+    expect(await tocSupContent(page)).toEqual([])
+    expect(await tocHasLiteralMarkers(page)).toBe(true)
+
+    await setPreference(page, { superSubScript: true })
+    await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual(['2'])
+    await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(false)
+
+    // Turning it back off must refresh too, not just the first toggle.
+    await setPreference(page, { superSubScript: false })
+    await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual([])
+    await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(true)
+  })
+
+  test('keeps the active outline entry highlighted across a toggle', async() => {
+    await setPreference(page, { superSubScript: false })
+    await expect.poll(() => tocHasLiteralMarkers(page), { timeout: 8000 }).toBe(true)
+
+    await page.locator('.mu-atxheading-content').filter({ hasText: 'Water is' }).first().click()
+    await expect
+      .poll(() => highlightedTocLabel(page), { timeout: 5000 })
+      .toContain('Water is')
+
+    await setPreference(page, { superSubScript: true })
+    await expect.poll(() => tocSupContent(page), { timeout: 8000 }).toEqual(['2'])
+    await expect
+      .poll(() => highlightedTocLabel(page), { timeout: 5000 })
+      .toContain('Water is')
+  })
+})
