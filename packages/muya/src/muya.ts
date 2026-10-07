@@ -5,7 +5,7 @@ import type { Listener } from './event/types';
 import type { ILocale } from './i18n/types';
 import type { IReplaceOption, ISearchOption } from './search/types';
 import type { IIndexCursor } from './selection/offsetCursor';
-import type { IHistorySelection, IPublicCursorInput } from './selection/types';
+import type { IHistorySelection, IPublicCursorInput, IRenderCursor } from './selection/types';
 import type { ITocItem } from './state/getTOC';
 import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TState } from './state/types';
 import type { IMuyaOptions, Nullable } from './types';
@@ -368,13 +368,29 @@ export class Muya {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
 
+        let cursorBlock: Content | undefined;
+        let begin = 0;
+        let end = 0;
         if (selection && selection.isSelectionInSameBlock) {
-            const begin = Math.min(selection.anchor.offset, selection.focus.offset);
-            const end = Math.max(selection.anchor.offset, selection.focus.offset);
-            const cursorBlock = this.editor.scrollPage?.queryBlock(selection.anchor.path);
-            if (cursorBlock && cursorBlock.isContent())
-                cursorBlock.setCursor(begin, end, true);
+            begin = Math.min(selection.anchor.offset, selection.focus.offset);
+            end = Math.max(selection.anchor.offset, selection.focus.offset);
+            const block = this.editor.scrollPage?.queryBlock(selection.anchor.path);
+            if (block && block.isContent())
+                cursorBlock = block;
         }
+
+        // `updateState` recreated every block, so the active search highlight is
+        // gone and the caret block was rendered without its cursor. Handing the
+        // caret to the search renders that block once with both — rendering it
+        // twice would let the highlight and the caret overwrite each other
+        // (#5651) — leaving only the DOM selection to restore.
+        const cursor: IRenderCursor | undefined = cursorBlock
+            ? { block: cursorBlock, anchor: { offset: begin }, focus: { offset: end } }
+            : undefined;
+        this.editor.searchModule.refresh(cursor);
+
+        if (cursorBlock)
+            cursorBlock.setCursor(begin, end);
     }
 
     /** Update list indentation and re-render so it takes effect. */
