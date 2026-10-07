@@ -379,11 +379,8 @@ export class Muya {
                 cursorBlock = block;
         }
 
-        // `updateState` recreated every block, so the active search highlight is
-        // gone and the caret block was rendered without its cursor. Handing the
-        // caret to the search renders that block once with both — rendering it
-        // twice would let the highlight and the caret overwrite each other
-        // (#5651) — leaving only the DOM selection to restore.
+        // The search and the caret both re-render the caret's block, so hand
+        // them over together; either one alone would undo the other.
         const cursor: IRenderCursor | undefined = cursorBlock
             ? { block: cursorBlock, anchor: { offset: begin }, focus: { offset: end } }
             : undefined;

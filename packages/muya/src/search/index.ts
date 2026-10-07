@@ -9,7 +9,6 @@ import { buildRegexValue, matchString } from '../utils/search';
 
 export class Search {
     private _value: string = '';
-    // Last query's options, kept so a full re-render can re-run it (`refresh`).
     private _options: ISearchOption = { ...DEFAULT_SEARCH_OPTIONS };
     public matches: IMatch[] = [];
     public index: number = -1;
@@ -230,8 +229,6 @@ export class Search {
         return this;
     }
 
-    // Highlights this search draws in `block`, with the active one flagged, so
-    // a caller can render the caret and the highlight in a single pass.
     private _highlightsFor(block: Content): IHighlight[] {
         const { matches, index } = this;
         const highlights: IHighlight[] = [];
@@ -245,25 +242,12 @@ export class Search {
         return highlights;
     }
 
-    /**
-     * Re-run the active query against the blocks a full re-render just rebuilt.
-     *
-     * `setOptions(options, true)` and `locale()` re-render every block, so the
-     * remembered matches point at detached nodes and their highlight spans are
-     * gone — while the find bar keeps showing the count. The document text is
-     * unchanged, so re-running the same query restores the highlights on the new
-     * blocks and keeps the active match where it was.
-     *
-     * `cursor` is re-rendered with the caret merged with whatever highlight its
-     * block holds: the caller renders that block once instead of letting the
-     * highlight and the caret overwrite each other.
-     */
+    /** Re-run the active query on the blocks a full re-render just rebuilt. */
     refresh(cursor?: IRenderCursor): this {
         if (this._value) {
             const { _value: value, index, matches } = this;
-            // Drop the stale matches before re-searching: they reference the
-            // blocks the re-render discarded, and clearing them would poke
-            // detached nodes.
+            // Stale matches point at the discarded blocks; clear them first so
+            // `search()` does not render into those detached nodes.
             this.matches = [];
             this.index = -1;
             this.search(value, {

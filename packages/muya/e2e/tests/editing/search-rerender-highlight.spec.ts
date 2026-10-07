@@ -1,8 +1,5 @@
 import { expect, test } from '../fixtures/muya';
 
-// A full re-render (`setOptions(options, true)`) rebuilds every block, so the
-// active search has to be re-applied afterwards or the highlight disappears
-// while the find bar keeps its count (#5651).
 test('search highlight survives a force re-render (#5651)', async ({ page }) => {
     await page.evaluate(() => {
         window.muya!.setContent('line one\nline two\nline three\n');

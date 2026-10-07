@@ -3,11 +3,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Muya } from '../../muya';
 
-// A full re-render — `setOptions(options, true)`, `locale()` — rebuilds every
-// block, so `Muya._forceRender()` re-runs the active search afterwards. Before
-// #5651 the find bar kept its count while the highlight vanished, because the
-// remembered matches pointed at the discarded blocks.
-
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
@@ -105,12 +100,8 @@ describe('search highlight survives a full re-render (#5651)', () => {
     it('restores the caret even when its block also holds the active match', () => {
         const muya = bootMuya('line one\n\nline two\n\nline three\n');
         const search = muya.editor.searchModule;
-        // Active match is in the first block, which the highlight re-render
-        // patches — the caret must still end up where it was.
         search.search('line');
         const first = muya.editor.scrollPage!.firstContentInDescendant()!;
-        // needUpdate=false: placing the caret must not itself re-render (and so
-        // clear) the block the search just highlighted.
         first.setCursor(2, 2);
 
         muya.setOptions({ softNewlineAsSpace: true }, true);
