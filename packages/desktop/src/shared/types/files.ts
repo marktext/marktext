@@ -114,11 +114,7 @@ export interface TabOptions {
   selected?: boolean
   /** Link fragment to reveal once the tab is active, e.g. `setup` from `other.md#setup`. */
   anchor?: string
-  /**
-   * Keep DOM focus where it is instead of handing it to the editor. The sidebar
-   * sets this so a single click opens the file yet leaves the tree focused for
-   * keyboard commands (VS Code's explorer behaves the same).
-   */
+  /** Keep DOM focus where it is instead of handing it to the editor. */
   preserveFocus?: boolean
   [key: string]: unknown
 }

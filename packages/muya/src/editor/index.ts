@@ -290,8 +290,6 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
-        // Callers that want to keep the previous focus (e.g. a sidebar click
-        // that should leave focus in the tree) opt out of the initial caret.
         if (options.focus !== false)
             this.focus();
     }

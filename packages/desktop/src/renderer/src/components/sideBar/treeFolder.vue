@@ -119,8 +119,7 @@ const noop = (): void => {}
 
 const focusRenameInput = (): void => {
   newName.value = props.folder.name
-  // The `v-if` input mounts on the next tick; selecting before that hits an
-  // empty box, and the value must be set first so the range matches the DOM.
+  // The `v-if` input mounts on the next tick with this value.
   nextTick(() => {
     if (!renameInput.value) return
     renameInput.value.focus()

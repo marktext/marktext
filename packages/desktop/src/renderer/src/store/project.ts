@@ -351,8 +351,7 @@ export const useProjectStore = defineStore('project', () => {
     const editorStore = useEditorStore()
     const src = renameCache.value
     if (!src) return
-    // An empty name would move the node onto its parent directory, and renaming
-    // to the current name is a no-op; both just close the input.
+    // An empty name would move the node onto its parent directory.
     if (!name) {
       CLEAR_NAME_INPUT_STATE()
       return
@@ -365,8 +364,7 @@ export const useProjectStore = defineStore('project', () => {
     }
     rename(src, dest)
       .then(() => {
-        // A stale cache would keep `isEditingName` true and block later
-        // Delete / rename shortcuts.
+        // A stale cache would keep `isEditingName` true and block later shortcuts.
         CLEAR_NAME_INPUT_STATE()
         editorStore.RENAME_IF_NEEDED({ src, dest })
       })

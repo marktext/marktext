@@ -79,8 +79,6 @@ test.describe('Sidebar Delete key (#3148)', () => {
 
     await file.click()
 
-    // One click opens the file but leaves DOM focus in the tree, which is what
-    // makes the sidebar shortcut active.
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
       .toBe(true)
@@ -94,7 +92,6 @@ test.describe('Sidebar Delete key (#3148)', () => {
     await expect.poll(() => trashDialogs(app)).toHaveLength(1)
     expect(await trashCount(app)).toBe(0)
 
-    // Same selection, but now the dialog confirms.
     await app.evaluate(() => {
       ;(global as unknown as TrashGlobals).__mt_trash_response__ = 0
     })
@@ -111,7 +108,6 @@ test.describe('Sidebar Delete key (#3148)', () => {
     const pathname = await file.getAttribute('title')
     expect(pathname).toBeTruthy()
 
-    // Double click hands focus to the editor while the row stays selected.
     await file.dblclick()
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.mu-editor')))
@@ -119,7 +115,7 @@ test.describe('Sidebar Delete key (#3148)', () => {
 
     const before = (await trashDialogs(app)).length
     await page.keyboard.press('Delete')
-    // Give a stray trash request time to surface before asserting it never did.
+    // Give a stray trash request time to surface.
     await page.waitForTimeout(300)
 
     expect((await trashDialogs(app)).length).toBe(before)

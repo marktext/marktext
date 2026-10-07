@@ -270,27 +270,19 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
-// Take DOM focus for the whole tree on any press that isn't meant for an inline
-// input. preventDefault keeps the browser from moving focus back to <body>
-// after the mousedown default action runs.
+// preventDefault stops the browser's default mousedown focus move (to <body>)
+// from undoing the focus() call.
 const handleTreeMouseDown = (event: MouseEvent): void => {
   if (isEditableTarget(event.target)) return
-  // Only the primary button needs the default focus move suppressed; leaving
-  // the others alone keeps right-click behaviour untouched.
   if (event.button === 0) event.preventDefault()
   treeWrapper.value?.focus()
 }
 
-// Switching to an already-open tab restores that tab's caret, and setting a
-// DOM selection inside the contenteditable pulls focus into the editor. Rows
-// ask for the focus back so the tree keeps the keyboard scope.
 const focusTree = (): void => {
   treeWrapper.value?.focus()
 }
 
-// When an inline input closes (rename commit / Escape) focus falls to <body>.
-// Hand it back to the tree so the next shortcut still applies; a real move to
-// another element leaves activeElement elsewhere, so nothing is restored.
+// An inline input closing (rename commit / Escape) drops focus to <body>.
 const handleTreeFocusOut = (event: FocusEvent): void => {
   if (!isNameInput(event.target)) return
   nextTick(() => {
@@ -300,9 +292,6 @@ const handleTreeFocusOut = (event: FocusEvent): void => {
   })
 }
 
-// Clicking the tree's empty space clears the selection; clicking outside the
-// tree keeps it and only moves focus away, matching VS Code's explorer. Rename
-// and the new-file input opt out so they don't unmount mid-edit.
 const handleDocumentClick = (event: MouseEvent): void => {
   const { target } = event
   if (!target) return
@@ -321,8 +310,6 @@ const handleDocumentContextMenu = (event: MouseEvent): void => {
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
-// Scoped to the tree container: keys only reach this handler while the tree
-// owns DOM focus, so the editor never has to be special-cased.
 const handleTreeKeydown = (event: KeyboardEvent): void => {
   const { target, key, metaKey } = event
   const editableTarget = isEditableTarget(target)
@@ -331,8 +318,6 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
     projectStore.CLEAR_NAME_INPUT_STATE()
   }
 
-  // While an inline name input is focused it owns every other key; Enter
-  // commits through the input's own handler.
   if (isNameInput(target) && key !== 'Escape') return
 
   const isEditingName = !!renameCache.value || !!createCacheDirname.value
@@ -576,9 +561,8 @@ onUnmounted(() => {
 .tree-wrapper {
   position: relative;
 }
-/* VS Code draws the focus outline on the focused row and only while the tree
-   owns DOM focus; the selection stays but dims once focus moves away
-   (list.focusOutline / list.inactiveSelectionBackground). */
+/* VS Code's list.focusOutline / inactiveSelection: ring while focused, dim the
+   selection once focus moves away. */
 .tree-wrapper:focus-visible {
   outline: none;
 }

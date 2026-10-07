@@ -31,7 +31,6 @@ test.describe('Sidebar tree focus scope', () => {
     const launched = await launchElectron([projectDir])
     app = launched.app
     page = launched.page
-    // Opening a directory can attach to a window other than the first one.
     await expect
       .poll(
         async() => {
@@ -77,7 +76,6 @@ test.describe('Sidebar tree focus scope', () => {
     const focused = page.locator('.side-bar-file[title$="beta.md"]').first()
     const target = page.locator('.side-bar-file[title$="delta.md"]').first()
 
-    // Put focus in the editor first, then pick a file from the tree.
     await focused.dblclick()
     await expect.poll(() => editorHasFocus(page)).toBe(true)
 
@@ -94,8 +92,6 @@ test.describe('Sidebar tree focus scope', () => {
     await second.click()
     await expect.poll(() => treeHasFocus(page)).toBe(true)
 
-    // Switching back to an open tab goes through UPDATE_CURRENT_FILE, which
-    // restores the caret; the tree must keep focus.
     await first.click()
     await expect.poll(() => treeHasFocus(page)).toBe(true)
   })
@@ -107,7 +103,6 @@ test.describe('Sidebar tree focus scope', () => {
 
     await page.locator('.mu-editor').first().click()
     await expect.poll(() => treeHasFocus(page)).toBe(false)
-    // The highlight survives losing focus, like VS Code's inactive selection.
     await expect(file).toHaveClass(/active/)
   })
 
@@ -119,7 +114,6 @@ test.describe('Sidebar tree focus scope', () => {
     const tree = page.locator('.tree-wrapper')
     const box = await tree.boundingBox()
     expect(box).not.toBeNull()
-    // Near the bottom of a two-file tree, i.e. below the last row.
     await tree.click({ position: { x: 10, y: Math.max(1, box!.height - 4) } })
 
     await expect(file).not.toHaveClass(/active/)

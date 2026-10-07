@@ -1,9 +1,6 @@
-// Interaction rules for the sidebar project tree: the Delete shortcut and the
-// click scope that decides when a click touches the tree's selection.
-//
-// `Delete` fires on every platform; macOS also accepts `Cmd+Backspace`, where
-// the key labelled "delete" reports as Backspace. A bare Backspace never
-// trashes.
+// Keyboard rules for trashing the sidebar selection. `Delete` fires on every
+// platform; macOS also accepts `Cmd+Backspace`, where the key labelled "delete"
+// reports as Backspace. A bare Backspace never trashes.
 
 export interface TrashSelection {
   pathname?: unknown
@@ -19,8 +16,6 @@ export interface TrashKeyContext {
   projectRootPath?: string
   pathSeparator: string
   isEditingName: boolean
-  // The inline rename / new-file inputs live inside the tree, so their keydown
-  // bubbles back to the tree handler; typing in them must not trash a node.
   editableTarget: boolean
 }
 
@@ -44,9 +39,6 @@ export const keepsSidebarSelection = (target: EventTarget | null): boolean => {
   return !!el.closest(SELECTION_OWNERS)
 }
 
-// The focusable project-tree container. A click inside it that misses a row
-// clears the selection (VS Code's "click empty space" behaviour); a click
-// outside it keeps the selection and only moves DOM focus away.
 export const isInsideTreeScope = (target: EventTarget | null): boolean => {
   const el = target as { closest?: (selector: string) => unknown } | null
   if (!el || typeof el.closest !== 'function') return false

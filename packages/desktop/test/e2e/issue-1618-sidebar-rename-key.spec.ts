@@ -50,8 +50,6 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     const file = page.locator('.side-bar-file[title$="second.md"]').first()
     await file.click()
 
-    // One click opens the file but hands DOM focus to the tree, so the keys
-    // below act on the sidebar instead of the editor.
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
       .toBe(true)
@@ -65,7 +63,6 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     await expect(input).toBeFocused()
     await expect(input).toHaveValue('second.md')
 
-    // Only "second" is selected, so typing replaces the name and keeps ".md".
     expect(
       await input.evaluate((el) => {
         const i = el as HTMLInputElement
@@ -77,8 +74,6 @@ test.describe('Sidebar rename shortcuts (#1618)', () => {
     await page.keyboard.press('Enter')
     await expect.poll(() => fs.existsSync(path.join(projectDir, 'renamed.md'))).toBe(true)
     expect(fs.existsSync(path.join(projectDir, 'second.md'))).toBe(false)
-    // Committing an inline rename hands focus back to the tree, so the next
-    // shortcut keeps working without another click.
     await expect
       .poll(() => page.evaluate(() => !!document.activeElement?.closest('.tree-wrapper')))
       .toBe(true)

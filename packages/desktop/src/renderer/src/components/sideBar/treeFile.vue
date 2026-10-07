@@ -56,8 +56,7 @@ const { currentFile, tabs } = storeToRefs(editorStore)
 const handleFileClick = (event: MouseEvent): void => {
   // Select before the open-file branch runs, so non-markdown rows select too.
   projectStore.CHANGE_ACTIVE_ITEM(props.file)
-  // The second click of a double-click must not re-issue the open request; the
-  // dblclick handler upgrades the open that the first click already started.
+  // A double-click's second click must not re-issue the open request.
   if (event.detail === 2) return
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
@@ -67,12 +66,9 @@ const handleFileClick = (event: MouseEvent): void => {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
-    // Restoring the target tab's caret can pull DOM focus into the editor;
-    // ask the tree to take it back so the keyboard scope stays here.
+    // Restoring the tab's caret pulls DOM focus into the editor.
     bus.emit('SIDEBAR::focus-tree')
   } else {
-    // Keep DOM focus in the tree; the double-click handler hands it to the
-    // editor when the user wants to start typing.
     window.electron.ipcRenderer.send('mt::open-file', pathname, { preserveFocus: true })
   }
 }
@@ -86,8 +82,7 @@ const noop = (): void => {}
 
 const focusRenameInput = (): void => {
   newName.value = props.file.name
-  // The `v-if` input mounts on the next tick; selecting before that hits an
-  // empty box, and the value must be set first so the range matches the DOM.
+  // The `v-if` input mounts on the next tick with this value.
   nextTick(() => {
     if (!renameInput.value) return
     renameInput.value.focus()
