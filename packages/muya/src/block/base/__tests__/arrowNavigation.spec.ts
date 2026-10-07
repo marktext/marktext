@@ -20,6 +20,7 @@ import { Muya } from '../../../muya';
 const bootedHosts: HTMLElement[] = [];
 let originalVersion: string | undefined;
 let hadVersion = false;
+const originalGetClientRects = Range.prototype.getClientRects;
 
 beforeEach(() => {
     hadVersion = 'MUYA_VERSION' in window;
@@ -33,6 +34,8 @@ afterEach(() => {
         host.remove();
     }
     document.getSelection()?.removeAllRanges();
+    Range.prototype.getClientRects = originalGetClientRects;
+    delete (document as Partial<Document>).caretPositionFromPoint;
     if (hadVersion)
         window.MUYA_VERSION = originalVersion as string;
     else
@@ -72,6 +75,14 @@ function contentByText(muya: Muya, text: string): Content {
     if (!target)
         throw new Error(`content block with text "${text}" not found`);
     return target;
+}
+
+function textNodeIn(node: Node): Node {
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    const first = walker.nextNode();
+    if (!first)
+        throw new Error('no text node');
+    return first;
 }
 
 type FakeArrowEvent = KeyboardEvent & {
@@ -435,5 +446,95 @@ describe('content arrowHandler — RTL cross-block navigation (#3568)', () => {
 
         expect(contentByText(muya, 'alpha').getCursor()).toBeNull();
         expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+});
+
+// #3412: happy-dom has no layout and no caret API, so the caret x, the
+// neighbour's rect, and the caret lookup are stubbed.
+function stubCaretX(x: number): void {
+    const rect = { x, y: 0, width: 1, height: 18, top: 0, left: x, right: x + 1, bottom: 18 } as unknown as DOMRect;
+    const rects = Object.assign([rect], {
+        item: (i: number) => [rect][i] ?? null,
+    }) as unknown as DOMRectList;
+    Range.prototype.getClientRects = () => rects;
+}
+
+function stubBlockRect(block: Content, top: number, height = 20): void {
+    block.domNode!.getBoundingClientRect = () =>
+        ({ x: 0, y: top, width: 100, height, top, left: 0, right: 100, bottom: top + height }) as unknown as DOMRect;
+}
+
+describe('content arrowHandler — column-preserving cross-block navigation (#3412)', () => {
+    it('arrowUp lands on the nearest offset in the previous block, not its end', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+        const alpha = contentByText(muya, 'alpha');
+        stubBlockRect(alpha, 100);
+        stubCaretX(240);
+        document.caretPositionFromPoint = () =>
+            ({ offsetNode: textNodeIn(alpha.domNode!), offset: 2 }) as unknown as CaretPosition;
+
+        arrowAt(muya, beta, 'ArrowUp', 0);
+        await flush();
+
+        expect(alpha.getCursor()!.start.offset).toBe(2);
+    });
+
+    it('arrowDown lands on the nearest offset in the next block, not its start', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const alpha = contentByText(muya, 'alpha');
+        const beta = contentByText(muya, 'beta');
+        stubBlockRect(beta, 200);
+        stubCaretX(240);
+        document.caretPositionFromPoint = () =>
+            ({ offsetNode: textNodeIn(beta.domNode!), offset: 3 }) as unknown as CaretPosition;
+
+        arrowAt(muya, alpha, 'ArrowDown', 'alpha'.length);
+        await flush();
+
+        expect(beta.getCursor()!.start.offset).toBe(3);
+    });
+
+    it('falls back to the previous block end when the hit resolves elsewhere', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n\ngamma\n');
+        const beta = contentByText(muya, 'beta');
+        const alpha = contentByText(muya, 'alpha');
+        const gamma = contentByText(muya, 'gamma');
+        stubBlockRect(alpha, 100);
+        stubCaretX(240);
+        document.caretPositionFromPoint = () =>
+            ({ offsetNode: textNodeIn(gamma.domNode!), offset: 0 }) as unknown as CaretPosition;
+
+        arrowAt(muya, beta, 'ArrowUp', 0);
+        await flush();
+
+        expect(alpha.getCursor()!.start.offset).toBe('alpha'.length);
+    });
+
+    it('keeps the ATX heading prefix as a lower bound on ArrowDown', async () => {
+        const muya = bootMuya('alpha\n\n## Title\n');
+        const alpha = contentByText(muya, 'alpha');
+        const heading = contentByText(muya, '## Title');
+        stubBlockRect(heading, 200);
+        stubCaretX(10);
+        // A hit at the far left lands before the `## ` marker.
+        document.caretPositionFromPoint = () =>
+            ({ offsetNode: textNodeIn(heading.domNode!), offset: 0 }) as unknown as CaretPosition;
+
+        arrowAt(muya, alpha, 'ArrowDown', 'alpha'.length);
+        await flush();
+
+        expect(heading.getCursor()!.start.offset).toBe(3);
+    });
+
+    it('falls back to the boundary offset when no caret can be placed', async () => {
+        const muya = bootMuya('alpha\n\nbeta\n');
+        const beta = contentByText(muya, 'beta');
+        const alpha = contentByText(muya, 'alpha');
+
+        arrowAt(muya, beta, 'ArrowUp', 0);
+        await flush();
+
+        expect(alpha.getCursor()!.start.offset).toBe('alpha'.length);
     });
 });
