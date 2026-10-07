@@ -14,7 +14,7 @@
     <input
       v-if="renameCache === file.pathname"
       ref="renameInput"
-      v-model="newName"
+      v-model="nameInputValue"
       type="text"
       class="rename"
       @click.stop="noop"
@@ -43,11 +43,11 @@ const props = defineProps<{
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
 
-const newName = ref('')
 const fileEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
 
 const { renameCache } = storeToRefs(projectStore)
+const { nameInputValue } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { currentFile, tabs } = storeToRefs(editorStore)
@@ -81,8 +81,7 @@ const handleFileDblClick = (): void => {
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
-  newName.value = props.file.name
-  // The `v-if` input mounts on the next tick with this value.
+  // The `v-if` input mounts on the next tick; the store seeds its value.
   nextTick(() => {
     if (!renameInput.value) return
     renameInput.value.focus()
@@ -91,9 +90,7 @@ const focusRenameInput = (): void => {
 }
 
 const rename = (): void => {
-  if (newName.value) {
-    projectStore.RENAME_IN_SIDEBAR(newName.value)
-  }
+  projectStore.RENAME_IN_SIDEBAR(nameInputValue.value)
 }
 
 onMounted(() => {

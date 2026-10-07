@@ -81,6 +81,9 @@ export const useProjectStore = defineStore('project', () => {
   const createCache = ref<CreateCacheEntry | Record<string, never>>({})
   const newFileNameCache = ref<string>('')
   const renameCache = ref<string | null>(null)
+  // Text of whichever inline rename/create input is open. It lives here (not in
+  // the row components) so the click-away handler can commit the edit.
+  const nameInputValue = ref<string>('')
   const clipboard = ref<ClipboardEntry | null>(null)
   const projectTree = ref<ProjectTree | null>(null)
   const pendingTreeEvents = ref<PendingEvent[]>([])
@@ -213,6 +216,21 @@ export const useProjectStore = defineStore('project', () => {
   function CLEAR_NAME_INPUT_STATE(): void {
     createCache.value = {}
     renameCache.value = null
+    nameInputValue.value = ''
+  }
+
+  // Clicking or blurring away accepts the edit, mirroring the Enter key and the
+  // Finder / Windows Explorer gesture instead of discarding it (#3207, #3385).
+  function COMMIT_NAME_INPUT(): void {
+    const value = nameInputValue.value
+    if (renameCache.value) {
+      RENAME_IN_SIDEBAR(value)
+      return
+    }
+    const { dirname } = createCache.value as CreateCacheEntry
+    if (!dirname) return
+    if (value) CREATE_FILE_DIRECTORY(value)
+    else CLEAR_NAME_INPUT_STATE()
   }
 
   function ASK_FOR_OPEN_PROJECT(): void {
@@ -228,6 +246,7 @@ export const useProjectStore = defineStore('project', () => {
       const { pathname, isDirectory } = activeItem.value
       const dirname = isDirectory ? pathname : window.path.dirname(pathname)
       createCache.value = { dirname, type: String(type) }
+      nameInputValue.value = ''
       bus.emit('SIDEBAR::show-new-input')
     })
     bus.on('SIDEBAR::remove', async() => {
@@ -305,6 +324,7 @@ export const useProjectStore = defineStore('project', () => {
     bus.on('SIDEBAR::rename', () => {
       const { pathname } = activeItem.value
       renameCache.value = pathname
+      nameInputValue.value = typeof pathname === 'string' ? window.path.basename(pathname) : ''
       bus.emit('SIDEBAR::show-rename-input')
     })
   }
@@ -386,6 +406,7 @@ export const useProjectStore = defineStore('project', () => {
     createCache,
     newFileNameCache,
     renameCache,
+    nameInputValue,
     clipboard,
     projectTree,
     pendingTreeEvents,
@@ -397,6 +418,7 @@ export const useProjectStore = defineStore('project', () => {
     CHANGE_ACTIVE_ITEM,
     CHANGE_CLIPBOARD,
     CLEAR_NAME_INPUT_STATE,
+    COMMIT_NAME_INPUT,
     ASK_FOR_OPEN_PROJECT,
     LISTEN_FOR_SIDEBAR_CONTEXT_MENU,
     CREATE_FILE_DIRECTORY,

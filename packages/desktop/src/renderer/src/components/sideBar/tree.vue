@@ -105,7 +105,7 @@
         <input
           v-show="createCacheDirname === projectTree.pathname"
           ref="input"
-          v-model="createName"
+          v-model="nameInputValue"
           placeholder="Enter .md file name"
           type="text"
           class="new-input"
@@ -203,7 +203,6 @@ const SHOW_OPENED_FILES_KEY = 'side-bar-show-opened-files'
 const readSectionExpanded = (key: string): boolean => localStorage.getItem(key) !== 'false'
 const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
-const createName = ref('')
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
 
@@ -216,6 +215,7 @@ const { createCache } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { activeItem } = storeToRefs(projectStore)
 const { renameCache } = storeToRefs(projectStore)
+const { nameInputValue } = storeToRefs(projectStore)
 const { openedFilesInSidebar } = storeToRefs(preferencesStore)
 
 // The createCache state is `{ dirname, type }` while an input is shown, and
@@ -260,13 +260,12 @@ const handleInputFocus = (): void => {
   nextTick(() => {
     if (input.value) {
       input.value.focus()
-      createName.value = ''
     }
   })
 }
 
 const handleInputEnter = (): void => {
-  projectStore.CREATE_FILE_DIRECTORY(createName.value)
+  projectStore.CREATE_FILE_DIRECTORY(nameInputValue.value)
 }
 
 const focusTree = (): void => {
@@ -297,14 +296,14 @@ const handleDocumentClick = (event: MouseEvent): void => {
   if (isInsideTreeScope(target) && !keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
-  projectStore.CLEAR_NAME_INPUT_STATE()
+  projectStore.COMMIT_NAME_INPUT()
 }
 
 const handleDocumentContextMenu = (event: MouseEvent): void => {
   const { target } = event
   if (isNameInput(target)) return
 
-  projectStore.CLEAR_NAME_INPUT_STATE()
+  projectStore.COMMIT_NAME_INPUT()
 }
 
 const handleTreeKeydown = (event: KeyboardEvent): void => {
