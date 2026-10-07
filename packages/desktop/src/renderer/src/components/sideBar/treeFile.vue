@@ -8,6 +8,7 @@
       { current: currentFile?.pathname === file.pathname, active: file.id === activeItem.id }
     ]"
     @click="handleFileClick"
+    @dblclick="handleFileDblClick"
   >
     <file-icon :name="file.name" />
     <input
@@ -31,6 +32,7 @@ import { useEditorStore } from '@/store/editor'
 import FileIcon from './icon.vue'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
+import { renameSelectionEnd } from './renameKey'
 import type { TreeFileNode } from './types'
 
 const props = defineProps<{
@@ -50,10 +52,11 @@ const { activeItem } = storeToRefs(projectStore)
 const { clipboard } = storeToRefs(projectStore)
 const { currentFile, tabs } = storeToRefs(editorStore)
 
-// from fileMixins
-const handleFileClick = (): void => {
+const handleFileClick = (event: MouseEvent): void => {
   // Select before the open-file branch runs, so non-markdown rows select too.
   projectStore.CHANGE_ACTIVE_ITEM(props.file)
+  // A double-click's second click must not re-issue the open request.
+  if (event.detail === 2) return
   const { isMarkdown, pathname } = props.file
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
@@ -62,19 +65,28 @@ const handleFileClick = (): void => {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)
+    // Restoring the tab's caret pulls DOM focus into the editor.
+    bus.emit('SIDEBAR::focus-tree')
   } else {
-    window.electron.ipcRenderer.send('mt::open-file', pathname, {})
+    editorStore.SET_OPEN_INTENT(pathname, false)
+    window.electron.ipcRenderer.send('mt::open-file', pathname)
   }
+}
+
+const handleFileDblClick = (): void => {
+  if (!props.file.isMarkdown) return
+  editorStore.FOCUS_FILE(props.file.pathname)
 }
 
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  newName.value = props.file.name
+  // The `v-if` input mounts on the next tick with this value.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.file.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, renameSelectionEnd(props.file.name))
   })
 }
 
@@ -147,7 +159,7 @@ input.rename {
   margin: 5px 0;
   padding: 0 8px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--floatBorderColor);
   width: 100%;
   border-radius: 3px;

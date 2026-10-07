@@ -89,7 +89,12 @@
       </div>
       <div
         v-show="showDirectories"
+        ref="treeWrapper"
         class="tree-wrapper"
+        tabindex="0"
+        @mousedown="handleTreeMouseDown"
+        @focusout="handleTreeFocusOut"
+        @keydown="handleTreeKeydown"
       >
         <folder
           v-for="folder of projectTree.folders"
@@ -168,12 +173,12 @@ import { PATH_SEPARATOR } from '@/config'
 import { isMac } from '@/util'
 import {
   isEditableTarget,
-  isModifierKey,
-  isMuyaEditorTarget,
+  isInsideTreeScope,
   isNameInput,
   keepsSidebarSelection,
   shouldTrashSelection
 } from './trashKey'
+import { shouldRenameSelection } from './renameKey'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -200,6 +205,7 @@ const showDirectories = ref(readSectionExpanded(SHOW_DIRECTORIES_KEY))
 const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const createName = ref('')
 const input = ref<HTMLInputElement | null>(null)
+const treeWrapper = ref<HTMLDivElement | null>(null)
 
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
@@ -263,16 +269,34 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
-// Hide the name inputs on outside clicks; their trigger buttons use @click.stop.
+const focusTree = (): void => {
+  treeWrapper.value?.focus()
+}
+
+// preventDefault stops the browser's default mousedown focus move (to <body>)
+// from undoing the focus() call.
+const handleTreeMouseDown = (event: MouseEvent): void => {
+  if (isEditableTarget(event.target)) return
+  if (event.button === 0) event.preventDefault()
+  focusTree()
+}
+
+// An inline input closing (rename commit / Escape) drops focus to <body>.
+const handleTreeFocusOut = (event: FocusEvent): void => {
+  if (!isNameInput(event.target)) return
+  nextTick(() => {
+    if (document.activeElement === document.body) focusTree()
+  })
+}
+
 const handleDocumentClick = (event: MouseEvent): void => {
   const { target } = event
   if (!target) return
+  if (isNameInput(target)) return
 
-  if (!keepsSidebarSelection(target)) {
+  if (isInsideTreeScope(target) && !keepsSidebarSelection(target)) {
     projectStore.CHANGE_ACTIVE_ITEM({})
   }
-
-  if (isNameInput(target)) return
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
@@ -283,12 +307,28 @@ const handleDocumentContextMenu = (event: MouseEvent): void => {
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
 
-const handleDocumentKeydown = (event: KeyboardEvent): void => {
+const handleTreeKeydown = (event: KeyboardEvent): void => {
   const { target, key, metaKey } = event
   const editableTarget = isEditableTarget(target)
 
   if (key === 'Escape') {
     projectStore.CLEAR_NAME_INPUT_STATE()
+    projectStore.CHANGE_ACTIVE_ITEM({})
+  }
+
+  const isEditingName = !!renameCache.value || !!createCacheDirname.value
+  const shouldRename = shouldRenameSelection({
+    key,
+    selection: activeItem.value,
+    projectRootPath: props.projectTree?.pathname,
+    pathSeparator: PATH_SEPARATOR,
+    isEditingName,
+    editableTarget
+  })
+  if (shouldRename) {
+    event.preventDefault()
+    event.stopPropagation()
+    return bus.emit('SIDEBAR::rename')
   }
 
   const shouldTrash = shouldTrashSelection({
@@ -298,41 +338,28 @@ const handleDocumentKeydown = (event: KeyboardEvent): void => {
     selection: activeItem.value,
     projectRootPath: props.projectTree?.pathname,
     pathSeparator: PATH_SEPARATOR,
-    isEditingName: !!renameCache.value || !!createCacheDirname.value,
-    editableTarget,
-    allowEditableTarget: isMuyaEditorTarget(target)
+    isEditingName,
+    editableTarget
   })
   if (shouldTrash) {
     event.preventDefault()
-    // Stop the event so the WYSIWYG engine does not also act on this Delete.
     event.stopPropagation()
-    // The store drops the selection once the item is really trashed, so a
-    // cancelled dialog leaves the target in place for a retry.
-    bus.emit('SIDEBAR::remove')
-    return
-  }
-
-  // Any other key ends the selection, so a later Delete edits text instead of
-  // trashing a stale node.
-  const hasSelection = !!activeItem.value && Object.keys(activeItem.value).length > 0
-  if (!isModifierKey(key) && hasSelection) {
-    projectStore.CHANGE_ACTIVE_ITEM({})
+    return bus.emit('SIDEBAR::remove')
   }
 }
 
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
+  bus.on('SIDEBAR::focus-tree', focusTree)
   document.addEventListener('click', handleDocumentClick)
   document.addEventListener('contextmenu', handleDocumentContextMenu)
-  // Capture phase: muya stops keydown propagation for keys it handles.
-  document.addEventListener('keydown', handleDocumentKeydown, true)
 })
 
 onUnmounted(() => {
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
+  bus.off('SIDEBAR::focus-tree', focusTree)
   document.removeEventListener('click', handleDocumentClick)
   document.removeEventListener('contextmenu', handleDocumentContextMenu)
-  document.removeEventListener('keydown', handleDocumentKeydown, true)
 })
 </script>
 
@@ -510,13 +537,25 @@ onUnmounted(() => {
   margin: 5px 0;
   padding: 0 6px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--inputBgColor);
   width: calc(100% - 45px);
   border-radius: 3px;
 }
 .tree-wrapper {
   position: relative;
+}
+.tree-wrapper:focus-visible {
+  outline: none;
+}
+.tree-wrapper:focus-within :deep(.side-bar-file.active),
+.tree-wrapper:focus-within :deep(.folder-name.active) {
+  outline: 1px solid var(--focusColor);
+  outline-offset: -1px;
+}
+.tree-wrapper:not(:focus-within) :deep(.side-bar-file.active),
+.tree-wrapper:not(:focus-within) :deep(.folder-name.active) {
+  background: color-mix(in srgb, var(--themeColor20) 55%, transparent);
 }
 .empty-project {
   font-size: 14px;

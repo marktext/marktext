@@ -182,8 +182,8 @@ export class Muya {
         });
     }
 
-    init() {
-        this.editor.init();
+    init(options: { focus?: boolean } = {}) {
+        this.editor.init(options);
 
         // UI plugins
         if (Muya.plugins.length) {

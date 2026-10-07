@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  isModifierKey,
+  isInsideTreeScope,
   isNameInput,
   isPathWithinRoot,
   isTrashShortcut,
@@ -19,8 +19,7 @@ const base = {
   projectRootPath: '/docs',
   pathSeparator: '/',
   isEditingName: false,
-  editableTarget: false,
-  allowEditableTarget: false
+  editableTarget: false
 }
 
 describe('sidebar trash keyboard rules', () => {
@@ -31,13 +30,6 @@ describe('sidebar trash keyboard rules', () => {
     expect(isTrashShortcut('Backspace', true, false)).toBe(false)
     expect(isTrashShortcut('Backspace', false, true)).toBe(false)
     expect(isTrashShortcut('Backspace', false, false)).toBe(false)
-  })
-
-  it('does not treat the Meta keydown of a chord as typing', () => {
-    expect(isModifierKey('Meta')).toBe(true)
-    expect(isModifierKey('Control')).toBe(true)
-    expect(isModifierKey('Backspace')).toBe(false)
-    expect(isModifierKey('a')).toBe(false)
   })
 
   it('keeps the selection on tree rows and the new-file input only', () => {
@@ -59,6 +51,14 @@ describe('sidebar trash keyboard rules', () => {
     expect(isNameInput(input('input.rename'))).toBe(true)
     expect(isNameInput(input('input.new-input'))).toBe(true)
     expect(isNameInput({ closest: () => null } as unknown as EventTarget)).toBe(false)
+  })
+
+  it('recognises clicks inside the tree focus scope', () => {
+    const scope = (found: boolean) =>
+      ({ closest: () => (found ? {} : null) }) as unknown as EventTarget
+    expect(isInsideTreeScope(scope(true))).toBe(true)
+    expect(isInsideTreeScope(scope(false))).toBe(false)
+    expect(isInsideTreeScope(null)).toBe(false)
   })
 
   it('trashes a selected file or folder, but never the project root', () => {
@@ -89,11 +89,8 @@ describe('sidebar trash keyboard rules', () => {
     expect(shouldTrashSelection({ ...base, selection: { pathname: '/docs/a' } })).toBe(false)
   })
 
-  it('defers to editable surfaces, except the WYSIWYG editor', () => {
+  it('ignores editable surfaces', () => {
     expect(shouldTrashSelection({ ...base, editableTarget: true })).toBe(false)
-    expect(shouldTrashSelection({ ...base, editableTarget: true, allowEditableTarget: true })).toBe(
-      true
-    )
   })
 
   it('does not fire while renaming or creating', () => {

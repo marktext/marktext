@@ -351,11 +351,30 @@ export const useProjectStore = defineStore('project', () => {
     const editorStore = useEditorStore()
     const src = renameCache.value
     if (!src) return
+    // An empty name would move the node onto its parent directory.
+    if (!name) {
+      CLEAR_NAME_INPUT_STATE()
+      return
+    }
     const dirname = window.path.dirname(src)
     const dest = dirname + PATH_SEPARATOR + name
-    rename(src, dest).then(() => {
-      editorStore.RENAME_IF_NEEDED({ src, dest })
-    })
+    if (window.path.normalize(dest) === window.path.normalize(src)) {
+      CLEAR_NAME_INPUT_STATE()
+      return
+    }
+    rename(src, dest)
+      .then(() => {
+        // A stale cache would keep `isEditingName` true and block later shortcuts.
+        CLEAR_NAME_INPUT_STATE()
+        editorStore.RENAME_IF_NEEDED({ src, dest })
+      })
+      .catch((err) => {
+        notice.notify({
+          title: 'Error while renaming',
+          type: 'error',
+          message: err instanceof Error ? err.message : String(err)
+        })
+      })
   }
 
   function OPEN_SETTING_WINDOW(): void {

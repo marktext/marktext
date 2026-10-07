@@ -118,11 +118,12 @@ const folderNameClick = (): void => {
 const noop = (): void => {}
 
 const focusRenameInput = (): void => {
+  newName.value = props.folder.name
+  // The `v-if` input mounts on the next tick with this value.
   nextTick(() => {
-    if (renameInput.value) {
-      renameInput.value.focus()
-      newName.value = props.folder.name
-    }
+    if (!renameInput.value) return
+    renameInput.value.focus()
+    renameInput.value.setSelectionRange(0, props.folder.name.length)
   })
 }
 
@@ -180,7 +181,7 @@ input.rename {
   margin: 5px 0;
   padding: 0 6px;
   color: var(--sideBarColor);
-  border: 1px solid var(--floatBorderColor);
+  border: 1px solid var(--focusColor);
   background: var(--floatBorderColor);
   width: 70%;
   border-radius: 3px;

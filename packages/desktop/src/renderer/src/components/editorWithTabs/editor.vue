@@ -1500,7 +1500,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
     // A freshly created/opened tab should be ready to type into.
-    focusFreshEditor()
+    if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
   }
 }
 
@@ -1643,8 +1643,13 @@ const flushActiveEditor = () => {
   editor.value?.flush()
 }
 
+// The engine's `focus()` only sets the selection range; the contenteditable
+// also needs DOM focus or no caret blinks.
 const focusEditor = () => {
-  editor.value?.focus()
+  const ed = editor.value
+  if (!ed) return
+  ed.domNode.focus()
+  ed.focus()
 }
 
 // Focus a freshly opened/created tab's editor. The sibling `file-changed`
@@ -1810,7 +1815,7 @@ onMounted(() => {
   const muya = markRaw(new Muya(ele, options))
   // The new engine requires an explicit init() after construction (it builds
   // the document tree and instantiates the registered UI plugins).
-  muya.init()
+  muya.init({ focus: editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false })
   editor.value = muya
   // The first document's content is set via constructor options, so no
   // `file-loaded` / `setMarkdownToEditor` runs for it — seed its TOC here.
