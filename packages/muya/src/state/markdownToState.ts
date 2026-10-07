@@ -25,6 +25,7 @@ interface IMarkdownToStateOptions {
     texMathDoubleBackslash: boolean;
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
+    multilineBlockquote?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -35,6 +36,7 @@ const DEFAULT_OPTIONS = {
     texMathDoubleBackslash: false,
     trimUnnecessaryCodeBlockEmptyLines: false,
     frontMatter: true,
+    multilineBlockquote: false,
 };
 
 // Token types whose handler manipulates the `parentList` stack (push a
@@ -43,6 +45,7 @@ const DEFAULT_OPTIONS = {
 const CONTAINER_TOKEN_TYPES = new Set([
     'block-end',
     'blockquote',
+    'multilineBlockquote',
     'list',
     'list_item',
     'footnote',
@@ -64,6 +67,7 @@ export class MarkdownToState {
             texMathDoubleBackslash = false,
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
+            multilineBlockquote = false,
         } = this._options;
 
         // markdownToState injects synthetic `block-end` markers (see the
@@ -76,6 +80,7 @@ export class MarkdownToState {
             texMathGfm,
             texMathSingleBackslash,
             texMathDoubleBackslash,
+            multilineBlockquote,
         });
 
         const states: TState[] = [];
@@ -107,7 +112,11 @@ export class MarkdownToState {
                 // bar
                 if (
                     parentList[0].length === 0
-                    && (token.tokenType === 'blockquote' || token.tokenType === 'list-item')
+                    && (
+                        token.tokenType === 'blockquote'
+                        || token.tokenType === 'multilineBlockquote'
+                        || token.tokenType === 'list-item'
+                    )
                 ) {
                     state = {
                         name: 'paragraph' as const,
@@ -127,6 +136,19 @@ export class MarkdownToState {
                 parentList[0].push(state);
                 parentList.unshift(state.children);
                 tokens.unshift({ type: 'block-end', tokenType: 'blockquote' });
+                tokens.unshift(...(token.tokens as TBlockToken[]));
+                break;
+            }
+
+            case 'multilineBlockquote': {
+                state = {
+                    name: 'block-quote' as const,
+                    meta: { style: 'fenced' as const },
+                    children: [],
+                };
+                parentList[0].push(state);
+                parentList.unshift(state.children);
+                tokens.unshift({ type: 'block-end', tokenType: 'multilineBlockquote' });
                 tokens.unshift(...(token.tokens as TBlockToken[]));
                 break;
             }

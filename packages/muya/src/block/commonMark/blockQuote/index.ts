@@ -9,8 +9,11 @@ import { ScrollPage } from '../../scrollPage';
 class BlockQuote extends Parent {
     static override blockName = 'block-quote';
 
+    private _meta?: IBlockQuoteState['meta'];
+
     static create(muya: Muya, state: IBlockQuoteState) {
         const blockQuote = new BlockQuote(muya);
+        blockQuote._meta = state.meta;
 
         for (const child of state.children)
             blockQuote.append(ScrollPage.loadBlock(child.name).create(muya, child));
@@ -37,6 +40,9 @@ class BlockQuote extends Parent {
             name: 'block-quote',
             children: this.children.map(child => (child as Parent).getState()),
         };
+
+        if (this._meta)
+            state.meta = this._meta;
 
         return state;
     }

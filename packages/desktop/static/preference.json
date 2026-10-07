@@ -58,6 +58,8 @@
   "texMathSingleBackslash": false,
   "texMathDoubleBackslash": false,
   "highlightSyntax": false,
+  "inlineDiff": false,
+  "multilineBlockquote": false,
   "isHtmlEnabled": true,
   "softNewlineAsSpace": false,
   "sequenceTheme": "hand",

@@ -49,6 +49,7 @@ interface ILexState {
     texMathSingleBackslash: boolean;
     texMathDoubleBackslash: boolean;
     highlightSyntax: boolean;
+    inlineDiff: boolean;
 }
 
 function pushPending(state: ILexState) {
@@ -266,7 +267,7 @@ function tryStrongEm(state: ILexState): boolean {
 // rule would otherwise swallow `` $`e=mc^2`$ `` whole, backticks and all.
 // It carries its own marker shape but produces an ordinary `inline_math` token.
 function tryChunks(state: ILexState): boolean {
-    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'emoji', 'inline_math'] as const;
+    const chunks = ['inline_math_gfm', 'inline_code', 'del', 'mark', 'inline_diff', 'emoji', 'inline_math'] as const;
 
     for (const rule of chunks) {
         if (rule === 'inline_math' && !state.texMathDollars)
@@ -275,8 +276,13 @@ function tryChunks(state: ILexState): boolean {
             continue;
         if (rule === 'mark' && !state.highlightSyntax)
             continue;
+        if (rule === 'inline_diff' && !state.inlineDiff)
+            continue;
 
-        const to = state.inlineRules[rule].exec(state.src);
+        const ruleValue = state.inlineRules[rule];
+        const to = Array.isArray(ruleValue)
+            ? ruleValue.map(rule => rule.exec(state.src)).find(Boolean)
+            : ruleValue.exec(state.src);
         if (to && isLengthEven(to[3])) {
             if (rule === 'emoji') {
                 // An emoji opener must sit at a word boundary: a ":" glued to a
@@ -301,6 +307,7 @@ function tryChunks(state: ILexState): boolean {
                 || rule === 'emoji'
                 || rule === 'inline_math'
                 || rule === 'inline_math_gfm'
+                || rule === 'inline_diff'
             ) {
                 state.tokens.push({
                     type: rule === 'inline_math_gfm' ? 'inline_math' : rule,
@@ -805,7 +812,7 @@ const INLINE_HANDLERS: ReadonlyArray<(state: ILexState) => boolean> = [
 ];
 
 function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: InlineRules, pos = 0, top: boolean, labels: Labels, options: ITokenizerFacOptions, emphasisSpans: Map<number, IEmphasisSpan> | null = null) {
-    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax } = options;
+    const { superSubScript, footnote, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, highlightSyntax, inlineDiff } = options;
     const state: ILexState = {
         originSrc: src,
         src,
@@ -826,6 +833,7 @@ function tokenizerFac(src: string, beginRules: BeginRules | null, inlineRules: I
         texMathSingleBackslash,
         texMathDoubleBackslash,
         highlightSyntax,
+        inlineDiff: inlineDiff ?? false,
     };
 
     if (beginRules && state.pos === 0)
@@ -866,6 +874,7 @@ export function tokenizer(src: string, {
         texMathSingleBackslash: false,
         texMathDoubleBackslash: false,
         highlightSyntax: false,
+        inlineDiff: false,
     },
 }: ITokenizerOptions = {} as ITokenizerOptions) {
     const tokens = tokenizerFac(
@@ -949,6 +958,7 @@ export function tokensToPlainText(tokens: Token[]): string {
         switch (token.type) {
             case 'text':
             case 'inline_code':
+            case 'inline_diff':
             case 'inline_math':
             case 'super_sub_script':
             case 'footnote_identifier':
@@ -1020,6 +1030,14 @@ function emojiDisplayText(token: CodeEmojiMathToken): string {
     return validEmoji(token.content)?.emoji ?? token.raw;
 }
 
+function inlineDiffHtml(marker: string, content: string): string {
+    const addition = marker[1] === '+';
+    const tag = addition ? 'ins' : 'del';
+    const variant = addition ? 'addition' : 'deletion';
+
+    return `<${tag} class="idiff ${variant}">${escapeHTML(content)}</${tag}>`;
+}
+
 // HTML twin of `tokensToPlainText`, for the outline. Must keep the same text
 // content as its plain counterpart so the shown heading and its slug stay in
 // step, which is why links, images and math stay flattened to text.
@@ -1037,6 +1055,10 @@ export function tokensToInlineHtml(tokens: Token[]): string {
             case 'del':
             case 'mark':
                 result += `<${token.type}>${tokensToInlineHtml(token.children)}</${token.type}>`;
+                break;
+
+            case 'inline_diff':
+                result += inlineDiffHtml(token.marker, token.content);
                 break;
 
             case 'inline_code':

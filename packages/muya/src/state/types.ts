@@ -62,6 +62,9 @@ export interface ILinkReferenceDefinitionState {
 
 export interface IBlockQuoteState {
     name: 'block-quote';
+    meta?: {
+        style?: 'fenced';
+    };
     children: TState[];
 }
 

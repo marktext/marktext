@@ -133,6 +133,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'footnote',
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
+    'multilineBlockquote',
 ]);
 
 function endpointPair(

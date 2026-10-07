@@ -14,6 +14,10 @@
     /* width of the centered editing column (`.mu-container` max-width) */
     --editor-area-width: 800px;
     --delete-color: #ff6969;
+
+    /* GitLab inline diff washes for `{+ … +}` / `[- … -]`. */
+    --code-new-inline-diff-background-color: #c7f0d2;
+    --code-old-inline-diff-background-color: #fac5cd;
     --icon-color: #6b737b;
     --code-block-bg-color: rgb(0 0 0 / 3%);
     --table-border-color: #e5e5e5;

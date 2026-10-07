@@ -104,6 +104,16 @@ export const inlineExtensionRules = {
     subscript: /^(~)((?:[^~\s]|(?<=\\)\1|(?<=\\) )+?)(?<!\\)\1(?!\1)/,
     // eslint-disable-next-line regexp/no-super-linear-backtracking
     mark: /^(={2})(?=\S)([\s\S]*?\S)(\\*)\1/,
+    // One pattern per valid GitLab inline-diff delimiter pair, so the opener
+    // and closer can only match as a pair — JS regex has no branch-reset groups
+    // to back-reference `{` to `}`. The lookahead rejects an empty or
+    // whitespace-only body, so `{++}` stays literal the way `**` does.
+    inline_diff: [
+        /^(\{\+)(?!\s*\+\})([^\n]+?)\+\}/,
+        /^(\[\+)(?!\s*\+\])([^\n]+?)\+\]/,
+        /^(\{-)(?!\s*-\})([^\n]+?)-\}/,
+        /^(\[-)(?!\s*-\])([^\n]+?)-\]/,
+    ],
     footnote_identifier: /^(\[\^)([^^[\]\s]+)(?<!\\)\]/,
 };
 
@@ -135,6 +145,7 @@ const EXCLUDE_KEYS = [
     'superscript',
     'subscript',
     'footnote_identifier',
+    'inline_diff',
 ] as const;
 
 type InlineRuleKeys = keyof InlineRules;

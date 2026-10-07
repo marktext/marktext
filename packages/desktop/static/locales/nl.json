@@ -418,6 +418,8 @@
         "texMathSingleBackslash": "Pandocs markdown-extensie tex_math_single_backslash inschakelen",
         "texMathDoubleBackslash": "Pandocs markdown-extensie tex_math_double_backslash inschakelen",
         "highlightSyntax": "De niet-standaard ==tekst==-markeringssyntaxis inschakelen",
+        "inlineDiff": "De niet-standaard inline-diff-syntaxis {+ … +} / [- … -] inschakelen",
+        "multilineBlockquote": "De niet-standaard meerregelige citaatsyntaxis >>> … >>> inschakelen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -648,6 +650,8 @@
         "texMathSingleBackslash": "TeX-wiskunde met enkele backslash",
         "texMathDoubleBackslash": "TeX-wiskunde met dubbele backslash",
         "highlightSyntax": "Markeren (==tekst==)",
+        "inlineDiff": "Inline diff ({+ … +})",
+        "multilineBlockquote": "Meerregelig citaat (>>>)",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

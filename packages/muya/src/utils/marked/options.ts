@@ -7,4 +7,6 @@ export const DEFAULT_OPTIONS = {
     frontMatter: true,
     superSubScript: true,
     highlightSyntax: false,
+    inlineDiff: false,
+    multilineBlockquote: false,
 };

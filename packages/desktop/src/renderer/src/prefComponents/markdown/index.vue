@@ -93,6 +93,18 @@
           :on-change="(value) => onSelectChange('highlightSyntax', value)"
           more="https://www.markdownguide.org/extended-syntax/#highlight"
         />
+        <bool
+          :description="t('preferences.markdown.extensions.inlineDiff')"
+          :bool="inlineDiff"
+          :on-change="(value) => onSelectChange('inlineDiff', value)"
+          more="https://docs.gitlab.com/user/markdown/#inline-diff"
+        />
+        <bool
+          :description="t('preferences.markdown.extensions.multilineBlockquote')"
+          :bool="multilineBlockquote"
+          :on-change="(value) => onSelectChange('multilineBlockquote', value)"
+          more="https://docs.gitlab.com/user/markdown/#multiline-blockquote"
+        />
       </template>
     </compound>
 
@@ -194,6 +206,8 @@ const {
   texMathSingleBackslash,
   texMathDoubleBackslash,
   highlightSyntax,
+  inlineDiff,
+  multilineBlockquote,
   isHtmlEnabled,
   softNewlineAsSpace,
   sequenceTheme,

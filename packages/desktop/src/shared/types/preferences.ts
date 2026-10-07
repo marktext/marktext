@@ -48,6 +48,8 @@ export interface IUserPreferences {
   texMathSingleBackslash?: boolean
   texMathDoubleBackslash?: boolean
   highlightSyntax?: boolean
+  inlineDiff?: boolean
+  multilineBlockquote?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string

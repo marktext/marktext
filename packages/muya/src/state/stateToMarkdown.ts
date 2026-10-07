@@ -473,7 +473,13 @@ export default class ExportMarkdown {
     }
 
     private _serializeBlockquote(state: IBlockQuoteState, indent: string) {
-        const { children } = state;
+        const { children, meta } = state;
+
+        if (meta?.style === 'fenced') {
+            const inner = this._convertStatesToMarkdown(children, indent);
+            return `${indent}>>>\n${inner}${indent}>>>\n`;
+        }
+
         const newIndent = `${indent}> `;
 
         return this._convertStatesToMarkdown(children, newIndent);

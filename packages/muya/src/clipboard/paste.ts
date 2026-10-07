@@ -406,6 +406,7 @@ function applyParsedPaste(
         texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
+        multilineBlockquote,
     } = muya.options;
 
     const states = new MarkdownToState({
@@ -416,6 +417,7 @@ function applyParsedPaste(
         texMathDoubleBackslash,
         trimUnnecessaryCodeBlockEmptyLines,
         frontMatter,
+        multilineBlockquote,
     }).generate(markdown);
 
     if (states.length === 0)

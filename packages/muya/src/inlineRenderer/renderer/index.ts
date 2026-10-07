@@ -27,6 +27,7 @@ import htmlRuby from './htmlRuby';
 import htmlTag from './htmlTag';
 import image from './image';
 import inlineCode from './inlineCode';
+import inlineDiff from './inlineDiff';
 import inlineMath from './inlineMath';
 import link from './link';
 import loadImageAsync from './loadImageAsync';
@@ -61,6 +62,7 @@ const inlineSyntaxRenderer = {
     delEmStrongFac,
     emoji,
     inlineCode,
+    inlineDiff,
     text,
     del,
     mark,
