@@ -84,9 +84,6 @@ export const useProjectStore = defineStore('project', () => {
   // Text of whichever inline rename/create input is open. It lives here (not in
   // the row components) so the click-away handler can commit the edit.
   const nameInputValue = ref<string>('')
-  // A commit is in flight. The caches are only cleared once the filesystem work
-  // resolves, so a second click would submit the same edit again.
-  let nameInputPending = false
   const clipboard = ref<ClipboardEntry | null>(null)
   const projectTree = ref<ProjectTree | null>(null)
   const pendingTreeEvents = ref<PendingEvent[]>([])
@@ -333,10 +330,13 @@ export const useProjectStore = defineStore('project', () => {
   }
 
   async function CREATE_FILE_DIRECTORY(name: string): Promise<void> {
-    if (nameInputPending) return
-    nameInputPending = true
     const cache = createCache.value as CreateCacheEntry
     const { dirname, type } = cache
+    // A second call after the input closed (or with no create target) is a no-op.
+    if (!dirname) return
+    // Close the input before the async work: a later click then sees no open
+    // input and cannot submit the same edit twice.
+    CLEAR_NAME_INPUT_STATE()
 
     if (type === 'file' && !window.fileUtils.hasMarkdownExtension(name)) {
       name += '.md'
@@ -348,7 +348,6 @@ export const useProjectStore = defineStore('project', () => {
       // Creating over an existing path would silently overwrite it (outputFile
       // truncates). Refuse instead of destroying the existing file (#1946).
       if (await window.fileUtils.pathExists(fullName)) {
-        createCache.value = {}
         notice.notify({
           title: 'Error in Side Bar',
           type: 'error',
@@ -358,7 +357,6 @@ export const useProjectStore = defineStore('project', () => {
       }
 
       await create(fullName, type as FileCreateType)
-      createCache.value = {}
       if (type === 'file') {
         newFileNameCache.value = fullName
       }
@@ -368,8 +366,6 @@ export const useProjectStore = defineStore('project', () => {
         type: 'error',
         message: err instanceof Error ? err.message : String(err)
       })
-    } finally {
-      nameInputPending = false
     }
   }
 
@@ -377,25 +373,18 @@ export const useProjectStore = defineStore('project', () => {
     const editorStore = useEditorStore()
     const src = renameCache.value
     if (!src) return
-    if (nameInputPending) return
+    // Close the input before the async work: a later click then sees no open
+    // input and cannot submit the same rename twice.
+    CLEAR_NAME_INPUT_STATE()
     // An empty name would move the node onto its parent directory.
-    if (!name) {
-      CLEAR_NAME_INPUT_STATE()
-      return
-    }
+    if (!name) return
     const dirname = window.path.dirname(src)
     const dest = dirname + PATH_SEPARATOR + name
-    if (window.path.normalize(dest) === window.path.normalize(src)) {
-      CLEAR_NAME_INPUT_STATE()
-      return
-    }
-    nameInputPending = true
+    if (window.path.normalize(dest) === window.path.normalize(src)) return
     rename(src, dest)
       .then(() => {
-        // A stale cache would keep `isEditingName` true and block later shortcuts.
-        CLEAR_NAME_INPUT_STATE()
-        // Follow-up actions (a context menu opened at commit time, F2) must
-        // target the new path, not the one that no longer exists.
+        // Keep the selection on the new path so a following F2 / Delete acts on
+        // the renamed node instead of the one that no longer exists.
         if (activeItem.value?.pathname === src) {
           activeItem.value = {
             ...activeItem.value,
@@ -411,9 +400,6 @@ export const useProjectStore = defineStore('project', () => {
           type: 'error',
           message: err instanceof Error ? err.message : String(err)
         })
-      })
-      .finally(() => {
-        nameInputPending = false
       })
   }
 
