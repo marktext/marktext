@@ -270,25 +270,23 @@ const handleInputEnter = (): void => {
   projectStore.CREATE_FILE_DIRECTORY(createName.value)
 }
 
+const focusTree = (): void => {
+  treeWrapper.value?.focus()
+}
+
 // preventDefault stops the browser's default mousedown focus move (to <body>)
 // from undoing the focus() call.
 const handleTreeMouseDown = (event: MouseEvent): void => {
   if (isEditableTarget(event.target)) return
   if (event.button === 0) event.preventDefault()
-  treeWrapper.value?.focus()
-}
-
-const focusTree = (): void => {
-  treeWrapper.value?.focus()
+  focusTree()
 }
 
 // An inline input closing (rename commit / Escape) drops focus to <body>.
 const handleTreeFocusOut = (event: FocusEvent): void => {
   if (!isNameInput(event.target)) return
   nextTick(() => {
-    if (document.activeElement === document.body && treeWrapper.value) {
-      treeWrapper.value.focus()
-    }
+    if (document.activeElement === document.body) focusTree()
   })
 }
 
