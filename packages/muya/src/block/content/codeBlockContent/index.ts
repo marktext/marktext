@@ -415,6 +415,11 @@ class CodeBlockContent extends Content {
 
             return cursorBlock.setCursor(0, 0, true);
         }
+
+        // Ctrl/Alt/Cmd+Backspace deletes a word or line: leave it to the browser (#5239).
+        if (event.ctrlKey || event.altKey || event.metaKey)
+            return;
+
         // The following code should fix a certain bug:
         // when there is one newline(\n) character before cursor.
         // pressing the backspace key should work properly.(compatibility with Firefox)

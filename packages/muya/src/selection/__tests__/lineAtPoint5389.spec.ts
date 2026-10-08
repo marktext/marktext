@@ -126,7 +126,8 @@ describe('lineAtPoint', () => {
     ])('covers only the $name line of a code block', ({ caret, start, end }) => {
         const muya = boot('```js\nline one\nline two\nline three\n```\n');
         const block = content(muya, 'line one\nline two\nline three');
-        caretLandsOn(block.domNode!, caret);
+        // An element anchor's offset is a child index, not a character offset.
+        caretLandsOn(textNodeIn(block.domNode!), caret);
 
         expect(lineAtPoint(document, 0, 0)).toEqual({ block, start, end });
     });
