@@ -28,7 +28,7 @@ import { generator, tokenizer } from '../../inlineRenderer/lexer';
 import Selection, { getCursorReference } from '../../selection';
 import { getTextContent } from '../../selection/dom';
 import { isListItemState } from '../../state/types';
-import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isMouseEvent, lastGraphemeLength } from '../../utils';
+import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
 import logger from '../../utils/logger';
 
@@ -1388,6 +1388,10 @@ class Format extends Content {
         const { start, end } = this.getCursor() ?? {};
         // Let input handler to handle this case.
         if (!start || !end || start?.offset !== end?.offset)
+            return;
+
+        // Ctrl/Alt/Cmd+Backspace deletes a word or line: leave it to the browser (#5239).
+        if (isKeyboardEvent(event) && (event.ctrlKey || event.altKey || event.metaKey))
             return;
 
         this.muya.editor.history.markInputBoundary('deleteContentBackward', null);
