@@ -5,6 +5,7 @@ import type Renderer from '../index';
 import { describe, expect, it } from 'vitest';
 import { CLASS_NAMES } from '../../../config';
 import { h } from '../../../utils/snabbdom';
+import lineBreakHighlights from '../lineBreakHighlights';
 import softLineBreak from '../softLineBreak';
 
 function makeToken(overrides: Partial<SoftLineBreakToken> = {}): SoftLineBreakToken {
@@ -20,7 +21,7 @@ function makeToken(overrides: Partial<SoftLineBreakToken> = {}): SoftLineBreakTo
 }
 
 function asRenderer(obj: object): Renderer {
-    return obj as unknown as Renderer;
+    return { lineBreakHighlights, ...obj } as unknown as Renderer;
 }
 
 function getSelector(vnodes: ReturnType<typeof softLineBreak>): string {

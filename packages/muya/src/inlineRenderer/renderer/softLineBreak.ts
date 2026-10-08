@@ -1,7 +1,6 @@
 import type { ISyntaxRenderOptions, SoftLineBreakToken } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import { lineBreakHighlights } from './highlight';
 
 export default function softLineBreak(
     this: Renderer,
@@ -16,7 +15,7 @@ export default function softLineBreak(
         selector += `.${CLASS_NAMES.MU_LINE_END}`;
     }
 
-    const bands = lineBreakHighlights.call(this, h, token, start, end);
+    const bands = this.lineBreakHighlights(h, token, start, end);
 
     return [h(selector, bands.length ? [...bands, token.lineBreak] : token.lineBreak)];
 }

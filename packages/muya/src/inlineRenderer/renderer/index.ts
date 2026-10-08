@@ -29,6 +29,7 @@ import image from './image';
 import inlineCode from './inlineCode';
 import inlineDiff from './inlineDiff';
 import inlineMath from './inlineMath';
+import lineBreakHighlights from './lineBreakHighlights';
 import link from './link';
 import loadImageAsync from './loadImageAsync';
 import mark from './mark';
@@ -53,6 +54,7 @@ const inlineSyntaxRenderer = {
     tailHeader,
     hardLineBreak,
     softLineBreak,
+    lineBreakHighlights,
     codeFence,
     inlineMath,
     autoLink,

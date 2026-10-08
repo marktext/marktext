@@ -1,15 +1,13 @@
 import type { HardLineBreakToken, ISyntaxRenderOptions } from '../types';
 import type Renderer from './index';
 import { CLASS_NAMES } from '../../config';
-import { lineBreakHighlights } from './highlight';
 
 export default function hardLineBreak(
     this: Renderer,
     { h, token }: ISyntaxRenderOptions & { token: HardLineBreakToken },
 ) {
     const { spaces, lineBreak, isAtEnd } = token;
-    const bands = lineBreakHighlights.call(
-        this,
+    const bands = this.lineBreakHighlights(
         h,
         token,
         token.range.end - lineBreak.length,
