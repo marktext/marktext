@@ -77,6 +77,10 @@ electronFuses:
   # MarkText can read it (#5409). With this fuse off the packaged app ignores
   # Node's inspector flags, so `--debug` reaches MarkText.
   enableNodeCliInspectArguments: false
+  # Flipping a fuse rewrites the Electron Framework binary, invalidating the
+  # ad-hoc signature its linker wrote. Unsigned macOS arm64 builds are then
+  # killed on launch (Code Signature Invalid), so re-sign ad-hoc after flipping.
+  resetAdHocDarwinSignature: true
 
 asarUnpack:
   - resources/**
