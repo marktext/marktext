@@ -29,11 +29,11 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22.21.1'
           cache: 'pnpm'
@@ -132,7 +132,7 @@ jobs:
 
       - name: Comment preview URL on PR
         if: github.event_name == 'pull_request' && steps.preview.outputs.result == 'ok'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: website-preview
           message: |
@@ -142,7 +142,7 @@ jobs:
 
       - name: Comment preview-disabled notice on PR
         if: github.event_name == 'pull_request' && steps.preview.outputs.result == 'preview-disabled'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: website-preview
           message: |
@@ -152,7 +152,7 @@ jobs:
 
       - name: Comment bootstrap notice on PR
         if: github.event_name == 'pull_request' && steps.preview.outputs.result == 'not-bootstrapped'
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: website-preview
           message: |
