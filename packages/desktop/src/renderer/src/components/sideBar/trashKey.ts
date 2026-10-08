@@ -51,12 +51,21 @@ export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): 
   return isMac && metaKey && key === 'Backspace'
 }
 
+// A drive letter or a UNC prefix, with either separator.
+const WINDOWS_ROOT = /^(?:[a-z]:|[/\\]{2}[^/\\])/i
+
 export const isPathWithinRoot = (
   pathname: string,
   rootPath: string | undefined,
   separator: string
 ): boolean => {
   if (!rootPath) return false
+  // Pathe normalizes renderer roots to '/' ('C:/docs', '//server/share'), while
+  // the main-process watcher reports Windows paths with backslashes.
+  if (WINDOWS_ROOT.test(rootPath)) {
+    pathname = pathname.replace(/\\/g, separator)
+    rootPath = rootPath.replace(/\\/g, separator)
+  }
   if (pathname === rootPath) return true
   const prefix = rootPath.endsWith(separator) ? rootPath : rootPath + separator
   return pathname.startsWith(prefix)

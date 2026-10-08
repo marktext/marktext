@@ -47,6 +47,19 @@ describe('sidebar rename keyboard rules', () => {
     expect(shouldRenameSelection({ ...base, isEditingName: true })).toBe(false)
   })
 
+  it('accepts watcher paths with Windows separators under a normalized renderer root', () => {
+    expect(shouldRenameSelection({
+      ...base,
+      projectRootPath: 'C:/docs',
+      selection: { pathname: 'C:\\docs\\notes.md', isFile: true }
+    })).toBe(true)
+    expect(shouldRenameSelection({
+      ...base,
+      projectRootPath: 'C:/docs',
+      selection: { pathname: 'C:\\docs-other\\notes.md', isFile: true }
+    })).toBe(false)
+  })
+
   it('ignores editable surfaces', () => {
     expect(shouldRenameSelection({ ...base, editableTarget: true })).toBe(false)
     expect(shouldRenameSelection({ ...base, key: 'Enter', editableTarget: true })).toBe(false)
