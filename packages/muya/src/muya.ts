@@ -368,6 +368,8 @@ export class Muya {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
 
+        this.editor.searchModule.refresh();
+
         if (selection && selection.isSelectionInSameBlock) {
             const begin = Math.min(selection.anchor.offset, selection.focus.offset);
             const end = Math.max(selection.anchor.offset, selection.focus.offset);

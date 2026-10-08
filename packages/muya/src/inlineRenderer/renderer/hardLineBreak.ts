@@ -15,6 +15,7 @@ export default function hardLineBreak(
     );
     const className = CLASS_NAMES.MU_HARD_LINE_BREAK;
     const spaceClass = CLASS_NAMES.MU_HARD_LINE_BREAK_SPACE;
+
     if (isAtEnd) {
         return [
             h(`span.${className}`, h(`span.${spaceClass}`, spaces)),
