@@ -193,7 +193,7 @@ jobs:
             echo "## ⚠️ Note for macOS users"
             echo "Builds are unsigned (no Apple Developer ID). After dragging MarkText into Applications, clear the quarantine flag once:"
             echo '```'
-            echo 'xattr -cr /Applications/marktext.app'
+            echo 'xattr -d com.apple.quarantine /Applications/MarkText.app'
             echo '```'
             echo ""
             echo "## Verifying downloads"
