@@ -131,7 +131,7 @@ Useful events emitted on the editor:
 | `selection-change` | New selection (`{ anchor, focus, path }`). |
 | `focus` / `blur` | Fired when the contenteditable surface gains or loses focus. |
 
-The full set of constructor options (font size, list defaults, math/footnote toggles, front matter delimiters, Mermaid/Vega themes, etc.) is described by `IMuyaOptions` in [`packages/core/src/types.ts`](./packages/core/src/types.ts); defaults live in `MUYA_DEFAULT_OPTIONS` in [`packages/core/src/config/index.ts`](./packages/core/src/config/index.ts).
+The full set of constructor options (font size, list defaults, math/footnote toggles, front matter delimiters, Mermaid/Vega themes, etc.) is described by `IMuyaOptions` in [`src/types.ts`](./src/types.ts); defaults live in `MUYA_DEFAULT_OPTIONS` in [`src/config/index.ts`](./src/config/index.ts).
 
 ## Bundled UI plugins
 
@@ -241,4 +241,4 @@ No, the two version numbers are independent.
 
 ## License
 
-[MIT](./LICENSE) © [Jocs](https://github.com/Jocs)
+[MIT](../../LICENSE) © [Jocs](https://github.com/Jocs)
