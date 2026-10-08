@@ -50,11 +50,30 @@ export function resolveEndpoint(node: Node, offset: number): IAnchorFocusInfo | 
         return { offset: block.text.length, block, path: block.path };
     }
 
+    // A selection anchored to an element carries a child index in `offset`,
+    // not a character offset (#5239).
+    const base = getOffsetOfParagraph(node, contentDOM);
+    const within = node === contentDOM ? textLengthBeforeChild(contentDOM, offset) : offset;
+
     return {
-        offset: getOffsetOfParagraph(node, contentDOM) + offset,
+        offset: base + within,
         block,
         path: block.path,
     };
+}
+
+function textLengthBeforeChild(element: Node, index: number): number {
+    const children = element.childNodes;
+    const end = Math.min(index, children.length);
+    let length = 0;
+    for (let i = 0; i < end; i++) {
+        length += getTextContent(children[i], [
+            CLASS_NAMES.MU_MATH_RENDER,
+            CLASS_NAMES.MU_RUBY_RENDER,
+        ]).length;
+    }
+
+    return length;
 }
 
 function caretAt(doc: Document, x: number, y: number): { node: Node; offset: number } | null {
