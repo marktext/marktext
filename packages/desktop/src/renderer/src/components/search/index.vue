@@ -192,19 +192,11 @@ const prefillFromSelection = () => {
 }
 
 const highlightIndex = computed(() => {
-  if (searchMatches.value) {
-    return searchMatches.value.index
-  } else {
-    return -1
-  }
+  return searchMatches.value ? searchMatches.value.index : -1
 })
 
 const highlightCount = computed(() => {
-  if (searchMatches.value) {
-    return searchMatches.value.matches.length
-  } else {
-    return 0
-  }
+  return searchMatches.value ? searchMatches.value.matches.length : 0
 })
 
 onMounted(() => {
@@ -263,34 +255,26 @@ const listenReplace = () => {
   type.value = 'replace'
 }
 
-const listenFindNext = () => {
-  find('next')
-}
+const listenFindNext = () => find('next')
 
-const listenFindPrev = () => {
-  find('previous')
-}
+const listenFindPrev = () => find('previous')
 
 const docKeyup = (event: KeyboardEvent) => {
   if (event.key === 'Escape') {
-    emptySearch(true)
+    emptySearch()
   }
 }
 
 const docClick = (event: MouseEvent) => {
   if (!showSearch.value) return
-  // Replaces the @click.stop that used to swallow these clicks from every other
-  // document-level listener.
   const target = event.target as HTMLElement | null
   if (target && target.closest('.search-bar')) return
-  emptySearch(true)
+  emptySearch()
 }
 
-const blurSearch = () => {
-  emptySearch(true)
-}
+const blurSearch = () => emptySearch()
 
-const emptySearch = (selectHighlight = false) => {
+const emptySearch = (selectHighlight = true) => {
   showSearch.value = false
   searchValue.value = ''
   replaceValue.value = ''

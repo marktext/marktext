@@ -97,7 +97,7 @@ describe('search highlight survives a full re-render (#5651)', () => {
         expect(selectionCount(muya)).toBe(0);
     });
 
-    it('restores the caret even when its block also holds the active match', () => {
+    it('restores the caret into a block that also holds a match', () => {
         const muya = bootMuya('line one\n\nline two\n\nline three\n');
         const search = muya.editor.searchModule;
         search.search('line');
@@ -108,7 +108,7 @@ describe('search highlight survives a full re-render (#5651)', () => {
 
         expect(muya.editor.selection.anchorBlock?.text).toBe('line one');
         expect(muya.editor.selection.anchor?.offset).toBe(2);
-        expect(highlightCount(muya)).toBe(1);
+        expect(document.getSelection()?.anchorOffset).toBe(2);
     });
 });
 

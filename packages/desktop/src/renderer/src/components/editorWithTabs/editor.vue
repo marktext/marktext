@@ -1137,6 +1137,12 @@ const handReplace = (payload: unknown) => {
   editorStore.SEARCH(toSearchMatches(editor.value.replace(value, opt)))
 }
 
+const handleFindAction = (action: unknown) => {
+  if (!editor.value) return
+  editorStore.SEARCH(toSearchMatches(editor.value.find(action as 'previous' | 'next')))
+  scrollToHighlight()
+}
+
 const handleUploadedImage = (url: unknown, deletionUrl?: unknown) => {
   insertImage(url)
   editorStore.SHOW_IMAGE_DELETION_URL(deletionUrl as string)
@@ -1275,12 +1281,6 @@ const scrollToAnchorElement = (element: unknown) => {
 const scrollToElement = (selector: string) => {
   // Scroll to search highlight word
   scrollElementIntoView(document.querySelector(selector))
-}
-
-const handleFindAction = (action: unknown) => {
-  if (!editor.value) return
-  editorStore.SEARCH(toSearchMatches(editor.value.find(action as Parameters<Muya['find']>[0])))
-  scrollToHighlight()
 }
 
 interface ExportOptions {
@@ -1460,7 +1460,7 @@ const handleParagraph = (type: unknown) => {
         return editor.value.deleteParagraph()
       }
       default:
-        console.error(`unknow paragraph edit type: ${type}`)
+        console.error(`unknown paragraph edit type: ${type}`)
     }
   }
 }
@@ -1708,10 +1708,10 @@ const handleResetPaddingBottom = () => {
   if (!container) return
   const firstChild = container.firstElementChild as HTMLElement | null
   if (!firstChild) return
-  const newScollableHeightWithoutPadding =
+  const newScrollableHeightWithoutPadding =
     container.scrollHeight - container.clientHeight - parseFloat(firstChild.style.paddingBottom)
 
-  if (currentFile.value && newScollableHeightWithoutPadding > currentFile.value.scrollTop) {
+  if (currentFile.value && newScrollableHeightWithoutPadding > currentFile.value.scrollTop) {
     container.style.paddingBottom = ''
     resizeObserverForEditor.unobserve(firstChild) // unobserve #ag-editor-id since we have removed the padding
   }

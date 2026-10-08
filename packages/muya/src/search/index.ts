@@ -2,19 +2,18 @@ import type Content from '../block/base/content';
 import type TreeNode from '../block/base/treeNode';
 import type { IHighlight } from '../inlineRenderer/types';
 import type { Muya } from '../muya';
-import type { IRenderCursor } from '../selection/types';
 import type { IMatch, IReplaceOption, ISearchOption } from './types';
 import { DEFAULT_SEARCH_OPTIONS } from '../config';
 import { buildRegexValue, matchString } from '../utils/search';
 
 export class Search {
-    private _value: string = '';
+    private _query: string = '';
     private _options: ISearchOption = { ...DEFAULT_SEARCH_OPTIONS };
     public matches: IMatch[] = [];
     public index: number = -1;
 
     get value() {
-        return this._value;
+        return this._query;
     }
 
     private get _scrollPage() {
@@ -26,7 +25,7 @@ export class Search {
     // Drop match state when the document is replaced (e.g. a tab switch), so
     // stale matches don't reference the previous document's blocks (#1932).
     reset() {
-        this._value = '';
+        this._query = '';
         this._options = { ...DEFAULT_SEARCH_OPTIONS };
         this.matches = [];
         this.index = -1;
@@ -105,7 +104,7 @@ export class Search {
         const { isSingle, isRegexp, ...rest } = opt;
         const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, rest);
         const { matches, index } = this;
-        const value = this._value;
+        const value = this._query;
 
         if (matches.length) {
             this._innerReplace(
@@ -160,13 +159,14 @@ export class Search {
 
     /**
      * Search value in current document.
-     * @param {string} value
+     * @param {string} query
      * @param {object} opts
      */
-    search(value: string, opts: ISearchOption = {}) {
+    search(query: string, opts: ISearchOption = {}) {
         const matches: IMatch[] = [];
-        const options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
-        const { highlightIndex, selectHighlight } = options;
+        this._options = Object.assign({}, DEFAULT_SEARCH_OPTIONS, opts);
+        this._query = query;
+        const { highlightIndex, selectHighlight } = this._options;
         let index = -1;
 
         // The currently active match, captured before it is cleared below, so a
@@ -178,12 +178,12 @@ export class Search {
         this._updateMatches(true);
 
         // Highlight current search.
-        if (value) {
+        if (query) {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
                 if (block.isContent()) {
                     const { text } = block;
                     if (text && typeof text === 'string') {
-                        const strMatches = matchString(text, value, options);
+                        const strMatches = matchString(text, query, this._options);
                         matches.push(
                             ...strMatches.map(({ index, match, subMatches }) => {
                                 return {
@@ -200,24 +200,19 @@ export class Search {
             });
         }
 
-        if (highlightIndex !== -1) {
+        if (typeof highlightIndex === 'number' && highlightIndex !== -1) {
             // If set the highlight index, then highlight the highlighIndex
-            index = highlightIndex;
+            index = Math.min(highlightIndex, matches.length - 1);
         }
         else if (matches.length) {
             // highlight the first word that matches.
             index = 0;
         }
 
-        Object.assign(this, { _value: value, matches, index });
-        this._options = options;
+        Object.assign(this, { matches, index });
 
         this._updateMatches();
 
-        // Restore the editor cursor onto the active match. Mirrors muyajs's
-        // `render(selectHighlight)` -> `setCursor()` path: closing the search
-        // bar empties the search with `selectHighlight`, which must place the
-        // cursor where the highlight was so the user can keep typing there.
         if (selectHighlight) {
             const activeMatch = matches[index] ?? prevActiveMatch;
             if (activeMatch?.block.outMostBlock) {
@@ -229,45 +224,18 @@ export class Search {
         return this;
     }
 
-    private _highlightsFor(block: Content): IHighlight[] {
-        const { matches, index } = this;
-        const highlights: IHighlight[] = [];
-
-        for (let i = 0; i < matches.length; i++) {
-            const match = matches[i];
-            if (match.block === block)
-                highlights.push({ start: match.start, end: match.end, active: i === index });
-        }
-
-        return highlights;
-    }
-
     /** Re-run the active query on the blocks a full re-render just rebuilt. */
-    refresh(cursor?: IRenderCursor): this {
-        const hadQuery = !!this._value;
+    refresh(): this {
+        const { _query: query, _options: options, index: highlightIndex } = this;
 
-        if (hadQuery) {
-            const { _value: value, index: previous } = this;
-            // Stale matches point at the discarded blocks; clear them first so
-            // `search()` does not render into those detached nodes.
-            this.matches = [];
-            this.index = -1;
-            this.search(value, { ...this._options, highlightIndex: -1, selectHighlight: false });
-
-            // A parse-affecting toggle can drop the match the old index pointed
-            // at, so move it back only when the new parse still has it.
-            if (previous > 0 && previous < this.matches.length) {
-                this.index = previous;
-                this._updateMatches();
-            }
+        if (!query) {
+            return this;
         }
 
-        if (cursor?.block)
-            cursor.block.update(cursor, this._highlightsFor(cursor.block));
+        this.reset();
+        this.search(query, { ...options, highlightIndex, selectHighlight: false });
 
-        // The find bar keeps its own snapshot, which a rebuild can invalidate.
-        if (hadQuery)
-            this._muya.eventCenter.emit('search-refreshed', this);
+        this._muya.eventCenter.emit('search-refreshed', this);
 
         return this;
     }
