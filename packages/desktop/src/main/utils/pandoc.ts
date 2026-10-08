@@ -1,11 +1,13 @@
 // Copy from https://github.com/utatti/simple-pandoc/blob/master/index.js
 import { spawn } from 'child_process'
 import path from 'path'
+import { isExecutableFile } from 'common/filesystem'
 import { resolveCommand } from './resolveCommand'
+import type { PandocCommandInfo } from '@shared/types/pandoc'
 
 const pandocCommand = 'pandoc'
 
-/** Targets offered by "Export → Convert with Pandoc"; `label` is not translated. */
+/** Targets offered by "File → Convert with Pandoc"; `label` is not translated. */
 export interface PandocExportFormat {
   id: string
   label: string
@@ -216,8 +218,10 @@ export const pandocLocations = (platform: NodeJS.Platform, env: NodeJS.ProcessEn
 }
 
 /** Node refuses to spawn a `.bat`/`.cmd` without `shell: true` (CVE-2024-27980). */
-const isBatchFile = (command: string): boolean =>
-  process.platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
+const isBatchFile = (
+  command: string,
+  platform: NodeJS.Platform = process.platform
+): boolean => platform === 'win32' && /\.(bat|cmd)$/i.test(command.trim())
 
 const resolve = async(): Promise<string | null> => {
   const override = process.env.MARKTEXT_PANDOC
@@ -279,6 +283,37 @@ const pandoc = (async(from: string, to: string, ...args: string[]): Promise<stri
 }) as PandocFn
 
 pandoc.exists = async(): Promise<boolean> => (await findCommand()) !== null
+
+// The file `PATH` would run for `command`, or `null` when it holds none.
+export const findOnPath = (
+  command: string,
+  platform: NodeJS.Platform = process.platform,
+  env: NodeJS.ProcessEnv = process.env
+): string | null => {
+  const separator = platform === 'win32' ? ';' : ':'
+  // Windows runs a bare name by extension, so the `PATHEXT` spellings are what make it one.
+  const suffixes =
+    platform === 'win32'
+      ? (env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
+      : ['']
+  for (const folder of (env.PATH ?? '').split(separator)) {
+    if (!folder) continue
+    for (const suffix of suffixes) {
+      const candidate = path.join(folder, `${command}${suffix}`)
+      if (!isBatchFile(candidate, platform) && isExecutableFile(candidate)) return candidate
+    }
+  }
+  return null
+}
+
+// The binary the preference pane names, which `exists()` cannot: a bare name from
+// `resolveCommand` becomes the file PATH resolves it to. When PATH holds nothing spawnable
+// the name is still reported — pandoc is installed, so Not found would be wrong (#2751).
+export const resolvePandocCommand = async(): Promise<PandocCommandInfo> => {
+  const command = await findCommand()
+  if (!command) return { command: null }
+  return { command: path.isAbsolute(command) ? command : findOnPath(command) ?? command }
+}
 
 export interface PandocToFileOptions {
   /** Folder the document's relative links resolve against, or pandoc uses cwd. */

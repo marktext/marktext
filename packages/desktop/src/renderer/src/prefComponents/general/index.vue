@@ -169,6 +169,36 @@
       </template>
     </compound>
 
+    <!-- Beside `<bool>` rather than on `compound`'s `notes` prop: the status needs its own
+         markup for the button, and outside the switch it stays readable while it is greyed. -->
+    <compound>
+      <template #head>
+        <h6 class="title">
+          {{ t('preferences.general.pandoc.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <bool
+          :description="t('preferences.general.pandoc.description')"
+          :detailed-description="t('preferences.general.pandoc.detailedDescription')"
+          :bool="showPandocConvert"
+          :disable="pandocDisabled"
+          :on-change="(value) => onSelectChange('showPandocConvert', value)"
+        />
+        <div class="notes">
+          {{ pandocStatus }}
+          <el-button
+            class="pandoc-recheck"
+            size="small"
+            :loading="isProbing"
+            @click="probePandoc"
+          >
+            {{ t('preferences.general.pandoc.recheck') }}
+          </el-button>
+        </div>
+      </template>
+    </compound>
+
     <compound>
       <template #head>
         <h6 class="title">
@@ -188,7 +218,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { usePreferencesStore } from '@/store/preferences'
@@ -198,6 +228,8 @@ import Range from '../common/range/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Bool from '../common/bool/index.vue'
 import textBox from '../common/textBox/index.vue'
+import { pandocSwitchState } from './pandoc'
+import type { PandocCommandInfo } from '@shared/types/pandoc'
 import { isMac } from '@/util'
 
 import {
@@ -226,8 +258,38 @@ const {
   fileSortOrder,
   language,
   openedFilesInSidebar,
-  autoRevealInSidebar
+  autoRevealInSidebar,
+  showPandocConvert
 } = storeToRefs(preferenceStore)
+
+const pandocProbe = ref<PandocCommandInfo | null>(null)
+const isProbing = ref(false)
+
+const pandocSwitch = computed(() => pandocSwitchState(pandocProbe.value, showPandocConvert.value))
+
+const pandocStatus = computed<string>(() => {
+  const { note, path } = pandocSwitch.value
+  if (!note) return ''
+  return path ? t(note, { path }) : t(note)
+})
+
+const pandocDisabled = computed<boolean>(() => pandocSwitch.value.disabled)
+
+const probePandoc = async (): Promise<void> => {
+  isProbing.value = true
+  try {
+    pandocProbe.value = await window.electron.ipcRenderer.invoke('mt::pandoc::command')
+  } catch {
+    // Main answers `{ command: null }` when its own lookup fails; a broken channel reads the same.
+    pandocProbe.value = { command: null }
+  } finally {
+    isProbing.value = false
+  }
+}
+
+onMounted(async () => {
+  await probePandoc()
+})
 
 const startUpAction = computed<string>({
   get: () => preferenceStore.startUpAction,
@@ -274,5 +336,11 @@ const selectDefaultDirectoryToOpen = (): void => {
 
 .pref-general .startup-action-ctrl label {
   margin: 5px 0;
+}
+
+/* The note line is italic; this button inside it is not. */
+.pref-general .pandoc-recheck {
+  margin-left: 8px;
+  font-style: normal;
 }
 </style>

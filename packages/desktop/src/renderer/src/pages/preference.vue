@@ -101,6 +101,8 @@ onMounted(() => {
     font-style: italic;
     font-size: 12px;
     color: var(--editorColor80);
+    /* A Windows path is one unbreakable token, so without this it widens `.pref-content`. */
+    overflow-wrap: anywhere;
   }
 
   & .pref-content {
