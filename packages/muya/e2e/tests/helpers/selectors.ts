@@ -91,6 +91,12 @@ export const editor = {
 // inside each plugin's index.ts.
 export const floats = {
     inlineFormatToolbar: '.mu-format-picker',
+    colorPicker: '.mu-color-panel',
+    colorButton: '.mu-format-picker li.item.color i.icon',
+    colorToggle: '.mu-format-picker li.item.color i.caret',
+    colorSwatchText: '.mu-color-swatch.text',
+    colorSwatchBg: '.mu-color-swatch.bg',
+    colorReset: '.mu-color-reset',
     quickInsert: '.mu-quick-insert',
     paragraphFrontButton: '.mu-front-button-wrapper',
     paragraphFrontButtonInner: '.mu-front-button',

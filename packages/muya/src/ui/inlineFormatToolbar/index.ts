@@ -1,14 +1,16 @@
 import type { VNode } from 'snabbdom';
 import type { Muya } from '../../index';
 import type { Token } from '../../inlineRenderer/types';
+import type { ColorFormatType, IColorStyle } from '../../utils/colorSpan';
 import type { IBaseOptions } from '../types';
 
-import type { FormatToolIcon } from './config';
+import type { FormatToolIcon, IColorSection, IColorSwatch } from './config';
 import Format from '../../block/base/format';
 import { isKeyboardEvent } from '../../utils';
+import { parseColorStyle } from '../../utils/colorSpan';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
-import icons from './config';
+import icons, { COLOR_SECTIONS } from './config';
 import './index.css';
 
 /** Default float options for inline format toolbar */
@@ -78,6 +80,8 @@ export class InlineFormatToolbar extends BaseFloat {
     /** Container element for the format toolbar */
     private _formatContainer: HTMLDivElement = document.createElement('div');
 
+    private _colorPanelCloseTimer: number | null = null;
+
     /**
      * Create inline format toolbar instance
      * @param muya - Muya editor instance
@@ -129,6 +133,24 @@ export class InlineFormatToolbar extends BaseFloat {
         eventCenter.attachDOMEvent(domNode, 'keydown', (event) => {
             this._handleKeydown(event, editor);
         });
+
+        // Leaving the toolbar starts a short close delay: the pointer crosses a
+        // gap to reach the panel, so an immediate close would dismiss it.
+        eventCenter.attachDOMEvent(this.container!, 'mouseleave', () => {
+            this._clearColorPanelTimer();
+            this._colorPanelCloseTimer = window.setTimeout(
+                () => this._closeColorPanelNow(),
+                140,
+            );
+        });
+        eventCenter.attachDOMEvent(this.container!, 'mouseenter', () => {
+            this._clearColorPanelTimer();
+        });
+    }
+
+    override hide() {
+        this._closeColorPanelNow();
+        super.hide();
     }
 
     /**
@@ -206,7 +228,11 @@ export class InlineFormatToolbar extends BaseFloat {
         const { _icons: icons, _oldVNode: oldVNode, _formatContainer: formatContainer, _formats: formats } = this;
         const { i18n } = this.muya;
 
-        const children = icons.map(icon => this._createIconItem(icon, formats, i18n));
+        const children = icons.map(icon =>
+            icon.type === 'color'
+                ? this._createColorItem(icon, i18n)
+                : this._createIconItem(icon, formats, i18n),
+        );
         const vnode = h('ul', children);
 
         patch(oldVNode || formatContainer, vnode);
@@ -287,5 +313,256 @@ export class InlineFormatToolbar extends BaseFloat {
             this._formats = this._block!.getFormatsInRange().formats;
             this._render();
         }
+    }
+
+    private _colorState(): IColorStyle {
+        const state: IColorStyle = { color: null, backgroundColor: null };
+
+        for (const token of this._formats) {
+            if (token.type !== 'html_tag')
+                continue;
+
+            const style = parseColorStyle(token.attrs?.style);
+            if (!style)
+                continue;
+            if (style.color)
+                state.color = style.color;
+            if (style.backgroundColor)
+                state.backgroundColor = style.backgroundColor;
+        }
+
+        return state;
+    }
+
+    /**
+     * `A` tile previews the selection colours, its caret opens the picker on
+     * hover, and clicking the tile clears both colours (Reset).
+     */
+    private _createColorItem(icon: FormatToolIcon, i18n: typeof this.muya.i18n) {
+        const { color, backgroundColor } = this._colorState();
+
+        // Unset properties must be omitted, not `undefined`: snabbdom only
+        // clears an inline style when the key is absent from the new object.
+        const iconStyle: Record<string, string> = {};
+        if (color)
+            iconStyle.color = color;
+        if (backgroundColor)
+            iconStyle['background-color'] = backgroundColor;
+
+        const iconElement = h(
+            'i.icon',
+            {
+                attrs: { title: i18n.t('Reset') },
+                style: iconStyle,
+                on: {
+                    mousedown: (event: Event) => this._keepSelection(event),
+                    click: (event: Event) => this._resetColors(event),
+                },
+            },
+            h(
+                'i.icon-inner',
+                {
+                    style: {
+                        'background': `url(${icon.icon}) no-repeat`,
+                        'background-size': '100%',
+                    },
+                },
+                '',
+            ),
+        );
+        const caret = h('i.caret', {
+            on: {
+                mouseenter: (event: Event) =>
+                    this._openColorPanel(event.currentTarget as HTMLElement),
+            },
+        });
+        const button = h('div.icon-wrapper', [iconElement, caret]);
+
+        const panel = h('div.mu-color-panel', [
+            ...COLOR_SECTIONS.map(section =>
+                this._createColorSection(section, i18n),
+            ),
+            h(
+                'button.mu-color-reset',
+                {
+                    attrs: { type: 'button' },
+                    on: { click: (event: Event) => this._resetColors(event) },
+                },
+                i18n.t('Reset'),
+            ),
+        ]);
+
+        return h(
+            'li.item.color',
+            { attrs: { title: i18n.t(icon.tooltip) } },
+            [button, panel],
+        );
+    }
+
+    private _openColorPanel(caret: HTMLElement) {
+        const li = caret.closest<HTMLElement>('li.item.color');
+        if (!li)
+            return;
+
+        this._clearColorPanelTimer();
+        li.classList.add('mu-color-open');
+        requestAnimationFrame(() => this._positionColorPanel(li));
+    }
+
+    private _clearColorPanelTimer() {
+        if (this._colorPanelCloseTimer !== null) {
+            window.clearTimeout(this._colorPanelCloseTimer);
+            this._colorPanelCloseTimer = null;
+        }
+    }
+
+    private _closeColorPanelNow() {
+        this._clearColorPanelTimer();
+        // Query from the float container: `_formatContainer` is replaced by the
+        // first snabbdom patch, so it detaches from the tree after render.
+        this.container
+            ?.querySelector<HTMLElement>('li.item.color.mu-color-open')
+            ?.classList
+            .remove('mu-color-open');
+    }
+
+    /** Prefer above the toolbar; drop below when there is no room. */
+    private _positionColorPanel(li: HTMLElement) {
+        if (!li.classList.contains('mu-color-open') || !this.container)
+            return;
+
+        requestAnimationFrame(() => {
+            const panel = li.querySelector<HTMLElement>('.mu-color-panel');
+            if (!panel || !this.container)
+                return;
+
+            const spaceAbove = this.container.getBoundingClientRect().top;
+            li.classList.toggle(
+                'mu-color-panel-below',
+                spaceAbove < panel.offsetHeight + 6,
+            );
+        });
+    }
+
+    private _keepSelection(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    private _createColorSection(
+        section: IColorSection,
+        i18n: typeof this.muya.i18n,
+    ) {
+        const { color, backgroundColor } = this._colorState();
+        const activeValue
+            = section.type === 'color' ? color : backgroundColor;
+        const swatches = section.swatches.map(swatch =>
+            this._createSwatch(section.type, swatch, activeValue, i18n),
+        );
+
+        return h('div.mu-color-section', [
+            h('div.mu-color-title', i18n.t(section.title)),
+            h('div.mu-color-swatches', swatches),
+        ]);
+    }
+
+    private _createSwatch(
+        type: ColorFormatType,
+        swatch: IColorSwatch,
+        activeValue: string | null,
+        i18n: typeof this.muya.i18n,
+    ) {
+        const isActive = (swatch.value ?? null) === (activeValue ?? null);
+        const isDefault = swatch.value === null;
+        const selector = `div.mu-color-swatch.${type === 'color' ? 'text' : 'bg'}${
+            isActive ? '.active' : ''
+        }${isDefault ? '.default' : ''}`;
+
+        const style: Record<string, string> = {};
+        if (type === 'color') {
+            if (swatch.value)
+                style.color = swatch.value;
+        }
+        else if (swatch.value) {
+            style['background-color'] = swatch.value;
+        }
+
+        return h(
+            selector,
+            {
+                attrs: {
+                    'title': i18n.t(swatch.label),
+                    'data-color': swatch.value ?? '',
+                },
+                style,
+                on: {
+                    mousedown: (event: Event) => this._keepSelection(event),
+                    click: (event: Event) =>
+                        this._selectSwatch(event, type, swatch.value),
+                },
+            },
+            type === 'color' ? 'A' : '',
+        );
+    }
+
+    private _restoreSelection(): boolean {
+        const { selection } = this.muya.editor;
+        const { anchor, focus, anchorBlock, anchorPath, focusBlock, focusPath }
+            = selection;
+
+        if (!anchor || !focus || !anchorBlock || !focusBlock || !this._block)
+            return false;
+
+        selection.setSelection(
+            { offset: anchor.offset, block: anchorBlock, path: anchorPath },
+            { offset: focus.offset, block: focusBlock, path: focusPath },
+        );
+
+        return true;
+    }
+
+    private _selectSwatch(
+        event: Event,
+        type: ColorFormatType,
+        value: string | null,
+    ) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!this._restoreSelection())
+            return;
+
+        this._block!.formatColor(type, value);
+        this._refreshColorPanel(event);
+    }
+
+    /** Re-render, keeping the picker open when the pointer is still on it. */
+    private _refreshColorPanel(event: Event) {
+        const li = (event.target as HTMLElement | null)?.closest?.('li.item.color');
+        const keepOpen = !!li?.classList.contains('mu-color-open');
+
+        this._formats = this._block!.getFormatsInRange().formats;
+        this._render();
+
+        if (!keepOpen)
+            return;
+
+        const next = this.container?.querySelector<HTMLElement>('li.item.color');
+        if (next) {
+            next.classList.add('mu-color-open');
+            this._positionColorPanel(next);
+        }
+    }
+
+    private _resetColors(event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!this._restoreSelection())
+            return;
+
+        this._block!.formatColor('color', null);
+        this._block!.formatColor('bg_color', null);
+        this._refreshColorPanel(event);
     }
 }

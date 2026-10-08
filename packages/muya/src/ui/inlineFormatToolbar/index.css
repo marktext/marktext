@@ -5,6 +5,8 @@
 }
 
 .mu-format-picker {
+    position: relative;
+
     width: 265px;
     height: 28px;
 }
@@ -86,4 +88,189 @@
 
 .mu-format-picker li.item.active .icon-wrapper i.icon {
     color: var(--theme-color);
+}
+
+.mu-format-picker li.item.color {
+    position: static;
+
+    /* A shrunk li would let the wrapper overflow its hover box, so the caret
+       would stop receiving hover. */
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.mu-format-picker li.item.color .icon-wrapper {
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 3px;
+
+    border-radius: 3px;
+}
+
+/* The recolour trick assumes a 16px box (inner offset by -16px + drop-shadow). */
+.mu-format-picker li.item.color .icon-wrapper i.icon {
+    width: 16px;
+    height: 16px;
+
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.mu-format-picker li.item.color .icon-wrapper i.caret {
+    position: relative;
+
+    width: 0;
+    height: 0;
+    margin-left: 3px;
+
+    border-top: 4px solid var(--icon-color);
+    border-right: 3px solid transparent;
+    border-left: 3px solid transparent;
+
+    cursor: pointer;
+
+    transition: transform 0.2s ease-in-out;
+}
+
+/* The 6×4 triangle is a tiny target; extend its hover/click area. */
+.mu-format-picker li.item.color .icon-wrapper i.caret::before {
+    position: absolute;
+
+    content: '';
+    inset: -7px;
+}
+
+.mu-format-picker li.item.color.mu-color-open .icon-wrapper i.caret,
+.mu-format-picker li.item.color .icon-wrapper i.caret:hover {
+    transform: rotate(180deg);
+}
+
+.mu-format-picker .mu-color-panel {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    z-index: 10;
+
+    display: none;
+    box-sizing: border-box;
+    width: 236px;
+    padding: 10px 12px 12px;
+
+    background: var(--float-bg-color);
+    border-radius: 4px;
+    box-shadow: var(--float-shadow);
+}
+
+/* Bridge the gap to the toolbar so crossing it keeps the picker open. */
+.mu-format-picker .mu-color-panel::after {
+    position: absolute;
+    right: 0;
+    bottom: -6px;
+    left: 0;
+
+    height: 6px;
+
+    content: '';
+}
+
+.mu-format-picker li.item.color.mu-color-panel-below .mu-color-panel {
+    top: calc(100% + 6px);
+    bottom: auto;
+}
+
+.mu-format-picker li.item.color.mu-color-panel-below .mu-color-panel::after {
+    top: -6px;
+    bottom: auto;
+}
+
+.mu-format-picker li.item.color.mu-color-open .mu-color-panel {
+    display: block;
+}
+
+.mu-color-section + .mu-color-section {
+    margin-top: 10px;
+}
+
+.mu-color-title {
+    margin-bottom: 6px;
+
+    color: var(--editor-color-50);
+    font-size: 12px;
+}
+
+.mu-color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.mu-color-swatch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+
+    color: var(--editor-color-80);
+    font-weight: 600;
+
+    font-size: 14px;
+    line-height: 1;
+
+    background-clip: padding-box;
+    border: 1px solid var(--editor-color-10);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.mu-color-swatch.bg {
+    background-color: var(--editor-bg-color);
+}
+
+.mu-color-swatch:hover {
+    border-color: var(--theme-color);
+}
+
+.mu-color-swatch.active {
+    border-color: var(--theme-color);
+    outline: 1px solid var(--theme-color);
+}
+
+.mu-color-swatch.bg.default {
+    position: relative;
+}
+
+.mu-color-swatch.bg.default::after {
+    position: absolute;
+
+    width: 130%;
+    height: 1px;
+
+    background: var(--editor-color-30);
+    transform: rotate(-45deg);
+
+    content: '';
+}
+
+.mu-color-reset {
+    width: 100%;
+    height: 26px;
+    margin-top: 12px;
+
+    color: var(--button-font-color);
+    font-size: 12px;
+
+    background: var(--button-bg-color);
+    border: var(--button-border);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.mu-color-reset:hover {
+    background: var(--button-bg-color-hover);
 }
