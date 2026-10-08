@@ -135,21 +135,40 @@ export const adjustCursor = (
   return newCursor
 }
 
+const SETTLE_FRAMES = 10
+// Starting a scroll animation on an element supersedes the one it runs. An
+// immediate scroll does not: keeping the caret in view after a click must not
+// stop the jump that click started.
+const scrollAnimations = new WeakMap<HTMLElement, object>()
+
+/** Stops the scroll animation running on `element`, before the element is scrolled another way. */
+export const cancelScrollAnimation = (element: HTMLElement): void => {
+  scrollAnimations.delete(element)
+}
+
+/**
+ * `to` may be a function when the destination can move during the animation —
+ * e.g. off-screen blocks taking their real height as they scroll into view.
+ */
 export const animatedScrollTo = function(
   element: HTMLElement,
-  to: number,
+  to: number | (() => number),
   duration: number,
   callback?: () => void
 ): void {
+  const target = typeof to === 'function' ? to : () => to
   const start = element.scrollTop
-  const change = to - start
   const animationStart = +new Date()
 
   // Prevent animation on small steps or duration is 0
-  if (Math.abs(change) <= 6 || duration === 0) {
-    element.scrollTop = to
+  if (Math.abs(target() - start) <= 6 || duration === 0) {
+    element.scrollTop = target()
     return
   }
+
+  const token = {}
+  scrollAnimations.set(element, token)
+  const superseded = () => scrollAnimations.get(element) !== token
 
   const easeInOutQuad = function(t: number, b: number, c: number, d: number): number {
     t /= d / 2
@@ -159,19 +178,29 @@ export const animatedScrollTo = function(
   }
 
   const animateScroll = function(): void {
+    if (superseded()) return
     const now = +new Date()
-    const val = Math.floor(easeInOutQuad(now - animationStart, start, change, duration))
+    const val = Math.floor(easeInOutQuad(now - animationStart, start, target() - start, duration))
 
     element.scrollTop = val
 
     if (now > animationStart + duration) {
-      element.scrollTop = to
-      if (callback) {
-        callback()
-      }
+      settle(SETTLE_FRAMES)
     } else {
       requestAnimationFrame(animateScroll)
     }
+  }
+
+  // The target can still move once it is drawn (an estimated block above it
+  // takes its real height) and the scroll extent may lag a frame behind, so
+  // the final position is re-applied until it holds across a frame.
+  const settle = function(frames: number): void {
+    element.scrollTop = target()
+    requestAnimationFrame(() => {
+      if (superseded()) return
+      if (frames > 0 && Math.abs(element.scrollTop - target()) > 1) settle(frames - 1)
+      else if (callback) callback()
+    })
   }
 
   requestAnimationFrame(animateScroll)

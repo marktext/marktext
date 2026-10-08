@@ -188,11 +188,9 @@ test.describe('Tab switch restores the per-tab undo history', () => {
   })
 })
 
-// Item 260 — switching tabs restores each tab's OWN scrollTop. The container
-// scroll listener persists `scrollTop` per tab (`updateScrollPosition`), and
-// the `file-changed` handler replays it through `scrollToCords` (which adds a
-// temporary padding-bottom + ResizeObserver so the saved offset is not clamped
-// before the long doc has fully laid out).
+// Item 260 — switching tabs restores each tab's OWN scroll position. The
+// container scroll listener persists it per tab (`updateScrollPosition`), and
+// the `file-changed` handler restores it before the new content is painted.
 test.describe('Tab switch restores the per-tab scroll position', () => {
   let app: ElectronApplication
   let page: Page
@@ -235,11 +233,10 @@ test.describe('Tab switch restores the per-tab scroll position', () => {
     )
     await expect.poll(() => scrollTop()).toBe(0)
 
-    // Switch back to tab A — its scrollTop must be (approximately) restored.
-    // Tolerance is generous: real layout height drives `scrollToCords` clamping.
+    // Switch back to tab A — its scrollTop must be restored.
     await sendIpcToRenderer(app, 'mt::switch-tab-by-index', 0)
     await expect.poll(() => scrollTop(), { timeout: 5000 }).toBeGreaterThan(1000)
     const restored = await scrollTop()
-    expect(Math.abs(restored - captured)).toBeLessThan(captured)
+    expect(Math.abs(restored - captured)).toBeLessThan(2)
   })
 })
