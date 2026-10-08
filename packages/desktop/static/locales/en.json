@@ -213,7 +213,8 @@
       "closeAllTabs": "Close all tabs",
       "rename": "Rename",
       "copyPath": "Copy path",
-      "showInFolder": "Show in folder"
+      "showInFolder": "Show in folder",
+      "showInSideBar": "Show in Side Bar"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Sidebar",
         "wrapTextInToc": "Wrap text in table of contents",
         "showOpenedFiles": "Show opened files",
+        "autoReveal": "Reveal the active file in the sidebar",
         "excludePatterns": "Exclude patterns",
         "excludePatternsNotes": "Exclude patterns (Notes)",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Quit",
       "toggleAutoSave": "Toggle Auto Save",
       "importFile": "Import File",
+      "revealInSideBar": "Show in Side Bar",
       "exportFile": "Export File",
       "exportFilePdf": "Export as PDF",
       "zoom": "Zoom",

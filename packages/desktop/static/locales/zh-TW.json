@@ -213,7 +213,8 @@
       "closeAllTabs": "關閉所有標籤頁",
       "rename": "重新命名",
       "copyPath": "複製路徑",
-      "showInFolder": "在資料夾中顯示"
+      "showInFolder": "在資料夾中顯示",
+      "showInSideBar": "在側邊欄中顯示"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "側邊欄",
         "wrapTextInToc": "在目錄中換行文字",
         "showOpenedFiles": "顯示已開啟的檔案",
+        "autoReveal": "在側邊欄中定位目前檔案",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（備註）",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "退出",
       "toggleAutoSave": "切換自動儲存",
       "importFile": "匯入檔案",
+      "revealInSideBar": "在側邊欄中顯示",
       "exportFile": "匯出檔案",
       "exportFilePdf": "匯出為 PDF",
       "zoom": "縮放",

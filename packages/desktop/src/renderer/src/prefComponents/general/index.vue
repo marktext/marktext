@@ -81,6 +81,11 @@
           :bool="openedFilesInSidebar"
           :on-change="(value) => onSelectChange('openedFilesInSidebar', value)"
         />
+        <bool
+          :description="t('preferences.general.sidebar.autoReveal')"
+          :bool="autoRevealInSidebar"
+          :on-change="(value) => onSelectChange('autoRevealInSidebar', value)"
+        />
 
         <text-box
           :description="t('preferences.general.sidebar.excludePatterns')"
@@ -220,7 +225,8 @@ const {
   fileSortBy,
   fileSortOrder,
   language,
-  openedFilesInSidebar
+  openedFilesInSidebar,
+  autoRevealInSidebar
 } = storeToRefs(preferenceStore)
 
 const startUpAction = computed<string>({

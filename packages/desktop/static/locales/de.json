@@ -213,7 +213,8 @@
       "closeAllTabs": "Alle Tabs schließen",
       "rename": "Umbenennen",
       "copyPath": "Pfad kopieren",
-      "showInFolder": "Im Ordner anzeigen"
+      "showInFolder": "Im Ordner anzeigen",
+      "showInSideBar": "In Seitenleiste anzeigen"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Seitenleiste",
         "wrapTextInToc": "Text im Inhaltsverzeichnis umbrechen",
         "showOpenedFiles": "Geöffnete Dateien anzeigen",
+        "autoReveal": "Aktive Datei in der Seitenleiste anzeigen",
         "excludePatterns": "Ausschlussmuster",
         "excludePatternsNotes": "Hinweise zu Ausschlussmustern",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Beenden",
       "toggleAutoSave": "Automatisches Speichern umschalten",
       "importFile": "Datei importieren",
+      "revealInSideBar": "In Seitenleiste anzeigen",
       "exportFile": "Datei exportieren",
       "exportFilePdf": "Als PDF exportieren",
       "zoom": "Zoom",

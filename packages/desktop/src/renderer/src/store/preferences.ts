@@ -107,6 +107,7 @@ export interface PreferencesState {
   tabBarVisibility: boolean
   sourceCodeModeEnabled: boolean
   openedFilesInSidebar: boolean
+  autoRevealInSidebar: boolean
 
   // ----- Search -----
   searchExclusions: string[]
@@ -229,6 +230,7 @@ export const usePreferencesStore = defineStore('preferences', {
     tabBarVisibility: false,
     sourceCodeModeEnabled: false,
     openedFilesInSidebar: true,
+    autoRevealInSidebar: true,
 
     searchExclusions: [],
     searchMaxFileSize: '',

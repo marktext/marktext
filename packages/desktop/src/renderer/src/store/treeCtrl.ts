@@ -161,6 +161,35 @@ export const addDirectory = (tree: TreeFolder, dir: { pathname: string }): void 
 }
 
 /**
+ * Expands the folders leading to `pathname` (deepest last) and returns them.
+ * Returns `null` when `pathname` is not part of the tree.
+ */
+export const expandAncestors = (tree: TreeFolder, pathname: string): TreeFolder[] | null => {
+  if (!window.path.isAbsolute(pathname)) return null
+
+  const subDirectories = getSubdirectoriesFromRoot(tree.pathname, window.path.dirname(pathname))
+
+  const chain: TreeFolder[] = []
+  let currentFolder: TreeFolder = tree
+  let currentSubFolders: TreeFolder[] = tree.folders
+  for (const directoryName of subDirectories) {
+    const childFolder = currentSubFolders.find((f) => f.name === directoryName)
+    if (!childFolder) return null
+    chain.push(childFolder)
+    currentFolder = childFolder
+    currentSubFolders = childFolder.folders
+  }
+
+  const isTracked = currentFolder.files.some((f) =>
+    window.fileUtils.isSamePathSync(f.pathname, pathname)
+  )
+  if (!isTracked) return null
+
+  for (const folder of chain) folder.isCollapsed = false
+  return chain
+}
+
+/**
  * Update a file's mtimeMs and re-insert it at the correct sorted position.
  * Called when a file-change event arrives so modified-time sort stays live.
  */

@@ -413,6 +413,11 @@
     "type": "boolean",
     "default": true
   },
+  "autoRevealInSidebar": {
+    "description": "General--Whether to reveal the active file in the sidebar file tree.",
+    "type": "boolean",
+    "default": true
+  },
   "searchExclusions": {
     "description": "Searcher--List of glob patterns to exclude from search.--internal",
     "type": "array",

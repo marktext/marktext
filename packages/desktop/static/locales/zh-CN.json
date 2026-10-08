@@ -213,7 +213,8 @@
       "closeAllTabs": "关闭所有标签页",
       "rename": "重命名",
       "copyPath": "复制路径",
-      "showInFolder": "在文件夹中显示"
+      "showInFolder": "在文件夹中显示",
+      "showInSideBar": "在侧边栏中显示"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "侧边栏",
         "wrapTextInToc": "在目录中换行文本",
         "showOpenedFiles": "显示已打开文件",
+        "autoReveal": "在侧边栏中定位当前文件",
         "excludePatterns": "排除模式",
         "excludePatternsNotes": "排除模式（注释）",
         "fileSortBy": {
@@ -782,6 +784,7 @@
       "quit": "退出",
       "toggleAutoSave": "切换自动保存",
       "importFile": "导入文件",
+      "revealInSideBar": "在侧边栏中显示",
       "exportFile": "导出文件",
       "exportFilePdf": "导出为 PDF",
       "zoom": "缩放",
