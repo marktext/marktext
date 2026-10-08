@@ -31,15 +31,19 @@ export function parseColorStyle(
     let matched = false;
 
     for (const declaration of style.split(';')) {
-        const colonIndex = declaration.indexOf(':');
-        if (colonIndex < 0)
+        const fragment = declaration.trim();
+        if (!fragment)
             continue;
 
-        const name = declaration.slice(0, colonIndex).trim().toLowerCase();
+        const colonIndex = fragment.indexOf(':');
+        if (colonIndex < 0)
+            return null;
+
+        const name = fragment.slice(0, colonIndex).trim().toLowerCase();
         if (name !== COLOR_PROPERTY && name !== BACKGROUND_COLOR_PROPERTY)
             return null;
 
-        const value = declaration.slice(colonIndex + 1).trim().toLowerCase();
+        const value = fragment.slice(colonIndex + 1).trim().toLowerCase();
         if (!value)
             continue;
 

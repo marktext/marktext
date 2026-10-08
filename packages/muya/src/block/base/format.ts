@@ -1927,18 +1927,27 @@ class Format extends Content {
         let output = '';
         let newStart = start;
         let newEnd = end;
+        let placedStart = false;
 
         const emit = (a: number, b: number, style: IColorStyle) => {
             if (a >= b)
                 return;
 
+            // Chunks are emitted in source order and align with the selection
+            // edges, so mapping start/end by "which chunks the selection covers"
+            // stays correct even when an edge lands on a span's tag boundary
+            // (there `a === start`/`b === end` never holds, which left the raw
+            // pre-edit offset pointing into the regenerated markup).
+            const inSelection = b > start && a < end;
             const tag = isColorStyleEmpty(style) ? '' : colorSpanOpenTag(style);
             if (tag)
                 output += tag;
-            if (a === start)
+            if (inSelection && !placedStart) {
                 newStart = output.length;
+                placedStart = true;
+            }
             output += text.slice(a, b);
-            if (b === end)
+            if (inSelection)
                 newEnd = output.length;
             if (tag)
                 output += COLOR_SPAN_CLOSE_TAG;

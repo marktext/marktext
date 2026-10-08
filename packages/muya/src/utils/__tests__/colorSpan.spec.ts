@@ -34,9 +34,18 @@ describe('parseColorStyle', () => {
     it('rejects non-colour spans so we never rewrite foreign markup', () => {
         expect(parseColorStyle('font-weight:700')).toBeNull();
         expect(parseColorStyle('color:red;font-weight:700')).toBeNull();
+        expect(parseColorStyle('color:red;font-weight')).toBeNull();
+        expect(parseColorStyle('font-weight')).toBeNull();
         expect(parseColorStyle('')).toBeNull();
         expect(parseColorStyle(null)).toBeNull();
         expect(parseColorStyle(undefined)).toBeNull();
+    });
+
+    it('ignores empty fragments from trailing separators', () => {
+        expect(parseColorStyle('color:red;')).toEqual({
+            color: 'red',
+            backgroundColor: null,
+        });
     });
 });
 

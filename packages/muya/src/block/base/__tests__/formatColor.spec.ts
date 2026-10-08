@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type Format from '../format';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Muya } from '../../../muya';
 
 const bootedHosts: HTMLElement[] = [];
@@ -30,6 +30,11 @@ function selectInFirstBlock(muya: Muya, start: number, end: number): Format {
     const content = muya.editor.scrollPage!.firstContentInDescendant() as unknown as Format;
     muya.editor.activeContentBlock = content as never;
     content.setCursor(start, start, true);
+    stubCursor(content, start, end);
+    return content;
+}
+
+function stubCursor(content: Format, start: number, end: number): void {
     (content as unknown as { getCursor: () => unknown }).getCursor = () => ({
         start: { offset: start },
         end: { offset: end },
@@ -40,7 +45,6 @@ function selectInFirstBlock(muya: Muya, start: number, end: number): Format {
         direction: 'forward',
         type: start === end ? 'Caret' : 'Range',
     });
-    return content;
 }
 
 const RED_OPEN = '<span style="color:#e64340">';
@@ -113,5 +117,37 @@ describe('format.formatColor()', () => {
         const content = selectInFirstBlock(bootMuya(source), RED_OPEN.length, RED_OPEN.length + 5);
         content.format('clear');
         expect(content.text).toBe('hello');
+    });
+
+    it('keeps the run selected when an edge lands on a span boundary', () => {
+        // Regression: the selection end sat exactly on the span's contentStart,
+        // so no emitted chunk started/ended there and the pre-edit end offset
+        // was reused — pointing inside the regenerated `<span …>` markup.
+        const source = `ab${RED_OPEN}cd</span>e`;
+        const content = selectInFirstBlock(bootMuya(source), 0, 2 + RED_OPEN.length);
+        const setCursor = vi.spyOn(content, 'setCursor');
+
+        content.formatColor('bg_color', '#fde2e2');
+
+        const bgOpen = '<span style="background-color:#fde2e2">';
+        expect(content.text).toBe(`${bgOpen}ab</span>${RED_OPEN}cd</span>e`);
+        expect(setCursor).toHaveBeenLastCalledWith(
+            bgOpen.length,
+            bgOpen.length + 2,
+            true,
+        );
+    });
+
+    it('still recolours the run on the click after an edge-boundary pick', () => {
+        const source = `ab${RED_OPEN}cd</span>e`;
+        const content = selectInFirstBlock(bootMuya(source), 0, 2 + RED_OPEN.length);
+        const setCursor = vi.spyOn(content, 'setCursor');
+
+        content.formatColor('bg_color', '#fde2e2');
+        const [start, end] = setCursor.mock.calls.at(-1)! as [number, number];
+        stubCursor(content, start, end);
+        content.formatColor('color', '#3370ff');
+
+        expect(content.text).toContain('color:#3370ff');
     });
 });
