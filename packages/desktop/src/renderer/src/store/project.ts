@@ -10,7 +10,7 @@ import { getFileStateFromData } from './help'
 import { useLayoutStore } from './layout'
 import { useEditorStore } from './editor'
 import { debouncedSendBufferedState } from './bufferedState'
-import type { TreeNode } from '../components/sideBar/types'
+import type { TreeNode, TreeFolderNode } from '../components/sideBar/types'
 import type { FileChangeDetail } from '@shared/types/files'
 
 type ProjectTree = TreeNode
@@ -233,6 +233,10 @@ export const useProjectStore = defineStore('project', () => {
     else CLEAR_NAME_INPUT_STATE()
   }
 
+  function SET_FOLDER_COLLAPSED(folder: TreeFolderNode, isCollapsed: boolean): void {
+    folder.isCollapsed = isCollapsed
+  }
+
   function ASK_FOR_OPEN_PROJECT(): void {
     window.electron.ipcRenderer.send('mt::ask-for-open-project-in-sidebar')
   }
@@ -425,6 +429,7 @@ export const useProjectStore = defineStore('project', () => {
     CHANGE_CLIPBOARD,
     CLEAR_NAME_INPUT_STATE,
     COMMIT_NAME_INPUT,
+    SET_FOLDER_COLLAPSED,
     ASK_FOR_OPEN_PROJECT,
     LISTEN_FOR_SIDEBAR_CONTEXT_MENU,
     CREATE_FILE_DIRECTORY,

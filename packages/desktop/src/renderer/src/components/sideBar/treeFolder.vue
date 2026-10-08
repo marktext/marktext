@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { showContextMenu } from '../../contextMenu/sideBar'
@@ -79,8 +79,14 @@ const folderEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 
-// Use a local reactive state for isCollapsed that syncs with the prop
-const isCollapsed = ref<boolean>(!!props.folder.isCollapsed)
+// Kept on the tree node, not locally: the Files view is under a v-if and
+// remounts on every sidebar view switch (#5631).
+const isCollapsed = computed<boolean>({
+  get: () => !!props.folder.isCollapsed,
+  set: (value) => {
+    projectStore.SET_FOLDER_COLLAPSED(props.folder, value)
+  }
+})
 
 const { renameCache } = storeToRefs(projectStore)
 const { createCache } = storeToRefs(projectStore)
