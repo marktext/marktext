@@ -466,6 +466,16 @@ test.describe('Find bar — Escape clears highlights and restores the cursor (it
   test('Escape after a query clears every highlight and selects the active match', async() => {
     await openFind(app, page)
     await page.locator(FIND_INPUT).fill('needleAlpha')
+    // The bar seeds the query from the editor selection, and that seeded query
+    // can itself yield a single match, so the counter alone does not prove the
+    // typed query was applied. Wait for the highlight to be the typed one
+    // before Escape, otherwise the cursor is restored onto the seeded match.
+    await expect
+      .poll(async() => {
+        const highlights = page.locator('.mu-highlight')
+        return (await highlights.count()) === 1 ? highlights.first().innerText() : ''
+      })
+      .toBe('needleAlpha')
     await expect.poll(() => counterText(page)).toContain('1 / 1')
     await expect.poll(() => page.locator('.mu-highlight').count()).toBe(1)
 
