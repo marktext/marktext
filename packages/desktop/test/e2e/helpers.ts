@@ -221,6 +221,9 @@ export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> =
   )
 }
 
+/** Quotes `value` for a CSS attribute selector; backslashes in Windows paths would read as escapes. */
+export const cssString = (value: string): string => `"${value.replace(/["\\]/g, '\\$&')}"`
+
 /**
  * Opens `root` as the project folder of the running window and waits until
  * `marker` (a markdown file inside `root`) appears in the tree.
@@ -241,7 +244,7 @@ export const openProjectFolder = async(
     if (!win) throw new Error('no editor window')
     ipcMain.emit('app-open-directory-by-id', win.id, target, true)
   }, root)
-  await page.waitForSelector(`.tree-wrapper .side-bar-file[title="${marker}"]`, { timeout })
+  await page.waitForSelector(`.tree-wrapper .side-bar-file[title=${cssString(marker)}]`, { timeout })
 }
 
 export const enterSourceMode = async(page: Page, app: ElectronApplication): Promise<void> => {

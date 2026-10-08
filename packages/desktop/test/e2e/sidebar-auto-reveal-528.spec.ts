@@ -3,7 +3,7 @@ import type { ElectronApplication, Page } from 'playwright'
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
-import { launchElectron, openProjectFolder } from './helpers'
+import { cssString, launchElectron, openProjectFolder } from './helpers'
 
 // #528 — the fixture overflows the list on purpose: the folder of many files
 // sorts above the folder holding the deep file, pushing that row below the fold.
@@ -38,13 +38,17 @@ const createFixture = (): Fixture => {
 }
 
 const treeRow = (page: Page, filePath: string) =>
-  page.locator(`.tree-wrapper .side-bar-file[title="${filePath}"]`)
+  page.locator(`.tree-wrapper .side-bar-file[title=${cssString(filePath)}]`)
+
+// The renderer builds folder rows itself, with '/' paths on every platform; file
+// rows carry the watcher's native paths.
+const folderTitle = (folderPath: string): string => cssString(folderPath.split(path.sep).join('/'))
 
 const folderHeader = (page: Page, folderPath: string) =>
-  page.locator(`.tree-wrapper .folder-name[title="${folderPath}"]`)
+  page.locator(`.tree-wrapper .folder-name[title=${folderTitle(folderPath)}]`)
 
 const tab = (page: Page, filePath: string) =>
-  page.locator(`.editor-tabs .tabs-container li[title="${filePath}"]`)
+  page.locator(`.editor-tabs .tabs-container li[title=${cssString(filePath)}]`)
 
 const filesIcon = (page: Page) =>
   page.locator('.side-bar .left-column > ul').first().locator('li').nth(0)
@@ -68,7 +72,7 @@ const isFolderCollapsed = (page: Page, folderPath: string): Promise<boolean> =>
   page.evaluate((selector) => {
     const arrow = document.querySelector(`${selector} .icon-arrow`)
     return !!arrow && arrow.classList.contains('fold')
-  }, `.tree-wrapper .folder-name[title="${folderPath}"]`)
+  }, `.tree-wrapper .folder-name[title=${folderTitle(folderPath)}]`)
 
 const setFolderExpanded = async(
   page: Page,
@@ -87,7 +91,7 @@ const isRowVisible = (page: Page, filePath: string): Promise<boolean> =>
     const rowRect = row.getBoundingClientRect()
     const containerRect = container.getBoundingClientRect()
     return rowRect.top >= containerRect.top - 1 && rowRect.bottom <= containerRect.bottom + 1
-  }, `.tree-wrapper .side-bar-file[title="${filePath}"]`)
+  }, `.tree-wrapper .side-bar-file[title=${cssString(filePath)}]`)
 
 const openProject = async(app: ElectronApplication, page: Page, root: string): Promise<void> => {
   await page.waitForSelector('.side-bar', { timeout: 15000 })
