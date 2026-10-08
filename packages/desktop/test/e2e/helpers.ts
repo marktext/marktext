@@ -86,7 +86,16 @@ export const launchElectron = async(
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
+  // Inherited when the run starts from the terminal of an Electron-based editor;
+  // it would start MarkText as plain Node.
+  delete env.ELECTRON_RUN_AS_NODE
   if (options.suppressErrorDialog) env.MARKTEXT_ERROR_INTERACTION = '1'
+  if (process.env.MARKTEXT_E2E_BACKGROUND === '1') {
+    // Electron's own `--require` flag, which must precede the app path.
+    args.unshift('-r', path.join(__dirname, 'background-window.cjs'))
+    // Off-screen windows must keep rendering and running animation frames.
+    args.push('--disable-features=CalculateNativeWinOcclusion', '--disable-backgrounding-occluded-windows')
+  }
   Object.assign(env, options.env)
   const app = await _electron.launch({
     executablePath,
@@ -98,6 +107,17 @@ export const launchElectron = async(
   if (options.suppressErrorDialog) await installRendererErrorCounter(app)
   const page = await app.firstWindow()
   await page.waitForLoadState('domcontentloaded')
+  if (process.env.MARKTEXT_E2E_BACKGROUND === '1') {
+    // Pages behave as focused although their windows never take OS focus.
+    const emulateFocus = async(target: Page) => {
+      const session = await target.context().newCDPSession(target)
+      await session.send('Emulation.setFocusEmulationEnabled', { enabled: true })
+    }
+    app.on('window', (target) => {
+      emulateFocus(target).catch(() => {})
+    })
+    await emulateFocus(page)
+  }
   await new Promise((resolve) => setTimeout(resolve, 500))
   return { app, page }
 }
