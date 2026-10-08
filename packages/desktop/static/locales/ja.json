@@ -213,7 +213,8 @@
       "closeAllTabs": "すべてのタブを閉じる",
       "rename": "名前の変更",
       "copyPath": "パスのコピー",
-      "showInFolder": "フォルダーの表示"
+      "showInFolder": "フォルダーの表示",
+      "showInSideBar": "サイドバーに表示"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "サイドバー",
         "wrapTextInToc": "目次でテキストを折り返し",
         "showOpenedFiles": "開いているファイルを表示",
+        "autoReveal": "サイドバーで現在のファイルを表示",
         "excludePatterns": "除外パターン",
         "excludePatternsNotes": "除外パターンの注意事項",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "終了",
       "toggleAutoSave": "自動保存の切り替え",
       "importFile": "ファイルのインポート",
+      "revealInSideBar": "サイドバーに表示",
       "exportFile": "ファイルのエクスポート",
       "exportFilePdf": "PDF としてエクスポート",
       "zoom": "ズーム",

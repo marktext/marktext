@@ -213,7 +213,8 @@
       "closeAllTabs": "Tüm sekmeleri kapat",
       "rename": "Yeniden Adlandır",
       "copyPath": "Yolu kopyala",
-      "showInFolder": "Klasörde göster"
+      "showInFolder": "Klasörde göster",
+      "showInSideBar": "Kenar çubuğunda göster"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Kenar Çubuğu",
         "wrapTextInToc": "İçindekilerde metni kaydır",
         "showOpenedFiles": "Açık dosyaları göster",
+        "autoReveal": "Etkin dosyayı kenar çubuğunda göster",
         "excludePatterns": "Hariç tutma desenleri",
         "excludePatternsNotes": "Hariç tutma desenleri (Notlar)",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Çıkış",
       "toggleAutoSave": "Otomatik Kaydetmeyi Aç/Kapat",
       "importFile": "Dosya İçe Aktar",
+      "revealInSideBar": "Kenar çubuğunda göster",
       "exportFile": "Dosya Dışa Aktar",
       "exportFilePdf": "PDF Olarak Dışa Aktar",
       "zoom": "Yakınlaştırma",

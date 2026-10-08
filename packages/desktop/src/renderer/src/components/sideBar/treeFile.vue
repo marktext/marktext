@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { inject, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
@@ -33,6 +33,7 @@ import FileIcon from './icon.vue'
 import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
 import { renameSelectionEnd } from './renameKey'
+import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
 import type { TreeFileNode } from './types'
 
 const props = defineProps<{
@@ -45,6 +46,17 @@ const editorStore = useEditorStore()
 
 const fileEl = ref<HTMLDivElement | null>(null)
 const renameInput = ref<HTMLInputElement | null>(null)
+
+const rowRegistry = inject<TreeRowRegistry | null>(TREE_ROW_REGISTRY_KEY, null)
+
+watch(
+  () => props.file.pathname,
+  (pathname, previous) => {
+    if (!rowRegistry) return
+    if (previous) rowRegistry.delete(toRowKey(previous))
+    if (fileEl.value) rowRegistry.set(toRowKey(pathname), fileEl.value)
+  }
+)
 
 const { renameCache } = storeToRefs(projectStore)
 const { nameInputValue } = storeToRefs(projectStore)
@@ -95,6 +107,7 @@ const rename = (): void => {
 
 onMounted(() => {
   if (fileEl.value) {
+    rowRegistry?.set(toRowKey(props.file.pathname), fileEl.value)
     fileEl.value.addEventListener('contextmenu', (event) => {
       event.preventDefault()
       projectStore.CHANGE_ACTIVE_ITEM(props.file)
@@ -103,6 +116,10 @@ onMounted(() => {
   }
 
   bus.on('SIDEBAR::show-rename-input', focusRenameInput)
+})
+
+onBeforeUnmount(() => {
+  rowRegistry?.delete(toRowKey(props.file.pathname))
 })
 </script>
 

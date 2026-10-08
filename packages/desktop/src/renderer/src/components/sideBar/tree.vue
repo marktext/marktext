@@ -157,10 +157,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, provide, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useEditorStore } from '@/store/editor'
+import { useLayoutStore } from '@/store/layout'
 import { usePreferencesStore } from '@/store/preferences'
 import Folder from './treeFolder.vue'
 import File from './treeFile.vue'
@@ -171,6 +172,7 @@ import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { PATH_SEPARATOR } from '@/config'
 import { isMac } from '@/util'
+import { computeRevealScrollTop } from '@/util/revealTreeRow'
 import {
   isEditableTarget,
   isInsideTreeScope,
@@ -179,6 +181,7 @@ import {
   shouldTrashSelection
 } from './trashKey'
 import { shouldRenameSelection } from './renameKey'
+import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
 import type { TreeNode, TabDescriptor } from './types'
 
 const { t } = useI18n()
@@ -206,8 +209,12 @@ const showOpenedFiles = ref(readSectionExpanded(SHOW_OPENED_FILES_KEY))
 const input = ref<HTMLInputElement | null>(null)
 const treeWrapper = ref<HTMLDivElement | null>(null)
 
+const rowRegistry: TreeRowRegistry = new Map()
+provide(TREE_ROW_REGISTRY_KEY, rowRegistry)
+
 const projectStore = useProjectStore()
 const editorStore = useEditorStore()
+const layoutStore = useLayoutStore()
 const preferencesStore = usePreferencesStore()
 
 // Computed properties
@@ -250,9 +257,66 @@ const toggleOpenedFiles = (): void => {
   localStorage.setItem(SHOW_OPENED_FILES_KEY, String(showOpenedFiles.value))
 }
 
+const setShowDirectories = (value: boolean): void => {
+  showDirectories.value = value
+  localStorage.setItem(SHOW_DIRECTORIES_KEY, String(value))
+}
+
 const toggleDirectories = (): void => {
-  showDirectories.value = !showDirectories.value
-  localStorage.setItem(SHOW_DIRECTORIES_KEY, String(showDirectories.value))
+  setShowDirectories(!showDirectories.value)
+}
+
+const findRow = (pathname: string): HTMLElement | undefined => {
+  const key = toRowKey(pathname)
+  const row = rowRegistry.get(key)
+  if (row) return row
+  // Windows paths can differ in case.
+  for (const [registered, element] of rowRegistry) {
+    if (window.fileUtils.isSamePathSync(registered, key)) return element
+  }
+  return undefined
+}
+
+const scrollRowIntoView = (container: HTMLElement, row: HTMLElement): void => {
+  const containerRect = container.getBoundingClientRect()
+  const rowRect = row.getBoundingClientRect()
+  const scrollTop = computeRevealScrollTop({
+    rowTopInContent: rowRect.top - containerRect.top + container.scrollTop,
+    rowHeight: rowRect.height,
+    viewportHeight: container.clientHeight,
+    scrollHeight: container.scrollHeight,
+    scrollTop: container.scrollTop
+  })
+  if (scrollTop !== null) container.scrollTop = scrollTop
+}
+
+// Reveals only: the caret, the tree selection and `activeItem` stay untouched.
+// `force` (the "Show in Side Bar" command) ignores the preference.
+const revealPath = async (
+  pathname: string | null | undefined,
+  { force = false }: { force?: boolean } = {}
+): Promise<void> => {
+  if (!pathname) return
+  if (!force && !preferencesStore.autoRevealInSidebar) return
+  if (!showDirectories.value) {
+    if (!force) return
+    setShowDirectories(true)
+  }
+  // Off screen (icon strip, View menu) there is nothing to reveal.
+  if (!layoutStore.showSideBar || layoutStore.rightColumn !== 'files') return
+  if (!projectStore.REVEAL_PATH(pathname)) return
+
+  await nextTick()
+  const container = treeWrapper.value
+  // Hidden views report a zero-size viewport.
+  if (!container || container.offsetParent === null) return
+
+  const row = findRow(pathname)
+  if (row) scrollRowIntoView(container, row)
+}
+
+const handleRevealPath = (pathname: unknown): void => {
+  revealPath(typeof pathname === 'string' ? pathname : null, { force: true })
 }
 
 // From createFileOrDirectoryMixins
@@ -305,7 +369,7 @@ const handleDocumentContextMenu = (event: MouseEvent): void => {
 
   // Right-clicking opens a native menu whose actions read the selection when
   // clicked, so a rename committed here could leave the menu targeting the old
-  // path. Cancel the pending input instead (the pre-#3207 behaviour); the
+  // path. Cancel the pending input instead (the pre-#3207 behavior); the
   // click-away path above still commits.
   projectStore.CLEAR_NAME_INPUT_STATE()
 }
@@ -351,19 +415,42 @@ const handleTreeKeydown = (event: KeyboardEvent): void => {
   }
 }
 
+// The row can arrive after the tab does: opening a project delivers its
+// contents incrementally, so every tree change is a new chance to reveal.
+watch(
+  () => [projectStore.treeVersion, editorStore.currentFile?.pathname] as const,
+  ([, pathname]) => {
+    revealPath(pathname)
+  },
+  { flush: 'post' }
+)
+
+// The tree stays mounted while the side bar is hidden, so a switch made then
+// never scrolled; reveal again as soon as the file list is visible.
+watch(
+  () => layoutStore.showSideBar && layoutStore.rightColumn === 'files',
+  (visible) => {
+    if (visible) revealPath(editorStore.currentFile?.pathname)
+  },
+  { flush: 'post' }
+)
+
 onMounted(() => {
   bus.on('SIDEBAR::show-new-input', handleInputFocus)
   bus.on('SIDEBAR::focus-tree', focusTree)
+  bus.on('SIDEBAR::reveal-path', handleRevealPath)
   // Capture phase: several click targets (project/collapse headings, editor
   // tabs) call `@click.stop`, which would otherwise keep the click-away commit
   // from running.
   document.addEventListener('click', handleDocumentClick, true)
   document.addEventListener('contextmenu', handleDocumentContextMenu)
+  revealPath(editorStore.currentFile?.pathname)
 })
 
 onUnmounted(() => {
   bus.off('SIDEBAR::show-new-input', handleInputFocus)
   bus.off('SIDEBAR::focus-tree', focusTree)
+  bus.off('SIDEBAR::reveal-path', handleRevealPath)
   document.removeEventListener('click', handleDocumentClick, true)
   document.removeEventListener('contextmenu', handleDocumentContextMenu)
 })

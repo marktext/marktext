@@ -213,7 +213,8 @@
       "closeAllTabs": "Alle tabbladen sluiten",
       "rename": "Hernoemen",
       "copyPath": "Pad kopiëren",
-      "showInFolder": "Tonen in map"
+      "showInFolder": "Tonen in map",
+      "showInSideBar": "Tonen in zijbalk"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Zijbalk",
         "wrapTextInToc": "Tekstterugloop in inhoudsopgave",
         "showOpenedFiles": "Geopende bestanden tonen",
+        "autoReveal": "Actief bestand tonen in de zijbalk",
         "excludePatterns": "Uitsluitpatronen",
         "excludePatternsNotes": "Uitsluitpatronen (opmerkingen)",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Afsluiten",
       "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
       "importFile": "Bestand importeren",
+      "revealInSideBar": "Tonen in zijbalk",
       "exportFile": "Bestand exporteren",
       "exportFilePdf": "Exporteren als PDF",
       "zoom": "Zoom",

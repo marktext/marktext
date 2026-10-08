@@ -26,6 +26,8 @@ export interface IUserPreferences {
   codeFontFamily?: string
   hideQuickInsertHint?: boolean
   hideLinkPopup?: boolean
+  openedFilesInSidebar?: boolean
+  autoRevealInSidebar?: boolean
   autoPairBracket?: boolean
   autoPairMarkdownSyntax?: boolean
   autoPairQuote?: boolean

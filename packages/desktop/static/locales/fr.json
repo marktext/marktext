@@ -213,7 +213,8 @@
       "closeAllTabs": "Fermer tous les onglets",
       "rename": "Renommer",
       "copyPath": "Copier le chemin",
-      "showInFolder": "Afficher dans le dossier"
+      "showInFolder": "Afficher dans le dossier",
+      "showInSideBar": "Afficher dans la barre latérale"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Barre latérale",
         "wrapTextInToc": "Retour à la ligne dans la table des matières",
         "showOpenedFiles": "Afficher les fichiers ouverts",
+        "autoReveal": "Afficher le fichier actif dans la barre latérale",
         "excludePatterns": "Motifs d'exclusion",
         "excludePatternsNotes": "Notes sur les motifs d'exclusion",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Quitter",
       "toggleAutoSave": "Basculer l'enregistrement automatique",
       "importFile": "Importer un fichier",
+      "revealInSideBar": "Afficher dans la barre latérale",
       "exportFile": "Exporter un fichier",
       "exportFilePdf": "Exporter en PDF",
       "zoom": "Zoom",

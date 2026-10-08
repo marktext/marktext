@@ -213,7 +213,8 @@
       "closeAllTabs": "Закрыть все вкладки",
       "rename": "Переименовать",
       "copyPath": "Копировать путь",
-      "showInFolder": "Показать в папке"
+      "showInFolder": "Показать в папке",
+      "showInSideBar": "Показать на боковой панели"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "Боковая панель",
         "wrapTextInToc": "Переносить текст в оглавлении",
         "showOpenedFiles": "Показывать открытые файлы",
+        "autoReveal": "Показывать активный файл на боковой панели",
         "excludePatterns": "Исключающие шаблоны",
         "excludePatternsNotes": "Исключающие шаблоны (примечания)",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "Выход",
       "toggleAutoSave": "Переключить автосохранение",
       "importFile": "Импортировать файл",
+      "revealInSideBar": "Показать на боковой панели",
       "exportFile": "Экспортировать файл",
       "exportFilePdf": "Экспорт в PDF",
       "zoom": "Масштаб",

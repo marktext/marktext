@@ -213,7 +213,8 @@
       "closeAllTabs": "모든 탭 닫기",
       "rename": "이름 바꾸기",
       "copyPath": "경로 복사",
-      "showInFolder": "폴더에서 보기"
+      "showInFolder": "폴더에서 보기",
+      "showInSideBar": "사이드바에서 보기"
     }
   },
   "search": {
@@ -485,6 +486,7 @@
         "title": "사이드바",
         "wrapTextInToc": "목차에서 텍스트 줄바꿈",
         "showOpenedFiles": "열린 파일 표시",
+        "autoReveal": "사이드바에서 활성 파일 표시",
         "excludePatterns": "제외 패턴",
         "excludePatternsNotes": "제외 패턴 (참고)",
         "fileSortBy": {
@@ -783,6 +785,7 @@
       "quit": "종료",
       "toggleAutoSave": "자동 저장 토글",
       "importFile": "파일 가져오기",
+      "revealInSideBar": "사이드바에서 보기",
       "exportFile": "파일 내보내기",
       "exportFilePdf": "PDF로 내보내기",
       "zoom": "확대/축소",
