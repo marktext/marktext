@@ -199,6 +199,30 @@ describe('format.backspaceHandler — plain-text boundaries (no markers involved
     });
 });
 
+describe('format.backspaceHandler — modifier keys (#5239)', () => {
+    function pressCtrlBackspace(content: Format): Event {
+        const event = new KeyboardEvent('keydown', { key: 'Backspace', ctrlKey: true, cancelable: true });
+        content.backspaceHandler(event);
+        return event;
+    }
+
+    it('leaves Ctrl+Backspace at the end of plain text to the browser', () => {
+        const content = caretInFirstBlock(bootMuya('hello world\n'), 11);
+        const event = pressCtrlBackspace(content);
+
+        expect(content.text).toBe('hello world');
+        expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('leaves Ctrl+Backspace just-outside the closing `**` to the browser', () => {
+        const content = caretInFirstBlock(bootMuya('foo **strong**\n'), 14);
+        const event = pressCtrlBackspace(content);
+
+        expect(content.text).toBe('foo **strong**');
+        expect(event.defaultPrevented).toBe(false);
+    });
+});
+
 // #5388: the handler replaces the native Backspace, so it never reaches the
 // input handler that re-reads the block type from the edited text.
 describe('format.backspaceHandler — edits that change the block type (#5388)', () => {
