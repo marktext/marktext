@@ -93,6 +93,38 @@ describe('search.search()', () => {
     });
 });
 
+describe('search.search() — regexp \\n matches on line breaks', () => {
+    it('bands every soft line break and keeps the lines split', () => {
+        const muya = bootMuya('line one\nline two\nline three\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\\n', { isRegexp: true });
+
+        expect(search.matches.length).toBe(2);
+        expect(highlightCount(muya)).toBe(1);
+        expect(selectionCount(muya)).toBe(1);
+
+        const breaks = muya.domNode.querySelectorAll('span.mu-soft-line-break');
+        expect(breaks.length).toBe(2);
+        expect(Array.from(breaks).every(el => el.textContent === '\n')).toBe(true);
+        expect((muya.domNode.textContent ?? '').split('\n').length).toBe(3);
+    });
+
+    it('bands every hard line break', () => {
+        const muya = bootMuya('line one  \nline two  \nline three\n');
+        placeCursorOnFirstBlock(muya);
+
+        const search = muya.editor.searchModule;
+        search.search('\\n', { isRegexp: true });
+
+        expect(search.matches.length).toBe(2);
+        expect(highlightCount(muya)).toBe(1);
+        expect(selectionCount(muya)).toBe(1);
+        expect(muya.domNode.querySelectorAll('span.mu-hard-line-break').length).toBe(2);
+    });
+});
+
 describe('search.search() — selectHighlight restores the editor cursor', () => {
     it('places the cursor on the last active match when closing the search bar (empty value + selectHighlight)', () => {
         const muya = bootMuya('apple banana apple cherry\n');
