@@ -12,21 +12,21 @@ MarkText is a WYSIWYG markdown editor built on Electron + Vue 3. It supports Com
 
 ## Tech Stack
 
-| Layer              | Technology                                                                           |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| Language           | TypeScript 5.9 (strict mode) — `packages/muyajs/` is legacy JS, no longer referenced |
-| Desktop shell      | Electron 42                                                                          |
-| Build system       | electron-vite 5                                                                      |
-| Packaging          | electron-builder 26                                                                  |
-| Frontend framework | Vue 3                                                                                |
-| State management   | Pinia 3                                                                              |
-| Routing            | Vue Router 4                                                                         |
-| UI library         | Element Plus                                                                         |
-| Unit tests         | Vitest 4                                                                             |
-| E2E tests          | Playwright                                                                           |
-| Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)                                 |
-| Repo layout        | pnpm monorepo — see Directory Structure                                              |
-| Node.js minimum    | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1)                           |
+| Layer              | Technology                                                 |
+| ------------------ | ---------------------------------------------------------- |
+| Language           | TypeScript 5.9 (strict mode)                               |
+| Desktop shell      | Electron 42                                                |
+| Build system       | electron-vite 5                                            |
+| Packaging          | electron-builder 26                                        |
+| Frontend framework | Vue 3                                                      |
+| State management   | Pinia 3                                                    |
+| Routing            | Vue Router 4                                               |
+| UI library         | Element Plus                                               |
+| Unit tests         | Vitest 4                                                   |
+| E2E tests          | Playwright                                                 |
+| Package manager    | pnpm >=10 workspace (`packageManager: pnpm@10.33.4`)       |
+| Repo layout        | pnpm monorepo — see Directory Structure                    |
+| Node.js minimum    | >=20.19.0 (PR CI: Node 22.21.1 · release CI: Node 24.14.1) |
 
 ## Directory Structure
 
@@ -40,9 +40,9 @@ root holds only shared tooling and CI-facing scripts.
                             marktext ...`. CI invocations are unchanged.
   pnpm-workspace.yaml       `packages: ['packages/*']` plus allowBuilds.
   pnpm-lock.yaml            Single lockfile, shared across all packages.
-  eslint.config.js          Root ESLint v9 flat config (covers desktop +
-                            muyajs; website has its own ESLint v8 config
-                            and is ignored here).
+  eslint.config.js          Root ESLint v9 flat config (covers desktop;
+                            the website has its own ESLint v8 config and is
+                            ignored here).
   scripts/                  Workspace-level scripts. postinstall.ts,
                             minify-locales.ts, generateThirdPartyLicense.ts,
                             validateLicenses.ts, thirdPartyChecker.ts all
@@ -93,23 +93,6 @@ root holds only shared tooling and CI-facing scripts.
         shared/             Cross-process types (`shared/types/`) and the
                             IPC contract (`shared/types/ipc.ts`).
         types/              Ambient .d.ts declarations.
-    muyajs/                 Legacy markdown editor engine
-                            (name: "@marktext/muyajs"). Primarily JS + DOM,
-                            avoids Electron APIs. Exception:
-                            packages/muyajs/lib/parser/render/plantuml.js
-                            imports Node's `zlib`. Nothing imports it any
-                            more — the desktop renderer consumes
-                            @muyajs/core (packages/muya), and the `muya/*`
-                            alias, the `src/types/muya.d.ts` bridge and the
-                            workspace dep are gone (#4257). The package
-                            itself is deleted post-0.20.0.
-      lib/
-        contentState/       Block structure and document transformations.
-        parser/             Markdown parser.
-        renderers/          WYSIWYG renderer.
-        ui/                 Inline toolbar, emoji picker, etc.
-        utils/              Internal utilities.
-      themes/               Editor themes (Prism + fonts).
     muya/                   TypeScript rewrite of muya
                             (name: "@muyajs/core"; upstream:
                             https://github.com/marktext/muya). Built on
@@ -130,8 +113,8 @@ root holds only shared tooling and CI-facing scripts.
                             specs.
     website/                marktext-website (Vite + React 18). Standalone
                             toolchain; depends on @muyajs/core from npm,
-                            not on the local muyajs package. Not part of
-                            desktop CI today.
+                            not on the local workspace. Not part of desktop
+                            CI today.
       src/ / public/ / build/ / vite.config.ts / tsconfig.json
 ```
 
@@ -251,9 +234,7 @@ renderer  (packages/desktop/src/renderer/)
 Muya  (packages/muya/)              ← workspace package @muyajs/core
   ├── Self-contained editor backend, TypeScript
   ├── No Electron APIs
-  ├── Handles markdown parsing, block data structure, document export, rendering
-  └── packages/muyajs/ (the legacy JS engine) is unreferenced and is
-      deleted post-0.20.0.
+  └── Handles markdown parsing, block data structure, document export, rendering
 ```
 
 ## IPC Conventions
