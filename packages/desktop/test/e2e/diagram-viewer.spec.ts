@@ -598,17 +598,9 @@ test.describe('diagram viewer', () => {
 
     await page.locator('.media-viewer-toolbar button').nth(6).click()
     await expect
-      .poll(
-        () =>
-          app.evaluate(async({ clipboard }) => {
-            const items = await clipboard.read()
-            const item = items.find(({ types }) => types.includes('image/png'))
-            if (!item) return false
-            const blob = await item.getType('image/png')
-            return blob instanceof Blob && blob.size > 0
-          }),
-        { timeout: 20000 }
-      )
+      .poll(() => app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty()), {
+        timeout: 20000
+      })
       .toBe(true)
 
     await expectNoRendererErrors(app)

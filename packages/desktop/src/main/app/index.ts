@@ -3,7 +3,7 @@ import fsPromises from 'fs/promises'
 import { exec } from 'child_process'
 import dayjs from 'dayjs'
 import log from 'electron-log'
-import { app, BrowserWindow, dialog, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, nativeTheme, ipcMain } from 'electron'
 import type { BrowserWindowConstructorOptions } from 'electron'
 import { isChildOfDirectory } from 'common/filesystem/paths'
 import type { IUserPreferences } from '@shared/types/preferences'
@@ -17,7 +17,6 @@ import { selectTheme } from '../menu/actions/theme'
 import { dockMenu } from '../menu/templates'
 import registerSpellcheckerListeners from '../spellchecker'
 import { watchers } from '../utils/imagePathAutoComplement'
-import { readClipboardImage } from '../utils/clipboard'
 import { onInternalChannel } from '../utils/internalIpc'
 import { WindowType } from '../windows/base'
 import EditorWindow from '../windows/editor'
@@ -645,10 +644,10 @@ class App {
           // PNG and hand the path to the renderer to insert at the cursor.
           let savedPath = ''
           try {
-            const image = await readClipboardImage()
+            const image = clipboard.readImage()
             // `screencapture` leaves the clipboard untouched when the user
             // cancels (Esc); skip so we don't insert a stale/empty image.
-            if (image) {
+            if (!image.isEmpty()) {
               const bufferImage = image.toPNG()
               await fsPromises.writeFile(screenshotFileName, bufferImage)
               savedPath = screenshotFileName

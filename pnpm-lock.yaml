@@ -6,7 +6,6 @@ settings:
 
 overrides:
   postcss: 8.5.29
-  node-abi@^4.0.0: ^4.34.0
   esbuild@>=0.27.0 <0.28.1: 0.28.1
 
 importers:
@@ -17,8 +16,8 @@ importers:
         specifier: ^7.29.7
         version: 7.29.7(@babel/core@7.29.6)(eslint@9.39.4(jiti@2.7.0))
       electron:
-        specifier: ~44.7.0
-        version: 44.7.0
+        specifier: ~42.11.12
+        version: 42.11.12
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.7.0)
@@ -63,7 +62,7 @@ importers:
     dependencies:
       '@electron-toolkit/utils':
         specifier: ^4.0.0
-        version: 4.0.0(electron@44.7.0)
+        version: 4.0.0(electron@42.11.12)
       '@element-plus/icons-vue':
         specifier: ^2.3.2
         version: 2.3.2(vue@3.5.38(typescript@6.0.3))
@@ -207,8 +206,8 @@ importers:
         version: 7.0.1
     devDependencies:
       '@electron/rebuild':
-        specifier: ^4.2.1
-        version: 4.2.1
+        specifier: ^4.0.4
+        version: 4.0.4
       '@playwright/test':
         specifier: ^1.61.0
         version: 1.61.0
@@ -246,8 +245,8 @@ importers:
         specifier: ^6.0.7
         version: 6.0.7(vite@7.3.5(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.16.9)(tsx@4.22.4)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
       electron:
-        specifier: ~44.7.0
-        version: 44.7.0
+        specifier: ~42.11.12
+        version: 42.11.12
       electron-builder:
         specifier: ^26.15.3
         version: 26.15.3(electron-builder-squirrel-windows@26.15.3)
@@ -1474,8 +1473,8 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
 
-  '@electron/rebuild@4.2.1':
-    resolution: {integrity: sha512-IS4pG3BysRrCLJ8xTAfvg+IQDbiUoAzdJy2SfjcYKnLDy5DpCdjnPdhS5Zf5UMfrkB24xu0KC+TqcOxg+eG+6w==}
+  '@electron/rebuild@4.0.4':
+    resolution: {integrity: sha512-Rzc39XPdk/+/wBG8MfwAHohXflep0ITUfulb6Rgz3R0NeSB1noE+E9/M/cb8ftCAiyDD9PPhLuuWgE1GaInbKg==}
     engines: {node: '>=22.12.0'}
     hasBin: true
 
@@ -5065,8 +5064,8 @@ packages:
     resolution: {integrity: sha512-bO3y10YikuUwUuDUQRM4KfwNkKhnpVO7IPdbsrejwN9/AABJzzTQ4GeHwyzNSrVO+tEH3/Np255a3sVZpZDjvg==}
     engines: {node: '>=8.0.0'}
 
-  electron@44.7.0:
-    resolution: {integrity: sha512-aUq9/zLAAFYc+a9gy6cd0C3Y/N/RmovLCD8TV8LhIzNhuND6HEgsu96jJz9cbAxvckSPv+Trf2PKEjktoZgFkw==}
+  electron@42.11.12:
+    resolution: {integrity: sha512-fHlCHh1uqfvWykQUq8eoSoB5q1gej7z/KKd3m7rqEEhHhihm7qz/EvBIkDat7vQoIq3kGTJcrskLbJ6UFkYGyg==}
     engines: {node: '>= 22.12.0'}
     hasBin: true
 
@@ -7174,8 +7173,8 @@ packages:
     resolution: {integrity: sha512-KdHvFWZjEKDf0cakgFjebl371GPsISX2oZHcuyKqM7DtogIsHrqKeLTo8wBHxaXRAQlY2PsPlZmfo+9ZCxEREQ==}
     engines: {node: '>=10'}
 
-  node-abi@4.37.0:
-    resolution: {integrity: sha512-O9XXMXLeRHQtvh43NCah3y9N1K69tecOmu8Y5p2ay4iXvtpbQr0VaroJF9EmRVp3vkdoj3qn4IFfX+ZYtC94fw==}
+  node-abi@4.31.0:
+    resolution: {integrity: sha512-Erq5w/t3syw3s4sDsUaX4QttIdBPsGKTT1DTRsCkTonGggczhlDKm/wDX3o+HPJpQ41EjXCbcmXf0tgr5YZJXw==}
     engines: {node: '>=22.12.0'}
 
   node-addon-api@4.3.0:
@@ -10646,9 +10645,9 @@ snapshots:
 
   '@electron-internal/extract-zip@1.0.5': {}
 
-  '@electron-toolkit/utils@4.0.0(electron@44.7.0)':
+  '@electron-toolkit/utils@4.0.0(electron@42.11.12)':
     dependencies:
-      electron: 44.7.0
+      electron: 42.11.12
 
   '@electron/asar@3.4.1':
     dependencies:
@@ -10708,11 +10707,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@electron/rebuild@4.2.1':
+  '@electron/rebuild@4.0.4':
     dependencies:
       '@malept/cross-spawn-promise': 2.0.0
       debug: 4.4.3
-      node-abi: 4.37.0
+      node-abi: 4.31.0
       node-api-version: 0.2.1
       node-gyp: 12.4.0
       read-binary-file-arch: 1.0.6
@@ -13108,7 +13107,7 @@ snapshots:
       '@electron/get': 3.1.0
       '@electron/notarize': 2.5.0
       '@electron/osx-sign': 1.3.3
-      '@electron/rebuild': 4.2.1
+      '@electron/rebuild': 4.0.4
       '@electron/universal': 2.0.3
       '@malept/flatpak-bundler': 0.4.0
       '@noble/hashes': 2.2.0
@@ -14334,7 +14333,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron@44.7.0:
+  electron@42.11.12:
     dependencies:
       '@electron-internal/extract-zip': 1.0.5
       '@electron/get': 5.0.0
@@ -17113,7 +17112,7 @@ snapshots:
     dependencies:
       semver: 7.8.5
 
-  node-abi@4.37.0:
+  node-abi@4.31.0:
     dependencies:
       semver: 7.8.5
 
