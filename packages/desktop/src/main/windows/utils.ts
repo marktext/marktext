@@ -56,7 +56,7 @@ export const ensureWindowPosition = (
   const screenArea = isLinux ? bounds : workArea
 
   let { x, y, width, height } = windowState
-  let center = false
+  let center: boolean
   if (x === undefined || y === undefined) {
     center = true
 

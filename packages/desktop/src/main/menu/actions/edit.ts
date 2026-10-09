@@ -21,8 +21,8 @@ ipcMain.on('mt::ask-for-image-auto-path', (e, { pathname, src, id }) => {
 
   const fullPath = path.isAbsolute(src) ? src : path.join(path.dirname(pathname), src)
   // Handle the case where it ends with a trailing slash (i.e. a directory) - we should list everything in the directory
-  let dir: string | null = null
-  let searchKey: string | null = null
+  let dir: string | null
+  let searchKey: string | null
   if (fullPath.endsWith(path.sep)) {
     dir = fullPath.slice(0, -1) // It should be the entire path minus just the trailing slash
     searchKey = ''

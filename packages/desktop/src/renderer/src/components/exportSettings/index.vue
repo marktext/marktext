@@ -526,7 +526,7 @@ const loadThemesFromDisk = async () => {
   const themeDir = window.path.join(userDataPath, 'themes/export')
 
   if (!(await window.fileUtils.isDirectory(themeDir))) return
-  let filenames = []
+  let filenames: string[]
   try {
     filenames = await window.fileUtils.readdir(themeDir)
   } catch {

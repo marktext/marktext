@@ -95,7 +95,7 @@ export const getBlankFileState = (
 ): IFileState => {
   const fileState = deepClone(defaultFileStateWithoutId) as Omit<IFileState, 'id'>
   const defaultFilenamePrefix = defaultFileStateWithoutId.filename.split('-')[0]
-  let untitleId = Math.max(
+  const untitleId = Math.max(
     ...tabs.map((f) => {
       if (f.pathname === '') {
         return +f.filename.split('-')[1]
@@ -118,7 +118,7 @@ export const getBlankFileState = (
     lineEnding,
     adjustLineEndingOnSave: lineEnding.toLowerCase() === 'crlf',
     id,
-    filename: `${defaultFilenamePrefix}-${++untitleId}`,
+    filename: `${defaultFilenamePrefix}-${untitleId + 1}`,
     markdown,
     wordCount: getWordCount(markdown),
     // The freshly-loaded document IS its on-disk/clean baseline. The engine

@@ -326,7 +326,7 @@ class AppMenu {
     this.windowMenus.forEach((value) => {
       const { menu: oldMenu, type } = value
 
-      let newMenu: Menu | null = null
+      let newMenu: Menu | null
       if (type === MenuType.EDITOR) {
         if (!oldMenu) return
         const { menu: rebuilt } = this._buildEditorMenu(recentUsedDocuments)

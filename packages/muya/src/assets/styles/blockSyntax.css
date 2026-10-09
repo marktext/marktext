@@ -745,12 +745,12 @@ figure.mu-math-block .mu-math-preview .katex-display::-webkit-scrollbar {
     height: 6px;
 }
 
-.katex-display > .katex > .katex-html:has(> .tag) {
+.katex-display > .katex > .katex-html:has(> .katex-tag) {
     width: max-content;
     min-width: 100%;
 }
 
-.katex-display > .katex > .katex-html > .tag {
+.katex-display > .katex > .katex-html > .katex-tag {
     position: static;
 
     float: right;

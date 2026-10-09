@@ -484,10 +484,11 @@ ipcMain.on(
     // on disk nevertheless but is already tracked by MarkText.
     const alreadyExistOnDisk = !!pathname
 
-    let { filePath, canceled } = await dialog.showSaveDialog(win, {
+    const { filePath: dialogFilePath, canceled } = await dialog.showSaveDialog(win, {
       defaultPath:
         pathname || path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
+    let filePath = dialogFilePath
 
     if (filePath && !canceled) {
       filePath = path.resolve(filePath)

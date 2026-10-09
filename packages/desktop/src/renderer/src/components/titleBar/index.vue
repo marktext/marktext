@@ -205,7 +205,9 @@ onMounted(async () => {
     ])
     isFullScreen.value = !!fs
     isMaximized.value = !!max
-  } catch {}
+  } catch {
+    // Window state is best-effort; keep the previous values if the query fails.
+  }
 })
 
 const { titleBarStyle } = storeToRefs(preferencesStore)
@@ -247,7 +249,7 @@ watch(
     // Set filename when hover on dock
     const hasOpenFolder = !!(props.project && props.project.name)
     const projectName = props.project?.name ?? ''
-    let title = ''
+    let title: string
     if (value) {
       title = hasOpenFolder ? `${value} - ${projectName}` : `${value}`
     } else {
