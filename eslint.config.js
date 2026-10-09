@@ -3,7 +3,7 @@ import pluginVue from 'eslint-plugin-vue'
 import pluginHtml from 'eslint-plugin-html'
 import pluginI18nJson from 'eslint-plugin-i18n-json'
 import pluginJsonc from 'eslint-plugin-jsonc'
-import neostandard from 'neostandard'
+import neostandard, { plugins as neostandardPlugins } from 'neostandard'
 import babelParser from '@babel/eslint-parser'
 import tseslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
@@ -51,6 +51,9 @@ export default [
   // 3. TS/TSX files: typescript-eslint parser
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
+    // neostandard scopes its `@stylistic` registration to JS files, so the
+    // `@stylistic/*` overrides below need the plugin declared for TS here.
+    plugins: { '@stylistic': neostandardPlugins['@stylistic'] },
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -89,7 +92,12 @@ export default [
       'no-extra-semi': 'off',
       '@stylistic/indent': ['error', 2, { SwitchCase: 1, ignoreComments: true }],
       '@stylistic/semi': ['error', 'never'],
-      '@stylistic/space-before-function-paren': ['error', 'never'],
+      // @stylistic 5 added a `catch` category; the string form now also
+      // forbids `catch (e)`, which is the style used throughout this repo.
+      '@stylistic/space-before-function-paren': [
+        'error',
+        { anonymous: 'never', named: 'never', asyncArrow: 'never', catch: 'always' }
+      ],
       '@stylistic/arrow-parens': 'off',
       '@stylistic/no-mixed-operators': 'off'
     }
@@ -123,6 +131,13 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
+      // `<script setup lang="ts">` needs the TS-aware rule: core `no-unused-vars`
+      // misreads type members (props/emit signatures) as unused bindings.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ],
       'vue/multi-word-component-names': 'off',
       'vue/require-default-prop': 'off'
     }
@@ -137,7 +152,8 @@ export default [
       'eslint.config.js'
     ],
     plugins: {
-      html: pluginHtml
+      html: pluginHtml,
+      '@stylistic': neostandardPlugins['@stylistic']
     },
     languageOptions: {
       parser: babelParser,
@@ -157,7 +173,10 @@ export default [
     rules: {
       '@stylistic/indent': ['error', 2, { SwitchCase: 1, ignoreComments: true }],
       '@stylistic/semi': ['error', 'never'],
-      '@stylistic/space-before-function-paren': ['error', 'never'],
+      '@stylistic/space-before-function-paren': [
+        'error',
+        { anonymous: 'never', named: 'never', asyncArrow: 'never', catch: 'always' }
+      ],
       '@stylistic/arrow-parens': 'off',
       '@stylistic/no-mixed-operators': 'off',
       'no-return-await': 'error',

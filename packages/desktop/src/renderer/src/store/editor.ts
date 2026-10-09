@@ -1228,7 +1228,7 @@ export const useEditorStore = defineStore('editor', {
         return
       }
 
-      let nextTabIndex = 0
+      let nextTabIndex: number
       if (!direction) {
         // Switch tab to the left.
         nextTabIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1

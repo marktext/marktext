@@ -71,7 +71,7 @@ export async function renderMarkdown(source: string, ownerFile: string): Promise
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, {
       behavior: 'append',
-      properties: { className: ['anchor'], ariaHidden: true, tabIndex: -1 },
+      properties: { className: ['anchor'], ariaHidden: 'true', tabIndex: -1 },
       content: { type: 'text', value: '#' }
     })
     .use(rehypePrettyCode, {
@@ -198,8 +198,6 @@ function addClass(node: Element, cls: string) {
   const current = props.className
   if (Array.isArray(current)) {
     if (!current.includes(cls)) current.push(cls)
-  } else if (typeof current === 'string') {
-    if (!current.split(/\s+/).includes(cls)) props.className = current + ' ' + cls
   } else {
     props.className = [cls]
   }
@@ -209,7 +207,6 @@ function hasClass(node: ElementContent, cls: string): boolean {
   if (node.type !== 'element') return false
   const c = node.properties?.className
   if (Array.isArray(c)) return c.includes(cls)
-  if (typeof c === 'string') return c.split(/\s+/).includes(cls)
   return false
 }
 
@@ -311,7 +308,7 @@ function calloutIcon(kind: AlertKind): Element {
       viewBox: '0 0 24 24',
       fill: 'none',
       stroke: 'currentColor',
-      strokeWidth: 2,
+      strokeWidth: '2',
       strokeLinecap: 'round',
       strokeLinejoin: 'round'
     },
@@ -351,12 +348,17 @@ function wrapCodeBlock(pre: Element): Element {
               viewBox: '0 0 24 24',
               fill: 'none',
               stroke: 'currentColor',
-              strokeWidth: 2,
+              strokeWidth: '2',
               strokeLinecap: 'round',
               strokeLinejoin: 'round'
             },
             children: [
-              { type: 'element', tagName: 'rect', properties: { x: 9, y: 9, width: 13, height: 13, rx: 2, ry: 2 }, children: [] },
+              {
+                type: 'element',
+                tagName: 'rect',
+                properties: { x: '9', y: '9', width: '13', height: '13', rx: '2', ry: '2' },
+                children: []
+              },
               { type: 'element', tagName: 'path', properties: { d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' }, children: [] }
             ]
           },

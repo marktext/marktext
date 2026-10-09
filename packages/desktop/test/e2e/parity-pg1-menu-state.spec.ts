@@ -65,7 +65,7 @@ const waitForMenuState = async(
   timeout = 3000
 ): Promise<MenuItemState[]> => {
   const want = [...expected].sort()
-  let last: MenuItemState[] = []
+  let last: MenuItemState[]
   const deadline = Date.now() + timeout
   do {
     last = await paragraphItemStates(app)
