@@ -83,6 +83,20 @@ describe('sidebar trash keyboard rules', () => {
     ).toBe(false)
   })
 
+  it('matches roots and descendants across separator styles (#5683)', () => {
+    expect(isPathWithinRoot('C:\\Users\\test\\proj\\a.md', 'C:/Users/test/proj', '/')).toBe(true)
+    expect(isPathWithinRoot('C:\\Users\\test\\proj', 'C:/Users/test/proj', '/')).toBe(true)
+    expect(isPathWithinRoot('C:\\Users\\other\\a.md', 'C:/Users/test/proj', '/')).toBe(false)
+    // A native-separator file selection inside a posix root is still trashed.
+    expect(
+      shouldTrashSelection({
+        ...base,
+        selection: { pathname: 'C:\\Users\\test\\proj\\a.md', isFile: true },
+        projectRootPath: 'C:/Users/test/proj'
+      })
+    ).toBe(true)
+  })
+
   it('ignores empty or unknown selections', () => {
     expect(shouldTrashSelection({ ...base, selection: null })).toBe(false)
     expect(shouldTrashSelection({ ...base, selection: {} })).toBe(false)

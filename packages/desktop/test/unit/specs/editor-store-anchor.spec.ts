@@ -9,6 +9,7 @@ vi.hoisted(() => {
   const w = globalThis as unknown as {
     window?: {
       path?: { sep: string; dirname: (p: string) => string }
+      fileUtils?: { isSamePathSync: (a: string, b: string) => boolean }
       electron?: {
         clipboard: { writeText: (s: string) => void }
         ipcRenderer: { send: (...a: unknown[]) => void; on: (...a: unknown[]) => void }
@@ -17,6 +18,7 @@ vi.hoisted(() => {
   }
   w.window ??= {}
   w.window.path ??= { sep: '/', dirname: (p: string) => p }
+  w.window.fileUtils ??= { isSamePathSync: (a, b) => a === b }
   w.window.electron ??= {
     clipboard: { writeText: () => {} },
     ipcRenderer: { send: () => {}, on: () => {} }
