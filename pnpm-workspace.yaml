@@ -7,7 +7,7 @@ packages:
   - 'packages/muya/e2e'
 
 overrides:
-  postcss: '8.5.15'
+  postcss: '8.5.29'
   'esbuild@>=0.27.0 <0.28.1': '0.28.1'
 
 allowBuilds:
