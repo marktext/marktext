@@ -5,13 +5,11 @@ on:
     branches: [develop]
     paths:
       - 'packages/website/**'
-      - 'packages/muyajs/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/website-deploy.yml'
   pull_request:
     paths:
       - 'packages/website/**'
-      - 'packages/muyajs/**'
       - 'pnpm-lock.yaml'
       - '.github/workflows/website-deploy.yml'
 
