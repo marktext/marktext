@@ -6,8 +6,10 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // Node 25 turns on its own Web Storage, whose `localStorage` global shadows
-// jsdom's, so specs that use storage fail. Node 20 rejects the flag.
-const nodeWebStorageOff = process.allowedNodeEnvironmentFlags.has('--no-experimental-webstorage')
+// jsdom's, so specs that use storage fail. Node 20 has no such flag. Probe the
+// positive spelling: Node 25 accepts `--no-experimental-webstorage` but lists
+// only `--experimental-webstorage` in `allowedNodeEnvironmentFlags`.
+const nodeWebStorageOff = process.allowedNodeEnvironmentFlags.has('--experimental-webstorage')
   ? ['--no-experimental-webstorage']
   : []
 
