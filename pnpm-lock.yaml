@@ -60,9 +60,6 @@ importers:
 
   packages/desktop:
     dependencies:
-      '@electron-toolkit/preload':
-        specifier: ^3.0.2
-        version: 3.0.2(electron@42.1.0)
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@42.1.0)
@@ -81,9 +78,6 @@ importers:
       '@muyajs/core':
         specifier: workspace:*
         version: link:../muya
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       '@vscode/ripgrep':
         specifier: ^1.18.0
         version: 1.18.0
@@ -132,9 +126,6 @@ importers:
       element-plus:
         specifier: ^2.14.2
         version: 2.14.2(vue@3.5.38(typescript@6.0.3))
-      element-resize-detector:
-        specifier: ^1.2.4
-        version: 1.2.4
       flowchart.js:
         specifier: ^1.18.0
         version: 1.18.0
@@ -150,15 +141,9 @@ importers:
       github-markdown-css:
         specifier: ^5.9.0
         version: 5.9.0
-      html-tags:
-        specifier: ^5.1.0
-        version: 5.1.0
       iso-639-1:
         specifier: ^3.1.5
         version: 3.1.5
-      joplin-turndown-plugin-gfm:
-        specifier: ^1.0.12
-        version: 1.0.12
       katex:
         specifier: ^0.17.0
         version: 0.17.0
@@ -204,15 +189,9 @@ importers:
       snapsvg-cjs:
         specifier: ^0.0.6
         version: 0.0.6(eve@0.5.4)
-      turndown:
-        specifier: ^7.2.4
-        version: 7.2.4
       underscore:
         specifier: ^1.13.8
         version: 1.13.8
-      vega-embed:
-        specifier: ^7.1.0
-        version: 7.1.0(vega-lite@6.4.3(vega@6.2.0))(vega@6.2.0)
       vue-i18n:
         specifier: ^11.4.6
         version: 11.4.6(vue@3.5.38(typescript@6.0.3))
@@ -241,9 +220,6 @@ importers:
       '@types/dragula':
         specifier: ^3.7.5
         version: 3.7.5
-      '@types/element-resize-detector':
-        specifier: ^1.1.6
-        version: 1.1.6
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -259,9 +235,6 @@ importers:
       '@types/node':
         specifier: ^22.20.0
         version: 22.20.0
-      '@types/turndown':
-        specifier: ^5.0.6
-        version: 5.0.6
       '@types/webfontloader':
         specifier: ^1.6.38
         version: 1.6.38
@@ -271,12 +244,6 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^6.0.7
         version: 6.0.7(vite@7.3.5(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.16.9)(tsx@4.22.4)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
-      '@vitest/coverage-v8':
-        specifier: ^4.1.9
-        version: 4.1.9(vitest@4.1.9)
-      cross-env:
-        specifier: ^10.1.0
-        version: 10.1.0
       electron:
         specifier: ~42.1.0
         version: 42.1.0
@@ -1471,11 +1438,6 @@ packages:
     peerDependencies:
       '@noble/ciphers': ^1.0.0
 
-  '@electron-toolkit/preload@3.0.2':
-    resolution: {integrity: sha512-TWWPToXd8qPRfSXwzf5KVhpXMfONaUuRAZJHsKthKgZR/+LqX1dZVSSClQ8OTAEduvLGdecljCsoT2jSshfoUg==}
-    peerDependencies:
-      electron: '>=13.0.0'
-
   '@electron-toolkit/utils@4.0.0':
     resolution: {integrity: sha512-qXSntwEzluSzKl4z5yFNBknmPGjPa3zFhE4mp9+h0cgokY5ornAeP+CJQDBhKsL1S58aOQfcwkD3NwLZCl+64g==}
     peerDependencies:
@@ -1537,9 +1499,6 @@ packages:
 
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
-
-  '@epic-web/invariant@1.0.0':
-    resolution: {integrity: sha512-lrTPqgvfFQtR/eY/qkIzp98OGdNJu0m5ji3q/nJI8v3SXkRKEnWiOxMmbvcSoAIzv/cGiuvRy57k4suKQSAdwA==}
 
   '@es-joy/jsdoccomment@0.84.0':
     resolution: {integrity: sha512-0xew1CxOam0gV5OMjh2KjFQZsKL2bByX1+q4j3E73MpYIdyUxcZb/xQct9ccUb+ve5KGUYbCUxyPnYB7RbuP+w==}
@@ -2683,9 +2642,6 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@popperjs/core@2.11.8':
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
-
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
 
@@ -3390,9 +3346,6 @@ packages:
 
   '@types/dragula@3.7.5':
     resolution: {integrity: sha512-jojr2JVJB8DawAKXApGnollMvVOMyiMKpchH8gLeoExx35Eq0BQ4WgAiAHoBoEn7h/9eDrIl0yz//cM6ALIJbg==}
-
-  '@types/element-resize-detector@1.1.6':
-    resolution: {integrity: sha512-hj0o+gfpKB3XFdMwPBxyMxKkpUpjxI2CctMeaC7gelAsnRfqluiynlM5BOCxv27HnndVWh+utrXlqo1PLyW2Sg==}
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -4222,9 +4175,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  batch-processor@1.0.0:
-    resolution: {integrity: sha512-xoLQD8gmmR32MeuBHgH0Tzd5PuSZx71ZsbhVxOCRbgktZEPe4SQy7s9Z50uPp0F/f7iw2XmkHN2xkgbMfckMDA==}
-
   bidi-js@1.0.3:
     resolution: {integrity: sha512-RKshQI1R3YQ+n9YJz2QQ147P66ELpa1FQEg20Dk8oW9t2KgLbpDLLp9aGZ7y8WHSshDknG0bknqGw5/tyCs5tw==}
 
@@ -4602,11 +4552,6 @@ packages:
 
   cross-dirname@0.1.0:
     resolution: {integrity: sha512-+R08/oI0nl3vfPcqftZRpytksBXDzOUveBq/NBVx0sUp1axwzPQrKinNx5yd5sxPu8j1wIy8AfnVQ+5eFdha6Q==}
-
-  cross-env@10.1.0:
-    resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
-    engines: {node: '>=20'}
-    hasBin: true
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -5130,9 +5075,6 @@ packages:
     resolution: {integrity: sha512-eNH9uP3wQoNqieEIHXiNvIVv+zO5sZDU0CAZq5b0zqSN06DD0/V9xIq1R/qm3rw5k3nBTM1JvpxhCfRbaFLzDQ==}
     peerDependencies:
       vue: ^3.3.7
-
-  element-resize-detector@1.2.4:
-    resolution: {integrity: sha512-Fl5Ftk6WwXE0wqCgNoseKWndjzZlDCwuPTcoVZfCP9R3EHQF8qUtr3YUPNETegRBOKqQKPW3n4kiIWngGi8tKg==}
 
   emoji-regex-xs@1.0.0:
     resolution: {integrity: sha512-LRlerrMYoIDrT6jgpeZ2YYl/L8EulRTt5hQcYjy5AInh7HWXKimpqx68aknBFpGL2+/IcogTcaydJEgaTmOpDg==}
@@ -10274,7 +10216,8 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@bcoe/v8-coverage@1.0.2': {}
+  '@bcoe/v8-coverage@1.0.2':
+    optional: true
 
   '@braintree/sanitize-url@7.1.2': {}
 
@@ -10712,10 +10655,6 @@ snapshots:
     dependencies:
       '@noble/ciphers': 1.3.0
 
-  '@electron-toolkit/preload@3.0.2(electron@42.1.0)':
-    dependencies:
-      electron: 42.1.0
-
   '@electron-toolkit/utils@4.0.0(electron@42.1.0)':
     dependencies:
       electron: 42.1.0
@@ -10836,8 +10775,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
-
-  '@epic-web/invariant@1.0.0': {}
 
   '@es-joy/jsdoccomment@0.84.0':
     dependencies:
@@ -11674,8 +11611,6 @@ snapshots:
     dependencies:
       playwright: 1.61.0
 
-  '@popperjs/core@2.11.8': {}
-
   '@poppinss/colors@4.1.6':
     dependencies:
       kleur: 4.1.5
@@ -12344,8 +12279,6 @@ snapshots:
 
   '@types/dragula@3.7.5': {}
 
-  '@types/element-resize-detector@1.1.6': {}
-
   '@types/esrecurse@4.3.1': {}
 
   '@types/estree@1.0.9': {}
@@ -12876,6 +12809,7 @@ snapshots:
       std-env: 4.1.0
       tinyrainbow: 3.1.0
       vitest: 4.1.9(@opentelemetry/api@1.9.0)(@types/node@22.20.0)(@vitest/coverage-istanbul@4.1.9)(@vitest/coverage-v8@4.1.9)(happy-dom@20.10.6)(jsdom@29.1.1(@noble/hashes@2.2.0))(vite@7.3.5(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.16.9)(tsx@4.22.4)(yaml@2.9.0))
+    optional: true
 
   '@vitest/eslint-plugin@1.6.20(@typescript-eslint/eslint-plugin@8.61.1(@typescript-eslint/parser@8.61.1(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3))(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3)(vitest@4.1.9)':
     dependencies:
@@ -13335,6 +13269,7 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       estree-walker: 3.0.3
       js-tokens: 10.0.0
+    optional: true
 
   astral-regex@2.0.0: {}
 
@@ -13403,8 +13338,6 @@ snapshots:
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.10.38: {}
-
-  batch-processor@1.0.0: {}
 
   bidi-js@1.0.3:
     dependencies:
@@ -13779,11 +13712,6 @@ snapshots:
 
   cross-dirname@0.1.0:
     optional: true
-
-  cross-env@10.1.0:
-    dependencies:
-      '@epic-web/invariant': 1.0.0
-      cross-spawn: 7.0.6
 
   cross-spawn@7.0.6:
     dependencies:
@@ -14448,10 +14376,6 @@ snapshots:
       normalize-wheel-es: 1.2.0
       vue: 3.5.38(typescript@6.0.3)
       vue-component-type-helpers: 3.3.5
-
-  element-resize-detector@1.2.4:
-    dependencies:
-      batch-processor: 1.0.0
 
   emoji-regex-xs@1.0.0: {}
 
@@ -16310,7 +16234,8 @@ snapshots:
 
   joplin-turndown-plugin-gfm@1.0.12: {}
 
-  js-tokens@10.0.0: {}
+  js-tokens@10.0.0:
+    optional: true
 
   js-tokens@4.0.0: {}
 

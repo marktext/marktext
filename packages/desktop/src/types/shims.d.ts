@@ -3,7 +3,6 @@
 
 declare module 'dom-autoscroller'
 declare module 'flowchart.js'
-declare module 'joplin-turndown-plugin-gfm'
 declare module 'snapsvg-cjs'
 declare module '@hfelix/electron-localshortcut'
 declare module 'iso-639-1'
