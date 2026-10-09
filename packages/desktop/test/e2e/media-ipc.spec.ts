@@ -78,6 +78,14 @@ test.describe('media IPC bridge', () => {
     })
 
     expect(written).toBe(true)
-    expect(await app.evaluate(({ clipboard }) => !clipboard.readImage().isEmpty())).toBe(true)
+    expect(
+      await app.evaluate(async({ clipboard }) => {
+        const items = await clipboard.read()
+        const item = items.find(({ types }) => types.includes('image/png'))
+        if (!item) return false
+        const blob = await item.getType('image/png')
+        return blob instanceof Blob && blob.size > 0
+      })
+    ).toBe(true)
   })
 })

@@ -1,6 +1,6 @@
-import { ipcMain, shell, clipboard, nativeImage } from 'electron'
+import { ipcMain, shell, clipboard, nativeImage, ClipboardItem } from 'electron'
 import log from 'electron-log'
-import * as plist from 'plist'
+import { readClipboardFilePath } from '../utils/clipboard'
 
 export const registerShellHandlers = (): void => {
   ipcMain.handle('mt::shell::open-external', async(_e, url: string) => {
@@ -32,17 +32,17 @@ export const registerShellHandlers = (): void => {
   })
 
   ipcMain.on('mt::clipboard::write-text', (_e, text: string) => {
-    try {
-      clipboard.writeText(text)
-    } catch (err) {
-      log.error('clipboard.writeText failed:', err)
-    }
+    clipboard.writeText(text).catch((err) => log.error('clipboard.writeText failed:', err))
   })
-  ipcMain.handle('mt::clipboard::write-image', (_e, png: Uint8Array) => {
+  ipcMain.handle('mt::clipboard::write-image', async(_e, png: Uint8Array) => {
     try {
       const image = nativeImage.createFromBuffer(Buffer.from(png))
       if (image.isEmpty()) return false
-      clipboard.writeImage(image)
+      await clipboard.write([
+        new ClipboardItem({
+          'image/png': new Blob([new Uint8Array(image.toPNG())], { type: 'image/png' })
+        })
+      ])
       return true
     } catch (err) {
       log.error('clipboard.writeImage failed:', err)
@@ -50,38 +50,15 @@ export const registerShellHandlers = (): void => {
     }
   })
 
-  ipcMain.handle('mt::clipboard::read-text', () => {
+  ipcMain.handle('mt::clipboard::read-text', async() => {
     try {
-      return clipboard.readText()
+      return await clipboard.readText()
     } catch {
       return ''
     }
   })
 
-  ipcMain.handle('mt::clipboard::guess-file-path', () => {
-    try {
-      if (process.platform === 'darwin') {
-        if (clipboard.has('NSFilenamesPboardType')) {
-          const parsed = plist.parse(clipboard.read('NSFilenamesPboardType'))
-          return Array.isArray(parsed) && parsed.length ? parsed[0] : ''
-        }
-        return ''
-      }
-      if (process.platform === 'win32') {
-        // `FileNameW` is a UTF-16LE, NUL-separated list of file paths.
-        // `clipboard.read(format)` decodes the raw bytes as UTF-8, which garbles
-        // non-ASCII (e.g. Chinese) characters; read the Buffer and decode it as
-        // UTF-16LE instead, then take the first non-empty entry.
-        const buffer = clipboard.readBuffer('FileNameW')
-        if (buffer.length > 0) {
-          return buffer.toString('utf16le').split('\u0000').find(p => p.length > 0) ?? ''
-        }
-        return ''
-      }
-      return ''
-    } catch (err) {
-      log.error('clipboard.guess-file-path failed:', err)
-      return ''
-    }
+  ipcMain.handle('mt::clipboard::guess-file-path', async() => {
+    return (await readClipboardFilePath()) ?? ''
   })
 }

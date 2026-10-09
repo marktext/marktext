@@ -7,7 +7,10 @@ packages:
   - 'packages/muya/e2e'
 
 overrides:
-  postcss: '8.5.15'
+  postcss: '8.5.29'
+  # @electron/rebuild resolves node-abi from the stale lockfile entry; Electron
+  # 44's ABI (149) is only known from node-abi 4.34.0 on.
+  'node-abi@^4.0.0': '^4.34.0'
   'esbuild@>=0.27.0 <0.28.1': '0.28.1'
 
 allowBuilds:
