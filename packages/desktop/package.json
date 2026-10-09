@@ -119,7 +119,7 @@
     "@types/webfontloader": "^1.6.38",
     "@types/write-file-atomic": "^4.0.3",
     "@vitejs/plugin-vue": "^6.0.7",
-    "electron": "~42.11.12",
+    "electron": "~42.1.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "jsdom": "^29.1.1",
