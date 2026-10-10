@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import path from 'path'
 
 const { showMessageBox, trashItem, t } = vi.hoisted(() => ({
   showMessageBox: vi.fn(),
@@ -28,10 +27,7 @@ describe('confirmAndTrashItem', () => {
   it('trashes only after the confirm button, and never on cancel', async() => {
     showMessageBox.mockResolvedValue({ response: 0 })
     await expect(confirmAndTrashItem(fakeWindow, '/docs/notes.md')).resolves.toBe(true)
-    // The renderer only ever sends `/` paths (preload `pathe`), but Windows'
-    // shell trash helper needs the native separator, so the path is converted
-    // before the call (#5683). `path.normalize` is win32 on the Windows CI job.
-    expect(trashItem).toHaveBeenCalledWith(path.normalize('/docs/notes.md'))
+    expect(trashItem).toHaveBeenCalledWith('/docs/notes.md')
 
     // Cancel must be the default so Enter/Esc keep the file.
     const [, options] = showMessageBox.mock.calls[0] as [unknown, Record<string, unknown>]
