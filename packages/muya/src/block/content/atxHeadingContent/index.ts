@@ -3,6 +3,7 @@ import type { IRenderCursor } from '../../../selection/types';
 import type AtxHeading from '../../commonMark/atxHeading';
 import { isKeyboardEvent } from '../../../utils';
 import Format from '../../base/format';
+import { isFoldShortcut } from '../../commonMark/atxHeading/foldSection';
 import { ScrollPage } from '../../scrollPage';
 
 class AtxHeadingContent extends Format {
@@ -24,6 +25,22 @@ class AtxHeadingContent extends Format {
 
     override getAnchor() {
         return this.parent;
+    }
+
+    // Fold/unfold the current heading's section with the platform "fold"
+    // shortcut (Cmd+Shift+[ on macOS, Ctrl+Shift+[ elsewhere — matching the
+    // VS Code convention). Consumed via the `beforeKeydown` hook so the
+    // keystroke never reaches the arrow/enter routing. The chord-matching lives
+    // in the pure `isFoldShortcut` helper (unit-tested there).
+    override beforeKeydown(event: KeyboardEvent): boolean {
+        if (!isFoldShortcut(event))
+            return false;
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.parent?.toggleFold();
+
+        return true;
     }
 
     override update(cursor?: IRenderCursor, highlights = []) {

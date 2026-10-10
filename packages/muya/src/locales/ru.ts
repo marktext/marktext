@@ -42,6 +42,8 @@ export const ru = {
         'Search keyword...': 'Поиск...',
         'Type / to insert...': 'Введите / для вставки...',
         'Copy anchor link to this heading': 'Копировать ссылку на заголовок',
+        'Fold this section': 'Свернуть этот раздел',
+        'Unfold this section': 'Развернуть этот раздел',
         'Click to add an image': 'Нажмите, чтобы добавить изображение',
         'Load image failed': 'Не удалось загрузить изображение',
         // formatPicker

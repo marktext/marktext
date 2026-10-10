@@ -42,6 +42,8 @@ export const ja = {
         'Search keyword...': 'キーワードを検索する...',
         'Type / to insert...': '段落を入力 /挿入する',
         'Copy anchor link to this heading': 'この見出しへのアンカーリンクをコピー',
+        'Fold this section': 'このセクションを折りたたむ',
+        'Unfold this section': 'このセクションを展開する',
         'Click to add an image': 'クリックして画像を追加',
         'Load image failed': '画像の読み込みに失敗しました',
         // formatPicker
