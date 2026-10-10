@@ -204,6 +204,7 @@
       "paste": "Einfügen",
       "rename": "Umbenennen",
       "moveToTrash": "In Papierkorb verschieben",
+      "copyPath": "Pfad kopieren",
       "showInFolder": "Im Ordner anzeigen"
     },
     "tabs": {

@@ -204,6 +204,7 @@
       "paste": "붙여넣기",
       "rename": "이름 바꾸기",
       "moveToTrash": "휴지통으로 이동",
+      "copyPath": "경로 복사",
       "showInFolder": "폴더에서 보기"
     },
     "tabs": {

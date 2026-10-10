@@ -204,6 +204,7 @@
       "paste": "貼上",
       "rename": "重新命名",
       "moveToTrash": "移到垃圾桶",
+      "copyPath": "複製路徑",
       "showInFolder": "在資料夾中顯示"
     },
     "tabs": {
