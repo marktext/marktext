@@ -204,6 +204,7 @@
       "paste": "Yapıştır",
       "rename": "Yeniden Adlandır",
       "moveToTrash": "Çöp Kutusuna Taşı",
+      "copyPath": "Yolu Kopyala",
       "showInFolder": "Klasörde Göster"
     },
     "tabs": {

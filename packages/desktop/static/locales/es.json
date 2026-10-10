@@ -204,6 +204,7 @@
       "paste": "Pegar",
       "rename": "Renombrar",
       "moveToTrash": "Mover a la Papelera",
+      "copyPath": "Copiar Ruta",
       "showInFolder": "Mostrar en Carpeta"
     },
     "tabs": {

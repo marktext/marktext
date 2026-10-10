@@ -204,6 +204,7 @@
       "paste": "Plakken",
       "rename": "Hernoemen",
       "moveToTrash": "Naar prullenbak",
+      "copyPath": "Pad kopiëren",
       "showInFolder": "Tonen in map"
     },
     "tabs": {

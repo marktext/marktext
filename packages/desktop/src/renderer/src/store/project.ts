@@ -276,6 +276,11 @@ export const useProjectStore = defineStore('project', () => {
       const { pathname } = activeItem.value
       window.electron.shell.showItemInFolder(pathname)
     })
+    bus.on('SIDEBAR::copy-path', () => {
+      const { pathname } = activeItem.value
+      if (typeof pathname !== 'string' || !pathname) return
+      window.electron.clipboard.writeText(pathname)
+    })
     bus.on('SIDEBAR::reveal-file', (pathname: unknown) => {
       REVEAL_FILE_IN_SIDE_BAR(typeof pathname === 'string' ? pathname : null)
     })

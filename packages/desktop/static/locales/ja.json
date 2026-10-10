@@ -204,6 +204,7 @@
       "paste": "貼り付け",
       "rename": "名前の変更",
       "moveToTrash": "ごみ箱に移動",
+      "copyPath": "パスのコピー",
       "showInFolder": "フォルダーの表示"
     },
     "tabs": {
