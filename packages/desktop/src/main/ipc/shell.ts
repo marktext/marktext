@@ -1,6 +1,7 @@
 import { ipcMain, shell, clipboard, nativeImage } from 'electron'
 import log from 'electron-log'
 import * as plist from 'plist'
+import { toNativePath } from 'common/filesystem/paths'
 
 export const registerShellHandlers = (): void => {
   ipcMain.handle('mt::shell::open-external', async(_e, url: string) => {
@@ -17,14 +18,14 @@ export const registerShellHandlers = (): void => {
   })
   ipcMain.on('mt::shell::show-item', (_e, fullPath: string) => {
     try {
-      shell.showItemInFolder(fullPath)
+      shell.showItemInFolder(toNativePath(fullPath))
     } catch (err) {
       log.error('shell.showItemInFolder failed:', err)
     }
   })
   ipcMain.handle('mt::shell::open-path', async(_e, fullPath: string) => {
     try {
-      return await shell.openPath(fullPath)
+      return await shell.openPath(toNativePath(fullPath))
     } catch (err) {
       log.error('shell.openPath failed:', err)
       return String(err instanceof Error ? err.message : err)

@@ -5,7 +5,10 @@
     class="side-bar-file"
     :style="{ 'padding-left': `${depth * 6 + 10}px`, opacity: file.isMarkdown ? 1 : 0.75 }"
     :class="[
-      { current: currentFile?.pathname === file.pathname, active: file.id === activeItem.id }
+      {
+        current: isSamePath(currentFile?.pathname ?? '', file.pathname),
+        active: file.id === activeItem.id
+      }
     ]"
     @click="handleFileClick"
     @dblclick="handleFileDblClick"
@@ -34,6 +37,7 @@ import { showContextMenu } from '../../contextMenu/sideBar'
 import bus from '../../bus'
 import { renameSelectionEnd } from './renameKey'
 import { TREE_ROW_REGISTRY_KEY, toRowKey, type TreeRowRegistry } from './rowRegistry'
+import { isSamePath } from '@/util'
 import type { TreeFileNode } from './types'
 
 const props = defineProps<{
@@ -73,7 +77,7 @@ const handleFileClick = (event: MouseEvent): void => {
   if (!isMarkdown) return
   const openedTab = tabs.value.find((f) => window.fileUtils.isSamePathSync(f.pathname, pathname))
   if (openedTab) {
-    if (currentFile.value?.pathname === openedTab.pathname) {
+    if (isSamePath(currentFile.value?.pathname ?? '', openedTab.pathname)) {
       return
     }
     editorStore.UPDATE_CURRENT_FILE(openedTab)

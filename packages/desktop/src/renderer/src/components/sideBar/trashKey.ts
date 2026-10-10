@@ -51,15 +51,22 @@ export const isTrashShortcut = (key: string, metaKey: boolean, isMac: boolean): 
   return isMac && metaKey && key === 'Backspace'
 }
 
+// Watcher/editor paths can use the OS separator while roots built with
+// `window.path` use `/` (#5683), so fold both to one separator before comparing.
+const toSlash = (value: string): string => value.replace(/[\\/]+/g, '/')
+
 export const isPathWithinRoot = (
   pathname: string,
   rootPath: string | undefined,
   separator: string
 ): boolean => {
   if (!rootPath) return false
-  if (pathname === rootPath) return true
-  const prefix = rootPath.endsWith(separator) ? rootPath : rootPath + separator
-  return pathname.startsWith(prefix)
+  const target = toSlash(pathname)
+  const root = toSlash(rootPath)
+  if (target === root) return true
+  const sep = toSlash(separator) || '/'
+  const prefix = root.endsWith(sep) ? root : root + sep
+  return target.startsWith(prefix)
 }
 
 export const shouldTrashSelection = (context: TrashKeyContext): boolean => {
