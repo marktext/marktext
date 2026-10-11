@@ -1,4 +1,3 @@
-import ced from 'ced'
 import type { Encoding } from 'common/encoding'
 
 const CED_ICONV_ENCODINGS: Record<string, string> = {
@@ -75,6 +74,17 @@ export const guessEncoding = (buffer: Buffer, autoGuessEncoding: boolean): Encod
     // of what `ced` heuristically guesses (#3151).
     if (isLikelyUtf8(buffer)) {
       return { encoding: 'utf8', isBom }
+    }
+    // `ced` is a native addon that may not be precompiled on this machine, so
+    // load it lazily and only when auto-guessing (never on module import). If
+    // it can't be loaded here we fall back to UTF-8 rather than crashing the
+    // main process on startup / in unit tests (#5614).
+    let ced: (buffer: Buffer) => string
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      ced = require('ced')
+    } catch {
+      ced = () => 'ascii'
     }
     encoding = ced(buffer)
     if (CED_ICONV_ENCODINGS[encoding]) {
