@@ -160,15 +160,23 @@ jobs:
       contents: write
       actions: read
     steps:
-      # upload-artifact@v4 treats `dist/` as the common-ancestor root and
-      # stores files flat inside each artifact (no `dist/` prefix). Downloading
-      # with `path: dist` + `merge-multiple` recreates `./dist/<file>` across
-      # all platforms.
+      - name: Check out Git repository
+        uses: actions/checkout@v7.0.1
+
       - name: Download all platform artifacts
         uses: actions/download-artifact@v8.0.2
         with:
-          path: dist
-          merge-multiple: true
+          path: artifacts
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Merge architecture-specific update metadata
+        run: |
+          python -m pip install PyYAML==6.0.3
+          python scripts/merge-release-artifacts.py artifacts dist "${GITHUB_REF_NAME#v}"
 
       - name: Generate SHA256SUMS.txt
         working-directory: dist
