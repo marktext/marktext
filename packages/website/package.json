@@ -13,13 +13,14 @@
     "type-check": "tsc --noEmit",
     "cf:build": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "cf:preview": "opennextjs-cloudflare preview",
+    "cf:smoke": "node scripts/smoke-worker.mjs",
     "cf:deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "github-slugger": "^2.0.0",
     "gray-matter": "^4.0.3",
     "hast-util-to-string": "^3.0.1",
-    "next": "^16.4.0",
+    "next": "15.5.27",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "rehype-autolink-headings": "^7.1.0",
