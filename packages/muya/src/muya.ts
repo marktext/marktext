@@ -1685,6 +1685,9 @@ export class Muya {
     destroy() {
         this.eventCenter.detachAllDomEvents();
         this.eventCenter.unsubscribeAll();
+        // Observers the editor installed (the table-width pass) must not outlive
+        // the editor being unmounted.
+        this.editor.destroy();
         // this.domNode[BLOCK_DOM_PROPERTY] = null;
         if (this.domNode.remove)
             this.domNode.remove();

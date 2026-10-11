@@ -19,6 +19,7 @@ import JSONState from '../state';
 import { hasPick, isHTMLElement } from '../utils';
 import { getBlock } from '../utils/dom';
 import logger from '../utils/logger';
+import { syncTableWidths } from '../utils/tableWidths';
 import { attachDragDropImageHandlers } from './dragDropImage';
 import { attachLinkMouseHandlers } from './linkMouseEvents';
 
@@ -246,6 +247,12 @@ export class Editor {
 
     private _activeContentBlock: Nullable<Content> = null;
 
+    // Table width coordination (`utils/tableWidths.ts`): one scheduled pass per
+    // frame, driven by content mutations and by the editor root's size.
+    private _tableWidthRaf: Nullable<number> = null;
+    private _tableWidthMutationObserver: Nullable<MutationObserver> = null;
+    private _tableWidthResizeObserver: Nullable<ResizeObserver> = null;
+
     constructor(private _muya: Muya) {
         const state = _muya.options.json || _muya.options.markdown || '';
 
@@ -290,6 +297,9 @@ export class Editor {
         // as a new `![](src)` block. Cleanup is likewise handled by
         // `detachAllDomEvents`.
         attachDragDropImageHandlers(muya);
+        // Keeps the text column sized for the widest table in the document, and
+        // gates the table's own horizontal scrollbar. Torn down by `destroy()`.
+        this._observeTableWidths();
         if (options.focus !== false)
             this.focus();
     }
@@ -504,5 +514,63 @@ export class Editor {
 
         if (autoFocus)
             this.focus();
+    }
+
+    /**
+     * Re-run the table-width pass after any content change and whenever the
+     * editor root is resized, batched to at most one pass per frame.
+     *
+     * `childList` / `characterData` only: the pass writes a class on the table
+     * figures and a CSS var on the column, so observing attributes here would
+     * let it retrigger itself. The ResizeObserver watches the editor root rather
+     * than the column for the same reason — the column is the box the pass
+     * resizes, so observing it would report the pass's own write back to it.
+     */
+    private _observeTableWidths() {
+        const container = this.scrollPage?.domNode;
+
+        if (container == null)
+            return;
+
+        const schedule = () => {
+            if (this._tableWidthRaf != null)
+                return;
+
+            this._tableWidthRaf = requestAnimationFrame(() => {
+                this._tableWidthRaf = null;
+                const node = this.scrollPage?.domNode;
+
+                if (node != null)
+                    syncTableWidths(node);
+            });
+        };
+
+        this._tableWidthMutationObserver = new MutationObserver(schedule);
+        this._tableWidthMutationObserver.observe(container, {
+            childList: true,
+            characterData: true,
+            subtree: true,
+        });
+
+        if (typeof ResizeObserver !== 'undefined') {
+            this._tableWidthResizeObserver = new ResizeObserver(schedule);
+            this._tableWidthResizeObserver.observe(this._muya.domNode);
+        }
+
+        // The initial document is already in the DOM, so measure it now instead
+        // of waiting for the first edit.
+        schedule();
+    }
+
+    destroy() {
+        if (this._tableWidthRaf != null) {
+            cancelAnimationFrame(this._tableWidthRaf);
+            this._tableWidthRaf = null;
+        }
+
+        this._tableWidthMutationObserver?.disconnect();
+        this._tableWidthMutationObserver = null;
+        this._tableWidthResizeObserver?.disconnect();
+        this._tableWidthResizeObserver = null;
     }
 }

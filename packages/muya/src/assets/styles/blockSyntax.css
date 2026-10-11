@@ -15,7 +15,14 @@
 
 .mu-container {
     box-sizing: border-box;
-    max-width: var(--editor-area-width, 800px);
+
+    /* The column grows to fit a wide table — `--mu-table-width` is published by
+       `utils/tableWidths.ts` — but never past the width the host gives the
+       editor: a `width: auto` block cannot exceed its containing block, so the
+       editor's own horizontal scrollbar stays out of the picture. With no table
+       in the document the var is 0px and this is exactly the host's Max width
+       preference. */
+    max-width: max(var(--editor-area-width, 800px), var(--mu-table-width, 0px));
     min-height: 100%;
     margin: 0 auto;
     padding: 0 50px 100px;
@@ -593,6 +600,17 @@ li.mu-task-list-item > span.mu-checkbox-checked::before {
     padding: 0.5em 0;
 }
 
+/* A table that is still wider than the editor area after `.mu-container` has
+   grown to fill it scrolls itself instead of bleeding into the margin.
+   `utils/tableWidths.ts` adds the class only when the table is genuinely wider
+   than the column: making every figure a scroll container would draw a
+   permanent 1px scrollbar under any table that lands exactly on the column
+   width, because the collapsed borders of its columns round 1px wider than the
+   table box. */
+.mu-table.mu-table-overflowing {
+    overflow-x: auto;
+}
+
 .mu-table-inner {
     padding: 0;
 
@@ -1002,7 +1020,10 @@ pre.mu-active.mu-fenced-code::after {
     position: relative;
     z-index: 2;
 
-    min-width: 2em;
+    /* Room for a readable word in every column. `.mu-table-inner` is laid out
+       against the text column and nothing else keeps a column from collapsing,
+       so the old `2em` let a wide table squeeze its headers down to slivers. */
+    min-width: 8ch;
 
     overflow-wrap: anywhere;
 }
