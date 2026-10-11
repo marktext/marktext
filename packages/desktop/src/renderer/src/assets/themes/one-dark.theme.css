@@ -287,23 +287,27 @@ li.mu-task-list-item {
   list-style-type: none;
   position: relative;
 }
-li.mu-task-list-item > input[type='checkbox'] {
+li.mu-task-list-item > input[type='checkbox'],
+li.mu-task-list-item > span.mu-task-list-checkbox {
   position: absolute;
   cursor: pointer;
   width: 16px;
   height: 16px;
-  top: 0.1em;
+  /* Native inputs keep their UA font size, so em cannot track editor typography. */
+  top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 8px);
   transform: rotate(-90deg);
   margin: 0;
-  left: -24px;
+  inset-inline-start: -24px;
   transform-origin: center;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked {
+li.mu-task-list-item > input.mu-checkbox-checked,
+li.mu-task-list-item > span.mu-checkbox-checked {
   transform: rotate(0);
   opacity: 0.6;
 }
-li.mu-task-list-item > input[type='checkbox']::before {
+li.mu-task-list-item > input[type='checkbox']::before,
+li.mu-task-list-item > span.mu-task-list-checkbox::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -317,11 +321,13 @@ li.mu-task-list-item > input[type='checkbox']::before {
   left: 0;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked::before {
+li.mu-task-list-item > input.mu-checkbox-checked::before,
+li.mu-task-list-item > span.mu-checkbox-checked::before {
   border: transparent;
   background-color: var(--editorColor);
 }
-li.mu-task-list-item > input::after {
+li.mu-task-list-item > input::after,
+li.mu-task-list-item > span.mu-task-list-checkbox::after {
   content: '';
   transform: rotate(-45deg) scale(0);
   width: 9px;
@@ -335,7 +341,8 @@ li.mu-task-list-item > input::after {
   left: 5px;
   transition: all 0.2s ease;
 }
-li.mu-task-list-item > input.mu-checkbox-checked::after {
+li.mu-task-list-item > input.mu-checkbox-checked::after,
+li.mu-task-list-item > span.mu-checkbox-checked::after {
   transform: rotate(-45deg) scale(1);
 }
 figure.mu-active.mu-math-block > div.mu-math-preview,
