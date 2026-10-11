@@ -9,6 +9,7 @@
 import { contextBridge, ipcRenderer, webFrame, webUtils } from 'electron'
 import type { IpcRendererEvent } from 'electron'
 import pathe from 'pathe'
+import { createPlatformPath } from 'common/filesystem/platformPath'
 
 import type {
   IpcInvokeChannels,
@@ -259,27 +260,12 @@ const electronAPI = {
   dialog: dialogAPI
 }
 
-// Expose a Node-`path`-compatible API to the renderer. `pathe` is a
-// cross-platform reimplementation that always uses `/` separators and works
-// inside a sandboxed renderer.
-const pathAPI = {
-  basename: (...args: Parameters<typeof pathe.basename>) => pathe.basename(...args),
-  dirname: (...args: Parameters<typeof pathe.dirname>) => pathe.dirname(...args),
-  extname: (...args: Parameters<typeof pathe.extname>) => pathe.extname(...args),
-  join: (...args: string[]) => pathe.join(...args),
-  resolve: (...args: string[]) => pathe.resolve(...args),
-  relative: (...args: Parameters<typeof pathe.relative>) => pathe.relative(...args),
-  isAbsolute: (...args: Parameters<typeof pathe.isAbsolute>) => pathe.isAbsolute(...args),
-  normalize: (...args: Parameters<typeof pathe.normalize>) => pathe.normalize(...args),
-  parse: (...args: Parameters<typeof pathe.parse>) => pathe.parse(...args),
-  format: (...args: Parameters<typeof pathe.format>) => pathe.format(...args),
-  sep: pathe.sep,
-  delimiter: pathe.delimiter
-  // Note: `pathe.posix` / `pathe.win32` are intentionally not exposed.
-  // Each contains a self-reference (`pathe.posix.posix === pathe.posix`),
-  // which breaks structured cloning inside `contextBridge.exposeInMainWorld`.
-  // No code in this repo reads `window.path.posix` / `window.path.win32`.
-}
+// The sandboxed renderer cannot load node's `path`, so the bridge supplies a
+// platform-correct one (POSIX-only `pathe` would make the renderer build `/`
+// paths while the watcher/main/OS use `\` on Windows, #5683).
+// `pathe.posix` / `pathe.win32` stay unexposed: each self-references
+// (`pathe.posix.posix === pathe.posix`), which breaks `contextBridge` cloning.
+const pathAPI = createPlatformPath((bootInfo?.platform || process.platform) === 'win32')
 
 // Bundled third-party packages occasionally read `process.platform` at module
 // load time (e.g. @hfelix/electron-localshortcut/src/utils.js). Expose a
