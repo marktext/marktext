@@ -181,15 +181,6 @@ export const getUniqueId = (): string => {
   return `${ID_PREFIX}${id++}`
 }
 
-/**
- * Compare two paths ignoring separator style and case. Paths from the watcher
- * and the main process use OS-native separators (`\` on Windows) while paths
- * built with `window.path` (the sandboxed renderer's `pathe` shim) always use
- * `/`, so raw `===` silently misses matches on Windows (#5683).
- */
-export const isSamePath = (a: string, b: string): boolean =>
-  window.fileUtils.isSamePathSync(a, b)
-
 export const hasKeys = (obj: object): boolean => Object.keys(obj).length > 0
 
 /**

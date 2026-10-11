@@ -57,6 +57,7 @@
     "@element-plus/icons-vue": "^2.3.2",
     "@hfelix/electron-localshortcut": "^4.0.1",
     "@intlify/core-base": "^11.4.13",
+    "@jsr/std__path": "^1.1.6",
     "@marktext/file-icons": "^1.0.6",
     "@muyajs/core": "workspace:*",
     "@vscode/ripgrep": "^1.18.0",

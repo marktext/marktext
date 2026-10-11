@@ -43,11 +43,11 @@ export default defineConfig({
   preload: {
     // --> Bundled as CommonJS
     // With sandbox: true the renderer's preload can only `require('electron')`
-    // (plus a few built-ins). Inline `pathe` (ESM-only) so the bundled preload
-    // doesn't try to require it from node_modules at runtime.
+    // (plus a few built-ins). Inline `pathe` and `@std/path` (ESM-only) so the
+    // bundled preload doesn't try to require them from node_modules at runtime.
     build: {
       externalizeDeps: {
-        exclude: ['pathe']
+        exclude: ['pathe', '@jsr/std__path']
       }
     },
     resolve: {
@@ -80,7 +80,10 @@ export default defineConfig({
         '@': resolve(__dirname, 'src/renderer/src'),
         common: resolve(__dirname, 'src/common'),
         '@shared': resolve(__dirname, 'src/shared'),
-        path: 'pathe'
+        // Shared `common/*` helpers import the bare `path` specifier; route it to
+        // a platform-correct module so the renderer never builds mixed-separator
+        // paths (#5683).
+        path: resolve(__dirname, 'src/renderer/src/node/platformPath.ts')
       },
       extensions: ['.mjs', '.ts', '.js', '.json', '.vue']
     },

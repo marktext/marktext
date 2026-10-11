@@ -164,16 +164,6 @@ export const isChildOfDirectory = (dir: string, child: string): boolean => {
 }
 
 /**
- * Convert a renderer path to the OS-native separator before handing it to a
- * shell API. The sandboxed renderer's `path` shim only ever emits `/`
- * (`src/preload/index.ts`), but Windows' `SHCreateItemFromParsingName` — used
- * by `shell.trashItem` / `shell.showItemInFolder` — rejects forward slashes
- * with "Failed to parse path" (#5683). `sep` is injectable for tests.
- */
-export const toNativePath = (pathname: string, sep: string = path.sep): string =>
-  sep === '/' ? pathname : path.win32.normalize(pathname)
-
-/**
  * Returns true if the pathname matches one of the exclude patterns.
  */
 export const checkPathExcludePattern = (pathname: string, patterns: readonly string[]): boolean => {

@@ -1,4 +1,4 @@
-import { getUniqueId, isSamePath } from '../util'
+import { getUniqueId } from '../util'
 import { PATH_SEPARATOR } from '../config'
 
 // Helper module (NOT a Pinia store): file-tree mutation helpers.
@@ -33,9 +33,6 @@ type AddFileInput = Omit<TreeFile, 'id'>
 
 const safeTime = (v: number | undefined): number => (v !== undefined && isFinite(v) ? v : 0)
 
-// Watcher events carry OS-native separators (`\` on Windows) while folder nodes
-// are synthesized from `window.path` (always `/`, see preload), so raw `===`
-// misses renames/deletes there. `isSamePathSync` normalizes both sides (#5683).
 const makeFileComparator = (sortBy: string, sortOrder: string) =>
   (a: TreeFile, b: TreeFile): number => {
     let result: number
@@ -214,7 +211,7 @@ export const updateFileMtime = (
     currentSubFolders = childFolder.folders
   }
 
-  const index = currentFolder.files.findIndex((f) => isSamePath(f.pathname, file.pathname))
+  const index = currentFolder.files.findIndex((f) => f.pathname === file.pathname)
   if (index === -1) return
 
   const entry = currentFolder.files[index]
@@ -261,7 +258,7 @@ export const unlinkFile = (tree: TreeFolder, file: { pathname: string }): void =
     currentSubFolders = childFolder.folders
   }
 
-  const index = currentFolder.files.findIndex((f) => isSamePath(f.pathname, pathname))
+  const index = currentFolder.files.findIndex((f) => f.pathname === pathname)
   if (index !== -1) {
     currentFolder.files.splice(index, 1)
   }
@@ -282,7 +279,7 @@ export const unlinkDirectory = (tree: TreeFolder, dir: { pathname: string }): vo
     currentFolder = childFolder.folders
   }
 
-  const index = currentFolder.findIndex((f) => isSamePath(f.pathname, pathname))
+  const index = currentFolder.findIndex((f) => f.pathname === pathname)
   if (index !== -1) {
     currentFolder.splice(index, 1)
   }

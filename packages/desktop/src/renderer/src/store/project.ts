@@ -12,7 +12,6 @@ import {
 import { usePreferencesStore } from './preferences'
 import bus from '../bus'
 import { create, paste, rename, type FileCreateType, type PasteOptions } from '../util/fileSystem'
-import { isSamePath } from '../util'
 import { PATH_SEPARATOR } from '../config'
 import notice from '../services/notification'
 import { getFileStateFromData } from './help'
@@ -183,7 +182,7 @@ export const useProjectStore = defineStore('project', () => {
       case 'add': {
         const { pathname, data, isMarkdown } = change
         addFile(projectTree.value!, change as Parameters<typeof addFile>[1], String(preferencesStore.fileSortBy), String(preferencesStore.fileSortOrder))
-        if (isMarkdown && newFileNameCache.value && isSamePath(pathname, newFileNameCache.value)) {
+        if (isMarkdown && newFileNameCache.value && pathname === newFileNameCache.value) {
           const fileState = getFileStateFromData(data as Record<string, unknown>)
           editorStore.UPDATE_CURRENT_FILE(fileState)
           newFileNameCache.value = ''
@@ -384,7 +383,7 @@ export const useProjectStore = defineStore('project', () => {
       name += '.md'
     }
 
-    const fullName = `${dirname}/${name}`
+    const fullName = dirname + PATH_SEPARATOR + name
 
     try {
       // Creating over an existing path would silently overwrite it (outputFile
