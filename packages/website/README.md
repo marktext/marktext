@@ -1,12 +1,23 @@
 # MarkText Website
 
-
-
 [![Built with React](https://img.shields.io/badge/React-brightgreen?logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-purple?logo=vite&logoColor=white)](https://vitejs.dev/)
 
 The official website for [MarkText](https://github.com/marktext/marktext) - A simple and elegant markdown editor.
+
+## Homepage project data
+
+The homepage requests the latest stable release, star count, and all pages of
+registered contributors directly from GitHub's public REST API on each load.
+Hero and Stats share the results; no GitHub token or redeployment is needed.
+Contributor counts include bots and exclude anonymous entries, matching the
+API's default behavior. GitHub may cache its own contributor results.
+
+Requests time out after ten seconds. Failed or rate-limited values remain neutral
+placeholders while successful values are retained; there are no fixed fallback
+versions or counts. Run `pnpm --filter marktext-website run test:project-info`
+from the repository root to check pagination, fresh values, and failure handling.
 
 ## ✨ Features
 

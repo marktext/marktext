@@ -54,6 +54,9 @@ jobs:
       - name: Type-check
         run: pnpm --filter marktext-website run type-check
 
+      - name: Test GitHub project data
+        run: pnpm --filter marktext-website run test:project-info
+
       - name: Next build
         run: pnpm --filter marktext-website run build
 
