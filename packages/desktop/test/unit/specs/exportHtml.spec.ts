@@ -71,6 +71,15 @@ describe('exportStyledHTML — wrapper parity', () => {
     expect(body).toContain('<article class="markdown-body">')
     expect(body).not.toContain('<body>')
   })
+
+  it('preserves `$<` in the exported body', async() => {
+    const out = await exportStyledHTML(NO_MUYA, 'literal `$<` text', {})
+
+    expect((out.match(/<body>/g) || []).length).toBe(1)
+    expect((out.match(/<\/body>/g) || []).length).toBe(1)
+    expect((out.match(/<article class="markdown-body">/g) || []).length).toBe(1)
+    expect(out).toContain('<p>literal <code>$&lt;</code> text</p>')
+  })
 })
 
 describe('exportStyledHTML — [TOC] expansion and slug matching', () => {

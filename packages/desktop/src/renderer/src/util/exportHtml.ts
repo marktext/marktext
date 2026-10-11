@@ -230,5 +230,5 @@ export const exportStyledHTML = async(
   }
 
   // Re-emit the engine document shell with the (possibly augmented) body.
-  return fullDoc.replace(/<body>[\s\S]*<\/body>/, `<body>\n  ${bodyHtml}\n</body>`)
+  return fullDoc.replace(/<body>[\s\S]*<\/body>/, () => `<body>\n  ${bodyHtml}\n</body>`)
 }
