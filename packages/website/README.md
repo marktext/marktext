@@ -1,12 +1,29 @@
 # MarkText Website
 
-
-
 [![Built with React](https://img.shields.io/badge/React-brightgreen?logo=react&logoColor=white)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-purple?logo=vite&logoColor=white)](https://vitejs.dev/)
 
 The official website for [MarkText](https://github.com/marktext/marktext) - A simple and elegant markdown editor.
+
+## Cloudflare runtime validation
+
+Next.js is pinned to 15.5.27 because 16.4.0 loads `server/preview-props.json`
+at startup, which OpenNext 1.20.10 does not inline into its Worker bundle.
+The resulting `Unexpected loadManifest` exception returns HTTP 500 even when
+the build and deployment succeed. Revisit this pin when the adapter supports
+that manifest.
+
+From the repository root, validate the built Worker before deploying:
+
+```bash
+pnpm --filter marktext-website run cf:build
+pnpm --filter marktext-website run cf:smoke
+```
+
+The smoke test runs Wrangler locally on port 8788 and checks the homepage,
+documentation, metadata, and search index. The website
+deployment workflow runs it before uploading production or preview versions.
 
 ## ✨ Features
 

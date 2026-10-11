@@ -60,6 +60,9 @@ jobs:
       - name: OpenNext Cloudflare build
         run: pnpm --filter marktext-website run cf:build
 
+      - name: Smoke-test Worker runtime
+        run: pnpm --filter marktext-website run cf:smoke
+
       # ---- Production deploy: develop push ----
       - name: Deploy (production)
         if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
