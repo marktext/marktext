@@ -176,34 +176,7 @@ jobs:
       - name: Merge architecture-specific update metadata
         run: |
           python -m pip install PyYAML==6.0.3
-          mkdir dist
-          cp artifacts/*/* dist/
-          python - <<'PYTHON'
-          import base64
-          import hashlib
-          from pathlib import Path
-          import yaml
-
-          for name in ('latest.yml', 'latest-mac.yml'):
-              documents = [yaml.safe_load(path.read_text()) for path in sorted(Path('artifacts').glob(f'*/{name}'))]
-              assert len(documents) == 2, f'{name}: expected two architecture manifests'
-              assert len({doc['version'] for doc in documents}) == 1, f'{name}: conflicting versions'
-              files = sorted((file for doc in documents for file in doc['files']), key=lambda file: file['url'])
-              assert len({file['url'] for file in files}) == len(files), f'{name}: duplicate assets'
-              for arch in ('arm64', 'x64'):
-                  assert any(f'-{arch}-' in file['url'] for file in files), f'{name}: missing {arch}'
-              for file in files:
-                  path = Path('dist') / file['url']
-                  assert path.is_file() and path.stat().st_size == file['size'], f'{name}: missing or truncated {path}'
-                  with path.open('rb') as stream:
-                      digest = base64.b64encode(hashlib.file_digest(stream, 'sha512').digest()).decode()
-                  assert digest == file['sha512'], f'{name}: incorrect checksum for {path}'
-              # Older updaters use the top-level path rather than the files list.
-              merged = next(doc for doc in documents if '-x64-' in doc['path'])
-              merged['files'] = files
-              merged['releaseDate'] = max(doc['releaseDate'] for doc in documents)
-              Path('dist', name).write_text(yaml.safe_dump(merged, sort_keys=False))
-          PYTHON
+          python scripts/merge-release-artifacts.py artifacts dist "${GITHUB_REF_NAME#v}"
 
       - name: Generate SHA256SUMS.txt
         working-directory: dist
