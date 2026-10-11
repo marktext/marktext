@@ -190,8 +190,9 @@ li.mu-task-list-item > span.mu-task-list-checkbox {
   cursor: pointer;
   width: 16px;
   height: 16px;
-  top: 0.1em;
-  left: -24px;
+  /* Native inputs keep their UA font size, so em cannot track editor typography. */
+  top: calc(var(--mu-line-height, 1.6) * 0.5 * var(--mu-font-size, 16px) - 8px);
+  inset-inline-start: -24px;
   margin: 0;
   transform: rotate(-90deg);
   transform-origin: center;
