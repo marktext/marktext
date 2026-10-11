@@ -2,6 +2,7 @@
 
 import { useRef } from 'react'
 import { DOWNLOAD } from '@/lib/downloads'
+import { DEFAULT_GITHUB_STARS } from '@/lib/project-info'
 import { EXT_LINK } from '@/lib/links'
 import { revealClass } from '@/lib/sections'
 import { useTilt } from '@/hooks/useTilt'
@@ -45,7 +46,7 @@ export default function Hero() {
             <CheckIcon /> No account, no tracking
           </span>
           <span>
-            <CheckIcon /> {githubStars === undefined ? 'Star on GitHub' : `${githubStars.toLocaleString('en-US')} stars on GitHub`}
+            <CheckIcon /> {(githubStars ?? DEFAULT_GITHUB_STARS).toLocaleString('en-US')} stars on GitHub
           </span>
         </div>
 

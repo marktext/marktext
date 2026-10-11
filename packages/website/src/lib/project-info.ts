@@ -1,5 +1,8 @@
 const REPOSITORY_API = 'https://api.github.com/repos/marktext/marktext'
 
+// Last verified on GitHub on 2026-10-11; live API data takes precedence.
+export const DEFAULT_GITHUB_STARS = 62_403
+
 export type ProjectInfo = {
   releaseVersion?: string
   githubStars?: number

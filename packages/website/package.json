@@ -11,7 +11,6 @@
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "type-check": "tsc --noEmit",
-    "test:project-info": "node --experimental-strip-types --test test/project-info.test.mjs",
     "cf:build": "opennextjs-cloudflare build && opennextjs-cloudflare populateCache local",
     "cf:preview": "opennextjs-cloudflare preview",
     "cf:deploy": "opennextjs-cloudflare deploy"
