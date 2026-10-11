@@ -75,6 +75,9 @@ describe('exportStyledHTML — wrapper parity', () => {
   it('preserves `$<` in the exported body', async() => {
     const out = await exportStyledHTML(NO_MUYA, 'literal `$<` text', {})
 
+    expect((out.match(/<body>/g) || []).length).toBe(1)
+    expect((out.match(/<\/body>/g) || []).length).toBe(1)
+    expect((out.match(/<article class="markdown-body">/g) || []).length).toBe(1)
     expect(out).toContain('<p>literal <code>$&lt;</code> text</p>')
   })
 })
