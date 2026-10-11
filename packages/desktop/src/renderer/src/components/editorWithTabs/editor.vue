@@ -100,6 +100,7 @@ import {
 } from '@muyajs/core'
 import { getMuyaLocale } from '@/util/muyaLocale'
 import { exportStyledHTML, type HeaderFooterPart } from '@/util/exportHtml'
+import { DocumentVirtualizer, type ScrollAnchor } from '@/util/documentVirtualizer'
 import { applyCursor, isIndexCursor } from '@/util/cursor'
 import EditorSearch from '../search/index.vue'
 import MediaViewer from '../mediaViewer/index.vue'
@@ -109,7 +110,7 @@ import notice from '@/services/notification'
 import Printer from '@/services/printService'
 import { SpellcheckerLanguageCommand } from '@/commands'
 import { SpellChecker } from '@/spellchecker'
-import { isMac, animatedScrollTo } from '@/util'
+import { isMac, animatedScrollTo, cancelScrollAnimation } from '@/util'
 import { moveImageToFolder, uploadImage } from '@/util/fileSystem'
 import { guessClipboardFilePath } from '@/util/clipboard'
 import { dataURLToFile } from '@/util/dataURLToFile'
@@ -271,6 +272,8 @@ let spellchecker: SpellChecker | null = null
 let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
+let virtualizer: DocumentVirtualizer | null = null
+let scrollRestoredTabId: string | null = null
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -760,7 +763,10 @@ watch(spellcheckerLanguage, (value, oldValue) => {
 
 watch(currentFile, (value, oldValue) => {
   if (value && value !== oldValue) {
-    scrollToCursor(0)
+    // A tab switch already restored the tab's own scroll position before this
+    // watcher runs; only a freshly loaded document starts at its caret.
+    if (scrollRestoredTabId === value.id) scrollRestoredTabId = null
+    else scrollToCursor(0)
     // Hide float tools if needed.
     if (editor.value) {
       editor.value.hideAllFloatTools()
@@ -1220,29 +1226,11 @@ const scrollToCursor = (duration = 300) => {
   })
 }
 
-const scrollToCords = (y: number) => {
-  const container = getScrollContainer()
-  if (!container) return
-  // Depending on how much the user previously scrolled, sometimes the container has not fully rendered all elements.
-  // Hence, container.scrollHeight < [saved scrollTop]
-  // What we need to do is to temporarily add a padding to the container so that we can actually set the scrollTop without getting clamped.
-
-  const maxScrollHeight = container.scrollHeight - container.clientHeight // max scroll height is actually calculated as such
-  if (y > maxScrollHeight) {
-    const editorId = container.firstElementChild as HTMLElement | null
-    if (editorId) {
-      editorId.style.paddingBottom = `${y - maxScrollHeight + 100}px` // 100px is the default editor padding
-      // attach a resize observer so we know when to remove the padding when it is of the "correct" height
-      resizeObserverForEditor.observe(editorId)
-    }
-  }
-  requestAnimationFrame(() => {
-    if (!container) return
-    // wait for the padding to be applied (if any)
-    container.style.visibility = 'visible'
-    container.style.pointerEvents = 'auto'
-    container.scrollTop = y
-  })
+// A scroll target measured every frame; one re-rendered meanwhile (search
+// highlights are, on every find) keeps its last position.
+const followElement = (element: Element, measure: () => number): (() => number) => {
+  let last = measure()
+  return () => (element.isConnected ? (last = measure()) : last)
 }
 
 // Smoothly scroll the editor so `anchor` sits at the standard caret offset.
@@ -1250,8 +1238,11 @@ const scrollToCords = (y: number) => {
 const scrollElementIntoView = (anchor: Element | null | undefined, duration = 300) => {
   const container = getScrollContainer()
   if (!container || !anchor) return
-  const { y } = anchor.getBoundingClientRect()
-  animatedScrollTo(container, container.scrollTop + y - STANDAR_Y, duration)
+  animatedScrollTo(
+    container,
+    followElement(anchor, () => container.scrollTop + anchor.getBoundingClientRect().y - STANDAR_Y),
+    duration
+  )
 }
 
 const scrollToHighlight = () => {
@@ -1269,7 +1260,11 @@ const scrollToHeader = (slug: unknown) => {
   if (!container) return
   const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
   if (!heading) return
-  animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
+  animatedScrollTo(
+    container,
+    followElement(heading, () => getTocHeadingScrollTop(container, heading)),
+    300
+  )
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1490,6 +1485,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // `setContent` resets the document and clears the undo history; only set a
     // cursor afterwards (a freshly-opened file has no history to restore).
     editor.value.setContent(newMarkdown ?? '')
+    virtualizer?.reset()
     // The freshly loaded content is this tab's clean baseline (id 0). Re-seed
     // the monotonic save-tracking allocator so undoing an edit back to this
     // content reads as clean again (matches the store's `lastSavedHistoryId: 0`).
@@ -1512,7 +1508,7 @@ const setMarkdownToEditor = (payload: unknown) => {
     // the first edit, and a file switch keeps the previous file's TOC).
     editorStore.UPDATE_TOC(editor.value.getTOC())
     // A freshly created/opened tab should be ready to type into.
-    if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusFreshEditor()
+    if (editorStore.TAKE_OPEN_INTENT(currentFile.value?.pathname) !== false) focusEditor()
   }
 }
 
@@ -1523,6 +1519,7 @@ interface FileChangePayload {
   renderCursor?: boolean
   history?: unknown
   scrollTop?: number
+  scrollAnchor?: ScrollAnchor | null
   muyaIndexCursor?: unknown
   blocks?: unknown
   isReload?: boolean
@@ -1537,6 +1534,7 @@ const handleFileChange = (payload: unknown) => {
     muyaIndexCursor,
     history: payloadHistory,
     scrollTop,
+    scrollAnchor,
     isReload
   } = (payload ?? {}) as FileChangePayload
   if (!editor.value) return
@@ -1632,13 +1630,15 @@ const handleFileChange = (payload: unknown) => {
     applyCursor(editor.value, newCursor)
   }
 
+  // A smooth scroll still running belongs to the document being replaced.
+  cancelScrollAnimation(container)
+  const anchor = typeof scrollTop === 'number' ? scrollAnchor ?? null : null
+  if (typeof newMarkdown === 'string') virtualizer?.reset(anchor)
+  // Restored before the first paint of the new content, so it never flashes at the top.
   if (typeof scrollTop === 'number') {
-    container.style.visibility = 'hidden'
-    container.style.pointerEvents = 'none'
-    scrollToCords(scrollTop)
+    virtualizer?.restore(anchor, scrollTop)
+    scrollRestoredTabId = id ?? null
   } else {
-    container.style.visibility = 'visible'
-    container.style.pointerEvents = 'auto'
     scrollToCursor(0)
   }
 }
@@ -1664,23 +1664,6 @@ const focusEditor = () => {
   ed.focus()
 }
 
-// Focus a freshly opened/created tab's editor. The sibling `file-changed`
-// handler (emitted first, while the store commits the tab switch) hides the
-// editor and queues a `requestAnimationFrame` via `scrollToCords` to restore
-// it, and focus() is a no-op while the container is `visibility:hidden`. Our
-// rAF is registered after that restore rAF, so it runs once the editor is
-// visible; then take DOM focus (the engine's `focus()` only sets the selection
-// range — the contenteditable also needs focus or no caret blinks) and place
-// the caret at the document start.
-const focusFreshEditor = () => {
-  requestAnimationFrame(() => {
-    const ed = editor.value
-    if (!ed) return
-    ed.domNode.focus()
-    ed.focus()
-  })
-}
-
 // When a focus-trapping modal (the command palette) opens, release the editor's
 // contenteditable focus first. element-plus's el-dialog restores focus to the
 // previously focused element on close; restoring it into the engine's
@@ -1703,27 +1686,12 @@ const handleScreenShot = (filePath?: unknown) => {
   }
 }
 
-const handleResetPaddingBottom = () => {
-  const container = getScrollContainer()
-  if (!container) return
-  const firstChild = container.firstElementChild as HTMLElement | null
-  if (!firstChild) return
-  const newScrollableHeightWithoutPadding =
-    container.scrollHeight - container.clientHeight - parseFloat(firstChild.style.paddingBottom)
-
-  if (currentFile.value && newScrollableHeightWithoutPadding > currentFile.value.scrollTop) {
-    container.style.paddingBottom = ''
-    resizeObserverForEditor.unobserve(firstChild) // unobserve #ag-editor-id since we have removed the padding
-  }
-}
-
 const handleLanguageChanged = (newLocale?: unknown) => {
   if (editor.value) {
     const locale = typeof newLocale === 'string' ? newLocale : language.value
     editor.value.locale(getMuyaLocale(locale))
   }
 }
-const resizeObserverForEditor = new ResizeObserver(handleResetPaddingBottom)
 
 onMounted(() => {
   printer = new Printer()
@@ -1846,6 +1814,7 @@ onMounted(() => {
   }
 
   const container = getScrollContainer()!
+  virtualizer = new DocumentVirtualizer(container.querySelector<HTMLElement>('.mu-container')!, container)
 
   // Listen for language changes and update the engine locale.
   bus.on('language-changed', handleLanguageChanged)
@@ -1931,7 +1900,7 @@ onMounted(() => {
   // so the desktop can persist each tab's scroll position.
   scrollHandler = () => {
     if (currentFile.value) {
-      editorStore.updateScrollPosition(currentFile.value.id, container.scrollTop)
+      editorStore.updateScrollPosition(currentFile.value.id, container.scrollTop, virtualizer?.measureAnchor() ?? null)
     }
   }
   container.addEventListener('scroll', scrollHandler, { passive: true })
@@ -2078,7 +2047,8 @@ onBeforeUnmount(() => {
   }
   scrollHandler = null
 
-  resizeObserverForEditor.disconnect()
+  virtualizer?.destroy()
+  virtualizer = null
 
   if (editor.value) {
     editor.value.destroy()

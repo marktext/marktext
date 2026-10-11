@@ -45,6 +45,7 @@ const defaultFileStateWithoutId = {
     value: ''
   },
   scrollTop: 0,
+  scrollAnchor: null,
   muyaIndexCursor: null,
   notifications: []
 } satisfies Omit<IFileState, 'id'>
@@ -83,6 +84,7 @@ const documentStateKeys = [
   'wordCount',
   'searchMatches',
   'scrollTop',
+  'scrollAnchor',
   'muyaIndexCursor',
   'notifications'
 ] as const satisfies ReadonlyArray<keyof IFileState>

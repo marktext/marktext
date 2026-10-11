@@ -82,6 +82,8 @@ export interface IFileState {
   wordCount: FileWordCount
   searchMatches: FileSearchMatches
   scrollTop: number
+  // Top-level block at the viewport top; restores exactly while off-screen block heights are estimates.
+  scrollAnchor?: { block: number; offset: number } | null
   muyaIndexCursor: unknown
   notifications: FileNotification[]
   lastSavedHistoryId?: number

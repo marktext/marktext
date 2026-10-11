@@ -1,0 +1,27 @@
+/* Containment cannot move these blocks: their content is inline or already
+   isolated from their edges, so no child margin collapses through them. Lists,
+   quotes, footnotes and HTML blocks can, so they always render. Once rendered,
+   `auto` remembers a block's real height. The clip margin keeps gutter controls
+   and overflowing text visible. */
+.mu-container.mt-virtualized
+  > :is(
+    .mu-paragraph,
+    .mu-atx-heading,
+    .mu-setext-heading,
+    .mu-code-block,
+    .mu-frontmatter,
+    .mu-thematic-break,
+    .mu-table,
+    .mu-math-block,
+    .mu-diagram-block
+  ) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3em;
+  overflow-clip-margin: 100vw;
+}
+
+/* Paint containment would keep the block being edited under the next one,
+   which hides popups it draws below itself, such as the inline math preview. */
+.mu-container.mt-virtualized > .mu-active {
+  content-visibility: visible;
+}
