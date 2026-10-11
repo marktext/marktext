@@ -191,6 +191,8 @@ pnpm -C packages/desktop exec playwright test test/e2e/launch.spec.ts
 pnpm -C packages/desktop exec playwright test -g 'partial test name'
 ```
 
+For local Playwright runs, set `MARKTEXT_E2E_BACKGROUND=1`: every test window opens off screen, outside the taskbar and without taking focus (`test/e2e/background-window.cjs`), so the run does not interrupt whoever is at the machine. `issue-2245-window-menu-bar` checks OS window focus and only passes on screen.
+
 ## Code Style
 
 Enforced by ESLint + Prettier. Run `pnpm run lint` and `pnpm run typecheck` before committing.
