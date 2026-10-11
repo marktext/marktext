@@ -29,6 +29,7 @@
       "print": "印刷",
       "closeTab": "タブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
+      "closeAllWindows": "すべてのウィンドウを閉じる",
       "quit": "終了",
       "preferences": "環境設定"
     },
@@ -459,6 +460,11 @@
         "description": "自動保存",
         "delayDescription": "自動保存の遅延"
       },
+      "autoRefresh": {
+        "title": "自動更新",
+        "description": "ディスク上のファイルが変更されたら自動的に再読み込みします",
+        "warning": "未保存の変更は確認なしで破棄されます。"
+      },
       "window": {
         "title": "ウィンドウ",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "テーマ",
       "followSystemTheme": "システムのテーマに従う",
+      "followSystemNote": "システムテーマに従っている間は、下のテーマ一覧を切り替えられません。オフにすると自由に切り替えられます。",
       "modeThemes": "テーマの選択",
       "lightModeTheme": "ライトモードのテーマ",
       "darkModeTheme": "ダークモードのテーマ",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "キーバインド",
       "description": "キーバインドのカスタマイズ",
+      "search": "検索",
       "save": "保存",
       "restoreDefaults": "デフォルトに復元",
       "debugOptions": "デバッグオプション",
@@ -791,7 +799,10 @@
       "print": "印刷",
       "preferences": "環境設定",
       "closeTab": "タブを閉じる",
+      "closeOtherTabs": "他のタブを閉じる",
+      "closeAllTabs": "すべてのタブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
+      "closeAllWindows": "すべてのウィンドウを閉じる",
       "quit": "終了",
       "toggleAutoSave": "自動保存の切り替え",
       "importFile": "ファイルのインポート",

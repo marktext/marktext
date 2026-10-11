@@ -29,6 +29,7 @@
       "print": "Drucken",
       "closeTab": "Tab schließen",
       "closeWindow": "Fenster schließen",
+      "closeAllWindows": "Alle Fenster schließen",
       "quit": "Beenden",
       "preferences": "Einstellungen"
     },
@@ -459,6 +460,11 @@
         "description": "Automatisches Speichern",
         "delayDescription": "Verzögerung beim automatischen Speichern"
       },
+      "autoRefresh": {
+        "title": "Automatisch aktualisieren",
+        "description": "Die Datei automatisch neu laden, wenn sie sich auf der Festplatte ändert",
+        "warning": "Nicht gespeicherte Änderungen werden ohne Nachfrage verworfen."
+      },
       "window": {
         "title": "Fenster",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Design",
       "followSystemTheme": "Systemdesign folgen",
+      "followSystemNote": "Wenn Sie dem Systemthema folgen, ist die Themenliste unten gesperrt. Deaktivieren Sie dies, um Themen frei zu wechseln.",
       "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Tastenkürzel",
       "description": "Tastenkürzel anpassen",
+      "search": "Suchen",
       "save": "Speichern",
       "restoreDefaults": "Standardwerte wiederherstellen",
       "debugOptions": "Debug-Optionen",
@@ -791,7 +799,10 @@
       "print": "Drucken",
       "preferences": "Einstellungen",
       "closeTab": "Tab schließen",
+      "closeOtherTabs": "Andere Tabs schließen",
+      "closeAllTabs": "Alle Tabs schließen",
       "closeWindow": "Fenster schließen",
+      "closeAllWindows": "Alle Fenster schließen",
       "quit": "Beenden",
       "toggleAutoSave": "Automatisches Speichern umschalten",
       "importFile": "Datei importieren",

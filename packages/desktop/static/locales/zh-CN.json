@@ -29,6 +29,7 @@
       "print": "打印",
       "closeTab": "关闭标签页",
       "closeWindow": "关闭窗口",
+      "closeAllWindows": "关闭所有窗口",
       "quit": "退出",
       "preferences": "偏好设置"
     },
@@ -459,6 +460,11 @@
         "description": "自动保存",
         "delayDescription": "自动保存延迟"
       },
+      "autoRefresh": {
+        "title": "自动刷新",
+        "description": "文件在磁盘上发生变化时自动重新加载",
+        "warning": "未保存的修改将被直接丢弃，不再询问。"
+      },
       "window": {
         "title": "窗口",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "主题",
       "followSystemTheme": "跟随系统主题",
+      "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "快捷键",
       "description": "自定义键盘快捷键",
+      "search": "搜索",
       "save": "保存",
       "restoreDefaults": "恢复默认",
       "debugOptions": "调试选项",
@@ -790,7 +798,10 @@
       "print": "打印",
       "preferences": "偏好设置",
       "closeTab": "关闭标签页",
+      "closeOtherTabs": "关闭其他标签页",
+      "closeAllTabs": "关闭所有标签页",
       "closeWindow": "关闭窗口",
+      "closeAllWindows": "关闭所有窗口",
       "quit": "退出",
       "toggleAutoSave": "切换自动保存",
       "importFile": "导入文件",

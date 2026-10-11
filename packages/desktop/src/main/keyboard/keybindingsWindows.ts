@@ -21,7 +21,10 @@ const keybindings: Map<string, string> = new Map([
   ['file.print', 'Ctrl+P'],
   ['file.preferences', 'Ctrl+,'],
   ['file.close-tab', 'Ctrl+W'],
+  ['file.close-other-tabs', ''],
+  ['file.close-all-tabs', ''],
   ['file.close-window', 'Ctrl+Shift+W'],
+  ['file.close-all-windows', ''],
   ['file.quit', 'Ctrl+Q'],
 
   // File > Export submenu

@@ -1,3 +1,24 @@
+## 0.22.0
+
+**:cactus:Feature**
+
+- Added commands, shortcuts and a File menu entry for the bulk tab/window close actions : `Close Other Tabs` (<kbd>Cmd/Ctrl</kbd>+<kbd>Opt</kbd>+<kbd>Shift</kbd>+<kbd>W</kbd> on macOS), `Close All Tabs` and `Close All Windows` (<kbd>Cmd</kbd>+<kbd>Opt</kbd>+<kbd>W</kbd> on macOS). All three are also listed in the command palette and can be rebound (see #437).
+- Added an `Auto Refresh` option under General: when a file changes on disk while you have unsaved edits, reload it instead of asking. Off by default — it discards the unsaved changes without a prompt (see #3810).
+- Added a search box to the keybindings settings, and moved `Save` / `Restore defaults` to the top of the panel. The search matches the current UI language, English and the command id.
+- Long outline (TOC) entries now wrap to at most two lines with an ellipsis instead of growing the row indefinitely, and the outline highlight follows scrolling.
+
+**:beetle:Bug fix**
+
+- Fixed outline entries overlapping the next entry when a heading wrapped, and long unbreakable tokens (e.g. an inline `code` span) spilling past the sidebar instead of truncating.
+- Fixed key bindings search only matching the current UI language, so English keywords found nothing while the UI ran in another language.
+- The keybindings `Save` button is now highlighted while there are unsaved changes.
+- Removed a stray `ew.source-code-m` fragment that had been prepended to the Windows key bindings documentation.
+
+**:butterfly:Optimization**
+
+- Removed the deprecated `optimizeDeps.esbuildOptions` Vite option, which printed a warning on every dev/build run.
+- Added the `--editorColor07` theme variable (mid-step between `--editorColor04` and `--editorColor10`) to the default theme and all bundled themes.
+
 ## 0.17.1
 
 - Added experimental native support for Apple M1 (see #2983 if you have issues).
@@ -339,13 +360,13 @@ This update **fixes a XSS security vulnerability** when exporting a document.
 - Remove `lightColor` and `darkColor` in user preference (color change in view menu does not work any, and will remove when add custom theme.)
 - We recommend user not use block element in paragraph, please use block element in html block.
 
-*Not Recommended*
+_Not Recommended_
 
 ```md
 foo<section>bar</section>zar
 ```
 
-*Recommended*
+_Recommended_
 
 ```md
 <div>
@@ -684,7 +705,7 @@ You need uninstall the old version of MarkText before install version 0.10.21, b
 
 - adjust lineHeight and fontSize in typewriter mode
 - optimization of output unstylish html @fxha
--  Use 'fuzzaldrin' to filter language when insert code block
+- Use 'fuzzaldrin' to filter language when insert code block
 - Optimization: Obey the GFM and optimization of thematic break update. - Jocs
 - Optimization: More than six # characters is not a heading So we don't need to highlight `#` - Jocs
 - Optimization: A closing sequence of # characters is optional when write ATX heading - Jocs
@@ -706,7 +727,6 @@ You need uninstall the old version of MarkText before install version 0.10.21, b
 - fix: #88 (#108) - Felix Häusler
 - Allow exiting full screen with maximize button on windows (#109) - Felix Häusler
 - Bugfix: Caret can not move right when it's at the end of math format. #101 - Jocs
-
 
 ### 0.8.12
 

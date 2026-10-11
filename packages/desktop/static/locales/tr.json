@@ -29,6 +29,7 @@
       "print": "Yazdır",
       "closeTab": "Sekmeyi Kapat",
       "closeWindow": "Pencereyi Kapat",
+      "closeAllWindows": "Tüm Pencereleri Kapat",
       "quit": "Çıkış",
       "preferences": "Tercihler"
     },
@@ -459,6 +460,11 @@
         "description": "Otomatik kaydet",
         "delayDescription": "Otomatik kaydetme gecikmesi"
       },
+      "autoRefresh": {
+        "title": "Otomatik Yenile",
+        "description": "Dosya diskte değiştiğinde otomatik olarak yeniden yükle",
+        "warning": "Kaydedilmemiş değişiklikler sorulmadan atılır."
+      },
       "window": {
         "title": "Pencere",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Sistem Temasını Takip Et",
+      "followSystemNote": "Sistem temasını izlemek aşağıdaki tema listesini kilitler. Serbestçe tema değiştirmek için bunu kapatın.",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Kısayol Tuşları",
       "description": "Klavye kısayollarını özelleştir",
+      "search": "Ara",
       "save": "Kaydet",
       "restoreDefaults": "Varsayılanları geri yükle",
       "debugOptions": "Hata Ayıklama Seçenekleri",
@@ -791,7 +799,10 @@
       "print": "Yazdır",
       "preferences": "Tercihler",
       "closeTab": "Sekmeyi Kapat",
+      "closeOtherTabs": "Diğer Sekmeleri Kapat",
+      "closeAllTabs": "Tüm Sekmeleri Kapat",
       "closeWindow": "Pencereyi Kapat",
+      "closeAllWindows": "Tüm Pencereleri Kapat",
       "quit": "Çıkış",
       "toggleAutoSave": "Otomatik Kaydetmeyi Aç/Kapat",
       "importFile": "Dosya İçe Aktar",

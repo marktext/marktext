@@ -39,7 +39,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEditorStore } from '@/store/editor'
 import { usePreferencesStore } from '@/store/preferences'
 import { deriveKeyedToc, type KeyedTocNode } from '@/util/tocKeys'
@@ -146,6 +146,82 @@ const handleClick = (data: { slug?: unknown }): void => {
   if (typeof data.slug !== 'string' || data.slug.length === 0) return
   bus.emit('scroll-to-header', data.slug)
 }
+
+// A heading that overflows its line by only a sliver wraps into a second line
+// holding one or two characters — an ugly runt. In that band, trim to a single
+// line instead; anything needing clearly more than one line still gets two.
+// CSS cannot make this call: `text-wrap: balance` / `pretty` are inert inside
+// the `-webkit-box` the line clamp requires, and the clamped box hides the
+// overflow, so measure the single-line width ourselves and mark the label.
+//
+// The cutoff is an absolute width, not a ratio: on a narrow sidebar "40% of a
+// line" is still only a couple of characters, so a relative band keeps letting
+// runts through. A second line must carry at least `RUNT_MIN_EM` characters
+// (and at least `RUNT_MIN_RATIO` of the line) to be worth having.
+const RUNT_MIN_EM = 3 // characters' worth of width, in em
+const RUNT_MIN_RATIO = 0.35
+
+const measureClampCounts = (): void => {
+  const root = tocTreeRef.value?.$el as HTMLElement | undefined
+  if (!root) return
+  const labels = Array.from(root.querySelectorAll<HTMLElement>('.el-tree-node__label'))
+  if (labels.length === 0) return
+
+  // Single-line width, measured on an out-of-flow clone of each label.
+  // `position: absolute` makes the clone shrink-to-fit, so its width *is* the
+  // text width, and it stays out of the row's layout so nothing moves while we
+  // read. Reading `scrollWidth` off the live label does NOT work: for text that
+  // overflows its box it reports the box width, which zeroed `tail` below and
+  // silently disabled the whole check.
+  const available = labels.map((label) => label.clientWidth)
+  const probes = labels.map((label) => {
+    const probe = label.cloneNode(true) as HTMLElement
+    probe.style.cssText =
+      'position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none;' +
+      'display:block;white-space:nowrap;-webkit-line-clamp:none;'
+    label.parentElement?.appendChild(probe)
+    return probe
+  })
+  const singleLine = probes.map((probe) => probe.getBoundingClientRect().width)
+  for (const probe of probes) probe.remove()
+
+  // Every label shares the tree's font size; read it once.
+  const labelFontSize = Number.parseFloat(getComputedStyle(labels[0]).fontSize) || 14
+
+  labels.forEach((label, index) => {
+    const line = available[index]
+    if (!line) return
+    // What spills past a full first line is what the second line would carry.
+    const tail = singleLine[index] - line
+    const runt = tail > 0 && tail < Math.max(RUNT_MIN_RATIO * line, RUNT_MIN_EM * labelFontSize)
+    label.dataset.clamp = runt ? '1' : '2'
+  })
+}
+
+// Measuring touches layout, so keep it off the render path.
+const scheduleMeasure = (): void => {
+  if (!wordWrapInToc.value) return
+  void nextTick(measureClampCounts)
+}
+
+watch([keyedToc, wordWrapInToc], scheduleMeasure)
+
+let tocResizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  scheduleMeasure()
+  const root = tocTreeRef.value?.$el as HTMLElement | undefined
+  if (root && typeof ResizeObserver !== 'undefined') {
+    // The sidebar is resizable, so the wrap points move without the TOC changing.
+    tocResizeObserver = new ResizeObserver(scheduleMeasure)
+    tocResizeObserver.observe(root)
+  }
+})
+
+onBeforeUnmount(() => {
+  tocResizeObserver?.disconnect()
+  tocResizeObserver = null
+})
 </script>
 
 <style>
@@ -182,14 +258,23 @@ const handleClick = (data: { slug?: unknown }): void => {
 }
 
 /* The scoped slot replaced Element Plus's `<el-text truncated>` label, so its
-   truncation is re-declared here. `color: inherit` overrides the gray that
-   `el-text` imposed, which beat the themed color from `.el-tree` (#5094). */
+   truncation is re-declared here. It is laid out as a shrinking flex child with
+   `min-width: 0` instead of an inline-block capped with `max-width: 100%`: the
+   tree indents children with padding, so its content box can be wider than the
+   sidebar and the percentage cap resolved against that wider box — the ellipsis
+   then landed past the visible edge and long headings spilled instead of
+   truncating. `color: inherit` overrides the gray that `el-text` imposed, which
+   beat the themed color from `.el-tree` (#5094). */
 .side-bar-toc .el-tree-node__label {
-  display: inline-block;
-  max-width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow: hidden;
   color: inherit;
   align-self: center;
+  /* Long unbreakable tokens — an inline `<code>state=REFUSED</code>` in a
+     heading, say — otherwise keep their full width as the flex item's
+     min-content, so on a narrow sidebar they push past the row's own box and
+     the tree's `overflow-x: hidden` cuts them off. */
   overflow-wrap: break-word;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -229,14 +314,28 @@ const handleClick = (data: { slug?: unknown }): void => {
 
 .side-bar-toc-wordwrap .el-tree-node__content {
   white-space: normal;
-  height: auto;
-  min-height: 26px;
+  align-items: flex-start;
+}
+
+.side-bar-toc-wordwrap .el-tree-node__content > * {
+  align-self: flex-start;
 }
 
 .side-bar-toc-wordwrap .el-tree-node__content .el-tree-node__label {
   white-space: normal;
-  text-overflow: clip;
-  overflow: visible;
+  /* At most two lines, then an ellipsis — the same shape Element Plus uses for
+     `.el-text.is-line-clamp`. The clamp is what needs `overflow: hidden`. */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Set by `measureClampCounts`: a heading that overflows by only a sliver would
+   wrap onto a second line holding one or two characters, so it is trimmed to a
+   single line instead. */
+.side-bar-toc-wordwrap .el-tree-node__label[data-clamp='1'] {
+  -webkit-line-clamp: 1;
 }
 
 .side-bar-toc .el-tree-node__label strong {
@@ -272,5 +371,13 @@ const handleClick = (data: { slug?: unknown }): void => {
 .side-bar-toc .el-tree-node__label sub {
   /* Keeps a raised superscript from growing the row. */
   line-height: 0;
+}
+/* Element Plus pins every row to `var(--el-tree-node-content-height)` (26px).
+   Nothing in the outline is a fixed height: a wrapped entry has to grow the row
+   around it. Three classes beat Element Plus's single class, so no `!important`.
+   (Do NOT put the line clamp here — `display: -webkit-box` on the row replaces
+   `display: flex`, stacking the caret above the text and dropping the indent.) */
+.side-bar-toc .el-tree-node .el-tree-node__content {
+  height: unset;
 }
 </style>

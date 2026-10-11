@@ -271,6 +271,14 @@ let spellchecker: SpellChecker | null = null
 let switchLanguageCommand: SpellcheckerLanguageCommand | null = null
 // The engine has no `scroll` event; we listen on the scroll container directly.
 let scrollHandler: ((e: Event) => void) | null = null
+// Pending rAF for the scroll-driven outline highlight (see the scroll handler).
+let activeHeadingFrame = 0
+// After a TOC jump the target heading is parked `STANDAR_Y` below the top edge
+// (see `scrollToHeader`), so the scroll-driven anchor would resolve to the
+// heading *above* it. Hold the highlight on the entry the user picked for the
+// duration of the animation, then hand it back to the scroll anchor.
+let pinnedHeadingSlug: string | null = null
+let pinnedHeadingUntil = 0
 
 // The engine's undo/redo history (`getHistory()`) has a different shape than
 // the desktop store's `tab.history` (which drives the save/dirty tracking and
@@ -1270,6 +1278,14 @@ const scrollToHeader = (slug: unknown) => {
   const heading = resolveTocHeadingElement(container, editorStore.listToc, slug)
   if (!heading) return
   animatedScrollTo(container, getTocHeadingScrollTop(container, heading), 300)
+  if (typeof slug === 'string' && slug.length > 0) {
+    // The jump parks this heading `STANDAR_Y` down, so the scroll anchor would
+    // otherwise land on the heading above it. Highlight the clicked entry now and
+    // hold it through the animation (300ms) plus a little slack.
+    pinnedHeadingSlug = slug
+    pinnedHeadingUntil = performance.now() + 500
+    editorStore.SET_ACTIVE_HEADING(slug)
+  }
 }
 
 // Scrolls to a non-heading in-document anchor target (e.g. a custom
@@ -1927,12 +1943,31 @@ onMounted(() => {
     })
   })
 
+  // The outline highlight follows the caret (via `selection-change`); follow
+  // plain scrolling as well, highlighting the section at the viewport's top edge.
+  // rAF-gated because `updateActiveHeading` measures every heading's rect.
+  const scheduleActiveHeadingUpdate = (): void => {
+    if (activeHeadingFrame) return
+    activeHeadingFrame = window.requestAnimationFrame(() => {
+      activeHeadingFrame = 0
+      if (pinnedHeadingSlug) {
+        // Still settling (or the user has yet to scroll by hand) — the jumped-to
+        // entry keeps the highlight. The first scroll after the animation ends
+        // releases it.
+        if (performance.now() < pinnedHeadingUntil) return
+        pinnedHeadingSlug = null
+      }
+      updateActiveHeading(container.getBoundingClientRect().top + 1)
+    })
+  }
+
   // The engine does not emit `scroll`; listen on the scroll container directly
   // so the desktop can persist each tab's scroll position.
   scrollHandler = () => {
     if (currentFile.value) {
       editorStore.updateScrollPosition(currentFile.value.id, container.scrollTop)
     }
+    scheduleActiveHeadingUpdate()
   }
   container.addEventListener('scroll', scrollHandler, { passive: true })
 
@@ -2077,6 +2112,11 @@ onBeforeUnmount(() => {
     container?.removeEventListener('scroll', scrollHandler)
   }
   scrollHandler = null
+
+  if (activeHeadingFrame) {
+    window.cancelAnimationFrame(activeHeadingFrame)
+    activeHeadingFrame = 0
+  }
 
   resizeObserverForEditor.disconnect()
 

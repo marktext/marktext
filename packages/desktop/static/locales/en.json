@@ -29,6 +29,7 @@
       "print": "Print",
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
+      "closeAllWindows": "Close All Windows",
       "quit": "Quit",
       "preferences": "Preferences"
     },
@@ -459,6 +460,11 @@
         "description": "Auto save",
         "delayDescription": "Auto save delay"
       },
+      "autoRefresh": {
+        "title": "Auto Refresh",
+        "description": "Reload the file automatically when it changes on disk",
+        "warning": "Unsaved changes are discarded without asking."
+      },
       "window": {
         "title": "Window",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Theme",
       "followSystemTheme": "Follow System Theme",
+      "followSystemNote": "Following the system locks the theme list below. Turn this off to switch themes freely.",
       "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Keybindings",
       "description": "Customize keyboard shortcuts",
+      "search": "Search",
       "save": "Save",
       "restoreDefaults": "Restore defaults",
       "debugOptions": "Debug Options",
@@ -791,7 +799,10 @@
       "print": "Print",
       "preferences": "Preferences",
       "closeTab": "Close Tab",
+      "closeOtherTabs": "Close Other Tabs",
+      "closeAllTabs": "Close All Tabs",
       "closeWindow": "Close Window",
+      "closeAllWindows": "Close All Windows",
       "quit": "Quit",
       "toggleAutoSave": "Toggle Auto Save",
       "importFile": "Import File",

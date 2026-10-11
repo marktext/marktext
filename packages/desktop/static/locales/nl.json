@@ -29,6 +29,7 @@
       "print": "Afdrukken",
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
+      "closeAllWindows": "Alle vensters sluiten",
       "quit": "Afsluiten",
       "preferences": "Voorkeuren"
     },
@@ -459,6 +460,11 @@
         "description": "Automatisch opslaan",
         "delayDescription": "Vertraging automatisch opslaan"
       },
+      "autoRefresh": {
+        "title": "Automatisch vernieuwen",
+        "description": "Het bestand automatisch opnieuw laden wanneer het op schijf verandert",
+        "warning": "Niet-opgeslagen wijzigingen worden zonder vragen weggegooid."
+      },
       "window": {
         "title": "Venster",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Thema",
       "followSystemTheme": "Systeemthema volgen",
+      "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Sneltoetsen",
       "description": "Sneltoetsen aanpassen",
+      "search": "Zoeken",
       "save": "Opslaan",
       "restoreDefaults": "Standaardwaarden herstellen",
       "debugOptions": "Foutopsporingsopties",
@@ -791,7 +799,10 @@
       "print": "Afdrukken",
       "preferences": "Voorkeuren",
       "closeTab": "Tabblad sluiten",
+      "closeOtherTabs": "Andere tabbladen sluiten",
+      "closeAllTabs": "Alle tabbladen sluiten",
       "closeWindow": "Venster sluiten",
+      "closeAllWindows": "Alle vensters sluiten",
       "quit": "Afsluiten",
       "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
       "importFile": "Bestand importeren",

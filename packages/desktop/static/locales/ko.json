@@ -29,6 +29,7 @@
       "print": "인쇄",
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
+      "closeAllWindows": "모든 창 닫기",
       "quit": "종료",
       "preferences": "환경설정"
     },
@@ -459,6 +460,11 @@
         "description": "자동 저장",
         "delayDescription": "자동 저장 지연"
       },
+      "autoRefresh": {
+        "title": "자동 새로 고침",
+        "description": "디스크에서 파일이 변경되면 자동으로 다시 불러옵니다",
+        "warning": "저장하지 않은 변경 사항은 확인 없이 삭제됩니다."
+      },
       "window": {
         "title": "창",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "테마",
       "followSystemTheme": "시스템 테마 따르기",
+      "followSystemNote": "시스템 테마를 따르는 동안에는 아래 테마 목록을 전환할 수 없습니다. 끄면 자유롭게 전환할 수 있습니다.",
       "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "키 바인딩",
       "description": "키보드 단축키 사용자 정의",
+      "search": "검색",
       "save": "저장",
       "restoreDefaults": "기본값 복원",
       "debugOptions": "디버그 옵션",
@@ -791,7 +799,10 @@
       "print": "인쇄",
       "preferences": "환경설정",
       "closeTab": "탭 닫기",
+      "closeOtherTabs": "다른 탭 닫기",
+      "closeAllTabs": "모든 탭 닫기",
       "closeWindow": "창 닫기",
+      "closeAllWindows": "모든 창 닫기",
       "quit": "종료",
       "toggleAutoSave": "자동 저장 토글",
       "importFile": "파일 가져오기",

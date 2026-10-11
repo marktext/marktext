@@ -10,6 +10,11 @@
     "minimum": 1000,
     "default": 5000
   },
+  "autoRefresh": {
+    "description": "General--Reload a file automatically when it changes on disk instead of asking. Discards unsaved changes.",
+    "type": "boolean",
+    "default": false
+  },
   "titleBarStyle": {
     "description": "General--The title bar style (Windows and Linux system only).",
     "enum": ["custom", "native"],

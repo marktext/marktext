@@ -29,6 +29,7 @@
       "print": "列印",
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
+      "closeAllWindows": "關閉所有視窗",
       "quit": "退出",
       "preferences": "偏好設定"
     },
@@ -459,6 +460,11 @@
         "description": "自動儲存",
         "delayDescription": "自動儲存延遲"
       },
+      "autoRefresh": {
+        "title": "自動重新整理",
+        "description": "檔案在磁碟上變更時自動重新載入",
+        "warning": "未儲存的變更將直接捨棄，不再詢問。"
+      },
       "window": {
         "title": "視窗",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "主題",
       "followSystemTheme": "跟隨系統主題",
+      "followSystemNote": "跟隨系統主題時，下方主題列表無法切換。關閉後即可自由切換。",
       "modeThemes": "主題選擇",
       "lightModeTheme": "淺色模式主題",
       "darkModeTheme": "深色模式主題",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "按鍵綁定",
       "description": "自訂鍵盤快捷鍵",
+      "search": "搜尋",
       "save": "儲存",
       "restoreDefaults": "還原預設值",
       "debugOptions": "除錯選項",
@@ -791,7 +799,10 @@
       "print": "列印",
       "preferences": "偏好設定",
       "closeTab": "關閉標籤頁",
+      "closeOtherTabs": "關閉其他標籤頁",
+      "closeAllTabs": "關閉所有標籤頁",
       "closeWindow": "關閉視窗",
+      "closeAllWindows": "關閉所有視窗",
       "quit": "退出",
       "toggleAutoSave": "切換自動儲存",
       "importFile": "匯入檔案",

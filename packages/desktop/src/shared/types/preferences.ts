@@ -9,6 +9,7 @@
 export interface IUserPreferences {
   autoSave?: boolean
   autoSaveDelay?: number
+  autoRefresh?: boolean
   titleBarStyle?: 'custom' | 'native'
   openFilesInNewWindow?: boolean
   openFolderInNewWindow?: boolean

@@ -29,6 +29,7 @@
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
+      "closeAllWindows": "Fermer toutes les fenêtres",
       "quit": "Quitter",
       "preferences": "Préférences"
     },
@@ -459,6 +460,11 @@
         "description": "Enregistrement automatique",
         "delayDescription": "Délai d'enregistrement automatique"
       },
+      "autoRefresh": {
+        "title": "Actualisation automatique",
+        "description": "Recharger automatiquement le fichier lorsqu'il change sur le disque",
+        "warning": "Les modifications non enregistrées sont perdues sans confirmation."
+      },
       "window": {
         "title": "Fenêtre",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Thème",
       "followSystemTheme": "Suivre le thème du système",
+      "followSystemNote": "Suivre le thème du système verrouille la liste des thèmes ci-dessous. Désactivez cette option pour changer librement de thème.",
       "modeThemes": "Sélection du thème",
       "lightModeTheme": "Thème en mode clair",
       "darkModeTheme": "Thème en mode sombre",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Raccourcis clavier",
       "description": "Personnaliser les raccourcis clavier",
+      "search": "Rechercher",
       "save": "Enregistrer",
       "restoreDefaults": "Restaurer les valeurs par défaut",
       "debugOptions": "Options de débogage",
@@ -791,7 +799,10 @@
       "print": "Imprimer",
       "preferences": "Préférences",
       "closeTab": "Fermer l'onglet",
+      "closeOtherTabs": "Fermer les autres onglets",
+      "closeAllTabs": "Fermer tous les onglets",
       "closeWindow": "Fermer la fenêtre",
+      "closeAllWindows": "Fermer toutes les fenêtres",
       "quit": "Quitter",
       "toggleAutoSave": "Basculer l'enregistrement automatique",
       "importFile": "Importer un fichier",

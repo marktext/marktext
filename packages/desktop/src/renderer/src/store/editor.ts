@@ -1814,6 +1814,15 @@ export const useEditorStore = defineStore('editor', {
                 return
               }
 
+              // "Auto Refresh" (General preferences): reload without asking even
+              // though the tab has local edits — that is the whole point of the
+              // option, so the edits are dropped on purpose.
+              const preferencesStore = usePreferencesStore()
+              if (preferencesStore.autoRefresh) {
+                this.loadChange(change as unknown as FileChangePayload)
+                return
+              }
+
               this.pushTabNotification({
                 tabId: id,
                 msg: t('store.editor.fileChangedOnDisk', { name: filename }),

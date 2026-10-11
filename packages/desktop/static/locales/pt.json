@@ -29,6 +29,7 @@
       "print": "Imprimir",
       "closeTab": "Fechar Aba",
       "closeWindow": "Fechar Janela",
+      "closeAllWindows": "Fechar Todas as Janelas",
       "quit": "Sair",
       "preferences": "Preferências"
     },
@@ -459,6 +460,11 @@
         "description": "Salvamento automático",
         "delayDescription": "Atraso do salvamento automático"
       },
+      "autoRefresh": {
+        "title": "Atualização automática",
+        "description": "Recarregar o arquivo automaticamente quando ele mudar no disco",
+        "warning": "As alterações não salvas são descartadas sem aviso."
+      },
       "window": {
         "title": "Janela",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Seguir tema do sistema",
+      "followSystemNote": "Seguir o tema do sistema bloqueia a lista de temas abaixo. Desative esta opção para trocar de tema livremente.",
       "modeThemes": "Seleção de Tema",
       "lightModeTheme": "Tema do modo claro",
       "darkModeTheme": "Tema do modo escuro",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Atalhos de Teclado",
       "description": "Personalizar atalhos de teclado",
+      "search": "Pesquisar",
       "save": "Salvar",
       "restoreDefaults": "Restaurar padrões",
       "debugOptions": "Opções de Debug",
@@ -791,7 +799,10 @@
       "print": "Imprimir",
       "preferences": "Preferências",
       "closeTab": "Fechar Aba",
+      "closeOtherTabs": "Fechar Outras Abas",
+      "closeAllTabs": "Fechar Todas as Abas",
       "closeWindow": "Fechar Janela",
+      "closeAllWindows": "Fechar Todas as Janelas",
       "quit": "Sair",
       "toggleAutoSave": "Alternar Salvamento Automático",
       "importFile": "Importar Arquivo",

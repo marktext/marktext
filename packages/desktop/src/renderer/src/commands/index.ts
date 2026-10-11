@@ -112,9 +112,28 @@ const commands: CommandDescriptor[] = [
     }
   },
   {
+    id: 'file.close-other-tabs',
+    execute: async() => {
+      // `null` tells the tab strip to keep the active tab.
+      bus.emit('TABS::close-others', null)
+    }
+  },
+  {
+    id: 'file.close-all-tabs',
+    execute: async() => {
+      bus.emit('TABS::close-all')
+    }
+  },
+  {
     id: 'file.close-window',
     execute: async() => {
       window.electron.ipcRenderer.send('mt::cmd-close-window')
+    }
+  },
+  {
+    id: 'file.close-all-windows',
+    execute: async() => {
+      window.electron.ipcRenderer.send('mt::cmd-close-all-windows')
     }
   },
 

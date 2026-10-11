@@ -29,6 +29,7 @@
       "print": "Imprimir",
       "closeTab": "Cerrar Pestaña",
       "closeWindow": "Cerrar Ventana",
+      "closeAllWindows": "Cerrar Todas las Ventanas",
       "quit": "Salir",
       "preferences": "Preferencias"
     },
@@ -459,6 +460,11 @@
         "description": "Guardado automático",
         "delayDescription": "Retraso del guardado automático"
       },
+      "autoRefresh": {
+        "title": "Actualización automática",
+        "description": "Recargar el archivo automáticamente cuando cambie en el disco",
+        "warning": "Los cambios sin guardar se descartan sin preguntar."
+      },
       "window": {
         "title": "Ventana",
         "titleBarStyle": {
@@ -713,6 +719,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Seguir tema del sistema",
+      "followSystemNote": "Seguir el tema del sistema bloquea la lista de temas de abajo. Desactívalo para cambiar de tema libremente.",
       "modeThemes": "Selección de Tema",
       "lightModeTheme": "Tema de modo claro",
       "darkModeTheme": "Tema de modo oscuro",
@@ -725,6 +732,7 @@
     "keybindings": {
       "title": "Atajos de Teclado",
       "description": "Personalizar atajos de teclado",
+      "search": "Buscar",
       "save": "Guardar",
       "restoreDefaults": "Restaurar predeterminados",
       "debugOptions": "Opciones de Depuración",
@@ -791,7 +799,10 @@
       "print": "Imprimir",
       "preferences": "Preferencias",
       "closeTab": "Cerrar Pestaña",
+      "closeOtherTabs": "Cerrar Otras Pestañas",
+      "closeAllTabs": "Cerrar Todas las Pestañas",
       "closeWindow": "Cerrar Ventana",
+      "closeAllWindows": "Cerrar Todas las Ventanas",
       "quit": "Salir",
       "toggleAutoSave": "Alternar Guardado Automático",
       "importFile": "Importar Archivo",
