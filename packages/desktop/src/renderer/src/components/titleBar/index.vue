@@ -156,6 +156,7 @@ import { PATH_SEPARATOR } from '../../config'
 import { isMac as isOsxPlatform } from '@/util'
 import { shouldShowInAppTitleBar } from './visibility'
 import { pathBreadcrumb } from './pathBreadcrumb'
+import { buildWindowTitle } from './windowTitle'
 import { useEditorStore } from '@/store/editor'
 import { useI18n } from 'vue-i18n'
 import { ArrowRight } from '@element-plus/icons-vue'
@@ -243,17 +244,7 @@ const showTitleBar = computed(() => {
 watch(
   () => props.filename,
   (value) => {
-    // Set filename when hover on dock
-    const hasOpenFolder = !!(props.project && props.project.name)
-    const projectName = props.project?.name ?? ''
-    let title: string
-    if (value) {
-      title = hasOpenFolder ? `${value} - ${projectName}` : `${value}`
-    } else {
-      title = hasOpenFolder ? projectName : ''
-    }
-
-    document.title = title
+    document.title = buildWindowTitle(value, props.project?.name ?? '', isOsx)
   }
 )
 
