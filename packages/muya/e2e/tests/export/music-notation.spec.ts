@@ -3,6 +3,13 @@ import { expect, test } from '../fixtures/muya';
 
 const markdown = readFileSync(new URL('../fixtures/music-notation.md', import.meta.url), 'utf8');
 
+test('exports include notation fonts even without music symbols', async ({ page }) => {
+    const html = await page.evaluate(async () => new window.MarkdownToHtml!('Plain text').generate());
+    expect(html).toContain('data:font/woff2;base64,');
+    expect(html).toMatch(/font-family:\s*['"]Noto Music['"]/);
+    expect(html).toMatch(/font-family:\s*['"]Noto Sans Math['"]/);
+});
+
 for (const extraCSS of ['', '.markdown-body { font-family: "Open Sans" !important; }']) {
     test(`offline HTML and PDF retain music glyphs with ${extraCSS ? 'custom' : 'default'} fonts (#5327)`, async ({ page, browser, browserName }) => {
         test.skip(browserName !== 'chromium', 'PDF and actual glyph font checks require Chromium.');

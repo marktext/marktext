@@ -275,6 +275,7 @@ export class MarkdownToHtml {
         } = {},
     ) {
         const html = await this.renderHtml();
+        const { exportNotationFonts, withNotationFallbacks } = await import('../utils/exportNotationFonts');
 
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
@@ -285,15 +286,6 @@ export class MarkdownToHtml {
         const exportStyleFinal = this._muya?.options.softNewlineAsSpace
             ? exportStyle + SOFT_NEWLINE_AS_SPACE_OVERRIDE
             : exportStyle;
-        let notationStyles = '';
-        let styledExport = exportStyleFinal;
-        let styledExtra = extraCSS;
-        if (/[\u2669-\u266F\u23B4-\u23E1\u{1D000}-\u{1D24F}]/u.test(html + extraCSS)) {
-            const { exportNotationFonts, withNotationFallbacks } = await import('../utils/exportNotationFonts');
-            notationStyles = `  <style>${exportNotationFonts}</style>\n`;
-            styledExport = withNotationFallbacks(exportStyleFinal);
-            styledExtra = withNotationFallbacks(extraCSS);
-        }
 
         // Mirror the editor's text direction onto the exported document so RTL
         // documents export right-to-left (#4553). LTR is the HTML default, so it
@@ -321,8 +313,9 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-${notationStyles}  <style>${styledExport}</style>
-  <style>${styledExtra}</style>
+  <style>${exportNotationFonts}</style>
+  <style>${withNotationFallbacks(exportStyleFinal)}</style>
+  <style>${withNotationFallbacks(extraCSS)}</style>
 </head>
 <body>
   ${html}
