@@ -1,0 +1,184 @@
+.sponsorship .block.wrap {
+  padding-inline: 24px;
+}
+.sponsorship [aria-labelledby='why-sponsor'] .sec-head,
+.sponsorship [aria-labelledby='individual-sponsorship'] .sec-head {
+  max-width: 100%;
+}
+.sponsorship [aria-labelledby='why-sponsor'] .sec-desc,
+.sponsorship [aria-labelledby='individual-sponsorship'] .sec-desc {
+  text-wrap: wrap;
+}
+.sponsorship-hero {
+  padding-block: 170px 60px;
+  text-align: center;
+}
+.sponsorship-hero h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1.12;
+  max-width: 850px;
+  margin: 20px auto;
+}
+.sponsorship-grid {
+  display: grid;
+  gap: 24px;
+}
+.sponsorship-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.sponsorship-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.sponsorship-card {
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+.sponsorship h3 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+.sponsorship p {
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.sponsorship-card .btn {
+  margin-top: auto;
+  align-self: center;
+  white-space: normal;
+  text-align: center;
+}
+.sponsorship-card .sponsorship-price {
+  font-size: 2rem;
+  color: var(--text);
+  font-weight: 650;
+}
+.sponsorship-price span {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-2);
+}
+.sponsorship-note {
+  text-align: center;
+  margin-top: 28px;
+}
+.sponsorship-note a,
+.sponsorship-contact p a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.sponsorship-comparison {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-top: 40px;
+}
+.sponsorship-comparison caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.sponsorship-comparison th,
+.sponsorship-comparison td {
+  padding: 16px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.sponsorship-comparison td {
+  color: var(--text-2);
+}
+.sponsorship-contact {
+  margin-top: 40px;
+}
+.sponsorship-contact p {
+  margin-block: 16px;
+}
+.sponsorship-contact {
+  text-align: center;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+.sponsorship-faq {
+  max-width: 850px;
+  margin-inline: auto;
+}
+.sponsorship-faq article {
+  padding-block: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.sponsorship-faq p {
+  margin-top: 12px;
+}
+.sponsorship-final {
+  text-align: center;
+}
+.sponsorship :focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 5px;
+}
+.sponsorship .sec-title {
+  text-wrap: balance;
+}
+@media (max-width: 920px) {
+  .sponsorship-grid--three {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .sponsorship-hero {
+    padding-top: 130px;
+  }
+  .sponsorship-grid--two {
+    grid-template-columns: 1fr;
+  }
+  .sponsorship-card,
+  .sponsorship-contact {
+    padding: 24px;
+  }
+  .sponsorship-comparison th,
+  .sponsorship-comparison td {
+    padding: 12px 4px;
+    font-size: 0.8rem;
+  }
+  .sponsorship .hero-cta {
+    flex-wrap: wrap;
+  }
+}
+
+.site-footer--sponsors .foot-col h5,
+.site-footer--sponsors .foot-bot {
+  color: var(--text-2);
+}
+[data-theme='light'] .sponsorship .kicker {
+  color: #b51c65;
+}
+.funding-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.funding-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--code-bg);
+  color: var(--text);
+}
+.funding-icon svg {
+  width: 22px;
+  height: 22px;
+}
