@@ -201,7 +201,6 @@ li.mu-task-list-item > span.mu-task-list-checkbox {
 li.mu-task-list-item > input.mu-checkbox-checked,
 li.mu-task-list-item > span.mu-checkbox-checked {
   transform: rotate(0);
-  opacity: 0.5;
 }
 li.mu-task-list-item > input[type='checkbox']::before,
 li.mu-task-list-item > span.mu-task-list-checkbox::before {
@@ -220,8 +219,8 @@ li.mu-task-list-item > span.mu-task-list-checkbox::before {
 }
 li.mu-task-list-item > input.mu-checkbox-checked::before,
 li.mu-task-list-item > span.mu-checkbox-checked::before {
-  border: transparent;
-  background-color: var(--editor-color);
+  border-color: var(--theme-color);
+  background-color: var(--theme-color);
   box-shadow: none;
 }
 li.mu-task-list-item > input::after,
