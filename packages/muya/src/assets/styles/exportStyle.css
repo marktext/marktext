@@ -148,7 +148,45 @@
 }
 
 .markdown-body li input[type='checkbox'] {
+    position: relative;
+
+    display: inline-block;
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
     margin: 0 0 0 -1.3em;
+
+    vertical-align: -2px;
+
+    background: #fff;
+    border: 2px solid #1c1c1c;
+    border-radius: 2px;
+    opacity: 1;
+
+    appearance: none;
+    print-color-adjust: exact;
+}
+
+.markdown-body li input[type='checkbox']:checked {
+    background: #1c1c1c;
+    border-color: #1c1c1c;
+}
+
+.markdown-body li input[type='checkbox']:checked::after {
+    position: absolute;
+    top: 1px;
+    left: 2px;
+
+    box-sizing: content-box;
+    width: 7px;
+    height: 4px;
+
+    border: 2px solid #fff;
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg);
+
+    content: '';
 }
 
 .markdown-body ol ol,
