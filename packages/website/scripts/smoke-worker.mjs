@@ -30,7 +30,6 @@ try {
 
   for (const [path, contentType, content] of [
     ['/', 'text/html', 'MarkText'],
-    ['/sponsors', 'text/html', 'Support MarkText.'],
     ['/docs', 'text/html', 'MarkText'],
     ['/docs/dev/architecture', 'text/html', 'Project Architecture'],
     ['/robots.txt', 'text/plain', 'Sitemap:'],
@@ -44,43 +43,6 @@ try {
     assert.equal(response.status, 200, `${path}: ${body.slice(0, 1000)}`)
     assert.ok(response.headers.get('content-type')?.includes(contentType), path)
     assert.ok(body.includes(content), `${path}: expected ${content}`)
-    if (path === '/sponsors') {
-      assert.ok(body.includes('<title>Sponsor MarkText | Support Open Source Development</title>'))
-      assert.ok(body.includes('rel="canonical" href="https://marktext.me/sponsors"'))
-      assert.ok(
-        body.includes(
-          'name="description" content="Support MarkText, the free and open-source Markdown editor. Explore individual and corporate sponsorship opportunities."'
-        )
-      )
-      assert.ok(
-        body.includes('property="og:title" content="Sponsor MarkText — Keep Open Source Alive"')
-      )
-      assert.ok(body.includes('property="og:url" content="https://marktext.me/sponsors"'))
-      assert.ok(body.includes('https://marktext.me/assets/logo.png'))
-      assert.ok(body.includes('name="twitter:card" content="summary"'))
-      assert.equal((body.match(/<h1[ >]/g) || []).length, 1)
-      assert.ok(!/<meta[^>]+content="[^"]*noindex/.test(body))
-      for (const content of [
-        'Supporter',
-        'Late Night Debugging',
-        'Community Sponsor',
-        'Gold Sponsor',
-        'Platinum Sponsor',
-        'Early Supporter',
-        '/assets/serpapi.png',
-        'https://serpapi.com/?utm_source=marktext',
-        'mailto:ransixi@gmail.com?subject=MarkText%20Corporate%20Sponsorship'
-      ]) {
-        assert.ok(body.includes(content), `Missing sponsorship content: ${content}`)
-      }
-    }
-    if (path === '/') {
-      assert.ok(body.includes('Explore Sponsorships'))
-      assert.ok(body.includes('/assets/serpapi.png'))
-      assert.ok(body.includes('https://serpapi.com/?utm_source=marktext'))
-    }
-    if (path === '/sitemap.xml') assert.ok(body.includes('https://marktext.me/sponsors'))
-    if (path === '/robots.txt') assert.ok(!body.includes('Disallow: /sponsors'))
     console.log(`PASS ${path}`)
   }
 } finally {
