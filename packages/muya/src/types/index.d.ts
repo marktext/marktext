@@ -7,6 +7,10 @@ declare module '*.bmp';
 declare module '*.tiff';
 declare module '*.css';
 declare module '*.css?inline';
+declare module '*?raw' {
+    const text: string;
+    export default text;
+}
 declare module '*.woff';
 declare module '*.woff2';
 declare module '*.woff2?inline' {

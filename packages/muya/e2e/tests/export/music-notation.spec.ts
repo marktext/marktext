@@ -1,0 +1,60 @@
+import { readFileSync } from 'node:fs';
+import { expect, test } from '../fixtures/muya';
+
+const markdown = readFileSync(new URL('../fixtures/music-notation.md', import.meta.url), 'utf8');
+
+for (const extraCSS of ['', '.markdown-body { font-family: "Open Sans" !important; }']) {
+    test(`offline HTML and PDF retain music glyphs with ${extraCSS ? 'custom' : 'default'} fonts (#5327)`, async ({ page, browser, browserName }) => {
+        test.skip(browserName !== 'chromium', 'PDF and actual glyph font checks require Chromium.');
+        const html = await page.evaluate(async ({ markdown, extraCSS }) => {
+            return new window.MarkdownToHtml!(markdown).generate({ extraCSS });
+        }, { markdown, extraCSS });
+        expect(html).toContain('data:font/woff2;base64,');
+        expect(html).toContain('SIL OPEN FONT LICENSE');
+
+        const context = await browser.newContext({ offline: true });
+        try {
+            const exported = await context.newPage();
+            await exported.setContent(html);
+            await exported.evaluate(async () => {
+                await document.fonts.ready;
+                await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+            });
+            await expect(exported.locator('tbody tr').first().locator('td').nth(1)).toHaveText('/𝅗𝅥 ⏜ ♪\\');
+
+            const session = await context.newCDPSession(exported);
+            await session.send('DOM.enable');
+            await session.send('CSS.enable');
+            const { root } = await session.send('DOM.getDocument');
+            const { nodeId } = await session.send('DOM.querySelector', {
+                nodeId: root.nodeId,
+                selector: 'tbody tr:first-child td:nth-child(2)',
+            });
+            const { fonts } = await session.send('CSS.getPlatformFontsForNode', { nodeId });
+            if (extraCSS) {
+                expect(fonts.find(font => font.familyName === 'Noto Music')?.glyphCount).toBeGreaterThanOrEqual(1);
+                expect(fonts.find(font => font.familyName === 'Noto Sans Math')?.glyphCount).toBeGreaterThanOrEqual(1);
+            }
+            const loaded = await exported.evaluate(async () => {
+                return Promise.all([
+                    document.fonts.load('16px "Noto Music"', '𝅗𝅥𝅘𝅥𝅯').then(faces => faces.length),
+                    document.fonts.load('16px "Noto Sans Math"', '⏜⏝').then(faces => faces.length),
+                ]);
+            });
+            expect(loaded).toEqual([1, 1]);
+            await session.detach();
+
+            const pdf = await exported.pdf();
+            if (extraCSS) {
+                expect(pdf.toString('latin1')).toContain('NotoMusic-Regular');
+                expect(pdf.toString('latin1')).toContain('NotoSansMath-Regular');
+            }
+            else {
+                expect(pdf.toString('latin1')).toContain('/FontFile');
+            }
+        }
+        finally {
+            await context.close();
+        }
+    });
+}

@@ -21,3 +21,7 @@ for family in ('NotoMusic', 'NotoSansMath'):
 The CSS limits these faces to music notation and technical brackets, so they
 do not change ordinary text or mathematical typesetting. Both remain after
 the configured editor font stack to preserve user font preferences.
+
+HTML exports containing these symbols embed both fonts and their license
+notices as data URIs and CSS comments. The PDF/print container loads the fonts
+before printing because it is hidden during screen layout.

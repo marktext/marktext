@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 
 // The export wrapper reaches `window.path` / `window.DIRNAME` through the
 // preload bridge; stub them before the hoisted imports run (mirrors
@@ -55,13 +55,19 @@ const renderPrintContainer = async(markdown: string): Promise<Element> => {
   const html = await exportStyledHTML(NO_MUYA, markdown, {})
   const article = /<article class="markdown-body">[\s\S]*<\/article>/.exec(html)
   expect(article).not.toBeNull()
-  new MarkdownPrint().renderMarkdown(article![0], true)
+  await new MarkdownPrint().renderMarkdown(article![0], true)
   const code = document.querySelector('article.print-container pre code')
   expect(code).not.toBeNull()
   return code!
 }
 
 describe('PDF / print — long lines in code blocks wrap (#5307)', () => {
+  beforeEach(() => {
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: { load: vi.fn().mockResolvedValue([]), ready: Promise.resolve() }
+    })
+  })
   afterEach(() => {
     document.body.querySelectorAll('article.print-container').forEach((n) => n.remove())
   })

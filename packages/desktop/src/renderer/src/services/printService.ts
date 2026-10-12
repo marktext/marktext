@@ -14,7 +14,7 @@ class MarkdownPrint {
    *   of `.editor-wrapper`, so RTL documents print LTR unless we set it here
    *   (#4833). LTR is the default and stays implicit.
    */
-  renderMarkdown(html: string, renderStatic?: boolean, dir?: string): void {
+  async renderMarkdown(html: string, renderStatic?: boolean, dir?: string): Promise<void> {
     this.clearup()
     const printContainer = document.createElement('article')
     printContainer.classList.add('print-container')
@@ -35,6 +35,12 @@ class MarkdownPrint {
     }
 
     document.body.appendChild(printContainer)
+    // The print container is hidden on screen, so layout does not request its fonts.
+    await Promise.all([
+      document.fonts.load('16px "Noto Music"', '𝅗𝅥𝅘𝅥𝅯'),
+      document.fonts.load('16px "Noto Sans Math"', '⏜⏝')
+    ])
+    await document.fonts.ready
   }
 
   /**

@@ -35,6 +35,7 @@ import { deepClone } from './utils';
 import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
+import './assets/styles/notationFonts.css';
 import './assets/styles/inlineSyntax.css';
 import './assets/styles/prismjs/light.theme.css';
 
