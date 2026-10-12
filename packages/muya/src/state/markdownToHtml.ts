@@ -275,6 +275,7 @@ export class MarkdownToHtml {
         } = {},
     ) {
         const html = await this.renderHtml();
+        const { embedExportFonts } = await import('../utils/embedExportFonts');
 
         // `extraCSS` may changed in the mean time.
         const { title = '', extraCSS = '', inlineStyles = true, dir } = options;
@@ -293,11 +294,7 @@ export class MarkdownToHtml {
 
         let baseStyles: string;
         if (inlineStyles) {
-            // Embed the KaTeX fonts as data URIs so math renders offline. The
-            // font data (~300KB base64) is dynamically imported here so it only
-            // loads on export, never in the editor bundle.
-            const { embedKatexFonts } = await import('../utils/embedKatexFonts');
-            baseStyles = [githubMarkdownCss, embedKatexFonts(katexCss), prismCss]
+            baseStyles = [githubMarkdownCss, embedExportFonts(katexCss), prismCss]
                 .map(css => `  <style>${css}</style>`)
                 .join('\n');
         }
@@ -312,7 +309,7 @@ export class MarkdownToHtml {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${sanitize(title, EXPORT_DOMPURIFY_CONFIG, true)}</title>
 ${baseStyles}
-  <style>${exportStyleFinal}</style>
+  <style>${embedExportFonts(exportStyleFinal)}</style>
   <style>${extraCSS}</style>
 </head>
 <body>

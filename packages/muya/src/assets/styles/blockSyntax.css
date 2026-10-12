@@ -1,6 +1,8 @@
 .mu-editor {
     font-size: var(--mu-font-size, 16px);
-    font-family: var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+    font-family:
+        var(--mu-font-family, 'Open Sans', 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif), 'Noto Music',
+        'Noto Sans Math', sans-serif;
     line-height: var(--mu-line-height, 1.6);
 
     outline: none;
