@@ -154,3 +154,31 @@ export const LinuxIcon = (props: IconProps) => (
     <path d="M12 2c-1.6 0-2.5 1.4-2.5 3 0 .8.2 1.4.2 2.1-.5.6-1.4 1.6-2 3.2-.6 1.5-.8 3.5-1.6 4.6-.6.8-1.4 1.3-1.4 2.1 0 .6.4 1 1 1.2-.1.5 0 1 .4 1.4.5.5 1.4.6 2.4.5.9.6 2 1 3.5 1s2.6-.4 3.5-1c1 .1 1.9 0 2.4-.5.4-.4.5-.9.4-1.4.6-.2 1-.6 1-1.2 0-.8-.8-1.3-1.4-2.1-.8-1.1-1-3.1-1.6-4.6-.6-1.6-1.5-2.6-2-3.2 0-.7.2-1.3.2-2.1 0-1.6-.9-3-2.5-3z" />
   </svg>
 )
+
+export const BugIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="7" y="7" width="10" height="14" rx="5" />
+    <path d="M9 7V5a3 3 0 0 1 6 0v2M12 11v10M3 9l4 2M17 11l4-2M3 15h4M17 15h4M4 21l4-3M16 18l4 3" />
+  </svg>
+)
+
+export const ReleaseIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="m12 3 9 5v10l-9 5-9-5V8zM3 8l9 5 9-5M12 13v10M7.5 5.5l9 5" />
+  </svg>
+)
+
+export const CommunityIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="9" cy="8" r="3" />
+    <path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5.65" />
+  </svg>
+)
+
+export const ServerIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="3" y="3" width="18" height="7" rx="2" />
+    <rect x="3" y="14" width="18" height="7" rx="2" />
+    <path d="M7 6.5h.01M7 17.5h.01M12 6.5h5M12 17.5h5" />
+  </svg>
+)

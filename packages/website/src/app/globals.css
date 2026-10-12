@@ -1282,3 +1282,37 @@ h2.sec-title {
 .hero-note--cta {
   margin-top: 24px;
 }
+
+.sponsor-entry {
+  max-width: 100%;
+  text-align: center;
+}
+.sponsor-badge {
+  margin-top: 12px;
+  color: var(--text-2);
+  font-size: 0.875rem;
+}
+.sponsor-entry--platinum .sponsor-logo {
+  padding: 30px 44px;
+  border-color: var(--border-2);
+}
+.sponsor-entry--community .sponsor-logo {
+  padding: 18px 28px;
+}
+@media (max-width: 560px) {
+  .sponsor-logo {
+    max-width: 100%;
+    padding-inline: 24px;
+  }
+  .sponsor-logo img {
+    max-width: 100%;
+    height: auto;
+    max-height: 44px;
+    object-fit: contain;
+  }
+}
+
+.sponsor-logo:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 5px;
+}

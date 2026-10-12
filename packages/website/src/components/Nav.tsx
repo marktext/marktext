@@ -10,20 +10,20 @@ import { useNavShrink } from '@/hooks/useNavShrink'
 import Brand from './Brand'
 import { GitHubIcon, MoonIcon, SunIcon } from './Icons'
 
-export default function Nav() {
+export default function Nav({ home = true }: { home?: boolean }) {
   const navRef = useRef<HTMLElement>(null)
   const toggle = useToggleTheme()
   useNavShrink(navRef)
 
   return (
     <nav className="nav" id="nav" ref={navRef}>
-      <Brand />
+      <Brand home={home} />
       <div className="nav-links">
-        <a href={hash(SECTIONS.preview)}>Features</a>
-        <a href={hash(SECTIONS.themes)}>Themes</a>
-        <a href={hash(SECTIONS.extensions)}>Markdown</a>
+        <a href={(home ? '' : '/') + hash(SECTIONS.preview)}>Features</a>
+        <a href={(home ? '' : '/') + hash(SECTIONS.themes)}>Themes</a>
+        <a href={(home ? '' : '/') + hash(SECTIONS.extensions)}>Markdown</a>
         <Link href="/docs">Docs</Link>
-        <a href={hash(SECTIONS.support)}>Support</a>
+        <a href={(home ? '' : '/') + hash(SECTIONS.support)}>Support</a>
       </div>
       <div className="nav-right">
         <button
