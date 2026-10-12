@@ -38,6 +38,11 @@ files:
   - '!jsconfig.json'
   - '!docs/*'
 extraResources:
+  - from: ../muya/src/assets/styles/fonts
+    to: licenses/fonts
+    filter:
+      - NotoMusic_LICENSE
+      - NotoSansMath_LICENSE
   - from: build/icons
     to: icons # ends up at resources/icons/
     filter:
