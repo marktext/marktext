@@ -16,6 +16,8 @@ export function resolveLocalImageSrc(src: string): string {
   // gate) — leave anything else untouched, e.g. an extensionless absolute
   // server path `/api/image?id=…` must not become `file:///api/image…`.
   if (!IMAGE_EXT_REG.test(src)) return src
+  // Markdown rendering URL-encodes Windows separators before export (#5714).
+  src = src.replace(/%5c/gi, '/')
   // Absolute local image path (POSIX / UNC / Windows drive) → file://.
   if (/^(?:\/|\\\\|[a-zA-Z]:[\\/])/.test(src)) return localPathToFileUrl(src)
   // Relative local image path — resolve against the document directory.

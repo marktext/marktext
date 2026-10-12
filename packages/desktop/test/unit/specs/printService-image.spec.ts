@@ -47,6 +47,18 @@ describe('resolveLocalImageSrc — branch coverage', () => {
     )
   })
 
+  it('resolves URL-encoded Windows drive and UNC separators (#5714)', () => {
+    expect(resolveLocalImageSrc('C:%5Cpics%5cb.png')).toBe('file:///C:/pics/b.png')
+    expect(resolveLocalImageSrc('%5C%5Chost%5Cshare%5Cc.png')).toBe(
+      'file://host/share/c.png'
+    )
+  })
+
+  it('preserves encoded separators in remote image URLs', () => {
+    const src = 'https://example.com/assets%5Cimage.png'
+    expect(resolveLocalImageSrc(src)).toBe(src)
+  })
+
   it('resolves relative images from WSL UNC document directories without losing the host', () => {
     window.DIRNAME = '//wsl.localhost/Ubuntu-24.04/home/me/docs'
     expect(resolveLocalImageSrc('./img/my_image.png')).toBe(

@@ -259,6 +259,13 @@ describe('exportStyledHTML — relative image paths', () => {
     expect(out).toContain('alt="alt"')
   })
 
+  it('resolves Windows separators in Markdown image destinations (#5714)', async() => {
+    const filename = '90ddb94aced7dd9421a1dc67e76a83c9f0a77378.png'
+    const out = await exportStyledHTML(NO_MUYA, `![](assets\\${filename})`, {})
+
+    expect(out).toContain(`src="file:///docs/assets/${filename}"`)
+  })
+
   it('leaves a remote http(s) img src untouched', async() => {
     const out = await exportStyledHTML(NO_MUYA, '![alt](https://example.com/a.png)', {})
 
