@@ -271,3 +271,36 @@ describe('image resize released outside the window (#5393)', () => {
         expect(eventCenter.events.some(e => e.event === 'mousemove')).toBe(false);
     });
 });
+
+describe('image resize invalidated by a document change (#5394)', () => {
+    it.each(['mousemove', 'mouseup'])('cancels on %s when the image has been detached', (eventType) => {
+        vi.useFakeTimers();
+        const eventCenter = setup();
+        const block = { updateImage: vi.fn() };
+        const reference = imageContainer();
+        eventCenter.emit('muya-transformer', { block, reference, imageInfo: {} });
+        vi.runAllTimers();
+        document.querySelector<HTMLElement>('.mu-transformer .right')!
+            .dispatchEvent(mouseEvent('mousedown', 0));
+        document.dispatchEvent(mouseMove(200));
+
+        reference.remove();
+        expect(() => document.dispatchEvent(mouseEvent(eventType, 220))).not.toThrow();
+        document.dispatchEvent(mouseEvent('mouseup', 220));
+
+        expect(block.updateImage).not.toHaveBeenCalled();
+        expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
+        expect(eventCenter.events.some(e => e.event === 'mousemove' || e.event === 'mouseup')).toBe(false);
+    });
+
+    it('does not render a reference removed before the deferred render', () => {
+        vi.useFakeTimers();
+        const eventCenter = setup();
+        const reference = imageContainer();
+        eventCenter.emit('muya-transformer', { block: {}, reference, imageInfo: {} });
+        reference.remove();
+
+        expect(() => vi.runAllTimers()).not.toThrow();
+        expect(document.querySelectorAll('.mu-transformer .bar')).toHaveLength(0);
+    });
+});
