@@ -18,7 +18,7 @@ If you use an agent, run it from the MarkText root directory so that it can auto
 
 ## Issue and PR Guidelines
 
-Before opening an Issue or PR, please search for similar Issues and PRs first. Always follow the [Issue template](./ISSUE_TEMPLATE/) and [PR template](./PULL_REQUEST_TEMPLATE.md) when submitting them.
+Before opening an Issue or PR, please search for similar Issues and PRs first. Always follow the [Issue template](https://github.com/marktext/marktext/tree/develop/.github/ISSUE_TEMPLATE/) and [PR template](https://github.com/marktext/marktext/blob/develop/.github/PULL_REQUEST_TEMPLATE.md) when submitting them.
 
 Issues and PRs should follow the single-purpose principle: **one Issue should address one problem, and one PR should fix one issue or a set of closely related changes.** Do not submit multiple unrelated problems in a single Issue or multiple unrelated fixes in a single PR.
 
@@ -30,7 +30,7 @@ When submitting a PR, please keep the following in mind:
 
 - Submit PRs directly to the `develop` branch.
 - Reference the related Issue in the PR description.
-- Follow our [Commenting Guidelines](./COMMENTING-GUIDELINES.md).
+- Follow our [Commenting Guidelines](https://github.com/marktext/marktext/blob/develop/.github/COMMENTING-GUIDELINES.md).
 - Ensure all tests pass.
 - Run `pnpm run lint` to lint your PR.
 - All PRs must pass **CI** before they can be merged. If CI fails, please try to resolve the issue. If you need help, feel free to ask.
