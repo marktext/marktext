@@ -95,6 +95,8 @@ export class ScrollPage extends Parent {
 
     updateState(state: TState[]) {
         const { muya } = this;
+        // A resize owns references into the old tree and cannot survive a rebuild (#5394).
+        muya.eventCenter.emit('muya-transformer', { reference: null });
         // Empty scrollPage dom
         this.empty();
         this.append(

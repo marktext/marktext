@@ -67,6 +67,7 @@ export class ImageResizeBar {
         };
 
         eventCenter.on('muya-transformer', ({ block, reference, imageInfo }) => {
+            this.hide();
             this._reference = reference;
             if (reference) {
                 this._block = block;
@@ -75,9 +76,6 @@ export class ImageResizeBar {
                     if (this._reference === reference)
                         this._render();
                 });
-            }
-            else {
-                this.hide();
             }
         });
 
@@ -90,8 +88,12 @@ export class ImageResizeBar {
 
     private _render() {
         const { eventCenter } = this.muya;
-        if (this._status)
+        if (!this._reference?.isConnected) {
             this.hide();
+            return;
+        }
+        if (this._status)
+            return;
 
         this._status = true;
 
@@ -114,6 +116,10 @@ export class ImageResizeBar {
     }
 
     private _update() {
+        if (!this._reference?.isConnected) {
+            this.hide();
+            return;
+        }
         const rect = this._reference!.getBoundingClientRect();
         VERTICAL_BAR.forEach((c) => {
             const bar: HTMLDivElement = this._container.querySelector(`.${c}`)!;
@@ -171,6 +177,11 @@ export class ImageResizeBar {
         if (!isMouseEvent(event))
             return;
 
+        if (!this._reference?.isConnected) {
+            this.hide();
+            return;
+        }
+
         event.preventDefault();
         const { clientX } = event;
         const dragStart = this._dragStart;
@@ -202,6 +213,10 @@ export class ImageResizeBar {
 
     private _mouseUp = (event: Event) => {
         event.preventDefault();
+        if (!this._reference?.isConnected) {
+            this.hide();
+            return;
+        }
         this._detachResizeListeners();
 
         if (typeof this._width === 'number' && this._block && this._imageInfo) {
@@ -232,6 +247,9 @@ export class ImageResizeBar {
         this._dragStart = null;
         this._resizing = false;
         this._movingAnchor = null;
+        this._reference = null;
+        this._block = null;
+        this._imageInfo = null;
         const circles = this._container.querySelectorAll('.bar');
         Array.from(circles).forEach(c => c.remove());
         this._status = false;
