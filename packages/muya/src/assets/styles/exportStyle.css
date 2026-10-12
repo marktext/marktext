@@ -1,3 +1,19 @@
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Music';
+    font-style: normal;
+    src: url('./fonts/NotoMusic-Regular.woff2') format('woff2');
+    unicode-range: U+2669-266F, U+1D000-1D24F;
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Sans Math';
+    font-style: normal;
+    src: url('./fonts/NotoSansMath-Regular.woff2') format('woff2');
+    unicode-range: U+23B4-23E1;
+}
+
 .markdown-body {
     box-sizing: border-box;
     min-width: 200px;
@@ -5,7 +21,9 @@
     margin: 0 auto;
     padding: 45px;
 
-    font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    font-family:
+        'Noto Music', 'Noto Sans Math', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji';
 }
 
 /* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */

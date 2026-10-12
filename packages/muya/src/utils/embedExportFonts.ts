@@ -1,19 +1,5 @@
-// Embed the KaTeX woff2 fonts as base64 data URIs into the inlined katex
-// stylesheet so a saved standalone export renders math correctly offline.
-//
-// `katex/dist/katex.css` references its fonts with relative `url(fonts/…)`
-// paths. Inlined into an exported `.html` (and rewritten to hashed bundler
-// asset paths in a production build), those references resolve to nothing when
-// the file is opened from an arbitrary location with no network — KaTeX then
-// falls back to system fonts and every formula renders with the wrong glyphs /
-// metrics. Replacing each `@font-face` src with the embedded woff2 keeps the
-// export self-contained.
-//
-// Faces are matched by their `font-family` + `font-weight` + `font-style`
-// descriptors, NOT by the `url(…)` file name: a production build appends a
-// content hash to the asset file name, so the name is unreliable while the
-// descriptors are stable. Only woff2 is embedded (every browser MarkText
-// targets supports it); the `woff` / `ttf` fallbacks are dropped.
+// Saved exports cannot resolve renderer asset paths. Match font descriptors
+// rather than file names, which receive content hashes in production builds.
 
 import KaTeX_AMS_Regular from 'katex/dist/fonts/KaTeX_AMS-Regular.woff2?inline';
 import KaTeX_Caligraphic_Bold from 'katex/dist/fonts/KaTeX_Caligraphic-Bold.woff2?inline';
@@ -35,9 +21,11 @@ import KaTeX_Size2_Regular from 'katex/dist/fonts/KaTeX_Size2-Regular.woff2?inli
 import KaTeX_Size3_Regular from 'katex/dist/fonts/KaTeX_Size3-Regular.woff2?inline';
 import KaTeX_Size4_Regular from 'katex/dist/fonts/KaTeX_Size4-Regular.woff2?inline';
 import KaTeX_Typewriter_Regular from 'katex/dist/fonts/KaTeX_Typewriter-Regular.woff2?inline';
+import NotoMusic_Regular from '../assets/styles/fonts/NotoMusic-Regular.woff2?inline';
+import NotoSansMath_Regular from '../assets/styles/fonts/NotoSansMath-Regular.woff2?inline';
 
 // Keyed by `${font-family}|${font-weight}|${font-style}` (family unquoted,
-// weight/style lower-cased). Mirrors the @font-face table in katex.css.
+// weight/style lower-cased).
 const FACE_TO_DATA_URI: Record<string, string> = {
     'KaTeX_AMS|normal|normal': KaTeX_AMS_Regular,
     'KaTeX_Caligraphic|bold|normal': KaTeX_Caligraphic_Bold,
@@ -59,6 +47,10 @@ const FACE_TO_DATA_URI: Record<string, string> = {
     'KaTeX_Size3|normal|normal': KaTeX_Size3_Regular,
     'KaTeX_Size4|normal|normal': KaTeX_Size4_Regular,
     'KaTeX_Typewriter|normal|normal': KaTeX_Typewriter_Regular,
+    'Noto Music|400|normal': NotoMusic_Regular,
+    'Noto Music|normal|normal': NotoMusic_Regular,
+    'Noto Sans Math|400|normal': NotoSansMath_Regular,
+    'Noto Sans Math|normal|normal': NotoSansMath_Regular,
 };
 
 const FONT_FACE_BLOCK_RE = /@font-face\s*\{[^}]*\}/g;
@@ -75,7 +67,7 @@ function descriptor(block: string, re: RegExp, fallback: string): string {
     return (block.match(re)?.[1]?.trim().replace(QUOTE_RE, '') ?? fallback);
 }
 
-export function embedKatexFonts(css: string): string {
+export function embedExportFonts(css: string): string {
     return css.replace(FONT_FACE_BLOCK_RE, (block) => {
         const family = descriptor(block, FAMILY_RE, '');
         if (!family)

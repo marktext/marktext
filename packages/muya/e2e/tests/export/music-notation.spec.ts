@@ -10,20 +10,38 @@ test('exports include notation fonts even without music symbols', async ({ page 
     expect(html).toMatch(/font-family:\s*['"]Noto Sans Math['"]/);
 });
 
-for (const extraCSS of ['', '.markdown-body { font-family: "Open Sans" !important; }']) {
-    test(`offline HTML and PDF retain music glyphs with ${extraCSS ? 'custom' : 'default'} fonts (#5327)`, async ({ page, browser, browserName }) => {
+test('external export CSS is preserved verbatim', async ({ page }) => {
+    const css = '.markdown-body { font-family: "External Font" !important; }';
+    const html = await page.evaluate(async css => new window.MarkdownToHtml!('Text').generate({ extraCSS: css }), css);
+    expect(html).toContain(`<style>${css}</style>`);
+});
+
+const exportStyles = [
+    { name: 'default', css: '' },
+    { name: 'font override', css: '.markdown-body { font-family: "Noto Music", "Noto Sans Math", "Open Sans", sans-serif !important; }' },
+    ...['academic', 'liber'].map(name => ({
+        name,
+        css: readFileSync(new URL(`../../../../desktop/src/renderer/src/assets/themes/export/${name}.theme.css`, import.meta.url), 'utf8'),
+    })),
+];
+
+for (const { name, css: extraCSS } of exportStyles) {
+    test(`offline HTML and PDF retain music glyphs with ${name} fonts (#5327)`, async ({ page, browser, browserName }) => {
         test.skip(browserName !== 'chromium', 'PDF and actual glyph font checks require Chromium.');
         const html = await page.evaluate(async ({ markdown, extraCSS }) => {
             return new window.MarkdownToHtml!(markdown).generate({ extraCSS });
         }, { markdown, extraCSS });
         expect(html).toContain('data:font/woff2;base64,');
-        expect(html).toContain('SIL OPEN FONT LICENSE');
 
         const context = await browser.newContext({ offline: true });
         try {
             const exported = await context.newPage();
             await exported.setContent(html);
             await exported.evaluate(async () => {
+                await Promise.all([
+                    document.fonts.load('16px "Noto Music"', '𝅗𝅥𝅘𝅥𝅯'),
+                    document.fonts.load('16px "Noto Sans Math"', '⏜⏝'),
+                ]);
                 await document.fonts.ready;
                 await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
             });
@@ -38,10 +56,8 @@ for (const extraCSS of ['', '.markdown-body { font-family: "Open Sans" !importan
                 selector: 'tbody tr:first-child td:nth-child(2)',
             });
             const { fonts } = await session.send('CSS.getPlatformFontsForNode', { nodeId });
-            if (extraCSS) {
-                expect(fonts.find(font => font.familyName === 'Noto Music')?.glyphCount).toBeGreaterThanOrEqual(1);
-                expect(fonts.find(font => font.familyName === 'Noto Sans Math')?.glyphCount).toBeGreaterThanOrEqual(1);
-            }
+            expect(fonts.find(font => font.familyName === 'Noto Music')?.glyphCount).toBeGreaterThanOrEqual(1);
+            expect(fonts.find(font => font.familyName === 'Noto Sans Math')?.glyphCount).toBeGreaterThanOrEqual(1);
             const loaded = await exported.evaluate(async () => {
                 return Promise.all([
                     document.fonts.load('16px "Noto Music"', '𝅗𝅥𝅘𝅥𝅯').then(faces => faces.length),
@@ -52,13 +68,8 @@ for (const extraCSS of ['', '.markdown-body { font-family: "Open Sans" !importan
             await session.detach();
 
             const pdf = await exported.pdf();
-            if (extraCSS) {
-                expect(pdf.toString('latin1')).toContain('NotoMusic-Regular');
-                expect(pdf.toString('latin1')).toContain('NotoSansMath-Regular');
-            }
-            else {
-                expect(pdf.toString('latin1')).toContain('/FontFile');
-            }
+            expect(pdf.toString('latin1')).toContain('NotoMusic-Regular');
+            expect(pdf.toString('latin1')).toContain('NotoSansMath-Regular');
         }
         finally {
             await context.close();

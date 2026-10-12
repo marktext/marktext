@@ -49,6 +49,7 @@ table.page-container > tfoot { display: table-header-group; }
 .page-header .hf-container,
 .page-footer-fake .hf-container,
 .page-footer .hf-container { display: flex; justify-content: space-between; font-size: 0.75em; font-weight: 400; }
+.hf-container { font-family: "Noto Music", "Noto Sans Math", "Open Sans", sans-serif; }
 .page-header { display: table-header-group; }
 .page-header .hf-container { margin-bottom: 16px; }
 .page-header.styled .hf-container { padding-bottom: 1px; border-bottom: 1px solid var(--footerHeaderBorderColor); }

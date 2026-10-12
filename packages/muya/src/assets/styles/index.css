@@ -143,6 +143,23 @@
         url('./fonts/open-sans-v27-latin-ext_latin-700italic.woff') format('woff');
 }
 
+/* Keep notation available offline when system fonts lack its glyphs (#5327). */
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Music';
+    font-style: normal;
+    src: url('./fonts/NotoMusic-Regular.woff2') format('woff2');
+    unicode-range: U+2669-266F, U+1D000-1D24F;
+}
+
+@font-face {
+    font-weight: 400;
+    font-family: 'Noto Sans Math';
+    font-style: normal;
+    src: url('./fonts/NotoSansMath-Regular.woff2') format('woff2');
+    unicode-range: U+23B4-23E1;
+}
+
 /*
  * DejaVu Sans Mono
  */
