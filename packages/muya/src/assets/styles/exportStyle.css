@@ -22,8 +22,15 @@
     padding: 45px;
 
     font-family:
-        'Noto Music', 'Noto Sans Math', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji';
+        'Noto Music',
+        'Noto Sans Math',
+        -apple-system,
+        'Segoe UI',
+        Helvetica,
+        Arial,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji';
 }
 
 /* GitLab inline diff washes, matching GitLab's `.idiff` rendering. */
