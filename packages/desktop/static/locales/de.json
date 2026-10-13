@@ -713,6 +713,7 @@
     "theme": {
       "title": "Design",
       "followSystemTheme": "Systemdesign folgen",
+      "followSystemNote": "Wenn Sie dem Systemthema folgen, ist die Themenliste unten gesperrt. Deaktivieren Sie dies, um Themen frei zu wechseln.",
       "modeThemes": "Design-Auswahl",
       "lightModeTheme": "Helles Modus-Design",
       "darkModeTheme": "Dunkles Modus-Design",

@@ -713,6 +713,7 @@
     "theme": {
       "title": "테마",
       "followSystemTheme": "시스템 테마 따르기",
+      "followSystemNote": "시스템 테마를 따르는 동안에는 아래 테마 목록을 전환할 수 없습니다. 끄면 자유롭게 전환할 수 있습니다.",
       "modeThemes": "테마 선택",
       "lightModeTheme": "라이트 모드 테마",
       "darkModeTheme": "다크 모드 테마",

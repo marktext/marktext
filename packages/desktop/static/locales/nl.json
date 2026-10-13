@@ -713,6 +713,7 @@
     "theme": {
       "title": "Thema",
       "followSystemTheme": "Systeemthema volgen",
+      "followSystemNote": "Het systeemthema volgen vergrendelt de themalijst hieronder. Schakel dit uit om vrij van thema te wisselen.",
       "modeThemes": "Themaselectie",
       "lightModeTheme": "Thema lichte modus",
       "darkModeTheme": "Thema donkere modus",

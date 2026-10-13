@@ -713,6 +713,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Sistem Temasını Takip Et",
+      "followSystemNote": "Sistem temasını izlemek aşağıdaki tema listesini kilitler. Serbestçe tema değiştirmek için bunu kapatın.",
       "modeThemes": "Tema Seçimi",
       "lightModeTheme": "Açık mod teması",
       "darkModeTheme": "Koyu mod teması",

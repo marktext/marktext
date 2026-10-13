@@ -713,6 +713,7 @@
     "theme": {
       "title": "主题",
       "followSystemTheme": "跟随系统主题",
+      "followSystemNote": "跟随系统主题时，下方主题列表不可切换。关闭后即可自由切换。",
       "modeThemes": "主题选择",
       "lightModeTheme": "浅色模式主题",
       "darkModeTheme": "深色模式主题",

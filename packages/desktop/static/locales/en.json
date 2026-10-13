@@ -713,6 +713,7 @@
     "theme": {
       "title": "Theme",
       "followSystemTheme": "Follow System Theme",
+      "followSystemNote": "Following the system locks the theme list below. Turn this off to switch themes freely.",
       "modeThemes": "Theme Selection",
       "lightModeTheme": "Light mode theme",
       "darkModeTheme": "Dark mode theme",

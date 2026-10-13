@@ -713,6 +713,7 @@
     "theme": {
       "title": "Tema",
       "followSystemTheme": "Seguir tema del sistema",
+      "followSystemNote": "Seguir el tema del sistema bloquea la lista de temas de abajo. Desactívalo para cambiar de tema libremente.",
       "modeThemes": "Selección de Tema",
       "lightModeTheme": "Tema de modo claro",
       "darkModeTheme": "Tema de modo oscuro",
