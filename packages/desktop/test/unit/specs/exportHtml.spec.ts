@@ -297,3 +297,16 @@ describe('exportStyledHTML — relative link paths (#1688)', () => {
     expect(out).not.toContain('file://')
   })
 })
+
+describe('issue #3323 original-location Windows paths', () => {
+  it.each([
+    ['C:\\Users\\Alice\\Pictures\\photo.png', 'file:///C:/Users/Alice/Pictures/photo.png'],
+    ['C:/Users/Alice/Pictures/photo.png', 'file:///C:/Users/Alice/Pictures/photo.png'],
+    ['C:%5CUsers%5CAlice%5CPictures%5Cphoto.png', 'file:///C:/Users/Alice/Pictures/photo.png'],
+    ['C:\\Users\\Alice\\My Pictures\\photo.png', 'file:///C:/Users/Alice/My%20Pictures/photo.png']
+  ])('exports %s without encoded backslash separators', async(path, expected) => {
+    const out = await exportStyledHTML(NO_MUYA, `![photo](<${path}>)`, {})
+    expect(out).toContain(`src="${expected}"`)
+    expect(out).not.toMatch(/src="[^"]*%5c/i)
+  })
+})
