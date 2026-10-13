@@ -884,6 +884,8 @@
       "devReload": "開発者を再読み込み",
       "reloadImages": "画像を再読み込み",
       "textDirection": "テキスト方向",
+      "textDirectionLtr": "左から右",
+      "textDirectionRtl": "右から左",
       "actualSize": "実際のサイズ",
       "devToggleDeveloperTools": "開発者ツールの切り替え"
     },

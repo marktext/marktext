@@ -884,6 +884,8 @@
       "devReload": "Entwickler-Neuladen",
       "reloadImages": "Bilder neu laden",
       "textDirection": "Textrichtung",
+      "textDirectionLtr": "Links nach rechts",
+      "textDirectionRtl": "Rechts nach links",
       "actualSize": "Tatsächliche Größe",
       "devToggleDeveloperTools": "Entwicklertools umschalten"
     },

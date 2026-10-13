@@ -885,7 +885,9 @@
       "devToggleDeveloperTools": "切换开发者工具",
       "devReload": "开发者重载",
       "reloadImages": "重新加载图片",
-      "textDirection": "文本方向"
+      "textDirection": "文本方向",
+"textDirectionLtr": "从左到右",
+"textDirectionRtl": "从右到左"
     },
     "tabs": {
       "cycleForward": "向前循环",

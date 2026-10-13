@@ -884,6 +884,8 @@
       "devReload": "Recarga de Desarrollador",
       "reloadImages": "Recargar Imágenes",
       "textDirection": "Dirección del Texto",
+      "textDirectionLtr": "Izquierda a Derecha",
+      "textDirectionRtl": "Derecha a Izquierda",
       "actualSize": "Tamaño real",
       "devToggleDeveloperTools": "Alternar herramientas de desarrollador"
     },

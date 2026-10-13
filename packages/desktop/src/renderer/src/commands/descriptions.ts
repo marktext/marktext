@@ -177,6 +177,8 @@ const COMMAND_KEY_MAP: Record<string, string> = {
   'view.command-palette': 'commands.view.commandPalette',
   'view.actual-size': 'commands.view.actualSize',
   'view.text-direction': 'commands.view.textDirection',
+  'view.text-direction-ltr': 'commands.view.textDirectionLtr',
+  'view.text-direction-rtl': 'commands.view.textDirectionRtl',
 
   // Developer tools
   'view.dev-reload': 'commands.view.devReload',
