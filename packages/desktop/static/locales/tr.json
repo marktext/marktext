@@ -884,6 +884,8 @@
       "devReload": "Geliştirici Yeniden Yükleme",
       "reloadImages": "Görselleri Yeniden Yükle",
       "textDirection": "Metin Yönü",
+      "textDirectionLtr": "Soldan Sağa",
+      "textDirectionRtl": "Sağdan Sola",
       "actualSize": "Gerçek Boyut",
       "devToggleDeveloperTools": "Geliştirici Araçlarını Aç/Kapat"
     },

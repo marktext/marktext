@@ -884,6 +884,8 @@
       "devReload": "Developer Reload",
       "reloadImages": "Reload Images",
       "textDirection": "Text Direction",
+      "textDirectionLtr": "Left to Right",
+      "textDirectionRtl": "Right to Left",
       "actualSize": "Actual Size",
       "devToggleDeveloperTools": "Toggle Developer Tools"
     },

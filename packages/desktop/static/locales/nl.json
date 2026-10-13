@@ -884,6 +884,8 @@
       "devReload": "Ontwikkelaar herladen",
       "reloadImages": "Afbeeldingen herladen",
       "textDirection": "Tekstrichting",
+      "textDirectionLtr": "Links naar rechts",
+      "textDirectionRtl": "Rechts naar links",
       "actualSize": "Werkelijke grootte",
       "devToggleDeveloperTools": "Ontwikkelaarshulpmiddelen in-/uitschakelen"
     },

@@ -884,6 +884,8 @@
       "devReload": "Перезагрузка разработчика",
       "reloadImages": "Обновить изображения",
       "textDirection": "Направление текста",
+      "textDirectionLtr": "Слева направо",
+      "textDirectionRtl": "Справа налево",
       "actualSize": "Реальный размер",
       "devToggleDeveloperTools": "Переключить инструменты разработчика"
     },

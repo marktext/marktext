@@ -884,6 +884,8 @@
       "devReload": "開發者重新載入",
       "reloadImages": "重新載入圖片",
       "textDirection": "文字方向",
+      "textDirectionLtr": "從左到右",
+      "textDirectionRtl": "從右到左",
       "actualSize": "實際大小",
       "devToggleDeveloperTools": "切換開發者工具"
     },

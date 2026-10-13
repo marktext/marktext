@@ -884,6 +884,8 @@
       "devReload": "개발자 새로고침",
       "reloadImages": "이미지 새로고침",
       "textDirection": "텍스트 방향",
+      "textDirectionLtr": "왼쪽에서 오른쪽",
+      "textDirectionRtl": "오른쪽에서 왼쪽",
       "actualSize": "실제 크기",
       "devToggleDeveloperTools": "개발자 도구 전환"
     },
