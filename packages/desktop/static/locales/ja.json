@@ -260,6 +260,13 @@
       "settings": "設定"
     }
   },
+  "titleBar": {
+    "applicationMenu": "アプリケーションメニュー",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "元に戻す (縮小)",
+    "close": "閉じる"
+  },
   "commandPalette": {
     "placeholder": "実行するコマンドの入力",
     "placeholders": {
@@ -357,6 +364,7 @@
   },
   "preferences": {
     "title": "環境設定",
+    "learnMore": "{name} の詳細",
     "search": {
       "placeholder": "設定の検索...",
       "categories": {
@@ -1019,6 +1027,9 @@
       "languageMissing": "スペルチェック言語が見つかりません {languageCode}",
       "switchError": "{languageCode} のスペルチェック切り替えエラー、{error}",
       "title": "スペルチェック"
+    },
+    "tabs": {
+      "close": "{name} を閉じる"
     }
   }
 }

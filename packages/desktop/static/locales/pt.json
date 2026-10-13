@@ -260,6 +260,13 @@
       "settings": "Configurações"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Menu do aplicativo",
+    "minimize": "Minimizar",
+    "maximize": "Maximizar",
+    "restore": "Restaurar",
+    "close": "Fechar"
+  },
   "commandPalette": {
     "placeholder": "Digite um comando para executar",
     "placeholders": {
@@ -357,6 +364,7 @@
   },
   "preferences": {
     "title": "Preferências",
+    "learnMore": "Saiba mais sobre {name}",
     "search": {
       "placeholder": "Pesquisar preferências...",
       "categories": {
@@ -1019,6 +1027,9 @@
       "languageMissing": "Idioma do corretor não encontrado {languageCode}",
       "switchError": "Erro ao alternar corretor para {languageCode}, {error}",
       "title": "Verificação Ortográfica"
+    },
+    "tabs": {
+      "close": "Fechar {name}"
     }
   }
 }

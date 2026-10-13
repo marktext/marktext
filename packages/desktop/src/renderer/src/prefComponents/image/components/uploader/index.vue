@@ -14,6 +14,7 @@
       <cur-select
         :value="currentUploader"
         :options="uploaderOptions"
+        :aria-label="t('preferences.image.uploader.title')"
         :on-change="(value) => setCurrentUploader(value)"
       />
       <div
@@ -24,33 +25,42 @@
           <div class="detection-header">
             <h6>{{ t('preferences.image.uploader.picgoDetection') }}</h6>
             <div class="detection-controls">
-              <button
+              <icon-tooltip
                 v-if="showStandaloneRefreshButton"
-                class="standalone-refresh-button"
-                :disabled="isDetecting"
-                :title="t('preferences.image.uploader.retestPicgo')"
-                @click="manualDetection"
+                :content="t('preferences.image.uploader.retestPicgo')"
               >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+                <button
+                  type="button"
+                  class="standalone-refresh-button"
+                  :disabled="isDetecting"
+                  :aria-label="t('preferences.image.uploader.retestPicgo')"
+                  @click="manualDetection"
                 >
-                  <polyline points="23 4 23 10 17 10" />
-                  <polyline points="1 20 1 14 7 14" />
-                  <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
-              </button>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                </button>
+              </icon-tooltip>
               <div class="detection-status-indicator">
                 <!-- Loading animation and status indicator -->
                 <div class="detection-animation-container">
-                  <!-- Initial button (becomes animation after 0.5 seconds) -->
+                  <!-- Initial button (becomes animation after 0.5 seconds). It has
+                       no action, so it stays out of the tab order and the AX tree. -->
                   <button
                     v-if="showInitialButton"
+                    type="button"
                     class="initial-button"
+                    aria-hidden="true"
+                    tabindex="-1"
                   >
                     <svg
                       width="14"
@@ -75,35 +85,47 @@
                     :class="{ animate: animationActive }"
                   />
                   <!-- Status indicator button (icon removed) -->
-                  <button
+                  <icon-tooltip
                     v-if="showStatusIndicator"
-                    class="status-indicator"
-                    :class="getStatusIndicatorClass()"
-                    @click="manualDetection"
+                    :content="t('preferences.image.uploader.retestPicgo')"
                   >
-                    <!-- All SVG icons removed -->
-                  </button>
-                  <button
-                    v-if="showRefreshButton"
-                    class="refresh-button"
-                    :disabled="isDetecting"
-                    @click="manualDetection"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
+                    <button
+                      type="button"
+                      class="status-indicator"
+                      :class="getStatusIndicatorClass()"
+                      :aria-label="t('preferences.image.uploader.retestPicgo')"
+                      @click="manualDetection"
                     >
-                      <polyline points="23 4 23 10 17 10" />
-                      <polyline points="1 20 1 14 7 14" />
-                      <path
-                        d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-                      />
-                    </svg>
-                  </button>
+                      <!-- All SVG icons removed -->
+                    </button>
+                  </icon-tooltip>
+                  <icon-tooltip
+                    v-if="showRefreshButton"
+                    :content="t('preferences.image.uploader.retestPicgo')"
+                  >
+                    <button
+                      type="button"
+                      class="refresh-button"
+                      :disabled="isDetecting"
+                      :aria-label="t('preferences.image.uploader.retestPicgo')"
+                      @click="manualDetection"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="23 4 23 10 17 10" />
+                        <polyline points="1 20 1 14 7 14" />
+                        <path
+                          d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                        />
+                      </svg>
+                    </button>
+                  </icon-tooltip>
                 </div>
               </div>
             </div>
@@ -265,6 +287,7 @@ import CurSelect from '@/prefComponents/common/select/index.vue'
 import notice from '@/services/notification'
 import { storeToRefs } from 'pinia'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefSelectOption } from '@/prefComponents/common/types'
 
 const { t } = useI18n()

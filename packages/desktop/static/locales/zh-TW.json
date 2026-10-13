@@ -260,6 +260,13 @@
       "settings": "設定"
     }
   },
+  "titleBar": {
+    "applicationMenu": "應用程式選單",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "向下還原",
+    "close": "關閉"
+  },
   "commandPalette": {
     "placeholder": "輸入要執行的命令",
     "placeholders": {
@@ -357,6 +364,7 @@
   },
   "preferences": {
     "title": "偏好設定",
+    "learnMore": "了解更多：{name}",
     "search": {
       "placeholder": "搜尋偏好設定…",
       "categories": {
@@ -1019,6 +1027,9 @@
       "languageMissing": "拼字檢查語言缺失 {languageCode}",
       "switchError": "{languageCode} 拼字檢查切換錯誤，{error}",
       "title": "拼字檢查"
+    },
+    "tabs": {
+      "close": "關閉 {name}"
     }
   }
 }
