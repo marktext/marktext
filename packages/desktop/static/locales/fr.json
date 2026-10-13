@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Raccourcis clavier",
       "description": "Personnaliser les raccourcis clavier",
+      "search": "Rechercher",
       "save": "Enregistrer",
       "restoreDefaults": "Restaurer les valeurs par défaut",
       "debugOptions": "Options de débogage",

@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "キーバインド",
       "description": "キーバインドのカスタマイズ",
+      "search": "検索",
       "save": "保存",
       "restoreDefaults": "デフォルトに復元",
       "debugOptions": "デバッグオプション",

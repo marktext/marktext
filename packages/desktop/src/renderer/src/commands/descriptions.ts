@@ -1,4 +1,7 @@
 import { t } from '../i18n'
+// `en.json` is bundled unconditionally (see ../i18n/index.ts), so the English
+// source strings are always available without loading another locale.
+import en from '../../../../static/locales/en.json'
 
 const COMMAND_KEY_MAP: Record<string, string> = {
   // ============================================
@@ -227,4 +230,36 @@ const COMMAND_KEY_MAP: Record<string, string> = {
 export default (id: string): string => {
   // Re-fetch the command description on each call to support dynamic language switching
   return id in COMMAND_KEY_MAP ? t(COMMAND_KEY_MAP[id]) : id
+}
+
+// Walk a dot-separated key through a nested bundle; `null` when it isn't a leaf string.
+const lookupMessage = (bundle: unknown, key: string): string | null => {
+  let probe: unknown = bundle
+  for (const segment of key.split('.')) {
+    if (probe && typeof probe === 'object' && segment in (probe as Record<string, unknown>)) {
+      probe = (probe as Record<string, unknown>)[segment]
+    } else {
+      return null
+    }
+  }
+  return typeof probe === 'string' ? probe : null
+}
+
+/**
+ * Every text a keybindings search should be able to match for a command: the raw
+ * id (always English-ish), the description in the current UI language, and its
+ * English source string. Including English lets a query like "close" find the
+ * command while the UI runs in another language, and vice versa.
+ */
+export const getCommandSearchTerms = (id: string): string[] => {
+  const key = COMMAND_KEY_MAP[id]
+  if (!key) {
+    return [id]
+  }
+  const terms = [id, t(key)]
+  const english = lookupMessage(en, key)
+  if (english && !terms.includes(english)) {
+    terms.push(english)
+  }
+  return terms
 }

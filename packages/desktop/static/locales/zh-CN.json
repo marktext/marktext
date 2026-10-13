@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "快捷键",
       "description": "自定义键盘快捷键",
+      "search": "搜索",
       "save": "保存",
       "restoreDefaults": "恢复默认",
       "debugOptions": "调试选项",

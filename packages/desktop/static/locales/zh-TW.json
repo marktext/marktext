@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "按鍵綁定",
       "description": "自訂鍵盤快捷鍵",
+      "search": "搜尋",
       "save": "儲存",
       "restoreDefaults": "還原預設值",
       "debugOptions": "除錯選項",

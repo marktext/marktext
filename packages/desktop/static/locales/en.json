@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Keybindings",
       "description": "Customize keyboard shortcuts",
+      "search": "Search",
       "save": "Save",
       "restoreDefaults": "Restore defaults",
       "debugOptions": "Debug Options",

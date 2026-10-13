@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Atalhos de Teclado",
       "description": "Personalizar atalhos de teclado",
+      "search": "Pesquisar",
       "save": "Salvar",
       "restoreDefaults": "Restaurar padrões",
       "debugOptions": "Opções de Debug",

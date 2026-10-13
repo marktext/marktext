@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Tastenkürzel",
       "description": "Tastenkürzel anpassen",
+      "search": "Suchen",
       "save": "Speichern",
       "restoreDefaults": "Standardwerte wiederherstellen",
       "debugOptions": "Debug-Optionen",

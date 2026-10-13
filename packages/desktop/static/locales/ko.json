@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "키 바인딩",
       "description": "키보드 단축키 사용자 정의",
+      "search": "검색",
       "save": "저장",
       "restoreDefaults": "기본값 복원",
       "debugOptions": "디버그 옵션",

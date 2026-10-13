@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Sneltoetsen",
       "description": "Sneltoetsen aanpassen",
+      "search": "Zoeken",
       "save": "Opslaan",
       "restoreDefaults": "Standaardwaarden herstellen",
       "debugOptions": "Foutopsporingsopties",

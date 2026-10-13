@@ -725,6 +725,7 @@
     "keybindings": {
       "title": "Kısayol Tuşları",
       "description": "Klavye kısayollarını özelleştir",
+      "search": "Ara",
       "save": "Kaydet",
       "restoreDefaults": "Varsayılanları geri yükle",
       "debugOptions": "Hata Ayıklama Seçenekleri",
