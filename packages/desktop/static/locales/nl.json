@@ -459,6 +459,11 @@
         "description": "Automatisch opslaan",
         "delayDescription": "Vertraging automatisch opslaan"
       },
+      "autoRefresh": {
+        "title": "Automatisch vernieuwen",
+        "description": "Het bestand automatisch opnieuw laden wanneer het op schijf verandert",
+        "warning": "Niet-opgeslagen wijzigingen worden zonder vragen weggegooid."
+      },
       "window": {
         "title": "Venster",
         "titleBarStyle": {

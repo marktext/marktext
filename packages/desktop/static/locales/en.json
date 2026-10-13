@@ -459,6 +459,11 @@
         "description": "Auto save",
         "delayDescription": "Auto save delay"
       },
+      "autoRefresh": {
+        "title": "Auto Refresh",
+        "description": "Reload the file automatically when it changes on disk",
+        "warning": "Unsaved changes are discarded without asking."
+      },
       "window": {
         "title": "Window",
         "titleBarStyle": {

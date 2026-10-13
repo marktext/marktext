@@ -459,6 +459,11 @@
         "description": "自動儲存",
         "delayDescription": "自動儲存延遲"
       },
+      "autoRefresh": {
+        "title": "自動重新整理",
+        "description": "檔案在磁碟上變更時自動重新載入",
+        "warning": "未儲存的變更將直接捨棄，不再詢問。"
+      },
       "window": {
         "title": "視窗",
         "titleBarStyle": {

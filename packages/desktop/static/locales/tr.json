@@ -459,6 +459,11 @@
         "description": "Otomatik kaydet",
         "delayDescription": "Otomatik kaydetme gecikmesi"
       },
+      "autoRefresh": {
+        "title": "Otomatik Yenile",
+        "description": "Dosya diskte değiştiğinde otomatik olarak yeniden yükle",
+        "warning": "Kaydedilmemiş değişiklikler sorulmadan atılır."
+      },
       "window": {
         "title": "Pencere",
         "titleBarStyle": {

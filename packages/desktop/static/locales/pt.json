@@ -459,6 +459,11 @@
         "description": "Salvamento automático",
         "delayDescription": "Atraso do salvamento automático"
       },
+      "autoRefresh": {
+        "title": "Atualização automática",
+        "description": "Recarregar o arquivo automaticamente quando ele mudar no disco",
+        "warning": "As alterações não salvas são descartadas sem aviso."
+      },
       "window": {
         "title": "Janela",
         "titleBarStyle": {

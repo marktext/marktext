@@ -459,6 +459,11 @@
         "description": "Guardado automático",
         "delayDescription": "Retraso del guardado automático"
       },
+      "autoRefresh": {
+        "title": "Actualización automática",
+        "description": "Recargar el archivo automáticamente cuando cambie en el disco",
+        "warning": "Los cambios sin guardar se descartan sin preguntar."
+      },
       "window": {
         "title": "Ventana",
         "titleBarStyle": {

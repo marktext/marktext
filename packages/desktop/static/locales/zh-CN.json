@@ -459,6 +459,11 @@
         "description": "自动保存",
         "delayDescription": "自动保存延迟"
       },
+      "autoRefresh": {
+        "title": "自动刷新",
+        "description": "文件在磁盘上发生变化时自动重新加载",
+        "warning": "未保存的修改将被直接丢弃，不再询问。"
+      },
       "window": {
         "title": "窗口",
         "titleBarStyle": {

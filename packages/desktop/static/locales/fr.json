@@ -459,6 +459,11 @@
         "description": "Enregistrement automatique",
         "delayDescription": "Délai d'enregistrement automatique"
       },
+      "autoRefresh": {
+        "title": "Actualisation automatique",
+        "description": "Recharger automatiquement le fichier lorsqu'il change sur le disque",
+        "warning": "Les modifications non enregistrées sont perdues sans confirmation."
+      },
       "window": {
         "title": "Fenêtre",
         "titleBarStyle": {

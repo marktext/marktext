@@ -459,6 +459,11 @@
         "description": "Automatisches Speichern",
         "delayDescription": "Verzögerung beim automatischen Speichern"
       },
+      "autoRefresh": {
+        "title": "Automatisch aktualisieren",
+        "description": "Die Datei automatisch neu laden, wenn sie sich auf der Festplatte ändert",
+        "warning": "Nicht gespeicherte Änderungen werden ohne Nachfrage verworfen."
+      },
       "window": {
         "title": "Fenster",
         "titleBarStyle": {

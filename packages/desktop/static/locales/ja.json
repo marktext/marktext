@@ -459,6 +459,11 @@
         "description": "自動保存",
         "delayDescription": "自動保存の遅延"
       },
+      "autoRefresh": {
+        "title": "自動更新",
+        "description": "ディスク上のファイルが変更されたら自動的に再読み込みします",
+        "warning": "未保存の変更は確認なしで破棄されます。"
+      },
       "window": {
         "title": "ウィンドウ",
         "titleBarStyle": {

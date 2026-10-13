@@ -28,6 +28,22 @@
     <compound>
       <template #head>
         <h6 class="title">
+          {{ t('preferences.general.autoRefresh.title') }}
+        </h6>
+      </template>
+      <template #children>
+        <bool
+          :description="t('preferences.general.autoRefresh.description')"
+          :notes="t('preferences.general.autoRefresh.warning')"
+          :bool="autoRefresh"
+          :on-change="(value) => onSelectChange('autoRefresh', value)"
+        />
+      </template>
+    </compound>
+
+    <compound>
+      <template #head>
+        <h6 class="title">
           {{ t('preferences.general.window.title') }}
         </h6>
       </template>
@@ -246,6 +262,7 @@ const preferenceStore = usePreferencesStore()
 const {
   autoSave,
   autoSaveDelay,
+  autoRefresh,
   titleBarStyle,
   defaultDirectoryToOpen,
   openFilesInNewWindow,
