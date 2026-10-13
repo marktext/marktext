@@ -217,6 +217,13 @@ export default function(
       }
     },
     {
+      label: t('menu.file.closeAllWindows'),
+      accelerator: keybindings.getAccelerator('file.close-all-windows') ?? undefined,
+      click() {
+        actions.closeAllWindows()
+      }
+    },
+    {
       type: 'separator',
       visible: !isOsx
     },

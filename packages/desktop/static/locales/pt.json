@@ -29,6 +29,7 @@
       "print": "Imprimir",
       "closeTab": "Fechar Aba",
       "closeWindow": "Fechar Janela",
+      "closeAllWindows": "Fechar Todas as Janelas",
       "quit": "Sair",
       "preferences": "Preferências"
     },
@@ -791,7 +792,10 @@
       "print": "Imprimir",
       "preferences": "Preferências",
       "closeTab": "Fechar Aba",
+      "closeOtherTabs": "Fechar Outras Abas",
+      "closeAllTabs": "Fechar Todas as Abas",
       "closeWindow": "Fechar Janela",
+      "closeAllWindows": "Fechar Todas as Janelas",
       "quit": "Sair",
       "toggleAutoSave": "Alternar Salvamento Automático",
       "importFile": "Importar Arquivo",

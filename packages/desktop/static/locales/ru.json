@@ -29,6 +29,7 @@
       "print": "Печать",
       "closeTab": "Закрыть вкладку",
       "closeWindow": "Закрыть окно",
+      "closeAllWindows": "Закрыть все окна",
       "quit": "Выход",
       "preferences": "Настройки"
     },
@@ -791,7 +792,10 @@
       "print": "Печать",
       "preferences": "Настройки",
       "closeTab": "Закрыть вкладку",
+      "closeOtherTabs": "Закрыть другие вкладки",
+      "closeAllTabs": "Закрыть все вкладки",
       "closeWindow": "Закрыть окно",
+      "closeAllWindows": "Закрыть все окна",
       "quit": "Выход",
       "toggleAutoSave": "Переключить автосохранение",
       "importFile": "Импортировать файл",

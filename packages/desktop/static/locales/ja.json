@@ -29,6 +29,7 @@
       "print": "印刷",
       "closeTab": "タブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
+      "closeAllWindows": "すべてのウィンドウを閉じる",
       "quit": "終了",
       "preferences": "環境設定"
     },
@@ -791,7 +792,10 @@
       "print": "印刷",
       "preferences": "環境設定",
       "closeTab": "タブを閉じる",
+      "closeOtherTabs": "他のタブを閉じる",
+      "closeAllTabs": "すべてのタブを閉じる",
       "closeWindow": "ウィンドウを閉じる",
+      "closeAllWindows": "すべてのウィンドウを閉じる",
       "quit": "終了",
       "toggleAutoSave": "自動保存の切り替え",
       "importFile": "ファイルのインポート",

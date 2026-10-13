@@ -29,6 +29,7 @@
       "print": "인쇄",
       "closeTab": "탭 닫기",
       "closeWindow": "창 닫기",
+      "closeAllWindows": "모든 창 닫기",
       "quit": "종료",
       "preferences": "환경설정"
     },
@@ -791,7 +792,10 @@
       "print": "인쇄",
       "preferences": "환경설정",
       "closeTab": "탭 닫기",
+      "closeOtherTabs": "다른 탭 닫기",
+      "closeAllTabs": "모든 탭 닫기",
       "closeWindow": "창 닫기",
+      "closeAllWindows": "모든 창 닫기",
       "quit": "종료",
       "toggleAutoSave": "자동 저장 토글",
       "importFile": "파일 가져오기",

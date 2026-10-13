@@ -29,6 +29,7 @@
       "print": "Imprimer",
       "closeTab": "Fermer l'onglet",
       "closeWindow": "Fermer la fenêtre",
+      "closeAllWindows": "Fermer toutes les fenêtres",
       "quit": "Quitter",
       "preferences": "Préférences"
     },
@@ -791,7 +792,10 @@
       "print": "Imprimer",
       "preferences": "Préférences",
       "closeTab": "Fermer l'onglet",
+      "closeOtherTabs": "Fermer les autres onglets",
+      "closeAllTabs": "Fermer tous les onglets",
       "closeWindow": "Fermer la fenêtre",
+      "closeAllWindows": "Fermer toutes les fenêtres",
       "quit": "Quitter",
       "toggleAutoSave": "Basculer l'enregistrement automatique",
       "importFile": "Importer un fichier",

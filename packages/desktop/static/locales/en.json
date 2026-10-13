@@ -29,6 +29,7 @@
       "print": "Print",
       "closeTab": "Close Tab",
       "closeWindow": "Close Window",
+      "closeAllWindows": "Close All Windows",
       "quit": "Quit",
       "preferences": "Preferences"
     },
@@ -791,7 +792,10 @@
       "print": "Print",
       "preferences": "Preferences",
       "closeTab": "Close Tab",
+      "closeOtherTabs": "Close Other Tabs",
+      "closeAllTabs": "Close All Tabs",
       "closeWindow": "Close Window",
+      "closeAllWindows": "Close All Windows",
       "quit": "Quit",
       "toggleAutoSave": "Toggle Auto Save",
       "importFile": "Import File",

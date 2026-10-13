@@ -136,7 +136,8 @@ const closeTab = (tabId: unknown) => {
 }
 
 const closeOthers = (tabId: unknown) => {
-  const tab = tabs.value.find((f) => f.id === tabId)
+  // A missing id means "keep whichever tab is active" (command palette / shortcut).
+  const tab = tabId == null ? editorStore.currentFile : tabs.value.find((f) => f.id === tabId)
   if (tab) {
     editorStore.CLOSE_OTHER_TABS(tab)
   }

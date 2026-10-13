@@ -29,6 +29,7 @@
       "print": "Yazdır",
       "closeTab": "Sekmeyi Kapat",
       "closeWindow": "Pencereyi Kapat",
+      "closeAllWindows": "Tüm Pencereleri Kapat",
       "quit": "Çıkış",
       "preferences": "Tercihler"
     },
@@ -791,7 +792,10 @@
       "print": "Yazdır",
       "preferences": "Tercihler",
       "closeTab": "Sekmeyi Kapat",
+      "closeOtherTabs": "Diğer Sekmeleri Kapat",
+      "closeAllTabs": "Tüm Sekmeleri Kapat",
       "closeWindow": "Pencereyi Kapat",
+      "closeAllWindows": "Tüm Pencereleri Kapat",
       "quit": "Çıkış",
       "toggleAutoSave": "Otomatik Kaydetmeyi Aç/Kapat",
       "importFile": "Dosya İçe Aktar",

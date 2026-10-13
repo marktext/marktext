@@ -794,6 +794,10 @@ ipcMain.on('mt::cmd-close-window', (e) => {
   }
 })
 
+ipcMain.on('mt::cmd-close-all-windows', () => {
+  closeAllWindows()
+})
+
 ipcMain.on('mt::cmd-import-file', (e) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (win) {
@@ -919,6 +923,24 @@ export const closeWindow = (win: Win): void => {
   }
 }
 
+export const closeOtherTabs = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::execute-command-by-id', 'file.close-other-tabs')
+  }
+}
+
+export const closeAllTabs = (win: Win): void => {
+  if (win && win.webContents) {
+    win.webContents.send('mt::execute-command-by-id', 'file.close-all-tabs')
+  }
+}
+
+export const closeAllWindows = (): void => {
+  for (const win of BrowserWindow.getAllWindows()) {
+    win.close()
+  }
+}
+
 export const save = (win: Win): void => {
   if (win && win.webContents) {
     win.webContents.send('mt::editor-ask-file-save')
@@ -962,6 +984,9 @@ export const clearRecentlyUsed = (): void => {
 
 export const loadFileCommands = (commandManager: CommandManager): void => {
   commandManager.add(COMMANDS.FILE_CHECK_UPDATE, checkUpdates)
+  commandManager.add(COMMANDS.FILE_CLOSE_ALL_TABS, closeAllTabs)
+  commandManager.add(COMMANDS.FILE_CLOSE_ALL_WINDOWS, closeAllWindows)
+  commandManager.add(COMMANDS.FILE_CLOSE_OTHER_TABS, closeOtherTabs)
   commandManager.add(COMMANDS.FILE_CLOSE_TAB, closeTab)
   commandManager.add(COMMANDS.FILE_CLOSE_WINDOW, closeWindow)
   commandManager.add(COMMANDS.FILE_EXPORT_FILE, exportFile)

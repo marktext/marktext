@@ -29,6 +29,7 @@
       "print": "Afdrukken",
       "closeTab": "Tabblad sluiten",
       "closeWindow": "Venster sluiten",
+      "closeAllWindows": "Alle vensters sluiten",
       "quit": "Afsluiten",
       "preferences": "Voorkeuren"
     },
@@ -791,7 +792,10 @@
       "print": "Afdrukken",
       "preferences": "Voorkeuren",
       "closeTab": "Tabblad sluiten",
+      "closeOtherTabs": "Andere tabbladen sluiten",
+      "closeAllTabs": "Alle tabbladen sluiten",
       "closeWindow": "Venster sluiten",
+      "closeAllWindows": "Alle vensters sluiten",
       "quit": "Afsluiten",
       "toggleAutoSave": "Automatisch opslaan in-/uitschakelen",
       "importFile": "Bestand importeren",

@@ -29,6 +29,7 @@
       "print": "列印",
       "closeTab": "關閉標籤頁",
       "closeWindow": "關閉視窗",
+      "closeAllWindows": "關閉所有視窗",
       "quit": "退出",
       "preferences": "偏好設定"
     },
@@ -791,7 +792,10 @@
       "print": "列印",
       "preferences": "偏好設定",
       "closeTab": "關閉標籤頁",
+      "closeOtherTabs": "關閉其他標籤頁",
+      "closeAllTabs": "關閉所有標籤頁",
       "closeWindow": "關閉視窗",
+      "closeAllWindows": "關閉所有視窗",
       "quit": "退出",
       "toggleAutoSave": "切換自動儲存",
       "importFile": "匯入檔案",

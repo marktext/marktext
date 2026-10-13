@@ -19,6 +19,9 @@ const COMMANDS = Object.freeze({
   EDIT_UNDO: 'edit.undo',
 
   FILE_CHECK_UPDATE: 'file.check-update',
+  FILE_CLOSE_ALL_TABS: 'file.close-all-tabs',
+  FILE_CLOSE_ALL_WINDOWS: 'file.close-all-windows',
+  FILE_CLOSE_OTHER_TABS: 'file.close-other-tabs',
   FILE_CLOSE_TAB: 'file.close-tab',
   FILE_CLOSE_WINDOW: 'file.close-window',
   FILE_EXPORT_FILE: 'file.export-file',

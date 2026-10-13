@@ -29,6 +29,7 @@
       "print": "Imprimir",
       "closeTab": "Cerrar Pestaña",
       "closeWindow": "Cerrar Ventana",
+      "closeAllWindows": "Cerrar Todas las Ventanas",
       "quit": "Salir",
       "preferences": "Preferencias"
     },
@@ -791,7 +792,10 @@
       "print": "Imprimir",
       "preferences": "Preferencias",
       "closeTab": "Cerrar Pestaña",
+      "closeOtherTabs": "Cerrar Otras Pestañas",
+      "closeAllTabs": "Cerrar Todas las Pestañas",
       "closeWindow": "Cerrar Ventana",
+      "closeAllWindows": "Cerrar Todas las Ventanas",
       "quit": "Salir",
       "toggleAutoSave": "Alternar Guardado Automático",
       "importFile": "Importar Archivo",
