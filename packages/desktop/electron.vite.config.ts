@@ -88,11 +88,7 @@ export default defineConfig({
       extensions: ['.mjs', '.ts', '.js', '.json', '.vue']
     },
     optimizeDeps: {
-      // Vite 8 pre-bundles with Rolldown, and `optimizeDeps.esbuildOptions` is
-      // deprecated. It cannot be swapped for `rolldownOptions: { define }`:
-      // Vite's dep optimizer omits `define` from its Rolldown options (tsc
-      // rejects it; Rolldown then warns "Expected never"). The top-level
-      // `define.global` above covers pre-bundled dependencies too.
+      // Vite's dev client exposes define.global at runtime for optimized deps.
       include: ['pako', 'pathe']
     },
     plugins: [vue(), svgLoader()] as PluginOption[],
