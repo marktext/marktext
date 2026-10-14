@@ -23,13 +23,13 @@
       <cur-select
         :description="t('preferences.theme.lightModeTheme')"
         :value="lightModeTheme"
-        :options="themeOptions"
+        :options="lightThemeOptions"
         :on-change="(value) => onSelectChange('lightModeTheme', value)"
       />
       <cur-select
         :description="t('preferences.theme.darkModeTheme')"
         :value="darkModeTheme"
-        :options="themeOptions"
+        :options="darkThemeOptions"
         :on-change="(value) => onSelectChange('darkModeTheme', value)"
       />
     </div>
@@ -96,6 +96,7 @@ import { ref, onMounted } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
+import { isDarkThemeId } from 'common/theme'
 import { useI18n } from 'vue-i18n'
 import themeMd from './theme.md?raw'
 import { themes as configThemes } from './config'
@@ -126,6 +127,9 @@ const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
     .join(' '),
   value: theme.name
 }))
+
+const lightThemeOptions = themeOptions.filter((option) => !isDarkThemeId(option.value))
+const darkThemeOptions = themeOptions.filter((option) => isDarkThemeId(option.value))
 
 onMounted(async () => {
   const newThemes: ThemePreview[] = []

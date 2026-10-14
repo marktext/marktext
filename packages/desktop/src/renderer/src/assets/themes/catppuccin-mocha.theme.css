@@ -20,7 +20,6 @@
   --editorColor40: rgba(205, 214, 244, 0.4);
   --editorColor30: rgba(205, 214, 244, 0.3);
   --editorColor10: rgba(205, 214, 244, 0.1);
-  --editorColor07: rgba(205, 214, 244, 0.07);
   --editorColor04: rgba(205, 214, 244, 0.04);
   --editorBgColor: #1e1e2e;
   --deleteColor: #f38ba8;
@@ -104,7 +103,6 @@
   --editor-color-50: var(--editorColor50);
   --editor-color-30: var(--editorColor30);
   --editor-color-10: var(--editorColor10);
-  --editor-color-07: var(--editorColor07);
   --editor-color-04: var(--editorColor04);
   --editor-bg-color: var(--editorBgColor);
   --editor-area-width: var(--editorAreaWidth);
