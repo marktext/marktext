@@ -455,9 +455,9 @@ export const EXPORT_DOMPURIFY_CONFIG = {
         mathMl: false,
     },
     RETURN_TRUSTED_TYPE: false,
-    // Allow "file" protocol to export images on Windows (#1997).
+    // Keep Windows drive paths for the local-image resolver after sanitization (#3323).
     ALLOWED_URI_REGEXP:
-    /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+    /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[a-z]:(?:[\\/]|%5c)|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
 };
 export const DEFAULT_SEARCH_OPTIONS = {
     isCaseSensitive: false,

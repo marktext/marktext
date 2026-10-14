@@ -23,9 +23,9 @@ export const EXPORT_DOMPURIFY_CONFIG = Object.freeze({
     mathMl: false
   },
   RETURN_TRUSTED_TYPE: false,
-  // Allow "file" protocol to export images on Windows (#1997).
+  // Keep Windows drive paths for the local-image resolver after sanitization (#3323).
   ALLOWED_URI_REGEXP:
-    /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
+    /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|file):|[a-z]:(?:[\\/]|%5c)|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i // eslint-disable-line no-useless-escape
 })
 
 // Outline labels render user-authored headings through `v-html`, so allow only

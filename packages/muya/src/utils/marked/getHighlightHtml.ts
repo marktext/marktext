@@ -49,17 +49,8 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
     // state (e.g. wiping `lang` on subsequent runs).
     const marked = new Marked(markedHighlight({ highlight }));
 
-    const visitToken = walkTokens({ texMathDollars, texMathGfm });
     marked.use({
-        walkTokens(token) {
-            visitToken(token);
-            if (token.type === 'image') {
-                const src = token.href.replace(/%5c/gi, '/');
-                // Drive letters otherwise look like unsafe URL schemes to the export sanitizer (#3323).
-                if (/^[a-z]:[\\/]/i.test(src))
-                    token.href = `file:///${src.replace(/\\/g, '/')}`;
-            }
-        },
+        walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
 
     // Treat CJK characters as punctuation for emphasis/strong flanking so
