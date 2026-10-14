@@ -88,12 +88,8 @@ export default defineConfig({
       extensions: ['.mjs', '.ts', '.js', '.json', '.vue']
     },
     optimizeDeps: {
-      include: ['pako', 'pathe'],
-      esbuildOptions: {
-        define: {
-          global: 'globalThis'
-        }
-      }
+      // Vite's dev client exposes define.global at runtime for optimized deps.
+      include: ['pako', 'pathe']
     },
     plugins: [vue(), svgLoader()] as PluginOption[],
     css: {
