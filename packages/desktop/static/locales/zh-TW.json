@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "自動編號標題",
     "title": "匯出選項",
-    "info": {
-      "label": "資訊",
-      "description": "請自訂頁面外觀並點選「匯出」以繼續。"
-    },
     "page": {
       "label": "頁面",
-      "pageTitle": "頁面標題：",
+      "pageTitle": "頁面標題",
       "pageSize": "頁面大小：",
       "landscapeOrientation": "橫向方向：",
       "pageMargin": "頁面邊距（毫米）：",
@@ -314,12 +310,13 @@
       "description": "如果定義了頁首和/或頁尾，文字將出現在所有頁面上。"
     },
     "toc": {
-      "includeTopHeading": "包含頂層標題",
-      "includeTopHeadingDetail": "包含頂層標題詳細資訊",
+      "description": "若要在匯出文件中顯示目錄，請在正文中單獨一行輸入 [TOC]。目錄將產生在該位置。",
+      "includeTopHeading": "包含一級標題",
+      "includeTopHeadingDetail": "在目錄中包含所有一級（H1）標題。",
       "label": "目錄",
       "title": "目錄"
     },
-    "export": "匯出…",
+    "export": "匯出",
     "options": {
       "pageSizes": {
         "a3": "A3",

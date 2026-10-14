@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Auto numbering headings",
     "title": "Export Options",
-    "info": {
-      "label": "Info",
-      "description": "Please customize the page appearance and click on \"export\" to continue."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "The page title:",
+      "pageTitle": "The page title",
       "pageSize": "Page size:",
       "landscapeOrientation": "Landscape orientation:",
       "pageMargin": "Page margin in mm:",
@@ -314,12 +310,13 @@
       "description": "The text appear on all pages if header and/or footer is defined."
     },
     "toc": {
-      "includeTopHeading": "Include top heading",
-      "includeTopHeadingDetail": "Include top heading detail",
+      "description": "To show a table of contents in the exported document, enter [TOC] on its own line in the document body. The table of contents will appear at that position.",
+      "includeTopHeading": "Include level-1 headings",
+      "includeTopHeadingDetail": "Include all level-1 (H1) headings in the table of contents.",
       "label": "Table of Contents",
       "title": "Table of Contents"
     },
-    "export": "Export...",
+    "export": "Export",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",

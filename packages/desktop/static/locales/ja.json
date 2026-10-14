@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "見出しの自動番号付け",
     "title": "エクスポートオプション",
-    "info": {
-      "label": "情報",
-      "description": "ページレイアウトを調整して、'エクスポート'をクリックして続行してください。"
-    },
     "page": {
       "label": "ページ",
-      "pageTitle": "ページタイトル :",
+      "pageTitle": "ページタイトル",
       "pageSize": "ページサイズ :",
       "landscapeOrientation": "横向き :",
       "pageMargin": "ページ余白 (mm):",
@@ -314,12 +310,13 @@
       "description": "ヘッダーやフッターが定義されている場合、テキストはすべてのページに表示されます。"
     },
     "toc": {
-      "includeTopHeading": "最上位見出しを含める",
-      "includeTopHeadingDetail": "最上位見出しの詳細を含める",
+      "description": "エクスポートした文書に目次を表示するには、本文の独立した行に [TOC] を入力してください。その位置に目次が生成されます。",
+      "includeTopHeading": "レベル1の見出しを含める",
+      "includeTopHeadingDetail": "すべてのレベル1（H1）の見出しを目次に含めます。",
       "label": "目次",
       "title": "目次"
     },
-    "export": "エクスポート...",
+    "export": "エクスポート",
     "options": {
       "pageSizes": {
         "a3": "A3",
