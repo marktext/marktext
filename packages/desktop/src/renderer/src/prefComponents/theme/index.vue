@@ -1,6 +1,41 @@
 <template>
   <div class="pref-theme">
     <h4>{{ t('preferences.theme.title') }}</h4>
+    <Bool
+      class="follow-system-theme"
+      :description="t('preferences.theme.followSystemTheme')"
+      :bool="followSystemTheme"
+      :on-change="(value) => onSelectChange('followSystemTheme', value)"
+    />
+
+    <div
+      v-if="followSystemTheme"
+      class="notes"
+    >
+      <!-- The marker is punctuation, not prose, so it stays out of the locale files. -->
+      <span aria-hidden="true">*</span> {{ t('preferences.theme.followSystemNote') }}
+    </div>
+
+    <div
+      v-if="followSystemTheme"
+      class="mode-themes-row"
+    >
+      <cur-select
+        :description="t('preferences.theme.lightModeTheme')"
+        :value="lightModeTheme"
+        :options="lightThemeOptions"
+        :on-change="(value) => onSelectChange('lightModeTheme', value)"
+      />
+      <cur-select
+        :description="t('preferences.theme.darkModeTheme')"
+        :value="darkModeTheme"
+        :options="darkThemeOptions"
+        :on-change="(value) => onSelectChange('darkModeTheme', value)"
+      />
+    </div>
+
+    <separator />
+
     <section class="offcial-themes">
       <div
         v-for="themeItem of themes"
@@ -19,36 +54,6 @@
         <div v-html="themeItem.html" />
       </div>
     </section>
-    <separator />
-
-    <Bool
-      :description="t('preferences.theme.followSystemTheme')"
-      :bool="followSystemTheme"
-      :on-change="(value) => onSelectChange('followSystemTheme', value)"
-    />
-
-    <compound v-if="followSystemTheme">
-      <template #head>
-        <h6 class="title">
-          {{ t('preferences.theme.modeThemes') }}
-        </h6>
-      </template>
-      <template #children>
-        <cur-select
-          :description="t('preferences.theme.lightModeTheme')"
-          :value="lightModeTheme"
-          :options="themeOptions"
-          :on-change="(value) => onSelectChange('lightModeTheme', value)"
-        />
-
-        <cur-select
-          :description="t('preferences.theme.darkModeTheme')"
-          :value="darkModeTheme"
-          :options="themeOptions"
-          :on-change="(value) => onSelectChange('darkModeTheme', value)"
-        />
-      </template>
-    </compound>
 
     <div class="custom-css">
       <div class="description">
@@ -91,6 +96,7 @@ import { ref, onMounted } from 'vue'
 import { usePreferencesStore } from '@/store/preferences'
 import type { PreferencesState } from '@/store/preferences'
 import { storeToRefs } from 'pinia'
+import { isDarkThemeId } from 'common/theme'
 import { useI18n } from 'vue-i18n'
 import themeMd from './theme.md?raw'
 import { themes as configThemes } from './config'
@@ -98,7 +104,6 @@ import markdownToHtml from '@/util/markdownToHtml'
 import Bool from '../common/bool/index.vue'
 import CurSelect from '../common/select/index.vue'
 import Separator from '../common/separator/index.vue'
-import Compound from '../common/compound/index.vue'
 import type { PrefSelectOption } from '../common/types'
 
 interface ThemePreview {
@@ -123,6 +128,9 @@ const themeOptions: PrefSelectOption<string>[] = configThemes.map((theme) => ({
   value: theme.name
 }))
 
+const lightThemeOptions = themeOptions.filter((option) => !isDarkThemeId(option.value))
+const darkThemeOptions = themeOptions.filter((option) => isDarkThemeId(option.value))
+
 onMounted(async () => {
   const newThemes: ThemePreview[] = []
   for (const theme of configThemes) {
@@ -141,6 +149,23 @@ const onSelectChange = (type: keyof PreferencesState, value: unknown): void => {
 </script>
 
 <style>
+/* The toggle leads the panel now, so give its label a little more weight — this
+   instance only; `Bool` is shared by every preferences panel. */
+.pref-theme .follow-system-theme .description > span {
+  font-weight: 600;
+}
+
+/* The light/dark mode pickers sit on one row under the "follow system" toggle. */
+.pref-theme .mode-themes-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.pref-theme .mode-themes-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
 .offcial-themes {
   margin-top: 12px;
   display: grid;
