@@ -209,9 +209,9 @@ export const exportStyledHTML = async(
   // back to a raw `[TOC]` if present.
   if (toc) {
     if (/<p>\s*\[TOC\]\s*<\/p>/i.test(article)) {
-      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, toc)
+      article = article.replace(/<p>\s*\[TOC\]\s*<\/p>/i, () => toc)
     } else if (TOC_REG.test(article)) {
-      article = article.replace(TOC_REG, toc)
+      article = article.replace(TOC_REG, () => toc)
     }
   }
 
