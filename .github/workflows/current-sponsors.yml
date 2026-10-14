@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.repository.default_branch }}
+          token: ${{ secrets.SPONSORS_PUSH_TOKEN || github.token }}
 
       - uses: actions/setup-node@v7
         with:
