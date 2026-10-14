@@ -32,7 +32,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add README.md
+          git add README.md docs/assets/sponsors/
           if git diff --cached --quiet; then
             exit 0
           fi

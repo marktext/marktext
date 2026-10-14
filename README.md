@@ -118,14 +118,7 @@ MarkText is an open-source Markdown editor powered by the support of its communi
 
 **Current Sponsors**
 
-<p>
-  <a href="https://github.com/sponsors/marktext">
-    <img src="https://avatars.githubusercontent.com/u/22532095?s=96&amp;u=df231d67f008dc0cd6312684660600aa6c06bde8&amp;v=4" width="48" height="48" alt="JnsDornbusch">
-    <img src="https://avatars.githubusercontent.com/u/35397376?s=96&amp;u=863d05460be202d053c3f117505783d6074f06d0&amp;v=4" width="48" height="48" alt="mikistrange">
-    <img src="https://avatars.githubusercontent.com/u/283594170?s=96&amp;u=0bc32c8c4246003290f7ef52f9151985f92148b8&amp;v=4" width="48" height="48" alt="new595">
-    <img src="https://avatars.githubusercontent.com/u/6493840?s=96&amp;u=14a627f7ee7c22b2e5dc1f362835e7ca46764775&amp;v=4" width="48" height="48" alt="usr42">
-  </a>
-</p>
+[![Current sponsors](docs/assets/sponsors/current.svg)](https://github.com/sponsors/marktext)
 
 <!-- current-sponsors:end -->
 
