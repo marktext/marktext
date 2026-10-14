@@ -270,13 +270,9 @@
   },
   "exportSettings": {
     "title": "导出选项",
-    "info": {
-      "label": "信息",
-      "description": "请自定义页面外观并点击\"导出\"继续。"
-    },
     "page": {
       "label": "页面",
-      "pageTitle": "页面标题：",
+      "pageTitle": "页面标题",
       "pageSize": "页面大小：",
       "landscapeOrientation": "横向方向：",
       "pageMargin": "页面边距（毫米）：",
@@ -312,14 +308,15 @@
       "fontSize": "字体大小"
     },
     "toc": {
+      "description": "要在导出文档中显示目录，请在正文中单独一行输入 [TOC]。目录将生成在该位置。",
       "label": "目录",
       "title": "目录",
-      "includeTopHeading": "包含顶级标题",
-      "includeTopHeadingDetail": "包含顶级标题详情"
+      "includeTopHeading": "包含一级标题",
+      "includeTopHeadingDetail": "在目录中包含所有一级（H1）标题。"
     },
     "autoNumberingHeadings": "自动编号标题",
     "showFrontMatter": "显示前置元数据",
-    "export": "导出…",
+    "export": "导出",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",

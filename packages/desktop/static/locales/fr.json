@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Numérotation automatique des titres",
     "title": "Options d'exportation",
-    "info": {
-      "label": "Informations",
-      "description": "Veuillez personnaliser l'apparence de la page et cliquer sur 'Exporter' pour continuer."
-    },
     "page": {
       "label": "Page",
-      "pageTitle": "Titre de la page :",
+      "pageTitle": "Titre de la page",
       "pageSize": "Taille de la page :",
       "landscapeOrientation": "Orientation paysage :",
       "pageMargin": "Marge de page (mm) :",
@@ -314,12 +310,13 @@
       "description": "Si un en-tête et/ou un pied de page est défini, le texte apparaîtra sur toutes les pages."
     },
     "toc": {
-      "includeTopHeading": "Inclure le titre de niveau supérieur",
-      "includeTopHeadingDetail": "Inclure les détails du titre de niveau supérieur",
+      "description": "Pour afficher une table des matières dans le document exporté, saisissez [TOC] sur une ligne distincte dans le corps du document. La table des matières apparaîtra à cet emplacement.",
+      "includeTopHeading": "Inclure les titres de niveau 1",
+      "includeTopHeadingDetail": "Inclure tous les titres de niveau 1 (H1) dans la table des matières.",
       "label": "Table des matières",
       "title": "Table des matières"
     },
-    "export": "Exporter...",
+    "export": "Exporter",
     "options": {
       "pageSizes": {
         "a3": "A3",

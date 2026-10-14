@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Automatische Nummerierung der Überschriften",
     "title": "Export-Optionen",
-    "info": {
-      "label": "Information",
-      "description": "Bitte passen Sie das Seitenlayout an und klicken Sie auf 'Exportieren', um fortzufahren."
-    },
     "page": {
       "label": "Seite",
-      "pageTitle": "Seitentitel:",
+      "pageTitle": "Seitentitel",
       "pageSize": "Seitengröße:",
       "landscapeOrientation": "Querformat:",
       "pageMargin": "Seitenrand (mm):",
@@ -314,12 +310,13 @@
       "description": "Wenn eine Kopf- und/oder Fußzeile definiert ist, wird der Text auf allen Seiten angezeigt."
     },
     "toc": {
-      "includeTopHeading": "Oberste Überschrift einschließen",
-      "includeTopHeadingDetail": "Details der obersten Überschrift einschließen",
+      "description": "Um ein Inhaltsverzeichnis im exportierten Dokument anzuzeigen, geben Sie [TOC] in einer eigenen Zeile im Dokument ein. Das Inhaltsverzeichnis erscheint an dieser Stelle.",
+      "includeTopHeading": "Überschriften der Ebene 1 einschließen",
+      "includeTopHeadingDetail": "Alle Überschriften der Ebene 1 (H1) in das Inhaltsverzeichnis aufnehmen.",
       "label": "Inhaltsverzeichnis",
       "title": "Inhaltsverzeichnis"
     },
-    "export": "Exportieren...",
+    "export": "Exportieren",
     "options": {
       "pageSizes": {
         "a3": "A3",

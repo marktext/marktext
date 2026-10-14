@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Başlıkları otomatik numaralandır",
     "title": "Dışa Aktarma Seçenekleri",
-    "info": {
-      "label": "Bilgi",
-      "description": "Lütfen sayfa görünümünü özelleştirin ve devam etmek için \"dışa aktar\"a tıklayın."
-    },
     "page": {
       "label": "Sayfa",
-      "pageTitle": "Sayfa başlığı:",
+      "pageTitle": "Sayfa başlığı",
       "pageSize": "Sayfa boyutu:",
       "landscapeOrientation": "Yatay yönlendirme:",
       "pageMargin": "mm cinsinden sayfa kenar boşluğu:",
@@ -314,12 +310,13 @@
       "description": "Üst bilgi ve/veya alt bilgi tanımlanmışsa metin tüm sayfalarda görünür."
     },
     "toc": {
-      "includeTopHeading": "En üst başlığı dahil et",
-      "includeTopHeadingDetail": "En üst başlık ayrıntısını dahil et",
+      "description": "Dışa aktarılan belgede içindekiler tablosunu göstermek için belgenin gövdesinde ayrı bir satıra [TOC] yazın. İçindekiler tablosu bu konumda görünecektir.",
+      "includeTopHeading": "1. düzey başlıkları dahil et",
+      "includeTopHeadingDetail": "İçindekiler tablosuna tüm 1. düzey (H1) başlıkları dahil et.",
       "label": "İçindekiler",
       "title": "İçindekiler"
     },
-    "export": "Dışa Aktar...",
+    "export": "Dışa Aktar",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",

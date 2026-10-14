@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Automatisch nummeren van koppen",
     "title": "Exportopties",
-    "info": {
-      "label": "Info",
-      "description": "Pas de pagina-opmaak aan en klik op \"exporteren\" om door te gaan."
-    },
     "page": {
       "label": "Pagina",
-      "pageTitle": "Paginatitel:",
+      "pageTitle": "Paginatitel",
       "pageSize": "Paginaformaat:",
       "landscapeOrientation": "Liggende oriëntatie:",
       "pageMargin": "Paginamarge in mm:",
@@ -314,12 +310,13 @@
       "description": "De tekst verschijnt op alle pagina's als kop- en/of voettekst is gedefinieerd."
     },
     "toc": {
-      "includeTopHeading": "Bovenste kop opnemen",
-      "includeTopHeadingDetail": "Bovenste kop detail opnemen",
+      "description": "Typ [TOC] op een aparte regel in de hoofdtekst om een inhoudsopgave in het geëxporteerde document te tonen. De inhoudsopgave verschijnt op die positie.",
+      "includeTopHeading": "Koppen van niveau 1 opnemen",
+      "includeTopHeadingDetail": "Alle koppen van niveau 1 (H1) opnemen in de inhoudsopgave.",
       "label": "Inhoudsopgave",
       "title": "Inhoudsopgave"
     },
-    "export": "Exporteren...",
+    "export": "Exporteren",
     "options": {
       "pageSizes": {
         "a3": "A3 (297mm x 420mm)",

@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "Numeración automática de encabezados",
     "title": "Opciones de Exportación",
-    "info": {
-      "label": "Información",
-      "description": "Por favor personalice la apariencia de la página y haga clic en \"exportar\" para continuar."
-    },
     "page": {
       "label": "Página",
-      "pageTitle": "El título de la página:",
+      "pageTitle": "El título de la página",
       "pageSize": "Tamaño de página:",
       "landscapeOrientation": "Orientación horizontal:",
       "pageMargin": "Margen de página en mm:",
@@ -314,12 +310,13 @@
       "description": "El texto aparece en todas las páginas si se define encabezado y/o pie de página."
     },
     "toc": {
-      "includeTopHeading": "Incluir encabezado superior",
-      "includeTopHeadingDetail": "Incluir detalle del encabezado superior",
+      "description": "Para mostrar un índice en el documento exportado, escribe [TOC] en una línea independiente en el cuerpo del documento. El índice aparecerá en esa posición.",
+      "includeTopHeading": "Incluir encabezados de nivel 1",
+      "includeTopHeadingDetail": "Incluir todos los encabezados de nivel 1 (H1) en el índice.",
       "label": "Tabla de Contenidos",
       "title": "Tabla de Contenidos"
     },
-    "export": "Exportar...",
+    "export": "Exportar",
     "options": {
       "pageSizes": {
         "a3": "A3",

@@ -271,13 +271,9 @@
   "exportSettings": {
     "autoNumberingHeadings": "제목 자동 번호 매기기",
     "title": "내보내기 옵션",
-    "info": {
-      "label": "정보",
-      "description": "페이지 모양을 사용자 정의하고 \"내보내기\"를 클릭하여 계속하세요."
-    },
     "page": {
       "label": "페이지",
-      "pageTitle": "페이지 제목:",
+      "pageTitle": "페이지 제목",
       "pageSize": "페이지 크기:",
       "landscapeOrientation": "가로 방향:",
       "pageMargin": "페이지 여백(mm):",
@@ -314,12 +310,13 @@
       "description": "머리글 및/또는 바닥글이 정의된 경우 모든 페이지에 텍스트가 나타납니다."
     },
     "toc": {
-      "includeTopHeading": "최상위 제목 포함",
-      "includeTopHeadingDetail": "최상위 제목 세부 정보 포함",
+      "description": "내보낸 문서에 목차를 표시하려면 문서 본문에 [TOC]를 별도의 줄에 입력하세요. 해당 위치에 목차가 생성됩니다.",
+      "includeTopHeading": "1단계 제목 포함",
+      "includeTopHeadingDetail": "목차에 모든 1단계(H1) 제목을 포함합니다.",
       "label": "목차",
       "title": "목차"
     },
-    "export": "내보내기...",
+    "export": "내보내기",
     "options": {
       "pageSizes": {
         "a3": "A3",
