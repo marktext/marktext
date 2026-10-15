@@ -2,6 +2,7 @@ import type { ImageToken } from '../inlineRenderer/types';
 import { isWin } from '../config/index';
 import { tokenizer } from '../inlineRenderer/lexer';
 import { findContentDOM, getOffsetOfParagraph } from '../selection/dom';
+import { ABSOLUTE_LOCAL_REG, encodeDirnameForUrl, localPathToFileUrl, resolveRelativePath } from './fileUrl';
 
 export interface IImageInfo {
     token: ImageToken;
@@ -23,70 +24,6 @@ export function getImageInfo(image: HTMLElement): IImageInfo {
         token,
         imageId: image.id,
     };
-}
-
-// A local image path that is already anchored to a filesystem root:
-// POSIX (`/foo`), Windows UNC (`\\host\share`), or a drive letter
-// (`C:\foo` / `C:/foo`), so absolute paths are NOT resolved against the
-// document directory.
-const ABSOLUTE_LOCAL_REG = /^(?:\/|\\\\|[a-z]:\\|[a-z]:\/).+/i;
-
-/**
- * Resolve a relative POSIX path against an absolute base directory, mirroring
- * Node's `path.resolve(base, rel)` for the cases `getImageSrc` cares about.
- * Kept self-contained so the engine does not depend on the desktop host's
- * `window.path` polyfill. Windows-style backslashes in `base` are normalised
- * to `/` first (Chromium loads `file://` URLs with forward slashes regardless
- * of platform). `.` and `..` segments are collapsed.
- */
-function resolveRelativePath(base: string, relative: string): string {
-    const normalizedBase = base.replace(/\\/g, '/').replace(/\/+$/, '');
-    const combined = `${normalizedBase}/${relative.replace(/\\/g, '/')}`;
-    // Isolate the root that `..` must never collapse past (mirroring
-    // `path.resolve`): a UNC share (`//server/share`), a Windows drive (`C:`),
-    // or the POSIX root. The root prefix is preserved; `..` beyond it is a no-op.
-    const root = combined.match(/^\/\/[^/]+\/[^/]+/)?.[0]
-        ?? combined.match(/^[a-z]:/i)?.[0]
-        ?? '';
-    const body = root ? combined.slice(root.length) : combined;
-    const resolved: string[] = [];
-    for (const segment of body.split('/')) {
-        if (segment === '' || segment === '.')
-            continue;
-
-        if (segment === '..')
-            resolved.pop();
-        else
-            resolved.push(segment);
-    }
-    const tail = resolved.join('/');
-    // POSIX root keeps a leading slash; a drive/UNC root prefixes its tail.
-    if (root === '')
-        return `/${tail}`;
-
-    return tail ? `${root}/${tail}` : root;
-}
-
-// `window.DIRNAME` is a raw filesystem path, whereas a markdown image path is
-// already URL-encoded, so only the directory gets its `%`, `?` and `#` escaped:
-// raw, they would read as an escape, a query or a fragment (#5212).
-function encodeDirnameForUrl(dirname: string): string {
-    return dirname
-        .replace(/%/g, '%25')
-        .replace(/\?/g, '%3F')
-        .replace(/#/g, '%23');
-}
-
-function localPathToFileUrl(src: string): string {
-    const normalized = src.replace(/\\/g, '/');
-
-    if (/^\/\/[^/]+\/[^/]+/.test(normalized))
-        return `file://${normalized.slice(2)}`;
-
-    if (/^[a-z]:\//i.test(normalized))
-        return `file:///${normalized}`;
-
-    return `file://${normalized}`;
 }
 
 export function getImageSrc(src: string) {

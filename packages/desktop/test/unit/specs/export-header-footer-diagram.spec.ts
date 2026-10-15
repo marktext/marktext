@@ -23,7 +23,6 @@ vi.mock('@muyajs/core', () => ({
   }
 }))
 
-vi.mock('@/util/resolveImageSrc', () => ({ resolveLocalImageSrc: (s: string) => s }))
 vi.mock('@/util/resolveLinkHref', () => ({ resolveLocalLinkHref: (s: string) => s }))
 
 const { exportStyledHTML } = await import('@/util/exportHtml')
