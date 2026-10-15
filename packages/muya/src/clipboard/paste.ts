@@ -16,6 +16,7 @@ import { isAnyListState, isParagraphState } from '../state/types';
 import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 import { tryPasteImage, tryReplaceSelectedImage } from './pasteImage';
+import { tryPasteUrl } from './pasteUrl';
 import { PasteType } from './types';
 
 // Everything the per-anchor paste handlers need from the synchronous snapshot
@@ -625,6 +626,11 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
     // Normalize Windows CRLF / lone CR to LF so every downstream `split('\n')`
     // and offset calculation sees one newline convention (muyajs strips \r).
     const text = data.text.replace(/\r\n?/g, '\n');
+
+    if (isSelectionInSameBlock && !imageFile && !clipboard.selection.image
+        && tryPasteUrl(clipboard, anchorBlock, text, pasteType)) {
+        return;
+    }
 
     if (!isSelectionInSameBlock) {
         clipboard.cutHandler();

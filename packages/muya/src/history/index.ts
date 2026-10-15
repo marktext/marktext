@@ -272,8 +272,11 @@ class History {
         };
     }
 
-    cutoff() {
+    // An explicit selection becomes the undo destination for the next recorded edit.
+    cutoff(selection?: IHistorySelection) {
         this._lastRecorded = 0;
+        if (selection)
+            this._selectionStack = [selection];
     }
 
     markInputBoundary(inputType: string, data: Nullable<string>): void {
