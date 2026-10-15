@@ -55,7 +55,7 @@ const renderPrintContainer = async(markdown: string): Promise<Element> => {
   const html = await exportStyledHTML(NO_MUYA, markdown, {})
   const article = /<article class="markdown-body">[\s\S]*<\/article>/.exec(html)
   expect(article).not.toBeNull()
-  await new MarkdownPrint().renderMarkdown(article![0], true)
+  await new MarkdownPrint().renderMarkdown(article![0])
   const code = document.querySelector('article.print-container pre code')
   expect(code).not.toBeNull()
   return code!

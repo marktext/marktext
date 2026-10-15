@@ -1,17 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// `printService` imports `resolveLocalImageSrc`, which reads `window.path` /
-// `window.DIRNAME` for its relative-resolve branch. Stub those preload
-// surfaces before the hoisted import runs (mirrors printService-image.spec.ts).
-vi.hoisted(() => {
-  const w = globalThis as unknown as {
-    window?: { path?: { sep: string }; DIRNAME?: string }
-  }
-  w.window ??= {}
-  w.window.path ??= { sep: '/' }
-  w.window.DIRNAME = '/docs'
-})
-
 import MarkdownPrint from '@/services/printService'
 
 // PDF / print render into an `<article class="print-container">` appended to
@@ -33,25 +21,25 @@ describe('MarkdownPrint — text direction on the print container', () => {
   const article = '<article class="markdown-body"><p>سلام</p></article>'
 
   it('sets dir="rtl" on the print container for an RTL export', async() => {
-    await new MarkdownPrint().renderMarkdown(article, true, 'rtl')
+    await new MarkdownPrint().renderMarkdown(article, 'rtl')
     const container = document.body.querySelector('article.print-container')
     expect(container?.getAttribute('dir')).toBe('rtl')
   })
 
   it('sets dir="auto" on the print container for an auto export', async() => {
-    await new MarkdownPrint().renderMarkdown(article, true, 'auto')
+    await new MarkdownPrint().renderMarkdown(article, 'auto')
     const container = document.body.querySelector('article.print-container')
     expect(container?.getAttribute('dir')).toBe('auto')
   })
 
   it('leaves the container without a dir attribute for LTR (unchanged default)', async() => {
-    await new MarkdownPrint().renderMarkdown(article, true, 'ltr')
+    await new MarkdownPrint().renderMarkdown(article, 'ltr')
     const container = document.body.querySelector('article.print-container')
     expect(container?.hasAttribute('dir')).toBe(false)
   })
 
   it('leaves the container without a dir attribute when no direction is passed', async() => {
-    await new MarkdownPrint().renderMarkdown(article, true)
+    await new MarkdownPrint().renderMarkdown(article)
     const container = document.body.querySelector('article.print-container')
     expect(container?.hasAttribute('dir')).toBe(false)
   })
@@ -63,7 +51,7 @@ describe('MarkdownPrint — text direction on the print container', () => {
     })
     vi.mocked(document.fonts.load).mockImplementation(() => loading.then(() => []))
     let ready = false
-    const rendering = new MarkdownPrint().renderMarkdown(article, true).then(() => {
+    const rendering = new MarkdownPrint().renderMarkdown(article).then(() => {
       ready = true
     })
     await Promise.resolve()

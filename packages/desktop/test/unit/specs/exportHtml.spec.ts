@@ -25,8 +25,8 @@ vi.hoisted(() => {
     resolve: (...parts: string[]) =>
       parts.join('/').replace(/\/\.\//g, '/').replace(/\/{2,}/g, '/')
   }
-  // The document directory the export wrapper resolves relative <img> src
-  // against (see resolveLocalImageSrc / window.DIRNAME).
+  // The document directory relative <img> srcs and links resolve against (the
+  // engine's `resolveExportImageSrc` and `resolveLocalLinkHref`).
   w.window.DIRNAME = '/docs'
 })
 
@@ -264,6 +264,18 @@ describe('exportStyledHTML — relative image paths', () => {
     const out = await exportStyledHTML(NO_MUYA, `![](assets\\${filename})`, {})
 
     expect(out).toContain(`src="file:///docs/assets/${filename}"`)
+  })
+
+  it('keeps a Windows drive image path as a file:// URL (#3323)', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '![alt](<C:\\Users\\Alice\\My Pictures\\a.png>)', {})
+
+    expect(out).toContain('src="file:///C:/Users/Alice/My%20Pictures/a.png"')
+  })
+
+  it('resolves a raw <img> tag, as written for resized images', async() => {
+    const out = await exportStyledHTML(NO_MUYA, '<img src="./a.png" width="200">', {})
+
+    expect(out).toMatch(/<img[^>]+src="file:\/\/\/docs\/a\.png"/)
   })
 
   it('leaves a remote http(s) img src untouched', async() => {

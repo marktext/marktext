@@ -1,6 +1,5 @@
-import { EXPORT_DOMPURIFY_CONFIG } from '../config';
-import { sanitize } from '../utils';
 import { getHighlightHtml } from '../utils/marked';
+import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
 import { transformFootnotes } from './transformFootnotes';
 
 export interface IRenderToStaticHTMLOptions {
@@ -78,5 +77,5 @@ export function renderToStaticHTML(
     if (options.sanitize === false)
         return html;
 
-    return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
+    return sanitizeExportHtml(html);
 }

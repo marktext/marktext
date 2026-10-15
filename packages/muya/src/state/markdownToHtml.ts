@@ -8,6 +8,7 @@ import { isHTMLElement, sanitize, unescapeHTML } from '../utils';
 import loadRenderer from '../utils/diagram';
 
 import { getHighlightHtml } from '../utils/marked';
+import { sanitizeExportHtml } from '../utils/sanitizeExportHtml';
 import { generateGithubSlug } from '../utils/slug';
 import { transformFootnotes } from './transformFootnotes';
 
@@ -212,7 +213,7 @@ export class MarkdownToHtml {
         if (footnote)
             html = transformFootnotes(html);
 
-        html = sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
+        html = sanitizeExportHtml(html);
 
         const exportContainer = (this._exportContainer
             = document.createElement('div'));
