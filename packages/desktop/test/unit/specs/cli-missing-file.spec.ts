@@ -10,6 +10,8 @@ import {
   writeMarkdownFile
 } from 'main_renderer/filesystem/markdown'
 
+// CI skips native builds; these cases exercise UTF-8 file IO, not encoding detection.
+vi.mock('ced', () => ({ default: () => 'UTF-8' }))
 vi.mock('electron-log', () => ({ default: { error: vi.fn() } }))
 
 const directories: string[] = []

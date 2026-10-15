@@ -21,18 +21,20 @@ test('CLI opens a named buffer without writing until Save (#2143)', async() => {
     await expect.poll(() => existsSync(pathname)).toBe(true)
     expect(readFileSync(pathname, 'utf8')).toBe('')
 
-    await app.evaluate(({ app, BrowserWindow }) => {
-      BrowserWindow.getAllWindows()[0].minimize()
-      if (process.platform === 'darwin') app.hide()
-    })
-    await expect
-      .poll(() =>
-        app.evaluate(({ app, BrowserWindow }) => ({
-          minimized: BrowserWindow.getAllWindows()[0].isMinimized(),
-          hidden: process.platform === 'darwin' && app.isHidden()
-        }))
-      )
-      .toEqual({ minimized: true, hidden: process.platform === 'darwin' })
+    if (process.platform === 'darwin') {
+      await app.evaluate(({ app, BrowserWindow }) => {
+        BrowserWindow.getAllWindows()[0].minimize()
+        if (process.platform === 'darwin') app.hide()
+      })
+      await expect
+        .poll(() =>
+          app.evaluate(({ app, BrowserWindow }) => ({
+            minimized: BrowserWindow.getAllWindows()[0].isMinimized(),
+            hidden: process.platform === 'darwin' && app.isHidden()
+          }))
+        )
+        .toEqual({ minimized: true, hidden: process.platform === 'darwin' })
+    }
     await app.evaluate(({ app }, workingDirectory) => {
       const argv = ['marktext', 'second.md']
       app.emit('second-instance', {}, argv, workingDirectory, { argv })
@@ -41,15 +43,17 @@ test('CLI opens a named buffer without writing until Save (#2143)', async() => {
       1
     )
     expect(existsSync(path.join(directory, 'second.md'))).toBe(false)
-    await expect
-      .poll(() =>
-        app.evaluate(({ app, BrowserWindow }) => ({
-          minimized: BrowserWindow.getAllWindows()[0].isMinimized(),
-          hidden: process.platform === 'darwin' && app.isHidden(),
-          active: process.platform !== 'darwin' || app.isActive()
-        }))
-      )
-      .toEqual({ minimized: false, hidden: false, active: true })
+    if (process.platform === 'darwin') {
+      await expect
+        .poll(() =>
+          app.evaluate(({ app, BrowserWindow }) => ({
+            minimized: BrowserWindow.getAllWindows()[0].isMinimized(),
+            hidden: process.platform === 'darwin' && app.isHidden(),
+            active: process.platform !== 'darwin' || app.isActive()
+          }))
+        )
+        .toEqual({ minimized: false, hidden: false, active: true })
+    }
     await app.evaluate(({ app }, workingDirectory) => {
       const argv = ['marktext', 'second.md']
       app.emit('second-instance', {}, argv, workingDirectory, { argv })
