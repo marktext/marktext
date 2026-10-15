@@ -119,7 +119,12 @@ interface AffiliationEntry {
 }
 
 interface SelectionChange {
-  start: { key: string; offset: number; block?: { text?: string; functionType?: string }; type?: string }
+  start: {
+    key: string
+    offset: number
+    block?: { text?: string; functionType?: string }
+    type?: string
+  }
   end: { key: string; offset: number; block?: { functionType?: string }; type?: string }
   affiliation?: AffiliationEntry[]
   hasFrontMatter?: boolean
@@ -637,7 +642,7 @@ export const useEditorStore = defineStore('editor', {
           window.DIRNAME = window.path.dirname(pathname)
         }
         if (tab) {
-          Object.assign(tab, { filename, pathname, isSaved: true })
+          Object.assign(tab, { filename, pathname, isSaved: true, isPendingCreation: false })
           debouncedSendBufferedState()
         }
       })
@@ -657,6 +662,7 @@ export const useEditorStore = defineStore('editor', {
             }
           }
           tab.isSaved = true
+          tab.isPendingCreation = false
           debouncedSendBufferedState()
         }
       })
@@ -1323,7 +1329,10 @@ export const useEditorStore = defineStore('editor', {
     NEW_UNTITLED_TAB({
       markdown: markdownString,
       selected
-    }: { markdown?: string; selected?: boolean }): void {
+    }: {
+      markdown?: string
+      selected?: boolean
+    }): void {
       if (selected == null) {
         selected = true
       }
@@ -2126,6 +2135,7 @@ function toSerializableValue<T>(value: T | null | undefined, fallback: T | null 
 }
 
 interface BufferedTabState {
+  isPendingCreation?: boolean
   id: string
   pathname: string
   filename: string
@@ -2147,6 +2157,7 @@ const createBufferedTabState = (tab: Partial<IFileState> & { id: string }): Buff
     pathname: tab.pathname ?? defaultFileState.pathname,
     filename: tab.filename ?? defaultFileState.filename,
     markdown: typeof tab.markdown === 'string' ? tab.markdown : defaultFileState.markdown,
+    isPendingCreation: tab.isPendingCreation,
     isSaved: tab.isSaved ?? defaultFileState.isSaved,
     encoding: toSerializableValue(tab.encoding, defaultFileState.encoding),
     lineEnding: tab.lineEnding ?? defaultFileState.lineEnding,

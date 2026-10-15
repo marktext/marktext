@@ -10,7 +10,7 @@ import type { IUserPreferences } from '@shared/types/preferences'
 import { isLinux, isOsx, isWindows } from '../config'
 import parseArgs from '../cli/parser'
 import { normalizeAndResolvePath } from '../filesystem'
-import { normalizeMarkdownPath } from '../filesystem/markdown'
+import { normalizeCliMarkdownPath, normalizeMarkdownPath } from '../filesystem/markdown'
 import { confirmAndTrashItem } from '../filesystem/trash'
 import { registerKeyboardListeners } from '../keyboard'
 import { selectTheme } from '../menu/actions/theme'
@@ -33,6 +33,7 @@ interface CliArgs {
 }
 
 interface PathInfo {
+  allowMissing?: boolean
   isDir: boolean
   path: string
 }
@@ -89,7 +90,7 @@ class App {
           continue
         }
 
-        const info = normalizeMarkdownPath(path.resolve(workingDirectory, pathname))
+        const info = normalizeCliMarkdownPath(path.resolve(workingDirectory, pathname))
         if (info) {
           buf.push(info as PathInfo)
         }
@@ -206,7 +207,7 @@ class App {
           continue
         }
 
-        const info = normalizeMarkdownPath(pathname)
+        const info = normalizeCliMarkdownPath(pathname)
         if (info) {
           _openFilesCache.push(info as PathInfo)
         }
@@ -440,13 +441,21 @@ class App {
     fileList: string[] = [],
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
-    bufferStoreInfo: { id: string; filePath: string | null } | null = null
+    bufferStoreInfo: { id: string; filePath: string | null } | null = null,
+    allowMissingPaths: string[] = []
   ): EditorWindow {
     const editor = new EditorWindow(this._accessor)
     if (rootDirectory) {
       this._accessor.preferences.setItems({ lastOpenedFolder: rootDirectory })
     }
-    editor.createWindow(rootDirectory, fileList, markdownList, options, bufferStoreInfo)
+    editor.createWindow(
+      rootDirectory,
+      fileList,
+      markdownList,
+      options,
+      bufferStoreInfo,
+      allowMissingPaths
+    )
     this._windowManager.add(editor)
     if (this._windowManager.windowCount === 1) {
       this._accessor.menu.setActiveWindow(editor.id!)
@@ -481,6 +490,7 @@ class App {
     const { _windowManager } = this
     const openFilesInNewWindow = this._accessor.preferences.getItem<boolean>('openFilesInNewWindow')
 
+    const allowMissingPaths = pathsToOpen.filter((p) => p.allowMissing).map((p) => p.path)
     const fileSet = new Set<string>()
     const directorySet = new Set<string>()
     for (const { isDir, path } of pathsToOpen) {
@@ -568,31 +578,31 @@ class App {
           if (windowId !== null) {
             const window = _windowManager.get(windowId) as EditorWindow | undefined
             if (window) {
-              window.openTabsFromPaths(fileList)
+              window.openTabsFromPaths(fileList, allowMissingPaths)
               window.bringToFront()
               continue
             }
             // else: fallthrough
           }
-          this._createEditorWindow(null, fileList)
+          this._createEditorWindow(null, fileList, [], {}, null, allowMissingPaths)
         }
       }
 
       // Directores are always opened in a new window if not already opened.
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, null, allowMissingPaths)
       }
     } else {
       // Open each file and directory in a new window.
 
       for (const pathname of filesToOpen) {
-        this._createEditorWindow(null, [pathname])
+        this._createEditorWindow(null, [pathname], [], {}, null, allowMissingPaths)
       }
 
       for (const item of directoriesToOpen) {
         const { rootDirectory, fileList } = item
-        this._createEditorWindow(rootDirectory, fileList)
+        this._createEditorWindow(rootDirectory, fileList, [], {}, null, allowMissingPaths)
       }
     }
 

@@ -15,6 +15,7 @@ export interface SerializedStat {
 }
 
 export interface MarkdownDocument {
+  isPendingCreation?: boolean
   markdown: string
   filename: string
   pathname: string | null
@@ -66,6 +67,8 @@ export interface FileSearchMatches {
  * `src/renderer/src/store/help.ts`.
  */
 export interface IFileState {
+  // A named CLI buffer can be unmodified while its target does not exist yet.
+  isPendingCreation?: boolean
   id: string
   filename: string
   // Falsy (`''`) for untitled buffers; pre-migration this was sometimes
@@ -118,6 +121,7 @@ export interface TabOptions {
 }
 
 export interface SaveOptions {
+  isPendingCreation?: boolean
   // Encoding is the `FileEncoding` object at runtime (`{ encoding, isBom }`).
   // String form is accepted for legacy callers that haven't been updated.
   encoding?: FileEncoding | string

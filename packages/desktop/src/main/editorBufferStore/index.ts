@@ -74,7 +74,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
     for (const id in this.bufferStores) {
       try {
         const buffer = this.readBufferStoreFile(this.bufferStores[id].filePath)
-        const allSaved = buffer.tabs.every((file) => file.isSaved)
+        const allSaved = buffer.tabs.every((file) => file.isSaved && !file.isPendingCreation)
         if (buffer.tabs.length === 0 || allSaved) {
           try {
             fs.unlinkSync(this.bufferStores[id].filePath)
@@ -112,7 +112,7 @@ class EditorBufferStore extends TypedEmitter<EditorBufferStoreEvents> {
       }
       try {
         const buffer = this.readBufferStoreFile(this.bufferStores[restoreBufferId].filePath)
-        const allSaved = buffer.tabs.every((file) => file.isSaved)
+        const allSaved = buffer.tabs.every((file) => file.isSaved && !file.isPendingCreation)
         if (buffer.tabs.length === 0 || allSaved) {
           fs.unlinkSync(this.bufferStores[restoreBufferId].filePath)
           delete this.bufferStores[restoreBufferId]

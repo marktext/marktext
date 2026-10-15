@@ -64,12 +64,20 @@ export const getOptionsFromState = (
   lineEnding: IFileState['lineEnding']
   adjustLineEndingOnSave: boolean
   trimTrailingNewline: number
+  isPendingCreation?: boolean
 } => {
   const { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline } = file
-  return { encoding, lineEnding, adjustLineEndingOnSave, trimTrailingNewline }
+  return {
+    encoding,
+    lineEnding,
+    adjustLineEndingOnSave,
+    trimTrailingNewline,
+    isPendingCreation: file.isPendingCreation
+  }
 }
 
 const documentStateKeys = [
+  'isPendingCreation',
   'isSaved',
   'pathname',
   'filename',
