@@ -1,6 +1,7 @@
 import type { ILexOption } from './types';
 import { Marked } from 'marked';
-import { sanitizeExportHtml } from '../sanitizeExportHtml';
+import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
+import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
 import inlineDiffExtension from './extensions/inlineDiff';
@@ -98,5 +99,5 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
 export function getSanitizeClipboardHtml(src: string, options: ILexOption = {}) {
     const html = getClipBoardHtml(src, options);
 
-    return sanitizeExportHtml(html);
+    return sanitize(html, EXPORT_DOMPURIFY_CONFIG, false) as string;
 }

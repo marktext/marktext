@@ -24,7 +24,6 @@ afterEach(() => {
 const renderers: [string, (markdown: string) => Promise<string> | string][] = [
     ['MarkdownToHtml (HTML / PDF / print export)', markdown => new MarkdownToHtml(markdown).generate()],
     ['renderToStaticHTML', markdown => renderToStaticHTML(markdown)],
-    ['getSanitizeClipboardHtml (copy as HTML)', markdown => getSanitizeClipboardHtml(markdown)],
 ];
 
 describe.each(renderers)('%s — image src resolution', (_name, render) => {
@@ -59,6 +58,12 @@ describe.each(renderers)('%s — image src resolution', (_name, render) => {
 describe('the export image hook is scoped to export sanitizing', () => {
     it('does not resolve images when renderToStaticHTML skips sanitizing', () => {
         expect(renderToStaticHTML('![photo](./img/photo.png)', { sanitize: false })).toContain('src="./img/photo.png"');
+    });
+
+    // The copied markup is pasted into other sites, where an absolute local
+    // path would be useless and would leak the user's folder layout.
+    it('leaves image paths as written in Copy as HTML', () => {
+        expect(getSanitizeClipboardHtml('![photo](./img/photo.png)')).toContain('src="./img/photo.png"');
     });
 
     it('is detached from the shared purifier after an export', async () => {
