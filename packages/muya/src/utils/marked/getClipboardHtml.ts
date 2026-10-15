@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
 import { sanitize } from '../index';
+import { correctImageTokenSrc } from './correctImageTokenSrc';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
 import inlineDiffExtension from './extensions/inlineDiff';
@@ -28,6 +29,8 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
     marked.use({
         walkTokens: walkTokens({ texMathDollars, texMathGfm }),
     });
+
+    marked.use({ walkTokens: correctImageTokenSrc });
 
     // CJK-as-punctuation emphasis flanking (marktext/marktext#4307); keeps the
     // clipboard HTML consistent with the static / export render path.
