@@ -591,6 +591,59 @@ interface IPasteData {
     pasteType: PasteType;
 }
 
+function applyNormalizedPaste(
+    clipboard: Clipboard,
+    anchorBlock: Content,
+    text: string,
+    html: string,
+    pasteType: PasteType,
+): void {
+    const { bulletListMarker } = clipboard.muya.options;
+    const copyType = getCopyTextType(html, text, pasteType);
+
+    const { start, end } = anchorBlock.getCursor()!;
+    const { text: content } = anchorBlock;
+    const wrapperBlock = anchorBlock.getAnchor();
+    const ctx: IPasteContext = {
+        anchorBlock,
+        wrapperBlock,
+        originWrapperBlock: wrapperBlock,
+        start,
+        end,
+        content,
+    };
+
+    if (/html|text/.test(copyType)) {
+        const markdown
+            = copyType === 'html' && anchorBlock.blockName !== 'codeblock.content'
+                ? new HtmlToMarkdown({ bulletListMarker }).generate(html)
+                : text;
+
+        // Every non-literal anchor always parses through `MarkdownToState`,
+        // regardless of line count, so a single line of `# heading` / `- list`
+        // / a one-row table becomes real structure.
+        const isLiteralAnchor
+            = anchorBlock.blockName === 'language-input'
+                || anchorBlock.blockName === 'table.cell.content'
+                || anchorBlock.blockName === 'codeblock.content';
+
+        const isPlainInlineSpaces = /^ +$/.test(text);
+
+        if (isLiteralAnchor || isPlainInlineSpaces)
+            applyLiteralPaste(clipboard, ctx, isPlainInlineSpaces ? text : markdown);
+        else
+            applyParsedPaste(clipboard, ctx, markdown);
+    }
+    else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
+        // Paste as Plain Text inserts block-level HTML as literal text, not a
+        // live html-block (muyajs `pasteAsPlainText` copyAsHtml branch).
+        applyPlainTextBlockHtml(clipboard, ctx, text);
+    }
+    else {
+        applyHtmlBlockPaste(clipboard, ctx, text);
+    }
+}
+
 // The paste pipeline, decoupled from the DOM `paste` event so it can be driven
 // either by a trusted paste event (`pasteSelection`) or by an explicit
 // clipboard read (`pastePlainText`). The latter exists because Chromium removed
@@ -598,9 +651,6 @@ interface IPasteData {
 // "set a flag → execCommand('paste') → handle the synthetic event" approach no
 // longer fires any paste event at all.
 async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void> {
-    const { muya } = clipboard;
-    const { bulletListMarker } = muya.options;
-
     // A selected inline image collapses the text selection, so handle the
     // "paste an image over a selected image" replace before reading the
     // (now absent) text selection.
@@ -656,7 +706,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
 
     // Remove crap from HTML such as meta data and styles.
     html = await normalizePastedHTML(html, {
-        fetchLinkHtml: muya.options.fetchLinkHtml,
+        fetchLinkHtml: clipboard.muya.options.fetchLinkHtml,
         resolveLinkTitles: pasteType === PasteType.NORMAL,
         preserveBareUrlLinks: hasClipboardHtml
             && cursorBeforeNormalize != null
@@ -667,49 +717,7 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
                 cursorBeforeNormalize.end,
             ),
     });
-    const copyType = getCopyTextType(html, text, pasteType);
-
-    const { start, end } = anchorBlock.getCursor()!;
-    const { text: content } = anchorBlock;
-    const wrapperBlock = anchorBlock.getAnchor();
-    const ctx: IPasteContext = {
-        anchorBlock,
-        wrapperBlock,
-        originWrapperBlock: wrapperBlock,
-        start,
-        end,
-        content,
-    };
-
-    if (/html|text/.test(copyType)) {
-        const markdown
-            = copyType === 'html' && anchorBlock.blockName !== 'codeblock.content'
-                ? new HtmlToMarkdown({ bulletListMarker }).generate(html)
-                : text;
-
-        // Every non-literal anchor always parses through `MarkdownToState`,
-        // regardless of line count, so a single line of `# heading` / `- list`
-        // / a one-row table becomes real structure.
-        const isLiteralAnchor
-            = anchorBlock.blockName === 'language-input'
-                || anchorBlock.blockName === 'table.cell.content'
-                || anchorBlock.blockName === 'codeblock.content';
-
-        const isPlainInlineSpaces = /^ +$/.test(text);
-
-        if (isLiteralAnchor || isPlainInlineSpaces)
-            applyLiteralPaste(clipboard, ctx, isPlainInlineSpaces ? text : markdown);
-        else
-            applyParsedPaste(clipboard, ctx, markdown);
-    }
-    else if (pasteType === PasteType.PASTE_AS_PLAIN_TEXT) {
-        // Paste as Plain Text inserts block-level HTML as literal text, not a
-        // live html-block (muyajs `pasteAsPlainText` copyAsHtml branch).
-        applyPlainTextBlockHtml(clipboard, ctx, text);
-    }
-    else {
-        applyHtmlBlockPaste(clipboard, ctx, text);
-    }
+    applyNormalizedPaste(clipboard, anchorBlock, text, html, pasteType);
 }
 
 // Entry for a trusted DOM `paste` event (native Cmd/Ctrl+V).
