@@ -244,6 +244,7 @@ const electronAPI = {
   ipcRenderer: ipcWrapper,
   shell: shellAPI,
   clipboard: clipboardAPI,
+  fetchLinkHtml: (url: string) => invoke('mt::link::fetch-html', url),
   webFrame: webFrameAPI,
   webUtils: webUtilsAPI,
   process: {

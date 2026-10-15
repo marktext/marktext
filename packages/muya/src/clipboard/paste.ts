@@ -8,12 +8,11 @@ import type Clipboard from './index';
 import CodeBlockContent from '../block/content/codeBlockContent';
 import LangInputContent from '../block/content/langInputContent';
 import { ScrollPage } from '../block/scrollPage';
-import { URL_REG } from '../config';
 import { tokenizer } from '../inlineRenderer/lexer';
 import HtmlToMarkdown from '../state/htmlToMarkdown';
 import { MarkdownToState } from '../state/markdownToState';
 import { isAnyListState, isParagraphState } from '../state/types';
-import { getClipboardImageFile, getCopyTextType, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
+import { getClipboardImageFile, getCopyTextType, isHttpUrl, isStandaloneTableHtml, normalizePastedHTML } from '../utils/paste';
 import { mergePasteIntoHeading } from './mergePasteIntoHeading';
 import { tryPasteImage, tryReplaceSelectedImage } from './pasteImage';
 import { tryPasteUrl } from './pasteUrl';
@@ -103,7 +102,7 @@ function removeEmptyOriginWrapper(originWrapperBlock: Nullable<Parent>): void {
 }
 
 function isSinglePlainUrl(text: string): boolean {
-    return URL_REG.test(text) && !/\s/.test(text);
+    return isHttpUrl(text);
 }
 
 function canPlainUrlFallbackAutoLink(
@@ -695,8 +694,12 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
         return;
 
     // Support pasted URLs from Firefox.
-    if (URL_REG.test(text) && !/\s/.test(text) && !html)
-        html = `<a href="${text}">${text}</a>`;
+    if (isHttpUrl(text) && !html) {
+        const link = document.createElement('a');
+        link.setAttribute('href', text);
+        link.textContent = text;
+        html = link.outerHTML;
+    }
 
     // Apple Numbers and a handful of other sources only put a raw
     // `<table>...</table>` blob in text/plain. Promote it to the HTML
@@ -709,6 +712,8 @@ async function applyPaste(clipboard: Clipboard, data: IPasteData): Promise<void>
 
     // Remove crap from HTML such as meta data and styles.
     html = await normalizePastedHTML(html, {
+        fetchLinkHtml: clipboard.muya.options.fetchLinkHtml,
+        resolveLinkTitles: pasteType === PasteType.NORMAL,
         preserveBareUrlLinks: hasClipboardHtml
             && cursorBeforeNormalize != null
             && shouldPreserveBareUrlLinkForPaste(

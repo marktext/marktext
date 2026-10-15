@@ -1,11 +1,14 @@
+import type { IMuyaOptions } from '../types';
 import { PasteType } from '../clipboard/types';
-import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG, URL_REG } from '../config';
+import { IMAGE_EXT_REG, PARAGRAPH_TYPES, PREVIEW_DOMPURIFY_CONFIG } from '../config';
 import { sanitize } from '../utils';
 
 const TIMEOUT = 1500;
 
 interface INormalizePastedHTMLOptions {
     preserveBareUrlLinks?: boolean;
+    fetchLinkHtml?: IMuyaOptions['fetchLinkHtml'];
+    resolveLinkTitles?: boolean;
 }
 
 export const isOnline = () => navigator.onLine === true;
@@ -33,32 +36,55 @@ function expandTableColspans(table: HTMLTableElement) {
     }
 }
 
-export async function getPageTitle(url: string) {
-    // No need to request the title when it's not url.
-    if (!url.startsWith('http'))
-        return '';
-
-    // No need to request the title when off line.
-    if (!isOnline())
-        return '';
-
+export function isHttpUrl(text: string): boolean {
+    if (!/^https?:\/\//i.test(text) || /\s/.test(text))
+        return false;
     try {
-        const res = await fetch(url, { method: 'GET', mode: 'cors' });
-        const contentType = res.headers.get('content-type');
+        return Boolean(new URL(text).hostname);
+    }
+    catch {
+        return false;
+    }
+}
 
-        if (res.status !== 200 || !contentType || !/text\/html/i.test(contentType))
-            return '';
+export async function getPageTitle(url: string, fetchLinkHtml?: IMuyaOptions['fetchLinkHtml']) {
+    if (!isHttpUrl(url) || (!fetchLinkHtml && !isOnline()))
+        return '';
 
-        // Parse inertly and read `<title>` textContent, which decodes HTML
-        // entities so they don't leak into the pasted link text (#2525).
-        const body = await res.text();
-        const doc = new DOMParser().parseFromString(body, 'text/html');
-        const title = doc.querySelector('title')?.textContent?.trim();
-
-        return title || '';
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+        const loadTitle = async () => {
+            let body: string;
+            if (fetchLinkHtml) {
+                body = await fetchLinkHtml(url);
+            }
+            else {
+                const res = await fetch(url, { method: 'GET', mode: 'cors', credentials: 'omit', signal: controller.signal });
+                const contentType = res.headers.get('content-type');
+                if (res.status !== 200 || !contentType || !/text\/html/i.test(contentType))
+                    return '';
+                body = await res.text();
+            }
+            // textContent decodes entities without rendering untrusted page content.
+            const doc = new DOMParser().parseFromString(body, 'text/html');
+            return doc.querySelector('title')?.textContent?.trim() || '';
+        };
+        return await Promise.race([
+            loadTitle(),
+            new Promise<string>((resolve) => {
+                timer = setTimeout(() => {
+                    controller.abort();
+                    resolve('');
+                }, TIMEOUT);
+            }),
+        ]);
     }
     catch {
         return '';
+    }
+    finally {
+        clearTimeout(timer);
     }
 }
 
@@ -122,18 +148,10 @@ export async function normalizePastedHTML(
         const href = link.getAttribute('href');
         const text = link.textContent;
 
-        // Only unlink a bare URL (text === href). muyajs guards with
-        // `URL_REG.test(href)` so a non-URL link whose text happens to equal its
-        // href (e.g. `<a href="foo">foo</a>`) survives instead of collapsing.
-        if (typeof href === 'string' && URL_REG.test(href) && href === text) {
-            // Resolve empty string when `TIMEOUT` passed.
-            const timer = new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve('');
-                }, TIMEOUT);
-            });
-
-            const title = await Promise.race([getPageTitle(href), timer]);
+        if (typeof href === 'string' && isHttpUrl(href) && href === text) {
+            const title = options.resolveLinkTitles === false
+                ? ''
+                : await getPageTitle(href, options.fetchLinkHtml);
             if (title) {
                 link.textContent = title as string;
             }
