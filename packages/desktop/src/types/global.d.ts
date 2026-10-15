@@ -88,6 +88,7 @@ declare global {
     ipcRenderer: ElectronIpcRenderer
     shell: ElectronShellAPI
     clipboard: ElectronClipboardAPI
+    fetchLinkHtml(url: string): Promise<string>
     webFrame: ElectronWebFrameAPI
     webUtils: ElectronWebUtilsAPI
     process: {

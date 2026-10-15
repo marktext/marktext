@@ -273,6 +273,7 @@ See `packages/website/content/docs/dev/IPC.md` for conventions and examples.
 ## Contribution
 
 - Submit PRs to the **`develop`** branch (not `main`).
+- Do not commit screenshots or recordings created as PR evidence to the repository. Keep these artifacts outside the checkout and upload them directly to the PR when needed; do not add them under `docs/assets/` or other tracked directories.
 - Reference the related issue in the PR description.
 - Run `pnpm run lint` before submitting.
 - All PRs must pass CI before merge.

@@ -2,14 +2,6 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Regression for marktext commit 141d25d8 (#1344).
-// `getPageTitle` is meant to fetch a URL, parse the `<title>` out of the
-// HTML body, and return it so a pasted bare URL renders as a link with
-// the page's real title. The current impl pipes the HTML body through
-// `res.json()`, which throws on every text/html response — so the
-// helper always swallows the error and returns ''. The fix uses
-// `res.text()`.
-
 function htmlResponse(html: string) {
     return new Response(html, {
         status: 200,
@@ -27,6 +19,7 @@ describe('getPageTitle — parses <title> from HTML', () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
@@ -83,5 +76,44 @@ describe('getPageTitle — parses <title> from HTML', () => {
         const title = await getPageTitle('https://example.com/');
 
         expect(title).toBe('');
+    });
+    it('uses host HTML transport while keeping title parsing in Muya', async () => {
+        const { getPageTitle } = await import('../paste');
+        const fetchLinkHtml = vi.fn().mockResolvedValue('<title>Host &amp; browser</title>');
+        expect(await getPageTitle('https://example.com', fetchLinkHtml)).toBe('Host & browser');
+        expect(fetchLinkHtml).toHaveBeenCalledWith('https://example.com');
+        expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not use renderer online status to block the host transport', async () => {
+        vi.stubGlobal('navigator', { onLine: false });
+        const { getPageTitle } = await import('../paste');
+        expect(await getPageTitle('https://example.com', async () => '<title>Host</title>')).toBe('Host');
+    });
+
+    it('falls back when the host transport rejects', async () => {
+        const { getPageTitle } = await import('../paste');
+        expect(await getPageTitle('https://example.com', async () => {
+            throw new Error('offline');
+        })).toBe('');
+    });
+
+    it('bounds a host transport that never resolves', async () => {
+        vi.useFakeTimers();
+        const { getPageTitle } = await import('../paste');
+        const result = getPageTitle('https://example.com', () => new Promise(() => {}));
+        await vi.advanceTimersByTimeAsync(1500);
+        expect(await result).toBe('');
+    });
+
+    it('aborts browser fetch on timeout and clears the timer', async () => {
+        vi.useFakeTimers();
+        fetchSpy.mockImplementation(() => new Promise(() => {}));
+        const { getPageTitle } = await import('../paste');
+        const result = getPageTitle('https://example.com');
+        await vi.advanceTimersByTimeAsync(1500);
+        expect(await result).toBe('');
+        expect(fetchSpy.mock.calls[0][1].signal.aborted).toBe(true);
+        expect(vi.getTimerCount()).toBe(0);
     });
 });
