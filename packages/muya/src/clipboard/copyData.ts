@@ -6,6 +6,7 @@ import type { ISelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
@@ -73,22 +74,15 @@ function getTableSelectionClipboardData(
     return { html, text };
 }
 
-// Returns `null` when the outmost-block offsets can't be read (e.g. no scroll page).
 function resolveSelectionOrder(
-    clipboard: Clipboard,
     selection: ISelection,
-): Nullable<ICopyOrder> {
+): ICopyOrder {
     const { anchor, focus } = selection;
     const anchorBlock = anchor.block;
     const focusBlock = focus.block;
     const anchorOutMostBlock = anchorBlock.outMostBlock!;
     const focusOutMostBlock = focusBlock.outMostBlock!;
-    const anchorOutMostBlockOffset = clipboard.scrollPage?.offset(anchorOutMostBlock);
-    const focusOutMostBlockOffset = clipboard.scrollPage?.offset(focusOutMostBlock);
-    if (anchorOutMostBlockOffset == null || focusOutMostBlockOffset == null)
-        return null;
-
-    const anchorFirst = anchorOutMostBlockOffset <= focusOutMostBlockOffset;
+    const anchorFirst = selection.direction === SelectionDirection.FORWARD;
 
     return {
         anchorBlock,
@@ -373,9 +367,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     }
 
     // Handle select multiple blocks.
-    const order = resolveSelectionOrder(clipboard, selection);
-    if (order == null)
-        return { html: '', text: '' };
+    const order = resolveSelectionOrder(selection);
 
     const copyState = collectCopyState(order);
 
