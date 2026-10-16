@@ -126,3 +126,15 @@ describe('reverse container selection (#5753)', () => {
         expect(muya.editor.clipboard.getClipboardData().text).toBe('- ne\n- two\n- th\n');
     });
 });
+
+describe('reverse selection across outermost blocks', () => {
+    it('copies partial endpoints and the intervening list in document order', () => {
+        const muya = bootMuya('alpha\n\n- middle\n\nbeta\n');
+        const first = muya.editor.scrollPage!.firstContentInDescendant()!;
+        const last = muya.editor.scrollPage!.lastContentInDescendant()!;
+
+        stubCrossSelection(muya, last, 2, first, 2, SelectionDirection.BACKWARD);
+
+        expect(muya.editor.clipboard.getClipboardData().text).toBe('pha\n\n- middle\n\nbe\n');
+    });
+});
