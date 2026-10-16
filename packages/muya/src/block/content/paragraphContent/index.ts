@@ -20,10 +20,12 @@ import { tokenizer } from '../../../inlineRenderer/lexer';
 import { isBlockQuoteState, isListItemState, isTaskListItemState } from '../../../state/types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
+import { githubAlertBlockType, matchGithubAlertMarker } from '../../../utils/githubAlerts';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
 import OrderList from '../../commonMark/orderList';
 import TaskList from '../../gfm/taskList';
+import { convertGithubAlert, downgradeGithubAlertAtStart } from '../../githubAlerts';
 import { ScrollPage } from '../../scrollPage';
 
 // `_unindentListItem` / `_indentListItem` walk parents typed as the loose
@@ -264,6 +266,8 @@ class ParagraphContent extends Format {
     override backspaceHandler(event: Event) {
         const { start, end } = this.getCursor()!;
         const { eventCenter } = this.muya;
+        if (downgradeGithubAlertAtStart(this, event))
+            return;
 
         if (start.offset !== 0 || end.offset !== 0) {
             super.backspaceHandler(event);
@@ -295,7 +299,11 @@ class ParagraphContent extends Format {
     }
 
     override inputHandler(event: Event) {
+        const quote = this.parent?.parent;
+        const wasAlert = quote?.domNode?.classList.contains('mu-github-alert');
         super.inputHandler(event);
+        if (quote?.parent?.isScrollPage && this.parent === quote.firstChild && !wasAlert)
+            quote.domNode!.dataset.alertPending = 'true';
         const { eventCenter } = this.muya;
 
         eventCenter.emit('content-change', { block: this });
@@ -437,6 +445,13 @@ class ParagraphContent extends Format {
 
         const newNode = parent!.clone() as Paragraph;
         const blockQuote = parent!.parent;
+        const alertType = blockQuote && githubAlertBlockType(blockQuote);
+        if (alertType && parent === blockQuote!.find(1)) {
+            blockQuote!.parent!.insertBefore(newNode, blockQuote);
+            parent!.remove();
+            newNode.firstContentInDescendant()?.setCursor(0, 0, true);
+            return;
+        }
 
         switch (true) {
             case parent!.isOnlyChild():
@@ -463,6 +478,10 @@ class ParagraphContent extends Format {
                     ...(fenced ? { meta: { style: 'fenced' as const } } : {}),
                     children: [],
                 };
+                if (alertType) {
+                    newBlockState.meta = { alertCompact: true };
+                    newBlockState.children.push({ name: 'paragraph', text: `[!${alertType}]` });
+                }
                 const offset = blockQuote!.offset(parent!);
                 blockQuote!.forEachAt(offset + 1, undefined, (node) => {
                     // forEachAt's callback gets `TreeNode` but the runtime
@@ -610,8 +629,41 @@ class ParagraphContent extends Format {
         }
     }
 
+    private _enterGithubAlert(event: KeyboardEvent): boolean {
+        if (event.shiftKey || event.isComposing || !this.muya.options.githubAlerts)
+            return false;
+        const quote = this.parent?.parent;
+        if (!quote?.parent?.isScrollPage || quote.blockName !== 'block-quote')
+            return false;
+        const state = quote.getState();
+        if (state.name !== 'block-quote' || state.meta?.style === 'fenced')
+            return false;
+        const cursor = this.getCursor();
+        const type = this.parent === quote.firstChild ? matchGithubAlertMarker(this.text) : null;
+        if (type && cursor?.isCollapsed && cursor.start.offset === this.text.length) {
+            event.preventDefault();
+            event.stopPropagation();
+            state.children.splice(1, 0, { name: 'paragraph', text: '' });
+            state.meta = { ...state.meta, alertCompact: true };
+            const [replacement] = this.muya.editor.scrollPage!.replaceBlock(quote, [state]);
+            (replacement.find(1) as Parent).firstContentInDescendant()?.setCursor(0, 0, true);
+            return true;
+        }
+        const empty = state.children.slice(1).every(child => child.name === 'paragraph' && !child.text.trim());
+        if (githubAlertBlockType(quote) && empty) {
+            event.preventDefault();
+            event.stopPropagation();
+            convertGithubAlert(quote, 'paragraph');
+            return true;
+        }
+        return false;
+    }
+
     override enterHandler(event: Event) {
         if (!isKeyboardEvent(event))
+            return;
+
+        if (this._enterGithubAlert(event))
             return;
 
         if (event.shiftKey && !this.dropSoftBreakBeforeCursor())

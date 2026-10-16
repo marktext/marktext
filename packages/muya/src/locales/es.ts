@@ -1,7 +1,20 @@
 export const es = {
     name: 'es',
     resource: {
-    // tableTools
+        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'GitHub Alerts': 'Avisos de GitHub',
+        'GitHub Alert: NOTE': 'Aviso de GitHub: NOTE',
+        'GitHub Alert: TIP': 'Aviso de GitHub: TIP',
+        'GitHub Alert: IMPORTANT': 'Aviso de GitHub: IMPORTANT',
+        'GitHub Alert: WARNING': 'Aviso de GitHub: WARNING',
+        'GitHub Alert: CAUTION': 'Aviso de GitHub: CAUTION',
+        'Supplementary information': 'Supplementary information',
+        'Helpful advice': 'Helpful advice',
+        'Key information': 'Key information',
+        'Problems needing attention': 'Problems needing attention',
+        'Risks and negative outcomes': 'Risks and negative outcomes',
+
+        // tableTools
         'Insert Row Above': 'Insertar fila arriba',
         'Insert Row Below': 'Insertar fila abajo',
         'Remove Row': 'Eliminar fila',

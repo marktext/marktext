@@ -1,7 +1,20 @@
 export const ja = {
     name: 'ja',
     resource: {
-    // tableTools
+        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'GitHub Alerts': 'GitHub アラート',
+        'GitHub Alert: NOTE': 'GitHub アラート: NOTE',
+        'GitHub Alert: TIP': 'GitHub アラート: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub アラート: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub アラート: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub アラート: CAUTION',
+        'Supplementary information': 'Supplementary information',
+        'Helpful advice': 'Helpful advice',
+        'Key information': 'Key information',
+        'Problems needing attention': 'Problems needing attention',
+        'Risks and negative outcomes': 'Risks and negative outcomes',
+
+        // tableTools
         'Insert Row Above': '上へ行を挿入する',
         'Insert Row Below': '下へ行を挿入する',
         'Remove Row': '行を削除する',

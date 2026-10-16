@@ -70,6 +70,7 @@
       "table": "表",
       "codeFences": "コードブロック",
       "quoteBlock": "引用ブロック",
+      "githubAlerts": "GitHub アラート",
       "mathBlock": "数式ブロック",
       "htmlBlock": "HTMLブロック",
       "orderedList": "番号付きリスト",
@@ -420,6 +421,7 @@
         "highlightSyntax": "非標準の ==テキスト== ハイライト構文を有効にする",
         "inlineDiff": "非標準のインライン差分構文 {+ … +} / [- … -] を有効にする",
         "multilineBlockquote": "非標準の複数行引用構文 >>> … >>> を有効にする",
+        "githubAlerts": "GitHub アラート",
         "isHtmlEnabled": "HTML レンダリングを有効にする",
         "softNewlineAsSpace": "ソフト改行をスペースとして扱う",
         "sequenceTheme": "シーケンス図のテーマ",
@@ -661,6 +663,7 @@
         "highlightSyntax": "ハイライト (==テキスト==)",
         "inlineDiff": "インライン差分 ({+ … +})",
         "multilineBlockquote": "複数行引用 (>>>)",
+        "githubAlerts": "GitHub Alerts を有効にする",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

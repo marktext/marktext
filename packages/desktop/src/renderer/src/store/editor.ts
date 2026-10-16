@@ -111,6 +111,9 @@ interface ContentChangePayload {
 
 interface AffiliationEntry {
   type: string
+  alertType?: string
+  canGithubAlerts?: boolean
+  canDowngradeQuote?: boolean
   functionType?: string
   listType?: string
   listItemType?: string
@@ -1690,6 +1693,7 @@ export const useEditorStore = defineStore('editor', {
         target,
         markdown,
         superSubScript: preferencesStore.superSubScript === true,
+        githubAlerts: preferencesStore.githubAlerts === true,
         footnote: preferencesStore.footnote === true,
         texMathDollars: preferencesStore.texMathDollars === true,
         texMathGfm: preferencesStore.texMathGfm === true,
@@ -1979,6 +1983,9 @@ const trimTrailingNewlines = (text: string): string => {
 }
 
 interface ApplicationMenuState {
+  alertType?: string
+  canGithubAlerts?: boolean
+  canDowngradeQuote?: boolean
   isDisabled: boolean
   isMultiline: boolean
   isLooseListItem: boolean
@@ -2021,6 +2028,9 @@ const createApplicationMenuState = ({
   }
   const { isMultiline } = state
   const aff: AffiliationEntry[] = affiliation ?? []
+  state.alertType = aff[0]?.alertType
+  state.canGithubAlerts = aff[0]?.canGithubAlerts === true
+  state.canDowngradeQuote = aff[0]?.canDowngradeQuote
   const startBlock: { text?: string; functionType?: string } = start.block ?? {}
   const endBlock: { functionType?: string } = end.block ?? {}
 

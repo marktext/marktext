@@ -11,6 +11,10 @@ class BlockQuote extends Parent {
 
     private _meta?: IBlockQuoteState['meta'];
 
+    get meta() {
+        return this._meta;
+    }
+
     static create(muya: Muya, state: IBlockQuoteState) {
         const blockQuote = new BlockQuote(muya);
         blockQuote._meta = state.meta;

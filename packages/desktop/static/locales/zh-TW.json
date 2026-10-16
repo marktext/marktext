@@ -70,6 +70,7 @@
       "table": "表格",
       "codeFences": "程式碼圍欄",
       "quoteBlock": "引用區塊",
+      "githubAlerts": "GitHub 提示區塊",
       "mathBlock": "數學區塊",
       "htmlBlock": "HTML 區塊",
       "orderedList": "有序清單",
@@ -420,6 +421,7 @@
         "highlightSyntax": "啟用非標準的 ==文字== 螢光標記語法",
         "inlineDiff": "啟用非標準的行內差異語法 {+ … +} / [- … -]",
         "multilineBlockquote": "啟用非標準的多行引用區塊語法 >>> … >>>",
+        "githubAlerts": "GitHub 提示區塊",
         "isHtmlEnabled": "啟用 HTML 轉譯",
         "softNewlineAsSpace": "將軟換行視為空格",
         "sequenceTheme": "序列圖主題",
@@ -661,6 +663,7 @@
         "highlightSyntax": "螢光標記 (==文字==)",
         "inlineDiff": "行內差異 ({+ … +})",
         "multilineBlockquote": "多行引用區塊 (>>>)",
+        "githubAlerts": "啟用 GitHub Alerts 提示區塊",
         "frontmatterType": {
           "jsonBrace": "JSON 大括號",
           "jsonSemicolon": "JSON 分號",

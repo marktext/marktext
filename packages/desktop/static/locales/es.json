@@ -70,6 +70,7 @@
       "table": "Tabla",
       "codeFences": "Bloques de Código",
       "quoteBlock": "Bloque de Cita",
+      "githubAlerts": "Avisos de GitHub",
       "mathBlock": "Bloque Matemático",
       "htmlBlock": "Bloque HTML",
       "orderedList": "Lista Ordenada",
@@ -420,6 +421,7 @@
         "highlightSyntax": "Habilitar la sintaxis de resaltado no estándar ==texto==",
         "inlineDiff": "Habilitar la sintaxis de diff en línea no estándar {+ … +} / [- … -]",
         "multilineBlockquote": "Habilitar la sintaxis de cita de varias líneas no estándar >>> … >>>",
+        "githubAlerts": "Avisos de GitHub",
         "isHtmlEnabled": "Habilitar renderizado HTML",
         "softNewlineAsSpace": "Tratar los saltos de línea suaves como espacios",
         "sequenceTheme": "Tema del diagrama de secuencia",
@@ -661,6 +663,7 @@
         "highlightSyntax": "Resaltado (==texto==)",
         "inlineDiff": "Diff en línea ({+ … +})",
         "multilineBlockquote": "Cita de varias líneas (>>>)",
+        "githubAlerts": "Activar GitHub Alerts",
         "frontmatterType": {
           "jsonBrace": "JSON con Llaves",
           "jsonSemicolon": "JSON con Punto y Coma",

@@ -70,6 +70,7 @@
       "table": "Таблица",
       "codeFences": "Блоки кода",
       "quoteBlock": "Цитата",
+      "githubAlerts": "Оповещения GitHub",
       "mathBlock": "Блок формул",
       "htmlBlock": "HTML-блок",
       "orderedList": "Нумерованный список",
@@ -419,6 +420,7 @@
         "highlightSyntax": "Включить нестандартный синтаксис выделения ==текст==",
         "inlineDiff": "Включить нестандартный синтаксис встроенного diff {+ … +} / [- … -]",
         "multilineBlockquote": "Включить нестандартный синтаксис многострочной цитаты >>> … >>>",
+        "githubAlerts": "Оповещения GitHub",
         "isHtmlEnabled": "Включить рендеринг HTML",
         "softNewlineAsSpace": "Считать мягкие переносы строк пробелами",
         "sequenceTheme": "Тема диаграмм последовательностей",
@@ -661,6 +663,7 @@
         "highlightSyntax": "Выделение (==текст==)",
         "inlineDiff": "Встроенный diff ({+ … +})",
         "multilineBlockquote": "Многострочная цитата (>>>)",
+        "githubAlerts": "Включить GitHub Alerts",
         "frontmatterType": {
           "jsonBrace": "JSON с фигурными скобками",
           "jsonSemicolon": "JSON с точкой с запятой",

@@ -86,6 +86,7 @@ export interface PreferencesState {
   highlightSyntax: boolean
   inlineDiff: boolean
   multilineBlockquote: boolean
+  githubAlerts: boolean
   isHtmlEnabled: boolean
   softNewlineAsSpace: boolean
   sequenceTheme: SequenceTheme | string
@@ -212,6 +213,7 @@ export const usePreferencesStore = defineStore('preferences', {
     highlightSyntax: false,
     inlineDiff: false,
     multilineBlockquote: false,
+    githubAlerts: false,
     isHtmlEnabled: true,
     softNewlineAsSpace: false,
     sequenceTheme: 'hand',

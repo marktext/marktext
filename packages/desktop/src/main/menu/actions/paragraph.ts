@@ -104,6 +104,10 @@ export const paragraph = (win: Win): void => {
   transformEditorElement(win, 'paragraph')
 }
 
+export const githubAlert = (win: Win, type: string): void => {
+  transformEditorElement(win, `github-alert ${type}`)
+}
+
 export const quoteBlock = (win: Win): void => {
   transformEditorElement(win, 'blockquote')
 }
@@ -176,6 +180,9 @@ export interface SelectionState {
   isCodeFences?: boolean
   isCodeContent?: boolean
   hasFrontMatter?: boolean
+  alertType?: string
+  canGithubAlerts?: boolean
+  canDowngradeQuote?: boolean
 }
 
 const setCheckedMenuItem = (
@@ -233,10 +240,27 @@ export const updateSelectionMenus = (
 
   // Handle menu checked.
   setCheckedMenuItem(applicationMenu, state)
+  const alerts = applicationMenu.getMenuItemById('githubAlertsMenuItem')
+  const syncAlerts = (): void => {
+    if (!alerts) return
+    alerts.enabled = state.canGithubAlerts === true
+    alerts.submenu?.items.forEach((item) => {
+      item.enabled = alerts.enabled
+      item.checked = item.label === state.alertType
+    })
+    if (state.alertType) {
+      const quote = applicationMenu.getMenuItemById('quoteBlockMenuItem')
+      if (quote) {
+        quote.checked = false
+        if (state.canDowngradeQuote === false) quote.enabled = false
+      }
+    }
+  }
 
   // Reset paragraph menu.
   setParagraphMenuItemStatus(applicationMenu, !isDisabled)
   if (isDisabled) {
+    syncAlerts()
     return
   }
 
@@ -276,4 +300,5 @@ export const updateSelectionMenus = (
   if (state.hasFrontMatter) {
     setMultipleStatus(applicationMenu, ['frontMatterMenuItem'], false)
   }
+  syncAlerts()
 }

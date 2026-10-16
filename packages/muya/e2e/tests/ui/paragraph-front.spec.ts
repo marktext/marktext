@@ -100,8 +100,7 @@ test.describe('paragraph front menu — Turn Into', () => {
         await expect(page.locator(editor.paragraph)).toHaveCount(0);
 
         // Empty fenced code block round-trips to a bare ``` fence pair.
-        const md = await getMarkdown(page);
-        expect(md).toBe('```\n\n```\n');
+        await expect.poll(() => getMarkdown(page)).toBe('```\n\n```\n');
     });
 
     test('Turn Into → Mermaid converts an empty paragraph to a diagram block and round-trips', async ({ page }) => {
@@ -122,8 +121,7 @@ test.describe('paragraph front menu — Turn Into', () => {
         await expect(page.locator(editor.paragraph)).toHaveCount(0);
 
         // Empty mermaid diagram round-trips to a ```mermaid fence.
-        const md = await getMarkdown(page);
-        expect(md).toBe('```mermaid\n\n```\n');
+        await expect.poll(() => getMarkdown(page)).toBe('```mermaid\n\n```\n');
     });
 
     test('Turn Into menu gates code-block/diagram to EMPTY paragraphs only', async ({ page }) => {

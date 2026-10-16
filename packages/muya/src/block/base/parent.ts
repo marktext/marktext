@@ -251,8 +251,13 @@ class Parent extends TreeNode {
     firstContentInDescendant() {
         let likeContentBlock: Nullable<TreeNode> = this.children.head;
 
-        while (likeContentBlock && likeContentBlock.isParent())
+        while (likeContentBlock && likeContentBlock.isParent()) {
+            if (likeContentBlock.domNode?.hidden) {
+                likeContentBlock = likeContentBlock.next;
+                continue;
+            }
             likeContentBlock = likeContentBlock.children.head;
+        }
 
         return likeContentBlock?.isContent() ? likeContentBlock : null;
     }

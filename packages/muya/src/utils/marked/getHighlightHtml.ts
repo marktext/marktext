@@ -2,6 +2,7 @@ import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import Prism from 'prismjs';
+import { renderGithubAlerts } from '../githubAlerts';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import emojiExtension from './extensions/emoji';
 import footnoteExtension from './extensions/footnote';
@@ -122,5 +123,5 @@ export function getHighlightHtml(src: string, options: ILexOption = {}) {
 
     html += marked.parse(src);
 
-    return html;
+    return renderGithubAlerts(html, options.githubAlerts);
 }

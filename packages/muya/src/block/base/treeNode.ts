@@ -126,6 +126,10 @@ class TreeNode implements ILinkedNode {
         // navigating up/left across it (#4644).
         let sibling = parent.prev;
         while (sibling) {
+            if (sibling.domNode?.hidden) {
+                sibling = sibling.prev;
+                continue;
+            }
             if (sibling.isParent()) {
                 const content = sibling.lastContentInDescendant();
                 if (content)
@@ -154,6 +158,10 @@ class TreeNode implements ILinkedNode {
         // descendant so the caret can cross them instead of getting stuck (#4644).
         let sibling = parent.next;
         while (sibling) {
+            if (sibling.domNode?.hidden) {
+                sibling = sibling.next;
+                continue;
+            }
             if (sibling.isParent()) {
                 const content = sibling.firstContentInDescendant();
                 if (content)

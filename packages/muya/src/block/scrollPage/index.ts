@@ -8,6 +8,7 @@ import { BLOCK_DOM_PROPERTY } from '../../config';
 import { isHTMLElement, isMouseEvent } from '../../utils';
 import logger from '../../utils/logger';
 import Parent from '../base/parent';
+import { refreshGithubAlerts } from '../githubAlerts';
 
 const debug = logger('scrollpage:');
 
@@ -59,6 +60,7 @@ export class ScrollPage extends Parent {
 
         scrollPage.parent!.domNode!.appendChild(scrollPage.domNode!);
 
+        refreshGithubAlerts(muya, scrollPage);
         return scrollPage;
     }
 
@@ -104,6 +106,26 @@ export class ScrollPage extends Parent {
                 return ScrollPage.loadBlock(block.name).create(muya, block);
             }),
         );
+        refreshGithubAlerts(muya, this);
+    }
+
+    /** One undo step, preserving adjacent block instances; the caller restores the replacement's selection. */
+    replaceBlock(block: Parent, states: TState[]): Parent[] {
+        const { muya } = this;
+        muya.flush();
+        const { history, selection } = muya.editor;
+        history.cutoff(selection.getSelection() ?? undefined);
+        muya.eventCenter.emit('muya-transformer', { reference: null });
+
+        const replacements = states.map(state => ScrollPage.loadBlock(state.name).create(muya, state));
+        for (const replacement of replacements)
+            this.insertBefore(replacement, block);
+        block.remove();
+
+        refreshGithubAlerts(muya, this);
+        muya.flush();
+        history.cutoff();
+        return replacements;
     }
 
     /**

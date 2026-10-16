@@ -64,6 +64,8 @@ export interface IBlockQuoteState {
     name: 'block-quote';
     meta?: {
         style?: 'fenced';
+        // Declaration and body keep stable OT paths when rendering is toggled.
+        alertCompact?: boolean;
     };
     children: TState[];
 }

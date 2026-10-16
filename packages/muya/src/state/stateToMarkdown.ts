@@ -1,4 +1,3 @@
-/* eslint-disable no-fallthrough */
 import type {
     IAtxHeadingState,
     IBlockQuoteState,
@@ -19,6 +18,7 @@ import type {
     IThematicBreakState,
     TState,
 } from './types';
+/* eslint-disable no-fallthrough */
 /**
  * Hi contributors!
  *
@@ -30,6 +30,7 @@ import type {
  * The output markdown needs to obey the standards of these Spec.
  */
 import { deepClone } from '../utils';
+import { matchGithubAlertMarker } from '../utils/githubAlerts';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
@@ -481,6 +482,9 @@ export default class ExportMarkdown {
         }
 
         const newIndent = `${indent}> `;
+        if (meta?.alertCompact && children[0]?.name === 'paragraph' && matchGithubAlertMarker(children[0].text) && children.length > 1) {
+            return `${newIndent}${children[0].text}\n${this._convertStatesToMarkdown(children.slice(1), newIndent)}`;
+        }
 
         return this._convertStatesToMarkdown(children, newIndent);
     }

@@ -58,6 +58,7 @@
 
 .mu-quick-insert .icon-container {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-around;
     box-sizing: border-box;
@@ -95,6 +96,8 @@
 
 .mu-quick-insert .description {
     flex: 1;
+    min-width: 0;
+    margin-right: 12px;
 }
 
 .mu-quick-insert .short-cut {
@@ -111,8 +114,12 @@
 }
 
 .mu-quick-insert .big-title {
+    overflow: hidden;
+
     color: var(--editor-color);
     font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .mu-quick-insert .hide {

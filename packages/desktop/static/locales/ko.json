@@ -70,6 +70,7 @@
       "table": "표",
       "codeFences": "코드 블록",
       "quoteBlock": "인용 블록",
+      "githubAlerts": "GitHub 알림",
       "mathBlock": "수식 블록",
       "htmlBlock": "HTML 블록",
       "orderedList": "순서 목록",
@@ -420,6 +421,7 @@
         "highlightSyntax": "비표준 ==텍스트== 강조 구문을 사용합니다",
         "inlineDiff": "비표준 인라인 diff 구문 {+ … +} / [- … -]을 사용합니다",
         "multilineBlockquote": "비표준 여러 줄 인용 구문 >>> … >>>을 사용합니다",
+        "githubAlerts": "GitHub 알림",
         "isHtmlEnabled": "HTML 렌더링 활성화",
         "softNewlineAsSpace": "소프트 줄바꿈을 공백으로 처리",
         "sequenceTheme": "시퀀스 다이어그램 테마",
@@ -661,6 +663,7 @@
         "highlightSyntax": "형광펜 (==텍스트==)",
         "inlineDiff": "인라인 diff ({+ … +})",
         "multilineBlockquote": "여러 줄 인용 (>>>)",
+        "githubAlerts": "GitHub Alerts 사용",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",

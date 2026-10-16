@@ -52,6 +52,7 @@ export interface IUserPreferences {
   highlightSyntax?: boolean
   inlineDiff?: boolean
   multilineBlockquote?: boolean
+  githubAlerts?: boolean
   isHtmlEnabled?: boolean
   softNewlineAsSpace?: boolean
   theme?: string

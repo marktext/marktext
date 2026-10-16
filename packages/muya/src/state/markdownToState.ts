@@ -12,6 +12,7 @@ import type {
 } from './types';
 import { firstWordOfInfo, parseFenceLine } from '../utils';
 import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
+import { splitGithubAlertMarker } from '../utils/githubAlerts';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -95,7 +96,9 @@ export class MarkdownToState {
                 this._handleLeafToken(token, parentList, tokens, trimUnnecessaryCodeBlockEmptyLines);
         }
 
-        return states.length ? states : [{ name: 'paragraph', text: '' }];
+        return states.length
+            ? states.map(state => state.name === 'block-quote' && state.meta?.style !== 'fenced' ? splitGithubAlertMarker(state) : state)
+            : [{ name: 'paragraph', text: '' }];
     }
 
     private _handleContainerToken(

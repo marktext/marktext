@@ -1,7 +1,20 @@
 export const zhCN = {
     name: 'zh-CN',
     resource: {
-    // tableTools
+        'The body starts with another alert marker. Format it as inline code before converting to a quote.': '正文以另一个提示标记开头。请先将该标记设为行内代码，再转换为引用。',
+        'GitHub Alerts': 'GitHub 提示块',
+        'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
+        'GitHub Alert: TIP': 'GitHub 提示: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub 提示: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub 提示: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub 提示: CAUTION',
+        'Supplementary information': '补充说明、备注信息',
+        'Helpful advice': '技巧、操作建议',
+        'Key information': '重要的关键信息',
+        'Problems needing attention': '警告、需要注意的问题',
+        'Risks and negative outcomes': '小心、操作风险和不良后果',
+
+        // tableTools
         'Insert Row Above': '上面插入行',
         'Insert Row Below': '下面插入行',
         'Remove Row': '删除所在行',

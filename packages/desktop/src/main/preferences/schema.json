@@ -301,6 +301,11 @@
     "type": "boolean",
     "default": false
   },
+  "githubAlerts": {
+    "description": "Markdown-Enable GitHub Alerts.",
+    "type": "boolean",
+    "default": false
+  },
   "multilineBlockquote": {
     "description": "Markdown-Enable the non-standard >>> … >>> multiline blockquote syntax.",
     "type": "boolean",

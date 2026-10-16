@@ -12,6 +12,7 @@ export interface ILexOption {
     highlightSyntax?: boolean;
     inlineDiff?: boolean;
     multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
 }
 
 export type Heading = Tokens.Heading & {

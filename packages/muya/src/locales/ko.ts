@@ -1,7 +1,20 @@
 export const ko = {
     name: 'ko',
     resource: {
-    // tableTools
+        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'GitHub Alerts': 'GitHub 알림',
+        'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
+        'GitHub Alert: TIP': 'GitHub 알림: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub 알림: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub 알림: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub 알림: CAUTION',
+        'Supplementary information': 'Supplementary information',
+        'Helpful advice': 'Helpful advice',
+        'Key information': 'Key information',
+        'Problems needing attention': 'Problems needing attention',
+        'Risks and negative outcomes': 'Risks and negative outcomes',
+
+        // tableTools
         'Insert Row Above': '위에 행 삽입',
         'Insert Row Below': '아래에 행 삽입',
         'Remove Row': '행 삭제',
