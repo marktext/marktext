@@ -40,10 +40,14 @@ test('Quick Insert creates the searched type at the caret', async ({ page }) => 
 test('front menu converts the complete container and its internal blocks', async ({ page }) => {
     await page.evaluate(() => window.muya!.setContent('> [!NOTE]\n> Body\n>\n> - item'));
     const show = async () => {
+        await expect(page.locator('.mu-front-menu')).not.toBeInViewport();
+        // A pointer over the old menu can send mouseleave after reopening it.
+        await page.mouse.move(0, 0);
         await page.evaluate(() => {
             const block = window.muya!.editor.scrollPage!.firstChild!;
             window.muya!.eventCenter.emit('muya-front-menu', { reference: block.domNode!, block });
         });
+        await expect(page.locator('.mu-front-menu')).toBeInViewport();
     };
     await show();
     await page.locator('.mu-front-menu .github-alert-TIP').click();
@@ -66,13 +70,18 @@ test('formatting the first body paragraph preserves its alert', async ({ page })
 test('pastes GitHub HTML and keeps types through disabled rendering and undo', async ({ page, context, browserName }) => {
     test.skip(browserName !== 'chromium', 'Native HTML clipboard permissions require Chromium.');
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.locator('.mu-paragraph-content').click();
     await page.evaluate(async () => {
         await navigator.clipboard.write([new ClipboardItem({
             'text/html': new Blob(['<div class="markdown-alert markdown-alert-important"><p class="markdown-alert-title"><svg></svg>Important</p><p><strong>Body</strong></p></div>'], { type: 'text/html' }),
             'text/plain': new Blob(['Important\nBody'], { type: 'text/plain' }),
         })]);
     });
+    // Native paste needs Muya's selection and focus on the outer editing host.
+    await page.evaluate(() => {
+        window.muya!.focus();
+        window.muya!.domNode.focus();
+    });
+    await expect(page.locator('.mu-editor')).toBeFocused();
     await page.keyboard.press(`${metaKey()}+v`);
     await expect(page.locator('.mu-github-alert .mu-alert-title')).toHaveText('Important');
     const markdown = await page.evaluate(() => window.muya!.getMarkdown());
