@@ -6,6 +6,7 @@ import type { ISelection } from '../selection/types';
 import type { TState } from '../state/types';
 import type { Nullable } from '../types';
 import type Clipboard from './index';
+import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
@@ -88,7 +89,9 @@ function resolveSelectionOrder(
     if (anchorOutMostBlockOffset == null || focusOutMostBlockOffset == null)
         return null;
 
-    const anchorFirst = anchorOutMostBlockOffset <= focusOutMostBlockOffset;
+    const anchorFirst = anchorOutMostBlockOffset === focusOutMostBlockOffset
+        ? selection.direction !== SelectionDirection.BACKWARD
+        : anchorOutMostBlockOffset < focusOutMostBlockOffset;
 
     return {
         anchorBlock,
