@@ -602,7 +602,8 @@ class EditorWindow extends BaseWindow {
             autoNormalizeLineEndings
           )
             .then((rawDocument) => {
-              tab.isPendingCreation = false
+              // Dirty pending buffers still need first-save replacement confirmation.
+              if (tab.isSaved) tab.isPendingCreation = false
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {
