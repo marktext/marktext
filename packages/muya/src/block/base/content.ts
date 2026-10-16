@@ -7,7 +7,7 @@ import type Parent from './parent';
 import diff from 'fast-diff';
 import TreeNode from '../../block/base/treeNode';
 import { ScrollPage } from '../../block/scrollPage';
-import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS } from '../../config';
+import { BACK_HASH, BRACKET_HASH, CLASS_NAMES, EVENT_KEYS, isOsx } from '../../config';
 import Selection from '../../selection';
 import { offsetInBlockAtPoint } from '../../selection/dom';
 import {
@@ -27,6 +27,23 @@ import {
 // to find the word at the cursor for spell-check replacement.
 const WORD_SEPARATORS = /[`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]/g;
 const WORD_DEFINITION = /-?\d*\.\d\w*|[^`~!@#$%^&*()\-=+[{\]}\\|;:'",.<>/?\s]+/g;
+
+/**
+ * Whether the event is macOS ⌘↑/⌘↓, which the system text bindings own: Blink
+ * runs them as the same MoveToBeginningOfDocument/End commands it maps
+ * Ctrl+Home/End to on Windows and Linux. muya has to leave them to the browser,
+ * otherwise the arrow cases move the caret by column instead of to the document
+ * edge (#3452).
+ *
+ * `osx` is injectable so the platform branch is testable.
+ */
+export function isDocumentBoundaryArrow(event: KeyboardEvent, osx: boolean = isOsx): boolean {
+    return osx
+        && event.metaKey
+        && !event.ctrlKey
+        && !event.altKey
+        && (event.key === EVENT_KEYS.ArrowUp || event.key === EVENT_KEYS.ArrowDown);
+}
 
 /**
  * Extract the word at the given offset from the text.
@@ -908,6 +925,10 @@ class Content extends TreeNode {
             return;
 
         if (this._wrapSelectionWithAutoPair(event))
+            return;
+
+        // Before the switch: these are the browser's keys, not plain arrows.
+        if (isDocumentBoundaryArrow(event))
             return;
 
         switch (event.key) {
