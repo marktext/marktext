@@ -1,8 +1,11 @@
 import type { Page } from '@playwright/test';
 
-/** Pull the current markdown out of the editor's public API. */
+// Edits commit on animation frames, so immediate reads can see the previous document.
 export async function getMarkdown(page: Page): Promise<string> {
-    return page.evaluate(() => window.muya!.getMarkdown());
+    return page.evaluate(() => {
+        window.muya!.flush();
+        return window.muya!.getMarkdown();
+    });
 }
 
 export async function getState(page: Page): Promise<unknown> {
