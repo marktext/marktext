@@ -1,10 +1,11 @@
 import fsPromises from 'fs/promises'
+import { lstatSync, statSync } from 'fs'
 import path from 'path'
 import log from 'electron-log'
 import iconv from 'iconv-lite'
 import { LINE_ENDING_REG, LF_LINE_ENDING_REG, CRLF_LINE_ENDING_REG } from '../config'
 import { isDirectory2 } from 'common/filesystem'
-import { isMarkdownFile } from 'common/filesystem/paths'
+import { hasMarkdownExtension, isMarkdownFile } from 'common/filesystem/paths'
 import { normalizeAndResolvePath, writeFile } from '../filesystem'
 import { guessEncoding } from './encoding'
 import type { Encoding } from 'common/encoding'
@@ -17,6 +18,7 @@ interface MarkdownDocumentOptions {
 }
 
 interface MarkdownDocumentRaw {
+  isPendingCreation?: boolean
   markdown: string
   filename: string
   pathname: string
@@ -61,6 +63,50 @@ export const normalizeMarkdownPath = (
     }
   }
   return null
+}
+
+export const normalizeCliMarkdownPath = (pathname: string) => {
+  try {
+    lstatSync(pathname)
+    return normalizeMarkdownPath(pathname)
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+      log.error(err)
+      return null
+    }
+    if (!hasMarkdownExtension(pathname)) return null
+    try {
+      if (!statSync(path.dirname(path.resolve(pathname))).isDirectory()) return null
+    } catch (parentError) {
+      log.error(parentError)
+      return null
+    }
+    return { isDir: false, path: path.resolve(pathname), allowMissing: true }
+  }
+}
+
+export const loadCliMarkdownFile = async(
+  pathname: string,
+  defaultEncoding: string,
+  ...args: Parameters<typeof loadMarkdownFile> extends [string, ...infer Rest] ? Rest : never
+): Promise<MarkdownDocumentRaw> => {
+  try {
+    return await loadMarkdownFile(pathname, ...args)
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err
+    await fsPromises.stat(path.dirname(pathname))
+    return {
+      pathname,
+      filename: path.basename(pathname),
+      markdown: '',
+      isPendingCreation: true,
+      encoding: { encoding: defaultEncoding, isBom: false },
+      lineEnding: args[0],
+      adjustLineEndingOnSave: args[0] !== 'lf',
+      trimTrailingNewline: args[2] ?? 2,
+      isMixedLineEndings: false
+    }
+  }
 }
 
 /**

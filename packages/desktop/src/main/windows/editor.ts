@@ -9,7 +9,7 @@ import type Accessor from '../app/accessor'
 import { ensureWindowPosition, zoomIn, zoomOut } from './utils'
 import { TITLE_BAR_HEIGHT, editorWinOptions, isLinux, isOsx } from '../config'
 import { showEditorContextMenu } from '../contextMenu/editor'
-import { loadMarkdownFile } from '../filesystem/markdown'
+import { loadMarkdownFile, loadCliMarkdownFile } from '../filesystem/markdown'
 import { switchLanguage } from '../spellchecker'
 import fs from 'fs'
 
@@ -87,7 +87,8 @@ class EditorWindow extends BaseWindow {
     fileList: string[] = [],
     markdownList: string[] = [],
     options: Partial<BrowserWindowConstructorOptions> = {},
-    bufferStoreInfo: BufferStoreInfo | null = null
+    bufferStoreInfo: BufferStoreInfo | null = null,
+    allowMissingPaths: string[] = []
   ): BrowserWindow {
     const { menu: appMenu, env, preferences, editorBufferStore } = this._accessor
     const addBlankTab =
@@ -286,7 +287,7 @@ class EditorWindow extends BaseWindow {
         this.openFolder(rootDirectory)
       }
       if (fileList.length) {
-        this.openTabsFromPaths(fileList)
+        this.openTabsFromPaths(fileList, allowMissingPaths)
       }
     }, 0)
 
@@ -305,10 +306,14 @@ class EditorWindow extends BaseWindow {
   /**
    * Open new tabs from the given file paths.
    */
-  openTabsFromPaths(filePaths: string[]): void {
+  openTabsFromPaths(filePaths: string[], allowMissingPaths: string[] = []): void {
     if (!filePaths || filePaths.length === 0) return
 
-    const fileList = filePaths.map((p) => ({ filePath: p, options: {}, selected: false }))
+    const fileList = filePaths.map((p) => ({
+      filePath: p,
+      options: { allowMissing: allowMissingPaths.includes(p) },
+      selected: false
+    }))
     fileList[0].selected = true
     this.openTabs(fileList)
   }
@@ -334,13 +339,11 @@ class EditorWindow extends BaseWindow {
         browserWindow!.webContents.send('mt::switch-tab-by-file_path', filePath, options)
         continue
       }
-      loadMarkdownFile(
-        filePath,
-        eol,
-        autoGuessEncoding,
-        trimTrailingNewline,
-        autoNormalizeLineEndings
-      )
+      this._openedFiles!.push(filePath)
+      const load = options.allowMissing
+        ? loadCliMarkdownFile.bind(null, filePath, preferences.getAll().defaultEncoding ?? 'utf8')
+        : loadMarkdownFile.bind(null, filePath)
+      load(eol, autoGuessEncoding, trimTrailingNewline, autoNormalizeLineEndings)
         .then((rawDocument) => {
           if (this.lifecycle === WindowLifecycle.READY) {
             this._doOpenTab(rawDocument, options, selected)
@@ -349,6 +352,7 @@ class EditorWindow extends BaseWindow {
           }
         })
         .catch((err: Error) => {
+          this._openedFiles = this._openedFiles!.filter((p) => p !== filePath)
           const { message, stack } = err
           log.error(`[ERROR] Cannot open file or directory: ${message}\n\n${stack}`)
           browserWindow!.webContents.send('mt::show-notification', {
@@ -411,7 +415,7 @@ class EditorWindow extends BaseWindow {
    */
   addToOpenedFiles(filePath: string): void {
     const { _openedFiles, browserWindow } = this
-    _openedFiles!.push(filePath)
+    if (!_openedFiles!.includes(filePath)) _openedFiles!.push(filePath)
     ipcMain.emit('watcher-watch-file', browserWindow, filePath)
   }
 
@@ -532,11 +536,11 @@ class EditorWindow extends BaseWindow {
     const { menu: appMenu } = _accessor
     const { pathname } = rawDocument
 
-    // Listen for file changed.
-    ipcMain.emit('watcher-watch-file', browserWindow, pathname)
-
-    appMenu.addRecentlyUsedDocument(pathname)
-    _openedFiles!.push(pathname)
+    if (!rawDocument.isPendingCreation) {
+      ipcMain.emit('watcher-watch-file', browserWindow, pathname)
+      appMenu.addRecentlyUsedDocument(pathname)
+    }
+    if (!_openedFiles!.includes(pathname)) _openedFiles!.push(pathname)
     browserWindow!.webContents.send('mt::open-new-tab', rawDocument, options, selected)
   }
 
@@ -598,6 +602,8 @@ class EditorWindow extends BaseWindow {
             autoNormalizeLineEndings
           )
             .then((rawDocument) => {
+              // Dirty pending buffers still need first-save replacement confirmation.
+              if (tab.isSaved) tab.isPendingCreation = false
               if (rawDocument.markdown !== tab.markdown) {
                 // File has changed since it was last opened, if it is not saved, we should NOT override the buffer
                 if (tab.isSaved) {
@@ -611,6 +617,11 @@ class EditorWindow extends BaseWindow {
               }
             })
             .catch((err: Error) => {
+              if (tab.isPendingCreation && (err as NodeJS.ErrnoException).code === 'ENOENT') {
+                if (!this._openedFiles!.includes(tab.pathname))
+                  this._openedFiles!.push(tab.pathname)
+                return
+              }
               const { message, stack } = err
               tab.isSaved = false // Set to false as base file could not be found, needs saving
               log.error(`[ERROR] Cannot open file: ${message}\n\n${stack}`)

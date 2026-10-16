@@ -1,5 +1,5 @@
 import path from 'path'
-import type { BrowserWindow } from 'electron'
+import { app, type BrowserWindow } from 'electron'
 import { TypedEmitter } from '@shared/types/typedEmitter'
 import type Accessor from '../app/accessor'
 import { getThemeBackgroundColor } from '../../common/theme'
@@ -85,6 +85,11 @@ class BaseWindow extends TypedEmitter<BaseWindowEvents> {
     if (!win) return
     if (win.isMinimized()) win.restore()
     if (!win.isVisible()) win.show()
+    // Window focus alone does not activate a background app on macOS.
+    if (process.platform === 'darwin') {
+      app.show()
+      app.focus({ steal: true })
+    }
     win.focus()
     win.moveTop()
   }
