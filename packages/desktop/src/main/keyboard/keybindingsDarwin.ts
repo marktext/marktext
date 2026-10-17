@@ -61,6 +61,7 @@ const keybindings: Map<string, string> = new Map([
   ['paragraph.math-formula', 'Command+Option+M'],
   ['paragraph.html-block', 'Command+Option+J'],
   ['paragraph.order-list', 'Command+Option+O'],
+  ['paragraph.outline', 'Command+Option+K'],
   ['paragraph.bullet-list', 'Command+Option+U'],
   ['paragraph.task-list', 'Command+Option+X'],
   ['paragraph.loose-list-item', 'Command+Option+L'],

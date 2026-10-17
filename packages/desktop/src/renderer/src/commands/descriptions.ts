@@ -102,6 +102,7 @@ const COMMAND_KEY_MAP: Record<string, string> = {
 
   // List types
   'paragraph.order-list': 'commands.paragraph.orderList',
+  'paragraph.outline': 'commands.paragraph.outline',
   'paragraph.bullet-list': 'commands.paragraph.bulletList',
   'paragraph.task-list': 'commands.paragraph.taskList',
   'paragraph.loose-list-item': 'commands.paragraph.looseListItem',

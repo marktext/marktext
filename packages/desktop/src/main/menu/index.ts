@@ -576,7 +576,7 @@ class AppMenu {
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
-      if (prefs.texMathDollars !== undefined || prefs.githubAlerts !== undefined) {
+      if (prefs.texMathDollars !== undefined || prefs.githubAlerts !== undefined || prefs.fancyLists !== undefined) {
         this.updateAppMenu()
       }
       if (prefs.showPandocConvert !== undefined) {
