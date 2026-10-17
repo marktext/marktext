@@ -51,9 +51,10 @@ function buildHtmlOptions(options: Muya['options']) {
         inlineDiff,
         multilineBlockquote,
         githubAlerts,
+        fancyLists,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts, fancyLists };
 }
 
 /**
