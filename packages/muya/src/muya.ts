@@ -1226,10 +1226,13 @@ export class Muya {
     private _handleGithubAlertParagraph(block: Parent, label: string | undefined): boolean {
         if (!this.options.githubAlerts || !label)
             return false;
-        const handles = label.startsWith('github-alert ')
-            || canConvertGithubAlert(block, label);
-        if (!handles)
+        if (label === 'paragraph' || label === 'block-quote') {
+            if (!canConvertGithubAlert(block, label))
+                return false;
+        }
+        else if (!label.startsWith('github-alert ')) {
             return false;
+        }
         const selection = this.editor.selection.getSelection();
         const spansContainers = selection && selection.anchor.block.outMostBlock !== selection.focus.block.outMostBlock;
         if (spansContainers && label === 'block-quote' && !githubAlertBlockType(block))
