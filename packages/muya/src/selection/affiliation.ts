@@ -12,6 +12,8 @@ import type Content from '../block/base/content';
 import type Parent from '../block/base/parent';
 import type TreeNode from '../block/base/treeNode';
 import type { Nullable } from '../types';
+import { canConvertGithubAlert } from '../block/githubAlerts';
+import { githubAlertBlockType } from '../utils/githubAlerts';
 
 /**
  * The legacy "markdown block type" vocabulary the desktop menu vocabulary is
@@ -94,6 +96,8 @@ export interface IAffiliationEntry {
     type: string;
     /** Engine block name (`bullet-list`, `code-block`, …) for callers that want the precise block. */
     blockName: string;
+    alertType?: string;
+    canGithubAlerts?: boolean;
     /** Present on list ancestors (`ul` / `ol`): `bullet` | `order` | `task`. */
     listType?: string;
     /**
@@ -164,6 +168,11 @@ function _parentListOf(item: Parent): Parent | null {
 
 function _buildEntry(block: Parent, type: string): IAffiliationEntry {
     const entry: IAffiliationEntry = { type, blockName: block.blockName };
+    if (block.muya.options.githubAlerts && block.parent?.isScrollPage) {
+        entry.alertType = githubAlertBlockType(block) ?? undefined;
+        entry.canGithubAlerts = canConvertGithubAlert(block, 'github-alert NOTE');
+    }
+
     if (type === 'ul' || type === 'ol') {
         entry.listType = LIST_TYPE_BY_NAME[block.blockName];
         entry.isLooseListItem = _isLoose(block);

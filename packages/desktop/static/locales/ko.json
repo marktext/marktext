@@ -70,6 +70,7 @@
       "table": "표",
       "codeFences": "코드 블록",
       "quoteBlock": "인용 블록",
+      "githubAlerts": "GitHub 알림",
       "mathBlock": "수식 블록",
       "htmlBlock": "HTML 블록",
       "orderedList": "순서 목록",

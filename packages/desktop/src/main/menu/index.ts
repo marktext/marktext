@@ -576,8 +576,7 @@ class AppMenu {
       if (prefs.autoSave !== undefined) {
         this.updateAutoSaveMenu(prefs.autoSave)
       }
-      if (prefs.texMathDollars !== undefined) {
-        // The Paragraph menu lists Math Block only while the option is on.
+      if (prefs.texMathDollars !== undefined || prefs.githubAlerts !== undefined) {
         this.updateAppMenu()
       }
       if (prefs.showPandocConvert !== undefined) {

@@ -70,6 +70,7 @@
       "table": "表格",
       "codeFences": "程式碼圍欄",
       "quoteBlock": "引用區塊",
+      "githubAlerts": "GitHub 提示區塊",
       "mathBlock": "數學區塊",
       "htmlBlock": "HTML 區塊",
       "orderedList": "有序清單",

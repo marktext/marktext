@@ -1,7 +1,19 @@
 export const tr = {
     name: 'tr',
     resource: {
-    // tableTools
+        'GitHub Alerts': 'GitHub uyarıları',
+        'GitHub Alert: NOTE': 'GitHub uyarısı: NOTE',
+        'GitHub Alert: TIP': 'GitHub uyarısı: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub uyarısı: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub uyarısı: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub uyarısı: CAUTION',
+        'Supplementary information': 'Ek bilgiler',
+        'Helpful advice': 'Yararlı ipuçları',
+        'Key information': 'Önemli bilgiler',
+        'Problems needing attention': 'Dikkat gerektiren sorunlar',
+        'Risks and negative outcomes': 'Riskler ve olumsuz sonuçlar',
+
+        // tableTools
         'Insert Row Above': 'Üste Satır Ekle',
         'Insert Row Below': 'Alta Satır Ekle',
         'Remove Row': 'Satırı Kaldır',

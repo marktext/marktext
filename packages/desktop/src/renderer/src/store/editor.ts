@@ -111,6 +111,8 @@ interface ContentChangePayload {
 
 interface AffiliationEntry {
   type: string
+  alertType?: string
+  canGithubAlerts?: boolean
   functionType?: string
   listType?: string
   listItemType?: string
@@ -1980,6 +1982,8 @@ const trimTrailingNewlines = (text: string): string => {
 }
 
 interface ApplicationMenuState {
+  alertType?: string
+  canGithubAlerts?: boolean
   isDisabled: boolean
   isMultiline: boolean
   isLooseListItem: boolean
@@ -2022,6 +2026,8 @@ const createApplicationMenuState = ({
   }
   const { isMultiline } = state
   const aff: AffiliationEntry[] = affiliation ?? []
+  state.alertType = aff[0]?.alertType
+  state.canGithubAlerts = aff[0]?.canGithubAlerts === true
   const startBlock: { text?: string; functionType?: string } = start.block ?? {}
   const endBlock: { functionType?: string } = end.block ?? {}
 

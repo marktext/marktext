@@ -1,7 +1,19 @@
 export const pt = {
     name: 'pt',
     resource: {
-    // tableTools
+        'GitHub Alerts': 'Alertas do GitHub',
+        'GitHub Alert: NOTE': 'Alerta do GitHub: NOTE',
+        'GitHub Alert: TIP': 'Alerta do GitHub: TIP',
+        'GitHub Alert: IMPORTANT': 'Alerta do GitHub: IMPORTANT',
+        'GitHub Alert: WARNING': 'Alerta do GitHub: WARNING',
+        'GitHub Alert: CAUTION': 'Alerta do GitHub: CAUTION',
+        'Supplementary information': 'Informações complementares',
+        'Helpful advice': 'Dicas úteis',
+        'Key information': 'Informações essenciais',
+        'Problems needing attention': 'Problemas que precisam de atenção',
+        'Risks and negative outcomes': 'Riscos e consequências negativas',
+
+        // tableTools
         'Insert Row Above': 'Inserir linha acima',
         'Insert Row Below': 'Inserir linha abaixo',
         'Remove Row': 'Remover linha',

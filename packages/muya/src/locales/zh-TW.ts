@@ -1,7 +1,19 @@
 export const zhTW = {
     name: 'zh-TW',
     resource: {
-    // tableTools
+        'GitHub Alerts': 'GitHub 提示區塊',
+        'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
+        'GitHub Alert: TIP': 'GitHub 提示: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub 提示: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub 提示: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub 提示: CAUTION',
+        'Supplementary information': '補充說明、備註資訊',
+        'Helpful advice': '技巧、操作建議',
+        'Key information': '重要的關鍵資訊',
+        'Problems needing attention': '警告、需要注意的問題',
+        'Risks and negative outcomes': '小心、操作風險和不良後果',
+
+        // tableTools
         'Insert Row Above': '在上方插入列',
         'Insert Row Below': '在下方插入列',
         'Remove Row': '刪除所在列',
