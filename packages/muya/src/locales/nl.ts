@@ -1,18 +1,18 @@
 export const nl = {
     name: 'nl',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'De inhoud begint met een andere meldingsmarkering. Maak deze op als inlinecode voordat je de melding omzet naar een citaat.',
         'GitHub Alerts': 'GitHub-meldingen',
         'GitHub Alert: NOTE': 'GitHub-melding: NOTE',
         'GitHub Alert: TIP': 'GitHub-melding: TIP',
         'GitHub Alert: IMPORTANT': 'GitHub-melding: IMPORTANT',
         'GitHub Alert: WARNING': 'GitHub-melding: WARNING',
         'GitHub Alert: CAUTION': 'GitHub-melding: CAUTION',
-        'Supplementary information': 'Supplementary information',
-        'Helpful advice': 'Helpful advice',
-        'Key information': 'Key information',
-        'Problems needing attention': 'Problems needing attention',
-        'Risks and negative outcomes': 'Risks and negative outcomes',
+        'Supplementary information': 'Aanvullende informatie',
+        'Helpful advice': 'Nuttige tips',
+        'Key information': 'Belangrijke informatie',
+        'Problems needing attention': 'Problemen die aandacht vereisen',
+        'Risks and negative outcomes': 'Risico’s en negatieve gevolgen',
 
         // tableTools
         'Insert Row Above': 'Rij invoegen boven',

@@ -1,18 +1,18 @@
 export const ko = {
     name: 'ko',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': '본문이 다른 알림 표시로 시작합니다. 인용문으로 변환하기 전에 해당 표시를 인라인 코드로 지정하세요.',
         'GitHub Alerts': 'GitHub 알림',
         'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
         'GitHub Alert: TIP': 'GitHub 알림: TIP',
         'GitHub Alert: IMPORTANT': 'GitHub 알림: IMPORTANT',
         'GitHub Alert: WARNING': 'GitHub 알림: WARNING',
         'GitHub Alert: CAUTION': 'GitHub 알림: CAUTION',
-        'Supplementary information': 'Supplementary information',
-        'Helpful advice': 'Helpful advice',
-        'Key information': 'Key information',
-        'Problems needing attention': 'Problems needing attention',
-        'Risks and negative outcomes': 'Risks and negative outcomes',
+        'Supplementary information': '추가 정보',
+        'Helpful advice': '유용한 조언',
+        'Key information': '중요한 정보',
+        'Problems needing attention': '주의가 필요한 문제',
+        'Risks and negative outcomes': '위험 및 부정적인 결과',
 
         // tableTools
         'Insert Row Above': '위에 행 삽입',

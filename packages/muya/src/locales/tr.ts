@@ -1,18 +1,18 @@
 export const tr = {
     name: 'tr',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'İçerik başka bir uyarı işaretçisiyle başlıyor. Alıntıya dönüştürmeden önce bu işaretçiyi satır içi kod olarak biçimlendirin.',
         'GitHub Alerts': 'GitHub uyarıları',
         'GitHub Alert: NOTE': 'GitHub uyarısı: NOTE',
         'GitHub Alert: TIP': 'GitHub uyarısı: TIP',
         'GitHub Alert: IMPORTANT': 'GitHub uyarısı: IMPORTANT',
         'GitHub Alert: WARNING': 'GitHub uyarısı: WARNING',
         'GitHub Alert: CAUTION': 'GitHub uyarısı: CAUTION',
-        'Supplementary information': 'Supplementary information',
-        'Helpful advice': 'Helpful advice',
-        'Key information': 'Key information',
-        'Problems needing attention': 'Problems needing attention',
-        'Risks and negative outcomes': 'Risks and negative outcomes',
+        'Supplementary information': 'Ek bilgiler',
+        'Helpful advice': 'Yararlı ipuçları',
+        'Key information': 'Önemli bilgiler',
+        'Problems needing attention': 'Dikkat gerektiren sorunlar',
+        'Risks and negative outcomes': 'Riskler ve olumsuz sonuçlar',
 
         // tableTools
         'Insert Row Above': 'Üste Satır Ekle',

@@ -663,7 +663,7 @@
         "highlightSyntax": "Markeren (==tekst==)",
         "inlineDiff": "Inline diff ({+ … +})",
         "multilineBlockquote": "Meerregelig citaat (>>>)",
-        "githubAlerts": "GitHub Alerts inschakelen",
+        "githubAlerts": "GitHub-meldingen inschakelen",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

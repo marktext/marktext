@@ -663,7 +663,7 @@
         "highlightSyntax": "Hervorhebung (==text==)",
         "inlineDiff": "Inline-Diff ({+ … +})",
         "multilineBlockquote": "Mehrzeiliges Zitat (>>>)",
-        "githubAlerts": "GitHub Alerts aktivieren",
+        "githubAlerts": "GitHub-Hinweise aktivieren",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",

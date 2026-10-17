@@ -1,18 +1,18 @@
 export const fr = {
     name: 'fr',
     resource: {
-        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'Le contenu commence par un autre marqueur d’alerte. Formatez-le en code en ligne avant de convertir l’alerte en citation.',
         'GitHub Alerts': 'Alertes GitHub',
         'GitHub Alert: NOTE': 'Alerte GitHub: NOTE',
         'GitHub Alert: TIP': 'Alerte GitHub: TIP',
         'GitHub Alert: IMPORTANT': 'Alerte GitHub: IMPORTANT',
         'GitHub Alert: WARNING': 'Alerte GitHub: WARNING',
         'GitHub Alert: CAUTION': 'Alerte GitHub: CAUTION',
-        'Supplementary information': 'Supplementary information',
-        'Helpful advice': 'Helpful advice',
-        'Key information': 'Key information',
-        'Problems needing attention': 'Problems needing attention',
-        'Risks and negative outcomes': 'Risks and negative outcomes',
+        'Supplementary information': 'Informations complémentaires',
+        'Helpful advice': 'Conseils utiles',
+        'Key information': 'Informations essentielles',
+        'Problems needing attention': 'Problèmes nécessitant une attention particulière',
+        'Risks and negative outcomes': 'Risques et conséquences négatives',
 
         // tableTools
         'Insert Row Above': 'Insérer une ligne au-dessus',

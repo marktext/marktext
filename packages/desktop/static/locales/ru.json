@@ -663,7 +663,7 @@
         "highlightSyntax": "Выделение (==текст==)",
         "inlineDiff": "Встроенный diff ({+ … +})",
         "multilineBlockquote": "Многострочная цитата (>>>)",
-        "githubAlerts": "Включить GitHub Alerts",
+        "githubAlerts": "Включить оповещения GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON с фигурными скобками",
           "jsonSemicolon": "JSON с точкой с запятой",

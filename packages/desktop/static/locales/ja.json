@@ -663,7 +663,7 @@
         "highlightSyntax": "ハイライト (==テキスト==)",
         "inlineDiff": "インライン差分 ({+ … +})",
         "multilineBlockquote": "複数行引用 (>>>)",
-        "githubAlerts": "GitHub Alerts を有効にする",
+        "githubAlerts": "GitHub アラートを有効にする",
         "frontmatterType": {
           "jsonBrace": "JSON 括弧",
           "jsonSemicolon": "JSON セミコロン",

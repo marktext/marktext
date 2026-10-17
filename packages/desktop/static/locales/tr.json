@@ -663,7 +663,7 @@
         "highlightSyntax": "Vurgu (==metin==)",
         "inlineDiff": "Satır içi fark ({+ … +})",
         "multilineBlockquote": "Çok satırlı alıntı (>>>)",
-        "githubAlerts": "GitHub Alerts özelliğini etkinleştir",
+        "githubAlerts": "GitHub uyarılarını etkinleştir",
         "frontmatterType": {
           "jsonBrace": "Süslü Parantezli JSON",
           "jsonSemicolon": "Noktalı Virgüllü JSON",

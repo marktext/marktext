@@ -663,7 +663,7 @@
         "highlightSyntax": "Realce (==texto==)",
         "inlineDiff": "Diff embutido ({+ … +})",
         "multilineBlockquote": "Citação multilinha (>>>)",
-        "githubAlerts": "Ativar GitHub Alerts",
+        "githubAlerts": "Ativar alertas do GitHub",
         "frontmatterType": {
           "jsonBrace": "JSON com Chaves",
           "jsonSemicolon": "JSON com Ponto e Vírgula",

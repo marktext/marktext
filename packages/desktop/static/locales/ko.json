@@ -663,7 +663,7 @@
         "highlightSyntax": "형광펜 (==텍스트==)",
         "inlineDiff": "인라인 diff ({+ … +})",
         "multilineBlockquote": "여러 줄 인용 (>>>)",
-        "githubAlerts": "GitHub Alerts 사용",
+        "githubAlerts": "GitHub 알림 사용",
         "frontmatterType": {
           "jsonBrace": "중괄호가 있는 JSON",
           "jsonSemicolon": "세미콜론이 있는 JSON",
