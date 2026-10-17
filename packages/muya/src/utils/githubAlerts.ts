@@ -1,3 +1,4 @@
+import type Parent from '../block/base/parent';
 import type { IGithubAlertState } from '../state/types';
 
 export const GITHUB_ALERT_TYPES = ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'] as const;
@@ -28,8 +29,17 @@ export function githubAlertIcon(type: GithubAlertType): string {
     return `<svg class="mu-alert-icon" viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[type]}</svg>`;
 }
 
+export function githubAlertMenuIcon(type: GithubAlertType): string {
+    return `data:image/svg+xml,${encodeURIComponent(githubAlertIcon(type).replace('currentColor', '#808080'))}`;
+}
+
 export function githubAlertMarker(meta: IGithubAlertState['meta']): string {
     return meta.marker ?? `[!${meta.type}]`;
+}
+
+export function githubAlertBlockType(block: Parent): GithubAlertType | null {
+    const alert = block as Parent & { meta?: IGithubAlertState['meta'] };
+    return block.blockName === 'github-alert' ? alert.meta?.type ?? null : null;
 }
 
 /** Restore portable Markdown semantics before Turndown discards generated titles. */

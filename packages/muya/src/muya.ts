@@ -11,6 +11,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
+import { canConvertGithubAlert, convertGithubAlert } from './block/githubAlerts';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -19,8 +20,8 @@ import {
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
-
 import { Editor } from './editor/index';
+
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import {
@@ -32,10 +33,12 @@ import {
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
+import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
+import './assets/styles/githubAlerts.css';
 import './assets/styles/prismjs/light.theme.css';
 
 // UI plugins (e.g. InlineFormatToolbar, EmojiSelector) follow a common
@@ -66,6 +69,10 @@ interface ISelectionSnapshot {
 // Maps the paragraph-menu labels the desktop sends through `updateParagraph`
 // to muya's `replaceBlockByLabel` vocabulary.
 const PARAGRAPH_LABEL_MAP: Record<string, string> = {
+    ...GITHUB_ALERT_TYPES.reduce<Record<string, string>>((labels, type) => {
+        labels[`github-alert ${type}`] = `github-alert ${type}`;
+        return labels;
+    }, {}),
     'paragraph': 'paragraph',
     'hr': 'thematic-break',
     'front-matter': 'frontmatter',
@@ -134,6 +141,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
     'multilineBlockquote',
+    'githubAlerts',
 ]);
 
 function endpointPair(
@@ -185,7 +193,6 @@ export class Muya {
 
     init(options: { focus?: boolean } = {}) {
         this.editor.init(options);
-
         // UI plugins
         if (Muya.plugins.length) {
             for (const { plugin: Plugin, options: opts } of Muya.plugins)
@@ -352,7 +359,6 @@ export class Muya {
         }
 
         applyAppearance(this.domNode, options);
-
         if (!forceRender)
             return;
 
@@ -846,6 +852,18 @@ export class Muya {
         place(container);
     }
 
+    private _getStateForWrapping(block: Parent): TState {
+        const state = block.getState();
+        if (state.name !== 'github-alert')
+            return state;
+        const marker = githubAlertMarker(state.meta);
+        const first = state.children[0];
+        const children = !state.meta.blankLineAfterMarker && first?.name === 'paragraph'
+            ? [{ ...first, text: `${marker}\n${first.text}` }, ...state.children.slice(1)]
+            : [{ name: 'paragraph' as const, text: marker }, ...state.children];
+        return { name: 'block-quote', children };
+    }
+
     /** Wrap the selected outmost blocks as items of a new list of `label`. */
     private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
@@ -859,8 +877,8 @@ export class Muya {
                 name: label,
                 meta,
                 children: blocks.map(b => label === 'task-list'
-                    ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
-                    : { name: itemName, children: [b.getState()] }),
+                    ? { name: itemName, meta: { checked: false }, children: [this._getStateForWrapping(b)] }
+                    : { name: itemName, children: [this._getStateForWrapping(b)] }),
             }),
             container => this._selectWrappedContent(container),
         );
@@ -869,7 +887,7 @@ export class Muya {
     /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
         this._wrapSelectedBlocks(
-            blocks => ({ name: 'block-quote', children: blocks.map(b => b.getState()) }),
+            blocks => ({ name: 'block-quote', children: blocks.map(block => this._getStateForWrapping(block)) }),
             container => this._selectWrappedContent(container),
         );
     }
@@ -1205,6 +1223,25 @@ export class Muya {
         return locateSentinelOffsets(sentinelMarkdown);
     }
 
+    private _handleGithubAlertParagraph(block: Parent, label: string | undefined): boolean {
+        if (!this.options.githubAlerts || !label)
+            return false;
+        if (label === 'paragraph' || label === 'block-quote') {
+            if (!canConvertGithubAlert(block, label))
+                return false;
+        }
+        else if (!label.startsWith('github-alert ')) {
+            return false;
+        }
+        const selection = this.editor.selection.getSelection();
+        const spansContainers = selection && selection.anchor.block.outMostBlock !== selection.focus.block.outMostBlock;
+        if (spansContainers && label === 'block-quote' && !githubAlertBlockType(block))
+            return false;
+        if (!spansContainers)
+            convertGithubAlert(block, label);
+        return true;
+    }
+
     /**
      * Convert the block at the cursor to another type. `type` uses the
      * paragraph-menu
@@ -1216,6 +1253,10 @@ export class Muya {
     updateParagraph(type: string) {
         const block = this._outmostBlockAtCursor();
         if (!block)
+            return;
+
+        const label = PARAGRAPH_LABEL_MAP[type];
+        if (this._handleGithubAlertParagraph(block, label))
             return;
 
         if (this._handleCrossBlockParagraph(type))
@@ -1244,7 +1285,6 @@ export class Muya {
             return;
         }
 
-        const label = PARAGRAPH_LABEL_MAP[type];
         if (!label)
             return;
 

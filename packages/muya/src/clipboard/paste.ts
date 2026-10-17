@@ -398,26 +398,9 @@ function applyParsedPaste(
     if (markdown.trim().length === 0)
         return;
 
-    const {
-        footnote,
-        texMathDollars,
-        texMathGfm,
-        texMathSingleBackslash,
-        texMathDoubleBackslash,
-        trimUnnecessaryCodeBlockEmptyLines,
-        frontMatter,
-        multilineBlockquote,
-    } = muya.options;
-
     const states = new MarkdownToState({
-        footnote,
-        texMathDollars,
-        texMathGfm,
-        texMathSingleBackslash,
-        texMathDoubleBackslash,
-        trimUnnecessaryCodeBlockEmptyLines,
-        frontMatter,
-        multilineBlockquote,
+        ...muya.options,
+        githubAlerts: muya.options.githubAlerts && ctx.wrapperBlock?.parent?.isScrollPage === true,
     }).generate(markdown);
 
     if (states.length === 0)

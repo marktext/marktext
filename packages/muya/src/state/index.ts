@@ -94,27 +94,7 @@ class JSONState {
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
     markdownToState(markdown: string): TState[] {
-        const {
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-            multilineBlockquote,
-        } = this._muya.options;
-
-        return new MarkdownToState({
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-            multilineBlockquote,
-        }).generate(markdown);
+        return new MarkdownToState(this._muya.options).generate(markdown);
     }
 
     /**

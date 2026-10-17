@@ -8,6 +8,7 @@ import type { Nullable } from '../types';
 import type Clipboard from './index';
 import { SelectionDirection } from '../selection/types';
 import StateToMarkdown from '../state/stateToMarkdown';
+import { githubAlertBlockType } from '../utils/githubAlerts';
 import { getClipBoardHtml, getSanitizeClipboardHtml } from '../utils/marked';
 import { CopyType } from './types';
 
@@ -32,6 +33,11 @@ interface ICopyOrder {
     endOffset: number;
 }
 
+function firstAlertBodyContent(container: Parent) {
+    const first = container.firstContentInDescendant();
+    return first?.blockName === 'language-input' ? first.nextContentInContext() : first;
+}
+
 function buildHtmlOptions(options: Muya['options']) {
     const {
         footnote,
@@ -44,9 +50,10 @@ function buildHtmlOptions(options: Muya['options']) {
         highlightSyntax,
         inlineDiff,
         multilineBlockquote,
+        githubAlerts,
     } = options;
 
-    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote };
+    return { footnote, frontMatter, texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, superSubScript, highlightSyntax, inlineDiff, multilineBlockquote, githubAlerts };
 }
 
 /**
@@ -233,10 +240,18 @@ function appendPartialState(
     const block = position === 'start' ? startBlock : endBlock;
     const offset = position === 'start' ? startOffset : endOffset;
 
+    if (outBlock && githubAlertBlockType(outBlock)) {
+        const edge = position === 'start' ? firstAlertBodyContent(outBlock) : outBlock.lastContentInDescendant();
+        if (edge === block && offset === (position === 'start' ? 0 : block.text.length)) {
+            copyState.push(outBlock.getState());
+            return;
+        }
+    }
+
     // A block-quote or list endpoint is partially selected: carry only the
     // selected side of the container, with the boundary item's own text
     // truncated to the caret, rather than the whole container/item.
-    if (/block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
+    if (/github-alert|block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
         copyState.push(
             buildPartialContainerState(outBlock as Parent, block, offset, position),
         );
@@ -293,6 +308,12 @@ function collectSameOutMostBlockState(order: ICopyOrder): TState[] {
         copyState.push((anchorOutMostBlock as Parent).getState());
 
         return copyState;
+    }
+
+    if (githubAlertBlockType(anchorOutMostBlock)) {
+        const partial = buildRangeContainerState(anchorOutMostBlock, startBlock, startOffset, endBlock, endOffset);
+        if (partial.name === 'github-alert')
+            return partial.children;
     }
 
     // List or block-quote: keep only the selected range, with both boundary
@@ -355,6 +376,17 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
         return { html: '', text: '' };
 
     const options = buildHtmlOptions(clipboard.muya.options);
+    const container = anchorBlock.outMostBlock;
+    if (container && container === focusBlock.outMostBlock && githubAlertBlockType(container)) {
+        const first = firstAlertBodyContent(container);
+        const last = container.lastContentInDescendant();
+        const forward = anchorBlock === first && anchor.offset === 0 && focusBlock === last && focus.offset === last.text.length;
+        const backward = focusBlock === first && focus.offset === 0 && anchorBlock === last && anchor.offset === last.text.length;
+        if (forward || backward) {
+            const text = new StateToMarkdown().generate([container.getState()]);
+            return { text, html: getClipBoardHtml(text, options) };
+        }
+    }
 
     // Handler copy/cut in one block.
     if (isSelectionInSameBlock) {
