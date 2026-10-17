@@ -5,16 +5,24 @@
   >
     <div class="description">
       <span>{{ description }}:</span>
-      <LinkIcon
+      <icon-tooltip
         v-if="more"
-        :size="14"
-        class="link-icon"
-        style="margin-left: 4px"
-        @click="handleMoreClick"
-      />
+        :content="t('preferences.learnMore', { name: description })"
+      >
+        <button
+          type="button"
+          class="plain-button link-icon"
+          style="margin-left: 4px"
+          :aria-label="t('preferences.learnMore', { name: description })"
+          @click="handleMoreClick"
+        >
+          <LinkIcon :size="14" />
+        </button>
+      </icon-tooltip>
     </div>
     <el-autocomplete
       v-model="selectValue"
+      :aria-label="description"
       class="font-autocomplete"
       popper-class="font-autocomplete-popper"
       :fetch-suggestions="querySearch"
@@ -41,6 +49,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import { useI18n } from 'vue-i18n'
 import type { PrefControlProps } from '../types'
 import { withBundledFonts } from './bundledFonts'

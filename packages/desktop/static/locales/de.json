@@ -260,6 +260,13 @@
       "settings": "Einstellungen"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Anwendungsmenü",
+    "minimize": "Minimieren",
+    "maximize": "Maximieren",
+    "restore": "Wiederherstellen",
+    "close": "Schließen"
+  },
   "commandPalette": {
     "placeholder": "Befehl zum Ausführen eingeben",
     "placeholders": {
@@ -354,6 +361,7 @@
   },
   "preferences": {
     "title": "Einstellungen",
+    "learnMore": "Mehr erfahren: {name}",
     "search": {
       "placeholder": "In Einstellungen suchen...",
       "categories": {
@@ -1019,6 +1027,9 @@
       "languageMissing": "Rechtschreibprüfungssprache fehlt {languageCode}",
       "switchError": "Rechtschreibprüfung-Wechselfehler für {languageCode}, {error}",
       "title": "Rechtschreibprüfung"
+    },
+    "tabs": {
+      "close": "{name} schließen"
     }
   }
 }

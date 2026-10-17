@@ -10,15 +10,18 @@
     </div>
     <div class="controls">
       <div>
-        <span
+        <button
           v-if="currentNotification.showConfirm"
-          class="inline-button"
+          type="button"
+          class="plain-button inline-button"
           @click.stop="handleClick(true)"
         >
           {{ t('common.ok') }}
-        </span>
-        <span
-          class="inline-button"
+        </button>
+        <button
+          type="button"
+          class="plain-button inline-button"
+          :aria-label="t('dialog.close')"
           @click.stop="handleClick(false)"
         >
           <el-icon
@@ -27,7 +30,7 @@
           >
             <Close />
           </el-icon>
-        </span>
+        </button>
       </div>
     </div>
   </div>
@@ -113,8 +116,12 @@ const handleClick = (status: boolean) => {
     width: 24px;
     height: 24px;
     font-size: 12px;
-    cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  /* The bar is filled with the notification colour, which the text colour is
+     chosen to contrast with. */
+  & .inline-button:focus-visible {
+    outline-color: currentColor;
   }
   & .inline-button:hover {
     background: rgba(255, 255, 255, 0.1);

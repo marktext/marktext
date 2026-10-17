@@ -20,24 +20,31 @@
         >
           <span>{{ file.filename }}</span>
           <span class="unsaved-dot" />
-          <el-icon
-            class="close-icon"
-            :size="12"
+          <button
+            type="button"
+            class="plain-button close-icon"
+            :aria-label="t('editor.tabs.close', { name: file.filename })"
             @click.stop="removeFileInTab(file)"
           >
-            <Close />
-          </el-icon>
+            <el-icon :size="12">
+              <Close />
+            </el-icon>
+          </button>
         </li>
       </ul>
     </div>
-    <div
-      class="new-file"
-      @click.stop="newFile()"
-    >
-      <el-icon :size="16">
-        <Plus />
-      </el-icon>
-    </div>
+    <icon-tooltip :content="t('menu.file.newTab')">
+      <button
+        type="button"
+        class="plain-button new-file"
+        :aria-label="t('menu.file.newTab')"
+        @click.stop="newFile()"
+      >
+        <el-icon :size="16">
+          <Plus />
+        </el-icon>
+      </button>
+    </icon-tooltip>
   </div>
 </template>
 
@@ -49,10 +56,13 @@ import { storeToRefs } from 'pinia'
 import autoScroll from 'dom-autoscroller'
 import dragula from 'dragula'
 import { Plus, Close } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import { showContextMenu } from '../../contextMenu/tabs'
 import bus from '../../bus'
 import type { IFileState } from '@shared/types/files'
 
+const { t } = useI18n()
 const editorStore = useEditorStore()
 const layoutStore = useLayoutStore()
 
@@ -273,8 +283,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* The padding widens the hit area and keeps the inset focus ring off the
+   glyph; the negative margin keeps the tab as wide as before. */
 .close-icon {
-  cursor: pointer;
+  padding: 2px;
+  margin: 0 -2px;
   transition: opacity 0.15s ease-in-out;
 }
 
@@ -336,10 +349,12 @@ onBeforeUnmount(() => {
     &:hover {
       background: var(--floatBgColor) !important;
     }
-    &:hover > .close-icon {
+    &:hover > .close-icon,
+    & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot {
+    &:hover > .unsaved-dot,
+    &:focus-within > .unsaved-dot {
       display: none;
     }
     & > span {
@@ -364,10 +379,12 @@ onBeforeUnmount(() => {
     & > .unsaved-dot {
       display: block;
     }
-    &:hover > .close-icon {
+    &:hover > .close-icon,
+    & > .close-icon:focus-visible {
       opacity: 1;
     }
-    &:hover > .unsaved-dot {
+    &:hover > .unsaved-dot,
+    &:focus-within > .unsaved-dot {
       display: none;
     }
   }
@@ -403,7 +420,8 @@ onBeforeUnmount(() => {
   cursor: pointer;
   color: var(--editorColor50);
   opacity: 0;
-  &.always-visible {
+  &.always-visible,
+  &:focus-visible {
     opacity: 1;
   }
 }

@@ -13,17 +13,25 @@
           v-if="selectValue"
           class="value"
         >{{ selectValue }} <span v-if="unit">{{ unit }}</span></span>
-        <LinkIcon
+        <icon-tooltip
           v-if="more"
-          :size="14"
-          class="link-icon"
-          style="margin-left: 4px"
-          @click="handleMoreClick"
-        />
+          :content="t('preferences.learnMore', { name: description })"
+        >
+          <button
+            type="button"
+            class="plain-button link-icon"
+            style="margin-left: 4px"
+            :aria-label="t('preferences.learnMore', { name: description })"
+            @click="handleMoreClick"
+          >
+            <LinkIcon :size="14" />
+          </button>
+        </icon-tooltip>
       </div>
     </div>
     <el-slider
       v-model="selectValue"
+      :aria-label="description"
       :min="min"
       :max="max"
       :format-tooltip="(value: number) => value + (unit ? unit : '')"
@@ -35,8 +43,12 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import LinkIcon from '@/components/icons/LinkIcon.vue'
+import IconTooltip from '@/components/iconTooltip/index.vue'
 import type { PrefControlBaseProps } from '../types'
+
+const { t } = useI18n()
 
 interface RangeProps extends PrefControlBaseProps {
   value: number

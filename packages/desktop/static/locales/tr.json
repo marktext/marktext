@@ -260,6 +260,13 @@
       "settings": "Ayarlar"
     }
   },
+  "titleBar": {
+    "applicationMenu": "Uygulama Menüsü",
+    "minimize": "Simge Durumuna Küçült",
+    "maximize": "Ekranı Kapla",
+    "restore": "Önceki Boyut",
+    "close": "Kapat"
+  },
   "commandPalette": {
     "placeholder": "Çalıştırmak için bir komut yazın",
     "placeholders": {
@@ -354,6 +361,7 @@
   },
   "preferences": {
     "title": "Tercihler",
+    "learnMore": "Daha fazla bilgi: {name}",
     "search": {
       "placeholder": "Tercihlerde ara...",
       "categories": {
@@ -1019,6 +1027,9 @@
       "languageMissing": "Yazım denetimi dili eksik {languageCode}",
       "switchError": "{languageCode} için yazım denetimi değiştirme hatası, {error}",
       "title": "Yazım Denetimi"
+    },
+    "tabs": {
+      "close": "Kapat: {name}"
     }
   }
 }

@@ -11,17 +11,19 @@
         </svg>
       </div>
       <span>{{title}}</span>
-      <svg class="icon close" aria-hidden="true">
-        <use xlink:href="#icon-close"></use>
-      </svg>
+      <button type="button" class="plain-button close">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-close"></use>
+        </svg>
+      </button>
     </div>
     <div class="body">
       <div class="left-text">{{message}}</div>
-      <div class="confirm icon-wrapper">
+      <button type="button" class="plain-button confirm icon-wrapper">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-confirm"></use>
         </svg>
-      </div>
+      </button>
     </div>
   </div>
 </div>
