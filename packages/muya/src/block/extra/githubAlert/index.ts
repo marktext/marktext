@@ -1,10 +1,7 @@
 import type { Muya } from '../../../muya';
 import type { IGithubAlertState } from '../../../state/types';
-import type Content from '../../base/content';
-import { isKeyboardEvent } from '../../../utils';
 import { githubAlertIcon, githubAlertTitle } from '../../../utils/githubAlerts';
 import QuoteContainer from '../../base/quoteContainer';
-import { convertGithubAlert } from '../../githubAlerts';
 
 export default class GithubAlert extends QuoteContainer {
     static override blockName = 'github-alert';
@@ -29,18 +26,6 @@ export default class GithubAlert extends QuoteContainer {
         title.innerHTML = githubAlertIcon(this.meta.type);
         title.append(githubAlertTitle(this.meta.type));
         this.domNode!.append(title);
-    }
-
-    backspaceAtStart(content: Content, event: Event): boolean {
-        if ((isKeyboardEvent(event) && (event.metaKey || event.ctrlKey || event.altKey)) || content.parent !== this.firstChild)
-            return false;
-        const cursor = content.getCursor();
-        if (cursor?.start.offset !== 0 || cursor.end.offset !== 0)
-            return false;
-        event.preventDefault();
-        event.stopPropagation();
-        convertGithubAlert(this, 'block-quote');
-        return true;
     }
 
     override getState(): IGithubAlertState {
