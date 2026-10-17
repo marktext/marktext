@@ -22,28 +22,4 @@ export default class QuoteContainer extends Parent {
     protected childStates(): TState[] {
         return this.children.map(child => (child as Parent).getState());
     }
-
-    exitEmptyParagraph(paragraph: Parent) {
-        const offset = this.offset(paragraph);
-        const outside = paragraph.clone() as Parent;
-        const state = this.getState();
-        if (!('children' in state))
-            return;
-        const tail = state.children.slice(offset + 1);
-        if (offset === 0) {
-            this.parent!.insertBefore(outside, this);
-        }
-        else {
-            this.parent!.insertAfter(outside, this);
-            if (tail.length) {
-                const sibling = ScrollPage.loadBlock(state.name).create(this.muya, { ...state, children: tail });
-                this.parent!.insertAfter(sibling, outside);
-                this.forEachAt(offset + 1, undefined, node => node.remove());
-            }
-        }
-        paragraph.remove();
-        if (!this.length())
-            this.remove();
-        outside.firstContentInDescendant()?.setCursor(0, 0, true);
-    }
 }
