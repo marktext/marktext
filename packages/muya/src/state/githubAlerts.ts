@@ -1,5 +1,3 @@
-import type { IHistorySelection } from '../selection/types';
-import type { Nullable } from '../types';
 import type { IBlockQuoteState, IGithubAlertState, TState } from './types';
 import { beginRules } from '../inlineRenderer/rules';
 import { githubAlertMarker, matchGithubAlertMarker } from '../utils/githubAlerts';
@@ -35,12 +33,7 @@ export function projectGithubAlerts(states: TState[], enabled: boolean, parse: (
             return state;
         const read = (candidate: TState) => parse(`${serializer.generate([candidate])}\n${references.join('\n\n')}`)[0];
         const newline = first.text.indexOf('\n');
-        let parsed = read(state);
-        // An explicit empty body belongs to a live editor draft, unlike a marker-only import.
-        if (parsed?.name !== 'github-alert' && newline >= 0 && !first.text.slice(newline + 1).trim()
-            && state.children.slice(1).every(child => child.name === 'paragraph' && !child.text.trim())) {
-            parsed = read({ ...state, children: [{ ...first, text: `${first.text}draft` }] });
-        }
+        const parsed = read(state);
         if (parsed?.name !== 'github-alert')
             return state;
         const children = newline < 0
@@ -48,34 +41,4 @@ export function projectGithubAlerts(states: TState[], enabled: boolean, parse: (
             : [{ ...first, text: first.text.slice(newline + 1) }, ...state.children.slice(1)];
         return { name: 'github-alert', meta: parsed.meta, children };
     });
-}
-
-/** Marker insertion/removal changes only the first body's index or text prefix. */
-export function remapGithubAlertSelection(selection: Nullable<IHistorySelection>, before: TState[], after: TState[]): IHistorySelection | null {
-    if (!selection)
-        return null;
-    const endpoint = (point: IHistorySelection['anchor']) => {
-        const path = [...point.path];
-        const index = Number(path[0]);
-        const previous = before[index];
-        const next = after[index];
-        let offset = point.offset;
-        if (previous?.name === 'block-quote' && next?.name === 'github-alert') {
-            const first = previous.children[0];
-            const newline = first?.name === 'paragraph' ? first.text.indexOf('\n') : -1;
-            if (newline < 0)
-                path[2] = Math.max(0, Number(path[2]) - 1);
-            else if (path[2] === 0)
-                offset = Math.max(0, offset - newline - 1);
-        }
-        else if (previous?.name === 'github-alert' && next?.name === 'block-quote') {
-            const joined = previous.meta.compact !== false && previous.children[0]?.name === 'paragraph';
-            if (!joined)
-                path[2] = Number(path[2]) + 1;
-            else if (path[2] === 0)
-                offset += githubAlertMarker(previous.meta).length + 1;
-        }
-        return { path, offset };
-    };
-    return { ...selection, anchor: endpoint(selection.anchor), focus: endpoint(selection.focus) };
 }
