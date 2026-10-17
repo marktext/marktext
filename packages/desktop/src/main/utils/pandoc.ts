@@ -73,6 +73,21 @@ export interface PandocReaderExtensions {
   markdown: ReaderExtensionDefaults
 }
 
+// Syntax `gfm` reads natively, so its listing never names them, but `markdown` gates each
+// behind an extension: fenced code, intraword `_`, backslash line breaks, `[foo]` links,
+// `#` headings that need a space, lists that interrupt a paragraph, and start numbers.
+const COMMONMARK_SYNTAX: ReadonlySet<string> = new Set([
+  'all_symbols_escapable',
+  'backtick_code_blocks',
+  'escaped_line_breaks',
+  'fenced_code_blocks',
+  'intraword_underscores',
+  'lists_without_preceding_blankline',
+  'shortcut_reference_links',
+  'space_in_atx_header',
+  'startnum'
+])
+
 /**
  * The reader a pandoc export parses with, from the Preferences → Markdown toggles.
  *
@@ -105,7 +120,8 @@ export const getPandocReader = (
 
   if (texMathSingleBackslash || texMathDoubleBackslash) {
     // `superSubScript`, `footnotes` and the three math extensions are the editor's; every
-    // other extension follows gfm, including the ones gfm does not carry (which stay off).
+    // other extension follows gfm, and the ones gfm does not carry stay off unless gfm
+    // reads that syntax natively.
     const desired = (name: string): boolean => {
       switch (name) {
         case 'superscript':
@@ -122,7 +138,7 @@ export const getPandocReader = (
         case 'tex_math_double_backslash':
           return texMathDoubleBackslash
         default:
-          return extensions?.gfm.get(name) ?? false
+          return COMMONMARK_SYNTAX.has(name) || (extensions?.gfm.get(name) ?? false)
       }
     }
     const flags: string[] = []
