@@ -7,17 +7,6 @@ function alertTypeFromLabel(label: string) {
     return label.startsWith('github-alert ') ? githubAlertType(label.slice('github-alert '.length)) : null;
 }
 
-function bodyWouldBecomeAlert(block: Parent, children: TState[]): boolean {
-    const first = children[0];
-    if (first?.name !== 'paragraph' || !matchGithubAlertMarker(first.text.split('\n', 1)[0]))
-        return false;
-
-    const { jsonState, inlineRenderer } = block.muya.editor;
-    const markdown = jsonState.getMarkdownFromState([{ name: 'block-quote', children }]);
-    const references = Array.from(inlineRenderer.labels, ([label, info]) => `[${label}]: <${info.href}>`).join('\n');
-    return jsonState.markdownToState(`${markdown}\n${references}`)[0]?.name === 'github-alert';
-}
-
 export function canConvertGithubAlert(block: Parent, label: string): boolean {
     if (!block.muya.options.githubAlerts || !block.parent?.isScrollPage)
         return false;
@@ -31,7 +20,7 @@ export function canConvertGithubAlert(block: Parent, label: string): boolean {
         case 'paragraph':
             return state.name !== 'paragraph';
         case 'block-quote':
-            return state.name === 'paragraph' || (state.name === 'github-alert' && !bodyWouldBecomeAlert(block, state.children));
+            return state.name === 'paragraph' || state.name === 'github-alert';
         default:
             return alertTypeFromLabel(label) !== null;
     }
