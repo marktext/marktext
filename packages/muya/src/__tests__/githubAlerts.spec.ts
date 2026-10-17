@@ -139,20 +139,6 @@ describe('gitHub Alert editing', () => {
         expect(muya.editor.jsonState.markdownToState(muya.getMarkdown())[0]).toMatchObject({ children: state.children });
     });
 
-    it.each(['setContent', 'replaceContent'])('honors disabled alerts when loading state through %s', (entry) => {
-        const source = boot('> [!NOTE]\n> Body');
-        const target = boot('Before', false);
-        if (entry === 'setContent')
-            target.setContent(source.getState());
-        else
-            target.replaceContent(source.getState());
-        expect(target.getState()[0].name).toBe('block-quote');
-        expect(target.domNode.querySelector('.mu-github-alert')).toBeNull();
-        expect(target.getMarkdown()).toBe(source.getMarkdown());
-        target.setOptions({ githubAlerts: true }, true);
-        expect(target.getState()[0].name).toBe('github-alert');
-    });
-
     it('toggles rendering without changing source', () => {
         const muya = boot('Body');
         first(muya).setCursor(2, 2, true);

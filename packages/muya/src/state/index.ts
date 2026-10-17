@@ -1,6 +1,5 @@
 import type { Doc, JSONOp, JSONOpList, Path } from 'ot-json1';
 import type { Muya } from '../muya';
-import type { IMuyaOptions } from '../types';
 import type { TDiff } from '../utils';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
@@ -94,8 +93,8 @@ class JSONState {
     // Parse markdown into a block-state array with the editor's current
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
-    markdownToState(markdown: string, options: Partial<IMuyaOptions> = {}): TState[] {
-        return new MarkdownToState({ ...this._muya.options, ...options }).generate(markdown);
+    markdownToState(markdown: string): TState[] {
+        return new MarkdownToState(this._muya.options).generate(markdown);
     }
 
     /**
