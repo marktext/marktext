@@ -616,7 +616,7 @@ watch(inlineDiff, (value, oldValue) => {
 })
 
 watch(githubAlerts, (value, oldValue) => {
-  if (value !== oldValue) editor.value?.setOptions({ githubAlerts: value }, true)
+  if (value !== oldValue) applyOutlineAffectingOption({ githubAlerts: value })
 })
 
 watch(multilineBlockquote, (value, oldValue) => {
