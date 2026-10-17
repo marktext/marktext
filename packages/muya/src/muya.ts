@@ -1227,8 +1227,7 @@ export class Muya {
         if (!this.options.githubAlerts || !label)
             return false;
         const handles = label.startsWith('github-alert ')
-            || canConvertGithubAlert(block, label)
-            || (label === 'block-quote' && githubAlertBlockType(block));
+            || canConvertGithubAlert(block, label);
         if (!handles)
             return false;
         const selection = this.editor.selection.getSelection();

@@ -209,16 +209,6 @@ describe('gitHub Alert editing', () => {
         expect(muya.getMarkdown()).toBe('> [!NOTE]\n> Body\n');
     });
 
-    it('refuses a quote downgrade that would reinterpret the body as another alert', () => {
-        const muya = boot('> [!NOTE]\n> [!TIP]\n> Body');
-        const quote = muya.editor.scrollPage!.firstChild as Parent;
-        expect(canTurnInto(quote, 'block-quote')).toBe(false);
-        const markdown = muya.getMarkdown();
-        first(muya).setCursor(0, 0, true);
-        muya.updateParagraph('blockquote');
-        expect(muya.getMarkdown()).toBe(markdown);
-    });
-
     it('copies the complete body as portable markdown but leaves a local selection local', () => {
         const muya = boot('> [!NOTE]\n> Body');
         const body = first(muya);
