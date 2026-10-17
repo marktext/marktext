@@ -51,6 +51,7 @@ export const shouldMirrorMedia = (
 
 /** The Preferences → Markdown toggles that map onto a pandoc reader extension. */
 export interface PandocReaderOptions {
+  githubAlerts?: boolean
   superSubScript: boolean
   /** `false` keeps a `[^1]` literal; the readers enable `footnotes` themselves. */
   footnotes?: boolean
@@ -94,6 +95,7 @@ export const getPandocReader = (
 ): string => {
   const {
     superSubScript,
+    githubAlerts = false,
     footnotes = true,
     texMathDollars = true,
     texMathGfm = false,
@@ -109,6 +111,8 @@ export const getPandocReader = (
         case 'superscript':
         case 'subscript':
           return superSubScript
+        case 'alerts':
+          return githubAlerts
         case 'footnotes':
           return footnotes
         case 'tex_math_dollars':
@@ -138,6 +142,7 @@ export const getPandocReader = (
   }
 
   const flags: string[] = []
+  if (extensions?.gfm.has('alerts')) flags.push(githubAlerts ? '+alerts' : '-alerts')
   if (superSubScript) flags.push('+superscript+subscript')
   if (!footnotes) flags.push('-footnotes')
   if (!texMathDollars) flags.push('-tex_math_dollars')

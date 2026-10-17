@@ -419,6 +419,7 @@
         "highlightSyntax": "Enable the non-standard ==text== highlight syntax",
         "inlineDiff": "Enable the non-standard {+ … +} / [- … -] inline diff syntax",
         "multilineBlockquote": "Enable the non-standard >>> … >>> multiline blockquote syntax",
+        "githubAlerts": "GitHub Alerts",
         "isHtmlEnabled": "Enable HTML rendering",
         "softNewlineAsSpace": "Treat soft newlines as spaces",
         "sequenceTheme": "Sequence diagram theme",
@@ -661,6 +662,7 @@
         "highlightSyntax": "Highlight (==text==)",
         "inlineDiff": "Inline diff ({+ … +})",
         "multilineBlockquote": "Multiline blockquote (>>>)",
+        "githubAlerts": "Enable GitHub Alerts",
         "frontmatterType": {
           "jsonBrace": "JSON with Braces",
           "jsonSemicolon": "JSON with Semicolon",

@@ -190,6 +190,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     title,
     pathname,
     superSubScript,
+    githubAlerts,
     footnote,
     texMathDollars,
     texMathGfm,
@@ -214,6 +215,7 @@ const handlePandocExport = async(e: IpcMainEvent, payload: PandocExportPayload):
     const reader = getPandocReader(
       {
         superSubScript: superSubScript === true,
+        githubAlerts: githubAlerts === true,
         footnotes: footnote === true,
         texMathDollars: texMathDollars === true,
         texMathGfm: texMathGfm === true,
