@@ -49,7 +49,7 @@ export function canTurnIntoMenu(block: Parent) {
         if (quote) {
             items.push({
                 ...quote,
-                disabledReason: 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+                disabledReason: 'githubAlert.quoteConversionBlocked',
             });
         }
     }

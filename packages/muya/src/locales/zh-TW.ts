@@ -1,7 +1,7 @@
 export const zhTW = {
     name: 'zh-TW',
     resource: {
-        'The body starts with another alert marker. Format it as inline code before converting to a quote.': '內文以另一個提示標記開頭。請先將該標記設為行內程式碼，再轉換為引用。',
+        'githubAlert.quoteConversionBlocked': '內文以另一個提示標記開頭。請先將該標記設為行內程式碼，再轉換為引用。',
         'GitHub Alerts': 'GitHub 提示區塊',
         'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
         'GitHub Alert: TIP': 'GitHub 提示: TIP',

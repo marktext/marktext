@@ -1,7 +1,7 @@
 export const ko = {
     name: 'ko',
     resource: {
-        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
         'GitHub Alerts': 'GitHub 알림',
         'GitHub Alert: NOTE': 'GitHub 알림: NOTE',
         'GitHub Alert: TIP': 'GitHub 알림: TIP',

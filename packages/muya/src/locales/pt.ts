@@ -1,7 +1,7 @@
 export const pt = {
     name: 'pt',
     resource: {
-        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
         'GitHub Alerts': 'Alertas do GitHub',
         'GitHub Alert: NOTE': 'Alerta do GitHub: NOTE',
         'GitHub Alert: TIP': 'Alerta do GitHub: TIP',

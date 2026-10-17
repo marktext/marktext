@@ -1,7 +1,7 @@
 export const de = {
     name: 'de',
     resource: {
-        'The body starts with another alert marker. Format it as inline code before converting to a quote.': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
+        'githubAlert.quoteConversionBlocked': 'The body starts with another alert marker. Format it as inline code before converting to a quote.',
         'GitHub Alerts': 'GitHub-Hinweise',
         'GitHub Alert: NOTE': 'GitHub-Hinweis: NOTE',
         'GitHub Alert: TIP': 'GitHub-Hinweis: TIP',

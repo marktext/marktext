@@ -1,7 +1,7 @@
 export const zhCN = {
     name: 'zh-CN',
     resource: {
-        'The body starts with another alert marker. Format it as inline code before converting to a quote.': '正文以另一个提示标记开头。请先将该标记设为行内代码，再转换为引用。',
+        'githubAlert.quoteConversionBlocked': '正文以另一个提示标记开头。请先将该标记设为行内代码，再转换为引用。',
         'GitHub Alerts': 'GitHub 提示块',
         'GitHub Alert: NOTE': 'GitHub 提示: NOTE',
         'GitHub Alert: TIP': 'GitHub 提示: TIP',
