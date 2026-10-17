@@ -1,7 +1,6 @@
 import type { Muya } from '../../../muya';
 import type { IGithubAlertState } from '../../../state/types';
 import type Content from '../../base/content';
-import type Parent from '../../base/parent';
 import { isKeyboardEvent } from '../../../utils';
 import { githubAlertIcon, githubAlertTitle } from '../../../utils/githubAlerts';
 import QuoteContainer from '../../base/quoteContainer';
@@ -42,13 +41,6 @@ export default class GithubAlert extends QuoteContainer {
         event.stopPropagation();
         convertGithubAlert(this, 'block-quote');
         return true;
-    }
-
-    override exitEmptyParagraph(paragraph: Parent) {
-        if (this.getState().children.every(child => child.name === 'paragraph' && !child.text.trim()))
-            convertGithubAlert(this, 'paragraph');
-        else
-            super.exitEmptyParagraph(paragraph);
     }
 
     override getState(): IGithubAlertState {
