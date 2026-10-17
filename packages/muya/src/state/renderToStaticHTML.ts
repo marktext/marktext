@@ -13,6 +13,7 @@ export interface IRenderToStaticHTMLOptions {
     highlightSyntax?: boolean;
     inlineDiff?: boolean;
     multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
     /**
      * Skip DOMPurify sanitization. **Unsafe with untrusted input** — drops
      * the XSS guarantees of the default export path. Only intended for
@@ -64,6 +65,7 @@ export function renderToStaticHTML(
         highlightSyntax: options.highlightSyntax ?? false,
         inlineDiff: options.inlineDiff ?? false,
         multilineBlockquote: options.multilineBlockquote ?? false,
+        githubAlerts: options.githubAlerts ?? false,
     });
 
     // Post-process footnotes into the standard GFM / pandoc shape (inline

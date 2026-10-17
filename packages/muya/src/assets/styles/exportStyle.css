@@ -236,3 +236,15 @@
 
     text-align: center;
 }
+
+.markdown-body .markdown-alert .mu-alert-icon {
+    margin-right: 8px;
+
+    vertical-align: text-bottom;
+}
+
+@media print {
+    .markdown-body .markdown-alert-title {
+        break-after: avoid;
+    }
+}
