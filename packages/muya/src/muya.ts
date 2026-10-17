@@ -30,11 +30,10 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { githubAlertAsQuote, projectGithubAlerts } from './state/githubAlerts';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
-import { GITHUB_ALERT_TYPES, githubAlertBlockType } from './utils/githubAlerts';
+import { GITHUB_ALERT_TYPES, githubAlertBlockType, githubAlertMarker } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
@@ -262,12 +261,6 @@ export class Muya {
         this.editor.history.setHistory(history);
     }
 
-    private _normalizeContent(content: TState[] | string) {
-        return typeof content === 'string'
-            ? content
-            : projectGithubAlerts(content, this.options.githubAlerts, markdown => this.editor.jsonState.markdownToState(markdown));
-    }
-
     /**
      * Clear the undo/redo history (e.g. after loading a fresh document).
      */
@@ -297,7 +290,7 @@ export class Muya {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
-        this.editor.setContent(this._normalizeContent(content), autoFocus);
+        this.editor.setContent(content, autoFocus);
     }
 
     /**
@@ -326,7 +319,7 @@ export class Muya {
      */
     replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
         const { jsonState, history } = this.editor;
-        const { op, prevState } = jsonState.buildReplaceOp(this._normalizeContent(content));
+        const { op, prevState } = jsonState.buildReplaceOp(content);
 
         if (op.length === 0)
             return false;
@@ -861,7 +854,14 @@ export class Muya {
 
     private _nestedBlockState(block: Parent): TState {
         const state = block.getState();
-        return state.name === 'github-alert' ? githubAlertAsQuote(state) : state;
+        if (state.name !== 'github-alert')
+            return state;
+        const marker = githubAlertMarker(state.meta);
+        const first = state.children[0];
+        const children = !state.meta.blankLineAfterMarker && first?.name === 'paragraph'
+            ? [{ ...first, text: `${marker}\n${first.text}` }, ...state.children.slice(1)]
+            : [{ name: 'paragraph' as const, text: marker }, ...state.children];
+        return { name: 'block-quote', children };
     }
 
     /** Wrap the selected outmost blocks as items of a new list of `label`. */
