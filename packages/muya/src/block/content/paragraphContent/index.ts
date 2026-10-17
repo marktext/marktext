@@ -11,6 +11,7 @@ import type {
     ITaskListState,
 } from '../../../state/types';
 import type { Nullable } from '../../../types';
+import type { GithubAlertType } from '../../../utils/githubAlerts';
 import type Parent from '../../base/parent';
 import type QuoteContainer from '../../base/quoteContainer';
 import type BulletList from '../../commonMark/bulletList';
@@ -88,17 +89,19 @@ type BlockConversion
         | { kind: 'code'; lang: string; fenceChar: '`' | '~' }
         | { kind: 'table' }
         | { kind: 'html'; tagName: string }
-        | { kind: 'multiline-blockquote' };
+        | { kind: 'multiline-blockquote' }
+        | { kind: 'github-alert'; type: GithubAlertType };
 
-// Single source of truth for "what block, if any, does this paragraph text
-// convert into on Enter". Shared by the enterHandler guard (to decide whether
-// to convert in place) and `_enterConvert` (to perform it), so the match rules
-// can never drift between the two.
 function matchBlockConversion(
     text: string,
     texMathDollars: boolean,
     multilineBlockquote: boolean,
+    githubAlerts: boolean,
 ): BlockConversion | null {
+    const alertType = githubAlerts ? matchGithubAlertMarker(text) : null;
+    if (alertType)
+        return { kind: 'github-alert', type: alertType };
+
     if (multilineBlockquote && MULTILINE_BLOCKQUOTE_REG.test(text))
         return { kind: 'multiline-blockquote' };
 
@@ -307,19 +310,18 @@ class ParagraphContent extends Format {
         eventCenter.emit('content-change', { block: this });
     }
 
-    private _enterConvert(event: KeyboardEvent) {
+    private _enterConvert(event: KeyboardEvent, match: BlockConversion | null) {
         event.preventDefault();
         event.stopPropagation();
 
-        const match = matchBlockConversion(
-            this.text,
-            this.muya.options.texMathDollars,
-            this.muya.options.multilineBlockquote,
-        );
         if (!match)
             return super.enterHandler(event);
 
         switch (match.kind) {
+            case 'github-alert':
+                convertGithubAlert(this.parent!.parent!, `github-alert ${match.type}`);
+                break;
+
             case 'math': {
                 const state = {
                     name: 'math-block',
@@ -564,49 +566,39 @@ class ParagraphContent extends Format {
         }
     }
 
-    private _enterGithubAlert(event: KeyboardEvent): boolean {
-        if (event.shiftKey || event.isComposing || !this.muya.options.githubAlerts)
-            return false;
+    private _matchBlockConversion(event: KeyboardEvent): BlockConversion | null {
+        const conversion = matchBlockConversion(
+            this.text,
+            this.muya.options.texMathDollars,
+            this.muya.options.multilineBlockquote,
+            this.muya.options.githubAlerts,
+        );
+        if (conversion?.kind !== 'github-alert')
+            return conversion;
+
         const container = this.parent?.parent;
-        if (!container?.parent?.isScrollPage)
-            return false;
-        const state = container.getState();
         const cursor = this.getCursor();
-        if (state.name === 'block-quote' && state.meta?.style !== 'fenced' && this.parent === container.firstChild) {
-            const type = matchGithubAlertMarker(this.text);
-            if (type && cursor?.isCollapsed && cursor.start.offset === this.text.length) {
-                event.preventDefault();
-                event.stopPropagation();
-                convertGithubAlert(container, `github-alert ${type}`);
-                return true;
-            }
+        if (event.shiftKey || event.isComposing || !(container instanceof BlockQuote)
+            || !container.parent?.isScrollPage || container.meta?.style === 'fenced'
+            || this.parent !== container.firstChild || !cursor?.isCollapsed
+            || cursor.start.offset !== this.text.length) {
+            return null;
         }
-        return false;
+        return conversion;
     }
 
     override enterHandler(event: Event) {
         if (!isKeyboardEvent(event))
             return;
 
-        if (this._enterGithubAlert(event))
-            return;
-
         if (event.shiftKey && !this.dropSoftBreakBeforeCursor())
             return this.shiftEnterHandler(event);
 
-        // Any paragraph that would convert to a block (code fence, math block,
-        // table, HTML block) converts in place, even inside a block-quote or
-        // list item — the resulting block stays nested in its container
-        // (matches muyajs). Otherwise typing the block syntax in a list would
-        // split the item and strand an empty list entry (#2276, plus table /
-        // HTML block).
-        const conversion = matchBlockConversion(
-            this.text,
-            this.muya.options.texMathDollars,
-            this.muya.options.multilineBlockquote,
-        );
+        // Match before quote/list Enter handling so nested block syntax converts
+        // without splitting its enclosing container (#2276).
+        const conversion = this._matchBlockConversion(event);
         if (conversion)
-            return this._enterConvert(event);
+            return this._enterConvert(event, conversion);
 
         const type = this._paragraphParentType();
 
@@ -615,7 +607,7 @@ class ParagraphContent extends Format {
         else if (type === 'list-item' || type === 'task-list-item')
             this._enterInListItem(event);
         else
-            this._enterConvert(event);
+            this._enterConvert(event, null);
     }
 
     private _paragraphParentType() {
