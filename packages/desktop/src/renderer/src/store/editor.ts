@@ -1698,6 +1698,7 @@ export const useEditorStore = defineStore('editor', {
         texMathGfm: preferencesStore.texMathGfm === true,
         texMathSingleBackslash: preferencesStore.texMathSingleBackslash === true,
         texMathDoubleBackslash: preferencesStore.texMathDoubleBackslash === true,
+        fancyLists: preferencesStore.fancyLists === true,
         title: this.documentTitle,
         pathname
       })

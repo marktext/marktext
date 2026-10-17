@@ -36,4 +36,25 @@ describe.skipIf(!HAS_PANDOC)('pandoc export reader, run by the installed pandoc'
       ].join('\n')
     )
   })
+
+  it('nests a fancy-list outline', async() => {
+    const markdown = 'I.  Introduction\n    A.  Background\n        1. Early work\n\n(a) one\n(b) two\n'
+    expect(await exportHtml(markdown, { superSubScript: false, fancyLists: true })).toBe(
+      [
+        '<ol type="I">',
+        '<li>Introduction',
+        '<ol type="A">',
+        '<li>Background',
+        '<ol type="1">',
+        '<li>Early work</li>',
+        '</ol></li>',
+        '</ol></li>',
+        '</ol>',
+        '<ol type="a">',
+        '<li>one</li>',
+        '<li>two</li>',
+        '</ol>'
+      ].join('\n')
+    )
+  })
 })
