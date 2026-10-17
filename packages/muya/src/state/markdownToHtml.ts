@@ -191,6 +191,19 @@ export class MarkdownToHtml {
         }
     }
 
+    // Tight list items are `white-space: pre-wrap` in the export stylesheet so
+    // soft line breaks show (#3676). A nested list inherits that, so the
+    // newlines marked pretty-prints between its items and after its closing
+    // tag each rendered as a blank line (#5767). They carry no content.
+    private _trimNestedListWhitespace(container: HTMLElement) {
+        for (const list of container.querySelectorAll('li > ul, li > ol')) {
+            for (const node of [...list.childNodes, list.nextSibling]) {
+                if (node?.nodeType === Node.TEXT_NODE && /^[\t\n\f\r ]*$/.test(node.textContent ?? ''))
+                    node.remove();
+            }
+        }
+    }
+
     // render pure html by marked
     async renderHtml() {
         const footnote = this._muya?.options?.footnote ?? false;
@@ -232,6 +245,7 @@ export class MarkdownToHtml {
             // resolve. Scoped to this export DOM path — the conformance
             // renderer (`renderToStaticHTML`) is deliberately left untouched.
             this._injectHeadingIds(exportContainer);
+            this._trimNestedListWhitespace(exportContainer);
 
             result = exportContainer.innerHTML;
         }
