@@ -16,10 +16,10 @@ afterEach(() => {
     document.getSelection()?.removeAllRanges();
 });
 
-function bootMuya(markdown: string): Muya {
+function bootMuya(markdown: string, fancyLists = true): Muya {
     const host = document.createElement('div');
     document.body.appendChild(host);
-    const muya = new Muya(host, { markdown, fancyLists: true } as ConstructorParameters<typeof Muya>[1]);
+    const muya = new Muya(host, { markdown, fancyLists } as ConstructorParameters<typeof Muya>[1]);
     muya.init();
     bootedHosts.push(muya.domNode);
     return muya;
@@ -109,6 +109,16 @@ describe('outline lists: Tab and Shift+Tab', () => {
         const muya = bootMuya('c. x\nd. y\n');
         tab(muya, 'y');
         expect(muya.getMarkdown()).toBe('c. x\n   a. y\n');
+    });
+
+    it('starts a decimal sublist at one only with the option on', () => {
+        const off = bootMuya('3. a\n4. b\n', false);
+        tab(off, 'b');
+        expect(off.getMarkdown()).toBe('3. a\n   3. b\n');
+
+        const on = bootMuya('3. a\n4. b\n');
+        tab(on, 'b');
+        expect(on.getMarkdown()).toBe('3. a\n   1. b\n');
     });
 
     it('nests a decimal list as before', () => {

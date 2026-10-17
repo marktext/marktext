@@ -991,15 +991,16 @@ class ParagraphContent extends Format {
         return newList.firstChild as Parent;
     }
 
-    // A new sublist numbers from one, as a nested markdown list must. Under an
-    // upper-roman root list (an outline) it takes the outline marker for its
-    // depth; elsewhere it keeps the parent list's marker. A sublist of the
+    // With fancy lists on, a new sublist numbers from one, as a nested pandoc
+    // list must. Under an upper-roman root list (an outline) it takes the
+    // outline marker for its depth; elsewhere it keeps the parent list's
+    // marker. A sublist of the
     // other item kind that shares the marker is still the same markdown list,
     // so a new list placed after it must share its looseness to reopen
     // unchanged.
     private _indentedListMeta(list: TListBlock, previousChild: Nullable<Parent>) {
         const meta = { ...list.meta };
-        if ('start' in meta) {
+        if ('start' in meta && this.muya.options.fancyLists) {
             meta.start = 1;
             const { root, depth } = listDepth(list);
             if ('style' in root.meta && root.meta.style === 'upper-roman') {
