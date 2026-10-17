@@ -242,6 +242,8 @@ export class MarkdownToState {
         const markers = sourceMarkers.every((marker): marker is string => !!marker)
             ? { sourceMarkers }
             : {};
+        const delimiter = token.delimiter ?? toListDelimiter(bulletMarkerOrDelimiter);
+        const style = token.style && token.style !== 'decimal' ? { style: token.style } : {};
 
         if (listType === 'order') {
             return {
@@ -249,7 +251,8 @@ export class MarkdownToState {
                 meta: {
                     loose,
                     start: orderStart,
-                    delimiter: toListDelimiter(bulletMarkerOrDelimiter),
+                    delimiter,
+                    ...style,
                     ...markers,
                 },
                 children: [],
@@ -264,7 +267,8 @@ export class MarkdownToState {
                             ordered: true,
                             loose,
                             start: orderStart,
-                            delimiter: toListDelimiter(bulletMarkerOrDelimiter),
+                            delimiter,
+                            ...style,
                             ...markers,
                         },
                         children: [],

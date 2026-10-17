@@ -1,4 +1,5 @@
 import type { MarkedToken, Tokens } from 'marked';
+import type { ListDelimiter, ListStyle } from '../listMarker';
 import type { IGithubAlertToken } from './extensions/githubAlerts';
 import type { IMultilineBlockquoteToken } from './extensions/multilineBlockquote';
 
@@ -31,6 +32,9 @@ export type ListItemToken = Tokens.ListItem & {
 export type ListToken = Tokens.List & {
     listType: 'order' | 'bullet' | 'task';
     items: ListItemToken[];
+    // Set by the fancy-list tokenizer; marked's own ordered lists are decimal.
+    style?: ListStyle;
+    delimiter?: ListDelimiter;
 };
 
 // Block-level tokens emitted by extensions (footnote, math, frontmatter)

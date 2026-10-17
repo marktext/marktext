@@ -2,6 +2,7 @@ import type { Token } from 'marked';
 import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
 import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
+import fancyListsExtension, { endListItemsAtFancyMarkers } from './extensions/fancyLists';
 import footnoteExtension from './extensions/footnote';
 import githubAlertsExtension, { normalizeGithubAlertTokens } from './extensions/githubAlerts';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -15,7 +16,7 @@ export function lexBlock(
     options: ILexOption = DEFAULT_OPTIONS,
 ): TLexedToken[] {
     options = Object.assign({}, DEFAULT_OPTIONS, options);
-    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote } = options;
+    const { texMathDollars, texMathGfm, texMathSingleBackslash, texMathDoubleBackslash, frontMatter, footnote, multilineBlockquote, fancyLists } = options;
     let tokens: (Token | IFrontmatterToken)[] = [];
 
     // Use a per-call Marked instance so extensions don't bleed across calls.
@@ -65,6 +66,9 @@ export function lexBlock(
 
     m.use(multilineBlockquoteExtension(multilineBlockquote === true));
 
+    if (fancyLists)
+        m.use(fancyListsExtension());
+
     if (frontMatter) {
         const { token, src: newSrc } = fm(src);
         if (token) {
@@ -77,6 +81,8 @@ export function lexBlock(
     // are picked up; the no-arg constructor would fall back to global defaults.
     m.use(githubAlertsExtension(options.githubAlerts === true));
     const lexer = new m.Lexer(m.defaults);
+    if (fancyLists)
+        endListItemsAtFancyMarkers(lexer);
     const parsed = lexer.blockTokens(src);
     tokens.push(...parsed);
     tokens = compatibleTaskList(tokens as Token[]);

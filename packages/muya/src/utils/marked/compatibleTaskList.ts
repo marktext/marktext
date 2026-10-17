@@ -5,10 +5,11 @@ function isListToken(token: Token | ListToken): token is ListToken {
     return token.type === 'list';
 }
 
-const BULL_REG = /^ {0,3}([*+-]|\d{1,9}(?:\.|\)))/;
-// The marker may be a bullet or an ordered number (`- [x] …` / `1. [x] …`).
-const EMPTY_TASK_REG = /^ {0,3}(?:[*+-]|\d{1,9}[.)])[ \t]+\[([ x])\][ \t]*$/i;
-const TASK_MARKER_PREFIX_REG = /^ {0,3}(?:[*+-]|\d{1,9}[.)])[ \t]+\[([ x])\][ \t]+/i;
+// A bullet, a decimal marker, or a fancy-list marker such as `iv.` or `(a)`.
+const MARKER = String.raw`[*+-]|\d{1,9}[.)]|\([A-Z\d]+\)|[A-Z]+[.)]`;
+const BULL_REG = new RegExp(String.raw`^ {0,3}(${MARKER})`, 'i');
+const EMPTY_TASK_REG = new RegExp(String.raw`^ {0,3}(?:${MARKER})[ \t]+\[([ x])\][ \t]*$`, 'i');
+const TASK_MARKER_PREFIX_REG = new RegExp(String.raw`^ {0,3}(?:${MARKER})[ \t]+\[([ x])\][ \t]+`, 'i');
 
 function stripTaskTextPrefix(value: string, marker: string) {
     if (!value.startsWith(marker))
@@ -92,7 +93,7 @@ function normalizeEmptyTaskItem(item: ListItemToken) {
 
 // A run of same-kind items inside a marked list token; each run becomes one
 // muya list block, so one markdown list can expand into several runs.
-interface IListRun {
+interface IListRun extends Pick<ListToken, 'style' | 'delimiter'> {
     type: 'list';
     listType: 'order' | 'bullet' | 'task';
     raw: string;
@@ -186,11 +187,18 @@ function compatibleTaskList(tokens: (Token | ListToken | ListItemToken)[] = []) 
     for (const token of tokens) {
         if (isListToken(token)) {
             if (token.ordered === true) {
-                const { type, raw, loose, start } = token;
+                const { type, raw, loose, start, style, delimiter } = token;
                 const items = token.items as ListItemToken[];
                 results.push(
                     ...splitIntoRuns(
-                        { type, raw, ordered: true, start: firstMarkerNumber(items, start), loose },
+                        {
+                            type,
+                            raw,
+                            ordered: true,
+                            start: style ? start : firstMarkerNumber(items, start),
+                            loose,
+                            ...(style ? { style, delimiter } : {}),
+                        },
                         items.map(item => ({
                             item: item as ListItemToken,
                             listItemType: classifyOrderedItem(item as ListItemToken),
