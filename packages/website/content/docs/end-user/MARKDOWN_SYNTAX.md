@@ -27,6 +27,7 @@ Markdown is a easy-to-use markup language for writing and this document contains
     - [Unordered](#unordered)
     - [Ordered](#ordered)
     - [Time-saving Tip](#time-saving-tip)
+    - [Fancy lists](#fancy-lists)
   - [Todo List](#todo-list)
   - [Tables](#tables)
     - [Aligning cells](#aligning-cells)
@@ -481,6 +482,52 @@ Automatically re-numbers the items and renders to:
 6. Faucibus porta lacus fringilla vel
 7. Aenean sit amet erat nunc
 8. Eget porttitor lorem
+
+### Fancy lists
+
+Pandoc's `fancy_lists` extension numbers ordered lists with letters and Roman
+numerals as well as digits. MarkText reads these lists when **Preferences →
+Markdown → Letter and Roman numeral lists** is enabled. With the setting off,
+the markers stay paragraph text.
+
+```markdown
+a. Lower-case letters
+b. continue the list
+
+IV) Upper-case Roman numerals with a parenthesis
+V) continue the list
+
+(1) Digits in parentheses
+(2) continue the list
+```
+
+A list keeps the marker style and delimiter of its first item. A top-level
+list starts at the value of its first marker, so `C.` starts at three. MarkText
+writes two spaces after a capital letter followed by a period, as in
+`B.  Russell`, because pandoc reads `B. Russell` with one space as a paragraph.
+
+#### Outlines
+
+An outline is a list that starts at `I.`. To start one, choose **Paragraph →
+Outline**, or type `/` and choose **Outline**. The shortcut is
+<kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>K</kbd> on macOS and
+<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>K</kbd> on Linux. In an outline,
+<kbd>Tab</kbd> moves an item one level deeper and
+<kbd>Shift</kbd>+<kbd>Tab</kbd> moves it back. Each level has its own marker:
+
+`I.` → `A.` → `1.` → `a.` → `i.` → `(1)` → `(a)`
+
+<!-- prettier-ignore -->
+```markdown
+I.  Introduction
+    A.  Background
+        1. Early work
+            a. Sources
+II. Method
+```
+
+When two lists in the same style follow each other, MarkText ends the first one
+with an empty HTML comment, `<!-- -->`, so pandoc reads them back as two lists.
 
 <br>
 
