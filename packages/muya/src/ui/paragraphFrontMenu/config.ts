@@ -7,6 +7,7 @@ import deleteIcon from '../../assets/icons/delete/2.png';
 import newIcon from '../../assets/icons/paragraph/2.png';
 import { canTurnInto } from '../../block/blockTransforms';
 import { isOsx } from '../../config';
+import { githubAlertBlockType } from '../../utils/githubAlerts';
 import {
     MENU_CONFIG,
 } from '../paragraphQuickInsertMenu/config';
@@ -42,5 +43,15 @@ export const FRONT_MENU = [
 export type FrontMenuIcon = (typeof FRONT_MENU)[number];
 
 export function canTurnIntoMenu(block: Parent) {
-    return ALL_MENU_CONFIG.filter(item => canTurnInto(block, item.label));
+    const items = ALL_MENU_CONFIG.filter(item => canTurnInto(block, item.label));
+    if (githubAlertBlockType(block) && !canTurnInto(block, 'block-quote')) {
+        const quote = ALL_MENU_CONFIG.find(item => item.label === 'block-quote');
+        if (quote) {
+            items.push({
+                ...quote,
+                disabledReason: 'githubAlert.quoteConversionBlocked',
+            });
+        }
+    }
+    return items;
 }

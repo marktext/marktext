@@ -1,7 +1,20 @@
 export const es = {
     name: 'es',
     resource: {
-    // tableTools
+        'githubAlert.quoteConversionBlocked': 'El contenido empieza con otro marcador de aviso. Dale formato de código en línea antes de convertir el aviso en una cita.',
+        'GitHub Alerts': 'Avisos de GitHub',
+        'GitHub Alert: NOTE': 'Aviso de GitHub: NOTE',
+        'GitHub Alert: TIP': 'Aviso de GitHub: TIP',
+        'GitHub Alert: IMPORTANT': 'Aviso de GitHub: IMPORTANT',
+        'GitHub Alert: WARNING': 'Aviso de GitHub: WARNING',
+        'GitHub Alert: CAUTION': 'Aviso de GitHub: CAUTION',
+        'Supplementary information': 'Información complementaria',
+        'Helpful advice': 'Consejos útiles',
+        'Key information': 'Información clave',
+        'Problems needing attention': 'Problemas que requieren atención',
+        'Risks and negative outcomes': 'Riesgos y consecuencias negativas',
+
+        // tableTools
         'Insert Row Above': 'Insertar fila arriba',
         'Insert Row Below': 'Insertar fila abajo',
         'Remove Row': 'Eliminar fila',

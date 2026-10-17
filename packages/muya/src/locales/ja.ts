@@ -1,7 +1,20 @@
 export const ja = {
     name: 'ja',
     resource: {
-    // tableTools
+        'githubAlert.quoteConversionBlocked': '本文が別のアラートマーカーで始まっています。引用に変換する前に、そのマーカーをインラインコードにしてください。',
+        'GitHub Alerts': 'GitHub アラート',
+        'GitHub Alert: NOTE': 'GitHub アラート: NOTE',
+        'GitHub Alert: TIP': 'GitHub アラート: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub アラート: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub アラート: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub アラート: CAUTION',
+        'Supplementary information': '補足情報',
+        'Helpful advice': '役立つヒント',
+        'Key information': '重要な情報',
+        'Problems needing attention': '注意が必要な問題',
+        'Risks and negative outcomes': 'リスクや悪影響',
+
+        // tableTools
         'Insert Row Above': '上へ行を挿入する',
         'Insert Row Below': '下へ行を挿入する',
         'Remove Row': '行を削除する',

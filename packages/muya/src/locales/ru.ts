@@ -1,7 +1,20 @@
 export const ru = {
     name: 'ru',
     resource: {
-    // tableTools
+        'githubAlert.quoteConversionBlocked': 'Текст начинается с другого маркера оповещения. Оформите его как встроенный код, прежде чем преобразовать оповещение в цитату.',
+        'GitHub Alerts': 'Оповещения GitHub',
+        'GitHub Alert: NOTE': 'Оповещение GitHub: NOTE',
+        'GitHub Alert: TIP': 'Оповещение GitHub: TIP',
+        'GitHub Alert: IMPORTANT': 'Оповещение GitHub: IMPORTANT',
+        'GitHub Alert: WARNING': 'Оповещение GitHub: WARNING',
+        'GitHub Alert: CAUTION': 'Оповещение GitHub: CAUTION',
+        'Supplementary information': 'Дополнительная информация',
+        'Helpful advice': 'Полезные советы',
+        'Key information': 'Ключевая информация',
+        'Problems needing attention': 'Проблемы, требующие внимания',
+        'Risks and negative outcomes': 'Риски и негативные последствия',
+
+        // tableTools
         'Insert Row Above': 'Вставить строку выше',
         'Insert Row Below': 'Вставить строку ниже',
         'Remove Row': 'Удалить строку',

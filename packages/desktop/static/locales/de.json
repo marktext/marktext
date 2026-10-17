@@ -70,6 +70,7 @@
       "table": "Tabelle",
       "codeFences": "Code-Blöcke",
       "quoteBlock": "Zitat-Block",
+      "githubAlerts": "GitHub-Hinweise",
       "mathBlock": "Mathematik-Block",
       "htmlBlock": "HTML-Block",
       "orderedList": "Nummerierte Liste",

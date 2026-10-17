@@ -70,6 +70,7 @@
       "table": "Table",
       "codeFences": "Code Fences",
       "quoteBlock": "Quote Block",
+      "githubAlerts": "GitHub Alerts",
       "mathBlock": "Math Block",
       "htmlBlock": "HTML Block",
       "orderedList": "Ordered List",

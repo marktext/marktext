@@ -70,6 +70,7 @@
       "table": "表",
       "codeFences": "コードブロック",
       "quoteBlock": "引用ブロック",
+      "githubAlerts": "GitHub アラート",
       "mathBlock": "数式ブロック",
       "htmlBlock": "HTMLブロック",
       "orderedList": "番号付きリスト",

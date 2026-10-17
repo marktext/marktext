@@ -25,6 +25,7 @@ import plantumlIcon from '../../assets/icons/plantuml/2.png';
 import quoteIcon from '../../assets/icons/quote_block/2.png';
 import sequenceIcon from '../../assets/icons/sequence/2.png';
 import taskListIcon from '../../assets/icons/todolist/2.png';
+import { githubAlertBlockType, githubAlertMenuIcon } from '../../utils/githubAlerts';
 
 const HEADING_ICONS = [
     header1Icon,
@@ -44,6 +45,9 @@ const DIAGRAM_ICONS = {
 };
 
 export function getIcon(block: Parent) {
+    const type = githubAlertBlockType(block);
+    if (type)
+        return githubAlertMenuIcon(type);
     const { blockName } = block;
     switch (blockName) {
         case 'frontmatter':

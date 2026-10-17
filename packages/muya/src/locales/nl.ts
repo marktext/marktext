@@ -1,7 +1,20 @@
 export const nl = {
     name: 'nl',
     resource: {
-    // tableTools
+        'githubAlert.quoteConversionBlocked': 'De inhoud begint met een andere meldingsmarkering. Maak deze op als inlinecode voordat je de melding omzet naar een citaat.',
+        'GitHub Alerts': 'GitHub-meldingen',
+        'GitHub Alert: NOTE': 'GitHub-melding: NOTE',
+        'GitHub Alert: TIP': 'GitHub-melding: TIP',
+        'GitHub Alert: IMPORTANT': 'GitHub-melding: IMPORTANT',
+        'GitHub Alert: WARNING': 'GitHub-melding: WARNING',
+        'GitHub Alert: CAUTION': 'GitHub-melding: CAUTION',
+        'Supplementary information': 'Aanvullende informatie',
+        'Helpful advice': 'Nuttige tips',
+        'Key information': 'Belangrijke informatie',
+        'Problems needing attention': 'Problemen die aandacht vereisen',
+        'Risks and negative outcomes': 'Risico’s en negatieve gevolgen',
+
+        // tableTools
         'Insert Row Above': 'Rij invoegen boven',
         'Insert Row Below': 'Rij invoegen onder',
         'Remove Row': 'Rij verwijderen',

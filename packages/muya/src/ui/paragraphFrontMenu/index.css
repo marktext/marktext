@@ -124,3 +124,8 @@
 .mu-front-menu li.turn-into-menu .turn-into-item .icon-wrapper:hover {
     background: var(--float-hover-color);
 }
+
+.mu-front-menu .turn-into-item.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
