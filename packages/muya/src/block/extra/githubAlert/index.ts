@@ -2,6 +2,7 @@ import type { Muya } from '../../../muya';
 import type { IGithubAlertState } from '../../../state/types';
 import type Content from '../../base/content';
 import type Parent from '../../base/parent';
+import { isKeyboardEvent } from '../../../utils';
 import { githubAlertIcon, githubAlertTitle } from '../../../utils/githubAlerts';
 import QuoteContainer from '../../base/quoteContainer';
 import { convertGithubAlert } from '../../githubAlerts';
@@ -31,8 +32,8 @@ export default class GithubAlert extends QuoteContainer {
         this.domNode!.append(title);
     }
 
-    override backspaceAtStart(content: Content, event: KeyboardEvent): boolean {
-        if (event.metaKey || event.ctrlKey || event.altKey || content.parent !== this.firstChild)
+    backspaceAtStart(content: Content, event: Event): boolean {
+        if ((isKeyboardEvent(event) && (event.metaKey || event.ctrlKey || event.altKey)) || content.parent !== this.firstChild)
             return false;
         const cursor = content.getCursor();
         if (cursor?.start.offset !== 0 || cursor.end.offset !== 0)

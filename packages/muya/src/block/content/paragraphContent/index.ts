@@ -12,6 +12,7 @@ import type {
 } from '../../../state/types';
 import type { Nullable } from '../../../types';
 import type Parent from '../../base/parent';
+import type QuoteContainer from '../../base/quoteContainer';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
@@ -22,8 +23,9 @@ import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fe
 import { matchGithubAlertMarker } from '../../../utils/githubAlerts';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
-import QuoteContainer from '../../base/quoteContainer';
+import BlockQuote from '../../commonMark/blockQuote';
 import OrderList from '../../commonMark/orderList';
+import GithubAlert from '../../extra/githubAlert';
 import TaskList from '../../gfm/taskList';
 import { convertGithubAlert } from '../../githubAlerts';
 import { ScrollPage } from '../../scrollPage';
@@ -267,7 +269,7 @@ class ParagraphContent extends Format {
         const { start, end } = this.getCursor()!;
         const { eventCenter } = this.muya;
         const container = this.parent?.parent;
-        if (container instanceof QuoteContainer && container.backspaceAtStart(this, event))
+        if ((container instanceof BlockQuote || container instanceof GithubAlert) && container.backspaceAtStart(this, event))
             return;
 
         if (start.offset !== 0 || end.offset !== 0) {
