@@ -13,7 +13,6 @@ import type {
 import type { Nullable } from '../../../types';
 import type { GithubAlertType } from '../../../utils/githubAlerts';
 import type Parent from '../../base/parent';
-import type QuoteContainer from '../../base/quoteContainer';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
@@ -439,7 +438,29 @@ class ParagraphContent extends Format {
             return super.enterHandler(event);
         event.preventDefault();
         event.stopPropagation();
-        (this.parent!.parent as QuoteContainer).exitEmptyParagraph(this.parent!);
+        const paragraph = this.parent!;
+        const container = paragraph.parent!;
+        const offset = container.offset(paragraph);
+        const outside = paragraph.clone() as Parent;
+        const state = container.getState();
+        if (!('children' in state))
+            return;
+        const tail = state.children.slice(offset + 1);
+        if (offset === 0) {
+            container.parent!.insertBefore(outside, container);
+        }
+        else {
+            container.parent!.insertAfter(outside, container);
+            if (tail.length) {
+                const sibling = ScrollPage.loadBlock(state.name).create(this.muya, { ...state, children: tail });
+                container.parent!.insertAfter(sibling, outside);
+                container.forEachAt(offset + 1, undefined, node => node.remove());
+            }
+        }
+        paragraph.remove();
+        if (!container.length())
+            container.remove();
+        outside.firstContentInDescendant()?.setCursor(0, 0, true);
     }
 
     private _enterInListItem(event: KeyboardEvent) {
