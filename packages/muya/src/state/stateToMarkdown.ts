@@ -45,7 +45,7 @@ function escapeText(str: string) {
 }
 
 export interface IExportMarkdownOptions {
-    listIndentation: number | string;
+    listIndentation?: number | string;
     fancyLists?: boolean;
 }
 
