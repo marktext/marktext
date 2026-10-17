@@ -30,7 +30,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
-import { githubAlertAsQuote, projectGithubAlerts, remapGithubAlertSelection } from './state/githubAlerts';
+import { githubAlertAsQuote, projectGithubAlerts } from './state/githubAlerts';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
@@ -142,6 +142,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
     'multilineBlockquote',
+    'githubAlerts',
 ]);
 
 function endpointPair(
@@ -261,12 +262,10 @@ export class Muya {
         this.editor.history.setHistory(history);
     }
 
-    private _projectGithubAlerts(state: TState[], enabled: boolean): TState[] {
-        return projectGithubAlerts(state, enabled, markdown => this.editor.jsonState.markdownToState(markdown, { githubAlerts: enabled }));
-    }
-
     private _normalizeContent(content: TState[] | string) {
-        return typeof content === 'string' ? content : this._projectGithubAlerts(content, this.options.githubAlerts);
+        return typeof content === 'string'
+            ? content
+            : projectGithubAlerts(content, this.options.githubAlerts, markdown => this.editor.jsonState.markdownToState(markdown));
     }
 
     /**
@@ -347,9 +346,6 @@ export class Muya {
     }
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
-        const changeAlerts = 'githubAlerts' in options && options.githubAlerts !== this.options.githubAlerts;
-        if (changeAlerts)
-            this.flush();
         Object.assign(this.options, options);
 
         if ('spellcheckEnabled' in options)
@@ -370,22 +366,6 @@ export class Muya {
         }
 
         applyAppearance(this.domNode, options);
-        if (changeAlerts) {
-            this.ui.hideAllFloatTools();
-            const { jsonState, selection } = this.editor;
-            const before = jsonState.getState();
-            const current = selection.getSelection();
-            const state = this._projectGithubAlerts(before, this.options.githubAlerts);
-            const cursor = remapGithubAlertSelection(current, before, state);
-            jsonState.setContent(state);
-            this.editor.scrollPage!.updateState(state);
-            this.editor.activeContentBlock = null;
-            this.editor.searchModule.refresh();
-            selection.restore(cursor);
-        }
-
-        if (changeAlerts && !Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions)))
-            return;
         if (!forceRender)
             return;
 

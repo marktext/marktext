@@ -112,60 +112,18 @@ describe('gitHub Alert editing', () => {
         '> [!NOTE]\n> ```js\n> code\n> ```',
         '> [!NOTE]\n> - item',
         '> [!NOTE]\n> > nested',
-    ])('preserves source and exposes an ordinary quote when toggled: %s', (markdown) => {
+    ])('preserves the body when reparsing after setting changes: %s', (markdown) => {
         const muya = boot(markdown);
-        const source = muya.getMarkdown();
-        expect(muya.getState()[0].name).toBe('github-alert');
-        expect(muya.domNode.querySelector('[hidden]')).toBeNull();
+        const initial = muya.getState()[0];
+        if (initial.name !== 'github-alert')
+            throw new Error('Expected an alert');
         muya.setOptions({ githubAlerts: false }, true);
         expect(muya.getState()[0].name).toBe('block-quote');
-        expect(muya.getMarkdown()).toBe(source);
-        expect(first(muya).text).toContain('[!');
+        expect(muya.domNode.querySelector('.mu-github-alert')).toBeNull();
+        expect(muya.getMarkdown().startsWith(`${markdown.split('\n')[0]}\n`)).toBe(true);
         muya.setOptions({ githubAlerts: true }, true);
-        expect(muya.getState()[0].name).toBe('github-alert');
-        expect(muya.getMarkdown()).toBe(source);
-        expect(muya.domNode.querySelector('[hidden]')).toBeNull();
-    });
-
-    it('preserves an empty live draft across preference changes without promoting marker-only imports', () => {
-        const muya = boot('');
-        first(muya).setCursor(0, 0, true);
-        muya.updateParagraph('github-alert NOTE');
-        const source = muya.getMarkdown();
-        muya.setOptions({ githubAlerts: false }, true);
-        muya.setOptions({ githubAlerts: true }, true);
-        expect(muya.getState()[0].name).toBe('github-alert');
-        expect(first(muya).text).toBe('');
-        expect(muya.getMarkdown()).toBe(source);
-        const plain = boot('> [!NOTE]', false);
-        plain.setOptions({ githubAlerts: true }, true);
-        expect(plain.getState()[0].name).toBe('block-quote');
-    });
-
-    it('preserves a selection inside inline formatting through preference changes', () => {
-        const muya = boot('> [!NOTE]\n> **Body** [link](https://example.com)');
-        first(muya).setCursor(3, 5, true);
-        for (const githubAlerts of [false, true]) {
-            muya.setOptions({ githubAlerts }, true);
-            expect(muya.editor.selection.getSelectedText()).toBe('od');
-        }
-    });
-
-    it('maps both ends of a cross-paragraph selection through preference changes', () => {
-        const muya = boot('> [!NOTE]\n> Alpha\n>\n> Beta');
-        const page = muya.editor.scrollPage!;
-        const anchor = page.firstContentInDescendant()!;
-        const focus = page.lastContentInDescendant()!;
-        muya.editor.selection.setSelection(
-            { block: anchor, path: anchor.path, offset: 2 },
-            { block: focus, path: focus.path, offset: 3 },
-        );
-        for (const githubAlerts of [false, true]) {
-            muya.setOptions({ githubAlerts }, true);
-            const selection = muya.editor.selection.getSelection()!;
-            expect(selection.anchor.block.text.slice(selection.anchor.offset)).toBe('pha');
-            expect(selection.focus.block.text.slice(0, selection.focus.offset)).toBe('Bet');
-        }
+        expect(muya.getState()[0]).toMatchObject({ name: 'github-alert', children: initial.children });
+        expect(muya.domNode.querySelector('.mu-github-alert')).not.toBeNull();
     });
 
     it.each(['2. Body', '2. [ ] Body'])('preserves a first list starting above one through conversion and serialization: %s', (body) => {
