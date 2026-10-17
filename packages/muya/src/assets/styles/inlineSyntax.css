@@ -379,6 +379,13 @@ div .mu-math-error,
     user-select: auto;
 }
 
+/* KaTeX accents can extend past their advance width (#5769). Leave room
+   for that ink without triggering the horizontal scrollbar. */
+.mu-hide.mu-math > .mu-math-render {
+    box-sizing: border-box;
+    padding-inline: 0.1em;
+}
+
 /* A formula that is not being edited sits in the flow, so the block around it —
    narrower than the text column inside a quote or a list item — is the bound,
    and the inline-block has to carry it: the render is what gives that box its
