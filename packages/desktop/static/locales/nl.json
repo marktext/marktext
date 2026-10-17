@@ -419,6 +419,7 @@
         "highlightSyntax": "De niet-standaard ==tekst==-markeringssyntaxis inschakelen",
         "inlineDiff": "De niet-standaard inline-diff-syntaxis {+ … +} / [- … -] inschakelen",
         "multilineBlockquote": "De niet-standaard meerregelige citaatsyntaxis >>> … >>> inschakelen",
+        "githubAlerts": "GitHub-meldingen",
         "isHtmlEnabled": "HTML-weergave inschakelen",
         "softNewlineAsSpace": "Zachte regeleinden als spaties behandelen",
         "sequenceTheme": "Sequentiediagram thema",
@@ -661,6 +662,7 @@
         "highlightSyntax": "Markeren (==tekst==)",
         "inlineDiff": "Inline diff ({+ … +})",
         "multilineBlockquote": "Meerregelig citaat (>>>)",
+        "githubAlerts": "GitHub-meldingen inschakelen",
         "frontmatterType": {
           "jsonBrace": "JSON met accolades",
           "jsonSemicolon": "JSON met puntkomma",

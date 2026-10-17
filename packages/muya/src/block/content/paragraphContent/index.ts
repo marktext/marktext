@@ -11,19 +11,21 @@ import type {
     ITaskListState,
 } from '../../../state/types';
 import type { Nullable } from '../../../types';
-import type Content from '../../base/content';
 import type Parent from '../../base/parent';
 import type BulletList from '../../commonMark/bulletList';
 import type Paragraph from '../../commonMark/paragraph';
 import { HTML_TAGS, VOID_HTML_TAGS } from '../../../config';
 import { tokenizer } from '../../../inlineRenderer/lexer';
-import { isBlockQuoteState, isListItemState, isTaskListItemState } from '../../../state/types';
+import { isListItemState, isTaskListItemState } from '../../../state/types';
 import { firstWordOfInfo, isKeyboardEvent, isLengthEven, parseFenceLine } from '../../../utils';
 import { createDiagramState, diagramTypeOfLang } from '../../../utils/diagram/fence';
+import { matchGithubAlertMarker } from '../../../utils/githubAlerts';
 import logger from '../../../utils/logger';
 import Format from '../../base/format';
+import QuoteContainer from '../../base/quoteContainer';
 import OrderList from '../../commonMark/orderList';
 import TaskList from '../../gfm/taskList';
+import { convertGithubAlert } from '../../githubAlerts';
 import { ScrollPage } from '../../scrollPage';
 
 // `_unindentListItem` / `_indentListItem` walk parents typed as the loose
@@ -264,6 +266,9 @@ class ParagraphContent extends Format {
     override backspaceHandler(event: Event) {
         const { start, end } = this.getCursor()!;
         const { eventCenter } = this.muya;
+        const container = this.parent?.parent;
+        if (container instanceof QuoteContainer && container.backspaceAtStart(this, event))
+            return;
 
         if (start.offset !== 0 || end.offset !== 0) {
             super.backspaceHandler(event);
@@ -275,14 +280,13 @@ class ParagraphContent extends Format {
         const type = this._paragraphParentType();
 
         switch (type) {
+            case 'block-quote':
+            case 'github-alert':
             case 'paragraph':
                 return this._handleBackspaceInParagraph();
 
             case 'footnote':
                 return this._handleBackspaceInFootnote();
-
-            case 'block-quote':
-                return this._handleBackspaceInBlockQuote();
 
             case 'list-item': // fall through
             case 'task-list-item':
@@ -428,63 +432,11 @@ class ParagraphContent extends Format {
     }
 
     private _enterInBlockQuote(event: KeyboardEvent) {
-        const { text, parent } = this;
-        if (text.length !== 0)
+        if (this.text.length !== 0)
             return super.enterHandler(event);
-
         event.preventDefault();
         event.stopPropagation();
-
-        const newNode = parent!.clone() as Paragraph;
-        const blockQuote = parent!.parent;
-
-        switch (true) {
-            case parent!.isOnlyChild():
-                blockQuote!.parent!.insertBefore(newNode, blockQuote);
-                blockQuote!.remove();
-                break;
-
-            case parent!.isFirstChild():
-                blockQuote!.parent!.insertBefore(newNode, blockQuote);
-                parent!.remove();
-                break;
-
-            case parent!.isLastChild():
-                blockQuote!.parent!.insertAfter(newNode, blockQuote);
-                parent!.remove();
-                break;
-
-            default: {
-                const quoteState = blockQuote!.getState();
-                const fenced = isBlockQuoteState(quoteState)
-                    && quoteState.meta?.style === 'fenced';
-                const newBlockState: IBlockQuoteState = {
-                    name: 'block-quote',
-                    ...(fenced ? { meta: { style: 'fenced' as const } } : {}),
-                    children: [],
-                };
-                const offset = blockQuote!.offset(parent!);
-                blockQuote!.forEachAt(offset + 1, undefined, (node) => {
-                    // forEachAt's callback gets `TreeNode` but the runtime
-                    // children of a blockquote are always Parent-derived
-                    // blocks (paragraph, list, …). isParent() narrows so
-                    // `getState()` (defined on Parent, not TreeNode) resolves.
-                    if (node.isParent())
-                        newBlockState.children.push(node.getState());
-                    node.remove();
-                });
-                const newBlockQuote = ScrollPage.loadBlock(newBlockState.name).create(
-                    this.muya,
-                    newBlockState,
-                );
-                blockQuote!.parent!.insertAfter(newNode, blockQuote);
-                blockQuote!.parent!.insertAfter(newBlockQuote, newNode);
-                parent!.remove();
-                break;
-            }
-        }
-
-        (newNode.children.head as ParagraphContent).setCursor(0, 0, true);
+        (this.parent!.parent as QuoteContainer).exitEmptyParagraph(this.parent!);
     }
 
     private _enterInListItem(event: KeyboardEvent) {
@@ -610,8 +562,31 @@ class ParagraphContent extends Format {
         }
     }
 
+    private _enterGithubAlert(event: KeyboardEvent): boolean {
+        if (event.shiftKey || event.isComposing || !this.muya.options.githubAlerts)
+            return false;
+        const container = this.parent?.parent;
+        if (!container?.parent?.isScrollPage)
+            return false;
+        const state = container.getState();
+        const cursor = this.getCursor();
+        if (state.name === 'block-quote' && state.meta?.style !== 'fenced' && this.parent === container.firstChild) {
+            const type = matchGithubAlertMarker(this.text);
+            if (type && cursor?.isCollapsed && cursor.start.offset === this.text.length) {
+                event.preventDefault();
+                event.stopPropagation();
+                convertGithubAlert(container, `github-alert ${type}`);
+                return true;
+            }
+        }
+        return false;
+    }
+
     override enterHandler(event: Event) {
         if (!isKeyboardEvent(event))
+            return;
+
+        if (this._enterGithubAlert(event))
             return;
 
         if (event.shiftKey && !this.dropSoftBreakBeforeCursor())
@@ -633,7 +608,7 @@ class ParagraphContent extends Format {
 
         const type = this._paragraphParentType();
 
-        if (type === 'block-quote')
+        if (type === 'block-quote' || type === 'github-alert')
             this._enterInBlockQuote(event);
         else if (type === 'list-item' || type === 'task-list-item')
             this._enterInListItem(event);
@@ -654,6 +629,7 @@ class ParagraphContent extends Format {
         const container = this.parent?.parent?.blockName;
 
         switch (container) {
+            case 'github-alert':
             case 'block-quote':
             case 'list-item':
             case 'task-list-item':
@@ -696,28 +672,6 @@ class ParagraphContent extends Format {
 
         footnote.remove();
         blocks[0]?.firstContentInDescendant()?.setCursor(0, 0, true);
-    }
-
-    private _handleBackspaceInBlockQuote() {
-        const parent = this.parent!;
-        const blockQuote = parent!.parent!;
-        let cursorBlock: Content | null;
-
-        if (!parent!.isOnlyChild() && !parent!.isFirstChild())
-            return this._handleBackspaceInParagraph();
-
-        if (parent.isOnlyChild()) {
-            blockQuote.replaceWith(parent);
-            cursorBlock = parent.firstContentInDescendant();
-        }
-        else if (parent.isFirstChild()) {
-            const cloneParagraph = parent.clone() as Paragraph;
-            blockQuote.parent!.insertBefore(cloneParagraph, blockQuote);
-            parent.remove();
-            cursorBlock = cloneParagraph.firstContentInDescendant();
-        }
-
-        cursorBlock!.setCursor(0, 0, true);
     }
 
     private _handleBackspaceInList() {

@@ -366,6 +366,7 @@ export const MUYA_DEFAULT_OPTIONS = {
     highlightSyntax: false,
     inlineDiff: false,
     multilineBlockquote: false,
+    githubAlerts: false,
     // Render soft line breaks as spaces instead of visual newlines.
     softNewlineAsSpace: false,
     // Move checked task list item to the end of task list.

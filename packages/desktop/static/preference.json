@@ -60,6 +60,7 @@
   "highlightSyntax": false,
   "inlineDiff": false,
   "multilineBlockquote": false,
+  "githubAlerts": false,
   "isHtmlEnabled": true,
   "softNewlineAsSpace": false,
   "sequenceTheme": "hand",

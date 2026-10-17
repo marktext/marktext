@@ -106,6 +106,24 @@ export class ScrollPage extends Parent {
         );
     }
 
+    /** One undo step, preserving adjacent block instances; the caller restores the replacement's selection. */
+    replaceBlock(block: Parent, states: TState[]): Parent[] {
+        const { muya } = this;
+        muya.flush();
+        const { history, selection } = muya.editor;
+        history.cutoff(selection.getSelection() ?? undefined);
+        muya.eventCenter.emit('muya-transformer', { reference: null });
+
+        const replacements = states.map(state => ScrollPage.loadBlock(state.name).create(muya, state));
+        for (const replacement of replacements)
+            this.insertBefore(replacement, block);
+        block.remove();
+
+        muya.flush();
+        history.cutoff();
+        return replacements;
+    }
+
     /**
      * Find the content block by the path
      * @param {Array} path

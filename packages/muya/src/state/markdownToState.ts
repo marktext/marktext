@@ -26,6 +26,7 @@ interface IMarkdownToStateOptions {
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
     multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -45,6 +46,7 @@ const DEFAULT_OPTIONS = {
 const CONTAINER_TOKEN_TYPES = new Set([
     'block-end',
     'blockquote',
+    'githubAlert',
     'multilineBlockquote',
     'list',
     'list_item',
@@ -52,7 +54,7 @@ const CONTAINER_TOKEN_TYPES = new Set([
 ]);
 
 export class MarkdownToState {
-    constructor(private _options: IMarkdownToStateOptions = DEFAULT_OPTIONS) {}
+    constructor(private _options: Partial<IMarkdownToStateOptions> = DEFAULT_OPTIONS) {}
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);
@@ -68,6 +70,7 @@ export class MarkdownToState {
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
             multilineBlockquote = false,
+            githubAlerts = false,
         } = this._options;
 
         // markdownToState injects synthetic `block-end` markers (see the
@@ -81,6 +84,7 @@ export class MarkdownToState {
             texMathSingleBackslash,
             texMathDoubleBackslash,
             multilineBlockquote,
+            githubAlerts,
         });
 
         const states: TState[] = [];
@@ -125,6 +129,15 @@ export class MarkdownToState {
                     parentList[0].push(state);
                 }
                 parentList.shift();
+                break;
+            }
+
+            case 'githubAlert': {
+                state = { name: 'github-alert', meta: token.meta, children: [] };
+                parentList[0].push(state);
+                parentList.unshift(state.children);
+                tokens.unshift({ type: 'block-end', tokenType: 'githubAlert' });
+                tokens.unshift(...token.tokens as TBlockToken[]);
                 break;
             }
 

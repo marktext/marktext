@@ -1,0 +1,88 @@
+.mu-container .mu-github-alert {
+    --mu-alert-color: #0969da;
+    padding: 8px 16px;
+
+    color: var(--editor-color);
+
+    border-left: 4px solid var(--mu-alert-color);
+}
+
+.mu-container .mu-github-alert::before {
+    display: none;
+}
+
+.mu-container .mu-github-alert[data-alert-type='tip'] {
+    --mu-alert-color: #1a7f37;
+}
+
+.mu-container .mu-github-alert[data-alert-type='important'] {
+    --mu-alert-color: #8250df;
+}
+
+.mu-container .mu-github-alert[data-alert-type='warning'] {
+    --mu-alert-color: #9a6700;
+}
+
+.mu-container .mu-github-alert[data-alert-type='caution'] {
+    --mu-alert-color: #d1242f;
+}
+
+.dark .mu-container .mu-github-alert {
+    --mu-alert-color: #4493f8;
+}
+
+.dark .mu-container .mu-github-alert[data-alert-type='tip'] {
+    --mu-alert-color: #3fb950;
+}
+
+.dark .mu-container .mu-github-alert[data-alert-type='important'] {
+    --mu-alert-color: #ab7df8;
+}
+
+.dark .mu-container .mu-github-alert[data-alert-type='warning'] {
+    --mu-alert-color: #d29922;
+}
+
+.dark .mu-container .mu-github-alert[data-alert-type='caution'] {
+    --mu-alert-color: #f85149;
+}
+
+.mu-container .mu-alert-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+
+    color: var(--mu-alert-color);
+    font-weight: 600;
+
+    user-select: none;
+}
+
+.mu-alert-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    margin-right: 8px;
+
+    vertical-align: text-bottom;
+}
+
+.mu-alert-menu-icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+
+    stroke-width: 1.75;
+}
+
+.mu-quick-insert .icon-container > i.mu-alert-menu-icon {
+    opacity: 1;
+}
+
+.mu-container .mu-alert-title + p {
+    margin-top: 0;
+}
+
+.mu-container .mu-github-alert > :last-child {
+    margin-bottom: 0;
+}

@@ -420,6 +420,7 @@
         "highlightSyntax": "Activer la syntaxe de surlignage non standard ==texte==",
         "inlineDiff": "Activer la syntaxe de diff en ligne non standard {+ … +} / [- … -]",
         "multilineBlockquote": "Activer la syntaxe de citation multiligne non standard >>> … >>>",
+        "githubAlerts": "Alertes GitHub",
         "isHtmlEnabled": "Activer le rendu HTML",
         "softNewlineAsSpace": "Traiter les sauts de ligne simples comme des espaces",
         "sequenceTheme": "Thème du diagramme de séquence",
@@ -661,6 +662,7 @@
         "highlightSyntax": "Surlignage (==texte==)",
         "inlineDiff": "Diff en ligne ({+ … +})",
         "multilineBlockquote": "Citation multiligne (>>>)",
+        "githubAlerts": "Activer les alertes GitHub",
         "frontmatterType": {
           "jsonBrace": "Accolade JSON",
           "jsonSemicolon": "Point-virgule JSON",

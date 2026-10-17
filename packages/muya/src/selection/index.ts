@@ -1,6 +1,6 @@
 import type TableBodyCell from '../block/gfm/table/cell';
 import type { Muya } from '../muya';
-import type { IAnchorFocusInfo, IImageSelectionData, ISelection } from './types';
+import type { IAnchorFocusInfo, IHistorySelection, IImageSelectionData, ISelection } from './types';
 import {
     getCursorCoords,
     getCursorYOffset,
@@ -132,6 +132,23 @@ class Selection {
 
     setSelection(anchor: IAnchorFocusInfo, focus: IAnchorFocusInfo): void {
         this._text.setSelection(anchor, focus);
+    }
+
+    /** Resolve saved paths after a local replacement or representation change. */
+    restore(selection: IHistorySelection | null | undefined): boolean {
+        if (!selection)
+            return false;
+        const resolve = (point: IHistorySelection['anchor']) => {
+            const block = this._muya.editor.scrollPage?.queryBlock([...point.path]);
+            return block?.isContent() ? { block, path: point.path, offset: Math.min(point.offset, block.text.length) } : null;
+        };
+        const anchor = resolve(selection.anchor);
+        const focus = resolve(selection.focus);
+        if (!anchor || !focus)
+            return false;
+        this._muya.editor.activeContentBlock = anchor.block;
+        this.setSelection(anchor, focus);
+        return true;
     }
 
     selectAll(): void {

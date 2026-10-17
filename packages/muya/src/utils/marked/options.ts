@@ -9,4 +9,5 @@ export const DEFAULT_OPTIONS = {
     highlightSyntax: false,
     inlineDiff: false,
     multilineBlockquote: false,
+    githubAlerts: false,
 };

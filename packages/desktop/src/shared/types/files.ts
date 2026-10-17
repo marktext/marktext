@@ -178,6 +178,7 @@ export type ExportType = 'pdf' | 'html' | 'styledHtml' | 'png' | 'jpeg'
 
 /** Current document handed to the main process for a pandoc export. */
 export interface PandocExportPayload {
+  githubAlerts?: boolean
   /** One of `PANDOC_EXPORT_FORMATS[].id`. */
   target: string
   markdown: string
