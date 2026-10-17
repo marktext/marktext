@@ -221,6 +221,25 @@ describe('gitHub Alert editing', () => {
         expect(muya.getState()[0].name).toBe('paragraph');
     });
 
+    it.each(['block-quote', 'github-alert'] as const)('exits an empty middle paragraph without removing its %s siblings', (name) => {
+        const muya = boot('');
+        const children = Array.from({ length: 3 }, () => ({ name: 'paragraph' as const, text: '' }));
+        muya.setContent(name === 'github-alert'
+            ? [{ name, meta: { type: 'NOTE' }, children }]
+            : [{ name, children }]);
+        const container = muya.editor.scrollPage!.firstChild as Parent;
+        const content = (container.find(1) as Parent).firstContentInDescendant()!;
+        content.setCursor(0, 0, true);
+        enter(content);
+        muya.flush();
+        expect(muya.getState()).toMatchObject([
+            { name, children: [{ name: 'paragraph', text: '' }] },
+            { name: 'paragraph', text: '' },
+            { name, children: [{ name: 'paragraph', text: '' }] },
+        ]);
+        expect(muya.editor.selection.getSelection()?.anchor.path).toEqual([1, 'text']);
+    });
+
     it('downgrades to a quote on Backspace and preserves the body', () => {
         const muya = boot('> [!NOTE]\n> Body');
         const body = first(muya);
