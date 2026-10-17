@@ -198,7 +198,7 @@ function tokenizeFancyList(lexer: Lexer, src: string): IFancyListToken | undefin
         rest = rest.slice(raw.length);
     }
 
-    const last = list.items.at(-1)!;
+    const last = list.items[list.items.length - 1];
     last.raw = last.raw.trimEnd();
     last.text = last.text.trimEnd();
     list.raw = list.raw.trimEnd();
