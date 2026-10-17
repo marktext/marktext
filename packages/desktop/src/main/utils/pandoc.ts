@@ -63,6 +63,8 @@ export interface PandocReaderOptions {
   texMathSingleBackslash?: boolean
   /** pandoc's `tex_math_double_backslash`: `\\(…\\)` and `\\[…\\]`. */
   texMathDoubleBackslash?: boolean
+  /** pandoc's `fancy_lists`: `a.`, `IV)` and `(1)` ordered lists. */
+  fancyLists?: boolean
 }
 
 /** Every extension a reader lists, mapped to whether that reader enables it by default. */
@@ -73,6 +75,21 @@ export interface PandocReaderExtensions {
   markdown: ReaderExtensionDefaults
 }
 
+// Syntax `gfm` reads natively, so its listing never names them, but `markdown` gates each
+// behind an extension: fenced code, intraword `_`, backslash line breaks, `[foo]` links,
+// `#` headings that need a space, lists that interrupt a paragraph, and start numbers.
+const COMMONMARK_SYNTAX: ReadonlySet<string> = new Set([
+  'all_symbols_escapable',
+  'backtick_code_blocks',
+  'escaped_line_breaks',
+  'fenced_code_blocks',
+  'intraword_underscores',
+  'lists_without_preceding_blankline',
+  'shortcut_reference_links',
+  'space_in_atx_header',
+  'startnum'
+])
+
 /**
  * The reader a pandoc export parses with, from the Preferences → Markdown toggles.
  *
@@ -80,11 +97,13 @@ export interface PandocReaderExtensions {
  * `tex_math_single_backslash` nor `tex_math_double_backslash` — naming one makes pandoc
  * reject the whole reader (#5566). When either is on, the reader is built from
  * `markdown`, which supports them, and every other extension is forced to gfm's own
- * default so tables, strikeout and task lists keep reading the same way.
+ * default so tables, strikeout and task lists keep reading the same way. Fancy lists take
+ * the same reader: `gfm` accepts `+fancy_lists` but folds an indented `A.` item into its
+ * parent's text, so only `markdown` nests an outline.
  *
  * `tex_math_gfm` is commonmark-only: no pandoc reader carries it together with the
- * backslash extensions, so a document enabling both is read with the backslash ones and
- * the GFM math is left to the reader's default. The `tex_math_gfm` flag and the
+ * backslash extensions or fancy lists, so a document enabling both is read with the
+ * `markdown` ones and the GFM math is left to the reader's default. The `tex_math_gfm` flag and the
  * `markdown` diff are both written only from `extensions`, the installed pandoc's own
  * listing; without it each reader keeps its format defaults, since pandoc rejects a
  * reader carrying a name it does not know.
@@ -100,12 +119,14 @@ export const getPandocReader = (
     texMathDollars = true,
     texMathGfm = false,
     texMathSingleBackslash = false,
-    texMathDoubleBackslash = false
+    texMathDoubleBackslash = false,
+    fancyLists = false
   } = options
 
-  if (texMathSingleBackslash || texMathDoubleBackslash) {
-    // `superSubScript`, `footnotes` and the three math extensions are the editor's; every
-    // other extension follows gfm, including the ones gfm does not carry (which stay off).
+  if (texMathSingleBackslash || texMathDoubleBackslash || fancyLists) {
+    // `superSubScript`, `footnotes`, `fancy_lists` and the three math extensions are the
+    // editor's; every other extension follows gfm, and the ones gfm does not carry stay off
+    // unless gfm reads that syntax natively.
     const desired = (name: string): boolean => {
       switch (name) {
         case 'superscript':
@@ -121,8 +142,10 @@ export const getPandocReader = (
           return texMathSingleBackslash
         case 'tex_math_double_backslash':
           return texMathDoubleBackslash
+        case 'fancy_lists':
+          return fancyLists
         default:
-          return extensions?.gfm.get(name) ?? false
+          return COMMONMARK_SYNTAX.has(name) || (extensions?.gfm.get(name) ?? false)
       }
     }
     const flags: string[] = []

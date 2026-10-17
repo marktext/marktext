@@ -40,6 +40,7 @@ export const ru = {
         'Code Block': 'Блок кода',
         'Quote Block': 'Цитата',
         'Order List': 'Нумерованный список',
+        'Outline': 'План',
         'Bullet List': 'Маркированный список',
         'To-do List': 'Список задач',
         'Vega Chart': 'Диаграмма Vega',

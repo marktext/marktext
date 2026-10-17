@@ -1,10 +1,12 @@
 import type { Muya } from '../muya';
 import type { IFrontmatterMeta } from '../state/types';
+import type { IListLevel } from '../utils/listMarker';
 import type Parent from './base/parent';
 import emptyStates from '../config/emptyStates';
 import { getCursorReference } from '../selection';
 import { isParagraphState } from '../state/types';
 import { deepClone } from '../utils';
+import { outlineLevel, toListDelimiter } from '../utils/listMarker';
 import logger from '../utils/logger';
 import { canConvertGithubAlert, convertGithubAlert } from './githubAlerts';
 import { ScrollPage } from './scrollPage';
@@ -136,11 +138,12 @@ function buildHeadingBlock(label: string, muya: Muya, text: string) {
     return ScrollPage.loadBlock(blockName).create(muya, headingState);
 }
 
-function buildOrderListBlock(muya: Muya, text: string) {
+function buildOrderListBlock(muya: Muya, text: string, level?: IListLevel) {
     const { preferLooseListItem, orderListDelimiter } = muya.options;
     const orderState = deepClone(emptyStates['order-list']);
     orderState.meta.loose = preferLooseListItem;
-    orderState.meta.delimiter = orderListDelimiter;
+    orderState.meta.delimiter = toListDelimiter(orderListDelimiter);
+    Object.assign(orderState.meta, level);
     const firstChild = orderState.children[0].children[0];
     if (text && isParagraphState(firstChild))
         firstChild.text = text;
@@ -186,6 +189,8 @@ function buildDiagramBlock(label: string, muya: Muya) {
 export function canInsertLabel(label: string, muya: Muya): boolean {
     if (label.startsWith('github-alert '))
         return muya.options.githubAlerts;
+    if (label === 'outline-list')
+        return muya.options.fancyLists;
     return label !== 'math-block' || muya.options.texMathDollars;
 }
 
@@ -214,6 +219,9 @@ export function buildReplacementBlock(label: string, muya: Muya, text: string) {
 
         case 'order-list':
             return buildOrderListBlock(muya, text);
+
+        case 'outline-list':
+            return buildOrderListBlock(muya, text, outlineLevel(0));
 
         case 'bullet-list':
             // fall through
@@ -341,7 +349,7 @@ export function canTurnInto(block: Parent, label: string): boolean {
             if (paragraphIsEmpty)
                 return label !== 'frontmatter';
 
-            return /paragraph|atx-heading|block-quote|order-list|bullet-list|task-list/.test(label);
+            return /paragraph|atx-heading|block-quote|order-list|outline-list|bullet-list|task-list/.test(label);
         }
 
         case 'atx-heading':

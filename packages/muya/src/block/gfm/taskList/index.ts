@@ -38,7 +38,7 @@ class TaskList extends Parent {
         if (meta.ordered) {
             this.tagName = 'ol';
             this.attributes = { start: String(meta.start) };
-            this.datasets = { delimiter: meta.delimiter };
+            this.datasets = { delimiter: meta.delimiter, ...(meta.style ? { style: meta.style } : {}) };
         }
         else {
             this.tagName = 'ul';

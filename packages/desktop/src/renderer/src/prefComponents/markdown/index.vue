@@ -88,6 +88,12 @@
           more="https://pandoc.org/MANUAL.html#extension-tex_math_double_backslash"
         />
         <bool
+          :description="t('preferences.markdown.extensions.fancyLists')"
+          :bool="fancyLists"
+          :on-change="(value) => onSelectChange('fancyLists', value)"
+          more="https://pandoc.org/MANUAL.html#extension-fancy_lists"
+        />
+        <bool
           :description="t('preferences.markdown.extensions.highlightSyntax')"
           :bool="highlightSyntax"
           :on-change="(value) => onSelectChange('highlightSyntax', value)"
@@ -211,6 +217,7 @@ const {
   texMathGfm,
   texMathSingleBackslash,
   texMathDoubleBackslash,
+  fancyLists,
   highlightSyntax,
   inlineDiff,
   multilineBlockquote,

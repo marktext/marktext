@@ -65,6 +65,7 @@ const keybindings: Map<string, string> = new Map([
   ['paragraph.math-formula', 'Ctrl+Alt+M'],
   ['paragraph.html-block', 'Ctrl+Alt+H'],
   ['paragraph.order-list', 'Ctrl+G'],
+  ['paragraph.outline', 'Ctrl+Alt+K'],
   ['paragraph.bullet-list', 'Ctrl+H'],
   ['paragraph.task-list', 'Ctrl+Shift+X'],
   ['paragraph.loose-list-item', 'Ctrl+Shift+L'],

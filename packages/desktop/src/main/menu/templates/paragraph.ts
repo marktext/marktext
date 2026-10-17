@@ -12,6 +12,7 @@ export default function(
   // pandoc's tex_math_dollars is off — so the entry goes away with it (#5446).
   const texMathDollars = userPreference.getItem<boolean>('texMathDollars') !== false
   const githubAlerts = userPreference.getItem<boolean>('githubAlerts') === true
+  const fancyLists = userPreference.getItem<boolean>('fancyLists') === true
 
   return {
     id: 'paragraphMenuEntry',
@@ -170,6 +171,18 @@ export default function(
           actions.orderedList(focusedWindow as BrowserWindow | undefined)
         }
       },
+      ...(fancyLists
+        ? [
+          {
+            id: 'outlineMenuItem',
+            label: t('menu.paragraph.outline'),
+            accelerator: keybindings.getAccelerator('paragraph.outline') ?? undefined,
+            click(_menuItem: unknown, focusedWindow: unknown) {
+              actions.outline(focusedWindow as BrowserWindow | undefined)
+            }
+          }
+        ]
+        : []),
       {
         id: 'bulletListMenuItem',
         label: t('menu.paragraph.bulletList'),

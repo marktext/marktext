@@ -1,4 +1,5 @@
 import type { GithubAlertType } from '../utils/githubAlerts';
+import type { ListDelimiter, ListStyle } from '../utils/listMarker';
 
 export interface IParagraphState {
     name: 'paragraph';
@@ -94,7 +95,8 @@ export interface IOrderListState {
     meta: {
         start: number;
         loose: boolean;
-        delimiter: string; // "." | ")";
+        delimiter: ListDelimiter;
+        style?: ListStyle; // Absent means decimal.
         sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
     };
     children: IListItemState[];
@@ -152,7 +154,8 @@ export interface ITaskListMetaUnordered {
 export interface ITaskListMetaOrdered {
     ordered: true;
     start: number;
-    delimiter: string; // "." | ")";
+    delimiter: ListDelimiter;
+    style?: ListStyle; // Absent means decimal.
     loose: boolean;
     sourceMarkers?: string[]; // Original item markers for no-edit source round-trips.
 }

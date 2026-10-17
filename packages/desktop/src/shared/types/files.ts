@@ -193,4 +193,5 @@ export interface PandocExportPayload {
   texMathGfm: boolean
   texMathSingleBackslash: boolean
   texMathDoubleBackslash: boolean
+  fancyLists: boolean
 }

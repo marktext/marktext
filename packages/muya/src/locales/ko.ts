@@ -40,6 +40,7 @@ export const ko = {
         'Code Block': '코드 블록',
         'Quote Block': '인용',
         'Order List': '번호 목록',
+        'Outline': '개요',
         'Bullet List': '글머리 기호 목록',
         'To-do List': '할 일 목록',
         'Vega Chart': 'Vega 차트',

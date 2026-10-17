@@ -40,6 +40,7 @@ export const fr = {
         'Code Block': 'Bloc de code',
         'Quote Block': 'Citation',
         'Order List': 'Liste ordonnée',
+        'Outline': 'Plan',
         'Bullet List': 'Liste à puces',
         'To-do List': 'Liste de tâches',
         'Vega Chart': 'Graphique Vega',

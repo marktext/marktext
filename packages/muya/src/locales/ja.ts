@@ -40,6 +40,7 @@ export const ja = {
         'Code Block': 'コードブロック',
         'Quote Block': '引用',
         'Order List': '秩序リスト',
+        'Outline': 'アウトライン',
         'Bullet List': '無秩序リスト',
         'To-do List': 'タスクリスト',
         'Vega Chart': 'Vegaチャート',

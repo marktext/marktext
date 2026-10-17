@@ -421,8 +421,100 @@ ul.mu-bullet-list {
     padding-inline-start: 30px;
 }
 
+/* `data-style` and `data-delimiter` carry the fancy-list marker (`a.`, `IV)`,
+   `(1)`); a list without them is decimal with a period. */
+@counter-style mu-decimal-paren {
+    suffix: ') ';
+    system: extends decimal;
+}
+
+@counter-style mu-decimal-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends decimal;
+}
+
+@counter-style mu-lower-alpha-paren {
+    suffix: ') ';
+    system: extends lower-alpha;
+}
+
+@counter-style mu-lower-alpha-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends lower-alpha;
+}
+
+@counter-style mu-upper-alpha-paren {
+    suffix: ') ';
+    system: extends upper-alpha;
+}
+
+@counter-style mu-upper-alpha-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends upper-alpha;
+}
+
+@counter-style mu-lower-roman-paren {
+    suffix: ') ';
+    system: extends lower-roman;
+}
+
+@counter-style mu-lower-roman-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends lower-roman;
+}
+
+@counter-style mu-upper-roman-paren {
+    suffix: ') ';
+    system: extends upper-roman;
+}
+
+@counter-style mu-upper-roman-parens {
+    prefix: '(';
+    suffix: ') ';
+    system: extends upper-roman;
+}
+
 ol.mu-order-list {
-    list-style: decimal outside none;
+    --mu-list-period: decimal;
+    --mu-list-paren: mu-decimal-paren;
+    --mu-list-parens: mu-decimal-parens;
+    list-style: var(--mu-list-period) outside none;
+}
+
+ol.mu-order-list[data-style='lower-alpha'] {
+    --mu-list-period: lower-alpha;
+    --mu-list-paren: mu-lower-alpha-paren;
+    --mu-list-parens: mu-lower-alpha-parens;
+}
+
+ol.mu-order-list[data-style='upper-alpha'] {
+    --mu-list-period: upper-alpha;
+    --mu-list-paren: mu-upper-alpha-paren;
+    --mu-list-parens: mu-upper-alpha-parens;
+}
+
+ol.mu-order-list[data-style='lower-roman'] {
+    --mu-list-period: lower-roman;
+    --mu-list-paren: mu-lower-roman-paren;
+    --mu-list-parens: mu-lower-roman-parens;
+}
+
+ol.mu-order-list[data-style='upper-roman'] {
+    --mu-list-period: upper-roman;
+    --mu-list-paren: mu-upper-roman-paren;
+    --mu-list-parens: mu-upper-roman-parens;
+}
+
+ol.mu-order-list[data-delimiter=')'] {
+    list-style-type: var(--mu-list-paren);
+}
+
+ol.mu-order-list[data-delimiter='()'] {
+    list-style-type: var(--mu-list-parens);
 }
 
 ul.mu-bullet-list {

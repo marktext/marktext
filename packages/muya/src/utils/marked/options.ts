@@ -10,4 +10,5 @@ export const DEFAULT_OPTIONS = {
     inlineDiff: false,
     multilineBlockquote: false,
     githubAlerts: false,
+    fancyLists: false,
 };
