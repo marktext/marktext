@@ -46,8 +46,8 @@ function replacementStates(source: TState, children: TState[], label: string): T
 
     const alert: IGithubAlertState = { name: 'github-alert', meta: { type }, children };
     // Keep a blank line before structured bodies so ordered lists remain lists.
-    if (children[0].name !== 'paragraph' || (source.name === 'github-alert' && source.meta.compact === false))
-        alert.meta.compact = false;
+    if (children[0].name !== 'paragraph' || (source.name === 'github-alert' && source.meta.blankLineAfterMarker))
+        alert.meta.blankLineAfterMarker = true;
     return [alert];
 }
 

@@ -6,10 +6,10 @@ import StateToMarkdown from './stateToMarkdown';
 export function githubAlertAsQuote(state: IGithubAlertState): IBlockQuoteState {
     const marker = githubAlertMarker(state.meta);
     const first = state.children[0];
-    const children = state.meta.compact !== false && first?.name === 'paragraph'
+    const children = !state.meta.blankLineAfterMarker && first?.name === 'paragraph'
         ? [{ ...first, text: `${marker}\n${first.text}` }, ...state.children.slice(1)]
         : [{ name: 'paragraph' as const, text: marker }, ...state.children];
-    return { name: 'block-quote', ...(state.meta.compact !== false && first?.name !== 'paragraph' ? { meta: { compact: true } } : {}), children };
+    return { name: 'block-quote', children };
 }
 
 /** Project only top-level quotes; unrelated state and nested blocks remain intact. */

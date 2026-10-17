@@ -66,7 +66,6 @@ export interface IBlockQuoteState {
     name: 'block-quote';
     meta?: {
         style?: 'fenced';
-        compact?: boolean;
     };
     children: TState[];
 }
@@ -75,9 +74,9 @@ export interface IGithubAlertState {
     name: 'github-alert';
     meta: {
         type: GithubAlertType;
-        // Preserve non-canonical marker spelling and a blank separator on round-trip.
+        // Preserve non-canonical marker spelling on round-trip.
         marker?: string;
-        compact?: boolean;
+        blankLineAfterMarker?: boolean;
     };
     children: TState[];
 }

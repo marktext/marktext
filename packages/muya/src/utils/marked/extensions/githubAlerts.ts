@@ -59,7 +59,7 @@ export function normalizeGithubAlertTokens(tokens: Token[], lexer: Lexer): void 
         tokens[index] = {
             type: 'githubAlert',
             raw: quote.raw,
-            meta: { type, ...(marker === `[!${type}]` ? {} : { marker }), ...(/\n[ \t]*\n/.test(first.raw) ? { compact: false } : {}) },
+            meta: { type, ...(marker === `[!${type}]` ? {} : { marker }), ...(/\n[ \t]*\n/.test(first.raw) ? { blankLineAfterMarker: true } : {}) },
             tokens: body,
         };
     }
