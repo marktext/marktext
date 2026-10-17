@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
+import { GITHUB_ALERT_TYPES } from '../../utils/githubAlerts';
 import { getClipBoardHtml } from '../../utils/marked';
 import HtmlToMarkdown from '../htmlToMarkdown';
 import { MarkdownToState } from '../markdownToState';
@@ -160,6 +161,44 @@ const cases = [
 ];
 
 describe('gitHub Alerts compatibility', () => {
+    it.each(GITHUB_ALERT_TYPES)('preserves %s markers followed by inline content on the same line', (type) => {
+        for (const body of [
+            '**body**',
+            '*body*',
+            '[body](https://example.com)',
+            '![body](image.png)',
+            '`body`',
+            '<span>body</span>',
+            '<br>body',
+            '<br>\n> body',
+            '**body**\n> next',
+            '<span></span>\n> body',
+            '\\\n> **body**',
+        ]) {
+            const markdown = `> [!${type}]${body}`;
+            for (const render of [renderToStaticHTML, getClipBoardHtml]) {
+                const actual = document.createElement('div');
+                const expected = document.createElement('div');
+                actual.innerHTML = render(markdown, { githubAlerts: true });
+                expected.innerHTML = render(markdown, { githubAlerts: false });
+                expect(actual.querySelector('.markdown-alert')).toBeNull();
+                expect(actual.querySelector('blockquote')?.textContent).toContain(`[!${type}]`);
+                expect(actual.innerHTML).toBe(expected.innerHTML);
+                expect(actual.innerHTML).not.toContain('mu-non-alert-quote');
+            }
+        }
+    });
+
+    it.each(['\n', '  \n'])('recognizes a marker followed by inline content after a %j line break', (lineBreak) => {
+        const markdown = `> [!NOTE]${lineBreak}> **body**`;
+        for (const render of [renderToStaticHTML, getClipBoardHtml]) {
+            const root = document.createElement('div');
+            root.innerHTML = render(markdown, { githubAlerts: true });
+            expect(root.querySelector('.markdown-alert-note strong')?.textContent, root.innerHTML).toBe('body');
+            expect(root.textContent).not.toContain('[!NOTE]');
+        }
+    });
+
     it.each(cases)('$name matches the GitHub rendering baseline', ({ markdown, count }) => {
         for (const render of [renderToStaticHTML, getClipBoardHtml]) {
             const root = document.createElement('div');

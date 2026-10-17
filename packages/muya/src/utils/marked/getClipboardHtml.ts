@@ -5,6 +5,7 @@ import { renderGithubAlerts } from '../githubAlerts';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
+import githubAlertsExtension from './extensions/githubAlerts';
 import inlineDiffExtension from './extensions/inlineDiff';
 import markExtension from './extensions/mark';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
@@ -80,6 +81,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
         marked.use(inlineDiffExtension());
 
     marked.use(multilineBlockquoteExtension(multilineBlockquote === true));
+    marked.use(githubAlertsExtension(options.githubAlerts === true));
 
     if (footnote)
         marked.use(footnoteExtension());

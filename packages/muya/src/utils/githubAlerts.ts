@@ -3,6 +3,8 @@ import type { IBlockQuoteState, TState } from '../state/types';
 
 export const GITHUB_ALERT_TYPES = ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'] as const;
 export type GithubAlertType = typeof GITHUB_ALERT_TYPES[number];
+// Parser-only metadata, stripped before HTML leaves the renderer.
+export const GITHUB_ALERT_IGNORE_CLASS = 'mu-non-alert-quote';
 
 export function githubAlertType(value: string): GithubAlertType | null {
     const upper = value.toUpperCase();
@@ -113,6 +115,8 @@ export function renderGithubAlerts(html: string, enabled = false): string {
     for (const original of Array.from(root.children)) {
         if (original.tagName !== 'BLOCKQUOTE')
             continue;
+        if (original.classList.contains(GITHUB_ALERT_IGNORE_CLASS))
+            continue;
         if (original.classList.contains('mu-fenced-quote')) {
             original.removeAttribute('class');
             continue;
@@ -121,6 +125,8 @@ export function renderGithubAlerts(html: string, enabled = false): string {
         if (alert)
             original.replaceWith(alert);
     }
+    for (const quote of root.querySelectorAll(`blockquote.${GITHUB_ALERT_IGNORE_CLASS}`))
+        quote.removeAttribute('class');
     return root.innerHTML;
 }
 
