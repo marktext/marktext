@@ -221,6 +221,21 @@ describe('gitHub Alert editing', () => {
         expect(muya.getState()[0].name).toBe('paragraph');
     });
 
+    it.each([
+        { name: 'Shift+Enter', offset: 7, end: 7, event: { shiftKey: true } },
+        { name: 'IME composition', offset: 7, end: 7, event: { isComposing: true } },
+        { name: 'a caret inside the marker', offset: 3, end: 3, event: {} },
+        { name: 'a selected marker', offset: 0, end: 7, event: {} },
+    ])('keeps the quote during $name', ({ offset, end, event }) => {
+        const muya = boot('> [!NOTE]');
+        const content = first(muya);
+        content.setCursor(offset, end, true);
+        content.enterHandler(new KeyboardEvent('keydown', { key: 'Enter', ...event }));
+        muya.flush();
+        expect(muya.getState()[0].name).toBe('block-quote');
+        expect(muya.domNode.querySelector('.mu-github-alert')).toBeNull();
+    });
+
     it.each(['block-quote', 'github-alert'] as const)('exits an empty middle paragraph without removing its %s siblings', (name) => {
         const muya = boot('');
         const children = Array.from({ length: 3 }, () => ({ name: 'paragraph' as const, text: '' }));
