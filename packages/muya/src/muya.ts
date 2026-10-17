@@ -852,7 +852,7 @@ export class Muya {
         place(container);
     }
 
-    private _nestedBlockState(block: Parent): TState {
+    private _getStateForWrapping(block: Parent): TState {
         const state = block.getState();
         if (state.name !== 'github-alert')
             return state;
@@ -877,8 +877,8 @@ export class Muya {
                 name: label,
                 meta,
                 children: blocks.map(b => label === 'task-list'
-                    ? { name: itemName, meta: { checked: false }, children: [this._nestedBlockState(b)] }
-                    : { name: itemName, children: [this._nestedBlockState(b)] }),
+                    ? { name: itemName, meta: { checked: false }, children: [this._getStateForWrapping(b)] }
+                    : { name: itemName, children: [this._getStateForWrapping(b)] }),
             }),
             container => this._selectWrappedContent(container),
         );
@@ -887,7 +887,7 @@ export class Muya {
     /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
         this._wrapSelectedBlocks(
-            blocks => ({ name: 'block-quote', children: blocks.map(block => this._nestedBlockState(block)) }),
+            blocks => ({ name: 'block-quote', children: blocks.map(block => this._getStateForWrapping(block)) }),
             container => this._selectWrappedContent(container),
         );
     }
