@@ -12,6 +12,7 @@ import type {
 } from './types';
 import { firstWordOfInfo, parseFenceLine } from '../utils';
 import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
+import { toListDelimiter } from '../utils/listMarker';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -27,6 +28,7 @@ interface IMarkdownToStateOptions {
     frontMatter: boolean;
     multilineBlockquote?: boolean;
     githubAlerts?: boolean;
+    fancyLists?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -71,6 +73,7 @@ export class MarkdownToState {
             frontMatter = true,
             multilineBlockquote = false,
             githubAlerts = false,
+            fancyLists = false,
         } = this._options;
 
         // markdownToState injects synthetic `block-end` markers (see the
@@ -85,6 +88,7 @@ export class MarkdownToState {
             texMathDoubleBackslash,
             multilineBlockquote,
             githubAlerts,
+            fancyLists,
         });
 
         const states: TState[] = [];
@@ -245,7 +249,7 @@ export class MarkdownToState {
                 meta: {
                     loose,
                     start: orderStart,
-                    delimiter: bulletMarkerOrDelimiter || '.',
+                    delimiter: toListDelimiter(bulletMarkerOrDelimiter),
                     ...markers,
                 },
                 children: [],
@@ -260,7 +264,7 @@ export class MarkdownToState {
                             ordered: true,
                             loose,
                             start: orderStart,
-                            delimiter: bulletMarkerOrDelimiter || '.',
+                            delimiter: toListDelimiter(bulletMarkerOrDelimiter),
                             ...markers,
                         },
                         children: [],

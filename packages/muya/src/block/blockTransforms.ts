@@ -5,6 +5,7 @@ import emptyStates from '../config/emptyStates';
 import { getCursorReference } from '../selection';
 import { isParagraphState } from '../state/types';
 import { deepClone } from '../utils';
+import { toListDelimiter } from '../utils/listMarker';
 import logger from '../utils/logger';
 import { canConvertGithubAlert, convertGithubAlert } from './githubAlerts';
 import { ScrollPage } from './scrollPage';
@@ -140,7 +141,7 @@ function buildOrderListBlock(muya: Muya, text: string) {
     const { preferLooseListItem, orderListDelimiter } = muya.options;
     const orderState = deepClone(emptyStates['order-list']);
     orderState.meta.loose = preferLooseListItem;
-    orderState.meta.delimiter = orderListDelimiter;
+    orderState.meta.delimiter = toListDelimiter(orderListDelimiter);
     const firstChild = orderState.children[0].children[0];
     if (text && isParagraphState(firstChild))
         firstChild.text = text;

@@ -32,6 +32,7 @@ import { isListItemState } from '../../state/types';
 import { conflict, escapeHTML, firstGraphemeLength, isHTMLElement, isKeyboardEvent, isMouseEvent, lastGraphemeLength } from '../../utils';
 import { COLOR_SPAN_CLOSE_TAG, colorPropertyOf, colorSpanOpenTag, isColorStyleEmpty, parseColorStyle } from '../../utils/colorSpan';
 import { correctImageSrc, encodeImageSrc, getImageInfo } from '../../utils/image';
+import { toListDelimiter } from '../../utils/listMarker';
 import logger from '../../utils/logger';
 
 interface IOffset {
@@ -958,7 +959,7 @@ class Format extends Content {
                     name: 'order-list',
                     meta: {
                         loose: preferLooseListItem,
-                        delimiter: matches![2].slice(-1),
+                        delimiter: toListDelimiter(matches![2].slice(-1)),
                         start: Number(matches![2].slice(0, -1)),
                     },
                     children,

@@ -18,6 +18,7 @@ import { isAnyListState, isAtxHeadingState } from '../../state/types';
 
 import { deepClone, isHTMLElement } from '../../utils';
 import { githubAlertBlockType } from '../../utils/githubAlerts';
+import { toListDelimiter } from '../../utils/listMarker';
 import { h, patch } from '../../utils/snabbdom';
 import BaseFloat from '../baseFloat';
 import { renderMenuIcon } from '../menuIcon';
@@ -325,7 +326,7 @@ export class ParagraphFrontMenu extends BaseFloat {
         const loose = sourceMeta.loose;
         const delimiter = 'delimiter' in sourceMeta
             ? sourceMeta.delimiter
-            : orderListDelimiter;
+            : toListDelimiter(orderListDelimiter);
         const marker = 'marker' in sourceMeta
             ? sourceMeta.marker
             : bulletListMarker;

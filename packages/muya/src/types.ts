@@ -39,6 +39,7 @@ export interface IMuyaOptions {
     inlineDiff: boolean;
     multilineBlockquote: boolean;
     githubAlerts: boolean;
+    fancyLists: boolean;
     softNewlineAsSpace: boolean;
     autoMoveCheckedToEnd: boolean;
     disableHtml: boolean;
