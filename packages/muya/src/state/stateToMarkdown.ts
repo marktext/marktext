@@ -46,6 +46,7 @@ function escapeText(str: string) {
 
 export interface IExportMarkdownOptions {
     listIndentation: number | string;
+    fancyLists?: boolean;
 }
 
 export default class ExportMarkdown {
@@ -63,10 +64,12 @@ export default class ExportMarkdown {
     private _isLooseParentList: boolean;
     private _listIndentation: string;
     private _listIndentationCount: number;
+    private _fancyLists: boolean;
 
     constructor(
         {
             listIndentation,
+            fancyLists = false,
         }: IExportMarkdownOptions = {
             listIndentation: 1,
         },
@@ -74,6 +77,7 @@ export default class ExportMarkdown {
         this._listType = []; // 'ul' or 'ol'
         // helper to translate the first tight item in a nested list
         this._isLooseParentList = true;
+        this._fancyLists = fancyLists;
 
         // set and validate settings
         this._listIndentation = 'number';
@@ -131,7 +135,7 @@ export default class ExportMarkdown {
                     lastListBullet,
                     markerOverride,
                     followsTightList,
-                    previousState?.name === state.name,
+                    this._fancyLists && previousState?.name === state.name,
                 );
             }
             else if (state.name === 'list-item' || state.name === 'task-list-item') {

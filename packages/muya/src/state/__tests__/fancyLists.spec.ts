@@ -8,8 +8,8 @@ function toState(markdown: string, fancyLists = true) {
     return new MarkdownToState({ fancyLists }).generate(markdown);
 }
 
-function toMarkdown(states: TState[]) {
-    return new ExportMarkdown({ listIndentation: 1 }).generate(states);
+function toMarkdown(states: TState[], fancyLists = true) {
+    return new ExportMarkdown({ listIndentation: 1, fancyLists }).generate(states);
 }
 
 type TOutline = string | { list: string; start?: number; loose?: boolean; items: TOutline[][] };
@@ -281,6 +281,16 @@ describe('fancy lists: serialization', () => {
         expect(toMarkdown(toState(markdown))).toBe(markdown);
     });
 
+    it('keeps adjacent decimal lists as before with the option off', () => {
+        const list = (text: string): IOrderListState => ({
+            name: 'order-list',
+            meta: { start: 1, loose: false, delimiter: '.' },
+            children: [{ name: 'list-item', children: [{ name: 'paragraph', text }] }],
+        });
+        expect(toMarkdown([list('x'), list('y')], false)).toBe('1. x\n1. y\n');
+        expect(toMarkdown([{ ...list('x'), meta: { ...list('x').meta, loose: true } }, list('y')], false)).toBe('1. x\n\n1. y\n');
+    });
+
     it('numbers an edited list in its style with pandoc spacing', () => {
         const [list] = toState('I.  a\nII. b\nIII. c\nIV. d\n') as [IOrderListState];
         list.children.push({ name: 'list-item', children: [{ name: 'paragraph', text: 'e' }] });
@@ -296,6 +306,7 @@ describe('fancy lists: serialization', () => {
         });
         const markdown = toMarkdown([list('x'), list('y')]);
         expect(markdown).toBe('(i) x\n\n<!-- -->\n\n(i) y\n');
+        expect(toMarkdown([list('x'), list('y')], false)).toBe('(i) x\n(i) y\n');
         expect(outline(toState(markdown))).toEqual([
             { list: 'lower-roman ()', start: 1, items: [['x']] },
             'html-block',
