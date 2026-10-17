@@ -1,7 +1,6 @@
 import type { ILexOption } from './types';
 import { Marked } from 'marked';
 import { EXPORT_DOMPURIFY_CONFIG } from '../../config';
-import { renderGithubAlerts } from '../githubAlerts';
 import { sanitize } from '../index';
 import cjkEmStrongExtension from './extensions/cjkEmStrong';
 import footnoteExtension from './extensions/footnote';
@@ -96,7 +95,7 @@ export function getClipBoardHtml(src: string, options: ILexOption = {}) {
 
     html += marked.parse(src);
 
-    return renderGithubAlerts(html, options.githubAlerts);
+    return html;
 }
 
 export function getSanitizeClipboardHtml(src: string, options: ILexOption = {}) {

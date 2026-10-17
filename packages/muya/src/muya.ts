@@ -11,7 +11,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
-import { canConvertGithubAlert, convertGithubAlert, refreshGithubAlerts } from './block/githubAlerts';
+import { canConvertGithubAlert, convertGithubAlert } from './block/githubAlerts';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -30,6 +30,7 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
+import { githubAlertAsQuote, projectGithubAlerts, remapGithubAlertSelection } from './state/githubAlerts';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
@@ -192,11 +193,6 @@ export class Muya {
 
     init(options: { focus?: boolean } = {}) {
         this.editor.init(options);
-        refreshGithubAlerts(this);
-        this.eventCenter.subscribe('json-change', () => {
-            void Promise.resolve().then(() => refreshGithubAlerts(this));
-        });
-
         // UI plugins
         if (Muya.plugins.length) {
             for (const { plugin: Plugin, options: opts } of Muya.plugins)
@@ -263,6 +259,23 @@ export class Muya {
 
     setHistory(history: ReturnType<Muya['getHistory']>) {
         this.editor.history.setHistory(history);
+        if (history.githubAlerts !== undefined && history.githubAlerts !== this.options.githubAlerts) {
+            const previous = this._projectGithubAlerts(this.getState(), history.githubAlerts);
+            this.editor.history.migrateDocument(
+                doc => this._projectGithubAlerts(doc, this.options.githubAlerts),
+                remapGithubAlertSelection,
+                previous,
+            );
+            this.editor.history.cutoff(this.editor.selection.getSelection() ?? undefined);
+        }
+    }
+
+    private _projectGithubAlerts(state: TState[], enabled: boolean): TState[] {
+        return projectGithubAlerts(state, enabled, markdown => this.editor.jsonState.markdownToState(markdown, { githubAlerts: enabled }));
+    }
+
+    private _normalizeContent(content: TState[] | string) {
+        return typeof content === 'string' ? content : this._projectGithubAlerts(content, this.options.githubAlerts);
     }
 
     /**
@@ -294,8 +307,7 @@ export class Muya {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
-        this.editor.setContent(content, autoFocus);
-        refreshGithubAlerts(this);
+        this.editor.setContent(this._normalizeContent(content), autoFocus);
     }
 
     /**
@@ -324,7 +336,7 @@ export class Muya {
      */
     replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
         const { jsonState, history } = this.editor;
-        const { op, prevState } = jsonState.buildReplaceOp(content);
+        const { op, prevState } = jsonState.buildReplaceOp(this._normalizeContent(content));
 
         if (op.length === 0)
             return false;
@@ -344,6 +356,9 @@ export class Muya {
     }
 
     setOptions(options: Partial<IMuyaOptions>, forceRender = false) {
+        const changeAlerts = 'githubAlerts' in options && options.githubAlerts !== this.options.githubAlerts;
+        if (changeAlerts)
+            this.flush();
         Object.assign(this.options, options);
 
         if ('spellcheckEnabled' in options)
@@ -364,11 +379,26 @@ export class Muya {
         }
 
         applyAppearance(this.domNode, options);
-        if ('githubAlerts' in options) {
+        if (changeAlerts) {
             this.ui.hideAllFloatTools();
-            refreshGithubAlerts(this);
+            const { jsonState, history, selection } = this.editor;
+            const before = jsonState.getState();
+            const current = selection.getSelection();
+            const state = history.migrateDocument(
+                doc => this._projectGithubAlerts(doc, this.options.githubAlerts),
+                remapGithubAlertSelection,
+            );
+            const cursor = remapGithubAlertSelection(current, before, state);
+            jsonState.setContent(state);
+            this.editor.scrollPage!.updateState(state);
+            this.editor.activeContentBlock = null;
+            this.editor.searchModule.refresh();
+            selection.restore(cursor);
+            history.cutoff(cursor ?? undefined);
         }
 
+        if (changeAlerts && !Object.keys(options).some(key => PARSE_AFFECTING_OPTIONS.has(key as keyof IMuyaOptions)))
+            return;
         if (!forceRender)
             return;
 
@@ -383,7 +413,6 @@ export class Muya {
     private _forceRender() {
         const selection = this.editor.selection.getSelection();
         this.editor.scrollPage?.updateState(this.getState());
-        refreshGithubAlerts(this);
 
         this.editor.searchModule.refresh();
 
@@ -863,6 +892,11 @@ export class Muya {
         place(container);
     }
 
+    private _nestedBlockState(block: Parent): TState {
+        const state = block.getState();
+        return state.name === 'github-alert' ? githubAlertAsQuote(state) : state;
+    }
+
     /** Wrap the selected outmost blocks as items of a new list of `label`. */
     private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
@@ -876,8 +910,8 @@ export class Muya {
                 name: label,
                 meta,
                 children: blocks.map(b => label === 'task-list'
-                    ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
-                    : { name: itemName, children: [b.getState()] }),
+                    ? { name: itemName, meta: { checked: false }, children: [this._nestedBlockState(b)] }
+                    : { name: itemName, children: [this._nestedBlockState(b)] }),
             }),
             container => this._selectWrappedContent(container),
         );
@@ -886,7 +920,7 @@ export class Muya {
     /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
         this._wrapSelectedBlocks(
-            blocks => ({ name: 'block-quote', children: blocks.map(b => b.getState()) }),
+            blocks => ({ name: 'block-quote', children: blocks.map(block => this._nestedBlockState(block)) }),
             container => this._selectWrappedContent(container),
         );
     }

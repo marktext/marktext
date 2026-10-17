@@ -1,4 +1,5 @@
 import type { MarkedToken, Tokens } from 'marked';
+import type { IGithubAlertToken } from './extensions/githubAlerts';
 import type { IMultilineBlockquoteToken } from './extensions/multilineBlockquote';
 
 export interface ILexOption {
@@ -59,7 +60,7 @@ export interface IFrontmatterToken {
 
 export interface IBlockEndToken {
     type: 'block-end';
-    tokenType: 'blockquote' | 'multilineBlockquote' | 'list' | 'list-item' | 'footnote';
+    tokenType: 'githubAlert' | 'blockquote' | 'multilineBlockquote' | 'list' | 'list-item' | 'footnote';
 }
 
 // Tokens the lexer (lexBlock) emits. Replace marked's default
@@ -77,7 +78,8 @@ export type TLexedToken
         | IFootnoteToken
         | IMultipleMathToken
         | IFrontmatterToken
-        | IMultilineBlockquoteToken;
+        | IMultilineBlockquoteToken
+        | IGithubAlertToken;
 
 // The working token stream `markdownToState` walks: lexer output plus the
 // synthetic `block-end` markers it injects to pop the parent stack.

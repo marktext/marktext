@@ -1,5 +1,6 @@
 import type { Doc, JSONOp, JSONOpList, Path } from 'ot-json1';
 import type { Muya } from '../muya';
+import type { IMuyaOptions } from '../types';
 import type { TDiff } from '../utils';
 import type { TState } from './types';
 import * as json1 from 'ot-json1';
@@ -23,6 +24,47 @@ export function asDoc(state: TState[] | TState): Doc {
 
 export function asState(doc: unknown): TState[] {
     return doc as TState[];
+}
+
+/** Equivalent replacements also serve history migrations without touching the live document. */
+export function buildDocumentReplaceOp(prevState: TState[], nextState: TState[]): JSONOpList {
+    const components: JSONOpList[] = [];
+    const max = Math.max(prevState.length, nextState.length);
+
+    for (let i = 0; i < max; i++) {
+        if (i < prevState.length && i < nextState.length) {
+            if (
+                JSON.stringify(prevState[i]) !== JSON.stringify(nextState[i])
+            ) {
+                components.push(
+                    json1.replaceOp(
+                        [i],
+                        asDoc(prevState[i]),
+                        asDoc(nextState[i]),
+                    )!,
+                );
+            }
+        }
+        else if (i < nextState.length) {
+            components.push(json1.insertOp([i], asDoc(nextState[i]))!);
+        }
+    }
+
+    // Remove surplus trailing blocks from the end so earlier indices stay
+    // stable while composing.
+    for (let i = prevState.length - 1; i >= nextState.length; i--)
+        components.push(json1.removeOp([i])!);
+
+    // Compose the components into one op. `json1.type.compose` returns
+    // `JSONOp` (= null | JSONOpList) and its identity element is `null`
+    // (composing onto `[]` throws "Empty descent"). Start from `null`, then
+    // normalize the final result to the empty op `[]` when nothing changed
+    // (the documents were identical) so callers can rely on `op.length`.
+    let composed: JSONOp = null;
+    for (const component of components)
+        composed = json1.type.compose(composed, component);
+
+    return composed ?? [];
 }
 
 class JSONState {
@@ -93,28 +135,8 @@ class JSONState {
     // Parse markdown into a block-state array with the editor's current
     // render-affecting options, WITHOUT mutating `this._state`. Used by
     // `buildReplaceOp` to compute the target state for a bulk replacement.
-    markdownToState(markdown: string): TState[] {
-        const {
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-            multilineBlockquote,
-        } = this._muya.options;
-
-        return new MarkdownToState({
-            footnote,
-            texMathGfm,
-            texMathSingleBackslash,
-            texMathDoubleBackslash,
-            trimUnnecessaryCodeBlockEmptyLines,
-            frontMatter,
-            texMathDollars,
-            multilineBlockquote,
-        }).generate(markdown);
+    markdownToState(markdown: string, options: Partial<IMuyaOptions> = {}): TState[] {
+        return new MarkdownToState({ ...this._muya.options, ...options }).generate(markdown);
     }
 
     /**
@@ -138,43 +160,7 @@ class JSONState {
         const nextState
             = typeof content === 'string' ? this.markdownToState(content) : deepClone(content);
 
-        const components: JSONOpList[] = [];
-        const max = Math.max(prevState.length, nextState.length);
-
-        for (let i = 0; i < max; i++) {
-            if (i < prevState.length && i < nextState.length) {
-                if (
-                    JSON.stringify(prevState[i]) !== JSON.stringify(nextState[i])
-                ) {
-                    components.push(
-                        json1.replaceOp(
-                            [i],
-                            asDoc(prevState[i]),
-                            asDoc(nextState[i]),
-                        )!,
-                    );
-                }
-            }
-            else if (i < nextState.length) {
-                components.push(json1.insertOp([i], asDoc(nextState[i]))!);
-            }
-        }
-
-        // Remove surplus trailing blocks from the end so earlier indices stay
-        // stable while composing.
-        for (let i = prevState.length - 1; i >= nextState.length; i--)
-            components.push(json1.removeOp([i])!);
-
-        // Compose the components into one op. `json1.type.compose` returns
-        // `JSONOp` (= null | JSONOpList) and its identity element is `null`
-        // (composing onto `[]` throws "Empty descent"). Start from `null`, then
-        // normalize the final result to the empty op `[]` when nothing changed
-        // (the documents were identical) so callers can rely on `op.length`.
-        let composed: JSONOp = null;
-        for (const component of components)
-            composed = json1.type.compose(composed, component);
-
-        const op: JSONOpList = composed ?? [];
+        const op = buildDocumentReplaceOp(prevState, nextState);
 
         return { op, prevState, nextState };
     }

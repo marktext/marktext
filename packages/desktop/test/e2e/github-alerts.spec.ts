@@ -76,7 +76,7 @@ test('GitHub Alerts menus, live preference, source round trip and native exports
     expect(html).not.toContain('mu-alert-title')
     await exportToFile(app, page, 'pdf', pdfPath)
     expect(fs.readFileSync(pdfPath).subarray(0, 5).toString()).toBe('%PDF-')
-    await page.locator('.mu-github-alert .mu-paragraph-content').nth(1).click()
+    await page.locator('.mu-github-alert').first().locator('.mu-paragraph-content').first().click()
     await clickMenuById(app, 'githubAlertWARNINGMenuItem')
     await expect(page.locator('.mu-github-alert').first()).toHaveAttribute('data-alert-type', 'warning')
   } finally {

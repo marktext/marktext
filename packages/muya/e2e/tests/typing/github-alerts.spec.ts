@@ -1,4 +1,5 @@
 import { expect, test } from '../fixtures/muya';
+import { getMarkdown } from '../helpers/api';
 import { metaKey } from '../helpers/keyboard';
 
 const types = ['NOTE', 'TIP', 'IMPORTANT', 'WARNING', 'CAUTION'];
@@ -20,7 +21,7 @@ for (const type of types) {
         await expect(page.locator('.mu-github-alert')).toHaveCount(1);
         await page.keyboard.type('Body');
         await expect(page.locator('.mu-github-alert .mu-paragraph-content').last()).toHaveText('Body');
-        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe(`> [!${type}]\n> Body\n`);
+        await expect.poll(() => getMarkdown(page)).toBe(`> [!${type}]\n> Body\n`);
         const html = await page.evaluate(async () => new window.MarkdownToHtml!(window.muya!.getMarkdown(), window.muya!).generate());
         expect(html).toContain(`markdown-alert-${type.toLowerCase()}`);
         expect(html).not.toContain('mu-alert-title');
@@ -34,7 +35,7 @@ test('Quick Insert creates the searched type at the caret', async ({ page }) => 
     await expect(item).toBeVisible();
     await item.click();
     await page.keyboard.type('Careful');
-    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('> [!CAUTION]\n> Careful\n');
+    await expect.poll(() => getMarkdown(page)).toBe('> [!CAUTION]\n> Careful\n');
 });
 
 test('front menu converts the complete container and its internal blocks', async ({ page }) => {
@@ -56,7 +57,7 @@ test('front menu converts the complete container and its internal blocks', async
     await show();
     await page.locator('.mu-front-menu .turn-into-item.paragraph').click();
     await expect(page.locator('.mu-github-alert')).toHaveCount(0);
-    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('Body\n\n- item\n');
+    await expect.poll(() => getMarkdown(page)).toBe('Body\n\n- item\n');
 });
 
 test('formatting the first body paragraph preserves its alert', async ({ page }) => {
@@ -64,7 +65,7 @@ test('formatting the first body paragraph preserves its alert', async ({ page })
     await page.locator('.mu-github-alert .mu-paragraph-content').last().click();
     await page.evaluate(() => window.muya!.updateParagraph('heading 2'));
     await expect(page.locator('.mu-github-alert h2')).toContainText('Body');
-    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toContain('[!NOTE]');
+    await expect.poll(() => getMarkdown(page)).toContain('[!NOTE]');
 });
 
 for (const body of ['```js\nBody\n```', '> Body', '- Body']) {
@@ -75,7 +76,7 @@ for (const body of ['```js\nBody\n```', '> Body', '- Body']) {
             const quote = muya.editor.scrollPage!.firstChild!;
             if (!quote.isParent())
                 throw new Error('Expected an alert');
-            const inner = quote.find(1)!;
+            const inner = quote.find(0)!;
             if (!inner.isParent())
                 throw new Error('Expected an inner block');
             let content = inner.firstContentInDescendant()!;
@@ -89,7 +90,7 @@ for (const body of ['```js\nBody\n```', '> Body', '- Body']) {
         await expect(page.locator('.mu-github-alert pre, .mu-github-alert blockquote, .mu-github-alert ul')).toHaveCount(0);
         await page.keyboard.press('Backspace');
         await expect(page.locator('.mu-github-alert')).toHaveCount(0);
-        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('> Body\n');
+        await expect.poll(() => getMarkdown(page)).toBe('> Body\n');
     });
 }
 
@@ -104,11 +105,28 @@ test('backspace unwraps code, list, quote and alert one layer at a time', async 
         await page.keyboard.press('Backspace');
         await expect(page.locator('.mu-github-alert')).toHaveCount(1);
         await expect(page.locator(`.mu-github-alert ${selector}`)).toHaveCount(0);
-        await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toContain('Body');
+        await expect.poll(() => getMarkdown(page)).toContain('Body');
     }
     await page.keyboard.press('Backspace');
     await expect(page.locator('.mu-github-alert')).toHaveCount(0);
-    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).toBe('> Body\n');
+    await expect.poll(() => getMarkdown(page)).toBe('> Body\n');
+});
+
+test('preference changes preserve the undo caret for later typing', async ({ page }) => {
+    const offset = await page.evaluate(() => {
+        const muya = window.muya!;
+        muya.setContent('Body');
+        muya.editor.scrollPage!.firstContentInDescendant()!.setCursor(2, 2, true);
+        muya.updateParagraph('github-alert NOTE');
+        muya.setOptions({ githubAlerts: false }, true);
+        return muya.editor.selection.getSelection()!.anchor.offset;
+    });
+    const source = await getMarkdown(page);
+    await page.keyboard.type('X');
+    await expect.poll(() => getMarkdown(page)).toContain('BoXdy');
+    await page.locator('#undo').click();
+    await expect.poll(() => getMarkdown(page)).toBe(source);
+    expect(await page.evaluate(() => window.muya!.editor.selection.getSelection()?.anchor.offset)).toBe(offset);
 });
 
 test('pastes GitHub HTML and keeps types through disabled rendering and undo', async ({ page, context, browserName }) => {
@@ -128,14 +146,14 @@ test('pastes GitHub HTML and keeps types through disabled rendering and undo', a
     await expect(page.locator('.mu-editor')).toBeFocused();
     await page.keyboard.press(`${metaKey()}+v`);
     await expect(page.locator('.mu-github-alert .mu-alert-title')).toHaveText('Important');
-    const markdown = await page.evaluate(() => window.muya!.getMarkdown());
+    const markdown = await getMarkdown(page);
     expect(markdown).toContain('[!IMPORTANT]');
     expect(markdown).not.toContain('Important');
     await page.evaluate(() => window.muya!.setOptions({ githubAlerts: false }, true));
     await expect(page.locator('.mu-github-alert')).toHaveCount(0);
-    expect(await page.evaluate(() => window.muya!.getMarkdown())).toBe(markdown);
+    expect(await getMarkdown(page)).toBe(markdown);
     await page.evaluate(() => window.muya!.undo());
-    await expect.poll(() => page.evaluate(() => window.muya!.getMarkdown())).not.toContain('Body');
+    await expect.poll(() => getMarkdown(page)).not.toContain('Body');
     await page.evaluate(() => {
         window.muya!.redo();
         window.muya!.setOptions({ githubAlerts: true }, true);

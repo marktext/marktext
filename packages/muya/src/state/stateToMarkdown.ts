@@ -30,7 +30,7 @@ import type {
  * The output markdown needs to obey the standards of these Spec.
  */
 import { deepClone } from '../utils';
-import { matchGithubAlertMarker } from '../utils/githubAlerts';
+import { githubAlertMarker } from '../utils/githubAlerts';
 
 import logger from '../utils/logger';
 import stringWidth from '../utils/stringWidth';
@@ -187,6 +187,14 @@ export default class ExportMarkdown {
                 this._insertLineBreak(result, indent);
                 result.push(this._serializeDiagramBlock(state, indent));
                 break;
+
+            case 'github-alert': {
+                this._insertLineBreak(result, indent);
+                const prefix = `${indent}> `;
+                const body = this._convertStatesToMarkdown(state.children, prefix);
+                result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.compact === false && body.trim() ? `${prefix}\n` : ''}${body}`);
+                break;
+            }
 
             case 'block-quote':
                 this._insertLineBreak(result, indent);
@@ -482,9 +490,8 @@ export default class ExportMarkdown {
         }
 
         const newIndent = `${indent}> `;
-        if (meta?.alertCompact && children[0]?.name === 'paragraph' && matchGithubAlertMarker(children[0].text) && children.length > 1) {
-            return `${newIndent}${children[0].text}\n${this._convertStatesToMarkdown(children.slice(1), newIndent)}`;
-        }
+        if (meta?.compact && children[0]?.name === 'paragraph' && children.length > 1)
+            return this._serializeTextParagraph(children[0], newIndent) + this._convertStatesToMarkdown(children.slice(1), newIndent);
 
         return this._convertStatesToMarkdown(children, newIndent);
     }

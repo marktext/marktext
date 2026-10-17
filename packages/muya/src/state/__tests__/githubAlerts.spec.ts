@@ -205,6 +205,7 @@ describe('gitHub Alerts compatibility', () => {
             root.innerHTML = render(markdown, { githubAlerts: true });
             expect(root.querySelectorAll('.markdown-alert')).toHaveLength(count);
         }
+        expect(new MarkdownToState({ githubAlerts: true }).generate(markdown).filter(state => state.name === 'github-alert')).toHaveLength(count);
     });
 
     it.each(cases)('$name remains ordinary markdown by default and survives state serialization', ({ markdown }) => {

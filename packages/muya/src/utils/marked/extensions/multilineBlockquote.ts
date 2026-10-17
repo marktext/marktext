@@ -63,7 +63,7 @@ export default function multilineBlockquoteExtension(enabled: boolean): MarkedEx
                     const { parser } = this as IMultilineBlockquoteRendererThis;
                     const inner = parser ? parser.parse(t.tokens) : '';
 
-                    return `<blockquote class="mu-fenced-quote">\n${inner}</blockquote>\n`;
+                    return `<blockquote>\n${inner}</blockquote>\n`;
                 },
             },
         ],

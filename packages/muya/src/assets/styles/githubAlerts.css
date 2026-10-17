@@ -79,12 +79,7 @@
     opacity: 1;
 }
 
-.mu-container .mu-alert-source {
-    margin-bottom: 0;
-}
-
-.mu-container .mu-alert-source + p,
-.mu-container .mu-alert-title + [hidden] + p {
+.mu-container .mu-alert-title + p {
     margin-top: 0;
 }
 

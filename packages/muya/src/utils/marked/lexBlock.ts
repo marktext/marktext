@@ -3,6 +3,7 @@ import type { IFrontmatterToken, ILexOption, TLexedToken } from './types';
 import { Marked } from 'marked';
 import compatibleTaskList from './compatibleTaskList';
 import footnoteExtension from './extensions/footnote';
+import githubAlertsExtension, { normalizeGithubAlertTokens } from './extensions/githubAlerts';
 import mathExtension, { doubleBackslashMathExtension, gfmMathExtension, singleBackslashMathExtension } from './extensions/math';
 import multilineBlockquoteExtension from './extensions/multilineBlockquote';
 import fm from './frontMatter';
@@ -74,8 +75,13 @@ export function lexBlock(
 
     // Pass `m.defaults` to the Lexer so the extensions registered via m.use()
     // are picked up; the no-arg constructor would fall back to global defaults.
-    tokens.push(...new m.Lexer(m.defaults).blockTokens(src));
+    m.use(githubAlertsExtension(options.githubAlerts === true));
+    const lexer = new m.Lexer(m.defaults);
+    const parsed = lexer.blockTokens(src);
+    tokens.push(...parsed);
     tokens = compatibleTaskList(tokens as Token[]);
+    if (options.githubAlerts)
+        normalizeGithubAlertTokens(tokens as Token[], lexer);
     m.walkTokens(tokens as Token[], walkTokens(options));
 
     // After walkTokens / compatibleTaskList run, marked's Heading/List/ListItem

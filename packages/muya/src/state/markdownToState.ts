@@ -12,7 +12,6 @@ import type {
 } from './types';
 import { firstWordOfInfo, parseFenceLine } from '../utils';
 import { createDiagramState, diagramTypeOfLang } from '../utils/diagram/fence';
-import { splitGithubAlertMarker } from '../utils/githubAlerts';
 import logger from '../utils/logger';
 import { lexBlock } from '../utils/marked';
 
@@ -27,6 +26,7 @@ interface IMarkdownToStateOptions {
     trimUnnecessaryCodeBlockEmptyLines: boolean;
     frontMatter: boolean;
     multilineBlockquote?: boolean;
+    githubAlerts?: boolean;
 };
 
 const DEFAULT_OPTIONS = {
@@ -46,6 +46,7 @@ const DEFAULT_OPTIONS = {
 const CONTAINER_TOKEN_TYPES = new Set([
     'block-end',
     'blockquote',
+    'githubAlert',
     'multilineBlockquote',
     'list',
     'list_item',
@@ -53,7 +54,7 @@ const CONTAINER_TOKEN_TYPES = new Set([
 ]);
 
 export class MarkdownToState {
-    constructor(private _options: IMarkdownToStateOptions = DEFAULT_OPTIONS) {}
+    constructor(private _options: Partial<IMarkdownToStateOptions> = DEFAULT_OPTIONS) {}
 
     generate(markdown: string): TState[] {
         return this._convertMarkdownToState(markdown);
@@ -69,6 +70,7 @@ export class MarkdownToState {
             trimUnnecessaryCodeBlockEmptyLines = false,
             frontMatter = true,
             multilineBlockquote = false,
+            githubAlerts = false,
         } = this._options;
 
         // markdownToState injects synthetic `block-end` markers (see the
@@ -82,6 +84,7 @@ export class MarkdownToState {
             texMathSingleBackslash,
             texMathDoubleBackslash,
             multilineBlockquote,
+            githubAlerts,
         });
 
         const states: TState[] = [];
@@ -96,9 +99,7 @@ export class MarkdownToState {
                 this._handleLeafToken(token, parentList, tokens, trimUnnecessaryCodeBlockEmptyLines);
         }
 
-        return states.length
-            ? states.map(state => state.name === 'block-quote' && state.meta?.style !== 'fenced' ? splitGithubAlertMarker(state) : state)
-            : [{ name: 'paragraph', text: '' }];
+        return states.length ? states : [{ name: 'paragraph', text: '' }];
     }
 
     private _handleContainerToken(
@@ -128,6 +129,15 @@ export class MarkdownToState {
                     parentList[0].push(state);
                 }
                 parentList.shift();
+                break;
+            }
+
+            case 'githubAlert': {
+                state = { name: 'github-alert', meta: token.meta, children: [] };
+                parentList[0].push(state);
+                parentList.unshift(state.children);
+                tokens.unshift({ type: 'block-end', tokenType: 'githubAlert' });
+                tokens.unshift(...token.tokens as TBlockToken[]);
                 break;
             }
 

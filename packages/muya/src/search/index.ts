@@ -180,7 +180,7 @@ export class Search {
         // Highlight current search.
         if (query) {
             this._scrollPage?.depthFirstTraverse((block: TreeNode) => {
-                if (block.isContent() && !block.parent?.domNode?.hidden) {
+                if (block.isContent()) {
                     const { text } = block;
                     if (text && typeof text === 'string') {
                         const strMatches = matchString(text, query, this._options);

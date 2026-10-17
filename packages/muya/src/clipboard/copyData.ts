@@ -33,6 +33,11 @@ interface ICopyOrder {
     endOffset: number;
 }
 
+function firstAlertBodyContent(container: Parent) {
+    const first = container.firstContentInDescendant();
+    return first?.blockName === 'language-input' ? first.nextContentInContext() : first;
+}
+
 function buildHtmlOptions(options: Muya['options']) {
     const {
         footnote,
@@ -236,7 +241,7 @@ function appendPartialState(
     const offset = position === 'start' ? startOffset : endOffset;
 
     if (outBlock && githubAlertBlockType(outBlock)) {
-        const edge = position === 'start' ? outBlock.firstContentInDescendant() : outBlock.lastContentInDescendant();
+        const edge = position === 'start' ? firstAlertBodyContent(outBlock) : outBlock.lastContentInDescendant();
         if (edge === block && offset === (position === 'start' ? 0 : block.text.length)) {
             copyState.push(outBlock.getState());
             return;
@@ -246,7 +251,7 @@ function appendPartialState(
     // A block-quote or list endpoint is partially selected: carry only the
     // selected side of the container, with the boundary item's own text
     // truncated to the caret, rather than the whole container/item.
-    if (/block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
+    if (/github-alert|block-quote|bullet-list|order-list|task-list/.test(outBlock!.blockName)) {
         copyState.push(
             buildPartialContainerState(outBlock as Parent, block, offset, position),
         );
@@ -307,7 +312,7 @@ function collectSameOutMostBlockState(order: ICopyOrder): TState[] {
 
     if (githubAlertBlockType(anchorOutMostBlock)) {
         const partial = buildRangeContainerState(anchorOutMostBlock, startBlock, startOffset, endBlock, endOffset);
-        if (partial.name === 'block-quote')
+        if (partial.name === 'github-alert')
             return partial.children;
     }
 
@@ -373,7 +378,7 @@ export function getClipboardData(clipboard: Clipboard): IClipboardPayload {
     const options = buildHtmlOptions(clipboard.muya.options);
     const container = anchorBlock.outMostBlock;
     if (container && container === focusBlock.outMostBlock && githubAlertBlockType(container)) {
-        const first = container.firstContentInDescendant();
+        const first = firstAlertBodyContent(container);
         const last = container.lastContentInDescendant();
         const forward = anchorBlock === first && anchor.offset === 0 && focusBlock === last && focus.offset === last.text.length;
         const backward = focusBlock === first && focus.offset === 0 && anchorBlock === last && anchor.offset === last.text.length;

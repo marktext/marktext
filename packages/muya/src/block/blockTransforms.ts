@@ -232,7 +232,7 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     label: string;
     text?: string;
 }) {
-    if (label.startsWith('github-alert ') || (block.blockName === 'block-quote' && muya.options.githubAlerts && (label === 'paragraph' || label === 'block-quote'))) {
+    if (label.startsWith('github-alert ') || (['block-quote', 'github-alert'].includes(block.blockName) && muya.options.githubAlerts && (label === 'paragraph' || label === 'block-quote'))) {
         convertGithubAlert(block, label, text);
         return;
     }
@@ -329,7 +329,7 @@ export function insertBlockBelowByLabel({ block, muya, label }: {
 // must stay in sync with `MENU_CONFIG`'s labels and `PARAGRAPH_LABEL_MAP`.
 export function canTurnInto(block: Parent, label: string): boolean {
     const { blockName } = block;
-    if (label.startsWith('github-alert ') || (blockName === 'block-quote' && block.muya.options.githubAlerts))
+    if (label.startsWith('github-alert ') || (['block-quote', 'github-alert'].includes(blockName) && block.muya.options.githubAlerts))
         return canConvertGithubAlert(block, label);
 
     if (!canInsertLabel(label, block.muya))

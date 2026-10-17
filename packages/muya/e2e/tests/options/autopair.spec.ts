@@ -1,7 +1,7 @@
 import type { IMuyaOptions } from '@muyajs/core';
 import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/muya';
-import { getMarkdown } from '../helpers/api';
+import { getMarkdown, getState } from '../helpers/api';
 import { editor } from '../helpers/selectors';
 
 /**
@@ -49,10 +49,8 @@ async function rebuildAndFocus(page: Page, opts: Partial<IMuyaOptions>): Promise
 }
 
 async function getFirstBlockText(page: Page): Promise<string> {
-    return page.evaluate(() => {
-        const state = window.muya!.getState() as Array<{ text?: string }>;
-        return state[0]?.text ?? '';
-    });
+    const state = await getState(page) as Array<{ text?: string }>;
+    return state[0]?.text ?? '';
 }
 
 async function setContentAndSelect(

@@ -664,10 +664,6 @@ class Content extends TreeNode {
      * @param {boolean} needUpdate
      */
     setCursor(begin: number, end: number, needUpdate = false) {
-        if (this.parent?.domNode?.hidden) {
-            this.parent.next?.firstContentInDescendant()?.setCursor(0, 0, needUpdate);
-            return;
-        }
         const anchor = { offset: begin, block: this, path: this.path };
         const focus = { offset: end, block: this, path: this.path };
 

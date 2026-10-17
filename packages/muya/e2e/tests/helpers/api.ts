@@ -9,7 +9,10 @@ export async function getMarkdown(page: Page): Promise<string> {
 }
 
 export async function getState(page: Page): Promise<unknown> {
-    return page.evaluate(() => window.muya!.getState());
+    return page.evaluate(() => {
+        window.muya!.flush();
+        return window.muya!.getState();
+    });
 }
 
 export async function getTOC(page: Page): Promise<Array<{

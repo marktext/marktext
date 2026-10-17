@@ -1,12 +1,8 @@
 import type { Muya } from '../../../muya';
 import type { IBlockQuoteState } from '../../../state/types';
-import { mixins } from '../../../utils';
-import Parent from '../../base/parent';
-import IContainerQueryBlock from '../../mixins/containerQueryBlock';
-import { ScrollPage } from '../../scrollPage';
+import QuoteContainer from '../../base/quoteContainer';
 
-@mixins(IContainerQueryBlock)
-class BlockQuote extends Parent {
+class BlockQuote extends QuoteContainer {
     static override blockName = 'block-quote';
 
     private _meta?: IBlockQuoteState['meta'];
@@ -19,17 +15,9 @@ class BlockQuote extends Parent {
         const blockQuote = new BlockQuote(muya);
         blockQuote._meta = state.meta;
 
-        for (const child of state.children)
-            blockQuote.append(ScrollPage.loadBlock(child.name).create(muya, child));
+        blockQuote.loadChildren(state.children);
 
         return blockQuote;
-    }
-
-    override get path() {
-        const { path: pPath } = this.parent!;
-        const offset = this.parent!.offset(this);
-
-        return [...pPath, offset, 'children'];
     }
 
     constructor(muya: Muya) {
@@ -42,7 +30,7 @@ class BlockQuote extends Parent {
     override getState(): IBlockQuoteState {
         const state: IBlockQuoteState = {
             name: 'block-quote',
-            children: this.children.map(child => (child as Parent).getState()),
+            children: this.childStates(),
         };
 
         if (this._meta)
