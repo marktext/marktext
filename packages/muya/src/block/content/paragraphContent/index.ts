@@ -26,7 +26,6 @@ import logger from '../../../utils/logger';
 import Format from '../../base/format';
 import BlockQuote from '../../commonMark/blockQuote';
 import OrderList from '../../commonMark/orderList';
-import GithubAlert from '../../extra/githubAlert';
 import TaskList from '../../gfm/taskList';
 import { convertGithubAlert } from '../../githubAlerts';
 import { ScrollPage } from '../../scrollPage';
@@ -271,10 +270,6 @@ class ParagraphContent extends Format {
     override backspaceHandler(event: Event) {
         const { start, end } = this.getCursor()!;
         const { eventCenter } = this.muya;
-        const container = this.parent?.parent;
-        if ((container instanceof BlockQuote || container instanceof GithubAlert) && container.backspaceAtStart(this, event))
-            return;
-
         if (start.offset !== 0 || end.offset !== 0) {
             super.backspaceHandler(event);
             eventCenter.emit('content-change', { block: this });
@@ -286,7 +281,11 @@ class ParagraphContent extends Format {
 
         switch (type) {
             case 'block-quote':
+                return this._handleBackspaceInBlockQuote();
+
             case 'github-alert':
+                return this._handleBackspaceInGithubAlert(event);
+
             case 'paragraph':
                 return this._handleBackspaceInParagraph();
 
@@ -633,6 +632,32 @@ class ParagraphContent extends Format {
             default:
                 return 'paragraph';
         }
+    }
+
+    private _handleBackspaceInBlockQuote() {
+        const paragraph = this.parent!;
+        const quote = paragraph.parent!;
+        if (!paragraph.isFirstChild())
+            return this._handleBackspaceInParagraph();
+        if (paragraph.isOnlyChild()) {
+            quote.replaceWith(paragraph);
+            paragraph.firstContentInDescendant()?.setCursor(0, 0, true);
+        }
+        else {
+            const outside = paragraph.clone() as Parent;
+            quote.parent!.insertBefore(outside, quote);
+            paragraph.remove();
+            outside.firstContentInDescendant()?.setCursor(0, 0, true);
+        }
+    }
+
+    private _handleBackspaceInGithubAlert(event: Event) {
+        if (!this.parent!.isFirstChild()
+            || (isKeyboardEvent(event) && (event.metaKey || event.ctrlKey || event.altKey))) {
+            return this._handleBackspaceInParagraph();
+        }
+        event.stopPropagation();
+        convertGithubAlert(this.parent!.parent!, 'block-quote');
     }
 
     private _handleBackspaceInParagraph(this: ParagraphContent) {
