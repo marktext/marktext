@@ -192,7 +192,7 @@ export default class ExportMarkdown {
                 this._insertLineBreak(result, indent);
                 const prefix = `${indent}> `;
                 const body = this._convertStatesToMarkdown(state.children, prefix);
-                result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.compact === false && body.trim() ? `${prefix}\n` : ''}${body}`);
+                result.push(`${prefix}${githubAlertMarker(state.meta)}\n${state.meta.blankLineAfterMarker && body.trim() ? `${prefix}\n` : ''}${body}`);
                 break;
             }
 
@@ -490,9 +490,6 @@ export default class ExportMarkdown {
         }
 
         const newIndent = `${indent}> `;
-        if (meta?.compact && children[0]?.name === 'paragraph' && children.length > 1)
-            return this._serializeTextParagraph(children[0], newIndent) + this._convertStatesToMarkdown(children.slice(1), newIndent);
-
         return this._convertStatesToMarkdown(children, newIndent);
     }
 
