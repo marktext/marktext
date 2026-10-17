@@ -18,7 +18,6 @@ import {
     isKeyboardEvent,
     isMouseEvent,
 } from '../../utils';
-import { downgradeGithubAlertAtStart } from '../githubAlerts';
 
 // import logger from './utils/logger'
 
@@ -917,7 +916,7 @@ class Content extends TreeNode {
 
         switch (event.key) {
             case EVENT_KEYS.Backspace:
-                if (!this.isComposed && !downgradeGithubAlertAtStart(this, event))
+                if (!this.isComposed)
                     this.backspaceHandler(event);
 
                 break;
