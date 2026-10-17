@@ -11,6 +11,7 @@ import type { IBulletListState, IOrderListState, ITableState, ITaskListState, TS
 import type { IMuyaOptions, Nullable } from './types';
 import Format from './block/base/format';
 import { canTurnInto, insertBlockBelowByLabel, insertFrontMatterAtStart, replaceBlockByLabel } from './block/blockTransforms';
+import { canConvertGithubAlert, convertGithubAlert } from './block/githubAlerts';
 import { ScrollPage } from './block/scrollPage';
 import emptyStates from './config/emptyStates';
 import {
@@ -19,8 +20,8 @@ import {
     MUYA_DEFAULT_OPTIONS,
     URL_REG,
 } from './config/index';
-
 import { Editor } from './editor/index';
+
 import EventCenter from './event/index';
 import I18n from './i18n/index';
 import {
@@ -29,13 +30,16 @@ import {
     locateSentinelOffsets,
     resolveSentinelCursor,
 } from './selection/offsetCursor';
+import { githubAlertAsQuote, projectGithubAlerts } from './state/githubAlerts';
 import { isAnyListState, isAtxHeadingState, isCodeBlockState, isSetextHeadingState } from './state/types';
 import { Ui } from './ui/ui';
 import { deepClone } from './utils';
+import { GITHUB_ALERT_TYPES, githubAlertBlockType } from './utils/githubAlerts';
 import { encodeImageSrc } from './utils/image';
 import './assets/styles/blockSyntax.css';
 import './assets/styles/index.css';
 import './assets/styles/inlineSyntax.css';
+import './assets/styles/githubAlerts.css';
 import './assets/styles/prismjs/light.theme.css';
 
 // UI plugins (e.g. InlineFormatToolbar, EmojiSelector) follow a common
@@ -66,6 +70,10 @@ interface ISelectionSnapshot {
 // Maps the paragraph-menu labels the desktop sends through `updateParagraph`
 // to muya's `replaceBlockByLabel` vocabulary.
 const PARAGRAPH_LABEL_MAP: Record<string, string> = {
+    ...GITHUB_ALERT_TYPES.reduce<Record<string, string>>((labels, type) => {
+        labels[`github-alert ${type}`] = `github-alert ${type}`;
+        return labels;
+    }, {}),
     'paragraph': 'paragraph',
     'hr': 'thematic-break',
     'front-matter': 'frontmatter',
@@ -134,6 +142,7 @@ const PARSE_AFFECTING_OPTIONS = new Set<keyof IMuyaOptions>([
     'frontMatter',
     'trimUnnecessaryCodeBlockEmptyLines',
     'multilineBlockquote',
+    'githubAlerts',
 ]);
 
 function endpointPair(
@@ -185,7 +194,6 @@ export class Muya {
 
     init(options: { focus?: boolean } = {}) {
         this.editor.init(options);
-
         // UI plugins
         if (Muya.plugins.length) {
             for (const { plugin: Plugin, options: opts } of Muya.plugins)
@@ -254,6 +262,12 @@ export class Muya {
         this.editor.history.setHistory(history);
     }
 
+    private _normalizeContent(content: TState[] | string) {
+        return typeof content === 'string'
+            ? content
+            : projectGithubAlerts(content, this.options.githubAlerts, markdown => this.editor.jsonState.markdownToState(markdown));
+    }
+
     /**
      * Clear the undo/redo history (e.g. after loading a fresh document).
      */
@@ -283,7 +297,7 @@ export class Muya {
     }
 
     setContent(content: TState[] | string, autoFocus = false) {
-        this.editor.setContent(content, autoFocus);
+        this.editor.setContent(this._normalizeContent(content), autoFocus);
     }
 
     /**
@@ -312,7 +326,7 @@ export class Muya {
      */
     replaceContent(content: TState[] | string, recordSelection?: Nullable<IHistorySelection>): boolean {
         const { jsonState, history } = this.editor;
-        const { op, prevState } = jsonState.buildReplaceOp(content);
+        const { op, prevState } = jsonState.buildReplaceOp(this._normalizeContent(content));
 
         if (op.length === 0)
             return false;
@@ -352,7 +366,6 @@ export class Muya {
         }
 
         applyAppearance(this.domNode, options);
-
         if (!forceRender)
             return;
 
@@ -846,6 +859,11 @@ export class Muya {
         place(container);
     }
 
+    private _nestedBlockState(block: Parent): TState {
+        const state = block.getState();
+        return state.name === 'github-alert' ? githubAlertAsQuote(state) : state;
+    }
+
     /** Wrap the selected outmost blocks as items of a new list of `label`. */
     private _wrapSelectedBlocksInList(label: 'bullet-list' | 'order-list' | 'task-list') {
         const { bulletListMarker, orderListDelimiter, preferLooseListItem } = this.options;
@@ -859,8 +877,8 @@ export class Muya {
                 name: label,
                 meta,
                 children: blocks.map(b => label === 'task-list'
-                    ? { name: itemName, meta: { checked: false }, children: [b.getState()] }
-                    : { name: itemName, children: [b.getState()] }),
+                    ? { name: itemName, meta: { checked: false }, children: [this._nestedBlockState(b)] }
+                    : { name: itemName, children: [this._nestedBlockState(b)] }),
             }),
             container => this._selectWrappedContent(container),
         );
@@ -869,7 +887,7 @@ export class Muya {
     /** Wrap the selected outmost blocks into a single block-quote. */
     private _wrapSelectedBlocksInQuote() {
         this._wrapSelectedBlocks(
-            blocks => ({ name: 'block-quote', children: blocks.map(b => b.getState()) }),
+            blocks => ({ name: 'block-quote', children: blocks.map(block => this._nestedBlockState(block)) }),
             container => this._selectWrappedContent(container),
         );
     }
@@ -1205,6 +1223,23 @@ export class Muya {
         return locateSentinelOffsets(sentinelMarkdown);
     }
 
+    private _handleGithubAlertParagraph(block: Parent, label: string | undefined): boolean {
+        if (!this.options.githubAlerts || !label)
+            return false;
+        const handles = label.startsWith('github-alert ')
+            || canConvertGithubAlert(block, label)
+            || (label === 'block-quote' && githubAlertBlockType(block));
+        if (!handles)
+            return false;
+        const selection = this.editor.selection.getSelection();
+        const spansContainers = selection && selection.anchor.block.outMostBlock !== selection.focus.block.outMostBlock;
+        if (spansContainers && label === 'block-quote' && !githubAlertBlockType(block))
+            return false;
+        if (!spansContainers)
+            convertGithubAlert(block, label);
+        return true;
+    }
+
     /**
      * Convert the block at the cursor to another type. `type` uses the
      * paragraph-menu
@@ -1216,6 +1251,10 @@ export class Muya {
     updateParagraph(type: string) {
         const block = this._outmostBlockAtCursor();
         if (!block)
+            return;
+
+        const label = PARAGRAPH_LABEL_MAP[type];
+        if (this._handleGithubAlertParagraph(block, label))
             return;
 
         if (this._handleCrossBlockParagraph(type))
@@ -1244,7 +1283,6 @@ export class Muya {
             return;
         }
 
-        const label = PARAGRAPH_LABEL_MAP[type];
         if (!label)
             return;
 

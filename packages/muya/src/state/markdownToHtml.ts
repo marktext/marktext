@@ -204,6 +204,7 @@ export class MarkdownToHtml {
             highlightSyntax: this._muya?.options?.highlightSyntax ?? false,
             inlineDiff: this._muya?.options?.inlineDiff ?? false,
             multilineBlockquote: this._muya?.options?.multilineBlockquote ?? false,
+            githubAlerts: this._muya?.options?.githubAlerts ?? false,
         });
 
         // Post-process footnotes into the standard GFM / pandoc shape (inline

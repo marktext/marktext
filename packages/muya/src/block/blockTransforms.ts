@@ -6,6 +6,7 @@ import { getCursorReference } from '../selection';
 import { isParagraphState } from '../state/types';
 import { deepClone } from '../utils';
 import logger from '../utils/logger';
+import { canConvertGithubAlert, convertGithubAlert } from './githubAlerts';
 import { ScrollPage } from './scrollPage';
 
 const debug = logger('quickInsert:');
@@ -183,6 +184,8 @@ function buildDiagramBlock(label: string, muya: Muya) {
 // "may this block be offered and built at all", consulted by every menu that
 // lists blocks and by the builder every insertion path funnels through (#5446).
 export function canInsertLabel(label: string, muya: Muya): boolean {
+    if (label.startsWith('github-alert '))
+        return muya.options.githubAlerts;
     return label !== 'math-block' || muya.options.texMathDollars;
 }
 
@@ -229,6 +232,11 @@ export function replaceBlockByLabel({ block, muya, label, text = '' }: {
     label: string;
     text?: string;
 }) {
+    if (label.startsWith('github-alert ') || (['block-quote', 'github-alert'].includes(block.blockName) && muya.options.githubAlerts && (label === 'paragraph' || label === 'block-quote'))) {
+        convertGithubAlert(block, label, text);
+        return;
+    }
+
     // Front matter is only valid as the document's first block, so the
     // quick-insert "Front Matter" entry must NOT replace the cursor block in
     // place (which destroyed its content and produced invalid mid-document
@@ -321,6 +329,8 @@ export function insertBlockBelowByLabel({ block, muya, label }: {
 // must stay in sync with `MENU_CONFIG`'s labels and `PARAGRAPH_LABEL_MAP`.
 export function canTurnInto(block: Parent, label: string): boolean {
     const { blockName } = block;
+    if (label.startsWith('github-alert ') || (['block-quote', 'github-alert'].includes(blockName) && block.muya.options.githubAlerts))
+        return canConvertGithubAlert(block, label);
 
     if (!canInsertLabel(label, block.muya))
         return false;
