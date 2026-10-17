@@ -1690,6 +1690,7 @@ export const useEditorStore = defineStore('editor', {
         target,
         markdown,
         superSubScript: preferencesStore.superSubScript === true,
+        githubAlerts: preferencesStore.githubAlerts === true,
         footnote: preferencesStore.footnote === true,
         texMathDollars: preferencesStore.texMathDollars === true,
         texMathGfm: preferencesStore.texMathGfm === true,

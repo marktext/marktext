@@ -100,6 +100,12 @@
           more="https://docs.gitlab.com/user/markdown/#inline-diff"
         />
         <bool
+          :description="t('preferences.markdown.extensions.githubAlerts')"
+          :bool="githubAlerts"
+          :on-change="(value) => onSelectChange('githubAlerts', value)"
+          more="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts"
+        />
+        <bool
           :description="t('preferences.markdown.extensions.multilineBlockquote')"
           :bool="multilineBlockquote"
           :on-change="(value) => onSelectChange('multilineBlockquote', value)"
@@ -208,6 +214,7 @@ const {
   highlightSyntax,
   inlineDiff,
   multilineBlockquote,
+  githubAlerts,
   isHtmlEnabled,
   softNewlineAsSpace,
   sequenceTheme,

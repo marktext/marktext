@@ -420,6 +420,7 @@
         "highlightSyntax": "Die nicht standardmäßige ==text==-Hervorhebungssyntax aktivieren",
         "inlineDiff": "Die nicht standardmäßige Inline-Diff-Syntax {+ … +} / [- … -] aktivieren",
         "multilineBlockquote": "Die nicht standardmäßige mehrzeilige Zitat-Syntax >>> … >>> aktivieren",
+        "githubAlerts": "GitHub-Hinweise",
         "isHtmlEnabled": "HTML-Rendering aktivieren",
         "softNewlineAsSpace": "Weiche Zeilenumbrüche als Leerzeichen behandeln",
         "sequenceTheme": "Sequenzdiagramm-Theme",
@@ -661,6 +662,7 @@
         "highlightSyntax": "Hervorhebung (==text==)",
         "inlineDiff": "Inline-Diff ({+ … +})",
         "multilineBlockquote": "Mehrzeiliges Zitat (>>>)",
+        "githubAlerts": "GitHub-Hinweise aktivieren",
         "frontmatterType": {
           "jsonBrace": "JSON-Klammer",
           "jsonSemicolon": "JSON-Semikolon",

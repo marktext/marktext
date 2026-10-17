@@ -199,6 +199,7 @@ const {
   highlightSyntax,
   inlineDiff,
   multilineBlockquote,
+  githubAlerts,
   isHtmlEnabled,
   softNewlineAsSpace,
   lineHeight,
@@ -612,6 +613,10 @@ watch(highlightSyntax, (value, oldValue) => {
 
 watch(inlineDiff, (value, oldValue) => {
   if (value !== oldValue) applyOutlineAffectingOption({ inlineDiff: value })
+})
+
+watch(githubAlerts, (value, oldValue) => {
+  if (value !== oldValue) applyOutlineAffectingOption({ githubAlerts: value })
 })
 
 watch(multilineBlockquote, (value, oldValue) => {
@@ -1308,9 +1313,11 @@ const handleExport = async (options: unknown) => {
   const muya = editor.value
   if (!muya) return
 
+  editorStore.flushActiveEditor()
   const extraCss = await getCssForOptions(opts as unknown as PdfCssOptions)
   const htmlToc = getHtmlToc(muya.getTOC(), opts as unknown as HtmlTocOptions)
-  const markdown = muya.getMarkdown()
+  // The hidden WYSIWYG engine keeps its pre-source-mode document until the handoff.
+  const markdown = sourceCode.value ? editorStore.currentFile?.markdown ?? '' : muya.getMarkdown()
   const header = (opts.header ?? null) as HeaderFooterPart | null
   const footer = (opts.footer ?? null) as HeaderFooterPart | null
 
@@ -1791,6 +1798,7 @@ onMounted(() => {
     highlightSyntax: highlightSyntax.value,
     inlineDiff: inlineDiff.value,
     multilineBlockquote: multilineBlockquote.value,
+    githubAlerts: githubAlerts.value,
     disableHtml: !isHtmlEnabled.value,
     softNewlineAsSpace: softNewlineAsSpace.value,
     hideQuickInsertHint: hideQuickInsertHint.value,
